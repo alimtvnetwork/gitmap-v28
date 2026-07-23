@@ -270,6 +270,8 @@ says HTTPS. The config file is **not** mutated.
 - [status](status.md) — View repo statuses after scanning
 - [desktop-sync](desktop-sync.md) — Sync scanned repos to GitHub Desktop
 - [export](export.md) — Export scanned data
+- [list-update](list-update.md) — Which scanned repos have upgrades available (post-scan hint links here)
+- [hd](hd.md) — One-screen dashboard of scan + upgrades + pending
 
 ## Scripting (JSON)
 
