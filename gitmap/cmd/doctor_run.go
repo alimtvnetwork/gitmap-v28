@@ -10,10 +10,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runDoctor is invoked by the root dispatcher.
 func runDoctor(args []string) {
+	// Sub-command dispatch (v6.80.1+): `gitmap doctor fix-repo [...]`
+	// routes to the fix-repo → gofmt probe suite instead of the
+	// generic dependency checks. Alias `fr` matches CmdFixRepoAlias.
+	if len(args) > 0 && (args[0] == constants.CmdFixRepo || args[0] == constants.CmdFixRepoAlias) {
+		runDoctorFixRepo(args[1:])
+
+		return
+	}
 	wantJSON, wantFix := false, false
 	for _, a := range args {
 		switch a {

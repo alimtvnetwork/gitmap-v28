@@ -1,5 +1,17 @@
 # Changelog
 
+## v6.80.1 (2026-07-23): fix-repo gofmt: doctor, dry-run preview, verbose progress, tunable budget
+
+### Added
+- **`gitmap doctor fix-repo`** subcommand: probes gofmt on PATH, gofmt executability, argv budget (measured on Windows), and a chunker invariant self-test. Supports `--json` and `--budget N`.
+- **`gitmap fix-repo --dry-run`** now prints a per-batch preview showing cmdLen and percent-of-budget; tags NEAR-LIMIT (≥90%) and OVER-LIMIT (≥100%) batches so Windows users can spot argv overflow before running the real rewrite.
+- **`gitmap fix-repo --verbose`** now prints a batch header, per-batch start/done lines with cmdLen, and a rolling ETA computed from average per-batch wall time.
+- **`--gofmt-max-cmd-len N`** flag: overrides `constants.FixRepoGofmtMaxCmdLen` for the current run so Windows setups with a lower-than-documented CreateProcess cap can shrink each batch. Floor 512.
+- Spec: `spec/01-app/118-fix-repo-gofmt-tuning.md`. Helptext: `gitmap/helptext/doctor-fix-repo.md`.
+
+### Fixed
+- `gitmap/cmd/fixrepo_gofmt.go` module import path (`gitmap-v27` → `gitmap-v28`) so the package compiles cleanly against the current `go.mod`.
+
 ## v6.79.0 — 2026-07-16 — Cloner LFS smudge auto-recovery
 
 ### Added

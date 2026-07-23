@@ -114,6 +114,13 @@ func consumeOneFixRepoArg(args []string, i int, out *fixRepoOptions,
 	if ok {
 		return consumed, nil
 	}
+	consumed, ok, err = consumeFixRepoGofmtMaxArg(args, i, out)
+	if err != nil {
+		return 0, err
+	}
+	if ok {
+		return consumed, nil
+	}
 	*unknown = append(*unknown, a)
 
 	return 1, nil
@@ -247,4 +254,45 @@ func applyRestrictValue(out *fixRepoOptions, v string) error {
 	}
 
 	return fmt.Errorf("unknown --restrict value %q (want: no-version|nv)", v)
+}
+
+// consumeFixRepoGofmtMaxArg handles `--gofmt-max-cmd-len <n>` and its
+// `=<n>` form. The knob overrides constants.FixRepoGofmtMaxCmdLen for
+// the current run so Windows setups with an argv budget below the
+// documented 32,767-char CreateProcess cap can shrink each gofmt
+// batch. Values below constants.FixRepoGofmtMinCmdLen are rejected —
+// they can't fit even one typical repo-relative path plus argv
+// overhead, so accepting them would silently deadlock the chunker.
+func consumeFixRepoGofmtMaxArg(args []string, i int, out *fixRepoOptions) (int, bool, error) {
+	a := args[i]
+	low := strings.ToLower(a)
+	bare := "--" + constants.FixRepoFlagGofmtMaxCmdLen
+	prefix := bare + "="
+	if low == bare {
+		if i+1 >= len(args) {
+			return 0, true, fmt.Errorf("%s requires a positive integer", a)
+		}
+
+		return 2, true, applyGofmtMaxCmdLen(out, args[i+1])
+	}
+	if strings.HasPrefix(low, prefix) {
+		return 1, true, applyGofmtMaxCmdLen(out, a[len(prefix):])
+	}
+
+	return 0, false, nil
+}
+
+// applyGofmtMaxCmdLen validates and stores the parsed budget.
+func applyGofmtMaxCmdLen(out *fixRepoOptions, v string) error {
+	n, err := strconv.Atoi(strings.TrimSpace(v))
+	if err != nil {
+		return fmt.Errorf("--%s: %q is not an integer", constants.FixRepoFlagGofmtMaxCmdLen, v)
+	}
+	if n < constants.FixRepoGofmtMinCmdLen {
+		return fmt.Errorf("--%s: %d below floor %d",
+			constants.FixRepoFlagGofmtMaxCmdLen, n, constants.FixRepoGofmtMinCmdLen)
+	}
+	out.gofmtMaxCmdLen = n
+
+	return nil
 }

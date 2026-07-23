@@ -81,3 +81,20 @@ Acceptance:
 - Core rule: `Go v1.24.13. golangci-lint pinned to v1.64.8`
 - mem://features/fix-repo-command — must be updated to mention
   the post-rewrite gofmt step once implemented.
+
+## Follow-up (v6.80.1)
+
+Diagnostics and tuning shipped to complement the chunker:
+
+- `gitmap doctor fix-repo` — probes gofmt on PATH, gofmt executability,
+  measured Windows argv cap vs configured budget, and a chunker
+  invariant self-test. `--json` and `--budget N` supported.
+- `gitmap fix-repo --dry-run` now prints a per-batch table with
+  cmdLen and percent-of-budget, tagging NEAR-LIMIT (≥90%) and
+  OVER-LIMIT (≥100%) batches.
+- `gitmap fix-repo --verbose` prints batch header, per-batch
+  start/done lines, and a rolling ETA.
+- `--gofmt-max-cmd-len N` overrides the compiled-in 30,000-char
+  default. Floor 512.
+
+Spec: `spec/01-app/118-fix-repo-gofmt-tuning.md`.

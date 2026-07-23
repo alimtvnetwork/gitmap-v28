@@ -28,6 +28,11 @@ type fixRepoOptions struct {
 	// via `--restrict no-version` / `-r nv`. See spec
 	// 27-fix-repo-command.md §"Restrict modes".
 	restrictNoVersion bool
+	// gofmtMaxCmdLen (v6.80.1+): user-tunable override for the
+	// per-batch gofmt argv budget. Zero means "use the compiled-in
+	// default (constants.FixRepoGofmtMaxCmdLen)". Values below
+	// FixRepoGofmtMinCmdLen are rejected at parse time.
+	gofmtMaxCmdLen int
 }
 
 // runFixRepo is the dispatcher entry. checkHelp first so `--help`
