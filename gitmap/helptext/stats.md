@@ -51,10 +51,42 @@ ss
       {"command":"pull","runs":32,"avg_ms":1800,"last_run":"2025-03-10T15:05:00Z"}
     ]
 
+### Example 3: Upgrades block (v6.80.0+)
+
+`stats` output now includes an aggregate view of what `list --update` would
+report, so you can see the health of your scan cache without running another
+command.
+
+    gitmap stats
+
+**Output (tail):**
+
+    UPGRADES
+      repos scanned:        142
+      up-to-date:           118
+      upgradable:            22   →  gitmap list --update
+      unknown / no tags:      2
+      last full scan:  2026-07-22 10:14
+
+**JSON:** the payload gains a top-level `upgrades` object:
+
+    {
+      "commands": [ ... ],
+      "upgrades": {
+        "scanned":    142,
+        "upToDate":   118,
+        "upgradable":  22,
+        "unknown":      2,
+        "lastScanAt": "2026-07-22T10:14:00Z"
+      }
+    }
+
 ## See Also
 
 - [history](history.md) — View command execution history
 - [history-reset](history-reset.md) — Clear history data
+- [list-update](list-update.md) — Full upgradable list feeding the Upgrades block
+- [hd](hd.md) — One-screen dashboard combining these metrics
 
 ## Scripting (JSON)
 
