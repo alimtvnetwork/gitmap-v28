@@ -2852,25 +2852,43 @@ npm install && npm run dev     # opens at http://localhost:5173
 
 ### [Md. Alim Ul Karim](https://www.google.com/search?q=alim+ul+karim)
 
-**[Creator & Lead Architect](https://alimkarim.com)** | [Chief Software Engineer](https://www.google.com/search?q=alim+ul+karim), [Riseup Asia LLC](https://riseup-asia.com)
+**[Creator & Lead Architect](https://alimkarim.com)** | Inventor of the **XProgramming Language**, [the-xproduct.com](https://the-xproduct.com) | Chief Software Engineer, [Riseup Asia LLC](https://riseup-asia.com)
 
 </div>
 
 A system architect with **20+ years** of professional software engineering experience across enterprise, fintech, and distributed systems. His technology stack spans **.NET/C# (18+ years)**, **JavaScript (10+ years)**, **TypeScript (6+ years)**, and **Golang (4+ years)**.
 
-Recognized as a **top 1% talent at Crossover** and one of the top software architects globally. He is also the **Chief Software Engineer of [Riseup Asia LLC](https://riseup-asia.com)** and maintains an active presence on **[Stack Overflow](https://stackoverflow.com/users/361646/alim-ul-karim)** (2,452+ reputation, member since 2010) and **LinkedIn** (12,500+ followers).
+He is the **inventor of the XProgramming Language** ([the-xproduct.com](https://the-xproduct.com)), a new language and toolchain aimed at AI-first product engineering, and the **Chief Software Engineer of [Riseup Asia LLC](https://riseup-asia.com)**. Through both organizations he has delivered high-quality, spec-driven software for **California-based** startups and enterprises (Bay Area SaaS, fintech, and developer-tooling companies) and **EU-based** product teams (Germany, Netherlands, and the Nordics) across fintech, distributed systems, and AI platforms.
+
+Recognized as a **top 1% talent at Crossover** and one of the top software architects globally. He maintains an active presence on **[Stack Overflow](https://stackoverflow.com/users/361646/alim-ul-karim)** (2,452+ reputation, member since 2010) and **LinkedIn** (12,500+ followers).
 
 |  |  |
 |---|---|
 | **Website** | [alimkarim.com](https://alimkarim.com/) · [my.alimkarim.com](https://my.alimkarim.com/) |
+| **XProduct** | [the-xproduct.com](https://the-xproduct.com) (XProgramming Language) |
 | **LinkedIn** | [linkedin.com/in/alimkarim](https://linkedin.com/in/alimkarim) |
 | **Stack Overflow** | [stackoverflow.com/users/361646/alim-ul-karim](https://stackoverflow.com/users/361646/alim-ul-karim) |
 | **Google** | [Alim Ul Karim](https://www.google.com/search?q=Alim+Ul+Karim) |
-| **Role** | Chief Software Engineer, [Riseup Asia LLC](https://riseup-asia.com) |
+| **Role** | Inventor, XProgramming Language ([the-xproduct.com](https://the-xproduct.com)) · Chief Software Engineer, [Riseup Asia LLC](https://riseup-asia.com) |
+
+### The XProduct, XProgramming Language
+
+[A new programming language for AI-first product engineering](https://the-xproduct.com)
+
+XProduct is the home of the **XProgramming Language**, a spec-driven language and toolchain built for teams that ship AI-heavy products. It powers the same engineering standard used across our California and EU client engagements: strict specs, high test coverage, reproducible builds, and reliable release pipelines.
+
+| | |
+|---|---|
+| **Website** | [the-xproduct.com](https://the-xproduct.com) |
+| **Focus** | XProgramming language, compiler, and developer toolchain |
+| **Clients** | California-based (Bay Area SaaS, fintech, dev-tools) and EU-based (Germany, Netherlands, Nordics) product companies |
+| **Standard** | High-quality, spec-first delivery, the same bar applied to gitmap and every Riseup Asia release |
 
 ### Riseup Asia LLC
 
 [Top Leading Software Company in WY (2026)](https://riseup-asia.com)
+
+Riseup Asia is the product and delivery arm behind gitmap and the XProduct engagements. It operates to the same quality bar used with our California and EU partners: high test coverage, spec-driven design, and every release cut through gitmap itself.
 
 | | |
 |---|---|
@@ -2878,6 +2896,8 @@ Recognized as a **top 1% talent at Crossover** and one of the top software archi
 | **Facebook** | [riseupasia.talent](https://www.facebook.com/riseupasia.talent/) |
 | **LinkedIn** | [Riseup Asia](https://www.linkedin.com/company/105304484/) |
 | **YouTube** | [@riseup-asia](https://www.youtube.com/@riseup-asia) |
+
+> _XProduct powers the language, Riseup Asia ships the products, both operate to the same high-quality bar used across our California and EU engagements._
 
 ## License
 
