@@ -1,0 +1,42 @@
+graph TD
+    A["Push to main / PR"] --> B["CI Workflow Triggered"]
+
+    B --> C["Checkout + Setup Go"]
+    C --> D["Cache Dependencies"]
+
+    D --> E["Lint"]
+    D --> F["Vulnerability Scan"]
+    D --> G["Unit Tests"]
+
+    E --> E1["golangci-lint v1.64.8"]
+    F --> F1["govulncheck v1.1.4"]
+    G --> G1["go test ./... - parallel"]
+
+    E1 --> H{"All Checks Pass?"}
+    F1 --> H
+    G1 --> H
+
+    H -->|YES| I["Cross-Compile Builds"]
+    H -->|NO| X["Fail - Block Merge"]
+
+    I --> I1["windows/amd64"]
+    I --> I2["windows/arm64"]
+    I --> I3["linux/amd64"]
+    I --> I4["linux/arm64"]
+    I --> I5["darwin/amd64"]
+    I --> I6["darwin/arm64"]
+
+    I1 --> J["Upload dev Artifacts"]
+    I2 --> J
+    I3 --> J
+    I4 --> J
+    I5 --> J
+    I6 --> J
+
+    J --> K["Build Summary"]
+    K --> L["CI Complete"]
+
+    style A fill:#4f46e5,color:#fff
+    style L fill:#22c55e,color:#fff
+    style X fill:#ef4444,color:#fff
+    style I fill:#f59e0b,color:#000

@@ -1,0 +1,6 @@
+{
+  "name": "startup-list",
+  "version": 1,
+  "keys": ["name", "path", "exec"],
+  "_doc": "Schema for `gitmap startup-list --format=json|jsonl|csv` rows. Bumping the version to v2 means the on-the-wire row shape changed: add a new vN.json file with the new key list and update the schema lookup default in schemaregistry_test.go. Tests asserting against this schema will fail loudly until either (a) --update-schema=startup-list rewrites this file, or (b) --accept-schema=startup-list@vN whitelists the new version. The CSV header check in startuplistcsv_contract_test.go consumes the same key list, so a downstream CSV consumer cannot silently desync from the JSON consumer."
+}

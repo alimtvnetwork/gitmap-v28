@@ -1,0 +1,12 @@
+gitmap clone-now: dry-run
+source: <SOURCE> (<FORMAT>, mode=https)
+2 row(s) -- pass --execute to actually clone
+
+  [1/2] widget
+        url:    https://github.com/acme/widget.git
+        dest:   acme/widget
+        branch: main
+  [2/2] gadget
+        url:    https://github.com/acme/gadget.git
+        dest:   acme/gadget
+        branch: develop

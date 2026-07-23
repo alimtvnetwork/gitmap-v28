@@ -1,0 +1,884 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - "release/**"
+    tags:
+      - "v*"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF_NAME}"
+          elif [[ "$GITHUB_REF" == refs/heads/release/* ]]; then
+            VERSION="${GITHUB_REF_NAME#release/}"
+          else
+            echo "::error::Unexpected ref: $GITHUB_REF"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+
+      - name: Generate Windows resources
+        working-directory: gitmap
+        run: |
+          go install github.com/tc-hib/go-winres@v0.3.3
+          VERSION="${{ steps.version.outputs.version }}"
+          CLEAN_VERSION="${VERSION#v}"
+          go-winres make --product-version "$CLEAN_VERSION" --file-version "$CLEAN_VERSION"
+          ls -la rsrc_windows_*.syso
+
+      - name: Build release binaries
+        working-directory: gitmap
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BUILD_COMMIT="$(git rev-parse HEAD)"
+          BUILD_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          BUILD_REPO="$(git config --get remote.origin.url)"
+          BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/constants.Version=$VERSION'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildCommit=$BUILD_COMMIT'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildBranch=$BUILD_BRANCH'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildRepo=$BUILD_REPO'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildDate=$BUILD_DATE'"
+
+          TARGETS=(
+            "windows/amd64/.exe"
+            "windows/arm64/.exe"
+            "linux/amd64/"
+            "linux/arm64/"
+            "darwin/amd64/"
+            "darwin/arm64/"
+          )
+
+          mkdir -p dist
+
+          for target in "${TARGETS[@]}"; do
+            IFS='/' read -r os arch ext <<< "$target"
+            OUTPUT="dist/gitmap-${VERSION}-${os}-${arch}${ext}"
+            echo "Building $OUTPUT..."
+            CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -ldflags "$LDFLAGS" -o "$OUTPUT" .
+          done
+
+      - name: Build gitmap-updater binaries
+        working-directory: gitmap-updater
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v27/gitmap-updater/cmd.Version=$VERSION'"
+
+          TARGETS=(
+            "windows/amd64/.exe"
+            "windows/arm64/.exe"
+            "linux/amd64/"
+            "linux/arm64/"
+            "darwin/amd64/"
+            "darwin/arm64/"
+          )
+
+          for target in "${TARGETS[@]}"; do
+            IFS='/' read -r os arch ext <<< "$target"
+            OUTPUT="../gitmap/dist/gitmap-updater-${VERSION}-${os}-${arch}${ext}"
+            echo "Building $OUTPUT..."
+            CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -ldflags "$LDFLAGS" -o "$OUTPUT" .
+          done
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build docs-site
+        run: |
+          echo "Building docs-site..."
+          npm ci
+          npm run build
+          echo "Bundling docs-site/dist into docs-site.zip..."
+          cd dist
+          zip -r ../gitmap/dist/docs-site.zip .
+          cd ..
+          echo "  docs-site.zip created ($(stat --format='%s' gitmap/dist/docs-site.zip | numfmt --to=iec --suffix=B))"
+
+      - name: Sign Windows binaries
+        if: vars.SIGNPATH_SIGNING_ENABLED == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ secrets.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ secrets.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: "exe"
+          input-artifact-path: "gitmap/dist"
+          output-artifact-path: "gitmap/dist"
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 600
+          parameters: |
+            include: "*.exe"
+
+      - name: Verify signatures
+        if: vars.SIGNPATH_SIGNING_ENABLED == 'true'
+        run: |
+          echo "Checking signed Windows binaries..."
+          UNSIGNED=0
+          for exe in gitmap/dist/*.exe; do
+            [ -f "$exe" ] || continue
+            echo "  ✓ Signed: $(basename "$exe")"
+          done
+          if [ "$UNSIGNED" -gt 0 ]; then
+            echo "::error::Some binaries were not signed"
+            exit 1
+          fi
+          echo "All Windows binaries signed successfully."
+
+      - name: Compress and checksum
+        working-directory: gitmap/dist
+        run: |
+          for f in gitmap-*-windows-*.exe; do
+            [[ -f "$f" ]] || continue
+            tmp="$(mktemp -d)"
+            cp "$f" "$tmp/gitmap.exe"
+            cat > "$tmp/gitmap.ps1" << 'PWSHIM'
+          $real = Join-Path -Path $PSScriptRoot -ChildPath 'gitmap.exe'
+          if (-not (Test-Path -LiteralPath $real)) { Write-Error "gitmap executable not found: $real"; return }
+          if ($args.Count -gt 0 -and ($args[0] -eq 'cd' -or $args[0] -eq 'go')) {
+            $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"
+            $dest = & $real @args
+            if ($LASTEXITCODE -ne 0) { $global:LASTEXITCODE = $LASTEXITCODE; return }
+            if ($dest -and (Test-Path -LiteralPath $dest)) { Set-Location -LiteralPath $dest }
+            return
+          }
+          $handoff = [IO.Path]::Combine([IO.Path]::GetTempPath(), "gitmap-handoff-$([Guid]::NewGuid().ToString('N')).txt")
+          try {
+            $env:GITMAP_HANDOFF_FILE = $handoff; $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"
+            & $real @args
+            $exitCode = $LASTEXITCODE
+            if ((Test-Path -LiteralPath $handoff) -and ((Get-Item -LiteralPath $handoff).Length -gt 0)) {
+              $target = (Get-Content -LiteralPath $handoff -Raw).Trim()
+              if ($target -and (Test-Path -LiteralPath $target)) { Set-Location -LiteralPath $target }
+            }
+            $global:LASTEXITCODE = $exitCode
+            return
+          }
+          finally {
+            Remove-Item -LiteralPath $handoff -ErrorAction SilentlyContinue
+            Remove-Item Env:\GITMAP_HANDOFF_FILE -ErrorAction SilentlyContinue
+          }
+          PWSHIM
+            zip "${f%.exe}.zip" -j "$tmp/gitmap.exe" "$tmp/gitmap.ps1"
+            rm -rf "$tmp" "$f"
+          done
+          for f in gitmap-*-linux-* gitmap-*-darwin-*; do
+            [[ -f "$f" ]] && tar czf "${f}.tar.gz" "$f" && rm "$f"
+          done
+
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Generate version-specific install script
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="alimtvnetwork/gitmap-v27"
+
+          cat > gitmap/dist/install.ps1 << 'PSEOF'
+          <#
+          .SYNOPSIS
+              Install gitmap VERSION_PLACEHOLDER.
+
+          .DESCRIPTION
+              Downloads gitmap VERSION_PLACEHOLDER from GitHub, verifies SHA256 checksums,
+              and installs it to the local application directory.
+
+          .PARAMETER InstallDir
+              Target directory. Default: $env:LOCALAPPDATA\gitmap
+
+          .PARAMETER Arch
+              Force architecture (amd64, arm64). Default: auto-detect.
+
+          .PARAMETER NoPath
+              Skip adding to PATH.
+
+          .EXAMPLE
+              irm https://github.com/REPO_PLACEHOLDER/releases/download/VERSION_PLACEHOLDER/install.ps1 | iex
+          #>
+
+          param(
+              [string]$InstallDir = "",
+              [string]$Arch = "",
+              [switch]$NoPath
+          )
+
+          $ErrorActionPreference = "Stop"
+          $PinnedVersion = "VERSION_PLACEHOLDER"
+          $Repo = "REPO_PLACEHOLDER"
+          $BinaryName = "gitmap.exe"
+
+          function Write-Step([string]$msg) { Write-Host "  $msg" -ForegroundColor Cyan }
+          function Write-OK([string]$msg) { Write-Host "  $msg" -ForegroundColor Green }
+          function Write-Err([string]$msg) { Write-Host "  $msg" -ForegroundColor Red }
+
+          function Resolve-InstallDir([string]$dir) {
+              if ($dir -ne "") { return $dir }
+              return Join-Path $env:LOCALAPPDATA "gitmap"
+          }
+
+          function Resolve-Arch([string]$arch) {
+              if ($arch -ne "") { return $arch }
+              $cpu = $env:PROCESSOR_ARCHITECTURE
+              switch ($cpu) {
+                  "AMD64"   { return "amd64" }
+                  "ARM64"   { return "arm64" }
+                  default   { return "amd64" }
+              }
+          }
+
+          function Get-Asset([string]$version, [string]$arch) {
+              $assetName = "gitmap-${version}-windows-${arch}.zip"
+              $baseUrl = "https://github.com/$Repo/releases/download/$version"
+              $assetUrl = "$baseUrl/$assetName"
+              $checksumUrl = "$baseUrl/checksums.txt"
+
+              $tmpDir = Join-Path $env:TEMP "gitmap-install-$(Get-Random)"
+              New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null
+
+              $zipPath = Join-Path $tmpDir $assetName
+              $checksumPath = Join-Path $tmpDir "checksums.txt"
+
+              Write-Step "Downloading $assetName ($version)..."
+              try {
+                  Invoke-WebRequest -Uri $assetUrl -OutFile $zipPath -UseBasicParsing
+                  Invoke-WebRequest -Uri $checksumUrl -OutFile $checksumPath -UseBasicParsing
+              }
+              catch {
+                  Write-Err "Download failed: $_"
+                  Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
+                  exit 1
+              }
+
+              Write-Step "Verifying checksum..."
+              $expectedLine = (Get-Content $checksumPath | Where-Object { $_ -match $assetName })
+              if (-not $expectedLine) {
+                  Write-Err "Asset not found in checksums.txt"
+                  Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
+                  exit 1
+              }
+
+              $expectedHash = ($expectedLine -split '\s+')[0]
+              $actualHash = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLower()
+
+              if ($actualHash -ne $expectedHash) {
+                  Write-Err "Checksum mismatch! Expected: $expectedHash Got: $actualHash"
+                  Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
+                  exit 1
+              }
+
+              Write-OK "Checksum verified."
+              return @{ ZipPath = $zipPath; TmpDir = $tmpDir }
+          }
+
+          function Install-Binary([string]$zipPath, [string]$installDir) {
+              Write-Step "Installing to $installDir..."
+              if (-not (Test-Path $installDir)) {
+                  New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+              }
+
+              $targetPath = Join-Path $installDir $BinaryName
+              $shimPath = Join-Path $installDir "gitmap.ps1"
+
+              if (Test-Path $targetPath) {
+                  $oldPath = "$targetPath.old"
+                  if (Test-Path $oldPath) { Remove-Item $oldPath -Force }
+                  Rename-Item $targetPath $oldPath -Force
+              }
+
+              $extractDir = Join-Path $installDir ".install-extract"
+              if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
+              New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
+              Expand-Archive -Path $zipPath -DestinationPath $extractDir -Force
+
+              $extracted = Get-ChildItem -Path $extractDir -File -Recurse |
+                  Where-Object { $_.Name -match "^gitmap" -and $_.Extension -eq ".exe" } |
+                  Select-Object -First 1
+
+              if (-not $extracted) {
+                  Remove-Item $extractDir -Recurse -Force
+                  Write-Err "Archive did not contain gitmap executable"
+                  exit 1
+              }
+
+              Move-Item $extracted.FullName $targetPath -Force
+              $shim = Get-ChildItem -Path $extractDir -File -Recurse |
+                  Where-Object { $_.Name -eq "gitmap.ps1" } |
+                  Select-Object -First 1
+              if ($shim) { Move-Item $shim.FullName $shimPath -Force }
+              else { Write-Step "Archive had no gitmap.ps1 shim; run the generic installer for shell cd support." }
+              Remove-Item $extractDir -Recurse -Force -ErrorAction SilentlyContinue
+
+              $oldPath = "$targetPath.old"
+              if (Test-Path $oldPath) { Remove-Item $oldPath -Force -ErrorAction SilentlyContinue }
+
+              Write-OK "Installed $BinaryName to $installDir"
+          }
+
+          function Add-ToPath([string]$dir) {
+              $currentUserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
+              $parts = if ($currentUserPath) { $currentUserPath -split ";" } else { @() }
+              $hasDir = $parts | Where-Object { $_.Trim() -ieq $dir }
+
+              if (-not $hasDir) {
+                  $newPath = if ([string]::IsNullOrWhiteSpace($currentUserPath)) { $dir } else { $currentUserPath.TrimEnd(";") + ";" + $dir }
+                  [Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
+                  Write-OK "Added to user PATH."
+              } else {
+                  Write-Step "Already in user PATH."
+              }
+          }
+
+          function Get-GitmapCommandWrapperBlock([string]$dir) {
+              $safeDir = $dir.Replace("'", "''")
+              $template = @'
+          # gitmap command wrapper v1
+          function global:Get-GitmapCommand { $candidate = Join-Path -Path '__GITMAP_DIR__' -ChildPath 'gitmap.exe'; if (Test-Path -LiteralPath $candidate) { return $candidate }; return (Get-Command gitmap.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source }
+          function global:Invoke-GitmapAndSetLocation { param([string[]]$GitMapArgs); $real = Get-GitmapCommand; if (-not $real) { Write-Error "gitmap executable not found"; return }; if ($GitMapArgs.Count -gt 0 -and ($GitMapArgs[0] -eq 'cd' -or $GitMapArgs[0] -eq 'go')) { $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"; $dest = & $real @GitMapArgs; if ($LASTEXITCODE -ne 0) { return }; if ($dest -and (Test-Path -LiteralPath $dest)) { Set-Location -LiteralPath $dest }; return }; $handoff = [IO.Path]::Combine([IO.Path]::GetTempPath(), "gitmap-handoff-$([Guid]::NewGuid().ToString('N')).txt"); try { $env:GITMAP_HANDOFF_FILE = $handoff; $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"; & $real @GitMapArgs; if ((Test-Path -LiteralPath $handoff) -and ((Get-Item -LiteralPath $handoff).Length -gt 0)) { $target = (Get-Content -LiteralPath $handoff -Raw).Trim(); if ($target -and (Test-Path -LiteralPath $target)) { Set-Location -LiteralPath $target } } } finally { Remove-Item -LiteralPath $handoff -ErrorAction SilentlyContinue; Remove-Item Env:\GITMAP_HANDOFF_FILE -ErrorAction SilentlyContinue } }
+          function global:gcd { Invoke-GitmapAndSetLocation -GitMapArgs (@('cd') + $args) }
+          function global:gitmap { Invoke-GitmapAndSetLocation $args }
+          # gitmap command wrapper v1 end
+          '@
+              return $template.Replace('__GITMAP_DIR__', $safeDir)
+          }
+
+          function Add-CommandWrapperToProfile([string]$profilePath, [string]$dir) {
+              if (-not $profilePath) { return }
+              $profileDir = Split-Path $profilePath -Parent
+              if ($profileDir -and -not (Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir -Force | Out-Null }
+              $block = Get-GitmapCommandWrapperBlock $dir
+              if (-not (Test-Path $profilePath)) { Add-Content -Path $profilePath -Value $block -Encoding UTF8; return }
+              $content = Get-Content $profilePath -Raw -ErrorAction SilentlyContinue
+              $pattern = "(?s)" + [regex]::Escape("# gitmap command wrapper v1") + ".*?" + [regex]::Escape("# gitmap command wrapper v1 end")
+              if ($content -match $pattern) {
+                  $without = [regex]::Replace($content, $pattern, "", 1).TrimEnd()
+                  $rewritten = if ([string]::IsNullOrWhiteSpace($without)) { "$block`r`n" } else { "$without`r`n`r`n$block`r`n" }
+                  Set-Content -Path $profilePath -Value $rewritten -Encoding UTF8
+                  return
+              }
+              Add-Content -Path $profilePath -Value $block -Encoding UTF8
+          }
+
+          function Resolve-PowerShellProfileTargets {
+              $targets = @()
+              if ($PROFILE) { $targets += $PROFILE }
+              if ($env:USERPROFILE) {
+                  $targets += (Join-Path $env:USERPROFILE "Documents\PowerShell\profile.ps1")
+                  $targets += (Join-Path $env:USERPROFILE "Documents\PowerShell\Microsoft.PowerShell_profile.ps1")
+                  $targets += (Join-Path $env:USERPROFILE "Documents\WindowsPowerShell\profile.ps1")
+                  $targets += (Join-Path $env:USERPROFILE "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1")
+              }
+              return @($targets | Where-Object { $_ } | Select-Object -Unique)
+          }
+
+          # --- Main ---
+
+          Write-Host ""
+          Write-Host "  gitmap installer ($PinnedVersion)" -ForegroundColor White
+          Write-Host "  github.com/$Repo" -ForegroundColor DarkGray
+          Write-Host ""
+
+          $resolvedArch = Resolve-Arch $Arch
+          $resolvedDir = Resolve-InstallDir $InstallDir
+
+          $result = Get-Asset $PinnedVersion $resolvedArch
+          try { Install-Binary $result.ZipPath $resolvedDir }
+          finally { Remove-Item $result.TmpDir -Recurse -Force -ErrorAction SilentlyContinue }
+
+          if (-not $NoPath) { Add-ToPath $resolvedDir }
+          foreach ($profileTarget in (Resolve-PowerShellProfileTargets)) { Add-CommandWrapperToProfile $profileTarget $resolvedDir }
+          Invoke-Expression (Get-GitmapCommandWrapperBlock $resolvedDir)
+
+          # Download and extract docs-site
+          Write-Step "Downloading docs-site..."
+          $docsUrl = "https://github.com/$Repo/releases/download/$PinnedVersion/docs-site.zip"
+          $docsZip = Join-Path $env:TEMP "docs-site-$(Get-Random).zip"
+          $docsTarget = Join-Path $resolvedDir "docs-site"
+          try {
+              Invoke-WebRequest -Uri $docsUrl -OutFile $docsZip -UseBasicParsing
+              if (Test-Path $docsTarget) { Remove-Item $docsTarget -Recurse -Force }
+              New-Item -ItemType Directory -Path $docsTarget -Force | Out-Null
+              $docsExtract = Join-Path $docsTarget "dist"
+              New-Item -ItemType Directory -Path $docsExtract -Force | Out-Null
+              Expand-Archive -Path $docsZip -DestinationPath $docsExtract -Force
+              Write-OK "Docs site installed to $docsTarget"
+          } catch {
+              Write-Step "Docs site download skipped (not available for this release)"
+          } finally {
+              Remove-Item $docsZip -Force -ErrorAction SilentlyContinue
+          }
+
+          $binPath = Join-Path $resolvedDir $BinaryName
+          if (Test-Path $binPath) {
+              Write-Host ""
+              try {
+                  $versionOutput = & $binPath version 2>&1
+                  Write-OK "  gitmap $versionOutput"
+              } catch {
+                  Write-Err "  Binary found but failed to run: $_"
+              }
+          }
+
+          Write-Host ""
+          Write-OK "  Done! Run 'gitmap --help' to get started."
+          Write-Host ""
+          PSEOF
+
+          # Replace placeholders
+          sed -i "s|VERSION_PLACEHOLDER|$VERSION|g" gitmap/dist/install.ps1
+          sed -i "s|REPO_PLACEHOLDER|$REPO|g" gitmap/dist/install.ps1
+
+      - name: Generate version-specific install.sh
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="alimtvnetwork/gitmap-v27"
+
+          cat > gitmap/dist/install.sh << 'SHEOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          PINNED_VERSION="VERSION_PLACEHOLDER"
+          REPO="REPO_PLACEHOLDER"
+          BINARY_NAME="gitmap"
+          INSTALL_DIR=""
+          ARCH=""
+          NO_PATH=false
+
+          usage() {
+            echo "Usage: install.sh [--version VERSION] [--dir DIR] [--arch ARCH] [--no-path]"
+            exit 0
+          }
+
+          while [[ $# -gt 0 ]]; do
+            case "$1" in
+              --version) PINNED_VERSION="$2"; shift 2 ;;
+              --dir)     INSTALL_DIR="$2"; shift 2 ;;
+              --arch)    ARCH="$2"; shift 2 ;;
+              --no-path) NO_PATH=true; shift ;;
+              --help|-h) usage ;;
+              *) echo "Unknown flag: $1"; usage ;;
+            esac
+          done
+
+          detect_os() {
+            local os
+            os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+            case "$os" in
+              linux)  echo "linux" ;;
+              darwin) echo "darwin" ;;
+              *)      echo "❌ Unsupported OS: $os. Use install.ps1 for Windows." >&2; exit 1 ;;
+            esac
+          }
+
+          detect_arch() {
+            if [[ -n "$ARCH" ]]; then echo "$ARCH"; return; fi
+            local arch
+            arch="$(uname -m)"
+            case "$arch" in
+              x86_64|amd64) echo "amd64" ;;
+              aarch64|arm64) echo "arm64" ;;
+              *) echo "❌ Unsupported architecture: $arch" >&2; exit 1 ;;
+            esac
+          }
+
+          download() {
+            local url="$1" dest="$2"
+            if command -v curl &>/dev/null; then
+              curl -fsSL "$url" -o "$dest"
+            elif command -v wget &>/dev/null; then
+              wget -qO "$dest" "$url"
+            else
+              echo "❌ Neither curl nor wget found." >&2; exit 1
+            fi
+          }
+
+          verify_checksum() {
+            local file="$1" checksums="$2" asset_name="$3"
+            local expected actual
+            expected="$(grep "$asset_name" "$checksums" | awk '{print $1}')"
+            if [[ -z "$expected" ]]; then
+              echo "❌ Asset $asset_name not found in checksums.txt" >&2; exit 1
+            fi
+            if command -v sha256sum &>/dev/null; then
+              actual="$(sha256sum "$file" | awk '{print $1}')"
+            else
+              actual="$(shasum -a 256 "$file" | awk '{print $1}')"
+            fi
+            if [[ "$actual" != "$expected" ]]; then
+              echo "❌ Checksum mismatch! Expected: $expected Got: $actual" >&2; exit 1
+            fi
+            echo "  ✅ Checksum verified."
+          }
+
+          add_to_path() {
+            local dir="$1"
+            if [[ "$NO_PATH" == "true" ]]; then return; fi
+            if echo "$PATH" | tr ':' '\n' | grep -qx "$dir"; then
+              echo "  Already in PATH."
+              return
+            fi
+
+            local shell_name rc_file export_line
+            shell_name="$(basename "${SHELL:-/bin/bash}")"
+            case "$shell_name" in
+              zsh)  rc_file="$HOME/.zshrc" ;;
+              fish) rc_file="$HOME/.config/fish/config.fish" ;;
+              *)    rc_file="$HOME/.bashrc" ;;
+            esac
+
+            if [[ "$shell_name" == "fish" ]]; then
+              export_line="fish_add_path $dir"
+            else
+              export_line="export PATH=\"$dir:\$PATH\""
+            fi
+
+            if [[ -f "$rc_file" ]] && grep -qF "$dir" "$rc_file"; then
+              echo "  Already in $rc_file."
+            else
+              echo "" >> "$rc_file"
+              echo "$export_line" >> "$rc_file"
+              echo "  ✅ Added to $rc_file"
+            fi
+            export PATH="$dir:$PATH"
+          }
+
+          main() {
+            local os arch version install_dir
+            os="$(detect_os)"
+            arch="$(detect_arch)"
+            version="$PINNED_VERSION"
+            install_dir="${INSTALL_DIR:-$HOME/.local/bin}"
+
+            echo ""
+            echo "  gitmap installer ($version)"
+            echo "  github.com/$REPO"
+            echo ""
+
+            local base_url="https://github.com/$REPO/releases/download/$version"
+            local asset_name="${BINARY_NAME}-${version}-${os}-${arch}.tar.gz"
+            local tmp_dir
+            tmp_dir="$(mktemp -d)"
+
+            trap 'rm -rf "$tmp_dir"' EXIT
+
+            echo "  Downloading $asset_name..."
+            download "$base_url/$asset_name" "$tmp_dir/$asset_name"
+            download "$base_url/checksums.txt" "$tmp_dir/checksums.txt"
+
+            verify_checksum "$tmp_dir/$asset_name" "$tmp_dir/checksums.txt" "$asset_name"
+
+            echo "  Installing to $install_dir..."
+            mkdir -p "$install_dir"
+
+            tar xzf "$tmp_dir/$asset_name" -C "$tmp_dir"
+
+            local binary
+            binary="$(find "$tmp_dir" -type f -name "${BINARY_NAME}*" ! -name "*.tar.gz" ! -name "checksums.txt" | head -1)"
+            if [[ -z "$binary" ]]; then
+              echo "❌ Binary not found in archive" >&2; exit 1
+            fi
+
+            local target="$install_dir/$BINARY_NAME"
+            if [[ -f "$target" ]]; then
+              mv "$target" "$target.old"
+            fi
+            mv "$binary" "$target"
+            chmod +x "$target"
+            rm -f "$target.old" 2>/dev/null || true
+
+            echo "  ✅ Installed $BINARY_NAME to $install_dir"
+
+            add_to_path "$install_dir"
+
+            # Download and extract docs-site
+            echo "  Downloading docs-site..."
+            local docs_url="$base_url/docs-site.zip"
+            local docs_zip="$tmp_dir/docs-site.zip"
+            local docs_target="$install_dir/docs-site"
+            if download "$docs_url" "$docs_zip" 2>/dev/null; then
+              rm -rf "$docs_target"
+              mkdir -p "$docs_target/dist"
+              unzip -qo "$docs_zip" -d "$docs_target/dist" 2>/dev/null && \
+                echo "  ✅ Docs site installed to $docs_target" || \
+                echo "  Docs site extraction skipped (unzip not available)"
+            else
+              echo "  Docs site download skipped (not available for this release)"
+            fi
+
+            if command -v "$target" &>/dev/null; then
+              echo ""
+              echo "  ✅ $("$target" version 2>&1 || echo "$version")"
+            fi
+            echo ""
+            echo "  Done! Run 'gitmap --help' to get started."
+            echo ""
+          }
+
+          main
+          SHEOF
+
+          # Replace placeholders
+          sed -i "s|VERSION_PLACEHOLDER|$VERSION|g" gitmap/dist/install.sh
+          sed -i "s|REPO_PLACEHOLDER|$REPO|g" gitmap/dist/install.sh
+          chmod +x gitmap/dist/install.sh
+
+      - name: Extract changelog entry
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Extract the section for this version from CHANGELOG.md
+          ENTRY=$(awk -v ver="$VERSION" '
+            /^## / {
+              if (found) exit
+              if (index($0, ver)) found=1
+            }
+            found { print }
+          ' CHANGELOG.md)
+
+          if [ -z "$ENTRY" ]; then
+            ENTRY="No changelog entry found for $VERSION."
+          fi
+
+          # Write to file for multi-line output
+          echo "$ENTRY" > /tmp/changelog-entry.md
+
+      - name: Build release body
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="alimtvnetwork/gitmap-v27"
+          COMMIT_SHA="${GITHUB_SHA}"
+          BRANCH="${GITHUB_REF_NAME}"
+          BUILD_DATE="$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+
+          cat > /tmp/release-body.md << EOF
+          $(cat /tmp/changelog-entry.md)
+
+          ---
+
+          ## Release Info
+
+          | Field | Value |
+          |-------|-------|
+          | Version | \`$VERSION\` |
+          | Commit | \`${COMMIT_SHA:0:10}\` |
+          | Branch | \`$BRANCH\` |
+          | Build Date | $BUILD_DATE |
+          | Go Version | $(go version | awk '{print $3}') |
+
+          ## Checksums (SHA256)
+
+          \`\`\`
+          $(cat gitmap/dist/checksums.txt)
+          \`\`\`
+
+          ## Install
+
+          ### Quick install (Windows PowerShell)
+
+          \`\`\`powershell
+          irm https://github.com/$REPO/releases/download/$VERSION/install.ps1 | iex
+          \`\`\`
+
+          ### Quick install (Linux / macOS)
+
+          \`\`\`bash
+          curl -fsSL https://github.com/$REPO/releases/download/$VERSION/install.sh | bash
+          \`\`\`
+
+          ### Install specific version (generic installer)
+
+          \`\`\`powershell
+          irm https://raw.githubusercontent.com/$REPO/main/gitmap/scripts/install.ps1 | iex
+          # Or pin this version:
+          & { \$Version = "$VERSION"; irm https://raw.githubusercontent.com/$REPO/main/gitmap/scripts/install.ps1 | iex }
+          \`\`\`
+
+          \`\`\`bash
+          curl -fsSL https://raw.githubusercontent.com/$REPO/main/gitmap/scripts/install.sh | bash
+          # Or pin this version:
+          curl -fsSL https://raw.githubusercontent.com/$REPO/main/gitmap/scripts/install.sh | bash -s -- --version $VERSION
+          \`\`\`
+
+          ### Manual download
+
+          Download the appropriate archive for your platform from the assets below, extract, and place the binary in your PATH.
+
+          ## Assets
+
+          | Platform | Architecture | File |
+          |----------|-------------|------|
+          | Windows | amd64 | \`gitmap-$VERSION-windows-amd64.zip\` |
+          | Windows | arm64 | \`gitmap-$VERSION-windows-arm64.zip\` |
+          | Linux | amd64 | \`gitmap-$VERSION-linux-amd64.tar.gz\` |
+          | Linux | arm64 | \`gitmap-$VERSION-linux-arm64.tar.gz\` |
+          | macOS | amd64 | \`gitmap-$VERSION-darwin-amd64.tar.gz\` |
+          | macOS | arm64 | \`gitmap-$VERSION-darwin-arm64.tar.gz\` |
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
+          body_path: /tmp/release-body.md
+          files: gitmap/dist/*
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
+          make_latest: ${{ !contains(steps.version.outputs.version, '-') }}
+
+  installer-smoke:
+    # Post-publish smoke test: pulls the freshly-released binary via
+    # gitmap/scripts/install.sh in strict --version mode and asserts
+    # that `gitmap version` reports the just-released tag. Catches
+    # broken assets, wrong filenames, or version-constant drift before
+    # users hit it. Strict mode (--no-discovery) means no fallback.
+    name: Installer Smoke (release)
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Tag-triggered reruns check out the historical tag snapshot, which
+          # can contain stale smoke scripts (for example the legacy
+          # /install/gitmap assertion after the deploy layout moved to
+          # /install/gitmap-cli). Validation jobs should always use the latest
+          # harness from the default branch to test the freshly-published
+          # assets, not an old test script baked into the tag.
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Wait briefly for release assets to propagate
+        run: sleep 15
+
+      - name: Run installer smoke (release mode)
+        env:
+          EXPECTED: ${{ needs.release.outputs.version }}
+        shell: bash
+        run: bash .github/scripts/smoke-installer.sh release
+
+  installer-smoke-windows:
+    # Windows post-publish smoke: pulls the freshly-released binary via
+    # gitmap/scripts/install.ps1 in strict -Version mode and asserts
+    # that `gitmap version` reports the just-released tag. Catches
+    # broken Windows assets, wrong filenames, or PATH/extraction bugs.
+    name: Installer Smoke Windows (release)
+    runs-on: windows-latest
+    needs: release
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Wait briefly for release assets to propagate
+        shell: pwsh
+        run: Start-Sleep -Seconds 15
+
+      - name: Run installer smoke (release mode)
+        env:
+          EXPECTED: ${{ needs.release.outputs.version }}
+        shell: pwsh
+        run: pwsh -File .github/scripts/smoke-installer.ps1 release
+
+  installer-dryrun-windows:
+    # Post-publish DRY-RUN check: invokes install.ps1 with -DryRun
+    # against the freshly-released tag, then asserts the printed
+    # `dryrun.*=` report matches the documented release-asset
+    # naming contract (`gitmap-vX.Y.Z-windows-{amd64|arm64}.zip`).
+    # This validates BOTH the install.ps1 URL-resolution logic AND
+    # that the release pipeline actually published an asset matching
+    # that pattern — independently of the actual download/extract
+    # path exercised by installer-smoke-windows.
+    name: Installer Dry-Run Windows
+    runs-on: windows-latest
+    needs: release
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Wait briefly for release assets to propagate
+        shell: pwsh
+        run: Start-Sleep -Seconds 15
+
+      - name: Run install.ps1 -DryRun and capture report
+        id: dryrun
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          $log = Join-Path $env:RUNNER_TEMP 'dryrun.log'
+          pwsh -File gitmap/scripts/install.ps1 `
+            -DryRun -Version $env:VERSION -NoDiscovery -Arch amd64 `
+            *>&1 | Tee-Object -FilePath $log
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "::error::install.ps1 -DryRun exited $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
+          "log=$log" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Assert dry-run report matches release contract
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+          LOG: ${{ steps.dryrun.outputs.log }}
+        run: |
+          $expectedName = "gitmap-$env:VERSION-windows-amd64.zip"
+          $expectedUrl  = "https://github.com/alimtvnetwork/gitmap-v27/releases/download/$env:VERSION/$expectedName"
+
+          $report = @{}
+          Get-Content $env:LOG | ForEach-Object {
+            if ($_ -match '^dryrun\.([^=]+)=(.*)$') {
+              $report[$Matches[1]] = $Matches[2]
+            }
+          }
+
+          $failed = $false
+          function Check($key, $expected) {
+            $actual = $report[$key]
+            if ($actual -ne $expected) {
+              Write-Error "::error::dryrun.$key mismatch`n  expected: $expected`n  actual:   $actual"
+              $script:failed = $true
+            } else {
+              Write-Host "OK dryrun.$key = $actual"
+            }
+          }
+
+          Check 'version'                  $env:VERSION
+          Check 'arch'                     'amd64'
+          Check 'asset_name'               $expectedName
+          Check 'asset_url'                $expectedUrl
+          Check 'name_matches_contract'    'True'
+          Check 'preflight_head'           'ok'
+
+          if ($failed) { exit 1 }
+          Write-Host "OK install.ps1 dry-run validates release contract for $env:VERSION"

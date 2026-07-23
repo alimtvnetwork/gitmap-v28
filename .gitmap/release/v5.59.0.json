@@ -1,0 +1,16 @@
+{
+  "version": "5.59.0",
+  "branch": "release/v5.59.0",
+  "sourceBranch": "main",
+  "commit": "5712acc15371c4e84548db952bfb58106f39e8f3",
+  "tag": "v5.59.0",
+  "assets": [],
+  "changelog": [
+    "Fixed: `gitmap pr` / `pull-release` now sets a process-level `forceYesOverride` in addition to injecting `-y` into the forwarded args, so the post-release auto-commit `[y/N]` prompt is skipped unconditionally. Defense-in-depth against any future flag-parsing regression that could drop the appended `-y`.",
+    "Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.59.0**."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-05-26T08:05:22Z",
+  "isLatest": false
+}

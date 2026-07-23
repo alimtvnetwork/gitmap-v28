@@ -1,0 +1,6 @@
+{
+  "name": "llm-docs",
+  "version": 1,
+  "keys": ["commands", "architecture", "flags", "conventions", "structure", "database", "installation", "patterns"],
+  "_doc": "Schema for `gitmap llm-docs --format=json`. Top-level is a single object. All keys are optional (controlled by --sections), but when present they always appear in this exact order: commands, architecture, flags, conventions, structure, database, installation, patterns."
+}

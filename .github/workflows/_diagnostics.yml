@@ -1,0 +1,54 @@
+name: CI Diagnostics
+
+# Reusable workflow that prints the run's build context (event, ref, SHA,
+# actor, PR base/head, etc.) to both the runner log and the Actions Job
+# Summary. Always runs first, no `needs:`. Called from ci.yml via
+# `uses: ./.github/workflows/_diagnostics.yml` so the orchestrator
+# stays thin.
+#
+# Why a separate workflow file: this header is identical on every push
+# and has zero coupling to other jobs — the cleanest split point for
+# the ci.yml break-up. See .lovable/plan.md (Step 2).
+
+on:
+  workflow_call:
+
+jobs:
+  diag:
+    name: Diagnostics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print build context
+        run: |
+          echo "::group::🔎 Build context"
+          echo "Event             : ${{ github.event_name }}"
+          echo "Ref               : ${{ github.ref }}"
+          echo "Ref name          : ${{ github.ref_name }}"
+          echo "Ref type          : ${{ github.ref_type }}"
+          echo "SHA (full)        : ${{ github.sha }}"
+          echo "SHA (short)       : ${GITHUB_SHA:0:7}"
+          echo "Repository        : ${{ github.repository }}"
+          echo "Actor             : ${{ github.actor }}"
+          echo "Triggering actor  : ${{ github.triggering_actor }}"
+          echo "Workflow          : ${{ github.workflow }}"
+          echo "Run ID / attempt  : ${{ github.run_id }} / ${{ github.run_attempt }}"
+          echo "Run number        : ${{ github.run_number }}"
+          echo "Head ref (PR src) : ${{ github.head_ref }}"
+          echo "Base ref (PR dst) : ${{ github.base_ref }}"
+          echo "::endgroup::"
+
+          {
+            echo "## 🔎 Build context"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Event | \`${{ github.event_name }}\` |"
+            echo "| Ref | \`${{ github.ref }}\` |"
+            echo "| Branch / tag | \`${{ github.ref_name }}\` (${{ github.ref_type }}) |"
+            echo "| SHA | \`${{ github.sha }}\` |"
+            echo "| Actor | @${{ github.actor }} |"
+            echo "| Run | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) (attempt ${{ github.run_attempt }}) |"
+            if [ -n "${{ github.head_ref }}" ]; then
+              echo "| PR | \`${{ github.head_ref }}\` → \`${{ github.base_ref }}\` |"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

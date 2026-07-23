@@ -1,0 +1,36 @@
+graph TD
+    A["Resolve Deploy Target"] --> B{"CLI flag provided?"}
+
+    B -->|YES| C["Use --deploy-path value"]
+    B -->|NO| D{"Running executable found?"}
+
+    D -->|YES| E["Resolve physical path"]
+    D -->|NO| F{"Binary on global PATH?"}
+
+    E --> E1{"Parent dir matches binary name?"}
+    E1 -->|YES| E2["Deploy target = grandparent dir"]
+    E1 -->|NO| E3["Deploy target = parent dir"]
+
+    F -->|YES| G["Resolve symlinks"]
+    G --> E1
+    F -->|NO| H{"Interactive session?"}
+
+    H -->|YES| I["Prompt user for install path"]
+    H -->|NO| J["Use config file default"]
+
+    I --> K["Create directory if needed"]
+    J --> K
+
+    C --> L["Deploy binary"]
+    E2 --> L
+    E3 --> L
+    K --> M["Register in PATH"]
+    M --> N["Reload terminal env"]
+    N --> L
+
+    L --> O["Copy data/ folder alongside binary"]
+    O --> P["Deploy Complete"]
+
+    style A fill:#2563eb,color:#fff
+    style P fill:#22c55e,color:#fff
+    style M fill:#f59e0b,color:#000

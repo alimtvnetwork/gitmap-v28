@@ -1,0 +1,19 @@
+# source: curated (Ruby/Rails project conventions)
+# kind: attributes
+# lang: ruby
+# version: 1
+
+*.rb        text eol=lf
+*.rake      text eol=lf
+*.ru        text eol=lf
+*.gemspec   text eol=lf
+*.erb       text eol=lf
+*.haml      text eol=lf
+*.slim      text eol=lf
+
+Gemfile         text eol=lf
+Gemfile.lock    text eol=lf linguist-generated=true
+Rakefile        text eol=lf
+config.ru       text eol=lf
+.rspec          text eol=lf
+.rubocop.yml    text eol=lf

@@ -1,0 +1,20 @@
+{
+  "defaultMode": "https",
+  "defaultOutput": "terminal",
+  "outputDir": "./gitmap-output",
+  "excludeDirs": [".cache", "node_modules", "vendor", ".venv"],
+  "dashboardRefresh": 30,
+  "notes": "",
+  "misspell": {
+    "_comment": "CI-only knobs consumed by the spell-check job in .github/workflows/ci.yml. Patterns use shell `case` glob syntax (matched against changed file paths). 'include' is an allow-list applied AFTER 'exclude'; an empty/missing 'include' means 'allow everything that survived exclude'. Defaults below mirror the previous hard-coded filter so behavior is unchanged when this block is absent.",
+    "exclude": [
+      "*.png", "*.jpg", "*.jpeg", "*.gif", "*.ico", "*.svg", "*.webp",
+      "*.zip", "*.tar", "*.gz", "*.exe",
+      "*/testdata/*", "*/golden/*",
+      "*/.gitmap/release/*", "*/.gitmap/release-assets/*",
+      "gitmap/completion/allcommands_generated.go",
+      ".lovable/*"
+    ],
+    "include": []
+  }
+}

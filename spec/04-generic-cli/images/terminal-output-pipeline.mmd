@@ -1,0 +1,51 @@
+graph TD
+    subgraph DataModel["Data Model"]
+        Records["Item Records\n(name, status, path)"]
+        Tree["Tree Nodes\n(parent-child hierarchy)"]
+        Meta["Metadata\n(version, counts, paths)"]
+    end
+
+    subgraph SectionRenderers["Section Renderers"]
+        Banner["printBanner()\nCentered tool name + version"]
+        Summary["printSummary()\nCheckmark + count + noun"]
+        ItemList["printItemList()\nCounter/Total + emoji + detail"]
+        TreeView["printTree()\nBox-drawing + recursive depth"]
+        OutputFiles["printOutputFiles()\nArtifact tree + descriptions"]
+        ActionGuide["printActionGuide()\nNumbered steps + commands"]
+        FileConfirm["printFileConfirmations()\nPlain path confirmations"]
+    end
+
+    subgraph ColorLayer["Color Layer"]
+        ColorCheck{"supportsColor()?\nTTY + NO_COLOR check"}
+        Apply["Apply ANSI codes\nCyan/Green/Dim/Bold"]
+        Strip["Pass through raw text\nNo escape codes"]
+    end
+
+    subgraph Output["Output Targets"]
+        Stderr["stderr\nAll visual sections"]
+        Stdout["stdout\nMachine-parseable data only"]
+    end
+
+    Records --> ItemList
+    Records --> TreeView
+    Tree --> TreeView
+    Meta --> Banner
+    Meta --> Summary
+    Meta --> OutputFiles
+    Meta --> ActionGuide
+    Meta --> FileConfirm
+
+    Banner --> ColorCheck
+    Summary --> ColorCheck
+    ItemList --> ColorCheck
+    TreeView --> ColorCheck
+    OutputFiles --> ColorCheck
+    ActionGuide --> ColorCheck
+    FileConfirm --> ColorCheck
+
+    ColorCheck -->|"TTY detected"| Apply
+    ColorCheck -->|"Piped / NO_COLOR"| Strip
+
+    Apply --> Stderr
+    Strip --> Stderr
+    FileConfirm -.->|"Path strings"| Stdout

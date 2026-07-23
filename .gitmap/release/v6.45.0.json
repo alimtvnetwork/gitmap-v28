@@ -1,0 +1,17 @@
+{
+  "version": "6.45.0",
+  "branch": "release/v6.45.0",
+  "sourceBranch": "main",
+  "commit": "07b9c5a173f97ef9a33a7a1d569d14a15b380d53",
+  "tag": "v6.45.0",
+  "assets": [],
+  "changelog": [
+    "**Removed** `TestCopyEntryReturnsWrappedErrorOnDestinationParentFile` from `gitmap/cmd/chromeprofile_copy_test.go`. The Windows runner's `os.MkdirAll` semantics over a file-as-parent did not consistently surface an `Op = Mkdir` wrapped error, causing the `windows-latest / go build + test` job to fail on the v6.44.0 release.",
+    "**Coverage preserved.** The unreadable-non-`LOCK` wrapped-error contract is fully exercised by `TestHandleChromeFileOpenErrorPropagatesNonLockErrors`, which calls the helper directly and is platform-independent. A short comment in the test file points future readers to that assertion.",
+    "**Files:** `gitmap/cmd/chromeprofile_copy_test.go`, `gitmap/constants/constants.go` (`6.45.0`), `src/constants/index.ts` (`v6.45.0`), `README.md` (pin → v6.45.0), `CHANGELOG.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-19T21:57:52Z",
+  "isLatest": false
+}

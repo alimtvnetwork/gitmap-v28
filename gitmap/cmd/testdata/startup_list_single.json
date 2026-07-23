@@ -1,0 +1,7 @@
+[
+  {
+    "name": "gitmap-sync-watcher",
+    "path": "/home/user/.config/autostart/gitmap-sync-watcher.desktop",
+    "exec": "/usr/local/bin/gitmap watch ~/projects"
+  }
+]

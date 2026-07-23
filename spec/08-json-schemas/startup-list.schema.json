@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitmap.dev/schemas/startup-list.schema.json",
+  "title": "gitmap-v27 startup-list --json output",
+  "description": "Array of gitmap-managed autostart entries discovered on the current host. On Linux: parsed from XDG .desktop files in $XDG_CONFIG_HOME/autostart that carry the X-Gitmap-Managed=true marker. On macOS: parsed from ~/Library/LaunchAgents .plist files containing the Gitmap-Managed key. On Windows: enumerated from BOTH the HKCU Run-key (with sibling .gitmap-managed marker + tracking subkey under HKCU\\Software\\Gitmap\\StartupRegistry) AND the Startup folder .lnk shortcuts (tracked under HKCU\\Software\\Gitmap\\StartupFolder). Empty result is encoded as `[]` (NOT `null`) so jq pipelines can `length` without conditionals. Backed by gitmap-v27/stablejson — key order is contractual and pinned by gitmap-v27/cmd/startuplist_jsonschema_contract_test.go.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "Startup entry",
+    "description": "A single gitmap-managed autostart entry. The same shape is emitted on every OS so cross-platform consumers can parse one schema.",
+    "required": ["name", "path", "exec"],
+    "additionalProperties": false,
+    "propertyOrder": ["name", "path", "exec"],
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Stable entry identifier. On Linux/macOS this is the filename without the .desktop / .plist extension. On Windows registry backend this is the Run-key value name (always prefixed with `gitmap-`). On Windows startup-folder backend this is the .lnk filename without the .lnk extension. Safe to use as a primary key for downstream deduplication."
+      },
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Filesystem-or-registry locator the user can inspect manually. Linux/macOS: absolute filesystem path to the .desktop / .plist file. Windows registry: full registry value path of the form `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\gitmap-<name>`. Windows startup-folder: absolute filesystem path to the .lnk shortcut. Always non-empty."
+      },
+      "exec": {
+        "type": "string",
+        "description": "The command line that will run at user login. Linux/macOS: the Exec= / ProgramArguments value. Windows registry backend: the string value stored under the Run-key. Windows startup-folder backend: ALWAYS the empty string — recovering the original target from a .lnk would require parsing the [MS-SHLLINK] binary format which gitmap-v27 deliberately avoids; consumers needing the target should read it from the tracking subkey under HKCU\\Software\\Gitmap\\StartupFolder\\<name>\\Exec instead. May be empty.",
+        "examples": ["/usr/bin/myapp --foreground", "C:\\gitmap.exe watch", ""]
+      }
+    }
+  },
+  "examples": [
+    [],
+    [
+      {
+        "name": "gitmap-watch",
+        "path": "/home/alice/.config/autostart/gitmap-watch.desktop",
+        "exec": "/usr/local/bin/gitmap-v27 watch"
+      }
+    ],
+    [
+      {
+        "name": "gitmap-watch",
+        "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\gitmap-watch",
+        "exec": "C:\\Program Files\\gitmap-v27\\gitmap.exe watch"
+      },
+      {
+        "name": "gitmap-notes",
+        "path": "C:\\Users\\alice\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\gitmap-notes.lnk",
+        "exec": ""
+      }
+    ]
+  ]
+}

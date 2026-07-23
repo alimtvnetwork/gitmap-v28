@@ -1,0 +1,18 @@
+# source: curated (PHP / Composer / Laravel conventions)
+# kind: attributes
+# lang: php
+# version: 1
+
+*.php       text eol=lf
+*.phtml     text eol=lf
+*.blade.php text eol=lf
+*.twig      text eol=lf
+*.inc       text eol=lf
+
+composer.json   text eol=lf
+composer.lock   text eol=lf linguist-generated=true
+phpunit.xml     text eol=lf
+phpunit.xml.dist text eol=lf
+phpstan.neon    text eol=lf
+psalm.xml       text eol=lf
+.php-cs-fixer.dist.php text eol=lf

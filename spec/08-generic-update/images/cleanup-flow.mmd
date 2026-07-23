@@ -1,0 +1,44 @@
+graph TD
+    A["Phase 2 deploy completes"] --> B["Phase 3: Schedule cleanup handoff"]
+    B --> C["Resolve deployed binary path<br/>(LookPath fallback to deploy dir)"]
+    C --> D{"Platform?"}
+
+    D -->|Windows| W1["Spawn detached cmd.exe:<br/>ping 127.0.0.1 -n 3 (2s delay)<br/>+ start /B deployed update-cleanup"]
+    D -->|Unix in-place| U1["Invoke runUpdateCleanup inline"]
+    D -->|Unix deployed| U2["exec deployed update-cleanup"]
+
+    W1 --> X["Handoff process exits<br/>File lock on -update-PID.exe released"]
+    X --> Y["Deployed binary starts update-cleanup"]
+    U1 --> Y
+    U2 --> Y
+
+    Y --> Z["Resolve binary directory"]
+    Z --> S["Scan directory for artifacts"]
+
+    S --> D1{"Found .old backup?"}
+    D1 -->|YES| D1a["Remove binary.exe.old<br/>(now unlocked)"]
+    D1 -->|NO| E1{"Found handoff copies?"}
+    D1a --> E1
+
+    E1 -->|YES| E1a["Remove binary-update-PID.exe<br/>(parent process exited)"]
+    E1 -->|NO| F1{"Found temp scripts?"}
+    E1a --> F1
+
+    F1 -->|YES| F1a["Remove binary-update-*.ps1 from temp dir"]
+    F1 -->|NO| G1{"Found updater tmp copies?"}
+    F1a --> G1
+
+    G1 -->|YES| G1a["Remove updater-tmp-PID.exe"]
+    G1 -->|NO| H["Cleanup Complete"]
+    G1a --> H
+
+    subgraph "Why Phase 3 is needed"
+        N1["Handoff process holds lock on -update-PID.exe"] -.-> B
+        N2["AV/Explorer briefly hold lock on .exe.old"] -.-> B
+        N3["Cleanup from inside handoff = Access Denied"] -.-> B
+    end
+
+    style A fill:#4f46e5,color:#fff
+    style B fill:#f59e0b,color:#000
+    style H fill:#22c55e,color:#fff
+    style W1 fill:#ef4444,color:#fff

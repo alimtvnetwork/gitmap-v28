@@ -1,0 +1,13 @@
+{
+  "id": 42,
+  "timestamp": "2025-01-01T12:00:00Z",
+  "branch": "main",
+  "fromCommit": "abc123",
+  "toCommit": "def456",
+  "totalCommits": 2,
+  "previousAuthor": {"name":"Old Name","email":"old@example.com"},
+  "newAuthor": {"name":"New Name","email":"new@example.com"},
+  "mode": "all",
+  "forcePushed": true,
+  "commits": [{"sha":"abc123","message":"First"},{"sha":"def456","message":"Second"}]
+}

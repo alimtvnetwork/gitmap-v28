@@ -1,0 +1,20 @@
+[
+  {
+    "fromVersionTag": "v5.40.0",
+    "fromVersionNum": 50400,
+    "toVersionTag": "v5.41.0",
+    "toVersionNum": 50410,
+    "flattenedPath": "/home/user/repos/gitmap-v27",
+    "createdAt": "2026-05-20T14:30:00Z",
+    "id": 1,
+    "repoId": 42
+  },
+  {
+    "fromVersionTag": "v5.41.0",
+    "fromVersionNum": 50410,
+    "toVersionTag": "v5.42.0",
+    "toVersionNum": 50420,
+    "id": 2,
+    "repoId": 42
+  }
+]

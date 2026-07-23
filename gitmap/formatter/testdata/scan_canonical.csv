@@ -1,0 +1,3 @@
+repoName,httpsUrl,sshUrl,branch,branchSource,relativePath,absolutePath,cloneInstruction,notes,depth,repoId,discoveredUrl,transport
+widget,https://github.com/acme/widget.git,git@github.com:acme/widget.git,main,remote-head,acme/widget,/repos/acme/widget,git clone https://github.com/acme/widget.git,,1,github.com/acme/widget,https://github.com/acme/widget.git,https
+gadget,https://github.com/acme/gadget.git,git@github.com:acme/gadget.git,develop,config,acme/gadget,/repos/acme/gadget,git clone -b develop https://github.com/acme/gadget.git,pinned to develop,4,github.com/acme/gadget,git@github.com:acme/gadget.git,ssh

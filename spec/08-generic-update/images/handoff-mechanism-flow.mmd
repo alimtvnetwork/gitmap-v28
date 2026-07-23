@@ -1,0 +1,61 @@
+graph TD
+    A["binary update"] --> B{"Source repo available?"}
+
+    B -->|YES| C["Source-Based Handoff"]
+    B -->|NO| D["Binary-Based Handoff"]
+
+    C --> C1["Phase 1: Copy self to binary-update-PID.exe"]
+    C1 --> C2["Launch temp copy with update-runner"]
+    C2 --> C3["Parent waits synchronously via cmd.Run"]
+
+    C3 --> W["Phase 2: Worker Process"]
+    W --> W1["Generate temp PowerShell script with UTF-8 BOM"]
+    W1 --> W2["Script calls run.ps1 -Update"]
+    W2 --> W3["run.ps1: git pull, go build, deploy"]
+    W3 --> W4["Deploy: rename-first on ORIGINAL binary"]
+    W4 --> W5["Verify version before vs after"]
+
+    W5 --> P3["Phase 3: Cleanup Handoff"]
+    P3 --> P3a["Resolve deployed binary path"]
+    P3a --> P3b{"Platform?"}
+    P3b -->|Windows| P3w["Spawn detached: cmd.exe ping 2s + start /B deployed update-cleanup"]
+    P3b -->|Unix| P3u["Invoke deployed update-cleanup inline"]
+    P3w --> P3x["Handoff process exits — file lock released"]
+    P3u --> P3y["Deployed binary removes handoff copy + .old backup"]
+    P3x --> P3y
+
+    D --> D1["Delegate to standalone updater binary"]
+    D1 --> D2["Copy updater to updater-tmp-PID.exe"]
+    D2 --> D3["Launch tmp updater with update-worker"]
+    D3 --> D4["Download install.ps1 from release"]
+    D4 --> D5["Execute install.ps1: download, verify, install"]
+    D5 --> D6["Verify version"]
+    D6 --> D7["Cleanup temp updater"]
+
+    P3y --> E["Update Complete"]
+    D7 --> E
+
+    subgraph "Phase 1: Lock Release"
+        C1
+        C2
+        C3
+    end
+
+    subgraph "Phase 2: Build & Deploy"
+        W
+        W1
+        W2
+        W3
+        W4
+        W5
+    end
+
+    subgraph "Phase 3: Post-Deploy Cleanup"
+        P3
+        P3a
+        P3b
+        P3w
+        P3u
+        P3x
+        P3y
+    end

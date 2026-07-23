@@ -1,0 +1,8 @@
+{
+  "name": "scan-project",
+  "version": 1,
+  "topLevelType": "array",
+  "recordKeys": ["Project", "GoMeta", "Csharp"],
+  "files": ["go-projects.json", "node-projects.json", "react-projects.json", "cpp-projects.json", "csharp-projects.json"],
+  "_doc": "Per-type JSON files emitted by `gitmap scan-project`. Each file is a JSON array. Top-level record keys are PascalCase (`Project`, `GoMeta`, `Csharp`) because `detector.DetectionResult` has no json tags — contractual since v1. Nested objects under each top-level key use lowerCamel."
+}

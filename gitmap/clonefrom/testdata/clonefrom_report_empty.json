@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 3,
+  "transport": {
+    "ssh": 0,
+    "https": 0,
+    "other": 0
+  },
+  "provenance": [
+    {
+      "field": "url",
+      "stage": "scan"
+    },
+    {
+      "field": "dest",
+      "stage": "mapper"
+    },
+    {
+      "field": "branch",
+      "stage": "scan"
+    },
+    {
+      "field": "depth",
+      "stage": "scan"
+    },
+    {
+      "field": "status",
+      "stage": "clonefrom"
+    },
+    {
+      "field": "detail",
+      "stage": "clonefrom"
+    },
+    {
+      "field": "duration_seconds",
+      "stage": "clonefrom"
+    }
+  ],
+  "rows": []
+}

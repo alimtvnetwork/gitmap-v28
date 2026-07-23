@@ -1,0 +1,46 @@
+# source: curated (gitmap project, OS + IDE + gitmap artifacts)
+# kind: ignore
+# lang: common
+# version: 1
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+ehthumbs_vista.db
+
+# Editor / IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Logs and temp
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej
+*.pid
+*.seed
+*.pid.lock
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# gitmap artifacts (local-only state)
+.gitmap/state/
+.gitmap/cache/
+gitmap.lock

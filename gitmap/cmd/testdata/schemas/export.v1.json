@@ -1,0 +1,6 @@
+{
+  "name": "export",
+  "version": 1,
+  "keys": ["version", "exportedAt", "repos", "groups", "releases", "history", "bookmarks"],
+  "_doc": "Schema for `gitmap export`. Top-level is a single object. Key order is contractual: version, exportedAt, repos, groups, releases, history, bookmarks. The five nested arrays are always present (empty arrays, never null)."
+}

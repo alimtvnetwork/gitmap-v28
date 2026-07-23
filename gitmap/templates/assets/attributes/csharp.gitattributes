@@ -1,0 +1,26 @@
+# source: curated (C# / .NET project conventions)
+# kind: attributes
+# lang: csharp
+# version: 1
+
+*.cs         text eol=lf
+*.csx        text eol=lf
+*.vb         text eol=lf
+*.fs         text eol=lf
+*.fsx        text eol=lf
+*.razor      text eol=lf
+*.cshtml     text eol=lf
+
+# Project + solution files: Visual Studio writes CRLF; keep it that way to
+# avoid noisy diffs when the IDE re-saves.
+*.csproj     text eol=crlf
+*.vbproj     text eol=crlf
+*.fsproj     text eol=crlf
+*.sln        text eol=crlf
+*.props      text eol=crlf
+*.targets    text eol=crlf
+
+# Generated / designer files.
+*.Designer.cs   linguist-generated=true
+*.g.cs          linguist-generated=true
+*.g.i.cs        linguist-generated=true

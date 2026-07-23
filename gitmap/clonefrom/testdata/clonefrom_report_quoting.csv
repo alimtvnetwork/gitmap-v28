@@ -1,0 +1,7 @@
+url,dest,branch,depth,status,detail,duration_seconds
+"https://example.com/repo,with,commas.git",repo-commas,main,0,failed,"fatal: bad url, see man git-clone",0.100
+https://example.com/quoted.git,quoted,,0,failed,"error: ref ""refs/heads/x"" not found",0.050
+https://example.com/multiline.git,multiline,,0,failed,"line one
+line two",0.025
+https://example.com/crlf.git,crlf,,0,failed,"  hint: leading space
+plus crlf inside",0.010

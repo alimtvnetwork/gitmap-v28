@@ -1,0 +1,19 @@
+{
+  "DownloaderConfig": {
+    "PreferredDownloader": "Aria2C",
+    "FallbackDownloader": "GoDownloader",
+    "ParallelDownloads": 15,
+    "SplitConnections": 15,
+    "DefaultSplitSize": "800K",
+    "LargeFileSplitSize": "2M",
+    "LargeFileThreshold": "100M",
+    "TinyFileThreshold": "2M",
+    "TinyFileSplitSize": "100K",
+    "TinyFileSplits": 8,
+    "AllowFallback": true,
+    "OverwriteUserConfig": false
+  },
+  "DatabaseVersion": {
+    "LastKnownVersion": "auto"
+  }
+}

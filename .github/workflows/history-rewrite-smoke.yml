@@ -1,0 +1,86 @@
+name: History Rewrite Smoke
+
+# End-to-end smoke tests for `gitmap history-purge` and
+# `gitmap history-pin`. Both commands wrap `git filter-repo` in a
+# mirror-clone sandbox; this workflow proves the full pipeline
+# (clone → filter-repo → verify → would-push) works on Ubuntu.
+#
+# Spec: spec/04-generic-cli/16-history-rewrite.md
+#
+# Each scenario builds a temp Git repo from scratch, runs the
+# gitmap subcommand against it (with --no-push so we never need a
+# real remote), and asserts the verification invariants the
+# command enforces internally also hold from the outside.
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!release/**'
+    tags-ignore:
+      - 'v*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: history-rewrite-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: history-rewrite smoke (ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Install git-filter-repo
+        run: pip install --user git-filter-repo
+
+      - name: Verify filter-repo on PATH
+        run: git filter-repo --version
+
+      - name: Build gitmap binary
+        working-directory: gitmap
+        run: go build -o "$RUNNER_TEMP/gitmap" .
+
+      - name: Configure git identity for fixture commits
+        run: |
+          git config --global user.email "ci@gitmap.example"
+          git config --global user.name  "GitMap CI"
+          git config --global init.defaultBranch main
+
+      - name: Scenario 1 — history-purge removes file across all commits
+        run: bash .github/scripts/smoke-history-purge.sh "$RUNNER_TEMP/gitmap"
+
+      - name: Scenario 2 — history-pin collapses file to single content hash
+        run: bash .github/scripts/smoke-history-pin.sh "$RUNNER_TEMP/gitmap"
+
+      - name: Scenario 3 — bad args exit 4 (no paths)
+        run: |
+          set +e
+          "$RUNNER_TEMP/gitmap" history-purge --no-push 2>/dev/null
+          rc=$?
+          set -e
+          if [ "$rc" != "4" ]; then
+            echo "FAIL: expected exit 4 for no-paths, got $rc" >&2
+            exit 1
+          fi
+          echo "PASS: history-purge with no paths exits 4"
+
+      - name: Scenario 4 — --yes and --no-push are mutually exclusive (exit 4)
+        run: |
+          set +e
+          "$RUNNER_TEMP/gitmap" history-purge anything --yes --no-push 2>/dev/null
+          rc=$?
+          set -e
+          if [ "$rc" != "4" ]; then
+            echo "FAIL: expected exit 4 for --yes+--no-push, got $rc" >&2
+            exit 1
+          fi
+          echo "PASS: --yes and --no-push conflict exits 4"

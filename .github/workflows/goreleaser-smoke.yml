@@ -1,0 +1,816 @@
+name: GoReleaser Smoke (cfr cg)
+
+# End-to-end smoke: build a goreleaser snapshot artifact on Linux + macOS,
+# extract the archive as an end user would, then run a minimal `cfr cg`
+# flow against a throwaway public repo to confirm the release binary:
+#   1. runs at all (prints version),
+#   2. exposes the `cg` modifier on `cfr` / `cfrp` (helptext contains it),
+#   3. can drive a real clone-fix-repo pipeline with `cg` + `--no-commit`
+#      + `--no-push` end-to-end without touching remotes.
+#
+# Runs on PR + main pushes that touch the release surface, and can be
+# invoked manually from the Actions tab.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gitmap/**"
+      - ".github/workflows/goreleaser-smoke.yml"
+      - ".goreleaser.yaml"
+      - "gitmap/.goreleaser.yaml"
+  pull_request:
+    paths:
+      - "gitmap/**"
+      - ".github/workflows/goreleaser-smoke.yml"
+      - "gitmap/.goreleaser.yaml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: goreleaser-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  guard-no-cfrp:
+    # Fail fast (before spending goreleaser build minutes) if any executable
+    # `cfrp cg` invocation sneaks back into this workflow. The smoke fixture
+    # runs a local file:// remote which `cfrp` (visibility flip) cannot use,
+    # so smoke jobs MUST use `cfr cg`. Helptext assertions and log/artifact
+    # filenames that merely mention the token are allowed.
+    name: "guard: no cfrp cg invocations"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Scan workflow for cfrp cg invocations
+        shell: bash
+        run: |
+          set -euo pipefail
+          file=".github/workflows/goreleaser-smoke.yml"
+          # Match executable invocations only; helptext + log filenames pass.
+          # Skip commented lines so this scanner does not flag its own docs.
+          if grep -vE '^[[:space:]]*#' "$file" \
+             | grep -nE '(\$bin|\$\{[^}]*bin[^}]*\}|gitmap(\.exe)?)[[:space:]]+cfrp[[:space:]]+cg\b'; then
+            echo "::error file=$file::forbidden 'cfrp cg' invocation detected — use 'cfr cg' (fixture uses file:// remote)"
+            exit 1
+          fi
+          echo "OK: no 'cfrp cg' invocations in $file"
+
+
+  snapshot-smoke:
+    name: snapshot build + cfr cg smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: guard-no-cfrp
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Build snapshot via goreleaser
+        uses: goreleaser/goreleaser-action@9c156ee8a17a598857849441385a2041ef570552 # v6.1.0
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          workdir: gitmap
+          args: release --clean --snapshot --skip=publish
+
+
+      - name: Locate + extract host archive
+        id: extract
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ runner.os }}" in
+            Linux)  os_tag=linux  ;;
+            macOS)  os_tag=darwin ;;
+            *) echo "unsupported runner ${{ runner.os }}" >&2; exit 2 ;;
+          esac
+          arch_tag=amd64
+          # goreleaser snapshot names: gitmap-vX.Y.Z-next-<os>-<arch>.tar.gz
+          archive=$(ls gitmap/dist/gitmap-*-${os_tag}-${arch_tag}.tar.gz | head -n1)
+          echo "archive=$archive"
+          test -f "$archive" || { echo "no archive found" >&2; ls -la gitmap/dist >&2; exit 3; }
+          workdir="$RUNNER_TEMP/gitmap-smoke"
+          mkdir -p "$workdir"
+          tar -xzf "$archive" -C "$workdir"
+          bin="$workdir/gitmap"
+          test -x "$bin" || chmod +x "$bin"
+          "$bin" version
+          echo "bin=$bin" >> "$GITHUB_OUTPUT"
+
+      - name: Assert `cg` modifier is documented in cfr/cfrp help
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Source-of-truth check against the embedded helptext markdown
+          # (avoids Windows-only stdout/pipe-drain flakiness when invoking
+          # the built binary just to grep its --help output).
+          for f in gitmap/helptext/clone-fix-repo.md gitmap/helptext/clone-fix-repo-pub.md; do
+            grep -qE '(^|[^a-zA-Z])cg([^a-zA-Z]|$)' "$f" \
+              || { echo "::error file=$f::helptext missing 'cg' modifier documentation"; exit 4; }
+          done
+          # Sanity: binary still boots and prints help without crashing.
+          bin="${{ steps.extract.outputs.bin }}"
+          "$bin" cfr  --help >/dev/null 2>&1 || { echo "::error::cfr --help crashed";  exit 5; }
+          "$bin" cfrp --help >/dev/null 2>&1 || { echo "::error::cfrp --help crashed"; exit 5; }
+          echo "OK: cfr + cfrp helptext documents the cg modifier"
+
+      - name: Build local fixture git repo (offline remote)
+        id: fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Build a fully local "remote" so the smoke test does not depend on
+          # github.com being reachable, does not race against upstream branch
+          # renames, and gives validation known values for:
+          #   * origin URL   (file:// path we control)
+          #   * default branch (main, forced via git init -b)
+          #   * committed note content (fixture-note.txt marker)
+          fixroot="$RUNNER_TEMP/gitmap-fixture"
+          rm -rf "$fixroot" && mkdir -p "$fixroot"
+          src="$fixroot/src"
+          bare="$fixroot/fixture-repo.git"
+          mkdir -p "$src"
+          (
+            cd "$src"
+            git init -q -b main
+            git config user.email 'smoke@gitmap.local'
+            git config user.name  'gitmap smoke'
+            printf 'gitmap smoke fixture\n' > README.md
+            printf 'FIXTURE_NOTE_MARKER: cfr-cg smoke v1\n' > fixture-note.txt
+            # Pre-create the merge target folders the upstream v24
+            # installer expects. Without these the installer exits 1
+            # at the "Merging: spec" step on a minimal fixture repo.
+            for d in spec linters linter-scripts scripts/fix-repo \
+                     scripts/visibility-change .lovable/coding-guidelines; do
+              mkdir -p "$d"
+              printf 'placeholder for cfr cg smoke\n' > "$d/.gitkeep"
+            done
+            git add .
+            git commit -q -m 'fixture: initial commit for cfr cg smoke'
+          )
+          git clone -q --bare "$src" "$bare"
+          repo_url="file://$bare"
+          echo "repo_url=$repo_url"       >> "$GITHUB_OUTPUT"
+          echo "clone_dir=fixture-repo"   >> "$GITHUB_OUTPUT"
+          echo "expected_branch=main"     >> "$GITHUB_OUTPUT"
+
+      - name: Cleanup stale gitmap.lock (pre-run)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # gitmap.lock is an advisory file lock (mem://tech/process-synchronization).
+          # A previous cached/interrupted run can leave one behind; without a
+          # holding process it will still block the next invocation. Scan the
+          # scratch + fixture + HOME roots and remove ONLY locks nobody holds
+          # (verified via `fuser`/`lsof` when available, else age fallback).
+          roots=(
+            "$RUNNER_TEMP/cfr-cg-smoke"
+            "$RUNNER_TEMP/gitmap-smoke"
+            "$RUNNER_TEMP/gitmap-fixture"
+            "$HOME/.gitmap"
+          )
+          removed=0; kept=0
+          for root in "${roots[@]}"; do
+            [ -d "$root" ] || continue
+            while IFS= read -r -d '' lock; do
+              held=""
+              if command -v fuser >/dev/null 2>&1; then
+                held=$(fuser "$lock" 2>/dev/null || true)
+              elif command -v lsof >/dev/null 2>&1; then
+                held=$(lsof -- "$lock" 2>/dev/null || true)
+              else
+                # No inspector available: only remove if mtime > 30s ago.
+                if [ -n "$(find "$lock" -mmin +0.5 -print 2>/dev/null)" ]; then
+                  held=""
+                else
+                  held="unknown-recent"
+                fi
+              fi
+              if [ -z "$held" ]; then
+                rm -f -- "$lock" && echo "  removed stale lock: $lock" && removed=$((removed+1))
+              else
+                echo "  kept held lock: $lock ($held)"; kept=$((kept+1))
+              fi
+            done < <(find "$root" -type f -name 'gitmap.lock' -print0 2>/dev/null)
+          done
+          echo "gitmap.lock cleanup: removed=$removed kept=$kept"
+
+      - name: End-to-end `cfr cg` against local fixture repo
+        shell: bash
+        env:
+          # No remotes required: fixture is a local file:// bare repo, and we
+          # pass --no-commit --no-push so nothing is written back either.
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+          bin="${{ steps.extract.outputs.bin }}"
+          repo_url="${{ steps.fixture.outputs.repo_url }}"
+          clone_dir="${{ steps.fixture.outputs.clone_dir }}"
+          scratch="$RUNNER_TEMP/cfr-cg-smoke"
+          rm -rf "$scratch" && mkdir -p "$scratch"
+          cd "$scratch"
+
+          log="$scratch/cfrp-cg.log"
+
+          run_cfr_cg() {
+            set +e
+            "$bin" cfr cg "$repo_url" --no-commit --no-push 2>&1 | tee "$log"
+            rc=${PIPESTATUS[0]}
+            set -e
+          }
+
+          run_cfr_cg
+          if [ $rc -ne 0 ] && grep -qiE 'gitmap\.lock|already (locked|running)|another gitmap' "$log"; then
+            echo "::warning::first attempt hit a lock (rc=$rc); sweeping unheld gitmap.lock files and retrying once"
+            for root in "$RUNNER_TEMP/cfr-cg-smoke" "$RUNNER_TEMP/gitmap-smoke" "$RUNNER_TEMP/gitmap-fixture" "$HOME/.gitmap"; do
+              [ -d "$root" ] || continue
+              while IFS= read -r -d '' lock; do
+                held=""
+                if command -v fuser >/dev/null 2>&1; then held=$(fuser "$lock" 2>/dev/null || true); fi
+                if [ -z "$held" ] && command -v lsof >/dev/null 2>&1; then held=$(lsof -- "$lock" 2>/dev/null || true); fi
+                if [ -z "$held" ]; then rm -f -- "$lock" && echo "  retry: removed stale lock $lock"; fi
+              done < <(find "$root" -type f -name 'gitmap.lock' -print0 2>/dev/null)
+            done
+            rm -rf "$scratch"/* "$scratch"/.[!.]* 2>/dev/null || true
+            run_cfr_cg
+          fi
+
+          if [ $rc -ne 0 ]; then
+            echo "::error::cfr cg exited $rc"
+            ls -la
+            exit $rc
+          fi
+
+          test -d "$clone_dir/.git" || { echo "::error::clone missing at $clone_dir"; ls -la; exit 5; }
+          echo "OK: cfr cg completed end-to-end (rc=$rc)"
+
+      - name: Validate cfr cg outputs (URL / clone cmd / branch / notes)
+        shell: bash
+        run: |
+          set -euo pipefail
+          scratch="$RUNNER_TEMP/cfr-cg-smoke"
+          cd "$scratch"
+          repo_url="${{ steps.fixture.outputs.repo_url }}"
+          clone_dir="${{ steps.fixture.outputs.clone_dir }}"
+          expected_branch="${{ steps.fixture.outputs.expected_branch }}"
+          log="$scratch/cfrp-cg.log"
+
+          fail=0
+          assert_contains() { # $1=needle $2=label
+            if ! grep -Fq -- "$1" "$log"; then
+              echo "::error::stdout missing $2: '$1'"
+              fail=1
+            else
+              echo "  OK stdout contains $2"
+            fi
+          }
+
+          # 1) Repo URL (file:// fixture path) surfaced in run log.
+          assert_contains "$repo_url" 'repo URL'
+
+          # 2) Clone command trace.
+          if ! grep -Eq 'git( .*)? clone' "$log"; then
+            echo "::error::stdout missing 'git clone' command trace"
+            fail=1
+          else
+            echo "  OK stdout contains clone command"
+          fi
+
+          # 3) CG installer + Note section.
+          assert_contains 'Installing coding guidelines (v24' 'CG installer banner'
+          assert_contains 'Note: --no-commit set' 'no-commit note'
+          assert_contains 'Note: --no-push set'   'no-push note'
+
+          # 4) Pipeline completion marker.
+          assert_contains 'clone-fix-repo: pipeline completed' 'pipeline done marker'
+
+          # 5) Branch + remote validation against known fixture values.
+          branch=$(git -C "$clone_dir" rev-parse --abbrev-ref HEAD)
+          echo "  cloned branch=$branch (expected=$expected_branch)"
+          if [ "$branch" != "$expected_branch" ]; then
+            echo "::error::branch '$branch' != expected '$expected_branch'"
+            fail=1
+          else
+            echo "  OK branch matches fixture"
+          fi
+          remote=$(git -C "$clone_dir" config --get remote.origin.url)
+          echo "  cloned remote=$remote"
+          if [ "$remote" != "$repo_url" ]; then
+            echo "::error::remote origin '$remote' != '$repo_url'"
+            fail=1
+          else
+            echo "  OK remote origin matches fixture URL"
+          fi
+
+          # 5b) Committed note content came through unmodified.
+          if ! grep -Fq 'FIXTURE_NOTE_MARKER: cfr-cg smoke v1' "$clone_dir/fixture-note.txt"; then
+            echo "::error::fixture-note.txt marker missing in clone"
+            fail=1
+          else
+            echo "  OK fixture note content preserved"
+          fi
+
+          # 6) Optional JSON checkpoint sidecar (.gitmap/cfrp/<batch>/state.json).
+          state=$(find .gitmap/cfrp -name state.json 2>/dev/null | head -n1 || true)
+          if [ -n "$state" ]; then
+            echo "  found checkpoint: $state"
+            python3 - "$state" "$repo_url" <<'PY'
+          import json, sys
+          path, url = sys.argv[1], sys.argv[2]
+          cp = json.load(open(path))
+          assert cp.get('batch_id'), 'batch_id empty'
+          done = cp.get('done') or []
+          assert any(url in d for d in done), f'done[] missing {url}: {done!r}'
+          assert cp.get('total', 0) >= 1, 'total < 1'
+          print(f'  OK checkpoint validated (batch_id={cp["batch_id"]}, done={len(done)})')
+          PY
+          else
+            echo '  note: no checkpoint sidecar emitted (single-URL run), skipping JSON validation'
+          fi
+
+          [ $fail -eq 0 ] || { echo '::error::output validation failed'; exit 6; }
+          echo 'OK: all cfr cg output fields validated'
+
+      - name: Emit + exact-match smoke report (CSV + JSON)
+        shell: bash
+        run: |
+          set -euo pipefail
+          scratch="$RUNNER_TEMP/cfr-cg-smoke"
+          cd "$scratch"
+          repo_url="${{ steps.fixture.outputs.repo_url }}"
+          clone_dir="${{ steps.fixture.outputs.clone_dir }}"
+          log="$scratch/cfrp-cg.log"
+
+          # Expected exact values (fixture is fully deterministic).
+          expected_folder_abs="$scratch/$clone_dir"
+          expected_clone_cmd="git clone $repo_url $expected_folder_abs"
+          expected_note='FIXTURE_NOTE_MARKER: cfr-cg smoke v1'
+
+          # Observed values.
+          observed_folder_abs=$(cd "$clone_dir" && pwd)
+          # First `git clone` line in the log, whitespace-normalized.
+          # Do not use grep char classes like [^\r\n] here: POSIX grep
+          # treats that as "not r or n", which truncates /home/runner paths.
+          observed_clone_cmd=$(grep -E 'git( [^ ]+)? clone ' "$log" \
+            | head -n1 \
+            | sed -E 's/^.*(git( [^ ]+)? clone .*)$/\1/' \
+            | sed -E 's/[[:space:]]+/ /g' \
+            | sed -E 's/[[:space:]]+$//')
+          observed_note=$(cat "$clone_dir/fixture-note.txt")
+
+          # Emit CSV (header + one row) and JSON reports.
+          csv="$scratch/smoke-report.csv"
+          json="$scratch/smoke-report.json"
+          {
+            echo 'field,expected,observed'
+            printf 'folder_path,%s,%s\n'  "$expected_folder_abs" "$observed_folder_abs"
+            printf 'clone_command,"%s","%s"\n' "$expected_clone_cmd" "$observed_clone_cmd"
+            printf 'note_marker,"%s","%s"\n'   "$expected_note"     "$observed_note"
+          } > "$csv"
+          python3 - "$json" \
+            "$expected_folder_abs" "$observed_folder_abs" \
+            "$expected_clone_cmd"  "$observed_clone_cmd" \
+            "$expected_note"       "$observed_note" <<'PY'
+          import json, sys
+          out, ef, of, ec, oc, en, on = sys.argv[1:8]
+          json.dump({
+            "folder_path":   {"expected": ef, "observed": of},
+            "clone_command": {"expected": ec, "observed": oc},
+            "note_marker":   {"expected": en, "observed": on},
+          }, open(out, "w"), indent=2)
+          PY
+
+          echo '--- smoke-report.csv ---';  cat "$csv"
+          echo '--- smoke-report.json ---'; cat "$json"
+
+          fail=0
+          check_exact() { # $1=label $2=expected $3=observed
+            if [ "$2" != "$3" ]; then
+              echo "::error::$1 mismatch: expected='$2' observed='$3'"; fail=1
+            else
+              echo "  OK $1 exact match"
+            fi
+          }
+          check_exact 'folder_path'   "$expected_folder_abs" "$observed_folder_abs"
+          check_exact 'clone_command' "$expected_clone_cmd"  "$observed_clone_cmd"
+          check_exact 'note_marker'   "$expected_note"       "$observed_note"
+
+          # Re-parse the emitted CSV + JSON and assert the row values equal
+          # the expected values (guards against report-emitter bugs too).
+          python3 - "$csv" "$json" \
+            "$expected_folder_abs" "$expected_clone_cmd" "$expected_note" <<'PY'
+          import csv, json, sys
+          csv_path, json_path, ef, ec, en = sys.argv[1:6]
+          rows = {r['field']: r for r in csv.DictReader(open(csv_path))}
+          exp = {'folder_path': ef, 'clone_command': ec, 'note_marker': en}
+          bad = []
+          for k, v in exp.items():
+              got = rows.get(k, {}).get('observed')
+              if got != v:
+                  bad.append(f'CSV[{k}] observed={got!r} != expected={v!r}')
+          j = json.load(open(json_path))
+          for k, v in exp.items():
+              got = j.get(k, {}).get('observed')
+              if got != v:
+                  bad.append(f'JSON[{k}].observed={got!r} != expected={v!r}')
+          if bad:
+              print('\n'.join(f'::error::{b}' for b in bad)); sys.exit(7)
+          print('  OK CSV + JSON reports match expected values exactly')
+          PY
+
+          [ $fail -eq 0 ] || exit 6
+          echo 'OK: smoke-report.csv + smoke-report.json validated (exact match)'
+
+      - name: Upload smoke report
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: cfr-cg-smoke-report-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/cfr-cg-smoke/smoke-report.csv
+            ${{ runner.temp }}/cfr-cg-smoke/smoke-report.json
+            ${{ runner.temp }}/cfr-cg-smoke/cfrp-cg.log
+          if-no-files-found: warn
+
+  snapshot-smoke-windows:
+    name: snapshot build + cfr cg smoke (windows-latest amd64)
+    runs-on: windows-latest
+    needs: guard-no-cfrp
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Build snapshot via goreleaser
+        uses: goreleaser/goreleaser-action@9c156ee8a17a598857849441385a2041ef570552 # v6.1.0
+
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          workdir: gitmap
+          args: release --clean --snapshot --skip=publish
+
+      - name: Locate + extract host archive (windows amd64)
+        id: extract
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # goreleaser snapshot names: gitmap-vX.Y.Z-next-windows-amd64.zip
+          $archive = Get-ChildItem -Path gitmap/dist -Filter 'gitmap-*-windows-amd64.zip' `
+            | Select-Object -First 1
+          if (-not $archive) {
+            Write-Host '::error::no windows-amd64 archive found'
+            Get-ChildItem gitmap/dist | Format-Table -AutoSize
+            exit 3
+          }
+          Write-Host "archive=$($archive.FullName)"
+          $workdir = Join-Path $env:RUNNER_TEMP 'gitmap-smoke'
+          New-Item -ItemType Directory -Force -Path $workdir | Out-Null
+          Expand-Archive -LiteralPath $archive.FullName -DestinationPath $workdir -Force
+          $bin = Join-Path $workdir 'gitmap.exe'
+          if (-not (Test-Path $bin)) {
+            Write-Host '::error::gitmap.exe missing after extract'
+            Get-ChildItem $workdir -Recurse | Format-Table -AutoSize
+            exit 3
+          }
+          & $bin version
+          "bin=$bin" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Assert `cg` modifier is documented in cfr/cfrp help
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Source-of-truth check against the embedded helptext markdown
+          # (avoids Windows stdout/pipe-drain flakiness when invoking the
+          # built binary just to grep its --help output).
+          foreach ($f in @('gitmap/helptext/clone-fix-repo.md','gitmap/helptext/clone-fix-repo-pub.md')) {
+            $body = Get-Content -Raw -LiteralPath $f
+            if ($body -notmatch '(^|[^a-zA-Z])cg([^a-zA-Z]|$)') {
+              Write-Host "::error file=$f::helptext missing 'cg' modifier documentation"
+              exit 4
+            }
+          }
+          # Sanity: binary still boots and prints help without crashing.
+          $bin = '${{ steps.extract.outputs.bin }}'
+          & $bin cfr  --help *> $null
+          if ($LASTEXITCODE -ne 0) { Write-Host '::error::cfr --help crashed';  exit 5 }
+          & $bin cfrp --help *> $null
+          if ($LASTEXITCODE -ne 0) { Write-Host '::error::cfrp --help crashed'; exit 5 }
+          Write-Host 'OK: cfr + cfrp helptext documents the cg modifier'
+
+      - name: Build local fixture git repo (offline remote)
+        id: fixture
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Local file:// bare repo so smoke test is offline + deterministic
+          # (known branch, known origin URL, known committed note content).
+          $fixroot = Join-Path $env:RUNNER_TEMP 'gitmap-fixture'
+          if (Test-Path $fixroot) { Remove-Item -Recurse -Force $fixroot }
+          New-Item -ItemType Directory -Force -Path $fixroot | Out-Null
+          $src  = Join-Path $fixroot 'src'
+          $bare = Join-Path $fixroot 'fixture-repo.git'
+          New-Item -ItemType Directory -Force -Path $src | Out-Null
+          Push-Location $src
+          & git init -q -b main
+          & git config user.email 'smoke@gitmap.local'
+          & git config user.name  'gitmap smoke'
+          Set-Content -Path README.md         -Value 'gitmap smoke fixture' -NoNewline:$false
+          Set-Content -Path fixture-note.txt  -Value 'FIXTURE_NOTE_MARKER: cfr-cg smoke v1' -NoNewline:$false
+          # Pre-create the merge target folders the upstream v24
+          # installer expects; otherwise "Merging: spec" exits 1.
+          foreach ($d in @('spec','linters','linter-scripts','scripts/fix-repo','scripts/visibility-change','.lovable/coding-guidelines')) {
+            New-Item -ItemType Directory -Force -Path $d | Out-Null
+            Set-Content -Path (Join-Path $d '.gitkeep') -Value 'placeholder for cfr cg smoke' -NoNewline:$false
+          }
+          & git add .
+          & git commit -q -m 'fixture: initial commit for cfr cg smoke'
+          Pop-Location
+          & git clone -q --bare $src $bare
+          # Windows file URL: forward slashes, drive-letter form file:///C:/...
+          $barePosix = ($bare -replace '\\','/')
+          $repoUrl = "file:///$barePosix"
+          "repo_url=$repoUrl"       | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "clone_dir=fixture-repo"  | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "expected_branch=main"    | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Cleanup stale gitmap.lock (pre-run)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # gitmap.lock is advisory (mem://tech/process-synchronization). Sweep
+          # any leftover lock file no live process holds. On Windows we probe
+          # by attempting an exclusive open — if it succeeds, nobody holds it.
+          $roots = @(
+            (Join-Path $env:RUNNER_TEMP 'cfr-cg-smoke'),
+            (Join-Path $env:RUNNER_TEMP 'gitmap-smoke'),
+            (Join-Path $env:RUNNER_TEMP 'gitmap-fixture'),
+            (Join-Path $env:USERPROFILE '.gitmap')
+          )
+          $removed = 0; $kept = 0
+          foreach ($root in $roots) {
+            if (-not (Test-Path $root)) { continue }
+            Get-ChildItem -Path $root -Recurse -Filter 'gitmap.lock' -File -ErrorAction SilentlyContinue | ForEach-Object {
+              $lock = $_.FullName
+              try {
+                $fs = [System.IO.File]::Open($lock, 'Open', 'ReadWrite', 'None')
+                $fs.Close()
+                Remove-Item -LiteralPath $lock -Force
+                Write-Host "  removed stale lock: $lock"
+                $removed++
+              } catch {
+                Write-Host "  kept held lock: $lock ($($_.Exception.Message))"
+                $kept++
+              }
+            }
+          }
+          Write-Host "gitmap.lock cleanup: removed=$removed kept=$kept"
+
+      - name: End-to-end `cfr cg` against local fixture repo
+        shell: pwsh
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bin = '${{ steps.extract.outputs.bin }}'
+          $repoUrl   = '${{ steps.fixture.outputs.repo_url }}'
+          $cloneDir  = '${{ steps.fixture.outputs.clone_dir }}'
+          $scratch = Join-Path $env:RUNNER_TEMP 'cfr-cg-smoke'
+          if (Test-Path $scratch) { Remove-Item -Recurse -Force $scratch }
+          New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+          Set-Location $scratch
+
+          $log = Join-Path $scratch 'cfrp-cg.log'
+
+          function Invoke-CfrCg {
+            & $bin cfr cg $repoUrl --no-commit --no-push *>&1 | Tee-Object -FilePath $log
+            return $LASTEXITCODE
+          }
+
+          $rc = Invoke-CfrCg
+          if ($rc -ne 0) {
+            $logText = Get-Content -Raw -LiteralPath $log
+            if ($logText -match '(?i)gitmap\.lock|already (locked|running)|another gitmap') {
+              Write-Host "::warning::first attempt hit a lock (rc=$rc); sweeping unheld gitmap.lock files and retrying once"
+              $sweepRoots = @($scratch,
+                              (Join-Path $env:RUNNER_TEMP 'gitmap-smoke'),
+                              (Join-Path $env:RUNNER_TEMP 'gitmap-fixture'),
+                              (Join-Path $env:USERPROFILE '.gitmap'))
+              foreach ($r in $sweepRoots) {
+                if (-not (Test-Path $r)) { continue }
+                Get-ChildItem -Path $r -Recurse -Filter 'gitmap.lock' -File -ErrorAction SilentlyContinue | ForEach-Object {
+                  try {
+                    $fs = [System.IO.File]::Open($_.FullName, 'Open', 'ReadWrite', 'None')
+                    $fs.Close()
+                    Remove-Item -LiteralPath $_.FullName -Force
+                    Write-Host "  retry: removed stale lock $($_.FullName)"
+                  } catch { }
+                }
+              }
+              Get-ChildItem -Path $scratch -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+              $rc = Invoke-CfrCg
+            }
+          }
+
+          if ($rc -ne 0) {
+            Write-Host "::error::cfr cg exited $rc"
+            Get-ChildItem | Format-Table -AutoSize
+            exit $rc
+          }
+          if (-not (Test-Path (Join-Path $cloneDir '.git'))) {
+            Write-Host "::error::clone missing at $cloneDir"
+            Get-ChildItem | Format-Table -AutoSize
+            exit 5
+          }
+          Write-Host "OK: cfr cg completed end-to-end (rc=$rc)"
+
+      - name: Validate cfr cg outputs (URL / clone cmd / branch / notes)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $scratch = Join-Path $env:RUNNER_TEMP 'cfr-cg-smoke'
+          Set-Location $scratch
+          $repoUrl         = '${{ steps.fixture.outputs.repo_url }}'
+          $cloneDir        = '${{ steps.fixture.outputs.clone_dir }}'
+          $expectedBranch  = '${{ steps.fixture.outputs.expected_branch }}'
+          $log = Join-Path $scratch 'cfrp-cg.log'
+          $text = Get-Content -Raw -LiteralPath $log
+          $fail = 0
+
+          function Assert-Contains($needle, $label) {
+            if ($script:text -notmatch [regex]::Escape($needle)) {
+              Write-Host "::error::stdout missing $label`: '$needle'"
+              $script:fail = 1
+            } else {
+              Write-Host "  OK stdout contains $label"
+            }
+          }
+
+          # 1) Fixture URL surfaced in the run log.
+          Assert-Contains $repoUrl 'repo URL'
+
+          # 2) Clone command trace.
+          if ($text -notmatch 'git(\s.*)?\s+clone') {
+            Write-Host "::error::stdout missing 'git clone' command trace"
+            $fail = 1
+          } else {
+            Write-Host '  OK stdout contains clone command'
+          }
+
+          # 3) CG installer + Note section.
+          Assert-Contains 'Installing coding guidelines (v24' 'CG installer banner'
+          Assert-Contains 'Note: --no-commit set' 'no-commit note'
+          Assert-Contains 'Note: --no-push set'   'no-push note'
+
+          # 4) Pipeline completion marker.
+          Assert-Contains 'clone-fix-repo: pipeline completed' 'pipeline done marker'
+
+          # 5) Branch + remote validation vs known fixture values.
+          $branch = (& git -C $cloneDir rev-parse --abbrev-ref HEAD).Trim()
+          Write-Host "  cloned branch=$branch (expected=$expectedBranch)"
+          if ($branch -ne $expectedBranch) {
+            Write-Host "::error::branch '$branch' != expected '$expectedBranch'"; $fail = 1
+          } else { Write-Host '  OK branch matches fixture' }
+          $remote = (& git -C $cloneDir config --get remote.origin.url).Trim()
+          Write-Host "  cloned remote=$remote"
+          if ($remote -ne $repoUrl) {
+            Write-Host "::error::remote origin '$remote' != '$repoUrl'"
+            $fail = 1
+          } else { Write-Host '  OK remote origin matches fixture URL' }
+
+          # 5b) Committed note content preserved through clone.
+          $noteFile = Join-Path $cloneDir 'fixture-note.txt'
+          if (-not (Test-Path $noteFile) -or
+              -not ((Get-Content -Raw -LiteralPath $noteFile) -match 'FIXTURE_NOTE_MARKER: cfr-cg smoke v1')) {
+            Write-Host '::error::fixture-note.txt marker missing in clone'
+            $fail = 1
+          } else {
+            Write-Host '  OK fixture note content preserved'
+          }
+
+          # 6) Optional JSON checkpoint sidecar.
+          $state = Get-ChildItem -Path .gitmap/cfrp -Recurse -Filter state.json -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($state) {
+            Write-Host "  found checkpoint: $($state.FullName)"
+            $cp = Get-Content -Raw -LiteralPath $state.FullName | ConvertFrom-Json
+            if (-not $cp.batch_id) { Write-Host '::error::batch_id empty'; $fail = 1 }
+            $done = @($cp.done)
+            if (-not ($done | Where-Object { $_ -like "*$repoUrl*" })) {
+              Write-Host "::error::done[] missing $repoUrl (got: $($done -join ','))"
+              $fail = 1
+            }
+            if (($cp.total -as [int]) -lt 1) { Write-Host '::error::total < 1'; $fail = 1 }
+            Write-Host "  OK checkpoint validated (batch_id=$($cp.batch_id), done=$($done.Count))"
+          } else {
+            Write-Host '  note: no checkpoint sidecar emitted (single-URL run), skipping JSON validation'
+          }
+
+          if ($fail -ne 0) { Write-Host '::error::output validation failed'; exit 6 }
+          Write-Host 'OK: all cfr cg output fields validated'
+
+      - name: Emit + exact-match smoke report (CSV + JSON)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $scratch = Join-Path $env:RUNNER_TEMP 'cfr-cg-smoke'
+          Set-Location $scratch
+          $repoUrl  = '${{ steps.fixture.outputs.repo_url }}'
+          $cloneDir = '${{ steps.fixture.outputs.clone_dir }}'
+          $log = Join-Path $scratch 'cfrp-cg.log'
+
+          $expectedFolderAbs = (Resolve-Path $cloneDir).Path
+          $expectedCloneCmd  = "git clone $repoUrl $expectedFolderAbs"
+          $expectedNote      = 'FIXTURE_NOTE_MARKER: cfr-cg smoke v1'
+
+          $observedFolderAbs = (Resolve-Path $cloneDir).Path
+          $logText = Get-Content -Raw -LiteralPath $log
+          $m = [regex]::Match($logText, 'git(?:\s+\S+)?\s+clone\s+[^\r\n]+')
+          if (-not $m.Success) { Write-Host '::error::no git clone line found in log'; exit 6 }
+          $observedCloneCmd = ($m.Value -replace '\s+',' ').TrimEnd()
+          $observedNote = (Get-Content -Raw -LiteralPath (Join-Path $cloneDir 'fixture-note.txt')).TrimEnd("`r","`n")
+
+          $csv  = Join-Path $scratch 'smoke-report.csv'
+          $json = Join-Path $scratch 'smoke-report.json'
+
+          # CSV: header + one row per field. Quote values that may contain commas/spaces.
+          $csvLines = @(
+            'field,expected,observed',
+            ('folder_path,"{0}","{1}"'  -f $expectedFolderAbs, $observedFolderAbs),
+            ('clone_command,"{0}","{1}"' -f $expectedCloneCmd, $observedCloneCmd),
+            ('note_marker,"{0}","{1}"'   -f $expectedNote,     $observedNote)
+          )
+          Set-Content -LiteralPath $csv -Value $csvLines -Encoding utf8
+
+          $report = [ordered]@{
+            folder_path   = @{ expected = $expectedFolderAbs; observed = $observedFolderAbs }
+            clone_command = @{ expected = $expectedCloneCmd;  observed = $observedCloneCmd }
+            note_marker   = @{ expected = $expectedNote;      observed = $observedNote }
+          }
+          $report | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $json -Encoding utf8
+
+          Write-Host '--- smoke-report.csv ---';  Get-Content -LiteralPath $csv
+          Write-Host '--- smoke-report.json ---'; Get-Content -LiteralPath $json
+
+          $fail = 0
+          function CheckExact($label, $expected, $observed) {
+            if ($expected -ne $observed) {
+              Write-Host "::error::$label mismatch: expected='$expected' observed='$observed'"
+              $script:fail = 1
+            } else { Write-Host "  OK $label exact match" }
+          }
+          CheckExact 'folder_path'   $expectedFolderAbs $observedFolderAbs
+          CheckExact 'clone_command' $expectedCloneCmd  $observedCloneCmd
+          CheckExact 'note_marker'   $expectedNote      $observedNote
+
+          # Re-parse emitted CSV + JSON and assert exact matches (guards emitter bugs).
+          $rows = Import-Csv -LiteralPath $csv
+          $rowMap = @{}; foreach ($r in $rows) { $rowMap[$r.field] = $r }
+          $expected = @{
+            folder_path   = $expectedFolderAbs
+            clone_command = $expectedCloneCmd
+            note_marker   = $expectedNote
+          }
+          foreach ($k in $expected.Keys) {
+            if ($rowMap[$k].observed -ne $expected[$k]) {
+              Write-Host "::error::CSV[$k] observed='$($rowMap[$k].observed)' != expected='$($expected[$k])'"
+              $fail = 1
+            }
+          }
+          $j = Get-Content -Raw -LiteralPath $json | ConvertFrom-Json
+          foreach ($k in $expected.Keys) {
+            if ($j.$k.observed -ne $expected[$k]) {
+              Write-Host "::error::JSON[$k].observed='$($j.$k.observed)' != expected='$($expected[$k])'"
+              $fail = 1
+            }
+          }
+          if ($fail -ne 0) { exit 6 }
+          Write-Host 'OK: smoke-report.csv + smoke-report.json validated (exact match)'
+
+      - name: Upload smoke report
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: cfr-cg-smoke-report-windows
+          path: |
+            ${{ runner.temp }}/cfr-cg-smoke/smoke-report.csv
+            ${{ runner.temp }}/cfr-cg-smoke/smoke-report.json
+            ${{ runner.temp }}/cfr-cg-smoke/cfrp-cg.log
+          if-no-files-found: warn

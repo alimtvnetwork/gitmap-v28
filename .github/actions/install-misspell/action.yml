@@ -1,0 +1,20 @@
+name: Install misspell (pinned)
+description: |
+  Installs github.com/client9/misspell pinned to v0.3.4 via `go install`.
+
+  Pinned version is mandated by the Core memory rule on third-party tool
+  versions ("never use @latest"). The same v0.3.4 binary is also what
+  golangci-lint v1.64.8 vendors internally for its misspell linter, so
+  the dedicated whole-repo spell-check job and the Go-source misspell
+  pass inside golangci-lint cannot diverge.
+
+  Caller is responsible for first invoking actions/setup-go (or this
+  composite's sibling, ./.github/actions/setup-go-cached) so `go install`
+  has a working toolchain.
+
+runs:
+  using: composite
+  steps:
+    - name: go install misspell@v0.3.4
+      shell: bash
+      run: go install github.com/client9/misspell/cmd/misspell@v0.3.4

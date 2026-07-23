@@ -1,0 +1,60 @@
+name: GoReleaser
+
+# Tag-driven multi-OS release for gitmap. Builds linux/darwin/windows
+# (amd64 + arm64) and uploads archives + checksums to the GitHub Release.
+#
+# Trigger: push a semver tag `v*.*.*` (e.g. `git tag v6.74.0 && git push --tags`).
+# Manual:  workflow_dispatch lets you dry-run against the current ref.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Snapshot build only (no publish)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: goreleaser-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    name: Build & publish via goreleaser
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Run goreleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          workdir: gitmap
+          args: >-
+            release --clean
+            ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--snapshot' || '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload snapshot artifacts
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitmap-snapshot-${{ github.sha }}
+          path: gitmap/dist/*
+          retention-days: 7

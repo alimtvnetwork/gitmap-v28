@@ -1,0 +1,10 @@
+# Per-package coverage floors (#13). One line per override:
+#   <import-path> <floor-percent>
+# Packages not listed default to FLOOR_DEFAULT (70) in coverage-floor.sh.
+# Ratchet upward over time — never lower a floor without justification.
+
+github.com/alimtvnetwork/gitmap-v27/gitmap/visibility 75
+github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/checkpoint 80
+github.com/alimtvnetwork/gitmap-v27/gitmap/jsonenv 90
+github.com/alimtvnetwork/gitmap-v27/gitmap/logging 80
+github.com/alimtvnetwork/gitmap-v27/gitmap/transport 80

@@ -1,0 +1,49 @@
+name: ui-parity
+# Dark/light parity audit (#11) — Playwright captures each docs route
+# in both themes and fails the build when contrast or layout regresses
+# beyond an allowed pixel diff. Catches the kind of badge/contrast
+# breakage that took multiple iterations to land in v6.65.0.
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "index.html"
+      - "tailwind.config.*"
+      - ".github/workflows/ui-parity.yml"
+  workflow_dispatch:
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install deps
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Install Playwright + diff deps
+        run: |
+          npx playwright install --with-deps chromium
+          npm install --no-save pixelmatch pngjs
+      - name: Serve and snapshot
+        run: |
+          npx vite preview --port 4173 &
+          SERVER_PID=$!
+          # Poll readiness instead of bare sleep.
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:4173/ >/dev/null && break || sleep 1
+          done
+          node scripts/ui-parity.mjs
+          kill $SERVER_PID || true
+      - name: Upload snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-parity-snapshots
+          path: .ui-parity/
+          if-no-files-found: ignore

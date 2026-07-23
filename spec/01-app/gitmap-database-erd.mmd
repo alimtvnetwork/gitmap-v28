@@ -1,0 +1,488 @@
+---
+title: gitmap-v27 Database ERD (canonical)
+---
+%% Source of truth: gitmap-v27/constants/constants_*.go SQLCreate* blocks.
+%% Table-name parity is enforced by gitmap-v27/store/erd_parity_test.go — any
+%% new SQLCreate* constant MUST be reflected here in the same commit, or
+%% CI fails. Per-column accuracy is best-effort; the parity test is
+%% intentionally name-only so legitimate column tweaks don't churn the ERD.
+%% All tables singular, PascalCase, INTEGER PRIMARY KEY AUTOINCREMENT (per project memory).
+%% Note: Repo.ScanFolderId is added via ALTER without a declared FOREIGN KEY clause
+%% (SQLite limitation) — application code enforces the relationship.
+erDiagram
+
+    %% ============================================================
+    %% CORE: Repository registry + grouping
+    %% ============================================================
+
+    Repo {
+        INTEGER RepoId PK
+        TEXT Slug
+        TEXT RepoName
+        TEXT HttpsUrl
+        TEXT SshUrl
+        TEXT Branch
+        TEXT RelativePath
+        TEXT AbsolutePath UK
+        TEXT CloneInstruction
+        TEXT Notes
+        INTEGER ScanFolderId FK "nullable, app-enforced"
+        TEXT CreatedAt
+        TEXT UpdatedAt
+    }
+
+    Group {
+        INTEGER GroupId PK
+        TEXT Name UK
+        TEXT Description
+        TEXT Color
+        TEXT CreatedAt
+    }
+
+    GroupRepo {
+        INTEGER GroupId PK,FK
+        INTEGER RepoId PK,FK
+    }
+
+    Alias {
+        INTEGER AliasId PK
+        TEXT Alias UK
+        INTEGER RepoId FK
+        TEXT CreatedAt
+    }
+
+    ScanFolder {
+        INTEGER ScanFolderId PK
+        TEXT AbsolutePath UK
+        TEXT Label
+        TEXT Notes
+        TEXT LastScannedAt
+        TEXT CreatedAt
+    }
+
+    %% ============================================================
+    %% RELEASE: Version metadata, draft/zip groups, temp releases
+    %% ============================================================
+
+    Release {
+        INTEGER ReleaseId PK
+        TEXT Version
+        TEXT Tag UK
+        TEXT Branch
+        TEXT SourceBranch
+        TEXT CommitSha
+        TEXT Changelog
+        TEXT Notes
+        INTEGER IsDraft "v15: was Draft"
+        INTEGER IsPreRelease "v15: was PreRelease"
+        INTEGER IsLatest
+        TEXT Source
+        TEXT CreatedAt
+    }
+
+    TempRelease {
+        INTEGER TempReleaseId PK
+        TEXT Branch UK
+        TEXT VersionPrefix
+        INTEGER SequenceNumber
+        TEXT CommitSha
+        TEXT CommitMessage
+        TEXT CreatedAt
+    }
+
+    ZipGroup {
+        INTEGER ZipGroupId PK
+        TEXT Name UK
+        TEXT ArchiveName
+        TEXT CreatedAt
+    }
+
+    ZipGroupItem {
+        INTEGER ZipGroupId PK,FK
+        TEXT FullPath PK
+        TEXT RepoPath
+        TEXT RelativePath
+        INTEGER IsFolder
+    }
+
+    %% ============================================================
+    %% PROJECT DETECTION: Repo → DetectedProject → Go/C# metadata
+    %% ============================================================
+
+    ProjectType {
+        INTEGER ProjectTypeId PK
+        TEXT Key UK
+        TEXT Name
+        TEXT Description
+    }
+
+    DetectedProject {
+        INTEGER DetectedProjectId PK
+        INTEGER RepoId FK
+        INTEGER ProjectTypeId FK
+        TEXT ProjectName
+        TEXT AbsolutePath
+        TEXT RepoPath
+        TEXT RelativePath
+        TEXT PrimaryIndicator
+        TEXT DetectedAt
+    }
+
+    GoProjectMetadata {
+        INTEGER GoProjectMetadataId PK
+        INTEGER DetectedProjectId FK,UK
+        TEXT GoModPath
+        TEXT GoSumPath
+        TEXT ModuleName
+        TEXT GoVersion
+    }
+
+    GoRunnableFile {
+        INTEGER GoRunnableFileId PK
+        INTEGER GoMetadataId FK
+        TEXT RunnableName
+        TEXT FilePath
+        TEXT RelativePath
+    }
+
+    CsharpProjectMetadata {
+        INTEGER CsharpProjectMetadataId PK
+        INTEGER DetectedProjectId FK,UK
+        TEXT SlnPath
+        TEXT SlnName
+        TEXT GlobalJsonPath
+        TEXT SdkVersion
+    }
+
+    CsharpProjectFile {
+        INTEGER CsharpProjectFileId PK
+        INTEGER CsharpMetadataId FK
+        TEXT FilePath
+        TEXT RelativePath
+        TEXT FileName
+        TEXT ProjectName
+        TEXT TargetFramework
+        TEXT OutputType
+        TEXT Sdk
+    }
+
+    CsharpKeyFile {
+        INTEGER CsharpKeyFileId PK
+        INTEGER CsharpMetadataId FK
+        TEXT FileType
+        TEXT FilePath
+        TEXT RelativePath
+    }
+
+    %% ============================================================
+    %% VERSIONING: Probes + repo-version history (clone-next flatten)
+    %% ============================================================
+
+    VersionProbe {
+        INTEGER VersionProbeId PK
+        INTEGER RepoId FK
+        TEXT ProbedAt
+        TEXT NextVersionTag
+        INTEGER NextVersionNum
+        TEXT Method
+        INTEGER IsAvailable
+        TEXT Error
+    }
+
+    RepoVersionHistory {
+        INTEGER RepoVersionHistoryId PK
+        INTEGER RepoId FK
+        TEXT FromVersionTag
+        INTEGER FromVersionNum
+        TEXT ToVersionTag
+        INTEGER ToVersionNum
+        TEXT FlattenedPath
+        TEXT CreatedAt
+    }
+
+    %% ============================================================
+    %% TASKS: Pending + completed task replay queue
+    %% ============================================================
+
+    TaskType {
+        INTEGER TaskTypeId PK
+        TEXT Name UK
+    }
+
+    PendingTask {
+        INTEGER PendingTaskId PK
+        INTEGER TaskTypeId FK
+        TEXT TargetPath
+        TEXT WorkingDirectory
+        TEXT SourceCommand
+        TEXT CommandArgs
+        TEXT FailureReason
+        TEXT CreatedAt
+        TEXT UpdatedAt
+    }
+
+    CompletedTask {
+        INTEGER CompletedTaskId PK
+        INTEGER OriginalTaskId
+        INTEGER TaskTypeId FK
+        TEXT TargetPath
+        TEXT WorkingDirectory
+        TEXT SourceCommand
+        TEXT CommandArgs
+        TEXT CompletedAt
+        TEXT CreatedAt
+    }
+
+    %% ============================================================
+    %% AUDIT + USER STATE: history, bookmarks, settings, ssh, tools
+    %% ============================================================
+
+    CommandHistory {
+        INTEGER CommandHistoryId PK
+        TEXT Command
+        TEXT Alias
+        TEXT Args
+        TEXT Flags
+        TEXT StartedAt
+        TEXT FinishedAt
+        INTEGER DurationMs
+        INTEGER ExitCode
+        TEXT Summary
+        INTEGER RepoCount
+        TEXT CreatedAt
+    }
+
+    Amendment {
+        INTEGER AmendmentId PK
+        TEXT Branch
+        TEXT FromCommit
+        TEXT ToCommit
+        INTEGER TotalCommits
+        TEXT PreviousName
+        TEXT PreviousEmail
+        TEXT NewName
+        TEXT NewEmail
+        TEXT Mode
+        INTEGER ForcePushed
+        TEXT CreatedAt
+    }
+
+    Bookmark {
+        INTEGER BookmarkId PK
+        TEXT Name UK
+        TEXT Command
+        TEXT Args
+        TEXT Flags
+        TEXT CreatedAt
+    }
+
+    Setting {
+        TEXT Key PK
+        TEXT Value
+    }
+
+    SshKey {
+        INTEGER SshKeyId PK
+        TEXT Name UK
+        TEXT PrivatePath
+        TEXT PublicKey
+        TEXT Fingerprint
+        TEXT Email
+        TEXT CreatedAt
+    }
+
+    InstalledTool {
+        INTEGER InstalledToolId PK
+        TEXT Tool UK
+        INTEGER VersionMajor
+        INTEGER VersionMinor
+        INTEGER VersionPatch
+        INTEGER VersionBuild
+        TEXT VersionString
+        TEXT PackageManager
+        TEXT InstallPath
+        TEXT InstalledAt
+        TEXT UpdatedAt
+    }
+
+    CommitTemplate {
+        INTEGER CommitTemplateId PK
+        TEXT Kind
+        TEXT Template
+        TEXT CreatedAt
+    }
+
+    MakeAllVisibilityRun {
+        INTEGER MakeAllVisibilityRunId PK
+        TEXT CommandKind
+        TEXT TargetVisibility
+        TEXT Provider
+        TEXT Owner
+        TEXT TargetRaw
+        TEXT PatternList
+        INTEGER MatchedCount
+        INTEGER OkCount
+        INTEGER SkippedCount
+        INTEGER FailedCount
+        INTEGER ExcludedCount
+        INTEGER ExitCode
+        TEXT StartedAt
+        TEXT FinishedAt
+    }
+
+    MakeAllVisibilityResult {
+        INTEGER MakeAllVisibilityResultId PK
+        INTEGER MakeAllVisibilityRunId FK
+        TEXT RepoName
+        TEXT MatchedPattern
+        TEXT Status
+        TEXT PrevVisibility
+        TEXT NewVisibility
+        TEXT FailureMessage
+        INTEGER DurationMs
+    }
+
+    %% ============================================================
+    %% RELATIONSHIPS
+    %% ============================================================
+
+    %% Core: scan folder owns repos (nullable FK, app-enforced)
+    ScanFolder ||--o{ Repo : "scans"
+
+    %% Core: grouping
+    Repo  ||--o{ GroupRepo : "in"
+    Group ||--o{ GroupRepo : "contains"
+    Repo  ||--o{ Alias     : "named-by"
+
+    %% Project detection cascade
+    Repo                  ||--o{ DetectedProject       : "contains"
+    ProjectType           ||--o{ DetectedProject       : "classifies"
+    DetectedProject       ||--|| GoProjectMetadata     : "is-go"
+    DetectedProject       ||--|| CsharpProjectMetadata : "is-csharp"
+    GoProjectMetadata     ||--o{ GoRunnableFile        : "exposes"
+    CsharpProjectMetadata ||--o{ CsharpProjectFile     : "owns"
+    CsharpProjectMetadata ||--o{ CsharpKeyFile         : "owns"
+
+    %% Versioning
+    Repo ||--o{ VersionProbe       : "probed-by"
+    Repo ||--o{ RepoVersionHistory : "flattens-into"
+
+    %% Zip groups (no FK to Repo; FullPath is free-form)
+    ZipGroup ||--o{ ZipGroupItem : "bundles"
+
+    %% Tasks
+    TaskType ||--o{ PendingTask   : "types"
+    TaskType ||--o{ CompletedTask : "types"
+
+    %% Standalone (no FK relationships):
+    %%   Release, TempRelease, CommandHistory, Amendment, Bookmark,
+    %%   Setting, SshKey, InstalledTool, CommitTemplate
+
+    MakeAllVisibilityRun ||--o{ MakeAllVisibilityResult : "records"
+
+    %% ============================================================
+    %% COMMIT-IN PIPELINE (added v4.24.1 — parity stubs, columns TBD)
+    %% These tables exist in gitmap-v27/constants/constants_commitin_sql.go
+    %% as SQLCreate* constants and are enforced by erd_parity_test.go.
+    %% Per-column refinement is tracked as a follow-up.
+    %% ============================================================
+
+    RunStatus {
+        INTEGER RunStatusId PK
+    }
+    InputKind {
+        INTEGER InputKindId PK
+    }
+    CommitOutcome {
+        INTEGER CommitOutcomeId PK
+    }
+    SkipReason {
+        INTEGER SkipReasonId PK
+    }
+    ExclusionKind {
+        INTEGER ExclusionKindId PK
+    }
+    MessageRuleKind {
+        INTEGER MessageRuleKindId PK
+    }
+    FunctionIntelLanguage {
+        INTEGER FunctionIntelLanguageId PK
+    }
+    ConflictMode {
+        INTEGER ConflictModeId PK
+    }
+    Profile {
+        INTEGER ProfileId PK
+    }
+    ProfileExclusion {
+        INTEGER ProfileExclusionId PK
+    }
+    ProfileMessageRule {
+        INTEGER ProfileMessageRuleId PK
+    }
+    CommitInRun {
+        INTEGER CommitInRunId PK
+    }
+    InputRepo {
+        INTEGER InputRepoId PK
+    }
+    SourceCommit {
+        INTEGER SourceCommitId PK
+    }
+    SourceCommitFile {
+        INTEGER SourceCommitFileId PK
+    }
+    RewrittenCommit {
+        INTEGER RewrittenCommitId PK
+    }
+    SkipLog {
+        INTEGER SkipLogId PK
+    }
+    ShaMap {
+        INTEGER ShaMapId PK
+    }
+
+    %% ============================================================
+    %% TRANSACTIONS + ARCHIVE + VSCODE + CLONE-PICK (v4.24.1 stubs)
+    %% ============================================================
+
+    Transaction {
+        INTEGER TransactionId PK
+    }
+    TransactionFile {
+        INTEGER TransactionFileId PK
+    }
+    TransactionAction {
+        INTEGER TransactionActionId PK
+    }
+    ArchiveHistory {
+        INTEGER ArchiveHistoryId PK
+    }
+    VSCodeProject {
+        INTEGER VSCodeProjectId PK
+    }
+    CloneInteractiveSelection {
+        INTEGER CloneInteractiveSelectionId PK
+    }
+
+    %% ============================================================
+    %% COMMIT-IN MIGRATION 007 — TAG REPLAY MAP (spec/03-commit-in/09)
+    %% ============================================================
+
+    CommitInReplayMap {
+        INTEGER CommitInReplayMapId PK
+    }
+    TagReplayOutcome {
+        INTEGER TagReplayOutcomeId PK
+    }
+
+    %% ============================================================
+    %% OWNER REPO LIST CACHE + NAME INDEX (visibility parallel)
+    %% ============================================================
+
+    OwnerRepoListCache {
+        INTEGER OwnerRepoListCacheId PK
+    }
+    OwnerRepoNameIndex {
+        INTEGER OwnerRepoNameIndexId PK
+    }

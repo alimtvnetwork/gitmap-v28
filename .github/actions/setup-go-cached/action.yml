@@ -1,0 +1,46 @@
+name: Setup Go (cached)
+description: |
+  Standard "checkout + setup-go + warm GOCACHE" composite used by every
+  Go-toolchain job in CI. Encapsulates the repeated 3-step block:
+
+    1. actions/checkout@v6
+    2. actions/setup-go@v6 (pinned via gitmap/go.mod, GOMODCACHE auto-cached)
+    3. actions/cache@v4 over ~/.cache/go-build keyed by go.sum + SHA, with
+       a per-job suffix so the lint / test / build / vet caches don't
+       clobber each other.
+
+  Callers gate the whole composite with a single `if:` on the `uses:` line
+  (typically the SHA-dedup short-circuit). Keeping all three steps inside
+  one composite means a refactor of the cache key only touches one file.
+
+inputs:
+  cache-suffix:
+    description: |
+      Per-job suffix appended to the GOCACHE key so concurrent jobs don't
+      thrash a shared cache (e.g. "lint", "test", "build", "vet").
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v6
+
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: gitmap/go.mod
+        cache-dependency-path: gitmap/go.sum
+
+    # Persist GOCACHE (~/.cache/go-build) across runs. setup-go already
+    # caches GOMODCACHE keyed by go.sum, but NOT the build cache — that's
+    # what makes compile-heavy jobs slow on cold runners. Key by go.sum
+    # (toolchain/deps) + SHA (so each run saves its own entry) and fall
+    # back to any prior entry on the same go.sum via restore-keys, which
+    # is the standard pattern for warm Go build caches in CI.
+    - name: Cache Go build cache (GOCACHE)
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/go-build
+        key: go-build-${{ runner.os }}-${{ inputs.cache-suffix }}-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+        restore-keys: |
+          go-build-${{ runner.os }}-${{ inputs.cache-suffix }}-${{ hashFiles('gitmap/go.sum') }}-
+          go-build-${{ runner.os }}-${{ inputs.cache-suffix }}-

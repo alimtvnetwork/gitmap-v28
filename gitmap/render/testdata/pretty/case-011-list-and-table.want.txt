@@ -1,0 +1,10 @@
+# Flags
+
+  - `--theme` selects the palette
+  - `[P]hd[/P]` is the alias for help-docs
+  - set `[P]GITMAP_TOKEN[/P]` for auth
+
+  | Mode | When |
+  |------|------|
+  | bright | dark terms |
+  | mono | log scrape |

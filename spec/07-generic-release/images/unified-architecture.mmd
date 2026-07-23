@@ -1,0 +1,60 @@
+graph TD
+    A["01 - Cross-Compilation"] --> E["05 - Release Assets"]
+    A --> B["02 - Release Pipeline"]
+    B --> C["03 - Install Scripts"]
+    B --> D["04 - Checksums & Verification"]
+    B --> E
+    B --> F["06 - Release Metadata"]
+
+    subgraph "Build Phase"
+        A --> A1["CGO_ENABLED=0"]
+        A --> A2["6 targets: win/linux/darwin x amd64/arm64"]
+        A1 --> A3["Static binaries"]
+        A2 --> A3
+    end
+
+    subgraph "Version Resolution"
+        F --> F1["Git tag parsing"]
+        F1 --> F2["Semantic version"]
+        F2 --> F3["CHANGELOG.md extraction"]
+        F3 --> F4["Release description body"]
+    end
+
+    subgraph "Packaging"
+        E --> E1["Naming: binary-OS-ARCH"]
+        E --> E2["Compression: .tar.gz / .zip"]
+        E1 --> E3["Archived assets"]
+        E2 --> E3
+    end
+
+    subgraph "Integrity"
+        D --> D1["SHA-256 per asset"]
+        D1 --> D2["checksums.txt"]
+        D2 --> D3["Verify on install"]
+    end
+
+    subgraph "Installation"
+        C --> C1["install.ps1 - Windows"]
+        C --> C2["install.sh - Unix"]
+        C1 --> C3["Version-pinned one-liner"]
+        C2 --> C3
+    end
+
+    subgraph "Pipeline Orchestration"
+        B --> B1["Trigger: release/** or v* tag"]
+        B1 --> B2["Build once, package once"]
+        B2 --> B3["Publish GitHub Release"]
+    end
+
+    A3 --> E1
+    E3 --> D1
+    F4 --> B3
+    D2 --> B3
+    C3 --> B3
+
+    style A fill:#059669,color:#fff
+    style B fill:#4f46e5,color:#fff
+    style C fill:#2563eb,color:#fff
+    style D fill:#f59e0b,color:#000
+    style E fill:#ef4444,color:#fff
+    style F fill:#22c55e,color:#fff

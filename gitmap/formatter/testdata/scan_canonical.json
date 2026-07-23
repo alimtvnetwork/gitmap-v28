@@ -1,0 +1,36 @@
+[
+  {
+    "id": 1,
+    "slug": "acme/widget",
+    "repoId": "github.com/acme/widget",
+    "repoName": "widget",
+    "httpsUrl": "https://github.com/acme/widget.git",
+    "sshUrl": "git@github.com:acme/widget.git",
+    "discoveredUrl": "https://github.com/acme/widget.git",
+    "branch": "main",
+    "branchSource": "remote-head",
+    "relativePath": "acme/widget",
+    "absolutePath": "/repos/acme/widget",
+    "cloneInstruction": "git clone https://github.com/acme/widget.git",
+    "notes": "",
+    "depth": 1,
+    "transport": "https"
+  },
+  {
+    "id": 2,
+    "slug": "acme/gadget",
+    "repoId": "github.com/acme/gadget",
+    "repoName": "gadget",
+    "httpsUrl": "https://github.com/acme/gadget.git",
+    "sshUrl": "git@github.com:acme/gadget.git",
+    "discoveredUrl": "git@github.com:acme/gadget.git",
+    "branch": "develop",
+    "branchSource": "config",
+    "relativePath": "acme/gadget",
+    "absolutePath": "/repos/acme/gadget",
+    "cloneInstruction": "git clone -b develop https://github.com/acme/gadget.git",
+    "notes": "pinned to develop",
+    "depth": 4,
+    "transport": "ssh"
+  }
+]

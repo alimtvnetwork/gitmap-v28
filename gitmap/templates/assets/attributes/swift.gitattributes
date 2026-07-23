@@ -1,0 +1,21 @@
+# source: curated (Swift / Xcode project conventions)
+# kind: attributes
+# lang: swift
+# version: 1
+
+*.swift     text eol=lf
+*.h         text eol=lf
+*.m         text eol=lf
+*.mm        text eol=lf
+
+# Xcode project bundles are pseudo-binary: line-ending churn breaks merges.
+*.pbxproj   text eol=lf merge=union
+*.xcconfig  text eol=lf
+*.plist     text eol=lf
+*.entitlements text eol=lf
+*.storyboard text eol=lf merge=union
+*.xib       text eol=lf merge=union
+*.strings   text eol=lf
+
+Package.swift   text eol=lf
+Package.resolved text eol=lf linguist-generated=true

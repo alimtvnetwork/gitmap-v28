@@ -1,0 +1,6 @@
+{
+  "name": "temp-release-list",
+  "version": 1,
+  "keys": ["id", "branch", "versionPrefix", "sequenceNumber", "commit", "commitMessage", "createdAt"],
+  "_doc": "Schema for `gitmap temp-releaselist --json`. Top-level is an array of objects. Field order is always id, branch, versionPrefix, sequenceNumber, commit, commitMessage, createdAt."
+}

@@ -1,0 +1,6 @@
+{
+  "name": "latest-branch-with-top",
+  "version": 1,
+  "keys": ["branch", "remote", "sha", "commitDate", "subject", "ref", "top"],
+  "_doc": "Schema for `gitmap latest-branch --format=json` when a top-N list is requested (top>0). Identical to `latest-branch-no-top.vN.json` plus the trailing `top` key. Two separate schemas (rather than one with optional `top`) because a downstream consumer that always expects 7 keys with --top=N is a different contract from one that expects 6 keys without."
+}

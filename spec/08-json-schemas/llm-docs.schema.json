@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/llm-docs.schema.json",
+  "title": "gitmap llm-docs --format=json",
+  "description": "Machine-readable shape emitted by `gitmap llm-docs --format=json`. Top-level is a single object whose keys are conditionally appended based on the --sections filter. When present, key order is contractual: commands, architecture, flags, conventions, structure, database, installation, patterns. `commands` is an array of command groups; every other key is a markdown-formatted string. All keys are optional because the --sections filter can suppress any of them.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "commands": {
+      "type": "array",
+      "description": "Ordered list of command groups. Each group has a title and a commands array.",
+      "items": {
+        "type": "object",
+        "required": ["title", "commands"],
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Display title for the command group."
+          },
+          "commands": {
+            "type": "array",
+            "description": "Commands belonging to this group. Per-command key order is contractual: name, alias, description, example.",
+            "items": {
+              "type": "object",
+              "required": ["name", "alias", "description"],
+              "additionalProperties": false,
+              "properties": {
+                "name": {"type": "string", "description": "Canonical command name."},
+                "alias": {"type": "string", "description": "Short alias (may be empty)."},
+                "description": {"type": "string", "description": "One-line summary."},
+                "example": {"type": "string", "description": "Optional realistic invocation example. Omitted when empty."}
+              }
+            }
+          }
+        }
+      }
+    },
+    "architecture": {"type": "string", "description": "Architecture overview prose."},
+    "flags": {"type": "string", "description": "Global flags reference."},
+    "conventions": {"type": "string", "description": "Coding conventions and rules."},
+    "structure": {"type": "string", "description": "Project layout reference."},
+    "database": {"type": "string", "description": "Database/schema overview."},
+    "installation": {"type": "string", "description": "Installation instructions."},
+    "patterns": {"type": "string", "description": "Common implementation patterns."}
+  }
+}

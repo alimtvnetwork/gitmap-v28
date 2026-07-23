@@ -1,0 +1,14 @@
+name: Install golangci-lint
+description: |
+  Installs the project-pinned golangci-lint binary into GOPATH/bin and adds
+  it to PATH. Pinned to v1.64.8 per `mem://core` policy ("golangci-lint
+  pinned to v1.64.8"). Bump in lockstep across all callers.
+runs:
+  using: composite
+  steps:
+    - name: Install golangci-lint v1.64.8
+      shell: bash
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+          | sh -s -- -b "$(go env GOPATH)/bin" v1.64.8
+        echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"

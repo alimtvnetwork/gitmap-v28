@@ -1,0 +1,32 @@
+{
+  "diffTool": {
+    "name": "vscode",
+    "cmd": "code --wait --diff $LOCAL $REMOTE",
+    "trustExitCode": true
+  },
+  "mergeTool": {
+    "name": "vscode",
+    "cmd": "code --wait --merge $REMOTE $LOCAL $BASE $MERGED",
+    "trustExitCode": true
+  },
+  "aliases": {
+    "co": "checkout",
+    "br": "branch",
+    "ci": "commit",
+    "st": "status",
+    "unstage": "reset HEAD --",
+    "last": "log -1 HEAD",
+    "lg": "log --oneline --graph --decorate --all",
+    "df": "diff --stat",
+    "pushf": "push --force-with-lease",
+    "amend": "commit --amend --no-edit"
+  },
+  "credentialHelper": "manager",
+  "core": {
+    "autocrlf": "true",
+    "longpaths": "true",
+    "editor": "code --wait",
+    "defaultBranch": "main",
+    "safecrlf": "warn"
+  }
+}

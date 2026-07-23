@@ -1,0 +1,3 @@
+{{- range .Repos }}
+git clone -b {{ .Branch }} {{ .URL }} "{{ .Path }}"
+{{- end }}

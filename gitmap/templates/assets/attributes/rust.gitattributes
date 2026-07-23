@@ -1,0 +1,8 @@
+# source: curated (Rust project conventions)
+# kind: attributes
+# lang: rust
+# version: 1
+
+*.rs        text eol=lf
+Cargo.toml  text eol=lf
+Cargo.lock  text eol=lf linguist-generated=true

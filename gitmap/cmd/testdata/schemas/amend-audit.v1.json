@@ -1,0 +1,18 @@
+{
+  "name": "amend-audit",
+  "version": 1,
+  "keys": [
+    "id",
+    "timestamp",
+    "branch",
+    "fromCommit",
+    "toCommit",
+    "totalCommits",
+    "previousAuthor",
+    "newAuthor",
+    "mode",
+    "forcePushed",
+    "commits"
+  ],
+  "_doc": "Key order for amend-audit single-object JSON output. Bump version and create a new .vN.json file when the wire order changes."
+}

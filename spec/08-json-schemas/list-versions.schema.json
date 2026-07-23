@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/list-versions.schema.json",
+  "title": "gitmap list-versions --json",
+  "description": "Machine-readable shape emitted by `gitmap list-versions --format=json`. Top-level is an array of version entries, each pairing a semver tag with its optional release source and changelog bullet list. Field order is contractual: version, source, changelog.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["version"],
+    "properties": {
+      "version": {
+        "type": "string",
+        "description": "Parsed semver string (e.g. '5.72.0')."
+      },
+      "source": {
+        "type": "string",
+        "description": "Where the version tag came from (e.g. 'local', 'remote'). Omitted when empty."
+      },
+      "changelog": {
+        "type": "array",
+        "description": "Changelog bullet points associated with the version, sourced from CHANGELOG.md. Omitted when empty.",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

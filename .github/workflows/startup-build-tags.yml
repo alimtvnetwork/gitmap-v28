@@ -1,0 +1,102 @@
+name: Startup Build-Tag Guard
+
+# Regression guard for the gitmap/startup package, which mixes per-OS
+# files (`*_windows.go`, `*_darwin.go`, `*_linux.go`) with untagged
+# dispatchers (`winbackend.go`, `winshortcut.go`) that reference
+# Windows-only symbols stubbed via `//go:build !windows` files.
+#
+# A single misplaced or missing build tag silently breaks one OS
+# while the other two stay green. This job cross-compiles the package
+# for all three GOOS targets so any leak fails fast in CI.
+#
+# History: see .lovable/memory/issues/ — `addWindowsRegistry` once
+# leaked into the Linux build because the stub used the wrong tag.
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!release/**'
+    paths:
+      - 'gitmap/startup/**'
+      - 'gitmap/go.mod'
+      - 'gitmap/go.sum'
+      - '.github/workflows/startup-build-tags.yml'
+    tags-ignore:
+      - 'v*'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gitmap/startup/**'
+      - 'gitmap/go.mod'
+      - 'gitmap/go.sum'
+      - '.github/workflows/startup-build-tags.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: startup-build-tags-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  cross-compile:
+    name: startup / GOOS=${{ matrix.goos }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: darwin
+            goarch: amd64
+          - goos: windows
+            goarch: amd64
+    defaults:
+      run:
+        working-directory: gitmap
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      # `go build` (not `go vet`) — vet skips files excluded by build
+      # tags, so a missing stub on the target OS would slip through.
+      # `go build` resolves every symbol the active file set references,
+      # which is exactly the leak class we want to catch.
+      - name: go build ./startup/...
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: go build ./startup/...
+
+      # Test-compile (no execution) on the same target. Catches symbol
+      # leaks in `*_test.go` files and OS-gated test helpers (the same
+      # class as the deduped `withFakeLaunchAgentsDir` helper).
+      #
+      # We use `go test -c -o /dev/null` instead of `go test -count=0`
+      # because `-count=0` still EXECUTES the compiled test binary
+      # (just for zero iterations). When GOOS != the runner's OS, the
+      # produced binary (e.g. `startup.test.exe` for windows) cannot
+      # run on the linux runner and fails with `exec format error`.
+      # `-c -o /dev/null` builds the test binary per-package without
+      # ever invoking it — which is exactly the symbol-leak gate we
+      # want. `go list` enumerates packages so we cover the whole tree.
+      - name: go test -c (compile only, no execution)
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          set -euo pipefail
+          for pkg in $(go list ./startup/...); do
+            echo "::group::test-compile $pkg"
+            go test -c -o /dev/null "$pkg"
+            echo "::endgroup::"
+          done

@@ -1,0 +1,28 @@
+# source: github.com/github/gitignore/Go.gitignore (curated)
+# kind: ignore
+# lang: go
+# version: 1
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test + coverage
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Go workspace
+go.work
+go.work.sum
+
+# Vendor (opt-in)
+# vendor/
+
+# Build dirs
+bin/
+dist/

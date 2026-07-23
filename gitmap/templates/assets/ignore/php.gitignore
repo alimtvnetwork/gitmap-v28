@@ -1,0 +1,50 @@
+# source: github.com/github/gitignore/Composer + Laravel (curated)
+# kind: ignore
+# lang: php
+# version: 1
+
+# Composer
+/vendor/
+composer.phar
+auth.json
+
+# Build / cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
+/storage/*.key
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+!/storage/**/.gitkeep
+
+# PHPUnit / coverage
+.phpunit.result.cache
+.phpunit.cache/
+/coverage/
+clover.xml
+phpunit.xml.bak
+
+# Static analysis caches
+.phpstan/
+.psalm/
+.php-cs-fixer.cache
+.rector.cache
+
+# Local env
+.env
+.env.*.local
+!.env.example
+
+# Laravel-specific
+/public/storage
+/public/hot
+homestead.yaml
+homestead.json
+/.vagrant/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

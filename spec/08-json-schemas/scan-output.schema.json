@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/alimtvnetwork/gitmap-v27/spec/08-json-schemas/scan-output.schema.json",
+  "title": "gitmap-v27 scan output",
+  "description": "Stable schema for the JSON array produced by `gitmap-v27 scan` (default file: .gitmap/output/gitmap.json). The CSV sibling (.gitmap/output/gitmap.csv) carries the same fields in the column order documented in scan-output.README.md. Field names and JSON keys are stable contracts — automation may rely on them. New fields are additive and appended at the end of the CSV column list; existing field names are never renamed or repurposed.",
+  "type": "array",
+  "items": { "$ref": "#/$defs/ScanRecord" },
+  "$defs": {
+    "ScanRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "slug", "repoId", "repoName", "httpsUrl", "sshUrl",
+        "discoveredUrl", "branch", "branchSource", "relativePath",
+        "absolutePath", "cloneInstruction", "notes", "depth", "transport"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Stable database row id assigned by the local SQLite store. Zero for records that have not yet been persisted (e.g. dry-run output)."
+        },
+        "slug": {
+          "type": "string",
+          "description": "Lowercase, dash-separated, filesystem-safe identifier derived from repoName. Safe for use in file names and URLs."
+        },
+        "repoId": {
+          "type": "string",
+          "description": "Provider-side repository identifier (e.g. GitHub numeric id) when discoverable from the remote URL or API; empty string when unknown."
+        },
+        "repoName": {
+          "type": "string",
+          "description": "Human-readable repository name, typically the basename of the working tree."
+        },
+        "httpsUrl": {
+          "type": "string",
+          "description": "Canonical HTTPS clone URL. Empty string when no HTTPS remote could be derived."
+        },
+        "sshUrl": {
+          "type": "string",
+          "description": "Canonical SSH clone URL (git@host:owner/repo.git). Empty string when no SSH remote could be derived."
+        },
+        "discoveredUrl": {
+          "type": "string",
+          "description": "Raw remote URL exactly as it appeared in the repo's git config (origin remote). Preserved verbatim before normalization into httpsUrl/sshUrl."
+        },
+        "branch": {
+          "type": "string",
+          "description": "Branch the record will clone or operate on. Resolution order is recorded in branchSource."
+        },
+        "branchSource": {
+          "type": "string",
+          "enum": ["", "head", "config-default", "flag-default", "fallback"],
+          "description": "How `branch` was determined. 'head' = repo HEAD ref, 'config-default' = config.json defaultBranch, 'flag-default' = --default-branch CLI flag, 'fallback' = built-in default. Empty when unset (legacy rows)."
+        },
+        "relativePath": {
+          "type": "string",
+          "description": "Path to the working tree relative to the scan root, using forward slashes."
+        },
+        "absolutePath": {
+          "type": "string",
+          "description": "Absolute on-disk path to the working tree at scan time. Platform-native separators."
+        },
+        "cloneInstruction": {
+          "type": "string",
+          "description": "Ready-to-run shell command that recreates this clone (mode-aware: HTTPS or SSH per --mode/config)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-form annotation. Defaults to config.json `notes`; may be overridden per record by downstream tooling."
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Directory depth at which the repo was found, counted from the scan root (0 = scan root itself). A row whose depth equals the active --max-depth cap is a candidate for a deeper rescan."
+        },
+        "transport": {
+          "type": "string",
+          "enum": ["", "ssh", "https", "other"],
+          "description": "URL-scheme bucket of discoveredUrl. Mirrors the three-bucket collapse used by the clone-from terminal summary so JSON/CSV filters stay consistent with the TUI."
+        }
+      }
+    }
+  }
+}

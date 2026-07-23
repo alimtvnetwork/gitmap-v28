@@ -1,0 +1,15 @@
+{
+  "name": "probe-report",
+  "version": 1,
+  "keys": [
+    "repoId",
+    "slug",
+    "absolutePath",
+    "nextVersionTag",
+    "nextVersionNum",
+    "method",
+    "isAvailable",
+    "error"
+  ],
+  "_doc": "Key order for `gitmap probe --json` stablejson output. Bumping this version means downstream consumers that depend on field position must update."
+}

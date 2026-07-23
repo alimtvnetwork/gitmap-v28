@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/temp-release-list.schema.json",
+  "title": "gitmap temp-releaselist --json",
+  "description": "Machine-readable shape emitted by `gitmap temp-releaselist --json`. Top-level is an array of temporary release branch records. Field order is contractual: id, branch, versionPrefix, sequenceNumber, commit, commitMessage, createdAt.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "branch",
+      "versionPrefix",
+      "sequenceNumber",
+      "commit",
+      "commitMessage",
+      "createdAt"
+    ],
+    "properties": {
+      "id": {
+        "type": "integer",
+        "description": "Primary key of the temp-release row."
+      },
+      "branch": {
+        "type": "string",
+        "description": "Name of the temporary release branch."
+      },
+      "versionPrefix": {
+        "type": "string",
+        "description": "Semver prefix used when the branch was created (e.g. 'v5.76')."
+      },
+      "sequenceNumber": {
+        "type": "integer",
+        "description": "Monotonic sequence number within the prefix."
+      },
+      "commit": {
+        "type": "string",
+        "description": "SHA of the commit the temp-release points to."
+      },
+      "commitMessage": {
+        "type": "string",
+        "description": "Message of the commit the temp-release points to."
+      },
+      "createdAt": {
+        "type": "string",
+        "description": "ISO-8601 timestamp when the temp-release was created."
+      }
+    }
+  }
+}

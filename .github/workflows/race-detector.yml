@@ -1,0 +1,42 @@
+# Race detector enforcement (item #17 of the post-v6.53.0 plan).
+#
+# Runs `go test -race` on the concurrency-sensitive packages where
+# data races have historically caused user-visible bugs:
+#
+#   - cmd/...           - parallel clone / visibility workers
+#   - cloneconcurrency  - the worker-pool primitive
+#   - visibility        - mapub/mapri parallel batching
+#   - store             - SQLite migration / cache layer
+#
+# Kept as its own workflow so the existing CI cycle time is not
+# extended; this job runs in parallel with ci.yml.
+name: race-detector
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  race:
+    name: go test -race (hot packages)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-go-cached
+
+      - name: File-size lint
+        run: bash .github/scripts/file-size-check.sh 200
+
+      - name: go test -race
+        working-directory: gitmap
+        run: |
+          set -euo pipefail
+          go test -race -count=1 -timeout=15m \
+            ./cmd/... \
+            ./cloneconcurrency/... \
+            ./visibility/... \
+            ./store/... \
+            ./uipref/...

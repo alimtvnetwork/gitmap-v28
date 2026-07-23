@@ -1,0 +1,17 @@
+[
+  {
+    "name": "gitmap-a",
+    "path": "/p/a.desktop",
+    "exec": "/bin/a"
+  },
+  {
+    "name": "gitmap-b",
+    "path": "/p/b.desktop",
+    "exec": "/bin/b --flag"
+  },
+  {
+    "name": "gitmap-c",
+    "path": "/p/c.desktop",
+    "exec": ""
+  }
+]

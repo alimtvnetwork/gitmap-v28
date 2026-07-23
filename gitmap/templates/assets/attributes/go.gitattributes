@@ -1,0 +1,14 @@
+# source: curated (Go project conventions)
+# kind: attributes
+# lang: go
+# version: 1
+
+*.go        text eol=lf
+go.mod      text eol=lf
+go.sum      text eol=lf
+go.work     text eol=lf
+go.work.sum text eol=lf
+
+# Generated files: hide in diffs but keep tracked.
+*.pb.go     linguist-generated=true
+*_gen.go    linguist-generated=true

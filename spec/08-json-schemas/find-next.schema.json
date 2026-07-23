@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/find-next.schema.json",
+  "title": "gitmap find-next --json",
+  "description": "Machine-readable shape emitted by `gitmap find-next --json`. Top-level is an array of per-repo rows joining Repo + latest VersionProbe. Empty result encodes as `[]`.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["repo", "nextVersionTag", "nextVersionNum", "method", "probedAt"],
+    "additionalProperties": false,
+    "properties": {
+      "repo": {
+        "type": "object",
+        "description": "Embedded model.ScanRecord for the repository. Field set is pinned by gitmap/cmd/findnextjson_contract_test.go; this schema intentionally allows passthrough so a ScanRecord column addition (e.g. transport, repoId, discoveredUrl) doesn't ripple-break every find-next consumer."
+      },
+      "nextVersionTag": {
+        "type": "string",
+        "description": "The next available version tag for this repo (e.g. \"v1.2.3\")."
+      },
+      "nextVersionNum": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Numeric representation of nextVersionTag for sortable comparisons."
+      },
+      "method": {
+        "type": "string",
+        "description": "How nextVersionTag was discovered (e.g. \"tag-probe\")."
+      },
+      "probedAt": {
+        "type": "string",
+        "description": "RFC3339 UTC timestamp when the underlying VersionProbe row was recorded."
+      }
+    }
+  }
+}

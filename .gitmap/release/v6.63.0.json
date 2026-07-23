@@ -1,0 +1,9 @@
+{
+  "version": "v6.63.0",
+  "date": "2026-06-28",
+  "highlights": [
+    "cfrp re-enables prior-version privatize scan (v(N-1)..v(N-5))",
+    "Lookback narrowed from 15 to 5 per user request",
+    "-y auto-confirms; otherwise interactive prompt"
+  ]
+}

@@ -1,0 +1,34 @@
+graph TD
+    A["run.ps1 / run.sh"] --> B["Step 1/4: Pull"]
+    B --> B1["Check current branch"]
+    B1 --> B2["git pull origin"]
+    B2 --> B3{"Pull succeeded?"}
+    B3 -->|NO| B4["Print error, exit"]
+    B3 -->|YES| C["Step 2/4: Dependencies"]
+
+    C --> C1["go mod tidy"]
+    C1 --> C2{"Tidy succeeded?"}
+    C2 -->|NO| C3["Print error, exit"]
+    C2 -->|YES| D["Step 3/4: Build"]
+
+    D --> D1["Resolve version via git describe"]
+    D1 --> D2["Resolve repo path for ldflags"]
+    D2 --> D3["go build -ldflags with version + repo"]
+    D3 --> D4{"Build succeeded?"}
+    D4 -->|NO| D5["Print error, exit"]
+    D4 -->|YES| E["Step 4/4: Deploy"]
+
+    E --> E1["Resolve deploy target"]
+    E1 --> E2["Rename-first deploy"]
+    E2 --> E3["Copy data/ folder"]
+    E3 --> F{"First-time install?"}
+    F -->|YES| G["Register in PATH"]
+    F -->|NO| H["Print version"]
+    G --> H
+    H --> I["Done"]
+
+    style A fill:#059669,color:#fff
+    style I fill:#22c55e,color:#fff
+    style B4 fill:#ef4444,color:#fff
+    style C3 fill:#ef4444,color:#fff
+    style D5 fill:#ef4444,color:#fff

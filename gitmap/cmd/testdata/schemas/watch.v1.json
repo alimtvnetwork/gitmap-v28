@@ -1,0 +1,10 @@
+{
+  "name": "watch",
+  "version": 1,
+  "keys": [
+    "timestamp",
+    "repos",
+    "summary"
+  ],
+  "_doc": "Key order for `gitmap watch --json` top-level stablejson output. Bumping this version means downstream consumers that depend on field position must update."
+}

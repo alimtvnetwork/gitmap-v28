@@ -1,0 +1,890 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&family=Inter:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ───── VS Code Light+ inspired palette ─────
+     Editor bg     #FFFFFF ≈ hsl(0 0% 100%)
+     Sidebar bg    #F8F8F8 ≈ hsl(0 0% 97%)
+     Title bar     #DDDDDD ≈ hsl(0 0% 87%)
+     Status bar    #0078D4 (kept for code accents only — primary stays amber)
+     Borders       #E5E5E5 ≈ hsl(0 0% 90%)
+     Text          #3B3B3B ≈ hsl(0 0% 23%)
+     Muted text    #6C6C6C ≈ hsl(0 0% 42%)
+  */
+  :root {
+    --background: 0 0% 100%;          /* editor bg */
+    --foreground: 0 0% 23%;            /* primary text */
+
+    --card: 0 0% 97%;                  /* sidebar / surface tier */
+    --card-foreground: 0 0% 23%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 23%;
+
+    --primary: 38 92% 50%;             /* amber — kept per design decision */
+    --primary-foreground: 0 0% 12%;
+
+    --secondary: 0 0% 93%;             /* hover row */
+    --secondary-foreground: 0 0% 23%;
+
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 42%;
+
+    --accent: 0 0% 92%;                /* selected row */
+    --accent-foreground: 0 0% 23%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;                /* dividers */
+    --input: 0 0% 90%;
+    --ring: 38 92% 50%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 0 0% 23%;
+    --sidebar-primary: 38 92% 45%;
+    --sidebar-primary-foreground: 0 0% 12%;
+    --sidebar-accent: 0 0% 92%;
+    --sidebar-accent-foreground: 0 0% 23%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 38 92% 50%;
+
+    --terminal: 0 0% 12%;              /* terminal stays dark per spec */
+    --terminal-foreground: 0 0% 92%;
+    --code-bg: 0 0% 95%;
+
+    /* Semantic success accent — used for install CTAs in hero card. */
+    --accent-success: 158 64% 38%;
+    --accent-success-bg: 158 64% 38% / 0.12;
+    --accent-success-border: 158 64% 38% / 0.5;
+
+    --help-recommended: 38 92% 50%;
+    --help-power: 190 86% 40%;
+    --help-pinned: 158 64% 38%;
+    --help-danger: 348 82% 52%;
+  }
+
+  /* ───── VS Code Dark+ palette (per spec) ─────
+     3-tier surface system:
+       Activity bar  #181818 ≈ hsl(0 0% 9%)
+       Sidebar       #181818 ≈ hsl(0 0% 9%)
+       Editor        #1E1E1E ≈ hsl(0 0% 12%)   ← --background
+     Title bar       #1F1F1F ≈ hsl(0 0% 12%)
+     Dividers        #2B2B2B ≈ hsl(0 0% 17%)   ← --border
+     Hover row       #2A2D2E ≈ hsl(210 6% 17%)
+     Selected row    #37373D ≈ hsl(240 5% 23%)
+     Primary text    #CCCCCC ≈ hsl(0 0% 80%)   ← --foreground
+     Muted text      #858585 ≈ hsl(0 0% 52%)
+     Find match box  #623315 ≈ hsl(22 64% 23%)
+     VS Code blue    #0078D4 ≈ hsl(207 100% 42%) — kept on side accents only
+  */
+  .dark {
+    --background: 0 0% 7%;             /* editor — deeper than VS Code default for contrast */
+    --foreground: 0 0% 82%;            /* primary text — slightly brighter to compensate */
+
+    --card: 0 0% 5%;                   /* sidebar / activity bar — near black */
+    --card-foreground: 0 0% 82%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 82%;
+
+    --primary: 41 96% 56%;             /* amber — kept */
+    --primary-foreground: 0 0% 8%;
+
+    --secondary: 0 0% 12%;             /* hover row — slightly lifted from bg */
+    --secondary-foreground: 0 0% 82%;
+
+    --muted: 0 0% 9%;                  /* subtle panels */
+    --muted-foreground: 0 0% 55%;
+
+    --accent: 240 5% 18%;              /* selected row */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 15%;                /* divider — bumped for visibility on darker bg */
+    --input: 0 0% 15%;
+    --ring: 41 96% 56%;
+
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 82%;
+    --sidebar-primary: 41 96% 56%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 41 96% 56%;
+
+    --terminal: 0 0% 4%;               /* terminal panel — deepest */
+    --terminal-foreground: 0 0% 82%;
+    --code-bg: 0 0% 9%;
+
+    /* Semantic success accent — brighter emerald for dark surfaces. */
+    --accent-success: 152 76% 60%;
+    --accent-success-bg: 152 76% 60% / 0.12;
+    --accent-success-border: 152 76% 60% / 0.5;
+
+    --help-recommended: 41 96% 56%;
+    --help-power: 188 86% 53%;
+    --help-pinned: 152 76% 60%;
+    --help-danger: 348 86% 66%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border transition-colors duration-300;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans transition-colors duration-300;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Ubuntu', system-ui, sans-serif;
+    font-weight: 700;
+  }
+
+  p, li, td, th, label, input, select, textarea {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Buttons explicitly use Ubuntu (proportional), never Ubuntu Mono.
+     Mono is reserved for code blocks per the typography spec. */
+  button {
+    font-family: 'Ubuntu', system-ui, sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'Ubuntu Mono', monospace;
+  }
+
+  /* Selection */
+  ::selection {
+    background: hsl(var(--primary) / 0.25);
+    color: hsl(var(--foreground));
+  }
+  .dark ::selection {
+    background: hsl(142 71% 55% / 0.3);
+    color: hsl(220 10% 95%);
+  }
+  /* Code block text selection — bright, high-contrast highlight on dark terminal */
+  pre ::selection,
+  code ::selection,
+  .hljs ::selection,
+  pre::selection,
+  code::selection {
+    background: hsl(142 80% 70% / 0.55);
+    color: hsl(0 0% 100%);
+    text-shadow: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Reduced motion
+   Respect the user's OS-level "Reduce motion" preference. We keep color and
+   opacity fades (these aid orientation, not motion) but cut their duration
+   to a near-instant 10ms, disable transforms/animations entirely, and zero
+   out the button "press" translate. Specific opt-outs can be added with the
+   `motion-safe:` Tailwind variant on individual elements if ever needed.
+   ───────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 10ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 10ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Kill movement-based effects (button press, hover lift, scale) */
+  .active\:translate-y-px:active,
+  [class*="hover:translate"],
+  [class*="hover:scale"],
+  .hover-scale,
+  .btn-hover-lift:hover,
+  .docs-blockquote:hover,
+  .docs-inline-code:hover,
+  .card-lift:hover,
+  .reveal > * {
+    transform: none !important;
+  }
+
+  /* Disable decorative motion-only effects entirely */
+  .aurora-bg::before,
+  .text-shimmer,
+  .badge-pulse::before,
+  .card-sheen::after,
+  .cta-glow::before,
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce,
+  .animate-ping,
+  [class*="animate-fade"],
+  [class*="animate-scale"],
+  [class*="animate-slide"],
+  [class*="animate-accordion"] {
+    animation: none !important;
+    transition: none !important;
+  }
+  .reveal > * {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  /* docs-h3 padding shift on hover */
+  .docs-h3:hover {
+    padding-left: 0.65rem !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Shared interaction utilities
+   Use these helpers on buttons, chips, badges, and any tappable surface so
+   hover shadow, border treatment, and the canonical 300ms transition stay
+   consistent project-wide. Compose with semantic tokens — never hardcode
+   colors here.
+   ───────────────────────────────────────────────────────────────────────── */
+@layer components {
+  /* Base motion + focus ring for any interactive element.
+     Pairs cleanly with shadcn buttons, custom chips, and link cards. */
+  .interactive-base {
+    @apply transition-all duration-300 ease-out
+           focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-ring focus-visible:ring-offset-2
+           focus-visible:ring-offset-background;
+  }
+
+  /* Hover lift: subtle elevation for buttons and CTA cards.
+     Keeps movement horizontal-safe (no translateY on text-only chips). */
+  .btn-hover-lift {
+    @apply interactive-base
+           hover:shadow-lg hover:shadow-primary/10
+           hover:border-primary/40
+           active:shadow-sm;
+  }
+
+  /* Chip base: shared sizing, border, radius, and motion for all tinted
+     status pills. Pair with one of the .chip-* color modifiers below. */
+  .chip-base {
+    @apply interactive-base
+           inline-flex items-center gap-1.5
+           px-2.5 py-0.5 rounded-md
+           text-xs font-medium
+           border
+           hover:shadow-sm;
+  }
+
+  .chip-primary {
+    @apply chip-base
+           bg-primary/10 text-foreground border-primary/20
+           hover:bg-primary/15 hover:border-primary/40
+           dark:bg-primary/15 dark:text-primary dark:border-primary/40
+           dark:hover:bg-primary/25;
+  }
+
+  .chip-secondary {
+    @apply chip-base
+           bg-secondary text-secondary-foreground border-border
+           hover:bg-secondary/80 hover:border-border;
+  }
+
+  .chip-muted {
+    @apply chip-base
+           bg-muted text-muted-foreground border-border
+           hover:bg-muted/80 hover:text-foreground;
+  }
+
+  .chip-destructive {
+    @apply chip-base
+           bg-destructive/10 text-destructive border-destructive/20
+           hover:bg-destructive/15 hover:border-destructive/40
+           dark:bg-destructive/20 dark:text-destructive-foreground dark:border-destructive/50
+           dark:hover:bg-destructive/30;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Global chip readability patch (dark mode)
+   Any element with a tinted primary background (bg-primary/10, /20, /25, etc.)
+   AND text-primary becomes hard to read in dark mode because text-primary is
+   the same green as the background tint. In dark mode, force such chips to
+   use text-background (near-black neutral) for AAA contrast against the
+   green tint, without touching solid `bg-primary` buttons (which keep
+   text-primary-foreground).
+   ───────────────────────────────────────────────────────────────────────── */
+.dark [class*="bg-primary/"].text-primary,
+.dark [class*="bg-primary/"] .text-primary {
+  color: hsl(var(--background));
+}
+
+/* Same problem for destructive: dark `--destructive` is a very dark red
+   (hsl 0 62% 30%), so `text-destructive` on `bg-destructive/*` becomes
+   illegible. Force such chips to use the bright `--destructive-foreground`
+   in dark mode for AAA contrast. Solid `bg-destructive` buttons already
+   pair correctly with `text-destructive-foreground` and are unaffected —
+   this rule only targets the *tinted* `bg-destructive/N` variant. */
+.dark [class*="bg-destructive/"].text-destructive,
+.dark [class*="bg-destructive/"] .text-destructive {
+  color: hsl(var(--destructive-foreground));
+}
+
+/* AlertTriangle / spec-status icons placed inside a tinted destructive
+   panel use bare `text-destructive` for color. Same readability fix. */
+.dark [class*="bg-destructive/"] svg.text-destructive,
+.dark [class*="border-destructive/"] svg.text-destructive {
+  color: hsl(0 80% 70%);
+}
+
+@layer components {
+  .docs-h1,
+  .docs-h2 {
+    background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--primary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: filter 0.3s ease;
+  }
+  .dark .docs-h1,
+  .dark .docs-h2 {
+    background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--primary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .docs-h1:hover,
+  .docs-h2:hover {
+    filter: brightness(1.15) saturate(1.1);
+  }
+
+  .docs-h3 {
+    padding-left: 0.65rem;
+    border-left: 3px solid hsl(var(--primary) / 0.4);
+    color: hsl(var(--foreground));
+    transition: color 0.2s ease, border-color 0.2s ease, padding-left 0.2s ease;
+  }
+  .dark .docs-h3 {
+    border-left-color: hsl(var(--primary) / 0.5);
+    color: inherit;
+  }
+  .docs-h3:hover {
+    color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+    padding-left: 0.85rem;
+  }
+  .dark .docs-h3:hover {
+    color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+  }
+
+  /* Inline code lift + glow */
+  .docs-inline-code {
+    @apply bg-[hsl(var(--code-bg))] text-primary font-mono text-[0.85em] font-medium px-[0.45em] py-[0.2em] rounded-[5px] border border-border/50;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+  }
+  .docs-inline-code:hover {
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.15);
+    transform: translateY(-1px);
+  }
+
+  /* Table enhancements */
+  .docs-table thead {
+    @apply bg-muted/50;
+  }
+  .docs-table th {
+    @apply font-heading font-semibold text-xs uppercase tracking-wide text-muted-foreground;
+  }
+  .docs-table tbody tr {
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .docs-table tbody tr:hover {
+    @apply bg-muted/30;
+    box-shadow: inset 3px 0 0 hsl(var(--primary) / 0.5);
+  }
+
+  /* Blockquote gradient border */
+  .docs-blockquote {
+    border-left: 4px solid hsl(var(--primary) / 0.5);
+    @apply bg-muted/30 py-2 px-4 rounded-r-lg italic text-muted-foreground;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .docs-blockquote:hover {
+    @apply bg-muted/50;
+    transform: translateX(3px);
+  }
+
+  /* Gradient HR */
+  .docs-hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--border)), hsl(var(--primary) / 0.45), transparent);
+    @apply my-5;
+  }
+
+  /* Code block hover glow */
+  .code-block-hover:hover {
+    box-shadow: 0 8px 32px hsl(var(--lang-accent, 220 10% 50%) / 0.1),
+                0 0 0 1px hsl(var(--lang-accent, 220 10% 50%) / 0.15);
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Modern motion utilities (CSS3) — composable, semantic-token only.
+     All movement is gated by prefers-reduced-motion above.
+     ───────────────────────────────────────────────────────────────────── */
+
+  /* Aurora: a slow, drifting radial-gradient backdrop for hero sections. */
+  .aurora-bg {
+    position: relative;
+    isolation: isolate;
+  }
+  .aurora-bg::before {
+    content: "";
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 120%;
+    z-index: -1;
+    background:
+      radial-gradient(40% 60% at 20% 30%, hsl(var(--primary) / 0.18), transparent 70%),
+      radial-gradient(35% 55% at 80% 20%, hsl(var(--accent) / 0.16), transparent 70%),
+      radial-gradient(50% 70% at 50% 90%, hsl(var(--primary) / 0.12), transparent 75%);
+    filter: blur(40px) saturate(1.15);
+    animation: aurora-drift 18s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  /* Gradient text shimmer — animates the gradient position. */
+  .text-shimmer {
+    background-size: 200% auto;
+    animation: shimmer-pan 6s linear infinite;
+  }
+
+  /* Card lift + sheen sweep. */
+  .card-lift {
+    @apply transition-all duration-300 ease-out;
+    will-change: transform, box-shadow;
+  }
+  .card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 20px 40px -20px hsl(var(--primary) / 0.25),
+      0 0 0 1px hsl(var(--primary) / 0.2);
+  }
+  .card-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+  .card-sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      hsl(var(--primary) / 0.12) 50%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .card-sheen:hover::after {
+    transform: translateX(100%);
+  }
+
+  /* Staggered entrance — apply .reveal to a container. */
+  .reveal > * {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: reveal-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .reveal > *:nth-child(1) { animation-delay: 0.05s; }
+  .reveal > *:nth-child(2) { animation-delay: 0.15s; }
+  .reveal > *:nth-child(3) { animation-delay: 0.25s; }
+  .reveal > *:nth-child(4) { animation-delay: 0.35s; }
+  .reveal > *:nth-child(5) { animation-delay: 0.45s; }
+  .reveal > *:nth-child(6) { animation-delay: 0.55s; }
+
+  /* Soft pulsing ring for badges / status pills. */
+  .badge-pulse {
+    position: relative;
+  }
+  .badge-pulse::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    border: 1px solid hsl(var(--primary) / 0.5);
+    opacity: 0;
+    animation: badge-ring 2.4s ease-out infinite;
+    pointer-events: none;
+  }
+
+  /* Animated underline for nav-style tabs. */
+  .tab-underline {
+    position: relative;
+  }
+  .tab-underline::after {
+    content: "";
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: 2px;
+    height: 2px;
+    border-radius: 2px;
+    background: hsl(var(--primary));
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tab-underline[data-active="true"]::after,
+  .tab-underline:hover::after {
+    transform: scaleX(1);
+  }
+
+  /* Button slide-shine — a quick light sweep across the button on hover.
+     Uses a 0.4s CSS3-only transition (well within the 0.3-0.4s budget).
+     Pair with `.btn-slide` on any rounded interactive element. The
+     pseudo-element is non-interactive and inherits border-radius. */
+  .btn-slide {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 1s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 1s cubic-bezier(0.16, 1, 0.3, 1),
+                color 1s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 1s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Outline + focus-ring box-shadow are intentionally NOT in the
+       transition list above — keyboard focus must paint instantly. */
+  }
+  /* Strong, motion-independent focus ring for keyboard navigation.
+     Uses outline (not box-shadow) so it stays crisp on rounded pills,
+     and a contrasting offset color so it reads on any surface.
+     The ring appears instantly because outline / box-shadow are excluded
+     from the .btn-slide transition list, and we belt-and-braces it here
+     by zeroing transition on outline-* and box-shadow for the focused
+     state. We also suppress the hover-lift translate while keyboard
+     focus is active so the ring doesn't shift mid-paint. */
+  .btn-slide:focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 3px;
+    box-shadow: 0 0 0 1px hsl(var(--background));
+    transition-property: transform, border-color, background-color, color, filter;
+  }
+  .btn-slide:focus-visible:hover {
+    transform: none;
+  }
+  .btn-slide:focus-visible::before {
+    /* Hide the slide-shine sweep while focused so it doesn't draw
+       attention away from the focus ring. */
+    opacity: 0;
+    transition: none;
+  }
+
+  /* High-contrast (prefers-contrast: more) focus rings.
+     Replaces themed --ring with system `Highlight` / `CanvasText` so the
+     ring stays visible in forced-colors / high-contrast environments on
+     both light and dark surfaces. Covers .btn-slide, Tailwind ring-*
+     utilities, and bare focusable elements. */
+  @media (prefers-contrast: more) {
+    .btn-slide:focus-visible {
+      outline: 3px solid Highlight;
+      outline-offset: 3px;
+      box-shadow: 0 0 0 2px CanvasText;
+    }
+    *:focus-visible {
+      --tw-ring-color: Highlight;
+      --tw-ring-offset-color: Canvas;
+      --tw-ring-offset-width: 2px;
+    }
+    a:focus-visible:not(.btn-slide):not([class*="ring-"]),
+    button:focus-visible:not(.btn-slide):not([class*="ring-"]) {
+      outline: 3px solid Highlight;
+      outline-offset: 2px;
+    }
+  }
+  .btn-slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      hsl(var(--primary-foreground) / 0.28) 50%,
+      transparent 65%
+    );
+    transform: translateX(-110%);
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .btn-slide:hover::before {
+    transform: translateX(110%);
+  }
+  .btn-slide:hover {
+    transform: translateY(-1px);
+  }
+  .btn-slide > * {
+    position: relative;
+    z-index: 1;
+  }
+  /* Ghost variant: lighter sweep tinted with primary, for outline buttons
+     where primary-foreground would be invisible against the card surface. */
+  .btn-slide-ghost::before {
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      hsl(var(--primary) / 0.18) 50%,
+      transparent 65%
+    );
+  }
+
+  /* Reduced-motion fallback — honor users who request fewer animations.
+     Disables the slide-shine sweep and lift entirely so hover state is
+     instant and visually static. */
+  @media (prefers-reduced-motion: reduce) {
+    .btn-slide,
+    .btn-slide::before {
+      transition: none !important;
+    }
+    .btn-slide:hover {
+      transform: none !important;
+    }
+    .btn-slide::before,
+    .btn-slide:hover::before {
+      display: none !important;
+    }
+  }
+
+  /* Primary CTA glow — animated conic ring on hover. */
+  .cta-glow {
+    position: relative;
+  }
+  .cta-glow::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from 0deg,
+      hsl(var(--primary) / 0.6),
+      hsl(var(--accent) / 0.6),
+      hsl(var(--primary) / 0.6)
+    );
+    filter: blur(8px);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease;
+    animation: cta-spin 6s linear infinite;
+  }
+  .cta-glow:hover::before {
+    opacity: 0.7;
+  }
+}
+
+/* Keyframes — outside @layer so Tailwind keeps them. */
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%  { transform: translate3d(2%, 1%, 0) rotate(2deg); }
+  100% { transform: translate3d(-2%, -1%, 0) rotate(-2deg); }
+}
+@keyframes shimmer-pan {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes reveal-up {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes badge-ring {
+  0%   { opacity: 0.55; transform: scale(1); }
+  80%  { opacity: 0;    transform: scale(1.35); }
+  100% { opacity: 0;    transform: scale(1.35); }
+}
+@keyframes cta-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Highlight.js — VS Code Dark+ token palette (per spec).
+   6-color base:
+     keyword  #C586C0 hsl(300 30% 64%)  — pink/magenta
+     control  #569CD6 hsl(207 61% 59%)  — blue
+     string   #CE9178 hsl(17  47% 64%)  — orange/salmon
+     number   #B5CEA8 hsl(95  38% 73%)  — light green
+     function #DCDCAA hsl(60  29% 77%)  — pale yellow
+     variable #9CDCFE hsl(201 92% 80%)  — light blue
+     comment  #6A9955 hsl(101 29% 47%)  — gray-green
+   ───────────────────────────────────────────────────────────────────────── */
+.hljs {
+  color: hsl(0, 0%, 80%);              /* #CCCCCC editor text */
+}
+.hljs-keyword,
+.hljs-selector-tag {
+  color: hsl(300, 30%, 64%);           /* keyword pink */
+}
+.hljs-built_in,
+.hljs-type,
+.hljs-literal,
+.hljs-symbol {
+  color: hsl(207, 61%, 59%);           /* control blue */
+}
+.hljs-string,
+.hljs-attr {
+  color: hsl(17, 47%, 64%);            /* string orange */
+}
+.hljs-number,
+.hljs-regexp {
+  color: hsl(95, 38%, 73%);            /* number light green */
+}
+.hljs-comment,
+.hljs-quote {
+  color: hsl(101, 29%, 47%);           /* comment gray-green */
+  font-style: italic;
+}
+.hljs-title,
+.hljs-section,
+.hljs-tag {
+  color: hsl(0, 0%, 80%);
+}
+.hljs-title.function_,
+.hljs-title.class_,
+.hljs-attribute {
+  color: hsl(60, 29%, 77%);            /* function pale yellow */
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-property,
+.hljs-params {
+  color: hsl(201, 92%, 80%);           /* variable light blue */
+}
+.hljs-meta,
+.hljs-meta .hljs-keyword {
+  color: hsl(300, 30%, 64%);
+}
+.hljs-selector-class,
+.hljs-selector-id {
+  color: hsl(60, 29%, 77%);
+}
+.hljs-addition {
+  color: hsl(101, 29%, 60%);
+  background: hsl(101, 29%, 47% / 0.15);
+}
+.hljs-deletion {
+  color: hsl(355, 65%, 65%);
+  background: hsl(355, 65%, 65% / 0.12);
+}
+
+/* Code line hover highlight */
+.code-line {
+  transition: background 0.15s ease;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+}
+.code-line:hover {
+  background: hsl(220, 15%, 16%);
+  border-left-color: hsl(var(--primary) / 0.6);
+}
+.code-line-pinned {
+  background: hsl(var(--primary) / 0.22) !important;
+  border-left-color: hsl(var(--primary)) !important;
+}
+.code-line-num {
+  transition: color 0.15s ease;
+  cursor: pointer;
+}
+.code-line-num:hover {
+  color: hsl(var(--primary)) !important;
+}
+.code-line-num-pinned {
+  color: hsl(var(--primary)) !important;
+  font-weight: 600;
+}
+
+/* Smooth scrolling at the document level (respects reduced-motion override above) */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Modern, slim CSS3 scrollbars — semantic tokens auto-adapt to light & dark themes */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s ease;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.55);
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Docs containers — slimmer track, overlay-style, used by sidebar/main/code blocks */
+.docs-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+.docs-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.docs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.docs-scroll::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s ease;
+}
+.docs-scroll:hover::-webkit-scrollbar-thumb,
+.docs-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.5);
+  background-clip: content-box;
+}
+.docs-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Docs header focus ring — high-contrast, theme-aware (uses --ring + --background
+   for the offset so the ring stands out against both light and dark sidebars). */
+.docs-focus-ring {
+  outline: none;
+}
+.docs-focus-ring:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 4px hsl(var(--ring)),
+    0 0 12px hsl(var(--ring) / 0.45);
+  border-radius: 4px;
+  transition: box-shadow 0.15s ease, outline-color 0.15s ease;
+}

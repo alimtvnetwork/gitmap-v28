@@ -1,0 +1,15 @@
+# source: curated (Python project conventions)
+# kind: attributes
+# lang: python
+# version: 1
+
+*.py        text eol=lf
+*.pyi       text eol=lf
+*.pyx       text eol=lf
+*.ipynb     text eol=lf
+
+requirements*.txt  text eol=lf
+Pipfile            text eol=lf
+Pipfile.lock       text eol=lf linguist-generated=true
+poetry.lock        text eol=lf linguist-generated=true
+uv.lock            text eol=lf linguist-generated=true

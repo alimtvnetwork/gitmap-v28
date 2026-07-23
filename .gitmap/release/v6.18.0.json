@@ -1,0 +1,18 @@
+{
+  "version": "6.18.0",
+  "branch": "release/v6.18.0",
+  "sourceBranch": "main",
+  "commit": "745cccb4811ad08722f75e392d2c8cc7fe306651",
+  "tag": "v6.18.0",
+  "assets": [],
+  "changelog": [
+    "**Bugfix:** `gitmap make-all-public https://github.com/\u003cowner\u003e` (and `make-all-private` / `MAPUB` / `MAPRI`) previously extracted the **host** (`github.com`) as the owner because `firstPathSegment` started its scan at `parts[2]` — which is the host, not the first path segment. The provider CLI then failed with `gh repo list github.com → exit status 1`. Rewrote `firstPathSegment` in `gitmap/cmd/visibilityresolveowner.go` to strip the scheme (`https://`, `http://`, `ssh://`, `git://`), then drop the host, then return the first non-empty path component. Works for `https://github.com/alice`, `https://github.com/alice/`, `https://github.com/alice/repo`, `git@github.com:alice/repo.git`, and `github.com/alice` bare form.",
+    "**Trailing slash:** `ResolveOwnerOnly` now strips one-or-more trailing `/` from the input before classification, so `https://github.com/alice/` and `github.com/alice/` resolve identically to the no-slash form.",
+    "**Better diagnostics:** Provider-CLI failures from `listOwnerRepos` now include the **full argv** (`gh repo list \u003cowner\u003e --limit 1000 --json name`) and the **captured stderr** from the child process in the error message — previously you only got `exit status 1` with no context. Makes auth / 404 / rate-limit failures self-diagnosing.",
+    "Files: `gitmap/cmd/visibilityresolveowner.go`, `gitmap/cmd/visibilityownerlist.go`, `gitmap/constants/constants.go` (`6.18.0`), `src/constants/index.ts` (`v6.18.0`), `README.md` (pin → v6.18.0), `CHANGELOG.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-06T18:38:03Z",
+  "isLatest": false
+}

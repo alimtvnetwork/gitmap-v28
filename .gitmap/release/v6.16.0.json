@@ -1,0 +1,16 @@
+{
+  "version": "6.16.0",
+  "branch": "release/v6.16.0",
+  "sourceBranch": "main",
+  "commit": "339d26366209947798b6f66a189cd23a93d324b1",
+  "tag": "v6.16.0",
+  "assets": [],
+  "changelog": [
+    "**Fix:** `gitmap make-all-public --help` and `gitmap make-all-private --help` (plus aliases `MAPUB`/`MAPRI`) previously fell straight into the arg-count guard and printed the one-line usage stub instead of the embedded help. Root cause: `runMakeAllVisibility` checked `len(args) \u003c 2` before consulting `checkHelp`, so `--help` counted as a single positional and tripped `ErrMakeAllMissingArgFmt`. Now `runMakeAllVisibility` calls `checkHelp(cmdName, args)` as its first statement — same pattern every other top-level handler uses — so `--help` / `-h` render `helptext/make-all-public.md` / `helptext/make-all-private.md` (already shipped in v6.x) and exit 0 before any flag parsing runs. Aliases inherit the fix because the dispatcher passes the canonical `cmdName` (`make-all-public` / `make-all-private`) into `runMakeAllVisibility`.",
+    "Files: `gitmap/cmd/visibilityallbulk.go` (single-line `checkHelp` insertion at top of `runMakeAllVisibility`), `gitmap/constants/constants.go` (`6.16.0`), `README.md` (pin → v6.16.0), `CHANGELOG.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-06T15:48:42Z",
+  "isLatest": false
+}

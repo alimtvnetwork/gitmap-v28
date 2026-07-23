@@ -1,0 +1,2 @@
+widget|https://github.com/acme/widget.git|git@github.com:acme/widget.git|main|acme/widget
+gadget|https://github.com/acme/gadget.git|git@github.com:acme/gadget.git|develop|acme/gadget

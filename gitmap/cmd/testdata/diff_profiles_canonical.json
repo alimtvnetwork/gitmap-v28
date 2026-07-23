@@ -1,0 +1,8 @@
+{
+  "profileA": "alpha",
+  "profileB": "beta",
+  "onlyInA": [{"name":"repo-a","path":"/home/user/a"}],
+  "onlyInB": [{"name":"repo-b","path":"/home/user/b"}],
+  "different": [{"name":"repo-diff","pathA":"/home/user/diff-a","pathB":"/home/user/diff-b","modeA":"https","modeB":"ssh"}],
+  "same": 1
+}

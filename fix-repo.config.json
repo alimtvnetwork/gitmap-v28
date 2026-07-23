@@ -1,0 +1,15 @@
+{
+  "$comment": "Configuration for fix-repo.sh / fix-repo.ps1. Paths are relative to the repo root. ignoreDirs = directory prefixes to skip entirely. ignorePatterns = glob patterns (* matches within a segment, ** matches across segments). See spec-authoring/22-fix-repo/01-spec.md.",
+  "ignoreDirs": [
+    ".git",
+    "node_modules",
+    "dist",
+    "build",
+    "release-artifacts"
+  ],
+  "ignorePatterns": [
+    "**/*.min.js",
+    "**/*.min.css",
+    "**/*.lock"
+  ]
+}

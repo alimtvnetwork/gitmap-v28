@@ -1,0 +1,28 @@
+# source: curated (Java/JVM project conventions)
+# kind: attributes
+# lang: java
+# version: 1
+
+*.java      text eol=lf
+*.kt        text eol=lf
+*.kts       text eol=lf
+*.groovy    text eol=lf
+*.scala     text eol=lf
+*.properties text eol=lf
+*.xml       text eol=lf
+*.gradle    text eol=lf
+*.gradle.kts text eol=lf
+
+pom.xml             text eol=lf
+build.gradle        text eol=lf
+build.gradle.kts    text eol=lf
+settings.gradle     text eol=lf
+settings.gradle.kts text eol=lf
+
+# Wrapper jars are tracked binary so checksum stays stable.
+gradlew             text eol=lf
+gradlew.bat         text eol=crlf
+gradle-wrapper.jar  binary
+mvnw                text eol=lf
+mvnw.cmd            text eol=crlf
+maven-wrapper.jar   binary

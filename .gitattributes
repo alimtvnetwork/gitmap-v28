@@ -1,0 +1,27 @@
+# Golden / fixture / JSON contract files MUST be checked out with LF on every
+# platform. Go tests compare expected bytes verbatim; Windows' default
+# core.autocrlf=true silently injects \r before each \n on checkout, which
+# breaks every `assertGolden`-style assertion with the tell-tale "want and got
+# look identical but differ by exactly N bytes" diff (one \r per line).
+#
+# Scope: anything a Go test reads back via os.ReadFile and byte-compares.
+*.golden            text eol=lf
+*.json              text eol=lf
+testdata/**         text eol=lf
+**/testdata/**      text eol=lf
+
+# Shell scripts must be LF (Windows runners execute them via bash from
+# Git for Windows, which rejects CRLF shebangs).
+*.sh                text eol=lf
+
+# Go sources: enforce LF so gofmt / CI gofmt audit isn't fighting CRLF.
+*.go                text eol=lf
+
+# NOTE: golden CSVs intentionally checked out as LF (per the broad
+# `testdata/** text eol=lf` rule above) even though the production CSV
+# writers emit CRLF (`csv.Writer.UseCRLF=true`, pinned by
+# `csvcrlf_contract_test.go`). The byte-exact assert helpers
+# (`assertScanGolden`, `assertReportGolden`) normalize CRLF→LF on the
+# `got` side before comparing — so the on-disk fixture stays
+# hand-readable / cross-platform consistent and the production CRLF
+# contract is unaffected. See mem://constraints/golden-csv-crlf.

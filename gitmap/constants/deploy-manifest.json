@@ -1,0 +1,11 @@
+{
+  "$comment": "Single source of truth for deploy-target folder names. Renaming gitmap-cli/ in the future ONLY requires editing this file. Loaders: run.ps1 (Get-DeployManifest), run.sh / install.sh (load_deploy_manifest), Go constants (constants_doctor.go GitMapCliSubdir reads from this at build via go:embed). Do NOT hardcode 'gitmap-cli' or 'gitmap' anywhere else.",
+  "schemaVersion": 1,
+  "appSubdir": "gitmap-cli",
+  "legacyAppSubdirs": ["gitmap"],
+  "binaryName": {
+    "windows": "gitmap.exe",
+    "unix": "gitmap"
+  },
+  "sourceRepoSubdir": "gitmap"
+}

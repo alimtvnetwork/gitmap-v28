@@ -1,0 +1,44 @@
+graph TD
+    A["Deploy New Binary"] --> B{"Existing binary at destination?"}
+
+    B -->|NO| C["Copy new binary directly"]
+    B -->|YES| D["Phase 1: Rename"]
+
+    D --> D1{"Remove stale .old backup?"}
+    D1 --> D2["Rename active binary to .old"]
+    D2 --> D3{"Rename succeeded?"}
+
+    D3 -->|YES| E["Destination is now free"]
+    D3 -->|NO| F["Fallback: copy-based backup"]
+    F --> F1{"Copy backup succeeded?"}
+    F1 -->|YES| E
+    F1 -->|NO| G["Log warning, attempt deploy anyway"]
+    G --> E
+
+    E --> H["Phase 2: Copy with Retry"]
+    H --> H1["Attempt copy new binary"]
+    H1 --> H2{"Copy succeeded?"}
+
+    H2 -->|YES| I["Deploy Success"]
+    H2 -->|NO| H3{"Retries remaining? max 5x500ms"}
+    H3 -->|YES| H4["Wait 500ms"]
+    H4 --> H1
+    H3 -->|NO| J["Deploy Failed"]
+
+    J --> K{"Backup exists?"}
+    K -->|YES| L["Rollback: rename .old back"]
+    K -->|NO| M["Fatal: no binary available"]
+
+    L --> L1{"Rollback succeeded?"}
+    L1 -->|YES| N["Previous version restored"]
+    L1 -->|NO| M
+
+    C --> I
+    I --> O["Copy data/ folder"]
+    O --> P["Done"]
+
+    style A fill:#f59e0b,color:#000
+    style P fill:#22c55e,color:#fff
+    style J fill:#ef4444,color:#fff
+    style M fill:#ef4444,color:#fff
+    style N fill:#eab308,color:#000

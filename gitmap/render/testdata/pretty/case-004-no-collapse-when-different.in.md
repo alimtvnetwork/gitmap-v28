@@ -1,0 +1,5 @@
+deploy is idempotent
+
+```
+gitmap deploy --force
+```

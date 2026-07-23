@@ -1,0 +1,24 @@
+  1. widget
+     branch:    main (manifest)
+     transport: https
+     https:     https://github.com/acme/widget.git
+     ssh:       (unknown)
+     from:      https://github.com/acme/widget.git
+     to:        https://github.com/acme/widget.git
+     command:   git clone -b main --depth=1 https://github.com/acme/widget.git widget
+  2. gadget
+     branch:    develop (manifest)
+     transport: ssh
+     https:     (unknown)
+     ssh:       git@github.com:acme/gadget.git
+     from:      git@github.com:acme/gadget.git
+     to:        git@github.com:acme/gadget.git
+     command:   git clone -b develop git@github.com:acme/gadget.git gadget
+  3. sprocket
+     branch:    release/v2 (manifest)
+     transport: https
+     https:     https://github.com/acme/sprocket.git
+     ssh:       (unknown)
+     from:      https://github.com/acme/sprocket.git
+     to:        https://github.com/acme/sprocket.git
+     command:   git clone -b release/v2 --depth=5 https://github.com/acme/sprocket.git sprocket

@@ -1,0 +1,16 @@
+{
+  "version": "4.40.0",
+  "branch": "release/v4.40.0",
+  "sourceBranch": "main",
+  "commit": "c51d44b7c11b170673758b6abfe24193ddf2b453",
+  "tag": "v4.40.0",
+  "assets": [],
+  "changelog": [
+    "Bumped `Version` constant to `4.40.0` (Go) and `VERSION` to `v4.40.0` (web)",
+    "Re-pinned the root `README.md` \"Pinned version\" section, one-line installers,"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-05-07T12:46:52Z",
+  "isLatest": false
+}

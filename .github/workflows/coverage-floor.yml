@@ -1,0 +1,27 @@
+name: coverage-floor
+# Coverage floor gate (#13). New Go packages cannot ship below 70%
+# line coverage. Existing packages already over the bar protect their
+# current level via per-package floors recorded in .github/coverage.floor.
+
+on:
+  pull_request:
+    paths:
+      - "gitmap/**"
+      - ".github/workflows/coverage-floor.yml"
+      - ".github/coverage.floor"
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.13"
+      - name: Run tests with coverage
+        run: |
+          go test -count=1 -coverpkg=./gitmap/... -coverprofile=coverage.out ./gitmap/... || true
+      - name: Enforce floor
+        run: bash .github/scripts/coverage-floor.sh coverage.out

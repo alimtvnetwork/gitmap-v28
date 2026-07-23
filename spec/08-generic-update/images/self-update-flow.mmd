@@ -1,0 +1,45 @@
+graph TD
+    A["binary update"] --> B{"Source repo available?"}
+    B -->|YES| C["Source-Based Update"]
+    B -->|NO| D["Binary-Based Update"]
+
+    C --> C1["Resolve repo path"]
+    C1 --> C2["git pull latest"]
+    C2 --> C3["go mod tidy"]
+    C3 --> C4["go build with ldflags"]
+    C4 --> E["Resolve Deploy Target"]
+
+    D --> D1["Fetch latest version tag"]
+    D1 --> D2["Download install script"]
+    D2 --> D3["Execute installer"]
+    D3 --> E
+
+    E --> E1{"Platform?"}
+    E1 -->|Windows| F["Handoff: copy self to temp"]
+    E1 -->|Unix| G["Direct in-place replace"]
+
+    F --> F1["Launch temp copy as worker"]
+    F1 --> F2["Worker runs build/install"]
+    F2 --> H["Rename-First Deploy"]
+
+    G --> H
+
+    H --> H1["Rename existing to .old"]
+    H1 --> H2["Copy new binary"]
+    H2 --> H3["Copy data/ folder"]
+    H3 --> I{"First-time install?"}
+
+    I -->|YES| J["Register in PATH"]
+    I -->|NO| K["Skip PATH"]
+
+    J --> J1["Reload terminal env"]
+    J1 --> L["Verify version"]
+    K --> L
+
+    L --> M["Cleanup temp files"]
+    M --> N["Done"]
+
+    style A fill:#4f46e5,color:#fff
+    style N fill:#22c55e,color:#fff
+    style H fill:#f59e0b,color:#000
+    style F fill:#ef4444,color:#fff

@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# Pre-commit hook:
+#   1. cmd/ naming guard       — blocks collision-prone helper names
+#   2. constants/ naming guard — blocks new constants without canonical prefix
+#   3. golangci-lint           — full linter suite (misspell, exhaustive, errcheck, …)
+#
+# Install: cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# (handled automatically by ./setup.sh)
+
+set -uo pipefail
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM -- '*.go')
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+CMD_GUARD="$REPO_ROOT/.github/scripts/check-cmd-naming.sh"
+CONST_GUARD="$REPO_ROOT/.github/scripts/check-constants-naming.sh"
+DEPLOY_GUARD="$REPO_ROOT/.github/scripts/check-deploy-layout.sh"
+
+# 1. cmd/ naming guard — only when staged files touch gitmap/cmd/
+if echo "$STAGED" | grep -qE '^gitmap/cmd/'; then
+  if [ -x "$CMD_GUARD" ]; then
+    echo "Running cmd/ naming guard..."
+    if ! bash "$CMD_GUARD" "$REPO_ROOT/gitmap/cmd"; then
+      echo ""
+      echo "✗ Pre-commit blocked: rename helpers above, then re-stage and re-commit."
+      exit 1
+    fi
+    echo "  ✓ cmd/ naming guard passed"
+  fi
+fi
+
+# 2. constants/ naming guard — only when staged files touch gitmap/constants/
+if echo "$STAGED" | grep -qE '^gitmap/constants/'; then
+  if [ -x "$CONST_GUARD" ]; then
+    echo "Running constants/ naming guard..."
+    if ! (cd "$REPO_ROOT" && bash "$CONST_GUARD"); then
+      echo ""
+      echo "✗ Pre-commit blocked: rename new constants above to use Cmd/Msg/Err/Flag/Default,"
+      echo "  or run 'bash .github/scripts/check-constants-naming.sh --regenerate-baseline'"
+      echo "  if this was an approved rename pass."
+      exit 1
+    fi
+    echo "  ✓ constants/ naming guard passed"
+  fi
+fi
+
+# 3. deploy-layout guard — always run (cheap, repo-wide grep)
+if [ -x "$DEPLOY_GUARD" ]; then
+  echo "Running deploy-layout guard (gitmap-cli/ enforcement)..."
+  if ! bash "$DEPLOY_GUARD" "$REPO_ROOT"; then
+    echo ""
+    echo "✗ Pre-commit blocked: replace hardcoded 'gitmap/' deploy paths"
+    echo "  with constants.GitMapCliSubdir (sourced from deploy-manifest.json)."
+    exit 1
+  fi
+  echo "  ✓ deploy-layout guard passed"
+fi
+
+# 4. gofmt — auto-format staged .go files in place, then re-stage.
+#
+# Delegates to scripts/format-go.sh --staged so the same logic is reusable
+# from CLI (`bash scripts/format-go.sh`) and CI. Auto-format runs BEFORE
+# golangci-lint because gofmt-dirty files produce noisy lint output that
+# masks the real cause. The script exits non-zero on partial-staging
+# conflicts (unstaged hunks present) so we never silently swallow user
+# edits via `git add`.
+FORMAT_SCRIPT="$REPO_ROOT/scripts/format-go.sh"
+if [ -f "$FORMAT_SCRIPT" ]; then
+  echo "Auto-formatting staged Go files..."
+  if ! bash "$FORMAT_SCRIPT" --staged; then
+    echo ""
+    echo "✗ Pre-commit blocked: resolve formatting conflicts above, then re-commit."
+    exit 1
+  fi
+fi
+
+# 5. golangci-lint — full suite
+if ! command -v golangci-lint &>/dev/null; then
+  echo "⚠ golangci-lint not found — skipping lint check."
+  echo "  Install: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8"
+  exit 0
+fi
+
+echo "Running golangci-lint (misspell + exhaustive + errcheck + 15 other linters)..."
+cd "$REPO_ROOT/gitmap" || exit 0
+golangci-lint run ./... --timeout=5m
+exit $?

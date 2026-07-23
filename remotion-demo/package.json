@@ -1,0 +1,24 @@
+{
+  "name": "remotion-demo",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.455",
+    "@remotion/cli": "^4.0.455",
+    "@remotion/compositor-linux-x64-musl": "^4.0.455",
+    "@remotion/google-fonts": "^4.0.455",
+    "@remotion/renderer": "^4.0.455",
+    "@remotion/transitions": "^4.0.455",
+    "@types/react": "^19.2.14",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "remotion": "^4.0.455"
+  }
+}

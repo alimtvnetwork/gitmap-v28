@@ -1,0 +1,16 @@
+{
+  "version": "6.15.0",
+  "branch": "release/v6.15.0",
+  "sourceBranch": "main",
+  "commit": "2bd2db5da77cceb02fccd6f30fb801496234b073",
+  "tag": "v6.15.0",
+  "assets": [],
+  "changelog": [
+    "**Step 39 — `vh` SQL-side filter pushdown:** at thousands of historical runs, `vh --kind X --since 24h` was loading every row into memory and discarding 99% client-side. Added pure `store.BuildRecentRunsQuery(RecentRunsFilter)` builder (composes `WHERE CommandKind = ?` / `AND StartedAt \u003e= ?` / `ORDER BY ... DESC LIMIT ?` from supplied filters, returns sql + positional args — no DB handle, fully unit-testable) and `(db *DB).SelectRecentMakeAllVisibilityRunsFiltered`. New SQL fragments (`SQLSelectRecentRunsBase`, `SQLWhereCommandKindEq`, `SQLWhereStartedAtGTE`, `SQLOrderRunIDDescLimit`, `SQLKeywordWHERE`, `SQLKeywordAND`) centralized in `constants_visibility_store_sql.go` to honor the no-magic-strings rule. `runVisibilityHistory` now routes through new `loadHistoryRuns` helper: zero-filter → original unfiltered SELECT (no behavior change for the default `vh`); any filter set → pushdown path with `--since` converted to ISO-8601 lower bound via `time.Now().Add(-d).UTC().Format(time.RFC3339)`. Step-36's `applyHistoryFilters` is retained as defense-in-depth second pass — SQL `\u003e=` is a lexicographic text compare on ISO-8601 strings (works only for well-formed timestamps); the in-memory `time.Parse` pass still drops malformed `StartedAt` rows the SQL would let through. Tests: 4-case builder coverage (no-filter, kind-only, both-filters, suffix invariant) + 1 round-trip pushdown test confirming SQLite actually filters by `CommandKind`.",
+    "Files: `gitmap/store/makeallvisibility_history_filtered.go` (new), `gitmap/store/makeallvisibility_history_filtered_test.go` (new), `gitmap/cmd/visibilityhistory.go` (route via `loadHistoryRuns`, add `store` import), `gitmap/constants/constants_visibility_store_sql.go` (new SQL fragments), `gitmap/constants/constants.go` (`6.15.0`), `README.md` (pin), `CHANGELOG.md`, `.lovable/prompts/12-next-task.md` (new)."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-06T14:48:22Z",
+  "isLatest": false
+}

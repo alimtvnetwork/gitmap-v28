@@ -1,0 +1,55 @@
+graph TD
+    A["01 - Self-Update Overview"] --> B["02 - Deploy Path Resolution"]
+    A --> C["03 - Rename-First Deploy"]
+    A --> D["04 - Build Scripts"]
+    A --> E["05 - Handoff Mechanism"]
+    A --> F["06 - Cleanup"]
+
+    subgraph "Update Trigger"
+        A
+    end
+
+    subgraph "Where to Deploy"
+        B --> B1["Tier 1: CLI flag"]
+        B --> B2["Tier 2: Running exe location"]
+        B --> B3["Tier 3: Global PATH"]
+        B --> B4["Tier 4: Config / Prompt"]
+    end
+
+    subgraph "How to Build"
+        D --> D1["run.ps1 - Windows"]
+        D --> D2["run.sh - Unix"]
+        D1 --> D3["git pull + go build + ldflags"]
+        D2 --> D3
+    end
+
+    subgraph "How to Deploy"
+        C --> C1["Rename active to .old"]
+        C1 --> C2["Copy new binary"]
+        C2 --> C3["Copy data/ folder"]
+        C3 --> C4["Retry loop if needed"]
+    end
+
+    subgraph "Windows Lock Resolution"
+        E --> E1["Copy self to temp"]
+        E1 --> E2["Launch worker process"]
+        E2 --> E3["Worker builds and deploys"]
+        E3 --> C
+    end
+
+    subgraph "Post-Update"
+        F --> F1["Remove .old binary"]
+        F --> F2["Remove temp copies"]
+        F --> F3["Remove temp scripts"]
+    end
+
+    B --> C
+    D3 --> C
+    C4 --> F
+
+    style A fill:#4f46e5,color:#fff
+    style B fill:#2563eb,color:#fff
+    style C fill:#f59e0b,color:#000
+    style D fill:#059669,color:#fff
+    style E fill:#ef4444,color:#fff
+    style F fill:#22c55e,color:#fff

@@ -1,0 +1,14 @@
+{
+  "_doc": "Schema registry entry for ssh-list --json key order. Generated from encoder output; do NOT hand-edit.",
+  "name": "ssh-list",
+  "version": 1,
+  "keys": [
+    "id",
+    "name",
+    "privatePath",
+    "publicKey",
+    "fingerprint",
+    "email",
+    "createdAt"
+  ]
+}

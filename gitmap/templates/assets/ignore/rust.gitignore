@@ -1,0 +1,9 @@
+# source: github.com/github/gitignore/Rust.gitignore (curated)
+# kind: ignore
+# lang: rust
+# version: 1
+
+target/
+Cargo.lock.bak
+**/*.rs.bk
+*.pdb

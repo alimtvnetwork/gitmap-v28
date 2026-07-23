@@ -1,0 +1,13 @@
+{
+  "name": "bookmark-list",
+  "version": 1,
+  "keys": [
+    "id",
+    "name",
+    "command",
+    "args",
+    "flags",
+    "createdAt"
+  ],
+  "_doc": "Key order for bookmark-list array JSON output. Bump version and create a new .vN.json file when the wire order changes."
+}

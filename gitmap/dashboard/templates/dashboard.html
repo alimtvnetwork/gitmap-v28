@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gitmap dashboard — {{.Meta.RepoName}}</title>
+<style>
+:root {
+  --bg: hsl(220,20%,10%); --bg-card: hsl(220,18%,14%); --bg-input: hsl(220,16%,18%);
+  --text: hsl(210,20%,90%); --text-dim: hsl(210,15%,55%);
+  --accent: hsl(160,70%,50%); --accent2: hsl(35,90%,60%);
+  --danger: hsl(0,70%,60%); --success: hsl(140,60%,50%);
+  --border: hsl(220,15%,22%); --radius: 8px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'SF Mono','Fira Code','Consolas',monospace; background:var(--bg); color:var(--text); line-height:1.5; }
+a { color:var(--accent); }
+.wrap { max-width:1200px; margin:0 auto; padding:16px; }
+
+/* Header */
+.hdr { background:var(--bg-card); border-bottom:1px solid var(--border); padding:14px 0; position:sticky; top:0; z-index:10; }
+.hdr-inner { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.hdr-title { font-size:18px; font-weight:700; color:var(--accent); }
+.hdr-meta { font-size:12px; color:var(--text-dim); }
+.hdr-badge { background:var(--bg-input); border:1px solid var(--border); border-radius:4px; padding:2px 8px; font-size:11px; }
+
+/* Filters */
+.filters { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; margin:16px 0; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.filters label { font-size:12px; color:var(--text-dim); }
+.filters input, .filters select { background:var(--bg-input); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px 8px; font-size:12px; font-family:inherit; }
+.filters button { background:var(--accent); color:hsl(220,20%,10%); border:none; border-radius:4px; padding:5px 14px; font-size:12px; font-weight:600; cursor:pointer; }
+.filters button.sec { background:transparent; color:var(--text-dim); border:1px solid var(--border); }
+
+/* Cards */
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:16px 0; }
+.card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.card-label { font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; }
+.card-value { font-size:28px; font-weight:700; margin-top:4px; }
+.card-value.accent { color:var(--accent); }
+.card-value.amber { color:var(--accent2); }
+
+/* Sections */
+.section { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin:16px 0; }
+.section-title { font-size:14px; font-weight:600; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+.toggle-group { display:flex; gap:0; }
+.toggle-group button { background:var(--bg-input); color:var(--text-dim); border:1px solid var(--border); padding:3px 10px; font-size:11px; cursor:pointer; font-family:inherit; }
+.toggle-group button:first-child { border-radius:4px 0 0 4px; }
+.toggle-group button:last-child { border-radius:0 4px 4px 0; }
+.toggle-group button.active { background:var(--accent); color:hsl(220,20%,10%); border-color:var(--accent); }
+
+/* Tables */
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { text-align:left; color:var(--text-dim); font-weight:600; padding:6px 8px; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; }
+td { padding:6px 8px; border-bottom:1px solid hsl(220,15%,16%); }
+tr:hover td { background:hsl(220,18%,16%); }
+.ins { color:var(--success); } .del { color:var(--danger); }
+.sha { color:var(--accent); font-size:11px; }
+.merge-badge { background:var(--accent2); color:hsl(0,0%,10%); font-size:9px; padding:1px 5px; border-radius:3px; }
+
+/* Canvas */
+canvas { width:100%; height:200px; display:block; }
+
+/* Heatmap */
+.heatmap { display:grid; grid-template-columns:repeat(53,1fr); gap:2px; }
+.heatmap-cell { aspect-ratio:1; border-radius:2px; }
+.hm-0 { background:hsl(220,15%,16%); } .hm-1 { background:hsl(160,50%,20%); }
+.hm-2 { background:hsl(160,60%,30%); } .hm-3 { background:hsl(160,65%,40%); }
+.hm-4 { background:hsl(160,70%,50%); }
+
+/* Pagination */
+.pager { display:flex; gap:8px; justify-content:center; margin-top:12px; }
+.pager button { background:var(--bg-input); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px 10px; font-size:11px; cursor:pointer; font-family:inherit; }
+.pager button.active { background:var(--accent); color:hsl(220,20%,10%); }
+.pager button:disabled { opacity:.4; cursor:default; }
+
+/* Two-col */
+.cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media(max-width:768px) { .cols { grid-template-columns:1fr; } }
+
+/* Search */
+.search { background:var(--bg-input); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px 8px; font-size:12px; font-family:inherit; width:200px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="hdr"><div class="wrap hdr-inner">
+  <span class="hdr-title">📊 gitmap dashboard</span>
+  <span class="hdr-badge" id="repoName"></span>
+  <span class="hdr-badge" id="branchBadge"></span>
+  <span class="hdr-meta" id="metaLine"></span>
+</div></div>
+
+<div class="wrap">
+
+<!-- Filters -->
+<div class="filters">
+  <label>From <input type="date" id="fFrom"></label>
+  <label>To <input type="date" id="fTo"></label>
+  <label>Author <select id="fAuthor"><option value="">All</option></select></label>
+  <label>Tag from <select id="fTagFrom"><option value="">—</option></select></label>
+  <label>→ <select id="fTagTo"><option value="">—</option></select></label>
+  <button onclick="applyFilters()">Apply</button>
+  <button class="sec" onclick="resetFilters()">Reset</button>
+</div>
+
+<!-- Summary Cards -->
+<div class="cards">
+  <div class="card"><div class="card-label">Total Commits</div><div class="card-value accent" id="cCommits">0</div></div>
+  <div class="card"><div class="card-label">Active Authors</div><div class="card-value" id="cAuthors">0</div></div>
+  <div class="card"><div class="card-label">Top Contributor</div><div class="card-value amber" id="cTop">—</div></div>
+  <div class="card"><div class="card-label">Avg / Day</div><div class="card-value" id="cAvg">0</div></div>
+</div>
+
+<!-- Commit Timeline -->
+<div class="section">
+  <div class="section-title">Commits Over Time
+    <div class="toggle-group">
+      <button class="active" onclick="setGranularity('daily',this)">Daily</button>
+      <button onclick="setGranularity('weekly',this)">Weekly</button>
+      <button onclick="setGranularity('monthly',this)">Monthly</button>
+    </div>
+  </div>
+  <canvas id="timelineChart"></canvas>
+</div>
+
+<!-- Author Breakdown -->
+<div class="cols">
+  <div class="section">
+    <div class="section-title">Author Contributions</div>
+    <canvas id="authorChart" style="height:250px"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title">Author Activity</div>
+    <table id="authorTable">
+      <thead><tr><th>Name</th><th>Commits</th><th>Days</th><th>First</th><th>Last</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Tag-to-Tag -->
+<div class="section">
+  <div class="section-title">Release Velocity</div>
+  <div class="cols">
+    <div>
+      <table id="tagTable">
+        <thead><tr><th>Tag</th><th>Date</th><th>Commits</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div><canvas id="tagChart" style="height:220px"></canvas></div>
+  </div>
+</div>
+
+<!-- Commit Log -->
+<div class="section">
+  <div class="section-title">Commit Log <input class="search" placeholder="Search messages..." id="commitSearch" oninput="renderCommits()"></div>
+  <table id="commitTable">
+    <thead><tr><th>SHA</th><th>Author</th><th>Date</th><th>Message</th><th>+</th><th>−</th><th>Files</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <div class="pager" id="commitPager"></div>
+</div>
+
+<!-- Heatmap -->
+<div class="section">
+  <div class="section-title">Commit Heatmap</div>
+  <div class="heatmap" id="heatmap"></div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+var D = {{.}};
+var filtered = D.commits.slice();
+var PAGE = 50, curPage = 0, granularity = 'daily';
+
+function init() {
+  document.getElementById('repoName').textContent = D.meta.repoName;
+  document.getElementById('branchBadge').textContent = '⎇ ' + D.meta.branch;
+  document.getElementById('metaLine').textContent = 'Generated ' + shortDate(D.meta.generatedAt) +
+    ' · ' + D.meta.totalCommits + ' commits · ' + D.meta.totalBranches + ' branches · ' + D.meta.totalTags + ' tags';
+  populateFilterDropdowns();
+  applyFilters();
+}
+
+function populateFilterDropdowns() {
+  var aSel = document.getElementById('fAuthor');
+  D.authors.forEach(function(a) { aSel.innerHTML += '<option value="'+a.email+'">'+a.name+'</option>'; });
+  var tFrom = document.getElementById('fTagFrom'), tTo = document.getElementById('fTagTo');
+  D.tags.forEach(function(t) {
+    var o = '<option value="'+t.name+'">'+t.name+'</option>';
+    tFrom.innerHTML += o; tTo.innerHTML += o;
+  });
+}
+
+function applyFilters() {
+  var from = document.getElementById('fFrom').value, to = document.getElementById('fTo').value;
+  var author = document.getElementById('fAuthor').value;
+  var tagFrom = document.getElementById('fTagFrom').value, tagTo = document.getElementById('fTagTo').value;
+  var dateFrom = from ? new Date(from) : null, dateTo = to ? new Date(to+'T23:59:59') : null;
+
+  if (tagFrom && tagTo) {
+    var tfi = -1, tti = -1;
+    D.tags.forEach(function(t,i) { if(t.name===tagFrom) tfi=i; if(t.name===tagTo) tti=i; });
+    if (tfi>=0 && tti>=0) {
+      var tf = D.tags[Math.max(tfi,tti)], tt = D.tags[Math.min(tfi,tti)];
+      dateFrom = new Date(tf.date); dateTo = new Date(tt.date);
+    }
+  }
+
+  filtered = D.commits.filter(function(c) {
+    var d = new Date(c.date);
+    if (dateFrom && d < dateFrom) return false;
+    if (dateTo && d > dateTo) return false;
+    if (author && c.email !== author) return false;
+    return true;
+  });
+  curPage = 0;
+  renderAll();
+}
+
+function resetFilters() {
+  document.getElementById('fFrom').value = '';
+  document.getElementById('fTo').value = '';
+  document.getElementById('fAuthor').value = '';
+  document.getElementById('fTagFrom').value = '';
+  document.getElementById('fTagTo').value = '';
+  document.getElementById('commitSearch').value = '';
+  applyFilters();
+}
+
+function renderAll() {
+  renderCards();
+  renderTimeline();
+  renderAuthorChart();
+  renderAuthorTable();
+  renderTagTable();
+  renderTagChart();
+  renderCommits();
+  renderHeatmap();
+}
+
+/* --- Cards --- */
+function renderCards() {
+  document.getElementById('cCommits').textContent = filtered.length.toLocaleString();
+  var authors = uniqueBy(filtered, 'email');
+  document.getElementById('cAuthors').textContent = authors.length;
+  var top = topBy(filtered, 'email');
+  document.getElementById('cTop').textContent = top || '—';
+  var days = uniqueBy(filtered, function(c){ return c.date.slice(0,10); });
+  document.getElementById('cAvg').textContent = days.length > 0 ? (filtered.length/days.length).toFixed(1) : '0';
+}
+
+/* --- Timeline --- */
+function setGranularity(g, btn) {
+  granularity = g;
+  document.querySelectorAll('.toggle-group button').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderTimeline();
+}
+
+function renderTimeline() {
+  var buckets = {};
+  filtered.forEach(function(c) {
+    var k = bucketKey(c.date, granularity);
+    buckets[k] = (buckets[k]||0) + 1;
+  });
+  var keys = Object.keys(buckets).sort();
+  var vals = keys.map(function(k){ return buckets[k]; });
+  drawLineChart('timelineChart', keys, vals, 'var(--accent)');
+}
+
+/* --- Author Charts --- */
+function renderAuthorChart() {
+  var map = {};
+  filtered.forEach(function(c){ map[c.author] = (map[c.author]||0)+1; });
+  var sorted = Object.entries(map).sort(function(a,b){ return b[1]-a[1]; }).slice(0,10);
+  var labels = sorted.map(function(e){ return e[0]; });
+  var vals = sorted.map(function(e){ return e[1]; });
+  drawBarChart('authorChart', labels, vals, 'hsl(160,70%,50%)');
+}
+
+function renderAuthorTable() {
+  var map = {};
+  filtered.forEach(function(c) {
+    if (!map[c.email]) map[c.email] = {name:c.author,commits:0,days:{},first:c.date,last:c.date};
+    var a = map[c.email]; a.commits++; a.days[c.date.slice(0,10)] = 1;
+    if (c.date < a.first) a.first = c.date;
+    if (c.date > a.last) a.last = c.date;
+  });
+  var rows = Object.values(map).sort(function(a,b){ return b.commits-a.commits; });
+  var tb = document.querySelector('#authorTable tbody'); tb.innerHTML = '';
+  rows.forEach(function(r) {
+    tb.innerHTML += '<tr><td>'+r.name+'</td><td>'+r.commits+'</td><td>'+Object.keys(r.days).length+
+      '</td><td>'+shortDate(r.first)+'</td><td>'+shortDate(r.last)+'</td></tr>';
+  });
+}
+
+/* --- Tags --- */
+function renderTagTable() {
+  var tb = document.querySelector('#tagTable tbody'); tb.innerHTML = '';
+  D.tags.forEach(function(t) {
+    tb.innerHTML += '<tr><td>'+t.name+'</td><td>'+shortDate(t.date)+'</td><td>'+t.commitCount+'</td></tr>';
+  });
+}
+function renderTagChart() {
+  var labels = D.tags.map(function(t){ return t.name; }).reverse();
+  var vals = D.tags.map(function(t){ return t.commitCount; }).reverse();
+  drawBarChart('tagChart', labels, vals, 'hsl(35,90%,60%)');
+}
+
+/* --- Commits --- */
+function renderCommits() {
+  var q = document.getElementById('commitSearch').value.toLowerCase();
+  var show = filtered;
+  if (q) show = show.filter(function(c){ return c.message.toLowerCase().indexOf(q) >= 0; });
+  var total = Math.ceil(show.length / PAGE);
+  if (curPage >= total) curPage = Math.max(0, total-1);
+  var start = curPage * PAGE, page = show.slice(start, start+PAGE);
+  var tb = document.querySelector('#commitTable tbody'); tb.innerHTML = '';
+  page.forEach(function(c) {
+    var merge = c.isMerge ? ' <span class="merge-badge">merge</span>' : '';
+    tb.innerHTML += '<tr><td class="sha">'+c.shortSHA+'</td><td>'+c.author+'</td><td>'+shortDate(c.date)+
+      '</td><td>'+esc(c.message)+merge+'</td><td class="ins">+'+c.insertions+'</td><td class="del">-'+
+      c.deletions+'</td><td>'+c.filesChanged+'</td></tr>';
+  });
+  renderPager(total);
+}
+function renderPager(total) {
+  var el = document.getElementById('commitPager'); el.innerHTML = '';
+  if (total <= 1) return;
+  el.innerHTML += '<button '+(curPage===0?'disabled':'')+' onclick="curPage--;renderCommits()">‹</button>';
+  for (var i=0;i<total;i++) {
+    if (total>7 && Math.abs(i-curPage)>2 && i>0 && i<total-1) { if(Math.abs(i-curPage)===3) el.innerHTML+='<button disabled>…</button>'; continue; }
+    el.innerHTML += '<button class="'+(i===curPage?'active':'')+'" onclick="curPage='+i+';renderCommits()">'+( i+1)+'</button>';
+  }
+  el.innerHTML += '<button '+(curPage>=total-1?'disabled':'')+' onclick="curPage++;renderCommits()">›</button>';
+}
+
+/* --- Heatmap --- */
+function renderHeatmap() {
+  var el = document.getElementById('heatmap'); el.innerHTML = '';
+  var daily = D.frequency.daily || {};
+  var maxVal = Math.max.apply(null, Object.values(daily).concat([1]));
+  var today = new Date(), start = new Date(today);
+  start.setDate(start.getDate() - 364);
+  for (var d = new Date(start); d <= today; d.setDate(d.getDate()+1)) {
+    var key = d.toISOString().slice(0,10);
+    var v = daily[key] || 0;
+    var lv = v===0?0 : Math.min(4, Math.ceil(v/maxVal*4));
+    var cell = document.createElement('div');
+    cell.className = 'heatmap-cell hm-'+lv;
+    cell.title = key + ': ' + v + ' commits';
+    el.appendChild(cell);
+  }
+}
+
+/* --- Canvas Drawing --- */
+function drawLineChart(id, labels, values, color) {
+  var canvas = document.getElementById(id);
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0,0,w,h);
+  if (values.length === 0) return;
+
+  var max = Math.max.apply(null, values) || 1;
+  var padL=40, padR=10, padT=10, padB=30;
+  var cw=w-padL-padR, ch=h-padT-padB;
+
+  // Grid
+  ctx.strokeStyle = 'hsl(220,15%,20%)'; ctx.lineWidth=1;
+  for (var i=0;i<=4;i++) {
+    var y=padT+ch*(1-i/4);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    ctx.fillStyle='hsl(210,15%,45%)'; ctx.font='10px monospace'; ctx.textAlign='right';
+    ctx.fillText(Math.round(max*i/4), padL-4, y+3);
+  }
+
+  // Line
+  ctx.strokeStyle = color.startsWith('var') ? getComputedStyle(document.documentElement).getPropertyValue(color.slice(4,-1)) : color;
+  ctx.lineWidth=2; ctx.beginPath();
+  values.forEach(function(v,i) {
+    var x=padL+i/(values.length-1||1)*cw, y=padT+ch*(1-v/max);
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // X labels (sparse)
+  ctx.fillStyle='hsl(210,15%,45%)'; ctx.font='10px monospace'; ctx.textAlign='center';
+  var step = Math.max(1, Math.floor(labels.length/8));
+  for (var i=0;i<labels.length;i+=step) {
+    var x=padL+i/(values.length-1||1)*cw;
+    ctx.fillText(labels[i].length>7?labels[i].slice(5):labels[i], x, h-6);
+  }
+}
+
+function drawBarChart(id, labels, values, color) {
+  var canvas = document.getElementById(id);
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0,0,w,h);
+  if (values.length === 0) return;
+
+  var max = Math.max.apply(null, values) || 1;
+  var padL=90, padR=10, padT=8, padB=8;
+  var cw=w-padL-padR, barH=(h-padT-padB)/values.length*0.75, gap=(h-padT-padB)/values.length*0.25;
+
+  ctx.fillStyle = color;
+  values.forEach(function(v,i) {
+    var y = padT + i*(barH+gap);
+    var bw = (v/max)*cw;
+    ctx.fillRect(padL, y, bw, barH);
+    ctx.fillStyle='hsl(210,20%,90%)'; ctx.font='11px monospace'; ctx.textAlign='right';
+    ctx.fillText(labels[i].length>12?labels[i].slice(0,12)+'…':labels[i], padL-4, y+barH*0.72);
+    ctx.textAlign='left';
+    ctx.fillText(v, padL+bw+4, y+barH*0.72);
+    ctx.fillStyle = color;
+  });
+}
+
+/* --- Helpers --- */
+function shortDate(iso) { if(!iso) return '—'; var d=new Date(iso); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+function bucketKey(iso,g) {
+  if(g==='daily') return iso.slice(0,10);
+  if(g==='monthly') return iso.slice(0,7);
+  var d=new Date(iso), jan1=new Date(d.getFullYear(),0,1);
+  var wk=Math.ceil(((d-jan1)/864e5+jan1.getDay()+1)/7);
+  return d.getFullYear()+'-W'+(wk<10?'0':'')+wk;
+}
+function uniqueBy(arr,fn) {
+  var s={}; arr.forEach(function(c){ var k=typeof fn==='function'?fn(c):c[fn]; s[k]=1; }); return Object.keys(s);
+}
+function topBy(arr,key) {
+  var m={}; arr.forEach(function(c){ m[c[key]]=(m[c[key]]||0)+1; });
+  var top='',max=0; Object.keys(m).forEach(function(k){ if(m[k]>max){max=m[k];top=k;} });
+  var a=arr.find(function(c){ return c[key]===top; }); return a?a.author:'—';
+}
+function esc(s) { var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('resize', function(){ renderTimeline(); renderAuthorChart(); renderTagChart(); });
+</script>
+</body>
+</html>

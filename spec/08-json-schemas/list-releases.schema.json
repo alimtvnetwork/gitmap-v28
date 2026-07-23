@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitmap.dev/schemas/list-releases.schema.json",
+  "title": "gitmap-v27 list-releases --json output",
+  "description": "Array of release records for the current repository. Sourced from .gitmap/release/v*.json metadata files, git tags, and the SQLite cache (in that priority order). Sorted by createdAt descending (newest first). Empty result is encoded as `[]` (NOT `null`) so jq pipelines can `length` without conditionals. Backed by gitmap-v27/stablejson — key order is contractual and pinned by gitmap-v27/cmd/listreleases_jsonschema_contract_test.go. Companion schema list-releases-all-repos.schema.json covers the `--all-repos` joined view (different shape).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "Release record",
+    "description": "A single release. Field names mirror model.ReleaseRecord's `json:` struct tags exactly so the wire format stays byte-compatible with the legacy json.MarshalIndent surface.",
+    "required": [
+      "id", "repoId", "version", "tag", "branch", "sourceBranch",
+      "commitSha", "changelog", "notes", "isDraft", "isPreRelease",
+      "isLatest", "source", "createdAt"
+    ],
+    "additionalProperties": false,
+    "propertyOrder": [
+      "id", "repoId", "version", "tag", "branch", "sourceBranch",
+      "commitSha", "changelog", "notes", "isDraft", "isPreRelease",
+      "isLatest", "source", "createdAt"
+    ],
+    "properties": {
+      "id":           { "type": "integer", "description": "SQLite primary key. 0 for records sourced from filesystem-only metadata that have not yet been cached to the DB; non-zero once cached." },
+      "repoId":       { "type": "integer", "description": "Foreign key to the Repo table (v17+). 0 for filesystem-only records." },
+      "version":      { "type": "string",  "description": "Semantic version string without the leading `v` (e.g. `4.14.0`). Always non-empty for repo-sourced records; may equal the parsed value of the tag for tag-sourced records." },
+      "tag":          { "type": "string",  "description": "Git tag exactly as it appears in `git tag -l` (e.g. `v4.14.0`). Primary deduplication key." },
+      "branch":       { "type": "string",  "description": "Release branch name. Always `release-v<version>` for tag-sourced records; mirrors the metadata file value for repo-sourced records." },
+      "sourceBranch": { "type": "string",  "description": "Branch the release was cut from (typically `main`). Empty for tag-sourced records." },
+      "commitSha":    { "type": "string",  "description": "Full 40-character commit SHA the release points at. Empty for tag-sourced records that don't yet have metadata." },
+      "changelog":    { "type": "string",  "description": "Newline-joined changelog body. Empty when the metadata file omits the `changelog` array or for tag-sourced records." },
+      "notes":        { "type": "string",  "description": "Free-form release notes. Empty by default." },
+      "isDraft":      { "type": "boolean", "description": "True when the metadata file's `isDraft` field is set. Tag-sourced records are always false." },
+      "isPreRelease": { "type": "boolean", "description": "True when the metadata file's `isPreRelease` field is set. Tag-sourced records are always false." },
+      "isLatest":     { "type": "boolean", "description": "True for the single record matching .gitmap/release/latest.json. At most one record per array has this set; downstream filters can rely on that uniqueness." },
+      "source":       { "type": "string",  "enum": ["release", "import", "repo", "tag"], "description": "Provenance: `repo` = .gitmap/release/v*.json, `tag` = git tag with no metadata file, `release` / `import` = DB-cached records from earlier runs or external imports." },
+      "createdAt":    { "type": "string",  "description": "ISO-8601-ish timestamp string used for sort. Format follows the metadata file (`2006-01-02T15:04:05Z07:00` for repo records; tagger date for tag records). Lexicographic sort matches chronological order for both formats." }
+    }
+  },
+  "examples": [
+    [],
+    [
+      {
+        "id": 0,
+        "repoId": 0,
+        "version": "4.14.0",
+        "tag": "v4.14.0",
+        "branch": "release-v4.14.0",
+        "sourceBranch": "main",
+        "commitSha": "0123456789abcdef0123456789abcdef01234567",
+        "changelog": "Add fix-repo --strict mode",
+        "notes": "",
+        "isDraft": false,
+        "isPreRelease": false,
+        "isLatest": true,
+        "source": "repo",
+        "createdAt": "2026-05-02T12:00:00Z"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "version": "6.35.0",
+  "branch": "release/v6.35.0",
+  "sourceBranch": "main",
+  "commit": "722a67192ce36f5e9fff32583bf94cbbc59a6676",
+  "tag": "v6.35.0",
+  "assets": [],
+  "changelog": [
+    "**`gitmap help chrome` now resolves.** Added a dedicated `Chrome Profile (copy / export / import / list / delete)` group under the **PROJECTS \u0026 DATA** super-category in `gitmap help`, wired via new `HelpGroupChromeProf` constant and `printGroupChromeProfile()` in `gitmap/cmd/rootusage.go`. The same group is registered in `allHelpRows()` (`gitmap/cmd/rootusagefilter.go`) so `gitmap help --filter chrome` and the fuzzy \"did you mean\" matcher surface every cpc/cpe/cpi/cpl/cpd line instead of returning `No matches`.",
+    "**Per-command `--help` works.** New embedded markdown files in `gitmap/helptext/`: `chrome-profile-copy.md`, `chrome-profile-export.md`, `chrome-profile-import.md`, `chrome-profile-list.md`, `chrome-profile-delete.md`. Each lists usage, alias, what is copied/excluded, prerequisites (close Chrome first), 2 examples with realistic output, exit codes table, and cross-links. `gitmap cpc --help`, `gitmap cpe -h`, etc. no longer error with `No help available`.",
+    "**Files:** `gitmap/constants/constants_helpgroups.go`, `gitmap/cmd/rootusage.go`, `gitmap/cmd/rootusagefilter.go`, `gitmap/helptext/chrome-profile-*.md` (5 new), `gitmap/constants/constants.go` (`6.35.0`), `src/constants/index.ts` (`v6.35.0`), `README.md` (pin → v6.35.0), `CHANGELOG.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-19T19:26:40Z",
+  "isLatest": false
+}

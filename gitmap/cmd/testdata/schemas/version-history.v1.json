@@ -1,0 +1,6 @@
+{
+  "name": "version-history",
+  "version": 1,
+  "keys": ["fromVersionTag", "fromVersionNum", "toVersionTag", "toVersionNum", "flattenedPath", "createdAt", "id", "repoId"],
+  "_doc": "Schema for `gitmap version-history --json`. Top-level is an array of objects. Optional keys `flattenedPath` and `createdAt` are omitted from the wire output when empty — the order when present is always fromVersionTag, fromVersionNum, toVersionTag, toVersionNum, flattenedPath, createdAt, id, repoId."
+}

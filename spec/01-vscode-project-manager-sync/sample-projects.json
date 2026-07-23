@@ -1,0 +1,274 @@
+[
+	{
+		"name": "atto-property",
+		"rootPath": "d:\\wp-work\\riseup-asia\\atto-property",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "category-forge",
+		"rootPath": "d:\\wp-work\\riseup-asia\\category-forge",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "prompts",
+		"rootPath": "d:\\wp-work\\riseup-asia\\prompts",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "settings",
+		"rootPath": "d:\\wp-work\\riseup-asia\\settings",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "shared-training",
+		"rootPath": "d:\\wp-work\\riseup-asia\\shared-training",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "03 - Carpet Cleaning Cheapest Maya",
+		"rootPath": "d:\\wp-work\\riseup-asia\\atto-property\\01 - Atto Codes\\02 - Atto Page\\03 - Carpet Cleaning Cheapest Maya",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "02 - Atto Page",
+		"rootPath": "d:\\wp-work\\riseup-asia\\atto-property\\01 - Atto Codes\\02 - Atto Page",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "09 - Project paths",
+		"rootPath": "d:\\wp-work\\riseup-asia\\settings\\09 - Project paths",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "ai-work",
+		"rootPath": "e:\\Code-Drive-Vm\\02-Gitlab\\ai-work",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "01 - Onboarding Prompts",
+		"rootPath": "d:\\wp-work\\riseup-asia\\prompts\\02 - WordPress Plugins Prompts\\01 - Onboarding Prompts",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "installers",
+		"rootPath": "e:\\Code-Drive-Vm\\02-Gitlab\\ai-work\\installers",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "llama-installer",
+		"rootPath": "e:\\Code-Drive-Vm\\02-Gitlab\\ai-work\\installers\\llm-installer\\llama-installer",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "llm-orchestrator",
+		"rootPath": "d:\\wp-work\\riseup-asia\\llm-orchestrator",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "email-unsubscriber-pro",
+		"rootPath": "d:\\wp-work\\riseup-asia\\email-unsubscriber-pro",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "powershell-runner",
+		"rootPath": "d:\\wp-work\\riseup-asia\\powershell-runner",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "spec-builder-v2",
+		"rootPath": "d:\\wp-work\\riseup-asia\\spec-builder-v2",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "spec-builder-pro",
+		"rootPath": "d:\\wp-work\\riseup-asia\\spec-builder-pro",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "riseup-asia",
+		"rootPath": "d:\\wp-work\\riseup-asia",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "wp-onboarding-v13",
+		"rootPath": "d:\\wp-work\\riseup-asia\\wp-onboarding-v13",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "spec-builder-v4",
+		"rootPath": "d:\\wp-work\\riseup-asia\\spec-builder-v4",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "plugins-uploader-helper",
+		"rootPath": "d:\\wp-work\\riseup-asia\\wp-onboarding-v5\\plugins-uploader-helper",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "claude-code",
+		"rootPath": "d:\\wp-work\\claude-code",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "llm-orchestrator-v3",
+		"rootPath": "d:\\wp-work\\riseup-asia\\llm-orchestrator-v3",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "core-v7",
+		"rootPath": "d:\\wp-work\\riseup-asia\\auk-go\\core-v7",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "macro-ahk-v17",
+		"rootPath": "d:\\wp-work\\riseup-asia\\macro-ahk-v17",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "git-repo-navigator",
+		"rootPath": "d:\\wp-work\\riseup-asia\\git-repo-navigator",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "scripts-fixer",
+		"rootPath": "d:\\wp-work\\riseup-asia\\scripts-fixer",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "gitmap-v27",
+		"rootPath": "d:\\wp-work\\riseup-asia\\gitmap-v27",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "movie-cli-v4",
+		"rootPath": "d:\\wp-work\\riseup-asia\\movie-cli-v4",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "agent-experiment",
+		"rootPath": "d:\\wp-work\\riseup-asia\\agent-experiment",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "coding-guidelines-v12",
+		"rootPath": "d:\\wp-work\\riseup-asia\\coding-guidelines-v12",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "gitmap-v27",
+		"rootPath": "d:\\wp-work\\riseup-asia\\gitmap-v27",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "movie-cli",
+		"rootPath": "d:\\wp-work\\riseup-asia\\movie-cli",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	},
+	{
+		"name": "macro-ahk",
+		"rootPath": "d:\\wp-work\\riseup-asia\\macro-ahk",
+		"paths": [],
+		"tags": [],
+		"enabled": true,
+		"profile": ""
+	}
+]

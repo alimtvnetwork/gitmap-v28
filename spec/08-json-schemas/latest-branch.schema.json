@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/latest-branch.schema.json",
+  "title": "gitmap latest-branch --json",
+  "description": "Machine-readable shape emitted by `gitmap latest-branch --format=json`. Top-level is a single object describing the most recently updated branch and optionally a top-N list of other branches.",
+  "type": "object",
+  "required": ["branch", "remote", "sha", "commitDate", "subject", "ref"],
+  "properties": {
+    "branch": {
+      "type": "array",
+      "description": "Human-readable branch name(s) that point at the latest commit.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "remote": {
+      "type": "string",
+      "description": "Remote name (e.g. 'origin')."
+    },
+    "sha": {
+      "type": "string",
+      "description": "Shortened SHA of the latest commit (7 characters)."
+    },
+    "commitDate": {
+      "type": "string",
+      "description": "Formatted commit date in display layout (e.g. '01-Jan-2025 12:00 PM (UTC)')."
+    },
+    "subject": {
+      "type": "string",
+      "description": "Commit subject line of the latest commit."
+    },
+    "ref": {
+      "type": "string",
+      "description": "Full remote ref (e.g. 'refs/remotes/origin/main')."
+    },
+    "top": {
+      "type": "array",
+      "description": "Top-N most recently updated branches (present only when --top=N > 0).",
+      "items": {
+        "type": "object",
+        "required": ["branch", "sha", "commitDate", "subject"],
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "Branch name with remote prefix stripped (e.g. 'main')."
+          },
+          "sha": {
+            "type": "string",
+            "description": "Shortened SHA of the commit (7 characters)."
+          },
+          "commitDate": {
+            "type": "string",
+            "description": "Formatted commit date in display layout."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Commit subject line."
+          }
+        }
+      }
+    }
+  }
+}

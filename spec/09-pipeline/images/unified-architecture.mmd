@@ -1,0 +1,71 @@
+graph TD
+    CI["01 - CI Pipeline"] --> REL["02 - Release Pipeline"]
+    CI --> VULN["03 - Vulnerability Scanning"]
+    REL --> INST["04 - Installation Flow"]
+    REL --> CL["05 - Changelog Integration"]
+    REL --> VER["06 - Version & Help"]
+    INST --> ENV["07 - Environment Variable Setup"]
+    VER --> TERM["08 - Terminal Output Standards"]
+    REL --> ICON["09 - Binary Icon Branding"]
+
+    subgraph "Validation"
+        CI --> CI1["Lint: golangci-lint"]
+        CI --> CI2["Test: parallel suites"]
+        CI --> CI3["Build: 6 cross-compiled targets"]
+        CI1 --> CI4["Pass gate"]
+        CI2 --> CI4
+        CI3 --> CI4
+    end
+
+    subgraph "Security"
+        VULN --> V1["govulncheck on push"]
+        VULN --> V2["Weekly scheduled scan"]
+        V1 --> V3["Findings report"]
+        V2 --> V3
+    end
+
+    subgraph "Release Automation"
+        REL --> R1["Version tag trigger"]
+        R1 --> R2["Build + package + checksum"]
+        R2 --> R3["Install scripts generation"]
+        R3 --> R4["GitHub Release publish"]
+    end
+
+    subgraph "User Experience"
+        INST --> I1["One-liner install"]
+        I1 --> I2["Binary download + verify"]
+        I2 --> I3["PATH registration"]
+        ENV --> E1["Persistent env vars"]
+        ENV --> E2["Auto-home / drive setup"]
+    end
+
+    subgraph "Information Architecture"
+        CL --> CL1["CHANGELOG.md format"]
+        CL1 --> CL2["Release body extraction"]
+        CL2 --> CL3["Terminal display"]
+        VER --> VR1["version command output"]
+        VER --> VR2["Help system + docs"]
+    end
+
+    subgraph "Visual Standards"
+        TERM --> T1["Icons and colors"]
+        TERM --> T2["Tables and progress"]
+        TERM --> T3["Error formatting"]
+        ICON --> IC1["go-winres embedding"]
+        ICON --> IC2["Manifest + version info"]
+    end
+
+    CI4 --> R1
+    I3 --> E1
+    CL3 --> T1
+    VR1 --> T1
+
+    style CI fill:#4f46e5,color:#fff
+    style REL fill:#059669,color:#fff
+    style VULN fill:#ef4444,color:#fff
+    style INST fill:#2563eb,color:#fff
+    style CL fill:#f59e0b,color:#000
+    style VER fill:#22c55e,color:#fff
+    style ENV fill:#7c3aed,color:#fff
+    style TERM fill:#0891b2,color:#fff
+    style ICON fill:#be185d,color:#fff

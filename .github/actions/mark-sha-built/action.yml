@@ -1,0 +1,27 @@
+name: Mark SHA as built
+description: |
+  Two-step composite that lands the SHA-dedup passthrough cache entry
+  for the current commit. Called from the final aggregator job in
+  ci.yml (currently `test-summary`) so subsequent pushes of the same
+  SHA short-circuit the entire pipeline.
+
+  Caller MUST gate this with an outer `if: success() && needs.sha-check.outputs.already-built != 'true'`.
+  The composite itself does not re-check those conditions — keeping the
+  gate at the call site preserves the existing semantics and lets a
+  future caller (e.g. release.yml) reuse the same write logic with a
+  different gate.
+
+runs:
+  using: composite
+  steps:
+    - name: Stamp /tmp/ci-passed/sha.txt
+      shell: bash
+      run: |
+        mkdir -p /tmp/ci-passed
+        echo "${{ github.sha }}" > /tmp/ci-passed/sha.txt
+
+    - name: Save SHA to cache
+      uses: actions/cache/save@v4
+      with:
+        path: /tmp/ci-passed
+        key: ci-passed-${{ github.sha }}

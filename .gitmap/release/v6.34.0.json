@@ -1,0 +1,17 @@
+{
+  "version": "6.34.0",
+  "branch": "release/v6.34.0",
+  "sourceBranch": "main",
+  "commit": "96458e248585ecafc4ba010f1e0ebe0d8501d119",
+  "tag": "v6.34.0",
+  "assets": [],
+  "changelog": [
+    "**Discoverability fix for `cpc` / `cpe`.** When the user passes a profile name that doesn't exist under Chrome's User Data root, the not-found error is followed by `available profiles under \u003croot\u003e:` and one indented line per real profile (`Default`, `Profile 1`, `Profile 2`, …). Eliminates the \"ERROR profile X not found\" dead end that forced users to manually `ls` the User Data dir.",
+    "**Implementation:** new `availableChromeProfileNames()` + `printAvailableChromeProfiles()` helpers in `gitmap/cmd/chromeprofile_paths.go` (reuses `chromeUserDataDir()`; honors `GITMAP_CHROME_USER_DATA` test override). Both `runChromeProfileCopy` and `runChromeProfileExport` invoke the printer before `os.Exit(ExitChromeProfileNotFound)`. Read failures degrade to `(none found)` so the helper never panics on unreadable roots.",
+    "**Files:** `gitmap/cmd/chromeprofile_paths.go`, `gitmap/cmd/chromeprofile.go`, `gitmap/constants/constants.go` (`6.34.0`), `src/constants/index.ts` (`v6.34.0`), `README.md` (pin → v6.34.0), `CHANGELOG.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-19T19:09:51Z",
+  "isLatest": false
+}

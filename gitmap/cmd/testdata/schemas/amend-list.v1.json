@@ -1,0 +1,19 @@
+{
+  "name": "amend-list",
+  "version": 1,
+  "keys": [
+    "ID",
+    "Branch",
+    "FromCommit",
+    "ToCommit",
+    "TotalCommits",
+    "PreviousName",
+    "PreviousEmail",
+    "NewName",
+    "NewEmail",
+    "Mode",
+    "ForcePushed",
+    "CreatedAt"
+  ],
+  "_doc": "Key order for `gitmap amend list --json` stablejson output. Bumping this version means downstream consumers that depend on field position must update."
+}

@@ -1,0 +1,6 @@
+{
+  "name": "list-versions",
+  "version": 1,
+  "keys": ["version", "source", "changelog"],
+  "_doc": "Schema for `gitmap list-versions --format=json`. Top-level is an array of objects. Optional keys `source` and `changelog` are omitted from the wire output when empty/nil — the order when present is always version, source, changelog."
+}

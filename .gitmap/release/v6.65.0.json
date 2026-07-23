@@ -1,0 +1,9 @@
+{
+  "version": "v6.65.0",
+  "date": "2026-06-28",
+  "highlights": [
+    "Added gitmap release-undo (alias ru) to reverse a release: deletes local tag, remote tag (unless --keep-remote), and removes .gitmap/release/vX.Y.Z.json.",
+    "Defaults to the newest release JSON when no version argument is supplied; supports --dry-run and -y.",
+    "Emits a copy-friendly green summary line intended to be shared at task completion."
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AmendAuditRecord",
+  "description": "Single amendment audit record written by gitmap amend audit to .gitmap/amendments/",
+  "type": "object",
+  "required": [
+    "id",
+    "timestamp",
+    "branch",
+    "fromCommit",
+    "toCommit",
+    "totalCommits",
+    "previousAuthor",
+    "newAuthor",
+    "mode",
+    "forcePushed",
+    "commits"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "SQLite row ID (or zero when not yet persisted)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of the amend operation in RFC 3339 format"
+    },
+    "branch": {
+      "type": "string",
+      "description": "Git branch that was amended"
+    },
+    "fromCommit": {
+      "type": "string",
+      "description": "First commit SHA in the amended range (empty when no commits)"
+    },
+    "toCommit": {
+      "type": "string",
+      "description": "Last commit SHA in the amended range (empty when no commits)"
+    },
+    "totalCommits": {
+      "type": "integer",
+      "description": "Number of commits rewritten"
+    },
+    "previousAuthor": {
+      "type": "object",
+      "required": ["name", "email"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" }
+      }
+    },
+    "newAuthor": {
+      "type": "object",
+      "required": ["name", "email"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" }
+      }
+    },
+    "mode": {
+      "type": "string",
+      "description": "Amend mode: all, head, or range"
+    },
+    "forcePushed": {
+      "type": "boolean",
+      "description": "Whether --force-push was requested"
+    },
+    "commits": {
+      "type": "array",
+      "description": "List of commits that were rewritten",
+      "items": {
+        "type": "object",
+        "required": ["sha", "message"],
+        "properties": {
+          "sha": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  }
+}

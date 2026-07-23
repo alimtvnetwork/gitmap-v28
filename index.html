@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gitmap — CLI docs</title>
+    <meta name="description" content="Documentation for gitmap, a CLI tool to scan, map, and re-clone Git repository trees." />
+    <meta name="author" content="gitmap" />
+
+    <meta property="og:title" content="gitmap docs" />
+    <meta property="og:description" content="Scan, map, and re-clone Git repository trees from the command line." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+  </head>
+
+  <body>
+    <script>
+      // Restore persisted theme before paint to avoid flash-of-wrong-theme.
+      // Falls back to the OS-level prefers-color-scheme when no saved value exists.
+      (function () {
+        try {
+          var saved = localStorage.getItem('gitmap-theme');
+          var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          var useDark = saved ? saved === 'dark' : !prefersLight;
+          document.documentElement.classList.toggle('dark', useDark);
+          document.documentElement.classList.toggle('light', !useDark);
+        } catch (e) { /* localStorage may be blocked; fall back to default */ }
+      })();
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

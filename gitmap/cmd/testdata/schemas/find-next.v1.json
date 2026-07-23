@@ -1,0 +1,6 @@
+{
+  "name": "find-next",
+  "version": 1,
+  "keys": ["repo", "nextVersionTag", "nextVersionNum", "method", "probedAt"],
+  "_doc": "Schema for `gitmap find-next --format=json` per-row output. Five keys in declared order. `probedAt` is RFC3339 UTC. Bumping the version means the wire shape changed (rename, add, remove, or reorder)."
+}

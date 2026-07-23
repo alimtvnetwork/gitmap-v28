@@ -1,0 +1,12 @@
+  {
+    version: "v1.0.0",
+    date: "2026-04-24",
+    items: [
+      "Added: alpha capability",
+      "Added: zeta capability",
+      "Fixed: alpha defect",
+      "Fixed: zulu defect",
+      "Performance: faster scan",
+      "Docs: tidy README",
+    ],
+  },

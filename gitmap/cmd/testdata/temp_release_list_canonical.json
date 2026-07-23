@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "branch": "release/v5.76.0-temp-3",
+    "versionPrefix": "v5.76",
+    "sequenceNumber": 3,
+    "commit": "abc123def456",
+    "commitMessage": "feat: add version-history stablejson encoder",
+    "createdAt": "2026-05-26T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "branch": "release/v5.76.0-temp-4",
+    "versionPrefix": "v5.76",
+    "sequenceNumber": 4,
+    "commit": "def789abc012",
+    "commitMessage": "fix: correct edge case in history rewrite",
+    "createdAt": "2026-05-26T11:30:00Z"
+  }
+]

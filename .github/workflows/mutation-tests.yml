@@ -1,0 +1,51 @@
+name: mutation-tests
+# Mutation tests (#12) for the two packages where silent desync hurts most:
+#   - gitmap/visibility/fuzzy.go   (repo-name → version resolver)
+#   - gitmap/cmd/commitin/checkpoint (resumable-state sidecar)
+#
+# Uses go-mutesting. Mutation score floor is intentionally permissive
+# during bring-up; tighten once both packages reach a steady baseline.
+
+on:
+  pull_request:
+    paths:
+      - "gitmap/visibility/**"
+      - "gitmap/cmd/commitin/checkpoint/**"
+      - ".github/workflows/mutation-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  mutate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.13"
+      - name: Install go-mutesting
+        run: go install github.com/zimmski/go-mutesting/cmd/go-mutesting@latest
+      - name: Mutate visibility/fuzzy
+        run: |
+          go-mutesting --debug=false ./gitmap/visibility/... | tee mutation-fuzzy.log
+      - name: Mutate commitin/checkpoint
+        run: |
+          go-mutesting --debug=false ./gitmap/cmd/commitin/checkpoint/... | tee mutation-checkpoint.log
+      - name: Enforce score floor (0.50)
+        run: |
+          set -euo pipefail
+          floor="0.50"
+          fail=0
+          for log in mutation-fuzzy.log mutation-checkpoint.log; do
+            score="$(grep -Eo 'The mutation score is [0-9.]+' "$log" | awk '{print $NF}' | tail -1)"
+            score="${score:-0.00}"
+            echo "log=$log score=$score floor=$floor"
+            awk -v s="$score" -v f="$floor" 'BEGIN { if (s+0 < f+0) exit 1 }' || fail=1
+          done
+          exit $fail
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-logs
+          path: mutation-*.log

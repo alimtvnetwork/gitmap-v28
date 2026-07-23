@@ -1,0 +1,1943 @@
+name: CI
+
+on:
+  # Run CI on every push to ANY branch — Lovable pushes commits straight
+  # to whichever branch the project is connected to (often not `main`),
+  # and we want feedback on every commit without requiring a PR.
+  # `release/**` and tag pushes are excluded because release.yml already
+  # handles those and we don't want duplicate runs.
+  push:
+    branches:
+      - '**'
+      - '!release/**'
+    tags-ignore:
+      - 'v*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    # Manual escape hatches for the golangci-lint baseline cache. Use when
+    # the cached baseline appears stale (e.g. linter version bump,
+    # configuration change, or false-positive from a partial earlier run).
+    #
+    #   lint_baseline_cache_version
+    #     Bumps the cache key suffix. Old caches are abandoned; the next
+    #     main-branch run reseeds under the new version. Free-form string
+    #     (e.g. "v2", "2026-04-21"). Default "v1" preserves history.
+    #
+    #   lint_baseline_disable
+    #     When "true", skips both the restore and save steps for this run.
+    #     The diff job enters seeding mode (exits 0, surfaces all current
+    #     findings as warnings) without touching the cache. Use to
+    #     diagnose suspected stale-cache issues without losing history.
+    inputs:
+      lint_baseline_cache_version:
+        description: "Bump to invalidate the golangci-lint baseline cache (e.g. v2)"
+        required: false
+        default: "v1"
+        type: string
+      lint_baseline_disable:
+        description: "Skip restoring/saving the lint baseline cache for this run"
+        required: false
+        default: false
+        type: boolean
+      auto_fix_generate_drift:
+        description: "If generate-check finds drift, run `go generate ./...` and auto-commit the regenerated files back to the branch instead of failing."
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# Default permissions for all jobs. The lint-baseline-diff job needs
+# `pull-requests: write` so peter-evans/create-or-update-comment can
+# post the actionable suggestions sticky comment. `contents: read` is
+# the standard checkout grant. Keep this minimal — any job that needs
+# more (e.g. release publishing) should override at the job level.
+permissions:
+  contents: read
+  pull-requests: write
+  # security-events: write is required by github/codeql-action/upload-sarif
+  # in the full-suite-guard job to publish golangci-lint findings to the
+  # Security tab and surface inline PR annotations. Read-only at the
+  # default level — only the upload step needs the write grant.
+  security-events: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────
+  # Diagnostic header — always runs first, no `needs:`, no skipping.
+  # Prints the exact ref, SHA, event, actor, and PR/branch context so
+  # you can tell at a glance:
+  #   • which branch/commit the runner actually checked out
+  #   • why a run was triggered (push / pull_request / workflow_dispatch)
+  #   • whether downstream jobs will short-circuit via the SHA cache
+  #
+  # Open the run in GitHub → expand the "Diagnostics" job → "Print build
+  # context". Everything you need to diagnose a skipped/deduped run is
+  # in one place.
+  # ─────────────────────────────────────────────────────────────────
+  # Diagnostic header — extracted into a reusable workflow so the
+  # build-context print isn't 40 lines of YAML in the orchestrator.
+  # Always runs first, no `needs:`, no skipping. See the called file
+  # for the full step body.
+  diag:
+    name: Diagnostics
+    uses: ./.github/workflows/_diagnostics.yml
+
+  sha-check:
+    name: Check if already built
+    runs-on: ubuntu-latest
+    needs: diag
+    outputs:
+      already-built: ${{ steps.cache-check.outputs.cache-hit }}
+    steps:
+      - name: Check SHA cache
+        id: cache-check
+        uses: actions/cache@v4
+        with:
+          path: /tmp/ci-passed
+          key: ci-passed-${{ github.sha }}
+          lookup-only: true
+
+      - name: Report dedup status
+        run: |
+          if [ "${{ steps.cache-check.outputs.cache-hit }}" = "true" ]; then
+            echo "♻️  SHA ${{ github.sha }} was already built — downstream jobs will short-circuit."
+            echo "♻️ **Deduped:** SHA \`${{ github.sha }}\` already built — downstream jobs short-circuit." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "🆕 SHA ${{ github.sha }} is fresh — full pipeline will run."
+            echo "🆕 **Fresh build:** SHA \`${{ github.sha }}\` — full pipeline runs." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  spell-check:
+    # Fast, dedicated misspell pass over the WHOLE repo (Go + Markdown +
+    # shell + PowerShell + YAML + JSON), not just .go files. golangci-lint's
+    # `misspell` only scans Go source — this job catches typos in docs,
+    # CI scripts, and PowerShell that would otherwise slip through and
+    # surface much later as a `gofmt -l` / `golangci-lint` follow-up.
+    # Runs in seconds and gates the heavier `lint` / `full-suite-guard`
+    # jobs by short-circuiting the pipeline on any misspelling.
+    name: Spell Check (misspell, US locale)
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed spell-check"
+
+      # Composite: checkout + setup-go + warm GOCACHE in one step.
+      # See .github/actions/setup-go-cached/action.yml.
+      - if: needs.sha-check.outputs.already-built != 'true'
+        uses: ./.github/actions/setup-go-cached
+        with:
+          cache-suffix: spell-check
+
+      # Composite: pinned `go install client9/misspell@v0.3.4`.
+      # See .github/actions/install-misspell/action.yml.
+      - if: needs.sha-check.outputs.already-built != 'true'
+        uses: ./.github/actions/install-misspell
+
+      - name: Fetch base ref for PR diff
+        if: needs.sha-check.outputs.already-built != 'true' && github.event_name == 'pull_request'
+        run: git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+
+      - name: Run misspell on changed files
+        # Body extracted to .github/scripts/misspell-changed.sh — that
+        # script emits per-finding GitHub annotations and exits 1 on
+        # any finding, identical to the previous inline behavior. Path
+        # include/exclude globs come from gitmap/data/config.json
+        # (misspell.include / misspell.exclude).
+        if: needs.sha-check.outputs.already-built != 'true'
+        env:
+          GH_EVENT_NAME: ${{ github.event_name }}
+          GH_BASE_REF: ${{ github.base_ref }}
+        run: bash .github/scripts/misspell-changed.sh
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed lint"
+
+      # Composite: checkout + setup-go + warm GOCACHE in one step.
+      # See .github/actions/setup-go-cached/action.yml.
+      - if: needs.sha-check.outputs.already-built != 'true'
+        uses: ./.github/actions/setup-go-cached
+        with:
+          cache-suffix: lint
+
+      - name: fix-repo gofmt audit (affected .go files only)
+        # Targeted pre-gate that fires BEFORE the global gofmt check.
+        # Detects fix-repo-style version bumps and audits ONLY the
+        # affected files so a plain refactor PR doesn't trip it. Body
+        # extracted to .github/scripts/fix-repo-gofmt-audit.sh — see
+        # that file + .lovable/memory/issues/2026-05-01-fixrepo-no-gofmt.md.
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        shell: bash
+        env:
+          GH_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: bash ../.github/scripts/fix-repo-gofmt-audit.sh
+
+      - name: gofmt + goimports check (fail on unformatted .go files)
+        # Hard-gate. Runs `gofmt -l` then `goimports -l` over the whole
+        # gitmap/ tree, surfacing the exact diff on failure. goimports
+        # is pinned to v0.24.0 (no @latest, per static-analysis rule).
+        # Body extracted to .github/scripts/go-format-check.sh.
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        shell: bash
+        run: bash ../.github/scripts/go-format-check.sh
+      - name: Go vet
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        run: go vet ./...
+
+      - name: Compile gate (typecheck every package + test files)
+        # Catches typecheck regressions (e.g. `r.Mode undefined`,
+        # `unknown field`, missing import) in BOTH production and
+        # _test.go files BEFORE the slower full test suite runs.
+        # `go test -run=^$ ./...` builds every test binary but
+        # executes zero tests, so it's the strictest, fastest
+        # compile signal we can get short of `go build ./...`
+        # (which skips _test.go files and would miss test-only
+        # typecheck errors). Exits non-zero on any build failure
+        # so the workflow fails immediately with a clear error
+        # message naming the offending file:line.
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        run: go test -run=^$ ./... -count=1
+
+      - name: golangci-lint (strict, fail on any error)
+        # Hard-gate. Pinned to v1.64.8 (Core memory: linter version is
+        # locked — never use @latest). `--issues-exit-code=1` is the
+        # action's default, but we set it explicitly so a future
+        # action-version bump can't silently flip the gate to
+        # non-blocking. Any reported issue fails the build; the
+        # soft-gate baseline-diff job (`lint-baseline-diff`) is the
+        # separate place where pre-existing findings are tolerated.
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.8
+          working-directory: gitmap
+          args: --timeout=5m --issues-exit-code=1
+
+  lint-script-tests:
+    # Unit tests for the lint diff/guard scripts under .github/scripts/.
+    # Locks in the "new issues only" baseline-diff contract that
+    # `check-single-linter-diff.sh` now enforces for all five guarded
+    # linters (unused, gosec G115, misspell, gocritic, exhaustive).
+    # Runs in seconds — pure bash + jq, no Go toolchain needed.
+    name: Lint Script Unit Tests
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "SHA ${{ github.sha }} already passed lint-script tests"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - name: Run lint-script unit tests
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: bash .github/scripts/tests/run-tests.sh
+
+  lint-baseline-guard:
+    # BASELINE-DIFF job: every linter wired below uses the same contract
+    # — only NEW findings (vs the cached main-branch baseline) fail the
+    # build. Pre-existing findings are surfaced in summaries but do not
+    # block merges, letting contributors land incremental improvements
+    # without blowing up the tree.
+    #
+    # Linters covered (each via .github/scripts/check-single-linter-diff.sh,
+    # full-path-only, --no-config so excludes can't mask a regression):
+    #   - unused              dead code (functions, vars, consts, types)
+    #   - gosec G115          integer overflow conversions
+    #     (TEXT_FILTER=^G115 scopes the gosec analyzer to a single rule)
+    #   - misspell            US-English spelling
+    #   - gocritic            style/perf advisories (appendAssign, etc.)
+    #   - exhaustive          missing cases in `switch`
+    #
+    # Each linter has its own rolling cache slot keyed by SHA, refreshed
+    # only on successful pushes to `main`. Restoring older caches via
+    # `restore-keys` keeps PR builds fast while the baseline tracks main.
+    name: Lint Baseline Guard (unused, gosec G115, misspell, gocritic, exhaustive)
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "SHA ${{ github.sha }} already passed lint baseline guard"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Install golangci-lint v1.64.8
+        if: needs.sha-check.outputs.already-built != 'true'
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+            | sh -s -- -b "$(go env GOPATH)/bin" v1.64.8
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      # ---- unused diff (baseline-diff, full-path only) --------------
+      - name: Restore unused baseline (rolling, single slot)
+        id: unused-baseline-cache
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/lint-unused-baseline
+          key: golangci-unused-baseline-main-${{ github.sha }}
+          restore-keys: |
+            golangci-unused-baseline-main-
+
+      - name: Unused diff (baseline-diff, full-path only)
+        # Catches NEW dead-code findings (functions, vars, consts, types)
+        # introduced by this PR/commit. Pre-existing dead code stays in
+        # the baseline; contributors can clean it up incrementally.
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        env:
+          LINTER: unused
+          BASELINE: /tmp/lint-unused-baseline/report.json
+          CURRENT_OUT: /tmp/lint-unused-current/report.json
+        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+
+      - name: Save unused baseline (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        shell: bash
+        run: |
+          mkdir -p /tmp/lint-unused-baseline
+          cp /tmp/lint-unused-current/report.json \
+             /tmp/lint-unused-baseline/report.json
+
+      - name: Persist unused baseline cache (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/lint-unused-baseline
+          key: golangci-unused-baseline-main-${{ github.sha }}
+
+      # ---- gosec G115 diff (baseline-diff, full-path only) ----------
+      - name: Restore gosec-G115 baseline (rolling, single slot)
+        id: gosec-g115-baseline-cache
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/lint-gosec-g115-baseline
+          key: golangci-gosec-g115-baseline-main-${{ github.sha }}
+          restore-keys: |
+            golangci-gosec-g115-baseline-main-
+
+      - name: Gosec G115 diff (baseline-diff, full-path only)
+        # Runs the full `gosec` analyzer but TEXT_FILTER scopes the diff
+        # to G115 (integer overflow conversions). Pre-existing G115
+        # findings stay tolerated in the baseline; only NEW ones fail.
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        env:
+          LINTER: gosec
+          LABEL: gosec-G115
+          TEXT_FILTER: G115
+          BASELINE: /tmp/lint-gosec-g115-baseline/report.json
+          CURRENT_OUT: /tmp/lint-gosec-g115-current/report.json
+        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+
+      - name: Save gosec-G115 baseline (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        shell: bash
+        run: |
+          mkdir -p /tmp/lint-gosec-g115-baseline
+          cp /tmp/lint-gosec-g115-current/report.json \
+             /tmp/lint-gosec-g115-baseline/report.json
+
+      - name: Persist gosec-G115 baseline cache (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/lint-gosec-g115-baseline
+          key: golangci-gosec-g115-baseline-main-${{ github.sha }}
+
+      - name: Install ripgrep (for bare-stderr check)
+        if: needs.sha-check.outputs.already-built != 'true'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep
+
+      - name: Forbid bare stderr error prints in gitmap/cmd
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: bash .github/scripts/check-bare-stderr-err.sh
+
+      - name: Restore misspell baseline (rolling, single slot)
+        id: misspell-baseline-cache
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/lint-misspell-baseline
+          key: golangci-misspell-baseline-main-${{ github.sha }}
+          restore-keys: |
+            golangci-misspell-baseline-main-
+
+      - name: Misspell diff (baseline-diff, full-path only)
+        # Dedicated misspell-only diff. Runs after the hard-floor step
+        # so a misspell regression is reported with a guaranteed
+        # `path:line:col` annotation and CANNOT be masked by stale
+        # path-less errors (e.g. typecheck `r.Mode undefined`) leaking
+        # in from the broader baseline-diff job.
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        env:
+          LINTER: misspell
+          BASELINE: /tmp/lint-misspell-baseline/report.json
+          CURRENT_OUT: /tmp/lint-misspell-current/report.json
+        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+
+      - name: Save misspell baseline (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        shell: bash
+        run: |
+          mkdir -p /tmp/lint-misspell-baseline
+          cp /tmp/lint-misspell-current/report.json \
+             /tmp/lint-misspell-baseline/report.json
+
+      - name: Persist misspell baseline cache (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/lint-misspell-baseline
+          key: golangci-misspell-baseline-main-${{ github.sha }}
+
+      # ---- gocritic diff (baseline-diff, same contract as misspell) -----
+      - name: Restore gocritic baseline (rolling, single slot)
+        id: gocritic-baseline-cache
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/lint-gocritic-baseline
+          key: golangci-gocritic-baseline-main-${{ github.sha }}
+          restore-keys: |
+            golangci-gocritic-baseline-main-
+
+      - name: Gocritic diff (baseline-diff, full-path only)
+        # Same contract as the misspell step: only `gocritic` runs,
+        # path-less findings are dropped, and only NEW (vs baseline)
+        # issues fail the build. Catches regressions like
+        # `appendAssign`, `badCall`, etc. without requiring a clean
+        # historical tree.
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        env:
+          LINTER: gocritic
+          BASELINE: /tmp/lint-gocritic-baseline/report.json
+          CURRENT_OUT: /tmp/lint-gocritic-current/report.json
+        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+
+      - name: Save gocritic baseline (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        shell: bash
+        run: |
+          mkdir -p /tmp/lint-gocritic-baseline
+          cp /tmp/lint-gocritic-current/report.json \
+             /tmp/lint-gocritic-baseline/report.json
+
+      - name: Persist gocritic baseline cache (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/lint-gocritic-baseline
+          key: golangci-gocritic-baseline-main-${{ github.sha }}
+
+      # ---- exhaustive diff (baseline-diff, same contract as misspell) ---
+      - name: Restore exhaustive baseline (rolling, single slot)
+        id: exhaustive-baseline-cache
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/lint-exhaustive-baseline
+          key: golangci-exhaustive-baseline-main-${{ github.sha }}
+          restore-keys: |
+            golangci-exhaustive-baseline-main-
+
+      - name: Exhaustive switch diff (baseline-diff, full-path only)
+        # Catches NEW "missing cases in switch" findings (e.g.
+        # `startup.BackendUnspecified` not handled). Pre-existing
+        # incomplete switches stay in the baseline; only freshly
+        # introduced ones block the merge.
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        env:
+          LINTER: exhaustive
+          BASELINE: /tmp/lint-exhaustive-baseline/report.json
+          CURRENT_OUT: /tmp/lint-exhaustive-current/report.json
+        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+
+      - name: Save exhaustive baseline (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        shell: bash
+        run: |
+          mkdir -p /tmp/lint-exhaustive-baseline
+          cp /tmp/lint-exhaustive-current/report.json \
+             /tmp/lint-exhaustive-baseline/report.json
+
+      - name: Persist exhaustive baseline cache (main only)
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/lint-exhaustive-baseline
+          key: golangci-exhaustive-baseline-main-${{ github.sha }}
+
+  lint-baseline-diff:
+    # Soft-gate companion to `lint`. Runs golangci-lint with --issues-exit-code=0
+    # so the raw report is collected even when findings exist, then diffs the
+    # current findings against the baseline cached from the last successful
+    # main run. Fails ONLY when NEW findings appear (added in this PR /
+    # commit). Pre-existing findings are surfaced as UNCHANGED in the
+    # summary but do not block the build — this lets contributors land
+    # incremental improvements without being forced to fix every
+    # historical lint issue at once.
+    #
+    # Cache strategy:
+    #   - Restore key:  golangci-baseline-main (rolling, single slot).
+    #   - Save:         only on push to main, after a green diff run.
+    #   - Miss:         seeding mode — script exits 0 and prints all
+    #                   current findings as warnings so the next run has
+    #                   a baseline to diff against.
+    name: Lint Baseline Diff
+    runs-on: ubuntu-latest
+    needs: sha-check
+    # `contents: write` is required by the "Commit appended issue entry
+    # (main only)" step which pushes the auto-generated pending-issues
+    # entry back to the repo. The push is gated to main + push events
+    # only; PR runs keep the workflow-default read-only token.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "SHA ${{ github.sha }} already passed lint baseline diff"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Restore baseline from last successful main run
+        id: baseline-cache
+        # Skip the restore entirely when the operator dispatched the
+        # workflow with lint_baseline_disable=true. Combined with the
+        # matching guard on the save step below, this gives a clean
+        # "ignore the cache for one run" toggle without manual cache
+        # deletion via the GitHub UI.
+        if: |
+          needs.sha-check.outputs.already-built != 'true' &&
+          inputs.lint_baseline_disable != true
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/lint-baseline
+          # Cache key includes a version suffix (default "v1") that an
+          # operator can bump via workflow_dispatch to abandon a stale
+          # baseline. The restore-keys fallback also carries the version
+          # so we never accidentally restore a pre-bump baseline.
+          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v1' }}-${{ github.sha }}
+          restore-keys: |
+            golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v1' }}-
+
+      - name: Install golangci-lint (pinned)
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: ./.github/actions/install-golangci-lint
+
+      - name: Run golangci-lint (JSON, non-blocking)
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        shell: bash
+        run: |
+          mkdir -p /tmp/lint-current
+          # --issues-exit-code=0: never let the linter itself fail this
+          # job — the diff script is the sole gate. --out-format=json:
+          # structured report so lint-diff.py can normalize findings.
+          golangci-lint run \
+            --timeout=5m \
+            --issues-exit-code=0 \
+            --out-format=json \
+            > /tmp/lint-current/report.json
+
+      - name: Diff vs baseline (fail only on NEW findings)
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        env:
+          BASELINE_DISABLED: ${{ inputs.lint_baseline_disable || 'false' }}
+        run: |
+          BASELINE=/tmp/lint-baseline/report.json
+          # When disabled via dispatch, force seeding mode by pointing at
+          # an empty path so lint-diff.py treats it as "no baseline".
+          if [ "$BASELINE_DISABLED" = "true" ]; then
+            echo "::notice::Baseline cache disabled by workflow_dispatch input — seeding mode."
+            BASELINE=""
+          elif [ ! -f "$BASELINE" ]; then
+            echo "::notice::No baseline found — this run will seed the cache."
+          fi
+          python3 .github/scripts/lint-diff.py \
+            --current /tmp/lint-current/report.json \
+            --baseline "$BASELINE"
+
+      - name: Promote current report to baseline (main only)
+        # Refresh the rolling cache after a clean diff on the main branch
+        # so subsequent PRs diff against the latest known-good state.
+        # PRs deliberately skip this step — only main moves the baseline.
+        if: |
+          success() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          inputs.lint_baseline_disable != true &&
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+          github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p /tmp/lint-baseline
+          cp /tmp/lint-current/report.json /tmp/lint-baseline/report.json
+
+      - name: Save baseline cache (main only)
+        if: |
+          success() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          inputs.lint_baseline_disable != true &&
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+          github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/lint-baseline
+          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v1' }}-${{ github.sha }}
+
+      - name: Upload current lint report
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: golangci-lint-report
+          path: /tmp/lint-current/report.json
+          retention-days: 14
+
+      - name: Generate actionable lint suggestions
+        # Runs whether the diff passed or failed: a passing diff still
+        # yields useful "no new findings" confirmation in the comment,
+        # and a failing diff is exactly when contributors most want
+        # the per-rule fix templates. Writing to GITHUB_STEP_SUMMARY
+        # also surfaces the suggestions in the Actions run UI.
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: |
+          BASELINE=/tmp/lint-baseline/report.json
+          if [ "${{ inputs.lint_baseline_disable }}" = "true" ]; then
+            BASELINE=""
+          fi
+          mkdir -p /tmp/lint-suggestions
+          python3 .github/scripts/lint-suggest.py \
+            --current /tmp/lint-current/report.json \
+            --baseline "$BASELINE" \
+            --repo "${{ github.repository }}" \
+            --sha "${{ github.sha }}" \
+            --out /tmp/lint-suggestions/comment.md
+          # Mirror to the run summary so the suggestions are visible
+          # even on push events (no PR to comment on).
+          cat /tmp/lint-suggestions/comment.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload suggestions artifact
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-suggestions
+          path: /tmp/lint-suggestions/comment.md
+          retention-days: 14
+
+      - name: Generate pending-issues entry from NEW lint findings
+        # Converts the NEW findings (same diff that gates the job) into
+        # a properly-formatted "## NN — CI Lint Failures" entry for
+        # `.lovable/pending-issues/01-current-issues.md`. Idempotent via
+        # a fingerprint marker so re-running CI on the same SHA never
+        # appends duplicates. On PRs this is a dry run that uploads the
+        # proposed entry as an artifact; on main pushes the entry is
+        # committed back so the issues memory stays in sync with reality.
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        id: lint-issue-summary
+        shell: bash
+        run: |
+          BASELINE=/tmp/lint-baseline/report.json
+          if [ "${{ inputs.lint_baseline_disable }}" = "true" ]; then
+            BASELINE=""
+          fi
+          mkdir -p /tmp/lint-issue-entry
+          APPLY_FLAG=""
+          if [ "${{ github.event_name }}" = "push" ] \
+             && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            APPLY_FLAG="--apply"
+          fi
+          python3 .github/scripts/lint-issue-summary.py \
+            --current /tmp/lint-current/report.json \
+            --baseline "$BASELINE" \
+            --issues-file .lovable/pending-issues/01-current-issues.md \
+            --out-preview /tmp/lint-issue-entry/proposed.md \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --sha "${{ github.sha }}" \
+            $APPLY_FLAG
+          # Mirror the proposed entry to the run summary so reviewers
+          # can see the exact text without downloading the artifact.
+          if [ -s /tmp/lint-issue-entry/proposed.md ]; then
+            {
+              echo "### Proposed pending-issues entry"
+              echo ""
+              cat /tmp/lint-issue-entry/proposed.md
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload proposed issue entry
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-issue-entry
+          path: /tmp/lint-issue-entry/proposed.md
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Commit appended issue entry (main only)
+        # Only writes on main pushes that actually appended a new entry.
+        # The script is idempotent (fingerprint marker) so reruns are
+        # safe; this step just persists the change back to the repo.
+        if: |
+          success() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- .lovable/pending-issues/01-current-issues.md; then
+            echo "no issues-file changes to commit"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .lovable/pending-issues/01-current-issues.md
+          git commit -m "ci(lint): append pending-issues entry for NEW findings [skip ci]"
+          git push origin HEAD:main
+
+      - name: Find existing PR comment
+        # Sticky comment: peter-evans/find-comment locates the previous
+        # comment by the COMMENT_MARKER sentinel that lint-suggest.py
+        # embeds, and create-or-update-comment edits it in place. This
+        # avoids spamming the PR with a fresh comment on every push.
+        # Skipped on push/dispatch (no PR context) and on the
+        # already-built fast-path.
+        if: |
+          always() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.event_name == 'pull_request'
+        uses: peter-evans/find-comment@v3
+        id: find-lint-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '<!-- gitmap-lint-suggestions -->'
+
+      - name: Create or update sticky comment
+        if: |
+          always() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find-lint-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: /tmp/lint-suggestions/comment.md
+          edit-mode: replace
+
+  cmd-naming-check:
+    # Guards against collision-prone helper names in the single-namespace
+    # gitmap/cmd package — every file shares one Go namespace, so two
+    # files declaring the same func produces "redeclared in this block".
+    # Fails fast (no Go toolchain) before lint/test.
+    name: cmd/ Naming Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: cmd/ naming check
+          run: bash .github/scripts/check-cmd-naming.sh gitmap/cmd
+
+  legacy-refs-check:
+    # Fails the build if any legacy version string leaks back into the
+    # repo after the v8 rename. Lines containing the literal
+    # `gitmap-legacy-ref-allow` marker are exempt.
+    name: Legacy Refs Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: legacy refs check
+          run: bash .github/scripts/check-legacy-refs.sh .
+
+  deploy-layout-check:
+    # Hard guarantee: deploy-target folder is `gitmap-cli/` (NOT
+    # `gitmap/`). Fails when source files hardcode the legacy
+    # `gitmap` subfolder instead of reading deploy-manifest.json.
+    name: Deploy Layout Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: deploy layout check
+          run: bash .github/scripts/check-deploy-layout.sh .
+
+  constants-naming-check:
+    # Guards constants/ against new constants lacking the canonical
+    # Cmd*/Msg*/Err*/Flag*/Default* prefix. Grandfathered baseline at
+    # .github/scripts/constants-baseline.txt — only NEW constants must
+    # comply.
+    name: constants/ Naming Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: constants/ naming check
+          apt-packages: gawk
+          run: bash .github/scripts/check-constants-naming.sh
+
+  constants-collision-check:
+    # Static audit of gitmap/constants/constants_*.go that fails on
+    # cross-file identifier redeclaration, lowercase collisions, or
+    # duplicate identifiers in one file. String-literal aware.
+    name: constants/ Collision Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: constants/ collision check
+          run: python3 .github/scripts/check-constants-collisions.py
+
+  golden-allow-leak-check:
+    # Defends GITMAP_ALLOW_GOLDEN_UPDATE: this env var is the second of
+    # two defense-in-depth keys guarding fixture regeneration, and
+    # CI/shipped scripts must never set it. See
+    # spec/05-coding-guidelines/21-golden-fixture-regeneration.md §6.
+    name: GITMAP_ALLOW_GOLDEN_UPDATE Leak Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: golden-allow leak check
+          run: bash .github/scripts/check-no-golden-allow-leak.sh
+
+  generate-check:
+    # Guarantees that every Cmd* constant added to a scanned constants_*.go
+    # is reflected in completion/allcommands_generated.go. If a contributor
+    # forgets to run `go generate ./...`, this job fails with a diff so the
+    # tab-completion list never silently drifts from the source of truth.
+    #
+    # Auto-fix mode: trigger this workflow via `workflow_dispatch` with
+    # `auto_fix_generate_drift=true`. When drift is detected the job will
+    # commit the regenerated files back to the branch (using the default
+    # GITHUB_TOKEN) instead of failing. Only available on workflow_dispatch
+    # to prevent the job from silently mutating arbitrary push/PR refs.
+    name: Generate Drift Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    permissions:
+      contents: write
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed generate drift check"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          # Need a writable token + the actual branch ref (not detached HEAD)
+          # so the auto-fix path can push back to the originating branch.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Run go generate
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        run: go generate ./...
+
+      - name: Detect drift
+        id: drift
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        shell: bash
+        run: |
+          if git diff --exit-code; then
+            echo "drifted=false" >> "$GITHUB_OUTPUT"
+            echo "✅ All generated files are in sync."
+          else
+            echo "drifted=true" >> "$GITHUB_OUTPUT"
+            echo "Drifted files:"
+            git diff --name-only
+          fi
+
+      - name: Auto-commit regenerated files
+        if: >
+          needs.sha-check.outputs.already-built != 'true'
+          && steps.drift.outputs.drifted == 'true'
+          && github.event_name == 'workflow_dispatch'
+          && inputs.auto_fix_generate_drift == true
+        working-directory: gitmap
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::notice::auto_fix_generate_drift=true — committing regenerated files."
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Stage everything regenerated under gitmap/ (go generate may
+          # touch multiple paths beyond completion/).
+          git add -A
+          git commit -m "chore(generate): auto-regenerate go generate outputs [skip ci]"
+          # Push back to the branch we checked out. Use HEAD:<branch> so
+          # this works regardless of detached-HEAD state.
+          BRANCH="${{ github.head_ref || github.ref_name }}"
+          git push origin "HEAD:${BRANCH}"
+          echo "✅ Regenerated files committed to ${BRANCH}."
+
+      - name: Fail if generated files drifted
+        if: >
+          needs.sha-check.outputs.already-built != 'true'
+          && steps.drift.outputs.drifted == 'true'
+          && !(github.event_name == 'workflow_dispatch' && inputs.auto_fix_generate_drift == true)
+        shell: bash
+        run: |
+          echo ""
+          echo "::error::Generated files are out of sync with constants."
+          echo "::error::Run 'cd gitmap && go generate ./...' locally and commit the result."
+          echo "::error::Or re-run this workflow via 'Run workflow' with auto_fix_generate_drift=true to auto-commit."
+          exit 1
+
+
+  vulncheck:
+    name: Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed vulncheck"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Install govulncheck
+        if: needs.sha-check.outputs.already-built != 'true'
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+
+      - name: Run govulncheck
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        run: |
+          set +e
+          govulncheck ./... 2>&1 | tee /tmp/vulncheck.out
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            if grep "packages you import" /tmp/vulncheck.out | grep -qv "0 vulnerabilities in packages"; then
+              echo "::error::Third-party vulnerabilities detected"
+              exit 1
+            fi
+            echo "::warning::Only stdlib vulnerabilities found (no fix available in current Go version)"
+          fi
+
+  json-snapshot-fast:
+    # Fail-fast guard for the JSON snapshot/contract surface
+    # (startup-list, find-next, latest-branch + the schema registry).
+    # Runs in parallel with `lint` — only `sha-check` is a needs — so a
+    # schema or key-ordering regression surfaces in seconds, not after
+    # the full unit shard finishes. Downstream consumers (CI diff jobs,
+    # content-addressed caches, jq pipelines) depend on these contracts
+    # being byte-stable, so a failure here is the loudest possible
+    # signal that an `--format=json` consumer is about to break.
+    #
+    # Why this is NOT redundant with the matrix `test` job below:
+    #   - `test (unit)` runs every cmd/ test (~hundreds), takes minutes,
+    #     and any failure is buried in a long log.
+    #   - This job runs ONLY the ~20 JSON snapshot/contract/registry/
+    #     determinism tests with -failfast, finishes in seconds, and
+    #     surfaces the exact assertion that broke.
+    #
+    # The -run regex is anchored on the test-name prefixes used by
+    # every JSON contract suite in cmd/:
+    #   TestStartupListJSON{Snapshot,Contract,Bytes}_*
+    #   TestStartupListJSON{L,_Determinism,Indent}_*
+    #   TestFindNextJSONContract_*
+    #   TestLatestBranchJSONContract_*
+    #   TestSchemaRegistry_*
+    #   TestAssertGoldenBytesDeterministic_*
+    #   TestExpectDelim_* / TestScanEveryObjectKeysPure_*
+    name: JSON Snapshot Fast Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "SHA ${{ github.sha }} already passed JSON snapshot fast check"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      # See `lint` job for rationale — persist GOCACHE so the
+      # JSON-snapshot subset re-uses compiled test binaries from
+      # prior runs instead of recompiling cmd/ + formatter/ every
+      # time. Job-scoped key suffix keeps slots isolated.
+      - name: Cache Go build cache (GOCACHE)
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+          key: go-build-${{ runner.os }}-jsonsnap-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-build-${{ runner.os }}-jsonsnap-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-jsonsnap-
+
+      - name: Run JSON snapshot fast tests
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          # -failfast: abort on the first failing test so the log
+          # tail is the actual regression, not 30 cascading goldens.
+          # -count=1: bypass the test cache so a CI rerun on the
+          # same SHA still re-validates after a fixture edit.
+          # -run: anchored regex — see the job-level comment for the
+          # exhaustive list of test prefixes covered.
+          go test ./cmd/... ./formatter/... \
+            -failfast \
+            -count=1 \
+            -run '^(TestStartupListJSON|TestFindNextJSONContract|TestLatestBranchJSONContract|TestSchemaRegistry|TestAssertGoldenBytesDeterministic|TestExpectDelim|TestScanEveryObjectKeysPure|TestWriteJSON|TestWriteCSV)' \
+            2>&1 | tee /tmp/json-snapshot.log
+          exit_code=${PIPESTATUS[0]}
+          set -e
+          if [ "$exit_code" -ne 0 ]; then
+            echo ""
+            echo "========================================="
+            echo "  JSON SNAPSHOT / SCHEMA REGRESSION"
+            echo "========================================="
+            echo "A startup-list / find-next / latest-branch JSON"
+            echo "contract test failed. Likely causes:"
+            echo "  1. Encoder shape changed (added/renamed/reordered field)"
+            echo "  2. Key ordering drifted (map iteration leaked in)"
+            echo "  3. Schema registry vN.json out of date"
+            echo ""
+            echo "To accept an intentional schema change:"
+            echo "  GITMAP_UPDATE_SCHEMA=<name> go test ./cmd/..."
+            echo "To regenerate golden fixtures:"
+            echo "  GITMAP_UPDATE_GOLDEN=1 go test ./cmd/..."
+            echo "========================================="
+            grep -E -A 5 '^--- FAIL:' /tmp/json-snapshot.log || true
+            echo "========================================="
+          fi
+          exit "$exit_code"
+
+      - name: Upload snapshot test log
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: json-snapshot-log
+          path: /tmp/json-snapshot.log
+          retention-days: 7
+
+  test:
+    name: Test (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    needs: [sha-check, lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: unit
+            packages: ./clonenext/... ./cloner/... ./cmd/... ./config/... ./formatter/... ./mapper/... ./release/...
+          - name: store
+            packages: ./tests/store_test/...
+          - name: integration
+            packages: ./tests/cmd_test/... ./tests/constants_test/... ./tests/release_test/...
+          - name: tui
+            packages: ./tui/...
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed tests (${{ matrix.name }})"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      # See `lint` job for rationale. Per-shard cache slot
+      # (matrix.name) so parallel shards don't race on the same
+      # save key — each shard owns its own GOCACHE entry but can
+      # still warm-restore from any prior entry on the same go.sum.
+      - name: Cache Go build cache (GOCACHE)
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+          key: go-build-${{ runner.os }}-test-${{ matrix.name }}-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-build-${{ runner.os }}-test-${{ matrix.name }}-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-test-${{ matrix.name }}-
+            go-build-${{ runner.os }}-test-
+      # Defensive workspace scrub before the fix-repo / v9->v12 fixture
+      # tests run. Past failures of `TestFixRepoRewriteV9ToV12Fixture`
+      # were traced to stale per-shard artifacts (test-output.txt,
+      # coverage-*.out, leftover /tmp/gitmap-fixrepo-* scratch dirs)
+      # being re-read by subsequent runs on the same runner. We are on
+      # ephemeral ubuntu-latest hosts today, but if a job is ever
+      # retried in-place or migrated to a self-hosted runner the
+      # checkout step alone does NOT remove untracked siblings under
+      # /tmp. Wipe both locations explicitly so the rewriter always
+      # starts from the freshly-checked-out fixture bytes.
+      - name: Clean workspace before fixrepo tests
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f gitmap/test-output.txt gitmap/coverage-*.out
+          rm -rf /tmp/gitmap-fixrepo-* /tmp/fixrepo-rewrite-* || true
+          echo "workspace clean: gitmap/ test-output + /tmp fixrepo scratch removed"
+      - name: Run tests
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          go test ${{ matrix.packages }} -v -count=1 -coverprofile=coverage-${{ matrix.name }}.out -covermode=atomic 2>&1 | tee test-output.txt
+          exit_code=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$exit_code" -ne 0 ]; then
+            echo ""
+            echo "========================================="
+            echo "  FAILED TESTS (${{ matrix.name }})"
+            echo "========================================="
+            grep -E -A 5 '^--- FAIL:' test-output.txt || true
+            echo "========================================="
+          fi
+
+          exit "$exit_code"
+
+      - name: Upload test results
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.name }}
+          path: |
+            gitmap/test-output.txt
+            gitmap/coverage-${{ matrix.name }}.out
+          retention-days: 7
+
+  installer-smoke:
+    # Source-build smoke test: builds gitmap from this commit into a tempdir
+    # and asserts `gitmap version` reports the version pinned in
+    # constants.go. Catches version-constant drift on every PR without any
+    # release dependency. The release.yml workflow runs the companion
+    # `release` mode against the freshly-published GitHub release.
+    name: Installer Smoke (source-build)
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: CHANGELOG version-sync (constants.go ↔ CHANGELOG.md)
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: bash .github/scripts/check-changelog-version-sync.sh
+
+      - name: Run installer smoke (source mode)
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: bash .github/scripts/smoke-installer.sh source
+
+
+
+
+  installer-smoke-windows:
+    # Windows companion to installer-smoke: same source-build assertion,
+    # different OS + shell. Catches Windows-only regressions in the
+    # build (CGO, winres, path quoting) and in install.ps1 itself.
+    name: Installer Smoke Windows (source-build)
+    runs-on: windows-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: Write-Host "OK SHA ${{ github.sha }} already passed"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Run installer smoke (source mode)
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: pwsh
+
+  e2e-cross-platform:
+    # Runs the end-to-end test suites on each target OS so platform-
+    # specific code paths actually execute on the OS they ship to —
+    # not just on the cross-compile-clean ubuntu host.
+    #
+    # Coverage:
+    #   * gitmap/cmd/installctx_*_e2e_test.go — Windows registry,
+    #     macOS Automator .workflow bundles, Linux Nautilus/Dolphin/
+    #     Thunar artifacts. Each suite is gated by `//go:build` tags
+    #     that match its target GOOS, so running the full ./cmd/...
+    #     test binary on each runner exercises the right subset
+    #     without needing per-OS -run filters.
+    #   * gitmap/cmd/commitin/e2e/... — commit-in pipeline e2e.
+    #
+    # `cross-platform.yml` already runs `go test ./...` across the
+    # same OS triplet, but its scope is build-tag leak detection (it
+    # has no shard parallelism, no SHA-dedupe, no artifact upload).
+    # This job is the in-CI counterpart that gates merge on the
+    # actually-OS-tagged e2e suites passing on every PR, with the
+    # same dedupe + artifact pattern as the rest of `test` /
+    # `installer-smoke` so a re-run skips when the SHA already passed.
+    name: E2E (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: [sha-check, lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        working-directory: gitmap
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        shell: bash
+        run: echo "OK SHA ${{ github.sha }} already passed e2e (${{ matrix.os }})"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      # Per-OS GOCACHE slot. `runner.os` discriminates Linux/macOS/
+      # Windows so each runner warms its own cache and they never
+      # collide (the build artifacts are not portable across GOOS).
+      - name: Cache Go build cache (GOCACHE)
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~\AppData\Local\go-build
+          key: go-build-${{ runner.os }}-e2e-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-build-${{ runner.os }}-e2e-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-e2e-
+
+      # Run the e2e-bearing packages with -count=1 (no test cache) so
+      # the OS-tagged suites really execute every run. Output is tee'd
+      # to a per-OS log for the artifact upload below. We deliberately
+      # do NOT pass -run filters: each installctx_*_e2e_test.go file
+      # is gated by `//go:build <goos>` so the test binary on each
+      # runner already only contains the suites that belong there.
+      - name: Run e2e suites
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          go test ./cmd/... ./cmd/commitin/e2e/... -count=1 -v 2>&1 | tee e2e-output.txt
+          exit_code=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$exit_code" -ne 0 ]; then
+            echo ""
+            echo "========================================="
+            echo "  FAILED E2E TESTS (${{ matrix.os }})"
+            echo "========================================="
+            grep -E -A 5 '^--- FAIL:' e2e-output.txt || true
+            echo "========================================="
+          fi
+
+          exit "$exit_code"
+
+      - name: Upload e2e log
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-output-${{ matrix.os }}
+          path: gitmap/e2e-output.txt
+          retention-days: 7
+
+
+  full-suite-guard:
+    # Belt-and-suspenders gate that mirrors what a contributor runs locally:
+    # `go test ./...` across EVERY package + a strict `golangci-lint run`
+    # over the whole module. The matrixed `test` job above shards by
+    # package group for parallel speed, but new top-level packages
+    # (e.g. archive/, downloaderconfig/) are easy to forget when
+    # extending the matrix. This job catches that drift by globbing
+    # every package, so unannounced packages can't ship without test
+    # execution. The strict lint pass also fails fast on any
+    # exhaustive/unparam/errorlint regression — these were exactly
+    # the rules that leaked through in v3.58.x and motivated this guard.
+    name: Full Suite Guard
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "SHA ${{ github.sha }} already passed full-suite guard"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      # See `lint` job for rationale. Full-suite guard touches every
+      # package, so a warm GOCACHE is the single biggest CI win here
+      # — second-run wall time drops dramatically when only a handful
+      # of packages actually changed since the last green main build.
+      - name: Cache Go build cache (GOCACHE)
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+          key: go-build-${{ runner.os }}-fullsuite-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-build-${{ runner.os }}-fullsuite-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-fullsuite-
+
+      # Mirror the test-matrix scrub so the full-suite guard's
+      # `go test ./...` invocation — which includes
+      # TestFixRepoRewriteV9ToV12Fixture — also starts from a known
+      # clean state. See the matching step in the `test` job for the
+      # full rationale (stale test-output.txt + /tmp scratch dirs from
+      # any prior in-place retry).
+      - name: Clean workspace before full suite
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f gitmap/test-output.txt gitmap/coverage-*.out
+          rm -rf /tmp/full-suite /tmp/gitmap-fixrepo-* /tmp/fixrepo-rewrite-* || true
+          echo "workspace clean: gitmap/ + /tmp/full-suite + fixrepo scratch removed"
+
+      - name: Run full test suite
+        if: needs.sha-check.outputs.already-built != 'true'
+        id: full-test
+        working-directory: gitmap
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p /tmp/full-suite
+          set +e
+          go test ./... -count=1 2>&1 | tee /tmp/full-suite/test-output.txt
+          rc=${PIPESTATUS[0]}
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          # Tally PASS/FAIL package lines for the PR summary comment.
+          passed=$(grep -cE '^ok[[:space:]]' /tmp/full-suite/test-output.txt || true)
+          failed=$(grep -cE '^FAIL[[:space:]]' /tmp/full-suite/test-output.txt || true)
+          echo "packages_passed=$passed" >> "$GITHUB_OUTPUT"
+          echo "packages_failed=$failed" >> "$GITHUB_OUTPUT"
+          exit "$rc"
+
+      - name: Install golangci-lint (pinned)
+        if: |
+          always() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          steps.full-test.conclusion != 'skipped'
+        uses: ./.github/actions/install-golangci-lint
+
+      - name: golangci-lint (strict, full suite)
+        if: |
+          always() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          steps.full-test.conclusion != 'skipped'
+        id: full-lint
+        working-directory: gitmap
+        shell: bash
+        # Captures stdout to an artifact for the PR summary AND keeps the
+        # step's exit code as the gate. Linter binary cached by the
+        # install-golangci-lint composite + ~/.cache/golangci-lint.
+        run: bash ../.github/scripts/full-suite-lint.sh
+
+      - name: Upload full-suite outputs
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-suite-outputs
+          path: /tmp/full-suite/
+          retention-days: 14
+
+  pr-summary:
+    # Posts (or updates) a sticky PR comment summarizing the full-suite-guard
+    # results: go test ./... pass/fail counts and golangci-lint issue count,
+    # with deep links to the run logs and downloadable artifacts. Sticky
+    # behavior (find-comment by sentinel + create-or-update-comment) means
+    # repeated pushes to a PR edit the same comment instead of spamming.
+    #
+    # Runs on PRs only — push events have no PR to comment on. Always runs
+    # (success + failure) so contributors see results when the build is red,
+    # which is exactly when the comment is most useful.
+    name: PR Summary
+    runs-on: ubuntu-latest
+    # Depend on every gate we want to surface in the dashboard table.
+    # `if: always()` below means a failed/skipped gate doesn't block
+    # the comment from posting — the whole point is to surface red
+    # gates in the PR view.
+    needs:
+      - sha-check
+      - spell-check
+      - lint
+      - lint-script-tests
+      - lint-baseline-diff
+      - cmd-naming-check
+      - legacy-refs-check
+      - deploy-layout-check
+      - constants-naming-check
+      - constants-collision-check
+      - golden-allow-leak-check
+      - generate-check
+      - vulncheck
+      - json-snapshot-fast
+      - test
+      - installer-smoke
+      - installer-smoke-windows
+      - full-suite-guard
+      - build
+    if: |
+      always() &&
+      github.event_name == 'pull_request' &&
+      needs.sha-check.outputs.already-built != 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download full-suite outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: full-suite-outputs
+          path: /tmp/full-suite
+
+      - name: Build PR summary comment
+        shell: bash
+        env:
+          FULL_SUITE_RESULT: ${{ needs.full-suite-guard.result }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA_SHORT: ${{ github.sha }}
+          # Dashboard inputs — one env var per gate, value is the raw
+          # GitHub job conclusion ("success" / "failure" / "skipped" /
+          # "cancelled"). pr-summary.sh maps these to ✅ / ❌ / ⏭ /
+          # ♻ icons. Repo-policy is a roll-up: red if ANY of its 7
+          # checks failed, otherwise the worst non-success status.
+          GATE_SPELL_CHECK: ${{ needs.spell-check.result }}
+          GATE_LINT: ${{ needs.lint.result }}
+          GATE_LINT_SCRIPT_TESTS: ${{ needs.lint-script-tests.result }}
+          GATE_LINT_BASELINE_DIFF: ${{ needs.lint-baseline-diff.result }}
+          GATE_REPO_POLICY: ${{ (contains(needs.*.result, 'failure') && (needs.cmd-naming-check.result == 'failure' || needs.legacy-refs-check.result == 'failure' || needs.deploy-layout-check.result == 'failure' || needs.constants-naming-check.result == 'failure' || needs.constants-collision-check.result == 'failure' || needs.golden-allow-leak-check.result == 'failure' || needs.generate-check.result == 'failure')) && 'failure' || 'success' }}
+          GATE_VULNCHECK: ${{ needs.vulncheck.result }}
+          GATE_TEST: ${{ needs.test.result }}
+          GATE_JSON_SNAPSHOT_FAST: ${{ needs.json-snapshot-fast.result }}
+          GATE_INSTALLER_SMOKE: ${{ needs.installer-smoke.result }}
+          GATE_INSTALLER_SMOKE_WINDOWS: ${{ needs.installer-smoke-windows.result }}
+          GATE_FULL_SUITE_GUARD: ${{ needs.full-suite-guard.result }}
+          GATE_BUILD: ${{ needs.build.result }}
+          SHA_DEDUPED: ${{ needs.sha-check.outputs.already-built }}
+        run: |
+          mkdir -p /tmp/pr-summary
+          bash .github/scripts/pr-summary.sh \
+            /tmp/full-suite \
+            /tmp/pr-summary/comment.md
+          cat /tmp/pr-summary/comment.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Find existing PR comment
+        uses: peter-evans/find-comment@v3
+        id: find-summary
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '<!-- gitmap-ci-summary -->'
+
+      - name: Create or update sticky comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find-summary.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: /tmp/pr-summary/comment.md
+          edit-mode: replace
+
+      # SARIF generation: re-runs the linter with --out-format=sarif so the
+      # findings can be uploaded to GitHub's code scanning UI. The binary
+      # is already on PATH from the action above and ~/.cache/golangci-lint
+      # is warm, so this is effectively a cache-hit replay (seconds, not
+      # minutes). --issues-exit-code=0 means a finding doesn't re-fail the
+      # job — the previous step is the gate; this step exists purely to
+      # produce the artifact for the Security tab.
+      - name: Generate golangci-lint SARIF report
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p /tmp/sarif
+          golangci-lint run ./... \
+            --timeout=5m \
+            --issues-exit-code=0 \
+            --max-issues-per-linter=0 \
+            --max-same-issues=0 \
+            --out-format=sarif \
+            > /tmp/sarif/golangci-lint.sarif
+          # Sanity check: the SARIF file MUST exist, parse as JSON, and
+          # contain at least one entry in runs[]. Any of these failing
+          # would otherwise cause github/codeql-action/upload-sarif to
+          # blow up several steps later with a confusing "invalid SARIF"
+          # error pointing at the upload action instead of the producer.
+          # Failing here keeps the blame on the linter step and emits a
+          # GitHub `::error::` annotation that surfaces in the run UI.
+          python3 - <<'PY'
+          import json, os, sys
+          path = "/tmp/sarif/golangci-lint.sarif"
+          if not os.path.exists(path):
+              print(f"::error::SARIF sanity check: {path} does not exist — golangci-lint produced no output")
+              sys.exit(1)
+          if os.path.getsize(path) == 0:
+              print(f"::error::SARIF sanity check: {path} is empty — golangci-lint produced no output")
+              sys.exit(1)
+          try:
+              with open(path) as f:
+                  doc = json.load(f)
+          except json.JSONDecodeError as e:
+              print(f"::error::SARIF sanity check: {path} is not valid JSON: {e}")
+              sys.exit(1)
+          if not isinstance(doc, dict):
+              print(f"::error::SARIF sanity check: top-level is {type(doc).__name__}, expected object")
+              sys.exit(1)
+          runs = doc.get("runs")
+          if runs is None:
+              print("::error::SARIF sanity check: missing required 'runs' array — upload-sarif would reject this file")
+              sys.exit(1)
+          if not isinstance(runs, list):
+              print(f"::error::SARIF sanity check: 'runs' must be a list, got {type(runs).__name__}")
+              sys.exit(1)
+          if len(runs) == 0:
+              print("::error::SARIF sanity check: 'runs' array is empty — golangci-lint emitted a SARIF skeleton with no scanner runs")
+              sys.exit(1)
+          findings = sum(len(r.get("results", []) or []) for r in runs)
+          print(f"SARIF OK: {len(runs)} run(s), {findings} finding(s)")
+          PY
+
+      # Upload to GitHub code scanning so findings appear in the Security
+      # tab AND as inline annotations on PR diffs. category: distinguishes
+      # this scanner from any future SARIF uploads (e.g. govulncheck) so
+      # they don't overwrite each other in the dashboard.
+      - name: Upload SARIF to GitHub code scanning
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: /tmp/sarif/golangci-lint.sarif
+          category: golangci-lint
+
+      # Also retain the SARIF as a downloadable artifact so contributors
+      # can inspect raw findings without depending on the Security tab
+      # being enabled (some forks ship without code scanning permissions).
+      - name: Upload SARIF artifact
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: golangci-lint-sarif
+          path: /tmp/sarif/golangci-lint.sarif
+          retention-days: 14
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [sha-check, lint, lint-script-tests, lint-baseline-guard, lint-baseline-diff, vulncheck, generate-check, cmd-naming-check, constants-naming-check, constants-collision-check, golden-allow-leak-check, deploy-layout-check, test, installer-smoke, installer-smoke-windows, full-suite-guard]
+    if: always()
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed all tests"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: Download all test results
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-*
+          path: results
+
+      - name: Aggregate and report failures
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: bash .github/scripts/test-summary.sh results
+
+      - name: Coverage report
+        # Merges per-package coverage profiles from every matrix leg
+        # and prints a per-package + total breakdown. Implementation
+        # extracted to .github/scripts/coverage-report.sh — keeps the
+        # workflow readable and lets the script be unit-tested.
+        if: always() && needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        shell: bash
+        run: bash ../.github/scripts/coverage-report.sh results
+
+      # SHA-dedup passthrough: stamp + save the per-commit cache entry
+      # so subsequent pushes of the same SHA short-circuit the whole
+      # pipeline. Two-step composite — see .github/actions/mark-sha-built.
+      - name: Mark SHA as built
+        if: success() && needs.sha-check.outputs.already-built != 'true'
+        uses: ./.github/actions/mark-sha-built
+
+  ci-errors-digest:
+    # Single consolidated error block printed to the run log so the
+    # entire CI failure surface (test failures, lint findings, vet,
+    # baseline-diff, e2e) can be copy-pasted in one shot — no file
+    # is uploaded, no artifact is produced. The digest sits between
+    # `===BEGIN CI ERROR DIGEST===` and `===END CI ERROR DIGEST===`
+    # sentinels so the user can scrape one contiguous block from
+    # the Actions log and feed it back to tooling.
+    name: CI Errors Digest
+    runs-on: ubuntu-latest
+    needs: [sha-check, lint, lint-baseline-diff, vulncheck, generate-check, test, e2e-cross-platform, full-suite-guard]
+    if: always() && needs.sha-check.outputs.already-built != 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download all error-bearing artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: digest-input
+          # Pull every artifact that may contain error text. Missing
+          # patterns are silently ignored by download-artifact.
+          pattern: "*"
+
+      - name: Print consolidated error digest
+        shell: bash
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+        run: bash .github/scripts/ci-errors-digest.sh digest-input
+
+  build:
+    name: Build (${{ matrix.os }}-${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    needs: [sha-check, test-summary]
+    if: always() && needs.test-summary.result == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows
+            arch: amd64
+            ext: .exe
+          - os: windows
+            arch: arm64
+            ext: .exe
+          - os: linux
+            arch: amd64
+            ext: ""
+          - os: linux
+            arch: arm64
+            ext: ""
+          - os: darwin
+            arch: amd64
+            ext: ""
+          - os: darwin
+            arch: arm64
+            ext: ""
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already built (${{ matrix.os }}/${{ matrix.arch }})"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - uses: actions/setup-go@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      # Cross-compile matrix: GOCACHE entries are partitioned by
+      # GOOS/GOARCH (the cache stores per-target compiled artifacts),
+      # so include both in the cache key to avoid one matrix leg
+      # invalidating another's saved entry.
+      - name: Cache Go build cache (GOCACHE)
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+          key: go-build-${{ runner.os }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-build-${{ runner.os }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-build-${{ matrix.os }}-${{ matrix.arch }}-
+
+      - name: Print build stamp
+        # Prints the exact commit SHA, branch, declared `constants.Version`,
+        # and a sha256 fingerprint of the two historically-problematic
+        # cmd/ files (updaterepo.go + updatedebugwindows.go) so a stale
+        # checkout is obvious in the very first lines of the build log.
+        # See scripts/build-stamp.sh for the full rationale and the
+        # v3.92.0 / v3.113.0 / v3.114.0 history that motivated this guard.
+        # `--strict` escalates the redeclaration-risk check to a hard
+        # exit so CI never wastes minutes on a doomed `go build`.
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: bash scripts/build-stamp.sh --strict
+
+      - name: Build binary
+        if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: gitmap
+        run: |
+          VERSION="dev-${GITHUB_SHA::10}"
+          BUILD_COMMIT="$(git rev-parse HEAD)"
+          BUILD_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          BUILD_REPO="$(git config --get remote.origin.url)"
+          BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/constants.Version=$VERSION'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildCommit=$BUILD_COMMIT'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildBranch=$BUILD_BRANCH'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildRepo=$BUILD_REPO'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildDate=$BUILD_DATE'"
+          OUTPUT="gitmap-${VERSION}-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
+          echo "Building $OUTPUT..."
+          CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags "$LDFLAGS" -o "$OUTPUT" .
+          echo "✅ Built $OUTPUT ($(du -h "$OUTPUT" | cut -f1))"
+
+      - name: Upload binary
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitmap-${{ matrix.os }}-${{ matrix.arch }}
+          path: gitmap/gitmap-*
+          retention-days: 14
+
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [sha-check, build]
+    if: always() && needs.build.result == 'success'
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already built all targets"
+
+      - name: Download all binaries
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: gitmap-*
+          path: binaries
+
+      - name: Print build summary
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: |
+          echo ""
+          echo "========================================="
+          echo "  BUILD SUMMARY"
+          echo "========================================="
+          echo ""
+          printf "  %-45s %s\n" "Binary" "Size"
+          printf "  %-45s %s\n" "---------------------------------------------" "--------"
+
+          total_size=0
+          count=0
+
+          for dir in binaries/gitmap-*; do
+            if [ ! -d "$dir" ]; then continue; fi
+            for file in "$dir"/*; do
+              if [ ! -f "$file" ]; then continue; fi
+              name=$(basename "$file")
+              size=$(stat --format="%s" "$file" 2>/dev/null || stat -f "%z" "$file" 2>/dev/null)
+              human=$(numfmt --to=iec --suffix=B "$size" 2>/dev/null || echo "${size}B")
+              printf "  %-45s %s\n" "$name" "$human"
+              total_size=$((total_size + size))
+              count=$((count + 1))
+            done
+          done
+
+          echo ""
+          total_human=$(numfmt --to=iec --suffix=B "$total_size" 2>/dev/null || echo "${total_size}B")
+          echo "  Total: $count binaries, $total_human"
+          echo "========================================="
+
+  # ------------------------------------------------------------------
+  # publish-badges: per-job README badges via BYOB.
+  #
+  # GitHub's native workflow badge (badge.svg) reflects the entire
+  # workflow's last run, which makes it impossible to tell at a glance
+  # whether lint, tests, vulncheck, or build is the failing job.
+  #
+  # This job reads needs.<job>.result for the four headline jobs and
+  # publishes one shields-endpoint JSON per job to the orphan `BYOB`
+  # branch. README references them via:
+  #   https://byob.yarr.is/<owner>/<repo>/<name>
+  #
+  # The job runs with if: always() so a failed upstream still updates
+  # its own badge to red instead of leaving stale "passing" output.
+  # ------------------------------------------------------------------
+  publish-badges:
+    name: Publish per-job badges
+    runs-on: ubuntu-latest
+    needs: [lint, test, vulncheck, build]
+    if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+    steps:
+      - name: Lint badge
+        uses: RubbaBoy/[email protected]
+        with:
+          NAME: ci-lint
+          LABEL: lint
+          STATUS: ${{ needs.lint.result == 'success' && 'passing' || needs.lint.result }}
+          COLOR: ${{ needs.lint.result == 'success' && 'brightgreen' || (needs.lint.result == 'skipped' && 'lightgrey' || 'red') }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tests badge
+        uses: RubbaBoy/[email protected]
+        with:
+          NAME: ci-tests
+          LABEL: tests
+          STATUS: ${{ needs.test.result == 'success' && 'passing' || needs.test.result }}
+          COLOR: ${{ needs.test.result == 'success' && 'brightgreen' || (needs.test.result == 'skipped' && 'lightgrey' || 'red') }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Vulncheck badge
+        uses: RubbaBoy/[email protected]
+        with:
+          NAME: ci-vulncheck
+          LABEL: vulncheck
+          STATUS: ${{ needs.vulncheck.result == 'success' && 'passing' || needs.vulncheck.result }}
+          COLOR: ${{ needs.vulncheck.result == 'success' && 'brightgreen' || (needs.vulncheck.result == 'skipped' && 'lightgrey' || 'red') }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build badge
+        uses: RubbaBoy/[email protected]
+        with:
+          NAME: ci-build
+          LABEL: build
+          STATUS: ${{ needs.build.result == 'success' && 'passing' || needs.build.result }}
+          COLOR: ${{ needs.build.result == 'success' && 'brightgreen' || (needs.build.result == 'skipped' && 'lightgrey' || 'red') }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

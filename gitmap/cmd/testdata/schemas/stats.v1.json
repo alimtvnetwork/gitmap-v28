@@ -1,0 +1,14 @@
+{
+  "_doc": "Schema registry entry for stats --json key order. Top-level object keys; nested `commands` array key order pinned by a separate registry entry if needed in future.",
+  "name": "stats",
+  "version": 1,
+  "keys": [
+    "totalCommands",
+    "uniqueCommands",
+    "totalSuccess",
+    "totalFail",
+    "overallFailRate",
+    "avgDurationMs",
+    "commands"
+  ]
+}

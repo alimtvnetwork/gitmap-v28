@@ -1,0 +1,45 @@
+# source: curated (Kotlin / Android / Gradle conventions)
+# kind: ignore
+# lang: kotlin
+# version: 1
+
+# Build outputs
+build/
+out/
+bin/
+target/
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# Kotlin / native
+*.kotlin_module
+.kotlin/
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Logs
+*.log
+hs_err_pid*
+replay_pid*
+
+# KMP / Multiplatform
+**/kotlin-js-store/
+.konan/

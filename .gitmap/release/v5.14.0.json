@@ -1,0 +1,17 @@
+{
+  "version": "5.14.0",
+  "branch": "release/v5.14.0",
+  "sourceBranch": "main",
+  "commit": "6994b22ca5b0701563006a560dd4ae7dfd6fbf76",
+  "tag": "v5.14.0",
+  "assets": [],
+  "changelog": [
+    "Markdown help renderer (`gitmap/render`) now color-codes `# comments` inside code fences in green and credential-like tokens (`API_KEY`, `GITMAP_TOKEN`, etc.) and the `hd` alias in magenta.",
+    "List and table blocks in help output now render with vertical padding for better readability.",
+    "New pretty-renderer test fixtures: `case-010-fence-comments-and-keys` (green comments + magenta keys) and `case-011-list-and-table` (list/table padding)."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-05-18T03:38:51Z",
+  "isLatest": false
+}

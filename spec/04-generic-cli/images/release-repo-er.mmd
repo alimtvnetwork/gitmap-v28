@@ -1,0 +1,49 @@
+erDiagram
+    Repo ||--o{ Release : "publishes (1..N)"
+    Repo ||--o{ GroupRepo : "tagged in"
+    Group ||--o{ GroupRepo : "contains"
+
+    Repo {
+        INTEGER RepoId PK "AUTOINCREMENT"
+        TEXT Slug "owner/name"
+        TEXT RepoName
+        TEXT HttpsUrl
+        TEXT SshUrl
+        TEXT Branch
+        TEXT RelativePath
+        TEXT AbsolutePath UK "UNIQUE INDEX"
+        TEXT CloneInstruction
+        TEXT Notes
+        TEXT CreatedAt
+        TEXT UpdatedAt
+    }
+
+    Release {
+        INTEGER ReleaseId PK "AUTOINCREMENT"
+        INTEGER RepoId FK "REFERENCES Repo(RepoId) ON DELETE CASCADE"
+        TEXT Version
+        TEXT Tag "UNIQUE per RepoId"
+        TEXT Branch
+        TEXT SourceBranch
+        TEXT CommitSha
+        TEXT Changelog
+        TEXT Notes
+        INTEGER IsDraft "0/1"
+        INTEGER IsPreRelease "0/1"
+        INTEGER IsLatest "0/1 - one TRUE per RepoId"
+        TEXT Source "release|import|repo|tag"
+        TEXT CreatedAt
+    }
+
+    Group {
+        INTEGER GroupId PK "AUTOINCREMENT"
+        TEXT Name UK "UNIQUE"
+        TEXT Description
+        TEXT Color
+        TEXT CreatedAt
+    }
+
+    GroupRepo {
+        INTEGER GroupId FK "REFERENCES Group(GroupId) ON DELETE CASCADE"
+        INTEGER RepoId FK "REFERENCES Repo(RepoId) ON DELETE CASCADE"
+    }

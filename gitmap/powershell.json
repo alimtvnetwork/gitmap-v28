@@ -1,0 +1,7 @@
+﻿{
+    "deployPath":  "C:\\Users\\Punam Office\\AppData\\Local",
+    "buildOutput":  "./bin",
+    "binaryName":  "gitmap.exe",
+    "goSource":  "./gitmap",
+    "copyData":  true
+}

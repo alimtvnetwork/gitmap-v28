@@ -1,0 +1,6 @@
+{
+  "name": "latest-branch-no-top",
+  "version": 1,
+  "keys": ["branch", "remote", "sha", "commitDate", "subject", "ref"],
+  "_doc": "Schema for `gitmap latest-branch --format=json` when no top-N list is requested (top=0). The `top` key MUST be absent thanks to the omitempty tag — that absence is itself part of the contract. The sibling `latest-branch-with-top.vN.json` schema covers the top>0 case where the key appears."
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitmap.dev/schemas/list-releases-all-repos.schema.json",
+  "title": "gitmap-v27 list-releases --all-repos --json output",
+  "description": "Array of Release rows joined with their owning Repo, returned by `gitmap-v27 list-releases --all-repos --json` (alias `gitmap-v27 lr --all-repos --json`). Ordered by createdAt DESC, exercising the IdxRelease_RepoId index added in v17. PascalCase keys are intentional: store.ReleaseAcrossRepos has no `json:` tags, so the legacy json.MarshalIndent surface used Go field names verbatim. Pinning that exact surface here prevents a silent rename when migrating off MarshalIndent. Empty result is `[]` (NOT `null`). Backed by gitmap-v27/stablejson — pinned by gitmap-v27/cmd/listreleases_jsonschema_contract_test.go.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "Release joined with owning Repo",
+    "description": "A single Release row with its owning Repo's slug + absolute path joined in.",
+    "required": [
+      "ReleaseID", "RepoID", "RepoSlug", "RepoPath", "Version", "Tag",
+      "Branch", "CommitSha", "Source", "IsDraft", "IsLatest",
+      "IsPreRelease", "CreatedAt"
+    ],
+    "additionalProperties": false,
+    "propertyOrder": [
+      "ReleaseID", "RepoID", "RepoSlug", "RepoPath", "Version", "Tag",
+      "Branch", "CommitSha", "Source", "IsDraft", "IsLatest",
+      "IsPreRelease", "CreatedAt"
+    ],
+    "properties": {
+      "ReleaseID":    { "type": "integer", "description": "SQLite primary key of the Release row." },
+      "RepoID":       { "type": "integer", "description": "Foreign key to the Repo table (v17+ schema)." },
+      "RepoSlug":     { "type": "string",  "description": "Owning repo's slug (e.g. `owner/name`). The join key downstream consumers use to group releases per repo." },
+      "RepoPath":     { "type": "string",  "description": "Absolute filesystem path of the owning repo on the host that wrote the row." },
+      "Version":      { "type": "string",  "description": "Semantic version without the leading `v`." },
+      "Tag":          { "type": "string",  "description": "Git tag (e.g. `v4.14.0`)." },
+      "Branch":       { "type": "string",  "description": "Release branch name." },
+      "CommitSha":    { "type": "string",  "description": "Full 40-character commit SHA. May be empty for legacy rows." },
+      "Source":       { "type": "string",  "enum": ["release", "import", "repo", "tag"], "description": "Provenance — same enum as the per-repo view." },
+      "IsDraft":      { "type": "boolean", "description": "Draft flag from the upstream metadata." },
+      "IsLatest":     { "type": "boolean", "description": "True for the latest release of THIS repo (uniqueness is per-repo, NOT per-array — multiple repos may each contribute one IsLatest=true row)." },
+      "IsPreRelease": { "type": "boolean", "description": "Pre-release flag from the upstream metadata." },
+      "CreatedAt":    { "type": "string",  "description": "ISO-8601-ish timestamp; lexicographic sort matches chronological order." }
+    }
+  },
+  "examples": [
+    [],
+    [
+      {
+        "ReleaseID": 1,
+        "RepoID": 2,
+        "RepoSlug": "alimtv/gitmap-v27",
+        "RepoPath": "/home/alice/work/gitmap-v27",
+        "Version": "4.14.0",
+        "Tag": "v4.14.0",
+        "Branch": "release-v4.14.0",
+        "CommitSha": "0123456789abcdef0123456789abcdef01234567",
+        "Source": "repo",
+        "IsDraft": false,
+        "IsLatest": true,
+        "IsPreRelease": false,
+        "CreatedAt": "2026-05-02T12:00:00Z"
+      }
+    ]
+  ]
+}

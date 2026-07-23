@@ -1,0 +1,10 @@
+[
+  {
+    "version": "v5.72.0",
+    "source": "local",
+    "changelog": ["first note","second note"]
+  },
+  {
+    "version": "v5.71.0"
+  }
+]

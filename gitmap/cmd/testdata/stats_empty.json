@@ -1,0 +1,9 @@
+{
+  "totalCommands": 0,
+  "uniqueCommands": 0,
+  "totalSuccess": 0,
+  "totalFail": 0,
+  "overallFailRate": 0,
+  "avgDurationMs": 0,
+  "commands": []
+}

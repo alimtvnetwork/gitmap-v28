@@ -1,0 +1,63 @@
+name: Cross-Platform Build
+
+# Verifies that `go build` and `go test` succeed on Linux, macOS, and
+# Windows. Catches build-tag leaks (e.g. `//go:build windows` symbols
+# referenced from untagged files) that pass on the developer's host
+# OS but break the cross-compile matrix.
+#
+# Lessons learned: see .lovable/memory/issues/ — startup/win*.go leaked
+# `addWindowsRegistry` into the Linux build because the stub file used
+# the wrong build tag. A matrix CI job would have caught it pre-merge.
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!release/**'
+    tags-ignore:
+      - 'v*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cross-platform-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.os }} / go build + test
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: gitmap
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: gitmap/go.mod
+          cache-dependency-path: gitmap/go.sum
+
+      - name: go build ./...
+        run: go build ./...
+
+      - name: go test ./... (no cache)
+        run: go test ./... -count=1
+
+      # Defense in depth: even on a single host OS, verify the other two
+      # GOOS targets still cross-compile. Catches build-tag leaks that
+      # the host-native job above cannot see (e.g. a Linux-only file
+      # referencing a stub that only exists on darwin).
+      - name: cross-compile sibling GOOS (vet only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          GOOS=windows GOARCH=amd64 go vet ./...
+          GOOS=darwin  GOARCH=amd64 go vet ./...

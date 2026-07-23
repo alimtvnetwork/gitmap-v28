@@ -1,0 +1,112 @@
+# =======================================================================
+# System, IDEs, and Text Editor Configurations
+# =======================================================================
+.DS_Store
+Thumbs.db
+*.bak
+*.sw?
+*.swp
+
+# JetBrains / Rider / VS Code / Visual Studio
+.idea/
+.vs/
+.vscode/*
+!.vscode/extensions.json
+
+# User-specific developer overrides
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.ntvs*
+*.njsproj
+*.sln
+
+# =======================================================================
+# Logging Frameworks & Taggings
+# =======================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =======================================================================
+# Node.js, Modern Meta-Frameworks, and Tooling
+# =======================================================================
+node_modules/
+.pnpm-store/
+
+# Production builds and deployment artifact targets
+dist/
+dist-ssr/
+build/
+out/
+.output/
+.next/
+
+# Meta-framework runtimes (Nitro, Vinxi, TanStack, etc.)
+.nitro/
+.vinxi/
+.tanstack/
+
+# =======================================================================
+# Cloudflare / Serverless Deployment Runtimes
+# =======================================================================
+.wrangler/
+.dev.vars
+
+# =======================================================================
+# Go (Golang)
+# =======================================================================
+# Native binaries, compiled dependencies, and testing artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.prof
+
+# Default output distribution targets
+bin/
+pkg/
+
+# =======================================================================
+# Python Core & Packaging Ecosystem
+# =======================================================================
+# Optimized byte-compiled modules
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Isolated development environments
+venv/
+.venv/
+env/
+ENV/
+pyenv/
+
+# Packaging distributions
+doc/_build/
+*.egg-info/
+
+# =======================================================================
+# .NET Ecosystem (C# / F# / VB)
+# =======================================================================
+# Engine compilation folders
+[Bb]in/
+[Oo]bj/
+
+# =======================================================================
+# Environment Secrets & Cryptographic Keys
+# =======================================================================
+.env
+.env.local
+.env.*.local
+*.local
+*.pem
+*.key

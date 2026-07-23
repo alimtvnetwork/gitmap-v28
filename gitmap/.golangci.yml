@@ -1,0 +1,107 @@
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - errcheck
+    - gosec
+    - gocritic
+    - govet
+    - staticcheck
+    - ineffassign
+    - unused
+    - misspell
+    - revive
+    - gosimple
+    - unconvert
+    - unparam
+    - nolintlint
+    - bodyclose
+    - errname
+    - errorlint
+    - exhaustive
+    - copyloopvar
+    - usestdlibvars
+    - wastedassign
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
+    exclude-functions:
+      - (*flag.FlagSet).Parse
+      - fmt.Scanln
+      - (*encoding/json.Encoder).Encode
+      - (*encoding/csv.Writer).Write
+
+  gosec:
+    excludes:
+      - G104 # Unchecked errors — covered by errcheck linter instead
+      - G204 # Subprocess with variable args — CLI uses os/exec extensively by design
+      - G304 # File path from variable — CLI reads user-specified files as core functionality
+      - G306 # Perms on WriteFile/MkdirAll — intentional 0o644/0o755 for CLI file operations
+      - G401 # Weak crypto (MD5/SHA1) — used for release checksums, not security-critical
+      - G404 # Weak random (math/rand) — used for SEO template shuffling, not security-sensitive
+      - G505 # crypto/sha1 import — same as G401, release checksums only
+      - G101 # Hardcoded credentials — false positives on variable names (token, apikey) in GitHub API code
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+    disabled-checks:
+      - hugeParam
+      - rangeValCopy
+      - unnamedResult
+      - emptyStringTest
+      - tooManyResultsChecker
+      - exitAfterDefer
+      - appendCombine
+      - ifElseChain
+      - builtinShadow
+      - redundantSprint
+      - httpNoBody
+
+  revive:
+    rules:
+      - name: blank-imports
+        disabled: true
+      - name: context-as-argument
+      - name: dot-imports
+      - name: error-return
+      - name: error-strings
+      - name: increment-decrement
+      - name: var-declaration
+      - name: package-comments
+        disabled: true
+
+  misspell:
+    locale: US
+
+  exhaustive:
+    default-signifies-exhaustive: true
+
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+      - shadow
+
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 5
+  exclude-rules:
+    - path: _test\.go # Tests use unchecked errors and unsafe patterns intentionally
+      linters:
+        - errcheck  # Test helpers often ignore cleanup errors
+        - gosec     # Tests may use insecure patterns for simplicity
+        - unparam   # Test helpers often have fixed parameters for consistency
+    - path: _test\.go # Test-specific govet false positives
+      text: "unusedwrite|nilness"
+      linters:
+        - govet     # Unused writes and nil checks are common in table-driven tests
+    - path: cmd/ # CLI dispatch functions have fixed signatures by convention
+      linters:
+        - unparam   # Command handlers receive args even when unused

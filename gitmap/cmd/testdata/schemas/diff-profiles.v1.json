@@ -1,0 +1,13 @@
+{
+  "name": "diff-profiles",
+  "version": 1,
+  "keys": [
+    "profileA",
+    "profileB",
+    "onlyInA",
+    "onlyInB",
+    "different",
+    "same"
+  ],
+  "_doc": "Key order for diff-profiles single-object JSON output. Bump version and create a new .vN.json file when the wire order changes."
+}

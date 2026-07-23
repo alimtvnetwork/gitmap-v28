@@ -1,0 +1,16 @@
+{
+  "version": "6.39.0",
+  "branch": "release/v6.39.0",
+  "sourceBranch": "main",
+  "commit": "7d3e16b3ce4939699fcd32286ea2d99c19d51c41",
+  "tag": "v6.39.0",
+  "assets": [],
+  "changelog": [
+    "**Version bump only.** No behavior changes. Refreshes the pinned version across `gitmap/constants/constants.go`, `src/constants/index.ts`, and the README install/asset matrix to v6.39.0.",
+    "**Files:** `gitmap/constants/constants.go` (`6.39.0`), `src/constants/index.ts` (`v6.39.0`), `README.md` (pin → v6.39.0), `CHANGELOG.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-19T20:23:22Z",
+  "isLatest": false
+}

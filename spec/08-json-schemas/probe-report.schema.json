@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/probe-report.schema.json",
+  "title": "gitmap probe --json",
+  "description": "Machine-readable shape emitted by `gitmap probe --json`. Top-level is an array of per-repository version-probe results. Empty result encodes as `[]`.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["repoId", "slug", "absolutePath", "nextVersionTag", "nextVersionNum", "method", "isAvailable"],
+    "additionalProperties": false,
+    "properties": {
+      "repoId": {
+        "type": "integer",
+        "description": "SQLite row ID of the scanned repository.",
+        "minimum": 1
+      },
+      "slug": {
+        "type": "string",
+        "description": "Repository slug (e.g. 'acme/widget')."
+      },
+      "absolutePath": {
+        "type": "string",
+        "description": "Absolute filesystem path where the repository is (or was) cloned."
+      },
+      "nextVersionTag": {
+        "type": "string",
+        "description": "The next available version tag (e.g. 'v1.2.3'). Empty when none exists."
+      },
+      "nextVersionNum": {
+        "type": "integer",
+        "description": "Numeric representation of nextVersionTag for sortable comparisons. Zero when none exists.",
+        "minimum": 0
+      },
+      "method": {
+        "type": "string",
+        "description": "Discovery method (e.g. 'tag-probe', 'none')."
+      },
+      "isAvailable": {
+        "type": "boolean",
+        "description": "True when a newer version tag was found."
+      },
+      "error": {
+        "type": "string",
+        "description": "Human-readable error message when the probe failed. Empty on success."
+      }
+    }
+  }
+}

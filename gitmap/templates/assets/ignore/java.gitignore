@@ -1,0 +1,64 @@
+# source: github.com/github/gitignore/Java.gitignore (curated)
+# kind: ignore
+# lang: java
+# version: 1
+
+# Compiled class files
+*.class
+
+# Logs
+*.log
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Build outputs (Maven / Gradle / Ant)
+target/
+build/
+out/
+bin/
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# IDE — IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE — Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+
+# IDE — VS Code (Java)
+.vscode/
+.metals/
+.bloop/
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*

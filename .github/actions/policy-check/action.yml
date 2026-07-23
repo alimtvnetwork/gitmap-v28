@@ -1,0 +1,44 @@
+name: Policy Check
+description: |
+  SHA-dedup-aware policy gate. Checks out the repo and runs the supplied
+  script; emits an "already validated" log line when sha-check reports
+  the SHA was already built.
+inputs:
+  already-built:
+    description: needs.sha-check.outputs.already-built
+    required: true
+  run:
+    description: Shell command to execute when not already built
+    required: true
+  shell:
+    description: Shell to use for `run` (bash | pwsh)
+    required: false
+    default: bash
+  apt-packages:
+    description: Optional space-separated apt packages to install first (Ubuntu only)
+    required: false
+    default: ""
+  message:
+    description: Friendly check name for the dedup log line
+    required: false
+    default: "policy check"
+runs:
+  using: composite
+  steps:
+    - name: Already validated
+      if: inputs.already-built == 'true'
+      shell: bash
+      run: echo "SHA ${{ github.sha }} already passed ${{ inputs.message }}"
+
+    - uses: actions/checkout@v6
+      if: inputs.already-built != 'true'
+
+    - name: Install apt packages
+      if: inputs.already-built != 'true' && inputs.apt-packages != ''
+      shell: bash
+      run: sudo apt-get update -qq && sudo apt-get install -y -qq ${{ inputs.apt-packages }}
+
+    - name: Run policy script
+      if: inputs.already-built != 'true'
+      shell: ${{ inputs.shell }}
+      run: ${{ inputs.run }}

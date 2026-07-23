@@ -1,0 +1,29 @@
+name: CI Beacon
+
+# Minimal always-on sanity check. If this workflow doesn't appear in the
+# Actions tab on a fresh push, the problem is at the GitHub repo level
+# (Actions disabled, workflow paused, branch protection blocking, etc.)
+# — not in the workflow files. Use the workflow_dispatch button on the
+# Actions page to confirm Actions are reachable without pushing a commit.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  beacon:
+    name: Beacon
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print build context
+        run: |
+          echo "ref:        ${{ github.ref }}"
+          echo "sha:        ${{ github.sha }}"
+          echo "event:      ${{ github.event_name }}"
+          echo "actor:      ${{ github.actor }}"
+          echo "✅ Actions runners are reachable for this repo."

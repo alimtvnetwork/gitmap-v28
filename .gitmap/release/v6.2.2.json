@@ -1,0 +1,16 @@
+{
+  "version": "6.2.2",
+  "branch": "release/v6.2.2",
+  "sourceBranch": "main",
+  "commit": "ad1bbb3f6f99566bb2900dcfe9298a68797372ba",
+  "tag": "v6.2.2",
+  "assets": [],
+  "changelog": [
+    "Fixed: `gitmap/cmd/updateprobe_test.go` — `TestParseCurrentRepoSlug` had been self-rewritten to use `gitmap-v27` while still expecting stale parsed versions (`23` and `1`). The test now derives the current-slug case from one `currentSlugVersion` constant and uses a synthetic `tool-v1` case for the v1 parser branch, preventing future repo bumps from rewriting only half of the assertion.",
+    "Hardened: `fixrepo_rewrite_preview_test.go` and `fixrepo_rewrite_barebase_test.go` now use synthetic `acme-vN` tokens instead of this repo's own `gitmap-v27` literals, so future `fix-repo` bumps cannot silently rot the rewrite/preview regression tests."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-05-30T17:44:01Z",
+  "isLatest": false
+}
