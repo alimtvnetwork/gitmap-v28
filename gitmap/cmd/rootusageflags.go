@@ -61,6 +61,7 @@ func printUsageFixRepoFlags() {
 	fmt.Println(constants.HelpFRRestrict)
 	fmt.Println(constants.HelpFRExample1)
 	fmt.Println(constants.HelpFRExample2)
+	fmt.Println(constants.HelpFRGofmtMaxCmdLen)
 	fmt.Println(constants.HelpFixRepoExitCodes)
 }
 
