@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.82.0 (2026-07-23): CI reliability
+
+### Fixed
+- committransfer: de-flaked `TestPlanIdempotenceBeyond200Commits` by removing `t.Parallel()`, giving each buried commit a unique monotonic RFC3339 timestamp, and trimming the bury count from 250 to 220 (still well above the legacy 200-commit cap this test guards). Prior runs occasionally failed with `error: bad tree object HEAD` mid-loop under parallel CI load.
+
+### Unchanged
+- No production code changes. `commit-in`, `commit-left`, `commit-right`, and `commit-both` replay engines are unaffected; all `commitin/*` subpackages remained green in the failing run.
+
+
 ## v6.81.0 (2026-07-23): Minor release, rolling up fix-repo gofmt reliability work
 
 ### Added
