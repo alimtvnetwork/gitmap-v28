@@ -1,6 +1,6 @@
 # Changelog
 
-## v6.80.1 — 2026-07-23 — fix-repo gofmt: doctor, dry-run preview, verbose progress, tunable budget
+## v6.80.1 (2026-07-23): fix-repo gofmt: doctor, dry-run preview, verbose progress, tunable budget
 
 ### Added
 - **`gitmap doctor fix-repo`** subcommand: probes gofmt on PATH, gofmt executability, argv budget (measured on Windows), and a chunker invariant self-test. Supports `--json` and `--budget N`.
