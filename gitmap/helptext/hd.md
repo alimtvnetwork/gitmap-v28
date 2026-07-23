@@ -72,6 +72,29 @@ hd, help-dashboard
       ]
     }
 
+## Examples
+
+Human-readable one-screen view:
+
+```text
+$ gitmap hd
+gitmap dashboard  v6.80.1  (up to date)
+scanned=142  upgradable=22  pending=3
+last scan: 13h ago
+```
+
+JSON payload for scripts:
+
+```json
+{"version":{"installed":"v6.80.1","latest":"v6.80.1","behind":0},"repos":{"scanned":142,"upgradable":22,"unknown":2},"pending":{"queued":3}}
+```
+
+Refresh probes before rendering:
+
+```text
+$ gitmap hd --refresh --tail 10
+```
+
 ## Exit Codes
 
 | Code | Meaning |
