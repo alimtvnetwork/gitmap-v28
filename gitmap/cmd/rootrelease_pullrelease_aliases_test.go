@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/helptext"
 )
 
 // pullReleaseAliasNames lists every spelling that must route to the

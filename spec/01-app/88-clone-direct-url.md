@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Allow `gitmap-v27 clone` to accept a direct Git URL (HTTPS or SSH) instead of
+Allow `gitmap-v28 clone` to accept a direct Git URL (HTTPS or SSH) instead of
 requiring a pre-generated file (JSON/CSV/text). The repo is cloned into the
 current directory (or a custom folder name), tracked in the database, and
 the user is prompted to register it with GitHub Desktop.
@@ -10,9 +10,9 @@ the user is prompted to register it with GitHub Desktop.
 ## Usage
 
 ```
-gitmap-v27 clone <url>                          # clone into repo-name folder
-gitmap-v27 clone <url> <folder-name>            # clone into custom folder
-gitmap-v27 clone <url> --github-desktop         # auto-register (no prompt)
+gitmap-v28 clone <url>                          # clone into repo-name folder
+gitmap-v28 clone <url> <folder-name>            # clone into custom folder
+gitmap-v28 clone <url> --github-desktop         # auto-register (no prompt)
 ```
 
 ## Behavior
@@ -87,7 +87,7 @@ After a successful clone:
 ### Clone from HTTPS URL
 
 ```
-gitmap-v27 clone https://github.com/alimtvnetwork/wp-alim.git
+gitmap-v28 clone https://github.com/alimtvnetwork/wp-alim.git
 ```
 
 Output:
@@ -101,7 +101,7 @@ Add to GitHub Desktop? (y/n): y
 ### Clone with custom folder name
 
 ```
-gitmap-v27 clone https://github.com/alimtvnetwork/wp-alim.git "my-project"
+gitmap-v28 clone https://github.com/alimtvnetwork/wp-alim.git "my-project"
 ```
 
 Output:
@@ -114,7 +114,7 @@ Add to GitHub Desktop? (y/n): n
 ### Clone SSH URL
 
 ```
-gitmap-v27 clone git@github.com:alimtvnetwork/wp-alim.git
+gitmap-v28 clone git@github.com:alimtvnetwork/wp-alim.git
 ```
 
 ## Component Mapping

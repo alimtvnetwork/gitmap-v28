@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runSSHDelete removes an SSH key record and optionally its files.

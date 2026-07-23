@@ -1,15 +1,15 @@
 # VS Code Project Manager Sync
 
 > Status: **Spec locked, implementation pending**
-> Owner: gitmap-v27 CLI
+> Owner: gitmap-v28 CLI
 > Version target: v3.38.0
 > Sample fixture: [`sample-projects.json`](./sample-projects.json) (273 entries, captured from a real user environment)
 
 ## 1. Goal
 
 Keep the `alefragnani.project-manager` VS Code extension's `projects.json` in
-lock-step with the gitmap-v27 database so every scanned repo or path the user
-explicitly registers via `gitmap-v27 code` shows up immediately in the VS Code
+lock-step with the gitmap-v28 database so every scanned repo or path the user
+explicitly registers via `gitmap-v28 code` shows up immediately in the VS Code
 **Project Manager** sidebar.
 
 The DB is the source of truth. `projects.json` is a synced **export**.
@@ -20,8 +20,8 @@ Each entry in `projects.json` is an object with exactly these fields:
 
 ```json
 {
-  "name": "gitmap-v27",
-  "rootPath": "d:\\wp-work\\riseup-asia\\gitmap-v27",
+  "name": "gitmap-v28",
+  "rootPath": "d:\\wp-work\\riseup-asia\\gitmap-v28",
   "paths": [],
   "tags": [],
   "enabled": true,
@@ -29,9 +29,9 @@ Each entry in `projects.json` is an object with exactly these fields:
 }
 ```
 
-| Field      | Type      | gitmap-v27 behavior                                                  |
+| Field      | Type      | gitmap-v28 behavior                                                  |
 |------------|-----------|------------------------------------------------------------------|
-| `name`     | string    | DB alias. On first insert: folder basename. Updated by `gitmap-v27 as`. |
+| `name`     | string    | DB alias. On first insert: folder basename. Updated by `gitmap-v28 as`. |
 | `rootPath` | string    | **Match key.** Absolute path. Native separators per OS.          |
 | `paths`    | string[]  | Multi-root: gitmap-managed paths UNIONed with user-added (v3.39.0+). |
 | `tags`     | string[]  | Auto-derived (v3.40.0+) — see "Auto tags". UNIONed with user edits.  |
@@ -43,12 +43,12 @@ Each entry in `projects.json` is an object with exactly these fields:
 ### 2.1 Multi-root paths (v3.39.0)
 
 - DB column `VSCodeProject.Paths` (JSON-encoded TEXT, schema v20).
-- API: `gitmap-v27 code <alias> <root> [extra...]` (variadic, additive)
-  and `gitmap-v27 code paths add|rm|list <alias> [path]` (explicit).
+- API: `gitmap-v28 code <alias> <root> [extra...]` (variadic, additive)
+  and `gitmap-v28 code paths add|rm|list <alias> [path]` (explicit).
 - `Sync()` UNIONs DB-side paths with on-disk paths — user edits in the
   VS Code UI are never silently removed. Only `paths rm` (which calls
   `vscodepm.OverwritePaths`) bypasses union semantics.
-- `gitmap-v27 as <newalias>` only rewrites `name`. Multi-root paths, tags,
+- `gitmap-v28 as <newalias>` only rewrites `name`. Multi-root paths, tags,
   enabled, and profile are preserved on rename.
 
 ### 2.2 Auto tags (v3.40.0)
@@ -72,7 +72,7 @@ Detection rules:
 - Read-only (no shelling out, no network).
 - Deterministic emission order (`constants.AutoTagOrder`) so re-syncs
   produce stable diffs.
-- Opt-out per scan: `gitmap-v27 scan --no-auto-tags`.
+- Opt-out per scan: `gitmap-v28 scan --no-auto-tags`.
 
 ## 3. File location — derived from VS Code user-data root
 
@@ -87,7 +87,7 @@ Per user request, do **not** hardcode the full path. First resolve the
 | macOS   | `$HOME/Library/Application Support/Code`                                                  |
 | Linux   | `$XDG_CONFIG_HOME/Code` → fallback `$HOME/.config/Code`                                   |
 
-If the root directory does not exist, gitmap-v27 reports a clear error
+If the root directory does not exist, gitmap-v28 reports a clear error
 ("VS Code user data directory not found at <path> — is VS Code installed?")
 and exits non-zero.
 
@@ -99,8 +99,8 @@ User/globalStorage/alefragnani.project-manager/projects.json
 
 Final path = `filepath.Join(userDataRoot, "User", "globalStorage", "alefragnani.project-manager", "projects.json")`.
 
-If the file does not exist, gitmap-v27 creates it with `[]`. If the parent
-directory does not exist, gitmap-v27 returns an error rather than creating
+If the file does not exist, gitmap-v28 creates it with `[]`. If the parent
+directory does not exist, gitmap-v28 returns an error rather than creating
 extension folders silently (the extension must be installed).
 
 ## 4. Atomicity
@@ -117,12 +117,12 @@ is appended for git-friendliness.
 
 ## 5. CLI surface
 
-### 5.1 `gitmap-v27 scan` — auto-sync (default ON)
+### 5.1 `gitmap-v28 scan` — auto-sync (default ON)
 
-After the existing scan + DB upsert phase, gitmap-v27 reads every
+After the existing scan + DB upsert phase, gitmap-v28 reads every
 `VSCodeProject` row and reconciles `projects.json`:
 
-- New `rootPath` → append entry with gitmap-v27 defaults.
+- New `rootPath` → append entry with gitmap-v28 defaults.
 - Existing `rootPath` (case-insensitive on Windows) → update only `name`.
   Leave `paths`, `tags`, `enabled`, `profile` untouched.
 - Foreign entries (rootPath not in DB) → **preserved**, never deleted.
@@ -139,13 +139,13 @@ Summary line printed:
 
 `scan` **never opens VS Code.**
 
-### 5.2 `gitmap-v27 code [alias] [path]` — register + open
+### 5.2 `gitmap-v28 code [alias] [path]` — register + open
 
 | Invocation                  | Behavior                                                                 |
 |-----------------------------|--------------------------------------------------------------------------|
-| `gitmap-v27 code`               | Use git repo root (if inside one) else CWD; alias = folder basename.     |
-| `gitmap-v27 code myalias`       | Same path resolution; alias overridden to `myalias`.                     |
-| `gitmap-v27 code myalias /path` | Use `/path` (any path, no git requirement); alias = `myalias`.           |
+| `gitmap-v28 code`               | Use git repo root (if inside one) else CWD; alias = folder basename.     |
+| `gitmap-v28 code myalias`       | Same path resolution; alias overridden to `myalias`.                     |
+| `gitmap-v28 code myalias /path` | Use `/path` (any path, no git requirement); alias = `myalias`.           |
 
 Steps:
 
@@ -158,15 +158,15 @@ Steps:
    Open VS Code → Cmd/Ctrl+Shift+P → "Shell Command: Install 'code' command in PATH".
    ```
 
-### 5.3 `gitmap-v27 as <newalias>` — alias rename mirror
+### 5.3 `gitmap-v28 as <newalias>` — alias rename mirror
 
-Existing `gitmap-v27 as` flow gains a post-hook: after the DB rename succeeds,
+Existing `gitmap-v28 as` flow gains a post-hook: after the DB rename succeeds,
 it calls the same projects.json sync helper so the matching `rootPath` row
 gets its `name` updated. No new flag.
 
 ## 6. Database
 
-Extends the unified gitmap-v27 SQLite DB at the binary path
+Extends the unified gitmap-v28 SQLite DB at the binary path
 (see `mem://tech/database-location`). Per `mem://tech/database-architecture`
 all identifiers are **PascalCase** with `INTEGER PRIMARY KEY AUTOINCREMENT`.
 
@@ -191,7 +191,7 @@ Migration is idempotent (existing migration runner pattern).
 
 ## 7. Constants
 
-All new strings land in `gitmap-v27/constants/constants_vscode.go`
+All new strings land in `gitmap-v28/constants/constants_vscode.go`
 (per `mem://tech/constants-structure`). Examples:
 
 ```go
@@ -218,16 +218,16 @@ Specific cases:
 | Extension dir missing                      | `vscode: project-manager extension dir not found at <path>`              |
 | `projects.json` corrupt JSON               | `vscode: projects.json is not valid JSON: <err> (left untouched)`        |
 | Atomic rename failure                      | `vscode: failed to commit projects.json: <err>`                          |
-| `code` CLI missing in PATH (gitmap-v27 code)   | actionable install hint above                                            |
+| `code` CLI missing in PATH (gitmap-v28 code)   | actionable install hint above                                            |
 
 ## 9. Acceptance criteria
 
 1. `scan` populates `projects.json` (all DB rows reconciled), no VS Code launch.
 2. Re-running `scan` is idempotent — zero duplicates by `rootPath`.
-3. `gitmap-v27 code` inside a git repo → repo root added, alias = basename, VS Code opens.
-4. `gitmap-v27 code myalias` → alias overridden to `myalias`, VS Code opens.
-5. `gitmap-v27 code myalias D:\anywhere` → non-git path added and opened.
-6. `gitmap-v27 as newalias` mirrors `name` change to `projects.json`.
+3. `gitmap-v28 code` inside a git repo → repo root added, alias = basename, VS Code opens.
+4. `gitmap-v28 code myalias` → alias overridden to `myalias`, VS Code opens.
+5. `gitmap-v28 code myalias D:\anywhere` → non-git path added and opened.
+6. `gitmap-v28 as newalias` mirrors `name` change to `projects.json`.
 7. Foreign entries in `projects.json` are preserved across all operations.
 8. Atomic writes — kill -9 mid-write never produces corrupted JSON.
 9. Cross-platform: identical behavior on Windows / macOS / Linux.
@@ -235,10 +235,10 @@ Specific cases:
 
 ## 10. Flow diagrams
 
-### `gitmap-v27 code [alias] [path]`
+### `gitmap-v28 code [alias] [path]`
 
 ```
-user → gitmap-v27 code [alias] [path]
+user → gitmap-v28 code [alias] [path]
         │
         ▼
 resolve rootPath  (arg | git root | cwd)
@@ -253,10 +253,10 @@ sync projects.json   (atomic, preserve foreign + user fields)
 exec  code "<rootPath>"  (or print install-hint if missing)
 ```
 
-### `gitmap-v27 scan`
+### `gitmap-v28 scan`
 
 ```
-user → gitmap-v27 scan [dir]
+user → gitmap-v28 scan [dir]
         │
         ▼
 walk → existing scan/upsert pipeline
@@ -285,4 +285,4 @@ print summary  (added / updated / skipped / total)
 - `mem://tech/database-location`
 - `mem://tech/constants-structure`
 - `mem://tech/code-red-error-management`
-- `gitmap-v27/constants/constants_vscode.go` (existing executable discovery constants)
+- `gitmap-v28/constants/constants_vscode.go` (existing executable discovery constants)

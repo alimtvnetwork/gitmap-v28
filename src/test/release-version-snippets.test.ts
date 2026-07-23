@@ -53,8 +53,8 @@ describe("releaseVersionSnippets — Windows", () => {
         "generic": "# Generic install — same script, version passed as parameter
       iwr https://gitmap.dev/scripts/release-version.ps1 -OutFile $env:TEMP\\rv.ps1
       & $env:TEMP\\rv.ps1 -Version v3.39.0",
-        "pinned": "# Pinned install — locks gitmap-v27 to v3.39.0 (no auto-upgrade)
-      iwr https://github.com/alimtvnetwork/gitmap-v27/releases/download/v3.39.0/release-version-v3.39.0.ps1 -OutFile $env:TEMP\\rv.ps1
+        "pinned": "# Pinned install — locks gitmap-v28 to v3.39.0 (no auto-upgrade)
+      iwr https://github.com/alimtvnetwork/gitmap-v28/releases/download/v3.39.0/release-version-v3.39.0.ps1 -OutFile $env:TEMP\\rv.ps1
       & $env:TEMP\\rv.ps1",
       }
     `);
@@ -83,8 +83,8 @@ describe("releaseVersionSnippets — Unix", () => {
       {
         "generic": "# Generic install — same script, version passed as parameter
       curl -fsSL https://gitmap.dev/scripts/release-version.sh | bash -s -- --version v3.39.0",
-        "pinned": "# Pinned install — locks gitmap-v27 to v3.39.0 (no auto-upgrade)
-      curl -fsSL https://github.com/alimtvnetwork/gitmap-v27/releases/download/v3.39.0/release-version-v3.39.0.sh | bash",
+        "pinned": "# Pinned install — locks gitmap-v28 to v3.39.0 (no auto-upgrade)
+      curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v3.39.0/release-version-v3.39.0.sh | bash",
       }
     `);
   });

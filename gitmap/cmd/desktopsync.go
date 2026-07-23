@@ -7,9 +7,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/desktop"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // runDesktopSync handles the "desktop-sync" subcommand.

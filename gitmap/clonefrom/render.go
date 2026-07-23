@@ -28,8 +28,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/render"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 )
 
 // Render writes the legacy human-readable dry-run preview to w.

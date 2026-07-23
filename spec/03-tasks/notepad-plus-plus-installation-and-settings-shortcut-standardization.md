@@ -124,4 +124,4 @@ After binary installation (`npp` or `install-npp`):
 ## See Also
 
 - [81-install.md](../01-app/81-install.md) — Install command specification
-- [install.md](../../gitmap-v27/helptext/install.md) — CLI help text
+- [install.md](../../gitmap-v28/helptext/install.md) — CLI help text

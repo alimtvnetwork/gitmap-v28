@@ -6,7 +6,7 @@ package cmd
 //
 // IMPORTANT: this file MUST use a synthetic base (e.g. `acme-v9`) that is
 // NOT the project's own module suffix. The repo has been renamed to
-// `gitmap-v27` in the past, which collapses any test using `gitmap-vN`
+// `gitmap-v28` in the past, which collapses any test using `gitmap-vN`
 // into "token == its own guarded neighbor" and silently breaks the
 // negative-lookahead logic. See mem://FIX-REPO DIGIT-CAPTURE GAP and
 // .lovable/memory/issues/2026-05-01-fixrepo-digit-capture-desync.md.

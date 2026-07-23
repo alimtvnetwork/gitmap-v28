@@ -9,7 +9,7 @@ import { VERSION } from "@/constants/index";
  * binary version (was stuck at v4.14.0 while the binary was at
  * v4.22.0 for eight releases).
  *
- * Reads `gitmap-v27/constants/constants.go`, extracts the `Version`
+ * Reads `gitmap-v28/constants/constants.go`, extracts the `Version`
  * literal, and asserts that `src/constants/index.ts` exports the
  * same value with a `v` prefix.
  *

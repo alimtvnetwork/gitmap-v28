@@ -2,7 +2,7 @@
 
 ## Symptom
 
-Running `gitmap-v27 release v1.61.1 --zip-group "chrome extension-v2"` completes the release (branch, tag, push, metadata) but produces **zero** zip-related output — no success messages, no error messages. The zip archive is neither created locally nor uploaded to GitHub.
+Running `gitmap-v28 release v1.61.1 --zip-group "chrome extension-v2"` completes the release (branch, tag, push, metadata) but produces **zero** zip-related output — no success messages, no error messages. The zip archive is neither created locally nor uploaded to GitHub.
 
 ## Evidence
 
@@ -35,7 +35,7 @@ The release command creates local archives but has no mechanism to attach them t
 
 ### Cause 3 (Possible): DB context mismatch
 
-`buildZipGroupAssets` opens the DB via `store.OpenDefault()`, which resolves the DB path relative to the **binary's physical location** (not CWD). If the zip group was created using a different gitmap-v27 binary instance or the binary was moved/updated between `z create` and `release`, the DB queried during release may not contain the group. The error would go to stderr via `ErrZGCompress`.
+`buildZipGroupAssets` opens the DB via `store.OpenDefault()`, which resolves the DB path relative to the **binary's physical location** (not CWD). If the zip group was created using a different gitmap-v28 binary instance or the binary was moved/updated between `z create` and `release`, the DB queried during release may not contain the group. The error would go to stderr via `ErrZGCompress`.
 
 ## Impact
 

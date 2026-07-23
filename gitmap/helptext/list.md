@@ -52,7 +52,7 @@ ls
     REPO          MODULE                          GO      PATH
     my-api        github.com/user/my-api          1.22    D:\wp-work\repos\my-api
     shared-lib    github.com/user/shared-lib      1.21    D:\wp-work\repos\shared-lib
-    gitmap        github.com/alimtvnetwork/gitmap-v27/gitmap          1.22    D:\wp-work\repos\gitmap
+    gitmap        github.com/alimtvnetwork/gitmap-v28/gitmap          1.22    D:\wp-work\repos\gitmap
     3 Go projects detected
 
 ### Example 3: List all groups with member counts

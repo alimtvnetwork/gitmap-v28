@@ -17,7 +17,7 @@ The `release-branch` (rb) and `release-pending` (rp) commands skip steps 9–10 
 
 ## Post-Release Install Hints
 
-After a successful release, if the repo's `remote.origin.url` contains the gitmap source repository prefix (`github.com/alimtvnetwork/gitmap-v27`), the CLI prints install one-liner commands for Windows (PowerShell `irm | iex`) and Linux/macOS (`curl | sh`). Non-gitmap repos are unaffected. Detection logic lives in `release/releaseinstallhint.go` with the prefix constant `GitmapRepoPrefix` in `constants_release.go`.
+After a successful release, if the repo's `remote.origin.url` contains the gitmap source repository prefix (`github.com/alimtvnetwork/gitmap-v28`), the CLI prints install one-liner commands for Windows (PowerShell `irm | iex`) and Linux/macOS (`curl | sh`). Non-gitmap repos are unaffected. Detection logic lives in `release/releaseinstallhint.go` with the prefix constant `GitmapRepoPrefix` in `constants_release.go`.
 
 ## CRITICAL: .gitmap/release/ Directory Policy
 

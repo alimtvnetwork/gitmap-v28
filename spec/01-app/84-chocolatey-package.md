@@ -4,10 +4,10 @@
 
 ## Overview
 
-Publish `gitmap-v27` as a Chocolatey package so users can install via:
+Publish `gitmap-v28` as a Chocolatey package so users can install via:
 
 ```powershell
-choco install gitmap-v27
+choco install gitmap-v28
 ```
 
 ## How Chocolatey Packages Work
@@ -28,18 +28,18 @@ The package does NOT embed the binary. Instead, `chocolateyInstall.ps1` download
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.chocolatey.org/2012/06/nuspec">
   <metadata>
-    <id>gitmap-v27</id>
+    <id>gitmap-v28</id>
     <version>2.49.1</version>
     <title>GitMap</title>
     <authors>AliMTVNetworkSolutions</authors>
-    <projectUrl>https://github.com/alimtvnetwork/gitmap-v27</projectUrl>
-    <licenseUrl>https://github.com/alimtvnetwork/gitmap-v27/blob/main/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/alimtvnetwork/gitmap-v28</projectUrl>
+    <licenseUrl>https://github.com/alimtvnetwork/gitmap-v28/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Git repository scanner, manager, and navigator CLI tool.</description>
     <tags>git cli devtools repository manager</tags>
-    <projectSourceUrl>https://github.com/alimtvnetwork/gitmap-v27</projectSourceUrl>
-    <packageSourceUrl>https://github.com/alimtvnetwork/gitmap-v27</packageSourceUrl>
-    <releaseNotes>https://github.com/alimtvnetwork/gitmap-v27/releases</releaseNotes>
+    <projectSourceUrl>https://github.com/alimtvnetwork/gitmap-v28</projectSourceUrl>
+    <packageSourceUrl>https://github.com/alimtvnetwork/gitmap-v28</packageSourceUrl>
+    <releaseNotes>https://github.com/alimtvnetwork/gitmap-v28/releases</releaseNotes>
   </metadata>
   <files>
     <file src="tools/**" target="tools" />
@@ -53,8 +53,8 @@ The package does NOT embed the binary. Instead, `chocolateyInstall.ps1` download
 $ErrorActionPreference = 'Stop'
 
 $packageArgs = @{
-  packageName    = 'gitmap-v27'
-  url64bit       = 'https://github.com/alimtvnetwork/gitmap-v27/releases/download/v2.49.1/gitmap-v27.49.1-windows-amd64.zip'
+  packageName    = 'gitmap-v28'
+  url64bit       = 'https://github.com/alimtvnetwork/gitmap-v28/releases/download/v2.49.1/gitmap-v28.49.1-windows-amd64.zip'
   checksum64     = '<SHA256_HASH>'
   checksumType64 = 'sha256'
   unzipLocation  = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
@@ -84,7 +84,7 @@ Remove-Item "$toolsDir\gitmap.exe" -Force -ErrorAction SilentlyContinue
    ```
 5. **Test locally:**
    ```
-   choco install gitmap-v27 --debug --verbose --source .
+   choco install gitmap-v28 --debug --verbose --source .
    ```
 6. **Push to community feed:**
    ```

@@ -12,7 +12,7 @@ import (
 func TestInstallerURLFor(t *testing.T) {
 	t.Parallel()
 
-	const slug = "gitmap-v27"
+	const slug = "gitmap-v28"
 	got := installerURLFor(slug)
 
 	if !strings.HasPrefix(got, "https://raw.githubusercontent.com/") {

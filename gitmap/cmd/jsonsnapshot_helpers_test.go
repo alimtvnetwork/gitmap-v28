@@ -28,7 +28,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/startup"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/startup"
 )
 
 // mustEncodeStartupList runs encodeStartupListJSON on `entries` and

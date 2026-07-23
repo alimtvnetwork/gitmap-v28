@@ -11,7 +11,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 const amendListSchemaFilename = "amend-list.schema.json"

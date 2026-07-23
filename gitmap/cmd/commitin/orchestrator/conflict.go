@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/finalize"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/replay"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/walk"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/finalize"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/replay"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/walk"
 )
 
 // errConflictAborted is the sentinel recordFail receives when the

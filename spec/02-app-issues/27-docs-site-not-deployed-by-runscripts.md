@@ -1,29 +1,29 @@
 # docs-site Missing After `run.ps1` / `run.sh` Deploy and `install.*` Install
 
 **Status:** Fixed in v2.84.0 — user-visible failure mode further softened in v6.0.x (see `spec/02-app-issues/34-hd-hosted-docs-fallback.md`: `gitmap hd` now falls back to hosted docs at `constants.DocsURL` instead of hard-exiting when local `docs-site/` is missing).
-**Affects:** `gitmap-v27 help-dashboard` (`gitmap-v27 hd`) on every install path
+**Affects:** `gitmap-v28 help-dashboard` (`gitmap-v28 hd`) on every install path
 
 ---
 
 ## Symptom
 
 ```
-PS J:\...> gitmap-v27 hd
+PS J:\...> gitmap-v28 hd
   ✗ Docs site directory not found at E:\bin-run\docs-site
     (operation: resolve, reason: directory does not exist)
 ```
 
 The error reproduces in **all three install paths**:
 
-1. Local source build → `run.ps1` deploy to `$env:DeployPath\gitmap-v27\`
-2. Local source build → `run.sh` deploy to `$DEPLOY_TARGET/gitmap-v27/`
-3. Remote release install → `install.ps1` / `install.sh` to `$LOCALAPPDATA\gitmap-v27` / `~/.local/bin`
+1. Local source build → `run.ps1` deploy to `$env:DeployPath\gitmap-v28\`
+2. Local source build → `run.sh` deploy to `$DEPLOY_TARGET/gitmap-v28/`
+3. Remote release install → `install.ps1` / `install.sh` to `$LOCALAPPDATA\gitmap-v28` / `~/.local/bin`
 
 ---
 
 ## Root Cause
 
-`gitmap-v27 help-dashboard` resolves the docs folder relative to the binary directory
+`gitmap-v28 help-dashboard` resolves the docs folder relative to the binary directory
 (`resolveBinaryDir()` in `cmd/helpdashboard.go`), expecting:
 
 ```
@@ -88,12 +88,12 @@ host instead of failing silently.
 
 After bumping to v2.84.0 and publishing a release:
 
-- [ ] `run.ps1` deploy logs `Copied docs-site/dist to gitmap-v27 app directory`
-- [ ] `<deploy>\gitmap-v27\docs-site\dist\index.html` exists
-- [ ] `gitmap-v27 hd` opens `http://localhost:5173` with the static dist served
+- [ ] `run.ps1` deploy logs `Copied docs-site/dist to gitmap-v28 app directory`
+- [ ] `<deploy>\gitmap-v28\docs-site\dist\index.html` exists
+- [ ] `gitmap-v28 hd` opens `http://localhost:5173` with the static dist served
 - [ ] `install.ps1` (one-liner) logs `Installed docs-site to <installDir>\docs-site`
 - [ ] `install.sh` mirrors the same on Linux/macOS
-- [ ] Releases without `docs-site.zip` print `skipping (gitmap-v27 hd may not work)`
+- [ ] Releases without `docs-site.zip` print `skipping (gitmap-v28 hd may not work)`
       and **do not** fail the install
 
 ---
@@ -102,10 +102,10 @@ After bumping to v2.84.0 and publishing a release:
 
 - `run.ps1` — `Copy-DocsSite`, called in `Deploy-Binary`
 - `run.sh` — `copy_docs_site`, called in `deploy_binary`
-- `gitmap-v27/scripts/install.ps1` — `Install-DocsSite`, called in `Main`
-- `gitmap-v27/scripts/install.sh` — `install_docs_site`, called in `main`
-- `gitmap-v27/cmd/helpdashboard.go` — auto-extract fallback (unchanged)
-- `gitmap-v27/release/workflowdocs.go` — release-side bundling (unchanged)
+- `gitmap-v28/scripts/install.ps1` — `Install-DocsSite`, called in `Main`
+- `gitmap-v28/scripts/install.sh` — `install_docs_site`, called in `main`
+- `gitmap-v28/cmd/helpdashboard.go` — auto-extract fallback (unchanged)
+- `gitmap-v28/release/workflowdocs.go` — release-side bundling (unchanged)
 
 ---
 

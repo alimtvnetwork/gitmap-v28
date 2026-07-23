@@ -1,14 +1,14 @@
 # Clone: Replace Existing Target Folder Safely
 
 **Status:** Draft
-**Audience:** Any AI or human implementing the `gitmap-v27 clone <url>` flow (or any command that materialises a Git working copy into a target directory).
+**Audience:** Any AI or human implementing the `gitmap-v28 clone <url>` flow (or any command that materialises a Git working copy into a target directory).
 **Scope:** Generic. Applies wherever an installer/cloner needs to replace an existing on-disk folder without aborting on "already exists".
 
 ---
 
 ## 1. Purpose
 
-When `gitmap-v27 clone <url>` (or `clone-next`, or any flatten-style clone) targets a folder that **already exists** on disk, the current behaviour aborts with:
+When `gitmap-v28 clone <url>` (or `clone-next`, or any flatten-style clone) targets a folder that **already exists** on disk, the current behaviour aborts with:
 
 ```
 Error: target folder already exists: D:\wp-work\riseup-asia\scripts-fixer
@@ -128,7 +128,7 @@ All steps prefix `[clone]` for grep-ability:
   [clone] cloning into D:\wp-work\riseup-asia\scripts-fixer.gitmap-tmp-7f2a
   [clone] emptying target contents (12 entries)
   [clone] moving 12 entries from temp into target
-  [clone] swap complete; target now points at fresh clone (gitmap-v27)
+  [clone] swap complete; target now points at fresh clone (gitmap-v28)
   [clone] cleaned up temp folder
 ```
 
@@ -147,7 +147,7 @@ On failure of strategy 2, the final line MUST tell the user what to do:
 | Case                                                | Behaviour                                                |
 |-----------------------------------------------------|----------------------------------------------------------|
 | Target does not exist                               | Direct clone. No strategy negotiation.                   |
-| Target is the cwd of *this* gitmap-v27 process         | Same as user-shell cwd — strategy 2 handles it via empty-contents. |
+| Target is the cwd of *this* gitmap-v28 process         | Same as user-shell cwd — strategy 2 handles it via empty-contents. |
 | Target is a file, not a directory                   | Remove the file (via `RemoveAll`) and clone fresh.       |
 | `tempclone` path already exists (stale)             | Remove it before cloning. Use a random suffix to minimise collisions. |
 | `git clone <url> <tempclone>` fails                 | Surface git's stderr, abort. Target left untouched.       |
@@ -165,7 +165,7 @@ On failure of strategy 2, the final line MUST tell the user what to do:
 | `--no-replace`   | off     | Restore abort-on-exists behaviour.                 |
 | `--temp-suffix`  | `.gitmap-tmp-<rand>` | Override the staging folder suffix.   |
 
-`--replace` being default is the right call: every observed user invocation of `gitmap-v27 clone <url>` against an existing folder so far has meant "replace it".
+`--replace` being default is the right call: every observed user invocation of `gitmap-v28 clone <url>` against an existing folder so far has meant "replace it".
 
 ---
 
@@ -178,7 +178,7 @@ The replace flow MUST integrate with the existing pending-task system (`createPe
 - On strategy-2 success: complete the task with a note `"replaced via temp-swap"`.
 - On both-failed: fail the task with the last error.
 
-This ensures `gitmap-v27 update-cleanup` can later sweep stale `*.gitmap-tmp-*` siblings.
+This ensures `gitmap-v28 update-cleanup` can later sweep stale `*.gitmap-tmp-*` siblings.
 
 ---
 
@@ -186,7 +186,7 @@ This ensures `gitmap-v27 update-cleanup` can later sweep stale `*.gitmap-tmp-*` 
 
 An implementation conforms when:
 
-- [ ] `gitmap-v27 clone <url>` against an existing folder no longer exits with "target folder already exists".
+- [ ] `gitmap-v28 clone <url>` against an existing folder no longer exits with "target folder already exists".
 - [ ] Strategy 1 (direct remove + clone) is tried first and succeeds when no locks exist.
 - [ ] Strategy 2 (temp-clone + swap) kicks in automatically on strategy-1 failure.
 - [ ] Every step logs with the `[clone]` prefix.
@@ -247,4 +247,4 @@ func cloneReplacing(url, target string) error {
 
 - [05-cloner.md](05-cloner.md) — Existing cloner flow.
 - [95-installer-script-find-latest-repo.md](95-installer-script-find-latest-repo.md) — Versioned repo discovery (related: stale URL → newer version).
-- [`gitmap-v27/cmd/clonenext.go`](../../gitmap-v27/cmd/clonenext.go) — Already implements a similar fallback for the flattened-folder lock case (v2.87.0+).
+- [`gitmap-v28/cmd/clonenext.go`](../../gitmap-v28/cmd/clonenext.go) — Already implements a similar fallback for the flattened-folder lock case (v2.87.0+).

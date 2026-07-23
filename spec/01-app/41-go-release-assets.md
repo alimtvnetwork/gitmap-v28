@@ -2,7 +2,7 @@
 
 ## Overview
 
-When `gitmap-v27 release` runs in a repository that contains a Go project
+When `gitmap-v28 release` runs in a repository that contains a Go project
 (detected by `go.mod`), the release process should automatically
 cross-compile binaries for common OS/arch pairs and attach them as
 GitHub release assets — without requiring any external download tools
@@ -143,11 +143,11 @@ When `--dry-run` is active, the asset step prints:
 
 ## Acceptance Criteria
 
-1. `gitmap-v27 release v1.0.0` in a Go repo produces 6 binaries + checksums.
-2. `gitmap-v27 release --dry-run` lists all planned binaries without building.
-3. `gitmap-v27 release --no-assets` skips binary compilation entirely.
-4. `gitmap-v27 release --targets windows/amd64,linux/amd64` builds only 2 binaries.
-5. `gitmap-v27 release --compress` produces `.zip`/`.tar.gz` archives.
+1. `gitmap-v28 release v1.0.0` in a Go repo produces 6 binaries + checksums.
+2. `gitmap-v28 release --dry-run` lists all planned binaries without building.
+3. `gitmap-v28 release --no-assets` skips binary compilation entirely.
+4. `gitmap-v28 release --targets windows/amd64,linux/amd64` builds only 2 binaries.
+5. `gitmap-v28 release --compress` produces `.zip`/`.tar.gz` archives.
 6. Non-Go repos are unaffected — no asset step runs.
 7. Build failures for individual targets do not abort the release.
 8. All uploaded assets appear on the GitHub release page.

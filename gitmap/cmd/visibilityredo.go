@@ -11,7 +11,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runVisibilityRedo is the dispatcher entry point.

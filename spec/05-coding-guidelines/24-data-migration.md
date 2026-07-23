@@ -293,8 +293,8 @@ const MsgMigrationFailed = `
 Migration failed: %s
 
 To recover:
-  1. Run 'gitmap-v27 db-reset --confirm' to rebuild the database
-  2. Run 'gitmap-v27 rescan' to re-import repository data
+  1. Run 'gitmap-v28 db-reset --confirm' to rebuild the database
+  2. Run 'gitmap-v28 rescan' to re-import repository data
 
 Your Git repositories are not affected — only cached metadata is reset.
 `

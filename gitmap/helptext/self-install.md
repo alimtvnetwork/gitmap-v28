@@ -22,7 +22,7 @@ gitmap self-install [--dir <path>] [--yes] [--version <tag>]
    - **Embedded**: `install.ps1` / `install.sh` shipped inside the binary
      via `go:embed`. No network needed.
    - **Remote** (fallback): downloaded from
-     `raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap/scripts/`.
+     `raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/`.
 3. Writes the script to a temp file (UTF-8 BOM on PowerShell), runs it
    with `-InstallDir` / `--dir`, and forwards `--version` if pinned.
 

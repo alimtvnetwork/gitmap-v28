@@ -4,7 +4,7 @@
 
 ## Problem
 
-`gitmap-v27 update` fails with "file is being used by another process" because the active `gitmap.exe` process holds file handles when the deployment step attempts to overwrite it via `Copy-Item`.
+`gitmap-v28 update` fails with "file is being used by another process" because the active `gitmap.exe` process holds file handles when the deployment step attempts to overwrite it via `Copy-Item`.
 
 ## Root Cause
 
@@ -12,7 +12,7 @@ Windows locks the running executable. The original flow tried to copy the new bi
 
 ## Solution (5 layers)
 
-1. **Copy-and-handoff** (`gitmap-v27/cmd/update.go`):
+1. **Copy-and-handoff** (`gitmap-v28/cmd/update.go`):
    - Parent copies itself to `gitmap-update-<pid>.exe` (fallback to `%TEMP%`)
    - Launches the copy with hidden `update-runner` command using `cmd.Run()` (foreground/blocking)
    - The handoff copy is a different file so the parent's lock does NOT conflict
@@ -28,7 +28,7 @@ Windows locks the running executable. The original flow tried to copy the new bi
    - On failure → restores `.old` backup; on success → leaves `.old` for cleanup
 
 4. **Auto-cleanup** (generated PowerShell script):
-   - After successful update, runs `gitmap-v27 update-cleanup`
+   - After successful update, runs `gitmap-v28 update-cleanup`
    - Removes `%TEMP%\gitmap-update-*.exe` temp copies and `*.old` backup files
 
 5. **Version comparison** (generated PowerShell script):

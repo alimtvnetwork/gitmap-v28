@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // sprintf is a thin wrapper kept so parse_types.go avoids a direct

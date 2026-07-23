@@ -5,9 +5,9 @@
 Each AC is a statement an implementer's test suite MUST verify with
 exactly one test case. Do not collapse, do not split.
 
-1. `gitmap-v27 commit-in <s> a b c`, `gitmap-v27 commit-in <s> a,b,c`,
-   `gitmap-v27 commit-in <s> "a, b, c"`, and
-   `gitmap-v27 commit-in <s> "a"  "b"   "c"` produce identical
+1. `gitmap-v28 commit-in <s> a b c`, `gitmap-v28 commit-in <s> a,b,c`,
+   `gitmap-v28 commit-in <s> "a, b, c"`, and
+   `gitmap-v28 commit-in <s> "a"  "b"   "c"` produce identical
    `InputRepo.OrderIndex` rows.
 2. `<source>` URL is cloned into `CWD/<basename>`; `<source>` empty
    folder is `git init`-ed; `<source>` non-empty non-repo folder is
@@ -16,8 +16,8 @@ exactly one test case. Do not collapse, do not split.
    three cases.
 3. Each input cloned to `<.gitmap>/temp/<runId>/<orderIndex>-<basename>/`
    and recorded in `InputRepo` with the right `InputKind`.
-4. `all` from source basename `gitmap-v27` expands to `gitmap-v27, gitmap-v27,
-   gitmap-v27, …, gitmap-v27` (ascending; plain `gitmap-v27` first as `v0`).
+4. `all` from source basename `gitmap-v28` expands to `gitmap-v28, gitmap-v28,
+   gitmap-v28, …, gitmap-v28` (ascending; plain `gitmap-v28` first as `v0`).
    `-5` returns the last five sibling versions only.
 5. SQLite schema matches §04 byte-for-byte; every PK is
    `INTEGER PRIMARY KEY AUTOINCREMENT` named `<TableName>Id`; every
@@ -56,7 +56,7 @@ exactly one test case. Do not collapse, do not split.
     `PartiallyFailed` (≥1 commit `Failed`), or `Failed` (global stage
     failure). Summary line on STDOUT matches §2.8.
 19. Every enum in §02–§06 lives in its own Go file under
-    `gitmap-v27/cmd/commitin/<enumname>.go`, used by both production code
+    `gitmap-v28/cmd/commitin/<enumname>.go`, used by both production code
     and tests; mirror table seeded by the same migration that creates
     it (§4.5).
 20. Coding guidelines honored: ≤ 8-line functions, ≤ 100-line files,
@@ -103,7 +103,7 @@ exactly one test case. Do not collapse, do not split.
 ## 7.4 Conformance test plan (informative)
 
 Implementation MUST ship integration tests under
-`gitmap-v27/cmd/commitin/integration_test.go` that build a synthetic input
+`gitmap-v28/cmd/commitin/integration_test.go` that build a synthetic input
 repo via `git plumbing` (no `git add`, mirror the pattern in
 `.github/scripts/smoke-history-pin.sh`), run `commit-in`, and assert
 each AC #1–#20 with one `t.Run` per AC.

@@ -11,20 +11,20 @@ const GettingStartedPage = () => {
 
       <section className="space-y-8">
         <div>
-          <h2 className="text-xl font-heading font-semibold mb-3 docs-h2">1. Install gitmap-v27</h2>
+          <h2 className="text-xl font-heading font-semibold mb-3 docs-h2">1. Install gitmap-v28</h2>
           <p className="text-muted-foreground mb-3">
             Build from source using Go 1.21+:
           </p>
           <CodeBlock
-            code={`go install github.com/alimtvnetwork/gitmap-v27/gitmap-v27@latest`}
+            code={`go install github.com/alimtvnetwork/gitmap-v28/gitmap-v28@latest`}
             title="Terminal"
           />
           <p className="text-sm text-muted-foreground mt-2">
             Or clone the repo and build with the platform-appropriate script:
           </p>
-          <CodeBlock code={`# Windows (PowerShell)\ngit clone https://github.com/alimtvnetwork/gitmap-v27/gitmap.git\ncd gitmap-v27\n./run.ps1`} title="PowerShell" language="powershell" />
-          <CodeBlock code={`# Linux / macOS (Bash)\ngit clone https://github.com/alimtvnetwork/gitmap-v27/gitmap.git\ncd gitmap-v27\nchmod +x run.sh\n./run.sh`} title="Bash" language="bash" />
-          <CodeBlock code={`# Or use Make (requires run.sh)\ncd gitmap-v27\nmake build`} title="Makefile" language="bash" />
+          <CodeBlock code={`# Windows (PowerShell)\ngit clone https://github.com/alimtvnetwork/gitmap-v28/gitmap.git\ncd gitmap-v28\n./run.ps1`} title="PowerShell" language="powershell" />
+          <CodeBlock code={`# Linux / macOS (Bash)\ngit clone https://github.com/alimtvnetwork/gitmap-v28/gitmap.git\ncd gitmap-v28\nchmod +x run.sh\n./run.sh`} title="Bash" language="bash" />
+          <CodeBlock code={`# Or use Make (requires run.sh)\ncd gitmap-v28\nmake build`} title="Makefile" language="bash" />
 
           <div className="mt-4 p-4 rounded-lg border border-border bg-muted/30">
             <h3 className="text-sm font-mono font-semibold mb-2 docs-h3">Build script flags</h3>

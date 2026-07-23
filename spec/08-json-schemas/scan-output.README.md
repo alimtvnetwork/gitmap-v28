@@ -1,9 +1,9 @@
-# `gitmap-v27 scan` output schema
+# `gitmap-v28 scan` output schema
 
 Stable, automation-grade reference for the artifacts produced by:
 
 ```sh
-gitmap-v27 scan [DIR] [--output json|csv|both|terminal] [--out-file FILE]
+gitmap-v28 scan [DIR] [--output json|csv|both|terminal] [--out-file FILE]
 ```
 
 Default artifact paths (relative to the scan root, controlled by `outputDir`
@@ -57,7 +57,7 @@ JSON Schema (Draft 2020-12) — usable directly with `ajv`, `jsonschema`,
 ## CSV column order (current, 13 columns)
 
 The CSV header row is written verbatim from
-`gitmap-v27/constants/constants_terminal.go::ScanCSVHeaders`:
+`gitmap-v28/constants/constants_terminal.go::ScanCSVHeaders`:
 
 | # | Column            | JSON key           | Type    | Notes |
 |---|-------------------|--------------------|---------|-------|
@@ -118,10 +118,10 @@ check-jsonschema --schemafile spec/08-json-schemas/scan-output.schema.json \
 
 ## Source of truth
 
-- Struct + tags: [`gitmap-v27/model/record.go`](../../gitmap-v27/model/record.go) (`ScanRecord`)
-- CSV header constant: [`gitmap-v27/constants/constants_terminal.go`](../../gitmap-v27/constants/constants_terminal.go) (`ScanCSVHeaders`)
-- CSV writer / parser: [`gitmap-v27/formatter/csv.go`](../../gitmap-v27/formatter/csv.go)
-- JSON writer: `gitmap-v27/formatter/json.go` (uses standard `encoding/json` with the struct tags above)
+- Struct + tags: [`gitmap-v28/model/record.go`](../../gitmap-v28/model/record.go) (`ScanRecord`)
+- CSV header constant: [`gitmap-v28/constants/constants_terminal.go`](../../gitmap-v28/constants/constants_terminal.go) (`ScanCSVHeaders`)
+- CSV writer / parser: [`gitmap-v28/formatter/csv.go`](../../gitmap-v28/formatter/csv.go)
+- JSON writer: `gitmap-v28/formatter/json.go` (uses standard `encoding/json` with the struct tags above)
 
 Any drift between this document and those files is a bug — please open
 an issue or a PR that updates both sides in lockstep.

@@ -9,11 +9,11 @@ import { Download, RefreshCw, Trash2, Stethoscope, Apple, Terminal, MonitorSmart
 // Keep these snippets byte-identical with the spec table so users
 // landing on README, web docs, or `--help` see the same commands.
 
-const REPO_RAW = "https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main";
+const REPO_RAW = "https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main";
 
 const installCmds = {
-  windows: `irm ${REPO_RAW}/gitmap-v27/scripts/install.ps1 | iex`,
-  unix: `curl -fsSL ${REPO_RAW}/gitmap-v27/scripts/install.sh | sh`,
+  windows: `irm ${REPO_RAW}/gitmap-v28/scripts/install.ps1 | iex`,
+  unix: `curl -fsSL ${REPO_RAW}/gitmap-v28/scripts/install.sh | sh`,
 };
 
 const installPromptCmds = {
@@ -23,9 +23,9 @@ const installPromptCmds = {
 
 const installPinnedCmds = {
   windows: `$ver = 'v3.99.0'
-$installer = irm ${REPO_RAW}/gitmap-v27/scripts/install.ps1
+$installer = irm ${REPO_RAW}/gitmap-v28/scripts/install.ps1
 & ([scriptblock]::Create($installer)) -Version $ver -NoDiscovery`,
-  unix: `curl -fsSL ${REPO_RAW}/gitmap-v27/scripts/install.sh \
+  unix: `curl -fsSL ${REPO_RAW}/gitmap-v28/scripts/install.sh \
   | bash -s -- --version v3.99.0 --no-discovery`,
 };
 
@@ -79,7 +79,7 @@ const InstallGitmapPage = () => {
       <div className="max-w-4xl">
         <div className="flex items-center gap-3 mb-2">
           <Download className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-heading font-bold docs-h1">Install &amp; Update gitmap-v27</h1>
+          <h1 className="text-3xl font-heading font-bold docs-h1">Install &amp; Update gitmap-v28</h1>
         </div>
         <p className="text-muted-foreground mb-8 text-lg">
           Cross-platform install, update, and uninstall reference. Same one-liners as{" "}
@@ -225,7 +225,7 @@ gitmap setup print-path-snippet  # prints the exact bytes the installer wrote`}
           </div>
           <p className="text-xs text-muted-foreground mt-3">
             Snippet templates live in{" "}
-            <code className="docs-inline-code">gitmap-v27/constants/constants_pathsnippet.go</code> so install.sh,
+            <code className="docs-inline-code">gitmap-v28/constants/constants_pathsnippet.go</code> so install.sh,
             install.ps1, and{" "}
             <code className="docs-inline-code">gitmap setup print-path-snippet</code> emit byte-identical output.
           </p>

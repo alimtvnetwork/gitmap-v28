@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runDoPending retries all pending tasks or a single task by ID.

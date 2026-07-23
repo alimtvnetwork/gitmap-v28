@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // runSf dispatches `gitmap sf <add|list|rm>`.

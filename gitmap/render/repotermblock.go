@@ -29,7 +29,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // RepoTermBlock is the input to RenderRepoTermBlock. All fields are

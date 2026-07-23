@@ -119,15 +119,15 @@ Every command and subcommand includes:
 
 ```
 Usage:
-  gitmap-v27 release <version> [flags]
+  gitmap-v28 release <version> [flags]
 
 Flags:
   --draft       Mark as draft release (default: false)
   --dry-run     Preview without executing (default: false)
 
 Examples:
-  gitmap-v27 release 2.14.0
-  gitmap-v27 release 2.14.0 --draft
+  gitmap-v28 release 2.14.0
+  gitmap-v28 release 2.14.0 --draft
 ```
 
 ---

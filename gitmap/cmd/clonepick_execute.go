@@ -12,10 +12,10 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cliexit"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/clonepick"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonepick"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // runClonePickExecute opens the DB (best-effort), runs the

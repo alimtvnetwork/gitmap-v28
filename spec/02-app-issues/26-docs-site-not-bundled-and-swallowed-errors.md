@@ -1,11 +1,11 @@
 # docs-site Not Bundled in Release & Swallowed Errors Audit
 
-## Issue 1: `gitmap-v27 hd` Fails — docs-site Not Included in Release
+## Issue 1: `gitmap-v28 hd` Fails — docs-site Not Included in Release
 
 ### Symptom
 
 ```
-PS D:\scripts-fixture> gitmap-v27 hd
+PS D:\scripts-fixture> gitmap-v28 hd
   ✗ Docs site directory not found at D:\dev\GitMap\docs-site (operation: resolve, reason: directory does not exist)
 ```
 
@@ -26,12 +26,12 @@ so the folder must be co-located with the installed binary.
 
 ---
 
-## Issue 2: Directory Casing — `GitMap` vs `gitmap-v27`
+## Issue 2: Directory Casing — `GitMap` vs `gitmap-v28`
 
 ### Symptom
 
 The error path shows `D:\dev\GitMap\docs-site` — PascalCase `GitMap` directory.
-`constants_doctor.go` correctly uses `GitMapSubdir = "gitmap-v27"` (lowercase), but
+`constants_doctor.go` correctly uses `GitMapSubdir = "gitmap-v28"` (lowercase), but
 the deployment directory on Windows is created as `GitMap` by install scripts.
 
 ### Root Cause
@@ -42,7 +42,7 @@ the directory on disk doesn't match because it was created by external scripts.
 
 ### Fix
 
-Ensure all references use lowercase `gitmap-v27` consistently. The `resolveBinaryDir()`
+Ensure all references use lowercase `gitmap-v28` consistently. The `resolveBinaryDir()`
 already resolves from the actual executable path, so this is primarily an install
 script concern — but the Go code should also not assume casing.
 

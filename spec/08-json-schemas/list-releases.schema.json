@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://gitmap.dev/schemas/list-releases.schema.json",
-  "title": "gitmap-v27 list-releases --json output",
-  "description": "Array of release records for the current repository. Sourced from .gitmap/release/v*.json metadata files, git tags, and the SQLite cache (in that priority order). Sorted by createdAt descending (newest first). Empty result is encoded as `[]` (NOT `null`) so jq pipelines can `length` without conditionals. Backed by gitmap-v27/stablejson — key order is contractual and pinned by gitmap-v27/cmd/listreleases_jsonschema_contract_test.go. Companion schema list-releases-all-repos.schema.json covers the `--all-repos` joined view (different shape).",
+  "title": "gitmap-v28 list-releases --json output",
+  "description": "Array of release records for the current repository. Sourced from .gitmap/release/v*.json metadata files, git tags, and the SQLite cache (in that priority order). Sorted by createdAt descending (newest first). Empty result is encoded as `[]` (NOT `null`) so jq pipelines can `length` without conditionals. Backed by gitmap-v28/stablejson — key order is contractual and pinned by gitmap-v28/cmd/listreleases_jsonschema_contract_test.go. Companion schema list-releases-all-repos.schema.json covers the `--all-repos` joined view (different shape).",
   "type": "array",
   "items": {
     "type": "object",

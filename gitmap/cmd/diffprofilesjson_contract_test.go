@@ -13,7 +13,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // canonicalDPResult builds a deterministic diff-profiles result.

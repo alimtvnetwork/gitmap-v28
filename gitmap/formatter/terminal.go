@@ -6,9 +6,9 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/render"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 )
 
 // Terminal writes a professional colored output to the given writer.

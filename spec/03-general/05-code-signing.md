@@ -61,7 +61,7 @@ SignPath issues **standard (OV) code signing certificates** for OSS:
 
 In the SignPath dashboard:
 
-1. Create a **Project** named `gitmap-v27`
+1. Create a **Project** named `gitmap-v28`
 2. Create a **Signing Policy** (e.g., `release-signing`)
 3. Define an **Artifact Configuration**:
 
@@ -81,7 +81,7 @@ SignPath provides a GitHub Action. Add these secrets to the repo:
 |--------|--------|-------------|
 | `SIGNPATH_API_TOKEN` | SignPath dashboard → API Tokens | Authentication token |
 | `SIGNPATH_ORGANIZATION_ID` | SignPath dashboard → Organization | Org identifier |
-| `SIGNPATH_PROJECT_SLUG` | Project settings | e.g., `gitmap-v27` |
+| `SIGNPATH_PROJECT_SLUG` | Project settings | e.g., `gitmap-v28` |
 | `SIGNPATH_SIGNING_POLICY_SLUG` | Policy settings | e.g., `release-signing` |
 
 ### 4. CI Pipeline Integration
@@ -126,7 +126,7 @@ Repeat for each Windows target (amd64 and arm64).
 The `gitmap-updater` Windows binaries should also be signed:
 
 ```yaml
-# Sign both gitmap-v27 and gitmap-updater Windows builds
+# Sign both gitmap-v28 and gitmap-updater Windows builds
 WINDOWS_BINARIES=(
   "dist/gitmap-windows-amd64.exe"
   "dist/gitmap-windows-arm64.exe"
@@ -219,7 +219,7 @@ release with real downloads increases trust.
 - **Sign before compress** — checksums must cover the signed binary
 - **Never store private keys in CI** — SignPath handles key management
 - **Always timestamp** — prevents expiry-related failures
-- **Sign all Windows binaries** — gitmap-v27 + gitmap-updater
+- **Sign all Windows binaries** — gitmap-v28 + gitmap-updater
 - **Verify after signing** — CI must validate the signature
 - **Build-once rule** — sign the same binary that was built, never rebuild
 

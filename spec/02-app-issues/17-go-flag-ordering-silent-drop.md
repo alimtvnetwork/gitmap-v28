@@ -2,7 +2,7 @@
 
 ## Problem
 
-Running `gitmap-v27 release v2.55.0 -y` silently ignored the `-y` flag,
+Running `gitmap-v28 release v2.55.0 -y` silently ignored the `-y` flag,
 causing the release to pause for an interactive confirmation prompt
 even though the user explicitly passed `--yes`.
 
@@ -12,8 +12,8 @@ even though the user explicitly passed `--yes`.
    no effect, making it extremely difficult to diagnose.
 2. **CI/automation breakage** — non-interactive pipelines using `-y`
    would hang waiting for user input.
-3. **Inconsistent UX** — `gitmap-v27 release -y v2.55.0` worked correctly,
-   but `gitmap-v27 release v2.55.0 -y` did not, violating the principle
+3. **Inconsistent UX** — `gitmap-v28 release -y v2.55.0` worked correctly,
+   but `gitmap-v28 release v2.55.0 -y` did not, violating the principle
    of least surprise.
 
 ### Root Cause
@@ -22,7 +22,7 @@ Go's standard `flag` package **stops parsing at the first non-flag
 argument**. When the user writes:
 
 ```
-gitmap-v27 release v2.55.0 -y
+gitmap-v28 release v2.55.0 -y
 ```
 
 The `flag.Parse()` call sees `v2.55.0` as the first positional argument

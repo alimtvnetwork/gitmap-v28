@@ -7,7 +7,7 @@ Implemented (v2.75.0). Flatten-by-default behavior active.
 ## Command
 
 ```text
-gitmap-v27 clone-next <v++|v+1|vN> [flags]
+gitmap-v28 clone-next <v++|v+1|vN> [flags]
 ```
 
 ## Alias
@@ -168,7 +168,7 @@ instead of guessing.
 ### Example 1: Simple clone with `v++` (flattened)
 
 ```text
-D:\wp-work\riseup-asia\macro-ahk-v11> gitmap-v27 cn v++
+D:\wp-work\riseup-asia\macro-ahk-v11> gitmap-v28 cn v++
 
 Removing existing macro-ahk for fresh clone...
 Cloning macro-ahk-v12 into macro-ahk (flattened)...
@@ -180,7 +180,7 @@ Cloning macro-ahk-v12 into macro-ahk (flattened)...
 ### Example 2: Jump to a specific version with auto-delete
 
 ```text
-D:\wp-work\riseup-asia\macro-ahk-v12> gitmap-v27 cn v15 --delete
+D:\wp-work\riseup-asia\macro-ahk-v12> gitmap-v28 cn v15 --delete
 
 Cloning macro-ahk-v15 into macro-ahk (flattened)...
 ✓ Cloned macro-ahk-v15 into macro-ahk
@@ -192,7 +192,7 @@ Cloning macro-ahk-v15 into macro-ahk (flattened)...
 ### Example 3: Repo without an existing suffix
 
 ```text
-D:\wp-work\riseup-asia\macro-ahk> gitmap-v27 cn v++
+D:\wp-work\riseup-asia\macro-ahk> gitmap-v28 cn v++
 
 Removing existing macro-ahk for fresh clone...
 Cloning macro-ahk-v2 into macro-ahk (flattened)...
@@ -204,7 +204,7 @@ Cloning macro-ahk-v2 into macro-ahk (flattened)...
 ### Example 4: Create remote repo before clone
 
 ```text
-D:\wp-work\riseup-asia\macro-ahk-v12> gitmap-v27 cn v15 --create-remote --delete
+D:\wp-work\riseup-asia\macro-ahk-v12> gitmap-v28 cn v15 --create-remote --delete
 
 Creating GitHub repo macro-ahk-v15...
 ✓ Created GitHub repo macro-ahk-v15
@@ -218,7 +218,7 @@ Cloning macro-ahk-v15 into macro-ahk (flattened)...
 ### Example 5: Lock detection during folder removal
 
 ```text
-D:\wp-work\riseup-asia\macro-ahk-v11> gitmap-v27 cn v++ --delete
+D:\wp-work\riseup-asia\macro-ahk-v11> gitmap-v28 cn v++ --delete
 
 Removing existing macro-ahk for fresh clone...
 Cloning macro-ahk-v12 into macro-ahk (flattened)...
@@ -274,9 +274,9 @@ Retrying folder removal...
 
 ## Acceptance Criteria
 
-1. `gitmap-v27 cn v++` clones into the base name folder (flattened) by default.
-2. `gitmap-v27 cn v+1` behaves exactly like `v++`.
-3. `gitmap-v27 cn v15` clones the exact target version into the flattened folder.
+1. `gitmap-v28 cn v++` clones into the base name folder (flattened) by default.
+2. `gitmap-v28 cn v+1` behaves exactly like `v++`.
+3. `gitmap-v28 cn v15` clones the exact target version into the flattened folder.
 4. The source repo name is derived from the Git remote, not the local folder.
 5. If the flattened folder exists, it is removed and re-cloned fresh.
 6. `Repos.CurrentVersionTag` and `CurrentVersionNum` are updated after clone.

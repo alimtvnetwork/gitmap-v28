@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // SelfUpdateOptions controls a self-update run.
@@ -49,7 +49,7 @@ func RunSelfUpdate(opts SelfUpdateOptions) int {
 }
 
 func fetchLatestReleaseTag(c *http.Client) (string, error) {
-	const url = "https://api.github.com/repos/alimtvnetwork/gitmap-v27/releases/latest"
+	const url = "https://api.github.com/repos/alimtvnetwork/gitmap-v28/releases/latest"
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	req.Header.Set("Accept", "application/vnd.github+json")
 	resp, err := c.Do(req)

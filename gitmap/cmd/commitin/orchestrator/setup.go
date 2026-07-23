@@ -5,11 +5,11 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/profile"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/workspace"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/profile"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/workspace"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 func resolveSource(raw *commitin.RawArgs, stderr io.Writer) (*workspace.SourceHandle, int) {

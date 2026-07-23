@@ -59,7 +59,7 @@ Metadata discovery and commit-SHA-based release creation.
 
 1. **No behavior changes.** Pure file-level extraction — no renames,
    no signature changes, no logic modifications.
-2. **Package stays `release`.** All files remain in `gitmap-v27/release/`.
+2. **Package stays `release`.** All files remain in `gitmap-v28/release/`.
 3. **Import deduplication.** Each new file declares only its own imports.
 4. **Blank line before return** rule applies to all moved functions.
 

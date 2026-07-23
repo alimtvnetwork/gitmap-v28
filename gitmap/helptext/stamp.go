@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/fixtureversion"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/fixtureversion"
 )
 
 // stampCommentPrefix is the HTML-comment form the stamp takes

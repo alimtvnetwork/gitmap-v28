@@ -26,7 +26,7 @@ emits the canonical bootstrap one-liners for both platforms:
 
 ## Contract
 
-- **URLs are fixed** (canonical `alimtvnetwork/gitmap-v27` main branch).
+- **URLs are fixed** (canonical `alimtvnetwork/gitmap-v28` main branch).
   Never accept flags to override — that's what `self-install --version`
   is for.
 - **Rendering is dynamic** — header uses `constants.Version`, icons +

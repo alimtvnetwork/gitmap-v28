@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // ConflictDecision is the action a higher-level replay loop takes for

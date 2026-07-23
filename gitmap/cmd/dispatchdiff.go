@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // dispatchDiff routes `gitmap diff` / `gitmap df`.

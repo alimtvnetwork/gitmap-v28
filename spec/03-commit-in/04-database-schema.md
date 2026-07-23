@@ -3,7 +3,7 @@
 ## 4.1 Conventions (apply to every table below)
 
 - Storage: shared `<.gitmap>/db/gitmap.sqlite` (same DB as the rest of
-  gitmap-v27; tables namespaced with the `CommitIn…` prefix where collision
+  gitmap-v28; tables namespaced with the `CommitIn…` prefix where collision
   is plausible).
 - Every table has `CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP`.
 - Every primary key: `INTEGER PRIMARY KEY AUTOINCREMENT`, named

@@ -17,13 +17,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/fixtureversion"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/fixtureversion"
 )
 
 // fixRepoV9ToV12FixtureBody is the on-disk fixture: every realistic
 // shape we have seen in third-party Go repos that depend on a
 // versioned module — bare slug, dash form, slash form, and a digit-
-// adjacent token (`gitmap-v27`) that MUST NOT match `gitmap-v27`.
+// adjacent token (`gitmap-v28`) that MUST NOT match `gitmap-v28`.
 // We use `-v10` (a real, plausible neighbor version) rather than the
 // nonsensical `-v90` to keep the fixture readable while still locking
 // the negative-lookahead guard against `-v9` matching inside `-v10`.
@@ -33,13 +33,13 @@ import (
 // actionable "regenerate via ..." message instead of a confusing
 // rewrite-count mismatch.
 //
-// IMPORTANT: this body MUST contain `gitmap-v27` tokens (the rewrite
-// target) and a `gitmap-v27` guarded neighbor. A previous global
+// IMPORTANT: this body MUST contain `gitmap-v28` tokens (the rewrite
+// target) and a `gitmap-v28` guarded neighbor. A previous global
 // rename collapsed every `-v9` token into `-v16` and silently broke
 // the test (rewriter found 0 tokens to bump). See
 // .lovable/memory/issues/2026-05-01-fixrepo-digit-capture-desync.md.
 // IMPORTANT: base MUST be a synthetic name (e.g. `acme`) — using the
-// project's own module suffix (`gitmap`) collapses to `gitmap-v27` /
+// project's own module suffix (`gitmap`) collapses to `gitmap-v28` /
 // `gitmap-v110` under fix-repo runs against this very repo, silently
 // erasing the v9 tokens. See mem://FIX-REPO DIGIT-CAPTURE GAP and
 // .lovable/memory/issues/2026-05-01-fixrepo-digit-capture-desync.md.
@@ -150,7 +150,7 @@ func countUnguardedHits(body, token string) int {
 }
 
 // assertGuardedNeighborPreserved locks the negative-lookahead guard:
-// `gitmap-v27` must survive untouched when bumping target=9, because
+// `gitmap-v28` must survive untouched when bumping target=9, because
 // `-v9` is a prefix of `-v10` and the rewriter's negative-lookahead
 // must skip digit-adjacent matches.
 func assertGuardedNeighborPreserved(t *testing.T, got, base string) {

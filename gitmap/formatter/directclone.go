@@ -4,7 +4,7 @@ package formatter
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // WriteDirectCloneScript writes a plain PS1 with one HTTPS git clone per line.

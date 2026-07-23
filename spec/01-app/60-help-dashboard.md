@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `help-dashboard` command (alias `hd`) serves the gitmap-v27 documentation
+The `help-dashboard` command (alias `hd`) serves the gitmap-v28 documentation
 site locally in the user's browser. It uses a dual-mode resolution
 strategy: static serving when a pre-built `dist/` exists, falling back
 to a live Vite dev server otherwise.
@@ -12,8 +12,8 @@ to a live Vite dev server otherwise.
 ## Command Signature
 
 ```
-gitmap-v27 help-dashboard [flags]
-gitmap-v27 hd [flags]
+gitmap-v28 help-dashboard [flags]
+gitmap-v28 hd [flags]
 ```
 
 ### Flags
@@ -54,7 +54,7 @@ If no `dist/` folder is found:
 
 ## Directory Resolution
 
-The command locates the docs site relative to the gitmap-v27 binary:
+The command locates the docs site relative to the gitmap-v28 binary:
 
 ```
 <binary-dir>/
@@ -118,15 +118,15 @@ Both modes print a "Server stopped." confirmation on exit.
 
 ## Acceptance Criteria
 
-1. `gitmap-v27 help-dashboard` serves `dist/` when it exists and opens
+1. `gitmap-v28 help-dashboard` serves `dist/` when it exists and opens
    the browser automatically.
-2. `gitmap-v27 hd` works as an alias.
+2. `gitmap-v28 hd` works as an alias.
 3. `--port 8080` serves on port 8080 instead of the default.
 4. When no `dist/` exists and Node.js is available, the command
    runs `npm install` then `npm run dev` successfully.
 5. When no `dist/` exists and `npm` is not on PATH, the command
    prints a clear error and exits with code 1.
 6. Ctrl+C cleanly stops both static and dev servers.
-7. `gitmap-v27 help-dashboard --help` prints the embedded help text.
+7. `gitmap-v28 help-dashboard --help` prints the embedded help text.
 8. All terminal messages use constants from
    `constants_helpdashboard.go` — no magic strings.

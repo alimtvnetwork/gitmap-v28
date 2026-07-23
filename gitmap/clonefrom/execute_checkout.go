@@ -30,7 +30,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // EffectiveCheckout resolves a row's Checkout field to one of the

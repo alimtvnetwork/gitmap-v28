@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/scripts/changelog/internal/gitlog"
+	"github.com/alimtvnetwork/gitmap-v28/scripts/changelog/internal/gitlog"
 )
 
 // Section is a named bucket of commit subjects rendered together.

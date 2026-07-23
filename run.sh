@@ -491,11 +491,11 @@ build_binary() {
     build_repo=$(cd "$abs_repo_root" && git config --get remote.origin.url 2>/dev/null || echo "")
     build_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-    local ldflags="-X 'github.com/alimtvnetwork/gitmap-v27/gitmap/constants.RepoPath=$abs_repo_root'"
-    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildCommit=$build_commit'"
-    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildBranch=$build_branch'"
-    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildRepo=$build_repo'"
-    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildDate=$build_date'"
+    local ldflags="-X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.RepoPath=$abs_repo_root'"
+    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit=$build_commit'"
+    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildBranch=$build_branch'"
+    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildRepo=$build_repo'"
+    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildDate=$build_date'"
 
     # Pre-build provenance stamp — prints commit SHA, branch, declared
     # version, and a fingerprint of the historically-problematic cmd/

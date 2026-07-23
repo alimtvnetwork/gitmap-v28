@@ -3,7 +3,7 @@
 ## Pipeline
 - **Tool:** `golangci-lint v1.64.8` (`misspell` linter)
 - **Command:** `golangci-lint run --path-prefix=gitmap --timeout=5m`
-- **Runner:** GitHub Actions (`gitmap-v27` repo)
+- **Runner:** GitHub Actions (`gitmap-v28` repo)
 
 ## Symptom
 ```

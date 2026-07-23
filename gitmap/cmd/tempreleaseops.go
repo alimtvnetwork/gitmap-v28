@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/release"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // runTempReleaseCreate creates temp-release branches from recent commits.

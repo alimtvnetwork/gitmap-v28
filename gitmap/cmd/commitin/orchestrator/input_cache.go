@@ -3,8 +3,8 @@ package orchestrator
 import (
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/runlog"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/workspace"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/runlog"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/workspace"
 )
 
 // inputRepoID returns the InputRepo PK for a staged input, inserting

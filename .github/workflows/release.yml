@@ -64,11 +64,11 @@ jobs:
           BUILD_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
           BUILD_REPO="$(git config --get remote.origin.url)"
           BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/constants.Version=$VERSION'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildCommit=$BUILD_COMMIT'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildBranch=$BUILD_BRANCH'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildRepo=$BUILD_REPO'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildDate=$BUILD_DATE'"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.Version=$VERSION'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit=$BUILD_COMMIT'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildBranch=$BUILD_BRANCH'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildRepo=$BUILD_REPO'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildDate=$BUILD_DATE'"
 
           TARGETS=(
             "windows/amd64/.exe"
@@ -92,7 +92,7 @@ jobs:
         working-directory: gitmap-updater
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v27/gitmap-updater/cmd.Version=$VERSION'"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap-updater/cmd.Version=$VERSION'"
 
           TARGETS=(
             "windows/amd64/.exe"
@@ -204,7 +204,7 @@ jobs:
       - name: Generate version-specific install script
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          REPO="alimtvnetwork/gitmap-v27"
+          REPO="alimtvnetwork/gitmap-v28"
 
           cat > gitmap/dist/install.ps1 << 'PSEOF'
           <#
@@ -462,7 +462,7 @@ jobs:
       - name: Generate version-specific install.sh
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          REPO="alimtvnetwork/gitmap-v27"
+          REPO="alimtvnetwork/gitmap-v28"
 
           cat > gitmap/dist/install.sh << 'SHEOF'
           #!/usr/bin/env bash
@@ -676,7 +676,7 @@ jobs:
       - name: Build release body
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          REPO="alimtvnetwork/gitmap-v27"
+          REPO="alimtvnetwork/gitmap-v28"
           COMMIT_SHA="${GITHUB_SHA}"
           BRANCH="${GITHUB_REF_NAME}"
           BUILD_DATE="$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
@@ -853,7 +853,7 @@ jobs:
           LOG: ${{ steps.dryrun.outputs.log }}
         run: |
           $expectedName = "gitmap-$env:VERSION-windows-amd64.zip"
-          $expectedUrl  = "https://github.com/alimtvnetwork/gitmap-v27/releases/download/$env:VERSION/$expectedName"
+          $expectedUrl  = "https://github.com/alimtvnetwork/gitmap-v28/releases/download/$env:VERSION/$expectedName"
 
           $report = @{}
           Get-Content $env:LOG | ForEach-Object {

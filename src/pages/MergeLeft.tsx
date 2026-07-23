@@ -91,7 +91,7 @@ gitmap ml         LEFT RIGHT [flags]`} />
       <section>
         <h2 className="text-xl font-semibold mb-3">Examples</h2>
         <CodeBlock code={`# Pull RIGHT's changes into LEFT (interactive prompt)
-gitmap merge-left ./gitmap ./gitmap-v27
+gitmap merge-left ./gitmap ./gitmap-v28
 
 # Non-interactive (RIGHT wins by default for merge-left)
 gitmap ml ./local https://github.com/owner/upstream -y

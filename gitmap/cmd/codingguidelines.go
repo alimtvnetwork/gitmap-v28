@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"runtime"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // CodingGuidelinesOpts controls a single Coding Guidelines v24 install run.

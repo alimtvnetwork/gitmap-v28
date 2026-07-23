@@ -22,9 +22,9 @@ export const COMMANDS: CommandDemo[] = [
     caption: "Clone any repo, anywhere",
     cwd: "~/repos",
     lines: [
-      cmd("~/repos", T("gitmap ", C.command), T("clone ", C.brandGold), T("https://github.com/alimtvnetwork/gitmap-v27", C.path)),
+      cmd("~/repos", T("gitmap ", C.command), T("clone ", C.brandGold), T("https://github.com/alimtvnetwork/gitmap-v28", C.path)),
       out(T("→ Resolving remote… ", C.muted), T("OK", C.success)),
-      out(T("→ Cloning into ", C.muted), T("./gitmap-v27", C.path), T(" (default branch: ", C.muted), T("main", C.flag), T(")", C.muted)),
+      out(T("→ Cloning into ", C.muted), T("./gitmap-v28", C.path), T(" (default branch: ", C.muted), T("main", C.flag), T(")", C.muted)),
       out(T("→ Registering with GitHub Desktop ✓", C.success)),
       out(T("✔ done in 2.4s", C.success)),
     ],
@@ -45,9 +45,9 @@ export const COMMANDS: CommandDemo[] = [
   // 3) history
   {
     caption: "history — recent activity",
-    cwd: "~/repos/gitmap-v27",
+    cwd: "~/repos/gitmap-v28",
     lines: [
-      cmd("~/repos/gitmap-v27", T("gitmap ", C.command), T("history ", C.brandGold), T("--limit 5", C.flag)),
+      cmd("~/repos/gitmap-v28", T("gitmap ", C.command), T("history ", C.brandGold), T("--limit 5", C.flag)),
       out(T("a3f1c2e ", C.warn), T("feat: fix-repo --strict runs go test on touched packages", C.text)),
       out(T("9b22f01 ", C.warn), T("ci: jq → python3 → awk fallback for json parsing", C.text)),
       out(T("4d5e8aa ", C.warn), T("fix(fixrepo): width-crossing v9→v12 desync guard", C.text)),
@@ -58,9 +58,9 @@ export const COMMANDS: CommandDemo[] = [
   // 4) release
   {
     caption: "release — tag, build, publish",
-    cwd: "~/repos/gitmap-v27",
+    cwd: "~/repos/gitmap-v28",
     lines: [
-      cmd("~/repos/gitmap-v27", T("gitmap ", C.command), T("release ", C.brandGold), T("--bump minor", C.flag)),
+      cmd("~/repos/gitmap-v28", T("gitmap ", C.command), T("release ", C.brandGold), T("--bump minor", C.flag)),
       out(T("→ current: ", C.muted), T("v4.14.0", C.flag), T("  →  next: ", C.muted), T("v4.15.0", C.success)),
       out(T("→ cross-compiling linux/amd64, darwin/arm64, windows/amd64 …", C.muted)),
       out(T("✓ checksums written", C.success), T("  ✓ assets uploaded", C.success)),

@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runRegistryCommandsCtx executes a set of `reg` commands and returns

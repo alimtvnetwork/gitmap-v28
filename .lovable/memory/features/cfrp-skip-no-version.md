@@ -10,7 +10,7 @@ type: feature
 `gitmap clone-fix-repo` (cfr) and `gitmap clone-fix-repo-pub` (cfrp)
 MUST check the cloned Git remote repo name for the `-vN` suffix, not
 the flattened local destination folder. Example: cloning
-`https://github.com/alimtvnetwork/gitmap-v27` into local folder
+`https://github.com/alimtvnetwork/gitmap-v28` into local folder
 `gitmap/` MUST still run `fix-repo --all` because the remote repo is
 versioned.
 

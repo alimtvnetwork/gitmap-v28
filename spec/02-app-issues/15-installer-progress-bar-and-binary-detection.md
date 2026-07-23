@@ -17,9 +17,9 @@ $ProgressPreference = "SilentlyContinue"
 
 ### 2. Versioned Binary Name Not Detected
 
-**Symptom**: Installer reported "Installed archive did not contain gitmap.exe" and listed the actual file (e.g., `gitmap-v27.54.6-windows-amd64.exe`).
+**Symptom**: Installer reported "Installed archive did not contain gitmap.exe" and listed the actual file (e.g., `gitmap-v28.54.6-windows-amd64.exe`).
 
-**Root Cause**: The candidate name list only checked for `gitmap.exe` and `gitmap-windows-amd64.exe`, but the CI release pipeline names binaries with the version embedded (e.g., `gitmap-v27.54.6-windows-amd64.exe`).
+**Root Cause**: The candidate name list only checked for `gitmap.exe` and `gitmap-windows-amd64.exe`, but the CI release pipeline names binaries with the version embedded (e.g., `gitmap-v28.54.6-windows-amd64.exe`).
 
 **Fix**: Added regex pattern matching for versioned filenames:
 
@@ -43,6 +43,6 @@ $_.Name -match "^gitmap-v[\d.]+-windows-(amd64|arm64)\.exe$"
 
 ## Related
 
-- `gitmap-v27/scripts/install.ps1` — One-liner installer
+- `gitmap-v28/scripts/install.ps1` — One-liner installer
 - `spec/02-app-issues/13-release-pipeline-dist-directory.md` — CI pipeline issues
 - CHANGELOG.md v2.55.0 — Installer Fix

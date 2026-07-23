@@ -72,7 +72,7 @@ Preview output for zip groups and ad-hoc archives.
 
 1. **No behavior changes.** Pure file-level extraction — no renames,
    no signature changes, no logic modifications.
-2. **Package stays `release`.** All files remain in `gitmap-v27/release/`.
+2. **Package stays `release`.** All files remain in `gitmap-v28/release/`.
 3. **Shared functions** (`resolveArchiveName`) stay in `ziparchive.go`
    since both orchestration and dry-run reference it.
 4. **Import deduplication.** Each new file declares only its own imports.

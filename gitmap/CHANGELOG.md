@@ -753,7 +753,7 @@ This matches portable / non-standard installations automatically.
 
 ### Fixed (Docs)
 
-- **README.md Go Report Card badge** now points at `github.com/alimtvnetwork/gitmap-v27/gitmap` (the real Go module path set in v3.27.0) instead of the repo root `github.com/alimtvnetwork/gitmap-v27`. The previous URL returned a 404 from the Go module proxy because there is no `go.mod` at the repo root — the module lives one directory down in `gitmap/`. Both the badge image and the click-through report link were updated.
+- **README.md Go Report Card badge** now points at `github.com/alimtvnetwork/gitmap-v28/gitmap` (the real Go module path set in v3.27.0) instead of the repo root `github.com/alimtvnetwork/gitmap-v28`. The previous URL returned a 404 from the Go module proxy because there is no `go.mod` at the repo root — the module lives one directory down in `gitmap/`. Both the badge image and the click-through report link were updated.
 
 ### Files changed
 
@@ -817,7 +817,7 @@ Pure terminal-output cosmetics. No flag, file path, JSON schema, or database col
 
 ### Fixed (Tooling / Distribution)
 
-- **Go Report Card now resolves the module instead of failing with `could not get latest module version from https://proxy.golang.org/github.com/user/gitmap/@latest`.** The card at https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v27/gitmap will start scoring the project for the first time after this version is pushed.
+- **Go Report Card now resolves the module instead of failing with `could not get latest module version from https://proxy.golang.org/github.com/user/gitmap/@latest`.** The card at https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v28/gitmap will start scoring the project for the first time after this version is pushed.
 
 ### Root cause
 
@@ -832,15 +832,15 @@ The same placeholder was also referenced in:
 - Spec docs and changelog history references
 - React-side changelog/getting-started page references
 
-If left unfixed, anyone running `go install github.com/alimtvnetwork/gitmap-v27/gitmap@latest` would get a `module declares its path as: github.com/user/gitmap but was required as ...` error, and the proxy would refuse to serve the module to downstream tooling.
+If left unfixed, anyone running `go install github.com/alimtvnetwork/gitmap-v28/gitmap@latest` would get a `module declares its path as: github.com/user/gitmap but was required as ...` error, and the proxy would refuse to serve the module to downstream tooling.
 
 ### Fix
 
-Renamed `github.com/user/gitmap` → `github.com/alimtvnetwork/gitmap-v27/gitmap` across **404 files** in a single atomic sed pass. Also implicitly renamed the sister module `github.com/user/gitmap-updater` → `github.com/alimtvnetwork/gitmap-v27/gitmap-updater`, which lives at the same GitHub path.
+Renamed `github.com/user/gitmap` → `github.com/alimtvnetwork/gitmap-v28/gitmap` across **404 files** in a single atomic sed pass. Also implicitly renamed the sister module `github.com/user/gitmap-updater` → `github.com/alimtvnetwork/gitmap-v28/gitmap-updater`, which lives at the same GitHub path.
 
 Verified post-rename:
-- `gitmap/go.mod` now reads `module github.com/alimtvnetwork/gitmap-v27/gitmap`.
-- `gitmap-updater/go.mod` now reads `module github.com/alimtvnetwork/gitmap-v27/gitmap-updater`.
+- `gitmap/go.mod` now reads `module github.com/alimtvnetwork/gitmap-v28/gitmap`.
+- `gitmap-updater/go.mod` now reads `module github.com/alimtvnetwork/gitmap-v28/gitmap-updater`.
 - `Makefile` ldflags target the new constants package path.
 - `.github/workflows/ci.yml` build step injects `Version` into the new constants package path.
 - `run.ps1` and `run.sh` inject `RepoPath` into the new constants package path.
@@ -849,7 +849,7 @@ Verified post-rename:
 ### What the user needs to do after pulling
 
 1. Pull v3.27.0 and push to `main`.
-2. Once the new tag (`v3.27.0`) is pushed, visit https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v27/gitmap — first visit will trigger a fresh scan against the new module path.
+2. Once the new tag (`v3.27.0`) is pushed, visit https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v28/gitmap — first visit will trigger a fresh scan against the new module path.
 3. The CI ldflags injection still works because the constants package path was renamed alongside the workflow string.
 4. Anyone who had previously cloned the repo and run `go build ./...` will need to re-run `go mod tidy` once after pulling, since every import path changed.
 
@@ -1184,7 +1184,7 @@ User reported `gitmap github-desktop` printing `Unknown command`. Root cause: th
 
 If a user has legacy `Release` rows but no `.gitmap/release/v*.json` files on disk, run `gitmap release-import --from-github` to repopulate from the GitHub Releases API.
 
-## v3.16.0 — (2026-04-20) — uninstall-quick.ps1 multi-binary fix + repo rename to gitmap-v27
+## v3.16.0 — (2026-04-20) — uninstall-quick.ps1 multi-binary fix + repo rename to gitmap-v28
 
 ### Fixed
 
@@ -1196,12 +1196,12 @@ If a user has legacy `Release` rows but no `.gitmap/release/v*.json` files on di
 
 ### Renamed
 
-- **All `gitmap-v27` references → `gitmap-v27`** across the entire repo (45 files, 567 occurrences). Includes install/uninstall one-liners, Go installer constants, helptext, spec docs, post-mortems, the React landing page, and `.lovable/memory/**`.
-- **Preserved**: release-asset filenames like `gitmap-v27.49.1-windows-amd64.zip` (where `v4.49.1` is the package version, not the repo name) — only the GitHub URL repo segment changed.
+- **All `gitmap-v28` references → `gitmap-v28`** across the entire repo (45 files, 567 occurrences). Includes install/uninstall one-liners, Go installer constants, helptext, spec docs, post-mortems, the React landing page, and `.lovable/memory/**`.
+- **Preserved**: release-asset filenames like `gitmap-v28.49.1-windows-amd64.zip` (where `v4.49.1` is the package version, not the repo name) — only the GitHub URL repo segment changed.
 
 ### Why
 
-The uninstall failure was reported by a user who had run gitmap since the v2.x drive-root shim era — their stale `E:\gitmap\gitmap.exe` was never removed and the new `gitmap-cli/` install put a second binary on PATH. The `gitmap-v27` repo rename had been pending since the v3.x line started; bundling both keeps the CHANGELOG narrative simple.
+The uninstall failure was reported by a user who had run gitmap since the v2.x drive-root shim era — their stale `E:\gitmap\gitmap.exe` was never removed and the new `gitmap-cli/` install put a second binary on PATH. The `gitmap-v28` repo rename had been pending since the v3.x line started; bundling both keeps the CHANGELOG narrative simple.
 
 ## v3.15.0 — (2026-04-20) — Single-source-of-truth deploy manifest
 
@@ -1340,7 +1340,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
   - `wastedassign`: Removed dead `stashLabel` assignment in `cmd/releasealias.go`.
   - `exhaustive`: Added missing switch cases for `PreferPolicy`, `Direction`, and `DiffKind`.
 - **US-English spelling sweep** — Converted UK spellings to US: `behaviour→behavior`, `honours→honors`, `honouring→honoring`, `artefacts→artifacts`, `Centralised→Centralized`, `summarises→summarizes`, `Recognises→Recognizes`.
-- **Remote installer URLs** — Updated `constants_selfinstall.go` `SelfInstallRemotePwsh` and `SelfInstallRemoteBash` from `gitmap-v27` to `gitmap-v27`.
+- **Remote installer URLs** — Updated `constants_selfinstall.go` `SelfInstallRemotePwsh` and `SelfInstallRemoteBash` from `gitmap-v28` to `gitmap-v28`.
 
 ### Changed
 
@@ -1363,7 +1363,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 - Full-repo audit for residual legacy-field callers: every `\.(Draft|PreRelease)\b` and `^\s*(Draft|PreRelease)\s*:` match outside of (a) `release.Version.PreRelease` (semver suffix — different struct), (b) `store/migrate_v15phase5.go` (the rename migration itself), (c) `release/metadata.go::ReadReleaseMeta` (the JSON backward-compat overlay), and (d) `--draft` user-facing CLI flag strings was confirmed to be either intentional or already migrated. No further call sites need updating.
 
-## v3.12.0 — (2026-04-20) — Pinned-version release snippet + gitmap-v27 rename
+## v3.12.0 — (2026-04-20) — Pinned-version release snippet + gitmap-v28 rename
 
 ### Added
 
@@ -1373,7 +1373,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Changed
 
-- **Repo rename `gitmap-v27` → `gitmap-v27` across the entire codebase** — every Go constant (`SourceRepoCloneURL`, `SelfInstallRemotePwsh/Bash`, `GitmapRepoPrefix`, install hint URLs), every install/uninstall script (`install.ps1`, `install.sh`, `install-quick.ps1`, `install-quick.sh`, `uninstall-quick.*`), every spec doc under `spec/01-app/` and `spec/07-generic-release/`, every helptext markdown, the README, the React `src/data/*.ts` files, GitHub workflows, and historical CHANGELOG entries were rewritten via `sed -i 's/gitmap-v27/gitmap-v27/g'`. The only remaining `gitmap-v27` references are inside `.gitmap/` artifacts, which are immutable per project policy.
+- **Repo rename `gitmap-v28` → `gitmap-v28` across the entire codebase** — every Go constant (`SourceRepoCloneURL`, `SelfInstallRemotePwsh/Bash`, `GitmapRepoPrefix`, install hint URLs), every install/uninstall script (`install.ps1`, `install.sh`, `install-quick.ps1`, `install-quick.sh`, `uninstall-quick.*`), every spec doc under `spec/01-app/` and `spec/07-generic-release/`, every helptext markdown, the README, the React `src/data/*.ts` files, GitHub workflows, and historical CHANGELOG entries were rewritten via `sed -i 's/gitmap-v28/gitmap-v28/g'`. The only remaining `gitmap-v28` references are inside `.gitmap/` artifacts, which are immutable per project policy.
 
 ## v3.11.1 — (2026-04-20) — Alias-collision CI guard
 
@@ -1387,7 +1387,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 - **v15 Phase 1.4 migration** — `GoProjectMetadata` and `PendingTask` rebuilds failed on databases first created at v3.5.0+ with `SQL logic error: no such column: Id`. Both tables were already singular before v15, so the canonical `CREATE TABLE IF NOT EXISTS` pass produced the v15-shaped table (with `{Table}Id` PK) before the rebuild ran, leaving no `Id` column to SELECT. Added `adaptOldColumnList()` in `gitmap/store/migrate_v15rebuild.go` that detects the existing PK shape via `columnExists()` and rewrites the leading `Id` token in `OldColumnList` to `{Table}Id` when needed. Idempotent and a no-op for genuine legacy → v15 paths.
 - **`go vet` `non-constant format string`** in `gitmap/movemerge/finalize.go:50` — `logErr` was inferred as a printf-style wrapper. Reshaped `logErr(prefix, msg string)` to accept a pre-formatted message and moved `fmt.Sprintf(constants.ErrMMPushFailFmt, sha)` to the call site so the printf-check never triggers.
-- **Unused-import build break** in `gitmap/store/migrations.go` — removed orphaned `"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"` import left over from a prior refactor.
+- **Unused-import build break** in `gitmap/store/migrations.go` — removed orphaned `"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"` import left over from a prior refactor.
 - **`CmdReleaseAlias` Go redeclaration** — same name was bound to `"r"` (in `constants_cli.go`) and `"release-alias"` (in `constants_releasealias.go`). Renamed the `constants_cli.go` constant to `CmdReleaseShort` so the `release-alias` family owns `CmdReleaseAlias` exclusively.
 - **`cd` / `go` constant collision** — `CmdCDCmd` (`"cd"`) and `CmdCDCmdAlias` (`"go"`) in `constants_cli.go` shadowed `CmdCD` / `CmdCDAlias` in `constants_cd.go`. Removed the duplicates and repointed `gitmap/cmd/rootdata.go` dispatch at the canonical constants.
 
@@ -1869,7 +1869,7 @@ const (
 
 ### Release Command
 
-- After a successful release, if the repo's remote origin matches the gitmap source repository prefix (`github.com/alimtvnetwork/gitmap-v27`), the CLI now prints install one-liner commands for both Windows (PowerShell) and Linux/macOS (Bash).
+- After a successful release, if the repo's remote origin matches the gitmap source repository prefix (`github.com/alimtvnetwork/gitmap-v28`), the CLI now prints install one-liner commands for both Windows (PowerShell) and Linux/macOS (Bash).
 - Added `GitmapRepoPrefix` constant for repo detection and `MsgInstallHintHeader`, `MsgInstallHintWindows`, `MsgInstallHintUnix` message constants.
 - Install hints appear after `Release complete` in all release paths: standard, branch-based, and metadata-only.
 - Non-gitmap repos are unaffected — no install hints are printed.
@@ -2085,7 +2085,7 @@ const (
 - Added Quick Start section with common command examples at the top of help output.
 - Each group header includes a hint to run commands with `--help` or `-h` for detailed usage and examples.
 - Modularized help implementation across `rootusage.go`, `rootusagecompact.go`, `rootusageflags.go`, and `constants_helpgroups.go`.
-- Repository renamed from `git-repo-navigator` to `gitmap-v27`; all URLs, scripts, and references updated.
+- Repository renamed from `git-repo-navigator` to `gitmap-v28`; all URLs, scripts, and references updated.
 
 ## v2.49.1 — Update UX & Versioned Binaries (2026-04-06)
 
@@ -2093,7 +2093,7 @@ const (
 - The `--repo-path` flag is automatically forwarded through the handoff binary to `update-runner`.
 - Resolution priority: `--repo-path` flag → embedded constant → friendly error with recovery options.
 - Improved "repo path not embedded" error with actionable recovery steps (one-liner install, clone & build, manual download, `--repo-path` override).
-- CI release binaries now include version in filenames (e.g., `gitmap-v27.49.1-windows-amd64.zip`).
+- CI release binaries now include version in filenames (e.g., `gitmap-v28.49.1-windows-amd64.zip`).
 - Updated `install.ps1` (standalone and release-embedded) to handle versioned asset filenames.
 - CI release workflow now explicitly marks stable releases as "latest" via `make_latest`.
 - Updated `helptext/update.md` with `--repo-path` flag docs, troubleshooting section, and error recovery examples.

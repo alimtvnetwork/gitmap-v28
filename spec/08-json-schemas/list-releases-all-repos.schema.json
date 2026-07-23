@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://gitmap.dev/schemas/list-releases-all-repos.schema.json",
-  "title": "gitmap-v27 list-releases --all-repos --json output",
-  "description": "Array of Release rows joined with their owning Repo, returned by `gitmap-v27 list-releases --all-repos --json` (alias `gitmap-v27 lr --all-repos --json`). Ordered by createdAt DESC, exercising the IdxRelease_RepoId index added in v17. PascalCase keys are intentional: store.ReleaseAcrossRepos has no `json:` tags, so the legacy json.MarshalIndent surface used Go field names verbatim. Pinning that exact surface here prevents a silent rename when migrating off MarshalIndent. Empty result is `[]` (NOT `null`). Backed by gitmap-v27/stablejson — pinned by gitmap-v27/cmd/listreleases_jsonschema_contract_test.go.",
+  "title": "gitmap-v28 list-releases --all-repos --json output",
+  "description": "Array of Release rows joined with their owning Repo, returned by `gitmap-v28 list-releases --all-repos --json` (alias `gitmap-v28 lr --all-repos --json`). Ordered by createdAt DESC, exercising the IdxRelease_RepoId index added in v17. PascalCase keys are intentional: store.ReleaseAcrossRepos has no `json:` tags, so the legacy json.MarshalIndent surface used Go field names verbatim. Pinning that exact surface here prevents a silent rename when migrating off MarshalIndent. Empty result is `[]` (NOT `null`). Backed by gitmap-v28/stablejson — pinned by gitmap-v28/cmd/listreleases_jsonschema_contract_test.go.",
   "type": "array",
   "items": {
     "type": "object",
@@ -41,8 +41,8 @@
       {
         "ReleaseID": 1,
         "RepoID": 2,
-        "RepoSlug": "alimtv/gitmap-v27",
-        "RepoPath": "/home/alice/work/gitmap-v27",
+        "RepoSlug": "alimtv/gitmap-v28",
+        "RepoPath": "/home/alice/work/gitmap-v28",
         "Version": "4.14.0",
         "Tag": "v4.14.0",
         "Branch": "release-v4.14.0",

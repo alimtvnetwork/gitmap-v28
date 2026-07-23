@@ -10,13 +10,13 @@ import (
 // expected result is always the last path segment with `.git` trimmed.
 func TestSlugFromRemote(t *testing.T) {
 	cases := map[string]string{
-		"https://github.com/alimtvnetwork/gitmap-v27.git": "gitmap-v27",
-		"https://github.com/alimtvnetwork/gitmap-v27":     "gitmap-v27",
-		"git@github.com:alimtvnetwork/gitmap-v27.git":     "gitmap-v27",
-		"git@github.com:alimtvnetwork/gitmap-v27":         "gitmap-v27",
-		"ssh://git@host.example/foo/bar/gitmap-v27.git":   "gitmap-v27",
-		"gitmap-v27":     "gitmap-v27",
-		"gitmap-v27.git": "gitmap-v27",
+		"https://github.com/alimtvnetwork/gitmap-v28.git": "gitmap-v28",
+		"https://github.com/alimtvnetwork/gitmap-v28":     "gitmap-v28",
+		"git@github.com:alimtvnetwork/gitmap-v28.git":     "gitmap-v28",
+		"git@github.com:alimtvnetwork/gitmap-v28":         "gitmap-v28",
+		"ssh://git@host.example/foo/bar/gitmap-v28.git":   "gitmap-v28",
+		"gitmap-v28":     "gitmap-v28",
+		"gitmap-v28.git": "gitmap-v28",
 	}
 
 	for in, want := range cases {
@@ -84,7 +84,7 @@ func buildSlugRegexCases() map[string]struct {
 // TestPairsForTarget locks the dual-form contract: every target produces
 // both a `-vN` and a `/vN` replacement so Go module import paths and
 // repo URLs are bumped in the same pass. Both pairs MUST use the same
-// `current` value — historically this test pinned `gitmap-v27` next to
+// `current` value — historically this test pinned `gitmap-v28` next to
 // `gitmap/v9`, a width-crossing desync that drifted whenever the
 // project's own version was bumped.
 func TestPairsForTarget(t *testing.T) {
@@ -114,7 +114,7 @@ func TestPairsForTarget(t *testing.T) {
 // TestPairsForTargetWidthCrossing locks the v9 -> v10/v12 boundary
 // where the captured digit goes from 1 char to 2. Regression guard
 // against the historical desync where test fixtures hard-coded
-// `gitmap-v27` next to a `current=9` argument.
+// `gitmap-v28` next to a `current=9` argument.
 func TestPairsForTargetWidthCrossing(t *testing.T) {
 	cases := []struct{ target, current int }{
 		{9, 10}, {9, 12}, {1, 100}, {99, 100},

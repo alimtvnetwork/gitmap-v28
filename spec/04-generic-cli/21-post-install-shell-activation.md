@@ -4,7 +4,7 @@
 > - [11-build-deploy.md](11-build-deploy.md) — install/deploy step that places the binary on PATH
 > - [19-shell-completion.md](19-shell-completion.md) — completion install uses the same profile-injection pattern
 > - [13-checklist.md](13-checklist.md) — implementation phases that include setup
-> - App reference: [spec/01-app/31-cd.md](../01-app/31-cd.md) — gitmap-v27 navigation helper that consumes this contract
+> - App reference: [spec/01-app/31-cd.md](../01-app/31-cd.md) — gitmap-v28 navigation helper that consumes this contract
 > - Issue references: [spec/02-app-issues/22-installer-path-not-active-after-install.md](../02-app-issues/22-installer-path-not-active-after-install.md), [24-cd-command-does-not-change-shell-directory.md](../02-app-issues/24-cd-command-does-not-change-shell-directory.md), [25-powershell-cd-wrapper-not-loaded.md](../02-app-issues/25-powershell-cd-wrapper-not-loaded.md)
 > - Consolidated guideline: [spec/12-consolidated-guidelines/19-post-install-shell-activation.md](../12-consolidated-guidelines/19-post-install-shell-activation.md)
 
@@ -43,7 +43,7 @@ and is independently auditable by both humans and AI agents.
 
 ## Why This Spec Exists
 
-These bugs in the gitmap-v27 project triggered this generic spec:
+These bugs in the gitmap-v28 project triggered this generic spec:
 
 | Issue | Root Cause |
 |-------|------------|

@@ -11,7 +11,7 @@ package transport
 import (
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // Classify returns one of the three stable transport buckets:

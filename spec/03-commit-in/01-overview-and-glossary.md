@@ -2,7 +2,7 @@
 
 ## 1.1 Purpose (one sentence)
 
-`gitmap-v27 commit-in` (`cin`) replays every commit from one or more **input
+`gitmap-v28 commit-in` (`cin`) replays every commit from one or more **input
 repos** (local folders or Git URLs) into a single **source repo**, in the
 order the inputs were listed and the order their commits originally
 happened, while replicating original author + committer dates, deduping
@@ -23,7 +23,7 @@ wrong.
 |-----------------------|------------------------------------------------------------------------------------------------------|
 | **Source repo**       | First positional arg `<source>`. Destination of every rewritten commit.                              |
 | **Input repo**        | Any positional after `<source>`. Provider of commits. Folder OR Git URL.                             |
-| **Run**               | One invocation of `gitmap-v27 commit-in`. One row in `CommitInRun`.                                      |
+| **Run**               | One invocation of `gitmap-v28 commit-in`. One row in `CommitInRun`.                                      |
 | **Source SHA**        | Original commit SHA inside an input repo. Stable across runs.                                        |
 | **New SHA**           | SHA assigned by `git commit` after replay into the source repo. Never equal to source SHA.           |
 | **Profile**           | Saved bundle of answers (conflict mode, exclusions, message rules, …) bound to a `<source>` path.    |

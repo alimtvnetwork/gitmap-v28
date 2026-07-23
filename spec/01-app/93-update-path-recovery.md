@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `update` command requires access to the gitmap-v27 source repository
+The `update` command requires access to the gitmap-v28 source repository
 to pull changes and rebuild the binary. When the previously saved
 path no longer exists on disk (e.g. the user moved or renamed the
 folder), the command must recover gracefully rather than failing
@@ -41,7 +41,7 @@ When tiers 1–3 produce no valid path:
 4. Trim whitespace.
 5. Validate the path exists on disk with `pathExists()`.
 6. On success: save to DB via `saveRepoPathToDB()` and return.
-7. On failure (path does not exist): clone the gitmap-v27 source repo
+7. On failure (path does not exist): clone the gitmap-v28 source repo
    into that directory via `cloneRepoInto()`, then re-validate.
 8. On successful clone: save to DB and return.
 9. On clone failure: print `ErrUpdateCloneFailed` and re-prompt.
@@ -56,7 +56,7 @@ location (resolved via `os.Executable()` + `filepath.EvalSymlinks()`).
 
 | Key                  | Value                              |
 |----------------------|------------------------------------|
-| `source_repo_path`   | Absolute path to the gitmap-v27 repo  |
+| `source_repo_path`   | Absolute path to the gitmap-v28 repo  |
 
 This is the same key used by the `release-self` command's
 `saveSourceRepoDB()` / `loadSourceRepoDB()` functions, ensuring
@@ -91,7 +91,7 @@ both commands share a single source of truth.
 
 ## Acceptance Criteria
 
-1. `gitmap-v27 update --repo-path <valid-path>` saves the path to the
+1. `gitmap-v28 update --repo-path <valid-path>` saves the path to the
    DB and uses it immediately.
 2. When the embedded `RepoPath` exists on disk, it is used without
    prompting.

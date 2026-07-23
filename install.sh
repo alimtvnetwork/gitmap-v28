@@ -35,7 +35,7 @@ if [ -z "${BASH_VERSION:-}" ]; then
     # If the captured file is missing the shebang or is suspiciously short,
     # the parent `sh` already consumed most of it. Re-fetch from GitHub.
     if [ ! -s "$_gm_tmp" ] || ! head -1 "$_gm_tmp" 2>/dev/null | grep -q '^#!'; then
-        _gm_url="https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap/scripts/install.sh"
+        _gm_url="https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh"
         if command -v curl >/dev/null 2>&1; then
             curl -fsSL "$_gm_url" -o "$_gm_tmp" || {
                 printf '\033[31m  Error: failed to re-fetch installer from %s\033[0m\n' "$_gm_url" >&2
@@ -66,7 +66,7 @@ fi
 # gitmap installer for Linux and macOS
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh | bash
 #
 # Options:
 #   --version <tag>    Install a specific version (e.g. v2.55.0). Default: latest.
@@ -82,7 +82,7 @@ fi
 
 set -euo pipefail
 
-REPO="alimtvnetwork/gitmap-v27"
+REPO="alimtvnetwork/gitmap-v28"
 BINARY_NAME="gitmap"
 TMP_DIR=""
 APP_DIR=""

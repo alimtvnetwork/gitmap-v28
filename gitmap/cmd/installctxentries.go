@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+import "github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 
 // ctxEntry describes a single right-click menu item (or category).
 // A category is an entry with empty Args and non-nil Children.

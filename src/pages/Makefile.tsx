@@ -56,7 +56,7 @@ const MakefilePage = () => {
       <section className="space-y-6">
         <div>
           <h2 className="text-xl font-heading font-semibold mb-3 text-foreground">Quick start</h2>
-          <CodeBlock code={`cd gitmap-v27\nmake build          # full pipeline\nmake run ARGS="scan ~/code"   # build + run\nmake test           # tests with report`} title="Terminal" />
+          <CodeBlock code={`cd gitmap-v28\nmake build          # full pipeline\nmake run ARGS="scan ~/code"   # build + run\nmake test           # tests with report`} title="Terminal" />
         </div>
 
         <div>
@@ -95,7 +95,7 @@ const MakefilePage = () => {
             Each target delegates to{" "}
             <code className="font-mono text-primary">run.sh</code> with the appropriate flag.
             The Makefile lives at{" "}
-            <code className="font-mono text-primary">gitmap-v27/Makefile</code> and invokes{" "}
+            <code className="font-mono text-primary">gitmap-v28/Makefile</code> and invokes{" "}
             <code className="font-mono text-primary">../run.sh</code> relative to the repo root.
             On Windows, use <code className="font-mono text-primary">run.ps1</code> directly
             instead of Make.

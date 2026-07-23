@@ -3,7 +3,7 @@ import { COLORS, TRAFFIC } from "../theme";
 import { FONT_HEADING, FONT_MONO } from "../fonts";
 
 const ROWS = [
-  { name: "gitmap-v27", branch: "main", status: "clean", color: COLORS.success },
+  { name: "gitmap-v28", branch: "main", status: "clean", color: COLORS.success },
   { name: "lovable-cloud", branch: "main", status: "behind 3", color: COLORS.warn },
   { name: "remotion-demos", branch: "feat/intro", status: "dirty", color: COLORS.danger },
   { name: "design-system", branch: "main", status: "clean", color: COLORS.success },

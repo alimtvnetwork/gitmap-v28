@@ -144,7 +144,7 @@ gitmap replace "github.com/old" "github.com/new" --ext .go,.md -y`} />
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li><a href="/fix-repo" className="text-primary hover:underline">fix-repo</a> — Rewrite <code>{`{base}-vN`}</code> tokens specifically</li>
           <li><a href="/clone-fix-repo" className="text-primary hover:underline">clone-fix-repo</a> — Clone + fix-repo --all in one shot</li>
-          <li><a href="/release-self" className="text-primary hover:underline">release-self</a> — Bump gitmap-v27's own version</li>
+          <li><a href="/release-self" className="text-primary hover:underline">release-self</a> — Bump gitmap-v28's own version</li>
         </ul>
       </section>
     </div>

@@ -14,7 +14,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // applyStatus is one of: "ok" | "skip" | "fail". prev/next carry the

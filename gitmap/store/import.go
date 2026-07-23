@@ -3,8 +3,8 @@ package store
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // ImportAll restores a DatabaseExport into the database using upsert/insert-or-ignore semantics.

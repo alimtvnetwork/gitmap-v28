@@ -35,7 +35,7 @@ The SQLite database stays binary-relative (`data/`) — **not affected** by this
 ## New Constants
 
 ```go
-// Root directory — all repo-local gitmap-v27 data lives here.
+// Root directory — all repo-local gitmap-v28 data lives here.
 const GitMapDir = ".gitmap"
 
 // Subdirectories.
@@ -107,13 +107,13 @@ Update user-facing messages that reference old paths:
 
 ## .gitignore Consideration
 
-Projects using gitmap-v27 should add `.gitmap/output/` to their `.gitignore`.
+Projects using gitmap-v28 should add `.gitmap/output/` to their `.gitignore`.
 The `.gitmap/release/` directory should remain tracked (release metadata is
 committed). The `.gitmap/` root itself should NOT be gitignored.
 
 ## Automatic Migration
 
-When any gitmap-v27 command runs and detects a legacy directory in the current
+When any gitmap-v28 command runs and detects a legacy directory in the current
 working directory, it automatically moves the contents to `.gitmap/`:
 
 | Legacy Directory   | Target                | Trigger                        |

@@ -7,7 +7,7 @@
 High — data integrity and portability issue.
 
 ## Symptom
-Running `gitmap-v27 scan` creates the SQLite database at `<CWD>/.gitmap/output/data/gitmap.db`
+Running `gitmap-v28 scan` creates the SQLite database at `<CWD>/.gitmap/output/data/gitmap.db`
 inside the scan output directory, instead of at `<binary-location>/data/gitmap.db`. This
 means:
 - The database location changes depending on which directory the user runs the command from.

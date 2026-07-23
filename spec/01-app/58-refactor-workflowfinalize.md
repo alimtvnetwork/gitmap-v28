@@ -87,7 +87,7 @@ GitHub upload logic and Go cross-compilation.
 
 1. **No behavior changes.** Pure file-level extraction — no renames,
    no signature changes, no logic modifications.
-2. **Package stays `release`.** All files remain in `gitmap-v27/release/`.
+2. **Package stays `release`.** All files remain in `gitmap-v28/release/`.
 3. **Shared state** (`LastMeta`, `lastZipChecksums`) stays in
    `workflowfinalize.go` since it's the orchestration hub. Other files
    reference these package-level vars directly.

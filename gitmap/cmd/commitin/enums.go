@@ -9,7 +9,7 @@
 //   - No magic strings — every literal is a constant.
 package commitin
 
-import "github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+import "github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 
 // ---- ConflictMode -------------------------------------------------
 type ConflictMode uint8

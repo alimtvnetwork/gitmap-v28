@@ -10,7 +10,7 @@ import "testing"
 func TestApplyAllTargets_VersionScopeMatrix(t *testing.T) {
 	// IMPORTANT: use a synthetic base ("testpkg") that does NOT match this
 	// repo's own base name. If we used "gitmap" here, the fix-repo digit-
-	// capture rewriter would smash literal `gitmap-v2` fixtures to the
+	// capture rewriter would smash literal `gitmap-v28` fixtures to the
 	// current version on every bump (see mem: fix-repo digit-capture rule).
 	const base = "testpkg"
 	type tc struct {

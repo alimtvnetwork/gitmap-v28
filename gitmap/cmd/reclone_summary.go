@@ -21,8 +21,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/clonenow"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenow"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // printRecloneExecuteSummary emits the totals + folder-tree preview.

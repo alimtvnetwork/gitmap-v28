@@ -2,7 +2,7 @@
 
 ## Overview
 
-One-liner installer scripts that download, verify, and install the `gitmap-v27`
+One-liner installer scripts that download, verify, and install the `gitmap-v28`
 binary from GitHub Releases. Each script supports version pinning, checksum
 verification, and automatic PATH registration.
 
@@ -12,8 +12,8 @@ verification, and automatic PATH registration.
 
 | Field       | Value                                              |
 |-------------|----------------------------------------------------|
-| GitHub Repo | `alimtvnetwork/gitmap-v27`                 |
-| Binary Name | `gitmap-v27` (`gitmap.exe` on Windows)                 |
+| GitHub Repo | `alimtvnetwork/gitmap-v28`                 |
+| Binary Name | `gitmap-v28` (`gitmap.exe` on Windows)                 |
 | Asset Format| `gitmap-{os}-{arch}.zip` (Windows), `gitmap-{os}-{arch}.tar.gz` (Unix) |
 | Checksums   | `checksums.txt` (SHA-256, one line per asset)      |
 
@@ -30,7 +30,7 @@ on locked-down machines, older Windows versions, and fresh installs where
 `irm` may not be available.
 
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap-v27/scripts/install.ps1'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap-v28/scripts/install.ps1'))
 ```
 
 ### Short-Form (PowerShell 5+ / Modern Systems)
@@ -39,7 +39,7 @@ If the machine already has TLS 1.2 defaults and unrestricted execution
 policy (e.g., developer workstations), the short form also works:
 
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap-v27/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap-v28/scripts/install.ps1 | iex
 ```
 
 ### Why the Full Bootstrap?
@@ -56,7 +56,7 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap-v27/s
 | Parameter    | Type   | Default                        | Description                        |
 |--------------|--------|--------------------------------|------------------------------------|
 | `Version`    | string | latest (via GitHub API)        | Pin a specific release tag         |
-| `InstallDir` | string | `$env:LOCALAPPDATA\gitmap-v27`     | Target directory for the binary    |
+| `InstallDir` | string | `$env:LOCALAPPDATA\gitmap-v28`     | Target directory for the binary    |
 | `Arch`       | string | auto-detect                    | Force `amd64` or `arm64`           |
 | `NoPath`     | switch | false                          | Skip adding install dir to PATH    |
 
@@ -73,7 +73,7 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap-v27/s
 
 ### File
 
-`gitmap-v27/scripts/install.ps1`
+`gitmap-v28/scripts/install.ps1`
 
 ---
 
@@ -82,19 +82,19 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap-v27/s
 ### One-Liner
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap-v27/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap-v28/scripts/install.sh | bash
 ```
 
 ### Version-Pinned
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap-v27/scripts/install.sh | bash -s -- --version v2.55.0
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap-v28/scripts/install.sh | bash -s -- --version v2.55.0
 ```
 
 ### Custom Directory
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap-v27/scripts/install.sh | bash -s -- --dir /opt/gitmap-v27 --version v2.55.0
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap-v28/scripts/install.sh | bash -s -- --dir /opt/gitmap-v28 --version v2.55.0
 ```
 
 ### Parameters (CLI Flags)
@@ -116,7 +116,7 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitma
 6. If `.tar.gz` not found in checksums, fall back to `.zip` variant.
 7. Extract archive to temp directory; search for binary using 4-priority
    matching: exact name → platform-specific → versioned pattern
-   (e.g., `gitmap-v27.55.0-linux-amd64`) → any executable.
+   (e.g., `gitmap-v28.55.0-linux-amd64`) → any executable.
 8. Rename-first strategy for safe upgrades of running binaries.
 9. Set executable permission (`chmod +x`).
 10. Auto-detect shell (bash/zsh/fish) and append PATH entry to the
@@ -126,7 +126,7 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitma
 
 ### File
 
-`gitmap-v27/scripts/install.sh`
+`gitmap-v28/scripts/install.sh`
 
 ---
 

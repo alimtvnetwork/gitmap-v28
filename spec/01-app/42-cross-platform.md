@@ -2,7 +2,7 @@
 
 ## Overview
 
-gitmap-v27 supports Windows, Linux, and macOS with feature parity across
+gitmap-v28 supports Windows, Linux, and macOS with feature parity across
 all platforms. Build scripts, deployment, and CI/CD are designed to
 work identically regardless of the host OS.
 
@@ -42,7 +42,7 @@ Reads configuration from the same `powershell.json` file using `jq` or
 
 ## Makefile
 
-The `gitmap-v27/Makefile` provides a standard interface wrapping `run.sh`:
+The `gitmap-v28/Makefile` provides a standard interface wrapping `run.sh`:
 
 | Target       | Description                    | Command               |
 |--------------|--------------------------------|-----------------------|
@@ -62,7 +62,7 @@ The `gitmap-v27/Makefile` provides a standard interface wrapping `run.sh`:
 The build script auto-detects the platform:
 
 ```bash
-BINARY_NAME="gitmap-v27"
+BINARY_NAME="gitmap-v28"
 if [[ "$(uname -s)" == *MINGW* ]] || [[ "$(uname -s)" == *MSYS* ]]; then
     BINARY_NAME="gitmap.exe"
 fi
@@ -117,7 +117,7 @@ Triggers on tags matching `v*`.
 
 1. Checkout code
 2. Set up Go toolchain
-3. Run `gitmap-v27 release` with `--compress --checksums`
+3. Run `gitmap-v28 release` with `--compress --checksums`
 4. Upload release assets to GitHub
 
 ---
@@ -126,7 +126,7 @@ Triggers on tags matching `v*`.
 
 - All scripts must read from `powershell.json` as the single source of truth
 - Bash scripts require `bash 4+` (macOS ships `bash 3` — use `#!/usr/bin/env bash`)
-- Binary names: `gitmap-v27` on Unix, `gitmap.exe` on Windows
+- Binary names: `gitmap-v28` on Unix, `gitmap.exe` on Windows
 - No external CLI dependencies beyond `git`, `go`, `jq` or `python3`
 
 ## Cross-References (Generic Specifications)

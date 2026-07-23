@@ -18,7 +18,7 @@ Repeated mismatch between general specs (`spec/03-general/`) and app-specific sp
 ### Canonical Two-Phase Flow
 
 **Phase 1 — Handoff and foreground execution:**
-1. `gitmap-v27 update` creates handoff copy in active binary directory (`gitmap-update-<pid>.exe`, fallback `%TEMP%`)
+1. `gitmap-v28 update` creates handoff copy in active binary directory (`gitmap-update-<pid>.exe`, fallback `%TEMP%`)
 2. Launch handoff copy with hidden `update-runner` command using `cmd.Run()` (foreground/blocking)
 3. Parent waits for worker to complete. Terminal stays attached. **Never async detach.**
 
@@ -27,8 +27,8 @@ Repeated mismatch between general specs (`spec/03-general/`) and app-specific sp
 2. Run `run.ps1 -Update` (full pipeline: pull, build, deploy)
 3. PATH sync uses **rename-first** in update mode, then copy-retry as fallback
 4. Print executable-derived version comparison (before and after)
-5. Run `gitmap-v27 changelog --latest` from the updated binary
-6. Run `gitmap-v27 update-cleanup` to remove handoff and `.old` artifacts
+5. Run `gitmap-v28 changelog --latest` from the updated binary
+6. Run `gitmap-v28 update-cleanup` to remove handoff and `.old` artifacts
 
 ## Acceptance Criteria
 

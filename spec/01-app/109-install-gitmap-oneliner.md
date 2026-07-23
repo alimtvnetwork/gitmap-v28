@@ -24,16 +24,16 @@ machine.
   ─────────────────────
 
   🪟  Windows · PowerShell
-     irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap/scripts/install.ps1 | iex
+     irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1 | iex
 
   🐧  Linux / macOS
-     curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap/scripts/install.sh | sh
+     curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh | sh
 ```
 
 ## Implementation contract
 
 - **URLs are fixed.** They always point at the canonical
-  `alimtvnetwork/gitmap-v27` repo on the `main` branch. The same URLs
+  `alimtvnetwork/gitmap-v28` repo on the `main` branch. The same URLs
   are already used by `MsgInstallHintWindows` / `MsgInstallHintUnix` in
   `gitmap/constants/constants_release.go` — this command reuses those
   constants verbatim so there is exactly one source of truth.

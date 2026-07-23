@@ -25,7 +25,7 @@ const terminalLines = [
   { text: "", type: "output" as const },
   { text: "  ✓  Repo path          /home/user/repos", type: "accent" as const, delay: 200 },
   { text: "  ✓  Active binary      /usr/local/bin/gitmap (v2.27.0)", type: "accent" as const, delay: 150 },
-  { text: "  ✓  Deployed binary    /opt/gitmap-v27/gitmap-v27", type: "accent" as const, delay: 150 },
+  { text: "  ✓  Deployed binary    /opt/gitmap-v28/gitmap-v28", type: "accent" as const, delay: 150 },
   { text: "  ✓  Version match      running = deployed", type: "accent" as const, delay: 150 },
   { text: "  ✓  Git                git version 2.43.0", type: "accent" as const, delay: 150 },
   { text: "  ✓  Go                 go1.22.2", type: "accent" as const, delay: 150 },

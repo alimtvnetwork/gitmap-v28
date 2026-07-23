@@ -45,7 +45,7 @@ env:
   TEXT_FILTER: <optional regex on .Text to scope a multi-rule analyzer>
   BASELINE: /tmp/lint-<name>-baseline/report.json
   CURRENT_OUT: /tmp/lint-<name>-current/report.json
-run: bash .github/scripts/check-single-linter-diff.sh gitmap-v27
+run: bash .github/scripts/check-single-linter-diff.sh gitmap-v28
 ```
 
 Each linter has its own rolling per-SHA cache slot (`golangci-<name>-baseline-main-<sha>`) restored via prefix match.

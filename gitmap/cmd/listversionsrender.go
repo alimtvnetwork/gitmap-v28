@@ -13,7 +13,7 @@ package cmd
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/stablejson"
 )
 
 // list-versions wire keys. Names + order are the contract.

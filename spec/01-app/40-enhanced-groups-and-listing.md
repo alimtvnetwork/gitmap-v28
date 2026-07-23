@@ -8,15 +8,15 @@ footers on output, and (5) group-scoped pull/exec/status operations.
 
 ---
 
-## 1. Active Group (`gitmap-v27 g`)
+## 1. Active Group (`gitmap-v28 g`)
 
 ### Behavior
 
 | Command | Effect |
 |---------|--------|
-| `gitmap-v27 g <name>` | Sets `<name>` as the active group (persisted in DB) |
-| `gitmap-v27 g` | Prints the currently active group name |
-| `gitmap-v27 g clear` | Clears the active group |
+| `gitmap-v28 g <name>` | Sets `<name>` as the active group (persisted in DB) |
+| `gitmap-v28 g` | Prints the currently active group name |
+| `gitmap-v28 g clear` | Clears the active group |
 
 The active group is stored in a `Settings` table (key-value):
 
@@ -29,16 +29,16 @@ CREATE TABLE IF NOT EXISTS Settings (
 
 Key: `active_group`. Value: group name.
 
-### Multi-Group: `gitmap-v27 multi-group` (alias: `mg`)
+### Multi-Group: `gitmap-v28 multi-group` (alias: `mg`)
 
 | Command | Effect |
 |---------|--------|
-| `gitmap-v27 mg g1,g2,g3` | Sets multiple active groups (comma-separated) |
-| `gitmap-v27 mg` | Prints the currently active multi-group list |
-| `gitmap-v27 mg clear` | Clears multi-group selection |
-| `gitmap-v27 mg pull` | Pulls repos from all active multi-groups |
-| `gitmap-v27 mg status` | Shows status for all active multi-group repos |
-| `gitmap-v27 mg exec <args>` | Runs git command across all active multi-group repos |
+| `gitmap-v28 mg g1,g2,g3` | Sets multiple active groups (comma-separated) |
+| `gitmap-v28 mg` | Prints the currently active multi-group list |
+| `gitmap-v28 mg clear` | Clears multi-group selection |
+| `gitmap-v28 mg pull` | Pulls repos from all active multi-groups |
+| `gitmap-v28 mg status` | Shows status for all active multi-group repos |
+| `gitmap-v28 mg exec <args>` | Runs git command across all active multi-group repos |
 
 Key: `active_multi_group`. Value: comma-separated group names.
 
@@ -49,15 +49,15 @@ When an active group or multi-group is set, commands that accept
 
 | Command | Behavior |
 |---------|----------|
-| `gitmap-v27 g pull` | Pull all repos in the active group |
-| `gitmap-v27 g status` | Show status for active group repos |
-| `gitmap-v27 g exec <args>` | Run git across active group repos |
+| `gitmap-v28 g pull` | Pull all repos in the active group |
+| `gitmap-v28 g status` | Show status for active group repos |
+| `gitmap-v28 g exec <args>` | Run git across active group repos |
 
 ---
 
 ## 2. List with Type Filter
 
-### `gitmap-v27 ls <type>`
+### `gitmap-v28 ls <type>`
 
 Accepts an optional positional type keyword to filter by project type:
 
@@ -68,14 +68,14 @@ Accepts an optional positional type keyword to filter by project type:
 | `react` | `ProjectKeyReact` |
 | `cpp` | `ProjectKeyCpp` |
 | `csharp` | `ProjectKeyCSharp` |
-| `groups` | Lists all groups (same as `gitmap-v27 group list`) |
+| `groups` | Lists all groups (same as `gitmap-v28 group list`) |
 
 When a type is provided, the output shows repos detected as that
 project type with helper hints at the bottom.
 
-### `gitmap-v27 ls groups`
+### `gitmap-v28 ls groups`
 
-Shows all defined groups (equivalent to `gitmap-v27 group list`).
+Shows all defined groups (equivalent to `gitmap-v28 group list`).
 
 ---
 
@@ -88,21 +88,21 @@ These help users discover related commands.
 
 | After command | Hints shown |
 |--------------|-------------|
-| `gitmap-v27 go-repos` / `gr` | CD navigation, grouping, listing |
-| `gitmap-v27 ls` | Grouping, filtering by type, CD |
-| `gitmap-v27 ls go` | Group add, CD, pull by group |
-| `gitmap-v27 ls groups` | Group create, group show |
-| `gitmap-v27 g` (active group) | Pull, status, exec, clear |
-| `gitmap-v27 cd <name>` | Set default, list repos |
-| `gitmap-v27 group list` | Group create, group show, delete |
+| `gitmap-v28 go-repos` / `gr` | CD navigation, grouping, listing |
+| `gitmap-v28 ls` | Grouping, filtering by type, CD |
+| `gitmap-v28 ls go` | Group add, CD, pull by group |
+| `gitmap-v28 ls groups` | Group create, group show |
+| `gitmap-v28 g` (active group) | Pull, status, exec, clear |
+| `gitmap-v28 cd <name>` | Set default, list repos |
+| `gitmap-v28 group list` | Group create, group show, delete |
 
 ### Format
 
 ```
 Hints:
-  → gitmap-v27 cd <repo-name>       Navigate to a repo
-  → gitmap-v27 g create <name>      Create a group
-  → gitmap-v27 ls go                List only Go projects
+  → gitmap-v28 cd <repo-name>       Navigate to a repo
+  → gitmap-v28 g create <name>      Create a group
+  → gitmap-v28 ls go                List only Go projects
 ```
 
 Hints are suppressed with `--quiet` or `-q`.
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS Settings (
 
 | Scenario | Behavior |
 |----------|----------|
-| Active group not set | `"No active group. Use 'gitmap-v27 g <name>' to set one."` |
+| Active group not set | `"No active group. Use 'gitmap-v28 g <name>' to set one."` |
 | Invalid type keyword | `"Unknown type: %s. Supported: go, node, react, cpp, csharp"` |
 | Multi-group name not found | `"Group not found: %s"` |
 

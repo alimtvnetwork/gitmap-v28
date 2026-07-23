@@ -52,7 +52,7 @@ tool set-source-repo <path>
 After the `Deploy-Binary` function completes successfully:
 
 ```powershell
-# Sync source repo path in DB so "gitmap-v27 update" uses this repo location
+# Sync source repo path in DB so "gitmap-v28 update" uses this repo location
 $syncBinary = $destFile
 if (-not (Test-Path $syncBinary)) { $syncBinary = $BinaryPath }
 if (Test-Path $syncBinary) {

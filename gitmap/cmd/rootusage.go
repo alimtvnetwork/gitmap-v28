@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // printUsage displays grouped help text for all commands and flags.

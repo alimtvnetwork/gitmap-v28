@@ -26,7 +26,7 @@ const CommitInWhatItCreates = () => (
           </tr>
           <tr className="border-t border-border">
             <td className="px-4 py-2 font-mono text-xs text-primary">gitmap cin ./gitmap all</td>
-            <td className="px-4 py-2 text-xs text-muted-foreground">Every <code>./gitmap-v27</code>, <code>-v2</code>, …, <code>-vN</code> sibling on disk is auto-discovered and replayed into <code>./gitmap-v27/</code> oldest&nbsp;→&nbsp;newest.</td>
+            <td className="px-4 py-2 text-xs text-muted-foreground">Every <code>./gitmap-v28</code>, <code>-v2</code>, …, <code>-vN</code> sibling on disk is auto-discovered and replayed into <code>./gitmap-v28/</code> oldest&nbsp;→&nbsp;newest.</td>
           </tr>
           <tr className="border-t border-border">
             <td className="px-4 py-2 font-mono text-xs text-primary">gitmap cin ./gitmap -3</td>

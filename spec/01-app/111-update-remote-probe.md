@@ -16,12 +16,12 @@ mechanical role: fetch + place the binary for the slug Go hands it.
 `resolveLatestRepoSlug()` returns `(slug, source, err)` where `source` is
 one of `"sibling-probe"`, `"current-release"`, `"current-main"`.
 
-1. **Sibling probe** — parse current slug (`gitmap-v27`) → base
+1. **Sibling probe** — parse current slug (`gitmap-v28`) → base
    (`gitmap`) + `N=23`. Fire `UpdateProbeMaxSiblings` (20) parallel
    `HEAD https://github.com/<owner>/gitmap-v<N+i>` requests with a
    per-request timeout of `UpdateProbeTimeoutSec` (5s). Any 2xx counts as
    a hit. **Max-hit index wins** (e.g. if v24, v25, v27 all 200, pick
-   v27). Returns `("gitmap-v27", "sibling-probe", nil)`.
+   v27). Returns `("gitmap-v28", "sibling-probe", nil)`.
 2. **Current-release fallback** — no sibling hits → `GET
    api.github.com/repos/<owner>/<current>/releases/latest`. If 200,
    return current slug with source `"current-release"`.
@@ -53,11 +53,11 @@ Once a slug is resolved:
 ## Logging
 
 ```
-■ Probing sibling repos (gitmap-v27..gitmap-v43)...
-  hit: gitmap-v27 (HTTP 200)
-  hit: gitmap-v27 (HTTP 200)
-✓ Resolved: gitmap-v27 (source: sibling-probe)
-■ Fetching installer: https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install.ps1
+■ Probing sibling repos (gitmap-v28..gitmap-v43)...
+  hit: gitmap-v28 (HTTP 200)
+  hit: gitmap-v28 (HTTP 200)
+✓ Resolved: gitmap-v28 (source: sibling-probe)
+■ Fetching installer: https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1
 ```
 
 ## Exit Codes

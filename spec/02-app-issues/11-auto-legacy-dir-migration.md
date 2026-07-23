@@ -9,7 +9,7 @@ automatically migrated to `.gitmap/` subdirectories when detected.
 
 Release workflows can temporarily restore tracked legacy `.release/` files when
 checking out the original branch after tagging from a release branch. To prevent
-old folders from persisting after `gitmap-v27 release`, migration now runs in two
+old folders from persisting after `gitmap-v28 release`, migration now runs in two
 places:
 
 1. On CLI startup (except `version`)

@@ -3,7 +3,7 @@
 > **Related specs:**
 > - [11-build-deploy.md](11-build-deploy.md) — install/deploy step that places the binary on PATH
 > - [21-post-install-shell-activation.md](21-post-install-shell-activation.md) — profile snippet contract this spec re-uses for shell re-source
-> - App reference: [spec/03-general/02d-deploy-patterns.md](../03-general/02d-deploy-patterns.md) — gitmap-v27 nested deploy pattern that motivates this generic spec
+> - App reference: [spec/03-general/02d-deploy-patterns.md](../03-general/02d-deploy-patterns.md) — gitmap-v28 nested deploy pattern that motivates this generic spec
 > - Issue references: [spec/02-app-issues/22-installer-path-not-active-after-install.md](../02-app-issues/22-installer-path-not-active-after-install.md)
 > - Supersedes: the v2.90.0 drive-root forwarding shim approach (now removed)
 
@@ -17,7 +17,7 @@ caller can immediately invoke the CLI, and MUST aggressively remove
 prior-deploy artifacts on every run.
 
 This spec replaces the earlier drive-root forwarding shim pattern
-(e.g. `E:\gitmap.exe` -> `E:\bin-run\gitmap-v27\gitmap.exe`). One install,
+(e.g. `E:\gitmap.exe` -> `E:\bin-run\gitmap-v28\gitmap.exe`). One install,
 one location, one PATH entry.
 
 ---
@@ -217,17 +217,17 @@ All three installer entry points implement DFD-1..DFD-8 with matching
 semantics. Platform-specific items (DFD-7 drive-root shim) are no-ops
 where they don't apply.
 
-| Capability | `run.ps1` (Windows dev) | `run.sh` (Unix dev) | `gitmap-v27/scripts/install.sh` (end-user) |
+| Capability | `run.ps1` (Windows dev) | `run.sh` (Unix dev) | `gitmap-v28/scripts/install.sh` (end-user) |
 |------------|-------------------------|---------------------|----------------------------------------|
-| **DFD-1** Wrapped layout `<root>/gitmap-cli/gitmap-v27(.exe)` | `Deploy-Binary` → `$appDir = Join-Path $target "gitmap-cli"` | `deploy_binary()` → `app_dir="$target/gitmap-cli"` (v3.13.11+) | `install_binary()` → `INSTALL_DIR/gitmap-cli/` (v3.13.11+) |
-| **DFD-2** Resolve target from PATH first | `Resolve-DeployTarget` walks `Get-Command gitmap-v27`; accepts `gitmap-cli` or legacy `gitmap-v27` parent | `resolve_deploy_target()` walks `command -v gitmap-v27`; accepts `gitmap-cli` or legacy `gitmap-v27` parent | Honors `--prefix` then `$HOME/.local` default |
-| **DFD-3** Migrate legacy unwrapped install + legacy `gitmap-v27/` folder | `Repair-DeployLayout` (handles unwrapped + `gitmap-v27` → `gitmap-cli`) | `repair_deploy_layout()` (handles unwrapped + `gitmap-v27` → `gitmap-cli`, v3.13.11+) | `repair_layout()` (handles unwrapped + `gitmap-v27` → `gitmap-cli`, v3.13.11+) |
+| **DFD-1** Wrapped layout `<root>/gitmap-cli/gitmap-v28(.exe)` | `Deploy-Binary` → `$appDir = Join-Path $target "gitmap-cli"` | `deploy_binary()` → `app_dir="$target/gitmap-cli"` (v3.13.11+) | `install_binary()` → `INSTALL_DIR/gitmap-cli/` (v3.13.11+) |
+| **DFD-2** Resolve target from PATH first | `Resolve-DeployTarget` walks `Get-Command gitmap-v28`; accepts `gitmap-cli` or legacy `gitmap-v28` parent | `resolve_deploy_target()` walks `command -v gitmap-v28`; accepts `gitmap-cli` or legacy `gitmap-v28` parent | Honors `--prefix` then `$HOME/.local` default |
+| **DFD-3** Migrate legacy unwrapped install + legacy `gitmap-v28/` folder | `Repair-DeployLayout` (handles unwrapped + `gitmap-v28` → `gitmap-cli`) | `repair_deploy_layout()` (handles unwrapped + `gitmap-v28` → `gitmap-cli`, v3.13.11+) | `repair_layout()` (handles unwrapped + `gitmap-v28` → `gitmap-cli`, v3.13.11+) |
 | **DFD-4** PATH registration (user + session) | `Register-OnPath` (user env + `$env:Path`) | `register_on_path()` (profile snippet + `export`) | `register_on_path()` (profile snippet) |
 | **DFD-5** Re-source shell profile | `21-post-install-shell-activation` snippet emitted | `source_profile_snippet()` per spec 21 | `source_profile_snippet()` per spec 21 |
 | **DFD-6** Pre-deploy cleanup of `.old`/update temps | `Invoke-DeployCleanup` | `invoke_deploy_cleanup()` | `invoke_deploy_cleanup()` |
 | **DFD-7** Drive-root shim removal | `Remove-DriveRootShim` | n/a (Unix has no drive roots) — logged as "skipped" | n/a |
 | **DFD-8** Stale active-binary migration + PATH strip | `Migrate-StaleActiveBinary` + `Remove-FromUserPath` | `migrate_stale_active_binary()` + `remove_from_user_path()` | `migrate_stale_active_binary()` + `remove_from_user_path()` |
-| **DFD-9** Persist resolved target back to config | `Sync-ConfigDeployPath` rewrites `powershell.json` | `sync_config_deploy_path()` rewrites `gitmap-v27/shell.json` | n/a (end-user installer is config-less) |
+| **DFD-9** Persist resolved target back to config | `Sync-ConfigDeployPath` rewrites `powershell.json` | `sync_config_deploy_path()` rewrites `gitmap-v28/shell.json` | n/a (end-user installer is config-less) |
 
 ### Verification matrix
 
@@ -235,7 +235,7 @@ where they don't apply.
 |----------|--------|----------|-------|
 | Windows 11 / PowerShell 7 | `run.ps1` | ✅ v2.94.0 | Original DFD trigger; full migration path covered. |
 | Linux (Ubuntu 22.04, bash) | `run.sh` | ✅ v2.94.0 | Mirrored helpers, profile snippet sourced. |
-| macOS (zsh) | `gitmap-v27/scripts/install.sh` | ✅ v2.94.0 | `~/.local/bin/gitmap-v27/` layout, `~/.zshrc` snippet. |
+| macOS (zsh) | `gitmap-v28/scripts/install.sh` | ✅ v2.94.0 | `~/.local/bin/gitmap-v28/` layout, `~/.zshrc` snippet. |
 
 If a future change touches one driver, the other two MUST be updated
 in the same commit so the parity table stays accurate.
@@ -250,7 +250,7 @@ in CI was **intentionally removed in v3.13.9** and will not be reinstated.
 
 **Why removed:**
 - The job kept regressing on legitimate cross-platform divergences
-  (e.g. `gitmap-cli/` vs legacy `gitmap-v27/`) and produced more red builds
+  (e.g. `gitmap-cli/` vs legacy `gitmap-v28/`) and produced more red builds
   than real bugs caught.
 - Sandbox layouts in CI never fully match real user installs, so passing
   CI did not guarantee a clean end-user experience anyway.
@@ -259,11 +259,11 @@ in CI was **intentionally removed in v3.13.9** and will not be reinstated.
 
 **Replacement validation (defense in depth):**
 
-1. **`gitmap-v27 doctor`** — every user runs this on first launch and after
+1. **`gitmap-v28 doctor`** — every user runs this on first launch and after
    updates. It checks: PATH binary present, deployed binary present,
    active vs. deployed version match, app subdir matches the manifest
-   (`gitmap-v27/constants/deploy-manifest.json`), and reports actionable
-   fixes via `gitmap-v27 doctor --fix-path`.
+   (`gitmap-v28/constants/deploy-manifest.json`), and reports actionable
+   fixes via `gitmap-v28 doctor --fix-path`.
 2. **End-user smoke testing** — release notes call out layout changes,
    and the project author runs `./run.ps1` (Windows) and `./run.sh`
    (Linux) against a clean sandbox before tagging.
@@ -274,5 +274,5 @@ in CI was **intentionally removed in v3.13.9** and will not be reinstated.
    commit that touches any of the three driver scripts.
 
 If a layout regression slips past doctor + smoke testing, file an issue
-and add a **targeted** unit test to `gitmap-v27/cmd/*_test.go` for the
+and add a **targeted** unit test to `gitmap-v28/cmd/*_test.go` for the
 specific failure — do NOT reinstate a broad `deploy-dfd` job.

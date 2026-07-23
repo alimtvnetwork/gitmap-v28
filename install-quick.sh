@@ -4,14 +4,14 @@
 # DUAL-MODE EXECUTION (spec/01-app/108-install-quick-auto-source.md):
 #
 #   1. Eval-mode (RECOMMENDED — auto-activates PATH in current shell):
-#        eval "$(curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.sh)"
+#        eval "$(curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh)"
 #
 #      Because `eval` runs the script directly inside the user's interactive
 #      shell instead of a child bash process, the trailing `source <profile>`
 #      mutates the *current* PATH. No "open a new terminal" step needed.
 #
 #   2. Pipe-mode (LEGACY — child process, prints reload hint):
-#        curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.sh | bash
+#        curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash
 #
 #      Works exactly as before. The script detects it's running in a child
 #      bash and prints a loud "Run this now: source <profile>" banner at the
@@ -34,7 +34,7 @@
 # them only inside the main function via a subshell so the user's shell
 # state is never modified.
 
-REPO="alimtvnetwork/gitmap-v27"
+REPO="alimtvnetwork/gitmap-v28"
 INSTALLER_URL="https://raw.githubusercontent.com/${REPO}/main/gitmap/scripts/install.sh"
 DEFAULT_DIR="${HOME}/.local/bin"
 

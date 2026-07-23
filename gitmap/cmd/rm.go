@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // rmUsage describes the `gitmap rm` command.

@@ -3,7 +3,7 @@
 > **Status:** Authoritative draft (2026-04-26).
 > **Audience:** Any AI agent or human implementer responsible for adding
 > end-to-end (e2e) test coverage to the URL-based discovery, probe, and
-> clone surface of any host repo following the gitmap-v27 framework.
+> clone surface of any host repo following the gitmap-v28 framework.
 > **Related specs:**
 > - [12-testing.md](12-testing.md) — base unit/integration test layout
 > - [../07-generic-release/09-generic-install-script-behavior.md](../07-generic-release/09-generic-install-script-behavior.md) — install-script contract under test
@@ -38,8 +38,8 @@ This spec covers e2e tests for three layers that together implement the
 
 | Layer | Package | Behaviors under test |
 |-------|---------|----------------------|
-| Probe | `gitmap-v27/probe/` | `ls-remote` happy path, shallow-clone fallback, empty-tag remote, malformed URL, temp-dir cleanup |
-| Cloner (direct URL) | `gitmap-v27/cloner/` | URL classification, folder derivation, exists-conflict, successful clone, DB upsert |
+| Probe | `gitmap-v28/probe/` | `ls-remote` happy path, shallow-clone fallback, empty-tag remote, malformed URL, temp-dir cleanup |
+| Cloner (direct URL) | `gitmap-v28/cloner/` | URL classification, folder derivation, exists-conflict, successful clone, DB upsert |
 | Install scripts | `scripts/install.sh`, `scripts/install.ps1` | Strict-tag mode, 20-parallel sibling probe, latest-release fallback, main-HEAD last-resort |
 
 **Out of scope:** unit tests for pure helpers (covered by `12-testing.md`),
@@ -139,9 +139,9 @@ e2e jobs with network disabled where the runner allows.
 
 ## 4. Probe layer e2e tests
 
-Under test: `gitmap-v27/probe/probe.go` (`RunOne`) and
-`gitmap-v27/probe/clone.go` (`tryShallowClone`), driven through the public
-CLI surface `gitmap-v27 probe <URL>` (and `gitmap-v27 probe <URL> --json`) so
+Under test: `gitmap-v28/probe/probe.go` (`RunOne`) and
+`gitmap-v28/probe/clone.go` (`tryShallowClone`), driven through the public
+CLI surface `gitmap-v28 probe <URL>` (and `gitmap-v28 probe <URL> --json`) so
 the tests exercise the same code path real users hit.
 
 ### 4.0 Per-scenario contract (read first)
@@ -151,7 +151,7 @@ sections so the test body can be generated mechanically:
 
 1. **Fixture preconditions** — exact fixture-builder calls and any
    filesystem state that must exist *before* the command runs.
-2. **CLI invocation** — the literal `argv` passed to the gitmap-v27 binary
+2. **CLI invocation** — the literal `argv` passed to the gitmap-v28 binary
    under test (built once per `TestMain` via `go build -o ./gitmap-e2e`).
    `${URL}` is the bare-repo `file://` URL from §3.
 3. **Expected stdout / stderr / exit code** — asserted with substring
@@ -315,7 +315,7 @@ guard via `t.Cleanup`.
 
 ## 5. Cloner direct-URL e2e tests
 
-Under test: the direct-URL path in `gitmap-v27/cloner/` (see
+Under test: the direct-URL path in `gitmap-v28/cloner/` (see
 `spec/01-app/88-clone-direct-url.md`).
 
 ### 5.1 Required test classes (MUST)

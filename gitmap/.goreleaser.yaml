@@ -18,9 +18,9 @@ builds:
       - -trimpath
     ldflags:
       - -s -w
-      - -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/constants.Version={{ .Version }}'
-      - -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildCommit={{ .FullCommit }}'
-      - -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildDate={{ .Date }}'
+      - -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.Version={{ .Version }}'
+      - -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit={{ .FullCommit }}'
+      - -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildDate={{ .Date }}'
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
 

@@ -7,7 +7,7 @@
   "assets": [],
   "changelog": [
     "Bumped `Version` constant to `4.42.0` (Go) and `VERSION` to `v4.42.0` (web)",
-    "Re-pinned the root `README.md` \"Pinned version\" section, one-line installers, and version matrix asset URLs to `v4.42.0` / `gitmap-v27.42.0-*`"
+    "Re-pinned the root `README.md` \"Pinned version\" section, one-line installers, and version matrix asset URLs to `v4.42.0` / `gitmap-v28.42.0-*`"
   ],
   "isDraft": false,
   "isPreRelease": false,

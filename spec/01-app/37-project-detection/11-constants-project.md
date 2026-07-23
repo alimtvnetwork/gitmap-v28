@@ -2,7 +2,7 @@
 
 ## File
 
-`gitmap-v27/constants/constants_project.go`
+`gitmap-v28/constants/constants_project.go`
 
 This file contains all constants for the project detection feature:
 table names, project type seed data, SQL statements, JSON output
@@ -451,7 +451,7 @@ const (
     MsgProjectDetectDone   = "Detected %d projects across %d repos\n"
     MsgProjectUpsertDone   = "Saved %d detected projects to database\n"
     MsgProjectJSONWritten  = "Wrote %s (%d records)\n"
-    MsgProjectNoDB         = "No database found. Run 'gitmap-v27 scan' first.\n"
+    MsgProjectNoDB         = "No database found. Run 'gitmap-v28 scan' first.\n"
     MsgProjectNoneFound    = "No %s projects found.\n"
     MsgProjectCount        = "%d\n"
     MsgProjectCleanedStale = "Cleaned %d stale project records\n"

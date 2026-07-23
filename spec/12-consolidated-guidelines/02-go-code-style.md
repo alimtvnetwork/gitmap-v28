@@ -59,18 +59,18 @@ Put constants in the package that owns the behavior:
 
 | Owns the behavior | Put constants in | Examples |
 |-------------------|------------------|----------|
-| CLI routing / top-level commands | `gitmap-v27/constants/` when shared across dispatcher, completion, tests | `CmdScan`, `CmdReleaseAlias` |
+| CLI routing / top-level commands | `gitmap-v28/constants/` when shared across dispatcher, completion, tests | `CmdScan`, `CmdReleaseAlias` |
 | A single feature package | That feature package | template file extensions in `templates`, merge prompts in `movemerge` |
 | A single cmd flow | `cmd` package/file-local constants | subcommand verbs, usage text, table headers |
 
 Rules:
 
-1. Use `gitmap-v27/constants/` only for literals shared across packages.
+1. Use `gitmap-v28/constants/` only for literals shared across packages.
 2. Keep package-private literals in the owning package instead of exporting them from `constants`.
 3. Use clear PascalCase for exported constants and clear lowerCamelCase for unexported file/package-local constants.
 4. Prefixes like `Cmd`, `Err`, `Flag`, and `Default` are allowed when they describe real semantics, but they are **not** mandatory for every new constant.
 
-`.github/scripts/check-constants-naming.sh` enforces this at a lightweight level by rejecting newly added `gitmap-v27/constants/` names that are not ordinary PascalCase identifiers.
+`.github/scripts/check-constants-naming.sh` enforces this at a lightweight level by rejecting newly added `gitmap-v28/constants/` names that are not ordinary PascalCase identifiers.
 
 ## Error Handling
 

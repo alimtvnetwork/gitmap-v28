@@ -15,8 +15,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/visibility"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/visibility"
 )
 
 // renderMatchedTable returns the human-readable table emitted before

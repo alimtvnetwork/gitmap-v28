@@ -3,8 +3,8 @@ package cmd
 import (
 	"errors"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/vscodepm"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
 )
 
 // checkVSCodeProjectManager verifies the alefragnani.project-manager sync

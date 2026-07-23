@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/alimtvnetwork/gitmap-v27/spec/08-json-schemas/scan-output.schema.json",
-  "title": "gitmap-v27 scan output",
-  "description": "Stable schema for the JSON array produced by `gitmap-v27 scan` (default file: .gitmap/output/gitmap.json). The CSV sibling (.gitmap/output/gitmap.csv) carries the same fields in the column order documented in scan-output.README.md. Field names and JSON keys are stable contracts — automation may rely on them. New fields are additive and appended at the end of the CSV column list; existing field names are never renamed or repurposed.",
+  "$id": "https://github.com/alimtvnetwork/gitmap-v28/spec/08-json-schemas/scan-output.schema.json",
+  "title": "gitmap-v28 scan output",
+  "description": "Stable schema for the JSON array produced by `gitmap-v28 scan` (default file: .gitmap/output/gitmap.json). The CSV sibling (.gitmap/output/gitmap.csv) carries the same fields in the column order documented in scan-output.README.md. Field names and JSON keys are stable contracts — automation may rely on them. New fields are additive and appended at the end of the CSV column list; existing field names are never renamed or repurposed.",
   "type": "array",
   "items": { "$ref": "#/$defs/ScanRecord" },
   "$defs": {

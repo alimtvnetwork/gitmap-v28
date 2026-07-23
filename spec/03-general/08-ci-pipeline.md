@@ -34,7 +34,7 @@ without requiring a formal release.
 **Triggers:** Push to `release/**` branches or `v*` tags.
 
 Produces 6 cross-compiled binaries (windows/linux/darwin ×
-amd64/arm64) for both `gitmap-v27` and `gitmap-updater`. Generates
+amd64/arm64) for both `gitmap-v28` and `gitmap-updater`. Generates
 versioned artifacts, SHA256 checksums, and changelog excerpts.
 
 #### Code Signing

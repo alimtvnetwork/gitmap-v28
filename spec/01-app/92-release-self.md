@@ -2,25 +2,25 @@
 
 ## Overview
 
-`gitmap-v27 release-self` (alias `rs`, `rself`) provides explicit self-release capability.
-It resolves the gitmap-v27 executable's own source repository and performs a full
+`gitmap-v28 release-self` (alias `rs`, `rself`) provides explicit self-release capability.
+It resolves the gitmap-v28 executable's own source repository and performs a full
 release workflow from that directory, regardless of the user's current working
 directory.
 
-Additionally, `gitmap-v27 release` auto-detects when it is run outside a Git
+Additionally, `gitmap-v28 release` auto-detects when it is run outside a Git
 repository and falls back to self-release mode.
 
 ## Commands
 
 ### release-self (rs / rself)
 
-    gitmap-v27 release-self [version] [flags]
+    gitmap-v28 release-self [version] [flags]
 
 Explicitly triggers a self-release. Accepts all flags supported by `release`.
 
 ### release (auto-fallback)
 
-When `gitmap-v27 release` is invoked outside a Git repository, it automatically
+When `gitmap-v28 release` is invoked outside a Git repository, it automatically
 enters self-release mode instead of failing.
 
 ## Behavior
@@ -43,7 +43,7 @@ The command resolves the source repository using a two-tier strategy:
 2. Verify the stored path still contains a `.git` root.
 
 If both strategies fail, the command exits with an error:
-`could not locate gitmap-v27 source repository`.
+`could not locate gitmap-v28 source repository`.
 
 ### 2. Same-Directory Skip
 
@@ -79,7 +79,7 @@ Self-release prints a preamble before the standard release output:
 
 | Scenario | Behavior |
 |----------|----------|
-| Executable path unresolvable + no DB fallback | Exit 1: `could not locate gitmap-v27 source repository` |
+| Executable path unresolvable + no DB fallback | Exit 1: `could not locate gitmap-v28 source repository` |
 | DB path stale (no .git) | Falls through to error |
 | Release fails | Standard release error handling (rollback); still returns to original dir |
 | Return chdir fails | Warning printed; exit 0 (release succeeded) |
@@ -117,9 +117,9 @@ If false, delegate to `runReleaseSelf(args)` and return.
 
 ## Acceptance Criteria
 
-1. `gitmap-v27 rs --bump patch` releases gitmap-v27 itself from any directory.
-2. `gitmap-v27 release` outside a Git repo triggers self-release automatically.
-3. `gitmap-v27 release` inside a Git repo behaves exactly as before.
+1. `gitmap-v28 rs --bump patch` releases gitmap-v28 itself from any directory.
+2. `gitmap-v28 release` outside a Git repo triggers self-release automatically.
+3. `gitmap-v28 release` inside a Git repo behaves exactly as before.
 4. After self-release, the user is returned to their original directory with confirmation.
 5. All release flags work identically in self-release mode.
 6. If executable is outside source tree, DB fallback resolves the repo path.

@@ -3,7 +3,7 @@ package cmd
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // TestCommitTransferIncludeMergesDefault asserts the v6.0.0 breaking change:

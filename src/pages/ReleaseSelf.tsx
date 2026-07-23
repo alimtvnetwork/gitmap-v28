@@ -14,7 +14,7 @@ const selfReleaseDemo = {
   title: "gitmap release-self --bump patch",
   lines: [
     { text: "$ gitmap rs --bump patch", type: "input" as const, delay: 0 },
-    { text: "→ Self-release: switching to /home/user/go/src/gitmap-v27", type: "accent" as const, delay: 600 },
+    { text: "→ Self-release: switching to /home/user/go/src/gitmap-v28", type: "accent" as const, delay: 600 },
     { text: "v2.45.0 → v2.45.1", type: "output" as const, delay: 400 },
     { text: "Creating release v2.45.1...", type: "header" as const, delay: 400 },
     { text: "  ✓ Created branch release/v2.45.1", type: "output" as const, delay: 300 },
@@ -30,7 +30,7 @@ const autoFallbackDemo = {
   lines: [
     { text: "$ cd /tmp", type: "input" as const, delay: 0 },
     { text: "$ gitmap release --bump minor", type: "input" as const, delay: 600 },
-    { text: "→ Self-release: switching to /home/user/go/src/gitmap-v27", type: "accent" as const, delay: 600 },
+    { text: "→ Self-release: switching to /home/user/go/src/gitmap-v28", type: "accent" as const, delay: 600 },
     { text: "v2.45.0 → v2.46.0", type: "output" as const, delay: 400 },
     { text: "Creating release v2.46.0...", type: "header" as const, delay: 400 },
     { text: "  ✓ Created branch release/v2.46.0", type: "output" as const, delay: 300 },

@@ -31,7 +31,7 @@ gr
     REPO          MODULE                            GO VER  PATH
     my-api        github.com/user/my-api            1.22    D:\repos\my-api
     shared-lib    github.com/user/shared-lib        1.21    D:\repos\shared-lib
-    gitmap        github.com/alimtvnetwork/gitmap-v27/gitmap            1.22    D:\repos\gitmap
+    gitmap        github.com/alimtvnetwork/gitmap-v28/gitmap            1.22    D:\repos\gitmap
     auth-service  github.com/user/auth-service      1.22    D:\repos\auth-service
     4 Go projects detected
 

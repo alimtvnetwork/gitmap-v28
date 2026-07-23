@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // withFakeAutostartDir points $XDG_CONFIG_HOME at a temp dir so the

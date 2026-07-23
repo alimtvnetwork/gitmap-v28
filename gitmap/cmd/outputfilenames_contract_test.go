@@ -29,9 +29,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/clonefrom"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/errreport"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonefrom"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/errreport"
 )
 
 // TestScanOutputFilenames_Contract pins every default scan/clone

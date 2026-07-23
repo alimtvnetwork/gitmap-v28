@@ -14,8 +14,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/clonenext"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // printCloneNextDryRun previews the single-repo clone and exits 0.

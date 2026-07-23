@@ -55,7 +55,7 @@ Rows are sorted by `behind` descending, then repo slug ascending. Exit code is
       Upgradable repositories (3 of 142 scanned):
 
       REPO                      CURRENT   LATEST    BEHIND   SOURCE     PATH
-      alimtvnetwork/gitmap-v27  v6.75.0   v6.80.0        5   release    /home/a/src/gitmap
+      alimtvnetwork/gitmap-v28  v6.75.0   v6.80.0        5   release    /home/a/src/gitmap
       acme/api                  v1.11.0   v1.14.0        3   git-tag    /home/a/work/api
       acme/web                  -         v2.0.0         -   import     /home/a/work/web
       ─────────────────────────────────────────────────────────────────────────────
@@ -74,7 +74,7 @@ Rows are sorted by `behind` descending, then repo slug ascending. Exit code is
 
     $ gitmap list --update --json
     [
-      {"repo":"alimtvnetwork/gitmap-v27","current":"v6.75.0","latest":"v6.80.0","behind":5,"source":"release","path":"/home/a/src/gitmap"},
+      {"repo":"alimtvnetwork/gitmap-v28","current":"v6.75.0","latest":"v6.80.0","behind":5,"source":"release","path":"/home/a/src/gitmap"},
       {"repo":"acme/api","current":"v1.11.0","latest":"v1.14.0","behind":3,"source":"git-tag","path":"/home/a/work/api"}
     ]
 

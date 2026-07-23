@@ -50,7 +50,7 @@ files diff cleanly.
   "MessagePrefix":  ["chore:", "feat:"],
   "MessageSuffix":  [],
   "TitlePrefix":    "",
-  "TitleSuffix":    " — via gitmap-v27",
+  "TitleSuffix":    " — via gitmap-v28",
   "OverrideMessages": ["Improve module", "Refine implementation"],
   "OverrideOnlyWeak": true,
   "WeakWords": ["change", "update", "updates"],

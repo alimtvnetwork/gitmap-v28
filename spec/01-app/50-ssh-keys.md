@@ -4,28 +4,28 @@
 
 The `ssh` command lets users generate, store, view, regenerate, and manage
 SSH keys directly from gitmap. Keys are stored by name in the database,
-auto-managed in `~/.ssh/config`, and integrated with `gitmap-v27 clone` via
+auto-managed in `~/.ssh/config`, and integrated with `gitmap-v28 clone` via
 the `--ssh-key` flag.
 
 ---
 
 ## Goals
 
-1. **One-command key generation** — `gitmap-v27 ssh` creates an RSA-4096 key
+1. **One-command key generation** — `gitmap-v28 ssh` creates an RSA-4096 key
    with no passphrase at the default SSH location.
 2. **Named keys** — each key gets a user-defined label (e.g., `work`,
    `personal`) stored in the database alongside the public key content.
-3. **Quick access** — `gitmap-v27 ssh cat` prints the public key for copying.
+3. **Quick access** — `gitmap-v28 ssh cat` prints the public key for copying.
 4. **Regeneration safety** — if a key with the same name/path exists,
    prompt the user before overwriting.
 5. **Multi-key support** — generate keys at custom paths, auto-manage
    `~/.ssh/config` Host entries so Git uses the correct key.
-6. **Clone integration** — `gitmap-v27 clone --ssh-key <name>` uses the
+6. **Clone integration** — `gitmap-v28 clone --ssh-key <name>` uses the
    named key's SSH config for the clone operation.
 
 ---
 
-## Command: `gitmap-v27 ssh`
+## Command: `gitmap-v28 ssh`
 
 Alias: `ssh`
 
@@ -43,7 +43,7 @@ Manages SSH key pairs for Git authentication.
 
 ---
 
-## Subcommand: `gitmap-v27 ssh` (Generate)
+## Subcommand: `gitmap-v28 ssh` (Generate)
 
 ### Flags
 
@@ -87,7 +87,7 @@ Manages SSH key pairs for Git authentication.
 
 ---
 
-## Subcommand: `gitmap-v27 ssh cat`
+## Subcommand: `gitmap-v28 ssh cat`
 
 ### Flags
 
@@ -109,7 +109,7 @@ ssh-rsa AAAA... user@example.com
 
 ---
 
-## Subcommand: `gitmap-v27 ssh list`
+## Subcommand: `gitmap-v28 ssh list`
 
 Lists all SSH keys stored in the database.
 
@@ -124,7 +124,7 @@ Lists all SSH keys stored in the database.
 
 ---
 
-## Subcommand: `gitmap-v27 ssh delete`
+## Subcommand: `gitmap-v28 ssh delete`
 
 ### Flags
 
@@ -142,7 +142,7 @@ Lists all SSH keys stored in the database.
 
 ---
 
-## Subcommand: `gitmap-v27 ssh config`
+## Subcommand: `gitmap-v28 ssh config`
 
 ### Behavior
 
@@ -155,11 +155,11 @@ Useful after manual edits or when entries get out of sync.
 
 ## SSH Config Management
 
-When multiple keys exist, gitmap-v27 auto-manages a clearly marked block
+When multiple keys exist, gitmap-v28 auto-manages a clearly marked block
 in `~/.ssh/config`:
 
 ```
-# --- gitmap-v27 managed (do not edit) ---
+# --- gitmap-v28 managed (do not edit) ---
 Host github.com-default
     HostName github.com
     User git
@@ -171,7 +171,7 @@ Host github.com-work
     User git
     IdentityFile ~/.ssh/id_rsa_work
     IdentitiesOnly yes
-# --- end gitmap-v27 managed ---
+# --- end gitmap-v28 managed ---
 ```
 
 ### Rules
@@ -203,7 +203,7 @@ Host github.com-work
 ### Example
 
 ```bash
-gitmap-v27 clone repos.json --ssh-key work
+gitmap-v28 clone repos.json --ssh-key work
 ```
 
 ---
@@ -243,8 +243,8 @@ New file: `constants/constants_ssh.go`
 | `FlagSSHKey`           | `"--ssh-key"` / `"-K"`                       |
 | `SSHKeyType`           | `"rsa"`                                      |
 | `SSHKeyBits`           | `"4096"`                                     |
-| `SSHConfigMarkerStart` | `"# --- gitmap-v27 managed (do not edit) ---"`   |
-| `SSHConfigMarkerEnd`   | `"# --- end gitmap-v27 managed ---"`             |
+| `SSHConfigMarkerStart` | `"# --- gitmap-v28 managed (do not edit) ---"`   |
+| `SSHConfigMarkerEnd`   | `"# --- end gitmap-v28 managed ---"`             |
 | `DefaultSSHKeyName`    | `"default"`                                  |
 | `MsgSSHGenerated`      | `"  ✓ SSH key \"%s\" generated\n"`           |
 | `MsgSSHExists`         | `"  Key \"%s\" already exists at %s\n"`      |
@@ -262,12 +262,12 @@ File: `helptext/ssh.md` (≤120 lines)
 ### Sections
 
 - **Alias**: *(none — `ssh` is already short)*
-- **Usage**: `gitmap-v27 ssh [subcommand] [flags]`
+- **Usage**: `gitmap-v28 ssh [subcommand] [flags]`
 - **Subcommands**: table of cat, list, delete, config
 - **Flags**: table of --name, --path, --email, --force
 - **Prerequisites**: `ssh-keygen` must be available on PATH
 - **Examples**: 3 examples covering generate, cat, multi-key clone
-- **See Also**: `gitmap-v27 clone`, `gitmap-v27 setup`
+- **See Also**: `gitmap-v28 clone`, `gitmap-v28 setup`
 
 ---
 
@@ -275,10 +275,10 @@ File: `helptext/ssh.md` (≤120 lines)
 
 Add SSH-aware completions:
 
-- After `gitmap-v27 ssh`: suggest subcommands (cat, list, delete, config).
-- After `gitmap-v27 ssh cat --name`: suggest key names from DB via
-  `gitmap-v27 completion --list-ssh-keys`.
-- After `gitmap-v27 clone --ssh-key`: suggest key names.
+- After `gitmap-v28 ssh`: suggest subcommands (cat, list, delete, config).
+- After `gitmap-v28 ssh cat --name`: suggest key names from DB via
+  `gitmap-v28 completion --list-ssh-keys`.
+- After `gitmap-v28 clone --ssh-key`: suggest key names.
 - New completion flag: `--list-ssh-keys` returns one key name per line.
 
 ---
@@ -302,20 +302,20 @@ Add SSH-aware completions:
 
 ## Acceptance Criteria
 
-1. `gitmap-v27 ssh` generates an RSA-4096 key with no passphrase and stores
+1. `gitmap-v28 ssh` generates an RSA-4096 key with no passphrase and stores
    the public key in the database.
-2. `gitmap-v27 ssh --name work --path ~/.ssh/id_rsa_work` creates a named
+2. `gitmap-v28 ssh --name work --path ~/.ssh/id_rsa_work` creates a named
    key at a custom path.
-3. `gitmap-v27 ssh cat` prints the default key's public key to stdout.
-4. `gitmap-v27 ssh cat --name work` prints the named key's public key.
-5. Running `gitmap-v27 ssh` when a key exists prompts for
+3. `gitmap-v28 ssh cat` prints the default key's public key to stdout.
+4. `gitmap-v28 ssh cat --name work` prints the named key's public key.
+5. Running `gitmap-v28 ssh` when a key exists prompts for
    Regenerate/New path/Cancel (unless `--force`).
-6. `gitmap-v27 ssh list` shows all stored keys with paths and fingerprints.
-7. `gitmap-v27 ssh delete --name work` removes the DB record.
-8. `gitmap-v27 ssh delete --name work --files` also removes key files.
+6. `gitmap-v28 ssh list` shows all stored keys with paths and fingerprints.
+7. `gitmap-v28 ssh delete --name work` removes the DB record.
+8. `gitmap-v28 ssh delete --name work --files` also removes key files.
 9. `~/.ssh/config` is auto-updated with managed Host entries when
    keys are added or deleted.
-10. `gitmap-v27 clone repos.json --ssh-key work` clones using the named
+10. `gitmap-v28 clone repos.json --ssh-key work` clones using the named
     key via `GIT_SSH_COMMAND`.
 11. Shell completion suggests subcommands after `ssh` and key names
     after `--name` and `--ssh-key`.

@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // fixRepoBackupManifest is the per-snapshot index file. Read by undo.
@@ -39,7 +39,7 @@ type fixRepoBackupManifest struct {
 // sweeps never create empty dirs.
 type fixRepoBackupSession struct {
 	root      string // repo root
-	repoName  string // base + version, e.g. gitmap-v27
+	repoName  string // base + version, e.g. gitmap-v28
 	version   int
 	timestamp string
 	dir       string // <root>/.gitmap/backup/<repo>/v<N>/fix-repo/<ts>

@@ -1,6 +1,6 @@
 # CI Release Automation
 
-The CI release pipeline (`.github/workflows/release.yml`) automates the production of 6 cross-compiled binary targets (Windows, Linux, Darwin for amd64/arm64) for both `gitmap` and `gitmap-updater` when pushing to `release/**` branches or `v*` tags. Artifacts use a versioned naming convention (e.g., `gitmap-v27.56.0-windows-amd64.zip`).
+The CI release pipeline (`.github/workflows/release.yml`) automates the production of 6 cross-compiled binary targets (Windows, Linux, Darwin for amd64/arm64) for both `gitmap` and `gitmap-updater` when pushing to `release/**` branches or `v*` tags. Artifacts use a versioned naming convention (e.g., `gitmap-v28.56.0-windows-amd64.zip`).
 
 ## Pipeline Steps
 

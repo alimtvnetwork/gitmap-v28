@@ -159,7 +159,7 @@ $ <tool> doctor
   [OK]   Database:       Connected (42 repos, 156 projects)
   [OK]   Config:         Valid (config.json parsed)
   [OK]   PATH:           <tool> found in PATH
-  [OK]   GITMAP_HOME:    E:\gitmap-v27 (exists)
+  [OK]   GITMAP_HOME:    E:\gitmap-v28 (exists)
   [WARN] Legacy dirs:    None found (clean)
   [OK]   Shell:          PowerShell 7.4.1
 

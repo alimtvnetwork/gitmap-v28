@@ -4,7 +4,7 @@ package store
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // AmendmentRow represents a single row from the Amendments table.

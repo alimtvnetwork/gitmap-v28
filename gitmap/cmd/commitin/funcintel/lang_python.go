@@ -3,7 +3,7 @@ package funcintel
 import (
 	"regexp"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 var pyDefRe = regexp.MustCompile(`^def\s+([a-z_][A-Za-z0-9_]*)\s*\(`)

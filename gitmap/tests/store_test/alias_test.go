@@ -4,8 +4,8 @@ package store_test
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // seedRepo inserts a test repo and returns its auto-generated ID.

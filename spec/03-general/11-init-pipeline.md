@@ -84,7 +84,7 @@ two underlying scripts directly.
 
 See the inner scripts' specs for the full code tables:
 - visibility-change exit codes: 0/2/3/4/5/6/7/8 (see
-  `gitmap-v27/constants/constants_visibility.go`).
+  `gitmap-v28/constants/constants_visibility.go`).
 - fix-repo exit codes: 0/2/3/4/5/6/7/8/9 (see
   `spec/04-generic-cli/27-fix-repo-command.md`).
 
@@ -103,7 +103,7 @@ See the inner scripts' specs for the full code tables:
 
 ## Non-goals
 
-- init does **not** clone. Use `gitmap-v27 clone-fix-repo-pub` (`cfrp`)
+- init does **not** clone. Use `gitmap-v28 clone-fix-repo-pub` (`cfrp`)
   for the clone+fix+publish pipeline that starts from a URL.
 - init does **not** commit, push, or open PRs. It is purely a
   preparation step.

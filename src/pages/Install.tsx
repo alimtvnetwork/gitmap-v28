@@ -373,10 +373,10 @@ Installing notepadplusplus...`} />
               </thead>
               <tbody className="divide-y divide-border">
                 {[
-                  ["install.ps1", "gitmap-v27/scripts/", "PowerShell one-liner installer for Windows"],
-                  ["install.sh", "gitmap-v27/scripts/", "Bash one-liner installer for Linux/macOS"],
-                  ["uninstall.ps1", "gitmap-v27/scripts/", "PowerShell uninstaller"],
-                  ["Get-LastRelease.ps1", "gitmap-v27/scripts/", "Resolve latest release version (3-tier fallback)"],
+                  ["install.ps1", "gitmap-v28/scripts/", "PowerShell one-liner installer for Windows"],
+                  ["install.sh", "gitmap-v28/scripts/", "Bash one-liner installer for Linux/macOS"],
+                  ["uninstall.ps1", "gitmap-v28/scripts/", "PowerShell uninstaller"],
+                  ["Get-LastRelease.ps1", "gitmap-v28/scripts/", "Resolve latest release version (3-tier fallback)"],
                   ["run.ps1", "repo root", "PowerShell build, deploy, and self-update script"],
                   ["run.sh", "repo root", "Bash build, deploy, and self-update script"],
                 ].map(([file, source, desc], i) => (
@@ -416,8 +416,8 @@ Installing notepadplusplus...`} />
               <h3 className="font-mono font-semibold text-sm mb-2">PowerShell / Windows</h3>
               <CodeBlock code={`Install summary
     Version: v2.65.0
-    Binary: C:\\Users\\me\\AppData\\Local\\gitmap-v27\\gitmap.exe
-    Install Dir: C:\\Users\\me\\AppData\\Local\\gitmap-v27
+    Binary: C:\\Users\\me\\AppData\\Local\\gitmap-v28\\gitmap.exe
+    Install Dir: C:\\Users\\me\\AppData\\Local\\gitmap-v28
     PATH Target: User PATH (added)
     Session PATH: refreshed for current PowerShell session`} />
             </div>
@@ -425,7 +425,7 @@ Installing notepadplusplus...`} />
               <h3 className="font-mono font-semibold text-sm mb-2">Unix / macOS</h3>
               <CodeBlock code={`Install summary
     Version: v2.65.0
-    Binary: /Users/me/.local/bin/gitmap-v27
+    Binary: /Users/me/.local/bin/gitmap-v28
     Install dir: /Users/me/.local/bin
     Shell: zsh
     PATH target: /Users/me/.zshrc (added)

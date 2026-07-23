@@ -12,11 +12,11 @@ BUILD_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null)
 BUILD_REPO   ?= $(shell git config --get remote.origin.url 2>/dev/null)
 BUILD_DATE   ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 LDFLAGS  := -s -w \
-  -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/constants.Version=$(VERSION)' \
-  -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildCommit=$(BUILD_COMMIT)' \
-  -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildBranch=$(BUILD_BRANCH)' \
-  -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildRepo=$(BUILD_REPO)' \
-  -X 'github.com/alimtvnetwork/gitmap-v27/gitmap/cmd.BuildDate=$(BUILD_DATE)'
+  -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.Version=$(VERSION)' \
+  -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit=$(BUILD_COMMIT)' \
+  -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildBranch=$(BUILD_BRANCH)' \
+  -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildRepo=$(BUILD_REPO)' \
+  -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildDate=$(BUILD_DATE)'
 
 # Force bash for recipes — fixtures-bump targets rely on $${PIPESTATUS[0]}
 # which is a bash builtin (dash and POSIX sh do not provide it).

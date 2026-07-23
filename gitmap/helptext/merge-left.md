@@ -41,7 +41,7 @@ None.
 
 ### Example 1: Pull RIGHT's changes into LEFT (interactive)
 
-    gitmap merge-left ./gitmap-v27 ./gitmap-v27
+    gitmap merge-left ./gitmap-v28 ./gitmap-v28
 
 **Output:**
 

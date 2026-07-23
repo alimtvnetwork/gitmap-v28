@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // TestBuildAuditNeedles verifies the dual-form contract for the audit
@@ -45,7 +45,7 @@ func TestBuildAuditNeedles(t *testing.T) {
 // TestBuildAuditNeedlesWidthCrossing exercises the v9 -> v10/v12 width
 // boundary directly. Audit needles are OLD tokens, so the boundary
 // affects targets[i] (not current). Regression guard against the
-// historical desync where fixtures hard-coded `gitmap-v27` next to
+// historical desync where fixtures hard-coded `gitmap-v28` next to
 // a single-digit input.
 //
 // IMPORTANT: every needle string is derived from the same `targets`
@@ -84,8 +84,8 @@ func buildExpectedNeedles(base string, targets []int) []string {
 // whether a line is reportable. Tested independently so future
 // optimizations cannot regress the contract.
 func TestLineContainsAny(t *testing.T) {
-	needles := [][]byte{[]byte("gitmap-v27"), []byte("gitmap/v9")}
-	if !lineContainsAny([]byte("import gitmap-v27/foo"), needles) {
+	needles := [][]byte{[]byte("gitmap-v28"), []byte("gitmap/v9")}
+	if !lineContainsAny([]byte("import gitmap-v28/foo"), needles) {
 		t.Error("expected dash-form match")
 	}
 	if !lineContainsAny([]byte("module github.com/x/gitmap/v9"), needles) {
@@ -101,10 +101,10 @@ func TestLineContainsAny(t *testing.T) {
 func TestScanAuditFileFormatting(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "doc.md")
-	body := "intro line\nsee gitmap-v27 for details\nclean line\nuse gitmap/v9 too\n"
+	body := "intro line\nsee gitmap-v28 for details\nclean line\nuse gitmap/v9 too\n"
 	mustWriteFile(t, path, []byte(body))
 
-	needles := [][]byte{[]byte("gitmap-v27"), []byte("gitmap/v9")}
+	needles := [][]byte{[]byte("gitmap-v28"), []byte("gitmap/v9")}
 
 	stdout, hits := captureStdout(t, func() int {
 		return scanAuditFile(path, needles)
@@ -114,7 +114,7 @@ func TestScanAuditFileFormatting(t *testing.T) {
 		t.Fatalf("hits = %d, want 2", hits)
 	}
 
-	want2 := fmt.Sprintf(constants.MsgReplaceAuditMatch, path, 2, "see gitmap-v27 for details")
+	want2 := fmt.Sprintf(constants.MsgReplaceAuditMatch, path, 2, "see gitmap-v28 for details")
 	want4 := fmt.Sprintf(constants.MsgReplaceAuditMatch, path, 4, "use gitmap/v9 too")
 	if !strings.Contains(stdout, want2) {
 		t.Errorf("missing line-2 hit\n got: %q\nwant substring: %q", stdout, want2)

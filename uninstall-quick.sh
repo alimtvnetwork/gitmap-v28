@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-# One-liner uninstaller for gitmap-v27 on Linux / macOS.
+# One-liner uninstaller for gitmap-v28 on Linux / macOS.
 #
-# Removes the gitmap-v27 binary, install folder, shell PATH entries, and
-# (optionally) the per-user data folder. Works whether gitmap-v27 was installed
+# Removes the gitmap-v28 binary, install folder, shell PATH entries, and
+# (optionally) the per-user data folder. Works whether gitmap-v28 was installed
 # via:
 #
 #   - install-quick.sh (one-liner)
-#   - gitmap-v27/scripts/install.sh (canonical installer)
+#   - gitmap-v28/scripts/install.sh (canonical installer)
 #   - manual `run.sh` build-and-deploy
 #
 # Strategy:
-#   1. If `gitmap-v27` is on PATH, delegate to `gitmap-v27 self-uninstall -y`.
+#   1. If `gitmap-v28` is on PATH, delegate to `gitmap-v28 self-uninstall -y`.
 #      The binary knows how to clean its marker-block PATH entries from
 #      ~/.bashrc, ~/.zshrc, ~/.profile, etc.
-#   2. If `gitmap-v27` is NOT on PATH (already partially removed, broken
+#   2. If `gitmap-v28` is NOT on PATH (already partially removed, broken
 #      install), fall back to a manual sweep:
-#        - delete <dir>/gitmap-cli AND legacy <dir>/gitmap-v27
+#        - delete <dir>/gitmap-cli AND legacy <dir>/gitmap-v28
 #        - strip the install dir from rc files
-#        - prompt before deleting ~/.config/gitmap-v27
+#        - prompt before deleting ~/.config/gitmap-v28
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/uninstall-quick.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/uninstall-quick.sh | bash
 #   ./uninstall-quick.sh
 #   ./uninstall-quick.sh --keep-data
-#   ./uninstall-quick.sh --dir /opt/gitmap-v27
+#   ./uninstall-quick.sh --dir /opt/gitmap-v28
 #   ./uninstall-quick.sh --yes
 
 set -uo pipefail
@@ -70,19 +70,19 @@ confirm() {
 }
 
 # ---------------------------------------------------------------------------
-# Step 1 — canonical self-uninstall via the gitmap-v27 binary itself.
+# Step 1 — canonical self-uninstall via the gitmap-v28 binary itself.
 # ---------------------------------------------------------------------------
 
 try_self_uninstall() {
-    if ! command -v gitmap-v27 >/dev/null 2>&1; then
-        info "gitmap-v27 not found on PATH, skipping self-uninstall (will sweep manually)"
+    if ! command -v gitmap-v28 >/dev/null 2>&1; then
+        info "gitmap-v28 not found on PATH, skipping self-uninstall (will sweep manually)"
         return 1
     fi
 
-    info "Active binary: $(command -v gitmap-v27)"
-    info "Delegating to: gitmap-v27 self-uninstall -y"
+    info "Active binary: $(command -v gitmap-v28)"
+    info "Delegating to: gitmap-v28 self-uninstall -y"
     printf '\n'
-    if gitmap-v27 self-uninstall -y; then
+    if gitmap-v28 self-uninstall -y; then
         ok "self-uninstall completed cleanly"
         return 0
     fi
@@ -100,7 +100,7 @@ resolve_install_dir() {
 
     # Active binary -> its parent.
     local active
-    active="$(command -v gitmap-v27 2>/dev/null || true)"
+    active="$(command -v gitmap-v28 2>/dev/null || true)"
     if [ -n "$active" ] && [ -x "$active" ]; then
         local resolved
         resolved="$(readlink -f "$active" 2>/dev/null || printf '%s' "$active")"
@@ -108,17 +108,17 @@ resolve_install_dir() {
         parent="$(dirname "$resolved")"
         grand="$(dirname "$parent")"
 
-        # If parent is named gitmap-cli/gitmap-v27, return its parent (deploy root).
+        # If parent is named gitmap-cli/gitmap-v28, return its parent (deploy root).
         case "$(basename "$parent")" in
-            gitmap-cli|gitmap-v27) printf '%s\n' "$grand" ;;
+            gitmap-cli|gitmap-v28) printf '%s\n' "$grand" ;;
             *)                 printf '%s\n' "$parent" ;;
         esac
         return
     fi
 
     # Common defaults.
-    for d in "$HOME/.local/bin" "$HOME/bin" "/opt/gitmap-v27" "/usr/local/bin"; do
-        if [ -x "$d/gitmap-v27" ] || [ -x "$d/gitmap-cli/gitmap-v27" ] || [ -x "$d/gitmap-v27/gitmap-v27" ]; then
+    for d in "$HOME/.local/bin" "$HOME/bin" "/opt/gitmap-v28" "/usr/local/bin"; do
+        if [ -x "$d/gitmap-v28" ] || [ -x "$d/gitmap-cli/gitmap-v28" ] || [ -x "$d/gitmap-v28/gitmap-v28" ]; then
             printf '%s\n' "$d"
             return
         fi
@@ -129,11 +129,11 @@ resolve_install_dir() {
 remove_install_files() {
     local root="$1"
     if [ -z "$root" ]; then
-        warn "could not locate a gitmap-v27 install dir; skipping file removal"
+        warn "could not locate a gitmap-v28 install dir; skipping file removal"
         return
     fi
 
-    for sub in gitmap-cli gitmap-v27; do
+    for sub in gitmap-cli gitmap-v28; do
         local dir="$root/$sub"
         if [ -d "$dir" ]; then
             if rm -rf "$dir"; then ok "removed $dir"
@@ -141,7 +141,7 @@ remove_install_files() {
         fi
     done
 
-    local flat="$root/gitmap-v27"
+    local flat="$root/gitmap-v28"
     if [ -f "$flat" ]; then
         if rm -f "$flat"; then ok "removed $flat"
         else err "could not remove $flat"; fi
@@ -157,11 +157,11 @@ clean_rc_files() {
 
     for rc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.bash_profile"; do
         [ -f "$rc" ] || continue
-        if grep -qE "(${pattern_root}|gitmap-cli|gitmap-v27/gitmap-v27)" "$rc" 2>/dev/null; then
+        if grep -qE "(${pattern_root}|gitmap-cli|gitmap-v28/gitmap-v28)" "$rc" 2>/dev/null; then
             local backup="${rc}.gitmap-uninstall.bak"
             cp "$rc" "$backup" 2>/dev/null || true
-            # Strip lines that reference the install dir or the gitmap-v27 subfolders.
-            sed -i.tmp "/${pattern_root}/d; /gitmap-cli/d; /gitmap-v27\/gitmap-v27/d" "$rc" 2>/dev/null \
+            # Strip lines that reference the install dir or the gitmap-v28 subfolders.
+            sed -i.tmp "/${pattern_root}/d; /gitmap-cli/d; /gitmap-v28\/gitmap-v28/d" "$rc" 2>/dev/null \
                 && rm -f "${rc}.tmp" \
                 && ok "cleaned PATH entries from $rc (backup: $backup)"
         fi
@@ -169,7 +169,7 @@ clean_rc_files() {
 }
 
 remove_data_folder() {
-    local data="${XDG_CONFIG_HOME:-$HOME/.config}/gitmap-v27"
+    local data="${XDG_CONFIG_HOME:-$HOME/.config}/gitmap-v28"
     [ -d "$data" ] || return
 
     if [ "$KEEP_DATA" = "1" ]; then
@@ -186,7 +186,7 @@ remove_data_folder() {
 }
 
 # ---------------------------------------------------------------------------
-# Exhaustive PATH sweep — find EVERY `gitmap-v27` still on PATH and remove it.
+# Exhaustive PATH sweep — find EVERY `gitmap-v28` still on PATH and remove it.
 # Catches stray binaries the canonical self-uninstall and install-dir sweep
 # missed (manual copies in ~/bin, /usr/local/bin shims, etc.).
 # ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ find_all_gitmap_on_path() {
     local seen=""
     for d in $PATH; do
         [ -z "$d" ] && continue
-        for name in gitmap-v27 gitmap.exe; do
+        for name in gitmap-v28 gitmap.exe; do
             local candidate="$d/$name"
             if [ -f "$candidate" ] && [ -x "$candidate" ]; then
                 # de-dupe via newline-delimited seen list
@@ -214,13 +214,13 @@ remove_stray_binaries() {
     local found
     found="$(find_all_gitmap_on_path)"
     if [ -z "$found" ]; then
-        info "no stray gitmap-v27 binaries found on PATH"
+        info "no stray gitmap-v28 binaries found on PATH"
         return
     fi
 
     local count
     count="$(printf '%s\n' "$found" | grep -c .)"
-    info "found $count gitmap-v27 binary location(s):"
+    info "found $count gitmap-v28 binary location(s):"
     printf '%s\n' "$found" | while IFS= read -r b; do info "  - $b"; done
 
     printf '%s\n' "$found" | while IFS= read -r bin; do
@@ -269,7 +269,7 @@ if ! try_self_uninstall; then
 fi
 
 printf '\n'
-step "Exhaustive PATH sweep — removing any remaining gitmap-v27 binaries"
+step "Exhaustive PATH sweep — removing any remaining gitmap-v28 binaries"
 remove_stray_binaries
 
 printf '\n'

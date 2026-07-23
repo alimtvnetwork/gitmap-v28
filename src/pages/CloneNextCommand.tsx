@@ -138,7 +138,7 @@ const CloneNextCommandPage = () => {
               <code className="docs-inline-code">-f</code>.
             </li>
             <li>
-              <strong>cwd IS the target folder + <code className="docs-inline-code">-f</code>:</strong> gitmap-v27{" "}
+              <strong>cwd IS the target folder + <code className="docs-inline-code">-f</code>:</strong> gitmap-v28{" "}
               <code className="docs-inline-code">chdir</code>s to the parent first to release the lock, removes
               the folder, clones, then <code className="docs-inline-code">chdir</code>s back into the new
               flattened folder. If removal still fails (another process holds the lock), gitmap aborts with{" "}

@@ -2,7 +2,7 @@
 
 Companion to [`28-transaction-revert.md`](28-transaction-revert.md). This
 spec defines the **typed forward + reverse payload contract** every
-state-mutating gitmap-v27 operation must produce so that revert is
+state-mutating gitmap-v28 operation must produce so that revert is
 deterministic, auditable, and survives schema growth.
 
 The transaction journal in spec 28 already stores file-level snapshots.
@@ -221,7 +221,7 @@ filesystem `BackupRef` files are removed by the same prune sweep that
 - Adding a new `ActionKind` requires:
   1. A spec amendment to §2 + §3.2 (this file).
   2. A new constant in `constants/constants_transaction_actions.go`.
-  3. Forward + reverse handlers in `gitmap-v27/txn/actions/`.
+  3. Forward + reverse handlers in `gitmap-v28/txn/actions/`.
   4. A migration that backfills nothing — old rows keep their old
      kinds; only new rows can carry the new one.
 - Renaming or removing a kind is **forbidden**. Old transactions must
@@ -234,9 +234,9 @@ filesystem `BackupRef` files are removed by the same prune sweep that
   templates).
 - New tables: `store/transaction_action.go` with
   `AppendAction / ListActionsBySeq / MarkActionReverted`.
-- Engine: `gitmap-v27/txn/actions/{plan,apply,reverse}.go`, one dispatch
+- Engine: `gitmap-v28/txn/actions/{plan,apply,reverse}.go`, one dispatch
   table keyed by `ActionKind`.
-- CLI surface unchanged — `gitmap-v27 revert` still drives everything via
+- CLI surface unchanged — `gitmap-v28 revert` still drives everything via
   spec 28's flags. `--show-txn` is extended to print the action list.
 
 ## 10. Out of scope (still)

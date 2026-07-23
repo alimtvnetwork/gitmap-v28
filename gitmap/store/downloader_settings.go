@@ -3,8 +3,8 @@ package store
 import (
 	"encoding/json"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/downloaderconfig"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/downloaderconfig"
 )
 
 // GetDownloaderConfig returns the persisted downloader Document, or

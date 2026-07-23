@@ -255,10 +255,10 @@ releases must still be created explicitly with a version argument). Add
       📦  Install gitmap v2.61.0
 
       🪟  Windows (PowerShell)
-         irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap/scripts/install.ps1 | iex
+         irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1 | iex
 
       🐧  Linux / macOS
-         curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap/scripts/install.sh | sh
+         curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh | sh
 
     $
 

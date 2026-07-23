@@ -12,8 +12,8 @@ package store
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 func insertKind(t *testing.T, db *DB, kind, target, startedAt string) int64 {

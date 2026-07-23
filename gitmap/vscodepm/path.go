@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // ErrUserDataMissing is returned when the VS Code user-data root cannot be

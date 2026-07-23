@@ -233,7 +233,7 @@ const issues: Issue[] = [
     id: "not-on-path",
     category: "build",
     title: "gitmap not found on PATH",
-    symptom: "bash: gitmap-v27: command not found",
+    symptom: "bash: gitmap-v28: command not found",
     cause: "Deploy directory is not on PATH, or the deployed binary differs from the active one.",
     fix: "Auto-sync the PATH binary from the deployed copy.",
     fixCommand: `gitmap doctor --fix-path`,

@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // parseAuditLegacyArgs parses flags into an options struct.

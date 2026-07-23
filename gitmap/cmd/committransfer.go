@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/committransfer"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/movemerge"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/committransfer"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/movemerge"
 )
 
 // commitTransferSpec describes one of the three commit-transfer commands.

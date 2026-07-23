@@ -6,7 +6,7 @@ const ArchitecturePage = () => {
     <DocsLayout>
       <h1 className="text-3xl font-heading font-bold mb-2 docs-h1">Architecture</h1>
       <p className="text-muted-foreground mb-8">
-        High-level overview of gitmap-v27's design and data flow.
+        High-level overview of gitmap-v28's design and data flow.
       </p>
 
       <section className="space-y-8">
@@ -14,7 +14,7 @@ const ArchitecturePage = () => {
           <h2 className="text-xl font-heading font-semibold mb-3 docs-h2">Project Structure</h2>
           <CodeBlock
             title="Directory Layout"
-            code={`gitmap-v27/
+            code={`gitmap-v28/
 ├── cmd/              # CLI command handlers (one file per command)
 ├── cloner/           # Clone and safe-pull logic
 ├── completion/       # Shell completion (bash, zsh, powershell)

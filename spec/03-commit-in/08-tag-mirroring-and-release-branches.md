@@ -28,7 +28,7 @@ relationship** in SQLite for downstream queries.
 | Auto release branch | A destination branch named `release/<TagName>` (always `release/` prefix, even if the tag itself has no `v`). Created from the same new SHA the version tag points at. Created **on by default**; suppressed by `--no-release-branch`. |
 
 The `release/<…>` naming reuses `constants.ReleaseBranchPrefix` so the
-branches are interchangeable with `gitmap-v27 release-branch` and friends.
+branches are interchangeable with `gitmap-v28 release-branch` and friends.
 
 ---
 
@@ -66,7 +66,7 @@ The mirrored tag is a "version tag" iff its `Name` matches:
 ^v?\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$
 ```
 
-This is exactly the regex used by `gitmap-v27 release` for release-branch
+This is exactly the regex used by `gitmap-v28 release` for release-branch
 discovery (centralized in `constants.VersionTagPattern` — implementation
 must reuse that constant; do not introduce a sibling).
 
@@ -205,8 +205,8 @@ seeded in migration 006.
   per the global rule); the regex is reused from
   `constants.VersionTagPattern`.
 - **`<200` lines per file**: the new package
-  `gitmap-v27/cmd/commitin/replay/tags.go` holds the orchestration only;
-  git plumbing lives in `gitmap-v27/gitutil/tags.go` (annotated-tag
+  `gitmap-v28/cmd/commitin/replay/tags.go` holds the orchestration only;
+  git plumbing lives in `gitmap-v28/gitutil/tags.go` (annotated-tag
   read/write helpers).
 - **Determinism pre-check** (memory `mem://features/determinism-precheck`):
   any new golden fixture for tag-mirroring runs through

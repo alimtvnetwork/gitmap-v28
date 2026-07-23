@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/stablejson"
 )
 
 // watch top-level wire keys. Names + order are the contract.

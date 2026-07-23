@@ -6,7 +6,7 @@ Remove a specific release metadata JSON file from the `.gitmap/release/` directo
 
 ## Command
 
-    gitmap-v27 clear-release-json <version> [--dry-run]
+    gitmap-v28 clear-release-json <version> [--dry-run]
 
 ## Alias
 
@@ -72,7 +72,7 @@ This command produces only terminal output. It does not support `--json` or `--c
 |----------|---------------|
 | `MsgClearReleaseDone` | `✓ Removed .gitmap/release/%s.json` |
 | `MsgClearReleaseDryRun` | `[dry-run] Would remove %s` |
-| `ErrClearReleaseUsage` | `Usage: gitmap-v27 clear-release-json <version> [--dry-run]` |
+| `ErrClearReleaseUsage` | `Usage: gitmap-v28 clear-release-json <version> [--dry-run]` |
 | `ErrClearReleaseNotFound` | `Error: no release file found for %s` |
 | `ErrClearReleaseFailed` | `Error: could not remove release file: %v` |
 

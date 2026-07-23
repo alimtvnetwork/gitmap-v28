@@ -8,7 +8,7 @@
 When users installed gitmap via the README one-liner:
 
 ```
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash
 ```
 
 …the install succeeded but `gitmap` was not callable on the very next prompt.
@@ -36,7 +36,7 @@ A child process **cannot mutate its parent shell's environment**. Period.
 ### Eval-mode (recommended, auto-activating)
 
 ```
-eval "$(curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.sh)"
+eval "$(curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh)"
 ```
 
 Because `eval` runs the script's source text **inside the user's
@@ -52,7 +52,7 @@ those signals trigger the auto-source path.
 ### Pipe-mode (legacy, prints manual hint)
 
 ```
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash
 ```
 
 Still works exactly as before. The script detects it's running in a child
@@ -99,13 +99,13 @@ The README install snippet should be updated to lead with eval-mode:
 **Linux / macOS** (auto-activates PATH in current shell):
 
 ```bash
-eval "$(curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.sh)"
+eval "$(curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh)"
 ```
 
 Legacy pipe-mode (prints a manual `source` hint at the end):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash
 ```
 ````
 

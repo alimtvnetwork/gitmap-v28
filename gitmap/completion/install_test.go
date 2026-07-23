@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 func TestDefaultPowerShellProfilePathsWindows(t *testing.T) {

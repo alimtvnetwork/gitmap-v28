@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `gitmap-v27 ls` command should provide transparent feedback about
+The `gitmap-v28 ls` command should provide transparent feedback about
 which database file it is querying, especially when no repos are found.
 
 ---
@@ -14,7 +14,7 @@ command should print the resolved database path:
 
 ```
   → Database: C:\Users\Alim\bin\data\gitmap.db
-  No repos tracked. Run 'gitmap-v27 scan' first.
+  No repos tracked. Run 'gitmap-v28 scan' first.
 ```
 
 This helps users verify that scan and list are targeting the same
@@ -46,9 +46,9 @@ The profile config file (`profiles.json`) lives at:
 
 ## Acceptance Criteria
 
-- **Given** `gitmap-v27 ls --verbose` with repos, **then** DB path is printed
+- **Given** `gitmap-v28 ls --verbose` with repos, **then** DB path is printed
   above the repo table.
-- **Given** `gitmap-v27 ls` with zero repos, **then** DB path is printed
+- **Given** `gitmap-v28 ls` with zero repos, **then** DB path is printed
   alongside the empty message.
 - **Given** scan then list on the same binary, **then** both resolve
   to the identical database path.

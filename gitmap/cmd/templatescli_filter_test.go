@@ -3,7 +3,7 @@ package cmd
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/templates"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
 )
 
 // fixtureEntries returns a deterministic three-row corpus for filter

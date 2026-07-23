@@ -1,28 +1,28 @@
 <#
 .SYNOPSIS
-    One-liner uninstaller for gitmap-v27 on Windows.
+    One-liner uninstaller for gitmap-v28 on Windows.
 
 .DESCRIPTION
-    Removes the gitmap-v27 binary, deploy folder, user PATH entry, and (optionally)
-    the per-user data folder. Works whether gitmap-v27 was installed via:
+    Removes the gitmap-v28 binary, deploy folder, user PATH entry, and (optionally)
+    the per-user data folder. Works whether gitmap-v28 was installed via:
 
       - install-quick.ps1 (one-liner)
-      - gitmap-v27/scripts/install.ps1 (canonical installer)
+      - gitmap-v28/scripts/install.ps1 (canonical installer)
       - manual `run.ps1` build-and-deploy
 
     Strategy:
-      1. If `gitmap-v27` is on PATH and reports its install dir, prefer that.
-         Delegate to `gitmap-v27 self-uninstall -y` (best path — uses the binary's
+      1. If `gitmap-v28` is on PATH and reports its install dir, prefer that.
+         Delegate to `gitmap-v28 self-uninstall -y` (best path — uses the binary's
          own knowledge of marker-block PATH cleanup, scheduled-task removal,
          etc.).
-      2. If `gitmap-v27` is NOT on PATH (already partially removed, broken install),
+      2. If `gitmap-v28` is NOT on PATH (already partially removed, broken install),
          fall back to a manual sweep:
-           - delete <root>/gitmap-cli/ AND legacy <root>/gitmap-v27/
+           - delete <root>/gitmap-cli/ AND legacy <root>/gitmap-v28/
            - strip the deploy root from User PATH
-           - prompt before deleting %APPDATA%/gitmap-v27
+           - prompt before deleting %APPDATA%/gitmap-v28
 
     Run via one-liner:
-      irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/uninstall-quick.ps1 | iex
+      irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/uninstall-quick.ps1 | iex
 
     Or locally:
       ./uninstall-quick.ps1
@@ -55,7 +55,7 @@ function Confirm-Or-Exit([string]$prompt) {
 }
 
 # ---------------------------------------------------------------------------
-# Step 1 — try the canonical `gitmap-v27 self-uninstall` (best path).
+# Step 1 — try the canonical `gitmap-v28 self-uninstall` (best path).
 # ---------------------------------------------------------------------------
 
 function Try-SelfUninstall {
@@ -65,12 +65,12 @@ function Try-SelfUninstall {
     # string would join the .Source paths with a space and PowerShell
     # would later treat that joined string as a command name —
     # producing the error:
-    #   The term 'E:\gitmap-v27\gitmap.exe E:\bin-run\gitmap-cli\gitmap.exe'
+    #   The term 'E:\gitmap-v28\gitmap.exe E:\bin-run\gitmap-cli\gitmap.exe'
     #   is not recognized as a name of a cmdlet ...
     # Always pick the first entry (the one PATH would actually invoke).
-    $cmd = Get-Command gitmap-v27 -ErrorAction SilentlyContinue | Select-Object -First 1
+    $cmd = Get-Command gitmap-v28 -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $cmd) {
-        Write-Info "gitmap-v27 not found on PATH, skipping self-uninstall (will sweep manually)"
+        Write-Info "gitmap-v28 not found on PATH, skipping self-uninstall (will sweep manually)"
         return $false
     }
 
@@ -84,7 +84,7 @@ function Try-SelfUninstall {
     Write-Info "Delegating to: $activeBinary self-uninstall -y"
     Write-Host ""
     try {
-        # Invoke by absolute path (not by 'gitmap-v27') so PATH-resolution
+        # Invoke by absolute path (not by 'gitmap-v28') so PATH-resolution
         # quirks can't pick a different binary than the one we logged.
         & $activeBinary self-uninstall -y
         if ($LASTEXITCODE -eq 0) {
@@ -109,7 +109,7 @@ function Resolve-DeployRoot {
     # Check the active binary's grandparent (deployRoot/gitmap-cli/gitmap.exe).
     # Same multi-binary defense as Try-SelfUninstall: pick the FIRST
     # entry so a stale shim doesn't poison Split-Path.
-    $cmd = Get-Command gitmap-v27 -ErrorAction SilentlyContinue | Select-Object -First 1
+    $cmd = Get-Command gitmap-v28 -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($cmd -and (Test-Path $cmd.Source)) {
         $parent = Split-Path (Resolve-Path $cmd.Source).Path -Parent
         $grand  = Split-Path $parent -Parent
@@ -117,9 +117,9 @@ function Resolve-DeployRoot {
     }
 
     # Common defaults to probe.
-    foreach ($candidate in @("E:\bin-run", "D:\gitmap-v27", "$env:LOCALAPPDATA\gitmap-v27", "$env:USERPROFILE\gitmap-v27")) {
+    foreach ($candidate in @("E:\bin-run", "D:\gitmap-v28", "$env:LOCALAPPDATA\gitmap-v28", "$env:USERPROFILE\gitmap-v28")) {
         if (Test-Path (Join-Path $candidate "gitmap-cli\gitmap.exe")) { return $candidate }
-        if (Test-Path (Join-Path $candidate "gitmap-v27\gitmap.exe"))     { return $candidate }
+        if (Test-Path (Join-Path $candidate "gitmap-v28\gitmap.exe"))     { return $candidate }
         if (Test-Path (Join-Path $candidate "gitmap.exe"))            { return $candidate }
     }
     return ""
@@ -127,11 +127,11 @@ function Resolve-DeployRoot {
 
 function Remove-DeployFolders([string]$root) {
     if (-not $root) {
-        Write-Warn "could not locate a gitmap-v27 deploy root; skipping folder removal"
+        Write-Warn "could not locate a gitmap-v28 deploy root; skipping folder removal"
         return
     }
 
-    foreach ($sub in @("gitmap-cli", "gitmap-v27")) {
+    foreach ($sub in @("gitmap-cli", "gitmap-v28")) {
         $dir = Join-Path $root $sub
         if (Test-Path $dir) {
             try {
@@ -166,7 +166,7 @@ function Remove-FromUserPath([string]$root) {
     $toRemove = @(
         $root,
         (Join-Path $root "gitmap-cli"),
-        (Join-Path $root "gitmap-v27")
+        (Join-Path $root "gitmap-v28")
     )
 
     $kept = $entries | Where-Object {
@@ -181,14 +181,14 @@ function Remove-FromUserPath([string]$root) {
     $newPath = ($kept -join ';')
     if ($newPath -ne $userPath) {
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-        Write-Ok "stripped gitmap-v27 entries from User PATH (restart shells to take effect)"
+        Write-Ok "stripped gitmap-v28 entries from User PATH (restart shells to take effect)"
     } else {
-        Write-Info "no gitmap-v27 entries found in User PATH"
+        Write-Info "no gitmap-v28 entries found in User PATH"
     }
 }
 
 function Remove-DataFolder {
-    $appdata = Join-Path $env:APPDATA "gitmap-v27"
+    $appdata = Join-Path $env:APPDATA "gitmap-v28"
     if (-not (Test-Path $appdata)) { return }
 
     if ($KeepData) {
@@ -220,7 +220,7 @@ function Get-AllGitmapOnPath {
     # Get-Command -All returns every match across PATH, not just the first.
     $found = @()
     try {
-        $cmds = Get-Command gitmap-v27 -All -ErrorAction SilentlyContinue
+        $cmds = Get-Command gitmap-v28 -All -ErrorAction SilentlyContinue
         foreach ($c in $cmds) {
             if ($c.Source -and (Test-Path $c.Source)) {
                 $found += (Resolve-Path $c.Source).Path
@@ -229,7 +229,7 @@ function Get-AllGitmapOnPath {
     } catch {}
 
     # Belt-and-suspenders: also scan every PATH entry directly for a
-    # gitmap.exe / gitmap-v27 file in case Get-Command missed something.
+    # gitmap.exe / gitmap-v28 file in case Get-Command missed something.
     $pathDirs = @()
     foreach ($scope in @("Machine", "User")) {
         $p = [Environment]::GetEnvironmentVariable("Path", $scope)
@@ -240,7 +240,7 @@ function Get-AllGitmapOnPath {
     foreach ($d in $pathDirs) {
         if (-not $d) { continue }
         $d = $d.TrimEnd('\')
-        foreach ($name in @("gitmap.exe", "gitmap-v27")) {
+        foreach ($name in @("gitmap.exe", "gitmap-v28")) {
             $candidate = Join-Path $d $name
             if (Test-Path $candidate) {
                 $resolved = (Resolve-Path $candidate).Path
@@ -255,11 +255,11 @@ function Get-AllGitmapOnPath {
 function Remove-StrayBinaries {
     $all = Get-AllGitmapOnPath
     if (-not $all -or $all.Count -eq 0) {
-        Write-Info "no stray gitmap-v27 binaries found on PATH"
+        Write-Info "no stray gitmap-v28 binaries found on PATH"
         return @()
     }
 
-    Write-Info "found $($all.Count) gitmap-v27 binary location(s):"
+    Write-Info "found $($all.Count) gitmap-v28 binary location(s):"
     foreach ($b in $all) { Write-Info "  - $b" }
 
     $cleanedDirs = @()
@@ -293,7 +293,7 @@ function Remove-DirsFromUserPath([string[]]$dirs) {
     $newPath = ($kept -join ';')
     if ($newPath -ne $userPath) {
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-        Write-Ok "stripped stray gitmap-v27 dirs from User PATH"
+        Write-Ok "stripped stray gitmap-v28 dirs from User PATH"
     }
 }
 
@@ -313,7 +313,7 @@ function Remove-CompletionSourceLines {
 
         $cleaned = ($lines -split "`n" | Where-Object {
             $trimmed = $_.Trim()
-            -not ($trimmed -eq '# gitmap-v27 shell completion') -and
+            -not ($trimmed -eq '# gitmap-v28 shell completion') -and
             -not ($trimmed -match "^\.\s+'.*completions\.ps1'")
         }) -join "`n"
 
@@ -329,7 +329,7 @@ function Remove-CompletionSourceLines {
 # ---------------------------------------------------------------------------
 
 Write-Host ""
-Write-Host "  gitmap-v27 quick uninstaller" -ForegroundColor Cyan
+Write-Host "  gitmap-v28 quick uninstaller" -ForegroundColor Cyan
 Write-Host "  ------------------------" -ForegroundColor DarkGray
 Write-Host ""
 
@@ -356,7 +356,7 @@ Write-Step "Cleaning PowerShell profile completion lines"
 Remove-CompletionSourceLines
 
 Write-Host ""
-Write-Step "Exhaustive PATH sweep — removing any remaining gitmap-v27 binaries"
+Write-Step "Exhaustive PATH sweep — removing any remaining gitmap-v28 binaries"
 $strayDirs = Remove-StrayBinaries
 Remove-DirsFromUserPath $strayDirs
 

@@ -1,6 +1,6 @@
 # spec/03-commit-in
 
-Authoritative, AI-blind-ready specification for the `gitmap-v27 commit-in` (`cin`)
+Authoritative, AI-blind-ready specification for the `gitmap-v28 commit-in` (`cin`)
 command. Read in numerical order. Implementation is **forbidden** until the
 user explicitly says `next` (per `.lovable/plan.md`).
 

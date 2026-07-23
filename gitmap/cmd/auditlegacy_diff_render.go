@@ -12,7 +12,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // auditDiffLine is one line that changed (1-based line number).

@@ -7,15 +7,15 @@
 
 ## Ticket
 
-After installing gitmap-v27 via `curl | sh` on macOS (zsh default), the binary
+After installing gitmap-v28 via `curl | sh` on macOS (zsh default), the binary
 is not found when the user switches to `sh` or opens a non-zsh shell.
 
 ## Symptoms
 
 1. User runs `curl -fsSL .../install.sh | sh` on macOS (zsh is default shell).
 2. Installer adds `export PATH="$PATH:~/.local/bin"` to `~/.zshrc`.
-3. gitmap-v27 works in zsh terminals.
-4. User opens `sh` or switches to bash → `gitmap-v27: command not found`.
+3. gitmap-v28 works in zsh terminals.
+4. User opens `sh` or switches to bash → `gitmap-v28: command not found`.
 
 ## Root Cause
 

@@ -45,11 +45,11 @@ uall
 
     $ gitmap update all
       → 3 repo(s) will be upgraded:
-          alimtvnetwork/gitmap-v27  v6.75.0 → v6.80.0
+          alimtvnetwork/gitmap-v28  v6.75.0 → v6.80.0
           acme/api                  v1.11.0 → v1.14.0
           acme/web                  (new)   → v2.0.0
       Proceed? (y/N): y
-      ✓ alimtvnetwork/gitmap-v27 → v6.80.0
+      ✓ alimtvnetwork/gitmap-v28 → v6.80.0
       ✓ acme/api → v1.14.0
       ✗ acme/web → clone failed: permission denied
           Enqueued PendingTask #62 (type=Upgrade)
@@ -61,7 +61,7 @@ uall
 
     $ gitmap uall --only release --dry-run
       (dry-run) 1 repo would be upgraded:
-          alimtvnetwork/gitmap-v27  v6.75.0 → v6.80.0
+          alimtvnetwork/gitmap-v28  v6.75.0 → v6.80.0
 
 ### Non-interactive, parallel 8, JSON
 

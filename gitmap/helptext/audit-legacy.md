@@ -2,7 +2,7 @@
 
 Scan the workspace for forbidden legacy strings and exit non-zero on any
 hit. Built as a regression guard so future remixes / rename commits
-(e.g. `gitmap-v27` → `gitmap-v27`) can't silently leave stale references <!-- gitmap-legacy-ref-allow -->
+(e.g. `gitmap-v28` → `gitmap-v28`) can't silently leave stale references <!-- gitmap-legacy-ref-allow -->
 behind.
 
 ## Synopsis

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // manualExtras is a stop-gap for command names whose Cmd* constants cannot

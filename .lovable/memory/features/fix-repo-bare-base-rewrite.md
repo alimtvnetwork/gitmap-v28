@@ -14,7 +14,7 @@ references reading the bare name.
 **v5.38.0 scope tightening — bare-base ONLY runs when `current == 2`.**
 Before v5.38.0 the sweep ran whenever v1 was in the target span, so
 `fix-repo` inside a `-v4` repo would rewrite every bare `gitmap`
-mention to `gitmap-v27`, silently corrupting binary names, package
+mention to `gitmap-v28`, silently corrupting binary names, package
 identifiers, brand strings, and unrelated repo URLs. The pre-versioned
 origin only matters for the v1→v2 transition; at v3+ any bare token is
 overwhelmingly NOT the old origin and must be preserved.

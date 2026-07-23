@@ -2,8 +2,8 @@
 
 ## Ticket
 
-After installing gitmap-v27 via `curl | bash` on macOS (or `irm | iex` on Windows),
-running `gitmap-v27` immediately returns "command not found" / "not recognized".
+After installing gitmap-v28 via `curl | bash` on macOS (or `irm | iex` on Windows),
+running `gitmap-v28` immediately returns "command not found" / "not recognized".
 The user must manually source their profile or open a new terminal.
 
 ## Symptoms
@@ -13,14 +13,14 @@ The user must manually source their profile or open a new terminal.
 1. User runs `curl -fsSL .../install.sh | bash` on macOS (zsh default).
 2. Installer adds PATH entry to `~/.zprofile` (or `~/.zshrc`).
 3. Installer prints `export PATH=...` and reload instructions.
-4. User types `gitmap-v27` → `zsh: command not found: gitmap-v27`.
+4. User types `gitmap-v28` → `zsh: command not found: gitmap-v28`.
 
 ### Windows
 
 1. User runs `irm .../install.ps1 | iex` in PowerShell.
 2. Installer adds install directory to User PATH in the registry.
-3. User types `gitmap-v27` → `gitmap-v27: The term 'gitmap-v27' is not recognized`.
-4. CMD and Git Bash sessions also cannot find `gitmap-v27`.
+3. User types `gitmap-v28` → `gitmap-v28: The term 'gitmap-v28' is not recognized`.
+4. CMD and Git Bash sessions also cannot find `gitmap-v28`.
 
 ## Root Cause
 
@@ -48,7 +48,7 @@ Three separate issues compound across platforms:
 ### 3. No immediate activation instruction
 
 The post-install message was either absent or buried, making users expect
-`gitmap-v27` to just work immediately after install.
+`gitmap-v28` to just work immediately after install.
 
 ## Fix
 
@@ -87,7 +87,7 @@ command that the user can copy-paste immediately.
 #### Unix example
 
 ```
-  ✓ Installed! To start using gitmap-v27 right now, run:
+  ✓ Installed! To start using gitmap-v28 right now, run:
 
       source ~/.zshrc
 
@@ -97,7 +97,7 @@ command that the user can copy-paste immediately.
 #### Windows example
 
 ```
-  ✓ Installed! To start using gitmap-v27 right now:
+  ✓ Installed! To start using gitmap-v28 right now:
 
     PowerShell:  $env:PATH += ";C:\Users\you\.local\bin"
     CMD:         set PATH=%PATH%;C:\Users\you\.local\bin
@@ -134,5 +134,5 @@ command that the user can copy-paste immediately.
 
 - `spec/02-app-issues/20-path-not-available-in-other-shells.md` — cross-shell visibility (superseded)
 - `spec/01-app/94-install-script.md` — installer specification
-- `gitmap-v27/scripts/install.sh` — Unix implementation
-- `gitmap-v27/scripts/install.ps1` — Windows implementation
+- `gitmap-v28/scripts/install.sh` — Unix implementation
+- `gitmap-v28/scripts/install.ps1` — Windows implementation

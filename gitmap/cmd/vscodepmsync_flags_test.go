@@ -10,7 +10,7 @@ package cmd
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/vscodepm"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
 )
 
 // TestTagListValueRepeatAndCommaList asserts the documented contract

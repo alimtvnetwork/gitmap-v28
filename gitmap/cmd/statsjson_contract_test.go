@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // canonicalStatsOverall builds a deterministic two-row stats snapshot.

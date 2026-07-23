@@ -3,9 +3,9 @@ package e2e
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/scripts/changelog/internal/gitlog"
-	"github.com/alimtvnetwork/gitmap-v27/scripts/changelog/internal/group"
-	"github.com/alimtvnetwork/gitmap-v27/scripts/changelog/internal/render"
+	"github.com/alimtvnetwork/gitmap-v28/scripts/changelog/internal/gitlog"
+	"github.com/alimtvnetwork/gitmap-v28/scripts/changelog/internal/group"
+	"github.com/alimtvnetwork/gitmap-v28/scripts/changelog/internal/render"
 )
 
 // TestPartialRangeOnlyIncludesSlicedCommits proves the --since / --release-tag

@@ -1,25 +1,25 @@
 # 90 — Self-Install / Self-Uninstall
 
-> Spec for `gitmap-v27 self-install` and `gitmap-v27 self-uninstall` — manage
-> the gitmap-v27 binary itself (NOT to be confused with `gitmap-v27 install` /
-> `gitmap-v27 uninstall`, which manage third-party tools).
+> Spec for `gitmap-v28 self-install` and `gitmap-v28 self-uninstall` — manage
+> the gitmap-v28 binary itself (NOT to be confused with `gitmap-v28 install` /
+> `gitmap-v28 uninstall`, which manage third-party tools).
 
 ---
 
 ## Why two new commands?
 
-`gitmap-v27 install` and `gitmap-v27 uninstall` were already taken by the
+`gitmap-v28 install` and `gitmap-v28 uninstall` were already taken by the
 third-party tool installer (npp, vscode, dev tools). Users asked for a
-way to wipe the gitmap-v27 binary itself and re-install it from the same
+way to wipe the gitmap-v28 binary itself and re-install it from the same
 session. To avoid breaking the existing tool installer, we added two
 new top-level verbs:
 
 | Command              | Scope                                                     |
 |----------------------|-----------------------------------------------------------|
-| `gitmap-v27 install`     | Install a third-party tool (existing, unchanged)          |
-| `gitmap-v27 uninstall`   | Uninstall a third-party tool (existing, unchanged)        |
-| `gitmap-v27 self-install`   | Install / re-install the gitmap-v27 binary                |
-| `gitmap-v27 self-uninstall` | Remove the gitmap-v27 binary, data dir, PATH snippet, completion |
+| `gitmap-v28 install`     | Install a third-party tool (existing, unchanged)          |
+| `gitmap-v28 uninstall`   | Uninstall a third-party tool (existing, unchanged)        |
+| `gitmap-v28 self-install`   | Install / re-install the gitmap-v28 binary                |
+| `gitmap-v28 self-uninstall` | Remove the gitmap-v28 binary, data dir, PATH snippet, completion |
 
 ---
 
@@ -29,12 +29,12 @@ A single invocation removes:
 
 1. **Binary + deploy artefacts** — anything under the directory that
    contains the running binary whose name matches `isGitmapArtifact`:
-   `gitmap-v27`, `gitmap.exe`, `gitmap-handoff-*`, `*.old` backups,
+   `gitmap-v28`, `gitmap.exe`, `gitmap-handoff-*`, `*.old` backups,
    `gitmap-completion.*`.
 2. **`.gitmap/` data dir** — SQLite DB, profiles, scan history. Skip
    with `--keep-data`.
-3. **PATH snippet** — strips the `# gitmap-v27 shell wrapper v* - managed
-   by *. Do not edit manually.` … `# gitmap-v27 shell wrapper v* end` block
+3. **PATH snippet** — strips the `# gitmap-v28 shell wrapper v* - managed
+   by *. Do not edit manually.` … `# gitmap-v28 shell wrapper v* end` block
    from the user's shell profile. Skip with `--keep-snippet`.
 4. **Completion files** — `gitmap-completion.bash`, `.zsh`, `.fish` in
    the deploy dir.
@@ -72,18 +72,18 @@ On Unix we just `os.Remove(self)` — open files unlink cleanly.
 
 Defaults:
 
-- **Windows**: `D:\gitmap-v27`
-- **Unix**: `$HOME/.local/bin/gitmap-v27`
+- **Windows**: `D:\gitmap-v28`
+- **Unix**: `$HOME/.local/bin/gitmap-v28`
 
 ### Installer script source
 
 The installer scripts (`install.ps1`, `install.sh`, `uninstall.ps1`)
 are embedded into the binary via `go:embed` in
-`gitmap-v27/scripts/embed.go`. `loadInstallScript()`:
+`gitmap-v28/scripts/embed.go`. `loadInstallScript()`:
 
 1. Tries `scripts.ReadFile(name)` first (offline, instant).
 2. Falls back to `https://raw.githubusercontent.com/alimtvnetwork/
-   gitmap-v27/main/gitmap-v27/scripts/install.{ps1,sh}` if the embedded
+   gitmap-v28/main/gitmap-v28/scripts/install.{ps1,sh}` if the embedded
    copy is missing or empty.
 
 ### Execution
@@ -100,14 +100,14 @@ then invoked:
 
 | File                                       | Role                                                 |
 |--------------------------------------------|------------------------------------------------------|
-| `gitmap-v27/constants/constants_selfinstall.go` | Command IDs, messages, defaults, flag descriptions  |
-| `gitmap-v27/scripts/embed.go`                  | `go:embed` of install.ps1, install.sh, uninstall.ps1 |
-| `gitmap-v27/cmd/selfinstall.go`                | Entry, flag parsing, prompt, script loader, exec     |
-| `gitmap-v27/cmd/selfuninstall.go`              | Entry, flag parsing, confirm, executeSelfUninstall   |
-| `gitmap-v27/cmd/selfuninstallparts.go`         | Removers: deploy dir, completion, profile snippet    |
-| `gitmap-v27/cmd/selfuninstallhandoff.go`       | Windows temp-copy handoff + self-delete scheduler    |
-| `gitmap-v27/helptext/self-install.md`          | User-facing help                                     |
-| `gitmap-v27/helptext/self-uninstall.md`        | User-facing help                                     |
+| `gitmap-v28/constants/constants_selfinstall.go` | Command IDs, messages, defaults, flag descriptions  |
+| `gitmap-v28/scripts/embed.go`                  | `go:embed` of install.ps1, install.sh, uninstall.ps1 |
+| `gitmap-v28/cmd/selfinstall.go`                | Entry, flag parsing, prompt, script loader, exec     |
+| `gitmap-v28/cmd/selfuninstall.go`              | Entry, flag parsing, confirm, executeSelfUninstall   |
+| `gitmap-v28/cmd/selfuninstallparts.go`         | Removers: deploy dir, completion, profile snippet    |
+| `gitmap-v28/cmd/selfuninstallhandoff.go`       | Windows temp-copy handoff + self-delete scheduler    |
+| `gitmap-v28/helptext/self-install.md`          | User-facing help                                     |
+| `gitmap-v28/helptext/self-uninstall.md`        | User-facing help                                     |
 
 ---
 
@@ -127,5 +127,5 @@ then invoked:
   — Marker block conventions used by `stripMarkerBlock`.
 - [spec/01-app/89-update-path-sync.md](89-update-path-sync.md) — Sister
   spec for keeping deployed and active PATH binaries in sync.
-- `gitmap-v27/scripts/install.ps1`, `install.sh`, `uninstall.ps1` — the
+- `gitmap-v28/scripts/install.ps1`, `install.sh`, `uninstall.ps1` — the
   embedded scripts themselves.

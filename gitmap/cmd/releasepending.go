@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/release"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
 
 // versionLikeArgPattern matches positional args the user probably meant

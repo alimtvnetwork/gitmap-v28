@@ -21,8 +21,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // coerceURLToStoredTransport returns the URL the actual `git clone`

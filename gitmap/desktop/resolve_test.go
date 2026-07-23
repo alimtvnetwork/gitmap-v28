@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // TestResolveCLI_FindsKnownInstall is the end-to-end guard for the silent

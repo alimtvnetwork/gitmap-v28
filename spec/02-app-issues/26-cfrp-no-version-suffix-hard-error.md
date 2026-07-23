@@ -1,11 +1,11 @@
 # 26 — `cfrp` on a non-versioned repo: hard error with `--require-version` opt-in
 
 > **Status:** specified — implemented in v4.42.x via the `--require-version`
-> flag in `gitmap-v27/cmd/clonefixrepo.go`.
+> flag in `gitmap-v28/cmd/clonefixrepo.go`.
 
 ## Problem
 
-Running `gitmap-v27 clone-fix-repo-pub <url>` (alias `cfrp`) on a URL whose
+Running `gitmap-v28 clone-fix-repo-pub <url>` (alias `cfrp`) on a URL whose
 repository name does **not** end in a `-v<N>` suffix used to silently
 proceed: it cloned, ran `fix-repo --all` (which had nothing to rewrite
 because there was no version token), then flipped visibility public.
@@ -13,7 +13,7 @@ because there was no version token), then flipped visibility public.
 Two failure modes followed from this:
 
 1. **User confusion.** `cfrp` was conceived for the versioned-repo
-   workflow (`gitmap-v27`, `coding-guidelines-v23`). Running it on a
+   workflow (`gitmap-v28`, `coding-guidelines-v23`). Running it on a
    plain repo silently skipped the rewrite step, so users believed
    the rewrite ran when it hadn't.
 2. **Accidental publication.** `cfrp` always flips visibility to
@@ -31,7 +31,7 @@ Concretely:
 
 | Scenario | Behavior |
 |---|---|
-| URL ends in `-v<N>` (e.g. `gitmap-v27`) | Run the full pipeline. |
+| URL ends in `-v<N>` (e.g. `gitmap-v28`) | Run the full pipeline. |
 | URL has no `-v<N>` suffix, no flag | **Hard error**, non-zero exit, no clone. |
 | URL has no `-v<N>` suffix, `--require-version=false` | Skip + warn, continue. |
 
@@ -42,9 +42,9 @@ is the explicit "I know what I'm doing" escape hatch.
 
 ```
 ✗ cfrp: <url> is not a versioned repository (no -v<N> suffix)
-  cfrp expects a sibling-versioned repo (gitmap-v27, coding-guidelines-v23, ...).
+  cfrp expects a sibling-versioned repo (gitmap-v28, coding-guidelines-v23, ...).
   To proceed anyway (skip the rewrite, still flip visibility public):
-      gitmap-v27 cfrp <url> --require-version=false
+      gitmap-v28 cfrp <url> --require-version=false
 ```
 
 Exit code: `ExitCloneFixRepoBadFlag` — same family as a malformed

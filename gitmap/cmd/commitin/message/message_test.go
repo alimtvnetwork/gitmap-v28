@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/profile"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/profile"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 func fixedPick(_ int) int { return 0 }

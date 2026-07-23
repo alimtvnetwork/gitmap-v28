@@ -20,7 +20,7 @@
 
 ```bash
 # 1. Install v6.78.0 (Linux/macOS)
-curl -fsSL https://github.com/alimtvnetwork/gitmap-v27/releases/download/v6.78.0/release-version-v6.78.0.sh | bash
+curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.78.0/release-version-v6.78.0.sh | bash
 
 # 2. Clone-fix-repo with Coding Guidelines v24 installer + auto commit + auto push (default)
 gitmap cfr cg https://github.com/you/your-repo.git
@@ -39,7 +39,7 @@ gitmap cfr p cg https://github.com/you/your-repo.git   # equivalent
 Windows (PowerShell):
 
 ```powershell
-irm https://github.com/alimtvnetwork/gitmap-v27/releases/download/v6.78.0/release-version-v6.78.0.ps1 | iex
+irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.78.0/release-version-v6.78.0.ps1 | iex
 gitmap cfr cg https://github.com/you/your-repo.git
 ```
 
@@ -322,7 +322,7 @@ JSON-everywhere) will land in subsequent minors.
 - **`gitmap cpc` — copied profile now actually appears in Chrome's picker.** Before v6.55.0, registering the destination dir in `Local State` alone was insufficient: Chrome silently merged the new tile back into the source identity on next launch because the destination `Preferences` still carried the source GAIA / signed-in fields. New `patchCopiedChromeProfilePreferences` scrubs `account_info` / `signin` / `google` / `gaia_*` and stamps `profile.name` to the destination slug before the Local State entry is written.
 
 ### Changed
-- **User-facing command strings renamed `gitmap-v27 …` → `gitmap …`** in `src/data/commands.ts`, `src/data/postMortems.ts`, and `src/hooks/useTheme.ts` event names. Go import paths are unchanged; only displayed/copyable commands were touched. The two-folder mv/merge/diff examples now use `./gitmap-v27 ./gitmap-v27` so the two slots stay visibly distinct.
+- **User-facing command strings renamed `gitmap-v28 …` → `gitmap …`** in `src/data/commands.ts`, `src/data/postMortems.ts`, and `src/hooks/useTheme.ts` event names. Go import paths are unchanged; only displayed/copyable commands were touched. The two-folder mv/merge/diff examples now use `./gitmap-v28 ./gitmap-v28` so the two slots stay visibly distinct.
 
 ## v6.54.0 — (2026-06-25) — `cfr`/`cfrp` comma-URL fan-out with `--parallel=N`
 
@@ -489,8 +489,8 @@ JSON-everywhere) will land in subsequent minors.
 ## v6.33.0 — (2026-06-19) — CI green: top-level Cmd registry parity for chrome-profile-* + bulk-visibility skip-current semantics
 
 - **`TestTopLevelCmdRegistryMatchesAST` fixed.** Added the 10 new `CmdChromeProfile{Copy,Export,Import,List,Delete}` constants (plus their `cpc`/`cpe`/`cpi`/`cpl`/`cpd` aliases) to `topLevelCmds()` in `gitmap/constants/cmd_constants_test.go` so the AST↔registry parity gate stays green.
-- **`TestParseBulkRequest_TwoArgValid` fixed.** `parseBulkRequest` now returns `StartVer = ver - 1` in both single- and pair-arg branches: `gitmap-v27 3` flips v25, v24, v23 (skip-current). `runBulkVisibility`'s existing `ver < 1` guard keeps unversioned inputs safe.
-- **`TestApplyAllTargets_VersionScopeMatrix/v2_bare_base_rewritten` fixed.** Test had hard-coded `gitmap-v27` for a `current=2` case (violating the digit-capture derive-from-int rule); `want` now correctly reads `gitmap-v27`.
+- **`TestParseBulkRequest_TwoArgValid` fixed.** `parseBulkRequest` now returns `StartVer = ver - 1` in both single- and pair-arg branches: `gitmap-v28 3` flips v25, v24, v23 (skip-current). `runBulkVisibility`'s existing `ver < 1` guard keeps unversioned inputs safe.
+- **`TestApplyAllTargets_VersionScopeMatrix/v2_bare_base_rewritten` fixed.** Test had hard-coded `gitmap-v28` for a `current=2` case (violating the digit-capture derive-from-int rule); `want` now correctly reads `gitmap-v28`.
 - **Files:** `gitmap/constants/constants.go` (`6.33.0`), `gitmap/constants/cmd_constants_test.go`, `gitmap/cmd/visibilitybulk.go`, `gitmap/cmd/fixrepo_rewrite_versionscope_test.go`, `src/constants/index.ts` (`v6.33.0`), `README.md` (pin → v6.33.0), `CHANGELOG.md`.
 
 
@@ -701,19 +701,19 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ## v6.2.2 — (2026-05-30) — Fix macOS CI: stale `updateprobe_test.go` version expectations
 
-- Fixed: `gitmap/cmd/updateprobe_test.go` — `TestParseCurrentRepoSlug` had been self-rewritten to use `gitmap-v27` while still expecting stale parsed versions (`23` and `1`). The test now derives the current-slug case from one `currentSlugVersion` constant and uses a synthetic `tool-v1` case for the v1 parser branch, preventing future repo bumps from rewriting only half of the assertion.
-- Hardened: `fixrepo_rewrite_preview_test.go` and `fixrepo_rewrite_barebase_test.go` now use synthetic `acme-vN` tokens instead of this repo's own `gitmap-v27` literals, so future `fix-repo` bumps cannot silently rot the rewrite/preview regression tests.
+- Fixed: `gitmap/cmd/updateprobe_test.go` — `TestParseCurrentRepoSlug` had been self-rewritten to use `gitmap-v28` while still expecting stale parsed versions (`23` and `1`). The test now derives the current-slug case from one `currentSlugVersion` constant and uses a synthetic `tool-v1` case for the v1 parser branch, preventing future repo bumps from rewriting only half of the assertion.
+- Hardened: `fixrepo_rewrite_preview_test.go` and `fixrepo_rewrite_barebase_test.go` now use synthetic `acme-vN` tokens instead of this repo's own `gitmap-v28` literals, so future `fix-repo` bumps cannot silently rot the rewrite/preview regression tests.
 
 ## v6.2.1 — (2026-05-30) — Fix macOS CI: `fixrepo_rewrite_versionscope_test.go` self-rewrite damage
 
-- Fixed: `gitmap/cmd/fixrepo_rewrite_versionscope_test.go` — every `gitmap-vN` literal in the test's `in`/`want` strings (for N < 25) had been silently rewritten to `gitmap-v27` by fix-repo itself on the v23→v25 bump, collapsing assertions like *"bare `gitmap` should become `gitmap-v27` when current=2"* into nonsense (`want: "...gitmap-v27..."`). Distractor tokens now use a synthetic `otherpkg-vN` base so the rewriter — which only touches `{base}-vN` where base == the repo name — can't smash them on future bumps. Same lesson as the `fixrepo_rewrite_v9tov12_test.go` fix that already uses `acme-vN`.
+- Fixed: `gitmap/cmd/fixrepo_rewrite_versionscope_test.go` — every `gitmap-vN` literal in the test's `in`/`want` strings (for N < 25) had been silently rewritten to `gitmap-v28` by fix-repo itself on the v23→v25 bump, collapsing assertions like *"bare `gitmap` should become `gitmap-v28` when current=2"* into nonsense (`want: "...gitmap-v28..."`). Distractor tokens now use a synthetic `otherpkg-vN` base so the rewriter — which only touches `{base}-vN` where base == the repo name — can't smash them on future bumps. Same lesson as the `fixrepo_rewrite_v9tov12_test.go` fix that already uses `acme-vN`.
 - Root cause: this test data was written using the repo's own base name (`gitmap`), making it self-poisoning under any future fix-repo run. Documented in mem://core under FIX-REPO DIGIT-CAPTURE GAP — extended now to cover not just sibling integer literals but any same-base versioned token in test fixtures.
 
 
 
 ## v6.2.0 — (2026-05-29) — Fix macOS/Windows CI: `TestExtractBaseAndVersionFromArg_URL` digit-capture desync
 
-- Fixed: `gitmap/cmd/visibilitybulk_test.go` — `TestExtractBaseAndVersionFromArg_URL` hard-coded the expected version (`23`) as a bare integer literal separate from the input URL `gitmap-v27`. The fix-repo rewriter only touches `{base}-vN` tokens, so when the repo bumped from v23→v25 the URL was updated but the expected int was not, producing `expected (gitmap, 23), got (gitmap, 25)` on every CI run since the bump. This was the **exact bug class** documented in mem://core (FIX-REPO DIGIT-CAPTURE GAP, closed v4.12.0): "any new fix-repo test MUST derive expected version-bearing strings from the same int it passed in — never hard-code a sibling literal." The test now formats the URL from a `const wantVer = 25` and asserts against the same constant, so the next version bump rewrites both sides atomically.
+- Fixed: `gitmap/cmd/visibilitybulk_test.go` — `TestExtractBaseAndVersionFromArg_URL` hard-coded the expected version (`23`) as a bare integer literal separate from the input URL `gitmap-v28`. The fix-repo rewriter only touches `{base}-vN` tokens, so when the repo bumped from v23→v25 the URL was updated but the expected int was not, producing `expected (gitmap, 23), got (gitmap, 25)` on every CI run since the bump. This was the **exact bug class** documented in mem://core (FIX-REPO DIGIT-CAPTURE GAP, closed v4.12.0): "any new fix-repo test MUST derive expected version-bearing strings from the same int it passed in — never hard-code a sibling literal." The test now formats the URL from a `const wantVer = 25` and asserts against the same constant, so the next version bump rewrites both sides atomically.
 - Root cause: a regression test for the v4.12.0 rule had itself been added in violation of the rule. CI's `macos-latest / go build + test` job (and any other matrix host) failed at `gitmap/cmd` for this single assertion.
 
 
@@ -1161,7 +1161,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 
 - **Auto-backup.** Every `gitmap fix-repo` write (non-dry-run) now snapshots the pre-rewrite copy of each modified file to `<repoRoot>/.gitmap/backup/<repo>/v<current>/fix-repo/<UTC-timestamp>/files/<rel/path>` alongside a `manifest.json` index. Untouched files are never copied; dry-run never creates a snapshot directory. One snapshot per invocation, lexically-sortable UTC stamp == chronological order.
-- **New command: `gitmap undo` (alias `ud`).** Restores the latest snapshot for the **current repo + current version** back onto the working tree. Subcommands: `--list` (snapshots newest-first with file counts, latest marked `*`), `--snapshot <ts>` (pick a specific stamp), `--dry-run` (preview without writing). Snapshots are scoped to `<repo>/v<current>` so an undo inside `gitmap-v27` can never touch a `gitmap-v27` snapshot.
+- **New command: `gitmap undo` (alias `ud`).** Restores the latest snapshot for the **current repo + current version** back onto the working tree. Subcommands: `--list` (snapshots newest-first with file counts, latest marked `*`), `--snapshot <ts>` (pick a specific stamp), `--dry-run` (preview without writing). Snapshots are scoped to `<repo>/v<current>` so an undo inside `gitmap-v28` can never touch a `gitmap-v28` snapshot.
 - **Layout** (under repo root):
   ```
   .gitmap/backup/<repo>/v<current>/fix-repo/<UTC-ts>/
@@ -1186,10 +1186,10 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ## v5.38.0 — (2026-05-19) — `fix-repo` bare-base rewrite restricted to v1→v2 only (no more corrupting bare `gitmap` at v3+)
 
-- **Critical fix.** Running `gitmap fix-repo` inside a `-v3` (or higher) repo no longer rewrites bare `{base}` tokens. Before v5.38.0, `fix-repo` inside `gitmap-v27` would rewrite every standalone mention of `gitmap` (binary names, package identifiers, brand strings, unrelated `https://github.com/owner/gitmap` URLs) to `gitmap-v27` — silently corrupting the working tree.
+- **Critical fix.** Running `gitmap fix-repo` inside a `-v3` (or higher) repo no longer rewrites bare `{base}` tokens. Before v5.38.0, `fix-repo` inside `gitmap-v28` would rewrite every standalone mention of `gitmap` (binary names, package identifiers, brand strings, unrelated `https://github.com/owner/gitmap` URLs) to `gitmap-v28` — silently corrupting the working tree.
 - **New scope rule:** the bare-base sweep in `applyAllTargets` (`gitmap/cmd/fixrepo_rewrite.go`) runs if and only if `n == 1 && current == 2`. At v3+ the bare token is overwhelmingly NOT the pre-versioned origin (most projects never shipped a bare `{base}` remote in the first place) and must be preserved. Only `{base}-vN` tokens — guarded by the existing digit-boundary check — are rewritten.
-- Concretely, in `gitmap-v27`: targets are `v1, v2`; `gitmap-v27` and `gitmap-v27` become `gitmap-v27`; bare `gitmap` is left untouched. In `gitmap-v27`: `gitmap-v27, v3` become `gitmap-v27`; bare `gitmap` is left untouched. Only in the v1→v2 transition is the bare token rewritten.
-- Spec updated: `spec/04-generic-cli/27-fix-repo-command.md` now has a dedicated **Bare-base scope rule (v5.38.0+)** section documenting the v1→v2 restriction with a worked `gitmap-v27` example.
+- Concretely, in `gitmap-v28`: targets are `v1, v2`; `gitmap-v28` and `gitmap-v28` become `gitmap-v28`; bare `gitmap` is left untouched. In `gitmap-v28`: `gitmap-v28, v3` become `gitmap-v28`; bare `gitmap` is left untouched. Only in the v1→v2 transition is the bare token rewritten.
+- Spec updated: `spec/04-generic-cli/27-fix-repo-command.md` now has a dedicated **Bare-base scope rule (v5.38.0+)** section documenting the v1→v2 restriction with a worked `gitmap-v28` example.
 - Regression tests: `TestApplyAllTargets_BareBase_SkippedAtV3Plus` and `TestApplyAllTargets_BareBase_SkippedAtV4WithV1InTargets` in `gitmap/cmd/fixrepo_rewrite_barebase_test.go` lock in the new behavior. The existing v1→v2 test (`TestApplyAllTargets_BareBase_V1To2`) is unchanged.
 - Memory updated: `.lovable/memory/features/fix-repo-bare-base-rewrite.md` reflects the new scope.
 - Pinned: README pinned-version block + version matrix moved to **v5.38.0**. Synced `gitmap/constants/constants.go` (`Version = "5.38.0"`) and `src/constants/index.ts` (`VERSION = "v5.38.0"`).
@@ -1345,8 +1345,8 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ### Added
 - **`/install.ps1`** and **`/install.sh`** now live at the repository root. The one-liner installer URL is now:
-  - Windows: `irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install.ps1 | iex`
-  - macOS / Linux: `curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install.sh | sh`
+  - Windows: `irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex`
+  - macOS / Linux: `curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh`
 - Shorter, more discoverable URLs — no more `gitmap/scripts/` segment for end users.
 
 ### Kept
@@ -1465,7 +1465,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 
 ### Fixed
 - **Release body**: `gitmap release` no longer dumps gitmap's own `CHANGELOG.md` notes into the GitHub release body of unrelated repositories. `uploadToGitHub` in `gitmap/release/workflowgithub.go` now starts with an empty body and only calls `DetectChangelog()` + `AppendPinnedInstallSnippet` when `ShouldPrintInstallHint(getRemoteURL())` is true (i.e. the current repo is a `alimtvnetwork/gitmap-v<N>` source repo). Non-gitmap repos get a tag-only release with an empty body.
-- **`release-version-vX.Y.Z.{ps1,sh}` snapshot assets** are no longer attached to non-gitmap releases. Those snapshots hard-code `REPO="alimtvnetwork/gitmap-v27"` and `BINARY_NAME="gitmap"` — uploading them to `img-pdf-v2`, `some-tool-v3`, etc. would mislead users into downloading the gitmap binary from the wrong release page. `pushAndFinalize` in `gitmap/release/workflowfinalize.go` now wraps `buildReleaseVersionSnapshots` in the same `ShouldPrintInstallHint` gate.
+- **`release-version-vX.Y.Z.{ps1,sh}` snapshot assets** are no longer attached to non-gitmap releases. Those snapshots hard-code `REPO="alimtvnetwork/gitmap-v28"` and `BINARY_NAME="gitmap"` — uploading them to `img-pdf-v2`, `some-tool-v3`, etc. would mislead users into downloading the gitmap binary from the wrong release page. `pushAndFinalize` in `gitmap/release/workflowfinalize.go` now wraps `buildReleaseVersionSnapshots` in the same `ShouldPrintInstallHint` gate.
 - All other assets (cross-compiled Go binaries, zip groups, ad-hoc bundles, checksums, docs-site) are unaffected — only the two gitmap-specific pieces are gated.
 
 ### Docs
@@ -1475,7 +1475,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.15.0 — (2026-05-18) — `gitmap install gitmap-oneliner`: print canonical Windows + macOS install one-liners in the terminal
 
 ### Added
-- New `gitmap install gitmap-oneliner` command prints the canonical bootstrap one-liners for Windows (PowerShell `irm … | iex`) and macOS/Linux (bash `curl -fsSL … | sh`) without leaving the terminal. URLs are fixed to the canonical `alimtvnetwork/gitmap-v27/main` branch installers; the header version is rendered dynamically from `constants.Version`.
+- New `gitmap install gitmap-oneliner` command prints the canonical bootstrap one-liners for Windows (PowerShell `irm … | iex`) and macOS/Linux (bash `curl -fsSL … | sh`) without leaving the terminal. URLs are fixed to the canonical `alimtvnetwork/gitmap-v28/main` branch installers; the header version is rendered dynamically from `constants.Version`.
 - `ToolGitmapOneliner = "gitmap-oneliner"` added to the Core install tool category with description "Print the Windows + macOS install-gitmap one-liners".
 
 ### Docs
@@ -1725,25 +1725,25 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 
 - `gitmap clone-fix-repo` / `cfrp` now decide whether to run `fix-repo --all`
   from the cloned Git remote repo name, not the flattened local destination
-  folder. Cloning `gitmap-v27` into `gitmap/` now correctly runs the rewrite
+  folder. Cloning `gitmap-v28` into `gitmap/` now correctly runs the rewrite
   instead of falsely reporting that `gitmap` has no `-vN` suffix.
 - Bumped `Version` constant to `5.1.0` (Go) and `VERSION` to `v5.1.0` (web).
 
 ## v4.44.0 — (2026-05-16) — Minor version bump; re-pin root README install snippets and version matrix to v4.44.0
 
 - Bumped `Version` constant to `4.44.0` (Go) and `VERSION` to `v4.44.0` (web)
-- Re-pinned the root `README.md` "Pinned version" section, one-line installers, and version matrix asset URLs to `v4.44.0` / `gitmap-v27.44.0-*`
+- Re-pinned the root `README.md` "Pinned version" section, one-line installers, and version matrix asset URLs to `v4.44.0` / `gitmap-v28.44.0-*`
 
 
 ## v4.42.0 — (2026-05-09) — Minor version bump; re-pin root README install snippets and version matrix to v4.42.0
 
 - Bumped `Version` constant to `4.42.0` (Go) and `VERSION` to `v4.42.0` (web)
-- Re-pinned the root `README.md` "Pinned version" section, one-line installers, and version matrix asset URLs to `v4.42.0` / `gitmap-v27.42.0-*`
+- Re-pinned the root `README.md` "Pinned version" section, one-line installers, and version matrix asset URLs to `v4.42.0` / `gitmap-v28.42.0-*`
 
 ## v4.41.0 — (2026-05-07) — Minor version bump; re-pin root README install snippets and version matrix to v4.41.0
 
 - Bumped `Version` constant to `4.41.0` (Go) and `VERSION` to `v4.41.0` (web)
-- Re-pinned the root `README.md` "Pinned version" section, one-line installers, and version matrix asset URLs to `v4.41.0` / `gitmap-v27.41.0-*`
+- Re-pinned the root `README.md` "Pinned version" section, one-line installers, and version matrix asset URLs to `v4.41.0` / `gitmap-v28.41.0-*`
 
 ## v4.40.0 — (2026-05-07) — Minor version bump; pin root README install snippets and version matrix to v4.40.0
 
@@ -1753,7 +1753,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
   in lock-step to satisfy the `version-sync` regression test.
 - Re-pinned the root `README.md` "Pinned version" section, one-line installers,
   and the per-platform version matrix (Windows/macOS/Linux × amd64/arm64) to
-  the new `v4.40.0` release tag and `gitmap-v27.40.0-*` asset names.
+  the new `v4.40.0` release tag and `gitmap-v28.40.0-*` asset names.
 
 ## v4.39.0 — (2026-05-07) — CI lint cleanup: misspellings (`centralised`/`materialises`/`honoured`), unused `mergePairs`, gofmt drift, `string(before) != string(after)` → `bytes.Equal`
 
@@ -2122,9 +2122,9 @@ existing CI / scripts) gets the v4.36.0 union behavior unchanged.
 
 - `gitmap/cmd/fixrepo_rewrite_scan_test.go`: `TestScannerMatchesRewriter` now
   builds its expected rewritten token via `fmt.Sprintf("%s-v%d", base, current)`
-  instead of hard-coding `"gitmap-v27"` while passing `current = 12` to
+  instead of hard-coding `"gitmap-v28"` while passing `current = 12` to
   `applyAllTargets`. The hard-coded literal silently disagreed with the
-  rewriter's actual output (`gitmap-v27`) and failed CI on every run.
+  rewriter's actual output (`gitmap-v28`) and failed CI on every run.
 - This is the same bug class as FIX-REPO DIGIT-CAPTURE GAP (closed v4.12.0):
   any version-bearing expectation in a fix-repo test MUST be derived from the
   same int the rewriter received — never hard-coded as a sibling literal,
@@ -2186,7 +2186,7 @@ Routine minor bump rolling up recent CI fixes:
 - `goldenguard` determinism pre-check stability fixes.
 - Completion generator regenerated for the `aul` alias.
 - `gofmt` alignment in `constants/cmd_constants_test.go`.
-- Legacy-ref test data migrated to the current `gitmap-v27` repo namespace.
+- Legacy-ref test data migrated to the current `gitmap-v28` repo namespace.
 - `cliexit` test helper forces stdin to a pipe so non-TTY gates fire
   reliably under `/dev/null`.
 
@@ -2428,7 +2428,7 @@ directly against the file's AST.
 - New `gitmap/cmd/updatedebugwindows_source_test.go` parses
   `updatedebugwindows.go` with `go/parser` and asserts:
   - **`TestUpdateDebugWindowsHasFsutilLooseCall`** — the file imports
-    `github.com/alimtvnetwork/gitmap-v27/gitmap/fsutil` AND contains at
+    `github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil` AND contains at
     least one real call expression of the form
     `fsutil.FileOrDirExists(...)`. The check uses the AST (selector
     expression), not a substring scan, so comments mentioning the name
@@ -3378,7 +3378,7 @@ Pure addition. Without the flag (and without `GITMAP_DEBUG_WINDOWS=1`), behaviou
 
 - New top-level verbs `self-install` and `self-uninstall` manage the gitmap binary itself, separate from the existing third-party `install` / `uninstall` (npp, vscode, dev tools).
 - `self-install` defaults: `D:\gitmap` (Windows), `~/.local/bin/gitmap` (Unix). Override with `--dir`. Skip the prompt with `--yes`. Forwards `--version <tag>` to the installer.
-- Installer scripts (`install.ps1`, `install.sh`, `uninstall.ps1`) embedded into the binary via `go:embed` (`gitmap/scripts/embed.go`), with HTTP fallback to `raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/gitmap/scripts/install.{ps1,sh}` if the embedded copy is missing.
+- Installer scripts (`install.ps1`, `install.sh`, `uninstall.ps1`) embedded into the binary via `go:embed` (`gitmap/scripts/embed.go`), with HTTP fallback to `raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.{ps1,sh}` if the embedded copy is missing.
 - `self-uninstall` removes: deploy-dir artefacts, `.gitmap/` data dir, PATH snippet, completion files. Confirm gates: typed `yes` (interactive) or `--confirm` (CI). Selective skip with `--keep-data` / `--keep-snippet`.
 
 ### Implementation
@@ -3471,7 +3471,7 @@ Pure addition. Without the flag (and without `GITMAP_DEBUG_WINDOWS=1`), behaviou
 
 ### Fixed (Docs)
 
-- **README.md Go Report Card badge** now points at `github.com/alimtvnetwork/gitmap-v27/gitmap` (the real Go module path set in v3.27.0) instead of the repo root `github.com/alimtvnetwork/gitmap-v27`. The previous URL returned a 404 from the Go module proxy because there is no `go.mod` at the repo root — the module lives one directory down in `gitmap/`. Both the badge image and the click-through report link were updated.
+- **README.md Go Report Card badge** now points at `github.com/alimtvnetwork/gitmap-v28/gitmap` (the real Go module path set in v3.27.0) instead of the repo root `github.com/alimtvnetwork/gitmap-v28`. The previous URL returned a 404 from the Go module proxy because there is no `go.mod` at the repo root — the module lives one directory down in `gitmap/`. Both the badge image and the click-through report link were updated.
 
 ### Files changed
 
@@ -3535,7 +3535,7 @@ Pure terminal-output cosmetics. No flag, file path, JSON schema, or database col
 
 ### Fixed (Tooling / Distribution)
 
-- **Go Report Card now resolves the module instead of failing with `could not get latest module version from https://proxy.golang.org/github.com/user/gitmap/@latest`.** The card at https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v27/gitmap will start scoring the project for the first time after this version is pushed.
+- **Go Report Card now resolves the module instead of failing with `could not get latest module version from https://proxy.golang.org/github.com/user/gitmap/@latest`.** The card at https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v28/gitmap will start scoring the project for the first time after this version is pushed.
 
 ### Root cause
 
@@ -3550,15 +3550,15 @@ The same placeholder was also referenced in:
 - Spec docs and changelog history references
 - React-side changelog/getting-started page references
 
-If left unfixed, anyone running `go install github.com/alimtvnetwork/gitmap-v27/gitmap@latest` would get a `module declares its path as: github.com/user/gitmap but was required as ...` error, and the proxy would refuse to serve the module to downstream tooling.
+If left unfixed, anyone running `go install github.com/alimtvnetwork/gitmap-v28/gitmap@latest` would get a `module declares its path as: github.com/user/gitmap but was required as ...` error, and the proxy would refuse to serve the module to downstream tooling.
 
 ### Fix
 
-Renamed `github.com/user/gitmap` → `github.com/alimtvnetwork/gitmap-v27/gitmap` across **404 files** in a single atomic sed pass. Also implicitly renamed the sister module `github.com/user/gitmap-updater` → `github.com/alimtvnetwork/gitmap-v27/gitmap-updater`, which lives at the same GitHub path.
+Renamed `github.com/user/gitmap` → `github.com/alimtvnetwork/gitmap-v28/gitmap` across **404 files** in a single atomic sed pass. Also implicitly renamed the sister module `github.com/user/gitmap-updater` → `github.com/alimtvnetwork/gitmap-v28/gitmap-updater`, which lives at the same GitHub path.
 
 Verified post-rename:
-- `gitmap/go.mod` now reads `module github.com/alimtvnetwork/gitmap-v27/gitmap`.
-- `gitmap-updater/go.mod` now reads `module github.com/alimtvnetwork/gitmap-v27/gitmap-updater`.
+- `gitmap/go.mod` now reads `module github.com/alimtvnetwork/gitmap-v28/gitmap`.
+- `gitmap-updater/go.mod` now reads `module github.com/alimtvnetwork/gitmap-v28/gitmap-updater`.
 - `Makefile` ldflags target the new constants package path.
 - `.github/workflows/ci.yml` build step injects `Version` into the new constants package path.
 - `run.ps1` and `run.sh` inject `RepoPath` into the new constants package path.
@@ -3567,7 +3567,7 @@ Verified post-rename:
 ### What the user needs to do after pulling
 
 1. Pull v3.27.0 and push to `main`.
-2. Once the new tag (`v3.27.0`) is pushed, visit https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v27/gitmap — first visit will trigger a fresh scan against the new module path.
+2. Once the new tag (`v3.27.0`) is pushed, visit https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v28/gitmap — first visit will trigger a fresh scan against the new module path.
 3. The CI ldflags injection still works because the constants package path was renamed alongside the workflow string.
 4. Anyone who had previously cloned the repo and run `go build ./...` will need to re-run `go mod tidy` once after pulling, since every import path changed.
 
@@ -3902,7 +3902,7 @@ User reported `gitmap github-desktop` printing `Unknown command`. Root cause: th
 
 If a user has legacy `Release` rows but no `.gitmap/release/v*.json` files on disk, run `gitmap release-import --from-github` to repopulate from the GitHub Releases API.
 
-## v3.16.0 — (2026-04-20) — uninstall-quick.ps1 multi-binary fix + repo rename to gitmap-v27
+## v3.16.0 — (2026-04-20) — uninstall-quick.ps1 multi-binary fix + repo rename to gitmap-v28
 
 ### Fixed
 
@@ -3914,12 +3914,12 @@ If a user has legacy `Release` rows but no `.gitmap/release/v*.json` files on di
 
 ### Renamed
 
-- **All `gitmap-v27` references → `gitmap-v27`** across the entire repo (45 files, 567 occurrences). Includes install/uninstall one-liners, Go installer constants, helptext, spec docs, post-mortems, the React landing page, and `.lovable/memory/**`.
-- **Preserved**: release-asset filenames like `gitmap-v27.49.1-windows-amd64.zip` (where `v4.49.1` is the package version, not the repo name) — only the GitHub URL repo segment changed.
+- **All `gitmap-v28` references → `gitmap-v28`** across the entire repo (45 files, 567 occurrences). Includes install/uninstall one-liners, Go installer constants, helptext, spec docs, post-mortems, the React landing page, and `.lovable/memory/**`.
+- **Preserved**: release-asset filenames like `gitmap-v28.49.1-windows-amd64.zip` (where `v4.49.1` is the package version, not the repo name) — only the GitHub URL repo segment changed.
 
 ### Why
 
-The uninstall failure was reported by a user who had run gitmap since the v2.x drive-root shim era — their stale `E:\gitmap\gitmap.exe` was never removed and the new `gitmap-cli/` install put a second binary on PATH. The `gitmap-v27` repo rename had been pending since the v3.x line started; bundling both keeps the CHANGELOG narrative simple.
+The uninstall failure was reported by a user who had run gitmap since the v2.x drive-root shim era — their stale `E:\gitmap\gitmap.exe` was never removed and the new `gitmap-cli/` install put a second binary on PATH. The `gitmap-v28` repo rename had been pending since the v3.x line started; bundling both keeps the CHANGELOG narrative simple.
 
 ## v3.15.0 — (2026-04-20) — Single-source-of-truth deploy manifest
 
@@ -4058,7 +4058,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
   - `wastedassign`: Removed dead `stashLabel` assignment in `cmd/releasealias.go`.
   - `exhaustive`: Added missing switch cases for `PreferPolicy`, `Direction`, and `DiffKind`.
 - **US-English spelling sweep** — Converted UK spellings to US: `behaviour→behavior`, `honours→honors`, `honouring→honoring`, `artefacts→artifacts`, `Centralised→Centralized`, `summarises→summarizes`, `Recognises→Recognizes`.
-- **Remote installer URLs** — Updated `constants_selfinstall.go` `SelfInstallRemotePwsh` and `SelfInstallRemoteBash` from `gitmap-v27` to `gitmap-v27`.
+- **Remote installer URLs** — Updated `constants_selfinstall.go` `SelfInstallRemotePwsh` and `SelfInstallRemoteBash` from `gitmap-v28` to `gitmap-v28`.
 
 ### Changed
 
@@ -4081,7 +4081,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 - Full-repo audit for residual legacy-field callers: every `\.(Draft|PreRelease)\b` and `^\s*(Draft|PreRelease)\s*:` match outside of (a) `release.Version.PreRelease` (semver suffix — different struct), (b) `store/migrate_v15phase5.go` (the rename migration itself), (c) `release/metadata.go::ReadReleaseMeta` (the JSON backward-compat overlay), and (d) `--draft` user-facing CLI flag strings was confirmed to be either intentional or already migrated. No further call sites need updating.
 
-## v3.12.0 — (2026-04-20) — Pinned-version release snippet + gitmap-v27 rename
+## v3.12.0 — (2026-04-20) — Pinned-version release snippet + gitmap-v28 rename
 
 ### Added
 
@@ -4091,7 +4091,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Changed
 
-- **Repo rename `gitmap-v27` → `gitmap-v27` across the entire codebase** — every Go constant (`SourceRepoCloneURL`, `SelfInstallRemotePwsh/Bash`, `GitmapRepoPrefix`, install hint URLs), every install/uninstall script (`install.ps1`, `install.sh`, `install-quick.ps1`, `install-quick.sh`, `uninstall-quick.*`), every spec doc under `spec/01-app/` and `spec/07-generic-release/`, every helptext markdown, the README, the React `src/data/*.ts` files, GitHub workflows, and historical CHANGELOG entries were rewritten via `sed -i 's/gitmap-v27/gitmap-v27/g'`. The only remaining `gitmap-v27` references are inside `.gitmap/` artifacts, which are immutable per project policy.
+- **Repo rename `gitmap-v28` → `gitmap-v28` across the entire codebase** — every Go constant (`SourceRepoCloneURL`, `SelfInstallRemotePwsh/Bash`, `GitmapRepoPrefix`, install hint URLs), every install/uninstall script (`install.ps1`, `install.sh`, `install-quick.ps1`, `install-quick.sh`, `uninstall-quick.*`), every spec doc under `spec/01-app/` and `spec/07-generic-release/`, every helptext markdown, the README, the React `src/data/*.ts` files, GitHub workflows, and historical CHANGELOG entries were rewritten via `sed -i 's/gitmap-v28/gitmap-v28/g'`. The only remaining `gitmap-v28` references are inside `.gitmap/` artifacts, which are immutable per project policy.
 
 ## v3.11.1 — (2026-04-20) — Alias-collision CI guard
 
@@ -4105,7 +4105,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 - **v15 Phase 1.4 migration** — `GoProjectMetadata` and `PendingTask` rebuilds failed on databases first created at v3.5.0+ with `SQL logic error: no such column: Id`. Both tables were already singular before v15, so the canonical `CREATE TABLE IF NOT EXISTS` pass produced the v15-shaped table (with `{Table}Id` PK) before the rebuild ran, leaving no `Id` column to SELECT. Added `adaptOldColumnList()` in `gitmap/store/migrate_v15rebuild.go` that detects the existing PK shape via `columnExists()` and rewrites the leading `Id` token in `OldColumnList` to `{Table}Id` when needed. Idempotent and a no-op for genuine legacy → v15 paths.
 - **`go vet` `non-constant format string`** in `gitmap/movemerge/finalize.go:50` — `logErr` was inferred as a printf-style wrapper. Reshaped `logErr(prefix, msg string)` to accept a pre-formatted message and moved `fmt.Sprintf(constants.ErrMMPushFailFmt, sha)` to the call site so the printf-check never triggers.
-- **Unused-import build break** in `gitmap/store/migrations.go` — removed orphaned `"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"` import left over from a prior refactor.
+- **Unused-import build break** in `gitmap/store/migrations.go` — removed orphaned `"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"` import left over from a prior refactor.
 - **`CmdReleaseAlias` Go redeclaration** — same name was bound to `"r"` (in `constants_cli.go`) and `"release-alias"` (in `constants_releasealias.go`). Renamed the `constants_cli.go` constant to `CmdReleaseShort` so the `release-alias` family owns `CmdReleaseAlias` exclusively.
 - **`cd` / `go` constant collision** — `CmdCDCmd` (`"cd"`) and `CmdCDCmdAlias` (`"go"`) in `constants_cli.go` shadowed `CmdCD` / `CmdCDAlias` in `constants_cd.go`. Removed the duplicates and repointed `gitmap/cmd/rootdata.go` dispatch at the canonical constants.
 
@@ -4587,7 +4587,7 @@ const (
 
 ### Release Command
 
-- After a successful release, if the repo's remote origin matches the gitmap source repository prefix (`github.com/alimtvnetwork/gitmap-v27`), the CLI now prints install one-liner commands for both Windows (PowerShell) and Linux/macOS (Bash).
+- After a successful release, if the repo's remote origin matches the gitmap source repository prefix (`github.com/alimtvnetwork/gitmap-v28`), the CLI now prints install one-liner commands for both Windows (PowerShell) and Linux/macOS (Bash).
 - Added `GitmapRepoPrefix` constant for repo detection and `MsgInstallHintHeader`, `MsgInstallHintWindows`, `MsgInstallHintUnix` message constants.
 - Install hints appear after `Release complete` in all release paths: standard, branch-based, and metadata-only.
 - Non-gitmap repos are unaffected — no install hints are printed.
@@ -4803,7 +4803,7 @@ const (
 - Added Quick Start section with common command examples at the top of help output.
 - Each group header includes a hint to run commands with `--help` or `-h` for detailed usage and examples.
 - Modularized help implementation across `rootusage.go`, `rootusagecompact.go`, `rootusageflags.go`, and `constants_helpgroups.go`.
-- Repository renamed from `git-repo-navigator` to `gitmap-v27`; all URLs, scripts, and references updated.
+- Repository renamed from `git-repo-navigator` to `gitmap-v28`; all URLs, scripts, and references updated.
 
 ## v2.49.1 — Update UX & Versioned Binaries (2026-04-06)
 
@@ -4811,7 +4811,7 @@ const (
 - The `--repo-path` flag is automatically forwarded through the handoff binary to `update-runner`.
 - Resolution priority: `--repo-path` flag → embedded constant → friendly error with recovery options.
 - Improved "repo path not embedded" error with actionable recovery steps (one-liner install, clone & build, manual download, `--repo-path` override).
-- CI release binaries now include version in filenames (e.g., `gitmap-v27.49.1-windows-amd64.zip`).
+- CI release binaries now include version in filenames (e.g., `gitmap-v28.49.1-windows-amd64.zip`).
 - Updated `install.ps1` (standalone and release-embedded) to handle versioned asset filenames.
 - CI release workflow now explicitly marks stable releases as "latest" via `make_latest`.
 - Updated `helptext/update.md` with `--repo-path` flag docs, troubleshooting section, and error recovery examples.

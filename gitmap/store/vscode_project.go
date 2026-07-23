@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // UpsertVSCodeProject inserts or updates a row keyed by RootPath

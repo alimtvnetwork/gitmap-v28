@@ -4,7 +4,7 @@
 
 ## Problem
 
-`gitmap-v27 update` looped 20 times trying to sync the active PATH binary, failing each time due to file locks.
+`gitmap-v28 update` looped 20 times trying to sync the active PATH binary, failing each time due to file locks.
 
 ## Root Causes
 

@@ -70,7 +70,7 @@ Git commands, file manipulation, and all print helpers.
 
 1. **No behavior changes.** Pure file-level extraction — no renames,
    no signature changes, no logic modifications.
-2. **Package stays `cmd`.** All files remain in `gitmap-v27/cmd/`.
+2. **Package stays `cmd`.** All files remain in `gitmap-v28/cmd/`.
 3. **Import deduplication.** Each new file declares only its own imports.
 4. **Blank line before return** rule applies to all moved functions.
 

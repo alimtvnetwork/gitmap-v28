@@ -1,8 +1,8 @@
 ---
-title: gitmap-v27 Database ERD (canonical)
+title: gitmap-v28 Database ERD (canonical)
 ---
-%% Source of truth: gitmap-v27/constants/constants_*.go SQLCreate* blocks.
-%% Table-name parity is enforced by gitmap-v27/store/erd_parity_test.go — any
+%% Source of truth: gitmap-v28/constants/constants_*.go SQLCreate* blocks.
+%% Table-name parity is enforced by gitmap-v28/store/erd_parity_test.go — any
 %% new SQLCreate* constant MUST be reflected here in the same commit, or
 %% CI fails. Per-column accuracy is best-effort; the parity test is
 %% intentionally name-only so legitimate column tweaks don't churn the ERD.
@@ -382,7 +382,7 @@ erDiagram
 
     %% ============================================================
     %% COMMIT-IN PIPELINE (added v4.24.1 — parity stubs, columns TBD)
-    %% These tables exist in gitmap-v27/constants/constants_commitin_sql.go
+    %% These tables exist in gitmap-v28/constants/constants_commitin_sql.go
     %% as SQLCreate* constants and are enforced by erd_parity_test.go.
     %% Per-column refinement is tracked as a follow-up.
     %% ============================================================

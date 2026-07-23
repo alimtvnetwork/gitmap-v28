@@ -56,7 +56,7 @@ func newTestClient(server *httptest.Server) *http.Client {
 }
 
 // hitSet returns a server that returns 200 for the given slug suffixes
-// in the path (e.g. "/alimtvnetwork/gitmap-v27"), 404 otherwise.
+// in the path (e.g. "/alimtvnetwork/gitmap-v28"), 404 otherwise.
 func hitSet(hits map[string]bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		for slug := range hits {

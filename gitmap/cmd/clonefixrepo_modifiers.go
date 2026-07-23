@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+import "github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 
 // CfrModifierFlags holds the parsed pre-URL modifier tokens accepted by
 // `cfr` and `cfrp`. Tokens are order-independent and may appear anywhere

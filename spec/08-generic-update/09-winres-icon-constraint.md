@@ -14,7 +14,7 @@ The Windows `.ico` format has a **hard limit of 256x256 pixels** per image frame
 The project's `icon.png` was **512x512**, which exceeds this limit.
 
 The error originates from the `go-winres make` step in the CI release workflow
-(`.github/workflows/release.yml`, line 54), which reads `gitmap-v27/winres/winres.json`
+(`.github/workflows/release.yml`, line 54), which reads `gitmap-v28/winres/winres.json`
 and attempts to convert the referenced PNG into an `.ico` resource.
 
 ## Why This Wasn't Caught Earlier
@@ -26,8 +26,8 @@ and attempts to convert the referenced PNG into an `.ico` resource.
 
 ## Solution
 
-1. Created a 256x256 resized copy: `gitmap-v27/assets/icon-256.png`.
-2. Updated `gitmap-v27/winres/winres.json` to reference `icon-256.png` instead.
+1. Created a 256x256 resized copy: `gitmap-v28/assets/icon-256.png`.
+2. Updated `gitmap-v28/winres/winres.json` to reference `icon-256.png` instead.
 3. Kept the original 512x512 `icon.png` for other uses (docs site, README, etc.).
 
 ## Prevention
@@ -44,9 +44,9 @@ and attempts to convert the referenced PNG into an `.ico` resource.
 
 | File | Purpose |
 |------|---------|
-| `gitmap-v27/winres/winres.json` | Windows resource manifest for `go-winres` |
-| `gitmap-v27/assets/icon-256.png` | 256x256 icon for `.exe` embedding |
-| `gitmap-v27/assets/icon.png` | 512x512 original icon (web/docs use) |
+| `gitmap-v28/winres/winres.json` | Windows resource manifest for `go-winres` |
+| `gitmap-v28/assets/icon-256.png` | 256x256 icon for `.exe` embedding |
+| `gitmap-v28/assets/icon.png` | 512x512 original icon (web/docs use) |
 | `.github/workflows/release.yml` | CI pipeline that runs `go-winres make` |
 
 ## Cross-References

@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // TagReplayFacts is the persistence-layer projection of one mirrored

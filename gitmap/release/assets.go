@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/verbose"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
 )
 
 // BuildTarget represents a single GOOS/GOARCH pair for cross-compilation.
@@ -56,7 +56,7 @@ func ReadModuleName() (string, error) {
 }
 
 // BinaryName extracts the short name from a Go module path.
-// "github.com/alimtvnetwork/gitmap-v27/gitmap" → "gitmap"
+// "github.com/alimtvnetwork/gitmap-v28/gitmap" → "gitmap"
 func BinaryName(moduleName string) string {
 	parts := strings.Split(moduleName, "/")
 

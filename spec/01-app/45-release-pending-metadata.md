@@ -2,7 +2,7 @@
 
 ## Overview
 
-Enhances `gitmap-v27 release-pending` (alias `rp`) to discover unreleased
+Enhances `gitmap-v28 release-pending` (alias `rp`) to discover unreleased
 versions from **two sources**:
 
 1. **Git branches** (existing behaviour) — local `release/v*` branches
@@ -130,12 +130,12 @@ No new flags. Existing flags apply to metadata-based releases:
 
 ## Acceptance Criteria
 
-1. `gitmap-v27 rp` with only `.gitmap/release/v1.0.0.json` (no branch/tag) creates
+1. `gitmap-v28 rp` with only `.gitmap/release/v1.0.0.json` (no branch/tag) creates
    `release/v1.0.0` branch, `v1.0.0` tag, and pushes both.
-2. `gitmap-v27 rp` with both a pending branch AND a metadata-only version
+2. `gitmap-v28 rp` with both a pending branch AND a metadata-only version
    processes both without duplicates.
-3. `gitmap-v27 rp --dry-run` shows metadata-based releases without executing.
+3. `gitmap-v28 rp --dry-run` shows metadata-based releases without executing.
 4. Missing/invalid commit SHA in metadata prints a warning and continues.
-5. `gitmap-v27 rp` with no pending branches and no metadata files prints
+5. `gitmap-v28 rp` with no pending branches and no metadata files prints
    "No pending release branches found."
 6. Already-released versions in `.gitmap/release/` are skipped silently.

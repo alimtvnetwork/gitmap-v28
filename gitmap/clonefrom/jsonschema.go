@@ -27,8 +27,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/clonenow"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenow"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // EmitSchema dispatches on kind and returns the pretty-printed JSON

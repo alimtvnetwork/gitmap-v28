@@ -293,7 +293,7 @@ Pull fails due to local changes?
 | App Spec | Covers |
 |----------|--------|
 | [02-powershell-build-deploy.md](../03-general/02-powershell-build-deploy.md) | PowerShell `run.ps1` architecture, config, logging, ldflags, last-release detection |
-| [09-build-deploy.md](../01-app/09-build-deploy.md) | gitmap-v27 `run.ps1` steps, CLI flags, version display |
+| [09-build-deploy.md](../01-app/09-build-deploy.md) | gitmap-v28 `run.ps1` steps, CLI flags, version display |
 
 ## Contributors
 

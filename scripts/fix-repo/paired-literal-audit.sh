@@ -2,7 +2,7 @@
 # Post-rewrite audit: catches paired-literal desync where a
 # {base}-v{Current} token was rewritten but a sibling bare digit
 # literal representing the previous version was left behind
-# (e.g. `"gitmap-v27", "12"`). Test-files only.
+# (e.g. `"gitmap-v28", "12"`). Test-files only.
 # See .lovable/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md.
 
 # Look-ahead: number of lines after a {base}-v{Current} hit we scan

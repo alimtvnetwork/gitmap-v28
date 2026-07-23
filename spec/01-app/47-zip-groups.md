@@ -5,7 +5,7 @@
 Zip groups allow users to define named collections of files and folders
 that are automatically compressed into a single archive during a release.
 Groups can be persisted in the database for reuse across releases, or
-defined ad-hoc via flags on `gitmap-v27 release`.
+defined ad-hoc via flags on `gitmap-v28 release`.
 
 ---
 
@@ -26,7 +26,7 @@ defined ad-hoc via flags on `gitmap-v27 release`.
 
 ---
 
-## Command: `gitmap-v27 zip-group`
+## Command: `gitmap-v28 zip-group`
 
 Alias: `z`
 
@@ -47,34 +47,34 @@ Manages persistent zip group definitions stored in SQLite.
 ### Usage
 
 ```
-gitmap-v27 zip-group create <name> [--archive <filename.zip>]
-gitmap-v27 zip-group add <name> <path> [<path>...]
-gitmap-v27 zip-group remove <name> <path>
-gitmap-v27 zip-group list
-gitmap-v27 zip-group show <name>
-gitmap-v27 zip-group delete <name>
-gitmap-v27 zip-group rename <name> --archive <filename.zip>
+gitmap-v28 zip-group create <name> [--archive <filename.zip>]
+gitmap-v28 zip-group add <name> <path> [<path>...]
+gitmap-v28 zip-group remove <name> <path>
+gitmap-v28 zip-group list
+gitmap-v28 zip-group show <name>
+gitmap-v28 zip-group delete <name>
+gitmap-v28 zip-group rename <name> --archive <filename.zip>
 ```
 
 ### Examples
 
 ```bash
 # Create a group and add items
-gitmap-v27 z create docs-bundle
-gitmap-v27 z add docs-bundle ./README.md ./CHANGELOG.md ./docs/
+gitmap-v28 z create docs-bundle
+gitmap-v28 z add docs-bundle ./README.md ./CHANGELOG.md ./docs/
 
 # Create with custom archive name
-gitmap-v27 z create extras --archive extra-files.zip
-gitmap-v27 z add extras ./config/ ./scripts/deploy.sh
+gitmap-v28 z create extras --archive extra-files.zip
+gitmap-v28 z add extras ./config/ ./scripts/deploy.sh
 
 # List groups
-gitmap-v27 z list
+gitmap-v28 z list
 
 # Show group contents
-gitmap-v27 z show docs-bundle
+gitmap-v28 z show docs-bundle
 
 # Delete a group
-gitmap-v27 z delete extras
+gitmap-v28 z delete extras
 ```
 
 ---
@@ -87,8 +87,8 @@ Activates one or more persistent zip groups during a release. Each group
 produces a single `.zip` archive attached as a release asset.
 
 ```bash
-gitmap-v27 release v3.0.0 --zip-group docs-bundle
-gitmap-v27 release v3.0.0 --zip-group docs-bundle --zip-group extras
+gitmap-v28 release v3.0.0 --zip-group docs-bundle
+gitmap-v28 release v3.0.0 --zip-group docs-bundle --zip-group extras
 ```
 
 ### Flag: `-Z` / `--zip`
@@ -98,10 +98,10 @@ the `--bundle` flag.
 
 ```bash
 # Each item becomes its own archive
-gitmap-v27 release v3.0.0 -Z ./dist/report.pdf -Z ./dist/manual.pdf
+gitmap-v28 release v3.0.0 -Z ./dist/report.pdf -Z ./dist/manual.pdf
 
 # Bundle all ad-hoc items into one archive
-gitmap-v27 release v3.0.0 -Z ./dist/report.pdf -Z ./dist/manual.pdf --bundle docs.zip
+gitmap-v28 release v3.0.0 -Z ./dist/report.pdf -Z ./dist/manual.pdf --bundle docs.zip
 ```
 
 ### Flag: `--bundle`
@@ -118,7 +118,7 @@ Controls how ad-hoc `-Z` items are packaged.
 Persistent groups and ad-hoc items can be used together:
 
 ```bash
-gitmap-v27 release v3.0.0 --zip-group docs-bundle -Z ./extras/notes.txt
+gitmap-v28 release v3.0.0 --zip-group docs-bundle -Z ./extras/notes.txt
 ```
 
 ---
@@ -268,14 +268,14 @@ The zip group step runs **after** Go cross-compilation (step 7a) and
 
 ## Acceptance Criteria
 
-1. `gitmap-v27 z create docs` creates a persistent zip group in the database.
-2. `gitmap-v27 z add docs ./README.md ./docs/` adds items to the group.
-3. `gitmap-v27 z show docs` displays all items with file/folder indicators.
-4. `gitmap-v27 z list` lists all zip groups with item counts.
-5. `gitmap-v27 z delete docs` removes the group and all its items.
-6. `gitmap-v27 release v1.0.0 --zip-group docs` creates `docs_v1.0.0.zip` and attaches it.
-7. `gitmap-v27 release v1.0.0 -Z ./file.txt` creates `file.txt.zip` and attaches it.
-8. `gitmap-v27 release v1.0.0 -Z ./a.txt -Z ./b.txt --bundle extras.zip` bundles both into one archive.
+1. `gitmap-v28 z create docs` creates a persistent zip group in the database.
+2. `gitmap-v28 z add docs ./README.md ./docs/` adds items to the group.
+3. `gitmap-v28 z show docs` displays all items with file/folder indicators.
+4. `gitmap-v28 z list` lists all zip groups with item counts.
+5. `gitmap-v28 z delete docs` removes the group and all its items.
+6. `gitmap-v28 release v1.0.0 --zip-group docs` creates `docs_v1.0.0.zip` and attaches it.
+7. `gitmap-v28 release v1.0.0 -Z ./file.txt` creates `file.txt.zip` and attaches it.
+8. `gitmap-v28 release v1.0.0 -Z ./a.txt -Z ./b.txt --bundle extras.zip` bundles both into one archive.
 9. `--dry-run` lists planned archives without creating them.
 10. Missing items produce warnings but do not abort the release.
 11. Zip archives use maximum compression (deflate level 9).

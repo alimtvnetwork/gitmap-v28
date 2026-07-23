@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // Verdict describes the outcome of a single ShaMap lookup. Maps to

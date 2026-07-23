@@ -35,7 +35,7 @@ Fails during the `go-winres make` step before any cross-compilation begins.
 
 ### Root Cause
 
-Windows `.ico` resource format hard-limits each image frame to **256x256 pixels**. `go-winres` reads `gitmap-v27/winres/winres.json`, opens the referenced PNG, and converts it to `.ico` — refusing any image larger than the limit.
+Windows `.ico` resource format hard-limits each image frame to **256x256 pixels**. `go-winres` reads `gitmap-v28/winres/winres.json`, opens the referenced PNG, and converts it to `.ico` — refusing any image larger than the limit.
 
 The project shipped a 512x512 `icon.png` for web/docs use, then mistakenly referenced it from `winres.json`.
 
@@ -48,12 +48,12 @@ The project shipped a 512x512 `icon.png` for web/docs use, then mistakenly refer
 ### Fix (v2.81.0)
 
 ```diff
-  // gitmap-v27/winres/winres.json
+  // gitmap-v28/winres/winres.json
 - "Path": "../assets/icon.png"
 + "Path": "../assets/icon-256.png"
 ```
 
-Created `gitmap-v27/assets/icon-256.png` (256x256). Kept original 512x512 `icon.png` for non-Windows uses.
+Created `gitmap-v28/assets/icon-256.png` (256x256). Kept original 512x512 `icon.png` for non-Windows uses.
 
 ### Prevention Rules
 
@@ -61,14 +61,14 @@ Created `gitmap-v27/assets/icon-256.png` (256x256). Kept original 512x512 `icon.
 2. **Maintain separate files** by purpose: `icon.png` (web/docs), `icon-256.png` (Windows resource).
 3. **Add a pre-check in CI** before `go-winres make`:
    ```bash
-   python3 -c "from PIL import Image; img=Image.open('gitmap-v27/assets/icon-256.png'); assert max(img.size)<=256"
+   python3 -c "from PIL import Image; img=Image.open('gitmap-v28/assets/icon-256.png'); assert max(img.size)<=256"
    ```
-4. **Document the constraint inline** in `gitmap-v27/winres/winres.json` via a `_comment` field.
+4. **Document the constraint inline** in `gitmap-v28/winres/winres.json` via a `_comment` field.
 
 ### Related Files
 
-- `gitmap-v27/winres/winres.json`
-- `gitmap-v27/assets/icon-256.png` / `icon.png`
+- `gitmap-v28/winres/winres.json`
+- `gitmap-v28/assets/icon-256.png` / `icon.png`
 - `.github/workflows/release.yml`
 - `spec/08-generic-update/09-winres-icon-constraint.md`
 
@@ -87,17 +87,17 @@ Fails during the compress/checksum step.
 
 ### Root Cause
 
-In a monorepo with `gitmap-v27/` and `gitmap-updater/`, each `run:` step in GitHub Actions starts at the repository root unless `working-directory:` is set. A `cd dist` command assumed the previous step's CWD persisted — it doesn't.
+In a monorepo with `gitmap-v28/` and `gitmap-updater/`, each `run:` step in GitHub Actions starts at the repository root unless `working-directory:` is set. A `cd dist` command assumed the previous step's CWD persisted — it doesn't.
 
 ### Why It Wasn't Caught
 
-Locally, `run.ps1` always executes from `gitmap-v27/`, so the relative path resolves. CI is the only environment with the root-relative behavior.
+Locally, `run.ps1` always executes from `gitmap-v28/`, so the relative path resolves. CI is the only environment with the root-relative behavior.
 
 ### Fix (v2.54.0)
 
 ```yaml
 - name: Compress and checksum
-  working-directory: gitmap-v27/dist
+  working-directory: gitmap-v28/dist
   run: |
     for f in gitmap-*; do
       [ -f "$f" ] || continue
@@ -108,7 +108,7 @@ Locally, `run.ps1` always executes from `gitmap-v27/`, so the relative path reso
 ### Prevention Rules
 
 1. **NEVER use `cd` inside CI scripts.** Use the YAML `working-directory:` field.
-2. **Guard with `test -d`** before operating on directories: `test -d gitmap-v27/dist || { echo "::error::dist missing"; exit 1; }`.
+2. **Guard with `test -d`** before operating on directories: `test -d gitmap-v28/dist || { echo "::error::dist missing"; exit 1; }`.
 3. **Test on `release/test-*` branch** before promoting.
 
 ### Related Files
@@ -248,11 +248,11 @@ If `VERSION` was unset (e.g., version-resolution step failed silently) or `sed` 
 
 ### Symptom
 
-Local invocations of `gitmap-v27 release --bin` produced binaries but no GitHub Release. No error printed, just silence.
+Local invocations of `gitmap-v28 release --bin` produced binaries but no GitHub Release. No error printed, just silence.
 
 ### Root Cause
 
-`gitmap-v27/release/workflowgithub.go::uploadToGitHub` checks for `GITHUB_TOKEN` and **returns early without erroring** if absent. This is intentional for non-CI use, but the silence misled users.
+`gitmap-v28/release/workflowgithub.go::uploadToGitHub` checks for `GITHUB_TOKEN` and **returns early without erroring** if absent. This is intentional for non-CI use, but the silence misled users.
 
 ### Fix
 
@@ -267,7 +267,7 @@ if len(token) == 0 {
 }
 ```
 
-(See `gitmap-v27/release/workflowgithub.go` lines 13–20.)
+(See `gitmap-v28/release/workflowgithub.go` lines 13–20.)
 
 ### Prevention Rules
 
@@ -277,8 +277,8 @@ if len(token) == 0 {
 
 ### Related Files
 
-- `gitmap-v27/release/workflowgithub.go`
-- `gitmap-v27/constants/constants_release.go` (Err* messages)
+- `gitmap-v28/release/workflowgithub.go`
+- `gitmap-v28/constants/constants_release.go` (Err* messages)
 
 ---
 
@@ -290,7 +290,7 @@ Users running install scripts saw checksum-verification failures even when the b
 
 ### Root Cause
 
-The compress step produced `gitmap-v27.56.0-windows-amd64.zip`, but the checksum step (which ran in a different working directory) generated `checksums.txt` listing `gitmap-windows-amd64.zip` (without the version). Install scripts looked up the versioned name in a non-versioned manifest → mismatch → "tampered binary" error.
+The compress step produced `gitmap-v28.56.0-windows-amd64.zip`, but the checksum step (which ran in a different working directory) generated `checksums.txt` listing `gitmap-windows-amd64.zip` (without the version). Install scripts looked up the versioned name in a non-versioned manifest → mismatch → "tampered binary" error.
 
 ### Fix
 

@@ -27,7 +27,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // Result is one row's outcome. Status is one of "ok" | "skipped"

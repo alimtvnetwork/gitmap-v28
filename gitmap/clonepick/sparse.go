@@ -16,7 +16,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runSparseCheckout executes the five-step pipeline documented in the

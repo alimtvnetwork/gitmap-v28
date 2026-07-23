@@ -2,7 +2,7 @@
 .SYNOPSIS  Post-rewrite audit: catches paired-literal desync where a
            {base}-v{Current} token was rewritten but a sibling bare
            digit literal representing the previous version was left
-           behind (e.g. `"gitmap-v27", "12"`). The Go-native rewriter
+           behind (e.g. `"gitmap-v28", "12"`). The Go-native rewriter
            catches these via -Strict + go test, but this audit gives
            a sub-second precise diagnostic that runs always.
 

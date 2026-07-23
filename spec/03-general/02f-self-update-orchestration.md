@@ -32,7 +32,7 @@ Error: could not remove cleanup artifact at ...\gitmap.exe.old: Access is denied
 
 The fix is a **third handoff** to the freshly deployed binary, which is a different file with no shared lock:
 
-1. The handoff copy resolves the path to the deployed binary (`exec.LookPath("gitmap-v27")`, falling back to the active binary's deploy directory).
+1. The handoff copy resolves the path to the deployed binary (`exec.LookPath("gitmap-v28")`, falling back to the active binary's deploy directory).
 2. It spawns the deployed binary detached with `update-cleanup`:
    - **Windows**: `cmd.exe /C ping 127.0.0.1 -n 3 >nul & start "" /B "<deployed>" update-cleanup`. The ping delays ~2s so the handoff process can exit and release its file lock; `start "" /B` detaches without opening a window.
    - **Unix**: invoke `<deployed> update-cleanup` directly (no lock conflicts).

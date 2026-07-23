@@ -61,11 +61,11 @@ The correct fix is:
 
 ## The Gitmap Fix Pattern
 
-`gitmap-v27` solves this in two blocking layers:
+`gitmap-v28` solves this in two blocking layers:
 
 ### Layer 1 — Parent → Handoff Worker
 
-In `gitmap-v27/cmd/update.go`:
+In `gitmap-v28/cmd/update.go`:
 
 - `runUpdate()` resolves repo path and executable path
 - `createHandoffCopy(selfPath)` creates `gitmap-update-<pid>.exe`
@@ -88,7 +88,7 @@ This is **foreground/blocking** execution. The parent waits.
 
 ### Layer 2 — Worker → Update Script
 
-In `gitmap-v27/cmd/updatescript.go`:
+In `gitmap-v28/cmd/updatescript.go`:
 
 ```go
 cmd := exec.Command("powershell.exe",
@@ -260,7 +260,7 @@ If any step uses detached async launch, the implementation is wrong.
   strategy for locked binaries
 - [../03-general/02f-self-update-orchestration.md](../03-general/02f-self-update-orchestration.md) — App-level orchestration rules
 - [../03-general/03-self-update-mechanism.md](../03-general/03-self-update-mechanism.md) — Full self-update architecture
-- [../02-app-issues/03-update-sync-lock-loop.md](../02-app-issues/03-update-sync-lock-loop.md) — The real gitmap-v27 failure and its resolution
+- [../02-app-issues/03-update-sync-lock-loop.md](../02-app-issues/03-update-sync-lock-loop.md) — The real gitmap-v28 failure and its resolution
 
 ## Contributors
 

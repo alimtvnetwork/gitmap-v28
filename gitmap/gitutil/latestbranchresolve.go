@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // ReadBranchTips reads commit metadata for each remote ref.

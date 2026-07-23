@@ -61,17 +61,17 @@ gitmap cin ./canonical \\
     </p>
     <p className="text-sm text-muted-foreground mb-2">
       <strong>Concrete example.</strong> Say your TARGET is{" "}
-      <code>./gitmap-v27</code> and the parent directory looks like this:
+      <code>./gitmap-v28</code> and the parent directory looks like this:
     </p>
     <CodeBlock
       language="bash"
       code={`$ ls ./
 gitmap         <-- TARGET (the one receiving appended commits)
-gitmap-v27
-gitmap-v27
-gitmap-v27
+gitmap-v28
+gitmap-v28
+gitmap-v28
 ...
-gitmap-v27
+gitmap-v28
 gitmap     <-- newest sibling`}
     />
     <p className="text-sm text-muted-foreground mb-2 mt-3">
@@ -88,11 +88,11 @@ gitmap     <-- newest sibling`}
         <tbody>
           <tr className="border-t border-border">
             <td className="px-4 py-2 font-mono text-primary">gitmap cin ./gitmap all</td>
-            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v27, gitmap-v27, …, gitmap (every sibling, oldest first)</td>
+            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v28, gitmap-v28, …, gitmap (every sibling, oldest first)</td>
           </tr>
           <tr className="border-t border-border">
             <td className="px-4 py-2 font-mono text-primary">gitmap cin ./gitmap -5</td>
-            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v27, gitmap-v27, gitmap-v27, gitmap-v27, gitmap-v27</td>
+            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v28, gitmap-v28, gitmap-v28, gitmap-v28, gitmap-v28</td>
           </tr>
           <tr className="border-t border-border">
             <td className="px-4 py-2 font-mono text-primary">gitmap cin ./gitmap -1</td>
@@ -102,7 +102,7 @@ gitmap     <-- newest sibling`}
       </table>
     </div>
     <p className="text-sm text-muted-foreground mb-2">
-      And remember the TARGET (<code>./gitmap-v27</code>) doesn't have to exist
+      And remember the TARGET (<code>./gitmap-v28</code>) doesn't have to exist
       yet — if it's missing, commit-in does <code>mkdir -p ./gitmap && git init</code>{" "}
       first, then appends every sibling's history into the new repo.
       One command takes you from <em>"I have 19 versioned snapshots"</em> to{" "}
@@ -126,7 +126,7 @@ gitmap cin ./gitmap -3 --dry-run --function-intel on --languages Go,TypeScript`}
     https://github.com/me/old-fork.git,https://github.com/me/new-fork.git \\
     --author-name "Jane Doe" --author-email jane@example.com \\
     --message-exclude "StartsWith:Signed-off-by:,Contains:[skip ci]" \\
-    --title-suffix " — via gitmap-v27"`}
+    --title-suffix " — via gitmap-v28"`}
     />
 
     <h3 className="font-semibold text-sm mt-6 mb-2 text-foreground">

@@ -12,12 +12,12 @@ const INSTALL_TABS = [
   {
     label: "Windows",
     command:
-      "irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.ps1 | iex",
+      "irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.ps1 | iex",
   },
   {
     label: "Linux / macOS",
     command:
-      "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/install-quick.sh | bash",
+      "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash",
   },
 ];
 
@@ -25,12 +25,12 @@ const UNINSTALL_TABS = [
   {
     label: "Windows",
     command:
-      "irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/uninstall-quick.ps1 | iex",
+      "irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/uninstall-quick.ps1 | iex",
   },
   {
     label: "Linux / macOS",
     command:
-      "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/uninstall-quick.sh | bash",
+      "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/uninstall-quick.sh | bash",
   },
 ];
 
@@ -81,7 +81,7 @@ const HomePage = () => {
 
             <p className="mx-auto mt-6 max-w-2xl text-xs text-muted-foreground font-sans leading-relaxed">
               Uninstall removes the <code className="font-mono text-foreground">gitmap</code> binary and its PATH entries, then prompts before deleting your data folder
-              (<code className="font-mono text-foreground">%APPDATA%\gitmap-v27</code> on Windows, <code className="font-mono text-foreground">~/.config/gitmap-v27</code> on Linux/macOS).
+              (<code className="font-mono text-foreground">%APPDATA%\gitmap-v28</code> on Windows, <code className="font-mono text-foreground">~/.config/gitmap-v28</code> on Linux/macOS).
               Pass <code className="font-mono text-foreground">--keep-data</code> to always keep it, or <code className="font-mono text-foreground">-y</code>/<code className="font-mono text-foreground">--yes</code> to skip the prompt.
             </p>
           </div>
@@ -138,7 +138,7 @@ const HomePage = () => {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            name: "gitmap-v27",
+            name: "gitmap-v28",
             applicationCategory: "DeveloperApplication",
             operatingSystem: "Windows, macOS, Linux",
             description: "CLI tool to scan, map, and re-clone Git repository trees.",

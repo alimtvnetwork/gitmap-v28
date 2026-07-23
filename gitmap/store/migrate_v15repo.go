@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // migrateV15Repo rebuilds Repos -> Repo and Id -> RepoId in one transaction.

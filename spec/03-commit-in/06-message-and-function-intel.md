@@ -79,7 +79,7 @@ lines present in the new tree's file but not in the parent's.
 ## 6.5 Implementation hints (non-normative)
 
 - Per-language detector lives in its own file:
-  `gitmap-v27/cmd/commitin/funcintel/<language>.go`.
+  `gitmap-v28/cmd/commitin/funcintel/<language>.go`.
 - Each detector exposes `Detect(prevSrc, newSrc string) []string`
   returning new declaration names, sorted ascending, deduped.
 - A registry map `FunctionIntelLanguage → Detector` allows

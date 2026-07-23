@@ -20,7 +20,7 @@ When the gate is **false** (any other repo):
 - **Release body is empty.** `DetectChangelog()` is NOT called.
   `AppendPinnedInstallSnippet` is NOT called.
 - **No `release-version-vX.Y.Z.{ps1,sh}` snapshot assets** are uploaded.
-  Those snapshots hard-code `REPO="alimtvnetwork/gitmap-v27"` and
+  Those snapshots hard-code `REPO="alimtvnetwork/gitmap-v28"` and
   `BINARY_NAME="gitmap"` and would download the gitmap binary if a user
   ran them from a non-gitmap release page.
 - Every other asset still flows: cross-compiled Go binaries, zip groups,

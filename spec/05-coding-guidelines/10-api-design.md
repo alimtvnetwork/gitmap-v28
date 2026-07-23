@@ -79,7 +79,7 @@ Use lowercase, hyphen-separated, plural resource names:
 | Purpose | Pattern | Example |
 |---|---|---|
 | Filter | `?status=active` | `GET /repositories?status=active` |
-| Search | `?q=term` | `GET /repositories?q=gitmap-v27` |
+| Search | `?q=term` | `GET /repositories?q=gitmap-v28` |
 | Sort | `?sort=name&order=asc` | `GET /repositories?sort=createdAt&order=desc` |
 | Pagination | `?page=2&limit=25` | See Section 6 |
 

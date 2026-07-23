@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // sandboxVSCodePMRoot redirects vscodepm.ProjectsJSONPath into a temp

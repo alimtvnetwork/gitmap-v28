@@ -225,7 +225,7 @@ to timestamped files while showing summaries on stderr.
 ### Architecture
 
 ```
-User runs: gitmap-v27 scan --verbose
+User runs: gitmap-v28 scan --verbose
   │
   ├─ stderr: colored summary lines (always visible)
   │    "✓ Scanned 42 repos in 1.2s"
@@ -280,7 +280,7 @@ Health checks follow a consistent pass/fail format.
 ✓ Database          OK — 42 repos, 12 releases
 ✓ Legacy dirs       OK — no migration needed
 ✗ Git binary        FAIL — git not found in PATH
-✓ Deploy path       OK — E:\bin-run\gitmap-v27\
+✓ Deploy path       OK — E:\bin-run\gitmap-v28\
 ```
 
 ### Rules
@@ -334,7 +334,7 @@ return fmt.Errorf("error: %w", err)
 
 | Audience | Format | Example |
 |----------|--------|---------|
-| User (stderr) | Plain, actionable | `"Error: config.json not found. Run 'gitmap-v27 doctor' to diagnose."` |
+| User (stderr) | Plain, actionable | `"Error: config.json not found. Run 'gitmap-v28 doctor' to diagnose."` |
 | Log file | Detailed, technical | `"[config] ReadFile failed: /home/user/data/config.json: ENOENT"` |
 
 ---

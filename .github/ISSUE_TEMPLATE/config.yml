@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📖 Documentation
-    url: https://github.com/alimtvnetwork/gitmap-v27/tree/main/spec
+    url: https://github.com/alimtvnetwork/gitmap-v28/tree/main/spec
     about: Browse the spec directory for architecture decisions, coding guidelines, and CLI blueprints.
   - name: 💬 Discussions
-    url: https://github.com/alimtvnetwork/gitmap-v27/discussions
+    url: https://github.com/alimtvnetwork/gitmap-v28/discussions
     about: Ask questions, share ideas, or discuss features with the community.
   - name: 🔒 Security Vulnerability
-    url: https://github.com/alimtvnetwork/gitmap-v27/security/advisories/new
+    url: https://github.com/alimtvnetwork/gitmap-v28/security/advisories/new
     about: Report security vulnerabilities privately. Do not open a public issue.

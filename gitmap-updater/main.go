@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap-updater/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap-updater/cmd"
 )
 
 func main() {

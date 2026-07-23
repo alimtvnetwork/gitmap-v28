@@ -8,7 +8,7 @@ Go build fails with two errors:
 ```
 cmd/update.go:204:6: copyFile redeclared in this block
     cmd/installobs.go:281:6: other declaration of copyFile
-cmd/installvscode.go:11:2: "github.com/alimtvnetwork/gitmap-v27/gitmap-v27/constants" imported and not used
+cmd/installvscode.go:11:2: "github.com/alimtvnetwork/gitmap-v28/gitmap-v28/constants" imported and not used
 ```
 
 ## Symptoms
@@ -36,7 +36,7 @@ must be defined exactly once regardless of which file uses them.
 
 ### 2. Unused import
 
-`installvscode.go` imported `github.com/alimtvnetwork/gitmap-v27/gitmap-v27/constants` but never
+`installvscode.go` imported `github.com/alimtvnetwork/gitmap-v28/gitmap-v28/constants` but never
 referenced any symbol from it. Go treats unused imports as compile errors.
 
 ## Fix
@@ -51,7 +51,7 @@ referenced any symbol from it. Go treats unused imports as compile errors.
 
 1. Before adding a helper function to a new file, search the `cmd` package
    for existing functions with the same name:
-   `grep -rn "^func <name>" gitmap-v27/cmd/`
+   `grep -rn "^func <name>" gitmap-v28/cmd/`
 
 2. Run `go build ./...` locally before committing to catch redeclaration
    and unused-import errors early.

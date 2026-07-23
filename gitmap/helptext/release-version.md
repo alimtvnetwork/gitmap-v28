@@ -74,12 +74,12 @@ release-version.ps1 -Version v3.38.0 -AllowFallback
 
 **Silent install with custom directory:**
 ```bash
-curl -fsSL https://github.com/alimtvnetwork/gitmap-v27/releases/download/v3.38.0/release-version-v3.38.0.sh | bash -s -- --version v3.38.0 --quiet --dir /opt/gitmap
+curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v3.38.0/release-version-v3.38.0.sh | bash -s -- --version v3.38.0 --quiet --dir /opt/gitmap
 ```
 
 **Pinned snapshot install (recommended for reproducible builds):**
 ```powershell
-irm https://github.com/alimtvnetwork/gitmap-v27/releases/download/v3.38.0/release-version-v3.38.0.ps1 | iex
+irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v3.38.0/release-version-v3.38.0.ps1 | iex
 ```
 
 **Generic install with version parameter:**

@@ -101,7 +101,7 @@ const ChangelogPage = () => {
           <code className="px-1 py-0.5 rounded bg-muted text-foreground">--json</code>{" "}
           (v5.43.0+, schema:{" "}
           <a
-            href="https://github.com/alimtvnetwork/gitmap-v27/blob/main/spec/08-json-schemas/help-json.schema.json"
+            href="https://github.com/alimtvnetwork/gitmap-v28/blob/main/spec/08-json-schemas/help-json.schema.json"
             target="_blank"
             rel="noreferrer"
             className="text-primary underline-offset-2 hover:underline"

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // historyFilters holds the parsed `--kind <K>` / `--since <dur>` pair.

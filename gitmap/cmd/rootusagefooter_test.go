@@ -16,9 +16,9 @@ func TestCaptureGitRejectsEmptyDir(t *testing.T) {
 
 func TestEmitIdentityRowsUsesBuildOverridesWithoutDir(t *testing.T) {
 	out := captureStdoutForTest(t, func() {
-		emitIdentityRows("", "https://example.com/owner/gitmap-v27", "main", "abc123")
+		emitIdentityRows("", "https://example.com/owner/gitmap-v28", "main", "abc123")
 	})
-	for _, want := range []string{"https://example.com/owner/gitmap-v27", "main", "abc123"} {
+	for _, want := range []string{"https://example.com/owner/gitmap-v28", "main", "abc123"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("footer missing %q in %q", want, out)
 		}

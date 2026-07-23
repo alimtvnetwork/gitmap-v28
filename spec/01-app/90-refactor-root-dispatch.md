@@ -146,7 +146,7 @@ func dispatch(command string) {
 ## Migration Rules
 
 1. **No behavior changes.** Pure extraction — no renames, no reordering.
-2. **Package stays `cmd`.** All files in `gitmap-v27/cmd/`.
+2. **Package stays `cmd`.** All files in `gitmap-v28/cmd/`.
 3. **Positive-logic `if` chains** preserved (no switch statements).
 4. **Blank line before return** rule enforced in all moved functions.
 5. **`dispatchMisc` eliminated entirely** — replaced by `dispatchData` + `dispatchTooling`.

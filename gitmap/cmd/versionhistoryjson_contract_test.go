@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // canonicalVersionHistoryRecords builds a deterministic two-row fixture:
@@ -36,7 +36,7 @@ func canonicalVersionHistoryRecords(t *testing.T) []model.RepoVersionHistoryReco
 			FromVersionNum: 50400,
 			ToVersionTag:   "v5.41.0",
 			ToVersionNum:   50410,
-			FlattenedPath:  "/home/user/repos/gitmap-v27",
+			FlattenedPath:  "/home/user/repos/gitmap-v28",
 			CreatedAt:      "2026-05-20T14:30:00Z",
 		},
 		{

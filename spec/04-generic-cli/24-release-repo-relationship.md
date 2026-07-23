@@ -14,7 +14,7 @@
 ## Problem
 
 Until v3.16.x the `Release` table was **orphaned** — no foreign key tied a
-release row to the repository it belonged to. This worked while gitmap-v27 held
+release row to the repository it belonged to. This worked while gitmap-v28 held
 exactly one repo per database, but it broke three properties we rely on:
 
 1. **Referential integrity** — a release row could survive its repo being
@@ -70,7 +70,7 @@ canonical resolution path is:
 3. Use `Repo.RepoId` as the FK value.
 4. If no row matches (the repo has never been scanned), the release write
    **fails loudly** with a clear message instructing the user to run
-   `gitmap-v27 scan` first. We do NOT auto-create a stub `Repo` row — release
+   `gitmap-v28 scan` first. We do NOT auto-create a stub `Repo` row — release
    metadata without proper repo identity is worse than no row at all.
 
 ## Migration strategy (Phase 6)
@@ -91,12 +91,12 @@ safely drop and re-import.
    ```
    → Migrating Release table: adding RepoId FK to Repo
    → Existing Release rows will be wiped and re-imported on next
-     `gitmap-v27 list-releases` or `gitmap-v27 scan-import`.
+     `gitmap-v28 list-releases` or `gitmap-v28 scan-import`.
    ```
 3. **Drop** the `Release` table entirely (`DROP TABLE Release`).
 4. The standard CREATE pass that runs immediately after Phase 6 will
    recreate `Release` with the new schema (including `RepoId` FK).
-5. Next `gitmap-v27 list-releases` invocation calls `loadReleasesFromRepo()`
+5. Next `gitmap-v28 list-releases` invocation calls `loadReleasesFromRepo()`
    which reads `.gitmap/release/v*.json` and re-populates the table.
 
 ### Why not "leave NULL, fill on next write"?
@@ -113,12 +113,12 @@ without a backfill. We rejected this because:
 
 ## Multi-repo scope (v3.17.0 vs future)
 
-Each gitmap-v27 database still tracks **one repo's releases at a time** — the
+Each gitmap-v28 database still tracks **one repo's releases at a time** — the
 repo whose working directory the binary was invoked from. The `RepoId` FK
 is added for relational correctness, not because list/upsert queries
 filter by it today.
 
-**However**, the schema now permits a future `gitmap-v27 releases --all-repos`
+**However**, the schema now permits a future `gitmap-v28 releases --all-repos`
 batch view that holds rows for multiple repos in the same DB without
 requiring another schema break. The `IdxRelease_RepoId` index pre-pays
 for that filter.
@@ -127,9 +127,9 @@ for that filter.
 
 | Risk | Mitigation |
 |------|------------|
-| User has `Release` rows but no `.gitmap/release/` files | Lost. Documented in CHANGELOG breaking-change note. Recovery: `gitmap-v27 release-import --from-github` (existing command). |
-| Concurrent `gitmap-v27` process holds DB lock during migration | Existing `gitmap.lock` advisory lock blocks concurrent writers. |
-| Repo not yet scanned when first release fires | UpsertRelease returns a clear error: "run `gitmap-v27 scan` first". Aborts cleanly. |
+| User has `Release` rows but no `.gitmap/release/` files | Lost. Documented in CHANGELOG breaking-change note. Recovery: `gitmap-v28 release-import --from-github` (existing command). |
+| Concurrent `gitmap-v28` process holds DB lock during migration | Existing `gitmap.lock` advisory lock blocks concurrent writers. |
+| Repo not yet scanned when first release fires | UpsertRelease returns a clear error: "run `gitmap-v28 scan` first". Aborts cleanly. |
 
 ## Contributors
 

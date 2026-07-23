@@ -24,7 +24,7 @@ package cloner
 import (
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // cloneJob is the unit of work handed to each worker.

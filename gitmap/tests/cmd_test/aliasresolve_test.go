@@ -3,7 +3,7 @@ package cmd_test
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/store"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // --- extractAliasFlag tests (logic copy for black-box testing) ---

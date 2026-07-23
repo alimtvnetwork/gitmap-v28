@@ -259,17 +259,17 @@ print trace-level diagnostic output so the root cause is immediately
 visible without manual inspection:
 
 ```
-  Version before:   gitmap-v27 v2.66.0
-  Version active:   gitmap-v27 v2.67.0
+  Version before:   gitmap-v28 v2.66.0
+  Version active:   gitmap-v28 v2.67.0
   Version deployed: unknown
   Active binary:    C:\Users\user\bin\gitmap.exe
   Deployed binary:  (not resolved)
 
   [WARN] Deployed binary could not be verified (not resolved or missing).
-  [TRACE] activeAfter=gitmap-v27 v2.67.0  deployedAfter=unknown
+  [TRACE] activeAfter=gitmap-v28 v2.67.0  deployedAfter=unknown
   [HINT] Check that powershell.json 'deployPath' points to the correct directory
          and that the binary exists at: <path>
-  [OK] Active PATH binary updated successfully: gitmap-v27 v2.67.0
+  [OK] Active PATH binary updated successfully: gitmap-v28 v2.67.0
 ```
 
 ### Verification Logic
@@ -292,7 +292,7 @@ The user sees a clear warning but the update completes.
 |-------|------|
 | `deployedBinary: not resolved` | `$deployedBinary` is `$null` (config missing or `deployPath` unset) |
 | `deployedBinary: path not found: <path>` | Config resolved but file doesn't exist at that path |
-| `Get-Command gitmap-v27: not found in PATH` | Active binary not discoverable via PATH |
+| `Get-Command gitmap-v28: not found in PATH` | Active binary not discoverable via PATH |
 | `activeAfter=... deployedAfter=...` | Always printed on warning or mismatch |
 
 ## Error Handling

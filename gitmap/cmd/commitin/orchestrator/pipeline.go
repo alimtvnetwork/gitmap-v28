@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/checkpoint"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/walk"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/workspace"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/checkpoint"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/walk"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/workspace"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 

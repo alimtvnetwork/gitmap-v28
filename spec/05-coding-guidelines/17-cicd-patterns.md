@@ -191,11 +191,11 @@ Use `working-directory` in the workflow step definition instead of `cd` in the s
 ```yaml
 # ✅ Correct
 - name: Compress artifacts
-  working-directory: gitmap-v27/dist
+  working-directory: gitmap-v28/dist
   run: |
     for f in gitmap-*; do ...
 
-# ❌ Wrong — fails if CWD is not gitmap-v27/
+# ❌ Wrong — fails if CWD is not gitmap-v28/
 - name: Compress artifacts
   run: |
     cd dist
@@ -207,7 +207,7 @@ Use `working-directory` in the workflow step definition instead of `cd` in the s
 Always verify the expected directory exists before operating on it:
 
 ```yaml
-- run: test -d "gitmap-v27/dist" || { echo "dist/ not found"; exit 1; }
+- run: test -d "gitmap-v28/dist" || { echo "dist/ not found"; exit 1; }
 ```
 
 ### Pin Tool Versions for Reproducibility

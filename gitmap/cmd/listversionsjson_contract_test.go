@@ -17,7 +17,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/release"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
 
 // TestListVersionsJSONContract_EmptyIsArrayNotNull is the jq-compat guarantee.

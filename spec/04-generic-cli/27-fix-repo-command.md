@@ -2,19 +2,19 @@
 
 ## Purpose
 
-`gitmap-v27 fix-repo` (alias `gitmap-v27 fr`) rewrites prior versioned-repo-name
+`gitmap-v28 fix-repo` (alias `gitmap-v28 fr`) rewrites prior versioned-repo-name
 tokens to the current version across all tracked text files. It is the
 Go-native re-implementation of the existing `fix-repo.ps1` /
 `fix-repo.sh` shell scripts, with byte-for-byte identical default
 behavior, exit codes, and config schema. The PowerShell + Bash scripts
 remain as bootstrap helpers; the Go command is the canonical entry
-point and is shipped inside the `gitmap-v27` binary.
+point and is shipped inside the `gitmap-v28` binary.
 
 ## Synopsis
 
 ```
-gitmap-v27 fix-repo [-2 | -3 | -5 | --all] [--dry-run] [--verbose] [--config <path>]
-gitmap-v27 fr                                                       # short alias
+gitmap-v28 fix-repo [-2 | -3 | -5 | --all] [--dry-run] [--verbose] [--config <path>]
+gitmap-v28 fr                                                       # short alias
 ```
 
 PowerShell-style single-dash flags (`-2`, `-3`, `-5`, `-All`,
@@ -101,9 +101,9 @@ the script to the binary.
 
 - Top-level command name: `fix-repo` (kebab-case, like `desktop-sync`).
 - Short alias: `fr`.
-- Constants live in `gitmap-v27/constants/constants_fixrepo.go` (package-
+- Constants live in `gitmap-v28/constants/constants_fixrepo.go` (package-
   domain ownership, per the constants-ownership rule).
-- Implementation is split across `gitmap-v27/cmd/fixrepo*.go` files,
+- Implementation is split across `gitmap-v28/cmd/fixrepo*.go` files,
   each ≤ 200 lines, functions ≤ 15 lines, positive conditionals only,
   no swallowed errors (logged to `os.Stderr` via the standard format).
 
@@ -127,26 +127,26 @@ NOT the pre-versioned origin URL — it is the binary name, package
 identifier, brand string, or an unrelated repo reference, and rewriting
 it to `{base}-v{current}` silently corrupts the repo.
 
-### Before / after table — `gitmap-v27 fix-repo` semantics by current version
+### Before / after table — `gitmap-v28 fix-repo` semantics by current version
 
 | Working repo | Target span | Token in source       | Rewritten to        | Why |
 |--------------|-------------|-----------------------|---------------------|-----|
-| `gitmap-v27`  | v1          | `gitmap-v27`              | `gitmap-v27`         | Bare sweep ACTIVE (n=1, current=2) |
-| `gitmap-v27`  | v1          | `gitmap-v27`           | `gitmap-v27`         | Versioned token rewrite |
-| `gitmap-v27`  | v1          | `gitmap.js`           | `gitmap.js`         | Word-boundary guard |
-| `gitmap-v27`  | v1 (`-r nv`)| `gitmap-v27`              | `gitmap-v27`            | Bare sweep suppressed by `--restrict no-version` |
-| `gitmap-v27`  | v1, v2      | `gitmap-v27`              | `gitmap-v27`            | Bare sweep SKIPPED (current ≥ 3) |
-| `gitmap-v27`  | v1, v2      | `gitmap-v27`/`-v2`     | `gitmap-v27`         | Versioned token rewrite |
-| `gitmap-v27`  | v1..v3      | `https://…/gitmap-v27`    | `https://…/gitmap-v27`  | Bare upstream URL preserved |
-| `gitmap-v27`  | v1..v3      | `gitmap-v27`          | `gitmap-v27`        | Negative-lookahead vs `-v1` |
-| `gitmap-v27`  | v1..v3      | `gitmap-v27..v3`       | `gitmap-v27`         | Versioned token rewrite |
+| `gitmap-v28`  | v1          | `gitmap-v28`              | `gitmap-v28`         | Bare sweep ACTIVE (n=1, current=2) |
+| `gitmap-v28`  | v1          | `gitmap-v28`           | `gitmap-v28`         | Versioned token rewrite |
+| `gitmap-v28`  | v1          | `gitmap.js`           | `gitmap.js`         | Word-boundary guard |
+| `gitmap-v28`  | v1 (`-r nv`)| `gitmap-v28`              | `gitmap-v28`            | Bare sweep suppressed by `--restrict no-version` |
+| `gitmap-v28`  | v1, v2      | `gitmap-v28`              | `gitmap-v28`            | Bare sweep SKIPPED (current ≥ 3) |
+| `gitmap-v28`  | v1, v2      | `gitmap-v28`/`-v2`     | `gitmap-v28`         | Versioned token rewrite |
+| `gitmap-v28`  | v1..v3      | `https://…/gitmap-v28`    | `https://…/gitmap-v28`  | Bare upstream URL preserved |
+| `gitmap-v28`  | v1..v3      | `gitmap-v28`          | `gitmap-v28`        | Negative-lookahead vs `-v1` |
+| `gitmap-v28`  | v1..v3      | `gitmap-v28..v3`       | `gitmap-v28`         | Versioned token rewrite |
 
-Pre-v5.38.0 regression: running inside `gitmap-v27` rewrote every bare
-`gitmap-v27` mention (binary name, upstream URL, `gitmap-cli` package
-descriptor, brand strings) to `gitmap-v27`. The v5.38.0 gate restored
+Pre-v5.38.0 regression: running inside `gitmap-v28` rewrote every bare
+`gitmap-v28` mention (binary name, upstream URL, `gitmap-cli` package
+descriptor, brand strings) to `gitmap-v28`. The v5.38.0 gate restored
 correctness; the table above is the contract going forward.
 
-Implementation: `applyAllTargets` in `gitmap-v27/cmd/fixrepo_rewrite.go`,
+Implementation: `applyAllTargets` in `gitmap-v28/cmd/fixrepo_rewrite.go`,
 guarded by `if n == 1 && current == 2`. Regression locks:
 `TestApplyAllTargets_BareBase_SkippedAtV3Plus` and
 `TestApplyAllTargets_BareBase_SkippedAtV4WithV1InTargets` in
@@ -167,12 +167,12 @@ identifier (binary name, package, brand) that must be preserved.
 Examples:
 
 ```
-gitmap-v27 fix-repo -2 --restrict no-version
-gitmap-v27 fr -2 -r nv
+gitmap-v28 fix-repo -2 --restrict no-version
+gitmap-v28 fr -2 -r nv
 ```
 
 Implementation: `applyAllTargetsR` in
-`gitmap-v27/cmd/fixrepo_rewrite.go` gates the bare-base call on
+`gitmap-v28/cmd/fixrepo_rewrite.go` gates the bare-base call on
 `!restrictNoVersion`. Flag parsing in `fixrepo_flags.go`
 (`consumeFixRepoRestrictArg`) accepts `--restrict`, `-restrict`,
 `-r`, plus the `=value` forms; unknown values exit with
@@ -188,7 +188,7 @@ Implementation: `applyAllTargetsR` in
 
 ## Backup & undo (v5.40.0+)
 
-Every non-dry-run `gitmap-v27 fix-repo` invocation that modifies ≥ 1 file
+Every non-dry-run `gitmap-v28 fix-repo` invocation that modifies ≥ 1 file
 writes a backup snapshot under the repo root:
 
 ```
@@ -202,31 +202,31 @@ Rules:
 
 1. **One snapshot per invocation.** Timestamp format
    `20060102T150405Z` so lexical sort == chronological sort.
-2. **Scoped to `<repo>/v<current>`.** An `undo` inside `gitmap-v27`
-   never sees a `gitmap-v27` snapshot. This prevents cross-version
+2. **Scoped to `<repo>/v<current>`.** An `undo` inside `gitmap-v28`
+   never sees a `gitmap-v28` snapshot. This prevents cross-version
    restores that would re-introduce stale `{base}-vN` tokens.
 3. **Lazy + idempotent.** The snapshot directory is created on the
    FIRST `BackupFile` call so dry-run / no-op sweeps leave no trace.
    Within one snapshot the first observation of a file wins
    (subsequent rewrites in the same invocation never overwrite the
    original backup).
-4. **Manifest-driven restore.** `gitmap-v27 undo` reads `manifest.json`
+4. **Manifest-driven restore.** `gitmap-v28 undo` reads `manifest.json`
    and copies each listed `files/<rel>` back to `<repoRoot>/<rel>`.
 
-### `gitmap-v27 undo` (alias `ud`)
+### `gitmap-v28 undo` (alias `ud`)
 
 ```
-gitmap-v27 undo                       # restore latest snapshot
-gitmap-v27 undo --list                # list snapshots, newest first (* = latest)
-gitmap-v27 undo --snapshot <UTC-ts>   # restore a specific stamp
-gitmap-v27 undo --dry-run             # preview without writing
+gitmap-v28 undo                       # restore latest snapshot
+gitmap-v28 undo --list                # list snapshots, newest first (* = latest)
+gitmap-v28 undo --snapshot <UTC-ts>   # restore a specific stamp
+gitmap-v28 undo --dry-run             # preview without writing
 ```
 
 Exit codes: `0` ok / `6` bad-flag / `7` write-failed / `8` bad-config
 (manifest missing or malformed).
 
-Implementation: `gitmap-v27/cmd/fixrepo_backup.go` (session +
-`BackupFile` / `Finalize`), `gitmap-v27/cmd/undo.go` (list / pick /
+Implementation: `gitmap-v28/cmd/fixrepo_backup.go` (session +
+`BackupFile` / `Finalize`), `gitmap-v28/cmd/undo.go` (list / pick /
 restore). Wired into the sweep by splitting `rewriteOneFile` into a
 pure-compute step plus `persistRewrittenFile`, which calls
 `backup.BackupFile(rel)` strictly BEFORE `os.WriteFile` so the

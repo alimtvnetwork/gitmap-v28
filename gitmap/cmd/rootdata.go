@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // dispatchData routes data management, history, profiles, and TUI commands.

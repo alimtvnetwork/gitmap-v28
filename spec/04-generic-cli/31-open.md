@@ -1,14 +1,14 @@
-# 31 — `gitmap-v27 open` (alias `op`)
+# 31 — `gitmap-v28 open` (alias `op`)
 
-> **Status:** specified — implemented in `gitmap-v27/cmd/open.go`.
+> **Status:** specified — implemented in `gitmap-v28/cmd/open.go`.
 > **Schema dependency:** v25 (idempotency stamps on `Repo`).
 
 ## Purpose
 
-`gitmap-v27 open` is the "I just `cd`'d into this repo, get me into both
+`gitmap-v28 open` is the "I just `cd`'d into this repo, get me into both
 my GUI tools" command. It launches **GitHub Desktop AND VS Code** on
 the current repo in a single invocation, replacing the previous
-muscle-memory pair of `gitmap-v27 inject .` followed by `code .`.
+muscle-memory pair of `gitmap-v28 inject .` followed by `code .`.
 
 `open` is intentionally a superset of the historical `inject` flow
 when run on the cwd, except it never falls back to "no remote
@@ -18,8 +18,8 @@ configured, skipping" silently — non-repo folders still get Desktop
 ## Usage
 
 ```
-gitmap-v27 open              # alias: op
-gitmap-v27 open --force      # bypass idempotency stamps; alias: -f
+gitmap-v28 open              # alias: op
+gitmap-v28 open --force      # bypass idempotency stamps; alias: -f
 ```
 
 The command takes **no positional arguments**. The target is always
@@ -81,10 +81,10 @@ Opening "img-pdf" ...
 
 | Command | DB upsert | Desktop | VS Code | Shell `cd` | Idempotency |
 |---|---|---|---|---|---|
-| `gitmap-v27 inject [path]` | yes (if origin) | yes | yes | yes | per-tool stamp |
-| `gitmap-v27 open` | yes (if origin) | yes | yes | no | per-tool stamp |
-| `gitmap-v27 code` | no | no | yes | no | none |
-| `gitmap-v27 github-desktop` | no | yes | no | no | none |
+| `gitmap-v28 inject [path]` | yes (if origin) | yes | yes | yes | per-tool stamp |
+| `gitmap-v28 open` | yes (if origin) | yes | yes | no | per-tool stamp |
+| `gitmap-v28 code` | no | no | yes | no | none |
+| `gitmap-v28 github-desktop` | no | yes | no | no | none |
 
 ## Errors
 
@@ -96,8 +96,8 @@ Opening "img-pdf" ...
 
 ## Cross-refs
 
-- `gitmap-v27/cmd/open.go` — implementation.
-- `gitmap-v27/cmd/inject.go` — sibling command, shares
+- `gitmap-v28/cmd/open.go` — implementation.
+- `gitmap-v28/cmd/inject.go` — sibling command, shares
   `inject_idempotency.go` helpers.
 - `spec/04-generic-cli/29-inject.md` — `inject` semantics and
   resolution rules reused here.

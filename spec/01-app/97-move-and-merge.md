@@ -1,4 +1,4 @@
-# Move & Merge — `gitmap-v27 mv` / `merge-both` / `merge-left` / `merge-right`
+# Move & Merge — `gitmap-v28 mv` / `merge-both` / `merge-left` / `merge-right`
 
 > **Status:** Draft — spec only, implementation pending.
 > **Related specs:**
@@ -17,10 +17,10 @@ operation, and (when an endpoint was a URL) commits and pushes the
 result back to its remote.
 
 ```
-gitmap-v27 mv          LEFT RIGHT     # move LEFT into RIGHT, delete LEFT
-gitmap-v27 merge-both  LEFT RIGHT     # bidirectional fill: each side gains the other's missing files
-gitmap-v27 merge-left  LEFT RIGHT     # take from RIGHT, put into LEFT
-gitmap-v27 merge-right LEFT RIGHT     # take from LEFT,  put into RIGHT
+gitmap-v28 mv          LEFT RIGHT     # move LEFT into RIGHT, delete LEFT
+gitmap-v28 merge-both  LEFT RIGHT     # bidirectional fill: each side gains the other's missing files
+gitmap-v28 merge-left  LEFT RIGHT     # take from RIGHT, put into LEFT
+gitmap-v28 merge-right LEFT RIGHT     # take from LEFT,  put into RIGHT
 ```
 
 `mv` is an alias for `move`. The terms **LEFT/RIGHT** are used in
@@ -43,7 +43,7 @@ start:
 Optional `:branch` suffix on a URL endpoint pins the branch:
 
 ```
-gitmap-v27 mv https://github.com/owner/repo:develop ./local
+gitmap-v28 mv https://github.com/owner/repo:develop ./local
 ```
 
 Folder paths do not accept a branch suffix (the working folder is
@@ -55,7 +55,7 @@ The URL is mapped to a candidate working folder name:
 `<basename-of-url-without-.git>` placed in CWD.
 
 1. **Folder does NOT exist:** clone the URL into that folder.
-   Normal `gitmap-v27 clone <url>` semantics (see
+   Normal `gitmap-v28 clone <url>` semantics (see
    [88-clone-direct-url.md](88-clone-direct-url.md)).
 2. **Folder DOES exist:**
    a. Read its `origin` remote (`git remote get-url origin`).
@@ -109,7 +109,7 @@ then **delete the LEFT folder entirely**.
    with prompts.)
 4. Delete LEFT recursively, including its `.git/` if any.
 5. If RIGHT originated from a URL: stage all changes, commit with
-   `gitmap-v27 mv from <LEFT-display>`, and `git push`.
+   `gitmap-v28 mv from <LEFT-display>`, and `git push`.
 6. If LEFT originated from a URL, its working folder was just
    deleted; nothing to push (the URL repo on the remote is
    **NOT** deleted — only the local clone).
@@ -248,10 +248,10 @@ git push
 
 | Command | Commit message template |
 |---------|-------------------------|
-| `mv` | `gitmap-v27 mv from <LEFT-display>` |
-| `merge-both` | `gitmap-v27 merge-both with <other-display>` |
-| `merge-left` | `gitmap-v27 merge-left from <RIGHT-display>` |
-| `merge-right` | `gitmap-v27 merge-right from <LEFT-display>` |
+| `mv` | `gitmap-v28 mv from <LEFT-display>` |
+| `merge-both` | `gitmap-v28 merge-both with <other-display>` |
+| `merge-left` | `gitmap-v28 merge-left from <RIGHT-display>` |
+| `merge-right` | `gitmap-v28 merge-right from <LEFT-display>` |
 
 `<LEFT-display>` / `<RIGHT-display>` is the original argument the
 user typed (URL or folder path), trimmed.
@@ -275,8 +275,8 @@ A trailing `:<branch>` on a URL endpoint pins both clone-checkout
 and post-merge push to that branch:
 
 ```
-gitmap-v27 mv          ./local https://github.com/owner/repo:release
-gitmap-v27 merge-right ./local https://github.com/owner/repo:feature/x
+gitmap-v28 mv          ./local https://github.com/owner/repo:release
+gitmap-v28 merge-right ./local https://github.com/owner/repo:feature/x
 ```
 
 If the branch does not exist on the remote, the URL endpoint is
@@ -290,33 +290,33 @@ out at whatever branch they currently hold).
 
 ```
 # move local folder into another local folder, deleting source
-gitmap-v27 mv ./gitmap-v27 ./gitmap-v27
+gitmap-v28 mv ./gitmap-v28 ./gitmap-v28
 
 # move local folder into a remote repo (clone, copy, commit, push)
-gitmap-v27 mv ./gitmap-v27 https://github.com/alimtvnetwork/gitmap-v27
+gitmap-v28 mv ./gitmap-v28 https://github.com/alimtvnetwork/gitmap-v28
 
 # move a remote repo's contents into a local folder
-gitmap-v27 mv https://github.com/alimtvnetwork/gitmap-v27 ./another-folder
+gitmap-v28 mv https://github.com/alimtvnetwork/gitmap-v28 ./another-folder
 
 # move between two remote repos (clones both, copies, pushes RIGHT)
-gitmap-v27 mv https://github.com/alimtvnetwork/gitmap-v27 \
-         https://github.com/alimtvnetwork/gitmap-v27
+gitmap-v28 mv https://github.com/alimtvnetwork/gitmap-v28 \
+         https://github.com/alimtvnetwork/gitmap-v28
 
 # merge missing files only (identical or differing files prompt)
-gitmap-v27 merge-both ./gitmap-v27 ./gitmap-v27
+gitmap-v28 merge-both ./gitmap-v28 ./gitmap-v28
 
 # merge with auto-accept: each side's source wins
-gitmap-v27 merge-right ./gitmap-v27 https://github.com/alimtvnetwork/gitmap-v27 -y
+gitmap-v28 merge-right ./gitmap-v28 https://github.com/alimtvnetwork/gitmap-v28 -y
 
 # merge with explicit policy
-gitmap-v27 merge-both ./gitmap-v27 https://github.com/alimtvnetwork/gitmap-v27 \
+gitmap-v28 merge-both ./gitmap-v28 https://github.com/alimtvnetwork/gitmap-v28 \
          -y --prefer-newer
 
 # pin remote branch
-gitmap-v27 merge-right ./local https://github.com/owner/repo:develop
+gitmap-v28 merge-right ./local https://github.com/owner/repo:develop
 
 # preview without writing anything
-gitmap-v27 mv ./gitmap-v27 ./gitmap-v27 --dry-run
+gitmap-v28 mv ./gitmap-v28 ./gitmap-v28 --dry-run
 ```
 
 ---
@@ -327,17 +327,17 @@ Every command emits structured `[mv]` / `[merge-both]` /
 `[merge-left]` / `[merge-right]` prefixed log lines:
 
 ```
-  [mv] resolving LEFT  : ./gitmap-v27 (folder, exists)
-  [mv] resolving RIGHT : https://github.com/alimtvnetwork/gitmap-v27
-  [mv]   -> mapped to working folder: ./gitmap-v27
+  [mv] resolving LEFT  : ./gitmap-v28 (folder, exists)
+  [mv] resolving RIGHT : https://github.com/alimtvnetwork/gitmap-v28
+  [mv]   -> mapped to working folder: ./gitmap-v28
   [mv]   -> folder does not exist; cloning
   [mv]   -> clone OK (47 files, 1.2 MB)
   [mv] copying files LEFT -> RIGHT (excluding .git/) ...
   [mv]   copied 47 files
-  [mv] deleting LEFT (./gitmap-v27) ...
+  [mv] deleting LEFT (./gitmap-v28) ...
   [mv]   deleted
   [mv] committing in RIGHT ...
-  [mv]   commit 9a3c1e2 "gitmap-v27 mv from ./gitmap-v27"
+  [mv]   commit 9a3c1e2 "gitmap-v28 mv from ./gitmap-v28"
   [mv] pushing RIGHT ...
   [mv]   push OK
   [mv] done
@@ -370,10 +370,10 @@ Per-file conflict resolutions in `merge-*` are logged as
 
 ## Acceptance Checklist
 
-- [x] `gitmap-v27 mv folder-a folder-b` moves contents and deletes folder-a.
-- [x] `gitmap-v27 mv folder url` clones url, copies files, commits + pushes.
-- [x] `gitmap-v27 mv url folder` clones url, copies files into folder, deletes the cloned working folder.
-- [x] `gitmap-v27 mv url-a url-b` clones both, copies, pushes RIGHT, deletes LEFT clone.
+- [x] `gitmap-v28 mv folder-a folder-b` moves contents and deletes folder-a.
+- [x] `gitmap-v28 mv folder url` clones url, copies files, commits + pushes.
+- [x] `gitmap-v28 mv url folder` clones url, copies files into folder, deletes the cloned working folder.
+- [x] `gitmap-v28 mv url-a url-b` clones both, copies, pushes RIGHT, deletes LEFT clone.
 - [x] `merge-both` copies missing files both ways and prompts on conflicts.
 - [x] `merge-left` only writes into LEFT.
 - [x] `merge-right` only writes into RIGHT.
@@ -385,4 +385,4 @@ Per-file conflict resolutions in `merge-*` are logged as
 - [x] `:branch` suffix on a URL pins the checkout + push branch.
 - [x] Same-folder and nested-folder protection trips before any file write.
 
-> **Implementation:** v2.98.0 — `gitmap-v27/movemerge/` package, `cmd/move.go`, `cmd/merge.go`, `cmd/movemergeflags.go`, `cmd/dispatchmovemerge.go` wired in `cmd/root.go`. Helptext lives in `gitmap-v27/helptext/{mv,merge-both,merge-left,merge-right}.md` (added in v2.96.0).
+> **Implementation:** v2.98.0 — `gitmap-v28/movemerge/` package, `cmd/move.go`, `cmd/merge.go`, `cmd/movemergeflags.go`, `cmd/dispatchmovemerge.go` wired in `cmd/root.go`. Helptext lives in `gitmap-v28/helptext/{mv,merge-both,merge-left,merge-right}.md` (added in v2.96.0).

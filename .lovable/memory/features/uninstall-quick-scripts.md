@@ -13,11 +13,11 @@ Two new root-level scripts mirror `install-quick.ps1` / `install-quick.sh`:
 Both are designed to be piped from a one-liner:
 
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/uninstall-quick.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/uninstall-quick.ps1 | iex
 ```
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v27/main/uninstall-quick.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/uninstall-quick.sh | bash
 ```
 
 ## Strategy (both scripts)

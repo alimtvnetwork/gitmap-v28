@@ -4,10 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v27/scripts/changelog/internal/gitlog"
-	"github.com/alimtvnetwork/gitmap-v27/scripts/changelog/internal/group"
-	"github.com/alimtvnetwork/gitmap-v27/scripts/changelog/internal/render"
-	"github.com/alimtvnetwork/gitmap-v27/scripts/changelog/internal/writer"
+	"github.com/alimtvnetwork/gitmap-v28/scripts/changelog/internal/gitlog"
+	"github.com/alimtvnetwork/gitmap-v28/scripts/changelog/internal/group"
+	"github.com/alimtvnetwork/gitmap-v28/scripts/changelog/internal/render"
+	"github.com/alimtvnetwork/gitmap-v28/scripts/changelog/internal/writer"
 )
 
 // generate runs the same pipeline as `make changelog` against the

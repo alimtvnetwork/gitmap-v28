@@ -178,7 +178,7 @@ const (
 	CmdRegoldens      = "regoldens"
 	CmdRegoldensAlias = "rg"
 	// CmdAuditLegacy scans the workspace for forbidden legacy strings
-	// (e.g. gitmap-v27/v6/v7) and exits non-zero on any hit. Used as a // gitmap-legacy-ref-allow
+	// (e.g. gitmap-v28/v6/v7) and exits non-zero on any hit. Used as a // gitmap-legacy-ref-allow
 	// regression guard for remixes / rename commits. Help: audit-legacy.md.
 	CmdAuditLegacy       = "audit-legacy"
 	CmdAuditLegacyAlias  = "aul"
@@ -341,7 +341,7 @@ const (
 )
 
 // Audit-legacy defaults + flag names. Patterns are comma-separated regexes.
-// Defaults catch the gitmap-v27/v6/v7 → v8 rename regression class. // gitmap-legacy-ref-allow
+// Defaults catch the gitmap-v28/v6/v7 → v8 rename regression class. // gitmap-legacy-ref-allow
 const (
 	FlagAuditLegacyPatterns     = "patterns"
 	FlagDescAuditLegacyPatterns = "Comma-separated regex patterns to flag (default: gitmap-v[567])"
@@ -356,7 +356,7 @@ const (
 	DefaultAuditLegacyPatterns  = "gitmap-v[567]\\b"
 	DefaultAuditLegacyReport    = ".gitmap/audit-legacy-report.md"
 	DefaultAuditLegacyDiffsDir  = "diffs"
-	DefaultAuditLegacyReplace   = "gitmap-v27"
+	DefaultAuditLegacyReplace   = "gitmap-v28"
 	MsgAuditLegacyClean         = "  ✓ audit-legacy: no forbidden legacy strings found in %s\n"
 	MsgAuditLegacyHeader        = "  ✗ audit-legacy: %d match(es) across %d file(s) for pattern(s) %q\n"
 	MsgAuditLegacyHit           = "    %s:%d: %s\n"

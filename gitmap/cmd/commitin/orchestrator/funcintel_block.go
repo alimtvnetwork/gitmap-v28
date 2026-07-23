@@ -4,9 +4,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/funcintel"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/profile"
-	"github.com/alimtvnetwork/gitmap-v27/gitmap/cmd/commitin/walk"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/funcintel"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/profile"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/walk"
 )
 
 // renderFunctionIntel returns the §6.3 block for one source commit, or

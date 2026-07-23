@@ -1,11 +1,11 @@
-# `gitmap-v27 replace` — Repo-Wide Text & Version Replace
+# `gitmap-v28 replace` — Repo-Wide Text & Version Replace
 
 > **Related specs:**
 > - [03-subcommand-architecture.md](03-subcommand-architecture.md) — dispatch pattern
 > - [04-flag-parsing.md](04-flag-parsing.md) — per-command FlagSet conventions
 > - [../05-coding-guidelines](../05-coding-guidelines) — file/func size, error policy
 
-This document is the **single source of truth** for the `gitmap-v27 replace`
+This document is the **single source of truth** for the `gitmap-v28 replace`
 subcommand. It is written so a coding AI can implement or modify the
 feature without inferring intent from other files. Every behavior,
 edge case, and exit code is fixed here.
@@ -14,13 +14,13 @@ edge case, and exit code is fixed here.
 
 ## 1. Purpose
 
-`gitmap-v27 replace` performs a deterministic, repo-wide find-and-replace
+`gitmap-v28 replace` performs a deterministic, repo-wide find-and-replace
 across every text file in the current repository, with two operating
 modes:
 
-1. **Literal mode** — `gitmap-v27 replace "<old>" "<new>"`
+1. **Literal mode** — `gitmap-v28 replace "<old>" "<new>"`
    Replaces every occurrence of `<old>` with `<new>` in every text file.
-2. **Version mode** — `gitmap-v27 replace -N` / `--audit` / `all`
+2. **Version mode** — `gitmap-v28 replace -N` / `--audit` / `all`
    Bumps occurrences of `<base>-vK` (the project name + version suffix
    parsed from the git remote) to the current version.
 
@@ -33,11 +33,11 @@ modified until the user types `y` at the diff preview.
 ## 2. Invocation Surface
 
 ```text
-gitmap-v27 replace "<old>" "<new>"        # literal mode (interactive confirm)
-gitmap-v27 replace -N                      # version mode: replace v(current-N)..v(current-1) → vCurrent
-gitmap-v27 replace --audit                 # version mode: report only (no writes ever)
-gitmap-v27 replace all                     # version mode: replace v1..v(current-1) → vCurrent
-gitmap-v27 replace --help | -h             # show help
+gitmap-v28 replace "<old>" "<new>"        # literal mode (interactive confirm)
+gitmap-v28 replace -N                      # version mode: replace v(current-N)..v(current-1) → vCurrent
+gitmap-v28 replace --audit                 # version mode: report only (no writes ever)
+gitmap-v28 replace all                     # version mode: replace v1..v(current-1) → vCurrent
+gitmap-v28 replace --help | -h             # show help
 ```
 
 Aliases: `rpl` (short form of `replace`).
@@ -79,8 +79,8 @@ Algorithm (must be implemented exactly):
 6. `base` is the project base name. `num` (parsed as int) is the
    current version `K`. Both are required for the search pattern.
 
-**Example:** `git@github.com:alimtvnetwork/gitmap-v27.git`
-→ `slug = "gitmap-v27"` → `base = "gitmap-v27"`, `K = 7`.
+**Example:** `git@github.com:alimtvnetwork/gitmap-v28.git`
+→ `slug = "gitmap-v28"` → `base = "gitmap-v28"`, `K = 7`.
 
 ---
 
@@ -92,8 +92,8 @@ For a given target version `T` (an int < `K`), the search pattern is the
 
 By the user's explicit answer ("Any occurrence of the base name +
 version"), we also replace `<base>/v<T>` → `<base>/v<K>` in the same
-pass (covers Go module import paths like `github.com/x/gitmap-v27` and
-`github.com/x/gitmap-v27/v4`).
+pass (covers Go module import paths like `github.com/x/gitmap-v28` and
+`github.com/x/gitmap-v28/v4`).
 
 We do **not** touch bare `vN` tokens that aren't adjacent to `<base>`.
 That avoids destroying CSS values, semver references, etc.
@@ -165,7 +165,7 @@ detection (§5.3) still runs on filtered-in files.
 Triggered when **two non-flag positional args** are present.
 
 ```
-gitmap-v27 replace "old text" "new text"
+gitmap-v28 replace "old text" "new text"
 ```
 
 - `old` MUST be non-empty; `new` MAY be empty (deletion).
@@ -221,8 +221,8 @@ path, err)` and exit `2` after attempting all remaining files.
 
 ```
 replace: scanning 4123 files in /repo/root
-replace: src/foo.go: 3 matches (gitmap-v27 → gitmap-v27)
-replace: docs/setup.md: 1 match (gitmap-v27 → gitmap-v27)
+replace: src/foo.go: 3 matches (gitmap-v28 → gitmap-v28)
+replace: docs/setup.md: 1 match (gitmap-v28 → gitmap-v28)
 ...
 replace: 12 files, 47 replacements
 Apply replacements for versions v4..v6 → v7? [y/N]: y

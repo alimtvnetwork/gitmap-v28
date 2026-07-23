@@ -2,13 +2,13 @@
 
 ## 1. Goal
 
-Every gitmap-v27 operation that **mutates the on-disk filesystem** is recorded
+Every gitmap-v28 operation that **mutates the on-disk filesystem** is recorded
 as a row in a SQLite `Transaction` table the moment it begins, and a
 matching reverse-action is captured before the change is applied. A user
 can then roll back any of the last 50 transactions with a single command.
 
 The transaction journal lives in the same SQLite DB as the rest of
-gitmap-v27 state, so it is automatically anchored to the binary path
+gitmap-v28 state, so it is automatically anchored to the binary path
 (see `mem://tech/database-location`) and never crosses install
 boundaries.
 
@@ -109,9 +109,9 @@ Pre-mutation order is mandatory:
 4. `txn.Commit()` flips `Status='committed'` and stamps `CommittedAt`.
    Any failure between (1) and (4) → `txn.Abort()` (status='aborted').
 
-## 5. CLI surface — extend `gitmap-v27 revert`
+## 5. CLI surface — extend `gitmap-v28 revert`
 
-The legacy `gitmap-v27 revert <version>` flow (rolls back the gitmap-v27
+The legacy `gitmap-v28 revert <version>` flow (rolls back the gitmap-v28
 binary itself) is preserved as the default when no transaction flag
 is present. New flags switch into transaction mode:
 
@@ -124,7 +124,7 @@ is present. New flags switch into transaction mode:
 | `--prune-txn`            | Drop everything beyond the 50-row cap right now (also runs auto on Begin). |
 | `--force`                | Skip the confirm prompt. Required for clone-revert when the dest dir has been edited since commit. |
 
-Help text lives at `gitmap-v27/helptext/revert.md` (extended, not replaced).
+Help text lives at `gitmap-v28/helptext/revert.md` (extended, not replaced).
 
 ## 6. Per-op reverse semantics
 
@@ -151,12 +151,12 @@ the audit trail stays complete.
 - `txn.Begin` calls `txn.PruneOldest(50)` first, which `DELETE`s rows
   with the smallest `TransactionId` values until count ≤ cap and
   recursively `os.RemoveAll`s their backup dirs.
-- `gitmap-v27 revert --prune-txn` lets users force a prune cycle.
+- `gitmap-v28 revert --prune-txn` lets users force a prune cycle.
 
 ## 8. Concurrency
 
 - The existing `gitmap.lock` advisory file lock guards every Begin
-  / Commit / Revert call so two gitmap-v27 processes never interleave
+  / Commit / Revert call so two gitmap-v28 processes never interleave
   transaction rows.
 - SQLite `SetMaxOpenConns(1)` (project-wide rule) makes intra-process
   serialization free.
@@ -166,14 +166,14 @@ the audit trail stays complete.
 - `fix-repo --replace` per-file backups (see §6.1).
 - Non-FS mutations (alias create/rename, release publish, scan upserts).
 - Cross-machine restore / portable transaction archives.
-- A full UI under `gitmap-v27 txn ...` — left as a follow-up; the `revert`
+- A full UI under `gitmap-v28 txn ...` — left as a follow-up; the `revert`
   flag surface is sufficient for v1.
 
 ## 10. Implementation references
 
-- Schema: `gitmap-v27/constants/constants_transaction.go`
-- Tables: `gitmap-v27/store/transaction.go`, `gitmap-v27/store/transaction_file.go`
-- Engine: `gitmap-v27/txn/begin.go`, `gitmap-v27/txn/snapshot.go`, `gitmap-v27/txn/revert.go`, `gitmap-v27/txn/prune.go`
-- CLI: `gitmap-v27/cmd/revert.go` (extended), `gitmap-v27/cmd/revert_txn.go` (new)
-- Help: `gitmap-v27/helptext/revert.md` (extended)
+- Schema: `gitmap-v28/constants/constants_transaction.go`
+- Tables: `gitmap-v28/store/transaction.go`, `gitmap-v28/store/transaction_file.go`
+- Engine: `gitmap-v28/txn/begin.go`, `gitmap-v28/txn/snapshot.go`, `gitmap-v28/txn/revert.go`, `gitmap-v28/txn/prune.go`
+- CLI: `gitmap-v28/cmd/revert.go` (extended), `gitmap-v28/cmd/revert_txn.go` (new)
+- Help: `gitmap-v28/helptext/revert.md` (extended)
 - Memory: `mem://features/transaction-revert`
