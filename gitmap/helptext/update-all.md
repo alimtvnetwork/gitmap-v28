@@ -41,6 +41,11 @@ uall
 
 ## Examples
 
+```text
+$ gitmap update all
+```
+
+
 ### Prompted upgrade of everything
 
     $ gitmap update all

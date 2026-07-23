@@ -49,6 +49,11 @@ Rows are sorted by `behind` descending, then repo slug ascending. Exit code is
 
 ## Examples
 
+```text
+$ gitmap list --update
+```
+
+
 ### Human-readable table
 
     $ gitmap list --update

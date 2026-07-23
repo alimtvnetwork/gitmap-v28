@@ -43,6 +43,11 @@ ua
 
 ## Examples
 
+```text
+$ gitmap update apply acme/api
+```
+
+
 ### Basic upgrade (interactive)
 
     $ gitmap update apply acme/api
