@@ -1,33 +1,34 @@
-## Problem
+## Release v6.81.0 (minor bump from 6.80.1)
 
-CI failure in `gitmap/helptext/examples_golden_test.go` → `TestEveryHelpFileHasExamples`. The gate requires each command help file to contain a `## Examples` heading followed somewhere below by a fenced code block (```` ``` ````). Four files fail:
+Follows the canonical "release" procedure in `mem://project/release-keyword.md` and `version-bump-procedure.md`. Batches 4 file edits, no touches to `.gitmap/release/` (managed by the CLI itself), no touches to the CI release pipeline.
 
-- `hd.md`: no `## Examples` heading at all.
-- `list-update.md`, `update-all.md`, `update-apply.md`: have `## Examples` headings, but their code samples are 4-space-indented blocks; the gate specifically checks for triple-backtick fences after the heading, so they fail even though example content exists.
+### Files to update
 
-## Fix
+1. **`gitmap/constants/constants.go`** (line 16)
+   - `const Version = "6.80.1"` → `const Version = "6.81.0"`
 
-Bring all four files into compliance with the gate, without rewriting their content or restructuring the docs site.
+2. **`src/constants/index.ts`** (line 2)
+   - `export const VERSION = "v6.80.1"` → `"v6.81.0"`
+   - Kept in lockstep so `src/test/version-sync.test.ts` stays green.
 
-1. `gitmap/helptext/hd.md`: add a new `## Examples` section (just before `## Exit Codes`) with two short fenced snippets covering the human view and `--json` output. Reuse literals already shown elsewhere in the file so the doc stays consistent.
+3. **`CHANGELOG.md`** (top)
+   - Insert new `## v6.81.0 — (2026-07-23) — Minor release` section summarizing the shipped work since 6.80.0:
+     - `gitmap doctor fix-repo` probe suite (gofmt-present, gofmt-runs, argv-budget, chunker-selftest)
+     - `fix-repo --dry-run` batch preview with NEAR-LIMIT / OVER-LIMIT tags
+     - `fix-repo --verbose` progress with per-batch ETA
+     - `--gofmt-max-cmd-len N` tuning flag (floor 512)
+     - Golden-test fixes for `hd`, `list-update`, `update-all`, `update-apply` helptext
 
-2. `gitmap/helptext/list-update.md`, `update-all.md`, `update-apply.md`: convert the first code sample under each existing `## Examples` heading from a 4-space indent to a triple-backtick fence (```` ```text ```` for shell transcripts, ```` ```json ```` for JSON payloads). One fenced block per file is sufficient to satisfy the gate; leave the remaining indented samples untouched to minimize diff noise.
+4. **`README.md`** (root)
+   - `sed -i 's/v6\.80\.1/v6.81.0/g' README.md` to refresh every pinned mention.
 
-## Validation
+### Verification
 
-- Re-run `go test ./gitmap/helptext/... -count=1` and confirm `TestEveryHelpFileHasExamples` passes.
-- Run `go test ./... -count=1` at repo root to confirm no collateral regressions.
+- Run `bunx vitest run src/test/version-sync.test.ts` to confirm Go ↔ TS parity.
+- Run `.github/scripts/check-changelog-version-sync.sh` locally-equivalent check by grepping `## v6.81.0` in CHANGELOG.
 
-## Non-goals
+### Explicitly NOT touched
 
-- Not converting every indented sample to fenced style project-wide (separate cleanup).
-- No version bump or changelog entry: this is a doc/test fix inside the already-shipped v6.80.1 cycle, not a user-visible change.
-
-## Files touched
-
-```text
-gitmap/helptext/hd.md              (add ## Examples with fenced blocks)
-gitmap/helptext/list-update.md     (fence first example)
-gitmap/helptext/update-all.md      (fence first example)
-gitmap/helptext/update-apply.md    (fence first example)
-```
+- `.gitmap/release/*.json` (CLI-managed, per Core constraint)
+- `.github/workflows/release.yml` and release scripts (strictly prohibited)
+- Any other `gitmap/` source file

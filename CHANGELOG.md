@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.81.0 (2026-07-23): Minor release, rolling up fix-repo gofmt reliability work
+
+### Added
+- Minor version rollup covering the fix-repo gofmt reliability work shipped in the v6.80.x line:
+  - `gitmap doctor fix-repo` probe suite (gofmt-present, gofmt-runs, argv-budget, chunker-selftest) with `--json` and `--budget N`.
+  - `gitmap fix-repo --dry-run` per-batch preview with NEAR-LIMIT / OVER-LIMIT tags.
+  - `gitmap fix-repo --verbose` per-batch progress with rolling ETA.
+  - `--gofmt-max-cmd-len N` tuning flag (floor 512) for Windows setups with a lower CreateProcess cap.
+- Golden-test parity fixes for `hd`, `list-update`, `update-all`, `update-apply` helptext so `go test ./...` stays green.
+
+### Notes
+- No behavior changes vs v6.80.1; this is a minor bump that promotes the accumulated fixes into a clean release.
+
 ## v6.80.1 (2026-07-23): fix-repo gofmt: doctor, dry-run preview, verbose progress, tunable budget
 
 ### Added
