@@ -38,7 +38,8 @@ last known failure reason (if any).
 
 ## See Also
 
-- [do-pending](do-pending.md) — Retry pending tasks
+- [do-pending](do-pending.md) — Retry pending tasks (including Upgrade)
+- [update-apply](update-apply.md) — Source of the new `Upgrade` task type
 - [clone-next](clone-next.md) — Clone next versioned iteration
 - [task](task.md) — Manage file-sync watch tasks
 

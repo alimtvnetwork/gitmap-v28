@@ -14,8 +14,9 @@ dp
 
 Re-executes tasks that remain in the PendingTask table. For delete
 and remove tasks, the system retries the file removal. For replayable
-tasks (scan, clone, pull, exec), the system re-runs the original CLI
-command using the stored arguments and working directory.
+tasks (scan, clone, pull, exec, upgrade), the system re-runs the
+original CLI command using the stored arguments and working directory.
+`Upgrade` tasks are replayed via `gitmap update apply <target>`.
 
 Successfully completed tasks are moved to the CompletedTask table.
 Failed tasks remain pending with an updated failure reason.
