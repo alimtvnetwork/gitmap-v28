@@ -114,6 +114,13 @@ func consumeOneFixRepoArg(args []string, i int, out *fixRepoOptions,
 	if ok {
 		return consumed, nil
 	}
+	consumed, ok, err = consumeFixRepoGofmtMaxArg(args, i, out)
+	if err != nil {
+		return 0, err
+	}
+	if ok {
+		return consumed, nil
+	}
 	*unknown = append(*unknown, a)
 
 	return 1, nil
