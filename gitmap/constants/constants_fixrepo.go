@@ -44,6 +44,13 @@ const (
 	FixRepoModeFlag3      = "-3"
 	FixRepoModeFlag5      = "-5"
 	FixRepoConfigFileName = "fix-repo.config.json"
+
+	// FixRepoFlagGofmtMaxCmdLen (v6.80.1+): overrides
+	// FixRepoGofmtMaxCmdLen for the current run. Useful for Windows
+	// setups where the effective argv budget is lower than the
+	// documented 32,767-char CreateProcess cap (antivirus / shim /
+	// nested-invocation setups can shrink it further).
+	FixRepoFlagGofmtMaxCmdLen = "gofmt-max-cmd-len"
 )
 
 // FixRepoFlagRestrict (v5.39.0+) narrows the rewrite scope. The only
