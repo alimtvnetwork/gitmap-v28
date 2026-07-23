@@ -96,10 +96,22 @@ const (
 	FixRepoErrBadConfigFmt  = "fix-repo: ERROR %s (E_BAD_CONFIG)\n"
 	FixRepoErrWriteFmt      = "fix-repo: ERROR write failed for %s: %v\n"
 	FixRepoMsgGofmtFmt      = "gofmt:   %d .go file(s) reformatted\n"
+	FixRepoMsgGofmtBatchFmt = "gofmt:   %d .go file(s) reformatted across %d batch(es)\n"
 	FixRepoMsgGofmtSkip     = "gofmt:   skipped (dry-run)\n"
 	FixRepoMsgGofmtNoneFmt  = "gofmt:   no .go files modified\n"
 	FixRepoErrGofmtFmt      = "fix-repo: ERROR gofmt failed: %v\n%s"
 	FixRepoErrGofmtMissing  = "fix-repo: WARN  gofmt not found on PATH; skipping post-rewrite formatting\n"
+
+	// FixRepoGofmtMaxCmdLen bounds the combined length of file-path
+	// arguments passed to a single `gofmt -w` invocation. Windows'
+	// CreateProcess caps the command line at 32,767 characters; 30,000
+	// leaves headroom for the executable path and the `-w` flag. On a
+	// large repo with hundreds of touched .go files under a long
+	// absolute path (e.g. D:\wp-work\...\gitmap\...), a single-batch
+	// exec overflowed this cap and surfaced as
+	// "The filename or extension is too long."
+	// See mem://issues/2026-05-01-fixrepo-no-gofmt.md.
+	FixRepoGofmtMaxCmdLen = 30000
 
 	// Strict-mode (post-rewrite `go test`) message family. Phrased to
 	// mirror the gofmt block so a user reading the trailing summary
