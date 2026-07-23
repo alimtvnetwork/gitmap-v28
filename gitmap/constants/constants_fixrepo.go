@@ -102,6 +102,33 @@ const (
 	FixRepoErrGofmtFmt      = "fix-repo: ERROR gofmt failed: %v\n%s"
 	FixRepoErrGofmtMissing  = "fix-repo: WARN  gofmt not found on PATH; skipping post-rewrite formatting\n"
 
+	// Dry-run batch preview (v6.80.1+). Emitted when --dry-run is
+	// passed and there are .go files that would be formatted; lets
+	// users on Windows see per-batch cmd-line sizes before shipping
+	// the real rewrite.
+	FixRepoMsgGofmtDryFmt      = "gofmt (dry-run): would run %d batch(es) across %d file(s), budget=%d\n"
+	FixRepoMsgGofmtDryBatchFmt = "  batch %d/%d: files=%d, cmdLen=%d bytes (%d%% of budget)%s\n"
+	FixRepoMsgGofmtDryNearTag  = " " + ColorYellow + "NEAR-LIMIT" + ColorReset
+	FixRepoMsgGofmtDryOverTag  = " " + ColorRed + "OVER-LIMIT" + ColorReset
+
+	// Verbose progress output (v6.80.1+). Emitted when --verbose is
+	// passed. Header is printed once before the loop; per-batch
+	// start/done lines fire around each exec.
+	FixRepoMsgGofmtVerbHeaderFmt     = "gofmt:   %d batch(es), %d file(s), budget=%d\n"
+	FixRepoMsgGofmtVerbBatchStartFmt = "  [%d/%d] formatting %d files (cmdLen=%d)...\n"
+	FixRepoMsgGofmtVerbBatchDoneFmt  = "    done in %s; ETA ~%s\n"
+
+	// FixRepoGofmtNearLimitPct is the percent-of-budget threshold at
+	// which the dry-run preview tags a batch as NEAR-LIMIT. Batches at
+	// or above 100% of budget are tagged OVER-LIMIT (should be rare;
+	// chunker only permits over-limit for a single pathological path).
+	FixRepoGofmtNearLimitPct = 90
+
+	// FixRepoGofmtMinCmdLen is the floor accepted by
+	// --gofmt-max-cmd-len. Values below this cannot fit even one
+	// typical repo-relative path plus argv overhead.
+	FixRepoGofmtMinCmdLen = 512
+
 	// FixRepoGofmtMaxCmdLen bounds the combined length of file-path
 	// arguments passed to a single `gofmt -w` invocation. Windows'
 	// CreateProcess caps the command line at 32,767 characters; 30,000
