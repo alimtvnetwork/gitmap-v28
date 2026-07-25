@@ -169,9 +169,10 @@ func runCloneMulti(cf CloneFlags) {
 		// Build a PM pair for the URL we just cloned. Mirrors the
 		// folder resolution executeDirectCloneOne uses internally so
 		// the absPath we hand to projects.json matches what landed
-		// on disk.
+		// on disk (repo name verbatim, `-vN` preserved).
 		repoName := repoNameFromURL(url)
 		folder := resolveCloneFolder(repoName, "")
+
 		if abs, absErr := filepath.Abs(folder); absErr == nil {
 			pmPairs = append(pmPairs, buildClonePMPair(abs, repoName))
 		}

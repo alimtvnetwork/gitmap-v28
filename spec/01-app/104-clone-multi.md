@@ -93,12 +93,29 @@ are silently skipped.
 | Comma-separated | Single-string CI parameters, JSON arrays joined with commas, copy-paste from issue trackers |
 | Mixed | Future-proof — no need to re-quote when refactoring scripts |
 
+## Folder naming
+
+Base `clone` never rewrites the destination folder name.
+
+- With no folder argument, the folder is the repo name exactly as it
+  appears in the URL, including any trailing `-vN` suffix. Cloning
+  `https://github.com/owner/wp-onboarding-v13.git` creates
+  `wp-onboarding-v13/`, not `wp-onboarding/`.
+- With an explicit second positional argument (single-URL form only),
+  that name wins verbatim.
+- This holds for one URL and for many URLs: the multi-URL path uses the
+  same `resolveCloneFolder` helper, so a batch clone produces the same
+  on-disk names a sequence of single clones would.
+- Version flattening and version bumping belong to `gitmap clone-next`
+  (`cn`), never to `clone`.
+
 ## Implementation notes
 
 | File | Responsibility |
 |------|----------------|
 | `cmd/clone.go` | New `flattenURLArgs([]string) []string` helper at top of `runClone` |
 | `cmd/clone.go` | Loop over flattened URLs through existing concurrent worker pool |
+| `cmd/clonemulti.go` | `resolveCloneFolder(repoName, folderName)` — returns the folder verbatim; no `-vN` flattening |
 | `desktop/desktop.go` | `RegisterRepo(absPath)` — already exists, called per success |
 | `constants/constants_clone.go` | `MsgCloneInvalidURLFmt`, `MsgCloneSummaryMultiFmt` |
 

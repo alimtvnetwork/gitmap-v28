@@ -1,5 +1,17 @@
 # Changelog
 
+## v6.83.0 (2026-07-25): clone keeps the folder name you typed
+
+### Fixed
+- `gitmap clone` no longer flattens `-vN` folder names. The multi-URL path called `clonenext.ParseRepoName` and dropped the version suffix, so `codex-june-6-v2` landed in `codex-june-6/` and distinct versioned repos silently collided in one folder. `resolveCloneFolder` now returns the repo name verbatim, matching the single-URL path.
+
+### Changed
+- Folder naming for base `clone` is now documented as a rule in `spec/01-app/104-clone-multi.md`: repo name verbatim, explicit folder argument wins, no flattening. Version flattening and version bumping stay in `gitmap clone-next` / `cn`.
+
+### Added
+- `gitmap/cmd/clonemulti_folder_test.go` pins the rule: `-v1` / `-v13` suffixes survive, explicit folder names win, `.git` and trailing slashes still normalise away.
+
+
 ## v6.82.0 (2026-07-23): CI reliability
 
 ### Fixed
