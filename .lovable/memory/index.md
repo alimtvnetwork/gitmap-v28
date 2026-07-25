@@ -16,6 +16,7 @@ Go v1.24.13. golangci-lint pinned to v1.64.8, govulncheck pinned to v1.1.4.
 SQLite connection pooling restricted to `SetMaxOpenConns(1)`.
 Database schema uses strict PascalCase, INTEGER PRIMARY KEY AUTOINCREMENT.
 Unified `.gitmap/` directory structure at repository root for all artifacts.
+Base `clone` (single + multi URL) NEVER rewrites folder names: repo name verbatim, `-vN` preserved; only `clone-next`/`cn` flattens versions. See mem://constraints/clone-preserves-version-folder.
 Clone-next flattens by default (v2.75.0+): clones into base name folder, tracks versions in RepoVersionHistory.
 Clone-next `-f` / `--force` (v3.50.0+): chdir-to-parent before remove when cwd IS target folder; refuses versioned-folder fallback.
 Completion generator uses marker-comment opt-in (v3.0.0+): `// gitmap:cmd top-level` on const block, `// gitmap:cmd skip` per spec. CI `generate-check` enforces drift.
