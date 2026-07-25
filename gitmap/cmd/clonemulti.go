@@ -157,7 +157,7 @@ func classifyURLs(flat []string) (valid, invalid []string) {
 // executeDirectCloneOne is the non-fatal sibling of executeDirectClone:
 // it clones a single URL, persists to the DB, optionally registers with
 // GitHub Desktop, and returns any error instead of calling os.Exit.
-// Folder name is auto-derived (versioned URLs flatten via clonenext).
+// Folder name is derived verbatim from the URL (see resolveCloneFolder).
 func executeDirectCloneOne(url, folderName string, ghDesktopFlag, noReplace bool) error {
 	repoName := repoNameFromURL(url)
 	folderName = resolveCloneFolder(repoName, folderName)
@@ -190,17 +190,20 @@ func executeDirectCloneOne(url, folderName string, ghDesktopFlag, noReplace bool
 	return nil
 }
 
-// resolveCloneFolder derives the destination folder name when none is given,
-// auto-flattening versioned URLs (e.g., wp-onboarding-v13 → wp-onboarding/).
+// resolveCloneFolder returns the destination folder name for a clone.
+//
+// Base `clone` NEVER rewrites the folder name. An explicit folder
+// argument wins; otherwise the folder is the repo name exactly as it
+// appears in the URL, including any trailing `-vN` suffix
+// (wp-onboarding-v13 stays wp-onboarding-v13/). Version flattening and
+// version bumping belong to `gitmap clone-next`, not here. This mirrors
+// the single-URL path in executeDirectClone so one URL and many URLs
+// always produce the same on-disk name.
 func resolveCloneFolder(repoName, folderName string) string {
 	if len(folderName) > 0 {
 		return folderName
 	}
 
-	parsed := clonenext.ParseRepoName(repoName)
-	if parsed.HasVersion {
-		return parsed.BaseName
-	}
-
 	return repoName
 }
+
