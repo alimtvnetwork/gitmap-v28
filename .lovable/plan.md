@@ -1,39 +1,38 @@
-## Goal
+## Problem (verified)
 
-Enhance the root `README.md` Author section and the site's `index.html` meta info to feature **the-xproduct.com** (the XProgramming Language) alongside the existing Riseup Asia LLC affiliation, and highlight the author's work with California-based and EU-based companies.
+`gitmap clone <url>` (single URL) already keeps the folder name verbatim, including a trailing `-vN` (`gitmap/cmd/clone.go:247-259`).
 
-## Files to change
+The multi-URL path does not. `resolveCloneFolder` in `gitmap/cmd/clonemulti.go` calls `clonenext.ParseRepoName` and, when the repo name has a version suffix, returns `parsed.BaseName` — so `codex-june-6-v2` lands in `codex-june-6/`. It is used in two places:
 
-### 1. `README.md` (lines 2849-2881, Author section)
+- `gitmap/cmd/clonemulti.go` — `executeDirectCloneOne` (the actual clone destination)
+- `gitmap/cmd/clone.go:174` — the VS Code Project Manager pair, mirroring the same resolution
 
-Rewrite the Author block so it now surfaces three affiliations, keeping the same visual style as the current Riseup Asia entry.
+## Fix
 
-- **Subtitle line (2855)**: add `Inventor of the XProgramming Language, [the-xproduct.com](https://the-xproduct.com)` next to the Riseup Asia role.
-- **Bio paragraph (2859-2861)**: append one sentence noting delivery of high-quality software for **California-based** startups and enterprises and **EU-based** product companies (fintech, distributed systems, developer tooling). Add "inventor of the XProgramming language (XProduct)" credential.
-- **Personal table (2863-2869)**: add a new row `**XProduct** | [the-xproduct.com](https://the-xproduct.com) — XProgramming Language`.
-- **New card `### The XProduct — XProgramming Language`** inserted between the personal table and the Riseup Asia card, mirroring the Riseup Asia table shape:
-  - Tagline: "A new programming language for AI-first product engineering."
-  - Rows: Website, Focus (language + toolchain), Clients (California + EU tech companies), Standard (high-quality, spec-driven delivery).
-- **Riseup Asia card (2871-2880)**: keep as-is (this is the "how it is written right now" template the user pointed to).
-- **New closing line** under all three cards: one italic sentence tying the three together ("XProduct powers the language, Riseup Asia ships the products, both operate to the same high-quality bar used across our California and EU engagements.").
+1. `gitmap/cmd/clonemulti.go`
+   - Rewrite `resolveCloneFolder` to return `folderName` when provided, else `repoName` verbatim. No version parsing, no flattening.
+   - Drop the now-unused `clonenext` import.
+   - Update the doc comments on `resolveCloneFolder` and `executeDirectCloneOne` (both currently say "versioned URLs flatten via clonenext") to state that base clone never rewrites the folder name; version bumping stays in `clone-next`.
+2. `gitmap/cmd/clone.go:169-177` — comment only; behavior follows automatically since it calls the same helper.
+3. Tests — add a table test (new `gitmap/cmd/clonemulti_folder_test.go`) covering: plain repo, `-v1`/`-v13` suffix preserved, explicit folder name wins, `.git` and trailing-slash URLs. Also grep and fix any existing test asserting the flattened behavior.
 
-### 2. `index.html` (lines 3-18, head)
+Nothing in `clone-next`, `clone-now`, `reclone`, or `clonefixrepo` is touched — version bumping there stays as is.
 
-Enrich the metadata so search engines and social cards surface the XProduct + Riseup Asia positioning without touching og:image (per project rules).
+## Spec + memory
 
-- Update `<meta name="description">` to mention gitmap plus its origin: built by the inventor of the XProgramming language at the-xproduct.com, in collaboration with Riseup Asia LLC, serving California and EU based companies.
-- Update `<meta name="author">` to `Md. Alim Ul Karim — the-xproduct.com`.
-- Update `og:title` and `og:description` to match.
-- Add a `<link rel="author" href="https://the-xproduct.com">` and a `<meta name="publisher" content="Riseup Asia LLC">`.
-- Keep `<title>` unchanged (`gitmap — CLI docs`) since it already fits.
+- `spec/01-app/104-clone-multi.md` — add a "Folder naming" rule: folder = repo name from URL verbatim (`-vN` preserved); explicit second positional arg overrides; no flattening in `clone`.
+- `.lovable/memory/` — record the constraint "base `clone` must never strip `-vN` from folder names" so it is not reintroduced.
 
-## Out of scope
+## Release v6.83.0
 
-- No version bump, no changelog entry (docs-only prose change).
-- No new pages, no component changes, no design token edits.
-- No SEO framework work beyond the head-metadata edits listed above.
+- `gitmap/constants/constants.go` → `Version = "6.83.0"`
+- `src/constants/index.ts` → `6.83.0`
+- `.gitmap/release/v6.83.0.json` (copy the v6.82.0 shape) and update `.gitmap/release/latest.json`
+- `CHANGELOG.md` → new `v6.83.0` section: base clone preserves `-vN` folder names for multi-URL clones (no em dashes)
+- `README.md` → repin every `v6.82.0` occurrence (badge line, pinned-version heading, installer URLs, version matrix asset names) to `v6.83.0`
 
 ## Verification
 
-- `rg -n "xproduct|XProgramming|California|EU-based" README.md index.html` shows the new content in both files.
-- `bunx vitest run src/test/version-sync.test.ts` still green (unrelated, but cheap sanity check).
+- `go build ./... && go vet ./...` and `go test ./gitmap/cmd/... -run Clone -count=1`
+- `bunx vitest run src/test/version-sync.test.ts`
+- `.github/scripts/check-changelog-version-sync.sh`
