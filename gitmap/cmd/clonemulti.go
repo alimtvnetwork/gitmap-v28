@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
