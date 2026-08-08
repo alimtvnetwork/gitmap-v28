@@ -30,7 +30,7 @@ func TestEveryCmdIDHasHelpFile(t *testing.T) {
 	}
 	var missing []string
 	for _, id := range ids {
-		if _, lookupErr := files.ReadFile(id.value + ".md"); lookupErr != nil {
+		if _, lookupErr := ReadRaw(id.value); lookupErr != nil {
 			missing = append(missing, fmt.Sprintf("%s (constant %s = %q)", id.value+".md", id.name, id.value))
 		}
 	}

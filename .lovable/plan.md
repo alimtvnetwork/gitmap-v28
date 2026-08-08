@@ -23,13 +23,13 @@ Nothing in `clone-next`, `clone-now`, `reclone`, or `clonefixrepo` is touched �
 - `spec/01-app/104-clone-multi.md` — add a "Folder naming" rule: folder = repo name from URL verbatim (`-vN` preserved); explicit second positional arg overrides; no flattening in `clone`.
 - `.lovable/memory/` — record the constraint "base `clone` must never strip `-vN` from folder names" so it is not reintroduced.
 
-## Release v6.83.0
+## Release v6.84.0
 
-- `gitmap/constants/constants.go` → `Version = "6.83.0"`
-- `src/constants/index.ts` → `6.83.0`
-- `.gitmap/release/v6.83.0.json` (copy the v6.82.0 shape) and update `.gitmap/release/latest.json`
-- `CHANGELOG.md` → new `v6.83.0` section: base clone preserves `-vN` folder names for multi-URL clones (no em dashes)
-- `README.md` → repin every `v6.82.0` occurrence (badge line, pinned-version heading, installer URLs, version matrix asset names) to `v6.83.0`
+- `gitmap/constants/constants.go` → `Version = "6.84.0"`
+- `src/constants/index.ts` → `6.84.0`
+- `.gitmap/release/v6.84.0.json` (copy the v6.83.0 shape) and update `.gitmap/release/latest.json`
+- `changelog.md` → new `v6.84.0` section: guideline refactoring and lowercase markdown enforcement
+- `readme.md` → repin every `v6.83.0` occurrence to `v6.84.0`
 
 ## Verification
 

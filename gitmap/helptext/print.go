@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 )
@@ -27,7 +28,7 @@ func Print(command string) {
 // The decision is delegated to render.Decide so help, templates show,
 // and changelog all answer "should I emit ANSI?" identically.
 func PrintWithMode(command string, mode render.PrettyMode) {
-	data, err := files.ReadFile(command + ".md")
+	data, err := ReadRaw(command)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "No help available for '%s'\n", command)
 		os.Exit(1)
@@ -62,5 +63,9 @@ func PrintRaw(command string) {
 // coverage, link integrity, etc.) should use this so the test binary
 // is not torn down by os.Exit when a lookup fails.
 func ReadRaw(command string) ([]byte, error) {
-	return files.ReadFile(command + ".md")
+	data, err := files.ReadFile(command + ".md")
+	if err == nil {
+		return data, nil
+	}
+	return files.ReadFile(strings.ToLower(command) + ".md")
 }

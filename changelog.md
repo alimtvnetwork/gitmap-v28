@@ -1,5 +1,14 @@
 # Changelog
 
+## [v6.84.0] 2026-08-08 guideline refactoring and lowercase markdown enforcement
+
+### Changed
+- Lowercased all markdown files repository-wide (`readme.md`, `changelog.md`, `contributing.md`, `llm.md`, helptext and spec docs) to enforce strict lowercase filename conventions.
+- Updated `gitmap/helptext/print.go` and `gitmap/helptext/coverage_test.go` to support lowercase help files.
+- Refactored `gitmap/movemerge/merge.go` and `gitmap/movemerge/finalize.go` to use `switch` statements and clean positive boolean conditionals.
+- Refactored boolean assertions in `gitmap/movemerge/conflict_test.go`, `gitmap/movemerge/endpoint_test.go`, and `gitmap/cmd/historyrewrite_pin_test.go`.
+- Updated `.lovable/strictly-avoid.md`, `spec/12-consolidated-guidelines/02-go-code-style.md`, and `spec/12-consolidated-guidelines/04-error-handling.md` with branching standards and error handling guidelines.
+
 ## v6.83.0 (2026-07-25): clone keeps the folder name you typed
 
 ### Fixed
