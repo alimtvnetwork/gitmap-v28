@@ -70,9 +70,9 @@ func buildScanArgs(c model.ScanCache) []string {
 	args = appendStringFlag(args, "--output", c.Output)
 	args = appendStringFlag(args, "--out-file", c.OutFile)
 	args = appendStringFlag(args, "--output-path", c.OutputPath)
-	args = appendBoolFlag(args, "--github-desktop", c.GithubDesktop)
-	args = appendBoolFlag(args, "--open", c.OpenFolder)
-	args = appendBoolFlag(args, "--quiet", c.Quiet)
+	args = appendBoolFlag(args, "--github-desktop", c.IsGithubDesktop)
+	args = appendBoolFlag(args, "--open", c.IsOpenFolder)
+	args = appendBoolFlag(args, "--quiet", c.IsQuiet)
 	if len(c.Dir) > 0 && c.Dir != constants.DefaultDir {
 		args = append(args, c.Dir)
 	}

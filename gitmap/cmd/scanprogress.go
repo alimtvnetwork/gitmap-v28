@@ -63,7 +63,7 @@ func (r *scanProgressRenderer) handle(p scanner.ScanProgress) {
 	defer r.mu.Unlock()
 
 	r.last = p
-	if p.Final {
+	if p.IsFinal {
 		r.renderFinalLocked()
 
 		return

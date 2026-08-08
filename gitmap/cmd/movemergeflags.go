@@ -38,19 +38,19 @@ func (m *movemergeFlagSet) bindFlags(fs *flag.FlagSet) {
 // toOptions converts parsed flags into the movemerge.Options struct.
 func (m *movemergeFlagSet) toOptions(cmd, prefix, msgFmt string) movemerge.Options {
 	return movemerge.Options{
-		Yes:             m.yes || m.accept,
-		Prefer:          pickPolicy(m),
-		NoPush:          m.noPush,
-		NoCommit:        m.noCommit,
-		ForceFolder:     m.forceFold,
-		PullFolder:      m.pullFold,
-		InitNewRight:    m.initNew,
-		DryRun:          m.dryRun,
-		IncludeVCS:      m.includeVCS,
-		IncludeNodeMods: m.includeNM,
-		CommandName:     cmd,
-		LogPrefix:       prefix,
-		CommitMsgFmt:    msgFmt,
+		IsYes:             m.yes || m.accept,
+		Prefer:            pickPolicy(m),
+		IsNoPush:          m.noPush,
+		IsNoCommit:        m.noCommit,
+		IsForceFolder:     m.forceFold,
+		IsPullFolder:      m.pullFold,
+		IsInitNewRight:    m.initNew,
+		IsDryRun:          m.dryRun,
+		IsIncludeVCS:      m.includeVCS,
+		IsIncludeNodeMods: m.includeNM,
+		CommandName:       cmd,
+		LogPrefix:         prefix,
+		CommitMsgFmt:      msgFmt,
 	}
 }
 

@@ -63,7 +63,7 @@ func buildAuditRecord(f amendFlags, commits []model.CommitEntry, branch, mode, p
 			Email: f.email,
 		},
 		Mode:        mode,
-		ForcePushed: f.forcePush,
+		IsForcePushed: f.forcePush,
 		Commits:     commits,
 	}
 }

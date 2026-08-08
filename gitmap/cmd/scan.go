@@ -31,7 +31,7 @@ func runScan(args []string) {
 	cache := model.ScanCache{
 		Dir: dir, ConfigPath: cfgPath, Mode: mode, Output: output,
 		OutFile: outFile, OutputPath: outputPath,
-		GithubDesktop: ghDesktop, OpenFolder: openFolder, Quiet: quiet,
+		IsGithubDesktop: ghDesktop, IsOpenFolder: openFolder, IsQuiet: quiet,
 	}
 	executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
 }
