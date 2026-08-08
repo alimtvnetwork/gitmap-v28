@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.85.0] 2026-08-08 release ceremony and version sync
+
+### Changed
+- Standardized and synchronized release metadata across Go constants, web constants, and release artifacts.
+- Validated all lowercase markdown filename constraints and embedded helptext resolution.
+
 ## [v6.84.0] 2026-08-08 guideline refactoring and lowercase markdown enforcement
 
 ### Changed
