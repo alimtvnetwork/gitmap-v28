@@ -13,9 +13,12 @@ Hard prohibitions. Violating ANY of these is a critical failure.
 
 ## Code Style Prohibitions
 
-- **NEVER** use negation in `if` conditions (`!`, `!=`). Use positive logic.
-- **NEVER** use `switch` statements. Use `if`/`else if` chains.
-- **NEVER** use magic strings. All literals must be in the `constants` package.
+- **NEVER** use nested `if` branches. Flatten logic using early returns or `switch` statements.
+- **NEVER** use empty `if` blocks with `else` for negative logic (`if valid {} else { ... }`). Extract named boolean variables (`isValid := ...`, `isInvalid := !isValid`) and handle cleanly.
+- **NEVER** write convoluted boolean inversions (e.g. `isPush := true; if opts.IsNoPush { isPush = false }`). Express boolean logic directly and simply.
+- **PREFER** `switch` statements over complex multi-branch `if`/`else if` chains.
+- **NEVER** use negation directly in complex `if` conditions without extracting clear named boolean variables.
+- **NEVER** use magic strings. All literals must be in the `constants` package or owning package.
 - **NEVER** use single-character variable names (`s`, `x`, `d`).
 - **NEVER** use inline type definitions. Extract named types/interfaces.
 - **NEVER** skip the blank line before `return` (unless return is the sole line in an `if`).

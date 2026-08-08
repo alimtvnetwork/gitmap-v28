@@ -1759,14 +1759,14 @@ if (-not $NoDeploy -and -not $NoSetup -and $deployedBinaryPath -and (Test-Path $
 }
 
 $changelogBinaryPath = $binaryPath
-$activeCmdForChangelog = Get-Command gitmap -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($activeCmdForChangelog -and (Test-Path $activeCmdForChangelog.Source)) {
+$activeCmdForChangelog = Get-Command gitmap -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($activeCmdForChangelog -and -not [string]::IsNullOrWhiteSpace($activeCmdForChangelog.Source) -and (Test-Path $activeCmdForChangelog.Source)) {
     $changelogBinaryPath = $activeCmdForChangelog.Source
 } elseif ($deployedBinaryPath -and (Test-Path $deployedBinaryPath)) {
     $changelogBinaryPath = $deployedBinaryPath
 }
 
-if (Test-Path $changelogBinaryPath) {
+if ($changelogBinaryPath -and (Test-Path $changelogBinaryPath)) {
     Write-Host ""
     Write-Info "Latest changelog:"
     & $changelogBinaryPath changelog --latest

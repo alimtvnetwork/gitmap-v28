@@ -2,16 +2,61 @@
 
 Go-specific coding conventions prioritizing readability and consistency.
 
-## Positive Conditionals Only
+## Clean Conditionals & Boolean Variables
 
-Always write positive conditions. No `!`, no `!=`.
+Always write positive conditions and extract complex or negated checks into named boolean variables.
 
 ```go
-// Correct
-if len(args) > 0 { process(args) }
+// Correct — variable extraction for clarity
+isValid := err == nil && c == ChoiceLeft
+isInvalid := !isValid
+if isInvalid {
+    logErr(err)
+}
 
-// Wrong
-if len(args) != 0 { process(args) }
+// Correct — clean positive logic
+if len(args) > 0 { 
+    process(args) 
+}
+
+// Wrong — empty if body with else
+if err == nil && c == ChoiceLeft {
+} else {
+    t.Errorf(...)
+}
+
+// Wrong — convoluted if inversion
+isPush := true
+if opts.IsNoPush {
+    isPush = false
+}
+```
+
+## Prefer `switch` Statements — Avoid Nested Branching
+
+When matching against enums, multiple flags, or multi-condition cases, prefer `switch` statements over chained `if/else if` blocks. **NEVER** use nested `if` statements.
+
+```go
+// Correct — switch statement
+switch {
+case m.prefL:
+    return PreferLeft
+case m.prefR:
+    return PreferRight
+case m.prefNewer:
+    return PreferNewer
+default:
+    return PreferNone
+}
+
+// Wrong — nested if branching
+if isFromLeft {
+    if dir == DirBoth {
+        copyOne(...)
+    }
+} else if dir == DirBoth {
+    copyOne(...)
+}
 ```
 
 ## Function Length — 8 to 15 Lines

@@ -54,7 +54,7 @@ func canonicalStatsOverall(t *testing.T) (model.OverallStats, []model.CommandSta
 	overall := model.OverallStats{
 		TotalCommands:   12,
 		UniqueCommands:  2,
-		TotalIsSuccess:    11,
+		TotalSuccess:    11,
 		TotalFail:       1,
 		OverallFailRate: 0.0833,
 		AvgDuration:     1100,

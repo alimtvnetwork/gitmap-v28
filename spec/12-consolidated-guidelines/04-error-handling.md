@@ -44,6 +44,10 @@ All `fmt.Fprintf`, `fmt.Printf`, and `fmt.Errorf` calls must match format verb c
 
 Reserve `panic` for truly unrecoverable programmer errors. All expected failures use `error` returns.
 
+## Application Error Handling & Logging
+
+In application logic, always route errors through standard application loggers (`logErr(...)`, structured stderr logs) rather than raw unformatted output. In test suites, validate results cleanly using extracted boolean variables (`isValid := ...`, `isInvalid := !isValid`) to keep assertion paths direct and readable.
+
 ---
 
 Source: `spec/05-coding-guidelines/04-error-handling.md`

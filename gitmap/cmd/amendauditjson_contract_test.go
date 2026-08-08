@@ -34,8 +34,8 @@ func canonicalAmendmentRecord() model.AmendmentRecord {
 			Name:  "New Name",
 			Email: "new@example.com",
 		},
-		Mode:        "all",
-		ForcePushed: true,
+		Mode:          "all",
+		IsForcePushed: true,
 		Commits: []model.CommitEntry{
 			{SHA: "abc123", Message: "First"},
 			{SHA: "def456", Message: "Second"},

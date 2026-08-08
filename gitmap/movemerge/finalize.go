@@ -45,21 +45,17 @@ func otherDisplay(other, _ Endpoint) string {
 func commitAndPushOne(ep Endpoint, otherDisp string, opts Options) error {
 	logf(opts.LogPrefix, "committing in %s ...", ep.DisplayName)
 	msg := fmt.Sprintf(opts.CommitMsgFmt, otherDisp)
-	isPush := true
-	if opts.IsNoPush {
-		isPush = false
-	}
+	isPush := !opts.IsNoPush
 	sha, err := AddCommitPush(ep.WorkingDir, msg, isPush)
 	if err != nil {
 		logErr(opts.LogPrefix, fmt.Sprintf(constants.ErrMMPushFailFmt, sha))
 
 		return err
 	}
-	if sha != "" {
+	if len(sha) > 0 {
 		logIndent(opts.LogPrefix, "commit %s %q", shortSHA(sha), msg)
 	}
-	if opts.IsNoPush {
-	} else {
+	if isPush {
 		logf(opts.LogPrefix, "pushing %s ...", ep.DisplayName)
 		logIndent(opts.LogPrefix, "push OK")
 	}

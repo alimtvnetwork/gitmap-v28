@@ -62,7 +62,15 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 	if err := os.WriteFile(script, []byte(py), 0o600); err != nil {
 		t.Fatalf("write python script: %v", err)
 	}
-	cmd := exec.Command("python3", script)
+	pyBin := "python3"
+	if _, err := exec.LookPath("python3"); err != nil {
+		if _, err := exec.LookPath("python"); err == nil {
+			pyBin = "python"
+		} else {
+			t.Skip("python not found on PATH; skipping python callback execution test")
+		}
+	}
+	cmd := exec.Command(pyBin, script)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("python callback execution failed: %v\n%s", err, string(out))

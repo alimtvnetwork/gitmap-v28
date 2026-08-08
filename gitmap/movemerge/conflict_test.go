@@ -12,8 +12,9 @@ import (
 func TestResolver_PreferLeft(t *testing.T) {
 	r := NewResolver(PreferLeft, nil, io.Discard)
 	c, err := r.Resolve("x", FileMeta{}, FileMeta{})
-	if err == nil && c == ChoiceLeft {
-	} else {
+	isValid := err == nil && c == ChoiceLeft
+	isInvalid := !isValid
+	if isInvalid {
 		t.Errorf("got c=%v err=%v", c, err)
 	}
 }
@@ -24,8 +25,8 @@ func TestResolver_PreferNewerPicksLatestMtime(t *testing.T) {
 	newer := writeWithMTime(t, filepath.Join(dir, "b"), time.Now())
 	r := NewResolver(PreferNewer, nil, io.Discard)
 	c, _ := r.Resolve("rel", FileMeta{Info: older}, FileMeta{Info: newer})
-	if c == ChoiceRight {
-	} else {
+	isMatch := c == ChoiceRight
+	if !isMatch {
 		t.Errorf("PreferNewer: want Right (RIGHT is newer), got %v", c)
 	}
 }
@@ -34,13 +35,13 @@ func TestResolver_StickyAllLeft(t *testing.T) {
 	in := bytes.NewBufferString("A\n")
 	r := NewResolver(PreferNone, in, io.Discard)
 	first, _ := r.Resolve("x", FileMeta{Info: dummyInfo(t)}, FileMeta{Info: dummyInfo(t)})
-	if first == ChoiceLeft {
-	} else {
+	isFirstMatch := first == ChoiceLeft
+	if !isFirstMatch {
 		t.Fatalf("first answer: got %v", first)
 	}
 	second, _ := r.Resolve("y", FileMeta{Info: dummyInfo(t)}, FileMeta{Info: dummyInfo(t)})
-	if second == ChoiceLeft {
-	} else {
+	isSecondMatch := second == ChoiceLeft
+	if !isSecondMatch {
 		t.Errorf("sticky All-Left didn't persist: got %v", second)
 	}
 }
@@ -49,8 +50,8 @@ func TestResolver_QuitKey(t *testing.T) {
 	in := bytes.NewBufferString("Q\n")
 	r := NewResolver(PreferNone, in, io.Discard)
 	c, _ := r.Resolve("x", FileMeta{Info: dummyInfo(t)}, FileMeta{Info: dummyInfo(t)})
-	if c == ChoiceQuit {
-	} else {
+	isQuit := c == ChoiceQuit
+	if !isQuit {
 		t.Errorf("Q: got %v", c)
 	}
 }

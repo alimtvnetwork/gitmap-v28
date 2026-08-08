@@ -9,8 +9,8 @@ func TestClassifyEndpoint_FolderPaths(t *testing.T) {
 	cases := []string{"./local", "/abs/path", "..\\rel", "plain-folder"}
 	for _, raw := range cases {
 		kind, _, _, _ := ClassifyEndpoint(raw)
-		if kind == EndpointFolder {
-		} else {
+		isFolder := kind == EndpointFolder
+		if !isFolder {
 			t.Errorf("ClassifyEndpoint(%q) kind = %v, want Folder", raw, kind)
 		}
 	}
@@ -18,24 +18,24 @@ func TestClassifyEndpoint_FolderPaths(t *testing.T) {
 
 func TestClassifyEndpoint_HTTPSWithBranch(t *testing.T) {
 	kind, url, branch, _ := ClassifyEndpoint("https://github.com/owner/repo:develop")
-	if kind == EndpointURL {
-	} else {
+	isURL := kind == EndpointURL
+	if !isURL {
 		t.Fatalf("kind = %v, want URL", kind)
 	}
-	if url == "https://github.com/owner/repo" {
-	} else {
+	isMatchURL := url == "https://github.com/owner/repo"
+	if !isMatchURL {
 		t.Errorf("url = %q", url)
 	}
-	if branch == "develop" {
-	} else {
+	isMatchBranch := branch == "develop"
+	if !isMatchBranch {
 		t.Errorf("branch = %q", branch)
 	}
 }
 
 func TestClassifyEndpoint_HTTPSNoBranch(t *testing.T) {
 	_, url, branch, _ := ClassifyEndpoint("https://github.com/owner/repo.git")
-	if url == "https://github.com/owner/repo.git" && branch == "" {
-	} else {
+	isMatch := url == "https://github.com/owner/repo.git" && branch == ""
+	if !isMatch {
 		t.Errorf("got url=%q branch=%q", url, branch)
 	}
 }
@@ -43,8 +43,8 @@ func TestClassifyEndpoint_HTTPSNoBranch(t *testing.T) {
 func TestClassifyEndpoint_SCPGitAtForm(t *testing.T) {
 	// git@host:user/repo has a colon but it is not a branch.
 	_, url, branch, _ := ClassifyEndpoint("git@github.com:owner/repo.git")
-	if url == "git@github.com:owner/repo.git" && branch == "" {
-	} else {
+	isMatch := url == "git@github.com:owner/repo.git" && branch == ""
+	if !isMatch {
 		t.Errorf("scp form: url=%q branch=%q", url, branch)
 	}
 }
@@ -55,8 +55,8 @@ func TestMapURLToFolder(t *testing.T) {
 	// Windows (returns "\\tmp\\my-repo") and POSIX hosts. The
 	// production behavior is correct on each OS — only the literal
 	// separator differs, which is not what this test is checking.
-	if filepath.ToSlash(got) == "/tmp/my-repo" {
-	} else {
+	isMatch := filepath.ToSlash(got) == "/tmp/my-repo"
+	if !isMatch {
 		t.Errorf("MapURLToFolder = %q", got)
 	}
 }
