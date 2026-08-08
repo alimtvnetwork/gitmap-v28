@@ -26,7 +26,7 @@ import (
 func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) (int64, error) {
 	res, err := db.conn.Exec(constants.SQLInsertMakeAllVisibilityRun,
 		r.CommandKind, r.TargetVisibility, r.Provider, r.Owner, r.TargetRaw,
-		r.PatternList, boolToInt(r.YesFlag), boolToInt(r.VerboseFlag),
+		r.PatternList, boolToInt(r.IsYesFlag), boolToInt(r.IsVerboseFlag),
 		r.OwnerRepoTotal, r.MatchedCount, r.StartedAt)
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrMakeAllRunInsertFmt, err, err.Error())

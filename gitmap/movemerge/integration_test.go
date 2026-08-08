@@ -39,10 +39,10 @@ func TestRunMerge_PreferNewer_BothSidesByteEqual(t *testing.T) {
 	seed(t, left, "nested/conflict-right-newer.txt", "L-loses", older)
 	seed(t, right, "nested/conflict-right-newer.txt", "R-WINS", newer)
 
-	leftEP := Endpoint{DisplayName: left, WorkingDir: left, Kind: EndpointFolder, Existed: true}
-	rightEP := Endpoint{DisplayName: right, WorkingDir: right, Kind: EndpointFolder, Existed: true}
+	leftEP := Endpoint{DisplayName: left, WorkingDir: left, Kind: EndpointFolder, IsExisted: true}
+	rightEP := Endpoint{DisplayName: right, WorkingDir: right, Kind: EndpointFolder, IsExisted: true}
 	opts := Options{
-		Yes: true, Prefer: PreferNewer, NoCommit: true, NoPush: true,
+		IsYes: true, Prefer: PreferNewer, IsNoCommit: true, IsNoPush: true,
 		CommandName: constants.CmdMergeBoth, LogPrefix: constants.LogPrefixMergeBoth,
 	}
 	if err := RunMerge(leftEP, rightEP, DirBoth, opts); err != nil {
@@ -70,16 +70,17 @@ func TestRunMerge_PreferNewer_LeftOnlyDoesNotTouchRight(t *testing.T) {
 	seed(t, right, "x.txt", "R-older", now.Add(-time.Hour))
 	rightSnapshot := snapshot(t, right)
 
-	leftEP := Endpoint{DisplayName: left, WorkingDir: left, Kind: EndpointFolder, Existed: true}
-	rightEP := Endpoint{DisplayName: right, WorkingDir: right, Kind: EndpointFolder, Existed: true}
+	leftEP := Endpoint{DisplayName: left, WorkingDir: left, Kind: EndpointFolder, IsExisted: true}
+	rightEP := Endpoint{DisplayName: right, WorkingDir: right, Kind: EndpointFolder, IsExisted: true}
 	opts := Options{
-		Yes: true, Prefer: PreferNewer, NoCommit: true, NoPush: true,
+		IsYes: true, Prefer: PreferNewer, IsNoCommit: true, IsNoPush: true,
 		CommandName: constants.CmdMergeLeft, LogPrefix: constants.LogPrefixMergeLeft,
 	}
 	if err := RunMerge(leftEP, rightEP, DirLeftOnly, opts); err != nil {
 		t.Fatalf("RunMerge: %v", err)
 	}
-	if got := snapshot(t, right); !mapsEqual(got, rightSnapshot) {
+	if got := snapshot(t, right); IsMapsEqual(got, rightSnapshot) {
+	} else {
 		t.Errorf("RIGHT was modified by merge-left:\nbefore=%v\nafter=%v", rightSnapshot, got)
 	}
 	// LEFT keeps its newer copy (L wins under PreferNewer).
@@ -129,21 +130,24 @@ func snapshot(t *testing.T, root string) map[string]string {
 func assertTreeEquals(t *testing.T, label, root string, want map[string]string) {
 	t.Helper()
 	got := snapshot(t, root)
-	if !mapsEqual(got, want) {
+	if IsMapsEqual(got, want) {
+	} else {
 		t.Errorf("%s tree mismatch\n  got:  %v\n  want: %v", label, got, want)
 	}
 }
 
-// mapsEqual reports whether two string maps are byte-equal.
-func mapsEqual(a, b map[string]string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for k, v := range a {
-		if b[k] != v {
-			return false
+// IsMapsEqual reports whether two string maps are byte-equal.
+func IsMapsEqual(a, b map[string]string) bool {
+	if len(a) == len(b) {
+		for k, v := range a {
+			if b[k] == v {
+			} else {
+				return false
+			}
 		}
-	}
 
-	return true
+		return true
+	}
+	
+	return false
 }

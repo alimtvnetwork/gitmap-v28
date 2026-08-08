@@ -98,8 +98,8 @@ type ScanProgress struct {
 	DirsWalked int64
 	// ReposFound is the number of Git repositories discovered so far.
 	ReposFound int64
-	// Final marks the terminating snapshot for this scan.
-	Final bool
+	// IsFinal marks the terminating snapshot for this scan.
+	IsFinal bool
 }
 
 // ScanOptions bundles optional hooks and tunables for ScanDirWithOptions.
@@ -221,9 +221,9 @@ func buildExcludeSet(dirs []string) map[string]bool {
 // keeps the worker function tiny (well under the per-func line limit) and
 // makes the synchronization rules obvious in one place.
 type scanState struct {
-	root     string
-	exclude  map[string]bool
-	maxDepth int // negative = unbounded; otherwise inclusive cap below root
+	root       string
+	isExcluded map[string]bool
+	maxDepth   int // negative = unbounded; otherwise inclusive cap below root
 
 	queue chan dirJob    // pending directories + their depth
 	wg    sync.WaitGroup // tracks outstanding queued items, NOT workers
@@ -250,7 +250,7 @@ func (st *scanState) snapshot(final bool) ScanProgress {
 	return ScanProgress{
 		DirsWalked: st.dirsWalked.Load(),
 		ReposFound: st.reposFound.Load(),
-		Final:      final,
+		IsFinal:    final,
 	}
 }
 
@@ -261,7 +261,7 @@ func (st *scanState) snapshot(final bool) ScanProgress {
 func walkParallel(root string, exclude map[string]bool, workers, maxDepth int, progress func(ScanProgress), onDirError func(string, error)) ([]RepoInfo, error) {
 	st := &scanState{
 		root:       root,
-		exclude:    exclude,
+		isExcluded: exclude,
 		maxDepth:   maxDepth,
 		onDirError: onDirError,
 		// Buffer sized generously so workers rarely block on enqueue.
@@ -328,7 +328,7 @@ func (st *scanState) processDir(job dirJob) {
 
 		return
 	}
-	if st.containsGitMarker(job.path, entries) {
+	if st.hasGitMarker(job.path, entries) {
 		st.recordRepo(job.path, job.depth)
 
 		return
@@ -336,14 +336,12 @@ func (st *scanState) processDir(job dirJob) {
 	// Children sit one level deeper. Skip the descend pass entirely
 	// when even the closest child would exceed the depth budget — no
 	// allocation, no enqueue, no spurious wg traffic.
-	if !st.depthAllows(job.depth + 1) {
-		return
-	}
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
+	if st.isDepthAllowed(job.depth + 1) {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				st.handleSubdir(job.path, job.depth+1, entry)
+			}
 		}
-		st.handleSubdir(job.path, job.depth+1, entry)
 	}
 }
 
@@ -352,7 +350,7 @@ func (st *scanState) processDir(job dirJob) {
 // scan root is depth 0, its children depth 1, and so on, so a cap of 4
 // permits depths 0..4 inclusive (four levels of subdirectories below
 // the root).
-func (st *scanState) depthAllows(depth int) bool {
+func (st *scanState) isDepthAllowed(depth int) bool {
 	if st.maxDepth < 0 {
 		return true
 	}
@@ -372,16 +370,15 @@ func (st *scanState) depthAllows(depth int) bool {
 // file (e.g. from a misconfigured editor) does not yield a false repo.
 // We read at most gitFileSniffBytes to keep the check cheap on large
 // trees — a real `.git` file is ~tens of bytes.
-func (st *scanState) containsGitMarker(dir string, entries []os.DirEntry) bool {
+func (st *scanState) hasGitMarker(dir string, entries []os.DirEntry) bool {
 	for _, entry := range entries {
-		if entry.Name() != constants.ExtGit {
-			continue
-		}
-		if entry.IsDir() {
-			return true
-		}
-		if isGitdirFile(filepath.Join(dir, entry.Name())) {
-			return true
+		if entry.Name() == constants.ExtGit {
+			if entry.IsDir() {
+				return true
+			}
+			if isGitdirFile(filepath.Join(dir, entry.Name())) {
+				return true
+			}
 		}
 	}
 
@@ -411,7 +408,7 @@ func isGitdirFile(path string) bool {
 // re-check, since processDir's outer guard already did.
 func (st *scanState) handleSubdir(parent string, childDepth int, entry os.DirEntry) {
 	name := entry.Name()
-	if st.exclude[name] {
+	if st.isExcluded[name] {
 		return
 	}
 	st.enqueue(dirJob{path: filepath.Join(parent, name), depth: childDepth})

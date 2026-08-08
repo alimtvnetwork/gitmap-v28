@@ -87,32 +87,32 @@ func rewriteSnippetBlock(content, open, close, body string) string {
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 
 	var out strings.Builder
-	skip := false
+	isSkipping := false
 	wrote := false
 	for scanner.Scan() {
 		line := scanner.Text()
-		switch {
-		case !skip && line == open:
-			skip = true
+		if isSkipping == false && line == open {
+			isSkipping = true
 			out.WriteString(body)
 			out.WriteString("\n")
 			wrote = true
-		case skip && line == close:
-			skip = false
-		case !skip:
+		} else if isSkipping && line == close {
+			isSkipping = false
+		} else if isSkipping == false {
 			out.WriteString(line)
 			out.WriteString("\n")
 		}
 	}
-	if !wrote {
+	if wrote {
+	} else {
 		return content
 	}
 	// Preserve trailing-newline state: original ends with newline iff result should.
-	if !strings.HasSuffix(content, "\n") {
-		return strings.TrimRight(out.String(), "\n")
+	if strings.HasSuffix(content, "\n") {
+		return out.String()
 	}
 
-	return out.String()
+	return strings.TrimRight(out.String(), "\n")
 }
 
 // defaultProfilePath picks the conventional rc file for the shell.
@@ -121,14 +121,13 @@ func defaultProfilePath(shell string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolve home dir: %w", err)
 	}
-	switch shell {
-	case "bash":
+	if shell == "bash" {
 		return filepath.Join(home, ".bashrc"), nil
-	case "zsh":
+	} else if shell == "zsh" {
 		return filepath.Join(home, ".zshrc"), nil
-	case "fish":
+	} else if shell == "fish" {
 		return filepath.Join(home, ".config", "fish", "config.fish"), nil
-	case "pwsh":
+	} else if shell == "pwsh" {
 		// PowerShell profile resolution is OS-specific; callers should
 		// pass an explicit path on Windows. Fallback for cross-shell use.
 		return filepath.Join(home, ".config", "powershell", "Microsoft.PowerShell_profile.ps1"), nil

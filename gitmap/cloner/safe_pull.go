@@ -68,7 +68,7 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 			if log != nil {
 				log.Log("safe-pull succeeded: %s (attempt %d)", rec.RepoName, attempt)
 			}
-			return model.CloneResult{Record: rec, Success: true}
+			return model.CloneResult{Record: rec, IsSuccess: true}
 		}
 
 		cleared := clearReadOnlyAttrs(repoDir, output)
@@ -100,7 +100,7 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 		log.Log("safe-pull FAILED after all retries: %s — %s", rec.RepoName, lastError)
 	}
 
-	return model.CloneResult{Record: rec, Success: false, Error: lastError}
+	return model.CloneResult{Record: rec, IsSuccess: false, Error: lastError}
 }
 
 func runGitPull(repoDir string) (string, error) {

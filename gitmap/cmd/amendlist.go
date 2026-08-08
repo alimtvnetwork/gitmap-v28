@@ -119,7 +119,7 @@ func printAmendmentsTerminal(amendments []store.AmendmentRow) {
 // printAmendmentRow prints a single amendment row.
 func printAmendmentRow(a store.AmendmentRow) {
 	forcePushed := constants.MsgNo
-	if a.ForcePushed == 1 {
+	if a.IsForcePushed == 1 {
 		forcePushed = constants.MsgYes
 	}
 

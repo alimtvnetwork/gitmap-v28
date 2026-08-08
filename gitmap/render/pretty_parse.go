@@ -29,12 +29,11 @@ func parse(lines []string) []block {
 	i := 0
 	for i < len(lines) {
 		line := lines[i]
-		switch {
-		case isFence(line):
+		if isFence(line) {
 			body, next := readFence(lines, i)
 			out = appendFence(out, body)
 			i = next
-		case isHeading(line):
+		} else if isHeading(line) {
 			depth := headingDepth(line)
 			out = append(out, block{kind: bkHeading, text: line, depth: depth})
 			i++
@@ -48,19 +47,18 @@ func parse(lines []string) []block {
 				out = append(out, block{kind: bkSubtitle, text: stripItalic(lines[j])})
 				i = j + 1
 			}
-
-		case strings.TrimSpace(line) == "":
+		} else if strings.TrimSpace(line) == "" {
 			out = append(out, block{kind: bkBlank})
 			i++
-		case isListItem(line):
+		} else if isListItem(line) {
 			items, next := readList(lines, i)
 			out = append(out, block{kind: bkList, lines: items})
 			i = next
-		case isIndentedCode(line):
+		} else if isIndentedCode(line) {
 			body, next := readIndentedCode(lines, i)
 			out = append(out, block{kind: bkFence, lines: body})
 			i = next
-		default:
+		} else {
 			para, next := readParagraph(lines, i)
 			out = append(out, block{kind: bkParagraph, text: para})
 			i = next

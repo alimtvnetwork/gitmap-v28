@@ -56,7 +56,7 @@ func buildAmendListJSONItems(rows []store.AmendmentRow) [][]stablejson.Field {
 			{Key: amendListKeyNewName, Value: r.NewName},
 			{Key: amendListKeyNewEmail, Value: r.NewEmail},
 			{Key: amendListKeyMode, Value: r.Mode},
-			{Key: amendListKeyForcePushed, Value: r.ForcePushed},
+			{Key: amendListKeyForcePushed, Value: r.IsForcePushed},
 			{Key: amendListKeyCreatedAt, Value: r.CreatedAt},
 		})
 	}

@@ -53,7 +53,8 @@ func extractInstallHintRepoName(normalized string) string {
 }
 
 func isVersionedGitmapRepo(repoName string) bool {
-	if !strings.HasPrefix(repoName, constants.GitmapRepoNamePrefix) {
+	if strings.HasPrefix(repoName, constants.GitmapRepoNamePrefix) {
+	} else {
 		return false
 	}
 

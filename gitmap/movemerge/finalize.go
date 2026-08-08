@@ -9,15 +9,15 @@ import (
 // finalizeURLSides commits + pushes any URL endpoint that should
 // receive the change. Direction decides which side(s) are written.
 func finalizeURLSides(left, right Endpoint, dir Direction, opts Options) error {
-	if opts.NoCommit || opts.DryRun {
+	if opts.IsNoCommit || opts.IsDryRun {
 		return nil
 	}
-	if writesRight(dir) && right.Kind == EndpointURL {
+	if IsWritingRight(dir) && right.Kind == EndpointURL {
 		if err := commitAndPushOne(right, otherDisplay(left, right), opts); err != nil {
 			return err
 		}
 	}
-	if writesLeft(dir) && left.Kind == EndpointURL {
+	if IsWritingLeft(dir) && left.Kind == EndpointURL {
 		if err := commitAndPushOne(left, otherDisplay(right, left), opts); err != nil {
 			return err
 		}
@@ -26,13 +26,13 @@ func finalizeURLSides(left, right Endpoint, dir Direction, opts Options) error {
 	return nil
 }
 
-// writesRight reports whether the operation modifies RIGHT.
-func writesRight(dir Direction) bool {
+// IsWritingRight reports whether the operation modifies RIGHT.
+func IsWritingRight(dir Direction) bool {
 	return dir == DirBoth || dir == DirRightOnly
 }
 
-// writesLeft reports whether the operation modifies LEFT.
-func writesLeft(dir Direction) bool {
+// IsWritingLeft reports whether the operation modifies LEFT.
+func IsWritingLeft(dir Direction) bool {
 	return dir == DirBoth || dir == DirLeftOnly
 }
 
@@ -45,7 +45,11 @@ func otherDisplay(other, _ Endpoint) string {
 func commitAndPushOne(ep Endpoint, otherDisp string, opts Options) error {
 	logf(opts.LogPrefix, "committing in %s ...", ep.DisplayName)
 	msg := fmt.Sprintf(opts.CommitMsgFmt, otherDisp)
-	sha, err := AddCommitPush(ep.WorkingDir, msg, !opts.NoPush)
+	isPush := true
+	if opts.IsNoPush {
+		isPush = false
+	}
+	sha, err := AddCommitPush(ep.WorkingDir, msg, isPush)
 	if err != nil {
 		logErr(opts.LogPrefix, fmt.Sprintf(constants.ErrMMPushFailFmt, sha))
 
@@ -54,7 +58,8 @@ func commitAndPushOne(ep Endpoint, otherDisp string, opts Options) error {
 	if sha != "" {
 		logIndent(opts.LogPrefix, "commit %s %q", shortSHA(sha), msg)
 	}
-	if !opts.NoPush {
+	if opts.IsNoPush {
+	} else {
 		logf(opts.LogPrefix, "pushing %s ...", ep.DisplayName)
 		logIndent(opts.LogPrefix, "push OK")
 	}

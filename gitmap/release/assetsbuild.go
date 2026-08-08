@@ -30,7 +30,7 @@ func buildSingleTarget(binName, version string, target BuildTarget, pkgDir, stag
 		return CrossCompileResult{
 			Target:  target,
 			Output:  outputPath,
-			Success: false,
+			IsSuccess: false,
 			Error:   strings.TrimSpace(string(out)),
 		}
 	}
@@ -38,7 +38,7 @@ func buildSingleTarget(binName, version string, target BuildTarget, pkgDir, stag
 	return CrossCompileResult{
 		Target:  target,
 		Output:  outputPath,
-		Success: true,
+		IsSuccess: true,
 	}
 }
 

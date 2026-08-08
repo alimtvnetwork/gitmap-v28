@@ -9,6 +9,22 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
+const (
+	gitConfigDiffTool            = "diff.tool"
+	gitConfigDiffToolCmd         = "difftool.%s.cmd"
+	gitConfigDiffToolPrompt      = "difftool.prompt"
+	gitConfigDiffToolTrust       = "difftool.%s.trustExitCode"
+	gitConfigMergeTool           = "merge.tool"
+	gitConfigMergeToolCmd        = "mergetool.%s.cmd"
+	gitConfigMergeToolPrompt     = "mergetool.prompt"
+	gitConfigMergeToolKeepBackup = "mergetool.keepBackup"
+	gitConfigMergeToolTrust      = "mergetool.%s.trustExitCode"
+	gitConfigAlias               = "alias.%s"
+	gitConfigCredentialHelper    = "credential.helper"
+	gitValueTrue                 = "true"
+	gitValueFalse                = "false"
+)
+
 // GitSetupConfig holds the full git-setup.json structure.
 type GitSetupConfig struct {
 	DiffTool         *ToolConfig       `json:"diffTool"`
@@ -20,9 +36,9 @@ type GitSetupConfig struct {
 
 // ToolConfig holds diff/merge tool configuration.
 type ToolConfig struct {
-	Name          string `json:"name"`
-	Cmd           string `json:"cmd"`
-	TrustExitCode bool   `json:"trustExitCode"`
+	Name            string `json:"name"`
+	Cmd             string `json:"cmd"`
+	IsTrustExitCode bool   `json:"trustExitCode"`
 }
 
 // SetupResult tracks applied and failed settings.
@@ -46,84 +62,84 @@ func LoadConfig(path string) (GitSetupConfig, error) {
 }
 
 // Apply applies the full git setup configuration.
-func Apply(cfg GitSetupConfig, dryRun bool) SetupResult {
+func Apply(cfg GitSetupConfig, isDryRun bool) SetupResult {
 	result := SetupResult{}
 
 	if cfg.DiffTool != nil {
-		applyDiffTool(cfg.DiffTool, dryRun, &result)
+		applyDiffTool(cfg.DiffTool, isDryRun, &result)
 	}
 	if cfg.MergeTool != nil {
-		applyMergeTool(cfg.MergeTool, dryRun, &result)
+		applyMergeTool(cfg.MergeTool, isDryRun, &result)
 	}
 	if len(cfg.Aliases) > 0 {
-		applyAliases(cfg.Aliases, dryRun, &result)
+		applyAliases(cfg.Aliases, isDryRun, &result)
 	}
 	if len(cfg.CredentialHelper) > 0 {
-		applyCredentialHelper(cfg.CredentialHelper, dryRun, &result)
+		applyCredentialHelper(cfg.CredentialHelper, isDryRun, &result)
 	}
 	if len(cfg.Core) > 0 {
-		applyCoreSettings(cfg.Core, dryRun, &result)
+		applyCoreSettings(cfg.Core, isDryRun, &result)
 	}
 
 	return result
 }
 
 // applyDiffTool configures git's global diff tool.
-func applyDiffTool(tool *ToolConfig, dryRun bool, r *SetupResult) {
+func applyDiffTool(tool *ToolConfig, isDryRun bool, r *SetupResult) {
 	settings := []gitSetting{
-		{"diff.tool", tool.Name},
-		{fmt.Sprintf("difftool.%s.cmd", tool.Name), tool.Cmd},
-		{"difftool.prompt", "false"},
+		{gitConfigDiffTool, tool.Name},
+		{fmt.Sprintf(gitConfigDiffToolCmd, tool.Name), tool.Cmd},
+		{gitConfigDiffToolPrompt, gitValueFalse},
 	}
-	if tool.TrustExitCode {
+	if tool.IsTrustExitCode {
 		settings = append(settings, gitSetting{
-			fmt.Sprintf("difftool.%s.trustExitCode", tool.Name), "true",
+			fmt.Sprintf(gitConfigDiffToolTrust, tool.Name), gitValueTrue,
 		})
 	}
-	applySection(constants.SetupSectionDiff, settings, dryRun, r)
+	applySection(constants.SetupSectionDiff, settings, isDryRun, r)
 }
 
 // applyMergeTool configures git's global merge tool.
-func applyMergeTool(tool *ToolConfig, dryRun bool, r *SetupResult) {
+func applyMergeTool(tool *ToolConfig, isDryRun bool, r *SetupResult) {
 	settings := []gitSetting{
-		{"merge.tool", tool.Name},
-		{fmt.Sprintf("mergetool.%s.cmd", tool.Name), tool.Cmd},
-		{"mergetool.prompt", "false"},
-		{"mergetool.keepBackup", "false"},
+		{gitConfigMergeTool, tool.Name},
+		{fmt.Sprintf(gitConfigMergeToolCmd, tool.Name), tool.Cmd},
+		{gitConfigMergeToolPrompt, gitValueFalse},
+		{gitConfigMergeToolKeepBackup, gitValueFalse},
 	}
-	if tool.TrustExitCode {
+	if tool.IsTrustExitCode {
 		settings = append(settings, gitSetting{
-			fmt.Sprintf("mergetool.%s.trustExitCode", tool.Name), "true",
+			fmt.Sprintf(gitConfigMergeToolTrust, tool.Name), gitValueTrue,
 		})
 	}
-	applySection(constants.SetupSectionMerge, settings, dryRun, r)
+	applySection(constants.SetupSectionMerge, settings, isDryRun, r)
 }
 
 // applyAliases configures git global aliases.
-func applyAliases(aliases map[string]string, dryRun bool, r *SetupResult) {
+func applyAliases(aliases map[string]string, isDryRun bool, r *SetupResult) {
 	settings := make([]gitSetting, 0, len(aliases))
 	for name, value := range aliases {
 		settings = append(settings, gitSetting{
-			fmt.Sprintf("alias.%s", name), value,
+			fmt.Sprintf(gitConfigAlias, name), value,
 		})
 	}
-	applySection(constants.SetupSectionAlias, settings, dryRun, r)
+	applySection(constants.SetupSectionAlias, settings, isDryRun, r)
 }
 
 // applyCredentialHelper configures git's credential helper.
-func applyCredentialHelper(helper string, dryRun bool, r *SetupResult) {
+func applyCredentialHelper(helper string, isDryRun bool, r *SetupResult) {
 	settings := []gitSetting{
-		{"credential.helper", helper},
+		{gitConfigCredentialHelper, helper},
 	}
-	applySection(constants.SetupSectionCred, settings, dryRun, r)
+	applySection(constants.SetupSectionCred, settings, isDryRun, r)
 }
 
 // applyCoreSettings configures git core settings.
-func applyCoreSettings(core map[string]string, dryRun bool, r *SetupResult) {
+func applyCoreSettings(core map[string]string, isDryRun bool, r *SetupResult) {
 	settings := make([]gitSetting, 0, len(core))
 	for key, value := range core {
 		gitKey := mapCoreKey(key)
 		settings = append(settings, gitSetting{gitKey, value})
 	}
-	applySection(constants.SetupSectionCore, settings, dryRun, r)
+	applySection(constants.SetupSectionCore, settings, isDryRun, r)
 }

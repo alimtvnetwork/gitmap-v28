@@ -65,11 +65,13 @@ func uploadToGitHub(v Version, assets []string, opts Options) {
 
 // buildGoAssetsIfApplicable cross-compiles Go binaries when --bin is passed.
 func buildGoAssetsIfApplicable(v Version, opts Options) []string {
-	if !opts.Bin {
+	if opts.Bin {
+	} else {
 		return nil
 	}
 
-	if !DetectGoProject() {
+	if DetectGoProject() {
+	} else {
 		return nil
 	}
 

@@ -35,34 +35,34 @@ func RunMerge(left, right Endpoint, dir Direction, opts Options) error {
 
 // effectivePolicy returns the bypass policy when -y is set.
 func effectivePolicy(dir Direction, opts Options) PreferPolicy {
-	if !opts.Yes {
-		return PreferNone
-	}
-	if opts.Prefer != PreferNone {
+	if opts.IsYes {
+		if opts.Prefer == PreferNone {
+			if dir == DirBoth {
+				return PreferNewer
+			} else if dir == DirRightOnly {
+				return PreferLeft
+			} else if dir == DirLeftOnly {
+				return PreferRight
+			}
+
+			return PreferNewer
+		}
+
 		return opts.Prefer
 	}
-	switch dir {
-	case DirBoth:
-		return PreferNewer
-	case DirRightOnly:
-		return PreferLeft
-	case DirLeftOnly:
-		return PreferRight
-	}
 
-	return PreferNewer
+	return PreferNone
 }
 
 // applyEntry handles one DiffEntry per the requested direction.
 func applyEntry(e DiffEntry, l, r Endpoint, dir Direction, res *Resolver, opts Options) error {
-	switch e.Kind {
-	case DiffIdentical:
+	if e.Kind == DiffIdentical {
 		return nil
-	case DiffMissingLeft:
+	} else if e.Kind == DiffMissingLeft {
 		return applyMissing(e, l, r, dir, opts, false)
-	case DiffMissingRight:
+	} else if e.Kind == DiffMissingRight {
 		return applyMissing(e, l, r, dir, opts, true)
-	case DiffConflict:
+	} else if e.Kind == DiffConflict {
 		return applyConflict(e, l, r, dir, res, opts)
 	}
 
@@ -71,11 +71,12 @@ func applyEntry(e DiffEntry, l, r Endpoint, dir Direction, res *Resolver, opts O
 
 // applyMissing copies a file present on only one side to the other.
 // fromLeft=true means LEFT has it; copy to RIGHT (when allowed).
-func applyMissing(e DiffEntry, l, r Endpoint, dir Direction, opts Options, fromLeft bool) error {
-	if fromLeft && (dir == DirBoth || dir == DirRightOnly) {
-		return copyOne(l.WorkingDir, r.WorkingDir, e.RelPath, e.Left.Info, opts)
-	}
-	if !fromLeft && (dir == DirBoth || dir == DirLeftOnly) {
+func applyMissing(e DiffEntry, l, r Endpoint, dir Direction, opts Options, isFromLeft bool) error {
+	if isFromLeft {
+		if dir == DirBoth || dir == DirRightOnly {
+			return copyOne(l.WorkingDir, r.WorkingDir, e.RelPath, e.Left.Info, opts)
+		}
+	} else if dir == DirBoth || dir == DirLeftOnly {
 		return copyOne(r.WorkingDir, l.WorkingDir, e.RelPath, e.Right.Info, opts)
 	}
 
@@ -119,7 +120,7 @@ func writeChoice(c Choice, e DiffEntry, l, r Endpoint, dir Direction, opts Optio
 
 // copyOne copies a single relative path between working dirs.
 func copyOne(srcDir, dstDir, rel string, info os.FileInfo, opts Options) error {
-	if opts.DryRun {
+	if opts.IsDryRun {
 		logIndent(opts.LogPrefix, "[dry-run] copy %s", rel)
 
 		return nil

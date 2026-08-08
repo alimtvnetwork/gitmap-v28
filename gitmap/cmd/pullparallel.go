@@ -87,7 +87,7 @@ func runOnePullJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 
 	progMu.Lock()
 	prog.BeginItem(rec.RepoName)
-	if result.Success {
+	if result.IsSuccess {
 		prog.Succeed()
 	} else {
 		prog.FailWithError(rec.RepoName, result.Error)

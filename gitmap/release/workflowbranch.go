@@ -88,10 +88,10 @@ func completeBranchRelease(v Version, branchName, assetsPath, notes string, isDr
 		return err
 	}
 
-	if !noCommit {
-		AutoCommit(v.String(), false, yes)
-	} else {
+	if noCommit {
 		fmt.Print(constants.MsgAutoCommitSkipped)
+	} else {
+		AutoCommit(v.String(), false, yes)
 	}
 
 	return nil

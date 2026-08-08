@@ -12,7 +12,7 @@ type AmendmentRecord struct {
 	PreviousAuthor AmendAuthor   `json:"previousAuthor"`
 	NewAuthor      AmendAuthor   `json:"newAuthor"`
 	Mode           string        `json:"mode"`
-	ForcePushed    bool          `json:"forcePushed"`
+	IsForcePushed  bool          `json:"forcePushed"`
 	Commits        []CommitEntry `json:"commits"`
 }
 

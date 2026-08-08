@@ -21,6 +21,14 @@ const (
 	ChoiceQuit
 )
 
+const (
+	keyLeft     = "L"
+	keyRight    = "R"
+	keyAllLeft  = "A"
+	keyAllRight = "B"
+	keyQuit     = "Q"
+)
+
 // Resolver picks a Choice for each conflict. Stateful: All-Left/Right
 // stickiness is held inside the resolver instance.
 type Resolver struct {
@@ -61,16 +69,15 @@ func (r *Resolver) resolveSticky() (Choice, bool) {
 
 // resolveByPolicy applies non-interactive --prefer-* policies.
 func (r *Resolver) resolveByPolicy(l, rgt FileMeta) (Choice, bool) {
-	switch r.policy {
-	case PreferNone:
+	if r.policy == PreferNone {
 		return 0, false
-	case PreferLeft:
+	} else if r.policy == PreferLeft {
 		return ChoiceLeft, true
-	case PreferRight:
+	} else if r.policy == PreferRight {
 		return ChoiceRight, true
-	case PreferSkip:
+	} else if r.policy == PreferSkip {
 		return ChoiceSkip, true
-	case PreferNewer:
+	} else if r.policy == PreferNewer {
 		if l.Info.ModTime().After(rgt.Info.ModTime()) {
 			return ChoiceLeft, true
 		}
@@ -89,29 +96,29 @@ func (r *Resolver) resolveInteractive(rel string, l, rgt FileMeta) (Choice, erro
 	fmt.Fprintln(r.out, "  [L]eft  [R]ight  [S]kip  [A]ll-left  [B]all-right  [Q]uit")
 	fmt.Fprint(r.out, "  > ")
 	scanner := bufio.NewScanner(r.in)
-	if !scanner.Scan() {
-		return ChoiceQuit, fmt.Errorf("conflict prompt: stdin closed")
+	if scanner.Scan() {
+		return r.parseKey(strings.TrimSpace(scanner.Text())), nil
 	}
 
-	return r.parseKey(strings.TrimSpace(scanner.Text())), nil
+	return ChoiceQuit, fmt.Errorf("conflict prompt: stdin closed")
 }
 
 // parseKey maps a single keystroke to a Choice; sets sticky when A/B.
 func (r *Resolver) parseKey(key string) Choice {
-	switch strings.ToUpper(key) {
-	case "L":
+	k := strings.ToUpper(key)
+	if k == keyLeft {
 		return ChoiceLeft
-	case "R":
+	} else if k == keyRight {
 		return ChoiceRight
-	case "A":
+	} else if k == keyAllLeft {
 		r.sticky, r.hasStk = ChoiceLeft, true
 
 		return ChoiceLeft
-	case "B":
+	} else if k == keyAllRight {
 		r.sticky, r.hasStk = ChoiceRight, true
 
 		return ChoiceRight
-	case "Q":
+	} else if k == keyQuit {
 		return ChoiceQuit
 	}
 

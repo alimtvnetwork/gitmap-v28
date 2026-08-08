@@ -44,7 +44,7 @@
 - Spec: `spec/01-app/118-fix-repo-gofmt-tuning.md`. Helptext: `gitmap/helptext/doctor-fix-repo.md`.
 
 ### Fixed
-- `gitmap/cmd/fixrepo_gofmt.go` module import path (`gitmap-v27` → `gitmap-v28`) so the package compiles cleanly against the current `go.mod`.
+- `gitmap/cmd/fixrepo_gofmt.go` module import path (`gitmap-v28` → `gitmap-v28`) so the package compiles cleanly against the current `go.mod`.
 
 ## v6.79.0 — 2026-07-16 — Cloner LFS smudge auto-recovery
 

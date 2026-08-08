@@ -18,10 +18,10 @@ func runInteractiveClone(cmd *exec.Cmd, rec model.ScanRecord, url, dest string,
 	if err := cmd.Run(); err != nil {
 		msg := fmt.Sprintf("git clone failed for %s: url=%q branch=%q dest=%q: %v",
 			recordTag(rec), url, strategy.branch, dest, err)
-		return model.CloneResult{Record: rec, Success: false, Error: msg, Notes: strategy.reason}
+		return model.CloneResult{Record: rec, IsSuccess: false, Error: msg, Notes: strategy.reason}
 	}
 
-	return model.CloneResult{Record: rec, Success: true, Notes: strategy.reason}
+	return model.CloneResult{Record: rec, IsSuccess: true, Notes: strategy.reason}
 }
 
 func isSSHCloneURL(url string) bool {

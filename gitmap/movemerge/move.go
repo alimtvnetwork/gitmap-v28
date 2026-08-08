@@ -33,10 +33,10 @@ func RunMove(left, right Endpoint, opts Options) error {
 // ensureRightExists creates RIGHT when it's a folder endpoint that
 // didn't exist; honors --init.
 func ensureRightExists(right Endpoint, opts Options) error {
-	if right.Existed || right.Kind == EndpointURL {
+	if right.IsExisted || right.Kind == EndpointURL {
 		return nil
 	}
-	if opts.DryRun {
+	if opts.IsDryRun {
 		logIndent(opts.LogPrefix, "[dry-run] mkdir %s", right.WorkingDir)
 
 		return nil
@@ -44,7 +44,7 @@ func ensureRightExists(right Endpoint, opts Options) error {
 	if err := os.MkdirAll(right.WorkingDir, 0o755); err != nil {
 		return fmt.Errorf("mkdir %s: %w", right.WorkingDir, err)
 	}
-	if opts.InitNewRight {
+	if opts.IsInitNewRight {
 		if _, err := runGit(right.WorkingDir, "init"); err != nil {
 			return fmt.Errorf("git init %s: %w", right.WorkingDir, err)
 		}
@@ -55,24 +55,25 @@ func ensureRightExists(right Endpoint, opts Options) error {
 
 // copyOrDryRun honors --dry-run while still indexing the source.
 func copyOrDryRun(src, dst string, opts Options) (int, error) {
-	if !opts.DryRun {
-		return CopyTree(src, dst, opts)
-	}
-	idx, err := IndexTree(src, opts)
-	if err != nil {
-		return 0, err
-	}
-	for rel := range idx {
-		logIndent(opts.LogPrefix, "[dry-run] copy %s", rel)
+	if opts.IsDryRun {
+		idx, err := IndexTree(src, opts)
+		if err != nil {
+			return 0, err
+		}
+		for rel := range idx {
+			logIndent(opts.LogPrefix, "[dry-run] copy %s", rel)
+		}
+
+		return len(idx), nil
 	}
 
-	return len(idx), nil
+	return CopyTree(src, dst, opts)
 }
 
 // deleteLeftFolder removes LEFT recursively (mv semantic).
 func deleteLeftFolder(left Endpoint, opts Options) error {
 	logf(opts.LogPrefix, "deleting LEFT (%s) ...", left.DisplayName)
-	if opts.DryRun {
+	if opts.IsDryRun {
 		logIndent(opts.LogPrefix, "[dry-run] rm -rf %s", left.WorkingDir)
 
 		return nil

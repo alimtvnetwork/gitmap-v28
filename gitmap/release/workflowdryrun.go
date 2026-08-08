@@ -15,10 +15,10 @@ func printDryRun(v Version, branchName, tag, sourceName string, opts Options) er
 	printDryRunAssets(opts.Assets, opts.Compress, opts.Checksums)
 	fmt.Printf(constants.MsgReleaseDryRun, "Switch back to "+sourceName)
 	printDryRunMeta(v)
-	if !opts.NoCommit {
-		fmt.Print(constants.MsgAutoCommitScanning)
-	} else {
+	if opts.NoCommit {
 		fmt.Print(constants.MsgAutoCommitSkipped)
+	} else {
+		fmt.Print(constants.MsgAutoCommitScanning)
 	}
 	fmt.Printf(constants.MsgReleaseComplete, v.String())
 
@@ -27,11 +27,13 @@ func printDryRun(v Version, branchName, tag, sourceName string, opts Options) er
 
 // printDryRunGoAssets shows Go cross-compile plan in dry-run mode.
 func printDryRunGoAssets(v Version, opts Options) {
-	if !opts.Bin {
+	if opts.Bin {
+	} else {
 		return
 	}
 
-	if !DetectGoProject() {
+	if DetectGoProject() {
+	} else {
 		return
 	}
 

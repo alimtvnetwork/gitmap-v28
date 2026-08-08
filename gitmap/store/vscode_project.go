@@ -116,7 +116,7 @@ func scanOneVSCodeProject(row interface{ Scan(dest ...any) error }) (model.VSCod
 		return p, err
 	}
 
-	p.Enabled = enabled != 0
+	p.IsEnabled = enabled != 0
 
 	paths, decodeErr := decodePaths(p.RootPath, pathsJSON)
 	if decodeErr != nil {

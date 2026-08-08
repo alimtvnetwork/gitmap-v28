@@ -56,8 +56,8 @@ func MapURLToFolder(cwd, url string) string {
 	return filepath.Join(cwd, base)
 }
 
-// FolderExists reports whether path exists and is a directory.
-func FolderExists(path string) (bool, error) {
+// IsFolderExisting reports whether path exists and is a directory.
+func IsFolderExisting(path string) (bool, error) {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return false, nil

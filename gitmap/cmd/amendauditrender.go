@@ -66,7 +66,7 @@ func encodeAmendAuditJSON(w io.Writer, record model.AmendmentRecord) error {
 		{Key: amendAuditKeyPreviousAuthor, Value: prevAuthorRaw},
 		{Key: amendAuditKeyNewAuthor, Value: newAuthorRaw},
 		{Key: amendAuditKeyMode, Value: record.Mode},
-		{Key: amendAuditKeyForcePushed, Value: record.ForcePushed},
+		{Key: amendAuditKeyForcePushed, Value: record.IsForcePushed},
 		{Key: amendAuditKeyCommits, Value: commitsRaw},
 	})
 }

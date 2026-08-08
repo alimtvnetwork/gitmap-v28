@@ -7,33 +7,32 @@ import (
 
 // emitBlock writes one parsed block in pretty form.
 func emitBlock(out *strings.Builder, b block) {
-	switch b.kind {
-	case bkHeading:
+	if b.kind == bkHeading {
 		out.WriteString(b.text)
 		out.WriteByte('\n')
-	case bkSubtitle:
+	} else if b.kind == bkSubtitle {
 		out.WriteString(bodyIndent)
 		out.WriteString(TokMutedOpen)
 		out.WriteString(b.text)
 		out.WriteString(TokMutedClose)
 		out.WriteByte('\n')
-	case bkParagraph:
+	} else if b.kind == bkParagraph {
 		out.WriteString(bodyIndent)
 		out.WriteString(highlightInline(HighlightQuotes(b.text)))
 		out.WriteByte('\n')
-	case bkFence:
+	} else if b.kind == bkFence {
 		for _, l := range b.lines {
 			out.WriteString(bodyIndent)
 			out.WriteString(highlightFenceLine(l))
 			out.WriteByte('\n')
 		}
-	case bkList:
+	} else if b.kind == bkList {
 		for _, l := range b.lines {
 			out.WriteString(bodyIndent)
 			out.WriteString(highlightInline(HighlightQuotes(l)))
 			out.WriteByte('\n')
 		}
-	case bkBlank:
+	} else if b.kind == bkBlank {
 		out.WriteByte('\n')
 	}
 }
@@ -57,7 +56,7 @@ func HighlightQuotes(s string) string {
 
 			continue
 		}
-		if !inQuote {
+		if inQuote == false {
 			b.WriteString(TokCyanOpen)
 			b.WriteByte('"')
 			inQuote = true

@@ -37,7 +37,7 @@ func TestScanProgressFinalSnapshotMatchesTotals(t *testing.T) {
 			mu.Lock()
 			defer mu.Unlock()
 			snapshots = append(snapshots, p)
-			if p.Final {
+			if p.IsFinal {
 				finalCount++
 			}
 		},
@@ -57,7 +57,8 @@ func TestScanProgressFinalSnapshotMatchesTotals(t *testing.T) {
 	}
 
 	last := snapshots[len(snapshots)-1]
-	if !last.Final {
+	if last.IsFinal {
+	} else {
 		t.Fatalf("last snapshot must be Final, got %+v", last)
 	}
 	if last.ReposFound != int64(len(got)) {
@@ -139,7 +140,7 @@ func TestScanProgressFinalAlwaysFiresEvenOnFastScans(t *testing.T) {
 
 	if _, err := ScanDirWithOptions(root, ScanOptions{
 		Progress: func(p ScanProgress) {
-			if p.Final {
+			if p.IsFinal {
 				gotFinal.Store(true)
 				close(done)
 			}
@@ -154,7 +155,8 @@ func TestScanProgressFinalAlwaysFiresEvenOnFastScans(t *testing.T) {
 		t.Fatal("Final snapshot never delivered within 2s")
 	}
 
-	if !gotFinal.Load() {
+	if gotFinal.Load() {
+	} else {
 		t.Fatal("expected Final=true snapshot to fire even on empty scans")
 	}
 }

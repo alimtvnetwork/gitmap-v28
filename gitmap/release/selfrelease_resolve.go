@@ -61,7 +61,8 @@ func resolveFromCWD() string {
 }
 
 func promptForSourceRepo() (string, error) {
-	if !canPromptForPath() {
+	if canPromptForPath() {
+	} else {
 		return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)
 	}
 
@@ -110,7 +111,7 @@ func normalizeSourceRepoRoot(path string) string {
 	}
 
 	root := findGitRoot(absPath)
-	if root == "" || !isGitmapSourceRepo(root) {
+	if root == "" || isGitmapSourceRepo(root) == false {
 		return ""
 	}
 
@@ -122,7 +123,7 @@ func isGitmapSourceRepo(root string) bool {
 		return true
 	}
 
-	if !fileExists(filepath.Join(root, "go.mod")) || !fileExists(filepath.Join(root, "constants", "constants.go")) {
+	if fileExists(filepath.Join(root, "go.mod")) == false || fileExists(filepath.Join(root, "constants", "constants.go")) == false {
 		return false
 	}
 

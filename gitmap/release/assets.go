@@ -20,10 +20,10 @@ type BuildTarget struct {
 
 // CrossCompileResult holds the outcome of a cross-compile step.
 type CrossCompileResult struct {
-	Target  BuildTarget
-	Output  string
-	Success bool
-	Error   string
+	Target    BuildTarget
+	Output    string
+	IsSuccess bool
+	Error     string
 }
 
 // DetectGoProject checks if the current directory contains a buildable Go project.
@@ -116,7 +116,7 @@ func CrossCompile(version string, targets []BuildTarget, packages []string, stag
 			result := buildSingleTarget(binName+pkgSuffix, version, t, pkg, stagingDir)
 			results = append(results, result)
 
-			if result.Success {
+			if result.IsSuccess {
 				if verbose.IsEnabled() {
 					info, statErr := os.Stat(result.Output)
 					if statErr == nil {
@@ -153,7 +153,7 @@ func CollectSuccessfulBuilds(results []CrossCompileResult) []string {
 	var paths []string
 
 	for _, r := range results {
-		if r.Success {
+		if r.IsSuccess {
 			paths = append(paths, r.Output)
 		}
 	}

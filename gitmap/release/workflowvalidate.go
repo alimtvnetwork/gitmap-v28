@@ -91,7 +91,7 @@ func checkDuplicate(v Version) error {
 		branchName := constants.ReleaseBranchPrefix + v.String()
 		branchExists := BranchExists(branchName)
 
-		if !tagExists && !branchExists {
+		if tagExists == false && branchExists == false {
 			return handleOrphanedMeta(v)
 		}
 
@@ -111,12 +111,14 @@ func handleOrphanedMeta(v Version) error {
 	fmt.Print(constants.MsgReleaseOrphanedPrompt)
 
 	scanner := bufio.NewScanner(os.Stdin)
-	if !scanner.Scan() {
+	if scanner.Scan() {
+	} else {
 		return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())
 	}
 
 	answer := strings.TrimSpace(strings.ToLower(scanner.Text()))
-	if answer != "y" && answer != "yes" {
+	if answer == "y" || answer == "yes" {
+	} else {
 		return fmt.Errorf(constants.ErrReleaseAborted)
 	}
 

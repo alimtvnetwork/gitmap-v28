@@ -71,7 +71,8 @@ func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dr
 		return fmt.Errorf("invalid version in metadata: %s", meta.Tag)
 	}
 
-	if !CommitExists(meta.Commit) {
+	if CommitExists(meta.Commit) {
+	} else {
 		fmt.Printf(constants.WarnPendingMetaNoCommit, meta.Tag, meta.Commit)
 
 		return nil

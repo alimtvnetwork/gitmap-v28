@@ -76,14 +76,16 @@ func ListTags() ([]string, error) {
 func ResolveTagRange(fromTag, toTag string) (string, string, error) {
 	if len(fromTag) > 0 {
 		from := NormalizeVersion(fromTag)
-		if !TagExistsLocally(from) {
+		if TagExistsLocally(from) {
+		} else {
 			return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, from)
 		}
 
 		to := constants.GitHEAD
 		if len(toTag) > 0 {
 			to = NormalizeVersion(toTag)
-			if !TagExistsLocally(to) {
+			if TagExistsLocally(to) {
+			} else {
 				return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, to)
 			}
 		}

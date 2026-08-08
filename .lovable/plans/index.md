@@ -1,0 +1,10 @@
+# Plans Index
+
+## Pending Plans
+- [bulk-visibility-mapub-mapri](pending/01-bulk-visibility-mapub-mapri.md) - Bulk wildcard visibility flips
+- [ssh-aware-clone](pending/02-ssh-aware-clone.md) - SSH-aware scan, persistence, and clone behavior
+- [reclone-transport-and-vscode-open](pending/03-reclone-transport-and-vscode-open.md) - Reclone honors stored transport + new gitmap code opens VS Code
+- [cfr-cg-os-aware-coding-guidelines](pending/04-cfr-cg-os-aware-coding-guidelines.md) - cfr / cfrp cg modifier: OS-aware Coding Guidelines v24 integration
+
+## Completed Plans
+*(None yet)*

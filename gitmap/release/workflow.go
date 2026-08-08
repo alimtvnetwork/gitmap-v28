@@ -122,7 +122,8 @@ func tryDelegateFromCurrentBranch(opts Options) (bool, error) {
 		return false, nil
 	}
 
-	if !strings.HasPrefix(currentBranch, constants.ReleaseBranchPrefix) {
+	if strings.HasPrefix(currentBranch, constants.ReleaseBranchPrefix) {
+	} else {
 		return false, nil
 	}
 
@@ -209,7 +210,8 @@ func performRelease(v Version, sourceRef, sourceName string, opts Options) error
 	localdirs.MigrateLegacyDirs()
 
 	// Step 4: Write metadata JSON on the original branch (picked up by auto-commit).
-	if !opts.SkipMeta {
+	if opts.SkipMeta {
+	} else {
 		err = writeMetadata(v, branchName, tag, sourceName, nil, opts)
 		if err != nil {
 			return err
@@ -217,10 +219,10 @@ func performRelease(v Version, sourceRef, sourceName string, opts Options) error
 	}
 
 	// Step 5: Auto-commit the release metadata files.
-	if !opts.NoCommit {
-		AutoCommit(v.String(), false, opts.Yes)
-	} else {
+	if opts.NoCommit {
 		fmt.Print(constants.MsgAutoCommitSkipped)
+	} else {
+		AutoCommit(v.String(), false, opts.Yes)
 	}
 
 	return nil

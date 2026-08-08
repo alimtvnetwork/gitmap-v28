@@ -27,7 +27,7 @@ type Endpoint struct {
 	Branch      string       // optional :branch suffix; "" when omitted
 	WorkingDir  string       // absolute resolved working folder
 	IsGitRepo   bool         // true when WorkingDir contains .git/
-	Existed     bool         // true when WorkingDir already existed pre-resolve
+	IsExisted   bool         // true when WorkingDir already existed pre-resolve
 }
 
 // PreferPolicy is how -y / --prefer-* resolve conflicts non-interactively.
@@ -60,16 +60,16 @@ const (
 
 // Options bundles every CLI flag for the move/merge family.
 type Options struct {
-	Yes             bool
-	Prefer          PreferPolicy
-	NoPush          bool
-	NoCommit        bool
-	ForceFolder     bool
-	PullFolder      bool
-	InitNewRight    bool
-	DryRun          bool
-	IncludeVCS      bool
-	IncludeNodeMods bool
+	IsYes             bool
+	Prefer            PreferPolicy
+	IsNoPush          bool
+	IsNoCommit        bool
+	IsForceFolder     bool
+	IsPullFolder      bool
+	IsInitNewRight    bool
+	IsDryRun          bool
+	IsIncludeVCS      bool
+	IsIncludeNodeMods bool
 	CommandName     string // "mv" | "merge-both" | "merge-left" | "merge-right"
 	LogPrefix       string // "[mv]" etc.
 	CommitMsgFmt    string // template; "%s" filled from other side's display

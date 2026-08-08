@@ -40,8 +40,8 @@ type ScanRecord struct {
 // ReleaseConfig holds release-specific configuration from config.json.
 type ReleaseConfig struct {
 	Targets   []ReleaseTarget `json:"targets"`
-	Checksums bool            `json:"checksums"`
-	Compress  bool            `json:"compress"`
+	HasChecksums bool            `json:"checksums"`
+	IsCompress   bool            `json:"compress"`
 }
 
 // ReleaseTarget represents a single GOOS/GOARCH pair in config.json.
@@ -73,8 +73,8 @@ func DefaultConfig() Config {
 		DashboardRefresh: constants.DefaultDashboardRefresh,
 		Release: ReleaseConfig{
 			Targets:   []ReleaseTarget{},
-			Checksums: false,
-			Compress:  false,
+			HasChecksums: false,
+			IsCompress:   false,
 		},
 	}
 }
@@ -86,7 +86,7 @@ func DefaultConfig() Config {
 // record's BranchSource.
 type CloneResult struct {
 	Record  ScanRecord
-	Success bool
+	IsSuccess bool
 	Error   string
 	Notes   string
 }
@@ -112,7 +112,7 @@ type ScanCache struct {
 	Output        string `json:"output"`
 	OutFile       string `json:"outFile"`
 	OutputPath    string `json:"outputPath"`
-	GithubDesktop bool   `json:"githubDesktop"`
-	OpenFolder    bool   `json:"openFolder"`
-	Quiet         bool   `json:"quiet"`
+	IsGithubDesktop bool   `json:"githubDesktop"`
+	IsOpenFolder    bool   `json:"openFolder"`
+	IsQuiet         bool   `json:"quiet"`
 }

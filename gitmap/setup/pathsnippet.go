@@ -32,14 +32,13 @@ func RenderPathSnippet(shell, dir, manager string) (string, error) {
 
 // snippetTemplate maps a shell identifier to its body template.
 func snippetTemplate(shell string) (string, error) {
-	switch shell {
-	case constants.PathSnippetShellBash:
+	if shell == constants.PathSnippetShellBash {
 		return constants.PathSnippetBashFmt, nil
-	case constants.PathSnippetShellZsh:
+	} else if shell == constants.PathSnippetShellZsh {
 		return constants.PathSnippetZshFmt, nil
-	case constants.PathSnippetShellFish:
+	} else if shell == constants.PathSnippetShellFish {
 		return constants.PathSnippetFishFmt, nil
-	case constants.PathSnippetShellPwsh:
+	} else if shell == constants.PathSnippetShellPwsh {
 		return constants.PathSnippetPwshFmt, nil
 	}
 

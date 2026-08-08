@@ -28,7 +28,7 @@ func IndexTree(root string, opts Options) (map[string]FileMeta, error) {
 		if relErr != nil || rel == "." {
 			return relErr
 		}
-		if shouldSkipWalk(rel, opts) {
+		if IsSkipWalk(rel, opts) {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
@@ -46,15 +46,15 @@ func IndexTree(root string, opts Options) (map[string]FileMeta, error) {
 	return out, walkErr
 }
 
-// shouldSkipWalk applies the default ignore list (.git/, node_modules/,
+// IsSkipWalk applies the default ignore list (.git/, node_modules/,
 // .gitmap/release-assets/) honoring the include-* opt-ins.
-func shouldSkipWalk(rel string, opts Options) bool {
+func IsSkipWalk(rel string, opts Options) bool {
 	base := filepath.Base(rel)
-	if !opts.IncludeVCS && base == ".git" {
-		return true
+	if base == ".git" {
+		return !opts.IsIncludeVCS
 	}
-	if !opts.IncludeNodeMods && base == "node_modules" {
-		return true
+	if base == "node_modules" {
+		return !opts.IsIncludeNodeMods
 	}
 
 	return strings.HasPrefix(filepath.ToSlash(rel), ".gitmap/release-assets/")

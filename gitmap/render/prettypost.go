@@ -127,12 +127,11 @@ func renderHeadingLine(line string) (string, bool) {
 	}
 	text := unescapeMarkdown(m[2])
 	text = stripInlineMarkers(text)
-	switch len(m[1]) {
-	case 1:
+	if len(m[1]) == 1 {
 		return constants.ColorCyan + "▌ " + text + constants.ColorReset, true
-	case 2:
+	} else if len(m[1]) == 2 {
 		return constants.ColorYellow + "▌ " + text + constants.ColorReset, true
-	case 3:
+	} else if len(m[1]) == 3 {
 		return constants.ColorMagenta + "› " + text + constants.ColorReset, true
 	}
 

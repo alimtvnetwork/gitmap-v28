@@ -85,7 +85,7 @@ func runSequential(records []model.ScanRecord, targetDir string, safePull bool,
 
 		dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
 		if cache.IsUpToDate(rec, dest) {
-			result := model.CloneResult{Record: rec, Success: true}
+			result := model.CloneResult{Record: rec, IsSuccess: true}
 			progress.Skip(result)
 			summary = updateSummarySkipped(summary, result)
 			continue
@@ -95,7 +95,7 @@ func runSequential(records []model.ScanRecord, targetDir string, safePull bool,
 		trackResult(progress, result, rec, targetDir, safePull)
 		summary = updateSummary(summary, result)
 
-		if result.Success {
+		if result.IsSuccess {
 			cache.Record(rec, dest)
 		}
 	}
@@ -114,7 +114,7 @@ func repoDisplayName(rec model.ScanRecord) string {
 
 // trackResult updates progress based on clone/pull outcome.
 func trackResult(p *Progress, result model.CloneResult, rec model.ScanRecord, targetDir string, safePull bool) {
-	if result.Success {
+	if result.IsSuccess {
 		pulled := safePull && isGitRepo(filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath)))
 		p.Done(result, pulled)
 

@@ -354,7 +354,7 @@ func pullOneRepo(rec model.ScanRecord) {
 	}
 
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
-	if result.Success {
+	if result.IsSuccess {
 		fmt.Printf(constants.MsgPullSuccess, rec.RepoName)
 	} else {
 		fmt.Fprintf(os.Stderr, constants.MsgPullFailed, rec.RepoName, result.Error)
@@ -370,7 +370,7 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	}
 
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
-	if result.Success {
+	if result.IsSuccess {
 		prog.Succeed()
 	} else {
 		prog.FailWithError(rec.RepoName, result.Error)

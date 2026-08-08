@@ -4,7 +4,7 @@ package cmd
 //
 // Asserts the documented codes from spec/04-generic-cli/07-error-handling.md:
 //
-//   0 -- success: scan an empty tempdir (zero repos is still success)
+//   0 -- IsSuccess: scan an empty tempdir (zero repos is still success)
 //   1 -- failure: scan a path that doesn't exist on disk
 //
 // Scan has no interactive confirmation prompt, so there is no

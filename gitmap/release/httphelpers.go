@@ -10,11 +10,11 @@ import (
 
 func newTransport() *http.Transport {
 	t, ok := http.DefaultTransport.(*http.Transport)
-	if !ok {
-		return &http.Transport{}
+	if ok {
+		return t.Clone()
 	}
 
-	return t.Clone()
+	return &http.Transport{}
 }
 
 var githubTransport = newTransport()

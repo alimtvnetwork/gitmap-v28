@@ -29,18 +29,19 @@ func resolveFolderEndpoint(ep Endpoint, isLeft bool, opts Options) (Endpoint, er
 		return ep, fmt.Errorf("abs %s: %w", ep.DisplayName, err)
 	}
 	ep.WorkingDir = abs
-	exists, err := FolderExists(abs)
+	isExists, err := IsFolderExisting(abs)
 	if err != nil {
 		return ep, err
 	}
-	ep.Existed = exists
-	if !exists && isLeft {
-		return ep, fmt.Errorf(constants.ErrMMSrcMissingFmt, ep.DisplayName)
-	}
-	if exists && opts.PullFolder && IsGitRepo(abs) {
-		if pullErr := PullFFOnly(abs); pullErr != nil {
-			return ep, pullErr
+	ep.IsExisted = isExists
+	if isExists {
+		if opts.IsPullFolder && IsGitRepo(abs) {
+			if pullErr := PullFFOnly(abs); pullErr != nil {
+				return ep, pullErr
+			}
 		}
+	} else if isLeft {
+		return ep, fmt.Errorf(constants.ErrMMSrcMissingFmt, ep.DisplayName)
 	}
 	ep.IsGitRepo = IsGitRepo(abs)
 
@@ -55,20 +56,20 @@ func resolveURLEndpoint(ep Endpoint, opts Options) (Endpoint, error) {
 	}
 	dir := MapURLToFolder(cwd, ep.URL)
 	ep.WorkingDir = dir
-	exists, err := FolderExists(dir)
+	isExists, err := IsFolderExisting(dir)
 	if err != nil {
 		return ep, err
 	}
-	if !exists {
-		if cloneErr := CloneURL(ep.URL, ep.Branch, dir); cloneErr != nil {
-			return ep, cloneErr
-		}
-		ep.IsGitRepo = true
-
-		return ep, nil
+	if isExists {
+		return reuseExistingURLFolder(ep, dir, opts)
 	}
 
-	return reuseExistingURLFolder(ep, dir, opts)
+	if cloneErr := CloneURL(ep.URL, ep.Branch, dir); cloneErr != nil {
+		return ep, cloneErr
+	}
+	ep.IsGitRepo = true
+
+	return ep, nil
 }
 
 // reuseExistingURLFolder verifies the folder's origin matches and pulls.
@@ -77,30 +78,31 @@ func reuseExistingURLFolder(ep Endpoint, dir string, opts Options) (Endpoint, er
 	if err != nil {
 		return ep, fmt.Errorf("read origin in %s: %w", dir, err)
 	}
-	if !originMatches(origin, ep.URL) {
-		if !opts.ForceFolder {
-			return ep, fmt.Errorf(constants.ErrMMOriginFmt, dir, origin, ep.URL)
+	if IsOriginMatching(origin, ep.URL) {
+		if pullErr := PullFFOnly(dir); pullErr != nil {
+			return ep, pullErr
 		}
+		ep.IsGitRepo, ep.IsExisted = true, true
+
+		return ep, nil
+	}
+	if opts.IsForceFolder {
 		if rmErr := os.RemoveAll(dir); rmErr != nil {
 			return ep, fmt.Errorf("force-folder remove %s: %w", dir, rmErr)
 		}
 		if cloneErr := CloneURL(ep.URL, ep.Branch, dir); cloneErr != nil {
 			return ep, cloneErr
 		}
-		ep.IsGitRepo, ep.Existed = true, false
+		ep.IsGitRepo, ep.IsExisted = true, false
 
 		return ep, nil
 	}
-	if pullErr := PullFFOnly(dir); pullErr != nil {
-		return ep, pullErr
-	}
-	ep.IsGitRepo, ep.Existed = true, true
-
-	return ep, nil
+	
+	return ep, fmt.Errorf(constants.ErrMMOriginFmt, dir, origin, ep.URL)
 }
 
-// originMatches compares two URLs ignoring trailing .git and case.
-func originMatches(a, b string) bool {
+// IsOriginMatching compares two URLs ignoring trailing .git and case.
+func IsOriginMatching(a, b string) bool {
 	norm := func(s string) string {
 		return strings.TrimSuffix(strings.ToLower(strings.TrimSpace(s)), ".git")
 	}

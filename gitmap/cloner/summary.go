@@ -51,7 +51,7 @@ func pickURL(rec model.ScanRecord) string {
 
 // updateSummary increments counters and collects results.
 func updateSummary(s model.CloneSummary, r model.CloneResult) model.CloneSummary {
-	if r.Success {
+	if r.IsSuccess {
 		s.Succeeded++
 		s.Cloned = append(s.Cloned, r)
 

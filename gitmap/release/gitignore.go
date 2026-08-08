@@ -33,7 +33,7 @@ func EnsureGitignore() {
 
 	var toAdd []string
 	for _, entry := range gitignoreEntries {
-		if !existing[entry] && !existing["/"+entry] {
+		if existing[entry] == false && existing["/"+entry] == false {
 			toAdd = append(toAdd, entry)
 		}
 	}
@@ -47,7 +47,8 @@ func EnsureGitignore() {
 	}
 
 	// Ensure trailing newline before appending.
-	if len(content) > 0 && !strings.HasSuffix(content, "\n") {
+	if len(content) > 0 && strings.HasSuffix(content, "\n") {
+	} else if len(content) > 0 {
 		content += "\n"
 	}
 

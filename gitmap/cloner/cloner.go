@@ -156,7 +156,7 @@ func cloneOne(rec model.ScanRecord, targetDir string) model.CloneResult {
 	if err != nil {
 		msg := fmt.Sprintf("mkdir %q for %s: %v", filepath.Dir(dest), recordTag(rec), err)
 
-		return model.CloneResult{Record: rec, Success: false, Error: msg}
+		return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}
 	}
 
 	return runClone(rec, dest)
@@ -200,7 +200,7 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 			} else {
 				notes = notes + "; " + LFSRetryNote
 			}
-			return model.CloneResult{Record: rec, Success: true, Notes: notes}
+			return model.CloneResult{Record: rec, IsSuccess: true, Notes: notes}
 		}
 		out, err = retryOut, retryErr
 	}
@@ -210,10 +210,10 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 			recordTag(rec), url, strategy.branch, dest, err, strings.TrimSpace(string(out)),
 		)
 
-		return model.CloneResult{Record: rec, Success: false, Error: msg, Notes: strategy.reason}
+		return model.CloneResult{Record: rec, IsSuccess: false, Error: msg, Notes: strategy.reason}
 	}
 
-	return model.CloneResult{Record: rec, Success: true, Notes: notes}
+	return model.CloneResult{Record: rec, IsSuccess: true, Notes: notes}
 }
 
 // (recordTag, pickURL, updateSummary, and updateSummarySkipped moved

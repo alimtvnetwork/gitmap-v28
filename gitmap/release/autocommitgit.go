@@ -87,11 +87,11 @@ func pushCurrentBranch() error {
 		return nil
 	}
 
-	if !isNonFastForwardPushError(pushOutput) {
-		return formatGitCommandError(pushOutput, err)
+	if isNonFastForwardPushError(pushOutput) {
+		return syncBranchAndRetryPush(branch, pushOutput)
 	}
 
-	return syncBranchAndRetryPush(branch, pushOutput)
+	return formatGitCommandError(pushOutput, err)
 }
 
 func syncBranchAndRetryPush(branch, pushOutput string) error {
