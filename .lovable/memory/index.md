@@ -44,7 +44,8 @@ commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commit
 - [Release Keyword](mem://project/release-keyword) — "release" = bump minor + CHANGELOG + pin in root README (no .gitmap/release/ edits)
 - [What to Read (AI onboarding map)](.lovable/memory/project/what-to-read.md) — Read-order, folder map, JSON output contract triangle (schema ↔ model ↔ encoder ↔ test ↔ fixture), and step-by-step recipe for adding a new JSON output. **Start here on a fresh session.**
 - [Code Constraints](mem://style/code-constraints) — Strict rules for code style, structure, and pull requests
-- [Code Quality Process](mem://style/code-quality-improvement-process) — Architectural principles and resilience patterns
+- [Code Quality Improvement](mem://style/code-quality-improvement) — AI constraints prohibiting hardcoded paths, enforcing generic error wrapping, and stripping repetitive code.
+- [TS Enums and Query Wrappers](mem://style/01-ts-enums-and-query-wrappers) — Ban string unions, mandate *Type enum suffix, enforce positive booleans, mandate Python/PHP/TS query wrappers. patterns
 - [README Branding](mem://style/readme-branding) — Strict layout and linking requirements for the project author section
 - [Windows Environment](mem://constraints/windows-environment) — Long paths, short root recommendations for git
 - [PowerShell Encoding](mem://constraints/powershell-encoding) — ASCII punctuation, Virtual Terminal Processing, stdout vs stderr
@@ -73,7 +74,9 @@ commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commit
 - [Database Location](mem://tech/database-location) — SQLite state anchored to binary execution path via filepath.EvalSymlinks
 - [Process Sync](mem://tech/process-synchronization) — Advisory file-based locking via gitmap.lock
 - [DB Migration Strategy](mem://tech/database-migration-strategy) — Graceful recovery for breaking schema changes, intercepting scan errors
-- [Static Analysis](mem://tech/static-analysis-security) — Linter setup, vulnerability response times, @latest installations prohibited
+- [Static Analysis & Security](mem://tech/static-analysis-security) — Linter configurations and security tooling
+- [Version JSON Architecture](mem://tech/01-version-json-architecture) — Centralized root `version.json` injected via `-ldflags`; prohibits AI from manually modifying `constants.go`.
+- [Version and Code Quality Verbatim Directives](mem://specs/01-version-and-code-quality-rules) — Exact user transcripts enforcing the single source of truth versioning and Typescript Enum requirements.
 - [Security Hardening](mem://tech/security-hardening) — Zip extraction path validation, io.LimitReader for decompression bombs
 - [Changelog System](mem://project/changelog-system) — Dual-mode Markdown/React changelog synced with local release metadata
 - [Flag Parsing Logic](mem://tech/flag-parsing-logic) — Reordering flags before args to bypass Go's default flag package limitations
