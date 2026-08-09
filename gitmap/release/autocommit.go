@@ -170,8 +170,7 @@ func promptAndCommit(releaseFiles, otherFiles []string, msg string, yes bool) Au
 	fmt.Print(constants.MsgAutoCommitAsk)
 
 	scanner := bufio.NewScanner(os.Stdin)
-	if scanner.Scan() {
-	} else {
+	if !scanner.Scan() {
 		return commitReleaseOnly(releaseFiles, msg)
 	}
 

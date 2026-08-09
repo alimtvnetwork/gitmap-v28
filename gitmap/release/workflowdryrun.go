@@ -27,13 +27,11 @@ func printDryRun(v Version, branchName, tag, sourceName string, opts Options) er
 
 // printDryRunGoAssets shows Go cross-compile plan in dry-run mode.
 func printDryRunGoAssets(v Version, opts Options) {
-	if opts.Bin {
-	} else {
+	if !opts.Bin {
 		return
 	}
 
-	if DetectGoProject() {
-	} else {
+	if !DetectGoProject() {
 		return
 	}
 

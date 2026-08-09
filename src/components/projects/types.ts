@@ -1,8 +1,22 @@
 import type { Code2 } from "lucide-react";
 
-export type ProjectType = "go" | "node" | "react" | "cpp" | "csharp";
+export enum ProjectType {
+  Go = "go",
+  Node = "node",
+  React = "react",
+  Cpp = "cpp",
+  Csharp = "csharp",
+}
 
-export type ProjectFilter = ProjectType | "all";
+export enum ProjectFilterType {
+  All = "all",
+  Go = "go",
+  Node = "node",
+  React = "react",
+  Cpp = "cpp",
+  Csharp = "csharp",
+}
+export type ProjectFilter = ProjectFilterType;
 
 export interface GoRunnable {
   name: string;

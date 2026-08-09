@@ -36,16 +36,16 @@ import { resolve } from "node:path";
 
 // ─── tokens copied verbatim from src/index.css ────────────────────────────
 const LIGHT_TOKENS = {
-  background: "220 20% 97%",
-  foreground: "220 25% 10%",
-  primary: "142 71% 45%",
-  "primary-foreground": "220 25% 5%",
+  background: "0 0% 100%",
+  foreground: "0 0% 23%",
+  primary: "38 92% 50%",
+  "primary-foreground": "0 0% 12%",
 };
 const DARK_TOKENS = {
-  background: "220 25% 6%",
-  foreground: "220 10% 90%",
-  primary: "142 71% 45%",
-  "primary-foreground": "220 25% 5%",
+  background: "0 0% 7%",
+  foreground: "0 0% 82%",
+  primary: "41 96% 56%",
+  "primary-foreground": "0 0% 8%",
 };
 
 // ─── color utils ───────────────────────────────────────────────────────────

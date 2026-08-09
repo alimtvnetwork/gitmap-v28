@@ -53,7 +53,7 @@ func TestParsePreRelease(t *testing.T) {
 	if v.PreRelease != "rc.1" {
 		t.Errorf("expected pre-release rc.1, got %s", v.PreRelease)
 	}
-	if v.IsPreRelease() == false {
+	if !v.IsPreRelease() {
 		t.Error("expected IsPreRelease true")
 	}
 }
@@ -129,7 +129,7 @@ func TestIsPreRelease(t *testing.T) {
 	}
 
 	pre, _ := Parse("v1.0.0-alpha.3")
-	if pre.IsPreRelease() == false {
+	if !pre.IsPreRelease() {
 		t.Error("alpha version should be pre-release")
 	}
 }
@@ -178,7 +178,7 @@ func TestBumpInvalidLevel(t *testing.T) {
 func TestGreaterThanMajor(t *testing.T) {
 	a, _ := Parse("v2.0.0")
 	b, _ := Parse("v1.9.9")
-	if a.GreaterThan(b) == false {
+	if !a.GreaterThan(b) {
 		t.Error("v2.0.0 should be greater than v1.9.9")
 	}
 	if b.GreaterThan(a) {
@@ -189,7 +189,7 @@ func TestGreaterThanMajor(t *testing.T) {
 func TestGreaterThanMinor(t *testing.T) {
 	a, _ := Parse("v1.3.0")
 	b, _ := Parse("v1.2.9")
-	if a.GreaterThan(b) == false {
+	if !a.GreaterThan(b) {
 		t.Error("v1.3.0 should be greater than v1.2.9")
 	}
 }
@@ -197,7 +197,7 @@ func TestGreaterThanMinor(t *testing.T) {
 func TestGreaterThanPatch(t *testing.T) {
 	a, _ := Parse("v1.2.4")
 	b, _ := Parse("v1.2.3")
-	if a.GreaterThan(b) == false {
+	if !a.GreaterThan(b) {
 		t.Error("v1.2.4 should be greater than v1.2.3")
 	}
 }
@@ -213,7 +213,7 @@ func TestGreaterThanEqual(t *testing.T) {
 func TestGreaterThanStableBeatsPreRelease(t *testing.T) {
 	stable, _ := Parse("v1.0.0")
 	pre, _ := Parse("v1.0.0-rc.1")
-	if stable.GreaterThan(pre) == false {
+	if !stable.GreaterThan(pre) {
 		t.Error("v1.0.0 should be greater than v1.0.0-rc.1")
 	}
 	if pre.GreaterThan(stable) {

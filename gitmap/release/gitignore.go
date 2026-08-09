@@ -33,7 +33,7 @@ func EnsureGitignore() {
 
 	var toAdd []string
 	for _, entry := range gitignoreEntries {
-		if existing[entry] == false && existing["/"+entry] == false {
+		if !existing[entry] && !existing["/"+entry] {
 			toAdd = append(toAdd, entry)
 		}
 	}
@@ -47,13 +47,12 @@ func EnsureGitignore() {
 	}
 
 	// Ensure trailing newline before appending.
-	if len(content) > 0 && strings.HasSuffix(content, "\n") {
-	} else if len(content) > 0 {
+	if len(content) > 0 && !strings.HasSuffix(content, "\n") {
 		content += "\n"
 	}
 
 	content += strings.Join(toAdd, "\n") + "\n"
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+	if err := os.WriteFile(path, []byte(content), constants.FilePermission); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not write .gitignore at %s: %v\n", path, err)
 	}
 }

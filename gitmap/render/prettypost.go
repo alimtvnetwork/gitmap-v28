@@ -127,15 +127,16 @@ func renderHeadingLine(line string) (string, bool) {
 	}
 	text := unescapeMarkdown(m[2])
 	text = stripInlineMarkers(text)
-	if len(m[1]) == 1 {
+	switch len(m[1]) {
+	case 1:
 		return constants.ColorCyan + "▌ " + text + constants.ColorReset, true
-	} else if len(m[1]) == 2 {
+	case 2:
 		return constants.ColorYellow + "▌ " + text + constants.ColorReset, true
-	} else if len(m[1]) == 3 {
+	case 3:
 		return constants.ColorMagenta + "› " + text + constants.ColorReset, true
+	default:
+		return constants.ColorWhite + text + constants.ColorReset, true
 	}
-
-	return constants.ColorWhite + text + constants.ColorReset, true
 }
 
 // stripInlineMarkers removes the markdown asterisks/backticks from heading

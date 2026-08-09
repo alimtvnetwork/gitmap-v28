@@ -3,13 +3,18 @@ import CodeBlock from "@/components/docs/CodeBlock";
 import { GitCommit, AlertTriangle, Clock, Filter, ListOrdered } from "lucide-react";
 import { ReactNode } from "react";
 
-export type Direction = "left" | "right" | "both";
+export enum DirectionType {
+  Left = "left",
+  Right = "right",
+  Both = "both",
+}
+export type Direction = DirectionType;
 
 interface CommitTransferPageProps {
-  direction: Direction;
+  direction: DirectionType;
 }
 
-const meta: Record<Direction, {
+const meta: Record<DirectionType, {
   cmd: string;
   alias: string;
   short: string;
@@ -19,7 +24,7 @@ const meta: Record<Direction, {
   example: string;
   output: string[];
 }> = {
-  left: {
+  [DirectionType.Left]: {
     cmd: "commit-left",
     alias: "cl",
     short: "Replay RIGHT's commits onto LEFT",
@@ -46,7 +51,7 @@ gitmap cl ./mine ./theirs -y`,
       "[commit-left] proceed? [y/N]",
     ],
   },
-  right: {
+  [DirectionType.Right]: {
     cmd: "commit-right",
     alias: "cr",
     short: "Replay LEFT's commits onto RIGHT",
@@ -72,7 +77,7 @@ gitmap cr ./local https://github.com/owner/repo`,
       "[commit-right] proceed? [y/N]",
     ],
   },
-  both: {
+  [DirectionType.Both]: {
     cmd: "commit-both",
     alias: "cb",
     short: "Interleave both sides' commits by author date",

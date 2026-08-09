@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
+import { DocsTooltip } from "@/components/docs/DocsTooltip";
 import {
   CommandDialog,
   CommandEmpty,
@@ -59,7 +61,22 @@ const CommandPalette = () => {
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <>
+      <DocsTooltip label="Search commands (⌘K)">
+        <button
+          type="button"
+          aria-label="Open command palette (search commands, flags, pages)"
+          onClick={() => setOpen(true)}
+          className="docs-focus-ring inline-flex h-7 items-center gap-2 rounded-sm border border-sidebar-border bg-sidebar-accent/60 px-2 text-xs text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <Search className="h-3.5 w-3.5" aria-hidden="true" />
+          <span className="hidden sm:inline font-mono">Search...</span>
+          <kbd className="pointer-events-none hidden h-4 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+            ⌘K
+          </kbd>
+        </button>
+      </DocsTooltip>
+      <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="Search commands, aliases, examples…  (⌘K)" />
       <CommandList>
         <CommandEmpty>No commands match.</CommandEmpty>
@@ -86,6 +103,7 @@ const CommandPalette = () => {
         </CommandGroup>
       </CommandList>
     </CommandDialog>
+    </>
   );
 };
 

@@ -44,7 +44,7 @@ func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResu
 		}
 	}
 
-	if mkErr := os.MkdirAll(filepath.Dir(profile), 0o755); mkErr != nil {
+	if mkErr := os.MkdirAll(filepath.Dir(profile), constants.DirPermission); mkErr != nil {
 		return PathSnippetWriteResult{}, fmt.Errorf("create profile dir %s: %w", filepath.Dir(profile), mkErr)
 	}
 
@@ -57,7 +57,7 @@ func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResu
 		if rewritten == string(existing) {
 			return PathSnippetWriteResult{Profile: profile, Action: "noop", Snippet: body}, nil
 		}
-		if wrErr := os.WriteFile(profile, []byte(rewritten), 0o644); wrErr != nil {
+		if wrErr := os.WriteFile(profile, []byte(rewritten), constants.FilePermission); wrErr != nil {
 			return PathSnippetWriteResult{}, fmt.Errorf("rewrite profile %s: %w", profile, wrErr)
 		}
 		return PathSnippetWriteResult{Profile: profile, Action: "rewritten", Snippet: body}, nil
@@ -68,7 +68,7 @@ func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResu
 
 // appendSnippet adds the snippet (with leading blank line) to profile.
 func appendSnippet(profile, body string) (PathSnippetWriteResult, error) {
-	f, err := os.OpenFile(profile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	f, err := os.OpenFile(profile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, constants.FilePermission)
 	if err != nil {
 		return PathSnippetWriteResult{}, fmt.Errorf("open profile %s: %w", profile, err)
 	}
@@ -91,20 +91,20 @@ func rewriteSnippetBlock(content, open, close, body string) string {
 	wrote := false
 	for scanner.Scan() {
 		line := scanner.Text()
-		if isSkipping == false && line == open {
+		switch {
+		case !isSkipping && line == open:
 			isSkipping = true
 			out.WriteString(body)
 			out.WriteString("\n")
 			wrote = true
-		} else if isSkipping && line == close {
+		case isSkipping && line == close:
 			isSkipping = false
-		} else if isSkipping == false {
+		case !isSkipping:
 			out.WriteString(line)
 			out.WriteString("\n")
 		}
 	}
-	if wrote {
-	} else {
+	if !wrote {
 		return content
 	}
 	// Preserve trailing-newline state: original ends with newline iff result should.
@@ -121,17 +121,18 @@ func defaultProfilePath(shell string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolve home dir: %w", err)
 	}
-	if shell == "bash" {
+	switch shell {
+	case constants.PathSnippetShellBash:
 		return filepath.Join(home, ".bashrc"), nil
-	} else if shell == "zsh" {
+	case constants.PathSnippetShellZsh:
 		return filepath.Join(home, ".zshrc"), nil
-	} else if shell == "fish" {
+	case constants.PathSnippetShellFish:
 		return filepath.Join(home, ".config", "fish", "config.fish"), nil
-	} else if shell == "pwsh" {
+	case constants.PathSnippetShellPwsh:
 		// PowerShell profile resolution is OS-specific; callers should
 		// pass an explicit path on Windows. Fallback for cross-shell use.
 		return filepath.Join(home, ".config", "powershell", "Microsoft.PowerShell_profile.ps1"), nil
+	default:
+		return "", fmt.Errorf("unknown shell %q", shell)
 	}
-
-	return "", fmt.Errorf("unknown shell %q", shell)
 }

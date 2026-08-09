@@ -21,7 +21,7 @@ export const buildReleaseSnippets = (
   if (platform === "windows") {
     return {
       pinned: [
-        `# Pinned install — locks gitmap to ${version} (no auto-upgrade)`,
+        `# Pinned install — locks gitmap-v28 to ${version} (no auto-upgrade)`,
         `iwr ${releaseBase}/release-version-${version}.ps1 -OutFile $env:TEMP\\rv.ps1`,
         `& $env:TEMP\\rv.ps1`,
       ].join("\n"),
@@ -35,7 +35,7 @@ export const buildReleaseSnippets = (
 
   return {
     pinned: [
-      `# Pinned install — locks gitmap to ${version} (no auto-upgrade)`,
+      `# Pinned install — locks gitmap-v28 to ${version} (no auto-upgrade)`,
       `curl -fsSL ${releaseBase}/release-version-${version}.sh | bash`,
     ].join("\n"),
     generic: [

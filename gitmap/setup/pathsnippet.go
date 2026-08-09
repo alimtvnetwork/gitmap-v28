@@ -32,17 +32,18 @@ func RenderPathSnippet(shell, dir, manager string) (string, error) {
 
 // snippetTemplate maps a shell identifier to its body template.
 func snippetTemplate(shell string) (string, error) {
-	if shell == constants.PathSnippetShellBash {
+	switch shell {
+	case constants.PathSnippetShellBash:
 		return constants.PathSnippetBashFmt, nil
-	} else if shell == constants.PathSnippetShellZsh {
+	case constants.PathSnippetShellZsh:
 		return constants.PathSnippetZshFmt, nil
-	} else if shell == constants.PathSnippetShellFish {
+	case constants.PathSnippetShellFish:
 		return constants.PathSnippetFishFmt, nil
-	} else if shell == constants.PathSnippetShellPwsh {
+	case constants.PathSnippetShellPwsh:
 		return constants.PathSnippetPwshFmt, nil
+	default:
+		return "", fmt.Errorf(constants.ErrPathSnippetUnknownShell, shell)
 	}
-
-	return "", fmt.Errorf(constants.ErrPathSnippetUnknownShell, shell)
 }
 
 // MarkerOpenFor returns the rendered open-marker line for the manager

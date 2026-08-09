@@ -158,10 +158,10 @@ func ReadReleaseMeta(path string) (ReleaseMeta, error) {
 		PreRelease *bool `json:"preRelease"`
 	}
 	if jsonErr := json.Unmarshal(data, &legacy); jsonErr == nil {
-		if meta.IsDraft == false && legacy.Draft != nil && *legacy.Draft {
+		if !meta.IsDraft && legacy.Draft != nil && *legacy.Draft {
 			meta.IsDraft = true
 		}
-		if meta.IsPreRelease == false && legacy.PreRelease != nil && *legacy.PreRelease {
+		if !meta.IsPreRelease && legacy.PreRelease != nil && *legacy.PreRelease {
 			meta.IsPreRelease = true
 		}
 	}

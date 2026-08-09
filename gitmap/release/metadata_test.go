@@ -61,7 +61,7 @@ func TestReleaseExistsTrueAfterWrite(t *testing.T) {
 		t.Fatalf("WriteReleaseMeta error: %v", err)
 	}
 
-	if ReleaseExists(v) == false {
+	if !ReleaseExists(v) {
 		t.Error("should exist after write")
 	}
 }

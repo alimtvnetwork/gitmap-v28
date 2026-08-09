@@ -13,22 +13,33 @@ import CodeBlock from "./CodeBlock";
  * Pure presentational state — no network, no app state.
  */
 
-type Protocol = "https" | "ssh" | "ssh-alias";
-type VersionMode = "v++" | "v+1" | "vN";
+export enum ProtocolType {
+  Https = "https",
+  Ssh = "ssh",
+  SshAlias = "ssh-alias",
+}
+export type Protocol = ProtocolType;
 
-const PROTOCOL_LABEL: Record<Protocol, string> = {
-  https: "HTTPS",
-  ssh: "SSH (git@github.com)",
-  "ssh-alias": "SSH alias (git@github.com-work)",
+export enum VersionModeType {
+  VPlusPlus = "v++",
+  VPlusOne = "v+1",
+  VN = "vN",
+}
+export type VersionMode = VersionModeType;
+
+const PROTOCOL_LABEL: Record<ProtocolType, string> = {
+  [ProtocolType.Https]: "HTTPS",
+  [ProtocolType.Ssh]: "SSH (git@github.com)",
+  [ProtocolType.SshAlias]: "SSH alias (git@github.com-work)",
 };
 
 interface BuilderState {
-  protocol: Protocol;
+  protocol: ProtocolType;
   owner: string;
   baseName: string;
   currentVersion: number;
   hasVersion: boolean;
-  versionMode: VersionMode;
+  versionMode: VersionModeType;
   explicitVersion: number;
   flatten: boolean;
   force: boolean;
@@ -37,12 +48,12 @@ interface BuilderState {
 }
 
 const DEFAULTS: BuilderState = {
-  protocol: "https",
+  protocol: ProtocolType.Https,
   owner: "alimtvnetwork",
   baseName: "macro-ahk",
   currentVersion: 11,
   hasVersion: true,
-  versionMode: "v++",
+  versionMode: VersionModeType.VPlusPlus,
   explicitVersion: 15,
   flatten: true,
   force: false,
@@ -55,7 +66,7 @@ function buildCurrentRepoName(s: BuilderState): string {
 }
 
 function resolveTargetVersion(s: BuilderState): number {
-  if (s.versionMode === "vN") return Math.max(1, s.explicitVersion);
+  if (s.versionMode === VersionModeType.VN) return Math.max(1, s.explicitVersion);
   // v++ and v+1 both increment by 1
   return (s.hasVersion ? s.currentVersion : 1) + 1;
 }
@@ -67,11 +78,11 @@ function buildTargetRepoName(s: BuilderState): string {
 function buildOriginURL(s: BuilderState): string {
   const repo = buildCurrentRepoName(s);
   switch (s.protocol) {
-    case "https":
+    case ProtocolType.Https:
       return `https://github.com/${s.owner}/${repo}.git`;
-    case "ssh":
+    case ProtocolType.Ssh:
       return `git@github.com:${s.owner}/${repo}.git`;
-    case "ssh-alias":
+    case ProtocolType.SshAlias:
       return `git@github.com-work:${s.owner}/${repo}.git`;
   }
 }
@@ -89,7 +100,7 @@ function buildLocalFolder(s: BuilderState): string {
 
 function buildGitmapCommand(s: BuilderState): string {
   const parts = ["gitmap", "clone-next"];
-  parts.push(s.versionMode === "vN" ? `v${Math.max(1, s.explicitVersion)}` : s.versionMode);
+  parts.push(s.versionMode === VersionModeType.VN ? `v${Math.max(1, s.explicitVersion)}` : s.versionMode);
   if (s.force) parts.push("-f");
   if (s.sshKeyName.trim().length > 0) parts.push(`--ssh-key ${s.sshKeyName.trim()}`);
   if (s.branch.trim().length > 0) parts.push(`--branch ${s.branch.trim()}`);
@@ -102,7 +113,7 @@ function buildGitCloneCommand(s: BuilderState): string {
   const folder = buildLocalFolder(s);
   const branchArg = s.branch.trim().length > 0 ? `--branch ${s.branch.trim()} ` : "";
   const base = `git clone ${branchArg}${url} ${folder}`;
-  if (s.protocol !== "https" && s.sshKeyName.trim().length > 0) {
+  if (s.protocol !== ProtocolType.Https && s.sshKeyName.trim().length > 0) {
     const keyName = s.sshKeyName.trim();
     return [
       `# Routed through named SSH key "${keyName}"`,
@@ -125,7 +136,7 @@ function buildResolvedSummary(s: BuilderState): string {
   if (s.force) {
     lines.push(`force      : -f set — chdir-to-parent if cwd == folder; aborts on lock instead of fallback`);
   }
-  if (s.protocol !== "https" && s.sshKeyName.trim().length > 0) {
+  if (s.protocol !== ProtocolType.Https && s.sshKeyName.trim().length > 0) {
     lines.push(`ssh key    : ~/.ssh/id_${s.sshKeyName.trim()}`);
   }
   if (s.branch.trim().length > 0) {
@@ -161,9 +172,9 @@ const CloneNextCommandBuilder = () => {
           <select
             className="w-full rounded-md bg-background border border-border px-2 py-1 text-sm font-mono"
             value={s.protocol}
-            onChange={(e) => update("protocol", e.target.value as Protocol)}
+            onChange={(e) => update("protocol", e.target.value as ProtocolType)}
           >
-            {(Object.keys(PROTOCOL_LABEL) as Protocol[]).map((p) => (
+            {(Object.keys(PROTOCOL_LABEL) as ProtocolType[]).map((p) => (
               <option key={p} value={p}>{PROTOCOL_LABEL[p]}</option>
             ))}
           </select>
@@ -213,13 +224,13 @@ const CloneNextCommandBuilder = () => {
             <select
               className="rounded-md bg-background border border-border px-2 py-1 text-sm font-mono"
               value={s.versionMode}
-              onChange={(e) => update("versionMode", e.target.value as VersionMode)}
+              onChange={(e) => update("versionMode", e.target.value as VersionModeType)}
             >
-              <option value="v++">v++</option>
-              <option value="v+1">v+1</option>
-              <option value="vN">vN (specific)</option>
+              <option value={VersionModeType.VPlusPlus}>v++</option>
+              <option value={VersionModeType.VPlusOne}>v+1</option>
+              <option value={VersionModeType.VN}>vN (specific)</option>
             </select>
-            {s.versionMode === "vN" && (
+            {s.versionMode === VersionModeType.VN && (
               <input
                 type="number"
                 min={1}
@@ -245,7 +256,7 @@ const CloneNextCommandBuilder = () => {
           <input
             type="text"
             placeholder="work"
-            disabled={s.protocol === "https"}
+            disabled={s.protocol === ProtocolType.Https}
             className="w-full rounded-md bg-background border border-border px-2 py-1 text-sm font-mono disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-muted disabled:text-muted-foreground disabled:border-border"
             value={s.sshKeyName}
             onChange={(e) => update("sshKeyName", e.target.value)}

@@ -25,8 +25,7 @@ func parseChangelogStream(r io.Reader) ([]ChangelogEntry, error) {
 			entries, current, inSection = startNewSection(entries, current, inSection, raw)
 			continue
 		}
-		if inSection {
-		} else {
+		if !inSection {
 			continue
 		}
 		current = appendChangelogBullet(current, raw)
@@ -71,8 +70,7 @@ func startNewSection(entries []ChangelogEntry, current ChangelogEntry, inSection
 // console output stays focused on the actionable list items.
 func appendChangelogBullet(current ChangelogEntry, raw string) ChangelogEntry {
 	depth, marker, text, ok := parseBulletLine(raw)
-	if ok {
-	} else {
+	if !ok {
 		return current
 	}
 
@@ -99,8 +97,7 @@ func parseBulletLine(raw string) (int, string, string, bool) {
 	}
 
 	marker, rest, ok := extractBulletMarker(body)
-	if ok {
-	} else {
+	if !ok {
 		return 0, "", "", false
 	}
 

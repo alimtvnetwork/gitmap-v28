@@ -657,14 +657,14 @@ jobs:
         id: changelog
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # Extract the section for this version from CHANGELOG.md
+          # Extract the section for this version from changelog.md
           ENTRY=$(awk -v ver="$VERSION" '
             /^## / {
               if (found) exit
               if (index($0, ver)) found=1
             }
             found { print }
-          ' CHANGELOG.md)
+          ' changelog.md)
 
           if [ -z "$ENTRY" ]; then
             ENTRY="No changelog entry found for $VERSION."

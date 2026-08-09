@@ -8,12 +8,12 @@ import { Input } from "@/components/ui/input";
 import ProjectDetailDialog from "@/components/projects/ProjectDetailDialog";
 import RepoGroup from "@/components/projects/RepoGroup";
 import { ProjectTypes } from "@/components/projects/TypeBadge";
-import type { DetectedProject, ProjectType, ProjectFilter } from "@/components/projects/types";
+import { type DetectedProject, ProjectType, type ProjectFilter, ProjectFilterType } from "@/components/projects/types";
 import { FILTER_ALL } from "@/constants";
 
 const SAMPLE_PROJECTS: DetectedProject[] = [
   {
-    id: "1", repoName: "my-api", projectType: "go", projectName: "github.com/user/my-api",
+    id: "1", repoName: "my-api", projectType: ProjectType.Go, projectName: "github.com/user/my-api",
     absolutePath: "/home/user/repos/my-api", repoPath: "/home/user/repos/my-api",
     relativePath: ".", primaryIndicator: "go.mod", detectedAt: "2026-03-11T09:54:00Z",
     goMetadata: { moduleName: "github.com/user/my-api", goVersion: "1.22", runnables: [
@@ -22,12 +22,12 @@ const SAMPLE_PROJECTS: DetectedProject[] = [
     ]},
   },
   {
-    id: "2", repoName: "my-api", projectType: "react", projectName: "admin-dashboard",
+    id: "2", repoName: "my-api", projectType: ProjectType.React, projectName: "admin-dashboard",
     absolutePath: "/home/user/repos/my-api/web", repoPath: "/home/user/repos/my-api",
     relativePath: "web", primaryIndicator: "package.json", detectedAt: "2026-03-11T09:54:00Z",
   },
   {
-    id: "3", repoName: "infra-tools", projectType: "go", projectName: "github.com/user/infra-tools",
+    id: "3", repoName: "infra-tools", projectType: ProjectType.Go, projectName: "github.com/user/infra-tools",
     absolutePath: "/home/user/repos/infra-tools", repoPath: "/home/user/repos/infra-tools",
     relativePath: ".", primaryIndicator: "go.mod", detectedAt: "2026-03-11T09:55:00Z",
     goMetadata: { moduleName: "github.com/user/infra-tools", goVersion: "1.23", runnables: [
@@ -35,22 +35,22 @@ const SAMPLE_PROJECTS: DetectedProject[] = [
     ]},
   },
   {
-    id: "4", repoName: "web-platform", projectType: "react", projectName: "@platform/frontend",
+    id: "4", repoName: "web-platform", projectType: ProjectType.React, projectName: "@platform/frontend",
     absolutePath: "/home/user/repos/web-platform", repoPath: "/home/user/repos/web-platform",
     relativePath: ".", primaryIndicator: "package.json", detectedAt: "2026-03-11T09:56:00Z",
   },
   {
-    id: "5", repoName: "web-platform", projectType: "node", projectName: "@platform/api",
+    id: "5", repoName: "web-platform", projectType: ProjectType.Node, projectName: "@platform/api",
     absolutePath: "/home/user/repos/web-platform/api", repoPath: "/home/user/repos/web-platform",
     relativePath: "api", primaryIndicator: "package.json", detectedAt: "2026-03-11T09:56:00Z",
   },
   {
-    id: "6", repoName: "signal-engine", projectType: "cpp", projectName: "signal-engine",
+    id: "6", repoName: "signal-engine", projectType: ProjectType.Cpp, projectName: "signal-engine",
     absolutePath: "/home/user/repos/signal-engine", repoPath: "/home/user/repos/signal-engine",
     relativePath: ".", primaryIndicator: "CMakeLists.txt", detectedAt: "2026-03-11T09:57:00Z",
   },
   {
-    id: "7", repoName: "enterprise-app", projectType: "csharp", projectName: "EnterpriseApp",
+    id: "7", repoName: "enterprise-app", projectType: ProjectType.Csharp, projectName: "EnterpriseApp",
     absolutePath: "/home/user/repos/enterprise-app", repoPath: "/home/user/repos/enterprise-app",
     relativePath: ".", primaryIndicator: "EnterpriseApp.sln", detectedAt: "2026-03-11T09:58:00Z",
     csharpMetadata: { slnName: "EnterpriseApp.sln", sdkVersion: "8.0.100", projectFiles: [
