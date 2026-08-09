@@ -1,10 +1,11 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-08-09T10:23:25Z
+> Last updated: 2026-08-09T12:08:25Z
 
 ## Changelog
 
+- 2026-08-09T12:08:25Z, Verified canonical what-to-read map for the project.
 - 2026-08-09T10:23:25Z, Initialized canonical what-to-read map for the project.
 
 ## Before any task (always)
