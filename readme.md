@@ -1656,7 +1656,7 @@ gitmap lb 5 --format csv
 ---
 
 ## 🤖 AI Onboarding
-If you are an AI assistant working on this repository, you **MUST** read [`.lovable/what-to-read.md`](file:///.lovable/what-to-read.md) before starting any task. It is the authoritative read-list for the project architecture, constraints, and coding guidelines.
+If you are an AI assistant working on this repository, you **MUST** read [`.lovable/what-to-read.md`](.lovable/what-to-read.md) before starting any task. It is the authoritative read-list for the project architecture, constraints, and coding guidelines.
 
 ---
 
