@@ -4,11 +4,20 @@ export interface SpecEntry {
   link?: string;
 }
 
+export enum IconNameType {
+  FileText = "file-text",
+  AlertTriangle = "alert-triangle",
+  Compass = "compass",
+  Terminal = "terminal",
+  ShieldCheck = "shield-check",
+  Palette = "palette",
+}
+
 export interface SpecSection {
   folder: string;
   title: string;
   description: string;
-  iconName: "file-text" | "alert-triangle" | "compass" | "terminal" | "shield-check" | "palette";
+  iconName: IconNameType;
   color: string;
   entries: SpecEntry[];
 }
@@ -18,7 +27,7 @@ export const sections: SpecSection[] = [
     folder: "01-app",
     title: "Application Specifications",
     description: "Feature specs, command designs, and refactor documentation for the gitmap CLI.",
-    iconName: "file-text",
+    iconName: IconNameType.FileText,
     color: "text-primary",
     entries: [
       { id: "01", title: "Overview" },
@@ -92,7 +101,7 @@ export const sections: SpecSection[] = [
     folder: "02-app-issues",
     title: "Issue Post-Mortems",
     description: "Root-cause analyses and resolution records for production bugs.",
-    iconName: "alert-triangle",
+    iconName: IconNameType.AlertTriangle,
     color: "text-yellow-500",
     entries: [
       { id: "01", title: "Update File Lock" },
@@ -117,7 +126,7 @@ export const sections: SpecSection[] = [
     folder: "03-general",
     title: "Design Guidelines",
     description: "Reusable architectural patterns and coding standards — generic and shareable across projects.",
-    iconName: "compass",
+    iconName: IconNameType.Compass,
     color: "text-green-500",
     entries: [
       { id: "01", title: "CLI Design Patterns" },
@@ -134,7 +143,7 @@ export const sections: SpecSection[] = [
     folder: "03-tasks",
     title: "Task Specifications",
     description: "Detailed task specs for feature implementation, standardization, and process improvements.",
-    iconName: "file-text",
+    iconName: IconNameType.FileText,
     color: "text-cyan-500",
     entries: [
       { id: "01", title: "NPP Installation & Settings Shortcut Standardization" },
@@ -144,7 +153,7 @@ export const sections: SpecSection[] = [
     folder: "04-generic-cli",
     title: "Generic CLI Blueprint",
     description: "A production-quality CLI implementation blueprint usable as a starting point for any Go CLI project.",
-    iconName: "terminal",
+    iconName: IconNameType.Terminal,
     color: "text-blue-400",
     entries: [
       { id: "01", title: "Overview", link: "/generic-cli" },
@@ -172,7 +181,7 @@ export const sections: SpecSection[] = [
     folder: "05-coding-guidelines",
     title: "Coding Guidelines",
     description: "Universal code quality rules — naming, structure, and maintainability standards for all languages.",
-    iconName: "shield-check",
+    iconName: IconNameType.ShieldCheck,
     color: "text-orange-500",
     entries: [
       { id: "01", title: "Code Quality Improvement" },
@@ -210,7 +219,7 @@ export const sections: SpecSection[] = [
     folder: "06-design-system",
     title: "Design System",
     description: "Complete visual design reference — colors, typography, code blocks, component patterns, and syntax themes.",
-    iconName: "palette",
+    iconName: IconNameType.Palette,
     color: "text-primary",
     entries: [
       { id: "01", title: "Colors & Themes (Root)" },

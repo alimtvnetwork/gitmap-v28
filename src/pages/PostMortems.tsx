@@ -14,10 +14,14 @@ const categoryConfig: Record<PostMortemCategoryType, { label: string; icon: type
 
 const allCategories = Object.keys(categoryConfig) as PostMortemEntry["category"][];
 
-const PostMortemsPage = () => {
-  const [activeFilter, setActiveFilter] = useState<PostMortemEntry["category"] | "all">("all");
+export enum PostMortemFilterType {
+  All = "all",
+}
 
-  const filtered = activeFilter === "all"
+const PostMortemsPage = () => {
+  const [activeFilter, setActiveFilter] = useState<PostMortemEntry["category"] | PostMortemFilterType>(PostMortemFilterType.All);
+
+  const filtered = activeFilter === PostMortemFilterType.All
     ? postMortems
     : postMortems.filter((pm) => pm.category === activeFilter);
 
@@ -33,9 +37,9 @@ const PostMortemsPage = () => {
       {/* Category filters */}
       <div className="flex flex-wrap gap-2 mb-6">
         <button
-          onClick={() => setActiveFilter("all")}
+          onClick={() => setActiveFilter(PostMortemFilterType.All)}
           className={`text-xs font-mono px-2.5 py-1 rounded border transition-colors duration-300 hover:shadow-sm hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-            activeFilter === "all"
+            activeFilter === PostMortemFilterType.All
               ? "border-primary bg-primary/10 text-foreground dark:bg-primary/15 dark:text-primary"
               : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
           }`}

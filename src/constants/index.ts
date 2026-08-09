@@ -1,5 +1,5 @@
 /** @deprecated Use gitmap/constants/constants.go as the single source of truth. */
-export const VERSION = "v6.87.0" as const;
+export const VERSION = "v6.88.0" as const;
 
 /** Repo status values used in watch/status displays. */
 export const RepoStatus = {

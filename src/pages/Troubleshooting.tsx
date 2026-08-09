@@ -17,6 +17,10 @@ export enum CategoryType {
 }
 export type Category = CategoryType;
 
+export enum CategoryFilterType {
+  All = "all",
+}
+
 interface Issue {
   id: string;
   category: CategoryType;
@@ -275,14 +279,14 @@ const isValidCategoryKey = (v: string): v is Category =>
 const Troubleshooting = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get("search") ?? searchParams.get("q") ?? "";
-  const initialCategoryRaw = searchParams.get("category") ?? "all";
-  const initialCategory: Category | "all" =
-    initialCategoryRaw === "all" || isValidCategoryKey(initialCategoryRaw)
-      ? (initialCategoryRaw as Category | "all")
-      : "all";
+  const initialCategoryRaw = searchParams.get("category") ?? CategoryFilterType.All;
+  const initialCategory: Category | CategoryFilterType =
+    initialCategoryRaw === CategoryFilterType.All || isValidCategoryKey(initialCategoryRaw)
+      ? (initialCategoryRaw as Category | CategoryFilterType)
+      : CategoryFilterType.All;
 
   const [search, setSearch] = useState(initialSearch);
-  const [activeCategory, setActiveCategory] = useState<Category | "all">(initialCategory);
+  const [activeCategory, setActiveCategory] = useState<Category | CategoryFilterType>(initialCategory);
   const scrolledIdRef = useRef<string | null>(null);
 
   // Sync state -> URL (replace, no history entry per keystroke).
@@ -291,7 +295,7 @@ const Troubleshooting = () => {
     if (search) next.set("search", search);
     else next.delete("search");
     next.delete("q");
-    if (activeCategory !== "all") next.set("category", activeCategory);
+    if (activeCategory !== CategoryFilterType.All) next.set("category", activeCategory);
     else next.delete("category");
     if (next.toString() !== searchParams.toString()) {
       setSearchParams(next, { replace: true });
@@ -301,7 +305,7 @@ const Troubleshooting = () => {
 
   const filtered = useMemo(() => {
     let rows = issues;
-    if (activeCategory !== "all") rows = rows.filter((i) => i.category === activeCategory);
+    if (activeCategory !== CategoryFilterType.All) rows = rows.filter((i) => i.category === activeCategory);
     if (search) {
       const q = search.toLowerCase();
       rows = rows.filter(
@@ -317,7 +321,7 @@ const Troubleshooting = () => {
   }, [search, activeCategory]);
 
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: issues.length };
+    const counts: Record<string, number> = { [CategoryFilterType.All]: issues.length };
     for (const i of issues) counts[i.category] = (counts[i.category] ?? 0) + 1;
     return counts;
   }, []);
@@ -328,8 +332,8 @@ const Troubleshooting = () => {
     if (!targetId) return;
     const issue = issues.find((i) => i.id === targetId);
     if (!issue) return;
-    if (activeCategory !== "all" && activeCategory !== issue.category) {
-      setActiveCategory("all");
+    if (activeCategory !== CategoryFilterType.All && activeCategory !== issue.category) {
+      setActiveCategory(CategoryFilterType.All);
       return;
     }
     if (filtered.findIndex((i) => i.id === targetId) === -1) {
@@ -361,14 +365,14 @@ const Troubleshooting = () => {
 
       <div className="flex flex-wrap gap-2 mt-4 mb-8">
         <button
-          onClick={() => setActiveCategory("all")}
+          onClick={() => setActiveCategory(CategoryFilterType.All)}
           className={`px-3 py-1.5 rounded-md text-sm font-mono border transition-colors ${
-            activeCategory === "all"
+            activeCategory === CategoryFilterType.All
               ? "bg-primary text-primary-foreground border-primary"
               : "bg-background text-muted-foreground border-border hover:text-foreground hover:border-foreground/30"
           }`}
         >
-          all ({categoryCounts.all})
+          all ({categoryCounts[CategoryFilterType.All]})
         </button>
         {(Object.keys(categoryMeta) as Category[]).map((key) => {
           const Icon = categoryMeta[key].icon;

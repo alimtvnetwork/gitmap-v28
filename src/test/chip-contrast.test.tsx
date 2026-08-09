@@ -104,11 +104,14 @@ function contrastRatio(
 }
 
 // ─── chip variants we ship across the codebase ─────────────────────────────
-type Mode = "light" | "dark";
+export enum ModeType {
+  Light = "light",
+  Dark = "dark",
+}
 interface ChipCase {
   name: string;
   /** Foreground token resolved by Tailwind classes + global override. */
-  fg: (mode: Mode) => string;
+  fg: (mode: ModeType) => string;
   /** Background tint alpha composited over page bg. */
   bgTintAlpha: number;
   /** Minimum contrast ratio this variant must meet. */
@@ -133,25 +136,25 @@ interface ChipCase {
 const CHIP_CASES: ChipCase[] = [
   {
     name: "explicit-override chip @ 10% tint (alias badges)",
-    fg: (m) => (m === "dark" ? "background" : "foreground"),
+    fg: (m) => (m === ModeType.Dark ? "background" : "foreground"),
     bgTintAlpha: 0.10,
     minContrast: { light: 9.0, dark: 1.05 },
   },
   {
     name: "explicit-override chip @ 25% tint (header version chip)",
-    fg: (m) => (m === "dark" ? "background" : "foreground"),
+    fg: (m) => (m === ModeType.Dark ? "background" : "foreground"),
     bgTintAlpha: 0.25,
     minContrast: { light: 7.0, dark: 1.45 },
   },
   {
     name: "legacy bg-primary/10 + text-primary (global dark rule)",
-    fg: (m) => (m === "dark" ? "background" : "primary"),
+    fg: (m) => (m === ModeType.Dark ? "background" : "primary"),
     bgTintAlpha: 0.10,
     minContrast: { light: 1.7, dark: 1.05 },
   },
   {
     name: "legacy bg-primary/20 + text-primary (Release.tsx priority)",
-    fg: (m) => (m === "dark" ? "background" : "primary"),
+    fg: (m) => (m === ModeType.Dark ? "background" : "primary"),
     bgTintAlpha: 0.20,
     minContrast: { light: 1.7, dark: 1.25 },
   },
@@ -161,15 +164,15 @@ const CHIP_CASES: ChipCase[] = [
 // the strict WCAG AA Large baseline (3:1) since they're full-opacity.
 const SOLID_BTN_MIN_CONTRAST = 3.0;
 
-function effectiveBg(mode: Mode, alpha: number): [number, number, number] {
-  const tokens = mode === "dark" ? DARK_TOKENS : LIGHT_TOKENS;
+function effectiveBg(mode: ModeType, alpha: number): [number, number, number] {
+  const tokens = mode === ModeType.Dark ? DARK_TOKENS : LIGHT_TOKENS;
   const tint = hslTokenToRgb(tokens.primary);
   const page = hslTokenToRgb(tokens.background);
   return compositeOver(tint, alpha, page);
 }
 
-function fgRgb(mode: Mode, key: string): [number, number, number] {
-  const tokens = mode === "dark" ? DARK_TOKENS : LIGHT_TOKENS;
+function fgRgb(mode: ModeType, key: string): [number, number, number] {
+  const tokens = mode === ModeType.Dark ? DARK_TOKENS : LIGHT_TOKENS;
   const token = (tokens as Record<string, string>)[key];
   if (!token) throw new Error(`Unknown token: ${key} in ${mode}`);
   return hslTokenToRgb(token);
@@ -199,7 +202,7 @@ describe("chip foreground-color readability (regression)", () => {
   });
 
   for (const chip of CHIP_CASES) {
-    for (const mode of ["light", "dark"] as const) {
+    for (const mode of [ModeType.Light, ModeType.Dark] as const) {
       it(`${chip.name} — ${mode} mode meets ${chip.minContrast[mode]}:1 baseline`, () => {
         const fg = fgRgb(mode, chip.fg(mode));
         const bg = effectiveBg(mode, chip.bgTintAlpha);
