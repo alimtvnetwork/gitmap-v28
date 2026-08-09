@@ -1,5 +1,13 @@
 # Changelog
 
+## [v6.91.0] 2026-08-09
+### Changed
+- **Architectural Shift:** Centralized version management strictly to `version.json` at the repository root.
+- Converted `Version` from a `const` to a `var` inside `gitmap/constants/constants.go` to support dynamic compile-time overrides via `-ldflags`.
+- Refactored `release.yml` GitHub action to read exclusively from `version.json` rather than relying on Git tags for metadata extraction.
+- Refactored `src/constants/index.ts` to natively import `version.json`.
+- Modified all `spec/` AI blueprints and `.lovable/plan.md` tasks to prohibit multi-file version sweeping in favor of the new single source of truth.
+
 ## [v6.90.0] 2026-08-09
 ### Added
 - Expanded the CI/CD Pipeline documentation into a comprehensive multi-file structure within `spec/09-pipeline-extend-v2/` mirroring the original architecture.
