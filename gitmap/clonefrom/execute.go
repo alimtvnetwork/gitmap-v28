@@ -23,7 +23,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-
 	"strings"
 	"time"
 
@@ -110,7 +109,21 @@ func runGitClone(r Row, dest, cwd string) (string, bool) {
 	cmd.Dir = cwd
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return trimGitError(string(out), err), false
+		outputStr := string(out)
+
+		// Attempt LFS smudge auto-fix
+		if file, isSmudge := detectLFSSmudgeError(outputStr); isSmudge {
+			fmt.Fprintf(os.Stderr, "\n[Warning] Git clone succeeded but checkout failed due to missing LFS object (404) for file: %s\n", file)
+			if confirmYesNo("Do you want to automatically drop this broken LFS pointer to fix the clone and push the fix?") {
+				if fixErr := executeLFSFix(dest, file); fixErr != nil {
+					return trimGitError(outputStr+"\n[LFS Fix Failed: "+fixErr.Error()+"]", err), false
+				}
+				// The fix was successful! The clone is now valid.
+				return "", true
+			}
+		}
+
+		return trimGitError(outputStr, err), false
 	}
 
 	return "", true
