@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.86.0] 2026-08-09 maintenance bump
+
+### Changed
+- Routine version bump sequence to enforce prompt instructions and idempotency.
+
 ## [v6.85.0] 2026-08-08 release ceremony and version sync
 
 ### Changed
