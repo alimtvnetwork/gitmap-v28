@@ -1,5 +1,14 @@
 # Changelog
 
+## [v6.87.0] 2026-08-09
+### Changed
+- Refactored TypeScript string union types to proper Enums (ending with `Type`)
+- Reverted Go `if/else` logic back to `switch` where appropriate
+- Cleaned up boolean checks, converting inverted logic (`!isSuccess`) to explicit explicit positive checks (`isFail`)
+- Removed magic strings and numbers across the codebase
+- Created a centralized generic API wrapper (`queryWrapper`) in TypeScript for structured error catching and logging
+- Fixed GitHub Actions release workflow bug where it sought `CHANGELOG.md` instead of `changelog.md`
+
 ## [v6.86.0] 2026-08-09 maintenance bump
 
 ### Changed

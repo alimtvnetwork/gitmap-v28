@@ -1,0 +1,15 @@
+{
+  "version": "6.87.0",
+  "branch": "release/v6.87.0",
+  "sourceBranch": "main",
+  "commit": "3abee9ff7b12d1487cc278f24458cc5a420993fc",
+  "tag": "v6.87.0",
+  "assets": [],
+  "changelog": [
+    "Routine version bump sequence to enforce prompt instructions and idempotency."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-08-09T03:40:00Z",
+  "isLatest": true
+}
