@@ -1,5 +1,16 @@
 # Changelog
 
+## [v6.88.0] 2026-08-09
+### Added
+- Created `query_wrapper.py` in Python to uniformly catch exceptions and log explicit errors without relying on scattered try/catch blocks.
+- Applied `query_wrapper` across the lint scripts in `.github/scripts/` to enforce robust logging.
+
+### Changed
+- Enforced complete eradication of string union types in TypeScript (UI components, specifications, pages). All previously lingering string unions have been strictly refactored to `EnumNameType`.
+- Unified the `is_fail` / `isFail` convention explicitly across the codebase, preventing anti-patterns like `!isSuccess`.
+
+### Fixed
+- Fixed release skew bug where an un-version-bumped tag (`v6.87.1`) failed smoke tests by pushing a clean Minor version bump to align source control with Git tags.
 ## [v6.87.0] 2026-08-09
 ### Changed
 - Refactored TypeScript string union types to proper Enums (ending with `Type`)
