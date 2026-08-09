@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.90.0] 2026-08-09
+### Added
+- Expanded the CI/CD Pipeline documentation into a comprehensive multi-file structure within `spec/09-pipeline-extend-v2/` mirroring the original architecture.
+- Specifically documented the `awk` changelog integrations, strict TS Enum enforcement (`*Type`), and `query_wrapper` Python/TS explicit error rules for AI ingestion.
+
 ## [v6.89.0] 2026-08-09
 ### Added
 - Created `spec/09-pipeline-extend-v2/readme.md` detailing the RCA for release skew errors and standardizing AI release workflows.
