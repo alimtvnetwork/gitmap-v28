@@ -1,10 +1,11 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-08-09T12:08:25Z
+> Last updated: 2026-08-10T04:40:24Z
 
 ## Changelog
 
+- 2026-08-10T04:40:24Z, Implemented LFS smudge error detection and auto-fix fallback in `clonefrom`.
 - 2026-08-09T12:08:25Z, Verified canonical what-to-read map for the project.
 - 2026-08-09T10:23:25Z, Initialized canonical what-to-read map for the project.
 

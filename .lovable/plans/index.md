@@ -7,4 +7,4 @@
 - [cfr-cg-os-aware-coding-guidelines](pending/04-cfr-cg-os-aware-coding-guidelines.md) - cfr / cfrp cg modifier: OS-aware Coding Guidelines v24 integration
 
 ## Completed Plans
-*(None yet)*
+- [lfs-smudge-fallback](completed/05-lfs-smudge-fallback.md) - Automatically detect and fallback to un-track LFS 404 smudge errors during clone
