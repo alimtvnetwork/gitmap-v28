@@ -26,10 +26,12 @@ import json
 import os
 import sys
 from collections import defaultdict
-from typing import Iterable
+from typing import Iterable, Set, Tuple
+
+from query_wrapper import query_wrapper
 
 
-Finding = tuple[str, int, str, str]  # (file, line, linter, message)
+Finding = Tuple[str, int, str, str]  # (file, line, linter, message)
 
 
 def main() -> int:
@@ -92,14 +94,15 @@ def load_findings(path: str) -> set[Finding]:
     if os.path.getsize(path) == 0:
         return set()
 
-    try:
+    def _read_json():
         with open(path, encoding="utf-8") as fh:
-            data = json.load(fh)
-    except (json.JSONDecodeError, OSError) as err:
-        print(f"::warning::could not parse {path}: {err}", file=sys.stderr)
+            return json.load(fh)
+
+    res = query_wrapper(_read_json)
+    if res["is_fail"]:
         return set()
 
-    return set(extract_findings(data.get("Issues") or []))
+    return set(extract_findings(res["data"].get("Issues") or []))
 
 
 def extract_findings(issues: Iterable[dict]) -> Iterable[Finding]:

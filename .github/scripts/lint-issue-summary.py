@@ -43,6 +43,8 @@ import sys
 from collections import defaultdict
 from typing import Iterable
 
+from query_wrapper import query_wrapper
+
 Finding = tuple[str, int, str, str]  # (file, line, linter, message)
 
 ENTRY_MARKER = "<!-- ci-lint-issue:"
@@ -144,12 +146,15 @@ def load_findings(path: str) -> set[Finding]:
         return set()
     if os.path.getsize(path) == 0:
         return set()
-    try:
-        with open(path, encoding="utf-8") as fh:
-            data = json.load(fh)
-    except (json.JSONDecodeError, OSError) as err:
-        log(f"could not parse {path}: {err}")
+    def _read_json():
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+            
+    res = query_wrapper(_read_json)
+    if res["is_fail"]:
+        log(f"could not parse {path}: {res['error']}")
         return set()
+    data = res["data"]
     return set(extract_findings(data.get("Issues") or []))
 
 

@@ -38,6 +38,7 @@ import re
 import sys
 from collections import defaultdict
 from typing import Callable
+from query_wrapper import query_wrapper
 
 Finding = tuple[str, int, str, str]  # (file, line, linter, message)
 
@@ -117,13 +118,16 @@ def load_findings(path: str) -> set[Finding]:
         return set()
     if os.path.getsize(path) == 0:
         return set()
-    try:
-        with open(path, encoding="utf-8") as fh:
-            data = json.load(fh)
-    except (json.JSONDecodeError, OSError) as err:
-        print(f"::warning::could not parse {path}: {err}", file=sys.stderr)
+
+    def _read_json():
+        with open(path, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+
+    res = query_wrapper(_read_json)
+    if res["is_fail"]:
         return set()
 
+    data = res["data"]
     out: set[Finding] = set()
     for issue in data.get("Issues") or []:
         pos = issue.get("Pos") or {}
