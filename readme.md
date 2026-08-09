@@ -1651,6 +1651,16 @@ gitmap lb 5 --format csv
 
 ---
 
+<h3 align="center">Your complete command-line toolkit for managing Git workspaces</h3>
+
+---
+
+## 🤖 AI Onboarding
+If you are an AI assistant working on this repository, you **MUST** read [`.lovable/what-to-read.md`](file:///.lovable/what-to-read.md) before starting any task. It is the authoritative read-list for the project architecture, constraints, and coding guidelines.
+
+---
+
+> [!NOTE]
 <div align="center">
 
 ### Navigation & Organization
