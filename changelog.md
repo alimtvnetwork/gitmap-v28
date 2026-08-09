@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.92.0] 2026-08-10
+### Added
+- Added PHP query wrapper (`query_wrapper.php`) to unify error logging in PHP environments.
+- Conducted full codebase audit confirming 0 violations for TS Enums (`Type` suffix) and `isFail` vs inverted boolean usages.
+
 ## [v6.91.0] 2026-08-09
 ### Changed
 - **Architectural Shift:** Centralized version management strictly to `version.json` at the repository root.
