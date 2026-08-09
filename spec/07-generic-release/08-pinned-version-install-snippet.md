@@ -79,7 +79,7 @@ The pinned-version short-circuit was added in **v3.12.0**:
 
 When cutting a new release tag:
 
-1. **Bump version** in `gitmap-v28/constants/constants.go` and
+1. **Bump version** in `gitmap-v28/version.json` and
    `src/constants/index.ts`.
 2. **Update `CHANGELOG.md`** and `src/data/changelog.ts`.
 3. **Update this spec** if either the snippet template or the installer

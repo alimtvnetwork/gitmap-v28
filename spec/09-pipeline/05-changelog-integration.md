@@ -61,7 +61,7 @@ Add a changelog entry **before** creating a release branch or tag. The entry mus
 # 1. Bump version constant in code
 # 2. Update CHANGELOG.md with new entry
 # 3. Commit both changes
-git add constants/constants.go CHANGELOG.md
+git add version.json CHANGELOG.md
 git commit -m "Prepare v1.3.0 release"
 
 # 4. Create release branch

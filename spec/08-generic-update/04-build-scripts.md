@@ -231,7 +231,7 @@ write_fail()    { echo -e "  \033[0;31mXX\033[0m \033[0;31m$1\033[0m"; }
 Before building, validate that critical source files exist:
 
 ```bash
-required_files=("main.go" "go.mod" "cmd/root.go" "constants/constants.go")
+required_files=("main.go" "go.mod" "cmd/root.go" "version.json")
 
 missing=()
 for file in "${required_files[@]}"; do

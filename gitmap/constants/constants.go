@@ -13,7 +13,7 @@
 package constants
 
 // Version.
-const Version = "6.90.0"
+var Version = "0.0.0-dev" // Overridden at compile time via -ldflags
 
 // RepoPath is set at build time via -ldflags.
 var RepoPath = ""

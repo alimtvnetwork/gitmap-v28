@@ -4,43 +4,30 @@ When an AI Agent handles a release for this repository, it MUST synchronously up
 
 ## Standard Operating Procedure
 
-### 1. Perform PowerShell Version Bump
-You must dynamically sweep and replace the old version string (`OLD.VER.SION`) with the new version string (`X.Y.Z`) across the following canonical files:
+### 1. Update Central `version.json`
+The absolute source of truth for the version is located at the root of the repository in `version.json`. 
 
-```powershell
-$newVer = "X.Y.Z"
-$files = @(
-  ".gitmap/release/latest.json", 
-  ".lovable/plan.md", 
-  "gitmap/constants/constants.go", 
-  "readme.md", 
-  "src/constants/index.ts", 
-  "package.json"
-)
-
-foreach ($f in $files) { 
-  $c = Get-Content $f -Raw
-  $c = $c -replace 'OLD\.VER\.SION', $newVer
-  Set-Content $f -Value $c -NoNewline 
+You must only bump this file:
+```json
+{
+  "version": "6.91.0"
 }
 ```
-**CRITICAL**: You must also duplicate the release manifest JSON:
-```powershell
-Copy-Item ".gitmap/release/vOLD.VER.SION.json" ".gitmap/release/vX.Y.Z.json"
-$c = Get-Content ".gitmap/release/vX.Y.Z.json" -Raw
-$c = $c -replace 'OLD\.VER\.SION', $newVer
-Set-Content ".gitmap/release/vX.Y.Z.json" -Value $c -NoNewline
-```
 
-### 2. Push to Branch
+The AI MUST NOT attempt to use PowerShell to mutate the `gitmap` codebase (`constants.go`) or `.gitmap/release/latest.json`. The CI pipeline parses `version.json` via `jq` and actively injects it into Golang via `-ldflags` during compilation.
+
+### 2. Update Web/Changelog Metadata
+Make sure you update `package.json` and inject the `## [vX.Y.Z] YYYY-MM-DD` block into `changelog.md`.
+
+### 3. Push to Branch
 ```bash
 git add .
 git commit -m "chore(release): bump version to vX.Y.Z"
 git push origin main
 ```
-You MUST wait for GitHub to register the commit before proceeding to step 3.
+You MUST wait for GitHub to register the commit before proceeding to step 4.
 
-### 3. Tag Execution
+### 4. Tag Execution
 Only push the tag after the source branch has been synchronized and pushed.
 ```bash
 git tag vX.Y.Z

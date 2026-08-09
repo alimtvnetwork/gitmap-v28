@@ -36,13 +36,9 @@ jobs:
       - name: Resolve version
         id: version
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            VERSION="${GITHUB_REF_NAME}"
-          elif [[ "$GITHUB_REF" == refs/heads/release/* ]]; then
-            VERSION="${GITHUB_REF_NAME#release/}"
-          else
-            echo "::error::Unexpected ref: $GITHUB_REF"
-            exit 1
+          VERSION=$(jq -r .version version.json)
+          if [[ "$VERSION" != v* ]]; then
+            VERSION="v$VERSION"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Resolved version: $VERSION"

@@ -1,5 +1,5 @@
-/** @deprecated Use gitmap/constants/constants.go as the single source of truth. */
-export const VERSION = "v6.90.0" as const;
+import versionData from "../../version.json";
+export const VERSION = `v${versionData.version}` as const;
 
 /** Repo status values used in watch/status displays. */
 export const RepoStatus = {

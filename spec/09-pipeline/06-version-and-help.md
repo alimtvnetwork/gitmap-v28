@@ -14,7 +14,7 @@ The version is compiled into the binary via `ldflags`:
 
 ```go
 // constants/constants.go
-const Version = "1.3.0"
+var Version = "0.0.0-dev" // Overridden at build time via -ldflags
 ```
 
 Build command:

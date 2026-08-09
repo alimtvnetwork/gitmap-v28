@@ -2,9 +2,10 @@
 All AI agents triggering releases MUST follow `spec/09-pipeline-extend-v2/readme.md` strictly. 
 **Rule**: Tag-based releases fail if the source constants aren't updated FIRST.
 **Execution**:
-1. Run PowerShell sweep to bump versions across all canonical files.
-2. Push branch to `main`.
-3. Finally push `git tag vX.Y.Z`.
+1. Bump the version ONLY inside `version.json` at the repository root.
+2. Update `changelog.md` and `package.json` to match.
+3. Push branch to `main`.
+4. Finally push `git tag vX.Y.Z`.
 
 ## Problem (verified)
 
@@ -33,9 +34,8 @@ Nothing in `clone-next`, `clone-now`, `reclone`, or `clonefixrepo` is touched �
 
 ## Release v6.90.0
 
-- `gitmap/constants/constants.go` → `Version = "6.90.0"`
-- `src/constants/index.ts` → `6.90.0`
-- `.gitmap/release/v6.90.0.json` (copy the v6.85.0 shape) and update `.gitmap/release/latest.json`
+- `version.json` → `{"version": "6.91.0"}`
+- `.gitmap/release/v6.91.0.json` (copy the v6.90.0 shape) and update `.gitmap/release/latest.json`
 - `changelog.md` → new `v6.90.0` section: maintenance bump
 - `readme.md` → repin every `v6.85.0` occurrence to `v6.90.0`
 

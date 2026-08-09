@@ -15,7 +15,7 @@ The version is resolved with a 3-tier priority:
 |----------|--------|---------|
 | 1 | Explicit CLI argument | `release v1.2.0` |
 | 2 | Bump flag | `release --bump minor` (1.1.0 → 1.2.0) |
-| 3 | Current version from source | Read from `constants.go` or `version.go` |
+| 3 | Current version from source | Read from `version.json` via CI scripts |
 
 ### Normalization
 
@@ -95,7 +95,7 @@ Three sources must always be in sync:
 
 | Source | Location | Purpose |
 |--------|----------|---------|
-| `Version` constant | Source code (`constants.go`) | Compiled into binary |
+| `Version` value    | Source code (`version.json`) | Injected via `-ldflags`  |
 | `CHANGELOG.md` | Repository root | Human-readable history |
 | Release metadata | `.release/latest.json` or tags | CI/CD and tooling |
 
