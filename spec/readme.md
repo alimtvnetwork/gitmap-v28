@@ -248,6 +248,12 @@ Diagram: [`09-pipeline/images/ci-pipeline-flow.jpg`](09-pipeline/images/ci-pipel
 
 ---
 
+## 09-pipeline-extend-v2/ — Pipeline Extension & Release RCA
+
+Documentation for CI/CD agent blueprints, RCA for release skews, and PowerShell release synchronization scripts.
+
+---
+
 ## 86-author-section.md — Author Section Specification
 
 Precise spec for author attribution blocks across all spec documents.

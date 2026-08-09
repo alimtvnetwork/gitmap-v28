@@ -1,3 +1,11 @@
+## Pipeline Extend V2: AI Release Agent Instructions
+All AI agents triggering releases MUST follow `spec/09-pipeline-extend-v2/readme.md` strictly. 
+**Rule**: Tag-based releases fail if the source constants aren't updated FIRST.
+**Execution**:
+1. Run PowerShell sweep to bump versions across all canonical files.
+2. Push branch to `main`.
+3. Finally push `git tag vX.Y.Z`.
+
 ## Problem (verified)
 
 `gitmap clone <url>` (single URL) already keeps the folder name verbatim, including a trailing `-vN` (`gitmap/cmd/clone.go:247-259`).
@@ -23,13 +31,13 @@ Nothing in `clone-next`, `clone-now`, `reclone`, or `clonefixrepo` is touched �
 - `spec/01-app/104-clone-multi.md` — add a "Folder naming" rule: folder = repo name from URL verbatim (`-vN` preserved); explicit second positional arg overrides; no flattening in `clone`.
 - `.lovable/memory/` — record the constraint "base `clone` must never strip `-vN` from folder names" so it is not reintroduced.
 
-## Release v6.88.0
+## Release v6.89.0
 
-- `gitmap/constants/constants.go` → `Version = "6.88.0"`
-- `src/constants/index.ts` → `6.88.0`
-- `.gitmap/release/v6.88.0.json` (copy the v6.85.0 shape) and update `.gitmap/release/latest.json`
-- `changelog.md` → new `v6.88.0` section: maintenance bump
-- `readme.md` → repin every `v6.85.0` occurrence to `v6.88.0`
+- `gitmap/constants/constants.go` → `Version = "6.89.0"`
+- `src/constants/index.ts` → `6.89.0`
+- `.gitmap/release/v6.89.0.json` (copy the v6.85.0 shape) and update `.gitmap/release/latest.json`
+- `changelog.md` → new `v6.89.0` section: maintenance bump
+- `readme.md` → repin every `v6.85.0` occurrence to `v6.89.0`
 
 ## Verification
 

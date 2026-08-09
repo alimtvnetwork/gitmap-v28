@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.89.0] 2026-08-09
+### Added
+- Created `spec/09-pipeline-extend-v2/readme.md` detailing the RCA for release skew errors and standardizing AI release workflows.
+- Linked new pipeline specs into the main `spec/readme.md` TOC.
+- Injected strict release operating procedures into `.lovable/plan.md` to permanently guide AI execution on tagging.
+
 ## [v6.88.0] 2026-08-09
 ### Added
 - Created `query_wrapper.py` in Python to uniformly catch exceptions and log explicit errors without relying on scattered try/catch blocks.
