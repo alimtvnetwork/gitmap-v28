@@ -5,8 +5,9 @@
 // ones (Linux CI) — and vice versa after a `git mv` rename. Fail fast.
 import { readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = new URL("../src/", import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL("../src/", import.meta.url));
 const SKIP = new Set(["node_modules", ".git", "dist", "build"]);
 
 function walk(dir, collisions) {

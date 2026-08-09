@@ -3,6 +3,11 @@ import DocsLayout from "@/components/docs/DocsLayout";
 import SearchBar from "@/components/docs/SearchBar";
 import { commands } from "@/data/commands";
 
+export enum SortColType {
+  Flag = "flag",
+  Command = "command",
+}
+
 interface FlagRow {
   flag: string;
   description: string;
@@ -12,7 +17,7 @@ interface FlagRow {
 
 const FlagReferencePage = () => {
   const [search, setSearch] = useState("");
-  const [sortCol, setSortCol] = useState<"flag" | "command">("flag");
+  const [sortCol, setSortCol] = useState<SortColType>(SortColType.Flag);
   const [sortAsc, setSortAsc] = useState(true);
 
   const allFlags = useMemo<FlagRow[]>(() => {
@@ -35,14 +40,14 @@ const FlagReferencePage = () => {
       );
     }
     rows.sort((a, b) => {
-      const va = sortCol === "flag" ? a.flag : a.command;
-      const vb = sortCol === "flag" ? b.flag : b.command;
+      const va = sortCol === SortColType.Flag ? a.flag : a.command;
+      const vb = sortCol === SortColType.Flag ? b.flag : b.command;
       return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
     });
     return rows;
   }, [allFlags, search, sortCol, sortAsc]);
 
-  const handleSort = (col: "flag" | "command") => {
+  const handleSort = (col: SortColType) => {
     if (sortCol === col) {
       setSortAsc(!sortAsc);
     } else {
@@ -51,7 +56,7 @@ const FlagReferencePage = () => {
     }
   };
 
-  const sortIndicator = (col: "flag" | "command") =>
+  const sortIndicator = (col: SortColType) =>
     sortCol === col ? (sortAsc ? " ↑" : " ↓") : "";
 
   return (
@@ -69,19 +74,19 @@ const FlagReferencePage = () => {
             <thead>
               <tr className="bg-muted/30 border-b border-border">
                 <th
-                  onClick={() => handleSort("flag")}
+                  onClick={() => handleSort(SortColType.Flag)}
                   className="text-left px-4 py-2.5 font-mono font-semibold text-foreground cursor-pointer hover:text-primary transition-colors select-none"
                 >
-                  Flag{sortIndicator("flag")}
+                  Flag{sortIndicator(SortColType.Flag)}
                 </th>
                 <th className="text-left px-4 py-2.5 font-mono font-semibold text-foreground">
                   Description
                 </th>
                 <th
-                  onClick={() => handleSort("command")}
+                  onClick={() => handleSort(SortColType.Command)}
                   className="text-left px-4 py-2.5 font-mono font-semibold text-foreground cursor-pointer hover:text-primary transition-colors select-none"
                 >
-                  Command{sortIndicator("command")}
+                  Command{sortIndicator(SortColType.Command)}
                 </th>
               </tr>
             </thead>

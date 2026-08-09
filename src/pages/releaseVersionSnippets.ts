@@ -5,7 +5,11 @@ export const RELEASE_REPO = "alimtvnetwork/gitmap-v28";
 export const RELEASE_DOCS_HOST = "https://gitmap.dev";
 export const SEMVER_TAG = /^v\d+\.\d+\.\d+(-[A-Za-z0-9.]+)?$/;
 
-export type ReleasePlatform = "windows" | "unix";
+export enum ReleasePlatformType {
+  Windows = "windows",
+  Unix = "unix",
+}
+export type ReleasePlatform = ReleasePlatformType;
 
 export interface InstallSnippet {
   pinned: string;
@@ -14,11 +18,11 @@ export interface InstallSnippet {
 
 export const buildReleaseSnippets = (
   version: string,
-  platform: ReleasePlatform,
+  platform: ReleasePlatformType,
 ): InstallSnippet => {
   const releaseBase = `https://github.com/${RELEASE_REPO}/releases/download/${version}`;
 
-  if (platform === "windows") {
+  if (platform === ReleasePlatformType.Windows) {
     return {
       pinned: [
         `# Pinned install — locks gitmap-v28 to ${version} (no auto-upgrade)`,

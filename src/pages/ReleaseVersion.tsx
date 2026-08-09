@@ -9,14 +9,14 @@ import {
   buildReleaseSnippets,
   isValidReleaseVersion,
   normalizeReleaseVersion,
-  type ReleasePlatform,
+  ReleasePlatformType,
 } from "./releaseVersionSnippets";
 
 const REPO = RELEASE_REPO;
 
 const ReleaseVersionPage = () => {
   const { version: rawVersion = "" } = useParams<{ version: string }>();
-  const [platform, setPlatform] = useState<ReleasePlatform>("windows");
+  const [platform, setPlatform] = useState<ReleasePlatformType>(ReleasePlatformType.Windows);
 
   const version = normalizeReleaseVersion(rawVersion);
   const isValid = isValidReleaseVersion(rawVersion);
@@ -82,13 +82,13 @@ const ReleaseVersionPage = () => {
         </header>
 
         {/* Platform tabs */}
-        <Tabs value={platform} onValueChange={(v) => setPlatform(v as ReleasePlatform)}>
+        <Tabs value={platform} onValueChange={(v) => setPlatform(v as ReleasePlatformType)}>
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="windows">Windows (PowerShell)</TabsTrigger>
-            <TabsTrigger value="unix">macOS / Linux</TabsTrigger>
+            <TabsTrigger value={ReleasePlatformType.Windows}>Windows (PowerShell)</TabsTrigger>
+            <TabsTrigger value={ReleasePlatformType.Unix}>macOS / Linux</TabsTrigger>
           </TabsList>
 
-          {(["windows", "unix"] as ReleasePlatform[]).map((p) => (
+          {([ReleasePlatformType.Windows, ReleasePlatformType.Unix] as ReleasePlatformType[]).map((p) => (
             <TabsContent key={p} value={p} className="space-y-6 pt-6">
               {/* Pinned card */}
               <section className="rounded-lg border border-primary/40 bg-primary/5 p-5 space-y-3">

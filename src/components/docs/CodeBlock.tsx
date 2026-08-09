@@ -92,19 +92,26 @@ const FONT_SIZES = [
   { label: "L", size: "17px" },
 ];
 
+export enum FontSizeDirectionType {
+  Up = "up",
+  Down = "down",
+}
+export type FontSizeDirection = FontSizeDirectionType;
+
 const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [pinnedLines, setPinnedLines] = useState<Set<number>>(new Set());
   const [lastPinned, setLastPinned] = useState<number | null>(null);
+
   const [fontSizeIdx, setFontSizeIdx] = useState(1); // default Medium
 
   const hasPinned = pinnedLines.size > 0;
   const fontSize = FONT_SIZES[fontSizeIdx].size;
 
-  const cycleFontSize = useCallback((direction: "up" | "down") => {
+  const cycleFontSize = useCallback((direction: FontSizeDirectionType) => {
     setFontSizeIdx((prev) => {
-      if (direction === "up") return Math.min(prev + 1, FONT_SIZES.length - 1);
+      if (direction === FontSizeDirectionType.Up) return Math.min(prev + 1, FONT_SIZES.length - 1);
       return Math.max(prev - 1, 0);
     });
   }, []);
@@ -247,7 +254,7 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
           <div className="flex items-center gap-1">
             <DocsTooltip label="Decrease font size">
               <button
-                onClick={() => cycleFontSize("down")}
+                onClick={() => cycleFontSize(FontSizeDirectionType.Down)}
                 aria-label="Decrease font size"
                 className="docs-focus-ring rounded-sm p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
@@ -259,7 +266,7 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
             </span>
             <DocsTooltip label="Increase font size">
               <button
-                onClick={() => cycleFontSize("up")}
+                onClick={() => cycleFontSize(FontSizeDirectionType.Up)}
                 aria-label="Increase font size"
                 className="docs-focus-ring rounded-sm p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >

@@ -29,11 +29,16 @@ const sampleRows = [
   { name: "Personal", lastSeen: "2026-05-30T07:55:00Z", exports: 2 },
 ];
 
-type SortKey = "name" | "lastSeen" | "exports";
+export enum SortKeyType {
+  Name = "name",
+  LastSeen = "lastSeen",
+  Exports = "exports",
+}
+export type SortKey = SortKeyType;
 
 const ChromeProfileSpec = () => {
   const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("lastSeen");
+  const [sortKey, setSortKey] = useState<SortKeyType>(SortKeyType.LastSeen);
   const [minExports, setMinExports] = useState("0");
 
   const filtered = useMemo(() => {
@@ -43,8 +48,8 @@ const ChromeProfileSpec = () => {
       (r) => r.exports >= min && (q === "" || r.name.toLowerCase().includes(q)),
     );
     return [...rows].sort((a, b) => {
-      if (sortKey === "name") return a.name.localeCompare(b.name);
-      if (sortKey === "exports") return b.exports - a.exports;
+      if (sortKey === SortKeyType.Name) return a.name.localeCompare(b.name);
+      if (sortKey === SortKeyType.Exports) return b.exports - a.exports;
       return b.lastSeen.localeCompare(a.lastSeen);
     });
   }, [query, sortKey, minExports]);
@@ -124,14 +129,14 @@ gitmap cpi ./snapshots/work.csv "Profile 2"   # CSV restore (lossy: no bookmarks
                 className="pl-9"
               />
             </div>
-            <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+            <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKeyType)}>
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lastSeen">Last seen (newest)</SelectItem>
-                <SelectItem value="name">Name (A→Z)</SelectItem>
-                <SelectItem value="exports">Artifact count</SelectItem>
+                <SelectItem value={SortKeyType.LastSeen}>Last seen (newest)</SelectItem>
+                <SelectItem value={SortKeyType.Name}>Name (A→Z)</SelectItem>
+                <SelectItem value={SortKeyType.Exports}>Artifact count</SelectItem>
               </SelectContent>
             </Select>
             <Select value={minExports} onValueChange={setMinExports}>

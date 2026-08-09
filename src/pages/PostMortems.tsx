@@ -1,15 +1,15 @@
 import DocsLayout from "@/components/docs/DocsLayout";
-import { postMortems, type PostMortemEntry } from "@/data/postMortems";
+import { postMortems, type PostMortemEntry, PostMortemCategoryType } from "@/data/postMortems";
 import { AlertTriangle, Shield, Database, GitBranch, FolderSync, Settings, Tag } from "lucide-react";
 import { useState } from "react";
 
-const categoryConfig: Record<PostMortemEntry["category"], { label: string; icon: typeof AlertTriangle; color: string }> = {
-  update: { label: "Update", icon: Settings, color: "text-yellow-500" },
-  database: { label: "Database", icon: Database, color: "text-blue-500" },
-  release: { label: "Release", icon: GitBranch, color: "text-purple-500" },
-  security: { label: "Security", icon: Shield, color: "text-red-500" },
-  migration: { label: "Migration", icon: FolderSync, color: "text-orange-500" },
-  general: { label: "General", icon: AlertTriangle, color: "text-muted-foreground" },
+const categoryConfig: Record<PostMortemCategoryType, { label: string; icon: typeof AlertTriangle; color: string }> = {
+  [PostMortemCategoryType.Update]: { label: "Update", icon: Settings, color: "text-yellow-500" },
+  [PostMortemCategoryType.Database]: { label: "Database", icon: Database, color: "text-blue-500" },
+  [PostMortemCategoryType.Release]: { label: "Release", icon: GitBranch, color: "text-purple-500" },
+  [PostMortemCategoryType.Security]: { label: "Security", icon: Shield, color: "text-red-500" },
+  [PostMortemCategoryType.Migration]: { label: "Migration", icon: FolderSync, color: "text-orange-500" },
+  [PostMortemCategoryType.General]: { label: "General", icon: AlertTriangle, color: "text-muted-foreground" },
 };
 
 const allCategories = Object.keys(categoryConfig) as PostMortemEntry["category"][];

@@ -2,60 +2,71 @@ import { useState, useMemo } from "react";
 import DocsLayout from "@/components/docs/DocsLayout";
 import SearchBar from "@/components/docs/SearchBar";
 
+export enum ScanCommandType {
+  Scan = "scan",
+  Clone = "clone",
+}
+
+export enum ScanFilterType {
+  All = "all",
+  Scan = "scan",
+  Clone = "clone",
+}
+
 interface FlagSpec {
   flag: string;
   default: string;
   values: string;
   description: string;
-  command: "scan" | "clone";
+  command: ScanCommandType;
 }
 
 const flags: FlagSpec[] = [
   // ── scan ─────────────────────────────────────────────
   {
-    command: "scan",
+    command: ScanCommandType.Scan,
     flag: "--config <path>",
     default: "./data/config.json",
     values: "filesystem path",
     description: "Config file path to load scan settings from.",
   },
   {
-    command: "scan",
+    command: ScanCommandType.Scan,
     flag: "--mode <style>",
     default: "https",
     values: "ssh | https",
     description: "Clone URL style emitted in output files.",
   },
   {
-    command: "scan",
+    command: ScanCommandType.Scan,
     flag: "--output <fmt>",
     default: "terminal",
     values: "csv | json | terminal",
     description: "Output format for scan results.",
   },
   {
-    command: "scan",
+    command: ScanCommandType.Scan,
     flag: "--output-path <dir>",
     default: "./.gitmap/output",
     values: "filesystem path",
     description: "Directory where output files are written.",
   },
   {
-    command: "scan",
+    command: ScanCommandType.Scan,
     flag: "--out-file <path>",
     default: "(derived)",
     values: "filesystem path",
     description: "Exact output file path; overrides --output-path.",
   },
   {
-    command: "scan",
+    command: ScanCommandType.Scan,
     flag: "--github-desktop",
     default: "false",
     values: "boolean (flag)",
     description: "Register discovered repos with GitHub Desktop.",
   },
   {
-    command: "scan",
+    command: ScanCommandType.Scan,
     flag: "--open",
     default: "false",
     values: "boolean (flag)",
@@ -85,28 +96,28 @@ const flags: FlagSpec[] = [
 
   // ── clone ────────────────────────────────────────────
   {
-    command: "clone",
+    command: ScanCommandType.Clone,
     flag: "--target-dir <dir>",
     default: "current directory",
     values: "filesystem path",
     description: "Base directory where repos are cloned.",
   },
   {
-    command: "clone",
+    command: ScanCommandType.Clone,
     flag: "--safe-pull",
     default: "false (auto-enabled)",
     values: "boolean (flag)",
     description: "Pull existing repos with retry + unlock diagnostics.",
   },
   {
-    command: "clone",
+    command: ScanCommandType.Clone,
     flag: "--github-desktop",
     default: "false",
     values: "boolean (flag)",
     description: "Auto-register cloned repos with GitHub Desktop (no prompt).",
   },
   {
-    command: "clone",
+    command: ScanCommandType.Clone,
     flag: "--verbose",
     default: "false",
     values: "boolean (flag)",
@@ -116,11 +127,11 @@ const flags: FlagSpec[] = [
 
 const ScanCloneFlagsPage = () => {
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "scan" | "clone">("all");
+  const [filter, setFilter] = useState<ScanFilterType>(ScanFilterType.All);
 
   const filtered = useMemo(() => {
     let rows = flags;
-    if (filter !== "all") rows = rows.filter((r) => r.command === filter);
+    if (filter !== ScanFilterType.All) rows = rows.filter((r) => r.command === (filter as unknown as ScanCommandType));
     if (search) {
       const q = search.toLowerCase();
       rows = rows.filter(

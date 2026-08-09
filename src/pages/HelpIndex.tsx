@@ -10,14 +10,18 @@ import {
   Clock,
 } from "lucide-react";
 
-type Status = "shipped" | "planned";
+export enum StatusType {
+  Shipped = "shipped",
+  Planned = "planned",
+}
+export type Status = StatusType;
 
 interface HelpEntry {
   to: string;
   cmd: string;
   alias: string;
   desc: string;
-  status: Status;
+  status: StatusType;
 }
 
 interface HelpSection {
@@ -41,7 +45,7 @@ const sections: HelpSection[] = [
         cmd: "diff",
         alias: "df",
         desc: "Side-by-side preview of file differences between LEFT and RIGHT.",
-        status: "shipped",
+        status: StatusType.Shipped,
       },
     ],
   },
@@ -57,7 +61,7 @@ const sections: HelpSection[] = [
         cmd: "mv",
         alias: "move",
         desc: "Replace RIGHT's working tree with LEFT's content.",
-        status: "shipped",
+        status: StatusType.Shipped,
       },
     ],
   },
@@ -73,21 +77,21 @@ const sections: HelpSection[] = [
         cmd: "merge-both",
         alias: "mb",
         desc: "Bidirectional merge — both sides converge on the union of changes.",
-        status: "shipped",
+        status: StatusType.Shipped,
       },
       {
         to: "/merge-left",
         cmd: "merge-left",
         alias: "ml",
         desc: "Pull RIGHT's changes onto LEFT only.",
-        status: "shipped",
+        status: StatusType.Shipped,
       },
       {
         to: "/merge-right",
         cmd: "merge-right",
         alias: "mr",
         desc: "Push LEFT's changes onto RIGHT only.",
-        status: "shipped",
+        status: StatusType.Shipped,
       },
     ],
   },
@@ -103,28 +107,28 @@ const sections: HelpSection[] = [
         cmd: "commit-left",
         alias: "cl",
         desc: "Replay RIGHT's commits onto LEFT (writes to LEFT).",
-        status: "planned",
+        status: StatusType.Planned,
       },
       {
         to: "/commit-right",
         cmd: "commit-right",
         alias: "cr",
         desc: "Replay LEFT's commits onto RIGHT (Phase-1 target).",
-        status: "planned",
+        status: StatusType.Planned,
       },
       {
         to: "/commit-both",
         cmd: "commit-both",
         alias: "cb",
         desc: "Interleave both sides' commits by author date onto each side.",
-        status: "planned",
+        status: StatusType.Planned,
       },
     ],
   },
 ];
 
-const StatusPill = ({ status }: { status: Status }) =>
-  status === "shipped" ? (
+const StatusPill = ({ status }: { status: StatusType }) =>
+  status === StatusType.Shipped ? (
     <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-primary/10 text-foreground border-primary/20 transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10 dark:bg-primary/20 dark:text-primary dark:border-primary/40">
       <CheckCircle2 className="h-2.5 w-2.5" />
       shipped
@@ -138,11 +142,11 @@ const StatusPill = ({ status }: { status: Status }) =>
 
 const HelpIndexPage = () => {
   const totalShipped = sections.reduce(
-    (n, s) => n + s.entries.filter((e) => e.status === "shipped").length,
+    (n, s) => n + s.entries.filter((e) => e.status === StatusType.Shipped).length,
     0,
   );
   const totalPlanned = sections.reduce(
-    (n, s) => n + s.entries.filter((e) => e.status === "planned").length,
+    (n, s) => n + s.entries.filter((e) => e.status === StatusType.Planned).length,
     0,
   );
 

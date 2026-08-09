@@ -1,9 +1,19 @@
+export enum PostMortemCategoryType {
+  Update = "update",
+  Database = "database",
+  Release = "release",
+  Security = "security",
+  Migration = "migration",
+  General = "general",
+}
+export type PostMortemCategory = PostMortemCategoryType;
+
 export interface PostMortemEntry {
   id: string;
   title: string;
   summary: string;
   version?: string;
-  category: "update" | "database" | "release" | "security" | "migration" | "general";
+  category: PostMortemCategoryType;
 }
 
 export const postMortems: PostMortemEntry[] = [

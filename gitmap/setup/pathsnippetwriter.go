@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // PathSnippetWriteResult describes the outcome of WritePathSnippet.

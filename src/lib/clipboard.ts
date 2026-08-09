@@ -1,24 +1,4 @@
-// Clipboard helper with a graceful fallback for environments where
-// `navigator.clipboard` is not available.
-//
-// `navigator.clipboard.writeText` is undefined in three common cases:
-//
-//   1. Insecure contexts (plain http://, file://) — the Clipboard API is
-//      gated behind a Secure Context check by every modern browser.
-//   2. Older browsers (notably iOS Safari < 13.4) and embedded webviews.
-//   3. Sandboxed iframes without `clipboard-write` permission.
-//
-// In any of those cases we fall back to the legacy `document.execCommand
-// ("copy")` path, which works against a transient hidden <textarea>. It
-// is officially deprecated but still implemented everywhere we care
-// about, and is the canonical fallback recommended by both MDN and the
-// W3C Clipboard API spec.
-//
-// The function ALWAYS returns a Promise<boolean>:
-//   - resolves true on success
-//   - resolves false on failure (never throws)
-// so call sites can do `if (await copyToClipboard(text)) { ... }`
-// without try/catch noise.
+import { queryWrapper, queryWrapperSync } from "./queryWrapper";
 
 export async function copyToClipboard(text: string): Promise<boolean> {
   // Path 1: modern async Clipboard API. Guard for both the property
@@ -32,12 +12,12 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       typeof window.isSecureContext === "undefined" ||
       window.isSecureContext)
   ) {
-    try {
+    const res = await queryWrapper(async () => {
       await navigator.clipboard.writeText(text);
       return true;
-    } catch {
-      // Fall through to legacy path — common when the document is not
-      // focused, or the Permissions API denied clipboard-write.
+    });
+    if (!res.isFail && res.data) {
+      return true;
     }
   }
 
@@ -82,20 +62,24 @@ function legacyCopy(text: string): boolean {
       : null;
 
   let succeeded = false;
-  try {
+  const res = queryWrapperSync(() => {
     textarea.focus();
     textarea.select();
     // Some browsers ignore .select() unless setSelectionRange runs too.
     textarea.setSelectionRange(0, text.length);
-    succeeded = document.execCommand("copy");
-  } catch {
+    return document.execCommand("copy");
+  });
+
+  if (res.isFail) {
     succeeded = false;
-  } finally {
-    document.body.removeChild(textarea);
-    if (previousRange && previousSelection) {
-      previousSelection.removeAllRanges();
-      previousSelection.addRange(previousRange);
-    }
+  } else {
+    succeeded = Boolean(res.data);
+  }
+
+  document.body.removeChild(textarea);
+  if (previousRange && previousSelection) {
+    previousSelection.removeAllRanges();
+    previousSelection.addRange(previousRange);
   }
 
   return succeeded;

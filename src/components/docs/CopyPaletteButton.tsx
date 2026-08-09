@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, ClipboardCopy } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { DocsTooltip } from "@/components/docs/DocsTooltip";
+import { queryWrapper } from "@/lib/queryWrapper";
 
 // CSS custom properties that make up the active VS Code-inspired palette.
 // Read live from the document so the snapshot always reflects what's rendered.
@@ -55,14 +56,14 @@ export function CopyPaletteButton() {
   const selector = isDark ? ".dark" : ".light";
 
   const handleCopy = async () => {
-    try {
+    const res = await queryWrapper(async () => {
       const css = buildPaletteCss(themeLabel, selector);
       await navigator.clipboard.writeText(css);
+      return true;
+    });
+    if (!res.isFail && res.data) {
       setCopied(true);
       window.setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
-    } catch (error) {
-      // Surface failure to the console — clipboard can be blocked by permissions.
-      console.error("[copy-palette] failed to write clipboard:", error);
     }
   };
 

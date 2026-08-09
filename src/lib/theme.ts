@@ -1,40 +1,37 @@
-// Shared theme helpers — single source of truth for persisting & reading
-// the user's light/dark preference. The initial application happens in
-// index.html (pre-paint) to avoid flash-of-wrong-theme.
+import { queryWrapperSync } from "./queryWrapper";
 
 export const THEME_STORAGE_KEY = "gitmap-theme";
 
-export type Theme = "light" | "dark";
+export enum ThemeType {
+  Light = "light",
+  Dark = "dark",
+}
+export type Theme = ThemeType;
 
 /** Read the currently applied theme from the <html> element. */
-export function getCurrentTheme(): Theme {
-  if (typeof document === "undefined") return "dark";
-  if (document.documentElement.classList.contains("light")) return "light";
-  if (document.documentElement.classList.contains("dark")) return "dark";
-  try {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === "light" || stored === "dark") return stored;
-  } catch {
-    /* localStorage may be unavailable (private mode, SSR) — silently ignore */
+export function getCurrentTheme(): ThemeType {
+  if (typeof document === "undefined") return ThemeType.Dark;
+  if (document.documentElement.classList.contains("light")) return ThemeType.Light;
+  if (document.documentElement.classList.contains("dark")) return ThemeType.Dark;
+
+  const res = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
+  if (!res.isFail && (res.data === "light" || res.data === "dark")) {
+    return res.data as ThemeType;
   }
-  return "dark";
+  return ThemeType.Dark;
 }
 
 /** Apply a theme to the <html> element AND persist it to localStorage. */
-export function setTheme(theme: Theme): void {
+export function setTheme(theme: ThemeType): void {
   if (typeof document === "undefined") return;
-  document.documentElement.classList.toggle("dark", theme === "dark");
-  document.documentElement.classList.toggle("light", theme === "light");
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
-  } catch {
-    /* localStorage may be unavailable (private mode, SSR) — silently ignore */
-  }
+  document.documentElement.classList.toggle("dark", theme === ThemeType.Dark);
+  document.documentElement.classList.toggle("light", theme === ThemeType.Light);
+  queryWrapperSync(() => localStorage.setItem(THEME_STORAGE_KEY, theme));
 }
 
 /** Toggle between light and dark, persisting the new value. */
-export function toggleTheme(): Theme {
-  const next: Theme = getCurrentTheme() === "dark" ? "light" : "dark";
+export function toggleTheme(): ThemeType {
+  const next: ThemeType = getCurrentTheme() === ThemeType.Dark ? ThemeType.Light : ThemeType.Dark;
   setTheme(next);
   return next;
 }
