@@ -1644,6 +1644,7 @@ function Invoke-Tests {
 
         if ($testExit -ne 0) {
             Write-Fail "Tests failed (exit code $testExit)"
+            throw "Unit tests failed with exit code $testExit"
         }
     } finally {
         Pop-Location

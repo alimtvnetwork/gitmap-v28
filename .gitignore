@@ -30,3 +30,4 @@ dist-ssr
 release-assets
 *.syso
 /.gitmap/backup
+/gitmap/data/unit-test-reports
