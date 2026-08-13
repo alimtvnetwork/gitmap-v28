@@ -831,6 +831,64 @@ function Sync-DeployDataFolder {
 #   4. Auto-build at repo root  — if package.json has a `build` script and
 #                                 npm is on PATH, run it and use <repo>/dist/.
 #   5. Warn — `gitmap hd` will fail until docs are built.
+function Invoke-AutoBuildDocs {
+    param($RepoRoot, $DocsDest, $RootPkg, $RootDist)
+
+    $pkgRaw = Get-Content $RootPkg -Raw
+    $hasBuild = ($pkgRaw -match '"build"\s*:')
+    $hasVite  = ($pkgRaw -match '"vite"\s*:')
+    Write-RepoDetect -Check "package.json:build" -Result $(if ($hasBuild) { "found" } else { "missing" })
+    Write-RepoDetect -Check "package.json:vite"  -Result $(if ($hasVite)  { "found" } else { "missing" })
+
+    if (-not $hasBuild) {
+        Write-RepoDetect -Check "decision" -Result "skip-no-build-script" -Detail "package.json has no `"build`" entry"
+        return $false
+    }
+
+    Write-RepoDetect -Check "decision" -Result "auto-build" -Detail "npm run build at $RepoRoot"
+    Push-Location $RepoRoot
+    try {
+        $nodeModules = Join-Path $RepoRoot "node_modules"
+        $viteBin = Join-Path $nodeModules ".bin\vite.cmd"
+        
+        $needsInstall = -not (Test-Path $nodeModules) -or -not (Test-Path $viteBin)
+        if ($needsInstall) {
+            Write-Info "Installing docs dependencies (npm install) at repo root..."
+            $installExit = [int](Invoke-NpmQuiet -NpmArgs @('install','--no-audit','--no-fund','--silent'))
+            if ($installExit -ne 0) {
+                Write-Warn "npm install failed - skipping docs build"
+                Write-ReportError -Stage "docs-npm-install" `
+                    -Command "npm install --no-audit --no-fund --silent" `
+                    -ExitCode $installExit `
+                    -Message "npm install failed at repo root; docs build skipped" `
+                    -Paths @{ repoRoot = $RepoRoot; packageJson = $RootPkg }
+                return $false
+            }
+        }
+
+        Write-Info "Auto-building docs (npm run build) at repo root..."
+        $buildExit = [int](Invoke-NpmQuiet -NpmArgs @('run','build'))
+        if ($buildExit -ne 0 -or -not (Test-Path $RootDist)) {
+            Write-Warn "Auto-build failed - 'gitmap hd' will fail"
+            Write-ReportError -Stage "docs-npm-build" `
+                -Command "npm run build" `
+                -ExitCode ([int]$buildExit) `
+                -Message "npm run build did not produce dist/ output" `
+                -Paths @{ repoRoot = $RepoRoot; expectedDist = $RootDist; packageJson = $RootPkg }
+            return $false
+        }
+
+        $distDest = Join-Path $DocsDest "dist"
+        if (Test-Path $distDest) { Remove-Item $distDest -Recurse -Force }
+        New-Item -ItemType Directory -Path $DocsDest -Force | Out-Null
+        Copy-Item $RootDist $distDest -Recurse
+        Write-Info "Built and copied docs to gitmap app docs-site/dist"
+        return $true
+    } finally {
+        Pop-Location
+    }
+}
+
 function Copy-DocsSite {
     param($AppDir)
 
@@ -877,64 +935,21 @@ function Copy-DocsSite {
     }
 
     # 4. Auto-build the root Vite app if package.json + npm available
-    if ((Test-Path $rootPkg) -and $npmCmd) {
-        $pkgRaw = Get-Content $rootPkg -Raw
-        $hasBuild = ($pkgRaw -match '"build"\s*:')
-        $hasVite  = ($pkgRaw -match '"vite"\s*:')
-        Write-RepoDetect -Check "package.json:build" -Result $(if ($hasBuild) { "found" } else { "missing" })
-        Write-RepoDetect -Check "package.json:vite"  -Result $(if ($hasVite)  { "found" } else { "missing" })
-        if ($hasBuild) {
-            Write-RepoDetect -Check "decision" -Result "auto-build" -Detail "npm run build at $RepoRoot"
-            Push-Location $RepoRoot
-            try {
-                $nodeModules = Join-Path $RepoRoot "node_modules"
-                $viteBin = Join-Path $nodeModules ".bin\vite.cmd"
-                if (-not (Test-Path $nodeModules) -or -not (Test-Path $viteBin)) {
-                    Write-Info "Installing docs dependencies (npm install) at repo root..."
-                    $installExit = [int](Invoke-NpmQuiet -NpmArgs @('install','--no-audit','--no-fund','--silent'))
-                    if ($installExit -ne 0) {
-                        Write-Warn "npm install failed - skipping docs build"
-                        Write-ReportError -Stage "docs-npm-install" `
-                            -Command "npm install --no-audit --no-fund --silent" `
-                            -ExitCode $installExit `
-                            -Message "npm install failed at repo root; docs build skipped" `
-                            -Paths @{ repoRoot = $RepoRoot; packageJson = $rootPkg }
-                        Pop-Location
-                        return
-                    }
-                }
-                Write-Info "Auto-building docs (npm run build) at repo root..."
-                $buildExit = [int](Invoke-NpmQuiet -NpmArgs @('run','build'))
-                if ($buildExit -eq 0 -and (Test-Path $rootDist)) {
-                    $distDest = Join-Path $docsDest "dist"
-                    if (Test-Path $distDest) { Remove-Item $distDest -Recurse -Force }
-                    New-Item -ItemType Directory -Path $docsDest -Force | Out-Null
-                    Copy-Item $rootDist $distDest -Recurse
-                    Write-Info "Built and copied docs to gitmap app docs-site/dist"
-                    return
-                }
-            } finally {
-                Pop-Location
-            }
-            Write-Warn "Auto-build failed - 'gitmap hd' will fail"
-            Write-ReportError -Stage "docs-npm-build" `
-                -Command "npm run build" `
-                -ExitCode ([int]$buildExit) `
-                -Message "npm run build did not produce dist/ output" `
-                -Paths @{ repoRoot = $RepoRoot; expectedDist = $rootDist; packageJson = $rootPkg }
-            return
-        } else {
-            Write-RepoDetect -Check "decision" -Result "skip-no-build-script" -Detail "package.json has no `"build`" entry"
-        }
-    } else {
+    $canAutoBuild = (Test-Path $rootPkg) -and $npmCmd
+    if (-not $canAutoBuild) {
         $skipReason = if (-not (Test-Path $rootPkg)) { "no package.json" } elseif (-not $npmCmd) { "npm not on PATH" } else { "unknown" }
         Write-RepoDetect -Check "decision" -Result "skip-not-a-vite-repo" -Detail $skipReason
     }
 
+    if ($canAutoBuild) {
+        $built = Invoke-AutoBuildDocs -RepoRoot $RepoRoot -DocsDest $docsDest -RootPkg $rootPkg -RootDist $rootDist
+        if ($built) {
+            return
+        }
+    }
+
     # 2. Legacy <repo>/docs-site/ source-only (npm-dev fallback)
-    if (Test-Path $legacyDir) {
-        # fall through to existing source-copy block below
-    } else {
+    if (-not (Test-Path $legacyDir)) {
         Write-RepoDetect -Check "decision" -Result "no-docs-source"
         Write-Warn "No docs found (checked docs-site/dist, docs-site/, dist/) - 'gitmap hd' will fail"
         return
@@ -999,6 +1014,74 @@ function Resolve-DeployTarget {
     return $Config.deployPath
 }
 
+function Backup-ExistingBinary {
+    param($DestFile, $BackupFile, $BinaryName)
+
+    if (-not (Test-Path $DestFile)) {
+        return $false
+    }
+
+    if (Test-Path $BackupFile) {
+        Remove-Item $BackupFile -Force -ErrorAction SilentlyContinue
+    }
+
+    try {
+        Rename-Item $DestFile $BackupFile -Force -ErrorAction Stop
+        Write-Info "Renamed existing binary to ${BinaryName}.old (rename-first)"
+        return $true
+    } catch {
+        Write-Warn "Rename-first failed: $_"
+    }
+
+    try {
+        Copy-Item $DestFile $BackupFile -Force -ErrorAction Stop
+        Write-Info "Backed up existing binary to ${BinaryName}.old"
+        return $true
+    } catch {
+        Write-Warn "Could not create backup: $_"
+    }
+
+    return $false
+}
+
+function Restore-BinaryBackup {
+    param($DestFile, $BackupFile, $HasBackup)
+
+    if (-not $HasBackup) { return }
+    if (-not (Test-Path $BackupFile)) { return }
+    if (Test-Path $DestFile) { return }
+
+    Write-Warn "Deploy failed - restoring previous binary from backup"
+    try {
+        Rename-Item $BackupFile $DestFile -Force -ErrorAction Stop
+        Write-Success "Rollback complete - previous version restored"
+    } catch {
+        Write-Fail "Rollback also failed: $_"
+    }
+}
+
+function Copy-WithRetry {
+    param($Source, $Dest, $BackupFile, $HasBackup)
+
+    $maxAttempts = 5
+    $attempt = 1
+    while ($true) {
+        try {
+            Copy-Item $Source $Dest -Force -ErrorAction Stop
+            return $true
+        } catch {
+            if ($attempt -ge $maxAttempts) {
+                Restore-BinaryBackup -DestFile $Dest -BackupFile $BackupFile -HasBackup $HasBackup
+                throw
+            }
+            Write-Warn "Target still locked; retrying ($attempt/$maxAttempts)..."
+            Start-Sleep -Milliseconds 500
+            $attempt++
+        }
+    }
+    return $false
+}
+
 # -- Deploy to target directory --------------------------------
 function Deploy-Binary {
     param($Config, $BinaryPath, $OverridePath)
@@ -1031,59 +1114,9 @@ function Deploy-Binary {
 
     $destFile = Join-Path $appDir $Config.binaryName
     $backupFile = "$destFile.old"
-    $hasBackup = $false
-    $deploySuccess = $false
-
-    if (Test-Path $destFile) {
-        # Rename-first strategy: Windows allows renaming a running binary
-        # but not overwriting it. Rename to .old, then copy the new one.
-        try {
-            if (Test-Path $backupFile) {
-                Remove-Item $backupFile -Force -ErrorAction SilentlyContinue
-            }
-            Rename-Item $destFile $backupFile -Force -ErrorAction Stop
-            $hasBackup = $true
-            Write-Info "Renamed existing binary to $($Config.binaryName).old (rename-first)"
-        } catch {
-            Write-Warn "Rename-first failed: $_"
-            # Fallback: try a backup copy instead
-            try {
-                Copy-Item $destFile $backupFile -Force -ErrorAction Stop
-                $hasBackup = $true
-                Write-Info "Backed up existing binary to $($Config.binaryName).old"
-            } catch {
-                Write-Warn "Could not create backup: $_"
-            }
-        }
-    }
-
-    # Copy new binary — after rename-first, the destination is free
-    $maxAttempts = 5
-    $attempt = 1
-    while ($true) {
-        try {
-            Copy-Item $BinaryPath $destFile -Force -ErrorAction Stop
-            $deploySuccess = $true
-            break
-        } catch {
-            if ($attempt -ge $maxAttempts) {
-                # Restore backup on failure
-                if ($hasBackup -and (Test-Path $backupFile) -and (-not (Test-Path $destFile))) {
-                    Write-Warn "Deploy failed - restoring previous binary from backup"
-                    try {
-                        Rename-Item $backupFile $destFile -Force -ErrorAction Stop
-                        Write-Success "Rollback complete - previous version restored"
-                    } catch {
-                        Write-Fail "Rollback also failed: $_"
-                    }
-                }
-                throw
-            }
-            Write-Warn "Target still locked; retrying ($attempt/$maxAttempts)..."
-            Start-Sleep -Milliseconds 500
-            $attempt++
-        }
-    }
+    
+    $hasBackup = Backup-ExistingBinary -DestFile $destFile -BackupFile $backupFile -BinaryName $Config.binaryName
+    $deploySuccess = Copy-WithRetry -Source $BinaryPath -Dest $destFile -BackupFile $backupFile -HasBackup $hasBackup
 
     # Post-deploy: remove the .old immediately now that the new binary is in place.
     if ($hasBackup -and $deploySuccess -and (Test-Path $backupFile)) {
@@ -1120,6 +1153,35 @@ function Deploy-Binary {
     }
 }
 
+function Repair-LegacySubdir {
+    param($LegacySubdir, $AppDir, $LegacySubBinary, $NewBinary)
+
+    if ($LegacySubdir -eq $AppDir) { return }
+
+    if ((Test-Path $LegacySubBinary) -and (-not (Test-Path $NewBinary))) {
+        Write-Info "Layout: migrating legacy '$LegacySubdir' -> '$AppDir'"
+        if (Test-Path $AppDir) { return }
+        try {
+            Move-Item -Path $LegacySubdir -Destination $AppDir -Force -ErrorAction Stop
+            Write-Info "Layout: rename complete"
+        } catch {
+            Write-Warn "Layout: rename failed ($_); leaving legacy folder in place"
+        }
+        return
+    }
+    
+    if ((Test-Path $LegacySubdir) -and (Test-Path $NewBinary)) {
+        try {
+            $remaining = Get-ChildItem -Path $LegacySubdir -Force -ErrorAction SilentlyContinue
+            if ($remaining -and $remaining.Count -gt 0) { return }
+            Remove-Item $LegacySubdir -Force -Recurse -ErrorAction Stop
+            Write-Info "Layout: removed empty legacy folder $LegacySubdir"
+        } catch {
+            Write-Warn "Layout: could not remove legacy folder $LegacySubdir : $_"
+        }
+    }
+}
+
 # -- Repair legacy unwrapped layout (DFD-3) --------------------
 # Two migrations happen here, in priority order. Both are idempotent.
 #
@@ -1143,31 +1205,8 @@ function Repair-DeployLayout {
     # Migration 1: rename any legacy app folder to $AppSubdir.
     foreach ($legacy in $script:LegacyAppSubdirs) {
         $legacySubdir = Join-Path $DeployTarget $legacy
-        if ($legacySubdir -eq $appDir) { continue }
         $legacySubBinary = Join-Path $legacySubdir $BinaryName
-
-        if ((Test-Path $legacySubBinary) -and (-not (Test-Path $newBinary))) {
-            Write-Info "Layout: migrating legacy '$legacySubdir' -> '$appDir'"
-            try {
-                if (-not (Test-Path $appDir)) {
-                    Move-Item -Path $legacySubdir -Destination $appDir -Force -ErrorAction Stop
-                    Write-Info "Layout: rename complete"
-                }
-            } catch {
-                Write-Warn "Layout: rename failed ($_); leaving legacy folder in place"
-            }
-        } elseif ((Test-Path $legacySubdir) -and (Test-Path $newBinary)) {
-            # Both exist after a previous half-migration — drop the empty legacy folder.
-            try {
-                $remaining = Get-ChildItem -Path $legacySubdir -Force -ErrorAction SilentlyContinue
-                if (-not $remaining -or $remaining.Count -eq 0) {
-                    Remove-Item $legacySubdir -Force -Recurse -ErrorAction Stop
-                    Write-Info "Layout: removed empty legacy folder $legacySubdir"
-                }
-            } catch {
-                Write-Warn "Layout: could not remove legacy folder $legacySubdir : $_"
-            }
-        }
+        Repair-LegacySubdir -LegacySubdir $legacySubdir -AppDir $appDir -LegacySubBinary $legacySubBinary -NewBinary $newBinary
     }
 
     # Migration 2: top-level unwrapped binary -> gitmap-cli\.
@@ -1704,79 +1743,103 @@ if (-not $NoDeploy) {
     $deployedAppDir = Join-Path $effectiveDeployPath $script:AppSubdir
     $deployedBinaryPath = Join-Path $deployedAppDir $config.binaryName
 
+function Check-ActiveBinaryPaths {
+    param($DeployedBinaryPath, $DeployedAppDir, $BinaryName)
+
+    if (-not (Test-Path $DeployedBinaryPath)) { return }
+
+    $activeCmd = Get-Command gitmap -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $activeCmd) { return }
+
+    $activeBinaryPath = $activeCmd.Source
+    if (-not (Test-Path $activeBinaryPath)) { return }
+
+    $activeResolved = (Resolve-Path $activeBinaryPath).Path
+    $deployedResolved = (Resolve-Path $DeployedBinaryPath).Path
+    if ($activeResolved -ieq $deployedResolved) { return }
+
+    Write-Warn "PATH points to a different gitmap binary."
+    Write-Info "Active:   $activeResolved"
+    Write-Info "Deployed: $deployedResolved"
+
+    # New behavior (DFD-8): do NOT copy the new build into the
+    # stale location — that perpetuates the wrong path. Delete
+    # the stale binary, prune empty parents, and strip the dir
+    # from user PATH. The deployed dir is already on PATH via
+    # Register-OnPath above.
+    Migrate-StaleActiveBinary `
+        -StaleBinaryPath $activeBinaryPath `
+        -DeployedAppDir $DeployedAppDir `
+        -BinaryName $BinaryName
+
+    Write-Info "PATH: open a NEW shell to pick up '$DeployedAppDir'"
+}
+
     # Persist the resolved target so future runs (and the config-binary
     # readout below) reflect reality (DFD-9).
     Sync-ConfigDeployPath -EffectiveDeployTarget $effectiveDeployPath
 
-    $activeCmd = Get-Command gitmap -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($activeCmd -and (Test-Path $deployedBinaryPath)) {
-        $activeBinaryPath = $activeCmd.Source
-        if (Test-Path $activeBinaryPath) {
-            $activeResolved = (Resolve-Path $activeBinaryPath).Path
-            $deployedResolved = (Resolve-Path $deployedBinaryPath).Path
-            if ($activeResolved -ine $deployedResolved) {
-                Write-Warn "PATH points to a different gitmap binary."
-                Write-Info "Active:   $activeResolved"
-                Write-Info "Deployed: $deployedResolved"
-
-                # New behavior (DFD-8): do NOT copy the new build into the
-                # stale location — that perpetuates the wrong path. Delete
-                # the stale binary, prune empty parents, and strip the dir
-                # from user PATH. The deployed dir is already on PATH via
-                # Register-OnPath above.
-                Migrate-StaleActiveBinary `
-                    -StaleBinaryPath $activeBinaryPath `
-                    -DeployedAppDir $deployedAppDir `
-                    -BinaryName $config.binaryName
-
-                Write-Info "PATH: open a NEW shell to pick up '$deployedAppDir'"
-            }
-        }
-    }
+    Check-ActiveBinaryPaths -DeployedBinaryPath $deployedBinaryPath -DeployedAppDir $deployedAppDir -BinaryName $config.binaryName
 } else {
     Write-Info "Skipping deploy (-NoDeploy)"
+}
+
+function Invoke-AutoSetup {
+    param($NoDeploy, $NoSetup, $DeployedBinaryPath)
+    if ($NoSetup) {
+        Write-Info "Skipping setup (-NoSetup)"
+        return
+    }
+    if ($NoDeploy -or -not $DeployedBinaryPath -or -not (Test-Path $DeployedBinaryPath)) { return }
+
+    Write-Host ""
+    Write-Info "Running 'gitmap setup' automatically..."
+    $prevPref = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    & $DeployedBinaryPath setup
+    $setupExit = $LASTEXITCODE
+    $ErrorActionPreference = $prevPref
+
+    if ($setupExit -ne 0) {
+        Write-Warn "gitmap setup exited with code $setupExit"
+        return
+    }
+    Write-Success "Setup completed"
+}
+
+function Invoke-Changelog {
+    param($DeployedBinaryPath, $Update, $BinaryPath)
+
+    $changelogBinaryPath = $BinaryPath
+    $activeCmdForChangelog = Get-Command gitmap -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    
+    if ($activeCmdForChangelog -and -not [string]::IsNullOrWhiteSpace($activeCmdForChangelog.Source) -and (Test-Path $activeCmdForChangelog.Source)) {
+        $changelogBinaryPath = $activeCmdForChangelog.Source
+    } elseif ($DeployedBinaryPath -and (Test-Path $DeployedBinaryPath)) {
+        $changelogBinaryPath = $DeployedBinaryPath
+    }
+
+    if (-not $changelogBinaryPath -or -not (Test-Path $changelogBinaryPath)) { return }
+
+    Write-Host ""
+    Write-Info "Latest changelog:"
+    & $changelogBinaryPath changelog --latest
+
+    if (-not $Update) { return }
+
+    Write-Host ""
+    Write-Info "Running update cleanup"
+    & $changelogBinaryPath update-cleanup
 }
 
 # -- Auto-run setup after deploy (DFD-10) ----------------------
 # After a successful deploy, invoke `gitmap setup` so completion,
 # cd-function, PATH snippet, and gitignore steps are applied without
 # requiring a second manual command. Skip with -NoSetup.
-if (-not $NoDeploy -and -not $NoSetup -and $deployedBinaryPath -and (Test-Path $deployedBinaryPath)) {
-    Write-Host ""
-    Write-Info "Running 'gitmap setup' automatically..."
-    $prevPref = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-    & $deployedBinaryPath setup
-    $setupExit = $LASTEXITCODE
-    $ErrorActionPreference = $prevPref
-    if ($setupExit -ne 0) {
-        Write-Warn "gitmap setup exited with code $setupExit"
-    } else {
-        Write-Success "Setup completed"
-    }
-} elseif ($NoSetup) {
-    Write-Info "Skipping setup (-NoSetup)"
-}
+Invoke-AutoSetup -NoDeploy $NoDeploy -NoSetup $NoSetup -DeployedBinaryPath $deployedBinaryPath
 
-$changelogBinaryPath = $binaryPath
-$activeCmdForChangelog = Get-Command gitmap -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($activeCmdForChangelog -and -not [string]::IsNullOrWhiteSpace($activeCmdForChangelog.Source) -and (Test-Path $activeCmdForChangelog.Source)) {
-    $changelogBinaryPath = $activeCmdForChangelog.Source
-} elseif ($deployedBinaryPath -and (Test-Path $deployedBinaryPath)) {
-    $changelogBinaryPath = $deployedBinaryPath
-}
-
-if ($changelogBinaryPath -and (Test-Path $changelogBinaryPath)) {
-    Write-Host ""
-    Write-Info "Latest changelog:"
-    & $changelogBinaryPath changelog --latest
-
-    if ($Update) {
-        Write-Host ""
-        Write-Info "Running update cleanup"
-        & $changelogBinaryPath update-cleanup
-    }
-}
+$changelogBinary = if ($changelogBinaryPath) { $changelogBinaryPath } else { $binaryPath }
+Invoke-Changelog -DeployedBinaryPath $deployedBinaryPath -Update $Update -BinaryPath $binaryPath
 
 if ($R) {
     Invoke-Run -Config $config -BinaryPath $binaryPath -CliArgs $RunArgs
@@ -1790,6 +1853,7 @@ Write-Host ""
 $lastReleaseScript = Join-Path (Join-Path (Join-Path $RepoRoot "gitmap") "scripts") "Get-LastRelease.ps1"
 if (Test-Path $lastReleaseScript) {
     $lrBinary = $changelogBinaryPath
+    if (-not $lrBinary) { $lrBinary = $binaryPath }
     & $lastReleaseScript -BinaryPath $lrBinary -RepoRoot $RepoRoot
     Write-Host ""
 }
