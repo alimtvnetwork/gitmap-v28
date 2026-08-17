@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
 	"github.com/pterm/pterm"
 )
 
@@ -33,7 +33,7 @@ type BatchProgress struct {
 	stopOnFail bool
 	stopped    bool
 
-	multi    *pterm.MultiPrinterPrinter
+	multi    *pterm.MultiPrinter
 	spinners map[string]*pterm.SpinnerPrinter
 }
 
@@ -194,31 +194,6 @@ func (p *BatchProgress) PrintSummary() {
 			p.succeeded, p.skipped, p.failed, elapsed))
 }
 
-// PrintFailureReport prints out errors that occurred.
-func (p *BatchProgress) PrintFailureReport() {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if len(p.failures) == 0 {
-		return
-	}
-
-	fmt.Fprintln(os.Stderr)
-	pterm.Error.Println("The following repositories encountered errors:")
-	for _, f := range p.failures {
-		fmt.Fprintf(os.Stderr, "  - %s: %s\n", pterm.Red(f.Name), f.Error)
-	}
-}
-
-// ExitCodeForBatch returns 1 if failures > 0, 0 otherwise.
-func (p *BatchProgress) ExitCodeForBatch() int {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	if len(p.failures) > 0 || p.failed > 0 {
-		return 1
-	}
-	return 0
-}
 
 // Succeeded returns the success count.
 func (p *BatchProgress) Succeeded() int { p.mu.Lock(); defer p.mu.Unlock(); return p.succeeded }
