@@ -82,7 +82,13 @@ func runPull(args []string) {
 
 	completePendingTask(taskDB, taskID)
 
-	runStatus([]string{})
+	var statusArgs []string
+	if opts.group != "" {
+		statusArgs = append(statusArgs, "--group", opts.group)
+	} else if opts.all {
+		statusArgs = append(statusArgs, "--all")
+	}
+	runStatus(statusArgs)
 }
 
 // shouldPullCWD reports whether `gitmap pull` was invoked with no
@@ -206,6 +212,13 @@ func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 
 // executePull dispatches to either the serial or parallel runner.
 func executePull(records []model.ScanRecord, prog *cloner.BatchProgress, opts pullOptions) {
+	workers, ok := cloneconcurrency.Resolve(opts.parallel)
+	if !ok {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, opts.parallel)
+		os.Exit(1)
+	}
+	opts.parallel = workers
+
 	if opts.parallel > 1 {
 		runPullParallel(records, prog, opts.parallel, opts.stopOnFail)
 		return
@@ -227,7 +240,7 @@ func parsePullFlags(args []string) pullOptions {
 	fs.StringVar(gFlag, "g", "", constants.FlagDescGroup)
 	aFlag := fs.Bool("all", false, constants.FlagDescAll)
 	sFlag := fs.Bool(constants.FlagStopOnFail, false, constants.FlagDescStopOnFail)
-	pFlag := fs.Int("parallel", 1, constants.FlagDescPullParallel)
+	pFlag := fs.Int("parallel", 0, constants.FlagDescPullParallel)
 	oFlag := fs.Bool("only-available", false, constants.FlagDescPullOnlyAvailable)
 	fs.Parse(args)
 

@@ -72,7 +72,13 @@ func runPush(args []string) {
 
 	completePendingTask(taskDB, taskID)
 
-	runStatus([]string{})
+	var statusArgs []string
+	if opts.group != "" {
+		statusArgs = append(statusArgs, "--group", opts.group)
+	} else if opts.all {
+		statusArgs = append(statusArgs, "--all")
+	}
+	runStatus(statusArgs)
 }
 
 // shouldPushCWD reports whether `gitmap push` was invoked with no targeting flags

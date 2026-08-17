@@ -51,6 +51,10 @@ const (
 	SSHStrictHostKeyChecking  = "StrictHostKeyChecking"
 	SSHStrictHostKeyAcceptNew = "StrictHostKeyChecking=accept-new"
 	EnvAssignmentSeparator    = "="
+	EnvGitTerminalPromptZero  = "GIT_TERMINAL_PROMPT=0"
+	EnvGitAskpassEmpty        = "GIT_ASKPASS="
+	EnvSSHAskpassEmpty        = "SSH_ASKPASS="
+	EnvGitSSHCommandBatchYes  = "GIT_SSH_COMMAND=ssh -o BatchMode=yes"
 )
 
 // Git arguments for latest-branch operations.

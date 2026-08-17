@@ -123,5 +123,9 @@ func toolingDispatchEntries() []dispatchEntry {
 			[]string{constants.CmdChrome},
 			func() { runChrome(argsTail()) },
 		},
+		{
+			[]string{constants.CmdServe, constants.CmdServeAlias},
+			func() { runServe(argsTail()) },
+		},
 	}
 }

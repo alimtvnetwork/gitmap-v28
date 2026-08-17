@@ -20,6 +20,7 @@ func printGroupUtilities() {
 	fmt.Println(constants.HelpDocs)
 	fmt.Println(constants.HelpHelpDash)
 	fmt.Println(constants.HelpGoMod)
+	fmt.Println(constants.HelpServe)
 	fmt.Println(constants.HelpSEOWrite)
 	fmt.Println(constants.HelpLLMDocs)
 	fmt.Println(constants.HelpFixRepo)
@@ -42,6 +43,14 @@ func printUsageFlagSections() {
 	printUsageInteractiveFlags()
 	printUsageCloneNextFlags()
 	printUsageFixRepoFlags()
+	printUsageServeFlags()
+}
+
+// printUsageServeFlags prints the serve flags section.
+func printUsageServeFlags() {
+	fmt.Println()
+	fmt.Println("  [serve flags]")
+	fmt.Println("    -port                " + constants.FlagDescServePort)
 }
 
 // printUsageFixRepoFlags prints the fix-repo flags section so the

@@ -9,7 +9,7 @@ package constants
 
 // CLI flag descriptions (used by flag.NewFlagSet).
 const (
-	FlagDescPullParallel      = "Run up to N pulls concurrently (default 1; serial)"
+	FlagDescPullParallel      = "Run up to N pulls concurrently (0 = auto / NumCPU, 1 = sequential)"
 	FlagDescPullOnlyAvailable = "Skip repos whose latest probe reports no new tag (run `gitmap probe --all` first)"
 )
 
