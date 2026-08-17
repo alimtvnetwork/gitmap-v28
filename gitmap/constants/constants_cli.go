@@ -100,6 +100,13 @@ const (
 	CmdCluster               = "cluster"
 	CmdClusterAlias          = "clst"
 	CmdClusterStatus         = "status" // gitmap:cmd skip
+	CmdServersClients        = "servers-clients" // gitmap:cmd top-level
+	CmdSC                    = "sc"
+	CmdClients               = "clients" // gitmap:cmd top-level
+	CmdClusterHistory        = "cluster history" // gitmap:cmd top-level
+	CmdClusterExport         = "cluster export" // gitmap:cmd top-level
+	CmdClusterImport         = "cluster import" // gitmap:cmd top-level
+	CmdClusterSetPassword    = "cluster set-password" // gitmap:cmd top-level
 	CmdGroupCreate           = "create" // gitmap:cmd skip
 	CmdGroupAdd              = "add"    // gitmap:cmd skip
 	CmdGroupRemove           = "remove" // gitmap:cmd skip
@@ -623,4 +630,14 @@ const (
 	FlagBump      = "bump"
 	FlagBumpDash  = "--bump"
 	FlagDryRunDsh = "--dry-run"
+
+	// Cluster command flags
+	ClusterFlagExcept         = "except"
+	ClusterFlagIP             = "ip"
+	ClusterFlagID             = "id"
+	ClusterFlagYes            = "yes"
+	ClusterFlagYesShort       = "Y"
+	ClusterFlagForceLifecycle = "force-lifecycle"
+	ClusterFlagNoPreflight    = "no-preflight"
 )
+

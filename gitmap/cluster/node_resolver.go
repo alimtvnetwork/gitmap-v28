@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 type TargetSelectorType int
