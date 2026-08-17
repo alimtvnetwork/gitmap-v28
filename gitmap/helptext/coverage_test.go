@@ -146,6 +146,8 @@ func locateCLIConstantsFile() string {
 var helptextExemptConstants = []string{
 	// `gitmap cluster` has its subcommands and isn't a single documented command.
 	"CmdCluster",
+	// Subcommands for cluster command delegation. To be documented later or covered by cluster.md
+	"CmdServersClients", "CmdSC", "CmdClients", "CmdClusterHistory", "CmdClusterExport", "CmdClusterImport", "CmdClusterSetPassword",
 	// Subcommands of `gitmap group` — documented inside helptext/group.md.
 	"CmdGroupCreate", "CmdGroupAdd", "CmdGroupRemove",
 	"CmdGroupList", "CmdGroupShow", "CmdGroupDelete",
