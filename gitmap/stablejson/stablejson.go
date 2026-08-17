@@ -171,7 +171,7 @@ func WriteObjectIndent(w io.Writer, fields []Field, indent string) error {
 		buf.WriteByte('\n')
 	}
 	buf.WriteString("}\n")
-	_, err := w.Write(buf.Bytes())
+	_, err = w.Write(buf.Bytes())
 
 	return err
 }
