@@ -12,6 +12,8 @@ import "testing"
 // update this slice. CI enforces parity via TestTopLevelCmd*.
 func topLevelCmds() map[string]string {
 	return map[string]string{
+		"CmdServe":                 CmdServe,
+		"CmdServeAlias":            CmdServeAlias,
 		"CmdScan":                  CmdScan,
 		"CmdScanAlias":             CmdScanAlias,
 		"CmdClone":                 CmdClone,
