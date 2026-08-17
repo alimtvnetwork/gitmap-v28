@@ -25,11 +25,11 @@ func (r *Repo) LogFirstParent(t *testing.T) []CommitNode {
 		"--format=%H%x09%an%x09%ae%x09%aI%x09%cI%x09%s", "HEAD")
 	cmd.Dir = r.Path
 	out, err := cmd.Output()
+	// Treat "unknown revision HEAD" (empty repo) as no commits.
+	if err != nil && strings.Contains(err.Error(), "exit status 128") {
+		return nil
+	}
 	if err != nil {
-		// Treat "unknown revision HEAD" (empty repo) as no commits.
-		if strings.Contains(err.Error(), "exit status 128") {
-			return nil
-		}
 		t.Fatalf("git log: %v", err)
 	}
 	return parseLogLines(string(out))

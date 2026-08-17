@@ -49,10 +49,10 @@ func WalkFirstParent(repoDir string) ([]SourceCommit, error) {
 // in repoDir. Empty repos return an empty slice (no error).
 func listFirstParentShas(repoDir string) ([]string, error) {
 	out, err := gitRunner(repoDir, "rev-list", "--first-parent", "--reverse", "HEAD")
+	if err != nil && isEmptyRepoError(out, err) {
+		return nil, nil
+	}
 	if err != nil {
-		if isEmptyRepoError(out, err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	out = strings.TrimSpace(out)

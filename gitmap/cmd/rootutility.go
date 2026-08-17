@@ -59,15 +59,7 @@ func utilityDispatchEntries() []dispatchEntry {
 func runHelpDispatch() {
 	hasTopic := len(os.Args) >= 3 && isFlagToken(os.Args[2]) == false
 	if hasTopic == true {
-		topic := normalizeHelpTopic(os.Args[2])
-		_, err := helptext.ReadRaw(topic)
-		if err == nil {
-			_, mode := ParsePrettyFlag(os.Args[3:])
-			helptext.PrintWithMode(topic, mode)
-			return
-		}
-
-		printUsageFiltered(topic)
+		dispatchHelpTopic(os.Args[2])
 		return
 	}
 
@@ -83,7 +75,22 @@ func runHelpDispatch() {
 
 		return
 	}
+
 	printUsage()
+}
+
+// dispatchHelpTopic renders help for a named topic, falling back to filtered
+// usage when the topic has no dedicated help text.
+func dispatchHelpTopic(rawTopic string) {
+	topic := normalizeHelpTopic(rawTopic)
+	_, err := helptext.ReadRaw(topic)
+	if err != nil {
+		printUsageFiltered(topic)
+		return
+	}
+
+	_, mode := ParsePrettyFlag(os.Args[3:])
+	helptext.PrintWithMode(topic, mode)
 }
 
 func normalizeHelpTopic(topic string) string {

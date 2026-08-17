@@ -22,18 +22,18 @@ func ProfilePath(workspaceRoot, name string) string {
 func LoadFromDisk(workspaceRoot, name string) (*Profile, error) {
 	path := ProfilePath(workspaceRoot, name)
 	raw, err := os.ReadFile(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, &LoadError{Path: path, Reason: "not found", Cause: err}
+	}
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil, &LoadError{Path: path, Reason: "not found", Cause: err}
-		}
 		return nil, &LoadError{Path: path, Reason: "read failed", Cause: err}
 	}
 	p, err := Decode(raw)
+	var le *LoadError
+	if errors.As(err, &le) {
+		le.Path = path
+	}
 	if err != nil {
-		var le *LoadError
-		if errors.As(err, &le) {
-			le.Path = path
-		}
 		return nil, err
 	}
 	return p, nil
@@ -43,10 +43,9 @@ func LoadFromDisk(workspaceRoot, name string) (*Profile, error) {
 // Refuses overwrite unless allowOverwrite=true.
 func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 	path := ProfilePath(workspaceRoot, p.Name)
-	if !allowOverwrite {
-		if _, err := os.Stat(path); err == nil {
-			return fmt.Errorf("profile %q already exists", p.Name)
-		}
+	fileAlreadyExists := isExistingFile(path)
+	if allowOverwrite == false && fileAlreadyExists == true {
+		return fmt.Errorf("profile %q already exists", p.Name)
 	}
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return fmt.Errorf("mkdir profiles: %w", err)
@@ -63,4 +62,19 @@ func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 		return fmt.Errorf("rename: %w", err)
 	}
 	return nil
+}
+
+// profileExists returns an error if a file already exists at path.
+func profileExists(path string) error {
+	_, err := os.Stat(path)
+	if err == nil {
+		return fmt.Errorf("profile %q already exists", filepath.Base(path))
+	}
+	return nil
+}
+
+// isExistingFile returns true when path exists and is accessible.
+func isExistingFile(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }

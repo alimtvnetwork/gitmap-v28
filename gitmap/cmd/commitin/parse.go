@@ -58,17 +58,25 @@ func splitPositional(raw *RawArgs, positional []string) *ParseError {
 	raw.Source = positional[0]
 	rest := positional[1:]
 	if len(rest) == 1 {
-		kw, tail, isKw, perr := classifyKeyword(rest[0])
-		if perr != nil {
-			return perr
-		}
-		if isKw {
-			raw.Keyword = kw
-			raw.KeywordTail = tail
-			return nil
-		}
+		return applyKeywordArg(raw, rest)
 	}
 	raw.Inputs = splitInputs(rest)
+	return nil
+}
+
+// applyKeywordArg tries to classify a single trailing argument as a keyword;
+// if it is not a keyword, falls back to treating it as a regular input.
+func applyKeywordArg(raw *RawArgs, rest []string) *ParseError {
+	kw, tail, isKw, perr := classifyKeyword(rest[0])
+	if perr != nil {
+		return perr
+	}
+	if isKw == false {
+		raw.Inputs = splitInputs(rest)
+		return nil
+	}
+	raw.Keyword = kw
+	raw.KeywordTail = tail
 	return nil
 }
 

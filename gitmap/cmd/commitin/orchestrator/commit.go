@@ -113,10 +113,11 @@ func doReplayAndRecord(ctx *runContext, staged workspace.StagedInput, c walk.Sou
 		return
 	}
 	plan := buildReplayPlan(ctx, staged, c, msg)
-	if abort, skip := conflictCheck(ctx, plan, c, stdout); abort || skip {
-		if abort {
-			recordFail(ctx, srcID, c, msg, errConflictAborted, stdout)
-		}
+	abort, skip := conflictCheck(ctx, plan, c, stdout)
+	if abort == true {
+		recordFail(ctx, srcID, c, msg, errConflictAborted, stdout)
+	}
+	if abort == true || skip == true {
 		return
 	}
 	res, err := replay.ApplyCommit(plan, false)

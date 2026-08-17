@@ -71,13 +71,15 @@ func fakeRunner(_, sub string, args ...string) (string, error) {
 // fakeShow dispatches between the metadata format and the file-list
 // format based on the args the hydrator passes.
 func fakeShow(args []string) (string, error) {
-	if hasArg(args, "--name-only") {
-		if hasArg(args, "aaa") {
-			return "main.go\nREADME.md", nil
-		}
+	isNameOnly := hasArg(args, "--name-only")
+	isAaa := hasArg(args, "aaa")
+	if isNameOnly == true && isAaa == true {
+		return "main.go\nREADME.md", nil
+	}
+	if isNameOnly == true {
 		return "src/lib.go", nil
 	}
-	if hasArg(args, "aaa") {
+	if isAaa == true {
 		return strings.Join([]string{"alice", "alice@x", "2024-01-02T03:04:05+00:00", "2024-01-02T03:04:06+00:00", "first", "body-line"}, "\x1f"), nil
 	}
 	return strings.Join([]string{"bob", "bob@x", "2024-02-03T04:05:06+02:00", "2024-02-03T04:05:07+02:00", "second", ""}, "\x1f"), nil

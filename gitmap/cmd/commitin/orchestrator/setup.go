@@ -67,22 +67,33 @@ func loadProfile(raw *commitin.RawArgs, paths *workspace.Paths, _ dbCloser, stde
 	return profile.Resolve(cli, prof), prof, constants.CommitInExitOk
 }
 
+func pickNamedProfile(sourceRoot, name string, stderr io.Writer) (*profile.Profile, int) {
+	p, err := profile.LoadFromDisk(sourceRoot, name)
+	if err != nil {
+		fmt.Fprintf(stderr, constants.CommitInErrProfileMissing, name)
+		return nil, constants.CommitInExitProfileMissing
+	}
+	return p, constants.CommitInExitOk
+}
+
 func pickProfile(raw *commitin.RawArgs, paths *workspace.Paths, stderr io.Writer) (*profile.Profile, int) {
 	if raw.ProfileName != "" {
-		p, err := profile.LoadFromDisk(paths.SourceRoot, raw.ProfileName)
-		if err != nil {
-			fmt.Fprintf(stderr, constants.CommitInErrProfileMissing, raw.ProfileName)
-			return nil, constants.CommitInExitProfileMissing
-		}
-		return p, constants.CommitInExitOk
+		return pickNamedProfile(paths.SourceRoot, raw.ProfileName, stderr)
 	}
-	if raw.UseDefaultProfile {
-		p, err := profile.LoadFromDisk(paths.SourceRoot, "default")
-		if err == nil {
-			return p, constants.CommitInExitOk
-		}
+	if raw.UseDefaultProfile == true {
+		return loadDefaultProfile(paths.SourceRoot)
 	}
 	return nil, constants.CommitInExitOk
+}
+
+// loadDefaultProfile loads the profile named "default" from disk.
+// Returns nil profile with CommitInExitOk when not found.
+func loadDefaultProfile(sourceRoot string) (*profile.Profile, int) {
+	p, err := profile.LoadFromDisk(sourceRoot, "default")
+	if err != nil {
+		return nil, constants.CommitInExitOk
+	}
+	return p, constants.CommitInExitOk
 }
 
 // runIDDir matches workspace.CloneInputs's <runId> subdir naming so

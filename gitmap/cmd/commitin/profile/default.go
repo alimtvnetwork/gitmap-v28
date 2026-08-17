@@ -19,10 +19,10 @@ import (
 func ClearOtherDefaults(workspaceRoot, sourceRepoPath, keepName string) error {
 	dir := filepath.Join(workspaceRoot, ".gitmap", constants.CommitInDirProfiles)
 	entries, err := os.ReadDir(dir)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil
-		}
 		return fmt.Errorf("read profiles dir: %w", err)
 	}
 	for _, e := range entries {
@@ -42,18 +42,15 @@ func ClearOtherDefaults(workspaceRoot, sourceRepoPath, keepName string) error {
 
 func clearOneDefault(workspaceRoot, name, sourceRepoPath string) error {
 	p, err := LoadFromDisk(workspaceRoot, name)
+	// Skip unreadable profiles — they cannot be the default
+	// authority anyway. Tolerate corrupt sibling profiles during save.
 	if err != nil {
-		// Skip unreadable profiles — they cannot be the default
-		// authority anyway. Zero-swallow: bubble non-not-found.
-		var le *LoadError
-		if errors.As(err, &le) && le.Reason == "not found" {
-			return nil
-		}
-		return nil // tolerate corrupt sibling profiles during save
+		return nil
 	}
-	if !p.IsDefault || p.SourceRepoPath != sourceRepoPath {
+	if p.IsDefault == false || p.SourceRepoPath != sourceRepoPath {
 		return nil
 	}
 	p.IsDefault = false
 	return SaveToDisk(workspaceRoot, p, true)
 }
+

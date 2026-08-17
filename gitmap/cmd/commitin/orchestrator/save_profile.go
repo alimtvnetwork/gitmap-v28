@@ -32,20 +32,31 @@ func maybeSaveProfile(ctx *runContext, stderr io.Writer) int {
 	return persistProfile(ctx, p, stderr)
 }
 
-func persistProfile(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
-	if p.IsDefault {
-		if err := profile.ClearOtherDefaults(ctx.Paths.SourceRoot, ctx.Source.Path, p.Name); err != nil {
-			fmt.Fprintf(stderr, constants.CommitInErrDbWrite, err)
-			return constants.CommitInExitDbFailed
-		}
+func clearDefaultsIfNeeded(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
+	if p.IsDefault == false {
+		return constants.CommitInExitOk
 	}
-	if err := profile.SaveToDisk(ctx.Paths.SourceRoot, p, ctx.Raw.SaveProfileOverwrite); err != nil {
-		// Distinguish "exists" (user fixable) from generic IO.
-		if isExistsError(err) {
-			fmt.Fprintf(stderr, constants.CommitInErrSaveProfileExists+"\n", p.Name)
-			return constants.CommitInExitBadArgs
-		}
+	err := profile.ClearOtherDefaults(ctx.Paths.SourceRoot, ctx.Source.Path, p.Name)
+	if err != nil {
 		fmt.Fprintf(stderr, constants.CommitInErrDbWrite, err)
+		return constants.CommitInExitDbFailed
+	}
+	return constants.CommitInExitOk
+}
+
+func persistProfile(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
+	exitCode := clearDefaultsIfNeeded(ctx, p, stderr)
+	if exitCode != constants.CommitInExitOk {
+		return exitCode
+	}
+	saveErr := profile.SaveToDisk(ctx.Paths.SourceRoot, p, ctx.Raw.SaveProfileOverwrite)
+	// Distinguish "exists" (user fixable) from generic IO.
+	if isExistsError(saveErr) {
+		fmt.Fprintf(stderr, constants.CommitInErrSaveProfileExists+"\n", p.Name)
+		return constants.CommitInExitBadArgs
+	}
+	if saveErr != nil {
+		fmt.Fprintf(stderr, constants.CommitInErrDbWrite, saveErr)
 		return constants.CommitInExitDbFailed
 	}
 	return constants.CommitInExitOk

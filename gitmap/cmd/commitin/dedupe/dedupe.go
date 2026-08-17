@@ -28,10 +28,11 @@ func Lookup(db *sql.DB, sourceSha string) (Verdict, error) {
 	}
 	row := db.QueryRow(sqlSelectShaMap, sourceSha)
 	var rewrittenId int64
-	if err := row.Scan(&rewrittenId); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return Verdict{}, nil
-		}
+	err := row.Scan(&rewrittenId)
+	if errors.Is(err, sql.ErrNoRows) {
+		return Verdict{}, nil
+	}
+	if err != nil {
 		return Verdict{}, fmt.Errorf("dedupe: select %s: %w", constants.TableCommitInShaMap, err)
 	}
 	return Verdict{IsHit: true, PreviousRewrittenId: rewrittenId}, nil
