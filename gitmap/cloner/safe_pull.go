@@ -19,10 +19,33 @@ var (
 	unlinkPromptRegex = regexp.MustCompile(`(?i)unlink of file '([^']+)' failed`)
 )
 
-func cloneOrPullOne(rec model.ScanRecord, targetDir string, safePull bool) model.CloneResult {
+func cloneOrPullOne(rec model.ScanRecord, targetDir string, opts CloneOptions) model.CloneResult {
 	dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
-	if safePull && isGitRepo(dest) {
+	
+	dirExists := false
+	if _, err := os.Stat(dest); err == nil {
+		dirExists = true
+	}
+
+	if dirExists && opts.MissingOnly {
+		return model.CloneResult{Record: rec, IsSuccess: true, Notes: "skipped (existing directory)"}
+	}
+
+	if dirExists && opts.Clean {
+		if err := os.RemoveAll(dest); err != nil {
+			msg := fmt.Sprintf("failed to clean existing directory %q: %v", dest, err)
+			return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}
+		}
+		dirExists = false
+	}
+
+	if dirExists && opts.SafePull && isGitRepo(dest) {
 		return safePullRepo(rec, dest)
+	}
+
+	if dirExists && !isGitRepo(dest) {
+		msg := fmt.Sprintf("target directory %q exists but is not a git repository (conflict)", dest)
+		return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}
 	}
 
 	return cloneOne(rec, targetDir)

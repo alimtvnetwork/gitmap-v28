@@ -36,8 +36,10 @@ type CloneOptions struct {
 	// detached HEAD, unknown source, etc.). Empty preserves the legacy
 	// "let the remote's default HEAD decide" behavior. Plumbed in by
 	// the CLI from `--default-branch` (constants.FlagScanDefaultBranch),
-	// so the wording and semantics match `gitmap scan --default-branch`.
+	// the wording and semantics match `gitmap scan --default-branch`.
 	DefaultBranch string
+	Clean         bool
+	MissingOnly   bool
 }
 
 // CloneFromFile reads a source file and clones all repos under targetDir.

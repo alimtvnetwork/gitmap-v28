@@ -54,40 +54,40 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 *Creating a 30-step UI and logic upgrade for parallel cloning/pulling.*
 
 **Logic Upgrades:**
-- [ ] 4.1 Parse the `gitmap.json` file in the `clone` command.
-- [ ] 4.2 Check for existing directories before attempting a `git clone`.
-- [ ] 4.3 Implement default safe mode: if repo exists, perform a `git pull` instead of cloning.
-- [ ] 4.4 Implement `--clean` flag: forcefully delete the local folder and re-clone.
-- [ ] 4.5 Implement `--missing-only` flag: skip existing directories entirely.
-- [ ] 4.6 Implement interactive prompting if `--clean` is NOT passed and conflicts are detected.
-- [ ] 4.7 Catch `git pull` failures in existing repos and queue them into an error summary.
-- [ ] 4.8 Ensure failed pulls do not crash the entire batch operation.
+- [x] 4.1 Parse the `gitmap.json` file in the `clone` command.
+- [x] 4.2 Check for existing directories before attempting a `git clone`.
+- [x] 4.3 Implement default safe mode: if repo exists, perform a `git pull` instead of cloning.
+- [x] 4.4 Implement `--clean` flag: forcefully delete the local folder and re-clone.
+- [x] 4.5 Implement `--missing-only` flag: skip existing directories entirely.
+- [x] 4.6 Implement interactive prompting if `--clean` is NOT passed and conflicts are detected.
+- [x] 4.7 Catch `git pull` failures in existing repos and queue them into an error summary.
+- [x] 4.8 Ensure failed pulls do not crash the entire batch operation.
 
 **UI Upgrades (30-Step Plan for Terminal Output):**
-- [ ] 4.9 Hide the default stdout/stderr of the raw `git clone` / `git pull` commands.
-- [ ] 4.10 Initialize a terminal UI library (e.g., `pterm`, `bubbletea`, or simple ANSI escape codes).
-- [ ] 4.11 Render a fixed header: `[gitmap] Processing X repositories...`
-- [ ] 4.12 Create a dynamic layout area for active workers.
-- [ ] 4.13 Configure a bounded worker pool (e.g., 5-10 concurrent workers) to prevent network/disk thrashing.
-- [ ] 4.14 Assign a UI line for each active worker.
-- [ ] 4.15 Display a spinner for active operations (e.g., `⠋ Cloning repo-A...`).
-- [ ] 4.16 Display a progress percentage if determinable, or a time elapsed counter.
-- [ ] 4.17 Once a worker finishes, replace the spinner with a green checkmark `✓ repo-A cloned in 2.1s`.
-- [ ] 4.18 If a pull is executed instead of a clone, show `✓ repo-B updated (pull)`.
-- [ ] 4.19 If an error occurs, show a red cross `✗ repo-C failed (merge conflict)`.
-- [ ] 4.20 Move completed items to a scrolling "completed" list above the active workers.
-- [ ] 4.21 Keep the active workers pinned to the bottom of the terminal output.
-- [ ] 4.22 Ensure line-clearing ANSI codes work correctly on both Windows (cmd/pwsh) and Unix terminals.
-- [ ] 4.23 Upon total completion, clear the active worker area.
-- [ ] 4.24 Print a summary box: `Completed: 12, Skipped: 1, Failed: 1`.
-- [ ] 4.25 List specific errors below the summary box with actionable next steps.
-- [ ] 4.26 Ensure the terminal cursor is restored and visible upon exit.
-- [ ] 4.27 Handle `Ctrl+C` gracefully, cancelling all workers and cleaning up the terminal UI.
-- [ ] 4.28 Add visual padding (empty lines) around the summary for aesthetic breathing room.
-- [ ] 4.29 Use distinct colors for `Clone`, `Pull`, `Skip`, and `Fail` events.
-- [ ] 4.30 Test the UI with large JSON files (50+ repos) to ensure smooth scrolling.
-- [ ] 4.31 Verify UI performance when operations complete instantaneously.
-- [ ] 4.32 Trigger `gitmap status` automatically on the target directory upon successful completion of the clone/pull batch.
+- [x] 4.9 Hide the default stdout/stderr of the raw `git clone` / `git pull` commands.
+- [x] 4.10 Initialize a terminal UI library (e.g., `pterm`, `bubbletea`, or simple ANSI escape codes).
+- [x] 4.11 Render a fixed header: `[gitmap] Processing X repositories...`
+- [x] 4.12 Create a dynamic layout area for active workers.
+- [x] 4.13 Configure a bounded worker pool (e.g., 5-10 concurrent workers) to prevent network/disk thrashing.
+- [x] 4.14 Assign a UI line for each active worker.
+- [x] 4.15 Display a spinner for active operations (e.g., `⠋ Cloning repo-A...`).
+- [x] 4.16 Display a progress percentage if determinable, or a time elapsed counter.
+- [x] 4.17 Once a worker finishes, replace the spinner with a green checkmark `✓ repo-A cloned in 2.1s`.
+- [x] 4.18 If a pull is executed instead of a clone, show `✓ repo-B updated (pull)`.
+- [x] 4.19 If an error occurs, show a red cross `✗ repo-C failed (merge conflict)`.
+- [x] 4.20 Move completed items to a scrolling "completed" list above the active workers.
+- [x] 4.21 Keep the active workers pinned to the bottom of the terminal output.
+- [x] 4.22 Ensure line-clearing ANSI codes work correctly on both Windows (cmd/pwsh) and Unix terminals.
+- [x] 4.23 Upon total completion, clear the active worker area.
+- [x] 4.24 Print a summary box: `Completed: 12, Skipped: 1, Failed: 1`.
+- [x] 4.25 List specific errors below the summary box with actionable next steps.
+- [x] 4.26 Ensure the terminal cursor is restored and visible upon exit.
+- [x] 4.27 Handle `Ctrl+C` gracefully, cancelling all workers and cleaning up the terminal UI.
+- [x] 4.28 Add visual padding (empty lines) around the summary for aesthetic breathing room.
+- [x] 4.29 Use distinct colors for `Clone`, `Pull`, `Skip`, and `Fail` events.
+- [x] 4.30 Test the UI with large JSON files (50+ repos) to ensure smooth scrolling.
+- [x] 4.31 Verify UI performance when operations complete instantaneously.
+- [x] 4.32 Trigger `gitmap status` automatically on the target directory upon successful completion of the clone/pull batch.
 
 ### Phase 5: Parallel Git Push/Pull All UI
 *Extending the clone UI to standard push/pull all commands.*

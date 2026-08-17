@@ -88,7 +88,7 @@ func runClone(args []string) {
 	}
 
 	source := resolveCloneShorthand(cf.Source)
-	executeClone(source, cf.TargetDir, cf.SafePull, cf.GHDesktop, cf.MaxConcurrency, cf.DefaultBranch, cf.NoVSCodeSync)
+	executeClone(source, cf.TargetDir, cf.SafePull, cf.GHDesktop, cf.MaxConcurrency, cf.DefaultBranch, cf.NoVSCodeSync, cf.Clean, cf.MissingOnly)
 	maybeExitOnCmdFaithfulMismatch()
 }
 
@@ -435,8 +435,9 @@ func validateShorthandPath(resolved string) string {
 // keeps the legacy "remote default HEAD" behavior for rows with an
 // untrustworthy Branch / BranchSource. Non-empty rewrites those rows
 // in cloner.applyDefaultBranchFallback so they go through the
-// trusted `git clone -b <fallback>` path.
-func executeClone(source, targetDir string, safePull, ghDesktop bool, maxConcurrency int, defaultBranch string, noVSCodeSync bool) {
+// untrusted (detached, unknown) git clone is invoked without -b and
+// the remote's default HEAD decides the checkout.
+func executeClone(source, targetDir string, safePull, ghDesktop bool, maxConcurrency int, defaultBranch string, noVSCodeSync bool, clean bool, missingOnly bool) {
 	workers, ok := cloneconcurrency.Resolve(maxConcurrency)
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConcurrency)
@@ -461,6 +462,8 @@ func executeClone(source, targetDir string, safePull, ghDesktop bool, maxConcurr
 		SafePull:       safePull,
 		MaxConcurrency: maxConcurrency,
 		DefaultBranch:  defaultBranch,
+		Clean:          clean,
+		MissingOnly:    missingOnly,
 	})
 	if err != nil {
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneFailed, source, err))
@@ -482,6 +485,12 @@ func executeClone(source, targetDir string, safePull, ghDesktop bool, maxConcurr
 	// Mark clone task as completed after all steps succeed.
 	completePendingTask(taskDB, taskID)
 	closeTaskDB(taskDB)
+
+	// Trigger gitmap status (Step 4.32)
+	fmt.Println("\nRunning gitmap status on target directory...")
+	if err := os.Chdir(targetDir); err == nil {
+		runStatus([]string{})
+	}
 }
 
 // syncManifestClonedReposToVSCodePM converts a manifest-style

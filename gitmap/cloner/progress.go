@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/pterm/pterm"
 )
 
 // Progress tracks clone operation progress.
@@ -21,20 +22,29 @@ type Progress struct {
 	total   int
 	current int
 	start   time.Time
-	quiet   bool
-	cloned  int
-	pulled  int
-	skipped int
-	failed  int
+	quiet    bool
+	cloned   int
+	pulled   int
+	skipped  int
+	failed   int
+	multi    *pterm.MultiPrinterPrinter
+	spinners map[string]*pterm.SpinnerPrinter
 }
 
 // NewProgress creates a progress tracker.
 func NewProgress(total int, quiet bool) *Progress {
-	return &Progress{
-		total: total,
-		start: time.Now(),
-		quiet: quiet,
+	p := &Progress{
+		total:    total,
+		start:    time.Now(),
+		quiet:    quiet,
+		spinners: make(map[string]*pterm.SpinnerPrinter),
 	}
+	if !quiet {
+		p.multi = &pterm.DefaultMultiPrinter
+		p.multi.Start()
+		pterm.Info.Printf("[gitmap] Processing %d repositories...\n", total)
+	}
+	return p
 }
 
 // Begin prints the starting line for a repo.
@@ -47,7 +57,8 @@ func (p *Progress) Begin(name string) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ProgressBeginFmt, p.current, p.total, name)
+	spinner, _ := pterm.DefaultSpinner.WithWriter(p.multi.NewWriter()).Start(fmt.Sprintf("Processing %s...", name))
+	p.spinners[name] = spinner
 }
 
 // Done marks a repo as successfully completed.
@@ -65,8 +76,16 @@ func (p *Progress) Done(result model.CloneResult, pulled bool) {
 		return
 	}
 
-	elapsed := time.Since(p.start)
-	fmt.Fprintf(os.Stderr, constants.ProgressDoneFmt, formatDuration(elapsed))
+	name := repoDisplayName(result.Record)
+	if spinner, ok := p.spinners[name]; ok {
+		elapsed := time.Since(p.start)
+		if pulled {
+			spinner.Success(fmt.Sprintf("%s updated (pull) in %s", name, formatDuration(elapsed)))
+		} else {
+			spinner.Success(fmt.Sprintf("%s cloned in %s", name, formatDuration(elapsed)))
+		}
+		delete(p.spinners, name)
+	}
 }
 
 // Skip marks a repo as skipped because it was already up to date.
@@ -79,7 +98,11 @@ func (p *Progress) Skip(result model.CloneResult) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ProgressSkipFmt)
+	name := repoDisplayName(result.Record)
+	if spinner, ok := p.spinners[name]; ok {
+		spinner.Warning(fmt.Sprintf("%s skipped (existing/up-to-date)", name))
+		delete(p.spinners, name)
+	}
 }
 
 // Fail marks a repo as failed.
@@ -92,7 +115,11 @@ func (p *Progress) Fail(result model.CloneResult) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ProgressFailFmt)
+	name := repoDisplayName(result.Record)
+	if spinner, ok := p.spinners[name]; ok {
+		spinner.Fail(fmt.Sprintf("%s failed", name))
+		delete(p.spinners, name)
+	}
 }
 
 // PrintSummary prints the final summary line.
@@ -104,11 +131,15 @@ func (p *Progress) PrintSummary() {
 		return
 	}
 
+	if p.multi != nil {
+		p.multi.Stop()
+	}
+
 	elapsed := time.Since(p.start)
-	fmt.Fprintf(os.Stderr, constants.ProgressSummaryFmt,
-		p.current, p.total, formatDuration(elapsed))
-	fmt.Fprintf(os.Stderr, constants.ProgressDetailFmt,
-		p.cloned, p.pulled, p.skipped, p.failed)
+	fmt.Println()
+	pterm.DefaultBox.WithTitle("Summary").Println(
+		fmt.Sprintf("Completed: %d, Skipped: %d, Failed: %d\nTime: %s",
+			p.cloned+p.pulled, p.skipped, p.failed, formatDuration(elapsed)))
 }
 
 // formatDuration returns a human-readable duration string.

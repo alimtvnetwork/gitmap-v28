@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -34,10 +35,35 @@ func cloneAll(records []model.ScanRecord, targetDir string, opts CloneOptions) m
 	// opts.DefaultBranch is empty.
 	records = applyDefaultBranchFallback(records, opts.DefaultBranch)
 
-	safePull := opts.SafePull
-	if !safePull && hasExistingRepos(records, targetDir) {
-		safePull = true
-		fmt.Print(constants.MsgAutoSafePull)
+	// Pre-flight check for conflicts (Step 4.2 and 4.6)
+	if !opts.Clean && !opts.MissingOnly {
+		conflicts := 0
+		for _, rec := range records {
+			dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
+			if _, err := os.Stat(dest); err == nil {
+				if !isGitRepo(dest) {
+					conflicts++
+				}
+			}
+		}
+		if conflicts > 0 {
+			fmt.Printf("Warning: Detected %d existing directories that are not git repositories.\n", conflicts)
+			fmt.Printf("These will fail to clone. Do you want to forcefully clean them? [y/N]: ")
+			var response string
+			fmt.Scanln(&response)
+			if strings.ToLower(strings.TrimSpace(response)) == "y" {
+				opts.Clean = true
+			} else {
+				fmt.Println("Proceeding without --clean. Conflicting directories will fail.")
+			}
+		}
+	}
+
+	if !opts.SafePull && hasExistingRepos(records, targetDir) {
+		if !opts.Clean && !opts.MissingOnly {
+			opts.SafePull = true
+			fmt.Print(constants.MsgAutoSafePull)
+		}
 	}
 
 	cache := LoadCloneCache(targetDir)
@@ -48,9 +74,9 @@ func cloneAll(records []model.ScanRecord, targetDir string, opts CloneOptions) m
 	var summary model.CloneSummary
 	if workers > 1 {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneConcurrencyEnabledFmt, workers)
-		summary = runConcurrent(records, targetDir, safePull, workers, progress, cache)
+		summary = runConcurrent(records, targetDir, opts, workers, progress, cache)
 	} else {
-		summary = runSequential(records, targetDir, safePull, progress, cache)
+		summary = runSequential(records, targetDir, opts, progress, cache)
 	}
 
 	// Best-effort cache persistence — never fail the run on write errors.
@@ -77,7 +103,7 @@ func normalizeWorkers(requested, jobs int) int {
 
 // runSequential is the legacy in-order runner. Kept as a separate
 // function so concurrent.go can stay focused on the worker-pool path.
-func runSequential(records []model.ScanRecord, targetDir string, safePull bool,
+func runSequential(records []model.ScanRecord, targetDir string, opts CloneOptions,
 	progress *Progress, cache *CloneCache) model.CloneSummary {
 	summary := model.CloneSummary{}
 	for _, rec := range records {
@@ -91,8 +117,8 @@ func runSequential(records []model.ScanRecord, targetDir string, safePull bool,
 			continue
 		}
 
-		result := cloneOrPullOne(rec, targetDir, safePull)
-		trackResult(progress, result, rec, targetDir, safePull)
+		result := cloneOrPullOne(rec, targetDir, opts)
+		trackResult(progress, result, rec, targetDir, opts.SafePull)
 		summary = updateSummary(summary, result)
 
 		if result.IsSuccess {

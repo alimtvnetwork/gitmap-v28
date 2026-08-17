@@ -222,6 +222,8 @@ type CloneFlags struct {
 	// AssumeYes skips the SSH first-connect host-key prompt by asking
 	// OpenSSH to accept new host keys. Changed host keys still fail.
 	IsAssumeYes bool
+	Clean       bool
+	MissingOnly bool
 }
 
 // parseCloneFlags parses flags for the clone command.
@@ -232,6 +234,8 @@ func parseCloneFlags(args []string) CloneFlags {
 	ghDesktopFlag := fs.Bool("github-desktop", false, constants.FlagDescGHDesktop)
 	verboseFlag := fs.Bool("verbose", false, constants.FlagDescVerbose)
 	noReplaceFlag := fs.Bool("no-replace", false, constants.FlagDescCloneNoReplace)
+	cleanFlag := fs.Bool("clean", false, "Forcefully delete the local folder and re-clone")
+	missingOnlyFlag := fs.Bool("missing-only", false, "Skip existing directories entirely")
 	auditFlag := fs.Bool(constants.CloneFlagAudit, false, constants.FlagDescCloneAudit)
 	maxConcFlag := fs.Int(constants.CloneFlagMaxConcurrency,
 		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
@@ -293,6 +297,8 @@ func parseCloneFlags(args []string) CloneFlags {
 		UseHTTPS:                        *httpsFlag,
 		DryRun:                          *dryRunFlag,
 		IsAssumeYes:                     *yesFlag,
+		Clean:                           *cleanFlag,
+		MissingOnly:                     *missingOnlyFlag,
 	}
 }
 
