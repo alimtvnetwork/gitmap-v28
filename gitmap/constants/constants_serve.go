@@ -1,6 +1,7 @@
 package constants
 
 // Serve CLI commands.
+// gitmap:cmd top-level
 const (
 	CmdServe      = "serve"
 	CmdServeAlias = "sv"
