@@ -238,6 +238,4 @@ func resolveRotateFileHelper(explicit string) string {
 		return ""
 	}
 	return explicit
-
-	return ""
 }

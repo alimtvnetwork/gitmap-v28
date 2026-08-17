@@ -143,6 +143,4 @@ func extractContainsName(line, prefix string) string {
 	}
 
 	return name
-
-	return ""
 }

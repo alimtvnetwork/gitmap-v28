@@ -431,7 +431,6 @@ func copyTree(src, dst string) error {
 		}
 	}
 	return nil
-	return copyOneFile(src, dst)
 }
 
 func copyOneFile(src, dst string) error {
