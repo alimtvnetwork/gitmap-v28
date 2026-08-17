@@ -14,7 +14,7 @@
       "description": "Scanned repository records (`model.ScanRecord`).",
       "items": {
         "type": "object",
-        "required": ["id", "slug", "repoId", "repoName", "httpsUrl", "sshUrl", "discoveredUrl", "branch", "branchSource", "relativePath", "absolutePath", "cloneInstruction", "notes", "depth", "transport"],
+        "required": ["id", "slug", "repoId", "repoName", "httpsUrl", "sshUrl", "discoveredUrl", "branch", "branchSource", "relativePath", "absolutePath", "cloneInstruction", "notes", "depth", "transport", "identifiedTransport"],
         "additionalProperties": false,
         "properties": {
           "id": {"type": "integer"},
@@ -31,7 +31,8 @@
           "cloneInstruction": {"type": "string"},
           "notes": {"type": "string"},
           "depth": {"type": "integer"},
-          "transport": {"type": "string"}
+          "transport": {"type": "string"},
+          "identifiedTransport": {"type": "string"}
         }
       }
     },

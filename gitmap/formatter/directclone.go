@@ -57,10 +57,10 @@ func buildDirectCloneEntries(records []model.ScanRecord, useSSH bool) []RepoEntr
 // pickDirectCloneURL honors the per-repo identified transport first,
 // then falls back to the scan-wide useSSH preference.
 func pickDirectCloneURL(r model.ScanRecord, useSSH bool) string {
-	if r.Transport == "ssh" && len(r.SSHUrl) > 0 {
+	if r.IdentifiedTransport == "ssh" && len(r.SSHUrl) > 0 {
 		return r.SSHUrl
 	}
-	if r.Transport == "https" && len(r.HTTPSUrl) > 0 {
+	if r.IdentifiedTransport == "https" && len(r.HTTPSUrl) > 0 {
 		return r.HTTPSUrl
 	}
 	if useSSH {

@@ -14,7 +14,8 @@
     "cloneInstruction": "git clone https://github.com/acme/widget.git",
     "notes": "",
     "depth": 1,
-    "transport": "https"
+    "transport": "https",
+    "identifiedTransport": "https"
   },
   {
     "id": 2,
@@ -31,6 +32,7 @@
     "cloneInstruction": "git clone -b develop https://github.com/acme/gadget.git",
     "notes": "pinned to develop",
     "depth": 4,
-    "transport": "ssh"
+    "transport": "ssh",
+    "identifiedTransport": "ssh"
   }
 ]

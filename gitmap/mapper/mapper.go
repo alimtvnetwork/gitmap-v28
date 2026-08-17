@@ -112,6 +112,7 @@ func buildOneRecord(repo scanner.RepoInfo, opts BuildOptions) model.ScanRecord {
 		CloneInstruction: instruction, Notes: noteText,
 		Depth:     repo.Depth,
 		Transport: transport,
+		IdentifiedTransport: transport,
 	}
 }
 

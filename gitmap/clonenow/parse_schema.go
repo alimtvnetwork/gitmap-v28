@@ -48,6 +48,7 @@ var knownScanFields = map[string]bool{
 	"notes":            true,
 	"depth":            true,
 	"transport":        true,
+	"identifiedTransport": true,
 }
 
 // validateCSVSchema ensures the CSV input has a recognizable header

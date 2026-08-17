@@ -207,3 +207,18 @@ func buildUtilityGroup() llmCmdGroup {
 		},
 	}
 }
+
+// buildVisibilityGroup returns the visibility commands group.
+func buildVisibilityGroup() llmCmdGroup {
+	return llmCmdGroup{
+		title: "Visibility",
+		commands: []llmCmdEntry{
+			{"make-all-public", "mapub", "Change visibility of matched repos to public", "gitmap make-all-public owner org/*"},
+			{"make-all-private", "mapri", "Change visibility of matched repos to private", "gitmap make-all-private owner org/*"},
+			{"make-all-public-except-latest", "mapubxl", "Change visibility to public except for the latest matching repo", "gitmap make-all-public-except-latest owner org/*"},
+			{"make-all-private-except-latest", "maprixl", "Change visibility to private except for the latest matching repo", "gitmap make-all-private-except-latest owner org/*"},
+			{"visibility-undo", "vu", "Undo the last bulk visibility operation", "gitmap visibility-undo"},
+			{"visibility-history", "vh", "List history of bulk visibility operations", "gitmap visibility-history"},
+		},
+	}
+}

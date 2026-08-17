@@ -23,7 +23,7 @@ func (db *DB) upsertOne(r model.ScanRecord) error {
 	_, err := db.conn.Exec(constants.SQLUpsertRepoByPath,
 		r.Slug, r.RepoName, r.HTTPSUrl, r.SSHUrl,
 		r.Branch, r.RelativePath, r.AbsolutePath,
-		r.CloneInstruction, r.Notes, r.Transport,
+		r.CloneInstruction, r.Notes, r.IdentifiedTransport,
 	)
 
 	return err
@@ -108,7 +108,7 @@ func scanOneRow(row interface{ Scan(dest ...any) error }) (model.ScanRecord, err
 	err := row.Scan(
 		&r.ID, &r.Slug, &r.RepoName, &r.HTTPSUrl, &r.SSHUrl,
 		&r.Branch, &r.RelativePath, &r.AbsolutePath,
-		&r.CloneInstruction, &r.Notes, &r.Transport,
+		&r.CloneInstruction, &r.Notes, &r.IdentifiedTransport,
 	)
 
 	return r, err

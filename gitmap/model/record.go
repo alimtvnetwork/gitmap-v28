@@ -35,6 +35,7 @@ type ScanRecord struct {
 	Notes            string `json:"notes"             csv:"notes"`
 	Depth            int    `json:"depth"             csv:"depth"`
 	Transport        string `json:"transport"         csv:"transport"`
+	IdentifiedTransport string `json:"identifiedTransport" csv:"identifiedTransport"`
 }
 
 // ReleaseConfig holds release-specific configuration from config.json.

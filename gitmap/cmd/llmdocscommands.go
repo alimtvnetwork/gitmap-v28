@@ -68,6 +68,7 @@ func buildCommandGroups() []llmCmdGroup {
 		buildZipGroup(),
 		buildEnvToolsGroup(),
 		buildTaskGroup(),
+		buildVisibilityGroup(),
 		buildUtilityGroup(),
 	}
 }

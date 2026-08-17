@@ -53,6 +53,7 @@ func canonicalScanRecords() []model.ScanRecord {
 			Notes:            "",
 			Depth:            1,
 			Transport:        "https",
+			IdentifiedTransport: "https",
 		},
 		{
 			ID: 2, Slug: "acme/gadget", RepoName: "gadget",
@@ -71,6 +72,7 @@ func canonicalScanRecords() []model.ScanRecord {
 			// --max-depth before the next scan.
 			Depth:     4,
 			Transport: "ssh",
+			IdentifiedTransport: "ssh",
 		},
 	}
 }

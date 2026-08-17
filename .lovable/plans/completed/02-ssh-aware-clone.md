@@ -2,7 +2,7 @@
 
 **Slug:** ssh-aware-clone
 **Steps:** 5
-**Status:** pending
+**Status:** completed
 **Created:** 2026-06-07
 
 ## Context

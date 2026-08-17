@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.19.0] 2026-08-17
+### Added
+- Added transport awareness to `gitmap clone` so it preserves the origin transport (SSH vs HTTPS) used during `gitmap scan` when cloning from a manifest file. This resolves fallback issues that triggered interactive browser authentication prompts.
+- Added `IdentifiedTransport` to `ScanRecord` model and database schemas.
+- Updated documentation and LLM docs for new visibility commands and transport awareness.
 ## [v6.92.0] 2026-08-10
 ### Added
 - Added PHP query wrapper (`query_wrapper.php`) to unify error logging in PHP environments.

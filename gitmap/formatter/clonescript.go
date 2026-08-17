@@ -43,7 +43,7 @@ func buildRepoEntries(records []model.ScanRecord) []RepoEntry {
 // remotes); we only fall through to the other transport when the
 // preferred URL is empty.
 func cloneURL(r model.ScanRecord) string {
-	if r.Transport == "ssh" {
+	if r.IdentifiedTransport == "ssh" {
 		if len(r.SSHUrl) > 0 {
 			return r.SSHUrl
 		}

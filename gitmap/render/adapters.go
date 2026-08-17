@@ -22,7 +22,7 @@ import (
 // When the instruction is empty we synthesize a minimal command
 // from the picked URL so the block is always populated.
 func FromScanRecord(idx int, r model.ScanRecord) RepoTermBlock {
-	original := pickURLForTransport(r.Transport, r.HTTPSUrl, r.SSHUrl)
+	original := pickURLForTransport(r.IdentifiedTransport, r.HTTPSUrl, r.SSHUrl)
 	target := original
 	cmd := strings.TrimSpace(r.CloneInstruction)
 	if len(cmd) == 0 && len(target) > 0 {
@@ -34,7 +34,7 @@ func FromScanRecord(idx int, r model.ScanRecord) RepoTermBlock {
 		Name:         r.RepoName,
 		Branch:       r.Branch,
 		BranchSource: r.BranchSource,
-		Transport:    r.Transport,
+		Transport:    r.IdentifiedTransport,
 		HTTPSUrl:     r.HTTPSUrl,
 		SSHUrl:       r.SSHUrl,
 		OriginalURL:  original,

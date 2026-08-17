@@ -143,6 +143,10 @@ fallback applied: <name>`) is appended to the record's Notes so
 The flag uses the same constant as `gitmap scan --default-branch`
 to guarantee identical wording across both surfaces.
 
+## Transport awareness
+
+`gitmap clone` preserves the origin transport (SSH vs HTTPS) used by the repository when it was originally scanned. When cloning from a manifest (`json`, `csv`, `text`), gitmap inspects the `identifiedTransport` field and selects the appropriate clone URL (e.g., `git@host:owner/repo.git` for SSH, `https://host/owner/repo.git` for HTTPS) without requiring explicit `--ssh` or `--https` flags. This prevents interactive authentication prompts from interrupting batch clones of SSH-based repositories.
+
 ## Idempotent clone cache
 
 Repeated `gitmap clone` runs are idempotent. After each successful clone or

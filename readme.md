@@ -1409,6 +1409,10 @@ extension (`.json` / `.csv` / `.txt`) or the shorthand keywords `json` /
 `csv` / `text`, so the `--output` format you chose at scan time is the
 format `clone` will read on the other side.
 
+#### Transport awareness
+
+`gitmap clone` preserves the origin transport (SSH vs HTTPS) used by the repository when it was originally scanned. When cloning from a manifest (`json`, `csv`, `text`), gitmap inspects the `identifiedTransport` field and selects the appropriate clone URL (e.g., `git@host:owner/repo.git` for SSH, `https://host/owner/repo.git` for HTTPS) without requiring explicit `--ssh` or `--https` flags. This prevents interactive authentication prompts from interrupting batch clones of SSH-based repositories.
+
 #### `--no-vscode-sync` — opt out of VS Code Project Manager sync
 
 By default, every `gitmap` clone variant upserts each successfully-cloned
