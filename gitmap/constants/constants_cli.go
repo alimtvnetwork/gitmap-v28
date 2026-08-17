@@ -97,6 +97,9 @@ const (
 	CmdListAlias             = "ls"
 	CmdGroup                 = "group"
 	CmdGroupAlias            = "g"
+	CmdCluster               = "cluster"
+	CmdClusterAlias          = "clst"
+	CmdClusterStatus         = "status" // gitmap:cmd skip
 	CmdGroupCreate           = "create" // gitmap:cmd skip
 	CmdGroupAdd              = "add"    // gitmap:cmd skip
 	CmdGroupRemove           = "remove" // gitmap:cmd skip

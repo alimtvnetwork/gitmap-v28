@@ -93,5 +93,6 @@ func coreDispatchEntries() []dispatchEntry {
 			[]string{constants.CmdVSCodePMSync, constants.CmdVSCodePMSyncAlias},
 			func() { runVSCodePMSync(argsTail()) },
 		},
+		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() { runCluster(argsTail()) }},
 	}
 }

@@ -17,10 +17,11 @@ const (
 
 // Serve terminal messages.
 const (
-	MsgServeStarting = "Starting orchestrator daemon..."
-	MsgServeAddress  = "Server listening on %s:%d"
-	MsgServeToken    = "Join Token: %s"
-	MsgServeShutdown = "\nShutting down orchestrator daemon..."
+	MsgServeStarting    = "Starting orchestrator daemon..."
+	MsgServeAddress     = "Server listening on %s:%d"
+	MsgServeToken       = "Join Token: %s"
+	MsgServeJoinCommand = "Run this on other machines to join:\n  gitmap join %s:%d --token %s\n"
+	MsgServeShutdown    = "\nShutting down orchestrator daemon..."
 )
 
 // Serve error messages.

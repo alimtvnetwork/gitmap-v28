@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -39,6 +40,10 @@ func runServe(args []string) {
 	// Display IP/Port and Token
 	fmt.Printf(constants.MsgServeAddress+"\n", getLocalIP(), port)
 	fmt.Printf(constants.MsgServeToken+"\n", token)
+	fmt.Printf(constants.MsgServeJoinCommand, getLocalIP(), port, token)
+
+	server := cluster.NewServer(token)
+	go server.Serve(listener)
 
 	// Block until interrupted
 	sigChan := make(chan os.Signal, 1)

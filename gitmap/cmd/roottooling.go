@@ -127,5 +127,9 @@ func toolingDispatchEntries() []dispatchEntry {
 			[]string{constants.CmdServe, constants.CmdServeAlias},
 			func() { runServe(argsTail()) },
 		},
+		{
+			[]string{constants.CmdJoin, constants.CmdJoinAlias},
+			func() { runJoin(argsTail()) },
+		},
 	}
 }
