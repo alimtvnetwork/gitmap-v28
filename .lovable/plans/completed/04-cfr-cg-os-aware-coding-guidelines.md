@@ -2,7 +2,7 @@
 
 Slug: cfr-cg-os-aware-coding-guidelines
 Steps: 10
-Status: pending
+Status: completed
 Created: 2026-07-16
 
 ## Context

@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.26.0] 2026-08-17
+### Added
+- **Coding Guidelines v24 Integration**: Extended `cfr` and `cfrp` with a new order-independent pre-URL modifier `cg`. Passing `cg` automatically downloads and runs the OS-aware Coding Guidelines v24 installer (via PowerShell on Windows or bash on Unix) inside the cloned folder.
+- **Auto-Commit + Push**: The `cg` modifier automatically stages, commits (`chore: install coding guidelines (v24)`), and pushes the installer's changes. Supports opt-out via `--no-commit` and `--no-push` flags.
+
 ## [v6.25.0] 2026-08-17
 ### Added
 - **Reclone Transport Reuse**: Re-clone operations (`cfr`, `cfrp`, `clone-now`/`reclone`, direct-URL `clone`) now intelligently preserve the original transport (SSH vs HTTPS). An SSH-origin repo will never silently downgrade to HTTPS on reclone, resolving the browser-auth-free behavior loss. The used transport is logged in `gitmap history`.
