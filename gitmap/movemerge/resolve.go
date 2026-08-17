@@ -34,15 +34,18 @@ func resolveFolderEndpoint(ep Endpoint, isLeft bool, opts Options) (Endpoint, er
 		return ep, err
 	}
 	ep.IsExisted = isExists
-	if isExists {
-		if opts.IsPullFolder && IsGitRepo(abs) {
-			if pullErr := PullFFOnly(abs); pullErr != nil {
-				return ep, pullErr
-			}
-		}
-	} else if isLeft {
+	if !isExists && isLeft {
 		return ep, fmt.Errorf(constants.ErrMMSrcMissingFmt, ep.DisplayName)
 	}
+
+	pullErr := error(nil)
+	if isExists && opts.IsPullFolder && IsGitRepo(abs) {
+		pullErr = PullFFOnly(abs)
+	}
+	if pullErr != nil {
+		return ep, pullErr
+	}
+
 	ep.IsGitRepo = IsGitRepo(abs)
 
 	return ep, nil
@@ -79,26 +82,34 @@ func reuseExistingURLFolder(ep Endpoint, dir string, opts Options) (Endpoint, er
 		return ep, fmt.Errorf("read origin in %s: %w", dir, err)
 	}
 	if IsOriginMatching(origin, ep.URL) {
-		if pullErr := PullFFOnly(dir); pullErr != nil {
-			return ep, pullErr
-		}
-		ep.IsGitRepo, ep.IsExisted = true, true
-
-		return ep, nil
+		return handleMatchingOrigin(ep, dir)
 	}
 	if opts.IsForceFolder {
-		if rmErr := os.RemoveAll(dir); rmErr != nil {
-			return ep, fmt.Errorf("force-folder remove %s: %w", dir, rmErr)
-		}
-		if cloneErr := CloneURL(ep.URL, ep.Branch, dir); cloneErr != nil {
-			return ep, cloneErr
-		}
-		ep.IsGitRepo, ep.IsExisted = true, false
-
-		return ep, nil
+		return handleForceFolder(ep, dir)
 	}
 
 	return ep, fmt.Errorf(constants.ErrMMOriginFmt, dir, origin, ep.URL)
+}
+
+func handleMatchingOrigin(ep Endpoint, dir string) (Endpoint, error) {
+	if pullErr := PullFFOnly(dir); pullErr != nil {
+		return ep, pullErr
+	}
+	ep.IsGitRepo, ep.IsExisted = true, true
+
+	return ep, nil
+}
+
+func handleForceFolder(ep Endpoint, dir string) (Endpoint, error) {
+	if rmErr := os.RemoveAll(dir); rmErr != nil {
+		return ep, fmt.Errorf("force-folder remove %s: %w", dir, rmErr)
+	}
+	if cloneErr := CloneURL(ep.URL, ep.Branch, dir); cloneErr != nil {
+		return ep, cloneErr
+	}
+	ep.IsGitRepo, ep.IsExisted = true, false
+
+	return ep, nil
 }
 
 // IsOriginMatching compares two URLs ignoring trailing .git and case.

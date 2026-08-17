@@ -19,13 +19,15 @@ func (db *DB) UpsertRelease(r model.ReleaseRecord) error {
 	isPreRelease := boolToInt(r.IsPreRelease)
 	isLatest := boolToInt(r.IsLatest)
 
+	err := error(nil)
 	if r.IsLatest {
-		if err := db.clearLatest(r.RepoID); err != nil {
-			return err
-		}
+		err = db.clearLatest(r.RepoID)
+	}
+	if err != nil {
+		return err
 	}
 
-	_, err := db.conn.Exec(constants.SQLUpsertRelease,
+	_, err = db.conn.Exec(constants.SQLUpsertRelease,
 		r.RepoID, r.Version, r.Tag, r.Branch, r.SourceBranch,
 		r.CommitSha, r.Changelog, r.Notes, isDraft, isPreRelease, isLatest, r.Source, r.CreatedAt,
 	)

@@ -30,9 +30,9 @@ func findViaHandle(dirPath string) ([]LockingProcess, error) {
 	handlePath, err := exec.LookPath("handle.exe")
 	if err != nil {
 		handlePath, err = exec.LookPath("handle64.exe")
-		if err != nil {
-			return nil, fmt.Errorf("handle.exe not found")
-		}
+	}
+	if err != nil {
+		return nil, fmt.Errorf("handle.exe not found")
 	}
 
 	cmd := exec.Command(handlePath, "-accepteula", "-nobanner", dirPath)

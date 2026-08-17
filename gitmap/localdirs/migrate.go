@@ -73,11 +73,14 @@ func mergeAndRemoveLegacy(oldDir, target string) {
 
 		dest := filepath.Join(target, rel)
 
-		if d.IsDir() {
-			if mkErr := os.MkdirAll(dest, constants.DirPermission); mkErr != nil {
-				fmt.Fprintf(os.Stderr, "  ⚠ Could not create directory %s: %v\n", dest, mkErr)
-			}
-
+		var mkErr error
+		if d.IsDir() == true {
+			mkErr = os.MkdirAll(dest, constants.DirPermission)
+		}
+		if d.IsDir() == true && mkErr != nil {
+			fmt.Fprintf(os.Stderr, "  ⚠ Could not create directory %s: %v\n", dest, mkErr)
+		}
+		if d.IsDir() == true {
 			return nil
 		}
 

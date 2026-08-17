@@ -54,17 +54,24 @@ func resolveLatestVersion() (Version, error) {
 //   - any future caller that needs the same source-of-truth ordering.
 func ResolveLatestVersion() (Version, error) {
 	latest, err := ReadLatest()
+	var v Version
+	var parseErr error = fmt.Errorf("initial")
+
 	if err == nil {
-		v, parseErr := Parse(latest.Tag)
-		if parseErr == nil {
-			if verbose.IsEnabled() {
-				verbose.Get().Log("version: baseline from latest.json: %s", v.String())
-			}
-			return v, nil
-		}
+		v, parseErr = Parse(latest.Tag)
 	}
 
-	if verbose.IsEnabled() {
+	isParsed := err == nil && parseErr == nil
+	isVerbose := verbose.IsEnabled()
+
+	if isParsed && isVerbose {
+		verbose.Get().Log("version: baseline from latest.json: %s", v.String())
+	}
+	if isParsed {
+		return v, nil
+	}
+
+	if isVerbose {
 		verbose.Get().Log("version: latest.json unavailable, falling back to git tags")
 	}
 
@@ -86,18 +93,19 @@ func resolveFromFile() (Version, error) {
 // checkDuplicate verifies the version hasn't been released.
 // If a release JSON exists but no tag or branch, prompts to remove it.
 func checkDuplicate(v Version) error {
-	if ReleaseExists(v) {
-		tagExists := TagExistsLocally(v.String()) || TagExistsRemote(v.String())
-		branchName := constants.ReleaseBranchPrefix + v.String()
-		branchExists := BranchExists(branchName)
+	isRelease := ReleaseExists(v)
+	tagExists := TagExistsLocally(v.String()) || TagExistsRemote(v.String())
+	branchName := constants.ReleaseBranchPrefix + v.String()
+	branchExists := BranchExists(branchName)
 
-		if !tagExists && !branchExists {
-			return handleOrphanedMeta(v)
-		}
-
+	if isRelease && !tagExists && !branchExists {
+		return handleOrphanedMeta(v)
+	}
+	if isRelease {
 		return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())
 	}
-	if TagExistsLocally(v.String()) || TagExistsRemote(v.String()) {
+
+	if tagExists {
 		return fmt.Errorf(constants.ErrReleaseTagExists, v.String())
 	}
 

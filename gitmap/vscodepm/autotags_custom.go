@@ -72,11 +72,12 @@ func detectTagsWithExtraMarkers(rootPath string, extra map[string]string) []stri
 		if _, builtin := constants.AutoTagMarkers[marker]; builtin {
 			continue
 		}
-		if markerExists(rootPath, marker) {
-			if _, dup := hits[tag]; !dup {
-				hits[tag] = struct{}{}
-				customOrder = append(customOrder, tag)
-			}
+		if markerExists(rootPath, marker) == false {
+			continue
+		}
+		if _, dup := hits[tag]; !dup {
+			hits[tag] = struct{}{}
+			customOrder = append(customOrder, tag)
 		}
 	}
 

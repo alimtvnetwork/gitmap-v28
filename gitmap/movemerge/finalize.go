@@ -12,15 +12,20 @@ func finalizeURLSides(left, right Endpoint, dir Direction, opts Options) error {
 	if opts.IsNoCommit || opts.IsDryRun {
 		return nil
 	}
+	errRight := error(nil)
 	if IsWritingRight(dir) && right.Kind == EndpointURL {
-		if err := commitAndPushOne(right, otherDisplay(left, right), opts); err != nil {
-			return err
-		}
+		errRight = commitAndPushOne(right, otherDisplay(left, right), opts)
 	}
+	if errRight != nil {
+		return errRight
+	}
+
+	errLeft := error(nil)
 	if IsWritingLeft(dir) && left.Kind == EndpointURL {
-		if err := commitAndPushOne(left, otherDisplay(right, left), opts); err != nil {
-			return err
-		}
+		errLeft = commitAndPushOne(left, otherDisplay(right, left), opts)
+	}
+	if errLeft != nil {
+		return errLeft
 	}
 
 	return nil

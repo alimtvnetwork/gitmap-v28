@@ -76,12 +76,7 @@ func UploadAllAssets(owner, repo string, releaseID int, assets []string, token s
 func uploadSingleAsset(owner, repo string, releaseID int, asset, token string) {
 	filename := filepath.Base(asset)
 
-	if verbose.IsEnabled() {
-		info, statErr := os.Stat(asset)
-		if statErr == nil {
-			verbose.Get().Log("upload-start: %s (%d bytes)", filename, info.Size())
-		}
-	}
+	logUploadStart(asset, filename)
 
 	err := withRetry(filename, constants.RetryMaxAttempts, func() error {
 		return UploadAsset(owner, repo, releaseID, asset, token)
@@ -94,4 +89,15 @@ func uploadSingleAsset(owner, repo string, releaseID int, asset, token string) {
 	}
 
 	fmt.Printf(constants.MsgAssetUploaded, filename)
+}
+
+func logUploadStart(asset, filename string) {
+	if !verbose.IsEnabled() {
+		return
+	}
+	info, statErr := os.Stat(asset)
+	if statErr != nil {
+		return
+	}
+	verbose.Get().Log("upload-start: %s (%d bytes)", filename, info.Size())
 }

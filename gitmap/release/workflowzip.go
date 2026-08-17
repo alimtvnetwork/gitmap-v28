@@ -60,11 +60,12 @@ func buildAdHocZipAssets(opts Options) []string {
 		return nil
 	}
 
-	if verbose.IsEnabled() {
-		bundleLabel := opts.BundleName
-		if bundleLabel == "" {
-			bundleLabel = "(individual)"
-		}
+	isVerbose := verbose.IsEnabled()
+	bundleLabel := opts.BundleName
+	if isVerbose && bundleLabel == "" {
+		bundleLabel = "(individual)"
+	}
+	if isVerbose {
 		verbose.Get().Log("ad-hoc-zip: %d item(s), bundle=%s", len(opts.ZipItems), bundleLabel)
 		for _, item := range opts.ZipItems {
 			verbose.Get().Log("ad-hoc-zip: item %s", item)

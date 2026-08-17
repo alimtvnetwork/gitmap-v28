@@ -67,23 +67,28 @@ func parseCoreSegments(core string) (major, minor, patch int, err error) {
 		return 0, 0, 0, fmt.Errorf("invalid major version: %s", parts[0])
 	}
 
-	minor = 0
-	if len(parts) >= 2 {
-		minor, err = strconv.Atoi(parts[1])
-		if err != nil {
-			return 0, 0, 0, fmt.Errorf("invalid minor version: %s", parts[1])
-		}
+	minor, err = parseSegment(parts, 1, "minor")
+	if err != nil {
+		return 0, 0, 0, err
 	}
 
-	patch = 0
-	if len(parts) >= 3 {
-		patch, err = strconv.Atoi(parts[2])
-		if err != nil {
-			return 0, 0, 0, fmt.Errorf("invalid patch version: %s", parts[2])
-		}
+	patch, err = parseSegment(parts, 2, "patch")
+	if err != nil {
+		return 0, 0, 0, err
 	}
 
 	return major, minor, patch, nil
+}
+
+func parseSegment(parts []string, idx int, name string) (int, error) {
+	if len(parts) <= idx {
+		return 0, nil
+	}
+	val, err := strconv.Atoi(parts[idx])
+	if err != nil {
+		return 0, fmt.Errorf("invalid %s version: %s", name, parts[idx])
+	}
+	return val, nil
 }
 
 // String returns the padded version with v prefix (e.g. v1.2.3).

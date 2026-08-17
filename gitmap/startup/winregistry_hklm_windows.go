@@ -48,11 +48,13 @@ func addWindowsRegistryHKLM(clean string, opts AddOptions) (AddResult, error) {
 // without elevation (so a non-admin user can preview what `sudo`
 // would do); a live remove requires elevation up-front.
 func removeWindowsRegistryHKLM(clean string, opts RemoveOptions) (RemoveResult, error) {
-	if !opts.DryRun {
-		if err := requireWindowsAdminForHKLM(); err != nil {
+	if opts.DryRun == true {
+		return removeWindowsRegistryAt(registry.LOCAL_MACHINE, hiveLabelHKLM, clean, opts)
+	}
 
-			return RemoveResult{}, err
-		}
+	err := requireWindowsAdminForHKLM()
+	if err != nil {
+		return RemoveResult{}, err
 	}
 
 	return removeWindowsRegistryAt(registry.LOCAL_MACHINE, hiveLabelHKLM, clean, opts)

@@ -28,11 +28,10 @@ func IndexTree(root string, opts Options) (map[string]FileMeta, error) {
 		if relErr != nil || rel == "." {
 			return relErr
 		}
+		if IsSkipWalk(rel, opts) && info.IsDir() {
+			return filepath.SkipDir
+		}
 		if IsSkipWalk(rel, opts) {
-			if info.IsDir() {
-				return filepath.SkipDir
-			}
-
 			return nil
 		}
 		if info.IsDir() {

@@ -138,16 +138,14 @@ func assertTreeEquals(t *testing.T, label, root string, want map[string]string) 
 
 // IsMapsEqual reports whether two string maps are byte-equal.
 func IsMapsEqual(a, b map[string]string) bool {
-	if len(a) == len(b) {
-		for k, v := range a {
-			if b[k] == v {
-			} else {
-				return false
-			}
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if b[k] != v {
+			return false
 		}
-
-		return true
 	}
 
-	return false
+	return true
 }

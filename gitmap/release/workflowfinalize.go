@@ -50,34 +50,17 @@ func pushAndFinalize(v Version, branchName, tag, _ string, opts Options) error {
 	// users into downloading gitmap binaries when they wanted the host
 	// project. Gate by the same ShouldPrintInstallHint check used for the
 	// release-body install snippet (spec/02-app-issues/27).
-	if stagingDir, stagingErr := EnsureStagingDir(); stagingErr == nil {
-		if docsSiteAsset := buildDocsSiteAsset(stagingDir); len(docsSiteAsset) > 0 {
-			assets = append(assets, docsSiteAsset)
-		}
-
-		if ShouldPrintInstallHint(getRemoteURL()) {
-			snapshotAssets := buildReleaseVersionSnapshots(v.String(), stagingDir)
-			assets = append(assets, snapshotAssets...)
-		}
+	stagingDir, stagingErr := EnsureStagingDir()
+	if stagingErr == nil {
+		assets = appendStagingAssets(assets, v, stagingDir)
 	}
 
 	if opts.Compress && len(assets) > 0 {
-		compressed, compErr := CompressAssets(assets)
-		if compErr == nil && len(compressed) > 0 {
-			for _, a := range compressed {
-				fmt.Printf(constants.MsgCompressArchive, filepath.Base(a), filepath.Base(a))
-			}
-
-			assets = compressed
-		}
+		assets = compressAssetsIfSuccess(assets)
 	}
 
 	if opts.Checksums && len(assets) > 0 {
-		checksumPath, csErr := GenerateChecksums(assets)
-		if csErr == nil && len(checksumPath) > 0 {
-			fmt.Printf(constants.MsgChecksumGenerated, constants.ChecksumsFile)
-			assets = append(assets, checksumPath)
-		}
+		assets = generateChecksumsIfSuccess(assets)
 	}
 
 	for _, a := range assets {
@@ -185,9 +168,7 @@ func loadChangelogNotes(version string) []string {
 // updateLatestIfStable marks the release as latest if stable.
 func updateLatestIfStable(v Version) error {
 	if v.IsPreRelease() {
-		if verbose.IsEnabled() {
-			verbose.Get().Log("metadata: skipping latest.json (pre-release %s)", v.String())
-		}
+		logSkipLatest(v)
 		fmt.Printf(constants.MsgReleaseComplete, v.String())
 		printInstallHint(v)
 
@@ -212,4 +193,48 @@ func updateLatestIfStable(v Version) error {
 	printInstallHint(v)
 
 	return nil
+}
+
+func logSkipLatest(v Version) {
+	if verbose.IsEnabled() {
+		verbose.Get().Log("metadata: skipping latest.json (pre-release %s)", v.String())
+	}
+}
+
+func appendStagingAssets(assets []string, v Version, stagingDir string) []string {
+	docsSiteAsset := buildDocsSiteAsset(stagingDir)
+	if len(docsSiteAsset) > 0 {
+		assets = append(assets, docsSiteAsset)
+	}
+
+	if ShouldPrintInstallHint(getRemoteURL()) {
+		snapshotAssets := buildReleaseVersionSnapshots(v.String(), stagingDir)
+		assets = append(assets, snapshotAssets...)
+	}
+
+	return assets
+}
+
+func compressAssetsIfSuccess(assets []string) []string {
+	compressed, compErr := CompressAssets(assets)
+	if compErr != nil || len(compressed) == 0 {
+		return assets
+	}
+
+	for _, a := range compressed {
+		fmt.Printf(constants.MsgCompressArchive, filepath.Base(a), filepath.Base(a))
+	}
+
+	return compressed
+}
+
+func generateChecksumsIfSuccess(assets []string) []string {
+	checksumPath, csErr := GenerateChecksums(assets)
+	if csErr != nil || len(checksumPath) == 0 {
+		return assets
+	}
+
+	fmt.Printf(constants.MsgChecksumGenerated, constants.ChecksumsFile)
+
+	return append(assets, checksumPath)
 }

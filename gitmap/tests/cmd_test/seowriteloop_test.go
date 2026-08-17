@@ -231,13 +231,13 @@ func revertFileHelper(path, text string) {
 }
 
 func resolveRotateFileHelper(explicit string) string {
-	if explicit != "" {
-		if _, err := os.Stat(explicit); err != nil {
-			return ""
-		}
-
-		return explicit
+	if explicit == "" {
+		return ""
 	}
+	if _, err := os.Stat(explicit); err != nil {
+		return ""
+	}
+	return explicit
 
 	return ""
 }

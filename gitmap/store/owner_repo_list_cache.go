@@ -28,9 +28,10 @@ func (db *DB) LookupOwnerRepoListCache(provider, owner string) (string, time.Tim
 	}
 	t, err := time.Parse(time.RFC3339Nano, rawTime)
 	if err != nil {
-		if t, err = time.Parse(time.RFC3339, rawTime); err != nil {
-			return "", time.Time{}, false
-		}
+		t, err = time.Parse(time.RFC3339, rawTime)
+	}
+	if err != nil {
+		return "", time.Time{}, false
 	}
 
 	return rawJSON, t, true

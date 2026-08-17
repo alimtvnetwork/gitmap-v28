@@ -59,10 +59,10 @@ func deleteLocalBranch(branchName string) {
 	cmd.Stderr = os.Stderr
 
 	err := cmd.Run()
+	if err != nil && verbose.IsEnabled() {
+		verbose.Get().Log("rollback: branch delete failed: %v", err)
+	}
 	if err != nil {
-		if verbose.IsEnabled() {
-			verbose.Get().Log("rollback: branch delete failed: %v", err)
-		}
 		fmt.Fprintf(os.Stderr, constants.MsgRollbackWarn, "delete branch "+branchName, err)
 
 		return
@@ -86,10 +86,10 @@ func deleteLocalTag(tag string) {
 	cmd.Stderr = os.Stderr
 
 	err := cmd.Run()
+	if err != nil && verbose.IsEnabled() {
+		verbose.Get().Log("rollback: tag delete failed: %v", err)
+	}
 	if err != nil {
-		if verbose.IsEnabled() {
-			verbose.Get().Log("rollback: tag delete failed: %v", err)
-		}
 		fmt.Fprintf(os.Stderr, constants.MsgRollbackWarn, "delete tag "+tag, err)
 
 		return

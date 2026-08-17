@@ -117,10 +117,7 @@ func rowToRecord(row []string) model.ScanRecord {
 func rowToRecordWithSource(row []string) model.ScanRecord {
 	depth := 0
 	if len(row) >= 10 {
-		parsed, err := strconv.Atoi(row[9])
-		if err == nil {
-			depth = parsed
-		}
+		depth, _ = strconv.Atoi(row[9])
 	}
 	repoID, discovered, transport := "", "", ""
 	if len(row) >= 12 {

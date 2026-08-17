@@ -12,11 +12,10 @@ import (
 // uploadToGitHub creates a GitHub release and uploads assets.
 func uploadToGitHub(v Version, assets []string, opts Options) {
 	token, source, err := ghtoken.Resolve()
+	if err != nil && len(assets) > 0 {
+		fmt.Fprint(os.Stderr, constants.ErrAssetNoToken)
+	}
 	if err != nil {
-		if len(assets) > 0 {
-			fmt.Fprint(os.Stderr, constants.ErrAssetNoToken)
-		}
-
 		return
 	}
 	fmt.Printf(constants.MsgTokenFromSource, source)

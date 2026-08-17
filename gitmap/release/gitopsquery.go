@@ -111,15 +111,14 @@ func findHighestVersion(output string) (Version, error) {
 
 // updateHighest returns the higher of current and candidate versions.
 func updateHighest(current, candidate Version, hasCurrent bool) (Version, bool) { //nolint:unparam // bool clarifies caller intent
-	if hasCurrent {
-		if candidate.GreaterThan(current) {
-			return candidate, true
-		}
-
-		return current, true
+	if !hasCurrent {
+		return candidate, true
+	}
+	if candidate.GreaterThan(current) {
+		return candidate, true
 	}
 
-	return candidate, true
+	return current, true
 }
 
 // parseStableTag attempts to parse a tag as a stable (non-prerelease) version.

@@ -77,11 +77,9 @@ func (r *Resolver) resolveByPolicy(l, rgt FileMeta) (Choice, bool) {
 		return ChoiceRight, true
 	} else if r.policy == PreferSkip {
 		return ChoiceSkip, true
+	} else if r.policy == PreferNewer && l.Info.ModTime().After(rgt.Info.ModTime()) {
+		return ChoiceLeft, true
 	} else if r.policy == PreferNewer {
-		if l.Info.ModTime().After(rgt.Info.ModTime()) {
-			return ChoiceLeft, true
-		}
-
 		return ChoiceRight, true
 	}
 

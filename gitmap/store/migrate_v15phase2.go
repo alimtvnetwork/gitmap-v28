@@ -68,11 +68,11 @@ func (db *DB) migrateV15Phase2() error {
 	// the new "Group"(GroupId) and Repo(RepoId). The plural "Groups" is gone
 	// at this point, so the legacy GroupRepo (which references Groups(Id))
 	// would break on next FK validation. Drop and recreate.
-	if db.tableExists("GroupRepo") {
-		// Preserve any existing rows by copying through a temp table.
-		if err := db.rebuildGroupRepoFK(); err != nil {
-			return fmt.Errorf("rebuild GroupRepo FK: %w", err)
-		}
+	if !db.tableExists("GroupRepo") {
+		return nil
+	}
+	if err := db.rebuildGroupRepoFK(); err != nil {
+		return fmt.Errorf("rebuild GroupRepo FK: %w", err)
 	}
 
 	return nil
@@ -117,9 +117,9 @@ func firstWords(s string, n int) string {
 	for i, r := range s {
 		if r == ' ' || r == '\n' || r == '\t' {
 			count++
-			if count >= n {
-				return s[:i]
-			}
+		}
+		if count >= n {
+			return s[:i]
 		}
 	}
 

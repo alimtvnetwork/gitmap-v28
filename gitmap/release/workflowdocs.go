@@ -18,9 +18,7 @@ func buildDocsSiteAsset(stagingDir string) string {
 
 	info, err := os.Stat(distDir)
 	if err != nil || !info.IsDir() {
-		if verbose.IsEnabled() {
-			verbose.Get().Log("docs-site: no dist/ directory found at %s, skipping", distDir)
-		}
+		logDocsSiteSkip(distDir)
 
 		return ""
 	}
@@ -41,13 +39,7 @@ func buildDocsSiteAsset(stagingDir string) string {
 		return ""
 	}
 
-	if verbose.IsEnabled() {
-		archiveInfo, statErr := os.Stat(archivePath)
-		if statErr == nil {
-			verbose.Get().Log("docs-site: bundled %d file(s) into %s (%d bytes)",
-				len(items), filepath.Base(archivePath), archiveInfo.Size())
-		}
-	}
+	logDocsSiteBundled(archivePath, len(items))
 
 	fmt.Printf(constants.MsgDocsSiteBundled, filepath.Base(archivePath))
 
@@ -101,4 +93,22 @@ func createDocsSiteZip(archivePath, distDir string, items []string) error {
 	}
 
 	return nil
+}
+
+func logDocsSiteSkip(distDir string) {
+	if verbose.IsEnabled() {
+		verbose.Get().Log("docs-site: no dist/ directory found at %s, skipping", distDir)
+	}
+}
+
+func logDocsSiteBundled(archivePath string, itemCount int) {
+	if !verbose.IsEnabled() {
+		return
+	}
+	archiveInfo, statErr := os.Stat(archivePath)
+	if statErr != nil {
+		return
+	}
+	verbose.Get().Log("docs-site: bundled %d file(s) into %s (%d bytes)",
+		itemCount, filepath.Base(archivePath), archiveInfo.Size())
 }

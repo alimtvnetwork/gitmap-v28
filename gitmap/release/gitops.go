@@ -81,14 +81,14 @@ func ResolveSourceRef(commit, branch string) (string, string, error) {
 
 // resolveFromCommit validates and returns the commit ref.
 func resolveFromCommit(commit string) (string, string, error) {
-	if CommitExists(commit) {
-		if verbose.IsEnabled() {
-			verbose.Get().Log("source: using commit %s", commit)
-		}
-		return commit, constants.GitCommitPrefix + commit, nil
+	if !CommitExists(commit) {
+		return "", "", fmt.Errorf("commit %s not found", commit)
 	}
 
-	return "", "", fmt.Errorf("commit %s not found", commit)
+	if verbose.IsEnabled() {
+		verbose.Get().Log("source: using commit %s", commit)
+	}
+	return commit, constants.GitCommitPrefix + commit, nil
 }
 
 // resolveFromBranch fetches and returns the branch tip.
@@ -109,9 +109,7 @@ func resolveFromBranch(branch string) (string, string, error) {
 func resolveFromHead() (string, string, error) {
 	branchName, err := CurrentBranchName()
 	if err != nil {
-		if verbose.IsEnabled() {
-			verbose.Get().Log("source: using detached HEAD")
-		}
+		logDetachedHead()
 		return constants.GitHEAD, constants.GitHEAD, nil
 	}
 
@@ -120,6 +118,12 @@ func resolveFromHead() (string, string, error) {
 	}
 
 	return constants.GitHEAD, branchName, nil
+}
+
+func logDetachedHead() {
+	if verbose.IsEnabled() {
+		verbose.Get().Log("source: using detached HEAD")
+	}
 }
 
 // runGitCmd executes a git command, forwards stdout, and pipes stderr

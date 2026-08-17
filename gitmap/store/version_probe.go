@@ -64,11 +64,10 @@ func (db *DB) LatestVersionProbe(repoID int64) (model.VersionProbe, error) {
 	err := row.Scan(&p.ID, &p.RepoID, &p.ProbedAt,
 		&p.NextVersionTag, &p.NextVersionNum,
 		&p.Method, &available, &p.Error)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.VersionProbe{}, sql.ErrNoRows
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.VersionProbe{}, sql.ErrNoRows
-		}
-
 		return model.VersionProbe{}, fmt.Errorf(constants.ErrProbeRecord, repoID, err)
 	}
 	p.IsAvailable = available == 1

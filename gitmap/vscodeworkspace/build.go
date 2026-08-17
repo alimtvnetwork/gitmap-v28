@@ -77,12 +77,11 @@ func Relativize(folders []Folder, baseDir string) ([]Folder, error) {
 	var firstErr error
 	for _, f := range folders {
 		rel, err := filepath.Rel(baseDir, f.Path)
+		if err != nil && firstErr == nil {
+			firstErr = fmt.Errorf("relativize %q against %q: %w", f.Path, baseDir, err)
+		}
 		if err != nil {
-			if firstErr == nil {
-				firstErr = fmt.Errorf("relativize %q against %q: %w", f.Path, baseDir, err)
-			}
 			out = append(out, f)
-
 			continue
 		}
 		out = append(out, Folder{Name: f.Name, Path: filepath.ToSlash(rel)})

@@ -146,25 +146,31 @@ func WriteObjectIndent(w io.Writer, fields []Field, indent string) error {
 		return err
 	}
 	var buf bytes.Buffer
+	err := error(nil)
 	if indent == "" {
-		if err := writeCompactObject(&buf, fields); err != nil {
+		err = writeCompactObject(&buf, fields)
+	}
+	if indent == "" && err == nil {
+		buf.WriteByte('\n')
+		_, err = w.Write(buf.Bytes())
+	}
+	if indent == "" {
+		return err
+	}
+
+	buf.WriteString("{\n")
+	for i, f := range fields {
+		buf.WriteString(indent)
+		err := writeKeyValue(&buf, f, " ")
+		if err != nil {
 			return err
 		}
-		buf.WriteByte('\n')
-	} else {
-		buf.WriteString("{\n")
-		for i, f := range fields {
-			buf.WriteString(indent)
-			if err := writeKeyValue(&buf, f, " "); err != nil {
-				return err
-			}
-			if i < len(fields)-1 {
-				buf.WriteByte(',')
-			}
-			buf.WriteByte('\n')
+		if i < len(fields)-1 {
+			buf.WriteByte(',')
 		}
-		buf.WriteString("}\n")
+		buf.WriteByte('\n')
 	}
+	buf.WriteString("}\n")
 	_, err := w.Write(buf.Bytes())
 
 	return err

@@ -90,11 +90,10 @@ func (db *DB) DeleteVSCodeProjectByPath(rootPath string) error {
 // scanOneVSCodeProjectRow narrows sql.ErrNoRows so callers can switch on it.
 func scanOneVSCodeProjectRow(row interface{ Scan(dest ...any) error }) (model.VSCodeProject, error) {
 	p, err := scanOneVSCodeProject(row)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.VSCodeProject{}, sql.ErrNoRows
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.VSCodeProject{}, sql.ErrNoRows
-		}
-
 		return model.VSCodeProject{}, fmt.Errorf(constants.ErrVSCodePMList, err)
 	}
 

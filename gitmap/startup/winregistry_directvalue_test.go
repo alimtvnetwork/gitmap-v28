@@ -49,10 +49,10 @@ func snapshotRunValueNames(t *testing.T) []string {
 	t.Helper()
 	k, err := registry.OpenKey(registry.CURRENT_USER,
 		constants.RegRunKeyPath, registry.QUERY_VALUE)
+	if err == registry.ErrNotExist {
+		return nil
+	}
 	if err != nil {
-		if err == registry.ErrNotExist {
-			return nil
-		}
 		t.Fatalf("open Run key: %v", err)
 	}
 	defer k.Close()

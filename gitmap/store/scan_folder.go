@@ -88,11 +88,10 @@ func (db *DB) removeScanFolderRow(folder model.ScanFolder) (model.ScanFolder, in
 func (db *DB) findScanFolderByPath(absPath string) (model.ScanFolder, error) {
 	row := db.conn.QueryRow(constants.SQLSelectScanFolderByPath, absPath)
 	folder, err := scanOneScanFolder(row)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByPath, absPath)
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByPath, absPath)
-		}
-
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFList, err)
 	}
 
@@ -103,11 +102,10 @@ func (db *DB) findScanFolderByPath(absPath string) (model.ScanFolder, error) {
 func (db *DB) findScanFolderByID(id int64) (model.ScanFolder, error) {
 	row := db.conn.QueryRow(constants.SQLSelectScanFolderByID, id)
 	folder, err := scanOneScanFolder(row)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByID, id)
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByID, id)
-		}
-
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFList, err)
 	}
 

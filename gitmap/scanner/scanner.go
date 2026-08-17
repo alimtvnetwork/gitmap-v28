@@ -336,11 +336,12 @@ func (st *scanState) processDir(job dirJob) {
 	// Children sit one level deeper. Skip the descend pass entirely
 	// when even the closest child would exceed the depth budget — no
 	// allocation, no enqueue, no spurious wg traffic.
-	if st.isDepthAllowed(job.depth + 1) {
-		for _, entry := range entries {
-			if entry.IsDir() {
-				st.handleSubdir(job.path, job.depth+1, entry)
-			}
+	if !st.isDepthAllowed(job.depth + 1) {
+		return
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			st.handleSubdir(job.path, job.depth+1, entry)
 		}
 	}
 }
@@ -372,13 +373,14 @@ func (st *scanState) isDepthAllowed(depth int) bool {
 // trees — a real `.git` file is ~tens of bytes.
 func (st *scanState) hasGitMarker(dir string, entries []os.DirEntry) bool {
 	for _, entry := range entries {
-		if entry.Name() == constants.ExtGit {
-			if entry.IsDir() {
-				return true
-			}
-			if isGitdirFile(filepath.Join(dir, entry.Name())) {
-				return true
-			}
+		if entry.Name() != constants.ExtGit {
+			continue
+		}
+		if entry.IsDir() {
+			return true
+		}
+		if isGitdirFile(filepath.Join(dir, entry.Name())) {
+			return true
 		}
 	}
 

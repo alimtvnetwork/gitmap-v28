@@ -34,11 +34,11 @@ func (db *DB) MarkCloned(absPath string) error {
 func (db *DB) MostRecentClone() (RecentClone, bool, error) {
 	var r RecentClone
 	row := db.conn.QueryRow(constants.SQLSelectMostRecentClone)
-	if err := row.Scan(&r.AbsolutePath, &r.RepoName, &r.ClonedAt); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return RecentClone{}, false, nil
-		}
-
+	err := row.Scan(&r.AbsolutePath, &r.RepoName, &r.ClonedAt)
+	if errors.Is(err, sql.ErrNoRows) {
+		return RecentClone{}, false, nil
+	}
+	if err != nil {
 		return RecentClone{}, false, fmt.Errorf(constants.ErrDBQuery, err)
 	}
 

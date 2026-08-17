@@ -41,9 +41,9 @@ func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResu
 	}
 	if len(profile) == 0 {
 		profile, err = defaultProfilePath(shell)
-		if err != nil {
-			return PathSnippetWriteResult{}, err
-		}
+	}
+	if err != nil {
+		return PathSnippetWriteResult{}, err
 	}
 
 	if mkErr := os.MkdirAll(filepath.Dir(profile), constants.DirPermission); mkErr != nil {
@@ -54,18 +54,19 @@ func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResu
 	open := MarkerOpenFor(manager)
 	close := MarkerClose()
 
-	if strings.Contains(string(existing), open) {
-		rewritten := rewriteSnippetBlock(string(existing), open, close, body)
-		if rewritten == string(existing) {
-			return PathSnippetWriteResult{Profile: profile, Action: "noop", Snippet: body}, nil
-		}
-		if wrErr := os.WriteFile(profile, []byte(rewritten), constants.FilePermission); wrErr != nil {
-			return PathSnippetWriteResult{}, fmt.Errorf("rewrite profile %s: %w", profile, wrErr)
-		}
-		return PathSnippetWriteResult{Profile: profile, Action: "rewritten", Snippet: body}, nil
+	if strings.Contains(string(existing), open) == false {
+		return appendSnippet(profile, body)
 	}
 
-	return appendSnippet(profile, body)
+	rewritten := rewriteSnippetBlock(string(existing), open, close, body)
+	if rewritten == string(existing) {
+		return PathSnippetWriteResult{Profile: profile, Action: "noop", Snippet: body}, nil
+	}
+	wrErr := os.WriteFile(profile, []byte(rewritten), constants.FilePermission)
+	if wrErr != nil {
+		return PathSnippetWriteResult{}, fmt.Errorf("rewrite profile %s: %w", profile, wrErr)
+	}
+	return PathSnippetWriteResult{Profile: profile, Action: "rewritten", Snippet: body}, nil
 }
 
 // appendSnippet adds the snippet (with leading blank line) to profile.

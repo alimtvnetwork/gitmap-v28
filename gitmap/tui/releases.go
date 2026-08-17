@@ -38,12 +38,14 @@ func (m releasesModel) Update(msg tea.Msg) (releasesModel, tea.Cmd) {
 		return m, nil
 	}
 
-	if m.trigger.active {
+	wasActive := m.trigger.active
+	if wasActive == true {
 		m.trigger, _ = m.trigger.Update(msg)
-		if !m.trigger.active {
-			m.trigger = newRelTriggerModel()
-		}
-
+	}
+	if wasActive == true && m.trigger.active == false {
+		m.trigger = newRelTriggerModel()
+	}
+	if wasActive == true {
 		return m, nil
 	}
 

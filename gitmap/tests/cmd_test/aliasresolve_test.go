@@ -10,11 +10,10 @@ import (
 
 func extractAliasFlag(args []string) (string, []string) {
 	for i, arg := range args {
+		if (arg == "-A" || arg == "--alias") && i+1 < len(args) {
+			return args[i+1], removeElements(args, i, 2)
+		}
 		if arg == "-A" || arg == "--alias" {
-			if i+1 < len(args) {
-				return args[i+1], removeElements(args, i, 2)
-			}
-
 			return "", args
 		}
 

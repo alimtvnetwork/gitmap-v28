@@ -58,11 +58,10 @@ func AutoFixVDigitPatterns(patterns []Pattern, names []string) []Pattern {
 //   - "<base>"          → highest "<base>-vN" present in `names`
 func vDigitCandidates(raw string, nameSet map[string]bool, names []string) []string {
 	out := make([]string, 0, 2)
-	if base, digits, ok := SplitTrailingDigits(raw); ok {
-		fixed := base + "-v" + digits
-		if nameSet[fixed] {
-			out = append(out, fixed)
-		}
+	base, digits, ok := SplitTrailingDigits(raw)
+	fixed := base + "-v" + digits
+	if ok && nameSet[fixed] {
+		out = append(out, fixed)
 	}
 	if best, _, ok := HighestVersionedMatch(names, raw); ok {
 		out = append(out, best)
@@ -148,16 +147,12 @@ func levenshtein(a, b string) int {
 }
 
 func min3(a, b, c int) int {
-	if a < b {
-		if a < c {
-			return a
-		}
-
-		return c
+	min := a
+	if b < min {
+		min = b
 	}
-	if b < c {
-		return b
+	if c < min {
+		min = c
 	}
-
-	return c
+	return min
 }

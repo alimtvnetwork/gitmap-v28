@@ -19,9 +19,9 @@ func TestListIncludesEmbeddedCorpus(t *testing.T) {
 	for _, e := range entries {
 		if e.Kind == kindIgnore && e.Lang == "go" {
 			hasGoIgnore = true
-			if e.Source != SourceEmbed {
-				t.Errorf("ignore/go should be SourceEmbed, got %v", e.Source)
-			}
+		}
+		if e.Kind == kindIgnore && e.Lang == "go" && e.Source != SourceEmbed {
+			t.Errorf("ignore/go should be SourceEmbed, got %v", e.Source)
 		}
 	}
 	if !hasGoIgnore {
@@ -66,16 +66,16 @@ func TestListUserOverlayShadowsEmbed(t *testing.T) {
 		t.Fatalf("List: %v", err)
 	}
 	for _, e := range entries {
-		if e.Kind == kindIgnore && e.Lang == "go" {
-			if e.Source != SourceUser {
-				t.Fatalf("ignore/go should be SourceUser after overlay, got %v", e.Source)
-			}
-			if e.Path != overridePath {
-				t.Fatalf("ignore/go path = %s, want %s", e.Path, overridePath)
-			}
-
-			return
+		if e.Kind != kindIgnore || e.Lang != "go" {
+			continue
 		}
+		if e.Source != SourceUser {
+			t.Fatalf("ignore/go should be SourceUser after overlay, got %v", e.Source)
+		}
+		if e.Path != overridePath {
+			t.Fatalf("ignore/go path = %s, want %s", e.Path, overridePath)
+		}
+		return
 	}
 	t.Fatal("ignore/go missing after overlay")
 }

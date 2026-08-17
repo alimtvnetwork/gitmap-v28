@@ -54,10 +54,9 @@ func Execute(opts Options) error {
 
 	// Early check: if no version/bump provided and we're on a release/* branch,
 	// extract the version from the branch name and delegate.
-	if len(opts.Version) == 0 && len(opts.Bump) == 0 {
-		if delegated, delegateErr := tryDelegateFromCurrentBranch(opts); delegated {
-			return delegateErr
-		}
+	delegated, delegateErr := tryDelegateIfEmpty(opts)
+	if delegated {
+		return delegateErr
 	}
 
 	version, err := resolveVersion(opts)
@@ -141,29 +140,50 @@ func tryDelegateFromCurrentBranch(opts Options) (bool, error) {
 	return true, ExecuteFromBranch(currentBranch, opts.Assets, opts.Notes, opts.IsDraft, opts.DryRun, opts.NoCommit, opts.Yes)
 }
 
+// tryDelegateIfEmpty checks if we should delegate when no version or bump is provided.
+func tryDelegateIfEmpty(opts Options) (bool, error) {
+	if len(opts.Version) == 0 && len(opts.Bump) == 0 {
+		return tryDelegateFromCurrentBranch(opts)
+	}
+
+	return false, nil
+}
+
 // resolveVersion determines the version from CLI args, bump, or file.
 func resolveVersion(opts Options) (Version, error) {
 	if len(opts.Version) > 0 {
-		v, err := Parse(opts.Version)
-		if err != nil {
-			return v, err
-		}
-		if verbose.IsEnabled() {
-			verbose.Get().Log("version: resolved from CLI argument: %s", v.String())
-		}
-		return v, nil
+		return resolveExplicitVersion(opts.Version)
 	}
 	if len(opts.Bump) > 0 {
-		v, err := resolveBump(opts.Bump)
-		if err != nil {
-			return v, err
-		}
-		if verbose.IsEnabled() {
-			verbose.Get().Log("version: resolved via --bump %s: %s", opts.Bump, v.String())
-		}
-		return v, nil
+		return resolveBumpVersion(opts.Bump)
 	}
 
+	return resolveFileVersion()
+}
+
+func resolveExplicitVersion(ver string) (Version, error) {
+	v, err := Parse(ver)
+	if err != nil {
+		return v, err
+	}
+	if verbose.IsEnabled() {
+		verbose.Get().Log("version: resolved from CLI argument: %s", v.String())
+	}
+	return v, nil
+}
+
+func resolveBumpVersion(bump string) (Version, error) {
+	v, err := resolveBump(bump)
+	if err != nil {
+		return v, err
+	}
+	if verbose.IsEnabled() {
+		verbose.Get().Log("version: resolved via --bump %s: %s", bump, v.String())
+	}
+	return v, nil
+}
+
+func resolveFileVersion() (Version, error) {
 	v, err := resolveFromFile()
 	if err != nil {
 		return v, err
@@ -209,11 +229,9 @@ func performRelease(v Version, sourceRef, sourceName string, opts Options) error
 	localdirs.MigrateLegacyDirs()
 
 	// Step 4: Write metadata JSON on the original branch (picked up by auto-commit).
-	if !opts.SkipMeta {
-		err = writeMetadata(v, branchName, tag, sourceName, nil, opts)
-		if err != nil {
-			return err
-		}
+	err = writeMetadataIfRequired(v, branchName, tag, sourceName, opts)
+	if err != nil {
+		return err
 	}
 
 	// Step 5: Auto-commit the release metadata files.
@@ -224,6 +242,15 @@ func performRelease(v Version, sourceRef, sourceName string, opts Options) error
 	}
 
 	return nil
+}
+
+// writeMetadataIfRequired writes metadata unless SkipMeta is true.
+func writeMetadataIfRequired(v Version, branchName, tag, sourceName string, opts Options) error {
+	if opts.SkipMeta {
+		return nil
+	}
+
+	return writeMetadata(v, branchName, tag, sourceName, nil, opts)
 }
 
 // executeSteps runs each release step in sequence.

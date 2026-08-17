@@ -110,9 +110,9 @@ func renderTree(w io.Writer, node *treeNode, prefix string) error {
 		}
 		if len(child.Children) > 0 {
 			err = renderTree(w, child, nextPrefix)
-			if err != nil {
-				return err
-			}
+		}
+		if err != nil {
+			return err
 		}
 	}
 

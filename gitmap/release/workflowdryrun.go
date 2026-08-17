@@ -99,15 +99,20 @@ func printDryRunMeta(v Version) {
 // printDryRunZipGroups shows zip group plan in dry-run mode.
 func printDryRunZipGroups(opts Options) {
 	if len(opts.ZipGroups) > 0 {
-		db, err := store.OpenDefault()
-		if err == nil {
-			defer db.Close()
-
-			DryRunZipGroups(db, opts.ZipGroups)
-		}
+		runZipGroupsDryRun(opts.ZipGroups)
 	}
 
 	DryRunAdHoc(opts.ZipItems, opts.BundleName)
+}
+
+func runZipGroupsDryRun(groups []string) {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	DryRunZipGroups(db, groups)
 }
 
 // returnToBranch switches back to the original branch after a release.

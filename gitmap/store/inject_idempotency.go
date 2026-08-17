@@ -26,11 +26,11 @@ func (db *DB) GetInjectTimestamps(absPath string) (InjectTimestamps, error) {
 	var ts InjectTimestamps
 
 	row := db.conn.QueryRow(constants.SQLSelectInjectTimestamps, absPath)
-	if err := row.Scan(&ts.Desktop, &ts.VSCode); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return InjectTimestamps{}, nil
-		}
-
+	err := row.Scan(&ts.Desktop, &ts.VSCode)
+	if errors.Is(err, sql.ErrNoRows) {
+		return InjectTimestamps{}, nil
+	}
+	if err != nil {
 		return InjectTimestamps{}, fmt.Errorf(constants.ErrDBQuery, err)
 	}
 

@@ -89,11 +89,12 @@ func TestAddWindowsRegistry_RoundTrip(t *testing.T) {
 	}
 	found := false
 	for _, e := range entries {
-		if e.Name == constants.StartupWinValuePrefix+name {
-			found = true
-			if e.Exec != `C:\gitmap.exe watch` {
-				t.Errorf("exec = %q, want %s", e.Exec, `C:\gitmap.exe watch`)
-			}
+		if e.Name != constants.StartupWinValuePrefix+name {
+			continue
+		}
+		found = true
+		if e.Exec != `C:\gitmap.exe watch` {
+			t.Errorf("exec = %q, want %s", e.Exec, `C:\gitmap.exe watch`)
 		}
 	}
 	if !found {

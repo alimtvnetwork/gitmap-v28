@@ -74,25 +74,28 @@ func ListTags() ([]string, error) {
 
 // ResolveTagRange determines the from/to refs based on user input.
 func ResolveTagRange(fromTag, toTag string) (string, string, error) {
-	if len(fromTag) > 0 {
-		from := NormalizeVersion(fromTag)
-		if TagExistsLocally(from) {
-		} else {
-			return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, from)
-		}
-
-		to := constants.GitHEAD
-		if len(toTag) > 0 {
-			to = NormalizeVersion(toTag)
-			if TagExistsLocally(to) {
-			} else {
-				return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, to)
-			}
-		}
-
-		return from, to, nil
+	if len(fromTag) == 0 {
+		return resolveDefaultTagRange()
 	}
 
+	from := NormalizeVersion(fromTag)
+	if !TagExistsLocally(from) {
+		return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, from)
+	}
+
+	if len(toTag) == 0 {
+		return from, constants.GitHEAD, nil
+	}
+
+	to := NormalizeVersion(toTag)
+	if !TagExistsLocally(to) {
+		return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, to)
+	}
+
+	return from, to, nil
+}
+
+func resolveDefaultTagRange() (string, string, error) {
 	tags, err := ListTags()
 	if err != nil || len(tags) < 1 {
 		return "", "", fmt.Errorf(constants.ErrChangelogGenNoTags)

@@ -44,11 +44,13 @@ func ReadModuleName() (string, error) {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if strings.HasPrefix(line, "module ") {
-			parts := strings.Fields(line)
-			if len(parts) >= 2 {
-				return parts[1], nil
-			}
+		if !strings.HasPrefix(line, "module ") {
+			continue
+		}
+
+		parts := strings.Fields(line)
+		if len(parts) >= 2 {
+			return parts[1], nil
 		}
 	}
 
@@ -116,26 +118,38 @@ func CrossCompile(version string, targets []BuildTarget, packages []string, stag
 			result := buildSingleTarget(binName+pkgSuffix, version, t, pkg, stagingDir)
 			results = append(results, result)
 
-			if result.IsSuccess {
-				if verbose.IsEnabled() {
-					info, statErr := os.Stat(result.Output)
-					if statErr == nil {
-						verbose.Get().Log("build: %s/%s complete (%d bytes)", t.GOOS, t.GOARCH, info.Size())
-					}
-				}
-
-				fmt.Printf(constants.MsgAssetBuilt, filepath.Base(result.Output), t.GOOS, t.GOARCH)
-			} else {
-				if verbose.IsEnabled() {
-					verbose.Get().Log("build: %s/%s failed: %s", t.GOOS, t.GOARCH, result.Error)
-				}
-
-				fmt.Fprintf(os.Stderr, constants.ErrAssetBuildFailed, t.GOOS, t.GOARCH, result.Error)
-			}
+			handleBuildResult(result, t)
 		}
 	}
 
 	return results
+}
+
+func handleBuildResult(result CrossCompileResult, t BuildTarget) {
+	if result.IsSuccess {
+		logSuccessfulBuild(result, t)
+		fmt.Printf(constants.MsgAssetBuilt, filepath.Base(result.Output), t.GOOS, t.GOARCH)
+		return
+	}
+
+	if verbose.IsEnabled() {
+		verbose.Get().Log("build: %s/%s failed: %s", t.GOOS, t.GOARCH, result.Error)
+	}
+
+	fmt.Fprintf(os.Stderr, constants.ErrAssetBuildFailed, t.GOOS, t.GOARCH, result.Error)
+}
+
+func logSuccessfulBuild(result CrossCompileResult, t BuildTarget) {
+	if !verbose.IsEnabled() {
+		return
+	}
+
+	info, statErr := os.Stat(result.Output)
+	if statErr != nil {
+		return
+	}
+
+	verbose.Get().Log("build: %s/%s complete (%d bytes)", t.GOOS, t.GOARCH, info.Size())
 }
 
 // resolveBinName reads go.mod for the binary name.

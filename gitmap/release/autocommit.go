@@ -39,9 +39,7 @@ func AutoCommit(version string, dryRun, yes bool) AutoCommitResult {
 	if len(changed) == 0 {
 		fmt.Print(constants.MsgAutoCommitNone)
 
-		if verbose.IsEnabled() {
-			verbose.Get().Log("autocommit: no changed files detected")
-		}
+		logAutoCommitNoChanges()
 
 		return AutoCommitResult{}
 	}
@@ -187,4 +185,10 @@ func promptAndCommit(releaseFiles, otherFiles []string, msg string, yes bool) Au
 	}
 
 	return AutoCommitResult{}
+}
+
+func logAutoCommitNoChanges() {
+	if verbose.IsEnabled() {
+		verbose.Get().Log("autocommit: no changed files detected")
+	}
 }

@@ -309,13 +309,13 @@ func assertRegistryListContains(t *testing.T, valueName, exec string) {
 		t.Fatalf("listWindowsRegistry: %v", err)
 	}
 	for _, e := range entries {
-		if e.Name == valueName {
-			if e.Exec != exec {
-				t.Errorf("entry %q exec = %q, want %q", valueName, e.Exec, exec)
-			}
-
-			return
+		if e.Name != valueName {
+			continue
 		}
+		if e.Exec != exec {
+			t.Errorf("entry %q exec = %q, want %q", valueName, e.Exec, exec)
+		}
+		return
 	}
 	t.Errorf("entry %q not in registry list: %#v", valueName, entries)
 }

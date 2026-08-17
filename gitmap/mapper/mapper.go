@@ -157,12 +157,14 @@ func toSSH(raw string) string {
 	if strings.HasPrefix(raw, constants.PrefixSSH) {
 		return raw
 	}
-	if strings.HasPrefix(raw, constants.PrefixHTTPS) {
-		trimmed := strings.TrimPrefix(raw, constants.PrefixHTTPS)
-		parts := strings.SplitN(trimmed, "/", 2)
-		if len(parts) == 2 {
-			return fmt.Sprintf(constants.SSHFromHTTPSFmt, parts[0], parts[1])
-		}
+	if !strings.HasPrefix(raw, constants.PrefixHTTPS) {
+		return raw
+	}
+
+	trimmed := strings.TrimPrefix(raw, constants.PrefixHTTPS)
+	parts := strings.SplitN(trimmed, "/", 2)
+	if len(parts) == 2 {
+		return fmt.Sprintf(constants.SSHFromHTTPSFmt, parts[0], parts[1])
 	}
 
 	return raw

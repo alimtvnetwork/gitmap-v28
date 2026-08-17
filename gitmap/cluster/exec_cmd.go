@@ -27,11 +27,10 @@ func ExecCmd(ctx context.Context, node ClusterNode, command string) (stdout, std
 
 	exitCode = constants.ExitCodeSuccess
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok == true {
-			exitCode = exitErr.ExitCode()
-		} else {
-			exitCode = constants.ExitCodeError
-		}
+		exitCode = constants.ExitCodeError
+	}
+	if exitErr, ok := err.(*exec.ExitError); ok == true {
+		exitCode = exitErr.ExitCode()
 	}
 
 	return stdoutBuf.String(), stderrBuf.String(), exitCode, err

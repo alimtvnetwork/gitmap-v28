@@ -95,11 +95,10 @@ func ListEntries() ([]Entry, error) {
 // readEntries returns the parsed entries. Missing file -> empty slice.
 func readEntries(path string) ([]Entry, error) {
 	data, err := os.ReadFile(path)
+	if err != nil && errors.Is(err, os.ErrNotExist) == true {
+		return []Entry{}, nil
+	}
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return []Entry{}, nil
-		}
-
 		return nil, fmt.Errorf(constants.ErrVSCodePMReadFailed, path, err)
 	}
 

@@ -137,12 +137,10 @@ func listWindowsRegistry() ([]Entry, error) {
 func listWindowsRegistryAt(root registry.Key, hive string) ([]Entry, error) {
 	k, err := registry.OpenKey(root,
 		constants.RegRunKeyPath, registry.QUERY_VALUE|registry.ENUMERATE_SUB_KEYS)
+	if err == registry.ErrNotExist {
+		return nil, nil
+	}
 	if err != nil {
-		if err == registry.ErrNotExist {
-
-			return nil, nil
-		}
-
 		return nil, fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)
 	}
 	defer k.Close()

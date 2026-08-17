@@ -78,6 +78,7 @@ func TestSkipMeta_WriteMetaCalledWhenFalse(t *testing.T) {
 	}
 
 	// Simulate the performRelease path when SkipMeta is false.
+	var err error
 	if !opts.SkipMeta {
 		meta := release.ReleaseMeta{
 			Version:      "6.0.0",
@@ -87,16 +88,18 @@ func TestSkipMeta_WriteMetaCalledWhenFalse(t *testing.T) {
 			CreatedAt:    "2026-03-27T00:00:00Z",
 			IsLatest:     true,
 		}
-		err := release.WriteReleaseMeta(meta)
-		if err != nil {
-			t.Fatalf("WriteReleaseMeta: %v", err)
-		}
+		err = release.WriteReleaseMeta(meta)
+	}
+	if !opts.SkipMeta && err != nil {
+		t.Fatalf("WriteReleaseMeta: %v", err)
+	}
 
+	if !opts.SkipMeta {
 		v, _ := release.Parse("v6.0.0")
 		err = release.WriteLatest(v)
-		if err != nil {
-			t.Fatalf("WriteLatest: %v", err)
-		}
+	}
+	if !opts.SkipMeta && err != nil {
+		t.Fatalf("WriteLatest: %v", err)
 	}
 
 	// Verify metadata was written.

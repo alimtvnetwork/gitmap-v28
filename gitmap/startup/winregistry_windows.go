@@ -119,22 +119,19 @@ func classifyRunValue(valueName, clean string) (bool, bool, error) {
 // model.
 func classifyRunValueAt(root registry.Key, valueName, clean string) (bool, bool, error) {
 	k, err := registry.OpenKey(root, constants.RegRunKeyPath, registry.QUERY_VALUE)
+	if err == registry.ErrNotExist {
+		return false, false, nil
+	}
 	if err != nil {
-		if err == registry.ErrNotExist {
-
-			return false, false, nil
-		}
-
 		return false, false, fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)
 	}
 	defer k.Close()
 
-	if _, _, err := k.GetStringValue(valueName); err != nil {
-		if err == registry.ErrNotExist {
-
-			return false, false, nil
-		}
-
+	_, _, err = k.GetStringValue(valueName)
+	if err == registry.ErrNotExist {
+		return false, false, nil
+	}
+	if err != nil {
 		return false, false, fmt.Errorf(constants.ErrStartupRegistryRead, valueName, err)
 	}
 	hasTracking := trackingSubkeyExistsAt(root, constants.RegGitmapRegistrySub, clean)
@@ -230,11 +227,12 @@ func writeTrackingSubkeyAt(root registry.Key, parent, name, exec, source, workin
 
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, constants.RegTrackKeySource, err)
 	}
-	if workingDir != "" {
-		if err := k.SetStringValue(constants.RegTrackKeyWorkingDir, workingDir); err != nil {
-
-			return fmt.Errorf(constants.ErrStartupRegistryWrite, constants.RegTrackKeyWorkingDir, err)
-		}
+	if workingDir == "" {
+		return nil
+	}
+	err = k.SetStringValue(constants.RegTrackKeyWorkingDir, workingDir)
+	if err != nil {
+		return fmt.Errorf(constants.ErrStartupRegistryWrite, constants.RegTrackKeyWorkingDir, err)
 	}
 
 	return nil

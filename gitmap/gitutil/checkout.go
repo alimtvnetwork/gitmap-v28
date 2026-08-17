@@ -40,11 +40,9 @@ func CheckoutBranch(repoPath, branch string) (string, error) {
 func ResolveDefaultBranchName(repoPath string) string {
 	out, err := runGit(repoPath, constants.GitSymbolicRef,
 		constants.GitRefsRemotesOriginHEAD)
-	if err == nil {
-		name := strings.TrimSpace(out)
-		if len(name) > 0 {
-			return StripRemotePrefix(strings.TrimPrefix(name, "refs/remotes/"))
-		}
+	name := strings.TrimSpace(out)
+	if err == nil && len(name) > 0 {
+		return StripRemotePrefix(strings.TrimPrefix(name, "refs/remotes/"))
 	}
 
 	return constants.DefaultBranch
