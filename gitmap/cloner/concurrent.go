@@ -44,31 +44,31 @@ type cloneOutcome struct {
 // runConcurrent fans the records out across `workers` goroutines and
 // returns the same CloneSummary shape as the sequential runner. The
 // caller is responsible for picking a sane worker count (>=1).
-func runConcurrent(records []model.ScanRecord, targetDir string, safePull bool,
+func runConcurrent(records []model.ScanRecord, targetDir string, opts CloneOptions,
 	workers int, progress *Progress, cache *CloneCache) model.CloneSummary {
 	jobs := make(chan cloneJob, len(records))
 	out := make(chan cloneOutcome, len(records))
 
-	startWorkers(workers, jobs, out, targetDir, safePull)
+	startWorkers(workers, jobs, out, targetDir, opts)
 	enqueueJobs(records, targetDir, cache, progress, jobs, out)
 	close(jobs)
 
-	return collectOutcomes(records, targetDir, safePull, progress, cache, out)
+	return collectOutcomes(records, targetDir, opts.SafePull, progress, cache, out)
 }
 
 // startWorkers spins up the worker goroutines.
 func startWorkers(workers int, jobs <-chan cloneJob, out chan<- cloneOutcome,
-	targetDir string, safePull bool) {
+	targetDir string, opts CloneOptions) {
 	for i := 0; i < workers; i++ {
-		go cloneWorker(jobs, out, targetDir, safePull)
+		go cloneWorker(jobs, out, targetDir, opts)
 	}
 }
 
 // cloneWorker drains the job channel until it closes.
 func cloneWorker(jobs <-chan cloneJob, out chan<- cloneOutcome,
-	targetDir string, safePull bool) {
+	targetDir string, opts CloneOptions) {
 	for job := range jobs {
-		result := cloneOrPullOne(job.rec, targetDir, safePull)
+		result := cloneOrPullOne(job.rec, targetDir, opts)
 		out <- cloneOutcome{rec: job.rec, dest: job.dest, result: result}
 	}
 }

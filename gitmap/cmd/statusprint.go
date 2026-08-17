@@ -100,7 +100,7 @@ func printStatusTableTracked(records []model.ScanRecord, prog *cloner.BatchProgr
 		prog.BeginItem(rec.RepoName)
 		row := computeOneStatus(rec, &s)
 		tableCtx.addRow(row)
-		prog.Succeed()
+		prog.Succeed(rec.RepoName)
 	}
 
 	printStatusTableWithContext(tableCtx)

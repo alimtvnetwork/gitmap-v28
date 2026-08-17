@@ -2,7 +2,6 @@ package cloner
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"time"
 

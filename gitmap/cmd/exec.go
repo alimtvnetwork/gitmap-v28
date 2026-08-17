@@ -70,13 +70,13 @@ func execAllReposTracked(records []model.ScanRecord, gitArgs []string, prog *clo
 func execOneRepoTracked(rec model.ScanRecord, gitArgs []string, prog *cloner.BatchProgress) (int, int, int) {
 	_, err := os.Stat(rec.AbsolutePath)
 	if err != nil {
-		prog.Skip()
+		prog.Skip(rec.RepoName)
 
 		return 0, 0, 1
 	}
 
 	if execInRepo(rec, gitArgs) {
-		prog.Succeed()
+		prog.Succeed(rec.RepoName)
 
 		return 1, 0, 0
 	}

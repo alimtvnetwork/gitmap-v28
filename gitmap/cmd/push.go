@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -116,7 +117,7 @@ func parsePushFlags(args []string) pushOptions {
 	fs.StringVar(gFlag, "g", "", constants.FlagDescGroup)
 	aFlag := fs.Bool("all", false, constants.FlagDescAll)
 	sFlag := fs.Bool(constants.FlagStopOnFail, false, constants.FlagDescStopOnFail)
-	pFlag := fs.Int("parallel", 1, constants.FlagDescPullParallel)
+	pFlag := fs.Int("parallel", 0, constants.FlagDescPullParallel)
 	fs.Parse(args)
 
 	opts := pushOptions{
@@ -168,6 +169,13 @@ func beginPushTask(records []model.ScanRecord, rest []string) (int64, *store.DB)
 // ... wait, I will implement it at the bottom.
 
 func executePush(records []model.ScanRecord, prog *cloner.BatchProgress, opts pushOptions) {
+	workers, ok := cloneconcurrency.Resolve(opts.parallel)
+	if !ok {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, opts.parallel)
+		os.Exit(1)
+	}
+	opts.parallel = workers
+
 	if opts.parallel > 1 {
 		runPushParallel(records, prog, opts.parallel, opts.stopOnFail)
 		return

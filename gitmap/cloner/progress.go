@@ -2,11 +2,11 @@ package cloner
 
 import (
 	"fmt"
-	"os"
+
 	"sync"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/pterm/pterm"
 )
@@ -27,7 +27,7 @@ type Progress struct {
 	pulled   int
 	skipped  int
 	failed   int
-	multi    *pterm.MultiPrinterPrinter
+	multi    *pterm.MultiPrinter
 	spinners map[string]*pterm.SpinnerPrinter
 }
 

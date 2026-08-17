@@ -68,8 +68,8 @@ func TestStopOnFail_Disabled(t *testing.T) {
 
 func TestExitCodeForBatch_ZeroOnSuccess(t *testing.T) {
 	p := NewBatchProgress(2, "pull", true)
-	p.Succeed()
-	p.Succeed()
+	p.Succeed("test")
+	p.Succeed("test")
 
 	if code := p.ExitCodeForBatch(); code != 0 {
 		t.Errorf("ExitCodeForBatch() = %d, want 0", code)
@@ -78,9 +78,9 @@ func TestExitCodeForBatch_ZeroOnSuccess(t *testing.T) {
 
 func TestExitCodeForBatch_PartialFailure(t *testing.T) {
 	p := NewBatchProgress(3, "pull", true)
-	p.Succeed()
+	p.Succeed("test")
 	p.FailWithError("repo-b", "error")
-	p.Succeed()
+	p.Succeed("test")
 
 	if code := p.ExitCodeForBatch(); code != constants.ExitPartialFailure {
 		t.Errorf("ExitCodeForBatch() = %d, want %d", code, constants.ExitPartialFailure)
@@ -117,17 +117,17 @@ func TestNoFailures_Defaults(t *testing.T) {
 func TestMixedOperations_Counters(t *testing.T) {
 	p := NewBatchProgress(6, "pull", true)
 	p.BeginItem("a")
-	p.Succeed()
+	p.Succeed("test")
 	p.BeginItem("b")
 	p.FailWithError("b", "err")
 	p.BeginItem("c")
-	p.Skip()
+	p.Skip("test")
 	p.BeginItem("d")
-	p.Succeed()
+	p.Succeed("test")
 	p.BeginItem("e")
-	p.Fail()
+	p.Fail("test")
 	p.BeginItem("f")
-	p.Succeed()
+	p.Succeed("test")
 
 	if p.Succeeded() != 3 {
 		t.Errorf("Succeeded() = %d, want 3", p.Succeeded())

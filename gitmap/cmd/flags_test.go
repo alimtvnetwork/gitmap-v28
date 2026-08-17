@@ -124,8 +124,8 @@ func TestParsePullFlags_NoFlags(t *testing.T) {
 	if len(opts.group) > 0 || opts.all || opts.verbose {
 		t.Error("expected no group/all/verbose")
 	}
-	if opts.parallel != 1 {
-		t.Errorf("expected default parallel=1, got %d", opts.parallel)
+	if opts.parallel != 0 {
+		t.Errorf("expected default parallel=0, got %d", opts.parallel)
 	}
 	if opts.onlyAvailable {
 		t.Error("expected onlyAvailable=false by default")
