@@ -389,8 +389,308 @@ Each new command variant needs a help MD file:
 
 ---
 
-## 9. Out of Scope (for this spec)
+## 10. Node Listing Commands
+
+### 10.1 `servers ls`
+
+```
+gitmap servers ls
+```
+
+Lists all server nodes (nodes with `NodeRole = 'server'`).
+
+**Output columns:** `ID | IP Address | Machine Name | OS | Status | Last Heartbeat`
+
+**Example output:**
+```
+  ID  IP Address       Machine Name      OS       Status    Last Heartbeat
+  ──  ───────────────  ────────────────  ───────  ────────  ──────────────
+   1  192.168.1.10     build-server-01   windows  online    2s ago
+```
+
+---
+
+### 10.2 `clients ls`
+
+```
+gitmap clients ls [--except <list>]
+```
+
+Lists all client nodes (`NodeRole = 'client'`), supporting all `--except` / `--ip` / `--id` filter flags.
+
+**Example:**
+```
+gitmap clients ls
+gitmap clients ls --except 2,4
+```
+
+**Output columns:** `ID | IP Address | Machine Name | OS | Status | Last Heartbeat`
+
+---
+
+### 10.3 `servers-clients ls` / `sc ls`
+
+```
+gitmap servers-clients ls [--except <list>] [--ip <list>] [--id <list>]
+gitmap sc ls
+```
+
+Lists ALL nodes (servers and clients combined).
+
+**Example:**
+```
+gitmap servers-clients ls
+gitmap sc ls --except 5
+```
+
+**Output columns:** `ID | IP Address | Machine Name | Role | OS | Status | Last Heartbeat`
+
+**`--json` flag**: emit machine-readable JSON array of node objects.
+
+---
+
+## 11. Remote Clone / CFR Commands
+
+### 11.1 Grammar
+
+```
+gitmap clients         clone  <url1>[,<url2>,...] [--workdir "<path>"] [--except <list>] [--ip <list>] [--id <list>]
+gitmap servers-clients clone  <url1>[,<url2>,...] [--workdir "<path>"] [--except <list>]
+gitmap clients         cfrp   <url1>[,<url2>,...] [--workdir "<path>"] [--except <list>]
+gitmap servers-clients cfrp   <url1>[,<url2>,...] [--workdir "<path>"] [--except <list>]
+gitmap clients         cfr    <url1>[,<url2>,...] [--workdir "<path>"] [--except <list>]
+gitmap servers-clients cfr    <url1>[,<url2>,...] [--workdir "<path>"] [--except <list>]
+```
+
+### 11.2 `--workdir` Flag
+
+| Value | Behaviour |
+|-------|-----------|
+| Omitted | Uses the `DefaultPath` stored for each node (see §12). If no default is set, uses the node's home directory (`~` on Unix, `%USERPROFILE%` on Windows). |
+| Absolute path | Clones into that exact directory on the remote node. |
+| Path alias (e.g. `p1`) | Resolves the registered alias (see §12) for each target node and clones there. |
+
+### 11.3 Behaviour
+
+- URLs are comma-separated, whitespace-tolerant.
+- Each URL is cloned (or `cfrp`/`cfr` processed) sequentially per node, in parallel across nodes.
+- The same bounded worker-pool + spinner UI from Phase 4 is used.
+- After all clones complete, `gitmap status` is automatically triggered on the `--workdir` path of each node and its output streamed back prefixed with `[<ID>/<Alias>]`.
+- Each clone result is persisted to `ClusterExecResult`.
+
+### 11.4 Examples
+
+```
+gitmap clients clone https://github.com/org/repo1.git,https://github.com/org/repo2.git
+gitmap clients cfrp https://github.com/org/myrepo.git --workdir "C:\Projects"
+gitmap servers-clients cfr https://github.com/org/app.git --workdir p1 --except 3
+gitmap sc clone https://github.com/org/api.git --id 1,2
+```
+
+---
+
+## 12. Path Alias System
+
+Operators frequently target the same directories across many commands. The path alias system avoids typing long paths repeatedly and ensures the right directory is used on each node.
+
+### 12.1 `set-default-path`
+
+```
+gitmap servers-clients set-default-path "<path> [as <alias>]" [--except <list>]
+gitmap clients         set-default-path "<path> [as <alias>]" [--id <list>]
+```
+
+Sets a **default working directory** for the targeted nodes. The optional `as <alias>` registers a reusable short name simultaneously.
+
+**Storage:** `ClusterNode.DefaultPath` column + `NodePathAlias` table.
+
+**Examples:**
+```
+gitmap servers-clients set-default-path "C:\Projects as p1"
+gitmap clients set-default-path "/home/dev/repos as work" --id 2,3
+```
+
+After running this, every subsequent command that omits `--workdir` will automatically use the registered default on those nodes.
+
+**Tip printed after set:**
+```
+✓ DefaultPath set on 4 nodes → "C:\Projects" (alias: p1)
+  Use with: --workdir p1
+  Examples:
+    gitmap sc clone <url> --workdir p1
+    gitmap clients cat p1/config.yaml
+    gitmap clients ps "ls p1"
+```
+
+---
+
+### 12.2 `set-path-alias`
+
+```
+gitmap servers-clients set-path-alias "<path1> as <alias1>[, <path2> as <alias2>, ...]" [--except <list>]
+gitmap clients         set-path-alias "<path1> as <alias1>[, <path2> as <alias2>, ...]" [--id <list>]
+```
+
+Registers one or more **named path aliases** that can be used in place of full paths in any subsequent cluster command. Each alias is stored per-node in the `NodePathAlias` table.
+
+**SQLite table `NodePathAlias`:**
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `NodePathAliasId` | INTEGER PK | |
+| `NodeId` | TEXT NOT NULL | FK → `ClusterNode` |
+| `Alias` | TEXT NOT NULL | Short name, e.g. `p1` |
+| `AbsolutePath` | TEXT NOT NULL | The full path on that node |
+| `CreatedAt` | DATETIME | |
+
+**Examples:**
+```
+gitmap servers-clients set-path-alias "C:\Projects as p1, D:\Backup as p2"
+gitmap clients set-path-alias "/opt/apps as apps, /home/dev as home" --id 3,5
+```
+
+**Tips printed after registration:**
+```
+✓ Registered 2 aliases on 6 nodes:
+  p1 → C:\Projects
+  p2 → D:\Backup
+
+  Use in any cluster command with --workdir or inline:
+    gitmap sc clone <url> --workdir p1
+    gitmap sc cat p1\config.json
+    gitmap sc write p2\notes.txt "content here"
+    gitmap clients ps "dir p1" --id 1,3
+```
+
+---
+
+### 12.3 Using Path Aliases in Commands
+
+Any command that accepts a path argument or `--workdir` may use a registered alias instead of a full path:
+
+```
+gitmap sc clone  https://github.com/org/api.git --workdir p1
+gitmap sc clone  https://github.com/org/api.git,https://github.com/org/web.git --path "p1, p2"  # clone first to p1, second to p2
+gitmap sc cat    p1/config.yaml
+gitmap sc write  p1/notes.txt "deployment notes here"
+gitmap clients   ps "Get-ChildItem p1" --id 2
+```
+
+**`--path` flag** (multi-alias clone distribution):
+- Accepts a comma-separated list of aliases (or full paths).
+- Maps the Nth URL to the Nth path alias.
+- If the URL list is longer than the path list, remaining URLs use the last alias in the list.
+- Post-clone: `gitmap status` is triggered on each resolved path and streamed back to the operator.
+
+**Example with status output:**
+```
+gitmap sc clone url1,url2 --path "p1, p2"
+
+  Cloning url1 → p1 on 4 nodes…
+  Cloning url2 → p2 on 4 nodes…
+
+  [1/build-01] ✓ url1 → C:\Projects (2.3s)   ✓ url2 → D:\Backup (1.8s)
+  [2/dev-02]   ✓ url1 → C:\Projects (2.7s)   ✗ url2 → D:\Backup (git auth failed)
+
+  ── Status: [1/build-01] ────────────────────────────────────
+  REPO         STATUS   SYNC    BRANCH
+  api          clean    ✓       main
+  web          clean    ✓       main
+  ────────────────────────────────────────────────────────────
+```
+
+---
+
+## 13. Remote File Read/Write — `cat` / `write`
+
+### 13.1 `cat`
+
+```
+gitmap servers-clients cat <path-or-alias>[/<subpath>] [--except <list>] [--id <list>] [--ip <list>]
+gitmap sc cat <path-or-alias>[/<subpath>]
+```
+
+Reads and prints the content of a file from each target node. Output is prefixed with `[<ID>/<Alias>]`.
+
+**Behaviour:**
+- `<path-or-alias>` resolves registered aliases first; falls back to treating it as a literal path.
+- If the file is not found on a node, prints `[<ID>/<Alias>] ✗ file not found: <resolved-path>` and continues.
+- Binary files are rejected: if the file contains non-UTF-8 bytes, prints `[<ID>/<Alias>] ✗ binary file, cannot display`.
+- File content is truncated at **64 KB** with a `[truncated…]` suffix.
+- Result stored in `ClusterExecResult` (SubCommand = `cat`, Stdout = file content).
+
+**Examples:**
+```
+gitmap sc cat p1/config.yaml
+gitmap sc cat p1/deploy.log --except 3
+gitmap clients cat /etc/hosts --id 1,2,4
+gitmap sc cat "C:\Projects\api\appsettings.json"
+```
+
+**Example output:**
+```
+[1/build-01] ── p1/config.yaml ──────────────────────────────
+version: "3.9"
+services:
+  api:
+    image: my-api:latest
+[1/build-01] ─────────────────────────────────────────────────
+
+[2/dev-02] ── p1/config.yaml ────────────────────────────────
+version: "3.9"
+services:
+  api:
+    image: my-api:staging
+[2/dev-02] ─────────────────────────────────────────────────
+```
+
+---
+
+### 13.2 `write`
+
+```
+gitmap servers-clients write <path-or-alias>[/<subpath>] "<content>" [--except <list>] [--id <list>] [--ip <list>]
+gitmap sc write <path-or-alias>[/<subpath>] "<content>"
+```
+
+Writes the quoted `<content>` string to the specified file on each target node. The write is **atomic** — content is written to a temp file then renamed to prevent partial writes.
+
+**Behaviour:**
+- Parent directories are created automatically (`mkdir -p` / `New-Item -Force`).
+- Content length is capped at **1 MB** — larger content is rejected with a clear error before any network dispatch.
+- On success, `[<ID>/<Alias>] ✓ wrote <N> bytes to <resolved-path>` is printed per node.
+- On failure, `[<ID>/<Alias>] ✗ write failed: <reason>` is printed; other nodes continue.
+- Result stored in `ClusterExecResult` (SubCommand = `write`).
+
+**Security:** `write` requires the `--force-write` flag when targeting `--all` nodes or more than 5 nodes simultaneously (prevents accidental mass overwrites).
+
+**Examples:**
+```
+gitmap sc write p1/deploy-note.txt "Deployed v6.26.0 on 2026-08-17"
+gitmap clients write p1/.env "DB_HOST=10.0.0.5\nDB_PORT=5432" --id 1,2
+gitmap sc write "C:\Projects\api\version.txt" "6.26.0" --force-write
+```
+
+---
+
+## 14. Updated Help Text Manifest
+
+Add help MD files for the new commands:
+
+- `gitmap/cmd/help/servers-ls.md`
+- `gitmap/cmd/help/clients-ls.md`
+- `gitmap/cmd/help/servers-clients-ls.md`
+- `gitmap/cmd/help/cluster-set-default-path.md` — includes the alias tips block
+- `gitmap/cmd/help/cluster-set-path-alias.md` — includes the alias reference examples block
+- `gitmap/cmd/help/cluster-cat.md`
+- `gitmap/cmd/help/cluster-write.md`
+
+---
+
+## 15. Out of Scope (for this spec)
 
 - `proj create-cicd` — placeholder only, full spec TBD.
 - Cross-cloud or internet-routed cluster connectivity (LAN-only in this version).
 - GUI/web dashboard for cluster management.
+- Binary file transfer (only UTF-8 text via `cat`/`write`; large binary transfer is out of scope).
+

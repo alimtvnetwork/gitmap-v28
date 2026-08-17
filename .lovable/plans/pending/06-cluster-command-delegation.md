@@ -164,8 +164,40 @@ After `gitmap serve` and `gitmap join` establish a cluster of machines (Phase 6)
 - `gitmap cluster history` lists the run.
 - `gitmap cluster export` produces valid JSON without passwords.
 - Help golden fixtures match (no diff after `gitmap regoldens`).
+- `gitmap sc ls` lists all nodes in aligned table format.
+- `gitmap sc cat p1/config.yaml` prints file content prefixed per node.
+- `gitmap sc write p1/note.txt "hello"` writes atomically and reports bytes written per node.
+- `gitmap sc set-path-alias "C:\Projects as p1"` prints the tips block.
+- `gitmap clients clone url1,url2 --workdir p1` clones into the registered alias path and auto-runs status.
+
+---
+
+### PART H — Node Listing, Remote Clone, Path Aliases, Cat/Write (Steps 101–120)
+
+101. Add CLI constants to `constants_cli.go`: `CmdServersLS = "servers ls"`, `CmdClientsLS = "clients ls"`, `CmdSCLS = "servers-clients ls"`, `CmdSCCat = "servers-clients cat"`, `CmdSCWrite = "servers-clients write"`, `CmdSCSetDefaultPath = "servers-clients set-default-path"`, `CmdSCSetPathAlias = "servers-clients set-path-alias"`. Add `// gitmap:cmd top-level` markers.
+102. Register `servers ls`, `clients ls`, `servers-clients ls` (and `sc ls`) in the dispatcher: route to `runClusterLS(selector, args)`. This command reads the local `ClusterNode` SQLite table — no Phase 6 network call needed.
+103. Implement `runClusterLS(selector, args)`: resolve nodes by selector + filters → render aligned table: `ID | IP Address | Machine Name | Role | OS | Status | Last Heartbeat`. `servers ls` hides the Role column. Add `--json` flag. No preflight (read-only).
+104. Implement `gitmap/cluster/lsrender.go`: `RenderNodeTable(nodes []ClusterNode, showRole bool) string` — dynamic column widths, minimum 2 spaces padding between columns, reusing the `statusTableContext` pattern from Phase 2.
+105. Add `gitmap/cluster/lsrender_test.go`: snapshot tests for 0 nodes, 1 node, 3 nodes with mixed roles and OSes.
+106. Create `gitmap/db/migrations/0NN_node_path_alias.sql`: adds `DefaultPath TEXT NOT NULL DEFAULT ''` to `ClusterNode`; creates `NodePathAlias(NodePathAliasId INTEGER PK, NodeId TEXT NOT NULL FK, Alias TEXT NOT NULL, AbsolutePath TEXT NOT NULL, CreatedAt DATETIME)` with unique index on `(NodeId, Alias)`.
+107. Implement `gitmap/db/nodepath.go`: `UpsertPathAlias(db, nodeId, alias, absPath string) error`, `GetPathAlias(db, nodeId, alias string) (string, error)`, `SetDefaultPath(db, nodeId, path string) error`, `GetDefaultPath(db, nodeId string) (string, error)`, `ListPathAliases(db, nodeId string) ([]NodePathAlias, error)`.
+108. Implement `gitmap/cluster/pathalias.go`: `ParseSetPathAliasArg(raw string) ([]AliasEntry, error)` — parses `"C:\Projects as p1, D:\Backup as p2"` into `[]AliasEntry`. Validate: alias must be alphanumeric + hyphens only; path must be non-empty.
+109. Implement `runClusterSetDefaultPath(selector, args)`: parse optional `as <alias>` from arg, resolve nodes, call `SetDefaultPath` (and optionally `UpsertPathAlias`) per node in DB, print the tips block (per spec §12.1). Commit change locally — no network dispatch needed at this stage.
+110. Implement `runClusterSetPathAlias(selector, args)`: parse multi-alias string via `ParseSetPathAliasArg`, resolve nodes, call `UpsertPathAlias` for each alias × each node, print the tips block (per spec §12.2).
+111. Implement `gitmap/cluster/pathresolver.go`: `ResolvePath(db, nodeId, pathOrAlias string) (string, error)` — try `GetPathAlias` first; if alias not found and the string contains no path separator, return `ErrAliasNotFound` with a clear message; otherwise treat as literal path.
+112. Register `clients clone`, `servers-clients clone`, `clients cfrp`, `servers-clients cfrp`, `clients cfr`, `servers-clients cfr` in the dispatcher → `runClusterClone(selector, subCmd, args)`.
+113. Implement `runClusterClone(selector, subCmd, args)`: parse comma-separated URLs, resolve `--workdir` or `--path` aliases per node via `ResolvePath`, preflight, insert `ClusterRun`, dispatch each URL to each node using the Phase 4 bounded worker pool + spinner UI. After all clones complete, trigger `gitmap status` on the resolved workdir on each node and stream results prefixed with `[<ID>/<Alias>]`.
+114. Implement `gitmap/cluster/exec_clone.go`: `ExecCloneURL(ctx, node ClusterNode, url, workdir, subCmd string) (stdout, stderr string, exitCode int, err error)` — builds the correct `gitmap clone`, `gitmap cfrp`, or `gitmap cfr` command string and dispatches it over the cluster transport (SSH/gRPC).
+115. Handle `--path "p1, p2"` flag in `runClusterClone`: split by comma, resolve each alias per node via `ResolvePath`, map Nth URL → Nth path; extra URLs reuse the last resolved path.
+116. Register `servers-clients cat` (and `sc cat`, `clients cat`) in the dispatcher → `runClusterCat(selector, args)`.
+117. Implement `runClusterCat(selector, args)`: resolve path/alias per node via `ResolvePath`; dispatch `Get-Content` (Windows) or `cat` (Unix) over cluster transport; prefix output `[<ID>/<Alias>] ── <resolved-path> ──`; truncate at 64 KB with `[truncated…]`; reject binary (non-UTF-8 bytes); store result in `ClusterExecResult` (SubCommand = `cat`).
+118. Register `servers-clients write` (and `sc write`, `clients write`) in the dispatcher → `runClusterWrite(selector, args)`.
+119. Implement `runClusterWrite(selector, args)`: validate content length ≤ 1 MB (reject before any network call); require `--force-write` if targeting `--all` or more than 5 effective nodes; resolve path/alias; dispatch atomic write (write to temp file then rename) over cluster transport; report `[<ID>/<Alias>] ✓ wrote <N> bytes to <resolved-path>` per node; store in `ClusterExecResult` (SubCommand = `write`).
+120. Add help MD files: `servers-ls.md`, `clients-ls.md`, `servers-clients-ls.md`, `cluster-set-default-path.md` (include full tips block from spec §12.1), `cluster-set-path-alias.md` (include reference examples from spec §12.2), `cluster-cat.md`, `cluster-write.md`. Run `gitmap regoldens`. Update `src/data/commands.ts` with all new commands. Commit: `feat: cluster ls, remote clone/cfr, path alias system, cat/write (steps 101-120)`. Push to `origin main`. Move plan to `completed/`.
+
+---
 
 ## Appended from prior pending tasks
 
 - `01-bulk-visibility-mapub-mapri.md` — still pending; unblocked by this plan.
-- `05-gitmap-improvements.md` (Phases 5 & 6) — Phase 6 (`serve`/`join`) is a prerequisite for steps 45–50 of this plan. The remainder (steps 1–44, 51–100) can be implemented in advance.
+- `05-gitmap-improvements.md` (Phases 5 & 6) — Phase 6 (`serve`/`join`) is a prerequisite for steps 45–50 and 112–115 of this plan. Steps 101–111, 116–120 can be implemented independently.
