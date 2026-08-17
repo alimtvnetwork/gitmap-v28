@@ -191,7 +191,7 @@ func normalizeVersion(v string) string {
 	if len(v) == 0 {
 		return v
 	}
-	
+
 	return versionPrefix + strings.TrimLeft(v, versionTrimChars)
 }
 

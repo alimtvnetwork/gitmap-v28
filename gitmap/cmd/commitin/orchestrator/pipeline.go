@@ -15,7 +15,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-
 // executePipeline performs the per-input walk + replay loop. Returns
 // the exit code; the summary is printed by the caller.
 func executePipeline(ctx *runContext, stdout io.Writer) int {
@@ -94,7 +93,6 @@ func inputFingerprint(staged workspace.StagedInput) string {
 	sum := sha1.Sum([]byte(staged.Input.Original))
 	return hex.EncodeToString(sum[:8])
 }
-
 
 // newPicker returns a deterministic-seeded RNG bound to the wall clock
 // (per-run seed satisfies spec §3.4 "deterministic within a run").

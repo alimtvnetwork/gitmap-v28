@@ -67,7 +67,7 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 			cancel()
 			updateCounts(true)
 			multi.Stop()
-			
+
 			fmt.Println("\n┌ Cluster Run Cancelled ─────────────────┐")
 			mu.Lock()
 			fmt.Printf("│ Nodes: %d  OK: %d  Failed: %d  Skipped: %d │\n", totalNodes, succeeded, failed, totalNodes-(succeeded+failed))
@@ -86,9 +86,9 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 				mu.Unlock()
 				continue
 			}
-			
+
 			nodeLabel := fmt.Sprintf("[%d/%s]", node.DisplayId, node.ID)
-			
+
 			cmdParts := []string{}
 			for _, sc := range subCmds {
 				cmdParts = append(cmdParts, sc.Kind.String())
@@ -100,7 +100,7 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 					displayCmd = subCmds[0].Kind.String()
 				}
 			}
-			
+
 			mu.Lock()
 			spinner, _ := pterm.DefaultSpinner.WithWriter(multi.NewWriter()).Start(fmt.Sprintf("%s Running %s\u2026", nodeLabel, displayCmd))
 			spinners[node.ID] = spinner
@@ -108,24 +108,24 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 
 			var lastRes db.ClusterExecResult
 			allOk := true
-			
+
 			for _, subCmd := range subCmds {
 				if ctx.Err() != nil {
 					allOk = false
 					break
 				}
-				
+
 				res := Dispatch(ctx, node, subCmd)
 				res.ClusterRunId = runId
 				lastRes = res
-				
+
 				if dbConn != nil {
 					id, err := db.InsertClusterExecResult(ctx, dbConn, res)
 					if err == nil {
 						res.ClusterExecResultId = id
 					}
 				}
-				
+
 				if verbose && res.Stdout != nil && *res.Stdout != "" {
 					lines := strings.Split(*res.Stdout, "\n")
 					for _, line := range lines {
@@ -134,9 +134,9 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 						}
 					}
 				}
-				
+
 				resultCh <- res
-				
+
 				if res.ResultStatus != db.ResultStatusSucceeded {
 					allOk = false
 					break
@@ -172,7 +172,7 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 	}
 
 	wg.Wait()
-	
+
 	if ctx.Err() == nil {
 		updateCounts(false)
 		multi.Stop()

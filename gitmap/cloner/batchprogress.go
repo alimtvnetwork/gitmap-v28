@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-
 	"github.com/pterm/pterm"
 )
 
@@ -193,7 +192,6 @@ func (p *BatchProgress) PrintSummary() {
 			p.succeeded, p.skipped, p.failed, elapsed))
 }
 
-
 // Succeeded returns the success count.
 func (p *BatchProgress) Succeeded() int { p.mu.Lock(); defer p.mu.Unlock(); return p.succeeded }
 
@@ -204,7 +202,15 @@ func (p *BatchProgress) Failed() int { p.mu.Lock(); defer p.mu.Unlock(); return 
 func (p *BatchProgress) Skipped() int { p.mu.Lock(); defer p.mu.Unlock(); return p.skipped }
 
 // Failures returns all recorded failure details.
-func (p *BatchProgress) Failures() []FailureRecord { p.mu.Lock(); defer p.mu.Unlock(); return p.failures }
+func (p *BatchProgress) Failures() []FailureRecord {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.failures
+}
 
 // HasFailures returns true if any items failed.
-func (p *BatchProgress) HasFailures() bool { p.mu.Lock(); defer p.mu.Unlock(); return len(p.failures) > 0 }
+func (p *BatchProgress) HasFailures() bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return len(p.failures) > 0
+}

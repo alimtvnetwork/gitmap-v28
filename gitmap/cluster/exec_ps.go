@@ -42,10 +42,10 @@ func ExecPS(ctx context.Context, node ClusterNode, command string) (stdout, stde
 	cmd.Stderr = &errBuf
 
 	err = cmd.Run()
-	
+
 	stdout = outBuf.String()
 	stderr = errBuf.String()
-	
+
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			exitCode = exitErr.ExitCode()

@@ -8,7 +8,7 @@ import (
 
 func TestClusterCommand(t *testing.T) {
 	args := []string{"--no-preflight", "ps", "echo hello"}
-	
+
 	// runClusterCommand has an implicit dependency on cluster.Dispatch,
 	// which currently stubs ExecPS, making this safe to run as an e2e test
 	// without actually hitting the network or executing the command.

@@ -5,12 +5,12 @@ const (
 	ErrClusterNoNodes   = "no nodes available in cluster"
 	ErrFilterExclusive  = "--except cannot be used with --ip or --id"
 	ErrInvalidRange     = "invalid range format"
-	
+
 	IPv4OctetCount         = 4
 	IPv4TrailingOctetIndex = 3
 	RangeSeparator         = "-"
 	DotSeparator           = "."
-	
+
 	EmptySliceLength    = 0
 	RangePartsCount     = 2
 	RangeStartPartIndex = 0

@@ -98,4 +98,3 @@ var standardDowngrades = map[string]string{
 	"\033[1;94m":     "\033[34m",
 	"\033[38;5;208m": "\033[33m",
 }
-

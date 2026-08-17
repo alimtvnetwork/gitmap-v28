@@ -51,7 +51,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 		IPs:    flags.OnlyIPs,
 		IDs:    flags.OnlyIDs,
 	}
-	
+
 	hasExceptClause := flags.ExceptClause != ""
 	if hasExceptClause == true {
 		filter.Except = strings.Split(flags.ExceptClause, ",")
@@ -87,7 +87,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 			fmt.Fprintf(os.Stderr, "Preflight error: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		isConfirmed := confirmed == true
 		if isConfirmed == false {
 			fmt.Fprintln(os.Stderr, "Operation aborted.")
@@ -97,12 +97,12 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 
 	var runId int64
 	totalNodes := len(effective)
-	
+
 	selectorStr := "ServersClients"
 	if selector == cluster.ClientsOnly {
 		selectorStr = "ClientsOnly"
 	}
-	
+
 	run := db.ClusterRun{
 		RunRef:         runRef,
 		CommandKind:    subCmds[0].Kind,
@@ -111,7 +111,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 		StartedAt:      time.Now(),
 		TotalNodes:     &totalNodes,
 	}
-	
+
 	if hasExceptClause == true {
 		run.ExceptClause = &flags.ExceptClause
 	}

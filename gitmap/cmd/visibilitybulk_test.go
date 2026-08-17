@@ -70,7 +70,6 @@ func TestParseBulkRequest_TwoArgValid(t *testing.T) {
 	}
 }
 
-
 func TestParseBulkRequest_Empty(t *testing.T) {
 	_, ok := parseBulkRequest([]string{})
 	if ok {

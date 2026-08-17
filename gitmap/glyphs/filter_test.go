@@ -6,11 +6,11 @@ import "testing"
 // to their ASCII fallbacks under ModeSafe.
 func TestFilterSafeRewritesEmoji(t *testing.T) {
 	cases := map[string]string{
-		"✓ done":   "v done",
-		"→ next":   "-> next",
-		"⚠️ warn":   "! warn",
+		"✓ done":  "v done",
+		"→ next":  "-> next",
+		"⚠️ warn": "! warn",
 		"📦 build": "[pkg] build",
-		"plain":    "plain",
+		"plain":   "plain",
 	}
 	for in, want := range cases {
 		got := string(Filter([]byte(in), ModeSafe))

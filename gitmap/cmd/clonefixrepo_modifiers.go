@@ -28,7 +28,6 @@ type CfrModifierFlags struct {
 	NoPush   bool
 }
 
-
 // ParseCfrModifiers walks args from the front, consuming known modifier
 // tokens (`cg`, `p`) in any order, and returns the parsed flags plus the
 // remaining argv. Parsing stops at the first token that is either a flag

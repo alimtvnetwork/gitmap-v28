@@ -73,7 +73,6 @@ const (
 	MsgVisLocalSkipFmt = "visibility: skipping local remote %q (no provider CLI applies to file:// / local paths)\n"
 )
 
-
 // Visibility error messages.
 const (
 	ErrVisNotInRepo       = "visibility: not a git repository\n"

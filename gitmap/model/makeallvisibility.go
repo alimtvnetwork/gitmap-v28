@@ -17,8 +17,8 @@ type MakeAllVisibilityRunRecord struct {
 	Owner            string `json:"owner"`
 	TargetRaw        string `json:"targetRaw"`
 	PatternList      string `json:"patternList"`
-	IsYesFlag          bool   `json:"yesFlag"`
-	IsVerboseFlag      bool   `json:"verboseFlag"`
+	IsYesFlag        bool   `json:"yesFlag"`
+	IsVerboseFlag    bool   `json:"verboseFlag"`
 	OwnerRepoTotal   int    `json:"ownerRepoTotal"`
 	MatchedCount     int    `json:"matchedCount"`
 	ExcludedCount    int    `json:"excludedCount"`

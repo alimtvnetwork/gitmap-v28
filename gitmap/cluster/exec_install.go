@@ -63,13 +63,13 @@ func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]Pa
 		isApt := mgr == constants.PkgMgrApt
 
 		if isWinget == true {
-			cmdStr = fmt.Sprintf(constants.CmdSpaceFormat, mgr, constants.WingetInstallArg, constants.WingetQuietArg, pkg)
+			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.WingetInstallArg, constants.WingetQuietArg, pkg)
 		} else if isChoco == true {
-			cmdStr = fmt.Sprintf(constants.CmdSpaceFormat, mgr, constants.ChocoInstallArg, constants.ChocoYesArg, pkg)
+			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.ChocoInstallArg, constants.ChocoYesArg, pkg)
 		} else if isBrew == true {
-			cmdStr = fmt.Sprintf(constants.CmdSpaceFormat, mgr, constants.BrewInstallArg, constants.BrewQuietArg, pkg)
+			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.BrewInstallArg, constants.BrewQuietArg, pkg)
 		} else if isApt == true {
-			cmdStr = fmt.Sprintf(constants.CmdSpaceFormat, mgr, constants.AptInstallArg, constants.AptYesArg, pkg)
+			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.AptInstallArg, constants.AptYesArg, pkg)
 		} else {
 			continue
 		}

@@ -173,8 +173,6 @@ func dispatchCodingGuidelinesModifier(absPath string, m CfrModifierFlags) {
 	}
 }
 
-
-
 // applyCloneFixRepoScheme honours --ssh / --https (and short aliases
 // --sh / --ht) by rewriting the URL before the in-process clone runs.
 
@@ -305,7 +303,6 @@ func parseCloneFixRepoArgs(args []string) (string, string, bool, bool, bool, boo
 
 	return url, folder, noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush
 }
-
 
 // resolveCloneTargetFolder mirrors the folder-naming logic in
 // executeDirectClone so we know which directory to cd into after

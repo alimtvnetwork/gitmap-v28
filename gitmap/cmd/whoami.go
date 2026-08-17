@@ -66,7 +66,6 @@ func printWhoAmISSHKeys() {
 	}
 }
 
-
 // printWhoAmIIdentity prints local vs global user.name/email so the
 // user can see exactly which identity gets stamped on new commits.
 func printWhoAmIIdentity() {

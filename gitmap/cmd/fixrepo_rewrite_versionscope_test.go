@@ -63,4 +63,3 @@ func TestApplyAllTargets_VersionScopeMatrix(t *testing.T) {
 		})
 	}
 }
-

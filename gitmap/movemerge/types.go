@@ -70,7 +70,7 @@ type Options struct {
 	IsDryRun          bool
 	IsIncludeVCS      bool
 	IsIncludeNodeMods bool
-	CommandName     string // "mv" | "merge-both" | "merge-left" | "merge-right"
-	LogPrefix       string // "[mv]" etc.
-	CommitMsgFmt    string // template; "%s" filled from other side's display
+	CommandName       string // "mv" | "merge-both" | "merge-left" | "merge-right"
+	LogPrefix         string // "[mv]" etc.
+	CommitMsgFmt      string // template; "%s" filled from other side's display
 }

@@ -22,7 +22,7 @@ var (
 
 func cloneOrPullOne(rec model.ScanRecord, targetDir string, opts CloneOptions) model.CloneResult {
 	dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
-	
+
 	dirExists := false
 	if _, err := os.Stat(dest); err == nil {
 		dirExists = true

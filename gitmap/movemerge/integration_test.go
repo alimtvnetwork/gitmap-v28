@@ -148,6 +148,6 @@ func IsMapsEqual(a, b map[string]string) bool {
 
 		return true
 	}
-	
+
 	return false
 }

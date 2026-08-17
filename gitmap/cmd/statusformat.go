@@ -27,7 +27,7 @@ func computeOneStatus(rec model.ScanRecord, s *statusSummary) statusRow {
 // computeRepoStatus returns the status row for a repo that exists on disk.
 func computeRepoStatus(rec model.ScanRecord, s *statusSummary) statusRow {
 	rs := gitutil.Status(rec.AbsolutePath)
-	
+
 	return statusRow{
 		Missing:   false,
 		RepoName:  rec.RepoName,

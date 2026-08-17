@@ -93,7 +93,6 @@ func isLocalRemote(url string) bool {
 	return false
 }
 
-
 // classifyProvider returns "github", "gitlab", or "" for unknown.
 // Matches both HTTPS and SSH URL forms.
 func classifyProvider(url string) string {

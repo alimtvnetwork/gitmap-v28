@@ -99,20 +99,20 @@ const (
 	CmdGroupAlias            = "g"
 	CmdCluster               = "cluster"
 	CmdClusterAlias          = "clst"
-	CmdClusterStatus         = "status" // gitmap:cmd skip
+	CmdClusterStatus         = "status"          // gitmap:cmd skip
 	CmdServersClients        = "servers-clients" // gitmap:cmd top-level
 	CmdSC                    = "sc"
-	CmdClients               = "clients" // gitmap:cmd top-level
-	CmdClusterHistory        = "cluster history" // gitmap:cmd top-level
-	CmdClusterExport         = "cluster export" // gitmap:cmd top-level
-	CmdClusterImport         = "cluster import" // gitmap:cmd top-level
+	CmdClients               = "clients"              // gitmap:cmd top-level
+	CmdClusterHistory        = "cluster history"      // gitmap:cmd top-level
+	CmdClusterExport         = "cluster export"       // gitmap:cmd top-level
+	CmdClusterImport         = "cluster import"       // gitmap:cmd top-level
 	CmdClusterSetPassword    = "cluster set-password" // gitmap:cmd top-level
-	CmdGroupCreate           = "create" // gitmap:cmd skip
-	CmdGroupAdd              = "add"    // gitmap:cmd skip
-	CmdGroupRemove           = "remove" // gitmap:cmd skip
-	CmdGroupList             = "list"   // gitmap:cmd skip
-	CmdGroupShow             = "show"   // gitmap:cmd skip
-	CmdGroupDelete           = "delete" // gitmap:cmd skip
+	CmdGroupCreate           = "create"               // gitmap:cmd skip
+	CmdGroupAdd              = "add"                  // gitmap:cmd skip
+	CmdGroupRemove           = "remove"               // gitmap:cmd skip
+	CmdGroupList             = "list"                 // gitmap:cmd skip
+	CmdGroupShow             = "show"                 // gitmap:cmd skip
+	CmdGroupDelete           = "delete"               // gitmap:cmd skip
 	CmdDBReset               = "db-reset"
 	CmdReset                 = "reset"
 	CmdListVersions          = "list-versions"
@@ -157,17 +157,16 @@ const (
 	CmdCommons      = "commons"
 	CmdCommonsAlias = "co"
 
-
-	CmdSetSourceRepo         = "set-source-repo" // gitmap:cmd skip
-	CmdSelfInstall           = "self-install"
-	CmdSelfUninstall         = "self-uninstall"
-	CmdSf                    = "sf"
-	CmdProbe                 = "probe"
-	CmdCode                  = "code"
-	CmdCodeAlias             = "vcode"
-	CmdCodeAlias2            = "vscode"
-	CmdVSCodePMPath          = "vscode-pm-path"
-	CmdVSCodePMPathAlias     = "vpath"
+	CmdSetSourceRepo     = "set-source-repo" // gitmap:cmd skip
+	CmdSelfInstall       = "self-install"
+	CmdSelfUninstall     = "self-uninstall"
+	CmdSf                = "sf"
+	CmdProbe             = "probe"
+	CmdCode              = "code"
+	CmdCodeAlias         = "vcode"
+	CmdCodeAlias2        = "vscode"
+	CmdVSCodePMPath      = "vscode-pm-path"
+	CmdVSCodePMPathAlias = "vpath"
 	// CmdVSCodeWorkspace emits a single `.code-workspace` file listing
 	// every tracked repo as a folder, so one click in VS Code opens
 	// them all in one window. Source is the same DB the Project
@@ -640,4 +639,3 @@ const (
 	ClusterFlagForceLifecycle = "force-lifecycle"
 	ClusterFlagNoPreflight    = "no-preflight"
 )
-

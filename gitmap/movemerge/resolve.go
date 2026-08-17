@@ -97,7 +97,7 @@ func reuseExistingURLFolder(ep Endpoint, dir string, opts Options) (Endpoint, er
 
 		return ep, nil
 	}
-	
+
 	return ep, fmt.Errorf(constants.ErrMMOriginFmt, dir, origin, ep.URL)
 }
 

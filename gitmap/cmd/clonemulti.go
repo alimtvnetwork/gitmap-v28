@@ -208,4 +208,3 @@ func resolveCloneFolder(repoName, folderName string) string {
 
 	return repoName
 }
-

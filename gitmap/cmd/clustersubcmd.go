@@ -16,20 +16,20 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 	}
 
 	var currentTokens []string
-	
+
 	commitCurrent := func() error {
 		isEmpty := len(currentTokens) == 0
 		if isEmpty == true {
 			return nil
 		}
-		
+
 		cmdToken := strings.ToLower(currentTokens[0])
 		var kind db.CommandKindType
 		var rawArgParts []string
-		
+
 		isGit := cmdToken == "git"
 		isProj := cmdToken == "proj"
-		
+
 		if isGit == true {
 			hasMinTokens := len(currentTokens) >= 2
 			if hasMinTokens == false {
@@ -83,7 +83,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			}
 			rawArgParts = currentTokens[1:]
 		}
-		
+
 		subCmds = append(subCmds, cluster.ClusterSubCommand{
 			Kind:   kind,
 			RawArg: strings.Join(rawArgParts, " "),
@@ -102,7 +102,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			}
 			continue
 		}
-		
+
 		hasCommaSuffix := strings.HasSuffix(token, ",")
 		if hasCommaSuffix == true {
 			stripped := strings.TrimSuffix(token, ",")
@@ -117,7 +117,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			}
 			continue
 		}
-		
+
 		currentTokens = append(currentTokens, token)
 	}
 

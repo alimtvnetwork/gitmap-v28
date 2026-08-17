@@ -175,4 +175,3 @@ func mholtToFormat(f archives.Format) Format {
 
 	return FormatUnknown
 }
-

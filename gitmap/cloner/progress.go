@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/pterm/pterm"
 )
@@ -18,10 +17,10 @@ import (
 // interleave half-written status lines or corrupt the running totals.
 // The sequential runner pays only the cost of an uncontended mutex.
 type Progress struct {
-	mu      sync.Mutex
-	total   int
-	current int
-	start   time.Time
+	mu       sync.Mutex
+	total    int
+	current  int
+	start    time.Time
 	quiet    bool
 	cloned   int
 	pulled   int

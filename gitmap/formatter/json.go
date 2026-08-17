@@ -27,7 +27,6 @@ func WriteJSON(w io.Writer, records []model.ScanRecord) error {
 	return nil
 }
 
-
 // WriteJSONCompact writes a minified JSON containing only essential fields.
 func WriteJSONCompact(w io.Writer, records []model.ScanRecord) error {
 	issueCount := emitValidationWarnings(records)

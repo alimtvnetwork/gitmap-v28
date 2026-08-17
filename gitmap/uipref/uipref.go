@@ -19,8 +19,8 @@ import "os"
 // Env var names — kept here (not constants/) because this package
 // is the only legitimate reader.
 const (
-	EnvQuiet   = "GITMAP_QUIET"
-	EnvNoColor = "GITMAP_NO_COLOR"
+	EnvQuiet      = "GITMAP_QUIET"
+	EnvNoColor    = "GITMAP_NO_COLOR"
 	EnvNoColorStd = "NO_COLOR"
 )
 

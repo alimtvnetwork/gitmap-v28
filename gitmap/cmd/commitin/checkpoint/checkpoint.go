@@ -31,11 +31,11 @@ const DirName = "state"
 // State is the on-disk JSON shape. Versioned so we can evolve the
 // schema without breaking old workspaces.
 type State struct {
-	Version    int       `json:"version"`
-	Input      string    `json:"input"`
-	LastRunID  int64     `json:"lastRunId"`
-	UpdatedAt  time.Time `json:"updatedAt"`
-	DoneShas   []string  `json:"doneShas"`
+	Version   int       `json:"version"`
+	Input     string    `json:"input"`
+	LastRunID int64     `json:"lastRunId"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	DoneShas  []string  `json:"doneShas"`
 }
 
 // File wraps the on-disk path plus an in-memory done-set with a mutex

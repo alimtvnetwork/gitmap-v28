@@ -28,16 +28,16 @@ func buildSingleTarget(binName, version string, target BuildTarget, pkgDir, stag
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return CrossCompileResult{
-			Target:  target,
-			Output:  outputPath,
+			Target:    target,
+			Output:    outputPath,
 			IsSuccess: false,
-			Error:   strings.TrimSpace(string(out)),
+			Error:     strings.TrimSpace(string(out)),
 		}
 	}
 
 	return CrossCompileResult{
-		Target:  target,
-		Output:  outputPath,
+		Target:    target,
+		Output:    outputPath,
 		IsSuccess: true,
 	}
 }

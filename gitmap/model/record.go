@@ -20,27 +20,27 @@ import "github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 // bucket collapse that the clone-from terminal summary uses (see
 // clonefrom.TransportTally) so the two views stay in lockstep.
 type ScanRecord struct {
-	ID               int64  `json:"id"                csv:"id"`
-	Slug             string `json:"slug"              csv:"slug"`
-	RepoID           string `json:"repoId"            csv:"repoId"`
-	RepoName         string `json:"repoName"          csv:"repoName"`
-	HTTPSUrl         string `json:"httpsUrl"          csv:"httpsUrl"`
-	SSHUrl           string `json:"sshUrl"            csv:"sshUrl"`
-	DiscoveredURL    string `json:"discoveredUrl"     csv:"discoveredUrl"`
-	Branch           string `json:"branch"            csv:"branch"`
-	BranchSource     string `json:"branchSource"      csv:"branchSource"`
-	RelativePath     string `json:"relativePath"      csv:"relativePath"`
-	AbsolutePath     string `json:"absolutePath"      csv:"absolutePath"`
-	CloneInstruction string `json:"cloneInstruction"  csv:"cloneInstruction"`
-	Notes            string `json:"notes"             csv:"notes"`
-	Depth            int    `json:"depth"             csv:"depth"`
-	Transport        string `json:"transport"         csv:"transport"`
+	ID                  int64  `json:"id"                csv:"id"`
+	Slug                string `json:"slug"              csv:"slug"`
+	RepoID              string `json:"repoId"            csv:"repoId"`
+	RepoName            string `json:"repoName"          csv:"repoName"`
+	HTTPSUrl            string `json:"httpsUrl"          csv:"httpsUrl"`
+	SSHUrl              string `json:"sshUrl"            csv:"sshUrl"`
+	DiscoveredURL       string `json:"discoveredUrl"     csv:"discoveredUrl"`
+	Branch              string `json:"branch"            csv:"branch"`
+	BranchSource        string `json:"branchSource"      csv:"branchSource"`
+	RelativePath        string `json:"relativePath"      csv:"relativePath"`
+	AbsolutePath        string `json:"absolutePath"      csv:"absolutePath"`
+	CloneInstruction    string `json:"cloneInstruction"  csv:"cloneInstruction"`
+	Notes               string `json:"notes"             csv:"notes"`
+	Depth               int    `json:"depth"             csv:"depth"`
+	Transport           string `json:"transport"         csv:"transport"`
 	IdentifiedTransport string `json:"identifiedTransport" csv:"identifiedTransport"`
 }
 
 // ReleaseConfig holds release-specific configuration from config.json.
 type ReleaseConfig struct {
-	Targets   []ReleaseTarget `json:"targets"`
+	Targets      []ReleaseTarget `json:"targets"`
 	HasChecksums bool            `json:"checksums"`
 	IsCompress   bool            `json:"compress"`
 }
@@ -73,7 +73,7 @@ func DefaultConfig() Config {
 		Notes:            "",
 		DashboardRefresh: constants.DefaultDashboardRefresh,
 		Release: ReleaseConfig{
-			Targets:   []ReleaseTarget{},
+			Targets:      []ReleaseTarget{},
 			HasChecksums: false,
 			IsCompress:   false,
 		},
@@ -86,10 +86,10 @@ func DefaultConfig() Config {
 // for example, which branch-selection strategy was applied based on the
 // record's BranchSource.
 type CloneResult struct {
-	Record  ScanRecord
+	Record    ScanRecord
 	IsSuccess bool
-	Error   string
-	Notes   string
+	Error     string
+	Notes     string
 }
 
 // CloneSummary aggregates results of a batch clone operation.
@@ -107,12 +107,12 @@ type CloneSummary struct {
 
 // ScanCache stores the flags used for the last scan so rescan can replay them.
 type ScanCache struct {
-	Dir           string `json:"dir"`
-	ConfigPath    string `json:"configPath"`
-	Mode          string `json:"mode"`
-	Output        string `json:"output"`
-	OutFile       string `json:"outFile"`
-	OutputPath    string `json:"outputPath"`
+	Dir             string `json:"dir"`
+	ConfigPath      string `json:"configPath"`
+	Mode            string `json:"mode"`
+	Output          string `json:"output"`
+	OutFile         string `json:"outFile"`
+	OutputPath      string `json:"outputPath"`
 	IsGithubDesktop bool   `json:"githubDesktop"`
 	IsOpenFolder    bool   `json:"openFolder"`
 	IsQuiet         bool   `json:"quiet"`

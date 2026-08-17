@@ -13,15 +13,15 @@ import (
 // Token sentinels used by Render() so unit tests can assert on a stable,
 // ANSI-free string. RenderANSI swaps these for real escape codes.
 const (
-	TokYellowOpen  = "[Y]"
-	TokYellowClose = "[/Y]"
-	TokCyanOpen    = "[C]"
-	TokCyanClose   = "[/C]"
-	TokMutedOpen   = "[M]"
-	TokMutedClose  = "[/M]"
-	TokGreenOpen   = "[G]"
-	TokGreenClose  = "[/G]"
-	TokMagentaOpen = "[P]"
+	TokYellowOpen   = "[Y]"
+	TokYellowClose  = "[/Y]"
+	TokCyanOpen     = "[C]"
+	TokCyanClose    = "[/C]"
+	TokMutedOpen    = "[M]"
+	TokMutedClose   = "[/M]"
+	TokGreenOpen    = "[G]"
+	TokGreenClose   = "[/G]"
+	TokMagentaOpen  = "[P]"
 	TokMagentaClose = "[/P]"
 
 	collapseArrow = "→ "

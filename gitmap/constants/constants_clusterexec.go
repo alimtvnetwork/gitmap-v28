@@ -23,5 +23,5 @@ const (
 	ExitCodeError   = 1
 
 	ErrNoPackageManager = "no supported package manager found"
-	CmdSpaceFormat      = "%s %s %s %s"
+	FormatCmdSpace      = "%s %s %s %s"
 )

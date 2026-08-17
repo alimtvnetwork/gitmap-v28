@@ -17,7 +17,7 @@ func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) d
 		ResultStatus: db.ResultStatusPending,
 		StartedAt:    &start,
 	}
-	
+
 	raw := subCmd.RawArg
 	res.CommandText = &raw
 

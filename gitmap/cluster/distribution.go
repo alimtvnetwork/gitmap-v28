@@ -58,9 +58,9 @@ func DistributionLoop(registry *Registry, repos []Repo, interval time.Duration, 
 
 	for range ticker.C {
 		registry.CheckHeartbeats()
-		
+
 		newActiveClients := getActiveClients(registry)
-		
+
 		hasNodeChanged := false
 		isLengthDifferent := len(newActiveClients) != len(activeClients)
 

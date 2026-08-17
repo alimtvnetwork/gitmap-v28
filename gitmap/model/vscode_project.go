@@ -16,7 +16,7 @@ type VSCodeProject struct {
 	RootPath   string   `json:"rootPath"`
 	Name       string   `json:"name"`
 	Paths      []string `json:"paths"`
-	IsEnabled    bool     `json:"enabled"`
+	IsEnabled  bool     `json:"enabled"`
 	Profile    string   `json:"profile"`
 	LastSeenAt string   `json:"lastSeenAt"`
 	CreatedAt  string   `json:"createdAt"`

@@ -80,7 +80,7 @@ func (c *statusTableContext) addRow(r statusRow) {
 // printStatusTable prints each repo's status and returns a summary.
 func printStatusTable(records []model.ScanRecord) statusSummary {
 	s := statusSummary{Total: len(records)}
-	
+
 	tableCtx := newStatusTableContext()
 	for _, rec := range records {
 		row := computeOneStatus(rec, &s)
@@ -94,7 +94,7 @@ func printStatusTable(records []model.ScanRecord) statusSummary {
 // printStatusTableTracked prints each repo's status with batch progress tracking.
 func printStatusTableTracked(records []model.ScanRecord, prog *cloner.BatchProgress) statusSummary {
 	s := statusSummary{Total: len(records)}
-	
+
 	tableCtx := newStatusTableContext()
 	for _, rec := range records {
 		prog.BeginItem(rec.RepoName)
@@ -119,7 +119,7 @@ func printStatusTableWithContext(c *statusTableContext) {
 		c.MaxStash, constants.StatusTableColumns[4], colGap,
 		c.MaxFiles, constants.StatusTableColumns[5],
 		constants.ColorReset)
-	
+
 	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
 
 	for _, r := range c.Rows {
@@ -129,7 +129,7 @@ func printStatusTableWithContext(c *statusTableContext) {
 				constants.ColorYellow, constants.ColorReset)
 			continue
 		}
-		
+
 		branchStr := fmt.Sprintf("%s%s%s", constants.ColorCyan, r.Branch, constants.ColorReset)
 
 		padBranch := c.MaxBranch + (len(branchStr) - len(stripANSI(branchStr)))

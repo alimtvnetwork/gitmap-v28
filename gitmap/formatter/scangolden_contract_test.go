@@ -41,18 +41,18 @@ func canonicalScanRecords() []model.ScanRecord {
 	return []model.ScanRecord{
 		{
 			ID: 1, Slug: "acme/widget", RepoName: "widget",
-			RepoID:           "github.com/acme/widget",
-			HTTPSUrl:         "https://github.com/acme/widget.git",
-			SSHUrl:           "git@github.com:acme/widget.git",
-			DiscoveredURL:    "https://github.com/acme/widget.git",
-			Branch:           "main",
-			BranchSource:     "remote-head",
-			RelativePath:     "acme/widget",
-			AbsolutePath:     "/repos/acme/widget",
-			CloneInstruction: "git clone https://github.com/acme/widget.git",
-			Notes:            "",
-			Depth:            1,
-			Transport:        "https",
+			RepoID:              "github.com/acme/widget",
+			HTTPSUrl:            "https://github.com/acme/widget.git",
+			SSHUrl:              "git@github.com:acme/widget.git",
+			DiscoveredURL:       "https://github.com/acme/widget.git",
+			Branch:              "main",
+			BranchSource:        "remote-head",
+			RelativePath:        "acme/widget",
+			AbsolutePath:        "/repos/acme/widget",
+			CloneInstruction:    "git clone https://github.com/acme/widget.git",
+			Notes:               "",
+			Depth:               1,
+			Transport:           "https",
 			IdentifiedTransport: "https",
 		},
 		{
@@ -70,8 +70,8 @@ func canonicalScanRecords() []model.ScanRecord {
 			// Depth 4 = at the DefaultMaxDepth boundary; this is exactly
 			// the row a user would inspect to decide whether to widen
 			// --max-depth before the next scan.
-			Depth:     4,
-			Transport: "ssh",
+			Depth:               4,
+			Transport:           "ssh",
 			IdentifiedTransport: "ssh",
 		},
 	}
