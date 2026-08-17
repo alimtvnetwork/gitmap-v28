@@ -154,7 +154,18 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 		}
 	}
 
-	fmt.Printf("┌ Cluster Run %s ─────────────────┐\n", runRef)
-	fmt.Printf("│ Nodes: %d  OK: %d  Failed: %d  Skipped: %d       │\n", totalNodes, succeeded, failed, skipped)
-	fmt.Println("└────────────────────────────────────────────────┘")
+	summaryTitle := fmt.Sprintf(" Cluster Run %s ", runRef)
+	summaryData := fmt.Sprintf(" Nodes: %d  OK: %d  Failed: %d  Skipped: %d ", totalNodes, succeeded, failed, skipped)
+
+	boxWidth := len(summaryTitle)
+	if len(summaryData) > boxWidth {
+		boxWidth = len(summaryData)
+	}
+
+	titlePad := boxWidth - len(summaryTitle)
+	dataPad := boxWidth - len(summaryData)
+
+	fmt.Printf("┌%s%s┐\n", summaryTitle, strings.Repeat("─", titlePad))
+	fmt.Printf("│%s%s│\n", summaryData, strings.Repeat(" ", dataPad))
+	fmt.Printf("└%s┘\n", strings.Repeat("─", boxWidth))
 }
