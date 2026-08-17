@@ -11,16 +11,40 @@ import (
 )
 
 // writeAllOutputs writes terminal, CSV, JSON, text, folder structure, and clone scripts.
-func writeAllOutputs(records []model.ScanRecord, outputDir, outFile string, quiet bool) {
+func writeAllOutputs(records []model.ScanRecord, outputDir, outFile string, quiet, compact bool) {
 	writeTerminalOutput(records, outputDir, quiet)
 	writeCSVOutput(records, outputDir, outFile)
 	writeJSONOutput(records, outputDir)
+	writeCWDJSONOutput(records, compact)
 	writeTextOutput(records, outputDir)
 	writeFolderStructure(records, outputDir)
 	writeCloneScript(records, outputDir)
 	writeDirectCloneScript(records, outputDir)
 	writeDirectCloneSSHScript(records, outputDir)
 	writeDesktopScript(records, outputDir)
+}
+
+// writeCWDJSONOutput writes a portable JSON file to CWD.
+func writeCWDJSONOutput(records []model.ScanRecord, compact bool) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return
+	}
+	path := filepath.Join(cwd, constants.DefaultJSONFile)
+	file, err := os.Create(path)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	if compact {
+		if err := formatter.WriteJSONCompact(file, records); err != nil {
+			fmt.Fprintf(os.Stderr, "  ⚠ Could not write compact JSON to %s: %v\n", path, err)
+		}
+	} else {
+		if err := formatter.WriteJSON(file, records); err != nil {
+			fmt.Fprintf(os.Stderr, "  ⚠ Could not write JSON to %s: %v\n", path, err)
+		}
+	}
 }
 
 // writeTerminalOutput renders records to stdout.

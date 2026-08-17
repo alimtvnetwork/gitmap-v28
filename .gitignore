@@ -31,3 +31,4 @@ release-assets
 *.syso
 /.gitmap/backup
 /gitmap/data/unit-test-reports
+.lovable/temp/

@@ -34,7 +34,7 @@ type ScanProbeOptions struct {
 }
 
 // parseScanFlags parses flags for the scan command.
-func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
+func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
 	fs := flag.NewFlagSet(constants.CmdScan, flag.ExitOnError)
 	cfgFlag := fs.String("config", constants.DefaultConfigPath, constants.FlagDescConfig)
 	modeFlag := fs.String("mode", "", constants.FlagDescMode)
@@ -64,6 +64,7 @@ func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
 		constants.DefaultScanWorkers, constants.FlagDescScanWorkersConcurrencyAlias)
 	maxDepthFlag := fs.Int(constants.FlagScanMaxDepth, constants.DefaultScanMaxDepth, constants.FlagDescScanMaxDepth)
 	reportErrFlag := fs.Bool(constants.FlagScanReportErrors, false, constants.FlagDescScanReportErrors)
+	compactFlag := fs.Bool(constants.FlagScanCompact, false, constants.FlagDescScanCompact)
 	noProbeFlag := fs.Bool(constants.ScanProbeFlagDisable, false, constants.FlagDescScanProbeDisable)
 	noProbeWaitFlag := fs.Bool(constants.ScanProbeFlagNoWait, false, constants.FlagDescScanProbeNoWait)
 	probeConcFlag := fs.Int(constants.ScanProbeFlagConcurrency,
@@ -83,7 +84,7 @@ func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
 		resolvedOutputPath = *manifestFlag
 	}
 
-	return dir, *cfgFlag, *modeFlag, *outputFlag, *outFileFlag, resolvedOutputPath, *relRootFlag, *defaultBranchFlag, *ghDesktopFlag, *openFlag, *quietFlag, *noVSCodeSyncFlag, *noAutoTagsFlag, *reportErrFlag, resolvedWorkers, *maxDepthFlag, probeOpts
+	return dir, *cfgFlag, *modeFlag, *outputFlag, *outFileFlag, resolvedOutputPath, *relRootFlag, *defaultBranchFlag, *ghDesktopFlag, *openFlag, *quietFlag, *noVSCodeSyncFlag, *noAutoTagsFlag, *reportErrFlag, *compactFlag, resolvedWorkers, *maxDepthFlag, probeOpts
 }
 
 // resolveScanWorkers reconciles --workers (canonical) against the

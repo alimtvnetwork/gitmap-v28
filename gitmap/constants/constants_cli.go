@@ -497,6 +497,8 @@ const (
 	FlagDescGHDesktop   = "Add discovered repos to GitHub Desktop"
 	FlagDescOpen        = "Open output folder after scan completes"
 	FlagDescQuiet       = "Suppress terminal clone help section"
+	FlagScanCompact     = "compact"
+	FlagDescScanCompact = "Export gitmap.json to current directory and print concise clone commands"
 	FlagDescVerbose     = "Write detailed stdout/stderr debug log to a timestamped file"
 	FlagScanWorkers     = "workers"
 	FlagDescScanWorkers = "Worker pool size for scan (0 = auto, capped at 16)"

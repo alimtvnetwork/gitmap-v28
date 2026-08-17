@@ -27,6 +27,42 @@ func WriteJSON(w io.Writer, records []model.ScanRecord) error {
 	return nil
 }
 
+
+// WriteJSONCompact writes a minified JSON containing only essential fields.
+func WriteJSONCompact(w io.Writer, records []model.ScanRecord) error {
+	issueCount := emitValidationWarnings(records)
+
+	// Essential fields only
+	type compactRecord struct {
+		RepoName     string `json:"repoName"`
+		HTTPSUrl     string `json:"httpsUrl,omitempty"`
+		SSHUrl       string `json:"sshUrl,omitempty"`
+		Branch       string `json:"branch,omitempty"`
+		RelativePath string `json:"relativePath"`
+	}
+
+	compacts := make([]compactRecord, 0, len(records))
+	for _, r := range records {
+		compacts = append(compacts, compactRecord{
+			RepoName:     r.RepoName,
+			HTTPSUrl:     r.HTTPSUrl,
+			SSHUrl:       r.SSHUrl,
+			Branch:       r.Branch,
+			RelativePath: r.RelativePath,
+		})
+	}
+
+	enc := json.NewEncoder(w)
+	// No SetIndent for minified output
+	err := enc.Encode(compacts)
+	if err != nil {
+		return err
+	}
+	emitWriteSummary("json", len(records), issueCount)
+
+	return nil
+}
+
 // ParseJSON reads records from a JSON reader.
 func ParseJSON(reader io.Reader) ([]model.ScanRecord, error) {
 	var records []model.ScanRecord

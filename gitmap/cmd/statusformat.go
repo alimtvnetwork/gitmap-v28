@@ -10,39 +10,33 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
-// printOneStatus prints a single repo's status row or missing indicator.
-func printOneStatus(rec model.ScanRecord, s *statusSummary) {
+// computeOneStatus returns a single repo's status row or missing indicator.
+func computeOneStatus(rec model.ScanRecord, s *statusSummary) statusRow {
 	_, err := os.Stat(rec.AbsolutePath)
 	if err == nil {
-		printRepoStatus(rec, s)
-
-		return
+		return computeRepoStatus(rec, s)
 	}
 
-	printMissingRepo(rec.RepoName, s)
-}
-
-// printRepoStatus prints the status row for a repo that exists on disk.
-func printRepoStatus(rec model.ScanRecord, s *statusSummary) {
-	rs := gitutil.Status(rec.AbsolutePath)
-	stateIcon := formatStateIcon(rs.Dirty, s)
-	syncText := formatSyncText(rs.Ahead, rs.Behind, s)
-	stashText := formatStashText(rs.StashCount, s)
-	filesText := formatFileCounts(rs)
-	branchText := fmt.Sprintf("%s%s%s", constants.ColorCyan, truncate(rs.Branch, 12), constants.ColorReset)
-
-	fmt.Printf(constants.StatusRowFmt,
-		truncate(rec.RepoName, 22),
-		branchText, stateIcon, syncText, stashText, filesText)
-}
-
-// printMissingRepo prints a row for a repo not found on disk.
-func printMissingRepo(name string, s *statusSummary) {
-	truncated := truncate(name, 22)
-	fmt.Printf(constants.StatusMissingFmt,
-		constants.ColorDim, truncated,
-		constants.ColorYellow, constants.ColorReset)
 	s.Missing++
+	return statusRow{
+		Missing:  true,
+		RepoName: rec.RepoName,
+	}
+}
+
+// computeRepoStatus returns the status row for a repo that exists on disk.
+func computeRepoStatus(rec model.ScanRecord, s *statusSummary) statusRow {
+	rs := gitutil.Status(rec.AbsolutePath)
+	
+	return statusRow{
+		Missing:   false,
+		RepoName:  rec.RepoName,
+		Branch:    rs.Branch,
+		StateIcon: formatStateIcon(rs.Dirty, s),
+		SyncText:  formatSyncText(rs.Ahead, rs.Behind, s),
+		StashText: formatStashText(rs.StashCount, s),
+		FilesText: formatFileCounts(rs),
+	}
 }
 
 // formatStateIcon returns the clean/dirty indicator and updates summary.

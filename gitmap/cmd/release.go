@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -168,7 +169,7 @@ func parseReleaseFlags(args []string) (version, assets, commit, branch, bump, no
 	fs.Parse(reorderFlagsBeforeArgs(args))
 	version = ""
 	if fs.NArg() > 0 {
-		version = fs.Arg(0)
+		version = normalizeVersion(fs.Arg(0))
 	}
 	// Process-level override set by pull-release / prc / similar
 	// wrappers so the auto-commit prompt is never asked even when
@@ -178,6 +179,20 @@ func parseReleaseFlags(args []string) (version, assets, commit, branch, bump, no
 		*yesFlag = true
 	}
 	return version, *assetsFlag, *commitFlag, *branchFlag, *bumpFlag, *notesFlag, *targetsFlag, []string(zgGroups), []string(zgItems), *bundleFlag, *draftFlag, *dryRunFlag, *verboseFlag, *compressFlag, *checksumsFlag, *binFlag, *listTargetsFlag, *noCommitFlag, *yesFlag
+}
+
+const (
+	versionPrefix    = "v"
+	versionTrimChars = "vV"
+)
+
+// normalizeVersion strips all leading 'v' or 'V' characters and prepends exactly one 'v'.
+func normalizeVersion(v string) string {
+	if len(v) == 0 {
+		return v
+	}
+	
+	return versionPrefix + strings.TrimLeft(v, versionTrimChars)
 }
 
 // forceYesOverride, when true, forces parseReleaseFlags to return

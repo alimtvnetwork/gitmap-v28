@@ -47,16 +47,9 @@ const (
 	StatusUntrackedFmt = "?%d"
 )
 
-// Status row format strings.
-const (
-	StatusRowFmt     = "  %-22s %s  %s  %s  %s  %s\n"
-	StatusMissingFmt = "  %s%-22s %s⊘ not found%s\n"
-	StatusHeaderFmt  = "  %s%-22s %-12s %-8s %-10s %-8s %-6s%s\n"
-)
-
 // Status table column headers.
 var StatusTableColumns = []string{
-	"REPO", "STATUS", "SYNC", "BRANCH", "STASH", "FILES",
+	"REPO", "BRANCH", "STATUS", "SYNC", "STASH", "FILES",
 }
 
 // Summary format strings.
@@ -166,8 +159,10 @@ const (
 
 // Terminal clone help text.
 const (
+	TermCloneExplicitMsg = "  To clone these repositories on another machine, run:"
+	TermCloneExplicitCmd = "     gitmap clone gitmap.json"
 	TermCloneStep1     = "  1. Copy the output files to the target machine:"
-	TermCloneCmd1      = "     .gitmap/output/gitmap.json  (or .csv / .txt)"
+	TermCloneCmd1      = "     gitmap.json  (or .csv / .txt)"
 	TermCloneStep2     = "  2. Clone via JSON (shorthand):"
 	TermCloneCmd2      = "     gitmap clone json --target-dir ./projects"
 	TermCloneCmd2Alt   = "     gitmap c json               # alias"

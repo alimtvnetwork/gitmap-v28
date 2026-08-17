@@ -112,6 +112,7 @@ func printOutputFile(w io.Writer, dir, name, desc string) {
 func printCloneHelp(w io.Writer) {
 	fmt.Fprintf(w, constants.ColorYellow+constants.TermCloneHeader+constants.ColorReset+"\n")
 	fmt.Fprintf(w, constants.ColorDim+constants.TermSeparator+constants.ColorReset+"\n")
+	printCloneStep(w, constants.TermCloneExplicitMsg, constants.TermCloneExplicitCmd)
 	printCloneStep(w, constants.TermCloneStep1, constants.TermCloneCmd1)
 	printCloneStepMulti(w, constants.TermCloneStep2, constants.TermCloneCmd2, constants.TermCloneCmd2Alt)
 	printCloneStepMulti(w, constants.TermCloneStep3, constants.TermCloneCmd3, constants.TermCloneCmd3Alt)
