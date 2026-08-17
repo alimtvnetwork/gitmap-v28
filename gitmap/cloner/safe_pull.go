@@ -91,7 +91,11 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 			if log != nil {
 				log.Log("safe-pull succeeded: %s (attempt %d)", rec.RepoName, attempt)
 			}
-			return model.CloneResult{Record: rec, IsSuccess: true}
+			notes := ""
+			if strings.Contains(output, "Already up to date.") {
+				notes = "up-to-date"
+			}
+			return model.CloneResult{Record: rec, IsSuccess: true, Notes: notes}
 		}
 
 		cleared := clearReadOnlyAttrs(repoDir, output)
@@ -128,6 +132,7 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 
 func runGitPull(repoDir string) (string, error) {
 	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, constants.GitFFOnlyFlag)
+	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0", "GIT_ASKPASS=")
 	out, err := cmd.CombinedOutput()
 
 	return string(out), err

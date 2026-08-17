@@ -10,62 +10,187 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-// transportFlags holds the parsed --ssh / --https selection plus any
-// remaining positional args to forward to the underlying git command.
-type transportFlags struct {
-	useSSH   bool
-	useHTTPS bool
-	rest     []string
+// pushOptions holds parsed push flags.
+type pushOptions struct {
+	slug       string
+	group      string
+	all        bool
+	verbose    bool
+	stopOnFail bool
+	parallel   int
 }
 
-// parseTransportFlags parses the shared --ssh/--https flag pair used
-// by `gitmap push` and the `gitmap pull` cwd short-circuit.
-func parseTransportFlags(cmdName string, args []string) transportFlags {
-	fs := flag.NewFlagSet(cmdName, flag.ExitOnError)
-	sshFlag := fs.Bool("ssh", false, "Rewrite remote.origin.url to SSH and persist via `git remote set-url`")
-	fs.BoolVar(sshFlag, "sh", false, "Short alias for --ssh")
-	httpsFlag := fs.Bool("https", false, "Rewrite remote.origin.url to HTTPS and persist via `git remote set-url`")
-	fs.BoolVar(httpsFlag, "ht", false, "Short alias for --https")
-	fs.BoolVar(httpsFlag, "pub", false, "Alias for --https (public HTTPS clone URL)")
-
-	fs.Parse(reorderFlagsBeforeArgs(args))
-
-	return transportFlags{useSSH: *sshFlag, useHTTPS: *httpsFlag, rest: fs.Args()}
-}
-
-// runPush is the entry point for `gitmap push`. Short-circuits to
-// `git push` in the cwd, with optional remote rewrite and auto
-// pull --rebase + retry on non-fast-forward rejection.
+// runPush is the entry point for `gitmap push`.
 func runPush(args []string) {
 	checkHelp(constants.CmdPush, args)
+	cwd, _ := os.Getwd()
+	fmt.Printf("→ gitmap push (cwd: %s)\n", cwd)
 	requireOnline()
-	tf := parseTransportFlags(constants.CmdPush, args)
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "getwd: %v\n", err)
-		exitWith(1)
-
+	useSSH, useHTTPS, rest := extractTransportFlags(args)
+	if useSSH || useHTTPS {
+		runPushCWDWithTransport(useSSH, useHTTPS, rest)
 		return
 	}
+	opts := parsePushFlags(args)
+	if opts.verbose {
+		initVerboseLog()
+	}
+
+	if shouldPushCWD(opts) {
+		fmt.Println("  ↳ cwd is a git repo — running plain `git push` here")
+		runPushCWD(rest)
+		return
+	}
+	if pushNoTargetsHint(opts) {
+		return
+	}
+	records := resolvePullTargets(opts.slug, opts.group, opts.all) // Reusing target resolver from pull.go
+	fmt.Printf("  ↳ resolved %d repo(s) to push\n", len(records))
+
+	taskID, taskDB := beginPushTask(records, rest)
+	if taskDB != nil {
+		defer taskDB.Close()
+	}
+
+	prog := cloner.NewBatchProgress(len(records), "Push", false)
+	prog.SetStopOnFail(opts.stopOnFail)
+	executePush(records, prog, opts)
+	prog.PrintSummary()
+	prog.PrintFailureReport()
+
+	if code := prog.ExitCodeForBatch(); code != 0 {
+		failPendingTask(taskDB, taskID, fmt.Sprintf("push batch failed with exit code %d", code))
+		exitWith(code)
+	}
+
+	completePendingTask(taskDB, taskID)
+
+	runStatus([]string{})
+}
+
+// shouldPushCWD reports whether `gitmap push` was invoked with no targeting flags
+// AND the current working directory is a git repo.
+func shouldPushCWD(opts pushOptions) bool {
+	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
+		return false
+	}
+	return isGitRepoCWD()
+}
+
+// pushNoTargetsHint prints a hint if nothing to push.
+func pushNoTargetsHint(opts pushOptions) bool {
+	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
+		return false
+	}
+	if isGitRepoCWD() {
+		return false
+	}
+	fmt.Println("  ↳ nothing to push:")
+	fmt.Println("     • current directory is not a git repository")
+	fmt.Println("     • no <repo-name>, --group, --all, or -A alias provided")
+	fmt.Println("  Try one of:")
+	fmt.Println("     gitmap push <repo-name>")
+	fmt.Println("     gitmap push --all")
+	fmt.Println("     gitmap push --group <group>")
+	fmt.Println("     cd <repo> && gitmap push")
+	return true
+}
+
+func parsePushFlags(args []string) pushOptions {
+	fs := flag.NewFlagSet(constants.CmdPush, flag.ExitOnError)
+	vFlag := fs.Bool("verbose", false, constants.FlagDescVerbose)
+	gFlag := fs.String("group", "", constants.FlagDescGroup)
+	fs.StringVar(gFlag, "g", "", constants.FlagDescGroup)
+	aFlag := fs.Bool("all", false, constants.FlagDescAll)
+	sFlag := fs.Bool(constants.FlagStopOnFail, false, constants.FlagDescStopOnFail)
+	pFlag := fs.Int("parallel", 1, constants.FlagDescPullParallel)
+	fs.Parse(args)
+
+	opts := pushOptions{
+		group: *gFlag, all: *aFlag, verbose: *vFlag, stopOnFail: *sFlag,
+		parallel: *pFlag,
+	}
+	if fs.NArg() > 0 {
+		opts.slug = fs.Arg(0)
+	}
+	return opts
+}
+
+func runPushCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
+	cwd, _ := os.Getwd()
 	if !isGitRepoCWD() {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap push` inside a repo)")
 		exitWith(1)
-
 		return
 	}
-
-	if _, _, _, applyErr := ApplyTransportFlag(cwd, tf.useSSH, tf.useHTTPS); applyErr != nil {
-		fmt.Fprintf(os.Stderr, "✗ %v\n", applyErr)
+	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
+		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
 		exitWith(1)
+		return
+	}
+	pushWithAutoRebase(cwd, extraArgs)
+}
 
+func runPushCWD(extraArgs []string) {
+	cwd, _ := os.Getwd()
+	pushWithAutoRebase(cwd, extraArgs)
+}
+
+func beginPushTask(records []model.ScanRecord, rest []string) (int64, *store.DB) {
+	workDir, wdErr := os.Getwd()
+	if wdErr != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not determine working directory: %v\n", wdErr)
+	}
+	cmdArgs := buildCommandArgs(append([]string{"push"}, os.Args[2:]...))
+	targetPath := workDir
+	if len(records) == 1 {
+		targetPath = records[0].AbsolutePath
+	}
+
+	return createPendingTask("push", targetPath, workDir, "push", cmdArgs)
+}
+
+// Actually let's use the real pending task logic.
+// For that I'll add a helper beginPushTask
+// ... wait, I will implement it at the bottom.
+
+func executePush(records []model.ScanRecord, prog *cloner.BatchProgress, opts pushOptions) {
+	if opts.parallel > 1 {
+		runPushParallel(records, prog, opts.parallel, opts.stopOnFail)
+		return
+	}
+	for _, rec := range records {
+		if prog.Stopped() {
+			break
+		}
+		prog.BeginItem(rec.RepoName)
+		pushOneRepoTracked(rec, prog)
+	}
+}
+
+func pushOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
+	if cloner.IsMissingRepo(rec.AbsolutePath) {
+		prog.Skip(rec.RepoName)
 		return
 	}
 
-	pushWithAutoRebase(cwd, tf.rest)
+	result := cloner.SafePushOne(rec, rec.AbsolutePath)
+	if result.IsSuccess {
+		if result.Notes == "up-to-date" {
+			prog.UpToDate(rec.RepoName)
+		} else {
+			prog.Succeed(rec.RepoName)
+		}
+	} else {
+		prog.FailWithError(rec.RepoName, result.Error)
+	}
 }
 
 // pushWithAutoRebase runs `git push`, and on non-fast-forward
@@ -79,7 +204,6 @@ func pushWithAutoRebase(cwd string, rest []string) {
 	}
 	if !isNonFastForwardRejection(stderr) {
 		handleGitExit("git push", runErr)
-
 		return
 	}
 
@@ -87,7 +211,6 @@ func pushWithAutoRebase(cwd string, rest []string) {
 	if pullErr := runGitInherit([]string{"pull", "--rebase"}); pullErr != nil {
 		fmt.Fprintln(os.Stderr, "✗ auto pull --rebase failed — resolve conflicts then re-run `gitmap push`")
 		handleGitExit("git pull --rebase", pullErr)
-
 		return
 	}
 	fmt.Printf("→ Retrying: git %s (cwd: %s)\n", joinForLog(gitArgs), cwd)
@@ -96,53 +219,41 @@ func pushWithAutoRebase(cwd string, rest []string) {
 	}
 }
 
-// runGitCapturingStderr runs git, streaming stdio to the user while
-// tee-ing stderr to a buffer for pattern matching.
 func runGitCapturingStderr(gitArgs []string) (error, string) {
 	var buf bytes.Buffer
 	cmd := exec.Command("git", gitArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = io.MultiWriter(os.Stderr, &buf)
-
 	return cmd.Run(), buf.String()
 }
 
-// runGitInherit runs git with stdio fully inherited.
 func runGitInherit(gitArgs []string) error {
 	cmd := exec.Command("git", gitArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
 	return cmd.Run()
 }
 
-// isNonFastForwardRejection matches git's canonical non-fast-forward
-// rejection markers in captured stderr.
 func isNonFastForwardRejection(stderr string) bool {
 	lower := strings.ToLower(stderr)
 	if !strings.Contains(lower, "[rejected]") && !strings.Contains(lower, "failed to push some refs") {
 		return false
 	}
-
 	return strings.Contains(lower, "fetch first") || strings.Contains(lower, "non-fast-forward")
 }
 
-// handleGitExit translates a git ExitError into a clean process exit
-// preserving the underlying status code.
 func handleGitExit(label string, runErr error) {
 	var exitErr *exec.ExitError
 	if errors.As(runErr, &exitErr) {
 		exitWith(exitErr.ExitCode())
-
 		return
 	}
 	fmt.Fprintf(os.Stderr, "%s failed: %v\n", label, runErr)
 	exitWith(1)
 }
 
-// joinForLog renders argv as a space-separated banner for stdout.
 func joinForLog(args []string) string {
 	out := ""
 	for i, a := range args {
@@ -151,6 +262,5 @@ func joinForLog(args []string) string {
 		}
 		out += a
 	}
-
 	return out
 }

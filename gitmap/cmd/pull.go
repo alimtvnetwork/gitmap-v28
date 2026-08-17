@@ -81,6 +81,8 @@ func runPull(args []string) {
 	}
 
 	completePendingTask(taskDB, taskID)
+
+	runStatus([]string{})
 }
 
 // shouldPullCWD reports whether `gitmap pull` was invoked with no
@@ -364,14 +366,18 @@ func pullOneRepo(rec model.ScanRecord) {
 // pullOneRepoTracked runs safe-pull with progress tracking.
 func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	if cloner.IsMissingRepo(rec.AbsolutePath) {
-		prog.Skip()
+		prog.Skip(rec.RepoName)
 
 		return
 	}
 
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
 	if result.IsSuccess {
-		prog.Succeed()
+		if result.Notes == "up-to-date" {
+			prog.UpToDate(rec.RepoName)
+		} else {
+			prog.Succeed(rec.RepoName)
+		}
 	} else {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
