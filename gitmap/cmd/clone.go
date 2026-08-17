@@ -288,6 +288,8 @@ func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, o
 	cmdArgs := buildCommandArgs(append([]string{"clone"}, os.Args[2:]...))
 	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absPath, workDir, "clone", cmdArgs)
 
+	url = coerceURLToStoredTransport(url)
+
 	// `--output terminal`: emit the standardized per-repo block to
 	// stdout BEFORE the legacy "Cloning ..." line so the user sees
 	// branch/from/to/command up-front. No-op when output is empty,
@@ -304,6 +306,7 @@ func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, o
 			fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
 			os.Exit(1)
 		}
+		persistRecloneTransport(url)
 	} else {
 		if _, replaceErr := cloneReplacing(url, absPath); replaceErr != nil {
 			failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, replaceErr))
@@ -311,6 +314,7 @@ func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, o
 			fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, replaceErr)
 			os.Exit(1)
 		}
+		persistRecloneTransport(url)
 	}
 
 	fmt.Printf(constants.MsgCloneURLDone, repoName)

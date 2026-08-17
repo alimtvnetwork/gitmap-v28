@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.25.0] 2026-08-17
+### Added
+- **Reclone Transport Reuse**: Re-clone operations (`cfr`, `cfrp`, `clone-now`/`reclone`, direct-URL `clone`) now intelligently preserve the original transport (SSH vs HTTPS). An SSH-origin repo will never silently downgrade to HTTPS on reclone, resolving the browser-auth-free behavior loss. The used transport is logged in `gitmap history`.
+- **`gitmap code` command**: Added new command (aliases `vcode`, `vscode`) to open the current or argument folder in VS Code and append/update it in the Project Manager's `projects.json` via VS Code integration hooks.
+
+- **Files:** `gitmap/cmd/code.go` (new), `gitmap/cmd/code_test.go` (new), `gitmap/constants/constants_cli.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/cmd/rootcore.go`, `gitmap/cmd/clonefixrepo.go`, `gitmap/cmd/reporeclone.go`, `gitmap/cmd/clone.go`, `gitmap/cmd/clonemulti.go`, `gitmap/cmd/clonenow.go`, `gitmap/clonenow/clonenow.go`, `gitmap/clonenow/execute.go`, `gitmap/constants/constants.go` (`6.25.0`), `src/constants/index.ts` (`v6.25.0`), `version.json`, `README.md` (pin → v6.25.0), `CHANGELOG.md`.
+
 ## [v6.19.0] 2026-08-17
 ### Added
 - Added transport awareness to `gitmap clone` so it preserves the origin transport (SSH vs HTTPS) used during `gitmap scan` when cloning from a manifest file. This resolves fallback issues that triggered interactive browser authentication prompts.

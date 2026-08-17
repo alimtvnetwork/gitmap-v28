@@ -92,6 +92,8 @@ func topLevelCmds() map[string]string {
 		"CmdSf":                    CmdSf,
 		"CmdProbe":                 CmdProbe,
 		"CmdCode":                  CmdCode,
+		"CmdCodeAlias":             CmdCodeAlias,
+		"CmdCodeAlias2":            CmdCodeAlias2,
 		"CmdVSCodePMPath":          CmdVSCodePMPath,
 		"CmdVSCodePMPathAlias":     CmdVSCodePMPathAlias,
 		"CmdAlias":                 CmdAlias,

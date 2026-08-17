@@ -154,6 +154,8 @@ const (
 	CmdSf                    = "sf"
 	CmdProbe                 = "probe"
 	CmdCode                  = "code"
+	CmdCodeAlias             = "vcode"
+	CmdCodeAlias2            = "vscode"
 	CmdVSCodePMPath          = "vscode-pm-path"
 	CmdVSCodePMPathAlias     = "vpath"
 	// CmdVSCodeWorkspace emits a single `.code-workspace` file listing

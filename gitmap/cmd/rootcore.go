@@ -29,7 +29,7 @@ func coreDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdHasChange, constants.CmdHasChangeAlias}, func() { runHasChange(argsTail()) }},
 		{[]string{constants.CmdCloneNext, constants.CmdCloneNextAlias}, func() { runCloneNext(argsTail()) }},
 		{[]string{constants.CmdAs, constants.CmdAsAlias}, func() { runAs(argsTail()) }},
-		{[]string{constants.CmdCode}, func() { runCode(argsTail()) }},
+		{[]string{constants.CmdCode, constants.CmdCodeAlias, constants.CmdCodeAlias2}, func() { runCode(argsTail()) }},
 		{[]string{constants.CmdInject, constants.CmdInjectAlias}, func() { runInject(argsTail()) }},
 		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() { runOpen(argsTail()) }},
 		{[]string{constants.CmdCloneFrom, constants.CmdCloneFromAlias}, func() { runCloneFrom(argsTail()) }},

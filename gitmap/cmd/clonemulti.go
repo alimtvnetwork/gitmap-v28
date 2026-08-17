@@ -166,6 +166,8 @@ func executeDirectCloneOne(url, folderName string, ghDesktopFlag, noReplace bool
 		return fmt.Errorf("resolve abs path for %s: %w", folderName, err)
 	}
 
+	url = coerceURLToStoredTransport(url)
+
 	if noReplace {
 		if _, statErr := os.Stat(absPath); statErr == nil {
 			return fmt.Errorf("target exists: %s (use without --no-replace to replace)", absPath)
@@ -179,6 +181,7 @@ func executeDirectCloneOne(url, folderName string, ghDesktopFlag, noReplace bool
 		}
 	}
 
+	persistRecloneTransport(url)
 	upsertDirectClone(url, repoName, folderName, absPath)
 
 	if ghDesktopFlag {

@@ -130,11 +130,13 @@ func runRepoReclone(target string, yes bool) {
 	}
 
 	dest := filepath.Join(parent, folderName)
+	origin = coerceURLToStoredTransport(origin)
 	fmt.Printf(constants.MsgRepoRecloneCloning, origin, dest)
 	if cloneErr := runCloneCommand(origin, dest); cloneErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRepoRecloneClone, origin, dest, cloneErr)
 		os.Exit(1)
 	}
+	persistRecloneTransport(origin)
 
 	fmt.Printf(constants.MsgRepoRecloneDone, dest)
 	WriteShellHandoff(dest)

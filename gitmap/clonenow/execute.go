@@ -86,6 +86,9 @@ func Execute(plan Plan, cwd string, progress io.Writer) []Result {
 func executeRow(r Row, plan Plan, cwd string) Result {
 	start := time.Now()
 	url := r.PickURL(plan.Mode)
+	if plan.CoerceURL != nil {
+		url = plan.CoerceURL(url)
+	}
 	dest := r.RelativePath
 	absDest := dest
 	if !filepath.IsAbs(absDest) {
@@ -101,6 +104,9 @@ func executeRow(r Row, plan Plan, cwd string) Result {
 	}
 	state := inspectExistingRepo(absDest)
 	res := dispatchOnExists(r, url, absDest, cwd, plan.OnExists, state)
+	if plan.PersistURL != nil && res.Status == constants.CloneNowStatusOK {
+		plan.PersistURL(url)
+	}
 	res.Row = r
 	res.URL = url
 	res.Dest = dest

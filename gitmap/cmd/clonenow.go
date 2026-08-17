@@ -92,6 +92,8 @@ func runCloneNow(args []string) {
 	if err != nil {
 		cliexit.Fail(constants.CmdCloneReclone, "parse-manifest", cfg.file, err, 1)
 	}
+	plan.CoerceURL = coerceURLToStoredTransport
+	plan.PersistURL = persistRecloneTransport
 	validateRecloneManifestOrExit(plan)
 	if !cfg.execute {
 		runCloneNowDry(plan, cfg)

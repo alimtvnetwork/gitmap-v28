@@ -44,6 +44,12 @@ type Plan struct {
 	// Order matches the on-disk order so dry-run output is stable
 	// across runs of the same file.
 	Rows []Row
+	// CoerceURL rewrites a URL to its stored transport before cloning.
+	// Injected by the cmd layer to avoid circular dependencies.
+	CoerceURL func(string) string
+	// PersistURL records the actually-used transport after a successful clone.
+	// Injected by the cmd layer to avoid circular dependencies.
+	PersistURL func(string)
 }
 
 // Row is one scan-record-shaped clone target. Unlike clonefrom.Row
