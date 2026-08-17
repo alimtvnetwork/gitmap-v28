@@ -1,6 +1,6 @@
 ---
 Slug: reclone-transport-and-vscode-open
-Status: pending
+Status: completed
 Created: 2026-06-07
 ---
 
@@ -8,8 +8,9 @@ Created: 2026-06-07
 
 **Slug:** reclone-transport-and-vscode-open
 **Steps:** 5
-**Status:** pending
+**Status:** completed
 **Created:** 2026-06-07
+
 
 ## Context
 Two related gaps surfaced by the user:
