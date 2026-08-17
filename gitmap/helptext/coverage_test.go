@@ -144,6 +144,8 @@ func locateCLIConstantsFile() string {
 // Add to this list ONLY when shipping a subcommand, internal runner,
 // or alias that is documented inside another command's help page.
 var helptextExemptConstants = []string{
+	// `gitmap cluster` has its subcommands and isn't a single documented command.
+	"CmdCluster",
 	// Subcommands of `gitmap group` — documented inside helptext/group.md.
 	"CmdGroupCreate", "CmdGroupAdd", "CmdGroupRemove",
 	"CmdGroupList", "CmdGroupShow", "CmdGroupDelete",

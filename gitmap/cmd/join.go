@@ -30,7 +30,11 @@ func runJoin(args []string) {
 	address := positionalArgs[0]
 	fmt.Printf(constants.MsgJoinStarting+"\n", address)
 
-	client := cluster.NewNodeClient(address, *token)
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "unknown-node"
+	}
+	client := cluster.NewNodeClient(hostname, address, *token)
 	if err := client.Handshake(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrJoinFailed, err)
 		os.Exit(1)

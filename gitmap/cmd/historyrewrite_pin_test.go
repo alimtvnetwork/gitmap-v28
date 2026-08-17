@@ -73,6 +73,9 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 	cmd := exec.Command(pyBin, script)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
+		if strings.Contains(string(out), "Python was not found") {
+			t.Skip("python stub found but python is not installed; skipping")
+		}
 		t.Fatalf("python callback execution failed: %v\n%s", err, string(out))
 	}
 }

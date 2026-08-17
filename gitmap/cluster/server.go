@@ -4,21 +4,27 @@ import (
 	"errors"
 	"net"
 	"net/rpc"
+	"time"
 )
 
 // Server represents the orchestrator daemon.
 type Server struct {
-	token string
+	token    string
+	registry *Registry
 }
 
 // NewServer creates a new Server instance.
-func NewServer(token string) *Server {
-	return &Server{token: token}
+func NewServer(token string, heartbeatTimeout time.Duration) *Server {
+	return &Server{
+		token:    token,
+		registry: NewRegistry(heartbeatTimeout),
+	}
 }
 
 // HandshakeArgs contains the arguments for the Handshake RPC.
 type HandshakeArgs struct {
 	Token string
+	ID    string
 }
 
 // HandshakeReply contains the reply for the Handshake RPC.
@@ -32,6 +38,24 @@ func (s *Server) Handshake(args *HandshakeArgs, reply *HandshakeReply) error {
 		reply.Success = false
 		return errors.New("invalid join token")
 	}
+	s.registry.Register(args.ID)
+	reply.Success = true
+	return nil
+}
+
+// PingArgs contains the arguments for the Ping RPC.
+type PingArgs struct {
+	ID string
+}
+
+// PingReply contains the reply for the Ping RPC.
+type PingReply struct {
+	Success bool
+}
+
+// Ping updates the last seen time for a node.
+func (s *Server) Ping(args *PingArgs, reply *PingReply) error {
+	s.registry.Ping(args.ID)
 	reply.Success = true
 	return nil
 }

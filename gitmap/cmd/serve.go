@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -42,7 +43,7 @@ func runServe(args []string) {
 	fmt.Printf(constants.MsgServeToken+"\n", token)
 	fmt.Printf(constants.MsgServeJoinCommand, getLocalIP(), port, token)
 
-	server := cluster.NewServer(token)
+	server := cluster.NewServer(token, 30*time.Second)
 	go server.Serve(listener)
 
 	// Block until interrupted
