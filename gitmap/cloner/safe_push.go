@@ -26,29 +26,35 @@ func SafePushOne(rec model.ScanRecord, repoDir string) model.CloneResult {
 			log.Log("push attempt %d/%d for %s: exit=%v output=%s",
 				attempt, constants.SafePullRetryAttempts, rec.RepoName, err, trimOutput(output))
 		}
+		var successResult *model.CloneResult
 		if err == nil {
-			notes := ""
-			if strings.Contains(output, "Everything up-to-date") {
-				notes = "up-to-date"
-			}
-			return model.CloneResult{Record: rec, IsSuccess: true, Notes: notes}
+			successResult = &model.CloneResult{Record: rec, IsSuccess: true}
+		}
+		if successResult != nil && strings.Contains(output, "Everything up-to-date") {
+			successResult.Notes = "up-to-date"
+		}
+		if successResult != nil {
+			return *successResult
 		}
 
-		if isNonFastForwardRejection(output) {
-			if log != nil {
-				log.Log("push rejected (non-fast-forward) for %s — auto-running `git pull --rebase`", rec.RepoName)
-			}
-			pullOut, pullErr := runGitPullRebase(repoDir)
-			if log != nil {
-				log.Log("pull rebase output for %s: exit=%v output=%s", rec.RepoName, pullErr, trimOutput(pullOut))
-			}
-			if pullErr == nil {
-				// Retry push on next iteration
-				continue
-			} else {
-				lastError = fmt.Sprintf("auto pull --rebase failed: %v\n%s", pullErr, trimOutput(pullOut))
-				break
-			}
+		isNFF := isNonFastForwardRejection(output)
+		if isNFF && log != nil {
+			log.Log("push rejected (non-fast-forward) for %s — auto-running `git pull --rebase`", rec.RepoName)
+		}
+		var pullOut string
+		var pullErr error
+		if isNFF {
+			pullOut, pullErr = runGitPullRebase(repoDir)
+		}
+		if isNFF && log != nil {
+			log.Log("pull rebase output for %s: exit=%v output=%s", rec.RepoName, pullErr, trimOutput(pullOut))
+		}
+		if isNFF && pullErr == nil {
+			continue
+		}
+		if isNFF && pullErr != nil {
+			lastError = fmt.Sprintf("auto pull --rebase failed: %v\n%s", pullErr, trimOutput(pullOut))
+			break
 		}
 
 		lastError = fmt.Sprintf("push failed: %v\n%s", err, trimOutput(output))

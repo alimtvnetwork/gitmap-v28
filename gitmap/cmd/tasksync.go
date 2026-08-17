@@ -80,11 +80,11 @@ func syncOnce(entry model.TaskEntry, verbose, dryRun bool) {
 		}
 
 		relPath := relativePath(entry.Source, path)
-		if isIgnored(relPath, info.IsDir(), ignorePatterns) {
-			if info.IsDir() {
-				return filepath.SkipDir
-			}
-
+		ignored := isIgnored(relPath, info.IsDir(), ignorePatterns)
+		if ignored && info.IsDir() {
+			return filepath.SkipDir
+		}
+		if ignored {
 			return nil
 		}
 

@@ -52,11 +52,8 @@ func extractDocsZipEntry(f *zip.File, absTarget string, totalSize int64) (int64,
 		return 0, fmt.Errorf("illegal file path in zip: %s", f.Name)
 	}
 
-	if f.FileInfo().IsDir() {
-		if mkErr := os.MkdirAll(absDestPath, constants.DirPermission); mkErr != nil {
-			return 0, fmt.Errorf("create dir %s: %w", absDestPath, mkErr)
-		}
-		return 0, nil
+	if f.FileInfo().IsDir() == true {
+		return handleExtractDir(absDestPath)
 	}
 
 	if mkErr := os.MkdirAll(filepath.Dir(absDestPath), constants.DirPermission); mkErr != nil {
@@ -82,4 +79,13 @@ func extractDocsZipEntry(f *zip.File, absTarget string, totalSize int64) (int64,
 	}
 
 	return written, nil
+}
+
+// handleExtractDir creates a directory and returns an error if it fails.
+func handleExtractDir(absDestPath string) (int64, error) {
+	mkErr := os.MkdirAll(absDestPath, constants.DirPermission)
+	if mkErr != nil {
+		return 0, fmt.Errorf("create dir %s: %w", absDestPath, mkErr)
+	}
+	return 0, nil
 }

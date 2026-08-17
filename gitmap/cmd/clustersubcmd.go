@@ -29,12 +29,16 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 
 		isGit := cmdToken == "git"
 		isProj := cmdToken == "proj"
+		hasMinTokens := len(currentTokens) >= 2
+
+		if isGit == true && hasMinTokens == false {
+			return fmt.Errorf("missing git sub-command")
+		}
+		if isProj == true && hasMinTokens == false {
+			return fmt.Errorf("missing proj sub-command")
+		}
 
 		if isGit == true {
-			hasMinTokens := len(currentTokens) >= 2
-			if hasMinTokens == false {
-				return fmt.Errorf("missing git sub-command")
-			}
 			subToken := strings.ToLower(currentTokens[1])
 			switch subToken {
 			case "pull":
@@ -50,10 +54,6 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			}
 			rawArgParts = currentTokens[2:]
 		} else if isProj == true {
-			hasMinTokens := len(currentTokens) >= 2
-			if hasMinTokens == false {
-				return fmt.Errorf("missing proj sub-command")
-			}
 			subToken := strings.ToLower(currentTokens[1])
 			switch subToken {
 			case "run":
@@ -94,27 +94,34 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 
 	for _, token := range tokens {
 		isComma := token == ","
+		var err error
+
 		if isComma == true {
-			err := commitCurrent()
-			hasErr := err != nil
-			if hasErr == true {
-				return nil, err
-			}
+			err = commitCurrent()
+		}
+		if err != nil {
+			return nil, err
+		}
+		if isComma == true {
 			continue
 		}
 
 		hasCommaSuffix := strings.HasSuffix(token, ",")
+		stripped := strings.TrimSuffix(token, ",")
+		isStrippedEmpty := stripped == ""
+
+		if hasCommaSuffix == true && isStrippedEmpty == false {
+			currentTokens = append(currentTokens, stripped)
+		}
+
 		if hasCommaSuffix == true {
-			stripped := strings.TrimSuffix(token, ",")
-			isStrippedEmpty := stripped == ""
-			if isStrippedEmpty == false {
-				currentTokens = append(currentTokens, stripped)
-			}
-			err := commitCurrent()
-			hasErr := err != nil
-			if hasErr == true {
-				return nil, err
-			}
+			err = commitCurrent()
+		}
+
+		if err != nil {
+			return nil, err
+		}
+		if hasCommaSuffix == true {
 			continue
 		}
 

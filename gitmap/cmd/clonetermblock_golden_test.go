@@ -273,6 +273,15 @@ func renderGoldenBlock(t *testing.T, in CloneTermBlockInput) []byte {
 	return buf.Bytes()
 }
 
+func handleGoldenUpdate(t *testing.T, path string, got []byte) {
+	t.Helper()
+	err := os.WriteFile(path, got, 0o644)
+	if err != nil {
+		t.Fatalf("update golden %s: %v", path, err)
+	}
+	t.Logf("updated %s", path)
+}
+
 // TestCloneTermBlock_Golden is the CI guard: every clone-related
 // command's per-repo block must match its checked-in fixture. A diff
 // indicates either an intentional format change (update the golden
@@ -286,11 +295,7 @@ func TestCloneTermBlock_Golden(t *testing.T) {
 			got := renderGoldenBlock(t, tc.input)
 
 			if goldenguard.AllowUpdate(t, *updateGolden) {
-				if err := os.WriteFile(path, got, 0o644); err != nil {
-					t.Fatalf("update golden %s: %v", path, err)
-				}
-				t.Logf("updated %s", path)
-
+				handleGoldenUpdate(t, path, got)
 				return
 			}
 

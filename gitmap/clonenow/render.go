@@ -68,10 +68,12 @@ func RenderSummary(w io.Writer, results []Result) error {
 			r.Status, r.URL, r.Dest); err != nil {
 			return err
 		}
+		var detailErr error
 		if len(r.Detail) > 0 {
-			if _, err := fmt.Fprintf(w, "  (%s)", r.Detail); err != nil {
-				return err
-			}
+			_, detailErr = fmt.Fprintf(w, "  (%s)", r.Detail)
+		}
+		if detailErr != nil {
+			return detailErr
 		}
 		if _, err := fmt.Fprintln(w); err != nil {
 			return err

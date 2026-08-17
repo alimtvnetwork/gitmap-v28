@@ -87,18 +87,23 @@ func resolveMakeLastRepo(ctx ownerContext, base string) (string, int) {
 		return name, ver
 	}
 	// Cache miss — force refresh then retry.
-	if _, err := listOwnerReposCached(ctx.Provider, ctx.Owner, bulkFlags{CacheTTLSecs: 0, CacheTTLSet: true}); err == nil {
-		if name, ver, ok := lookupIndexHighest(ctx.Provider, ctx.Owner, base); ok {
-			return name, ver
-		}
+	_, errCache := listOwnerReposCached(ctx.Provider, ctx.Owner, bulkFlags{CacheTTLSecs: 0, CacheTTLSet: true})
+	nameRefresh, verRefresh, okRefresh := "", -1, false
+	if errCache == nil {
+		nameRefresh, verRefresh, okRefresh = lookupIndexHighest(ctx.Provider, ctx.Owner, base)
+	}
+	if okRefresh == true {
+		return nameRefresh, verRefresh
 	}
 	// Fallback: scan names in memory (works even when the index
 	// table isn't writable for some reason).
-	names, err := listOwnerReposCached(ctx.Provider, ctx.Owner, bulkFlags{})
-	if err == nil {
-		if name, ver, ok := visibility.HighestVersionedMatch(names, base); ok {
-			return name, ver
-		}
+	names, errFallback := listOwnerReposCached(ctx.Provider, ctx.Owner, bulkFlags{})
+	nameFallback, verFallback, okFallback := "", -1, false
+	if errFallback == nil {
+		nameFallback, verFallback, okFallback = visibility.HighestVersionedMatch(names, base)
+	}
+	if okFallback == true {
+		return nameFallback, verFallback
 	}
 
 	return "", -1

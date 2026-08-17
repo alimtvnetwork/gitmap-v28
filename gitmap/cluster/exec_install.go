@@ -17,28 +17,31 @@ type PackageResult struct {
 	Stderr      string
 }
 
-// detectPackageManager finds the first available package manager on the current OS.
 func detectPackageManager(ctx context.Context) (string, error) {
 	isWindows := runtime.GOOS == constants.WindowsOS
-	if isWindows == true {
-		managers := []string{constants.PkgMgrWinget, constants.PkgMgrChocolatey}
-		for _, mgr := range managers {
-			cmd := exec.CommandContext(ctx, mgr, constants.PkgMgrVersionArg)
-			err := cmd.Run()
-			isFound := err == nil
-			if isFound == true {
-				return mgr, nil
-			}
-		}
-	} else {
-		managers := []string{constants.PkgMgrBrew, constants.PkgMgrApt}
-		for _, mgr := range managers {
-			cmd := exec.CommandContext(ctx, mgr, constants.PkgMgrVersionArg)
-			err := cmd.Run()
-			isFound := err == nil
-			if isFound == true {
-				return mgr, nil
-			}
+	if isWindows {
+		return detectWindowsPackageManager(ctx)
+	}
+	return detectUnixPackageManager(ctx)
+}
+
+func detectWindowsPackageManager(ctx context.Context) (string, error) {
+	managers := []string{constants.PkgMgrWinget, constants.PkgMgrChocolatey}
+	return checkManagers(ctx, managers)
+}
+
+func detectUnixPackageManager(ctx context.Context) (string, error) {
+	managers := []string{constants.PkgMgrBrew, constants.PkgMgrApt}
+	return checkManagers(ctx, managers)
+}
+
+func checkManagers(ctx context.Context, managers []string) (string, error) {
+	for _, mgr := range managers {
+		cmd := exec.CommandContext(ctx, mgr, constants.PkgMgrVersionArg)
+		err := cmd.Run()
+		isFound := err == nil
+		if isFound {
+			return mgr, nil
 		}
 	}
 	return "", errors.New(constants.ErrNoPackageManager)

@@ -57,12 +57,14 @@ func runPull(args []string) {
 	}
 	records := resolvePullTargets(opts.slug, opts.group, opts.all)
 	fmt.Printf("  ↳ resolved %d repo(s) to pull\n", len(records))
-	if opts.onlyAvailable {
+	if opts.onlyAvailable == true {
 		records = filterByAvailableUpdates(records)
-		if len(records) == 0 {
-			fmt.Print(constants.MsgPullNoAvailable)
-			return
-		}
+	}
+
+	isAvailableEmpty := opts.onlyAvailable == true && len(records) == 0
+	if isAvailableEmpty == true {
+		fmt.Print(constants.MsgPullNoAvailable)
+		return
 	}
 
 	taskID, taskDB := beginPullTask(records)
@@ -166,11 +168,14 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			exitWith(exitErr.ExitCode())
-		}
+	err := cmd.Run()
+	var exitErr *exec.ExitError
+	isExitErr := err != nil && errors.As(err, &exitErr) == true
+
+	if isExitErr == true {
+		exitWith(exitErr.ExitCode())
+	}
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "git pull failed: %v\n", err)
 		exitWith(1)
 	}
@@ -294,12 +299,16 @@ func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {
 // lookupBySlugDBFirst tries the database first, then falls back to JSON.
 func lookupBySlugDBFirst(slug string) []model.ScanRecord {
 	db, err := openDB()
-	if err == nil {
-		defer db.Close()
-		repos, dbErr := db.FindBySlug(strings.ToLower(slug))
-		if dbErr == nil && len(repos) > 0 {
-			return repos
-		}
+	if err != nil {
+		return lookupBySlugJSON(slug)
+	}
+
+	defer db.Close()
+	repos, dbErr := db.FindBySlug(strings.ToLower(slug))
+
+	foundRepos := dbErr == nil && len(repos) > 0
+	if foundRepos == true {
+		return repos
 	}
 
 	return lookupBySlugJSON(slug)
@@ -386,13 +395,16 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	}
 
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
-	if result.IsSuccess {
-		if result.Notes == "up-to-date" {
-			prog.UpToDate(rec.RepoName)
-		} else {
-			prog.Succeed(rec.RepoName)
-		}
-	} else {
+	isUpToDate := result.IsSuccess == true && result.Notes == "up-to-date"
+	isSucceed := result.IsSuccess == true && result.Notes != "up-to-date"
+
+	if isUpToDate == true {
+		prog.UpToDate(rec.RepoName)
+	}
+	if isSucceed == true {
+		prog.Succeed(rec.RepoName)
+	}
+	if result.IsSuccess == false {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
 }

@@ -44,14 +44,7 @@ func loadStats(cmdFilter string) (model.OverallStats, []model.CommandStats) {
 	defer db.Close()
 
 	overall, err := db.QueryOverallStats()
-	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
-		fmt.Fprintf(os.Stderr, constants.ErrStatsQuery+"\n", err)
-		os.Exit(1)
-	}
+	handleStatsError(err)
 
 	commands := loadStatsCommands(db, cmdFilter)
 	overall.Commands = commands
@@ -66,19 +59,13 @@ func loadStatsCommands(db interface {
 }, cmdFilter string) []model.CommandStats {
 	if cmdFilter != "" {
 		records, err := db.QueryCommandStatsFor(cmdFilter)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrStatsQuery+"\n", err)
-			os.Exit(1)
-		}
+		handleStatsError(err)
 
 		return records
 	}
 
 	records, err := db.QueryCommandStats()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrStatsQuery+"\n", err)
-		os.Exit(1)
-	}
+	handleStatsError(err)
 
 	return records
 }
@@ -110,4 +97,16 @@ func printStatsJSON(overall model.OverallStats, commands []model.CommandStats) {
 	if err := encodeStatsJSON(os.Stdout, overall, commands); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to marshal stats to JSON: %v\n", err)
 	}
+}
+
+func handleStatsError(err error) {
+	if err == nil {
+		return
+	}
+	if isLegacyDataError(err) {
+		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stderr, constants.ErrStatsQuery+"\n", err)
+	os.Exit(1)
 }

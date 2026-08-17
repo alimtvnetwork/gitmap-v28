@@ -51,11 +51,7 @@ type Result struct {
 // Working directory: each clone runs in `cwd`. Empty cwd → use
 // the current process cwd at call time.
 func Execute(plan Plan, cwd string, progress io.Writer) []Result {
-	if len(cwd) == 0 {
-		if wd, err := os.Getwd(); err == nil {
-			cwd = wd
-		}
-	}
+	cwd = resolveCwd(cwd)
 	out := make([]Result, 0, len(plan.Rows))
 	for i, r := range plan.Rows {
 		res := executeRow(r, cwd)
@@ -108,25 +104,41 @@ func runGitClone(r Row, dest, cwd string) (string, bool) {
 	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Dir = cwd
 	out, err := cmd.CombinedOutput()
-	if err != nil {
-		outputStr := string(out)
-
-		// Attempt LFS smudge auto-fix
-		if file, isSmudge := detectLFSSmudgeError(outputStr); isSmudge {
-			fmt.Fprintf(os.Stderr, "\n[Warning] Git clone succeeded but checkout failed due to missing LFS object (404) for file: %s\n", file)
-			if confirmYesNo("Do you want to automatically drop this broken LFS pointer to fix the clone and push the fix?") {
-				if fixErr := executeLFSFix(dest, file); fixErr != nil {
-					return trimGitError(outputStr+"\n[LFS Fix Failed: "+fixErr.Error()+"]", err), false
-				}
-				// The fix was successful! The clone is now valid.
-				return "", true
-			}
-		}
-
-		return trimGitError(outputStr, err), false
+	if err == nil {
+		return "", true
 	}
 
+	outputStr := string(out)
+	file, isSmudge := detectLFSSmudgeError(outputStr)
+	if isSmudge {
+		return tryLfsAutoFix(dest, file, outputStr, err)
+	}
+
+	return trimGitError(outputStr, err), false
+}
+
+func tryLfsAutoFix(dest, file, outputStr string, originalErr error) (string, bool) {
+	fmt.Fprintf(os.Stderr, "\n[Warning] Git clone succeeded but checkout failed due to missing LFS object (404) for file: %s\n", file)
+	confirmed := confirmYesNo("Do you want to automatically drop this broken LFS pointer to fix the clone and push the fix?")
+	if !confirmed {
+		return trimGitError(outputStr, originalErr), false
+	}
+	fixErr := executeLFSFix(dest, file)
+	if fixErr != nil {
+		return trimGitError(outputStr+"\n[LFS Fix Failed: "+fixErr.Error()+"]", originalErr), false
+	}
 	return "", true
+}
+
+func resolveCwd(cwd string) string {
+	if len(cwd) > 0 {
+		return cwd
+	}
+	wd, err := os.Getwd()
+	if err == nil {
+		return wd
+	}
+	return ""
 }
 
 // buildGitArgs translates a Row + resolved dest into the git

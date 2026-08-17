@@ -239,15 +239,19 @@ func updateExisting(r Row, url, absDest string, state existingRepoState) Result 
 			Detail: fmt.Sprintf(constants.MsgCloneNowFetchFail, detail),
 		}
 	}
-	if len(r.Branch) > 0 && state.Branch != r.Branch {
-		if detail, ok := runGitCheckout(absDest, r.Branch); !ok {
-			return Result{
-				Status: constants.CloneNowStatusFailed,
-				Detail: fmt.Sprintf(constants.MsgCloneNowCheckoutFail,
-					r.Branch, detail),
-			}
+	if len(r.Branch) == 0 || state.Branch == r.Branch {
+		_ = url // url unused once update succeeds -- the existing remote stays.
+		return Result{Status: constants.CloneNowStatusOK, Detail: constants.MsgCloneNowUpdated}
+	}
+
+	if detail, ok := runGitCheckout(absDest, r.Branch); !ok {
+		return Result{
+			Status: constants.CloneNowStatusFailed,
+			Detail: fmt.Sprintf(constants.MsgCloneNowCheckoutFail,
+				r.Branch, detail),
 		}
 	}
+
 	_ = url // url unused once update succeeds -- the existing remote stays.
 
 	return Result{Status: constants.CloneNowStatusOK, Detail: constants.MsgCloneNowUpdated}

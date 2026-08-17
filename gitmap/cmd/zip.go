@@ -174,9 +174,13 @@ func executeZip(ctx context.Context, opts archive.CreateOptions, originalSrcs []
 	var historyID int64
 	if dbErr == nil {
 		defer db.Close()
-		if migErr := db.Migrate(); migErr == nil {
-			historyID = startArchiveRow(db, constants.ArchiveCmdZip, originalSrcs, string(opts.Mode))
-		}
+	}
+	migErr := error(nil)
+	if dbErr == nil {
+		migErr = db.Migrate()
+	}
+	if dbErr == nil && migErr == nil {
+		historyID = startArchiveRow(db, constants.ArchiveCmdZip, originalSrcs, string(opts.Mode))
 	}
 
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveBanner+"\n", constants.CmdZip, constants.Version)

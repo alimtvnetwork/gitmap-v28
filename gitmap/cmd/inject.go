@@ -91,12 +91,7 @@ func resolveInjectTarget(args []string) (string, error) {
 	positional := extractPositionalArgs(args)
 
 	if len(positional) == 0 {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return "", err
-		}
-
-		return cwd, nil
+		return os.Getwd()
 	}
 
 	if len(positional) > 1 {

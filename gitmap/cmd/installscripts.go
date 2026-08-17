@@ -112,12 +112,13 @@ func resolveScriptsDir() string {
 func resolveScriptsDirWindows() string {
 	candidates := []string{}
 
-	if exe, err := os.Executable(); err == nil {
-		if resolved, evalErr := filepath.EvalSymlinks(exe); evalErr == nil {
-			candidates = append(candidates, filepath.Join(filepath.Dir(resolved), "powershell.json"))
-		} else {
-			candidates = append(candidates, filepath.Join(filepath.Dir(exe), "powershell.json"))
-		}
+	exe, err := os.Executable()
+	resolved, evalErr := filepath.EvalSymlinks(exe)
+	if err == nil && evalErr == nil {
+		candidates = append(candidates, filepath.Join(filepath.Dir(resolved), "powershell.json"))
+	}
+	if err == nil && evalErr != nil {
+		candidates = append(candidates, filepath.Join(filepath.Dir(exe), "powershell.json"))
 	}
 
 	candidates = append(candidates,
@@ -136,11 +137,12 @@ func resolveScriptsDirWindows() string {
 			continue
 		}
 
+		drive := ""
 		if cfg.DeployPath != "" {
-			drive := filepath.VolumeName(cfg.DeployPath)
-			if drive != "" {
-				return filepath.Join(drive+"\\", "gitmap-scripts")
-			}
+			drive = filepath.VolumeName(cfg.DeployPath)
+		}
+		if drive != "" {
+			return filepath.Join(drive+"\\", "gitmap-scripts")
 		}
 	}
 

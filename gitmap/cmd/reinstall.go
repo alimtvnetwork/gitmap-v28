@@ -121,14 +121,16 @@ func executeReinstallRepo() {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Dir = constants.RepoPath
-	if err := cmd.Run(); err != nil {
-		exitCode := 1
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			exitCode = exitErr.ExitCode()
-		}
+	err := cmd.Run()
+	var exitErr *exec.ExitError
+	if err != nil && errors.As(err, &exitErr) {
+		exitCode := exitErr.ExitCode()
 		fmt.Fprintf(os.Stderr, constants.ErrReinstallScriptFailed, scriptName, exitCode)
 		os.Exit(exitCode)
+	}
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrReinstallScriptFailed, scriptName, 1)
+		os.Exit(1)
 	}
 }
 

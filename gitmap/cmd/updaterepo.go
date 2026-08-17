@@ -153,11 +153,13 @@ func promptRepoPath() string {
 			continue
 		}
 
-		if cloneRepoInto(absPath) {
+		cloned := cloneRepoInto(absPath)
+		root = ""
+		if cloned == true {
 			root = normalizeRepoPath(absPath)
-			if len(root) > 0 {
-				return root
-			}
+		}
+		if cloned == true && len(root) > 0 {
+			return root
 		}
 
 		fmt.Fprintf(os.Stderr, constants.ErrUpdatePathInvalid, path)

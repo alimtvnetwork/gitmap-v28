@@ -50,15 +50,15 @@ func reorderFlagsBeforeArgs(args []string) []string {
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if strings.HasPrefix(arg, "-") {
-			flags = append(flags, arg)
-			// If this flag takes a value, grab the next arg too.
-			if valueFlags[arg] && i+1 < len(args) {
-				i++
-				flags = append(flags, args[i])
-			}
-		} else {
+		isFlag := strings.HasPrefix(arg, "-")
+		if isFlag == false {
 			positional = append(positional, arg)
+			continue
+		}
+		flags = append(flags, arg)
+		if valueFlags[arg] == true && i+1 < len(args) {
+			i++
+			flags = append(flags, args[i])
 		}
 	}
 

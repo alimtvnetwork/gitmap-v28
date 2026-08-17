@@ -38,11 +38,11 @@ func loadExportData() model.DatabaseExport {
 	defer db.Close()
 
 	export, err := db.ExportAll()
+	if err != nil && isLegacyDataError(err) {
+		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+		os.Exit(1)
+	}
 	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
 		fmt.Fprintf(os.Stderr, constants.MsgExportFailed, err)
 		os.Exit(1)
 	}

@@ -32,15 +32,10 @@ func runSSHGenerate(args []string) {
 
 	keyPath = expandHome(keyPath)
 
-	if confirm {
-		fmt.Fprintf(os.Stdout, constants.MsgSSHConfirmPrompt, name, keyPath)
-		reader := bufio.NewReader(os.Stdin)
-		input, _ := reader.ReadString('\n')
-		if strings.TrimSpace(strings.ToLower(input)) != "y" {
-			fmt.Fprint(os.Stdout, constants.MsgSSHCanceled)
+	if confirm && askConfirm(name, keyPath) == false {
+		fmt.Fprint(os.Stdout, constants.MsgSSHCanceled)
 
-			return
-		}
+		return
 	}
 
 	db, err := openDB()
@@ -62,17 +57,14 @@ func runSSHGenerate(args []string) {
 		return
 	}
 	if keyExistsOnDisk(keyPath) && force {
-		if err := backupKeyForRegenerate(keyPath); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrSSHBackup, err)
-			os.Exit(1)
-		}
+		err2 := backupKeyForRegenerate(keyPath)
+		exitOnBackupError(err2)
 		fmt.Fprintf(os.Stdout, constants.MsgSSHBackedUp, keyPath)
 	}
 
-	if db.SSHKeyExists(name) && !force {
-		if !handleExistingKey(db, name, &keyPath) {
-			return
-		}
+	shouldHandle := db.SSHKeyExists(name) && !force
+	if shouldHandle && !handleExistingKey(db, name, &keyPath) {
+		return
 	}
 
 	generateAndStore(db, name, keyPath, email, host)
@@ -181,14 +173,14 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 
 	fingerprint := readFingerprint(keyPath)
 
-	if db.SSHKeyExists(name) {
-		if err := db.UpdateSSHKey(name, keyPath, string(pubKey), fingerprint, email); err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not update SSH key in DB: %v\n", err)
-		}
-	} else {
-		if _, err := db.InsertSSHKey(name, keyPath, string(pubKey), fingerprint, email); err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not save SSH key to DB: %v\n", err)
-		}
+	exists := db.SSHKeyExists(name)
+	if exists == true {
+		errUpdate := db.UpdateSSHKey(name, keyPath, string(pubKey), fingerprint, email)
+		printDBError(errUpdate, "update")
+	}
+	if exists == false {
+		_, errInsert := db.InsertSSHKey(name, keyPath, string(pubKey), fingerprint, email)
+		printDBError(errInsert, "save")
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHGenerated, name)
@@ -203,4 +195,30 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	copyPubKeyAndAnnounce(strings.TrimSpace(string(pubKey)))
 
 	updateSSHConfig(db)
+}
+
+func askConfirm(name, keyPath string) bool {
+	fmt.Fprintf(os.Stdout, constants.MsgSSHConfirmPrompt, name, keyPath)
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	return strings.TrimSpace(strings.ToLower(input)) == "y"
+}
+
+func exitOnBackupError(err error) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrSSHBackup, err)
+		os.Exit(1)
+	}
+}
+
+func printDBError(err error, action string) {
+	if err == nil {
+		return
+	}
+	if action == "update" {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not update SSH key in DB: %v\n", err)
+	}
+	if action == "save" {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not save SSH key to DB: %v\n", err)
+	}
 }

@@ -113,18 +113,28 @@ func csvRow(rec []string, idx csvIndex) (Row, string, error) {
 		Branch:   strings.TrimSpace(get(rec, idx.branch)),
 		Checkout: strings.ToLower(strings.TrimSpace(get(rec, idx.checkout))),
 	}
-	if depthStr := strings.TrimSpace(get(rec, idx.depth)); len(depthStr) > 0 {
-		d, err := strconv.Atoi(depthStr)
-		if err != nil {
-			return row, constants.CSVColumnDepth,
-				fmt.Errorf(constants.ErrCloneFromBadDepth, depthStr)
-		}
-		row.Depth = d
+	depthStr := strings.TrimSpace(get(rec, idx.depth))
+	row, col, err := applyDepth(row, depthStr)
+	if err != nil {
+		return row, col, err
 	}
+
 	if col, err := validateRowWithColumn(row); err != nil {
 		return row, col, err
 	}
 
+	return row, "", nil
+}
+
+func applyDepth(row Row, depthStr string) (Row, string, error) {
+	if len(depthStr) == 0 {
+		return row, "", nil
+	}
+	d, err := strconv.Atoi(depthStr)
+	if err != nil {
+		return row, constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromBadDepth, depthStr)
+	}
+	row.Depth = d
 	return row, "", nil
 }
 

@@ -88,11 +88,11 @@ func loadReleasesFromDB() []model.ReleaseRecord {
 	defer db.Close()
 
 	releases, err := db.ListReleases()
+	if err != nil && isLegacyDataError(err) {
+		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+		os.Exit(1)
+	}
 	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
 		fmt.Fprintf(os.Stderr, constants.ErrListReleasesFailed, err)
 		os.Exit(1)
 	}

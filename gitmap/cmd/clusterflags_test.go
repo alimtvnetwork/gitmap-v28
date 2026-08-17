@@ -96,17 +96,13 @@ func TestParseClusterFlags(t *testing.T) {
 			}
 
 			isIPsEmpty := len(got.OnlyIPs) == 0 && len(tt.wantIPs) == 0
-			if isIPsEmpty == false {
-				if !reflect.DeepEqual(got.OnlyIPs, tt.wantIPs) {
-					t.Errorf("OnlyIPs = %v, want %v", got.OnlyIPs, tt.wantIPs)
-				}
+			if isIPsEmpty == false && !reflect.DeepEqual(got.OnlyIPs, tt.wantIPs) {
+				t.Errorf("OnlyIPs = %v, want %v", got.OnlyIPs, tt.wantIPs)
 			}
 
 			isIDsEmpty := len(got.OnlyIDs) == 0 && len(tt.wantIDs) == 0
-			if isIDsEmpty == false {
-				if !reflect.DeepEqual(got.OnlyIDs, tt.wantIDs) {
-					t.Errorf("OnlyIDs = %v, want %v", got.OnlyIDs, tt.wantIDs)
-				}
+			if isIDsEmpty == false && !reflect.DeepEqual(got.OnlyIDs, tt.wantIDs) {
+				t.Errorf("OnlyIDs = %v, want %v", got.OnlyIDs, tt.wantIDs)
 			}
 
 			if got.AutoConfirm != tt.wantAuto {
@@ -120,10 +116,8 @@ func TestParseClusterFlags(t *testing.T) {
 			}
 
 			isPosEmpty := len(pos) == 0 && len(tt.wantPos) == 0
-			if isPosEmpty == false {
-				if !reflect.DeepEqual(pos, tt.wantPos) {
-					t.Errorf("pos = %v, want %v", pos, tt.wantPos)
-				}
+			if isPosEmpty == false && !reflect.DeepEqual(pos, tt.wantPos) {
+				t.Errorf("pos = %v, want %v", pos, tt.wantPos)
 			}
 		})
 	}

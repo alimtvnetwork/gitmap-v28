@@ -110,12 +110,19 @@ func firstPathSegment(url string) string {
 	trimmed = strings.TrimSuffix(trimmed, ".git")
 
 	// git@host:owner/repo form — owner is the segment after ':'.
-	if idx := strings.Index(trimmed, "@"); idx >= 0 && !strings.Contains(trimmed[:idx], "/") {
-		if colon := strings.Index(trimmed[idx:], ":"); colon >= 0 {
-			rest := trimmed[idx+colon+1:]
+	idx := strings.Index(trimmed, "@")
+	hasNoSlash := false
+	if idx >= 0 {
+		hasNoSlash = !strings.Contains(trimmed[:idx], "/")
+	}
+	colon := -1
+	if idx >= 0 && hasNoSlash == true {
+		colon = strings.Index(trimmed[idx:], ":")
+	}
+	if idx >= 0 && hasNoSlash == true && colon >= 0 {
+		rest := trimmed[idx+colon+1:]
 
-			return strings.Split(strings.TrimLeft(rest, "/"), "/")[0]
-		}
+		return strings.Split(strings.TrimLeft(rest, "/"), "/")[0]
 	}
 
 	// Strip scheme (https://, http://, ssh://, git://).

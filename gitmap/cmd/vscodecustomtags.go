@@ -87,11 +87,10 @@ func matchSingleTagFlag(args []string, i int, name string) (hit bool, value stri
 	long := "--" + name
 	short := "-" + name
 	for _, prefix := range []string{long, short} {
+		if tok == prefix && i+1 >= len(args) {
+			return true, "", 1
+		}
 		if tok == prefix {
-			if i+1 >= len(args) {
-				return true, "", 1
-			}
-
 			return true, args[i+1], 2
 		}
 		if strings.HasPrefix(tok, prefix+"=") {

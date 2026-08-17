@@ -86,10 +86,13 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	if flags.ExceptLatest {
 		fmt.Fprint(os.Stdout, constants.MsgBulkExceptLatest)
 		matches, latestInvert = splitExceptLatest(matches, os.Stdout, inverted)
-		if len(matches) == 0 && len(latestInvert) == 0 {
-			fmt.Fprint(os.Stderr, constants.MsgBulkNoMatches)
-			os.Exit(constants.ExitVisOK)
-		}
+	}
+	isEmptyMatch := len(matches) == 0
+	isEmptyInvert := len(latestInvert) == 0
+	isExceptEmpty := flags.ExceptLatest == true && isEmptyMatch == true && isEmptyInvert == true
+	if isExceptEmpty == true {
+		fmt.Fprint(os.Stderr, constants.MsgBulkNoMatches)
+		os.Exit(constants.ExitVisOK)
 	}
 	combined := append(append([]visibility.MatchedRepo{}, matches...), latestInvert...)
 	audit := beginRunAudit(ctx, target, cmdName, patternsRaw, flags, ownerTotal, combined)
@@ -160,10 +163,12 @@ func parseBulkArgs(args []string) (string, string, bulkFlags) {
 		case a == constants.FlagBulkExceptLatest || a == constants.FlagBulkExceptLatestShort:
 			flags.ExceptLatest = true
 		case strings.HasPrefix(a, constants.FlagBulkParallel+"="):
-			if n, err := strconv.Atoi(strings.TrimPrefix(a, constants.FlagBulkParallel+"=")); err == nil && n > 0 {
-				if n > constants.MaxBulkParallelism {
-					n = constants.MaxBulkParallelism
-				}
+			n, err := strconv.Atoi(strings.TrimPrefix(a, constants.FlagBulkParallel+"="))
+			isValid := err == nil && n > 0
+			if isValid == true && n > constants.MaxBulkParallelism {
+				n = constants.MaxBulkParallelism
+			}
+			if isValid == true {
 				flags.Parallel = n
 			}
 		case strings.HasPrefix(a, constants.FlagBulkCacheTTL+"="):

@@ -67,15 +67,24 @@ func announceClonePickPersistence(plan clonepick.Plan, result clonepick.Result, 
 	case replayId > 0 && result.Status == clonepick.StatusOK:
 		fmt.Fprintf(os.Stderr, constants.MsgClonePickReplayed,
 			replayId, plan.RepoCanonicalId, name)
-		if !plan.DryRun && db != nil {
-			if err := clonepick.TouchAfterReplay(db, replayId, plan.DryRun); err != nil {
-				cliexit.Reportf(constants.CmdClonePick, "touch-replay",
-					strconv.FormatInt(replayId, 10), err)
-			}
-		}
+		touchAfterReplay(plan, db, replayId)
 	case result.SelectionId > 0:
 		fmt.Fprintf(os.Stderr, constants.MsgClonePickSaved,
 			result.SelectionId, plan.RepoCanonicalId, name)
+	}
+}
+
+func touchAfterReplay(plan clonepick.Plan, db *store.DB, replayId int64) {
+	if plan.DryRun == true {
+		return
+	}
+	if db == nil {
+		return
+	}
+	err := clonepick.TouchAfterReplay(db, replayId, plan.DryRun)
+	if err != nil {
+		cliexit.Reportf(constants.CmdClonePick, "touch-replay",
+			strconv.FormatInt(replayId, 10), err)
 	}
 }
 

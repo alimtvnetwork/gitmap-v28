@@ -47,16 +47,24 @@ func executeAliasSetCode(alias, slug string) int {
 
 	repoID := repos[0].ID
 
-	if db.AliasExists(alias) {
-		if err := db.UpdateAlias(alias, repoID); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-			return 1
-		}
-		fmt.Printf(constants.MsgAliasUpdated, alias, slug)
-		printHints(aliasSetHints())
-		return 0
+	if db.AliasExists(alias) == true {
+		return updateAliasAndReturn(db, alias, repoID, slug)
 	}
 
+	return createAliasAndReturnCode(db, alias, repoID, slug)
+}
+
+func updateAliasAndReturn(db *store.DB, alias string, repoID int64, slug string) int {
+	if err := db.UpdateAlias(alias, repoID); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
+		return 1
+	}
+	fmt.Printf(constants.MsgAliasUpdated, alias, slug)
+	printHints(aliasSetHints())
+	return 0
+}
+
+func createAliasAndReturnCode(db *store.DB, alias string, repoID int64, slug string) int {
 	if _, err := db.CreateAlias(alias, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 		return 1

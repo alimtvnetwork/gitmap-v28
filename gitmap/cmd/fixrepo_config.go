@@ -56,20 +56,25 @@ func loadFixRepoConfig(explicit, repoRoot string) {
 // config is present, or an error when an explicit path is missing.
 func resolveFixRepoConfigPath(explicit, repoRoot string) (string, error) {
 	if explicit != "" {
-		info, err := os.Stat(explicit)
-		if err != nil || info.IsDir() {
-			return "", fmt.Errorf("config file not found: %s", explicit)
-		}
-
-		return explicit, nil
+		return resolveExplicitConfigPath(explicit)
 	}
+
 	def := filepath.Join(repoRoot, constants.FixRepoConfigFileName)
 	info, err := os.Stat(def)
-	if err != nil || info.IsDir() {
+	if err != nil || info.IsDir() == true {
 		return "", nil
 	}
 
 	return def, nil
+}
+
+func resolveExplicitConfigPath(explicit string) (string, error) {
+	info, err := os.Stat(explicit)
+	if err != nil || info.IsDir() == true {
+		return "", fmt.Errorf("config file not found: %s", explicit)
+	}
+
+	return explicit, nil
 }
 
 // readFixRepoConfig reads + decodes the JSON config file.
@@ -145,12 +150,12 @@ func globToRegex(pattern string) string {
 // 15-line function-length cap.
 func appendGlobChar(b *strings.Builder, pattern string, i int) int {
 	ch := pattern[i]
-	if ch == '*' {
-		if i+1 < len(pattern) && pattern[i+1] == '*' {
-			b.WriteString(".*")
+	if ch == '*' && i+1 < len(pattern) && pattern[i+1] == '*' {
+		b.WriteString(".*")
 
-			return i + 1
-		}
+		return i + 1
+	}
+	if ch == '*' {
 		b.WriteString("[^/]*")
 
 		return i

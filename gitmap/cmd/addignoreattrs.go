@@ -226,16 +226,15 @@ func collapseBlankRuns(lines []string, maxBlank int) []string {
 	out := make([]string, 0, len(lines))
 	run := 0
 	for i, line := range lines {
-		if strings.TrimSpace(line) == "" {
-			run++
-			if i > lastNonBlank || run <= maxBlank {
-				out = append(out, line)
-			}
-
+		if strings.TrimSpace(line) != "" {
+			run = 0
+			out = append(out, line)
 			continue
 		}
-		run = 0
-		out = append(out, line)
+		run++
+		if i > lastNonBlank || run <= maxBlank {
+			out = append(out, line)
+		}
 	}
 
 	return out
@@ -259,16 +258,16 @@ func buildAddTag(kind string, langs []string) string {
 // insideGitRepo check makes that path defensive only.
 func repoFilePath(name string) (string, error) {
 	root, err := gitTopLevel()
-	if err != nil || strings.TrimSpace(root) == "" {
-		cwd, cwdErr := os.Getwd()
-		if cwdErr != nil {
-			return "", cwdErr
-		}
-
-		return filepath.Join(cwd, name), nil
+	if err == nil && strings.TrimSpace(root) != "" {
+		return filepath.Join(root, name), nil
 	}
 
-	return filepath.Join(root, name), nil
+	cwd, cwdErr := os.Getwd()
+	if cwdErr != nil {
+		return "", cwdErr
+	}
+
+	return filepath.Join(cwd, name), nil
 }
 
 // printAddTemplateBanner mirrors the visual idiom of `add lfs-install`.

@@ -93,10 +93,12 @@ func computeFixRepoSpan(mode string, current int) int {
 	case "--" + constants.FixRepoFlagAll:
 		return current - 1
 	}
-	if strings.HasPrefix(mode, "-") {
-		if n, err := strconv.Atoi(mode[1:]); err == nil && n > 0 {
-			return n
-		}
+	if strings.HasPrefix(mode, "-") == false {
+		return constants.FixRepoDefaultSpan
+	}
+	n, err := strconv.Atoi(mode[1:])
+	if err == nil && n > 0 {
+		return n
 	}
 
 	return constants.FixRepoDefaultSpan

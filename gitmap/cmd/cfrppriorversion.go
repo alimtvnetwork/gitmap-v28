@@ -104,7 +104,8 @@ func scanPriorPublicSlugs(ctx visibilityContext, base string, current int) []str
 
 	for i := 1; i <= constants.CFRPPriorMaxLookback; i++ {
 		ver := current - i
-		if ver < 1 {
+		isValidVer := ver >= 1
+		if isValidVer == false {
 			break
 		}
 
@@ -112,17 +113,24 @@ func scanPriorPublicSlugs(ctx visibilityContext, base string, current int) []str
 		sub := visibilityContext{Provider: ctx.Provider, Slug: slug, URL: ctx.URL}
 
 		state, err := readVisibilitySoft(sub, false)
-		if err != nil || len(state) == 0 {
-			misses++
-			if misses >= 2 {
-				break
-			}
+		hasValidState := err == nil && len(state) > 0
 
+		if hasValidState == false {
+			misses++
+		}
+
+		isMaxMisses := misses >= 2
+		if isMaxMisses == true {
+			break
+		}
+
+		if hasValidState == false {
 			continue
 		}
 
 		misses = 0
-		if state == constants.VisibilityPublic {
+		isPublic := state == constants.VisibilityPublic
+		if isPublic == true {
 			publicSlugs = append(publicSlugs, slug)
 		}
 	}

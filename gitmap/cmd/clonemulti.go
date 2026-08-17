@@ -168,17 +168,9 @@ func executeDirectCloneOne(url, folderName string, ghDesktopFlag, noReplace bool
 
 	url = coerceURLToStoredTransport(url)
 
-	if noReplace {
-		if _, statErr := os.Stat(absPath); statErr == nil {
-			return fmt.Errorf("target exists: %s (use without --no-replace to replace)", absPath)
-		}
-		if cloneErr := runCloneCommand(url, absPath); cloneErr != nil {
-			return fmt.Errorf("git clone: %w", cloneErr)
-		}
-	} else {
-		if _, replaceErr := cloneReplacing(url, absPath); replaceErr != nil {
-			return fmt.Errorf("clone-replace: %w", replaceErr)
-		}
+	errClone := executeCloneStrategy(url, absPath, noReplace)
+	if errClone != nil {
+		return errClone
 	}
 
 	persistRecloneTransport(url)
@@ -207,4 +199,31 @@ func resolveCloneFolder(repoName, folderName string) string {
 	}
 
 	return repoName
+}
+
+func executeCloneStrategy(url string, absPath string, noReplace bool) error {
+	if noReplace == true {
+		return handleNoReplaceClone(url, absPath)
+	}
+	return handleReplaceClone(url, absPath)
+}
+
+func handleNoReplaceClone(url string, absPath string) error {
+	_, statErr := os.Stat(absPath)
+	if statErr == nil {
+		return fmt.Errorf("target exists: %s (use without --no-replace to replace)", absPath)
+	}
+	cloneErr := runCloneCommand(url, absPath)
+	if cloneErr != nil {
+		return fmt.Errorf("git clone: %w", cloneErr)
+	}
+	return nil
+}
+
+func handleReplaceClone(url string, absPath string) error {
+	_, replaceErr := cloneReplacing(url, absPath)
+	if replaceErr != nil {
+		return fmt.Errorf("clone-replace: %w", replaceErr)
+	}
+	return nil
 }

@@ -224,9 +224,7 @@ func parseTagLines(repoPath string, lines []string) []model.TagInfo {
 		count := 0
 		if i < len(lines)-1 {
 			nextFields := strings.SplitN(lines[i+1], "|", 3)
-			if len(nextFields) >= 1 {
-				count = queryTagDistance(repoPath, nextFields[0], fields[0])
-			}
+			count = resolveTagDistance(repoPath, fields[0], nextFields)
 		}
 
 		tags = append(tags, model.TagInfo{
@@ -238,4 +236,11 @@ func parseTagLines(repoPath string, lines []string) []model.TagInfo {
 	}
 
 	return tags
+}
+
+func resolveTagDistance(repoPath, field string, nextFields []string) int {
+	if len(nextFields) >= 1 {
+		return queryTagDistance(repoPath, nextFields[0], field)
+	}
+	return 0
 }

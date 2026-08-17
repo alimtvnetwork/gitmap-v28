@@ -194,10 +194,11 @@ func consumeFixRepoConfigArg(args []string, i int, out *fixRepoOptions) (int, bo
 	low := strings.ToLower(a)
 	bareLong := "--" + constants.FixRepoFlagConfig
 	bareShort := "-" + constants.FixRepoFlagConfig
-	if low == bareLong || low == bareShort {
-		if i+1 >= len(args) {
-			return 0, true, errors.New("--config requires a path")
-		}
+	matchBare := low == bareLong || low == bareShort
+	if matchBare == true && i+1 >= len(args) {
+		return 0, true, errors.New("--config requires a path")
+	}
+	if matchBare == true {
 		out.configPath = args[i+1]
 
 		return 2, true, nil
@@ -227,11 +228,11 @@ func consumeFixRepoRestrictArg(args []string, i int, out *fixRepoOptions) (int, 
 	bareLong := "--" + constants.FixRepoFlagRestrict
 	bareShort := "-" + constants.FixRepoFlagRestrict
 	bareTiny := "-" + constants.FixRepoFlagRestrictShort
-	if low == bareLong || low == bareShort || low == bareTiny {
-		if i+1 >= len(args) {
-			return 0, true, fmt.Errorf("%s requires a value (no-version|nv)", a)
-		}
-
+	matchBare := low == bareLong || low == bareShort || low == bareTiny
+	if matchBare == true && i+1 >= len(args) {
+		return 0, true, fmt.Errorf("%s requires a value (no-version|nv)", a)
+	}
+	if matchBare == true {
 		return 2, true, applyRestrictValue(out, args[i+1])
 	}
 	for _, p := range []string{bareLong + "=", bareShort + "=", bareTiny + "="} {
@@ -268,11 +269,10 @@ func consumeFixRepoGofmtMaxArg(args []string, i int, out *fixRepoOptions) (int, 
 	low := strings.ToLower(a)
 	bare := "--" + constants.FixRepoFlagGofmtMaxCmdLen
 	prefix := bare + "="
+	if low == bare && i+1 >= len(args) {
+		return 0, true, fmt.Errorf("%s requires a positive integer", a)
+	}
 	if low == bare {
-		if i+1 >= len(args) {
-			return 0, true, fmt.Errorf("%s requires a positive integer", a)
-		}
-
 		return 2, true, applyGofmtMaxCmdLen(out, args[i+1])
 	}
 	if strings.HasPrefix(low, prefix) {

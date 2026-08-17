@@ -46,12 +46,13 @@ func runUpdateRemoteInstall() bool {
 	defer os.Remove(scriptPath)
 
 	fmt.Printf(constants.MsgUpdateRemoteRun, scriptPath)
-	if err := runRemoteInstaller(scriptPath); err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			os.Exit(exitErr.ExitCode())
-		}
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateRemoteRun, err)
+	errRun := runRemoteInstaller(scriptPath)
+	var exitErr *exec.ExitError
+	if errRun != nil && errors.As(errRun, &exitErr) == true {
+		os.Exit(exitErr.ExitCode())
+	}
+	if errRun != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrUpdateRemoteRun, errRun)
 		return false
 	}
 
@@ -124,16 +125,22 @@ func runRemoteInstaller(scriptPath string) error {
 			"-ExecutionPolicy", "Bypass",
 			"-NoProfile", "-NoLogo",
 			"-File", scriptPath)
-	} else {
-		shell := "bash"
-		if _, err := exec.LookPath(shell); err != nil {
-			shell = "sh"
-		}
-		cmd = exec.Command(shell, scriptPath)
+	}
+	if runtime.GOOS != "windows" {
+		cmd = exec.Command(getUnixShell(), scriptPath)
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Dir = filepath.Dir(scriptPath)
 	return cmd.Run()
+}
+
+func getUnixShell() string {
+	shell := "bash"
+	_, errLook := exec.LookPath(shell)
+	if errLook != nil {
+		shell = "sh"
+	}
+	return shell
 }

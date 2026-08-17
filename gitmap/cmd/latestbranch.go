@@ -51,15 +51,17 @@ func validateLatestBranchRepo() {
 
 // fetchLatestBranchRefs fetches remotes when shouldFetch is enabled.
 func fetchLatestBranchRefs(cfg latestBranchConfig) {
-	if cfg.shouldFetch {
-		isTerminal := cfg.format == constants.OutputTerminal
-		if isTerminal {
-			fmt.Println(constants.MsgLatestBranchFetching)
-		}
-		err := gitutil.FetchAllPrune()
-		if err != nil && isTerminal {
-			fmt.Fprintf(os.Stderr, constants.MsgLatestBranchFetchWarning, err)
-		}
+	if !cfg.shouldFetch {
+		return
+	}
+
+	isTerminal := cfg.format == constants.OutputTerminal
+	if isTerminal {
+		fmt.Println(constants.MsgLatestBranchFetching)
+	}
+	err := gitutil.FetchAllPrune()
+	if err != nil && isTerminal {
+		fmt.Fprintf(os.Stderr, constants.MsgLatestBranchFetchWarning, err)
 	}
 }
 
@@ -88,32 +90,32 @@ func printNoRefsError(cfg latestBranchConfig) {
 
 // applyRemoteFilter filters refs by remote when filterByRemote is set.
 func applyRemoteFilter(refs []string, cfg latestBranchConfig) []string {
-	if cfg.filterByRemote {
-		filtered := gitutil.FilterByRemote(refs, cfg.remote)
-		if len(filtered) == 0 {
-			fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoRefs, cfg.remote)
-			os.Exit(1)
-		}
-
-		return filtered
+	if !cfg.filterByRemote {
+		return refs
 	}
 
-	return refs
+	filtered := gitutil.FilterByRemote(refs, cfg.remote)
+	if len(filtered) == 0 {
+		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoRefs, cfg.remote)
+		os.Exit(1)
+	}
+
+	return filtered
 }
 
 // applyPatternFilter filters refs by glob/substring when filter is set.
 func applyPatternFilter(refs []string, cfg latestBranchConfig) []string {
-	if len(cfg.filter) > 0 {
-		filtered := gitutil.FilterByPattern(refs, cfg.filter)
-		if len(filtered) == 0 {
-			fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoMatch, cfg.filter)
-			os.Exit(1)
-		}
-
-		return filtered
+	if len(cfg.filter) == 0 {
+		return refs
 	}
 
-	return refs
+	filtered := gitutil.FilterByPattern(refs, cfg.filter)
+	if len(filtered) == 0 {
+		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoMatch, cfg.filter)
+		os.Exit(1)
+	}
+
+	return filtered
 }
 
 // readAndSortBranches reads tip commits and sorts by the given order.

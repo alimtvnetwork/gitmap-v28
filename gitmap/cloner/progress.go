@@ -78,12 +78,17 @@ func (p *Progress) Done(result model.CloneResult, pulled bool) {
 	name := repoDisplayName(result.Record)
 	if spinner, ok := p.spinners[name]; ok {
 		elapsed := time.Since(p.start)
-		if pulled {
-			spinner.Success(fmt.Sprintf("%s updated (pull) in %s", name, formatDuration(elapsed)))
-		} else {
-			spinner.Success(fmt.Sprintf("%s cloned in %s", name, formatDuration(elapsed)))
-		}
+		handleSpinnerSuccess(spinner, name, elapsed, pulled)
 		delete(p.spinners, name)
+	}
+}
+
+func handleSpinnerSuccess(spinner *pterm.SpinnerPrinter, name string, elapsed time.Duration, pulled bool) {
+	if pulled {
+		spinner.Success(fmt.Sprintf("%s updated (pull) in %s", name, formatDuration(elapsed)))
+	}
+	if !pulled {
+		spinner.Success(fmt.Sprintf("%s cloned in %s", name, formatDuration(elapsed)))
 	}
 }
 

@@ -29,11 +29,11 @@ func installTool(opts installOptions) {
 	fmt.Printf("  | Command: %s\n", strings.Join(installCmd, " "))
 	fmt.Printf("  +--------------------------------------\n\n")
 
-	if opts.DryRun {
-		if manager == constants.PkgMgrApt {
-			fmt.Printf(constants.MsgInstallDryCmd, "sudo apt-get update")
-		}
+	if opts.DryRun && manager == constants.PkgMgrApt {
+		fmt.Printf(constants.MsgInstallDryCmd, "sudo apt-get update")
+	}
 
+	if opts.DryRun {
 		fmt.Printf(constants.MsgInstallDryCmd, strings.Join(installCmd, " "))
 
 		return
@@ -192,29 +192,33 @@ func runInstallCommand(args []string, opts installOptions) {
 		output, err = cmd.CombinedOutput()
 	}
 
-	if err != nil {
-		manager := resolvePackageManager(opts.Manager)
-		logPath := writeInstallErrorLog(opts.Tool, manager, opts.Version, args, output, err)
+	if err == nil {
+		fmt.Printf("  ✓ %s install command completed successfully.\n", opts.Tool)
 
-		fmt.Fprintf(os.Stderr, constants.ErrInstallFailed, opts.Tool)
-
-		versionLabel := opts.Version
-		if versionLabel == "" {
-			versionLabel = "latest"
-		}
-
-		fmt.Fprintf(os.Stderr, constants.ErrInstallFailedVersion, versionLabel)
-		fmt.Fprintf(os.Stderr, constants.ErrInstallFailedManager, manager)
-		fmt.Fprintf(os.Stderr, constants.ErrInstallFailedCmd, strings.Join(args, " "))
-		fmt.Fprintf(os.Stderr, constants.ErrInstallFailedReason, err)
-
-		if logPath != "" {
-			fmt.Fprintf(os.Stderr, constants.ErrInstallFailedLog, logPath)
-			fmt.Fprint(os.Stderr, constants.ErrInstallFailedHint)
-		}
-
-		os.Exit(1)
+		return
 	}
+
+	manager := resolvePackageManager(opts.Manager)
+	logPath := writeInstallErrorLog(opts.Tool, manager, opts.Version, args, output, err)
+
+	fmt.Fprintf(os.Stderr, constants.ErrInstallFailed, opts.Tool)
+
+	versionLabel := opts.Version
+	if versionLabel == "" {
+		versionLabel = "latest"
+	}
+
+	fmt.Fprintf(os.Stderr, constants.ErrInstallFailedVersion, versionLabel)
+	fmt.Fprintf(os.Stderr, constants.ErrInstallFailedManager, manager)
+	fmt.Fprintf(os.Stderr, constants.ErrInstallFailedCmd, strings.Join(args, " "))
+	fmt.Fprintf(os.Stderr, constants.ErrInstallFailedReason, err)
+
+	if logPath != "" {
+		fmt.Fprintf(os.Stderr, constants.ErrInstallFailedLog, logPath)
+		fmt.Fprint(os.Stderr, constants.ErrInstallFailedHint)
+	}
+
+	os.Exit(1)
 
 	fmt.Printf("  ✓ %s install command completed successfully.\n", opts.Tool)
 }

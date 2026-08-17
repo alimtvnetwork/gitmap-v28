@@ -84,20 +84,21 @@ func executeProjectRun(ctx context.Context, projName, absPath string) ProjRunRes
 
 	_, errPs1 := os.Stat(ps1Path)
 	hasPs1 := errPs1 == nil
-
-	if hasPs1 == true {
+	if hasPs1 {
 		cmd = exec.CommandContext(ctx, cmdPwsh, flagNonInteractive, flagFile, ps1Path)
-	} else {
-		_, errSh := os.Stat(shPath)
-		hasSh := errSh == nil
-		if hasSh == true {
-			cmd = exec.CommandContext(ctx, cmdSh, shPath)
-		} else {
-			return ProjRunResult{
-				ProjectName: projName,
-				Succeeded:   false,
-				Stderr:      msgNoRunScript,
-			}
+	}
+
+	_, errSh := os.Stat(shPath)
+	hasSh := errSh == nil
+	if !hasPs1 && hasSh {
+		cmd = exec.CommandContext(ctx, cmdSh, shPath)
+	}
+
+	if !hasPs1 && !hasSh {
+		return ProjRunResult{
+			ProjectName: projName,
+			Succeeded:   false,
+			Stderr:      msgNoRunScript,
 		}
 	}
 

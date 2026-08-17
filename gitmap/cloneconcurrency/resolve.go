@@ -31,17 +31,14 @@ func Resolve(n int) (int, bool) {
 	if n < 0 {
 		return 0, false
 	}
-	if n == 0 {
-		w := runtime.NumCPU()
-		if w < 1 {
-			// runtime.NumCPU returning <1 is theoretically impossible
-			// per the Go spec but cheap to defend against — guarantees
-			// the caller never sees a zero-worker pool.
-			w = 1
-		}
-
-		return w, true
+	if n > 0 {
+		return n, true
 	}
 
-	return n, true
+	w := runtime.NumCPU()
+	if w < 1 {
+		w = 1
+	}
+
+	return w, true
 }

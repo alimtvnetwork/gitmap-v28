@@ -125,17 +125,18 @@ func pickFile(files []string, idx int) string {
 
 // resolveRotateFile finds or validates the rotation target file.
 func resolveRotateFile(explicit string) string {
-	if explicit != "" {
-		if _, err := os.Stat(explicit); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrSEORotateNotFound, explicit)
-
-			return ""
-		}
-
-		return explicit
+	if explicit == "" {
+		return autoDetectRotateFile()
 	}
 
-	return autoDetectRotateFile()
+	_, err := os.Stat(explicit)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrSEORotateNotFound, explicit)
+
+		return ""
+	}
+
+	return explicit
 }
 
 // autoDetectRotateFile finds the first .html or .txt file in the repo.

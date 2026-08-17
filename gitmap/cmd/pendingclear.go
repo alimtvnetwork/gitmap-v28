@@ -88,15 +88,16 @@ func parsePendingClearArgs(args []string) (
 			mode = a
 		default:
 			id, parseErr := strconv.ParseInt(a, 10, 64)
-			if parseErr != nil || id <= 0 {
-				if strings.HasPrefix(a, "-") {
-					err = fmt.Errorf(
-						constants.ErrPendingClearUnknownMode, a)
+			isError := parseErr != nil || id <= 0
+			isFlag := strings.HasPrefix(a, "-")
 
-					return
-				}
+			if isError == true && isFlag == true {
+				err = fmt.Errorf(constants.ErrPendingClearUnknownMode, a)
+				return
+			}
+
+			if isError == true && isFlag == false {
 				err = fmt.Errorf(constants.ErrPendingClearBadID, a)
-
 				return
 			}
 			mode = "id"

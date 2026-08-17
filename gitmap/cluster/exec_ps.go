@@ -20,20 +20,29 @@ func ExecPS(ctx context.Context, node ClusterNode, command string) (stdout, stde
 	var cmd *exec.Cmd
 
 	isWin := runtime.GOOS == winOS
-	if isWin == true {
-		cmdPath, errLook := exec.LookPath(pwshCmd)
-		if errLook != nil {
-			cmdPath, errLook = exec.LookPath(powershellCmd)
-			if errLook != nil {
-				return "", "", 1, errLook
-			}
-		}
+
+	cmdPath, errLook := "", error(nil)
+	if isWin {
+		cmdPath, errLook = exec.LookPath(pwshCmd)
+	}
+	if isWin && errLook != nil {
+		cmdPath, errLook = exec.LookPath(powershellCmd)
+	}
+	if isWin && errLook != nil {
+		return "", "", 1, errLook
+	}
+
+	if !isWin {
+		cmdPath, errLook = exec.LookPath(pwshCmd)
+	}
+	if !isWin && errLook != nil {
+		return "", "pwsh not found, skipping", 0, nil
+	}
+
+	if isWin {
 		cmd = exec.CommandContext(ctx, cmdPath, nonIntFlag, cmdFlag, command)
-	} else {
-		cmdPath, errLook := exec.LookPath(pwshCmd)
-		if errLook != nil {
-			return "", "pwsh not found, skipping", 0, nil
-		}
+	}
+	if !isWin {
 		cmd = exec.CommandContext(ctx, cmdPath, cmdFlag, command)
 	}
 
@@ -46,14 +55,13 @@ func ExecPS(ctx context.Context, node ClusterNode, command string) (stdout, stde
 	stdout = outBuf.String()
 	stderr = errBuf.String()
 
+	exitCode = 0
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			exitCode = exitErr.ExitCode()
-		} else {
-			exitCode = 1
-		}
-	} else {
-		exitCode = 0
+		exitCode = 1
+	}
+	exitErr, isExitErr := err.(*exec.ExitError)
+	if isExitErr {
+		exitCode = exitErr.ExitCode()
 	}
 
 	return stdout, stderr, exitCode, err

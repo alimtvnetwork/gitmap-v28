@@ -114,10 +114,13 @@ func parseOwnerRepo(url string) string {
 	trimmed := strings.TrimSuffix(strings.TrimSpace(url), "/")
 	trimmed = strings.TrimSuffix(trimmed, ".git")
 
-	if idx := strings.Index(trimmed, "@"); idx >= 0 {
-		if colon := strings.Index(trimmed[idx:], ":"); colon >= 0 {
-			return trimmed[idx+colon+1:]
-		}
+	idx := strings.Index(trimmed, "@")
+	colon := -1
+	if idx >= 0 {
+		colon = strings.Index(trimmed[idx:], ":")
+	}
+	if idx >= 0 && colon >= 0 {
+		return trimmed[idx+colon+1:]
 	}
 
 	parts := strings.Split(trimmed, "/")

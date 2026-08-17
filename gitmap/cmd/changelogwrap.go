@@ -16,10 +16,12 @@ import (
 // renders readably and a giant terminal doesn't produce ridiculous lines.
 func changelogWrapWidth() int {
 	width := constants.ChangelogPrettyWrapDefault
-	if cols := os.Getenv(constants.ChangelogPrettyEnvColumns); len(cols) > 0 {
-		if parsed, err := strconv.Atoi(strings.TrimSpace(cols)); err == nil && parsed > 0 {
-			width = parsed
-		}
+	cols := os.Getenv(constants.ChangelogPrettyEnvColumns)
+	parsed, err := strconv.Atoi(strings.TrimSpace(cols))
+	hasValidCols := err == nil && parsed > 0
+
+	if hasValidCols == true {
+		width = parsed
 	}
 	if width < constants.ChangelogPrettyWrapMin {
 		return constants.ChangelogPrettyWrapMin

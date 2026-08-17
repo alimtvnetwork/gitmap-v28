@@ -45,34 +45,42 @@ func parseProjectReposFlags(args []string) (bool, bool) {
 // printProjectCount prints the count of projects for a type.
 func printProjectCount(db *store.DB, typeKey string) {
 	count, err := db.CountProjectsByTypeKey(typeKey)
+
+	isLegacyErr := err != nil && isLegacyDataError(err) == true
+	if isLegacyErr == true {
+		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+		os.Exit(1)
+	}
+
 	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
 		fmt.Fprintf(os.Stderr, constants.ErrProjectQuery, err)
 		os.Exit(1)
 	}
+
 	fmt.Printf(constants.MsgProjectCount, count)
 }
 
 // printProjectList queries and displays projects for a type.
 func printProjectList(db *store.DB, typeKey string, jsonOut bool) {
 	projects, err := db.SelectProjectsByTypeKey(typeKey)
+
+	isLegacyErr := err != nil && isLegacyDataError(err) == true
+	if isLegacyErr == true {
+		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+		os.Exit(1)
+	}
+
 	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
 		fmt.Fprintf(os.Stderr, constants.ErrProjectQuery, err)
 		os.Exit(1)
 	}
+
 	if len(projects) == 0 {
 		fmt.Printf(constants.MsgProjectNoneFound, typeKey)
 
 		return
 	}
-	if jsonOut {
+	if jsonOut == true {
 		printProjectsJSON(projects)
 
 		return

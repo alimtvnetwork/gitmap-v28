@@ -75,13 +75,13 @@ func splitRescanSubtreeArgs(args []string) (string, []string, error) {
 			flags = append(flags, a)
 			continue
 		}
+		if len(a) > 0 && a[0] == '-' && i+1 < len(args) && flagHasInlineValue(a) == false && isLikelyBoolFlag(a) == false {
+			flags = append(flags, a)
+			skipNext = true
+			continue
+		}
 		if len(a) > 0 && a[0] == '-' {
 			flags = append(flags, a)
-			// `--flag value` (no `=`) consumes the next token. A flag
-			// passed as `--flag=value` or a bare boolean stays single.
-			if i+1 < len(args) && !flagHasInlineValue(a) && !isLikelyBoolFlag(a) {
-				skipNext = true
-			}
 			continue
 		}
 		positionals = append(positionals, a)
@@ -140,13 +140,13 @@ func resolveRescanSubtreePath(path string) (string, error) {
 		return "", fmt.Errorf("  Error: cannot resolve %q: %w", path, err)
 	}
 	info, err := os.Stat(abs)
+	if err != nil && os.IsNotExist(err) == true {
+		return "", fmt.Errorf(
+			"  Error: rescan-subtree target does not exist: %s\n"+
+				"         Did you copy the absolutePath from a row that has since moved?",
+			abs)
+	}
 	if err != nil {
-		if os.IsNotExist(err) {
-			return "", fmt.Errorf(
-				"  Error: rescan-subtree target does not exist: %s\n"+
-					"         Did you copy the absolutePath from a row that has since moved?",
-				abs)
-		}
 		return "", fmt.Errorf("  Error: cannot stat %s: %w", abs, err)
 	}
 	if !info.IsDir() {
@@ -221,10 +221,10 @@ func extractMaxDepthForLog(scanArgs []string) string {
 		// must end the inspection — falling through to the inline-form
 		// check would mis-classify a malformed `--max-depth` (no value)
 		// as a non-match and let the loop wander into unrelated flags.
+		if (a == "--"+want || a == "-"+want) && i+1 < len(scanArgs) {
+			return scanArgs[i+1]
+		}
 		if a == "--"+want || a == "-"+want {
-			if i+1 < len(scanArgs) {
-				return scanArgs[i+1]
-			}
 			return "auto"
 		}
 		if startsWith(a, prefixDouble) {

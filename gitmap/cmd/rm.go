@@ -129,12 +129,9 @@ func matchTarget(all []model.ScanRecord, target string) []model.ScanRecord {
 	if isGlob(target) {
 		return matchGlob(all, target)
 	}
-	if abs, err := filepath.Abs(target); err == nil {
-		for _, r := range all {
-			if r.AbsolutePath == abs {
-				return []model.ScanRecord{r}
-			}
-		}
+	abs, err := filepath.Abs(target)
+	if match := matchAbs(all, abs, err); len(match) > 0 {
+		return match
 	}
 	var out []model.ScanRecord
 	for _, r := range all {
@@ -144,6 +141,18 @@ func matchTarget(all []model.ScanRecord, target string) []model.ScanRecord {
 	}
 
 	return out
+}
+
+func matchAbs(all []model.ScanRecord, abs string, err error) []model.ScanRecord {
+	if err != nil {
+		return nil
+	}
+	for _, r := range all {
+		if r.AbsolutePath == abs {
+			return []model.ScanRecord{r}
+		}
+	}
+	return nil
 }
 
 // isGlob reports whether s contains any filepath.Match metacharacter.
@@ -204,14 +213,19 @@ func confirmRemove(r *bufio.Reader, rec model.ScanRecord) bool {
 
 // removeRepoFully removes the on-disk folder and the DB row.
 func removeRepoFully(db *store.DB, r model.ScanRecord) error {
-	if r.AbsolutePath != "" {
-		if err := os.RemoveAll(r.AbsolutePath); err != nil {
-			return fmt.Errorf("remove dir: %w", err)
-		}
+	if err := removeDirIfExists(r.AbsolutePath); err != nil {
+		return fmt.Errorf("remove dir: %w", err)
 	}
 	if _, err := db.DeleteByPath(r.AbsolutePath); err != nil {
 		return fmt.Errorf("db delete: %w", err)
 	}
 
 	return nil
+}
+
+func removeDirIfExists(path string) error {
+	if path == "" {
+		return nil
+	}
+	return os.RemoveAll(path)
 }

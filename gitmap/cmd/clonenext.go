@@ -39,27 +39,25 @@ func runCloneNext(args []string) {
 	setCmdFaithfulExitOnMismatch(cnFlags.VerifyCmdFaithfulExitOnMismatch)
 	setCmdPrintArgv(cnFlags.PrintCloneArgv)
 
-	if cnFlags.Verbose {
-		log, err := verbose.Init()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, err)
-		} else {
-			defer log.Close()
-		}
+	log, errVerbose := initVerboseSafe(cnFlags.Verbose)
+	if errVerbose != nil {
+		fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, errVerbose)
+	}
+	if log != nil {
+		defer log.Close()
 	}
 
 	// Batch mode: --csv, --all, or implicit (cwd is not a git repo
 	// but has git subdirs one level down) triggers the multi-repo
 	// dispatcher. See shouldRunBatch for the priority order.
-	if shouldRunBatch(cnFlags, currentWorkingDir()) {
-		if cnFlags.DryRun {
-			previewDryRunBatch(cnFlags.CSVPath, cnFlags.All)
-
-			return
-		}
+	isBatch := shouldRunBatch(cnFlags, currentWorkingDir())
+	if isBatch == true && cnFlags.DryRun == true {
+		previewDryRunBatch(cnFlags.CSVPath, cnFlags.All)
+		return
+	}
+	if isBatch == true && cnFlags.DryRun == false {
 		runCloneNextBatch(cnFlags.CSVPath, cnFlags.All, cnFlags.MaxConcurrency, cnFlags.NoProgress, cnFlags.ReportErrors)
 		maybeExitOnCmdFaithfulMismatch()
-
 		return
 	}
 
@@ -82,14 +80,7 @@ func runCloneNext(args []string) {
 	// `parentDir` / flattening / removal target the correct folder.
 	// Previously running `gitmap cn v+1` from inside `repo/src/` would
 	// resolve parentDir=`repo/` and clone into `repo/<base>` — wrong.
-	if root, rootErr := gitutil.RepoRoot(cwd); rootErr == nil && root != "" && root != cwd {
-		if chErr := os.Chdir(root); chErr != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrCloneNextCwd, chErr)
-			exitWith(1)
-		}
-		cwd = root
-		fmt.Printf("cn: escaped to repo root: %s\n", root)
-	}
+	cwd = escapeToRepoRoot(cwd)
 
 	remoteURL, err := gitutil.RemoteURL(cwd)
 	if err != nil {
@@ -147,39 +138,9 @@ func runCloneNext(args []string) {
 	// abort with a clear error instead of silently degrading to
 	// `foo-vN+1/` (the old behavior was a footgun: the user asked for a
 	// flat layout and got two siblings instead).
-	if _, statErr := os.Stat(targetPath); statErr == nil {
-		fmt.Printf(constants.MsgFlattenRemoving, flattenedFolder)
-		if removeErr := os.RemoveAll(targetPath); removeErr != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrCloneNextForceFailed,
-				flattenedFolder, removeErr, flattenedFolder)
-			exitWith(1)
-		}
-	}
+	removeExistingTargetFolder(targetPath, flattenedFolder)
 
-	// Optionally check and create the target GitHub repo when --create-remote is set.
-	if cnFlags.CreateRemote {
-		owner, _, parseErr := clonenext.ParseOwnerRepo(remoteURL)
-		if parseErr != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrCloneNextRemoteParse, parseErr)
-			exitWith(1)
-		}
-
-		exists, checkErr := clonenext.RepoExists(owner, targetName)
-		if checkErr != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrCloneNextRepoCheck, checkErr)
-			exitWith(1)
-		}
-
-		if !exists {
-			fmt.Printf(constants.MsgCloneNextCreating, targetName)
-			createErr := clonenext.CreateRepo(owner, targetName, true)
-			if createErr != nil {
-				fmt.Fprintf(os.Stderr, constants.ErrCloneNextRepoCreate, targetName, createErr)
-				exitWith(1)
-			}
-			fmt.Printf(constants.MsgCloneNextCreated, targetName)
-		}
-	}
+	handleCreateRemote(cnFlags.CreateRemote, remoteURL, targetName)
 
 	// Dry-run gate: print the planned clone command and exit BEFORE
 	// any side effect (clone, removal, DB write, GH Desktop, VS Code,
@@ -237,6 +198,75 @@ func runCloneNext(args []string) {
 		fmt.Printf(constants.MsgCNDone, flattenedFolder)
 	}
 	maybeExitOnCmdFaithfulMismatch()
+}
+
+func initVerboseSafe(isVerbose bool) (*verbose.Logger, error) {
+	if isVerbose == false {
+		return nil, nil
+	}
+	return verbose.Init()
+}
+
+func escapeToRepoRoot(cwd string) string {
+	root, rootErr := gitutil.RepoRoot(cwd)
+	if rootErr != nil {
+		return cwd
+	}
+	if root == "" {
+		return cwd
+	}
+	if root == cwd {
+		return cwd
+	}
+	chErr := os.Chdir(root)
+	if chErr != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNextCwd, chErr)
+		exitWith(1)
+	}
+	fmt.Printf("cn: escaped to repo root: %s\n", root)
+	return root
+}
+
+func removeExistingTargetFolder(targetPath string, flattenedFolder string) {
+	_, statErr := os.Stat(targetPath)
+	if statErr != nil {
+		return
+	}
+	fmt.Printf(constants.MsgFlattenRemoving, flattenedFolder)
+	removeErr := os.RemoveAll(targetPath)
+	if removeErr != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNextForceFailed,
+			flattenedFolder, removeErr, flattenedFolder)
+		exitWith(1)
+	}
+}
+
+func handleCreateRemote(createRemote bool, remoteURL string, targetName string) {
+	if createRemote == false {
+		return
+	}
+	owner, _, parseErr := clonenext.ParseOwnerRepo(remoteURL)
+	if parseErr != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRemoteParse, parseErr)
+		exitWith(1)
+	}
+
+	exists, checkErr := clonenext.RepoExists(owner, targetName)
+	if checkErr != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRepoCheck, checkErr)
+		exitWith(1)
+	}
+	if exists == true {
+		return
+	}
+
+	fmt.Printf(constants.MsgCloneNextCreating, targetName)
+	createErr := clonenext.CreateRepo(owner, targetName, true)
+	if createErr != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRepoCreate, targetName, createErr)
+		exitWith(1)
+	}
+	fmt.Printf(constants.MsgCloneNextCreated, targetName)
 }
 
 // extractRepoName extracts the repository name from a remote URL.
@@ -304,14 +334,19 @@ func handleCloneNextRemoval(folderName, fullPath, targetPath string, deleteFlag,
 		removed = removeFolderWithLockCheck(folderName, fullPath)
 	}
 
-	// After removing the old folder, move into the newly cloned directory.
-	if removed {
-		if chErr := os.Chdir(targetPath); chErr != nil {
-			fmt.Fprintf(os.Stderr, "Warning: could not cd to %s: %v\n", targetPath, chErr)
-		} else {
-			fmt.Printf(constants.MsgCloneNextMovedTo, filepath.Base(targetPath))
-		}
+	handlePostRemovalChdir(removed, targetPath)
+}
+
+func handlePostRemovalChdir(removed bool, targetPath string) {
+	if removed == false {
+		return
 	}
+	chErr := os.Chdir(targetPath)
+	if chErr != nil {
+		fmt.Fprintf(os.Stderr, "Warning: could not cd to %s: %v\n", targetPath, chErr)
+		return
+	}
+	fmt.Printf(constants.MsgCloneNextMovedTo, filepath.Base(targetPath))
 }
 
 // removeFolderWithLockCheck attempts to remove a directory, and if it fails,

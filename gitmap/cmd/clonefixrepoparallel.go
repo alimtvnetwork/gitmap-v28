@@ -36,11 +36,7 @@ import (
 // uniformly.
 func splitCommaURLs(raw string) []string {
 	if !strings.Contains(raw, ",") {
-		trimmed := strings.TrimSpace(raw)
-		if trimmed == "" {
-			return nil
-		}
-		return []string{trimmed}
+		return handleSingleURLSplit(raw)
 	}
 	parts := strings.Split(raw, ",")
 	out := make([]string, 0, len(parts))
@@ -162,16 +158,17 @@ func extractParallelFlag(args []string) (int, []string) {
 		}
 		a := args[i]
 		name, val, hasVal := splitFlagEq(a)
-		if name == "--parallel" || name == "-parallel" || name == "--p" || name == "-p" {
-			if hasVal {
-				parallel = atoiSafe(val)
-				continue
-			}
-			if i+1 < len(args) {
-				parallel = atoiSafe(args[i+1])
-				skipNext = true
-				continue
-			}
+		isParallel := name == "--parallel" || name == "-parallel" || name == "--p" || name == "-p"
+		if isParallel == true && hasVal == true {
+			parallel = atoiSafe(val)
+			continue
+		}
+		if isParallel == true && i+1 < len(args) {
+			parallel = atoiSafe(args[i+1])
+			skipNext = true
+			continue
+		}
+		if isParallel == true {
 			continue
 		}
 		out = append(out, a)
@@ -233,4 +230,12 @@ func buildCFRPassthroughFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS, au
 	}
 	return out
 
+}
+
+func handleSingleURLSplit(raw string) []string {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
+		return nil
+	}
+	return []string{trimmed}
 }

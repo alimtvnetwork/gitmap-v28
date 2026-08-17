@@ -70,30 +70,11 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 	}
 
 	// Stub run ref generator if DB is nil
-	runRef := "RUN-YYYYMMDD-001"
-	if dbConn != nil {
-		runRef, err = cluster.RunRefGenerator(dbConn)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error generating run ref: %v\n", err)
-			os.Exit(1)
-		}
-	}
+	runRef := generateRunRef(dbConn)
 
 	cmdStr := strings.Join(positional, " ")
 
-	if flags.NoPreflight == false {
-		confirmed, err := cluster.PrintPreflight(selector, effective, cmdStr, runRef, flags.AutoConfirm)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Preflight error: %v\n", err)
-			os.Exit(1)
-		}
-
-		isConfirmed := confirmed == true
-		if isConfirmed == false {
-			fmt.Fprintln(os.Stderr, "Operation aborted.")
-			os.Exit(1)
-		}
-	}
+	performPreflight(flags, selector, effective, cmdStr, runRef)
 
 	var runId int64
 	totalNodes := len(effective)
@@ -116,13 +97,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 		run.ExceptClause = &flags.ExceptClause
 	}
 
-	if dbConn != nil {
-		runId, err = db.InsertClusterRun(ctx, dbConn, run)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error inserting ClusterRun: %v\n", err)
-			os.Exit(1)
-		}
-	}
+	runId = insertRun(ctx, dbConn, run)
 
 	resultCh := make(chan db.ClusterExecResult, len(effective)*len(subCmds))
 
@@ -146,13 +121,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 		fmt.Printf("[%s] %s: %s\n", res.NodeId, res.SubCommand, statusStr)
 	}
 
-	if dbConn != nil {
-		now := time.Now()
-		err = db.UpdateClusterRun(ctx, dbConn, runId, &now, &totalNodes, &succeeded, &failed, &skipped)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error updating ClusterRun counts: %v\n", err)
-		}
-	}
+	updateRunCounts(ctx, dbConn, runId, totalNodes, succeeded, failed, skipped)
 
 	summaryTitle := fmt.Sprintf(" Cluster Run %s ", runRef)
 	summaryData := fmt.Sprintf(" Nodes: %d  OK: %d  Failed: %d  Skipped: %d ", totalNodes, succeeded, failed, skipped)
@@ -168,4 +137,56 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 	fmt.Printf("┌%s%s┐\n", summaryTitle, strings.Repeat("─", titlePad))
 	fmt.Printf("│%s%s│\n", summaryData, strings.Repeat(" ", dataPad))
 	fmt.Printf("└%s┘\n", strings.Repeat("─", boxWidth))
+}
+
+func generateRunRef(dbConn *sql.DB) string {
+	if dbConn == nil {
+		return "RUN-YYYYMMDD-001"
+	}
+	runRef, err := cluster.RunRefGenerator(dbConn)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error generating run ref: %v\n", err)
+		os.Exit(1)
+	}
+	return runRef
+}
+
+func performPreflight(flags ClusterFlags, selector cluster.TargetSelectorType, effective []cluster.ClusterNode, cmdStr string, runRef string) {
+	if flags.NoPreflight == true {
+		return
+	}
+	confirmed, err := cluster.PrintPreflight(selector, effective, cmdStr, runRef, flags.AutoConfirm)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Preflight error: %v\n", err)
+		os.Exit(1)
+	}
+
+	isConfirmed := confirmed == true
+	if isConfirmed == false {
+		fmt.Fprintln(os.Stderr, "Operation aborted.")
+		os.Exit(1)
+	}
+}
+
+func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
+	if dbConn == nil {
+		return 0
+	}
+	runId, err := db.InsertClusterRun(ctx, dbConn, run)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error inserting ClusterRun: %v\n", err)
+		os.Exit(1)
+	}
+	return runId
+}
+
+func updateRunCounts(ctx context.Context, dbConn *sql.DB, runId int64, totalNodes, succeeded, failed, skipped int) {
+	if dbConn == nil {
+		return
+	}
+	now := time.Now()
+	err := db.UpdateClusterRun(ctx, dbConn, runId, &now, &totalNodes, &succeeded, &failed, &skipped)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error updating ClusterRun counts: %v\n", err)
+	}
 }

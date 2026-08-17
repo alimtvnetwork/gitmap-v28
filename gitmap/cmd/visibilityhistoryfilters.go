@@ -51,11 +51,15 @@ func applyHistoryFilters(runs []model.MakeAllVisibilityRunRecord, f historyFilte
 		if f.Kind != "" && r.CommandKind != f.Kind {
 			continue
 		}
-		if f.Since > 0 {
-			ts, err := time.Parse(time.RFC3339, r.StartedAt)
-			if err != nil || ts.Before(cutoff) {
-				continue
-			}
+		var ts time.Time
+		var err error
+		hasSinceFilter := f.Since > 0
+		if hasSinceFilter == true {
+			ts, err = time.Parse(time.RFC3339, r.StartedAt)
+		}
+		isBeforeCutoff := err != nil || ts.Before(cutoff)
+		if hasSinceFilter == true && isBeforeCutoff == true {
+			continue
 		}
 		out = append(out, r)
 	}

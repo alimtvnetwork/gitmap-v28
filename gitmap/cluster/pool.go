@@ -96,9 +96,9 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 			displayCmd := strings.Join(cmdParts, " ")
 			if len(subCmds) == 1 {
 				displayCmd = subCmds[0].RawArg
-				if displayCmd == "" {
-					displayCmd = subCmds[0].Kind.String()
-				}
+			}
+			if len(subCmds) == 1 && displayCmd == "" {
+				displayCmd = subCmds[0].Kind.String()
 			}
 
 			mu.Lock()
@@ -119,19 +119,21 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 				res.ClusterRunId = runId
 				lastRes = res
 
+				id, dbErr := int64(0), error(nil)
 				if dbConn != nil {
-					id, err := db.InsertClusterExecResult(ctx, dbConn, res)
-					if err == nil {
-						res.ClusterExecResultId = id
-					}
+					id, dbErr = db.InsertClusterExecResult(ctx, dbConn, res)
+				}
+				if dbConn != nil && dbErr == nil {
+					res.ClusterExecResultId = id
 				}
 
+				lines := []string{}
 				if verbose && res.Stdout != nil && *res.Stdout != "" {
-					lines := strings.Split(*res.Stdout, "\n")
-					for _, line := range lines {
-						if line != "" {
-							pterm.Info.Printf("%s %s\n", nodeLabel, line)
-						}
+					lines = strings.Split(*res.Stdout, "\n")
+				}
+				for _, line := range lines {
+					if line != "" {
+						pterm.Info.Printf("%s %s\n", nodeLabel, line)
 					}
 				}
 
@@ -144,22 +146,23 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 			}
 
 			mu.Lock()
+			durMs := 0
+			if allOk && lastRes.DurationMs != nil {
+				durMs = *lastRes.DurationMs
+			}
+			exitCode := 1
+			if !allOk && lastRes.ExitCode != nil {
+				exitCode = *lastRes.ExitCode
+			}
+
 			if ctx.Err() != nil {
 				skipped++
 				spinner.Warning(fmt.Sprintf("%s Skipped", nodeLabel))
 			} else if allOk {
 				succeeded++
-				durMs := 0
-				if lastRes.DurationMs != nil {
-					durMs = *lastRes.DurationMs
-				}
 				spinner.Success(fmt.Sprintf("%s %s (%dms, exit 0)", nodeLabel, displayCmd, durMs))
 			} else {
 				failed++
-				exitCode := 1
-				if lastRes.ExitCode != nil {
-					exitCode = *lastRes.ExitCode
-				}
 				spinner.Fail(fmt.Sprintf("%s %s (exit %d)", nodeLabel, displayCmd, exitCode))
 			}
 			mu.Unlock()

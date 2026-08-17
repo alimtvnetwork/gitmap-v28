@@ -196,15 +196,15 @@ func pushOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	}
 
 	result := cloner.SafePushOne(rec, rec.AbsolutePath)
-	if result.IsSuccess {
-		if result.Notes == "up-to-date" {
-			prog.UpToDate(rec.RepoName)
-		} else {
-			prog.Succeed(rec.RepoName)
-		}
-	} else {
+	if result.IsSuccess == false {
 		prog.FailWithError(rec.RepoName, result.Error)
+		return
 	}
+	if result.Notes == "up-to-date" {
+		prog.UpToDate(rec.RepoName)
+		return
+	}
+	prog.Succeed(rec.RepoName)
 }
 
 // pushWithAutoRebase runs `git push`, and on non-fast-forward

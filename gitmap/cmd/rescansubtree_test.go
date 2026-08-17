@@ -58,13 +58,13 @@ func TestSplitRescanSubtreeArgs(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			gotPath, gotFlags, err := splitRescanSubtreeArgs(tc.args)
+			if tc.wantErrSubs != "" && err == nil {
+				t.Fatalf("expected error containing %q, got nil", tc.wantErrSubs)
+			}
+			if tc.wantErrSubs != "" && contains(err.Error(), tc.wantErrSubs) == false {
+				t.Fatalf("error %q does not contain %q", err.Error(), tc.wantErrSubs)
+			}
 			if tc.wantErrSubs != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tc.wantErrSubs)
-				}
-				if !contains(err.Error(), tc.wantErrSubs) {
-					t.Fatalf("error %q does not contain %q", err.Error(), tc.wantErrSubs)
-				}
 				return
 			}
 			if err != nil {

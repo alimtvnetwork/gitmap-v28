@@ -70,28 +70,29 @@ func runChromeExportBookmarks(args []string) {
 	}
 	available := availableRootNames(roots)
 	if rootName != "" {
-		filtered := filterBookmarkRoots(roots, rootName, "")
-		if len(filtered) == 0 {
-			fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --root=%q did not match any top-level root\n  available roots: %s\n", rootName, strings.Join(available, ", "))
-			os.Exit(1)
-		}
-		roots = filtered
+		roots = filterBookmarkRoots(roots, rootName, "")
+	}
+	hasNoRootsAfterRootName := rootName != "" && len(roots) == 0
+	if hasNoRootsAfterRootName == true {
+		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --root=%q did not match any top-level root\n  available roots: %s\n", rootName, strings.Join(available, ", "))
+		os.Exit(1)
 	}
 	if folderPath != "" {
-		filtered := filterBookmarkRoots(roots, "", folderPath)
-		if len(filtered) == 0 {
-			fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --folder=%q not found under root=%q\n  available top-level folders: %s\n  hint: paths are slash-delimited and case-insensitive (e.g. --folder \"Work/Docs\")\n", folderPath, fallback(rootName, "<all>"), strings.Join(topLevelFolderNames(roots), ", "))
-			os.Exit(1)
-		}
-		roots = filtered
+		roots = filterBookmarkRoots(roots, "", folderPath)
 	}
-	if match != "" || title != "" {
-		filtered := filterBookmarksByTitle(roots, match, title)
-		if len(filtered) == 0 {
-			fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR no bookmarks matched --match=%q --title=%q within the selected subtree\n  hint: --match is a case-insensitive substring; --title is an exact title match\n", match, title)
-			os.Exit(1)
-		}
-		roots = filtered
+	hasNoRootsAfterFolderPath := folderPath != "" && len(roots) == 0
+	if hasNoRootsAfterFolderPath == true {
+		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --folder=%q not found under root=%q\n  available top-level folders: %s\n  hint: paths are slash-delimited and case-insensitive (e.g. --folder \"Work/Docs\")\n", folderPath, fallback(rootName, "<all>"), strings.Join(topLevelFolderNames(roots), ", "))
+		os.Exit(1)
+	}
+	hasMatchOrTitle := match != "" || title != ""
+	if hasMatchOrTitle == true {
+		roots = filterBookmarksByTitle(roots, match, title)
+	}
+	hasNoRootsAfterMatch := hasMatchOrTitle == true && len(roots) == 0
+	if hasNoRootsAfterMatch == true {
+		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR no bookmarks matched --match=%q --title=%q within the selected subtree\n  hint: --match is a case-insensitive substring; --title is an exact title match\n", match, title)
+		os.Exit(1)
 	}
 
 	body, err := renderBookmarks(roots, format)
@@ -114,16 +115,7 @@ func runChromeExportBookmarks(args []string) {
 // other, synced) and/or a slash-delimited folder subtree. Matching is
 // case-insensitive on folder names. Empty filters are no-ops.
 func filterBookmarkRoots(roots []bookmarkItem, rootName, folderPath string) []bookmarkItem {
-	out := roots
-	if rootName != "" {
-		filtered := make([]bookmarkItem, 0, 1)
-		for _, r := range roots {
-			if strings.EqualFold(r.Folder, rootName) {
-				filtered = append(filtered, r)
-			}
-		}
-		out = filtered
-	}
+	out := filterByRootName(roots, rootName)
 	if folderPath == "" {
 		return out
 	}
@@ -140,6 +132,19 @@ func filterBookmarkRoots(roots []bookmarkItem, rootName, folderPath string) []bo
 		}
 	}
 	return matched
+}
+
+func filterByRootName(roots []bookmarkItem, rootName string) []bookmarkItem {
+	if rootName == "" {
+		return roots
+	}
+	filtered := make([]bookmarkItem, 0, 1)
+	for _, r := range roots {
+		if strings.EqualFold(r.Folder, rootName) {
+			filtered = append(filtered, r)
+		}
+	}
+	return filtered
 }
 
 // findBookmarkFolder walks `parts` (case-insensitive) into the tree and

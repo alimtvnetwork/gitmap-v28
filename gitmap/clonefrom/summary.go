@@ -40,10 +40,8 @@ func RenderSummary(w io.Writer, results []Result, reportPath string) error {
 	if err := writeTransportLine(w, results); err != nil {
 		return err
 	}
-	if len(reportPath) > 0 {
-		if _, err := fmt.Fprintf(w, "report: %s\n\n", reportPath); err != nil {
-			return err
-		}
+	if err := writeReportPath(w, reportPath); err != nil {
+		return err
 	}
 	for _, r := range results {
 		if _, err := io.WriteString(w, formatSummaryRow(r)); err != nil {
@@ -51,6 +49,14 @@ func RenderSummary(w io.Writer, results []Result, reportPath string) error {
 		}
 	}
 
+	return nil
+}
+
+func writeReportPath(w io.Writer, reportPath string) error {
+	if len(reportPath) > 0 {
+		_, err := fmt.Fprintf(w, "report: %s\n\n", reportPath)
+		return err
+	}
 	return nil
 }
 

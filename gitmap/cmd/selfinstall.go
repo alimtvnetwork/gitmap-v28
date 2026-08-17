@@ -81,13 +81,7 @@ func autoRunSetupAfterInstall() {
 // skips the guard for stale-lock recovery.
 func acquireSelfInstallLock(opts selfInstallOpts) lockfile.Releaser {
 	if opts.ForceLock {
-		release, err := lockfile.ForceAcquire(constants.SelfInstallLockName)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrSelfInstallLock, err)
-			os.Exit(1)
-		}
-
-		return release
+		return forceAcquireOrExit()
 	}
 	release, err := lockfile.Acquire(constants.SelfInstallLockName)
 	if err == nil {
@@ -102,6 +96,15 @@ func acquireSelfInstallLock(opts selfInstallOpts) lockfile.Releaser {
 	os.Exit(1)
 
 	return func() {} // unreachable; satisfies the compiler
+}
+
+func forceAcquireOrExit() lockfile.Releaser {
+	release, err := lockfile.ForceAcquire(constants.SelfInstallLockName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallLock, err)
+		os.Exit(1)
+	}
+	return release
 }
 
 // parseSelfInstallFlags reads --dir / --yes / --version / --shell-mode
@@ -341,11 +344,7 @@ func writeInstallScriptTemp(name string, body []byte) string {
 	}
 	defer f.Close()
 	if strings.HasSuffix(name, ".ps1") {
-		if _, err := f.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptWrite, err)
-			_ = f.Close()
-			exitWith(1)
-		}
+		writeBOM(f)
 	}
 	if _, err := f.Write(body); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptWrite, err)
@@ -357,6 +356,15 @@ func writeInstallScriptTemp(name string, body []byte) string {
 	}
 
 	return f.Name()
+}
+
+func writeBOM(f *os.File) {
+	_, err := f.Write([]byte{0xEF, 0xBB, 0xBF})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptWrite, err)
+		_ = f.Close()
+		exitWith(1)
+	}
 }
 
 // executeInstallScript invokes PowerShell or bash on the script with the

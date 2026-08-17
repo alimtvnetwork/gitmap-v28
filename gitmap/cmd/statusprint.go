@@ -58,22 +58,23 @@ func (c *statusTableContext) addRow(r statusRow) {
 	if l := len(r.RepoName); l > c.MaxRepo {
 		c.MaxRepo = l
 	}
-	if !r.Missing {
-		if l := len(r.Branch); l > c.MaxBranch {
-			c.MaxBranch = l
-		}
-		if l := len(stripANSI(r.StateIcon)); l > c.MaxStatus {
-			c.MaxStatus = l
-		}
-		if l := len(stripANSI(r.SyncText)); l > c.MaxSync {
-			c.MaxSync = l
-		}
-		if l := len(stripANSI(r.StashText)); l > c.MaxStash {
-			c.MaxStash = l
-		}
-		if l := len(stripANSI(r.FilesText)); l > c.MaxFiles {
-			c.MaxFiles = l
-		}
+	if r.Missing {
+		return
+	}
+	if l := len(r.Branch); l > c.MaxBranch {
+		c.MaxBranch = l
+	}
+	if l := len(stripANSI(r.StateIcon)); l > c.MaxStatus {
+		c.MaxStatus = l
+	}
+	if l := len(stripANSI(r.SyncText)); l > c.MaxSync {
+		c.MaxSync = l
+	}
+	if l := len(stripANSI(r.StashText)); l > c.MaxStash {
+		c.MaxStash = l
+	}
+	if l := len(stripANSI(r.FilesText)); l > c.MaxFiles {
+		c.MaxFiles = l
 	}
 }
 

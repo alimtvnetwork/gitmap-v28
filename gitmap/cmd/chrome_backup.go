@@ -16,11 +16,12 @@ import (
 func runChromeBackup(args []string) {
 	out := chromeBackupDefaultPath()
 	for i := 0; i < len(args); i++ {
-		if args[i] == "-o" || args[i] == "--out" {
-			if i+1 < len(args) {
-				out = args[i+1]
-				i++
-			}
+		isOutFlag := args[i] == "-o" || args[i] == "--out"
+		hasNextArg := i+1 < len(args)
+
+		if isOutFlag && hasNextArg {
+			out = args[i+1]
+			i++
 		}
 	}
 	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
@@ -72,13 +73,21 @@ func runChromeRestore(args []string) {
 			skipVerify = true
 		}
 	}
-	if !intoSet {
-		if recorded := readChromeManifestSource(src); recorded != "" {
-			dst = recorded
-			fmt.Printf("\033[2;37m• restoring to recorded source profile: %s\033[0m\n", dst)
-		} else {
-			dst = chromeUserDataDir()
-		}
+	recorded := ""
+	needsDst := intoSet == false
+	if needsDst == true {
+		recorded = readChromeManifestSource(src)
+	}
+
+	useRecorded := needsDst && recorded != ""
+	if useRecorded == true {
+		dst = recorded
+		fmt.Printf("\033[2;37m• restoring to recorded source profile: %s\033[0m\n", dst)
+	}
+
+	useDefault := needsDst && recorded == ""
+	if useDefault == true {
+		dst = chromeUserDataDir()
 	}
 
 	if !skipVerify {
@@ -102,20 +111,22 @@ func runChromeRestore(args []string) {
 		fmt.Fprintf(os.Stderr, "chrome restore: REFUSED %s already contains %d file(s); pass --force to overwrite\n", dst, existing)
 		os.Exit(1)
 	}
-	if existing > 0 && force && !yes {
+	needsConfirm := existing > 0 && force && !yes
+	if needsConfirm == true {
 		fmt.Fprintf(os.Stderr, "\033[1;31m! chrome restore --force\033[0m will overwrite %d existing file(s) under %s\n", existing, dst)
-		if !confirmYesNo("proceed?") {
-			fmt.Fprintln(os.Stderr, "chrome restore: aborted")
-			os.Exit(1)
-		}
+	}
+
+	isConfirmed := true
+	if needsConfirm == true {
+		isConfirmed = confirmYesNo("proceed?")
+	}
+
+	if isConfirmed == false {
+		fmt.Fprintln(os.Stderr, "chrome restore: aborted")
+		os.Exit(1)
 	}
 	if dryRun {
-		n, err := previewChromeBackup(src)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "chrome restore: ERROR %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Printf("\033[1;93m✓ chrome restore (dry-run)\033[0m  %d file(s) would land in \033[1;96m%s\033[0m\n", n, dst)
+		doDryRun(src, dst)
 		return
 	}
 	n, err := readChromeBackup(src, dst)
@@ -261,4 +272,13 @@ func readChromeBackup(src, dstRoot string) (int, error) {
 		count++
 	}
 	return count, nil
+}
+
+func doDryRun(src, dst string) {
+	n, err := previewChromeBackup(src)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "chrome restore: ERROR %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("\033[1;93m✓ chrome restore (dry-run)\033[0m  %d file(s) would land in \033[1;96m%s\033[0m\n", n, dst)
 }

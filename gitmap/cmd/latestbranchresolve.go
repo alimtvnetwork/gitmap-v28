@@ -50,12 +50,15 @@ func resolveBranchNames(sha, remote string, containsFallback bool) []string {
 
 		return names
 	}
-	if containsFallback {
-		names = gitutil.ResolveContains(sha, remote)
-		if len(names) > 0 {
 
-			return names
-		}
+	if !containsFallback {
+		return []string{constants.LBUnknownBranch}
+	}
+
+	names = gitutil.ResolveContains(sha, remote)
+	if len(names) > 0 {
+
+		return names
 	}
 
 	return []string{constants.LBUnknownBranch}

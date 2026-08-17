@@ -55,11 +55,11 @@ const (
 func encodeLLMDocsJSON(w io.Writer, sections map[string]bool) error {
 	fields := make([]stablejson.Field, 0, 8)
 
-	if wantSection(sections, "commands") {
-		commandsRaw, err := renderLLMDocsCommandsRaw()
-		if err != nil {
-			return err
-		}
+	commandsRaw, err := renderCommandsRawIfWanted(sections)
+	if err != nil {
+		return err
+	}
+	if commandsRaw != nil {
 		fields = append(fields, stablejson.Field{Key: llmDocsKeyCommands, Value: commandsRaw})
 	}
 
@@ -78,13 +78,15 @@ func encodeLLMDocsJSON(w io.Writer, sections map[string]bool) error {
 	}
 
 	for _, sm := range sectionMap {
-		if wantSection(sections, sm.key) {
-			var sb strings.Builder
-			sm.write(&sb)
-			s := sb.String()
-			if s != "" {
-				fields = append(fields, stablejson.Field{Key: sm.name, Value: s})
-			}
+		if !wantSection(sections, sm.key) {
+			continue
+		}
+
+		var sb strings.Builder
+		sm.write(&sb)
+		s := sb.String()
+		if s != "" {
+			fields = append(fields, stablejson.Field{Key: sm.name, Value: s})
 		}
 	}
 
@@ -101,6 +103,13 @@ func renderLLMDocsCommandsRaw() (json.RawMessage, error) {
 	}
 
 	return json.RawMessage(bytes.TrimSuffix(buf.Bytes(), []byte{'\n'})), nil
+}
+
+func renderCommandsRawIfWanted(sections map[string]bool) (json.RawMessage, error) {
+	if !wantSection(sections, "commands") {
+		return nil, nil
+	}
+	return renderLLMDocsCommandsRaw()
 }
 
 // buildLLMDocsGroupItems is the single source of (field name, field

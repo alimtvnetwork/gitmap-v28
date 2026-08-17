@@ -85,13 +85,16 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
-	if err := cmd.Run(); err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			os.Exit(exitErr.ExitCode())
-		}
-		os.Exit(1)
+	err := cmd.Run()
+	if err == nil {
+		return
 	}
+	var exitErr *exec.ExitError
+	isExitErr := errors.As(err, &exitErr)
+	if isExitErr == true {
+		os.Exit(exitErr.ExitCode())
+	}
+	os.Exit(1)
 }
 
 // scheduleSelfDelete arranges for the temp handoff binary to remove

@@ -53,10 +53,7 @@ func retryDeleteTask(db *store.DB, taskID int64, targetPath string) {
 	err := os.RemoveAll(targetPath)
 	if err != nil {
 		reason := formatPathError(targetPath, "delete", err)
-		fmt.Printf(constants.MsgPendingTaskFailed, taskID, reason)
-		if failErr := db.FailTask(taskID, reason); failErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not mark task %d as failed: %v\n", taskID, failErr)
-		}
+		failTaskAndLog(db, taskID, reason)
 
 		return
 	}
@@ -70,20 +67,14 @@ func retryReplayTask(db *store.DB, taskID int64, workDir, cmdArgs string) {
 	args := strings.Fields(cmdArgs)
 	if len(args) == 0 {
 		reason := fmt.Sprintf(constants.ReasonReplayFailed, "empty command args")
-		fmt.Printf(constants.MsgPendingTaskFailed, taskID, reason)
-		if failErr := db.FailTask(taskID, reason); failErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not mark task %d as failed: %v\n", taskID, failErr)
-		}
+		failTaskAndLog(db, taskID, reason)
 
 		return
 	}
 
 	if workDir != "" && !pathExists(workDir) {
 		reason := fmt.Sprintf(constants.ReasonWorkDirNotFound, workDir)
-		fmt.Printf(constants.MsgPendingTaskFailed, taskID, reason)
-		if failErr := db.FailTask(taskID, reason); failErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not mark task %d as failed: %v\n", taskID, failErr)
-		}
+		failTaskAndLog(db, taskID, reason)
 
 		return
 	}
@@ -106,10 +97,7 @@ func retryReplayTask(db *store.DB, taskID int64, workDir, cmdArgs string) {
 	err = cmd.Run()
 	if err != nil {
 		reason := fmt.Sprintf(constants.ReasonReplayFailed, err)
-		fmt.Printf(constants.MsgPendingTaskFailed, taskID, reason)
-		if failErr := db.FailTask(taskID, reason); failErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not mark task %d as failed: %v\n", taskID, failErr)
-		}
+		failTaskAndLog(db, taskID, reason)
 
 		return
 	}
@@ -139,5 +127,12 @@ func completeTaskWithLog(db *store.DB, taskID int64) {
 	err := db.CompleteTask(taskID)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingCompleteFail, taskID, err)
+	}
+}
+
+func failTaskAndLog(db *store.DB, taskID int64, reason string) {
+	fmt.Printf(constants.MsgPendingTaskFailed, taskID, reason)
+	if failErr := db.FailTask(taskID, reason); failErr != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not mark task %d as failed: %v\n", taskID, failErr)
 	}
 }

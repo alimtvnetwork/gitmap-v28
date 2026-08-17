@@ -53,13 +53,15 @@ func encodeLatestBranchJSON(
 		{Key: lbKeyRef, Value: result.latest.RemoteRef},
 	}
 
-	if top > 0 {
-		topRaw, err := renderLatestBranchTopRaw(items, top)
-		if err != nil {
-			return err
-		}
-		fields = append(fields, stablejson.Field{Key: lbKeyTop, Value: topRaw})
+	if top <= 0 {
+		return stablejson.WriteObject(w, fields)
 	}
+
+	topRaw, err := renderLatestBranchTopRaw(items, top)
+	if err != nil {
+		return err
+	}
+	fields = append(fields, stablejson.Field{Key: lbKeyTop, Value: topRaw})
 
 	return stablejson.WriteObject(w, fields)
 }

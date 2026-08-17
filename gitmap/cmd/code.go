@@ -365,12 +365,12 @@ func lookupAlias(alias string) (row aliasRow) {
 	defer db.Close()
 
 	found, err := db.FindVSCodeProjectByName(alias)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		fmt.Fprintf(os.Stderr, constants.ErrVSCodePMAliasNotFound, alias, alias)
+		fmt.Fprintln(os.Stderr)
+		os.Exit(1)
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			fmt.Fprintf(os.Stderr, constants.ErrVSCodePMAliasNotFound, alias, alias)
-			fmt.Fprintln(os.Stderr)
-			os.Exit(1)
-		}
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}

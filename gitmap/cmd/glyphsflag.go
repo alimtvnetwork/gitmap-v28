@@ -46,11 +46,11 @@ func stripGlyphsFlag(args []string) []string {
 
 // matchGlyphsArg recognizes the four legal flag forms.
 func matchGlyphsArg(a string, args []string, i int, short, long string) (val string, consumed int, matched bool) {
-	if a == short || a == long {
-		if i+1 < len(args) && glyphs.IsValidLabel(args[i+1]) {
-			return args[i+1], 2, true
-		}
-
+	matchBare := a == short || a == long
+	if matchBare == true && i+1 < len(args) && glyphs.IsValidLabel(args[i+1]) == true {
+		return args[i+1], 2, true
+	}
+	if matchBare == true {
 		return "", 1, true
 	}
 	if v, ok := stripEqPrefix(a, long+"="); ok {

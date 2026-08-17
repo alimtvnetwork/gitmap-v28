@@ -39,17 +39,21 @@ func walkRepoFiles(root string, exts []string, caseInsensitive bool) ([]string, 
 	return out, err
 }
 
+func handleDirReplaceWalk(root, path string, d fs.DirEntry) error {
+	if isExcludedDir(d.Name()) == true || isExcludedPrefix(root, path) == true {
+		return filepath.SkipDir
+	}
+	return nil
+}
+
 // visitReplaceEntry implements one step of walkRepoFiles. Split out so
 // the closure stays under the 15-line ceiling.
 func visitReplaceEntry(
 	root, path string, d fs.DirEntry,
 	exts []string, caseInsensitive bool, out *[]string,
 ) error {
-	if d.IsDir() {
-		if isExcludedDir(d.Name()) || isExcludedPrefix(root, path) {
-			return filepath.SkipDir
-		}
-		return nil
+	if d.IsDir() == true {
+		return handleDirReplaceWalk(root, path, d)
 	}
 	if !matchesExtFilter(path, exts, caseInsensitive) {
 		return nil

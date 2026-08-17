@@ -40,20 +40,26 @@ func preferExistingFolderTransport(positional, absPath string) string {
 	return rewriteToMatchExisting(positional, exIsSSH)
 }
 
-// rewriteToMatchExisting flips the positional URL to the existing
-// folder's transport. Logs the swap to stderr so the user can audit it.
 func rewriteToMatchExisting(positional string, targetSSH bool) string {
-	if targetSSH {
-		out, ok := ConvertURLToSSH(positional)
-		if !ok {
-			warnPreferTransport("", "ssh rewrite failed", nil)
-			return positional
-		}
-		fmt.Fprintf(os.Stderr, constants.MsgCFRFolderTransport, "ssh", positional, out)
-		return out
+	if targetSSH == true {
+		return handleSSHRewrite(positional)
 	}
+	return handleHTTPSRewrite(positional)
+}
+
+func handleSSHRewrite(positional string) string {
+	out, ok := ConvertURLToSSH(positional)
+	if ok == false {
+		warnPreferTransport("", "ssh rewrite failed", nil)
+		return positional
+	}
+	fmt.Fprintf(os.Stderr, constants.MsgCFRFolderTransport, "ssh", positional, out)
+	return out
+}
+
+func handleHTTPSRewrite(positional string) string {
 	out, ok := ConvertURLToHTTPS(positional)
-	if !ok {
+	if ok == false {
 		warnPreferTransport("", "https rewrite failed", nil)
 		return positional
 	}

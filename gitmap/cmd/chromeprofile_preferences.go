@@ -25,10 +25,10 @@ import (
 func patchCopiedChromeProfilePreferences(dstPath, displayName string) error {
 	prefPath := filepath.Join(dstPath, constants.ChromePreferencesFile)
 	raw, err := os.ReadFile(prefPath) //nolint:gosec // chrome user-data path
+	if err != nil && os.IsNotExist(err) {
+		return nil
+	}
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
 		return fmt.Errorf("read %s: %w", prefPath, err)
 	}
 	var root map[string]any

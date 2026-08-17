@@ -91,11 +91,10 @@ type Row struct {
 // the dry-run preview and the actual git invocation always agree on
 // which URL would be used.
 func (r Row) PickURL(mode string) string {
+	if mode == "ssh" && len(r.SSHUrl) > 0 {
+		return r.SSHUrl
+	}
 	if mode == "ssh" {
-		if len(r.SSHUrl) > 0 {
-			return r.SSHUrl
-		}
-
 		return r.HTTPSUrl
 	}
 	if len(r.HTTPSUrl) > 0 {

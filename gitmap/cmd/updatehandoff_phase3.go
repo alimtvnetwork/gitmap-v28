@@ -90,11 +90,16 @@ func resolveDeployedBinaryPath() (string, string) {
 	}
 
 	self, err := os.Executable()
+	candidate := ""
 	if err == nil {
-		candidate := filepath.Join(filepath.Dir(self), deployedBinaryName())
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, constants.UpdateCleanupSourceSibling
-		}
+		candidate = filepath.Join(filepath.Dir(self), deployedBinaryName())
+	}
+	errStat := error(nil)
+	if err == nil {
+		_, errStat = os.Stat(candidate)
+	}
+	if err == nil && errStat == nil {
+		return candidate, constants.UpdateCleanupSourceSibling
 	}
 
 	path, err := exec.LookPath(constants.GitMapBin)

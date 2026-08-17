@@ -186,11 +186,11 @@ func runGitCapture(args ...string) (string, error) {
 	var stderr strings.Builder
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
+	var exitErr *exec.ExitError
+	if err != nil && errors.As(err, &exitErr) {
+		return "", fmt.Errorf("%w: %s", err, strings.TrimSpace(stderr.String()))
+	}
 	if err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			return "", fmt.Errorf("%w: %s", err, strings.TrimSpace(stderr.String()))
-		}
 		return "", err
 	}
 	return string(out), nil

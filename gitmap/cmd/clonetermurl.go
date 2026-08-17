@@ -21,17 +21,7 @@ import (
 // No-op when output != "terminal" (the underlying helper short-
 // circuits) so it's safe to call unconditionally on the hot path.
 func printCloneTermBlockForURL(output string, idx int, url, dest string) {
-	name := repoNameFromURL(url)
-	if len(name) == 0 {
-		name = url
-	} else {
-		// Mirror executeDirectClone's flatten logic so the block
-		// surfaces the SAME folder name the user will see on disk.
-		parsed := clonenext.ParseRepoName(name)
-		if parsed.HasVersion {
-			name = parsed.BaseName
-		}
-	}
+	name := determineRepoName(url)
 	branch := detectRemoteHEAD(url)
 	in := CloneTermBlockInput{
 		Index:        idx,
@@ -58,4 +48,17 @@ func printCloneTermBlockForURL(output string, idx int, url, dest string) {
 	// positionals. Mirrors executeDirectClone in clonenext.go.
 	runCmdFaithfulCheck(in, []string{"clone", url, dest})
 	runCmdPrintArgv([]string{"clone", url, dest})
+}
+
+func determineRepoName(url string) string {
+	name := repoNameFromURL(url)
+	if len(name) == 0 {
+		return url
+	}
+
+	parsed := clonenext.ParseRepoName(name)
+	if parsed.HasVersion {
+		return parsed.BaseName
+	}
+	return name
 }

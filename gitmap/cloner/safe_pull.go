@@ -32,11 +32,12 @@ func cloneOrPullOne(rec model.ScanRecord, targetDir string, opts CloneOptions) m
 		return model.CloneResult{Record: rec, IsSuccess: true, Notes: "skipped (existing directory)"}
 	}
 
+	cleanErr := cleanDirIfRequested(dirExists, opts.Clean, dest)
+	if cleanErr != nil {
+		msg := fmt.Sprintf("failed to clean existing directory %q: %v", dest, cleanErr)
+		return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}
+	}
 	if dirExists && opts.Clean {
-		if err := os.RemoveAll(dest); err != nil {
-			msg := fmt.Sprintf("failed to clean existing directory %q: %v", dest, err)
-			return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}
-		}
 		dirExists = false
 	}
 
@@ -88,15 +89,18 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 			log.Log("pull attempt %d/%d for %s: exit=%v output=%s",
 				attempt, constants.SafePullRetryAttempts, rec.RepoName, err, trimOutput(output))
 		}
+		var successResult *model.CloneResult
 		if err == nil {
-			if log != nil {
-				log.Log("safe-pull succeeded: %s (attempt %d)", rec.RepoName, attempt)
-			}
-			notes := ""
-			if strings.Contains(output, "Already up to date.") {
-				notes = "up-to-date"
-			}
-			return model.CloneResult{Record: rec, IsSuccess: true, Notes: notes}
+			successResult = &model.CloneResult{Record: rec, IsSuccess: true}
+		}
+		if successResult != nil && strings.Contains(output, "Already up to date.") {
+			successResult.Notes = "up-to-date"
+		}
+		if successResult != nil && log != nil {
+			log.Log("safe-pull succeeded: %s (attempt %d)", rec.RepoName, attempt)
+		}
+		if successResult != nil {
+			return *successResult
 		}
 
 		cleared := clearReadOnlyAttrs(repoDir, output)
@@ -141,4 +145,11 @@ func runGitPull(repoDir string) (string, error) {
 	out, err := cmd.CombinedOutput()
 
 	return string(out), err
+}
+
+func cleanDirIfRequested(dirExists, clean bool, dest string) error {
+	if !dirExists || !clean {
+		return nil
+	}
+	return os.RemoveAll(dest)
 }

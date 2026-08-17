@@ -53,11 +53,10 @@ func stripThemeFlag(args []string) []string {
 // like a theme label — otherwise a bare `--theme` would silently
 // steal the subcommand name.
 func matchThemeArg(a string, args []string, i int, short, long string) (val string, consumed int, matched bool) {
+	if (a == short || a == long) && i+1 < len(args) && theme.IsValidLabel(args[i+1]) == true {
+		return args[i+1], 2, true
+	}
 	if a == short || a == long {
-		if i+1 < len(args) && theme.IsValidLabel(args[i+1]) {
-			return args[i+1], 2, true
-		}
-
 		return "", 1, true
 	}
 	if v, ok := stripEqPrefix(a, long+"="); ok {

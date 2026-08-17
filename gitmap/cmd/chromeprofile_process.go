@@ -44,11 +44,12 @@ func isLinuxChromeRunning() (bool, error) {
 
 func pgrepExact(name string) (bool, error) {
 	cmd := exec.Command(constants.ChromeProcessPgrep, constants.ChromeProcessPgrepExact, name)
-	if err := cmd.Run(); err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) && exitErr.ExitCode() == 1 {
-			return false, nil
-		}
+	err := cmd.Run()
+	var exitErr *exec.ExitError
+	if err != nil && errors.As(err, &exitErr) && exitErr.ExitCode() == 1 {
+		return false, nil
+	}
+	if err != nil {
 		return false, err
 	}
 	return true, nil

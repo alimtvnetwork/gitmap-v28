@@ -58,10 +58,9 @@ func ParseChromeLocalState(raw []byte) (ChromeLocalState, error) {
 		}
 	}
 	// Ensure last_used dir is queryable even if absent from info_cache.
-	if out.LastUsed != "" {
-		if _, ok := out.Profiles[out.LastUsed]; !ok {
-			out.Profiles[out.LastUsed] = ChromeProfileEntry{DirName: out.LastUsed}
-		}
+	_, ok := out.Profiles[out.LastUsed]
+	if out.LastUsed != "" && !ok {
+		out.Profiles[out.LastUsed] = ChromeProfileEntry{DirName: out.LastUsed}
 	}
 	return out, nil
 }

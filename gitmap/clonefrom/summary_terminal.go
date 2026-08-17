@@ -138,22 +138,23 @@ func writeTermSummaryStatus(w io.Writer, results []Result) error {
 func writeTermSummaryReports(w io.Writer, csvPath, jsonPath string) error {
 	if len(csvPath) == 0 && len(jsonPath) == 0 {
 		_, err := io.WriteString(w, constants.CloneFromTermSummaryReportNone)
-
 		return err
 	}
-	if len(csvPath) > 0 {
-		if _, err := fmt.Fprintf(w,
-			constants.CloneFromTermSummaryReportFmt, "csv ", csvPath); err != nil {
-			return err
-		}
+	if err := writeTermReportPath(w, "csv ", csvPath); err != nil {
+		return err
 	}
-	if len(jsonPath) > 0 {
-		if _, err := fmt.Fprintf(w,
-			constants.CloneFromTermSummaryReportFmt, "json", jsonPath); err != nil {
-			return err
-		}
+	if err := writeTermReportPath(w, "json", jsonPath); err != nil {
+		return err
 	}
 
+	return nil
+}
+
+func writeTermReportPath(w io.Writer, label, path string) error {
+	if len(path) > 0 {
+		_, err := fmt.Fprintf(w, constants.CloneFromTermSummaryReportFmt, label, path)
+		return err
+	}
 	return nil
 }
 

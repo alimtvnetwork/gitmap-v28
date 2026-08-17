@@ -99,23 +99,8 @@ func appendCDFunction(snippet, profilePath string) error {
 	}
 
 	existing, err := os.ReadFile(profilePath)
-	if err == nil {
-		text := string(existing)
-		if hasCurrentCDFunction(text) {
-			next := reconcileCDFunction(text, snippet)
-			if next == text {
-				fmt.Fprintf(os.Stderr, constants.MsgCDFuncAlready)
-
-				return nil
-			}
-
-			if writeErr := os.WriteFile(profilePath, []byte(next), 0o644); writeErr != nil {
-				return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, writeErr)
-			}
-			fmt.Fprintf(os.Stderr, constants.MsgCDFuncInstalled)
-
-			return nil
-		}
+	if err == nil && hasCurrentCDFunction(string(existing)) {
+		return updateExistingCDFunction(string(existing), snippet, profilePath)
 	}
 
 	f, err := os.OpenFile(profilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
@@ -129,6 +114,22 @@ func appendCDFunction(snippet, profilePath string) error {
 		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
 	}
 
+	fmt.Fprintf(os.Stderr, constants.MsgCDFuncInstalled)
+
+	return nil
+}
+
+func updateExistingCDFunction(text, snippet, profilePath string) error {
+	next := reconcileCDFunction(text, snippet)
+	if next == text {
+		fmt.Fprintf(os.Stderr, constants.MsgCDFuncAlready)
+
+		return nil
+	}
+
+	if writeErr := os.WriteFile(profilePath, []byte(next), 0o644); writeErr != nil {
+		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, writeErr)
+	}
 	fmt.Fprintf(os.Stderr, constants.MsgCDFuncInstalled)
 
 	return nil

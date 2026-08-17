@@ -53,11 +53,10 @@ func TestParsePRCEntries(t *testing.T) {
 			t.Parallel()
 
 			got, err := parsePRCEntries(c.args)
+			if c.wantErr != "" && (err == nil || !strings.Contains(err.Error(), c.wantErr)) {
+				t.Fatalf("want err containing %q, got %v", c.wantErr, err)
+			}
 			if c.wantErr != "" {
-				if err == nil || !strings.Contains(err.Error(), c.wantErr) {
-					t.Fatalf("want err containing %q, got %v", c.wantErr, err)
-				}
-
 				return
 			}
 			if err != nil {

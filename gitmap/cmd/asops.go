@@ -54,26 +54,12 @@ func registerAlias(name string, rec model.ScanRecord, force bool) {
 
 // createOrUpdateAliasRow handles the conflict-detection + write.
 func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.ScanRecord, force bool) {
-	if !db.AliasExists(name) {
-		if _, err := db.CreateAlias(name, repoID); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-			os.Exit(1)
-		}
-		fmt.Printf(constants.MsgAsRegisteredFmt, rec.RepoName, name, rec.AbsolutePath)
-		fmt.Printf(constants.MsgAsHintNext, name)
-		renameVSCodePMByPath(rec.AbsolutePath, name)
-
+	if db.AliasExists(name) == false {
+		createAliasAndReturn(db, name, repoID, rec)
 		return
 	}
 
-	if !force {
-		existing, err := db.ResolveAlias(name)
-		if err == nil && existing.Slug != rec.Slug {
-			fmt.Fprintf(os.Stderr, constants.ErrAsAliasInUseFmt, name, existing.Slug)
-			fmt.Fprintln(os.Stderr)
-			os.Exit(1)
-		}
-	}
+	checkAliasConflict(db, name, rec, force)
 
 	if err := db.UpdateAlias(name, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
@@ -83,4 +69,26 @@ func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.S
 	fmt.Printf(constants.MsgAsUpdatedFmt, name, rec.RepoName, rec.AbsolutePath)
 	fmt.Printf(constants.MsgAsHintNext, name)
 	renameVSCodePMByPath(rec.AbsolutePath, name)
+}
+
+func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.ScanRecord) {
+	if _, err := db.CreateAlias(name, repoID); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
+		os.Exit(1)
+	}
+	fmt.Printf(constants.MsgAsRegisteredFmt, rec.RepoName, name, rec.AbsolutePath)
+	fmt.Printf(constants.MsgAsHintNext, name)
+	renameVSCodePMByPath(rec.AbsolutePath, name)
+}
+
+func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force bool) {
+	if force == true {
+		return
+	}
+	existing, err := db.ResolveAlias(name)
+	if err == nil && existing.Slug != rec.Slug {
+		fmt.Fprintf(os.Stderr, constants.ErrAsAliasInUseFmt, name, existing.Slug)
+		fmt.Fprintln(os.Stderr)
+		os.Exit(1)
+	}
 }

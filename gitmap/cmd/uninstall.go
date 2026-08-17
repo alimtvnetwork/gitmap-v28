@@ -56,20 +56,17 @@ func runUninstall(args []string) {
 	}
 
 	db, err := openDB()
-	if err != nil {
-		if !force {
-			fmt.Fprintf(os.Stderr, constants.ErrUninstallNotFound, tool)
-			os.Exit(1)
-		}
+	if err != nil && force == false {
+		fmt.Fprintf(os.Stderr, constants.ErrUninstallNotFound, tool)
+		os.Exit(1)
 	}
 
 	if db != nil {
 		defer db.Close()
-
-		if !db.IsToolInstalled(tool) && !force {
-			fmt.Fprintf(os.Stderr, constants.ErrUninstallNotFound, tool)
-			os.Exit(1)
-		}
+	}
+	if db != nil && db.IsToolInstalled(tool) == false && force == false {
+		fmt.Fprintf(os.Stderr, constants.ErrUninstallNotFound, tool)
+		os.Exit(1)
 	}
 
 	if !force && !confirmUninstall(tool) {
@@ -88,10 +85,12 @@ func runUninstall(args []string) {
 	fmt.Printf(constants.MsgUninstallRemoving, tool)
 	runInstallCommand(uninstallCmd, installOptions{Tool: tool, Verbose: true})
 
+	errRemove := error(nil)
 	if db != nil {
-		if err := db.RemoveInstalledTool(tool); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrUninstallDBRemove, tool, err)
-		}
+		errRemove = db.RemoveInstalledTool(tool)
+	}
+	if db != nil && errRemove != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrUninstallDBRemove, tool, errRemove)
 	}
 
 	fmt.Printf(constants.MsgUninstallSuccess, tool)
@@ -124,10 +123,11 @@ func hasPositionalToolArg(args []string) bool {
 			skipNext = false
 			continue
 		}
-		if isFlagToken(a) {
-			if a == "--shell-mode" || a == "-shell-mode" {
-				skipNext = true
-			}
+		if isFlagToken(a) == true && (a == "--shell-mode" || a == "-shell-mode") {
+			skipNext = true
+			continue
+		}
+		if isFlagToken(a) == true {
 			continue
 		}
 

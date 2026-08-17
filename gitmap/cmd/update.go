@@ -25,10 +25,10 @@ import (
 // for users who maintain a local clone and want to ship in-tree changes.
 func runUpdate() {
 	requireOnline()
-	if !hasFlag(constants.FlagSourceRebuild) {
-		if runUpdateRemoteInstall() {
-			return
-		}
+	if hasFlag(constants.FlagSourceRebuild) == false && runUpdateRemoteInstall() == true {
+		return
+	}
+	if hasFlag(constants.FlagSourceRebuild) == false {
 		fmt.Fprint(os.Stderr, constants.MsgUpdateRemoteFallback)
 	}
 	repoPath := resolveRepoPath()
@@ -93,12 +93,12 @@ func tryUpdaterFallback() bool {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 
-	if err := cmd.Run(); err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			os.Exit(exitErr.ExitCode())
-		}
-
+	errRun := cmd.Run()
+	var exitErr *exec.ExitError
+	if errRun != nil && errors.As(errRun, &exitErr) == true {
+		os.Exit(exitErr.ExitCode())
+	}
+	if errRun != nil {
 		return false
 	}
 
@@ -223,15 +223,16 @@ func getFlagValue(name string) string {
 
 // initRunnerVerbose initializes verbose logging if --verbose flag is present.
 func initRunnerVerbose() {
-	if hasFlag(constants.FlagVerbose) {
-		log, err := verbose.Init()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, err)
-		} else {
-			defer log.Close()
-			log.Log(constants.UpdateRunnerLogStart, constants.RepoPath)
-		}
+	if hasFlag(constants.FlagVerbose) == false {
+		return
 	}
+	log, err := verbose.Init()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, err)
+		return
+	}
+	defer log.Close()
+	log.Log(constants.UpdateRunnerLogStart, constants.RepoPath)
 }
 
 // hasFlag checks if a flag is present in os.Args[2:].

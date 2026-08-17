@@ -79,11 +79,12 @@ func performReleaseAlias(target, alias, version string, pull, noStash, dryRun bo
 		runReleaseAliasPull(target)
 	}
 
-	if !noStash {
-		stashLabel := autoStashIfDirty(target, alias, version)
-		if stashLabel != "" {
-			defer popAutoStash(target, stashLabel)
-		}
+	stashLabel := ""
+	if noStash == false {
+		stashLabel = autoStashIfDirty(target, alias, version)
+	}
+	if stashLabel != "" {
+		defer popAutoStash(target, stashLabel)
 	}
 
 	invokeAliasRelease(version, dryRun)

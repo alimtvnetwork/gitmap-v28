@@ -40,12 +40,12 @@ func ParseFile(path, format, mode, onExists string) (Plan, error) {
 		return Plan{}, fmt.Errorf(constants.ErrCloneNowAbsPath, path, err)
 	}
 	resolved := format
+	var derr error
 	if len(resolved) == 0 {
-		detected, derr := detectFormat(abs)
-		if derr != nil {
-			return Plan{}, derr
-		}
-		resolved = detected
+		resolved, derr = detectFormat(abs)
+	}
+	if derr != nil {
+		return Plan{}, derr
 	}
 	rows, err := parseByFormat(abs, resolved)
 	if err != nil {
@@ -143,9 +143,9 @@ func parseCSVWithSchema(f io.Reader) ([]Row, error) {
 		// Fall back to the legacy positional parser for full 8+ col
 		// scan exports whose header names are not normalized cleanly.
 		recs, err = formatter.ParseCSV(bytes.NewReader(data))
-		if err != nil {
-			return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)
-		}
+	}
+	if err != nil {
+		return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)
 	}
 
 	return rowsFromRecords(recs), nil

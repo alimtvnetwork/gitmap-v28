@@ -39,11 +39,11 @@ func runList(args []string) {
 	}
 	defer db.Close()
 	records, err := loadListRecords(db, groupFilter)
+	if err != nil && isLegacyDataError(err) {
+		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+		os.Exit(1)
+	}
 	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
 		os.Exit(1)
 	}
@@ -99,10 +99,10 @@ func printListOutput(records []model.ScanRecord, verbose bool) {
 	if verbose {
 		fmt.Printf(constants.MsgListDBPath, store.DefaultDBPath())
 	}
+	if len(records) == 0 && !verbose {
+		fmt.Printf(constants.MsgListDBPath, store.DefaultDBPath())
+	}
 	if len(records) == 0 {
-		if !verbose {
-			fmt.Printf(constants.MsgListDBPath, store.DefaultDBPath())
-		}
 		fmt.Println(constants.MsgListEmpty)
 
 		return

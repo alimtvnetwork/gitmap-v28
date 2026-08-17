@@ -49,31 +49,30 @@ func loadHistory(cmdFilter string) []model.CommandHistoryRecord {
 	}
 	defer db.Close()
 
-	if cmdFilter != "" {
-		records, err := db.ListHistoryByCommand(cmdFilter)
-		if err != nil {
-			if isLegacyDataError(err) {
-				fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-				os.Exit(1)
-			}
-			fmt.Fprintf(os.Stderr, constants.ErrHistoryQuery+"\n", err)
-			os.Exit(1)
-		}
+	var records []model.CommandHistoryRecord
+	var fetchErr error
 
-		return records
+	if cmdFilter != "" {
+		records, fetchErr = db.ListHistoryByCommand(cmdFilter)
+	} else {
+		records, fetchErr = db.ListHistory()
 	}
 
-	records, err := db.ListHistory()
-	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
-		fmt.Fprintf(os.Stderr, constants.ErrHistoryQuery+"\n", err)
-		os.Exit(1)
+	if fetchErr != nil {
+		handleHistoryError(fetchErr)
 	}
 
 	return records
+}
+
+// handleHistoryError processes errors returned from the history query.
+func handleHistoryError(err error) {
+	if isLegacyDataError(err) == true {
+		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stderr, constants.ErrHistoryQuery+"\n", err)
+	os.Exit(1)
 }
 
 // applyHistoryLimit truncates results to the given limit.

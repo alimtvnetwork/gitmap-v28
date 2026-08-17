@@ -61,20 +61,7 @@ func DistributionLoop(registry *Registry, repos []Repo, interval time.Duration, 
 
 		newActiveClients := getActiveClients(registry)
 
-		hasNodeChanged := false
-		isLengthDifferent := len(newActiveClients) != len(activeClients)
-
-		if isLengthDifferent == true {
-			hasNodeChanged = true
-		} else {
-			for i := range activeClients {
-				isDifferentNode := activeClients[i].ID != newActiveClients[i].ID
-				if isDifferentNode == true {
-					hasNodeChanged = true
-					break
-				}
-			}
-		}
+		hasNodeChanged := clientsChanged(activeClients, newActiveClients)
 
 		if hasNodeChanged == true {
 			activeClients = newActiveClients
@@ -95,4 +82,16 @@ func getActiveClients(registry *Registry) []Client {
 		}
 	}
 	return active
+}
+
+func clientsChanged(old, new []Client) bool {
+	if len(old) != len(new) {
+		return true
+	}
+	for i := range old {
+		if old[i].ID != new[i].ID {
+			return true
+		}
+	}
+	return false
 }

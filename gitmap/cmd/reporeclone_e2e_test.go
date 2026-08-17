@@ -59,10 +59,10 @@ func assertRepoRecloned(t *testing.T, work, sentinel string) {
 		t.Fatalf("post-stat .git: %v (re-clone did not rebuild .git)", err)
 	}
 	_, err := os.Stat(sentinel)
+	if err != nil && os.IsNotExist(err) == true {
+		return
+	}
 	if err != nil {
-		if os.IsNotExist(err) {
-			return
-		}
 		t.Fatalf("stat sentinel: %v", err)
 	}
 	t.Fatal("sentinel survived reclone")

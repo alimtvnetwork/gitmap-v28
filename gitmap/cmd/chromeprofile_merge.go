@@ -148,29 +148,31 @@ func mergeMapInto(src, dst map[string]any, prefix string, pol *mergePolicy) merg
 	for k, v := range src {
 		key := joinKey(prefix, k)
 		existing, present := dst[k]
+		if !present && pol.dryRun {
+			fmt.Printf(constants.MsgChromeMergeDryAdd, key)
+			s.added++
+			continue
+		}
 		if !present {
-			if pol.dryRun {
-				fmt.Printf(constants.MsgChromeMergeDryAdd, key)
-			} else {
-				dst[k] = v
-			}
+			dst[k] = v
 			s.added++
 			continue
 		}
 		decision := resolveMergeConflict(key, existing, v, pol)
-		if decision == mergeOverwrite {
-			if pol.dryRun {
-				fmt.Printf(constants.MsgChromeMergeDryOver, key)
-			} else {
-				dst[k] = v
-			}
+		if decision == mergeOverwrite && pol.dryRun {
+			fmt.Printf(constants.MsgChromeMergeDryOver, key)
 			s.overwrote++
-		} else {
-			if pol.dryRun && !jsonEqual(existing, v) {
-				fmt.Printf(constants.MsgChromeMergeDryKeep, key)
-			}
-			s.skipped++
+			continue
 		}
+		if decision == mergeOverwrite {
+			dst[k] = v
+			s.overwrote++
+			continue
+		}
+		if pol.dryRun && !jsonEqual(existing, v) {
+			fmt.Printf(constants.MsgChromeMergeDryKeep, key)
+		}
+		s.skipped++
 	}
 	return s
 }
@@ -270,10 +272,11 @@ func mergeChromeBookmarks(srcDir, dstDir string, pol *mergePolicy) mergeStats {
 		dst = map[string]any{"roots": map[string]any{}}
 	}
 	stats = mergeBookmarkRoots(src, dst, pol)
-	if !pol.dryRun {
-		if err := writeJSONObject(dstPath, dst); err != nil {
-			fmt.Fprintf(os.Stderr, "  write failed: %v\n", err)
-		}
+	if pol.dryRun {
+		return stats
+	}
+	if err := writeJSONObject(dstPath, dst); err != nil {
+		fmt.Fprintf(os.Stderr, "  write failed: %v\n", err)
 	}
 	return stats
 }
@@ -313,12 +316,12 @@ func mergeBookmarkFolder(src, dst map[string]any, label string, pol *mergePolicy
 			continue
 		}
 		key := bookmarkKey(child)
+		if _, dup := seen[key]; dup && pol.autoOverwrite {
+			s.overwrote++
+			continue
+		}
 		if _, dup := seen[key]; dup {
-			if pol.autoOverwrite {
-				s.overwrote++
-			} else {
-				s.skipped++
-			}
+			s.skipped++
 			continue
 		}
 		dstChildren = append(dstChildren, child)
@@ -374,18 +377,23 @@ func mergeChromeExtensions(srcDir, dstDir string, pol *mergePolicy) mergeStats {
 
 func mergeOneExtension(srcExt, dstExt string, pol *mergePolicy) mergeStats {
 	var s mergeStats
-	if _, err := os.Stat(dstExt); err == nil {
-		if pol.autoOverwrite {
-			if pol.dryRun {
-				fmt.Printf(constants.MsgChromeMergeDryOver, "ext "+filepath.Base(dstExt))
-			}
-			s.overwrote++
-		} else {
-			if pol.dryRun {
-				fmt.Printf(constants.MsgChromeMergeDryKeep, "ext "+filepath.Base(dstExt))
-			}
-			s.skipped++
-		}
+	_, err := os.Stat(dstExt)
+	if err == nil && pol.autoOverwrite && pol.dryRun {
+		fmt.Printf(constants.MsgChromeMergeDryOver, "ext "+filepath.Base(dstExt))
+		s.overwrote++
+		return s
+	}
+	if err == nil && pol.autoOverwrite {
+		s.overwrote++
+		return s
+	}
+	if err == nil && pol.dryRun {
+		fmt.Printf(constants.MsgChromeMergeDryKeep, "ext "+filepath.Base(dstExt))
+		s.skipped++
+		return s
+	}
+	if err == nil {
+		s.skipped++
 		return s
 	}
 	if pol.dryRun {
@@ -407,21 +415,22 @@ func copyTree(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	if info.IsDir() {
-		if err := os.MkdirAll(dst, constants.DirPermission); err != nil {
-			return err
-		}
-		entries, err := os.ReadDir(src)
-		if err != nil {
-			return err
-		}
-		for _, e := range entries {
-			if err := copyTree(filepath.Join(src, e.Name()), filepath.Join(dst, e.Name())); err != nil {
-				return err
-			}
-		}
-		return nil
+	if !info.IsDir() {
+		return copyOneFile(src, dst)
 	}
+	if err := os.MkdirAll(dst, constants.DirPermission); err != nil {
+		return err
+	}
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+	for _, e := range entries {
+		if err := copyTree(filepath.Join(src, e.Name()), filepath.Join(dst, e.Name())); err != nil {
+			return err
+		}
+	}
+	return nil
 	return copyOneFile(src, dst)
 }
 

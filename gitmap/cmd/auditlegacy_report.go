@@ -33,13 +33,23 @@ func writeAuditLegacyReport(opts auditLegacyOpts, hits []auditLegacyHit, fileCou
 
 // writeAuditReportFile creates parent dirs then writes body to path.
 func writeAuditReportFile(path, body string) error {
-	if dir := filepath.Dir(path); dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			return err
-		}
+	dir := filepath.Dir(path)
+	err := setupDir(dir)
+	if err != nil {
+		return err
 	}
 
 	return os.WriteFile(path, []byte(body), 0o644)
+}
+
+// setupDir creates the directory if it is not the current or root directory.
+func setupDir(dir string) error {
+	isLocal := dir == "" || dir == "."
+	if isLocal == true {
+		return nil
+	}
+
+	return os.MkdirAll(dir, 0o755)
 }
 
 // renderAuditMarkdown builds the full report body.

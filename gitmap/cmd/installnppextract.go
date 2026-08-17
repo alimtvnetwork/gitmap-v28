@@ -59,16 +59,20 @@ func extractZipEntry(target string, file *zip.File) {
 		return
 	}
 
-	if file.FileInfo().IsDir() {
-		err := os.MkdirAll(destPath, 0o755)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrNppDirCreate, destPath, err)
-		}
-
+	if file.FileInfo().IsDir() == true {
+		handleNppExtractDir(destPath)
 		return
 	}
 
 	writeZipFile(target, file, destPath)
+}
+
+// handleNppExtractDir attempts to create a directory and logs if it fails.
+func handleNppExtractDir(destPath string) {
+	err := os.MkdirAll(destPath, 0o755)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrNppDirCreate, destPath, err)
+	}
 }
 
 // writeZipFile extracts a single file from the zip archive.

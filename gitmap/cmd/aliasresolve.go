@@ -23,12 +23,7 @@ type resolvedAlias struct {
 func extractAliasFlag(args []string) (string, []string) {
 	for i, arg := range args {
 		if arg == "-A" || arg == "--alias" {
-			if i+1 < len(args) {
-				return args[i+1], removeElements(args, i, 2)
-			}
-
-			fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
-			os.Exit(1)
+			return extractStandaloneAliasFlag(args, i)
 		}
 
 		if hasAliasPrefix(arg, "-A=") {
@@ -40,6 +35,17 @@ func extractAliasFlag(args []string) (string, []string) {
 	}
 
 	return "", args
+}
+
+// extractStandaloneAliasFlag extracts the alias value when provided as a separate argument.
+func extractStandaloneAliasFlag(args []string, index int) (string, []string) {
+	if index+1 < len(args) {
+		return args[index+1], removeElements(args, index, 2)
+	}
+
+	fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
+	os.Exit(1)
+	return "", nil
 }
 
 // hasAliasPrefix checks if an arg starts with the given prefix.

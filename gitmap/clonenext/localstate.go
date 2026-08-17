@@ -98,11 +98,12 @@ func extractOriginURL(config string) string {
 		if !inOriginSection {
 			continue
 		}
-		if strings.HasPrefix(line, "url") {
-			parts := strings.SplitN(line, "=", 2)
-			if len(parts) == 2 {
-				return strings.TrimSpace(parts[1])
-			}
+		if !strings.HasPrefix(line, "url") {
+			continue
+		}
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			return strings.TrimSpace(parts[1])
 		}
 	}
 

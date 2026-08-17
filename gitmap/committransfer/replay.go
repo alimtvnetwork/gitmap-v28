@@ -35,17 +35,15 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 			return res, fmt.Errorf("commit %d/%d (%s): %w",
 				i+1, len(plan.Commits), commit.ShortSHA, err)
 		}
+		if newSHA == "" && emptyAfterSnapshot {
+			res.SkippedEmpty++
+			fmt.Fprintf(os.Stdout,
+				"%s [%d/%d] %s → empty (snapshot tree unchanged on target)\n",
+				opts.LogPrefix, i+1, len(plan.Commits), commit.ShortSHA)
+			continue
+		}
 		if newSHA == "" {
 			res.SkippedEmpty++
-			if emptyAfterSnapshot {
-				// Surface which source SHA disappeared so the user
-				// can reconcile against `git log`. Issue:
-				// .lovable/memory/issues/2026-05-09-commit-transfer-count-mismatch.md
-				fmt.Fprintf(os.Stdout,
-					"%s [%d/%d] %s → empty (snapshot tree unchanged on target)\n",
-					opts.LogPrefix, i+1, len(plan.Commits), commit.ShortSHA)
-			}
-
 			continue
 		}
 		res.Replayed++
@@ -111,11 +109,10 @@ func snapshotCopy(source, target string, opts Options) error {
 		if relErr != nil {
 			return relErr
 		}
+		if shouldSkipPath(rel, opts) && info.IsDir() {
+			return filepath.SkipDir
+		}
 		if shouldSkipPath(rel, opts) {
-			if info.IsDir() {
-				return filepath.SkipDir
-			}
-
 			return nil
 		}
 		if info.IsDir() {
@@ -182,11 +179,10 @@ func mirrorPrune(target string, wanted map[string]struct{}, opts Options) error 
 		if relErr != nil {
 			return relErr
 		}
+		if shouldSkipPath(rel, opts) && info.IsDir() {
+			return filepath.SkipDir
+		}
 		if shouldSkipPath(rel, opts) {
-			if info.IsDir() {
-				return filepath.SkipDir
-			}
-
 			return nil
 		}
 		if info.IsDir() {

@@ -64,12 +64,7 @@ func loadRecordsByGroup(groupName string) []model.ScanRecord {
 	defer db.Close()
 	records, err := db.ShowGroup(groupName)
 	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
-		fmt.Fprintf(os.Stderr, constants.ErrGenericFmt, err)
-		os.Exit(1)
+		handleStatusDBError(err)
 	}
 
 	return records
@@ -85,12 +80,7 @@ func loadAllRecordsDB() []model.ScanRecord {
 	defer db.Close()
 	records, err := db.ListRepos()
 	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
-		fmt.Fprintf(os.Stderr, constants.ErrGenericFmt, err)
-		os.Exit(1)
+		handleStatusDBError(err)
 	}
 
 	return records
@@ -130,12 +120,7 @@ func loadAllRecordsDBOrEmpty() []model.ScanRecord {
 	defer db.Close()
 	records, err := db.ListRepos()
 	if err != nil {
-		if isLegacyDataError(err) {
-			fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-			os.Exit(1)
-		}
-		fmt.Fprintf(os.Stderr, constants.ErrGenericFmt, err)
-		os.Exit(1)
+		handleStatusDBError(err)
 	}
 	if len(records) == 0 {
 		fmt.Fprint(os.Stderr, constants.MsgStatusNoData)
@@ -166,4 +151,13 @@ type statusSummary struct {
 	Behind  int
 	Stashed int
 	Missing int
+}
+
+func handleStatusDBError(err error) {
+	if isLegacyDataError(err) {
+		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stderr, constants.ErrGenericFmt, err)
+	os.Exit(1)
 }

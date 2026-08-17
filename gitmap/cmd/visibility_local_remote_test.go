@@ -72,12 +72,16 @@ func TestResolveProviderAndSlug_LocalRemote_ExitsZero(t *testing.T) {
 			out, err := cmd.CombinedOutput()
 
 			exitCode := 0
+			isExitErr := false
+			var ee *exec.ExitError
 			if err != nil {
-				if ee, ok := err.(*exec.ExitError); ok {
-					exitCode = ee.ExitCode()
-				} else {
-					t.Fatalf("exec failed: %v\noutput:\n%s", err, out)
-				}
+				ee, isExitErr = err.(*exec.ExitError)
+			}
+			if err != nil && isExitErr == true {
+				exitCode = ee.ExitCode()
+			}
+			if err != nil && isExitErr == false {
+				t.Fatalf("exec failed: %v\noutput:\n%s", err, out)
 			}
 
 			if exitCode == constants.ExitVisBadProvider {

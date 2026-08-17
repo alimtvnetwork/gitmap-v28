@@ -22,41 +22,45 @@ func gitStage(file string) {
 func gitCommitWithAuthor(title, description, authorName, authorEmail string) {
 	msg := title + "\n\n" + description
 
-	if authorName != "" || authorEmail != "" {
+	hasAuthor := authorName != "" || authorEmail != ""
+	var cmd *exec.Cmd
+	if hasAuthor == true {
 		author := resolveAuthorFlag(authorName, authorEmail)
-		cmd := exec.Command("git", "commit", "-m", msg, "--author", author)
-		if err := cmd.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrSEOGitCommit, err)
-		}
-
-		return
+		cmd = exec.Command("git", "commit", "-m", msg, "--author", author)
+	}
+	if hasAuthor == false {
+		cmd = exec.Command("git", "commit", "-m", msg)
 	}
 
-	cmd := exec.Command("git", "commit", "-m", msg)
-	if err := cmd.Run(); err != nil {
+	err := cmd.Run()
+	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSEOGitCommit, err)
 	}
 }
 
 // resolveAuthorFlag builds the --author "Name <email>" string.
 func resolveAuthorFlag(name, email string) string {
-	if name == "" {
+	nameMissing := name == ""
+	if nameMissing == true {
 		out, gitErr := exec.Command("git", "config", "user.name").Output()
-		if gitErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not read git user.name: %v\n", gitErr)
-		}
+		printGitConfigError(gitErr, "user.name")
 		name = strings.TrimSpace(string(out))
 	}
 
-	if email == "" {
+	emailMissing := email == ""
+	if emailMissing == true {
 		out, gitErr := exec.Command("git", "config", "user.email").Output()
-		if gitErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not read git user.email: %v\n", gitErr)
-		}
+		printGitConfigError(gitErr, "user.email")
 		email = strings.TrimSpace(string(out))
 	}
 
 	return name + " <" + email + ">"
+}
+
+func printGitConfigError(err error, field string) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not read git %s: %v\n", field, err)
+	}
 }
 
 // gitPush pushes to the remote.

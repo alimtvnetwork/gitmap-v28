@@ -169,10 +169,12 @@ func removeBranches(branches []string) {
 		}
 	}
 
-	if len(branches) > 0 {
-		if err := release.DeleteRemoteBranches(branches); err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not delete remote branches: %v\n", err)
-		}
+	if len(branches) == 0 {
+		return
+	}
+	errRemote := release.DeleteRemoteBranches(branches)
+	if errRemote != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not delete remote branches: %v\n", errRemote)
 	}
 }
 

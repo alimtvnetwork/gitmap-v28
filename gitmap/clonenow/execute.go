@@ -62,10 +62,9 @@ type Result struct {
 // shells out into a subprocess (which mutates cwd) doesn't shift
 // where subsequent rows land.
 func Execute(plan Plan, cwd string, progress io.Writer) []Result {
-	if len(cwd) == 0 {
-		if wd, err := os.Getwd(); err == nil {
-			cwd = wd
-		}
+	wd, err := os.Getwd()
+	if len(cwd) == 0 && err == nil {
+		cwd = wd
 	}
 	out := make([]Result, 0, len(plan.Rows))
 	for i, r := range plan.Rows {

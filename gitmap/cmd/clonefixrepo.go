@@ -63,17 +63,9 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) {
 	// per worker so chdir/fix-repo chaining stays isolated. The
 	// optional `folder` positional is forbidden in this mode — each
 	// URL derives its own folder from the repo base name.
-	if urls := splitCommaURLs(url); len(urls) > 1 {
-		subcmd := constants.CmdCloneFixRepo
-		if makePublic {
-			subcmd = constants.CmdCloneFixRepoPub
-		}
-		passthrough := buildCFRPassthroughFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, modifiers.NoCommit, modifiers.NoPush)
-		leadingMods := buildCFRLeadingModifiers(modifiers)
-		failed := runCloneFixRepoParallel(urls, subcmd, leadingMods, passthrough, parallel)
-		if failed > 0 {
-			os.Exit(constants.ExitCloneFixRepoChainFailed)
-		}
+	urls := splitCommaURLs(url)
+	if len(urls) > 1 {
+		runParallelCloneFixRepo(urls, makePublic, noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, modifiers, parallel)
 		return
 	}
 
@@ -92,33 +84,20 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) {
 	// the repo base name (e.g. macro-ahk-v50 → macro-ahk) so that
 	// fix-repo can rewrite version tokens across siblings. If the
 	// user passes an explicit folder argument, that wins verbatim.
-	if len(folderName) == 0 {
-		repoName := repoNameFromURL(url)
-		parsed := clonenext.ParseRepoName(repoName)
-		if parsed.HasVersion {
-			folderName = parsed.BaseName
-		} else {
-			folderName = repoName
-		}
-	}
+	folderName = deriveFolderNameForCFR(url, folderName)
 	absPath := resolveCloneTargetFolder(url, folderName)
 	url = preferExistingFolderTransport(url, absPath)
 	url = coerceURLToStoredTransport(url)
 	requireOnline()
 	executeDirectClone(url, folderName, true, false, "", noVSCodeSync)
-	if !dryRun {
+	if dryRun == false {
 		persistRecloneTransport(url)
 	}
 
 	// Dry-run short circuit: nothing was cloned, so the chained
 	// chdir + fix-repo + make-public steps have no target to act on.
-	if dryRun {
-		suffix := ""
-		if makePublic {
-			suffix = " → make-public --yes"
-		}
-		fmt.Printf("  "+constants.MsgCloneDryRunNoop+"\n  would chain: fix-repo --all%s @ %s\n",
-			suffix, absPath)
+	if dryRun == true {
+		printDryRunMessage(makePublic, absPath)
 		return
 	}
 
@@ -139,6 +118,29 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) {
 	dispatchCodingGuidelinesModifier(absPath, modifiers)
 
 	fmt.Printf(constants.MsgCloneFixRepoDone, absPath)
+}
+
+// runParallelCloneFixRepo encapsulates the parallel clone execution to avoid nested ifs.
+func runParallelCloneFixRepo(urls []string, makePublic bool, noVSCodeSync bool, requireVersion bool, useSSH bool, useHTTPS bool, autoYes bool, dryRun bool, modifiers CfrModifierFlags, parallel int) {
+	subcmd := constants.CmdCloneFixRepo
+	if makePublic == true {
+		subcmd = constants.CmdCloneFixRepoPub
+	}
+	passthrough := buildCFRPassthroughFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, modifiers.NoCommit, modifiers.NoPush)
+	leadingMods := buildCFRLeadingModifiers(modifiers)
+	failed := runCloneFixRepoParallel(urls, subcmd, leadingMods, passthrough, parallel)
+	if failed > 0 {
+		os.Exit(constants.ExitCloneFixRepoChainFailed)
+	}
+}
+
+func printDryRunMessage(makePublic bool, absPath string) {
+	suffix := ""
+	if makePublic == true {
+		suffix = " → make-public --yes"
+	}
+	fmt.Printf("  "+constants.MsgCloneDryRunNoop+"\n  would chain: fix-repo --all%s @ %s\n",
+		suffix, absPath)
 }
 
 // buildCFRLeadingModifiers renders modifier flags back into their
@@ -181,26 +183,27 @@ func dispatchCodingGuidelinesModifier(absPath string, m CfrModifierFlags) {
 // URL shapes are returned unchanged so non-URL positionals still flow
 // through.
 func applyCloneFixRepoScheme(url string, useSSH, useHTTPS bool) string {
-	if useSSH && useHTTPS {
+	if useSSH == true && useHTTPS == true {
 		fmt.Fprintln(os.Stderr, "warning: --ssh and --https both set; --ssh wins")
 		useHTTPS = false
 	}
-	if useSSH {
-		if converted, ok := ConvertURLToSSH(url); ok {
-			if converted != url {
-				fmt.Printf("↪ --ssh rewrite: %s → %s\n", url, converted)
-			}
-			return converted
-		}
+
+	convertedSSH, okSSH := ConvertURLToSSH(url)
+	if useSSH == true && okSSH == true && convertedSSH != url {
+		fmt.Printf("↪ --ssh rewrite: %s → %s\n", url, convertedSSH)
 	}
-	if useHTTPS {
-		if converted, ok := ConvertURLToHTTPS(url); ok {
-			if converted != url {
-				fmt.Printf("↪ --https rewrite: %s → %s\n", url, converted)
-			}
-			return converted
-		}
+	if useSSH == true && okSSH == true {
+		return convertedSSH
 	}
+
+	convertedHTTPS, okHTTPS := ConvertURLToHTTPS(url)
+	if useHTTPS == true && okHTTPS == true && convertedHTTPS != url {
+		fmt.Printf("↪ --https rewrite: %s → %s\n", url, convertedHTTPS)
+	}
+	if useHTTPS == true && okHTTPS == true {
+		return convertedHTTPS
+	}
+
 	return url
 }
 
@@ -308,21 +311,25 @@ func parseCloneFixRepoArgs(args []string) (string, string, bool, bool, bool, boo
 // executeDirectClone so we know which directory to cd into after
 // the clone step finishes. Versioned URLs auto-flatten to BaseName.
 func resolveCloneTargetFolder(url, folderName string) string {
-	if len(folderName) == 0 {
-		repoName := repoNameFromURL(url)
-		parsed := clonenext.ParseRepoName(repoName)
-		if parsed.HasVersion {
-			folderName = parsed.BaseName
-		} else {
-			folderName = repoName
-		}
-	}
+	folderName = deriveFolderNameForCFR(url, folderName)
 	abs, err := filepath.Abs(folderName)
 	if err != nil {
 		return folderName
 	}
 
 	return abs
+}
+
+func deriveFolderNameForCFR(url string, folderName string) string {
+	if len(folderName) > 0 {
+		return folderName
+	}
+	repoName := repoNameFromURL(url)
+	parsed := clonenext.ParseRepoName(repoName)
+	if parsed.HasVersion == true {
+		return parsed.BaseName
+	}
+	return repoName
 }
 
 // runChainedGitmapStep re-execs the current gitmap binary with the
@@ -338,12 +345,14 @@ func runChainedGitmapStep(args []string) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if runErr := cmd.Run(); runErr != nil {
-		var exitErr *exec.ExitError
-		if errors.As(runErr, &exitErr) {
-			os.Exit(exitErr.ExitCode())
-		}
-		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, runErr)
-		os.Exit(constants.ExitCloneFixRepoChainFailed)
+	runErr := cmd.Run()
+	if runErr == nil {
+		return
 	}
+	var exitErr *exec.ExitError
+	if errors.As(runErr, &exitErr) == true {
+		os.Exit(exitErr.ExitCode())
+	}
+	fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, runErr)
+	os.Exit(constants.ExitCloneFixRepoChainFailed)
 }

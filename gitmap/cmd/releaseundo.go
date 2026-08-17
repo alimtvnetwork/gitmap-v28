@@ -29,12 +29,12 @@ func runReleaseUndo(args []string) {
 
 	version, keepRemote, dryRun, yes := parseReleaseUndoFlags(args)
 
+	latest, ok := latestReleaseJSONVersion()
+	if version == "" && ok == false {
+		fmt.Fprintln(os.Stderr, "release-undo: no .gitmap/release/v*.json found and no version argument given")
+		os.Exit(1)
+	}
 	if version == "" {
-		latest, ok := latestReleaseJSONVersion()
-		if !ok {
-			fmt.Fprintln(os.Stderr, "release-undo: no .gitmap/release/v*.json found and no version argument given")
-			os.Exit(1)
-		}
 		version = latest
 	}
 
@@ -99,12 +99,15 @@ func applyReleaseUndo(tag, jsonPath string, keepRemote bool) []string {
 	} else {
 		fmt.Fprintf(os.Stderr, "  ⚠ local tag delete failed: %v\n", err)
 	}
-	if !keepRemote {
-		if err := runGitQuiet("push", "origin", ":refs/tags/"+tag); err == nil {
-			done = append(done, "remote tag")
-		} else {
-			fmt.Fprintf(os.Stderr, "  ⚠ remote tag delete failed: %v\n", err)
-		}
+	errPush := error(nil)
+	if keepRemote == false {
+		errPush = runGitQuiet("push", "origin", ":refs/tags/"+tag)
+	}
+	if keepRemote == false && errPush == nil {
+		done = append(done, "remote tag")
+	}
+	if keepRemote == false && errPush != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ remote tag delete failed: %v\n", errPush)
 	}
 	if err := os.Remove(jsonPath); err == nil {
 		done = append(done, "release json")

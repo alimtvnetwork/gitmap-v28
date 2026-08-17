@@ -252,11 +252,10 @@ func runSyncLines(path, baseline string, dry bool) {
 	var toAdd []string
 	for _, l := range strings.Split(baseline, "\n") {
 		trimmed := strings.TrimSpace(l)
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			// Skip comment/blank noise from baseline when file already exists.
-			if len(existing) > 0 {
-				continue
-			}
+		isNoise := trimmed == "" || strings.HasPrefix(trimmed, "#")
+		hasExisting := len(existing) > 0
+		if isNoise && hasExisting {
+			continue
 		}
 		if present[trimmed] {
 			continue
@@ -303,10 +302,7 @@ func runSyncPrettierRC(dry, force bool) {
 	current := map[string]any{}
 
 	if data, err := os.ReadFile(path); err == nil && len(data) > 0 {
-		if err := json.Unmarshal(data, &current); err != nil {
-			fmt.Fprintf(os.Stderr, "  x   %s: not valid JSON (%v). Fix or delete first.\n", path, err)
-			os.Exit(1)
-		}
+		parsePrettierRC(path, data, &current)
 	}
 
 	var added, overwritten []string
@@ -331,13 +327,13 @@ func runSyncPrettierRC(dry, force bool) {
 	sort.Strings(added)
 	sort.Strings(overwritten)
 
-	if dry {
-		if len(added) > 0 {
-			fmt.Printf("  +   %s would add: %s\n", path, strings.Join(added, ", "))
-		}
-		if len(overwritten) > 0 {
-			fmt.Printf("  ~   %s would overwrite (--force): %s\n", path, strings.Join(overwritten, ", "))
-		}
+	if dry == true && len(added) > 0 {
+		fmt.Printf("  +   %s would add: %s\n", path, strings.Join(added, ", "))
+	}
+	if dry == true && len(overwritten) > 0 {
+		fmt.Printf("  ~   %s would overwrite (--force): %s\n", path, strings.Join(overwritten, ", "))
+	}
+	if dry == true {
 		return
 	}
 
@@ -378,4 +374,12 @@ func runSyncLFSInstall(dry bool) {
 		args = append(args, "--dry-run")
 	}
 	runAddLFSInstall(args)
+}
+
+func parsePrettierRC(path string, data []byte, current *map[string]any) {
+	err := json.Unmarshal(data, current)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  x   %s: not valid JSON (%v). Fix or delete first.\n", path, err)
+		os.Exit(1)
+	}
 }

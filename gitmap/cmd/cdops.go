@@ -80,16 +80,18 @@ func lookupCDRecords(name string) []model.ScanRecord {
 	defer db.Close()
 
 	repos, err := db.FindBySlug(strings.ToLower(name))
-	if err != nil || len(repos) == 0 {
-		all, listErr := db.ListRepos()
-		if listErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not list repos: %v\n", listErr)
-		}
+	hasValidRepos := err == nil && len(repos) > 0
 
-		return findBySlug(all, name)
+	if hasValidRepos == true {
+		return repos
 	}
 
-	return repos
+	all, listErr := db.ListRepos()
+	if listErr != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not list repos: %v\n", listErr)
+	}
+
+	return findBySlug(all, name)
 }
 
 // resolveCDPath picks the correct path from matches.
@@ -169,18 +171,24 @@ func parseCDReposFlags(args []string) string {
 
 // loadCDReposList loads repos optionally filtered by group.
 func loadCDReposList(db *store.DB, group string) []model.ScanRecord {
-	if len(group) > 0 {
-		repos, grpErr := db.ShowGroup(group)
-		if grpErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not load group %s: %v\n", group, grpErr)
-		}
+	hasNoGroup := len(group) == 0
 
-		return repos
+	if hasNoGroup == false {
+		return loadCDGroupRepos(db, group)
 	}
 
 	repos, listErr := db.ListRepos()
 	if listErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not list repos: %v\n", listErr)
+	}
+
+	return repos
+}
+
+func loadCDGroupRepos(db *store.DB, group string) []model.ScanRecord {
+	repos, grpErr := db.ShowGroup(group)
+	if grpErr != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not load group %s: %v\n", group, grpErr)
 	}
 
 	return repos

@@ -23,14 +23,16 @@ func runReleaseDry(args []string) {
 	if err := runStep("go build ./...", "go", "build", "./..."); err != nil {
 		os.Exit(1)
 	}
-	if tag != "" {
-		if err := runStep("git tag "+tag, "git", "tag", tag); err != nil {
-			os.Exit(1)
-		}
-		fmt.Printf("\033[1;94mnotes for %s\033[0m\n", tag)
-		_ = runStep("git log -10 --oneline", "git", "log", "-10", "--oneline")
-		fmt.Printf("\n\033[2;37mundo:  \033[0m \033[1;96mgit tag -d %s\033[0m\n", tag)
+	if tag == "" {
+		fmt.Println("\033[1;92m✓ dry release complete\033[0m  nothing pushed")
+		return
 	}
+	if err := runStep("git tag "+tag, "git", "tag", tag); err != nil {
+		os.Exit(1)
+	}
+	fmt.Printf("\033[1;94mnotes for %s\033[0m\n", tag)
+	_ = runStep("git log -10 --oneline", "git", "log", "-10", "--oneline")
+	fmt.Printf("\n\033[2;37mundo:  \033[0m \033[1;96mgit tag -d %s\033[0m\n", tag)
 	fmt.Println("\033[1;92m✓ dry release complete\033[0m  nothing pushed")
 }
 

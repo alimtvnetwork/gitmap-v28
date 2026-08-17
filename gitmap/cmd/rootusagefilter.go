@@ -93,11 +93,10 @@ func addGroup(rows *[]helpRow, group string, lines ...string) {
 func resolveFilterQuery() string {
 	args := os.Args[2:]
 	for i, a := range args {
+		if (a == constants.FlagFilter || a == constants.FlagFilterShort) && i+1 < len(args) {
+			return strings.TrimSpace(args[i+1])
+		}
 		if a == constants.FlagFilter || a == constants.FlagFilterShort {
-			if i+1 < len(args) {
-				return strings.TrimSpace(args[i+1])
-			}
-
 			return ""
 		}
 		if v, ok := strings.CutPrefix(a, constants.FlagFilter+"="); ok {
@@ -279,10 +278,7 @@ func subseqScore(hay, q string) int {
 	idx, hits, last := 0, 0, -1
 	for i := 0; i < len(hay) && idx < len(q); i++ {
 		if hay[i] == q[idx] {
-			hits++
-			if last >= 0 && i-last == 1 {
-				hits++ // adjacency bonus
-			}
+			hits += calcAdjacencyBonus(last, i)
 			last = i
 			idx++
 		}
@@ -292,4 +288,11 @@ func subseqScore(hay, q string) int {
 	}
 
 	return hits
+}
+
+func calcAdjacencyBonus(last, i int) int {
+	if last >= 0 && i-last == 1 {
+		return 2
+	}
+	return 1
 }

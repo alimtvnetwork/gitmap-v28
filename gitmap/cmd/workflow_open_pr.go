@@ -34,14 +34,20 @@ func runPR(args []string) {
 	checkHelp(constants.CmdPR, args)
 
 	owner := ""
-	if len(args) > 0 {
+	hasArgs := len(args) > 0
+	if hasArgs == true {
 		owner = args[0]
-	} else {
-		o, _, err := currentRepoOwnerRepo()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "pull-requests: ERROR specify <owner> or run inside a github repo")
-			os.Exit(2)
-		}
+	}
+	o, _, err := "", "", error(nil)
+	if hasArgs == false {
+		o, _, err = currentRepoOwnerRepo()
+	}
+	isErr := hasArgs == false && err != nil
+	if isErr == true {
+		fmt.Fprintln(os.Stderr, "pull-requests: ERROR specify <owner> or run inside a github repo")
+		os.Exit(2)
+	}
+	if hasArgs == false && isErr == false {
 		owner = o
 	}
 	token := os.Getenv("GITHUB_TOKEN")

@@ -119,19 +119,22 @@ func printUndoSnapshotList(baseDir string, snapshots []string) {
 // newest. Empty string means nothing usable.
 func pickUndoSnapshot(snapshots []string, explicit string) string {
 	if explicit != "" {
-		for _, s := range snapshots {
-			if s == explicit {
-				return s
-			}
-		}
-
-		return ""
+		return findExplicitSnapshot(snapshots, explicit)
 	}
 	if len(snapshots) == 0 {
 		return ""
 	}
 
 	return snapshots[0]
+}
+
+func findExplicitSnapshot(snapshots []string, explicit string) string {
+	for _, s := range snapshots {
+		if s == explicit {
+			return s
+		}
+	}
+	return ""
 }
 
 // restoreUndoSnapshot reads the manifest and copies each file back.

@@ -132,20 +132,26 @@ func remoteStatus(remote string) int {
 // gitURLToHTTPS converts ssh/https git URLs into a browseable HTTPS URL.
 func gitURLToHTTPS(u string) string {
 	u = strings.TrimSuffix(u, ".git")
-	if strings.HasPrefix(u, "git@") {
-		// git@github.com:owner/repo -> https://github.com/owner/repo
-		parts := strings.SplitN(strings.TrimPrefix(u, "git@"), ":", 2)
-		if len(parts) != 2 {
-			return ""
-		}
+	isSSH := strings.HasPrefix(u, "git@")
 
-		return "https://" + parts[0] + "/" + parts[1]
+	if isSSH == true {
+		parts := strings.SplitN(strings.TrimPrefix(u, "git@"), ":", 2)
+		return formatSSHParts(parts)
 	}
-	if strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://") {
+
+	isHTTP := strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://")
+	if isHTTP == true {
 		return u
 	}
 
 	return ""
+}
+
+func formatSSHParts(parts []string) string {
+	if len(parts) != 2 {
+		return ""
+	}
+	return "https://" + parts[0] + "/" + parts[1]
 }
 
 // confirmYesNo prompts on stderr and reads a y/N answer from stdin.

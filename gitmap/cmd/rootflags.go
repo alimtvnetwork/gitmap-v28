@@ -315,13 +315,11 @@ func resolveCloneSource(fs *flag.FlagSet) string {
 // When the second positional looks like a URL, it's NOT a folder name —
 // callers must treat the full positional list as a multi-URL batch instead.
 func resolveCloneFolderName(fs *flag.FlagSet) string {
+	if fs.NArg() > 1 && isLikelyURL(fs.Arg(1)) == true {
+		return ""
+	}
 	if fs.NArg() > 1 {
-		second := fs.Arg(1)
-		if isLikelyURL(second) {
-			return ""
-		}
-
-		return second
+		return fs.Arg(1)
 	}
 
 	return ""

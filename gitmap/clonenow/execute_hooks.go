@@ -34,10 +34,9 @@ type BeforeRowHook func(index, total int, row Row, url, dest string)
 // every test that calls it — stays untouched.
 func ExecuteWithHooks(plan Plan, cwd string, progress io.Writer,
 	beforeRow BeforeRowHook) []Result {
-	if len(cwd) == 0 {
-		if wd, err := os.Getwd(); err == nil {
-			cwd = wd
-		}
+	wd, err := os.Getwd()
+	if len(cwd) == 0 && err == nil {
+		cwd = wd
 	}
 	out := make([]Result, 0, len(plan.Rows))
 	total := len(plan.Rows)

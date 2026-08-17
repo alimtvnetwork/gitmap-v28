@@ -119,29 +119,32 @@ func ParseOwnerRepo(remoteURL string) (string, string, error) {
 
 	// HTTPS: https://github.com/owner/repo
 	if strings.HasPrefix(url, "https://") {
-		parts := strings.Split(url, "/")
-		if len(parts) < 5 {
-			return "", "", fmt.Errorf("invalid HTTPS remote URL: %s", remoteURL)
-		}
-
-		return parts[len(parts)-2], parts[len(parts)-1], nil
+		return parseHttpsOwnerRepo(url, remoteURL)
 	}
 
 	// SSH: git@github.com:owner/repo
-	if strings.Contains(url, "@") {
-		colonIdx := strings.LastIndex(url, ":")
-		if colonIdx < 0 {
-			return "", "", fmt.Errorf("invalid SSH remote URL: %s", remoteURL)
-		}
-
-		path := url[colonIdx+1:]
-		parts := strings.Split(path, "/")
-		if len(parts) < 2 {
-			return "", "", fmt.Errorf("invalid SSH remote path: %s", remoteURL)
-		}
-
-		return parts[0], parts[1], nil
+	if !strings.Contains(url, "@") {
+		return "", "", fmt.Errorf("unrecognized remote URL format: %s", remoteURL)
 	}
 
-	return "", "", fmt.Errorf("unrecognized remote URL format: %s", remoteURL)
+	colonIdx := strings.LastIndex(url, ":")
+	if colonIdx < 0 {
+		return "", "", fmt.Errorf("invalid SSH remote URL: %s", remoteURL)
+	}
+
+	path := url[colonIdx+1:]
+	parts := strings.Split(path, "/")
+	if len(parts) < 2 {
+		return "", "", fmt.Errorf("invalid SSH remote path: %s", remoteURL)
+	}
+
+	return parts[0], parts[1], nil
+}
+
+func parseHttpsOwnerRepo(url, remoteURL string) (string, string, error) {
+	parts := strings.Split(url, "/")
+	if len(parts) < 5 {
+		return "", "", fmt.Errorf("invalid HTTPS remote URL: %s", remoteURL)
+	}
+	return parts[len(parts)-2], parts[len(parts)-1], nil
 }

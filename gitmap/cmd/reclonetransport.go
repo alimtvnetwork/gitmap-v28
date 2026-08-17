@@ -58,17 +58,15 @@ func coerceURLToStoredTransport(url string) string {
 	if current == stored {
 		return url
 	}
-	if stored == store.RepoTransportSSH {
-		if out, ok := ConvertURLToSSH(url); ok && out != url {
-			fmt.Fprintf(os.Stderr, "↪ reclone-transport: stored=ssh, coercing %s → %s\n", url, out)
-			return out
-		}
+	outSSH, okSSH := ConvertURLToSSH(url)
+	if stored == store.RepoTransportSSH && okSSH == true && outSSH != url {
+		fmt.Fprintf(os.Stderr, "↪ reclone-transport: stored=ssh, coercing %s → %s\n", url, outSSH)
+		return outSSH
 	}
-	if stored == store.RepoTransportHTTPS {
-		if out, ok := ConvertURLToHTTPS(url); ok && out != url {
-			fmt.Fprintf(os.Stderr, "↪ reclone-transport: stored=https, coercing %s → %s\n", url, out)
-			return out
-		}
+	outHTTPS, okHTTPS := ConvertURLToHTTPS(url)
+	if stored == store.RepoTransportHTTPS && okHTTPS == true && outHTTPS != url {
+		fmt.Fprintf(os.Stderr, "↪ reclone-transport: stored=https, coercing %s → %s\n", url, outHTTPS)
+		return outHTTPS
 	}
 	return url
 }

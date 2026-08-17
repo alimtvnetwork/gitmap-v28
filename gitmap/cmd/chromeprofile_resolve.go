@@ -63,9 +63,8 @@ func chromeProfileEntries() []chromeProfileEntry {
 	for _, d := range dirs {
 		display := ""
 		if state != nil {
-			if info, ok := state.Profile.InfoCache[d]; ok {
-				display = info.Name
-			}
+			info, _ := state.Profile.InfoCache[d]
+			display = info.Name
 		}
 		out = append(out, chromeProfileEntry{Dir: d, DisplayName: display})
 	}
@@ -124,11 +123,9 @@ func resolveChromeProfileDisplayName(name, direct string) (chromeProfileResoluti
 	}
 	want := strings.ToLower(strings.TrimSpace(name))
 	for dir, info := range state.Profile.InfoCache {
-		if strings.ToLower(strings.TrimSpace(info.Name)) == want {
-			p := filepath.Join(chromeUserDataDir(), dir)
-			if chromeProfilePathExists(p) {
-				return chromeProfileResolution{Input: name, Path: p, Dir: dir, DisplayName: info.Name}, true
-			}
+		p := filepath.Join(chromeUserDataDir(), dir)
+		if strings.ToLower(strings.TrimSpace(info.Name)) == want && chromeProfilePathExists(p) {
+			return chromeProfileResolution{Input: name, Path: p, Dir: dir, DisplayName: info.Name}, true
 		}
 	}
 	return chromeProfileResolution{Input: name, Path: direct, Dir: filepath.Base(direct)}, false

@@ -20,7 +20,6 @@ package clonefrom
 
 import (
 	"io"
-	"os"
 	"sync"
 )
 
@@ -38,11 +37,7 @@ func ExecuteWithHooksConcurrent(plan Plan, cwd string, progress io.Writer,
 	if workers <= 1 {
 		return ExecuteWithHooks(plan, cwd, progress, beforeRow)
 	}
-	if len(cwd) == 0 {
-		if wd, err := os.Getwd(); err == nil {
-			cwd = wd
-		}
-	}
+	cwd = resolveCwd(cwd)
 	out := make([]Result, len(plan.Rows))
 	dispatchConcurrent(plan, cwd, beforeRow, workers, out)
 	emitProgressInOrder(progress, out)
@@ -81,14 +76,18 @@ func enqueueConcurrentJobs(plan Plan, beforeRow BeforeRowHook,
 	total := len(plan.Rows)
 	for i, r := range plan.Rows {
 		if beforeRow != nil {
-			dest := r.Dest
-			if len(dest) == 0 {
-				dest = DeriveDest(r.URL)
-			}
-			beforeRow(i+1, total, r, dest)
+			invokeBeforeRow(beforeRow, i, total, r)
 		}
 		jobs <- concurrentJob{idx: i, row: r}
 	}
+}
+
+func invokeBeforeRow(hook BeforeRowHook, i, total int, r Row) {
+	dest := r.Dest
+	if len(dest) == 0 {
+		dest = DeriveDest(r.URL)
+	}
+	hook(i+1, total, r, dest)
 }
 
 // emitProgressInOrder prints progress lines in input order AFTER

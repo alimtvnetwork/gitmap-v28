@@ -162,11 +162,13 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 	}
 
 	finalFolders := folders
+	errRel := error(nil)
 	if flags.isRelative {
-		finalFolders, err = vscodeworkspace.Relativize(folders, filepath.Dir(outPath))
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-		}
+		finalFolders, errRel = vscodeworkspace.Relativize(folders, filepath.Dir(outPath))
+	}
+	isRelErr := flags.isRelative == true && errRel != nil
+	if isRelErr == true {
+		fmt.Fprintln(os.Stderr, errRel.Error())
 	}
 
 	ws := vscodeworkspace.Build(finalFolders)

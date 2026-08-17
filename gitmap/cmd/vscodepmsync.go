@@ -58,14 +58,18 @@ func runVSCodePMSync(args []string) {
 // user-data root or extension dir returns ok=false so headless boxes
 // never fail-loud.
 func loadVSCodePMEntries(opts vscodePMSyncOpts) (string, []vscodepm.Entry, bool) {
+	entriesExplicit, errExplicit := []vscodepm.Entry(nil), error(nil)
 	if opts.ProjectsJSON != "" {
-		entries, err := vscodepm.ListEntriesAt(opts.ProjectsJSON)
-		if err != nil {
-			reportVSCodePMSoftError(err)
-			return opts.ProjectsJSON, nil, false
-		}
-
-		return opts.ProjectsJSON, entries, true
+		entriesExplicit, errExplicit = vscodepm.ListEntriesAt(opts.ProjectsJSON)
+	}
+	isExplicitErr := opts.ProjectsJSON != "" && errExplicit != nil
+	isExplicitSuccess := opts.ProjectsJSON != "" && errExplicit == nil
+	if isExplicitErr == true {
+		reportVSCodePMSoftError(errExplicit)
+		return opts.ProjectsJSON, nil, false
+	}
+	if isExplicitSuccess == true {
+		return opts.ProjectsJSON, entriesExplicit, true
 	}
 
 	path, pathErr := vscodepm.ProjectsJSONPath()

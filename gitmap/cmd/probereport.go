@@ -98,19 +98,22 @@ func recordProbeResult(db *store.DB, repo model.ScanRecord, result probe.Result)
 // per-repo summary line. Caller is responsible for serializing access to
 // the counters; with the worker pool that's `counterMu` in runProbePool.
 func tallyProbe(repo model.ScanRecord, r probe.Result, ok, none, fail int, jsonOut bool) (int, int, int) {
-	if r.Error != "" {
-		if !jsonOut {
-			fmt.Printf(constants.MsgProbeFailFmt, repo.Slug, r.Error)
-		}
+	hasError := r.Error != ""
+	if hasError == true && jsonOut == false {
+		fmt.Printf(constants.MsgProbeFailFmt, repo.Slug, r.Error)
+	}
+	if hasError == true {
 		return ok, none, fail + 1
 	}
-	if r.IsAvailable {
-		if !jsonOut {
-			fmt.Printf(constants.MsgProbeOkFmt, repo.Slug, r.NextVersionTag, r.Method)
-		}
+
+	if r.IsAvailable == true && jsonOut == false {
+		fmt.Printf(constants.MsgProbeOkFmt, repo.Slug, r.NextVersionTag, r.Method)
+	}
+	if r.IsAvailable == true {
 		return ok + 1, none, fail
 	}
-	if !jsonOut {
+
+	if jsonOut == false {
 		fmt.Printf(constants.MsgProbeNoneFmt, repo.Slug, r.Method)
 	}
 

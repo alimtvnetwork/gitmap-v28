@@ -110,16 +110,16 @@ func parseAddLFSInstallFlags(args []string) addLFSInstallFlags {
 // that case, so this is defensive.
 func gitattributesPath() (string, error) {
 	root, err := gitTopLevel()
-	if err != nil || len(strings.TrimSpace(root)) == 0 {
-		cwd, cwdErr := os.Getwd()
-		if cwdErr != nil {
-			return "", cwdErr
-		}
-
-		return filepath.Join(cwd, ".gitattributes"), nil
+	if err == nil && len(strings.TrimSpace(root)) > 0 {
+		return filepath.Join(root, ".gitattributes"), nil
 	}
 
-	return filepath.Join(root, ".gitattributes"), nil
+	cwd, cwdErr := os.Getwd()
+	if cwdErr != nil {
+		return "", cwdErr
+	}
+
+	return filepath.Join(cwd, ".gitattributes"), nil
 }
 
 // printAddLFSInstallBanner mirrors the `lfs-common` banner so the two

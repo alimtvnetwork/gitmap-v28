@@ -168,11 +168,10 @@ func shorthandToURL(host, owner, repo, mode string) string {
 // the picker will fill it in interactively, so requiring `<paths>`
 // up front would be a usability bug.
 func normalisePaths(raw string, askMode bool) ([]string, error) {
+	if len(strings.TrimSpace(raw)) == 0 && askMode {
+		return nil, nil
+	}
 	if len(strings.TrimSpace(raw)) == 0 {
-		if askMode {
-			return nil, nil
-		}
-
 		return nil, fmt.Errorf("%s", constants.MsgClonePickMissingPaths)
 	}
 	seen := make(map[string]struct{})

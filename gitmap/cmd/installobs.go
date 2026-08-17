@@ -169,31 +169,13 @@ func extractOBSSettingsZip(zipPath, target string) {
 	for _, entry := range entries {
 		srcPath := filepath.Join(tmpDir, entry.Name())
 
-		if entry.IsDir() {
-			// Directories are profile folders.
-			dstPath := filepath.Join(profilesDir, entry.Name())
-			n, dirErr := copyDirRecursive(srcPath, dstPath)
+		if entry.IsDir() == true {
+			profiles += handleOBSProfileDir(srcPath, entry.Name(), profilesDir)
+			continue
+		}
 
-			if dirErr != nil {
-				fmt.Fprintf(os.Stderr, "  ! Failed to copy profile %s: %v\n", entry.Name(), dirErr)
-
-				continue
-			}
-
-			profiles++
-			_ = n
-		} else if strings.HasSuffix(strings.ToLower(entry.Name()), ".json") {
-			// JSON files are scene collections.
-			dstPath := filepath.Join(scenesDir, entry.Name())
-			copyErr := copyFile(srcPath, dstPath)
-
-			if copyErr != nil {
-				fmt.Fprintf(os.Stderr, "  ! Failed to copy scene %s: %v\n", entry.Name(), copyErr)
-
-				continue
-			}
-
-			scenes++
+		if strings.HasSuffix(strings.ToLower(entry.Name()), ".json") == true {
+			scenes += handleOBSSceneFile(srcPath, entry.Name(), scenesDir)
 		}
 	}
 
@@ -219,13 +201,8 @@ func extractOBSZipEntry(target string, file *zip.File) {
 		return
 	}
 
-	if file.FileInfo().IsDir() {
-		if mkErr := os.MkdirAll(destPath, 0o755); mkErr != nil {
-			fmt.Fprintf(os.Stderr, "  ! Failed to create directory %s: %v\n", destPath, mkErr)
-
-			return
-		}
-
+	if file.FileInfo().IsDir() == true {
+		handleOBSExtractDir(destPath)
 		return
 	}
 
@@ -282,16 +259,8 @@ func copyDirRecursive(src, dst string) (int, error) {
 			continue
 		}
 
-		if entry.IsDir() {
-			n, dirErr := copyDirRecursive(srcPath, dstPath)
-			if dirErr != nil {
-				fmt.Fprintf(os.Stderr, "  ! Failed to copy directory %s: %v\n", entry.Name(), dirErr)
-
-				continue
-			}
-
-			copied += n
-
+		if entry.IsDir() == true {
+			copied += handleOBSCopyDir(srcPath, dstPath, entry.Name())
 			continue
 		}
 
@@ -306,6 +275,41 @@ func copyDirRecursive(src, dst string) (int, error) {
 	}
 
 	return copied, nil
+}
+
+func handleOBSProfileDir(srcPath, name, profilesDir string) int {
+	dstPath := filepath.Join(profilesDir, name)
+	_, dirErr := copyDirRecursive(srcPath, dstPath)
+	if dirErr != nil {
+		fmt.Fprintf(os.Stderr, "  ! Failed to copy profile %s: %v\n", name, dirErr)
+		return 0
+	}
+	return 1
+}
+
+func handleOBSSceneFile(srcPath, name, scenesDir string) int {
+	dstPath := filepath.Join(scenesDir, name)
+	copyErr := copyFile(srcPath, dstPath)
+	if copyErr != nil {
+		fmt.Fprintf(os.Stderr, "  ! Failed to copy scene %s: %v\n", name, copyErr)
+		return 0
+	}
+	return 1
+}
+
+func handleOBSExtractDir(destPath string) {
+	if mkErr := os.MkdirAll(destPath, 0o755); mkErr != nil {
+		fmt.Fprintf(os.Stderr, "  ! Failed to create directory %s: %v\n", destPath, mkErr)
+	}
+}
+
+func handleOBSCopyDir(srcPath, dstPath, name string) int {
+	n, dirErr := copyDirRecursive(srcPath, dstPath)
+	if dirErr != nil {
+		fmt.Fprintf(os.Stderr, "  ! Failed to copy directory %s: %v\n", name, dirErr)
+		return 0
+	}
+	return n
 }
 
 // NOTE: copyFile is defined in update.go and shared across the cmd package.

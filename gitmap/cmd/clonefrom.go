@@ -162,12 +162,9 @@ func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) {
 	}
 	csvPath, jsonPath := writeCloneFromReports(results, cfg)
 	syncCloneFromResultsToVSCodePM(results, cfg.noVSCodeSync)
-	if cfg.output == constants.OutputTerminal {
-		if err := clonefrom.RenderSummaryTerminal(os.Stdout, results, csvPath, jsonPath); err != nil {
-			cliexit.Reportf(constants.CmdCloneFrom, "render-summary", csvPath, err)
-		}
-	} else if err := clonefrom.RenderSummary(os.Stdout, results, csvPath); err != nil {
-		cliexit.Reportf(constants.CmdCloneFrom, "render-summary", csvPath, err)
+	errRender := renderSummary(cfg.output, results, csvPath, jsonPath)
+	if errRender != nil {
+		cliexit.Reportf(constants.CmdCloneFrom, "render-summary", csvPath, errRender)
 	}
 	maybeExitOnCmdFaithfulMismatch()
 	os.Exit(cloneFromExitCode(results))
@@ -207,4 +204,11 @@ func syncCloneFromResultsToVSCodePM(results []clonefrom.Result, skip bool) {
 		pairs = append(pairs, buildClonePMPair(abs, name))
 	}
 	syncClonedReposToVSCodePM(pairs, skip)
+}
+
+func renderSummary(output string, results []clonefrom.Result, csvPath, jsonPath string) error {
+	if output == constants.OutputTerminal {
+		return clonefrom.RenderSummaryTerminal(os.Stdout, results, csvPath, jsonPath)
+	}
+	return clonefrom.RenderSummary(os.Stdout, results, csvPath)
 }

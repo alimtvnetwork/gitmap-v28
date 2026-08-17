@@ -58,14 +58,7 @@ func runDownloaderConfig(args []string) {
 // (for logging) which is empty for interactive mode.
 func loadDocOrPrompt(db *store.DB, args []string) (downloaderconfig.Document, string) {
 	if len(args) > 0 {
-		path := args[0]
-		doc, err := downloaderconfig.LoadFile(path)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-			os.Exit(1)
-		}
-
-		return doc, path
+		return loadDocFromFile(args[0])
 	}
 
 	current, ok := db.GetDownloaderConfig()
@@ -75,6 +68,15 @@ func loadDocOrPrompt(db *store.DB, args []string) (downloaderconfig.Document, st
 	current.DatabaseVersion.LastKnownVersion = constants.Version
 
 	return promptDownloaderConfig(current), ""
+}
+
+func loadDocFromFile(path string) (downloaderconfig.Document, string) {
+	doc, err := downloaderconfig.LoadFile(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
+		os.Exit(1)
+	}
+	return doc, path
 }
 
 // promptDownloaderConfig walks the user through every field, showing the

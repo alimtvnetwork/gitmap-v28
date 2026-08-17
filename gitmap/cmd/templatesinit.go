@@ -166,15 +166,15 @@ func executeTemplatesInit(cwd string, flags templatesInitFlags) []templatesInitR
 // means a missing template is fatal; required=false makes it a soft skip.
 func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, required bool) templatesInitResult {
 	res, err := templates.Resolve(step.kind, step.lang)
-	if err != nil {
-		if !required {
-			return templatesInitResult{
-				step:       step,
-				skipped:    true,
-				skipReason: fmt.Sprintf("no %s template for %s", step.kind, step.lang),
-				dryRun:     flags.dryRun,
-			}
+	if err != nil && required == false {
+		return templatesInitResult{
+			step:       step,
+			skipped:    true,
+			skipReason: fmt.Sprintf("no %s template for %s", step.kind, step.lang),
+			dryRun:     flags.dryRun,
 		}
+	}
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Required template missing: %v\n", err)
 		fmt.Fprintln(os.Stderr, "    Run 'gitmap templates list' to see available languages.")
 		os.Exit(1)
@@ -189,11 +189,13 @@ func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, requ
 		}
 	}
 
-	if flags.force {
-		if err := os.Remove(step.target); err != nil && !os.IsNotExist(err) {
-			fmt.Fprintf(os.Stderr, "  ✗ --force could not remove %s: %v\n", step.target, err)
-			os.Exit(1)
-		}
+	errRm := error(nil)
+	if flags.force == true {
+		errRm = os.Remove(step.target)
+	}
+	if errRm != nil && os.IsNotExist(errRm) == false {
+		fmt.Fprintf(os.Stderr, "  ✗ --force could not remove %s: %v\n", step.target, errRm)
+		os.Exit(1)
 	}
 
 	merged, err := templates.Merge(step.target, step.tag, res.Content)

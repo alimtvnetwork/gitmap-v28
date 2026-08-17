@@ -23,12 +23,16 @@ import (
 func listOwnerReposCached(provider, owner string, flags bulkFlags) ([]string, error) {
 	ttl := resolveOwnerRepoListTTL(flags)
 	db, dbErr := openDB()
+	var names []string
+	var age time.Duration
+	ok := false
 	if dbErr == nil && ttl > 0 {
-		if names, age, ok := readOwnerRepoListCache(db, provider, owner, ttl); ok {
-			fmt.Fprintf(os.Stdout, constants.MsgBulkCacheHitFmt, len(names), age.Round(time.Second))
+		names, age, ok = readOwnerRepoListCache(db, provider, owner, ttl)
+	}
+	if ok == true {
+		fmt.Fprintf(os.Stdout, constants.MsgBulkCacheHitFmt, len(names), age.Round(time.Second))
 
-			return names, nil
-		}
+		return names, nil
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgBulkCacheMissFmt, providerCLI(provider))
@@ -50,12 +54,18 @@ func resolveOwnerRepoListTTL(flags bulkFlags) time.Duration {
 	if flags.CacheTTLSet {
 		return time.Duration(flags.CacheTTLSecs) * time.Second
 	}
-	if db, err := openDB(); err == nil {
-		if raw := db.GetSetting(constants.SettingOwnerRepoListCacheTTL); raw != "" {
-			if n, err := strconv.Atoi(raw); err == nil && n >= 0 {
-				return time.Duration(n) * time.Second
-			}
-		}
+	db, err := openDB()
+	raw := ""
+	if err == nil {
+		raw = db.GetSetting(constants.SettingOwnerRepoListCacheTTL)
+	}
+	n, err2 := 0, error(nil)
+	if raw != "" {
+		n, err2 = strconv.Atoi(raw)
+	}
+	isValid := raw != "" && err2 == nil && n >= 0
+	if isValid == true {
+		return time.Duration(n) * time.Second
 	}
 
 	return time.Duration(constants.OwnerRepoListCacheTTLSeconds) * time.Second
@@ -91,9 +101,12 @@ func writeOwnerRepoListCache(db *store.DB, provider, owner string, names []strin
 	if err := db.UpsertOwnerRepoListCache(provider, owner, string(raw), now); err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: cache write failed: %v\n", err)
 	}
-	if err := db.EnsureOwnerRepoNameIndex(); err == nil {
-		if err := db.UpsertOwnerRepoNameIndex(provider, owner, names, now); err != nil {
-			fmt.Fprintf(os.Stderr, "make-all-*: name-index write failed: %v\n", err)
-		}
+	errEnsure := db.EnsureOwnerRepoNameIndex()
+	var errUpsert error
+	if errEnsure == nil {
+		errUpsert = db.UpsertOwnerRepoNameIndex(provider, owner, names, now)
+	}
+	if errEnsure == nil && errUpsert != nil {
+		fmt.Fprintf(os.Stderr, "make-all-*: name-index write failed: %v\n", errUpsert)
 	}
 }

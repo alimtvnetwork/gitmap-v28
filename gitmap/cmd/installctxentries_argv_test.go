@@ -80,10 +80,12 @@ func flattenCtxMenuByPath(t *testing.T) map[string]ctxEntry {
 				walk(path, e.Children)
 				continue
 			}
-			if prev, dup := out[path]; dup {
-				if !reflect.DeepEqual(prev, e) {
-					t.Fatalf("duplicate KeyName %q with divergent definition: %+v vs %+v", path, prev, e)
-				}
+			prev, dup := out[path]
+			isEqual := reflect.DeepEqual(prev, e)
+			if dup == true && isEqual == false {
+				t.Fatalf("duplicate KeyName %q with divergent definition: %+v vs %+v", path, prev, e)
+			}
+			if dup == true {
 				continue
 			}
 			out[path] = e

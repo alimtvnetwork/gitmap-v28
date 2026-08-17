@@ -35,35 +35,11 @@ func cloneAll(records []model.ScanRecord, targetDir string, opts CloneOptions) m
 	// opts.DefaultBranch is empty.
 	records = applyDefaultBranchFallback(records, opts.DefaultBranch)
 
-	// Pre-flight check for conflicts (Step 4.2 and 4.6)
-	if !opts.Clean && !opts.MissingOnly {
-		conflicts := 0
-		for _, rec := range records {
-			dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
-			if _, err := os.Stat(dest); err == nil {
-				if !isGitRepo(dest) {
-					conflicts++
-				}
-			}
-		}
-		if conflicts > 0 {
-			fmt.Printf("Warning: Detected %d existing directories that are not git repositories.\n", conflicts)
-			fmt.Printf("These will fail to clone. Do you want to forcefully clean them? [y/N]: ")
-			var response string
-			fmt.Scanln(&response)
-			if strings.ToLower(strings.TrimSpace(response)) == "y" {
-				opts.Clean = true
-			} else {
-				fmt.Println("Proceeding without --clean. Conflicting directories will fail.")
-			}
-		}
-	}
+	handleConflicts(&opts, records, targetDir)
 
-	if !opts.SafePull && hasExistingRepos(records, targetDir) {
-		if !opts.Clean && !opts.MissingOnly {
-			opts.SafePull = true
-			fmt.Print(constants.MsgAutoSafePull)
-		}
+	if !opts.SafePull && !opts.Clean && !opts.MissingOnly && hasExistingRepos(records, targetDir) {
+		opts.SafePull = true
+		fmt.Print(constants.MsgAutoSafePull)
 	}
 
 	cache := LoadCloneCache(targetDir)
@@ -148,4 +124,38 @@ func trackResult(p *Progress, result model.CloneResult, rec model.ScanRecord, ta
 	}
 
 	p.Fail(result)
+}
+
+func countConflicts(records []model.ScanRecord, targetDir string) int {
+	conflicts := 0
+	for _, rec := range records {
+		dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
+		_, err := os.Stat(dest)
+		if err == nil && !isGitRepo(dest) {
+			conflicts++
+		}
+	}
+	return conflicts
+}
+
+func handleConflicts(opts *CloneOptions, records []model.ScanRecord, targetDir string) {
+	if opts.Clean || opts.MissingOnly {
+		return
+	}
+	conflicts := countConflicts(records, targetDir)
+	if conflicts > 0 {
+		promptAndSetClean(opts, conflicts)
+	}
+}
+
+func promptAndSetClean(opts *CloneOptions, conflicts int) {
+	fmt.Printf("Warning: Detected %d existing directories that are not git repositories.\n", conflicts)
+	fmt.Printf("These will fail to clone. Do you want to forcefully clean them? [y/N]: ")
+	var response string
+	fmt.Scanln(&response)
+	if strings.ToLower(strings.TrimSpace(response)) == "y" {
+		opts.Clean = true
+	} else {
+		fmt.Println("Proceeding without --clean. Conflicting directories will fail.")
+	}
 }

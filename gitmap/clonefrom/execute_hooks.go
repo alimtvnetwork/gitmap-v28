@@ -20,7 +20,6 @@ package clonefrom
 
 import (
 	"io"
-	"os"
 )
 
 // BeforeRowHook is invoked once per row, just before the row's git
@@ -34,20 +33,12 @@ type BeforeRowHook func(index, total int, row Row, dest string)
 // every test that calls it — stays untouched.
 func ExecuteWithHooks(plan Plan, cwd string, progress io.Writer,
 	beforeRow BeforeRowHook) []Result {
-	if len(cwd) == 0 {
-		if wd, err := os.Getwd(); err == nil {
-			cwd = wd
-		}
-	}
+	cwd = resolveCwd(cwd)
 	out := make([]Result, 0, len(plan.Rows))
 	total := len(plan.Rows)
 	for i, r := range plan.Rows {
 		if beforeRow != nil {
-			dest := r.Dest
-			if len(dest) == 0 {
-				dest = DeriveDest(r.URL)
-			}
-			beforeRow(i+1, total, r, dest)
+			invokeBeforeRowHook(beforeRow, i, total, r)
 		}
 		res := executeRow(r, cwd)
 		out = append(out, res)
@@ -55,4 +46,12 @@ func ExecuteWithHooks(plan Plan, cwd string, progress io.Writer,
 	}
 
 	return out
+}
+
+func invokeBeforeRowHook(hook BeforeRowHook, i, total int, r Row) {
+	dest := r.Dest
+	if len(dest) == 0 {
+		dest = DeriveDest(r.URL)
+	}
+	hook(i+1, total, r, dest)
 }

@@ -64,11 +64,12 @@ func applyChromeExport(exp *chromeExport, dstProfile string) error {
 	if err := writeOptional(filepath.Join(dstProfile, "Preferences"), exp.Preferences); err != nil {
 		return err
 	}
-	if len(exp.ExtensionIDs) > 0 {
-		hint := filepath.Join(dstProfile, "gitmap-pending-extensions.txt")
-		if err := os.WriteFile(hint, []byte(joinLines(exp.ExtensionIDs)), constants.FilePermission); err != nil {
-			return err
-		}
+	if len(exp.ExtensionIDs) == 0 {
+		return nil
+	}
+	hint := filepath.Join(dstProfile, "gitmap-pending-extensions.txt")
+	if err := os.WriteFile(hint, []byte(joinLines(exp.ExtensionIDs)), constants.FilePermission); err != nil {
+		return err
 	}
 	return nil
 }

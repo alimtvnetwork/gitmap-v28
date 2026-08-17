@@ -90,11 +90,7 @@ func assertSchemaKeysSlice(t *testing.T, name string) []string {
 func handleSchemaDrift(t *testing.T, expected schema, observed []string, where string) {
 	t.Helper()
 	if shouldUpdateSchema(expected.Name) {
-		if err := writeSchemaFile(expected, observed); err != nil {
-			t.Fatalf("--update-schema=%q write failed: %v", expected.Name, err)
-		}
-		t.Logf("--update-schema=%q: rewrote v%d with observed keys %v",
-			expected.Name, expected.Version, observed)
+		handleSchemaUpdate(t, expected, observed)
 		return
 	}
 	if isSchemaAccepted(expected.Name, expected.Version) {
@@ -108,8 +104,16 @@ func handleSchemaDrift(t *testing.T, expected schema, observed []string, where s
 }
 
 // schemaDriftHowToFix prints the two ways out of a drift failure
-// so the developer doesn't have to grep for the flag name. The
-// suggested next-version (N+1) makes the bump-and-acknowledge
+func handleSchemaUpdate(t *testing.T, expected schema, observed []string) {
+	t.Helper()
+	err := writeSchemaFile(expected, observed)
+	if err != nil {
+		t.Fatalf("--update-schema=%q write failed: %v", expected.Name, err)
+	}
+	t.Logf("--update-schema=%q: rewrote v%d with observed keys %v",
+		expected.Name, expected.Version, observed)
+}
+
 // workflow a one-line copy.
 func schemaDriftHowToFix(name string, currentVersion int) string {
 	return fmt.Sprintf("To accept this drift, either:\n"+

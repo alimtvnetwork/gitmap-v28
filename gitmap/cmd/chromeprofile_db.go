@@ -37,16 +37,18 @@ func persistChromeProfile(name, sourcePath string, rec chromeExportRecord) {
 		return
 	}
 	if rec.JSONPath != "" {
-		if err := db.InsertChromeProfileExport(id, constants.OutputJSON, rec.JSONPath, rec.JSONSize); err != nil {
-			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
-			return
-		}
+		err = db.InsertChromeProfileExport(id, constants.OutputJSON, rec.JSONPath, rec.JSONSize)
+	}
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+		return
 	}
 	if rec.CSVPath != "" {
-		if err := db.InsertChromeProfileExport(id, constants.OutputCSV, rec.CSVPath, rec.CSVSize); err != nil {
-			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
-			return
-		}
+		err = db.InsertChromeProfileExport(id, constants.OutputCSV, rec.CSVPath, rec.CSVSize)
+	}
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+		return
 	}
 	fmt.Printf(constants.MsgChromeProfileDBSynced, name)
 }

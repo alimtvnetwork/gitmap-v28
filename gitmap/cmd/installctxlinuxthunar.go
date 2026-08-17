@@ -44,10 +44,13 @@ func thunarMerged(cur string, flat []flatCtxEntry, exe string) string {
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<actions>\n" + block + "</actions>\n"
 	}
 	begin, end := constants.CtxThunarMarkBegin, constants.CtxThunarMarkEnd
-	if i := strings.Index(cur, begin); i >= 0 {
-		if j := strings.Index(cur[i:], end); j >= 0 {
-			return cur[:i] + block + cur[i+j+len(end):]
-		}
+	i := strings.Index(cur, begin)
+	j := -1
+	if i >= 0 {
+		j = strings.Index(cur[i:], end)
+	}
+	if i >= 0 && j >= 0 {
+		return cur[:i] + block + cur[i+j+len(end):]
 	}
 	if k := strings.LastIndex(cur, "</actions>"); k >= 0 {
 		return cur[:k] + block + cur[k:]

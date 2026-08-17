@@ -108,24 +108,23 @@ func shouldUseMultiClone(cf CloneFlags) bool {
 			return true
 		}
 	}
-	if len(cf.Positional) >= 2 {
-		for _, p := range cf.Positional[1:] {
-			if isDirectURL(sanitizeURLToken(p)) {
-				return true
-			}
-		}
-	}
-	if len(cf.Positional) >= 1 {
-		flat := flattenURLArgs(cf.Positional[:1])
-		urlCount := 0
-		for _, u := range flat {
-			if isDirectURL(u) {
-				urlCount++
-			}
-		}
-		if urlCount >= 2 {
+	for i, p := range cf.Positional {
+		if i >= 1 && isDirectURL(sanitizeURLToken(p)) {
 			return true
 		}
+	}
+	flat := []string{}
+	if len(cf.Positional) >= 1 {
+		flat = flattenURLArgs(cf.Positional[:1])
+	}
+	urlCount := 0
+	for _, u := range flat {
+		if isDirectURL(u) {
+			urlCount++
+		}
+	}
+	if urlCount >= 2 {
+		return true
 	}
 
 	return false
@@ -276,11 +275,10 @@ func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, o
 	}
 
 	// Strict mode: keep the original abort-on-exists behavior.
-	if noReplace {
-		if _, statErr := os.Stat(absPath); statErr == nil {
-			fmt.Fprintf(os.Stderr, constants.ErrCloneURLExists, absPath)
-			os.Exit(1)
-		}
+	_, statErr := os.Stat(absPath)
+	if noReplace && statErr == nil {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneURLExists, absPath)
+		os.Exit(1)
 	}
 
 	// Enqueue pending task.
@@ -299,23 +297,20 @@ func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, o
 	// Clone (default: replace; with --no-replace: clone into a guaranteed-empty target).
 	fmt.Printf(constants.MsgCloneURLCloning, repoName, folderName)
 
+	var cloneErr error
 	if noReplace {
-		if cloneErr := runCloneCommand(url, absPath); cloneErr != nil {
-			failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
-			closeTaskDB(taskDB)
-			fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
-			os.Exit(1)
-		}
-		persistRecloneTransport(url)
+		cloneErr = runCloneCommand(url, absPath)
 	} else {
-		if _, replaceErr := cloneReplacing(url, absPath); replaceErr != nil {
-			failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, replaceErr))
-			closeTaskDB(taskDB)
-			fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, replaceErr)
-			os.Exit(1)
-		}
-		persistRecloneTransport(url)
+		_, cloneErr = cloneReplacing(url, absPath)
 	}
+
+	if cloneErr != nil {
+		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
+		closeTaskDB(taskDB)
+		fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
+		os.Exit(1)
+	}
+	persistRecloneTransport(url)
 
 	fmt.Printf(constants.MsgCloneURLDone, repoName)
 
@@ -385,15 +380,16 @@ func registerSingleDesktop(name, absPath string) {
 
 // initCloneVerbose sets up verbose logging if enabled.
 func initCloneVerbose(enabled bool) {
-	if enabled {
-		log, err := verbose.Init()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, err)
-
-			return
-		}
-		defer log.Close()
+	if !enabled {
+		return
 	}
+	log, err := verbose.Init()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, err)
+
+		return
+	}
+	defer log.Close()
 }
 
 // resolveCloneShorthand maps "json", "csv", and "text" to default output paths.
@@ -531,20 +527,24 @@ func printCloneFailures(s model.CloneSummary) {
 
 // registerCloned adds successfully cloned repos to GitHub Desktop.
 func registerCloned(s model.CloneSummary, targetDir string, enabled bool) {
-	if enabled {
-		absTarget, absErr := filepath.Abs(targetDir)
-		if absErr != nil {
-			fmt.Fprintf(os.Stderr, "  Warning: could not resolve absolute path for %s: %v\n", targetDir, absErr)
-			absTarget = targetDir
-		}
-		records := make([]model.ScanRecord, 0, s.Succeeded)
-		for _, r := range s.Cloned {
-			r.Record.AbsolutePath = filepath.Join(absTarget, model.CleanRelativePath(r.Record.RelativePath))
-			records = append(records, r.Record)
-		}
-		result := desktop.AddRepos(records)
-		fmt.Printf(constants.MsgDesktopSummary, result.Added, result.Failed)
+	if !enabled {
+		return
 	}
+	absTarget, absErr := filepath.Abs(targetDir)
+	if absErr != nil {
+		fmt.Fprintf(os.Stderr, "  Warning: could not resolve absolute path for %s: %v\n", targetDir, absErr)
+		absTarget = targetDir
+	}
+	if s.Succeeded == 0 {
+		return
+	}
+	records := make([]model.ScanRecord, 0, s.Succeeded)
+	for _, r := range s.Cloned {
+		r.Record.AbsolutePath = filepath.Join(absTarget, model.CleanRelativePath(r.Record.RelativePath))
+		records = append(records, r.Record)
+	}
+	result := desktop.AddRepos(records)
+	fmt.Printf(constants.MsgDesktopSummary, result.Added, result.Failed)
 }
 
 // applyURLSchemeFlags rewrites cf.Source and every positional URL via
@@ -573,16 +573,15 @@ func applyURLSchemeFlags(cf CloneFlags) CloneFlags {
 		if !isDirectURL(in) {
 			return in
 		}
+		out, ok := "", false
 		if toSSH {
-			if out, ok := ConvertURLToSSH(in); ok {
-				return out
-			}
+			out, ok = ConvertURLToSSH(in)
 		} else {
-			if out, ok := ConvertURLToHTTPS(in); ok {
-				return out
-			}
+			out, ok = ConvertURLToHTTPS(in)
 		}
-
+		if ok {
+			return out
+		}
 		return in
 	}
 

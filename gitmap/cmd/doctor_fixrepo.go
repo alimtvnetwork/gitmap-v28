@@ -36,14 +36,10 @@ func runDoctorFixRepo(args []string) {
 			continue
 		}
 		if a == "--budget" && i+1 < len(args) {
-			if n, err := strconv.Atoi(args[i+1]); err == nil && n >= constants.FixRepoGofmtMinCmdLen {
-				budget = n
-			}
+			budget = parseBudget(args[i+1], budget)
 			i++
 		} else if strings.HasPrefix(a, "--budget=") {
-			if n, err := strconv.Atoi(a[len("--budget="):]); err == nil && n >= constants.FixRepoGofmtMinCmdLen {
-				budget = n
-			}
+			budget = parseBudget(a[len("--budget="):], budget)
 		}
 	}
 	results := doctorFixRepoProbes(budget)
@@ -61,6 +57,14 @@ func runDoctorFixRepo(args []string) {
 	if failed > 0 {
 		os.Exit(1)
 	}
+}
+
+func parseBudget(val string, defaultBudget int) int {
+	n, err := strconv.Atoi(val)
+	if err == nil && n >= constants.FixRepoGofmtMinCmdLen {
+		return n
+	}
+	return defaultBudget
 }
 
 // doctorFixRepoProbes runs each probe in order and returns results.

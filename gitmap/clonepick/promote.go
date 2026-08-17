@@ -30,16 +30,21 @@ import (
 // up src; dest may be in a partially-populated state and the
 // caller must treat the whole clone as failed.
 func promotePreClonedSrc(src, dest string) error {
-	if err := os.Remove(dest); err == nil {
-		if renameErr := os.Rename(src, dest); renameErr == nil {
-			return nil
-		}
-		// Recreate dest so the copy fallback has somewhere to land.
-		if mkErr := os.MkdirAll(dest, 0o755); mkErr != nil {
-			return mkErr
-		}
+	err := os.Remove(dest)
+	if err == nil {
+		return tryRenameWithFallback(src, dest)
 	}
 
+	return copyTreeThenRemove(src, dest)
+}
+
+func tryRenameWithFallback(src, dest string) error {
+	if renameErr := os.Rename(src, dest); renameErr == nil {
+		return nil
+	}
+	if mkErr := os.MkdirAll(dest, 0o755); mkErr != nil {
+		return mkErr
+	}
 	return copyTreeThenRemove(src, dest)
 }
 
@@ -75,18 +80,21 @@ func copyOneEntry(src, dest string, entry fs.DirEntry) error {
 		return os.MkdirAll(dest, 0o755)
 	}
 	if entry.Type()&os.ModeSymlink != 0 {
-		target, err := os.Readlink(src)
-		if err != nil {
-			return err
-		}
-
-		return os.Symlink(target, dest)
+		return copySymlinkEntry(src, dest)
 	}
 	if !entry.Type().IsRegular() {
 		return nil
 	}
 
 	return copyRegularFile(src, dest)
+}
+
+func copySymlinkEntry(src, dest string) error {
+	target, err := os.Readlink(src)
+	if err != nil {
+		return err
+	}
+	return os.Symlink(target, dest)
 }
 
 // copyRegularFile copies a regular file preserving mode bits. Used

@@ -31,33 +31,20 @@ func runHelpDashboard(args []string) {
 	// run after a docs-site release), try to download it from GitHub first.
 	// If that also fails (release didn't bundle docs-site.zip), gracefully
 	// fall back to opening the hosted docs URL instead of hard-exiting.
-	if _, err := os.Stat(docsDir); os.IsNotExist(err) {
-		zipPath := filepath.Join(binaryDir, constants.DocsSiteArchive)
-		if _, zipErr := os.Stat(zipPath); os.IsNotExist(zipErr) {
-			_, n, dlErr := downloadDocsSiteArchive(zipPath)
-			if dlErr != nil {
-				fmt.Fprintf(os.Stderr, constants.ErrDocsSiteDownload, 2, dlErr, zipPath)
-				openHostedDocsFallback()
-				return
-			}
-			fmt.Printf(constants.MsgDocsSiteDownloaded, n)
-		}
-		fmt.Printf("  Extracting %s...\n", constants.DocsSiteArchive)
-		if mkErr := os.MkdirAll(docsDir, constants.DirPermission); mkErr != nil {
-			fmt.Fprintf(os.Stderr, "  ✗ Failed to create docs-site dir: %v\n", mkErr)
-			openHostedDocsFallback()
-			return
-		}
-		extractTarget := chooseDocsExtractTarget(zipPath, binaryDir, docsDir)
-		if extractErr := extractDocsSiteZip(zipPath, extractTarget); extractErr != nil {
-			fmt.Fprintf(os.Stderr, "  ✗ Failed to extract docs-site.zip: %v\n", extractErr)
-			openHostedDocsFallback()
-			return
-		}
-		fmt.Printf("  ✓ Docs site extracted to %s\n", docsDir)
+	_, err := os.Stat(docsDir)
+	isMissing := os.IsNotExist(err)
+	ensureErr := error(nil)
+
+	if isMissing == true {
+		ensureErr = ensureDocsSite(binaryDir, docsDir)
+	}
+	if isMissing == true && ensureErr != nil {
+		openHostedDocsFallback()
+		return
 	}
 
-	if _, err := os.Stat(docsDir); os.IsNotExist(err) {
+	_, err = os.Stat(docsDir)
+	if os.IsNotExist(err) == true {
 		fmt.Fprintf(os.Stderr, constants.ErrHDNoDocsDir, docsDir)
 		openHostedDocsFallback()
 		return
@@ -65,12 +52,48 @@ func runHelpDashboard(args []string) {
 
 	distDir := filepath.Join(docsDir, constants.HDDistDir)
 
-	if info, err := os.Stat(distDir); err == nil && info.IsDir() {
+	info, err := os.Stat(distDir)
+	if err == nil && info.IsDir() == true {
 		serveStatic(distDir, port)
-	} else {
-		fmt.Print(constants.MsgHDNoDistFallback)
-		serveDev(docsDir, port)
+		return
 	}
+
+	fmt.Print(constants.MsgHDNoDistFallback)
+	serveDev(docsDir, port)
+}
+
+// ensureDocsSite downloads and extracts the docs site zip if it is missing.
+func ensureDocsSite(binaryDir, docsDir string) error {
+	zipPath := filepath.Join(binaryDir, constants.DocsSiteArchive)
+	_, zipErr := os.Stat(zipPath)
+	isZipMissing := os.IsNotExist(zipErr)
+	dlErr := error(nil)
+	n := int64(0)
+
+	if isZipMissing == true {
+		_, n, dlErr = downloadDocsSiteArchive(zipPath)
+	}
+	if isZipMissing == true && dlErr != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrDocsSiteDownload, 2, dlErr, zipPath)
+		return dlErr
+	}
+	if isZipMissing == true {
+		fmt.Printf(constants.MsgDocsSiteDownloaded, n)
+	}
+	fmt.Printf("  Extracting %s...\n", constants.DocsSiteArchive)
+	mkErr := os.MkdirAll(docsDir, constants.DirPermission)
+	if mkErr != nil {
+		fmt.Fprintf(os.Stderr, "  ✗ Failed to create docs-site dir: %v\n", mkErr)
+		return mkErr
+	}
+	extractTarget := chooseDocsExtractTarget(zipPath, binaryDir, docsDir)
+	extractErr := extractDocsSiteZip(zipPath, extractTarget)
+	if extractErr != nil {
+		fmt.Fprintf(os.Stderr, "  ✗ Failed to extract docs-site.zip: %v\n", extractErr)
+		return extractErr
+	}
+	fmt.Printf("  ✓ Docs site extracted to %s\n", docsDir)
+	return nil
 }
 
 // parseHelpDashboardFlags parses the --port flag.
@@ -128,20 +151,22 @@ func spaHandler(distDir string) http.Handler {
 	fs := http.FileServer(http.Dir(distDir))
 	indexPath := distDir + "/index.html"
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Serve the exact file if it exists on disk.
 		requested := distDir + r.URL.Path
-		if info, err := os.Stat(requested); err == nil && !info.IsDir() {
-			// Explicit HTML content type for .html assets (Windows fix).
-			if strings.HasSuffix(r.URL.Path, ".html") {
-				w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			}
-			fs.ServeHTTP(w, r)
+		info, err := os.Stat(requested)
+
+		if err != nil || info.IsDir() == true {
+			// Fallback to SPA index.
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Header().Set("Cache-Control", "no-cache")
+			http.ServeFile(w, r, indexPath)
 			return
 		}
-		// Fallback to SPA index.
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Header().Set("Cache-Control", "no-cache")
-		http.ServeFile(w, r, indexPath)
+
+		// Explicit HTML content type for .html assets (Windows fix).
+		if strings.HasSuffix(r.URL.Path, ".html") == true {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		}
+		fs.ServeHTTP(w, r)
 	})
 }
 

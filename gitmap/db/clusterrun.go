@@ -93,10 +93,10 @@ func SelectClusterRun(ctx context.Context, db *sql.DB, runRef string) (ClusterRu
 		&run.FailedNodes,
 		&run.SkippedNodes,
 	)
+	if err == sql.ErrNoRows {
+		return ClusterRun{}, fmt.Errorf("ClusterRun not found for RunRef %s: %w", runRef, err)
+	}
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return ClusterRun{}, fmt.Errorf("ClusterRun not found for RunRef %s: %w", runRef, err)
-		}
 		return ClusterRun{}, fmt.Errorf("failed to scan ClusterRun: %w", err)
 	}
 

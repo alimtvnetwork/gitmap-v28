@@ -1,0 +1,55 @@
+
+d:\work\gitmap\gitmap\cmd\addignoreattrs.go:231: Nested if statement found
+d:\work\gitmap\gitmap\cmd\addignoreattrs.go:264: Nested if statement found
+d:\work\gitmap\gitmap\cmd\addlfsinstall.go:115: Nested if statement found
+d:\work\gitmap\gitmap\cmd\aliasops.go:51: Nested if statement found
+d:\work\gitmap\gitmap\cmd\aliasresolve.go:26: Nested if statement found
+d:\work\gitmap\gitmap\cmd\amendexecprint.go:38: Nested if statement found
+d:\work\gitmap\gitmap\cmd\amendexecprint.go:46: Nested if statement found
+d:\work\gitmap\gitmap\cmd\amendlist.go:48: Nested if statement found
+d:\work\gitmap\gitmap\cmd\asops.go:58: Nested if statement found
+d:\work\gitmap\gitmap\cmd\asops.go:71: Nested if statement found
+d:\work\gitmap\gitmap\cmd\auditlegacy_report.go:37: Nested if statement found
+d:\work\gitmap\gitmap\cmd\cdops.go:85: Nested if statement found
+d:\work\gitmap\gitmap\cmd\cdops.go:174: Nested if statement found
+d:\work\gitmap\gitmap\cmd\cfrppriorversion.go:117: Nested if statement found
+d:\work\gitmap\gitmap\cmd\changelogwrap.go:20: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_backup.go:20: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_backup.go:76: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_backup.go:107: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_backup.go:114: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_bookmarks.go:74: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_bookmarks.go:82: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_bookmarks.go:90: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_bookmarks.go:121: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_bookmarks_filter.go:29: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chrome_localstate.go:62: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_db.go:40: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_db.go:46: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_export.go:69: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:152: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:162: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:169: Nested if statement found (in else block)
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:274: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:317: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:378: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:379: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:384: Nested if statement found (in else block)
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:411: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:415: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_merge.go:419: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_preferences.go:29: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_process.go:49: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_resolve.go:66: Nested if statement found
+d:\work\gitmap\gitmap\cmd\chromeprofile_resolve.go:129: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:113: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:122: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:126: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:280: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:303: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:311: Nested if statement found (in else block)
+d:\work\gitmap\gitmap\cmd\clone.go:390: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:536: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:577: Nested if statement found
+d:\work\gitmap\gitmap\cmd\clone.go:581: Nested if statement found (in else block)
+

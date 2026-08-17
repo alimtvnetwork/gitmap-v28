@@ -39,10 +39,9 @@ func ExecuteWithHooksConcurrent(plan Plan, cwd string, progress io.Writer,
 	if workers <= 1 {
 		return ExecuteWithHooks(plan, cwd, progress, beforeRow)
 	}
-	if len(cwd) == 0 {
-		if wd, err := os.Getwd(); err == nil {
-			cwd = wd
-		}
+	wd, err := os.Getwd()
+	if len(cwd) == 0 && err == nil {
+		cwd = wd
 	}
 	out := make([]Result, len(plan.Rows))
 	dispatchConcurrent(plan, cwd, beforeRow, workers, out)

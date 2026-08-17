@@ -38,16 +38,14 @@ func isGUITool(tool string) bool {
 func verifyInstallation(tool string) {
 	fmt.Printf(constants.MsgInstallVerifying, tool)
 
-	// For tools with known exe paths, check the path directly first.
 	exePath := expectedExePath(tool)
-	if exePath != "" {
-		if _, err := os.Stat(exePath); err == nil {
-			fmt.Printf(constants.MsgInstallSuccess, tool)
-			fmt.Printf(constants.MsgInstallExeFound, exePath)
-			runPostInstall(tool)
+	_, err := os.Stat(exePath)
+	if exePath != "" && err == nil {
+		fmt.Printf(constants.MsgInstallSuccess, tool)
+		fmt.Printf(constants.MsgInstallExeFound, exePath)
+		runPostInstall(tool)
 
-			return
-		}
+		return
 	}
 
 	// GUI tools must not run --version (it opens the window and blocks).
@@ -116,10 +114,9 @@ func expectedExePath(tool string) string {
 func detectInstalledVersion(tool string) string {
 	// For tools with known exe paths, check the path directly.
 	exePath := expectedExePath(tool)
-	if exePath != "" {
-		if _, err := os.Stat(exePath); err == nil {
-			return "installed (at " + exePath + ")"
-		}
+	_, err := os.Stat(exePath)
+	if exePath != "" && err == nil {
+		return "installed (at " + exePath + ")"
 	}
 
 	// GUI tools must not run --version.

@@ -163,22 +163,30 @@ func probeSSHIdentity(url string) string {
 // extractSSHHost pulls the host out of `git@host:owner/repo` or
 // `ssh://git@host/owner/repo`.
 func extractSSHHost(url string) string {
-	if strings.HasPrefix(url, "ssh://") {
-		rest := strings.TrimPrefix(url, "ssh://")
-		if at := strings.Index(rest, "@"); at >= 0 {
-			rest = rest[at+1:]
-		}
-		if slash := strings.IndexAny(rest, "/:"); slash >= 0 {
-			return rest[:slash]
-		}
+	isSSHScheme := strings.HasPrefix(url, "ssh://")
 
-		return rest
+	restSSH := strings.TrimPrefix(url, "ssh://")
+	atSSH := strings.Index(restSSH, "@")
+	if isSSHScheme == true && atSSH >= 0 {
+		restSSH = restSSH[atSSH+1:]
 	}
-	if at := strings.Index(url, "@"); at >= 0 {
-		rest := url[at+1:]
-		if colon := strings.Index(rest, ":"); colon >= 0 {
-			return rest[:colon]
-		}
+	slashSSH := strings.IndexAny(restSSH, "/:")
+	if isSSHScheme == true && slashSSH >= 0 {
+		return restSSH[:slashSSH]
+	}
+	if isSSHScheme == true {
+		return restSSH
+	}
+
+	at := strings.Index(url, "@")
+	colon := -1
+	restNonSSH := ""
+	if at >= 0 {
+		restNonSSH = url[at+1:]
+		colon = strings.Index(restNonSSH, ":")
+	}
+	if at >= 0 && colon >= 0 {
+		return restNonSSH[:colon]
 	}
 
 	return ""

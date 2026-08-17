@@ -67,15 +67,11 @@ func tryFolderArgSinglePositional(token string, originalArgs []string) bool {
 	}
 
 	resolved, err := resolveCloneNextFolder(token)
+	if err != nil && hasFolderHint(token) == true {
+		fmt.Fprintf(os.Stderr, constants.ErrCNFolderNotFound, token)
+		os.Exit(1)
+	}
 	if err != nil {
-		// Path-shaped but not on disk: the user clearly meant a
-		// folder (slash present, ~ present, etc.), so refuse loudly
-		// instead of silently falling through to the alias resolver.
-		if hasFolderHint(token) {
-			fmt.Fprintf(os.Stderr, constants.ErrCNFolderNotFound, token)
-			os.Exit(1)
-		}
-
 		return false
 	}
 
@@ -132,12 +128,9 @@ func tryFolderArgTwoPositional(first, second string, originalArgs []string) bool
 func resolveCloneNextFolder(token string) (string, error) {
 	expanded := expandTilde(token)
 
-	if !filepath.IsAbs(expanded) {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return "", err
-		}
-		expanded = filepath.Join(cwd, expanded)
+	expanded, errExpand := ensureAbsolutePath(expanded)
+	if errExpand != nil {
+		return "", errExpand
 	}
 
 	abs, err := filepath.Abs(expanded)
@@ -145,11 +138,10 @@ func resolveCloneNextFolder(token string) (string, error) {
 		return "", err
 	}
 
-	if !fsutil.DirExists(abs) {
-		if fsutil.FileExists(abs) {
-			return "", errCNFolderNotDir
-		}
-
+	if fsutil.DirExists(abs) == false && fsutil.FileExists(abs) == true {
+		return "", errCNFolderNotDir
+	}
+	if fsutil.DirExists(abs) == false {
 		return "", os.ErrNotExist
 	}
 
@@ -184,4 +176,15 @@ func hasFolderHint(token string) bool {
 	}
 
 	return false
+}
+
+func ensureAbsolutePath(expanded string) (string, error) {
+	if filepath.IsAbs(expanded) == true {
+		return expanded, nil
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(cwd, expanded), nil
 }

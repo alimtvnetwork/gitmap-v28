@@ -67,11 +67,10 @@ func readProjectsJSONEntries(t *testing.T, path string) []map[string]any {
 	t.Helper()
 
 	data, err := os.ReadFile(path)
+	if err != nil && os.IsNotExist(err) == true {
+		return nil
+	}
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-
 		t.Fatalf("read %s: %v", path, err)
 	}
 

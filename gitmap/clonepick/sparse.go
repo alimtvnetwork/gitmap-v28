@@ -45,10 +45,8 @@ func runSparseCheckout(plan Plan, progress io.Writer) (string, error) {
 	if err := gitCheckout(dest, progress); err != nil {
 		return dest, fmt.Errorf(constants.ErrClonePickGitCheckout, err)
 	}
-	if !plan.KeepGit {
-		if err := os.RemoveAll(filepath.Join(dest, ".git")); err != nil {
-			return dest, fmt.Errorf(constants.ErrClonePickFsRemoveDotGit, err)
-		}
+	if err := removeDotGitIfRequested(plan.KeepGit, dest); err != nil {
+		return dest, err
 	}
 
 	return dest, nil
@@ -59,16 +57,29 @@ func runSparseCheckout(plan Plan, progress io.Writer) (string, error) {
 // Split out so runSparseCheckout stays under the function-length cap.
 func acquireRepoTree(plan Plan, dest string, progress io.Writer) error {
 	if len(plan.PreClonedSrc) > 0 {
-		if err := promotePreClonedSrc(plan.PreClonedSrc, dest); err != nil {
-			return fmt.Errorf(constants.ErrClonePickPromoteSrc, err)
-		}
-
-		return nil
+		return promotePreClonedOrError(plan.PreClonedSrc, dest)
 	}
 	if err := gitClonePartial(plan, dest, progress); err != nil {
 		return fmt.Errorf(constants.ErrClonePickGitClone, err)
 	}
 
+	return nil
+}
+
+func removeDotGitIfRequested(keepGit bool, dest string) error {
+	if keepGit {
+		return nil
+	}
+	if err := os.RemoveAll(filepath.Join(dest, ".git")); err != nil {
+		return fmt.Errorf(constants.ErrClonePickFsRemoveDotGit, err)
+	}
+	return nil
+}
+
+func promotePreClonedOrError(src, dest string) error {
+	if err := promotePreClonedSrc(src, dest); err != nil {
+		return fmt.Errorf(constants.ErrClonePickPromoteSrc, err)
+	}
 	return nil
 }
 

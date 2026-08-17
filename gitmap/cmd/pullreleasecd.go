@@ -130,26 +130,29 @@ func executeOnePRCEntry(self string, e prcEntry) prcResult {
 // cloned first via a subprocess `gitmap clone <url>`, then re-looked-up
 // by the slug derived from the URL's last path segment.
 func resolvePRCTarget(self, token string) (string, string, error) {
-	if isPRCURL(token) {
-		if err := runPRCClone(self, token); err != nil {
-			return "", "", fmt.Errorf("clone %s: %w", token, err)
-		}
-		slug := slugFromURL(token)
-
-		path, err := lookupPRCPath(slug)
-		if err != nil {
-			return slug, "", err
-		}
-
-		return slug, path, nil
+	var path string
+	var err error
+	if !isPRCURL(token) {
+		path, err = lookupPRCPath(token)
 	}
-
-	path, err := lookupPRCPath(token)
-	if err != nil {
+	if !isPRCURL(token) && err != nil {
 		return token, "", err
 	}
+	if !isPRCURL(token) {
+		return token, path, nil
+	}
 
-	return token, path, nil
+	if err := runPRCClone(self, token); err != nil {
+		return "", "", fmt.Errorf("clone %s: %w", token, err)
+	}
+
+	slug := slugFromURL(token)
+	path, err = lookupPRCPath(slug)
+	if err != nil {
+		return slug, "", err
+	}
+
+	return slug, path, nil
 }
 
 // isPRCURL recognises an HTTPS or SSH git URL.

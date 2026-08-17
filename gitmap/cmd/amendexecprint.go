@@ -28,25 +28,27 @@ func buildEnvFilter(f amendFlags) string {
 	return strings.Join(lines, "\n")
 }
 
+// getGitConfig reads a git config value.
+func getGitConfig(key string) string {
+	out, err := exec.Command("git", "config", key).Output()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not read git %s: %v\n", key, err)
+	}
+
+	return strings.TrimSpace(string(out))
+}
+
 // buildAuthorString creates the --author flag value.
 func buildAuthorString(f amendFlags) string {
 	name := f.name
 	email := f.email
 
 	if name == "" {
-		out, err := exec.Command("git", "config", "user.name").Output()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not read git user.name: %v\n", err)
-		}
-		name = strings.TrimSpace(string(out))
+		name = getGitConfig("user.name")
 	}
 
 	if email == "" {
-		out, err := exec.Command("git", "config", "user.email").Output()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not read git user.email: %v\n", err)
-		}
-		email = strings.TrimSpace(string(out))
+		email = getGitConfig("user.email")
 	}
 
 	return name + " <" + email + ">"

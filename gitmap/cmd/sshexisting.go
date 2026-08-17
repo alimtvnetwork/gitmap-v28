@@ -56,15 +56,23 @@ func printExistingKeyOnDisk(db *store.DB, name, keyPath, host string) {
 // not exit — the user already got their public key on stdout.
 func upsertExistingKeyToDB(db *store.DB, name, keyPath, pub, fingerprint string) {
 	email := resolveGitEmail()
-	if db.SSHKeyExists(name) {
-		if err := db.UpdateSSHKey(name, keyPath, pub, fingerprint, email); err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not update SSH key in DB: %v\n", err)
-		}
+	exists := db.SSHKeyExists(name)
+	if exists == true {
+		errUpdate := db.UpdateSSHKey(name, keyPath, pub, fingerprint, email)
+		printDBUpdateError(errUpdate)
 
 		return
 	}
-	if _, err := db.InsertSSHKey(name, keyPath, pub, fingerprint, email); err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not register existing SSH key in DB: %v\n", err)
+
+	_, errInsert := db.InsertSSHKey(name, keyPath, pub, fingerprint, email)
+	if errInsert != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not register existing SSH key in DB: %v\n", errInsert)
+	}
+}
+
+func printDBUpdateError(err error) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not update SSH key in DB: %v\n", err)
 	}
 }
 
@@ -77,10 +85,15 @@ func backupKeyForRegenerate(keyPath string) error {
 	if err := os.Rename(keyPath, keyPath+suffix); err != nil {
 		return fmt.Errorf("backup private key: %w", err)
 	}
-	if _, err := os.Stat(keyPath + ".pub"); err == nil {
-		if err := os.Rename(keyPath+".pub", keyPath+".pub"+suffix); err != nil {
-			return fmt.Errorf("backup public key: %w", err)
-		}
+	_, errStat := os.Stat(keyPath + ".pub")
+	hasPub := errStat == nil
+	if hasPub == false {
+		return nil
+	}
+
+	errRename := os.Rename(keyPath+".pub", keyPath+".pub"+suffix)
+	if errRename != nil {
+		return fmt.Errorf("backup public key: %w", errRename)
 	}
 
 	return nil

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
@@ -37,38 +38,51 @@ func runSSHCat(args []string) {
 	key, err := db.FindSSHKeyByName(name)
 	// Fallback: if the default name was requested and missing, and there
 	// is exactly one stored key, use that one.
-	if err != nil && name == constants.DefaultSSHKeyName {
-		keys, lerr := db.ListSSHKeys()
-		if lerr == nil && len(keys) == 1 {
-			key = keys[0]
-			err = nil
-		}
-	}
-	// Fallback: key not in DB — check disk at the conventional path.
-	// Covers keys created outside gitmap (raw `ssh-keygen`, OS imports).
-	if err != nil {
-		diskPath := defaultSSHKeyPath(name)
-		if keyExistsOnDisk(diskPath) {
-			pubBytes, rerr := os.ReadFile(diskPath + ".pub")
-			if rerr == nil {
-				pub := strings.TrimSpace(string(pubBytes))
-				fp := readFingerprint(diskPath)
-				upsertExistingKeyToDB(db, name, diskPath, string(pubBytes), fp)
-				fmt.Println(pub)
-				copyPubKeyAndAnnounce(pub)
-
-				return
-			}
-		}
-		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, name)
-		printAvailableKeys(db)
-		fmt.Fprint(os.Stderr, "\n  Hint: run `gitmap ssh` to generate a new SSH key for GitHub.\n")
-		os.Exit(1)
+	hasDefaultAndErr := err != nil && name == constants.DefaultSSHKeyName
+	if hasDefaultAndErr == true {
+		key, err = fallbackAndAssign(db, key, err)
 	}
 
-	pub := strings.TrimSpace(key.PublicKey)
+	// If key was found
+	if err == nil {
+		pub := strings.TrimSpace(key.PublicKey)
+		fmt.Println(pub)
+		copyPubKeyAndAnnounce(pub)
+
+		return
+	}
+
+	diskPath := defaultSSHKeyPath(name)
+	exists := keyExistsOnDisk(diskPath)
+	if exists == false {
+		printSSHNotFound(db, name)
+	}
+
+	pubBytes, rerr := os.ReadFile(diskPath + ".pub")
+	if rerr != nil {
+		printSSHNotFound(db, name)
+	}
+
+	pub := strings.TrimSpace(string(pubBytes))
+	fp := readFingerprint(diskPath)
+	upsertExistingKeyToDB(db, name, diskPath, string(pubBytes), fp)
 	fmt.Println(pub)
 	copyPubKeyAndAnnounce(pub)
+}
+
+func printSSHNotFound(db *store.DB, name string) {
+	fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, name)
+	printAvailableKeys(db)
+	fmt.Fprint(os.Stderr, "\n  Hint: run `gitmap ssh` to generate a new SSH key for GitHub.\n")
+	os.Exit(1)
+}
+func fallbackToSingleKey(db *store.DB, fallbackKey *model.SSHKey, fallbackErr error) (*model.SSHKey, error) {
+	keys, lerr := db.ListSSHKeys()
+	hasOneKey := lerr == nil && len(keys) == 1
+	if hasOneKey == true {
+		return &keys[0], nil
+	}
+	return fallbackKey, fallbackErr
 }
 
 // printAvailableKeys prints available SSH key names to stderr.
@@ -79,4 +93,12 @@ func printAvailableKeys(db *store.DB) {
 	}
 
 	fmt.Fprintf(os.Stderr, constants.ErrSSHAvailable, strings.Join(names, ", "))
+}
+
+func fallbackAndAssign(db *store.DB, origKey model.SSHKey, origErr error) (model.SSHKey, error) {
+	keyPtr, errFallback := fallbackToSingleKey(db, &origKey, origErr)
+	if keyPtr != nil {
+		return *keyPtr, errFallback
+	}
+	return origKey, errFallback
 }

@@ -29,15 +29,15 @@ func runTempReleaseList(args []string) {
 		os.Exit(1)
 	}
 
-	if jsonOutput {
-		if err := encodeTempReleaseListJSON(os.Stdout, releases); err != nil {
-			fmt.Fprintf(os.Stderr, "  ✗ Failed to encode temp releases to JSON: %v\n", err)
-		}
-
+	if jsonOutput == false {
+		printTRList(releases)
 		return
 	}
 
-	printTRList(releases)
+	errEncode := encodeTempReleaseListJSON(os.Stdout, releases)
+	if errEncode != nil {
+		fmt.Fprintf(os.Stderr, "  ✗ Failed to encode temp releases to JSON: %v\n", errEncode)
+	}
 }
 
 // printTRList prints temp-release records in terminal format.

@@ -43,11 +43,13 @@ func hasAmendListJSONFlag(args []string) bool {
 // parseAmendListLimit extracts the --limit N value from args.
 func parseAmendListLimit(args []string) int {
 	for i, arg := range args {
-		if arg == constants.FlagLimit && i+1 < len(args) {
-			n, err := strconv.Atoi(args[i+1])
-			if err == nil && n > 0 {
-				return n
-			}
+		if arg != constants.FlagLimit || i+1 >= len(args) {
+			continue
+		}
+
+		n, err := strconv.Atoi(args[i+1])
+		if err == nil && n > 0 {
+			return n
 		}
 	}
 

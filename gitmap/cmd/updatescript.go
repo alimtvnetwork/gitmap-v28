@@ -81,27 +81,30 @@ func executeUpdateUnix(repoPath string, report reportErrorsConfig) {
 func resolveInstalledDir() string {
 	// First try: which gitmap on PATH
 	path, err := exec.LookPath("gitmap")
+	resolved := ""
+	evalErr := error(nil)
 	if err == nil {
-		resolved, evalErr := filepath.EvalSymlinks(path)
-		if evalErr == nil {
-			return filepath.Dir(resolved)
-		}
-
+		resolved, evalErr = filepath.EvalSymlinks(path)
+	}
+	if err == nil && evalErr == nil {
+		return filepath.Dir(resolved)
+	}
+	if err == nil {
 		return filepath.Dir(path)
 	}
 
 	// Fallback: current executable's directory
-	selfPath, err := os.Executable()
-	if err != nil {
+	selfPath, errExec := os.Executable()
+	if errExec != nil {
 		return ""
 	}
 
-	resolved, err := filepath.EvalSymlinks(selfPath)
-	if err != nil {
+	resolvedSelf, errSym := filepath.EvalSymlinks(selfPath)
+	if errSym != nil {
 		return filepath.Dir(selfPath)
 	}
 
-	return filepath.Dir(resolved)
+	return filepath.Dir(resolvedSelf)
 }
 
 // writeUpdateScript creates a temporary PowerShell script for self-update.

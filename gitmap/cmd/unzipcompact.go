@@ -105,9 +105,13 @@ func executeCompactExtract(ctx context.Context, resolved archive.ResolvedSource,
 	var historyID int64
 	if dbErr == nil {
 		defer db.Close()
-		if migErr := db.Migrate(); migErr == nil {
-			historyID = startArchiveRow(db, constants.ArchiveCmdUnzipCompact, []string{originalSrc}, "")
-		}
+	}
+	migErr := error(nil)
+	if dbErr == nil {
+		migErr = db.Migrate()
+	}
+	if dbErr == nil && migErr == nil {
+		historyID = startArchiveRow(db, constants.ArchiveCmdUnzipCompact, []string{originalSrc}, "")
 	}
 
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveBanner+"\n", constants.CmdUnzipCompact, constants.Version)

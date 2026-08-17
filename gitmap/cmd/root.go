@@ -229,12 +229,17 @@ func splitOnComma(s string) []string {
 	start := 0
 	for i := 0; i <= len(s); i++ {
 		if i == len(s) || s[i] == ',' {
-			piece := trimSpaces(s[start:i])
-			if len(piece) > 0 {
-				out = append(out, piece)
-			}
+			out = appendTrimmedPiece(out, s, start, i)
 			start = i + 1
 		}
+	}
+	return out
+}
+
+func appendTrimmedPiece(out []string, s string, start, i int) []string {
+	piece := trimSpaces(s[start:i])
+	if len(piece) > 0 {
+		return append(out, piece)
 	}
 	return out
 }

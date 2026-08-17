@@ -86,18 +86,27 @@ func replaceManagedBlock(content, block string) string {
 	startIdx := strings.Index(content, constants.SSHConfigMarkerStart)
 	endIdx := strings.Index(content, constants.SSHConfigMarkerEnd)
 
-	if startIdx >= 0 && endIdx >= 0 {
+	hasMarkers := startIdx >= 0 && endIdx >= 0
+	if hasMarkers == true {
 		endIdx += len(constants.SSHConfigMarkerEnd)
 		before := content[:startIdx]
 		after := content[endIdx:]
 
-		if len(block) == 0 {
-			return strings.TrimRight(before, "\n") + after
-		}
-
-		return before + block + after
+		return insertBlock(before, after, block)
 	}
 
+	return appendBlock(content, block)
+}
+
+func insertBlock(before, after, block string) string {
+	if len(block) == 0 {
+		return strings.TrimRight(before, "\n") + after
+	}
+
+	return before + block + after
+}
+
+func appendBlock(content, block string) string {
 	if len(block) == 0 {
 		return content
 	}

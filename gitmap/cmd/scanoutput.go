@@ -36,14 +36,18 @@ func writeCWDJSONOutput(records []model.ScanRecord, compact bool) {
 		return
 	}
 	defer file.Close()
-	if compact {
-		if err := formatter.WriteJSONCompact(file, records); err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not write compact JSON to %s: %v\n", path, err)
-		}
-	} else {
-		if err := formatter.WriteJSON(file, records); err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not write JSON to %s: %v\n", path, err)
-		}
+	if compact == true {
+		compactErr := formatter.WriteJSONCompact(file, records)
+		printJSONError(compactErr, "compact JSON", path)
+		return
+	}
+	err = formatter.WriteJSON(file, records)
+	printJSONError(err, "JSON", path)
+}
+
+func printJSONError(err error, kind, path string) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not write %s to %s: %v\n", kind, path, err)
 	}
 }
 

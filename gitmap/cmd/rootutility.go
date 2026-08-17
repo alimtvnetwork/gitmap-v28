@@ -57,49 +57,45 @@ func utilityDispatchEntries() []dispatchEntry {
 // runHelpDispatch handles the `help` subcommand including topic
 // help, --groups, --compact, and the default usage screen.
 func runHelpDispatch() {
-	if len(os.Args) >= 3 && !isFlagToken(os.Args[2]) {
-		topic := os.Args[2]
-		switch topic {
-		case constants.CmdRmAlias, constants.CmdRmAlias2:
-			topic = constants.CmdRm
-		case constants.CmdStaleAlias:
-			topic = constants.CmdStale
-		case constants.CmdRecentAlias:
-			topic = constants.CmdRecent
-		case constants.CmdPRAlias:
-			topic = constants.CmdPR
-		}
-		if _, err := helptext.ReadRaw(topic); err == nil {
+	hasTopic := len(os.Args) >= 3 && isFlagToken(os.Args[2]) == false
+	if hasTopic == true {
+		topic := normalizeHelpTopic(os.Args[2])
+		_, err := helptext.ReadRaw(topic)
+		if err == nil {
 			_, mode := ParsePrettyFlag(os.Args[3:])
 			helptext.PrintWithMode(topic, mode)
-
 			return
 		}
-		// Unknown topic — treat as a filter query so users can type
-		// `gitmap help ssh` and get the same hits as `gitmap help -f ssh`.
+
 		printUsageFiltered(topic)
-
 		return
 	}
-	if hasFlag(constants.FlagJSON) {
+
+	if hasFlag(constants.FlagJSON) == true {
 		printUsageJSON(resolveFilterQuery())
-
 		return
 	}
-	if q := resolveFilterQuery(); len(q) > 0 || hasFlag(constants.FlagFilter) || hasFlag(constants.FlagFilterShort) {
+
+	q := resolveFilterQuery()
+	needsFilter := len(q) > 0 || hasFlag(constants.FlagFilter) == true || hasFlag(constants.FlagFilterShort) == true
+	if needsFilter == true {
 		printUsageFiltered(q)
 
 		return
 	}
-	if hasFlag(constants.FlagGroups) {
-		printHelpGroups()
-
-		return
-	}
-	if hasFlag(constants.FlagCompact) {
-		printUsageCompact()
-
-		return
-	}
 	printUsage()
+}
+
+func normalizeHelpTopic(topic string) string {
+	switch topic {
+	case constants.CmdRmAlias, constants.CmdRmAlias2:
+		return constants.CmdRm
+	case constants.CmdStaleAlias:
+		return constants.CmdStale
+	case constants.CmdRecentAlias:
+		return constants.CmdRecent
+	case constants.CmdPRAlias:
+		return constants.CmdPR
+	}
+	return topic
 }

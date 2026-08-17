@@ -31,32 +31,19 @@ func cloneReplacing(url, target string) (cloneReplaceResult, error) {
 		return res, escErr
 	}
 
-	if _, statErr := os.Stat(target); errors.Is(statErr, fs.ErrNotExist) {
-		fmt.Printf(constants.MsgCloneReplaceFree, target)
-
-		if err := runCloneCommand(url, target); err != nil {
-			return res, err
-		}
-
-		res.Strategy = "direct"
-
-		return res, nil
+	_, statErr := os.Stat(target)
+	if errors.Is(statErr, fs.ErrNotExist) == true {
+		return handleFreeTarget(url, target)
 	}
 
 	fmt.Printf(constants.MsgCloneReplaceExists, target)
 	fmt.Println(constants.MsgCloneReplaceStrategy1)
 
-	if removeErr := os.RemoveAll(target); removeErr == nil {
-		if err := runCloneCommand(url, target); err != nil {
-			return res, err
-		}
-
-		res.Strategy = "direct"
-
-		return res, nil
-	} else {
-		fmt.Printf(constants.MsgCloneReplaceStrat1Fail, removeErr)
+	removeErr := os.RemoveAll(target)
+	if removeErr == nil {
+		return handleStrategy1(url, target)
 	}
+	fmt.Printf(constants.MsgCloneReplaceStrat1Fail, removeErr)
 
 	return cloneViaTempSwap(url, target)
 }
@@ -159,4 +146,21 @@ func randSuffix() string {
 	}
 
 	return hex.EncodeToString(buf)
+}
+
+func handleFreeTarget(url, target string) (cloneReplaceResult, error) {
+	fmt.Printf(constants.MsgCloneReplaceFree, target)
+	err := runCloneCommand(url, target)
+	if err != nil {
+		return cloneReplaceResult{}, err
+	}
+	return cloneReplaceResult{Strategy: "direct"}, nil
+}
+
+func handleStrategy1(url, target string) (cloneReplaceResult, error) {
+	err := runCloneCommand(url, target)
+	if err != nil {
+		return cloneReplaceResult{}, err
+	}
+	return cloneReplaceResult{Strategy: "direct"}, nil
 }

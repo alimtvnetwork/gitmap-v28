@@ -37,26 +37,25 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 	}
 
 	extractor, isExtractor := format.(archives.Extractor)
-	if isExtractor {
-		var out []Entry
-		err = extractor.Extract(ctx, stream, func(_ context.Context, entry archives.FileInfo) error {
-			if len(out) >= maxListEntries {
-				return io.EOF // signal "stop walking" to mholt
-			}
-			out = append(out, Entry{
-				Path:  entry.NameInArchive,
-				Size:  entry.Size(),
-				IsDir: entry.IsDir(),
-			})
-
-			return nil
-		})
-		if err == nil || errors.Is(err, io.EOF) {
-			return out, mholtToFormat(format), nil
-		} else {
-			return out, mholtToFormat(format), err
-		}
-	} else {
+	if !isExtractor {
 		return nil, mholtToFormat(format), fmt.Errorf("format %s is not extractable", format.Extension())
 	}
+
+	var out []Entry
+	err = extractor.Extract(ctx, stream, func(_ context.Context, entry archives.FileInfo) error {
+		if len(out) >= maxListEntries {
+			return io.EOF // signal "stop walking" to mholt
+		}
+		out = append(out, Entry{
+			Path:  entry.NameInArchive,
+			Size:  entry.Size(),
+			IsDir: entry.IsDir(),
+		})
+
+		return nil
+	})
+	if err == nil || errors.Is(err, io.EOF) {
+		return out, mholtToFormat(format), nil
+	}
+	return out, mholtToFormat(format), err
 }

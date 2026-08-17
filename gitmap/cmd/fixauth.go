@@ -99,18 +99,23 @@ func fixAuthKeyPath(user string) string {
 
 // fixAuthGenerate runs ssh-keygen unless the key already exists.
 func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
+	keyExists := false
 	if _, err := os.Stat(keyPath); err == nil {
-		if !force {
-			fmt.Printf("• key already exists, reusing: %s\n", keyPath)
+		keyExists = true
+	}
 
-			return
-		}
-		if !assumeYes && !confirmOverwrite(keyPath) {
-			fmt.Println("• aborted; existing key kept")
-			exitWith(0)
+	if keyExists == true && force == false {
+		fmt.Printf("• key already exists, reusing: %s\n", keyPath)
 
-			return
-		}
+		return
+	}
+	if keyExists == true && assumeYes == false && confirmOverwrite(keyPath) == false {
+		fmt.Println("• aborted; existing key kept")
+		exitWith(0)
+
+		return
+	}
+	if keyExists == true {
 		_ = os.Remove(keyPath)
 		_ = os.Remove(keyPath + ".pub")
 	}
