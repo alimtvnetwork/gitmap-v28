@@ -1,5 +1,7 @@
 package cluster
 
+import "time"
+
 const (
 	// EmptySize represents a length or size of zero.
 	EmptySize = 0
@@ -42,4 +44,55 @@ func DistributeWorkload(clients []Client, repos []Repo) []Workload {
 	}
 
 	return workloads
+}
+
+// DistributionLoop monitors node health and redistributes workloads if a node drops.
+// It calls onUpdate whenever a new workload distribution is generated.
+func DistributionLoop(registry *Registry, repos []Repo, interval time.Duration, onUpdate func([]Workload)) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	activeClients := getActiveClients(registry)
+	currentWorkloads := DistributeWorkload(activeClients, repos)
+	onUpdate(currentWorkloads)
+
+	for range ticker.C {
+		registry.CheckHeartbeats()
+		
+		newActiveClients := getActiveClients(registry)
+		
+		hasNodeChanged := false
+		isLengthDifferent := len(newActiveClients) != len(activeClients)
+
+		if isLengthDifferent == true {
+			hasNodeChanged = true
+		} else {
+			for i := range activeClients {
+				isDifferentNode := activeClients[i].ID != newActiveClients[i].ID
+				if isDifferentNode == true {
+					hasNodeChanged = true
+					break
+				}
+			}
+		}
+
+		if hasNodeChanged == true {
+			activeClients = newActiveClients
+			currentWorkloads = DistributeWorkload(activeClients, repos)
+			onUpdate(currentWorkloads)
+		}
+	}
+}
+
+// getActiveClients returns a list of clients that are currently connected.
+func getActiveClients(registry *Registry) []Client {
+	nodes := registry.GetNodes()
+	active := []Client{}
+	for _, node := range nodes {
+		isConnected := node.State == StateConnected
+		if isConnected == true {
+			active = append(active, Client{ID: node.ID})
+		}
+	}
+	return active
 }

@@ -103,11 +103,11 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 *Research and implementation plan for the Kubernetes-like VM joining feature.*
 
 **Research & Architecture:**
-- [ ] 6.1 Evaluate communication protocols: gRPC vs. HTTP/REST vs. WebSockets for CLI-to-CLI communication.
-- [ ] 6.2 Design the Node Roles: `Server` (Orchestrator) and `Client` (Worker).
-- [ ] 6.3 Determine Network Discovery: Can clients find the server via mDNS broadcasting on the LAN, or is explicit IP binding required?
-- [ ] 6.4 Design Auth/Security: Implement a generated Join Token to prevent unauthorized machines from joining the cluster.
-- [ ] 6.5 Define the Workload: How are tasks distributed? Does the server trigger a scan, split the repos, and assign them to clients to clone/build?
+- [x] 6.1 Evaluate communication protocols: gRPC vs. HTTP/REST vs. WebSockets for CLI-to-CLI communication.
+- [x] 6.2 Design the Node Roles: `Server` (Orchestrator) and `Client` (Worker).
+- [x] 6.3 Determine Network Discovery: Can clients find the server via mDNS broadcasting on the LAN, or is explicit IP binding required?
+- [x] 6.4 Design Auth/Security: Implement a generated Join Token to prevent unauthorized machines from joining the cluster.
+- [x] 6.5 Define the Workload: How are tasks distributed? Does the server trigger a scan, split the repos, and assign them to clients to clone/build?
 
 **Implementation Steps:**
 - [x] 6.6 Implement `gitmap serve` command to start the orchestrator daemon.
@@ -122,9 +122,9 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [x] 6.15 Implement workload distribution algorithm (e.g. Server has 100 repos, connected to 4 VMs -> assigns 25 repos to each VM to parallelize heavy workloads).
 - [x] 6.16 Enable command broadcasting: Server sends a `PullAll` event, and all clients execute it on their local copies.
 - [x] 6.17 Stream client logs/progress back to the server.
-- [ ] 6.18 Display aggregated cluster progress on the server's terminal UI.
-- [ ] 6.19 Implement graceful node disconnects.
-- [ ] 6.20 Handle node failures (reassign workloads if a node drops during execution).
+- [x] 6.18 Display aggregated cluster progress on the server's terminal UI.
+- [x] 6.19 Implement graceful node disconnects.
+- [x] 6.20 Handle node failures (reassign workloads if a node drops during execution).
 
 ## Verification Plan
 

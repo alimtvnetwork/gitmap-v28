@@ -60,6 +60,23 @@ func (s *Server) Ping(args *PingArgs, reply *PingReply) error {
 	return nil
 }
 
+// DisconnectArgs contains the arguments for the Disconnect RPC.
+type DisconnectArgs struct {
+	ID string
+}
+
+// DisconnectReply contains the reply for the Disconnect RPC.
+type DisconnectReply struct {
+	Success bool
+}
+
+// Disconnect gracefully marks a node as disconnected in the registry.
+func (s *Server) Disconnect(args *DisconnectArgs, reply *DisconnectReply) error {
+	s.registry.Disconnect(args.ID)
+	reply.Success = true
+	return nil
+}
+
 // Serve starts accepting connections on the listener.
 func (s *Server) Serve(listener net.Listener) {
 	rpcServer := rpc.NewServer()

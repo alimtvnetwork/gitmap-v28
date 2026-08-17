@@ -85,3 +85,13 @@ func (r *Registry) GetNodes() []Node {
 	}
 	return snapshot
 }
+
+// Disconnect marks an existing node as disconnected gracefully.
+func (r *Registry) Disconnect(id string) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if node, exists := r.nodes[id]; exists == true {
+		node.State = StateDisconnected
+	}
+}
