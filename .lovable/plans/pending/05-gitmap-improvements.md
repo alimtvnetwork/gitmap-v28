@@ -113,15 +113,15 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [x] 6.6 Implement `gitmap serve` command to start the orchestrator daemon.
 - [x] 6.7 Bind the server to a network interface and display the IP/Port.
 - [x] 6.8 Generate and display a secure `Join Token`.
-- [ ] 6.9 Print the exact join command: `gitmap join <IP>:<PORT> --token <TOKEN>`.
-- [ ] 6.10 Implement `gitmap join` command.
-- [ ] 6.11 Establish connection and handshake between Client and Server.
-- [ ] 6.12 Build the connection heartbeat/ping mechanism to detect dropped nodes.
-- [ ] 6.13 Create the server-side registry of connected nodes (VMs).
-- [ ] 6.14 Expose a `gitmap cluster status` command to view connected machines.
-- [ ] 6.15 Implement workload distribution algorithm (e.g. Server has 100 repos, connected to 4 VMs -> assigns 25 repos to each VM to parallelize heavy workloads).
-- [ ] 6.16 Enable command broadcasting: Server sends a `PullAll` event, and all clients execute it on their local copies.
-- [ ] 6.17 Stream client logs/progress back to the server.
+- [x] 6.9 Print the exact join command: `gitmap join <IP>:<PORT> --token <TOKEN>`.
+- [x] 6.10 Implement `gitmap join` command.
+- [x] 6.11 Establish connection and handshake between Client and Server.
+- [x] 6.12 Build the connection heartbeat/ping mechanism to detect dropped nodes.
+- [x] 6.13 Create the server-side registry of connected nodes (VMs).
+- [x] 6.14 Expose a `gitmap cluster status` command to view connected machines.
+- [x] 6.15 Implement workload distribution algorithm (e.g. Server has 100 repos, connected to 4 VMs -> assigns 25 repos to each VM to parallelize heavy workloads).
+- [x] 6.16 Enable command broadcasting: Server sends a `PullAll` event, and all clients execute it on their local copies.
+- [x] 6.17 Stream client logs/progress back to the server.
 - [ ] 6.18 Display aggregated cluster progress on the server's terminal UI.
 - [ ] 6.19 Implement graceful node disconnects.
 - [ ] 6.20 Handle node failures (reassign workloads if a node drops during execution).
