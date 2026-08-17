@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -92,6 +93,14 @@ func coreDispatchEntries() []dispatchEntry {
 		{
 			[]string{constants.CmdVSCodePMSync, constants.CmdVSCodePMSyncAlias},
 			func() { runVSCodePMSync(argsTail()) },
+		},
+		{
+			[]string{constants.CmdServersClients, constants.CmdSC},
+			func() { runClusterCommand(cluster.ServersClients, argsTail()) },
+		},
+		{
+			[]string{constants.CmdClients},
+			func() { runClusterCommand(cluster.ClientsOnly, argsTail()) },
 		},
 		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() { runCluster(argsTail()) }},
 	}
