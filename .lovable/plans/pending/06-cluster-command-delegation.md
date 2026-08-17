@@ -169,6 +169,8 @@ After `gitmap serve` and `gitmap join` establish a cluster of machines (Phase 6)
 - `gitmap sc write p1/note.txt "hello"` writes atomically and reports bytes written per node.
 - `gitmap sc set-path-alias "C:\Projects as p1"` prints the tips block.
 - `gitmap clients clone url1,url2 --workdir p1` clones into the registered alias path and auto-runs status.
+- `gitmap sc update` updates gitmap.
+- `gitmap sc update antigravity vscode` updates gitmap and specified packages.
 
 ---
 
@@ -193,11 +195,21 @@ After `gitmap serve` and `gitmap join` establish a cluster of machines (Phase 6)
 117. Implement `runClusterCat(selector, args)`: resolve path/alias per node via `ResolvePath`; dispatch `Get-Content` (Windows) or `cat` (Unix) over cluster transport; prefix output `[<ID>/<Alias>] ── <resolved-path> ──`; truncate at 64 KB with `[truncated…]`; reject binary (non-UTF-8 bytes); store result in `ClusterExecResult` (SubCommand = `cat`).
 118. Register `servers-clients write` (and `sc write`, `clients write`) in the dispatcher → `runClusterWrite(selector, args)`.
 119. Implement `runClusterWrite(selector, args)`: validate content length ≤ 1 MB (reject before any network call); require `--force-write` if targeting `--all` or more than 5 effective nodes; resolve path/alias; dispatch atomic write (write to temp file then rename) over cluster transport; report `[<ID>/<Alias>] ✓ wrote <N> bytes to <resolved-path>` per node; store in `ClusterExecResult` (SubCommand = `write`).
-120. Add help MD files: `servers-ls.md`, `clients-ls.md`, `servers-clients-ls.md`, `cluster-set-default-path.md` (include full tips block from spec §12.1), `cluster-set-path-alias.md` (include reference examples from spec §12.2), `cluster-cat.md`, `cluster-write.md`. Run `gitmap regoldens`. Update `src/data/commands.ts` with all new commands. Commit: `feat: cluster ls, remote clone/cfr, path alias system, cat/write (steps 101-120)`. Push to `origin main`. Move plan to `completed/`.
+120. Add help MD files: `servers-ls.md`, `clients-ls.md`, `servers-clients-ls.md`, `cluster-set-default-path.md`, `cluster-set-path-alias.md`, `cluster-cat.md`, `cluster-write.md`. Run `gitmap regoldens`. Update `src/data/commands.ts`. Commit: `feat: cluster ls, remote clone/cfr, path alias system, cat/write (steps 101-120)`. Push to `origin main`. Move plan to `completed/`.
+
+---
+
+### PART I — Remote Update Commands (Steps 121–125)
+
+121. Add CLI constants to `constants_cli.go`: `CmdSCUpdate = "servers-clients update"`, `CmdSCUpdateAll = "servers-clients update-all"`. Register `servers update`, `clients update`, `servers-clients update` (and `sc update`) → `runClusterUpdate(selector, false, args)`. Register `update-all` variants → `runClusterUpdate(selector, true, args)`.
+122. Implement `runClusterUpdate(selector, isAll, args)`: if `isAll`, show preflight warning requiring 'y' to proceed. Insert `ClusterRun` and use bounded worker pool spinner UI to dispatch. 
+123. Implement `gitmap/cluster/exec_update.go`: `ExecUpdate(ctx, node, isAll, packages...)`. If `isAll`, build OS-specific command (`winget upgrade --all` or `choco upgrade all -y` for Windows; `apt-get update && apt-get upgrade -y` or `brew upgrade` for Unix).
+124. Handle specific package updates in `ExecUpdate`: always prepend `gitmap` to the package list if not present. Build string: `winget upgrade <packages>` (Windows) or `apt-get upgrade <packages>` (Unix). Dispatch over transport and persist to `ClusterExecResult`.
+125. Add help MD files: `cluster-update.md`, `cluster-update-all.md`. Run `gitmap regoldens`. Update `src/data/commands.ts`. Commit: `feat: cluster remote update commands (steps 121-125)`. Push to `origin main`.
 
 ---
 
 ## Appended from prior pending tasks
 
 - `01-bulk-visibility-mapub-mapri.md` — still pending; unblocked by this plan.
-- `05-gitmap-improvements.md` (Phases 5 & 6) — Phase 6 (`serve`/`join`) is a prerequisite for steps 45–50 and 112–115 of this plan. Steps 101–111, 116–120 can be implemented independently.
+- `05-gitmap-improvements.md` (Phases 5 & 6) — Phase 6 (`serve`/`join`) is a prerequisite for Part G, Part H (network commands), and Part I. Steps 1-80, 101-111 can be implemented prior to Phase 6.
