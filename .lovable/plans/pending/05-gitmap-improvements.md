@@ -92,12 +92,12 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 ### Phase 5: Parallel Git Push/Pull All UI
 *Extending the clone UI to standard push/pull all commands.*
 
-- [ ] 5.1 Adapt the bounded worker pool from Phase 4 for `gitmap pull --all`.
-- [ ] 5.2 Adapt the bounded worker pool for `gitmap push --all`.
-- [ ] 5.3 Implement the same dynamic spinner UI for push/pull operations.
-- [ ] 5.4 Ensure credentials prompts (if SSH agent / credential manager isn't loaded) don't break the parallel UI.
-- [ ] 5.5 If a repo is fully up to date, show a gray `~ repo-A (up to date)`.
-- [ ] 5.6 Automatically trigger `gitmap status` on the directory once all parallel pushes/pulls finish.
+- [x] 5.1 Adapt the bounded worker pool from Phase 4 for `gitmap pull --all`.
+- [x] 5.2 Adapt the bounded worker pool for `gitmap push --all`.
+- [x] 5.3 Implement the same dynamic spinner UI for push/pull operations.
+- [x] 5.4 Ensure credentials prompts (if SSH agent / credential manager isn't loaded) don't break the parallel UI.
+- [x] 5.5 If a repo is fully up to date, show a gray `~ repo-A (up to date)`.
+- [x] 5.6 Automatically trigger `gitmap status` on the directory once all parallel pushes/pulls finish.
 
 ### Phase 6: Multi-Machine Join (Networked Gitmap)
 *Research and implementation plan for the Kubernetes-like VM joining feature.*
@@ -110,9 +110,9 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [ ] 6.5 Define the Workload: How are tasks distributed? Does the server trigger a scan, split the repos, and assign them to clients to clone/build?
 
 **Implementation Steps:**
-- [ ] 6.6 Implement `gitmap serve` command to start the orchestrator daemon.
-- [ ] 6.7 Bind the server to a network interface and display the IP/Port.
-- [ ] 6.8 Generate and display a secure `Join Token`.
+- [x] 6.6 Implement `gitmap serve` command to start the orchestrator daemon.
+- [x] 6.7 Bind the server to a network interface and display the IP/Port.
+- [x] 6.8 Generate and display a secure `Join Token`.
 - [ ] 6.9 Print the exact join command: `gitmap join <IP>:<PORT> --token <TOKEN>`.
 - [ ] 6.10 Implement `gitmap join` command.
 - [ ] 6.11 Establish connection and handshake between Client and Server.
