@@ -55,20 +55,20 @@ After `gitmap serve` and `gitmap join` establish a cluster of machines (Phase 6)
 26. [x] Wire the parallel-spinner UI (Phase 4 pattern): each node gets a UI row. Row format: `[<DisplayId>/<Alias>] ⠋ Running ps…`. On finish: `[1/dev-01] ✓ ps (0ms, exit 0)`. On fail: `[2/dev-02] ✗ cmd (exit 1)`.
 27. [x] Implement streaming output: node stdout lines prefixed with `[<DisplayId>/<Alias>] ` forwarded to the operator's terminal in real-time when `--verbose` is passed. Without `--verbose`, stdout captured and stored in `ClusterExecResult.Stdout`.
 28. [x] Implement `Ctrl+C` handler: cancel the context, mark all in-flight nodes as `ResultStatus = Skipped`, call `UpdateClusterRun` with partial counts, print audit footer.
-29. Implement final summary box after pool completes: `┌ Cluster Run RUN-YYYYMMDD-NNN ─────────────────┐ │ Nodes: 6  OK: 5  Failed: 1  Skipped: 0       │ └────────────────────────────────────────────────┘`. List error details below.
-30. Add `go test ./gitmap/cmd/... -run TestClusterCommand` with stubbed node executors to validate end-to-end orchestration without network calls.
+29. [x] Implement final summary box after pool completes: `┌ Cluster Run RUN-YYYYMMDD-NNN ─────────────────┐ │ Nodes: 6  OK: 5  Failed: 1  Skipped: 0       │ └────────────────────────────────────────────────┘`. List error details below.
+30. [x] Add `go test ./gitmap/cmd/... -run TestClusterCommand` with stubbed node executors to validate end-to-end orchestration without network calls.
 
 ---
 
 ### PART C — Sub-Command Executors (Steps 31–55)
 
-31. Implement `gitmap/cluster/exec_ps.go`: `ExecPS(ctx, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error)`. Windows: `pwsh -NonInteractive -Command <cmd>`, fallback `powershell`. Non-Windows: `pwsh -Command <cmd>`, skip with warning if not found.
-32. Implement `gitmap/cluster/exec_cmd.go`: `ExecCmd(ctx, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error)`. Windows: `cmd.exe /C <cmd>`. Non-Windows: `/bin/sh -c <cmd>`.
-33. Implement `gitmap/cluster/exec_install.go`: `ExecInstall(ctx, node ClusterNode, packages []string) (results []PackageResult, err error)`. Detect package manager from `node.PackageManager` or auto-detect via node OS. Install each package individually. `PackageResult` holds `PackageName`, `Succeeded bool`, `Stderr string`.
-34. Implement package manager detection: probe in priority order per OS. Cache detected manager back to DB via `UpdateClusterNodePackageManager`.
-35. Implement `gitmap/cluster/exec_git.go`: `ExecGitPull(ctx, node ClusterNode) (stdout, stderr string, exitCode int, err error)` — runs `gitmap pull --all` on the remote node (dispatched as a `ps`/`sh` command calling the remote gitmap binary). Same pattern for `ExecGitPush`, `ExecGitCommit`, `ExecGitStatus`.
-36. Implement `gitmap/cluster/exec_proj.go`: `ExecProjRun(ctx, node ClusterNode, projectNames []string) (results []ProjRunResult, err error)`. Scans registered repo paths on the node, finds `run.ps1` or `run.sh`, executes, captures last 20 lines on failure.
-37. Implement `ExecProjCreateCICD` as a stub returning `ResultStatus = Deferred` with message `"create-cicd: reserved for future spec"`.
+31. [x] Implement `gitmap/cluster/exec_ps.go`: `ExecPS(ctx, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error)`. Windows: `pwsh -NonInteractive -Command <cmd>`, fallback `powershell`. Non-Windows: `pwsh -Command <cmd>`, skip with warning if not found.
+32. [x] Implement `gitmap/cluster/exec_cmd.go`: `ExecCmd(ctx, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error)`. Windows: `cmd.exe /C <cmd>`. Non-Windows: `/bin/sh -c <cmd>`.
+33. [x] Implement `gitmap/cluster/exec_install.go`: `ExecInstall(ctx, node ClusterNode, packages []string) (results []PackageResult, err error)`. Detect package manager from `node.PackageManager` or auto-detect via node OS. Install each package individually. `PackageResult` holds `PackageName`, `Succeeded bool`, `Stderr string`.
+34. [x] Implement package manager detection: probe in priority order per OS. Cache detected manager back to DB via `UpdateClusterNodePackageManager`.
+35. [x] Implement `gitmap/cluster/exec_git.go`: `ExecGitPull(ctx, node ClusterNode) (stdout, stderr string, exitCode int, err error)` — runs `gitmap pull --all` on the remote node (dispatched as a `ps`/`sh` command calling the remote gitmap binary). Same pattern for `ExecGitPush`, `ExecGitCommit`, `ExecGitStatus`.
+36. [x] Implement `gitmap/cluster/exec_proj.go`: `ExecProjRun(ctx, node ClusterNode, projectNames []string) (results []ProjRunResult, err error)`. Scans registered repo paths on the node, finds `run.ps1` or `run.sh`, executes, captures last 20 lines on failure.
+37. [x] Implement `ExecProjCreateCICD` as a stub returning `ResultStatus = Deferred` with message `"create-cicd: reserved for future spec"`.
 38. Implement `gitmap/cluster/exec_lifecycle.go`: `ExecRestart`, `ExecShutdown`, `ExecLogoff`. Each checks `node.NodeRole != 'server'` (safety guard — server node is never a target of lifecycle commands). Uses stored password hash to authenticate if required.
 39. Add `--force-lifecycle` guard: lifecycle commands fail with a clear error if `--force-lifecycle` is not also present, preventing accidental shutdown of the cluster.
 40. Implement 5-second countdown with abort: `printCountdown(nodes []string, action string, seconds int)` — prints `⚠ <action> <N> nodes in <S>s… Press Ctrl+C to abort` for each second. Uses `time.Tick` and `select` on context.
