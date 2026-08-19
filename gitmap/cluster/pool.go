@@ -31,7 +31,10 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 	defer signal.Stop(sigCh)
 
 	multi := pterm.DefaultMultiPrinter
-	multi.Start()
+	isMultiActive := pterm.Output
+	if isMultiActive {
+		multi.Start()
+	}
 
 	var mu sync.Mutex
 	spinners := make(map[string]*pterm.SpinnerPrinter)
@@ -66,7 +69,9 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 		case <-sigCh:
 			cancel()
 			updateCounts(true)
-			multi.Stop()
+			if isMultiActive {
+				multi.Stop()
+			}
 
 			fmt.Println("\n┌ Cluster Run Cancelled ─────────────────┐")
 			mu.Lock()
@@ -178,7 +183,9 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 
 	if ctx.Err() == nil {
 		updateCounts(false)
-		multi.Stop()
+		if isMultiActive {
+			multi.Stop()
+		}
 		// If zero padding is required for RUN-NNN, we format it. But runId might be just the DB ID.
 		fmt.Printf("\n┌ Cluster Run RUN-%d ─────────────────┐\n", runId)
 		fmt.Printf("│ Nodes: %d  OK: %d  Failed: %d  Skipped: %d │\n", totalNodes, succeeded, failed, skipped)
