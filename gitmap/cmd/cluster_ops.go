@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -54,13 +54,13 @@ func runClusterHistory(args []string) {
 			fmt.Fprintf(os.Stderr, "failed to get run %s: %v\n", runRef, err)
 			os.Exit(1)
 		}
-		
+
 		results, err := db.SelectClusterExecResultsByRunId(ctx, conn, run.ClusterRunId)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed to get results for run %s: %v\n", runRef, err)
 			os.Exit(1)
 		}
-		
+
 		fmt.Printf("RunRef: %s\nCommand: %s\n\n", run.RunRef, run.RawCommand)
 		fmt.Printf("%-20s %-20s %-15s %-8s %s\n", "Node", "SubCommand", "Result", "ExitCode", "DurationMs")
 		for _, res := range results {
@@ -70,7 +70,7 @@ func runClusterHistory(args []string) {
 			if err == nil {
 				displayStr = fmt.Sprintf("[%d/%s]", node.DisplayId, node.Alias)
 			}
-			
+
 			exitCode := "-"
 			if res.ExitCode != nil {
 				exitCode = fmt.Sprintf("%d", *res.ExitCode)
@@ -220,7 +220,7 @@ func runClusterSetPassword(args []string) {
 	fmt.Scanln(&pass1)
 	fmt.Print("Confirm password: ")
 	fmt.Scanln(&pass2)
-	
+
 	if pass1 != pass2 {
 		fmt.Fprintln(os.Stderr, "passwords do not match")
 		os.Exit(1)
@@ -416,7 +416,7 @@ func runClusterStats(args []string) {
 		fmt.Fprintf(os.Stderr, "failed to get cluster stats: %v\n", err)
 		os.Exit(1)
 	}
-	
+
 	rate := 0.0
 	if stats.TotalCommands > 0 {
 		rate = float64(stats.SuccessCommands) / float64(stats.TotalCommands) * 100

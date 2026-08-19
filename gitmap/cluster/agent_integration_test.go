@@ -46,11 +46,11 @@ func TestAgentIntegration(t *testing.T) {
 	rpcClient := rpc.NewClient(client)
 	args := &AgentExecArgs{Command: "echo hello"}
 	var reply AgentExecReply
-	
+
 	err = rpcClient.Call("Agent.ExecCmd", args, &reply)
 	if err != nil {
 		t.Fatalf("Agent.ExecCmd failed: %v", err)
 	}
-	
+
 	// Note: on Windows `echo hello` works in cmd, on Unix it works too.
 }

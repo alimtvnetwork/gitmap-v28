@@ -53,4 +53,3 @@ func clearOneDefault(workspaceRoot, name, sourceRepoPath string) error {
 	p.IsDefault = false
 	return SaveToDisk(workspaceRoot, p, true)
 }
-

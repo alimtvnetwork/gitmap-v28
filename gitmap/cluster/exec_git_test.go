@@ -41,7 +41,7 @@ func TestExecGit_Commands(t *testing.T) {
 			if !strings.Contains(lastCmd, tc.expected) {
 				t.Errorf("expected command %q to contain %q", lastCmd, tc.expected)
 			}
-			
+
 			// Validate Windows vs Unix shell wrapping
 			if runtime.GOOS == "windows" {
 				if !strings.Contains(strings.ToLower(lastCmd), "cmd.exe") || !strings.Contains(strings.ToLower(lastCmd), "/c") {

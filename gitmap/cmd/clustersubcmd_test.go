@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 	"reflect"
 	"testing"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
 )
 
 func TestClusterSubCommandParser(t *testing.T) {
@@ -33,10 +33,10 @@ func TestClusterSubCommandParser(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:   "unknown subcommand",
-			tokens: []string{"unknowncmd", `"foo"`},
+			name:     "unknown subcommand",
+			tokens:   []string{"unknowncmd", `"foo"`},
 			expected: nil,
-			wantErr: true,
+			wantErr:  true,
 		},
 	}
 

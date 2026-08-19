@@ -13,7 +13,7 @@ type execRunnerFunc func(cmd *exec.Cmd) error
 type lookPathFunc func(file string) (string, error)
 
 var (
-	runCmdFunc   = defaultExecRunner
+	runCmdFunc      = defaultExecRunner
 	lookPathFuncVar = defaultLookPath
 )
 

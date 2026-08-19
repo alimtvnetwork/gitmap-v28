@@ -142,12 +142,12 @@ func GetClusterStats(ctx context.Context, db *sql.DB) (ClusterStats, error) {
 	if err != nil {
 		return stats, err
 	}
-	
+
 	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM ClusterExecResult`).Scan(&stats.TotalCommands)
 	if err != nil {
 		return stats, err
 	}
-	
+
 	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM ClusterExecResult WHERE ResultStatus = 1`).Scan(&stats.SuccessCommands)
 	if err != nil && err != sql.ErrNoRows {
 		return stats, err
