@@ -1,9 +1,13 @@
-# Next 20 Task — Plan 03 Step 2 still pending (migration 007 + `Repo.IdentifiedTransport`)
+# Next 19 Task — Plan 03 Step 2: persist `IdentifiedTransport` on `Repo` (migration 007)
 
-v6.27.0 stamped the prompt but did not execute the migration. This prompt re-queues the same Step 2 work and bumps to v6.28.0 for the planning artifact.
+Saved prompt for the v5 "Next N Steps" run that produced v6.27.0.
 
 ## Next step (N=1)
-Implement Plan 03 Step 2: schema migration 007 `ALTER TABLE Repo ADD COLUMN IdentifiedTransport TEXT NOT NULL DEFAULT ''` (idempotent via `PRAGMA table_info`), extend `model.Repo`, update `UpsertRepoByPath` + `SelectAll` / `SelectBySlug` / `SelectByPath`, lazy backfill from URL prefix on first read.
+Implement Step 2 of `.lovable/plans/pending/03-reclone-transport-and-vscode-open.md` — schema migration 007 + `model.Repo.IdentifiedTransport` + `Select*`/`UpsertRepoByPath` updates + lazy backfill.
 
 ## Why now
-Plan 03 Step 3's history-log half and `clone-now`/`reclone` durable memory both block on this column. Without it the v6.27.0 `cfr`/`cfrp` fix only works when the destination `.git/` already exists locally.
+Step 3's "read → store → reuse → log" half cannot land without the column to write into. The `cfr`/`cfrp` half of step 3 already shipped in v6.27.0 but the durable memory is still missing, so the same SSH→HTTPS downgrade re-appears across sessions.
+
+## Status snapshot
+- v6.27.0 cut for the planning/prompt artifact (this file + plan accounting).
+- Plan 03 remaining: Step 2 (this prompt), Step 3 history-log half, Step 4 `gitmap code`, Step 5 closeout.

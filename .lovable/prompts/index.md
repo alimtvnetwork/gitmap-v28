@@ -2,7 +2,11 @@
 
 | Slug | Title | Trigger Phrases | Status |
 |------|-------|-----------------|--------|
-| `01-read-prompt` | Read Prompt | "Read the codebase" | `active` |
-| `02-write-prompt` | Write Prompt | "Write the code" | `active` |
-| `03-next-task` to `20-next-task` | Next Task (Archive) | "Next task" | `archived` |
-| `21-release` | Release Prompt | "Make a release" | `active` |
+| `01-plan-prompt` | Plan Prompt | "Update plan", "Create plan" | `active` |
+| `02-read-prompt` | Read Prompt | "Read the codebase" | `active` |
+| `03-write-prompt` | Write Prompt | "Write the code" | `active` |
+| `04-next-task` to `21-next-task` | Next Task (Archive) | "Next task" | `archived` |
+| `22-release` | Release Prompt | "Make a release" | `active` |
+| `23-execute-pending-tasks` | Execute Pending Tasks | "Execute pending tasks" | `active` |
+| `24-read-memory-enhanced` | Read Memory Enhanced | "Read memory enhanced" | `active` |
+| `25-execute-batched-loop` | Execute Batched Loop | "go", "continue", "next" | `active` |

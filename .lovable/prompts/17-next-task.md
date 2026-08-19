@@ -1,9 +1,12 @@
-# Next 17 Task — Audit reclone URL pickers (plan 03 step 1)
+# Next 1 Steps or Tasks (v5)
 
-Executed step 1 of `.lovable/plans/pending/03-reclone-transport-and-vscode-open.md`:
+## What I want
 
-- Wrote `.lovable/audits/2026-06-07-reclone-pickers.md` with per-command verdict + file:line evidence.
-- Flipped `.lovable/plans/subtasks/03-…/01-audit-reclone-pickers.md` `Status:` → `completed`.
-- Bumped to v6.25.0 across `gitmap/constants/constants.go`, `src/constants/index.ts`, `README.md`, `CHANGELOG.md`.
+1. Give me the **NEXT N STEPS — exactly N** — and for each one:
+   1a) **Reasoning** — why this step, why now, what breaks if it's skipped.
+   1b) **Time estimate** — realistic, not optimistic.
+   1c) **What it unblocks** — the next thing that becomes possible.
 
-Verdict (one-liner): `cfr` / `cfrp` are the only reclone-class commands that do NOT consult the destination folder's existing `remote.origin.url` before cloning, so an HTTPS positional URL silently downgrades an SSH-origin folder. Fix scheduled for plan 03 step 3.
+2. Then list **every remaining item** after those 3 so I can see the full picture. At the end of the task always bump the minor version, add changes log and update release notes and if possible pin that version in the root readme file. And also save this prompt in the .lovable folder in the prompts folder for known as 'xx-next-task.md' and update it as 'next task with number'
+
+(Truncated — same body as 13/14/15-next-task.md: definition of done, hard rules, error logs focus, additional instructions.)
