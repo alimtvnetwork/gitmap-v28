@@ -30,7 +30,7 @@ describe("VERSION sync between web and Go binary", () => {
     // Match: const Version = "4.22.0"
     // Tolerates extra whitespace and either single or double quotes
     // (Go only uses double quotes but defensive parsing is cheap).
-    const match = source.match(/const\s+Version\s*=\s*["']([^"']+)["']/);
+    const match = source.match(/var\s+Version\s*=\s*["']([^"']+)["']/);
     expect(match, `Version constant not found in ${goConstantsPath}`).not.toBeNull();
     const goVersion = match![1];
     expect(VERSION).toBe(`v${goVersion}`);

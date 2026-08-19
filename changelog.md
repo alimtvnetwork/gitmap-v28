@@ -1,4 +1,15 @@
 # Changelog
+
+## [v6.30.0] 2026-08-19 Test Reliability Implementation
+
+### Fixed
+
+- **CI/CD Reliability**: Implemented the conditional bypass for `pterm.SpinnerPrinter` in `gitmap/cluster/pool.go` to properly resolve the `WARNING: DATA RACE` during `go test -race` when `isMultiActive=false`.
+
+### Issues
+
+- [01-6.30.0-sync-regex](.lovable/release/issues/01-6.30.0-sync-regex.md) Version sync scripts failed due to outdated regexes for `var Version` and bracketed changelog headings. Fixed regexes to pass.
+
 ## [v6.29.0] 2026-08-19
 ### Fixed
 - **CI/CD Reliability**: Fixed a fatal memory data race (``WARNING: DATA RACE``) in the multi-node `pterm.MultiPrinter` UI loop that caused test suites to crash randomly. Properly isolated test UI via global `DisableOutput()` toggles to prevent concurrent slice mutation during `Stop()`.

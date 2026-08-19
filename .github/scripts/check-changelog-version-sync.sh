@@ -30,10 +30,10 @@ if [[ ! -f "$CHANGELOG_FILE" ]]; then
 fi
 
 # Extract the pinned version literal. Matches:
-#   const Version = "6.74.0"
-VERSION=$(grep -E '^const Version = "[0-9]+\.[0-9]+\.[0-9]+"' "$CONSTANTS_FILE" \
+#   var Version = "6.74.0"
+VERSION=$(grep -E '^var Version = "[0-9]+\.[0-9]+\.[0-9]+"' "$CONSTANTS_FILE" \
   | head -1 \
-  | sed -E 's/^const Version = "([^"]+)"/\1/')
+  | sed -E 's/^var Version = "([^"]+)".*/\1/')
 
 if [[ -z "$VERSION" ]]; then
   echo "✗ Could not parse Version from $CONSTANTS_FILE" >&2
@@ -45,7 +45,7 @@ echo "→ constants.Version = $VERSION"
 
 # Look for a matching heading. Accept `## vX.Y.Z` with an optional
 # suffix (date, tag, etc): "## v6.74.0 — 2026-07-01" is fine.
-HEADING_RE="^##[[:space:]]+v${VERSION//./\\.}([[:space:]]|$)"
+HEADING_RE="^##[[:space:]]+\[?v${VERSION//./\\.}\]?([[:space:]]|$)"
 
 if ! grep -Eq "$HEADING_RE" "$CHANGELOG_FILE"; then
   echo "" >&2

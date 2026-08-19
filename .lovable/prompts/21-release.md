@@ -38,7 +38,9 @@ When in doubt: MINOR.
 
 - Never invent changelog bullets. Only real work since the previous release.
 
-- Never auto-publish unless the user explicitly said `publish`, `deploy`, `ship`, or `go live`.
+- The repository must be synced before releasing. Always check `git status`, commit uncommitted work, and `git pull` before modifying release files.
+
+- The final release commit and tag MUST be pushed to Git.
 
 - No em dashes anywhere.
 
@@ -54,16 +56,18 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 
 - **Date source:** the release date is UTC today. Get it from `date -u +%Y-%m-%d`. Do not invent it.
 
+- **Git Sync & Clean State:** Run `git status`. If there are pending uncommitted changes, fix them and `git commit` them first. Then run `git pull` to fetch and merge upstream changes. Resolve any issues before starting the release steps.
+
 ## Mandatory steps (in order, fail-fast)
 
 1. **Read the current version** from the canonical version source. Print previous and new version. Confirm PATCH digit is `0`.
 
 2. **Discover pin sites**, then update every one to the new version in lock-step. Use a single canonical search:
 
-   `
+   ```
    rg -n "\b<PREV_MAJOR>\.<PREV_MINOR>\.<PREV_PATCH>\b" -g '!node_modules' -g '!*.lock' -g '!.git'
    rg -n "\b(VERSION|APP_VERSION|EXTENSION_VERSION|SCHEMA_VERSION|CACHE_SCHEMA_VERSION|BUILD_VERSION)\b"
-   `
+   ```
 
    Typical pin sites (non-exhaustive):
 
@@ -85,7 +89,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 
 4. **Add a changelog entry** at the top of `changelog.md`, directly under `# Changelog`. Replace `X.Y.Z` with the actual new version and `YYYY-MM-DD` with `date -u +%Y-%m-%d` output:
 
-   `
+   ```
    ## [vX.Y.Z] YYYY-MM-DD <short headline>
 
    ### Added / Changed / Fixed / Removed
@@ -95,7 +99,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
    ### Issues (only if any step failed or was flagged)
 
    - [xx-<new-version>-<slug>](.lovable/release/issues/xx-<new-version>-<slug>.md) short description
-   `
+   ```
 
    Use only the subheadings that apply. `### Issues` is REQUIRED whenever any step surfaced a problem, even if worked around.
 
@@ -105,7 +109,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 
 7. **Verify version sync**. Run the project's version-sync check script if one exists (discover: `scripts/check-version-sync.*`, `scripts/verify-versions.*`). It MUST exit 0. Non-zero = release is INVALID: log an issue, fix, re-run. If no such script exists, re-run the step 2 `rg` and confirm only historic files (see Hard rules allow-list) still reference the previous version.
 
-8. **Tag and commit** (only if the repo is git-tracked and the user did not disable tagging). Commit message: `release: vX.Y.Z <headline>`. Tag: `git tag vX.Y.Z`. Do NOT push automatically. If the working tree has uncommitted changes UNRELATED to the release, stop and report; do not sweep them into the release commit.
+8. **Tag, commit, and push** (if git-tracked). Commit message: `release: vX.Y.Z <headline>`. Tag: `git tag vX.Y.Z`. You MUST push the commit and tag to the remote repository (e.g., `git push` followed by `git push origin vX.Y.Z`). Because you synced and committed pending changes in Pre-flight, the working tree should only contain release-related file changes.
 
 9. **Report** previous version, new version, bump tier, and the exact files changed. No filler.
 
@@ -153,11 +157,13 @@ Then link it from the `### Issues` bullet under the changelog entry.
 
 - [ ] Version-sync check (if it exists) exited 0; otherwise manual `rg` confirms allow-list only.
 
-- [ ] Commit + tag created (if git-tracked) with `release: vX.Y.Z <headline>` and `vX.Y.Z`, not pushed.
+- [ ] Pre-flight Git sync completed (`git status`, commit pending changes, `git pull`).
+
+- [ ] Commit + tag created (if git-tracked) with `release: vX.Y.Z <headline>` and `vX.Y.Z`, AND successfully pushed to Git.
 
 - [ ] Report includes previous version, new version, tier, and exact file list.
 
-- [ ] No em dashes. No auto-publish.
+- [ ] No em dashes.
 
 ## Prompt maintenance (meta, run once at end)
 
@@ -171,7 +177,7 @@ Save this prompt's full body into `.lovable/prompts/XX-release.md` (lowercase):
 
 ## Must Follow and without negotiation
 
-Listen, past release turns were sloppy. Read the canonical version file, bump MINOR, reset PATCH to zero, pin the new version in `readme.md`, propagate everywhere via the helper (or by hand from the `rg` output), rename every uppercase markdown file to lowercase, write the changelog under the new version, log every failure or flagged issue under `.lovable/release/issues/` with a matching `### Issues` bullet, tag and commit (do not push). Skipping any step = broken installs. Going deep IS the job.
+Listen, past release turns were sloppy. You must clean and sync the Git working tree first (commit pending changes, pull). Then read the canonical version file, bump MINOR, reset PATCH to zero, pin the new version in `readme.md`, propagate everywhere via the helper (or by hand from the `rg` output), rename every uppercase markdown file to lowercase, write the changelog under the new version, log every failure or flagged issue under `.lovable/release/issues/` with a matching `### Issues` bullet, and finally create the release commit, tag it, and PUSH to Git. Skipping any step = broken installs. Going deep IS the job.
 
 ## Ambiguity handling (open questions and answers)
 
@@ -183,7 +189,7 @@ Ambiguity is not a license to guess. It is a file to write.
 
 New question file shape:
 
-`
+```
 # <one-line question>
 
 Slug: <slug>
@@ -199,7 +205,6 @@ Blocking: release {{version}}
 ## Options considered
 
 ## Impact if guessed wrong
-`
+```
 
 When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `Status: resolved`, and append a `## Resolution` block (`Answered:`, `Answer:`, `Applied solution:`). Never leave a copy behind. Do NOT confuse ambiguities with release issues: unknown version source, unclear bump policy, or missing changelog target = ambiguity; a failed step during the release run = `.lovable/release/issues/`.
-
