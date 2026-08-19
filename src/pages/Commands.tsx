@@ -141,6 +141,12 @@ const CommandsPage = () => {
           <li><strong>Chaining</strong>: You can chain multiple sub-commands sequentially on targeted nodes (e.g., <code className="text-primary">gitmap clients cmd "whoami", ps "Get-Date" --id 1,3</code>).</li>
           <li><strong>Audit Trail</strong>: All executions maintain a persistent history verifiable via <code className="text-primary">gitmap cluster history</code>.</li>
         </ul>
+        <div className="mt-4 p-4 border border-red-500/20 bg-red-500/10 rounded-md">
+          <h3 className="font-semibold text-red-500 mb-2">Security Note</h3>
+          <p className="text-sm text-foreground">
+            Client node credentials used for lifecycle commands are securely stored as bcrypt hashes. Passwords are never exported (e.g., via <code className="text-primary">cluster export</code>), and all cluster communication is strictly encrypted over TLS.
+          </p>
+        </div>
       </div>
 
       {/* Category summary banner */}

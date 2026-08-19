@@ -1,4 +1,10 @@
 # Changelog
+## [v6.27.0] 2026-08-19
+### Added
+- **Cluster Command Delegation**: Introduced unified CLI surface (`gitmap servers-clients`, `gitmap clients`, `gitmap sc`) to broadcast shell commands, Git operations (`pull`, `push`, `status`), and package installations (`install`) across multi-machine clusters.
+- **Cluster Audit & Nodes**: Added `gitmap cluster history` for persistent execution audit trails, `gitmap cluster nodes` for checking machine statuses, and `gitmap cluster export`/`import` for managing node registries.
+- **Cluster Security**: Added `gitmap cluster set-password` for secure lifecycle operations (`restart`, `shutdown`, `logoff`) on client nodes using bcrypt.
+
 
 ## [v6.26.0] 2026-08-17
 ### Added

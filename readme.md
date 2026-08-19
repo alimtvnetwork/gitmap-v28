@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.26.0**
+**Pinned version: v6.27.0**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v28/ci.yml?style=flat-square&label=CI)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
 [![Vulnerability Scan](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v28/vulncheck.yml?style=flat-square&label=vulnerability%20scan)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
@@ -52,31 +52,31 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-### 📌 Pinned version (`v6.26.0`)
+### 📌 Pinned version (`v6.27.0`)
 
 ```powershell
 # Windows · PowerShell
-irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/release-version-v6.26.0.ps1 | iex
+irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.ps1 | iex
 ```
 
 ```bash
 # macOS · Linux · Bash
-curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/release-version-v6.26.0.sh | bash
+curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh | bash
 ```
 
-#### 🧭 Version matrix - `v6.26.0` install-script URLs
+#### 🧭 Version matrix - `v6.27.0` install-script URLs
 
-One-line installers and release assets for the pinned **v6.26.0** build across every supported platform. All URLs resolve to the exact release tag - no fallback, no discovery.
+One-line installers and release assets for the pinned **v6.27.0** build across every supported platform. All URLs resolve to the exact release tag - no fallback, no discovery.
 
 | Platform | Shell | Install-script URL | Release binary asset |
 | --- | --- | --- | --- |
-| **Windows** (amd64) | PowerShell | [`release-version-v6.26.0.ps1`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/release-version-v6.26.0.ps1) | [`gitmap-6.26.0-windows-amd64.zip`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/gitmap-6.26.0-windows-amd64.zip) |
-| **macOS** (arm64) | Bash | [`release-version-v6.26.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/release-version-v6.26.0.sh) | [`gitmap-6.26.0-darwin-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/gitmap-6.26.0-darwin-arm64.tar.gz) |
-| **macOS** (amd64) | Bash | [`release-version-v6.26.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/release-version-v6.26.0.sh) | [`gitmap-6.26.0-darwin-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/gitmap-6.26.0-darwin-amd64.tar.gz) |
-| **Linux** (amd64) | Bash | [`release-version-v6.26.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/release-version-v6.26.0.sh) | [`gitmap-6.26.0-linux-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/gitmap-6.26.0-linux-amd64.tar.gz) |
-| **Linux** (arm64) | Bash | [`release-version-v6.26.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/release-version-v6.26.0.sh) | [`gitmap-6.26.0-linux-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.26.0/gitmap-6.26.0-linux-arm64.tar.gz) |
+| **Windows** (amd64) | PowerShell | [`release-version-v6.27.0.ps1`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.ps1) | [`gitmap-6.27.0-windows-amd64.zip`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-windows-amd64.zip) |
+| **macOS** (arm64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.27.0-darwin-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-darwin-arm64.tar.gz) |
+| **macOS** (amd64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.27.0-darwin-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-darwin-amd64.tar.gz) |
+| **Linux** (amd64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.27.0-linux-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-linux-amd64.tar.gz) |
+| **Linux** (arm64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.27.0-linux-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-linux-arm64.tar.gz) |
 
-> **Release page:** [github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.26.0](https://github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.26.0) · **Asset naming contract:** `gitmap-<version>-<os>-<arch>.<ext>` (`.zip` on Windows, `.tar.gz` elsewhere) - verified by the installer pre-flight HEAD probe.
+> **Release page:** [github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.27.0](https://github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.27.0) · **Asset naming contract:** `gitmap-<version>-<os>-<arch>.<ext>` (`.zip` on Windows, `.tar.gz` elsewhere) - verified by the installer pre-flight HEAD probe.
 
 ### 🎯 Install — Quick (pick your install drive)
 
@@ -293,8 +293,33 @@ silently falling back to the current directory.
 ### Navigate and pull
 
 ```bash
-gitmap cd my-api
-gitmap pull --all
+gitmap cd my-app
+gitmap pull-all
+```
+
+## Cluster
+
+Broadcast shell commands and Git operations to multiple machines simultaneously after establishing a cluster (`gitmap serve` + `gitmap join`).
+
+### 1. Execute shell commands
+Run PowerShell or bash commands across all server and client nodes:
+```bash
+gitmap servers-clients ps "Get-Service | Where Status -eq Running"
+gitmap sc cmd "ipconfig /all" --except 192.168.1.50
+```
+
+### 2. Delegate Git operations
+Pull, push, or commit on all machines at once:
+```bash
+gitmap servers-clients pull --all
+gitmap sc status --all
+```
+
+### 3. Install packages & run scripts
+Deploy software or run project-level automation scripts:
+```bash
+gitmap clients install "git,nodejs" --id 1,2,3
+gitmap servers-clients proj "api-backend" run
 ```
 
 Every command supports `--help` or `-h` for detailed usage with examples.
