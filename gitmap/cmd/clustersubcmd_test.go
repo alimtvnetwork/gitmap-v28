@@ -16,7 +16,7 @@ func TestClusterSubCommandParser(t *testing.T) {
 	}{
 		{
 			name:   "chaining ps and cmd",
-			tokens: []string{"ps", `"echo hello"`, "cmd", `"dir"`},
+			tokens: []string{"ps", `"echo hello"`, ",", "cmd", `"dir"`},
 			expected: []cluster.ClusterSubCommand{
 				{Kind: db.CommandKindPsCommand, RawArg: `"echo hello"`},
 				{Kind: db.CommandKindCmdCommand, RawArg: `"dir"`},
@@ -25,7 +25,7 @@ func TestClusterSubCommandParser(t *testing.T) {
 		},
 		{
 			name:   "chaining ps and install",
-			tokens: []string{"ps", `"echo hi"`, "install", `"pkg1,pkg2"`},
+			tokens: []string{"ps", `"echo hi"`, ",", "install", `"pkg1,pkg2"`},
 			expected: []cluster.ClusterSubCommand{
 				{Kind: db.CommandKindPsCommand, RawArg: `"echo hi"`},
 				{Kind: db.CommandKindInstall, RawArg: `"pkg1,pkg2"`},
