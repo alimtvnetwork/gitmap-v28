@@ -130,15 +130,16 @@ const (
 	// Section headers for the post-scan summary.
 	// MsgSectionArtifacts takes the common output base directory so it can be
 	// printed once instead of repeated on every file line.
-	MsgSectionArtifacts = "\n📦 Output Artifacts\n" + MsgSectionRule + "\n📂 Base: %s\n\n"
-	MsgSectionDatabase  = "\n🗄️  Database\n" + MsgSectionRule + "\n"
-	MsgSectionProjects  = "\n🔍 Project Detection\n" + MsgSectionRule + "\n"
-	MsgSectionDone      = "\n🎉 Scan complete.\n"
-	MsgSectionRule      = "────────────────────────────────────────────"
-	MsgScanFolderTagged = "  🏷️  Tagged %d repo(s) with scan folder #%d\n"
-	MsgUpdateStarting   = "\n  Updating gitmap from source repo...\n"
-	MsgUpdateRepoPath   = "  → Repo path: %s\n"
-	MsgUpdateVersion    = "\n  ✓ Updated to gitmap v%s\n"
+	MsgSectionArtifacts     = "\n📦 Output Artifacts\n" + MsgSectionRule + "\n📂 Base: %s\n\n"
+	MsgSectionDatabase      = "\n🗄️  Database\n" + MsgSectionRule + "\n"
+	MsgSectionProjects      = "\n🔍 Project Detection\n" + MsgSectionRule + "\n"
+	MsgSectionDone          = "\n🎉 Scan complete.\n"
+	MsgSectionRule          = "────────────────────────────────────────────"
+	MsgScanFolderTagged     = "  🏷️  Tagged %d repo(s) with scan folder #%d\n"
+	MsgUpdateStarting       = "\n  Updating gitmap from source repo...\n"
+	MsgUpdateRepoPath       = "  → Repo path: %s\n"
+	MsgUpdateVersionCompare = "\n  → Upgrading gitmap from v%s to v%s...\n"
+	MsgUpdateSummaryDetail  = "\n  ✓ Successfully updated from v%s to v%s\n  → Source: %s\n\n"
 )
 
 // List and group messages.

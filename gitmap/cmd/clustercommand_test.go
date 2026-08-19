@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"testing"
+
 	"github.com/pterm/pterm"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"

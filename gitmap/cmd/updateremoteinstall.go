@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -35,6 +37,9 @@ func runUpdateRemoteInstall() bool {
 		return true
 	}
 
+	currentVersion := constants.Version
+	targetVersion := fetchRemoteTargetVersion(slug)
+
 	url := installerURLFor(slug)
 	fmt.Printf(constants.MsgUpdateRemoteFetch, url)
 
@@ -45,6 +50,7 @@ func runUpdateRemoteInstall() bool {
 	}
 	defer os.Remove(scriptPath)
 
+	fmt.Printf(constants.MsgUpdateVersionCompare, currentVersion, targetVersion)
 	fmt.Printf(constants.MsgUpdateRemoteRun, scriptPath)
 	errRun := runRemoteInstaller(scriptPath)
 	var exitErr *exec.ExitError
@@ -56,8 +62,34 @@ func runUpdateRemoteInstall() bool {
 		return false
 	}
 
-	fmt.Print(constants.MsgUpdateRemoteDone)
+	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, url)
 	return true
+}
+
+// fetchRemoteTargetVersion fetches version.json from the remote repo.
+func fetchRemoteTargetVersion(slug string) string {
+	url := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/main/version.json", constants.UpdateRepoOwner, slug)
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(url) //nolint:gosec
+	if err != nil {
+		return "unknown"
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "unknown"
+	}
+
+	var data struct {
+		Version string `json:"version"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return "unknown"
+	}
+	if data.Version == "" {
+		return "unknown"
+	}
+	return data.Version
 }
 
 // resolveTargetSlug returns the repo slug to install from, honoring

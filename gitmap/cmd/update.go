@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -200,12 +201,17 @@ func runUpdateRunner() {
 	repoPath := resolveRepoPath()
 	report := resolveReportErrors()
 
+	currentVersion := constants.Version
+	targetVersion := readTargetVersion(repoPath)
+
 	initRunnerVerbose()
 	fmt.Printf(constants.MsgUpdateStarting)
 	fmt.Printf(constants.MsgUpdateRepoPath, repoPath)
+	fmt.Printf(constants.MsgUpdateVersionCompare, currentVersion, targetVersion)
 	executeUpdate(repoPath, report)
 	runPostUpdateMigrate()
 	report.summarize()
+	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, repoPath)
 	scheduleDeployedCleanupHandoff()
 }
 
@@ -263,4 +269,23 @@ func copyFile(src, dst string) error {
 	_, err = io.Copy(out, in)
 
 	return err
+}
+
+// readTargetVersion reads the target version from the repository.
+func readTargetVersion(repoPath string) string {
+	versionPath := filepath.Join(repoPath, constants.DefaultVersionFile)
+	data, err := os.ReadFile(versionPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrUpdateVersionRead, versionPath, err)
+		return "unknown"
+	}
+
+	var parsed struct {
+		Version string `json:"version"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrUpdateVersionRead, versionPath, err)
+		return "unknown"
+	}
+	return parsed.Version
 }

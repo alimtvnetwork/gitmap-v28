@@ -139,6 +139,7 @@ const (
 
 // Update error messages.
 const (
+	ErrUpdateVersionRead         = "  ⚠ Could not read target version from %s: %v\n"
 	ErrUpdateExecFind            = "Error finding executable: %v\n"
 	ErrUpdateCopyFail            = "Error creating update copy: %v\n"
 	ErrUpdateNoRunSH             = "  ✗ run.sh not found at %s — cannot update on this platform without it.\n"
