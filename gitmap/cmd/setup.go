@@ -42,6 +42,9 @@ func runSetup(args []string) {
 // Idempotent: rewrites the existing block if present, otherwise appends.
 func installPathSnippet(dryRun bool) {
 	shell := completion.DetectShell()
+	if shell == constants.ShellPowerShell {
+		shell = constants.PathSnippetShellPwsh
+	}
 	fmt.Printf("\n  %s%s%s\n", constants.ColorYellow, "PATH snippet:", constants.ColorReset)
 
 	dir := resolveActiveBinaryDir()
