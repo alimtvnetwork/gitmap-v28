@@ -13,6 +13,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 |---|-------|--------------|--------|------|
 | 01 | misspell: `labelled` → `labeled` | golangci-lint (misspell) | ✅ Resolved | [01-misspell-labelled.md](cicd-issues/01-misspell-labelled.md) |
 | 02 | `lint-regression-guard` → `lint-hard-floor` → `lint-baseline-guard` (now uniformly baseline-diff for all 5 linters) | golangci-lint (baseline-guard job) | ✅ Resolved | [02-lint-regression-guard-semantics.md](cicd-issues/02-lint-regression-guard-semantics.md) |
+| 03 | pterm SpinnerPrinter DATA RACE | go test -race | ✅ Resolved | [03-pterm-spinner-data-race.md](cicd-issues/03-pterm-spinner-data-race.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.
@@ -21,3 +22,4 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 - **Decide hard-floor vs baseline-diff per linter** before adding to CI; document choice in the script header. Don't conflate them under one job.
 - **Compute `-local` prefix from `go.mod`** — never hardcode the module path in CI scripts.
 - **Cache `GOMODCACHE`/`GOCACHE`** keyed on `go.sum` hash for compile-gate + matrix speed.
+- **Conditional UI Component Allocation**: Always wrap background UI routines (e.g. `pterm.SpinnerPrinter`) in `isMultiActive` checks. Unconditional start leads to `-race` failures when tests disable output.

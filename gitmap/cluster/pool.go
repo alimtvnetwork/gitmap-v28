@@ -106,10 +106,15 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 				displayCmd = subCmds[0].Kind.String()
 			}
 
-			mu.Lock()
-			spinner, _ := pterm.DefaultSpinner.WithWriter(multi.NewWriter()).Start(fmt.Sprintf("%s Running %s\u2026", nodeLabel, displayCmd))
-			spinners[node.ID] = spinner
-			mu.Unlock()
+			var spinner *pterm.SpinnerPrinter
+			if isMultiActive {
+				mu.Lock()
+				spinner, _ = pterm.DefaultSpinner.WithWriter(multi.NewWriter()).Start(fmt.Sprintf("%s Running %s\u2026", nodeLabel, displayCmd))
+				spinners[node.ID] = spinner
+				mu.Unlock()
+			} else {
+				pterm.Info.Printf("%s Running %s\u2026\n", nodeLabel, displayCmd)
+			}
 
 			var lastRes db.ClusterExecResult
 			allOk := true
@@ -162,13 +167,25 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 
 			if ctx.Err() != nil {
 				skipped++
-				spinner.Warning(fmt.Sprintf("%s Skipped", nodeLabel))
+				if spinner != nil {
+					spinner.Warning(fmt.Sprintf("%s Skipped", nodeLabel))
+				} else {
+					pterm.Warning.Printf("%s Skipped\n", nodeLabel)
+				}
 			} else if allOk {
 				succeeded++
-				spinner.Success(fmt.Sprintf("%s %s (%dms, exit 0)", nodeLabel, displayCmd, durMs))
+				if spinner != nil {
+					spinner.Success(fmt.Sprintf("%s %s (%dms, exit 0)", nodeLabel, displayCmd, durMs))
+				} else {
+					pterm.Success.Printf("%s %s (%dms, exit 0)\n", nodeLabel, displayCmd, durMs)
+				}
 			} else {
 				failed++
-				spinner.Fail(fmt.Sprintf("%s %s (exit %d)", nodeLabel, displayCmd, exitCode))
+				if spinner != nil {
+					spinner.Fail(fmt.Sprintf("%s %s (exit %d)", nodeLabel, displayCmd, exitCode))
+				} else {
+					pterm.Error.Printf("%s %s (exit %d)\n", nodeLabel, displayCmd, exitCode)
+				}
 			}
 			mu.Unlock()
 		}
