@@ -56,11 +56,12 @@ jobs:
         working-directory: gitmap
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+          CLEAN_VERSION="${VERSION#v}"
           BUILD_COMMIT="$(git rev-parse HEAD)"
           BUILD_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
           BUILD_REPO="$(git config --get remote.origin.url)"
           BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.Version=$VERSION'"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.Version=$CLEAN_VERSION'"
           LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit=$BUILD_COMMIT'"
           LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildBranch=$BUILD_BRANCH'"
           LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildRepo=$BUILD_REPO'"
@@ -88,7 +89,8 @@ jobs:
         working-directory: gitmap-updater
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap-updater/cmd.Version=$VERSION'"
+          CLEAN_VERSION="${VERSION#v}"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap-updater/cmd.Version=$CLEAN_VERSION'"
 
           TARGETS=(
             "windows/amd64/.exe"
