@@ -8,6 +8,7 @@
 
 ### Issues
 
+- [02-6.30.0-double-v](.lovable/release/issues/02-6.30.0-double-v.md) Installer smoke test failed due to a double `v` prefix (`gitmap vv6.30.0`). Fixed `release.yml` `LDFLAGS` to inject the clean version instead of the `v`-prefixed version.
 - [01-6.30.0-sync-regex](.lovable/release/issues/01-6.30.0-sync-regex.md) Version sync scripts failed due to outdated regexes for `var Version` and bracketed changelog headings. Fixed regexes to pass.
 
 ## [v6.29.0] 2026-08-19
