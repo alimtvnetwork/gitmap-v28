@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.34.0] 2026-08-20 Fix Scan Visualization and Emoji Stripping
+
+### Fixed
+- **Terminal UI**: Fixed an issue where modern PowerShell 7 hosts were incorrectly identified as legacy Windows consoles, causing emojis (like `🧬`) to be aggressively stripped into ASCII fallbacks (`[dna]`).
+- **Scan Visualization**: Consolidated the `gitmap scan` artifact output. The clone help instructions are now displayed seamlessly with the generated artifact list, avoiding duplicated, scattered output blocks at the end of the scan.
+
 ## [v6.33.0] 2026-08-20 Update Terminal Visualization
 
 ### Added
