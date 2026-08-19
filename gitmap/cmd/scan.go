@@ -91,7 +91,6 @@ func executeScan(dir string, cfg model.Config, outFile string, ghDesktop, openFo
 		})
 	})
 	outputDir := resolveOutputDir(cfg.OutputDir, absDir)
-	fmt.Printf(constants.MsgSectionArtifacts, outputDir)
 	bench.Phase("scan.writeOutputs", func() {
 		writeAllOutputs(records, outputDir, outFile, quiet, compact)
 	})
