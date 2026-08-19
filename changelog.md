@@ -1,4 +1,8 @@
 # Changelog
+## [v6.29.0] 2026-08-19
+### Fixed
+- **CI/CD Reliability**: Fixed a fatal memory data race (``WARNING: DATA RACE``) in the multi-node `pterm.MultiPrinter` UI loop that caused test suites to crash randomly. Properly isolated test UI via global `DisableOutput()` toggles to prevent concurrent slice mutation during `Stop()`.
+
 ## [v6.28.0] 2026-08-19
 ### Added
 - **Bulk Visibility Wildcard Commands**: Introduced 4 new CLI commands (`make-all-public`, `make-all-private`, `MAPUB`, `MAPRI`) to bulk-update GitHub/GitLab repository visibility across an entire owner or organization.
