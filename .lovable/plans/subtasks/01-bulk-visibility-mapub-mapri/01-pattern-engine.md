@@ -1,6 +1,6 @@
 ---
 Slug: pattern-engine
-Status: pending
+Status: completed
 Created: 2026-06-06
 Parent: 01-bulk-visibility-mapub-mapri
 ---
