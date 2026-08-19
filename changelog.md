@@ -1,4 +1,11 @@
 # Changelog
+## [v6.28.0] 2026-08-19
+### Added
+- **Bulk Visibility Wildcard Commands**: Introduced 4 new CLI commands (`make-all-public`, `make-all-private`, `MAPUB`, `MAPRI`) to bulk-update GitHub/GitLab repository visibility across an entire owner or organization.
+- **Advanced Pattern Matching**: Supports wildcard filtering (`exact`, `prefix*`, `*contains*`, `prefix*suffix`) for precisely targeting subsets of repositories.
+- **Interactive TUI Flow**: Added numbered list selection and index-based exclusion (`-1,3,5`) with a `-Y` bypass for automated pipelines.
+- **Execution Auditing**: Integrated full audit logging via SQLite `GitMapRun` and `GitMapRepoResult` tables.
+
 ## [v6.27.0] 2026-08-19
 ### Added
 - **Cluster Command Delegation**: Introduced unified CLI surface (`gitmap servers-clients`, `gitmap clients`, `gitmap sc`) to broadcast shell commands, Git operations (`pull`, `push`, `status`), and package installations (`install`) across multi-machine clusters.

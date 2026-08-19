@@ -60,10 +60,10 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 
 2. **Discover pin sites**, then update every one to the new version in lock-step. Use a single canonical search:
 
-   ```
+   `
    rg -n "\b<PREV_MAJOR>\.<PREV_MINOR>\.<PREV_PATCH>\b" -g '!node_modules' -g '!*.lock' -g '!.git'
    rg -n "\b(VERSION|APP_VERSION|EXTENSION_VERSION|SCHEMA_VERSION|CACHE_SCHEMA_VERSION|BUILD_VERSION)\b"
-   ```
+   `
 
    Typical pin sites (non-exhaustive):
 
@@ -85,7 +85,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 
 4. **Add a changelog entry** at the top of `changelog.md`, directly under `# Changelog`. Replace `X.Y.Z` with the actual new version and `YYYY-MM-DD` with `date -u +%Y-%m-%d` output:
 
-   ```
+   `
    ## [vX.Y.Z] YYYY-MM-DD <short headline>
 
    ### Added / Changed / Fixed / Removed
@@ -95,7 +95,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
    ### Issues (only if any step failed or was flagged)
 
    - [xx-<new-version>-<slug>](.lovable/release/issues/xx-<new-version>-<slug>.md) short description
-   ```
+   `
 
    Use only the subheadings that apply. `### Issues` is REQUIRED whenever any step surfaced a problem, even if worked around.
 
@@ -183,7 +183,7 @@ Ambiguity is not a license to guess. It is a file to write.
 
 New question file shape:
 
-```
+`
 # <one-line question>
 
 Slug: <slug>
@@ -199,6 +199,7 @@ Blocking: release {{version}}
 ## Options considered
 
 ## Impact if guessed wrong
-```
+`
 
 When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `Status: resolved`, and append a `## Resolution` block (`Answered:`, `Answer:`, `Applied solution:`). Never leave a copy behind. Do NOT confuse ambiguities with release issues: unknown version source, unclear bump policy, or missing changelog target = ambiguity; a failed step during the release run = `.lovable/release/issues/`.
+

@@ -13,7 +13,7 @@
 package constants
 
 // Version.
-var Version = "6.27.0" // Overridden at compile time via -ldflags
+var Version = "6.28.0" // Overridden at compile time via -ldflags
 
 // RepoPath is set at build time via -ldflags.
 var RepoPath = ""
