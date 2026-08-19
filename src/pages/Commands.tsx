@@ -130,6 +130,19 @@ const CommandsPage = () => {
         All {commands.length} gitmap commands organized by category.
       </p>
 
+      <div className="mb-8 p-6 bg-muted/30 rounded-lg border border-border">
+        <h2 className="text-xl font-bold mb-3 docs-h2">Cluster Command Delegation</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Once <code className="text-primary">gitmap serve</code> and <code className="text-primary">gitmap join</code> establish a cluster of machines, operators use a unified CLI surface to broadcast shell commands, Git operations, or package installations across the network.
+        </p>
+        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 mb-4">
+          <li><strong>Target Selectors</strong>: <code className="text-primary">servers-clients</code> targets all nodes including the server, while <code className="text-primary">clients</code> excludes the server.</li>
+          <li><strong>Filtering</strong>: Use <code className="text-primary">--except &lt;list&gt;</code> to exclude nodes by IP or ID, or <code className="text-primary">--ip</code> and <code className="text-primary">--id</code> to target exactly.</li>
+          <li><strong>Chaining</strong>: You can chain multiple sub-commands sequentially on targeted nodes (e.g., <code className="text-primary">gitmap clients cmd "whoami", ps "Get-Date" --id 1,3</code>).</li>
+          <li><strong>Audit Trail</strong>: All executions maintain a persistent history verifiable via <code className="text-primary">gitmap cluster history</code>.</li>
+        </ul>
+      </div>
+
       {/* Category summary banner */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6">
         {Categories.map((cat) => {

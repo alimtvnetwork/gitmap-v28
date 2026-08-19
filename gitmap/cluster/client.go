@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"crypto/tls"
 	"net/rpc"
 )
 
@@ -16,9 +17,18 @@ func NewNodeClient(id, address, token string) *NodeClient {
 	return &NodeClient{id: id, address: address, token: token}
 }
 
+func (c *NodeClient) dialTLS() (*rpc.Client, error) {
+	conf := &tls.Config{InsecureSkipVerify: true}
+	conn, err := tls.Dial("tcp", c.address, conf)
+	if err != nil {
+		return nil, err
+	}
+	return rpc.NewClient(conn), nil
+}
+
 // Handshake connects to the server and verifies the join token.
 func (c *NodeClient) Handshake() error {
-	client, err := rpc.Dial("tcp", c.address)
+	client, err := c.dialTLS()
 	if err != nil {
 		return err
 	}
@@ -35,7 +45,7 @@ func (c *NodeClient) Handshake() error {
 
 // Ping sends a heartbeat to the server.
 func (c *NodeClient) Ping() error {
-	client, err := rpc.Dial("tcp", c.address)
+	client, err := c.dialTLS()
 	if err != nil {
 		return err
 	}

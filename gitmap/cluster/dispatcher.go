@@ -2,10 +2,22 @@ package cluster
 
 import (
 	"context"
+	"crypto/tls"
+	"net/rpc"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 )
+
+type AgentExecArgs struct {
+	Command string
+}
+
+type AgentExecReply struct {
+	Stdout   string
+	Stderr   string
+	ExitCode int
+}
 
 // Dispatch routes the subcommand to the correct executor for the node.
 // This is currently a stub for executors.
@@ -24,13 +36,89 @@ func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) d
 	// Stub routing logic
 	switch subCmd.Kind {
 	case db.CommandKindPsCommand:
-		res.ResultStatus = db.ResultStatusSkipped
-		msg := "ExecPS stubbed"
-		res.ErrorMessage = &msg
+		res.ResultStatus = db.ResultStatusSucceeded
+		if !node.IsServer {
+			// Dial the remote agent
+			conf := &tls.Config{InsecureSkipVerify: true}
+			client, err := tls.Dial("tcp", node.IP+":8081", conf)
+			if err != nil {
+				res.ResultStatus = db.ResultStatusFailed
+				msg := err.Error()
+				res.ErrorMessage = &msg
+			} else {
+				defer client.Close()
+				rpcClient := rpc.NewClient(client)
+				args := &AgentExecArgs{Command: subCmd.RawArg}
+				var reply AgentExecReply
+				if err := rpcClient.Call("Agent.ExecPS", args, &reply); err != nil {
+					res.ResultStatus = db.ResultStatusFailed
+					msg := err.Error()
+					res.ErrorMessage = &msg
+				} else {
+					if reply.ExitCode != 0 {
+						res.ResultStatus = db.ResultStatusFailed
+					}
+					res.Stdout = &reply.Stdout
+					res.Stderr = &reply.Stderr
+					res.ExitCode = &reply.ExitCode
+				}
+			}
+		} else {
+			// Run locally
+			stdout, stderr, exitCode, err := ExecPS(ctx, node, subCmd.RawArg)
+			res.Stdout = &stdout
+			res.Stderr = &stderr
+			res.ExitCode = &exitCode
+			if err != nil || exitCode != 0 {
+				res.ResultStatus = db.ResultStatusFailed
+				if err != nil {
+					msg := err.Error()
+					res.ErrorMessage = &msg
+				}
+			}
+		}
+
 	case db.CommandKindCmdCommand:
-		res.ResultStatus = db.ResultStatusSkipped
-		msg := "ExecCmd stubbed"
-		res.ErrorMessage = &msg
+		res.ResultStatus = db.ResultStatusSucceeded
+		if !node.IsServer {
+			conf := &tls.Config{InsecureSkipVerify: true}
+			client, err := tls.Dial("tcp", node.IP+":8081", conf)
+			if err != nil {
+				res.ResultStatus = db.ResultStatusFailed
+				msg := err.Error()
+				res.ErrorMessage = &msg
+			} else {
+				defer client.Close()
+				rpcClient := rpc.NewClient(client)
+				args := &AgentExecArgs{Command: subCmd.RawArg}
+				var reply AgentExecReply
+				if err := rpcClient.Call("Agent.ExecCmd", args, &reply); err != nil {
+					res.ResultStatus = db.ResultStatusFailed
+					msg := err.Error()
+					res.ErrorMessage = &msg
+				} else {
+					if reply.ExitCode != 0 {
+						res.ResultStatus = db.ResultStatusFailed
+					}
+					res.Stdout = &reply.Stdout
+					res.Stderr = &reply.Stderr
+					res.ExitCode = &reply.ExitCode
+				}
+			}
+		} else {
+			// Run locally
+			stdout, stderr, exitCode, err := ExecCmd(ctx, node, subCmd.RawArg)
+			res.Stdout = &stdout
+			res.Stderr = &stderr
+			res.ExitCode = &exitCode
+			if err != nil || exitCode != 0 {
+				res.ResultStatus = db.ResultStatusFailed
+				if err != nil {
+					msg := err.Error()
+					res.ErrorMessage = &msg
+				}
+			}
+		}
 	case db.CommandKindInstall:
 		res.ResultStatus = db.ResultStatusSkipped
 		msg := "ExecInstall stubbed"

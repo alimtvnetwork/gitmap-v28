@@ -27,35 +27,34 @@ func runCluster(args []string) {
 		runClusterStatus(args[1:])
 		return
 	case "history":
-		runClusterHistory(args[1:])
+		//runClusterHistory(args[1:])
 		return
 	case "export":
-		runClusterExport(args[1:])
+		//runClusterExport(args[1:])
 		return
 	case "import":
-		runClusterImport(args[1:])
+		//runClusterImport(args[1:])
 		return
 	case "set-password":
-		runClusterSetPassword(args[1:])
+		//runClusterSetPassword(args[1:])
+		return
+	case "reset-password":
+		//runClusterResetPassword(args[1:])
+		return
+	case "nodes", "ls":
+		//runClusterNodes(args[1:])
+		return
+	case "remove":
+		//runClusterRemove(args[1:])
+		return
+	case "audit-clean":
+		//runClusterAuditClean(args[1:])
+		return
+	case "stats":
+		//runClusterStats(args[1:])
 		return
 	}
 
 	fmt.Fprintf(os.Stderr, unknownCmdMsg, sub)
 	os.Exit(1)
-}
-
-func runClusterHistory(args []string) {
-	fmt.Printf("runClusterHistory(args=%v)\n", args)
-}
-
-func runClusterExport(args []string) {
-	fmt.Printf("runClusterExport(args=%v)\n", args)
-}
-
-func runClusterImport(args []string) {
-	fmt.Printf("runClusterImport(args=%v)\n", args)
-}
-
-func runClusterSetPassword(args []string) {
-	fmt.Printf("runClusterSetPassword(args=%v)\n", args)
 }

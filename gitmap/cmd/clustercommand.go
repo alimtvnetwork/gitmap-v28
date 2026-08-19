@@ -101,7 +101,15 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 
 	resultCh := make(chan db.ClusterExecResult, len(effective)*len(subCmds))
 
-	verbose := false // or maybe parse it from flags later if needed
+	if flags.DryRun {
+		fmt.Fprintln(os.Stdout, "Dry run enabled. The following commands would be executed:")
+		for _, sc := range subCmds {
+			fmt.Printf("  %s\n", sc.Kind.String())
+		}
+		os.Exit(0)
+	}
+
+	verbose := flags.Verbose
 	cluster.RunPool(ctx, effective, subCmds, dbConn, runId, 10, resultCh, verbose)
 
 	succeeded := 0

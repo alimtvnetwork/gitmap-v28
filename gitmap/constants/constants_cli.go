@@ -647,4 +647,6 @@ const (
 	ClusterFlagYesShort       = "Y"
 	ClusterFlagForceLifecycle = "force-lifecycle"
 	ClusterFlagNoPreflight    = "no-preflight"
+	ClusterFlagVerbose        = "verbose"
+	ClusterFlagDryRun         = "dry-run"
 )

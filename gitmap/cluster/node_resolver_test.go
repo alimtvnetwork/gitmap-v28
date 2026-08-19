@@ -32,7 +32,7 @@ func TestResolveTargetNodes_MutualExclusivity(t *testing.T) {
 	}
 }
 
-func TestResolveTargetNodes_Exclusions(t *testing.T) {
+func TestNodeResolverExclusion(t *testing.T) {
 	allNodes := []ClusterNode{
 		{ID: "node1", DisplayId: 1, IP: "192.168.1.10", IsServer: false},
 		{ID: "node2", DisplayId: 2, IP: "192.168.1.11", IsServer: false},

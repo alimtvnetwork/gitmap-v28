@@ -53,7 +53,7 @@ func ExecLogoff(ctx context.Context, node ClusterNode, forceLifecycle bool, prov
 	if isWin {
 		cmd = exec.CommandContext(ctx, "logoff")
 	} else {
-		cmd = exec.CommandContext(ctx, "sh", "-c", "pkill -KILL -u $USER")
+		cmd = exec.CommandContext(ctx, "sh", "-c", "pkill -KILL -u whoami")
 	}
 	return runCmd(cmd)
 }
@@ -80,7 +80,7 @@ func runCmd(cmd *exec.Cmd) (string, string, int, error) {
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout = &outBuf
 	cmd.Stderr = &errBuf
-	err := cmd.Run()
+	err := runCmdFunc(cmd)
 	exitCode := 0
 	if err != nil {
 		exitCode = 1

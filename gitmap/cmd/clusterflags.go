@@ -19,6 +19,8 @@ type ClusterFlags struct {
 	AutoConfirm    bool
 	ForceLifecycle bool
 	NoPreflight    bool
+	Verbose        bool
+	DryRun         bool
 }
 
 type stringSliceFlag []string
@@ -105,6 +107,8 @@ func ParseClusterFlags(args []string) (ClusterFlags, []string, error) {
 
 	fs.BoolVar(&opts.ForceLifecycle, constants.ClusterFlagForceLifecycle, false, "")
 	fs.BoolVar(&opts.NoPreflight, constants.ClusterFlagNoPreflight, false, "")
+	fs.BoolVar(&opts.Verbose, constants.ClusterFlagVerbose, false, "")
+	fs.BoolVar(&opts.DryRun, constants.ClusterFlagDryRun, false, "")
 
 	flags, positional := splitClusterFlagsAndArgs(args)
 	if err := fs.Parse(flags); err != nil {

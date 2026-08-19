@@ -23,7 +23,21 @@ type ClusterExecResult struct {
 	ErrorMessage        *string
 }
 
+func capString(s *string, maxLen int) *string {
+	if s == nil {
+		return nil
+	}
+	if len(*s) > maxLen {
+		capped := (*s)[:maxLen]
+		return &capped
+	}
+	return s
+}
+
 func InsertClusterExecResult(ctx context.Context, db *sql.DB, result ClusterExecResult) (int64, error) {
+	result.Stdout = capString(result.Stdout, 64*1024)
+	result.Stderr = capString(result.Stderr, 16*1024)
+
 	query := `
 		INSERT INTO ClusterExecResult (
 			ClusterRunId, NodeId, SubCommand, CommandText, ResultStatus,

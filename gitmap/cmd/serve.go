@@ -44,7 +44,9 @@ func runServe(args []string) {
 	fmt.Printf(constants.MsgServeJoinCommand, getLocalIP(), port, token)
 
 	server := cluster.NewServer(token, 30*time.Second)
-	go server.Serve(listener)
+	go func() {
+		server.Serve(listener)
+	}()
 
 	// Block until interrupted
 	sigChan := make(chan os.Signal, 1)
