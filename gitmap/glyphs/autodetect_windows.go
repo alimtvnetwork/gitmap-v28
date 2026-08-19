@@ -27,6 +27,11 @@ func legacyWindowsHost() bool {
 	if os.Getenv("ALACRITTY_LOG") != "" {
 		return false
 	}
+	// PowerShell 7+ natively supports emoji rendering (often using modern ConHost or Windows Terminal).
+	// We can detect it via the POWERSHELL_DISTRIBUTION_CHANNEL env var or if PSModulePath contains PowerShell\7.
+	if os.Getenv("POWERSHELL_DISTRIBUTION_CHANNEL") != "" {
+		return false
+	}
 
 	return true
 }

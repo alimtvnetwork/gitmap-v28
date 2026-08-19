@@ -12,8 +12,9 @@
 //	constants_release.go  — release workflow messages and setup sections
 package constants
 
-// Version.
-var Version = "6.32.0" // Overridden at compile time via -ldflags
+// Version holds the current release version of gitmap.
+// This is overridden at compile time via -ldflags during CI/CD.
+var Version = "6.34.0" // Overridden at compile time via -ldflags
 
 // RepoPath is set at build time via -ldflags.
 var RepoPath = ""

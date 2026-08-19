@@ -72,7 +72,6 @@ func writeCSVOutput(records []model.ScanRecord, outputDir, outFile string) {
 
 		return
 	}
-	fmt.Printf(constants.MsgCSVWritten, filepath.Base(path))
 }
 
 // writeJSONOutput writes records to a JSON file.
@@ -88,7 +87,6 @@ func writeJSONOutput(records []model.ScanRecord, outputDir string) {
 
 		return
 	}
-	fmt.Printf(constants.MsgJSONWritten, filepath.Base(path))
 }
 
 // writeTextOutput writes records as plain text clone commands.
@@ -100,7 +98,6 @@ func writeTextOutput(records []model.ScanRecord, outputDir string) {
 	}
 	defer file.Close()
 	formatter.WriteText(file, records)
-	fmt.Printf(constants.MsgTextWritten, filepath.Base(path))
 }
 
 // writeFolderStructure writes a Markdown file showing the repo tree.
@@ -116,7 +113,6 @@ func writeFolderStructure(records []model.ScanRecord, outputDir string) {
 
 		return
 	}
-	fmt.Printf(constants.MsgStructureWritten, filepath.Base(path))
 }
 
 // writeCloneScript writes a PowerShell clone script.
@@ -132,7 +128,6 @@ func writeCloneScript(records []model.ScanRecord, outputDir string) {
 
 		return
 	}
-	fmt.Printf(constants.MsgCloneScript, filepath.Base(path))
 }
 
 // writeDirectCloneScript writes a plain PS1 with one git clone per line.
@@ -148,7 +143,6 @@ func writeDirectCloneScript(records []model.ScanRecord, outputDir string) {
 
 		return
 	}
-	fmt.Printf(constants.MsgDirectClone, filepath.Base(path))
 }
 
 // writeDirectCloneSSHScript writes a plain SSH PS1 with one git clone per line.
@@ -164,7 +158,6 @@ func writeDirectCloneSSHScript(records []model.ScanRecord, outputDir string) {
 
 		return
 	}
-	fmt.Printf(constants.MsgDirectCloneSSH, filepath.Base(path))
 }
 
 // writeDesktopScript writes a PowerShell script to register repos with GitHub Desktop.
@@ -180,7 +173,6 @@ func writeDesktopScript(records []model.ScanRecord, outputDir string) {
 
 		return
 	}
-	fmt.Printf(constants.MsgDesktopScript, filepath.Base(path))
 }
 
 // resolveOutFile determines the output file path.
