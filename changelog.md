@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.31.0] 2026-08-19 Double 'v' Prefix Fix
+
+### Fixed
+
+- **Install/Update Output**: Fixed the `gitmap version` output regression where it reported `vv6.30.0` instead of `v6.30.0`. Stripped the `v` prefix from the release workflow `LDFLAGS` injection so that `constants.Version` receives a clean version string that aligns with the existing format verb.
+
+
 ## [v6.30.0] 2026-08-19 Test Reliability Implementation
 
 ### Fixed
