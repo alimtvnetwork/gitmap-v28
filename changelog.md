@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.32.0] 2026-08-19 PowerShell PATH Snippet Fix
+
+### Fixed
+
+- **Setup**: Fixed an issue where `gitmap setup` on Windows returned `unknown shell "powershell"` for the PATH snippet generation. The setup command now correctly maps the `powershell` shell environment to the internal `pwsh` snippet template identifier.
+
+
 ## [v6.31.0] 2026-08-19 Double 'v' Prefix Fix
 
 ### Fixed
