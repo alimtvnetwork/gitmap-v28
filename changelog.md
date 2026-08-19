@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.33.0] 2026-08-20 Update Terminal Visualization
+
+### Added
+- **Update Terminal Visualization**: Enhanced `gitmap update` and `gitmap update remote` to fetch the remote `version.json` prior to execution. The terminal now prominently displays the current and target version before starting, and outputs a clear success summary detailing the version bump and source on completion.
+
 ## [v6.32.0] 2026-08-19 PowerShell PATH Snippet Fix
 
 ### Fixed
