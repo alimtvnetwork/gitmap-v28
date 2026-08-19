@@ -46,7 +46,9 @@ func NewBatchProgress(total int, operation string, quiet bool) *BatchProgress {
 	}
 	if !quiet {
 		p.multi = &pterm.DefaultMultiPrinter
-		p.multi.Start()
+		if pterm.Output {
+			p.multi.Start()
+		}
 		pterm.Info.Printf("[gitmap] Processing %d repositories for %s...\n", total, operation)
 	}
 	return p
@@ -181,7 +183,7 @@ func (p *BatchProgress) PrintSummary() {
 		return
 	}
 
-	if p.multi != nil {
+	if p.multi != nil && pterm.Output {
 		p.multi.Stop()
 	}
 

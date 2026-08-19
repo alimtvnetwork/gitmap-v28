@@ -40,7 +40,9 @@ func NewProgress(total int, quiet bool) *Progress {
 	}
 	if !quiet {
 		p.multi = &pterm.DefaultMultiPrinter
-		p.multi.Start()
+		if pterm.Output {
+			p.multi.Start()
+		}
 		pterm.Info.Printf("[gitmap] Processing %d repositories...\n", total)
 	}
 	return p
@@ -135,7 +137,7 @@ func (p *Progress) PrintSummary() {
 		return
 	}
 
-	if p.multi != nil {
+	if p.multi != nil && pterm.Output {
 		p.multi.Stop()
 	}
 
