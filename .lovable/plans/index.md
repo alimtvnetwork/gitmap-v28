@@ -1,9 +1,9 @@
 # Plans Index
 
 ## Pending Plans
-- [bulk-visibility-mapub-mapri](completed/01-bulk-visibility-mapub-mapri.md) - Bulk wildcard visibility flips
 
 ## Completed Plans
+- [bulk-visibility-mapub-mapri](completed/01-bulk-visibility-mapub-mapri.md) - Bulk wildcard visibility flips
 - [cluster-command-delegation](completed/06-cluster-command-delegation.md) - Cluster command delegation: ps/cmd/install/git/proj/lifecycle broadcast across servers-clients nodes with SQLite audit trail
 - [gitmap-improvements](completed/05-gitmap-improvements.md) - Gitmap UI upgrades, parallelization, bug fixes, and Multi-VM Join network feature
 - [cfr-cg-os-aware-coding-guidelines](completed/04-cfr-cg-os-aware-coding-guidelines.md) - cfr / cfrp cg modifier: OS-aware Coding Guidelines v24 integration
