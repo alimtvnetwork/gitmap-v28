@@ -9,11 +9,27 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
+type execRunnerFunc func(cmd *exec.Cmd) error
+type lookPathFunc func(file string) (string, error)
+
+var (
+	runCmdFunc   = defaultExecRunner
+	lookPathFuncVar = defaultLookPath
+)
+
+func defaultExecRunner(cmd *exec.Cmd) error {
+	return cmd.Run()
+}
+
+func defaultLookPath(file string) (string, error) {
+	return exec.LookPath(file)
+}
+
 // ExecCmd runs a command on the target node (currently executing locally via the OS shell).
 func ExecCmd(ctx context.Context, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error) {
 	var cmd *exec.Cmd
 	isWindows := runtime.GOOS == constants.WindowsOS
-	if isWindows == true {
+	if isWindows {
 		cmd = exec.CommandContext(ctx, constants.WindowsShell, constants.WindowsShellArg, command)
 	} else {
 		cmd = exec.CommandContext(ctx, constants.UnixShell, constants.UnixShellArg, command)
@@ -23,13 +39,13 @@ func ExecCmd(ctx context.Context, node ClusterNode, command string) (stdout, std
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
 
-	err = cmd.Run()
+	err = runCmdFunc(cmd)
 
 	exitCode = constants.ExitCodeSuccess
 	if err != nil {
 		exitCode = constants.ExitCodeError
 	}
-	if exitErr, ok := err.(*exec.ExitError); ok == true {
+	if exitErr, ok := err.(*exec.ExitError); ok {
 		exitCode = exitErr.ExitCode()
 	}
 

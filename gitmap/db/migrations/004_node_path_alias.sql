@@ -1,0 +1,9 @@
+ALTER TABLE ClusterNode ADD COLUMN DefaultPath TEXT NOT NULL DEFAULT '';
+CREATE TABLE NodePathAlias (
+    NodePathAliasId INTEGER PRIMARY KEY AUTOINCREMENT,
+    NodeId TEXT NOT NULL,
+    Alias TEXT NOT NULL,
+    AbsolutePath TEXT NOT NULL,
+    CreatedAt DATETIME NOT NULL,
+    UNIQUE(NodeId, Alias)
+);

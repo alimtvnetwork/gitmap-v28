@@ -2,7 +2,7 @@
 
 **Slug:** bulk-visibility-mapub-mapri
 **Steps:** 40
-**Status:** pending
+**Status:** completed
 **Created:** 2026-06-06
 
 ## Context

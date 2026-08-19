@@ -15,4 +15,10 @@ const (
 	RangePartsCount     = 2
 	RangeStartPartIndex = 0
 	RangeEndPartIndex   = 1
+
+	ErrClusterServerProtected        = "lifecycle commands cannot target server nodes"
+	ErrClusterLifecycleRequiresForce = "--force-lifecycle flag is required for this operation"
+	ErrClusterPasswordRequired       = "password is required for this operation"
+	MsgClusterCountdown              = "⚠ %s %d nodes in %ds… Press Ctrl+C to abort"
+	MsgClusterAuditFooter            = "Cluster run completed"
 )

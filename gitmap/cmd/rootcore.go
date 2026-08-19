@@ -96,11 +96,70 @@ func coreDispatchEntries() []dispatchEntry {
 		},
 		{
 			[]string{constants.CmdServersClients, constants.CmdSC},
-			func() { runClusterCommand(cluster.ServersClients, argsTail()) },
+			func() {
+				args := argsTail()
+				if len(args) > 0 && args[0] == "ls" {
+					runClusterLS(cluster.ServersClients, args[1:])
+				} else if len(args) > 0 && args[0] == "cat" {
+					runClusterCat(cluster.ServersClients, args[1:])
+				} else if len(args) > 0 && args[0] == "write" {
+					runClusterWrite(cluster.ServersClients, args[1:])
+				} else if len(args) > 0 && args[0] == "set-default-path" {
+					runClusterSetDefaultPath(cluster.ServersClients, args[1:])
+				} else if len(args) > 0 && args[0] == "set-path-alias" {
+					runClusterSetPathAlias(cluster.ServersClients, args[1:])
+				} else if len(args) > 0 && args[0] == "update" {
+					runClusterUpdate(cluster.ServersClients, false, args[1:])
+				} else if len(args) > 0 && args[0] == "update-all" {
+					runClusterUpdate(cluster.ServersClients, true, args[1:])
+				} else if len(args) > 0 && args[0] == "clone" {
+					runClusterClone(cluster.ServersClients, args[0], args[1:])
+				} else if len(args) > 0 && args[0] == "cfr" {
+					runClusterClone(cluster.ServersClients, args[0], args[1:])
+				} else if len(args) > 0 && args[0] == "cfrp" {
+					runClusterClone(cluster.ServersClients, args[0], args[1:])
+				} else {
+					runClusterCommand(cluster.ServersClients, args)
+				}
+			},
 		},
 		{
 			[]string{constants.CmdClients},
-			func() { runClusterCommand(cluster.ClientsOnly, argsTail()) },
+			func() {
+				args := argsTail()
+				if len(args) > 0 && args[0] == "ls" {
+					runClusterLS(cluster.ClientsOnly, args[1:])
+				} else if len(args) > 0 && args[0] == "cat" {
+					runClusterCat(cluster.ClientsOnly, args[1:])
+				} else if len(args) > 0 && args[0] == "write" {
+					runClusterWrite(cluster.ClientsOnly, args[1:])
+				} else if len(args) > 0 && args[0] == "update" {
+					runClusterUpdate(cluster.ClientsOnly, false, args[1:])
+				} else if len(args) > 0 && args[0] == "update-all" {
+					runClusterUpdate(cluster.ClientsOnly, true, args[1:])
+				} else if len(args) > 0 && args[0] == "clone" {
+					runClusterClone(cluster.ClientsOnly, args[0], args[1:])
+				} else if len(args) > 0 && args[0] == "cfr" {
+					runClusterClone(cluster.ClientsOnly, args[0], args[1:])
+				} else if len(args) > 0 && args[0] == "cfrp" {
+					runClusterClone(cluster.ClientsOnly, args[0], args[1:])
+				} else {
+					runClusterCommand(cluster.ClientsOnly, args)
+				}
+			},
+		},
+		{
+			[]string{"servers"},
+			func() {
+				args := argsTail()
+				if len(args) > 0 && args[0] == "ls" {
+					runClusterLS(cluster.ServersOnly, args[1:])
+				} else if len(args) > 0 && args[0] == "update" {
+					runClusterUpdate(cluster.ServersOnly, false, args[1:])
+				} else if len(args) > 0 && args[0] == "update-all" {
+					runClusterUpdate(cluster.ServersOnly, true, args[1:])
+				}
+			},
 		},
 		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() { runCluster(argsTail()) }},
 	}

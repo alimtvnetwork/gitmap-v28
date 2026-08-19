@@ -38,7 +38,7 @@ func detectUnixPackageManager(ctx context.Context) (string, error) {
 func checkManagers(ctx context.Context, managers []string) (string, error) {
 	for _, mgr := range managers {
 		cmd := exec.CommandContext(ctx, mgr, constants.PkgMgrVersionArg)
-		err := cmd.Run()
+		err := runCmdFunc(cmd)
 		isFound := err == nil
 		if isFound {
 			return mgr, nil

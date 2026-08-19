@@ -13,14 +13,21 @@ type TargetSelectorType int
 const (
 	ServersClients TargetSelectorType = 1
 	ClientsOnly    TargetSelectorType = 2
+	ServersOnly    TargetSelectorType = 3
 )
 
 // ClusterNode represents a cluster node for resolving purposes.
 type ClusterNode struct {
-	ID        string
-	DisplayId int
-	IP        string
-	IsServer  bool
+	ID             string
+	Alias          string
+	DisplayId      int
+	IP             string
+	NodeRole       string
+	OS             string
+	Status         string
+	PasswordHash   string
+	PackageManager string
+	IsServer       bool
 }
 
 type NodeFilter struct {

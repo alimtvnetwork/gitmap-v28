@@ -1,13 +1,15 @@
 module github.com/alimtvnetwork/gitmap-v28/gitmap
 
-go 1.24.13
+go 1.25.0
 
 require (
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/mholt/archives v0.1.5
+	github.com/pterm/pterm v0.12.83
 	github.com/sahilm/fuzzy v0.1.1
-	golang.org/x/sys v0.41.0
+	golang.org/x/crypto v0.55.0
+	golang.org/x/sys v0.47.0
 	modernc.org/sqlite v1.34.5
 )
 
@@ -49,7 +51,6 @@ require (
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/nwaples/rardecode/v2 v2.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
-	github.com/pterm/pterm v0.12.83 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/sorairolake/lzip-go v0.3.8 // indirect
@@ -57,8 +58,8 @@ require (
 	github.com/ulikunitz/xz v0.5.15 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
-	golang.org/x/term v0.40.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect

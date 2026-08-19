@@ -23,17 +23,17 @@ func ExecPS(ctx context.Context, node ClusterNode, command string) (stdout, stde
 
 	cmdPath, errLook := "", error(nil)
 	if isWin {
-		cmdPath, errLook = exec.LookPath(pwshCmd)
+		cmdPath, errLook = lookPathFuncVar(pwshCmd)
 	}
 	if isWin && errLook != nil {
-		cmdPath, errLook = exec.LookPath(powershellCmd)
+		cmdPath, errLook = lookPathFuncVar(powershellCmd)
 	}
 	if isWin && errLook != nil {
 		return "", "", 1, errLook
 	}
 
 	if !isWin {
-		cmdPath, errLook = exec.LookPath(pwshCmd)
+		cmdPath, errLook = lookPathFuncVar(pwshCmd)
 	}
 	if !isWin && errLook != nil {
 		return "", "pwsh not found, skipping", 0, nil
@@ -50,7 +50,7 @@ func ExecPS(ctx context.Context, node ClusterNode, command string) (stdout, stde
 	cmd.Stdout = &outBuf
 	cmd.Stderr = &errBuf
 
-	err = cmd.Run()
+	err = runCmdFunc(cmd)
 
 	stdout = outBuf.String()
 	stderr = errBuf.String()
