@@ -7,7 +7,7 @@ These rules dictate how errors should be caught and logged across the codebase t
 - **NO SCATTERED TRY/CATCH**: Do not write raw `try/catch` blocks scattered across application logic. Use the wrapper to handle the exception, explicitly logging the failure, and returning a structured state.
 
 ## 2. Structured Error State
-- The wrapper should return a defined type containing explicit boolean properties such as `is_fail: True` (Python) or `isFail: true` (TS) instead of relying on consumers to check `!isSuccess` or `!data`.
+- The wrapper should return a defined type containing explicit boolean properties `isSuccess: true/false` and `isFailure: true/false` instead of relying on consumers to check `!isSuccess` or `!data` or using `is_fail`.
 
 ## 3. Explicit Logging
 - All caught errors MUST be explicitly logged. The wrapper is responsible for formatting this log.

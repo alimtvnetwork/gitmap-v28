@@ -6,7 +6,8 @@
 export interface QueryResult<T> {
   data: T | null;
   error: Error | null;
-  isFail: boolean;
+  isSuccess: boolean;
+  isFailure: boolean;
 }
 
 /**
@@ -21,7 +22,8 @@ export async function queryWrapper<T>(
     return {
       data,
       error: null,
-      isFail: false,
+      isSuccess: true,
+      isFailure: false,
     };
   } catch (err) {
     const error = err instanceof Error ? err : new Error(String(err));
@@ -29,7 +31,8 @@ export async function queryWrapper<T>(
     return {
       data: null,
       error,
-      isFail: true,
+      isSuccess: false,
+      isFailure: true,
     };
   }
 }
@@ -46,7 +49,8 @@ export function queryWrapperSync<T>(
     return {
       data,
       error: null,
-      isFail: false,
+      isSuccess: true,
+      isFailure: false,
     };
   } catch (err) {
     const error = err instanceof Error ? err : new Error(String(err));
@@ -54,7 +58,8 @@ export function queryWrapperSync<T>(
     return {
       data: null,
       error,
-      isFail: true,
+      isSuccess: false,
+      isFailure: true,
     };
   }
 }

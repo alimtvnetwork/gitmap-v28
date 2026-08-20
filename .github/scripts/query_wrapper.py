@@ -5,14 +5,15 @@ def query_wrapper(operation: Callable[..., Any], *args, **kwargs) -> Dict[str, A
     """
     Wraps an operation (API, database, or command logic), catching exceptions,
     logging errors explicitly to stderr without scattered try/catch, 
-    and returning a structured result with an explicit `is_fail` property.
+    and returning a structured result with explicit `is_success` and `is_failure` properties.
     """
     try:
         data = operation(*args, **kwargs)
         return {
             "data": data,
             "error": None,
-            "is_fail": False
+            "is_success": True,
+            "is_failure": False
         }
     except Exception as e:
         # We explicitly log the caught error as per the error management guidelines.
@@ -23,5 +24,6 @@ def query_wrapper(operation: Callable[..., Any], *args, **kwargs) -> Dict[str, A
         return {
             "data": None,
             "error": e,
-            "is_fail": True
+            "is_success": False,
+            "is_failure": True
         }
