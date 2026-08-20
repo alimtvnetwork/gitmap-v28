@@ -48,7 +48,7 @@ func (db *DB) runV15Rebuild(spec v15RebuildSpec) error {
 		// the legacy and let the standard pass own the new one going
 		// forward. Data preservation is impossible in this edge case
 		// because the new table is presumed empty/fresh.
-		_, _ = db.conn.Exec("DROP TABLE IF EXISTS " + spec.OldTable)
+		_, _ = ExecWrapper(db.conn, "DROP TABLE IF EXISTS "+spec.OldTable).Destruct()
 
 		return nil
 	}
@@ -113,15 +113,15 @@ func (db *DB) hasCanonicalV15Shape(spec v15RebuildSpec) bool {
 
 // execV15Rebuild performs the table-rebuild dance for one spec.
 func (db *DB) execV15Rebuild(spec v15RebuildSpec) error {
-	if _, err := db.conn.Exec("PRAGMA foreign_keys = OFF"); err != nil {
+	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = OFF").Destruct(); err != nil {
 		return fmt.Errorf("disable foreign keys: %w", err)
 	}
 
 	defer func() {
-		_, _ = db.conn.Exec("PRAGMA foreign_keys = ON")
+		_, _ = ExecWrapper(db.conn, "PRAGMA foreign_keys = ON").Destruct()
 	}()
 
-	if _, err := db.conn.Exec(spec.NewCreateSQL); err != nil {
+	if _, err := ExecWrapper(db.conn, spec.NewCreateSQL).Destruct(); err != nil {
 		return fmt.Errorf("create %s: %w", spec.NewTable, err)
 	}
 
@@ -130,11 +130,11 @@ func (db *DB) execV15Rebuild(spec v15RebuildSpec) error {
 		spec.NewTable, spec.NewColumnList, spec.OldColumnList, spec.OldTable,
 	)
 
-	if _, err := db.conn.Exec(copySQL); err != nil {
+	if _, err := ExecWrapper(db.conn, copySQL).Destruct(); err != nil {
 		return fmt.Errorf("copy %s→%s: %w", spec.OldTable, spec.NewTable, err)
 	}
 
-	if _, err := db.conn.Exec(`DROP TABLE "` + spec.OldTable + `"`); err != nil {
+	if _, err := ExecWrapper(db.conn, `DROP TABLE "`+spec.OldTable+`"`).Destruct(); err != nil {
 		return fmt.Errorf("drop %s: %w", spec.OldTable, err)
 	}
 

@@ -82,12 +82,12 @@ func (db *DB) migrateV15Phase2() error {
 // new singular tables. SQLite stores the FK clause as text in sqlite_master,
 // so renaming the parent table does NOT auto-update the child FK definition.
 func (db *DB) rebuildGroupRepoFK() error {
-	if _, err := db.conn.Exec("PRAGMA foreign_keys = OFF"); err != nil {
+	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = OFF").Destruct(); err != nil {
 		return err
 	}
 
 	defer func() {
-		_, _ = db.conn.Exec("PRAGMA foreign_keys = ON")
+		_, _ = ExecWrapper(db.conn, "PRAGMA foreign_keys = ON").Destruct()
 	}()
 
 	stmts := []string{
@@ -102,7 +102,7 @@ func (db *DB) rebuildGroupRepoFK() error {
 	}
 
 	for _, s := range stmts {
-		if _, err := db.conn.Exec(s); err != nil {
+		if _, err := ExecWrapper(db.conn, s).Destruct(); err != nil {
 			return fmt.Errorf("groupRepo rebuild step (%s): %w", firstWords(s, 4), err)
 		}
 	}

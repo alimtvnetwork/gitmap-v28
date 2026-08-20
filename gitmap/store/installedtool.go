@@ -33,8 +33,8 @@ func (db *DB) SaveInstalledTool(tool, version, manager string) error {
 		versionStr = version
 	}
 
-	_, err := db.conn.Exec(constants.SQLInsertInstalledTool,
-		tool, major, minor, patch, build, versionStr, manager, "")
+	_, err := ExecWrapper(db.conn, constants.SQLInsertInstalledTool,
+		tool, major, minor, patch, build, versionStr, manager, "").Destruct()
 
 	return err
 }
@@ -54,7 +54,7 @@ func (db *DB) GetInstalledTool(name string) (InstalledTool, error) {
 
 // ListInstalledTools returns all tracked installations.
 func (db *DB) ListInstalledTools() ([]InstalledTool, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllInstalled)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllInstalled).Destruct()
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (db *DB) ListInstalledTools() ([]InstalledTool, error) {
 
 // RemoveInstalledTool deletes a tool record.
 func (db *DB) RemoveInstalledTool(name string) error {
-	_, err := db.conn.Exec(constants.SQLDeleteInstalledTool, name)
+	_, err := ExecWrapper(db.conn, constants.SQLDeleteInstalledTool, name).Destruct()
 
 	return err
 }

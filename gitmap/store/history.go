@@ -9,9 +9,9 @@ import (
 
 // InsertHistory inserts a new command history record and returns the auto-generated ID.
 func (db *DB) InsertHistory(r model.CommandHistoryRecord) (int64, error) {
-	result, err := db.conn.Exec(constants.SQLInsertHistory,
+	result, err := ExecWrapper(db.conn, constants.SQLInsertHistory,
 		r.Command, r.Alias, r.Args, r.Flags,
-		r.StartedAt, r.FinishedAt, r.DurationMs, r.ExitCode, r.Summary, r.RepoCount)
+		r.StartedAt, r.FinishedAt, r.DurationMs, r.ExitCode, r.Summary, r.RepoCount).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrHistoryQuery, err)
 	}
@@ -21,8 +21,8 @@ func (db *DB) InsertHistory(r model.CommandHistoryRecord) (int64, error) {
 
 // UpdateHistory updates a history record with completion details.
 func (db *DB) UpdateHistory(r model.CommandHistoryRecord) error {
-	_, err := db.conn.Exec(constants.SQLUpdateHistory,
-		r.FinishedAt, r.DurationMs, r.ExitCode, r.Summary, r.RepoCount, r.ID)
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateHistory,
+		r.FinishedAt, r.DurationMs, r.ExitCode, r.Summary, r.RepoCount, r.ID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrHistoryQuery, err)
 	}
@@ -32,7 +32,7 @@ func (db *DB) UpdateHistory(r model.CommandHistoryRecord) error {
 
 // ListHistory returns all command history records, newest first.
 func (db *DB) ListHistory() ([]model.CommandHistoryRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllHistory)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllHistory).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrHistoryQuery, err)
 	}
@@ -43,7 +43,7 @@ func (db *DB) ListHistory() ([]model.CommandHistoryRecord, error) {
 
 // ListHistoryByCommand returns history filtered by command name.
 func (db *DB) ListHistoryByCommand(command string) ([]model.CommandHistoryRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectHistoryByCommand, command)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectHistoryByCommand, command).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrHistoryQuery, err)
 	}
@@ -54,7 +54,7 @@ func (db *DB) ListHistoryByCommand(command string) ([]model.CommandHistoryRecord
 
 // ClearHistory deletes all command history records.
 func (db *DB) ClearHistory() error {
-	_, err := db.conn.Exec(constants.SQLDeleteAllHistory)
+	_, err := ExecWrapper(db.conn, constants.SQLDeleteAllHistory).Destruct()
 
 	return err
 }

@@ -70,7 +70,7 @@ func commitInDDL() []string {
 // guaranteeing the next run retries.
 func (db *DB) migrateCommitIn() error {
 	for _, stmt := range commitInDDL() {
-		if _, err := db.conn.Exec(stmt); err != nil {
+		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
 			return fmt.Errorf("commit-in migration failed: %w (statement: %s)", err, stmt)
 		}
 	}

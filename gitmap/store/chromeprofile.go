@@ -65,7 +65,7 @@ type ChromeProfileRow struct {
 // call before every operation — IF NOT EXISTS makes it idempotent.
 func (db *DB) EnsureChromeProfileTables() error {
 	for _, stmt := range []string{sqlCreateChromeProfile, sqlCreateChromeProfileExport} {
-		if _, err := db.conn.Exec(stmt); err != nil {
+		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
 			return fmt.Errorf("ensure chrome-profile tables: %w", err)
 		}
 	}
@@ -82,7 +82,7 @@ func (db *DB) UpsertChromeProfile(name, sourcePath string, isOffline bool) (int6
 	if isOffline {
 		offline = 1
 	}
-	if _, err := db.conn.Exec(sqlUpsertChromeProfile, name, sourcePath, offline); err != nil {
+	if _, err := ExecWrapper(db.conn, sqlUpsertChromeProfile, name, sourcePath, offline).Destruct(); err != nil {
 		return 0, fmt.Errorf("upsert chrome-profile: %w", err)
 	}
 	var id int64
@@ -97,7 +97,7 @@ func (db *DB) InsertChromeProfileExport(profileID int64, format, filePath string
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		return err
 	}
-	if _, err := db.conn.Exec(sqlInsertChromeProfileExport, profileID, format, filePath, byteSize); err != nil {
+	if _, err := ExecWrapper(db.conn, sqlInsertChromeProfileExport, profileID, format, filePath, byteSize).Destruct(); err != nil {
 		return fmt.Errorf("insert chrome-profile-export: %w", err)
 	}
 	return nil
@@ -108,7 +108,7 @@ func (db *DB) ListChromeProfilesDB() ([]ChromeProfileRow, error) {
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		return nil, err
 	}
-	rows, err := db.conn.Query(sqlListChromeProfiles)
+	rows, err := QueryWrapper(db.conn, sqlListChromeProfiles).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf("list chrome-profiles: %w", err)
 	}

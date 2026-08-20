@@ -190,7 +190,7 @@ func (db *DB) Migrate() error {
 	}
 
 	for _, stmt := range statements {
-		if _, err := db.conn.Exec(stmt); err != nil {
+		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
 			return fmt.Errorf(constants.ErrDBMigrate, err)
 		}
 	}
@@ -239,7 +239,7 @@ func (db *DB) Migrate() error {
 // installs do not surface migration warnings. Any other failure is logged
 // with the offending statement so users can diagnose it.
 func (db *DB) addColumnIfNotExists(stmt string) {
-	_, err := db.conn.Exec(stmt)
+	_, err := ExecWrapper(db.conn, stmt).Destruct()
 	if err == nil || isBenignAlterError(err) {
 		return
 	}
@@ -330,7 +330,7 @@ func (db *DB) migrateZipGroupItemPaths() {
 
 	// Copy existing Path values into FullPath — data migration. Skip silently
 	// when the legacy Path column does not exist (fresh installs).
-	if _, err := db.conn.Exec(constants.SQLMigrateZGICopyPath); err != nil && !isBenignAlterError(err) {
+	if _, err := ExecWrapper(db.conn, constants.SQLMigrateZGICopyPath).Destruct(); err != nil && !isBenignAlterError(err) {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not copy ZipGroupItem paths: %v\n", err)
 	}
 }
@@ -352,7 +352,7 @@ func (db *DB) migrateTRCommitSha() {
 		return // both columns exist — refuse to clobber.
 	}
 
-	if _, err := db.conn.Exec(constants.SQLMigrateTRCommitSha); err != nil && !isBenignAlterError(err) {
+	if _, err := ExecWrapper(db.conn, constants.SQLMigrateTRCommitSha).Destruct(); err != nil && !isBenignAlterError(err) {
 		logMigrationFailure("TempReleases", "Commit",
 			"rename->CommitSha", err, constants.SQLMigrateTRCommitSha)
 	}
@@ -426,7 +426,7 @@ func (db *DB) Reset() error {
 	}
 
 	for _, stmt := range drops {
-		if _, err := db.conn.Exec(stmt); err != nil {
+		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
 			return fmt.Errorf(constants.ErrDBMigrate, err)
 		}
 	}

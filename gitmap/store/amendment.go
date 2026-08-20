@@ -27,9 +27,9 @@ type AmendmentRow struct {
 func (db *DB) InsertAmendment(branch, fromCommit, toCommit string, total int, prevName, prevEmail, newName, newEmail, mode string, forcePushed bool) error {
 	fp := boolToIntAmend(forcePushed)
 
-	_, err := db.conn.Exec(constants.SQLInsertAmendment,
+	_, err := ExecWrapper(db.conn, constants.SQLInsertAmendment,
 		branch, fromCommit, toCommit, total,
-		prevName, prevEmail, newName, newEmail, mode, fp)
+		prevName, prevEmail, newName, newEmail, mode, fp).Destruct()
 
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBUpsert, err)
@@ -40,7 +40,7 @@ func (db *DB) InsertAmendment(branch, fromCommit, toCommit string, total int, pr
 
 // ListAmendments returns all amendment records, most recent first.
 func (db *DB) ListAmendments() ([]AmendmentRow, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllAmendments)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllAmendments).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
@@ -51,7 +51,7 @@ func (db *DB) ListAmendments() ([]AmendmentRow, error) {
 
 // ListAmendmentsByBranch returns amendments for a specific branch.
 func (db *DB) ListAmendmentsByBranch(branch string) ([]AmendmentRow, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAmendmentsByBranch, branch)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAmendmentsByBranch, branch).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}

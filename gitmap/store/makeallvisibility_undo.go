@@ -37,7 +37,7 @@ func (db *DB) SelectLatestUndoableMakeAllVisibilityRun() (model.MakeAllVisibilit
 // PrevVisibility differs from NewVisibility (i.e. actually mutated
 // state worth reversing).
 func (db *DB) SelectUndoableResultsForRun(runID int64) ([]model.MakeAllVisibilityResultRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectUndoableResultsForRun, runID)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectUndoableResultsForRun, runID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrUndoSelectResultsFmt, err, err.Error())
 	}

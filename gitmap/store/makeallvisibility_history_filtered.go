@@ -57,7 +57,7 @@ func BuildRecentRunsQuery(f RecentRunsFilter) (string, []any) {
 // identical to SQLSelectRecentRuns so scanRecentRuns is reused).
 func (db *DB) SelectRecentMakeAllVisibilityRunsFiltered(f RecentRunsFilter) ([]model.MakeAllVisibilityRunRecord, error) {
 	sql, args := BuildRecentRunsQuery(f)
-	rows, err := db.conn.Query(sql, args...)
+	rows, err := QueryWrapper(db.conn, sql, args...).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
 	}

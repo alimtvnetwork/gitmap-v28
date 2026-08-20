@@ -14,7 +14,7 @@ import (
 
 // SelectRecentMakeAllVisibilityRuns returns the newest `limit` rows.
 func (db *DB) SelectRecentMakeAllVisibilityRuns(limit int) ([]model.MakeAllVisibilityRunRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectRecentRuns, limit)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectRecentRuns, limit).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
 	}

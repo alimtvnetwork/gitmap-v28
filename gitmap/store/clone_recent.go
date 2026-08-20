@@ -22,7 +22,7 @@ type RecentClone struct {
 // absPath. No-op (returns nil) when no row matches — the upstream
 // upsert is the only thing that creates Repo rows.
 func (db *DB) MarkCloned(absPath string) error {
-	if _, err := db.conn.Exec(constants.SQLUpdateRepoLastClonedAt, absPath); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLUpdateRepoLastClonedAt, absPath).Destruct(); err != nil {
 		return fmt.Errorf(constants.ErrDBUpsert, err)
 	}
 
@@ -33,7 +33,7 @@ func (db *DB) MarkCloned(absPath string) error {
 // (zero, false, nil) when no clone has ever been recorded.
 func (db *DB) MostRecentClone() (RecentClone, bool, error) {
 	var r RecentClone
-	row := db.conn.QueryRow(constants.SQLSelectMostRecentClone)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectMostRecentClone)
 	err := row.Scan(&r.AbsolutePath, &r.RepoName, &r.ClonedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		return RecentClone{}, false, nil

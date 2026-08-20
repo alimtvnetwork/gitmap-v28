@@ -24,10 +24,10 @@ import (
 // InsertMakeAllVisibilityRun writes the pre-prompt run row and returns
 // its autogen ID. Pure single-statement insert — no tx needed.
 func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) (int64, error) {
-	res, err := db.conn.Exec(constants.SQLInsertMakeAllVisibilityRun,
+	res, err := ExecWrapper(db.conn, constants.SQLInsertMakeAllVisibilityRun,
 		r.CommandKind, r.TargetVisibility, r.Provider, r.Owner, r.TargetRaw,
 		r.PatternList, boolToInt(r.IsYesFlag), boolToInt(r.IsVerboseFlag),
-		r.OwnerRepoTotal, r.MatchedCount, r.StartedAt)
+		r.OwnerRepoTotal, r.MatchedCount, r.StartedAt).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrMakeAllRunInsertFmt, err, err.Error())
 	}
@@ -105,9 +105,9 @@ func (db *DB) MarkMakeAllVisibilityResultsExcluded(ids []int64, finishedAt strin
 // UpdateMakeAllVisibilityResult writes the terminal status for one
 // per-repo result row after the apply+verify pipeline finishes.
 func (db *DB) UpdateMakeAllVisibilityResult(r model.MakeAllVisibilityResultRecord) error {
-	_, err := db.conn.Exec(constants.SQLUpdateMakeAllVisibilityResult,
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateMakeAllVisibilityResult,
 		r.Status, r.PrevVisibility, r.NewVisibility, r.FailureMessage,
-		r.FinishedAt, r.DurationMs, r.ID)
+		r.FinishedAt, r.DurationMs, r.ID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrMakeAllResultUpdateFmt, err, err.Error())
 	}
@@ -118,9 +118,9 @@ func (db *DB) UpdateMakeAllVisibilityResult(r model.MakeAllVisibilityResultRecor
 // FinalizeMakeAllVisibilityRun flushes the tallied counts + exit code
 // + FinishedAt back to the run row.
 func (db *DB) FinalizeMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) error {
-	_, err := db.conn.Exec(constants.SQLUpdateMakeAllVisibilityRunCounts,
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateMakeAllVisibilityRunCounts,
 		r.ExcludedCount, r.OkCount, r.SkippedCount, r.FailedCount,
-		r.ExitCode, r.FinishedAt, r.ID)
+		r.ExitCode, r.FinishedAt, r.ID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrMakeAllRunFinalizeFmt, err, err.Error())
 	}

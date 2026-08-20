@@ -11,8 +11,8 @@ import (
 
 // InsertPendingTask creates a new pending task and returns its ID.
 func (db *DB) InsertPendingTask(taskTypeID int64, targetPath, workDir, sourceCmd, cmdArgs string) (int64, error) {
-	result, err := db.conn.Exec(constants.SQLInsertPendingTask,
-		taskTypeID, targetPath, workDir, sourceCmd, cmdArgs)
+	result, err := ExecWrapper(db.conn, constants.SQLInsertPendingTask,
+		taskTypeID, targetPath, workDir, sourceCmd, cmdArgs).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrPendingTaskInsert, err)
 	}
@@ -23,7 +23,7 @@ func (db *DB) InsertPendingTask(taskTypeID int64, targetPath, workDir, sourceCmd
 // FindPendingTaskDuplicate checks if a pending task already exists for the given type and path.
 // Returns the existing task ID or 0 if none found.
 func (db *DB) FindPendingTaskDuplicate(taskTypeID int64, targetPath string) int64 {
-	row := db.conn.QueryRow(constants.SQLSelectPendingTaskByTypePath,
+	row := QueryRowWrapper(db.conn, constants.SQLSelectPendingTaskByTypePath,
 		taskTypeID, targetPath)
 
 	var id int64
@@ -39,7 +39,7 @@ func (db *DB) FindPendingTaskDuplicate(taskTypeID int64, targetPath string) int6
 // FindPendingTaskDuplicateWithCmd checks if a pending task exists for the given type, path, and command args.
 // Returns the existing task ID or 0 if none found.
 func (db *DB) FindPendingTaskDuplicateWithCmd(taskTypeID int64, targetPath, cmdArgs string) int64 {
-	row := db.conn.QueryRow(constants.SQLSelectPendingTaskByTypePathCmd,
+	row := QueryRowWrapper(db.conn, constants.SQLSelectPendingTaskByTypePathCmd,
 		taskTypeID, targetPath, cmdArgs)
 
 	var id int64
@@ -54,7 +54,7 @@ func (db *DB) FindPendingTaskDuplicateWithCmd(taskTypeID int64, targetPath, cmdA
 
 // ListPendingTasks returns all pending tasks ordered by ID.
 func (db *DB) ListPendingTasks() ([]model.PendingTaskRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllPendingTasks)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllPendingTasks).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrPendingTaskQuery, err)
 	}
@@ -65,7 +65,7 @@ func (db *DB) ListPendingTasks() ([]model.PendingTaskRecord, error) {
 
 // FindPendingTaskByID returns a single pending task by ID.
 func (db *DB) FindPendingTaskByID(id int64) (model.PendingTaskRecord, error) {
-	row := db.conn.QueryRow(constants.SQLSelectPendingTaskByID, id)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectPendingTaskByID, id)
 
 	var r model.PendingTaskRecord
 
@@ -119,7 +119,7 @@ func (db *DB) CompleteTask(taskID int64) error {
 
 // FailTask updates the failure reason for a pending task.
 func (db *DB) FailTask(taskID int64, reason string) error {
-	result, err := db.conn.Exec(constants.SQLUpdatePendingTaskFailure, reason, taskID)
+	result, err := ExecWrapper(db.conn, constants.SQLUpdatePendingTaskFailure, reason, taskID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrPendingTaskFail, err)
 	}
@@ -134,7 +134,7 @@ func (db *DB) FailTask(taskID int64, reason string) error {
 
 // ListCompletedTasks returns all completed tasks ordered by completion time.
 func (db *DB) ListCompletedTasks() ([]model.CompletedTaskRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllCompletedTasks)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllCompletedTasks).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrPendingTaskQuery, err)
 	}
@@ -149,7 +149,7 @@ func (db *DB) ListCompletedTasks() ([]model.CompletedTaskRecord, error) {
 // Returns ErrPendingTaskNotFound when the ID does not exist so the
 // caller can surface a precise message instead of a silent no-op.
 func (db *DB) DeletePendingTask(id int64) error {
-	result, err := db.conn.Exec(constants.SQLDeletePendingTask, id)
+	result, err := ExecWrapper(db.conn, constants.SQLDeletePendingTask, id).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
 	}

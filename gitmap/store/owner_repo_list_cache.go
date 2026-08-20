@@ -44,7 +44,7 @@ func (db *DB) UpsertOwnerRepoListCache(provider, owner, namesJSON string, fetche
 		ON CONFLICT(Provider, Owner) DO UPDATE SET
 			NamesJson = excluded.NamesJson,
 			FetchedAt = excluded.FetchedAt`
-	_, err := db.conn.Exec(q, provider, owner, namesJSON, fetchedAt.UTC().Format(time.RFC3339Nano))
+	_, err := ExecWrapper(db.conn, q, provider, owner, namesJSON, fetchedAt.UTC().Format(time.RFC3339Nano)).Destruct()
 
 	return err
 }
@@ -52,7 +52,7 @@ func (db *DB) UpsertOwnerRepoListCache(provider, owner, namesJSON string, fetche
 // PurgeOwnerRepoListCache drops all rows. Exposed for tests + an
 // eventual `gitmap cache purge` admin command.
 func (db *DB) PurgeOwnerRepoListCache() error {
-	_, err := db.conn.Exec(`DELETE FROM OwnerRepoListCache`)
+	_, err := ExecWrapper(db.conn, `DELETE FROM OwnerRepoListCache`).Destruct()
 
 	return err
 }
@@ -60,7 +60,7 @@ func (db *DB) PurgeOwnerRepoListCache() error {
 // ensureOwnerRepoListCacheTable runs the CREATE TABLE IF NOT EXISTS
 // for callers that need the cache without a full Migrate().
 func (db *DB) ensureOwnerRepoListCacheTable() error {
-	_, err := db.conn.Exec(constants.SQLCreateOwnerRepoListCache)
+	_, err := ExecWrapper(db.conn, constants.SQLCreateOwnerRepoListCache).Destruct()
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}

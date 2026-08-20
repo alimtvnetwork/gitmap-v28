@@ -17,7 +17,7 @@ type CommitTemplate struct {
 
 // InsertTemplate adds a single template to the database.
 func (db *DB) InsertTemplate(kind, template string) error {
-	_, err := db.conn.Exec(constants.SQLInsertTemplate, kind, template)
+	_, err := ExecWrapper(db.conn, constants.SQLInsertTemplate, kind, template).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrSEODBInsert, err)
 	}
@@ -27,7 +27,7 @@ func (db *DB) InsertTemplate(kind, template string) error {
 
 // ListTemplatesByKind returns all templates of the given kind.
 func (db *DB) ListTemplatesByKind(kind string) ([]CommitTemplate, error) {
-	rows, err := db.conn.Query(constants.SQLSelectTemplatesByKind, kind)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectTemplatesByKind, kind).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}

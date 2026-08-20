@@ -10,17 +10,17 @@ import (
 
 // UpsertGoMetadata inserts or updates Go metadata for a detected project.
 func (db *DB) UpsertGoMetadata(m model.GoProjectMetadata) error {
-	_, err := db.conn.Exec(constants.SQLUpsertGoMetadata,
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertGoMetadata,
 		m.DetectedProjectID, m.GoModPath, m.GoSumPath,
-		m.ModuleName, m.GoVersion)
+		m.ModuleName, m.GoVersion).Destruct()
 
 	return err
 }
 
 // UpsertGoRunnable inserts or updates a Go runnable file record.
 func (db *DB) UpsertGoRunnable(r model.GoRunnableFile) error {
-	_, err := db.conn.Exec(constants.SQLUpsertGoRunnable,
-		r.GoMetadataID, r.RunnableName, r.FilePath, r.RelativePath)
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertGoRunnable,
+		r.GoMetadataID, r.RunnableName, r.FilePath, r.RelativePath).Destruct()
 
 	return err
 }
@@ -40,7 +40,7 @@ func (db *DB) SelectGoMetadata(detectedProjectID int64) (*model.GoProjectMetadat
 
 // SelectGoRunnables returns all runnable files for a Go metadata ID.
 func (db *DB) SelectGoRunnables(goMetadataID int64) ([]model.GoRunnableFile, error) {
-	rows, err := db.conn.Query(constants.SQLSelectGoRunnables, goMetadataID)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectGoRunnables, goMetadataID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
 	}
@@ -57,7 +57,7 @@ func (db *DB) DeleteStaleGoRunnables(goMetadataID int64, keepIDs []int64) error 
 	placeholders := buildPlaceholders(len(keepIDs))
 	query := fmt.Sprintf(constants.SQLDeleteStaleGoRunnables, placeholders)
 	args := buildStaleArgsInt64(goMetadataID, keepIDs)
-	_, err := db.conn.Exec(query, args...)
+	_, err := ExecWrapper(db.conn, query, args...).Destruct()
 
 	return err
 }

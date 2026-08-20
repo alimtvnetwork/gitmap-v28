@@ -9,7 +9,7 @@ import (
 
 // QueryCommandStats returns per-command aggregated statistics.
 func (db *DB) QueryCommandStats() ([]model.CommandStats, error) {
-	rows, err := db.conn.Query(constants.SQLStatsPerCommand)
+	rows, err := QueryWrapper(db.conn, constants.SQLStatsPerCommand).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrStatsQuery, err)
 	}
@@ -20,7 +20,7 @@ func (db *DB) QueryCommandStats() ([]model.CommandStats, error) {
 
 // QueryCommandStatsFor returns stats for a single command.
 func (db *DB) QueryCommandStatsFor(command string) ([]model.CommandStats, error) {
-	rows, err := db.conn.Query(constants.SQLStatsForCommand, command)
+	rows, err := QueryWrapper(db.conn, constants.SQLStatsForCommand, command).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrStatsQuery, err)
 	}
@@ -32,7 +32,7 @@ func (db *DB) QueryCommandStatsFor(command string) ([]model.CommandStats, error)
 // QueryOverallStats returns the overall summary row.
 func (db *DB) QueryOverallStats() (model.OverallStats, error) {
 	var s model.OverallStats
-	row := db.conn.QueryRow(constants.SQLStatsOverall)
+	row := QueryRowWrapper(db.conn, constants.SQLStatsOverall)
 
 	err := row.Scan(&s.TotalCommands, &s.UniqueCommands,
 		&s.TotalSuccess, &s.TotalFail, &s.OverallFailRate, &s.AvgDuration)

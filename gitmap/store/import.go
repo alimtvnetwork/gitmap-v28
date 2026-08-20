@@ -35,10 +35,10 @@ func (db *DB) ImportAll(data model.DatabaseExport) error {
 // importRepos upserts all repos by ID.
 func (db *DB) importRepos(repos []model.ScanRecord) error {
 	for _, r := range repos {
-		_, err := db.conn.Exec(constants.SQLUpsertRepo,
+		_, err := ExecWrapper(db.conn, constants.SQLUpsertRepo,
 			r.Slug, r.RepoName, r.HTTPSUrl, r.SSHUrl,
 			r.Branch, r.RelativePath, r.AbsolutePath,
-			r.CloneInstruction, r.Notes, r.Transport)
+			r.CloneInstruction, r.Notes, r.Transport).Destruct()
 		if err != nil {
 			return err
 		}
@@ -60,8 +60,8 @@ func (db *DB) importGroups(groups []model.GroupExport) error {
 
 // importOneGroup creates a group and links its member repos.
 func (db *DB) importOneGroup(ge model.GroupExport) error {
-	_, err := db.conn.Exec(constants.SQLImportInsertGroup,
-		ge.Name, ge.Description, ge.Color)
+	_, err := ExecWrapper(db.conn, constants.SQLImportInsertGroup,
+		ge.Name, ge.Description, ge.Color).Destruct()
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (db *DB) linkGroupRepos(groupID int64, slugs []string) error {
 			continue
 		}
 
-		_, err = db.conn.Exec(constants.SQLInsertGroupRepo, groupID, repos[0].ID)
+		_, err = ExecWrapper(db.conn, constants.SQLInsertGroupRepo, groupID, repos[0].ID).Destruct()
 		if err != nil {
 			return err
 		}
@@ -104,10 +104,10 @@ func (db *DB) importReleases(releases []model.ReleaseRecord) error {
 // importHistory inserts history records, ignoring duplicates.
 func (db *DB) importHistory(records []model.CommandHistoryRecord) error {
 	for _, r := range records {
-		_, err := db.conn.Exec(
+		_, err := ExecWrapper(db.conn,
 			"INSERT OR IGNORE INTO CommandHistory (Command, Alias, Args, Flags, StartedAt, FinishedAt, DurationMs, ExitCode, Summary, RepoCount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			r.Command, r.Alias, r.Args, r.Flags,
-			r.StartedAt, r.FinishedAt, r.DurationMs, r.ExitCode, r.Summary, r.RepoCount)
+			r.StartedAt, r.FinishedAt, r.DurationMs, r.ExitCode, r.Summary, r.RepoCount).Destruct()
 		if err != nil {
 			return err
 		}
@@ -119,8 +119,8 @@ func (db *DB) importHistory(records []model.CommandHistoryRecord) error {
 // importBookmarks inserts bookmarks, ignoring duplicates by name.
 func (db *DB) importBookmarks(bookmarks []model.BookmarkRecord) error {
 	for _, b := range bookmarks {
-		_, err := db.conn.Exec(constants.SQLImportInsertBookmark,
-			b.Name, b.Command, b.Args, b.Flags)
+		_, err := ExecWrapper(db.conn, constants.SQLImportInsertBookmark,
+			b.Name, b.Command, b.Args, b.Flags).Destruct()
 		if err != nil {
 			return err
 		}

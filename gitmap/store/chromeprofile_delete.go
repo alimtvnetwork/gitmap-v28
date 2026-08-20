@@ -26,10 +26,10 @@ func (db *DB) DeleteChromeProfile(name string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err := db.conn.Exec(sqlDeleteChromeProfileExports, name); err != nil {
+	if _, err := ExecWrapper(db.conn, sqlDeleteChromeProfileExports, name).Destruct(); err != nil {
 		return nil, fmt.Errorf("delete chrome-profile exports: %w", err)
 	}
-	if _, err := db.conn.Exec(sqlDeleteChromeProfile, name); err != nil {
+	if _, err := ExecWrapper(db.conn, sqlDeleteChromeProfile, name).Destruct(); err != nil {
 		return nil, fmt.Errorf("delete chrome-profile: %w", err)
 	}
 	return paths, nil
@@ -47,7 +47,7 @@ func (db *DB) ChromeProfileExists(name string) bool {
 // collectChromeArtifactPaths reads the FilePath column for every export
 // row tied to the named profile.
 func (db *DB) collectChromeArtifactPaths(name string) ([]string, error) {
-	rows, err := db.conn.Query(sqlSelectChromeProfileExports, name)
+	rows, err := QueryWrapper(db.conn, sqlSelectChromeProfileExports, name).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf("query chrome-profile artifacts: %w", err)
 	}

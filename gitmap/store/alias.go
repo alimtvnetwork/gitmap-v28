@@ -25,7 +25,7 @@ type UnaliasedRepo struct {
 
 // CreateAlias inserts a new alias for the given repo ID.
 func (db *DB) CreateAlias(alias string, repoID int64) (model.Alias, error) {
-	_, err := db.conn.Exec(constants.SQLInsertAlias, alias, repoID)
+	_, err := ExecWrapper(db.conn, constants.SQLInsertAlias, alias, repoID).Destruct()
 	if err != nil {
 		return model.Alias{}, fmt.Errorf(constants.ErrAliasCreate, err)
 	}
@@ -35,7 +35,7 @@ func (db *DB) CreateAlias(alias string, repoID int64) (model.Alias, error) {
 
 // UpdateAlias reassigns an existing alias to a different repo.
 func (db *DB) UpdateAlias(alias string, repoID int64) error {
-	_, err := db.conn.Exec(constants.SQLUpdateAlias, repoID, alias)
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateAlias, repoID, alias).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrAliasCreate, err)
 	}
@@ -45,21 +45,21 @@ func (db *DB) UpdateAlias(alias string, repoID int64) error {
 
 // FindAliasByName retrieves a single alias by its name.
 func (db *DB) FindAliasByName(alias string) (model.Alias, error) {
-	row := db.conn.QueryRow(constants.SQLSelectAliasByName, alias)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectAliasByName, alias)
 
 	return scanOneAlias(row)
 }
 
 // FindAliasByRepoID retrieves the alias for a specific repo.
 func (db *DB) FindAliasByRepoID(repoID int64) (model.Alias, error) {
-	row := db.conn.QueryRow(constants.SQLSelectAliasByRepoID, repoID)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectAliasByRepoID, repoID)
 
 	return scanOneAlias(row)
 }
 
 // ListAliases returns all aliases ordered by name.
 func (db *DB) ListAliases() ([]model.Alias, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllAliases)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllAliases).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
 	}
@@ -70,7 +70,7 @@ func (db *DB) ListAliases() ([]model.Alias, error) {
 
 // ResolveAlias retrieves an alias with its repo path and slug.
 func (db *DB) ResolveAlias(alias string) (AliasWithRepo, error) {
-	row := db.conn.QueryRow(constants.SQLSelectAliasWithRepo, alias)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectAliasWithRepo, alias)
 
 	var a AliasWithRepo
 
@@ -84,7 +84,7 @@ func (db *DB) ResolveAlias(alias string) (AliasWithRepo, error) {
 
 // ListAliasesWithRepo returns all aliases with resolved repo details.
 func (db *DB) ListAliasesWithRepo() ([]AliasWithRepo, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllAliasesWithRepo)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllAliasesWithRepo).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
 	}
@@ -108,7 +108,7 @@ func (db *DB) ListAliasesWithRepo() ([]AliasWithRepo, error) {
 
 // DeleteAlias removes an alias by name.
 func (db *DB) DeleteAlias(alias string) error {
-	result, err := db.conn.Exec(constants.SQLDeleteAlias, alias)
+	result, err := ExecWrapper(db.conn, constants.SQLDeleteAlias, alias).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrAliasDelete, err)
 	}
@@ -118,7 +118,7 @@ func (db *DB) DeleteAlias(alias string) error {
 
 // ListUnaliasedRepos returns repos that have no alias assigned.
 func (db *DB) ListUnaliasedRepos() ([]UnaliasedRepo, error) {
-	rows, err := db.conn.Query(constants.SQLSelectUnaliasedRepos)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectUnaliasedRepos).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
 	}

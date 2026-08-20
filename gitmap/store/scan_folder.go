@@ -14,7 +14,7 @@ import (
 // LastScannedAt and only overwrites Label/Notes when the new values are
 // non-empty (so subsequent scans don't wipe a manually set label).
 func (db *DB) EnsureScanFolder(absPath, label, notes string) (model.ScanFolder, error) {
-	if _, err := db.conn.Exec(constants.SQLUpsertScanFolder, absPath, label, notes); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLUpsertScanFolder, absPath, label, notes).Destruct(); err != nil {
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFEnsure, absPath, err)
 	}
 
@@ -23,7 +23,7 @@ func (db *DB) EnsureScanFolder(absPath, label, notes string) (model.ScanFolder, 
 
 // ListScanFolders returns every registered scan folder, newest-scanned first.
 func (db *DB) ListScanFolders() ([]model.ScanFolder, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllScanFolders)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllScanFolders).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrSFList, err)
 	}
@@ -73,11 +73,11 @@ func (db *DB) removeScanFolderRow(folder model.ScanFolder) (model.ScanFolder, in
 		return folder, 0, err
 	}
 
-	if _, err := db.conn.Exec(constants.SQLDetachReposFromScanFolder, folder.ID); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLDetachReposFromScanFolder, folder.ID).Destruct(); err != nil {
 		return folder, 0, fmt.Errorf(constants.ErrSFDetachRepos, err)
 	}
 
-	if _, err := db.conn.Exec(constants.SQLDeleteScanFolderByID, folder.ID); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLDeleteScanFolderByID, folder.ID).Destruct(); err != nil {
 		return folder, 0, fmt.Errorf(constants.ErrSFRemove, err)
 	}
 
@@ -86,7 +86,7 @@ func (db *DB) removeScanFolderRow(folder model.ScanFolder) (model.ScanFolder, in
 
 // findScanFolderByPath returns the row matching AbsolutePath.
 func (db *DB) findScanFolderByPath(absPath string) (model.ScanFolder, error) {
-	row := db.conn.QueryRow(constants.SQLSelectScanFolderByPath, absPath)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectScanFolderByPath, absPath)
 	folder, err := scanOneScanFolder(row)
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByPath, absPath)
@@ -100,7 +100,7 @@ func (db *DB) findScanFolderByPath(absPath string) (model.ScanFolder, error) {
 
 // findScanFolderByID returns the row matching ScanFolderId.
 func (db *DB) findScanFolderByID(id int64) (model.ScanFolder, error) {
-	row := db.conn.QueryRow(constants.SQLSelectScanFolderByID, id)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectScanFolderByID, id)
 	folder, err := scanOneScanFolder(row)
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByID, id)

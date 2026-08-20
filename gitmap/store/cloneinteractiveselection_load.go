@@ -18,7 +18,7 @@ import (
 // Returns sql.ErrNoRows verbatim when the id is unknown so callers
 // can distinguish "not found" from a transport failure.
 func (db *DB) LoadClonePickByID(id int64) (clonepick.Plan, int64, error) {
-	row := db.conn.QueryRow(constants.SQLSelectClonePickByID, id)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectClonePickByID, id)
 
 	return scanClonePickRow(row)
 }
@@ -31,7 +31,7 @@ func (db *DB) LoadClonePickByName(name string) (clonepick.Plan, int64, error) {
 	if len(strings.TrimSpace(name)) == 0 {
 		return clonepick.Plan{}, 0, sql.ErrNoRows
 	}
-	row := db.conn.QueryRow(constants.SQLSelectClonePickByName, name)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectClonePickByName, name)
 
 	return scanClonePickRow(row)
 }
@@ -39,7 +39,7 @@ func (db *DB) LoadClonePickByName(name string) (clonepick.Plan, int64, error) {
 // TouchClonePickCreatedAt bumps CreatedAt on the replayed row so the
 // most-recently-used selections surface first in future listings.
 func (db *DB) TouchClonePickCreatedAt(id int64) error {
-	_, err := db.conn.Exec(constants.SQLTouchClonePickCreatedAt, id)
+	_, err := ExecWrapper(db.conn, constants.SQLTouchClonePickCreatedAt, id).Destruct()
 	if err != nil {
 		return fmt.Errorf("clone-pick: touch CreatedAt: %w", err)
 	}

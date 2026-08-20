@@ -11,7 +11,7 @@ import (
 
 // InsertSSHKey stores a new SSH key record.
 func (db *DB) InsertSSHKey(name, privatePath, publicKey, fingerprint, email string) (model.SSHKey, error) {
-	_, err := db.conn.Exec(constants.SQLInsertSSHKey, name, privatePath, publicKey, fingerprint, email)
+	_, err := ExecWrapper(db.conn, constants.SQLInsertSSHKey, name, privatePath, publicKey, fingerprint, email).Destruct()
 	if err != nil {
 		return model.SSHKey{}, fmt.Errorf(constants.ErrSSHCreate, err)
 	}
@@ -21,7 +21,7 @@ func (db *DB) InsertSSHKey(name, privatePath, publicKey, fingerprint, email stri
 
 // UpdateSSHKey updates an existing SSH key record by name.
 func (db *DB) UpdateSSHKey(name, privatePath, publicKey, fingerprint, email string) error {
-	_, err := db.conn.Exec(constants.SQLUpdateSSHKey, privatePath, publicKey, fingerprint, email, name)
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateSSHKey, privatePath, publicKey, fingerprint, email, name).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrSSHCreate, err)
 	}
@@ -31,14 +31,14 @@ func (db *DB) UpdateSSHKey(name, privatePath, publicKey, fingerprint, email stri
 
 // FindSSHKeyByName retrieves a single SSH key by its name.
 func (db *DB) FindSSHKeyByName(name string) (model.SSHKey, error) {
-	row := db.conn.QueryRow(constants.SQLSelectSSHKeyByName, name)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectSSHKeyByName, name)
 
 	return scanOneSSHKey(row)
 }
 
 // ListSSHKeys returns all stored SSH keys ordered by name.
 func (db *DB) ListSSHKeys() ([]model.SSHKey, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllSSHKeys)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllSSHKeys).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrSSHQuery, err)
 	}
@@ -49,7 +49,7 @@ func (db *DB) ListSSHKeys() ([]model.SSHKey, error) {
 
 // DeleteSSHKey removes an SSH key record by name.
 func (db *DB) DeleteSSHKey(name string) error {
-	result, err := db.conn.Exec(constants.SQLDeleteSSHKeyByName, name)
+	result, err := ExecWrapper(db.conn, constants.SQLDeleteSSHKeyByName, name).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrSSHDelete, err)
 	}

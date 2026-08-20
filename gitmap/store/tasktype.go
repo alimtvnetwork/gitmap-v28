@@ -9,7 +9,7 @@ import (
 
 // SeedTaskTypes inserts default task types if not present.
 func (db *DB) SeedTaskTypes() error {
-	_, err := db.conn.Exec(constants.SQLSeedTaskTypes)
+	_, err := ExecWrapper(db.conn, constants.SQLSeedTaskTypes).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrPendingTaskInsert, err)
 	}
@@ -19,7 +19,7 @@ func (db *DB) SeedTaskTypes() error {
 
 // GetTaskTypeID returns the ID for a named task type.
 func (db *DB) GetTaskTypeID(name string) (int64, error) {
-	row := db.conn.QueryRow(constants.SQLSelectTaskTypeByName, name)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectTaskTypeByName, name)
 
 	var id int64
 

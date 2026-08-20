@@ -19,7 +19,7 @@ func (db *DB) GetSetting(key string) string {
 
 // SetSetting upserts a key-value pair in the Settings table.
 func (db *DB) SetSetting(key, value string) error {
-	_, err := db.conn.Exec(constants.SQLUpsertSetting, key, value)
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertSetting, key, value).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBSettingUpsert, err)
 	}
@@ -29,7 +29,7 @@ func (db *DB) SetSetting(key, value string) error {
 
 // DeleteSetting removes a key from the Settings table.
 func (db *DB) DeleteSetting(key string) error {
-	_, err := db.conn.Exec(constants.SQLDeleteSetting, key)
+	_, err := ExecWrapper(db.conn, constants.SQLDeleteSetting, key).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBSettingUpsert, err)
 	}

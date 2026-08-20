@@ -16,7 +16,7 @@ import (
 // returns the new SelectionId. Implements clonepick.Persister so
 // *store.DB can be passed straight to clonepick.Execute.
 func (db *DB) SaveClonePickSelection(plan clonepick.Plan) (int64, error) {
-	res, err := db.conn.Exec(constants.SQLInsertClonePickSelection,
+	res, err := ExecWrapper(db.conn, constants.SQLInsertClonePickSelection,
 		plan.Name,
 		plan.RepoCanonicalId,
 		plan.RepoUrl,
@@ -28,7 +28,7 @@ func (db *DB) SaveClonePickSelection(plan clonepick.Plan) (int64, error) {
 		plan.DestDir,
 		strings.Join(plan.Paths, ","),
 		boolToInt(plan.UsedAsk),
-	)
+	).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrClonePickDBInsert, err)
 	}

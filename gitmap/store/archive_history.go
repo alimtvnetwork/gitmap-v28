@@ -36,7 +36,7 @@ func (db *DB) StartArchiveHistory(cmd string, inputs []string, mode string) (int
 		raw = []byte("[]")
 	}
 
-	res, err := db.conn.Exec(constants.SQLInsertArchiveHistory,
+	res, err := ExecWrapper(db.conn, constants.SQLInsertArchiveHistory,
 		cmd,
 		string(raw),
 		"",   // OutputPath filled at finish
@@ -47,7 +47,7 @@ func (db *DB) StartArchiveHistory(cmd string, inputs []string, mode string) (int
 		"",   // ErrorMessage
 		time.Now().UTC().Format(time.RFC3339),
 		"", // CompletedAt
-	)
+	).Destruct()
 	if err != nil {
 		return 0, err
 	}
@@ -67,11 +67,11 @@ func (db *DB) FinishArchiveHistory(
 		tempInt = 1
 	}
 
-	_, err := db.conn.Exec(constants.SQLUpdateArchiveHistoryFinish,
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateArchiveHistoryFinish,
 		outputPath, format, tempInt, status, errMsg,
 		time.Now().UTC().Format(time.RFC3339),
 		id,
-	)
+	).Destruct()
 
 	return err
 }
@@ -87,7 +87,7 @@ func (db *DB) RecentArchiveHistory(limit int) ([]ArchiveHistoryRow, error) {
 		limit = 200
 	}
 
-	rows, err := db.conn.Query(constants.SQLSelectArchiveHistoryRecent, limit)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectArchiveHistoryRecent, limit).Destruct()
 	if err != nil {
 		return nil, err
 	}

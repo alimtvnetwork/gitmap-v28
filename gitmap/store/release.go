@@ -27,10 +27,10 @@ func (db *DB) UpsertRelease(r model.ReleaseRecord) error {
 		return err
 	}
 
-	_, err = db.conn.Exec(constants.SQLUpsertRelease,
+	_, err = ExecWrapper(db.conn, constants.SQLUpsertRelease,
 		r.RepoID, r.Version, r.Tag, r.Branch, r.SourceBranch,
 		r.CommitSha, r.Changelog, r.Notes, isDraft, isPreRelease, isLatest, r.Source, r.CreatedAt,
-	)
+	).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBReleaseUpsert, err)
 	}
@@ -40,7 +40,7 @@ func (db *DB) UpsertRelease(r model.ReleaseRecord) error {
 
 // ListReleases returns all releases ordered by creation date descending.
 func (db *DB) ListReleases() ([]model.ReleaseRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllReleases)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllReleases).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBReleaseQuery, err)
 	}
@@ -51,14 +51,14 @@ func (db *DB) ListReleases() ([]model.ReleaseRecord, error) {
 
 // FindReleaseByTag returns a release matching the given tag.
 func (db *DB) FindReleaseByTag(tag string) (model.ReleaseRecord, error) {
-	row := db.conn.QueryRow(constants.SQLSelectReleaseByTag, tag)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectReleaseByTag, tag)
 
 	return scanOneRelease(row)
 }
 
 // clearLatest resets the IsLatest flag on releases for a given repo (v17: per-repo scope).
 func (db *DB) clearLatest(repoID int64) error {
-	_, err := db.conn.Exec(constants.SQLClearLatestRelease, repoID)
+	_, err := ExecWrapper(db.conn, constants.SQLClearLatestRelease, repoID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBReleaseUpsert, err)
 	}

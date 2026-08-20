@@ -33,7 +33,7 @@ func (db *DB) migrateV15Repo() error {
 	if db.tableExists(constants.TableRepo) {
 		// Both exist? Defensive: previous migration ran but legacy not dropped.
 		// Drop the legacy plural and continue.
-		_, _ = db.conn.Exec("DROP TABLE IF EXISTS Repos")
+		_, _ = ExecWrapper(db.conn, "DROP TABLE IF EXISTS Repos").Destruct()
 
 		return nil
 	}
@@ -72,19 +72,19 @@ func (db *DB) migrateV15Repo() error {
 // old one. Foreign keys are temporarily disabled so child tables (which still
 // reference Repos at this point) survive the rename.
 func (db *DB) execV15RepoRebuild() error {
-	if _, err := db.conn.Exec("PRAGMA foreign_keys = OFF"); err != nil {
+	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = OFF").Destruct(); err != nil {
 		return fmt.Errorf("disable foreign keys: %w", err)
 	}
 
 	defer func() {
-		_, _ = db.conn.Exec("PRAGMA foreign_keys = ON")
+		_, _ = ExecWrapper(db.conn, "PRAGMA foreign_keys = ON").Destruct()
 	}()
 
-	if _, err := db.conn.Exec(constants.SQLCreateRepo); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLCreateRepo).Destruct(); err != nil {
 		return fmt.Errorf("create Repo table: %w", err)
 	}
 
-	if _, err := db.conn.Exec(constants.SQLCreateAbsPathIndex); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLCreateAbsPathIndex).Destruct(); err != nil {
 		return fmt.Errorf("create AbsPath index: %w", err)
 	}
 
@@ -95,17 +95,17 @@ func (db *DB) execV15RepoRebuild() error {
 		 AbsolutePath, CloneInstruction, Notes, CreatedAt, UpdatedAt
 		FROM Repos`
 
-	if _, err := db.conn.Exec(copySQL); err != nil {
+	if _, err := ExecWrapper(db.conn, copySQL).Destruct(); err != nil {
 		return fmt.Errorf("copy Repos -> Repo: %w", err)
 	}
 
-	if _, err := db.conn.Exec("DROP TABLE Repos"); err != nil {
+	if _, err := ExecWrapper(db.conn, "DROP TABLE Repos").Destruct(); err != nil {
 		return fmt.Errorf("drop legacy Repos: %w", err)
 	}
 
 	// Drop the legacy index name; SQLCreateAbsPathIndex above created the
 	// new IdxRepo_AbsolutePath, so the old idx_Repos_AbsolutePath is dead.
-	_, _ = db.conn.Exec(constants.SQLDropLegacyAbsPathIndex)
+	_, _ = ExecWrapper(db.conn, constants.SQLDropLegacyAbsPathIndex).Destruct()
 
 	return nil
 }
@@ -113,7 +113,7 @@ func (db *DB) execV15RepoRebuild() error {
 // countRows returns the row count for a table.
 func (db *DB) countRows(table string) (int, error) {
 	var n int
-	row := db.conn.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %q", table))
+	row := QueryRowWrapper(db.conn, fmt.Sprintf("SELECT COUNT(*) FROM %q", table))
 	if err := row.Scan(&n); err != nil {
 		return 0, err
 	}

@@ -10,7 +10,7 @@ import (
 
 // InsertTempRelease records a new temp-release branch in the database.
 func (db *DB) InsertTempRelease(branch, versionPrefix string, seq int, commit, message string) error {
-	_, err := db.conn.Exec(constants.SQLInsertTempRelease, branch, versionPrefix, seq, commit, message)
+	_, err := ExecWrapper(db.conn, constants.SQLInsertTempRelease, branch, versionPrefix, seq, commit, message).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrTRCreate, err)
 	}
@@ -20,7 +20,7 @@ func (db *DB) InsertTempRelease(branch, versionPrefix string, seq int, commit, m
 
 // ListTempReleases returns all temp-release records ordered by sequence.
 func (db *DB) ListTempReleases() ([]model.TempRelease, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllTempReleases)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllTempReleases).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrTRQuery, err)
 	}
@@ -56,7 +56,7 @@ func (db *DB) MaxTempReleaseSeq(versionPrefix string) (int, error) {
 
 // DeleteTempRelease removes a single temp-release record by branch name.
 func (db *DB) DeleteTempRelease(branch string) error {
-	_, err := db.conn.Exec(constants.SQLDeleteTempRelease, branch)
+	_, err := ExecWrapper(db.conn, constants.SQLDeleteTempRelease, branch).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrTRDelete, err)
 	}
@@ -66,7 +66,7 @@ func (db *DB) DeleteTempRelease(branch string) error {
 
 // DeleteAllTempReleases removes all temp-release records.
 func (db *DB) DeleteAllTempReleases() error {
-	_, err := db.conn.Exec(constants.SQLDeleteAllTempReleases)
+	_, err := ExecWrapper(db.conn, constants.SQLDeleteAllTempReleases).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrTRDelete, err)
 	}

@@ -15,7 +15,7 @@ import (
 // The Paths column is NOT touched here — use SetVSCodeProjectPaths
 // to mutate the DB-side multi-root list.
 func (db *DB) UpsertVSCodeProject(rootPath, name string) error {
-	if _, err := db.conn.Exec(constants.SQLUpsertVSCodeProject, rootPath, name); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLUpsertVSCodeProject, rootPath, name).Destruct(); err != nil {
 		return fmt.Errorf(constants.ErrVSCodePMUpsert, rootPath, err)
 	}
 
@@ -24,7 +24,7 @@ func (db *DB) UpsertVSCodeProject(rootPath, name string) error {
 
 // ListVSCodeProjects returns every row in the VSCodeProject table.
 func (db *DB) ListVSCodeProjects() ([]model.VSCodeProject, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllVSCodeProjects)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllVSCodeProjects).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrVSCodePMList, err)
 	}
@@ -36,7 +36,7 @@ func (db *DB) ListVSCodeProjects() ([]model.VSCodeProject, error) {
 // FindVSCodeProjectByPath returns the row matching RootPath (case-insensitive)
 // or sql.ErrNoRows when missing.
 func (db *DB) FindVSCodeProjectByPath(rootPath string) (model.VSCodeProject, error) {
-	row := db.conn.QueryRow(constants.SQLSelectVSCodeProjectByPath, rootPath)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectVSCodeProjectByPath, rootPath)
 
 	return scanOneVSCodeProjectRow(row)
 }
@@ -45,7 +45,7 @@ func (db *DB) FindVSCodeProjectByPath(rootPath string) (model.VSCodeProject, err
 // insensitive) or sql.ErrNoRows. Used by `gitmap code paths` to look up
 // an alias without requiring the user to supply rootPath.
 func (db *DB) FindVSCodeProjectByName(name string) (model.VSCodeProject, error) {
-	row := db.conn.QueryRow(constants.SQLSelectVSCodeProjectByName, name)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectVSCodeProjectByName, name)
 
 	return scanOneVSCodeProjectRow(row)
 }
@@ -53,7 +53,7 @@ func (db *DB) FindVSCodeProjectByName(name string) (model.VSCodeProject, error) 
 // RenameVSCodeProjectByPath updates the Name column for the matching RootPath.
 // Returns the number of rows affected so callers can detect "no match".
 func (db *DB) RenameVSCodeProjectByPath(rootPath, newName string) (int64, error) {
-	res, err := db.conn.Exec(constants.SQLRenameVSCodeProject, newName, rootPath)
+	res, err := ExecWrapper(db.conn, constants.SQLRenameVSCodeProject, newName, rootPath).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrVSCodePMRename, rootPath, err)
 	}
@@ -71,7 +71,7 @@ func (db *DB) SetVSCodeProjectPaths(rootPath string, paths []string) error {
 		return err
 	}
 
-	if _, err := db.conn.Exec(constants.SQLUpdateVSCodeProjectPaths, encoded, rootPath); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLUpdateVSCodeProjectPaths, encoded, rootPath).Destruct(); err != nil {
 		return fmt.Errorf(constants.ErrVSCodePMUpdatePaths, rootPath, err)
 	}
 
@@ -80,7 +80,7 @@ func (db *DB) SetVSCodeProjectPaths(rootPath string, paths []string) error {
 
 // DeleteVSCodeProjectByPath removes a row by RootPath.
 func (db *DB) DeleteVSCodeProjectByPath(rootPath string) error {
-	if _, err := db.conn.Exec(constants.SQLDeleteVSCodeProjectByPath, rootPath); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLDeleteVSCodeProjectByPath, rootPath).Destruct(); err != nil {
 		return fmt.Errorf(constants.ErrVSCodePMDelete, rootPath, err)
 	}
 

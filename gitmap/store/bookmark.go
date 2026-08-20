@@ -9,8 +9,8 @@ import (
 
 // InsertBookmark saves a new bookmark record.
 func (db *DB) InsertBookmark(r model.BookmarkRecord) error {
-	_, err := db.conn.Exec(constants.SQLInsertBookmark,
-		r.Name, r.Command, r.Args, r.Flags)
+	_, err := ExecWrapper(db.conn, constants.SQLInsertBookmark,
+		r.Name, r.Command, r.Args, r.Flags).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrBookmarkQuery, err)
 	}
@@ -20,7 +20,7 @@ func (db *DB) InsertBookmark(r model.BookmarkRecord) error {
 
 // ListBookmarks returns all saved bookmarks ordered by name.
 func (db *DB) ListBookmarks() ([]model.BookmarkRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllBookmarks)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllBookmarks).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrBookmarkQuery, err)
 	}
@@ -31,7 +31,7 @@ func (db *DB) ListBookmarks() ([]model.BookmarkRecord, error) {
 
 // FindBookmarkByName returns a single bookmark by name.
 func (db *DB) FindBookmarkByName(name string) (model.BookmarkRecord, error) {
-	row := db.conn.QueryRow(constants.SQLSelectBookmarkByName, name)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectBookmarkByName, name)
 
 	var r model.BookmarkRecord
 	err := row.Scan(&r.ID, &r.Name, &r.Command, &r.Args, &r.Flags, &r.CreatedAt)
@@ -44,7 +44,7 @@ func (db *DB) FindBookmarkByName(name string) (model.BookmarkRecord, error) {
 
 // DeleteBookmark removes a bookmark by name.
 func (db *DB) DeleteBookmark(name string) error {
-	_, err := db.conn.Exec(constants.SQLDeleteBookmark, name)
+	_, err := ExecWrapper(db.conn, constants.SQLDeleteBookmark, name).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrBookmarkQuery, err)
 	}

@@ -17,9 +17,9 @@ var ErrTransactionNotFound = errors.New("transaction not found")
 
 // InsertTransaction creates a pending transaction row and returns its id.
 func (db *DB) InsertTransaction(r model.TransactionRecord) (int64, error) {
-	res, err := db.conn.Exec(constants.SQLInsertTransaction,
+	res, err := ExecWrapper(db.conn, constants.SQLInsertTransaction,
 		r.Kind, constants.TxnStatusPending, r.Argv, r.Cwd,
-		nowUnix(), r.ReverseSummary, r.RepoSlug, r.GitSha)
+		nowUnix(), r.ReverseSummary, r.RepoSlug, r.GitSha).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf("transaction insert: %w", err)
 	}
@@ -46,8 +46,8 @@ func (db *DB) MarkTransactionReverted(id int64) error {
 func (db *DB) updateTxnStatus(id int64, status string, setCommit, setRevert bool) error {
 	committed := nullableUnix(setCommit)
 	reverted := nullableUnix(setRevert)
-	_, err := db.conn.Exec(constants.SQLUpdateTransactionStatus,
-		status, committed, reverted, id)
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateTransactionStatus,
+		status, committed, reverted, id).Destruct()
 	if err != nil {
 		return fmt.Errorf("transaction status update: %w", err)
 	}
@@ -57,9 +57,9 @@ func (db *DB) updateTxnStatus(id int64, status string, setCommit, setRevert bool
 
 // InsertTransactionFile records one snapshotted file under a transaction.
 func (db *DB) InsertTransactionFile(r model.TransactionFileRecord) error {
-	_, err := db.conn.Exec(constants.SQLInsertTransactionFile,
+	_, err := ExecWrapper(db.conn, constants.SQLInsertTransactionFile,
 		r.TransactionID, r.RelPath, r.AbsPath, r.BackupPath,
-		r.ByteSize, r.Sha256, r.Action)
+		r.ByteSize, r.Sha256, r.Action).Destruct()
 	if err != nil {
 		return fmt.Errorf("transaction file insert: %w", err)
 	}
@@ -69,14 +69,14 @@ func (db *DB) InsertTransactionFile(r model.TransactionFileRecord) error {
 
 // FindTransactionByID loads one row or returns ErrTransactionNotFound.
 func (db *DB) FindTransactionByID(id int64) (model.TransactionRecord, error) {
-	row := db.conn.QueryRow(constants.SQLSelectTransactionByID, id)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectTransactionByID, id)
 
 	return scanTransactionRow(row)
 }
 
 // ListTransactions returns the most recent rows, newest first, capped at limit.
 func (db *DB) ListTransactions(limit int) ([]model.TransactionRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectTransactionsRecent, limit)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectTransactionsRecent, limit).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf("transaction list: %w", err)
 	}
@@ -87,7 +87,7 @@ func (db *DB) ListTransactions(limit int) ([]model.TransactionRecord, error) {
 
 // ListTransactionFiles returns every snapshotted file for one transaction.
 func (db *DB) ListTransactionFiles(txnID int64) ([]model.TransactionFileRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectTransactionFiles, txnID)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectTransactionFiles, txnID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf("transaction files: %w", err)
 	}
@@ -98,7 +98,7 @@ func (db *DB) ListTransactionFiles(txnID int64) ([]model.TransactionFileRecord, 
 
 // LastCommittedTransactionID returns the newest committed id, or 0 if none.
 func (db *DB) LastCommittedTransactionID() (int64, error) {
-	row := db.conn.QueryRow(constants.SQLSelectLastCommittedTransaction)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectLastCommittedTransaction)
 	var id int64
 	err := row.Scan(&id)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -114,7 +114,7 @@ func (db *DB) LastCommittedTransactionID() (int64, error) {
 // PruneOldestTransactions deletes everything beyond the cap (newest cap rows
 // kept). Returns the deleted ids so the caller can clean their backup dirs.
 func (db *DB) PruneOldestTransactions(cap int) ([]int64, error) {
-	rows, err := db.conn.Query(constants.SQLSelectExcessTransactionIDs, cap)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectExcessTransactionIDs, cap).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf("transaction prune list: %w", err)
 	}
@@ -129,7 +129,7 @@ func (db *DB) PruneOldestTransactions(cap int) ([]int64, error) {
 // deleteTransactionRows removes each id; the FK cascade drops file rows.
 func deleteTransactionRows(db *DB, ids []int64) error {
 	for _, id := range ids {
-		if _, err := db.conn.Exec(constants.SQLDeleteTransaction, id); err != nil {
+		if _, err := ExecWrapper(db.conn, constants.SQLDeleteTransaction, id).Destruct(); err != nil {
 			return fmt.Errorf("transaction prune delete: %w", err)
 		}
 	}

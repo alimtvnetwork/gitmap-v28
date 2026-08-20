@@ -68,7 +68,7 @@ func (db *DB) LookupHighestVersion(provider, owner, base string) (string, int, b
 // EnsureOwnerRepoNameIndex creates the table for callers that need
 // it without a full Migrate(). Idempotent.
 func (db *DB) EnsureOwnerRepoNameIndex() error {
-	_, err := db.conn.Exec(constants.SQLCreateOwnerRepoNameIndex)
+	_, err := ExecWrapper(db.conn, constants.SQLCreateOwnerRepoNameIndex).Destruct()
 
 	return err
 }

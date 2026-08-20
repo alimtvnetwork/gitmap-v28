@@ -29,7 +29,7 @@ type MigrationReport struct {
 // columnExists reports whether table.column exists. Returns false on any
 // query error (treated as "not present" so callers can skip safely).
 func (db *DB) columnExists(table, column string) bool {
-	rows, err := db.conn.Query(fmt.Sprintf("PRAGMA table_info(%q)", table))
+	rows, err := QueryWrapper(db.conn, fmt.Sprintf("PRAGMA table_info(%q)", table)).Destruct()
 	if err != nil {
 		return false
 	}
@@ -59,7 +59,7 @@ func (db *DB) columnExists(table, column string) bool {
 
 // tableExists reports whether a table is present in the active database.
 func (db *DB) tableExists(table string) bool {
-	row := db.conn.QueryRow(
+	row := QueryRowWrapper(db.conn,
 		"SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", table)
 
 	var seen int

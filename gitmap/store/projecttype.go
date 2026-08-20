@@ -7,7 +7,7 @@ import (
 
 // SeedProjectTypes inserts all supported project types if not present.
 func (db *DB) SeedProjectTypes() error {
-	_, err := db.conn.Exec(constants.SQLSeedProjectTypes)
+	_, err := ExecWrapper(db.conn, constants.SQLSeedProjectTypes).Destruct()
 
 	return err
 }

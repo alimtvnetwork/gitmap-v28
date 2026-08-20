@@ -27,7 +27,7 @@ func (db *DB) TagReposByScanFolder(scanFolderID int64, paths []string) error {
 		args = append(args, p)
 	}
 
-	if _, err := db.conn.Exec(query, args...); err != nil {
+	if _, err := ExecWrapper(db.conn, query, args...).Destruct(); err != nil {
 		return fmt.Errorf(constants.ErrProbeTagFail, scanFolderID, err)
 	}
 
@@ -41,10 +41,10 @@ func (db *DB) RecordVersionProbe(p model.VersionProbe) error {
 		available = 1
 	}
 
-	_, err := db.conn.Exec(constants.SQLInsertVersionProbe,
+	_, err := ExecWrapper(db.conn, constants.SQLInsertVersionProbe,
 		p.RepoID, p.NextVersionTag, p.NextVersionNum,
 		p.Method, available, p.Error,
-	)
+	).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrProbeRecord, p.RepoID, err)
 	}
@@ -55,7 +55,7 @@ func (db *DB) RecordVersionProbe(p model.VersionProbe) error {
 // LatestVersionProbe returns the newest probe row for a repo, or
 // sql.ErrNoRows when no probe has run yet.
 func (db *DB) LatestVersionProbe(repoID int64) (model.VersionProbe, error) {
-	row := db.conn.QueryRow(constants.SQLSelectLatestVersionProbe, repoID)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectLatestVersionProbe, repoID)
 
 	var (
 		p         model.VersionProbe

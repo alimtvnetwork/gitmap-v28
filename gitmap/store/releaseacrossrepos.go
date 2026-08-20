@@ -36,7 +36,7 @@ func (db *DB) ListReleasesAcrossRepos() ([]ReleaseAcrossRepos, error) {
 		return nil, nil
 	}
 
-	rows, err := db.conn.Query(constants.SQLSelectAllReleasesAcrossRepos)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllReleasesAcrossRepos).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBReleaseQuery, err)
 	}

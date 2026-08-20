@@ -11,9 +11,9 @@ import (
 
 // UpsertDetectedProject inserts or updates a detected project record.
 func (db *DB) UpsertDetectedProject(p model.DetectedProject) error {
-	_, err := db.conn.Exec(constants.SQLUpsertDetectedProject,
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertDetectedProject,
 		p.RepoID, p.ProjectTypeID, p.ProjectName,
-		p.AbsolutePath, p.RepoPath, p.RelativePath, p.PrimaryIndicator)
+		p.AbsolutePath, p.RepoPath, p.RelativePath, p.PrimaryIndicator).Destruct()
 
 	return err
 }
@@ -29,7 +29,7 @@ func (db *DB) SelectDetectedProjectID(repoID, projectTypeID int64, relativePath 
 
 // SelectProjectsByTypeKey returns all detected projects of a given type.
 func (db *DB) SelectProjectsByTypeKey(key string) ([]model.DetectedProject, error) {
-	rows, err := db.conn.Query(constants.SQLSelectProjectsByTypeKey, key)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectProjectsByTypeKey, key).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
 	}
@@ -54,7 +54,7 @@ func (db *DB) DeleteStaleProjects(repoID int64, keepIDs []int64) (int64, error) 
 	placeholders := buildPlaceholders(len(keepIDs))
 	query := fmt.Sprintf(constants.SQLDeleteStaleProjects, placeholders)
 	args := buildStaleArgsInt64(repoID, keepIDs)
-	result, err := db.conn.Exec(query, args...)
+	result, err := ExecWrapper(db.conn, query, args...).Destruct()
 	if err != nil {
 		return 0, err
 	}

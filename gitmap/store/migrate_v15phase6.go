@@ -36,7 +36,7 @@ func (db *DB) migrateV15Phase6() error {
 	fmt.Fprintln(os.Stderr, constants.MsgV15Phase6Start)
 	fmt.Fprintln(os.Stderr, constants.MsgV15Phase6Wipe)
 
-	if _, err := db.conn.Exec(constants.SQLDropRelease); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLDropRelease).Destruct(); err != nil {
 		return fmt.Errorf("phase 1.6 Release drop: %w", err)
 	}
 

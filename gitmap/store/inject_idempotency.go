@@ -25,7 +25,7 @@ type InjectTimestamps struct {
 func (db *DB) GetInjectTimestamps(absPath string) (InjectTimestamps, error) {
 	var ts InjectTimestamps
 
-	row := db.conn.QueryRow(constants.SQLSelectInjectTimestamps, absPath)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectInjectTimestamps, absPath)
 	err := row.Scan(&ts.Desktop, &ts.VSCode)
 	if errors.Is(err, sql.ErrNoRows) {
 		return InjectTimestamps{}, nil
@@ -47,7 +47,7 @@ func (db *DB) MarkInjected(absPath string, kind constants.InjectKind) error {
 	}
 
 	stmt := fmt.Sprintf(constants.SQLUpdateInjectTimestampFmt, col)
-	if _, err := db.conn.Exec(stmt, absPath); err != nil {
+	if _, err := ExecWrapper(db.conn, stmt, absPath).Destruct(); err != nil {
 		return fmt.Errorf(constants.ErrDBUpsert, err)
 	}
 

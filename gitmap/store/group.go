@@ -9,7 +9,7 @@ import (
 
 // CreateGroup inserts a new group with the given name, description, and color.
 func (db *DB) CreateGroup(name, description, color string) (model.Group, error) {
-	_, err := db.conn.Exec(constants.SQLInsertGroup, name, description, color)
+	_, err := ExecWrapper(db.conn, constants.SQLInsertGroup, name, description, color).Destruct()
 	if err != nil {
 		return model.Group{}, fmt.Errorf(constants.ErrDBGroupCreate, err)
 	}
@@ -19,7 +19,7 @@ func (db *DB) CreateGroup(name, description, color string) (model.Group, error) 
 
 // ListGroups returns all groups ordered by name.
 func (db *DB) ListGroups() ([]model.Group, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllGroups)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllGroups).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBGroupQuery, err)
 	}
@@ -30,7 +30,7 @@ func (db *DB) ListGroups() ([]model.Group, error) {
 
 // FindGroupByName returns the group matching the given name.
 func (db *DB) findGroupByName(name string) (model.Group, error) {
-	row := db.conn.QueryRow(constants.SQLSelectGroupByName, name)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectGroupByName, name)
 	var g model.Group
 	err := row.Scan(&g.ID, &g.Name, &g.Description, &g.Color, &g.CreatedAt)
 	if err != nil {
@@ -47,7 +47,7 @@ func (db *DB) AddRepoToGroup(groupName string, repoID int64) error {
 		return err
 	}
 
-	_, err = db.conn.Exec(constants.SQLInsertGroupRepo, group.ID, repoID)
+	_, err = ExecWrapper(db.conn, constants.SQLInsertGroupRepo, group.ID, repoID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBGroupAdd, err)
 	}
@@ -62,7 +62,7 @@ func (db *DB) RemoveRepoFromGroup(groupName string, repoID int64) error {
 		return err
 	}
 
-	_, err = db.conn.Exec(constants.SQLDeleteGroupRepo, group.ID, repoID)
+	_, err = ExecWrapper(db.conn, constants.SQLDeleteGroupRepo, group.ID, repoID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBGroupRemove, err)
 	}
@@ -77,7 +77,7 @@ func (db *DB) ShowGroup(name string) ([]model.ScanRecord, error) {
 		return nil, err
 	}
 
-	rows, err := db.conn.Query(constants.SQLSelectGroupRepos, group.ID)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectGroupRepos, group.ID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
@@ -88,7 +88,7 @@ func (db *DB) ShowGroup(name string) ([]model.ScanRecord, error) {
 
 // DeleteGroup removes a group by name (repos are not deleted).
 func (db *DB) DeleteGroup(name string) error {
-	result, err := db.conn.Exec(constants.SQLDeleteGroup, name)
+	result, err := ExecWrapper(db.conn, constants.SQLDeleteGroup, name).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBGroupDelete, err)
 	}

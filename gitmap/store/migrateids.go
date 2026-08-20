@@ -35,7 +35,7 @@ func (db *DB) migrateLegacyIDs() {
 func (db *DB) hasLegacyTextID(table string) bool {
 	query := fmt.Sprintf("PRAGMA table_info(%s)", table)
 
-	rows, err := db.conn.Query(query)
+	rows, err := QueryWrapper(db.conn, query).Destruct()
 	if err != nil {
 		return false
 	}
@@ -80,7 +80,7 @@ func (db *DB) dropProjectTables() {
 	}
 
 	for _, stmt := range drops {
-		if _, err := db.conn.Exec(stmt); err != nil {
+		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
 			fmt.Fprintf(os.Stderr, "  ⚠ Could not drop table during migration: %v\n", err)
 		}
 	}
@@ -88,7 +88,7 @@ func (db *DB) dropProjectTables() {
 
 // dropGroupRepos removes the GroupRepos join table (FK to Repos).
 func (db *DB) dropGroupRepos() {
-	if _, err := db.conn.Exec(constants.SQLDropGroupRepos); err != nil {
+	if _, err := ExecWrapper(db.conn, constants.SQLDropGroupRepos).Destruct(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not drop GroupRepos during migration: %v\n", err)
 	}
 }
@@ -113,29 +113,29 @@ func (db *DB) rebuildReposTable() error {
 		UpdatedAt        TEXT DEFAULT CURRENT_TIMESTAMP
 	)`
 
-	if _, err := db.conn.Exec("PRAGMA foreign_keys = OFF"); err != nil {
+	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = OFF").Destruct(); err != nil {
 		return fmt.Errorf("disable foreign keys: %w", err)
 	}
 
-	if _, err := db.conn.Exec("ALTER TABLE Repos RENAME TO Repos_legacy"); err != nil {
+	if _, err := ExecWrapper(db.conn, "ALTER TABLE Repos RENAME TO Repos_legacy").Destruct(); err != nil {
 		return fmt.Errorf("rename Repos to Repos_legacy: %w", err)
 	}
 
-	if _, err := db.conn.Exec(legacyCreate); err != nil {
+	if _, err := ExecWrapper(db.conn, legacyCreate).Destruct(); err != nil {
 		return fmt.Errorf("create new Repos table: %w", err)
 	}
 
-	if _, err := db.conn.Exec(`INSERT INTO Repos (Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes)
+	if _, err := ExecWrapper(db.conn, `INSERT INTO Repos (Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes)
 		SELECT Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes
-		FROM Repos_legacy`); err != nil {
+		FROM Repos_legacy`).Destruct(); err != nil {
 		return fmt.Errorf("copy data from Repos_legacy: %w", err)
 	}
 
-	if _, err := db.conn.Exec("DROP TABLE IF EXISTS Repos_legacy"); err != nil {
+	if _, err := ExecWrapper(db.conn, "DROP TABLE IF EXISTS Repos_legacy").Destruct(); err != nil {
 		return fmt.Errorf("drop Repos_legacy: %w", err)
 	}
 
-	if _, err := db.conn.Exec("PRAGMA foreign_keys = ON"); err != nil {
+	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = ON").Destruct(); err != nil {
 		return fmt.Errorf("re-enable foreign keys: %w", err)
 	}
 

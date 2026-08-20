@@ -9,9 +9,9 @@ import (
 
 // InsertVersionHistory records a version transition for a repo.
 func (db *DB) InsertVersionHistory(r model.RepoVersionHistoryRecord) (int64, error) {
-	result, err := db.conn.Exec(constants.SQLInsertVersionHistory,
+	result, err := ExecWrapper(db.conn, constants.SQLInsertVersionHistory,
 		r.RepoID, r.FromVersionTag, r.FromVersionNum,
-		r.ToVersionTag, r.ToVersionNum, r.FlattenedPath)
+		r.ToVersionTag, r.ToVersionNum, r.FlattenedPath).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrDBVersionHistory, err)
 	}
@@ -21,7 +21,7 @@ func (db *DB) InsertVersionHistory(r model.RepoVersionHistoryRecord) (int64, err
 
 // UpdateRepoVersion updates the current version columns on a Repos row.
 func (db *DB) UpdateRepoVersion(repoID int64, versionTag string, versionNum int) error {
-	_, err := db.conn.Exec(constants.SQLUpdateRepoVersion, versionTag, versionNum, repoID)
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateRepoVersion, versionTag, versionNum, repoID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBVersionHistory, err)
 	}
@@ -31,7 +31,7 @@ func (db *DB) UpdateRepoVersion(repoID int64, versionTag string, versionNum int)
 
 // ListVersionHistory returns all version transitions for a repo.
 func (db *DB) ListVersionHistory(repoID int64) ([]model.RepoVersionHistoryRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectVersionHistory, repoID)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectVersionHistory, repoID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBVersionHistory, err)
 	}

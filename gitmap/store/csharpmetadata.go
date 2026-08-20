@@ -10,26 +10,26 @@ import (
 
 // UpsertCsharpMetadata inserts or updates C# metadata for a detected project.
 func (db *DB) UpsertCsharpMetadata(m model.CsharpProjectMetadata) error {
-	_, err := db.conn.Exec(constants.SQLUpsertCsharpMetadata,
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertCsharpMetadata,
 		m.DetectedProjectID, m.SlnPath, m.SlnName,
-		m.GlobalJsonPath, m.SdkVersion)
+		m.GlobalJsonPath, m.SdkVersion).Destruct()
 
 	return err
 }
 
 // UpsertCsharpProjectFile inserts or updates a C# project file record.
 func (db *DB) UpsertCsharpProjectFile(f model.CsharpProjectFile) error {
-	_, err := db.conn.Exec(constants.SQLUpsertCsharpProjectFile,
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertCsharpProjectFile,
 		f.CsharpMetadataID, f.FilePath, f.RelativePath,
-		f.FileName, f.ProjectName, f.TargetFramework, f.OutputType, f.Sdk)
+		f.FileName, f.ProjectName, f.TargetFramework, f.OutputType, f.Sdk).Destruct()
 
 	return err
 }
 
 // UpsertCsharpKeyFile inserts or updates a C# key file record.
 func (db *DB) UpsertCsharpKeyFile(f model.CsharpKeyFile) error {
-	_, err := db.conn.Exec(constants.SQLUpsertCsharpKeyFile,
-		f.CsharpMetadataID, f.FileType, f.FilePath, f.RelativePath)
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertCsharpKeyFile,
+		f.CsharpMetadataID, f.FileType, f.FilePath, f.RelativePath).Destruct()
 
 	return err
 }
@@ -49,7 +49,7 @@ func (db *DB) SelectCsharpMetadata(detectedProjectID int64) (*model.CsharpProjec
 
 // SelectCsharpProjectFiles returns all .csproj files for a metadata ID.
 func (db *DB) SelectCsharpProjectFiles(metadataID int64) ([]model.CsharpProjectFile, error) {
-	rows, err := db.conn.Query(constants.SQLSelectCsharpProjectFiles, metadataID)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectCsharpProjectFiles, metadataID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
 	}
@@ -60,7 +60,7 @@ func (db *DB) SelectCsharpProjectFiles(metadataID int64) ([]model.CsharpProjectF
 
 // SelectCsharpKeyFiles returns all key files for a metadata ID.
 func (db *DB) SelectCsharpKeyFiles(metadataID int64) ([]model.CsharpKeyFile, error) {
-	rows, err := db.conn.Query(constants.SQLSelectCsharpKeyFiles, metadataID)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectCsharpKeyFiles, metadataID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
 	}
@@ -77,7 +77,7 @@ func (db *DB) DeleteStaleCsharpFiles(metadataID int64, keepIDs []int64) error {
 	placeholders := buildPlaceholders(len(keepIDs))
 	query := fmt.Sprintf(constants.SQLDeleteStaleCsharpFiles, placeholders)
 	args := buildStaleArgsInt64(metadataID, keepIDs)
-	_, err := db.conn.Exec(query, args...)
+	_, err := ExecWrapper(db.conn, query, args...).Destruct()
 
 	return err
 }
@@ -90,7 +90,7 @@ func (db *DB) DeleteStaleCsharpKeyFiles(metadataID int64, keepIDs []int64) error
 	placeholders := buildPlaceholders(len(keepIDs))
 	query := fmt.Sprintf(constants.SQLDeleteStaleCsharpKeyFiles, placeholders)
 	args := buildStaleArgsInt64(metadataID, keepIDs)
-	_, err := db.conn.Exec(query, args...)
+	_, err := ExecWrapper(db.conn, query, args...).Destruct()
 
 	return err
 }

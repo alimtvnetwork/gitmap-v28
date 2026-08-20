@@ -16,7 +16,7 @@ type ZipGroupWithCount struct {
 
 // CreateZipGroup inserts a new zip group.
 func (db *DB) CreateZipGroup(name, archiveName string) (model.ZipGroup, error) {
-	_, err := db.conn.Exec(constants.SQLInsertZipGroup, name, archiveName)
+	_, err := ExecWrapper(db.conn, constants.SQLInsertZipGroup, name, archiveName).Destruct()
 	if err != nil {
 		return model.ZipGroup{}, fmt.Errorf(constants.ErrZGCreate, err)
 	}
@@ -26,7 +26,7 @@ func (db *DB) CreateZipGroup(name, archiveName string) (model.ZipGroup, error) {
 
 // FindZipGroupByName retrieves a zip group by its name.
 func (db *DB) FindZipGroupByName(name string) (model.ZipGroup, error) {
-	row := db.conn.QueryRow(constants.SQLSelectZipGroupByName, name)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectZipGroupByName, name)
 
 	var g model.ZipGroup
 
@@ -40,7 +40,7 @@ func (db *DB) FindZipGroupByName(name string) (model.ZipGroup, error) {
 
 // ListZipGroups returns all zip groups ordered by name.
 func (db *DB) ListZipGroups() ([]model.ZipGroup, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllZipGroups)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllZipGroups).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrZGQuery, err)
 	}
@@ -64,7 +64,7 @@ func (db *DB) ListZipGroups() ([]model.ZipGroup, error) {
 
 // ListZipGroupsWithCount returns all zip groups with item counts.
 func (db *DB) ListZipGroupsWithCount() ([]ZipGroupWithCount, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllZipGroupsWithCount)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllZipGroupsWithCount).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrZGQuery, err)
 	}
@@ -88,7 +88,7 @@ func (db *DB) ListZipGroupsWithCount() ([]ZipGroupWithCount, error) {
 
 // DeleteZipGroup removes a zip group by name (items cascade).
 func (db *DB) DeleteZipGroup(name string) error {
-	result, err := db.conn.Exec(constants.SQLDeleteZipGroup, name)
+	result, err := ExecWrapper(db.conn, constants.SQLDeleteZipGroup, name).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrZGDelete, err)
 	}
@@ -98,7 +98,7 @@ func (db *DB) DeleteZipGroup(name string) error {
 
 // UpdateZipGroupArchive sets a custom archive name for a group.
 func (db *DB) UpdateZipGroupArchive(name, archiveName string) error {
-	_, err := db.conn.Exec(constants.SQLUpdateZipGroupArchive, archiveName, name)
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateZipGroupArchive, archiveName, name).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrZGCreate, err)
 	}
@@ -118,7 +118,7 @@ func (db *DB) AddZipGroupItem(groupName, repoPath, relativePath, fullPath string
 		folderFlag = 1
 	}
 
-	_, err = db.conn.Exec(constants.SQLInsertZipGroupItem, g.ID, repoPath, relativePath, fullPath, folderFlag)
+	_, err = ExecWrapper(db.conn, constants.SQLInsertZipGroupItem, g.ID, repoPath, relativePath, fullPath, folderFlag).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrZGAddItem, err)
 	}
@@ -133,7 +133,7 @@ func (db *DB) RemoveZipGroupItem(groupName, fullPath string) error {
 		return err
 	}
 
-	_, err = db.conn.Exec(constants.SQLDeleteZipGroupItem, g.ID, fullPath)
+	_, err = ExecWrapper(db.conn, constants.SQLDeleteZipGroupItem, g.ID, fullPath).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrZGRemoveItem, err)
 	}
@@ -148,7 +148,7 @@ func (db *DB) ListZipGroupItems(groupName string) ([]model.ZipGroupItem, error) 
 		return nil, err
 	}
 
-	rows, err := db.conn.Query(constants.SQLSelectZipGroupItems, g.ID)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectZipGroupItems, g.ID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrZGQuery, err)
 	}

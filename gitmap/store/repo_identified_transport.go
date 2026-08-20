@@ -68,7 +68,7 @@ func (db *DB) SetRepoIdentifiedTransport(url, transport string) (int64, error) {
 	}
 	const q = `UPDATE Repo SET IdentifiedTransport = ?, UpdatedAt = CURRENT_TIMESTAMP
 		WHERE HttpsUrl = ? OR SshUrl = ?`
-	res, err := db.conn.Exec(q, transport, url, url)
+	res, err := ExecWrapper(db.conn, q, transport, url, url).Destruct()
 	if err != nil {
 		return 0, err
 	}

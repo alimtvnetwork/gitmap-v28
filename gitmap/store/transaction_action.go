@@ -12,9 +12,9 @@ import (
 // Seq must be strictly the previous max + 1; callers fetch it via
 // NextActionSeq under the same lock to keep the invariant tight.
 func (db *DB) InsertTransactionAction(r model.TransactionActionRecord) (int64, error) {
-	res, err := db.conn.Exec(constants.SQLInsertTransactionAction,
+	res, err := ExecWrapper(db.conn, constants.SQLInsertTransactionAction,
 		r.TransactionID, r.Seq, r.Kind, r.ForwardJSON, r.ReverseJSON,
-		r.BackupRef, nowUnix())
+		r.BackupRef, nowUnix()).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrActionInsert, err)
 	}
@@ -24,7 +24,7 @@ func (db *DB) InsertTransactionAction(r model.TransactionActionRecord) (int64, e
 
 // NextActionSeq returns the next 1-based Seq for the given transaction.
 func (db *DB) NextActionSeq(txnID int64) (int64, error) {
-	row := db.conn.QueryRow(constants.SQLSelectMaxActionSeq, txnID)
+	row := QueryRowWrapper(db.conn, constants.SQLSelectMaxActionSeq, txnID)
 	var maxSeq int64
 	if err := row.Scan(&maxSeq); err != nil {
 		return 0, fmt.Errorf(constants.ErrActionList, err)
@@ -46,7 +46,7 @@ func (db *DB) ListTransactionActionsReverse(txnID int64) ([]model.TransactionAct
 
 // queryActions is the shared scan path for both list orderings.
 func (db *DB) queryActions(query string, txnID int64) ([]model.TransactionActionRecord, error) {
-	rows, err := db.conn.Query(query, txnID)
+	rows, err := QueryWrapper(db.conn, query, txnID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrActionList, err)
 	}
@@ -57,8 +57,8 @@ func (db *DB) queryActions(query string, txnID int64) ([]model.TransactionAction
 
 // MarkTransactionActionReverted stamps RevertedAt for one action row.
 func (db *DB) MarkTransactionActionReverted(actionID int64) error {
-	_, err := db.conn.Exec(constants.SQLMarkTransactionActionReverted,
-		nowUnix(), actionID)
+	_, err := ExecWrapper(db.conn, constants.SQLMarkTransactionActionReverted,
+		nowUnix(), actionID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrActionMarkReverted, err)
 	}

@@ -20,11 +20,11 @@ func (db *DB) UpsertRepos(records []model.ScanRecord) error {
 
 // upsertOne inserts or updates a single repo by absolute_path.
 func (db *DB) upsertOne(r model.ScanRecord) error {
-	_, err := db.conn.Exec(constants.SQLUpsertRepoByPath,
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertRepoByPath,
 		r.Slug, r.RepoName, r.HTTPSUrl, r.SSHUrl,
 		r.Branch, r.RelativePath, r.AbsolutePath,
 		r.CloneInstruction, r.Notes, r.IdentifiedTransport,
-	)
+	).Destruct()
 
 	return err
 }
@@ -32,7 +32,7 @@ func (db *DB) upsertOne(r model.ScanRecord) error {
 // DeleteByPath removes the repo row whose AbsolutePath matches.
 // Returns the number of rows deleted (0 when no match).
 func (db *DB) DeleteByPath(absPath string) (int64, error) {
-	res, err := db.conn.Exec(constants.SQLDeleteRepoByPath, absPath)
+	res, err := ExecWrapper(db.conn, constants.SQLDeleteRepoByPath, absPath).Destruct()
 	if err != nil {
 		return 0, err
 	}
@@ -43,7 +43,7 @@ func (db *DB) DeleteByPath(absPath string) (int64, error) {
 // DeleteBySlug removes every repo row whose Slug matches.
 // Returns the number of rows deleted.
 func (db *DB) DeleteBySlug(slug string) (int64, error) {
-	res, err := db.conn.Exec(constants.SQLDeleteRepoBySlug, slug)
+	res, err := ExecWrapper(db.conn, constants.SQLDeleteRepoBySlug, slug).Destruct()
 	if err != nil {
 		return 0, err
 	}
@@ -53,7 +53,7 @@ func (db *DB) DeleteBySlug(slug string) (int64, error) {
 
 // ListRepos returns all tracked repositories ordered by slug.
 func (db *DB) ListRepos() ([]model.ScanRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectAllRepos)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllRepos).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
@@ -64,7 +64,7 @@ func (db *DB) ListRepos() ([]model.ScanRecord, error) {
 
 // FindBySlug returns all repos matching the given slug.
 func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectRepoBySlug, slug)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoBySlug, slug).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
@@ -75,7 +75,7 @@ func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error) {
 
 // FindByPath returns the repo at the given absolute path.
 func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error) {
-	rows, err := db.conn.Query(constants.SQLSelectRepoByPath, absPath)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoByPath, absPath).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
