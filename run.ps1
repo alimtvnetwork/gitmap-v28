@@ -1749,11 +1749,11 @@ function Check-ActiveBinaryPaths {
 
     if (-not (Test-Path $DeployedBinaryPath)) { return }
 
-    $activeCmd = Get-Command gitmap -ErrorAction SilentlyContinue | Select-Object -First 1
+    $activeCmd = Get-Command gitmap -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $activeCmd) { return }
 
     $activeBinaryPath = $activeCmd.Source
-    if (-not (Test-Path $activeBinaryPath)) { return }
+    if (-not $activeBinaryPath -or -not (Test-Path -LiteralPath $activeBinaryPath)) { return }
 
     $activeResolved = (Resolve-Path $activeBinaryPath).Path
     $deployedResolved = (Resolve-Path $DeployedBinaryPath).Path
