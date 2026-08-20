@@ -15,7 +15,7 @@ export function getCurrentTheme(): ThemeType {
   if (document.documentElement.classList.contains("dark")) return ThemeType.Dark;
 
   const res = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
-  if (!res.isFail && (res.data === "light" || res.data === "dark")) {
+  if (res.isSuccess && (res.data === "light" || res.data === "dark")) {
     return res.data as ThemeType;
   }
   return ThemeType.Dark;

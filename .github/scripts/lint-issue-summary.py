@@ -151,7 +151,7 @@ def load_findings(path: str) -> set[Finding]:
             return json.load(f)
             
     res = query_wrapper(_read_json)
-    if res["is_fail"]:
+    if res["is_failure"]:
         log(f"could not parse {path}: {res['error']}")
         return set()
     data = res["data"]
@@ -308,12 +308,16 @@ def describe_linter(linter: str) -> str:
 def read_text_or_empty(path: str) -> str:
     if not os.path.exists(path):
         return ""
-    try:
+    
+    def _read() -> str:
         with open(path, encoding="utf-8") as fh:
             return fh.read()
-    except OSError as err:
-        log(f"could not read {path}: {err}")
+            
+    res = query_wrapper(_read)
+    if res["is_failure"]:
+        log(f"could not read {path}: {res['error']}")
         return ""
+    return res["data"]
 
 
 def write_text(path: str, content: str) -> None:

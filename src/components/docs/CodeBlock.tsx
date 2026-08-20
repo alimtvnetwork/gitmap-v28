@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { Copy, Check, Download, Maximize2, Minimize2, AArrowUp, AArrowDown } from "lucide-react";
 import { copyToClipboard } from "@/lib/clipboard";
 import { DocsTooltip } from "@/components/docs/DocsTooltip";
+import { queryWrapperSync } from "@/lib/queryWrapper";
 import hljs from "highlight.js/lib/core";
 import go from "highlight.js/lib/languages/go";
 import typescript from "highlight.js/lib/languages/typescript";
@@ -167,12 +168,14 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
   const highlightedLines = useMemo(() => {
     const lang = language.toLowerCase();
     let html: string | null = null;
-    try {
+    const res = queryWrapperSync(() => {
       if (hljs.getLanguage(lang)) {
-        html = hljs.highlight(code, { language: lang }).value;
+        return hljs.highlight(code, { language: lang }).value;
       }
-    } catch {
-      // fall through
+      return null;
+    });
+    if (res.isSuccess && res.data) {
+      html = res.data;
     }
     if (html) {
       // Split highlighted HTML by newlines, preserving open spans across lines

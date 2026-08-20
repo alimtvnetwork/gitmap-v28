@@ -61,7 +61,7 @@ export function CopyPaletteButton() {
       await navigator.clipboard.writeText(css);
       return true;
     });
-    if (!res.isFail && res.data) {
+    if (res.isSuccess && res.data) {
       setCopied(true);
       window.setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
     }

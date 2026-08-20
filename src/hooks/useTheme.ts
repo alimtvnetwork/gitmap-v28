@@ -33,7 +33,7 @@ interface UseThemeResult {
 
 function readSource(): ThemeSourceType {
   const res = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
-  if (res.isFail) return ThemeSourceType.System;
+  if (res.isFailure) return ThemeSourceType.System;
   const stored = res.data;
   return stored === "light" || stored === "dark" ? ThemeSourceType.User : ThemeSourceType.System;
 }
@@ -69,7 +69,7 @@ export function useTheme(): UseThemeResult {
     const handleSystemChange = (event: MediaQueryListEvent) => {
       // Only follow the OS when the user hasn't explicitly chosen a theme.
       const checkRes = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
-      if (!checkRes.isFail && checkRes.data) return;
+      if (checkRes.isSuccess && checkRes.data) return;
 
       const next: ThemeType = event.matches ? ThemeType.Light : ThemeType.Dark;
       setThemeState(next);
