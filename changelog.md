@@ -1,6 +1,6 @@
 # Changelog
 
-## [v6.35.0] 2026-08-21 Help Text, Help UI & Terminal Color Enhancements
+## [v6.95.0] 2026-08-21 Help Text, Help UI & Terminal Color Enhancements
 
 ### Added
 - **Cluster & Delegation Help Text**: Added embedded Markdown help documentation for all multi-machine cluster delegation commands under `gitmap/helptext/` (`servers-clients`, `sc`, `clients`, `cluster`, `cluster nodes`, `cluster history`, `cluster export`, `cluster import`, `cluster set-password`, `cluster set-default-path`, `cluster set-path-alias`, `cluster cat`, `cluster write`, `cluster update`, `cluster update-all`, `servers ls`, `clients ls`, `servers-clients ls`).
