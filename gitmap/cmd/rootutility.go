@@ -103,6 +103,8 @@ func normalizeHelpTopic(topic string) string {
 		return constants.CmdRecent
 	case constants.CmdPRAlias:
 		return constants.CmdPR
+	case constants.CmdClusterAlias:
+		return constants.CmdCluster
 	}
 	return topic
 }

@@ -2282,15 +2282,6 @@ export const commands: CommandDef[] = [
       { command: "gitmap ru --range v6.60.0..v6.62.0 -y", description: "Roll back three tags non-interactively" },
     ],
   },
-];
-
-// Global flags applied by every command via the shared root parser.
-export const GlobalFlags: CommandFlag[] = [
-  { flag: "--log-json", description: "Emit structured NDJSON logs (schema gitmap.log.v1) to stderr — pipe into jq, Loki, or any log shipper." },
-  { flag: "--quiet", description: "Suppress non-error output." },
-  { flag: "--no-color", description: "Disable ANSI colors." },
-  { flag: "--json", description: "Emit a single jsonenv envelope (schema gitmap.v1) to stdout." },
-
   {
     name: "servers-clients",
     alias: "sc",
@@ -2299,15 +2290,23 @@ export const GlobalFlags: CommandFlag[] = [
     category: "cluster",
     flags: [
       { flag: "--except <list>", description: "Exclude nodes by ID, IP, or trailing IP octet" },
-      { flag: "--yes, -Y", description: "Bypass preflight confirmation prompt" }
+      { flag: "--ip <list>", description: "Target specific node IP addresses" },
+      { flag: "--id <list>", description: "Target specific node Display IDs" },
+      { flag: "--yes, -Y", description: "Bypass preflight confirmation prompt" },
+      { flag: "--dry-run", description: "Preview execution plan without running commands" },
+      { flag: "--verbose", description: "Print detailed real-time execution logs" },
     ],
     examples: [
       { command: 'gitmap servers-clients ps "Get-Service | Where Status -eq Running"', description: "Execute PowerShell command across cluster" },
       { command: 'gitmap servers-clients cmd "ipconfig /all" --except 24,151', description: "Execute cmd with exclusions" },
       { command: 'gitmap servers-clients install "git,nodejs,dotnet" --except 2', description: "Install packages simultaneously" },
       { command: 'gitmap servers-clients pull --all', description: "Run git pull --all on all nodes" },
-      { command: 'gitmap servers-clients proj "api-backend" run --except 2', description: "Run project automation" }
-    ]
+      { command: 'gitmap servers-clients proj "api-backend" run --except 2', description: "Run project automation" },
+    ],
+    seeAlso: [
+      { name: "clients", description: "Broadcast commands across client nodes only" },
+      { name: "cluster", description: "Manage cluster nodes and history" },
+    ],
   },
   {
     name: "clients",
@@ -2318,23 +2317,48 @@ export const GlobalFlags: CommandFlag[] = [
       { flag: "--except <list>", description: "Exclude nodes by ID, IP, or trailing IP octet" },
       { flag: "--ip <list>", description: "Run only on the named IPs" },
       { flag: "--id <list>", description: "Run only on the named Display IDs" },
-      { flag: "--force-lifecycle", description: "Require for restart/shutdown/logoff" }
+      { flag: "--force-lifecycle", description: "Require for restart/shutdown/logoff" },
+      { flag: "--yes, -Y", description: "Bypass preflight confirmation prompt" },
+      { flag: "--dry-run", description: "Preview command dispatch without executing" },
     ],
     examples: [
       { command: 'gitmap clients ps "Get-DiskUsage C:\\" --except 24,151', description: "Run PS command on clients with exclusions" },
       { command: 'gitmap clients cmd "whoami", ps "Get-Date" --ip 192.168.1.10,192.168.1.11', description: "Chain commands sequentially" },
-      { command: 'gitmap clients restart --except 1', description: "Restart machines (requires password)" }
-    ]
+      { command: 'gitmap clients restart --except 1 --force-lifecycle -Y', description: "Restart machines (requires password)" },
+    ],
+    seeAlso: [
+      { name: "servers-clients", description: "Broadcast across all nodes including server" },
+      { name: "cluster", description: "Manage cluster configuration" },
+    ],
+  },
+  {
+    name: "cluster",
+    description: "Manage multi-machine clusters, nodes, command history, and credential configurations.",
+    usage: "gitmap cluster <subcommand> [flags]",
+    category: "cluster",
+    examples: [
+      { command: "gitmap cluster status", description: "Show cluster health, active nodes, and connectivity" },
+      { command: "gitmap cluster nodes --json", description: "List all registered nodes in JSON format" },
+      { command: "gitmap cluster history", description: "Inspect execution audit trail" },
+    ],
+    seeAlso: [
+      { name: "servers-clients", description: "Broadcast across all cluster nodes" },
+      { name: "clients", description: "Broadcast across client nodes" },
+    ],
   },
   {
     name: "cluster history",
     description: "View the audit trail of past cluster executions.",
     usage: "gitmap cluster history [RunRef]",
     category: "cluster",
+    flags: [
+      { flag: "--limit <n>", description: "Limit number of historical runs displayed (default 20)" },
+      { flag: "--json", description: "Output execution history in JSON format" },
+    ],
     examples: [
       { command: 'gitmap cluster history', description: "List all past cluster runs" },
-      { command: 'gitmap cluster history RUN-20260817-001', description: "Expand a specific run ID for per-node outcomes" }
-    ]
+      { command: 'gitmap cluster history RUN-20260817-001', description: "Expand a specific run ID for per-node outcomes" },
+    ],
   },
   {
     name: "cluster nodes",
@@ -2342,12 +2366,12 @@ export const GlobalFlags: CommandFlag[] = [
     usage: "gitmap cluster nodes [--json]",
     category: "cluster",
     flags: [
-      { flag: "--json", description: "Emit listing as a JSON array" }
+      { flag: "--json", description: "Emit listing as a JSON array" },
     ],
     examples: [
       { command: 'gitmap cluster nodes', description: "Display node list in a table" },
-      { command: 'gitmap cluster nodes --json', description: "Export node list as JSON" }
-    ]
+      { command: 'gitmap cluster nodes --json', description: "Export node list as JSON" },
+    ],
   },
   {
     name: "cluster export",
@@ -2356,21 +2380,25 @@ export const GlobalFlags: CommandFlag[] = [
     category: "cluster",
     flags: [
       { flag: "--format <type>", description: "json (default) or csv" },
-      { flag: "--output <file>", description: "File path to write" }
+      { flag: "--output <file>", description: "File path to write" },
     ],
     examples: [
       { command: 'gitmap cluster export --format json --output nodes.json', description: "Export as JSON" },
-      { command: 'gitmap cluster export --format csv > nodes.csv', description: "Export as CSV to stdout" }
-    ]
+      { command: 'gitmap cluster export --format csv > nodes.csv', description: "Export as CSV to stdout" },
+    ],
   },
   {
     name: "cluster import",
     description: "Import a cluster node registry file (JSON or CSV).",
     usage: "gitmap cluster import <file>",
     category: "cluster",
+    flags: [
+      { flag: "--merge", description: "Add new nodes and update existing without deleting" },
+      { flag: "--replace", description: "Overwrite the node registry with imported file" },
+    ],
     examples: [
-      { command: 'gitmap cluster import nodes.json', description: "Merge JSON records into cluster database" }
-    ]
+      { command: 'gitmap cluster import nodes.json', description: "Merge JSON records into cluster database" },
+    ],
   },
   {
     name: "cluster set-password",
@@ -2378,7 +2406,15 @@ export const GlobalFlags: CommandFlag[] = [
     usage: "gitmap cluster set-password --id <id>",
     category: "cluster",
     examples: [
-      { command: 'gitmap cluster set-password --id 5', description: "Securely prompt and save bcrypt-hashed password for Node 5" }
-    ]
-  }
+      { command: 'gitmap cluster set-password --id 5', description: "Securely prompt and save bcrypt-hashed password for Node 5" },
+    ],
+  },
+];
+
+// Global flags applied by every command via the shared root parser.
+export const GlobalFlags: CommandFlag[] = [
+  { flag: "--log-json", description: "Emit structured NDJSON logs (schema gitmap.log.v1) to stderr — pipe into jq, Loki, or any log shipper." },
+  { flag: "--quiet", description: "Suppress non-error output." },
+  { flag: "--no-color", description: "Disable ANSI colors." },
+  { flag: "--json", description: "Emit a single jsonenv envelope (schema gitmap.v1) to stdout." },
 ];

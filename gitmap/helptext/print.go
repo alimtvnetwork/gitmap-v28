@@ -67,5 +67,12 @@ func ReadRaw(command string) ([]byte, error) {
 	if err == nil {
 		return data, nil
 	}
-	return files.ReadFile(strings.ToLower(command) + ".md")
+	low := strings.ToLower(command)
+	data, err = files.ReadFile(low + ".md")
+	if err == nil {
+		return data, nil
+	}
+	dashed := strings.ReplaceAll(low, " ", "-")
+
+	return files.ReadFile(dashed + ".md")
 }

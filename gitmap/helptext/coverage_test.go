@@ -144,18 +144,8 @@ func locateCLIConstantsFile() string {
 // Add to this list ONLY when shipping a subcommand, internal runner,
 // or alias that is documented inside another command's help page.
 var helptextExemptConstants = []string{
-	"CmdServersLS",
-	"CmdClientsLS",
-	"CmdSCLS",
-	"CmdSCCat",
-	"CmdSCWrite",
-	"CmdSCSetDefaultPath",
-	"CmdSCUpdate",
-	"CmdSCUpdateAll",
-	// `gitmap cluster` has its subcommands and isn't a single documented command.
-	"CmdCluster",
-	// Subcommands for cluster command delegation. To be documented later or covered by cluster.md
-	"CmdServersClients", "CmdSC", "CmdClients", "CmdClusterHistory", "CmdClusterExport", "CmdClusterImport", "CmdClusterSetPassword",
+	// Subcommands for cluster/servers-clients delegation — covered by cluster.md / servers-clients.md.
+	"CmdSCCat", "CmdSCWrite", "CmdSCSetDefaultPath", "CmdSCSetPathAlias", "CmdSCUpdate", "CmdSCUpdateAll",
 	// Subcommands of `gitmap group` — documented inside helptext/group.md.
 	"CmdGroupCreate", "CmdGroupAdd", "CmdGroupRemove",
 	"CmdGroupList", "CmdGroupShow", "CmdGroupDelete",

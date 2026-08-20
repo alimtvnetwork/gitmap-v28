@@ -1,5 +1,17 @@
 # Changelog
 
+## [v6.35.0] 2026-08-21 Help Text, Help UI & Terminal Color Enhancements
+
+### Added
+- **Cluster & Delegation Help Text**: Added embedded Markdown help documentation for all multi-machine cluster delegation commands under `gitmap/helptext/` (`servers-clients`, `sc`, `clients`, `cluster`, `cluster nodes`, `cluster history`, `cluster export`, `cluster import`, `cluster set-password`, `cluster set-default-path`, `cluster set-path-alias`, `cluster cat`, `cluster write`, `cluster update`, `cluster update-all`, `servers ls`, `clients ls`, `servers-clients ls`).
+- **Cluster Super-Category**: Integrated a dedicated `CLUSTER & NETWORK` super-category and help group into `gitmap help`, `gitmap help --compact`, and `gitmap help --filter cluster`.
+
+### Enhanced
+- **Terminal Help UI**: Enhanced terminal help output and pretty Markdown rendering with vibrant ANSI category headers, syntax-highlighted commands (green), aliases (yellow), flags (cyan), argument placeholders (green/dim), and formatted examples.
+
+### Fixed
+- **Help UI Documentation**: Fixed the command registry in the React documentation site (`src/data/commands.ts`) to properly list and categorize all cluster and server-client commands in the Command Reference under Cluster & Delegation.
+
 ## [v6.34.0] 2026-08-20 Fix Scan Visualization and Emoji Stripping
 
 ### Fixed

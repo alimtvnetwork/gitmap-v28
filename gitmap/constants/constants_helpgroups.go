@@ -21,6 +21,7 @@ const (
 	HelpGroupCommitXfer  = "  Commit Transfer (replay between repos):"
 	HelpGroupChromeProf  = "  Chrome Profile (copy / export / import / list / delete):"
 	HelpGroupTemplates   = "  Templates & Scaffolding (.gitignore / .gitattributes / LFS):"
+	HelpGroupCluster     = "  Cluster & Delegation (multi-machine networks):"
 
 	HelpAddIgnore     = "  add ignore [langs...]      Merge curated .gitignore block into ./.gitignore (idempotent, marker-block aware)"
 	HelpAddAttributes = "  add attributes [langs...]  Merge curated .gitattributes block into ./.gitattributes (idempotent, marker-block aware)"
@@ -31,6 +32,10 @@ const (
 	HelpTemplatesDiff = "  templates diff (tpl td)    Preview what add ignore/add attributes would change; exit codes mirror diff(1)"
 	HelpSync          = "  sync (sy) <target>         Union-merge curated defaults: ignore | attributes | lfs-install | prettier-ignore | prettier-rc | all  [--dry-run] [--force]"
 	HelpCommons       = "  commons (co)               Shortcut for 'sync all' — add/dedupe curated .gitignore, .gitattributes, .prettierignore, .prettierrc + git lfs install  [--dry-run]"
+
+	HelpServersClients = "  servers-clients (sc) <sub> Broadcast commands across all server + client nodes"
+	HelpClients        = "  clients <sub>              Broadcast commands across client nodes only"
+	HelpCluster        = "  cluster <sub>              Manage cluster nodes, history, exports, passwords"
 
 	HelpGroupHint    = "  Run any command with --help or -h for detailed usage and examples."
 	HelpGroupExample = "  Quick start:"
@@ -61,6 +66,7 @@ const (
 	CompactTasks      = "  task"
 	CompactVisualize  = "  dashboard (db)"
 	CompactCommitXfer = "  commit-right (cmr) — LIVE,  commit-left (cml), commit-both (cmb) — scaffolds"
+	CompactCluster    = "  servers-clients (sc), clients, cluster"
 	CompactUtilities  = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
@@ -84,5 +90,6 @@ var HelpGroupKeys = []string{
 	"tasks",
 	"visualization",
 	"commit-transfer",
+	"cluster",
 	"utilities",
 }
