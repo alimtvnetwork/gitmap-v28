@@ -44,8 +44,8 @@ func initE2ERepo(t *testing.T) (string, string, func()) {
 	os.MkdirAll(bareDir, 0o755)
 	git(bareDir, "init", "--bare")
 
-	// Clone into work dir.
-	git(base, "clone", bareDir, "work")
+	// Clone into work dir. Use forward slashes for Windows Git compat.
+	git(base, "clone", filepath.ToSlash(bareDir), "work")
 	git(workDir, "config", "user.email", "test@test.com")
 	git(workDir, "config", "user.name", "Test")
 

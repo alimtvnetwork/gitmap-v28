@@ -50,6 +50,8 @@ Hard prohibitions. Violating ANY of these is a critical failure.
 - **NEVER** use `cd` in CI scripts. Use `working-directory` in workflow steps.
 - **NEVER** use job-level `if` for SHA deduplication. Use the passthrough gate pattern.
 - **NEVER** cancel release branch CI runs (`cancel-in-progress: false` for `release/**`).
+- **NEVER** use backslashes when creating local git remotes or cloning from local paths on Windows in tests.
+  - **Root Cause Analysis**: Git on Windows will misparse backslashes in local repository paths as unrecognized remote URLs, leading to intermittent `fatal: Could not read from remote repository` push failures in CI tests. Always use `filepath.ToSlash()` (e.g. `file:///C:/path`).
 
 ## Communication Prohibitions
 
