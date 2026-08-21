@@ -1,10 +1,9 @@
 # Plans Index
 
 ## Pending Plans
-- *(No pending plans)*
+- [01-coding-guideline-fixes](pending/01-coding-guideline-fixes.md) - Coding Guideline Audit & Enforcement (v4)
 
 ## Completed Plans
-- [01-coding-guideline-fixes](pending/01-coding-guideline-fixes.md) - Coding Guideline Audit & Enforcement (v4)
 - [dashboard-recent-and-terminal-ui](completed/08-dashboard-recent-and-terminal-ui.md) - Terminal visualization improvements, --recent flag for HTML dashboard, and interactive Recent Items view
 - [mv-rm-resolver-replace-100-steps](completed/05-mv-rm-resolver-replace-100-steps.md) - 100-step master implementation of gitmap mv, Unified Project Resolver, cascading RM sync, and replace engine fixes
 - [update-terminal-visualization](completed/07-update-terminal-visualization.md) - Terminal visualization enhancement for the update process
