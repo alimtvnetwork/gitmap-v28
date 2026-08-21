@@ -1,5 +1,5 @@
 # Subtask: Fix Enums and Magic Values
-Status: completed
+Status: pending
 
 ## Steps
 1. Edit `.\gitmap\archive\archive.go` at line 32: Type alias Format acting as enum lacks Type suffix -> Rename to FormatType
