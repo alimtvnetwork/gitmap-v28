@@ -6,6 +6,7 @@
 package cmd
 
 import (
+	"os"
 	"strings"
 	"testing"
 
