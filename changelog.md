@@ -1,5 +1,17 @@
 # Changelog
 
+## [v6.96.0] 2026-08-21 Repository Relocation (mv), Path-Aware Resolver, RM External Sync & Dashboard Recent View
+
+### Added
+- **Repository Move Engine (`gitmap mv` / `gitmap move`)**: Added repository relocation command supporting moving into parent directory (`..`), relative paths, and absolute paths with Windows long-path prefix (`\\?\`) safety.
+- **External Tools Lifecycle Sync**: Integrated automated synchronization with VS Code Project Manager (`projects.json`) and GitHub Desktop during repository relocation and removal.
+- **Unified Project Resolver**: Added central path-aware lookup engine in `gitmap/cmd/resolver.go` resolving Windows relative paths (`.\prompt-architect`), POSIX trailing slashes (`./repo/`), current directory (`.`), aliases, slugs, and glob patterns.
+- **Dashboard `--recent` Flag & Visualizations**: Added `--recent` flag to filter commits from the last 7 days, ANSI colored messages for dashboard generation, and interactive "Recent Items" navigation view in `dashboard.html`.
+
+### Fixed
+- **Path Reconciliation in `gitmap rm`**: Resolved issue where relative dot-slash prefixes (`.\prompt-architect`) failed to match tracked repositories.
+- **Path Normalization in `gitmap replace`**: Fixed Windows forward/backward slash normalization in `gitmap/cmd/replacewalk.go` to prevent false prefix skips during replacement runs.
+
 ## [v6.95.0] 2026-08-21 Help Text, Help UI & Terminal Color Enhancements
 
 ### Added
