@@ -57,7 +57,7 @@ $script:InstallErrors = New-Object System.Collections.Generic.List[string]
 
 function Write-Log([string]$message, [string]$level = "INFO") {
     $line = "[{0}] [{1}] {2}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $level, $message
-    try { Add-Content -Path $LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue } catch {}
+    try { Add-Content -Path $LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue } catch { Write-Warning "$_" }
 }
 
 function Invoke-Safe {

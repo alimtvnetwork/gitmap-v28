@@ -226,7 +226,7 @@ function Get-AllGitmapOnPath {
                 $found += (Resolve-Path $c.Source).Path
             }
         }
-    } catch {}
+    } catch { Write-Warning "$_" }
 
     # Belt-and-suspenders: also scan every PATH entry directly for a
     # gitmap.exe / gitmap-v28 file in case Get-Command missed something.

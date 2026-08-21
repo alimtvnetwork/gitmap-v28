@@ -504,7 +504,7 @@ try {
     Invoke-SelfInstall $binPath $resolvedVersion
 
     # Cleanup temp
-    try { Remove-Item $dl.Dir -Recurse -Force -ErrorAction SilentlyContinue } catch {}
+    try { Remove-Item $dl.Dir -Recurse -Force -ErrorAction SilentlyContinue } catch { Write-Warning "$_" }
 
     Write-Host ""
     Write-OK "gitmap $resolvedVersion installed to $installDir"

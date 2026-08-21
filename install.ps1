@@ -90,13 +90,13 @@ public static extern bool SetConsoleCP(uint codePageID);
 '@ -ErrorAction SilentlyContinue
     [GitmapInstaller.NativeConsole]::SetConsoleOutputCP(65001) | Out-Null
     [GitmapInstaller.NativeConsole]::SetConsoleCP(65001) | Out-Null
-} catch {}
+} catch { Write-Warning "$_" }
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
     $OutputEncoding           = [System.Text.Encoding]::UTF8
     if ($PSStyle) { $PSStyle.OutputRendering = 'PlainText' }
-} catch {}
+} catch { Write-Warning "$_" }
 
 $Repo = "alimtvnetwork/gitmap-v28"
 $BinaryName = "gitmap.exe"
@@ -356,6 +356,7 @@ function Resolve-Version([string]$version) {
         return $release.tag_name
     }
     catch {
+        Write-Warning "$_"
         $statusCode = "unknown"
         $body = ""
 
@@ -367,6 +368,7 @@ function Resolve-Version([string]$version) {
                 $reader.Close()
             }
             catch {
+                Write-Warning "$_"
                 $body = $_.Exception.Message
             }
         }
@@ -527,6 +529,7 @@ function Get-Asset([string]$version, [string]$arch) {
         Invoke-WebRequest -Uri $checksumUrl -OutFile $checksumPath -UseBasicParsing
     }
     catch {
+        Write-Warning "$_"
         Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
         if ($strict) {
             Stop-Strict "download failed: $($_.Exception.Message)"
@@ -738,6 +741,7 @@ function Install-DocsSite([string]$version, [string]$installDir) {
         Invoke-WebRequest -Uri $assetUrl -OutFile $tmpZip -UseBasicParsing -ErrorAction Stop
     }
     catch {
+        Write-Warning "$_"
         Write-Step "  docs-site.zip not available for $version - skipping (gitmap hd may not work)"
         Remove-Item $tmpZip -Force -ErrorAction SilentlyContinue
         return
@@ -1260,6 +1264,7 @@ function Confirm-IsGitmapInstall([string]$binPath, [bool]$isForce) {
         $out = (& $binPath version 2>&1 | Out-String)
     }
     catch {
+        Write-Warning "$_"
         $out = ""
     }
     if ($out -match '(?i)\bgitmap\b') {

@@ -1,5 +1,5 @@
 # Subtask: Swallowed Errors (PowerShell)
-Status: 🔄 In Progress
+Status: ✅ Done (fixed empty catch blocks across 8 ps1 files by adding Write-Warning "$_" or Write-Error "$_")
 
 ## Steps
 1. Edit fix-repo.ps1: line 139, 260, add explicit Write-Error log to empty catch block

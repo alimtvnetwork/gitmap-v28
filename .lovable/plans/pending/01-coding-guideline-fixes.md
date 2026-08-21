@@ -63,15 +63,15 @@ Massive audit of the codebase to enforce v1.4.5 coding guidelines. Target violat
 42. src/pages/ReleaseVersion.tsx: line 29, extract !isValid to isInvalid := !isValid
 
 ## 3. Subtask: Swallowed Errors (PowerShell)
-43. fix-repo.ps1: line 139, add explicit Write-Error log to empty catch block
-44. fix-repo.ps1: line 260, add explicit Write-Error log to empty catch block
-45. gitmap/scripts/Get-LastRelease.ps1: lines 47, 69, 93, 112, add log to empty catch blocks
-46. gitmap/scripts/install.ps1: lines 93, 99, 130, 175, 196, 359, 370, 417, 530, 651, 684, 756, 773, 1162, 1191, 1255, 1279, 1421, 1453 add log to empty catch blocks
-47. gitmap/scripts/release-version.ps1: lines 203, 300, 314, 355, 389, 438, 453, 462, 513 add log to empty catch blocks
-48. install-quick.ps1: add log to empty catch blocks (approx 8 blocks)
-49. install.ps1: add log to empty catch blocks (approx 15 blocks)
-50. run.ps1: add log to empty catch blocks (approx 20 blocks)
-51. uninstall-quick.ps1: add log to empty catch blocks (approx 6 blocks)
+43. fix-repo.ps1: line 139, add explicit Write-Error log to empty catch block ✅ Done
+44. fix-repo.ps1: line 260, add explicit Write-Error log to empty catch block ✅ Done
+45. gitmap/scripts/Get-LastRelease.ps1: lines 47, 69, 93, 112, add log to empty catch blocks ✅ Done
+46. gitmap/scripts/install.ps1: lines 93, 99, 130, 175, 196, 359, 370, 417, 530, 651, 684, 756, 773, 1162, 1191, 1255, 1279, 1421, 1453 add log to empty catch blocks ✅ Done
+47. gitmap/scripts/release-version.ps1: lines 203, 300, 314, 355, 389, 438, 453, 462, 513 add log to empty catch blocks ✅ Done
+48. install-quick.ps1: add log to empty catch blocks (approx 8 blocks) ✅ Done
+49. install.ps1: add log to empty catch blocks (approx 15 blocks) ✅ Done
+50. run.ps1: add log to empty catch blocks (approx 20 blocks) ✅ Done
+51. uninstall-quick.ps1: add log to empty catch blocks (approx 6 blocks) ✅ Done
 
 ## 4. Subtask: Long Functions & Nested Ifs (Go)
 52-100. Audit all func declarations in gitmap/cmd/*.go exceeding 15 lines. Extract guard clauses and internal logic into separate helpers to meet the 8-15 line target. (Granular mapping delegated to Agent 3).
