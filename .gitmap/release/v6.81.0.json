@@ -1,0 +1,17 @@
+{
+  "version": "6.81.0",
+  "branch": "release/v6.81.0",
+  "sourceBranch": "main",
+  "commit": "fdee9c93b5e678e5cec6392aa670774e8390e45d",
+  "tag": "v6.81.0",
+  "assets": [],
+  "changelog": [
+    "Minor version rollup covering the fix-repo gofmt reliability work shipped in the v6.80.x line:",
+    "Golden-test parity fixes for `hd`, `list-update`, `update-all`, `update-apply` helptext so `go test ./...` stays green.",
+    "No behavior changes vs v6.80.1; this is a minor bump that promotes the accumulated fixes into a clean release."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-07-23T17:16:53Z",
+  "isLatest": false
+}
