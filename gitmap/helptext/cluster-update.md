@@ -12,7 +12,7 @@ gitmap cluster update --id <node-id> [--version <ver>]
 
 ```bash
 gitmap cluster update --id 2
-gitmap cluster update --id 3 --version v6.97.0
+gitmap cluster update --id 3 --version v6.98.0
 ```
 
 See also: `gitmap cluster update-all`, `gitmap update`

@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.98.0] 2026-08-21 Cross-Platform Path Normalization in Resolver & Move Engine
+
+### Fixed
+- **Cross-Platform Resolver Path Matching**: Added forward/backward slash normalization (`fsutil.NormalizeSlashes`) in `resolveByPath` and `resolveByGlob` so Windows-style relative paths (`.\prompt-architect`) and path queries resolve reliably across Linux, macOS, and Windows.
+- **Cross-Platform Destination Calculation in `gitmap mv`**: Updated `calculateDestPath` to clean paths using `filepath.FromSlash` and cross-platform separators, resolving parent directory (`..`) targets uniformly across all operating systems.
+
 ## [v6.97.0] 2026-08-21 Concurrency Safety and Test Harness Synchronization
 
 ### Fixed
