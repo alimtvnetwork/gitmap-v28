@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"sync"
 	"testing"
 )
 
@@ -12,6 +13,10 @@ func TestPreflightBoxRender(t *testing.T) {
 		{ID: "node1", DisplayId: 1, IP: "192.168.1.1"},
 		{ID: "node2", DisplayId: 2, IP: "192.168.1.2"},
 	}
+
+	var mu sync.Mutex
+	mu.Lock()
+	defer mu.Unlock()
 
 	oldStdout := os.Stdout
 	r, w, _ := os.Pipe()

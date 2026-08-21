@@ -158,23 +158,9 @@ func TestEmitJSONAndCSV(t *testing.T) {
 }
 
 // withStdout redirects os.Stdout for the duration of fn and feeds the
-// captured bytes to inspect. Restores stdout on every exit path.
+// captured bytes to inspect.
 func withStdout(t *testing.T, fn func(), inspect func([]byte)) {
 	t.Helper()
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("pipe: %v", err)
-	}
-	orig := os.Stdout
-	os.Stdout = w
-	defer func() { os.Stdout = orig }()
-	done := make(chan []byte, 1)
-	go func() {
-		var buf bytes.Buffer
-		_, _ = buf.ReadFrom(r)
-		done <- buf.Bytes()
-	}()
-	fn()
-	_ = w.Close()
-	inspect(<-done)
+	out := captureStdoutForTest(t, fn)
+	inspect([]byte(out))
 }

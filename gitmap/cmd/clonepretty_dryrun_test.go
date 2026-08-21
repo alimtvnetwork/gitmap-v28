@@ -76,31 +76,8 @@ func TestWithSSHAcceptNewKeepsExplicitStrictHostKey(t *testing.T) {
 }
 
 // captureClonePrettyStdout redirects os.Stdout for the duration of fn and
-// returns whatever was written. Failures during pipe setup fail the
-// test outright — without stdout we cannot assert anything useful.
+// returns whatever was written.
 func captureClonePrettyStdout(t *testing.T, fn func()) string {
 	t.Helper()
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("os.Pipe: %v", err)
-	}
-	orig := os.Stdout
-	os.Stdout = w
-	defer func() { os.Stdout = orig }()
-
-	done := make(chan string, 1)
-	go func() {
-		buf, readErr := io.ReadAll(r)
-		if readErr != nil {
-			done <- ""
-			return
-		}
-		done <- string(buf)
-	}()
-
-	fn()
-	if closeErr := w.Close(); closeErr != nil {
-		t.Fatalf("close pipe writer: %v", closeErr)
-	}
-	return <-done
+	return captureStdoutForTest(t, fn)
 }

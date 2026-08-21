@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -160,9 +161,13 @@ func TestDryRunSkipsAutoCommitWhenNoCommit(t *testing.T) {
 	}
 }
 
+var releaseStdoutMu sync.Mutex
+
 // captureStdout redirects os.Stdout to a buffer, runs fn, and returns output.
 func captureStdout(t *testing.T, fn func()) string {
 	t.Helper()
+	releaseStdoutMu.Lock()
+	defer releaseStdoutMu.Unlock()
 
 	origStdout := os.Stdout
 	r, w, err := os.Pipe()

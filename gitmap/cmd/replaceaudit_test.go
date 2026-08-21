@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -122,28 +121,4 @@ func TestScanAuditFileFormatting(t *testing.T) {
 	if !strings.Contains(stdout, want4) {
 		t.Errorf("missing line-4 hit\n got: %q\nwant substring: %q", stdout, want4)
 	}
-}
-
-// captureStdout temporarily redirects os.Stdout so we can assert on
-// fmt.Fprintf(os.Stdout, ...) output without coupling tests to a
-// global writer.
-func captureStdout(t *testing.T, fn func() int) (string, int) {
-	t.Helper()
-	orig := os.Stdout
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("pipe: %v", err)
-	}
-	os.Stdout = w
-
-	result := fn()
-
-	w.Close()
-	os.Stdout = orig
-
-	buf, err := io.ReadAll(r)
-	if err != nil {
-		t.Fatalf("read pipe: %v", err)
-	}
-	return string(buf), result
 }

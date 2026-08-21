@@ -17,13 +17,18 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"sync"
 	"testing"
 )
 
-// captureStderr swaps os.Stderr for a pipe, runs fn, and returns
-// whatever fn wrote to stderr.
+var stdIOMutex sync.Mutex
+
+// captureStderr swaps os.Stderr for a pipe with mutex protection, runs fn,
+// and returns whatever fn wrote to stderr.
 func captureStderr(t *testing.T, fn func()) string {
 	t.Helper()
+	stdIOMutex.Lock()
+	defer stdIOMutex.Unlock()
 
 	orig := os.Stderr
 	r, w, err := os.Pipe()
@@ -44,4 +49,41 @@ func captureStderr(t *testing.T, fn func()) string {
 	os.Stderr = orig
 
 	return <-done
+}
+
+// captureStdout swaps os.Stdout for a pipe with mutex protection, runs fn,
+// and returns whatever fn wrote to stdout along with its int return value.
+func captureStdout(t *testing.T, fn func() int) (string, int) {
+	t.Helper()
+	stdIOMutex.Lock()
+	defer stdIOMutex.Unlock()
+
+	orig := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	os.Stdout = w
+
+	done := make(chan string, 1)
+	go func() {
+		var buf bytes.Buffer
+		_, _ = io.Copy(&buf, r)
+		done <- buf.String()
+	}()
+
+	result := fn()
+	_ = w.Close()
+	os.Stdout = orig
+
+	return <-done, result
+}
+
+// captureStdoutForTest wraps captureStdout for void functions.
+func captureStdoutForTest(t *testing.T, fn func()) string {
+	out, _ := captureStdout(t, func() int {
+		fn()
+		return 0
+	})
+	return out
 }

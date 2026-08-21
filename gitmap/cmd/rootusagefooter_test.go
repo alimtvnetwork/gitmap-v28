@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"bytes"
-	"io"
-	"os"
 	"strings"
 	"testing"
 )
@@ -23,20 +20,4 @@ func TestEmitIdentityRowsUsesBuildOverridesWithoutDir(t *testing.T) {
 			t.Fatalf("footer missing %q in %q", want, out)
 		}
 	}
-}
-
-func captureStdoutForTest(t *testing.T, fn func()) string {
-	t.Helper()
-	old := os.Stdout
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("pipe stdout: %v", err)
-	}
-	os.Stdout = w
-	fn()
-	_ = w.Close()
-	os.Stdout = old
-	var buf bytes.Buffer
-	_, _ = io.Copy(&buf, r)
-	return buf.String()
 }

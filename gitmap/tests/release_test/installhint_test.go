@@ -3,7 +3,6 @@ package release_test
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -56,25 +55,11 @@ func TestShouldPrintInstallHint_NonGitmapRepos(t *testing.T) {
 }
 
 func TestPrintInstallHint_OutputContent(t *testing.T) {
-	// Capture stdout to verify the printed output format.
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
 	v, _ := release.Parse("2.60.0")
 
-	// We can't call printInstallHint directly (unexported),
-	// but we can verify the constants are correct.
-	fmt.Printf(constants.MsgInstallHintHeader, v.String())
-	fmt.Print(constants.MsgInstallHintWindows)
-	fmt.Print(constants.MsgInstallHintUnix)
-
-	w.Close()
-	os.Stdout = old
-
-	var buf bytes.Buffer
-	buf.ReadFrom(r)
-	output := buf.String()
+	output := fmt.Sprintf(constants.MsgInstallHintHeader, v.String()) +
+		constants.MsgInstallHintWindows +
+		constants.MsgInstallHintUnix
 
 	if len(output) == 0 {
 		t.Fatal("expected install hint output, got empty string")
