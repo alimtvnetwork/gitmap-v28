@@ -17,3 +17,5 @@
 - No single-character variables (`s`, `x`, `d`).
 - Every error must be explicitly logged to `os.Stderr`. No silent swallows.
 - `constants.go` handles all static values; versions are injected via `-ldflags` using `var` instead of `const`.
+- **No State Mutation in Switch Statements**: When computing state/objects across multiple conditions (e.g., inside a switch statement), do not mutate an existing object. Instead, extract the logic into a separate function that creates and returns the object for each case, and assign the result.
+- **No Nested Ternaries**: Avoid complex or nested ternary operators (?:). Favor clear, explicit conditional blocks (if/else) or early returns for readability.
