@@ -54,7 +54,7 @@ func loadInjectStamps(absPath string) store.InjectTimestamps {
 // markInjected best-effort stamps the column for `kind`. Failures are
 // warned but never fatal; the side-effect on Desktop/VS Code already
 // happened, the stamp is just bookkeeping.
-func markInjected(absPath string, kind constants.InjectKind) {
+func markInjected(absPath string, kind constants.InjectKindType) {
 	db, err := openDB()
 	if err != nil {
 		return

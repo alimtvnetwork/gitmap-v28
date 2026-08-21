@@ -12,43 +12,51 @@ import (
 	"testing"
 )
 
+type formatLineCase struct {
+	name    string
+	command string
+	op      string
+	subject string
+	err     error
+	want    string
+}
+
+var formatLineCases = []formatLineCase{
+	{
+		name:    "with_subject",
+		command: "clone-from",
+		op:      "parse",
+		subject: "/tmp/manifest.json",
+		err:     errors.New("invalid json"),
+		want:    "gitmap clone-from: parse on /tmp/manifest.json failed: invalid json",
+	},
+	{
+		name:    "empty_subject_elided",
+		command: "scan",
+		op:      "config-load",
+		subject: "",
+		err:     errors.New("permission denied"),
+		want:    "gitmap scan: config-load failed: permission denied",
+	},
+}
+
 // TestFormatLine_Shape pins the documented format for both the
 // with-subject and elided-subject cases.
 func TestFormatLine_Shape(t *testing.T) {
 	t.Parallel()
-	cases := []struct {
-		name    string
-		command string
-		op      string
-		subject string
-		err     error
-		want    string
-	}{
-		{
-			name:    "with_subject",
-			command: "clone-from",
-			op:      "parse",
-			subject: "/tmp/manifest.json",
-			err:     errors.New("invalid json"),
-			want:    "gitmap clone-from: parse on /tmp/manifest.json failed: invalid json",
-		},
-		{
-			name:    "empty_subject_elided",
-			command: "scan",
-			op:      "config-load",
-			subject: "",
-			err:     errors.New("permission denied"),
-			want:    "gitmap scan: config-load failed: permission denied",
-		},
-	}
-	for _, tc := range cases {
+	for _, tc := range formatLineCases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			got := formatLine(tc.command, tc.op, tc.subject, tc.err)
-			if got != tc.want {
-				t.Fatalf("formatLine mismatch:\n got: %q\nwant: %q", got, tc.want)
-			}
+			assertFormatLine(t, tc)
 		})
+	}
+}
+
+func assertFormatLine(t *testing.T, tc formatLineCase) {
+	t.Helper()
+	got := formatLine(tc.command, tc.op, tc.subject, tc.err)
+	if got != tc.want {
+		t.Fatalf("formatLine mismatch:\n got: %q\nwant: %q", got, tc.want)
 	}
 }
 

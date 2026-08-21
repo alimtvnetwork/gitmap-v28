@@ -44,79 +44,76 @@ func runCloneFixRepoPub(args []string) {
 // runCloneFixRepoPipeline is the shared core. `makePublic` controls
 // whether the optional 3rd step (visibility flip) runs.
 func runCloneFixRepoPipeline(args []string, makePublic bool) {
-	// v6.54.0: extract --parallel BEFORE positional parsing so it
-	// never leaks into the URL/folder positionals.
 	parallel, args := extractParallelFlag(args)
-	// v6.76.0: consume leading `cg` / `p` modifier tokens (order-
-	// independent) before flag/URL parsing. `p` upgrades this
-	// invocation to the public-visibility variant so `cfr p <url>`
-	// behaves exactly like `cfrp <url>`.
 	modifiers, args := ParseCfrModifiers(args)
 	if modifiers.PromotePublic {
 		makePublic = true
 	}
-	url, folderName, noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush := parseCloneFixRepoArgs(args)
+	url, folder, noVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush := parseCloneFixRepoArgs(args)
 	modifiers.NoCommit = modifiers.NoCommit || noCommit
 	modifiers.NoPush = modifiers.NoPush || noPush
-
-	// Comma-separated URL fan-out: re-exec the single-URL pipeline
-	// per worker so chdir/fix-repo chaining stays isolated. The
-	// optional `folder` positional is forbidden in this mode — each
-	// URL derives its own folder from the repo base name.
-	urls := splitCommaURLs(url)
-	if len(urls) > 1 {
-		runParallelCloneFixRepo(urls, makePublic, noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, modifiers, parallel)
+	f := cloneFixRepoFlags{url, folder, noVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush}
+	if dispatchCFRMultiURL(f, makePublic, modifiers, parallel) {
 		return
 	}
+	runSingleCloneFixRepo(f, makePublic, modifiers)
+}
 
-	SetCloneDryRun(dryRun)
-	SetCloneAssumeYes(autoYes)
-	applyCloneAssumeYesEnv(autoYes)
-	if len(url) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrCloneFixRepoUsage)
-		os.Exit(constants.ExitCloneFixRepoBadFlag)
+func dispatchCFRMultiURL(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags, parallel int) bool {
+	urls := splitCommaURLs(f.url)
+	if len(urls) <= 1 {
+		return false
 	}
+	runParallelCloneFixRepo(urls, makePublic, f.noVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, modifiers, parallel)
+	return true
+}
 
-	url = applyCloneFixRepoScheme(url, useSSH, useHTTPS)
-	escapeNestedGitRepo()
-
-	// cfr/cfrp DO flatten `-vN` suffixes: the local folder mirrors
-	// the repo base name (e.g. macro-ahk-v50 → macro-ahk) so that
-	// fix-repo can rewrite version tokens across siblings. If the
-	// user passes an explicit folder argument, that wins verbatim.
-	folderName = deriveFolderNameForCFR(url, folderName)
-	absPath := resolveCloneTargetFolder(url, folderName)
-	url = preferExistingFolderTransport(url, absPath)
-	url = coerceURLToStoredTransport(url)
-	requireOnline()
-	executeDirectClone(url, folderName, true, false, "", noVSCodeSync)
-	if dryRun == false {
-		persistRecloneTransport(url)
-	}
-
-	// Dry-run short circuit: nothing was cloned, so the chained
-	// chdir + fix-repo + make-public steps have no target to act on.
-	if dryRun == true {
+func runSingleCloneFixRepo(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags) {
+	folderName, absPath := validateAndPrepareCFR(&f)
+	executeCFRClone(f.url, folderName, absPath, f)
+	if f.dryRun {
 		printDryRunMessage(makePublic, absPath)
 		return
 	}
+	executeCFRPostSteps(absPath, makePublic, f, modifiers)
+}
 
+func validateAndPrepareCFR(f *cloneFixRepoFlags) (string, string) {
+	SetCloneDryRun(f.dryRun)
+	SetCloneAssumeYes(f.autoYes)
+	applyCloneAssumeYesEnv(f.autoYes)
+	if len(f.url) == 0 {
+		fmt.Fprint(os.Stderr, constants.ErrCloneFixRepoUsage)
+		os.Exit(constants.ExitCloneFixRepoBadFlag)
+	}
+	f.url = applyCloneFixRepoScheme(f.url, f.useSSH, f.useHTTPS)
+	escapeNestedGitRepo()
+	folderName := deriveFolderNameForCFR(f.url, f.folder)
+	absPath := resolveCloneTargetFolder(f.url, folderName)
+	return folderName, absPath
+}
+
+func executeCFRClone(url, folderName, absPath string, f cloneFixRepoFlags) {
+	url = preferExistingFolderTransport(url, absPath)
+	url = coerceURLToStoredTransport(url)
+	requireOnline()
+	executeDirectClone(url, folderName, true, false, "", f.noVSCodeSync)
+	if !f.dryRun {
+		persistRecloneTransport(url)
+	}
+}
+
+func executeCFRPostSteps(absPath string, makePublic bool, f cloneFixRepoFlags, modifiers CfrModifierFlags) {
 	if err := os.Chdir(absPath); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoChdirFmt, absPath, err)
 		os.Exit(constants.ExitCloneFixRepoChdir)
 	}
-
-	maybeRunFixRepoStep(absPath, requireVersion)
+	maybeRunFixRepoStep(absPath, f.requireVersion)
 	if makePublic {
 		runChainedGitmapStep([]string{constants.CmdMakePublic, "--" + constants.FlagVisYes})
-		// v6.63.0: re-enabled per user request. After publishing vN,
-		// scan v(N-1)..v(N-5) and privatize any that are still public.
-		// `-y` auto-confirms; otherwise we prompt.
-		runCFRPPriorVersionPrivatize(absPath, autoYes)
+		runCFRPPriorVersionPrivatize(absPath, f.autoYes)
 	}
-
 	dispatchCodingGuidelinesModifier(absPath, modifiers)
-
 	fmt.Printf(constants.MsgCloneFixRepoDone, absPath)
 }
 
@@ -177,34 +174,43 @@ func dispatchCodingGuidelinesModifier(absPath string, m CfrModifierFlags) {
 
 // applyCloneFixRepoScheme honours --ssh / --https (and short aliases
 // --sh / --ht) by rewriting the URL before the in-process clone runs.
-
+//
 // Mirrors `gitmap clone --ssh` semantics: when both flags are set,
 // --ssh wins and a one-line stderr warning is printed. Unrecognised
 // URL shapes are returned unchanged so non-URL positionals still flow
 // through.
 func applyCloneFixRepoScheme(url string, useSSH, useHTTPS bool) string {
-	if useSSH == true && useHTTPS == true {
+	if useSSH && useHTTPS {
 		fmt.Fprintln(os.Stderr, "warning: --ssh and --https both set; --ssh wins")
 		useHTTPS = false
 	}
-
-	convertedSSH, okSSH := ConvertURLToSSH(url)
-	if useSSH == true && okSSH == true && convertedSSH != url {
-		fmt.Printf("↪ --ssh rewrite: %s → %s\n", url, convertedSSH)
+	if converted, ok := applySSHScheme(url, useSSH); ok {
+		return converted
 	}
-	if useSSH == true && okSSH == true {
-		return convertedSSH
+	if converted, ok := applyHTTPSScheme(url, useHTTPS); ok {
+		return converted
 	}
-
-	convertedHTTPS, okHTTPS := ConvertURLToHTTPS(url)
-	if useHTTPS == true && okHTTPS == true && convertedHTTPS != url {
-		fmt.Printf("↪ --https rewrite: %s → %s\n", url, convertedHTTPS)
-	}
-	if useHTTPS == true && okHTTPS == true {
-		return convertedHTTPS
-	}
-
 	return url
+}
+
+func applySSHScheme(url string, useSSH bool) (string, bool) {
+	if converted, ok := ConvertURLToSSH(url); useSSH && ok {
+		if converted != url {
+			fmt.Printf("↪ --ssh rewrite: %s → %s\n", url, converted)
+		}
+		return converted, true
+	}
+	return url, false
+}
+
+func applyHTTPSScheme(url string, useHTTPS bool) (string, bool) {
+	if converted, ok := ConvertURLToHTTPS(url); useHTTPS && ok {
+		if converted != url {
+			fmt.Printf("↪ --https rewrite: %s → %s\n", url, converted)
+		}
+		return converted, true
+	}
+	return url, false
 }
 
 // maybeRunFixRepoStep runs `fix-repo --all` only when the cloned repo
@@ -243,6 +249,70 @@ func resolveCloneFixRepoName(absPath string) string {
 	return filepath.Base(absPath)
 }
 
+type cloneFixRepoFlags struct {
+	url            string
+	folder         string
+	noVSCodeSync   bool
+	requireVersion bool
+	useSSH         bool
+	useHTTPS       bool
+	autoYes        bool
+	dryRun         bool
+	noCommit       bool
+	noPush         bool
+}
+
+func applyCFRFlag(name string, f *cloneFixRepoFlags) bool {
+	switch name {
+	case constants.FlagNoVSCodeSync:
+		f.noVSCodeSync = true
+	case constants.FlagRequireVersion:
+		f.requireVersion = true
+	case "ssh", "sh":
+		f.useSSH = true
+	case "https", "ht":
+		f.useHTTPS = true
+	default:
+		return applyCFRFlagExtra(name, f)
+	}
+	return true
+}
+
+func applyCFRFlagExtra(name string, f *cloneFixRepoFlags) bool {
+	switch name {
+	case "y", "yes":
+		f.autoYes = true
+	case constants.FlagCloneDryRun, constants.FlagCloneDryRunShort:
+		f.dryRun = true
+	case constants.FlagCGNoCommit:
+		f.noCommit = true
+	case constants.FlagCGNoPush:
+		f.noPush = true
+	default:
+		return false
+	}
+	return true
+}
+
+func extractCFRPositionals(args []string, f *cloneFixRepoFlags) []string {
+	var positional []string
+	for _, a := range args {
+		if !applyCFRFlag(strings.TrimLeft(a, "-"), f) && len(a) > 0 && a[0] != '-' {
+			positional = append(positional, a)
+		}
+	}
+	return positional
+}
+
+func assignCFRPositionals(positional []string, f *cloneFixRepoFlags) {
+	if len(positional) > 0 {
+		f.url = positional[0]
+	}
+	if len(positional) > 1 {
+		f.folder = positional[1]
+	}
+}
+
 // parseCloneFixRepoArgs returns (url, folderName, noVSCodeSync,
 // requireVersion, useSSH, useHTTPS, autoYes, dryRun, noCommit,
 // noPush). First non-flag arg is the URL; second non-flag is the
@@ -252,59 +322,10 @@ func resolveCloneFixRepoName(absPath string) string {
 // accepted to match Go's stdlib `flag` package behaviour the user
 // expects from `-ssh`.
 func parseCloneFixRepoArgs(args []string) (string, string, bool, bool, bool, bool, bool, bool, bool, bool) {
-	positional := make([]string, 0, len(args))
-	noVSCodeSync := false
-	requireVersion := false
-	useSSH := false
-	useHTTPS := false
-	autoYes := false
-	dryRun := false
-	noCommit := false
-	noPush := false
-	syncFlag := constants.FlagNoVSCodeSync
-	reqFlag := constants.FlagRequireVersion
-	for _, a := range args {
-		name := strings.TrimLeft(a, "-")
-		switch name {
-		case syncFlag:
-			noVSCodeSync = true
-			continue
-		case reqFlag:
-			requireVersion = true
-			continue
-		case "ssh", "sh":
-			useSSH = true
-			continue
-		case "https", "ht":
-			useHTTPS = true
-			continue
-		case "y", "yes":
-			autoYes = true
-			continue
-		case constants.FlagCloneDryRun, constants.FlagCloneDryRunShort:
-			dryRun = true
-			continue
-		case constants.FlagCGNoCommit:
-			noCommit = true
-			continue
-		case constants.FlagCGNoPush:
-			noPush = true
-			continue
-		}
-		if len(a) > 0 && a[0] != '-' {
-			positional = append(positional, a)
-		}
-	}
-	url := ""
-	folder := ""
-	if len(positional) > 0 {
-		url = positional[0]
-	}
-	if len(positional) > 1 {
-		folder = positional[1]
-	}
-
-	return url, folder, noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush
+	var f cloneFixRepoFlags
+	positional := extractCFRPositionals(args, &f)
+	assignCFRPositionals(positional, &f)
+	return f.url, f.folder, f.noVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, f.noCommit, f.noPush
 }
 
 // resolveCloneTargetFolder mirrors the folder-naming logic in
@@ -345,12 +366,15 @@ func runChainedGitmapStep(args []string) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	runErr := cmd.Run()
+	handleChainedStepResult(cmd.Run())
+}
+
+func handleChainedStepResult(runErr error) {
 	if runErr == nil {
 		return
 	}
 	var exitErr *exec.ExitError
-	if errors.As(runErr, &exitErr) == true {
+	if errors.As(runErr, &exitErr) {
 		os.Exit(exitErr.ExitCode())
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, runErr)

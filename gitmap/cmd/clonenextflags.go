@@ -70,76 +70,109 @@ type CloneNextFlags struct {
 	NoVSCodeSync bool
 }
 
+type cloneNextPointers struct {
+	delFlag          *bool
+	kpFlag           *bool
+	noDesk           *bool
+	createRem        *bool
+	sshKey           *string
+	verboseFlag      *bool
+	csvPath          *string
+	allFlag          *bool
+	forceFlag        *bool
+	maxConcFlag      *int
+	noProgressFlag   *bool
+	reportErrFlag    *bool
+	dryRunFlag       *bool
+	outputFlag       *string
+	verifyFlag       *bool
+	verifyExitFlag   *bool
+	printArgvFlag    *bool
+	noVSCodeSyncFlag *bool
+}
+
 // parseCloneNextFlags parses flags for the clone-next command.
 func parseCloneNextFlags(args []string) CloneNextFlags {
 	fs := flag.NewFlagSet(constants.CmdCloneNext, flag.ExitOnError)
-	delFlag := fs.Bool("delete", false, constants.FlagDescCloneNextDelete)
-	kpFlag := fs.Bool("keep", false, constants.FlagDescCloneNextKeep)
-	noDesk := fs.Bool("no-desktop", false, constants.FlagDescCloneNextNoDesktop)
-	createRem := fs.Bool("create-remote", false, constants.FlagDescCloneNextCreateRemote)
-	sshKey := fs.String("ssh-key", "", "SSH key name for clone")
-	fs.StringVar(sshKey, "K", "", "SSH key name (short)")
-	verboseFlag := fs.Bool("verbose", false, constants.FlagDescVerbose)
-	csvPath := fs.String("csv", "", constants.FlagDescCloneNextCSV)
-	allFlag := fs.Bool("all", false, constants.FlagDescCloneNextAll)
-	// Force-flatten: long --force and short -f both bind to the same
-	// bool var so either form is canonical (mirrors the --ssh-key/-K
-	// pairing convention used elsewhere in this flagset).
-	forceFlag := fs.Bool("force", false, constants.FlagDescCloneNextForce)
-	fs.BoolVar(forceFlag, "f", false, constants.FlagDescCloneNextForce)
-	// Batch worker-pool size. Reuses the same flag name as `gitmap clone`
-	// so users learn one name (--max-concurrency / -j is reserved for a
-	// later short alias if needed). Default 1 = sequential.
-	maxConcFlag := fs.Int(constants.CloneFlagMaxConcurrency,
-		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
-	noProgressFlag := fs.Bool(constants.FlagCloneNextNoProgress, false,
-		constants.FlagDescCloneNextNoProgress)
-	reportErrFlag := fs.Bool(constants.FlagScanReportErrors, false, constants.FlagDescScanReportErrors)
-	dryRunFlag := fs.Bool(constants.FlagCloneNextDryRun, false, constants.FlagDescCloneNextDryRun)
-	outputFlag := fs.String(constants.FlagCloneNextOutput, "", constants.FlagDescCloneNextOutput)
-	verifyFlag := fs.Bool(constants.FlagCloneVerifyCmdFaithful, false,
-		constants.FlagDescCloneVerifyCmdFaithful)
-	verifyExitFlag := fs.Bool(constants.FlagCloneVerifyCmdFaithfulExitOnMismatch,
-		false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch)
-	printArgvFlag := fs.Bool(constants.FlagClonePrintArgv, false,
-		constants.FlagDescClonePrintArgv)
-	noVSCodeSyncFlag := fs.Bool(constants.FlagNoVSCodeSync, false,
-		constants.FlagDescNoVSCodeSync)
-	// Reorder so flags placed AFTER the positional version (e.g.
-	// `gitmap cn v+1 -f`) are still recognized. Go's stdlib flag
-	// parser stops at the first non-flag arg, so without this the
-	// `-f` in the screenshot above was silently dropped.
+	var p cloneNextPointers
+	bindCloneNextFlags(fs, &p)
 	fs.Parse(reorderFlagsBeforeArgs(args))
-
-	resolvedConc, ok := cloneconcurrency.Resolve(*maxConcFlag)
-	if !ok {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, *maxConcFlag)
-		os.Exit(1)
-	}
-
-	out := CloneNextFlags{
-		Delete:                          *delFlag,
-		Keep:                            *kpFlag,
-		NoDesktop:                       *noDesk,
-		CreateRemote:                    *createRem,
-		SSHKeyName:                      *sshKey,
-		Verbose:                         *verboseFlag,
-		CSVPath:                         *csvPath,
-		All:                             *allFlag,
-		Force:                           *forceFlag,
-		MaxConcurrency:                  resolvedConc,
-		NoProgress:                      *noProgressFlag,
-		ReportErrors:                    *reportErrFlag,
-		DryRun:                          *dryRunFlag,
-		Output:                          *outputFlag,
-		VerifyCmdFaithful:               *verifyFlag,
-		VerifyCmdFaithfulExitOnMismatch: *verifyExitFlag,
-		PrintCloneArgv:                  *printArgvFlag,
-		NoVSCodeSync:                    *noVSCodeSyncFlag,
-	}
+	conc := resolveCloneNextConcurrency(*p.maxConcFlag)
+	out := buildCloneNextFlags(&p, conc)
 	if fs.NArg() > 0 {
 		out.VersionArg = fs.Arg(0)
 	}
-
 	return out
+}
+
+func resolveCloneNextConcurrency(maxConc int) int {
+	resolvedConc, ok := cloneconcurrency.Resolve(maxConc)
+	if !ok {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConc)
+		os.Exit(1)
+	}
+	return resolvedConc
+}
+
+func bindCloneNextFlags(fs *flag.FlagSet, p *cloneNextPointers) {
+	bindCloneNextBasicFlags(fs, p)
+	bindCloneNextBatchFlags(fs, p)
+	bindCloneNextVerifyFlags(fs, p)
+}
+
+func bindCloneNextBasicFlags(fs *flag.FlagSet, p *cloneNextPointers) {
+	p.delFlag = fs.Bool("delete", false, constants.FlagDescCloneNextDelete)
+	p.kpFlag = fs.Bool("keep", false, constants.FlagDescCloneNextKeep)
+	p.noDesk = fs.Bool("no-desktop", false, constants.FlagDescCloneNextNoDesktop)
+	p.createRem = fs.Bool("create-remote", false, constants.FlagDescCloneNextCreateRemote)
+	p.sshKey = fs.String("ssh-key", "", "SSH key name for clone")
+	fs.StringVar(p.sshKey, "K", "", "SSH key name (short)")
+	p.verboseFlag = fs.Bool("verbose", false, constants.FlagDescVerbose)
+}
+
+func bindCloneNextBatchFlags(fs *flag.FlagSet, p *cloneNextPointers) {
+	p.csvPath = fs.String("csv", "", constants.FlagDescCloneNextCSV)
+	p.allFlag = fs.Bool("all", false, constants.FlagDescCloneNextAll)
+	p.forceFlag = fs.Bool("force", false, constants.FlagDescCloneNextForce)
+	fs.BoolVar(p.forceFlag, "f", false, constants.FlagDescCloneNextForce)
+	p.maxConcFlag = fs.Int(constants.CloneFlagMaxConcurrency, constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
+	p.noProgressFlag = fs.Bool(constants.FlagCloneNextNoProgress, false, constants.FlagDescCloneNextNoProgress)
+	p.reportErrFlag = fs.Bool(constants.FlagScanReportErrors, false, constants.FlagDescScanReportErrors)
+}
+
+func bindCloneNextVerifyFlags(fs *flag.FlagSet, p *cloneNextPointers) {
+	p.dryRunFlag = fs.Bool(constants.FlagCloneNextDryRun, false, constants.FlagDescCloneNextDryRun)
+	p.outputFlag = fs.String(constants.FlagCloneNextOutput, "", constants.FlagDescCloneNextOutput)
+	p.verifyFlag = fs.Bool(constants.FlagCloneVerifyCmdFaithful, false, constants.FlagDescCloneVerifyCmdFaithful)
+	p.verifyExitFlag = fs.Bool(constants.FlagCloneVerifyCmdFaithfulExitOnMismatch, false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch)
+	p.printArgvFlag = fs.Bool(constants.FlagClonePrintArgv, false, constants.FlagDescClonePrintArgv)
+	p.noVSCodeSyncFlag = fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
+}
+
+func buildCloneNextFlags(p *cloneNextPointers, maxConcurrency int) CloneNextFlags {
+	out := CloneNextFlags{
+		Delete:         *p.delFlag,
+		Keep:           *p.kpFlag,
+		NoDesktop:      *p.noDesk,
+		CreateRemote:   *p.createRem,
+		SSHKeyName:     *p.sshKey,
+		Verbose:        *p.verboseFlag,
+		CSVPath:        *p.csvPath,
+		All:            *p.allFlag,
+		Force:          *p.forceFlag,
+		MaxConcurrency: maxConcurrency,
+	}
+	populateCloneNextOptionalFlags(&out, p)
+	return out
+}
+
+func populateCloneNextOptionalFlags(out *CloneNextFlags, p *cloneNextPointers) {
+	out.NoProgress = *p.noProgressFlag
+	out.ReportErrors = *p.reportErrFlag
+	out.DryRun = *p.dryRunFlag
+	out.Output = *p.outputFlag
+	out.VerifyCmdFaithful = *p.verifyFlag
+	out.VerifyCmdFaithfulExitOnMismatch = *p.verifyExitFlag
+	out.PrintCloneArgv = *p.printArgvFlag
+	out.NoVSCodeSync = *p.noVSCodeSyncFlag
 }

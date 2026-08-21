@@ -39,12 +39,12 @@ const (
 	ColInjectVSCode  = "LastInjectedVSCodeAt"
 )
 
-// InjectKind discriminates the two tool slots in the helper API. Kept
+// InjectKindType discriminates the two tool slots in the helper API. Kept
 // as a typed constant so callers can't pass a typo'd column name.
-type InjectKind int
+type InjectKindType int
 
 const (
-	InjectKindDesktop InjectKind = iota + 1
+	InjectKindDesktop InjectKindType = iota + 1
 	InjectKindVSCode
 )
 

@@ -40,7 +40,7 @@ func (db *DB) GetInjectTimestamps(absPath string) (InjectTimestamps, error) {
 // MarkInjected stamps the column for the given tool to CURRENT_TIMESTAMP.
 // No-op (returns nil) when no row matches absPath — the upstream upsert
 // is the only thing that creates Repo rows; injection alone never does.
-func (db *DB) MarkInjected(absPath string, kind constants.InjectKind) error {
+func (db *DB) MarkInjected(absPath string, kind constants.InjectKindType) error {
 	col := injectColumnFor(kind)
 	if col == "" {
 		return fmt.Errorf("inject_idempotency: unknown InjectKind %d", kind)
@@ -55,7 +55,7 @@ func (db *DB) MarkInjected(absPath string, kind constants.InjectKind) error {
 }
 
 // injectColumnFor maps the typed kind to its physical column name.
-func injectColumnFor(kind constants.InjectKind) string {
+func injectColumnFor(kind constants.InjectKindType) string {
 	switch kind {
 	case constants.InjectKindDesktop:
 		return constants.ColInjectDesktop

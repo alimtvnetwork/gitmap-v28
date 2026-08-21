@@ -32,25 +32,32 @@ func parseCloneFromFlags(args []string) cloneFromFlags {
 	var cfg cloneFromFlags
 	fs := flag.NewFlagSet("clone-from", flag.ExitOnError)
 	maxConcFlag := bindCloneFromFlags(fs, &cfg)
-	reordered := reorderFlagsBeforeArgs(args)
-	fs.Parse(reordered)
+	fs.Parse(reorderFlagsBeforeArgs(args))
 	if cfg.emitSchema != "" {
 		return cfg
 	}
+	validateCloneFromArgs(fs, cfg.checkout)
+	cfg.maxConcurrency = resolveCloneFromConcurrency(*maxConcFlag)
+	cfg.file = fs.Arg(0)
+
+	return cfg
+}
+
+func validateCloneFromArgs(fs *flag.FlagSet, checkout string) {
 	if fs.NArg() < 1 {
 		fmt.Fprintln(os.Stderr, constants.MsgCloneFromMissingArg)
 		os.Exit(2)
 	}
-	validateCheckoutFlag(cfg.checkout)
-	resolvedConc, ok := cloneconcurrency.Resolve(*maxConcFlag)
+	validateCheckoutFlag(checkout)
+}
+
+func resolveCloneFromConcurrency(maxConc int) int {
+	resolvedConc, ok := cloneconcurrency.Resolve(maxConc)
 	if !ok {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, *maxConcFlag)
+		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConc)
 		os.Exit(2)
 	}
-	cfg.maxConcurrency = resolvedConc
-	cfg.file = fs.Arg(0)
-
-	return cfg
+	return resolvedConc
 }
 
 // bindCloneFromFlags registers every flag on fs against cfg and
@@ -59,28 +66,28 @@ func parseCloneFromFlags(args []string) cloneFromFlags {
 // post-process it). Split out so parseCloneFromFlags stays under
 // the 15-line function budget.
 func bindCloneFromFlags(fs *flag.FlagSet, cfg *cloneFromFlags) *int {
-	fs.BoolVar(&cfg.execute, constants.FlagCloneFromExecute, false,
-		constants.FlagDescCloneFromExecute)
-	fs.BoolVar(&cfg.quiet, constants.FlagCloneFromQuiet, false,
-		constants.FlagDescCloneFromQuiet)
-	fs.BoolVar(&cfg.noReport, constants.FlagCloneFromNoReport, false,
-		constants.FlagDescCloneFromNoReport)
-	fs.StringVar(&cfg.output, constants.FlagCloneFromOutput, "",
-		constants.FlagDescCloneFromOutput)
-	fs.BoolVar(&cfg.verifyCmdFaithful, constants.FlagCloneVerifyCmdFaithful,
-		false, constants.FlagDescCloneVerifyCmdFaithful)
-	fs.BoolVar(&cfg.verifyCmdFaithfulExitOnMismatch,
-		constants.FlagCloneVerifyCmdFaithfulExitOnMismatch, false,
-		constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch)
-	fs.BoolVar(&cfg.printCloneArgv, constants.FlagClonePrintArgv,
-		false, constants.FlagDescClonePrintArgv)
-	fs.StringVar(&cfg.checkout, constants.FlagCloneFromCheckout, "",
-		constants.FlagDescCloneFromCheckout)
-	fs.StringVar(&cfg.emitSchema, constants.FlagCloneFromEmitSchema, "",
-		constants.FlagDescCloneFromEmitSchema)
-	fs.BoolVar(&cfg.noVSCodeSync, constants.FlagNoVSCodeSync, false,
-		constants.FlagDescNoVSCodeSync)
-
+	bindCloneFromBasicFlags(fs, cfg)
+	bindCloneFromVerificationFlags(fs, cfg)
+	bindCloneFromOptionFlags(fs, cfg)
 	return fs.Int(constants.CloneFlagMaxConcurrency,
 		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
+}
+
+func bindCloneFromBasicFlags(fs *flag.FlagSet, cfg *cloneFromFlags) {
+	fs.BoolVar(&cfg.execute, constants.FlagCloneFromExecute, false, constants.FlagDescCloneFromExecute)
+	fs.BoolVar(&cfg.quiet, constants.FlagCloneFromQuiet, false, constants.FlagDescCloneFromQuiet)
+	fs.BoolVar(&cfg.noReport, constants.FlagCloneFromNoReport, false, constants.FlagDescCloneFromNoReport)
+	fs.StringVar(&cfg.output, constants.FlagCloneFromOutput, "", constants.FlagDescCloneFromOutput)
+}
+
+func bindCloneFromVerificationFlags(fs *flag.FlagSet, cfg *cloneFromFlags) {
+	fs.BoolVar(&cfg.verifyCmdFaithful, constants.FlagCloneVerifyCmdFaithful, false, constants.FlagDescCloneVerifyCmdFaithful)
+	fs.BoolVar(&cfg.verifyCmdFaithfulExitOnMismatch, constants.FlagCloneVerifyCmdFaithfulExitOnMismatch, false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch)
+	fs.BoolVar(&cfg.printCloneArgv, constants.FlagClonePrintArgv, false, constants.FlagDescClonePrintArgv)
+}
+
+func bindCloneFromOptionFlags(fs *flag.FlagSet, cfg *cloneFromFlags) {
+	fs.StringVar(&cfg.checkout, constants.FlagCloneFromCheckout, "", constants.FlagDescCloneFromCheckout)
+	fs.StringVar(&cfg.emitSchema, constants.FlagCloneFromEmitSchema, "", constants.FlagDescCloneFromEmitSchema)
+	fs.BoolVar(&cfg.noVSCodeSync, constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
 }

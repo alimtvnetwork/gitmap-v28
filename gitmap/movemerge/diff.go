@@ -2,12 +2,12 @@ package movemerge
 
 import "path/filepath"
 
-// DiffKind classifies a path across LEFT and RIGHT.
-type DiffKind int
+// DiffKindType classifies a path across LEFT and RIGHT.
+type DiffKindType int
 
 const (
 	// DiffMissingLeft = present on RIGHT only.
-	DiffMissingLeft DiffKind = iota
+	DiffMissingLeft DiffKindType = iota
 	// DiffMissingRight = present on LEFT only.
 	DiffMissingRight
 	// DiffConflict = present on both with different content.
@@ -19,7 +19,7 @@ const (
 // DiffEntry is one classified path with both sides' metadata.
 type DiffEntry struct {
 	RelPath string
-	Kind    DiffKind
+	Kind    DiffKindType
 	Left    FileMeta
 	Right   FileMeta
 }

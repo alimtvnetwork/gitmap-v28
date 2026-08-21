@@ -7,12 +7,12 @@ import (
 	"strings"
 )
 
-// Choice is the outcome of resolving one conflict.
-type Choice int
+// ChoiceType is the outcome of resolving one conflict.
+type ChoiceType int
 
 const (
 	// ChoiceLeft writes LEFT's version onto the destination side.
-	ChoiceLeft Choice = iota
+	ChoiceLeft ChoiceType = iota
 	// ChoiceRight writes RIGHT's version onto the destination side.
 	ChoiceRight
 	// ChoiceSkip leaves both sides untouched.
@@ -29,11 +29,11 @@ const (
 	keyQuit     = "Q"
 )
 
-// Resolver picks a Choice for each conflict. Stateful: All-Left/Right
+// Resolver picks a ChoiceType for each conflict. Stateful: All-Left/Right
 // stickiness is held inside the resolver instance.
 type Resolver struct {
 	policy PreferPolicy
-	sticky Choice
+	sticky ChoiceType
 	hasStk bool
 	in     io.Reader
 	out    io.Writer
@@ -45,9 +45,9 @@ func NewResolver(policy PreferPolicy, in io.Reader, out io.Writer) *Resolver {
 	return &Resolver{policy: policy, in: in, out: out}
 }
 
-// Resolve returns the Choice for one conflict. ResolveAuto handles
+// Resolve returns the ChoiceType for one conflict. ResolveAuto handles
 // the bypass policies; otherwise the interactive prompt is used.
-func (r *Resolver) Resolve(rel string, l, rgt FileMeta) (Choice, error) {
+func (r *Resolver) Resolve(rel string, l, rgt FileMeta) (ChoiceType, error) {
 	if c, done := r.resolveSticky(); done {
 		return c, nil
 	}
@@ -59,7 +59,7 @@ func (r *Resolver) Resolve(rel string, l, rgt FileMeta) (Choice, error) {
 }
 
 // resolveSticky returns the sticky choice if All-Left/Right was set.
-func (r *Resolver) resolveSticky() (Choice, bool) {
+func (r *Resolver) resolveSticky() (ChoiceType, bool) {
 	if r.hasStk {
 		return r.sticky, true
 	}
@@ -68,7 +68,7 @@ func (r *Resolver) resolveSticky() (Choice, bool) {
 }
 
 // resolveByPolicy applies non-interactive --prefer-* policies.
-func (r *Resolver) resolveByPolicy(l, rgt FileMeta) (Choice, bool) {
+func (r *Resolver) resolveByPolicy(l, rgt FileMeta) (ChoiceType, bool) {
 	if r.policy == PreferNone {
 		return 0, false
 	} else if r.policy == PreferLeft {
@@ -87,7 +87,7 @@ func (r *Resolver) resolveByPolicy(l, rgt FileMeta) (Choice, bool) {
 }
 
 // resolveInteractive prints the prompt and reads one keystroke.
-func (r *Resolver) resolveInteractive(rel string, l, rgt FileMeta) (Choice, error) {
+func (r *Resolver) resolveInteractive(rel string, l, rgt FileMeta) (ChoiceType, error) {
 	fmt.Fprintf(r.out, "  conflict: %s\n", rel)
 	fmt.Fprintf(r.out, "    LEFT  : %d B  modified %s\n", l.Info.Size(), l.Info.ModTime().Format("2006-01-02 15:04"))
 	fmt.Fprintf(r.out, "    RIGHT : %d B  modified %s\n", rgt.Info.Size(), rgt.Info.ModTime().Format("2006-01-02 15:04"))
@@ -101,8 +101,8 @@ func (r *Resolver) resolveInteractive(rel string, l, rgt FileMeta) (Choice, erro
 	return ChoiceQuit, fmt.Errorf("conflict prompt: stdin closed")
 }
 
-// parseKey maps a single keystroke to a Choice; sets sticky when A/B.
-func (r *Resolver) parseKey(key string) Choice {
+// parseKey maps a single keystroke to a ChoiceType; sets sticky when A/B.
+func (r *Resolver) parseKey(key string) ChoiceType {
 	k := strings.ToUpper(key)
 	if k == keyLeft {
 		return ChoiceLeft

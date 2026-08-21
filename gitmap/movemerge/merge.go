@@ -99,7 +99,7 @@ func applyConflict(e DiffEntry, l, r Endpoint, dir Direction, res *Resolver, opt
 }
 
 // writeChoice writes the chosen side onto the destination(s).
-func writeChoice(c Choice, e DiffEntry, l, r Endpoint, dir Direction, opts Options) error {
+func writeChoice(c ChoiceType, e DiffEntry, l, r Endpoint, dir Direction, opts Options) error {
 	switch {
 	case c == ChoiceLeft && (dir == DirBoth || dir == DirRightOnly):
 		logIndent(opts.LogPrefix, "conflict %s -> took LEFT", e.RelPath)
