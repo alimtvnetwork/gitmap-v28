@@ -5,21 +5,21 @@ import (
 	"time"
 )
 
-// NodeState indicates the current connection status of a cluster node.
-type NodeState string
+// NodeStateType indicates the current connection status of a cluster node.
+type NodeStateType string
 
 const (
 	// StateConnected means the node has recently sent a heartbeat.
-	StateConnected NodeState = "Connected"
+	StateConnected NodeStateType = "Connected"
 	// StateDisconnected means the node's heartbeat has timed out.
-	StateDisconnected NodeState = "Disconnected"
+	StateDisconnected NodeStateType = "Disconnected"
 )
 
 // Node represents a connected VM in the cluster.
 type Node struct {
 	ID       string
 	LastSeen time.Time
-	State    NodeState
+	State    NodeStateType
 }
 
 // Registry maintains the server-side state of all connected nodes.

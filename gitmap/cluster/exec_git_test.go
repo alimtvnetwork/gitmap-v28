@@ -43,14 +43,11 @@ func TestExecGit_Commands(t *testing.T) {
 			}
 
 			// Validate Windows vs Unix shell wrapping
-			if runtime.GOOS == "windows" {
-				if !strings.Contains(strings.ToLower(lastCmd), "cmd.exe") || !strings.Contains(strings.ToLower(lastCmd), "/c") {
-					t.Errorf("expected windows shell cmd.exe /c, got %q", lastCmd)
-				}
-			} else {
-				if !strings.Contains(lastCmd, "sh") || !strings.Contains(lastCmd, "-c") {
-					t.Errorf("expected unix shell sh -c, got %q", lastCmd)
-				}
+			if runtime.GOOS == "windows" && (!strings.Contains(strings.ToLower(lastCmd), "cmd.exe") || !strings.Contains(strings.ToLower(lastCmd), "/c")) {
+				t.Errorf("expected windows shell cmd.exe /c, got %q", lastCmd)
+			}
+			if runtime.GOOS != "windows" && (!strings.Contains(lastCmd, "sh") || !strings.Contains(lastCmd, "-c")) {
+				t.Errorf("expected unix shell sh -c, got %q", lastCmd)
 			}
 		})
 	}

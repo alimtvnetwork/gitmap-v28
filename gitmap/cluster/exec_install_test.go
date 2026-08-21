@@ -25,14 +25,14 @@ func TestExecInstall(t *testing.T) {
 
 		// Mock the actual install command via shell
 		cmdStr := strings.Join(cmd.Args, " ")
-		if strings.Contains(cmdStr, "install") {
-			if strings.Contains(cmdStr, "failpkg") {
-				cmd.Stderr.Write([]byte("install failed"))
-				return &exec.ExitError{}
-			}
-			return nil
+		if !strings.Contains(cmdStr, "install") {
+			return errors.New("unexpected command: " + cmdStr)
 		}
-		return errors.New("unexpected command: " + cmdStr)
+		if strings.Contains(cmdStr, "failpkg") {
+			cmd.Stderr.Write([]byte("install failed"))
+			return &exec.ExitError{}
+		}
+		return nil
 	}
 
 	packages := []string{"goodpkg", "failpkg"}

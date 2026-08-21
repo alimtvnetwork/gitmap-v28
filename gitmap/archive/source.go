@@ -24,13 +24,13 @@ import (
 	"time"
 )
 
-// SourceKind classifies one entry on the `gitmap zip` / `gitmap uzc`
+// SourceKindType classifies one entry on the `gitmap zip` / `gitmap uzc`
 // command line. The cmd layer dispatches per-kind; the archive engine
 // only ever sees concrete local paths.
-type SourceKind int
+type SourceKindType int
 
 const (
-	SourceLocal SourceKind = iota
+	SourceLocal SourceKindType = iota
 	SourceHTTP
 	SourceGit
 )
@@ -41,7 +41,7 @@ const (
 // HTTP and git branches signal they used a temp workspace).
 type ResolvedSource struct {
 	Original   string
-	Kind       SourceKind
+	Kind       SourceKindType
 	LocalPath  string
 	CleanupDir string
 }
@@ -50,7 +50,7 @@ type ResolvedSource struct {
 // layer uses BEFORE doing any IO. Decision order matters: a path like
 // `git@github.com:foo/bar.git` parses as a URL with no scheme, so we
 // detect git first.
-func ClassifySource(s string) SourceKind {
+func ClassifySource(s string) SourceKindType {
 	if isGitURL(s) {
 		return SourceGit
 	}

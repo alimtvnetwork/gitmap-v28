@@ -26,20 +26,20 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
-// AuditAction labels the planned action for a single record.
-type AuditAction string
+// AuditActionType labels the planned action for a single record.
+type AuditActionType string
 
 const (
-	AuditActionClone    AuditAction = "clone"    // target missing — fresh clone
-	AuditActionPull     AuditAction = "pull"     // target is a git repo — would safe-pull
-	AuditActionCached   AuditAction = "cached"   // cache fingerprint matches dest
-	AuditActionInvalid  AuditAction = "invalid"  // record has no clone URL
-	AuditActionConflict AuditAction = "conflict" // target exists but is not a git repo
+	AuditActionClone    AuditActionType = "clone"    // target missing — fresh clone
+	AuditActionPull     AuditActionType = "pull"     // target is a git repo — would safe-pull
+	AuditActionCached   AuditActionType = "cached"   // cache fingerprint matches dest
+	AuditActionInvalid  AuditActionType = "invalid"  // record has no clone URL
+	AuditActionConflict AuditActionType = "conflict" // target exists but is not a git repo
 )
 
 // AuditEntry is one planned-vs-actual row in the audit report.
 type AuditEntry struct {
-	Action       AuditAction
+	Action       AuditActionType
 	RelativePath string
 	URL          string
 	Branch       string
@@ -53,7 +53,7 @@ type CloneAuditReport struct {
 	Source  string
 	Target  string
 	Entries []AuditEntry
-	Counts  map[AuditAction]int
+	Counts  map[AuditActionType]int
 }
 
 // PlanCloneAudit loads the source manifest and produces a non-executing
@@ -69,7 +69,7 @@ func PlanCloneAudit(sourcePath, targetDir string) (*CloneAuditReport, error) {
 	report := &CloneAuditReport{
 		Source: sourcePath,
 		Target: targetDir,
-		Counts: make(map[AuditAction]int),
+		Counts: make(map[AuditActionType]int),
 	}
 	for _, rec := range records {
 		entry := planOne(rec, targetDir, cache)
@@ -179,7 +179,7 @@ func printEntry(w io.Writer, e AuditEntry) error {
 }
 
 // printSummary prints the trailing aggregate counts.
-func printSummary(w io.Writer, counts map[AuditAction]int) error {
+func printSummary(w io.Writer, counts map[AuditActionType]int) error {
 	_, err := fmt.Fprintf(w, constants.MsgCloneAuditSummary,
 		counts[AuditActionClone], counts[AuditActionPull],
 		counts[AuditActionCached], counts[AuditActionConflict],
@@ -189,7 +189,7 @@ func printSummary(w io.Writer, counts map[AuditAction]int) error {
 }
 
 // actionMarker maps each action to its diff-style single-character marker.
-func actionMarker(a AuditAction) string {
+func actionMarker(a AuditActionType) string {
 	switch a {
 	case AuditActionClone:
 		return "+"

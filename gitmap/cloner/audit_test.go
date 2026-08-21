@@ -44,7 +44,7 @@ func TestPlanCloneAudit_ClassifiesEveryRecordType(t *testing.T) {
 		t.Fatalf("entries = %d, want 3", len(report.Entries))
 	}
 
-	wantActions := []AuditAction{AuditActionClone, AuditActionConflict, AuditActionInvalid}
+	wantActions := []AuditActionType{AuditActionClone, AuditActionConflict, AuditActionInvalid}
 	for i, w := range wantActions {
 		if got := report.Entries[i].Action; got != w {
 			t.Errorf("entry[%d].Action = %q, want %q", i, got, w)
@@ -110,7 +110,7 @@ func TestCloneAuditReport_PrintFormatsRows(t *testing.T) {
 			{Action: AuditActionClone, RelativePath: "fresh", URL: "https://x/a.git", Reason: "r1", Command: "git clone https://x/a.git /t/fresh"},
 			{Action: AuditActionInvalid, RelativePath: "bad", Reason: "no url"},
 		},
-		Counts: map[AuditAction]int{AuditActionClone: 1, AuditActionInvalid: 1},
+		Counts: map[AuditActionType]int{AuditActionClone: 1, AuditActionInvalid: 1},
 	}
 	var buf bytes.Buffer
 	if err := report.Print(&buf); err != nil {
@@ -133,7 +133,7 @@ func TestCloneAuditReport_PrintFormatsRows(t *testing.T) {
 // TestActionMarker_StableMapping freezes the diff-marker contract so
 // downstream grep/awk pipelines stay stable across releases.
 func TestActionMarker_StableMapping(t *testing.T) {
-	cases := map[AuditAction]string{
+	cases := map[AuditActionType]string{
 		AuditActionClone:    "+",
 		AuditActionPull:     "~",
 		AuditActionCached:   "=",

@@ -30,10 +30,10 @@ func TestRunRefGenerator(t *testing.T) {
 		FailedNodes INTEGER NOT NULL DEFAULT 0,
 		SkippedNodes INTEGER NOT NULL DEFAULT 0
 	)`)
+	if err != nil && (strings.Contains(err.Error(), "cgo") || strings.Contains(err.Error(), "CGO_ENABLED")) {
+		t.Skip("Skipping test due to CGO requirement for sqlite3")
+	}
 	if err != nil {
-		if strings.Contains(err.Error(), "cgo") || strings.Contains(err.Error(), "CGO_ENABLED") {
-			t.Skip("Skipping test due to CGO requirement for sqlite3")
-		}
 		t.Fatalf("Failed to create table: %v", err)
 	}
 

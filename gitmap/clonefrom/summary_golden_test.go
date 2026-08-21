@@ -38,6 +38,40 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/goldenguard"
 )
 
+func canonicalWidgetResult() Result {
+	return Result{
+		Row: Row{
+			URL:    "https://github.com/acme/widget.git",
+			Branch: "main",
+			Depth:  1,
+		},
+		Dest:     "widget",
+		Status:   constants.CloneFromStatusOK,
+		Detail:   "",
+		Duration: 1234 * time.Millisecond,
+	}
+}
+
+func canonicalGadgetResult() Result {
+	return Result{
+		Row:      Row{URL: "https://github.com/acme/gadget.git"},
+		Dest:     "gadget",
+		Status:   constants.CloneFromStatusSkipped,
+		Detail:   "dest exists",
+		Duration: 0,
+	}
+}
+
+func canonicalMissingResult() Result {
+	return Result{
+		Row:      Row{URL: "git@github.com:acme/missing.git"},
+		Dest:     "missing",
+		Status:   constants.CloneFromStatusFailed,
+		Detail:   "fatal: repository not found",
+		Duration: 89 * time.Millisecond,
+	}
+}
+
 // canonicalReportResults builds a deterministic 3-row fixture that
 // hits every status branch (ok, skipped, failed) AND every nullable
 // column (Detail empty for ok-without-detail, Branch/Depth zero for
@@ -45,30 +79,10 @@ import (
 // real Execute run) so the test has zero external dependencies —
 // no git, no filesystem, no network.
 func canonicalReportResults() []Result {
-
 	return []Result{
-		{
-			Row: Row{URL: "https://github.com/acme/widget.git",
-				Branch: "main", Depth: 1},
-			Dest:     "widget",
-			Status:   constants.CloneFromStatusOK,
-			Detail:   "",
-			Duration: 1234 * time.Millisecond,
-		},
-		{
-			Row:      Row{URL: "https://github.com/acme/gadget.git"},
-			Dest:     "gadget",
-			Status:   constants.CloneFromStatusSkipped,
-			Detail:   "dest exists",
-			Duration: 0,
-		},
-		{
-			Row:      Row{URL: "git@github.com:acme/missing.git"},
-			Dest:     "missing",
-			Status:   constants.CloneFromStatusFailed,
-			Detail:   "fatal: repository not found",
-			Duration: 89 * time.Millisecond,
-		},
+		canonicalWidgetResult(),
+		canonicalGadgetResult(),
+		canonicalMissingResult(),
 	}
 }
 
@@ -96,6 +110,29 @@ func TestCloneFromReport_Golden_Canonical(t *testing.T) {
 	assertReportGolden(t, "clonefrom_report_canonical.csv", buf.Bytes())
 }
 
+func readReportGolden(t *testing.T, path string) []byte {
+	t.Helper()
+	want, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read golden %s: %v "+
+			"(run with GITMAP_UPDATE_GOLDEN=1 and "+
+			"GITMAP_ALLOW_GOLDEN_UPDATE=1 to create)", path, err)
+	}
+
+	return want
+}
+
+func compareReportGolden(t *testing.T, name string, got, want []byte) {
+	t.Helper()
+	gotNorm := normalizeGoldenBytes(got)
+	wantNorm := normalizeGoldenBytes(want)
+	if !bytes.Equal(gotNorm, wantNorm) {
+		t.Fatalf("golden mismatch for %s\n"+
+			"--- want (%d bytes)\n%s\n--- got (%d bytes)\n%s",
+			name, len(wantNorm), string(wantNorm), len(gotNorm), string(gotNorm))
+	}
+}
+
 // assertReportGolden mirrors formatter.assertScanGolden — duplicated
 // (rather than shared via a testutil package) because Go test helpers
 // can't cross package boundaries without exporting them, and the
@@ -109,28 +146,14 @@ func assertReportGolden(t *testing.T, name string, got []byte) {
 
 		return
 	}
-	want, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("read golden %s: %v "+
-			"(run with GITMAP_UPDATE_GOLDEN=1 and "+
-			"GITMAP_ALLOW_GOLDEN_UPDATE=1 to create)", path, err)
-	}
-	// Normalize CRLF→LF on both sides — see formatter/scangolden_contract_test.go
-	// for the full rationale. The production CRLF contract is still enforced
-	// separately by csvcrlf_contract_test.go in cmd/.
-	gotN := normalizeGoldenBytes(got)
-	wantN := normalizeGoldenBytes(want)
-	if !bytes.Equal(gotN, wantN) {
-		t.Fatalf("golden mismatch for %s\n"+
-			"--- want (%d bytes)\n%s\n--- got (%d bytes)\n%s",
-			name, len(wantN), string(wantN), len(gotN), string(gotN))
-	}
+	want := readReportGolden(t, path)
+	compareReportGolden(t, name, got, want)
 }
 
 // normalizeGoldenBytes strips \r before \n so CRLF and LF fixtures
 // compare equal regardless of platform / git autocrlf state.
-func normalizeGoldenBytes(b []byte) []byte {
-	return bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
+func normalizeGoldenBytes(rawBytes []byte) []byte {
+	return bytes.ReplaceAll(rawBytes, []byte("\r\n"), []byte("\n"))
 }
 
 // writeReportGolden persists a regenerated fixture and FAILS the test
