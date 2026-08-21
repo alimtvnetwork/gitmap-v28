@@ -36,7 +36,7 @@ func allHelpRows() []helpRow {
 		constants.HelpClearReleaseJSON, constants.HelpPrune)
 	addGroup(&rows, constants.HelpGroupData,
 		constants.HelpExport, constants.HelpImport, constants.HelpProfile,
-		constants.HelpBookmark, constants.HelpRm, constants.HelpDBReset)
+		constants.HelpBookmark, constants.HelpMV, constants.HelpRm, constants.HelpDBReset)
 	addGroup(&rows, constants.HelpGroupHistory,
 		constants.HelpHistory, constants.HelpHistoryReset,
 		constants.HelpVersionHistory, constants.HelpStats)
@@ -50,7 +50,8 @@ func allHelpRows() []helpRow {
 	addGroup(&rows, constants.HelpGroupEnvTools,
 		constants.HelpEnv, constants.HelpInstall, constants.HelpUninstall)
 	addGroup(&rows, constants.HelpGroupTasks,
-		constants.HelpTask, constants.HelpPending, constants.HelpDoPending)
+		constants.HelpTask, constants.HelpPending, constants.HelpDoPending,
+		constants.HelpMacro, constants.HelpExecute)
 	addGroup(&rows, constants.HelpGroupVisualize, constants.HelpDashboard)
 	addGroup(&rows, constants.HelpGroupCommitXfer,
 		constants.HelpCommitRight, constants.HelpCommitLeft, constants.HelpCommitBoth)
@@ -64,7 +65,7 @@ func allHelpRows() []helpRow {
 		constants.HelpTemplatesList, constants.HelpTemplatesShow,
 		constants.HelpTemplatesDiff, constants.HelpSync, constants.HelpCommons)
 	addGroup(&rows, constants.HelpGroupCluster,
-		constants.HelpServersClients, constants.HelpClients, constants.HelpCluster)
+		constants.HelpServersClients, constants.HelpClients, constants.HelpCluster, constants.HelpServe)
 	addGroup(&rows, constants.HelpGroupUtilities,
 		constants.HelpSetup, constants.HelpDoctor, constants.HelpUpdate,
 		constants.HelpUpdateCleanup, constants.HelpVersion, constants.HelpCompletion,

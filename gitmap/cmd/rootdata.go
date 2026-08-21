@@ -33,5 +33,9 @@ func dataDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdAmendList, constants.CmdAmendListAlias}, func() { runAmendList(argsTail()) }},
 		{[]string{constants.CmdDashboard, constants.CmdDashboardAlias}, func() { runDashboard(argsTail()) }},
 		{[]string{constants.CmdVersionHistory, constants.CmdVersionHistoryAlias}, func() { runVersionHistory(argsTail()) }},
+		{[]string{"execute", "exec"}, func() { runExecuteCmd(argsTail()) }},
+		{[]string{"macro", "m"}, func() { runMacroCmd(argsTail()) }},
+		{[]string{"record", "rec"}, func() { runMacroCmd(append([]string{"record"}, argsTail()...)) }},
+		{[]string{"mv", "move"}, func() { runMove(argsTail()) }},
 	}
 }

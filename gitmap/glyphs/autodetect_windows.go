@@ -2,7 +2,10 @@
 
 package glyphs
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 // init swaps the platform-neutral stub for the Windows-aware detector.
 func init() {
@@ -27,11 +30,19 @@ func legacyWindowsHost() bool {
 	if os.Getenv("ALACRITTY_LOG") != "" {
 		return false
 	}
-	// PowerShell 7+ natively supports emoji rendering (often using modern ConHost or Windows Terminal).
-	// We can detect it via the POWERSHELL_DISTRIBUTION_CHANNEL env var or if PSModulePath contains PowerShell\7.
 	if os.Getenv("POWERSHELL_DISTRIBUTION_CHANNEL") != "" {
 		return false
 	}
+	psModulePath := os.Getenv("PSModulePath")
+	if strings.Contains(psModulePath, "PowerShell\\7") || strings.Contains(psModulePath, "PowerShell/7") || strings.Contains(psModulePath, "pwsh") {
+		return false
+	}
+	if os.Getenv("POWERSHELL_VERSION") != "" || os.Getenv("PWSH") != "" {
+		return false
+	}
+	if os.Getenv("TERM") != "" && os.Getenv("TERM") != "dumb" {
+		return false
+	}
 
-	return true
+	return false
 }

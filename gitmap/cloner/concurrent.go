@@ -49,7 +49,7 @@ func runConcurrent(records []model.ScanRecord, targetDir string, opts CloneOptio
 	jobs := make(chan cloneJob, len(records))
 	out := make(chan cloneOutcome, len(records))
 
-	startWorkers(workers, jobs, out, targetDir, opts)
+	startWorkers(workers, jobs, out, targetDir, opts, progress)
 	enqueueJobs(records, targetDir, cache, progress, jobs, out)
 	close(jobs)
 
@@ -58,16 +58,17 @@ func runConcurrent(records []model.ScanRecord, targetDir string, opts CloneOptio
 
 // startWorkers spins up the worker goroutines.
 func startWorkers(workers int, jobs <-chan cloneJob, out chan<- cloneOutcome,
-	targetDir string, opts CloneOptions) {
+	targetDir string, opts CloneOptions, progress *Progress) {
 	for i := 0; i < workers; i++ {
-		go cloneWorker(jobs, out, targetDir, opts)
+		go cloneWorker(jobs, out, targetDir, opts, progress)
 	}
 }
 
 // cloneWorker drains the job channel until it closes.
 func cloneWorker(jobs <-chan cloneJob, out chan<- cloneOutcome,
-	targetDir string, opts CloneOptions) {
+	targetDir string, opts CloneOptions, progress *Progress) {
 	for job := range jobs {
+		progress.Begin(repoDisplayName(job.rec))
 		result := cloneOrPullOne(job.rec, targetDir, opts)
 		out <- cloneOutcome{rec: job.rec, dest: job.dest, result: result}
 	}
@@ -79,7 +80,6 @@ func cloneWorker(jobs <-chan cloneJob, out chan<- cloneOutcome,
 func enqueueJobs(records []model.ScanRecord, targetDir string, cache *CloneCache,
 	progress *Progress, jobs chan<- cloneJob, out chan<- cloneOutcome) {
 	for _, rec := range records {
-		progress.Begin(repoDisplayName(rec))
 		dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
 		if cache.IsUpToDate(rec, dest) {
 			out <- cloneOutcome{

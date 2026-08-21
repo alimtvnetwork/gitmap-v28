@@ -2,64 +2,45 @@ package cloner
 
 import (
 	"fmt"
-
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
-	"github.com/pterm/pterm"
 )
 
-// Progress tracks clone operation progress.
-//
-// Thread-safety: all counter mutations and stderr writes go through mu so
-// concurrent workers in the parallel runner (concurrent.go) cannot
-// interleave half-written status lines or corrupt the running totals.
-// The sequential runner pays only the cost of an uncontended mutex.
+// Progress tracks clone operation progress cleanly.
 type Progress struct {
-	mu       sync.Mutex
-	total    int
-	current  int
-	start    time.Time
-	quiet    bool
-	cloned   int
-	pulled   int
-	skipped  int
-	failed   int
-	multi    *pterm.MultiPrinter
-	spinners map[string]*pterm.SpinnerPrinter
+	mu      sync.Mutex
+	total   int
+	current int
+	start   time.Time
+	quiet   bool
+	cloned  int
+	pulled  int
+	skipped int
+	failed  int
 }
 
 // NewProgress creates a progress tracker.
 func NewProgress(total int, quiet bool) *Progress {
 	p := &Progress{
-		total:    total,
-		start:    time.Now(),
-		quiet:    quiet,
-		spinners: make(map[string]*pterm.SpinnerPrinter),
+		total: total,
+		start: time.Now(),
+		quiet: quiet,
 	}
 	if !quiet {
-		p.multi = &pterm.DefaultMultiPrinter
-		if pterm.Output {
-			p.multi.Start()
-		}
-		pterm.Info.Printf("[gitmap] Processing %d repositories...\n", total)
+		fmt.Printf("  %s⚡ Parallel clone active: %d repositories%s\n\n",
+			constants.ColorCyan, total, constants.ColorReset)
 	}
 	return p
 }
 
-// Begin prints the starting line for a repo.
+// Begin records a repo processing start.
 func (p *Progress) Begin(name string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-
 	p.current++
-	if p.quiet {
-		return
-	}
-
-	spinner, _ := pterm.DefaultSpinner.WithWriter(p.multi.NewWriter()).Start(fmt.Sprintf("Processing %s...", name))
-	p.spinners[name] = spinner
 }
 
 // Done marks a repo as successfully completed.
@@ -78,20 +59,16 @@ func (p *Progress) Done(result model.CloneResult, pulled bool) {
 	}
 
 	name := repoDisplayName(result.Record)
-	if spinner, ok := p.spinners[name]; ok {
-		elapsed := time.Since(p.start)
-		handleSpinnerSuccess(spinner, name, elapsed, pulled)
-		delete(p.spinners, name)
-	}
-}
-
-func handleSpinnerSuccess(spinner *pterm.SpinnerPrinter, name string, elapsed time.Duration, pulled bool) {
+	elapsed := time.Since(p.start)
 	if pulled {
-		spinner.Success(fmt.Sprintf("%s updated (pull) in %s", name, formatDuration(elapsed)))
+		fmt.Printf("  [%2d/%d] 📂 %-32s %s✔ updated (pull) (%s)%s\n",
+			p.cloned+p.pulled+p.skipped+p.failed, p.total, name,
+			constants.ColorGreen, formatDuration(elapsed), constants.ColorReset)
+		return
 	}
-	if !pulled {
-		spinner.Success(fmt.Sprintf("%s cloned in %s", name, formatDuration(elapsed)))
-	}
+	fmt.Printf("  [%2d/%d] 📂 %-32s %s✔ cloned (%s)%s\n",
+		p.cloned+p.pulled+p.skipped+p.failed, p.total, name,
+		constants.ColorGreen, formatDuration(elapsed), constants.ColorReset)
 }
 
 // Skip marks a repo as skipped because it was already up to date.
@@ -105,10 +82,9 @@ func (p *Progress) Skip(result model.CloneResult) {
 	}
 
 	name := repoDisplayName(result.Record)
-	if spinner, ok := p.spinners[name]; ok {
-		spinner.Warning(fmt.Sprintf("%s skipped (existing/up-to-date)", name))
-		delete(p.spinners, name)
-	}
+	fmt.Printf("  [%2d/%d] 📂 %-32s %s✔ up-to-date (skipped)%s\n",
+		p.cloned+p.pulled+p.skipped+p.failed, p.total, name,
+		constants.ColorCyan, constants.ColorReset)
 }
 
 // Fail marks a repo as failed.
@@ -122,10 +98,9 @@ func (p *Progress) Fail(result model.CloneResult) {
 	}
 
 	name := repoDisplayName(result.Record)
-	if spinner, ok := p.spinners[name]; ok {
-		spinner.Fail(fmt.Sprintf("%s failed", name))
-		delete(p.spinners, name)
-	}
+	fmt.Printf("  [%2d/%d] 📂 %-32s %s✖ failed%s\n",
+		p.cloned+p.pulled+p.skipped+p.failed, p.total, name,
+		constants.ColorRed, constants.ColorReset)
 }
 
 // PrintSummary prints the final summary line.
@@ -137,15 +112,11 @@ func (p *Progress) PrintSummary() {
 		return
 	}
 
-	if p.multi != nil && pterm.Output {
-		p.multi.Stop()
-	}
-
 	elapsed := time.Since(p.start)
 	fmt.Println()
-	pterm.DefaultBox.WithTitle("Summary").Println(
-		fmt.Sprintf("Completed: %d, Skipped: %d, Failed: %d\nTime: %s",
-			p.cloned+p.pulled, p.skipped, p.failed, formatDuration(elapsed)))
+	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
+	fmt.Printf("  %s✔ Clone complete: %d succeeded, %d skipped, %d failed · Elapsed: %s%s\n\n",
+		constants.ColorGreen, p.cloned+p.pulled, p.skipped, p.failed, formatDuration(elapsed), constants.ColorReset)
 }
 
 // formatDuration returns a human-readable duration string.

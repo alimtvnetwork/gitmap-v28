@@ -20,7 +20,8 @@ func repoRoot() string {
 		fmt.Fprintf(os.Stderr, constants.ErrReplaceNotInRepo, err)
 		os.Exit(1)
 	}
-	return strings.TrimSpace(string(out))
+	clean := filepath.Clean(filepath.FromSlash(strings.TrimSpace(string(out))))
+	return clean
 }
 
 // walkRepoFiles returns every text file under root, honoring directory
@@ -102,7 +103,9 @@ func isExcludedDir(name string) bool {
 // isExcludedPrefix matches a path against the prefix deny list, using
 // forward slashes for portability.
 func isExcludedPrefix(root, path string) bool {
-	rel, err := filepath.Rel(root, path)
+	cRoot := filepath.Clean(filepath.FromSlash(root))
+	cPath := filepath.Clean(filepath.FromSlash(path))
+	rel, err := filepath.Rel(cRoot, cPath)
 	if err != nil {
 		return false
 	}

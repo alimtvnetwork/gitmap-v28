@@ -2239,16 +2239,35 @@ export const commands: CommandDef[] = [
   },
   {
     category: "data",
-    name: "rm", alias: "remove / del", description: "Delete tracked repos from the gitmap database, with on-disk folder deletion support, glob patterns (e.g. `macro*`), batch operation, and -y for no prompting.",
-    usage: "gitmap rm <pattern>... [--disk] [-y|--yes]",
+    name: "mv",
+    alias: "move",
+    description: "Relocate a tracked repository directory to a new path or parent directory (..), automatically updating the SQLite database, VS Code Project Manager (projects.json), and GitHub Desktop tracking with Windows long-path safety.",
+    usage: "gitmap mv <source> <destination> [-y|--yes] [--dry-run] [--no-vscode] [--no-desktop]",
     flags: [
-      { flag: "--disk", description: "Also delete the on-disk folder" },
-      { flag: "-y, --yes", description: "Skip confirmation prompts" },
+      { flag: "-y, --yes", description: "Skip confirmation prompts and automatically sync VS Code / GitHub Desktop" },
+      { flag: "--dry-run", description: "Simulate relocation and database updates without moving files" },
+      { flag: "--no-vscode", description: "Skip updating VS Code Project Manager configuration" },
+      { flag: "--no-desktop", description: "Skip updating GitHub Desktop tracking" },
     ],
     examples: [
-      { command: "gitmap rm macro-ahk-v1", description: "Remove a single tracked repo" },
+      { command: "gitmap mv prompt-architect ..", description: "Move repository into parent folder" },
+      { command: "gitmap mv .\\prompt-architect D:\\work\\archive -y", description: "Move repository to archive and auto-sync external tools" },
+      { command: "gitmap mv my-repo ../new-parent --dry-run", description: "Preview relocation steps and destination path" },
+    ],
+  },
+  {
+    category: "data",
+    name: "rm", alias: "remove / del", description: "Delete tracked repos from the gitmap database, with on-disk folder deletion support, path-aware resolution (e.g. `.\\prompt-architect`, `./folder/`, `.`), glob patterns (e.g. `macro*`), cascading VS Code Project Manager and GitHub Desktop untracking, and -y for no prompting.",
+    usage: "gitmap rm <target>... [--db-only] [-y|--yes]",
+    flags: [
+      { flag: "--db-only", description: "Untrack from SQLite database only without deleting the on-disk folder" },
+      { flag: "-y, --yes", description: "Skip confirmation prompts and automatically untrack" },
+    ],
+    examples: [
+      { command: "gitmap rm .\\prompt-architect", description: "Remove repository using relative Windows path" },
+      { command: "gitmap rm macro-ahk-v1 -y", description: "Remove a single tracked repo without prompt" },
       { command: "gitmap rm \"macro*\" -y", description: "Glob batch delete without prompting" },
-      { command: "gitmap del old-repo --disk -y", description: "Remove from DB and delete folder" },
+      { command: "gitmap rm . --db-only", description: "Untrack current repository from DB without touching disk" },
     ],
   },
   {
@@ -2407,6 +2426,52 @@ export const commands: CommandDef[] = [
     category: "cluster",
     examples: [
       { command: 'gitmap cluster set-password --id 5', description: "Securely prompt and save bcrypt-hashed password for Node 5" },
+    ],
+  },
+  {
+    name: "macro",
+    alias: "m",
+    description: "Record, replay, list, and manage interactive terminal macro sessions.",
+    usage: "gitmap macro <record|run|list|show|rm> [arguments]",
+    category: "tasks",
+    flags: [
+      { flag: "--dry-run", description: "Preview macro steps without execution" },
+      { flag: "--verbose", description: "Stream live stdout/stderr during replay" },
+    ],
+    examples: [
+      { command: 'gitmap macro record deploy-sync', description: "Record an interactive shell session as a macro named 'deploy-sync'" },
+      { command: 'gitmap macro run deploy-sync', description: "Replay all recorded steps of 'deploy-sync'" },
+      { command: 'gitmap macro list', description: "List all saved macros with step counts and timestamps" },
+      { command: 'gitmap macro show deploy-sync', description: "Inspect individual steps inside 'deploy-sync'" },
+    ],
+  },
+  {
+    name: "execute",
+    alias: "exec",
+    description: "Direct shorthand to replay a recorded macro by name.",
+    usage: "gitmap execute <macro_name> [--dry-run] [--verbose]",
+    category: "tasks",
+    examples: [
+      { command: 'gitmap execute deploy-sync', description: "Execute 'deploy-sync' macro steps in sequence" },
+      { command: 'gitmap execute deploy-sync --dry-run', description: "Preview commands without executing" },
+    ],
+  },
+  {
+    name: "gitmap-node-join",
+    description: "Standalone lightweight background agent for cluster nodes with auto-startup support.",
+    usage: "gitmap-node-join --server <host:port> --token <token> [--auto-start] [--daemon]",
+    category: "cluster",
+    flags: [
+      { flag: "--server <host:port>", description: "Cluster orchestrator daemon address (default: 127.0.0.1:9999)" },
+      { flag: "--token <token>", description: "Cluster join authorization token" },
+      { flag: "--alias <name>", description: "Custom node alias name" },
+      { flag: "--auto-start", description: "Register in Windows Startup to auto-join on boot" },
+      { flag: "--daemon", description: "Run silently in background" },
+    ],
+    examples: [
+      { command: 'gitmap-node-join --server 192.168.1.10:9999 --token xyz --auto-start', description: "Join cluster and register auto-startup" },
+      { command: 'gitmap-node-join install-startup', description: "Install Windows Startup registry entry" },
+      { command: 'gitmap-node-join uninstall-startup', description: "Remove Windows Startup registry entry" },
     ],
   },
 ];

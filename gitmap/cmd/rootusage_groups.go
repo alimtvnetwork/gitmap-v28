@@ -76,6 +76,7 @@ func printGroupData() {
 	fmt.Println(constants.HelpImport)
 	fmt.Println(constants.HelpProfile)
 	fmt.Println(constants.HelpBookmark)
+	fmt.Println(constants.HelpMV)
 	fmt.Println(constants.HelpRm)
 	fmt.Println(constants.HelpDBReset)
 }
@@ -132,6 +133,8 @@ func printGroupTasks() {
 	fmt.Println(constants.HelpTask)
 	fmt.Println(constants.HelpPending)
 	fmt.Println(constants.HelpDoPending)
+	fmt.Println(constants.HelpMacro)
+	fmt.Println(constants.HelpExecute)
 }
 
 func printGroupVisualize() {
@@ -178,4 +181,5 @@ func printGroupCluster() {
 	fmt.Println(constants.HelpServersClients)
 	fmt.Println(constants.HelpClients)
 	fmt.Println(constants.HelpCluster)
+	fmt.Println(constants.HelpServe)
 }

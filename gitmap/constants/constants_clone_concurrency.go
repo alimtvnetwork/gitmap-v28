@@ -46,8 +46,7 @@ const FlagDescCloneMaxConcurrency = "Run up to N clones in parallel (0 = auto / 
 // MsgCloneConcurrencyEnabledFmt is printed once before the first
 // progress line when the parallel runner takes over. Single stable
 // line that scripts can grep for. Resolved (effective) worker
-// count is substituted, NOT the raw flag value.
-const MsgCloneConcurrencyEnabledFmt = "  ↪ parallel clone enabled: %d workers\n"
+const MsgCloneConcurrencyEnabledFmt = "  ⚡ parallel clone enabled: %d workers\n"
 
 // ErrCloneMaxConcurrencyInvalid is printed when the user supplies a
 // non-positive integer to --max-concurrency. The CLI exits 1 to keep

@@ -159,7 +159,7 @@ func TestExtractMaxDepthForLog(t *testing.T) {
 // must trip CI.
 func TestRescanSubtreeDefaultIsDeeperThanScanDefault(t *testing.T) {
 	t.Parallel()
-	const scanDefaultResolved = 4 // scanner.DefaultMaxDepth — duplicated to avoid the import cycle
+	const scanDefaultResolved = 16 // scanner.DefaultMaxDepth — duplicated to avoid the import cycle
 	if constants.RescanSubtreeDefaultMaxDepth <= scanDefaultResolved {
 		t.Fatalf("RescanSubtreeDefaultMaxDepth=%d must be > scanner.DefaultMaxDepth=%d so rescan-subtree is actually deeper than a plain scan",
 			constants.RescanSubtreeDefaultMaxDepth, scanDefaultResolved)

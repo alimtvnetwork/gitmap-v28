@@ -125,9 +125,9 @@ func printStatusTableWithContext(c *statusTableContext) {
 
 	for _, r := range c.Rows {
 		if r.Missing {
-			fmt.Printf("  %s%-*s%s%s⊘ not found%s\n",
+			fmt.Printf("  %s%-*s%s%s✖ not found%s\n",
 				constants.ColorDim, c.MaxRepo, r.RepoName, colGap,
-				constants.ColorYellow, constants.ColorReset)
+				constants.ColorRed, constants.ColorReset)
 			continue
 		}
 
@@ -147,6 +147,8 @@ func printStatusTableWithContext(c *statusTableContext) {
 			padStash, r.StashText, colGap,
 			padFiles, r.FilesText)
 	}
+
+	printMissingRepoRemediation(c)
 }
 
 // printStatusSummary shows the final totals.

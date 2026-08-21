@@ -4,33 +4,25 @@ import (
 	"testing"
 )
 
-// TestScanDirDefaultMaxDepthStopsAtFour asserts the default cap of 4
-// levels: a repo at depth 4 (root/d1/d2/d3/d4) IS found, but a repo at
-// depth 5 is NOT. The cap is inclusive of depth 4.
-func TestScanDirDefaultMaxDepthStopsAtFour(t *testing.T) {
+// TestScanDirDefaultMaxDepthFindsDeepRepos asserts the default cap of 16
+// levels finds nested repos up to depth 16.
+func TestScanDirDefaultMaxDepthFindsDeepRepos(t *testing.T) {
 	root := t.TempDir()
-	makeRepo(t, root, "d1/d2/d3/d4/in-budget")   // depth 5? d1=1 d2=2 d3=3 d4=4 in=5
-	makeRepo(t, root, "d1/d2/d3/d4/d5/too-deep") // depth 6 — past cap
+	makeRepo(t, root, "d1/d2/d3/d4/d5/d6/deep-repo")
 
 	got, err := ScanDir(root, nil)
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
-	// With DefaultMaxDepth=4: root(0) → d1(1) → d2(2) → d3(3) → d4(4)
-	// is the deepest dir we walk. We can READ d4's entries (find
-	// "in-budget" / "d5" subdirs) but we MUST NOT enqueue them.
-	// Therefore neither repo is reachable — both live at depth >=5.
-	if len(got) != 0 {
-		t.Fatalf("default depth cap should hide depth-5+ repos, got %+v", got)
+	if len(got) != 1 {
+		t.Fatalf("default depth cap of 16 should find deep repos, got %+v", got)
 	}
 }
 
 // TestScanDirDefaultDepthFindsRepoAtCap verifies a repo whose directory
-// IS at exactly the cap depth gets discovered: the walker reads that
-// dir and detects its `.git` marker before considering descent.
+// IS within the cap depth gets discovered.
 func TestScanDirDefaultDepthFindsRepoAtCap(t *testing.T) {
 	root := t.TempDir()
-	// d1/d2/d3/repo => repo dir is at depth 4 == DefaultMaxDepth.
 	makeRepo(t, root, "d1/d2/d3/repo")
 
 	got, err := ScanDir(root, nil)

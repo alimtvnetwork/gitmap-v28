@@ -11,11 +11,45 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/txn"
 )
 
-// runMove implements `gitmap mv LEFT RIGHT`.
-//
-// Spec: spec/01-app/97-move-and-merge.md
+// runMove implements `gitmap mv <source> <dest>`.
 func runMove(args []string) {
 	checkHelp(constants.CmdMv, args)
+	mOpts, positional := parseMoveFlags(args)
+	if len(positional) == 2 {
+		if handleRepoMove(positional[0], positional[1], mOpts) {
+			return
+		}
+	}
+	runMoveMerge(args)
+}
+
+func handleRepoMove(srcTarget, destTarget string, opts moveOpts) bool {
+	db, err := openDB()
+	if err != nil {
+		return false
+	}
+	defer db.Close()
+	rec, err := ResolveRepo(db, srcTarget)
+	if err != nil || rec == nil {
+		return false
+	}
+	destPath, err := calculateDestPath(rec.AbsolutePath, destTarget)
+	if err != nil || preflightMove(rec.AbsolutePath, destPath) != nil {
+		return false
+	}
+	if opts.dryRun {
+		printMoveDryRun(rec.AbsolutePath, destPath)
+		return true
+	}
+	if opts.yes || confirmMovePrompt(rec.Slug, rec.AbsolutePath, destPath) {
+		executeMove(db, *rec, destPath, opts)
+		return true
+	}
+	fmt.Println("mv: aborted by user")
+	return true
+}
+
+func runMoveMerge(args []string) {
 	left, right, opts := parseMoveArgs(args)
 	leftEP := mustResolve(left, true, opts)
 	rightEP := mustResolve(right, false, opts)

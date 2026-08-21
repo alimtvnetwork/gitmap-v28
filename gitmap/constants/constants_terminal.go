@@ -34,7 +34,7 @@ const (
 
 // Status indicator strings.
 const (
-	StatusIconClean    = "✓ clean"
+	StatusIconClean    = "✔ clean"
 	StatusIconDirty    = "● dirty"
 	StatusDash         = "—"
 	StatusSyncDash     = "  —"

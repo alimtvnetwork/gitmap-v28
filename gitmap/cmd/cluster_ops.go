@@ -316,12 +316,26 @@ func runClusterNodes(args []string) {
 	}
 
 	fmt.Printf("%-10s | %-15s | %-15s | %-10s | %-10s | %-10s | %s\n", "DisplayId", "Alias", "IP", "OS", "Role", "Status", "LastHeartbeat")
+	var unreachable []db.ClusterNode
 	for _, n := range nodes {
 		hb := "-"
 		if n.LastHeartbeat != nil {
 			hb = n.LastHeartbeat.Format(time.RFC3339)
 		}
+		if strings.ToLower(n.Status) == "offline" || strings.ToLower(n.Status) == "unreachable" {
+			unreachable = append(unreachable, n)
+		}
 		fmt.Printf("%-10d | %-15s | %-15s | %-10s | %-10s | %-10s | %s\n", n.DisplayId, n.Alias, n.IPAddress, n.OS, n.NodeRole, n.Status, hb)
+	}
+
+	if len(unreachable) > 0 {
+		fmt.Println()
+		fmt.Printf("  ▲ WARNING: %d cluster machine(s) offline or unreachable:\n", len(unreachable))
+		for _, u := range unreachable {
+			fmt.Printf("     • Node %d [%s] (%s) - status: %s\n", u.DisplayId, u.Alias, u.IPAddress, u.Status)
+		}
+		fmt.Println("  These are the machines that cannot connect or find.")
+		fmt.Println()
 	}
 }
 

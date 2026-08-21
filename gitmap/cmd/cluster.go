@@ -26,32 +26,32 @@ func runCluster(args []string) {
 	case constants.CmdClusterStatus:
 		runClusterStatus(args[1:])
 		return
-	case "history":
-		//runClusterHistory(args[1:])
+	case "history", "hi":
+		runClusterHistory(args[1:])
 		return
 	case "export":
-		//runClusterExport(args[1:])
+		runClusterExport(args[1:])
 		return
 	case "import":
-		//runClusterImport(args[1:])
+		runClusterImport(args[1:])
 		return
 	case "set-password":
-		//runClusterSetPassword(args[1:])
+		runClusterSetPassword(args[1:])
 		return
 	case "reset-password":
-		//runClusterResetPassword(args[1:])
+		runClusterResetPassword(args[1:])
 		return
 	case "nodes", "ls":
-		//runClusterNodes(args[1:])
+		runClusterNodes(args[1:])
 		return
-	case "remove":
-		//runClusterRemove(args[1:])
+	case "remove", "rm":
+		runClusterRemove(args[1:])
 		return
 	case "audit-clean":
-		//runClusterAuditClean(args[1:])
+		runClusterAuditClean(args[1:])
 		return
 	case "stats":
-		//runClusterStats(args[1:])
+		runClusterStats(args[1:])
 		return
 	}
 

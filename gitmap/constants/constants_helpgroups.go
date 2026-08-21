@@ -36,6 +36,8 @@ const (
 	HelpServersClients = "  servers-clients (sc) <sub> Broadcast commands across all server + client nodes"
 	HelpClients        = "  clients <sub>              Broadcast commands across client nodes only"
 	HelpCluster        = "  cluster <sub>              Manage cluster nodes, history, exports, passwords"
+	HelpMacro          = "  macro (m) <sub>            Record, replay, and manage interactive terminal macros"
+	HelpExecute        = "  execute (exec) <name>      Replay recorded macro steps with dry-run/verbose options"
 
 	HelpGroupHint    = "  Run any command with --help or -h for detailed usage and examples."
 	HelpGroupExample = "  Quick start:"
@@ -48,6 +50,7 @@ const (
 	HelpAlias    = "  alias (a) <sub>     Assign short names to repos (set, remove, list, show, suggest)"
 	HelpSSH      = "  ssh <sub>           Generate, list, and manage SSH keys for Git authentication"
 	HelpZipGroup = "  zip-group (z) <sub> Manage named file collections for release ZIP archives"
+	HelpMV       = "  mv (move) <s..> <d..> Relocate repo directory with VSCode & GitHub Desktop sync"
 
 	// Compact-mode lines: command (alias) only.
 	CompactScanning   = "  scan (s), rescan (rsc), rescan-subtree (rss), list (ls)"
@@ -56,7 +59,7 @@ const (
 	CompactNavigation = "  cd (go), group (g), multi-group (mg), alias (a), diff-profiles (dp)"
 	CompactRelease    = "  release (r), pull-release (pr), release-self (rs), release-branch (rb), temp-release"
 	CompactRelInfo    = "  changelog (cl), changelog-generate, list-versions (lv), list-releases (lr), release-pending (rp), revert, clear-release-json (crj), prune"
-	CompactData       = "  export (ex), import (im), profile (pf), bookmark (bk), rm (remove/del), db-reset"
+	CompactData       = "  export (ex), import (im), profile (pf), bookmark (bk), mv (move), rm (remove/del), db-reset"
 	CompactHistory    = "  history (hi), history-reset (hr), stats (ss)"
 	CompactAmend      = "  amend (am), amend-list (al)"
 	CompactProject    = "  go-repos (gr), node-repos (nr), react-repos (rr), cpp-repos (cr), csharp-repos (csr)"

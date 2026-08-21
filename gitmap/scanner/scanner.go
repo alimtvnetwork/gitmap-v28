@@ -64,7 +64,7 @@ const gitdirPrefix = "gitdir:"
 // cover typical "code/<org>/<project>/<service>/" layouts while
 // preventing runaway walks into dependency trees that slipped past the
 // exclude list. Override per-scan via ScanOptions.MaxDepth.
-const DefaultMaxDepth = 4
+const DefaultMaxDepth = 16
 
 // dirJob pairs a queued directory with its depth below the scan root so
 // the worker can decide whether children are still in budget without

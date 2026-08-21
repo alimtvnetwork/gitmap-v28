@@ -187,6 +187,9 @@ func (db *DB) Migrate() error {
 		constants.SQLCreateMakeAllVisibilityResultRunIndex,
 		constants.SQLCreateOwnerRepoListCache,
 		constants.SQLCreateOwnerRepoNameIndex,
+		constants.SQLCreateClusterNode,
+		constants.SQLCreateClusterRun,
+		constants.SQLCreateClusterExecResult,
 	}
 
 	for _, stmt := range statements {

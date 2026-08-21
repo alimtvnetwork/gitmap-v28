@@ -54,7 +54,7 @@ const (
 //   - The marker is cleared by `gitmap db-reset` and by migrateLegacyIDs()
 //     when it detects pre-integer-PK rows, so legacy databases will always
 //     re-run the full pipeline regardless of this number.
-const SchemaVersionCurrent = 28
+const SchemaVersionCurrent = 29
 
 // Schema-version log strings.
 const (
