@@ -14,7 +14,7 @@ func TestResolve_NegativeIsRejected(t *testing.T) {
 	cases := []int{-1, -10, -1000}
 	for _, n := range cases {
 		got, ok := Resolve(n)
-		if ok {
+		if ok == true {
 			t.Errorf("Resolve(%d) ok=true, want false", n)
 		}
 		if got != 0 {
@@ -25,7 +25,8 @@ func TestResolve_NegativeIsRejected(t *testing.T) {
 
 func TestResolve_ZeroMeansAuto(t *testing.T) {
 	got, ok := Resolve(0)
-	if !ok {
+	isResolveFailed := !ok
+	if isResolveFailed == true {
 		t.Fatalf("Resolve(0) ok=false, want true")
 	}
 	want := runtime.NumCPU()
@@ -41,7 +42,8 @@ func TestResolve_PositivePassesThrough(t *testing.T) {
 	cases := []int{1, 2, 4, 32, 1024}
 	for _, n := range cases {
 		got, ok := Resolve(n)
-		if !ok {
+		isResolveFailed := !ok
+		if isResolveFailed == true {
 			t.Errorf("Resolve(%d) ok=false, want true", n)
 		}
 		if got != n {

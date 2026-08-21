@@ -63,133 +63,175 @@ func Execute(plan Plan, cwd string, progress io.Writer) []Result {
 }
 
 // executeRow handles one row's lifecycle: resolve dest, check
-// skip rule, ensure the dest's parent directory exists (so nested
-// dest paths like `org-a/repo-1` preserve the original folder
-// hierarchy without surprising "could not create work tree dir"
-// failures from git), build git args, run, time, return.
+// skip rule, ensure parent dir, git clone, checkout, time, return.
 func executeRow(r Row, cwd string) Result {
 	start := time.Now()
 	dest, absDest := resolveDest(r, cwd)
-	if shouldSkip(absDest) {
+	isSkipped := shouldSkip(absDest)
+	if isSkipped == true {
 		return Result{Row: r, Dest: dest, Status: constants.CloneFromStatusSkipped,
 			Detail: constants.MsgCloneFromDestExists, Duration: time.Since(start)}
 	}
-	if detail, ok := prepareDestParent(absDest); !ok {
-		return Result{Row: r, Dest: dest, Status: constants.CloneFromStatusFailed,
-			Detail: detail, Duration: time.Since(start)}
-	}
-	detail, ok := runGitClone(r, dest, cwd)
-	if !ok {
-		return Result{Row: r, Dest: dest, Status: constants.CloneFromStatusFailed,
-			Detail: detail, Duration: time.Since(start)}
-	}
-	if coDetail, coOK := runPostCloneCheckout(r, dest, cwd); !coOK {
-		return Result{Row: r, Dest: dest, Status: constants.CloneFromStatusFailed,
-			Detail: coDetail, Duration: time.Since(start)}
-	}
+	return runRowLifecycle(r, dest, absDest, cwd, start)
+}
 
+func runRowLifecycle(r Row, dest, absDest, cwd string, start time.Time) Result {
+	detail, ok := prepareAndClone(r, dest, absDest, cwd)
+	isFailed := !ok
+	if isFailed == true {
+		return makeFailedResult(r, dest, detail, start)
+	}
+	coDetail, coOK := runPostCloneCheckout(r, dest, cwd)
+	isCheckoutFailed := !coOK
+	if isCheckoutFailed == true {
+		return makeFailedResult(r, dest, coDetail, start)
+	}
 	return Result{Row: r, Dest: dest, Status: constants.CloneFromStatusOK,
 		Detail: "", Duration: time.Since(start)}
 }
 
-// resolveDest, prepareDestParent, and shouldSkip live in
-// execute_dest.go to keep this file under the 200-line cap.
-// EffectiveCheckout + runPostCloneCheckout live in execute_checkout.go.
+func prepareAndClone(r Row, dest, absDest, cwd string) (string, bool) {
+	detail, ok := prepareDestParent(absDest)
+	isParentFailed := !ok
+	if isParentFailed == true {
+		return detail, false
+	}
+	return runGitClone(r, dest, cwd)
+}
+
+func makeFailedResult(r Row, dest, detail string, start time.Time) Result {
+	return Result{
+		Row:      r,
+		Dest:     dest,
+		Status:   constants.CloneFromStatusFailed,
+		Detail:   detail,
+		Duration: time.Since(start),
+	}
+}
 
 // runGitClone shells out to `git clone` with the row's options.
 // Returns (detail, ok). On success detail is empty. On failure
 // detail is a single-line summary of the trimmed stderr.
 func runGitClone(r Row, dest, cwd string) (string, bool) {
+	out, err := execGitClone(r, dest, cwd)
+	isSuccess := err == nil
+	if isSuccess == true {
+		return "", true
+	}
+	return handleGitCloneError(dest, string(out), err)
+}
+
+func execGitClone(r Row, dest, cwd string) ([]byte, error) {
 	args := buildGitArgs(r, dest)
 	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Dir = cwd
-	out, err := cmd.CombinedOutput()
-	if err == nil {
-		return "", true
-	}
+	return cmd.CombinedOutput()
+}
 
-	outputStr := string(out)
+func handleGitCloneError(dest, outputStr string, err error) (string, bool) {
 	file, isSmudge := detectLFSSmudgeError(outputStr)
-	if isSmudge {
+	if isSmudge == true {
 		return tryLfsAutoFix(dest, file, outputStr, err)
 	}
-
 	return trimGitError(outputStr, err), false
 }
 
 func tryLfsAutoFix(dest, file, outputStr string, originalErr error) (string, bool) {
 	fmt.Fprintf(os.Stderr, "\n[Warning] Git clone succeeded but checkout failed due to missing LFS object (404) for file: %s\n", file)
 	confirmed := confirmYesNo("Do you want to automatically drop this broken LFS pointer to fix the clone and push the fix?")
-	if !confirmed {
+	isDeclined := !confirmed
+	if isDeclined == true {
 		return trimGitError(outputStr, originalErr), false
 	}
+	return applyLfsFix(dest, file, outputStr, originalErr)
+}
+
+func applyLfsFix(dest, file, outputStr string, originalErr error) (string, bool) {
 	fixErr := executeLFSFix(dest, file)
-	if fixErr != nil {
+	isFixFailed := fixErr != nil
+	if isFixFailed == true {
 		return trimGitError(outputStr+"\n[LFS Fix Failed: "+fixErr.Error()+"]", originalErr), false
 	}
 	return "", true
 }
 
 func resolveCwd(cwd string) string {
-	if len(cwd) > 0 {
+	hasCwd := len(cwd) > 0
+	if hasCwd == true {
 		return cwd
 	}
 	wd, err := os.Getwd()
-	if err == nil {
+	isSuccess := err == nil
+	if isSuccess == true {
 		return wd
 	}
 	return ""
 }
 
 // buildGitArgs translates a Row + resolved dest into the git
-// clone argument vector. Order matters for git's flag parser
-// (`--branch`, `--depth`, and `--no-checkout` must precede positionals).
-//
-// `--no-checkout` is emitted ONLY when the row's resolved Checkout
-// mode is "skip" — keeping the default-row argv byte-identical to
-// the pre-checkout-feature behavior, which is what the existing
-// golden tests + --verify-cmd-faithful checker pin.
+// clone argument vector.
 func buildGitArgs(r Row, dest string) []string {
 	args := []string{constants.GitClone}
-	if len(r.Branch) > 0 {
-		args = append(args, constants.GitBranchFlag, r.Branch)
-	}
-	if r.Depth > 0 {
-		args = append(args, fmt.Sprintf(constants.CloneFromDepthFlagFmt, r.Depth))
-	}
-	if EffectiveCheckout(r) == constants.CloneFromCheckoutSkip {
-		args = append(args, constants.CloneFromNoCheckoutFlag)
-	}
-	args = append(args, r.URL, dest)
+	args = appendBranchArg(args, r.Branch)
+	args = appendDepthArg(args, r.Depth)
+	args = appendCheckoutArg(args, r)
+	return append(args, r.URL, dest)
+}
 
+func appendBranchArg(args []string, branch string) []string {
+	hasBranch := len(branch) > 0
+	if hasBranch == true {
+		return append(args, constants.GitBranchFlag, branch)
+	}
+	return args
+}
+
+func appendDepthArg(args []string, depth int) []string {
+	hasDepth := depth > 0
+	if hasDepth == true {
+		return append(args, fmt.Sprintf(constants.CloneFromDepthFlagFmt, depth))
+	}
+	return args
+}
+
+func appendCheckoutArg(args []string, r Row) []string {
+	isSkipCheckout := EffectiveCheckout(r) == constants.CloneFromCheckoutSkip
+	if isSkipCheckout == true {
+		return append(args, constants.CloneFromNoCheckoutFlag)
+	}
 	return args
 }
 
 // trimGitError collapses multi-line git stderr to a single line
-// with a length cap so the dry-run-then-execute summary table
-// stays scannable. Full stderr is in the user's terminal scrollback
-// already if they want it.
+// with a length cap.
 func trimGitError(stderr string, err error) string {
-	last := stderr
-	if i := strings.LastIndex(strings.TrimSpace(stderr), "\n"); i >= 0 {
-		last = strings.TrimSpace(stderr)[i+1:]
+	last := extractLastStderrLine(stderr, err)
+	isExceedingLimit := len(last) > constants.CloneFromErrTrimLimit
+	if isExceedingLimit == true {
+		return last[:constants.CloneFromErrTrimLimit] + "..."
 	}
-	last = strings.TrimSpace(last)
-	if len(last) == 0 {
-		last = err.Error()
-	}
-	if len(last) > constants.CloneFromErrTrimLimit {
-		last = last[:constants.CloneFromErrTrimLimit] + "..."
-	}
-
 	return last
 }
 
-// writeProgress emits one line per finished row. Ignored on
-// io.Writer error (caller may have passed io.Discard or a closed
-// stderr — neither should abort the batch).
+func extractLastStderrLine(stderr string, err error) string {
+	last := stderr
+	idx := strings.LastIndex(strings.TrimSpace(stderr), "\n")
+	hasNewline := idx >= 0
+	if hasNewline == true {
+		last = strings.TrimSpace(stderr)[idx+1:]
+	}
+	last = strings.TrimSpace(last)
+	isEmpty := len(last) == 0
+	if isEmpty == true {
+		return err.Error()
+	}
+	return last
+}
+
+// writeProgress emits one line per finished row.
 func writeProgress(w io.Writer, n, total int, res Result) {
-	if w == nil {
+	isNilWriter := w == nil
+	if isNilWriter == true {
 		return
 	}
 	fmt.Fprintf(w, "  [%d/%d] %-7s %s\n", n, total, res.Status, res.Row.URL)

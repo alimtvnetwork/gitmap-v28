@@ -32,7 +32,8 @@ func TestDepthFlagFormat_Locked(t *testing.T) {
 		t.Fatalf("CloneFromDepthFlagFmt rendered %q, want %q "+
 			"(joined form is mandatory — see constant doc)", got, want)
 	}
-	if strings.Contains(constants.CloneFromDepthFlagFmt, " ") {
+	hasSpace := strings.Contains(constants.CloneFromDepthFlagFmt, " ")
+	if hasSpace == true {
 		t.Fatalf("CloneFromDepthFlagFmt contains a space (%q); "+
 			"split form `--depth N` is forbidden for clone-from",
 			constants.CloneFromDepthFlagFmt)
@@ -48,14 +49,18 @@ func TestBuildGitArgs_DepthJoined(t *testing.T) {
 	args := BuildGitArgs(row, "x")
 
 	const wantTok = "--depth=5"
-	if !containsTok(args, wantTok) {
+	isTokMissing := !containsTok(args, wantTok)
+	if isTokMissing == true {
 		t.Fatalf("BuildGitArgs argv missing %q\n got: %v",
 			wantTok, args)
 	}
-	// Reject the split form explicitly: `--depth` followed by a bare
-	// number must NEVER appear in this executor's argv.
+	assertNoSplitDepthArg(t, args)
+}
+
+func assertNoSplitDepthArg(t *testing.T, args []string) {
 	for i, a := range args {
-		if a == "--depth" {
+		isSplitDepth := a == "--depth"
+		if isSplitDepth == true {
 			t.Fatalf("BuildGitArgs argv contains split form "+
 				"`--depth` at index %d (followed by %q) — must "+
 				"be joined `--depth=N`\n got: %v",
@@ -71,11 +76,13 @@ func TestCloneCommandForRow_DepthJoined(t *testing.T) {
 	row := Row{URL: "https://example.com/x.git", Branch: "main", Depth: 7}
 	got := cloneCommandForRow(row, "x")
 
-	if !strings.Contains(got, "--depth=7") {
+	isMissingJoined := !strings.Contains(got, "--depth=7")
+	if isMissingJoined == true {
 		t.Fatalf("cloneCommandForRow missing `--depth=7`\n got: %s",
 			got)
 	}
-	if strings.Contains(got, "--depth 7") {
+	hasSplit := strings.Contains(got, "--depth 7")
+	if hasSplit == true {
 		t.Fatalf("cloneCommandForRow rendered split form "+
 			"`--depth 7` — must be joined `--depth=7`\n got: %s",
 			got)
@@ -86,7 +93,8 @@ func TestCloneCommandForRow_DepthJoined(t *testing.T) {
 // Kept package-private to this _test.go (no production callers).
 func containsTok(args []string, tok string) bool {
 	for _, a := range args {
-		if a == tok {
+		isMatch := a == tok
+		if isMatch == true {
 			return true
 		}
 	}
@@ -98,7 +106,8 @@ func containsTok(args []string, tok string) bool {
 // in TestBuildGitArgs_DepthJoined is informative even when `--depth`
 // is the last token (which would itself be a separate bug).
 func safeIdx(args []string, i int) string {
-	if i < 0 || i >= len(args) {
+	isOutOfBounds := i < 0 || i >= len(args)
+	if isOutOfBounds == true {
 		return "<end-of-argv>"
 	}
 

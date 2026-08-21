@@ -28,7 +28,9 @@ func TestKindCode_Table(t *testing.T) {
 		{KindPreconditionFailed, 4},
 	}
 	for _, tc := range cases {
-		if got := KindCode(tc.kind); got != tc.want {
+		got := KindCode(tc.kind)
+		isMismatch := got != tc.want
+		if isMismatch == true {
 			t.Fatalf("KindCode(%v) = %d, want %d", tc.kind, got, tc.want)
 		}
 	}
@@ -38,7 +40,9 @@ func TestKindCode_Table(t *testing.T) {
 // addition that forgets the table — we'd rather exit 1 than 0.
 func TestKindCode_UnknownDefaultsToOne(t *testing.T) {
 	t.Parallel()
-	if got := KindCode(KindType(999)); got != 1 {
+	got := KindCode(KindType(999))
+	isMismatch := got != 1
+	if isMismatch == true {
 		t.Fatalf("unknown Kind should default to 1, got %d", got)
 	}
 }
@@ -56,10 +60,12 @@ func TestWithKindExtra_TagsContext(t *testing.T) {
 		Err:     errors.New("boom"),
 	}
 	tagged := withKindExtra(ctx, KindUserCanceled)
-	if tagged.Extras["kind"] != "user-canceled" {
+	isKindMismatch := tagged.Extras["kind"] != "user-canceled"
+	if isKindMismatch == true {
 		t.Fatalf("kind label missing/wrong: %v", tagged.Extras)
 	}
-	if _, leaked := original["kind"]; leaked {
+	_, leaked := original["kind"]
+	if leaked == true {
 		t.Fatalf("withKindExtra mutated caller's map: %v", original)
 	}
 }
@@ -78,7 +84,8 @@ func TestFailKind_RendersKindInOutput(t *testing.T) {
 		Err:     errors.New("bad json"),
 	}, KindInvalidInput)
 	writeStructured(&buf, tagged, OutputHuman)
-	if !strings.Contains(buf.String(), "kind=invalid-input") {
+	isKindMissing := !strings.Contains(buf.String(), "kind=invalid-input")
+	if isKindMissing == true {
 		t.Fatalf("expected kind=invalid-input in output:\n%s", buf.String())
 	}
 }

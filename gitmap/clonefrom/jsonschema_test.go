@@ -25,43 +25,68 @@ import (
 
 func TestEmitSchema_ReportShape(t *testing.T) {
 	body, err := EmitSchema(constants.EmitSchemaKindReport)
-	if err != nil {
+	isSchemaErr := err != nil
+	if isSchemaErr == true {
 		t.Fatalf("EmitSchema(report) returned error: %v", err)
 	}
 	root := decodeSchema(t, body)
 	assertString(t, root, "$schema", constants.JSONSchemaDialect2020_12)
 	assertString(t, root, "$id", constants.CloneFromSchemaIDReport)
+	verifyReportProperties(t, root)
+}
+
+func verifyReportProperties(t *testing.T, root map[string]any) {
 	props, ok := root["properties"].(map[string]any)
-	if !ok {
+	isPropsMissing := !ok
+	if isPropsMissing == true {
 		t.Fatalf("report schema missing properties object: %T", root["properties"])
 	}
+	assertReportKeys(t, props)
+	verifySchemaVersionConst(t, props)
+}
+
+func assertReportKeys(t *testing.T, props map[string]any) {
 	for _, key := range []string{"schemaVersion", "transport", "rows"} {
-		if _, hasKey := props[key]; !hasKey {
+		_, hasKey := props[key]
+		isKeyMissing := !hasKey
+		if isKeyMissing == true {
 			t.Errorf("report schema missing required property %q", key)
 		}
 	}
-	verifySchemaVersionConst(t, props)
 }
 
 func TestEmitSchema_InputShape(t *testing.T) {
 	body, err := EmitSchema(constants.EmitSchemaKindInput)
-	if err != nil {
+	isSchemaErr := err != nil
+	if isSchemaErr == true {
 		t.Fatalf("EmitSchema(input) returned error: %v", err)
 	}
 	root := decodeSchema(t, body)
 	assertString(t, root, "$schema", constants.JSONSchemaDialect2020_12)
 	assertString(t, root, "$id", constants.CloneFromSchemaIDInput)
 	assertString(t, root, "type", "array")
+	verifyInputItems(t, root)
+}
+
+func verifyInputItems(t *testing.T, root map[string]any) {
 	item, ok := root["items"].(map[string]any)
-	if !ok {
+	isItemMissing := !ok
+	if isItemMissing == true {
 		t.Fatalf("input schema items must be an object, got %T", root["items"])
 	}
 	itemProps, ok := item["properties"].(map[string]any)
-	if !ok {
+	isItemPropsMissing := !ok
+	if isItemPropsMissing == true {
 		t.Fatalf("input schema items.properties must be an object, got %T", item["properties"])
 	}
+	assertInputFields(t, itemProps)
+}
+
+func assertInputFields(t *testing.T, itemProps map[string]any) {
 	for _, name := range clonenow.KnownScanFields() {
-		if _, hasKey := itemProps[name]; !hasKey {
+		_, hasKey := itemProps[name]
+		isFieldMissing := !hasKey
+		if isFieldMissing == true {
 			t.Errorf("input schema missing accepted field %q", name)
 		}
 	}
@@ -69,16 +94,21 @@ func TestEmitSchema_InputShape(t *testing.T) {
 
 func TestEmitSchema_UnknownKindUsesConstantMessage(t *testing.T) {
 	_, err := EmitSchema("nope")
-	if err == nil {
+	isNilErr := err == nil
+	if isNilErr == true {
 		t.Fatal("expected error for unknown kind, got nil")
 	}
-	// Verify the error string matches the user-facing constant
-	// format (substring match — fmt.Errorf adds the %q-quoted value).
-	if !strings.Contains(err.Error(), "nope") {
-		t.Errorf("error %q should mention the bad kind", err.Error())
+	assertUnknownKindErrorText(t, err.Error())
+}
+
+func assertUnknownKindErrorText(t *testing.T, errMsg string) {
+	isBadKindMissing := !strings.Contains(errMsg, "nope")
+	if isBadKindMissing == true {
+		t.Errorf("error %q should mention the bad kind", errMsg)
 	}
-	if !strings.Contains(err.Error(), "report") || !strings.Contains(err.Error(), "input") {
-		t.Errorf("error %q should list both accepted kinds", err.Error())
+	isKindsMissing := !strings.Contains(errMsg, "report") || !strings.Contains(errMsg, "input")
+	if isKindsMissing == true {
+		t.Errorf("error %q should list both accepted kinds", errMsg)
 	}
 }
 
@@ -87,7 +117,9 @@ func TestEmitSchema_UnknownKindUsesConstantMessage(t *testing.T) {
 func decodeSchema(t *testing.T, body []byte) map[string]any {
 	t.Helper()
 	var root map[string]any
-	if err := json.Unmarshal(body, &root); err != nil {
+	err := json.Unmarshal(body, &root)
+	isUnmarshalFailed := err != nil
+	if isUnmarshalFailed == true {
 		t.Fatalf("emitted schema is not valid JSON: %v\n---\n%s", err, body)
 	}
 
@@ -99,35 +131,50 @@ func decodeSchema(t *testing.T, body []byte) map[string]any {
 func assertString(t *testing.T, obj map[string]any, key, want string) {
 	t.Helper()
 	got, ok := obj[key].(string)
-	if !ok {
+	isTypeMismatch := !ok
+	if isTypeMismatch == true {
 		t.Errorf("expected %q to be string, got %T", key, obj[key])
 
 		return
 	}
-	if got != want {
+	isMismatch := got != want
+	if isMismatch == true {
 		t.Errorf("%q = %q; want %q", key, got, want)
 	}
 }
 
 // verifySchemaVersionConst checks that the report schema's
 // schemaVersion property is a `const` integer equal to the live
-// constants.CloneFromReportSchemaVersion. Encoding/json decodes
-// JSON numbers as float64 — convert before comparing.
+// constants.CloneFromReportSchemaVersion.
 func verifySchemaVersionConst(t *testing.T, props map[string]any) {
 	t.Helper()
 	sv, ok := props["schemaVersion"].(map[string]any)
-	if !ok {
+	isSchemaMismatch := !ok
+	if isSchemaMismatch == true {
 		t.Fatalf("schemaVersion must be a sub-schema object, got %T", props["schemaVersion"])
 	}
+	verifySchemaVersionValue(t, sv)
+}
+
+func verifySchemaVersionValue(t *testing.T, sv map[string]any) {
+	t.Helper()
 	constVal, hasConst := sv["const"]
-	if !hasConst {
+	isConstMissing := !hasConst
+	if isConstMissing == true {
 		t.Fatal("schemaVersion sub-schema must declare a const value")
 	}
+	checkSchemaNumericConst(t, constVal)
+}
+
+func checkSchemaNumericConst(t *testing.T, constVal any) {
+	t.Helper()
 	asFloat, isNumber := constVal.(float64)
-	if !isNumber {
+	isNotNumber := !isNumber
+	if isNotNumber == true {
 		t.Fatalf("schemaVersion const must be numeric, got %T", constVal)
 	}
-	if int(asFloat) != constants.CloneFromReportSchemaVersion {
+	isMismatch := int(asFloat) != constants.CloneFromReportSchemaVersion
+	if isMismatch == true {
 		t.Errorf("schemaVersion const = %v; want %d (live constant)",
 			asFloat, constants.CloneFromReportSchemaVersion)
 	}

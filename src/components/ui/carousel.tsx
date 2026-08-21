@@ -35,8 +35,9 @@ const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
 function useCarousel() {
   const context = React.useContext(CarouselContext);
+  const isMissingContext = !context;
 
-  if (!context) {
+  if (isMissingContext) {
     throw new Error("useCarousel must be used within a <Carousel />");
   }
 
@@ -56,7 +57,8 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
     const [canScrollNext, setCanScrollNext] = React.useState(false);
 
     const onSelect = React.useCallback((api: CarouselApi) => {
-      if (!api) {
+      const isMissingApi = !api;
+      if (isMissingApi) {
         return;
       }
 
@@ -86,7 +88,8 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
     );
 
     React.useEffect(() => {
-      if (!api || !setApi) {
+      const isMissingApiOrSetter = !api || !setApi;
+      if (isMissingApiOrSetter) {
         return;
       }
 
@@ -94,7 +97,8 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
     }, [api, setApi]);
 
     React.useEffect(() => {
-      if (!api) {
+      const isMissingApi = !api;
+      if (isMissingApi) {
         return;
       }
 
@@ -173,6 +177,7 @@ CarouselItem.displayName = "CarouselItem";
 const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof Button>>(
   ({ className, variant = "outline", size = "icon", ...props }, ref) => {
     const { orientation, scrollPrev, canScrollPrev } = useCarousel();
+    const cannotScrollPrev = !canScrollPrev;
 
     return (
       <Button
@@ -186,7 +191,7 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProp
             : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
           className,
         )}
-        disabled={!canScrollPrev} // TODO: extract
+        disabled={cannotScrollPrev}
         onClick={scrollPrev}
         {...props}
       >
@@ -201,6 +206,7 @@ CarouselPrevious.displayName = "CarouselPrevious";
 const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof Button>>(
   ({ className, variant = "outline", size = "icon", ...props }, ref) => {
     const { orientation, scrollNext, canScrollNext } = useCarousel();
+    const cannotScrollNext = !canScrollNext;
 
     return (
       <Button
@@ -214,7 +220,7 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
             : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
           className,
         )}
-        disabled={!canScrollNext} // TODO: extract
+        disabled={cannotScrollNext}
         onClick={scrollNext}
         {...props}
       >

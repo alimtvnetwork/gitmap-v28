@@ -55,7 +55,8 @@ func TestFormatLine_Shape(t *testing.T) {
 func assertFormatLine(t *testing.T, tc formatLineCase) {
 	t.Helper()
 	got := formatLine(tc.command, tc.op, tc.subject, tc.err)
-	if got != tc.want {
+	isMismatch := got != tc.want
+	if isMismatch == true {
 		t.Fatalf("formatLine mismatch:\n got: %q\nwant: %q", got, tc.want)
 	}
 }
@@ -69,10 +70,14 @@ func TestWriteReport_NilErrSurfacesBug(t *testing.T) {
 	var buf bytes.Buffer
 	writeReport(&buf, "scan", "walk", "/repo", nil)
 	out := buf.String()
-	if !strings.Contains(out, "BUG") {
+	isBugMissing := !strings.Contains(out, "BUG")
+	if isBugMissing == true {
 		t.Fatalf("expected BUG marker, got: %q", out)
 	}
-	if !strings.Contains(out, "op=walk") || !strings.Contains(out, "subject=/repo") {
+	isOpMissing := !strings.Contains(out, "op=walk")
+	isSubjectMissing := !strings.Contains(out, "subject=/repo")
+	hasMissingDetail := isOpMissing == true || isSubjectMissing == true
+	if hasMissingDetail == true {
 		t.Fatalf("expected op + subject in BUG line, got: %q", out)
 	}
 }
@@ -84,7 +89,8 @@ func TestWriteReport_TrailingNewline(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer
 	writeReport(&buf, "clone", "git-clone", "https://x/y.git", errors.New("boom"))
-	if !strings.HasSuffix(buf.String(), "\n") {
+	isNewlineMissing := !strings.HasSuffix(buf.String(), "\n")
+	if isNewlineMissing == true {
 		t.Fatalf("missing trailing newline: %q", buf.String())
 	}
 }

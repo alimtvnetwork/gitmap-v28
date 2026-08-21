@@ -46,62 +46,62 @@ const FOCUSABLE_SELECTOR = [
  *   - `opacity: 0` anywhere in the ancestor chain (Radix overlay pattern)
  *   - elements covered by another overlay (modal backdrop, popover, etc.)
  */
+const hasHiddenAncestor = (el: HTMLElement): boolean => {
+  let node: HTMLElement | null = el;
+  while (node && node !== document.body) {
+    const s = window.getComputedStyle(node);
+    if (s.display === "none") return true;
+    if (s.visibility === "hidden" || s.visibility === "collapse") return true;
+    if (parseFloat(s.opacity) === 0) return true;
+    if (s.pointerEvents === "none" && node === el) return true;
+    node = node.parentElement;
+  }
+  return false;
+};
+
+const isPointCovered = (x: number, y: number, el: HTMLElement): boolean => {
+  if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) return false;
+  const top = document.elementFromPoint(x, y);
+  const isTopFound = Boolean(top);
+  return isTopFound && (top === el || el.contains(top));
+};
+
+const getOverlaySamples = (r: DOMRect): [number, number][] => [
+  [r.left + r.width / 2, r.top + r.height / 2],
+  [r.left + 2, r.top + 2],
+  [r.right - 2, r.bottom - 2],
+];
+
+const isCoveredByOverlay = (el: HTMLElement, rects: DOMRectList): boolean => {
+  const r = rects[0];
+  if (r.width < 1 || r.height < 1) return true;
+  const samples = getOverlaySamples(r);
+  const inViewport = samples.some(([x, y]) => x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight);
+  const isOutsideViewport = !inViewport;
+  if (isOutsideViewport) return false;
+  const isHitOrDescendant = samples.some(([x, y]) => isPointCovered(x, y, el));
+  const isCovered = !isHitOrDescendant;
+  return isCovered;
+};
+
 const isVisible = (el: HTMLElement): boolean => {
   if (el.hasAttribute("disabled")) return false;
   if (el.getAttribute("aria-hidden") === "true") return false;
   if (el.closest("[aria-hidden='true']")) return false;
 
   const rects = el.getClientRects();
-  if (rects.length === 0) return false;
+  const hasNoRects = rects.length === 0;
+  if (hasNoRects) return false;
 
-  // Walk ancestors checking display/visibility/opacity. An ancestor with
-  // `opacity:0` or `visibility:hidden` makes the descendant non-interactable
-  // even though the descendant's own computed style may still report 1.
-  let node: HTMLElement | null = el;
-  while (node && node !== document.body) {
-    const s = window.getComputedStyle(node);
-    if (s.display === "none") return false;
-    if (s.visibility === "hidden" || s.visibility === "collapse") return false;
-    if (parseFloat(s.opacity) === 0) return false;
-    if (s.pointerEvents === "none" && node === el) {
-      // Only block when the element itself opts out; ancestors with
-      // pointer-events:none + a child that re-enables them are valid.
-      return false;
-    }
-    node = node.parentElement;
-  }
-
-  // Overlay/cover detection — sample a few points within the element's
-  // first rect and require at least one to hit the element (or a
-  // descendant of it). If every sample resolves to an unrelated node
-  // higher in the paint stack, treat it as covered.
-  const r = rects[0];
-  if (r.width < 1 || r.height < 1) return false;
-  const samples: [number, number][] = [
-    [r.left + r.width / 2, r.top + r.height / 2], // center
-    [r.left + 2, r.top + 2],                       // top-left
-    [r.right - 2, r.bottom - 2],                   // bottom-right
-  ];
-  const inViewport = samples.some(
-    ([x, y]) => x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight,
-  );
-  if (!inViewport) {
-    // Off-screen elements (e.g. below the fold) are still focusable; skip
-    // the overlay test rather than wrongly excluding them.
-    return true;
-  }
-  const isHitOrDescendant = samples.some(([x, y]) => {
-    if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) return false;
-    const top = document.elementFromPoint(x, y);
-    return !!top && (top === el || el.contains(top));
-  });
-  return isHitOrDescendant;
+  if (hasHiddenAncestor(el)) return false;
+  if (isCoveredByOverlay(el, rects)) return false;
+  return true;
 };
-
 
 /** Resolve a space-separated id-list reference (aria-labelledby / aria-describedby). */
 const resolveIdRefs = (ids: string | null): string => {
-  if (!ids) return "";
+  const isMissingIds = !ids;
+  if (isMissingIds) return "";
   return ids
     .split(/\s+/)
     .map((id) => document.getElementById(id)?.textContent?.trim() ?? "")
@@ -112,6 +112,21 @@ const resolveIdRefs = (ids: string | null): string => {
 const truncate = (s: string, max = 80): string =>
   s.length > max ? `${s.slice(0, max - 3)}…` : s;
 
+const getFormElementLabel = (el: HTMLElement): string | null => {
+  const isFormEl =
+    el instanceof HTMLInputElement ||
+    el instanceof HTMLSelectElement ||
+    el instanceof HTMLTextAreaElement;
+  if (isFormEl && el.labels && el.labels.length > 0) {
+    const text = Array.from(el.labels)
+      .map((l) => l.textContent?.trim() ?? "")
+      .filter(Boolean)
+      .join(" ");
+    if (text) return truncate(text.replace(/\s+/g, " "));
+  }
+  return null;
+};
+
 /**
  * Best-effort accessible name. Mirrors the ARIA name calculation order:
  * aria-label → aria-labelledby → associated <label> → title → text content.
@@ -119,33 +134,15 @@ const truncate = (s: string, max = 80): string =>
 const labelFor = (el: HTMLElement): string => {
   const aria = el.getAttribute("aria-label");
   if (aria) return truncate(aria.trim());
-
   const labelledby = resolveIdRefs(el.getAttribute("aria-labelledby"));
   if (labelledby) return truncate(labelledby.replace(/\s+/g, " "));
-
-  // <label for="..."> or wrapping <label>
-  if (
-    el instanceof HTMLInputElement ||
-    el instanceof HTMLSelectElement ||
-    el instanceof HTMLTextAreaElement
-  ) {
-    if (el.labels && el.labels.length > 0) {
-      const text = Array.from(el.labels)
-        .map((l) => l.textContent?.trim() ?? "")
-        .filter(Boolean)
-        .join(" ");
-      if (text) return truncate(text.replace(/\s+/g, " "));
-    }
-  }
-
+  const formLabel = getFormElementLabel(el);
+  if (formLabel) return formLabel;
   const title = el.getAttribute("title");
   if (title) return truncate(title.trim());
-
   const text = (el.textContent ?? "").replace(/\s+/g, " ").trim();
   if (text) return truncate(text);
-
-  if (el instanceof HTMLInputElement) return `${el.type} input`;
-  return el.tagName.toLowerCase();
+  return el instanceof HTMLInputElement ? `${el.type} input` : el.tagName.toLowerCase();
 };
 
 /**
@@ -163,27 +160,54 @@ const descriptionFor = (el: HTMLElement): string | undefined => {
   return undefined;
 };
 
-/** Closest meaningful landmark for grouping in the list. */
-const sectionFor = (el: HTMLElement): string => {
+const getLandmarkSection = (el: HTMLElement): string | null => {
   const landmark = el.closest<HTMLElement>(
     "header, nav, main, aside, footer, [role='banner'], [role='navigation'], [role='main'], [role='complementary'], [role='contentinfo']",
   );
   if (landmark) {
-    const role =
-      landmark.getAttribute("role") ?? landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute("role") ?? landmark.tagName.toLowerCase();
     return role.charAt(0).toUpperCase() + role.slice(1);
   }
+  return null;
+};
+
+const getAriaSection = (el: HTMLElement): string | null => {
   const section = el.closest<HTMLElement>("section[aria-labelledby], section[aria-label]");
-  if (section) {
-    const labelId = section.getAttribute("aria-labelledby");
-    if (labelId) {
-      const ref = document.getElementById(labelId);
-      if (ref?.textContent) return ref.textContent.trim();
-    }
-    const label = section.getAttribute("aria-label");
-    if (label) return label.trim();
+  const isMissingSection = !section;
+  if (isMissingSection) return null;
+  const labelId = section.getAttribute("aria-labelledby");
+  if (labelId) {
+    const ref = document.getElementById(labelId);
+    if (ref?.textContent) return ref.textContent.trim();
   }
+  const label = section.getAttribute("aria-label");
+  return label ? label.trim() : null;
+};
+
+/** Closest meaningful landmark for grouping in the list. */
+const sectionFor = (el: HTMLElement): string => {
+  const landmark = getLandmarkSection(el);
+  if (landmark) return landmark;
+  const ariaSection = getAriaSection(el);
+  if (ariaSection) return ariaSection;
   return "Page";
+};
+
+interface IndexedElement {
+  el: HTMLElement;
+  i: number;
+  ti: number;
+}
+
+const compareTabOrder = (a: IndexedElement, b: IndexedElement): number => {
+  const aPositive = a.ti > 0;
+  const bPositive = b.ti > 0;
+  const isANotPositive = !aPositive;
+  const isBNotPositive = !bPositive;
+  if (aPositive && isBNotPositive) return -1;
+  if (isANotPositive && bPositive) return 1;
+  if (aPositive && bPositive && a.ti !== b.ti) return a.ti - b.ti;
+  return a.i - b.i;
 };
 
 /**
@@ -197,28 +221,46 @@ export const getTabOrder = (root: ParentNode = document.body): HTMLElement[] => 
   const all = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
   const visible = all.filter(isVisible);
 
-  // Stable index for tie-breaking (document order).
-  const indexed = visible.map((el, i) => ({
+  const indexed: IndexedElement[] = visible.map((el, i) => ({
     el,
     i,
     ti: Number(el.getAttribute("tabindex") ?? "0"),
   }));
 
-  indexed.sort((a, b) => {
-    const aPositive = a.ti > 0;
-    const bPositive = b.ti > 0;
-    if (aPositive && !bPositive) return -1;
-    if (!aPositive && bPositive) return 1;
-    if (aPositive && bPositive && a.ti !== b.ti) return a.ti - b.ti;
-    return a.i - b.i;
-  });
-
+  indexed.sort(compareTabOrder);
   return indexed.map((x) => x.el);
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Component
 // ─────────────────────────────────────────────────────────────────────────────
+
+const buildFocusEntry = (el: HTMLElement, idx: number, selfEl: HTMLElement | null): FocusEntry => {
+  const label = labelFor(el);
+  const desc = descriptionFor(el);
+  const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
+  const sublabel = desc && norm(desc) !== norm(label) ? desc : undefined;
+  const isSelf = Boolean(selfEl && selfEl.contains(el));
+  return {
+    step: idx + 1,
+    label,
+    sublabel,
+    tag: el.tagName.toLowerCase(),
+    tabIndex: Number(el.getAttribute("tabindex") ?? "0"),
+    section: sectionFor(el),
+    isSelf,
+  };
+};
+
+const groupEntriesBySection = (entries: FocusEntry[]): { section: string; items: FocusEntry[] }[] => {
+  const groups: { section: string; items: FocusEntry[] }[] = [];
+  for (const e of entries) {
+    const last = groups[groups.length - 1];
+    if (last && last.section === e.section) last.items.push(e);
+    else groups.push({ section: e.section, items: [e] });
+  }
+  return groups;
+};
 
 const TabOrderMap = () => {
   const [open, setOpen] = useState(false);
@@ -230,24 +272,7 @@ const TabOrderMap = () => {
   const refresh = useCallback(() => {
     const els = getTabOrder(document.body);
     elementsRef.current = els;
-    const list: FocusEntry[] = els.map((el, idx) => {
-      const label = labelFor(el);
-      const desc = descriptionFor(el);
-      // Skip sublabel if it duplicates the name (case/whitespace insensitive).
-      const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
-      const sublabel = desc && norm(desc) !== norm(label) ? desc : undefined;
-      return {
-        step: idx + 1,
-        label,
-        sublabel,
-        tag: el.tagName.toLowerCase(),
-        tabIndex: Number(el.getAttribute("tabindex") ?? "0"),
-        section: sectionFor(el),
-        isSelf: !!selfRef.current && selfRef.current.contains(el),
-      };
-    });
-    setEntries(list);
-    // Re-resolve focused step against the newly-collected element list.
+    setEntries(els.map((el, idx) => buildFocusEntry(el, idx, selfRef.current)));
     const active = document.activeElement as HTMLElement | null;
     const idx = active ? els.indexOf(active) : -1;
     setFocusedStep(idx >= 0 ? idx + 1 : null);
@@ -255,7 +280,8 @@ const TabOrderMap = () => {
 
   // Recompute on open + on DOM mutations + on resize while open.
   useEffect(() => {
-    if (!open) return;
+    const isClosed = !open;
+    if (isClosed) return;
     refresh();
 
     let raf = 0;
@@ -282,10 +308,12 @@ const TabOrderMap = () => {
   // Track focus globally while the panel is open. Uses focusin/focusout
   // (which bubble, unlike focus/blur) so we catch every change.
   useEffect(() => {
-    if (!open) return;
+    const isClosed = !open;
+    if (isClosed) return;
     const onFocusIn = (e: FocusEvent) => {
       const target = e.target as HTMLElement | null;
-      if (!target) {
+      const isMissingTarget = !target;
+      if (isMissingTarget) {
         setFocusedStep(null);
         return;
       }
@@ -293,17 +321,16 @@ const TabOrderMap = () => {
       setFocusedStep(idx >= 0 ? idx + 1 : null);
     };
     const onFocusOut = () => {
-      // Defer so the next focusin (if any) wins this frame.
       requestAnimationFrame(() => {
         const active = document.activeElement as HTMLElement | null;
-        if (!active || active === document.body) {
+        const isMissingActive = !active || active === document.body;
+        if (isMissingActive) {
           setFocusedStep(null);
         }
       });
     };
     document.addEventListener("focusin", onFocusIn);
     document.addEventListener("focusout", onFocusOut);
-    // Seed with whatever currently has focus.
     onFocusIn({ target: document.activeElement } as unknown as FocusEvent);
     return () => {
       document.removeEventListener("focusin", onFocusIn);
@@ -312,15 +339,7 @@ const TabOrderMap = () => {
   }, [open]);
 
   // Group entries by section for readability while keeping global numbering.
-  const grouped = useMemo(() => {
-    const groups: { section: string; items: FocusEntry[] }[] = [];
-    for (const e of entries) {
-      const last = groups[groups.length - 1];
-      if (last && last.section === e.section) last.items.push(e);
-      else groups.push({ section: e.section, items: [e] });
-    }
-    return groups;
-  }, [entries]);
+  const grouped = useMemo(() => groupEntriesBySection(entries), [entries]);
 
   return (
     <section ref={(el) => { selfRef.current = el; }} className="py-6">

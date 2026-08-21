@@ -104,7 +104,8 @@ function buildGitmapCommand(s: BuilderState): string {
   if (s.force) parts.push("-f");
   if (s.sshKeyName.trim().length > 0) parts.push(`--ssh-key ${s.sshKeyName.trim()}`);
   if (s.branch.trim().length > 0) parts.push(`--branch ${s.branch.trim()}`);
-  if (!s.flatten) parts.push("--no-flatten");
+  const isNoFlatten = !s.flatten;
+  if (isNoFlatten) parts.push("--no-flatten");
   return parts.join(" ");
 }
 
@@ -155,6 +156,7 @@ const CloneNextCommandBuilder = () => {
   const gitmapCmd = useMemo(() => buildGitmapCommand(s), [s]);
   const gitCmd = useMemo(() => buildGitCloneCommand(s), [s]);
   const resolved = useMemo(() => buildResolvedSummary(s), [s]);
+  const isMissingVersion = !s.hasVersion;
 
   return (
     <div className="rounded-lg border border-border bg-card/40 p-4 space-y-4">
@@ -211,7 +213,7 @@ const CloneNextCommandBuilder = () => {
             <input
               type="number"
               min={1}
-              disabled={!s.hasVersion}
+              disabled={isMissingVersion}
               className="w-20 rounded-md bg-background border border-border px-2 py-1 text-sm font-mono disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-muted disabled:text-muted-foreground disabled:border-border"
               value={s.currentVersion}
               onChange={(e) => update("currentVersion", Math.max(1, Number(e.target.value) || 1))}

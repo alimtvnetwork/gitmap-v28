@@ -29,16 +29,23 @@ func TestWriteStructured_HumanMode(t *testing.T) {
 
 	got := buf.String()
 	wantLead := "gitmap clone-now: git-clone on /tmp/repo failed: boom\n"
-	if !strings.HasPrefix(got, wantLead) {
+	isPrefixMissing := !strings.HasPrefix(got, wantLead)
+	if isPrefixMissing == true {
 		t.Fatalf("missing canonical lead line.\n got: %q\nwant prefix: %q", got, wantLead)
 	}
+	assertHumanOutputElements(t, got)
+}
+
+func assertHumanOutputElements(t *testing.T, got string) {
+	t.Helper()
 	for _, want := range []string{
 		"  mode=execute",
 		"  args=--execute manifest.json",
 		"  row=3",
 		"  url=https://x/y.git",
 	} {
-		if !strings.Contains(got, want) {
+		isMissing := !strings.Contains(got, want)
+		if isMissing == true {
 			t.Fatalf("human output missing %q\nfull:\n%s", want, got)
 		}
 	}
@@ -60,19 +67,28 @@ func TestWriteStructured_JSONMode(t *testing.T) {
 		Err:     errors.New("io error"),
 	}, OutputJSON)
 
-	if strings.Count(buf.String(), "\n") != 1 {
+	isSingleLine := strings.Count(buf.String(), "\n") == 1
+	if isSingleLine == false {
 		t.Fatalf("expected exactly one line, got: %q", buf.String())
 	}
+	assertJSONOutput(t, buf)
+}
+
+func assertJSONOutput(t *testing.T, buf bytes.Buffer) {
+	t.Helper()
 	var got map[string]any
 	if err := json.Unmarshal(bytes.TrimSpace(buf.Bytes()), &got); err != nil {
 		t.Fatalf("output not valid JSON: %v\nraw=%q", err, buf.String())
 	}
 	for _, k := range []string{"command", "op", "path", "mode", "args", "extras", "error"} {
-		if _, ok := got[k]; !ok {
+		_, ok := got[k]
+		isMissingKey := !ok
+		if isMissingKey == true {
 			t.Fatalf("JSON missing key %q: %v", k, got)
 		}
 	}
-	if got["error"] != "io error" {
+	isErrorMismatch := got["error"] != "io error"
+	if isErrorMismatch == true {
 		t.Fatalf("error field wrong: %v", got["error"])
 	}
 }
@@ -89,10 +105,14 @@ func TestWriteStructured_OmitsEmpty(t *testing.T) {
 	}, OutputHuman)
 
 	got := buf.String()
-	if strings.Contains(got, " on ") {
+	hasOnPath := strings.Contains(got, " on ")
+	if hasOnPath == true {
 		t.Fatalf("empty Path should elide ' on <subject>': %q", got)
 	}
-	if strings.Contains(got, "mode=") || strings.Contains(got, "args=") {
+	hasMode := strings.Contains(got, "mode=")
+	hasArgs := strings.Contains(got, "args=")
+	hasModeOrArgs := hasMode == true || hasArgs == true
+	if hasModeOrArgs == true {
 		t.Fatalf("empty Mode/Args should not render: %q", got)
 	}
 }
@@ -107,7 +127,8 @@ func TestReport_NilErrSurfacesBug(t *testing.T) {
 		Op:      "walk",
 		Path:    "/repo",
 	}, OutputHuman)
-	if !strings.Contains(buf.String(), "BUG") {
+	isBugMissing := !strings.Contains(buf.String(), "BUG")
+	if isBugMissing == true {
 		t.Fatalf("expected BUG marker, got: %q", buf.String())
 	}
 }

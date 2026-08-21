@@ -32,32 +32,14 @@ type ExtractResult struct {
 // inside destBaseDir, then walk it to find the "real root" — the first
 // directory that either holds >1 entry OR holds at least one non-dir
 // entry. That real root is then moved (or its contents merged) into
-// `<destBaseDir>/<archiveBaseName>/`. This guarantees:
-//
-//  1. xap.zip → xap/xap/<files>  becomes  destBaseDir/xap/<files>
-//     (any number of duplicate-name layers up to MaxCompactFlattenLayers
-//     is collapsed; we do not require the inner names to match xap —
-//     we just promote single-child directories until we hit content.)
-//
-//  2. xlt.zip → <files>          becomes  destBaseDir/xlt/<files>
-//     (no flatten, just a wrap.)
-//
-//  3. mixed.zip → README + src/  becomes  destBaseDir/mixed/{README,src}
-//     (no flatten, the temp dir contents move directly under the wrap.)
-//
-// The temp dir is always cleaned, even on failure mid-extract.
+// `<destBaseDir>/<archiveBaseName>/`.
 func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (ExtractResult, error) {
 	res := ExtractResult{UsedTempDir: true}
-
-	format, err := IdentifyArchive(ctx, srcArchive)
+	format, err := prepareExtractDest(ctx, srcArchive, destBaseDir)
 	if err != nil {
-		return res, fmt.Errorf("identify %q: %w", srcArchive, err)
-	}
-	res.Format = format
-
-	if err := os.MkdirAll(destBaseDir, constants.DirPermission); err != nil {
 		return res, err
 	}
+	res.Format = format
 
 	tempDir, err := os.MkdirTemp(destBaseDir, ".gitmap-uzc-*")
 	if err != nil {
@@ -65,6 +47,21 @@ func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (Extrac
 	}
 	defer os.RemoveAll(tempDir)
 
+	return completeCompactExtract(ctx, srcArchive, destBaseDir, tempDir, res)
+}
+
+func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Format, error) {
+	format, err := IdentifyArchive(ctx, srcArchive)
+	if err != nil {
+		return format, fmt.Errorf("identify %q: %w", srcArchive, err)
+	}
+	if err := os.MkdirAll(destBaseDir, constants.DirPermission); err != nil {
+		return format, err
+	}
+	return format, nil
+}
+
+func completeCompactExtract(ctx context.Context, srcArchive, destBaseDir, tempDir string, res ExtractResult) (ExtractResult, error) {
 	written, err := extractAllIntoDir(ctx, srcArchive, tempDir)
 	if err != nil {
 		return res, fmt.Errorf("extract: %w", err)
@@ -82,7 +79,6 @@ func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (Extrac
 	}
 	res.FlattenedLayers = flattened
 	res.OutputDir = finalDir
-
 	return res, nil
 }
 
@@ -103,39 +99,49 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 	}
 
 	extractor, ok := format.(archives.Extractor)
-	if !ok {
+	isMissingExtractor := !ok
+	if isMissingExtractor == true {
 		return 0, fmt.Errorf("format %s is not extractable", format.Extension())
 	}
 
+	return runArchiveExtraction(ctx, extractor, stream, destDir)
+}
+
+func runArchiveExtraction(ctx context.Context, extractor archives.Extractor, stream io.Reader, destDir string) (int, error) {
 	written := 0
 	handler := func(_ context.Context, entry archives.FileInfo) error {
-		clean := safeJoin(destDir, entry.NameInArchive)
-		if clean == "" {
-			return fmt.Errorf("rejecting entry with unsafe path: %q", entry.NameInArchive)
-		}
-
-		if entry.IsDir() {
-			return os.MkdirAll(clean, constants.DirPermission)
-		}
-
-		if err := os.MkdirAll(filepath.Dir(clean), constants.DirPermission); err != nil {
-			return err
-		}
-
-		return writeArchiveFile(entry, clean, &written)
+		return extractArchiveEntry(destDir, entry, &written)
 	}
 
 	if err := extractor.Extract(ctx, stream, handler); err != nil {
 		return written, err
 	}
-
 	return written, nil
+}
+
+func extractArchiveEntry(destDir string, entry archives.FileInfo, written *int) error {
+	clean := safeJoin(destDir, entry.NameInArchive)
+	isEmptyClean := clean == ""
+	if isEmptyClean == true {
+		return fmt.Errorf("rejecting entry with unsafe path: %q", entry.NameInArchive)
+	}
+
+	isDir := entry.IsDir()
+	if isDir == true {
+		return os.MkdirAll(clean, constants.DirPermission)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(clean), constants.DirPermission); err != nil {
+		return err
+	}
+	return writeArchiveFile(entry, clean, written)
 }
 
 // writeArchiveFile streams a single entry into destPath and bumps written.
 // Split out so extractAllIntoDir stays under gocyclo's 15-complexity cap.
 func writeArchiveFile(entry archives.FileInfo, destPath string, written *int) error {
-	if entry.LinkTarget != "" {
+	hasLinkTarget := entry.LinkTarget != ""
+	if hasLinkTarget == true {
 		// Symlinks are skipped on purpose — see CompactExtract docstring.
 		return nil
 	}
@@ -146,6 +152,10 @@ func writeArchiveFile(entry archives.FileInfo, destPath string, written *int) er
 	}
 	defer src.Close()
 
+	return copyEntryToFile(src, destPath, written)
+}
+
+func copyEntryToFile(src io.Reader, destPath string, written *int) error {
 	dst, err := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, constants.FilePermission)
 	if err != nil {
 		return err
@@ -156,7 +166,6 @@ func writeArchiveFile(entry archives.FileInfo, destPath string, written *int) er
 		return err
 	}
 	*written++
-
 	return nil
 }
 
@@ -174,7 +183,10 @@ func safeJoin(destDir, name string) string {
 	if err != nil {
 		return ""
 	}
-	if !strings.HasPrefix(abs+string(filepath.Separator), destAbs+string(filepath.Separator)) && abs != destAbs {
+	isOutsideDest := !strings.HasPrefix(abs+string(filepath.Separator), destAbs+string(filepath.Separator))
+	isSame := abs == destAbs
+	isEscaped := isOutsideDest == true && isSame == false
+	if isEscaped == true {
 		return ""
 	}
 
@@ -184,29 +196,10 @@ func safeJoin(destDir, name string) string {
 // promoteRealRoot finds the deepest single-child directory chain inside
 // tempDir (capped at MaxCompactFlattenLayers) and moves its contents to
 // finalDir, returning the number of layers collapsed.
-//
-// Edge cases:
-//
-//   - Empty archive  → finalDir is created empty.
-//   - One file only  → finalDir holds that file (no flatten).
-//   - Single dir at root, with multiple children → finalDir holds those
-//     children (1 layer flattened — the wrapping dir merges into the
-//     name we already chose).
-//   - Two dirs at root → finalDir holds both (no flatten possible).
 func promoteRealRoot(tempDir, finalDir string) (int, error) {
-	root := tempDir
-	flattened := 0
-
-	for layer := 0; layer < constants.MaxCompactFlattenLayers; layer++ {
-		entries, err := os.ReadDir(root)
-		if err != nil {
-			return flattened, err
-		}
-		if len(entries) != 1 || !entries[0].IsDir() {
-			break
-		}
-		root = filepath.Join(root, entries[0].Name())
-		flattened++
+	root, flattened, err := findDeepestRoot(tempDir)
+	if err != nil {
+		return flattened, err
 	}
 
 	if err := os.MkdirAll(finalDir, constants.DirPermission); err != nil {
@@ -217,15 +210,41 @@ func promoteRealRoot(tempDir, finalDir string) (int, error) {
 	if err != nil {
 		return flattened, err
 	}
+	return flattened, moveEntries(root, finalDir, entries)
+}
+
+func findDeepestRoot(tempDir string) (string, int, error) {
+	root := tempDir
+	flattened := 0
+	for layer := 0; layer < constants.MaxCompactFlattenLayers; layer++ {
+		entries, err := os.ReadDir(root)
+		if err != nil {
+			return root, flattened, err
+		}
+		hasSingleEntry := len(entries) == 1
+		if hasSingleEntry == false {
+			break
+		}
+		isDir := entries[0].IsDir()
+		isNonDir := !isDir
+		if isNonDir == true {
+			break
+		}
+		root = filepath.Join(root, entries[0].Name())
+		flattened++
+	}
+	return root, flattened, nil
+}
+
+func moveEntries(root, finalDir string, entries []fs.DirEntry) error {
 	for _, entry := range entries {
 		from := filepath.Join(root, entry.Name())
 		to := filepath.Join(finalDir, entry.Name())
 		if err := moveOrCopy(from, to); err != nil {
-			return flattened, err
+			return err
 		}
 	}
-
-	return flattened, nil
+	return nil
 }
 
 // moveOrCopy renames src to dst, falling back to a recursive copy when
@@ -239,7 +258,8 @@ func moveOrCopy(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	if info.IsDir() {
+	isDir := info.IsDir()
+	if isDir == true {
 		return copyDir(src, dst)
 	}
 
@@ -252,21 +272,26 @@ func copyDir(src, dst string) error {
 		if err != nil {
 			return err
 		}
-		rel, err := filepath.Rel(src, path)
-		if err != nil {
-			return err
-		}
-		target := filepath.Join(dst, rel)
-		if d.IsDir() {
-			return os.MkdirAll(target, constants.DirPermission)
-		}
-		info, err := d.Info()
-		if err != nil {
-			return err
-		}
-
-		return copyFile(path, target, info.Mode())
+		return copyDirEntry(src, dst, path, d)
 	})
+}
+
+func copyDirEntry(src, dst, path string, d fs.DirEntry) error {
+	rel, err := filepath.Rel(src, path)
+	if err != nil {
+		return err
+	}
+	target := filepath.Join(dst, rel)
+	isDir := d.IsDir()
+	if isDir == true {
+		return os.MkdirAll(target, constants.DirPermission)
+	}
+	info, err := d.Info()
+	if err != nil {
+		return err
+	}
+
+	return copyFile(path, target, info.Mode())
 }
 
 // copyFile streams src → dst preserving mode bits.
@@ -280,6 +305,10 @@ func copyFile(src, dst string, mode fs.FileMode) error {
 	if err := os.MkdirAll(filepath.Dir(dst), constants.DirPermission); err != nil {
 		return err
 	}
+	return streamToFile(in, dst, mode)
+}
+
+func streamToFile(in io.Reader, dst string, mode fs.FileMode) error {
 	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode)
 	if err != nil {
 		return err
@@ -287,7 +316,6 @@ func copyFile(src, dst string, mode fs.FileMode) error {
 	defer out.Close()
 
 	_, err = io.Copy(out, in)
-
 	return err
 }
 
@@ -301,7 +329,8 @@ func archiveBaseName(path string) string {
 		".zip", ".tar", ".gz", ".bz2", ".xz", ".zst",
 		".7z", ".rar",
 	} {
-		if strings.HasSuffix(strings.ToLower(base), ext) {
+		hasExt := strings.HasSuffix(strings.ToLower(base), ext)
+		if hasExt == true {
 			return base[:len(base)-len(ext)]
 		}
 	}
