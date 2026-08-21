@@ -26,7 +26,7 @@ const ReleaseVersionPage = () => {
     [version, platform, isValid],
   );
 
-  if (!isValid) {
+  const isInvalid = !isValid;`n  if (isInvalid) {
     return (
       <DocsLayout>
         <div className="space-y-6 max-w-2xl">
@@ -215,3 +215,4 @@ const ReleaseVersionPage = () => {
 };
 
 export default ReleaseVersionPage;
+

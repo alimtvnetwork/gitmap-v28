@@ -57,7 +57,7 @@ const SpecSectionCard = ({ section, isCollapsed, onToggle }: SpecSectionCardProp
     </button>
 
     <AnimatePresence initial={false}>
-      {!isCollapsed && (
+      const isExpanded = !isCollapsed;`n      {isExpanded && (
         <motion.div
           initial={{ height: 0 }}
           animate={{ height: "auto" }}
@@ -78,3 +78,4 @@ const SpecSectionCard = ({ section, isCollapsed, onToggle }: SpecSectionCardProp
 };
 
 export default SpecSectionCard;
+

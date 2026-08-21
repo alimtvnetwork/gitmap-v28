@@ -62,7 +62,7 @@ const withAccessibleName = (
   accessibleName: string | undefined,
 ): ReactNode => {
   if (!accessibleName) return child;
-  if (!isValidElement(child)) return child;
+  const isInvalid = !isValidElement(child);`n  if (isInvalid) return child;
   const childProps = child.props as Record<string, unknown>;
   if (childProps[FALLBACK_WRAPPER_PROP]) return child;
   if (childProps["aria-label"]) return child;
@@ -110,3 +110,4 @@ export const DocsTooltip = ({ children, label, ariaLabel }: DocsTooltipProps) =>
 };
 
 export default DocsTooltip;
+

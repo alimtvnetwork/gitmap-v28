@@ -186,7 +186,7 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProp
             : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
           className,
         )}
-        disabled={!canScrollPrev}
+        disabled={!canScrollPrev} // TODO: extract
         onClick={scrollPrev}
         {...props}
       >
@@ -214,7 +214,7 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
             : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
           className,
         )}
-        disabled={!canScrollNext}
+        disabled={!canScrollNext} // TODO: extract
         onClick={scrollNext}
         {...props}
       >
@@ -227,3 +227,4 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
 CarouselNext.displayName = "CarouselNext";
 
 export { type CarouselApi, Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext };
+
