@@ -6,13 +6,30 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
+const (
+	superCategoryLineWidth = 58
+	minRuleLength          = 4
+)
+
 // printUsage displays grouped help text for all commands and flags.
 func printUsage() {
+	printUsageHeader()
+	printUsageCoreCategories()
+	printUsageReleaseAndProjectCategories()
+	printUsageAdvancedCategories()
+	printUsageTrailer()
+}
+
+// printUsageHeader prints the header banner, usage line, and quick-start section.
+func printUsageHeader() {
 	fmt.Printf(constants.UsageHeaderFmt, constants.Version)
 	fmt.Println(constants.HelpUsage)
 	fmt.Println()
 	printUsageQuickStart()
+}
 
+// printUsageCoreCategories prints the Get Started and Work With Repos categories.
+func printUsageCoreCategories() {
 	printSuperCategory("GET STARTED", func() {
 		printGroupScanning()
 		printGroupNavigation()
@@ -24,6 +41,10 @@ func printUsage() {
 		printGroupGitOps()
 		printGroupSSH()
 	})
+}
+
+// printUsageReleaseAndProjectCategories prints the Release and Projects categories.
+func printUsageReleaseAndProjectCategories() {
 	printSuperCategory("RELEASE & HISTORY", func() {
 		printGroupRelease()
 		printGroupReleaseInfo()
@@ -39,13 +60,20 @@ func printUsage() {
 		printGroupTasks()
 		printGroupVisualize()
 	})
+}
+
+// printUsageAdvancedCategories prints the Cluster and Advanced categories.
+func printUsageAdvancedCategories() {
 	printSuperCategory("CLUSTER & NETWORK", func() {
 		printGroupCluster()
 	})
 	printSuperCategory("ADVANCED", func() {
 		printGroupUtilities()
 	})
+}
 
+// printUsageTrailer prints the flag sections and usage footer.
+func printUsageTrailer() {
 	fmt.Println()
 	printUsageFlagSections()
 	printUsageFooter()
@@ -56,21 +84,22 @@ func printUsage() {
 // scanning 17 sub-headers.
 func printSuperCategory(title string, body func()) {
 	fmt.Println()
-	rule := repeatRule(58 - len(title))
+	rule := repeatRule(superCategoryLineWidth - len(title))
 	fmt.Println("  " + constants.ColorMagenta + "━━ " +
 		constants.ColorWhite + title + constants.ColorReset +
 		" " + constants.ColorMagenta + rule + constants.ColorReset)
 	body()
 }
 
-func repeatRule(n int) string {
-	if n < 4 {
-		n = 4
+func repeatRule(count int) string {
+	if count < minRuleLength {
+		count = minRuleLength
 	}
 	out := ""
-	for i := 0; i < n; i++ {
+	for idx := 0; idx < count; idx++ {
 		out += "━"
 	}
+
 	return out
 }
 

@@ -33,58 +33,102 @@ type ScanProbeOptions struct {
 	Depth int
 }
 
+type scanFlagPointers struct {
+	cfgFlag           *string
+	modeFlag          *string
+	outputFlag        *string
+	outFileFlag       *string
+	outputPathFlag    *string
+	manifestFlag      *string
+	relRootFlag       *string
+	defaultBranchFlag *string
+	ghDesktopFlag     *bool
+	openFlag          *bool
+	quietFlag         *bool
+	noVSCodeSyncFlag  *bool
+	noAutoTagsFlag    *bool
+	reportErrFlag     *bool
+	compactFlag       *bool
+	workersFlag       *int
+	concurrencyFlag   *int
+	maxDepthFlag      *int
+	noProbeFlag       *bool
+	noProbeWaitFlag   *bool
+	probeConcFlag     *int
+	probeWorkersFlag  *int
+	probeDepthFlag    *int
+}
+
+func registerScanStringFlags(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
+	flagPtrs.cfgFlag = fs.String("config", constants.DefaultConfigPath, constants.FlagDescConfig)
+	flagPtrs.modeFlag = fs.String("mode", "", constants.FlagDescMode)
+	flagPtrs.outputFlag = fs.String("output", "", constants.FlagDescOutput)
+	flagPtrs.outFileFlag = fs.String("out-file", "", constants.FlagDescOutFile)
+	flagPtrs.outputPathFlag = fs.String("output-path", "", constants.FlagDescOutputPath)
+	flagPtrs.manifestFlag = fs.String(constants.FlagScanManifest, "", constants.FlagDescScanManifest)
+	flagPtrs.relRootFlag = fs.String(constants.FlagScanRelativeRoot, "", constants.FlagDescScanRelativeRoot)
+	flagPtrs.defaultBranchFlag = fs.String(constants.FlagScanDefaultBranch, "", constants.FlagDescScanDefaultBranch)
+}
+
+func registerScanToggles(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
+	flagPtrs.ghDesktopFlag = fs.Bool("github-desktop", false, constants.FlagDescGHDesktop)
+	flagPtrs.openFlag = fs.Bool("open", false, constants.FlagDescOpen)
+	flagPtrs.quietFlag = fs.Bool("quiet", false, constants.FlagDescQuiet)
+	flagPtrs.noVSCodeSyncFlag = fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
+	flagPtrs.noAutoTagsFlag = fs.Bool(constants.FlagNoAutoTags, false, constants.FlagDescNoAutoTags)
+	flagPtrs.reportErrFlag = fs.Bool(constants.FlagScanReportErrors, false, constants.FlagDescScanReportErrors)
+	flagPtrs.compactFlag = fs.Bool(constants.FlagScanCompact, false, constants.FlagDescScanCompact)
+}
+
+func registerScanIntFlags(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
+	flagPtrs.workersFlag = fs.Int(constants.FlagScanWorkers, constants.DefaultScanWorkers, constants.FlagDescScanWorkers)
+	flagPtrs.concurrencyFlag = fs.Int(constants.FlagScanWorkersConcurrencyAlias,
+		constants.DefaultScanWorkers, constants.FlagDescScanWorkersConcurrencyAlias)
+	flagPtrs.maxDepthFlag = fs.Int(constants.FlagScanMaxDepth, constants.DefaultScanMaxDepth, constants.FlagDescScanMaxDepth)
+}
+
+func registerScanProbeFlags(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
+	flagPtrs.noProbeFlag = fs.Bool(constants.ScanProbeFlagDisable, false, constants.FlagDescScanProbeDisable)
+	flagPtrs.noProbeWaitFlag = fs.Bool(constants.ScanProbeFlagNoWait, false, constants.FlagDescScanProbeNoWait)
+	flagPtrs.probeConcFlag = fs.Int(constants.ScanProbeFlagConcurrency,
+		constants.ScanProbeDefaultConcurrency, constants.FlagDescScanProbeConcurrency)
+	flagPtrs.probeWorkersFlag = fs.Int(constants.ScanProbeFlagProbeWorkers,
+		constants.ScanProbeDefaultConcurrency, constants.FlagDescScanProbeProbeWorkers)
+	flagPtrs.probeDepthFlag = fs.Int(constants.ScanProbeFlagProbeDepth,
+		constants.ProbeDefaultDepth, constants.FlagDescScanProbeProbeDepth)
+}
+
+func newScanFlagSet(fs *flag.FlagSet) *scanFlagPointers {
+	flagPtrs := &scanFlagPointers{}
+	registerScanStringFlags(fs, flagPtrs)
+	registerScanToggles(fs, flagPtrs)
+	registerScanIntFlags(fs, flagPtrs)
+	registerScanProbeFlags(fs, flagPtrs)
+
+	return flagPtrs
+}
+
+func resolveScanOutputPath(outputPath, manifest string) string {
+	if outputPath == "" && manifest != "" {
+		return manifest
+	}
+
+	return outputPath
+}
+
 // parseScanFlags parses flags for the scan command.
 func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
 	fs := flag.NewFlagSet(constants.CmdScan, flag.ExitOnError)
-	cfgFlag := fs.String("config", constants.DefaultConfigPath, constants.FlagDescConfig)
-	modeFlag := fs.String("mode", "", constants.FlagDescMode)
-	outputFlag := fs.String("output", "", constants.FlagDescOutput)
-	outFileFlag := fs.String("out-file", "", constants.FlagDescOutFile)
-	outputPathFlag := fs.String("output-path", "", constants.FlagDescOutputPath)
-	// `--manifest` is a unified alias for `--output-path`, mirroring
-	// the same flag on `gitmap reclone` so the scan→reclone round-
-	// trip uses one vocabulary. When BOTH are passed, `--manifest`
-	// wins ONLY if `--output-path` was left at its empty default;
-	// otherwise the explicit `--output-path` is preserved (no silent
-	// override of a previously-set value).
-	manifestFlag := fs.String(constants.FlagScanManifest, "",
-		constants.FlagDescScanManifest)
-	relRootFlag := fs.String(constants.FlagScanRelativeRoot, "", constants.FlagDescScanRelativeRoot)
-	// Empty default → mapper.resolveDefaultBranch falls back to
-	// constants.DefaultBranch. We DON'T put "main" here because doing
-	// so would make wasFlagPassed-style introspection impossible:
-	// the user passing `--default-branch main` would look identical
-	// to omitting the flag entirely.
-	defaultBranchFlag := fs.String(constants.FlagScanDefaultBranch, "", constants.FlagDescScanDefaultBranch)
-	ghDesktopFlag, openFlag, quietFlag := registerScanBoolFlags(fs)
-	noVSCodeSyncFlag := fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
-	noAutoTagsFlag := fs.Bool(constants.FlagNoAutoTags, false, constants.FlagDescNoAutoTags)
-	workersFlag := fs.Int(constants.FlagScanWorkers, constants.DefaultScanWorkers, constants.FlagDescScanWorkers)
-	concurrencyFlag := fs.Int(constants.FlagScanWorkersConcurrencyAlias,
-		constants.DefaultScanWorkers, constants.FlagDescScanWorkersConcurrencyAlias)
-	maxDepthFlag := fs.Int(constants.FlagScanMaxDepth, constants.DefaultScanMaxDepth, constants.FlagDescScanMaxDepth)
-	reportErrFlag := fs.Bool(constants.FlagScanReportErrors, false, constants.FlagDescScanReportErrors)
-	compactFlag := fs.Bool(constants.FlagScanCompact, false, constants.FlagDescScanCompact)
-	noProbeFlag := fs.Bool(constants.ScanProbeFlagDisable, false, constants.FlagDescScanProbeDisable)
-	noProbeWaitFlag := fs.Bool(constants.ScanProbeFlagNoWait, false, constants.FlagDescScanProbeNoWait)
-	probeConcFlag := fs.Int(constants.ScanProbeFlagConcurrency,
-		constants.ScanProbeDefaultConcurrency, constants.FlagDescScanProbeConcurrency)
-	probeWorkersFlag := fs.Int(constants.ScanProbeFlagProbeWorkers,
-		constants.ScanProbeDefaultConcurrency, constants.FlagDescScanProbeProbeWorkers)
-	probeDepthFlag := fs.Int(constants.ScanProbeFlagProbeDepth,
-		constants.ProbeDefaultDepth, constants.FlagDescScanProbeProbeDepth)
+	scanFlags := newScanFlagSet(fs)
 	fs.Parse(args)
 
 	dir = resolveScanDir(fs)
-	probeOpts = resolveScanProbeOptions(fs, noProbeFlag, noProbeWaitFlag,
-		probeConcFlag, probeWorkersFlag, probeDepthFlag)
-	resolvedWorkers := resolveScanWorkers(fs, workersFlag, concurrencyFlag)
-	resolvedOutputPath := *outputPathFlag
-	if resolvedOutputPath == "" && *manifestFlag != "" {
-		resolvedOutputPath = *manifestFlag
-	}
+	probeOpts = resolveScanProbeOptions(fs, scanFlags.noProbeFlag, scanFlags.noProbeWaitFlag,
+		scanFlags.probeConcFlag, scanFlags.probeWorkersFlag, scanFlags.probeDepthFlag)
+	resolvedWorkers := resolveScanWorkers(fs, scanFlags.workersFlag, scanFlags.concurrencyFlag)
+	resolvedOutputPath := resolveScanOutputPath(*scanFlags.outputPathFlag, *scanFlags.manifestFlag)
 
-	return dir, *cfgFlag, *modeFlag, *outputFlag, *outFileFlag, resolvedOutputPath, *relRootFlag, *defaultBranchFlag, *ghDesktopFlag, *openFlag, *quietFlag, *noVSCodeSyncFlag, *noAutoTagsFlag, *reportErrFlag, *compactFlag, resolvedWorkers, *maxDepthFlag, probeOpts
+	return dir, *scanFlags.cfgFlag, *scanFlags.modeFlag, *scanFlags.outputFlag, *scanFlags.outFileFlag, resolvedOutputPath, *scanFlags.relRootFlag, *scanFlags.defaultBranchFlag, *scanFlags.ghDesktopFlag, *scanFlags.openFlag, *scanFlags.quietFlag, *scanFlags.noVSCodeSyncFlag, *scanFlags.noAutoTagsFlag, *scanFlags.reportErrFlag, *scanFlags.compactFlag, resolvedWorkers, *scanFlags.maxDepthFlag, probeOpts
 }
 
 // resolveScanWorkers reconciles --workers (canonical) against the
@@ -93,9 +137,9 @@ func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
 // stderr deprecation notice. Mirrors resolveScanProbeOptions for
 // the --probe-workers / --probe-concurrency pair.
 func resolveScanWorkers(fs *flag.FlagSet, workers, concurrency *int) int {
-	workersSet := wasFlagPassed(fs, constants.FlagScanWorkers)
-	concSet := wasFlagPassed(fs, constants.FlagScanWorkersConcurrencyAlias)
-	if !workersSet && concSet {
+	isWorkersSet := wasFlagPassed(fs, constants.FlagScanWorkers)
+	isConcSet := wasFlagPassed(fs, constants.FlagScanWorkersConcurrencyAlias)
+	if !isWorkersSet && isConcSet {
 		fmt.Fprint(os.Stderr, constants.MsgScanWorkersConcurrencyAlias)
 
 		return *concurrency
@@ -104,25 +148,31 @@ func resolveScanWorkers(fs *flag.FlagSet, workers, concurrency *int) int {
 	return *workers
 }
 
+func resolveProbeConcurrency(fs *flag.FlagSet, probeConc, probeWorkers *int) (int, bool) {
+	isConcSet := wasFlagPassed(fs, constants.ScanProbeFlagConcurrency)
+	isWorkersSet := wasFlagPassed(fs, constants.ScanProbeFlagProbeWorkers)
+	if !isWorkersSet && isConcSet {
+		fmt.Fprint(os.Stderr, constants.MsgScanProbeConcurrencyAlias)
+
+		return *probeConc, true
+	}
+
+	return *probeWorkers, isWorkersSet
+}
+
 // resolveScanProbeOptions reconciles the deprecated --probe-concurrency
 // against the unified --probe-workers. The new flag wins when both are
 // set; when only the deprecated one is set we honor it and emit a
 // one-line stderr deprecation notice. Depth comes through unchanged.
 func resolveScanProbeOptions(fs *flag.FlagSet, noProbe, noWait *bool,
 	probeConc, probeWorkers, probeDepth *int) ScanProbeOptions {
-	concSet := wasFlagPassed(fs, constants.ScanProbeFlagConcurrency)
-	workersSet := wasFlagPassed(fs, constants.ScanProbeFlagProbeWorkers)
-	conc := *probeWorkers
-	if !workersSet && concSet {
-		fmt.Fprint(os.Stderr, constants.MsgScanProbeConcurrencyAlias)
-		conc = *probeConc
-	}
+	conc, isConcSet := resolveProbeConcurrency(fs, probeConc, probeWorkers)
 
 	return ScanProbeOptions{
 		Disable:        *noProbe,
 		NoWait:         *noWait,
 		Concurrency:    conc,
-		ConcurrencySet: workersSet || concSet,
+		ConcurrencySet: isConcSet,
 		Depth:          *probeDepth,
 	}
 }
@@ -130,24 +180,15 @@ func resolveScanProbeOptions(fs *flag.FlagSet, noProbe, noWait *bool,
 // wasFlagPassed reports whether the named flag was explicitly set on
 // the command line (vs left at its default). Go's stdlib flag package
 // doesn't surface this directly, so we walk Visit to find out.
-func wasFlagPassed(fs *flag.FlagSet, name string) bool {
-	seen := false
-	fs.Visit(func(f *flag.Flag) {
-		if f.Name == name {
-			seen = true
+func wasFlagPassed(fs *flag.FlagSet, flagName string) bool {
+	hasSeen := false
+	fs.Visit(func(flagItem *flag.Flag) {
+		if flagItem.Name == flagName {
+			hasSeen = true
 		}
 	})
 
-	return seen
-}
-
-// registerScanBoolFlags registers boolean flags for the scan command.
-func registerScanBoolFlags(fs *flag.FlagSet) (*bool, *bool, *bool) {
-	ghDesktopFlag := fs.Bool("github-desktop", false, constants.FlagDescGHDesktop)
-	openFlag := fs.Bool("open", false, constants.FlagDescOpen)
-	quietFlag := fs.Bool("quiet", false, constants.FlagDescQuiet)
-
-	return ghDesktopFlag, openFlag, quietFlag
+	return hasSeen
 }
 
 // resolveScanDir returns the scan directory from positional args or default.
@@ -226,80 +267,126 @@ type CloneFlags struct {
 	MissingOnly bool
 }
 
+type cloneFlagPointers struct {
+	targetFlag        *string
+	safePullFlag      *bool
+	ghDesktopFlag     *bool
+	verboseFlag       *bool
+	noReplaceFlag     *bool
+	cleanFlag         *bool
+	missingOnlyFlag   *bool
+	auditFlag         *bool
+	maxConcFlag       *int
+	sshKeyFlag        *string
+	defaultBranchFlag *string
+	outputFlag        *string
+	verifyFlag        *bool
+	verifyExitFlag    *bool
+	printArgvFlag     *bool
+	noVSCodeSyncFlag  *bool
+	debugPathsFlag    *bool
+	sshFlag           *bool
+	httpsFlag         *bool
+	dryRunFlag        *bool
+	yesFlag           *bool
+}
+
+func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
+	flagPtrs.targetFlag = fs.String("target-dir", constants.DefaultDir, constants.FlagDescTargetDir)
+	flagPtrs.sshKeyFlag = fs.String("ssh-key", "", "SSH key name for clone")
+	fs.StringVar(flagPtrs.sshKeyFlag, "K", "", "SSH key name (short)")
+	flagPtrs.defaultBranchFlag = fs.String(constants.FlagScanDefaultBranch, "", constants.FlagDescScanDefaultBranch)
+	flagPtrs.outputFlag = fs.String(constants.FlagCloneTermOutput, "", constants.FlagDescCloneTermOutput)
+	flagPtrs.maxConcFlag = fs.Int(constants.CloneFlagMaxConcurrency,
+		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
+}
+
+func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
+	flagPtrs.safePullFlag = fs.Bool("safe-pull", false, constants.FlagDescSafePull)
+	flagPtrs.ghDesktopFlag = fs.Bool("github-desktop", false, constants.FlagDescGHDesktop)
+	flagPtrs.verboseFlag = fs.Bool("verbose", false, constants.FlagDescVerbose)
+	flagPtrs.noReplaceFlag = fs.Bool("no-replace", false, constants.FlagDescCloneNoReplace)
+	flagPtrs.cleanFlag = fs.Bool("clean", false, "Forcefully delete the local folder and re-clone")
+	flagPtrs.missingOnlyFlag = fs.Bool("missing-only", false, "Skip existing directories entirely")
+	flagPtrs.auditFlag = fs.Bool(constants.CloneFlagAudit, false, constants.FlagDescCloneAudit)
+	flagPtrs.noVSCodeSyncFlag = fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
+	flagPtrs.debugPathsFlag = fs.Bool(constants.FlagDebugPaths, false, constants.FlagDescDebugPaths)
+}
+
+func registerCloneExecutionFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
+	flagPtrs.verifyFlag = fs.Bool(constants.FlagCloneVerifyCmdFaithful, false,
+		constants.FlagDescCloneVerifyCmdFaithful)
+	flagPtrs.verifyExitFlag = fs.Bool(constants.FlagCloneVerifyCmdFaithfulExitOnMismatch,
+		false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch)
+	flagPtrs.printArgvFlag = fs.Bool(constants.FlagClonePrintArgv, false,
+		constants.FlagDescClonePrintArgv)
+	flagPtrs.sshFlag = fs.Bool("ssh", false,
+		"Force every clone URL into `git@host:owner/repo.git` SSH-shorthand form before git runs (auto-converts HTTPS / `ssh://` URLs)")
+	fs.BoolVar(flagPtrs.sshFlag, "sh", false, "Short alias for --ssh")
+	flagPtrs.httpsFlag = fs.Bool("https", false,
+		"Force every clone URL into `https://host/owner/repo.git` form (auto-converts SSH-shorthand / `ssh://` URLs)")
+	fs.BoolVar(flagPtrs.httpsFlag, "ht", false, "Short alias for --https")
+	flagPtrs.dryRunFlag = fs.Bool(constants.FlagCloneDryRun, false, constants.FlagDescCloneDryRun)
+	fs.BoolVar(flagPtrs.dryRunFlag, constants.FlagCloneDryRunShort, false, "Short alias for --dry-run")
+	flagPtrs.yesFlag = fs.Bool(constants.FlagCloneYes, false, constants.FlagDescCloneYes)
+	fs.BoolVar(flagPtrs.yesFlag, constants.FlagCloneYesShort, false, constants.FlagDescCloneYes)
+}
+
+func newCloneFlagSet(fs *flag.FlagSet) *cloneFlagPointers {
+	flagPtrs := &cloneFlagPointers{}
+	registerCloneStringFlags(fs, flagPtrs)
+	registerCloneToggles(fs, flagPtrs)
+	registerCloneExecutionFlags(fs, flagPtrs)
+
+	return flagPtrs
+}
+
+func populateCloneToggles(cloneOpts *CloneFlags, flagPtrs *cloneFlagPointers) {
+	cloneOpts.SafePull = *flagPtrs.safePullFlag
+	cloneOpts.GHDesktop = *flagPtrs.ghDesktopFlag
+	cloneOpts.NoReplace = *flagPtrs.noReplaceFlag
+	cloneOpts.Verbose = *flagPtrs.verboseFlag
+	cloneOpts.Audit = *flagPtrs.auditFlag
+	cloneOpts.MaxConcurrency = *flagPtrs.maxConcFlag
+	cloneOpts.NoVSCodeSync = *flagPtrs.noVSCodeSyncFlag
+	cloneOpts.Clean = *flagPtrs.cleanFlag
+	cloneOpts.MissingOnly = *flagPtrs.missingOnlyFlag
+}
+
+func populateCloneExecutionFlags(cloneOpts *CloneFlags, flagPtrs *cloneFlagPointers) {
+	cloneOpts.VerifyCmdFaithful = *flagPtrs.verifyFlag
+	cloneOpts.VerifyCmdFaithfulExitOnMismatch = *flagPtrs.verifyExitFlag
+	cloneOpts.PrintCloneArgv = *flagPtrs.printArgvFlag
+	cloneOpts.UseSSH = *flagPtrs.sshFlag
+	cloneOpts.UseHTTPS = *flagPtrs.httpsFlag
+	cloneOpts.DryRun = *flagPtrs.dryRunFlag
+	cloneOpts.IsAssumeYes = *flagPtrs.yesFlag
+}
+
+func buildCloneFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) CloneFlags {
+	cloneOpts := CloneFlags{
+		Source:        resolveCloneSource(fs),
+		FolderName:    resolveCloneFolderName(fs),
+		TargetDir:     *flagPtrs.targetFlag,
+		SSHKeyName:    *flagPtrs.sshKeyFlag,
+		DefaultBranch: *flagPtrs.defaultBranchFlag,
+		Positional:    fs.Args(),
+		Output:        *flagPtrs.outputFlag,
+	}
+	populateCloneToggles(&cloneOpts, flagPtrs)
+	populateCloneExecutionFlags(&cloneOpts, flagPtrs)
+
+	return cloneOpts
+}
+
 // parseCloneFlags parses flags for the clone command.
 func parseCloneFlags(args []string) CloneFlags {
 	fs := flag.NewFlagSet(constants.CmdClone, flag.ExitOnError)
-	targetFlag := fs.String("target-dir", constants.DefaultDir, constants.FlagDescTargetDir)
-	safePullFlag := fs.Bool("safe-pull", false, constants.FlagDescSafePull)
-	ghDesktopFlag := fs.Bool("github-desktop", false, constants.FlagDescGHDesktop)
-	verboseFlag := fs.Bool("verbose", false, constants.FlagDescVerbose)
-	noReplaceFlag := fs.Bool("no-replace", false, constants.FlagDescCloneNoReplace)
-	cleanFlag := fs.Bool("clean", false, "Forcefully delete the local folder and re-clone")
-	missingOnlyFlag := fs.Bool("missing-only", false, "Skip existing directories entirely")
-	auditFlag := fs.Bool(constants.CloneFlagAudit, false, constants.FlagDescCloneAudit)
-	maxConcFlag := fs.Int(constants.CloneFlagMaxConcurrency,
-		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
-	sshKeyFlag := fs.String("ssh-key", "", "SSH key name for clone")
-	fs.StringVar(sshKeyFlag, "K", "", "SSH key name (short)")
-	// Reuse the scan command's `--default-branch` constant + description
-	// verbatim. The two flags share the same role (fallback branch when
-	// detection finds nothing); keeping one source of truth means
-	// `gitmap scan --help` and `gitmap clone --help` cannot drift.
-	defaultBranchFlag := fs.String(constants.FlagScanDefaultBranch, "", constants.FlagDescScanDefaultBranch)
-	outputFlag := fs.String(constants.FlagCloneTermOutput, "", constants.FlagDescCloneTermOutput)
-	verifyFlag := fs.Bool(constants.FlagCloneVerifyCmdFaithful, false,
-		constants.FlagDescCloneVerifyCmdFaithful)
-	verifyExitFlag := fs.Bool(constants.FlagCloneVerifyCmdFaithfulExitOnMismatch,
-		false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch)
-	printArgvFlag := fs.Bool(constants.FlagClonePrintArgv, false,
-		constants.FlagDescClonePrintArgv)
-	noVSCodeSyncFlag := fs.Bool(constants.FlagNoVSCodeSync, false,
-		constants.FlagDescNoVSCodeSync)
-	debugPathsFlag := fs.Bool(constants.FlagDebugPaths, false,
-		constants.FlagDescDebugPaths)
-	sshFlag := fs.Bool("ssh", false,
-		"Force every clone URL into `git@host:owner/repo.git` SSH-shorthand form before git runs (auto-converts HTTPS / `ssh://` URLs)")
-	fs.BoolVar(sshFlag, "sh", false, "Short alias for --ssh")
-	httpsFlag := fs.Bool("https", false,
-		"Force every clone URL into `https://host/owner/repo.git` form (auto-converts SSH-shorthand / `ssh://` URLs)")
-	fs.BoolVar(httpsFlag, "ht", false, "Short alias for --https")
-	dryRunFlag := fs.Bool(constants.FlagCloneDryRun, false, constants.FlagDescCloneDryRun)
-	fs.BoolVar(dryRunFlag, constants.FlagCloneDryRunShort, false, "Short alias for --dry-run")
-	yesFlag := fs.Bool(constants.FlagCloneYes, false, constants.FlagDescCloneYes)
-	fs.BoolVar(yesFlag, constants.FlagCloneYesShort, false, constants.FlagDescCloneYes)
-	// Reorder so `gitmap clone <url> --ssh` works — Go's flag pkg
-	// stops parsing at the first non-flag, which would otherwise
-	// silently drop `--ssh` / `--https` / every other bool flag
-	// when it follows the URL positional.
+	flagPtrs := newCloneFlagSet(fs)
 	fs.Parse(reorderFlagsBeforeArgs(args))
+	applyDebugPathsEnv(*flagPtrs.debugPathsFlag)
 
-	applyDebugPathsEnv(*debugPathsFlag)
-
-	return CloneFlags{
-		Source:                          resolveCloneSource(fs),
-		FolderName:                      resolveCloneFolderName(fs),
-		TargetDir:                       *targetFlag,
-		SSHKeyName:                      *sshKeyFlag,
-		DefaultBranch:                   *defaultBranchFlag,
-		Positional:                      fs.Args(),
-		SafePull:                        *safePullFlag,
-		GHDesktop:                       *ghDesktopFlag,
-		NoReplace:                       *noReplaceFlag,
-		Verbose:                         *verboseFlag,
-		Audit:                           *auditFlag,
-		MaxConcurrency:                  *maxConcFlag,
-		Output:                          *outputFlag,
-		VerifyCmdFaithful:               *verifyFlag,
-		VerifyCmdFaithfulExitOnMismatch: *verifyExitFlag,
-		PrintCloneArgv:                  *printArgvFlag,
-		NoVSCodeSync:                    *noVSCodeSyncFlag,
-		UseSSH:                          *sshFlag,
-		UseHTTPS:                        *httpsFlag,
-		DryRun:                          *dryRunFlag,
-		IsAssumeYes:                     *yesFlag,
-		Clean:                           *cleanFlag,
-		MissingOnly:                     *missingOnlyFlag,
-	}
+	return buildCloneFlags(fs, flagPtrs)
 }
 
 // resolveCloneSource returns the clone source from positional args.
@@ -315,24 +402,25 @@ func resolveCloneSource(fs *flag.FlagSet) string {
 // When the second positional looks like a URL, it's NOT a folder name —
 // callers must treat the full positional list as a multi-URL batch instead.
 func resolveCloneFolderName(fs *flag.FlagSet) string {
-	if fs.NArg() > 1 && isLikelyURL(fs.Arg(1)) == true {
+	if fs.NArg() <= 1 {
 		return ""
 	}
-	if fs.NArg() > 1 {
-		return fs.Arg(1)
+	secondArg := fs.Arg(1)
+	if isLikelyURL(secondArg) {
+		return ""
 	}
 
-	return ""
+	return secondArg
 }
 
 // isLikelyURL is a cheap prefix check used to disambiguate
 // "folder name" vs "second URL" without importing the clone package.
 // Mirrors isDirectURL in clone.go — keep both in sync.
-func isLikelyURL(s string) bool {
-	lower := strings.ToLower(strings.TrimSpace(s))
+func isLikelyURL(rawURL string) bool {
+	lowerURL := strings.ToLower(strings.TrimSpace(rawURL))
 
-	return strings.HasPrefix(lower, "https://") ||
-		strings.HasPrefix(lower, "http://") ||
-		strings.HasPrefix(lower, "ssh://") ||
-		strings.HasPrefix(lower, "git@")
+	return strings.HasPrefix(lowerURL, "https://") ||
+		strings.HasPrefix(lowerURL, "http://") ||
+		strings.HasPrefix(lowerURL, "ssh://") ||
+		strings.HasPrefix(lowerURL, "git@")
 }

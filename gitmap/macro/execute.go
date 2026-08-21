@@ -22,13 +22,15 @@ func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 			fmt.Printf("  [%2d/%d] ➜ (dry-run) %s\n", i+1, len(m.Steps), step.CommandLine)
 			continue
 		}
-		if err := executeStep(ctx, step, i+1, len(m.Steps), opts); err != nil {
-			if !step.ContinueOnError {
-				fmt.Printf("  %s✖ Step %d failed: %v%s\n", constants.ColorRed, i+1, err, constants.ColorReset)
-				return err
-			}
-			fmt.Printf("  %s▲ Step %d warning (ignored): %v%s\n", constants.ColorYellow, i+1, err, constants.ColorReset)
+		err := executeStep(ctx, step, i+1, len(m.Steps), opts)
+		if err == nil {
+			continue
 		}
+		if !step.ContinueOnError {
+			fmt.Printf("  %s✖ Step %d failed: %v%s\n", constants.ColorRed, i+1, err, constants.ColorReset)
+			return err
+		}
+		fmt.Printf("  %s▲ Step %d warning (ignored): %v%s\n", constants.ColorYellow, i+1, err, constants.ColorReset)
 	}
 
 	elapsed := time.Since(start)
@@ -43,7 +45,7 @@ func executeStep(ctx context.Context, step MacroStep, idx, total int, opts ExecO
 	start := time.Now()
 
 	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == constants.OSWindows {
 		cmd = exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", step.CommandLine)
 	} else {
 		cmd = exec.CommandContext(ctx, "sh", "-c", step.CommandLine)

@@ -56,7 +56,7 @@ type AddOptions struct {
 	// have one canonical backend. Zero value (BackendUnspecified)
 	// means "use the OS default" which is BackendRegistry on
 	// Windows.
-	Backend Backend
+	Backend BackendType
 }
 
 // AddStatusType tags the four mutually-exclusive Add outcomes. Kept

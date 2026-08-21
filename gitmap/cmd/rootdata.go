@@ -11,6 +11,15 @@ func dispatchData(command string) bool {
 
 // dataDispatchEntries returns the routing table for data commands.
 func dataDispatchEntries() []dispatchEntry {
+	entries := make([]dispatchEntry, 0, 25)
+	entries = append(entries, dataListingEntries()...)
+	entries = append(entries, dataProfileEntries()...)
+	entries = append(entries, dataDatabaseEntries()...)
+	entries = append(entries, dataExecutionEntries()...)
+	return entries
+}
+
+func dataListingEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdList, constants.CmdListAlias}, func() { runList(argsTail()) }},
 		{[]string{constants.CmdGroup, constants.CmdGroupAlias}, func() { runGroup(argsTail()) }},
@@ -19,6 +28,11 @@ func dataDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdHistoryReset, constants.CmdHistoryResetAlias}, func() { runHistoryReset(argsTail()) }},
 		{[]string{constants.CmdStats, constants.CmdStatsAlias}, func() { runStats(argsTail()) }},
 		{[]string{constants.CmdBookmark, constants.CmdBookmarkAlias}, func() { runBookmark(argsTail()) }},
+	}
+}
+
+func dataProfileEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{constants.CmdExport, constants.CmdExportAlias}, func() { runExport(argsTail()) }},
 		{[]string{constants.CmdImport, constants.CmdImportAlias}, func() { runImport(argsTail()) }},
 		{[]string{constants.CmdProfile, constants.CmdProfileAlias}, func() { runProfile(argsTail()) }},
@@ -26,6 +40,11 @@ func dataDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdCD, constants.CmdCDAlias}, func() { runCD(argsTail()) }},
 		{[]string{constants.CmdWatch, constants.CmdWatchAlias}, func() { runWatch(argsTail()) }},
 		{[]string{constants.CmdInteractive, constants.CmdInteractiveAlias}, func() { runInteractive() }},
+	}
+}
+
+func dataDatabaseEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{constants.CmdDBReset}, func() { runDBReset(argsTail()) }},
 		{[]string{constants.CmdReset}, func() { runReset(argsTail()) }},
 		{[]string{constants.CmdDBMigrate, constants.CmdDBMigrateAlias}, func() { runDBMigrate(argsTail()) }},
@@ -33,6 +52,11 @@ func dataDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdAmendList, constants.CmdAmendListAlias}, func() { runAmendList(argsTail()) }},
 		{[]string{constants.CmdDashboard, constants.CmdDashboardAlias}, func() { runDashboard(argsTail()) }},
 		{[]string{constants.CmdVersionHistory, constants.CmdVersionHistoryAlias}, func() { runVersionHistory(argsTail()) }},
+	}
+}
+
+func dataExecutionEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{"execute", "exec"}, func() { runExecuteCmd(argsTail()) }},
 		{[]string{"macro", "m"}, func() { runMacroCmd(argsTail()) }},
 		{[]string{"record", "rec"}, func() { runMacroCmd(append([]string{"record"}, argsTail()...)) }},

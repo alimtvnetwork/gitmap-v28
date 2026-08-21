@@ -20,19 +20,19 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// Backend enumerates the Windows-specific add targets. Linux/macOS
+// BackendType enumerates the Windows-specific add targets. Linux/macOS
 // have one canonical backend each (XDG .desktop / LaunchAgents
 // .plist) so they ignore this value entirely. The zero value
 // (BackendUnspecified) means "let the dispatcher pick the OS default"
 // which is `BackendRegistry` on Windows.
-type Backend int
+type BackendType int
 
 const (
 	// BackendUnspecified is the zero value. The dispatcher
 	// translates it to the per-OS default rather than failing —
 	// keeps the public Add(opts) API ergonomic for non-Windows
 	// callers that have no opinion on backend.
-	BackendUnspecified Backend = iota
+	BackendUnspecified BackendType = iota
 	// BackendRegistry writes the HKCU Run-key value + tracking
 	// subkey (per-user; the long-standing default).
 	BackendRegistry
@@ -47,13 +47,13 @@ const (
 )
 
 // ParseBackend translates the user-facing flag string into the
-// Backend enum. Unknown / empty values from non-Windows callers
+// BackendType enum. Unknown / empty values from non-Windows callers
 // flow through as BackendUnspecified (the per-OS default); empty
 // values from Windows callers also default to Registry. ONLY a
 // non-empty unrecognized value is an error — that means the user
 // typed something we don't understand and silently defaulting
 // would hide the typo.
-func ParseBackend(s string) (Backend, error) {
+func ParseBackend(s string) (BackendType, error) {
 	switch s {
 	case "":
 		return BackendUnspecified, nil
@@ -70,7 +70,7 @@ func ParseBackend(s string) (Backend, error) {
 
 // String renders the backend as the canonical CLI flag value. Used
 // by list/remove rendering to label which backend an entry lives in.
-func (b Backend) String() string {
+func (b BackendType) String() string {
 	switch b {
 	case BackendRegistry:
 		return constants.StartupBackendRegistry
@@ -89,7 +89,7 @@ func (b Backend) String() string {
 // caller passed BackendUnspecified. Registry is the Windows default
 // (matches what most provisioning scripts use and what `regedit`
 // users expect to see after running `gitmap startup-add`).
-func resolveBackendForAdd(b Backend) Backend {
+func resolveBackendForAdd(b BackendType) BackendType {
 	if b != BackendUnspecified {
 		return b
 	}

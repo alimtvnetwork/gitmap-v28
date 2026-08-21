@@ -116,7 +116,7 @@ func TestStartupStatusJSON_AddActionsAndOwners(t *testing.T) {
 // "bad_name" matrix proves every owner inference is correct.
 func TestStartupStatusJSON_RemoveActionsAndOwners(t *testing.T) {
 	cases := []struct {
-		status     startup.RemoveStatus
+		status     startup.RemoveStatusType
 		path       string
 		dryRun     bool
 		wantAction string

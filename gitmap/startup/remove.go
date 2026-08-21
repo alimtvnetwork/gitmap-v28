@@ -24,18 +24,18 @@ import (
 // caller passed RemoveOptions.DryRun=true and the status would
 // otherwise have been RemoveDeleted.
 type RemoveResult struct {
-	Status RemoveStatus
+	Status RemoveStatusType
 	Path   string
 	DryRun bool
 }
 
-// RemoveStatus enumerates the four mutually-exclusive outcomes.
-type RemoveStatus int
+// RemoveStatusType enumerates the four mutually-exclusive outcomes.
+type RemoveStatusType int
 
 const (
 	// RemoveDeleted = file existed, was gitmap-managed, was unlinked
 	// (or, under DryRun, would have been unlinked).
-	RemoveDeleted RemoveStatus = iota
+	RemoveDeleted RemoveStatusType = iota
 	// RemoveNoOp = no file by that name in the autostart dir.
 	RemoveNoOp
 	// RemoveRefused = file exists but is not gitmap-managed.
@@ -59,7 +59,7 @@ type RemoveOptions struct {
 	// preserves legacy behavior: both backends are tried in order
 	// and the first non-NoOp result wins. Linux and macOS callers
 	// ignore this field — there's only one backend per OS.
-	Backend Backend
+	Backend BackendType
 }
 
 // Remove deletes the named gitmap-managed autostart entry. `name`
