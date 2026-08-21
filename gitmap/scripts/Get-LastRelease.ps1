@@ -45,6 +45,7 @@ function Get-ReleaseFromBinary {
                 }
             }
         } catch {
+            Write-Warning "[Get-ReleaseFromBinary.version] $_"
         }
 
         # Strategy B: parse `list-versions` only as a fallback when the binary
@@ -67,6 +68,7 @@ function Get-ReleaseFromBinary {
                 }
             }
         } catch {
+            Write-Warning "[Get-ReleaseFromBinary.list-versions] $_"
         }
     }
 
@@ -91,6 +93,7 @@ function Get-ReleaseFromJSON {
                 return "v$($data.version)"
             }
         } catch {
+            Write-Warning "[Get-ReleaseFromJSON] $_"
         }
     }
 
@@ -110,6 +113,7 @@ function Get-ReleaseFromGitTag {
             }
         }
     } catch {
+        Write-Warning "[Get-ReleaseFromGitTag] $_"
     }
 
     return $null

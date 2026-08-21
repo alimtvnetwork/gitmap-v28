@@ -176,3 +176,15 @@ const (
 	ExitChromeProfileNotFound   = 7
 	ExitChromeProfileCopyFailed = 10
 )
+
+// Chrome profile CSV categories and keys.
+const (
+	ChromeCSVCategoryMeta       = "meta"
+	ChromeCSVCategoryExtension  = "extension"
+	ChromeCSVCategoryPreference = "preference"
+	ChromeCSVCategoryBookmark   = "bookmark"
+	ChromeCSVKeyName            = "name"
+	ChromeCSVKeySourcePath      = "sourcePath"
+	ChromeCSVKeyID              = "id"
+	ChromeDefaultImportedName   = "imported"
+)

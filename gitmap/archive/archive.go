@@ -26,28 +26,31 @@ import (
 	"github.com/mholt/archives"
 )
 
-// Format is a string tag persisted in ArchiveHistory.ArchiveFormat. It
+// FormatType is a string tag persisted in ArchiveHistory.ArchiveFormat. It
 // reads cleanly in PascalCase logs ("Zip", "TarGz") yet round-trips
-// through the canonical extension via FormatFromExt / Format.Extension.
-type Format string
+// through the canonical extension via FormatFromExt / FormatType.Extension.
+type FormatType string
+
+// Format is retained as a type alias for backwards compatibility.
+type Format = FormatType
 
 const (
-	FormatZip     Format = "Zip"
-	FormatTar     Format = "Tar"
-	FormatTarGz   Format = "TarGz"
-	FormatTarBz2  Format = "TarBz2"
-	FormatTarXz   Format = "TarXz"
-	FormatTarZst  Format = "TarZst"
-	FormatGz      Format = "Gz"
-	FormatBz2     Format = "Bz2"
-	FormatXz      Format = "Xz"
-	FormatZst     Format = "Zst"
-	Format7z      Format = "SevenZip"
-	FormatRar     Format = "Rar"
-	FormatUnknown Format = ""
+	FormatZip     FormatType = "Zip"
+	FormatTar     FormatType = "Tar"
+	FormatTarGz   FormatType = "TarGz"
+	FormatTarBz2  FormatType = "TarBz2"
+	FormatTarXz   FormatType = "TarXz"
+	FormatTarZst  FormatType = "TarZst"
+	FormatGz      FormatType = "Gz"
+	FormatBz2     FormatType = "Bz2"
+	FormatXz      FormatType = "Xz"
+	FormatZst     FormatType = "Zst"
+	Format7z      FormatType = "SevenZip"
+	FormatRar     FormatType = "Rar"
+	FormatUnknown FormatType = ""
 )
 
-var doubleExtMap = map[string]Format{
+var doubleExtMap = map[string]FormatType{
 	".tar.gz":  FormatTarGz,
 	".tgz":     FormatTarGz,
 	".tar.bz2": FormatTarBz2,
@@ -58,7 +61,7 @@ var doubleExtMap = map[string]Format{
 	".tzst":    FormatTarZst,
 }
 
-var singleExtMap = map[string]Format{
+var singleExtMap = map[string]FormatType{
 	".zip": FormatZip,
 	".tar": FormatTar,
 	".gz":  FormatGz,
@@ -69,7 +72,7 @@ var singleExtMap = map[string]Format{
 	".rar": FormatRar,
 }
 
-var formatExtMap = map[Format]string{
+var formatExtMap = map[FormatType]string{
 	FormatZip:    ".zip",
 	FormatTar:    ".tar",
 	FormatTarGz:  ".tar.gz",
@@ -84,7 +87,7 @@ var formatExtMap = map[Format]string{
 	FormatRar:    ".rar",
 }
 
-func matchExtMap(lower string, m map[string]Format) Format {
+func matchExtMap(lower string, m map[string]FormatType) FormatType {
 	for ext, f := range m {
 		if strings.HasSuffix(lower, ext) {
 			return f
@@ -94,11 +97,11 @@ func matchExtMap(lower string, m map[string]Format) Format {
 	return FormatUnknown
 }
 
-// FormatFromPath inspects a file name and returns the matching Format,
+// FormatFromPath inspects a file name and returns the matching FormatType,
 // or FormatUnknown when nothing matches. Multi-extension forms
 // (".tar.gz", ".tar.bz2", ".tar.xz", ".tar.zst") are checked first so a
 // plain ".gz" never wins over ".tar.gz".
-func FormatFromPath(p string) Format {
+func FormatFromPath(p string) FormatType {
 	lower := strings.ToLower(p)
 	if f := matchExtMap(lower, doubleExtMap); f != FormatUnknown {
 		return f
@@ -112,7 +115,7 @@ func FormatFromPath(p string) Format {
 
 // Extension returns the canonical extension (with leading dot) the
 // CreateArchive path uses to construct mholt/archives Format objects.
-func (f Format) Extension() string {
+func (f FormatType) Extension() string {
 	return formatExtMap[f]
 }
 
@@ -120,7 +123,7 @@ func (f Format) Extension() string {
 // magic bytes. Used as the authoritative format check after extension-
 // based guesses, since a misnamed file (foo.zip that is really a tarball)
 // would otherwise produce a misleading ArchiveHistory.ArchiveFormat row.
-func IdentifyArchive(ctx context.Context, path string) (Format, error) {
+func IdentifyArchive(ctx context.Context, path string) (FormatType, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return FormatUnknown, err
@@ -129,18 +132,16 @@ func IdentifyArchive(ctx context.Context, path string) (Format, error) {
 
 	format, _, err := archives.Identify(ctx, filepath.Base(path), f)
 	if err != nil {
-		// mholt returns ErrNoMatch when nothing identifies — fall back to
-		// the extension hint so a tar without magic bytes still works.
 		return FormatFromPath(path), nil
 	}
 
 	return mholtToFormat(format), nil
 }
 
-// mholtToFormat maps mholt/archives Format objects back to our Format
+// mholtToFormat maps mholt/archives Format objects back to our FormatType
 // enum. The library exposes one struct per format, so a type switch is
 // the cleanest way; comparing extensions would round-trip through strings.
-func mholtToFormat(f archives.Format) Format {
+func mholtToFormat(f archives.Format) FormatType {
 	if f == nil {
 		return FormatUnknown
 	}
@@ -151,7 +152,7 @@ func mholtToFormat(f archives.Format) Format {
 	return mholtCompressType(f)
 }
 
-func mholtArchiveType(f archives.Format) Format {
+func mholtArchiveType(f archives.Format) FormatType {
 	switch f.(type) {
 	case archives.Zip:
 		return FormatZip
@@ -163,12 +164,11 @@ func mholtArchiveType(f archives.Format) Format {
 		return FormatRar
 	case archives.CompressedArchive:
 		return FormatFromPath(f.Extension())
-	default:
-		return FormatUnknown
 	}
+	return FormatUnknown
 }
 
-func mholtCompressType(f archives.Format) Format {
+func mholtCompressType(f archives.Format) FormatType {
 	switch f.(type) {
 	case archives.Gz:
 		return FormatGz
@@ -178,7 +178,6 @@ func mholtCompressType(f archives.Format) Format {
 		return FormatXz
 	case archives.Zstd:
 		return FormatZst
-	default:
-		return FormatUnknown
 	}
+	return FormatUnknown
 }

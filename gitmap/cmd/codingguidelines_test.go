@@ -9,40 +9,54 @@ import (
 	"testing"
 )
 
+func fakeTrueRunner(name string, args ...string) *exec.Cmd {
+	return exec.Command("true")
+}
+
+func fakeFalseRunner(name string, args ...string) *exec.Cmd {
+	return exec.Command("false")
+}
+
+func assertCGBanners(t *testing.T, stderr string) {
+	t.Helper()
+	hasRunning := strings.Contains(stderr, "Installing coding guidelines")
+	if !hasRunning {
+		t.Fatalf("stderr missing running banner: %q", stderr)
+	}
+	hasDone := strings.Contains(stderr, "OK Coding guidelines")
+	if !hasDone {
+		t.Fatalf("stderr missing done banner: %q", stderr)
+	}
+}
+
 // TestRunCodingGuidelinesInstall_SuccessViaFakeRunner verifies the
 // dispatcher wires the OS-appropriate installer, streams stdio, and
 // reports success without shelling out to the network. The injected
 // Runner swaps every command for a no-op shell that exits 0.
 func TestRunCodingGuidelinesInstall_SuccessViaFakeRunner(t *testing.T) {
 	t.Parallel()
-
-	if runtime.GOOS == "windows" {
-		// Skip on Windows: dispatchCGWindows requires a real PowerShell
-		// binary discovered via resolvePowerShellBinary; the Unix path
-		// gives us equivalent coverage for the runner contract.
+	isWindows := runtime.GOOS == "windows"
+	if isWindows {
 		t.Skip("dispatcher branch covered by unix path in CI")
 	}
 
 	var stdout, stderr bytes.Buffer
-	fake := func(name string, args ...string) *exec.Cmd {
-		// Ignore the real (bash / pwsh) command and args: exercise the
-		// wiring, not the network install. `true` exits 0 on every Unix.
-		return exec.Command("true")
-	}
-
-	err := RunCodingGuidelinesInstall(CodingGuidelinesOpts{
-		Runner: fake,
-		Stdout: &stdout,
-		Stderr: &stderr,
-	})
-	if err != nil {
+	opts := CodingGuidelinesOpts{Runner: fakeTrueRunner, Stdout: &stdout, Stderr: &stderr}
+	if err := RunCodingGuidelinesInstall(opts); err != nil {
 		t.Fatalf("expected success, got err=%v; stderr=%q", err, stderr.String())
 	}
-	if !strings.Contains(stderr.String(), "Installing coding guidelines") {
-		t.Fatalf("stderr missing running banner: %q", stderr.String())
+	assertCGBanners(t, stderr.String())
+}
+
+func assertCGMissingShell(t *testing.T, err error, stderr string) {
+	t.Helper()
+	isExpectedErr := errors.Is(err, ErrCGShellNotFound)
+	if !isExpectedErr {
+		t.Fatalf("expected ErrCGShellNotFound, got %v", err)
 	}
-	if !strings.Contains(stderr.String(), "OK Coding guidelines") {
-		t.Fatalf("stderr missing done banner: %q", stderr.String())
+	hasFallback := strings.Contains(stderr, "curl -fsSL")
+	if !hasFallback {
+		t.Fatalf("stderr missing manual fallback recipe: %q", stderr)
 	}
 }
 
@@ -51,18 +65,29 @@ func TestRunCodingGuidelinesInstall_SuccessViaFakeRunner(t *testing.T) {
 // when the required shell is absent from PATH. Simulated by emptying
 // PATH for the duration of the test.
 func TestRunCodingGuidelinesInstall_ShellMissing(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	isWindows := runtime.GOOS == "windows"
+	if isWindows {
 		t.Skip("PATH manipulation for pwsh discovery is platform-specific")
 	}
 	t.Setenv("PATH", "")
 
 	var stderr bytes.Buffer
 	err := RunCodingGuidelinesInstall(CodingGuidelinesOpts{Stderr: &stderr})
-	if !errors.Is(err, ErrCGShellNotFound) {
-		t.Fatalf("expected ErrCGShellNotFound, got %v", err)
+	assertCGMissingShell(t, err, stderr.String())
+}
+
+func assertCGErrorAndBanner(t *testing.T, err error, stderr string) {
+	t.Helper()
+	if err == nil {
+		t.Fatalf("expected non-nil error from failing installer")
 	}
-	if !strings.Contains(stderr.String(), "curl -fsSL") {
-		t.Fatalf("stderr missing manual fallback recipe: %q", stderr.String())
+	hasContext := strings.Contains(err.Error(), "coding-guidelines install")
+	if !hasContext {
+		t.Fatalf("error missing context prefix: %v", err)
+	}
+	hasFailBanner := strings.Contains(stderr, "install failed")
+	if !hasFailBanner {
+		t.Fatalf("stderr missing failure banner: %q", stderr)
 	}
 }
 
@@ -71,25 +96,14 @@ func TestRunCodingGuidelinesInstall_ShellMissing(t *testing.T) {
 // unwrap them per the zero-swallow error policy.
 func TestRunCodingGuidelinesInstall_ExitCodePropagates(t *testing.T) {
 	t.Parallel()
-	if runtime.GOOS == "windows" {
+	isWindows := runtime.GOOS == "windows"
+	if isWindows {
 		t.Skip("dispatcher branch covered by unix path in CI")
 	}
 
-	fake := func(name string, args ...string) *exec.Cmd {
-		return exec.Command("false") // exits 1 on every Unix
-	}
-
 	var stderr bytes.Buffer
-	err := RunCodingGuidelinesInstall(CodingGuidelinesOpts{Runner: fake, Stderr: &stderr})
-	if err == nil {
-		t.Fatalf("expected non-nil error from failing installer")
-	}
-	if !strings.Contains(err.Error(), "coding-guidelines install") {
-		t.Fatalf("error missing context prefix: %v", err)
-	}
-	if !strings.Contains(stderr.String(), "install failed") {
-		t.Fatalf("stderr missing failure banner: %q", stderr.String())
-	}
+	err := RunCodingGuidelinesInstall(CodingGuidelinesOpts{Runner: fakeFalseRunner, Stderr: &stderr})
+	assertCGErrorAndBanner(t, err, stderr.String())
 }
 
 func TestPatchCGArithmeticIncrements(t *testing.T) {
@@ -98,8 +112,19 @@ func TestPatchCGArithmeticIncrements(t *testing.T) {
 	in := "((WROTE_NEW++))\n((COPIED++))\n((count + 1))\n"
 	got := patchCGArithmeticIncrements(in)
 	want := "((WROTE_NEW+=1))\n((COPIED+=1))\n((count + 1))\n"
-	if got != want {
+	isMismatch := got != want
+	if isMismatch {
 		t.Fatalf("patched script mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
+func assertCGNotes(t *testing.T, stderr string) {
+	t.Helper()
+	for _, want := range []string{"Note: --no-commit set", "Note: --no-push set"} {
+		hasNote := strings.Contains(stderr, want)
+		if !hasNote {
+			t.Fatalf("stderr missing %q: %q", want, stderr)
+		}
 	}
 }
 
@@ -111,9 +136,6 @@ func TestCommitCodingGuidelinesNoCommitNoPushPrintsBothNotes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected success, got %v", err)
 	}
-	for _, want := range []string{"Note: --no-commit set", "Note: --no-push set"} {
-		if !strings.Contains(stderr.String(), want) {
-			t.Fatalf("stderr missing %q: %q", want, stderr.String())
-		}
-	}
+	assertCGNotes(t, stderr.String())
 }
+

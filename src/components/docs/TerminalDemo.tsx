@@ -14,6 +14,22 @@ interface TerminalDemoProps {
   autoPlay?: boolean;
 }
 
+function colorForLine(type?: TerminalLineType): string {
+  const isInput = type === TerminalLineType.Input;
+  if (isInput) return "text-[hsl(var(--terminal-foreground))]";
+  const isHeader = type === TerminalLineType.Header;
+  if (isHeader) return "text-primary font-bold";
+  const isAccent = type === TerminalLineType.Accent;
+  if (isAccent) return "text-primary";
+  return "text-[hsl(var(--foreground))]/70";
+}
+
+function getLineDelay(line?: TerminalLine): number {
+  const isInput = line?.type === TerminalLineType.Input;
+  const defaultDelay = isInput ? TERMINAL_INPUT_DELAY : TERMINAL_OUTPUT_DELAY;
+  return line?.delay ?? defaultDelay;
+}
+
 const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => {
   const [visibleLines, setVisibleLines] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -25,40 +41,37 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
   };
 
   const reset = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    const hasTimeout = Boolean(timeoutRef.current);
+    if (hasTimeout) clearTimeout(timeoutRef.current!);
     setVisibleLines(0);
     setIsPlaying(false);
   };
 
   useEffect(() => {
-    if (autoPlay) play();
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+    const shouldAutoPlay = autoPlay === true;
+    if (shouldAutoPlay) play();
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
 
   useEffect(() => {
-    const isPaused = !isPlaying;
+    if (!isPlaying) return;
     const isFinished = visibleLines >= lines.length;
-    if (isPaused || isFinished) {
-      if (isFinished) setIsPlaying(false);
+    if (isFinished) {
+      setIsPlaying(false);
       return;
     }
 
-    const isInput = lines[visibleLines]?.type === TerminalLineType.Input;
-    const delay = lines[visibleLines]?.delay ?? (isInput ? TERMINAL_INPUT_DELAY : TERMINAL_OUTPUT_DELAY);
+    const delay = getLineDelay(lines[visibleLines]);
     timeoutRef.current = setTimeout(() => {
       setVisibleLines((prev) => prev + 1);
     }, delay);
 
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, [isPlaying, visibleLines, lines]);
-
-  const colorFor = (type?: TerminalLineType) => {
-    if (type === TerminalLineType.Input) return "text-[hsl(var(--terminal-foreground))]";
-    if (type === TerminalLineType.Header) return "text-primary font-bold";
-    if (type === TerminalLineType.Accent) return "text-primary";
-
-    return "text-[hsl(var(--foreground))]/70";
-  };
 
   return (
     <div className="rounded-lg border border-border overflow-hidden">
@@ -82,7 +95,7 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
       </div>
       <div className="docs-scroll bg-[hsl(var(--terminal))] p-4 font-mono text-xs leading-relaxed min-h-[120px] max-h-[320px] overflow-y-auto">
         {lines.slice(0, visibleLines).map((line, i) => (
-          <div key={i} className={colorFor(line.type)}>
+          <div key={i} className={colorForLine(line.type)}>
             {line.type === TerminalLineType.Input && <span className="text-primary mr-1">$</span>}
             {line.text}
           </div>
@@ -96,4 +109,5 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
 };
 
 export default TerminalDemo;
+
 

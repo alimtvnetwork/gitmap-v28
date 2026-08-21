@@ -99,6 +99,63 @@ export enum FontSizeDirectionType {
 }
 export type FontSizeDirection = FontSizeDirectionType;
 
+function processHtmlLine(line: string, openSpans: string[]): string {
+  const prefix = openSpans.join("");
+  const full = prefix + line;
+  const opens = line.match(/<span[^>]*>/g) || [];
+  const closes = line.match(/<\/span>/g) || [];
+  for (const o of opens) openSpans.push(o);
+  for (let i = 0; i < closes.length; i++) openSpans.pop();
+  const suffix = "</span>".repeat(openSpans.length);
+  return full + suffix;
+}
+
+function splitHighlightedHtml(html: string): string[] {
+  const result: string[] = [];
+  const openSpans: string[] = [];
+  for (const line of html.split("\n")) {
+    result.push(processHtmlLine(line, openSpans));
+  }
+  return result;
+}
+
+function getHighlightedHtml(code: string, lang: string): string | null {
+  const res = queryWrapperSync(() => {
+    const hasLanguage = Boolean(hljs.getLanguage(lang));
+    if (!hasLanguage) return null;
+    return hljs.highlight(code, { language: lang }).value;
+  });
+  const isHighlighted = Boolean(res.isSuccess && res.data);
+  if (!isHighlighted) return null;
+  return res.data;
+}
+
+function addPinRange(set: Set<number>, start: number, end: number): Set<number> {
+  const next = new Set(set);
+  for (let i = start; i <= end; i++) next.add(i);
+  return next;
+}
+
+function togglePinItem(set: Set<number>, lineIndex: number): Set<number> {
+  const next = new Set(set);
+  const isAlreadyPinned = next.has(lineIndex);
+  if (isAlreadyPinned) {
+    next.delete(lineIndex);
+    return next;
+  }
+  next.add(lineIndex);
+  return next;
+}
+
+function getPinnedOrAllText(code: string, pinnedLines: Set<number>, hasPinned: boolean): string {
+  if (!hasPinned) return code;
+  const allLines = code.split("\n");
+  return Array.from(pinnedLines)
+    .sort((a, b) => a - b)
+    .map((i) => allLines[i])
+    .join("\n");
+}
+
 const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -112,7 +169,8 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
 
   const cycleFontSize = useCallback((direction: FontSizeDirectionType) => {
     setFontSizeIdx((prev) => {
-      if (direction === FontSizeDirectionType.Up) return Math.min(prev + 1, FONT_SIZES.length - 1);
+      const isUp = direction === FontSizeDirectionType.Up;
+      if (isUp) return Math.min(prev + 1, FONT_SIZES.length - 1);
       return Math.max(prev - 1, 0);
     });
   }, []);
@@ -123,32 +181,17 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
 
   const togglePin = useCallback((lineIndex: number, e?: React.MouseEvent) => {
     const isRangeSelect = Boolean(e?.shiftKey && lastPinned !== null);
-    if (isRangeSelect) {
-      const start = Math.min(lastPinned!, lineIndex);
-      const end = Math.max(lastPinned!, lineIndex);
-      setPinnedLines((prev) => {
-        const next = new Set(prev);
-        for (let i = start; i <= end; i++) next.add(i);
-        return next;
-      });
-    } else {
-      setPinnedLines((prev) => {
-        const next = new Set(prev);
-        if (next.has(lineIndex)) next.delete(lineIndex);
-        else next.add(lineIndex);
-        return next;
-      });
-    }
+    setPinnedLines((prev) => {
+      if (isRangeSelect) {
+        return addPinRange(prev, Math.min(lastPinned!, lineIndex), Math.max(lastPinned!, lineIndex));
+      }
+      return togglePinItem(prev, lineIndex);
+    });
     setLastPinned(lineIndex);
   }, [lastPinned]);
 
   const handleCopy = useCallback(async () => {
-    const textToCopy = hasPinned
-      ? Array.from(pinnedLines)
-          .sort((a, b) => a - b)
-          .map((i) => code.split("\n")[i])
-          .join("\n")
-      : code;
+    const textToCopy = getPinnedOrAllText(code, pinnedLines, hasPinned);
     await copyToClipboard(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -171,39 +214,10 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
   const showLineNumbers = lines.length > 1;
 
   const highlightedLines = useMemo(() => {
-    const lang = language.toLowerCase();
-    let html: string | null = null;
-    const res = queryWrapperSync(() => {
-      if (hljs.getLanguage(lang)) {
-        return hljs.highlight(code, { language: lang }).value;
-      }
-      return null;
-    });
-    if (res.isSuccess && res.data) {
-      html = res.data;
-    }
-    if (html) {
-      // Split highlighted HTML by newlines, preserving open spans across lines
-      const result: string[] = [];
-      let openSpans: string[] = [];
-      const rawLines = html.split("\n");
-      for (const line of rawLines) {
-        // Prepend any spans that were open from previous lines
-        const prefix = openSpans.join("");
-        const full = prefix + line;
-        // Track open/close spans
-        const opens = line.match(/<span[^>]*>/g) || [];
-        const closes = line.match(/<\/span>/g) || [];
-        // Update stack
-        for (const o of opens) openSpans.push(o);
-        for (let i = 0; i < closes.length; i++) openSpans.pop();
-        // Close any still-open spans for this line's HTML
-        const suffix = "</span>".repeat(openSpans.length);
-        result.push(full + suffix);
-      }
-      return result;
-    }
-    return null;
+    const html = getHighlightedHtml(code, language.toLowerCase());
+    const hasHtml = Boolean(html);
+    if (!hasHtml) return null;
+    return splitHighlightedHtml(html!);
   }, [code, language]);
 
   const wrapperClass = fullscreen
@@ -365,3 +379,4 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
 };
 
 export default CodeBlock;
+

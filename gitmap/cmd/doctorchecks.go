@@ -34,16 +34,22 @@ func checkActiveBinary() int {
 
 		return 1
 	}
-
-	absPath, absErr := filepath.Abs(path)
-	if absErr != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not resolve absolute path for %s: %v\n", path, absErr)
-		absPath = path
-	}
+	absPath := resolveBinaryAbsPath(path)
 	version := getBinaryVersion(absPath)
 	printOK(constants.DoctorPathBinaryFmt, absPath, version)
 
 	return 0
+}
+
+func resolveBinaryAbsPath(path string) string {
+	absPath, absErr := filepath.Abs(path)
+	if absErr != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not resolve absolute path for %s: %v\n", path, absErr)
+
+		return path
+	}
+
+	return absPath
 }
 
 // checkDeployedBinary reports the deployed binary from powershell.json.
@@ -59,6 +65,10 @@ func checkDeployedBinary() int {
 		return 1
 	}
 
+	return verifyDeployedBinary(data)
+}
+
+func verifyDeployedBinary(data []byte) int {
 	deployedBinary, issue := resolveDeployedFromData(data)
 	if issue > 0 {
 		return issue
@@ -91,7 +101,10 @@ func resolveDeployedFromData(data []byte) (string, int) {
 		binaryName = constants.DoctorDefaultBinary
 	}
 
-	deployedBinary := filepath.Join(deployPath, constants.GitMapCliSubdir, binaryName)
+	return checkDeployedFileExists(filepath.Join(deployPath, constants.GitMapCliSubdir, binaryName))
+}
+
+func checkDeployedFileExists(deployedBinary string) (string, int) {
 	if _, err := os.Stat(deployedBinary); err != nil {
 		printIssue(constants.DoctorDeployNotFound, deployedBinary)
 		printFix(constants.DoctorDeployRunFix)
@@ -111,7 +124,7 @@ func checkGit() int {
 		return 1
 	}
 
-	version := getToolVersion(constants.GitBin, "--version")
+	version := getToolVersion(constants.GitBin, constants.GitVersionArg)
 	if len(version) == 0 {
 		printOK(constants.DoctorGitOKPathFmt, path)
 
@@ -180,26 +193,33 @@ func checkLegacyDirs() int {
 // checkSignature verifies whether the active binary has a valid digital signature.
 // Only runs on Windows — signature verification uses PowerShell's Get-AuthenticodeSignature.
 func checkSignature() int {
-	if runtime.GOOS != "windows" {
+	if runtime.GOOS != constants.PlatformWindows {
 		printWarn(constants.DoctorSignSkipUnix)
 
 		return 0
 	}
 
+	absPath, ok := resolveSignaturePath()
+	if !ok {
+		return 0
+	}
+
+	return verifyBinarySignature(absPath)
+}
+
+func resolveSignaturePath() (string, bool) {
 	binaryPath, err := exec.LookPath(constants.GitMapBin)
 	if err != nil {
 		printWarn(constants.DoctorSignNoPath)
 
-		return 0
+		return "", false
 	}
 
-	absPath, absErr := filepath.Abs(binaryPath)
-	if absErr != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not resolve absolute path for %s: %v\n", binaryPath, absErr)
-		absPath = binaryPath
-	}
+	return resolveBinaryAbsPath(binaryPath), true
+}
 
-	cmd := exec.Command("powershell", "-NoProfile", "-Command",
+func verifyBinarySignature(absPath string) int {
+	cmd := exec.Command(constants.ShellPowerShell, constants.DoctorFlagNoProfile, constants.DoctorFlagCommand,
 		"(Get-AuthenticodeSignature '"+absPath+"').Status")
 	out, err := cmd.Output()
 	if err != nil {
@@ -208,16 +228,18 @@ func checkSignature() int {
 		return 0
 	}
 
-	status := strings.TrimSpace(string(out))
+	return evaluateSignatureStatus(absPath, strings.TrimSpace(string(out)))
+}
 
-	if status == "Valid" {
+func evaluateSignatureStatus(absPath, status string) int {
+	if status == constants.DoctorSignStatusValid {
 		signer := getSignatureSigner(absPath)
 		printOK(constants.DoctorSignOKFmt, absPath, signer)
 
 		return 0
 	}
 
-	if status == "NotSigned" {
+	if status == constants.DoctorSignStatusNotSigned {
 		printWarn(constants.DoctorSignUnsigned)
 
 		return 0
@@ -231,16 +253,16 @@ func checkSignature() int {
 
 // getSignatureSigner extracts the signer subject from a signed binary.
 func getSignatureSigner(binaryPath string) string {
-	cmd := exec.Command("powershell", "-NoProfile", "-Command",
+	cmd := exec.Command(constants.ShellPowerShell, constants.DoctorFlagNoProfile, constants.DoctorFlagCommand,
 		"(Get-AuthenticodeSignature '"+binaryPath+"').SignerCertificate.Subject")
 	out, err := cmd.Output()
 	if err != nil {
-		return "unknown signer"
+		return constants.DoctorUnknownSigner
 	}
 
 	subject := strings.TrimSpace(string(out))
 	if len(subject) == 0 {
-		return "unknown signer"
+		return constants.DoctorUnknownSigner
 	}
 
 	return subject

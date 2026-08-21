@@ -21,4 +21,30 @@ const (
 	ErrClusterPasswordRequired       = "password is required for this operation"
 	MsgClusterCountdown              = "⚠ %s %d nodes in %ds… Press Ctrl+C to abort"
 	MsgClusterAuditFooter            = "Cluster run completed"
+
+	ClusterDefaultHistoryLimit = 50
+	ClusterBcryptCost          = 12
+
+	ClusterHeaderRunRef         = "RunRef"
+	ClusterHeaderCommandKind    = "CommandKind"
+	ClusterHeaderTargetSelector = "TargetSelector"
+	ClusterHeaderNodes          = "Nodes"
+	ClusterHeaderOK             = "OK"
+	ClusterHeaderFAIL           = "FAIL"
+	ClusterHeaderStartedAt      = "StartedAt"
+	ClusterHeaderNode           = "Node"
+	ClusterHeaderSubCommand     = "SubCommand"
+	ClusterHeaderResult         = "Result"
+	ClusterHeaderExitCode       = "ExitCode"
+	ClusterHeaderDurationMs     = "DurationMs"
+
+	ClusterStatusOffline     = "offline"
+	ClusterStatusUnreachable = "unreachable"
+
+	FlagClusterFormat  = "--format"
+	FlagClusterOutput  = "--output"
+	FlagClusterJSON    = "--json"
+	FlagClusterID      = "--id"
+	FlagClusterConfirm = "--confirm"
+	FlagClusterBefore  = "--before"
 )

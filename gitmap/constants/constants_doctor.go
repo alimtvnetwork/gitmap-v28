@@ -71,14 +71,20 @@ const (
 
 // Doctor binary and tool lookup names.
 const (
-	GitMapBin            = "gitmap"
-	GoBin                = "go"
-	GoVersionArg         = "version"
-	PowershellConfigFile = "powershell.json"
-	JSONKeyDeployPath    = "deployPath"
-	JSONKeyBuildOutput   = "buildOutput"
-	JSONKeyBinaryName    = "binaryName"
-	BackupSuffix         = ".old"
+	GitMapBin                 = "gitmap"
+	GoBin                     = "go"
+	GoVersionArg              = "version"
+	GitVersionArg             = "--version"
+	PowershellConfigFile      = "powershell.json"
+	JSONKeyDeployPath         = "deployPath"
+	JSONKeyBuildOutput        = "buildOutput"
+	JSONKeyBinaryName         = "binaryName"
+	BackupSuffix              = ".old"
+	DoctorSignStatusValid     = "Valid"
+	DoctorSignStatusNotSigned = "NotSigned"
+	DoctorUnknownSigner       = "unknown signer"
+	DoctorFlagNoProfile       = "-NoProfile"
+	DoctorFlagCommand         = "-Command"
 )
 
 // GitMapSubdir and GitMapCliSubdir are now defined in deploy_manifest.go and

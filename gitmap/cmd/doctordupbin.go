@@ -28,7 +28,7 @@ func checkDuplicateBinaries() int {
 
 // findAllBinaries returns every resolved gitmap binary path on PATH.
 func findAllBinaries() []string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == constants.PlatformWindows {
 		return findAllBinariesWindows()
 	}
 
@@ -37,7 +37,7 @@ func findAllBinaries() []string {
 
 // findAllBinariesWindows uses PowerShell Get-Command to list all matches.
 func findAllBinariesWindows() []string {
-	cmd := exec.Command("powershell", "-NoProfile", "-Command",
+	cmd := exec.Command(constants.ShellPowerShell, constants.DoctorFlagNoProfile, constants.DoctorFlagCommand,
 		"(Get-Command gitmap -All -ErrorAction SilentlyContinue).Source")
 	out, err := cmd.Output()
 	if err != nil {
@@ -64,23 +64,30 @@ func parseMultiline(output string) []string {
 	var results []string
 	seen := make(map[string]struct{})
 	for _, line := range lines {
-		p := strings.TrimSpace(strings.TrimSuffix(line, "\r"))
-		if len(p) == 0 {
-			continue
+		if abs, ok := parseCleanLine(line, seen); ok {
+			results = append(results, abs)
 		}
-		abs, err := filepath.Abs(p)
-		if err != nil {
-			abs = p
-		}
-		lower := strings.ToLower(abs)
-		if _, ok := seen[lower]; ok {
-			continue
-		}
-		seen[lower] = struct{}{}
-		results = append(results, abs)
 	}
 
 	return results
+}
+
+func parseCleanLine(line string, seen map[string]struct{}) (string, bool) {
+	p := strings.TrimSpace(strings.TrimSuffix(line, "\r"))
+	if len(p) == 0 {
+		return "", false
+	}
+	abs, err := filepath.Abs(p)
+	if err != nil {
+		abs = p
+	}
+	lower := strings.ToLower(abs)
+	if _, ok := seen[lower]; ok {
+		return "", false
+	}
+	seen[lower] = struct{}{}
+
+	return abs, true
 }
 
 // formatDupList formats the duplicate binary paths for display.
@@ -102,7 +109,7 @@ func formatDupList(paths []string) string {
 // formatDupFix returns a one-shot removal command for each stale binary.
 func formatDupFix(paths []string) string {
 	stale := paths[1:]
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == constants.PlatformWindows {
 		return formatDupFixWindows(stale)
 	}
 

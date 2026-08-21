@@ -24,10 +24,7 @@ func loadChromeImport(path string) (*chromeExport, error) {
 	return readChromeExport(path)
 }
 
-// readChromeExportCSV parses a Category/Key/Value CSV produced by
-// writeChromeExportCSV. Unknown categories are ignored so the format
-// stays additive.
-func readChromeExportCSV(path string) (*chromeExport, error) {
+func parseCSVRows(path string) ([][]string, error) {
 	f, err := os.Open(path) //nolint:gosec // user-supplied path
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", path, err)
@@ -39,37 +36,56 @@ func readChromeExportCSV(path string) (*chromeExport, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse %s: %w", path, err)
 	}
+	return rows, nil
+}
+
+// readChromeExportCSV parses a Category/Key/Value CSV produced by
+// writeChromeExportCSV. Unknown categories are ignored so the format
+// stays additive.
+func readChromeExportCSV(path string) (*chromeExport, error) {
+	rows, err := parseCSVRows(path)
+	if err != nil {
+		return nil, err
+	}
 	exp := &chromeExport{SchemaVersion: chromeExportSchemaVersion}
 	prefs := map[string]any{}
+	populateExportRows(exp, prefs, rows)
+	finalizeExport(exp, prefs)
+	return exp, nil
+}
+
+func populateExportRows(exp *chromeExport, prefs map[string]any, rows [][]string) {
 	for i, row := range rows {
 		if i == 0 || len(row) < 3 {
 			continue
 		}
 		assignChromeCSVRow(exp, prefs, row[0], row[1], row[2])
 	}
+}
+
+func finalizeExport(exp *chromeExport, prefs map[string]any) {
 	if len(prefs) > 0 {
 		raw, _ := json.Marshal(prefs)
 		exp.Preferences = raw
 	}
 	if exp.Name == "" {
-		exp.Name = "imported"
+		exp.Name = constants.ChromeDefaultImportedName
 	}
-	return exp, nil
 }
 
 // assignChromeCSVRow routes a single Category/Key/Value triple into
 // the right field of the rebuilt export.
 func assignChromeCSVRow(exp *chromeExport, prefs map[string]any, category, key, value string) {
 	switch category {
-	case "meta":
-		if key == "name" {
+	case constants.ChromeCSVCategoryMeta:
+		if key == constants.ChromeCSVKeyName {
 			exp.Name = value
 		}
-	case "extension":
-		if key == "id" && value != "" {
+	case constants.ChromeCSVCategoryExtension:
+		if key == constants.ChromeCSVKeyID && value != "" {
 			exp.ExtensionIDs = append(exp.ExtensionIDs, value)
 		}
-	case "preference":
+	case constants.ChromeCSVCategoryPreference:
 		prefs[key] = value
 	}
 }

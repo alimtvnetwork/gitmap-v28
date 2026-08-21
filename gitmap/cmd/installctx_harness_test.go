@@ -36,18 +36,22 @@ func collectCtxLeaves(t *testing.T) []ctxFlatLeaf {
 	out := make([]ctxFlatLeaf, 0, len(flat))
 	pathByLeaf := buildLeafPaths()
 	for _, e := range flat {
-		out = append(out, ctxFlatLeaf{
-			Path:     pathByLeaf[e.Slug],
-			Slug:     e.Slug,
-			Label:    e.Label,
-			Args:     append([]string(nil), e.Args...),
-			Mode:     e.Mode,
-			Exe:      e.Exe,
-			Extended: e.Extended,
-		})
+		out = append(out, toCtxFlatLeaf(e, pathByLeaf[e.Slug]))
 	}
 
 	return out
+}
+
+func toCtxFlatLeaf(e flatCtxEntry, path string) ctxFlatLeaf {
+	return ctxFlatLeaf{
+		Path:     path,
+		Slug:     e.Slug,
+		Label:    e.Label,
+		Args:     append([]string(nil), e.Args...),
+		Mode:     e.Mode,
+		Exe:      e.Exe,
+		Extended: e.Extended,
+	}
 }
 
 // buildLeafPaths returns slug → "parent.child" KeyName path for every
@@ -57,17 +61,21 @@ func collectCtxLeaves(t *testing.T) []ctxFlatLeaf {
 func buildLeafPaths() map[string]string {
 	out := map[string]string{}
 	for _, e := range ctxMenu() {
-		if len(e.Children) == 0 {
-			out[topSlug(e)] = e.KeyName
-
-			continue
-		}
-		for _, c := range e.Children {
-			out[childSlug(e, c)] = e.KeyName + "." + c.KeyName
-		}
+		populateLeafPaths(out, e)
 	}
 
 	return out
+}
+
+func populateLeafPaths(out map[string]string, e ctxEntry) {
+	isTopLevelOnly := len(e.Children) == 0
+	if isTopLevelOnly {
+		out[topSlug(e)] = e.KeyName
+		return
+	}
+	for _, c := range e.Children {
+		out[childSlug(e, c)] = e.KeyName + "." + c.KeyName
+	}
 }
 
 func topSlug(e ctxEntry) string {
@@ -94,7 +102,8 @@ func withExplain(t *testing.T, on bool, f func()) {
 // will bake into the menu entry: the per-entry Exe override (e.g.
 // "git") if set, otherwise the gitmap binary path the harness pinned.
 func (l ctxFlatLeaf) resolvedTarget(gitmapExe string) string {
-	if l.Exe != "" {
+	hasCustomExe := l.Exe != ""
+	if hasCustomExe {
 		return l.Exe
 	}
 
@@ -106,7 +115,8 @@ func (l ctxFlatLeaf) resolvedTarget(gitmapExe string) string {
 // values / .desktop Exec= lines are byte-stable across hosts.
 func fakeGitmapExe(t *testing.T) string {
 	t.Helper()
-	if runtime.GOOS == "windows" {
+	isWindows := runtime.GOOS == "windows"
+	if isWindows {
 		return `C:\fake\gitmap.exe`
 	}
 
@@ -129,10 +139,12 @@ func sortedSlugs(leaves []ctxFlatLeaf) []string {
 // returns the first miss for a focused failure message.
 func containsAll(haystack string, needles []string) (string, bool) {
 	for _, n := range needles {
-		if !strings.Contains(haystack, n) {
+		hasNeedle := strings.Contains(haystack, n)
+		if !hasNeedle {
 			return n, false
 		}
 	}
 
 	return "", true
 }
+

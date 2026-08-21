@@ -6,7 +6,9 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-const SearchBar = ({ value, onChange, placeholder = "Search commands..." }: SearchBarProps) => {
+const DEFAULT_SEARCH_PLACEHOLDER = "Search commands...";
+
+const SearchBar = ({ value, onChange, placeholder = DEFAULT_SEARCH_PLACEHOLDER }: SearchBarProps) => {
   return (
     <div className="relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

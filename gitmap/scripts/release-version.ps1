@@ -201,7 +201,8 @@ function Invoke-GitHubAPI([string]$path) {
     try {
         return Invoke-RestMethod -Uri $url -Headers $headers -UseBasicParsing -ErrorAction Stop
     } catch {
-        if ($_.Exception.Response.StatusCode.value__ -eq 404) { return $null }
+        if ($_.Exception.Response -and $_.Exception.Response.StatusCode.value__ -eq 404) { return $null }
+        Write-Warning "[Invoke-GitHubAPI] $_"
         Write-Err2 "GitHub API error: $($_.Exception.Message)"
         exit $EXIT_NETWORK
     }
@@ -298,6 +299,7 @@ function Test-Interactive() {
     try {
         if ([Console]::IsInputRedirected) { return $false }
     } catch {
+        Write-Warning "[Test-Interactive] $_"
         # Older PowerShell hosts lack IsInputRedirected — fall back to a
         # cautious "no" so we never hang.
         return $false
@@ -312,6 +314,7 @@ function Read-PromptSafe([string]$prompt) {
     try {
         return Read-Host $prompt
     } catch {
+        Write-Warning "[Read-PromptSafe] $_"
         Write-Err2 "Could not read from stdin: $($_.Exception.Message)"
         return $null
     }
@@ -353,6 +356,7 @@ function Get-Checksums($release) {
         Invoke-WebRequest -Uri $cs.browser_download_url -OutFile $tmp -UseBasicParsing
         return $tmp
     } catch {
+        Write-Warning "[Get-Checksums] $_"
         Write-Warn2 "Could not download checksums.txt: $($_.Exception.Message)"
         return $null
     }
@@ -387,6 +391,7 @@ function Save-Asset($asset) {
     try {
         Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $out -UseBasicParsing
     } catch {
+        Write-Warning "[Save-Asset] $_"
         Write-Err2 "Download failed: $($_.Exception.Message)"
         exit $EXIT_NETWORK
     }
@@ -436,6 +441,7 @@ function Add-ToPath([string]$dir) {
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
         Write-OK "Added to user PATH: $dir"
     } catch {
+        Write-Warning "[Add-ToPath] $_"
         Write-Warn2 "Could not update PATH: $($_.Exception.Message)"
         # PATH failure is non-fatal — binary still works via absolute path.
     }
@@ -451,6 +457,7 @@ function Invoke-SelfInstall([string]$binPath, [string]$expectedVersion) {
             exit $EXIT_SELF_INSTALL
         }
     } catch {
+        Write-Warning "[Invoke-SelfInstall] $_"
         Write-Warn2 "self-install failed: $($_.Exception.Message)"
         exit $EXIT_SELF_INSTALL
     }
@@ -460,6 +467,7 @@ function Test-Version([string]$binPath, [string]$expectedVersion) {
     try {
         $reported = & $binPath --version 2>&1 | Select-Object -First 1
     } catch {
+        Write-Warning "[Test-Version] $_"
         Write-Err2 "Could not run installed binary: $($_.Exception.Message)"
         exit $EXIT_VERIFY
     }
@@ -504,7 +512,7 @@ try {
     Invoke-SelfInstall $binPath $resolvedVersion
 
     # Cleanup temp
-    try { Remove-Item $dl.Dir -Recurse -Force -ErrorAction SilentlyContinue } catch { Write-Warning "$_" }
+    try { Remove-Item $dl.Dir -Recurse -Force -ErrorAction SilentlyContinue } catch { Write-Warning "[Main.Cleanup] $_" }
 
     Write-Host ""
     Write-OK "gitmap $resolvedVersion installed to $installDir"

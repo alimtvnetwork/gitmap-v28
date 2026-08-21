@@ -19,6 +19,13 @@ var Version = "6.98.0" // Overridden at compile time via -ldflags
 // RepoPath is set at build time via -ldflags.
 var RepoPath = ""
 
+// Platform constants.
+const (
+	PlatformWindows = "windows"
+	PlatformLinux   = "linux"
+	PlatformDarwin  = "darwin"
+)
+
 // Clone modes.
 const (
 	ModeHTTPS = "https"

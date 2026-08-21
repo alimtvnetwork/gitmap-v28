@@ -137,7 +137,7 @@ function _Process-OneFile {
     try {
         $reps = Invoke-FileRewrite -FullPath $full -Base $Base -Targets $Targets -Current $Current -DryRun $DryRun
     } catch {
-        Write-Error "$_"
+        Write-Warning "[_Process-OneFile] $_"
         Write-Host ("fix-repo: ERROR write failed for {0}: {1}" -f $Rel, $_.Exception.Message)
         return [pscustomobject]@{ Reps=0; Failed=$true; FullPath=$full }
     }
@@ -259,7 +259,7 @@ $identity = Resolve-Identity
 try {
     Import-FixRepoConfig -ConfigPath $parsed.ConfigPath -RepoRoot $identity.Root
 } catch {
-    Write-Error "$_"
+    Write-Warning "[Import-FixRepoConfig] $_"
     Write-Host ("fix-repo: ERROR {0} (E_BAD_CONFIG)" -f $_.Exception.Message)
     exit $Script:ExitBadConfig
 }
