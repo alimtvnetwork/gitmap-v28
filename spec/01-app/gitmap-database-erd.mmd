@@ -486,3 +486,17 @@ erDiagram
     OwnerRepoNameIndex {
         INTEGER OwnerRepoNameIndexId PK
     }
+
+    %% ============================================================
+    %% CLUSTER & MULTI-MACHINE NODE NETWORKS (spec/16)
+    %% ============================================================
+
+    ClusterNode {
+        TEXT NodeId PK
+    }
+    ClusterRun {
+        INTEGER ClusterRunId PK
+    }
+    ClusterExecResult {
+        INTEGER ClusterExecResultId PK
+    }
