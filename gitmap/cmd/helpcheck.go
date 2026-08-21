@@ -18,7 +18,8 @@ import (
 // Drain calls in runDispatch and lose the final help bytes on
 // Windows (same failure class as the v6.74.0 version-mismatch bug).
 func checkHelp(command string, args []string) {
-	if !hasHelpFlag(args) {
+	lacksHelpFlag := !hasHelpFlag(args)
+	if lacksHelpFlag {
 		return
 	}
 	_, mode := ParsePrettyFlag(args)

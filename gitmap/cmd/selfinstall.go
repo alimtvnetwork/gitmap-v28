@@ -204,7 +204,8 @@ func isValidComboShellMode(mode string) bool {
 	}
 	seen := map[string]bool{}
 	for _, tok := range tokens {
-		if !isConcreteShellFamily(tok) {
+		isNotConcreteShellFamily := !isConcreteShellFamily(tok)
+		if isNotConcreteShellFamily {
 			return false
 		}
 		if seen[tok] {

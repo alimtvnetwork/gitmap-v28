@@ -24,7 +24,8 @@ import (
 //   - existing origin and positional URL already share a transport.
 //   - URL rewrite fails (warned to stderr, original URL kept).
 func preferExistingFolderTransport(positional, absPath string) string {
-	if !hasDotGitDir(absPath) {
+	lacksDotGitDir := !hasDotGitDir(absPath)
+	if lacksDotGitDir {
 		return positional
 	}
 	existing, err := gitutil.RemoteURL(absPath)

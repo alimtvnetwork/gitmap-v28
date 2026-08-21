@@ -140,7 +140,8 @@ func IsAnnotatedSemverVersionTag(tagName string) bool {
 // branches and the §09 `IsVersionTag` flag both reflect deliberate,
 // signed-or-annotated release intent — not an accidental ref name.
 func ClassifyVersionTag(tagName string, isAnnotated bool) bool {
-	if !isAnnotated {
+	isNotAnnotated := !isAnnotated
+	if isNotAnnotated {
 		return false
 	}
 	return IsAnnotatedSemverVersionTag(tagName)

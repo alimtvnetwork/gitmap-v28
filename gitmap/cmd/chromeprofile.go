@@ -93,7 +93,8 @@ func guardChromeClosedOrExit(src, dst string) {
 		fmt.Fprint(os.Stderr, constants.MsgChromeProfileSkipChrome)
 		return
 	}
-	if !isRunning {
+	isNotRunning := !isRunning
+	if isNotRunning {
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrChromeProfileChromeOpen, src, dst)

@@ -116,7 +116,8 @@ func writeAuditMDFileCountsTable(b *strings.Builder, hits []auditLegacyHit, link
 
 // writeAuditMDFileCountRow emits one row of the file-counts table.
 func writeAuditMDFileCountRow(b *strings.Builder, row auditFileCount, links map[string]string, hasDiffs bool) {
-	if !hasDiffs {
+	lacksDiffs := !hasDiffs
+	if lacksDiffs {
 		fmt.Fprintf(b, "| `%s` | %d |\n", row.file, row.count)
 
 		return

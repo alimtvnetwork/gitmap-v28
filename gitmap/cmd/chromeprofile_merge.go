@@ -54,7 +54,8 @@ func runChromeProfileMerge(args []string) {
 		fmt.Fprint(os.Stderr, constants.ErrChromeMergeUsage)
 		os.Exit(constants.ExitChromeProfileUsage)
 	}
-	if !isKnownMergeWhat(*what) {
+	isNotKnownMergeWhat := !isKnownMergeWhat(*what)
+	if isNotKnownMergeWhat {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeMergeUnknown, *what)
 		os.Exit(constants.ExitChromeProfileUsage)
 	}

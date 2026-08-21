@@ -18,7 +18,8 @@ import (
 // auth principal for the current repo, and offers copy-paste fixes.
 // Exits 0 always; this is a diagnostic, never a mutator.
 func runWhoAmI(_ []string) {
-	if !isGitRepoCWD() {
+	isNotGitRepoCWD := !isGitRepoCWD()
+	if isNotGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap whoami` inside a repo)")
 		exitWith(1)
 

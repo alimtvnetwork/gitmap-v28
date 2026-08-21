@@ -21,7 +21,8 @@ func TestShouldRunBatch_ExplicitFlagsWin(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Pass an empty cwd to prove the implicit check is bypassed.
-			if !shouldRunBatch(tc.flags, "") {
+			isNonRunBatch := !shouldRunBatch(tc.flags, "")
+			if isNonRunBatch {
 				t.Fatalf("shouldRunBatch(%+v, \"\") = false, want true", tc.flags)
 			}
 		})
@@ -38,7 +39,8 @@ func TestShouldRunBatch_ImplicitTrigger_FiresOnScanRoot(t *testing.T) {
 		t.Fatalf("setup: %v", err)
 	}
 
-	if !shouldRunBatch(CloneNextFlags{}, root) {
+	isNonRunBatch := !shouldRunBatch(CloneNextFlags{}, root)
+	if isNonRunBatch {
 		t.Fatalf("expected implicit batch trigger to fire on scan root %s", root)
 	}
 }

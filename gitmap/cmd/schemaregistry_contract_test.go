@@ -102,7 +102,8 @@ func TestSchemaRegistry_WriteSchemaPreservesDoc(t *testing.T) {
 // the version is to confirm "I know which version I'm running against".
 func TestSchemaRegistry_AcceptIsVersionStrict(t *testing.T) {
 	t.Setenv(envAcceptSchema, "demo@v3")
-	if !isSchemaAccepted("demo", 3) {
+	isNotSchemaAccepted := !isSchemaAccepted("demo", 3)
+	if isNotSchemaAccepted {
 		t.Fatalf("v3 should be accepted")
 	}
 	if isSchemaAccepted("demo", 2) {
@@ -123,10 +124,12 @@ func TestSchemaRegistry_FlagAndEnvBothHonored(t *testing.T) {
 	previous := *schemaUpdateFlag
 	t.Cleanup(func() { *schemaUpdateFlag = previous })
 	*schemaUpdateFlag = "from-flag"
-	if !shouldUpdateSchema("from-flag") {
+	isNonUpdateSchema := !shouldUpdateSchema("from-flag")
+	if isNonUpdateSchema {
 		t.Fatalf("flag value must be honored")
 	}
-	if !shouldUpdateSchema("from-env") {
+	isNonUpdateSchema := !shouldUpdateSchema("from-env")
+	if isNonUpdateSchema {
 		t.Fatalf("env value must also be honored")
 	}
 }

@@ -33,7 +33,8 @@ import (
 // explicit note that the cleanup itself is pure Go syscalls — no
 // `git` or other subprocess is launched.
 func dumpDebugWindowsCommandPlan(deployed string, childArgs []string) {
-	if !isDebugWindowsRequested() {
+	isNotDebugWindowsRequested := !isDebugWindowsRequested()
+	if isNotDebugWindowsRequested {
 		return
 	}
 	full := append([]string{deployed}, childArgs...)
@@ -79,7 +80,8 @@ func quoteShellToken(t string) string {
 //  3. Clone-swap dir globs (*.gitmap-tmp-*)
 //  4. Drive-root shim candidate (Windows only)
 func dumpDebugWindowsCleanupPlan(ctx updateCleanupContext) {
-	if !isDebugWindowsRequested() {
+	isNotDebugWindowsRequested := !isDebugWindowsRequested()
+	if isNotDebugWindowsRequested {
 		return
 	}
 	fmt.Fprint(os.Stderr, constants.MsgDebugWinCleanHdr)

@@ -32,7 +32,8 @@ func TestShouldUseMultiCloneCoversReportedInvocation(t *testing.T) {
 
 	for i, positionals := range cases {
 		cf := CloneFlags{Source: positionals[0], Positional: positionals}
-		if !shouldUseMultiClone(cf) {
+		isNonUseMultiClone := !shouldUseMultiClone(cf)
+		if isNonUseMultiClone {
 			t.Fatalf("case %d: shouldUseMultiClone returned false for %#v — would route to executeDirectClone with second URL as folder name", i, positionals)
 		}
 	}
@@ -48,7 +49,8 @@ func TestIsDirectURLAcceptsAllReportedShapes(t *testing.T) {
 		"git@github.com:alimtvnetwork/account-automator.git",
 	}
 	for _, u := range urls {
-		if !isDirectURL(u) {
+		isNotDirectURL := !isDirectURL(u)
+		if isNotDirectURL {
 			t.Fatalf("isDirectURL rejected %q — folder-name disambiguation will break", u)
 		}
 	}

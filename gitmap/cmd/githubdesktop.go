@@ -24,7 +24,8 @@ func runGitHubDesktop(args []string) {
 	}
 
 	target := resolveGHDesktopTarget(cwd, args)
-	if !isGitRepo(target) {
+	isNotGitRepo := !isGitRepo(target)
+	if isNotGitRepo {
 		fmt.Fprintf(os.Stderr, constants.ErrGHDesktopNotRepo, target)
 		os.Exit(1)
 	}

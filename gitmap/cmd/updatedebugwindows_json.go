@@ -48,7 +48,8 @@ var (
 // Called from every dump helper alongside the existing fmt.Fprintf.
 // No-op when the sink is disabled (default).
 func emitDebugWindowsJSON(event string, fields map[string]any) {
-	if !isDebugWindowsJSONRequested() {
+	isNotDebugWindowsJSONRequested := !isDebugWindowsJSONRequested()
+	if isNotDebugWindowsJSONRequested {
 		return
 	}
 	f := openDebugWindowsJSONFile()

@@ -137,7 +137,8 @@ func reportDuplicateValues(t *testing.T, byValue map[string][]cmdConstantOccurre
 	hasDup := false
 	for _, v := range values {
 		occ := byValue[v]
-		if !hasDistinctNames(occ) {
+		lacksDistinctNames := !hasDistinctNames(occ)
+		if lacksDistinctNames {
 			continue
 		}
 
@@ -146,7 +147,8 @@ func reportDuplicateValues(t *testing.T, byValue map[string][]cmdConstantOccurre
 			v, formatOccurrences(occ))
 	}
 
-	if !hasDup {
+	lacksDup := !hasDup
+	if lacksDup {
 		t.Logf("verified %d unique top-level Cmd values across %d files",
 			len(values), countFiles(byValue))
 	}

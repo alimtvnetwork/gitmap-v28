@@ -56,7 +56,8 @@ func runRelease(args []string) {
 // applyBareReleaseAutoBump injects bump=minor when no explicit version/bump
 // was provided, after confirming with the user (skipped with -y).
 func applyBareReleaseAutoBump(version, bump, commit, branch string, yes bool) string {
-	if !shouldAutoBumpMinor(version, bump, commit, branch) {
+	isNonAutoBumpMinor := !shouldAutoBumpMinor(version, bump, commit, branch)
+	if isNonAutoBumpMinor {
 		return bump
 	}
 

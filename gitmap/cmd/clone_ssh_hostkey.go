@@ -8,7 +8,8 @@ import (
 )
 
 func applyCloneAssumeYesEnv(isAssumeYes bool) {
-	if !isAssumeYes {
+	isNotAssumeYes := !isAssumeYes
+	if isNotAssumeYes {
 		return
 	}
 	cmd := withSSHAcceptNew(os.Getenv(constants.EnvGitSSHCommand))

@@ -12,7 +12,8 @@ import (
 
 func beginCommandAudit(command string, args []string) (int64, time.Time, bool) {
 	start := time.Now()
-	if !shouldAuditCommand(command) {
+	isNonAuditCommand := !shouldAuditCommand(command)
+	if isNonAuditCommand {
 		return 0, start, false
 	}
 
@@ -20,7 +21,8 @@ func beginCommandAudit(command string, args []string) (int64, time.Time, bool) {
 }
 
 func finishCommandAudit(shouldAudit bool, id int64, start time.Time, exitCode int, summary string, repoCount int) {
-	if !shouldAudit {
+	isNonAudit := !shouldAudit
+	if isNonAudit {
 		return
 	}
 

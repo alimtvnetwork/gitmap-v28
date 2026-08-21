@@ -63,11 +63,13 @@ func TestUpdateDebugWindowsHasFsutilLooseCall(t *testing.T) {
 
 	file := parseUpdateDebugWindows(t)
 
-	if !hasFsutilImport(file) {
+	lacksFsutilImport := !hasFsutilImport(file)
+	if lacksFsutilImport {
 		t.Fatalf("%s must import %q (the v3.113.0 migration target). Reverting to a local helper reintroduces the redeclaration footgun documented in updatedebugwindows_rename_test.go", updatedebugwindowsPath, fsutilImportPath)
 	}
 
-	if !hasSelectorCall(file, expectedLooseCallSitePkg, expectedLooseCallSiteName) {
+	lacksSelectorCall := !hasSelectorCall(file, expectedLooseCallSitePkg, expectedLooseCallSiteName)
+	if lacksSelectorCall {
 		t.Fatalf("%s must contain at least one call to %s.%s — this is the post-v3.113.0 replacement for the local fileExistsLoose helper. If the call was removed, the debug-dump's path-exists branch is silently broken", updatedebugwindowsPath, expectedLooseCallSitePkg, expectedLooseCallSiteName)
 	}
 }

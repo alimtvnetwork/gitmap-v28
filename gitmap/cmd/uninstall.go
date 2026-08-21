@@ -24,7 +24,8 @@ import (
 func runUninstall(args []string) {
 	checkHelp("uninstall", args)
 
-	if !hasPositionalToolArg(args) {
+	lacksPositionalToolArg := !hasPositionalToolArg(args)
+	if lacksPositionalToolArg {
 		runSelfUninstall(args)
 
 		return

@@ -94,10 +94,12 @@ func TestIsIgnoredEmptyPatternsShortCircuit(t *testing.T) {
 
 func TestIsIgnoredAnyMatchWins(t *testing.T) {
 	patterns := []string{"*.tmp", "*.log", "node_modules/"}
-	if !isIgnored("debug.log", false, patterns) {
+	isNotIgnored := !isIgnored("debug.log", false, patterns)
+	if isNotIgnored {
 		t.Error("expected debug.log to be ignored")
 	}
-	if !isIgnored("node_modules", true, patterns) {
+	isNotIgnored := !isIgnored("node_modules", true, patterns)
+	if isNotIgnored {
 		t.Error("expected node_modules dir to be ignored")
 	}
 	if isIgnored("src/main.go", false, patterns) {

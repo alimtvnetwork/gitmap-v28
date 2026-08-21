@@ -120,7 +120,8 @@ func canPromptForRepoPath() bool {
 // promptRepoPath asks the user to enter the source repo path interactively.
 // If the path does not exist, it clones the gitmap repo into that location.
 func promptRepoPath() string {
-	if !canPromptForRepoPath() {
+	isNonPromptForRepoPath := !canPromptForRepoPath()
+	if isNonPromptForRepoPath {
 		return ""
 	}
 
