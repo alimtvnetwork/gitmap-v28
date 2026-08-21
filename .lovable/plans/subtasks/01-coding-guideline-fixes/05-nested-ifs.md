@@ -1,5 +1,5 @@
 # Subtask: Flatten Nested If Statements
-Status: pending
+Status: completed
 
 ## Steps
 27. Edit `.\gitmap\cluster\exec_git_test.go` at line 47: Nested if statement detected -> Flatten using early return or guard clause

@@ -15,4 +15,11 @@
 ## 3. Strict Coding Guidelines Compliance
 - Functions exceeding 15 lines refactored into $\le 15$ line helpers.
 - Nested if blocks flattened into early guard clauses.
-- Enum type aliases suffixed with Type (e.g. KindType, EntryKindType).
+- Enum type aliases suffixed with Type (e.g. `KindType`, `EntryKindType`, `DiffStatusType`, `ConflictDecisionType`, `SourceType`, `ModeType`, `AddStatusType`, `RemoveStatusType`, `BackendType`).
+- Explicit boolean state checks (`== true` / `== false`) with positive boolean variable extraction.
+- Magic string literals and numbers extracted into package-level constants or centralized `gitmap/constants`.
+
+## 4. Sub-Agent Execution and Lock Safety
+- Active locks tracking via `.lovable/temp/active-locks.json` guarantees zero file collisions between concurrent subagents.
+- Multi-wave chunking keeps diff footprints small, highly auditable, and testable at every commit boundary.
+- Clean shutdown and artifact sanitization prevents test debris or orphaned files from polluting git commits.

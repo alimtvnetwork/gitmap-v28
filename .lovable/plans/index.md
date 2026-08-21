@@ -15,5 +15,5 @@
 - [ssh-aware-clone](completed/02-ssh-aware-clone.md) - SSH-aware scan, persistence, and clone behavior
 - [reclone-transport-and-vscode-open](completed/03-reclone-transport-and-vscode-open.md) - Reclone honors stored transport + new gitmap code opens VS Code
 - [lfs-smudge-fallback](completed/05-lfs-smudge-fallback.md) - Automatically detect and fallback to un-track LFS 404 smudge errors during clone
-- [01-coding-guideline-fixes](pending/01-coding-guideline-fixes.md) - Massive codebase audit to enforce v1.4.5 coding guidelines (Pending)
+- [01-coding-guideline-fixes](completed/01-coding-guideline-fixes.md) - Massive codebase audit to enforce v1.4.5 coding guidelines
 
