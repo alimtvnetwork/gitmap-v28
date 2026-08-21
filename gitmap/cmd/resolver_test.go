@@ -8,9 +8,11 @@ import (
 )
 
 func TestResolverByPathAndSlug(t *testing.T) {
+	path1 := filepath.Join(string(filepath.Separator), "work", "prompt-architect")
+	path2 := filepath.Join(string(filepath.Separator), "work", "03-aukgo", "errorwrapper")
 	repos := []model.ScanRecord{
-		{ID: 1, Slug: "prompt-architect", RepoName: "prompt-architect", AbsolutePath: `D:/work/prompt-architect`},
-		{ID: 2, Slug: "errorwrapper", RepoName: "errorwrapper", AbsolutePath: `D:/work/03-aukgo/errorwrapper`},
+		{ID: 1, Slug: "prompt-architect", RepoName: "prompt-architect", AbsolutePath: path1},
+		{ID: 2, Slug: "errorwrapper", RepoName: "errorwrapper", AbsolutePath: path2},
 	}
 
 	// 1. Relative Windows path with dot-slash
@@ -20,7 +22,7 @@ func TestResolverByPathAndSlug(t *testing.T) {
 	}
 
 	// 2. Trailing slash
-	hit = resolveByPath(`D:/work/prompt-architect/`, repos)
+	hit = resolveByPath(path1+"/", repos)
 	if hit == nil || hit.ID != 1 {
 		t.Fatalf("resolveByPath trailing slash failed: got %+v", hit)
 	}

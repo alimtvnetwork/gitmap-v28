@@ -4,13 +4,15 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 func resolveByGlob(pat string, all []model.ScanRecord) []model.ScanRecord {
 	var out []model.ScanRecord
 	for _, r := range all {
-		if globHit(pat, r.Slug) || globHit(pat, filepath.Base(r.AbsolutePath)) {
+		base := filepath.Base(fsutil.NormalizeSlashes(r.AbsolutePath))
+		if globHit(pat, r.Slug) || globHit(pat, base) {
 			out = append(out, r)
 		}
 	}

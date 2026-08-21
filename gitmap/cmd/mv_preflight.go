@@ -8,7 +8,7 @@ import (
 )
 
 func calculateDestPath(srcPath, destTarget string) (string, error) {
-	cleanSrc := fsutil.TrimTrailingSlashes(srcPath)
+	cleanSrc := filepath.Clean(filepath.FromSlash(fsutil.TrimTrailingSlashes(srcPath)))
 	repoName := filepath.Base(cleanSrc)
 	t := fsutil.TrimTrailingSlashes(destTarget)
 

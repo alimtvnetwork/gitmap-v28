@@ -9,7 +9,7 @@ import (
 )
 
 func resolveByPath(target string, all []model.ScanRecord) *model.ScanRecord {
-	cleanTarget := fsutil.TrimTrailingSlashes(target)
+	cleanTarget := fsutil.NormalizeSlashes(fsutil.TrimTrailingSlashes(target))
 	for _, r := range all {
 		if fsutil.EqualPaths(r.AbsolutePath, cleanTarget) {
 			return &r
@@ -27,7 +27,8 @@ func resolveByPath(target string, all []model.ScanRecord) *model.ScanRecord {
 
 	baseName := strings.ToLower(filepath.Base(cleanTarget))
 	for _, r := range all {
-		rBase := strings.ToLower(filepath.Base(r.AbsolutePath))
+		rClean := fsutil.NormalizeSlashes(r.AbsolutePath)
+		rBase := strings.ToLower(filepath.Base(rClean))
 		if rBase == baseName || strings.ToLower(r.Slug) == baseName {
 			return &r
 		}

@@ -6,14 +6,14 @@ import (
 )
 
 func TestCalculateDestPath(t *testing.T) {
-	src := `D:\work\projects\my-repo`
+	src := filepath.Join(string(filepath.Separator), "work", "projects", "my-repo")
 
 	// 1. Double dot destination (parent)
 	dest, err := calculateDestPath(src, "..")
 	if err != nil {
 		t.Fatalf("calculateDestPath .. failed: %v", err)
 	}
-	expected := `D:\work\my-repo`
+	expected := filepath.Join(string(filepath.Separator), "work", "my-repo")
 	if filepath.Clean(dest) != filepath.Clean(expected) {
 		t.Errorf("calculateDestPath .. got %s, want %s", dest, expected)
 	}
