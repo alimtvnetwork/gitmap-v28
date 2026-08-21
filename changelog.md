@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.97.0] 2026-08-21 Concurrency Safety and Test Harness Synchronization
+
+### Fixed
+- **Race Detector & Concurrency Synchronization**: Synchronized standard output and error redirection across tests in `gitmap/cmd/capturestderr_testhelper_test.go`, `gitmap/cluster/preflight_test.go`, and `gitmap/release/workfloworder_test.go` with mutex guards to prevent data races during parallel test runs under `go test -race`.
+- **Test Harness Output Stream Hygiene**: Replaced global `os.Stdout` mutation in `gitmap/tests/release_test/installhint_test.go` with direct string formatting to eliminate cross-test stream interference.
+
 ## [v6.96.0] 2026-08-21 Repository Relocation (mv), Path-Aware Resolver, RM External Sync & Dashboard Recent View
 
 ### Added
