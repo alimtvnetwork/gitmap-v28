@@ -70,4 +70,12 @@ const (
 	ErrMMSrcMissingFmt = "error: source '%s' does not exist"
 	ErrMMQuit          = "user pressed Q (quit)"
 	ErrMMPushFailFmt   = "Push failed. Local commit is preserved at %s. Resolve manually or re-run with --no-push to skip."
+
+	MsgMoveAborted        = "mv: aborted by user"
+	TxnSummaryRenameFmt   = "rename %q ← %q"
+	OpMove                = "move"
+	OpResolveEndpoint     = "resolve-endpoint"
+	LogResolvedLeftFmt    = "%s resolving LEFT  : %s\n"
+	LogResolvedRightFmt   = "%s resolving RIGHT : %s\n"
+	ExpectedMoveArgsCount = 2
 )

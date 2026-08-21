@@ -16,43 +16,13 @@ type scriptsConfig struct {
 	DeployPath string `json:"deployPath"`
 }
 
-// runInstallScripts clones/copies gitmap scripts to a platform-specific folder.
-func runInstallScripts() {
-	targetDir := resolveScriptsDir()
+type scriptSource struct {
+	src  string
+	name string
+}
 
-	fmt.Printf(constants.MsgScriptsTarget, targetDir)
-
-	if err := os.MkdirAll(targetDir, 0o755); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrScriptsMkdir, targetDir, err)
-		os.Exit(1)
-	}
-
-	// Clone the repo into a temp dir, then copy scripts out.
-	repoURL := "https://" + constants.GitmapRepoPrefix + ".git"
-	fmt.Printf(constants.MsgScriptsCloning, repoURL)
-
-	tmpDir, err := os.MkdirTemp("", "gitmap-scripts-clone-*")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrScriptsTemp, err)
-		os.Exit(1)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	cloneCmd := exec.Command("git", "clone", "--depth", "1", repoURL, tmpDir)
-	cloneCmd.Stdout = os.Stdout
-	cloneCmd.Stderr = os.Stderr
-
-	if err := cloneCmd.Run(); err != nil {
-		_ = os.RemoveAll(tmpDir)
-		fmt.Fprintf(os.Stderr, constants.ErrScriptsClone, err)
-		exitWith(1)
-	}
-
-	// Copy scripts from gitmap/scripts/ and root scripts.
-	scriptSources := []struct {
-		src  string
-		name string
-	}{
+func defaultScriptSources(tmpDir string) []scriptSource {
+	return []scriptSource{
 		{filepath.Join(tmpDir, "gitmap", "scripts", "install.ps1"), "install.ps1"},
 		{filepath.Join(tmpDir, "gitmap", "scripts", "install.sh"), "install.sh"},
 		{filepath.Join(tmpDir, "gitmap", "scripts", "uninstall.ps1"), "uninstall.ps1"},
@@ -60,29 +30,68 @@ func runInstallScripts() {
 		{filepath.Join(tmpDir, "run.ps1"), "run.ps1"},
 		{filepath.Join(tmpDir, "run.sh"), "run.sh"},
 	}
+}
 
-	copied := 0
+func cloneRepoToTemp() (string, error) {
+	repoURL := constants.PrefixHTTPS + constants.GitmapRepoPrefix + constants.ExtGit
+	fmt.Printf(constants.MsgScriptsCloning, repoURL)
 
-	for _, s := range scriptSources {
-		data, err := os.ReadFile(s.src)
-		if err != nil {
-			fmt.Printf(constants.MsgScriptsSkip, s.name)
-
-			continue
-		}
-
-		dest := filepath.Join(targetDir, s.name)
-
-		if err := os.WriteFile(dest, data, 0o755); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrScriptsCopy, s.name, err)
-
-			continue
-		}
-
-		fmt.Printf(constants.MsgScriptsCopied, s.name)
-		copied++
+	tmpDir, err := os.MkdirTemp("", "gitmap-scripts-clone-*")
+	if err != nil {
+		return "", err
 	}
 
+	cloneCmd := exec.Command("git", "clone", "--depth", "1", repoURL, tmpDir)
+	cloneCmd.Stdout = os.Stdout
+	cloneCmd.Stderr = os.Stderr
+
+	if err := cloneCmd.Run(); err != nil {
+		_ = os.RemoveAll(tmpDir)
+		return "", err
+	}
+	return tmpDir, nil
+}
+
+func copySingleScript(s scriptSource, targetDir string) bool {
+	data, err := os.ReadFile(s.src)
+	if err != nil {
+		fmt.Printf(constants.MsgScriptsSkip, s.name)
+		return false
+	}
+	dest := filepath.Join(targetDir, s.name)
+	if err := os.WriteFile(dest, data, constants.DirPermission); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrScriptsCopy, s.name, err)
+		return false
+	}
+	fmt.Printf(constants.MsgScriptsCopied, s.name)
+	return true
+}
+
+func copyScriptFiles(tmpDir, targetDir string) int {
+	copied := 0
+	for _, s := range defaultScriptSources(tmpDir) {
+		if copySingleScript(s, targetDir) {
+			copied++
+		}
+	}
+	return copied
+}
+
+// runInstallScripts clones/copies gitmap scripts to a platform-specific folder.
+func runInstallScripts() {
+	targetDir := resolveScriptsDir()
+	fmt.Printf(constants.MsgScriptsTarget, targetDir)
+	if err := os.MkdirAll(targetDir, constants.DirPermission); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrScriptsMkdir, targetDir, err)
+		os.Exit(1)
+	}
+	tmpDir, err := cloneRepoToTemp()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrScriptsClone, err)
+		exitWith(1)
+	}
+	defer os.RemoveAll(tmpDir)
+	copied := copyScriptFiles(tmpDir, targetDir)
 	fmt.Println()
 	fmt.Printf(constants.MsgScriptsDone, copied, targetDir)
 }
@@ -91,7 +100,7 @@ func runInstallScripts() {
 // Windows: reads deployPath from powershell.json, defaults to D:\gitmap-scripts.
 // Linux/macOS: ~/Desktop/gitmap-scripts.
 func resolveScriptsDir() string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == constants.PlatformWindows {
 		return resolveScriptsDirWindows()
 	}
 
@@ -103,49 +112,42 @@ func resolveScriptsDir() string {
 	return filepath.Join(home, "Desktop", "gitmap-scripts")
 }
 
-// resolveScriptsDirWindows reads powershell.json for the deploy drive.
-// Search order:
-//  1. <binaryDir>/powershell.json — written by install-quick.ps1
-//  2. ./gitmap/powershell.json    — repo checkout
-//  3. ./powershell.json           — repo root
-//  4. Default: D:\gitmap-scripts
-func resolveScriptsDirWindows() string {
+func scriptsCandidatePaths() []string {
 	candidates := []string{}
-
 	exe, err := os.Executable()
 	resolved, evalErr := filepath.EvalSymlinks(exe)
 	if err == nil && evalErr == nil {
-		candidates = append(candidates, filepath.Join(filepath.Dir(resolved), "powershell.json"))
+		candidates = append(candidates, filepath.Join(filepath.Dir(resolved), constants.PowershellConfigFile))
 	}
 	if err == nil && evalErr != nil {
-		candidates = append(candidates, filepath.Join(filepath.Dir(exe), "powershell.json"))
+		candidates = append(candidates, filepath.Join(filepath.Dir(exe), constants.PowershellConfigFile))
 	}
-
 	candidates = append(candidates,
-		filepath.Join("gitmap", "powershell.json"),
-		"powershell.json",
+		filepath.Join("gitmap", constants.PowershellConfigFile),
+		constants.PowershellConfigFile,
 	)
+	return candidates
+}
 
-	for _, path := range candidates {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			continue
-		}
+func resolveDriveFromConfig(path string) string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	var cfg scriptsConfig
+	if err := json.Unmarshal(data, &cfg); err != nil || cfg.DeployPath == "" {
+		return ""
+	}
+	return filepath.VolumeName(cfg.DeployPath)
+}
 
-		var cfg scriptsConfig
-		if err := json.Unmarshal(data, &cfg); err != nil {
-			continue
-		}
-
-		drive := ""
-		if cfg.DeployPath != "" {
-			drive = filepath.VolumeName(cfg.DeployPath)
-		}
-		if drive != "" {
+// resolveScriptsDirWindows reads powershell.json for the deploy drive.
+func resolveScriptsDirWindows() string {
+	for _, path := range scriptsCandidatePaths() {
+		if drive := resolveDriveFromConfig(path); drive != "" {
 			return filepath.Join(drive+"\\", "gitmap-scripts")
 		}
 	}
 
-	// Default to D:\gitmap-scripts if no config found.
 	return `D:\gitmap-scripts`
 }

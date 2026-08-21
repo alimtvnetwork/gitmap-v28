@@ -41,5 +41,10 @@ const (
 	GitPushDeleteFlag   = "--delete"
 )
 
-// Prune help text.
-const HelpPrune = "  prune (prn)         Delete stale release branches that have been tagged"
+// Prune help text and flag descriptions.
+const (
+	HelpPrune           = "  prune (prn)         Delete stale release branches that have been tagged"
+	FlagDescPruneRemote = "Also delete remote release branches"
+	PromptAnswerY       = "y"
+	PromptAnswerYUpper  = "Y"
+)

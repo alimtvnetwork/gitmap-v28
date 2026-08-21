@@ -7,7 +7,9 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/movemerge"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/txn"
 )
 
@@ -15,7 +17,7 @@ import (
 func runMove(args []string) {
 	checkHelp(constants.CmdMv, args)
 	mOpts, positional := parseMoveFlags(args)
-	if len(positional) == 2 && handleRepoMove(positional[0], positional[1], mOpts) {
+	if len(positional) == constants.ExpectedMoveArgsCount && handleRepoMove(positional[0], positional[1], mOpts) {
 		return
 	}
 	runMoveMerge(args)
@@ -27,23 +29,35 @@ func handleRepoMove(srcTarget, destTarget string, opts moveOpts) bool {
 		return false
 	}
 	defer db.Close()
-	rec, err := ResolveRepo(db, srcTarget)
+	rec, destPath, ok := prepareRepoMove(db, srcTarget, destTarget)
+	if !ok {
+		return false
+	}
+	return executeRepoMove(db, *rec, destPath, opts)
+}
+
+func prepareRepoMove(db *store.DB, src, dest string) (*model.ScanRecord, string, bool) {
+	rec, err := ResolveRepo(db, src)
 	if err != nil || rec == nil {
-		return false
+		return nil, "", false
 	}
-	destPath, err := calculateDestPath(rec.AbsolutePath, destTarget)
+	destPath, err := calculateDestPath(rec.AbsolutePath, dest)
 	if err != nil || preflightMove(rec.AbsolutePath, destPath) != nil {
-		return false
+		return nil, "", false
 	}
+	return rec, destPath, true
+}
+
+func executeRepoMove(db *store.DB, rec model.ScanRecord, destPath string, opts moveOpts) bool {
 	if opts.dryRun {
 		printMoveDryRun(rec.AbsolutePath, destPath)
 		return true
 	}
 	if opts.yes || confirmMovePrompt(rec.Slug, rec.AbsolutePath, destPath) {
-		executeMove(db, *rec, destPath, opts)
+		executeMove(db, rec, destPath, opts)
 		return true
 	}
-	fmt.Println("mv: aborted by user")
+	fmt.Println(constants.MsgMoveAborted)
 	return true
 }
 
@@ -55,7 +69,7 @@ func runMoveMerge(args []string) {
 	j := beginMoveTxn(leftEP, rightEP)
 	if err := movemerge.RunMove(leftEP, rightEP, opts); err != nil {
 		_ = j.Abort()
-		cliexit.Fail(constants.CmdMv, "move", leftEP.DisplayName+" -> "+rightEP.DisplayName, err, 1)
+		cliexit.Fail(constants.CmdMv, constants.OpMove, leftEP.DisplayName+" -> "+rightEP.DisplayName, err, constants.ExitCodeError)
 	}
 	finalizeMoveTxn(j, leftEP, rightEP)
 }
@@ -71,12 +85,16 @@ func beginMoveTxn(left, right movemerge.Endpoint) *txn.Journal {
 	if err != nil {
 		return &txn.Journal{}
 	}
+	return createMoveTxnJournal(db, left, right)
+}
+
+func createMoveTxnJournal(db *store.DB, left, right movemerge.Endpoint) *txn.Journal {
 	cwd, _ := os.Getwd()
 	j, _ := txn.Begin(db, txn.Meta{
 		Kind:           constants.TxnKindMv,
 		Argv:           os.Args,
 		Cwd:            cwd,
-		ReverseSummary: fmt.Sprintf("rename %q ← %q", left.WorkingDir, right.WorkingDir),
+		ReverseSummary: fmt.Sprintf(constants.TxnSummaryRenameFmt, left.WorkingDir, right.WorkingDir),
 	})
 
 	return j
@@ -93,27 +111,32 @@ func finalizeMoveTxn(j *txn.Journal, left, right movemerge.Endpoint) {
 
 // parseMoveArgs parses positional + flag arguments for mv.
 func parseMoveArgs(args []string) (string, string, movemerge.Options) {
-	fs := flag.NewFlagSet(constants.CmdMv, flag.ExitOnError)
-	mf := &movemergeFlagSet{}
-	mf.bindFlags(fs)
+	fs, mf := newMoveFlagSet()
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		os.Exit(2)
+		os.Exit(constants.ExitCodeUsage)
 	}
 	rest := fs.Args()
-	if len(rest) != 2 {
+	if len(rest) != constants.ExpectedMoveArgsCount {
 		fmt.Fprintf(os.Stderr, constants.ErrMMUsageFmt, constants.CmdMv)
-		os.Exit(2)
+		os.Exit(constants.ExitCodeUsage)
 	}
 	opts := mf.toOptions(constants.CmdMv, constants.LogPrefixMv, constants.CommitMsgMv)
 
 	return rest[0], rest[1], opts
 }
 
+func newMoveFlagSet() (*flag.FlagSet, *movemergeFlagSet) {
+	fs := flag.NewFlagSet(constants.CmdMv, flag.ExitOnError)
+	mf := &movemergeFlagSet{}
+	mf.bindFlags(fs)
+	return fs, mf
+}
+
 // mustResolve resolves an endpoint or exits with code 1 on failure.
 func mustResolve(raw string, isLeft bool, opts movemerge.Options) movemerge.Endpoint {
 	ep, err := movemerge.ResolveEndpoint(raw, isLeft, opts)
 	if err != nil {
-		cliexit.Fail(constants.CmdMv, "resolve-endpoint", raw, err, 1)
+		cliexit.Fail(constants.CmdMv, constants.OpResolveEndpoint, raw, err, constants.ExitCodeError)
 	}
 
 	return ep
@@ -121,6 +144,6 @@ func mustResolve(raw string, isLeft bool, opts movemerge.Options) movemerge.Endp
 
 // logResolved emits the [cmd] resolving LEFT/RIGHT lines.
 func logResolved(l, r movemerge.Endpoint, opts movemerge.Options) {
-	fmt.Printf("%s resolving LEFT  : %s\n", opts.LogPrefix, l.DisplayName)
-	fmt.Printf("%s resolving RIGHT : %s\n", opts.LogPrefix, r.DisplayName)
+	fmt.Printf(constants.LogResolvedLeftFmt, opts.LogPrefix, l.DisplayName)
+	fmt.Printf(constants.LogResolvedRightFmt, opts.LogPrefix, r.DisplayName)
 }

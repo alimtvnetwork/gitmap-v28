@@ -59,7 +59,7 @@ func profilePathForShell(shell string) string {
 		return ""
 	}
 
-	if shell == "zsh" {
+	if shell == constants.ShellZsh {
 		return filepath.Join(home, constants.EnvProfileZshRC)
 	}
 
@@ -76,7 +76,7 @@ func detectShellProfile() string {
 	}
 	shell := os.Getenv("SHELL")
 
-	if strings.Contains(shell, "zsh") {
+	if strings.Contains(shell, constants.ShellZsh) {
 		return filepath.Join(home, constants.EnvProfileZshRC)
 	}
 
@@ -155,6 +155,11 @@ func replaceOrAppendLine(content, marker, newLine string) string {
 		}
 	}
 
+	return appendNewLine(content, newLine)
+}
+
+// appendNewLine appends a new line with trailing newline guaranteed.
+func appendNewLine(content, newLine string) string {
 	if content != "" && !strings.HasSuffix(content, "\n") {
 		content += "\n"
 	}

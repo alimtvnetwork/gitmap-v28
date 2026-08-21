@@ -41,9 +41,10 @@ const (
 
 // Format constants.
 const (
-	FormatJSON = "json"
-	FormatCSV  = "csv"
-	FormatText = "text"
+	FormatJSON     = "json"
+	FormatCSV      = "csv"
+	FormatText     = "text"
+	FormatMarkdown = "markdown"
 )
 
 // URL prefixes.
@@ -60,6 +61,7 @@ const (
 	ExtJSON = ".json"
 	ExtTXT  = ".txt"
 	ExtGit  = ".git"
+	ExtMD   = ".md"
 )
 
 // Root directory for all repo-local gitmap data.

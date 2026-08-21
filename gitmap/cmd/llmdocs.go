@@ -12,58 +12,74 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// runLLMDocs generates LLM.md or prints to stdout with --stdout.
-func runLLMDocs(args []string) {
-	checkHelp("llm-docs", args)
+type llmDocsOptions struct {
+	toStdout bool
+	format   string
+	sections string
+}
 
-	fs := flag.NewFlagSet("llm-docs", flag.ExitOnError)
+func parseLLMDocsFlags(args []string) (llmDocsOptions, error) {
+	fs := flag.NewFlagSet(constants.CmdLLMDocs, flag.ExitOnError)
 	toStdout := fs.Bool(constants.FlagLLMDocsStdout, false, constants.FlagDescLLMDocsStdout)
-	format := fs.String(constants.FlagLLMDocsFormat, "markdown", constants.FlagDescLLMDocsFormat)
+	format := fs.String(constants.FlagLLMDocsFormat, constants.FormatMarkdown, constants.FlagDescLLMDocsFormat)
 	sections := fs.String(constants.FlagLLMDocsSections, "", constants.FlagDescLLMDocsSections)
+	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
+		return llmDocsOptions{}, err
+	}
+	if *format != constants.FormatMarkdown && *format != constants.FormatJSON {
+		return llmDocsOptions{}, fmt.Errorf(constants.ErrLLMDocsFormat, *format)
+	}
+	return llmDocsOptions{toStdout: *toStdout, format: *format, sections: *sections}, nil
+}
 
-	reordered := reorderFlagsBeforeArgs(args)
-
-	if err := fs.Parse(reordered); err != nil {
-		fmt.Fprintf(os.Stderr, "llm-docs: %v\n", err)
-		os.Exit(1)
+func llmDocsExt(format string) string {
+	if format == constants.FormatJSON {
+		return constants.ExtJSON
 	}
 
-	if *format != "markdown" && *format != "json" {
-		fmt.Fprintf(os.Stderr, constants.ErrLLMDocsFormat, *format)
-		os.Exit(1)
-	}
+	return constants.ExtMD
+}
 
-	sectionSet := parseSections(*sections)
-
-	content := buildLLMOutput(*format, sectionSet)
-
-	if *toStdout {
-		fmt.Print(content)
-
-		return
-	}
-
+func writeLLMDocsFile(content, format string) {
 	fmt.Print(constants.MsgLLMDocsGenning)
-
 	wd, err := os.Getwd()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrLLMDocsWrite, err)
 		os.Exit(1)
 	}
-
-	ext := ".md"
-	if *format == "json" {
-		ext = ".json"
-	}
-
-	outPath := filepath.Join(wd, "LLM"+ext)
-
-	if writeErr := os.WriteFile(outPath, []byte(content), 0o644); writeErr != nil {
+	outPath := filepath.Join(wd, "LLM"+llmDocsExt(format))
+	if writeErr := os.WriteFile(outPath, []byte(content), constants.FilePermission); writeErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrLLMDocsWrite, writeErr)
 		os.Exit(1)
 	}
-
 	fmt.Printf(constants.MsgLLMDocsWritten, outPath)
+}
+
+// runLLMDocs generates LLM.md or prints to stdout with --stdout.
+func runLLMDocs(args []string) {
+	checkHelp(constants.CmdLLMDocs, args)
+	opts, err := parseLLMDocsFlags(args)
+	if err != nil {
+		fmt.Fprint(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+	sectionSet := parseSections(opts.sections)
+	content := buildLLMOutput(opts.format, sectionSet)
+	if opts.toStdout {
+		fmt.Print(content)
+
+		return
+	}
+	writeLLMDocsFile(content, opts.format)
+}
+
+func collectValidSections() map[string]bool {
+	valid := make(map[string]bool)
+	for _, s := range strings.Split(constants.LLMDocsValidSections, ",") {
+		valid[s] = true
+	}
+
+	return valid
 }
 
 // parseSections converts the comma-separated --sections value into a set.
@@ -72,28 +88,19 @@ func parseSections(raw string) map[string]bool {
 	if raw == "" {
 		return nil
 	}
-
-	valid := make(map[string]bool)
-	for _, s := range strings.Split(constants.LLMDocsValidSections, ",") {
-		valid[s] = true
-	}
-
+	valid := collectValidSections()
 	set := make(map[string]bool)
-
 	for _, s := range strings.Split(raw, ",") {
 		s = strings.TrimSpace(s)
 		if s == "" {
 			continue
 		}
-
 		if !valid[s] {
 			fmt.Fprintf(os.Stderr, constants.ErrLLMDocsSections, s)
 			os.Exit(1)
 		}
-
 		set[s] = true
 	}
-
 	return set
 }
 
@@ -108,7 +115,7 @@ func wantSection(set map[string]bool, name string) bool {
 
 // buildLLMOutput returns the document in the requested format.
 func buildLLMOutput(format string, sections map[string]bool) string {
-	if format == "json" {
+	if format == constants.FormatJSON {
 		return buildLLMJSON(sections)
 	}
 
@@ -126,43 +133,42 @@ func buildLLMJSON(sections map[string]bool) string {
 	return buf.String()
 }
 
+func appendLLMSectionsFirstHalf(sb *strings.Builder, sections map[string]bool) {
+	if wantSection(sections, llmDocsKeyArchitecture) {
+		writeLLMArchitecture(sb)
+	}
+	if wantSection(sections, llmDocsKeyCommands) {
+		writeLLMCommands(sb)
+	}
+	if wantSection(sections, llmDocsKeyFlags) {
+		writeLLMGlobalFlags(sb)
+	}
+	if wantSection(sections, llmDocsKeyConventions) {
+		writeLLMCodingConventions(sb)
+	}
+}
+
+func appendLLMSectionsSecondHalf(sb *strings.Builder, sections map[string]bool) {
+	if wantSection(sections, llmDocsKeyStructure) {
+		writeLLMProjectStructure(sb)
+	}
+	if wantSection(sections, llmDocsKeyDatabase) {
+		writeLLMDatabase(sb)
+	}
+	if wantSection(sections, llmDocsKeyInstallation) {
+		writeLLMInstallation(sb)
+	}
+	if wantSection(sections, llmDocsKeyPatterns) {
+		writeLLMPatterns(sb)
+	}
+}
+
 // buildLLMDocument assembles the complete LLM.md content dynamically.
 func buildLLMDocument(sections map[string]bool) string {
 	var sb strings.Builder
-
 	writeLLMHeader(&sb)
-
-	if wantSection(sections, "architecture") {
-		writeLLMArchitecture(&sb)
-	}
-
-	if wantSection(sections, "commands") {
-		writeLLMCommands(&sb)
-	}
-
-	if wantSection(sections, "flags") {
-		writeLLMGlobalFlags(&sb)
-	}
-
-	if wantSection(sections, "conventions") {
-		writeLLMCodingConventions(&sb)
-	}
-
-	if wantSection(sections, "structure") {
-		writeLLMProjectStructure(&sb)
-	}
-
-	if wantSection(sections, "database") {
-		writeLLMDatabase(&sb)
-	}
-
-	if wantSection(sections, "installation") {
-		writeLLMInstallation(&sb)
-	}
-
-	if wantSection(sections, "patterns") {
-		writeLLMPatterns(&sb)
-	}
+	appendLLMSectionsFirstHalf(&sb, sections)
+	appendLLMSectionsSecondHalf(&sb, sections)
 
 	return sb.String()
 }

@@ -16,63 +16,67 @@ import (
 // ExecRestart triggers a machine restart.
 func ExecRestart(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
-		return "", "", 1, err
+		return "", "", constants.ExitCodeError, err
 	}
-	isWin := runtime.GOOS == "windows"
-	var cmd *exec.Cmd
-	if isWin {
-		cmd = exec.CommandContext(ctx, "shutdown", "/r", "/t", "0")
-	} else {
-		cmd = exec.CommandContext(ctx, "reboot")
+	return runCmd(buildRestartCmd(ctx))
+}
+
+func buildRestartCmd(ctx context.Context) *exec.Cmd {
+	if runtime.GOOS == constants.PlatformWindows {
+		return exec.CommandContext(ctx, constants.CmdShutdown, constants.ArgRestart, constants.ArgTimeout, constants.ArgZero)
 	}
-	return runCmd(cmd)
+	return exec.CommandContext(ctx, constants.CmdReboot)
 }
 
 // ExecShutdown triggers a machine shutdown.
 func ExecShutdown(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
-		return "", "", 1, err
+		return "", "", constants.ExitCodeError, err
 	}
-	isWin := runtime.GOOS == "windows"
-	var cmd *exec.Cmd
-	if isWin {
-		cmd = exec.CommandContext(ctx, "shutdown", "/s", "/t", "0")
-	} else {
-		cmd = exec.CommandContext(ctx, "shutdown", "-h", "now")
+	return runCmd(buildShutdownCmd(ctx))
+}
+
+func buildShutdownCmd(ctx context.Context) *exec.Cmd {
+	if runtime.GOOS == constants.PlatformWindows {
+		return exec.CommandContext(ctx, constants.CmdShutdown, constants.ArgShutdownWin, constants.ArgTimeout, constants.ArgZero)
 	}
-	return runCmd(cmd)
+	return exec.CommandContext(ctx, constants.CmdShutdown, constants.ArgHalt, constants.ArgNow)
 }
 
 // ExecLogoff logs off the current user.
 func ExecLogoff(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
-		return "", "", 1, err
+		return "", "", constants.ExitCodeError, err
 	}
-	isWin := runtime.GOOS == "windows"
-	var cmd *exec.Cmd
-	if isWin {
-		cmd = exec.CommandContext(ctx, "logoff")
-	} else {
-		cmd = exec.CommandContext(ctx, "sh", "-c", "pkill -KILL -u whoami")
+	return runCmd(buildLogoffCmd(ctx))
+}
+
+func buildLogoffCmd(ctx context.Context) *exec.Cmd {
+	if runtime.GOOS == constants.PlatformWindows {
+		return exec.CommandContext(ctx, constants.CmdLogoff)
 	}
-	return runCmd(cmd)
+	return exec.CommandContext(ctx, constants.UnixShell, constants.UnixShellArg, constants.CmdUnixLogoffArgs)
 }
 
 func checkLifecycleGuards(node ClusterNode, forceLifecycle bool, providedPassword string) error {
-	if node.NodeRole == "server" || node.IsServer {
+	if node.NodeRole == constants.NodeRoleServer || node.IsServer {
 		return errors.New(constants.ErrClusterServerProtected)
 	}
 	if !forceLifecycle {
 		return errors.New(constants.ErrClusterLifecycleRequiresForce)
 	}
-	if node.PasswordHash == "" {
+	return checkPasswordAuth(node.PasswordHash, providedPassword)
+}
+
+func checkPasswordAuth(hash, password string) error {
+	if hash == "" {
 		return nil
 	}
-	if providedPassword == "" {
+	if password == "" {
 		return errors.New(constants.ErrClusterPasswordRequired)
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(node.PasswordHash), []byte(providedPassword)); err != nil {
-		return errors.New("invalid password")
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
+		return errors.New(constants.ErrClusterInvalidPassword)
 	}
 	return nil
 }
@@ -82,28 +86,39 @@ func runCmd(cmd *exec.Cmd) (string, string, int, error) {
 	cmd.Stdout = &outBuf
 	cmd.Stderr = &errBuf
 	err := runCmdFunc(cmd)
-	exitCode := 0
-	if err != nil {
-		exitCode = 1
-	}
-	if exitErr, ok := err.(*exec.ExitError); ok {
-		exitCode = exitErr.ExitCode()
-	}
+	exitCode := extractExitCode(err)
 	return outBuf.String(), errBuf.String(), exitCode, err
 }
 
+func extractExitCode(err error) int {
+	if err == nil {
+		return constants.ExitCodeSuccess
+	}
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		return exitErr.ExitCode()
+	}
+	return constants.ExitCodeError
+}
+
 func PrintCountdown(ctx context.Context, nodes []string, action string, seconds int) error {
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
 	for i := seconds; i > 0; i-- {
-		fmt.Printf(constants.MsgClusterCountdown+"\n", action, len(nodes), i)
-		select {
-		case <-ctx.Done():
-			fmt.Println("Aborted by user.")
-			return ctx.Err()
-		case <-ticker.C:
+		if err := countdownTick(ctx, ticker.C, action, len(nodes), i); err != nil {
+			return err
 		}
 	}
 	return nil
+}
+
+func countdownTick(ctx context.Context, tickChan <-chan time.Time, action string, count, remaining int) error {
+	fmt.Printf(constants.MsgClusterCountdown+"\n", action, count, remaining)
+	select {
+	case <-ctx.Done():
+		fmt.Println(constants.MsgClusterAbortedByUser)
+		return ctx.Err()
+	case <-tickChan:
+		return nil
+	}
 }

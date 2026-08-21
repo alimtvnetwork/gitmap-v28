@@ -67,3 +67,11 @@ var (
 // ReplaceBinarySniffBytes is the number of bytes scanned for null
 // bytes when classifying a file as binary.
 const ReplaceBinarySniffBytes = 8192
+
+// Replace numeric constants.
+const (
+	ReplaceMaxDashN          = 1_000_000
+	ReplaceAllVersionTarget  = 0
+	ReplaceMinPositionalArgs = 1
+	ReplaceLiteralArgsCount  = 2
+)

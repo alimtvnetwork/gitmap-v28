@@ -21,9 +21,8 @@ var typeKeywords = map[string]string{
 	"csharp": constants.ProjectKeyCsharp,
 }
 
-// runList handles the "list" subcommand.
 func runList(args []string) {
-	checkHelp("list", args)
+	checkHelp(constants.CmdList, args)
 
 	if len(args) > 0 && isListTypeOrGroups(args[0]) {
 		handleListSpecial(args[0], args[1:])
@@ -31,6 +30,10 @@ func runList(args []string) {
 		return
 	}
 
+	executeList(args)
+}
+
+func executeList(args []string) {
 	groupFilter, verboseMode := parseListFlags(args)
 	db, err := openDB()
 	if err != nil {
@@ -38,6 +41,12 @@ func runList(args []string) {
 		os.Exit(1)
 	}
 	defer db.Close()
+	records := fetchListRecords(db, groupFilter)
+	printListOutput(records, verboseMode)
+	printHints(listHints())
+}
+
+func fetchListRecords(db *store.DB, groupFilter string) []model.ScanRecord {
 	records, err := loadListRecords(db, groupFilter)
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
@@ -47,14 +56,13 @@ func runList(args []string) {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
 		os.Exit(1)
 	}
-	printListOutput(records, verboseMode)
-	printHints(listHints())
+	return records
 }
 
 // isListTypeOrGroups checks if the arg is a type keyword or "groups".
 func isListTypeOrGroups(arg string) bool {
 	lower := strings.ToLower(arg)
-	if lower == "groups" {
+	if lower == constants.CmdGroups {
 		return true
 	}
 	_, ok := typeKeywords[lower]
@@ -65,7 +73,7 @@ func isListTypeOrGroups(arg string) bool {
 // handleListSpecial handles gitmap ls <type> or gitmap ls groups.
 func handleListSpecial(keyword string, args []string) {
 	lower := strings.ToLower(keyword)
-	if lower == "groups" {
+	if lower == constants.CmdGroups {
 		runGroupList()
 		printHints(listGroupsHints())
 
@@ -78,7 +86,7 @@ func handleListSpecial(keyword string, args []string) {
 // parseListFlags parses flags for the list command.
 func parseListFlags(args []string) (group string, verbose bool) {
 	fs := flag.NewFlagSet(constants.CmdList, flag.ExitOnError)
-	gFlag := fs.String("group", "", constants.FlagDescGroup)
+	gFlag := fs.String(constants.CmdGroup, "", constants.FlagDescGroup)
 	vFlag := fs.Bool("verbose", false, constants.FlagDescListVerbose)
 	fs.Parse(args)
 
@@ -96,10 +104,7 @@ func loadListRecords(db *store.DB, group string) ([]model.ScanRecord, error) {
 
 // printListOutput renders the list table to stdout.
 func printListOutput(records []model.ScanRecord, verbose bool) {
-	if verbose {
-		fmt.Printf(constants.MsgListDBPath, store.DefaultDBPath())
-	}
-	if len(records) == 0 && !verbose {
+	if verbose || len(records) == 0 {
 		fmt.Printf(constants.MsgListDBPath, store.DefaultDBPath())
 	}
 	if len(records) == 0 {

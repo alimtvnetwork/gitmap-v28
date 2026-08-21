@@ -18,10 +18,10 @@ func resolvePackageManager(override string) string {
 
 // detectPackageManager finds the available package manager.
 func detectPackageManager() string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == constants.PlatformWindows {
 		return detectWindowsManager()
 	}
-	if runtime.GOOS == "darwin" {
+	if runtime.GOOS == constants.PlatformDarwin {
 		return detectDarwinManager()
 	}
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Dispatch, SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { DocsTooltip } from "@/components/docs/DocsTooltip";
@@ -10,99 +10,125 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { commands } from "@/data/commands";
+import { commands, CommandDef } from "@/data/commands";
 
-/**
- * Global ⌘K / Ctrl+K command palette.
- *
- * Fuzzy-searches every command in `src/data/commands.ts` by name,
- * alias, description, and any example string — so users can jump
- * straight to a usage without scrolling the Commands page.
- */
+interface CommandPaletteItem {
+  id: string;
+  haystack: string;
+  name: string;
+  alias?: string;
+  description: string;
+}
+
+interface CommandPaletteRowProps {
+  item: CommandPaletteItem;
+  onSelect: (commandName: string) => void;
+}
+
+interface CommandPaletteDialogProps {
+  open: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
+  items: CommandPaletteItem[];
+  onSelect: (commandName: string) => void;
+}
+
+interface CommandPaletteTriggerProps {
+  onClick: () => void;
+}
+
+function buildHaystack(commandItem: CommandDef): string {
+  const exampleCommands = commandItem.examples?.map((exampleItem) => exampleItem.command) ?? [];
+  const parts = [commandItem.name, commandItem.alias ?? "", commandItem.description, ...exampleCommands];
+
+  return parts.join(" ").toLowerCase();
+}
+
+function buildPaletteItem(commandItem: CommandDef): CommandPaletteItem {
+  return {
+    id: commandItem.name,
+    haystack: buildHaystack(commandItem),
+    name: commandItem.name,
+    alias: commandItem.alias,
+    description: commandItem.description,
+  };
+}
+
+function useCommandPaletteShortcut(setOpen: Dispatch<SetStateAction<boolean>>): void {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isKeyK = event.key === "k" || event.key === "K";
+      const hasModifier = Boolean(event.metaKey || event.ctrlKey);
+      if (isKeyK && hasModifier) {
+        event.preventDefault();
+        setOpen((isOpen) => isOpen === false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [setOpen]);
+}
+
+const CommandPaletteTrigger = ({ onClick }: CommandPaletteTriggerProps) => {
+  const triggerClasses = "docs-focus-ring inline-flex h-7 items-center gap-2 rounded-sm border border-sidebar-border bg-sidebar-accent/60 px-2 text-xs text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
+
+  return (
+    <DocsTooltip label="Search commands (⌘K)">
+      <button type="button" aria-label="Open command palette (search commands, flags, pages)" onClick={onClick} className={triggerClasses}>
+        <Search className="h-3.5 w-3.5" aria-hidden="true" />
+        <span className="hidden sm:inline font-mono">Search...</span>
+        <kbd className="pointer-events-none hidden h-4 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">⌘K</kbd>
+      </button>
+    </DocsTooltip>
+  );
+};
+
+const CommandPaletteRow = ({ item, onSelect }: CommandPaletteRowProps) => {
+  return (
+    <CommandItem value={item.haystack} onSelect={() => onSelect(item.name)}>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-baseline gap-2 font-mono">
+          <span className="text-foreground">{item.name}</span>
+          {item.alias && <span className="text-xs text-muted-foreground">({item.alias})</span>}
+        </div>
+        <span className="line-clamp-1 text-xs text-muted-foreground">{item.description}</span>
+      </div>
+    </CommandItem>
+  );
+};
+
+const CommandPaletteDialog = ({ open, onOpenChange, items, onSelect }: CommandPaletteDialogProps) => {
+  return (
+    <CommandDialog open={open} onOpenChange={onOpenChange}>
+      <CommandInput placeholder="Search commands, aliases, examples…  (⌘K)" />
+      <CommandList>
+        <CommandEmpty>No commands match.</CommandEmpty>
+        <CommandGroup heading="Commands">
+          {items.map((paletteItem) => (
+            <CommandPaletteRow key={paletteItem.id} item={paletteItem} onSelect={onSelect} />
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </CommandDialog>
+  );
+};
+
 const CommandPalette = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  useCommandPaletteShortcut(setOpen);
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const isToggle = (e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey);
-      if (isToggle) {
-        e.preventDefault();
-        setOpen((o) => !o);
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
+  const items = useMemo(() => commands.map(buildPaletteItem), []);
 
-  const items = useMemo(
-    () =>
-      commands.map((c) => ({
-        id: c.name,
-        // Concat haystack so cmdk's built-in fuzzy hits name, alias, and examples.
-        haystack: [
-          c.name,
-          c.alias ?? "",
-          c.description,
-          ...(c.examples?.map((e) => e.command) ?? []),
-        ]
-          .join(" ")
-          .toLowerCase(),
-        name: c.name,
-        alias: c.alias,
-        description: c.description,
-      })),
-    [],
-  );
-
-  const onSelect = (commandName: string) => {
+  const handleSelect = (commandName: string) => {
     setOpen(false);
     navigate(`/commands?cmd=${encodeURIComponent(commandName)}`);
   };
 
   return (
     <>
-      <DocsTooltip label="Search commands (⌘K)">
-        <button
-          type="button"
-          aria-label="Open command palette (search commands, flags, pages)"
-          onClick={() => setOpen(true)}
-          className="docs-focus-ring inline-flex h-7 items-center gap-2 rounded-sm border border-sidebar-border bg-sidebar-accent/60 px-2 text-xs text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-        >
-          <Search className="h-3.5 w-3.5" aria-hidden="true" />
-          <span className="hidden sm:inline font-mono">Search...</span>
-          <kbd className="pointer-events-none hidden h-4 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-            ⌘K
-          </kbd>
-        </button>
-      </DocsTooltip>
-      <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Search commands, aliases, examples…  (⌘K)" />
-      <CommandList>
-        <CommandEmpty>No commands match.</CommandEmpty>
-        <CommandGroup heading="Commands">
-          {items.map((it) => (
-            <CommandItem
-              key={it.id}
-              value={it.haystack}
-              onSelect={() => onSelect(it.name)}
-            >
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-baseline gap-2 font-mono">
-                  <span className="text-foreground">{it.name}</span>
-                  {it.alias && (
-                    <span className="text-xs text-muted-foreground">({it.alias})</span>
-                  )}
-                </div>
-                <span className="line-clamp-1 text-xs text-muted-foreground">
-                  {it.description}
-                </span>
-              </div>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </CommandDialog>
+      <CommandPaletteTrigger onClick={() => setOpen(true)} />
+      <CommandPaletteDialog open={open} onOpenChange={setOpen} items={items} onSelect={handleSelect} />
     </>
   );
 };

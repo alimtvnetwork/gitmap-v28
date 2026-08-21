@@ -16,11 +16,28 @@ const (
 	RangeStartPartIndex = 0
 	RangeEndPartIndex   = 1
 
+	NodeRoleServer = "server"
+	NodeRoleAgent  = "agent"
+	NodeRoleNode   = "node"
+
 	ErrClusterServerProtected        = "lifecycle commands cannot target server nodes"
 	ErrClusterLifecycleRequiresForce = "--force-lifecycle flag is required for this operation"
 	ErrClusterPasswordRequired       = "password is required for this operation"
+	ErrClusterInvalidPassword        = "invalid password"
 	MsgClusterCountdown              = "⚠ %s %d nodes in %ds… Press Ctrl+C to abort"
+	MsgClusterAbortedByUser          = "Aborted by user."
 	MsgClusterAuditFooter            = "Cluster run completed"
+
+	CmdShutdown       = "shutdown"
+	CmdReboot         = "reboot"
+	CmdLogoff         = "logoff"
+	ArgRestart        = "/r"
+	ArgShutdownWin    = "/s"
+	ArgTimeout        = "/t"
+	ArgZero           = "0"
+	ArgHalt           = "-h"
+	ArgNow            = "now"
+	CmdUnixLogoffArgs = "pkill -KILL -u whoami"
 
 	ClusterDefaultHistoryLimit = 50
 	ClusterBcryptCost          = 12

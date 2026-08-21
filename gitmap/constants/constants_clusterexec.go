@@ -21,7 +21,13 @@ const (
 
 	ExitCodeSuccess = 0
 	ExitCodeError   = 1
+	ExitCodeUsage   = 2
 
 	ErrNoPackageManager = "no supported package manager found"
 	FormatCmdSpace      = "%s %s %s %s"
+
+	ClusterGitPullCmd   = "gitmap pull --all"
+	ClusterGitPushCmd   = "gitmap push --all"
+	ClusterGitCommitCmd = "gitmap commit --all"
+	ClusterGitStatusCmd = "gitmap status --all"
 )

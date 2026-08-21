@@ -6,7 +6,24 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
+
+type gitExecTestCase struct {
+	name     string
+	fn       func(context.Context, ClusterNode) (string, string, int, error)
+	expected string
+}
+
+func gitExecTestCases() []gitExecTestCase {
+	return []gitExecTestCase{
+		{"Pull", ExecGitPull, constants.ClusterGitPullCmd},
+		{"Push", ExecGitPush, constants.ClusterGitPushCmd},
+		{"Commit", ExecGitCommit, constants.ClusterGitCommitCmd},
+		{"Status", ExecGitStatus, constants.ClusterGitStatusCmd},
+	}
+}
 
 func TestExecGit_Commands(t *testing.T) {
 	origRunCmd := runCmdFunc
@@ -18,37 +35,46 @@ func TestExecGit_Commands(t *testing.T) {
 		return nil
 	}
 
+	runAllGitExecTests(t, &lastCmd)
+}
+
+func runAllGitExecTests(t *testing.T, lastCmd *string) {
 	node := ClusterNode{}
 	ctx := context.Background()
-
-	tests := []struct {
-		name     string
-		fn       func(context.Context, ClusterNode) (string, string, int, error)
-		expected string
-	}{
-		{"Pull", ExecGitPull, "gitmap pull --all"},
-		{"Push", ExecGitPush, "gitmap push --all"},
-		{"Commit", ExecGitCommit, "gitmap commit --all"},
-		{"Status", ExecGitStatus, "gitmap status --all"},
-	}
-
-	for _, tc := range tests {
+	for _, tc := range gitExecTestCases() {
 		t.Run(tc.name, func(t *testing.T) {
-			_, _, _, err := tc.fn(ctx, node)
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
-			if !strings.Contains(lastCmd, tc.expected) {
-				t.Errorf("expected command %q to contain %q", lastCmd, tc.expected)
-			}
-
-			// Validate Windows vs Unix shell wrapping
-			if runtime.GOOS == "windows" && (!strings.Contains(strings.ToLower(lastCmd), "cmd.exe") || !strings.Contains(strings.ToLower(lastCmd), "/c")) {
-				t.Errorf("expected windows shell cmd.exe /c, got %q", lastCmd)
-			}
-			if runtime.GOOS != "windows" && (!strings.Contains(lastCmd, "sh") || !strings.Contains(lastCmd, "-c")) {
-				t.Errorf("expected unix shell sh -c, got %q", lastCmd)
-			}
+			runSingleGitExecTest(t, tc, lastCmd, node, ctx)
 		})
+	}
+}
+
+func runSingleGitExecTest(t *testing.T, tc gitExecTestCase, lastCmd *string, node ClusterNode, ctx context.Context) {
+	if _, _, _, err := tc.fn(ctx, node); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(*lastCmd, tc.expected) {
+		t.Errorf("expected command %q to contain %q", *lastCmd, tc.expected)
+	}
+	assertPlatformShellWrapping(t, *lastCmd)
+}
+
+func assertPlatformShellWrapping(t *testing.T, cmdStr string) {
+	if runtime.GOOS == constants.PlatformWindows {
+		assertWindowsShellWrapping(t, cmdStr)
+		return
+	}
+	assertUnixShellWrapping(t, cmdStr)
+}
+
+func assertWindowsShellWrapping(t *testing.T, cmdStr string) {
+	lower := strings.ToLower(cmdStr)
+	if !strings.Contains(lower, constants.WindowsShell) || !strings.Contains(lower, strings.ToLower(constants.WindowsShellArg)) {
+		t.Errorf("expected windows shell %s %s, got %q", constants.WindowsShell, constants.WindowsShellArg, cmdStr)
+	}
+}
+
+func assertUnixShellWrapping(t *testing.T, cmdStr string) {
+	if !strings.Contains(cmdStr, "sh") || !strings.Contains(cmdStr, constants.UnixShellArg) {
+		t.Errorf("expected unix shell sh %s, got %q", constants.UnixShellArg, cmdStr)
 	}
 }

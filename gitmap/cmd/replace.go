@@ -11,12 +11,12 @@ import (
 // literal mode, version mode (-N / all), or audit mode based on the
 // shape of args. See spec/04-generic-cli/15-replace-command.md.
 func runReplace(args []string) {
-	checkHelp("replace", args)
+	checkHelp(constants.CmdReplace, args)
 
 	opts, positional, err := parseReplaceFlags(args)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
+		os.Exit(constants.ExitCodeError)
 	}
 
 	mode := classifyReplaceMode(positional, opts)
@@ -30,15 +30,21 @@ func dispatchReplaceMode(mode replaceMode, positional []string, opts replaceOpts
 		runReplaceLiteral(positional[0], positional[1], opts)
 	case replaceModeAudit:
 		runReplaceAudit(opts)
-	case replaceModeAll:
-		runReplaceVersion(0, opts, true)
-	case replaceModeVersionN:
-		n := mustParseDashN(positional[0])
-		runReplaceVersion(n, opts, false)
+	case replaceModeAll, replaceModeVersionN:
+		dispatchVersionMode(mode, positional, opts)
 	default:
 		fmt.Fprint(os.Stderr, constants.ErrReplaceNeedsArgs)
-		os.Exit(1)
+		os.Exit(constants.ExitCodeError)
 	}
+}
+
+func dispatchVersionMode(mode replaceMode, positional []string, opts replaceOpts) {
+	if mode == replaceModeAll {
+		runReplaceVersion(constants.ReplaceAllVersionTarget, opts, true)
+		return
+	}
+	n := mustParseDashN(positional[0])
+	runReplaceVersion(n, opts, false)
 }
 
 // replaceMode enumerates the four invocation shapes the spec accepts.
@@ -58,14 +64,21 @@ func classifyReplaceMode(positional []string, opts replaceOpts) replaceMode {
 	if opts.audit {
 		return replaceModeAudit
 	}
-	if len(positional) == 1 && positional[0] == constants.ReplaceSubcmdAll {
+	if len(positional) == constants.ReplaceMinPositionalArgs {
+		return classifySingleArgMode(positional[0])
+	}
+	if len(positional) == constants.ReplaceLiteralArgsCount {
+		return replaceModeLiteral
+	}
+	return replaceModeUnknown
+}
+
+func classifySingleArgMode(arg string) replaceMode {
+	if arg == constants.ReplaceSubcmdAll {
 		return replaceModeAll
 	}
-	if len(positional) == 1 && looksLikeDashN(positional[0]) {
+	if looksLikeDashN(arg) {
 		return replaceModeVersionN
-	}
-	if len(positional) == 2 {
-		return replaceModeLiteral
 	}
 	return replaceModeUnknown
 }
@@ -86,17 +99,21 @@ func looksLikeDashN(s string) bool {
 // mustParseDashN converts "-N" to the integer N. Caller guarantees
 // looksLikeDashN(s) is true; we still bail on overflow.
 func mustParseDashN(s string) int {
+	n, ok := parseDashNDigits(s)
+	if !ok || n < 1 {
+		fmt.Fprintf(os.Stderr, constants.ErrReplaceBadN, s)
+		os.Exit(constants.ExitCodeError)
+	}
+	return n
+}
+
+func parseDashNDigits(s string) (int, bool) {
 	n := 0
 	for i := 1; i < len(s); i++ {
 		n = n*10 + int(s[i]-'0')
-		if n > 1_000_000 {
-			fmt.Fprintf(os.Stderr, constants.ErrReplaceBadN, s)
-			os.Exit(1)
+		if n > constants.ReplaceMaxDashN {
+			return 0, false
 		}
 	}
-	if n < 1 {
-		fmt.Fprintf(os.Stderr, constants.ErrReplaceBadN, s)
-		os.Exit(1)
-	}
-	return n
+	return n, true
 }

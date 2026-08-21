@@ -193,4 +193,34 @@ const (
 	// ErrSelfInstallLock is the catch-all for lock filesystem failures
 	// (permission denied, disk full, etc.).
 	ErrSelfInstallLock = "Error: could not acquire self-install lock: %v\n"
+
+	MsgSelfInstallRunningSetup     = "\n  → Running 'gitmap setup' to install shell wrapper + completions...\n"
+	MsgSelfInstallSetupSkipped     = "  (setup auto-run skipped: %v)\n"
+	EnvGitmapDualShell             = "GITMAP_DUAL_SHELL=1"
+	SelfInstallDefaultUnixFallback = "/usr/local/bin/gitmap"
+	SelfInstallTempPrefix          = "gitmap-self-install-*"
+	ScriptExtPs1                   = ".ps1"
+	ScriptExtSh                    = ".sh"
+	ShellPipeSep                   = "|"
+	ErrHTTPStatusFmt               = "HTTP %d"
+
+	FlagNameDir       = "dir"
+	FlagNameYes       = "yes"
+	FlagNameY         = "y"
+	FlagNameVersion   = "version"
+	FlagNameShellMode = "shell-mode"
+	FlagNameProfile   = "profile"
+	FlagNameDualShell = "dual-shell"
+	FlagNameShowPath  = "show-path"
+	FlagNameForceLock = "force-lock"
+
+	PwshArgExecPolicy = "-ExecutionPolicy"
+	PwshArgBypass     = "Bypass"
+	PwshArgNoProfile  = "-NoProfile"
+	PwshArgNoLogo     = "-NoLogo"
+	PwshArgFile       = "-File"
+	PwshArgInstallDir = "-InstallDir"
+	PwshArgVersion    = "-Version"
 )
+
+var UTF8BOM = []byte{0xEF, 0xBB, 0xBF}
