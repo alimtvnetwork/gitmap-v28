@@ -13,12 +13,12 @@ package committransfer
 
 import "time"
 
-// Direction names which side receives the new commits.
-type Direction int
+// DirectionType names which side receives the new commits.
+type DirectionType int
 
 const (
 	// DirRight replays LEFT → RIGHT (writes commits on RIGHT).
-	DirRight Direction = iota
+	DirRight DirectionType = iota
 	// DirLeft replays RIGHT → LEFT (writes commits on LEFT).
 	DirLeft
 	// DirBoth replays in both directions sequentially: LEFT → RIGHT
@@ -57,14 +57,14 @@ type MessagePolicy struct {
 	CommandName string
 }
 
-// PreferPolicy mirrors movemerge.PreferPolicy for file-level conflicts
+// PreferPolicyType mirrors movemerge.PreferPolicyType for file-level conflicts
 // during the snapshot-copy step. We re-export the values rather than
 // importing the type to keep the package decoupled in tests.
-type PreferPolicy int
+type PreferPolicyType int
 
 const (
 	// PreferNone means use the existing file (no overwrite on conflict).
-	PreferNone PreferPolicy = iota
+	PreferNone PreferPolicyType = iota
 	// PreferSource overwrites target with source on every conflict.
 	PreferSource
 	// PreferTarget keeps target on every conflict (effectively skip).
@@ -79,23 +79,23 @@ const (
 // preserves legacy strip behaviour; set IncludeMerges = true explicitly
 // for the new default.
 type Options struct {
-	Yes            bool          // skip the confirm prompt
-	DryRun         bool          // print the plan; no writes
-	NoPush         bool          // skip the final git push
-	NoCommit       bool          // copy + stage but do not commit
-	IncludeMerges  bool          // default true in CLI; zero value = legacy strip (v6.0.0)
-	IncludeVCS     bool          // copy .git/* during snapshot
-	IncludeNodeMod bool          // copy node_modules/* during snapshot
-	Mirror         bool          // delete target-only files (true mirror)
-	ForceReplay    bool          // replay even commits with provenance footer
-	Interleave     bool          // commit-both only: author-date interleave
-	Limit          int           // 0 = no limit; replay at most N (oldest first)
-	Since          string        // override divergence base (sha or date)
-	MaxHistoryScan int           // 0 = unbounded target log scan (spec 114 Gap A); >0 caps the idempotence-check log query at N commits
-	Prefer         PreferPolicy  // file-conflict policy
-	Message        MessagePolicy // §6 pipeline knobs
-	CommandName    string        // "commit-right" etc.
-	LogPrefix      string        // "[commit-right]" etc.
+	Yes            bool             // skip the confirm prompt
+	DryRun         bool             // print the plan; no writes
+	NoPush         bool             // skip the final git push
+	NoCommit       bool             // copy + stage but do not commit
+	IncludeMerges  bool             // default true in CLI; zero value = legacy strip (v6.0.0)
+	IncludeVCS     bool             // copy .git/* during snapshot
+	IncludeNodeMod bool             // copy node_modules/* during snapshot
+	Mirror         bool             // delete target-only files (true mirror)
+	ForceReplay    bool             // replay even commits with provenance footer
+	Interleave     bool             // commit-both only: author-date interleave
+	Limit          int              // 0 = no limit; replay at most N (oldest first)
+	Since          string           // override divergence base (sha or date)
+	MaxHistoryScan int              // 0 = unbounded target log scan (spec 114 Gap A); >0 caps the idempotence-check log query at N commits
+	Prefer         PreferPolicyType // file-conflict policy
+	Message        MessagePolicy    // §6 pipeline knobs
+	CommandName    string           // "commit-right" etc.
+	LogPrefix      string           // "[commit-right]" etc.
 }
 
 // SourceCommit is one entry in the resolved replay set.

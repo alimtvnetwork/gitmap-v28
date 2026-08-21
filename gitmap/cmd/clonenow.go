@@ -85,6 +85,11 @@ func runCloneNow(args []string) {
 		return
 	}
 	cfg := parseCloneNowFlags(args)
+	plan := initCloneNowPlan(cfg)
+	dispatchCloneNow(plan, cfg)
+}
+
+func initCloneNowPlan(cfg cloneNowFlags) clonenow.Plan {
 	setCmdFaithfulVerify(cfg.verifyCmdFaithful)
 	setCmdFaithfulExitOnMismatch(cfg.verifyCmdFaithfulExitOnMismatch)
 	setCmdPrintArgv(cfg.printCloneArgv)
@@ -95,10 +100,13 @@ func runCloneNow(args []string) {
 	plan.CoerceURL = coerceURLToStoredTransport
 	plan.PersistURL = persistRecloneTransport
 	validateRecloneManifestOrExit(plan)
+	return plan
+}
+
+func dispatchCloneNow(plan clonenow.Plan, cfg cloneNowFlags) {
 	if !cfg.execute {
 		runCloneNowDry(plan, cfg)
 		maybeExitOnCmdFaithfulMismatch()
-
 		return
 	}
 	applyCloneAssumeYesEnv(cfg.assumeYes)
@@ -108,6 +116,38 @@ func runCloneNow(args []string) {
 	maybeExitOnCmdFaithfulMismatch()
 }
 
+func bindCloneNowBasicFlags(fs *flag.FlagSet, cfg *cloneNowFlags) {
+	fs.BoolVar(&cfg.execute, constants.FlagCloneNowExecute, false, constants.FlagDescCloneNowExecute)
+	fs.BoolVar(&cfg.quiet, constants.FlagCloneNowQuiet, false, constants.FlagDescCloneNowQuiet)
+	fs.StringVar(&cfg.mode, constants.FlagCloneNowMode, constants.CloneNowModeHTTPS, constants.FlagDescCloneNowMode)
+	fs.StringVar(&cfg.format, constants.FlagCloneNowFormat, "", constants.FlagDescCloneNowFormat)
+	fs.StringVar(&cfg.cwd, constants.FlagCloneNowCwd, "", constants.FlagDescCloneNowCwd)
+	fs.StringVar(&cfg.onExists, constants.FlagCloneNowOnExists, constants.CloneNowOnExistsSkip, constants.FlagDescCloneNowOnExists)
+	fs.StringVar(&cfg.output, constants.FlagCloneTermOutput, "", constants.FlagDescCloneTermOutput)
+	fs.StringVar(&cfg.manifest, constants.FlagCloneNowManifest, "", constants.FlagDescCloneNowManifest)
+	fs.StringVar(&cfg.scanRoot, constants.FlagCloneNowScanRoot, "", constants.FlagDescCloneNowScanRoot)
+}
+
+func bindCloneNowAuditFlags(fs *flag.FlagSet, cfg *cloneNowFlags) *int {
+	fs.BoolVar(&cfg.verifyCmdFaithful, constants.FlagCloneVerifyCmdFaithful, false, constants.FlagDescCloneVerifyCmdFaithful)
+	fs.BoolVar(&cfg.verifyCmdFaithfulExitOnMismatch, constants.FlagCloneVerifyCmdFaithfulExitOnMismatch, false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch)
+	fs.BoolVar(&cfg.printCloneArgv, constants.FlagClonePrintArgv, false, constants.FlagDescClonePrintArgv)
+	fs.BoolVar(&cfg.assumeYes, constants.FlagCloneNowYes, false, constants.FlagDescCloneNowYes)
+	fs.BoolVar(&cfg.assumeYes, constants.FlagCloneYesShort, false, constants.FlagDescCloneNowYes)
+	fs.BoolVar(&cfg.noSummary, constants.FlagCloneNowNoSummary, false, constants.FlagDescCloneNowNoSummary)
+	fs.BoolVar(&cfg.noVSCodeSync, constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
+	return fs.Int(constants.CloneFlagMaxConcurrency, constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
+}
+
+func resolveCloneNowConcurrency(maxConc int) int {
+	resolved, ok := cloneconcurrency.Resolve(maxConc)
+	if !ok {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConc)
+		os.Exit(2)
+	}
+	return resolved
+}
+
 // parseCloneNowFlags wires flags + extracts the positional file
 // argument. Validates --mode and --format up-front so a typo exits
 // 2 with a clear message instead of cascading into a confusing
@@ -115,73 +155,35 @@ func runCloneNow(args []string) {
 func parseCloneNowFlags(args []string) cloneNowFlags {
 	var cfg cloneNowFlags
 	fs := flag.NewFlagSet(constants.CmdCloneReclone, flag.ExitOnError)
-	fs.BoolVar(&cfg.execute, constants.FlagCloneNowExecute, false,
-		constants.FlagDescCloneNowExecute)
-	fs.BoolVar(&cfg.quiet, constants.FlagCloneNowQuiet, false,
-		constants.FlagDescCloneNowQuiet)
-	fs.StringVar(&cfg.mode, constants.FlagCloneNowMode,
-		constants.CloneNowModeHTTPS, constants.FlagDescCloneNowMode)
-	fs.StringVar(&cfg.format, constants.FlagCloneNowFormat, "",
-		constants.FlagDescCloneNowFormat)
-	fs.StringVar(&cfg.cwd, constants.FlagCloneNowCwd, "",
-		constants.FlagDescCloneNowCwd)
-	fs.StringVar(&cfg.onExists, constants.FlagCloneNowOnExists,
-		constants.CloneNowOnExistsSkip, constants.FlagDescCloneNowOnExists)
-	fs.StringVar(&cfg.output, constants.FlagCloneTermOutput, "",
-		constants.FlagDescCloneTermOutput)
-	fs.BoolVar(&cfg.verifyCmdFaithful, constants.FlagCloneVerifyCmdFaithful,
-		false, constants.FlagDescCloneVerifyCmdFaithful)
-	fs.BoolVar(&cfg.verifyCmdFaithfulExitOnMismatch,
-		constants.FlagCloneVerifyCmdFaithfulExitOnMismatch, false,
-		constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch)
-	fs.BoolVar(&cfg.printCloneArgv, constants.FlagClonePrintArgv,
-		false, constants.FlagDescClonePrintArgv)
-	fs.StringVar(&cfg.manifest, constants.FlagCloneNowManifest, "",
-		constants.FlagDescCloneNowManifest)
-	fs.StringVar(&cfg.scanRoot, constants.FlagCloneNowScanRoot, "",
-		constants.FlagDescCloneNowScanRoot)
-	fs.BoolVar(&cfg.assumeYes, constants.FlagCloneNowYes, false,
-		constants.FlagDescCloneNowYes)
-	fs.BoolVar(&cfg.assumeYes, constants.FlagCloneYesShort, false,
-		constants.FlagDescCloneNowYes)
-	fs.BoolVar(&cfg.noSummary, constants.FlagCloneNowNoSummary, false,
-		constants.FlagDescCloneNowNoSummary)
-	fs.BoolVar(&cfg.noVSCodeSync, constants.FlagNoVSCodeSync, false,
-		constants.FlagDescNoVSCodeSync)
-	maxConcFlag := fs.Int(constants.CloneFlagMaxConcurrency,
-		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
-	reordered := reorderFlagsBeforeArgs(args)
-	fs.Parse(reordered)
+	bindCloneNowBasicFlags(fs, &cfg)
+	maxConcFlag := bindCloneNowAuditFlags(fs, &cfg)
+	fs.Parse(reorderFlagsBeforeArgs(args))
 	cfg.file = resolveCloneNowSource(fs, cfg.manifest, cfg.scanRoot)
-	resolvedConc, ok := cloneconcurrency.Resolve(*maxConcFlag)
-	if !ok {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, *maxConcFlag)
+	cfg.maxConcurrency = resolveCloneNowConcurrency(*maxConcFlag)
+	validateCloneNowFlags(cfg)
+	return cfg
+}
+
+func validateCloneNowModeAndFormat(mode, format string) {
+	if mode != constants.CloneNowModeHTTPS && mode != constants.CloneNowModeSSH {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadMode+"\n", mode)
 		os.Exit(2)
 	}
-	cfg.maxConcurrency = resolvedConc
-	validateCloneNowFlags(cfg)
-
-	return cfg
+	switch format {
+	case "", constants.CloneNowFormatJSON, constants.CloneNowFormatCSV, constants.CloneNowFormatText:
+	default:
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadFormat+"\n", format)
+		os.Exit(2)
+	}
 }
 
 // validateCloneNowFlags hard-fails (exit 2) on invalid --mode or
 // --format values. Done after flag.Parse so the user sees one error
 // at a time instead of a wall of stacked usage text.
 func validateCloneNowFlags(cfg cloneNowFlags) {
-	if cfg.mode != constants.CloneNowModeHTTPS && cfg.mode != constants.CloneNowModeSSH {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadMode+"\n", cfg.mode)
-		os.Exit(2)
-	}
-	switch cfg.format {
-	case "", constants.CloneNowFormatJSON, constants.CloneNowFormatCSV, constants.CloneNowFormatText:
-	default:
-		fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadFormat+"\n", cfg.format)
-		os.Exit(2)
-	}
+	validateCloneNowModeAndFormat(cfg.mode, cfg.format)
 	switch cfg.onExists {
-	case constants.CloneNowOnExistsSkip,
-		constants.CloneNowOnExistsUpdate,
-		constants.CloneNowOnExistsForce:
+	case constants.CloneNowOnExistsSkip, constants.CloneNowOnExistsUpdate, constants.CloneNowOnExistsForce:
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadOnExists+"\n", cfg.onExists)
@@ -194,7 +196,6 @@ func validateCloneNowFlags(cfg cloneNowFlags) {
 func runCloneNowDry(plan clonenow.Plan, cfg cloneNowFlags) {
 	if cfg.output == constants.OutputTerminal {
 		printCloneNowTermBlocks(plan)
-
 		return
 	}
 	if err := clonenow.Render(os.Stdout, plan); err != nil {
@@ -202,43 +203,36 @@ func runCloneNowDry(plan clonenow.Plan, cfg cloneNowFlags) {
 	}
 }
 
-// runCloneNowExecute is the side-effecting branch. Picks the
-// progress writer based on --quiet, executes the plan, prints the
-// summary, then translates the result tally to an exit code.
-func runCloneNowExecute(plan clonenow.Plan, cfg cloneNowFlags) {
+func executeCloneNowPlan(plan clonenow.Plan, cfg cloneNowFlags) []clonenow.Result {
 	progress := io.Writer(os.Stderr)
 	if cfg.quiet {
 		progress = io.Discard
 	}
-	// `--output terminal`: stream one standardized block per row,
-	// printed by ExecuteWithHooks's BeforeRow callback IMMEDIATELY
-	// before that row's `git clone` starts. This interleaves the
-	// per-repo preview with live clone progress instead of dumping
-	// every block upfront — matches the URL-driven `clone <urls...>`
-	// behavior. A nil hook keeps the legacy code path identical for
-	// callers that didn't opt in.
 	var hook clonenow.BeforeRowHook
 	if cfg.output == constants.OutputTerminal {
 		hook = printCloneNowTermBlockRow
 	}
-	// Dispatch sequential vs parallel on the resolved worker count.
-	// Auto-default (NumCPU) lands here as N>=1 already (the parser
-	// runs cloneconcurrency.Resolve), so a single comparison is all
-	// that's needed. The concurrent runner short-circuits to
-	// ExecuteWithHooks for workers <=1 — keeping a single sequential
-	// code path under the hood.
-	var results []clonenow.Result
 	if cfg.maxConcurrency > 1 {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneConcurrencyEnabledFmt, cfg.maxConcurrency)
-		results = clonenow.ExecuteWithHooksConcurrent(plan, cfg.cwd, progress, hook, cfg.maxConcurrency)
-	} else {
-		results = clonenow.ExecuteWithHooks(plan, cfg.cwd, progress, hook)
+		return clonenow.ExecuteWithHooksConcurrent(plan, cfg.cwd, progress, hook, cfg.maxConcurrency)
 	}
+	return clonenow.ExecuteWithHooks(plan, cfg.cwd, progress, hook)
+}
+
+func finalizeCloneNowRun(cfg cloneNowFlags, results []clonenow.Result) {
 	if err := clonenow.RenderSummary(os.Stdout, results); err != nil {
 		cliexit.Reportf(constants.CmdCloneReclone, "render-summary", cfg.file, err)
 	}
 	syncCloneNowResultsToVSCodePM(results, cfg.noVSCodeSync)
 	os.Exit(cloneNowExitCode(results))
+}
+
+// runCloneNowExecute is the side-effecting branch. Picks the
+// progress writer based on --quiet, executes the plan, prints the
+// summary, then translates the result tally to an exit code.
+func runCloneNowExecute(plan clonenow.Plan, cfg cloneNowFlags) {
+	results := executeCloneNowPlan(plan, cfg)
+	finalizeCloneNowRun(cfg, results)
 }
 
 // cloneNowExitCode returns 1 if any row failed, else 0. Skipped
@@ -247,12 +241,25 @@ func runCloneNowExecute(plan clonenow.Plan, cfg cloneNowFlags) {
 func cloneNowExitCode(results []clonenow.Result) int {
 	for _, r := range results {
 		if r.Status == constants.CloneNowStatusFailed {
-
 			return 1
 		}
 	}
-
 	return 0
+}
+
+func cloneNowResultToPMPair(r clonenow.Result) (vscodepm.Pair, bool) {
+	if r.Status != constants.CloneNowStatusOK {
+		return vscodepm.Pair{}, false
+	}
+	abs, err := filepath.Abs(r.Dest)
+	if err != nil {
+		abs = r.Dest
+	}
+	name := r.Row.RepoName
+	if name == "" {
+		name = filepath.Base(abs)
+	}
+	return buildClonePMPair(abs, name), true
 }
 
 // syncCloneNowResultsToVSCodePM filters status=ok rows and pushes
@@ -260,18 +267,9 @@ func cloneNowExitCode(results []clonenow.Result) int {
 func syncCloneNowResultsToVSCodePM(results []clonenow.Result, skip bool) {
 	pairs := make([]vscodepm.Pair, 0, len(results))
 	for _, r := range results {
-		if r.Status != constants.CloneNowStatusOK {
-			continue
+		if pair, ok := cloneNowResultToPMPair(r); ok {
+			pairs = append(pairs, pair)
 		}
-		abs, err := filepath.Abs(r.Dest)
-		if err != nil {
-			abs = r.Dest
-		}
-		name := r.Row.RepoName
-		if name == "" {
-			name = filepath.Base(abs)
-		}
-		pairs = append(pairs, buildClonePMPair(abs, name))
 	}
 	syncClonedReposToVSCodePM(pairs, skip)
 }

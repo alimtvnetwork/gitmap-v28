@@ -44,12 +44,12 @@ func parseClonePickFlags(args []string) clonePickParsed {
 	fs := flag.NewFlagSet("clone-pick", flag.ExitOnError)
 	bindClonePickCoreFlags(fs, &flags, defaults)
 	output, audit, noVSCodeSync := bindClonePickAuxFlags(fs)
-
-	reordered := reorderFlagsBeforeArgs(args)
-	fs.Parse(reordered)
-
+	fs.Parse(reorderFlagsBeforeArgs(args))
 	rawURL, rawPaths := requireClonePickPositional(fs, flags)
+	return buildClonePickParsed(rawURL, rawPaths, flags, output, audit, noVSCodeSync)
+}
 
+func buildClonePickParsed(rawURL, rawPaths string, flags clonepick.Flags, output *string, audit clonePickAuditFlags, noVSCodeSync *bool) clonePickParsed {
 	return clonePickParsed{
 		RawURL:                          rawURL,
 		RawPaths:                        rawPaths,
@@ -62,35 +62,31 @@ func parseClonePickFlags(args []string) clonePickParsed {
 	}
 }
 
+func bindClonePickFilterFlags(fs *flag.FlagSet, flags *clonepick.Flags, defaults clonepick.Flags) {
+	fs.BoolVar(&flags.Ask, constants.FlagClonePickAsk, defaults.Ask, constants.FlagDescClonePickAsk)
+	fs.StringVar(&flags.Name, constants.FlagClonePickName, defaults.Name, constants.FlagDescClonePickName)
+	fs.StringVar(&flags.Mode, constants.FlagClonePickMode, defaults.Mode, constants.FlagDescClonePickMode)
+	fs.StringVar(&flags.Branch, constants.FlagClonePickBranch, defaults.Branch, constants.FlagDescClonePickBranch)
+	fs.IntVar(&flags.Depth, constants.FlagClonePickDepth, defaults.Depth, constants.FlagDescClonePickDepth)
+	fs.BoolVar(&flags.Cone, constants.FlagClonePickCone, defaults.Cone, constants.FlagDescClonePickCone)
+}
+
+func bindClonePickExecutionFlags(fs *flag.FlagSet, flags *clonepick.Flags, defaults clonepick.Flags) {
+	fs.StringVar(&flags.Dest, constants.FlagClonePickDest, defaults.Dest, constants.FlagDescClonePickDest)
+	fs.BoolVar(&flags.KeepGit, constants.FlagClonePickKeepGit, defaults.KeepGit, constants.FlagDescClonePickKeepGit)
+	fs.BoolVar(&flags.DryRun, constants.FlagClonePickDryRun, defaults.DryRun, constants.FlagDescClonePickDryRun)
+	fs.BoolVar(&flags.Quiet, constants.FlagClonePickQuiet, defaults.Quiet, constants.FlagDescClonePickQuiet)
+	fs.BoolVar(&flags.Force, constants.FlagClonePickForce, defaults.Force, constants.FlagDescClonePickForce)
+	fs.StringVar(&flags.Replay, constants.FlagClonePickReplay, defaults.Replay, constants.FlagDescClonePickReplay)
+}
+
 // bindClonePickCoreFlags binds every user-facing clone-pick flag
 // (everything documented in helptext/clone-pick.md). Audit/debug
 // toggles live in bindClonePickAuxFlags so this stays under the
 // function-length cap.
 func bindClonePickCoreFlags(fs *flag.FlagSet, flags *clonepick.Flags, defaults clonepick.Flags) {
-	fs.BoolVar(&flags.Ask, constants.FlagClonePickAsk, defaults.Ask,
-		constants.FlagDescClonePickAsk)
-	fs.StringVar(&flags.Name, constants.FlagClonePickName, defaults.Name,
-		constants.FlagDescClonePickName)
-	fs.StringVar(&flags.Mode, constants.FlagClonePickMode, defaults.Mode,
-		constants.FlagDescClonePickMode)
-	fs.StringVar(&flags.Branch, constants.FlagClonePickBranch, defaults.Branch,
-		constants.FlagDescClonePickBranch)
-	fs.IntVar(&flags.Depth, constants.FlagClonePickDepth, defaults.Depth,
-		constants.FlagDescClonePickDepth)
-	fs.BoolVar(&flags.Cone, constants.FlagClonePickCone, defaults.Cone,
-		constants.FlagDescClonePickCone)
-	fs.StringVar(&flags.Dest, constants.FlagClonePickDest, defaults.Dest,
-		constants.FlagDescClonePickDest)
-	fs.BoolVar(&flags.KeepGit, constants.FlagClonePickKeepGit, defaults.KeepGit,
-		constants.FlagDescClonePickKeepGit)
-	fs.BoolVar(&flags.DryRun, constants.FlagClonePickDryRun, defaults.DryRun,
-		constants.FlagDescClonePickDryRun)
-	fs.BoolVar(&flags.Quiet, constants.FlagClonePickQuiet, defaults.Quiet,
-		constants.FlagDescClonePickQuiet)
-	fs.BoolVar(&flags.Force, constants.FlagClonePickForce, defaults.Force,
-		constants.FlagDescClonePickForce)
-	fs.StringVar(&flags.Replay, constants.FlagClonePickReplay, defaults.Replay,
-		constants.FlagDescClonePickReplay)
+	bindClonePickFilterFlags(fs, flags, defaults)
+	bindClonePickExecutionFlags(fs, flags, defaults)
 }
 
 // clonePickAuditFlags bundles the three verify/debug toggles so
@@ -106,19 +102,13 @@ type clonePickAuditFlags struct {
 // part of the user-facing clone-pick surface but are needed by
 // CI / regression harnesses.
 func bindClonePickAuxFlags(fs *flag.FlagSet) (*string, clonePickAuditFlags, *bool) {
-	output := fs.String(constants.FlagCloneTermOutput, "",
-		constants.FlagDescCloneTermOutput)
+	output := fs.String(constants.FlagCloneTermOutput, "", constants.FlagDescCloneTermOutput)
 	audit := clonePickAuditFlags{
-		verify: fs.Bool(constants.FlagCloneVerifyCmdFaithful, false,
-			constants.FlagDescCloneVerifyCmdFaithful),
-		verifyExit: fs.Bool(constants.FlagCloneVerifyCmdFaithfulExitOnMismatch,
-			false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch),
-		printArgv: fs.Bool(constants.FlagClonePrintArgv, false,
-			constants.FlagDescClonePrintArgv),
+		verify:     fs.Bool(constants.FlagCloneVerifyCmdFaithful, false, constants.FlagDescCloneVerifyCmdFaithful),
+		verifyExit: fs.Bool(constants.FlagCloneVerifyCmdFaithfulExitOnMismatch, false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch),
+		printArgv:  fs.Bool(constants.FlagClonePrintArgv, false, constants.FlagDescClonePrintArgv),
 	}
-	noVSCodeSync := fs.Bool(constants.FlagNoVSCodeSync, false,
-		constants.FlagDescNoVSCodeSync)
-
+	noVSCodeSync := fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
 	return output, audit, noVSCodeSync
 }
 
@@ -129,14 +119,12 @@ func requireClonePickPositional(fs *flag.FlagSet, flags clonepick.Flags) (string
 		fmt.Fprintln(os.Stderr, constants.MsgClonePickMissingURL)
 		os.Exit(2)
 	}
-	rawURL := ""
+	var rawURL, rawPaths string
 	if fs.NArg() >= 1 {
 		rawURL = fs.Arg(0)
 	}
-	rawPaths := ""
 	if fs.NArg() >= 2 {
 		rawPaths = fs.Arg(1)
 	}
-
 	return rawURL, rawPaths
 }

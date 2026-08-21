@@ -56,25 +56,20 @@ func (s *intSliceFlag) Set(value string) error {
 }
 
 // splitClusterFlagsAndArgs is a helper to properly separate flags from positional
-// arguments before handing them to the flag parser. We treat anything starting
-// with `-` as a flag. If it matches a known flag that takes a value, we keep the
-// next token as well.
+// arguments before handing them to the flag parser.
 func splitClusterFlagsAndArgs(args []string) (flags, positional []string) {
-	expectValue := false
+	expectVal := false
 	for _, a := range args {
-		if expectValue {
-			flags = append(flags, a)
-			expectValue = false
-			continue
+		switch {
+		case expectVal:
+			flags, expectVal = append(flags, a), false
+		case isClusterFlag(a):
+			flags, expectVal = append(flags, a), needsClusterValue(a)
+		default:
+			positional = append(positional, a)
 		}
-		if isClusterFlag(a) {
-			flags = append(flags, a)
-			expectValue = needsClusterValue(a)
-			continue
-		}
-		positional = append(positional, a)
 	}
-	return
+	return flags, positional
 }
 
 func isClusterFlag(s string) bool {
@@ -89,42 +84,47 @@ func needsClusterValue(token string) bool {
 	return name == constants.ClusterFlagExcept || name == constants.ClusterFlagIP || name == constants.ClusterFlagID
 }
 
-// ParseClusterFlags parses flags for cluster commands and returns remaining positional arguments.
-func ParseClusterFlags(args []string) (ClusterFlags, []string, error) {
-	var opts ClusterFlags
-
-	fs := flag.NewFlagSet("cluster", flag.ContinueOnError)
-
-	var ips stringSliceFlag
-	var ids intSliceFlag
-
+func bindClusterFlags(fs *flag.FlagSet, opts *ClusterFlags, ips *stringSliceFlag, ids *intSliceFlag) (*bool, *bool) {
 	fs.StringVar(&opts.ExceptClause, constants.ClusterFlagExcept, "", "")
-	fs.Var(&ips, constants.ClusterFlagIP, "")
-	fs.Var(&ids, constants.ClusterFlagID, "")
-
+	fs.Var(ips, constants.ClusterFlagIP, "")
+	fs.Var(ids, constants.ClusterFlagID, "")
 	yes := fs.Bool(constants.ClusterFlagYes, false, "")
 	yesShort := fs.Bool(constants.ClusterFlagYesShort, false, "")
-
 	fs.BoolVar(&opts.ForceLifecycle, constants.ClusterFlagForceLifecycle, false, "")
 	fs.BoolVar(&opts.NoPreflight, constants.ClusterFlagNoPreflight, false, "")
 	fs.BoolVar(&opts.Verbose, constants.ClusterFlagVerbose, false, "")
 	fs.BoolVar(&opts.DryRun, constants.ClusterFlagDryRun, false, "")
+	return yes, yesShort
+}
 
-	flags, positional := splitClusterFlagsAndArgs(args)
-	if err := fs.Parse(flags); err != nil {
-		return opts, nil, errors.New("cluster: " + err.Error())
-	}
-
-	opts.AutoConfirm = *yes || *yesShort
-	opts.OnlyIPs = ips
-	opts.OnlyIDs = ids
-
+func validateClusterFilter(opts ClusterFlags) error {
 	isExceptProvided := opts.ExceptClause != ""
 	isIncludeProvided := len(opts.OnlyIPs) > constants.EmptySliceLength || len(opts.OnlyIDs) > constants.EmptySliceLength
-
-	if isExceptProvided == true && isIncludeProvided == true {
-		return opts, nil, errors.New(constants.ErrFilterExclusive)
+	if isExceptProvided && isIncludeProvided {
+		return errors.New(constants.ErrFilterExclusive)
 	}
+	return nil
+}
 
-	return opts, positional, nil
+func parseClusterFlagSet(args []string, opts *ClusterFlags) ([]string, error) {
+	var ips stringSliceFlag
+	var ids intSliceFlag
+	fs := flag.NewFlagSet("cluster", flag.ContinueOnError)
+	yes, yesShort := bindClusterFlags(fs, opts, &ips, &ids)
+	flags, pos := splitClusterFlagsAndArgs(args)
+	if err := fs.Parse(flags); err != nil {
+		return nil, errors.New("cluster: " + err.Error())
+	}
+	opts.AutoConfirm, opts.OnlyIPs, opts.OnlyIDs = *yes || *yesShort, ips, ids
+	return pos, validateClusterFilter(*opts)
+}
+
+// ParseClusterFlags parses flags for cluster commands and returns remaining positional arguments.
+func ParseClusterFlags(args []string) (ClusterFlags, []string, error) {
+	var opts ClusterFlags
+	pos, err := parseClusterFlagSet(args, &opts)
+	if err != nil {
+		return opts, nil, err
+	}
+	return opts, pos, nil
 }

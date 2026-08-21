@@ -29,20 +29,20 @@ import (
 	"time"
 )
 
-// Phase tags which subsystem produced the failure. Stored as the
+// PhaseType tags which subsystem produced the failure. Stored as the
 // JSON top-level array key (`scan` / `clone`) so consumers can
 // branch on it without parsing the inner Entry first.
-type Phase string
+type PhaseType string
 
 const (
 	// PhaseScan covers everything that runs under `gitmap scan`:
 	// scanner ReadDir failures, background ls-remote / shallow-clone
 	// probe errors, project-detection failures we choose to surface.
-	PhaseScan Phase = "scan"
+	PhaseScan PhaseType = "scan"
 	// PhaseClone covers everything under `gitmap clone-next` batch
 	// mode (--all / --csv): per-repo clone failures, post-clone
 	// hooks that errored, and any other non-skip cn outcome.
-	PhaseClone Phase = "clone"
+	PhaseClone PhaseType = "clone"
 )
 
 // Entry is one failure record. RepoPath is required (the whole point
@@ -107,7 +107,7 @@ func New(version, command string) *Collector {
 // any goroutine. A nil receiver is a silent no-op so call sites can
 // pass an unconditionally-constructed (or unconditionally-nil)
 // collector without branching on every error path.
-func (c *Collector) Add(phase Phase, e Entry) {
+func (c *Collector) Add(phase PhaseType, e Entry) {
 	if c == nil {
 		return
 	}

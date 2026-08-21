@@ -16,14 +16,14 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// Level enumerates the supported severities.
-type Level string
+// LevelType enumerates the supported severities.
+type LevelType string
 
 const (
-	LevelDebug Level = "debug"
-	LevelInfo  Level = "info"
-	LevelWarn  Level = "warn"
-	LevelError Level = "error"
+	LevelDebug LevelType = "debug"
+	LevelInfo  LevelType = "info"
+	LevelWarn  LevelType = "warn"
+	LevelError LevelType = "error"
 )
 
 // Entry is one NDJSON line.
@@ -32,7 +32,7 @@ type Entry struct {
 	Schema    string                 `json:"schema"`
 	Version   string                 `json:"version"`
 	Command   string                 `json:"command"`
-	Level     Level                  `json:"level"`
+	Level     LevelType              `json:"level"`
 	Message   string                 `json:"msg"`
 	Fields    map[string]interface{} `json:"fields,omitempty"`
 }
@@ -55,7 +55,7 @@ func NewLogger(w io.Writer, command string, enabled bool) *Logger {
 }
 
 // Log emits a single NDJSON entry.
-func (l *Logger) Log(level Level, msg string, fields map[string]interface{}) {
+func (l *Logger) Log(level LevelType, msg string, fields map[string]interface{}) {
 	if !l.enabled {
 		return
 	}
