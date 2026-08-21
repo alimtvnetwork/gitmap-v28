@@ -1,5 +1,5 @@
 # Subtask: Refactor Long Functions (>15 lines)
-Status: pending
+Status: completed
 
 ## Steps
 2. Edit `.\gitmap\archive\archive.go` at line 92: Function Extension exceeds 15 lines (28 lines) -> Extract helper functions or early returns

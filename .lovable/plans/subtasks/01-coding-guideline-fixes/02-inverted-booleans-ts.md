@@ -1,5 +1,5 @@
 # Subtask: Inverted Booleans (TS)
-Status: pending
+Status: completed
 
 ## Steps
 1. `src/components/docs/CloneNextCommandBuilder.tsx:107`: Extract `!s.flatten` to `const isNoFlatten = !s.flatten; if (isNoFlatten) parts.push("--no-flatten");`

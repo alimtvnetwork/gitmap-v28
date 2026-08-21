@@ -1,5 +1,5 @@
 # Subtask: Inverted Booleans (Go)
-Status: pending
+Status: completed
 
 ## Steps
 1. `gitmap/archive/extract.go:106`: Extract `!ok` to `isMissingEntry := !ok; if isMissingEntry == true`

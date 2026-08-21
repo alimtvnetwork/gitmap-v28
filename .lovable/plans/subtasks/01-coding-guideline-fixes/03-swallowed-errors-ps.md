@@ -1,5 +1,5 @@
 # Subtask: Swallowed Errors in PowerShell
-Status: pending
+Status: completed
 
 ## Steps
 1. `fix-repo.ps1:139`: Replace silent catch with `catch { Write-Warning "fix-repo: failed to process branch: $_" }`

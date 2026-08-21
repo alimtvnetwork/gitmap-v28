@@ -33,6 +33,8 @@ Hard prohibitions. Violating ANY of these is a critical failure.
 - **NEVER** use snake_case or camelCase for DB table/column names. PascalCase only.
 - **NEVER** use boolean variables/functions without `is`/`has` prefix.
 - **NEVER** place CLI command IDs anywhere except `constants_cli.go`.
+- **NEVER** declare `Cmd*` constants for internal/node/lifecycle operations without domain prefixes (e.g. `LifecycleCmd*`, `SubCmd*`) or explicit `// gitmap:cmd skip` markers.
+- **NEVER** declare naked `Cmd*` constants in `constants_cli.go` that lack corresponding `helptext/<id>.md` documentation.
 
 ## Dependency and Tooling Prohibitions
 
