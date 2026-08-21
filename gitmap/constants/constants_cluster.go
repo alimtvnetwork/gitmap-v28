@@ -28,16 +28,16 @@ const (
 	MsgClusterAbortedByUser          = "Aborted by user."
 	MsgClusterAuditFooter            = "Cluster run completed"
 
-	CmdShutdown       = "shutdown"
-	CmdReboot         = "reboot"
-	CmdLogoff         = "logoff"
-	ArgRestart        = "/r"
-	ArgShutdownWin    = "/s"
-	ArgTimeout        = "/t"
-	ArgZero           = "0"
-	ArgHalt           = "-h"
-	ArgNow            = "now"
-	CmdUnixLogoffArgs = "pkill -KILL -u whoami"
+	LifecycleCmdShutdown       = "shutdown"
+	LifecycleCmdReboot         = "reboot"
+	LifecycleCmdLogoff         = "logoff"
+	ArgRestart                 = "/r"
+	ArgShutdownWin             = "/s"
+	ArgTimeout                 = "/t"
+	ArgZero                    = "0"
+	ArgHalt                    = "-h"
+	ArgNow                     = "now"
+	LifecycleCmdUnixLogoffArgs = "pkill -KILL -u whoami"
 
 	ClusterDefaultHistoryLimit = 50
 	ClusterBcryptCost          = 12

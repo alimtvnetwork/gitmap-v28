@@ -62,7 +62,7 @@ func fetchListRecords(db *store.DB, groupFilter string) []model.ScanRecord {
 // isListTypeOrGroups checks if the arg is a type keyword or "groups".
 func isListTypeOrGroups(arg string) bool {
 	lower := strings.ToLower(arg)
-	if lower == constants.CmdGroups {
+	if lower == constants.SubCmdGroups {
 		return true
 	}
 	_, ok := typeKeywords[lower]
@@ -73,7 +73,7 @@ func isListTypeOrGroups(arg string) bool {
 // handleListSpecial handles gitmap ls <type> or gitmap ls groups.
 func handleListSpecial(keyword string, args []string) {
 	lower := strings.ToLower(keyword)
-	if lower == constants.CmdGroups {
+	if lower == constants.SubCmdGroups {
 		runGroupList()
 		printHints(listGroupsHints())
 
