@@ -1994,6 +1994,8 @@ gitmap r       [version] [flags]
 
 ### Changelog (recent versions)
 
+- 2026-08-22T04:46:47Z, Enqueued massively granular codebase audit plan for v1.4.5 coding guidelines (453 violations mapped).
+
 Concise, grouped per version. Each entry calls out **💥 Breaking**, **✨ Enhancements**, and **🐛 Fixes**. Versions with nothing in a category omit it. Full history lives in [`CHANGELOG.md`](CHANGELOG.md); query it from the CLI with `gitmap changelog vX.Y.Z` or `gitmap cl --limit 5`.
 
 #### v5.10.0 — 2026-05-16 — PowerShell wrapper loads last
