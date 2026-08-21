@@ -19,13 +19,13 @@ import (
 	"strings"
 )
 
-// DiffStatus enumerates the high-level outcomes of a single Diff call.
-type DiffStatus int
+// DiffStatusType enumerates the high-level outcomes of a single Diff call.
+type DiffStatusType int
 
 const (
 	// DiffNoChange means the template body matches the on-disk block
 	// (or both are absent). Exit code 0 territory.
-	DiffNoChange DiffStatus = iota
+	DiffNoChange DiffStatusType = iota
 	// DiffMissingBlock means the file exists but has no gitmap block
 	// for tag — `add` would insert one.
 	DiffMissingBlock
@@ -42,7 +42,7 @@ const (
 type DiffResult struct {
 	Path     string
 	Tag      string
-	Status   DiffStatus
+	Status   DiffStatusType
 	Hunks    []string // unified-style "+/-" lines, banner-prefixed
 	BlockOld []byte   // body bytes currently on disk (nil if absent)
 	BlockNew []byte   // body bytes the template would write

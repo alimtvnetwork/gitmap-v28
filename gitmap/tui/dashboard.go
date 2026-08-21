@@ -58,26 +58,34 @@ func (m dashboardModel) scheduleTick() tea.Cmd {
 	})
 }
 
+func makeStatusEntry(r model.ScanRecord) statusEntry {
+	rs := gitutil.Status(r.AbsolutePath)
+
+	return statusEntry{
+		Slug:      r.Slug,
+		Branch:    rs.Branch,
+		Status:    statusLabel(rs.Dirty, rs.Unreachable),
+		Ahead:     rs.Ahead,
+		Behind:    rs.Behind,
+		Stash:     rs.StashCount,
+		Untracked: rs.Untracked,
+		Modified:  rs.Modified,
+		Staged:    rs.Staged,
+	}
+}
+
+func collectStatusEntries(repos []model.ScanRecord) []statusEntry {
+	entries := make([]statusEntry, 0, len(repos))
+	for _, r := range repos {
+		entries = append(entries, makeStatusEntry(r))
+	}
+
+	return entries
+}
+
 func refreshStatuses(repos []model.ScanRecord) tea.Cmd {
 	return func() tea.Msg {
-		entries := make([]statusEntry, 0, len(repos))
-
-		for _, r := range repos {
-			rs := gitutil.Status(r.AbsolutePath)
-			entries = append(entries, statusEntry{
-				Slug:      r.Slug,
-				Branch:    rs.Branch,
-				Status:    statusLabel(rs.Dirty, rs.Unreachable),
-				Ahead:     rs.Ahead,
-				Behind:    rs.Behind,
-				Stash:     rs.StashCount,
-				Untracked: rs.Untracked,
-				Modified:  rs.Modified,
-				Staged:    rs.Staged,
-			})
-		}
-
-		return refreshMsg{entries: entries}
+		return refreshMsg{entries: collectStatusEntries(repos)}
 	}
 }
 
@@ -99,13 +107,10 @@ func (m dashboardModel) Init() tea.Cmd {
 func (m dashboardModel) Update(msg tea.Msg) (dashboardModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case refreshMsg:
-		m.entries = msg.entries
-		m.loading = false
-
+		m.entries, m.loading = msg.entries, false
 		return m, m.scheduleTick()
 	case tickMsg:
 		m.loading = true
-
 		return m, refreshStatuses(m.repos)
 	case tea.KeyMsg:
 		return m.handleKey(msg)
@@ -114,28 +119,43 @@ func (m dashboardModel) Update(msg tea.Msg) (dashboardModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m dashboardModel) handleKey(msg tea.KeyMsg) (dashboardModel, tea.Cmd) {
-	max := len(m.entries) - 1
-	if max < 0 {
-		max = len(m.repos) - 1
+func maxIndex(a, b int) int {
+	if a > 0 {
+		return a - 1
 	}
 
-	switch {
-	case keys.down(msg):
-		if m.cursor < max {
-			m.cursor++
-		}
-	case keys.up(msg):
-		if m.cursor > 0 {
-			m.cursor--
-		}
-	case keys.refresh(msg):
+	return b - 1
+}
+
+func (m *dashboardModel) moveCursor(msg tea.KeyMsg, max int) {
+	if keys.down(msg) && m.cursor < max {
+		m.cursor++
+	} else if keys.up(msg) && m.cursor > 0 {
+		m.cursor--
+	}
+}
+
+func (m dashboardModel) handleKey(msg tea.KeyMsg) (dashboardModel, tea.Cmd) {
+	if keys.refresh(msg) {
 		m.loading = true
 
 		return m, refreshStatuses(m.repos)
 	}
+	m.moveCursor(msg, maxIndex(len(m.entries), len(m.repos)))
 
 	return m, nil
+}
+
+func renderDashRows(b *strings.Builder, entries []statusEntry, cursor int) {
+	for i, e := range entries {
+		line := formatDashRow(e)
+		if i == cursor {
+			b.WriteString(styleCursorRow.Render("> " + line))
+		} else {
+			b.WriteString(styleNormalRow.Render("  " + line))
+		}
+		b.WriteString("\n")
+	}
 }
 
 func (m dashboardModel) View() string {
@@ -147,22 +167,9 @@ func (m dashboardModel) View() string {
 	}
 
 	var b strings.Builder
-
-	b.WriteString(styleHeader.Render(dashHeader()))
-	b.WriteString("\n")
-
-	for i, e := range m.entries {
-		line := formatDashRow(e)
-		if i == m.cursor {
-			b.WriteString(styleCursorRow.Render("> " + line))
-		} else {
-			b.WriteString(styleNormalRow.Render("  " + line))
-		}
-		b.WriteString("\n")
-	}
-
-	b.WriteString("\n")
-	b.WriteString(styleHint.Render(dashSummary(m.entries)))
+	b.WriteString(styleHeader.Render(dashHeader()) + "\n")
+	renderDashRows(&b, m.entries, m.cursor)
+	b.WriteString("\n" + styleHint.Render(dashSummary(m.entries)))
 
 	return b.String()
 }

@@ -14,6 +14,8 @@ const (
 	bkBlank
 )
 
+const indentCodePrefix = "    "
+
 // block is one unit of parsed markdown.
 type block struct {
 	kind  blockKind
@@ -28,45 +30,62 @@ func parse(lines []string) []block {
 	var out []block
 	i := 0
 	for i < len(lines) {
-		line := lines[i]
-		switch {
-		case isFence(line):
-			body, next := readFence(lines, i)
-			out = appendFence(out, body)
-			i = next
-		case isHeading(line):
-			depth := headingDepth(line)
-			out = append(out, block{kind: bkHeading, text: line, depth: depth})
-			i++
-			// Subtitle peek: tolerate a single blank line between the
-			// heading and an italic subtitle (typical markdown style).
-			j := i
-			if j < len(lines) && strings.TrimSpace(lines[j]) == "" {
-				j++
-			}
-			if j < len(lines) && isItalic(lines[j]) {
-				out = append(out, block{kind: bkSubtitle, text: stripItalic(lines[j])})
-				i = j + 1
-			}
-		case strings.TrimSpace(line) == "":
-			out = append(out, block{kind: bkBlank})
-			i++
-		case isListItem(line):
-			items, next := readList(lines, i)
-			out = append(out, block{kind: bkList, lines: items})
-			i = next
-		case isIndentedCode(line):
-			body, next := readIndentedCode(lines, i)
-			out = append(out, block{kind: bkFence, lines: body})
-			i = next
-		default:
-			para, next := readParagraph(lines, i)
-			out = append(out, block{kind: bkParagraph, text: para})
-			i = next
-		}
+		out, i = parseNextBlock(lines, i, out)
 	}
-
 	return out
+}
+
+func parseNextBlock(lines []string, i int, out []block) ([]block, int) {
+	line := lines[i]
+	if isFence(line) {
+		body, next := readFence(lines, i)
+		return appendFence(out, body), next
+	}
+	if isHeading(line) {
+		return parseHeadingAndSubtitle(lines, i, out)
+	}
+	if strings.TrimSpace(line) == "" {
+		return append(out, block{kind: bkBlank}), i + 1
+	}
+	return parseCodeOrText(lines, i, out)
+}
+
+func parseCodeOrText(lines []string, i int, out []block) ([]block, int) {
+	line := lines[i]
+	if isListItem(line) {
+		items, next := readList(lines, i)
+		return append(out, block{kind: bkList, lines: items}), next
+	}
+	if isIndentedCode(line) {
+		body, next := readIndentedCode(lines, i)
+		return append(out, block{kind: bkFence, lines: body}), next
+	}
+	para, next := readParagraph(lines, i)
+	return append(out, block{kind: bkParagraph, text: para}), next
+}
+
+func parseHeadingAndSubtitle(lines []string, i int, out []block) ([]block, int) {
+	line := lines[i]
+	out = append(out, block{kind: bkHeading, text: line, depth: headingDepth(line)})
+	sub, next := peekSubtitle(lines, i+1)
+	if next > 0 {
+		out = append(out, block{kind: bkSubtitle, text: sub})
+		return out, next
+	}
+	return out, i + 1
+}
+
+// peekSubtitle tolerates a single blank line between the heading and an italic
+// subtitle (typical markdown style).
+func peekSubtitle(lines []string, start int) (string, int) {
+	j := start
+	if j < len(lines) && strings.TrimSpace(lines[j]) == "" {
+		j++
+	}
+	if j < len(lines) && isItalic(lines[j]) {
+		return stripItalic(lines[j]), j + 1
+	}
+	return "", 0
 }
 
 // appendFence either appends the fence as-is or, when the previous non-blank
@@ -80,10 +99,8 @@ func appendFence(out []block, body []string) []block {
 			kind: bkParagraph,
 			text: TokYellowOpen + collapseArrow + strings.Join(body, " ") + TokYellowClose,
 		}
-
 		return out
 	}
-
 	return append(out, block{kind: bkFence, lines: body})
 }
 
@@ -93,7 +110,6 @@ func lastNonBlank(bs []block) int {
 			return i
 		}
 	}
-
 	return -1
 }
 
@@ -109,7 +125,6 @@ func readFence(lines []string, start int) ([]string, int) {
 	if i < len(lines) {
 		i++ // consume closing fence
 	}
-
 	return body, i
 }
 
@@ -126,7 +141,6 @@ func readParagraph(lines []string, start int) (string, int) {
 		buf = append(buf, line)
 		i++
 	}
-
 	return strings.Join(buf, " "), i
 }
 
@@ -136,7 +150,6 @@ func isFence(line string) bool {
 
 func isHeading(line string) bool {
 	t := strings.TrimLeft(line, " ")
-
 	return strings.HasPrefix(t, "# ") || strings.HasPrefix(t, "## ") ||
 		strings.HasPrefix(t, "### ") || strings.HasPrefix(t, "#### ") ||
 		strings.HasPrefix(t, "##### ") || strings.HasPrefix(t, "###### ")
@@ -148,7 +161,6 @@ func headingDepth(line string) int {
 	for depth < len(t) && t[depth] == '#' {
 		depth++
 	}
-
 	return depth
 }
 
@@ -157,7 +169,6 @@ func isItalic(line string) bool {
 	if len(t) < 3 {
 		return false
 	}
-
 	return (strings.HasPrefix(t, "*") && strings.HasSuffix(t, "*") &&
 		!strings.HasPrefix(t, "**")) ||
 		(strings.HasPrefix(t, "_") && strings.HasSuffix(t, "_") &&
@@ -170,7 +181,6 @@ func stripItalic(line string) string {
 	t = strings.TrimPrefix(t, "_")
 	t = strings.TrimSuffix(t, "*")
 	t = strings.TrimSuffix(t, "_")
-
 	return t
 }
 
@@ -187,7 +197,6 @@ func isListItem(line string) bool {
 	if strings.HasPrefix(t, "- ") || strings.HasPrefix(t, "* ") {
 		return true
 	}
-
 	return strings.HasPrefix(t, "|")
 }
 
@@ -199,7 +208,6 @@ func readList(lines []string, start int) ([]string, int) {
 		out = append(out, lines[i])
 		i++
 	}
-
 	return out, i
 }
 
@@ -209,11 +217,14 @@ func readList(lines []string, start int) ([]string, int) {
 // source line stays on its own row instead of being joined into a single
 // paragraph.
 func isIndentedCode(line string) bool {
-	if !strings.HasPrefix(line, "    ") {
+	if !strings.HasPrefix(line, indentCodePrefix) {
 		return false
 	}
-
 	return strings.TrimSpace(line) != ""
+}
+
+func isInterleavedBlank(lines []string, i int) bool {
+	return strings.TrimSpace(lines[i]) == "" && i+1 < len(lines) && isIndentedCode(lines[i+1])
 }
 
 // readIndentedCode gathers consecutive indented (and interleaved blank)
@@ -223,21 +234,15 @@ func readIndentedCode(lines []string, start int) ([]string, int) {
 	var body []string
 	i := start
 	for i < len(lines) {
-		line := lines[i]
-		if isIndentedCode(line) {
-			body = append(body, strings.TrimPrefix(line, "    "))
+		if isIndentedCode(lines[i]) {
+			body = append(body, strings.TrimPrefix(lines[i], indentCodePrefix))
 			i++
-
-			continue
-		}
-		if strings.TrimSpace(line) == "" && i+1 < len(lines) && isIndentedCode(lines[i+1]) {
+		} else if isInterleavedBlank(lines, i) {
 			body = append(body, "")
 			i++
-
-			continue
+		} else {
+			break
 		}
-		break
 	}
-
 	return body, i
 }

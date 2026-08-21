@@ -10,6 +10,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
+const (
+	scannerInitBufSize = 64 * 1024
+	scannerMaxBufSize  = 1024 * 1024
+)
+
 // PathSnippetWriteResult describes the outcome of WritePathSnippet.
 type PathSnippetWriteResult struct {
 	Profile string // resolved profile path actually touched
@@ -35,31 +40,46 @@ type PathSnippetWriteResult struct {
 //
 // Spec: spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
 func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResult, error) {
-	body, err := RenderPathSnippet(shell, dir, manager)
+	body, profile, err := resolveSnippetTarget(shell, dir, manager, profile)
 	if err != nil {
 		return PathSnippetWriteResult{}, err
 	}
-	if len(profile) == 0 {
-		profile, err = defaultProfilePath(shell)
-	}
-	if err != nil {
-		return PathSnippetWriteResult{}, err
-	}
-
-	if mkErr := os.MkdirAll(filepath.Dir(profile), constants.DirPermission); mkErr != nil {
-		return PathSnippetWriteResult{}, fmt.Errorf("create profile dir %s: %w", filepath.Dir(profile), mkErr)
-	}
-
 	existing, _ := os.ReadFile(profile)
 	open := MarkerOpenFor(manager)
-	close := MarkerClose()
-
-	if strings.Contains(string(existing), open) == false {
+	if !strings.Contains(string(existing), open) {
 		return appendSnippet(profile, body)
 	}
+	return rewriteProfileFile(profile, string(existing), open, MarkerClose(), body)
+}
 
-	rewritten := rewriteSnippetBlock(string(existing), open, close, body)
-	if rewritten == string(existing) {
+func resolveSnippetTarget(shell, dir, manager, profile string) (string, string, error) {
+	body, err := RenderPathSnippet(shell, dir, manager)
+	if err != nil {
+		return "", "", err
+	}
+	resolvedPath, err := resolveProfilePath(shell, profile)
+	if err != nil {
+		return "", "", err
+	}
+	return body, resolvedPath, nil
+}
+
+func resolveProfilePath(shell, profile string) (string, error) {
+	var err error
+	if len(profile) == 0 {
+		if profile, err = defaultProfilePath(shell); err != nil {
+			return "", err
+		}
+	}
+	if err := os.MkdirAll(filepath.Dir(profile), constants.DirPermission); err != nil {
+		return "", fmt.Errorf("create profile dir %s: %w", filepath.Dir(profile), err)
+	}
+	return profile, nil
+}
+
+func rewriteProfileFile(profile, existing, open, close, body string) (PathSnippetWriteResult, error) {
+	rewritten := rewriteSnippetBlock(existing, open, close, body)
+	if rewritten == existing {
 		return PathSnippetWriteResult{Profile: profile, Action: "noop", Snippet: body}, nil
 	}
 	wrErr := os.WriteFile(profile, []byte(rewritten), constants.FilePermission)
@@ -79,43 +99,50 @@ func appendSnippet(profile, body string) (PathSnippetWriteResult, error) {
 	if _, err = fmt.Fprintf(f, "\n%s\n", body); err != nil {
 		return PathSnippetWriteResult{}, fmt.Errorf("append snippet: %w", err)
 	}
-
 	return PathSnippetWriteResult{Profile: profile, Action: "appended", Snippet: body}, nil
+}
+
+// snippetScanState tracks block replacement progress during scanning.
+type snippetScanState struct {
+	skipping bool
+	wrote    bool
+}
+
+func processSnippetLine(line, open, close, body string, state *snippetScanState, out *strings.Builder) {
+	switch {
+	case !state.skipping && line == open:
+		state.skipping = true
+		out.WriteString(body + "\n")
+		state.wrote = true
+	case state.skipping && line == close:
+		state.skipping = false
+	case !state.skipping:
+		out.WriteString(line + "\n")
+	}
+}
+
+func scanSnippetLines(content, open, close, body string) (string, bool) {
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	scanner.Buffer(make([]byte, 0, scannerInitBufSize), scannerMaxBufSize)
+	var out strings.Builder
+	var state snippetScanState
+	for scanner.Scan() {
+		processSnippetLine(scanner.Text(), open, close, body, &state, &out)
+	}
+	return out.String(), state.wrote
 }
 
 // rewriteSnippetBlock replaces the existing marker block with body.
 // Lines outside the block (including order) are preserved exactly.
 func rewriteSnippetBlock(content, open, close, body string) string {
-	scanner := bufio.NewScanner(strings.NewReader(content))
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-
-	var out strings.Builder
-	isSkipping := false
-	wrote := false
-	for scanner.Scan() {
-		line := scanner.Text()
-		switch {
-		case !isSkipping && line == open:
-			isSkipping = true
-			out.WriteString(body)
-			out.WriteString("\n")
-			wrote = true
-		case isSkipping && line == close:
-			isSkipping = false
-		case !isSkipping:
-			out.WriteString(line)
-			out.WriteString("\n")
-		}
-	}
+	res, wrote := scanSnippetLines(content, open, close, body)
 	if !wrote {
 		return content
 	}
-	// Preserve trailing-newline state: original ends with newline iff result should.
 	if strings.HasSuffix(content, "\n") {
-		return out.String()
+		return res
 	}
-
-	return strings.TrimRight(out.String(), "\n")
+	return strings.TrimRight(res, "\n")
 }
 
 // defaultProfilePath picks the conventional rc file for the shell.
@@ -124,17 +151,25 @@ func defaultProfilePath(shell string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolve home dir: %w", err)
 	}
+	rel, err := profileRelPath(shell)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, rel), nil
+}
+
+func profileRelPath(shell string) (string, error) {
 	switch shell {
 	case constants.PathSnippetShellBash:
-		return filepath.Join(home, ".bashrc"), nil
+		return ".bashrc", nil
 	case constants.PathSnippetShellZsh:
-		return filepath.Join(home, ".zshrc"), nil
+		return ".zshrc", nil
 	case constants.PathSnippetShellFish:
-		return filepath.Join(home, ".config", "fish", "config.fish"), nil
+		return filepath.Join(".config", "fish", "config.fish"), nil
 	case constants.PathSnippetShellPwsh:
 		// PowerShell profile resolution is OS-specific; callers should
 		// pass an explicit path on Windows. Fallback for cross-shell use.
-		return filepath.Join(home, ".config", "powershell", "Microsoft.PowerShell_profile.ps1"), nil
+		return filepath.Join(".config", "powershell", "Microsoft.PowerShell_profile.ps1"), nil
 	default:
 		return "", fmt.Errorf("unknown shell %q", shell)
 	}

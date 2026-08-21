@@ -47,44 +47,42 @@ func (db *DB) TouchClonePickCreatedAt(id int64) error {
 	return nil
 }
 
+type clonePickRowData struct {
+	id            int64
+	coneInt       int
+	keepGitInt    int
+	usedAskInt    int
+	pathsCsv      string
+	createdAtStub sql.NullString
+}
+
+func scanClonePickFields(row *sql.Row, p *clonepick.Plan, d *clonePickRowData) error {
+	return row.Scan(
+		&d.id, &p.Name, &p.RepoCanonicalId, &p.RepoUrl, &p.Mode, &p.Branch,
+		&p.Depth, &d.coneInt, &d.keepGitInt, &p.DestDir, &d.pathsCsv,
+		&d.usedAskInt, &d.createdAtStub,
+	)
+}
+
+func populateClonePickPlan(p *clonepick.Plan, d *clonePickRowData) {
+	p.Cone = d.coneInt != 0
+	p.KeepGit = d.keepGitInt != 0
+	p.UsedAsk = d.usedAskInt != 0
+	p.Paths = splitNonEmptyCsv(d.pathsCsv)
+}
+
 // scanClonePickRow centralizes the column->Plan mapping used by both
 // lookup paths. Column order MUST mirror SQLSelectClonePickByID /
 // SQLSelectClonePickByName -- both share the same prefix on purpose.
 func scanClonePickRow(row *sql.Row) (clonepick.Plan, int64, error) {
-	var (
-		plan          clonepick.Plan
-		id            int64
-		coneInt       int
-		keepGitInt    int
-		usedAskInt    int
-		pathsCsv      string
-		createdAtStub sql.NullString
-	)
-	err := row.Scan(
-		&id,
-		&plan.Name,
-		&plan.RepoCanonicalId,
-		&plan.RepoUrl,
-		&plan.Mode,
-		&plan.Branch,
-		&plan.Depth,
-		&coneInt,
-		&keepGitInt,
-		&plan.DestDir,
-		&pathsCsv,
-		&usedAskInt,
-		&createdAtStub,
-	)
-	if err != nil {
+	var plan clonepick.Plan
+	var data clonePickRowData
+	if err := scanClonePickFields(row, &plan, &data); err != nil {
 		return clonepick.Plan{}, 0, err
 	}
-	plan.Cone = coneInt != 0
-	plan.KeepGit = keepGitInt != 0
-	plan.UsedAsk = usedAskInt != 0
-	plan.Paths = splitNonEmptyCsv(pathsCsv)
-	_ = createdAtStub
+	populateClonePickPlan(&plan, &data)
 
-	return plan, id, nil
+	return plan, data.id, nil
 }
 
 // splitNonEmptyCsv guards against the "empty string -> []string{\"\"}"

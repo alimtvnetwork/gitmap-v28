@@ -22,15 +22,15 @@ import (
 	"strings"
 )
 
-// Source identifies which mechanism produced a token. Used for
+// SourceType identifies which mechanism produced a token. Used for
 // colorful "✓ Using token from <source>" log lines.
-type Source string
+type SourceType string
 
 const (
-	SourceEnvGitHubToken Source = "GITHUB_TOKEN env var"
-	SourceEnvGHToken     Source = "GH_TOKEN env var"
-	SourceGhCLI          Source = "GitHub CLI (gh auth token)"
-	SourceNone           Source = ""
+	SourceEnvGitHubToken SourceType = "GITHUB_TOKEN env var"
+	SourceEnvGHToken     SourceType = "GH_TOKEN env var"
+	SourceGhCLI          SourceType = "GitHub CLI (gh auth token)"
+	SourceNone           SourceType = ""
 )
 
 // ErrNoToken is returned by Resolve when neither env vars nor the
@@ -41,7 +41,7 @@ var ErrNoToken = errors.New("no GitHub token available (set GITHUB_TOKEN or run 
 // Resolve returns (token, source, err). On success err is nil and
 // source identifies where the token came from. On failure token is
 // "" and err wraps ErrNoToken with a one-line reason.
-func Resolve() (string, Source, error) {
+func Resolve() (string, SourceType, error) {
 	if t := os.Getenv("GITHUB_TOKEN"); len(t) > 0 {
 		return t, SourceEnvGitHubToken, nil
 	}

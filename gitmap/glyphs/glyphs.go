@@ -14,18 +14,18 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// Mode is the resolved glyph selection.
-type Mode int
+// ModeType is the resolved glyph selection.
+type ModeType int
 
 const (
 	// ModeRich passes UTF-8 emoji through unchanged.
-	ModeRich Mode = iota
+	ModeRich ModeType = iota
 	// ModeSafe rewrites emoji to ASCII fallbacks.
 	ModeSafe
 )
 
-// Parse maps a user label to a Mode. Unknown values resolve via auto.
-func Parse(label string) Mode {
+// Parse maps a user label to a ModeType. Unknown values resolve via auto.
+func Parse(label string) ModeType {
 	switch strings.ToLower(strings.TrimSpace(label)) {
 	case constants.GlyphsRich:
 		return ModeRich
@@ -38,7 +38,7 @@ func Parse(label string) Mode {
 
 // Resolve picks the mode from the GITMAP_GLYPHS env var (populated by
 // the flag stripper or the user's shell).
-func Resolve() Mode {
+func Resolve() ModeType {
 	return Parse(os.Getenv(constants.EnvGlyphs))
 }
 
@@ -56,7 +56,7 @@ func IsValidLabel(label string) bool {
 // (Windows Terminal, VS Code, ConEmu, iTerm2, every *nix TTY) and
 // ModeSafe on legacy Windows ConsoleHost (powershell.exe 5.1, cmd.exe)
 // where the host font typically lacks the required glyphs.
-func autoDetect() Mode {
+func autoDetect() ModeType {
 	if isLegacyWindowsHost() {
 		return ModeSafe
 	}

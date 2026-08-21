@@ -11,7 +11,7 @@ import (
 
 var (
 	installOnce sync.Once
-	activeMode  Mode
+	activeMode  ModeType
 
 	// pipeMu guards installedPipes against concurrent Install / Drain.
 	// In practice Install runs once and Drain runs at process exit,
@@ -46,7 +46,7 @@ func Install() {
 }
 
 // Active returns the resolved mode (defaults to ModeRich pre-Install).
-func Active() Mode { return activeMode }
+func Active() ModeType { return activeMode }
 
 // Drain closes every installed pipe writer and waits for the matching
 // forwarder goroutine to flush its buffered bytes to the underlying
@@ -69,7 +69,7 @@ func Drain() {
 }
 
 // wrap returns a *os.File whose writes are filtered before reaching dst.
-func wrap(dst *os.File, mode Mode) *os.File {
+func wrap(dst *os.File, mode ModeType) *os.File {
 	r, w, err := os.Pipe()
 	if err != nil {
 		return dst
@@ -87,7 +87,7 @@ func wrap(dst *os.File, mode Mode) *os.File {
 }
 
 // forward streams r → Filter → dst until EOF.
-func forward(r io.ReadCloser, dst io.Writer, mode Mode) {
+func forward(r io.ReadCloser, dst io.Writer, mode ModeType) {
 	defer func() { _ = r.Close() }()
 
 	buf := make([]byte, 4096)

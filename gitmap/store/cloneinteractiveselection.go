@@ -12,11 +12,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// SaveClonePickSelection inserts one row representing plan and
-// returns the new SelectionId. Implements clonepick.Persister so
-// *store.DB can be passed straight to clonepick.Execute.
-func (db *DB) SaveClonePickSelection(plan clonepick.Plan) (int64, error) {
-	res, err := ExecWrapper(db.conn, constants.SQLInsertClonePickSelection,
+func clonePickInsertArgs(plan clonepick.Plan) []any {
+	return []any{
 		plan.Name,
 		plan.RepoCanonicalId,
 		plan.RepoUrl,
@@ -28,13 +25,22 @@ func (db *DB) SaveClonePickSelection(plan clonepick.Plan) (int64, error) {
 		plan.DestDir,
 		strings.Join(plan.Paths, ","),
 		boolToInt(plan.UsedAsk),
-	).Destruct()
+	}
+}
+
+// SaveClonePickSelection inserts one row representing plan and
+// returns the new SelectionId. Implements clonepick.Persister so
+// *store.DB can be passed straight to clonepick.Execute.
+func (db *DB) SaveClonePickSelection(plan clonepick.Plan) (int64, error) {
+	args := clonePickInsertArgs(plan)
+	res, err := ExecWrapper(db.conn, constants.SQLInsertClonePickSelection, args...).Destruct()
 	if err != nil {
 		return 0, fmt.Errorf(constants.ErrClonePickDBInsert, err)
 	}
 
 	return res.LastInsertId()
 }
+
 
 // boolToInt is shared with release.go (same package). Defined once
 // there to avoid `redeclared in this block` (go vet / go build).

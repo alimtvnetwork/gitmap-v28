@@ -50,7 +50,7 @@ func buildTable() []pair {
 
 // Filter returns p with every glyph rewritten per table when mode is
 // ModeSafe. ModeRich returns p unchanged (zero-cost passthrough).
-func Filter(p []byte, mode Mode) []byte {
+func Filter(p []byte, mode ModeType) []byte {
 	if mode == ModeRich {
 		return p
 	}

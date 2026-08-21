@@ -8,33 +8,51 @@ import (
 // emitBlock writes one parsed block in pretty form.
 func emitBlock(out *strings.Builder, b block) {
 	switch b.kind {
-	case bkHeading:
-		out.WriteString(b.text)
-		out.WriteByte('\n')
-	case bkSubtitle:
-		out.WriteString(bodyIndent)
-		out.WriteString(TokMutedOpen)
-		out.WriteString(b.text)
-		out.WriteString(TokMutedClose)
-		out.WriteByte('\n')
-	case bkParagraph:
-		out.WriteString(bodyIndent)
-		out.WriteString(highlightInline(HighlightQuotes(b.text)))
-		out.WriteByte('\n')
+	case bkHeading, bkSubtitle, bkParagraph:
+		emitTextBlock(out, b)
 	case bkFence:
-		for _, l := range b.lines {
-			out.WriteString(bodyIndent)
-			out.WriteString(highlightFenceLine(l))
-			out.WriteByte('\n')
-		}
+		emitFence(out, b.lines)
 	case bkList:
-		for _, l := range b.lines {
-			out.WriteString(bodyIndent)
-			out.WriteString(highlightInline(HighlightQuotes(l)))
-			out.WriteByte('\n')
-		}
+		emitList(out, b.lines)
 	case bkBlank:
 		out.WriteByte('\n')
+	}
+}
+
+func emitTextBlock(out *strings.Builder, b block) {
+	switch b.kind {
+	case bkHeading:
+		out.WriteString(b.text + "\n")
+	case bkSubtitle:
+		emitSubtitle(out, b.text)
+	case bkParagraph:
+		emitParagraph(out, b.text)
+	}
+}
+
+func emitIndentedLine(out *strings.Builder, text string) {
+	out.WriteString(bodyIndent)
+	out.WriteString(text)
+	out.WriteByte('\n')
+}
+
+func emitSubtitle(out *strings.Builder, text string) {
+	emitIndentedLine(out, TokMutedOpen+text+TokMutedClose)
+}
+
+func emitParagraph(out *strings.Builder, text string) {
+	emitIndentedLine(out, highlightInline(HighlightQuotes(text)))
+}
+
+func emitFence(out *strings.Builder, lines []string) {
+	for _, l := range lines {
+		emitIndentedLine(out, highlightFenceLine(l))
+	}
+}
+
+func emitList(out *strings.Builder, lines []string) {
+	for _, l := range lines {
+		emitIndentedLine(out, highlightInline(HighlightQuotes(l)))
 	}
 }
 
@@ -51,28 +69,27 @@ func HighlightQuotes(s string) string {
 	var b strings.Builder
 	inQuote := false
 	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if c != '"' {
-			b.WriteByte(c)
-
+		if s[i] == '"' {
+			inQuote = processQuoteChar(&b, inQuote)
 			continue
 		}
-		if !inQuote {
-			b.WriteString(TokCyanOpen)
-			b.WriteByte('"')
-			inQuote = true
-
-			continue
-		}
-		b.WriteByte('"')
-		b.WriteString(TokCyanClose)
-		inQuote = false
+		b.WriteByte(s[i])
 	}
 	if inQuote { // unterminated quote: close the token defensively
 		b.WriteString(TokCyanClose)
 	}
-
 	return b.String()
+}
+
+func processQuoteChar(b *strings.Builder, inQuote bool) bool {
+	if !inQuote {
+		b.WriteString(TokCyanOpen)
+		b.WriteByte('"')
+		return true
+	}
+	b.WriteByte('"')
+	b.WriteString(TokCyanClose)
+	return false
 }
 
 // shellCommentRe matches a line that is entirely a shell-style comment
@@ -99,7 +116,6 @@ func highlightFenceLine(line string) string {
 	if m := shellCommentRe.FindStringSubmatch(line); m != nil {
 		return m[1] + TokGreenOpen + m[2] + TokGreenClose
 	}
-
 	return highlightInline(line)
 }
 
@@ -113,6 +129,5 @@ func highlightInline(s string) string {
 	s = hdAliasRe.ReplaceAllStringFunc(s, func(m string) string {
 		return TokMagentaOpen + m + TokMagentaClose
 	})
-
 	return s
 }
