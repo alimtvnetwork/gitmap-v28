@@ -124,12 +124,12 @@ func TestSchemaRegistry_FlagAndEnvBothHonored(t *testing.T) {
 	previous := *schemaUpdateFlag
 	t.Cleanup(func() { *schemaUpdateFlag = previous })
 	*schemaUpdateFlag = "from-flag"
-	isNonUpdateSchema := !shouldUpdateSchema("from-flag")
-	if isNonUpdateSchema {
+	isFlagUpdateSkipped := !shouldUpdateSchema("from-flag")
+	if isFlagUpdateSkipped {
 		t.Fatalf("flag value must be honored")
 	}
-	isNonUpdateSchema := !shouldUpdateSchema("from-env")
-	if isNonUpdateSchema {
+	isEnvUpdateSkipped := !shouldUpdateSchema("from-env")
+	if isEnvUpdateSkipped {
 		t.Fatalf("env value must also be honored")
 	}
 }

@@ -28,16 +28,16 @@ func TestIsExcludedDirAndPrefix(t *testing.T) {
 	mustMkdirAll(t, filepath.Join(root, ".gitmap", "release-assets"))
 	mustMkdirAll(t, filepath.Join(root, "src"))
 
-	isNotExcludedPrefix := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release"))
-	if isNotExcludedPrefix {
+	isNotExcludedRelease := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release"))
+	if isNotExcludedRelease {
 		t.Error(".gitmap/release should be excluded")
 	}
-	isNotExcludedPrefix := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release", "v1"))
-	if isNotExcludedPrefix {
+	isNotExcludedV1 := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release", "v1"))
+	if isNotExcludedV1 {
 		t.Error(".gitmap/release/v1 should be excluded (prefix match)")
 	}
-	isNotExcludedPrefix := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release-assets"))
-	if isNotExcludedPrefix {
+	isNotExcludedAssets := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release-assets"))
+	if isNotExcludedAssets {
 		t.Error(".gitmap/release-assets should be excluded")
 	}
 	if isExcludedPrefix(root, filepath.Join(root, "src")) {

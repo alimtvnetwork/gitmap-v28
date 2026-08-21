@@ -136,10 +136,9 @@ func resolvePRCTarget(self, token string) (string, string, error) {
 	if isNotPRCURL {
 		path, err = lookupPRCPath(token)
 	}
-	if !isPRCURL(token) && err != nil {
+	if isNotPRCURL && err != nil {
 		return token, "", err
 	}
-	isNotPRCURL := !isPRCURL(token)
 	if isNotPRCURL {
 		return token, path, nil
 	}
