@@ -43,7 +43,10 @@ const (
 	// non-shell process holds a handle on it). We refuse the silent
 	// versioned-folder fallback here — the user explicitly asked for
 	// a flat layout, so a clear error beats a surprise rename.
-	ErrCloneNextForceFailed = "Error: --force could not remove %s: %v\nClose any process holding files in %s and re-run.\n"
+	ErrCloneNextForceFailed     = "Error: --force could not remove %s: %v\nClose any process holding files in %s and re-run.\n"
+	ErrCloneNextNotAGitRepo     = "clonenext: path is not a git repository"
+	ErrCloneNextReadWorktree    = "read %s: %w"
+	ErrCloneNextMalformedGitDir = "malformed .git pointer in %s"
 )
 
 // Clone-next flag descriptions.

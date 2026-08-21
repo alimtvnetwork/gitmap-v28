@@ -17,6 +17,8 @@
 // clone-from to grow scan-record-aware fields.
 package clonenow
 
+import "github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
 // Plan is the validated, in-memory representation of one input file.
 // Built by ParseFile from JSON, CSV, or plain-text scan output and
 // consumed by Render (dry-run) and Execute.
@@ -91,10 +93,10 @@ type Row struct {
 // the dry-run preview and the actual git invocation always agree on
 // which URL would be used.
 func (r Row) PickURL(mode string) string {
-	if mode == "ssh" && len(r.SSHUrl) > 0 {
+	if mode == constants.CloneNowModeSSH && len(r.SSHUrl) > 0 {
 		return r.SSHUrl
 	}
-	if mode == "ssh" {
+	if mode == constants.CloneNowModeSSH {
 		return r.HTTPSUrl
 	}
 	if len(r.HTTPSUrl) > 0 {

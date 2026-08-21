@@ -35,6 +35,23 @@ const (
 	GitCatFileTypeFlag = "-t"
 	GitCommitType      = "commit"
 	GitTagGlob         = "v*"
+	GitRestore           = "restore"
+	GitRm                = "rm"
+	GitRestoreSourceHEAD = "--source=HEAD"
+	GitPathspecRoot      = ":/"
+	GitCachedFlag        = "--cached"
+	GitQuietFlag         = "-q"
+	DotGit               = ".git"
+	GitConfigFile        = "config"
+	GitdirPrefix         = "gitdir:"
+	GitRefPrefix         = "ref:"
+	GitConfigRemoteOrigin = `[remote "origin"]`
+	GitConfigSectionStart = "["
+	GitConfigURLPrefix    = "url"
+	GitConfigKeyValueSeparator = "="
+	GitConfigSplitPartsCount   = 2
+	GitLineSeparator     = "\n"
+	EnvGitLFSSkipSmudge  = "GIT_LFS_SKIP_SMUDGE=1"
 	// GitSymbolicRef + GitRefsRemotesOriginHEAD power
 	// gitutil.ResolveDefaultBranchName, which backs `gitmap branch
 	// default` / `b def`. We ask `git symbolic-ref refs/remotes/origin/HEAD`

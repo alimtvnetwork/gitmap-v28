@@ -13,6 +13,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // LocalRepoState is the snapshot used to drive the "is an update
@@ -23,7 +25,7 @@ type LocalRepoState struct {
 }
 
 // ErrNotAGitRepo is returned when path has no .git entry.
-var ErrNotAGitRepo = errors.New("clonenext: path is not a git repository")
+var ErrNotAGitRepo = errors.New(constants.ErrCloneNextNotAGitRepo)
 
 // ReadLocalRepoState parses .git/config for the origin URL and resolves
 // HEAD to a commit SHA. Both fields may be empty individually (no
@@ -46,7 +48,7 @@ func ReadLocalRepoState(repoPath string) (LocalRepoState, error) {
 // both regular repos (.git is a directory) and worktrees (.git is a
 // file containing "gitdir: <path>").
 func resolveGitDir(repoPath string) (string, error) {
-	dotGit := filepath.Join(repoPath, ".git")
+	dotGit := filepath.Join(repoPath, constants.DotGit)
 	info, err := os.Stat(dotGit)
 	if err != nil {
 		return "", fmt.Errorf("%w: %s", ErrNotAGitRepo, repoPath)
@@ -63,20 +65,20 @@ func resolveGitDir(repoPath string) (string, error) {
 func resolveWorktreeGitDir(dotGitFile string) (string, error) {
 	body, err := os.ReadFile(dotGitFile)
 	if err != nil {
-		return "", fmt.Errorf("read %s: %w", dotGitFile, err)
+		return "", fmt.Errorf(constants.ErrCloneNextReadWorktree, dotGitFile, err)
 	}
 	line := strings.TrimSpace(string(body))
-	if !strings.HasPrefix(line, "gitdir:") {
-		return "", fmt.Errorf("malformed .git pointer in %s", dotGitFile)
+	if strings.HasPrefix(line, constants.GitdirPrefix) {
+		return strings.TrimSpace(strings.TrimPrefix(line, constants.GitdirPrefix)), nil
 	}
 
-	return strings.TrimSpace(strings.TrimPrefix(line, "gitdir:")), nil
+	return "", fmt.Errorf(constants.ErrCloneNextMalformedGitDir, dotGitFile)
 }
 
 // readOriginURL parses .git/config and returns the url under
 // [remote "origin"]. Returns "" when not present (best-effort).
 func readOriginURL(gitDir string) string {
-	body, err := os.ReadFile(filepath.Join(gitDir, "config"))
+	body, err := os.ReadFile(filepath.Join(gitDir, constants.GitConfigFile))
 	if err != nil {
 		return ""
 	}
@@ -88,22 +90,18 @@ func readOriginURL(gitDir string) string {
 // to keep readOriginURL flat and testable.
 func extractOriginURL(config string) string {
 	inOriginSection := false
-	for _, raw := range strings.Split(config, "\n") {
+	for _, raw := range strings.Split(config, constants.GitLineSeparator) {
 		line := strings.TrimSpace(raw)
-		if strings.HasPrefix(line, "[") {
-			inOriginSection = line == `[remote "origin"]`
+		if strings.HasPrefix(line, constants.GitConfigSectionStart) {
+			inOriginSection = line == constants.GitConfigRemoteOrigin
 
 			continue
 		}
-		if !inOriginSection {
-			continue
-		}
-		if !strings.HasPrefix(line, "url") {
-			continue
-		}
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) == 2 {
-			return strings.TrimSpace(parts[1])
+		if inOriginSection && strings.HasPrefix(line, constants.GitConfigURLPrefix) {
+			parts := strings.SplitN(line, constants.GitConfigKeyValueSeparator, constants.GitConfigSplitPartsCount)
+			if len(parts) == constants.GitConfigSplitPartsCount {
+				return strings.TrimSpace(parts[1])
+			}
 		}
 	}
 
@@ -114,19 +112,20 @@ func extractOriginURL(config string) string {
 // down to its commit SHA. Returns "" for unborn HEAD or unreadable
 // files (callers treat empty SHA as "unknown", not an error).
 func readHeadSHA(gitDir string) string {
-	body, err := os.ReadFile(filepath.Join(gitDir, "HEAD"))
+	body, err := os.ReadFile(filepath.Join(gitDir, constants.GitHEAD))
 	if err != nil {
 		return ""
 	}
 	head := strings.TrimSpace(string(body))
-	if !strings.HasPrefix(head, "ref:") {
-		return head
-	}
-	refPath := strings.TrimSpace(strings.TrimPrefix(head, "ref:"))
-	refBytes, err := os.ReadFile(filepath.Join(gitDir, refPath))
-	if err != nil {
-		return ""
+	if strings.HasPrefix(head, constants.GitRefPrefix) {
+		refPath := strings.TrimSpace(strings.TrimPrefix(head, constants.GitRefPrefix))
+		refBytes, err := os.ReadFile(filepath.Join(gitDir, refPath))
+		if err != nil {
+			return ""
+		}
+
+		return strings.TrimSpace(string(refBytes))
 	}
 
-	return strings.TrimSpace(string(refBytes))
+	return head
 }

@@ -57,17 +57,17 @@ func ParseFile(path string) (Plan, error) {
 // fix; a "format=unknown" hard error would just confuse them.
 func detectFormat(path string) string {
 	ext := strings.ToLower(filepath.Ext(path))
-	if ext == ".json" {
-		return "json"
+	if ext == constants.ExtJSON {
+		return constants.FormatJSON
 	}
 
-	return "csv"
+	return constants.FormatCSV
 }
 
 // parseByFormat is the dispatch helper. Kept tiny so future
 // formats (yaml? toml?) are a one-line addition.
 func parseByFormat(r io.Reader, format string) ([]Row, error) {
-	if format == "json" {
+	if format == constants.FormatJSON {
 		return parseJSON(r)
 	}
 
@@ -99,17 +99,21 @@ func parseJSON(r io.Reader) ([]Row, error) {
 // jsonRow extracts one Row from a parsed JSON object. Centralized
 // so parseJSON stays under the per-function budget.
 func jsonRow(obj map[string]any) (Row, error) {
-	url, _ := obj["url"].(string)
-	dest, _ := obj["dest"].(string)
-	branch, _ := obj["branch"].(string)
-	checkout, _ := obj["checkout"].(string)
+	url, _ := obj[constants.CSVColumnURL].(string)
+	dest, _ := obj[constants.CSVColumnDest].(string)
+	branch, _ := obj[constants.CSVColumnBranch].(string)
+	checkout, _ := obj[constants.CSVColumnCheckout].(string)
 	depth := 0
-	if d, ok := obj["depth"].(float64); ok {
+	if d, ok := obj[constants.CSVColumnDepth].(float64); ok {
 		depth = int(d)
 	}
-	row := Row{URL: strings.TrimSpace(url), Dest: strings.TrimSpace(dest),
-		Branch: strings.TrimSpace(branch), Depth: depth,
-		Checkout: strings.ToLower(strings.TrimSpace(checkout))}
+	row := Row{
+		URL:      strings.TrimSpace(url),
+		Dest:     strings.TrimSpace(dest),
+		Branch:   strings.TrimSpace(branch),
+		Depth:    depth,
+		Checkout: strings.ToLower(strings.TrimSpace(checkout)),
+	}
 
 	return row, validateRow(row)
 }

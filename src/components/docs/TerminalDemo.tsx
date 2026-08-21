@@ -36,8 +36,10 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
   }, []);
 
   useEffect(() => {
-    const isPaused = !isPlaying;`n    if (isPaused || visibleLines >= lines.length) {
-      if (visibleLines >= lines.length) setIsPlaying(false);
+    const isPaused = !isPlaying;
+    const isFinished = visibleLines >= lines.length;
+    if (isPaused || isFinished) {
+      if (isFinished) setIsPlaying(false);
       return;
     }
 

@@ -117,10 +117,15 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
     });
   }, []);
 
+  const toggleFullscreen = useCallback(() => {
+    setFullscreen((prev) => !prev);
+  }, []);
+
   const togglePin = useCallback((lineIndex: number, e?: React.MouseEvent) => {
-    if (e?.shiftKey && lastPinned !== null) {
-      const start = Math.min(lastPinned, lineIndex);
-      const end = Math.max(lastPinned, lineIndex);
+    const isRangeSelect = Boolean(e?.shiftKey && lastPinned !== null);
+    if (isRangeSelect) {
+      const start = Math.min(lastPinned!, lineIndex);
+      const end = Math.max(lastPinned!, lineIndex);
       setPinnedLines((prev) => {
         const next = new Set(prev);
         for (let i = start; i <= end; i++) next.add(i);
@@ -297,7 +302,7 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
             </DocsTooltip>
             <DocsTooltip label={fullscreen ? "Exit fullscreen" : "Fullscreen"}>
               <button
-                onClick={() => setFullscreen(!fullscreen)}
+                onClick={toggleFullscreen}
                 aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
                 className="docs-focus-ring rounded-sm p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >

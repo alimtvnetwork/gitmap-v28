@@ -32,6 +32,13 @@ const (
 	OutputJSON     = "json"
 )
 
+// Format constants.
+const (
+	FormatJSON = "json"
+	FormatCSV  = "csv"
+	FormatText = "text"
+)
+
 // URL prefixes.
 const (
 	PrefixHTTP      = "http://"

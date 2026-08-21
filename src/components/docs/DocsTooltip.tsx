@@ -61,8 +61,10 @@ const withAccessibleName = (
   child: ReactNode,
   accessibleName: string | undefined,
 ): ReactNode => {
-  if (!accessibleName) return child;
-  const isInvalid = !isValidElement(child);`n  if (isInvalid) return child;
+  const isMissingAccessibleName = !accessibleName;
+  if (isMissingAccessibleName) return child;
+  const isInvalid = !isValidElement(child);
+  if (isInvalid) return child;
   const childProps = child.props as Record<string, unknown>;
   if (childProps[FALLBACK_WRAPPER_PROP]) return child;
   if (childProps["aria-label"]) return child;

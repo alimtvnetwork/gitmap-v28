@@ -43,40 +43,70 @@ func TestCtxLinuxInstallCreatesAllManagerArtifacts(t *testing.T) {
 func assertNautilusScripts(t *testing.T, home string, leaves []ctxFlatLeaf) {
 	t.Helper()
 	dir := filepath.Join(home, constants.CtxLinuxNautilusRel)
-	for _, l := range leaves {
-		path := filepath.Join(dir, l.Label)
-		body, err := os.ReadFile(path)
-		if err != nil {
-			t.Errorf("nautilus script %q missing: %v", path, err)
-
-			continue
-		}
-		if !strings.HasPrefix(string(body), "#!/bin/sh") {
-			t.Errorf("%s missing shebang. body starts: %q", path, firstN(string(body), 40))
-		}
-		assertLinuxBodyMatchesMode(t, path, string(body), l)
+	for _, leaf := range leaves {
+		assertSingleNautilusScript(t, dir, leaf)
 	}
 }
 
-func assertLinuxBodyMatchesMode(t *testing.T, path, body string, l ctxFlatLeaf) {
+func assertSingleNautilusScript(t *testing.T, dir string, leaf ctxFlatLeaf) {
 	t.Helper()
-	switch l.Mode {
+	path := filepath.Join(dir, leaf.Label)
+	body, err := os.ReadFile(path)
+	if err != nil {
+		t.Errorf("nautilus script %q missing: %v", path, err)
+		return
+	}
+	hasShebang := strings.HasPrefix(string(body), "#!/bin/sh")
+	isShebangMissing := !hasShebang
+	if isShebangMissing == true {
+		t.Errorf("%s missing shebang. body starts: %q", path, firstN(string(body), 40))
+	}
+	assertLinuxBodyMatchesMode(t, path, string(body), leaf)
+}
+
+func assertLinuxBodyMatchesMode(t *testing.T, path, body string, leaf ctxFlatLeaf) {
+	t.Helper()
+	switch leaf.Mode {
 	case constants.CtxModePrefill:
-		if !strings.Contains(body, `printf "gitmap "`) {
-			t.Errorf("%s prefill missing prompt. body=%s", path, body)
-		}
+		assertLinuxPrefillBody(t, path, body)
 	case constants.CtxModeSilent:
-		if !strings.Contains(body, "notify-send") {
-			t.Errorf("%s silent missing notify-send. body=%s", path, body)
-		}
+		assertLinuxSilentBody(t, path, body)
 	default:
-		if !strings.Contains(body, "x-terminal-emulator") {
-			t.Errorf("%s terminal missing x-terminal-emulator. body=%s", path, body)
-		}
-		joined := strings.Join(l.Args, " ")
-		if joined != "" && !strings.Contains(body, joined) {
-			t.Errorf("%s missing argv %q. body=%s", path, joined, body)
-		}
+		assertLinuxTerminalBody(t, path, body, leaf)
+	}
+}
+
+func assertLinuxPrefillBody(t *testing.T, path, body string) {
+	t.Helper()
+	hasPrompt := strings.Contains(body, `printf "gitmap "`)
+	isPromptMissing := !hasPrompt
+	if isPromptMissing == true {
+		t.Errorf("%s prefill missing prompt. body=%s", path, body)
+	}
+}
+
+func assertLinuxSilentBody(t *testing.T, path, body string) {
+	t.Helper()
+	hasNotify := strings.Contains(body, "notify-send")
+	isNotifyMissing := !hasNotify
+	if isNotifyMissing == true {
+		t.Errorf("%s silent missing notify-send. body=%s", path, body)
+	}
+}
+
+func assertLinuxTerminalBody(t *testing.T, path, body string, leaf ctxFlatLeaf) {
+	t.Helper()
+	hasTerminal := strings.Contains(body, "x-terminal-emulator")
+	isTerminalMissing := !hasTerminal
+	if isTerminalMissing == true {
+		t.Errorf("%s terminal missing x-terminal-emulator. body=%s", path, body)
+	}
+	joined := strings.Join(leaf.Args, " ")
+	hasJoinedArgv := joined != ""
+	containsArgv := strings.Contains(body, joined)
+	isArgvMissing := !containsArgv
+	if hasJoinedArgv == true && isArgvMissing == true {
+		t.Errorf("%s missing argv %q. body=%s", path, joined, body)
 	}
 }
 
@@ -87,19 +117,37 @@ func assertDolphinDesktop(t *testing.T, home string, leaves []ctxFlatLeaf) {
 	if err != nil {
 		t.Fatalf("dolphin desktop missing: %v", err)
 	}
-	s := string(body)
-	if !strings.HasPrefix(s, "[Desktop Entry]") {
+	desktopContent := string(body)
+	assertDolphinHeaders(t, desktopContent)
+	assertDolphinActions(t, desktopContent, leaves)
+}
+
+func assertDolphinHeaders(t *testing.T, desktopContent string) {
+	t.Helper()
+	hasHeader := strings.HasPrefix(desktopContent, "[Desktop Entry]")
+	isHeaderMissing := !hasHeader
+	if isHeaderMissing == true {
 		t.Errorf("dolphin desktop missing [Desktop Entry] header")
 	}
-	if !strings.Contains(s, "X-KDE-Submenu=gitmap") {
+	hasSubmenu := strings.Contains(desktopContent, "X-KDE-Submenu=gitmap")
+	isSubmenuMissing := !hasSubmenu
+	if isSubmenuMissing == true {
 		t.Errorf("dolphin desktop missing X-KDE-Submenu=gitmap")
 	}
-	for _, l := range leaves {
-		if !strings.Contains(s, "[Desktop Action "+l.Slug+"]") {
-			t.Errorf("dolphin missing action section for slug %q", l.Slug)
+}
+
+func assertDolphinActions(t *testing.T, desktopContent string, leaves []ctxFlatLeaf) {
+	t.Helper()
+	for _, leaf := range leaves {
+		hasAction := strings.Contains(desktopContent, "[Desktop Action "+leaf.Slug+"]")
+		isActionMissing := !hasAction
+		if isActionMissing == true {
+			t.Errorf("dolphin missing action section for slug %q", leaf.Slug)
 		}
-		if !strings.Contains(s, "Name="+l.Label) {
-			t.Errorf("dolphin missing Name=%s", l.Label)
+		hasName := strings.Contains(desktopContent, "Name="+leaf.Label)
+		isNameMissing := !hasName
+		if isNameMissing == true {
+			t.Errorf("dolphin missing Name=%s", leaf.Label)
 		}
 	}
 }
@@ -111,13 +159,29 @@ func assertThunarXML(t *testing.T, home string, leaves []ctxFlatLeaf) {
 	if err != nil {
 		t.Fatalf("thunar uca.xml missing: %v", err)
 	}
-	s := string(body)
-	if !strings.Contains(s, constants.CtxThunarMarkBegin) || !strings.Contains(s, constants.CtxThunarMarkEnd) {
+	xmlContent := string(body)
+	assertThunarMarkers(t, xmlContent)
+	assertThunarUniqueIDs(t, xmlContent, leaves)
+}
+
+func assertThunarMarkers(t *testing.T, xmlContent string) {
+	t.Helper()
+	hasBeginMark := strings.Contains(xmlContent, constants.CtxThunarMarkBegin)
+	hasEndMark := strings.Contains(xmlContent, constants.CtxThunarMarkEnd)
+	isBeginMissing := !hasBeginMark
+	isEndMissing := !hasEndMark
+	if isBeginMissing == true || isEndMissing == true {
 		t.Errorf("thunar xml missing marker block")
 	}
-	for _, l := range leaves {
-		if !strings.Contains(s, "<unique-id>"+l.Slug+"</unique-id>") {
-			t.Errorf("thunar xml missing unique-id for %q", l.Slug)
+}
+
+func assertThunarUniqueIDs(t *testing.T, xmlContent string, leaves []ctxFlatLeaf) {
+	t.Helper()
+	for _, leaf := range leaves {
+		hasUniqueID := strings.Contains(xmlContent, "<unique-id>"+leaf.Slug+"</unique-id>")
+		isUniqueIDMissing := !hasUniqueID
+		if isUniqueIDMissing == true {
+			t.Errorf("thunar xml missing unique-id for %q", leaf.Slug)
 		}
 	}
 }
@@ -133,14 +197,31 @@ func TestCtxLinuxUninstallRemovesEverythingInstallAdded(t *testing.T) {
 	runInstallCtxLinux()
 	runUninstallCtxLinux()
 
-	if _, err := os.Stat(filepath.Join(home, constants.CtxLinuxNautilusRel)); !os.IsNotExist(err) {
-		t.Errorf("nautilus dir still present after uninstall: err=%v", err)
+	assertUninstallPathsRemoved(t, home)
+	assertUninstallThunarCleaned(t, home)
+}
+
+func assertUninstallPathsRemoved(t *testing.T, home string) {
+	t.Helper()
+	_, nautilusErr := os.Stat(filepath.Join(home, constants.CtxLinuxNautilusRel))
+	isNautilusNotExist := os.IsNotExist(nautilusErr)
+	isNautilusPresent := !isNautilusNotExist
+	if isNautilusPresent == true {
+		t.Errorf("nautilus dir still present after uninstall: err=%v", nautilusErr)
 	}
-	if _, err := os.Stat(filepath.Join(home, constants.CtxLinuxDolphinRel, constants.CtxLinuxDolphinFile)); !os.IsNotExist(err) {
-		t.Errorf("dolphin desktop still present after uninstall: err=%v", err)
+	_, dolphinErr := os.Stat(filepath.Join(home, constants.CtxLinuxDolphinRel, constants.CtxLinuxDolphinFile))
+	isDolphinNotExist := os.IsNotExist(dolphinErr)
+	isDolphinPresent := !isDolphinNotExist
+	if isDolphinPresent == true {
+		t.Errorf("dolphin desktop still present after uninstall: err=%v", dolphinErr)
 	}
+}
+
+func assertUninstallThunarCleaned(t *testing.T, home string) {
+	t.Helper()
 	body, _ := os.ReadFile(filepath.Join(home, constants.CtxLinuxThunarRel))
-	if strings.Contains(string(body), constants.CtxThunarMarkBegin) {
+	hasBeginMark := strings.Contains(string(body), constants.CtxThunarMarkBegin)
+	if hasBeginMark == true {
 		t.Errorf("thunar marker block not stripped: %s", string(body))
 	}
 }
@@ -160,7 +241,8 @@ func TestCtxLinuxThunarIsIdempotent(t *testing.T) {
 		t.Fatalf("thunar uca.xml missing: %v", err)
 	}
 	count := strings.Count(string(body), constants.CtxThunarMarkBegin)
-	if count != 1 {
+	isNotSingleBlock := count != 1
+	if isNotSingleBlock == true {
 		t.Fatalf("thunar marker block appears %d times after double-install, want 1", count)
 	}
 }
@@ -177,20 +259,32 @@ func TestCtxLinuxExplainInjectsAnnounce(t *testing.T) {
 
 	dir := filepath.Join(home, constants.CtxLinuxNautilusRel)
 	exe := resolveCtxExe()
-	for _, l := range leaves {
-		if l.Mode == constants.CtxModePrefill {
-			continue
-		}
-		body, err := os.ReadFile(filepath.Join(dir, l.Label))
-		if err != nil {
-			t.Errorf("read %s: %v", l.Label, err)
+	assertLeavesExplainAnnounce(t, dir, exe, leaves)
+}
 
+func assertLeavesExplainAnnounce(t *testing.T, dir, exe string, leaves []ctxFlatLeaf) {
+	t.Helper()
+	for _, leaf := range leaves {
+		isPrefill := leaf.Mode == constants.CtxModePrefill
+		if isPrefill == true {
 			continue
 		}
-		marker := "> " + l.resolvedTarget(exe) + " " + strings.Join(l.Args, " ")
-		if !strings.Contains(string(body), marker) {
-			t.Errorf("%s explain marker missing %q. body=%s", l.Label, marker, string(body))
-		}
+		assertSingleExplainAnnounce(t, dir, exe, leaf)
+	}
+}
+
+func assertSingleExplainAnnounce(t *testing.T, dir, exe string, leaf ctxFlatLeaf) {
+	t.Helper()
+	body, err := os.ReadFile(filepath.Join(dir, leaf.Label))
+	if err != nil {
+		t.Errorf("read %s: %v", leaf.Label, err)
+		return
+	}
+	marker := "> " + leaf.resolvedTarget(exe) + " " + strings.Join(leaf.Args, " ")
+	hasMarker := strings.Contains(string(body), marker)
+	isMarkerMissing := !hasMarker
+	if isMarkerMissing == true {
+		t.Errorf("%s explain marker missing %q. body=%s", leaf.Label, marker, string(body))
 	}
 }
 
@@ -204,25 +298,40 @@ func TestCtxLinuxExtendedGuardOnlyOnExtended(t *testing.T) {
 	runInstallCtxLinux()
 
 	dir := filepath.Join(home, constants.CtxLinuxNautilusRel)
-	for _, l := range leaves {
-		body, err := os.ReadFile(filepath.Join(dir, l.Label))
-		if err != nil {
-			continue
-		}
-		hasZenity := strings.Contains(string(body), "zenity --question")
-		if l.Extended && !hasZenity {
-			t.Errorf("Extended leaf %q missing zenity guard. body=%s", l.Label, string(body))
-		}
-		if !l.Extended && hasZenity {
-			t.Errorf("non-Extended leaf %q has zenity guard. body=%s", l.Label, string(body))
-		}
+	for _, leaf := range leaves {
+		assertSingleExtendedGuard(t, dir, leaf)
 	}
 }
 
-func firstN(s string, n int) string {
-	if len(s) < n {
-		return s
+func assertSingleExtendedGuard(t *testing.T, dir string, leaf ctxFlatLeaf) {
+	t.Helper()
+	body, err := os.ReadFile(filepath.Join(dir, leaf.Label))
+	if err != nil {
+		return
+	}
+	hasZenity := strings.Contains(string(body), "zenity --question")
+	checkExtendedGuardMatches(t, leaf, string(body), hasZenity)
+}
+
+func checkExtendedGuardMatches(t *testing.T, leaf ctxFlatLeaf, body string, hasZenity bool) {
+	t.Helper()
+	isZenityMissing := !hasZenity
+	isExtendedMissing := !leaf.Extended
+	isExtendedWithoutGuard := leaf.Extended == true && isZenityMissing == true
+	if isExtendedWithoutGuard == true {
+		t.Errorf("Extended leaf %q missing zenity guard. body=%s", leaf.Label, body)
+	}
+	isNonExtendedWithGuard := isExtendedMissing == true && hasZenity == true
+	if isNonExtendedWithGuard == true {
+		t.Errorf("non-Extended leaf %q has zenity guard. body=%s", leaf.Label, body)
+	}
+}
+
+func firstN(str string, limit int) string {
+	isWithinLimit := len(str) < limit
+	if isWithinLimit == true {
+		return str
 	}
 
-	return s[:n]
+	return str[:limit]
 }

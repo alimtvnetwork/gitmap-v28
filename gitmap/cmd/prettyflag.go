@@ -52,19 +52,24 @@ var prettyFlagPrefixes = []string{
 func ParsePrettyFlag(args []string) ([]string, render.PrettyModeType) {
 	mode := render.PrettyAuto
 	out := make([]string, 0, len(args))
-	for _, a := range args {
-		token, value, hasValue := splitPrettyToken(a)
-		switch token {
-		case flagPrettyPositive, flagColorPositive:
-			mode = resolvePositivePretty(value, hasValue, mode, &out, a)
-		case flagPrettyNegative, flagColorNegative:
-			mode = render.PrettyOff
-		default:
-			out = append(out, a)
-		}
+	for _, arg := range args {
+		token, value, hasValue := splitPrettyToken(arg)
+		mode = applyPrettyToken(token, value, hasValue, mode, &out, arg)
 	}
 
 	return out, mode
+}
+
+func applyPrettyToken(token, value string, hasValue bool, mode render.PrettyModeType, out *[]string, arg string) render.PrettyModeType {
+	switch token {
+	case flagPrettyPositive, flagColorPositive:
+		return resolvePositivePretty(value, hasValue, mode, out, arg)
+	case flagPrettyNegative, flagColorNegative:
+		return render.PrettyOff
+	default:
+		*out = append(*out, arg)
+		return mode
+	}
 }
 
 // splitPrettyToken splits "--pretty=value" into ("--pretty", "value", true)
@@ -72,11 +77,13 @@ func ParsePrettyFlag(args []string) ([]string, render.PrettyModeType) {
 // original token in slot 0 with hasValue=false so the caller can passthrough.
 // Recognizes every prefix in prettyFlagPrefixes (pretty + color synonyms).
 func splitPrettyToken(arg string) (token, value string, hasValue bool) {
-	lacksPrettyPrefix := !hasPrettyPrefix(arg)
-	if lacksPrettyPrefix {
+	isMissingPrefix := !hasPrettyPrefix(arg)
+	if isMissingPrefix == true {
 		return arg, "", false
 	}
-	if eq := strings.IndexByte(arg, '='); eq >= 0 {
+	eq := strings.IndexByte(arg, '=')
+	hasEqual := eq >= 0
+	if hasEqual == true {
 		return arg[:eq], arg[eq+1:], true
 	}
 
@@ -86,8 +93,9 @@ func splitPrettyToken(arg string) (token, value string, hasValue bool) {
 // hasPrettyPrefix reports whether arg begins with any token managed by
 // ParsePrettyFlag. Extracted so the prefix list lives in one place.
 func hasPrettyPrefix(arg string) bool {
-	for _, p := range prettyFlagPrefixes {
-		if strings.HasPrefix(arg, p) {
+	for _, prefix := range prettyFlagPrefixes {
+		hasMatch := strings.HasPrefix(arg, prefix)
+		if hasMatch == true {
 			return true
 		}
 	}
@@ -99,8 +107,8 @@ func hasPrettyPrefix(arg string) bool {
 // PrettyModeType. Falls back to keeping the original token in `out` when
 // the value is unrecognized so flag.Parse downstream can report it.
 func resolvePositivePretty(value string, hasValue bool, current render.PrettyModeType, out *[]string, original string) render.PrettyModeType {
-	lacksValue := !hasValue
-	if lacksValue {
+	isMissingValue := !hasValue
+	if isMissingValue == true {
 		return render.PrettyOn
 	}
 	switch strings.ToLower(value) {
