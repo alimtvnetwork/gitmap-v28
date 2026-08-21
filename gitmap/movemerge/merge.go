@@ -10,7 +10,7 @@ import (
 )
 
 // RunMerge executes merge-both / merge-left / merge-right.
-func RunMerge(left, right Endpoint, dir Direction, opts Options) error {
+func RunMerge(left, right Endpoint, dir DirectionType, opts Options) error {
 	if err := GuardEndpoints(left, right); err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func RunMerge(left, right Endpoint, dir Direction, opts Options) error {
 }
 
 // effectivePolicy returns the bypass policy when -y is set.
-func effectivePolicy(dir Direction, opts Options) PreferPolicy {
+func effectivePolicy(dir DirectionType, opts Options) PreferPolicyType {
 	if !opts.IsYes {
 		return PreferNone
 	}
@@ -54,7 +54,7 @@ func effectivePolicy(dir Direction, opts Options) PreferPolicy {
 }
 
 // applyEntry handles one DiffEntry per the requested direction.
-func applyEntry(e DiffEntry, l, r Endpoint, dir Direction, res *Resolver, opts Options) error {
+func applyEntry(e DiffEntry, l, r Endpoint, dir DirectionType, res *Resolver, opts Options) error {
 	switch e.Kind {
 	case DiffIdentical:
 		return nil
@@ -69,7 +69,7 @@ func applyEntry(e DiffEntry, l, r Endpoint, dir Direction, res *Resolver, opts O
 
 // applyMissing copies a file present on only one side to the other.
 // fromLeft=true means LEFT has it; copy to RIGHT (when allowed).
-func applyMissing(e DiffEntry, l, r Endpoint, dir Direction, opts Options, isFromLeft bool) error {
+func applyMissing(e DiffEntry, l, r Endpoint, dir DirectionType, opts Options, isFromLeft bool) error {
 	switch {
 	case isFromLeft && (dir == DirBoth || dir == DirRightOnly):
 		return copyOne(l.WorkingDir, r.WorkingDir, e.RelPath, e.Left.Info, opts)
@@ -81,7 +81,7 @@ func applyMissing(e DiffEntry, l, r Endpoint, dir Direction, opts Options, isFro
 }
 
 // applyConflict resolves and applies one conflicting path.
-func applyConflict(e DiffEntry, l, r Endpoint, dir Direction, res *Resolver, opts Options) error {
+func applyConflict(e DiffEntry, l, r Endpoint, dir DirectionType, res *Resolver, opts Options) error {
 	choice, err := res.Resolve(e.RelPath, e.Left, e.Right)
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func applyConflict(e DiffEntry, l, r Endpoint, dir Direction, res *Resolver, opt
 }
 
 // writeChoice writes the chosen side onto the destination(s).
-func writeChoice(c ChoiceType, e DiffEntry, l, r Endpoint, dir Direction, opts Options) error {
+func writeChoice(c ChoiceType, e DiffEntry, l, r Endpoint, dir DirectionType, opts Options) error {
 	switch {
 	case c == ChoiceLeft && (dir == DirBoth || dir == DirRightOnly):
 		logIndent(opts.LogPrefix, "conflict %s -> took LEFT", e.RelPath)

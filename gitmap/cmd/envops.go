@@ -9,37 +9,45 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
-// runEnvSet sets an environment variable persistently.
-func runEnvSet(args []string) {
+type envSetFlags struct {
+	system, verbose, dryRun bool
+	shell                   string
+}
+
+type envCommonFlags struct {
+	system, dryRun bool
+	shell          string
+}
+
+func parseEnvSetFlags(args []string) (string, string, envSetFlags) {
 	fs := flag.NewFlagSet("env-set", flag.ExitOnError)
-
-	var system, verbose, dryRun bool
-	var shell string
-
-	fs.BoolVar(&system, constants.FlagEnvSystem, false, constants.FlagDescEnvSystem)
-	fs.StringVar(&shell, constants.FlagEnvShell, "", constants.FlagDescEnvShell)
-	fs.BoolVar(&verbose, constants.FlagEnvVerbose, false, constants.FlagDescEnvVerbose)
-	fs.BoolVar(&dryRun, constants.FlagEnvDryRun, false, constants.FlagDescEnvDryRun)
+	var f envSetFlags
+	fs.BoolVar(&f.system, constants.FlagEnvSystem, false, constants.FlagDescEnvSystem)
+	fs.StringVar(&f.shell, constants.FlagEnvShell, "", constants.FlagDescEnvShell)
+	fs.BoolVar(&f.verbose, constants.FlagEnvVerbose, false, constants.FlagDescEnvVerbose)
+	fs.BoolVar(&f.dryRun, constants.FlagEnvDryRun, false, constants.FlagDescEnvDryRun)
 	fs.Parse(args)
+	return fs.Arg(0), fs.Arg(1), f
+}
 
-	name := fs.Arg(0)
-	value := fs.Arg(1)
-
-	validateEnvName(name)
-	validateEnvValue(value)
-
-	if dryRun {
+func applyEnvSet(name, value string, f envSetFlags) {
+	if f.dryRun {
 		fmt.Printf(constants.MsgEnvDrySet, name, value)
-
 		return
 	}
-
-	setEnvPersistent(name, value, system, shell)
+	setEnvPersistent(name, value, f.system, f.shell)
 	registry := loadEnvRegistry()
 	registry = upsertEnvVariable(registry, name, value)
 	saveEnvRegistry(registry)
-
 	fmt.Printf(constants.MsgEnvSet, name, value)
+}
+
+// runEnvSet sets an environment variable persistently.
+func runEnvSet(args []string) {
+	name, value, flags := parseEnvSetFlags(args)
+	validateEnvName(name)
+	validateEnvValue(value)
+	applyEnvSet(name, value, flags)
 }
 
 // runEnvGet retrieves a managed environment variable value.
@@ -56,127 +64,103 @@ func runEnvGet(args []string) {
 	fmt.Printf(constants.MsgEnvGetFmt, entry.Name, entry.Value)
 }
 
-// runEnvDelete removes a managed environment variable.
-func runEnvDelete(args []string) {
-	fs := flag.NewFlagSet("env-delete", flag.ExitOnError)
-
-	var system, dryRun bool
-	var shell string
-
-	fs.BoolVar(&system, constants.FlagEnvSystem, false, constants.FlagDescEnvSystem)
-	fs.StringVar(&shell, constants.FlagEnvShell, "", constants.FlagDescEnvShell)
-	fs.BoolVar(&dryRun, constants.FlagEnvDryRun, false, constants.FlagDescEnvDryRun)
+func parseEnvCommonFlags(cmdName string, args []string) (string, envCommonFlags) {
+	fs := flag.NewFlagSet(cmdName, flag.ExitOnError)
+	var f envCommonFlags
+	fs.BoolVar(&f.system, constants.FlagEnvSystem, false, constants.FlagDescEnvSystem)
+	fs.StringVar(&f.shell, constants.FlagEnvShell, "", constants.FlagDescEnvShell)
+	fs.BoolVar(&f.dryRun, constants.FlagEnvDryRun, false, constants.FlagDescEnvDryRun)
 	fs.Parse(args)
+	return fs.Arg(0), f
+}
 
-	name := fs.Arg(0)
-	validateEnvName(name)
-
-	if dryRun {
+func applyEnvDelete(name string, f envCommonFlags) {
+	if f.dryRun {
 		fmt.Printf(constants.MsgEnvDryDelete, name)
-
 		return
 	}
-
-	deleteEnvPersistent(name, system, shell)
+	deleteEnvPersistent(name, f.system, f.shell)
 	registry := loadEnvRegistry()
 	registry = removeEnvVariable(registry, name)
 	saveEnvRegistry(registry)
-
 	fmt.Printf(constants.MsgEnvDeleted, name)
+}
+
+// runEnvDelete removes a managed environment variable.
+func runEnvDelete(args []string) {
+	name, flags := parseEnvCommonFlags("env-delete", args)
+	validateEnvName(name)
+	applyEnvDelete(name, flags)
 }
 
 // runEnvList prints all managed environment variables.
 func runEnvList() {
 	registry := loadEnvRegistry()
-
 	if len(registry.Variables) == 0 {
 		fmt.Print(constants.MsgEnvListEmpty)
-
 		return
 	}
-
 	fmt.Print(constants.MsgEnvListHeader)
-
 	for _, v := range registry.Variables {
 		fmt.Printf(constants.MsgEnvListRow, v.Name, v.Value)
 	}
 }
 
-// runEnvPathAdd adds a directory to the system PATH.
-func runEnvPathAdd(args []string) {
-	fs := flag.NewFlagSet("env-path-add", flag.ExitOnError)
-
-	var system, dryRun bool
-	var shell string
-
-	fs.BoolVar(&system, constants.FlagEnvSystem, false, constants.FlagDescEnvSystem)
-	fs.StringVar(&shell, constants.FlagEnvShell, "", constants.FlagDescEnvShell)
-	fs.BoolVar(&dryRun, constants.FlagEnvDryRun, false, constants.FlagDescEnvDryRun)
-	fs.Parse(args)
-
-	dir := fs.Arg(0)
-	validateEnvPathDir(dir)
-
-	registry := loadEnvRegistry()
-	checkEnvPathNotDuplicate(registry, dir)
-
-	if dryRun {
+func applyEnvPathAdd(dir string, f envCommonFlags) {
+	if f.dryRun {
 		fmt.Printf(constants.MsgEnvDryPath, dir)
-
 		return
 	}
-
-	addPathPersistent(dir, system, shell)
+	addPathPersistent(dir, f.system, f.shell)
+	registry := loadEnvRegistry()
 	registry.Paths = append(registry.Paths, model.EnvPathEntry{Path: dir})
 	saveEnvRegistry(registry)
-
 	fmt.Printf(constants.MsgEnvPathAdded, dir)
 }
 
-// runEnvPathRemove removes a directory from the system PATH.
-func runEnvPathRemove(args []string) {
-	fs := flag.NewFlagSet("env-path-remove", flag.ExitOnError)
+// runEnvPathAdd adds a directory to the system PATH.
+func runEnvPathAdd(args []string) {
+	dir, flags := parseEnvCommonFlags("env-path-add", args)
+	validateEnvPathDir(dir)
+	registry := loadEnvRegistry()
+	checkEnvPathNotDuplicate(registry, dir)
+	applyEnvPathAdd(dir, flags)
+}
 
-	var system, dryRun bool
-	var shell string
-
-	fs.BoolVar(&system, constants.FlagEnvSystem, false, constants.FlagDescEnvSystem)
-	fs.StringVar(&shell, constants.FlagEnvShell, "", constants.FlagDescEnvShell)
-	fs.BoolVar(&dryRun, constants.FlagEnvDryRun, false, constants.FlagDescEnvDryRun)
-	fs.Parse(args)
-
-	dir := fs.Arg(0)
+func validateEnvPathRemove(dir string) {
 	if dir == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvPathRequired)
 		os.Exit(1)
 	}
+}
 
-	if dryRun {
+func applyEnvPathRemove(dir string, f envCommonFlags) {
+	if f.dryRun {
 		fmt.Printf(constants.MsgEnvDryDelete, dir)
-
 		return
 	}
-
-	removePathPersistent(dir, system, shell)
+	removePathPersistent(dir, f.system, f.shell)
 	registry := loadEnvRegistry()
 	registry = removeEnvPath(registry, dir)
 	saveEnvRegistry(registry)
-
 	fmt.Printf(constants.MsgEnvPathRemoved, dir)
+}
+
+// runEnvPathRemove removes a directory from the system PATH.
+func runEnvPathRemove(args []string) {
+	dir, flags := parseEnvCommonFlags("env-path-remove", args)
+	validateEnvPathRemove(dir)
+	applyEnvPathRemove(dir, flags)
 }
 
 // runEnvPathList prints all managed PATH entries.
 func runEnvPathList() {
 	registry := loadEnvRegistry()
-
 	if len(registry.Paths) == 0 {
 		fmt.Print(constants.MsgEnvPathEmpty)
-
 		return
 	}
-
 	fmt.Print(constants.MsgEnvPathHeader)
-
 	for _, p := range registry.Paths {
 		fmt.Printf(constants.MsgEnvPathRow, p.Path)
 	}

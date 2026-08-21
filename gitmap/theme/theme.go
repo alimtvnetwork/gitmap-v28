@@ -31,12 +31,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// Mode is the resolved palette selection.
-type Mode int
+// ModeType is the resolved palette selection.
+type ModeType int
 
 const (
 	// ModeBright is the loud bright+bold palette (default).
-	ModeBright Mode = iota
+	ModeBright ModeType = iota
 	// ModeStandard is the muted pre-v5.13 plain palette.
 	ModeStandard
 	// ModeMono strips all ANSI SGR codes.
@@ -44,7 +44,7 @@ const (
 )
 
 // String returns the canonical lowercase label for the mode.
-func (m Mode) String() string {
+func (m ModeType) String() string {
 	switch m {
 	case ModeStandard:
 		return constants.ThemeStandard
@@ -55,10 +55,10 @@ func (m Mode) String() string {
 	}
 }
 
-// Parse maps a user-supplied label to a Mode. Unknown labels (and the
+// Parse maps a user-supplied label to a ModeType. Unknown labels (and the
 // empty string) fall back to ModeBright so a typo never crashes a CLI
 // run — they just render in the default palette.
-func Parse(label string) Mode {
+func Parse(label string) ModeType {
 	switch strings.ToLower(strings.TrimSpace(label)) {
 	case constants.ThemeStandard:
 		return ModeStandard
@@ -71,7 +71,7 @@ func Parse(label string) Mode {
 
 // Resolve picks the active mode from env (set by the flag stripper or
 // the user's shell). Called once at startup by Install.
-func Resolve() Mode {
+func Resolve() ModeType {
 	return Parse(os.Getenv(constants.EnvTheme))
 }
 

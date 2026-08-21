@@ -49,7 +49,7 @@ var prettyFlagPrefixes = []string{
 //
 // Unrecognized values fall through to PrettyAuto and the token is left
 // in place so the downstream parser can produce a meaningful error.
-func ParsePrettyFlag(args []string) ([]string, render.PrettyMode) {
+func ParsePrettyFlag(args []string) ([]string, render.PrettyModeType) {
 	mode := render.PrettyAuto
 	out := make([]string, 0, len(args))
 	for _, a := range args {
@@ -96,9 +96,9 @@ func hasPrettyPrefix(arg string) bool {
 }
 
 // resolvePositivePretty maps a "--pretty[=value]" occurrence to a
-// PrettyMode. Falls back to keeping the original token in `out` when
+// PrettyModeType. Falls back to keeping the original token in `out` when
 // the value is unrecognized so flag.Parse downstream can report it.
-func resolvePositivePretty(value string, hasValue bool, current render.PrettyMode, out *[]string, original string) render.PrettyMode {
+func resolvePositivePretty(value string, hasValue bool, current render.PrettyModeType, out *[]string, original string) render.PrettyModeType {
 	lacksValue := !hasValue
 	if lacksValue {
 		return render.PrettyOn

@@ -46,21 +46,33 @@ func encodeHistoryJSON(w io.Writer, records []model.CommandHistoryRecord) error 
 func buildHistoryJSONItems(records []model.CommandHistoryRecord) [][]stablejson.Field {
 	items := make([][]stablejson.Field, 0, len(records))
 	for _, r := range records {
-		items = append(items, []stablejson.Field{
-			{Key: historyKeyID, Value: r.ID},
-			{Key: historyKeyCommand, Value: r.Command},
-			{Key: historyKeyAlias, Value: r.Alias},
-			{Key: historyKeyArgs, Value: r.Args},
-			{Key: historyKeyFlags, Value: r.Flags},
-			{Key: historyKeyStartedAt, Value: r.StartedAt},
-			{Key: historyKeyFinishedAt, Value: r.FinishedAt},
-			{Key: historyKeyDurationMs, Value: r.DurationMs},
-			{Key: historyKeyExitCode, Value: r.ExitCode},
-			{Key: historyKeySummary, Value: r.Summary},
-			{Key: historyKeyRepoCount, Value: r.RepoCount},
-			{Key: historyKeyCreatedAt, Value: r.CreatedAt},
-		})
+		items = append(items, historyRecordToFields(r))
 	}
-
 	return items
+}
+
+func historyRecordToFields(r model.CommandHistoryRecord) []stablejson.Field {
+	return append(historyRecordMetaFields(r), historyRecordTimingFields(r)...)
+}
+
+func historyRecordMetaFields(r model.CommandHistoryRecord) []stablejson.Field {
+	return []stablejson.Field{
+		{Key: historyKeyID, Value: r.ID},
+		{Key: historyKeyCommand, Value: r.Command},
+		{Key: historyKeyAlias, Value: r.Alias},
+		{Key: historyKeyArgs, Value: r.Args},
+		{Key: historyKeyFlags, Value: r.Flags},
+		{Key: historyKeyStartedAt, Value: r.StartedAt},
+	}
+}
+
+func historyRecordTimingFields(r model.CommandHistoryRecord) []stablejson.Field {
+	return []stablejson.Field{
+		{Key: historyKeyFinishedAt, Value: r.FinishedAt},
+		{Key: historyKeyDurationMs, Value: r.DurationMs},
+		{Key: historyKeyExitCode, Value: r.ExitCode},
+		{Key: historyKeySummary, Value: r.Summary},
+		{Key: historyKeyRepoCount, Value: r.RepoCount},
+		{Key: historyKeyCreatedAt, Value: r.CreatedAt},
+	}
 }

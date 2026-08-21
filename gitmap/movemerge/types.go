@@ -8,34 +8,34 @@
 // Spec: spec/01-app/97-move-and-merge.md
 package movemerge
 
-// EndpointKind classifies a positional argument once at command start.
-type EndpointKind int
+// EndpointKindType classifies a positional argument once at command start.
+type EndpointKindType int
 
 const (
 	// EndpointFolder is a plain on-disk path (relative or absolute).
-	EndpointFolder EndpointKind = iota
+	EndpointFolder EndpointKindType = iota
 	// EndpointURL is an https/http/ssh/git@ remote, optionally :branch.
 	EndpointURL
 )
 
 // Endpoint is a fully resolved LEFT or RIGHT argument.
 type Endpoint struct {
-	Raw         string       // original CLI token
-	DisplayName string       // trimmed, used in commit messages and logs
-	Kind        EndpointKind // folder or URL
-	URL         string       // canonical URL when Kind == EndpointURL
-	Branch      string       // optional :branch suffix; "" when omitted
-	WorkingDir  string       // absolute resolved working folder
-	IsGitRepo   bool         // true when WorkingDir contains .git/
-	IsExisted   bool         // true when WorkingDir already existed pre-resolve
+	Raw         string           // original CLI token
+	DisplayName string           // trimmed, used in commit messages and logs
+	Kind        EndpointKindType // folder or URL
+	URL         string           // canonical URL when Kind == EndpointURL
+	Branch      string           // optional :branch suffix; "" when omitted
+	WorkingDir  string           // absolute resolved working folder
+	IsGitRepo   bool             // true when WorkingDir contains .git/
+	IsExisted   bool             // true when WorkingDir already existed pre-resolve
 }
 
-// PreferPolicy is how -y / --prefer-* resolve conflicts non-interactively.
-type PreferPolicy int
+// PreferPolicyType is how -y / --prefer-* resolve conflicts non-interactively.
+type PreferPolicyType int
 
 const (
 	// PreferNone means use the interactive prompt.
-	PreferNone PreferPolicy = iota
+	PreferNone PreferPolicyType = iota
 	// PreferLeft makes LEFT always win.
 	PreferLeft
 	// PreferRight makes RIGHT always win.
@@ -46,12 +46,12 @@ const (
 	PreferSkip
 )
 
-// Direction selects which side(s) the operation writes to.
-type Direction int
+// DirectionType selects which side(s) the operation writes to.
+type DirectionType int
 
 const (
 	// DirBoth writes into both sides (merge-both).
-	DirBoth Direction = iota
+	DirBoth DirectionType = iota
 	// DirLeftOnly writes only into LEFT (merge-left).
 	DirLeftOnly
 	// DirRightOnly writes only into RIGHT (merge-right).
@@ -61,7 +61,7 @@ const (
 // Options bundles every CLI flag for the move/merge family.
 type Options struct {
 	IsYes             bool
-	Prefer            PreferPolicy
+	Prefer            PreferPolicyType
 	IsNoPush          bool
 	IsNoCommit        bool
 	IsForceFolder     bool

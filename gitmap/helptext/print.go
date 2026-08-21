@@ -27,7 +27,7 @@ func Print(command string) {
 //
 // The decision is delegated to render.Decide so help, templates show,
 // and changelog all answer "should I emit ANSI?" identically.
-func PrintWithMode(command string, mode render.PrettyMode) {
+func PrintWithMode(command string, mode render.PrettyModeType) {
 	data, err := ReadRaw(command)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "No help available for '%s'\n", command)

@@ -9,7 +9,7 @@ import (
 // renaming any of these strings breaks scripts in the wild that
 // pass `--theme=...`.
 func TestParseRecognizesAllLabels(t *testing.T) {
-	cases := map[string]Mode{
+	cases := map[string]ModeType{
 		"bright":     ModeBright,
 		"BRIGHT":     ModeBright,
 		"standard":   ModeStandard,
@@ -66,7 +66,7 @@ func TestFilterStandardDowngrades(t *testing.T) {
 // in every mode — the rewriter only owns SGR.
 func TestFilterPreservesNonSGRCSI(t *testing.T) {
 	in := []byte("\033[2J\033[Hredraw")
-	for _, m := range []Mode{ModeStandard, ModeMono} {
+	for _, m := range []ModeType{ModeStandard, ModeMono} {
 		got := string(Filter(in, m))
 		if got != "\033[2J\033[Hredraw" {
 			t.Fatalf("mode %v mangled non-SGR CSI: %q", m, got)

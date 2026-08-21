@@ -9,7 +9,7 @@ import (
 
 // ClassifyEndpoint inspects raw and returns its kind and (for URLs)
 // the canonical URL plus optional :branch suffix.
-func ClassifyEndpoint(raw string) (kind EndpointKind, url, branch, display string) {
+func ClassifyEndpoint(raw string) (kind EndpointKindType, url, branch, display string) {
 	display = strings.TrimRight(raw, "/\\")
 	lower := strings.ToLower(display)
 	for _, p := range []string{"https://", "http://", "ssh://", "git@"} {

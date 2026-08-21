@@ -230,7 +230,7 @@ func runTemplatesShow(args []string) {
 // slice + the resolved render.PrettyMode. --raw is treated as
 // --no-pretty for back-compat with v3.23.x. When both are present,
 // --pretty wins (--raw only downgrades when mode is still Auto).
-func parseTemplatesShowFlags(args []string) ([]string, render.PrettyMode) {
+func parseTemplatesShowFlags(args []string) ([]string, render.PrettyModeType) {
 	cleaned, mode := ParsePrettyFlag(args)
 
 	fs := flag.NewFlagSet(cmdTemplatesShow, flag.ExitOnError)

@@ -12,7 +12,7 @@ import (
 
 var (
 	installOnce sync.Once
-	activeMode  Mode
+	activeMode  ModeType
 	origStdout  = os.Stdout
 	origStderr  = os.Stderr
 	stdoutIsTTY = detectTTY(os.Stdout)
@@ -52,7 +52,7 @@ func Install() {
 
 // Active returns the mode chosen at Install time. Defaults to
 // ModeBright when Install has not yet been called.
-func Active() Mode {
+func Active() ModeType {
 	return activeMode
 }
 
@@ -84,7 +84,7 @@ func IsStderrTTY() bool { return stderrIsTTY }
 // wrap returns a new *os.File whose write end forwards filtered bytes
 // to dst. A goroutine drains the read end for the lifetime of the
 // process; the OS reaps the pipe on exit.
-func wrap(dst *os.File, mode Mode) *os.File {
+func wrap(dst *os.File, mode ModeType) *os.File {
 	r, w, err := os.Pipe()
 	if err != nil {
 		// Pipe creation should never fail under normal conditions.
@@ -104,7 +104,7 @@ func wrap(dst *os.File, mode Mode) *os.File {
 }
 
 // forward reads from r, applies Filter, and writes to dst until EOF.
-func forward(r io.ReadCloser, dst io.Writer, mode Mode) {
+func forward(r io.ReadCloser, dst io.Writer, mode ModeType) {
 	defer func() { _ = r.Close() }()
 
 	buf := make([]byte, 4096)

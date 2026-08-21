@@ -7,8 +7,8 @@ import (
 )
 
 // finalizeURLSides commits + pushes any URL endpoint that should
-// receive the change. Direction decides which side(s) are written.
-func finalizeURLSides(left, right Endpoint, dir Direction, opts Options) error {
+// receive the change. DirectionType decides which side(s) are written.
+func finalizeURLSides(left, right Endpoint, dir DirectionType, opts Options) error {
 	if opts.IsNoCommit || opts.IsDryRun {
 		return nil
 	}
@@ -32,12 +32,12 @@ func finalizeURLSides(left, right Endpoint, dir Direction, opts Options) error {
 }
 
 // IsWritingRight reports whether the operation modifies RIGHT.
-func IsWritingRight(dir Direction) bool {
+func IsWritingRight(dir DirectionType) bool {
 	return dir == DirBoth || dir == DirRightOnly
 }
 
 // IsWritingLeft reports whether the operation modifies LEFT.
-func IsWritingLeft(dir Direction) bool {
+func IsWritingLeft(dir DirectionType) bool {
 	return dir == DirBoth || dir == DirLeftOnly
 }
 

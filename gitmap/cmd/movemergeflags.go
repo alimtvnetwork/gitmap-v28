@@ -55,7 +55,7 @@ func (m *movemergeFlagSet) toOptions(cmd, prefix, msgFmt string) movemerge.Optio
 }
 
 // pickPolicy returns the first non-default --prefer-* flag.
-func pickPolicy(m *movemergeFlagSet) movemerge.PreferPolicy {
+func pickPolicy(m *movemergeFlagSet) movemerge.PreferPolicyType {
 	switch {
 	case m.prefL:
 		return movemerge.PreferLeft

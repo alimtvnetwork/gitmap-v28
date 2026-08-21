@@ -11,18 +11,14 @@ import (
 // runCompletion handles the "completion" subcommand.
 func runCompletion(args []string) {
 	checkHelp("completion", args)
-
 	if hasListFlag(args) {
 		handleCompletionList(args)
-
 		return
 	}
-
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCompUsage)
 		os.Exit(1)
 	}
-
 	printCompletionScript(args[0])
 }
 
@@ -31,47 +27,34 @@ func hasListFlag(args []string) bool {
 	for _, a := range args {
 		if a == constants.CompListRepos || a == constants.CompListGroups ||
 			a == constants.CompListCommands || a == constants.CompListAliases ||
-			a == constants.CompListZipGroups || a == constants.CompListSSHKeys {
+			a == constants.CompListZipGroups || a == constants.CompListSSHKeys ||
+			a == constants.CompListHelpGroups {
 			return true
 		}
 	}
-
 	return false
 }
 
 // handleCompletionList routes to the appropriate list printer.
 func handleCompletionList(args []string) {
+	printers := completionPrinters()
 	for _, a := range args {
-		switch a {
-		case constants.CompListRepos:
-			printCompletionRepos()
-
-			return
-		case constants.CompListGroups:
-			printCompletionGroups()
-
-			return
-		case constants.CompListCommands:
-			printCompletionCommands()
-
-			return
-		case constants.CompListAliases:
-			printCompletionAliases()
-
-			return
-		case constants.CompListZipGroups:
-			printCompletionZipGroups()
-
-			return
-		case constants.CompListSSHKeys:
-			printCompletionSSHKeys()
-
-			return
-		case constants.CompListHelpGroups:
-			printCompletionHelpGroups()
-
+		if fn, ok := printers[a]; ok {
+			fn()
 			return
 		}
+	}
+}
+
+func completionPrinters() map[string]func() {
+	return map[string]func(){
+		constants.CompListRepos:      printCompletionRepos,
+		constants.CompListGroups:     printCompletionGroups,
+		constants.CompListCommands:   printCompletionCommands,
+		constants.CompListAliases:    printCompletionAliases,
+		constants.CompListZipGroups:  printCompletionZipGroups,
+		constants.CompListSSHKeys:    printCompletionSSHKeys,
+		constants.CompListHelpGroups: printCompletionHelpGroups,
 	}
 }
 
@@ -82,12 +65,10 @@ func printCompletionRepos() {
 		return
 	}
 	defer db.Close()
-
 	repos, err := db.ListRepos()
 	if err != nil {
 		return
 	}
-
 	for _, r := range repos {
 		fmt.Println(r.Slug)
 	}
@@ -100,12 +81,10 @@ func printCompletionGroups() {
 		return
 	}
 	defer db.Close()
-
 	groups, err := db.ListGroups()
 	if err != nil {
 		return
 	}
-
 	for _, g := range groups {
 		fmt.Println(g.Name)
 	}
@@ -125,12 +104,10 @@ func printCompletionAliases() {
 		return
 	}
 	defer db.Close()
-
 	aliases, err := db.ListAliases()
 	if err != nil {
 		return
 	}
-
 	for _, a := range aliases {
 		fmt.Println(a.Alias)
 	}
@@ -143,12 +120,10 @@ func printCompletionZipGroups() {
 		return
 	}
 	defer db.Close()
-
 	groups, err := db.ListZipGroups()
 	if err != nil {
 		return
 	}
-
 	for _, g := range groups {
 		fmt.Println(g.Name)
 	}
@@ -161,12 +136,10 @@ func printCompletionSSHKeys() {
 		return
 	}
 	defer db.Close()
-
 	names, err := db.SSHKeyNames()
 	if err != nil {
 		return
 	}
-
 	for _, n := range names {
 		fmt.Println(n)
 	}
@@ -186,6 +159,5 @@ func printCompletionScript(shell string) {
 		fmt.Fprintf(os.Stderr, constants.ErrCompUnknownShell, shell)
 		os.Exit(1)
 	}
-
 	fmt.Print(script)
 }

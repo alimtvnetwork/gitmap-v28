@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // runHistory handles the "history" subcommand.
@@ -21,7 +22,6 @@ func runHistory(args []string) {
 
 	if jsonOut {
 		printHistoryJSON(records)
-
 		return
 	}
 
@@ -49,20 +49,18 @@ func loadHistory(cmdFilter string) []model.CommandHistoryRecord {
 	}
 	defer db.Close()
 
-	var records []model.CommandHistoryRecord
-	var fetchErr error
-
-	if cmdFilter != "" {
-		records, fetchErr = db.ListHistoryByCommand(cmdFilter)
-	} else {
-		records, fetchErr = db.ListHistory()
+	records, err := queryHistoryRecords(db, cmdFilter)
+	if err != nil {
+		handleHistoryError(err)
 	}
-
-	if fetchErr != nil {
-		handleHistoryError(fetchErr)
-	}
-
 	return records
+}
+
+func queryHistoryRecords(db *store.DB, cmdFilter string) ([]model.CommandHistoryRecord, error) {
+	if cmdFilter != "" {
+		return db.ListHistoryByCommand(cmdFilter)
+	}
+	return db.ListHistory()
 }
 
 // handleHistoryError processes errors returned from the history query.
@@ -90,7 +88,6 @@ func applyHistoryLimit(records []model.CommandHistoryRecord, limit int) []model.
 func printHistoryTerminal(records []model.CommandHistoryRecord, detail string) {
 	if len(records) == 0 {
 		fmt.Print(constants.MsgHistoryEmpty)
-
 		return
 	}
 
@@ -119,28 +116,46 @@ func printHistoryHeader(detail string) {
 	}
 }
 
+type historyRowTokens struct {
+	cmd    string
+	flags  string
+	status string
+	dur    string
+	last   string
+}
+
+func formatHistoryRowTokens(r model.CommandHistoryRecord) historyRowTokens {
+	return historyRowTokens{
+		cmd:    colorize(constants.ColorCyan, padRight(r.Command, 16)),
+		flags:  colorize(constants.ColorDim, padRight(truncateHist(r.Flags, 22), 22)),
+		status: colorizedStatus(r.ExitCode),
+		dur:    colorize(constants.ColorYellow, padRight(strconv.FormatInt(r.DurationMs, 10)+"ms", 10)),
+		last:   colorize(constants.ColorDim, relativeHistoryTime(r)),
+	}
+}
+
 // printHistoryRow prints one row at the chosen detail level with ANSI
 // colors: cyan command, dim flags, green OK / red FAIL, yellow
 // duration, dim relative-time on the right.
 func printHistoryRow(r model.CommandHistoryRecord, detail string) {
-	cmd := colorize(constants.ColorCyan, padRight(r.Command, 16))
-	flags := colorize(constants.ColorDim, padRight(truncateHist(r.Flags, 22), 22))
-	status := colorizedStatus(r.ExitCode)
-	dur := colorize(constants.ColorYellow, padRight(strconv.FormatInt(r.DurationMs, 10)+"ms", 10))
-	last := colorize(constants.ColorDim, relativeHistoryTime(r))
-
-	switch detail {
-	case constants.DetailBasic:
-		fmt.Printf("%s %s %s\n", cmd, status, last)
-	case constants.DetailDetailed:
-		args := colorize(constants.ColorWhite, padRight(truncateHist(r.Args, 18), 18))
-		repos := padRight(strconv.Itoa(r.RepoCount), 6)
-		summary := padRight(truncateHist(r.Summary, 30), 30)
-		fmt.Printf("%s %s %s %s %s %s %s %s\n",
-			cmd, args, flags, status, dur, repos, summary, last)
-	default:
-		fmt.Printf("%s %s %s %s %s\n", cmd, flags, status, dur, last)
+	tok := formatHistoryRowTokens(r)
+	if detail == constants.DetailDetailed {
+		printDetailedHistoryRow(tok, r)
+		return
 	}
+	if detail == constants.DetailBasic {
+		fmt.Printf("%s %s %s\n", tok.cmd, tok.status, tok.last)
+		return
+	}
+	fmt.Printf("%s %s %s %s %s\n", tok.cmd, tok.flags, tok.status, tok.dur, tok.last)
+}
+
+func printDetailedHistoryRow(tok historyRowTokens, r model.CommandHistoryRecord) {
+	args := colorize(constants.ColorWhite, padRight(truncateHist(r.Args, 18), 18))
+	repos := padRight(strconv.Itoa(r.RepoCount), 6)
+	summary := padRight(truncateHist(r.Summary, 30), 30)
+	fmt.Printf("%s %s %s %s %s %s %s %s\n",
+		tok.cmd, args, tok.flags, tok.status, tok.dur, repos, summary, tok.last)
 }
 
 // colorizedStatus renders an 8-wide colored OK / FAIL token.
@@ -159,30 +174,39 @@ func printHistoryJSON(records []model.CommandHistoryRecord) {
 	}
 }
 
-// printHistoryRevertSection enumerates revert commands for every row
-// whose Command has a known inverse. Rows with no known revert are
-// omitted so the section stays scannable. Empty when nothing is
-// revertable (no header is printed in that case).
-func printHistoryRevertSection(records []model.CommandHistoryRecord) {
-	type revertRow struct {
-		idx     int
-		command string
-		when    string
-		hint    string
-	}
-	hints := make([]revertRow, 0, len(records))
+type revertRow struct {
+	idx     int
+	command string
+	when    string
+	hint    string
+}
+
+func collectRevertRows(records []model.CommandHistoryRecord) []revertRow {
+	var hints []revertRow
 	for i, r := range records {
 		if h := revertHintFor(r); h != "" {
 			hints = append(hints, revertRow{idx: i + 1, command: r.Command, when: relativeHistoryTime(r), hint: h})
 		}
 	}
+	return hints
+}
+
+// printHistoryRevertSection enumerates revert commands for every row
+// whose Command has a known inverse. Rows with no known revert are
+// omitted so the section stays scannable. Empty when nothing is
+// revertable (no header is printed in that case).
+func printHistoryRevertSection(records []model.CommandHistoryRecord) {
+	hints := collectRevertRows(records)
 	if len(hints) == 0 {
 		return
 	}
 	fmt.Println()
 	fmt.Println(colorize(constants.ColorMagenta, "Revert points"))
-	fmt.Println(colorize(constants.ColorDim,
-		"  Run the suggested command to undo the referenced state."))
+	fmt.Println(colorize(constants.ColorDim, "  Run the suggested command to undo the referenced state."))
+	renderRevertRows(hints)
+}
+
+func renderRevertRows(hints []revertRow) {
 	for _, h := range hints {
 		fmt.Printf("  %s#%-3d%s %s%-16s%s %s%-18s%s  %s%s%s\n",
 			constants.ColorDim, h.idx, constants.ColorReset,
@@ -192,32 +216,39 @@ func printHistoryRevertSection(records []model.CommandHistoryRecord) {
 	}
 }
 
+var staticRevertHints = map[string]string{
+	constants.CmdFixRepo:        "gitmap undo                  # restore latest fix-repo snapshot",
+	"fix-repo-pub":              "gitmap undo                  # restore latest fix-repo snapshot",
+	"fr":                        "gitmap undo                  # restore latest fix-repo snapshot",
+	"frp":                       "gitmap undo                  # restore latest fix-repo snapshot",
+	constants.CmdMakePublic:     "gitmap make-private",
+	"mapub":                     "gitmap make-private",
+	constants.CmdMakePrivate:    "gitmap make-public --yes",
+	"mapri":                     "gitmap make-public --yes",
+	constants.CmdMakeAllPublic:  "gitmap make-all-private",
+	constants.CmdMakeAllPrivate: "gitmap make-all-public --yes",
+}
+
 // revertHintFor maps a history Command to a concrete inverse command
 // the user can run to roll back. Returns "" when no inverse is known.
 // Kept tiny + table-driven so adding a new revertable command is a
 // one-line change.
 func revertHintFor(r model.CommandHistoryRecord) string {
-	switch r.Command {
-	case constants.CmdFixRepo, "fix-repo-pub", "fr", "frp":
-		return "gitmap undo                  # restore latest fix-repo snapshot"
-	case constants.CmdMakePublic, "mapub":
-		return "gitmap make-private"
-	case constants.CmdMakePrivate, "mapri":
-		return "gitmap make-public --yes"
-	case constants.CmdMakeAllPublic:
-		return "gitmap make-all-private"
-	case constants.CmdMakeAllPrivate:
-		return "gitmap make-all-public --yes"
-	case "reclone-transport":
-		// Args holds the URL that was coerced; suggest re-running the
-		// reclone with the OPPOSITE explicit transport so the user can
-		// revisit the verdict.
-		if strings.Contains(r.Flags, "transport=ssh") {
-			return "gitmap cfr " + r.Args + " --https"
-		}
-		if strings.Contains(r.Flags, "transport=https") {
-			return "gitmap cfr " + r.Args + " --ssh"
-		}
+	if hint, ok := staticRevertHints[r.Command]; ok {
+		return hint
+	}
+	if r.Command == "reclone-transport" {
+		return recloneTransportHint(r)
+	}
+	return ""
+}
+
+func recloneTransportHint(r model.CommandHistoryRecord) string {
+	if strings.Contains(r.Flags, "transport=ssh") {
+		return "gitmap cfr " + r.Args + " --https"
+	}
+	if strings.Contains(r.Flags, "transport=https") {
+		return "gitmap cfr " + r.Args + " --ssh"
 	}
 	return ""
 }
@@ -258,16 +289,16 @@ func humanizeDuration(d time.Duration) string {
 	if d < 0 {
 		d = 0
 	}
-	switch {
-	case d < time.Minute:
+	if d < time.Minute {
 		return fmt.Sprintf("%ds", int(d.Seconds()))
-	case d < time.Hour:
-		return fmt.Sprintf("%dm", int(d.Minutes()))
-	case d < 24*time.Hour:
-		return fmt.Sprintf("%dh", int(d.Hours()))
-	default:
-		return fmt.Sprintf("%dd", int(d.Hours()/24))
 	}
+	if d < time.Hour {
+		return fmt.Sprintf("%dm", int(d.Minutes()))
+	}
+	if d < 24*time.Hour {
+		return fmt.Sprintf("%dh", int(d.Hours()))
+	}
+	return fmt.Sprintf("%dd", int(d.Hours()/24))
 }
 
 // padRight + truncate + colorize are tiny terminal-formatting helpers

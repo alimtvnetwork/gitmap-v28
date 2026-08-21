@@ -24,33 +24,41 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-// runDownloaderConfig is the dispatch entrypoint.
-func runDownloaderConfig(args []string) {
-	checkHelp(constants.CmdDownloaderConfig, args)
-	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigBanner+"\n", constants.Version)
-
+func initDownloaderConfigDB() *store.DB {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
 		os.Exit(1)
 	}
-	defer db.Close()
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Migrate: %v\n", err)
 		os.Exit(1)
 	}
+	return db
+}
 
-	doc, source := loadDocOrPrompt(db, args)
+func saveAndReportDownloaderConfig(db *store.DB, doc downloaderconfig.Document, source string) {
 	if err := db.SetDownloaderConfig(doc); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Could not save downloader config: %v\n", err)
 		os.Exit(1)
 	}
-
 	if source != "" {
 		fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigLoaded+"\n", source)
 	}
 	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigSaved+"\n", constants.SettingDownloaderConfig)
 	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigDBVersion+"\n", doc.DatabaseVersion.LastKnownVersion)
+}
+
+// runDownloaderConfig is the dispatch entrypoint.
+func runDownloaderConfig(args []string) {
+	checkHelp(constants.CmdDownloaderConfig, args)
+	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigBanner+"\n", constants.Version)
+
+	db := initDownloaderConfigDB()
+	defer db.Close()
+
+	doc, source := loadDocOrPrompt(db, args)
+	saveAndReportDownloaderConfig(db, doc, source)
 }
 
 // loadDocOrPrompt resolves the final Document either from a JSON file
@@ -79,37 +87,51 @@ func loadDocFromFile(path string) (downloaderconfig.Document, string) {
 	return doc, path
 }
 
-// promptDownloaderConfig walks the user through every field, showing the
-// current value as the default. <Enter> on any prompt keeps the default.
-func promptDownloaderConfig(current downloaderconfig.Document) downloaderconfig.Document {
-	fmt.Fprintln(os.Stderr, constants.MsgDownloaderConfigPromptHeader)
-	reader := bufio.NewReader(os.Stdin)
-	dc := current.DownloaderConfig
-
+func promptCoreConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig) downloaderconfig.DownloaderConfig {
 	dc.PreferredDownloader = promptString(reader, "PreferredDownloader", dc.PreferredDownloader)
 	dc.FallbackDownloader = promptString(reader, "FallbackDownloader", dc.FallbackDownloader)
 	dc.ParallelDownloads = promptInt(reader, "ParallelDownloads", dc.ParallelDownloads)
 	dc.SplitConnections = promptInt(reader, "SplitConnections", dc.SplitConnections)
 	dc.DefaultSplitSize = promptString(reader, "DefaultSplitSize", dc.DefaultSplitSize)
+	return dc
+}
+
+func promptSplitThresholdConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig) downloaderconfig.DownloaderConfig {
 	dc.LargeFileSplitSize = promptString(reader, "LargeFileSplitSize", dc.LargeFileSplitSize)
 	dc.LargeFileThreshold = promptString(reader, "LargeFileThreshold", dc.LargeFileThreshold)
 	dc.TinyFileThreshold = promptString(reader, "TinyFileThreshold", dc.TinyFileThreshold)
 	dc.TinyFileSplitSize = promptString(reader, "TinyFileSplitSize", dc.TinyFileSplitSize)
 	dc.TinyFileSplits = promptInt(reader, "TinyFileSplits", dc.TinyFileSplits)
+	return dc
+}
+
+func promptFlagConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig) downloaderconfig.DownloaderConfig {
 	dc.AllowFallback = promptBool(reader, "AllowFallback", dc.AllowFallback)
 	dc.OverwriteUserConfig = promptBool(reader, "OverwriteUserConfig", dc.OverwriteUserConfig)
+	return dc
+}
 
-	doc := downloaderconfig.Document{
-		DownloaderConfig: dc,
-		DatabaseVersion:  downloaderconfig.DatabaseVersion{LastKnownVersion: constants.Version},
-	}
-
+func validatePromptedDoc(doc downloaderconfig.Document) downloaderconfig.Document {
 	if err := downloaderconfig.Validate(doc); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
 		os.Exit(1)
 	}
-
 	return doc
+}
+
+// promptDownloaderConfig walks the user through every field, showing the
+// current value as the default. <Enter> on any prompt keeps the default.
+func promptDownloaderConfig(current downloaderconfig.Document) downloaderconfig.Document {
+	fmt.Fprintln(os.Stderr, constants.MsgDownloaderConfigPromptHeader)
+	reader := bufio.NewReader(os.Stdin)
+	dc := promptCoreConfig(reader, current.DownloaderConfig)
+	dc = promptSplitThresholdConfig(reader, dc)
+	dc = promptFlagConfig(reader, dc)
+	doc := downloaderconfig.Document{
+		DownloaderConfig: dc,
+		DatabaseVersion:  downloaderconfig.DatabaseVersion{LastKnownVersion: constants.Version},
+	}
+	return validatePromptedDoc(doc)
 }
 
 // promptString reads a line and returns the trimmed input or the default.
@@ -138,17 +160,14 @@ func promptInt(reader *bufio.Reader, label string, def int) int {
 
 // promptBool accepts y/yes/true/1 (case-insensitive) as true.
 func promptBool(reader *bufio.Reader, label string, def bool) bool {
-	defStr := "false"
-	if def {
-		defStr = "true"
-	}
+	defStr := strconv.FormatBool(def)
 	raw := strings.ToLower(promptString(reader, label, defStr))
 	switch raw {
 	case "y", "yes", "true", "1":
 		return true
 	case "n", "no", "false", "0":
 		return false
+	default:
+		return def
 	}
-
-	return def
 }

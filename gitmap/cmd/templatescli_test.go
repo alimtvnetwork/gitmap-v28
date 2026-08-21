@@ -38,7 +38,7 @@ func TestParseTemplatesShowFlagsPrefersPretty(t *testing.T) {
 	cases := []struct {
 		name string
 		args []string
-		want render.PrettyMode
+		want render.PrettyModeType
 	}{
 		{"no flag → auto", []string{"ignore", "go"}, render.PrettyAuto},
 		{"--pretty → on", []string{"ignore", "go", "--pretty"}, render.PrettyOn},

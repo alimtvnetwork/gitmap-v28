@@ -18,13 +18,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/theme"
 )
 
-// PrettyMode is the tri-state requested by the caller.
-type PrettyMode int
+// PrettyModeType is the tri-state requested by the caller.
+type PrettyModeType int
 
 const (
 	// PrettyAuto is the default: render when stdout is a real TTY and the
 	// shared GITMAP_NO_PRETTY env opt-out is unset.
-	PrettyAuto PrettyMode = iota
+	PrettyAuto PrettyModeType = iota
 	// PrettyOn forces ANSI rendering regardless of TTY / env. Useful when
 	// piping into a renderer that understands ANSI (e.g. `less -R`).
 	PrettyOn
@@ -57,7 +57,7 @@ const EnvNoPretty = "GITMAP_NO_PRETTY"
 //  4. EnvNoPretty=…  → false (shared environment opt-out).
 //  5. isTTY          → true  (auto-detect: render only on a real terminal).
 //  6. otherwise      → false (pipes / redirects stay byte-faithful).
-func Decide(mode PrettyMode, isTTY, isMarkdown bool) bool {
+func Decide(mode PrettyModeType, isTTY, isMarkdown bool) bool {
 	if mode == PrettyOff {
 		return false
 	}

@@ -15,7 +15,7 @@ const (
 // Filter applies the active mode's transformation to p. Bright mode is
 // a passthrough; other modes scan for SGR escape sequences (ESC `[`
 // ... `m`) and rewrite or drop them.
-func Filter(p []byte, mode Mode) []byte {
+func Filter(p []byte, mode ModeType) []byte {
 	if mode == ModeBright {
 		return p
 	}

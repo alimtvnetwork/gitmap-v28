@@ -32,7 +32,7 @@ const (
 // Resolver picks a ChoiceType for each conflict. Stateful: All-Left/Right
 // stickiness is held inside the resolver instance.
 type Resolver struct {
-	policy PreferPolicy
+	policy PreferPolicyType
 	sticky ChoiceType
 	hasStk bool
 	in     io.Reader
@@ -41,7 +41,7 @@ type Resolver struct {
 
 // NewResolver builds a Resolver for the run. When policy is non-None,
 // the resolver short-circuits without reading from in.
-func NewResolver(policy PreferPolicy, in io.Reader, out io.Writer) *Resolver {
+func NewResolver(policy PreferPolicyType, in io.Reader, out io.Writer) *Resolver {
 	return &Resolver{policy: policy, in: in, out: out}
 }
 

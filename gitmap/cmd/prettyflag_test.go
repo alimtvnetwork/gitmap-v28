@@ -96,7 +96,7 @@ func TestParsePrettyFlagPassesThroughUnknownValues(t *testing.T) {
 func TestParsePrettyFlagAcceptsColorSynonyms(t *testing.T) {
 	cases := []struct {
 		arg  string
-		want render.PrettyMode
+		want render.PrettyModeType
 	}{
 		{"--no-color", render.PrettyOff},
 		{"--color=false", render.PrettyOff},

@@ -15,7 +15,7 @@ type mergeSpec struct {
 	cmd       string
 	prefix    string
 	msgFmt    string
-	direction movemerge.Direction
+	direction movemerge.DirectionType
 }
 
 // runMerge implements merge-both / merge-left / merge-right.
