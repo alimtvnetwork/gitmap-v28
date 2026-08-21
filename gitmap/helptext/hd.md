@@ -21,6 +21,7 @@ hd, help-dashboard
 |------|---------|-------------|
 | --json | false | Emit the dashboard payload as JSON |
 | --refresh | false | Re-probe upgrades before rendering (equivalent to `gitmap list --update --stale-days 0`) |
+| --recent | false | Highlight recent completions and focus on recent items |
 | --tail \<n\> | 5 | How many recent completed tasks to show |
 
 ## Prerequisites
@@ -95,6 +96,13 @@ Refresh probes before rendering:
 $ gitmap hd --refresh --tail 10
 ```
 
+Focus on recent items and activity:
+
+```text
+$ gitmap hd --recent
+$ gitmap dashboard --recent
+```
+
 ## Exit Codes
 
 | Code | Meaning |
@@ -108,7 +116,7 @@ $ gitmap hd --refresh --tail 10
 - [list-update](list-update.md) — Full upgradable list
 - [pending](pending.md) — Full pending queue
 - [history](history.md) — Complete command history
-- [dashboard](dashboard.md) — Interactive HTML dashboard for a single repo
+- [dashboard](dashboard.md) — Interactive HTML dashboard for a single repo (`gitmap dashboard --recent`)
 
 ## Scripting (JSON)
 

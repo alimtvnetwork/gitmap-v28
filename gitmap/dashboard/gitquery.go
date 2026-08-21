@@ -32,11 +32,19 @@ func queryTags(repoPath string) ([]string, error) {
 }
 
 // queryLog returns raw commit lines from git log with --numstat.
-// An optional limit caps the number of commits returned.
-// An optional since restricts commits to those after a date string.
 func queryLog(repoPath string, limit int, since string, noMerges bool) (string, error) {
-	args := []string{"log", "--format=" + constants.GitLogDashFormat, "--numstat"}
+	args := buildLogArgs(limit, since, noMerges)
+	out, err := runDashGit(repoPath, args...)
+	if err != nil {
+		return "", err
+	}
 
+	return out, nil
+}
+
+// buildLogArgs prepares the slice of command arguments for git log.
+func buildLogArgs(limit int, since string, noMerges bool) []string {
+	args := []string{"log", "--format=" + constants.GitLogDashFormat, "--numstat"}
 	if limit > 0 {
 		args = append(args, "-n", strconv.Itoa(limit))
 	}
@@ -46,13 +54,7 @@ func queryLog(repoPath string, limit int, since string, noMerges bool) (string, 
 	if noMerges {
 		args = append(args, "--no-merges")
 	}
-
-	out, err := runDashGit(repoPath, args...)
-	if err != nil {
-		return "", err
-	}
-
-	return out, nil
+	return args
 }
 
 // queryTagDistance returns the commit count between two refs (e.g. v1.0..v1.1).
@@ -64,24 +66,24 @@ func queryTagDistance(repoPath, fromRef, toRef string) int {
 	}
 
 	count, _ := strconv.Atoi(strings.TrimSpace(out))
-
 	return count
 }
 
 // queryRepoName extracts the repository name from the remote URL.
-// Falls back to the directory base name if no remote is configured.
 func queryRepoName(repoPath string) string {
-	out, err := runDashGit(repoPath,
-		"config", "--get", "remote.origin.url")
+	out, err := runDashGit(repoPath, "config", "--get", "remote.origin.url")
 	if err != nil {
 		return baseName(repoPath)
 	}
 
-	url := strings.TrimSpace(out)
-	url = strings.TrimSuffix(url, ".git")
+	return parseRepoNameFromURL(strings.TrimSpace(out), repoPath)
+}
 
+// parseRepoNameFromURL parses the repo basename from a Git remote URL.
+func parseRepoNameFromURL(url, repoPath string) string {
+	url = strings.TrimSuffix(url, ".git")
 	parts := strings.Split(url, "/")
-	if len(parts) > 0 {
+	if len(parts) > 0 && len(parts[len(parts)-1]) > 0 {
 		return parts[len(parts)-1]
 	}
 

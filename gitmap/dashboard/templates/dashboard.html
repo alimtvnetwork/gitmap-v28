@@ -79,6 +79,15 @@ canvas { width:100%; height:200px; display:block; }
 
 /* Search */
 .search { background:var(--bg-input); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px 8px; font-size:12px; font-family:inherit; width:200px; }
+/* Navigation Tabs */
+.nav-bar { display:flex; gap:8px; margin-left:auto; }
+.nav-tab { background:var(--bg-input); color:var(--text-dim); border:1px solid var(--border); border-radius:4px; padding:4px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.nav-tab:hover { color:var(--text); border-color:var(--accent); }
+.nav-tab.active { background:var(--accent); color:hsl(220,20%,10%); border-color:var(--accent); }
+
+/* Tab Content */
+.tab-content { display:none; }
+.tab-content.active { display:block; }
 </style>
 </head>
 <body>
@@ -89,9 +98,16 @@ canvas { width:100%; height:200px; display:block; }
   <span class="hdr-badge" id="repoName"></span>
   <span class="hdr-badge" id="branchBadge"></span>
   <span class="hdr-meta" id="metaLine"></span>
+  <div class="nav-bar">
+    <button class="nav-tab active" id="tabOverview" onclick="switchTab('overview')">Overview</button>
+    <button class="nav-tab" id="tabRecent" onclick="switchTab('recent')">Recent Items</button>
+  </div>
 </div></div>
 
 <div class="wrap">
+
+<!-- Overview View -->
+<div id="overviewView" class="tab-content active">
 
 <!-- Filters -->
 <div class="filters">
@@ -169,6 +185,28 @@ canvas { width:100%; height:200px; display:block; }
   <div class="heatmap" id="heatmap"></div>
 </div>
 
+</div><!-- /overviewView -->
+
+<!-- Recent Items View -->
+<div id="recentItemsView" class="tab-content">
+  <!-- Recent Cards -->
+  <div class="cards">
+    <div class="card"><div class="card-label">Recent Commits</div><div class="card-value accent" id="rCommits">0</div></div>
+    <div class="card"><div class="card-label">Recent Authors</div><div class="card-value" id="rAuthors">0</div></div>
+    <div class="card"><div class="card-label">Lines Added</div><div class="card-value ins" id="rIns">+0</div></div>
+    <div class="card"><div class="card-label">Lines Removed</div><div class="card-value del" id="rDel">-0</div></div>
+  </div>
+
+  <!-- Recent Commit Log -->
+  <div class="section">
+    <div class="section-title">Recent Activity Log</div>
+    <table id="recentCommitTable">
+      <thead><tr><th>SHA</th><th>Author</th><th>Date</th><th>Message</th><th>+</th><th>−</th><th>Files</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div><!-- /recentItemsView -->
+
 </div><!-- /wrap -->
 
 <script>
@@ -183,6 +221,75 @@ function init() {
     ' · ' + D.meta.totalCommits + ' commits · ' + D.meta.totalBranches + ' branches · ' + D.meta.totalTags + ' tags';
   populateFilterDropdowns();
   applyFilters();
+
+  var isRecent = !!(D.recent || (D.meta && (D.meta.recent || D.meta.Recent)) || D.Recent);
+  if (isRecent) {
+    switchTab('recent');
+  }
+}
+
+function switchTab(tab) {
+  var isRecent = tab === 'recent' || tab === 'recentItemsView';
+  var tabOverview = document.getElementById('tabOverview');
+  var tabRecent = document.getElementById('tabRecent');
+  var overviewView = document.getElementById('overviewView');
+  var recentView = document.getElementById('recentItemsView');
+
+  if (tabOverview) tabOverview.classList.toggle('active', !isRecent);
+  if (tabRecent) tabRecent.classList.toggle('active', isRecent);
+  if (overviewView) overviewView.classList.toggle('active', !isRecent);
+  if (recentView) recentView.classList.toggle('active', isRecent);
+
+  if (isRecent) {
+    renderRecentItems();
+  } else {
+    renderAll();
+  }
+}
+
+function getRecentCommits() {
+  if (D.meta && (D.meta.recent || D.meta.Recent) || D.recent || D.Recent) {
+    return D.commits || [];
+  }
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+  var rec = (D.commits || []).filter(function(c) { return new Date(c.date) >= cutoff; });
+  if (rec.length === 0) {
+    rec = (D.commits || []).slice(0, 20);
+  }
+  return rec;
+}
+
+function renderRecentItems() {
+  var rec = getRecentCommits();
+  var rCommits = document.getElementById('rCommits');
+  var rAuthors = document.getElementById('rAuthors');
+  var rIns = document.getElementById('rIns');
+  var rDel = document.getElementById('rDel');
+
+  if (rCommits) rCommits.textContent = rec.length.toLocaleString();
+  var authors = uniqueBy(rec, 'email');
+  if (rAuthors) rAuthors.textContent = authors.length;
+
+  var ins = 0, del = 0;
+  rec.forEach(function(c) { ins += (c.insertions || 0); del += (c.deletions || 0); });
+  if (rIns) rIns.textContent = '+' + ins.toLocaleString();
+  if (rDel) rDel.textContent = '-' + del.toLocaleString();
+
+  var tb = document.querySelector('#recentCommitTable tbody');
+  if (tb) {
+    tb.innerHTML = '';
+    if (rec.length === 0) {
+      tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">No recent commits found</td></tr>';
+      return;
+    }
+    rec.forEach(function(c) {
+      var merge = c.isMerge ? ' <span class="merge-badge">merge</span>' : '';
+      tb.innerHTML += '<tr><td class="sha">'+c.shortSHA+'</td><td>'+esc(c.author)+'</td><td>'+shortDate(c.date)+
+        '</td><td>'+esc(c.message)+merge+'</td><td class="ins">+'+c.insertions+'</td><td class="del">-'+
+        c.deletions+'</td><td>'+c.filesChanged+'</td></tr>';
+    });
+  }
 }
 
 function populateFilterDropdowns() {
@@ -446,7 +553,12 @@ function topBy(arr,key) {
 function esc(s) { var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
 window.addEventListener('DOMContentLoaded', init);
-window.addEventListener('resize', function(){ renderTimeline(); renderAuthorChart(); renderTagChart(); });
+window.addEventListener('resize', function(){
+  var ov = document.getElementById('overviewView');
+  if (ov && ov.classList.contains('active')) {
+    renderTimeline(); renderAuthorChart(); renderTagChart();
+  }
+});
 </script>
 </body>
 </html>

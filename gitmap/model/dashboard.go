@@ -22,6 +22,7 @@ type DashboardMeta struct {
 	TotalTags     int    `json:"totalTags"`
 	Limit         int    `json:"limit,omitempty"`
 	Since         string `json:"since,omitempty"`
+	Recent        bool   `json:"recent"`
 }
 
 // BranchInfo describes a single local or remote branch.

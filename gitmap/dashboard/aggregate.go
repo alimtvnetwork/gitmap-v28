@@ -21,34 +21,39 @@ type authorAcc struct {
 // buildAuthors aggregates commits into per-author statistics.
 func buildAuthors(commits []model.CommitInfo) []model.AuthorInfo {
 	index := make(map[string]*authorAcc)
-
 	for _, c := range commits {
-		acc, exists := index[c.Email]
-		if exists {
-			acc.count++
-			acc.daySet[c.Date[:10]] = true
-			updateDateRange(acc, c.Date)
-
-			continue
-		}
-
-		index[c.Email] = &authorAcc{
-			name:   c.Author,
-			email:  c.Email,
-			count:  1,
-			first:  c.Date,
-			last:   c.Date,
-			daySet: map[string]bool{c.Date[:10]: true},
-		}
+		processAuthorCommit(index, c)
 	}
-
 	return collectAuthors(index)
+}
+
+// processAuthorCommit updates or registers author commit metrics.
+func processAuthorCommit(index map[string]*authorAcc, c model.CommitInfo) {
+	acc, exists := index[c.Email]
+	if exists {
+		acc.count++
+		acc.daySet[c.Date[:10]] = true
+		updateDateRange(acc, c.Date)
+		return
+	}
+	index[c.Email] = newAuthorAcc(c)
+}
+
+// newAuthorAcc creates a new accumulator initialized with first commit.
+func newAuthorAcc(c model.CommitInfo) *authorAcc {
+	return &authorAcc{
+		name:   c.Author,
+		email:  c.Email,
+		count:  1,
+		first:  c.Date,
+		last:   c.Date,
+		daySet: map[string]bool{c.Date[:10]: true},
+	}
 }
 
 // collectAuthors converts the accumulator map to a sorted slice.
 func collectAuthors(index map[string]*authorAcc) []model.AuthorInfo {
 	authors := make([]model.AuthorInfo, 0, len(index))
-
 	for _, acc := range index {
 		authors = append(authors, model.AuthorInfo{
 			Name:         acc.name,
@@ -59,12 +64,15 @@ func collectAuthors(index map[string]*authorAcc) []model.AuthorInfo {
 			ActiveDays:   len(acc.daySet),
 		})
 	}
+	sortAuthorsByCommits(authors)
+	return authors
+}
 
+// sortAuthorsByCommits sorts author records descending by total commit count.
+func sortAuthorsByCommits(authors []model.AuthorInfo) {
 	sort.Slice(authors, func(i, j int) bool {
 		return authors[i].TotalCommits > authors[j].TotalCommits
 	})
-
-	return authors
 }
 
 // updateDateRange expands the first/last bounds of an author accumulator.
@@ -72,7 +80,6 @@ func updateDateRange(acc *authorAcc, date string) {
 	if date < acc.first {
 		acc.first = date
 	}
-
 	if date > acc.last {
 		acc.last = date
 	}
@@ -85,10 +92,7 @@ func buildFrequency(commits []model.CommitInfo) model.FrequencyData {
 	monthly := make(map[string]int)
 
 	for _, c := range commits {
-		day := c.Date[:10]
-		daily[day]++
-		weekly[day[:7]+weekSuffix(day)]++
-		monthly[day[:7]]++
+		recordCommitFrequency(c, daily, weekly, monthly)
 	}
 
 	return model.FrequencyData{
@@ -96,6 +100,14 @@ func buildFrequency(commits []model.CommitInfo) model.FrequencyData {
 		Weekly:  weekly,
 		Monthly: monthly,
 	}
+}
+
+// recordCommitFrequency increments daily, weekly, and monthly buckets for a commit.
+func recordCommitFrequency(c model.CommitInfo, daily, weekly, monthly map[string]int) {
+	day := c.Date[:10]
+	daily[day]++
+	weekly[day[:7]+weekSuffix(day)]++
+	monthly[day[:7]]++
 }
 
 // weekSuffix returns a "-WNN" suffix based on the day of month.
@@ -110,29 +122,34 @@ func weekSuffix(day string) string {
 	if d <= "21" {
 		return "-W3"
 	}
-
 	return "-W4"
 }
 
-// attachTagsToCommits maps tag SHAs to commit entries.
-func attachTagsToCommits(commits []model.CommitInfo, tags []model.TagInfo) []model.CommitInfo {
+// buildTagMap maps SHA hashes to tag names.
+func buildTagMap(tags []model.TagInfo) map[string][]string {
 	tagMap := make(map[string][]string, len(tags))
 	for _, t := range tags {
 		tagMap[t.SHA] = append(tagMap[t.SHA], t.Name)
 	}
+	return tagMap
+}
 
+// matchCommitTags finds matching tags for a commit by full or short SHA.
+func matchCommitTags(commit model.CommitInfo, tagMap map[string][]string) []string {
+	if matched := tagMap[commit.SHA]; len(matched) > 0 {
+		return matched
+	}
+	return tagMap[commit.ShortSHA]
+}
+
+// attachTagsToCommits maps tag SHAs to commit entries.
+func attachTagsToCommits(commits []model.CommitInfo, tags []model.TagInfo) []model.CommitInfo {
+	tagMap := buildTagMap(tags)
 	for i := range commits {
-		short := commits[i].ShortSHA
-		full := commits[i].SHA
-		matched := tagMap[full]
-		if len(matched) == 0 {
-			matched = tagMap[short]
-		}
-		if len(matched) > 0 {
+		if matched := matchCommitTags(commits[i], tagMap); len(matched) > 0 {
 			commits[i].Tags = matched
 		}
 	}
-
 	return commits
 }
 

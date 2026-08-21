@@ -12,6 +12,8 @@ const HelpDashboard = "  dashboard (db)      Generate an interactive HTML dashbo
 
 // Dashboard flag descriptions.
 const (
+	FlagRecent         = "recent"
+	FlagDescDashRecent = "Show and highlight recent items only (e.g., last 7 days)"
 	FlagDescDashLimit  = "Maximum number of commits to include"
 	FlagDescDashSince  = "Only include commits after this date (YYYY-MM-DD)"
 	FlagDescDashOpen   = "Open the generated dashboard in the default browser"
@@ -40,10 +42,10 @@ const GitTagDashFormat = "%(refname:short)|%(objectname:short)|%(creatordate:iso
 
 // Dashboard terminal messages.
 const (
-	MsgDashCollecting = "Collecting repository data..."
-	MsgDashWriteJSON  = "Wrote %s (%d commits, %d authors)\n"
-	MsgDashWriteHTML  = "Wrote %s\n"
-	MsgDashGenerated  = "Dashboard generated in %s\n"
+	MsgDashCollecting = ColorCyan + "Collecting repository data..." + ColorReset
+	MsgDashWriteJSON  = ColorGreen + "✓" + ColorReset + " Wrote " + ColorCyan + "%s" + ColorReset + " (%d commits, %d authors)\n"
+	MsgDashWriteHTML  = ColorGreen + "✓" + ColorReset + " Wrote " + ColorCyan + "%s" + ColorReset + "\n"
+	MsgDashGenerated  = ColorGreen + "✓" + ColorReset + " Dashboard generated in " + ColorCyan + "%s" + ColorReset + "\n"
 	MsgDashOpening    = "Opening dashboard in browser..."
 )
 

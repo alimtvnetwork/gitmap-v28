@@ -2,7 +2,7 @@
 
 Slug: dashboard-recent-and-terminal-ui
 Steps: 30
-Status: pending
+Status: completed
 Created: 2026-08-20
 
 ## Context

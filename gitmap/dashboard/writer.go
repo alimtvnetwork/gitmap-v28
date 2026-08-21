@@ -24,7 +24,6 @@ func WriteJSON(outDir string, data model.DashboardData) (string, error) {
 	}
 
 	path := filepath.Join(outDir, constants.DashboardJSONFile)
-
 	buf, err := json.MarshalIndent(data, "", constants.JSONIndent)
 	if err != nil {
 		return "", err
@@ -37,28 +36,34 @@ func WriteJSON(outDir string, data model.DashboardData) (string, error) {
 	return path, nil
 }
 
+// renderHTMLContent generates the complete HTML bytes by substituting data into the template.
+func renderHTMLContent(data model.DashboardData) ([]byte, error) {
+	tmpl, err := templateFS.ReadFile("templates/dashboard.html")
+	if err != nil {
+		return nil, err
+	}
+
+	jsonBytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return []byte(strings.Replace(string(tmpl), "{{.}}", string(jsonBytes), 1)), nil
+}
+
 // WriteHTML writes the self-contained HTML dashboard with embedded data.
 func WriteHTML(outDir string, data model.DashboardData) (string, error) {
 	if err := os.MkdirAll(outDir, constants.DirPermission); err != nil {
 		return "", err
 	}
 
-	tmpl, err := templateFS.ReadFile("templates/dashboard.html")
+	content, err := renderHTMLContent(data)
 	if err != nil {
 		return "", err
 	}
-
-	jsonBytes, err := json.Marshal(data)
-	if err != nil {
-		return "", err
-	}
-
-	// Replace the {{.}} placeholder with actual JSON data.
-	html := strings.Replace(string(tmpl), "{{.}}", string(jsonBytes), 1)
 
 	path := filepath.Join(outDir, constants.DashboardHTMLFile)
-
-	if err := os.WriteFile(path, []byte(html), constants.FilePermission); err != nil {
+	if err := os.WriteFile(path, content, constants.FilePermission); err != nil {
 		return "", err
 	}
 
@@ -73,9 +78,7 @@ func formatSize(path string) string {
 	}
 
 	size := info.Size()
-
 	const kb = 1024
-
 	if size < kb {
 		return fmt.Sprintf("%d B", size)
 	}
@@ -88,7 +91,7 @@ func Summary(path string) string {
 	var buf bytes.Buffer
 	buf.WriteString(path)
 
-	if s := formatSize(path); s != "" {
+	if s := formatSize(path); len(s) > 0 {
 		buf.WriteString(" (")
 		buf.WriteString(s)
 		buf.WriteString(")")

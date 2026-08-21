@@ -16,6 +16,7 @@ db
 |------|---------|-------------|
 | --limit | 0 (all) | Maximum number of commits to include |
 | --since | (none) | Only include commits after this date (YYYY-MM-DD) |
+| --recent | false | Show and highlight recent items only (e.g., last 7 days) |
 | --no-merges | false | Exclude merge commits from the output |
 | --out-dir | .gitmap/output | Output directory for dashboard files |
 | --open | false | Open the generated dashboard in the default browser |
@@ -59,6 +60,17 @@ db
     Wrote ./report/dashboard.json (63 commits, 4 authors)
     Wrote ./report/dashboard.html
     Dashboard generated in ./report
+
+### Example 4: Highlight recent items only
+
+    gitmap dashboard --recent
+
+**Output:**
+
+    Collecting repository data...
+    Wrote .gitmap/output/dashboard.json (28 commits, 3 authors)
+    Wrote .gitmap/output/dashboard.html
+    Dashboard generated in .gitmap/output
 
 ## See Also
 
