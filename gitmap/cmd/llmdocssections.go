@@ -36,11 +36,8 @@ func writeLLMCodingConventions(sb *strings.Builder) {
 	sb.WriteString("10. **Positive logic** in `if` conditions\n\n")
 }
 
-// writeLLMProjectStructure writes the project structure section.
-func writeLLMProjectStructure(sb *strings.Builder) {
-	sb.WriteString("## Project Structure\n\n")
-	sb.WriteString("```\n")
-	sb.WriteString("/\n")
+// writeLLMGitmapTree writes the internal gitmap package tree.
+func writeLLMGitmapTree(sb *strings.Builder) {
 	sb.WriteString("├── gitmap/                    # Main CLI (Go module)\n")
 	sb.WriteString("│   ├── cmd/                   # Command handlers\n")
 	sb.WriteString("│   ├── constants/             # All string constants\n")
@@ -52,30 +49,51 @@ func writeLLMProjectStructure(sb *strings.Builder) {
 	sb.WriteString("│   ├── verbose/               # Debug logging\n")
 	sb.WriteString("│   ├── completion/            # Shell completions\n")
 	sb.WriteString("│   └── helptext/              # Embedded help (go:embed)\n")
+}
+
+// writeLLMTopLevelTree writes top-level project tree entries outside gitmap/.
+func writeLLMTopLevelTree(sb *strings.Builder) {
 	sb.WriteString("├── gitmap-updater/            # Standalone updater (Go module)\n")
 	sb.WriteString("├── spec/                      # Specifications & design docs\n")
 	sb.WriteString("├── docs-site/                 # Documentation website\n")
 	sb.WriteString("├── CHANGELOG.md\n")
 	sb.WriteString("├── README.md\n")
 	sb.WriteString("└── LLM.md                     # This file\n")
+}
+
+// writeLLMProjectStructure writes the project structure section.
+func writeLLMProjectStructure(sb *strings.Builder) {
+	sb.WriteString("## Project Structure\n\n```\n/\n")
+	writeLLMGitmapTree(sb)
+	writeLLMTopLevelTree(sb)
 	sb.WriteString("```\n\n")
 }
 
-// writeLLMDatabase writes the database schema section.
-func writeLLMDatabase(sb *strings.Builder) {
-	sb.WriteString("## Database Schema (Conceptual)\n\n")
-	sb.WriteString("GitMap uses SQLite with tables for:\n\n")
+// writeLLMDatabaseCoreTables writes the primary tables in the schema description.
+func writeLLMDatabaseCoreTables(sb *strings.Builder) {
 	sb.WriteString("- **repos** — scanned repository records (path, slug, URLs, branch, type)\n")
 	sb.WriteString("- **groups** / **group_members** — named groups of repos\n")
 	sb.WriteString("- **aliases** — short names pointing to repo slugs\n")
 	sb.WriteString("- **bookmarks** — saved command configurations\n")
 	sb.WriteString("- **amendments** — author amendment audit trail\n")
+}
+
+// writeLLMDatabaseAuxTables writes auxiliary tables in the schema description.
+func writeLLMDatabaseAuxTables(sb *strings.Builder) {
 	sb.WriteString("- **releases** — release metadata\n")
 	sb.WriteString("- **ssh_keys** — SSH key records\n")
 	sb.WriteString("- **zip_groups** / **zip_group_items** — release archive configurations\n")
 	sb.WriteString("- **history** — command execution history\n")
 	sb.WriteString("- **tasks** — file-sync task definitions\n")
 	sb.WriteString("- **temp_releases** — temporary branch tracking\n\n")
+}
+
+// writeLLMDatabase writes the database schema section.
+func writeLLMDatabase(sb *strings.Builder) {
+	sb.WriteString("## Database Schema (Conceptual)\n\n")
+	sb.WriteString("GitMap uses SQLite with tables for:\n\n")
+	writeLLMDatabaseCoreTables(sb)
+	writeLLMDatabaseAuxTables(sb)
 }
 
 // writeLLMInstallation writes the installation section.
@@ -88,21 +106,31 @@ func writeLLMInstallation(sb *strings.Builder) {
 	sb.WriteString("| From source | `cd gitmap && go build -o ../gitmap .` |\n\n")
 }
 
-// writeLLMPatterns writes the common patterns section.
-func writeLLMPatterns(sb *strings.Builder) {
-	sb.WriteString("## Common Patterns for LLM Assistance\n\n")
+// writeLLMRepoPatterns writes common repo navigation and update patterns.
+func writeLLMRepoPatterns(sb *strings.Builder) {
 	writeLLMPattern(sb, "Find/navigate to a repo",
 		"gitmap cd <repo-name>\ngitmap cd repos                    # interactive picker\ngitmap cd -A <alias>               # via alias")
 	writeLLMPattern(sb, "Update all repos",
 		"gitmap g work                      # activate group\ngitmap g pull                      # pull all\n# or\ngitmap exec pull                   # pull across ALL repos")
 	writeLLMPattern(sb, "Organize repos",
 		"gitmap scan ~/projects             # discover repos\ngitmap group create work            # create group\ngitmap group add work api web       # add repos\ngitmap alias suggest --apply        # auto-name repos")
+}
+
+// writeLLMOpsPatterns writes release, clone, and health check patterns.
+func writeLLMOpsPatterns(sb *strings.Builder) {
 	writeLLMPattern(sb, "Release a project",
 		"gitmap release-pending             # what's unreleased?\ngitmap changelog-generate --write   # generate changelog\ngitmap release --bump patch --bin   # release with binaries")
 	writeLLMPattern(sb, "Clone a project iteration",
 		"gitmap cn v++                      # next version\ngitmap cn v++ --delete              # and remove old")
 	writeLLMPattern(sb, "Check repo health",
 		"gitmap doctor                      # diagnose issues\ngitmap status --all                 # all repo statuses\ngitmap hau                         # check for unpulled commits")
+}
+
+// writeLLMPatterns writes the common patterns section.
+func writeLLMPatterns(sb *strings.Builder) {
+	sb.WriteString("## Common Patterns for LLM Assistance\n\n")
+	writeLLMRepoPatterns(sb)
+	writeLLMOpsPatterns(sb)
 }
 
 // writeLLMPattern writes a single pattern example block.

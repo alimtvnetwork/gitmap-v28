@@ -85,7 +85,7 @@ func TestStartupStatusJSON_AddCreatedKeyOrder(t *testing.T) {
 // when forgotten.
 func TestStartupStatusJSON_AddActionsAndOwners(t *testing.T) {
 	cases := []struct {
-		status     startup.AddStatus
+		status     startup.AddStatusType
 		path       string
 		wantAction string
 		wantOwner  string

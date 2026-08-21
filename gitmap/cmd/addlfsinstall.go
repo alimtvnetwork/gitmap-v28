@@ -124,7 +124,7 @@ func gitattributesPath() (string, error) {
 
 // printAddLFSInstallBanner mirrors the `lfs-common` banner so the two
 // commands feel like siblings.
-func printAddLFSInstallBanner(dryRun bool, source templates.Source, path string) {
+func printAddLFSInstallBanner(dryRun bool, source templates.SourceType, path string) {
 	fmt.Println()
 	fmt.Printf("  %s■ gitmap add lfs-install —%s LFS hooks + templated .gitattributes block\n",
 		constants.ColorCyan, constants.ColorReset)
@@ -179,7 +179,7 @@ func printAddLFSInstallSummary(res templates.MergeResult) {
 }
 
 // outcomeVerb maps the structural outcome to a one-word verb for output.
-func outcomeVerb(o templates.MergeOutcome) string {
+func outcomeVerb(o templates.MergeOutcomeType) string {
 	switch o {
 	case templates.MergeCreated:
 		return "created"

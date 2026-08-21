@@ -24,12 +24,12 @@ import (
 	"regexp"
 )
 
-// MergeOutcome describes what Merge did to the target file.
-type MergeOutcome int
+// MergeOutcomeType describes what Merge did to the target file.
+type MergeOutcomeType int
 
 const (
 	// MergeCreated means the target file did not exist and was created.
-	MergeCreated MergeOutcome = iota
+	MergeCreated MergeOutcomeType = iota
 	// MergeInserted means the file existed but had no prior gitmap block;
 	// the new block was appended at the end.
 	MergeInserted
@@ -40,10 +40,10 @@ const (
 
 // MergeResult is the structured return value of Merge.
 type MergeResult struct {
-	Path     string       // absolute path of the target file
-	Outcome  MergeOutcome // what happened on disk
-	Changed  bool         // true when bytes on disk differ from before
-	BlockTag string       // e.g. "lfs/common" — the marker tag used
+	Path     string           // absolute path of the target file
+	Outcome  MergeOutcomeType // what happened on disk
+	Changed  bool             // true when bytes on disk differ from before
+	BlockTag string           // e.g. "lfs/common" — the marker tag used
 }
 
 // Merge writes (or refreshes) a gitmap-managed marker block in targetPath
@@ -95,7 +95,7 @@ func readIfExists(path string) (data []byte, existed bool, err error) {
 // composeNext returns the new file bytes and the structural outcome
 // (created / inserted / updated). It does NOT decide whether bytes
 // actually changed — Merge handles that with bytes.Equal.
-func composeNext(prior []byte, existed bool, tag string, block []byte) ([]byte, MergeOutcome) {
+func composeNext(prior []byte, existed bool, tag string, block []byte) ([]byte, MergeOutcomeType) {
 	if !existed {
 		return block, MergeCreated
 	}

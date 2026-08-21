@@ -59,14 +59,14 @@ type AddOptions struct {
 	Backend Backend
 }
 
-// AddStatus tags the four mutually-exclusive Add outcomes. Kept
+// AddStatusType tags the four mutually-exclusive Add outcomes. Kept
 // parallel to RemoveStatus so the CLI rendering layer can switch on
 // either with the same shape.
-type AddStatus int
+type AddStatusType int
 
 const (
 	// AddCreated = file did not exist; was written fresh.
-	AddCreated AddStatus = iota
+	AddCreated AddStatusType = iota
 	// AddOverwritten = previously gitmap-managed file was replaced
 	// because Force was set.
 	AddOverwritten
@@ -83,7 +83,7 @@ const (
 // AddResult mirrors RemoveResult. Path is the absolute target file
 // for Created / Overwritten / Refused / Exists; empty for BadName.
 type AddResult struct {
-	Status AddStatus
+	Status AddStatusType
 	Path   string
 }
 

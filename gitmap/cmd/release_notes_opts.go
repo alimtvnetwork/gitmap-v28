@@ -33,38 +33,59 @@ const (
 	releaseNotesFormatJSON     = "json"
 )
 
-// parseReleaseNotesArgs converts CLI args into ReleaseNotesOpts.
-func parseReleaseNotesArgs(args []string) (ReleaseNotesOpts, error) {
-	opts := ReleaseNotesOpts{Format: releaseNotesFormatMarkdown}
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		switch {
-		case a == "--since" && i+1 < len(args):
-			opts.Since = args[i+1]
-			i++
-		case a == "--since-tag" && i+1 < len(args):
-			opts.SinceTag = args[i+1]
-			i++
-		case a == "--format" && i+1 < len(args):
-			opts.Format = args[i+1]
-			i++
-		case strings.Contains(a, ".."):
-			opts.Range = a
-		default:
-			return opts, fmt.Errorf("unknown arg %q", a)
-		}
+func applyReleaseNotesFlag(args []string, i int, opts *ReleaseNotesOpts) (int, bool) {
+	if i+1 >= len(args) {
+		return i, false
 	}
+	switch args[i] {
+	case "--since":
+		opts.Since = args[i+1]
+		return i + 1, true
+	case "--since-tag":
+		opts.SinceTag = args[i+1]
+		return i + 1, true
+	case "--format":
+		opts.Format = args[i+1]
+		return i + 1, true
+	}
+	return i, false
+}
+
+func applyReleaseNotesArg(args []string, i int, opts *ReleaseNotesOpts) (int, error) {
+	if nextI, matched := applyReleaseNotesFlag(args, i, opts); matched {
+		return nextI, nil
+	}
+	if strings.Contains(args[i], "..") {
+		opts.Range = args[i]
+		return i, nil
+	}
+	return i, fmt.Errorf("unknown arg %q", args[i])
+}
+
+func validateReleaseNotesOpts(opts *ReleaseNotesOpts) error {
 	if opts.SinceTag != "" && opts.Range == "" {
 		opts.Range = opts.SinceTag + "..HEAD"
 	}
 	if opts.Range == "" && opts.Since == "" {
-		return opts, fmt.Errorf("need <tagA>..<tagB>, --since, or --since-tag")
+		return fmt.Errorf("need <tagA>..<tagB>, --since, or --since-tag")
 	}
-	return opts, nil
+	return nil
 }
 
-// gitLogForOpts runs git log honoring range + --since.
-func gitLogForOpts(opts ReleaseNotesOpts) ([]string, error) {
+// parseReleaseNotesArgs converts CLI args into ReleaseNotesOpts.
+func parseReleaseNotesArgs(args []string) (ReleaseNotesOpts, error) {
+	opts := ReleaseNotesOpts{Format: releaseNotesFormatMarkdown}
+	for i := 0; i < len(args); i++ {
+		nextI, err := applyReleaseNotesArg(args, i, &opts)
+		if err != nil {
+			return opts, err
+		}
+		i = nextI
+	}
+	return opts, validateReleaseNotesOpts(&opts)
+}
+
+func buildGitLogArgs(opts ReleaseNotesOpts) []string {
 	args := []string{"log", "--pretty=format:%s|%h"}
 	if opts.Since != "" {
 		args = append(args, "--since="+opts.Since)
@@ -72,6 +93,12 @@ func gitLogForOpts(opts ReleaseNotesOpts) ([]string, error) {
 	if opts.Range != "" {
 		args = append(args, opts.Range)
 	}
+	return args
+}
+
+// gitLogForOpts runs git log honoring range + --since.
+func gitLogForOpts(opts ReleaseNotesOpts) ([]string, error) {
+	args := buildGitLogArgs(opts)
 	out, err := exec.Command("git", args...).CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("git log: %v\n%s", err, out)
@@ -93,24 +120,35 @@ func groupCommits(lines []string) map[string][]string {
 	return groups
 }
 
+var commitPrefixMap = []struct {
+	prefixes []string
+	category string
+}{
+	{[]string{"feat"}, "Features"},
+	{[]string{"fix"}, "Fixes"},
+	{[]string{"docs"}, "Docs"},
+	{[]string{"refactor", "perf"}, "Refactor"},
+	{[]string{"test"}, "Tests"},
+	{[]string{"chore", "ci", "build"}, "Chore"},
+}
+
+func hasAnyPrefix(s string, prefixes []string) bool {
+	for _, p := range prefixes {
+		if strings.HasPrefix(s, p) {
+			return true
+		}
+	}
+	return false
+}
+
 func classifyCommit(line string) string {
 	lower := strings.ToLower(line)
-	switch {
-	case strings.HasPrefix(lower, "feat"):
-		return "Features"
-	case strings.HasPrefix(lower, "fix"):
-		return "Fixes"
-	case strings.HasPrefix(lower, "docs"):
-		return "Docs"
-	case strings.HasPrefix(lower, "refactor"), strings.HasPrefix(lower, "perf"):
-		return "Refactor"
-	case strings.HasPrefix(lower, "test"):
-		return "Tests"
-	case strings.HasPrefix(lower, "chore"), strings.HasPrefix(lower, "ci"), strings.HasPrefix(lower, "build"):
-		return "Chore"
-	default:
-		return "Other"
+	for _, entry := range commitPrefixMap {
+		if hasAnyPrefix(lower, entry.prefixes) {
+			return entry.category
+		}
 	}
+	return "Other"
 }
 
 // renderReleaseNotes turns parsed log lines into the chosen output format.
@@ -144,39 +182,55 @@ func renderFlat(lines []string) string {
 	return b.String()
 }
 
-func renderGrouped(lines []string) string {
-	groups := groupCommits(lines)
+func sortedGroupKeys(groups map[string][]string) []string {
 	keys := make([]string, 0, len(groups))
 	for k := range groups {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
+	return keys
+}
+
+func renderGroupSection(b *strings.Builder, header string, items []string) {
+	b.WriteString("### " + header + "\n")
+	for _, ln := range items {
+		b.WriteString("- " + formatLine(ln) + "\n")
+	}
+	b.WriteString("\n")
+}
+
+func renderGrouped(lines []string) string {
+	groups := groupCommits(lines)
 	var b strings.Builder
-	for _, k := range keys {
-		b.WriteString("### " + k + "\n")
-		for _, ln := range groups[k] {
-			b.WriteString("- " + formatLine(ln) + "\n")
-		}
-		b.WriteString("\n")
+	for _, k := range sortedGroupKeys(groups) {
+		renderGroupSection(&b, k, groups[k])
 	}
 	return b.String()
 }
 
-func renderJSON(opts ReleaseNotesOpts, lines []string) string {
-	type entry struct {
-		Group   string `json:"group"`
-		Subject string `json:"subject"`
-		SHA     string `json:"sha"`
-	}
-	out := struct {
-		Range   string  `json:"range,omitempty"`
-		Since   string  `json:"since,omitempty"`
-		Entries []entry `json:"entries"`
-	}{Range: opts.Range, Since: opts.Since}
+type releaseNotesJSONEntry struct {
+	Group   string `json:"group"`
+	Subject string `json:"subject"`
+	SHA     string `json:"sha"`
+}
+
+type releaseNotesJSONOutput struct {
+	Range   string                  `json:"range,omitempty"`
+	Since   string                  `json:"since,omitempty"`
+	Entries []releaseNotesJSONEntry `json:"entries"`
+}
+
+func buildJSONEntries(lines []string) []releaseNotesJSONEntry {
+	entries := make([]releaseNotesJSONEntry, 0, len(lines))
 	for _, ln := range lines {
 		subj, sha := splitLine(ln)
-		out.Entries = append(out.Entries, entry{Group: classifyCommit(ln), Subject: subj, SHA: sha})
+		entries = append(entries, releaseNotesJSONEntry{Group: classifyCommit(ln), Subject: subj, SHA: sha})
 	}
+	return entries
+}
+
+func renderJSON(opts ReleaseNotesOpts, lines []string) string {
+	out := releaseNotesJSONOutput{Range: opts.Range, Since: opts.Since, Entries: buildJSONEntries(lines)}
 	buf, _ := json.MarshalIndent(out, "", "  ")
 	return string(buf) + "\n"
 }
@@ -196,13 +250,17 @@ func formatLine(ln string) string {
 	return fmt.Sprintf("%s (%s)", subj, sha)
 }
 
+func handleReleaseNotesArgsError(err error) {
+	fmt.Fprintf(os.Stderr, "release-notes: ERROR %v\n", err)
+	fmt.Fprintln(os.Stderr, "usage: gitmap release-notes [<tagA>..<tagB>] [--since <when>] [--since-tag <tag>] [--format flat|grouped|markdown|json]")
+	os.Exit(2)
+}
+
 // runReleaseNotesV2 is the flag-aware entry point used by the dispatcher.
 func runReleaseNotesV2(args []string) {
 	opts, err := parseReleaseNotesArgs(args)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "release-notes: ERROR %v\n", err)
-		fmt.Fprintln(os.Stderr, "usage: gitmap release-notes [<tagA>..<tagB>] [--since <when>] [--since-tag <tag>] [--format flat|grouped|markdown|json]")
-		os.Exit(2)
+		handleReleaseNotesArgsError(err)
 	}
 	lines, err := gitLogForOpts(opts)
 	if err != nil {

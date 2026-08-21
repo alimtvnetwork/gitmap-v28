@@ -255,8 +255,8 @@ func isMarkdownTemplatePath(path string) bool {
 	return ext == ".md" || ext == ".markdown"
 }
 
-// sourceLabel maps a templates.Source to the user-facing column value.
-func sourceLabel(s templates.Source) string {
+// sourceLabel maps a templates.SourceType to the user-facing column value.
+func sourceLabel(s templates.SourceType) string {
 	if s == templates.SourceUser {
 		return labelTemplatesUser
 	}

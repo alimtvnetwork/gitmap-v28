@@ -28,37 +28,41 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-// runPendingClear is wired in from runPending when args[0] == "clear".
-// args is everything after the "clear" token.
-func runPendingClear(args []string) {
+// mustParsePendingClearArgs parses and validates arguments or exits on failure.
+func mustParsePendingClearArgs(args []string) (string, bool, bool, int64) {
 	mode, dryRun, yes, idMatch, err := parsePendingClearArgs(args)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 
+	return mode, dryRun, yes, idMatch
+}
+
+// mustOpenPendingDB opens the store database or exits with a warning.
+func mustOpenPendingDB() *store.DB {
 	db, dbErr := openDB()
 	if dbErr != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingDBOpen, dbErr)
 		os.Exit(1)
 	}
-	defer db.Close()
 
+	return db
+}
+
+// mustListPendingTasks fetches pending tasks or exits on database error.
+func mustListPendingTasks(db *store.DB) []model.PendingTaskRecord {
 	tasks, listErr := db.ListPendingTasks()
 	if listErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrPendingTaskQuery, listErr)
 		os.Exit(1)
 	}
 
-	candidates := selectClearCandidates(tasks, mode, idMatch)
-	printPendingClearHeader(mode, len(tasks))
-	if len(candidates) == 0 {
-		fmt.Printf(constants.MsgPendingClearNoMatches, mode)
+	return tasks
+}
 
-		return
-	}
-	printPendingClearCandidates(candidates)
-
+// executePendingClear handles dry-run, confirmation prompt, and candidate deletion.
+func executePendingClear(db *store.DB, candidates []pendingClearCandidate, dryRun, yes bool) {
 	if dryRun {
 		fmt.Printf(constants.MsgPendingClearDryRun, len(candidates))
 
@@ -72,40 +76,98 @@ func runPendingClear(args []string) {
 	fmt.Printf(constants.MsgPendingClearDone, deleted, len(candidates))
 }
 
+// processPendingClear filters candidates and initiates cleanup workflow.
+func processPendingClear(db *store.DB, tasks []model.PendingTaskRecord,
+	mode string, idMatch int64, dryRun, yes bool) {
+	candidates := selectClearCandidates(tasks, mode, idMatch)
+	printPendingClearHeader(mode, len(tasks))
+	if len(candidates) == 0 {
+		fmt.Printf(constants.MsgPendingClearNoMatches, mode)
+
+		return
+	}
+	printPendingClearCandidates(candidates)
+	executePendingClear(db, candidates, dryRun, yes)
+}
+
+// runPendingClear is wired in from runPending when args[0] == "clear".
+// args is everything after the "clear" token.
+func runPendingClear(args []string) {
+	mode, dryRun, yes, idMatch := mustParsePendingClearArgs(args)
+	db := mustOpenPendingDB()
+	defer db.Close()
+
+	tasks := mustListPendingTasks(db)
+	processPendingClear(db, tasks, mode, idMatch, dryRun, yes)
+}
+
+// parsePendingClearID validates a string as numeric ID and flags invalid modes.
+func parsePendingClearID(a string) (int64, error) {
+	id, parseErr := strconv.ParseInt(a, 10, 64)
+	isError := parseErr != nil || id <= 0
+	if isError && strings.HasPrefix(a, "-") {
+		return 0, fmt.Errorf(constants.ErrPendingClearUnknownMode, a)
+	}
+	if isError {
+		return 0, fmt.Errorf(constants.ErrPendingClearBadID, a)
+	}
+
+	return id, nil
+}
+
+// applyPendingClearIDArg parses and updates mode and idMatch for numeric ID args.
+func applyPendingClearIDArg(a string, mode *string, idMatch *int64) error {
+	id, err := parsePendingClearID(a)
+	if err != nil {
+		return err
+	}
+	*mode = "id"
+	*idMatch = id
+
+	return nil
+}
+
+// applyPendingClearFlag handles boolean flags for dry-run and confirmation bypass.
+func applyPendingClearFlag(a string, dryRun, yes *bool) bool {
+	if a == "--dry-run" {
+		*dryRun = true
+		return true
+	}
+	if a == "--yes" || a == "-y" {
+		*yes = true
+		return true
+	}
+
+	return false
+}
+
+// applyPendingClearArg parses a single command line argument for pending clear.
+func applyPendingClearArg(a string, mode *string, dryRun, yes *bool, idMatch *int64) error {
+	if applyPendingClearFlag(a, dryRun, yes) {
+		return nil
+	}
+	if a == "orphans" || a == "illegal" || a == "all" {
+		*mode = a
+		return nil
+	}
+
+	return applyPendingClearIDArg(a, mode, idMatch)
+}
+
 // parsePendingClearArgs splits args into (mode, dryRun, yes, idMatch, err).
 // Mode is one of: orphans (default), illegal, all, or "id" (with idMatch
 // holding the parsed numeric ID).
-func parsePendingClearArgs(args []string) (
-	mode string, dryRun, yes bool, idMatch int64, err error) {
-	mode = "orphans"
+func parsePendingClearArgs(args []string) (string, bool, bool, int64, error) {
+	mode := "orphans"
+	var dryRun, yes bool
+	var idMatch int64
 	for _, a := range args {
-		switch a {
-		case "--dry-run":
-			dryRun = true
-		case "--yes", "-y":
-			yes = true
-		case "orphans", "illegal", "all":
-			mode = a
-		default:
-			id, parseErr := strconv.ParseInt(a, 10, 64)
-			isError := parseErr != nil || id <= 0
-			isFlag := strings.HasPrefix(a, "-")
-
-			if isError == true && isFlag == true {
-				err = fmt.Errorf(constants.ErrPendingClearUnknownMode, a)
-				return
-			}
-
-			if isError == true && isFlag == false {
-				err = fmt.Errorf(constants.ErrPendingClearBadID, a)
-				return
-			}
-			mode = "id"
-			idMatch = id
+		if err := applyPendingClearArg(a, &mode, &dryRun, &yes, &idMatch); err != nil {
+			return "", false, false, 0, err
 		}
 	}
 
-	return
+	return mode, dryRun, yes, idMatch, nil
 }
 
 // selectClearCandidates filters the full task list down to the rows
@@ -125,35 +187,62 @@ func selectClearCandidates(tasks []model.PendingTaskRecord,
 	return out
 }
 
+// classifyIllegalTask checks if a target path matches illegal URL shape or illegal chars.
+func classifyIllegalTask(path string) (string, bool) {
+	if isURLShapedTarget(path) {
+		return constants.MsgPendingClearReasonURL, true
+	}
+	if hasIllegalPathChar(path) {
+		return constants.MsgPendingClearReasonChar, true
+	}
+
+	return "", false
+}
+
+// classifyIDTask checks if the task ID matches the specified numeric filter.
+func classifyIDTask(taskID, targetID int64) (string, bool) {
+	if taskID == targetID {
+		return constants.MsgPendingClearReasonByID, true
+	}
+
+	return "", false
+}
+
+// classifyOrphanTask checks if a target path is an orphan directory.
+func classifyOrphanTask(path string) (string, bool) {
+	if isOrphanTarget(path) {
+		return constants.MsgPendingClearReasonOrph, true
+	}
+
+	return "", false
+}
+
 // classifyPendingClearTask decides whether one task matches the mode
 // and returns the reason label for the preview output.
 func classifyPendingClearTask(t model.PendingTaskRecord,
 	mode string, idMatch int64) (string, bool) {
-	switch mode {
-	case "all":
+	if mode == "all" {
 		return constants.MsgPendingClearReasonAll, true
-	case "id":
-		if t.ID == idMatch {
-			return constants.MsgPendingClearReasonByID, true
-		}
-
-		return "", false
-	case "illegal":
-		if isURLShapedTarget(t.TargetPath) {
-			return constants.MsgPendingClearReasonURL, true
-		}
-		if hasIllegalPathChar(t.TargetPath) {
-			return constants.MsgPendingClearReasonChar, true
-		}
-
-		return "", false
-	default: // orphans
-		if isOrphanTarget(t.TargetPath) {
-			return constants.MsgPendingClearReasonOrph, true
-		}
-
-		return "", false
 	}
+	if mode == "id" {
+		return classifyIDTask(t.ID, idMatch)
+	}
+	if mode == "illegal" {
+		return classifyIllegalTask(t.TargetPath)
+	}
+
+	return classifyOrphanTask(t.TargetPath)
+}
+
+// hasSchemePrefix checks if a lowercased path starts with or contains broken URI schemes.
+func hasSchemePrefix(lower string) bool {
+	for _, scheme := range []string{"http:", "https:", "ssh:", "git:"} {
+		if strings.Contains(lower, scheme+`\`) || strings.Contains(lower, scheme+"/") {
+			return true
+		}
+	}
+
+	return false
 }
 
 // isURLShapedTarget catches paths shaped like the Windows-corrupted
@@ -165,16 +254,8 @@ func isURLShapedTarget(path string) bool {
 		return false
 	}
 	lower := strings.ToLower(path)
-	if strings.Contains(lower, "://") {
+	if strings.Contains(lower, "://") || hasSchemePrefix(lower) {
 		return true
-	}
-	// "https:\github.com\..." — colon-immediately-after-scheme even
-	// though Windows broke the slashes.
-	for _, scheme := range []string{"http:", "https:", "ssh:", "git:"} {
-		if strings.Contains(lower, scheme+`\`) ||
-			strings.Contains(lower, scheme+"/") {
-			return true
-		}
 	}
 
 	return false
@@ -224,6 +305,18 @@ func confirmPendingClear(count int) bool {
 	return strings.EqualFold(strings.TrimSpace(answer), "yes")
 }
 
+// deleteSinglePendingClearCandidate deletes a single pending task and prints status.
+func deleteSinglePendingClearCandidate(db *store.DB, c pendingClearCandidate) bool {
+	if err := db.DeletePendingTask(c.task.ID); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrPendingClearDeleteFail, c.task.ID, err)
+
+		return false
+	}
+	fmt.Printf(constants.MsgPendingClearDeleted, c.task.ID, c.task.TaskTypeName)
+
+	return true
+}
+
 // deletePendingClearCandidates iterates the slice and deletes each
 // row, printing a per-deletion line and tallying successes. Returns
 // the number actually deleted (failures are logged but don't abort).
@@ -231,15 +324,9 @@ func deletePendingClearCandidates(db *store.DB,
 	candidates []pendingClearCandidate) int {
 	deleted := 0
 	for _, c := range candidates {
-		if err := db.DeletePendingTask(c.task.ID); err != nil {
-			fmt.Fprintf(os.Stderr,
-				constants.ErrPendingClearDeleteFail, c.task.ID, err)
-
-			continue
+		if deleteSinglePendingClearCandidate(db, c) {
+			deleted++
 		}
-		deleted++
-		fmt.Printf(constants.MsgPendingClearDeleted,
-			c.task.ID, c.task.TaskTypeName)
 	}
 
 	return deleted

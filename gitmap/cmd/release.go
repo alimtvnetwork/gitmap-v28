@@ -14,39 +14,35 @@ import (
 )
 
 // runRelease handles the 'release' command.
-//
-// Form 1 — `gitmap r vX.Y.Z`         : in-place release of the current repo.
-// Form 2 — `gitmap r <repo> vX.Y.Z`  : cross-dir — chdir into <repo>, fetch
-//   - pull --rebase, release, chdir back.
-//
-// See `releaserebase.go` for the cross-dir machinery.
 func runRelease(args []string) {
 	if tryCrossDirRelease(args) {
 		return
 	}
 	checkHelp("release", args)
-
-	version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, listTargets, noCommit, yes := parseReleaseFlags(args)
+	v, assets, commit, branch, bump, notes, targets, zg, zi, bundle, draft, dryRun, verbose, comp, cs, bin, listTgts, noComm, yes := parseReleaseFlags(args)
 	_ = verbose
-
-	if listTargets {
+	if listTgts {
 		printListTargets(targets)
+		return
+	}
+	if handleOutsideRepoRelease(args, v, bump, commit, branch, yes) {
+		return
+	}
+	performInsideRepoRelease(v, assets, commit, branch, bump, notes, targets, zg, zi, bundle, draft, dryRun, verbose, comp, cs, bin, noComm, yes)
+}
 
-		return
+func handleOutsideRepoRelease(args []string, version, bump, commit, branch string, yes bool) bool {
+	if release.IsInsideGitRepo() {
+		return false
 	}
+	if tryRunReleaseInRecentClone(args) || (shouldAutoBumpMinor(version, bump, commit, branch) && tryRunReleaseScanDir(yes)) {
+		return true
+	}
+	runReleaseSelf(args)
+	return true
+}
 
-	inside := release.IsInsideGitRepo()
-	if inside == false && tryRunReleaseInRecentClone(args) {
-		return
-	}
-	if inside == false && shouldAutoBumpMinor(version, bump, commit, branch) && tryRunReleaseScanDir(yes) {
-		return
-	}
-	if inside == false {
-		runReleaseSelf(args)
-		return
-	}
-
+func performInsideRepoRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {
 	requireOnline()
 	bump = applyBareReleaseAutoBump(version, bump, commit, branch, yes)
 	validateReleaseFlags(version, bump, commit, branch)
@@ -56,11 +52,9 @@ func runRelease(args []string) {
 // applyBareReleaseAutoBump injects bump=minor when no explicit version/bump
 // was provided, after confirming with the user (skipped with -y).
 func applyBareReleaseAutoBump(version, bump, commit, branch string, yes bool) string {
-	isNonAutoBumpMinor := !shouldAutoBumpMinor(version, bump, commit, branch)
-	if isNonAutoBumpMinor {
+	if !shouldAutoBumpMinor(version, bump, commit, branch) {
 		return bump
 	}
-
 	current, next, ok := peekNextMinorVersion()
 	if !ok {
 		return bump
@@ -69,39 +63,36 @@ func applyBareReleaseAutoBump(version, bump, commit, branch string, yes bool) st
 		fmt.Fprint(os.Stderr, constants.MsgReleaseAutoBumpAborted)
 		os.Exit(1)
 	}
-
 	return constants.BumpMinor
 }
 
-// executeRelease builds options and runs the release workflow.
-func executeRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {
+func loadReleaseConfig() model.Config {
 	cfg, cfgErr := config.LoadFromFile(constants.DefaultConfigPath)
 	if cfgErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not load config: %v\n", cfgErr)
 	}
+	return cfg
+}
 
-	opts := release.Options{
-		Version: version, Assets: assets,
-		Commit: commit, Branch: branch,
-		Bump: bump, Notes: notes, Targets: targets,
-		ConfigTargets: cfg.Release.Targets,
-		ZipGroups:     zipGroups,
-		ZipItems:      zipItems,
-		BundleName:    bundleName,
-		IsDraft:       draft, DryRun: dryRun,
-		Verbose:   verbose,
-		Compress:  compress || cfg.Release.IsCompress,
-		Checksums: checksums || cfg.Release.HasChecksums,
-		Bin:       bin,
-		NoCommit:  noCommit,
-		Yes:       yes,
+func buildReleaseOptions(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool, cfg model.Config) release.Options {
+	return release.Options{
+		Version: version, Assets: assets, Commit: commit, Branch: branch,
+		Bump: bump, Notes: notes, Targets: targets, ConfigTargets: cfg.Release.Targets,
+		ZipGroups: zipGroups, ZipItems: zipItems, BundleName: bundleName,
+		IsDraft: draft, DryRun: dryRun, Verbose: verbose,
+		Compress: compress || cfg.Release.IsCompress, Checksums: checksums || cfg.Release.HasChecksums,
+		Bin: bin, NoCommit: noCommit, Yes: yes,
 	}
-	err := release.Execute(opts)
-	if err != nil {
+}
+
+// executeRelease builds options and runs the release workflow.
+func executeRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {
+	cfg := loadReleaseConfig()
+	opts := buildReleaseOptions(version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes, cfg)
+	if err := release.Execute(opts); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 		os.Exit(1)
 	}
-
 	persistReleaseToDB()
 }
 
@@ -123,7 +114,6 @@ type zipGroupFlag []string
 func (z *zipGroupFlag) String() string { return fmt.Sprintf("%v", *z) }
 func (z *zipGroupFlag) Set(val string) error {
 	*z = append(*z, val)
-
 	return nil
 }
 
@@ -133,52 +123,62 @@ type zipItemFlag []string
 func (z *zipItemFlag) String() string { return fmt.Sprintf("%v", *z) }
 func (z *zipItemFlag) Set(val string) error {
 	*z = append(*z, val)
-
 	return nil
+}
+
+type releaseFlagHolders struct {
+	assets, commit, branch, bump, notes, targets, bundle *string
+	draft, dryRun, verbose, compress, checksums, bin, listTargets, noCommit, yes *bool
+	zgGroups zipGroupFlag
+	zgItems  zipItemFlag
+}
+
+func initStringFlags(fs *flag.FlagSet, h *releaseFlagHolders) {
+	h.assets = fs.String("assets", "", constants.FlagDescAssets)
+	h.commit = fs.String("commit", "", constants.FlagDescCommit)
+	h.branch = fs.String("branch", "", constants.FlagDescRelBranch)
+	h.bump = fs.String(constants.FlagBump, "", constants.FlagDescBump)
+	h.notes = fs.String("notes", "", constants.FlagDescNotes)
+	h.targets = fs.String("targets", "", constants.FlagDescTargets)
+	h.bundle = fs.String("bundle", "", constants.FlagDescZGBundle)
+	fs.StringVar(h.notes, "N", "", constants.FlagDescNotes)
+}
+
+func initBoolFlags(fs *flag.FlagSet, h *releaseFlagHolders) {
+	h.draft = fs.Bool("draft", false, constants.FlagDescDraft)
+	h.dryRun = fs.Bool("dry-run", false, constants.FlagDescDryRun)
+	h.verbose = fs.Bool("verbose", false, constants.FlagDescVerbose)
+	h.compress = fs.Bool("compress", false, constants.FlagDescCompress)
+	h.checksums = fs.Bool("checksums", false, constants.FlagDescChecksums)
+	h.bin = fs.Bool("bin", false, constants.FlagDescBin)
+	h.listTargets = fs.Bool("list-targets", false, constants.FlagDescListTargets)
+	h.noCommit = fs.Bool("no-commit", false, constants.FlagDescNoCommit)
+	h.yes = fs.Bool("yes", false, constants.FlagDescYes)
+	fs.BoolVar(h.bin, "b", false, constants.FlagDescBin)
+	fs.BoolVar(h.yes, "y", false, constants.FlagDescYes)
+}
+
+func newReleaseFlagSet() (*flag.FlagSet, *releaseFlagHolders) {
+	fs := flag.NewFlagSet(constants.CmdRelease, flag.ExitOnError)
+	h := &releaseFlagHolders{}
+	initStringFlags(fs, h)
+	initBoolFlags(fs, h)
+	fs.Var(&h.zgGroups, "zip-group", constants.FlagDescZGZipGroup)
+	fs.Var(&h.zgItems, "Z", constants.FlagDescZGZipItem)
+	return fs, h
 }
 
 // parseReleaseFlags parses flags for the release command.
 func parseReleaseFlags(args []string) (version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, listTargets, noCommit, yes bool) {
-	fs := flag.NewFlagSet(constants.CmdRelease, flag.ExitOnError)
-	assetsFlag := fs.String("assets", "", constants.FlagDescAssets)
-	commitFlag := fs.String("commit", "", constants.FlagDescCommit)
-	branchFlag := fs.String("branch", "", constants.FlagDescRelBranch)
-	bumpFlag := fs.String(constants.FlagBump, "", constants.FlagDescBump)
-	notesFlag := fs.String("notes", "", constants.FlagDescNotes)
-	targetsFlag := fs.String("targets", "", constants.FlagDescTargets)
-	draftFlag := fs.Bool("draft", false, constants.FlagDescDraft)
-	dryRunFlag := fs.Bool("dry-run", false, constants.FlagDescDryRun)
-	verboseFlag := fs.Bool("verbose", false, constants.FlagDescVerbose)
-	compressFlag := fs.Bool("compress", false, constants.FlagDescCompress)
-	checksumsFlag := fs.Bool("checksums", false, constants.FlagDescChecksums)
-	binFlag := fs.Bool("bin", false, constants.FlagDescBin)
-	listTargetsFlag := fs.Bool("list-targets", false, constants.FlagDescListTargets)
-	bundleFlag := fs.String("bundle", "", constants.FlagDescZGBundle)
-	noCommitFlag := fs.Bool("no-commit", false, constants.FlagDescNoCommit)
-	yesFlag := fs.Bool("yes", false, constants.FlagDescYes)
-
-	fs.BoolVar(binFlag, "b", false, constants.FlagDescBin)
-	fs.BoolVar(yesFlag, "y", false, constants.FlagDescYes)
-
-	var zgGroups zipGroupFlag
-	var zgItems zipItemFlag
-	fs.Var(&zgGroups, "zip-group", constants.FlagDescZGZipGroup)
-	fs.Var(&zgItems, "Z", constants.FlagDescZGZipItem)
-	fs.StringVar(notesFlag, "N", "", constants.FlagDescNotes)
-
+	fs, h := newReleaseFlagSet()
 	fs.Parse(reorderFlagsBeforeArgs(args))
-	version = ""
 	if fs.NArg() > 0 {
 		version = normalizeVersion(fs.Arg(0))
 	}
-	// Process-level override set by pull-release / prc / similar
-	// wrappers so the auto-commit prompt is never asked even when
-	// the user did not type -y. Belt-and-suspenders with the
-	// ensureYesForward arg injection.
 	if forceYesOverride {
-		*yesFlag = true
+		*h.yes = true
 	}
-	return version, *assetsFlag, *commitFlag, *branchFlag, *bumpFlag, *notesFlag, *targetsFlag, []string(zgGroups), []string(zgItems), *bundleFlag, *draftFlag, *dryRunFlag, *verboseFlag, *compressFlag, *checksumsFlag, *binFlag, *listTargetsFlag, *noCommitFlag, *yesFlag
+	return version, *h.assets, *h.commit, *h.branch, *h.bump, *h.notes, *h.targets, []string(h.zgGroups), []string(h.zgItems), *h.bundle, *h.draft, *h.dryRun, *h.verbose, *h.compress, *h.checksums, *h.bin, *h.listTargets, *h.noCommit, *h.yes
 }
 
 const (
@@ -191,7 +191,6 @@ func normalizeVersion(v string) string {
 	if len(v) == 0 {
 		return v
 	}
-
 	return versionPrefix + strings.TrimLeft(v, versionTrimChars)
 }
 
@@ -203,22 +202,19 @@ var forceYesOverride bool
 
 // printListTargets resolves and prints the target matrix, then returns.
 func printListTargets(flagTargets string) {
-	cfg, cfgErr := config.LoadFromFile(constants.DefaultConfigPath)
-	if cfgErr != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not load config: %v\n", cfgErr)
-	}
-
+	cfg := loadReleaseConfig()
 	targets, err := release.ResolveTargets(flagTargets, cfg.Release.Targets)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 		os.Exit(1)
 	}
+	printTargetDetails(flagTargets, cfg.Release.Targets, targets)
+}
 
-	source := resolveTargetSource(flagTargets, cfg.Release.Targets)
-
+func printTargetDetails(flagTargets string, configTargets []model.ReleaseTarget, targets []release.BuildTarget) {
+	source := resolveTargetSource(flagTargets, configTargets)
 	fmt.Printf(constants.MsgListTargetsHeader, len(targets))
 	fmt.Printf(constants.MsgListTargetsSource, source)
-
 	for _, t := range targets {
 		fmt.Printf(constants.MsgListTargetsRow, t.GOOS, t.GOARCH)
 	}
@@ -229,10 +225,8 @@ func resolveTargetSource(flagTargets string, configTargets []model.ReleaseTarget
 	if len(flagTargets) > 0 {
 		return "--targets flag"
 	}
-
 	if len(configTargets) > 0 {
 		return "config.json (release.targets)"
 	}
-
 	return "built-in defaults"
 }

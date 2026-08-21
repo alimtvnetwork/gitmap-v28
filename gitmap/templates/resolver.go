@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 )
 
-// Source describes where a resolved template came from.
-type Source int
+// SourceType describes where a resolved template came from.
+type SourceType int
 
 const (
-	SourceNone Source = iota
+	SourceNone SourceType = iota
 	SourceUser
 	SourceEmbed
 )
@@ -22,7 +22,7 @@ type Resolved struct {
 	Kind    string
 	Lang    string
 	Path    string // overlay absolute path, or embedded virtual path
-	Source  Source
+	Source  SourceType
 	Content []byte
 }
 

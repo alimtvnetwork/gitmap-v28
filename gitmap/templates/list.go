@@ -9,10 +9,10 @@ import (
 
 // Entry describes one discoverable template.
 type Entry struct {
-	Kind   string // ignore | attributes | lfs
-	Lang   string // common | go | node | ...
-	Source Source // SourceUser or SourceEmbed
-	Path   string // absolute (overlay) or virtual embed path
+	Kind   string     // ignore | attributes | lfs
+	Lang   string     // common | go | node | ...
+	Source SourceType // SourceUser or SourceEmbed
+	Path   string     // absolute (overlay) or virtual embed path
 }
 
 // List returns every available template, with the user-overlay copy
