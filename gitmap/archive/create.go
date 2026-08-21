@@ -54,47 +54,85 @@ type CreateResult struct {
 	EntriesWritten int
 }
 
+func validateCreateFormat(path string) (Format, error) {
+	format := FormatFromPath(path)
+	if format == FormatUnknown {
+		return FormatUnknown, fmt.Errorf("%w: %q", ErrUnknownFormat, path)
+	}
+	if format == Format7z || format == FormatRar {
+		return FormatUnknown, fmt.Errorf("%s archives are read-only in this build (use zip or tar.*)", format)
+	}
+
+	return format, nil
+}
+
+func prepareArchiveFiles(ctx context.Context, opts CreateOptions) ([]archives.FileInfo, error) {
+	files, err := gatherFiles(ctx, opts.Sources)
+	if err != nil {
+		return nil, fmt.Errorf("gather sources: %w", err)
+	}
+
+	return filterFiles(files, opts.Includes, opts.Excludes), nil
+}
+
+func createOutputFile(path string) (*os.File, error) {
+	if err := os.MkdirAll(filepath.Dir(path), constants.DirPermission); err != nil {
+		return nil, err
+	}
+
+	return os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, constants.FilePermission)
+}
+
+func writeArchive(ctx context.Context, path string, format Format, mode CompressionMode, files []archives.FileInfo) error {
+	out, err := createOutputFile(path)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	writer, err := buildArchiver(format, mode)
+	if err != nil {
+		return err
+	}
+
+	return writer.Archive(ctx, out, files)
+}
+
 // CreateArchive walks every source, applies include/exclude filters, and
 // writes the archive to opts.OutputPath using the format derived from
 // the output extension.
 func CreateArchive(ctx context.Context, opts CreateOptions) (CreateResult, error) {
 	res := CreateResult{OutputPath: opts.OutputPath}
-
-	format := FormatFromPath(opts.OutputPath)
-	if format == FormatUnknown {
-		return res, fmt.Errorf("%w: %q", ErrUnknownFormat, opts.OutputPath)
-	}
-	if format == Format7z || format == FormatRar {
-		return res, fmt.Errorf("%s archives are read-only in this build (use zip or tar.*)", format)
+	format, err := validateCreateFormat(opts.OutputPath)
+	if err != nil {
+		return res, err
 	}
 	res.Format = format
 
-	files, err := gatherFiles(ctx, opts.Sources)
+	files, err := prepareArchiveFiles(ctx, opts)
 	if err != nil {
-		return res, fmt.Errorf("gather sources: %w", err)
+		return res, err
 	}
-	files = filterFiles(files, opts.Includes, opts.Excludes)
 	res.EntriesWritten = len(files)
 
-	if err := os.MkdirAll(filepath.Dir(opts.OutputPath), constants.DirPermission); err != nil {
-		return res, err
-	}
-	out, err := os.OpenFile(opts.OutputPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, constants.FilePermission)
-	if err != nil {
-		return res, err
-	}
-	defer out.Close()
-
-	writer, err := buildArchiver(format, opts.Mode)
-	if err != nil {
-		return res, err
-	}
-
-	if err := writer.Archive(ctx, out, files); err != nil {
+	if err := writeArchive(ctx, opts.OutputPath, format, opts.Mode, files); err != nil {
 		return res, err
 	}
 
 	return res, nil
+}
+
+func mapSourceEntry(src string) (string, error) {
+	info, err := os.Stat(src)
+	if err != nil {
+		return "", err
+	}
+	base := filepath.Base(src)
+	if info.IsDir() {
+		return base + "/", nil
+	}
+
+	return base, nil
 }
 
 // gatherFiles converts each source root into mholt FileInfo entries.
@@ -103,19 +141,25 @@ func CreateArchive(ctx context.Context, opts CreateOptions) (CreateResult, error
 func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, error) {
 	mapping := make(map[string]string, len(sources))
 	for _, src := range sources {
-		info, err := os.Stat(src)
+		target, err := mapSourceEntry(src)
 		if err != nil {
 			return nil, err
 		}
-		base := filepath.Base(src)
-		if info.IsDir() {
-			mapping[src] = base + "/"
-		} else {
-			mapping[src] = base
-		}
+		mapping[src] = target
 	}
 
 	return archives.FilesFromDisk(ctx, nil, mapping)
+}
+
+func isEntryIncluded(name string, includes, excludes []string) bool {
+	if matchAny(name, includes, true) == false {
+		return false
+	}
+	if matchAny(name, excludes, false) {
+		return false
+	}
+
+	return true
 }
 
 // filterFiles applies include/exclude globs against NameInArchive.
@@ -125,16 +169,23 @@ func filterFiles(in []archives.FileInfo, includes, excludes []string) []archives
 	}
 	out := in[:0]
 	for _, f := range in {
-		if !matchAny(f.NameInArchive, includes, true) {
-			continue
+		if isEntryIncluded(f.NameInArchive, includes, excludes) {
+			out = append(out, f)
 		}
-		if matchAny(f.NameInArchive, excludes, false) {
-			continue
-		}
-		out = append(out, f)
 	}
 
 	return out
+}
+
+func matchPattern(pattern, name string) bool {
+	if ok, err := filepath.Match(pattern, name); err == nil && ok {
+		return true
+	}
+	if ok, err := filepath.Match(pattern, filepath.Base(name)); err == nil && ok {
+		return true
+	}
+
+	return false
 }
 
 // matchAny returns true when name matches any pattern. emptyDefault is
@@ -145,19 +196,27 @@ func matchAny(name string, patterns []string, emptyDefault bool) bool {
 		return emptyDefault
 	}
 	for _, p := range patterns {
-		ok, err := filepath.Match(p, name)
-		if err == nil && ok {
-			return true
-		}
-		// Also try matching just the basename so users can write *.go
-		// without worrying about the in-archive prefix.
-		ok, err = filepath.Match(p, filepath.Base(name))
-		if err == nil && ok {
+		if matchPattern(p, name) {
 			return true
 		}
 	}
 
 	return false
+}
+
+func buildCompressedTarArchiver(format Format, mode CompressionMode) (archives.Archiver, error) {
+	switch format {
+	case FormatTarGz:
+		return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Gz{CompressionLevel: gzipLevel(mode)}}, nil
+	case FormatTarBz2:
+		return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Bz2{CompressionLevel: bz2Level(mode)}}, nil
+	case FormatTarXz:
+		return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Xz{}}, nil
+	case FormatTarZst:
+		return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Zstd{}}, nil
+	}
+
+	return nil, errors.New("format not supported as archiver")
 }
 
 // buildArchiver returns the mholt writer pre-tuned for the requested
@@ -169,16 +228,8 @@ func buildArchiver(format Format, mode CompressionMode) (archives.Archiver, erro
 		return archives.Zip{Compression: zip.Deflate, SelectiveCompression: true}, nil
 	case FormatTar:
 		return archives.Tar{}, nil
-	case FormatTarGz:
-		return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Gz{CompressionLevel: gzipLevel(mode)}}, nil
-	case FormatTarBz2:
-		return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Bz2{CompressionLevel: bz2Level(mode)}}, nil
-	case FormatTarXz:
-		return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Xz{}}, nil
-	case FormatTarZst:
-		return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Zstd{}}, nil
-	case FormatGz, FormatBz2, FormatXz, FormatZst, Format7z, FormatRar, FormatUnknown:
-		return nil, errors.New("format not supported as archiver")
+	case FormatTarGz, FormatTarBz2, FormatTarXz, FormatTarZst:
+		return buildCompressedTarArchiver(format, mode)
 	}
 
 	return nil, errors.New("format not supported as archiver")

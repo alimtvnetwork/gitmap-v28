@@ -65,13 +65,14 @@ func checkLifecycleGuards(node ClusterNode, forceLifecycle bool, providedPasswor
 	if !forceLifecycle {
 		return errors.New(constants.ErrClusterLifecycleRequiresForce)
 	}
-	if node.PasswordHash != "" {
-		if providedPassword == "" {
-			return errors.New(constants.ErrClusterPasswordRequired)
-		}
-		if err := bcrypt.CompareHashAndPassword([]byte(node.PasswordHash), []byte(providedPassword)); err != nil {
-			return errors.New("invalid password")
-		}
+	if node.PasswordHash == "" {
+		return nil
+	}
+	if providedPassword == "" {
+		return errors.New(constants.ErrClusterPasswordRequired)
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(node.PasswordHash), []byte(providedPassword)); err != nil {
+		return errors.New("invalid password")
 	}
 	return nil
 }

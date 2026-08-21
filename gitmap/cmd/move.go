@@ -15,10 +15,8 @@ import (
 func runMove(args []string) {
 	checkHelp(constants.CmdMv, args)
 	mOpts, positional := parseMoveFlags(args)
-	if len(positional) == 2 {
-		if handleRepoMove(positional[0], positional[1], mOpts) {
-			return
-		}
+	if len(positional) == 2 && handleRepoMove(positional[0], positional[1], mOpts) {
+		return
 	}
 	runMoveMerge(args)
 }

@@ -93,7 +93,7 @@ func isAllZero(s Summary) bool {
 }
 
 // printSection prints one labeled block of entries of a given kind.
-func printSection(out io.Writer, header string, entries []Entry, kind EntryKind, enabled bool) {
+func printSection(out io.Writer, header string, entries []Entry, kind EntryKindType, enabled bool) {
 	if !enabled {
 		return
 	}
@@ -109,7 +109,7 @@ func printSection(out io.Writer, header string, entries []Entry, kind EntryKind,
 }
 
 // filterByKind returns the subset of entries matching kind.
-func filterByKind(entries []Entry, kind EntryKind) []Entry {
+func filterByKind(entries []Entry, kind EntryKindType) []Entry {
 	out := make([]Entry, 0, len(entries))
 	for _, e := range entries {
 		if e.Kind == kind {
@@ -121,7 +121,7 @@ func filterByKind(entries []Entry, kind EntryKind) []Entry {
 }
 
 // metaSuffix renders compact size/mtime info next to a path.
-func metaSuffix(e Entry, kind EntryKind) string {
+func metaSuffix(e Entry, kind EntryKindType) string {
 	if kind == Conflict {
 		return fmt.Sprintf("  (L: %s @ %s | R: %s @ %s)",
 			humanSize(e.LeftSize), humanTime(e.LeftMTime),

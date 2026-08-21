@@ -337,17 +337,16 @@ const Troubleshooting = () => {
       return;
     }
     if (filtered.findIndex((i) => i.id === targetId) === -1) {
-      if (search) setSearch("");
+      setSearch("");
       return;
     }
     if (scrolledIdRef.current === targetId) return;
     const el = document.getElementById(targetId);
-    if (el) {
-      scrolledIdRef.current = targetId;
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      el.classList.add("ring-2", "ring-primary");
-      window.setTimeout(() => el.classList.remove("ring-2", "ring-primary"), 2400);
-    }
+    if (!el) return;
+    scrolledIdRef.current = targetId;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    el.classList.add("ring-2", "ring-primary");
+    window.setTimeout(() => el.classList.remove("ring-2", "ring-primary"), 2400);
   }, [targetId, filtered, activeCategory, search]);
 
   return (

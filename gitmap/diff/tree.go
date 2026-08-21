@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-// EntryKind classifies how a single relative path differs.
-type EntryKind int
+// EntryKindType classifies how a single relative path differs.
+type EntryKindType int
 
 const (
 	// MissingRight = present on LEFT, absent on RIGHT.
-	MissingRight EntryKind = iota
+	MissingRight EntryKindType = iota
 	// MissingLeft = present on RIGHT, absent on LEFT.
 	MissingLeft
 	// Identical = present on both, byte-equal.
@@ -25,13 +25,13 @@ const (
 
 // Entry is one path classified for the diff report.
 type Entry struct {
-	RelPath    string    `json:"path"`
-	Kind       EntryKind `json:"-"`
-	KindLabel  string    `json:"kind"`
-	LeftSize   int64     `json:"left_size,omitempty"`
-	RightSize  int64     `json:"right_size,omitempty"`
-	LeftMTime  int64     `json:"left_mtime,omitempty"`
-	RightMTime int64     `json:"right_mtime,omitempty"`
+	RelPath    string        `json:"path"`
+	Kind       EntryKindType `json:"-"`
+	KindLabel  string        `json:"kind"`
+	LeftSize   int64         `json:"left_size,omitempty"`
+	RightSize  int64         `json:"right_size,omitempty"`
+	LeftMTime  int64         `json:"left_mtime,omitempty"`
+	RightMTime int64         `json:"right_mtime,omitempty"`
 }
 
 // WalkOptions controls which files participate in the diff.
@@ -142,7 +142,7 @@ func classifyOne(rel string, l, r os.FileInfo, leftDir, rightDir string) Entry {
 }
 
 // pickKind decides MissingLeft / MissingRight / Identical / Conflict.
-func pickKind(l, r os.FileInfo, leftDir, rightDir, rel string) EntryKind {
+func pickKind(l, r os.FileInfo, leftDir, rightDir, rel string) EntryKindType {
 	switch {
 	case l != nil && r == nil:
 		return MissingRight
@@ -156,7 +156,7 @@ func pickKind(l, r os.FileInfo, leftDir, rightDir, rel string) EntryKind {
 }
 
 // labelFor returns a stable string label used in JSON / text output.
-func labelFor(k EntryKind) string {
+func labelFor(k EntryKindType) string {
 	switch k {
 	case MissingRight:
 		return "missing_right"

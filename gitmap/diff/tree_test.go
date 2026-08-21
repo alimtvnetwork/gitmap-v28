@@ -21,7 +21,7 @@ func TestDiffTrees_AllFourKinds(t *testing.T) {
 	if err != nil {
 		t.Fatalf("DiffTrees: %v", err)
 	}
-	got := map[string]EntryKind{}
+	got := map[string]EntryKindType{}
 	for _, e := range entries {
 		got[e.RelPath] = e.Kind
 	}

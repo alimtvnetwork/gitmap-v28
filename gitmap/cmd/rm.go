@@ -125,15 +125,23 @@ func confirmRemove(r *bufio.Reader, rec model.ScanRecord, dbOnly bool) bool {
 }
 
 func removeRepoFully(db *store.DB, r model.ScanRecord, dbOnly bool) error {
-	if !dbOnly {
-		if err := fsutil.SafeRemoveAll(r.AbsolutePath); err != nil {
-			return fmt.Errorf("remove dir: %w", err)
-		}
+	if err := removeRepoDisk(r.AbsolutePath, dbOnly); err != nil {
+		return err
 	}
 	if _, err := db.DeleteByPath(r.AbsolutePath); err != nil {
 		return fmt.Errorf("db delete: %w", err)
 	}
 	_ = vscodepm.RemoveEntry(r.AbsolutePath)
 	_ = desktop.RemoveRepo(r.AbsolutePath)
+	return nil
+}
+
+func removeRepoDisk(absPath string, dbOnly bool) error {
+	if dbOnly {
+		return nil
+	}
+	if err := fsutil.SafeRemoveAll(absPath); err != nil {
+		return fmt.Errorf("remove dir: %w", err)
+	}
 	return nil
 }

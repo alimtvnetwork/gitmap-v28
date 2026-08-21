@@ -31,16 +31,16 @@
 
 package cliexit
 
-// Kind classifies a CLI failure into one of the documented buckets.
+// KindType classifies a CLI failure into one of the documented buckets.
 // Use FailKind(ctx, kind, mode) at the cmd entry-point error path so
 // the (message, exit-code) pair stays atomic.
-type Kind int
+type KindType int
 
 const (
 	// KindSuccess is the zero-value sentinel. Never pass it to
-	// FailKind — it's only here so `var k Kind` defaults to a
+	// FailKind — it's only here so `var k KindType` defaults to a
 	// meaningful name in debuggers.
-	KindSuccess Kind = iota
+	KindSuccess KindType = iota
 	// KindExecutionFailed covers any operational failure that
 	// happened while doing real work: git clone died, a file
 	// couldn't be written, a network call timed out. Exit 1.
@@ -67,7 +67,7 @@ const (
 
 // kindCodes is the single authoritative table. Wrapper scripts and
 // the cliexit_*_test.go suite both grep these numbers.
-var kindCodes = map[Kind]int{
+var kindCodes = map[KindType]int{
 	KindSuccess:            0,
 	KindExecutionFailed:    1,
 	KindUserCanceled:       2,
@@ -79,7 +79,7 @@ var kindCodes = map[Kind]int{
 // kindLabels is the short tag rendered in human/JSON output so the
 // user sees *why* the process is exiting with that code, not just
 // the number.
-var kindLabels = map[Kind]string{
+var kindLabels = map[KindType]string{
 	KindSuccess:            "success",
 	KindExecutionFailed:    "execution-failed",
 	KindUserCanceled:       "user-canceled",
@@ -92,7 +92,7 @@ var kindLabels = map[Kind]string{
 // values fall back to 1 so a future enum addition that forgets to
 // update the table still produces a "something went wrong" exit
 // rather than a misleading 0.
-func KindCode(k Kind) int {
+func KindCode(k KindType) int {
 	if code, ok := kindCodes[k]; ok {
 		return code
 	}
@@ -103,7 +103,7 @@ func KindCode(k Kind) int {
 // KindLabel returns the short human label for a Kind. Used by
 // FailKind to tag the stderr context with the failure class so a
 // reader doesn't have to memorize the code table.
-func KindLabel(k Kind) string {
+func KindLabel(k KindType) string {
 	if label, ok := kindLabels[k]; ok {
 		return label
 	}
@@ -119,7 +119,7 @@ func KindLabel(k Kind) string {
 // The kind is always added to Extras so JSON consumers can branch
 // on a stable string field instead of reverse-engineering it from
 // the exit code.
-func FailKind(ctx Context, kind Kind, mode OutputMode) {
+func FailKind(ctx Context, kind KindType, mode OutputMode) {
 	tagged := withKindExtra(ctx, kind)
 	FailWith(tagged, mode, KindCode(kind))
 }
@@ -127,7 +127,7 @@ func FailKind(ctx Context, kind Kind, mode OutputMode) {
 // withKindExtra returns a copy of ctx with kind=<label> appended to
 // Extras. Defensive copy so callers can reuse their Context value
 // without surprise mutations.
-func withKindExtra(ctx Context, kind Kind) Context {
+func withKindExtra(ctx Context, kind KindType) Context {
 	extras := make(map[string]string, len(ctx.Extras)+1)
 	for k, v := range ctx.Extras {
 		extras[k] = v

@@ -17,7 +17,7 @@ import (
 func TestKindCode_Table(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		kind Kind
+		kind KindType
 		want int
 	}{
 		{KindSuccess, 0},
@@ -38,7 +38,7 @@ func TestKindCode_Table(t *testing.T) {
 // addition that forgets the table — we'd rather exit 1 than 0.
 func TestKindCode_UnknownDefaultsToOne(t *testing.T) {
 	t.Parallel()
-	if got := KindCode(Kind(999)); got != 1 {
+	if got := KindCode(KindType(999)); got != 1 {
 		t.Fatalf("unknown Kind should default to 1, got %d", got)
 	}
 }

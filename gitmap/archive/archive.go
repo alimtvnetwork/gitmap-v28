@@ -47,38 +47,45 @@ const (
 	FormatUnknown Format = ""
 )
 
-// FormatFromPath inspects a file name and returns the matching Format,
-// or FormatUnknown when nothing matches. Multi-extension forms
-// (".tar.gz", ".tar.bz2", ".tar.xz", ".tar.zst") are checked first so a
-// plain ".gz" never wins over ".tar.gz".
-func FormatFromPath(p string) Format {
-	lower := strings.ToLower(p)
-	doubles := map[string]Format{
-		".tar.gz":  FormatTarGz,
-		".tgz":     FormatTarGz,
-		".tar.bz2": FormatTarBz2,
-		".tbz2":    FormatTarBz2,
-		".tar.xz":  FormatTarXz,
-		".txz":     FormatTarXz,
-		".tar.zst": FormatTarZst,
-		".tzst":    FormatTarZst,
-	}
-	for ext, f := range doubles {
-		if strings.HasSuffix(lower, ext) {
-			return f
-		}
-	}
-	singles := map[string]Format{
-		".zip": FormatZip,
-		".tar": FormatTar,
-		".gz":  FormatGz,
-		".bz2": FormatBz2,
-		".xz":  FormatXz,
-		".zst": FormatZst,
-		".7z":  Format7z,
-		".rar": FormatRar,
-	}
-	for ext, f := range singles {
+var doubleExtMap = map[string]Format{
+	".tar.gz":  FormatTarGz,
+	".tgz":     FormatTarGz,
+	".tar.bz2": FormatTarBz2,
+	".tbz2":    FormatTarBz2,
+	".tar.xz":  FormatTarXz,
+	".txz":     FormatTarXz,
+	".tar.zst": FormatTarZst,
+	".tzst":    FormatTarZst,
+}
+
+var singleExtMap = map[string]Format{
+	".zip": FormatZip,
+	".tar": FormatTar,
+	".gz":  FormatGz,
+	".bz2": FormatBz2,
+	".xz":  FormatXz,
+	".zst": FormatZst,
+	".7z":  Format7z,
+	".rar": FormatRar,
+}
+
+var formatExtMap = map[Format]string{
+	FormatZip:    ".zip",
+	FormatTar:    ".tar",
+	FormatTarGz:  ".tar.gz",
+	FormatTarBz2: ".tar.bz2",
+	FormatTarXz:  ".tar.xz",
+	FormatTarZst: ".tar.zst",
+	FormatGz:     ".gz",
+	FormatBz2:    ".bz2",
+	FormatXz:     ".xz",
+	FormatZst:    ".zst",
+	Format7z:     ".7z",
+	FormatRar:    ".rar",
+}
+
+func matchExtMap(lower string, m map[string]Format) Format {
+	for ext, f := range m {
 		if strings.HasSuffix(lower, ext) {
 			return f
 		}
@@ -87,39 +94,26 @@ func FormatFromPath(p string) Format {
 	return FormatUnknown
 }
 
+// FormatFromPath inspects a file name and returns the matching Format,
+// or FormatUnknown when nothing matches. Multi-extension forms
+// (".tar.gz", ".tar.bz2", ".tar.xz", ".tar.zst") are checked first so a
+// plain ".gz" never wins over ".tar.gz".
+func FormatFromPath(p string) Format {
+	lower := strings.ToLower(p)
+	if f := matchExtMap(lower, doubleExtMap); f != FormatUnknown {
+		return f
+	}
+	if f := matchExtMap(lower, singleExtMap); f != FormatUnknown {
+		return f
+	}
+
+	return FormatUnknown
+}
+
 // Extension returns the canonical extension (with leading dot) the
 // CreateArchive path uses to construct mholt/archives Format objects.
 func (f Format) Extension() string {
-	switch f {
-	case FormatZip:
-		return ".zip"
-	case FormatTar:
-		return ".tar"
-	case FormatTarGz:
-		return ".tar.gz"
-	case FormatTarBz2:
-		return ".tar.bz2"
-	case FormatTarXz:
-		return ".tar.xz"
-	case FormatTarZst:
-		return ".tar.zst"
-	case FormatGz:
-		return ".gz"
-	case FormatBz2:
-		return ".bz2"
-	case FormatXz:
-		return ".xz"
-	case FormatZst:
-		return ".zst"
-	case Format7z:
-		return ".7z"
-	case FormatRar:
-		return ".rar"
-	case FormatUnknown:
-		return ""
-	}
-
-	return ""
+	return formatExtMap[f]
 }
 
 // IdentifyArchive opens the file and asks mholt/archives to sniff the
@@ -150,15 +144,32 @@ func mholtToFormat(f archives.Format) Format {
 	if f == nil {
 		return FormatUnknown
 	}
+	if res := mholtArchiveType(f); res != FormatUnknown {
+		return res
+	}
+
+	return mholtCompressType(f)
+}
+
+func mholtArchiveType(f archives.Format) Format {
 	switch f.(type) {
 	case archives.Zip:
 		return FormatZip
 	case archives.Tar:
 		return FormatTar
+	case archives.SevenZip:
+		return Format7z
+	case archives.Rar:
+		return FormatRar
 	case archives.CompressedArchive:
-		// Composite (e.g. tar.gz) — fall back to extension parsing on the
-		// declared name, which is what the caller passed in.
 		return FormatFromPath(f.Extension())
+	default:
+		return FormatUnknown
+	}
+}
+
+func mholtCompressType(f archives.Format) Format {
+	switch f.(type) {
 	case archives.Gz:
 		return FormatGz
 	case archives.Bz2:
@@ -167,11 +178,7 @@ func mholtToFormat(f archives.Format) Format {
 		return FormatXz
 	case archives.Zstd:
 		return FormatZst
-	case archives.SevenZip:
-		return Format7z
-	case archives.Rar:
-		return FormatRar
+	default:
+		return FormatUnknown
 	}
-
-	return FormatUnknown
 }
