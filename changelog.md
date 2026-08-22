@@ -1,5 +1,13 @@
 # Changelog
 
+## [v6.100.0] 2026-08-22 Concurrency, Lock Contention, and Cross-Platform Path Fixes
+
+### Fixed
+- **Windows CI Tests**: Fixed `startup` package tests failing on non-administrative accounts by deferring HKLM administrative token checks until after existence verification.
+- **Cross-platform Path Normalization**: Fixed `fsutil.NormalizeSlashes` so backslashes are substituted correctly on POSIX systems instead of being preserved by `filepath.Clean`.
+- **Concurrency Deadlocks**: Resolved recursive RLock deadlock in `maybeExitOnCmdFaithfulMismatch` and fixed `os.Exit` races in concurrent clone tests by synchronizing access to `cmdFaithfulExiter`.
+- **macOS Installer Script Syntax**: Fixed macOS `install.sh` bash execution error where `local` was incorrectly used outside a function context.
+- **Concurrent Clone Task Lock Contention**: Fixed a critical bug in `gitmap clone`'s `createPendingTask` which held an exclusive database lock for the entire duration of the clone operation, preventing parallel clones from executing.
 ## [v6.98.0] 2026-08-21 Cross-Platform Path Normalization in Resolver & Move Engine
 
 ### Fixed
