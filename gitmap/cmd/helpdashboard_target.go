@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"archive/zip"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -15,7 +16,7 @@ import (
 func chooseDocsExtractTarget(zipPath, binaryDir, docsDir string) string {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
-		return docsDir
+		return filepath.Join(docsDir, constants.HDDistDir)
 	}
 	defer r.Close()
 
@@ -26,7 +27,7 @@ func chooseDocsExtractTarget(zipPath, binaryDir, docsDir string) string {
 			continue
 		}
 		if !strings.HasPrefix(name, prefix) && name != constants.HDDocsDir {
-			return docsDir
+			return filepath.Join(docsDir, constants.HDDistDir)
 		}
 	}
 

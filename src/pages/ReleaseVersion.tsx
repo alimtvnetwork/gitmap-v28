@@ -26,7 +26,8 @@ const ReleaseVersionPage = () => {
     [version, platform, isValid],
   );
 
-  const isInvalid = !isValid;`n  if (isInvalid) {
+  const isInvalid = !isValid;
+  if (isInvalid) {
     return (
       <DocsLayout>
         <div className="space-y-6 max-w-2xl">
