@@ -1,3 +1,12 @@
+## [v6.101.0] 2026-08-22 Custom Installation & SSH Orchestration
+
+- Added gitmap cg (Coding Guidelines manager) to execute installation scripts across all workspaces in parallel.
+- Added gitmap install support for scripts-fixer, coding-guidelines, and macro-ahk direct installation via script endpoints.
+- Added rich colorful terminal UI to gitmap install ls listing supported tools and their installation status.
+- Added gitmap sj (SSH Joiner) for persisting machine connection details securely with AES-GCM encryption.
+- Added gitmap se (SSH Executor) to run parallel remote execution across joined machines supporting Windows and Unix.
+- Fixed database models and implemented robust encryption schemas for machine credentials.
+
 # Changelog
 
 ## [v6.100.0] 2026-08-22 Concurrency, Lock Contention, and Cross-Platform Path Fixes

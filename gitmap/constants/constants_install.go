@@ -48,6 +48,9 @@ const (
 	ToolOBS            = "obs"
 	ToolAllDevTools    = "all"
 	ToolGitmapOneliner = "gitmap-oneliner"
+	ToolScriptsFixer     = "scripts-fixer"
+	ToolCodingGuidelines = "coding-guidelines"
+	ToolMacroAhk         = "macro-ahk"
 )
 
 // Supported tool names — Databases.
@@ -362,9 +365,12 @@ var InstallToolDescriptions = map[string]string{
 	ToolNppInstall:     "Install NPP -- Notepad++ install only (no settings)",
 	ToolVSCodeSync:     "VS Code Settings -- sync VS Code settings and extensions",
 	ToolOBSSync:        "OBS Settings -- sync OBS Studio profiles and scenes",
-	ToolWTSync:         "WT Settings -- sync Windows Terminal settings.json",
-	ToolScripts:        "Clone gitmap scripts to local folder",
-	ToolGitmapOneliner: "Print the Windows + macOS install-gitmap one-liners",
+	ToolWTSync:           "WT Settings -- sync Windows Terminal settings.json",
+	ToolScripts:          "Clone gitmap scripts to local folder",
+	ToolGitmapOneliner:   "Print the Windows + macOS install-gitmap one-liners",
+	ToolScriptsFixer:     "Install Scripts Fixer tool",
+	ToolCodingGuidelines: "Install Coding Guidelines per repo",
+	ToolMacroAhk:         "Install Macro AHK scripts",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -378,6 +384,7 @@ var InstallToolCategories = map[string][]string{
 		ToolNpp, ToolNppSettings, ToolNppInstall,
 		ToolVSCodeSync, ToolOBSSync, ToolWTSync,
 		ToolScripts, ToolGitmapOneliner, ToolAllDevTools,
+		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk,
 	},
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,

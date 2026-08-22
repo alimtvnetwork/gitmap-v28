@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS RepoCGVersion (
+    RepoAlias TEXT PRIMARY KEY,
+    Version TEXT NOT NULL,
+    InstalledAt DATETIME NOT NULL
+);

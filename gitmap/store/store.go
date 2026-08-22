@@ -2,7 +2,8 @@
 package store
 
 import (
-	"database/sql"
+	"context"
+"database/sql"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -481,3 +482,5 @@ func enableFK(conn *sql.DB) error {
 
 	return nil
 }
+func (db *DB) SQL() *sql.DB { return db.conn }
+func (db *DB) Context() context.Context { return context.Background() }

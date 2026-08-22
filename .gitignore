@@ -32,3 +32,6 @@ release-assets
 /.gitmap/backup
 /gitmap/data/unit-test-reports
 .lovable/temp/
+test-reports/
+artifacts/
+*.test

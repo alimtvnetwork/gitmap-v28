@@ -34,7 +34,7 @@ func parseInstallFlags(args []string) (installOptions, bool) {
 func runInstall(args []string) {
 	checkHelp("install", args)
 	opts, list := parseInstallFlags(args)
-	if list {
+	if list || opts.Tool == "ls" || opts.Tool == "list" {
 		printInstallListGrouped()
 		return
 	}
@@ -96,6 +96,9 @@ func specialToolHandler(tool string) func(installOptions) {
 		constants.ToolCtx:            func(opts installOptions) { runInstallCtx(opts.Explain) },
 		constants.ToolAllDevTools:    func(opts installOptions) { runAllDevTools(opts) },
 		constants.ToolGitmapOneliner: func(installOptions) { runInstallGitmapOneliner() },
+		constants.ToolScriptsFixer:     func(installOptions) { runInstallCustomTool("scripts-fixer") },
+		constants.ToolCodingGuidelines: func(installOptions) { runInstallCustomTool("coding-guidelines") },
+		constants.ToolMacroAhk:         func(installOptions) { runInstallCustomTool("macro-ahk") },
 	}[tool]
 }
 
