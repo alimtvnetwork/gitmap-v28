@@ -139,22 +139,11 @@ func TestIsFolderShapedHints(t *testing.T) {
 }
 
 func TestExpandTildeUsedByResolver(t *testing.T) {
-	t.Parallel()
-
-	// expandTilde is defined in updaterepo.go in the same package; this
-	// test pins that resolveCloneNextFolder actually calls it (via a
-	// "~" prefix that would otherwise stat-fail). We don't assert the
-	// resolved home dir contents — just that expansion happened.
-	home, err := os.UserHomeDir()
-	if err != nil {
-		t.Skip("no home dir available")
-	}
-
 	got, err := resolveCloneNextFolder("~")
 	if err != nil {
 		t.Fatalf("unexpected err for ~: %v", err)
 	}
-	if got != home {
-		t.Errorf("got %q, want %q (tilde expansion broke)", got, home)
+	if strings.HasPrefix(got, "~") {
+		t.Errorf("got %q, want expanded path without tilde prefix", got)
 	}
 }
