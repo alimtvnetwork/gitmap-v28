@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -81,6 +83,6 @@ func main() {
 	})
 
 	if err != nil {
-		panic(err)
+		panic(apperror.New("scratch failure", "ERR_SCRATCH", map[string]any{"err": err}))
 	}
 }

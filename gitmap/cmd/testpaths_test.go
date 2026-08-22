@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
 	"path/filepath"
 	"runtime"
 )
@@ -8,7 +10,7 @@ import (
 func cmdPackageDir() string {
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
-		panic("runtime.Caller failed resolving cmd package dir")
+		panic(apperror.New("resolve cmd package dir", "ERR_TEST_PANIC", nil))
 	}
 
 	return filepath.Dir(file)
