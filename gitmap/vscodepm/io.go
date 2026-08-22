@@ -72,7 +72,7 @@ func encodeEntries(w io.Writer, entries []Entry) error {
 // (e.g. D:\work\my-app vs D:/work/my-app) compare consistently across all operating systems.
 // Case-insensitive on Windows or for Windows-style drive paths, case-sensitive elsewhere.
 func normalizePath(p string) string {
-	cleaned := filepath.Clean(filepath.ToSlash(p))
+	cleaned := filepath.Clean(strings.ReplaceAll(p, "\\", "/"))
 	if runtime.GOOS == "windows" || isWindowsDrivePath(cleaned) {
 		return strings.ToLower(cleaned)
 	}

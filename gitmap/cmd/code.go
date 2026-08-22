@@ -197,7 +197,7 @@ func mergeStringPaths(existing, incoming []string) []string {
 // pathKey mirrors vscodepm.normalizePath but lives in the cmd package so
 // we don't import an unexported helper.
 func pathKey(p string) string {
-	cleaned := filepath.Clean(filepath.ToSlash(p))
+	cleaned := filepath.Clean(strings.ReplaceAll(p, "\\", "/"))
 	if filepath.Separator == '\\' || (len(cleaned) >= 2 && cleaned[1] == ':') {
 		return strings.ToLower(cleaned)
 	}
