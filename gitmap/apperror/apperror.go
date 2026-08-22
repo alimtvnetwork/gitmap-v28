@@ -1,0 +1,45 @@
+package apperror
+
+import (
+	"fmt"
+)
+
+// AppError is a typed error that encapsulates an operation label,
+// key input context, and the underlying cause.
+type AppError struct {
+	Op    string
+	Ctx   map[string]any
+	Cause error
+	Code  string
+}
+
+// Error implements the error interface.
+func (e *AppError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("[%s] %s (ctx: %v): %v", e.Code, e.Op, e.Ctx, e.Cause)
+	}
+	return fmt.Sprintf("[%s] %s (ctx: %v)", e.Code, e.Op, e.Ctx)
+}
+
+// Unwrap allows standard library errors.Is and errors.As to work.
+func (e *AppError) Unwrap() error {
+	return e.Cause
+}
+
+// Wrap wraps an existing error with an operation label and context.
+func Wrap(err error, op string, ctx map[string]any) *AppError {
+	return &AppError{
+		Op:    op,
+		Ctx:   ctx,
+		Cause: err,
+	}
+}
+
+// New creates a new AppError without an underlying cause.
+func New(op string, code string, ctx map[string]any) *AppError {
+	return &AppError{
+		Op:   op,
+		Code: code,
+		Ctx:  ctx,
+	}
+}
