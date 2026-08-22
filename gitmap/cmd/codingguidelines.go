@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -142,6 +143,8 @@ func patchCGScriptFile(path string) error {
 		return err
 	}
 	patched := patchCGArithmeticIncrements(string(body))
+	// Fix upstream bug in coding-guidelines install.sh where 'local' is used outside a function
+	patched = strings.ReplaceAll(patched, "local srchash", "")
 	return os.WriteFile(path, []byte(patched), 0o700)
 }
 

@@ -31,19 +31,19 @@ func createPendingTask(typeName, targetPath, workDir, sourceCmd, cmdArgs string)
 	existing := findDuplicate(db, typeName, typeID, targetPath, cmdArgs)
 	if existing > 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrPendingTaskExists, typeName, targetPath, existing)
-
-		return existing, db
+		db.Close()
+		return existing, nil
 	}
 
 	taskID, err := db.InsertPendingTask(typeID, targetPath, workDir, sourceCmd, cmdArgs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingInsertFailed, err)
 		db.Close()
-
 		return 0, nil
 	}
 
-	return taskID, db
+	db.Close()
+	return taskID, nil
 }
 
 // findDuplicate checks for an existing pending task using type-appropriate matching.
@@ -63,8 +63,17 @@ func buildCommandArgs(args []string) string {
 
 // completePendingTask moves a pending task to the completed table.
 func completePendingTask(db *store.DB, taskID int64) {
-	if db == nil || taskID == 0 {
+	if taskID == 0 {
 		return
+	}
+	if db == nil {
+		var err error
+		db, err = openDB()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not open database to complete pending task %d: %v\n", taskID, err)
+			return
+		}
+		defer db.Close()
 	}
 
 	err := db.CompleteTask(taskID)
@@ -75,8 +84,17 @@ func completePendingTask(db *store.DB, taskID int64) {
 
 // failPendingTask updates the failure reason for a pending task.
 func failPendingTask(db *store.DB, taskID int64, reason string) {
-	if db == nil || taskID == 0 {
+	if taskID == 0 {
 		return
+	}
+	if db == nil {
+		var err error
+		db, err = openDB()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not open database to fail pending task %d: %v\n", taskID, err)
+			return
+		}
+		defer db.Close()
 	}
 
 	err := db.FailTask(taskID, reason)
@@ -104,3 +122,4 @@ func closeTaskDB(db *store.DB) {
 // the cleanup either runs unconditionally before this call or is
 // safe to skip on the failure path.
 var exitWith = os.Exit
+
