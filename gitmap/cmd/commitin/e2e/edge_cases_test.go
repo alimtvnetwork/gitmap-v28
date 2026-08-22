@@ -82,8 +82,8 @@ func TestForceMergeOnClobberOverwritesAndContinues(t *testing.T) {
 // Skipped on non-Linux because PID 1 may not be a long-running process
 // under macOS/Windows test runners.
 func TestSecondConcurrentRunFailsWithLockBusy(t *testing.T) {
-	isNotLinux := !isLinux()
-	if isNotLinux {
+	isNonLinux := isLinux == false()
+	if isNonLinux {
 		t.Skip("PID-1-always-alive trick is Linux-specific")
 	}
 	src := NewRepo(t, "src")

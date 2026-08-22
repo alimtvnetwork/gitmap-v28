@@ -18,4 +18,14 @@ This master plan details the codebase-wide audit for coding guideline violations
 - **Single-Character Vars:** Found 2,300+ instances of single character variables; queued 50 for renaming.
 - [ ] `.lovable/plans/subtasks/01-coding-guideline-fixes/05-single-character-vars.md`
 
-Total queued exact file/line changes: 250.
+Total queued exact file/line changes: 450.
+
+- **Magic Strings and Numbers:** Found and queued 50 instances.
+- **Swallowed Errors:** Found and queued 50 instances of missing error context or empty catch blocks.
+- **Banned Short Identifiers:** Found and queued 50 instances of banned short variable names.
+- **Missing Enum/Type Suffixes:** Found and queued 50 instances of types missing suffixes.
+
+- [ ] `.lovable/plans/subtasks/01-coding-guideline-fixes/06-magic-strings.md`
+- [ ] `.lovable/plans/subtasks/01-coding-guideline-fixes/07-swallowed-errors.md`
+- [ ] `.lovable/plans/subtasks/01-coding-guideline-fixes/08-banned-short-identifiers.md`
+- [ ] `.lovable/plans/subtasks/01-coding-guideline-fixes/09-missing-type-suffixes.md`

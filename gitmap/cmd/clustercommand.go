@@ -29,8 +29,8 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 		os.Exit(1)
 	}
 
-	hasNoSubCmds := len(subCmds) == 0
-	if hasNoSubCmds == true {
+	isEmptySubCmds := len(subCmds) == 0
+	if isEmptySubCmds {
 		fmt.Fprintln(os.Stderr, "No sub-commands provided.")
 		os.Exit(1)
 	}
@@ -63,8 +63,8 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 		os.Exit(1)
 	}
 
-	hasNoEffectiveNodes := len(effective) == 0
-	if hasNoEffectiveNodes == true {
+	isEmptyEffectiveNodes := len(effective) == 0
+	if isEmptyEffectiveNodes {
 		fmt.Fprintln(os.Stderr, constants.ErrClusterNoNodes)
 		os.Exit(1)
 	}

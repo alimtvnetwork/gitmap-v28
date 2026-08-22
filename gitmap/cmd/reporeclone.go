@@ -71,8 +71,8 @@ func resolveRepoRecloneTarget(positionals []string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
-	isNotGitRepoDir := !isGitRepoDir(cwd)
-	if isNotGitRepoDir {
+	isNonGitRepoDir := isGitRepoDir == false(cwd)
+	if isNonGitRepoDir {
 		return "", false
 	}
 
@@ -88,8 +88,8 @@ func resolveRepoFromArg(arg string) (string, bool) {
 	if statErr != nil || !info.IsDir() {
 		return "", false
 	}
-	isNotGitRepoDir := !isGitRepoDir(abs)
-	if isNotGitRepoDir {
+	isNonGitRepoDir := isGitRepoDir == false(abs)
+	if isNonGitRepoDir {
 		return "", false
 	}
 
@@ -148,8 +148,8 @@ func runRepoReclone(target string, yes bool) {
 // hard refusal pointing at -y; this prevents `yes | gitmap rc` from
 // silently nuking the wrong tree in a CI job.
 func confirmRepoReclone(target, origin string) bool {
-	isNotStdinTTY := !isStdinTTY()
-	if isNotStdinTTY {
+	isNonStdinTTY := isStdinTTY == false()
+	if isNonStdinTTY {
 		fmt.Fprint(os.Stderr, constants.ErrRepoRecloneNonTTY)
 
 		return false

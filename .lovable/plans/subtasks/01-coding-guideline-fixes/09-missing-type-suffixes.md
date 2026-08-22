@@ -1,0 +1,54 @@
+# Subtask: Missing Enum or Type Suffixes
+
+Find and fix instances of missing enum or type suffixes.
+
+- [ ] `gitmap/archive/create.go:33` - type CompressionMode string
+- [ ] `gitmap/archive/create.go:42` - type CreateOptions struct {
+- [ ] `gitmap/archive/create.go:51` - type CreateResult struct {
+- [ ] `gitmap/archive/extract.go:20` - type ExtractResult struct {
+- [ ] `gitmap/archive/list.go:17` - type Entry struct {
+- [ ] `gitmap/archive/source.go:42` - type ResolvedSource struct {
+- [ ] `gitmap/cliexit/report.go:50` - type OutputMode int
+- [ ] `gitmap/cliexit/report.go:82` - type Context struct {
+- [ ] `gitmap/clonefrom/clonefrom.go:26` - type Plan struct {
+- [ ] `gitmap/clonefrom/clonefrom.go:42` - type Row struct {
+- [ ] `gitmap/clonefrom/execute.go:37` - type Result struct {
+- [ ] `gitmap/clonenext/localstate.go:22` - type LocalRepoState struct {
+- [ ] `gitmap/clonenext/remoteupdate.go:23` - type RemoteUpdateCheck struct {
+- [ ] `gitmap/clonenext/version.go:14` - type ParsedRepo struct {
+- [ ] `gitmap/clonenow/clonenow.go:25` - type Plan struct {
+- [ ] `gitmap/clonenow/clonenow.go:62` - type Row struct {
+- [ ] `gitmap/clonenow/execute.go:45` - type Result struct {
+- [ ] `gitmap/clonepick/clonepick.go:29` - type Plan struct {
+- [ ] `gitmap/clonepick/clonepick.go:88` - type Result struct {
+- [ ] `gitmap/clonepick/parse.go:72` - type Flags struct {
+- [ ] `gitmap/clonepick/persist.go:14` - type Persister interface {
+- [ ] `gitmap/clonepick/replay.go:26` - type Loader interface {
+- [ ] `gitmap/cloner/audit.go:41` - type AuditEntry struct {
+- [ ] `gitmap/cloner/audit.go:52` - type CloneAuditReport struct {
+- [ ] `gitmap/cloner/batchprogress.go:12` - type FailureRecord struct {
+- [ ] `gitmap/cloner/batchprogress.go:19` - type BatchProgress struct {
+- [ ] `gitmap/cloner/cache.go:44` - type CloneCacheEntry struct {
+- [ ] `gitmap/cloner/cache.go:53` - type CloneCache struct {
+- [ ] `gitmap/cloner/cloner.go:29` - type CloneOptions struct {
+- [ ] `gitmap/cloner/progress.go:13` - type Progress struct {
+- [ ] `gitmap/cluster/agent.go:10` - type Agent struct{}
+- [ ] `gitmap/cluster/broadcast.go:12` - type Event struct {
+- [ ] `gitmap/cluster/broadcast.go:18` - type ClientConnection interface {
+- [ ] `gitmap/cluster/client.go:11` - type NodeClient struct {
+- [ ] `gitmap/cluster/dispatcher.go:13` - type AgentExecArgs struct {
+- [ ] `gitmap/cluster/dispatcher.go:17` - type AgentExecReply struct {
+- [ ] `gitmap/cluster/distribution.go:11` - type Client struct {
+- [ ] `gitmap/cluster/distribution.go:16` - type Repo struct {
+- [ ] `gitmap/cluster/distribution.go:21` - type Workload struct {
+- [ ] `gitmap/cluster/exec_install.go:14` - type PackageResult struct {
+- [ ] `gitmap/cluster/exec_proj.go:30` - type ProjRunResult struct {
+- [ ] `gitmap/cluster/node_resolver.go:20` - type ClusterNode struct {
+- [ ] `gitmap/cluster/node_resolver.go:33` - type NodeFilter struct {
+- [ ] `gitmap/cluster/pathalias.go:3` - type AliasEntry struct {
+- [ ] `gitmap/cluster/registry.go:19` - type Node struct {
+- [ ] `gitmap/cluster/registry.go:26` - type Registry struct {
+- [ ] `gitmap/cluster/server.go:11` - type Server struct {
+- [ ] `gitmap/cluster/server.go:25` - type HandshakeArgs struct {
+- [ ] `gitmap/cluster/server.go:31` - type HandshakeReply struct {
+- [ ] `gitmap/cluster/server.go:47` - type PingArgs struct {

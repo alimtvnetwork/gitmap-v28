@@ -169,8 +169,8 @@ func verifySchemaVersionValue(t *testing.T, sv map[string]any) {
 func checkSchemaNumericConst(t *testing.T, constVal any) {
 	t.Helper()
 	asFloat, isNumber := constVal.(float64)
-	isNotNumber := !isNumber
-	if isNotNumber == true {
+	isNonNumber := isNumber == false
+	if isNonNumber {
 		t.Fatalf("schemaVersion const must be numeric, got %T", constVal)
 	}
 	isMismatch := int(asFloat) != constants.CloneFromReportSchemaVersion

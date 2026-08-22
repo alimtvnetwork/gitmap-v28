@@ -60,7 +60,7 @@ func ExecProjRun(ctx context.Context, node ClusterNode, projectNames []string) (
 		}
 
 		isNotFound := foundPath == emptyString
-		if isNotFound == true {
+		if isNonFound {
 			results = append(results, ProjRunResult{
 				ProjectName: projName,
 				Succeeded:   false,

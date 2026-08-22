@@ -1,0 +1,54 @@
+# Subtask: Swallowed Errors and Missing Context
+
+Find and fix instances of swallowed errors and missing context.
+
+- [ ] `gitmap/archive/archive.go:129` - Missing error wrapping: return FormatUnknown, err
+- [ ] `gitmap/archive/create.go:80` - Missing error wrapping: return nil, err
+- [ ] `gitmap/archive/create.go:89` - Missing error wrapping: return err
+- [ ] `gitmap/archive/create.go:95` - Missing error wrapping: return err
+- [ ] `gitmap/archive/create.go:108` - Missing error wrapping: return res, err
+- [ ] `gitmap/archive/create.go:114` - Missing error wrapping: return res, err
+- [ ] `gitmap/archive/create.go:119` - Missing error wrapping: return res, err
+- [ ] `gitmap/archive/create.go:146` - Missing error wrapping: return nil, err
+- [ ] `gitmap/archive/extract.go:40` - Missing error wrapping: return res, err
+- [ ] `gitmap/archive/extract.go:46` - Missing error wrapping: return res, err
+- [ ] `gitmap/archive/extract.go:59` - Missing error wrapping: return format, err
+- [ ] `gitmap/archive/extract.go:73` - Missing error wrapping: return res, err
+- [ ] `gitmap/archive/extract.go:78` - Missing error wrapping: return res, err
+- [ ] `gitmap/archive/extract.go:92` - Missing error wrapping: return 0, err
+- [ ] `gitmap/archive/extract.go:117` - Missing error wrapping: return written, err
+- [ ] `gitmap/archive/extract.go:135` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:151` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:161` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:166` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:202` - Missing error wrapping: return flattened, err
+- [ ] `gitmap/archive/extract.go:206` - Missing error wrapping: return flattened, err
+- [ ] `gitmap/archive/extract.go:211` - Missing error wrapping: return flattened, err
+- [ ] `gitmap/archive/extract.go:222` - Missing error wrapping: return root, flattened, err
+- [ ] `gitmap/archive/extract.go:244` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:259` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:273` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:282` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:291` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:301` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:306` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:314` - Missing error wrapping: return err
+- [ ] `gitmap/archive/extract.go:319` - Missing error wrapping: return err
+- [ ] `gitmap/archive/list.go:30` - Missing error wrapping: return nil, FormatUnknown, err
+- [ ] `gitmap/archive/source.go:153` - Missing error wrapping: return err
+- [ ] `gitmap/archive/source.go:166` - Missing error wrapping: return err
+- [ ] `gitmap/archive/source.go:180` - Missing error wrapping: return err
+- [ ] `gitmap/archive/source.go:185` - Missing error wrapping: return err
+- [ ] `gitmap/archive/source.go:193` - Missing error wrapping: return err
+- [ ] `gitmap/archive/source.go:198` - Missing error wrapping: return err
+- [ ] `gitmap/clonefrom/execute_checkout_test.go:214` - Missing error wrapping: return err
+- [ ] `gitmap/clonefrom/jsonschema.go:167` - Missing error wrapping: return nil, err
+- [ ] `gitmap/clonefrom/parsecsv.go:119` - Missing error wrapping: return row, col, err
+- [ ] `gitmap/clonefrom/parsecsv.go:123` - Missing error wrapping: return row, col, err
+- [ ] `gitmap/clonefrom/render.go:42` - Missing error wrapping: return err
+- [ ] `gitmap/clonefrom/render.go:48` - Missing error wrapping: return err
+- [ ] `gitmap/clonefrom/render.go:62` - Missing error wrapping: return err
+- [ ] `gitmap/clonefrom/summary.go:38` - Missing error wrapping: return err
+- [ ] `gitmap/clonefrom/summary.go:41` - Missing error wrapping: return err
+- [ ] `gitmap/clonefrom/summary.go:44` - Missing error wrapping: return err
+- [ ] `gitmap/clonefrom/summary.go:48` - Missing error wrapping: return err

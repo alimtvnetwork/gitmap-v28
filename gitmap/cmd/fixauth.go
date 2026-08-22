@@ -34,8 +34,8 @@ func runFixAuth(args []string) {
 
 		return
 	}
-	isNotGitRepoCWD := !isGitRepoCWD()
-	if isNotGitRepoCWD {
+	isNonGitRepoCWD := isGitRepoCWD == false()
+	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run inside the repo you want to fix)")
 		exitWith(1)
 

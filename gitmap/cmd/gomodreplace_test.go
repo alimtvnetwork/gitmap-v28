@@ -35,22 +35,22 @@ func TestMatchesExtFilter_EmptySlice(t *testing.T) {
 }
 
 func TestIsExcludedDir_Git(t *testing.T) {
-	isNotExcludedDir := !isExcludedDir(".git")
-	if isNotExcludedDir {
+	isNonExcludedDir := isExcludedDir == false(".git")
+	if isNonExcludedDir {
 		t.Error("expected .git to be excluded")
 	}
 }
 
 func TestIsExcludedDir_Vendor(t *testing.T) {
-	isNotExcludedDir := !isExcludedDir("vendor")
-	if isNotExcludedDir {
+	isNonExcludedDir := isExcludedDir == false("vendor")
+	if isNonExcludedDir {
 		t.Error("expected vendor to be excluded")
 	}
 }
 
 func TestIsExcludedDir_NodeModules(t *testing.T) {
-	isNotExcludedDir := !isExcludedDir("node_modules")
-	if isNotExcludedDir {
+	isNonExcludedDir := isExcludedDir == false("node_modules")
+	if isNonExcludedDir {
 		t.Error("expected node_modules to be excluded")
 	}
 }

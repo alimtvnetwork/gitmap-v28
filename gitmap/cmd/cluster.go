@@ -15,8 +15,8 @@ const (
 // runCluster handles the "cluster" subcommand and routes to sub-handlers.
 func runCluster(args []string) {
 	checkHelp("cluster", args)
-	hasNoArgs := len(args) == 0
-	if hasNoArgs == true {
+	isEmptyArgs := len(args) == 0
+	if isEmptyArgs {
 		fmt.Fprintln(os.Stderr, usageMsg)
 		os.Exit(1)
 	}

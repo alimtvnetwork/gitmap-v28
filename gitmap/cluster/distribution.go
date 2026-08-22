@@ -25,8 +25,8 @@ type Workload struct {
 
 // DistributeWorkload splits a list of repositories as evenly as possible among available clients.
 func DistributeWorkload(clients []Client, repos []Repo) []Workload {
-	hasNoClients := len(clients) == EmptySize
-	if hasNoClients == true {
+	isEmptyClients := len(clients) == EmptySize
+	if isEmptyClients {
 		return nil
 	}
 
@@ -63,7 +63,7 @@ func DistributionLoop(registry *Registry, repos []Repo, interval time.Duration, 
 
 		hasNodeChanged := clientsChanged(activeClients, newActiveClients)
 
-		if hasNodeChanged == true {
+		if hasNodeChanged {
 			activeClients = newActiveClients
 			currentWorkloads = DistributeWorkload(activeClients, repos)
 			onUpdate(currentWorkloads)

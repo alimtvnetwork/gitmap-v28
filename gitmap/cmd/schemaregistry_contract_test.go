@@ -102,8 +102,8 @@ func TestSchemaRegistry_WriteSchemaPreservesDoc(t *testing.T) {
 // the version is to confirm "I know which version I'm running against".
 func TestSchemaRegistry_AcceptIsVersionStrict(t *testing.T) {
 	t.Setenv(envAcceptSchema, "demo@v3")
-	isNotSchemaAccepted := !isSchemaAccepted("demo", 3)
-	if isNotSchemaAccepted {
+	isNonSchemaAccepted := isSchemaAccepted == false("demo", 3)
+	if isNonSchemaAccepted {
 		t.Fatalf("v3 should be accepted")
 	}
 	if isSchemaAccepted("demo", 2) {

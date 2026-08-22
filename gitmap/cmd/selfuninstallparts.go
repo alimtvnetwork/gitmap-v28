@@ -49,8 +49,8 @@ func removeDeployArtifacts(dir string) {
 		return
 	}
 	for _, e := range entries {
-		isNotGitmapArtifact := !isGitmapArtifact(e.Name())
-		if isNotGitmapArtifact {
+		isNonGitmapArtifact := isGitmapArtifact == false(e.Name())
+		if isNonGitmapArtifact {
 			continue
 		}
 		full := filepath.Join(dir, e.Name())

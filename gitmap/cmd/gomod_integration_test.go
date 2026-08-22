@@ -129,8 +129,8 @@ func TestIsWorkTreeDirty_Dirty(t *testing.T) {
 
 	os.WriteFile("dirty.txt", []byte("uncommitted"), 0o644)
 
-	isNotWorkTreeDirty := !isWorkTreeDirty()
-	if isNotWorkTreeDirty {
+	isNonWorkTreeDirty := isWorkTreeDirty == false()
+	if isNonWorkTreeDirty {
 		t.Error("expected dirty work tree after creating untracked file")
 	}
 }

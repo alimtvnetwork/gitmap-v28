@@ -57,8 +57,8 @@ func isDebugWindowsEnvOn() bool {
 // self executable, self pid, parent pid). Call from each lifecycle
 // hook before the phase-specific lines.
 func dumpDebugWindowsHeader(phase string) {
-	isNotDebugWindowsRequested := !isDebugWindowsRequested()
-	if isNotDebugWindowsRequested {
+	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	if isNonDebugWindowsRequested {
 		return
 	}
 	self, _ := os.Executable()
@@ -76,8 +76,8 @@ func dumpDebugWindowsHeader(phase string) {
 // dumpDebugWindowsFooter closes a dump block. Symmetric with
 // dumpDebugWindowsHeader so the on/off state is identical.
 func dumpDebugWindowsFooter() {
-	isNotDebugWindowsRequested := !isDebugWindowsRequested()
-	if isNotDebugWindowsRequested {
+	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	if isNonDebugWindowsRequested {
 		return
 	}
 	fmt.Fprint(os.Stderr, constants.MsgDebugWinFooter)
@@ -89,8 +89,8 @@ func dumpDebugWindowsFooter() {
 // before `cmd.Start()` so users can see what's about to happen even if
 // the spawn fails immediately afterwards.
 func dumpDebugWindowsHandoff(source, target string, childArgv []string) {
-	isNotDebugWindowsRequested := !isDebugWindowsRequested()
-	if isNotDebugWindowsRequested {
+	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	if isNonDebugWindowsRequested {
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinSource, source)
@@ -128,8 +128,8 @@ func dumpDebugWindowsRelevantEnv() {
 // successful Start(). Skipped on failure (the start-fail message
 // already carries the error).
 func dumpDebugWindowsChildPID(pid int) {
-	isNotDebugWindowsRequested := !isDebugWindowsRequested()
-	if isNotDebugWindowsRequested {
+	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	if isNonDebugWindowsRequested {
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinChildPID, pid)
@@ -140,8 +140,8 @@ func dumpDebugWindowsChildPID(pid int) {
 // "inline cleanup, no spawn needed" and "target missing" branches
 // that don't have a child to report.
 func dumpDebugWindowsNote(format string, args ...interface{}) {
-	isNotDebugWindowsRequested := !isDebugWindowsRequested()
-	if isNotDebugWindowsRequested {
+	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	if isNonDebugWindowsRequested {
 		return
 	}
 	msg := fmt.Sprintf(format, args...)
