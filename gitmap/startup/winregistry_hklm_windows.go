@@ -48,15 +48,32 @@ func addWindowsRegistryHKLM(clean string, opts AddOptions) (AddResult, error) {
 // without elevation (so a non-admin user can preview what `sudo`
 // would do); a live remove requires elevation up-front.
 func removeWindowsRegistryHKLM(clean string, opts RemoveOptions) (RemoveResult, error) {
-	if opts.DryRun == true {
-		return removeWindowsRegistryAt(registry.LOCAL_MACHINE, hiveLabelHKLM, clean, opts)
-	}
-
-	err := requireWindowsAdminForHKLM()
+	// 1. Classify the value. This only requires read access (which non-admins have).
+	valueName := constants.StartupWinValuePrefix + clean
+	exists, managed, err := classifyRunValueAt(registry.LOCAL_MACHINE, valueName, clean)
 	if err != nil {
 		return RemoveResult{}, err
 	}
+	
+	// 2. If it doesn't exist or isn't managed, we can return the correct status
+	// without needing elevation.
+	if !exists {
+		return RemoveResult{Status: RemoveNoOp, DryRun: opts.DryRun}, nil
+	}
+	if !managed {
+		return RemoveResult{Status: RemoveRefused, Path: runValuePathFor(hiveLabelHKLM, valueName), DryRun: opts.DryRun}, nil
+	}
 
+	// 3. The entry exists and is managed. If this is a live run, we MUST be elevated
+	// to delete it. Check tokens before attempting deletion so we get a friendly error
+	// instead of a raw Access Denied from the registry API.
+	if !opts.DryRun {
+		if err := requireWindowsAdminForHKLM(); err != nil {
+			return RemoveResult{}, err
+		}
+	}
+
+	// 4. Delegate to the shared deletion path.
 	return removeWindowsRegistryAt(registry.LOCAL_MACHINE, hiveLabelHKLM, clean, opts)
 }
 

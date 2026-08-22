@@ -7,7 +7,7 @@ import (
 
 // NormalizeSlashes converts backslashes to forward slashes.
 func NormalizeSlashes(path string) string {
-	return filepath.ToSlash(filepath.Clean(path))
+	return filepath.ToSlash(filepath.Clean(strings.ReplaceAll(path, "\\", "/")))
 }
 
 // TrimTrailingSlashes removes trailing slashes and backslashes.
