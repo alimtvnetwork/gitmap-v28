@@ -233,10 +233,10 @@ func removeExistingTargetFolder(targetPath string, flattenedFolder string) {
 		return
 	}
 	fmt.Printf(constants.MsgFlattenRemoving, flattenedFolder)
-	removeErr := os.RemoveAll(targetPath)
-	if removeErr != nil {
+	
+	if !removeFolderWithLockCheck(flattenedFolder, targetPath) {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNextForceFailed,
-			flattenedFolder, removeErr, flattenedFolder)
+			flattenedFolder, "removal aborted or failed after lock check", flattenedFolder)
 		exitWith(1)
 	}
 }
