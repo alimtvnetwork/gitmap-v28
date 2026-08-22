@@ -92,9 +92,9 @@ func childSlug(parent, child ctxEntry) string {
 // flag in t.Parallel mode without their own guard.
 func withExplain(t *testing.T, on bool, f func()) {
 	t.Helper()
-	prev := ctxExplainEnabled
-	ctxExplainEnabled = on
-	defer func() { ctxExplainEnabled = prev }()
+	prev := isCtxExplainEnabled()
+	setCtxExplainEnabled(on)
+	defer func() { setCtxExplainEnabled(prev) }()
 	f()
 }
 

@@ -13,7 +13,7 @@ import (
 // concatenate unconditionally without polluting the registry value
 // with a no-op.
 func ctxExplainPrefixPwsh(target string, args []string) string {
-	if !ctxExplainEnabled {
+	if !isCtxExplainEnabled() {
 		return ""
 	}
 	resolved := strings.Join(args, " ")
@@ -24,7 +24,7 @@ func ctxExplainPrefixPwsh(target string, args []string) string {
 // ctxExplainPrefixSh returns a POSIX `echo` prefix for macOS/Linux
 // terminal-mode entries. Same on/off semantics as the pwsh variant.
 func ctxExplainPrefixSh(target string, args []string) string {
-	if !ctxExplainEnabled {
+	if !isCtxExplainEnabled() {
 		return ""
 	}
 	resolved := strings.Join(args, " ")
@@ -36,7 +36,7 @@ func ctxExplainPrefixSh(target string, args []string) string {
 // so the OS notification carries the resolved invocation in its
 // payload (since there is no terminal to print to).
 func ctxExplainAnnounce(target string, args []string) string {
-	if !ctxExplainEnabled {
+	if !isCtxExplainEnabled() {
 		return ""
 	}
 

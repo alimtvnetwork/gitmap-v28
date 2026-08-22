@@ -18,8 +18,8 @@ func withHome(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
 	t.Setenv("HOME", dir)
-	prev := ctxExplainEnabled
-	t.Cleanup(func() { ctxExplainEnabled = prev })
+	prev := isCtxExplainEnabled()
+	t.Cleanup(func() { setCtxExplainEnabled(prev) })
 
 	return dir
 }

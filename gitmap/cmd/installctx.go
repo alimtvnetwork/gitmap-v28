@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -14,14 +15,30 @@ import (
 // command with a print of `> gitmap <args>` so users see the exact
 // invocation before it runs. Process-local; never persisted to disk —
 // only the rendered registry/script body is.
-var ctxExplainEnabled bool
+var (
+	ctxExplainMu      sync.RWMutex
+	ctxExplainEnabled bool
+)
+
+func setCtxExplainEnabled(on bool) {
+	ctxExplainMu.Lock()
+	ctxExplainEnabled = on
+	ctxExplainMu.Unlock()
+}
+
+func isCtxExplainEnabled() bool {
+	ctxExplainMu.RLock()
+	defer ctxExplainMu.RUnlock()
+
+	return ctxExplainEnabled
+}
 
 // runInstallCtx dispatches the right-click context-menu install to
 // the platform-specific implementation. Spec: spec/04-generic-cli/30-install-ctx.md.
 // When explain=true, generated entries print their resolved invocation
 // before executing.
 func runInstallCtx(explain bool) {
-	ctxExplainEnabled = explain
+	setCtxExplainEnabled(explain)
 	switch runtime.GOOS {
 	case "windows":
 		runInstallCtxWindows()

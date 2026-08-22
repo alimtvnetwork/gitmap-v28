@@ -129,7 +129,7 @@ func macShellFor(e flatCtxEntry, exe string) string {
 		// real output. echo runs inside the new shell, not the Automator
 		// host, so quoting stays AppleScript-safe.
 		echoPrefix := ""
-		if ctxExplainEnabled {
+		if isCtxExplainEnabled() {
 			echoPrefix = fmt.Sprintf(`echo \"> %s %s\" && `, target, args)
 		}
 		open := fmt.Sprintf(`osascript -e 'tell application "Terminal" to do script "cd \"'"$1"'\" && %s'"'"'%s'"'"' %s"' -e 'tell application "Terminal" to activate'`, echoPrefix, target, args)
