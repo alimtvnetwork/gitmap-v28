@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -22,28 +23,28 @@ import (
 // `git clone` runs. Defaults to off so existing callers/tests keep
 // their byte-for-byte legacy behavior unless the flag is opted in.
 var (
-	cloneDryRunFlag  bool
-	cloneSpinnerOff  bool
-	isCloneAssumeYes bool
+	cloneDryRunFlag  atomic.Bool
+	cloneSpinnerOff  atomic.Bool
+	isCloneAssumeYes atomic.Bool
 )
 
 // SetCloneDryRun toggles the dry-run short circuit for every
 // subsequent runCloneCommand call in this process. Exported lowercase
 // (package-private) intentionally — only the cmd package wires it.
-func SetCloneDryRun(on bool) { cloneDryRunFlag = on }
+func SetCloneDryRun(on bool) { cloneDryRunFlag.Store(on) }
 
 // IsCloneDryRun reports the current dry-run flag state. Callers
 // outside runCloneCommand (e.g. cfr's chained fix-repo step) can
 // branch on it to suppress destructive follow-ups in dry-run mode.
-func IsCloneDryRun() bool { return cloneDryRunFlag }
+func IsCloneDryRun() bool { return cloneDryRunFlag.Load() }
 
 // SetCloneAssumeYes toggles auto-accept-new-host-key behavior for SSH
 // clone commands when the user passes -y / --yes.
-func SetCloneAssumeYes(on bool) { isCloneAssumeYes = on }
+func SetCloneAssumeYes(on bool) { isCloneAssumeYes.Store(on) }
 
 // SetCloneSpinnerOff disables the inline spinner. Useful in tests
 // or CI where carriage-return updates clutter captured output.
-func SetCloneSpinnerOff(off bool) { cloneSpinnerOff = off }
+func SetCloneSpinnerOff(off bool) { cloneSpinnerOff.Store(off) }
 
 // runCloneCommandPretty replaces the bare `exec.Command("git",
 // "clone", url, dest).Run()` pattern with a colorful, timed, and
@@ -51,7 +52,7 @@ func SetCloneSpinnerOff(off bool) { cloneSpinnerOff = off }
 // the user always sees what would (or did) run.
 func runCloneCommandPretty(url, dest string) error {
 	printClonePrettyHeader(url, dest)
-	if cloneDryRunFlag {
+	if cloneDryRunFlag.Load() {
 		fmt.Println(constants.MsgCloneDryRunNoop)
 		return nil
 	}
@@ -82,7 +83,7 @@ func newCloneCommand(url, dest string) *exec.Cmd {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if isCloneAssumeYes && isSSHCloneURL(url) {
+	if isCloneAssumeYes.Load() && isSSHCloneURL(url) {
 		cmd.Env = cloneEnvWithSSHAcceptNew()
 	}
 

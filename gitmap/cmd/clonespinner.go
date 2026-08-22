@@ -22,7 +22,7 @@ import (
 // cloneSpinnerOff is true — in those cases git's own output already
 // gives the user enough signal and a CR-spinner would pollute logs.
 func startCloneSpinner(label string) func() {
-	if cloneSpinnerOff || !isStderrInteractive() || uipref.IsQuiet() || uipref.IsNoColor() {
+	if cloneSpinnerOff.Load() || !isStderrInteractive() || uipref.IsQuiet() || uipref.IsNoColor() {
 		return func() {}
 	}
 	frames := []rune{'⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'}

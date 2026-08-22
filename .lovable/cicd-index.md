@@ -18,6 +18,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 05 | Cluster TLS Dial Timeout, Relative ModuleRoot in Subprocess Tests & Test Env Race | go test -race / Test Matrix | ✅ Resolved | [05-cluster-tls-dial-timeout-and-test-env-race.md](cicd-issues/05-cluster-tls-dial-timeout-and-test-env-race.md) |
 | 06 | LookPath Injection in Coding Guidelines & Cross-Platform Fallback Assertion | go test -race / Test Matrix | ✅ Resolved | [06-codingguidelines-lookpath-injection.md](cicd-issues/06-codingguidelines-lookpath-injection.md) |
 | 07 | installctx `ctxExplainEnabled` Concurrency Race Guard | go test -race / Test Matrix | ✅ Resolved | [07-installctx-explain-concurrency-race.md](cicd-issues/07-installctx-explain-concurrency-race.md) |
+| 08 | clonepretty Global Flag Atomic Synchronization | go test -race / Test Matrix | ✅ Resolved | [08-clonepretty-atomic-state-synchronization.md](cicd-issues/08-clonepretty-atomic-state-synchronization.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.
@@ -33,4 +34,4 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 - **Use `t.Setenv` Exclusively in Tests**: Never use raw `os.Setenv` in unit/integration test helpers; `t.Setenv` ensures test-isolated and race-safe environment restoration.
 - **Derive Absolute Module Roots in Test Subprocess Builders**: Never use relative paths (like `cmd.Dir = ".."`) when building binaries inside `go test` helpers; concurrent `os.Chdir()` calls will corrupt relative paths. Use `runtime.Caller(0)` to obtain an immutable absolute path.
 - **Inject Executable Lookups Instead of Mutating `$PATH`**: Never zero out `$PATH` with `t.Setenv("PATH", "")` when packages run parallel tests (`t.Parallel()`); provide injectable `LookPath func(string) (string, error)` seams to test missing binary paths safely.
-- **Protect Feature Flag Globals with RWMutex**: Wrap feature-flag globals like `ctxExplainEnabled` with `sync.RWMutex` to eliminate data races during concurrent integration test suites.
+- **Protect Feature Flag Globals with RWMutex / atomic.Bool**: Wrap feature-flag globals like `ctxExplainEnabled` with `sync.RWMutex` and dry-run/spinner flags with `atomic.Bool` to eliminate data races during concurrent test suites.
