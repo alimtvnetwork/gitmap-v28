@@ -44,3 +44,23 @@ func TestUpdateRootPathAndRemoveEntry(t *testing.T) {
 	}
 	_ = os.Remove(pJson)
 }
+
+func TestPathsEqualCrossPlatformSlashes(t *testing.T) {
+	cases := []struct {
+		a, b string
+		want bool
+	}{
+		{`D:\work\my-app`, `D:/work/my-app`, true},
+		{`d:\work\my-app`, `D:/work/my-app`, true},
+		{`D:/work/my-app`, `d:/work/my-app`, true},
+		{`/home/user/repo`, `/home/user/repo`, true},
+		{`/home/user/repo/`, `/home/user/repo`, true},
+		{`D:\work\my-app`, `D:\work\other-app`, false},
+	}
+	for _, tc := range cases {
+		got := pathsEqual(tc.a, tc.b)
+		if got != tc.want {
+			t.Errorf("pathsEqual(%q, %q) = %v, want %v", tc.a, tc.b, got, tc.want)
+		}
+	}
+}

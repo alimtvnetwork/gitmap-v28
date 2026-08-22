@@ -20,6 +20,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 07 | installctx `ctxExplainEnabled` Concurrency Race Guard | go test -race / Test Matrix | ✅ Resolved | [07-installctx-explain-concurrency-race.md](cicd-issues/07-installctx-explain-concurrency-race.md) |
 | 08 | clonepretty Global Flag Atomic Synchronization | go test -race / Test Matrix | ✅ Resolved | [08-clonepretty-atomic-state-synchronization.md](cicd-issues/08-clonepretty-atomic-state-synchronization.md) |
 | 09 | Test $HOME Mutation Isolation in Tilde Expansion Tests | go test -race / Test Matrix | ✅ Resolved | [09-home-env-race-in-tilde-tests.md](cicd-issues/09-home-env-race-in-tilde-tests.md) |
+| 10 | VS Code Project Manager Cross-Platform Slash Normalization | go test / Test Matrix | ✅ Resolved | [10-vscodepm-cross-platform-path-normalization.md](cicd-issues/10-vscodepm-cross-platform-path-normalization.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.
@@ -37,3 +38,4 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 - **Inject Executable Lookups Instead of Mutating `$PATH`**: Never zero out `$PATH` with `t.Setenv("PATH", "")` when packages run parallel tests (`t.Parallel()`); provide injectable `LookPath func(string) (string, error)` seams to test missing binary paths safely.
 - **Protect Feature Flag Globals with RWMutex / atomic.Bool**: Wrap feature-flag globals like `ctxExplainEnabled` with `sync.RWMutex` and dry-run/spinner flags with `atomic.Bool` to eliminate data races during concurrent test suites.
 - **Avoid Stale Environment Snapshots in Assertions**: Validate structural invariants (prefix/suffix removal) rather than comparing against static `os.UserHomeDir()` snapshots that may be mutated by concurrent `t.Setenv` test fixtures.
+- **Normalize Slashes with `filepath.ToSlash` for Cross-Platform Path Keys**: Always normalize backslashes before comparing filesystem keys across operating systems, since POSIX treats `\` as a regular character.

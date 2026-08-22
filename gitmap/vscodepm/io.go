@@ -68,13 +68,20 @@ func encodeEntries(w io.Writer, entries []Entry) error {
 }
 
 // normalizePath returns the canonical key used for rootPath comparisons.
-// Case-insensitive on Windows, case-sensitive elsewhere.
+// Converts backslashes to forward slashes so cross-platform path representations
+// (e.g. D:\work\my-app vs D:/work/my-app) compare consistently across all operating systems.
+// Case-insensitive on Windows or for Windows-style drive paths, case-sensitive elsewhere.
 func normalizePath(p string) string {
-	if runtime.GOOS == "windows" {
-		return strings.ToLower(filepath.Clean(p))
+	cleaned := filepath.Clean(filepath.ToSlash(p))
+	if runtime.GOOS == "windows" || isWindowsDrivePath(cleaned) {
+		return strings.ToLower(cleaned)
 	}
 
-	return filepath.Clean(p)
+	return cleaned
+}
+
+func isWindowsDrivePath(p string) bool {
+	return len(p) >= 2 && p[1] == ':' && ((p[0] >= 'a' && p[0] <= 'z') || (p[0] >= 'A' && p[0] <= 'Z'))
 }
 
 // pathsEqual compares two paths using normalizePath.

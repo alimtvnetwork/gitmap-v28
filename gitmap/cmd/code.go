@@ -197,11 +197,12 @@ func mergeStringPaths(existing, incoming []string) []string {
 // pathKey mirrors vscodepm.normalizePath but lives in the cmd package so
 // we don't import an unexported helper.
 func pathKey(p string) string {
-	if filepath.Separator == '\\' {
-		return strings.ToLower(filepath.Clean(p))
+	cleaned := filepath.Clean(filepath.ToSlash(p))
+	if filepath.Separator == '\\' || (len(cleaned) >= 2 && cleaned[1] == ':') {
+		return strings.ToLower(cleaned)
 	}
 
-	return filepath.Clean(p)
+	return cleaned
 }
 
 // syncCodeEntry pushes the (rootPath, name, paths, auto-tags) tuple into
