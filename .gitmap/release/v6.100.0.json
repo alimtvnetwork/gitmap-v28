@@ -1,0 +1,19 @@
+{
+  "version": "6.100.0",
+  "branch": "release/v6.100.0",
+  "sourceBranch": "main",
+  "commit": "5562e48f9d03b2f0bd057bb9093bf27bece91712",
+  "tag": "v6.100.0",
+  "assets": [],
+  "changelog": [
+    "**Windows CI Tests**: Fixed `startup` package tests failing on non-administrative accounts by deferring HKLM administrative token checks until after existence verification.",
+    "**Cross-platform Path Normalization**: Fixed `fsutil.NormalizeSlashes` so backslashes are substituted correctly on POSIX systems instead of being preserved by `filepath.Clean`.",
+    "**Concurrency Deadlocks**: Resolved recursive RLock deadlock in `maybeExitOnCmdFaithfulMismatch` and fixed `os.Exit` races in concurrent clone tests by synchronizing access to `cmdFaithfulExiter`.",
+    "**macOS Installer Script Syntax**: Fixed macOS `install.sh` bash execution error where `local` was incorrectly used outside a function context.",
+    "**Concurrent Clone Task Lock Contention**: Fixed a critical bug in `gitmap clone`'s `createPendingTask` which held an exclusive database lock for the entire duration of the clone operation, preventing parallel clones from executing."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-08-22T16:18:07Z",
+  "isLatest": false
+}
