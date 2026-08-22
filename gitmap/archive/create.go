@@ -14,6 +14,8 @@
 package archive
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
+
 	"archive/zip"
 	"compress/flate"
 	"compress/gzip"
@@ -151,15 +153,15 @@ func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, er
 	return archives.FilesFromDisk(ctx, nil, mapping)
 }
 
-func isEntryIncluded(name string, includes, excludes []string) bool {
-	if matchAny(name, includes, true) == false {
-		return false
+func isEntryIncluded(name string, includes, excludes []string) result.Result[bool] {
+	if matchAny(name, includes, true).Data == false {
+		return result.NewSuccess(false)
 	}
-	if matchAny(name, excludes, false) {
-		return false
+	if matchAny(name, excludes, false).Data {
+		return result.NewSuccess(false)
 	}
 
-	return true
+	return result.NewSuccess(true)
 }
 
 // filterFiles applies include/exclude globs against NameInArchive.
@@ -169,7 +171,7 @@ func filterFiles(in []archives.FileInfo, includes, excludes []string) []archives
 	}
 	out := in[:0]
 	for _, f := range in {
-		if isEntryIncluded(f.NameInArchive, includes, excludes) {
+		if isEntryIncluded(f.NameInArchive, includes, excludes).Data {
 			out = append(out, f)
 		}
 	}
@@ -177,31 +179,31 @@ func filterFiles(in []archives.FileInfo, includes, excludes []string) []archives
 	return out
 }
 
-func matchPattern(pattern, name string) bool {
+func matchPattern(pattern, name string) result.Result[bool] {
 	if ok, err := filepath.Match(pattern, name); err == nil && ok {
-		return true
+		return result.NewSuccess(true)
 	}
 	if ok, err := filepath.Match(pattern, filepath.Base(name)); err == nil && ok {
-		return true
+		return result.NewSuccess(true)
 	}
 
-	return false
+	return result.NewSuccess(false)
 }
 
 // matchAny returns true when name matches any pattern. emptyDefault is
 // what we return when patterns is empty (true for includes = "match all
 // when no filter set", false for excludes = "exclude nothing").
-func matchAny(name string, patterns []string, emptyDefault bool) bool {
+func matchAny(name string, patterns []string, emptyDefault bool) result.Result[bool] {
 	if len(patterns) == 0 {
-		return emptyDefault
+		return result.NewSuccess(emptyDefault)
 	}
 	for _, p := range patterns {
-		if matchPattern(p, name) {
-			return true
+		if matchPattern(p, name).Data {
+			return result.NewSuccess(true)
 		}
 	}
 
-	return false
+	return result.NewSuccess(false)
 }
 
 func buildCompressedTarArchiver(format Format, mode CompressionMode) (archives.Archiver, error) {

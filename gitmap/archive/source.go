@@ -10,6 +10,8 @@
 package archive
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
+
 	"context"
 	"errors"
 	"fmt"
@@ -54,20 +56,20 @@ func ClassifySource(s string) SourceKindType {
 	if isGitURL(s) {
 		return SourceGit
 	}
-	if isHTTPURL(s) {
+	if isHTTPURL(s).Data {
 		return SourceHTTP
 	}
 
 	return SourceLocal
 }
 
-func isHTTPURL(s string) bool {
+func isHTTPURL(s string) result.Result[bool] {
 	u, err := url.Parse(s)
 	if err != nil {
-		return false
+		return result.NewSuccess(false)
 	}
 
-	return u.Scheme == "http" || u.Scheme == "https"
+	return result.NewSuccess(u.Scheme == "http" || u.Scheme == "https")
 }
 
 // isGitURL covers SSH-style (git@host:owner/repo.git) and any HTTPS URL
@@ -80,7 +82,7 @@ func isGitURL(s string) bool {
 	if strings.HasPrefix(s, "git://") {
 		return true
 	}
-	if isHTTPURL(s) && strings.HasSuffix(strings.ToLower(s), ".git") {
+	if isHTTPURL(s).Data && strings.HasSuffix(strings.ToLower(s), ".git") {
 		return true
 	}
 
