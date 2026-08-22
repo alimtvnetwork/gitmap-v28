@@ -242,7 +242,7 @@ func (db *DB) Migrate() error {
 // installs do not surface migration warnings. Any other failure is logged
 // with the offending statement so users can diagnose it.
 func (db *DB) addColumnIfNotExists(stmt string) {
-	_, err := ExecWrapper(db.conn, stmt).Destruct()
+	_, err := db.conn.Exec(stmt)
 	if err == nil || isBenignAlterError(err) {
 		return
 	}
@@ -327,13 +327,16 @@ func (db *DB) migrateVSCodeProjectPaths() {
 // migrateZipGroupItemPaths adds RepoPath, RelativePath, FullPath columns
 // to existing ZipGroupItems tables and copies Path into FullPath.
 func (db *DB) migrateZipGroupItemPaths() {
+	if !db.tableExists("ZipGroupItems") {
+		return
+	}
 	db.addColumnIfNotExists(constants.SQLMigrateZGIRepoPath)
 	db.addColumnIfNotExists(constants.SQLMigrateZGIRelativePath)
 	db.addColumnIfNotExists(constants.SQLMigrateZGIFullPath)
 
 	// Copy existing Path values into FullPath — data migration. Skip silently
 	// when the legacy Path column does not exist (fresh installs).
-	if _, err := ExecWrapper(db.conn, constants.SQLMigrateZGICopyPath).Destruct(); err != nil && !isBenignAlterError(err) {
+	if _, err := db.conn.Exec(constants.SQLMigrateZGICopyPath); err != nil && !isBenignAlterError(err) {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not copy ZipGroupItem paths: %v\n", err)
 	}
 }
@@ -363,10 +366,14 @@ func (db *DB) migrateTRCommitSha() {
 
 // migratePendingTaskColumns adds WorkingDirectory and CommandArgs to existing tables.
 func (db *DB) migratePendingTaskColumns() {
-	db.addColumnIfNotExists(constants.SQLMigratePendingWorkDir)
-	db.addColumnIfNotExists(constants.SQLMigratePendingCmdArgs)
-	db.addColumnIfNotExists(constants.SQLMigrateCompletedWorkDir)
-	db.addColumnIfNotExists(constants.SQLMigrateCompletedCmdArgs)
+	if db.tableExists("PendingTask") {
+		db.addColumnIfNotExists(constants.SQLMigratePendingWorkDir)
+		db.addColumnIfNotExists(constants.SQLMigratePendingCmdArgs)
+	}
+	if db.tableExists("CompletedTask") {
+		db.addColumnIfNotExists(constants.SQLMigrateCompletedWorkDir)
+		db.addColumnIfNotExists(constants.SQLMigrateCompletedCmdArgs)
+	}
 }
 
 // Reset drops all tables and recreates them for a fresh start. Lists v15

@@ -28,18 +28,29 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// cmdFaithfulExiter abstracts os.Exit so tests can swap in a recorder
-// instead of terminating the test binary. Production wires this to
-// os.Exit; tests assign a stub that captures the code.
-//
-// Function-typed (not interface) because there is exactly one method
-// and the call site is a single line — an interface would be more
-// ceremony than the indirection earns.
-var cmdFaithfulExiter func(int) = os.Exit
+var (
+	cmdFaithfulExiterMu sync.RWMutex
+	cmdFaithfulExiter   func(int) = os.Exit
+)
+
+func getCmdFaithfulExiter() func(int) {
+	cmdFaithfulExiterMu.RLock()
+	defer cmdFaithfulExiterMu.RUnlock()
+
+	return cmdFaithfulExiter
+}
+
+func setCmdFaithfulExiter(fn func(int)) {
+	cmdFaithfulExiterMu.Lock()
+	defer cmdFaithfulExiterMu.Unlock()
+
+	cmdFaithfulExiter = fn
+}
 
 // maybeExitOnCmdFaithfulMismatch is the single integration point for
 // the exit-on-mismatch policy. Called from every clone dispatcher's
@@ -62,5 +73,5 @@ func maybeExitOnCmdFaithfulMismatch() {
 		return
 	}
 	fmt.Fprintln(os.Stderr, constants.MsgCloneVerifyCmdFaithfulExit)
-	cmdFaithfulExiter(constants.CloneVerifyCmdFaithfulExitCode)
+	getCmdFaithfulExiter()(constants.CloneVerifyCmdFaithfulExitCode)
 }

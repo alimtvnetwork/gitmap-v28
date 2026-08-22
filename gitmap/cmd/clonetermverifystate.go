@@ -35,7 +35,7 @@ import (
 //
 // Default false so existing behavior is byte-identical when the flag
 // is absent.
-var cmdFaithfulVerify bool
+var cmdFaithfulVerify atomic.Bool
 
 // cmdFaithfulExitOnMismatch toggles the hard-fail companion behavior
 // of --verify-cmd-faithful-exit-on-mismatch. When true, ANY mismatch
@@ -46,7 +46,7 @@ var cmdFaithfulVerify bool
 // Independent of cmdFaithfulVerify in storage so flag-parse code can
 // set both without ordering caveats; setCmdFaithfulExitOnMismatch
 // enforces the implied dependency by also flipping cmdFaithfulVerify.
-var cmdFaithfulExitOnMismatch bool
+var cmdFaithfulExitOnMismatch atomic.Bool
 
 // cmdFaithfulHadMismatch is the run-scoped sticky bit set by every
 // per-row check that finds at least one divergence. Atomic because
@@ -61,27 +61,27 @@ var cmdFaithfulHadMismatch atomic.Bool
 // setCmdFaithfulVerify enables (or disables) the verifier for the
 // remainder of the current process. Safe to call multiple times —
 // last write wins, which matches the "set once at dispatcher" usage.
-func setCmdFaithfulVerify(on bool) { cmdFaithfulVerify = on }
+func setCmdFaithfulVerify(on bool) { cmdFaithfulVerify.Store(on) }
 
 // setCmdFaithfulExitOnMismatch enables (or disables) the hard-fail
 // companion. Implies --verify-cmd-faithful: when on we ALSO flip the
 // verifier so users opting into the exit code don't have to re-type
 // the prerequisite flag in CI invocations.
 func setCmdFaithfulExitOnMismatch(on bool) {
-	cmdFaithfulExitOnMismatch = on
+	cmdFaithfulExitOnMismatch.Store(on)
 	if on {
-		cmdFaithfulVerify = true
+		cmdFaithfulVerify.Store(true)
 	}
 }
 
 // cmdFaithfulVerifyEnabled returns true when the verifier should run.
 // Predicate (vs. exposing the var) so a future move to atomic.Bool
 // or a context-bound state stays a one-line refactor.
-func cmdFaithfulVerifyEnabled() bool { return cmdFaithfulVerify }
+func cmdFaithfulVerifyEnabled() bool { return cmdFaithfulVerify.Load() }
 
 // cmdFaithfulExitOnMismatchEnabled mirrors cmdFaithfulVerifyEnabled
 // for the exit-on-mismatch toggle. Used by maybeExitOnCmdFaithfulMismatch.
-func cmdFaithfulExitOnMismatchEnabled() bool { return cmdFaithfulExitOnMismatch }
+func cmdFaithfulExitOnMismatchEnabled() bool { return cmdFaithfulExitOnMismatch.Load() }
 
 // cmdFaithfulHadMismatchSet reports whether ANY per-row check has
 // recorded a divergence since process start.
@@ -91,8 +91,8 @@ func cmdFaithfulHadMismatchSet() bool { return cmdFaithfulHadMismatch.Load() }
 // keep the package-level globals from leaking across test cases; the
 // production CLI never calls it (one process = one invocation).
 func resetCmdFaithfulState() {
-	cmdFaithfulVerify = false
-	cmdFaithfulExitOnMismatch = false
+	cmdFaithfulVerify.Store(false)
+	cmdFaithfulExitOnMismatch.Store(false)
 	cmdFaithfulHadMismatch.Store(false)
 }
 
