@@ -133,8 +133,8 @@ func assertCGNotes(t *testing.T, stderr string) {
 func TestCommitCodingGuidelinesNoCommitNoPushPrintsBothNotes(t *testing.T) {
 	t.Parallel()
 
-	var stderr bytes.Buffer
-	err := CommitCodingGuidelines(CGCommitOpts{NoCommit: true, NoPush: true, Stderr: &stderr})
+	var stdout, stderr bytes.Buffer
+	err := CommitCodingGuidelines(CGCommitOpts{NoCommit: true, NoPush: true, Stdout: &stdout, Stderr: &stderr})
 	if err != nil {
 		t.Fatalf("expected success, got %v", err)
 	}

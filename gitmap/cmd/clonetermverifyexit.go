@@ -66,6 +66,9 @@ func setCmdFaithfulExiter(fn func(int)) {
 // fmt.Fprintln so it appears as the LAST stderr line — many CI UIs
 // surface that line as the headline failure reason.
 func maybeExitOnCmdFaithfulMismatch() {
+	cmdFaithfulExiterMu.RLock()
+	defer cmdFaithfulExiterMu.RUnlock()
+
 	if !cmdFaithfulExitOnMismatchEnabled() {
 		return
 	}
@@ -73,5 +76,5 @@ func maybeExitOnCmdFaithfulMismatch() {
 		return
 	}
 	fmt.Fprintln(os.Stderr, constants.MsgCloneVerifyCmdFaithfulExit)
-	getCmdFaithfulExiter()(constants.CloneVerifyCmdFaithfulExitCode)
+	cmdFaithfulExiter(constants.CloneVerifyCmdFaithfulExitCode)
 }

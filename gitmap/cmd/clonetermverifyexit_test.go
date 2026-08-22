@@ -26,15 +26,17 @@ import (
 // so a failing assertion can't leave the global pointing at the stub.
 func withRecordingExiter(t *testing.T) *int {
 	t.Helper()
-	prev := getCmdFaithfulExiter()
+	cmdFaithfulExiterMu.Lock()
+	prev := cmdFaithfulExiter
 	captured := -1
-	setCmdFaithfulExiter(func(code int) { captured = code })
-	t.Cleanup(func() { setCmdFaithfulExiter(prev) })
-
-	// Reset state inside the helper too so every call site gets a
-	// clean slate without remembering a separate setup line.
+	cmdFaithfulExiter = func(code int) { captured = code }
 	resetCmdFaithfulState()
-	t.Cleanup(resetCmdFaithfulState)
+
+	t.Cleanup(func() {
+		resetCmdFaithfulState()
+		cmdFaithfulExiter = prev
+		cmdFaithfulExiterMu.Unlock()
+	})
 
 	return &captured
 }
