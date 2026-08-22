@@ -15,21 +15,26 @@ import (
 // SQLite database file from disk, recreates the schema, and reseeds it.
 func runReset(args []string) {
 	checkHelp(constants.CmdReset, args)
-	if !parseResetFlags(args) {
+	confirm, rescan := parseResetFlags(args)
+	if !confirm {
 		fmt.Fprintln(os.Stderr, constants.ErrResetNoConfirm)
 		os.Exit(1)
 	}
 
 	executeReset()
+	if rescan {
+		runRescan()
+	}
 }
 
 // parseResetFlags parses the --confirm flag for the reset command.
-func parseResetFlags(args []string) bool {
+func parseResetFlags(args []string) (bool, bool) {
 	fs := flag.NewFlagSet(constants.CmdReset, flag.ExitOnError)
 	confirmFlag := fs.Bool("confirm", false, constants.FlagDescConfirm)
+	rescanFlag := fs.Bool("rescan", false, "Trigger a rescan immediately after reset")
 	fs.Parse(args)
 
-	return *confirmFlag
+	return *confirmFlag, *rescanFlag
 }
 
 // executeReset removes the active DB file, reopens to rebuild schema, then

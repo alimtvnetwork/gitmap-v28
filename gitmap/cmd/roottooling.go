@@ -83,7 +83,7 @@ func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"cg", "coding-guide", "coding-guidelines"}, func() { runCG(argsTail()) }},
 		{[]string{"sj", "ssh-joiner", "ssh-join"}, func() { runSSHJoin(argsTail()) }},
-		{[]string{"se", "ssh-exec", "ssh-execute"}, func() { runSSHExec(argsTail()) }},
+		{[]string{"se", "ssh-exe", "ssh-exec", "ssh-execute"}, func() { runSSHExec(argsTail()) }},
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() { runInstall(argsTail()) }},
 		{[]string{constants.CmdUninstall, constants.CmdUninstallAlias}, func() { runUninstall(argsTail()) }},
 		{[]string{constants.CmdStartupAdd, constants.CmdStartupAddAlias}, func() { runStartupAdd(argsTail()) }},
@@ -102,6 +102,9 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdDownloaderConfig, constants.CmdDownloaderConfigAlias}, func() { runDownloaderConfig(argsTail()) }},
 		{[]string{constants.CmdUnzipCompact, constants.CmdUnzipCompactAlias}, func() { runUnzipCompact(argsTail()) }},
 		{[]string{constants.CmdZip}, func() { runZip(argsTail()) }},
+		{[]string{"mkdir"}, func() { runMkdir(argsTail()) }},
+		{[]string{"cat"}, func() { runCat(argsTail()) }},
+		{[]string{"reset-and-rescan"}, func() { runReset([]string{"--confirm", "--rescan"}) }},
 		{[]string{constants.CmdReplace, constants.CmdReplaceAlias}, func() { runReplace(argsTail()) }},
 		{[]string{constants.CmdRegoldens, constants.CmdRegoldensAlias}, func() { runRegoldens(argsTail()) }},
 		{[]string{constants.CmdAuditLegacy, constants.CmdAuditLegacyAlias, constants.CmdAuditLegacyAlias2}, func() { runAuditLegacy(argsTail()) }},

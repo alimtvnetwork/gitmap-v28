@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	rootDir := `d:\work\gitmap\gitmap`
+	rootDir := `d:\wp-work\riseup-asia\gitmap`
 	fset := token.NewFileSet()
 
 	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {

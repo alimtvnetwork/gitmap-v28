@@ -1,3 +1,11 @@
+## [v6.102.0] 2026-08-22 SSH Executor OS Context & Native Delegation
+
+- Enhanced gitmap se (SSH Executor) to intelligently default to OS-appropriate shells (PowerShell for Windows, Bash for Unix).
+- Added gitmap mkdir and gitmap cat natively in Go.
+- Added native SSH command delegation for mkdir, cat, and ssh commands across joined machines (executing gitmap <cmd> on the remote host).
+- Added automatic remote installation of gitmap and powershell (if absent on Unix) during SSH execution sessions.
+- Added gitmap reset-and-rescan command alias to combine database reset with immediate rescan.
+
 ## [v6.101.0] 2026-08-22 Custom Installation & SSH Orchestration
 
 - Added gitmap cg (Coding Guidelines manager) to execute installation scripts across all workspaces in parallel.
