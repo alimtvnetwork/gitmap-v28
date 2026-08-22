@@ -1,4 +1,4 @@
-# CI/CD Issue 10: VS Code Project Manager Cross-Platform Slash Normalization
+# CI/CD Issue 10: `vscodepm` Cross-Platform Path Normalization
 
 - **Stage**: CI `go test` / Test Matrix
 - **Status**: ✅ Resolved
@@ -6,25 +6,27 @@
 
 ## 1. Problem Description
 
-`TestUpdateRootPathAndRemoveEntry` in `vscodepm/update_remove_test.go` failed on Linux with `project not found with rootPath D:/work/my-app`.
-On POSIX platforms (Linux/macOS), backslashes `\` are valid filename characters rather than directory separators. `vscodepm.normalizePath` used `filepath.Clean(p)` without converting slashes via `filepath.ToSlash(p)`. Consequently, Windows-style paths written into `projects.json` with backslashes (`D:\work\my-app`) failed to match target arguments passed with forward slashes (`D:/work/my-app`).
+`TestUpdateRootPathAndRemoveEntry` and `TestPathsEqualCrossPlatformSlashes` failed exclusively on Linux/macOS CI runners while passing locally on Windows:
+```
+--- FAIL: TestUpdateRootPathAndRemoveEntry (0.00s)
+update_remove_test.go:23: UpdateRootPathAt failed: project not found with rootPath D:/work/my-app
+--- FAIL: TestPathsEqualCrossPlatformSlashes (0.00s)
+update_remove_test.go:63: pathsEqual("D:\work\my-app", "D:/work/my-app") = false, want true
+```
 
 ## 2. Root Cause Analysis
 
-- `filepath.Clean` on POSIX systems preserves backslashes as verbatim characters.
-- Path comparison in `vscodepm.pathsEqual` did not normalize backslashes to forward slashes before comparing.
-- Windows drive letter paths (`D:/...`) were not case-folded when evaluated on non-Windows hosts.
+- The previous fix used `filepath.ToSlash(p)` followed by `filepath.Clean(p)`.
+- `filepath.ToSlash` is OS-aware: it only replaces characters matching `filepath.Separator`.
+- On Linux and macOS, `filepath.Separator` is `/`. Therefore, `filepath.ToSlash` does absolutely nothing to backslashes (`\`), as backslashes are technically valid filename characters in POSIX systems.
+- As a result, `"D:\work\my-app"` remained unchanged and evaluated as a distinct string from `"D:/work/my-app"`.
 
 ## 3. Solution
 
-1. **`filepath.ToSlash` Normalization**:
-   - Updated `vscodepm.normalizePath` in `vscodepm/io.go` to use `filepath.Clean(filepath.ToSlash(p))`.
-   - Added `isWindowsDrivePath` check to ensure Windows drive paths are case-folded across all platforms.
-2. **Synchronized in `cmd/code.go`**:
-   - Updated `pathKey` in `cmd/code.go` to follow the same `filepath.ToSlash` normalization contract.
-3. **Unit Tests Added**:
-   - Added `TestPathsEqualCrossPlatformSlashes` in `vscodepm/update_remove_test.go` to verify cross-platform comparison for mixed slashes, casing, and trailing slashes.
+- Replaced `filepath.ToSlash(p)` with an explicit `strings.ReplaceAll(p, "\\", "/")` before passing to `filepath.Clean()`.
+- This forces backslashes in simulated Windows paths (which are common in config files or user-provided extra paths) to be consistently normalized to forward slashes regardless of the host OS's native separator.
+- Applied this fix to both `vscodepm.normalizePath` and `cmd.pathKey`.
 
 ## 4. What NOT to Repeat
 
-- **Never rely on `filepath.Clean` alone for cross-platform path equality**: Always convert slashes via `filepath.ToSlash` when parsing configuration or database entries that may store paths formatted on a different operating system.
+- **Never rely on `filepath.ToSlash` for cross-platform backslash normalization:** If you are dealing with paths that might contain backslashes (like user configs) on a POSIX host, `filepath.ToSlash` will silently skip them. Use `strings.ReplaceAll(p, "\\", "/")` instead.
