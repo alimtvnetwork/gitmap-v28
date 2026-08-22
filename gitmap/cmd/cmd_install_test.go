@@ -18,8 +18,8 @@ func TestParseCGFlags(t *testing.T) {
 }
 
 func TestParseSEFlags(t *testing.T) {
-	opts := parseSEFlags([]string{"--exclude", "m1,m2", "ps", "echo test"})
-	if opts.Exclude != "m1,m2" || len(opts.Args) != 2 || opts.Args[0] != "ps" {
+	opts := parseSEFlags([]string{"--exclude", "m1,m2", "mkdir", "-p", "foo"})
+	if opts.Exclude != "m1,m2" || len(opts.Args) != 3 || opts.Args[0] != "mkdir" {
 		t.Errorf("Unexpected output: %+v", opts)
 	}
 }
