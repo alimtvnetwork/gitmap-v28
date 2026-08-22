@@ -1,9 +1,10 @@
 package archive
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -53,7 +54,7 @@ func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (Extrac
 func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Format, error) {
 	format, err := IdentifyArchive(ctx, srcArchive)
 	if err != nil {
-		return format, fmt.Errorf("identify %q: %w", srcArchive, err)
+		return format, apperror.Wrap(err, "identify archive", map[string]any{"src": srcArchive})
 	}
 	if err := os.MkdirAll(destBaseDir, constants.DirPermission); err != nil {
 		return format, err
@@ -64,7 +65,7 @@ func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Fo
 func completeCompactExtract(ctx context.Context, srcArchive, destBaseDir, tempDir string, res ExtractResult) (ExtractResult, error) {
 	written, err := extractAllIntoDir(ctx, srcArchive, tempDir)
 	if err != nil {
-		return res, fmt.Errorf("extract: %w", err)
+		return res, apperror.Wrap(err, "extract", nil)
 	}
 	res.EntriesWritten = written
 
@@ -95,13 +96,13 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 
 	format, stream, err := archives.Identify(ctx, filepath.Base(srcArchive), f)
 	if err != nil {
-		return 0, fmt.Errorf("identify: %w", err)
+		return 0, apperror.Wrap(err, "identify", nil)
 	}
 
 	extractor, ok := format.(archives.Extractor)
 	isMissingExtractor := !ok
 	if isMissingExtractor == true {
-		return 0, fmt.Errorf("format %s is not extractable", format.Extension())
+		return 0, apperror.New("extract", "ERR_UNSUPPORTED_FORMAT", map[string]any{"format": format.Extension()})
 	}
 
 	return runArchiveExtraction(ctx, extractor, stream, destDir)
@@ -123,7 +124,7 @@ func extractArchiveEntry(destDir string, entry archives.FileInfo, written *int) 
 	clean := safeJoin(destDir, entry.NameInArchive)
 	isEmptyClean := clean == ""
 	if isEmptyClean == true {
-		return fmt.Errorf("rejecting entry with unsafe path: %q", entry.NameInArchive)
+		return apperror.New("extract entry", "ERR_UNSAFE_PATH", map[string]any{"path": entry.NameInArchive})
 	}
 
 	isDir := entry.IsDir()

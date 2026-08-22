@@ -10,11 +10,12 @@
 package archive
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
 
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -99,7 +100,7 @@ func ResolveSource(ctx context.Context, raw string) (ResolvedSource, error) {
 			return ResolvedSource{Original: raw}, err
 		}
 		if _, err := os.Stat(abs); err != nil {
-			return ResolvedSource{Original: raw}, fmt.Errorf("local source %q: %w", raw, err)
+			return ResolvedSource{Original: raw}, apperror.Wrap(err, "resolve local source", map[string]any{"raw": raw})
 		}
 
 		return ResolvedSource{Original: raw, Kind: SourceLocal, LocalPath: abs}, nil
@@ -141,7 +142,7 @@ func resolveHTTP(ctx context.Context, raw string) (ResolvedSource, error) {
 	if err := downloadWithHTTP(ctx, raw, dst); err != nil {
 		_ = os.RemoveAll(dir)
 
-		return ResolvedSource{Original: raw}, fmt.Errorf("download %q: %w", raw, err)
+		return ResolvedSource{Original: raw}, apperror.Wrap(err, "download source", map[string]any{"raw": raw})
 	}
 
 	return ResolvedSource{Original: raw, Kind: SourceHTTP, LocalPath: dst, CleanupDir: dir}, nil
@@ -188,7 +189,7 @@ func downloadWithHTTP(ctx context.Context, rawURL, dst string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("http %s", resp.Status)
+		return apperror.New("download source", "ERR_HTTP", map[string]any{"status": resp.Status})
 	}
 	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
@@ -230,7 +231,7 @@ func resolveGit(ctx context.Context, raw string) (ResolvedSource, error) {
 	if err := cmd.Run(); err != nil {
 		_ = os.RemoveAll(dir)
 
-		return ResolvedSource{Original: raw}, fmt.Errorf("git clone %q: %w", raw, err)
+		return ResolvedSource{Original: raw}, apperror.Wrap(err, "git clone", map[string]any{"raw": raw})
 	}
 
 	return ResolvedSource{Original: raw, Kind: SourceGit, LocalPath: dir, CleanupDir: dir}, nil
@@ -261,10 +262,10 @@ func AutoDetectSingleArchive(dir string) (string, error) {
 	}
 	switch len(found) {
 	case 0:
-		return "", fmt.Errorf("no archive in %s", abs)
+		return "", apperror.New("find archive", "ERR_NOT_FOUND", map[string]any{"dir": abs})
 	case 1:
 		return found[0], nil
 	default:
-		return "", fmt.Errorf("found %d archives in %s", len(found), abs)
+		return "", apperror.New("find archive", "ERR_MULTIPLE_FOUND", map[string]any{"count": len(found), "dir": abs})
 	}
 }

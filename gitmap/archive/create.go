@@ -14,6 +14,8 @@
 package archive
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
 
 	"archive/zip"
@@ -21,7 +23,6 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -59,10 +60,10 @@ type CreateResult struct {
 func validateCreateFormat(path string) (Format, error) {
 	format := FormatFromPath(path)
 	if format == FormatUnknown {
-		return FormatUnknown, fmt.Errorf("%w: %q", ErrUnknownFormat, path)
+		return FormatUnknown, apperror.Wrap(ErrUnknownFormat, "validate format", map[string]any{"path": path})
 	}
 	if format == Format7z || format == FormatRar {
-		return FormatUnknown, fmt.Errorf("%s archives are read-only in this build (use zip or tar.*)", format)
+		return FormatUnknown, apperror.New("validate format", "ERR_READONLY_FORMAT", map[string]any{"format": format})
 	}
 
 	return format, nil
@@ -71,7 +72,7 @@ func validateCreateFormat(path string) (Format, error) {
 func prepareArchiveFiles(ctx context.Context, opts CreateOptions) ([]archives.FileInfo, error) {
 	files, err := gatherFiles(ctx, opts.Sources)
 	if err != nil {
-		return nil, fmt.Errorf("gather sources: %w", err)
+		return nil, apperror.Wrap(err, "gather sources", nil)
 	}
 
 	return filterFiles(files, opts.Includes, opts.Excludes), nil

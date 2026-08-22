@@ -1,9 +1,10 @@
 package archive
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -33,13 +34,13 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 
 	format, stream, err := archives.Identify(ctx, filepath.Base(path), f)
 	if err != nil {
-		return nil, FormatFromPath(path), fmt.Errorf("archive identify: %w", err)
+		return nil, FormatFromPath(path), apperror.Wrap(err, "identify archive", nil)
 	}
 
 	extractor, isExtractor := format.(archives.Extractor)
 	isNonExtractor := !isExtractor
 	if isNonExtractor == true {
-		return nil, mholtToFormat(format), fmt.Errorf("format %s is not extractable", format.Extension())
+		return nil, mholtToFormat(format), apperror.New("list archive", "ERR_UNSUPPORTED_FORMAT", map[string]any{"format": format.Extension()})
 	}
 
 	return extractListEntries(ctx, extractor, stream, format)
