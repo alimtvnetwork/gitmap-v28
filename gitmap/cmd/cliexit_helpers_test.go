@@ -67,11 +67,15 @@ func buildGitmapBinaryOnce() {
 
 		return
 	}
+	_, currentFile, _, ok := runtime.Caller(0)
+	moduleRoot := ".."
+	if ok {
+		moduleRoot = filepath.Dir(filepath.Dir(currentFile))
+	}
 	out := filepath.Join(os.TempDir(), gitmapBinaryName())
-	// Build from the gitmap module root. The cwd of `go test` is
-	// already the package dir (gitmap/cmd) so "../" is the module.
-	cmd := exec.Command("go", "build", "-o", out, "./")
-	cmd.Dir = ".." // gitmap/ module root
+	// Build from the gitmap module root.
+	cmd := exec.Command("go", "build", "-o", out, ".")
+	cmd.Dir = moduleRoot
 	cmd.Env = append(os.Environ(), "CGO_ENABLED=0")
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

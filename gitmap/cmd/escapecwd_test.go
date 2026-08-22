@@ -35,7 +35,7 @@ func TestIsPathInside(t *testing.T) {
 func TestEscapeCwdIfInside_NotInside(t *testing.T) {
 	target := t.TempDir()
 	other := cleanExistingPath(t.TempDir())
-	restoreCwd(t)
+	defer restoreCwd(t)()
 
 	if err := os.Chdir(other); err != nil {
 		t.Fatalf("chdir other: %v", err)
@@ -52,24 +52,23 @@ func TestEscapeCwdIfInside_NotInside(t *testing.T) {
 }
 
 // restoreCwd snapshots the current working directory and restores it
-// during t.Cleanup. Critical on Windows: if a test chdir's into a
-// t.TempDir() and never restores, the process CWD becomes invalid
-// when that temp dir is removed during cleanup, and subsequent tests
-// that walk up from CWD (schema/golden lookups) fail with "walking up
-// from C:\". The cleanup also runs BEFORE the t.TempDir RemoveAll
-// (LIFO order: Setenv/Cleanup registered after TempDir runs first),
-// so the directory is no longer in-use when Windows tries to remove it.
-func restoreCwd(t *testing.T) {
+// both when called and during t.Cleanup. Critical on Windows & Linux CI:
+// if a test chdir's into a t.TempDir() and never restores, the process CWD
+// becomes invalid when that temp dir is removed, breaking subsequent tests.
+func restoreCwd(t *testing.T) func() {
 	t.Helper()
 	orig, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("snapshot cwd: %v", err)
 	}
-	t.Cleanup(func() {
+	restore := func() {
 		if cerr := os.Chdir(orig); cerr != nil {
 			t.Logf("restore cwd to %q: %v", orig, cerr)
 		}
-	})
+	}
+	t.Cleanup(restore)
+
+	return restore
 }
 
 func TestEscapeCwdIfInside_EscapesWhenInside(t *testing.T) {
@@ -81,7 +80,7 @@ func TestEscapeCwdIfInside_EscapesWhenInside(t *testing.T) {
 	if err != nil {
 		t.Fatalf("evalsymlinks: %v", err)
 	}
-	restoreCwd(t)
+	defer restoreCwd(t)()
 
 	if err := os.Chdir(target); err != nil {
 		t.Fatalf("chdir target: %v", err)
