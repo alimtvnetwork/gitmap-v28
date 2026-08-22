@@ -26,16 +26,14 @@ import (
 // so a failing assertion can't leave the global pointing at the stub.
 func withRecordingExiter(t *testing.T) *int {
 	t.Helper()
-	cmdFaithfulExiterMu.Lock()
-	prev := cmdFaithfulExiter
+	prev := getCmdFaithfulExiter()
 	captured := -1
-	cmdFaithfulExiter = func(code int) { captured = code }
+	setCmdFaithfulExiter(func(code int) { captured = code })
 	resetCmdFaithfulState()
 
 	t.Cleanup(func() {
 		resetCmdFaithfulState()
-		cmdFaithfulExiter = prev
-		cmdFaithfulExiterMu.Unlock()
+		setCmdFaithfulExiter(prev)
 	})
 
 	return &captured
