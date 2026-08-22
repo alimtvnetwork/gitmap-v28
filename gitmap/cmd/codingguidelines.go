@@ -20,6 +20,7 @@ import (
 type CodingGuidelinesOpts struct {
 	WorkingDir string
 	Runner     func(name string, args ...string) *exec.Cmd
+	LookPath   func(file string) (string, error)
 	Stdout     io.Writer
 	Stderr     io.Writer
 	Stdin      io.Reader
@@ -52,6 +53,9 @@ func withCGDefaults(opts CodingGuidelinesOpts) CodingGuidelinesOpts {
 	if opts.Runner == nil {
 		opts.Runner = exec.Command
 	}
+	if opts.LookPath == nil {
+		opts.LookPath = exec.LookPath
+	}
 	if opts.Stdout == nil {
 		opts.Stdout = os.Stdout
 	}
@@ -67,7 +71,7 @@ func withCGDefaults(opts CodingGuidelinesOpts) CodingGuidelinesOpts {
 
 // dispatchCGWindows runs the v24 PowerShell installer via `irm | iex`.
 func dispatchCGWindows(opts CodingGuidelinesOpts) error {
-	pwsh := resolvePowerShellBinary()
+	pwsh := resolvePowerShellBinaryWithLookPath(opts.LookPath)
 	if pwsh == "" {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGShellNotFoundWindows, constants.DefaultCodingGuidelinesURLWindows)
 		return ErrCGShellNotFound
@@ -82,11 +86,11 @@ func dispatchCGWindows(opts CodingGuidelinesOpts) error {
 
 // dispatchCGUnix runs the v24 bash installer via `curl -fsSL | bash`.
 func dispatchCGUnix(opts CodingGuidelinesOpts, hasCustomRunner bool) error {
-	if _, err := exec.LookPath("bash"); err != nil {
+	if _, err := opts.LookPath("bash"); err != nil {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGShellNotFoundUnix, constants.DefaultCodingGuidelinesURLUnix)
 		return ErrCGShellNotFound
 	}
-	if _, err := exec.LookPath("curl"); err != nil {
+	if _, err := opts.LookPath("curl"); err != nil {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGShellNotFoundUnix, constants.DefaultCodingGuidelinesURLUnix)
 		return ErrCGShellNotFound
 	}

@@ -54,25 +54,27 @@ func assertCGMissingShell(t *testing.T, err error, stderr string) {
 	if !isExpectedErr {
 		t.Fatalf("expected ErrCGShellNotFound, got %v", err)
 	}
-	hasFallback := strings.Contains(stderr, "curl -fsSL")
-	if !hasFallback {
+	hasUnixFallback := strings.Contains(stderr, "curl -fsSL")
+	hasWindowsFallback := strings.Contains(stderr, "irm ")
+	if !hasUnixFallback && !hasWindowsFallback {
 		t.Fatalf("stderr missing manual fallback recipe: %q", stderr)
 	}
 }
 
 // TestRunCodingGuidelinesInstall_ShellMissing verifies the dispatcher
 // returns ErrCGShellNotFound (and prints an actionable manual fallback)
-// when the required shell is absent from PATH. Simulated by emptying
-// PATH for the duration of the test.
+// when the required shell is absent from PATH. Uses injected LookPath
+// to avoid mutating process-wide PATH.
 func TestRunCodingGuidelinesInstall_ShellMissing(t *testing.T) {
-	isWindows := runtime.GOOS == "windows"
-	if isWindows {
-		t.Skip("PATH manipulation for pwsh discovery is platform-specific")
-	}
-	t.Setenv("PATH", "")
-
+	t.Parallel()
 	var stderr bytes.Buffer
-	err := RunCodingGuidelinesInstall(CodingGuidelinesOpts{Stderr: &stderr})
+	opts := CodingGuidelinesOpts{
+		LookPath: func(file string) (string, error) {
+			return "", exec.ErrNotFound
+		},
+		Stderr: &stderr,
+	}
+	err := RunCodingGuidelinesInstall(opts)
 	assertCGMissingShell(t, err, stderr.String())
 }
 

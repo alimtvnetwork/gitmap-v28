@@ -66,12 +66,20 @@ func runInstallCleanCode() {
 // resolvePowerShellBinary returns the first available PowerShell on PATH,
 // preferring Windows PowerShell on Windows and pwsh elsewhere.
 func resolvePowerShellBinary() string {
+	return resolvePowerShellBinaryWithLookPath(exec.LookPath)
+}
+
+// resolvePowerShellBinaryWithLookPath resolves PowerShell with a custom LookPath func.
+func resolvePowerShellBinaryWithLookPath(lookPath func(string) (string, error)) string {
+	if lookPath == nil {
+		lookPath = exec.LookPath
+	}
 	candidates := []string{"pwsh", "powershell"}
 	if runtime.GOOS == "windows" {
 		candidates = []string{"powershell", "pwsh"}
 	}
 	for _, name := range candidates {
-		if path, err := exec.LookPath(name); err == nil {
+		if path, err := lookPath(name); err == nil {
 			return path
 		}
 	}

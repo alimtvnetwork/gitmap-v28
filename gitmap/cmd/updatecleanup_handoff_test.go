@@ -43,16 +43,13 @@ func TestBuildCleanupChildArgsForwardsDebugFlags(t *testing.T) {
 
 func TestBuildCleanupChildEnvForwardsDelayAndJSONPath(t *testing.T) {
 	oldArgs := os.Args
-	oldDebug := os.Getenv(constants.EnvDebugWindows)
-	oldJSON := os.Getenv(constants.EnvDebugWindowsJSON)
 	defer func() {
 		os.Args = oldArgs
-		_ = os.Setenv(constants.EnvDebugWindows, oldDebug)
-		_ = os.Setenv(constants.EnvDebugWindowsJSON, oldJSON)
 	}()
 
+	t.Setenv(constants.EnvDebugWindowsJSON, `C:\tmp\trace.jsonl`)
+
 	os.Args = []string{"gitmap", constants.CmdUpdateRunner, constants.FlagDebugWindows}
-	_ = os.Setenv(constants.EnvDebugWindowsJSON, `C:\tmp\trace.jsonl`)
 	env := strings.Join(buildCleanupChildEnv(), "\n")
 
 	wantParts := []string{
