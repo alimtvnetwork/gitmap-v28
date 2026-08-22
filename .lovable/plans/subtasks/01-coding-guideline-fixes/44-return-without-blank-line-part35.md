@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 35)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\release\gitstderrfilter.go:54`: `return nil`
+- `.\gitmap\release\gitstderrfilter.go:74`: `return true`
+- `.\gitmap\release\httphelpers.go:14`: `return t.Clone()`
+- `.\gitmap\release\httphelpers.go:23`: `return &url.URL{`
+- `.\gitmap\release\httphelpers.go:31`: `return &url.URL{`
+- `.\gitmap\release\httphelpers.go:40`: `return &http.Request{`
+- `.\gitmap\release\httphelpers.go:54`: `return githubTransport.RoundTrip(req)`
+- `.\gitmap\release\httphelpers.go:60`: `return nil, err`
+- `.\gitmap\release\installsnippet.go:21`: `return body`
+- `.\gitmap\release\installsnippet.go:26`: `return body`
+- `.\gitmap\release\installsnippet.go:31`: `return snippet`
+- `.\gitmap\release\installsnippet.go:39`: `return fmt.Sprintf(`
+- `.\gitmap\release\metadata.go:66`: `return fmt.Errorf("create release dir: %w", err)`
+- `.\gitmap\release\metadata.go:71`: `return fmt.Errorf("parse tag for path: %w", err)`
+- `.\gitmap\release\metadata.go:80`: `return nil`
+- `.\gitmap\release\metadata.go:96`: `return false`
+- `.\gitmap\release\metadata.go:100`: `return false`
+- `.\gitmap\release\metadata.go:103`: `return false`
+- `.\gitmap\release\metadata.go:113`: `return LatestMeta{}, err`
+- `.\gitmap\release\metadata.go:126`: `return "", err`
+- `.\gitmap\release\metadata.go:132`: `return "", err`
+- `.\gitmap\release\metadata.go:144`: `return ReleaseMeta{}, err`
+- `.\gitmap\release\metadata.go:150`: `return meta, err`
+- `.\gitmap\release\metadata.go:161`: `return meta, nil`
+- `.\gitmap\release\metadata.go:179`: `return nil, err`
+- `.\gitmap\release\metadata.go:202`: `return filepath.Join(constants.DefaultReleaseDir, constants.DefaultLatestFile)`
+- `.\gitmap\release\metadata.go:209`: `return err`
+- `.\gitmap\release\metadata_test.go:17`: `return func() { constants.DefaultReleaseDir = orig }`
+- `.\gitmap\release\releaseinstallhint.go:25`: `return false`
+- `.\gitmap\release\releaseinstallhint.go:37`: `return strings.Replace(normalized[idx+1:], ":", "/", 1)`
+- `.\gitmap\release\releaseinstallhint.go:46`: `return ""`
+- `.\gitmap\release\releaseinstallhint.go:58`: `return false`
+- `.\gitmap\release\releaseinstallhint.go:66`: `return false`
+- `.\gitmap\release\releaseinstallhint.go:71`: `return false`
+- `.\gitmap\release\remoteorigin.go:16`: `return "", "", fmt.Errorf("no remote origin URL found")`
+- `.\gitmap\release\remoteorigin.go:26`: `return ""`
+- `.\gitmap\release\remoteorigin.go:35`: `return parseGitURL(url)`
+- `.\gitmap\release\remoteorigin.go:42`: `return parseHTTPSURL(url)`
+- `.\gitmap\release\remoteorigin.go:47`: `return parseSSHURL(url)`
+- `.\gitmap\release\remoteorigin.go:59`: `return "", "", fmt.Errorf("invalid HTTPS remote: %s", url)`
+- `.\gitmap\release\remoteorigin.go:74`: `return "", "", fmt.Errorf("invalid SSH remote: %s", url)`
+- `.\gitmap\release\remoteorigin.go:81`: `return "", "", fmt.Errorf("invalid SSH remote path: %s", url)`
+- `.\gitmap\release\selfrelease.go:16`: `return err`
+- `.\gitmap\release\selfrelease.go:21`: `return fmt.Errorf("could not determine current directory: %w", err)`
+- `.\gitmap\release\selfrelease.go:32`: `return fmt.Errorf("could not switch to source repo: %w", err)`
+- `.\gitmap\release\selfrelease.go:49`: `return false`
+- `.\gitmap\release\selfrelease_resolve.go:39`: `return ""`
+- `.\gitmap\release\selfrelease_resolve.go:44`: `return ""`
+- `.\gitmap\release\selfrelease_resolve.go:51`: `return normalizeSourceRepoRoot(loadSourceRepoDB())`
+- `.\gitmap\release\selfrelease_resolve.go:57`: `return ""`
+- `.\gitmap\release\selfrelease_resolve.go:65`: `return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)`
+- `.\gitmap\release\selfrelease_resolve.go:73`: `return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)`
+- `.\gitmap\release\selfrelease_resolve.go:78`: `return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)`
+- `.\gitmap\release\selfrelease_resolve.go:96`: `return false`
+- `.\gitmap\release\selfrelease_resolve.go:104`: `return ""`
+- `.\gitmap\release\selfrelease_resolve.go:109`: `return ""`
+- `.\gitmap\release\selfrelease_resolve.go:114`: `return ""`
+- `.\gitmap\release\selfrelease_resolve.go:122`: `return true`
+- `.\gitmap\release\selfrelease_resolve.go:126`: `return false`
+- `.\gitmap\release\selfrelease_resolve.go:131`: `return false`
+- `.\gitmap\release\selfrelease_resolve.go:156`: `return ""`
+- `.\gitmap\release\selfrelease_resolve.go:168`: `return dir`
+- `.\gitmap\release\selfrelease_resolve.go:173`: `return ""`
+- `.\gitmap\release\semver.go:28`: `return Version{}, fmt.Errorf("empty version string")`
+- `.\gitmap\release\semver.go:39`: `return Version{}, err`
+- `.\gitmap\release\semver.go:52`: `return ""`
+- `.\gitmap\release\semver.go:62`: `return 0, 0, 0, fmt.Errorf("too many version segments")`
+- `.\gitmap\release\semver.go:67`: `return 0, 0, 0, fmt.Errorf("invalid major version: %s", parts[0])`
+- `.\gitmap\release\semver.go:72`: `return 0, 0, 0, err`
+- `.\gitmap\release\semver.go:77`: `return 0, 0, 0, err`
+- `.\gitmap\release\semver.go:85`: `return 0, nil`
+- `.\gitmap\release\semver.go:89`: `return 0, fmt.Errorf("invalid %s version: %s", name, parts[idx])`
+- `.\gitmap\release\semver.go:91`: `return val, nil`
+- `.\gitmap\release\semver.go:98`: `return base + "-" + v.PreRelease`
+- `.\gitmap\release\semver.go:108`: `return base + "-" + v.PreRelease`
+- `.\gitmap\release\semver.go:116`: `return len(v.PreRelease) > 0`
+- `.\gitmap\release\semver.go:122`: `return true`
+- `.\gitmap\release\semver.go:125`: `return false`
+- `.\gitmap\release\semver.go:128`: `return true`
+- `.\gitmap\release\semver.go:131`: `return false`
+- `.\gitmap\release\semver.go:134`: `return true`
+- `.\gitmap\release\semver.go:137`: `return false`
+- `.\gitmap\release\semver.go:147`: `return true`
+- `.\gitmap\release\semver.go:157`: `return Version{Major: v.Major + 1, Minor: 0, Patch: 0}, nil`
+- `.\gitmap\release\semver.go:159`: `return Version{Major: v.Major, Minor: v.Minor + 1, Patch: 0}, nil`
+- `.\gitmap\release\semver.go:161`: `return Version{Major: v.Major, Minor: v.Minor, Patch: v.Patch + 1}, nil`
+- `.\gitmap\release\semver.go:163`: `return Version{}, fmt.Errorf("invalid bump level: %s (use major, minor, or patch)", level)`
+- `.\gitmap\release\temprelease.go:27`: `return nil, fmt.Errorf("failed to list recent commits: %w", err)`
+- `.\gitmap\release\temprelease.go:36`: `return nil`
+- `.\gitmap\release\temprelease.go:56`: `return TempReleaseCommit{}`
+- `.\gitmap\release\temprelease.go:108`: `return nil, err`
+- `.\gitmap\release\temprelease.go:117`: `return nil`
+- `.\gitmap\release\workflow.go:59`: `return delegateErr`
+- `.\gitmap\release\workflow.go:64`: `return err`
+- `.\gitmap\release\workflow.go:69`: `return delegateErr`
+- `.\gitmap\release\workflow.go:74`: `return err`
+- `.\gitmap\release\workflow.go:79`: `return err`
+- `.\gitmap\release\workflow.go:95`: `return false, nil`
+- `.\gitmap\release\workflow.go:102`: `return false, nil`
+- `.\gitmap\release\workflow.go:108`: `return false, nil`
+- `.\gitmap\release\workflow.go:121`: `return false, nil`
+- `.\gitmap\release\workflow.go:125`: `return false, nil`
+- `.\gitmap\release\workflow.go:130`: `return false, nil`
+- `.\gitmap\release\workflow.go:135`: `return false, nil`
+- `.\gitmap\release\workflow.go:146`: `return tryDelegateFromCurrentBranch(opts)`
+- `.\gitmap\release\workflow.go:155`: `return resolveExplicitVersion(opts.Version)`
+- `.\gitmap\release\workflow.go:158`: `return resolveBumpVersion(opts.Bump)`
+- `.\gitmap\release\workflow.go:167`: `return v, err`
+- `.\gitmap\release\workflow.go:172`: `return v, nil`
+- `.\gitmap\release\workflow.go:178`: `return v, err`
+- `.\gitmap\release\workflow.go:183`: `return v, nil`
+- `.\gitmap\release\workflow.go:189`: `return v, err`
+- `.\gitmap\release\workflow.go:194`: `return v, nil`
+- `.\gitmap\release\workflow.go:210`: `return printDryRun(v, branchName, tag, sourceName, opts)`
+- `.\gitmap\release\workflow.go:224`: `return err`
+- `.\gitmap\release\workflow.go:234`: `return err`
+- `.\gitmap\release\workflow.go:250`: `return nil`
+- `.\gitmap\release\workflow.go:260`: `return fmt.Errorf("create branch: %w", err)`
+- `.\gitmap\release\workflow.go:266`: `return fmt.Errorf("create tag: %w", err)`
+- `.\gitmap\release\workflow.go:276`: `return opts.Notes`
+- `.\gitmap\release\workflowbranch.go:16`: `return err`
+- `.\gitmap\release\workflowbranch.go:21`: `return err`
+- `.\gitmap\release\workflowbranch.go:27`: `return printDryRun(version, branchName, version.String(), branchName, Options{`
+- `.\gitmap\release\workflowbranch.go:39`: `return Version{}, fmt.Errorf(constants.ErrReleaseInvalidVersion, branchName)`
+- `.\gitmap\release\workflowbranch.go:50`: `return checkDuplicate(v)`
+- `.\gitmap\release\workflowbranch.go:65`: `return fmt.Errorf("checkout branch: %w", err)`
+- `.\gitmap\release\workflowbranch.go:88`: `return err`
+- `.\gitmap\release\workflowbranch.go:105`: `return fmt.Errorf("could not list release branches: %w", err)`
+- `.\gitmap\release\workflowbranch.go:126`: `return err`
+- `.\gitmap\release\workflowbranch.go:150`: `return nil, err`
+- `.\gitmap\release\workflowdocs.go:55`: `return fmt.Errorf("walk error at %s: %w", path, err)`
+- `.\gitmap\release\workflowdocs.go:59`: `return nil`
+- `.\gitmap\release\workflowdocs.go:74`: `return fmt.Errorf("create archive %s: %w", archivePath, err)`
+- `.\gitmap\release\workflowdocs.go:84`: `return fmt.Errorf("relative path for %s: %w", itemPath, relErr)`
+- `.\gitmap\release\workflowdocs.go:91`: `return fmt.Errorf("add %s to zip: %w", itemPath, err)`
+- `.\gitmap\release\workflowdryrun.go:121`: `return nil`
+- `.\gitmap\release\workflowdryrun.go:126`: `return fmt.Errorf("switch back to %s: %w", branch, err)`
+- `.\gitmap\release\workflowfinalize.go:27`: `return fmt.Errorf(constants.ErrReleasePushFailed, err)`
+- `.\gitmap\release\workflowfinalize.go:95`: `return fmt.Errorf(constants.ErrReleaseMetaWrite, metaPath, err)`
+- `.\gitmap\release\workflowfinalize.go:147`: `return nil`
+- `.\gitmap\release\workflowfinalize.go:157`: `return nil`
+- `.\gitmap\release\workflowfinalize.go:162`: `return entry.Notes`
+- `.\gitmap\release\workflowfinalize.go:188`: `return err`
+- `.\gitmap\release\workflowfinalize.go:221`: `return assets`
+- `.\gitmap\release\workflowfinalize.go:234`: `return assets`
+- `.\gitmap\release\workflowgithub.go:68`: `return nil`
+- `.\gitmap\release\workflowgithub.go:72`: `return nil`
+- `.\gitmap\release\workflowgithub.go:77`: `return nil`
+- `.\gitmap\release\workflowpending.go:14`: `return nil`
+- `.\gitmap\release\workflowpending.go:37`: `return false`

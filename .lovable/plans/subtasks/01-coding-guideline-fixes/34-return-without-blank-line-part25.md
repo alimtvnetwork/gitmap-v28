@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 25)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\commitin\enums.go:185`: `return ""`
+- `.\gitmap\cmd\commitin\enums.go:189`: `return []MessageRuleKind{MessageRuleKindStartsWith, MessageRuleKindEndsWith, MessageRuleKindContains}`
+- `.\gitmap\cmd\commitin\enums.go:209`: `return constants.CommitInLanguageGo`
+- `.\gitmap\cmd\commitin\enums.go:211`: `return constants.CommitInLanguageJavaScript`
+- `.\gitmap\cmd\commitin\enums.go:213`: `return constants.CommitInLanguageTypeScript`
+- `.\gitmap\cmd\commitin\enums.go:215`: `return constants.CommitInLanguageRust`
+- `.\gitmap\cmd\commitin\enums.go:217`: `return constants.CommitInLanguagePython`
+- `.\gitmap\cmd\commitin\enums.go:219`: `return constants.CommitInLanguagePhp`
+- `.\gitmap\cmd\commitin\enums.go:221`: `return constants.CommitInLanguageJava`
+- `.\gitmap\cmd\commitin\enums.go:223`: `return constants.CommitInLanguageCSharp`
+- `.\gitmap\cmd\commitin\enums.go:225`: `return ""`
+- `.\gitmap\cmd\commitin\enums.go:229`: `return []FunctionIntelLanguage{LanguageGo, LanguageJavaScript, LanguageTypeScript, LanguageRust, LanguagePython, LanguagePhp, LanguageJava, LanguageCSharp}`
+- `.\gitmap\cmd\commitin\enums_test.go:194`: `return out`
+- `.\gitmap\cmd\commitin\enums_test.go:199`: `return false`
+- `.\gitmap\cmd\commitin\enums_test.go:203`: `return false`
+- `.\gitmap\cmd\commitin\enums_test.go:206`: `return true`
+- `.\gitmap\cmd\commitin\parse.go:19`: `return nil, newBadArgs("%v", err)`
+- `.\gitmap\cmd\commitin\parse.go:22`: `return nil, perr`
+- `.\gitmap\cmd\commitin\parse.go:25`: `return nil, perr`
+- `.\gitmap\cmd\commitin\parse.go:28`: `return nil, perr`
+- `.\gitmap\cmd\commitin\parse.go:30`: `return raw, nil`
+- `.\gitmap\cmd\commitin\parse.go:45`: `return perr`
+- `.\gitmap\cmd\commitin\parse.go:48`: `return nil`
+- `.\gitmap\cmd\commitin\parse.go:56`: `return newBadArgs("%s", "missing <source>")`
+- `.\gitmap\cmd\commitin\parse.go:61`: `return applyKeywordArg(raw, rest)`
+- `.\gitmap\cmd\commitin\parse.go:64`: `return nil`
+- `.\gitmap\cmd\commitin\parse.go:72`: `return perr`
+- `.\gitmap\cmd\commitin\parse.go:76`: `return nil`
+- `.\gitmap\cmd\commitin\parse.go:80`: `return nil`
+- `.\gitmap\cmd\commitin\parse.go:88`: `return perr`
+- `.\gitmap\cmd\commitin\parse.go:91`: `return perr`
+- `.\gitmap\cmd\commitin\parse.go:94`: `return perr`
+- `.\gitmap\cmd\commitin\parse.go:97`: `return perr`
+- `.\gitmap\cmd\commitin\parse.go:100`: `return perr`
+- `.\gitmap\cmd\commitin\parse.go:102`: `return validateLanguages(raw.Languages)`
+- `.\gitmap\cmd\commitin\parse.go:117`: `return out`
+- `.\gitmap\cmd\commitin\parse.go:139`: `return flags, positional`
+- `.\gitmap\cmd\commitin\parse.go:148`: `return false`
+- `.\gitmap\cmd\commitin\parse.go:152`: `return false`
+- `.\gitmap\cmd\commitin\parse.go:155`: `return true`
+- `.\gitmap\cmd\commitin\parse.go:163`: `return false`
+- `.\gitmap\cmd\commitin\parse.go:166`: `return !bools[name]`
+- `.\gitmap\cmd\commitin\parse_flags.go:35`: `return fs, raw, csv`
+- `.\gitmap\cmd\commitin\parse_flags.go:74`: `return map[string]bool{`
+- `.\gitmap\cmd\commitin\parse_helpers.go:14`: `return fmt.Sprintf(format, args...)`
+- `.\gitmap\cmd\commitin\parse_helpers.go:41`: `return out`
+- `.\gitmap\cmd\commitin\parse_helpers.go:48`: `return s[1 : len(s)-1]`
+- `.\gitmap\cmd\commitin\parse_helpers.go:50`: `return s`
+- `.\gitmap\cmd\commitin\parse_helpers.go:58`: `return token, 0, true, nil`
+- `.\gitmap\cmd\commitin\parse_helpers.go:61`: `return "", 0, false, nil`
+- `.\gitmap\cmd\commitin\parse_helpers.go:65`: `return "", 0, true, &ParseError{`
+- `.\gitmap\cmd\commitin\parse_helpers.go:72`: `return "", 0, true, &ParseError{`
+- `.\gitmap\cmd\commitin\parse_helpers.go:77`: `return token, n, true, nil`
+- `.\gitmap\cmd\commitin\parse_helpers.go:84`: `return nil`
+- `.\gitmap\cmd\commitin\parse_helpers.go:94`: `return out`
+- `.\gitmap\cmd\commitin\parse_types.go:68`: `return &ParseError{`
+- `.\gitmap\cmd\commitin\parse_validate.go:18`: `return nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:20`: `return newBadArgs(constants.CommitInErrConflictMode, value)`
+- `.\gitmap\cmd\commitin\parse_validate.go:27`: `return nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:29`: `return newBadArgs(constants.CommitInErrFunctionIntelArg, value)`
+- `.\gitmap\cmd\commitin\parse_validate.go:36`: `return nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:41`: `return newBadArgs(constants.CommitInErrUnknownLanguage, v)`
+- `.\gitmap\cmd\commitin\parse_validate.go:44`: `return nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:54`: `return out`
+- `.\gitmap\cmd\commitin\parse_validate.go:62`: `return nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:64`: `return newBadArgs("%s", constants.CommitInErrAuthorPair)`
+- `.\gitmap\cmd\commitin\parse_validate.go:71`: `return nil, nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:78`: `return nil, newBadArgs(constants.CommitInErrMessageRuleShape, raw)`
+- `.\gitmap\cmd\commitin\parse_validate.go:82`: `return out, nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:90`: `return out`
+- `.\gitmap\cmd\commitin\parse_validate.go:97`: `return newBadArgs("%s", "missing <source>")`
+- `.\gitmap\cmd\commitin\parse_validate.go:100`: `return newBadArgs("%s", "missing <inputs...>")`
+- `.\gitmap\cmd\commitin\parse_validate.go:102`: `return nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:108`: `return nil`
+- `.\gitmap\cmd\commitin\parse_validate.go:110`: `return &ParseError{`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:55`: `return nil, err`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:63`: `return f, nil`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:66`: `return nil, err`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:71`: `return f, nil`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:77`: `return f, nil`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:85`: `return ok`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:94`: `return nil`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:99`: `return f.flushLocked()`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:105`: `return err`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:109`: `return writeErr`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:111`: `return os.Rename(tmp, f.path)`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint_test.go:57`: `return osWriteFile(p, b)`
+- `.\gitmap\cmd\commitin\checkpoint\oswrap.go:9`: `return os.WriteFile(p, b, 0o644)`
+- `.\gitmap\cmd\commitin\dedupe\dedupe.go:24`: `return Verdict{}, fmt.Errorf("dedupe: nil db")`
+- `.\gitmap\cmd\commitin\dedupe\dedupe.go:27`: `return Verdict{}, fmt.Errorf("dedupe: empty source sha")`
+- `.\gitmap\cmd\commitin\dedupe\dedupe.go:33`: `return Verdict{}, nil`
+- `.\gitmap\cmd\commitin\dedupe\dedupe.go:36`: `return Verdict{}, fmt.Errorf("dedupe: select %s: %w", constants.TableCommitInShaMap, err)`
+- `.\gitmap\cmd\commitin\dedupe\dedupe.go:38`: `return Verdict{IsHit: true, PreviousRewrittenId: rewrittenId}, nil`
+- `.\gitmap\cmd\commitin\dedupe\dedupe_test.go:36`: `return db`
+- `.\gitmap\cmd\commitin\dedupe\dedupe_test.go:97`: `return id`
+- `.\gitmap\cmd\commitin\e2e\assert.go:30`: `return nil`
+- `.\gitmap\cmd\commitin\e2e\assert.go:35`: `return parseLogLines(string(out))`
+- `.\gitmap\cmd\commitin\e2e\assert.go:65`: `return nil`
+- `.\gitmap\cmd\commitin\e2e\assert.go:78`: `return out`
+- `.\gitmap\cmd\commitin\e2e\happy_path_test.go:81`: `return src, input`
+- `.\gitmap\cmd\commitin\e2e\repo.go:33`: `return NewRepoIn(t, t.TempDir(), name)`
+- `.\gitmap\cmd\commitin\e2e\repo.go:53`: `return r`
+- `.\gitmap\cmd\commitin\e2e\repo.go:94`: `return sha`
+- `.\gitmap\cmd\commitin\e2e\repo.go:107`: `return strings.TrimSpace(string(out))`
+- `.\gitmap\cmd\commitin\e2e\repo.go:117`: `return "", false`
+- `.\gitmap\cmd\commitin\e2e\repo.go:120`: `return sha, sha != ""`
+- `.\gitmap\cmd\commitin\e2e\run.go:30`: `return RunResult{ExitCode: code, Stdout: outBuf.String(), Stderr: errBuf.String()}`
+- `.\gitmap\cmd\commitin\e2e\run.go:37`: `return &commitin.RawArgs{`
+- `.\gitmap\cmd\commitin\e2e\sibling_test.go:120`: `return parent, src`
+- `.\gitmap\cmd\commitin\finalize\conflict.go:24`: `return ConflictDecisionTakeTheirs`
+- `.\gitmap\cmd\commitin\finalize\finalize.go:27`: `return constants.CommitInExitOk`
+- `.\gitmap\cmd\commitin\finalize\finalize.go:29`: `return constants.CommitInExitPartiallyFailed`
+- `.\gitmap\cmd\commitin\funcintel\diff.go:16`: `return out`
+- `.\gitmap\cmd\commitin\funcintel\diff.go:26`: `return set`
+- `.\gitmap\cmd\commitin\funcintel\lang_go.go:14`: `return addedNames(`
+- `.\gitmap\cmd\commitin\funcintel\lang_go.go:23`: `return "", false`
+- `.\gitmap\cmd\commitin\funcintel\lang_go.go:25`: `return m[1], true`
+- `.\gitmap\cmd\commitin\funcintel\lang_java.go:14`: `return addedNames(extractByRegex(prev, matchJava), extractByRegex(next, matchJava))`
+- `.\gitmap\cmd\commitin\funcintel\lang_java.go:20`: `return "", false`
+- `.\gitmap\cmd\commitin\funcintel\lang_java.go:22`: `return m[1], true`
+- `.\gitmap\cmd\commitin\funcintel\lang_javascript.go:14`: `return addedNames(`
+- `.\gitmap\cmd\commitin\funcintel\lang_javascript.go:23`: `return "", false`
+- `.\gitmap\cmd\commitin\funcintel\lang_javascript.go:25`: `return m[1], true`
+- `.\gitmap\cmd\commitin\funcintel\lang_php.go:14`: `return addedNames(extractByRegex(prev, matchPhp), extractByRegex(next, matchPhp))`
+- `.\gitmap\cmd\commitin\funcintel\lang_php.go:20`: `return "", false`
+- `.\gitmap\cmd\commitin\funcintel\lang_php.go:22`: `return m[1], true`
+- `.\gitmap\cmd\commitin\funcintel\lang_python.go:14`: `return addedNames(extractByRegex(prev, matchPy), extractByRegex(next, matchPy))`
+- `.\gitmap\cmd\commitin\funcintel\lang_python.go:20`: `return "", false`
+- `.\gitmap\cmd\commitin\funcintel\lang_python.go:22`: `return m[1], true`
+- `.\gitmap\cmd\commitin\funcintel\lang_rust.go:14`: `return addedNames(extractByRegex(prev, matchRust), extractByRegex(next, matchRust))`
+- `.\gitmap\cmd\commitin\funcintel\lang_rust.go:20`: `return "", false`
+- `.\gitmap\cmd\commitin\funcintel\lang_rust.go:22`: `return m[1], true`
+- `.\gitmap\cmd\commitin\funcintel\lang_ts.go:14`: `return addedNames(`
+- `.\gitmap\cmd\commitin\funcintel\lang_ts.go:22`: `return name, true`
+- `.\gitmap\cmd\commitin\funcintel\lang_ts.go:26`: `return "", false`
+- `.\gitmap\cmd\commitin\funcintel\lang_ts.go:28`: `return m[1], true`
+- `.\gitmap\cmd\commitin\funcintel\registry.go:29`: `return extToLang[strings.ToLower(filepath.Ext(rel))]`
+- `.\gitmap\cmd\commitin\funcintel\registry.go:45`: `return out`
+- `.\gitmap\cmd\commitin\funcintel\render.go:13`: `return sorted[i].RelativePath < sorted[j].RelativePath`
+- `.\gitmap\cmd\commitin\funcintel\render.go:19`: `return strings.TrimRight(b.String(), "\n")`
+- `.\gitmap\cmd\commitin\funcintel\render.go:39`: `return nil`
+- `.\gitmap\cmd\commitin\funcintel\render.go:43`: `return nil`
+- `.\gitmap\cmd\commitin\funcintel\render.go:45`: `return d.Detect(c.PrevSource, c.NewSource)`
+- `.\gitmap\cmd\commitin\message\affix.go:7`: `return msg`
+- `.\gitmap\cmd\commitin\message\affix.go:11`: `return prefix + msg + suffix`
+- `.\gitmap\cmd\commitin\message\affix.go:13`: `return prefix + msg[:idx] + suffix + msg[idx:]`
+- `.\gitmap\cmd\commitin\message\affix.go:23`: `return msg`
+- `.\gitmap\cmd\commitin\message\affix.go:28`: `return pool[0]`
+- `.\gitmap\cmd\commitin\message\affix.go:34`: `return pool[i]`
+- `.\gitmap\cmd\commitin\message\pipeline.go:12`: `return Result{Message: msg, IsEmpty: isEmpty(msg)}`

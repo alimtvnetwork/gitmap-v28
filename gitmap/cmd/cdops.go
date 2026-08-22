@@ -171,7 +171,7 @@ func parseCDReposFlags(args []string) string {
 
 // loadCDReposList loads repos optionally filtered by group.
 func loadCDReposList(db *store.DB, group string) []model.ScanRecord {
-	isEmptyGroup := len(group) == 0
+	hasNoGroup := len(group) == 0
 
 	if hasNoGroup == false {
 		return loadCDGroupRepos(db, group)

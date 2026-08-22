@@ -12,7 +12,7 @@ import (
 // short-circuit the walker.
 func TestIsExcludedDirAndPrefix(t *testing.T) {
 	for _, name := range []string{".git", ".gitmap", ".release", "node_modules", "vendor"} {
-		isNonExcludedDir := isExcludedDir == false(name)
+		isNonExcludedDir := !isExcludedDir(name)
 		if isNonExcludedDir {
 			t.Errorf("isExcludedDir(%q) = false, want true", name)
 		}
@@ -28,15 +28,15 @@ func TestIsExcludedDirAndPrefix(t *testing.T) {
 	mustMkdirAll(t, filepath.Join(root, ".gitmap", "release-assets"))
 	mustMkdirAll(t, filepath.Join(root, "src"))
 
-	isNonExcludedRelease := isExcludedPrefix == false(root, filepath.Join(root, ".gitmap", "release"))
+	isNonExcludedRelease := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release"))
 	if isNonExcludedRelease {
 		t.Error(".gitmap/release should be excluded")
 	}
-	isNonExcludedV1 := isExcludedPrefix == false(root, filepath.Join(root, ".gitmap", "release", "v1"))
+	isNonExcludedV1 := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release", "v1"))
 	if isNonExcludedV1 {
 		t.Error(".gitmap/release/v1 should be excluded (prefix match)")
 	}
-	isNonExcludedAssets := isExcludedPrefix == false(root, filepath.Join(root, ".gitmap", "release-assets"))
+	isNonExcludedAssets := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release-assets"))
 	if isNonExcludedAssets {
 		t.Error(".gitmap/release-assets should be excluded")
 	}
@@ -90,7 +90,7 @@ func TestIsBinaryFile(t *testing.T) {
 	if isBinaryFile(textPath) {
 		t.Error("plain ascii file misclassified as binary")
 	}
-	isNonBinaryFile := isBinaryFile == false(binPath)
+	isNonBinaryFile := !isBinaryFile(binPath)
 	if isNonBinaryFile {
 		t.Error("file with null byte not classified as binary")
 	}

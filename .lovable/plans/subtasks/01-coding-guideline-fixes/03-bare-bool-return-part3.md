@@ -1,0 +1,156 @@
+# Fix bare bool return (Part 3)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\envplatform_windows.go:59`: `func removePathPersistent(dir string, system bool, _ string) {`
+- `.\gitmap\cmd\escapecwd.go:60`: `func isPathInside(child, parent string) bool {`
+- `.\gitmap\cmd\escapecwd_test.go:106`: `func sameCleanPath(left, right string) bool {`
+- `.\gitmap\cmd\exec.go:120`: `func parseExecFlags(args []string) (groupName string, all, stopOnFail bool, gitArgs []string) {`
+- `.\gitmap\cmd\exec.go:132`: `func loadExecByScope(groupName string, all bool) []model.ScanRecord {`
+- `.\gitmap\cmd\execprint.go:13`: `func execInRepo(rec model.ScanRecord, gitArgs []string) bool {`
+- `.\gitmap\cmd\exportrender.go:92`: `func isEmptyExportSlice(slice any) bool {`
+- `.\gitmap\cmd\findnext.go:45`: `func emitFindNext(rows []model.FindNextRow, jsonOut bool) {`
+- `.\gitmap\cmd\findnextflags.go:27`: `func parseFindNextFlags(args []string) (int64, bool, error) {`
+- `.\gitmap\cmd\findnextflags.go:65`: `func classifyEqualsForm(name, value string, curID int64, curJSON bool) (int, int64, bool, error) {`
+- `.\gitmap\cmd\findnextflags.go:85`: `func classifyScanFolderSpaceForm(args []string, i int, curJSON bool) (int, int64, bool, error) {`
+- `.\gitmap\cmd\findnextflags.go:120`: `func suggestFindNextFlag(tok string) (string, bool) {`
+- `.\gitmap\cmd\fixauth.go:57`: `func parseFixAuthFlags(args []string) (user, email string, assumeYes, force bool) {`
+- `.\gitmap\cmd\fixauth.go:102`: `func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {`
+- `.\gitmap\cmd\fixauth.go:145`: `func confirmOverwrite(keyPath string) bool {`
+- `.\gitmap\cmd\fixrepo.go:140`: `func emitFixRepoSummary(scanned, changed, replacements int, isDryRun bool) {`
+- `.\gitmap\cmd\fixrepo_config.go:118`: `func isFixRepoIgnoredPath(relPath string) bool {`
+- `.\gitmap\cmd\fixrepo_flags.go:22`: `func isFixRepoSpanArg(a string) bool {`
+- `.\gitmap\cmd\fixrepo_flags.go:146`: `func isFixRepoModeArg(a string) bool {`
+- `.\gitmap\cmd\fixrepo_flags.go:169`: `func isFixRepoDryRunArg(a string) bool {`
+- `.\gitmap\cmd\fixrepo_flags.go:176`: `func isFixRepoVerboseArg(a string) bool {`
+- `.\gitmap\cmd\fixrepo_flags.go:184`: `func isFixRepoStrictArg(a string) bool {`
+- `.\gitmap\cmd\fixrepo_flags.go:192`: `func consumeFixRepoConfigArg(args []string, i int, out *fixRepoOptions) (int, bool, error) {`
+- `.\gitmap\cmd\fixrepo_flags.go:225`: `func consumeFixRepoRestrictArg(args []string, i int, out *fixRepoOptions) (int, bool, error) {`
+- `.\gitmap\cmd\fixrepo_flags.go:267`: `func consumeFixRepoGofmtMaxArg(args []string, i int, out *fixRepoOptions) (int, bool, error) {`
+- `.\gitmap\cmd\fixrepo_gofmt.go:53`: `func runFixRepoGofmt(goFiles []string, opts fixRepoOptions) bool {`
+- `.\gitmap\cmd\fixrepo_gofmt.go:78`: `func emitGofmtDryRunPreview(goFiles []string, opts fixRepoOptions) bool {`
+- `.\gitmap\cmd\fixrepo_gofmt.go:145`: `func invokeGofmt(goFiles []string, opts fixRepoOptions) bool {`
+- `.\gitmap\cmd\fixrepo_gofmt.go:218`: `func isGoSourceFile(rel string) bool {`
+- `.\gitmap\cmd\fixrepo_identity.go:87`: `func parseRemoteURL(url string) (string, string, string, bool) {`
+- `.\gitmap\cmd\fixrepo_identity.go:110`: `func matchSSHRemote(url string) (string, string, string, bool) {`
+- `.\gitmap\cmd\fixrepo_identity.go:120`: `func matchHTTPSRemote(url string) (string, string, string, bool) {`
+- `.\gitmap\cmd\fixrepo_identity.go:130`: `func matchSSHProtoRemote(url string) (string, string, string, bool) {`
+- `.\gitmap\cmd\fixrepo_rewrite.go:22`: `func rewriteFixRepoFile(fullPath, base string, current int, targets []int, dryRun bool) (int, error) {`
+- `.\gitmap\cmd\fixrepo_rewrite.go:27`: `func rewriteFixRepoFileR(fullPath, base string, current int, targets []int, dryRun, restrictNoVersion bool) (int, error) {`
+- `.\gitmap\cmd\fixrepo_rewrite.go:56`: `func applyAllTargetsR(text, base string, current int, targets []int, restrictNoVersion bool) (string, int) {`
+- `.\gitmap\cmd\fixrepo_rewrite.go:132`: `func isBareBaseBoundary(text string, start, end int) bool {`
+- `.\gitmap\cmd\fixrepo_rewrite.go:146`: `func isBareBaseWordByte(c byte) bool {`
+- `.\gitmap\cmd\fixrepo_rewrite.go:215`: `func isASCIIDigit(c byte) bool {`
+- `.\gitmap\cmd\fixrepo_rewrite_preview.go:55`: `func previewOneTarget(text, base string, n, current int, restrictNoVersion bool,`
+- `.\gitmap\cmd\fixrepo_scan.go:195`: `func isFixRepoScannable(fullPath string) bool {`
+- `.\gitmap\cmd\fixrepo_scan.go:210`: `func isFixRepoSkippablePath(fullPath string) bool {`
+- `.\gitmap\cmd\fixrepo_scan.go:226`: `func isFixRepoBinaryExt(fullPath string) bool {`
+- `.\gitmap\cmd\fixrepo_scan.go:236`: `func hasFixRepoNullByte(fullPath string) bool {`
+- `.\gitmap\cmd\fixrepo_strict.go:33`: `func runFixRepoStrict(repoRoot string, goFiles []string, opts fixRepoOptions) bool {`
+- `.\gitmap\cmd\fixrepo_strict.go:70`: `func invokeGoTest(repoRoot string, packages []string) bool {`
+- `.\gitmap\cmd\fixrepo_strict_packages.go:63`: `func goFileToPackagePattern(repoRoot, fullPath string) (string, bool) {`
+- `.\gitmap\cmd\githubdesktop.go:53`: `func isGitRepo(dir string) bool {`
+- `.\gitmap\cmd\glyphsflag.go:48`: `func matchGlyphsArg(a string, args []string, i int, short, long string) (val string, consumed int, matched bool) {`
+- `.\gitmap\cmd\gomod.go:136`: `func runGoModTidy(noTidy bool) {`
+- `.\gitmap\cmd\gomodbranch.go:93`: `func isWorkTreeDirty() bool {`
+- `.\gitmap\cmd\gomodreplace.go:41`: `func replaceModulePath(oldPath, newPath string, verbose bool, exts []string) int {`
+- `.\gitmap\cmd\gomodreplace.go:107`: `func matchesGoModExt(path string, exts []string) bool {`
+- `.\gitmap\cmd\gomodreplace.go:146`: `func isGoModExcludedDir(name string) bool {`
+- `.\gitmap\cmd\gomodreplace.go:157`: `func fileContains(path, substr string) bool {`
+- `.\gitmap\cmd\group.go:80`: `func dispatchGroupScoped(sub string, args []string) bool {`
+- `.\gitmap\cmd\hasanyupdates.go:37`: `func isInsideGitRepo() bool {`
+- `.\gitmap\cmd\hasanyupdates.go:56`: `func hauAheadBehind() (int, int, bool) {`
+- `.\gitmap\cmd\haschange.go:52`: `func parseHasChangeFlags(args []string) (alias, mode string, all, fetch bool) {`
+- `.\gitmap\cmd\haschange.go:98`: `func boolStr(b bool) string {`
+- `.\gitmap\cmd\haschange.go:109`: `func readAheadBehind(target string) (int, int, bool) {`
+- `.\gitmap\cmd\helpcheck.go:31`: `func hasHelpFlag(args []string) bool {`
+- `.\gitmap\cmd\history.go:32`: `func parseHistoryFlags(args []string) (string, string, int, bool) {`
+- `.\gitmap\cmd\history.go:271`: `func parseHistoryTime(s string) (time.Time, bool) {`
+- `.\gitmap\cmd\historyreset.go:26`: `func parseHistoryResetFlags(args []string) bool {`
+- `.\gitmap\cmd\historyrewrite_flags.go:114`: `func isHistoryStringFlag(tok string) bool {`
+- `.\gitmap\cmd\historyrewrite_push.go:31`: `func confirmHistoryPush(sandbox, originURL string, opts historyOpts) bool {`
+- `.\gitmap\cmd\historyrewrite_verify.go:76`: `func hashPathAtCommit(sandbox, commit, path string) (string, bool) {`
+- `.\gitmap\cmd\hygiene_integration_test.go:20`: `func makeRepo(t *testing.T, dir string, uniqueBody bool) {`
+- `.\gitmap\cmd\hygiene_parallel.go:75`: `func mapReposParallel[T any](repos []string, fn func(string) (T, bool)) []T {`
+- `.\gitmap\cmd\importcmd.go:28`: `func parseImportFlags(args []string) (string, bool) {`
+- `.\gitmap\cmd\inject_idempotency.go:21`: `func parseInjectForceFlag(name string, args []string) bool {`
+- `.\gitmap\cmd\inject_idempotency.go:72`: `func shouldRunDesktop(absPath string, ts store.InjectTimestamps, force bool) bool {`
+- `.\gitmap\cmd\inject_idempotency.go:87`: `func shouldRunVSCode(absPath string, ts store.InjectTimestamps, force bool) bool {`
+- `.\gitmap\cmd\install.go:23`: `func parseInstallFlags(args []string) (installOptions, bool) {`
+- `.\gitmap\cmd\install.go:115`: `func shouldProceedInstall(opts installOptions, installName string) bool {`
+- `.\gitmap\cmd\install.go:147`: `func alreadyInstalled(installName string) bool {`
+- `.\gitmap\cmd\install.go:168`: `func confirmInstallIfNeeded(opts installOptions, installName, manager string) bool {`
+- `.\gitmap\cmd\install.go:190`: `func confirmInstall(tool, version, manager string) bool {`
+- `.\gitmap\cmd\installcleancode.go:29`: `func isCleanCodeAlias(tool string) bool {`
+- `.\gitmap\cmd\installctx.go:23`: `func setCtxExplainEnabled(on bool) {`
+- `.\gitmap\cmd\installctx.go:29`: `func isCtxExplainEnabled() bool {`
+- `.\gitmap\cmd\installctx.go:40`: `func runInstallCtx(explain bool) {`
+- `.\gitmap\cmd\installctxlinux.go:60`: `func installNautilus(flat []flatCtxEntry, exe string) bool {`
+- `.\gitmap\cmd\installctxlinux.go:83`: `func installDolphin(flat []flatCtxEntry, exe string) bool {`
+- `.\gitmap\cmd\installctxlinuxthunar.go:15`: `func installThunar(flat []flatCtxEntry, exe string) bool {`
+- `.\gitmap\cmd\installctxmac.go:80`: `func writeMacWorkflow(dir string, e flatCtxEntry, exe string) bool {`
+- `.\gitmap\cmd\installctxmac.go:101`: `func writeFileCtx(path, body string) bool {`
+- `.\gitmap\cmd\installctx_argv_e2e_test.go:171`: `func winCmdsHaveExtended(cmds [][]string) bool {`
+- `.\gitmap\cmd\installctx_harness_test.go:93`: `func withExplain(t *testing.T, on bool, f func()) {`
+- `.\gitmap\cmd\installctx_harness_test.go:140`: `func containsAll(haystack string, needles []string) (string, bool) {`
+- `.\gitmap\cmd\installctx_icon_test.go:64`: `func ctxKeyHasOptedInIcon(key string) bool {`
+- `.\gitmap\cmd\installctx_linux_e2e_test.go:316`: `func checkExtendedGuardMatches(t *testing.T, leaf ctxFlatLeaf, body string, hasZenity bool) {`
+- `.\gitmap\cmd\installctx_windows_e2e_test.go:29`: `func winHasRootCascade(cmds [][]string, root, exe string) bool {`
+- `.\gitmap\cmd\installctx_windows_e2e_test.go:45`: `func winContainsCmd(cmds [][]string, want []string) bool {`
+- `.\gitmap\cmd\installdetect.go:68`: `func isCommandAvailable(name string) bool {`
+- `.\gitmap\cmd\installlist.go:122`: `func isBinaryInPath(tool string) bool {`
+- `.\gitmap\cmd\installscripts.go:55`: `func copySingleScript(s scriptSource, targetDir string) bool {`
+- `.\gitmap\cmd\installtools.go:38`: `func handleDryRunInstall(dryRun bool, manager string, installCmd []string) bool {`
+- `.\gitmap\cmd\installtools.go:81`: `func buildUnixInstallCommand(manager, tool, pkg, version string) ([]string, bool) {`
+- `.\gitmap\cmd\installtools.go:141`: `func isBrewCaskTool(tool string) bool {`
+- `.\gitmap\cmd\installtools.go:152`: `func runAptUpdate(verbose bool) {`
+- `.\gitmap\cmd\installtools.go:176`: `func execInstallCommand(args []string, verbose bool) ([]byte, error) {`
+- `.\gitmap\cmd\installverify.go:14`: `func isGUITool(tool string) bool {`
+- `.\gitmap\cmd\install_unit_test.go:193`: `func containsToken(args []string, substr string) bool {`
+- `.\gitmap\cmd\jsonsnapshot_helpers_test.go:126`: `func equalStringSlices(a, b []string) bool {`
+- `.\gitmap\cmd\latestbranch.go:163`: `func resolveLatestBranchConfig(fs *flag.FlagSet, cfg latestBranchConfig, allRemotes, noFetch, jsonOut bool) latestBranchConfig {`
+- `.\gitmap\cmd\latestbranchresolve.go:47`: `func resolveBranchNames(sha, remote string, containsFallback bool) []string {`
+- `.\gitmap\cmd\lfscommon.go:98`: `func insideGitRepo() bool {`
+- `.\gitmap\cmd\lfscommon.go:109`: `func lfsAvailable() bool {`
+- `.\gitmap\cmd\lfscommon.go:207`: `func printLFSCommonBanner(dryRun bool) {`
+- `.\gitmap\cmd\list.go:63`: `func isListTypeOrGroups(arg string) bool {`
+- `.\gitmap\cmd\list.go:87`: `func parseListFlags(args []string) (group string, verbose bool) {`
+- `.\gitmap\cmd\list.go:106`: `func printListOutput(records []model.ScanRecord, verbose bool) {`
+- `.\gitmap\cmd\list.go:123`: `func printListRow(r model.ScanRecord, verbose bool) {`
+- `.\gitmap\cmd\listreleases.go:67`: `func hasListReleasesJSONFlag(args []string) bool {`
+- `.\gitmap\cmd\listreleasesallrepos.go:14`: `func runListReleasesAllRepos(asJSON bool, limit int) {`
+- `.\gitmap\cmd\listreleasesallrepos.go:92`: `func hasAllReposFlag(args []string) bool {`
+- `.\gitmap\cmd\listversions.go:64`: `func hasListVersionsJSONFlag(args []string) bool {`
+- `.\gitmap\cmd\llmdocs.go:108`: `func wantSection(set map[string]bool, name string) bool {`
+- `.\gitmap\cmd\move.go:26`: `func handleRepoMove(srcTarget, destTarget string, opts moveOpts) bool {`
+- `.\gitmap\cmd\move.go:39`: `func prepareRepoMove(db *store.DB, src, dest string) (*model.ScanRecord, string, bool) {`
+- `.\gitmap\cmd\move.go:51`: `func executeRepoMove(db *store.DB, rec model.ScanRecord, destPath string, opts moveOpts) bool {`
+- `.\gitmap\cmd\move.go:136`: `func mustResolve(raw string, isLeft bool, opts movemerge.Options) movemerge.Endpoint {`
+- `.\gitmap\cmd\mv_prompt.go:17`: `func confirmMovePrompt(slug, src, dest string) bool {`
+- `.\gitmap\cmd\orphans.go:102`: `func originURL(dir string) (string, bool) {`
+- `.\gitmap\cmd\orphans.go:158`: `func confirmYesNo(prompt string) bool {`
+- `.\gitmap\cmd\pendingclear.go:32`: `func mustParsePendingClearArgs(args []string) (string, bool, bool, int64) {`
+- `.\gitmap\cmd\pendingclear.go:65`: `func executePendingClear(db *store.DB, candidates []pendingClearCandidate, dryRun, yes bool) {`
+- `.\gitmap\cmd\pendingclear.go:131`: `func applyPendingClearFlag(a string, dryRun, yes *bool) bool {`
+- `.\gitmap\cmd\pendingclear.go:160`: `func parsePendingClearArgs(args []string) (string, bool, bool, int64, error) {`
+- `.\gitmap\cmd\pendingclear.go:191`: `func classifyIllegalTask(path string) (string, bool) {`
+- `.\gitmap\cmd\pendingclear.go:203`: `func classifyIDTask(taskID, targetID int64) (string, bool) {`
+- `.\gitmap\cmd\pendingclear.go:212`: `func classifyOrphanTask(path string) (string, bool) {`
+- `.\gitmap\cmd\pendingclear.go:238`: `func hasSchemePrefix(lower string) bool {`
+- `.\gitmap\cmd\pendingclear.go:252`: `func isURLShapedTarget(path string) bool {`
+- `.\gitmap\cmd\pendingclear.go:267`: `func hasIllegalPathChar(path string) bool {`
+- `.\gitmap\cmd\pendingclear.go:285`: `func isOrphanTarget(path string) bool {`
+- `.\gitmap\cmd\pendingclear.go:300`: `func confirmPendingClear(count int) bool {`
+- `.\gitmap\cmd\pendingclear.go:309`: `func deleteSinglePendingClearCandidate(db *store.DB, c pendingClearCandidate) bool {`
+- `.\gitmap\cmd\prettyflag.go:63`: `func applyPrettyToken(token, value string, hasValue bool, mode render.PrettyModeType, out *[]string, arg string) render.PrettyModeType {`
+- `.\gitmap\cmd\prettyflag.go:79`: `func splitPrettyToken(arg string) (token, value string, hasValue bool) {`
+- `.\gitmap\cmd\prettyflag.go:95`: `func hasPrettyPrefix(arg string) bool {`
+- `.\gitmap\cmd\prettyflag.go:109`: `func resolvePositivePretty(value string, hasValue bool, current render.PrettyModeType, out *[]string, original string) render.PrettyModeType {`
+- `.\gitmap\cmd\probe.go:65`: `func emitProbeEmpty(jsonOut bool) {`
+- `.\gitmap\cmd\probeflags.go:67`: `func applyProbeFlag(opts *probeOptions, args []string, i int) (int, bool, error) {`
+- `.\gitmap\cmd\probeflags.go:90`: `func applyOutputFlag(opts *probeOptions, args []string, i int) (int, bool, error) {`
+- `.\gitmap\cmd\probeflags.go:124`: `func applyWorkersFlag(opts *probeOptions, args []string, i int) (int, bool, error) {`
+- `.\gitmap\cmd\probeflags.go:143`: `func applyDepthFlag(opts *probeOptions, args []string, i int) (int, bool, error) {`
+- `.\gitmap\cmd\probeflags.go:158`: `func matchesFlag(token, flag string) bool {`

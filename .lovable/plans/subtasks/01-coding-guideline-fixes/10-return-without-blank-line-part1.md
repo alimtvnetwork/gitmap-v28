@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 1)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\.lovable\scratch\audit_rules.go:27`: `return nil`
+- `.\.lovable\scratch\audit_rules.go:32`: `return nil`
+- `.\.lovable\scratch\audit_rules.go:36`: `return nil`
+- `.\.lovable\scratch\audit_rules.go:41`: `return nil`
+- `.\.lovable\scratch\find_ignored_errs.go:19`: `return err`
+- `.\.lovable\scratch\find_ignored_errs.go:22`: `return nil`
+- `.\.lovable\scratch\find_ignored_errs.go:27`: `return nil`
+- `.\.lovable\scratch\find_ignored_errs.go:58`: `return true`
+- `.\.lovable\scratch\find_ignored_errs.go:60`: `return nil`
+- `.\.lovable\scratch\find_monolithic.go:19`: `return err`
+- `.\.lovable\scratch\find_monolithic.go:22`: `return nil`
+- `.\.lovable\scratch\find_monolithic.go:27`: `return nil`
+- `.\.lovable\scratch\find_monolithic.go:39`: `return true`
+- `.\.lovable\scratch\find_monolithic.go:41`: `return nil`
+- `.\.lovable\scratch\find_nested_ifs.go:19`: `return err`
+- `.\.lovable\scratch\find_nested_ifs.go:22`: `return nil`
+- `.\.lovable\scratch\find_nested_ifs.go:27`: `return nil // ignore parse errors`
+- `.\.lovable\scratch\find_nested_ifs.go:44`: `return true`
+- `.\.lovable\scratch\find_nested_ifs.go:49`: `return false`
+- `.\.lovable\scratch\find_nested_ifs.go:51`: `return true`
+- `.\.lovable\scratch\find_nested_ifs.go:64`: `return false`
+- `.\.lovable\scratch\find_nested_ifs.go:67`: `return true`
+- `.\.lovable\scratch\find_nested_ifs.go:70`: `return false`
+- `.\.lovable\scratch\find_nested_ifs.go:72`: `return true`
+- `.\.lovable\scratch\find_nested_ifs.go:77`: `return true`
+- `.\.lovable\scratch\find_single_chars.go:19`: `return err`
+- `.\.lovable\scratch\find_single_chars.go:22`: `return nil`
+- `.\.lovable\scratch\find_single_chars.go:27`: `return nil`
+- `.\.lovable\scratch\find_single_chars.go:73`: `return true`
+- `.\.lovable\scratch\find_single_chars.go:75`: `return nil`
+- `.\gitmap\apperror\apperror.go:19`: `return fmt.Sprintf("[%s] %s (ctx: %v): %v", e.Code, e.Op, e.Ctx, e.Cause)`
+- `.\gitmap\apperror\apperror.go:21`: `return fmt.Sprintf("[%s] %s (ctx: %v)", e.Code, e.Op, e.Ctx)`
+- `.\gitmap\apperror\apperror.go:26`: `return e.Cause`
+- `.\gitmap\apperror\apperror.go:31`: `return &AppError{`
+- `.\gitmap\apperror\apperror.go:40`: `return &AppError{`
+- `.\gitmap\archive\archive.go:93`: `return f`
+- `.\gitmap\archive\archive.go:107`: `return f`
+- `.\gitmap\archive\archive.go:110`: `return f`
+- `.\gitmap\archive\archive.go:119`: `return formatExtMap[f]`
+- `.\gitmap\archive\archive.go:129`: `return FormatUnknown, err`
+- `.\gitmap\archive\archive.go:135`: `return FormatFromPath(path), nil`
+- `.\gitmap\archive\archive.go:146`: `return FormatUnknown`
+- `.\gitmap\archive\archive.go:149`: `return res`
+- `.\gitmap\archive\archive.go:158`: `return FormatZip`
+- `.\gitmap\archive\archive.go:160`: `return FormatTar`
+- `.\gitmap\archive\archive.go:162`: `return Format7z`
+- `.\gitmap\archive\archive.go:164`: `return FormatRar`
+- `.\gitmap\archive\archive.go:166`: `return FormatFromPath(f.Extension())`
+- `.\gitmap\archive\archive.go:168`: `return FormatUnknown`
+- `.\gitmap\archive\archive.go:174`: `return FormatGz`
+- `.\gitmap\archive\archive.go:176`: `return FormatBz2`
+- `.\gitmap\archive\archive.go:178`: `return FormatXz`
+- `.\gitmap\archive\archive.go:180`: `return FormatZst`
+- `.\gitmap\archive\archive.go:182`: `return FormatUnknown`
+- `.\gitmap\archive\create.go:62`: `return FormatUnknown, fmt.Errorf("%w: %q", ErrUnknownFormat, path)`
+- `.\gitmap\archive\create.go:65`: `return FormatUnknown, fmt.Errorf("%s archives are read-only in this build (use zip or tar.*)", format)`
+- `.\gitmap\archive\create.go:74`: `return nil, fmt.Errorf("gather sources: %w", err)`
+- `.\gitmap\archive\create.go:82`: `return nil, err`
+- `.\gitmap\archive\create.go:91`: `return err`
+- `.\gitmap\archive\create.go:97`: `return err`
+- `.\gitmap\archive\create.go:110`: `return res, err`
+- `.\gitmap\archive\create.go:116`: `return res, err`
+- `.\gitmap\archive\create.go:121`: `return res, err`
+- `.\gitmap\archive\create.go:130`: `return "", err`
+- `.\gitmap\archive\create.go:134`: `return base + "/", nil`
+- `.\gitmap\archive\create.go:148`: `return nil, err`
+- `.\gitmap\archive\create.go:158`: `return result.NewSuccess(false)`
+- `.\gitmap\archive\create.go:161`: `return result.NewSuccess(false)`
+- `.\gitmap\archive\create.go:170`: `return in`
+- `.\gitmap\archive\create.go:184`: `return result.NewSuccess(true)`
+- `.\gitmap\archive\create.go:187`: `return result.NewSuccess(true)`
+- `.\gitmap\archive\create.go:198`: `return result.NewSuccess(emptyDefault)`
+- `.\gitmap\archive\create.go:202`: `return result.NewSuccess(true)`
+- `.\gitmap\archive\create.go:212`: `return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Gz{CompressionLevel: gzipLevel(mode)}}, nil`
+- `.\gitmap\archive\create.go:214`: `return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Bz2{CompressionLevel: bz2Level(mode)}}, nil`
+- `.\gitmap\archive\create.go:216`: `return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Xz{}}, nil`
+- `.\gitmap\archive\create.go:218`: `return archives.CompressedArchive{Archival: archives.Tar{}, Compression: archives.Zstd{}}, nil`
+- `.\gitmap\archive\create.go:230`: `return archives.Zip{Compression: zip.Deflate, SelectiveCompression: true}, nil`
+- `.\gitmap\archive\create.go:232`: `return archives.Tar{}, nil`
+- `.\gitmap\archive\create.go:234`: `return buildCompressedTarArchiver(format, mode)`
+- `.\gitmap\archive\create.go:244`: `return gzip.BestSpeed`
+- `.\gitmap\archive\create.go:246`: `return gzip.BestCompression`
+- `.\gitmap\archive\create.go:248`: `return gzip.DefaultCompression`
+- `.\gitmap\archive\create.go:258`: `return 1`
+- `.\gitmap\archive\create.go:260`: `return 9`
+- `.\gitmap\archive\create.go:262`: `return 6`
+- `.\gitmap\archive\create.go:274`: `return flate.BestSpeed`
+- `.\gitmap\archive\create.go:276`: `return flate.BestCompression`
+- `.\gitmap\archive\create.go:278`: `return flate.DefaultCompression`
+- `.\gitmap\archive\extract.go:40`: `return res, err`
+- `.\gitmap\archive\extract.go:46`: `return res, err`
+- `.\gitmap\archive\extract.go:56`: `return format, fmt.Errorf("identify %q: %w", srcArchive, err)`
+- `.\gitmap\archive\extract.go:59`: `return format, err`
+- `.\gitmap\archive\extract.go:61`: `return format, nil`
+- `.\gitmap\archive\extract.go:67`: `return res, fmt.Errorf("extract: %w", err)`
+- `.\gitmap\archive\extract.go:73`: `return res, err`
+- `.\gitmap\archive\extract.go:78`: `return res, err`
+- `.\gitmap\archive\extract.go:82`: `return res, nil`
+- `.\gitmap\archive\extract.go:92`: `return 0, err`
+- `.\gitmap\archive\extract.go:98`: `return 0, fmt.Errorf("identify: %w", err)`
+- `.\gitmap\archive\extract.go:104`: `return 0, fmt.Errorf("format %s is not extractable", format.Extension())`
+- `.\gitmap\archive\extract.go:113`: `return extractArchiveEntry(destDir, entry, &written)`
+- `.\gitmap\archive\extract.go:117`: `return written, err`
+- `.\gitmap\archive\extract.go:119`: `return written, nil`
+- `.\gitmap\archive\extract.go:126`: `return fmt.Errorf("rejecting entry with unsafe path: %q", entry.NameInArchive)`
+- `.\gitmap\archive\extract.go:131`: `return os.MkdirAll(clean, constants.DirPermission)`
+- `.\gitmap\archive\extract.go:135`: `return err`
+- `.\gitmap\archive\extract.go:137`: `return writeArchiveFile(entry, clean, written)`
+- `.\gitmap\archive\extract.go:151`: `return err`
+- `.\gitmap\archive\extract.go:161`: `return err`
+- `.\gitmap\archive\extract.go:166`: `return err`
+- `.\gitmap\archive\extract.go:169`: `return nil`
+- `.\gitmap\archive\extract.go:180`: `return ""`
+- `.\gitmap\archive\extract.go:184`: `return ""`
+- `.\gitmap\archive\extract.go:190`: `return ""`
+- `.\gitmap\archive\extract.go:202`: `return flattened, err`
+- `.\gitmap\archive\extract.go:206`: `return flattened, err`
+- `.\gitmap\archive\extract.go:211`: `return flattened, err`
+- `.\gitmap\archive\extract.go:213`: `return flattened, moveEntries(root, finalDir, entries)`
+- `.\gitmap\archive\extract.go:222`: `return root, flattened, err`
+- `.\gitmap\archive\extract.go:236`: `return root, flattened, nil`
+- `.\gitmap\archive\extract.go:244`: `return err`
+- `.\gitmap\archive\extract.go:247`: `return nil`
+- `.\gitmap\archive\extract.go:255`: `return nil`
+- `.\gitmap\archive\extract.go:259`: `return err`
+- `.\gitmap\archive\extract.go:263`: `return copyDir(src, dst)`
+- `.\gitmap\archive\extract.go:271`: `return filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {`
+- `.\gitmap\archive\extract.go:273`: `return err`
+- `.\gitmap\archive\extract.go:275`: `return copyDirEntry(src, dst, path, d)`
+- `.\gitmap\archive\extract.go:282`: `return err`
+- `.\gitmap\archive\extract.go:287`: `return os.MkdirAll(target, constants.DirPermission)`
+- `.\gitmap\archive\extract.go:291`: `return err`
+- `.\gitmap\archive\extract.go:301`: `return err`
+- `.\gitmap\archive\extract.go:306`: `return err`
+- `.\gitmap\archive\extract.go:308`: `return streamToFile(in, dst, mode)`
+- `.\gitmap\archive\extract.go:314`: `return err`
+- `.\gitmap\archive\extract.go:319`: `return err`
+- `.\gitmap\archive\extract.go:334`: `return base[:len(base)-len(ext)]`
+- `.\gitmap\archive\list.go:30`: `return nil, FormatUnknown, err`
+- `.\gitmap\archive\list.go:36`: `return nil, FormatFromPath(path), fmt.Errorf("archive identify: %w", err)`
+- `.\gitmap\archive\list.go:42`: `return nil, mholtToFormat(format), fmt.Errorf("format %s is not extractable", format.Extension())`
+- `.\gitmap\archive\list.go:53`: `return io.EOF`
+- `.\gitmap\archive\list.go:56`: `return nil`
+- `.\gitmap\archive\list.go:60`: `return out, mholtToFormat(format), nil`
+- `.\gitmap\archive\list.go:62`: `return out, mholtToFormat(format), err`
+- `.\gitmap\archive\source.go:57`: `return SourceGit`
+- `.\gitmap\archive\source.go:60`: `return SourceHTTP`
+- `.\gitmap\archive\source.go:69`: `return result.NewSuccess(false)`
+- `.\gitmap\archive\source.go:80`: `return true`
+- `.\gitmap\archive\source.go:83`: `return true`

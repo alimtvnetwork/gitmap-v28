@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 37)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\setup\pathsnippet.go:41`: `return constants.PathSnippetFishFmt, nil`
+- `.\gitmap\setup\pathsnippet.go:43`: `return constants.PathSnippetPwshFmt, nil`
+- `.\gitmap\setup\pathsnippet.go:45`: `return "", fmt.Errorf(constants.ErrPathSnippetUnknownShell, shell)`
+- `.\gitmap\setup\pathsnippet.go:61`: `return constants.PathSnippetMarkerClose`
+- `.\gitmap\setup\pathsnippetwriter.go:45`: `return PathSnippetWriteResult{}, err`
+- `.\gitmap\setup\pathsnippetwriter.go:50`: `return appendSnippet(profile, body)`
+- `.\gitmap\setup\pathsnippetwriter.go:52`: `return rewriteProfileFile(profile, string(existing), open, MarkerClose(), body)`
+- `.\gitmap\setup\pathsnippetwriter.go:58`: `return "", "", err`
+- `.\gitmap\setup\pathsnippetwriter.go:62`: `return "", "", err`
+- `.\gitmap\setup\pathsnippetwriter.go:64`: `return body, resolvedPath, nil`
+- `.\gitmap\setup\pathsnippetwriter.go:71`: `return "", err`
+- `.\gitmap\setup\pathsnippetwriter.go:75`: `return "", fmt.Errorf("create profile dir %s: %w", filepath.Dir(profile), err)`
+- `.\gitmap\setup\pathsnippetwriter.go:77`: `return profile, nil`
+- `.\gitmap\setup\pathsnippetwriter.go:83`: `return PathSnippetWriteResult{Profile: profile, Action: "noop", Snippet: body}, nil`
+- `.\gitmap\setup\pathsnippetwriter.go:87`: `return PathSnippetWriteResult{}, fmt.Errorf("rewrite profile %s: %w", profile, wrErr)`
+- `.\gitmap\setup\pathsnippetwriter.go:89`: `return PathSnippetWriteResult{Profile: profile, Action: "rewritten", Snippet: body}, nil`
+- `.\gitmap\setup\pathsnippetwriter.go:96`: `return PathSnippetWriteResult{}, fmt.Errorf("open profile %s: %w", profile, err)`
+- `.\gitmap\setup\pathsnippetwriter.go:100`: `return PathSnippetWriteResult{}, fmt.Errorf("append snippet: %w", err)`
+- `.\gitmap\setup\pathsnippetwriter.go:102`: `return PathSnippetWriteResult{Profile: profile, Action: "appended", Snippet: body}, nil`
+- `.\gitmap\setup\pathsnippetwriter.go:132`: `return out.String(), state.wrote`
+- `.\gitmap\setup\pathsnippetwriter.go:140`: `return content`
+- `.\gitmap\setup\pathsnippetwriter.go:143`: `return res`
+- `.\gitmap\setup\pathsnippetwriter.go:145`: `return strings.TrimRight(res, "\n")`
+- `.\gitmap\setup\pathsnippetwriter.go:152`: `return "", fmt.Errorf("resolve home dir: %w", err)`
+- `.\gitmap\setup\pathsnippetwriter.go:156`: `return "", err`
+- `.\gitmap\setup\pathsnippetwriter.go:158`: `return filepath.Join(home, rel), nil`
+- `.\gitmap\setup\pathsnippetwriter.go:164`: `return ".bashrc", nil`
+- `.\gitmap\setup\pathsnippetwriter.go:166`: `return ".zshrc", nil`
+- `.\gitmap\setup\pathsnippetwriter.go:168`: `return filepath.Join(".config", "fish", "config.fish"), nil`
+- `.\gitmap\setup\pathsnippetwriter.go:174`: `return "", fmt.Errorf("unknown shell %q", shell)`
+- `.\gitmap\setup\setup.go:56`: `return GitSetupConfig{}, err`
+- `.\gitmap\setup\setupapply.go:79`: `return ""`
+- `.\gitmap\setup\setupapply.go:95`: `return mapped`
+- `.\gitmap\stablejson\stablejson.go:74`: `return WriteArrayIndent(w, items, "  ")`
+- `.\gitmap\stablejson\stablejson.go:130`: `return WriteObjectIndent(w, fields, "  ")`
+- `.\gitmap\stablejson\stablejson.go:158`: `return err`
+- `.\gitmap\stablejson\stablejson.go:166`: `return err`
+- `.\gitmap\stablejson\writers.go:23`: `return err`
+- `.\gitmap\stablejson\writers.go:49`: `return err`
+- `.\gitmap\stablejson\writers.go:71`: `return err`
+- `.\gitmap\stablejson\writers.go:92`: `return err`
+- `.\gitmap\stablejson\writers.go:112`: `return fmt.Errorf("stablejson: encode key %q: %w", f.Key, err)`
+- `.\gitmap\stablejson\writers.go:119`: `return fmt.Errorf("stablejson: encode value for key %q: %w", f.Key, err)`
+- `.\gitmap\startup\add.go:113`: `return AddResult{Status: AddBadName}, nil`
+- `.\gitmap\startup\add.go:121`: `return AddResult{}, err`
+- `.\gitmap\startup\add.go:124`: `return AddResult{}, fmt.Errorf("create autostart dir %s: %w", dir, err)`
+- `.\gitmap\startup\add.go:156`: `return clean + constants.StartupDesktopExt`
+- `.\gitmap\startup\add.go:168`: `return AddResult{Status: AddRefused, Path: full}, nil`
+- `.\gitmap\startup\add.go:171`: `return AddResult{Status: AddExists, Path: full}, nil`
+- `.\gitmap\startup\add.go:175`: `return AddResult{}, err`
+- `.\gitmap\startup\add.go:178`: `return AddResult{Status: AddOverwritten, Path: full}, nil`
+- `.\gitmap\startup\add.go:202`: `return false, false`
+- `.\gitmap\startup\addplist.go:57`: `return clean + constants.StartupPlistExt`
+- `.\gitmap\startup\addplist.go:141`: `return []string{""}`
+- `.\gitmap\startup\addrender.go:68`: `return fmt.Errorf("write temp %s: %w", tmp, err)`
+- `.\gitmap\startup\addrender.go:72`: `return fmt.Errorf("rename %s -> %s: %w", tmp, target, err)`
+- `.\gitmap\startup\addrender.go:84`: `return ".gitmap-tmp-" + target`
+- `.\gitmap\startup\desktop.go:67`: `return false`
+- `.\gitmap\startup\desktop.go:81`: `return Entry{}, false`
+- `.\gitmap\startup\desktop.go:87`: `return Entry{}, false`
+- `.\gitmap\startup\desktop.go:127`: `return dir + name`
+- `.\gitmap\startup\lifecycle_integration_test.go:47`: `return withFakeLaunchAgentsDir(t)`
+- `.\gitmap\startup\lifecycle_integration_test.go:59`: `return "gitmap." + logical, "gitmap." + logical + ".plist"`
+- `.\gitmap\startup\plist.go:60`: `return false`
+- `.\gitmap\startup\plist.go:75`: `return Entry{}, false`
+- `.\gitmap\startup\plist.go:81`: `return Entry{}, false`
+- `.\gitmap\startup\plist.go:164`: `return strings.Join(s.progArgs, " ")`
+- `.\gitmap\startup\remove.go:75`: `return RemoveWithOptions(name, RemoveOptions{})`
+- `.\gitmap\startup\scanner.go:16`: `return bufio.NewScanner(r)`
+- `.\gitmap\startup\winbackend.go:59`: `return BackendUnspecified, nil`
+- `.\gitmap\startup\winbackend.go:61`: `return BackendRegistry, nil`
+- `.\gitmap\startup\winbackend.go:63`: `return BackendStartupFolder, nil`
+- `.\gitmap\startup\winbackend.go:65`: `return BackendRegistryHKLM, nil`
+- `.\gitmap\startup\winbackend.go:67`: `return BackendUnspecified, fmt.Errorf(constants.ErrStartupAddBadBackend, s)`
+- `.\gitmap\startup\winbackend.go:76`: `return constants.StartupBackendRegistry`
+- `.\gitmap\startup\winbackend.go:78`: `return constants.StartupBackendStartupFolder`
+- `.\gitmap\startup\winbackend.go:80`: `return constants.StartupBackendRegistryHKLM`
+- `.\gitmap\startup\winbackend.go:82`: `return ""`
+- `.\gitmap\startup\winbackend.go:84`: `return ""`
+- `.\gitmap\startup\winbackend.go:94`: `return b`
+- `.\gitmap\startup\winbackend.go:97`: `return BackendRegistry`
+- `.\gitmap\startup\winbackend_scoped_test.go:56`: `return // Registry entry survived as expected`
+- `.\gitmap\startup\windows_test.go:72`: `return "test-" + filepath.Base(t.TempDir())`
+- `.\gitmap\startup\winregistry_directvalue_test.go:53`: `return nil`
+- `.\gitmap\startup\winregistry_directvalue_test.go:63`: `return names`
+- `.\gitmap\startup\winregistry_directvalue_test.go:79`: `return out`
+- `.\gitmap\startup\winregistry_hklm_windows.go:55`: `return RemoveResult{}, err`
+- `.\gitmap\startup\winregistry_hklm_windows.go:61`: `return RemoveResult{Status: RemoveNoOp, DryRun: opts.DryRun}, nil`
+- `.\gitmap\startup\winregistry_hklm_windows.go:64`: `return RemoveResult{Status: RemoveRefused, Path: runValuePathFor(hiveLabelHKLM, valueName), DryRun: opts.DryRun}, nil`
+- `.\gitmap\startup\winregistry_hklm_windows.go:72`: `return RemoveResult{}, err`
+- `.\gitmap\startup\winregistry_hklm_windows.go:86`: `return listWindowsRegistryAt(registry.LOCAL_MACHINE, hiveLabelHKLM)`
+- `.\gitmap\startup\winregistry_other.go:26`: `return AddResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)`
+- `.\gitmap\startup\winregistry_other.go:31`: `return RemoveResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)`
+- `.\gitmap\startup\winregistry_other.go:38`: `return nil, nil`
+- `.\gitmap\startup\winregistry_other.go:45`: `return AddResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)`
+- `.\gitmap\startup\winregistry_other.go:50`: `return RemoveResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)`
+- `.\gitmap\startup\winregistry_other.go:58`: `return nil, nil`
+- `.\gitmap\startup\winregistry_other.go:65`: `return false`
+- `.\gitmap\startup\winregistry_other.go:72`: `return fmt.Errorf(constants.ErrStartupUnsupportedOS)`
+- `.\gitmap\startup\winregistry_other.go:77`: `return fmt.Errorf(constants.ErrStartupUnsupportedOS)`
+- `.\gitmap\startup\winregistry_remove_windows.go:34`: `return removeWindowsRegistryAt(registry.CURRENT_USER, hiveLabelHKCU, clean, opts)`
+- `.\gitmap\startup\winregistry_remove_windows.go:101`: `return deleteTrackingSubkeyAt(registry.CURRENT_USER, parent, name)`
+- `.\gitmap\startup\winregistry_remove_windows.go:128`: `return listWindowsRegistryAt(registry.CURRENT_USER, hiveLabelHKCU)`
+- `.\gitmap\startup\winregistry_remove_windows.go:141`: `return nil, nil`
+- `.\gitmap\startup\winregistry_remove_windows.go:144`: `return nil, fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)`
+- `.\gitmap\startup\winregistry_windows.go:63`: `return addWindowsRegistryAt(registry.CURRENT_USER, hiveLabelHKCU,`
+- `.\gitmap\startup\winregistry_windows.go:111`: `return classifyRunValueAt(registry.CURRENT_USER, valueName, clean)`
+- `.\gitmap\startup\winregistry_windows.go:123`: `return false, false, nil`
+- `.\gitmap\startup\winregistry_windows.go:126`: `return false, false, fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)`
+- `.\gitmap\startup\winregistry_windows.go:132`: `return false, false, nil`
+- `.\gitmap\startup\winregistry_windows.go:135`: `return false, false, fmt.Errorf(constants.ErrStartupRegistryRead, valueName, err)`
+- `.\gitmap\startup\winregistry_windows.go:147`: `return trackingSubkeyExistsAt(registry.CURRENT_USER, parent, name)`
+- `.\gitmap\startup\winregistry_windows.go:170`: `return writeRunValueAt(registry.CURRENT_USER, valueName, exec)`
+- `.\gitmap\startup\winregistry_windows.go:197`: `return writeTrackingSubkeyAt(registry.CURRENT_USER, parent, name, exec, source, workingDir)`
+- `.\gitmap\startup\winregistry_windows.go:231`: `return nil`
+- `.\gitmap\startup\winregistry_windows.go:235`: `return fmt.Errorf(constants.ErrStartupRegistryWrite, constants.RegTrackKeyWorkingDir, err)`
+- `.\gitmap\startup\winregistry_windows.go:245`: `return runValuePathFor(hiveLabelHKCU, valueName)`
+- `.\gitmap\startup\winregistry_windows.go:254`: `return hive + `\` + constants.RegRunKeyPath + `\` + valueName`
+- `.\gitmap\startup\winshortcut.go:174`: `return false`
+- `.\gitmap\startup\winshortcut_helpers.go:35`: `return true`
+- `.\gitmap\startup\winshortcut_writer.go:69`: `return err`
+- `.\gitmap\startup\winshortcut_writer.go:73`: `return fmt.Errorf("write shortcut tmp %s: %w", tmp, err)`
+- `.\gitmap\startup\winshortcut_writer.go:77`: `return fmt.Errorf("rename shortcut %s: %w", lnkPath, err)`
+- `.\gitmap\startup\winshortcut_writer.go:89`: `return nil, fmt.Errorf("shortcut target is empty")`
+- `.\gitmap\startup\winshortcut_writer.go:93`: `return nil, err`
+- `.\gitmap\startup\winshortcut_writer.go:97`: `return nil, err`
+- `.\gitmap\startup\winshortcut_writer.go:122`: `return fmt.Errorf("write shell link header: %w", err)`
+- `.\gitmap\startup\winshortcut_writer_test.go:154`: `return string(b)`
+- `.\gitmap\store\alias.go:30`: `return model.Alias{}, fmt.Errorf(constants.ErrAliasCreate, err)`
+- `.\gitmap\store\alias.go:40`: `return fmt.Errorf(constants.ErrAliasCreate, err)`
+- `.\gitmap\store\alias.go:64`: `return nil, fmt.Errorf(constants.ErrAliasQuery, err)`
+- `.\gitmap\store\alias.go:79`: `return AliasWithRepo{}, fmt.Errorf(constants.ErrAliasNotFound, alias)`
+- `.\gitmap\store\alias.go:89`: `return nil, fmt.Errorf(constants.ErrAliasQuery, err)`
+- `.\gitmap\store\alias.go:113`: `return fmt.Errorf(constants.ErrAliasDelete, err)`
+- `.\gitmap\store\alias.go:123`: `return nil, fmt.Errorf(constants.ErrAliasQuery, err)`
+- `.\gitmap\store\alias.go:156`: `return model.Alias{}, err`
+- `.\gitmap\store\amendment.go:35`: `return fmt.Errorf(constants.ErrDBUpsert, err)`
+- `.\gitmap\store\amendment.go:45`: `return nil, fmt.Errorf(constants.ErrDBQuery, err)`
+- `.\gitmap\store\amendment.go:56`: `return nil, fmt.Errorf(constants.ErrDBQuery, err)`
+- `.\gitmap\store\amendment.go:76`: `return nil, err`
+- `.\gitmap\store\amendment.go:88`: `return 1`
+- `.\gitmap\store\archive_history.go:52`: `return 0, err`
+- `.\gitmap\store\archive_history.go:92`: `return nil, err`
+- `.\gitmap\store\archive_history.go:100`: `return nil, err`
+- `.\gitmap\store\archive_history.go:122`: `return row, err`
+- `.\gitmap\store\bookmark.go:15`: `return fmt.Errorf(constants.ErrBookmarkQuery, err)`
+- `.\gitmap\store\bookmark.go:25`: `return nil, fmt.Errorf(constants.ErrBookmarkQuery, err)`
+- `.\gitmap\store\bookmark.go:39`: `return r, fmt.Errorf(constants.ErrBookmarkQuery, err)`
+- `.\gitmap\store\bookmark.go:49`: `return fmt.Errorf(constants.ErrBookmarkQuery, err)`
+- `.\gitmap\store\bookmark.go:66`: `return nil, fmt.Errorf(constants.ErrBookmarkQuery, err)`

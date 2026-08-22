@@ -1,0 +1,63 @@
+# Fix bare bool return (Part 8)
+
+Total items: 57
+
+## Files to Modify
+
+- `.\gitmap\templates\merge.go:98`: `func composeNext(prior []byte, existed bool, tag string, block []byte) ([]byte, MergeOutcomeType) {`
+- `.\gitmap\templates\resolver.go:58`: `func resolveUser(kind, lang, rel string) (Resolved, bool, error) {`
+- `.\gitmap\tests\cmd_test\aliasresolve_test.go:31`: `func hasAliasPrefix(arg, prefix string) bool {`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:162`: `func parseIntSafe(s string, target *int) (bool, error) {`
+- `.\gitmap\tests\release_test\rollback_test.go:57`: `func branchExists(t *testing.T, branch string) bool {`
+- `.\gitmap\tests\release_test\rollback_test.go:69`: `func tagExists(t *testing.T, tag string) bool {`
+- `.\gitmap\theme\filter.go:46`: `func nextSGR(p []byte, off int) (start, end int, ok bool) {`
+- `.\gitmap\theme\filter.go:68`: `func isSGRParam(b byte) bool {`
+- `.\gitmap\theme\install.go:79`: `func IsStdoutTTY() bool { return stdoutIsTTY }`
+- `.\gitmap\theme\install.go:82`: `func IsStderrTTY() bool { return stderrIsTTY }`
+- `.\gitmap\theme\install.go:124`: `func detectTTY(f *os.File) bool {`
+- `.\gitmap\theme\theme.go:81`: `func IsValidLabel(label string) bool {`
+- `.\gitmap\transport\classify.go:37`: `func IsSCPStyle(url string) bool {`
+- `.\gitmap\tui\dashboard.go:92`: `func statusLabel(dirty, unreachable bool) string {`
+- `.\gitmap\tui\keys.go:8`: `func (k keyMap) quit(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:12`: `func (k keyMap) tab(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:16`: `func (k keyMap) up(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:20`: `func (k keyMap) down(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:24`: `func (k keyMap) selectItem(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:28`: `func (k keyMap) enter(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:32`: `func (k keyMap) search(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:36`: `func (k keyMap) selectAll(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:40`: `func (k keyMap) pull(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:44`: `func (k keyMap) exec(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:48`: `func (k keyMap) status(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:52`: `func (k keyMap) addToGroup(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:56`: `func (k keyMap) create(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:60`: `func (k keyMap) delete(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\keys.go:64`: `func (k keyMap) refresh(msg tea.KeyMsg) bool {`
+- `.\gitmap\tui\logs.go:94`: `func matchesLogQuery(e model.CommandHistoryRecord, q string) bool {`
+- `.\gitmap\tui\releases.go:35`: `func (m *releasesModel) updateTrigger(msg tea.Msg) bool {`
+- `.\gitmap\tui\relformat.go:36`: `func boolLabel(v bool) string {`
+- `.\gitmap\tui\reltrigger.go:101`: `func isVersionChar(c byte) bool {`
+- `.\gitmap\uipref\uipref.go:30`: `func IsQuiet() bool { return truthyEnv(EnvQuiet) }`
+- `.\gitmap\uipref\uipref.go:37`: `func IsNoColor() bool {`
+- `.\gitmap\uipref\uipref.go:46`: `func truthyEnv(name string) bool {`
+- `.\gitmap\verbose\verbose.go:71`: `func IsEnabled() bool {`
+- `.\gitmap\visibility\exclude.go:39`: `func ParseExclusionList(raw string, totalCount int) ([]int, bool, error) {`
+- `.\gitmap\visibility\pattern.go:56`: `func splitPatternParts(raw string) ([]string, bool, bool) {`
+- `.\gitmap\visibility\pattern.go:73`: `func (p Pattern) Matches(name string) bool {`
+- `.\gitmap\visibility\version.go:21`: `func ParseRepoNameMeta(name string) (string, int, bool) {`
+- `.\gitmap\visibility\version.go:36`: `func SplitTrailingDigits(name string) (string, string, bool) {`
+- `.\gitmap\visibility\version.go:48`: `func HighestVersionedMatch(names []string, wantBase string) (string, int, bool) {`
+- `.\gitmap\vscodepm\autotags.go:44`: `func markerExists(root, marker string) bool {`
+- `.\gitmap\vscodepm\autotags_custom_test.go:150`: `func containsString(s []string, v string) bool {`
+- `.\gitmap\vscodepm\io.go:83`: `func isWindowsDrivePath(p string) bool {`
+- `.\gitmap\vscodepm\io.go:88`: `func pathsEqual(a, b string) bool {`
+- `.\gitmap\vscodepm\merge.go:64`: `func sameTagSet(a, b []string) bool {`
+- `.\gitmap\vscodepm\mergemode_test.go:124`: `func sliceEqual(a, b []string) bool {`
+- `.\gitmap\vscodepm\path.go:120`: `func dirExists(path string) bool {`
+- `.\gitmap\vscodepm\sync.go:54`: `func RenameByPath(rootPath, newName string) (bool, error) {`
+- `.\scripts\changelog\internal\drift\drift.go:42`: `func wouldChange(path, fragment string) (bool, error) {`
+- `.\scripts\changelog\internal\drift\drift.go:51`: `func contains(haystack, needle string) bool {`
+- `.\scripts\changelog\internal\drift\drift.go:56`: `func stringContains(haystack, needle string) bool {`
+- `.\scripts\changelog\internal\drift\drift.go:66`: `func reportDrift(path string, drifted bool) {`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:140`: `func parseCommitLine(line string) (Commit, bool) {`
+- `.\scripts\changelog\internal\group\group.go:71`: `func classify(subject string) (string, string, bool) {`

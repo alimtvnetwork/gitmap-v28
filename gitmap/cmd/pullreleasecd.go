@@ -132,11 +132,11 @@ func executeOnePRCEntry(self string, e prcEntry) prcResult {
 func resolvePRCTarget(self, token string) (string, string, error) {
 	var path string
 	var err error
-	isNonPRCURL := isPRCURL == false(token)
+	isNonPRCURL := !isPRCURL(token)
 	if isNonPRCURL {
 		path, err = lookupPRCPath(token)
 	}
-	if isNotPRCURL && err != nil {
+	if isNonPRCURL && err != nil {
 		return token, "", err
 	}
 	if isNonPRCURL {

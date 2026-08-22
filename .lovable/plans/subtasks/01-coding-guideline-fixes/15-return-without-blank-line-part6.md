@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 6)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cluster\server.go:18`: `return &Server{`
+- `.\gitmap\cluster\server.go:39`: `return errors.New("invalid join token")`
+- `.\gitmap\cluster\server.go:43`: `return nil`
+- `.\gitmap\cluster\server.go:60`: `return nil`
+- `.\gitmap\cluster\server.go:77`: `return nil`
+- `.\gitmap\cluster\stream.go:24`: `return &LogStreamServer{`
+- `.\gitmap\cluster\tls.go:19`: `return nil, err`
+- `.\gitmap\cluster\tls.go:36`: `return nil, err`
+- `.\gitmap\cluster\tls.go:43`: `return nil, err`
+- `.\gitmap\cluster\tls.go:49`: `return nil, err`
+- `.\gitmap\cluster\ui.go:36`: `return &TerminalUI{`
+- `.\gitmap\cmd\addignoreattrs.go:154`: `return nil, fmt.Errorf("template %s/%s: %w", kind, lang, err)`
+- `.\gitmap\cmd\addignoreattrs.go:247`: `return kind + "/common"`
+- `.\gitmap\cmd\addignoreattrs.go:262`: `return filepath.Join(root, name), nil`
+- `.\gitmap\cmd\addignoreattrs.go:267`: `return "", cwdErr`
+- `.\gitmap\cmd\addlfsinstall.go:114`: `return filepath.Join(root, ".gitattributes"), nil`
+- `.\gitmap\cmd\addlfsinstall.go:119`: `return "", cwdErr`
+- `.\gitmap\cmd\addlfsinstall.go:185`: `return "created"`
+- `.\gitmap\cmd\addlfsinstall.go:187`: `return "inserted block into"`
+- `.\gitmap\cmd\addlfsinstall.go:189`: `return "updated block in"`
+- `.\gitmap\cmd\addlfsinstall.go:191`: `return "wrote"`
+- `.\gitmap\cmd\aliasops.go:38`: `return 1`
+- `.\gitmap\cmd\aliasops.go:45`: `return 1`
+- `.\gitmap\cmd\aliasops.go:51`: `return updateAliasAndReturn(db, alias, repoID, slug)`
+- `.\gitmap\cmd\aliasops.go:60`: `return 1`
+- `.\gitmap\cmd\aliasops.go:64`: `return 0`
+- `.\gitmap\cmd\aliasops.go:70`: `return 1`
+- `.\gitmap\cmd\aliasops.go:74`: `return 0`
+- `.\gitmap\cmd\aliasops.go:96`: `return 1`
+- `.\gitmap\cmd\aliasops.go:102`: `return 1`
+- `.\gitmap\cmd\aliasops.go:105`: `return 0`
+- `.\gitmap\cmd\aliasops.go:121`: `return 1`
+- `.\gitmap\cmd\aliasops.go:128`: `return 1`
+- `.\gitmap\cmd\aliasops.go:132`: `return 0`
+- `.\gitmap\cmd\aliasops.go:177`: `return strings.Contains(err.Error(), "Scan error") `
+- `.\gitmap\cmd\aliasresolve.go:26`: `return extractStandaloneAliasFlag(args, i)`
+- `.\gitmap\cmd\aliasresolve.go:30`: `return arg[3:], removeElements(args, i, 1)`
+- `.\gitmap\cmd\aliasresolve.go:33`: `return arg[8:], removeElements(args, i, 1)`
+- `.\gitmap\cmd\aliasresolve.go:43`: `return args[index+1], removeElements(args, index, 2)`
+- `.\gitmap\cmd\aliasresolve.go:48`: `return "", nil`
+- `.\gitmap\cmd\aliasresolve.go:53`: `return len(arg) > len(prefix) && arg[:len(prefix)] == prefix`
+- `.\gitmap\cmd\aliasresolve.go:94`: `return ""`
+- `.\gitmap\cmd\aliasresolve.go:103`: `return ""`
+- `.\gitmap\cmd\aliasresolve.go:111`: `return aliasContext != nil`
+- `.\gitmap\cmd\aliasresolve.go:118`: `return nil`
+- `.\gitmap\cmd\amend.go:38`: `return f`
+- `.\gitmap\cmd\amend.go:52`: `return args`
+- `.\gitmap\cmd\amend.go:55`: `return args`
+- `.\gitmap\cmd\amend.go:58`: `return args[1:]`
+- `.\gitmap\cmd\amend.go:92`: `return commits`
+- `.\gitmap\cmd\amend.go:125`: `return f.branch`
+- `.\gitmap\cmd\amend.go:127`: `return getCurrentBranch()`
+- `.\gitmap\cmd\amend.go:133`: `return constants.AmendModeAll`
+- `.\gitmap\cmd\amend.go:136`: `return constants.AmendModeHead`
+- `.\gitmap\cmd\amend.go:138`: `return constants.AmendModeRange`
+- `.\gitmap\cmd\amendauditjson_contract_test.go:22`: `return model.AmendmentRecord{`
+- `.\gitmap\cmd\amendauditrender.go:46`: `return err`
+- `.\gitmap\cmd\amendauditrender.go:51`: `return err`
+- `.\gitmap\cmd\amendauditrender.go:56`: `return err`
+- `.\gitmap\cmd\amendauditrender.go:82`: `return nil, err`
+- `.\gitmap\cmd\amendauditrender.go:101`: `return nil, err`
+- `.\gitmap\cmd\amendexec.go:17`: `return []string{"log", "--format=%H %s", "--reverse"}`
+- `.\gitmap\cmd\amendexec.go:19`: `return []string{"log", "--format=%H %s", "-1"}`
+- `.\gitmap\cmd\amendexec.go:21`: `return []string{"log", "--format=%H %s", "--reverse", f.commitHash + "^.." + constants.GitHEAD}`
+- `.\gitmap\cmd\amendexec.go:31`: `return nil`
+- `.\gitmap\cmd\amendexec.go:33`: `return parseCommitLines(string(out))`
+- `.\gitmap\cmd\amendexec.go:45`: `return entries`
+- `.\gitmap\cmd\amendexec.go:50`: `return model.CommitEntry{}, false`
+- `.\gitmap\cmd\amendexec.go:57`: `return model.CommitEntry{SHA: parts[0], Message: msg}, true`
+- `.\gitmap\cmd\amendexec.go:64`: `return ""`
+- `.\gitmap\cmd\amendexec.go:66`: `return strings.TrimSpace(string(out))`
+- `.\gitmap\cmd\amendexec.go:72`: `return "", ""`
+- `.\gitmap\cmd\amendexec.go:75`: `return getGitAuthorField(sha, "--format=%an"), getGitAuthorField(sha, "--format=%ae")`
+- `.\gitmap\cmd\amendexec.go:82`: `return constants.DefaultBranch`
+- `.\gitmap\cmd\amendexec.go:84`: `return strings.TrimSpace(string(out))`
+- `.\gitmap\cmd\amendexec.go:100`: `return []string{"filter-branch", "-f", "--env-filter", envFilter, "--", constants.GitHEAD}`
+- `.\gitmap\cmd\amendexec.go:102`: `return []string{"filter-branch", "-f", "--env-filter", envFilter, f.commitHash + "^.." + constants.GitHEAD}`
+- `.\gitmap\cmd\amendlist.go:36`: `return true`
+- `.\gitmap\cmd\amendlist.go:52`: `return n`
+- `.\gitmap\cmd\amendlist.go:63`: `return args[i+1]`
+- `.\gitmap\cmd\amendlist.go:98`: `return amendments`
+- `.\gitmap\cmd\amendlistjson_contract_test.go:37`: `return store.AmendmentRow{`
+- `.\gitmap\cmd\amendlistrender.go:40`: `return stablejson.WriteArray(w, buildAmendListJSONItems(rows))`
+- `.\gitmap\cmd\as.go:67`: `return rest[0], *force`
+- `.\gitmap\cmd\as.go:78`: `return "", err`
+- `.\gitmap\cmd\as.go:83`: `return "", fmt.Errorf("empty top-level")`
+- `.\gitmap\cmd\audit.go:17`: `return 0, start, false`
+- `.\gitmap\cmd\audit.go:33`: `return command != constants.CmdVersion && command != constants.CmdVersionAlias`
+- `.\gitmap\cmd\audit.go:51`: `return 0, start, false`
+- `.\gitmap\cmd\audit.go:92`: `return nil, err`
+- `.\gitmap\cmd\audit.go:133`: `return command`
+- `.\gitmap\cmd\auditlegacy.go:77`: `return nil`
+- `.\gitmap\cmd\auditlegacy.go:80`: `return skipAuditDir(d.Name())`
+- `.\gitmap\cmd\auditlegacy.go:84`: `return nil`
+- `.\gitmap\cmd\auditlegacy.go:97`: `return fs.SkipDir`
+- `.\gitmap\cmd\auditlegacy.go:111`: `return false`
+- `.\gitmap\cmd\auditlegacy.go:122`: `return nil`
+- `.\gitmap\cmd\auditlegacy_diffs.go:31`: `return nil`
+- `.\gitmap\cmd\auditlegacy_diffs.go:49`: `return filepath.Join(filepath.Dir(reportPath), constants.DefaultAuditLegacyDiffsDir)`
+- `.\gitmap\cmd\auditlegacy_diffs.go:70`: `return auditDiffPlan{}, false`
+- `.\gitmap\cmd\auditlegacy_diffs.go:99`: `return filepath.ToSlash(diffPath)`
+- `.\gitmap\cmd\auditlegacy_diff_render.go:31`: `return "", err`
+- `.\gitmap\cmd\auditlegacy_diff_render.go:42`: `return nil, err`
+- `.\gitmap\cmd\auditlegacy_parse.go:25`: `return auditLegacyOpts{}, err`
+- `.\gitmap\cmd\auditlegacy_parse.go:30`: `return auditLegacyOpts{}, err`
+- `.\gitmap\cmd\auditlegacy_parse.go:56`: `return ""`
+- `.\gitmap\cmd\auditlegacy_parse.go:59`: `return constants.DefaultAuditLegacyReport`
+- `.\gitmap\cmd\auditlegacy_parse.go:77`: `return nil, nil, err`
+- `.\gitmap\cmd\auditlegacy_parse.go:90`: `return nil, fmt.Errorf(constants.ErrAuditLegacyRegex, p, err)`
+- `.\gitmap\cmd\auditlegacy_report.go:39`: `return err`
+- `.\gitmap\cmd\auditlegacy_report.go:49`: `return nil`
+- `.\gitmap\cmd\auditlegacy_report.go:202`: `return out[i].count > out[j].count`
+- `.\gitmap\cmd\backup.go:106`: `return "", err`
+- `.\gitmap\cmd\backup.go:116`: `return nil, nil`
+- `.\gitmap\cmd\backup.go:121`: `return nil, err`
+- `.\gitmap\cmd\backup.go:162`: `return t`
+- `.\gitmap\cmd\backup.go:274`: `return fmt.Sprintf("%d B", n)`
+- `.\gitmap\cmd\backup.go:280`: `return fmt.Sprintf("%.1f %s", f, u)`
+- `.\gitmap\cmd\binarylocations.go:41`: `return true`
+- `.\gitmap\cmd\binarylocations.go:45`: `return true`
+- `.\gitmap\cmd\binarylocations.go:56`: `return ""`
+- `.\gitmap\cmd\binarylocations.go:60`: `return filepath.Clean(exe)`
+- `.\gitmap\cmd\binarylocations.go:72`: `return "", ""`
+- `.\gitmap\cmd\binarylocations.go:77`: `return "", ""`
+- `.\gitmap\cmd\binarylocations.go:82`: `return "", ""`
+- `.\gitmap\cmd\binarylocations.go:101`: `return constants.BinaryReadoutMissing`
+- `.\gitmap\cmd\bookmarklist.go:40`: `return true`
+- `.\gitmap\cmd\bookmarklistjson_contract_test.go:34`: `return model.BookmarkRecord{`
+- `.\gitmap\cmd\bookmarklistrender.go:29`: `return stablejson.WriteArray(w, buildBookmarkListJSONItems(records))`
+- `.\gitmap\cmd\bookmarkrun.go:55`: `return nil`
+- `.\gitmap\cmd\capturestderr_testhelper_test.go:86`: `return 0`
+- `.\gitmap\cmd\capturestderr_testhelper_test.go:88`: `return out`
+- `.\gitmap\cmd\cdops.go:86`: `return repos`
+- `.\gitmap\cmd\cdops.go:100`: `return records[0].AbsolutePath`
+- `.\gitmap\cmd\cdops.go:105`: `return dflt`
+- `.\gitmap\cmd\cdops.go:177`: `return loadCDGroupRepos(db, group)`
+- `.\gitmap\cmd\cfrppriorversion.go:60`: `return "", 0`
+- `.\gitmap\cmd\cfrppriorversion.go:66`: `return "", 0`
+- `.\gitmap\cmd\cfrppriorversion.go:78`: `return visibilityContext{}, false`
+- `.\gitmap\cmd\cfrppriorversion.go:84`: `return visibilityContext{}, false`
+- `.\gitmap\cmd\cfrppriorversion.go:149`: `return false`
+- `.\gitmap\cmd\cg.go:78`: `return []string{}`
+- `.\gitmap\cmd\cg.go:85`: `return []string{}`
+- `.\gitmap\cmd\cg.go:100`: `return repos`
+- `.\gitmap\cmd\cg.go:117`: `return filtered`
+- `.\gitmap\cmd\cg_worker.go:49`: `return cmd.Run()`
+- `.\gitmap\cmd\changelog.go:38`: `return "", true`
+- `.\gitmap\cmd\changelog.go:82`: `return entries`
+- `.\gitmap\cmd\changelog.go:101`: `return map[string]string{}`
+- `.\gitmap\cmd\changelog.go:107`: `return map[string]string{}`

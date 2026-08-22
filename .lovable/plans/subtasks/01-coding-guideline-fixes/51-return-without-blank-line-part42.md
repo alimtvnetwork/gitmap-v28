@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 42)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\tui\keys.go:13`: `return msg.String() == "tab"`
+- `.\gitmap\tui\keys.go:17`: `return msg.String() == "up" `
+- `.\gitmap\tui\keys.go:21`: `return msg.String() == "down" `
+- `.\gitmap\tui\keys.go:25`: `return msg.String() == " "`
+- `.\gitmap\tui\keys.go:29`: `return msg.String() == "enter"`
+- `.\gitmap\tui\keys.go:33`: `return msg.String() == "/"`
+- `.\gitmap\tui\keys.go:37`: `return msg.String() == "a"`
+- `.\gitmap\tui\keys.go:41`: `return msg.String() == "p"`
+- `.\gitmap\tui\keys.go:45`: `return msg.String() == "x"`
+- `.\gitmap\tui\keys.go:49`: `return msg.String() == "s"`
+- `.\gitmap\tui\keys.go:53`: `return msg.String() == "g"`
+- `.\gitmap\tui\keys.go:57`: `return msg.String() == "c"`
+- `.\gitmap\tui\keys.go:61`: `return msg.String() == "d"`
+- `.\gitmap\tui\keys.go:65`: `return msg.String() == "r"`
+- `.\gitmap\tui\logformat.go:11`: `return fmt.Sprintf("%-16s %-10s %-30s %-10s %-6d %s",`
+- `.\gitmap\tui\logformat.go:20`: `return fmt.Sprintf("%dms", ms)`
+- `.\gitmap\tui\logformat.go:25`: `return fmt.Sprintf("%.1fs", seconds)`
+- `.\gitmap\tui\logs.go:39`: `return m, nil`
+- `.\gitmap\tui\logs.go:43`: `return m.updateSearch(keyMsg), nil`
+- `.\gitmap\tui\logs.go:96`: `return true`
+- `.\gitmap\tui\logs.go:99`: `return true`
+- `.\gitmap\tui\logs.go:102`: `return true`
+- `.\gitmap\tui\logs.go:105`: `return true`
+- `.\gitmap\tui\logs.go:117`: `return m`
+- `.\gitmap\tui\logsview.go:13`: `return styleHint.Render(constants.TUILogEmpty)`
+- `.\gitmap\tui\logsview.go:17`: `return m.viewDetail()`
+- `.\gitmap\tui\logsview.go:32`: `return fmt.Sprintf("  %-4s %-16s %-10s %-30s %-10s %-6s %s",`
+- `.\gitmap\tui\releases.go:37`: `return false`
+- `.\gitmap\tui\releases.go:50`: `return m, nil`
+- `.\gitmap\tui\releases.go:53`: `return m, nil`
+- `.\gitmap\tui\releases.go:84`: `return m.trigger.View()`
+- `.\gitmap\tui\releases.go:87`: `return styleHint.Render(constants.TUIRelEmpty)`
+- `.\gitmap\tui\releases.go:90`: `return m.viewDetail()`
+- `.\gitmap\tui\releases.go:97`: `return fmt.Sprintf("  %-4s %-12s %-14s %-20s %-8s %-8s %-8s %s",`
+- `.\gitmap\tui\relformat.go:11`: `return fmt.Sprintf("%-12s %-14s %-20s %-8s %-8s %-8s %s",`
+- `.\gitmap\tui\relformat.go:29`: `return sha[:8]`
+- `.\gitmap\tui\relformat.go:38`: `return "yes"`
+- `.\gitmap\tui\relformat.go:47`: `return s`
+- `.\gitmap\tui\reltrigger.go:28`: `return relTriggerModel{`
+- `.\gitmap\tui\reltrigger.go:41`: `return m, nil`
+- `.\gitmap\tui\reltrigger.go:45`: `return m.handleTyping(keyMsg), nil`
+- `.\gitmap\tui\reltrigger.go:102`: `return (c >= '0' && c <= '9') `
+- `.\gitmap\tui\reltrigger.go:107`: `return fmt.Sprintf(constants.TUIRelTriggerCmd, m.version)`
+- `.\gitmap\tui\reltrigger.go:111`: `return fmt.Sprintf(constants.TUIRelTriggerBumpCmd, m.options[m.cursor].flag)`
+- `.\gitmap\tui\reltrigger.go:119`: `return m.viewConfirmed()`
+- `.\gitmap\tui\reltrigger.go:123`: `return m.viewTyping()`
+- `.\gitmap\tui\tempreleases.go:41`: `return m, nil`
+- `.\gitmap\tui\tempreleases.go:76`: `return styleHint.Render(constants.TUITREmpty)`
+- `.\gitmap\tui\tempreleases.go:80`: `return m.viewDetail()`
+- `.\gitmap\tui\tempreleases.go:84`: `return m.viewGrouped()`
+- `.\gitmap\tui\trformat.go:13`: `return fmt.Sprintf("%-28s %-12s %-5d %-10s %s",`
+- `.\gitmap\tui\trformat.go:42`: `return recs[i].SequenceNumber < recs[j].SequenceNumber`
+- `.\gitmap\tui\trformat.go:66`: `return records`
+- `.\gitmap\tui\tui.go:52`: `return fmt.Errorf(constants.ErrTUIDBOpen, err)`
+- `.\gitmap\tui\tui.go:65`: `return rootModel{`
+- `.\gitmap\tui\tui.go:83`: `return m.dashboard.Init()`
+- `.\gitmap\tui\tuiview.go:11`: `return ""`
+- `.\gitmap\tui\tuiview.go:54`: `return m.browser.View()`
+- `.\gitmap\tui\tuiview.go:56`: `return m.actions.View()`
+- `.\gitmap\tui\tuiview.go:58`: `return m.groupsMgr.View()`
+- `.\gitmap\tui\tuiview.go:60`: `return m.dashboard.View()`
+- `.\gitmap\tui\tuiview.go:62`: `return m.releases.View()`
+- `.\gitmap\tui\tuiview.go:64`: `return m.tempReleases.View()`
+- `.\gitmap\tui\tuiview.go:66`: `return m.zipGroups.View()`
+- `.\gitmap\tui\tuiview.go:68`: `return m.aliases.View()`
+- `.\gitmap\tui\tuiview.go:70`: `return m.logs.View()`
+- `.\gitmap\tui\tui_test.go:12`: `return []model.ScanRecord{`
+- `.\gitmap\tui\tui_test.go:20`: `return []model.Group{`
+- `.\gitmap\tui\tui_test.go:27`: `return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(key)}`
+- `.\gitmap\tui\tui_test.go:31`: `return tea.KeyMsg{Type: k}`
+- `.\gitmap\tui\zipgroups.go:33`: `return m, nil`
+- `.\gitmap\tui\zipgroups.go:66`: `return ""`
+- `.\gitmap\tui\zipgroups.go:72`: `return fmt.Sprintf("  Error: %v", err)`
+- `.\gitmap\tui\zipgroups.go:95`: `return styleHint.Render(constants.TUIZGEmpty)`
+- `.\gitmap\txn\action.go:43`: `return nil`
+- `.\gitmap\txn\action.go:46`: `return err`
+- `.\gitmap\txn\action.go:50`: `return err`
+- `.\gitmap\txn\action.go:61`: `return nil`
+- `.\gitmap\txn\action.go:73`: `return err`
+- `.\gitmap\txn\action.go:92`: `return 0, err`
+- `.\gitmap\txn\action.go:95`: `return 0, nil`
+- `.\gitmap\txn\action.go:107`: `return wrapNotFound(txnID, err)`
+- `.\gitmap\txn\action.go:110`: `return err`
+- `.\gitmap\txn\action.go:114`: `return err`
+- `.\gitmap\txn\action.go:127`: `return err`
+- `.\gitmap\txn\action.go:130`: `return err`
+- `.\gitmap\txn\action.go:141`: `return reverseEditFileAction(db, a)`
+- `.\gitmap\txn\action.go:143`: `return reverseRenamePathAction(a)`
+- `.\gitmap\txn\action.go:145`: `return fmt.Errorf(constants.ErrActionUnknownKind, a.ID, a.Kind)`
+- `.\gitmap\txn\action.go:153`: `return err`
+- `.\gitmap\txn\action.go:157`: `return reverseRestore(f, RevertOptions{})`
+- `.\gitmap\txn\action.go:168`: `return fmt.Errorf(constants.ErrActionPayloadDecode, a.ID, err)`
+- `.\gitmap\txn\action.go:171`: `return fmt.Errorf(constants.ErrActionLiveConflict, a.ID, a.Kind)`
+- `.\gitmap\txn\journal.go:64`: `return &Journal{db: db, meta: m}, err`
+- `.\gitmap\txn\journal.go:76`: `return nil`
+- `.\gitmap\txn\journal.go:79`: `return err`
+- `.\gitmap\txn\journal.go:88`: `return nil`
+- `.\gitmap\txn\journal.go:99`: `return err`
+- `.\gitmap\txn\journal.go:111`: `return constants.TxnUnknownGitShaMarker`
+- `.\gitmap\txn\journal.go:122`: `return filepath.Join(filepath.Dir(j.binaryDir),`
+- `.\gitmap\txn\revert.go:29`: `return wrapNotFound(id, err)`
+- `.\gitmap\txn\revert.go:32`: `return err`
+- `.\gitmap\txn\revert.go:36`: `return err`
+- `.\gitmap\txn\revert.go:39`: `return err`
+- `.\gitmap\txn\revert.go:48`: `return fmt.Errorf(constants.ErrTxnRowNotFound, id)`
+- `.\gitmap\txn\revert.go:57`: `return nil`
+- `.\gitmap\txn\revert.go:67`: `return err`
+- `.\gitmap\txn\revert.go:78`: `return reverseRename(f)`
+- `.\gitmap\txn\revert.go:80`: `return reverseRestore(f, opts)`
+- `.\gitmap\txn\revert.go:82`: `return fmt.Errorf("transaction revert: unknown action %q", f.Action)`
+- `.\gitmap\txn\revert.go:89`: `return fmt.Errorf("transaction revert mkdir: %w", err)`
+- `.\gitmap\txn\revert.go:92`: `return fmt.Errorf("transaction revert rename %q→%q: %w",`
+- `.\gitmap\txn\revert.go:102`: `return err`
+- `.\gitmap\txn\revert.go:105`: `return fmt.Errorf("transaction revert mkdir: %w", err)`
+- `.\gitmap\txn\revert.go:114`: `return nil`
+- `.\gitmap\txn\revert.go:118`: `return fmt.Errorf(constants.ErrTxnBackupMissing, f.TransactionID, f.BackupPath)`
+- `.\gitmap\txn\revert.go:121`: `return fmt.Errorf(constants.ErrTxnBackupShaDrift, f.TransactionID, f.BackupPath)`
+- `.\gitmap\txn\revert.go:131`: `return "", err`
+- `.\gitmap\txn\revert.go:136`: `return "", err`
+- `.\gitmap\txn\revert.go:146`: `return fmt.Errorf("transaction revert open: %w", err)`
+- `.\gitmap\txn\revert.go:151`: `return fmt.Errorf("transaction revert create: %w", err)`
+- `.\gitmap\txn\revert.go:155`: `return fmt.Errorf("transaction revert copy: %w", err)`
+- `.\gitmap\txn\snapshot.go:19`: `return j.snapshotFile(absPath, constants.TxnActionEdit)`
+- `.\gitmap\txn\snapshot.go:25`: `return j.snapshotFile(absPath, constants.TxnActionDelete)`
+- `.\gitmap\txn\snapshot.go:32`: `return nil`
+- `.\gitmap\txn\snapshot.go:48`: `return nil`
+- `.\gitmap\txn\snapshot.go:52`: `return fmt.Errorf("transaction snapshot stat %q: %w", absPath, err)`
+- `.\gitmap\txn\snapshot.go:57`: `return err`
+- `.\gitmap\txn\snapshot.go:65`: `return j.db.InsertTransactionFile(model.TransactionFileRecord{`
+- `.\gitmap\txn\snapshot.go:89`: `return filepath.Base(abs)`
+- `.\gitmap\txn\snapshot.go:93`: `return filepath.Base(abs)`
+- `.\gitmap\txn\snapshot.go:102`: `return "_unscoped"`
+- `.\gitmap\txn\snapshot.go:111`: `return "", fmt.Errorf("transaction backup mkdir: %w", err)`
+- `.\gitmap\txn\snapshot.go:115`: `return "", fmt.Errorf("transaction backup open src: %w", err)`
+- `.\gitmap\txn\snapshot.go:126`: `return "", fmt.Errorf("transaction backup create: %w", err)`
+- `.\gitmap\txn\snapshot.go:131`: `return "", fmt.Errorf("transaction backup copy: %w", err)`
+- `.\gitmap\uipref\uipref.go:39`: `return true`
+- `.\gitmap\uipref\uipref.go:49`: `return false`
+- `.\gitmap\verbose\verbose.go:34`: `return nil, err`
+- `.\gitmap\verbose\verbose.go:72`: `return global != nil && global.enabled`
+- `.\gitmap\verbose\verbose.go:77`: `return global`
+- `.\gitmap\visibility\backoff.go:29`: `return []time.Duration{`
+- `.\gitmap\visibility\backoff.go:45`: `return attempt + 1, nil`
+- `.\gitmap\visibility\backoff.go:49`: `return attempt + 1, err`
+- `.\gitmap\visibility\backoff_test.go:25`: `return ErrRateLimited`
+- `.\gitmap\visibility\exclude.go:42`: `return []int{}, false, nil`
+- `.\gitmap\visibility\exclude.go:45`: `return nil, true, nil`
+- `.\gitmap\visibility\exclude.go:51`: `return nil, false, err`
+- `.\gitmap\visibility\exclude.go:63`: `return fmt.Errorf("Error: empty exclusion token at position %d (operation: parse-exclusion, reason: blank between commas)", tokIdx)`
+- `.\gitmap\visibility\exclude.go:67`: `return absorbExclusionRange(tok, tokIdx, totalCount, out)`

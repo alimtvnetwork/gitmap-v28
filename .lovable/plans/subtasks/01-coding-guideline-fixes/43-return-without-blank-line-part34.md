@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 34)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\movemerge\walk.go:32`: `return filepath.SkipDir`
+- `.\gitmap\movemerge\walk.go:35`: `return nil`
+- `.\gitmap\movemerge\walk.go:38`: `return nil`
+- `.\gitmap\movemerge\walk.go:53`: `return !opts.IsIncludeVCS`
+- `.\gitmap\movemerge\walk.go:56`: `return !opts.IsIncludeNodeMods`
+- `.\gitmap\movemerge\walk.go:84`: `return "", err`
+- `.\gitmap\movemerge\walk.go:89`: `return "", err`
+- `.\gitmap\probe\background.go:113`: `return nil`
+- `.\gitmap\probe\background.go:155`: `return Stats{}`
+- `.\gitmap\probe\background.go:177`: `return Stats{}`
+- `.\gitmap\probe\background.go:226`: `return Result{Method: constants.ProbeMethodNone, Error: "empty clone url"}`
+- `.\gitmap\probe\clone.go:23`: `return "", fmt.Errorf("mkdtemp: %w", err)`
+- `.\gitmap\probe\clone.go:35`: `return "", fmt.Errorf(constants.ErrProbeCloneFail, summarize(out, err))`
+- `.\gitmap\probe\clone.go:41`: `return "", fmt.Errorf("git tag: %w", err)`
+- `.\gitmap\probe\clone.go:47`: `return t, nil`
+- `.\gitmap\probe\clone.go:58`: `return err.Error()`
+- `.\gitmap\probe\probe.go:40`: `return RunOneWithDepth(cloneURL, constants.ProbeDefaultDepth)`
+- `.\gitmap\probe\probe.go:50`: `return Result{Method: constants.ProbeMethodNone, Error: "empty clone url"}`
+- `.\gitmap\probe\probe.go:54`: `return makeResult(tag, constants.ProbeMethodLsRemote)`
+- `.\gitmap\probe\probe.go:58`: `return makeResult(tag, constants.ProbeMethodShallowClone)`
+- `.\gitmap\probe\probe.go:60`: `return Result{`
+- `.\gitmap\probe\probe.go:70`: `return Result{Method: method, IsAvailable: false}`
+- `.\gitmap\probe\probe.go:84`: `return model.VersionProbe{`
+- `.\gitmap\probe\probe.go:100`: `return "", false`
+- `.\gitmap\probe\probe.go:117`: `return tag`
+- `.\gitmap\probe\probe.go:131`: `return 0`
+- `.\gitmap\probe\sibling_parallel.go:34`: `return nil`
+- `.\gitmap\probe\sibling_parallel.go:69`: `return out`
+- `.\gitmap\release\assets.go:40`: `return "", err`
+- `.\gitmap\release\assets.go:53`: `return parts[1], nil`
+- `.\gitmap\release\assets.go:72`: `return []string{"."}`
+- `.\gitmap\release\assets.go:78`: `return nil`
+- `.\gitmap\release\assets.go:159`: `return "app"`
+- `.\gitmap\release\assets.go:183`: `return "", fmt.Errorf("create staging dir: %w", err)`
+- `.\gitmap\release\assetsbuild.go:30`: `return CrossCompileResult{`
+- `.\gitmap\release\assetsbuild.go:85`: `return false`
+- `.\gitmap\release\assetstargets.go:13`: `return []BuildTarget{`
+- `.\gitmap\release\assetstargets.go:27`: `return ParseTargets(flagTargets)`
+- `.\gitmap\release\assetstargets.go:31`: `return convertConfigTargets(configTargets), nil`
+- `.\gitmap\release\assetstargets.go:52`: `return DefaultTargets(), nil`
+- `.\gitmap\release\assetstargets.go:61`: `return nil, err`
+- `.\gitmap\release\assetstargets.go:74`: `return BuildTarget{}, fmt.Errorf("invalid target format %q — expected os/arch", s)`
+- `.\gitmap\release\assetsupload.go:22`: `return fmt.Errorf("open asset: %w", err)`
+- `.\gitmap\release\assetsupload.go:28`: `return fmt.Errorf("stat asset: %w", err)`
+- `.\gitmap\release\assetsupload.go:37`: `return fmt.Errorf("upload asset: %w", err)`
+- `.\gitmap\release\assetsupload.go:65`: `return fmt.Sprintf("upload error %d: %s", e.statusCode, e.message)`
+- `.\gitmap\release\assetsupload.go:82`: `return UploadAsset(owner, repo, releaseID, asset, token)`
+- `.\gitmap\release\autocommit.go:56`: `return commitReleaseOnly(releaseFiles, commitMsg)`
+- `.\gitmap\release\autocommit.go:67`: `return nil`
+- `.\gitmap\release\autocommit.go:172`: `return commitReleaseOnly(releaseFiles, msg)`
+- `.\gitmap\release\autocommit.go:177`: `return commitAll(msg)`
+- `.\gitmap\release\autocommitgit.go:70`: `return runGitCmd(constants.GitAdd, constants.GitAddAll)`
+- `.\gitmap\release\autocommitgit.go:75`: `return runGitCmd(constants.GitCommit, constants.GitCommitMsg, msg)`
+- `.\gitmap\release\autocommitgit.go:82`: `return err`
+- `.\gitmap\release\autocommitgit.go:87`: `return nil`
+- `.\gitmap\release\autocommitgit.go:91`: `return syncBranchAndRetryPush(branch, pushOutput)`
+- `.\gitmap\release\autocommitgit.go:129`: `return fmt.Errorf(`
+- `.\gitmap\release\autocommitgit.go:160`: `return fmt.Errorf("%s", trimmed)`
+- `.\gitmap\release\autocommitgit.go:169`: `return trimmed`
+- `.\gitmap\release\autocommitgit.go:176`: `return strings.Join(strings.Fields(trimGitOutput(output)), " ")`
+- `.\gitmap\release\changelog.go:38`: `return nil, err`
+- `.\gitmap\release\changelog.go:44`: `return nil, err`
+- `.\gitmap\release\changelog.go:48`: `return nil, fmt.Errorf("no version sections found in %s", constants.ChangelogFile)`
+- `.\gitmap\release\changelog.go:59`: `return entry, true`
+- `.\gitmap\release\changelog.go:72`: `return ""`
+- `.\gitmap\release\changelog.go:75`: `return v`
+- `.\gitmap\release\changelog.go:85`: `return ""`
+- `.\gitmap\release\changelog.go:90`: `return ""`
+- `.\gitmap\release\changelog.go:95`: `return ""`
+- `.\gitmap\release\changelog.go:98`: `return version`
+- `.\gitmap\release\changeloggen.go:23`: `return nil, fmt.Errorf(constants.ErrChangelogGenCommits, fromTag, toRef, err)`
+- `.\gitmap\release\changeloggen.go:32`: `return nil`
+- `.\gitmap\release\changeloggen.go:69`: `return nil, fmt.Errorf(constants.ErrChangelogGenTags, err)`
+- `.\gitmap\release\changeloggen.go:78`: `return resolveDefaultTagRange()`
+- `.\gitmap\release\changeloggen.go:83`: `return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, from)`
+- `.\gitmap\release\changeloggen.go:87`: `return from, constants.GitHEAD, nil`
+- `.\gitmap\release\changeloggen.go:92`: `return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, to)`
+- `.\gitmap\release\changeloggen.go:101`: `return "", "", fmt.Errorf(constants.ErrChangelogGenNoTags)`
+- `.\gitmap\release\changeloggen.go:105`: `return tags[0], constants.GitHEAD, nil`
+- `.\gitmap\release\changelogparse.go:35`: `return nil, err`
+- `.\gitmap\release\changelogparse.go:46`: `return strings.HasPrefix(strings.TrimLeft(line, " \t"), "## ")`
+- `.\gitmap\release\changelogparse.go:57`: `return entries, ChangelogEntry{}, false`
+- `.\gitmap\release\changelogparse.go:74`: `return current`
+- `.\gitmap\release\changelogparse.go:96`: `return 0, "", "", false`
+- `.\gitmap\release\changelogparse.go:101`: `return 0, "", "", false`
+- `.\gitmap\release\changelogparse.go:107`: `return 0, "", "", false`
+- `.\gitmap\release\changelogparse.go:117`: `return raw[:i], raw[i:]`
+- `.\gitmap\release\changelogparse.go:127`: `return "-", body[2:], true`
+- `.\gitmap\release\changelogparse.go:130`: `return "*", body[2:], true`
+- `.\gitmap\release\changelogparse.go:143`: `return "", "", false`
+- `.\gitmap\release\changelogparse.go:151`: `return len(marker) > 1 && marker[len(marker)-1] == '.'`
+- `.\gitmap\release\changelogparse.go:174`: `return ""`
+- `.\gitmap\release\checksums.go:20`: `return "", nil`
+- `.\gitmap\release\checksums.go:28`: `return "", fmt.Errorf("create checksums file: %w", err)`
+- `.\gitmap\release\checksums.go:54`: `return "", err`
+- `.\gitmap\release\checksums.go:60`: `return "", err`
+- `.\gitmap\release\compress.go:62`: `return createZip(path)`
+- `.\gitmap\release\compress.go:70`: `return strings.HasSuffix(strings.ToLower(path), ".exe")`
+- `.\gitmap\release\compress.go:78`: `return "", fmt.Errorf("create zip: %w", err)`
+- `.\gitmap\release\compress.go:87`: `return "", err`
+- `.\gitmap\release\compress.go:102`: `return fmt.Errorf("open source: %w", err)`
+- `.\gitmap\release\compress.go:108`: `return fmt.Errorf("stat source: %w", err)`
+- `.\gitmap\release\compress.go:113`: `return fmt.Errorf("zip header: %w", err)`
+- `.\gitmap\release\compress.go:121`: `return fmt.Errorf("create entry: %w", err)`
+- `.\gitmap\release\compresstar.go:18`: `return "", fmt.Errorf("create tar.gz: %w", err)`
+- `.\gitmap\release\compresstar.go:30`: `return "", err`
+- `.\gitmap\release\compresstar.go:46`: `return fmt.Errorf("open source: %w", err)`
+- `.\gitmap\release\compresstar.go:52`: `return fmt.Errorf("stat source: %w", err)`
+- `.\gitmap\release\compresstar.go:57`: `return fmt.Errorf("tar header: %w", err)`
+- `.\gitmap\release\compresstar.go:64`: `return fmt.Errorf("write header: %w", err)`
+- `.\gitmap\release\deflate.go:26`: `return m.fw.Write(p)`
+- `.\gitmap\release\deflate.go:30`: `return m.fw.Close()`
+- `.\gitmap\release\github.go:17`: `return nil`
+- `.\gitmap\release\github.go:23`: `return nil`
+- `.\gitmap\release\github.go:29`: `return files`
+- `.\gitmap\release\github.go:59`: `return nil`
+- `.\gitmap\release\github.go:80`: `return ""`
+- `.\gitmap\release\github.go:90`: `return ""`
+- `.\gitmap\release\githubapi.go:31`: `return nil, fmt.Errorf("marshal release payload: %w", err)`
+- `.\gitmap\release\githubapi.go:39`: `return nil, fmt.Errorf("create release: %w", err)`
+- `.\gitmap\release\gitops.go:45`: `return fmt.Errorf("push branch: %w", err)`
+- `.\gitmap\release\gitops.go:54`: `return fmt.Errorf("push tag: %w", err)`
+- `.\gitmap\release\gitops.go:62`: `return runGitCmd(constants.GitCheckout, branch)`
+- `.\gitmap\release\gitops.go:67`: `return runGitCmd(constants.GitFetch, constants.GitOrigin, branch)`
+- `.\gitmap\release\gitops.go:73`: `return resolveFromCommit(commit)`
+- `.\gitmap\release\gitops.go:76`: `return resolveFromBranch(branch)`
+- `.\gitmap\release\gitops.go:85`: `return "", "", fmt.Errorf("commit %s not found", commit)`
+- `.\gitmap\release\gitops.go:91`: `return commit, constants.GitCommitPrefix + commit, nil`
+- `.\gitmap\release\gitops.go:98`: `return "", "", fmt.Errorf("branch %s not found: %w", branch, err)`
+- `.\gitmap\release\gitops.go:113`: `return constants.GitHEAD, constants.GitHEAD, nil`
+- `.\gitmap\release\gitops.go:140`: `return flushErr`
+- `.\gitmap\release\gitopsquery.go:16`: `return false`
+- `.\gitmap\release\gitopsquery.go:28`: `return false`
+- `.\gitmap\release\gitopsquery.go:39`: `return false`
+- `.\gitmap\release\gitopsquery.go:50`: `return "", err`
+- `.\gitmap\release\gitopsquery.go:62`: `return "", err`
+- `.\gitmap\release\gitopsquery.go:73`: `return false`
+- `.\gitmap\release\gitopsquery.go:84`: `return Version{}, fmt.Errorf("no git tags found and no .gitmap/release/latest.json exists")`
+- `.\gitmap\release\gitopsquery.go:115`: `return candidate, true`
+- `.\gitmap\release\gitopsquery.go:118`: `return candidate, true`
+- `.\gitmap\release\gitopsquery.go:128`: `return Version{}, false`
+- `.\gitmap\release\gitopsquery.go:133`: `return Version{}, false`
+- `.\gitmap\release\gitopsquery.go:137`: `return Version{}, false`
+- `.\gitmap\release\gitopstags.go:25`: `return nil`
+- `.\gitmap\release\gitopstags.go:34`: `return nil`
+- `.\gitmap\release\gitopstags.go:54`: `return TagEntry{}, false`
+- `.\gitmap\release\gitopstags.go:60`: `return TagEntry{}, false`
+- `.\gitmap\release\gitstderrfilter.go:23`: `return &filteredStderrWriter{`
+- `.\gitmap\release\gitstderrfilter.go:36`: `return len(p), nil`
+- `.\gitmap\release\gitstderrfilter.go:45`: `return len(p), err`

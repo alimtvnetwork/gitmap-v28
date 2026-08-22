@@ -171,7 +171,7 @@ func hasURLScheme(url string) bool {
 		return false
 	}
 	for _, ch := range url[:idx] {
-		isNonSchemeChar := isSchemeChar == false(ch)
+		isNonSchemeChar := !isSchemeChar(ch)
 		if isNonSchemeChar {
 			return false
 		}

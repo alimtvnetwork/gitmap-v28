@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 9)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\chrome_diff.go:111`: `return out`
+- `.\gitmap\cmd\chrome_localstate.go:40`: `return ChromeLocalState{}, err`
+- `.\gitmap\cmd\chrome_localstate.go:65`: `return out, nil`
+- `.\gitmap\cmd\chrome_localstate.go:72`: `return e.DisplayName`
+- `.\gitmap\cmd\chrome_localstate.go:74`: `return dir`
+- `.\gitmap\cmd\chrome_manifest.go:35`: `return nil, err`
+- `.\gitmap\cmd\chrome_manifest.go:40`: `return nil, err`
+- `.\gitmap\cmd\chrome_manifest.go:51`: `return nil, err`
+- `.\gitmap\cmd\chrome_manifest.go:58`: `return nil, err`
+- `.\gitmap\cmd\chrome_manifest.go:63`: `return out, nil`
+- `.\gitmap\cmd\chrome_manifest.go:72`: `return b.String()`
+- `.\gitmap\cmd\chrome_manifest.go:92`: `return out`
+- `.\gitmap\cmd\chrome_manifest.go:100`: `return writeChromeManifestWithSource(tarballPath, "")`
+- `.\gitmap\cmd\chrome_manifest.go:106`: `return "", err`
+- `.\gitmap\cmd\chrome_manifest.go:115`: `return "", err`
+- `.\gitmap\cmd\chrome_manifest.go:117`: `return manifestPath, nil`
+- `.\gitmap\cmd\chrome_manifest.go:125`: `return ""`
+- `.\gitmap\cmd\chrome_manifest.go:130`: `return strings.TrimSpace(strings.TrimPrefix(ln, "# source:"))`
+- `.\gitmap\cmd\chrome_manifest.go:133`: `return ""`
+- `.\gitmap\cmd\chrome_manifest.go:144`: `return false, nil, fmt.Errorf("manifest missing (%s): %w", manifestPath, err)`
+- `.\gitmap\cmd\chrome_manifest.go:149`: `return false, nil, err`
+- `.\gitmap\cmd\chrome_manifest.go:166`: `return len(mismatches) == 0, mismatches, nil`
+- `.\gitmap\cmd\chrome_manifest_test.go:31`: `return path`
+- `.\gitmap\cmd\cliexit_clone_test.go:126`: `return []string{`
+- `.\gitmap\cmd\cliexit_clone_test.go:163`: `return strings.Contains(strings.ToLower(haystack), strings.ToLower(needle))`
+- `.\gitmap\cmd\cliexit_context_test.go:137`: `return true`
+- `.\gitmap\cmd\cliexit_helpers_test.go:105`: `return err`
+- `.\gitmap\cmd\cliexit_helpers_test.go:120`: `return e.cause.Error() + ": " + e.stderr`
+- `.\gitmap\cmd\cliexit_helpers_test.go:213`: `return 0`
+- `.\gitmap\cmd\cliexit_helpers_test.go:217`: `return exitErr.ExitCode()`
+- `.\gitmap\cmd\cliexit_scan_test.go:31`: `return []string{"scan", "--quiet", scanEmptyDir(t)}`
+- `.\gitmap\cmd\cliexit_scan_test.go:38`: `return []string{"scan", "--quiet", filepath.Join(scanEmptyDir(t), "does-not-exist")}`
+- `.\gitmap\cmd\clone.go:108`: `return true`
+- `.\gitmap\cmd\clone.go:113`: `return true`
+- `.\gitmap\cmd\clone.go:127`: `return true`
+- `.\gitmap\cmd\clone.go:203`: `return true`
+- `.\gitmap\cmd\clone.go:404`: `return validateShorthandPath(resolved)`
+- `.\gitmap\cmd\clone.go:414`: `return resolved`
+- `.\gitmap\cmd\clone.go:563`: `return cf`
+- `.\gitmap\cmd\clone.go:575`: `return in`
+- `.\gitmap\cmd\clone.go:584`: `return out`
+- `.\gitmap\cmd\clone.go:586`: `return in`
+- `.\gitmap\cmd\clone.go:605`: `return "--ssh"`
+- `.\gitmap\cmd\clonefixrepo.go:65`: `return false`
+- `.\gitmap\cmd\clonefixrepo.go:68`: `return true`
+- `.\gitmap\cmd\clonefixrepo.go:93`: `return folderName, absPath`
+- `.\gitmap\cmd\clonefixrepo.go:153`: `return out`
+- `.\gitmap\cmd\clonefixrepo.go:188`: `return converted`
+- `.\gitmap\cmd\clonefixrepo.go:191`: `return converted`
+- `.\gitmap\cmd\clonefixrepo.go:193`: `return url`
+- `.\gitmap\cmd\clonefixrepo.go:201`: `return converted, true`
+- `.\gitmap\cmd\clonefixrepo.go:203`: `return url, false`
+- `.\gitmap\cmd\clonefixrepo.go:211`: `return converted, true`
+- `.\gitmap\cmd\clonefixrepo.go:213`: `return url, false`
+- `.\gitmap\cmd\clonefixrepo.go:245`: `return repo`
+- `.\gitmap\cmd\clonefixrepo.go:276`: `return applyCFRFlagExtra(name, f)`
+- `.\gitmap\cmd\clonefixrepo.go:278`: `return true`
+- `.\gitmap\cmd\clonefixrepo.go:292`: `return false`
+- `.\gitmap\cmd\clonefixrepo.go:294`: `return true`
+- `.\gitmap\cmd\clonefixrepo.go:304`: `return positional`
+- `.\gitmap\cmd\clonefixrepo.go:328`: `return f.url, f.folder, f.noVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, f.noCommit, f.noPush`
+- `.\gitmap\cmd\clonefixrepo.go:338`: `return folderName`
+- `.\gitmap\cmd\clonefixrepo.go:346`: `return folderName`
+- `.\gitmap\cmd\clonefixrepo.go:351`: `return parsed.BaseName`
+- `.\gitmap\cmd\clonefixrepo.go:353`: `return repoName`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:31`: `return filepath.Join(repoRoot, ".gitmap", "cfrp", batchID, "state.json")`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:38`: `return nil, nil`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:41`: `return nil, err`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:45`: `return nil, fmt.Errorf("checkpoint %s: %w", path, err)`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:47`: `return &cp, nil`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:54`: `return err`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:59`: `return err`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:62`: `return err`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:64`: `return os.Rename(tmp, path)`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:71`: `return all`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:83`: `return out`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:29`: `return positional`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:34`: `return positional`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:39`: `return positional`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:41`: `return rewriteToMatchExisting(positional, exIsSSH)`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:46`: `return handleSSHRewrite(positional)`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:48`: `return handleHTTPSRewrite(positional)`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:55`: `return positional`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:58`: `return out`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:65`: `return positional`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:68`: `return out`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:76`: `return err == nil`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:86`: `return true`
+- `.\gitmap\cmd\clonefixrepofoldertransport.go:88`: `return strings.HasPrefix(lower, "ssh://")`
+- `.\gitmap\cmd\clonefixrepoparallel.go:39`: `return handleSingleURLSplit(raw)`
+- `.\gitmap\cmd\clonefixrepoparallel.go:49`: `return out`
+- `.\gitmap\cmd\clonefixrepoparallel.go:63`: `return jobs`
+- `.\gitmap\cmd\clonefixrepoparallel.go:71`: `return total`
+- `.\gitmap\cmd\clonefixrepoparallel.go:73`: `return workers`
+- `.\gitmap\cmd\clonefixrepoparallel.go:99`: `return failed`
+- `.\gitmap\cmd\clonefixrepoparallel.go:114`: `return len(urls)`
+- `.\gitmap\cmd\clonefixrepoparallel.go:119`: `return failed`
+- `.\gitmap\cmd\clonefixrepoparallel.go:127`: `return append(args, passthroughFlags...)`
+- `.\gitmap\cmd\clonefixrepoparallel.go:144`: `return time.Since(start).Round(time.Millisecond), runErr`
+- `.\gitmap\cmd\clonefixrepoparallel.go:159`: `return runErr == nil`
+- `.\gitmap\cmd\clonefixrepoparallel.go:171`: `return name == "--parallel" `
+- `.\gitmap\cmd\clonefixrepoparallel.go:177`: `return 0, 0, false`
+- `.\gitmap\cmd\clonefixrepoparallel.go:180`: `return atoiSafe(val), 0, true`
+- `.\gitmap\cmd\clonefixrepoparallel.go:183`: `return atoiSafe(args[i+1]), 1, true`
+- `.\gitmap\cmd\clonefixrepoparallel.go:185`: `return 0, 0, true`
+- `.\gitmap\cmd\clonefixrepoparallel.go:205`: `return parallel, out`
+- `.\gitmap\cmd\clonefixrepoparallel.go:213`: `return a, "", false`
+- `.\gitmap\cmd\clonefixrepoparallel.go:215`: `return a[:idx], a[idx+1:], true`
+- `.\gitmap\cmd\clonefixrepoparallel.go:222`: `return 0`
+- `.\gitmap\cmd\clonefixrepoparallel.go:226`: `return n`
+- `.\gitmap\cmd\clonefixrepoparallel.go:243`: `return out`
+- `.\gitmap\cmd\clonefixrepoparallel.go:260`: `return out`
+- `.\gitmap\cmd\clonefixrepoparallel.go:270`: `return append(flags, buildCFRActionFlags(autoYes, dryRun, noCommit, noPush)...)`
+- `.\gitmap\cmd\clonefixrepoparallel.go:276`: `return nil`
+- `.\gitmap\cmd\clonefixrepoparallel.go:278`: `return []string{trimmed}`
+- `.\gitmap\cmd\clonefixrepo_modifiers.go:64`: `return true`
+- `.\gitmap\cmd\clonefrom.go:125`: `return clonefrom.RenderTerminal`
+- `.\gitmap\cmd\clonefrom.go:211`: `return clonefrom.RenderSummaryTerminal(os.Stdout, results, csvPath, jsonPath)`
+- `.\gitmap\cmd\clonefrom.go:213`: `return clonefrom.RenderSummary(os.Stdout, results, csvPath)`
+- `.\gitmap\cmd\clonefrom_flags.go:37`: `return cfg`
+- `.\gitmap\cmd\clonefrom_flags.go:60`: `return resolvedConc`
+- `.\gitmap\cmd\clonefrom_flags.go:72`: `return fs.Int(constants.CloneFlagMaxConcurrency,`
+- `.\gitmap\cmd\clonefrom_reports.go:33`: `return "", ""`
+- `.\gitmap\cmd\clonefrom_reports.go:42`: `return csvPath, ""`
+- `.\gitmap\cmd\clonefrom_reports.go:54`: `return path`
+- `.\gitmap\cmd\clonefrom_reports.go:68`: `return path`
+- `.\gitmap\cmd\clonefrom_reports.go:83`: `return nil`
+- `.\gitmap\cmd\clonefrom_reports_test.go:78`: `return clonefrom.Result{`
+- `.\gitmap\cmd\clonemulti.go:60`: `return strings.FieldsFunc(raw, func(r rune) bool {`
+- `.\gitmap\cmd\clonemulti.go:61`: `return strings.ContainsRune(urlListSeparators, r)`
+- `.\gitmap\cmd\clonemulti.go:119`: `return s`
+- `.\gitmap\cmd\clonemulti.go:123`: `return s[1 : len(s)-1]`
+- `.\gitmap\cmd\clonemulti.go:166`: `return fmt.Errorf("resolve abs path for %s: %w", folderName, err)`
+- `.\gitmap\cmd\clonemulti.go:173`: `return errClone`
+- `.\gitmap\cmd\clonemulti.go:198`: `return folderName`
+- `.\gitmap\cmd\clonemulti.go:206`: `return handleNoReplaceClone(url, absPath)`
+- `.\gitmap\cmd\clonemulti.go:208`: `return handleReplaceClone(url, absPath)`
+- `.\gitmap\cmd\clonemulti.go:214`: `return fmt.Errorf("target exists: %s (use without --no-replace to replace)", absPath)`
+- `.\gitmap\cmd\clonemulti.go:218`: `return fmt.Errorf("git clone: %w", cloneErr)`
+- `.\gitmap\cmd\clonemulti.go:220`: `return nil`
+- `.\gitmap\cmd\clonemulti.go:226`: `return fmt.Errorf("clone-replace: %w", replaceErr)`
+- `.\gitmap\cmd\clonemulti.go:228`: `return nil`
+- `.\gitmap\cmd\clonenext.go:205`: `return nil, nil`
+- `.\gitmap\cmd\clonenext.go:207`: `return verbose.Init()`
+- `.\gitmap\cmd\clonenext.go:213`: `return cwd`
+- `.\gitmap\cmd\clonenext.go:216`: `return cwd`
+- `.\gitmap\cmd\clonenext.go:219`: `return cwd`
+- `.\gitmap\cmd\clonenext.go:227`: `return root`
+- `.\gitmap\cmd\clonenext.go:292`: `return runCloneCommandPretty(url, dest) == nil`
+- `.\gitmap\cmd\clonenextbatch.go:58`: `return clonenext.LoadBatchFromCSV(csvPath)`

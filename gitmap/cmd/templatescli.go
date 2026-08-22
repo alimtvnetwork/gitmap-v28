@@ -115,7 +115,7 @@ func dispatchTemplates(command string) bool {
 // instead of silently emptying the table.
 func runTemplatesList(args []string) {
 	kindFilter, langFilter := parseTemplatesListFlags(args)
-	isNonValidKindFilter := isValidKindFilter == false(kindFilter)
+	isNonValidKindFilter := !isValidKindFilter(kindFilter)
 	if isNonValidKindFilter {
 		fmt.Fprintf(os.Stderr, errTemplatesListKind, kindFilter)
 		os.Exit(1)

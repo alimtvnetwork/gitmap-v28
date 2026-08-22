@@ -14,7 +14,7 @@ import (
 func runHasAnyUpdates(args []string) {
 	checkHelp("has-any-updates", args)
 
-	isNonInsideGitRepo := isInsideGitRepo == false()
+	isNonInsideGitRepo := !isInsideGitRepo()
 	if isNonInsideGitRepo {
 		fmt.Fprint(os.Stderr, constants.ErrHAUNotRepo)
 		os.Exit(1)

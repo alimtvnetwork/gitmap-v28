@@ -1,0 +1,156 @@
+# Fix raw error return (Part 7)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\release\compress.go:60`: `func compressSingle(path string) (string, error) {`
+- `.\gitmap\release\compress.go:74`: `func createZip(srcPath string) (string, error) {`
+- `.\gitmap\release\compress.go:99`: `func addFileToZip(w *zip.Writer, srcPath string) error {`
+- `.\gitmap\release\compresstar.go:14`: `func createTarGz(srcPath string) (string, error) {`
+- `.\gitmap\release\compresstar.go:43`: `func addFileToTar(tw *tar.Writer, srcPath string) error {`
+- `.\gitmap\release\deflate.go:25`: `func (m *maxDeflateWriter) Write(p []byte) (int, error) {`
+- `.\gitmap\release\deflate.go:29`: `func (m *maxDeflateWriter) Close() error {`
+- `.\gitmap\release\githubapi.go:19`: `func CreateGitHubRelease(owner, repo, tag, name, body, token string, draft bool) (*GitHubRelease, error) {`
+- `.\gitmap\release\gitops.go:15`: `func CreateBranch(branchName, sourceRef string) error {`
+- `.\gitmap\release\gitops.go:29`: `func CreateTag(tag, message string) error {`
+- `.\gitmap\release\gitops.go:38`: `func PushBranchAndTag(branchName, tag string) error {`
+- `.\gitmap\release\gitops.go:61`: `func CheckoutBranch(branch string) error {`
+- `.\gitmap\release\gitops.go:66`: `func FetchBranch(branch string) error {`
+- `.\gitmap\release\gitops.go:71`: `func ResolveSourceRef(commit, branch string) (string, string, error) {`
+- `.\gitmap\release\gitops.go:83`: `func resolveFromCommit(commit string) (string, string, error) {`
+- `.\gitmap\release\gitops.go:95`: `func resolveFromBranch(branch string) (string, string, error) {`
+- `.\gitmap\release\gitops.go:109`: `func resolveFromHead() (string, string, error) {`
+- `.\gitmap\release\gitops.go:132`: `func runGitCmd(args ...string) error {`
+- `.\gitmap\release\gitopsquery.go:46`: `func CurrentCommitSHA() (string, error) {`
+- `.\gitmap\release\gitopsquery.go:57`: `func CurrentBranchName() (string, error) {`
+- `.\gitmap\release\gitopsquery.go:80`: `func latestFromGitTags() (Version, error) {`
+- `.\gitmap\release\gitopsquery.go:91`: `func findHighestVersion(output string) (Version, error) {`
+- `.\gitmap\release\gitstderrfilter.go:31`: `func (w *filteredStderrWriter) Write(p []byte) (int, error) {`
+- `.\gitmap\release\gitstderrfilter.go:52`: `func (w *filteredStderrWriter) Flush() error {`
+- `.\gitmap\release\httphelpers.go:53`: `func doGitHubRequest(req *http.Request) (*http.Response, error) {`
+- `.\gitmap\release\httphelpers.go:57`: `func readDirNames(dir string) ([]string, error) {`
+- `.\gitmap\release\metadata.go:63`: `func WriteReleaseMeta(meta ReleaseMeta) error {`
+- `.\gitmap\release\metadata.go:78`: `func WriteLatest(v Version) error {`
+- `.\gitmap\release\metadata.go:110`: `func ReadLatest() (LatestMeta, error) {`
+- `.\gitmap\release\metadata.go:123`: `func ReadVersionFile() (string, error) {`
+- `.\gitmap\release\metadata.go:141`: `func ReadReleaseMeta(path string) (ReleaseMeta, error) {`
+- `.\gitmap\release\metadata.go:175`: `func ListReleaseMetaFiles() ([]ReleaseMeta, error) {`
+- `.\gitmap\release\metadata.go:206`: `func writeJSON(path string, data interface{}) error {`
+- `.\gitmap\release\remoteorigin.go:13`: `func ParseRemoteOrigin() (string, string, error) {`
+- `.\gitmap\release\remoteorigin.go:34`: `func ParseGitURLExported(url string) (string, string, error) {`
+- `.\gitmap\release\remoteorigin.go:39`: `func parseGitURL(url string) (string, string, error) {`
+- `.\gitmap\release\remoteorigin.go:54`: `func parseHTTPSURL(url string) (string, string, error) {`
+- `.\gitmap\release\remoteorigin.go:69`: `func parseSSHURL(url string) (string, string, error) {`
+- `.\gitmap\release\remoteorigin.go:88`: `func gitOutput(args ...string) (string, error) {`
+- `.\gitmap\release\retry.go:12`: `func withRetry(label string, maxAttempts int, fn func() error) error {`
+- `.\gitmap\release\selfrelease.go:13`: `func ExecuteSelf(opts Options) error {`
+- `.\gitmap\release\selfrelease_resolve.go:18`: `func resolveSourceRepo() (string, error) {`
+- `.\gitmap\release\selfrelease_resolve.go:63`: `func promptForSourceRepo() (string, error) {`
+- `.\gitmap\release\semver.go:24`: `func Parse(input string) (Version, error) {`
+- `.\gitmap\release\semver.go:59`: `func parseCoreSegments(core string) (major, minor, patch int, err error) {`
+- `.\gitmap\release\semver.go:83`: `func parseSegment(parts []string, idx int, name string) (int, error) {`
+- `.\gitmap\release\semver.go:154`: `func Bump(v Version, level string) (Version, error) {`
+- `.\gitmap\release\temprelease.go:19`: `func ListRecentCommits(count int) ([]TempReleaseCommit, error) {`
+- `.\gitmap\release\temprelease.go:73`: `func CreateBranchFromSHA(branchName, sha string) error {`
+- `.\gitmap\release\temprelease.go:81`: `func PushBranches(branches []string) error {`
+- `.\gitmap\release\temprelease.go:88`: `func DeleteLocalBranch(branch string) error {`
+- `.\gitmap\release\temprelease.go:95`: `func DeleteRemoteBranches(branches []string) error {`
+- `.\gitmap\release\temprelease.go:102`: `func ListTempReleaseBranches() ([]string, error) {`
+- `.\gitmap\release\workflow.go:52`: `func Execute(opts Options) error {`
+- `.\gitmap\release\workflow.go:92`: `func tryDelegateFromBranch(v Version, opts Options) (bool, error) {`
+- `.\gitmap\release\workflow.go:118`: `func tryDelegateFromCurrentBranch(opts Options) (bool, error) {`
+- `.\gitmap\release\workflow.go:144`: `func tryDelegateIfEmpty(opts Options) (bool, error) {`
+- `.\gitmap\release\workflow.go:153`: `func resolveVersion(opts Options) (Version, error) {`
+- `.\gitmap\release\workflow.go:164`: `func resolveExplicitVersion(ver string) (Version, error) {`
+- `.\gitmap\release\workflow.go:175`: `func resolveBumpVersion(bump string) (Version, error) {`
+- `.\gitmap\release\workflow.go:186`: `func resolveFileVersion() (Version, error) {`
+- `.\gitmap\release\workflow.go:198`: `func performRelease(v Version, sourceRef, sourceName string, opts Options) error {`
+- `.\gitmap\release\workflow.go:248`: `func writeMetadataIfRequired(v Version, branchName, tag, sourceName string, opts Options) error {`
+- `.\gitmap\release\workflow.go:257`: `func executeSteps(v Version, branchName, tag, sourceRef, sourceName string, opts Options) error {`
+- `.\gitmap\release\workflowbranch.go:13`: `func ExecuteFromBranch(branchName, assetsPath, notes string, isDraft, dryRun, noCommit, yes bool) error {`
+- `.\gitmap\release\workflowbranch.go:36`: `func extractVersionFromBranch(branchName string) (Version, error) {`
+- `.\gitmap\release\workflowbranch.go:48`: `func validateExistingBranch(branchName string, v Version) error {`
+- `.\gitmap\release\workflowbranch.go:57`: `func completeBranchRelease(v Version, branchName, assetsPath, notes string, isDraft, noCommit, yes bool) error {`
+- `.\gitmap\release\workflowbranch.go:102`: `func ExecutePending(assetsPath, notes string, isDraft, dryRun, noCommit, yes bool) error {`
+- `.\gitmap\release\workflowbranch.go:133`: `func releasePendingBranches(pending []string, assetsPath, notes string, isDraft, dryRun, noCommit, yes bool) error {`
+- `.\gitmap\release\workflowbranch.go:146`: `func listReleaseBranches() ([]string, error) {`
+- `.\gitmap\release\workflowdocs.go:50`: `func collectDocsSiteItems(distDir string) ([]string, error) {`
+- `.\gitmap\release\workflowdocs.go:71`: `func createDocsSiteZip(archivePath, distDir string, items []string) error {`
+- `.\gitmap\release\workflowdryrun.go:11`: `func printDryRun(v Version, branchName, tag, sourceName string, opts Options) error {`
+- `.\gitmap\release\workflowdryrun.go:119`: `func returnToBranch(branch string) error {`
+- `.\gitmap\release\workflowfinalize.go:22`: `func pushAndFinalize(v Version, branchName, tag, _ string, opts Options) error {`
+- `.\gitmap\release\workflowfinalize.go:80`: `func writeMetadata(v Version, branchName, tag, sourceName string, assets []string, opts Options) error {`
+- `.\gitmap\release\workflowfinalize.go:169`: `func updateLatestIfStable(v Version) error {`
+- `.\gitmap\release\workflowpending.go:55`: `func releasePendingFromMetadata(pending []ReleaseMeta, assetsPath, notes string, isDraft, dryRun bool) error {`
+- `.\gitmap\release\workflowpending.go:68`: `func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dryRun bool) error {`
+- `.\gitmap\release\workflowreleasescript.go:65`: `func writeReleaseScriptSnapshot(s releaseScriptSnapshot, stagingDir string) (string, error) {`
+- `.\gitmap\release\workflowvalidate.go:15`: `func resolveBump(level string) (Version, error) {`
+- `.\gitmap\release\workflowvalidate.go:36`: `func resolveLatestVersion() (Version, error) {`
+- `.\gitmap\release\workflowvalidate.go:55`: `func ResolveLatestVersion() (Version, error) {`
+- `.\gitmap\release\workflowvalidate.go:82`: `func resolveFromFile() (Version, error) {`
+- `.\gitmap\release\workflowvalidate.go:95`: `func checkDuplicate(v Version) error {`
+- `.\gitmap\release\workflowvalidate.go:117`: `func handleOrphanedMeta(v Version) error {`
+- `.\gitmap\release\ziparchive.go:44`: `func buildOneZipGroup(db *store.DB, name, stagingDir string) (string, error) {`
+- `.\gitmap\release\zipio.go:17`: `func createMaxCompressZip(archivePath string, items []model.ZipGroupItem) error {`
+- `.\gitmap\release\zipio.go:82`: `func sha1File(path string) (string, error) {`
+- `.\gitmap\release\zipio.go:100`: `func addSingleFileToZip(w *zip.Writer, srcPath, entryName string) error {`
+- `.\gitmap\release\zipio.go:131`: `func addFolderToZip(w *zip.Writer, folderPath string) error {`
+- `.\gitmap\render\repotermblock.go:77`: `func RenderRepoTermBlock(w io.Writer, b RepoTermBlock) error {`
+- `.\gitmap\render\repotermblock.go:91`: `func RenderRepoTermBlocks(w io.Writer, blocks []RepoTermBlock) error {`
+- `.\gitmap\result\result.go:18`: `func NewFailure[T any](err error) Result[T] {`
+- `.\gitmap\scanner\scanner.go:138`: `func ScanDir(root string, excludeDirs []string) ([]RepoInfo, error) {`
+- `.\gitmap\scanner\scanner.go:146`: `func ScanDirWithWorkers(root string, excludeDirs []string, workers int) ([]RepoInfo, error) {`
+- `.\gitmap\scanner\scanner.go:156`: `func ScanDirWithOptions(root string, opts ScanOptions) ([]RepoInfo, error) {`
+- `.\gitmap\scanner\scanner.go:261`: `func walkParallel(root string, exclude map[string]bool, workers, maxDepth int, progress func(ScanProgress), onDirError func(string, error)) ([]RepoInfo, error) {`
+- `.\gitmap\scanner\scanner.go:451`: `func (st *scanState) recordErr(err error) {`
+- `.\gitmap\scanner\scanner.go:464`: `func (st *scanState) recordDirErr(path string, err error) {`
+- `.\gitmap\scripts\embed.go:23`: `func ReadFile(name string) ([]byte, error) {`
+- `.\gitmap\setup\pathsnippet.go:18`: `func RenderPathSnippet(shell, dir, manager string) (string, error) {`
+- `.\gitmap\setup\pathsnippet.go:34`: `func snippetTemplate(shell string) (string, error) {`
+- `.\gitmap\setup\pathsnippetwriter.go:42`: `func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResult, error) {`
+- `.\gitmap\setup\pathsnippetwriter.go:55`: `func resolveSnippetTarget(shell, dir, manager, profile string) (string, string, error) {`
+- `.\gitmap\setup\pathsnippetwriter.go:67`: `func resolveProfilePath(shell, profile string) (string, error) {`
+- `.\gitmap\setup\pathsnippetwriter.go:80`: `func rewriteProfileFile(profile, existing, open, close, body string) (PathSnippetWriteResult, error) {`
+- `.\gitmap\setup\pathsnippetwriter.go:93`: `func appendSnippet(profile, body string) (PathSnippetWriteResult, error) {`
+- `.\gitmap\setup\pathsnippetwriter.go:149`: `func defaultProfilePath(shell string) (string, error) {`
+- `.\gitmap\setup\pathsnippetwriter.go:161`: `func profileRelPath(shell string) (string, error) {`
+- `.\gitmap\setup\setup.go:53`: `func LoadConfig(path string) (GitSetupConfig, error) {`
+- `.\gitmap\stablejson\stablejson.go:73`: `func WriteArray(w io.Writer, items [][]Field) error {`
+- `.\gitmap\stablejson\stablejson.go:100`: `func WriteArrayIndent(w io.Writer, items [][]Field, indent string) error {`
+- `.\gitmap\stablejson\stablejson.go:129`: `func WriteObject(w io.Writer, fields []Field) error {`
+- `.\gitmap\stablejson\stablejson.go:142`: `func WriteObjectIndent(w io.Writer, fields []Field, indent string) error {`
+- `.\gitmap\stablejson\stablejson.go:192`: `func WriteJSONLines(w io.Writer, items [][]Field) error {`
+- `.\gitmap\stablejson\writers.go:19`: `func writeArrayPretty(w io.Writer, buf *bytes.Buffer, items [][]Field, indent string) error {`
+- `.\gitmap\stablejson\writers.go:42`: `func writeArrayMinified(w io.Writer, buf *bytes.Buffer, items [][]Field) error {`
+- `.\gitmap\stablejson\writers.go:64`: `func writeCompactObject(buf *bytes.Buffer, fields []Field) error {`
+- `.\gitmap\stablejson\writers.go:85`: `func writeObject(buf *bytes.Buffer, fields []Field, indent string) error {`
+- `.\gitmap\stablejson\writers.go:109`: `func writeKeyValue(buf *bytes.Buffer, f Field, colonSpace string) error {`
+- `.\gitmap\startup\add.go:110`: `func Add(opts AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\add.go:165`: `func writeManaged(full, clean string, opts AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\addrender.go:65`: `func atomicWrite(target string, body []byte) error {`
+- `.\gitmap\startup\remove.go:74`: `func Remove(name string) (RemoveResult, error) {`
+- `.\gitmap\startup\remove.go:82`: `func RemoveWithOptions(name string, opts RemoveOptions) (RemoveResult, error) {`
+- `.\gitmap\startup\remove.go:138`: `func removeIfManaged(full string, opts RemoveOptions) (RemoveResult, error) {`
+- `.\gitmap\startup\startup.go:66`: `func AutostartDir() (string, error) {`
+- `.\gitmap\startup\startup.go:95`: `func darwinLaunchAgentsDir() (string, error) {`
+- `.\gitmap\startup\startup.go:110`: `func List() ([]Entry, error) {`
+- `.\gitmap\startup\winbackend.go:56`: `func ParseBackend(s string) (BackendType, error) {`
+- `.\gitmap\startup\winbackend.go:109`: `func addWindows(clean string, opts AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\winbackend.go:140`: `func removeWindows(clean string, opts RemoveOptions) (RemoveResult, error) {`
+- `.\gitmap\startup\winbackend.go:176`: `func listWindows() ([]Entry, error) {`
+- `.\gitmap\startup\winregistry_hklm_windows.go:36`: `func addWindowsRegistryHKLM(clean string, opts AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\winregistry_hklm_windows.go:50`: `func removeWindowsRegistryHKLM(clean string, opts RemoveOptions) (RemoveResult, error) {`
+- `.\gitmap\startup\winregistry_hklm_windows.go:85`: `func listWindowsRegistryHKLM() ([]Entry, error) {`
+- `.\gitmap\startup\winregistry_hklm_windows.go:98`: `func requireWindowsAdminForHKLM() error {`
+- `.\gitmap\startup\winregistry_other.go:25`: `func addWindowsRegistry(_ string, _ AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\winregistry_other.go:30`: `func removeWindowsRegistry(_ string, _ RemoveOptions) (RemoveResult, error) {`
+- `.\gitmap\startup\winregistry_other.go:37`: `func listWindowsRegistry() ([]Entry, error) {`
+- `.\gitmap\startup\winregistry_other.go:44`: `func addWindowsRegistryHKLM(_ string, _ AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\winregistry_other.go:49`: `func removeWindowsRegistryHKLM(_ string, _ RemoveOptions) (RemoveResult, error) {`
+- `.\gitmap\startup\winregistry_other.go:57`: `func listWindowsRegistryHKLM() ([]Entry, error) {`
+- `.\gitmap\startup\winregistry_other.go:71`: `func writeTrackingSubkey(_, _, _, _, _ string) error {`
+- `.\gitmap\startup\winregistry_other.go:76`: `func deleteTrackingSubkey(_, _ string) error {`
+- `.\gitmap\startup\winregistry_remove_windows.go:33`: `func removeWindowsRegistry(clean string, opts RemoveOptions) (RemoveResult, error) {`
+- `.\gitmap\startup\winregistry_remove_windows.go:81`: `func deleteRunValueAt(root registry.Key, valueName string) error {`
+- `.\gitmap\startup\winregistry_remove_windows.go:100`: `func deleteTrackingSubkey(parent, name string) error {`

@@ -47,7 +47,7 @@ func writeHandoffCopy(selfPath string) (string, error) {
 	if err := copySelfFile(selfPath, dst); err != nil {
 		return "", err
 	}
-	isNonWindows := isWindows == false()
+	isNonWindows := !isWindows()
 	if isNonWindows {
 		_ = os.Chmod(dst, 0o755)
 	}
@@ -106,7 +106,7 @@ func scheduleSelfDelete() {
 	if err != nil {
 		return
 	}
-	isNonWindows := isWindows == false()
+	isNonWindows := !isWindows()
 	if isNonWindows {
 		_ = os.Remove(self)
 

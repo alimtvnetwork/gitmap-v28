@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 36)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\release\workflowpending.go:42`: `return false`
+- `.\gitmap\release\workflowpending.go:45`: `return false`
+- `.\gitmap\release\workflowpending.go:48`: `return false`
+- `.\gitmap\release\workflowpending.go:71`: `return fmt.Errorf("invalid version in metadata: %s", meta.Tag)`
+- `.\gitmap\release\workflowpending.go:100`: `return fmt.Errorf("create branch from metadata: %w", err)`
+- `.\gitmap\release\workflowpending.go:107`: `return fmt.Errorf("create tag from metadata: %w", err)`
+- `.\gitmap\release\workflowpending.go:120`: `return false`
+- `.\gitmap\release\workflowpending.go:131`: `return false`
+- `.\gitmap\release\workflowpending.go:134`: `return false`
+- `.\gitmap\release\workflowreleasescript.go:32`: `return nil`
+- `.\gitmap\release\workflowreleasescript.go:68`: `return "", fmt.Errorf("read embedded %s: %w", s.embeddedName, err)`
+- `.\gitmap\release\workflowreleasescript.go:75`: `return "", fmt.Errorf("write snapshot %s: %w", outPath, err)`
+- `.\gitmap\release\workflowreleasescript.go:102`: `return header + bakeLine + "\n" + body`
+- `.\gitmap\release\workflowreleasescript.go:105`: `return body[:idx] + bakeLine + "\n" + header + body[idx:]`
+- `.\gitmap\release\workflowreleasescript.go:112`: `return "#!/usr/bin/env bash\n" + header + bakeLine + "\n" + body`
+- `.\gitmap\release\workflowreleasescript.go:114`: `return body[:idxBash] + header + bakeLine + "\n\n" + body[idxBash:]`
+- `.\gitmap\release\workflowvalidate.go:18`: `return Version{}, err`
+- `.\gitmap\release\workflowvalidate.go:27`: `return Version{}, err`
+- `.\gitmap\release\workflowvalidate.go:37`: `return ResolveLatestVersion()`
+- `.\gitmap\release\workflowvalidate.go:71`: `return v, nil`
+- `.\gitmap\release\workflowvalidate.go:85`: `return Version{}, fmt.Errorf(constants.ErrReleaseVersionRequired)`
+- `.\gitmap\release\workflowvalidate.go:102`: `return handleOrphanedMeta(v)`
+- `.\gitmap\release\workflowvalidate.go:105`: `return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())`
+- `.\gitmap\release\workflowvalidate.go:109`: `return fmt.Errorf(constants.ErrReleaseTagExists, v.String())`
+- `.\gitmap\release\workflowvalidate.go:123`: `return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())`
+- `.\gitmap\release\workflowvalidate.go:128`: `return fmt.Errorf(constants.ErrReleaseAborted)`
+- `.\gitmap\release\workflowvalidate.go:136`: `return fmt.Errorf(constants.ErrReleaseOrphanedRemove, path, err)`
+- `.\gitmap\release\workflowzip.go:16`: `return nil`
+- `.\gitmap\release\workflowzip.go:60`: `return nil`
+- `.\gitmap\release\workflowzip.go:77`: `return nil`
+- `.\gitmap\release\ziparchive.go:47`: `return "", fmt.Errorf(constants.ErrZGGroupNotDB, name)`
+- `.\gitmap\release\ziparchive.go:52`: `return "", err`
+- `.\gitmap\release\ziparchive.go:68`: `return "", err`
+- `.\gitmap\release\ziparchive.go:79`: `return g.ArchiveName`
+- `.\gitmap\release\ziparchive.go:90`: `return buildAdHocBundle(paths, bundleName, stagingDir)`
+- `.\gitmap\release\zipio.go:20`: `return fmt.Errorf("create zip: %w", err)`
+- `.\gitmap\release\zipio.go:29`: `return newMaxDeflateWriter(out), nil`
+- `.\gitmap\release\zipio.go:48`: `return err`
+- `.\gitmap\release\zipio.go:85`: `return "", err`
+- `.\gitmap\release\zipio.go:93`: `return "", err`
+- `.\gitmap\release\zipio.go:103`: `return fmt.Errorf("open %s: %w", srcPath, err)`
+- `.\gitmap\release\zipio.go:109`: `return fmt.Errorf("stat %s: %w", srcPath, err)`
+- `.\gitmap\release\zipio.go:114`: `return fmt.Errorf("header %s: %w", srcPath, err)`
+- `.\gitmap\release\zipio.go:122`: `return fmt.Errorf("create entry %s: %w", entryName, err)`
+- `.\gitmap\release\zipio.go:132`: `return filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {`
+- `.\gitmap\release\zipio.go:134`: `return err`
+- `.\gitmap\release\zipio.go:138`: `return nil`
+- `.\gitmap\render\adapters.go:68`: `return ssh`
+- `.\gitmap\render\adapters.go:71`: `return https`
+- `.\gitmap\render\preflag.go:62`: `return false`
+- `.\gitmap\render\preflag.go:65`: `return false`
+- `.\gitmap\render\preflag.go:68`: `return true`
+- `.\gitmap\render\preflag.go:71`: `return false`
+- `.\gitmap\render\preflag.go:88`: `return theme.IsStdoutTTY()`
+- `.\gitmap\render\preflag.go:92`: `return false`
+- `.\gitmap\render\pretty.go:66`: `return applyANSIPost(tokenToANSI().Replace(Render(md)))`
+- `.\gitmap\render\pretty.go:75`: `return tokenToANSI().Replace(HighlightQuotes(s))`
+- `.\gitmap\render\pretty.go:82`: `return strings.NewReplacer(`
+- `.\gitmap\render\prettypost.go:26`: `return h`
+- `.\gitmap\render\prettypost.go:48`: `return "", false`
+- `.\gitmap\render\prettypost.go:54`: `return constants.ColorCyan + "▌ " + text + constants.ColorReset, true`
+- `.\gitmap\render\prettypost.go:56`: `return constants.ColorYellow + "▌ " + text + constants.ColorReset, true`
+- `.\gitmap\render\prettypost.go:58`: `return constants.ColorMagenta + "› " + text + constants.ColorReset, true`
+- `.\gitmap\render\prettypost.go:60`: `return constants.ColorWhite + text + constants.ColorReset, true`
+- `.\gitmap\render\prettypost.go:88`: `return line`
+- `.\gitmap\render\prettypost.go:97`: `return line`
+- `.\gitmap\render\prettypost_spans.go:15`: `return line`
+- `.\gitmap\render\prettypost_spans.go:31`: `return bareFlagRe.ReplaceAllString(line,`
+- `.\gitmap\render\prettypost_spans.go:38`: `return anglePlaceholderRe.ReplaceAllString(line,`
+- `.\gitmap\render\prettypost_spans.go:45`: `return defaultParenRe.ReplaceAllString(line,`
+- `.\gitmap\render\prettypost_spans.go:52`: `return inlineCodeRe.ReplaceAllString(s,`
+- `.\gitmap\render\prettypost_spans.go:59`: `return inlineBoldRe.ReplaceAllString(s,`
+- `.\gitmap\render\prettypost_spans.go:66`: `return inlineLinkRe.ReplaceAllString(s,`
+- `.\gitmap\render\prettypost_spans.go:76`: `return line`
+- `.\gitmap\render\prettypost_spans.go:78`: `return "  " + constants.ColorDim + "$ " + constants.ColorReset +`
+- `.\gitmap\render\pretty_emit.go:81`: `return b.String()`
+- `.\gitmap\render\pretty_emit.go:88`: `return true`
+- `.\gitmap\render\pretty_emit.go:92`: `return false`
+- `.\gitmap\render\pretty_emit.go:117`: `return m[1] + TokGreenOpen + m[2] + TokGreenClose`
+- `.\gitmap\render\pretty_emit.go:119`: `return highlightInline(line)`
+- `.\gitmap\render\pretty_emit.go:127`: `return TokMagentaOpen + m + TokMagentaClose`
+- `.\gitmap\render\pretty_emit.go:130`: `return TokMagentaOpen + m + TokMagentaClose`
+- `.\gitmap\render\pretty_emit.go:132`: `return s`
+- `.\gitmap\render\pretty_parse.go:35`: `return out`
+- `.\gitmap\render\pretty_parse.go:42`: `return appendFence(out, body), next`
+- `.\gitmap\render\pretty_parse.go:45`: `return parseHeadingAndSubtitle(lines, i, out)`
+- `.\gitmap\render\pretty_parse.go:48`: `return append(out, block{kind: bkBlank}), i + 1`
+- `.\gitmap\render\pretty_parse.go:50`: `return parseCodeOrText(lines, i, out)`
+- `.\gitmap\render\pretty_parse.go:57`: `return append(out, block{kind: bkList, lines: items}), next`
+- `.\gitmap\render\pretty_parse.go:61`: `return append(out, block{kind: bkFence, lines: body}), next`
+- `.\gitmap\render\pretty_parse.go:64`: `return append(out, block{kind: bkParagraph, text: para}), next`
+- `.\gitmap\render\pretty_parse.go:73`: `return out, next`
+- `.\gitmap\render\pretty_parse.go:75`: `return out, i + 1`
+- `.\gitmap\render\pretty_parse.go:86`: `return stripItalic(lines[j]), j + 1`
+- `.\gitmap\render\pretty_parse.go:88`: `return "", 0`
+- `.\gitmap\render\pretty_parse.go:102`: `return out`
+- `.\gitmap\render\pretty_parse.go:104`: `return append(out, block{kind: bkFence, lines: body})`
+- `.\gitmap\render\pretty_parse.go:110`: `return i`
+- `.\gitmap\render\pretty_parse.go:113`: `return -1`
+- `.\gitmap\render\pretty_parse.go:128`: `return body, i`
+- `.\gitmap\render\pretty_parse.go:144`: `return strings.Join(buf, " "), i`
+- `.\gitmap\render\pretty_parse.go:148`: `return strings.HasPrefix(strings.TrimSpace(line), "```")`
+- `.\gitmap\render\pretty_parse.go:153`: `return strings.HasPrefix(t, "# ") `
+- `.\gitmap\render\pretty_parse.go:164`: `return depth`
+- `.\gitmap\render\pretty_parse.go:170`: `return false`
+- `.\gitmap\render\pretty_parse.go:172`: `return (strings.HasPrefix(t, "*") && strings.HasSuffix(t, "*") &&`
+- `.\gitmap\render\pretty_parse.go:184`: `return t`
+- `.\gitmap\render\pretty_parse.go:190`: `return strings.Join(strings.Fields(strings.ToLower(s)), " ")`
+- `.\gitmap\render\pretty_parse.go:198`: `return true`
+- `.\gitmap\render\pretty_parse.go:200`: `return strings.HasPrefix(t, "`
+- `.\gitmap\render\pretty_parse.go:211`: `return out, i`
+- `.\gitmap\render\pretty_parse.go:221`: `return false`
+- `.\gitmap\render\pretty_parse.go:223`: `return strings.TrimSpace(line) != ""`
+- `.\gitmap\render\pretty_parse.go:227`: `return strings.TrimSpace(lines[i]) == "" && i+1 < len(lines) && isIndentedCode(lines[i+1])`
+- `.\gitmap\render\pretty_parse.go:247`: `return body, i`
+- `.\gitmap\render\repotermblock.go:80`: `return err`
+- `.\gitmap\render\repotermblock.go:94`: `return err`
+- `.\gitmap\render\repotermblock.go:118`: `return b.Transport`
+- `.\gitmap\render\repotermblock.go:126`: `return b.HTTPSUrl`
+- `.\gitmap\render\repotermblock.go:129`: `return b.OriginalURL`
+- `.\gitmap\render\repotermblock.go:137`: `return b.SSHUrl`
+- `.\gitmap\render\repotermblock.go:140`: `return b.OriginalURL`
+- `.\gitmap\render\repotermblock.go:149`: `return constants.ScanTransportSSH`
+- `.\gitmap\render\repotermblock.go:152`: `return constants.ScanTransportHTTPS`
+- `.\gitmap\render\repotermblock.go:164`: `return fieldUnknown`
+- `.\gitmap\render\repotermblock.go:167`: `return branch`
+- `.\gitmap\render\repotermblock.go:176`: `return fieldUnknown`
+- `.\gitmap\result\result.go:11`: `return Result[T]{`
+- `.\gitmap\result\result.go:19`: `return Result[T]{`
+- `.\gitmap\scanner\progress.go:34`: `return func() {}`
+- `.\gitmap\scanner\scanner.go:139`: `return ScanDirWithOptions(root, ScanOptions{ExcludeDirs: excludeDirs})`
+- `.\gitmap\scanner\scanner.go:147`: `return ScanDirWithOptions(root, ScanOptions{`
+- `.\gitmap\scanner\scanner.go:159`: `return nil, err`
+- `.\gitmap\scanner\scanner.go:176`: `return defaultWorkerCount()`
+- `.\gitmap\scanner\scanner.go:179`: `return scanWorkersMax`
+- `.\gitmap\scanner\scanner.go:191`: `return DefaultMaxDepth`
+- `.\gitmap\scanner\scanner.go:201`: `return 1`
+- `.\gitmap\scanner\scanner.go:204`: `return scanWorkersMax`
+- `.\gitmap\scanner\scanner.go:250`: `return ScanProgress{`
+- `.\gitmap\scanner\scanner.go:356`: `return true`
+- `.\gitmap\scanner\scanner.go:380`: `return true`
+- `.\gitmap\scanner\scanner.go:383`: `return true`
+- `.\gitmap\scanner\scanner.go:397`: `return false`
+- `.\gitmap\scanner\sort.go:38`: `return repos[i].RelativePath < repos[j].RelativePath`
+- `.\gitmap\scripts\embed.go:18`: `return files`
+- `.\gitmap\scripts\embed.go:24`: `return fs.ReadFile(files, name)`
+- `.\gitmap\setup\pathsnippet.go:20`: `return "", fmt.Errorf(constants.ErrPathSnippetDirRequired)`
+- `.\gitmap\setup\pathsnippet.go:24`: `return "", err`
+- `.\gitmap\setup\pathsnippet.go:37`: `return constants.PathSnippetBashFmt, nil`
+- `.\gitmap\setup\pathsnippet.go:39`: `return constants.PathSnippetZshFmt, nil`

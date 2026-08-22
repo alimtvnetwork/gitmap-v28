@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 10)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\clonenextbatch.go:63`: `return nil, err`
+- `.\gitmap\cmd\clonenextbatch.go:108`: `return failRow(row, err)`
+- `.\gitmap\cmd\clonenextbatch.go:129`: `return failRow(row, err)`
+- `.\gitmap\cmd\clonenextbatch.go:155`: `return clonenext.RemoteUpdateCheck{LocalVersion: parsed.CurrentVersion}, nil`
+- `.\gitmap\cmd\clonenextbatch.go:160`: `return clonenext.RemoteUpdateCheck{}, err`
+- `.\gitmap\cmd\clonenextbatch.go:163`: `return clonenext.RemoteUpdateCheck{}, fmt.Errorf("no origin remote configured")`
+- `.\gitmap\cmd\clonenextbatch.go:167`: `return clonenext.RemoteUpdateCheck{}, err`
+- `.\gitmap\cmd\clonenextbatchconcurrent.go:18`: `return 1`
+- `.\gitmap\cmd\clonenextbatchconcurrent.go:21`: `return jobs`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_csv_test.go:61`: `return data`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_csv_test.go:159`: `return ok, failed, skipped`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_csv_test.go:166`: `return i`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_csv_test.go:169`: `return -1`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_csv_test.go:185`: `return ok, failed, skipped`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_helpers_test.go:28`: `return func(path string) batchRowResult {`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_helpers_test.go:56`: `return constants.BatchStatusOK`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_helpers_test.go:58`: `return constants.BatchStatusFailed`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_helpers_test.go:60`: `return constants.BatchStatusSkipped`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_helpers_test.go:75`: `return &peak`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_helpers_test.go:85`: `return out`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_test.go:119`: `return batchRowResult{RepoPath: path, FromVersion: "v1", ToVersion: "v2"}`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_test.go:137`: `return 0`
+- `.\gitmap\cmd\clonenextbatchconcurrent_e2e_test.go:139`: `return idx`
+- `.\gitmap\cmd\clonenextbatchdispatch.go:33`: `return true`
+- `.\gitmap\cmd\clonenextbatchdispatch.go:36`: `return false`
+- `.\gitmap\cmd\clonenextbatchdispatch.go:39`: `return false`
+- `.\gitmap\cmd\clonenextbatchdispatch.go:53`: `return ""`
+- `.\gitmap\cmd\clonenextbatchprogress.go:37`: `return &batchProgressReporter{total: total, silent: silent}`
+- `.\gitmap\cmd\clonenextcrossdir.go:22`: `return false`
+- `.\gitmap\cmd\clonenextcrossdir.go:25`: `return false`
+- `.\gitmap\cmd\clonenextcrossdir.go:28`: `return false`
+- `.\gitmap\cmd\clonenextdryrun.go:82`: `return "", "", false`
+- `.\gitmap\cmd\clonenextdryrun.go:86`: `return "", "", false`
+- `.\gitmap\cmd\clonenextdryrun.go:90`: `return "", "", false`
+- `.\gitmap\cmd\clonenextflags.go:105`: `return out`
+- `.\gitmap\cmd\clonenextflags.go:114`: `return resolvedConc`
+- `.\gitmap\cmd\clonenextflags.go:166`: `return out`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:49`: `return tryFolderArgSinglePositional(positional[0], args)`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:51`: `return tryFolderArgTwoPositional(positional[0], positional[1], args)`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:63`: `return false`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:67`: `return false`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:76`: `return false`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:135`: `return "", errExpand`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:140`: `return "", err`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:144`: `return "", errCNFolderNotDir`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:147`: `return "", os.ErrNotExist`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:160`: `return true`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:174`: `return true`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:177`: `return true`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:185`: `return expanded, nil`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:189`: `return "", err`
+- `.\gitmap\cmd\clonenextfolderdispatch.go:191`: `return filepath.Join(cwd, expanded), nil`
+- `.\gitmap\cmd\clonenextpath.go:25`: `return true`
+- `.\gitmap\cmd\clonenextterm.go:53`: `return ""`
+- `.\gitmap\cmd\clonenextterm.go:64`: `return ""`
+- `.\gitmap\cmd\clonenow.go:103`: `return plan`
+- `.\gitmap\cmd\clonenow.go:139`: `return fs.Int(constants.CloneFlagMaxConcurrency, constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)`
+- `.\gitmap\cmd\clonenow.go:148`: `return resolved`
+- `.\gitmap\cmd\clonenow.go:164`: `return cfg`
+- `.\gitmap\cmd\clonenow.go:217`: `return clonenow.ExecuteWithHooksConcurrent(plan, cfg.cwd, progress, hook, cfg.maxConcurrency)`
+- `.\gitmap\cmd\clonenow.go:219`: `return clonenow.ExecuteWithHooks(plan, cfg.cwd, progress, hook)`
+- `.\gitmap\cmd\clonenow.go:244`: `return 1`
+- `.\gitmap\cmd\clonenow.go:247`: `return 0`
+- `.\gitmap\cmd\clonenow.go:252`: `return vscodepm.Pair{}, false`
+- `.\gitmap\cmd\clonenow.go:262`: `return buildClonePMPair(abs, name), true`
+- `.\gitmap\cmd\clonepick.go:82`: `return clonepick.Plan{}, 0, err`
+- `.\gitmap\cmd\clonepick.go:86`: `return clonepick.Plan{}, 0, loadErr`
+- `.\gitmap\cmd\clonepick_flags.go:49`: `return buildClonePickParsed(rawURL, rawPaths, flags, output, audit, noVSCodeSync)`
+- `.\gitmap\cmd\clonepick_flags.go:53`: `return clonePickParsed{`
+- `.\gitmap\cmd\clonepick_flags.go:112`: `return output, audit, noVSCodeSync`
+- `.\gitmap\cmd\clonepick_flags.go:129`: `return rawURL, rawPaths`
+- `.\gitmap\cmd\clonepick_picker.go:27`: `return plan`
+- `.\gitmap\cmd\clonepmsync_dedup_helpers_test.go:71`: `return nil`
+- `.\gitmap\cmd\clonepretty.go:57`: `return nil`
+- `.\gitmap\cmd\clonepretty.go:67`: `return runErr`
+- `.\gitmap\cmd\clonepretty.go:70`: `return nil`
+- `.\gitmap\cmd\clonepretty.go:75`: `return func() {}`
+- `.\gitmap\cmd\clonepretty.go:134`: `return strings.Join(hints, "\n")`
+- `.\gitmap\cmd\clonepretty_dryrun_test.go:81`: `return captureStdoutForTest(t, fn)`
+- `.\gitmap\cmd\cloneprintargv.go:74`: `return nil`
+- `.\gitmap\cmd\cloneprintargv.go:79`: `return err`
+- `.\gitmap\cmd\clonereplace.go:31`: `return res, escErr`
+- `.\gitmap\cmd\clonereplace.go:36`: `return handleFreeTarget(url, target)`
+- `.\gitmap\cmd\clonereplace.go:44`: `return handleStrategy1(url, target)`
+- `.\gitmap\cmd\clonereplace.go:64`: `return res, fmt.Errorf("git clone into temp failed: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:69`: `return res, fmt.Errorf("could not empty target: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:73`: `return res, fmt.Errorf("swap failed: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:89`: `return runCloneCommandPretty(url, dest)`
+- `.\gitmap\cmd\clonereplace.go:97`: `return fmt.Errorf("read dir: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:114`: `return fmt.Errorf("%d entries could not be removed (e.g. %s)", len(failures), failures[0])`
+- `.\gitmap\cmd\clonereplace.go:124`: `return fmt.Errorf("read src: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:134`: `return fmt.Errorf("rename %s -> %s: %w", from, to, mvErr)`
+- `.\gitmap\cmd\clonereplace.go:145`: `return "fallback"`
+- `.\gitmap\cmd\clonereplace.go:155`: `return cloneReplaceResult{}, err`
+- `.\gitmap\cmd\clonereplace.go:157`: `return cloneReplaceResult{Strategy: "direct"}, nil`
+- `.\gitmap\cmd\clonereplace.go:163`: `return cloneReplaceResult{}, err`
+- `.\gitmap\cmd\clonereplace.go:165`: `return cloneReplaceResult{Strategy: "direct"}, nil`
+- `.\gitmap\cmd\clonespinner.go:26`: `return func() {}`
+- `.\gitmap\cmd\clonespinner.go:52`: `return func() {`
+- `.\gitmap\cmd\clonespinner.go:70`: `return false`
+- `.\gitmap\cmd\clonespinner.go:72`: `return (fi.Mode() & os.ModeCharDevice) != 0`
+- `.\gitmap\cmd\clonetermdetect.go:32`: `return ""`
+- `.\gitmap\cmd\clonetermdetect.go:42`: `return ""`
+- `.\gitmap\cmd\clonetermdetect.go:64`: `return ""`
+- `.\gitmap\cmd\clonetermdetect.go:79`: `return ""`
+- `.\gitmap\cmd\clonetermplan.go:66`: `return row.RepoName`
+- `.\gitmap\cmd\clonetermrow.go:79`: `return []string{}`
+- `.\gitmap\cmd\clonetermstream.go:127`: `return in.CmdBranch`
+- `.\gitmap\cmd\clonetermstream.go:132`: `return ""`
+- `.\gitmap\cmd\clonetermurl.go:56`: `return url`
+- `.\gitmap\cmd\clonetermurl.go:61`: `return parsed.BaseName`
+- `.\gitmap\cmd\clonetermurl.go:63`: `return name`
+- `.\gitmap\cmd\clonetermverify.go:65`: `return len(r.Mismatches) > 0`
+- `.\gitmap\cmd\clonetermverify.go:89`: `return report`
+- `.\gitmap\cmd\clonetermverify.go:129`: `return ""`
+- `.\gitmap\cmd\clonetermverify.go:139`: `return "missing-in-displayed"`
+- `.\gitmap\cmd\clonetermverify.go:142`: `return "missing-in-executed"`
+- `.\gitmap\cmd\clonetermverify.go:160`: `return nil`
+- `.\gitmap\cmd\clonetermverify.go:166`: `return err`
+- `.\gitmap\cmd\clonetermverify.go:169`: `return err`
+- `.\gitmap\cmd\clonetermverify.go:172`: `return err`
+- `.\gitmap\cmd\clonetermverify.go:178`: `return err`
+- `.\gitmap\cmd\clonetermverifytestbanner.go:37`: `return err`
+- `.\gitmap\cmd\clonetermverifytestbanner.go:40`: `return err`
+- `.\gitmap\cmd\clonetermverifytestbanner.go:43`: `return err`
+- `.\gitmap\cmd\cloneurlconvert.go:26`: `return url, false`
+- `.\gitmap\cmd\cloneurlconvert.go:33`: `return ensureGitSuffix(trimmed), true`
+- `.\gitmap\cmd\cloneurlconvert.go:39`: `return sshSchemeToShorthand(trimmed)`
+- `.\gitmap\cmd\cloneurlconvert.go:44`: `return httpsToSSHShorthand(trimmed)`
+- `.\gitmap\cmd\cloneurlconvert.go:57`: `return url, false`
+- `.\gitmap\cmd\cloneurlconvert.go:63`: `return ensureGitSuffix(trimmed), true`
+- `.\gitmap\cmd\cloneurlconvert.go:66`: `return ensureGitSuffix(constants.PrefixHTTPS + trimmed[len("http://"):]), true`
+- `.\gitmap\cmd\cloneurlconvert.go:69`: `return shorthandToHTTPS(trimmed)`
+- `.\gitmap\cmd\cloneurlconvert.go:72`: `return sshSchemeToHTTPS(trimmed)`
+- `.\gitmap\cmd\cloneurlconvert.go:83`: `return s`
+- `.\gitmap\cmd\cloneurlconvert.go:98`: `return httpsURL, false`
+- `.\gitmap\cmd\cloneurlconvert.go:104`: `return httpsURL, false`
+- `.\gitmap\cmd\cloneurlconvert.go:116`: `return shorthand, false`
+- `.\gitmap\cmd\cloneurlconvert.go:122`: `return shorthand, false`
+- `.\gitmap\cmd\cloneurlconvert.go:142`: `return sshURL, false`
+- `.\gitmap\cmd\cloneurlconvert.go:152`: `return sshURL, false`
+- `.\gitmap\cmd\cloneurlconvert.go:164`: `return sshURL, false`
+- `.\gitmap\cmd\clonevscode.go:16`: `return true`
+- `.\gitmap\cmd\clonevscode.go:55`: `return true`
+- `.\gitmap\cmd\clonevscode.go:63`: `return runVSCodeCommand(constants.VSCodeBin,`
+- `.\gitmap\cmd\clonevscode.go:70`: `return runVSCodeCommand(constants.VSCodeBin,`
+- `.\gitmap\cmd\clonevscode.go:80`: `return false`
+- `.\gitmap\cmd\clonevscode.go:85`: `return false`
+- `.\gitmap\cmd\clonevscode.go:108`: `return nil`
+- `.\gitmap\cmd\clonevscode.go:113`: `return err`

@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 23)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\updatecleanup_paths.go:225`: `return true`
+- `.\gitmap\cmd\updatecleanup_paths.go:228`: `return false`
+- `.\gitmap\cmd\updatecleanup_paths.go:231`: `return first == '/' `
+- `.\gitmap\cmd\updatecleanup_remove.go:21`: `return removeCleanupPatterns(ctx.tempPatterns, ctx.selfPath, constants.MsgUpdateTempRemoved)`
+- `.\gitmap\cmd\updatecleanup_remove.go:26`: `return removeCleanupPatterns(ctx.backupPatterns, ctx.selfPath, constants.MsgUpdateOldRemoved)`
+- `.\gitmap\cmd\updatecleanup_remove.go:72`: `return false`
+- `.\gitmap\cmd\updatecleanup_remove.go:75`: `return false`
+- `.\gitmap\cmd\updatecleanup_remove.go:84`: `return true`
+- `.\gitmap\cmd\updatecleanup_remove.go:94`: `return len(selfPath) > 0 && normalizedPath == normalizeCleanupPath(selfPath)`
+- `.\gitmap\cmd\updatedebugwindows.go:37`: `return true`
+- `.\gitmap\cmd\updatedebugwindows.go:50`: `return true`
+- `.\gitmap\cmd\updatedebugwindows_json.go:94`: `return true`
+- `.\gitmap\cmd\updatedebugwindows_json.go:99`: `return true`
+- `.\gitmap\cmd\updatedebugwindows_json.go:146`: `return arg[len(constants.FlagDebugWindowsJSON)+1:]`
+- `.\gitmap\cmd\updatedebugwindows_json.go:150`: `return envPath`
+- `.\gitmap\cmd\updatedebugwindows_json.go:162`: `return debugWinJSONPath`
+- `.\gitmap\cmd\updatedebugwindows_plan.go:190`: `return "", ""`
+- `.\gitmap\cmd\updatedebugwindows_source_test.go:123`: `return true`
+- `.\gitmap\cmd\updatedebugwindows_source_test.go:138`: `return false`
+- `.\gitmap\cmd\updatedebugwindows_source_test.go:143`: `return true`
+- `.\gitmap\cmd\updatedebugwindows_source_test.go:148`: `return true`
+- `.\gitmap\cmd\updatedebugwindows_source_test.go:153`: `return true`
+- `.\gitmap\cmd\updatedebugwindows_source_test.go:184`: `return true`
+- `.\gitmap\cmd\updatehandofflog.go:113`: `return v`
+- `.\gitmap\cmd\updatehandoff_phase3.go:89`: `return deployed, constants.UpdateCleanupSourceConfig`
+- `.\gitmap\cmd\updatehandoff_phase3.go:102`: `return candidate, constants.UpdateCleanupSourceSibling`
+- `.\gitmap\cmd\updatehandoff_phase3.go:107`: `return "", constants.UpdateCleanupSourceUnknown`
+- `.\gitmap\cmd\updatehandoff_phase3.go:111`: `return resolved, constants.UpdateCleanupSourcePath`
+- `.\gitmap\cmd\updatehandoff_phase3.go:120`: `return constants.GitMapBin + ".exe"`
+- `.\gitmap\cmd\updateprobe.go:33`: `return "", "", err`
+- `.\gitmap\cmd\updateprobe.go:38`: `return slug, constants.UpdateProbeSourceSibling, nil`
+- `.\gitmap\cmd\updateprobe.go:44`: `return currentSlug, constants.UpdateProbeSourceRelease, nil`
+- `.\gitmap\cmd\updateprobe.go:49`: `return currentSlug, constants.UpdateProbeSourceMain, nil`
+- `.\gitmap\cmd\updateprobe.go:53`: `return "", "", fmt.Errorf("no resolution")`
+- `.\gitmap\cmd\updateprobe.go:60`: `return "", 0, fmt.Errorf(constants.ErrUpdateProbeParseSlug, slug, fmt.Errorf("no match"))`
+- `.\gitmap\cmd\updateprobe.go:64`: `return "", 0, fmt.Errorf(constants.ErrUpdateProbeParseSlug, slug, err)`
+- `.\gitmap\cmd\updateprobe.go:66`: `return m[1], n, nil`
+- `.\gitmap\cmd\updateprobe.go:97`: `return probeResult{Offset: offset, Slug: slug, Status: status, IsHit: hit}`
+- `.\gitmap\cmd\updateprobe.go:104`: `return results[i].Slug, true`
+- `.\gitmap\cmd\updateprobe.go:107`: `return "", false`
+- `.\gitmap\cmd\updateprobe.go:117`: `return 0`
+- `.\gitmap\cmd\updateprobe.go:121`: `return 0`
+- `.\gitmap\cmd\updateprobe.go:124`: `return resp.StatusCode`
+- `.\gitmap\cmd\updateprobe.go:131`: `return status >= 200 && status < 300`
+- `.\gitmap\cmd\updateprobe.go:138`: `return status >= 200 && status < 300`
+- `.\gitmap\cmd\updateprobe.go:143`: `return &http.Client{Timeout: time.Duration(constants.UpdateProbeTimeoutSec) * time.Second}`
+- `.\gitmap\cmd\updateprobe_test.go:50`: `return http.DefaultTransport.RoundTrip(req)`
+- `.\gitmap\cmd\updateprobe_test.go:55`: `return &http.Client{Transport: &rewriteTransport{target: u}}`
+- `.\gitmap\cmd\updateprobe_test.go:61`: `return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {`
+- `.\gitmap\cmd\updateremoteinstall.go:33`: `return false`
+- `.\gitmap\cmd\updateremoteinstall.go:37`: `return true`
+- `.\gitmap\cmd\updateremoteinstall.go:49`: `return false`
+- `.\gitmap\cmd\updateremoteinstall.go:62`: `return false`
+- `.\gitmap\cmd\updateremoteinstall.go:66`: `return true`
+- `.\gitmap\cmd\updateremoteinstall.go:75`: `return "unknown"`
+- `.\gitmap\cmd\updateremoteinstall.go:80`: `return "unknown"`
+- `.\gitmap\cmd\updateremoteinstall.go:87`: `return "unknown"`
+- `.\gitmap\cmd\updateremoteinstall.go:90`: `return "unknown"`
+- `.\gitmap\cmd\updateremoteinstall.go:92`: `return data.Version`
+- `.\gitmap\cmd\updateremoteinstall.go:100`: `return constants.UpdateCurrentRepoSlug, constants.UpdateProbeSourceMain, nil`
+- `.\gitmap\cmd\updateremoteinstall.go:102`: `return resolveLatestRepoSlug(newProbeClient())`
+- `.\gitmap\cmd\updateremoteinstall.go:111`: `return fmt.Sprintf(constants.UpdateRawInstallerTmpl,`
+- `.\gitmap\cmd\updateremoteinstall.go:120`: `return "", err`
+- `.\gitmap\cmd\updateremoteinstall.go:125`: `return "", fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)`
+- `.\gitmap\cmd\updateremoteinstall.go:134`: `return "", err`
+- `.\gitmap\cmd\updateremoteinstall.go:142`: `return "", err`
+- `.\gitmap\cmd\updateremoteinstall.go:149`: `return tmp.Name(), nil`
+- `.\gitmap\cmd\updateremoteinstall.go:168`: `return cmd.Run()`
+- `.\gitmap\cmd\updateremoteinstall.go:177`: `return shell`
+- `.\gitmap\cmd\updaterepo.go:20`: `return normalizeRepoPath(getFlagValue(constants.FlagRepoPath))`
+- `.\gitmap\cmd\updaterepo.go:25`: `return normalizeRepoPath(constants.RepoPath)`
+- `.\gitmap\cmd\updaterepo.go:30`: `return normalizeRepoPath(loadRepoPathFromDB())`
+- `.\gitmap\cmd\updaterepo.go:36`: `return ""`
+- `.\gitmap\cmd\updaterepo.go:41`: `return ""`
+- `.\gitmap\cmd\updaterepo.go:59`: `return path`
+- `.\gitmap\cmd\updaterepo.go:64`: `return path`
+- `.\gitmap\cmd\updaterepo.go:68`: `return home`
+- `.\gitmap\cmd\updaterepo.go:72`: `return filepath.Join(home, path[2:])`
+- `.\gitmap\cmd\updaterepo.go:83`: `return current`
+- `.\gitmap\cmd\updaterepo.go:88`: `return ""`
+- `.\gitmap\cmd\updaterepo.go:100`: `return false`
+- `.\gitmap\cmd\updaterepo.go:104`: `return true`
+- `.\gitmap\cmd\updaterepo.go:114`: `return false`
+- `.\gitmap\cmd\updaterepo.go:125`: `return ""`
+- `.\gitmap\cmd\updaterepo.go:136`: `return ""`
+- `.\gitmap\cmd\updaterepo.go:141`: `return ""`
+- `.\gitmap\cmd\updaterepo.go:147`: `return root`
+- `.\gitmap\cmd\updaterepo.go:163`: `return root`
+- `.\gitmap\cmd\updaterepo.go:180`: `return false`
+- `.\gitmap\cmd\updaterepo.go:184`: `return true`
+- `.\gitmap\cmd\updaterepo.go:206`: `return ""`
+- `.\gitmap\cmd\updatereport.go:30`: `return cfg`
+- `.\gitmap\cmd\updatereport.go:75`: `return err`
+- `.\gitmap\cmd\updatereport.go:80`: `return err`
+- `.\gitmap\cmd\updatereport.go:146`: `return 0`
+- `.\gitmap\cmd\updatescript.go:90`: `return filepath.Dir(resolved)`
+- `.\gitmap\cmd\updatescript.go:93`: `return filepath.Dir(path)`
+- `.\gitmap\cmd\updatescript.go:99`: `return ""`
+- `.\gitmap\cmd\updatescript.go:104`: `return filepath.Dir(selfPath)`
+- `.\gitmap\cmd\updatescript.go:123`: `return "", err`
+- `.\gitmap\cmd\updatescript.go:129`: `return "", err`
+- `.\gitmap\cmd\updatescript.go:132`: `return "", err`
+- `.\gitmap\cmd\versionhistory.go:52`: `return cwd`
+- `.\gitmap\cmd\versionhistoryrender.go:36`: `return stablejson.WriteArray(w, buildVersionHistoryItems(records))`
+- `.\gitmap\cmd\visibilityallbulk.go:131`: `return final, nil`
+- `.\gitmap\cmd\visibilityallbulk.go:227`: `return patterns, nil`
+- `.\gitmap\cmd\visibilityallbulk.go:254`: `return matches`
+- `.\gitmap\cmd\visibilityallbulk.go:258`: `return nil`
+- `.\gitmap\cmd\visibilityallbulk.go:267`: `return constants.ExitVisOK`
+- `.\gitmap\cmd\visibilityallbulk.go:270`: `return constants.ExitVisAuthFailed`
+- `.\gitmap\cmd\visibilityallbulkaudit.go:112`: `return 0`
+- `.\gitmap\cmd\visibilityallbulkaudit.go:177`: `return constants.CommandKindMakeAllPrivate`
+- `.\gitmap\cmd\visibilityallbulkaudit.go:179`: `return constants.CommandKindVisibilityUndo`
+- `.\gitmap\cmd\visibilityallbulkaudit.go:181`: `return constants.CommandKindVisibilityRedo`
+- `.\gitmap\cmd\visibilityallbulkaudit.go:192`: `return constants.ResultStatusOk`
+- `.\gitmap\cmd\visibilityallbulkaudit.go:194`: `return constants.ResultStatusSkipped`
+- `.\gitmap\cmd\visibilityallbulkaudit.go:203`: `return time.Now().UTC().Format(time.RFC3339)`
+- `.\gitmap\cmd\visibilityapply.go:56`: `return constants.VisibilityPublic`
+- `.\gitmap\cmd\visibilityapply.go:58`: `return constants.VisibilityPrivate`
+- `.\gitmap\cmd\visibilityapply.go:117`: `return "", err`
+- `.\gitmap\cmd\visibilityapplyone.go:34`: `return applyOneRepoTo(os.Stdout, owner, repoName, target, verbose)`
+- `.\gitmap\cmd\visibilityapplyone.go:83`: `return "", fmt.Errorf("Error: read visibility failed for %s: %v (operation: %s repo view, reason: %s)",`
+- `.\gitmap\cmd\visibilityapplyone.go:96`: `return nil`
+- `.\gitmap\cmd\visibilitybulk.go:32`: `return false`
+- `.\gitmap\cmd\visibilitybulk.go:49`: `return parseBulkSingleArg(positional[0])`
+- `.\gitmap\cmd\visibilitybulk.go:51`: `return parseBulkPairArg(positional[0], positional[1])`
+- `.\gitmap\cmd\visibilitybulk.go:60`: `return bulkVisibilityRequest{}, false`
+- `.\gitmap\cmd\visibilitybulk.go:105`: `return parsed.BaseName, parsed.CurrentVersion`
+- `.\gitmap\cmd\visibilitybulkhelpers.go:18`: `return slug`
+- `.\gitmap\cmd\visibilitybulkhelpers.go:27`: `return constants.HostGitLab`
+- `.\gitmap\cmd\visibilitybulkhelpers.go:41`: `return "", fmt.Errorf("read visibility for %s: %w", ctx.Slug, err)`
+- `.\gitmap\cmd\visibilitybulkprompt.go:46`: `return 1`
+- `.\gitmap\cmd\visibilitybulkprompt.go:87`: `return next, keepGoing`
+- `.\gitmap\cmd\visibilitybulkprompt.go:99`: `return current, true, true`
+- `.\gitmap\cmd\visibilitybulkprompt.go:102`: `return nil, false, true`
+- `.\gitmap\cmd\visibilitybulkprompt.go:112`: `return nil, false, true`
+- `.\gitmap\cmd\visibilitydriftguard.go:29`: `return driftActionForce`
+- `.\gitmap\cmd\visibilitydriftguard.go:32`: `return driftActionSkip`
+- `.\gitmap\cmd\visibilityexceptlatest.go:79`: `return "", 0, false`
+- `.\gitmap\cmd\visibilityexceptlatest.go:83`: `return "", 0, false`
+- `.\gitmap\cmd\visibilityexceptlatest.go:95`: `return constants.VisibilityPrivate`
+- `.\gitmap\cmd\visibilityexceptlatest.go:97`: `return constants.VisibilityPublic`
+- `.\gitmap\cmd\visibilityhistory.go:47`: `return db.SelectRecentMakeAllVisibilityRuns(limit)`
+- `.\gitmap\cmd\visibilityhistory.go:93`: `return s`
+- `.\gitmap\cmd\visibilityhistoryfilters.go:46`: `return runs`
+- `.\gitmap\cmd\visibilityhistoryfilters_test.go:12`: `return model.MakeAllVisibilityRunRecord{CommandKind: kind, StartedAt: started}`
+- `.\gitmap\cmd\visibilitymakelast.go:84`: `return base, -1`
+- `.\gitmap\cmd\visibilitymakelast.go:87`: `return name, ver`
+- `.\gitmap\cmd\visibilitymakelast.go:96`: `return nameRefresh, verRefresh`
+- `.\gitmap\cmd\visibilitymakelast.go:106`: `return nameFallback, verFallback`

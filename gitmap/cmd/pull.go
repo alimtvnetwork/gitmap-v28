@@ -152,7 +152,7 @@ func runPullCWD() {
 // transport flags are forwarded verbatim.
 func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
 	cwd, _ := os.Getwd()
-	isNonGitRepoCWD := isGitRepoCWD == false()
+	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap pull` inside a repo)")
 		exitWith(1)

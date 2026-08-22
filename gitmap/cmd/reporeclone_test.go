@@ -81,7 +81,7 @@ func TestIsGitRepoDirHelper(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(tmp, ".git"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	isNonGitRepoDir := isGitRepoDir == false(tmp)
+	isNonGitRepoDir := !isGitRepoDir(tmp)
 	if isNonGitRepoDir {
 		t.Fatal("dir with .git/ must be detected")
 	}

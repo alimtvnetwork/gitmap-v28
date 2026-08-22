@@ -49,7 +49,7 @@ func TestIsDirectURLAcceptsAllReportedShapes(t *testing.T) {
 		"git@github.com:alimtvnetwork/account-automator.git",
 	}
 	for _, u := range urls {
-		isNonDirectURL := isDirectURL == false(u)
+		isNonDirectURL := !isDirectURL(u)
 		if isNonDirectURL {
 			t.Fatalf("isDirectURL rejected %q — folder-name disambiguation will break", u)
 		}

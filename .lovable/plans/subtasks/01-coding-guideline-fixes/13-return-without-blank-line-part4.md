@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 4)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\clonenow\parse_schema_json.go:113`: `return false`
+- `.\gitmap\clonenow\render.go:26`: `return err`
+- `.\gitmap\clonenow\render.go:30`: `return err`
+- `.\gitmap\clonenow\render.go:64`: `return err`
+- `.\gitmap\clonenow\render.go:69`: `return err`
+- `.\gitmap\clonenow\render.go:76`: `return detailErr`
+- `.\gitmap\clonenow\render.go:79`: `return err`
+- `.\gitmap\clonepick\parse.go:40`: `return plan, err`
+- `.\gitmap\clonepick\parse.go:43`: `return plan, err`
+- `.\gitmap\clonepick\parse.go:48`: `return plan, err`
+- `.\gitmap\clonepick\parse.go:55`: `return plan, err`
+- `.\gitmap\clonepick\parse.go:94`: `return Flags{`
+- `.\gitmap\clonepick\parse.go:114`: `return fmt.Errorf(constants.ErrClonePickBadMode, mode)`
+- `.\gitmap\clonepick\parse.go:124`: `return fmt.Errorf(constants.ErrClonePickBadDepth, depth)`
+- `.\gitmap\clonepick\parse.go:136`: `return "", fmt.Errorf("%s", constants.MsgClonePickMissingURL)`
+- `.\gitmap\clonepick\parse.go:139`: `return s, nil`
+- `.\gitmap\clonepick\parse.go:145`: `return shorthandToURL("github.com", parts[0], parts[1], mode), nil`
+- `.\gitmap\clonepick\parse.go:147`: `return shorthandToURL(parts[0], parts[1], parts[2], mode), nil`
+- `.\gitmap\clonepick\parse.go:160`: `return fmt.Sprintf("git@%s:%s/%s.git", host, owner, repo)`
+- `.\gitmap\clonepick\parse.go:172`: `return nil, nil`
+- `.\gitmap\clonepick\parse.go:175`: `return nil, fmt.Errorf("%s", constants.MsgClonePickMissingPaths)`
+- `.\gitmap\clonepick\parse.go:182`: `return nil, err`
+- `.\gitmap\clonepick\parse.go:201`: `return "", fmt.Errorf("%s", constants.MsgClonePickPathEmpty)`
+- `.\gitmap\clonepick\parse.go:204`: `return "", fmt.Errorf(constants.MsgClonePickPathAbsolute, p)`
+- `.\gitmap\clonepick\parse.go:209`: `return "", fmt.Errorf(constants.MsgClonePickPathTraversal, p)`
+- `.\gitmap\clonepick\parse.go:212`: `return "", fmt.Errorf(constants.MsgClonePickPathTooLong, p)`
+- `.\gitmap\clonepick\parse.go:224`: `return true`
+- `.\gitmap\clonepick\parse.go:231`: `return true`
+- `.\gitmap\clonepick\persist.go:23`: `return 0, nil`
+- `.\gitmap\clonepick\persist.go:32`: `return 0, fmt.Errorf("clone-pick: save selection: %w", err)`
+- `.\gitmap\clonepick\picker.go:93`: `return m.handleKey(t)`
+- `.\gitmap\clonepick\picker.go:95`: `return m.handleResize(t), nil`
+- `.\gitmap\clonepick\picker_nav.go:35`: `return 0`
+- `.\gitmap\clonepick\picker_nav.go:38`: `return cursor`
+- `.\gitmap\clonepick\picker_nav.go:41`: `return cursor - height + 1`
+- `.\gitmap\clonepick\picker_nav.go:48`: `return maxOffset`
+- `.\gitmap\clonepick\picker_nav.go:58`: `return a`
+- `.\gitmap\clonepick\picker_nav.go:66`: `return a`
+- `.\gitmap\clonepick\picker_run.go:34`: `return nil, "", err`
+- `.\gitmap\clonepick\picker_test.go:16`: `return newPickerModel(paths, preselected)`
+- `.\gitmap\clonepick\picker_test.go:20`: `return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(s)}`
+- `.\gitmap\clonepick\picker_tree.go:33`: `return nil, "", fmt.Errorf(constants.ErrClonePickPickerLaunch, err)`
+- `.\gitmap\clonepick\picker_tree.go:65`: `return fmt.Errorf(constants.ErrClonePickGitClone, err)`
+- `.\gitmap\clonepick\picker_tree.go:82`: `return nil, fmt.Errorf(constants.ErrClonePickGitLsTree, err)`
+- `.\gitmap\clonepick\picker_tree.go:111`: `return true`
+- `.\gitmap\clonepick\picker_view.go:19`: `return "clone-pick: repository has no tracked files\n"`
+- `.\gitmap\clonepick\picker_view.go:83`: `return "[x]"`
+- `.\gitmap\clonepick\picker_view.go:85`: `return "[-]"`
+- `.\gitmap\clonepick\picker_view.go:87`: `return "[ ]"`
+- `.\gitmap\clonepick\picker_window_test.go:28`: `return string(digits[i])`
+- `.\gitmap\clonepick\picker_window_test.go:31`: `return string(digits[i/10]) + string(digits[i%10])`
+- `.\gitmap\clonepick\promote.go:35`: `return tryRenameWithFallback(src, dest)`
+- `.\gitmap\clonepick\promote.go:43`: `return nil`
+- `.\gitmap\clonepick\promote.go:46`: `return mkErr`
+- `.\gitmap\clonepick\promote.go:48`: `return copyTreeThenRemove(src, dest)`
+- `.\gitmap\clonepick\promote.go:59`: `return err`
+- `.\gitmap\clonepick\promote.go:63`: `return relErr`
+- `.\gitmap\clonepick\promote.go:69`: `return walkErr`
+- `.\gitmap\clonepick\promote.go:80`: `return os.MkdirAll(dest, 0o755)`
+- `.\gitmap\clonepick\promote.go:83`: `return copySymlinkEntry(src, dest)`
+- `.\gitmap\clonepick\promote.go:86`: `return nil`
+- `.\gitmap\clonepick\promote.go:95`: `return err`
+- `.\gitmap\clonepick\promote.go:97`: `return os.Symlink(target, dest)`
+- `.\gitmap\clonepick\promote.go:106`: `return err`
+- `.\gitmap\clonepick\promote.go:110`: `return err`
+- `.\gitmap\clonepick\promote.go:115`: `return err`
+- `.\gitmap\clonepick\render.go:32`: `return err`
+- `.\gitmap\clonepick\render.go:37`: `return err`
+- `.\gitmap\clonepick\replay.go:38`: `return Plan{}, 0, fmt.Errorf("clone-pick: --replay requires database access")`
+- `.\gitmap\clonepick\replay.go:42`: `return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)`
+- `.\gitmap\clonepick\replay.go:46`: `return loadByIDOrError(loader, id, ref)`
+- `.\gitmap\clonepick\replay.go:50`: `return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)`
+- `.\gitmap\clonepick\replay.go:59`: `return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)`
+- `.\gitmap\clonepick\replay.go:61`: `return plan, sel, nil`
+- `.\gitmap\clonepick\replay.go:69`: `return nil`
+- `.\gitmap\clonepick\sparse.go:34`: `return "", err`
+- `.\gitmap\clonepick\sparse.go:37`: `return dest, err`
+- `.\gitmap\clonepick\sparse.go:40`: `return dest, fmt.Errorf(constants.ErrClonePickGitSparseInit, err)`
+- `.\gitmap\clonepick\sparse.go:43`: `return dest, fmt.Errorf(constants.ErrClonePickGitSparseSet, err)`
+- `.\gitmap\clonepick\sparse.go:46`: `return dest, fmt.Errorf(constants.ErrClonePickGitCheckout, err)`
+- `.\gitmap\clonepick\sparse.go:49`: `return dest, err`
+- `.\gitmap\clonepick\sparse.go:60`: `return promotePreClonedOrError(plan.PreClonedSrc, dest)`
+- `.\gitmap\clonepick\sparse.go:63`: `return fmt.Errorf(constants.ErrClonePickGitClone, err)`
+- `.\gitmap\clonepick\sparse.go:71`: `return nil`
+- `.\gitmap\clonepick\sparse.go:74`: `return fmt.Errorf(constants.ErrClonePickFsRemoveDotGit, err)`
+- `.\gitmap\clonepick\sparse.go:76`: `return nil`
+- `.\gitmap\clonepick\sparse.go:81`: `return fmt.Errorf(constants.ErrClonePickPromoteSrc, err)`
+- `.\gitmap\clonepick\sparse.go:83`: `return nil`
+- `.\gitmap\clonepick\sparse.go:93`: `return "", fmt.Errorf(constants.ErrClonePickFsCreateDest, err)`
+- `.\gitmap\clonepick\sparse.go:96`: `return abs, fmt.Errorf(constants.ErrClonePickFsCreateDest, err)`
+- `.\gitmap\clonepick\sparse.go:99`: `return abs, nil`
+- `.\gitmap\clonepick\sparse.go:102`: `return abs, err`
+- `.\gitmap\clonepick\sparse.go:114`: `return fmt.Errorf(constants.ErrClonePickFsCreateDest, err)`
+- `.\gitmap\clonepick\sparse.go:117`: `return fmt.Errorf("%s", constants.MsgClonePickDestDirty)`
+- `.\gitmap\clonepick\sparse.go:170`: `return runGit(progress, dest, "checkout")`
+- `.\gitmap\cloner\audit.go:65`: `return nil, err`
+- `.\gitmap\cloner\audit.go:90`: `return AuditEntry{`
+- `.\gitmap\cloner\audit.go:141`: `return fmt.Sprintf("%s %s %s %s %s %s",`
+- `.\gitmap\cloner\audit.go:155`: `return err`
+- `.\gitmap\cloner\audit.go:159`: `return err`
+- `.\gitmap\cloner\audit.go:171`: `return err`
+- `.\gitmap\cloner\audit.go:174`: `return nil`
+- `.\gitmap\cloner\audit.go:195`: `return "+"`
+- `.\gitmap\cloner\audit.go:197`: `return "~"`
+- `.\gitmap\cloner\audit.go:199`: `return "="`
+- `.\gitmap\cloner\audit.go:201`: `return "!"`
+- `.\gitmap\cloner\audit.go:203`: `return "?"`
+- `.\gitmap\cloner\audit.go:205`: `return " "`
+- `.\gitmap\cloner\audit_test.go:170`: `return path`
+- `.\gitmap\cloner\batchprogress.go:54`: `return p`
+- `.\gitmap\cloner\batchprogress.go:68`: `return p.stopped`
+- `.\gitmap\cloner\batchprogress.go:210`: `return p.failures`
+- `.\gitmap\cloner\batchprogress.go:217`: `return len(p.failures) > 0`
+- `.\gitmap\cloner\batchreport.go:28`: `return constants.ExitPartialFailure`
+- `.\gitmap\cloner\cache.go:73`: `return c`
+- `.\gitmap\cloner\cache.go:78`: `return c`
+- `.\gitmap\cloner\cache.go:81`: `return c`
+- `.\gitmap\cloner\cache.go:93`: `return nil`
+- `.\gitmap\cloner\cache.go:99`: `return err`
+- `.\gitmap\cloner\cache.go:104`: `return err`
+- `.\gitmap\cloner\cache.go:118`: `return false`
+- `.\gitmap\cloner\cache.go:121`: `return false`
+- `.\gitmap\cloner\cache.go:128`: `return false`
+- `.\gitmap\cloner\cache.go:132`: `return false`
+- `.\gitmap\cloner\cache.go:137`: `return false`
+- `.\gitmap\cloner\cache.go:150`: `return false`
+- `.\gitmap\cloner\cache.go:194`: `return "", err`
+- `.\gitmap\cloner\cache.go:212`: `return "", err`
+- `.\gitmap\cloner\cache.go:216`: `return "", nil`
+- `.\gitmap\cloner\cache.go:221`: `return "", nil`
+- `.\gitmap\cloner\cloner.go:47`: `return CloneFromFileWithOptions(sourcePath, targetDir, CloneOptions{SafePull: safePull})`
+- `.\gitmap\cloner\cloner.go:52`: `return CloneFromFileWithOptions(sourcePath, targetDir, CloneOptions{SafePull: safePull, Quiet: true})`
+- `.\gitmap\cloner\cloner.go:60`: `return model.CloneSummary{}, err`
+- `.\gitmap\cloner\cloner.go:76`: `return nil, fmt.Errorf("open clone source %q: %w", path, err)`
+- `.\gitmap\cloner\cloner.go:82`: `return nil, fmt.Errorf("parse clone source %q: %w", path, err)`
+- `.\gitmap\cloner\cloner.go:91`: `return formatter.ParseCSV(r)`
+- `.\gitmap\cloner\cloner.go:94`: `return formatter.ParseJSON(r)`
+- `.\gitmap\cloner\cloner.go:115`: `return nil, fmt.Errorf("read line %d: %w", lineNum+1, err)`
+- `.\gitmap\cloner\cloner.go:145`: `return true`
+- `.\gitmap\cloner\cloner.go:191`: `return runInteractiveClone(cmd, rec, url, dest, strategy)`
+- `.\gitmap\cloner\cloner.go:217`: `return LFSRetryNote`
+- `.\gitmap\cloner\cloner.go:219`: `return notes + "; " + LFSRetryNote`
+- `.\gitmap\cloner\concurrent_test.go:93`: `return "sequential"`
+- `.\gitmap\cloner\interactive_clone.go:21`: `return model.CloneResult{Record: rec, IsSuccess: false, Error: msg, Notes: strategy.reason}`
+- `.\gitmap\cloner\interactive_clone.go:29`: `return strings.HasPrefix(lower, constants.PrefixSSH) `
+- `.\gitmap\cloner\lfs_retry.go:38`: `return strings.Contains(lower, "smudge filter lfs failed") `
+- `.\gitmap\cloner\lfs_retry.go:51`: `return cmd.CombinedOutput()`
+- `.\gitmap\cloner\progress.go:36`: `return p`
+- `.\gitmap\cloner\progress.go:125`: `return fmt.Sprintf("%.1fs", d.Seconds())`
+- `.\gitmap\cloner\pulldiag.go:16`: `return false`

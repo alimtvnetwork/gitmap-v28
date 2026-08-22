@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 43)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\visibility\exclude.go:72`: `return fmt.Errorf("Error: non-numeric exclusion token %q at position %d (operation: parse-exclusion, reason: %s)", tok, tokIdx, err.Error())`
+- `.\gitmap\visibility\exclude.go:75`: `return err`
+- `.\gitmap\visibility\exclude.go:88`: `return fmt.Errorf("Error: malformed range %q at position %d (operation: parse-exclusion, reason: range bounds must be integers)", tok, tokIdx)`
+- `.\gitmap\visibility\exclude.go:91`: `return fmt.Errorf("Error: descending range %q at position %d (operation: parse-exclusion, reason: hi < lo)", tok, tokIdx)`
+- `.\gitmap\visibility\exclude.go:94`: `return err`
+- `.\gitmap\visibility\exclude.go:97`: `return err`
+- `.\gitmap\visibility\exclude.go:110`: `return nil`
+- `.\gitmap\visibility\fuzzy.go:121`: `return 0`
+- `.\gitmap\visibility\fuzzy.go:124`: `return len(b)`
+- `.\gitmap\visibility\fuzzy.go:127`: `return len(a)`
+- `.\gitmap\visibility\fuzzy.go:157`: `return min`
+- `.\gitmap\visibility\match.go:43`: `return p.Raw`
+- `.\gitmap\visibility\pattern.go:39`: `return Pattern{}, fmt.Errorf("Error: empty pattern (operation: parse-pattern, reason: blank token)")`
+- `.\gitmap\visibility\pattern.go:42`: `return Pattern{}, fmt.Errorf("Error: bare '*' pattern is refused at %q (operation: parse-pattern, reason: would match every repo under the owner)", raw)`
+- `.\gitmap\visibility\pattern.go:47`: `return Pattern{}, fmt.Errorf("Error: pattern %q has no literal segments (operation: parse-pattern, reason: only wildcards)", raw)`
+- `.\gitmap\visibility\pattern.go:75`: `return false`
+- `.\gitmap\visibility\pattern.go:78`: `return false`
+- `.\gitmap\visibility\pattern.go:85`: `return false`
+- `.\gitmap\visibility\pattern.go:88`: `return false`
+- `.\gitmap\visibility\pattern.go:94`: `return false`
+- `.\gitmap\visibility\pattern.go:106`: `return nil, fmt.Errorf("Error: empty pattern list (operation: parse-pattern-list, reason: arg is blank)")`
+- `.\gitmap\visibility\pattern.go:115`: `return nil, fmt.Errorf("Error: empty pattern at token %d (operation: parse-pattern-list, reason: blank between commas)", i+1)`
+- `.\gitmap\visibility\pattern.go:124`: `return nil, fmt.Errorf("Error: token %d %q: %w", i+1, trimmed, err)`
+- `.\gitmap\visibility\version.go:24`: `return "", 0, false`
+- `.\gitmap\visibility\version.go:28`: `return "", 0, false`
+- `.\gitmap\visibility\version.go:39`: `return "", "", false`
+- `.\gitmap\visibility\version.go:62`: `return "", 0, false`
+- `.\gitmap\vscodepm\autotags.go:23`: `return nil`
+- `.\gitmap\vscodepm\autotags.go:28`: `return nil`
+- `.\gitmap\vscodepm\autotags.go:54`: `return nil`
+- `.\gitmap\vscodepm\autotags_custom.go:45`: `return tags`
+- `.\gitmap\vscodepm\autotags_custom.go:57`: `return nil`
+- `.\gitmap\vscodepm\autotags_custom.go:61`: `return nil`
+- `.\gitmap\vscodepm\autotags_custom.go:117`: `return tags`
+- `.\gitmap\vscodepm\autotags_custom.go:137`: `return base`
+- `.\gitmap\vscodepm\autotags_custom.go:163`: `return nil`
+- `.\gitmap\vscodepm\autotags_custom.go:183`: `return nil`
+- `.\gitmap\vscodepm\autotags_custom_test.go:153`: `return true`
+- `.\gitmap\vscodepm\io.go:23`: `return err`
+- `.\gitmap\vscodepm\io.go:39`: `return fmt.Errorf(constants.ErrVSCodePMWriteTempFailed, path, err)`
+- `.\gitmap\vscodepm\io.go:44`: `return fmt.Errorf(constants.ErrVSCodePMWriteTempFailed, path, err)`
+- `.\gitmap\vscodepm\io.go:64`: `return err`
+- `.\gitmap\vscodepm\io.go:77`: `return strings.ToLower(cleaned)`
+- `.\gitmap\vscodepm\io.go:84`: `return len(p) >= 2 && p[1] == ':' && ((p[0] >= 'a' && p[0] <= 'z') `
+- `.\gitmap\vscodepm\io.go:89`: `return normalizePath(a) == normalizePath(b)`
+- `.\gitmap\vscodepm\merge.go:66`: `return false`
+- `.\gitmap\vscodepm\merge.go:74`: `return false`
+- `.\gitmap\vscodepm\mergemode.go:54`: `return constants.VSCodePMSyncModeReplace`
+- `.\gitmap\vscodepm\mergemode.go:56`: `return constants.VSCodePMSyncModeIntersection`
+- `.\gitmap\vscodepm\mergemode.go:58`: `return constants.VSCodePMSyncModeUnion`
+- `.\gitmap\vscodepm\mergemode.go:69`: `return MergeModeUnion, nil`
+- `.\gitmap\vscodepm\mergemode.go:71`: `return MergeModeReplace, nil`
+- `.\gitmap\vscodepm\mergemode.go:73`: `return MergeModeIntersection, nil`
+- `.\gitmap\vscodepm\mergemode.go:75`: `return MergeModeUnion, fmt.Errorf(`
+- `.\gitmap\vscodepm\mergemode.go:88`: `return replaceTags(incoming)`
+- `.\gitmap\vscodepm\mergemode.go:90`: `return intersectTagsWithBrand(existing, incoming)`
+- `.\gitmap\vscodepm\mergemode.go:92`: `return unionTags(existing, incoming)`
+- `.\gitmap\vscodepm\mergemode_test.go:126`: `return false`
+- `.\gitmap\vscodepm\mergemode_test.go:134`: `return false`
+- `.\gitmap\vscodepm\overwrite.go:19`: `return err`
+- `.\gitmap\vscodepm\overwrite.go:24`: `return err`
+- `.\gitmap\vscodepm\overwrite.go:47`: `return fmt.Errorf("%s: %w", constants.VSCodePMProjectsFile, err)`
+- `.\gitmap\vscodepm\path.go:35`: `return "", ErrUserDataMissing`
+- `.\gitmap\vscodepm\path.go:39`: `return candidate, ErrUserDataMissing`
+- `.\gitmap\vscodepm\path.go:52`: `return root, err`
+- `.\gitmap\vscodepm\path.go:61`: `return filepath.Join(extDir, constants.VSCodePMProjectsFile), ErrExtensionMissing`
+- `.\gitmap\vscodepm\path.go:72`: `return windowsUserDataCandidate()`
+- `.\gitmap\vscodepm\path.go:74`: `return darwinUserDataCandidate()`
+- `.\gitmap\vscodepm\path.go:76`: `return linuxUserDataCandidate()`
+- `.\gitmap\vscodepm\path.go:84`: `return filepath.Join(appData, constants.VSCodeUserDataRootDirName)`
+- `.\gitmap\vscodepm\path.go:88`: `return filepath.Join(userProfile,`
+- `.\gitmap\vscodepm\path.go:99`: `return ""`
+- `.\gitmap\vscodepm\path.go:109`: `return filepath.Join(xdg, constants.VSCodeUserDataRootDirName)`
+- `.\gitmap\vscodepm\path.go:113`: `return filepath.Join(home, filepath.FromSlash(constants.VSCodeUserDataLinuxFallback))`
+- `.\gitmap\vscodepm\path.go:123`: `return false`
+- `.\gitmap\vscodepm\remove.go:7`: `return err`
+- `.\gitmap\vscodepm\remove.go:9`: `return RemoveEntryAt(path, targetPath)`
+- `.\gitmap\vscodepm\remove.go:16`: `return err`
+- `.\gitmap\vscodepm\remove.go:25`: `return nil`
+- `.\gitmap\vscodepm\remove.go:27`: `return writeEntriesAtomic(projectsFile, remaining)`
+- `.\gitmap\vscodepm\sync.go:36`: `return SyncMode(pairs, MergeModeUnion)`
+- `.\gitmap\vscodepm\sync.go:45`: `return SyncSummary{}, err`
+- `.\gitmap\vscodepm\sync.go:57`: `return false, err`
+- `.\gitmap\vscodepm\sync.go:62`: `return false, err`
+- `.\gitmap\vscodepm\sync.go:75`: `return false, nil`
+- `.\gitmap\vscodepm\sync.go:89`: `return nil, err`
+- `.\gitmap\vscodepm\sync.go:99`: `return []Entry{}, nil`
+- `.\gitmap\vscodepm\sync.go:102`: `return nil, fmt.Errorf(constants.ErrVSCodePMReadFailed, path, err)`
+- `.\gitmap\vscodepm\sync.go:106`: `return []Entry{}, nil`
+- `.\gitmap\vscodepm\sync.go:111`: `return nil, fmt.Errorf(constants.ErrVSCodePMParseFailed, path, err)`
+- `.\gitmap\vscodepm\syncat.go:21`: `return SyncAtMode(path, pairs, MergeModeUnion)`
+- `.\gitmap\vscodepm\syncat.go:30`: `return SyncSummary{}, err`
+- `.\gitmap\vscodepm\syncat.go:36`: `return summary, err`
+- `.\gitmap\vscodepm\syncat.go:49`: `return readEntries(path)`
+- `.\gitmap\vscodepm\update_path.go:11`: `return err`
+- `.\gitmap\vscodepm\update_path.go:13`: `return UpdateRootPathAt(path, oldPath, newPath, newName)`
+- `.\gitmap\vscodepm\update_path.go:20`: `return err`
+- `.\gitmap\vscodepm\update_path.go:34`: `return fmt.Errorf("project not found with rootPath %s", oldPath)`
+- `.\gitmap\vscodepm\update_path.go:36`: `return writeEntriesAtomic(projectsFile, entries)`
+- `.\gitmap\vscodeworkspace\build.go:47`: `return deduped[i].Name < deduped[j].Name`
+- `.\gitmap\vscodeworkspace\build.go:64`: `return nil, fmt.Errorf("vscode-workspace: encode: %w", err)`
+- `.\gitmap\vscodeworkspace\write.go:18`: `return err`
+- `.\gitmap\vscodeworkspace\write.go:23`: `return fmt.Errorf(constants.ErrVSCodeWorkspaceWriteTemp, tmpPath, err)`
+- `.\gitmap\vscodeworkspace\write.go:26`: `return fmt.Errorf(constants.ErrVSCodeWorkspaceWriteTemp, tmpPath, err)`
+- `.\gitmap-updater\cmd\github.go:21`: `return "", fmt.Errorf("failed to create request: %w", err)`
+- `.\gitmap-updater\cmd\github.go:29`: `return "", fmt.Errorf("network error: %w", err)`
+- `.\gitmap-updater\cmd\github.go:51`: `return "", fmt.Errorf("failed to parse release JSON: %w", err)`
+- `.\gitmap-updater\cmd\github.go:62`: `return "", err`
+- `.\gitmap-updater\cmd\github.go:70`: `return strings.TrimPrefix(strings.TrimSpace(v), "v")`
+- `.\gitmap-updater\cmd\run.go:55`: `return copyPath`
+- `.\gitmap-updater\cmd\run.go:89`: `return err`
+- `.\gitmap-updater\cmd\run.go:95`: `return err`
+- `.\gitmap-updater\cmd\worker.go:48`: `return "", err`
+- `.\gitmap-updater\cmd\worker.go:53`: `return "", fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)`
+- `.\gitmap-updater\cmd\worker.go:58`: `return "", err`
+- `.\scripts\changelog\internal\drift\drift.go:22`: `return 0, err`
+- `.\scripts\changelog\internal\drift\drift.go:27`: `return 0, err`
+- `.\scripts\changelog\internal\drift\drift.go:45`: `return false, err`
+- `.\scripts\changelog\internal\drift\drift.go:52`: `return len(needle) > 0 && len(haystack) >= len(needle) && stringContains(haystack, needle)`
+- `.\scripts\changelog\internal\drift\drift.go:59`: `return true`
+- `.\scripts\changelog\internal\e2e\seed_test.go:12`: `return fmt.Sprintf("%d +0000", unix)`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:37`: `return nil, "", err`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:42`: `return nil, "", err`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:56`: `return nil, err`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:73`: `return until`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:89`: `return "", nil`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:98`: `return trimmed, nil`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:115`: `return nil, fmt.Errorf("git log failed: %w", err)`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:124`: `return nil`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:143`: `return Commit{}, false`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:156`: `return 0`
+- `.\scripts\changelog\internal\gitlog\gitlog.go:167`: `return commits[i].AuthorUnix < commits[j].AuthorUnix`
+- `.\scripts\changelog\internal\group\group.go:74`: `return "", "", false`
+- `.\scripts\changelog\internal\group\group.go:85`: `return "", "", false`
+- `.\scripts\changelog\internal\render\render_test.go:11`: `return Entry{`
+- `.\scripts\changelog\internal\runner\args.go:57`: `return Args{}, err`
+- `.\scripts\changelog\internal\runner\args.go:62`: `return Args{}, fmt.Errorf("invalid -mode %q (want write or check)", *mode)`
+- `.\scripts\changelog\internal\runner\execute.go:20`: `return 0, fmt.Errorf("collecting commits: %w", err)`
+- `.\scripts\changelog\internal\runner\execute.go:32`: `return 0, nil`
+- `.\scripts\changelog\internal\runner\execute.go:79`: `return 0, err`
+- `.\scripts\changelog\internal\runner\execute.go:84`: `return drift.Check(mdPath, tsPath, entry)`
+- `.\scripts\changelog\internal\runner\execute.go:86`: `return 0, fmt.Errorf("unhandled mode %q", mode)`
+- `.\scripts\changelog\internal\runner\execute.go:96`: `return a.Version`
+- `.\scripts\changelog\internal\runner\execute.go:100`: `return a.ReleaseTag`
+- `.\scripts\changelog\internal\runner\execute.go:104`: `return lowerBound + "+next"`
+- `.\scripts\changelog\internal\runner\execute.go:112`: `return "HEAD"`
+- `.\scripts\changelog\internal\writer\writer.go:24`: `return fmt.Errorf("CHANGELOG.md: %w", err)`
+- `.\scripts\changelog\internal\writer\writer.go:29`: `return fmt.Errorf("src/data/changelog.ts: %w", err)`
+- `.\scripts\changelog\internal\writer\writer.go:38`: `return err`
+- `.\scripts\changelog\internal\writer\writer.go:50`: `return err`

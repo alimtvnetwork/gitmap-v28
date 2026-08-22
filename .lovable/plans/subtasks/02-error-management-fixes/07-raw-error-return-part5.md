@@ -1,0 +1,156 @@
+# Fix raw error return (Part 5)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\commitin\profile\json.go:46`: `func Decode(raw []byte) (*Profile, error) {`
+- `.\gitmap\cmd\commitin\profile\json.go:61`: `func Encode(p *Profile) ([]byte, error) {`
+- `.\gitmap\cmd\commitin\profile\types.go:66`: `func (e *LoadError) Unwrap() error { return e.Cause }`
+- `.\gitmap\cmd\commitin\prompt\prompt.go:35`: `func (a *Asker) AskString(field, question, fallback string) (string, error) {`
+- `.\gitmap\cmd\commitin\prompt\prompt.go:61`: `func (a *Asker) AskEnum(field, question string, valid []string, fallback string) (string, error) {`
+- `.\gitmap\cmd\commitin\replay\clobber.go:16`: `func DetectClobbers(p Plan) ([]string, error) {`
+- `.\gitmap\cmd\commitin\replay\clobber.go:38`: `func oneFileClobbers(p Plan, head, rel string) (bool, error) {`
+- `.\gitmap\cmd\commitin\replay\clobber.go:53`: `func blobHashAt(dir, sha, rel string) (string, error) {`
+- `.\gitmap\cmd\commitin\replay\replay.go:40`: `func ApplyCommit(p Plan, dryRun bool) (Result, error) {`
+- `.\gitmap\cmd\commitin\replay\replay.go:65`: `func stageFiles(p Plan) error {`
+- `.\gitmap\cmd\commitin\replay\replay.go:77`: `func copyOneFile(p Plan, rel string) error {`
+- `.\gitmap\cmd\commitin\replay\replay.go:93`: `func writeTree(target string) (string, error) {`
+- `.\gitmap\cmd\commitin\replay\replay.go:100`: `func readHead(target string) (string, error) {`
+- `.\gitmap\cmd\commitin\replay\replay.go:110`: `func commitTree(p Plan, tree, parent string) (string, error) {`
+- `.\gitmap\cmd\commitin\replay\replay.go:124`: `func updateHead(target, newSha string) error {`
+- `.\gitmap\cmd\commitin\replay\replay_test.go:88`: `func cannedTextResponse(sub string) (string, error) {`
+- `.\gitmap\cmd\commitin\replay\runner.go:29`: `func defaultGitRunner(repoDir, sub string, args ...string) (string, error) {`
+- `.\gitmap\cmd\commitin\replay\runner.go:41`: `func defaultGitRunnerBytes(repoDir, sub string, args ...string) ([]byte, error) {`
+- `.\gitmap\cmd\commitin\replay\runner.go:54`: `func defaultGitRunnerEnv(repoDir string, extraEnv []string, args ...string) (string, error) {`
+- `.\gitmap\cmd\commitin\replay\runner.go:67`: `func defaultHashObjectStdin(repoDir string, data []byte) (string, error) {`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:12`: `func InsertInputRepo(db *sql.DB, runID int64, orderIndex int, originalRef, resolvedPath, kind string) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:27`: `func InsertSourceCommit(db *sql.DB, inputRepoID int64, c SourceCommitRow) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:48`: `func insertSourceCommitTx(tx *sql.Tx, inputRepoID int64, c SourceCommitRow) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:61`: `func insertSourceFilesTx(tx *sql.Tx, sourceCommitID int64, files []string) error {`
+- `.\gitmap\cmd\commitin\runlog\lookup.go:11`: `func lookupEnumID(db *sql.DB, table, idCol, name string) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\results.go:13`: `func RecordRewritten(db *sql.DB, runID, sourceCommitID int64, r RewrittenRow) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\results.go:35`: `func RecordSkip(db *sql.DB, runID, sourceCommitID int64, reason string, previousRewrittenID *int64) error {`
+- `.\gitmap\cmd\commitin\runlog\results.go:48`: `func insertRewritten(db *sql.DB, runID, sourceCommitID, outcomeID int64, r RewrittenRow) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\results.go:65`: `func insertShaMap(db *sql.DB, sourceSha string, rewrittenID int64) error {`
+- `.\gitmap\cmd\commitin\runlog\runlog.go:15`: `func StartRun(db *sql.DB, sourceRepoPath string, sourceURL *string, wasFreshlyInit bool, profileID *int64, startedAt time.Time) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\runlog.go:29`: `func FinishRun(db *sql.DB, runID int64, status string, finishedAt time.Time) error {`
+- `.\gitmap\cmd\commitin\runlog\tagreplay.go:75`: `func RecordTagReplay(db *sql.DB, runID, rewrittenID int64, f TagReplayFacts) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\tagreplay.go:100`: `func LookupTagReplay(db *sql.DB, sourceTagName, sourceTagSha string) (TagReplayLookup, error) {`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:17`: `func hydrate(repoDir, sha string, orderIndex int) (SourceCommit, error) {`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:34`: `func readCommitMeta(repoDir, sha string) (SourceCommit, error) {`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:48`: `func assembleMeta(parts []string) (SourceCommit, error) {`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:80`: `func readCommitFiles(repoDir, sha string) ([]string, error) {`
+- `.\gitmap\cmd\commitin\walk\runner.go:19`: `func defaultGitRunner(repoDir, sub string, args ...string) (string, error) {`
+- `.\gitmap\cmd\commitin\walk\runner.go:31`: `func SetGitRunnerForTest(fake func(repoDir, sub string, args ...string) (string, error)) func() {`
+- `.\gitmap\cmd\commitin\walk\walk.go:29`: `func WalkFirstParent(repoDir string) ([]SourceCommit, error) {`
+- `.\gitmap\cmd\commitin\walk\walk.go:50`: `func listFirstParentShas(repoDir string) ([]string, error) {`
+- `.\gitmap\cmd\commitin\walk\walk.go:67`: `func isEmptyRepoError(out string, err error) bool {`
+- `.\gitmap\cmd\commitin\walk\walk_test.go:61`: `func fakeRunner(_, sub string, args ...string) (string, error) {`
+- `.\gitmap\cmd\commitin\walk\walk_test.go:73`: `func fakeShow(args []string) (string, error) {`
+- `.\gitmap\cmd\commitin\workspace\clone.go:28`: `func CloneInputs(p *Paths, runID int64, inputs []ResolvedInput) ([]StagedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\clone.go:45`: `func ensureRunTempDir(p *Paths, runID int64) (string, error) {`
+- `.\gitmap\cmd\commitin\workspace\clone.go:55`: `func stageOneInput(runDir string, in ResolvedInput) (StagedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\clone.go:68`: `func stageLocalFolder(in ResolvedInput) (StagedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\clone.go:80`: `func stageRemoteUrl(runDir string, in ResolvedInput) (StagedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\clone.go:90`: `func stageVersionedSibling(runDir string, in ResolvedInput) (StagedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\expand.go:30`: `func ExpandInputs(source string, inputs []string, keyword string, tail int) ([]ResolvedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\expand.go:38`: `func expandExplicit(inputs []string) ([]ResolvedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\expand.go:71`: `func expandKeyword(source, keyword string, tail int) ([]ResolvedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\expand.go:102`: `func discoverSiblings(source string) ([]ResolvedInput, error) {`
+- `.\gitmap\cmd\commitin\workspace\lock.go:25`: `func AcquireLock(p *Paths) (*LockHandle, error) {`
+- `.\gitmap\cmd\commitin\workspace\lock.go:76`: `func writeLockPid(lockPath string) error {`
+- `.\gitmap\cmd\commitin\workspace\paths.go:28`: `func EnsureWorkspace(sourceRoot string) (*Paths, error) {`
+- `.\gitmap\cmd\commitin\workspace\paths.go:57`: `func makeDirs(p *Paths) error {`
+- `.\gitmap\cmd\commitin\workspace\runner.go:17`: `func defaultGitRunner(sub string, args ...string) error {`
+- `.\gitmap\cmd\commitin\workspace\runner.go:30`: `func SetGitRunnerForTest(fake func(sub string, args ...string) error) func() {`
+- `.\gitmap\cmd\commitin\workspace\source.go:41`: `func EnsureSource(rawSource string) (*SourceHandle, error) {`
+- `.\gitmap\cmd\commitin\workspace\source.go:81`: `func resolveByClone(url string) (*SourceHandle, error) {`
+- `.\gitmap\cmd\commitin\workspace\source.go:94`: `func resolveExistingDir(abs string) (*SourceHandle, error) {`
+- `.\gitmap\cmd\commitin\workspace\source.go:105`: `func resolveMissingDir(abs string) (*SourceHandle, error) {`
+- `.\gitmap\cmd\commitin\workspace\source.go:137`: `func runGitClone(url, target string) error {`
+- `.\gitmap\cmd\commitin\workspace\source.go:143`: `func runGitInit(dir string) error {`
+- `.\gitmap\committransfer\git.go:15`: `func gitOut(dir string, args ...string) (string, error) {`
+- `.\gitmap\committransfer\git.go:29`: `func currentRefName(dir string) (string, error) {`
+- `.\gitmap\committransfer\git.go:40`: `func mergeBase(dir, a, b string) (string, error) {`
+- `.\gitmap\committransfer\git.go:51`: `func revListReverse(dir, base, head string, includeMerges bool) ([]string, error) {`
+- `.\gitmap\committransfer\git.go:76`: `func readCommit(dir, sha string) (subject, body, author, shortSHA string, when time.Time, err error) {`
+- `.\gitmap\committransfer\git.go:100`: `func checkoutDetached(dir, sha string) error {`
+- `.\gitmap\committransfer\git.go:108`: `func checkoutRef(dir, ref string) error {`
+- `.\gitmap\committransfer\git.go:116`: `func commitWithEnv(dir, msg, author string, when time.Time) (string, error) {`
+- `.\gitmap\committransfer\git.go:155`: `func addAll(dir string) error {`
+- `.\gitmap\committransfer\git.go:172`: `func pushHEAD(dir string) (string, error) {`
+- `.\gitmap\committransfer\git.go:180`: `func recentLogSubjectsAndBodies(dir string, n int) (string, error) {`
+- `.\gitmap\committransfer\interleave.go:24`: `func RunBothInterleaved(leftDir, rightDir string, opts Options) error {`
+- `.\gitmap\committransfer\interleave.go:69`: `func executeInterleaveStream(stream []interleaveStep, ltr, rtl ReplayPlan, opts Options) error {`
+- `.\gitmap\committransfer\interleave.go:96`: `func replayInterleaveSteps(stream []interleaveStep, ltr, rtl ReplayPlan, opts Options) error {`
+- `.\gitmap\committransfer\plan.go:10`: `func BuildPlan(sourceDir, targetDir string, opts Options) (ReplayPlan, error) {`
+- `.\gitmap\committransfer\plan.go:65`: `func resolveBase(sourceDir, targetDir, since string) (string, error) {`
+- `.\gitmap\committransfer\plan.go:104`: `func hydrateCommit(sourceDir, sha string, replayedSet map[string]struct{}, opts Options) (SourceCommit, error) {`
+- `.\gitmap\committransfer\replay.go:18`: `func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {`
+- `.\gitmap\committransfer\replay.go:62`: `func replayOne(plan ReplayPlan, commit SourceCommit, opts Options) (string, bool, error) {`
+- `.\gitmap\committransfer\replay.go:102`: `func snapshotCopy(source, target string, opts Options) error {`
+- `.\gitmap\committransfer\replay.go:152`: `func copyOne(src, dst string, info os.FileInfo) error {`
+- `.\gitmap\committransfer\replay.go:173`: `func mirrorPrune(target string, wanted map[string]struct{}, opts Options) error {`
+- `.\gitmap\committransfer\run.go:14`: `func RunRight(sourceDir, targetDir string, opts Options) error {`
+- `.\gitmap\committransfer\runleftboth.go:15`: `func RunLeft(leftDir, rightDir string, opts Options) error {`
+- `.\gitmap\committransfer\runleftboth.go:32`: `func RunBoth(leftDir, rightDir string, opts Options) error {`
+- `.\gitmap\committransfer\runleftboth.go:49`: `func runOneDirection(sourceDir, targetDir string, opts Options) error {`
+- `.\gitmap\completion\cdfunction.go:14`: `func InstallCDFunction(shell string) error {`
+- `.\gitmap\completion\cdfunction.go:26`: `func installPowerShellCDFunction(snippet string) error {`
+- `.\gitmap\completion\cdfunction.go:37`: `func installPowerShellCommandShim() error {`
+- `.\gitmap\completion\cdfunction.go:85`: `func appendCDFunctions(snippet string, profilePaths []string) error {`
+- `.\gitmap\completion\cdfunction.go:96`: `func appendCDFunction(snippet, profilePath string) error {`
+- `.\gitmap\completion\cdfunction.go:122`: `func updateExistingCDFunction(text, snippet, profilePath string) error {`
+- `.\gitmap\completion\completion.go:32`: `func Generate(shell string) (string, error) {`
+- `.\gitmap\completion\install.go:25`: `func Install(shell string) error {`
+- `.\gitmap\completion\install.go:181`: `func writeAndSource(script, scriptPath, profilePath, shell string) error {`
+- `.\gitmap\completion\install.go:195`: `func addSourceLines(scriptPath string, profilePaths []string, shell string) error {`
+- `.\gitmap\completion\install.go:206`: `func writeScriptFile(path, content string) error {`
+- `.\gitmap\completion\install.go:216`: `func addSourceLine(scriptPath, profilePath, shell string) error {`
+- `.\gitmap\completion\internal\gencommands\main.go:88`: `func checkUnmarkedBlocks() error {`
+- `.\gitmap\completion\internal\gencommands\main.go:119`: `func findUnmarkedCmdBlocks(rel string) ([]string, error) {`
+- `.\gitmap\completion\internal\gencommands\main.go:199`: `func collect() ([]string, error) {`
+- `.\gitmap\completion\internal\gencommands\main.go:231`: `func scanFile(rel string, seen map[string]bool) error {`
+- `.\gitmap\completion\internal\gencommands\main.go:314`: `func writeOutput(values []string) error {`
+- `.\gitmap\config\config.go:41`: `func LoadFromFile(path string) (model.Config, error) {`
+- `.\gitmap\config\config.go:82`: `func handleMissingFile(err error) error {`
+- `.\gitmap\config\config.go:91`: `func parseConfig(data []byte, cfg model.Config) (model.Config, error) {`
+- `.\gitmap\config\validate.go:70`: `func ValidateRawConfig(data []byte) error {`
+- `.\gitmap\config\validate.go:94`: `func ValidateConfig(cfg model.Config) error {`
+- `.\gitmap\config\validate_shape.go:90`: `func ValidateRawShape(data []byte) error {`
+- `.\gitmap\config\validate_shape.go:168`: `func ValidateConfigStruct(cfg model.Config) error {`
+- `.\gitmap\crypto\encrypt.go:13`: `func Encrypt(plaintext []byte, key []byte) (string, error) {`
+- `.\gitmap\crypto\encrypt.go:34`: `func Decrypt(encodedCiphertext string, key []byte) ([]byte, error) {`
+- `.\gitmap\crypto\ssh_client.go:11`: `func ConnectWithPassword(ip, user, password string) (*ssh.Client, error) {`
+- `.\gitmap\crypto\ssh_client.go:21`: `func ConnectWithKey(ip, user, keyPath string) (*ssh.Client, error) {`
+- `.\gitmap\crypto\ssh_client.go:35`: `func parseKeyFile(keyPath string) (ssh.Signer, error) {`
+- `.\gitmap\crypto\ssh_client.go:50`: `func RunCommand(client *ssh.Client, cmd, shellType string) (string, error) {`
+- `.\gitmap\dashboard\collector.go:23`: `func Collect(opts CollectOptions) (model.DashboardData, error) {`
+- `.\gitmap\dashboard\collector.go:109`: `func collectCommits(opts CollectOptions) ([]model.CommitInfo, error) {`
+- `.\gitmap\dashboard\gitquery.go:13`: `func queryBranches(repoPath string) ([]string, error) {`
+- `.\gitmap\dashboard\gitquery.go:24`: `func queryTags(repoPath string) ([]string, error) {`
+- `.\gitmap\dashboard\gitquery.go:35`: `func queryLog(repoPath string, limit int, since string, noMerges bool) (string, error) {`
+- `.\gitmap\dashboard\gitquery.go:94`: `func runDashGit(dir string, args ...string) (string, error) {`
+- `.\gitmap\dashboard\writer.go:21`: `func WriteJSON(outDir string, data model.DashboardData) (string, error) {`
+- `.\gitmap\dashboard\writer.go:40`: `func renderHTMLContent(data model.DashboardData) ([]byte, error) {`
+- `.\gitmap\dashboard\writer.go:55`: `func WriteHTML(outDir string, data model.DashboardData) (string, error) {`
+- `.\gitmap\db\clusterexecresult.go:37`: `func InsertClusterExecResult(ctx context.Context, db *sql.DB, result ClusterExecResult) (int64, error) {`
+- `.\gitmap\db\clusterexecresult.go:73`: `func UpdateClusterExecResult(ctx context.Context, db *sql.DB, result ClusterExecResult) error {`
+- `.\gitmap\db\clusterexecresult.go:107`: `func SelectClusterExecResultsByRunId(ctx context.Context, db *sql.DB, runId int64) ([]ClusterExecResult, error) {`
+- `.\gitmap\db\clusternode.go:24`: `func InsertOrUpdateClusterNode(ctx context.Context, db *sql.DB, node ClusterNode) error {`
+- `.\gitmap\db\clusternode.go:50`: `func ListClusterNodes(ctx context.Context, db *sql.DB) ([]ClusterNode, error) {`
+- `.\gitmap\db\clusternode.go:81`: `func GetClusterNode(ctx context.Context, db *sql.DB, id string) (ClusterNode, error) {`
+- `.\gitmap\db\clusternode.go:103`: `func UpdateClusterNodePassword(ctx context.Context, db *sql.DB, id string, hash *string) error {`
+- `.\gitmap\db\clusternode.go:112`: `func DeleteClusterNode(ctx context.Context, db *sql.DB, id string) error {`
+- `.\gitmap\db\clusternode.go:121`: `func DeleteClusterRunsBefore(ctx context.Context, db *sql.DB, before time.Time) (int64, error) {`
+- `.\gitmap\db\clusternode.go:138`: `func GetClusterStats(ctx context.Context, db *sql.DB) (ClusterStats, error) {`
+- `.\gitmap\db\clusterrun.go:25`: `func InsertClusterRun(ctx context.Context, db *sql.DB, run ClusterRun) (int64, error) {`
+- `.\gitmap\db\clusterrun.go:57`: `func UpdateClusterRun(ctx context.Context, db *sql.DB, id int64, finishedAt *time.Time, totalNodes, succeededNodes, failedNodes, skippedNodes *int) error {`
+- `.\gitmap\db\clusterrun.go:71`: `func SelectClusterRun(ctx context.Context, db *sql.DB, runRef string) (ClusterRun, error) {`
+- `.\gitmap\db\clusterrun.go:106`: `func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ([]ClusterRun, error) {`
+- `.\gitmap\db\enums.go:56`: `func ParseCommandKind(s string) (CommandKindType, error) {`
+- `.\gitmap\db\enums.go:117`: `func ParseResultStatus(s string) (ResultStatusType, error) {`
+- `.\gitmap\db\migrations.go:18`: `func ApplyMigrations(ctx context.Context, conn *sql.DB) error {`
+- `.\gitmap\db\nodepath.go:12`: `func UpsertPathAlias(db *sql.DB, nodeId, alias, absPath string) error    { return nil }`
+- `.\gitmap\db\nodepath.go:13`: `func GetPathAlias(db *sql.DB, nodeId, alias string) (string, error)      { return "", nil }`

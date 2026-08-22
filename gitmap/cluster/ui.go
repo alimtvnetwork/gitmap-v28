@@ -53,9 +53,9 @@ func (ui *TerminalUI) render() {
 
 	totalProgress := DefaultProgress
 	numClients := len(ui.progress)
-	hasNoClients := numClients == DefaultProgress
+	isEmpty := numClients == DefaultProgress
 
-	if isEmptyClients {
+	if isEmpty {
 		fmt.Print(MsgNoClients)
 		return
 	}

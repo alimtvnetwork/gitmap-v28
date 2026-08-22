@@ -1,0 +1,156 @@
+# Fix raw error return (Part 8)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\startup\winregistry_remove_windows.go:108`: `func deleteTrackingSubkeyAt(root registry.Key, parent, name string) error {`
+- `.\gitmap\startup\winregistry_remove_windows.go:127`: `func listWindowsRegistry() ([]Entry, error) {`
+- `.\gitmap\startup\winregistry_remove_windows.go:137`: `func listWindowsRegistryAt(root registry.Key, hive string) ([]Entry, error) {`
+- `.\gitmap\startup\winregistry_windows.go:62`: `func addWindowsRegistry(clean string, opts AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\winregistry_windows.go:110`: `func classifyRunValue(valueName, clean string) (bool, bool, error) {`
+- `.\gitmap\startup\winregistry_windows.go:120`: `func classifyRunValueAt(root registry.Key, valueName, clean string) (bool, bool, error) {`
+- `.\gitmap\startup\winregistry_windows.go:169`: `func writeRunValue(valueName, exec string) error {`
+- `.\gitmap\startup\winregistry_windows.go:177`: `func writeRunValueAt(root registry.Key, valueName, exec string) error {`
+- `.\gitmap\startup\winregistry_windows.go:196`: `func writeTrackingSubkey(parent, name, exec, source, workingDir string) error {`
+- `.\gitmap\startup\winregistry_windows.go:208`: `func writeTrackingSubkeyAt(root registry.Key, parent, name, exec, source, workingDir string) error {`
+- `.\gitmap\startup\winshortcut.go:27`: `func addWindowsStartupFolder(clean string, opts AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\winshortcut.go:50`: `func writeStartupShortcut(full, clean string, opts AddOptions) (AddResult, error) {`
+- `.\gitmap\startup\winshortcut.go:81`: `func removeWindowsStartupFolder(clean string, opts RemoveOptions) (RemoveResult, error) {`
+- `.\gitmap\startup\winshortcut.go:119`: `func listWindowsStartupFolder() ([]Entry, error) {`
+- `.\gitmap\startup\winshortcut_helpers.go:20`: `func startupFolderDir() (string, error) {`
+- `.\gitmap\startup\winshortcut_linkinfo.go:57`: `func buildLinkInfo(target string) ([]byte, error) {`
+- `.\gitmap\startup\winshortcut_linkinfo.go:92`: `func computeLinkInfoOffsets(volumeID, pathBytes, suffixBytes []byte) (linkInfoOffsets, error) {`
+- `.\gitmap\startup\winshortcut_linkinfo.go:146`: `func safeUint32(n int) (uint32, error) {`
+- `.\gitmap\startup\winshortcut_writer.go:66`: `func writeShortcutFile(lnkPath, target string) error {`
+- `.\gitmap\startup\winshortcut_writer.go:87`: `func buildShortcutBytes(target string) ([]byte, error) {`
+- `.\gitmap\startup\winshortcut_writer.go:108`: `func writeShellLinkHeader(buf *bytes.Buffer) error {`
+- `.\gitmap\store\alias.go:27`: `func (db *DB) CreateAlias(alias string, repoID int64) (model.Alias, error) {`
+- `.\gitmap\store\alias.go:37`: `func (db *DB) UpdateAlias(alias string, repoID int64) error {`
+- `.\gitmap\store\alias.go:47`: `func (db *DB) FindAliasByName(alias string) (model.Alias, error) {`
+- `.\gitmap\store\alias.go:54`: `func (db *DB) FindAliasByRepoID(repoID int64) (model.Alias, error) {`
+- `.\gitmap\store\alias.go:61`: `func (db *DB) ListAliases() ([]model.Alias, error) {`
+- `.\gitmap\store\alias.go:72`: `func (db *DB) ResolveAlias(alias string) (AliasWithRepo, error) {`
+- `.\gitmap\store\alias.go:86`: `func (db *DB) ListAliasesWithRepo() ([]AliasWithRepo, error) {`
+- `.\gitmap\store\alias.go:110`: `func (db *DB) DeleteAlias(alias string) error {`
+- `.\gitmap\store\alias.go:120`: `func (db *DB) ListUnaliasedRepos() ([]UnaliasedRepo, error) {`
+- `.\gitmap\store\alias.go:151`: `func scanOneAlias(row *sql.Row) (model.Alias, error) {`
+- `.\gitmap\store\alias.go:163`: `func scanAliasRows(rows *sql.Rows) ([]model.Alias, error) { //nolint:unparam // error kept for interface consistency`
+- `.\gitmap\store\amendment.go:27`: `func (db *DB) InsertAmendment(branch, fromCommit, toCommit string, total int, prevName, prevEmail, newName, newEmail, mode string, forcePushed bool) error {`
+- `.\gitmap\store\amendment.go:42`: `func (db *DB) ListAmendments() ([]AmendmentRow, error) {`
+- `.\gitmap\store\amendment.go:53`: `func (db *DB) ListAmendmentsByBranch(branch string) ([]AmendmentRow, error) {`
+- `.\gitmap\store\archive_history.go:33`: `func (db *DB) StartArchiveHistory(cmd string, inputs []string, mode string) (int64, error) {`
+- `.\gitmap\store\archive_history.go:82`: `func (db *DB) RecentArchiveHistory(limit int) ([]ArchiveHistoryRow, error) {`
+- `.\gitmap\store\archive_history.go:110`: `func scanArchiveHistory(rows *sql.Rows) (ArchiveHistoryRow, error) {`
+- `.\gitmap\store\bookmark.go:11`: `func (db *DB) InsertBookmark(r model.BookmarkRecord) error {`
+- `.\gitmap\store\bookmark.go:22`: `func (db *DB) ListBookmarks() ([]model.BookmarkRecord, error) {`
+- `.\gitmap\store\bookmark.go:33`: `func (db *DB) FindBookmarkByName(name string) (model.BookmarkRecord, error) {`
+- `.\gitmap\store\bookmark.go:46`: `func (db *DB) DeleteBookmark(name string) error {`
+- `.\gitmap\store\cddefault.go:30`: `func SaveCDDefaults(outputDir string, defaults map[string]string) error {`
+- `.\gitmap\store\chromeprofile.go:66`: `func (db *DB) EnsureChromeProfileTables() error {`
+- `.\gitmap\store\chromeprofile.go:77`: `func (db *DB) UpsertChromeProfile(name, sourcePath string, isOffline bool) (int64, error) {`
+- `.\gitmap\store\chromeprofile.go:96`: `func (db *DB) InsertChromeProfileExport(profileID int64, format, filePath string, byteSize int) error {`
+- `.\gitmap\store\chromeprofile.go:107`: `func (db *DB) ListChromeProfilesDB() ([]ChromeProfileRow, error) {`
+- `.\gitmap\store\chromeprofile_delete.go:21`: `func (db *DB) DeleteChromeProfile(name string) ([]string, error) {`
+- `.\gitmap\store\chromeprofile_delete.go:49`: `func (db *DB) collectChromeArtifactPaths(name string) ([]string, error) {`
+- `.\gitmap\store\cloneinteractiveselection.go:34`: `func (db *DB) SaveClonePickSelection(plan clonepick.Plan) (int64, error) {`
+- `.\gitmap\store\cloneinteractiveselection_load.go:20`: `func (db *DB) LoadClonePickByID(id int64) (clonepick.Plan, int64, error) {`
+- `.\gitmap\store\cloneinteractiveselection_load.go:30`: `func (db *DB) LoadClonePickByName(name string) (clonepick.Plan, int64, error) {`
+- `.\gitmap\store\cloneinteractiveselection_load.go:41`: `func (db *DB) TouchClonePickCreatedAt(id int64) error {`
+- `.\gitmap\store\cloneinteractiveselection_load.go:59`: `func scanClonePickFields(row *sql.Row, p *clonepick.Plan, d *clonePickRowData) error {`
+- `.\gitmap\store\cloneinteractiveselection_load.go:77`: `func scanClonePickRow(row *sql.Row) (clonepick.Plan, int64, error) {`
+- `.\gitmap\store\clone_recent.go:24`: `func (db *DB) MarkCloned(absPath string) error {`
+- `.\gitmap\store\clone_recent.go:34`: `func (db *DB) MostRecentClone() (RecentClone, bool, error) {`
+- `.\gitmap\store\csharpmetadata.go:12`: `func (db *DB) UpsertCsharpMetadata(m model.CsharpProjectMetadata) error {`
+- `.\gitmap\store\csharpmetadata.go:21`: `func (db *DB) UpsertCsharpProjectFile(f model.CsharpProjectFile) error {`
+- `.\gitmap\store\csharpmetadata.go:30`: `func (db *DB) UpsertCsharpKeyFile(f model.CsharpKeyFile) error {`
+- `.\gitmap\store\csharpmetadata.go:38`: `func (db *DB) SelectCsharpMetadata(detectedProjectID int64) (*model.CsharpProjectMetadata, error) {`
+- `.\gitmap\store\csharpmetadata.go:51`: `func (db *DB) SelectCsharpProjectFiles(metadataID int64) ([]model.CsharpProjectFile, error) {`
+- `.\gitmap\store\csharpmetadata.go:62`: `func (db *DB) SelectCsharpKeyFiles(metadataID int64) ([]model.CsharpKeyFile, error) {`
+- `.\gitmap\store\csharpmetadata.go:73`: `func (db *DB) DeleteStaleCsharpFiles(metadataID int64, keepIDs []int64) error {`
+- `.\gitmap\store\csharpmetadata.go:86`: `func (db *DB) DeleteStaleCsharpKeyFiles(metadataID int64, keepIDs []int64) error {`
+- `.\gitmap\store\downloader_settings.go:38`: `func (db *DB) SetDownloaderConfig(doc downloaderconfig.Document) error {`
+- `.\gitmap\store\downloader_settings.go:54`: `func (db *DB) SetDownloaderSeedHash(hash string) error {`
+- `.\gitmap\store\export.go:11`: `func (db *DB) ExportAll() (model.DatabaseExport, error) {`
+- `.\gitmap\store\export.go:48`: `func (db *DB) exportGroups() ([]model.GroupExport, error) {`
+- `.\gitmap\store\export.go:68`: `func (db *DB) buildGroupExport(g model.Group) (model.GroupExport, error) {`
+- `.\gitmap\store\find_next.go:14`: `func (db *DB) FindNext(scanFolderID int64) ([]model.FindNextRow, error) {`
+- `.\gitmap\store\find_next.go:25`: `func queryFindNext(conn *sql.DB, scanFolderID int64) (*sql.Rows, error) {`
+- `.\gitmap\store\find_next.go:34`: `func scanFindNextRows(rows *sql.Rows) ([]model.FindNextRow, error) {`
+- `.\gitmap\store\find_next.go:48`: `func scanOneFindNextRow(rows *sql.Rows) (model.FindNextRow, error) {`
+- `.\gitmap\store\gometadata.go:12`: `func (db *DB) UpsertGoMetadata(m model.GoProjectMetadata) error {`
+- `.\gitmap\store\gometadata.go:21`: `func (db *DB) UpsertGoRunnable(r model.GoRunnableFile) error {`
+- `.\gitmap\store\gometadata.go:29`: `func (db *DB) SelectGoMetadata(detectedProjectID int64) (*model.GoProjectMetadata, error) {`
+- `.\gitmap\store\gometadata.go:42`: `func (db *DB) SelectGoRunnables(goMetadataID int64) ([]model.GoRunnableFile, error) {`
+- `.\gitmap\store\gometadata.go:53`: `func (db *DB) DeleteStaleGoRunnables(goMetadataID int64, keepIDs []int64) error {`
+- `.\gitmap\store\group.go:11`: `func (db *DB) CreateGroup(name, description, color string) (model.Group, error) {`
+- `.\gitmap\store\group.go:21`: `func (db *DB) ListGroups() ([]model.Group, error) {`
+- `.\gitmap\store\group.go:32`: `func (db *DB) findGroupByName(name string) (model.Group, error) {`
+- `.\gitmap\store\group.go:44`: `func (db *DB) AddRepoToGroup(groupName string, repoID int64) error {`
+- `.\gitmap\store\group.go:59`: `func (db *DB) RemoveRepoFromGroup(groupName string, repoID int64) error {`
+- `.\gitmap\store\group.go:74`: `func (db *DB) ShowGroup(name string) ([]model.ScanRecord, error) {`
+- `.\gitmap\store\group.go:90`: `func (db *DB) DeleteGroup(name string) error {`
+- `.\gitmap\store\group.go:100`: `func (db *DB) CountGroupRepos(name string) (int, error) {`
+- `.\gitmap\store\group.go:135`: `func checkDeleted(result interface{ RowsAffected() (int64, error) }, name string) error {`
+- `.\gitmap\store\history.go:11`: `func (db *DB) InsertHistory(r model.CommandHistoryRecord) (int64, error) {`
+- `.\gitmap\store\history.go:23`: `func (db *DB) UpdateHistory(r model.CommandHistoryRecord) error {`
+- `.\gitmap\store\history.go:34`: `func (db *DB) ListHistory() ([]model.CommandHistoryRecord, error) {`
+- `.\gitmap\store\history.go:45`: `func (db *DB) ListHistoryByCommand(command string) ([]model.CommandHistoryRecord, error) {`
+- `.\gitmap\store\history.go:56`: `func (db *DB) ClearHistory() error {`
+- `.\gitmap\store\history.go:81`: `func scanOneHistory(row interface{ Scan(dest ...any) error }) (model.CommandHistoryRecord, error) {`
+- `.\gitmap\store\import.go:11`: `func (db *DB) ImportAll(data model.DatabaseExport) error {`
+- `.\gitmap\store\import.go:36`: `func (db *DB) importRepos(repos []model.ScanRecord) error {`
+- `.\gitmap\store\import.go:51`: `func (db *DB) importGroups(groups []model.GroupExport) error {`
+- `.\gitmap\store\import.go:62`: `func (db *DB) importOneGroup(ge model.GroupExport) error {`
+- `.\gitmap\store\import.go:77`: `func (db *DB) linkGroupRepos(groupID int64, slugs []string) error {`
+- `.\gitmap\store\import.go:94`: `func (db *DB) importReleases(releases []model.ReleaseRecord) error {`
+- `.\gitmap\store\import.go:105`: `func (db *DB) importHistory(records []model.CommandHistoryRecord) error {`
+- `.\gitmap\store\import.go:120`: `func (db *DB) importBookmarks(bookmarks []model.BookmarkRecord) error {`
+- `.\gitmap\store\inject_idempotency.go:25`: `func (db *DB) GetInjectTimestamps(absPath string) (InjectTimestamps, error) {`
+- `.\gitmap\store\inject_idempotency.go:43`: `func (db *DB) MarkInjected(absPath string, kind constants.InjectKindType) error {`
+- `.\gitmap\store\installedtool.go:28`: `func (db *DB) SaveInstalledTool(tool, version, manager string) error {`
+- `.\gitmap\store\installedtool.go:43`: `func (db *DB) GetInstalledTool(name string) (InstalledTool, error) {`
+- `.\gitmap\store\installedtool.go:56`: `func (db *DB) ListInstalledTools() ([]InstalledTool, error) {`
+- `.\gitmap\store\installedtool.go:84`: `func (db *DB) RemoveInstalledTool(name string) error {`
+- `.\gitmap\store\location.go:29`: `func OpenDefault() (*DB, error) {`
+- `.\gitmap\store\location.go:40`: `func OpenDefaultProfile(profileName string) (*DB, error) {`
+- `.\gitmap\store\lock.go:15`: `func acquireLock(dbDir string) error {`
+- `.\gitmap\store\lock.go:39`: `func handleExistingLock(lockPath string) error {`
+- `.\gitmap\store\lock.go:57`: `func readLockPID(lockPath string) (int, error) {`
+- `.\gitmap\store\lock.go:72`: `func writeLock(lockPath string) error {`
+- `.\gitmap\store\makeallvisibility.go:26`: `func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) (int64, error) {`
+- `.\gitmap\store\makeallvisibility.go:42`: `func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.MakeAllVisibilityResultRecord) ([]int64, error) {`
+- `.\gitmap\store\makeallvisibility.go:65`: `func insertPendingResultsInTx(tx txExecer, runID int64, rows []model.MakeAllVisibilityResultRecord) ([]int64, error) {`
+- `.\gitmap\store\makeallvisibility.go:86`: `func (db *DB) MarkMakeAllVisibilityResultsExcluded(ids []int64, finishedAt string) error {`
+- `.\gitmap\store\makeallvisibility.go:107`: `func (db *DB) UpdateMakeAllVisibilityResult(r model.MakeAllVisibilityResultRecord) error {`
+- `.\gitmap\store\makeallvisibility.go:120`: `func (db *DB) FinalizeMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) error {`
+- `.\gitmap\store\makeallvisibility_history.go:16`: `func (db *DB) SelectRecentMakeAllVisibilityRuns(limit int) ([]model.MakeAllVisibilityRunRecord, error) {`
+- `.\gitmap\store\makeallvisibility_history.go:27`: `func scanRecentRuns(rows *sql.Rows) ([]model.MakeAllVisibilityRunRecord, error) {`
+- `.\gitmap\store\makeallvisibility_history_filtered.go:58`: `func (db *DB) SelectRecentMakeAllVisibilityRunsFiltered(f RecentRunsFilter) ([]model.MakeAllVisibilityRunRecord, error) {`
+- `.\gitmap\store\makeallvisibility_undo.go:20`: `func (db *DB) SelectLatestUndoableMakeAllVisibilityRun() (model.MakeAllVisibilityRunRecord, error) {`
+- `.\gitmap\store\makeallvisibility_undo.go:39`: `func (db *DB) SelectUndoableResultsForRun(runID int64) ([]model.MakeAllVisibilityResultRecord, error) {`
+- `.\gitmap\store\makeallvisibility_undo.go:51`: `func scanUndoableResults(rows *sql.Rows) ([]model.MakeAllVisibilityResultRecord, error) {`
+- `.\gitmap\store\makeallvisibility_undo.go:70`: `func (db *DB) SelectMakeAllVisibilityRunByID(id int64) (model.MakeAllVisibilityRunRecord, error) {`
+- `.\gitmap\store\makeallvisibility_undo.go:76`: `func (db *DB) SelectLatestMakeAllVisibilityRunByKind(kind string) (model.MakeAllVisibilityRunRecord, error) {`
+- `.\gitmap\store\makeallvisibility_undo.go:83`: `func scanRunRow(row *sql.Row) (model.MakeAllVisibilityRunRecord, error) {`
+- `.\gitmap\store\migrateids.go:100`: `func (db *DB) rebuildReposTable() error {`
+- `.\gitmap\store\migrate_commitin.go:71`: `func (db *DB) migrateCommitIn() error {`
+- `.\gitmap\store\migrate_v15phase2.go:21`: `func (db *DB) migrateV15Phase2() error {`
+- `.\gitmap\store\migrate_v15phase2.go:84`: `func (db *DB) rebuildGroupRepoFK() error {`
+- `.\gitmap\store\migrate_v15phase3.go:19`: `func (db *DB) migrateV15Phase3() error {`
+- `.\gitmap\store\migrate_v15phase4.go:29`: `func (db *DB) migrateV15Phase4() error {`
+- `.\gitmap\store\migrate_v15phase5.go:23`: `func (db *DB) migrateV15Phase5() error {`
+- `.\gitmap\store\migrate_v15phase6.go:27`: `func (db *DB) migrateV15Phase6() error {`
+- `.\gitmap\store\migrate_v15rebuild.go:36`: `func (db *DB) runV15Rebuild(spec v15RebuildSpec) error {`
+- `.\gitmap\store\migrate_v15rebuild.go:115`: `func (db *DB) execV15Rebuild(spec v15RebuildSpec) error {`
+- `.\gitmap\store\migrate_v15repo.go:28`: `func (db *DB) migrateV15Repo() error {`
+- `.\gitmap\store\migrate_v15repo.go:74`: `func (db *DB) execV15RepoRebuild() error {`
+- `.\gitmap\store\migrate_v15repo.go:114`: `func (db *DB) countRows(table string) (int, error) {`
+- `.\gitmap\store\migrations.go:72`: `func logMigrationFailure(table, column, action string, err error, stmt string) {`
+- `.\gitmap\store\migrations.go:83`: `func isBenignAlterError(err error) bool {`
+- `.\gitmap\store\owner_repo_list_cache.go:41`: `func (db *DB) UpsertOwnerRepoListCache(provider, owner, namesJSON string, fetchedAt time.Time) error {`
+- `.\gitmap\store\owner_repo_list_cache.go:54`: `func (db *DB) PurgeOwnerRepoListCache() error {`
+- `.\gitmap\store\owner_repo_list_cache.go:62`: `func (db *DB) ensureOwnerRepoListCacheTable() error {`
+- `.\gitmap\store\owner_repo_name_index.go:18`: `func (db *DB) UpsertOwnerRepoNameIndex(provider, owner string, names []string, fetchedAt time.Time) error {`
+- `.\gitmap\store\owner_repo_name_index.go:70`: `func (db *DB) EnsureOwnerRepoNameIndex() error {`
+- `.\gitmap\store\pendingtask.go:13`: `func (db *DB) InsertPendingTask(taskTypeID int64, targetPath, workDir, sourceCmd, cmdArgs string) (int64, error) {`

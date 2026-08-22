@@ -1,0 +1,156 @@
+# Fix fmt.Errorf (Part 1)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\archive\create.go:62`: `return FormatUnknown, fmt.Errorf("%w: %q", ErrUnknownFormat, path)`
+- `.\gitmap\archive\create.go:65`: `return FormatUnknown, fmt.Errorf("%s archives are read-only in this build (use zip or tar.*)", format)`
+- `.\gitmap\archive\create.go:74`: `return nil, fmt.Errorf("gather sources: %w", err)`
+- `.\gitmap\archive\extract.go:56`: `return format, fmt.Errorf("identify %q: %w", srcArchive, err)`
+- `.\gitmap\archive\extract.go:67`: `return res, fmt.Errorf("extract: %w", err)`
+- `.\gitmap\archive\extract.go:98`: `return 0, fmt.Errorf("identify: %w", err)`
+- `.\gitmap\archive\extract.go:104`: `return 0, fmt.Errorf("format %s is not extractable", format.Extension())`
+- `.\gitmap\archive\extract.go:126`: `return fmt.Errorf("rejecting entry with unsafe path: %q", entry.NameInArchive)`
+- `.\gitmap\archive\list.go:36`: `return nil, FormatFromPath(path), fmt.Errorf("archive identify: %w", err)`
+- `.\gitmap\archive\list.go:42`: `return nil, mholtToFormat(format), fmt.Errorf("format %s is not extractable", format.Extension())`
+- `.\gitmap\archive\source.go:102`: `return ResolvedSource{Original: raw}, fmt.Errorf("local source %q: %w", raw, err)`
+- `.\gitmap\archive\source.go:144`: `return ResolvedSource{Original: raw}, fmt.Errorf("download %q: %w", raw, err)`
+- `.\gitmap\archive\source.go:191`: `return fmt.Errorf("http %s", resp.Status)`
+- `.\gitmap\archive\source.go:233`: `return ResolvedSource{Original: raw}, fmt.Errorf("git clone %q: %w", raw, err)`
+- `.\gitmap\archive\source.go:264`: `return "", fmt.Errorf("no archive in %s", abs)`
+- `.\gitmap\archive\source.go:268`: `return "", fmt.Errorf("found %d archives in %s", len(found), abs)`
+- `.\gitmap\clonefrom\execute_lfs_fix.go:45`: `return fmt.Errorf(constants.ErrCloneFromLFSRestore, err, string(out))`
+- `.\gitmap\clonefrom\execute_lfs_fix.go:53`: `return fmt.Errorf(constants.ErrCloneFromLFSRmCached, err, string(out))`
+- `.\gitmap\clonefrom\execute_lfs_fix.go:64`: `return fmt.Errorf(constants.ErrCloneFromLFSCommit, err, string(out))`
+- `.\gitmap\clonefrom\execute_lfs_fix.go:72`: `return fmt.Errorf(constants.ErrCloneFromLFSPush, err, string(out))`
+- `.\gitmap\clonefrom\jsonschema.go:44`: `return nil, fmt.Errorf(constants.MsgCloneFromEmitSchemaUnknown, kind)`
+- `.\gitmap\clonefrom\parse.go:36`: `return Plan{}, fmt.Errorf(constants.ErrCloneFromAbsPath, path, err)`
+- `.\gitmap\clonefrom\parse.go:40`: `return Plan{}, fmt.Errorf(constants.ErrCloneFromOpen, abs, err)`
+- `.\gitmap\clonefrom\parse.go:85`: `return nil, fmt.Errorf(constants.ErrCloneFromJSONDecode, err)`
+- `.\gitmap\clonefrom\parse.go:91`: `return nil, fmt.Errorf(constants.ErrCloneFromJSONRow, i+1, err)`
+- `.\gitmap\clonefrom\parsecsv.go:27`: `return nil, fmt.Errorf(constants.ErrCloneFromCSVHeader, err)`
+- `.\gitmap\clonefrom\parsecsv.go:31`: `return nil, fmt.Errorf(constants.ErrCloneFromCSVNoURL)`
+- `.\gitmap\clonefrom\parsecsv.go:52`: `return nil, fmt.Errorf(constants.ErrCloneFromCSVRow, rowNum, err)`
+- `.\gitmap\clonefrom\parsecsv.go:69`: `return fmt.Errorf(constants.ErrCloneFromCSVRow, rowNum, err)`
+- `.\gitmap\clonefrom\parsecsv.go:72`: `return fmt.Errorf(constants.ErrCloneFromCSVRowCol, rowNum, col, err)`
+- `.\gitmap\clonefrom\parsecsv.go:135`: `return row, constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromBadDepth, depthStr)`
+- `.\gitmap\clonefrom\summary.go:108`: `return "", fmt.Errorf(constants.ErrCloneFromReportMkdir, dir, err)`
+- `.\gitmap\clonefrom\summary.go:114`: `return "", fmt.Errorf(constants.ErrCloneFromReportCreate, full, err)`
+- `.\gitmap\clonefrom\summary_terminal.go:42`: `return "", fmt.Errorf(constants.ErrCloneFromReportMkdir, dir, err)`
+- `.\gitmap\clonefrom\summary_terminal.go:48`: `return "", fmt.Errorf(constants.ErrCloneFromReportCreate, full, err)`
+- `.\gitmap\clonefrom\validate.go:39`: `return constants.CSVColumnURL, fmt.Errorf(constants.ErrCloneFromEmptyURL)`
+- `.\gitmap\clonefrom\validate.go:42`: `return constants.CSVColumnURL, fmt.Errorf(constants.ErrCloneFromBadURL, r.URL)`
+- `.\gitmap\clonefrom\validate.go:45`: `return constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromNegDepth, r.Depth)`
+- `.\gitmap\clonefrom\validate.go:48`: `return constants.CSVColumnBranch, fmt.Errorf(constants.ErrCloneFromBadBranch, r.Branch)`
+- `.\gitmap\clonefrom\validate.go:51`: `return constants.CSVColumnCheckout, fmt.Errorf(constants.ErrCloneFromBadCheckout, r.Checkout)`
+- `.\gitmap\clonenext\github.go:21`: `return false, fmt.Errorf("create request: %w", err)`
+- `.\gitmap\clonenext\github.go:32`: `return false, fmt.Errorf("check repo existence: %w", err)`
+- `.\gitmap\clonenext\github.go:43`: `return false, fmt.Errorf("GitHub API returned %d checking %s/%s", resp.StatusCode, owner, repo)`
+- `.\gitmap\clonenext\github.go:52`: `return fmt.Errorf("no GitHub token available — set GITHUB_TOKEN or run `gh auth login`")`
+- `.\gitmap\clonenext\github.go:88`: `return fmt.Errorf("marshal repo payload: %w", err)`
+- `.\gitmap\clonenext\github.go:93`: `return fmt.Errorf("create request: %w", err)`
+- `.\gitmap\clonenext\github.go:102`: `return fmt.Errorf("create repo: %w", err)`
+- `.\gitmap\clonenext\github.go:112`: `return fmt.Errorf("GitHub API error %d: %s", resp.StatusCode, string(body))`
+- `.\gitmap\clonenext\github.go:127`: `return "", "", fmt.Errorf("unrecognized remote URL format: %s", remoteURL)`
+- `.\gitmap\clonenext\github.go:132`: `return "", "", fmt.Errorf("invalid SSH remote URL: %s", remoteURL)`
+- `.\gitmap\clonenext\github.go:138`: `return "", "", fmt.Errorf("invalid SSH remote path: %s", remoteURL)`
+- `.\gitmap\clonenext\github.go:147`: `return "", "", fmt.Errorf("invalid HTTPS remote URL: %s", remoteURL)`
+- `.\gitmap\clonenext\localstate.go:54`: `return "", fmt.Errorf("%w: %s", ErrNotAGitRepo, repoPath)`
+- `.\gitmap\clonenext\localstate.go:68`: `return "", fmt.Errorf(constants.ErrCloneNextReadWorktree, dotGitFile, err)`
+- `.\gitmap\clonenext\localstate.go:75`: `return "", fmt.Errorf(constants.ErrCloneNextMalformedGitDir, dotGitFile)`
+- `.\gitmap\clonenext\remoteupdate.go:84`: `return highest, fmt.Errorf("probe %s/%s-v%d: %w", owner, parsed.BaseName, m, err)`
+- `.\gitmap\clonenext\version.go:45`: `return 0, fmt.Errorf("invalid version argument: %s (expected v++, v+1, or vN)", arg)`
+- `.\gitmap\clonenext\version.go:51`: `return 0, fmt.Errorf("invalid version argument: %s (expected v++, v+1, or vN)", arg)`
+- `.\gitmap\clonenext\version.go:54`: `return 0, fmt.Errorf("invalid version argument: %s (version must be a positive integer)", arg)`
+- `.\gitmap\clonenow\parse.go:40`: `return Plan{}, fmt.Errorf(constants.ErrCloneNowAbsPath, path, err)`
+- `.\gitmap\clonenow\parse.go:56`: `return Plan{}, fmt.Errorf(constants.ErrCloneNowEmpty, abs)`
+- `.\gitmap\clonenow\parse.go:83`: `return "", fmt.Errorf(constants.ErrCloneNowUnsupportedExt, ext, path)`
+- `.\gitmap\clonenow\parse.go:92`: `return nil, fmt.Errorf(constants.ErrCloneNowOpen, path, err)`
+- `.\gitmap\clonenow\parse.go:113`: `return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)`
+- `.\gitmap\clonenow\parse.go:120`: `return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)`
+- `.\gitmap\clonenow\parse.go:133`: `return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)`
+- `.\gitmap\clonenow\parse.go:140`: `return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)`
+- `.\gitmap\clonenow\parse.go:148`: `return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)`
+- `.\gitmap\clonenow\parsetext.go:41`: `return nil, fmt.Errorf(constants.ErrCloneNowTextRead, err)`
+- `.\gitmap\clonenow\parse_schema.go:66`: `return fmt.Errorf(constants.ErrCloneNowEmptyCSV)`
+- `.\gitmap\clonenow\parse_schema.go:69`: `return fmt.Errorf(constants.ErrCloneNowCSVRead, err)`
+- `.\gitmap\clonenow\parse_schema.go:93`: `return fmt.Errorf(constants.ErrCloneNowCSVRowRead, dataRow, err)`
+- `.\gitmap\clonenow\parse_schema.go:96`: `return fmt.Errorf(constants.ErrCloneNowCSVRowMissingURL, dataRow)`
+- `.\gitmap\clonenow\parse_schema.go:146`: `return fmt.Errorf(constants.ErrCloneNowUnknownCSVField, name, knownFieldList())`
+- `.\gitmap\clonenow\parse_schema.go:153`: `return fmt.Errorf(constants.ErrCloneNowCSVMissingURLCol)`
+- `.\gitmap\clonenow\parse_schema_json.go:26`: `return fmt.Errorf(constants.ErrCloneNowJSONShape, err)`
+- `.\gitmap\clonenow\parse_schema_json.go:44`: `return fmt.Errorf(constants.ErrCloneNowJSONRowNotObject,`
+- `.\gitmap\clonenow\parse_schema_json.go:58`: `return fmt.Errorf(constants.ErrCloneNowUnknownJSONField,`
+- `.\gitmap\clonenow\parse_schema_json.go:63`: `return fmt.Errorf(constants.ErrCloneNowMissingURL, i+1)`
+- `.\gitmap\clonepick\parse.go:114`: `return fmt.Errorf(constants.ErrClonePickBadMode, mode)`
+- `.\gitmap\clonepick\parse.go:124`: `return fmt.Errorf(constants.ErrClonePickBadDepth, depth)`
+- `.\gitmap\clonepick\parse.go:136`: `return "", fmt.Errorf("%s", constants.MsgClonePickMissingURL)`
+- `.\gitmap\clonepick\parse.go:175`: `return nil, fmt.Errorf("%s", constants.MsgClonePickMissingPaths)`
+- `.\gitmap\clonepick\parse.go:201`: `return "", fmt.Errorf("%s", constants.MsgClonePickPathEmpty)`
+- `.\gitmap\clonepick\parse.go:204`: `return "", fmt.Errorf(constants.MsgClonePickPathAbsolute, p)`
+- `.\gitmap\clonepick\parse.go:209`: `return "", fmt.Errorf(constants.MsgClonePickPathTraversal, p)`
+- `.\gitmap\clonepick\parse.go:212`: `return "", fmt.Errorf(constants.MsgClonePickPathTooLong, p)`
+- `.\gitmap\clonepick\persist.go:32`: `return 0, fmt.Errorf("clone-pick: save selection: %w", err)`
+- `.\gitmap\clonepick\picker_run.go:42`: `return nil, "", fmt.Errorf("clone-pick: picker run: %w", runErr)`
+- `.\gitmap\clonepick\picker_tree.go:33`: `return nil, "", fmt.Errorf(constants.ErrClonePickPickerLaunch, err)`
+- `.\gitmap\clonepick\picker_tree.go:65`: `return fmt.Errorf(constants.ErrClonePickGitClone, err)`
+- `.\gitmap\clonepick\picker_tree.go:82`: `return nil, fmt.Errorf(constants.ErrClonePickGitLsTree, err)`
+- `.\gitmap\clonepick\replay.go:38`: `return Plan{}, 0, fmt.Errorf("clone-pick: --replay requires database access")`
+- `.\gitmap\clonepick\replay.go:42`: `return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)`
+- `.\gitmap\clonepick\replay.go:50`: `return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)`
+- `.\gitmap\clonepick\replay.go:59`: `return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)`
+- `.\gitmap\clonepick\sparse.go:40`: `return dest, fmt.Errorf(constants.ErrClonePickGitSparseInit, err)`
+- `.\gitmap\clonepick\sparse.go:43`: `return dest, fmt.Errorf(constants.ErrClonePickGitSparseSet, err)`
+- `.\gitmap\clonepick\sparse.go:46`: `return dest, fmt.Errorf(constants.ErrClonePickGitCheckout, err)`
+- `.\gitmap\clonepick\sparse.go:63`: `return fmt.Errorf(constants.ErrClonePickGitClone, err)`
+- `.\gitmap\clonepick\sparse.go:74`: `return fmt.Errorf(constants.ErrClonePickFsRemoveDotGit, err)`
+- `.\gitmap\clonepick\sparse.go:81`: `return fmt.Errorf(constants.ErrClonePickPromoteSrc, err)`
+- `.\gitmap\clonepick\sparse.go:93`: `return "", fmt.Errorf(constants.ErrClonePickFsCreateDest, err)`
+- `.\gitmap\clonepick\sparse.go:96`: `return abs, fmt.Errorf(constants.ErrClonePickFsCreateDest, err)`
+- `.\gitmap\clonepick\sparse.go:114`: `return fmt.Errorf(constants.ErrClonePickFsCreateDest, err)`
+- `.\gitmap\clonepick\sparse.go:117`: `return fmt.Errorf("%s", constants.MsgClonePickDestDirty)`
+- `.\gitmap\cloner\cloner.go:76`: `return nil, fmt.Errorf("open clone source %q: %w", path, err)`
+- `.\gitmap\cloner\cloner.go:82`: `return nil, fmt.Errorf("parse clone source %q: %w", path, err)`
+- `.\gitmap\cloner\cloner.go:115`: `return nil, fmt.Errorf("read line %d: %w", lineNum+1, err)`
+- `.\gitmap\cluster\exec_proj.go:41`: `return nil, fmt.Errorf("failed to open store: %w", err)`
+- `.\gitmap\cluster\exec_proj.go:48`: `return nil, fmt.Errorf("failed to list repos: %w", err)`
+- `.\gitmap\cmd\addignoreattrs.go:154`: `return nil, fmt.Errorf("template %s/%s: %w", kind, lang, err)`
+- `.\gitmap\cmd\as.go:83`: `return "", fmt.Errorf("empty top-level")`
+- `.\gitmap\cmd\auditlegacy_parse.go:90`: `return nil, fmt.Errorf(constants.ErrAuditLegacyRegex, p, err)`
+- `.\gitmap\cmd\chromeprofile.go:240`: `return nil, fmt.Errorf("read %s: %w", path, err)`
+- `.\gitmap\cmd\chromeprofile.go:244`: `return nil, fmt.Errorf("parse %s: %w", path, err)`
+- `.\gitmap\cmd\chromeprofile_csv.go:22`: `return 0, fmt.Errorf("mkdir %s: %w", filepath.Dir(outPath), err)`
+- `.\gitmap\cmd\chromeprofile_csv.go:26`: `return 0, fmt.Errorf("create %s: %w", outPath, err)`
+- `.\gitmap\cmd\chromeprofile_export.go:43`: `return 0, fmt.Errorf("marshal export: %w", err)`
+- `.\gitmap\cmd\chromeprofile_export.go:46`: `return 0, fmt.Errorf("mkdir %s: %w", filepath.Dir(outPath), err)`
+- `.\gitmap\cmd\chromeprofile_export.go:49`: `return 0, fmt.Errorf("write %s: %w", outPath, err)`
+- `.\gitmap\cmd\chromeprofile_export.go:59`: `return fmt.Errorf("mkdir %s: %w", dstProfile, err)`
+- `.\gitmap\cmd\chromeprofile_import_csv.go:30`: `return nil, fmt.Errorf("read %s: %w", path, err)`
+- `.\gitmap\cmd\chromeprofile_import_csv.go:37`: `return nil, fmt.Errorf("parse %s: %w", path, err)`
+- `.\gitmap\cmd\chromeprofile_merge.go:232`: `return nil, fmt.Errorf("parse %s: %w", path, err)`
+- `.\gitmap\cmd\chromeprofile_preferences.go:32`: `return fmt.Errorf("read %s: %w", prefPath, err)`
+- `.\gitmap\cmd\chromeprofile_preferences.go:36`: `return fmt.Errorf("parse %s: %w", prefPath, err)`
+- `.\gitmap\cmd\chromeprofile_preferences.go:41`: `return fmt.Errorf("encode Preferences: %w", err)`
+- `.\gitmap\cmd\chromeprofile_preferences.go:44`: `return fmt.Errorf("write %s: %w", prefPath, err)`
+- `.\gitmap\cmd\chromeprofile_register.go:27`: `return fmt.Errorf("read %s: %w", path, err)`
+- `.\gitmap\cmd\chromeprofile_register.go:31`: `return fmt.Errorf("parse %s: %w", path, err)`
+- `.\gitmap\cmd\chromeprofile_register.go:109`: `return fmt.Errorf("encode Local State: %w", err)`
+- `.\gitmap\cmd\chromeprofile_register.go:113`: `return fmt.Errorf("write %s: %w", tmp, err)`
+- `.\gitmap\cmd\chromeprofile_register.go:131`: `return fmt.Errorf("backup Local State: %w", cause)`
+- `.\gitmap\cmd\chromeprofile_register.go:138`: `return fmt.Errorf("replace %s: %w", path, err)`
+- `.\gitmap\cmd\chrome_manifest.go:144`: `return false, nil, fmt.Errorf("manifest missing (%s): %w", manifestPath, err)`
+- `.\gitmap\cmd\clonefixrepocheckpoint.go:45`: `return nil, fmt.Errorf("checkpoint %s: %w", path, err)`
+- `.\gitmap\cmd\clonefrom_reports.go:86`: `return fmt.Errorf(constants.ErrCloneFromReportMissingFields,`
+- `.\gitmap\cmd\clonemulti.go:166`: `return fmt.Errorf("resolve abs path for %s: %w", folderName, err)`
+- `.\gitmap\cmd\clonemulti.go:214`: `return fmt.Errorf("target exists: %s (use without --no-replace to replace)", absPath)`
+- `.\gitmap\cmd\clonemulti.go:218`: `return fmt.Errorf("git clone: %w", cloneErr)`
+- `.\gitmap\cmd\clonemulti.go:226`: `return fmt.Errorf("clone-replace: %w", replaceErr)`
+- `.\gitmap\cmd\clonenextbatch.go:163`: `return clonenext.RemoteUpdateCheck{}, fmt.Errorf("no origin remote configured")`
+- `.\gitmap\cmd\clonereplace.go:64`: `return res, fmt.Errorf("git clone into temp failed: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:69`: `return res, fmt.Errorf("could not empty target: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:73`: `return res, fmt.Errorf("swap failed: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:97`: `return fmt.Errorf("read dir: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:114`: `return fmt.Errorf("%d entries could not be removed (e.g. %s)", len(failures), failures[0])`
+- `.\gitmap\cmd\clonereplace.go:124`: `return fmt.Errorf("read src: %w", err)`
+- `.\gitmap\cmd\clonereplace.go:134`: `return fmt.Errorf("rename %s -> %s: %w", from, to, mvErr)`

@@ -1,0 +1,156 @@
+# Fix fmt.Errorf (Part 3)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\visibilityresolveowner.go:170`: `return ownerContext{}, fmt.Errorf("Error: no origin remote at %s: %v (operation: gitutil.RemoteURL, reason: %s)", abs, err, errString(err))`
+- `.\gitmap\cmd\visibilityundoflags.go:44`: `fmt.Fprintf(os.Stderr, constants.ErrUndoBadRunFlagFmt, "", fmt.Errorf("missing value"), "no value after --run")`
+- `.\gitmap\cmd\vscodepmsync_flags.go:109`: `return vscodePMSyncOpts{}, fmt.Errorf("vscode-pm-sync: %w", err)`
+- `.\gitmap\cmd\vscodeworkspace.go:87`: `return nil, fmt.Errorf(constants.ErrVSCodeWorkspaceDBOpen, err)`
+- `.\gitmap\cmd\vscodeworkspace.go:92`: `return nil, fmt.Errorf(constants.ErrVSCodeWorkspaceDBOpen, err)`
+- `.\gitmap\cmd\vscodeworkspace.go:97`: `return nil, fmt.Errorf(constants.ErrVSCodeWorkspaceDBList, err)`
+- `.\gitmap\cmd\workflow_open_pr.go:20`: `return "", "", fmt.Errorf("no origin remote: %w", err)`
+- `.\gitmap\cmd\workflow_open_pr.go:28`: `return "", "", fmt.Errorf("unparseable remote url: %s", u)`
+- `.\gitmap\cmd\zip.go:103`: `return "", fmt.Errorf(constants.ErrArchiveBadCompression, constants.CmdZip)`
+- `.\gitmap\cmd\commitin\dedupe\dedupe.go:24`: `return Verdict{}, fmt.Errorf("dedupe: nil db")`
+- `.\gitmap\cmd\commitin\dedupe\dedupe.go:27`: `return Verdict{}, fmt.Errorf("dedupe: empty source sha")`
+- `.\gitmap\cmd\commitin\dedupe\dedupe.go:36`: `return Verdict{}, fmt.Errorf("dedupe: select %s: %w", constants.TableCommitInShaMap, err)`
+- `.\gitmap\cmd\commitin\profile\default.go:26`: `return fmt.Errorf("read profiles dir: %w", err)`
+- `.\gitmap\cmd\commitin\profile\io.go:48`: `return fmt.Errorf("profile %q already exists", p.Name)`
+- `.\gitmap\cmd\commitin\profile\io.go:51`: `return fmt.Errorf("mkdir profiles: %w", err)`
+- `.\gitmap\cmd\commitin\profile\io.go:59`: `return fmt.Errorf("write tmp: %w", err)`
+- `.\gitmap\cmd\commitin\profile\io.go:62`: `return fmt.Errorf("rename: %w", err)`
+- `.\gitmap\cmd\commitin\profile\io.go:71`: `return fmt.Errorf("profile %q already exists", filepath.Base(path))`
+- `.\gitmap\cmd\commitin\prompt\prompt.go:50`: `return "", fmt.Errorf("read answer: %w", err)`
+- `.\gitmap\cmd\commitin\replay\clobber.go:26`: `return nil, fmt.Errorf("clobber check %s: %w", rel, err)`
+- `.\gitmap\cmd\commitin\replay\clobber.go:41`: `return false, fmt.Errorf("source side: %w", err)`
+- `.\gitmap\cmd\commitin\replay\replay.go:45`: `return Result{}, fmt.Errorf("replay: stage files: %w", err)`
+- `.\gitmap\cmd\commitin\replay\replay.go:49`: `return Result{}, fmt.Errorf("replay: write-tree: %w", err)`
+- `.\gitmap\cmd\commitin\replay\replay.go:54`: `return Result{}, fmt.Errorf("replay: commit-tree: %w", err)`
+- `.\gitmap\cmd\commitin\replay\replay.go:57`: `return Result{}, fmt.Errorf("replay: update-ref: %w", err)`
+- `.\gitmap\cmd\commitin\replay\replay.go:68`: `return fmt.Errorf("file %s: %w", rel, err)`
+- `.\gitmap\cmd\commitin\replay\replay.go:80`: `return fmt.Errorf("cat-file: %w", err)`
+- `.\gitmap\cmd\commitin\replay\replay.go:84`: `return fmt.Errorf("hash-object: %w", err)`
+- `.\gitmap\cmd\commitin\replay\replay.go:87`: `return fmt.Errorf("update-index: %w", err)`
+- `.\gitmap\cmd\commitin\replay\runner.go:34`: `return trimmed, fmt.Errorf("git %s: %w (%s)", sub, err, strings.TrimSpace(trimmed))`
+- `.\gitmap\cmd\commitin\replay\runner.go:48`: `return out, fmt.Errorf("git %s: %w (%s)", sub, err, strings.TrimSpace(stderr.String()))`
+- `.\gitmap\cmd\commitin\replay\runner.go:61`: `return trimmed, fmt.Errorf("git %s: %w (%s)", args[0], err, strings.TrimSpace(trimmed))`
+- `.\gitmap\cmd\commitin\replay\runner.go:73`: `return trimmed, fmt.Errorf("git hash-object: %w (%s)", err, trimmed)`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:15`: `return 0, fmt.Errorf("runlog: lookup InputKind %q: %w", kind, err)`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:19`: `return 0, fmt.Errorf("runlog: insert InputRepo: %w", err)`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:30`: `return 0, fmt.Errorf("runlog: begin tx: %w", err)`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:42`: `return 0, fmt.Errorf("runlog: commit tx: %w", err)`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:55`: `return 0, fmt.Errorf("runlog: insert SourceCommit %s: %w", c.Sha, err)`
+- `.\gitmap\cmd\commitin\runlog\inputs.go:64`: `return fmt.Errorf("runlog: insert SourceCommitFile %q: %w", rel, err)`
+- `.\gitmap\cmd\commitin\runlog\lookup.go:16`: `return 0, fmt.Errorf("lookup %s.%s where Name=%q: %w", table, idCol, name, err)`
+- `.\gitmap\cmd\commitin\runlog\results.go:16`: `return 0, fmt.Errorf("runlog: lookup outcome %q: %w", r.Outcome, err)`
+- `.\gitmap\cmd\commitin\runlog\results.go:38`: `return fmt.Errorf("runlog: lookup skip reason %q: %w", reason, err)`
+- `.\gitmap\cmd\commitin\runlog\results.go:41`: `return fmt.Errorf("runlog: insert SkipLog: %w", err)`
+- `.\gitmap\cmd\commitin\runlog\results.go:59`: `return 0, fmt.Errorf("runlog: insert RewrittenCommit: %w", err)`
+- `.\gitmap\cmd\commitin\runlog\results.go:67`: `return fmt.Errorf("runlog: insert ShaMap %s: %w", sourceSha, err)`
+- `.\gitmap\cmd\commitin\runlog\runlog.go:18`: `return 0, fmt.Errorf("runlog: lookup RunStatus: %w", err)`
+- `.\gitmap\cmd\commitin\runlog\runlog.go:22`: `return 0, fmt.Errorf("runlog: insert CommitInRun: %w", err)`
+- `.\gitmap\cmd\commitin\runlog\runlog.go:32`: `return fmt.Errorf("runlog: lookup status %q: %w", status, err)`
+- `.\gitmap\cmd\commitin\runlog\runlog.go:35`: `return fmt.Errorf("runlog: finish run %d: %w", runID, err)`
+- `.\gitmap\cmd\commitin\runlog\tagreplay.go:77`: `return 0, fmt.Errorf("runlog: tag %q: %w", f.SourceTagName, ErrLightweightVersionTag)`
+- `.\gitmap\cmd\commitin\runlog\tagreplay.go:82`: `return 0, fmt.Errorf("runlog: lookup tag outcome %q: %w", f.Outcome, err)`
+- `.\gitmap\cmd\commitin\runlog\tagreplay.go:92`: `return 0, fmt.Errorf("runlog: insert CommitInReplayMap: %w", err)`
+- `.\gitmap\cmd\commitin\runlog\tagreplay.go:109`: `return got, fmt.Errorf("runlog: lookup tag replay %q: %w", sourceTagName, err)`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:37`: `return SourceCommit{}, fmt.Errorf("show %s: %w", sha, err)`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:41`: `return SourceCommit{}, fmt.Errorf("malformed git show output for %s: %q", sha, out)`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:51`: `return SourceCommit{}, fmt.Errorf("parse author date: %w", err)`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:55`: `return SourceCommit{}, fmt.Errorf("parse committer date: %w", err)`
+- `.\gitmap\cmd\commitin\walk\hydrate.go:83`: `return nil, fmt.Errorf("show files %s: %w", sha, err)`
+- `.\gitmap\cmd\commitin\walk\runner.go:24`: `return trimmed, fmt.Errorf("git %s: %w (%s)", sub, err, strings.TrimSpace(trimmed))`
+- `.\gitmap\cmd\commitin\walk\walk.go:32`: `return nil, fmt.Errorf("walk: list shas: %w", err)`
+- `.\gitmap\cmd\commitin\walk\walk.go:41`: `return nil, fmt.Errorf("walk: hydrate %s: %w", sha, hyErr)`
+- `.\gitmap\cmd\commitin\workspace\clone.go:48`: `return "", fmt.Errorf("mkdir temp run dir %s: %w", dir, err)`
+- `.\gitmap\cmd\commitin\workspace\clone.go:64`: `return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, fmt.Errorf("unknown kind %q", in.Kind))`
+- `.\gitmap\cmd\commitin\workspace\clone.go:71`: `return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, err)`
+- `.\gitmap\cmd\commitin\workspace\clone.go:74`: `return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, fmt.Errorf("not a directory"))`
+- `.\gitmap\cmd\commitin\workspace\clone.go:83`: `return StagedInput{}, fmt.Errorf(constants.CommitInErrInputClone, in.Original, err)`
+- `.\gitmap\cmd\commitin\workspace\clone.go:93`: `return StagedInput{}, fmt.Errorf(constants.CommitInErrInputClone, in.Original, err)`
+- `.\gitmap\cmd\commitin\workspace\expand.go:40`: `return nil, fmt.Errorf(constants.CommitInErrBadArgs, "no inputs to expand")`
+- `.\gitmap\cmd\commitin\workspace\expand.go:77`: `return nil, fmt.Errorf(constants.CommitInErrBadArgs, fmt.Sprintf("keyword %q matched zero siblings of %s", keyword, source))`
+- `.\gitmap\cmd\commitin\workspace\expand.go:105`: `return nil, fmt.Errorf("absolutize source: %w", err)`
+- `.\gitmap\cmd\commitin\workspace\expand.go:111`: `return nil, fmt.Errorf("read parent %s: %w", parent, readErr)`
+- `.\gitmap\cmd\commitin\workspace\lock.go:27`: `return nil, fmt.Errorf(constants.CommitInErrLockBusy, p.LockFile)`
+- `.\gitmap\cmd\commitin\workspace\lock.go:30`: `return nil, fmt.Errorf("commit-in: lock write failed: %w", err)`
+- `.\gitmap\cmd\commitin\workspace\paths.go:31`: `return nil, fmt.Errorf("absolutize source: %w", err)`
+- `.\gitmap\cmd\commitin\workspace\paths.go:60`: `return fmt.Errorf("mkdir %s: %w", dir, err)`
+- `.\gitmap\cmd\commitin\workspace\runner.go:22`: `return fmt.Errorf("git %s: %w (output: %s)", sub, err, strings.TrimSpace(string(out)))`
+- `.\gitmap\cmd\commitin\workspace\source.go:47`: `return nil, fmt.Errorf("absolutize source: %w", err)`
+- `.\gitmap\cmd\commitin\workspace\source.go:57`: `return nil, fmt.Errorf(constants.CommitInErrSourceMkdir, statErr)`
+- `.\gitmap\cmd\commitin\workspace\source.go:59`: `return nil, fmt.Errorf("commit-in: source: %q is not a directory", abs)`
+- `.\gitmap\cmd\commitin\workspace\source.go:84`: `return nil, fmt.Errorf("getwd: %w", err)`
+- `.\gitmap\cmd\commitin\workspace\source.go:88`: `return nil, fmt.Errorf(constants.CommitInErrSourceClone, err)`
+- `.\gitmap\cmd\commitin\workspace\source.go:99`: `return nil, fmt.Errorf(constants.CommitInErrSourceInit, err)`
+- `.\gitmap\cmd\commitin\workspace\source.go:107`: `return nil, fmt.Errorf(constants.CommitInErrSourceMkdir, err)`
+- `.\gitmap\cmd\commitin\workspace\source.go:110`: `return nil, fmt.Errorf(constants.CommitInErrSourceInit, err)`
+- `.\gitmap\committransfer\git.go:20`: `return trimmed, fmt.Errorf("git %s: %w (%s)", strings.Join(args, " "), err, trimmed)`
+- `.\gitmap\committransfer\git.go:85`: `err = fmt.Errorf("unexpected git show output for %s: %q", sha, out)`
+- `.\gitmap\committransfer\git.go:121`: `return "", fmt.Errorf("git commit: %w (%s)", err, strings.TrimSpace(string(out)))`
+- `.\gitmap\committransfer\interleave.go:27`: `return fmt.Errorf("interleave plan L→R: %w", err)`
+- `.\gitmap\committransfer\interleave.go:31`: `return fmt.Errorf("interleave plan R→L: %w", err)`
+- `.\gitmap\committransfer\interleave.go:110`: `return fmt.Errorf("interleave step %d (%s %s): %w",`
+- `.\gitmap\committransfer\plan.go:13`: `return ReplayPlan{}, fmt.Errorf("read source HEAD ref: %w", err)`
+- `.\gitmap\committransfer\plan.go:21`: `return ReplayPlan{}, fmt.Errorf("rev-list source: %w", err)`
+- `.\gitmap\committransfer\plan.go:107`: `return SourceCommit{}, fmt.Errorf("read commit %s: %w", sha, err)`
+- `.\gitmap\committransfer\replay.go:35`: `return res, fmt.Errorf("commit %d/%d (%s): %w",`
+- `.\gitmap\committransfer\replay.go:64`: `return "", false, fmt.Errorf("checkout source %s: %w", commit.ShortSHA, err)`
+- `.\gitmap\committransfer\replay.go:67`: `return "", false, fmt.Errorf("snapshot copy: %w", err)`
+- `.\gitmap\committransfer\replay.go:73`: `return "", false, fmt.Errorf("git add -A target: %w", err)`
+- `.\gitmap\committransfer\runleftboth.go:35`: `return fmt.Errorf("left→right pass: %w", err)`
+- `.\gitmap\committransfer\runleftboth.go:40`: `return fmt.Errorf("right→left pass: %w", err)`
+- `.\gitmap\committransfer\runleftboth.go:52`: `return fmt.Errorf("build plan: %w", err)`
+- `.\gitmap\completion\cdfunction.go:17`: `return fmt.Errorf(constants.ErrCompUnknownShell, shell)`
+- `.\gitmap\completion\cdfunction.go:98`: `return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)`
+- `.\gitmap\completion\cdfunction.go:108`: `return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)`
+- `.\gitmap\completion\cdfunction.go:114`: `return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)`
+- `.\gitmap\completion\cdfunction.go:131`: `return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, writeErr)`
+- `.\gitmap\completion\completion.go:41`: `return "", fmt.Errorf(constants.ErrCompUnknownShell, shell)`
+- `.\gitmap\completion\install.go:219`: `return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)`
+- `.\gitmap\completion\install.go:231`: `return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)`
+- `.\gitmap\completion\install.go:237`: `return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)`
+- `.\gitmap\completion\internal\gencommands\main.go:91`: `return fmt.Errorf("glob constants dir: %w", err)`
+- `.\gitmap\completion\internal\gencommands\main.go:99`: `return fmt.Errorf("scan %s: %w", rel, err)`
+- `.\gitmap\completion\internal\gencommands\main.go:109`: `return fmt.Errorf("found %d Cmd* constant(s) in const block(s) lacking the `// %s` marker:\n  %s\n"+`
+- `.\gitmap\completion\internal\gencommands\main.go:202`: `return nil, fmt.Errorf("glob constants dir: %w", err)`
+- `.\gitmap\completion\internal\gencommands\main.go:206`: `return nil, fmt.Errorf("no constants files found in %s", constantsDir)`
+- `.\gitmap\completion\internal\gencommands\main.go:213`: `return nil, fmt.Errorf("scan %s: %w", rel, err)`
+- `.\gitmap\config\validate.go:75`: `return fmt.Errorf("config: invalid JSON: %w", err)`
+- `.\gitmap\config\validate.go:83`: `return fmt.Errorf(`
+- `.\gitmap\config\validate.go:102`: `return fmt.Errorf(`
+- `.\gitmap\config\validate_shape.go:103`: `return fmt.Errorf(`
+- `.\gitmap\config\validate_shape.go:178`: `return fmt.Errorf(`
+- `.\gitmap\crypto\ssh_client.go:38`: `return nil, fmt.Errorf("read private key: %w", err)`
+- `.\gitmap\crypto\ssh_client.go:43`: `return nil, fmt.Errorf("parse private key: %w", err)`
+- `.\gitmap\crypto\ssh_client.go:60`: `return string(out), fmt.Errorf("command execution failed: %w (output: %s)", err, string(out))`
+- `.\gitmap\dashboard\collector.go:27`: `return model.DashboardData{}, fmt.Errorf(constants.ErrDashCollect, err)`
+- `.\gitmap\db\clusterexecresult.go:62`: `return 0, fmt.Errorf("failed to insert ClusterExecResult: %w", err)`
+- `.\gitmap\db\clusterexecresult.go:67`: `return 0, fmt.Errorf("failed to get last insert id for ClusterExecResult: %w", err)`
+- `.\gitmap\db\clusterexecresult.go:101`: `return fmt.Errorf("failed to update ClusterExecResult %d: %w", result.ClusterExecResultId, err)`
+- `.\gitmap\db\clusterexecresult.go:118`: `return nil, fmt.Errorf("failed to query ClusterExecResults for run %d: %w", runId, err)`
+- `.\gitmap\db\clusterexecresult.go:141`: `return nil, fmt.Errorf("failed to scan ClusterExecResult: %w", err)`
+- `.\gitmap\db\clusterexecresult.go:147`: `return nil, fmt.Errorf("error iterating over ClusterExecResults: %w", err)`
+- `.\gitmap\db\clusternode.go:45`: `return fmt.Errorf("failed to upsert ClusterNode: %w", err)`
+- `.\gitmap\db\clusternode.go:59`: `return nil, fmt.Errorf("failed to query ClusterNodes: %w", err)`
+- `.\gitmap\db\clusternode.go:71`: `return nil, fmt.Errorf("failed to scan ClusterNode: %w", err)`
+- `.\gitmap\db\clusternode.go:95`: `return ClusterNode{}, fmt.Errorf("ClusterNode not found: %s", id)`
+- `.\gitmap\db\clusternode.go:98`: `return ClusterNode{}, fmt.Errorf("failed to scan ClusterNode: %w", err)`
+- `.\gitmap\db\clusternode.go:107`: `return fmt.Errorf("failed to update password hash for node %s: %w", id, err)`
+- `.\gitmap\db\clusternode.go:116`: `return fmt.Errorf("failed to delete node %s: %w", id, err)`
+- `.\gitmap\db\clusternode.go:125`: `return 0, fmt.Errorf("failed to delete ClusterRuns: %w", err)`
+- `.\gitmap\db\clusterrun.go:46`: `return 0, fmt.Errorf("failed to insert ClusterRun: %w", err)`
+- `.\gitmap\db\clusterrun.go:51`: `return 0, fmt.Errorf("failed to get last insert id: %w", err)`
+- `.\gitmap\db\clusterrun.go:65`: `return fmt.Errorf("failed to update ClusterRun %d: %w", id, err)`
+- `.\gitmap\db\clusterrun.go:97`: `return ClusterRun{}, fmt.Errorf("ClusterRun not found for RunRef %s: %w", runRef, err)`
+- `.\gitmap\db\clusterrun.go:100`: `return ClusterRun{}, fmt.Errorf("failed to scan ClusterRun: %w", err)`
+- `.\gitmap\db\clusterrun.go:120`: `return nil, fmt.Errorf("failed to query ClusterRuns: %w", err)`
+- `.\gitmap\db\clusterrun.go:142`: `return nil, fmt.Errorf("failed to scan ClusterRun: %w", err)`
+- `.\gitmap\db\clusterrun.go:148`: `return nil, fmt.Errorf("error iterating over ClusterRuns: %w", err)`
+- `.\gitmap\db\enums.go:83`: `return 0, fmt.Errorf("invalid CommandKind: %s", s)`
+- `.\gitmap\db\enums.go:132`: `return 0, fmt.Errorf("invalid ResultStatus: %s", s)`
+- `.\gitmap\db\migrations.go:21`: `return fmt.Errorf("failed to read migrations dir: %w", err)`
+- `.\gitmap\db\migrations.go:31`: `return fmt.Errorf("failed to read migration %s: %w", entry.Name(), err)`

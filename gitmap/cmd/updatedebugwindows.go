@@ -57,7 +57,7 @@ func isDebugWindowsEnvOn() bool {
 // self executable, self pid, parent pid). Call from each lifecycle
 // hook before the phase-specific lines.
 func dumpDebugWindowsHeader(phase string) {
-	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	isNonDebugWindowsRequested := !isDebugWindowsRequested()
 	if isNonDebugWindowsRequested {
 		return
 	}
@@ -76,7 +76,7 @@ func dumpDebugWindowsHeader(phase string) {
 // dumpDebugWindowsFooter closes a dump block. Symmetric with
 // dumpDebugWindowsHeader so the on/off state is identical.
 func dumpDebugWindowsFooter() {
-	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	isNonDebugWindowsRequested := !isDebugWindowsRequested()
 	if isNonDebugWindowsRequested {
 		return
 	}
@@ -89,7 +89,7 @@ func dumpDebugWindowsFooter() {
 // before `cmd.Start()` so users can see what's about to happen even if
 // the spawn fails immediately afterwards.
 func dumpDebugWindowsHandoff(source, target string, childArgv []string) {
-	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	isNonDebugWindowsRequested := !isDebugWindowsRequested()
 	if isNonDebugWindowsRequested {
 		return
 	}
@@ -128,7 +128,7 @@ func dumpDebugWindowsRelevantEnv() {
 // successful Start(). Skipped on failure (the start-fail message
 // already carries the error).
 func dumpDebugWindowsChildPID(pid int) {
-	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	isNonDebugWindowsRequested := !isDebugWindowsRequested()
 	if isNonDebugWindowsRequested {
 		return
 	}
@@ -140,7 +140,7 @@ func dumpDebugWindowsChildPID(pid int) {
 // "inline cleanup, no spawn needed" and "target missing" branches
 // that don't have a child to report.
 func dumpDebugWindowsNote(format string, args ...interface{}) {
-	isNonDebugWindowsRequested := isDebugWindowsRequested == false()
+	isNonDebugWindowsRequested := !isDebugWindowsRequested()
 	if isNonDebugWindowsRequested {
 		return
 	}

@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 22)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\sshexisting.go:86`: `return fmt.Errorf("backup private key: %w", err)`
+- `.\gitmap\cmd\sshexisting.go:91`: `return nil`
+- `.\gitmap\cmd\sshexisting.go:96`: `return fmt.Errorf("backup public key: %w", errRename)`
+- `.\gitmap\cmd\sshgen.go:204`: `return strings.TrimSpace(strings.ToLower(input)) == "y"`
+- `.\gitmap\cmd\sshgenutil.go:24`: `return ""`
+- `.\gitmap\cmd\sshgenutil.go:34`: `return "unknown"`
+- `.\gitmap\cmd\sshgenutil.go:39`: `return parts[1]`
+- `.\gitmap\cmd\sshgenutil.go:64`: `return filepath.Join(home, ".ssh", "id_rsa")`
+- `.\gitmap\cmd\sshgenutil.go:76`: `return os.MkdirAll(dir, 0o700)`
+- `.\gitmap\cmd\sshjoin.go:40`: `return opts`
+- `.\gitmap\cmd\sshjoin.go:116`: `return strings.TrimSpace(input)`
+- `.\gitmap\cmd\sshlist.go:67`: `return true`
+- `.\gitmap\cmd\sshlistjson_contract_test.go:33`: `return model.SSHKey{`
+- `.\gitmap\cmd\sshlistrender.go:30`: `return stablejson.WriteArray(w, buildSSHListJSONItems(keys))`
+- `.\gitmap\cmd\sshstatus.go:87`: `return true, firstSegment(text, 80)`
+- `.\gitmap\cmd\sshstatus.go:90`: `return false, "no response (timeout or network blocked)"`
+- `.\gitmap\cmd\sshstatus.go:112`: `return s`
+- `.\gitmap\cmd\stale.go:44`: `return staleRepo{}, false`
+- `.\gitmap\cmd\stale.go:46`: `return staleRepo{path: r, last: t}, true`
+- `.\gitmap\cmd\stale.go:92`: `return nil`
+- `.\gitmap\cmd\stale.go:114`: `return time.Time{}, false`
+- `.\gitmap\cmd\stale.go:118`: `return time.Time{}, false`
+- `.\gitmap\cmd\stale.go:122`: `return time.Time{}, false`
+- `.\gitmap\cmd\startuplistfilter.go:65`: `return true`
+- `.\gitmap\cmd\startuplistfilter.go:69`: `return strings.HasPrefix(e.Path, `HKCU\`)`
+- `.\gitmap\cmd\startuplistfilter.go:71`: `return strings.HasPrefix(e.Path, `HKLM\`)`
+- `.\gitmap\cmd\startuplistfilter.go:73`: `return strings.HasSuffix(strings.ToLower(e.Path), constants.StartupLnkExt)`
+- `.\gitmap\cmd\startuplistfilter.go:87`: `return true`
+- `.\gitmap\cmd\startuplistfilter_test.go:19`: `return []startup.Entry{`
+- `.\gitmap\cmd\startuplistjson_determinism_test.go:119`: `return buf.Bytes()`
+- `.\gitmap\cmd\startuplistrender.go:101`: `return encodeStartupListJSONIndent(w, entries, constants.StartupListJSONIndentDefault)`
+- `.\gitmap\cmd\startuplistrender.go:146`: `return stablejson.WriteJSONLines(w, buildStartupListJSONItems(entries))`
+- `.\gitmap\cmd\startupstatusjson.go:167`: `return nil`
+- `.\gitmap\cmd\statsrender.go:55`: `return err`
+- `.\gitmap\cmd\statsrender.go:74`: `return nil, err`
+- `.\gitmap\cmd\status.go:41`: `return []model.ScanRecord{{`
+- `.\gitmap\cmd\status.go:48`: `return loadRecordsByGroup(groupName)`
+- `.\gitmap\cmd\status.go:51`: `return loadAllRecordsDB()`
+- `.\gitmap\cmd\status.go:101`: `return loadAllRecordsDBOrEmpty()`
+- `.\gitmap\cmd\status.go:137`: `return nil, err`
+- `.\gitmap\cmd\statusformat.go:17`: `return computeRepoStatus(rec, s)`
+- `.\gitmap\cmd\statusformat.go:21`: `return statusRow{`
+- `.\gitmap\cmd\statusformat.go:96`: `return buildFileCountParts(rs)`
+- `.\gitmap\cmd\statusmissing.go:38`: `return fmt.Sprintf("%s %s ... (+%d more)", slugs[0], slugs[1], len(slugs)-2)`
+- `.\gitmap\cmd\statusmissing.go:47`: `return out`
+- `.\gitmap\cmd\statusprint.go:45`: `return &statusTableContext{`
+- `.\gitmap\cmd\statusprint.go:92`: `return s`
+- `.\gitmap\cmd\statusprint.go:108`: `return s`
+- `.\gitmap\cmd\statusprint.go:179`: `return parts`
+- `.\gitmap\cmd\sync.go:196`: `return false`
+- `.\gitmap\cmd\sync.go:227`: `return true`
+- `.\gitmap\cmd\sync.go:364`: `return string(ab) == string(bb)`
+- `.\gitmap\cmd\taskfilter.go:17`: `return err`
+- `.\gitmap\cmd\taskfilter.go:23`: `return err`
+- `.\gitmap\cmd\taskfilter.go:39`: `return nil`
+- `.\gitmap\cmd\taskfilter.go:65`: `return true`
+- `.\gitmap\cmd\taskfilter.go:74`: `return false`
+- `.\gitmap\cmd\taskfilter.go:99`: `return true`
+- `.\gitmap\cmd\taskfilter.go:116`: `return false`
+- `.\gitmap\cmd\taskfilter.go:126`: `return false`
+- `.\gitmap\cmd\taskops.go:124`: `return t`
+- `.\gitmap\cmd\taskops.go:162`: `return model.TaskFile{Tasks: []model.TaskEntry{}}`
+- `.\gitmap\cmd\tasksync.go:44`: `return constants.TaskMinInterval`
+- `.\gitmap\cmd\tasksync.go:79`: `return nil`
+- `.\gitmap\cmd\tasksync.go:85`: `return filepath.SkipDir`
+- `.\gitmap\cmd\tasksync.go:88`: `return nil`
+- `.\gitmap\cmd\tasksync.go:92`: `return nil`
+- `.\gitmap\cmd\tasksync.go:159`: `return os.MkdirAll(filepath.Dir(destPath), constants.DirPermission)`
+- `.\gitmap\cmd\tasksync.go:166`: `return path`
+- `.\gitmap\cmd\templatescli.go:86`: `return false`
+- `.\gitmap\cmd\templatescli.go:167`: `return true`
+- `.\gitmap\cmd\templatescli.go:177`: `return in`
+- `.\gitmap\cmd\templatescli.go:261`: `return labelTemplatesUser`
+- `.\gitmap\cmd\templatescli_filter_test.go:12`: `return []templates.Entry{`
+- `.\gitmap\cmd\templatesdiff.go:87`: `return []string{"ignore", "attributes"}, true`
+- `.\gitmap\cmd\templatesdiff.go:89`: `return []string{kind}, true`
+- `.\gitmap\cmd\templatesdiff.go:141`: `return ".gitattributes"`
+- `.\gitmap\cmd\templatesdiff.go:164`: `return line`
+- `.\gitmap\cmd\templatesdiff.go:168`: `return render.HighlightQuotesANSI(constants.ColorCyan + line + constants.ColorReset)`
+- `.\gitmap\cmd\templatesdiff.go:170`: `return render.HighlightQuotesANSI(constants.ColorYellow + line + constants.ColorReset)`
+- `.\gitmap\cmd\templatesdiff.go:172`: `return render.HighlightQuotesANSI(constants.ColorDim + line + constants.ColorReset)`
+- `.\gitmap\cmd\templatesinit.go:101`: `return templatesInitFlags{}, fmt.Errorf("parse flags: %w", err)`
+- `.\gitmap\cmd\templatesinit.go:170`: `return templatesInitResult{`
+- `.\gitmap\cmd\templatesinit.go:185`: `return templatesInitResult{`
+- `.\gitmap\cmd\tempreleaseexport_test_helpers.go:11`: `return formatSeq(seq, digits)`
+- `.\gitmap\cmd\tempreleaseexport_test_helpers.go:18`: `return pattern, 0`
+- `.\gitmap\cmd\tempreleaseexport_test_helpers.go:33`: `return resolveTRBranch(version)`
+- `.\gitmap\cmd\tempreleaseexport_test_helpers.go:42`: `return fmt.Errorf("sequence %d exceeds %d-digit format (max %d)", endSeq, digits, maxVal)`
+- `.\gitmap\cmd\tempreleaselist.go:72`: `return true`
+- `.\gitmap\cmd\tempreleaselistrender.go:31`: `return stablejson.WriteArray(w, buildTempReleaseListItems(releases))`
+- `.\gitmap\cmd\tempreleaseops.go:87`: `return 1`
+- `.\gitmap\cmd\tempreleaseops.go:106`: `return fmt.Sprintf("%0*d", digits, seq)`
+- `.\gitmap\cmd\tempreleaseremove.go:158`: `return version`
+- `.\gitmap\cmd\testpaths_test.go:18`: `return filepath.Join(append([]string{cmdPackageDir()}, parts...)...)`
+- `.\gitmap\cmd\testpaths_test.go:22`: `return cmdPackagePath(goldenDir, name)`
+- `.\gitmap\cmd\testpaths_test.go:27`: `return schemaDir`
+- `.\gitmap\cmd\themeflag.go:57`: `return args[i+1], 2, true`
+- `.\gitmap\cmd\themeflag.go:60`: `return "", 1, true`
+- `.\gitmap\cmd\themeflag.go:63`: `return v, 1, true`
+- `.\gitmap\cmd\themeflag.go:66`: `return v, 1, true`
+- `.\gitmap\cmd\themeflag.go:75`: `return "", false`
+- `.\gitmap\cmd\undo.go:87`: `return nil`
+- `.\gitmap\cmd\undo.go:122`: `return findExplicitSnapshot(snapshots, explicit)`
+- `.\gitmap\cmd\undo.go:125`: `return ""`
+- `.\gitmap\cmd\undo.go:134`: `return s`
+- `.\gitmap\cmd\undo.go:137`: `return ""`
+- `.\gitmap\cmd\undo.go:208`: `return 0`
+- `.\gitmap\cmd\undo.go:219`: `return fixRepoBackupManifest{}, false`
+- `.\gitmap\cmd\undo.go:224`: `return fixRepoBackupManifest{}, false`
+- `.\gitmap\cmd\undo.go:228`: `return fixRepoBackupManifest{}, false`
+- `.\gitmap\cmd\uninstall.go:144`: `return resolvePackageManager("")`
+- `.\gitmap\cmd\uninstall.go:149`: `return resolvePackageManager("")`
+- `.\gitmap\cmd\uninstall.go:160`: `return buildChocoUninstall(pkgName, purge)`
+- `.\gitmap\cmd\uninstall.go:163`: `return []string{"winget", "uninstall", pkgName}`
+- `.\gitmap\cmd\uninstall.go:166`: `return buildAptUninstall(pkgName, purge)`
+- `.\gitmap\cmd\uninstall.go:169`: `return []string{"brew", "uninstall", pkgName}`
+- `.\gitmap\cmd\uninstall.go:172`: `return []string{"sudo", "snap", "remove", pkgName}`
+- `.\gitmap\cmd\unzipcompact.go:76`: `return "", "", perr`
+- `.\gitmap\cmd\unzipcompact.go:82`: `return positional[0], cwd, nil`
+- `.\gitmap\cmd\unzipcompact.go:84`: `return positional[0], positional[1], nil`
+- `.\gitmap\cmd\update.go:88`: `return false`
+- `.\gitmap\cmd\update.go:103`: `return false`
+- `.\gitmap\cmd\update.go:223`: `return args[i+1]`
+- `.\gitmap\cmd\update.go:248`: `return true`
+- `.\gitmap\cmd\update.go:259`: `return err`
+- `.\gitmap\cmd\update.go:265`: `return err`
+- `.\gitmap\cmd\update.go:280`: `return "unknown"`
+- `.\gitmap\cmd\update.go:288`: `return "unknown"`
+- `.\gitmap\cmd\update.go:290`: `return parsed.Version`
+- `.\gitmap\cmd\updatecleanup_extra.go:34`: `return 0`
+- `.\gitmap\cmd\updatecleanup_extra.go:39`: `return 0`
+- `.\gitmap\cmd\updatecleanup_extra.go:44`: `return 0`
+- `.\gitmap\cmd\updatecleanup_extra.go:53`: `return ""`
+- `.\gitmap\cmd\updatecleanup_extra.go:58`: `return ""`
+- `.\gitmap\cmd\updatecleanup_extra.go:69`: `return false`
+- `.\gitmap\cmd\updatecleanup_extra.go:75`: `return false`
+- `.\gitmap\cmd\updatecleanup_extra.go:80`: `return false`
+- `.\gitmap\cmd\updatecleanup_paths.go:53`: `return config`
+- `.\gitmap\cmd\updatecleanup_paths.go:102`: `return ""`
+- `.\gitmap\cmd\updatecleanup_paths.go:114`: `return ""`
+- `.\gitmap\cmd\updatecleanup_paths.go:118`: `return selfDir`
+- `.\gitmap\cmd\updatecleanup_paths.go:123`: `return ""`
+- `.\gitmap\cmd\updatecleanup_paths.go:132`: `return ""`
+- `.\gitmap\cmd\updatecleanup_paths.go:141`: `return ""`
+- `.\gitmap\cmd\updatecleanup_paths.go:153`: `return filepath.Clean(buildOutput)`
+- `.\gitmap\cmd\updatecleanup_paths.go:175`: `return dirs`
+- `.\gitmap\cmd\updatecleanup_paths.go:180`: `return dirs`
+- `.\gitmap\cmd\updatecleanup_paths.go:191`: `return true`
+- `.\gitmap\cmd\updatecleanup_paths.go:201`: `return value`
+- `.\gitmap\cmd\updatecleanup_paths.go:211`: `return cleanPath`

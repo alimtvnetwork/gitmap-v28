@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 12)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\doctor.go:46`: `return 1`
+- `.\gitmap\cmd\doctor.go:49`: `return 0`
+- `.\gitmap\cmd\doctor.go:53`: `return []DoctorCheck{`
+- `.\gitmap\cmd\doctor.go:67`: `return DoctorCheck{`
+- `.\gitmap\cmd\doctor.go:73`: `return false, err.Error()`
+- `.\gitmap\cmd\doctor.go:75`: `return true, firstDoctorLine(string(out))`
+- `.\gitmap\cmd\doctor.go:81`: `return DoctorCheck{`
+- `.\gitmap\cmd\doctor.go:87`: `return false, "chrome binary not found on this OS"`
+- `.\gitmap\cmd\doctor.go:89`: `return true, path`
+- `.\gitmap\cmd\doctor.go:95`: `return DoctorCheck{`
+- `.\gitmap\cmd\doctor.go:100`: `return false, "gitmap not on PATH"`
+- `.\gitmap\cmd\doctor.go:102`: `return true, "gitmap on PATH"`
+- `.\gitmap\cmd\doctor.go:108`: `return DoctorCheck{`
+- `.\gitmap\cmd\doctor.go:120`: `return DoctorCheck{`
+- `.\gitmap\cmd\doctor.go:126`: `return false, err.Error()`
+- `.\gitmap\cmd\doctor.go:128`: `return true, "writable: " + wd`
+- `.\gitmap\cmd\doctor.go:137`: `return c, true`
+- `.\gitmap\cmd\doctor.go:140`: `return "", false`
+- `.\gitmap\cmd\doctor.go:146`: `return []string{`
+- `.\gitmap\cmd\doctor.go:151`: `return []string{"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"}`
+- `.\gitmap\cmd\doctor.go:153`: `return []string{"/usr/bin/google-chrome", "/usr/bin/chromium"}`
+- `.\gitmap\cmd\doctor.go:171`: `return s[:i]`
+- `.\gitmap\cmd\doctor.go:174`: `return s`
+- `.\gitmap\cmd\doctorchecks.go:58`: `return 0`
+- `.\gitmap\cmd\doctorchecks.go:74`: `return issue`
+- `.\gitmap\cmd\doctorchecks.go:165`: `return ""`
+- `.\gitmap\cmd\doctorchecks.go:204`: `return 0`
+- `.\gitmap\cmd\doctorchecks.go:260`: `return constants.DoctorUnknownSigner`
+- `.\gitmap\cmd\doctorchecks.go:265`: `return constants.DoctorUnknownSigner`
+- `.\gitmap\cmd\doctordupbin.go:32`: `return findAllBinariesWindows()`
+- `.\gitmap\cmd\doctordupbin.go:44`: `return nil`
+- `.\gitmap\cmd\doctordupbin.go:55`: `return nil`
+- `.\gitmap\cmd\doctordupbin.go:78`: `return "", false`
+- `.\gitmap\cmd\doctordupbin.go:86`: `return "", false`
+- `.\gitmap\cmd\doctordupbin.go:113`: `return formatDupFixWindows(stale)`
+- `.\gitmap\cmd\doctordupbin.go:122`: `return "Remove-Item '" + stale[0] + "' -Force"`
+- `.\gitmap\cmd\doctordupbin.go:138`: `return "sudo rm '" + stale[0] + "'"`
+- `.\gitmap\cmd\doctorfixpath.go:128`: `return "", fmt.Errorf(constants.DoctorResolveNoRepo)`
+- `.\gitmap\cmd\doctorfixpath.go:134`: `return "", fmt.Errorf(constants.DoctorResolveNoRead, err)`
+- `.\gitmap\cmd\doctorfixpath.go:144`: `return "", fmt.Errorf(constants.DoctorResolveNoDeploy)`
+- `.\gitmap\cmd\doctorfixpath.go:154`: `return "", fmt.Errorf(constants.DoctorResolveNotFound, deployed)`
+- `.\gitmap\cmd\doctorformat.go:15`: `return "not found"`
+- `.\gitmap\cmd\doctorformat.go:21`: `return "unknown"`
+- `.\gitmap\cmd\doctorintegrity.go:16`: `return 0 // checkDatabase already reports this`
+- `.\gitmap\cmd\doctorsync.go:23`: `return true`
+- `.\gitmap\cmd\doctorsync.go:41`: `return false`
+- `.\gitmap\cmd\doctorsync.go:58`: `return tryKillWindows(src, dst)`
+- `.\gitmap\cmd\doctorsync.go:76`: `return false`
+- `.\gitmap\cmd\doctorsync.go:97`: `return err`
+- `.\gitmap\cmd\doctorsync.go:103`: `return err`
+- `.\gitmap\cmd\doctorvalidate.go:30`: `return filepath.Join(constants.RepoPath, constants.GitMapSubdir, constants.DefaultConfigPath)`
+- `.\gitmap\cmd\doctorversion.go:34`: `return "", ""`
+- `.\gitmap\cmd\doctorversion.go:49`: `return "", ""`
+- `.\gitmap\cmd\doctorversion.go:54`: `return "", ""`
+- `.\gitmap\cmd\doctorversion.go:69`: `return "", ""`
+- `.\gitmap\cmd\doctorversion.go:106`: `return 0`
+- `.\gitmap\cmd\doctorversion.go:110`: `return 0`
+- `.\gitmap\cmd\doctorversion.go:124`: `return 0`
+- `.\gitmap\cmd\doctor_extra.go:27`: `return DoctorCheck{`
+- `.\gitmap\cmd\doctor_extra.go:33`: `return false, err.Error()`
+- `.\gitmap\cmd\doctor_extra.go:37`: `return false, "cannot create " + dir + ": " + err.Error()`
+- `.\gitmap\cmd\doctor_extra.go:41`: `return false, "not writable: " + dir`
+- `.\gitmap\cmd\doctor_extra.go:44`: `return true, "writable: " + dir`
+- `.\gitmap\cmd\doctor_extra.go:52`: `return DoctorCheck{`
+- `.\gitmap\cmd\doctor_extra.go:58`: `return true, k + " set (" + maskToken(v) + ")"`
+- `.\gitmap\cmd\doctor_extra.go:61`: `return false, "no GITHUB_TOKEN / GH_TOKEN in environment"`
+- `.\gitmap\cmd\doctor_extra.go:68`: `return DoctorCheck{`
+- `.\gitmap\cmd\doctor_extra.go:84`: `return false, summary + "; failures: " + joinSemi(fails)`
+- `.\gitmap\cmd\doctor_extra.go:86`: `return true, summary + "; " + joinSemi(oks)`
+- `.\gitmap\cmd\doctor_extra.go:94`: `return false, err.Error()`
+- `.\gitmap\cmd\doctor_extra.go:101`: `return false, err.Error()`
+- `.\gitmap\cmd\doctor_extra.go:105`: `return false, resp.Status`
+- `.\gitmap\cmd\doctor_extra.go:107`: `return true, "(" + resp.Status + ")"`
+- `.\gitmap\cmd\doctor_extra.go:118`: `return out`
+- `.\gitmap\cmd\doctor_extra.go:124`: `return v`
+- `.\gitmap\cmd\doctor_extra.go:127`: `return ""`
+- `.\gitmap\cmd\doctor_extra.go:132`: `return "****"`
+- `.\gitmap\cmd\doctor_extra.go:134`: `return t[:4] + "…" + t[len(t)-4:]`
+- `.\gitmap\cmd\doctor_fixrepo.go:65`: `return n`
+- `.\gitmap\cmd\doctor_fixrepo.go:67`: `return defaultBudget`
+- `.\gitmap\cmd\doctor_fixrepo.go:72`: `return []DoctorResult{`
+- `.\gitmap\cmd\doctor_fixrepo.go:84`: `return DoctorResult{`
+- `.\gitmap\cmd\doctor_fixrepo.go:103`: `return DoctorResult{Name: "gofmt-runs", OK: false, Detail: "mktemp: " + err.Error()}`
+- `.\gitmap\cmd\doctor_fixrepo.go:108`: `return DoctorResult{Name: "gofmt-runs", OK: false, Detail: "write sample: " + err.Error()}`
+- `.\gitmap\cmd\doctor_fixrepo.go:113`: `return DoctorResult{`
+- `.\gitmap\cmd\doctor_fixrepo.go:131`: `return DoctorResult{`
+- `.\gitmap\cmd\doctor_fixrepo.go:154`: `return 0`
+- `.\gitmap\cmd\doctor_fixrepo.go:161`: `return 0`
+- `.\gitmap\cmd\doctor_fixrepo.go:166`: `return 0`
+- `.\gitmap\cmd\doctor_fixrepo.go:180`: `return last`
+- `.\gitmap\cmd\doctor_fixrepo.go:193`: `return DoctorResult{Name: "chunker-selftest", OK: false, Detail: "empty input did not return nil"}`
+- `.\gitmap\cmd\doctor_fixrepo.go:197`: `return DoctorResult{`
+- `.\gitmap\cmd\doctor_fixrepo.go:209`: `return DoctorResult{`
+- `.\gitmap\cmd\doctor_fixrepo.go:216`: `return DoctorResult{`
+- `.\gitmap\cmd\doctor_run.go:93`: `return c.Run()`
+- `.\gitmap\cmd\doctor_run.go:95`: `return false, detail + "\n           run: gitmap secrets set GITHUB_TOKEN  (or export GITHUB_TOKEN=<pat>)"`
+- `.\gitmap\cmd\doctor_run.go:97`: `return false, detail + "\n           run: gitmap self-install"`
+- `.\gitmap\cmd\doctor_run.go:99`: `return false, detail`
+- `.\gitmap\cmd\dopendingretry.go:33`: `return typeName == constants.TaskTypeDelete `
+- `.\gitmap\cmd\dopendingretry.go:38`: `return typeName == constants.TaskTypeScan `
+- `.\gitmap\cmd\dopendingretry.go:119`: `return fmt.Sprintf(constants.ReasonPermissionDenied, path, operation, err)`
+- `.\gitmap\cmd\downloaderconfig.go:37`: `return db`
+- `.\gitmap\cmd\downloaderconfig.go:69`: `return loadDocFromFile(args[0])`
+- `.\gitmap\cmd\downloaderconfig.go:87`: `return doc, path`
+- `.\gitmap\cmd\downloaderconfig.go:96`: `return dc`
+- `.\gitmap\cmd\downloaderconfig.go:105`: `return dc`
+- `.\gitmap\cmd\downloaderconfig.go:111`: `return dc`
+- `.\gitmap\cmd\downloaderconfig.go:119`: `return doc`
+- `.\gitmap\cmd\downloaderconfig.go:134`: `return validatePromptedDoc(doc)`
+- `.\gitmap\cmd\downloaderconfig.go:143`: `return def`
+- `.\gitmap\cmd\downloaderconfig.go:155`: `return n`
+- `.\gitmap\cmd\downloaderconfig.go:167`: `return true`
+- `.\gitmap\cmd\downloaderconfig.go:169`: `return false`
+- `.\gitmap\cmd\downloaderconfig.go:171`: `return def`
+- `.\gitmap\cmd\envops.go:30`: `return fs.Arg(0), fs.Arg(1), f`
+- `.\gitmap\cmd\envops.go:74`: `return fs.Arg(0), f`
+- `.\gitmap\cmd\envplatform_unix.go:47`: `return profilePathForShell(shell)`
+- `.\gitmap\cmd\envplatform_unix.go:63`: `return filepath.Join(home, constants.EnvProfileZshRC)`
+- `.\gitmap\cmd\envplatform_unix.go:80`: `return filepath.Join(home, constants.EnvProfileZshRC)`
+- `.\gitmap\cmd\envplatform_unix.go:131`: `return ""`
+- `.\gitmap\cmd\envregistry.go:19`: `return model.EnvRegistry{`
+- `.\gitmap\cmd\envregistry.go:78`: `return v`
+- `.\gitmap\cmd\escapecwd.go:25`: `return "", nil`
+- `.\gitmap\cmd\escapecwd.go:28`: `return escapeCwdToParent(cwd, target)`
+- `.\gitmap\cmd\escapecwd.go:41`: `return cwd, fmt.Errorf("escapeCwdIfInside: chdir %q: %w", parent, chErr)`
+- `.\gitmap\cmd\escapecwd.go:51`: `return cleaned`
+- `.\gitmap\cmd\escapecwd.go:62`: `return true`
+- `.\gitmap\cmd\escapecwd.go:67`: `return false`
+- `.\gitmap\cmd\escapecwd.go:71`: `return true`
+- `.\gitmap\cmd\escapecwd_test.go:107`: `return strings.EqualFold(cleanExistingPath(left), cleanExistingPath(right))`
+- `.\gitmap\cmd\exec.go:106`: `return 1, 0, 0`
+- `.\gitmap\cmd\exec.go:109`: `return 0, 1, 0`
+- `.\gitmap\cmd\exec.go:134`: `return []model.ScanRecord{{`
+- `.\gitmap\cmd\exec.go:141`: `return loadRecordsByGroup(groupName)`
+- `.\gitmap\cmd\exec.go:144`: `return loadAllRecordsDB()`
+- `.\gitmap\cmd\exec.go:166`: `return nil, err`
+- `.\gitmap\cmd\exec.go:177`: `return s`
+- `.\gitmap\cmd\expandhome_test.go:85`: `return `C:\tmp\x``
+- `.\gitmap\cmd\export.go:25`: `return args[0]`
+- `.\gitmap\cmd\exportjson_contract_test.go:23`: `return model.DatabaseExport{`
+- `.\gitmap\cmd\exportrender.go:46`: `return err`
+- `.\gitmap\cmd\exportrender.go:64`: `return []exportArrayField{`
+- `.\gitmap\cmd\exportrender.go:78`: `return json.RawMessage("[]"), nil`
+- `.\gitmap\cmd\exportrender.go:84`: `return nil, err`
+- `.\gitmap\cmd\exportrender.go:95`: `return len(v) == 0`
+- `.\gitmap\cmd\exportrender.go:97`: `return len(v) == 0`
+- `.\gitmap\cmd\exportrender.go:99`: `return len(v) == 0`
+- `.\gitmap\cmd\exportrender.go:101`: `return len(v) == 0`
+- `.\gitmap\cmd\exportrender.go:103`: `return len(v) == 0`
+- `.\gitmap\cmd\export_nested_jsonschema_contract_test.go:20`: `return model.DatabaseExport{`

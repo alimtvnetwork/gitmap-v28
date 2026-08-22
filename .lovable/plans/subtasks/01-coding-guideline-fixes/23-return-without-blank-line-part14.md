@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 14)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\helpdashboard_extract.go:20`: `return fmt.Errorf("open zip: %w", err)`
+- `.\gitmap\cmd\helpdashboard_extract.go:26`: `return fmt.Errorf("resolve target dir: %w", err)`
+- `.\gitmap\cmd\helpdashboard_extract.go:34`: `return entryErr`
+- `.\gitmap\cmd\helpdashboard_extract.go:39`: `return fmt.Errorf("archive exceeds maximum extraction size (%d bytes)", maxDocsSiteSize)`
+- `.\gitmap\cmd\helpdashboard_extract.go:52`: `return 0, fmt.Errorf("illegal file path in zip: %s", f.Name)`
+- `.\gitmap\cmd\helpdashboard_extract.go:56`: `return handleExtractDir(absDestPath)`
+- `.\gitmap\cmd\helpdashboard_extract.go:60`: `return 0, fmt.Errorf("create parent dir: %w", mkErr)`
+- `.\gitmap\cmd\helpdashboard_extract.go:65`: `return 0, fmt.Errorf("open entry %s: %w", f.Name, openErr)`
+- `.\gitmap\cmd\helpdashboard_extract.go:71`: `return 0, fmt.Errorf("create file %s: %w", absDestPath, createErr)`
+- `.\gitmap\cmd\helpdashboard_extract.go:78`: `return written, fmt.Errorf("write file %s: %w", absDestPath, copyErr)`
+- `.\gitmap\cmd\helpdashboard_extract.go:88`: `return 0, fmt.Errorf("create dir %s: %w", absDestPath, mkErr)`
+- `.\gitmap\cmd\helpdashboard_extract.go:90`: `return 0, nil`
+- `.\gitmap\cmd\helpdashboard_target.go:19`: `return filepath.Join(docsDir, constants.HDDistDir)`
+- `.\gitmap\cmd\helpdashboard_target.go:30`: `return filepath.Join(docsDir, constants.HDDistDir)`
+- `.\gitmap\cmd\hints.go:26`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:35`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:44`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:52`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:61`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:70`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:79`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:87`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:96`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:105`: `return []hintEntry{`
+- `.\gitmap\cmd\hints.go:113`: `return []hintEntry{`
+- `.\gitmap\cmd\history.go:56`: `return records`
+- `.\gitmap\cmd\history.go:61`: `return db.ListHistoryByCommand(cmdFilter)`
+- `.\gitmap\cmd\history.go:63`: `return db.ListHistory()`
+- `.\gitmap\cmd\history.go:79`: `return records[:limit]`
+- `.\gitmap\cmd\history.go:128`: `return historyRowTokens{`
+- `.\gitmap\cmd\history.go:164`: `return colorize(constants.ColorGreen, padRight("✓ "+constants.MsgHistoryStatusOK, 8))`
+- `.\gitmap\cmd\history.go:166`: `return colorize(constants.ColorRed, padRight("✗ "+constants.MsgHistoryStatusFail, 8))`
+- `.\gitmap\cmd\history.go:191`: `return hints`
+- `.\gitmap\cmd\history.go:238`: `return hint`
+- `.\gitmap\cmd\history.go:241`: `return recloneTransportHint(r)`
+- `.\gitmap\cmd\history.go:243`: `return ""`
+- `.\gitmap\cmd\history.go:248`: `return "gitmap cfr " + r.Args + " --https"`
+- `.\gitmap\cmd\history.go:251`: `return "gitmap cfr " + r.Args + " --ssh"`
+- `.\gitmap\cmd\history.go:253`: `return ""`
+- `.\gitmap\cmd\history.go:263`: `return humanizeDuration(time.Since(t)) + " ago"`
+- `.\gitmap\cmd\history.go:266`: `return "—"`
+- `.\gitmap\cmd\history.go:274`: `return time.Time{}, false`
+- `.\gitmap\cmd\history.go:279`: `return t, true`
+- `.\gitmap\cmd\history.go:282`: `return time.Time{}, false`
+- `.\gitmap\cmd\history.go:293`: `return fmt.Sprintf("%ds", int(d.Seconds()))`
+- `.\gitmap\cmd\history.go:296`: `return fmt.Sprintf("%dm", int(d.Minutes()))`
+- `.\gitmap\cmd\history.go:299`: `return fmt.Sprintf("%dh", int(d.Hours()))`
+- `.\gitmap\cmd\history.go:301`: `return fmt.Sprintf("%dd", int(d.Hours()/24))`
+- `.\gitmap\cmd\history.go:310`: `return s`
+- `.\gitmap\cmd\history.go:312`: `return s + strings.Repeat(" ", w-len(s))`
+- `.\gitmap\cmd\history.go:317`: `return s`
+- `.\gitmap\cmd\history.go:320`: `return s[:w]`
+- `.\gitmap\cmd\history.go:322`: `return s[:w-1] + "…"`
+- `.\gitmap\cmd\history.go:327`: `return s`
+- `.\gitmap\cmd\history.go:329`: `return color + s + constants.ColorReset`
+- `.\gitmap\cmd\historyjson_contract_test.go:40`: `return model.CommandHistoryRecord{`
+- `.\gitmap\cmd\historyrender.go:39`: `return stablejson.WriteArray(w, buildHistoryJSONItems(records))`
+- `.\gitmap\cmd\historyrender.go:51`: `return items`
+- `.\gitmap\cmd\historyrender.go:55`: `return append(historyRecordMetaFields(r), historyRecordTimingFields(r)...)`
+- `.\gitmap\cmd\historyrender.go:59`: `return []stablejson.Field{`
+- `.\gitmap\cmd\historyrender.go:70`: `return []stablejson.Field{`
+- `.\gitmap\cmd\historyrewrite.go:61`: `return "history-pin"`
+- `.\gitmap\cmd\historyrewrite.go:63`: `return "history-purge"`
+- `.\gitmap\cmd\historyrewrite.go:70`: `return nil`
+- `.\gitmap\cmd\historyrewrite.go:82`: `return out`
+- `.\gitmap\cmd\historyrewrite_flags.go:36`: `return opts, paths`
+- `.\gitmap\cmd\historyrewrite_flags.go:47`: `return rawHistoryFlags{`
+- `.\gitmap\cmd\historyrewrite_flags.go:61`: `return historyOpts{`
+- `.\gitmap\cmd\historyrewrite_flags.go:109`: `return flags, positional`
+- `.\gitmap\cmd\historyrewrite_flags.go:115`: `return tok == "--"+constants.HistoryFlagMessage `
+- `.\gitmap\cmd\historyrewrite_paths.go:22`: `return out`
+- `.\gitmap\cmd\historyrewrite_pin.go:34`: `return "", err`
+- `.\gitmap\cmd\historyrewrite_pin.go:42`: `return writeManifestFile(sandbox, entries)`
+- `.\gitmap\cmd\historyrewrite_pin.go:49`: `return "", err`
+- `.\gitmap\cmd\historyrewrite_pin.go:53`: `return "", err`
+- `.\gitmap\cmd\historyrewrite_pin.go:55`: `return manifest, nil`
+- `.\gitmap\cmd\historyrewrite_pin.go:71`: `return nil, fmt.Errorf("git log for %s: %w", path, err)`
+- `.\gitmap\cmd\historyrewrite_pin.go:73`: `return parseBlobShasFromRawLog(string(out)), nil`
+- `.\gitmap\cmd\historyrewrite_pin.go:93`: `return out`
+- `.\gitmap\cmd\historyrewrite_pin.go:121`: `return strings.ReplaceAll(tmpl, "__MANIFEST__", quoted)`
+- `.\gitmap\cmd\historyrewrite_pin_test.go:89`: `return string(b)`
+- `.\gitmap\cmd\historyrewrite_push.go:38`: `return false`
+- `.\gitmap\cmd\historyrewrite_push.go:40`: `return strings.TrimSpace(line) == "yes"`
+- `.\gitmap\cmd\historyrewrite_sandbox.go:47`: `return url`
+- `.\gitmap\cmd\historyrewrite_sandbox.go:68`: `return sandbox`
+- `.\gitmap\cmd\historyrewrite_sandbox.go:131`: `return nil`
+- `.\gitmap\cmd\historyrewrite_sandbox.go:134`: `return []string{"--commit-callback", buildScopedMessagePython(opts.message, touched)}`
+- `.\gitmap\cmd\historyrewrite_sandbox.go:147`: `return nil`
+- `.\gitmap\cmd\historyrewrite_sandbox.go:157`: `return shas`
+- `.\gitmap\cmd\historyrewrite_sandbox.go:173`: `return fmt.Sprintf(``
+- `.\gitmap\cmd\historyrewrite_sandbox.go:202`: `return exitErr.ExitCode()`
+- `.\gitmap\cmd\historyrewrite_sandbox.go:204`: `return -1`
+- `.\gitmap\cmd\historyrewrite_verify.go:71`: `return clean`
+- `.\gitmap\cmd\historyrewrite_verify.go:81`: `return "", false`
+- `.\gitmap\cmd\historyrewrite_verify.go:84`: `return hex.EncodeToString(sum[:]), true`
+- `.\gitmap\cmd\historyrewrite_verify.go:95`: `return n`
+- `.\gitmap\cmd\hygiene_parallel.go:21`: `return 2`
+- `.\gitmap\cmd\hygiene_parallel.go:24`: `return 8`
+- `.\gitmap\cmd\hygiene_parallel.go:36`: `return nil`
+- `.\gitmap\cmd\hygiene_parallel.go:128`: `return hygieneFormatTable, nil`
+- `.\gitmap\cmd\hygiene_parallel.go:130`: `return hygieneFormatJSON, nil`
+- `.\gitmap\cmd\hygiene_parallel.go:132`: `return hygieneFormatCSV, nil`
+- `.\gitmap\cmd\inject.go:94`: `return os.Getwd()`
+- `.\gitmap\cmd\inject.go:98`: `return "", fmt.Errorf("expected 0 or 1 folder argument, got %d", len(positional))`
+- `.\gitmap\cmd\inject.go:103`: `return "", fmt.Errorf("folder not found or not a directory: %s", positional[0])`
+- `.\gitmap\cmd\inject_idempotency.go:42`: `return store.InjectTimestamps{}`
+- `.\gitmap\cmd\inject_idempotency.go:48`: `return store.InjectTimestamps{}`
+- `.\gitmap\cmd\inject_idempotency.go:74`: `return true`
+- `.\gitmap\cmd\inject_idempotency.go:89`: `return true`
+- `.\gitmap\cmd\install.go:30`: `return opts, list`
+- `.\gitmap\cmd\install.go:83`: `return map[string]func(installOptions){`
+- `.\gitmap\cmd\install.go:93`: `return map[string]func(installOptions){`
+- `.\gitmap\cmd\install.go:107`: `return func(installOptions) { runInstallCleanCode() }`
+- `.\gitmap\cmd\install.go:110`: `return h`
+- `.\gitmap\cmd\install.go:112`: `return specialToolHandler(tool)`
+- `.\gitmap\cmd\install.go:117`: `return false`
+- `.\gitmap\cmd\install.go:121`: `return false`
+- `.\gitmap\cmd\install.go:123`: `return true`
+- `.\gitmap\cmd\install.go:151`: `return false`
+- `.\gitmap\cmd\install.go:154`: `return true`
+- `.\gitmap\cmd\install.go:170`: `return true`
+- `.\gitmap\cmd\install.go:173`: `return true`
+- `.\gitmap\cmd\install.go:176`: `return false`
+- `.\gitmap\cmd\install.go:198`: `return answer == "y" `
+- `.\gitmap\cmd\installcleancode.go:69`: `return resolvePowerShellBinaryWithLookPath(exec.LookPath)`
+- `.\gitmap\cmd\installcleancode.go:83`: `return path`
+- `.\gitmap\cmd\installctx.go:96`: `return "gitmap"`
+- `.\gitmap\cmd\installctx.go:119`: `return [][]string{`
+- `.\gitmap\cmd\installctx.go:133`: `return categoryCommands(key, e, exe)`
+- `.\gitmap\cmd\installctx.go:183`: `return ""`
+- `.\gitmap\cmd\installctx.go:193`: `return `pwsh -NoExit -NoProfile -Command "Set-Location '%V'; Write-Host -NoNewline 'gitmap '"``
+- `.\gitmap\cmd\installctx.go:203`: `return fmt.Sprintf(`pwsh -NoProfile -WindowStyle Hidden -Command "Set-Location '%%V'; %s& '%s' %s 2>&1 `
+- `.\gitmap\cmd\installctxentries.go:25`: `return []ctxEntry{`
+- `.\gitmap\cmd\installctxentries.go:42`: `return []ctxEntry{`
+- `.\gitmap\cmd\installctxentries.go:50`: `return []ctxEntry{`
+- `.\gitmap\cmd\installctxentries.go:61`: `return []ctxEntry{`
+- `.\gitmap\cmd\installctxentries.go:72`: `return []ctxEntry{`
+- `.\gitmap\cmd\installctxentries.go:82`: `return []ctxEntry{`
+- `.\gitmap\cmd\installctxentries.go:89`: `return []ctxEntry{`
+- `.\gitmap\cmd\installctxentries.go:102`: `return []ctxEntry{`
+- `.\gitmap\cmd\installctxentries_argv_test.go:95`: `return out`
+- `.\gitmap\cmd\installctxexplain.go:17`: `return ""`
+- `.\gitmap\cmd\installctxexplain.go:28`: `return ""`
+- `.\gitmap\cmd\installctxexplain.go:40`: `return ""`
+- `.\gitmap\cmd\installctxlinux.go:63`: `return false`
+- `.\gitmap\cmd\installctxlinux.go:86`: `return false`
+- `.\gitmap\cmd\installctxlinux.go:119`: `return "#!/bin/sh\n" + cd + "\nx-terminal-emulator -e sh -c 'printf \"gitmap \"; exec $SHELL' &\n"`
+- `.\gitmap\cmd\installctxlinux.go:121`: `return fmt.Sprintf("#!/bin/sh\n%s\n%sOUT=$(printf %%s '%s'; '%s' %s 2>&1)\nnotify-send 'gitmap' \"$(echo \"$OUT\" `
+- `.\gitmap\cmd\installctxlinux.go:123`: `return fmt.Sprintf("#!/bin/sh\n%s\n%sx-terminal-emulator -e sh -c \"%s'%s' %s; exec $SHELL\" &\n", cd, guard, echoSh, target, args)`
+- `.\gitmap\cmd\installctxlinux.go:134`: `return ""`

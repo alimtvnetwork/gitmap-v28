@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 13)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\findnextflags.go:35`: `return 0, false, err`
+- `.\gitmap\cmd\findnextflags.go:51`: `return classifyEqualsForm(tok[:eq], tok[eq+1:], curID, curJSON)`
+- `.\gitmap\cmd\findnextflags.go:55`: `return 0, curID, true, nil`
+- `.\gitmap\cmd\findnextflags.go:57`: `return classifyScanFolderSpaceForm(args, i, curJSON)`
+- `.\gitmap\cmd\findnextflags.go:68`: `return 0, 0, false, fmt.Errorf(constants.ErrFindNextBoolTakesNoValueFmt,`
+- `.\gitmap\cmd\findnextflags.go:73`: `return 0, 0, false, fmt.Errorf(constants.ErrFindNextBadIntFmt,`
+- `.\gitmap\cmd\findnextflags.go:87`: `return 0, 0, false, fmt.Errorf(constants.ErrFindNextMissingValueFmt,`
+- `.\gitmap\cmd\findnextflags.go:93`: `return 0, 0, false, fmt.Errorf(constants.ErrFindNextBadIntFmt,`
+- `.\gitmap\cmd\findnextflags.go:106`: `return fmt.Errorf(constants.ErrFindNextUnexpectedArgFmt, tok)`
+- `.\gitmap\cmd\findnextflags.go:109`: `return fmt.Errorf(constants.ErrFindNextUnknownFlagSuggestFmt, tok, guess)`
+- `.\gitmap\cmd\findnextflags.go:130`: `return best, true`
+- `.\gitmap\cmd\findnextrender.go:39`: `return stablejson.WriteArray(w, buildFindNextJSONItems(rows))`
+- `.\gitmap\cmd\fixauth.go:79`: `return email`
+- `.\gitmap\cmd\fixauth.go:171`: `return keyPath`
+- `.\gitmap\cmd\fixauth.go:174`: `return "~" + strings.ReplaceAll(keyPath[len(home):], "\\", "/")`
+- `.\gitmap\cmd\fixrepo.go:88`: `return 2`
+- `.\gitmap\cmd\fixrepo.go:90`: `return 3`
+- `.\gitmap\cmd\fixrepo.go:92`: `return 5`
+- `.\gitmap\cmd\fixrepo.go:94`: `return current - 1`
+- `.\gitmap\cmd\fixrepo.go:97`: `return constants.FixRepoDefaultSpan`
+- `.\gitmap\cmd\fixrepo.go:101`: `return n`
+- `.\gitmap\cmd\fixrepo.go:111`: `return nil`
+- `.\gitmap\cmd\fixrepo.go:119`: `return nil`
+- `.\gitmap\cmd\fixrepo.go:155`: `return constants.FixRepoTargetsNone`
+- `.\gitmap\cmd\fixrepo_backup.go:121`: `return err`
+- `.\gitmap\cmd\fixrepo_backup.go:125`: `return err`
+- `.\gitmap\cmd\fixrepo_backup.go:130`: `return err`
+- `.\gitmap\cmd\fixrepo_backup.go:134`: `return err`
+- `.\gitmap\cmd\fixrepo_backup.go:144`: `return target`
+- `.\gitmap\cmd\fixrepo_config.go:59`: `return resolveExplicitConfigPath(explicit)`
+- `.\gitmap\cmd\fixrepo_config.go:65`: `return "", nil`
+- `.\gitmap\cmd\fixrepo_config.go:74`: `return "", fmt.Errorf("config file not found: %s", explicit)`
+- `.\gitmap\cmd\fixrepo_config.go:84`: `return fixRepoConfig{}, err`
+- `.\gitmap\cmd\fixrepo_config.go:88`: `return fixRepoConfig{}, err`
+- `.\gitmap\cmd\fixrepo_config.go:122`: `return true`
+- `.\gitmap\cmd\fixrepo_config.go:127`: `return true`
+- `.\gitmap\cmd\fixrepo_flags.go:28`: `return false`
+- `.\gitmap\cmd\fixrepo_flags.go:31`: `return err == nil && n > 0`
+- `.\gitmap\cmd\fixrepo_flags.go:39`: `return a`
+- `.\gitmap\cmd\fixrepo_flags.go:41`: `return "-" + a`
+- `.\gitmap\cmd\fixrepo_flags.go:63`: `return out, err`
+- `.\gitmap\cmd\fixrepo_flags.go:105`: `return 0, err`
+- `.\gitmap\cmd\fixrepo_flags.go:108`: `return consumed, nil`
+- `.\gitmap\cmd\fixrepo_flags.go:112`: `return 0, err`
+- `.\gitmap\cmd\fixrepo_flags.go:115`: `return consumed, nil`
+- `.\gitmap\cmd\fixrepo_flags.go:119`: `return 0, err`
+- `.\gitmap\cmd\fixrepo_flags.go:122`: `return consumed, nil`
+- `.\gitmap\cmd\fixrepo_flags.go:133`: `return out, fmt.Errorf("multiple mode flags: %s", strings.Join(modes, " "))`
+- `.\gitmap\cmd\fixrepo_flags.go:136`: `return out, fmt.Errorf("unknown flag(s): %s\n%s", strings.Join(unknown, " "), fixRepoFlagHint())`
+- `.\gitmap\cmd\fixrepo_flags.go:149`: `return true`
+- `.\gitmap\cmd\fixrepo_flags.go:162`: `return "--" + constants.FixRepoFlagAll`
+- `.\gitmap\cmd\fixrepo_flags.go:199`: `return 0, true, errors.New("--config requires a path")`
+- `.\gitmap\cmd\fixrepo_flags.go:233`: `return 0, true, fmt.Errorf("%s requires a value (no-version`
+- `.\gitmap\cmd\fixrepo_flags.go:236`: `return 2, true, applyRestrictValue(out, args[i+1])`
+- `.\gitmap\cmd\fixrepo_flags.go:240`: `return 1, true, applyRestrictValue(out, a[len(p):])`
+- `.\gitmap\cmd\fixrepo_flags.go:273`: `return 0, true, fmt.Errorf("%s requires a positive integer", a)`
+- `.\gitmap\cmd\fixrepo_flags.go:276`: `return 2, true, applyGofmtMaxCmdLen(out, args[i+1])`
+- `.\gitmap\cmd\fixrepo_flags.go:279`: `return 1, true, applyGofmtMaxCmdLen(out, a[len(prefix):])`
+- `.\gitmap\cmd\fixrepo_flags.go:289`: `return fmt.Errorf("--%s: %q is not an integer", constants.FixRepoFlagGofmtMaxCmdLen, v)`
+- `.\gitmap\cmd\fixrepo_flags.go:292`: `return fmt.Errorf("--%s: %d below floor %d",`
+- `.\gitmap\cmd\fixrepo_gofmt.go:44`: `return opts.gofmtMaxCmdLen`
+- `.\gitmap\cmd\fixrepo_gofmt.go:55`: `return emitGofmtDryRunPreview(goFiles, opts)`
+- `.\gitmap\cmd\fixrepo_gofmt.go:127`: `return paths`
+- `.\gitmap\cmd\fixrepo_gofmt.go:189`: `return nil`
+- `.\gitmap\cmd\fixrepo_gofmt.go:219`: `return strings.EqualFold(filepath.Ext(rel), ".go")`
+- `.\gitmap\cmd\fixrepo_identity.go:90`: `return h, o, r, true`
+- `.\gitmap\cmd\fixrepo_identity.go:93`: `return h, o, r, true`
+- `.\gitmap\cmd\fixrepo_identity.go:96`: `return h, o, r, true`
+- `.\gitmap\cmd\fixrepo_identity.go:113`: `return "", "", "", false`
+- `.\gitmap\cmd\fixrepo_identity.go:123`: `return "", "", "", false`
+- `.\gitmap\cmd\fixrepo_identity.go:133`: `return "", "", "", false`
+- `.\gitmap\cmd\fixrepo_rewrite.go:23`: `return rewriteFixRepoFileR(fullPath, base, current, targets, dryRun, false)`
+- `.\gitmap\cmd\fixrepo_rewrite.go:30`: `return 0, err`
+- `.\gitmap\cmd\fixrepo_rewrite.go:34`: `return 0, nil`
+- `.\gitmap\cmd\fixrepo_rewrite.go:37`: `return count, nil`
+- `.\gitmap\cmd\fixrepo_rewrite.go:40`: `return 0, err`
+- `.\gitmap\cmd\fixrepo_rewrite.go:49`: `return applyAllTargetsR(text, base, current, targets, false)`
+- `.\gitmap\cmd\fixrepo_rewrite.go:86`: `return text, 0`
+- `.\gitmap\cmd\fixrepo_rewrite.go:134`: `return false`
+- `.\gitmap\cmd\fixrepo_rewrite.go:137`: `return false`
+- `.\gitmap\cmd\fixrepo_rewrite.go:149`: `return true`
+- `.\gitmap\cmd\fixrepo_rewrite.go:151`: `return true`
+- `.\gitmap\cmd\fixrepo_rewrite.go:153`: `return true`
+- `.\gitmap\cmd\fixrepo_rewrite.go:155`: `return true`
+- `.\gitmap\cmd\fixrepo_rewrite.go:168`: `return text, 0`
+- `.\gitmap\cmd\fixrepo_rewrite.go:216`: `return c >= '0' && c <= '9'`
+- `.\gitmap\cmd\fixrepo_rewrite_preview.go:31`: `return 0, nil, err`
+- `.\gitmap\cmd\fixrepo_rewrite_preview.go:64`: `return updated, hits, total`
+- `.\gitmap\cmd\fixrepo_rewrite_scan.go:34`: `return nil`
+- `.\gitmap\cmd\fixrepo_rewrite_scan.go:48`: `return 0`
+- `.\gitmap\cmd\fixrepo_rewrite_v9tov12_test.go:149`: `return CountUnguardedTokenHits(body, token)`
+- `.\gitmap\cmd\fixrepo_rewrite_v9tov12_test.go:234`: `return ""`
+- `.\gitmap\cmd\fixrepo_rewrite_v9tov12_test.go:251`: `return ScanUnguardedTokenHits(body, token)`
+- `.\gitmap\cmd\fixrepo_rewrite_v9tov12_test.go:259`: `return 0, 0, ""`
+- `.\gitmap\cmd\fixrepo_rewrite_v9tov12_test.go:276`: `return ""`
+- `.\gitmap\cmd\fixrepo_scan.go:150`: `return ""`
+- `.\gitmap\cmd\fixrepo_scan.go:165`: `return fmt.Sprintf(constants.FixRepoMsgDryRunHitBare, h.count)`
+- `.\gitmap\cmd\fixrepo_scan.go:180`: `return nil`
+- `.\gitmap\cmd\fixrepo_scan.go:197`: `return false`
+- `.\gitmap\cmd\fixrepo_scan.go:200`: `return false`
+- `.\gitmap\cmd\fixrepo_scan.go:203`: `return false`
+- `.\gitmap\cmd\fixrepo_scan.go:213`: `return true`
+- `.\gitmap\cmd\fixrepo_scan.go:216`: `return true`
+- `.\gitmap\cmd\fixrepo_scan.go:219`: `return true`
+- `.\gitmap\cmd\fixrepo_scan.go:239`: `return true`
+- `.\gitmap\cmd\fixrepo_scan.go:246`: `return true`
+- `.\gitmap\cmd\fixrepo_strict.go:35`: `return true`
+- `.\gitmap\cmd\fixrepo_strict_packages.go:36`: `return nil`
+- `.\gitmap\cmd\fixrepo_strict_packages.go:66`: `return "", false`
+- `.\gitmap\cmd\fixrepo_strict_packages.go:70`: `return "", false`
+- `.\gitmap\cmd\fixrepo_strict_packages.go:74`: `return ".", true`
+- `.\gitmap\cmd\fixrepo_tips.go:18`: `return "  accepted flags:\n" +`
+- `.\gitmap\cmd\githubdesktop.go:40`: `return cwd`
+- `.\gitmap\cmd\githubdesktop.go:45`: `return args[0]`
+- `.\gitmap\cmd\glyphsflag.go:51`: `return args[i+1], 2, true`
+- `.\gitmap\cmd\glyphsflag.go:54`: `return "", 1, true`
+- `.\gitmap\cmd\glyphsflag.go:57`: `return v, 1, true`
+- `.\gitmap\cmd\glyphsflag.go:60`: `return v, 1, true`
+- `.\gitmap\cmd\gomodbranch.go:86`: `return constants.DefaultBranch`
+- `.\gitmap\cmd\gomodbranch.go:97`: `return false`
+- `.\gitmap\cmd\gomodreplace.go:30`: `return strings.TrimSpace(strings.TrimPrefix(line, constants.GoModModuleLine))`
+- `.\gitmap\cmd\gomodreplace.go:82`: `return nil`
+- `.\gitmap\cmd\gomodreplace.go:85`: `return filepath.SkipDir`
+- `.\gitmap\cmd\gomodreplace.go:88`: `return nil`
+- `.\gitmap\cmd\gomodreplace.go:91`: `return nil`
+- `.\gitmap\cmd\gomodreplace.go:109`: `return true`
+- `.\gitmap\cmd\gomodreplace.go:115`: `return true`
+- `.\gitmap\cmd\gomodreplace.go:126`: `return nil`
+- `.\gitmap\cmd\gomodreplace.go:149`: `return true`
+- `.\gitmap\cmd\gomodreplace.go:160`: `return false`
+- `.\gitmap\cmd\hasanyupdates.go:60`: `return 0, 0, false`
+- `.\gitmap\cmd\hasanyupdates.go:65`: `return 0, 0, false`
+- `.\gitmap\cmd\haschange.go:100`: `return constants.HCTrue`
+- `.\gitmap\cmd\haschange.go:114`: `return 0, 0, false`
+- `.\gitmap\cmd\haschange.go:118`: `return 0, 0, false`
+- `.\gitmap\cmd\helpcheck.go:34`: `return true`
+- `.\gitmap\cmd\helpdashboard.go:78`: `return dlErr`
+- `.\gitmap\cmd\helpdashboard.go:87`: `return mkErr`
+- `.\gitmap\cmd\helpdashboard.go:93`: `return extractErr`
+- `.\gitmap\cmd\helpdashboard.go:96`: `return nil`
+- `.\gitmap\cmd\helpdashboard.go:112`: `return "."`
+- `.\gitmap\cmd\helpdashboard.go:117`: `return filepath.Dir(exe)`
+- `.\gitmap\cmd\helpdashboard.go:153`: `return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {`
+- `.\gitmap\cmd\helpdashboard_download.go:45`: `return url, n, nil`
+- `.\gitmap\cmd\helpdashboard_download.go:60`: `return 0, fmt.Errorf("build request: %w", err)`
+- `.\gitmap\cmd\helpdashboard_download.go:65`: `return 0, fmt.Errorf("http get: %w", err)`
+- `.\gitmap\cmd\helpdashboard_download.go:70`: `return 0, fmt.Errorf("http %d", resp.StatusCode)`
+- `.\gitmap\cmd\helpdashboard_download.go:75`: `return 0, fmt.Errorf("create file: %w", err)`
+- `.\gitmap\cmd\helpdashboard_download.go:81`: `return n, fmt.Errorf("download body: %w", err)`
+- `.\gitmap\cmd\helpdashboard_download.go:85`: `return 0, fmt.Errorf("empty response body")`

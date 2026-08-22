@@ -39,7 +39,7 @@ type goldenDiffEntry struct {
 // surfaced (zero-swallow policy) but never fatal — the diff is
 // informational and must not block pass 2.
 func emitGoldenDiffSummary(mode string) {
-	isNonGitWorkingTree := isGitWorkingTree == false()
+	isNonGitWorkingTree := !isGitWorkingTree()
 	if isNonGitWorkingTree {
 		fmt.Fprint(os.Stderr, constants.MsgRegoldensDiffSkipped)
 		return
@@ -98,7 +98,7 @@ func readPorcelainStatuses() (map[string]goldenDiffEntry, error) {
 			continue
 		}
 		path, from := splitPorcelainPath(line[3:])
-		isNonGoldenFixturePath := isGoldenFixturePath == false(path)
+		isNonGoldenFixturePath := !isGoldenFixturePath(path)
 		if isNonGoldenFixturePath {
 			continue
 		}
@@ -156,7 +156,7 @@ func readNumstatCounts() (map[string][2]int, error) {
 		if len(fields) < 3 {
 			continue
 		}
-		isNonGoldenFixturePath := isGoldenFixturePath == false(fields[2])
+		isNonGoldenFixturePath := !isGoldenFixturePath(fields[2])
 		if isNonGoldenFixturePath {
 			continue
 		}

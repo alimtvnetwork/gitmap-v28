@@ -1,0 +1,156 @@
+# Fix fmt.Errorf (Part 4)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\db\migrations.go:36`: `return fmt.Errorf("failed to execute migration %s: %w", entry.Name(), err)`
+- `.\gitmap\db\zombiezen\adapter.go:39`: `return nil, fmt.Errorf("zombiezen sqlite adapter: %w", ErrNotEnabled)`
+- `.\gitmap\diff\endpoint.go:35`: `return ep, fmt.Errorf(constants.ErrDiffNotFolderFmt, trimmed)`
+- `.\gitmap\diff\endpoint.go:39`: `return ep, fmt.Errorf("resolve abs path %s: %w", trimmed, err)`
+- `.\gitmap\diff\endpoint.go:50`: `return ep, fmt.Errorf(constants.ErrDiffMissingFmt, ep.DisplayName)`
+- `.\gitmap\diff\endpoint.go:53`: `return ep, fmt.Errorf("stat %s: %w", ep.WorkingDir, err)`
+- `.\gitmap\diff\endpoint.go:56`: `return ep, fmt.Errorf(constants.ErrDiffNotFolderFmt, ep.DisplayName)`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:91`: `return Document{}, fmt.Errorf(constants.ErrDownloaderConfigPathRequired+": %w", path, err)`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:101`: `return Document{}, fmt.Errorf(constants.ErrDownloaderConfigInvalidJSON, err)`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:124`: `return fmt.Errorf(constants.ErrDownloaderConfigMissingKey, "DownloaderConfig.PreferredDownloader")`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:127`: `return fmt.Errorf(constants.ErrDownloaderConfigMissingKey, "DownloaderConfig.FallbackDownloader")`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:130`: `return fmt.Errorf(constants.ErrDownloaderConfigBadParallel, dc.ParallelDownloads)`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:133`: `return fmt.Errorf(constants.ErrDownloaderConfigBadSplits, dc.SplitConnections)`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:143`: `return fmt.Errorf(constants.ErrDownloaderConfigMissingKey, k)`
+- `.\gitmap\errreport\writer.go:45`: `return "", fmt.Errorf("create report dir: %w", err)`
+- `.\gitmap\errreport\writer.go:78`: `return fmt.Errorf("marshal report: %w", err)`
+- `.\gitmap\errreport\writer.go:81`: `return fmt.Errorf("write temp report: %w", err)`
+- `.\gitmap\errreport\writer.go:86`: `return fmt.Errorf("rename report: %w", err)`
+- `.\gitmap\fixtureversion\bump.go:134`: `return false, fmt.Errorf("autobump: read %s: %w", path, err)`
+- `.\gitmap\fixtureversion\bump.go:138`: `return false, fmt.Errorf("autobump: no stamp marker in %s", path)`
+- `.\gitmap\fixtureversion\bump.go:141`: `return false, fmt.Errorf("autobump: write %s: %w", path, err)`
+- `.\gitmap\fixtureversion\validate.go:39`: `return fmt.Errorf("fixture is unstamped: add %q as the first line",`
+- `.\gitmap\fixtureversion\validate.go:43`: `return fmt.Errorf(`
+- `.\gitmap\fixtureversion\validate.go:49`: `return fmt.Errorf(`
+- `.\gitmap\fixtureversion\validate.go:72`: `return fmt.Errorf(`
+- `.\gitmap\fsutil\safe_fs.go:30`: `return fmt.Errorf("rename fallback failed: %w", errCopy)`
+- `.\gitmap\gitutil\latestbranchresolve.go:24`: `return nil, fmt.Errorf(constants.ErrLatestBranchNoCommits)`
+- `.\gitmap\gitutil\network.go:19`: `return fmt.Errorf(constants.ErrOffline)`
+- `.\gitmap\goldenguard\determinism.go:92`: `return nil, fmt.Errorf("run %d/%d: %w", i+1, determinismRunCount, err)`
+- `.\gitmap\helptext\stamp.go:45`: `return fmt.Errorf("helptext %q has a fixture-stamp comment but it failed to parse; "+`
+- `.\gitmap\lockcheck\lockcheck_unix.go:16`: `return nil, fmt.Errorf("lsof not found")`
+- `.\gitmap\lockcheck\lockcheck_windows.go:35`: `return nil, fmt.Errorf("handle.exe not found")`
+- `.\gitmap\lockfile\lockfile.go:65`: `return func() {}, fmt.Errorf("lockfile: write %s: %w", path, err)`
+- `.\gitmap\lockfile\lockfile.go:116`: `return fmt.Errorf("%w (pid=%d, file=%s)", ErrAlreadyHeld, pid, path)`
+- `.\gitmap\lockfile\lockfile.go:119`: `return fmt.Errorf("%w (pid=%d, file=%s)", ErrAlreadyHeld, pid, path)`
+- `.\gitmap\macro\record.go:59`: `return fmt.Errorf("could not save macro: %w", err)`
+- `.\gitmap\macro\storage.go:51`: `return nil, fmt.Errorf("macro %q not found: %w", name, err)`
+- `.\gitmap\movemerge\conflict.go:101`: `return ChoiceQuit, fmt.Errorf("conflict prompt: stdin closed")`
+- `.\gitmap\movemerge\copy.go:14`: `return fmt.Errorf("mkdir %s: %w", filepath.Dir(dst), err)`
+- `.\gitmap\movemerge\copy.go:27`: `return fmt.Errorf("readlink %s: %w", src, err)`
+- `.\gitmap\movemerge\copy.go:38`: `return fmt.Errorf("open %s: %w", src, err)`
+- `.\gitmap\movemerge\copy.go:43`: `return fmt.Errorf("create %s: %w", dst, err)`
+- `.\gitmap\movemerge\copy.go:47`: `return fmt.Errorf("copy %s -> %s: %w", src, dst, err)`
+- `.\gitmap\movemerge\endpoint.go:66`: `return false, fmt.Errorf("stat %s: %w", path, err)`
+- `.\gitmap\movemerge\git.go:37`: `return fmt.Errorf("git clone %s: %w", url, err)`
+- `.\gitmap\movemerge\git.go:47`: `return fmt.Errorf("git pull --ff-only in %s: %w (%s)", dir, err, out)`
+- `.\gitmap\movemerge\git.go:57`: `return "", fmt.Errorf("git add -A in %s: %w", dir, err)`
+- `.\gitmap\movemerge\git.go:68`: `return sha, fmt.Errorf("git push in %s: %w", dir, err)`
+- `.\gitmap\movemerge\guard.go:16`: `return fmt.Errorf(constants.ErrMMSameFolderFmt, lAbs)`
+- `.\gitmap\movemerge\guard.go:19`: `return fmt.Errorf(constants.ErrMMNestedFmt, lAbs, rAbs)`
+- `.\gitmap\movemerge\merge.go:90`: `return fmt.Errorf("%s", constants.ErrMMQuit)`
+- `.\gitmap\movemerge\move.go:45`: `return fmt.Errorf("mkdir %s: %w", right.WorkingDir, err)`
+- `.\gitmap\movemerge\move.go:51`: `return fmt.Errorf("git init %s: %w", right.WorkingDir, err)`
+- `.\gitmap\movemerge\move.go:83`: `return fmt.Errorf("delete LEFT %s: %w", left.WorkingDir, err)`
+- `.\gitmap\movemerge\resolve.go:29`: `return ep, fmt.Errorf("abs %s: %w", ep.DisplayName, err)`
+- `.\gitmap\movemerge\resolve.go:38`: `return ep, fmt.Errorf(constants.ErrMMSrcMissingFmt, ep.DisplayName)`
+- `.\gitmap\movemerge\resolve.go:58`: `return ep, fmt.Errorf("getwd: %w", err)`
+- `.\gitmap\movemerge\resolve.go:82`: `return ep, fmt.Errorf("read origin in %s: %w", dir, err)`
+- `.\gitmap\movemerge\resolve.go:91`: `return ep, fmt.Errorf(constants.ErrMMOriginFmt, dir, origin, ep.URL)`
+- `.\gitmap\movemerge\resolve.go:105`: `return ep, fmt.Errorf("force-folder remove %s: %w", dir, rmErr)`
+- `.\gitmap\probe\clone.go:23`: `return "", fmt.Errorf("mkdtemp: %w", err)`
+- `.\gitmap\probe\clone.go:35`: `return "", fmt.Errorf(constants.ErrProbeCloneFail, summarize(out, err))`
+- `.\gitmap\probe\clone.go:41`: `return "", fmt.Errorf("git tag: %w", err)`
+- `.\gitmap\release\assets.go:57`: `return "", fmt.Errorf("no module directive found in go.mod")`
+- `.\gitmap\release\assets.go:183`: `return "", fmt.Errorf("create staging dir: %w", err)`
+- `.\gitmap\release\assetstargets.go:74`: `return BuildTarget{}, fmt.Errorf("invalid target format %q — expected os/arch", s)`
+- `.\gitmap\release\assetsupload.go:22`: `return fmt.Errorf("open asset: %w", err)`
+- `.\gitmap\release\assetsupload.go:28`: `return fmt.Errorf("stat asset: %w", err)`
+- `.\gitmap\release\assetsupload.go:37`: `return fmt.Errorf("upload asset: %w", err)`
+- `.\gitmap\release\autocommitgit.go:117`: `return fmt.Errorf(`
+- `.\gitmap\release\autocommitgit.go:129`: `return fmt.Errorf(`
+- `.\gitmap\release\autocommitgit.go:160`: `return fmt.Errorf("%s", trimmed)`
+- `.\gitmap\release\changelog.go:48`: `return nil, fmt.Errorf("no version sections found in %s", constants.ChangelogFile)`
+- `.\gitmap\release\changeloggen.go:23`: `return nil, fmt.Errorf(constants.ErrChangelogGenCommits, fromTag, toRef, err)`
+- `.\gitmap\release\changeloggen.go:69`: `return nil, fmt.Errorf(constants.ErrChangelogGenTags, err)`
+- `.\gitmap\release\changeloggen.go:83`: `return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, from)`
+- `.\gitmap\release\changeloggen.go:92`: `return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, to)`
+- `.\gitmap\release\changeloggen.go:101`: `return "", "", fmt.Errorf(constants.ErrChangelogGenNoTags)`
+- `.\gitmap\release\checksums.go:28`: `return "", fmt.Errorf("create checksums file: %w", err)`
+- `.\gitmap\release\compress.go:78`: `return "", fmt.Errorf("create zip: %w", err)`
+- `.\gitmap\release\compress.go:102`: `return fmt.Errorf("open source: %w", err)`
+- `.\gitmap\release\compress.go:108`: `return fmt.Errorf("stat source: %w", err)`
+- `.\gitmap\release\compress.go:113`: `return fmt.Errorf("zip header: %w", err)`
+- `.\gitmap\release\compress.go:121`: `return fmt.Errorf("create entry: %w", err)`
+- `.\gitmap\release\compresstar.go:18`: `return "", fmt.Errorf("create tar.gz: %w", err)`
+- `.\gitmap\release\compresstar.go:46`: `return fmt.Errorf("open source: %w", err)`
+- `.\gitmap\release\compresstar.go:52`: `return fmt.Errorf("stat source: %w", err)`
+- `.\gitmap\release\compresstar.go:57`: `return fmt.Errorf("tar header: %w", err)`
+- `.\gitmap\release\compresstar.go:64`: `return fmt.Errorf("write header: %w", err)`
+- `.\gitmap\release\githubapi.go:31`: `return nil, fmt.Errorf("marshal release payload: %w", err)`
+- `.\gitmap\release\githubapi.go:39`: `return nil, fmt.Errorf("create release: %w", err)`
+- `.\gitmap\release\githubapi.go:46`: `return nil, fmt.Errorf("GitHub API error %d: %s", resp.StatusCode, string(respBody))`
+- `.\gitmap\release\gitops.go:45`: `return fmt.Errorf("push branch: %w", err)`
+- `.\gitmap\release\gitops.go:54`: `return fmt.Errorf("push tag: %w", err)`
+- `.\gitmap\release\gitops.go:85`: `return "", "", fmt.Errorf("commit %s not found", commit)`
+- `.\gitmap\release\gitops.go:98`: `return "", "", fmt.Errorf("branch %s not found: %w", branch, err)`
+- `.\gitmap\release\gitopsquery.go:84`: `return Version{}, fmt.Errorf("no git tags found and no .gitmap/release/latest.json exists")`
+- `.\gitmap\release\gitopsquery.go:109`: `return Version{}, fmt.Errorf("no version tags found. Create an initial release first")`
+- `.\gitmap\release\metadata.go:66`: `return fmt.Errorf("create release dir: %w", err)`
+- `.\gitmap\release\metadata.go:71`: `return fmt.Errorf("parse tag for path: %w", err)`
+- `.\gitmap\release\remoteorigin.go:16`: `return "", "", fmt.Errorf("no remote origin URL found")`
+- `.\gitmap\release\remoteorigin.go:50`: `return "", "", fmt.Errorf("unrecognized remote URL format: %s", url)`
+- `.\gitmap\release\remoteorigin.go:59`: `return "", "", fmt.Errorf("invalid HTTPS remote: %s", url)`
+- `.\gitmap\release\remoteorigin.go:74`: `return "", "", fmt.Errorf("invalid SSH remote: %s", url)`
+- `.\gitmap\release\remoteorigin.go:81`: `return "", "", fmt.Errorf("invalid SSH remote path: %s", url)`
+- `.\gitmap\release\retry.go:32`: `return fmt.Errorf("%s after %d attempts: %w", label, maxAttempts, lastErr)`
+- `.\gitmap\release\selfrelease.go:21`: `return fmt.Errorf("could not determine current directory: %w", err)`
+- `.\gitmap\release\selfrelease.go:32`: `return fmt.Errorf("could not switch to source repo: %w", err)`
+- `.\gitmap\release\selfrelease_resolve.go:65`: `return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)`
+- `.\gitmap\release\selfrelease_resolve.go:73`: `return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)`
+- `.\gitmap\release\selfrelease_resolve.go:78`: `return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)`
+- `.\gitmap\release\semver.go:28`: `return Version{}, fmt.Errorf("empty version string")`
+- `.\gitmap\release\semver.go:62`: `return 0, 0, 0, fmt.Errorf("too many version segments")`
+- `.\gitmap\release\semver.go:67`: `return 0, 0, 0, fmt.Errorf("invalid major version: %s", parts[0])`
+- `.\gitmap\release\semver.go:89`: `return 0, fmt.Errorf("invalid %s version: %s", name, parts[idx])`
+- `.\gitmap\release\semver.go:163`: `return Version{}, fmt.Errorf("invalid bump level: %s (use major, minor, or patch)", level)`
+- `.\gitmap\release\temprelease.go:27`: `return nil, fmt.Errorf("failed to list recent commits: %w", err)`
+- `.\gitmap\release\workflow.go:260`: `return fmt.Errorf("create branch: %w", err)`
+- `.\gitmap\release\workflow.go:266`: `return fmt.Errorf("create tag: %w", err)`
+- `.\gitmap\release\workflowbranch.go:39`: `return Version{}, fmt.Errorf(constants.ErrReleaseInvalidVersion, branchName)`
+- `.\gitmap\release\workflowbranch.go:53`: `return fmt.Errorf(constants.ErrReleaseBranchNotFound, branchName)`
+- `.\gitmap\release\workflowbranch.go:65`: `return fmt.Errorf("checkout branch: %w", err)`
+- `.\gitmap\release\workflowbranch.go:73`: `return fmt.Errorf("create tag: %w", err)`
+- `.\gitmap\release\workflowbranch.go:105`: `return fmt.Errorf("could not list release branches: %w", err)`
+- `.\gitmap\release\workflowdocs.go:55`: `return fmt.Errorf("walk error at %s: %w", path, err)`
+- `.\gitmap\release\workflowdocs.go:74`: `return fmt.Errorf("create archive %s: %w", archivePath, err)`
+- `.\gitmap\release\workflowdocs.go:84`: `return fmt.Errorf("relative path for %s: %w", itemPath, relErr)`
+- `.\gitmap\release\workflowdocs.go:91`: `return fmt.Errorf("add %s to zip: %w", itemPath, err)`
+- `.\gitmap\release\workflowdryrun.go:126`: `return fmt.Errorf("switch back to %s: %w", branch, err)`
+- `.\gitmap\release\workflowfinalize.go:27`: `return fmt.Errorf(constants.ErrReleasePushFailed, err)`
+- `.\gitmap\release\workflowfinalize.go:95`: `return fmt.Errorf(constants.ErrReleaseMetaWrite, metaPath, err)`
+- `.\gitmap\release\workflowpending.go:71`: `return fmt.Errorf("invalid version in metadata: %s", meta.Tag)`
+- `.\gitmap\release\workflowpending.go:100`: `return fmt.Errorf("create branch from metadata: %w", err)`
+- `.\gitmap\release\workflowpending.go:107`: `return fmt.Errorf("create tag from metadata: %w", err)`
+- `.\gitmap\release\workflowreleasescript.go:68`: `return "", fmt.Errorf("read embedded %s: %w", s.embeddedName, err)`
+- `.\gitmap\release\workflowreleasescript.go:75`: `return "", fmt.Errorf("write snapshot %s: %w", outPath, err)`
+- `.\gitmap\release\workflowvalidate.go:58`: `var parseErr error = fmt.Errorf("initial")`
+- `.\gitmap\release\workflowvalidate.go:85`: `return Version{}, fmt.Errorf(constants.ErrReleaseVersionRequired)`
+- `.\gitmap\release\workflowvalidate.go:105`: `return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())`
+- `.\gitmap\release\workflowvalidate.go:109`: `return fmt.Errorf(constants.ErrReleaseTagExists, v.String())`
+- `.\gitmap\release\workflowvalidate.go:123`: `return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())`
+- `.\gitmap\release\workflowvalidate.go:128`: `return fmt.Errorf(constants.ErrReleaseAborted)`
+- `.\gitmap\release\workflowvalidate.go:136`: `return fmt.Errorf(constants.ErrReleaseOrphanedRemove, path, err)`
+- `.\gitmap\release\ziparchive.go:47`: `return "", fmt.Errorf(constants.ErrZGGroupNotDB, name)`
+- `.\gitmap\release\ziparchive.go:58`: `return "", fmt.Errorf("empty group")`
+- `.\gitmap\release\zipio.go:20`: `return fmt.Errorf("create zip: %w", err)`
+- `.\gitmap\release\zipio.go:103`: `return fmt.Errorf("open %s: %w", srcPath, err)`
+- `.\gitmap\release\zipio.go:109`: `return fmt.Errorf("stat %s: %w", srcPath, err)`
+- `.\gitmap\release\zipio.go:114`: `return fmt.Errorf("header %s: %w", srcPath, err)`
+- `.\gitmap\release\zipio.go:122`: `return fmt.Errorf("create entry %s: %w", entryName, err)`

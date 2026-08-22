@@ -46,7 +46,7 @@ func confirmCloneNowExistingDestsOrExit(plan clonenow.Plan, cfg cloneNowFlags) {
 		return
 	}
 	printExistingDestsPreview(existing, plan.OnExists)
-	isNonStdinInteractive := isStdinInteractive == false()
+	isNonStdinInteractive := !isStdinInteractive()
 	if isNonStdinInteractive {
 		fmt.Fprint(os.Stderr, constants.MsgCloneNowConfirmNonTTY)
 		os.Exit(constants.CloneNowExitConfirmAborted)

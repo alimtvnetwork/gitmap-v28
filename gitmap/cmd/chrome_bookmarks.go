@@ -72,7 +72,7 @@ func runChromeExportBookmarks(args []string) {
 	if rootName != "" {
 		roots = filterBookmarkRoots(roots, rootName, "")
 	}
-	hasNoRootsAfterRootName := rootName != "" && len(roots) == 0
+	isEmptyRootsAfterRootName := rootName != "" && len(roots) == 0
 	if isEmptyRootsAfterRootName {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --root=%q did not match any top-level root\n  available roots: %s\n", rootName, strings.Join(available, ", "))
 		os.Exit(1)
@@ -80,7 +80,7 @@ func runChromeExportBookmarks(args []string) {
 	if folderPath != "" {
 		roots = filterBookmarkRoots(roots, "", folderPath)
 	}
-	hasNoRootsAfterFolderPath := folderPath != "" && len(roots) == 0
+	isEmptyRootsAfterFolderPath := folderPath != "" && len(roots) == 0
 	if isEmptyRootsAfterFolderPath {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --folder=%q not found under root=%q\n  available top-level folders: %s\n  hint: paths are slash-delimited and case-insensitive (e.g. --folder \"Work/Docs\")\n", folderPath, fallback(rootName, "<all>"), strings.Join(topLevelFolderNames(roots), ", "))
 		os.Exit(1)
@@ -89,7 +89,7 @@ func runChromeExportBookmarks(args []string) {
 	if hasMatchOrTitle == true {
 		roots = filterBookmarksByTitle(roots, match, title)
 	}
-	hasNoRootsAfterMatch := hasMatchOrTitle == true && len(roots) == 0
+	isEmptyRootsAfterMatch := hasMatchOrTitle == true && len(roots) == 0
 	if isEmptyRootsAfterMatch {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR no bookmarks matched --match=%q --title=%q within the selected subtree\n  hint: --match is a case-insensitive substring; --title is an exact title match\n", match, title)
 		os.Exit(1)

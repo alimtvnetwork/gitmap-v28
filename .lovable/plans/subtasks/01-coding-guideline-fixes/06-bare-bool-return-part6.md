@@ -1,0 +1,156 @@
+# Fix bare bool return (Part 6)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\visibilityapply.go:98`: `func verifyVisibilityOrExit(ctx visibilityContext, target string, verbose bool) {`
+- `.\gitmap\cmd\visibilityapply.go:109`: `func runProviderCLI(provider string, args []string, verbose bool) (string, error) {`
+- `.\gitmap\cmd\visibilityapply.go:125`: `func runProviderCLICapturingStderr(provider string, args []string, verbose bool) (string, error) {`
+- `.\gitmap\cmd\visibilityapplyone.go:33`: `func applyOneRepo(owner ownerContext, repoName, target string, verbose bool) applyStatus {`
+- `.\gitmap\cmd\visibilityapplyone.go:40`: `func applyOneRepoTo(w io.Writer, owner ownerContext, repoName, target string, verbose bool) applyStatus {`
+- `.\gitmap\cmd\visibilityapplyone.go:79`: `func readVisibilityNoExit(ctx visibilityContext, verbose bool) (string, error) {`
+- `.\gitmap\cmd\visibilityapplyone.go:92`: `func applyVisibilityNoExit(ctx visibilityContext, target string, verbose bool) error {`
+- `.\gitmap\cmd\visibilityauthstatus.go:21`: `func mustEnsureProviderAuth(provider string, verbose bool) {`
+- `.\gitmap\cmd\visibilitybulk.go:29`: `func maybeRunBulkVisibility(positional []string, target string, opts visibilityFlags) bool {`
+- `.\gitmap\cmd\visibilitybulk.go:46`: `func parseBulkRequest(positional []string) (bulkVisibilityRequest, bool) {`
+- `.\gitmap\cmd\visibilitybulk.go:57`: `func parseBulkSingleArg(arg string) (bulkVisibilityRequest, bool) {`
+- `.\gitmap\cmd\visibilitybulk.go:68`: `func parseBulkPairArg(repoArg, countArg string) (bulkVisibilityRequest, bool) {`
+- `.\gitmap\cmd\visibilitybulkhelpers.go:36`: `func readVisibilitySoft(ctx visibilityContext, verbose bool) (string, error) {`
+- `.\gitmap\cmd\visibilitybulkprompt.go:74`: `func promptConfirmOrExclude(in io.Reader, out io.Writer, matches []visibility.MatchedRepo) ([]visibility.MatchedRepo, bool) {`
+- `.\gitmap\cmd\visibilitybulkprompt.go:96`: `func handlePromptLine(raw string, current []visibility.MatchedRepo, out io.Writer) ([]visibility.MatchedRepo, bool, bool) {`
+- `.\gitmap\cmd\visibilitydriftguard.go:27`: `func decideDriftAction(current, expected string, force bool) driftAction {`
+- `.\gitmap\cmd\visibilityexceptlatest.go:76`: `func parseVersionedName(name string) (string, int, bool) {`
+- `.\gitmap\cmd\visibilitymakelast.go:69`: `func parseMakeLastArgs(args []string) (string, string, bool) {`
+- `.\gitmap\cmd\visibilitymakelast.go:112`: `func lookupIndexHighest(provider, owner, base string) (string, int, bool) {`
+- `.\gitmap\cmd\visibilitymakelast.go:121`: `func confirmSingle(repoName, target string) bool {`
+- `.\gitmap\cmd\visibilityownerlist.go:30`: `func listOwnerRepos(provider, owner string, verbose bool) ([]string, error) {`
+- `.\gitmap\cmd\visibilityownerlistcache.go:76`: `func readOwnerRepoListCache(db *store.DB, provider, owner string, ttl time.Duration) ([]string, time.Duration, bool) {`
+- `.\gitmap\cmd\visibilityparallel.go:80`: `func applyBulkLoopSeq(ctx ownerContext, target string, matches []visibility.MatchedRepo, verbose bool, audit *runAudit) (int, int, int) {`
+- `.\gitmap\cmd\visibilityresolve.go:81`: `func isLocalRemote(url string) bool {`
+- `.\gitmap\cmd\visibilityresolve.go:136`: `func mustEnsureProviderCLI(provider string, verbose bool) {`
+- `.\gitmap\cmd\visibilityresolveowner.go:56`: `func isURLLike(arg string) bool {`
+- `.\gitmap\cmd\visibilityresolveowner.go:70`: `func isBareHostOwner(arg string) bool {`
+- `.\gitmap\cmd\visibilityundojson_test.go:44`: `func containsJSONFragment(s, sub string) bool {`
+- `.\gitmap\cmd\vscodecustomtags.go:85`: `func matchSingleTagFlag(args []string, i int, name string) (hit bool, value string, consumed int) {`
+- `.\gitmap\cmd\vscodepmscan.go:12`: `func syncRecordsToVSCodePM(records []model.ScanRecord, noVSCodeSync, noAutoTags bool) {`
+- `.\gitmap\cmd\vscodepmscan.go:24`: `func buildScanPMPairs(records []model.ScanRecord, noAutoTags bool) []vscodepm.Pair {`
+- `.\gitmap\cmd\vscodepmsync.go:60`: `func loadVSCodePMEntries(opts vscodePMSyncOpts) (string, []vscodepm.Entry, bool) {`
+- `.\gitmap\cmd\vscodepmsync.go:143`: `func rootPathExists(rootPath string) bool {`
+- `.\gitmap\cmd\vscodepmsync_testhelper_test.go:94`: `func containsTag(tags []string, tag string) bool {`
+- `.\gitmap\cmd\vscodesyncdisabled.go:60`: `func isVSCodeSyncDisabled() bool {`
+- `.\gitmap\cmd\vscodeworkspace.go:128`: `func resolveFolderPath(repoRoot, rootSubdir string) (string, bool) {`
+- `.\gitmap\cmd\vscodeworkspace.go:142`: `func matchesWorkspaceTag(rootPath, tag string) bool {`
+- `.\gitmap\cmd\watch.go:35`: `func parseWatchFlags(args []string) (int, string, bool, bool) {`
+- `.\gitmap\cmd\watch.go:72`: `func runWatchLoop(records []model.ScanRecord, interval int, noFetch bool) {`
+- `.\gitmap\cmd\watch.go:90`: `func printWatchJSON(records []model.ScanRecord, noFetch bool) {`
+- `.\gitmap\cmd\watchformat.go:12`: `func printWatchDashboard(records []model.ScanRecord, interval int, noFetch bool) {`
+- `.\gitmap\cmd\watchops.go:30`: `func collectAllStatuses(records []model.ScanRecord, noFetch bool) []watchSnapshot {`
+- `.\gitmap\cmd\watchops.go:70`: `func watchStatusLabel(dirty bool) string {`
+- `.\gitmap\cmd\zip.go:95`: `func resolveCompressionMode(best, fast, standard bool) (archive.CompressionMode, error) {`
+- `.\gitmap\cmd\zipgroupcreate.go:127`: `func resolveZipPath(rawPath string) (repoPath, relativePath, fullPath string, isFolder bool, err error) {`
+- `.\gitmap\cmd\commitin\enums_test.go:197`: `func equalSlices(a, b []string) bool {`
+- `.\gitmap\cmd\commitin\parse.go:146`: `func isTailKeywordToken(tok string) bool {`
+- `.\gitmap\cmd\commitin\parse.go:161`: `func needsValue(tok string, bools map[string]bool) bool {`
+- `.\gitmap\cmd\commitin\parse_flags.go:73`: `func boolFlagSet() map[string]bool {`
+- `.\gitmap\cmd\commitin\parse_helpers.go:56`: `func classifyKeyword(token string) (string, int, bool, *ParseError) {`
+- `.\gitmap\cmd\commitin\checkpoint\checkpoint.go:81`: `func (f *File) IsDone(sha string) bool {`
+- `.\gitmap\cmd\commitin\e2e\edge_helpers.go:27`: `func isLinux() bool { return strings.EqualFold(runtime.GOOS, "linux") }`
+- `.\gitmap\cmd\commitin\e2e\repo.go:112`: `func (r *Repo) headShaOpt() (string, bool) {`
+- `.\gitmap\cmd\commitin\finalize\finalize.go:51`: `func CleanupTemp(tempRunDir string, keepTemp bool) {`
+- `.\gitmap\cmd\commitin\funcintel\diff.go:19`: `func extractByRegex(src string, lineMatch func(line string) (string, bool)) map[string]struct{} {`
+- `.\gitmap\cmd\commitin\funcintel\lang_go.go:20`: `func matchGoFunc(line string) (string, bool) {`
+- `.\gitmap\cmd\commitin\funcintel\lang_java.go:17`: `func matchJava(line string) (string, bool) {`
+- `.\gitmap\cmd\commitin\funcintel\lang_javascript.go:20`: `func matchJsFunc(line string) (string, bool) {`
+- `.\gitmap\cmd\commitin\funcintel\lang_php.go:17`: `func matchPhp(line string) (string, bool) {`
+- `.\gitmap\cmd\commitin\funcintel\lang_python.go:17`: `func matchPy(line string) (string, bool) {`
+- `.\gitmap\cmd\commitin\funcintel\lang_rust.go:17`: `func matchRust(line string) (string, bool) {`
+- `.\gitmap\cmd\commitin\funcintel\lang_ts.go:20`: `func matchTs(line string) (string, bool) {`
+- `.\gitmap\cmd\commitin\message\pipeline.go:36`: `func isEmpty(msg string) bool { return strings.TrimSpace(msg) == "" }`
+- `.\gitmap\cmd\commitin\message\strip.go:26`: `func lineMatches(line string, rules []profile.MessageRule) bool {`
+- `.\gitmap\cmd\commitin\message\strip.go:35`: `func matchOne(line string, r profile.MessageRule) bool {`
+- `.\gitmap\cmd\commitin\message\weak.go:24`: `func matchesWeak(msg string, weakWords []string) bool {`
+- `.\gitmap\cmd\commitin\orchestrator\commit.go:45`: `func persistSource(ctx *runContext, staged workspace.StagedInput, c walk.SourceCommit, stdout io.Writer) (int64, int64, bool) {`
+- `.\gitmap\cmd\commitin\orchestrator\commit.go:77`: `func handleDedupe(ctx *runContext, srcID int64, c walk.SourceCommit, stdout io.Writer) bool {`
+- `.\gitmap\cmd\commitin\orchestrator\conflict.go:29`: `func conflictCheck(ctx *runContext, plan replay.Plan, c walk.SourceCommit, stdout io.Writer) (shouldAbortRun, shouldSkipCommit bool) {`
+- `.\gitmap\cmd\commitin\orchestrator\exclude.go:30`: `func isExcluded(rel string, rules []profile.Exclusion) bool {`
+- `.\gitmap\cmd\commitin\orchestrator\exclude.go:40`: `func matchesExclusion(rel string, r profile.Exclusion) bool {`
+- `.\gitmap\cmd\commitin\orchestrator\exclude.go:50`: `func matchesFolder(rel, folder string) bool {`
+- `.\gitmap\cmd\commitin\orchestrator\save_profile.go:69`: `func isExistsError(err error) bool {`
+- `.\gitmap\cmd\commitin\profile\io.go:44`: `func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {`
+- `.\gitmap\cmd\commitin\profile\io.go:77`: `func isExistingFile(path string) bool {`
+- `.\gitmap\cmd\commitin\prompt\prompt.go:28`: `func New(noPrompt bool) *Asker {`
+- `.\gitmap\cmd\commitin\prompt\prompt.go:74`: `func isMember(v string, set []string) bool {`
+- `.\gitmap\cmd\commitin\replay\clobber.go:38`: `func oneFileClobbers(p Plan, head, rel string) (bool, error) {`
+- `.\gitmap\cmd\commitin\replay\replay_test.go:98`: `func contains(haystack []string, needle string) bool {`
+- `.\gitmap\cmd\commitin\runlog\releasebranch.go:27`: `func ResolveReleaseBranchName(tagName string, isAnnotated, isNoReleaseBranch, isDryRun bool) string {`
+- `.\gitmap\cmd\commitin\runlog\runlog.go:15`: `func StartRun(db *sql.DB, sourceRepoPath string, sourceURL *string, wasFreshlyInit bool, profileID *int64, startedAt time.Time) (int64, error) {`
+- `.\gitmap\cmd\commitin\runlog\runlog.go:41`: `func boolToInt(b bool) int {`
+- `.\gitmap\cmd\commitin\runlog\tagreplay.go:128`: `func IsAnnotatedSemverVersionTag(tagName string) bool {`
+- `.\gitmap\cmd\commitin\runlog\tagreplay.go:142`: `func ClassifyVersionTag(tagName string, isAnnotated bool) bool {`
+- `.\gitmap\cmd\commitin\walk\walk.go:67`: `func isEmptyRepoError(out string, err error) bool {`
+- `.\gitmap\cmd\commitin\walk\walk_test.go:88`: `func hasArg(args []string, want string) bool {`
+- `.\gitmap\cmd\commitin\workspace\expand.go:143`: `func matchSibling(base, name string) (int, bool) {`
+- `.\gitmap\cmd\commitin\workspace\lock.go:54`: `func isLockHeldByLive(lockPath string) bool {`
+- `.\gitmap\cmd\commitin\workspace\lock.go:88`: `func isProcessAlive(pid int) bool {`
+- `.\gitmap\cmd\commitin\workspace\source.go:64`: `func isGitURL(s string) bool {`
+- `.\gitmap\cmd\commitin\workspace\source.go:117`: `func hasGitMetadata(dir string) bool {`
+- `.\gitmap\committransfer\git.go:51`: `func revListReverse(dir, base, head string, includeMerges bool) ([]string, error) {`
+- `.\gitmap\committransfer\git.go:163`: `func hasStagedChanges(dir string) bool {`
+- `.\gitmap\committransfer\log.go:98`: `func Confirm(prefix string) bool {`
+- `.\gitmap\committransfer\message.go:103`: `func startsWithAny(lowerSubject string, prefixes ...string) bool {`
+- `.\gitmap\committransfer\message.go:149`: `func AlreadyReplayed(recentLog, sourceDisplay, shortSHA string) bool {`
+- `.\gitmap\committransfer\message.go:179`: `func SetHasReplayed(set map[string]struct{}, sourceDisplay, shortSHA string) bool {`
+- `.\gitmap\committransfer\plan.go:47`: `func countMergeExcluded(sourceDir, base string, includeMerges bool, mainlineCount int) int {`
+- `.\gitmap\committransfer\plan.go:131`: `func isDropSkip(cause string) bool {`
+- `.\gitmap\committransfer\replay.go:62`: `func replayOne(plan ReplayPlan, commit SourceCommit, opts Options) (string, bool, error) {`
+- `.\gitmap\committransfer\replay.go:136`: `func shouldSkipPath(rel string, opts Options) bool {`
+- `.\gitmap\committransfer\run.go:20`: `func maybePush(targetDir string, opts Options, newCount int) bool {`
+- `.\gitmap\completion\cdfunction.go:138`: `func hasCurrentCDFunction(text string) bool {`
+- `.\gitmap\completion\cdfunction.go:143`: `func hasCDFunctionEnd(text string) bool {`
+- `.\gitmap\completion\dynamic.go:75`: `func isRepoPathCmd(cmd string) bool {`
+- `.\gitmap\completion\internal\gencommands\main.go:261`: `func hasMarker(cg *ast.CommentGroup, needle string) bool {`
+- `.\gitmap\config\validate.go:156`: `func isAllowedValue(value string, allowed []string) bool {`
+- `.\gitmap\constants\cmd_constants_parity_test.go:216`: `func parityCommentHas(cg *ast.CommentGroup, needle string) bool {`
+- `.\gitmap\dashboard\aggregate.go:157`: `func isMergeCommit(parents string) bool {`
+- `.\gitmap\dashboard\gitquery.go:35`: `func queryLog(repoPath string, limit int, since string, noMerges bool) (string, error) {`
+- `.\gitmap\dashboard\gitquery.go:46`: `func buildLogArgs(limit int, since string, noMerges bool) []string {`
+- `.\gitmap\dashboard\parse.go:26`: `func parseOneCommit(block string) (model.CommitInfo, bool) {`
+- `.\gitmap\dashboard\writer_test.go:13`: `func sampleDashboardData(recent bool) model.DashboardData {`
+- `.\gitmap\detector\csharpparser.go:105`: `func isCsprojFile(name string) bool {`
+- `.\gitmap\detector\csharpparser.go:179`: `func isKeyFile(name string) bool {`
+- `.\gitmap\detector\detector.go:77`: `func isInterestingFile(name string) bool {`
+- `.\gitmap\detector\detector.go:120`: `func shouldExcludeDir(name string) bool {`
+- `.\gitmap\detector\goparser.go:129`: `func fileExists(path string) bool {`
+- `.\gitmap\detector\parser.go:59`: `func isReactProject(pkg *packageJSON) bool {`
+- `.\gitmap\detector\parser.go:73`: `func hasDepKey(deps map[string]string, key string) bool {`
+- `.\gitmap\detector\rules.go:73`: `func isUnderSlnDir(dir string, slnDirs map[string]bool) bool {`
+- `.\gitmap\diff\endpoint.go:63`: `func isURLLike(raw string) bool {`
+- `.\gitmap\diff\report.go:91`: `func isAllZero(s Summary) bool {`
+- `.\gitmap\diff\report.go:96`: `func printSection(out io.Writer, header string, entries []Entry, kind EntryKindType, enabled bool) {`
+- `.\gitmap\diff\tree.go:87`: `func shouldIgnore(rel string, opts WalkOptions) bool {`
+- `.\gitmap\diff\tree.go:175`: `func sameContent(a, b string) bool {`
+- `.\gitmap\fixtureversion\bump.go:61`: `func BumpStampInBody(body string, req BumpRequest) (string, bool) {`
+- `.\gitmap\fixtureversion\bump.go:128`: `func MaybeAutoBumpFile(path string, req BumpRequest) (bool, error) {`
+- `.\gitmap\fixtureversion\bump.go:149`: `func isAutoBumpEnabled() bool {`
+- `.\gitmap\fixtureversion\fixtureversion.go:78`: `func ParseMarker(body string) (Stamp, bool) {`
+- `.\gitmap\fixtureversion\fixtureversion.go:94`: `func parseFields(payload string) (Stamp, bool) {`
+- `.\gitmap\fixtureversion\hash.go:61`: `func HashMatches(body, recordedShortHash string) bool {`
+- `.\gitmap\fixtureversion\validate.go:132`: `func tryAutobumpAndReport(t *testing.T, body string, stamp Stamp, sourcePath string, want Expectation) bool {`
+- `.\gitmap\formatter\csvcrlf_contract_test.go:75`: `func hasBareLF(s string) bool {`
+- `.\gitmap\formatter\directclone.go:21`: `func writeDirectCloneScriptTemplate(w io.Writer, records []model.ScanRecord, templateName string, useSSH bool) error {`
+- `.\gitmap\formatter\directclone.go:39`: `func buildDirectCloneEntries(records []model.ScanRecord, useSSH bool) []RepoEntry {`
+- `.\gitmap\formatter\directclone.go:59`: `func pickDirectCloneURL(r model.ScanRecord, useSSH bool) string {`
+- `.\gitmap\formatter\terminal.go:21`: `func Terminal(w io.Writer, records []model.ScanRecord, outputDir string, quiet bool) error {`
+- `.\gitmap\formatter\validate.go:99`: `func hasURL(rec model.ScanRecord) bool {`
+- `.\gitmap\fsutil\exists.go:31`: `func FileExists(path string) bool {`
+- `.\gitmap\fsutil\exists.go:50`: `func FileOrDirExists(path string) bool {`
+- `.\gitmap\fsutil\exists.go:64`: `func DirExists(path string) bool {`
+- `.\gitmap\fsutil\path_normalize.go:33`: `func EqualPaths(pathA, pathB string) bool {`
+- `.\gitmap\fsutil\path_normalize.go:40`: `func IsSubdirectory(parent, child string) bool {`
+- `.\gitmap\ghtoken\ghtoken.go:61`: `func tokenFromGhCLI() (string, bool) {`
+- `.\gitmap\gitutil\gitutil.go:125`: `func detectFromLocalHEAD(repoPath string) (string, bool) {`
+- `.\gitmap\gitutil\gitutil.go:145`: `func detectFromLocalRemoteRef(repoPath string) (string, bool) {`
+- `.\gitmap\gitutil\gitutil.go:169`: `func detectFromLiveRemote(repoPath string) (string, bool) {`
+- `.\gitmap\gitutil\gitutil.go:183`: `func parseLsRemoteSymref(output string) (string, bool) {`
+- `.\gitmap\gitutil\gitutil.go:210`: `func isDetachedHEAD(repoPath string) bool {`

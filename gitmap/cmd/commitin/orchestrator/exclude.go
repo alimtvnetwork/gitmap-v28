@@ -19,7 +19,7 @@ func applyExclusions(files []string, rules []profile.Exclusion) []string {
 	}
 	out := make([]string, 0, len(files))
 	for _, f := range files {
-		isNonExcluded := isExcluded == false(f, rules)
+		isNonExcluded := !isExcluded(f, rules)
 		if isNonExcluded {
 			out = append(out, f)
 		}

@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 18)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\regoldens_diff_scope.go:32`: `return strings.Contains(strings.ToLower(base), goldenDiffBasenameFragment)`
+- `.\gitmap\cmd\regoldens_exec.go:38`: `return runGoTestPass(cfg, withGate)`
+- `.\gitmap\cmd\regoldens_exec.go:72`: `return false`
+- `.\gitmap\cmd\regoldens_exec.go:80`: `return true`
+- `.\gitmap\cmd\regoldens_precheck.go:60`: `return buf.Bytes()`
+- `.\gitmap\cmd\regoldens_precheck.go:68`: `return append(out,`
+- `.\gitmap\cmd\regoldens_precheck.go:78`: `return strings.Contains(string(captured), constants.RegoldensNonDetMarker)`
+- `.\gitmap\cmd\reinstall.go:59`: `return constants.ReinstallModeRepo, false`
+- `.\gitmap\cmd\reinstall.go:61`: `return constants.ReinstallModeSelf, false`
+- `.\gitmap\cmd\reinstall.go:64`: `return constants.ReinstallModeRepo, true`
+- `.\gitmap\cmd\reinstall.go:66`: `return constants.ReinstallModeSelf, true`
+- `.\gitmap\cmd\reinstall.go:94`: `return false`
+- `.\gitmap\cmd\reinstall.go:142`: `return filepath.Join(constants.RepoPath, name), name`
+- `.\gitmap\cmd\reinstall.go:152`: `return exec.Command("pwsh", "-ExecutionPolicy", "Bypass", "-NoProfile",`
+- `.\gitmap\cmd\release.go:36`: `return false`
+- `.\gitmap\cmd\release.go:39`: `return true`
+- `.\gitmap\cmd\release.go:42`: `return true`
+- `.\gitmap\cmd\release.go:56`: `return bump`
+- `.\gitmap\cmd\release.go:60`: `return bump`
+- `.\gitmap\cmd\release.go:66`: `return constants.BumpMinor`
+- `.\gitmap\cmd\release.go:74`: `return cfg`
+- `.\gitmap\cmd\release.go:78`: `return release.Options{`
+- `.\gitmap\cmd\release.go:117`: `return nil`
+- `.\gitmap\cmd\release.go:126`: `return nil`
+- `.\gitmap\cmd\release.go:168`: `return fs, h`
+- `.\gitmap\cmd\release.go:181`: `return version, *h.assets, *h.commit, *h.branch, *h.bump, *h.notes, *h.targets, []string(h.zgGroups), []string(h.zgItems), *h.bundle, *h.draft, *h.dryRun, *h.verbose, *h.compress, *h.checksums, *h.bin, *h.listTargets, *h.noCommit, *h.yes`
+- `.\gitmap\cmd\release.go:192`: `return v`
+- `.\gitmap\cmd\release.go:194`: `return versionPrefix + strings.TrimLeft(v, versionTrimChars)`
+- `.\gitmap\cmd\release.go:226`: `return "--targets flag"`
+- `.\gitmap\cmd\release.go:229`: `return "config.json (release.targets)"`
+- `.\gitmap\cmd\release.go:231`: `return "built-in defaults"`
+- `.\gitmap\cmd\releasealias_git.go:34`: `return ""`
+- `.\gitmap\cmd\releasealias_git.go:84`: `return false`
+- `.\gitmap\cmd\releasealias_git.go:97`: `return ""`
+- `.\gitmap\cmd\releaseargs.go:42`: `return knownValueFlags[flagName]`
+- `.\gitmap\cmd\releaseautobump.go:19`: `return release.Version{}, release.Version{}, false`
+- `.\gitmap\cmd\releaseautobump.go:24`: `return release.Version{}, release.Version{}, false`
+- `.\gitmap\cmd\releaseautobump.go:36`: `return release.ResolveLatestVersion()`
+- `.\gitmap\cmd\releaseautobump.go:58`: `return false`
+- `.\gitmap\cmd\releaseautobump.go:69`: `return false`
+- `.\gitmap\cmd\releaseautobump.go:72`: `return false`
+- `.\gitmap\cmd\releaseautoregister.go:23`: `return fmt.Errorf("could not resolve cwd: %w", err)`
+- `.\gitmap\cmd\releaseautoregister.go:34`: `return fmt.Errorf("upsert repo failed: %w", err)`
+- `.\gitmap\cmd\releaseautoregister.go:39`: `return fmt.Errorf("ensure scan folder failed: %w", err)`
+- `.\gitmap\cmd\releaseautoregister.go:43`: `return fmt.Errorf("tag repo failed: %w", err)`
+- `.\gitmap\cmd\releasepersist.go:52`: `return 0, err`
+- `.\gitmap\cmd\releasepersist.go:65`: `return 0, err`
+- `.\gitmap\cmd\releasepersist.go:69`: `return id, nil`
+- `.\gitmap\cmd\releasepersist.go:73`: `return 0, fmt.Errorf("auto-register failed: %w", err)`
+- `.\gitmap\cmd\releasepersist.go:81`: `return model.ReleaseRecord{`
+- `.\gitmap\cmd\releasepull.go:46`: `return args`
+- `.\gitmap\cmd\releasepull.go:132`: `return constants.RPModeRebase`
+- `.\gitmap\cmd\releasepull.go:135`: `return constants.RPModeMerge`
+- `.\gitmap\cmd\releasepull.go:190`: `return constants.GitPullRebaseFlag`
+- `.\gitmap\cmd\releasepull.go:192`: `return constants.GitNoRebaseFlag`
+- `.\gitmap\cmd\releasepull.go:194`: `return constants.GitFFOnlyFlag`
+- `.\gitmap\cmd\releaserebase.go:39`: `return versionPattern.MatchString(s)`
+- `.\gitmap\cmd\releaserebase.go:48`: `return false`
+- `.\gitmap\cmd\releaserebase.go:51`: `return false`
+- `.\gitmap\cmd\releaserebase.go:54`: `return false`
+- `.\gitmap\cmd\releaserecentclone.go:27`: `return false`
+- `.\gitmap\cmd\releaserecentclone.go:66`: `return target, false`
+- `.\gitmap\cmd\releaserecentclone.go:72`: `return target, false`
+- `.\gitmap\cmd\releaserecentclone.go:76`: `return target, false`
+- `.\gitmap\cmd\releasescan.go:28`: `return false`
+- `.\gitmap\cmd\releasescan.go:33`: `return false`
+- `.\gitmap\cmd\releasescan.go:38`: `return false`
+- `.\gitmap\cmd\releasescan.go:48`: `return []string{"node_modules", ".gitmap", "vendor", "dist", "build"}`
+- `.\gitmap\cmd\releasescan.go:70`: `return scanReleaseTarget{}, false`
+- `.\gitmap\cmd\releasescan.go:75`: `return scanReleaseTarget{}, false`
+- `.\gitmap\cmd\releasescan.go:91`: `return release.Version{}, release.Version{}, false`
+- `.\gitmap\cmd\releasescan.go:94`: `return release.Version{}, release.Version{}, false`
+- `.\gitmap\cmd\releaseundo.go:82`: `return version, keepRemote, dryRun, yes`
+- `.\gitmap\cmd\releaseundo.go:91`: `return reply == "y" `
+- `.\gitmap\cmd\releaseundo.go:117`: `return done`
+- `.\gitmap\cmd\releaseundo.go:124`: `return cmd.Run()`
+- `.\gitmap\cmd\releaseundo.go:131`: `return "", false`
+- `.\gitmap\cmd\releaseundo.go:147`: `return "", false`
+- `.\gitmap\cmd\releaseundo.go:152`: `return a.Major < b.Major`
+- `.\gitmap\cmd\releaseundo.go:155`: `return a.Minor < b.Minor`
+- `.\gitmap\cmd\releaseundo.go:157`: `return a.Patch < b.Patch`
+- `.\gitmap\cmd\releaseundo.go:159`: `return versions[len(versions)-1].String(), true`
+- `.\gitmap\cmd\releaseundorange.go:32`: `return 2`
+- `.\gitmap\cmd\releaseundorange.go:42`: `return 1`
+- `.\gitmap\cmd\releaseundorange.go:46`: `return 0`
+- `.\gitmap\cmd\releaseundorange.go:56`: `return nil, fmt.Errorf("range must be of form vX.Y.Z..vX.Y.Z, got %q", spec)`
+- `.\gitmap\cmd\releaseundorange.go:60`: `return nil, fmt.Errorf("range endpoints must share major.minor (%s vs %s)", lo, hi)`
+- `.\gitmap\cmd\releaseundorange.go:63`: `return nil, fmt.Errorf("range endpoints reversed (%s > %s)", lo, hi)`
+- `.\gitmap\cmd\releaseundorange.go:69`: `return out, nil`
+- `.\gitmap\cmd\release_notes_opts.go:38`: `return i, false`
+- `.\gitmap\cmd\release_notes_opts.go:43`: `return i + 1, true`
+- `.\gitmap\cmd\release_notes_opts.go:46`: `return i + 1, true`
+- `.\gitmap\cmd\release_notes_opts.go:49`: `return i + 1, true`
+- `.\gitmap\cmd\release_notes_opts.go:51`: `return i, false`
+- `.\gitmap\cmd\release_notes_opts.go:56`: `return nextI, nil`
+- `.\gitmap\cmd\release_notes_opts.go:60`: `return i, nil`
+- `.\gitmap\cmd\release_notes_opts.go:62`: `return i, fmt.Errorf("unknown arg %q", args[i])`
+- `.\gitmap\cmd\release_notes_opts.go:70`: `return fmt.Errorf("need <tagA>..<tagB>, --since, or --since-tag")`
+- `.\gitmap\cmd\release_notes_opts.go:72`: `return nil`
+- `.\gitmap\cmd\release_notes_opts.go:81`: `return opts, err`
+- `.\gitmap\cmd\release_notes_opts.go:85`: `return opts, validateReleaseNotesOpts(&opts)`
+- `.\gitmap\cmd\release_notes_opts.go:96`: `return args`
+- `.\gitmap\cmd\release_notes_opts.go:104`: `return nil, fmt.Errorf("git log: %v\n%s", err, out)`
+- `.\gitmap\cmd\release_notes_opts.go:108`: `return nil, nil`
+- `.\gitmap\cmd\release_notes_opts.go:110`: `return strings.Split(trimmed, "\n"), nil`
+- `.\gitmap\cmd\release_notes_opts.go:120`: `return groups`
+- `.\gitmap\cmd\release_notes_opts.go:138`: `return true`
+- `.\gitmap\cmd\release_notes_opts.go:141`: `return false`
+- `.\gitmap\cmd\release_notes_opts.go:148`: `return entry.category`
+- `.\gitmap\cmd\release_notes_opts.go:151`: `return "Other"`
+- `.\gitmap\cmd\release_notes_opts.go:159`: `return header + renderFlat(lines)`
+- `.\gitmap\cmd\release_notes_opts.go:161`: `return renderJSON(opts, lines)`
+- `.\gitmap\cmd\release_notes_opts.go:163`: `return header + renderGrouped(lines)`
+- `.\gitmap\cmd\release_notes_opts.go:165`: `return header + renderGrouped(lines)`
+- `.\gitmap\cmd\release_notes_opts.go:174`: `return fmt.Sprintf("## Changes (%s)\n\n", scope)`
+- `.\gitmap\cmd\release_notes_opts.go:182`: `return b.String()`
+- `.\gitmap\cmd\release_notes_opts.go:191`: `return keys`
+- `.\gitmap\cmd\release_notes_opts.go:208`: `return b.String()`
+- `.\gitmap\cmd\release_notes_opts.go:229`: `return entries`
+- `.\gitmap\cmd\release_notes_opts.go:235`: `return string(buf) + "\n"`
+- `.\gitmap\cmd\release_notes_opts.go:240`: `return ln[:idx], ln[idx+1:]`
+- `.\gitmap\cmd\release_notes_opts.go:242`: `return ln, ""`
+- `.\gitmap\cmd\release_notes_opts.go:248`: `return subj`
+- `.\gitmap\cmd\release_notes_opts.go:250`: `return fmt.Sprintf("%s (%s)", subj, sha)`
+- `.\gitmap\cmd\release_tools.go:43`: `return cmd.Run()`
+- `.\gitmap\cmd\remotetransport.go:24`: `return false, "", "", nil`
+- `.\gitmap\cmd\remotetransport.go:33`: `return false, "", "", err`
+- `.\gitmap\cmd\remotetransport.go:49`: `return false, old, old, nil`
+- `.\gitmap\cmd\remotetransport.go:53`: `return false, old, converted, err`
+- `.\gitmap\cmd\remotetransport.go:64`: `return "", fmt.Errorf("read remote.origin.url in %s: %w (is `git remote add origin <url>` set?)", dir, err)`
+- `.\gitmap\cmd\remotetransport.go:75`: `return fmt.Errorf("git remote set-url origin %s: %w (%s)", url, err, strings.TrimSpace(string(out)))`
+- `.\gitmap\cmd\replace.go:65`: `return replaceModeAudit`
+- `.\gitmap\cmd\replace.go:68`: `return classifySingleArgMode(positional[0])`
+- `.\gitmap\cmd\replace.go:71`: `return replaceModeLiteral`
+- `.\gitmap\cmd\replace.go:73`: `return replaceModeUnknown`
+- `.\gitmap\cmd\replace.go:78`: `return replaceModeAll`
+- `.\gitmap\cmd\replace.go:81`: `return replaceModeVersionN`
+- `.\gitmap\cmd\replace.go:83`: `return replaceModeUnknown`
+- `.\gitmap\cmd\replace.go:89`: `return false`
+- `.\gitmap\cmd\replace.go:93`: `return false`
+- `.\gitmap\cmd\replace.go:96`: `return true`
+- `.\gitmap\cmd\replace.go:107`: `return n`
+- `.\gitmap\cmd\replace.go:115`: `return 0, false`
+- `.\gitmap\cmd\replace.go:118`: `return n, true`
+- `.\gitmap\cmd\replaceapply.go:40`: `return hits, total`
+- `.\gitmap\cmd\replaceapply.go:49`: `return replaceHit{}, false`
+- `.\gitmap\cmd\replaceapply.go:61`: `return replaceHit{}, false`
+- `.\gitmap\cmd\replaceapply.go:63`: `return replaceHit{path: path, count: count, updated: data}, true`
+- `.\gitmap\cmd\replaceapply.go:77`: `return files, total`
+- `.\gitmap\cmd\replaceapply.go:85`: `return err`

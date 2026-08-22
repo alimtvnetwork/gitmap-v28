@@ -1,0 +1,81 @@
+# Fix return without blank line (Part 45)
+
+Total items: 75
+
+## Files to Modify
+
+- `.\src\pages\Changelog.tsx:56`: `return next;`
+- `.\src\pages\Changelog.tsx:64`: `return changelog`
+- `.\src\pages\Changelog.tsx:119`: `return (`
+- `.\src\pages\ChangelogGenerate.tsx:6`: `return (`
+- `.\src\pages\ChromeProfileSpec.tsx:50`: `return [...rows].sort((a, b) => {`
+- `.\src\pages\ChromeProfileSpec.tsx:53`: `return b.lastSeen.localeCompare(a.lastSeen);`
+- `.\src\pages\ClearReleaseJSON.tsx:40`: `return (`
+- `.\src\pages\CloneCommand.tsx:12`: `return (`
+- `.\src\pages\CloneNext.tsx:76`: `return (`
+- `.\src\pages\CloneNextCommand.tsx:24`: `return (`
+- `.\src\pages\CloneOverview.tsx:17`: `return (`
+- `.\src\pages\Commands.tsx:72`: `return useCallback((key: string) => {`
+- `.\src\pages\Commands.tsx:88`: `return useCallback((commandName: string) => {`
+- `.\src\pages\Commands.tsx:106`: `return (`
+- `.\src\pages\Commands.tsx:123`: `return (`
+- `.\src\pages\Commands.tsx:138`: `return (`
+- `.\src\pages\Commands.tsx:164`: `return (`
+- `.\src\pages\Commands.tsx:189`: `return (`
+- `.\src\pages\Config.tsx:5`: `return (`
+- `.\src\pages\FlagReference.tsx:83`: `return (`
+- `.\src\pages\FlagReference.tsx:107`: `return (`
+- `.\src\pages\FlagReference.tsx:124`: `return (`
+- `.\src\pages\GenericCLI.tsx:15`: `return (`
+- `.\src\pages\GenericCLI.tsx:447`: `return local.Format(constants.DateDisplayLayout)`
+- `.\src\pages\GenericCLI.tsx:541`: `return nil, err`
+- `.\src\pages\GenericCLI.tsx:578`: `return                 // Non-fatal — continue without logging`
+- `.\src\pages\GenericCLI.tsx:688`: `return &Progress{`
+- `.\src\pages\GenericCLI.tsx:753`: `return fmt.Sprintf("%.1fs", d.Seconds())`
+- `.\src\pages\GenericCLI.tsx:757`: `return fmt.Sprintf("%dm %ds", mins, secs)`
+- `.\src\pages\GenericCLI.tsx:860`: `return loadRecordsByGroup(groupName)  // DB: group members`
+- `.\src\pages\GenericCLI.tsx:863`: `return loadAllRecordsDB()             // DB: all repos`
+- `.\src\pages\GenericCLI.tsx:913`: `return 1, 0, 0    // succeeded`
+- `.\src\pages\GenericCLI.tsx:916`: `return 0, 1, 0    // failed (command error)`
+- `.\src\pages\GenericCLI.tsx:921`: `return 0, 0, 1        // missing`
+- `.\src\pages\GenericCLI.tsx:1054`: `return err`
+- `.\src\pages\GenericCLI.tsx:1066`: `return nil  // already installed`
+- `.\src\pages\GenericCLI.tsx:1072`: `return nil`
+- `.\src\pages\GettingStarted.tsx:5`: `return (`
+- `.\src\pages\GoMod.tsx:29`: `return (`
+- `.\src\pages\HelpIndex.tsx:179`: `return (`
+- `.\src\pages\Index.tsx:38`: `return (`
+- `.\src\pages\Install.tsx:142`: `return (`
+- `.\src\pages\InstallGitmap.tsx:77`: `return (`
+- `.\src\pages\InteractiveExamples.tsx:105`: `return (`
+- `.\src\pages\InteractiveTUI.tsx:62`: `return (`
+- `.\src\pages\Makefile.tsx:48`: `return (`
+- `.\src\pages\PostMortems.tsx:53`: `return (`
+- `.\src\pages\Projects.tsx:75`: `return true;`
+- `.\src\pages\Projects.tsx:81`: `return acc;`
+- `.\src\pages\Projects.tsx:86`: `return acc;`
+- `.\src\pages\Release.tsx:80`: `return (`
+- `.\src\pages\ReleaseSelf.tsx:52`: `return (`
+- `.\src\pages\ReleaseVersion.tsx:31`: `return (`
+- `.\src\pages\releaseVersionSnippets.ts:26`: `return {`
+- `.\src\pages\ScanCloneFlags.tsx:145`: `return rows;`
+- `.\src\pages\ScanCommand.tsx:18`: `return (`
+- `.\src\pages\Setup.tsx:148`: `return (`
+- `.\src\pages\SpecIndex.tsx:42`: `return () => window.removeEventListener("keydown", handler);`
+- `.\src\pages\SpecIndex.tsx:59`: `return sections`
+- `.\src\pages\Troubleshooting.tsx:128`: `return (`
+- `.\src\pages\VersionHistory.tsx:39`: `return (`
+- `.\src\pages\Watch.tsx:42`: `return () => clearInterval(id);`
+- `.\src\pages\Watch.tsx:155`: `return (`
+- `.\src\test\chip-contrast.test.tsx:67`: `return [`
+- `.\src\test\chip-contrast.test.tsx:80`: `return [`
+- `.\src\test\chip-contrast.test.tsx:91`: `return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);`
+- `.\src\test\chip-contrast.test.tsx:93`: `return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);`
+- `.\src\test\chip-contrast.test.tsx:103`: `return (light + 0.05) / (dark + 0.05);`
+- `.\src\test\chip-contrast.test.tsx:171`: `return compositeOver(tint, alpha, page);`
+- `.\src\test\chip-contrast.test.tsx:178`: `return hslTokenToRgb(token);`
+- `.\src\test\docs-tooltips.test.tsx:68`: `return screen.getByLabelText(name);`
+- `.\src\test\docs-tooltips.test.tsx:70`: `return screen.getByLabelText(new RegExp(name, "i"));`
+- `.\src\test\docs-tooltips.test.tsx:401`: `return tips.some((t) =>`
+- `.\src\test\new-command-pages.test.ts:103`: `return s.replace(/[.*+?^${}()`
+- `.\src\types\helpJson.ts:35`: `return v.groups.every(`

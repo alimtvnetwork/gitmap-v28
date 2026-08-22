@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 41)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\templates\diff.go:102`: `return nil, false`
+- `.\gitmap\templates\diff.go:149`: `return nil`
+- `.\gitmap\templates\diff.go:166`: `return data, true, nil`
+- `.\gitmap\templates\diff.go:169`: `return nil, false, nil`
+- `.\gitmap\templates\dirfs.go:13`: `return emptyFS{}`
+- `.\gitmap\templates\list.go:24`: `return nil, err`
+- `.\gitmap\templates\list.go:27`: `return nil, err`
+- `.\gitmap\templates\list.go:36`: `return kindRank(out[i].Kind) < kindRank(out[j].Kind)`
+- `.\gitmap\templates\list.go:49`: `return 0`
+- `.\gitmap\templates\list.go:51`: `return 1`
+- `.\gitmap\templates\list.go:53`: `return 2`
+- `.\gitmap\templates\list.go:61`: `return fs.WalkDir(FS, embedAssetsRoot, func(p string, d fs.DirEntry, err error) error {`
+- `.\gitmap\templates\list.go:63`: `return err`
+- `.\gitmap\templates\list.go:66`: `return nil`
+- `.\gitmap\templates\list.go:70`: `return nil`
+- `.\gitmap\templates\list.go:83`: `return err`
+- `.\gitmap\templates\list.go:87`: `return nil // overlay dir may not exist; skip silently`
+- `.\gitmap\templates\list.go:90`: `return nil`
+- `.\gitmap\templates\list.go:94`: `return nil`
+- `.\gitmap\templates\list.go:116`: `return "", "", false`
+- `.\gitmap\templates\list.go:123`: `return "", "", false`
+- `.\gitmap\templates\list.go:129`: `return "", "", false`
+- `.\gitmap\templates\materialize.go:19`: `return "", nil, err`
+- `.\gitmap\templates\materialize.go:25`: `return err`
+- `.\gitmap\templates\materialize.go:28`: `return nil`
+- `.\gitmap\templates\materialize.go:33`: `return copyErr`
+- `.\gitmap\templates\materialize.go:42`: `return dir, written, fmt.Errorf(errTemplateMaterialize, dir, walkErr)`
+- `.\gitmap\templates\materialize.go:55`: `return "", nil`
+- `.\gitmap\templates\materialize.go:58`: `return "", fmt.Errorf(errTemplateMaterialize, dst, err)`
+- `.\gitmap\templates\materialize.go:63`: `return "", fmt.Errorf(errTemplateRead, embedPath, err)`
+- `.\gitmap\templates\materialize.go:66`: `return "", fmt.Errorf(errTemplateMaterialize, dst, err)`
+- `.\gitmap\templates\merge.go:55`: `return MergeResult{}, fmt.Errorf("resolve %q: %w", targetPath, err)`
+- `.\gitmap\templates\merge.go:60`: `return MergeResult{}, readErr`
+- `.\gitmap\templates\merge.go:68`: `return MergeResult{Path: abs, Outcome: outcome, Changed: false, BlockTag: tag}, nil`
+- `.\gitmap\templates\merge.go:72`: `return MergeResult{}, fmt.Errorf("mkdir %q: %w", filepath.Dir(abs), mkErr)`
+- `.\gitmap\templates\merge.go:75`: `return MergeResult{}, fmt.Errorf("write %q: %w", abs, wErr)`
+- `.\gitmap\templates\merge.go:86`: `return data, true, nil`
+- `.\gitmap\templates\merge.go:89`: `return nil, false, nil`
+- `.\gitmap\templates\merge.go:100`: `return block, MergeCreated`
+- `.\gitmap\templates\merge.go:105`: `return re.ReplaceAll(prior, block), MergeUpdated`
+- `.\gitmap\templates\paths.go:16`: `return "", fmt.Errorf(errTemplateUserDir, err)`
+- `.\gitmap\templates\paths.go:27`: `return "", err`
+- `.\gitmap\templates\paths.go:30`: `return "", fmt.Errorf(errTemplateMaterialize, dir, mkErr)`
+- `.\gitmap\templates\resolver.go:35`: `return Resolved{}, err`
+- `.\gitmap\templates\resolver.go:37`: `return r, nil`
+- `.\gitmap\templates\resolver.go:45`: `return filepath.ToSlash(filepath.Join(kind, lang+extFor(kind)))`
+- `.\gitmap\templates\resolver.go:51`: `return templateExtAttributes`
+- `.\gitmap\templates\resolver.go:61`: `return Resolved{}, false, err`
+- `.\gitmap\templates\resolver.go:66`: `return Resolved{}, false, nil`
+- `.\gitmap\templates\resolver.go:69`: `return Resolved{}, false, fmt.Errorf(errTemplateRead, full, err)`
+- `.\gitmap\templates\resolver.go:80`: `return Resolved{}, fmt.Errorf(errTemplateNotFound, kind, lang)`
+- `.\gitmap\templates\resolver.go:83`: `return Resolved{}, fmt.Errorf(errTemplateRead, full, err)`
+- `.\gitmap\tests\cmd_test\aliasresolve_test.go:14`: `return args[i+1], removeElements(args, i, 2)`
+- `.\gitmap\tests\cmd_test\aliasresolve_test.go:17`: `return "", args`
+- `.\gitmap\tests\cmd_test\aliasresolve_test.go:21`: `return arg[3:], removeElements(args, i, 1)`
+- `.\gitmap\tests\cmd_test\aliasresolve_test.go:24`: `return arg[8:], removeElements(args, i, 1)`
+- `.\gitmap\tests\cmd_test\aliasresolve_test.go:32`: `return len(arg) > len(prefix) && arg[:len(prefix)] == prefix`
+- `.\gitmap\tests\cmd_test\aliasresolve_test.go:220`: `return nil`
+- `.\gitmap\tests\cmd_test\amend_test.go:15`: `return args`
+- `.\gitmap\tests\cmd_test\amend_test.go:19`: `return args`
+- `.\gitmap\tests\cmd_test\amend_test.go:75`: `return constants.AmendModeAll`
+- `.\gitmap\tests\cmd_test\amend_test.go:79`: `return constants.AmendModeHead`
+- `.\gitmap\tests\cmd_test\amend_test.go:110`: `return nil`
+- `.\gitmap\tests\cmd_test\amend_test.go:155`: `return []string{s[:i], s[i+1:]}`
+- `.\gitmap\tests\cmd_test\amend_test.go:312`: `return ts.Format("2006-01-02T15-04-05")`
+- `.\gitmap\tests\cmd_test\seowritecreate_test.go:112`: `return sampleTemplateFile{`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:148`: `return 0, 0, errInvalid()`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:156`: `return 0, 0, errInvalid()`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:165`: `return false, errInvalid()`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:170`: `return false, errInvalid()`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:180`: `return os.ErrInvalid`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:185`: `return "."`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:193`: `return strings.Replace(strings.Replace("Xh Ym", "X", itoa(hours), 1), "Y", itoa(minutes), 1)`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:201`: `return "0"`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:235`: `return ""`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:238`: `return ""`
+- `.\gitmap\tests\cmd_test\seowriteloop_test.go:240`: `return explicit`
+- `.\gitmap\tests\fixrepo_test\fixture_helpers_test.go:56`: `return s`
+- `.\gitmap\tests\fixrepo_test\fixture_helpers_test.go:61`: `return s`
+- `.\gitmap\tests\fixrepo_test\fixture_helpers_test.go:92`: `return fmt.Sprintf(`package fixture`
+- `.\gitmap\tests\fixrepo_test\fixture_helpers_test.go:107`: `return fmt.Sprintf(`package fixture`
+- `.\gitmap\tests\fixrepo_test\fixture_helpers_test.go:151`: `return nil`
+- `.\gitmap\tests\fixrepo_test\gofmt_e2e_test.go:125`: `return dir`
+- `.\gitmap\tests\fixrepo_test\gofmt_e2e_test.go:130`: `return ""`
+- `.\gitmap\tests\release_test\rollback_test.go:62`: `return false`
+- `.\gitmap\tests\release_test\rollback_test.go:74`: `return false`
+- `.\gitmap\tests\scanclone_test\e2e_test.go:37`: `return []model.ScanRecord{`
+- `.\gitmap\tests\scanclone_test\e2e_test.go:146`: `return formatter.WriteJSON(f, recs)`
+- `.\gitmap\tests\scanclone_test\e2e_test.go:149`: `return formatter.WriteJSON(f, recs)`
+- `.\gitmap\tests\scanclone_test\e2e_test.go:169`: `return formatter.WriteJSON(f, recs)`
+- `.\gitmap\tests\scanclone_test\e2e_test.go:172`: `return formatter.WriteCSV(f, recs)`
+- `.\gitmap\tests\store_test\pendingtask_test.go:332`: `return id`
+- `.\gitmap\tests\store_test\pendingtask_test.go:341`: `return id`
+- `.\gitmap\tests\store_test\pendingtask_test.go:350`: `return id`
+- `.\gitmap\tests\store_test\pendingtask_test.go:359`: `return id`
+- `.\gitmap\theme\filter.go:20`: `return p`
+- `.\gitmap\theme\filter.go:53`: `return i, j, true`
+- `.\gitmap\theme\filter.go:69`: `return (b >= '0' && b <= '9') `
+- `.\gitmap\theme\filter.go:79`: `return alt`
+- `.\gitmap\theme\install.go:56`: `return activeMode`
+- `.\gitmap\theme\install.go:126`: `return false`
+- `.\gitmap\theme\install.go:130`: `return false`
+- `.\gitmap\theme\theme.go:50`: `return constants.ThemeStandard`
+- `.\gitmap\theme\theme.go:52`: `return constants.ThemeMonochrome`
+- `.\gitmap\theme\theme.go:54`: `return constants.ThemeBright`
+- `.\gitmap\theme\theme.go:64`: `return ModeStandard`
+- `.\gitmap\theme\theme.go:66`: `return ModeMono`
+- `.\gitmap\theme\theme.go:68`: `return ModeBright`
+- `.\gitmap\theme\theme.go:75`: `return Parse(os.Getenv(constants.EnvTheme))`
+- `.\gitmap\theme\theme.go:87`: `return true`
+- `.\gitmap\theme\theme.go:89`: `return false`
+- `.\gitmap\transport\classify.go:24`: `return constants.ScanTransportSSH`
+- `.\gitmap\transport\classify.go:27`: `return constants.ScanTransportHTTPS`
+- `.\gitmap\transport\classify.go:30`: `return constants.ScanTransportSSH`
+- `.\gitmap\transport\classify.go:32`: `return constants.ScanTransportOther`
+- `.\gitmap\transport\classify.go:39`: `return false`
+- `.\gitmap\transport\classify.go:43`: `return false`
+- `.\gitmap\transport\classify.go:46`: `return !strings.ContainsAny(host, "/\\")`
+- `.\gitmap\tui\actions.go:18`: `return actionsModel{}`
+- `.\gitmap\tui\actions.go:24`: `return m, nil`
+- `.\gitmap\tui\aliases.go:32`: `return m, nil`
+- `.\gitmap\tui\aliases.go:61`: `return styleHint.Render(constants.TUIAliasEmpty)`
+- `.\gitmap\tui\browser.go:24`: `return browserModel{`
+- `.\gitmap\tui\browser.go:34`: `return m, nil`
+- `.\gitmap\tui\browser.go:38`: `return m.updateSearch(keyMsg)`
+- `.\gitmap\tui\browser.go:126`: `return styleHint.Render(constants.TUINoRepos)`
+- `.\gitmap\tui\browser.go:173`: `return path`
+- `.\gitmap\tui\dashboard.go:56`: `return tea.Tick(m.interval, func(_ time.Time) tea.Msg {`
+- `.\gitmap\tui\dashboard.go:57`: `return tickMsg{}`
+- `.\gitmap\tui\dashboard.go:87`: `return func() tea.Msg {`
+- `.\gitmap\tui\dashboard.go:88`: `return refreshMsg{entries: collectStatusEntries(repos)}`
+- `.\gitmap\tui\dashboard.go:94`: `return "error"`
+- `.\gitmap\tui\dashboard.go:97`: `return "dirty"`
+- `.\gitmap\tui\dashboard.go:104`: `return tea.Batch(refreshStatuses(m.repos), m.scheduleTick())`
+- `.\gitmap\tui\dashboard.go:111`: `return m, m.scheduleTick()`
+- `.\gitmap\tui\dashboard.go:114`: `return m, refreshStatuses(m.repos)`
+- `.\gitmap\tui\dashboard.go:116`: `return m.handleKey(msg)`
+- `.\gitmap\tui\dashboard.go:124`: `return a - 1`
+- `.\gitmap\tui\dashboard.go:163`: `return styleHint.Render(constants.TUINoRepos)`
+- `.\gitmap\tui\dashboard.go:166`: `return styleHint.Render(constants.TUIRefreshing)`
+- `.\gitmap\tui\dashformat.go:25`: `return styleDirty.Render("dirty")`
+- `.\gitmap\tui\dashformat.go:27`: `return styleDirty.Render("error")`
+- `.\gitmap\tui\dashformat.go:29`: `return styleClean.Render("clean")`
+- `.\gitmap\tui\dashformat.go:36`: `return "-"`
+- `.\gitmap\tui\dashformat.go:45`: `return ""`
+- `.\gitmap\tui\dashformat.go:64`: `return fmt.Sprintf("  %-4s %-20s %-12s %-8s %-6s %-6s %-6s %s",`
+- `.\gitmap\tui\groups.go:20`: `return groupsModel{groups: groups}`
+- `.\gitmap\tui\groups.go:26`: `return m, nil`
+- `.\gitmap\tui\groups.go:52`: `return styleHint.Render(constants.TUINoGroups)`
+- `.\gitmap\tui\keys.go:9`: `return msg.String() == "q" `

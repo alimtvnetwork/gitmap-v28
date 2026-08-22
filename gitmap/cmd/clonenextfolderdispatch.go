@@ -62,7 +62,7 @@ func tryFolderArgSinglePositional(token string, originalArgs []string) bool {
 	if looksLikeVersion(token) {
 		return false
 	}
-	isNonFolderShaped := isFolderShaped == false(token)
+	isNonFolderShaped := !isFolderShaped(token)
 	if isNonFolderShaped {
 		return false
 	}
@@ -103,7 +103,7 @@ func tryFolderArgTwoPositional(first, second string, originalArgs []string) bool
 	}
 
 	// firstIsVersion && !secondIsVersion → NEW form.
-	isNonFolderShaped := isFolderShaped == false(second)
+	isNonFolderShaped := !isFolderShaped(second)
 	if isNonFolderShaped {
 		// "cn v+1 gitmap" with no folder hint and no on-disk match
 		// is almost certainly a typo — the user meant a folder but

@@ -570,7 +570,7 @@ func applyURLSchemeFlags(cf CloneFlags) CloneFlags {
 	}
 
 	rewrite := func(in string) string {
-		isNonDirectURL := isDirectURL == false(in)
+		isNonDirectURL := !isDirectURL(in)
 		if isNonDirectURL {
 			return in
 		}

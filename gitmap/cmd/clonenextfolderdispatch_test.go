@@ -125,7 +125,7 @@ func TestIsFolderShapedHints(t *testing.T) {
 	// error instead of silently falling through to the alias resolver.
 	hints := []string{"./missing", "../also-missing", "~/nope", "/abs/ghost", `C:\ghost`}
 	for _, h := range hints {
-		isNonFolderShaped := isFolderShaped == false(h)
+		isNonFolderShaped := !isFolderShaped(h)
 		if isNonFolderShaped {
 			t.Errorf("isFolderShaped(%q) = false, want true (path-hint should win regardless of stat)", h)
 		}

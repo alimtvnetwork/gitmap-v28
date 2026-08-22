@@ -132,7 +132,7 @@ func parsePushFlags(args []string) pushOptions {
 
 func runPushCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
 	cwd, _ := os.Getwd()
-	isNonGitRepoCWD := isGitRepoCWD == false()
+	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap push` inside a repo)")
 		exitWith(1)
@@ -217,7 +217,7 @@ func pushWithAutoRebase(cwd string, rest []string) {
 	if runErr == nil {
 		return
 	}
-	isNonNonFastForwardRejection := isNonFastForwardRejection == false(stderr)
+	isNonNonFastForwardRejection := !isNonFastForwardRejection(stderr)
 	if isNonNonFastForwardRejection {
 		handleGitExit("git push", runErr)
 		return

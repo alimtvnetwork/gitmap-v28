@@ -107,7 +107,7 @@ func TestIsGoldenFixturePath_AcceptsTestdataGoldenBasename(t *testing.T) {
 		"a/testdata/snapshot.golden",
 	}
 	for _, p := range cases {
-		isNonGoldenFixturePath := isGoldenFixturePath == false(p)
+		isNonGoldenFixturePath := !isGoldenFixturePath(p)
 		if isNonGoldenFixturePath {
 			t.Fatalf("expected accept, got reject for %q", p)
 		}

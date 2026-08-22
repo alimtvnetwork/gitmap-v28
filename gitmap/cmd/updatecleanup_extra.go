@@ -39,7 +39,7 @@ func cleanupDriveRootShim(ctx updateCleanupContext) int {
 		return 0
 	}
 
-	isNonRemovableDriveRootShim := isRemovableDriveRootShim == false(shimPath, ctx.selfPath)
+	isNonRemovableDriveRootShim := !isRemovableDriveRootShim(shimPath, ctx.selfPath)
 	if isNonRemovableDriveRootShim {
 		return 0
 	}
@@ -70,7 +70,7 @@ func isRemovableDriveRootShim(shimPath, selfPath string) bool {
 	}
 
 	parent := filepath.Dir(shimPath)
-	isNonLiteralDriveRoot := isLiteralDriveRoot == false(parent)
+	isNonLiteralDriveRoot := !isLiteralDriveRoot(parent)
 	if isNonLiteralDriveRoot {
 		return false
 	}

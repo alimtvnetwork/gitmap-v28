@@ -29,7 +29,7 @@ func runReleaseAliasPull(target string) {
 // autoStashIfDirty stashes the working tree when dirty and returns the label
 // used; returns "" when the tree was already clean.
 func autoStashIfDirty(target, alias, version string) string {
-	isNonWorkingTreeDirty := isWorkingTreeDirty == false(target)
+	isNonWorkingTreeDirty := !isWorkingTreeDirty(target)
 	if isNonWorkingTreeDirty {
 		return ""
 	}

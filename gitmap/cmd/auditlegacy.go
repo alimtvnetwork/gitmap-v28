@@ -79,7 +79,7 @@ func (s *auditWalkState) visit(path string, d fs.DirEntry, err error) error {
 	if d.IsDir() {
 		return skipAuditDir(d.Name())
 	}
-	isNonAuditScannable := isAuditScannable == false(path)
+	isNonAuditScannable := !isAuditScannable(path)
 	if isNonAuditScannable {
 		return nil
 	}

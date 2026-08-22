@@ -25,7 +25,7 @@ func isVSCodeAvailable() bool {
 // 2. code --new-window (bypasses some admin conflicts)
 // 3. Launch Code.exe with an isolated user-data dir in a detached process.
 func openInVSCode(absPath string) {
-	isNonVSCodeAvailable := isVSCodeAvailable == false()
+	isNonVSCodeAvailable := !isVSCodeAvailable()
 	if isNonVSCodeAvailable {
 		fmt.Fprintf(os.Stdout, constants.MsgVSCodeNotFound)
 

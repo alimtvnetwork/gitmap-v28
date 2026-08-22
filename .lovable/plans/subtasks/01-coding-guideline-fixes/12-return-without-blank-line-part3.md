@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 3)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\clonefrom\testhelpers_test.go:14`: `return os.WriteFile(path, []byte(body), 0o644)`
+- `.\gitmap\clonefrom\validate.go:30`: `return err`
+- `.\gitmap\clonefrom\validate.go:39`: `return constants.CSVColumnURL, fmt.Errorf(constants.ErrCloneFromEmptyURL)`
+- `.\gitmap\clonefrom\validate.go:42`: `return constants.CSVColumnURL, fmt.Errorf(constants.ErrCloneFromBadURL, r.URL)`
+- `.\gitmap\clonefrom\validate.go:45`: `return constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromNegDepth, r.Depth)`
+- `.\gitmap\clonefrom\validate.go:48`: `return constants.CSVColumnBranch, fmt.Errorf(constants.ErrCloneFromBadBranch, r.Branch)`
+- `.\gitmap\clonefrom\validate.go:51`: `return constants.CSVColumnCheckout, fmt.Errorf(constants.ErrCloneFromBadCheckout, r.Checkout)`
+- `.\gitmap\clonefrom\validate.go:66`: `return false`
+- `.\gitmap\clonefrom\validate.go:70`: `return false`
+- `.\gitmap\clonenext\batch.go:63`: `return nil, err`
+- `.\gitmap\clonenext\batch.go:68`: `return nil, err`
+- `.\gitmap\clonenext\batch.go:73`: `return nil, ErrBatchEmpty`
+- `.\gitmap\clonenext\batch.go:125`: `return nil`
+- `.\gitmap\clonenext\batch.go:147`: `return 0, 0`
+- `.\gitmap\clonenext\batch.go:152`: `return i, 1`
+- `.\gitmap\clonenext\batch.go:168`: `return true`
+- `.\gitmap\clonenext\batch.go:179`: `return ""`
+- `.\gitmap\clonenext\batch.go:190`: `return nil, err`
+- `.\gitmap\clonenext\batch.go:205`: `return nil, ErrBatchEmpty`
+- `.\gitmap\clonenext\github.go:21`: `return false, fmt.Errorf("create request: %w", err)`
+- `.\gitmap\clonenext\github.go:32`: `return false, fmt.Errorf("check repo existence: %w", err)`
+- `.\gitmap\clonenext\github.go:37`: `return true, nil`
+- `.\gitmap\clonenext\github.go:40`: `return false, nil`
+- `.\gitmap\clonenext\github.go:52`: `return fmt.Errorf("no GitHub token available — set GITHUB_TOKEN or run `gh auth login`")`
+- `.\gitmap\clonenext\github.go:58`: `return nil`
+- `.\gitmap\clonenext\github.go:88`: `return fmt.Errorf("marshal repo payload: %w", err)`
+- `.\gitmap\clonenext\github.go:93`: `return fmt.Errorf("create request: %w", err)`
+- `.\gitmap\clonenext\github.go:102`: `return fmt.Errorf("create repo: %w", err)`
+- `.\gitmap\clonenext\github.go:107`: `return nil`
+- `.\gitmap\clonenext\github.go:122`: `return parseHttpsOwnerRepo(url, remoteURL)`
+- `.\gitmap\clonenext\github.go:127`: `return "", "", fmt.Errorf("unrecognized remote URL format: %s", remoteURL)`
+- `.\gitmap\clonenext\github.go:132`: `return "", "", fmt.Errorf("invalid SSH remote URL: %s", remoteURL)`
+- `.\gitmap\clonenext\github.go:138`: `return "", "", fmt.Errorf("invalid SSH remote path: %s", remoteURL)`
+- `.\gitmap\clonenext\github.go:147`: `return "", "", fmt.Errorf("invalid HTTPS remote URL: %s", remoteURL)`
+- `.\gitmap\clonenext\github.go:149`: `return parts[len(parts)-2], parts[len(parts)-1], nil`
+- `.\gitmap\clonenext\localstate.go:37`: `return LocalRepoState{}, err`
+- `.\gitmap\clonenext\localstate.go:54`: `return "", fmt.Errorf("%w: %s", ErrNotAGitRepo, repoPath)`
+- `.\gitmap\clonenext\localstate.go:57`: `return dotGit, nil`
+- `.\gitmap\clonenext\localstate.go:68`: `return "", fmt.Errorf(constants.ErrCloneNextReadWorktree, dotGitFile, err)`
+- `.\gitmap\clonenext\localstate.go:72`: `return strings.TrimSpace(strings.TrimPrefix(line, constants.GitdirPrefix)), nil`
+- `.\gitmap\clonenext\localstate.go:83`: `return ""`
+- `.\gitmap\clonenext\localstate.go:103`: `return strings.TrimSpace(parts[1])`
+- `.\gitmap\clonenext\localstate.go:117`: `return ""`
+- `.\gitmap\clonenext\localstate.go:124`: `return ""`
+- `.\gitmap\clonenext\remoteupdate.go:45`: `return checkRemoteForUpdateWith(owner, parsed, ceiling, RepoExists)`
+- `.\gitmap\clonenext\remoteupdate.go:65`: `return out, err`
+- `.\gitmap\clonenext\remoteupdate.go:84`: `return highest, fmt.Errorf("probe %s/%s-v%d: %w", owner, parsed.BaseName, m, err)`
+- `.\gitmap\clonenext\remoteupdate.go:87`: `return highest, nil`
+- `.\gitmap\clonenext\remoteupdate_test.go:11`: `return func(_, repo string) (bool, error) {`
+- `.\gitmap\clonenext\remoteupdate_test.go:14`: `return false, nil`
+- `.\gitmap\clonenext\remoteupdate_test.go:69`: `return true, nil`
+- `.\gitmap\clonenext\remoteupdate_test.go:71`: `return false, nil`
+- `.\gitmap\clonenext\repodetect.go:27`: `return IsGitRepo(path)`
+- `.\gitmap\clonenext\repodetect.go:40`: `return false`
+- `.\gitmap\clonenext\repodetect.go:47`: `return true`
+- `.\gitmap\clonenext\version.go:26`: `return ParsedRepo{BaseName: name, CurrentVersion: 1, HasVersion: false}`
+- `.\gitmap\clonenext\version.go:41`: `return parsed.CurrentVersion + 1, nil`
+- `.\gitmap\clonenext\version.go:45`: `return 0, fmt.Errorf("invalid version argument: %s (expected v++, v+1, or vN)", arg)`
+- `.\gitmap\clonenext\version.go:51`: `return 0, fmt.Errorf("invalid version argument: %s (expected v++, v+1, or vN)", arg)`
+- `.\gitmap\clonenext\version.go:54`: `return 0, fmt.Errorf("invalid version argument: %s (version must be a positive integer)", arg)`
+- `.\gitmap\clonenext\version.go:62`: `return fmt.Sprintf("%s-v%d", baseName, version)`
+- `.\gitmap\clonenext\version.go:67`: `return strings.Replace(remoteURL, currentRepo, targetRepo, 1)`
+- `.\gitmap\clonenow\buildargs_export.go:19`: `return buildGitArgs(r, url, dest)`
+- `.\gitmap\clonenow\clonenow.go:97`: `return r.SSHUrl`
+- `.\gitmap\clonenow\clonenow.go:100`: `return r.HTTPSUrl`
+- `.\gitmap\clonenow\clonenow.go:103`: `return r.HTTPSUrl`
+- `.\gitmap\clonenow\crossformat_golden_test.go:55`: `return []model.ScanRecord{`
+- `.\gitmap\clonenow\crossformat_golden_test.go:131`: `return formatter.WriteCSV(f, recs)`
+- `.\gitmap\clonenow\crossformat_golden_test.go:134`: `return formatter.WriteJSON(f, recs)`
+- `.\gitmap\clonenow\execute.go:136`: `return fmt.Sprintf(constants.MsgCloneNowMkdirParentFailFmt, err), false`
+- `.\gitmap\clonenow\execute.go:142`: `return runInteractiveGitClone(cmd)`
+- `.\gitmap\clonenow\execute.go:146`: `return trimGitError(string(out), err), false`
+- `.\gitmap\clonenow\execute_concurrent.go:40`: `return ExecuteWithHooks(plan, cwd, progress, beforeRow)`
+- `.\gitmap\clonenow\execute_concurrent_test.go:115`: `return string(rune('a'+i)) + "-row"`
+- `.\gitmap\clonenow\execute_idempotent.go:60`: `return state`
+- `.\gitmap\clonenow\execute_idempotent.go:66`: `return state`
+- `.\gitmap\clonenow\execute_idempotent.go:104`: `return cloneFresh(r, url, absDest, cwd)`
+- `.\gitmap\clonenow\execute_idempotent.go:107`: `return Result{`
+- `.\gitmap\clonenow\execute_idempotent.go:113`: `return forceReclone(r, url, absDest, cwd)`
+- `.\gitmap\clonenow\execute_idempotent.go:116`: `return Result{`
+- `.\gitmap\clonenow\execute_idempotent.go:122`: `return updateExisting(r, url, absDest, state)`
+- `.\gitmap\clonenow\execute_idempotent.go:140`: `return Result{Status: constants.CloneNowStatusFailed, Detail: detail}`
+- `.\gitmap\clonenow\execute_idempotent.go:158`: `return false`
+- `.\gitmap\clonenow\execute_idempotent.go:161`: `return true`
+- `.\gitmap\clonenow\execute_idempotent.go:174`: `return false`
+- `.\gitmap\clonenow\execute_idempotent.go:210`: `return Result{`
+- `.\gitmap\clonenow\execute_idempotent.go:237`: `return Result{`
+- `.\gitmap\clonenow\execute_idempotent.go:244`: `return Result{Status: constants.CloneNowStatusOK, Detail: constants.MsgCloneNowUpdated}`
+- `.\gitmap\clonenow\execute_idempotent.go:248`: `return Result{`
+- `.\gitmap\clonenow\execute_idempotent.go:266`: `return Result{`
+- `.\gitmap\clonenow\execute_idempotent.go:274`: `return Result{Status: constants.CloneNowStatusFailed, Detail: detail}`
+- `.\gitmap\clonenow\execute_idempotent.go:290`: `return trimGitError(string(out), err), false`
+- `.\gitmap\clonenow\execute_idempotent.go:305`: `return trimGitError(string(out), err), false`
+- `.\gitmap\clonenow\execute_idempotent.go:318`: `return absDest`
+- `.\gitmap\clonenow\execute_interactive.go:16`: `return err.Error(), false`
+- `.\gitmap\clonenow\execute_interactive.go:24`: `return strings.HasPrefix(lower, constants.PrefixSSH) `
+- `.\gitmap\clonenow\execute_test.go:125`: `return len(needle) == 0 `
+- `.\gitmap\clonenow\execute_test.go:131`: `return i`
+- `.\gitmap\clonenow\known_fields.go:36`: `return []string{"httpsUrl", "sshUrl"}`
+- `.\gitmap\clonenow\parse.go:40`: `return Plan{}, fmt.Errorf(constants.ErrCloneNowAbsPath, path, err)`
+- `.\gitmap\clonenow\parse.go:48`: `return Plan{}, derr`
+- `.\gitmap\clonenow\parse.go:52`: `return Plan{}, err`
+- `.\gitmap\clonenow\parse.go:56`: `return Plan{}, fmt.Errorf(constants.ErrCloneNowEmpty, abs)`
+- `.\gitmap\clonenow\parse.go:76`: `return constants.CloneNowFormatJSON, nil`
+- `.\gitmap\clonenow\parse.go:78`: `return constants.CloneNowFormatCSV, nil`
+- `.\gitmap\clonenow\parse.go:80`: `return constants.CloneNowFormatText, nil`
+- `.\gitmap\clonenow\parse.go:92`: `return nil, fmt.Errorf(constants.ErrCloneNowOpen, path, err)`
+- `.\gitmap\clonenow\parse.go:98`: `return parseJSONWithSchema(f)`
+- `.\gitmap\clonenow\parse.go:100`: `return parseCSVWithSchema(f)`
+- `.\gitmap\clonenow\parse.go:113`: `return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)`
+- `.\gitmap\clonenow\parse.go:116`: `return nil, err`
+- `.\gitmap\clonenow\parse.go:120`: `return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)`
+- `.\gitmap\clonenow\parse.go:133`: `return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)`
+- `.\gitmap\clonenow\parse.go:136`: `return nil, err`
+- `.\gitmap\clonenow\parse.go:140`: `return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)`
+- `.\gitmap\clonenow\parse.go:148`: `return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)`
+- `.\gitmap\clonenow\parse.go:166`: `return nil, err`
+- `.\gitmap\clonenow\parse.go:169`: `return nil, nil`
+- `.\gitmap\clonenow\parse.go:173`: `return nil, nil`
+- `.\gitmap\clonenow\parse.go:212`: `return ""`
+- `.\gitmap\clonenow\parse.go:214`: `return row[i]`
+- `.\gitmap\clonenow\parse.go:220`: `return model.ScanRecord{`
+- `.\gitmap\clonenow\parsetext.go:41`: `return nil, fmt.Errorf(constants.ErrCloneNowTextRead, err)`
+- `.\gitmap\clonenow\parsetext.go:57`: `return Row{}, false`
+- `.\gitmap\clonenow\parsetext.go:82`: `return "", "", false`
+- `.\gitmap\clonenow\parsetext.go:87`: `return "", "", false`
+- `.\gitmap\clonenow\parsetext.go:119`: `return true`
+- `.\gitmap\clonenow\parsetext.go:123`: `return false`
+- `.\gitmap\clonenow\parse_schema.go:66`: `return fmt.Errorf(constants.ErrCloneNowEmptyCSV)`
+- `.\gitmap\clonenow\parse_schema.go:69`: `return fmt.Errorf(constants.ErrCloneNowCSVRead, err)`
+- `.\gitmap\clonenow\parse_schema.go:72`: `return err`
+- `.\gitmap\clonenow\parse_schema.go:93`: `return fmt.Errorf(constants.ErrCloneNowCSVRowRead, dataRow, err)`
+- `.\gitmap\clonenow\parse_schema.go:96`: `return fmt.Errorf(constants.ErrCloneNowCSVRowMissingURL, dataRow)`
+- `.\gitmap\clonenow\parse_schema.go:121`: `return true`
+- `.\gitmap\clonenow\parse_schema.go:146`: `return fmt.Errorf(constants.ErrCloneNowUnknownCSVField, name, knownFieldList())`
+- `.\gitmap\clonenow\parse_schema.go:153`: `return fmt.Errorf(constants.ErrCloneNowCSVMissingURLCol)`
+- `.\gitmap\clonenow\parse_schema_json.go:26`: `return fmt.Errorf(constants.ErrCloneNowJSONShape, err)`
+- `.\gitmap\clonenow\parse_schema_json.go:30`: `return err`
+- `.\gitmap\clonenow\parse_schema_json.go:44`: `return fmt.Errorf(constants.ErrCloneNowJSONRowNotObject,`
+- `.\gitmap\clonenow\parse_schema_json.go:58`: `return fmt.Errorf(constants.ErrCloneNowUnknownJSONField,`
+- `.\gitmap\clonenow\parse_schema_json.go:63`: `return fmt.Errorf(constants.ErrCloneNowMissingURL, i+1)`
+- `.\gitmap\clonenow\parse_schema_json.go:75`: `return "empty"`
+- `.\gitmap\clonenow\parse_schema_json.go:79`: `return "string"`
+- `.\gitmap\clonenow\parse_schema_json.go:81`: `return "array"`
+- `.\gitmap\clonenow\parse_schema_json.go:83`: `return "object"`
+- `.\gitmap\clonenow\parse_schema_json.go:85`: `return "boolean"`
+- `.\gitmap\clonenow\parse_schema_json.go:87`: `return "null"`
+- `.\gitmap\clonenow\parse_schema_json.go:90`: `return "number"`
+- `.\gitmap\clonenow\parse_schema_json.go:101`: `return jsonStringNonEmpty(obj["httpsUrl"]) `
+- `.\gitmap\clonenow\parse_schema_json.go:109`: `return false`

@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 30)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\crypto\ssh_client.go:24`: `return nil, err`
+- `.\gitmap\crypto\ssh_client.go:32`: `return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)`
+- `.\gitmap\crypto\ssh_client.go:38`: `return nil, fmt.Errorf("read private key: %w", err)`
+- `.\gitmap\crypto\ssh_client.go:43`: `return nil, fmt.Errorf("parse private key: %w", err)`
+- `.\gitmap\crypto\ssh_client.go:53`: `return "", err`
+- `.\gitmap\crypto\ssh_client.go:60`: `return string(out), fmt.Errorf("command execution failed: %w (output: %s)", err, string(out))`
+- `.\gitmap\crypto\ssh_client.go:68`: `return fmt.Sprintf("cmd.exe /c \"%s\"", cmd)`
+- `.\gitmap\crypto\ssh_client.go:72`: `return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)`
+- `.\gitmap\crypto\ssh_client.go:74`: `return cmd`
+- `.\gitmap\dashboard\aggregate.go:27`: `return collectAuthors(index)`
+- `.\gitmap\dashboard\aggregate.go:44`: `return &authorAcc{`
+- `.\gitmap\dashboard\aggregate.go:68`: `return authors`
+- `.\gitmap\dashboard\aggregate.go:74`: `return authors[i].TotalCommits > authors[j].TotalCommits`
+- `.\gitmap\dashboard\aggregate.go:117`: `return "-W1"`
+- `.\gitmap\dashboard\aggregate.go:120`: `return "-W2"`
+- `.\gitmap\dashboard\aggregate.go:123`: `return "-W3"`
+- `.\gitmap\dashboard\aggregate.go:125`: `return "-W4"`
+- `.\gitmap\dashboard\aggregate.go:134`: `return tagMap`
+- `.\gitmap\dashboard\aggregate.go:140`: `return matched`
+- `.\gitmap\dashboard\aggregate.go:142`: `return tagMap[commit.ShortSHA]`
+- `.\gitmap\dashboard\aggregate.go:153`: `return commits`
+- `.\gitmap\dashboard\aggregate.go:158`: `return strings.Contains(parents, " ")`
+- `.\gitmap\dashboard\collector.go:27`: `return model.DashboardData{}, fmt.Errorf(constants.ErrDashCollect, err)`
+- `.\gitmap\dashboard\collector.go:45`: `return opts`
+- `.\gitmap\dashboard\collector.go:50`: `return time.Now().UTC().AddDate(0, 0, -7).Format("2006-01-02")`
+- `.\gitmap\dashboard\collector.go:62`: `return model.DashboardData{`
+- `.\gitmap\dashboard\collector.go:74`: `return model.DashboardMeta{`
+- `.\gitmap\dashboard\collector.go:93`: `return ""`
+- `.\gitmap\dashboard\collector.go:95`: `return strings.TrimSpace(out)`
+- `.\gitmap\dashboard\collector.go:103`: `return ""`
+- `.\gitmap\dashboard\collector.go:105`: `return strings.TrimSpace(out)`
+- `.\gitmap\dashboard\collector.go:112`: `return nil, err`
+- `.\gitmap\dashboard\collector.go:114`: `return parseCommitLog(raw), nil`
+- `.\gitmap\dashboard\collector.go:121`: `return nil`
+- `.\gitmap\dashboard\collector.go:123`: `return parseBranchLines(lines)`
+- `.\gitmap\dashboard\collector.go:130`: `return nil`
+- `.\gitmap\dashboard\collector.go:132`: `return parseTagLines(repoPath, lines)`
+- `.\gitmap\dashboard\gitquery.go:17`: `return nil, err`
+- `.\gitmap\dashboard\gitquery.go:28`: `return nil, err`
+- `.\gitmap\dashboard\gitquery.go:39`: `return "", err`
+- `.\gitmap\dashboard\gitquery.go:57`: `return args`
+- `.\gitmap\dashboard\gitquery.go:65`: `return 0`
+- `.\gitmap\dashboard\gitquery.go:69`: `return count`
+- `.\gitmap\dashboard\gitquery.go:76`: `return baseName(repoPath)`
+- `.\gitmap\dashboard\gitquery.go:87`: `return parts[len(parts)-1]`
+- `.\gitmap\dashboard\gitquery.go:99`: `return "", err`
+- `.\gitmap\dashboard\gitquery.go:125`: `return path[idx+1:]`
+- `.\gitmap\dashboard\parse.go:22`: `return commits`
+- `.\gitmap\dashboard\parse.go:29`: `return model.CommitInfo{}, false`
+- `.\gitmap\dashboard\parse.go:33`: `return model.CommitInfo{}, false`
+- `.\gitmap\dashboard\parse.go:36`: `return makeCommitInfo(fields, files, ins, del), true`
+- `.\gitmap\dashboard\parse.go:41`: `return model.CommitInfo{`
+- `.\gitmap\dashboard\parse.go:68`: `return files, ins, del`
+- `.\gitmap\dashboard\parse.go:85`: `return branches`
+- `.\gitmap\dashboard\parse.go:97`: `return tags`
+- `.\gitmap\dashboard\parse.go:107`: `return model.TagInfo{`
+- `.\gitmap\dashboard\parse.go:118`: `return queryTagDistance(repoPath, nextFields[0], field)`
+- `.\gitmap\dashboard\parse.go:120`: `return 0`
+- `.\gitmap\dashboard\writer.go:23`: `return "", err`
+- `.\gitmap\dashboard\writer.go:29`: `return "", err`
+- `.\gitmap\dashboard\writer.go:33`: `return "", err`
+- `.\gitmap\dashboard\writer.go:43`: `return nil, err`
+- `.\gitmap\dashboard\writer.go:48`: `return nil, err`
+- `.\gitmap\dashboard\writer.go:57`: `return "", err`
+- `.\gitmap\dashboard\writer.go:62`: `return "", err`
+- `.\gitmap\dashboard\writer.go:67`: `return "", err`
+- `.\gitmap\dashboard\writer.go:77`: `return ""`
+- `.\gitmap\dashboard\writer.go:83`: `return fmt.Sprintf("%d B", size)`
+- `.\gitmap\dashboard\writer_test.go:14`: `return model.DashboardData{`
+- `.\gitmap\db\clusterexecresult.go:28`: `return nil`
+- `.\gitmap\db\clusterexecresult.go:32`: `return &capped`
+- `.\gitmap\db\clusterexecresult.go:34`: `return s`
+- `.\gitmap\db\clusterexecresult.go:62`: `return 0, fmt.Errorf("failed to insert ClusterExecResult: %w", err)`
+- `.\gitmap\db\clusterexecresult.go:67`: `return 0, fmt.Errorf("failed to get last insert id for ClusterExecResult: %w", err)`
+- `.\gitmap\db\clusterexecresult.go:101`: `return fmt.Errorf("failed to update ClusterExecResult %d: %w", result.ClusterExecResultId, err)`
+- `.\gitmap\db\clusterexecresult.go:118`: `return nil, fmt.Errorf("failed to query ClusterExecResults for run %d: %w", runId, err)`
+- `.\gitmap\db\clusterexecresult.go:141`: `return nil, fmt.Errorf("failed to scan ClusterExecResult: %w", err)`
+- `.\gitmap\db\clusterexecresult.go:147`: `return nil, fmt.Errorf("error iterating over ClusterExecResults: %w", err)`
+- `.\gitmap\db\clusternode.go:45`: `return fmt.Errorf("failed to upsert ClusterNode: %w", err)`
+- `.\gitmap\db\clusternode.go:47`: `return nil`
+- `.\gitmap\db\clusternode.go:59`: `return nil, fmt.Errorf("failed to query ClusterNodes: %w", err)`
+- `.\gitmap\db\clusternode.go:71`: `return nil, fmt.Errorf("failed to scan ClusterNode: %w", err)`
+- `.\gitmap\db\clusternode.go:76`: `return nil, err`
+- `.\gitmap\db\clusternode.go:78`: `return nodes, nil`
+- `.\gitmap\db\clusternode.go:95`: `return ClusterNode{}, fmt.Errorf("ClusterNode not found: %s", id)`
+- `.\gitmap\db\clusternode.go:98`: `return ClusterNode{}, fmt.Errorf("failed to scan ClusterNode: %w", err)`
+- `.\gitmap\db\clusternode.go:100`: `return n, nil`
+- `.\gitmap\db\clusternode.go:107`: `return fmt.Errorf("failed to update password hash for node %s: %w", id, err)`
+- `.\gitmap\db\clusternode.go:109`: `return nil`
+- `.\gitmap\db\clusternode.go:116`: `return fmt.Errorf("failed to delete node %s: %w", id, err)`
+- `.\gitmap\db\clusternode.go:118`: `return nil`
+- `.\gitmap\db\clusternode.go:125`: `return 0, fmt.Errorf("failed to delete ClusterRuns: %w", err)`
+- `.\gitmap\db\clusternode.go:127`: `return res.RowsAffected()`
+- `.\gitmap\db\clusternode.go:143`: `return stats, err`
+- `.\gitmap\db\clusternode.go:148`: `return stats, err`
+- `.\gitmap\db\clusternode.go:153`: `return stats, err`
+- `.\gitmap\db\clusternode.go:158`: `return stats, err`
+- `.\gitmap\db\clusternode.go:163`: `return stats, err`
+- `.\gitmap\db\clusterrun.go:46`: `return 0, fmt.Errorf("failed to insert ClusterRun: %w", err)`
+- `.\gitmap\db\clusterrun.go:51`: `return 0, fmt.Errorf("failed to get last insert id: %w", err)`
+- `.\gitmap\db\clusterrun.go:65`: `return fmt.Errorf("failed to update ClusterRun %d: %w", id, err)`
+- `.\gitmap\db\clusterrun.go:97`: `return ClusterRun{}, fmt.Errorf("ClusterRun not found for RunRef %s: %w", runRef, err)`
+- `.\gitmap\db\clusterrun.go:100`: `return ClusterRun{}, fmt.Errorf("failed to scan ClusterRun: %w", err)`
+- `.\gitmap\db\clusterrun.go:120`: `return nil, fmt.Errorf("failed to query ClusterRuns: %w", err)`
+- `.\gitmap\db\clusterrun.go:142`: `return nil, fmt.Errorf("failed to scan ClusterRun: %w", err)`
+- `.\gitmap\db\clusterrun.go:148`: `return nil, fmt.Errorf("error iterating over ClusterRuns: %w", err)`
+- `.\gitmap\db\enums.go:28`: `return "PsCommand"`
+- `.\gitmap\db\enums.go:30`: `return "CmdCommand"`
+- `.\gitmap\db\enums.go:32`: `return "Install"`
+- `.\gitmap\db\enums.go:34`: `return "GitPull"`
+- `.\gitmap\db\enums.go:36`: `return "GitPush"`
+- `.\gitmap\db\enums.go:38`: `return "GitCommit"`
+- `.\gitmap\db\enums.go:40`: `return "GitStatus"`
+- `.\gitmap\db\enums.go:42`: `return "ProjRun"`
+- `.\gitmap\db\enums.go:44`: `return "ProjCreateCICD"`
+- `.\gitmap\db\enums.go:46`: `return "Restart"`
+- `.\gitmap\db\enums.go:48`: `return "Shutdown"`
+- `.\gitmap\db\enums.go:50`: `return "Logoff"`
+- `.\gitmap\db\enums.go:52`: `return fmt.Sprintf("CommandKindType(%d)", int(k))`
+- `.\gitmap\db\enums.go:59`: `return CommandKindPsCommand, nil`
+- `.\gitmap\db\enums.go:61`: `return CommandKindCmdCommand, nil`
+- `.\gitmap\db\enums.go:63`: `return CommandKindInstall, nil`
+- `.\gitmap\db\enums.go:65`: `return CommandKindGitPull, nil`
+- `.\gitmap\db\enums.go:67`: `return CommandKindGitPush, nil`
+- `.\gitmap\db\enums.go:69`: `return CommandKindGitCommit, nil`
+- `.\gitmap\db\enums.go:71`: `return CommandKindGitStatus, nil`
+- `.\gitmap\db\enums.go:73`: `return CommandKindProjRun, nil`
+- `.\gitmap\db\enums.go:75`: `return CommandKindProjCreateCICD, nil`
+- `.\gitmap\db\enums.go:77`: `return CommandKindRestart, nil`
+- `.\gitmap\db\enums.go:79`: `return CommandKindShutdown, nil`
+- `.\gitmap\db\enums.go:81`: `return CommandKindLogoff, nil`
+- `.\gitmap\db\enums.go:83`: `return 0, fmt.Errorf("invalid CommandKind: %s", s)`
+- `.\gitmap\db\enums.go:101`: `return "Pending"`
+- `.\gitmap\db\enums.go:103`: `return "Succeeded"`
+- `.\gitmap\db\enums.go:105`: `return "Failed"`
+- `.\gitmap\db\enums.go:107`: `return "Skipped"`
+- `.\gitmap\db\enums.go:109`: `return "Deferred"`
+- `.\gitmap\db\enums.go:111`: `return "RequiresAuth"`
+- `.\gitmap\db\enums.go:113`: `return fmt.Sprintf("ResultStatusType(%d)", int(s))`
+- `.\gitmap\db\enums.go:120`: `return ResultStatusPending, nil`
+- `.\gitmap\db\enums.go:122`: `return ResultStatusSucceeded, nil`
+- `.\gitmap\db\enums.go:124`: `return ResultStatusFailed, nil`
+- `.\gitmap\db\enums.go:126`: `return ResultStatusSkipped, nil`
+- `.\gitmap\db\enums.go:128`: `return ResultStatusDeferred, nil`
+- `.\gitmap\db\enums.go:130`: `return ResultStatusRequiresAuth, nil`
+- `.\gitmap\db\enums.go:132`: `return 0, fmt.Errorf("invalid ResultStatus: %s", s)`
+- `.\gitmap\db\migrations.go:21`: `return fmt.Errorf("failed to read migrations dir: %w", err)`
+- `.\gitmap\db\migrations.go:31`: `return fmt.Errorf("failed to read migration %s: %w", entry.Name(), err)`
+- `.\gitmap\db\migrations.go:36`: `return fmt.Errorf("failed to execute migration %s: %w", entry.Name(), err)`
+- `.\gitmap\db\migrations.go:39`: `return nil`

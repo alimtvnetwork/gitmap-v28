@@ -1,0 +1,156 @@
+# Fix bare bool return (Part 4)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cmd\profileutil.go:14`: `func profileExists(profiles []string, name string) bool {`
+- `.\gitmap\cmd\projectrepos.go:36`: `func parseProjectReposFlags(args []string) (bool, bool) {`
+- `.\gitmap\cmd\projectrepos.go:64`: `func printProjectList(db *store.DB, typeKey string, jsonOut bool) {`
+- `.\gitmap\cmd\prune.go:24`: `func executePruneWorkflow(stale []staleBranch, dryRun, confirm, remote bool) {`
+- `.\gitmap\cmd\prune.go:36`: `func parsePruneFlags(args []string) (bool, bool, bool) {`
+- `.\gitmap\cmd\prune.go:47`: `func shouldProceedWithPrune(confirmed bool, count int) bool {`
+- `.\gitmap\cmd\prune.go:58`: `func promptPruneConfirmation(count int) bool {`
+- `.\gitmap\cmd\prune.go:66`: `func deleteStaleBranches(stale []staleBranch, remote bool) {`
+- `.\gitmap\cmd\prune.go:77`: `func deleteSingleBranch(sb staleBranch, remote bool) int {`
+- `.\gitmap\cmd\prune.go:87`: `func pruneRemoteIfRequested(name string, remote bool) {`
+- `.\gitmap\cmd\pull.go:101`: `func shouldPullCWD(opts pullOptions) bool {`
+- `.\gitmap\cmd\pull.go:114`: `func pullNoTargetsHint(opts pullOptions) bool {`
+- `.\gitmap\cmd\pull.go:135`: `func isGitRepoCWD() bool {`
+- `.\gitmap\cmd\pull.go:153`: `func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {`
+- `.\gitmap\cmd\pull.go:189`: `func extractTransportFlags(args []string) (bool, bool, []string) {`
+- `.\gitmap\cmd\pull.go:277`: `func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {`
+- `.\gitmap\cmd\pullfilter.go:32`: `func loadAvailableRepoIDs() (map[int64]bool, bool) {`
+- `.\gitmap\cmd\pullparallel.go:17`: `func runPullParallel(records []model.ScanRecord, prog *cloner.BatchProgress, parallel int, stopOnFail bool) {`
+- `.\gitmap\cmd\pullreleasecd.go:160`: `func isPRCURL(token string) bool {`
+- `.\gitmap\cmd\push.go:87`: `func shouldPushCWD(opts pushOptions) bool {`
+- `.\gitmap\cmd\push.go:95`: `func pushNoTargetsHint(opts pushOptions) bool {`
+- `.\gitmap\cmd\push.go:133`: `func runPushCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {`
+- `.\gitmap\cmd\push.go:255`: `func isNonFastForwardRejection(stderr string) bool {`
+- `.\gitmap\cmd\pushparallel.go:17`: `func runPushParallel(records []model.ScanRecord, prog *cloner.BatchProgress, parallel int, stopOnFail bool) {`
+- `.\gitmap\cmd\reclone_autopickup.go:87`: `func autoPickupRecloneManifest(scanRoot string) (string, bool) {`
+- `.\gitmap\cmd\reclone_confirm.go:88`: `func destPathExists(p string) bool {`
+- `.\gitmap\cmd\reclone_confirm.go:123`: `func isStdinInteractive() bool {`
+- `.\gitmap\cmd\reclone_confirm.go:138`: `func readUserConfirmation() bool {`
+- `.\gitmap\cmd\reclone_validate.go:153`: `func isPlausibleGitURL(url string) bool {`
+- `.\gitmap\cmd\reclone_validate.go:168`: `func hasURLScheme(url string) bool {`
+- `.\gitmap\cmd\reclone_validate.go:187`: `func isSchemeChar(ch rune) bool {`
+- `.\gitmap\cmd\reclone_validate.go:204`: `func isSCPLikeGitURL(url string) bool {`
+- `.\gitmap\cmd\regoldens.go:33`: `func (c regoldensFlags) hasDiff() bool { return c.diffMode != "" }`
+- `.\gitmap\cmd\regoldens.go:109`: `func runRegoldensPass(cfg regoldensFlags, withGate bool, header, errFmt string) {`
+- `.\gitmap\cmd\regoldens.go:124`: `func runGoTestPass(cfg regoldensFlags, withGate bool) int {`
+- `.\gitmap\cmd\regoldens.go:140`: `func buildPassEnv(withGate bool) []string {`
+- `.\gitmap\cmd\regoldens.go:170`: `func isGoldenGateVar(kv string) bool {`
+- `.\gitmap\cmd\regoldens_diff.go:62`: `func isGitWorkingTree() bool {`
+- `.\gitmap\cmd\regoldens_diff_scope.go:24`: `func isGoldenFixturePath(p string) bool {`
+- `.\gitmap\cmd\regoldens_exec.go:36`: `func runRegoldensPassCapture(cfg regoldensFlags, withGate bool, header string) int {`
+- `.\gitmap\cmd\regoldens_exec.go:70`: `func handleSkipVerify(cfg regoldensFlags) bool {`
+- `.\gitmap\cmd\regoldens_precheck.go:77`: `func precheckFoundNonDeterminism(captured []byte) bool {`
+- `.\gitmap\cmd\reinstall.go:52`: `func resolveReinstallMode(override string) (string, bool) {`
+- `.\gitmap\cmd\reinstall.go:77`: `func announceReinstallMode(rawOverride, mode string, detected bool) {`
+- `.\gitmap\cmd\reinstall.go:90`: `func confirmReinstall() bool {`
+- `.\gitmap\cmd\release.go:34`: `func handleOutsideRepoRelease(args []string, version, bump, commit, branch string, yes bool) bool {`
+- `.\gitmap\cmd\release.go:45`: `func performInsideRepoRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {`
+- `.\gitmap\cmd\release.go:54`: `func applyBareReleaseAutoBump(version, bump, commit, branch string, yes bool) string {`
+- `.\gitmap\cmd\release.go:77`: `func buildReleaseOptions(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool, cfg model.Config) release.Options {`
+- `.\gitmap\cmd\release.go:89`: `func executeRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {`
+- `.\gitmap\cmd\release.go:172`: `func parseReleaseFlags(args []string) (version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, listTargets, noCommit, yes bool) {`
+- `.\gitmap\cmd\releasealias.go:19`: `func runReleaseAlias(args []string, forcePull bool) {`
+- `.\gitmap\cmd\releasealias.go:28`: `func parseRAArgs(args []string, forcePull bool) (string, string, bool, bool, bool) {`
+- `.\gitmap\cmd\releasealias.go:67`: `func performReleaseAlias(target, alias, version string, pull, noStash, dryRun bool) {`
+- `.\gitmap\cmd\releasealias.go:94`: `func invokeAliasRelease(version string, dryRun bool) {`
+- `.\gitmap\cmd\releasealias_git.go:78`: `func isWorkingTreeDirty(target string) bool {`
+- `.\gitmap\cmd\releaseargs.go:41`: `func isKnownValueFlag(flagName string) bool {`
+- `.\gitmap\cmd\releaseautobump.go:16`: `func peekNextMinorVersion() (current, next release.Version, ok bool) {`
+- `.\gitmap\cmd\releaseautobump.go:41`: `func confirmAutoBump(current, next release.Version, yes bool) bool {`
+- `.\gitmap\cmd\releaseautobump.go:55`: `func readYesNo() bool {`
+- `.\gitmap\cmd\releaseautobump.go:67`: `func shouldAutoBumpMinor(version, bump, commit, branch string) bool {`
+- `.\gitmap\cmd\releasebranch.go:32`: `func parseReleaseBranchFlags(args []string) (branch, assets, notes string, draft, dryRun, verbose, noCommit, yes bool) {`
+- `.\gitmap\cmd\releasepending.go:70`: `func parseReleasePendingFlags(args []string) (assets, notes string, draft, dryRun, verbose, noCommit, yes bool) {`
+- `.\gitmap\cmd\releasepull.go:71`: `func parseReleasePullFlags(args []string) (mode string, dryRun, verbose bool, rest []string) {`
+- `.\gitmap\cmd\releasepull.go:118`: `func resolvePullMode(ffOnly, rebase, merge bool) string {`
+- `.\gitmap\cmd\releasepull.go:143`: `func describePickedModes(ffOnly, rebase, merge bool) string {`
+- `.\gitmap\cmd\releasepull.go:161`: `func pullCurrentRepo(dir, mode string, dryRun, verbose bool) {`
+- `.\gitmap\cmd\releaserebase.go:38`: `func looksLikeVersion(s string) bool {`
+- `.\gitmap\cmd\releaserebase.go:45`: `func tryCrossDirRelease(args []string) bool {`
+- `.\gitmap\cmd\releaserecentclone.go:24`: `func tryRunReleaseInRecentClone(args []string) bool {`
+- `.\gitmap\cmd\releasescan.go:25`: `func tryRunReleaseScanDir(yes bool) bool {`
+- `.\gitmap\cmd\releasescan.go:67`: `func planOneScanTarget(info scanner.RepoInfo) (scanReleaseTarget, bool) {`
+- `.\gitmap\cmd\releasescan.go:88`: `func readRepoNextMinor(repoDir string) (release.Version, release.Version, bool) {`
+- `.\gitmap\cmd\releasescan.go:107`: `func executeScanReleasePlan(targets []scanReleaseTarget, yes bool) {`
+- `.\gitmap\cmd\releasescan.go:134`: `func confirmScanReleasePlan(yes bool) bool {`
+- `.\gitmap\cmd\releasescan.go:160`: `func runOneScanRelease(t scanReleaseTarget) bool {`
+- `.\gitmap\cmd\releasescan.go:184`: `func invokeScanRelease(t scanReleaseTarget) bool {`
+- `.\gitmap\cmd\releaseself.go:29`: `func executeSelfRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {`
+- `.\gitmap\cmd\releaseundo.go:72`: `func parseReleaseUndoFlags(args []string) (version string, keepRemote, dryRun, yes bool) {`
+- `.\gitmap\cmd\releaseundo.go:86`: `func confirmUndoRelease(tag string) bool {`
+- `.\gitmap\cmd\releaseundo.go:95`: `func applyReleaseUndo(tag, jsonPath string, keepRemote bool) []string {`
+- `.\gitmap\cmd\releaseundo.go:128`: `func latestReleaseJSONVersion() (string, bool) {`
+- `.\gitmap\cmd\release_notes_opts.go:36`: `func applyReleaseNotesFlag(args []string, i int, opts *ReleaseNotesOpts) (int, bool) {`
+- `.\gitmap\cmd\release_notes_opts.go:135`: `func hasAnyPrefix(s string, prefixes []string) bool {`
+- `.\gitmap\cmd\remotetransport.go:22`: `func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string, error) {`
+- `.\gitmap\cmd\replace.go:87`: `func looksLikeDashN(s string) bool {`
+- `.\gitmap\cmd\replace.go:110`: `func parseDashNDigits(s string) (int, bool) {`
+- `.\gitmap\cmd\replaceapply.go:45`: `func scanOneFile(path string, pairs []replacePair) (replaceHit, bool) {`
+- `.\gitmap\cmd\replaceapply.go:104`: `func printHits(hits []replaceHit, pair replacePair, quiet bool) {`
+- `.\gitmap\cmd\replaceapply.go:114`: `func confirmYes() bool {`
+- `.\gitmap\cmd\replaceaudit.go:76`: `func lineContainsAny(line []byte, needles [][]byte) bool {`
+- `.\gitmap\cmd\replaceflags.go:72`: `func resolveExtCase(raw string) bool {`
+- `.\gitmap\cmd\replaceflags.go:131`: `func needsValue(token string) bool {`
+- `.\gitmap\cmd\replaceflags.go:141`: `func isReplaceFlag(s string) bool {`
+- `.\gitmap\cmd\replaceflags.go:156`: `func normalizeExtList(raw string, caseInsensitive bool) []string {`
+- `.\gitmap\cmd\replaceflags.go:179`: `func normalizeOneExt(piece string, caseInsensitive bool) string {`
+- `.\gitmap\cmd\replaceversionrun.go:35`: `func runReplaceVersion(n int, opts replaceOpts, isAll bool) {`
+- `.\gitmap\cmd\replaceversionrun.go:77`: `func loadRepoFiles(root string, exts []string, caseInsensitive bool) []string {`
+- `.\gitmap\cmd\replaceversionrun.go:88`: `func confirmLiteral(hits []replaceHit, total int, opts replaceOpts) bool {`
+- `.\gitmap\cmd\replaceversionrun.go:101`: `func confirmVersion(targets []int, k int, opts replaceOpts, _ bool) bool {`
+- `.\gitmap\cmd\replaceversion_test.go:36`: `func equalIntSlice(a, b []int) bool {`
+- `.\gitmap\cmd\replacewalk.go:32`: `func walkRepoFiles(root string, exts []string, caseInsensitive bool) ([]string, error) {`
+- `.\gitmap\cmd\replacewalk.go:74`: `func matchesExtFilter(path string, exts []string, caseInsensitive bool) bool {`
+- `.\gitmap\cmd\replacewalk.go:94`: `func isExcludedDir(name string) bool {`
+- `.\gitmap\cmd\replacewalk.go:105`: `func isExcludedPrefix(root, path string) bool {`
+- `.\gitmap\cmd\replacewalk.go:123`: `func isBinaryFile(path string) bool {`
+- `.\gitmap\cmd\replacewalk_test.go:129`: `func equalStringSlice(a, b []string) bool {`
+- `.\gitmap\cmd\reporeclone.go:27`: `func tryRunRepoReclone(args []string) bool {`
+- `.\gitmap\cmd\reporeclone.go:42`: `func splitRepoRecloneArgs(args []string) (bool, []string) {`
+- `.\gitmap\cmd\reporeclone.go:62`: `func resolveRepoRecloneTarget(positionals []string) (string, bool) {`
+- `.\gitmap\cmd\reporeclone.go:82`: `func resolveRepoFromArg(arg string) (string, bool) {`
+- `.\gitmap\cmd\reporeclone.go:99`: `func isGitRepoDir(dir string) bool {`
+- `.\gitmap\cmd\reporeclone.go:108`: `func runRepoReclone(target string, yes bool) {`
+- `.\gitmap\cmd\reporeclone.go:150`: `func confirmRepoReclone(target, origin string) bool {`
+- `.\gitmap\cmd\reporeclone.go:166`: `func isStdinTTY() bool {`
+- `.\gitmap\cmd\rescan.go:93`: `func appendBoolFlag(args []string, flag string, enabled bool) []string {`
+- `.\gitmap\cmd\rescansubtree.go:105`: `func flagHasInlineValue(token string) bool {`
+- `.\gitmap\cmd\rescansubtree.go:118`: `func isLikelyBoolFlag(token string) bool {`
+- `.\gitmap\cmd\rescansubtree.go:180`: `func containsMaxDepthFlag(flags []string) bool {`
+- `.\gitmap\cmd\rescansubtree.go:199`: `func startsWith(s, prefix string) bool {`
+- `.\gitmap\cmd\rescansubtree_test.go:172`: `func contains(haystack, needle string) bool {`
+- `.\gitmap\cmd\reset.go:31`: `func parseResetFlags(args []string) (bool, bool) {`
+- `.\gitmap\cmd\resolver_glob.go:22`: `func isGlob(s string) bool {`
+- `.\gitmap\cmd\resolver_glob.go:26`: `func globHit(pat, name string) bool {`
+- `.\gitmap\cmd\reverttxn.go:21`: `func handleRevertTxnFlags(args []string) bool {`
+- `.\gitmap\cmd\reverttxn.go:43`: `func dispatchRevertTxn(args []string) bool {`
+- `.\gitmap\cmd\reverttxn.go:64`: `func hasRevertFlag(args []string, name string) bool {`
+- `.\gitmap\cmd\reverttxn.go:76`: `func flagValue(args []string, name string) (string, bool) {`
+- `.\gitmap\cmd\reverttxn.go:146`: `func runRevertTxn(raw string, force bool) {`
+- `.\gitmap\cmd\reverttxn.go:152`: `func runRevertLastTxn(force bool) {`
+- `.\gitmap\cmd\reverttxn.go:169`: `func revertOne(id int64, force bool) {`
+- `.\gitmap\cmd\reverttxn.go:187`: `func applyRevertOrExit(db *store.DB, id int64, rec model.TransactionRecord, force bool) {`
+- `.\gitmap\cmd\reverttxn.go:196`: `func confirmRevert(r model.TransactionRecord, fileCount int) bool {`
+- `.\gitmap\cmd\reverttxn_lastn.go:24`: `func runRevertLastN(raw string, force bool) {`
+- `.\gitmap\cmd\reverttxn_lastn.go:77`: `func confirmRevertLastN(rows []model.TransactionRecord) bool {`
+- `.\gitmap\cmd\reverttxn_lastn.go:95`: `func revertManyOrExit(rows []model.TransactionRecord, force bool) {`
+- `.\gitmap\cmd\rm.go:70`: `func parseRmFlags(args []string) (bool, bool, []string) {`
+- `.\gitmap\cmd\rm.go:98`: `func removeRmMatches(db *store.DB, matches []model.ScanRecord, yes, dbOnly bool) bool {`
+- `.\gitmap\cmd\rm.go:116`: `func confirmRemove(r *bufio.Reader, rec model.ScanRecord, dbOnly bool) bool {`
+- `.\gitmap\cmd\rm.go:127`: `func removeRepoFully(db *store.DB, r model.ScanRecord, dbOnly bool) error {`
+- `.\gitmap\cmd\rm.go:139`: `func removeRepoDisk(absPath string, dbOnly bool) error {`
+- `.\gitmap\cmd\root.go:191`: `func shouldRewriteToClone(args []string) bool {`
+- `.\gitmap\cmd\root.go:208`: `func looksLikeFlag(s string) bool {`
+- `.\gitmap\cmd\root.go:215`: `func looksLikeURLToken(s string) bool {`
+- `.\gitmap\cmd\root.go:261`: `func isSpace(b byte) bool {`
+- `.\gitmap\cmd\rootadd.go:28`: `func dispatchAdd(command string) bool {`
+- `.\gitmap\cmd\rootcore.go:9`: `func dispatchCore(command string) bool {`
+- `.\gitmap\cmd\rootcore.go:103`: `func dispatchServersClientsPathCmd(subCmd string, rest []string) bool {`
+- `.\gitmap\cmd\rootcore.go:116`: `func dispatchClusterReadWrite(selector cluster.TargetSelectorType, subCmd string, rest []string) bool {`
+- `.\gitmap\cmd\rootcore.go:130`: `func dispatchClusterMutate(selector cluster.TargetSelectorType, subCmd string, rest []string) bool {`

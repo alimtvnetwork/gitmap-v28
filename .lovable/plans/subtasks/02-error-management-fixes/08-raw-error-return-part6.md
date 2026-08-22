@@ -1,0 +1,156 @@
+# Fix raw error return (Part 6)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\db\nodepath.go:14`: `func SetDefaultPath(db *sql.DB, nodeId, path string) error               { return nil }`
+- `.\gitmap\db\nodepath.go:15`: `func GetDefaultPath(db *sql.DB, nodeId string) (string, error)           { return "", nil }`
+- `.\gitmap\db\nodepath.go:16`: `func ListPathAliases(db *sql.DB, nodeId string) ([]NodePathAlias, error) { return nil, nil }`
+- `.\gitmap\db\repocgversion.go:15`: `func InsertOrUpdateRepoCGVersion(ctx context.Context, db *sql.DB, version RepoCGVersion) error {`
+- `.\gitmap\db\repocgversion.go:32`: `func GetRepoCGVersion(ctx context.Context, db *sql.DB, repoAlias string) (*RepoCGVersion, error) {`
+- `.\gitmap\db\sshconnection.go:19`: `func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnection) error {`
+- `.\gitmap\db\sshconnection.go:43`: `func GetSSHConnections(ctx context.Context, db *sql.DB) ([]SSHConnection, error) {`
+- `.\gitmap\db\sshconnection.go:62`: `func DeleteSSHConnection(ctx context.Context, db *sql.DB, alias string) error {`
+- `.\gitmap\db\zombiezen\adapter.go:38`: `func Open(_ context.Context, _ string) (Conn, error) {`
+- `.\gitmap\desktop\desktop.go:35`: `func addOne(repoPath, cli string) error {`
+- `.\gitmap\desktop\desktop.go:43`: `func updateSummary(s DesktopSummary, name string, err error) DesktopSummary {`
+- `.\gitmap\desktop\remove.go:4`: `func RemoveRepo(repoPath string) error {`
+- `.\gitmap\desktop\update_path.go:4`: `func UpdateRepoPath(oldPath, newPath string) error {`
+- `.\gitmap\detector\parser.go:47`: `func parsePackageJSON(path string) (*packageJSON, error) {`
+- `.\gitmap\diff\endpoint.go:30`: `func ResolveEndpoint(raw string) (Endpoint, error) {`
+- `.\gitmap\diff\endpoint.go:47`: `func validateFolder(ep Endpoint) (Endpoint, error) {`
+- `.\gitmap\diff\report.go:48`: `func Report(out io.Writer, entries []Entry, opts PrintOptions) error {`
+- `.\gitmap\diff\report.go:57`: `func reportJSON(out io.Writer, entries []Entry) error {`
+- `.\gitmap\diff\report.go:69`: `func reportText(out io.Writer, entries []Entry, opts PrintOptions) error {`
+- `.\gitmap\diff\tree.go:45`: `func DiffTrees(leftDir, rightDir string, opts WalkOptions) ([]Entry, error) {`
+- `.\gitmap\diff\tree.go:59`: `func indexTree(root string, opts WalkOptions) (map[string]os.FileInfo, error) {`
+- `.\gitmap\diff\tree.go:186`: `func hashFile(path string) (string, error) {`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:83`: `func LoadFile(path string) (Document, error) {`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:98`: `func Parse(raw []byte) (Document, error) {`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:121`: `func Validate(doc Document) error {`
+- `.\gitmap\downloaderconfig\downloaderconfig.go:153`: `func Marshal(doc Document) ([]byte, error) {`
+- `.\gitmap\errreport\writer.go:32`: `func (c *Collector) WriteIfAny(binaryDir string) (string, error) {`
+- `.\gitmap\errreport\writer.go:74`: `func writeJSONAtomic(path string, payload fileShape) error {`
+- `.\gitmap\fixtureversion\bump.go:128`: `func MaybeAutoBumpFile(path string, req BumpRequest) (bool, error) {`
+- `.\gitmap\fixtureversion\validate.go:37`: `func Validate(stamp Stamp, want Expectation) error {`
+- `.\gitmap\fixtureversion\validate.go:63`: `func ValidateBody(body string, stamp Stamp, want Expectation) error {`
+- `.\gitmap\formatter\clonescript.go:12`: `func WriteCloneScript(w io.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\csv.go:17`: `func WriteCSV(w io.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\csv.go:39`: `func writeCSVRows(cw *csv.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\csv.go:56`: `func writeCSVRow(cw *csv.Writer, r model.ScanRecord) error {`
+- `.\gitmap\formatter\csv.go:68`: `func ParseCSV(reader io.Reader) ([]model.ScanRecord, error) {`
+- `.\gitmap\formatter\desktopscript.go:15`: `func WriteDesktopScript(w io.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\directclone.go:11`: `func WriteDirectCloneScript(w io.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\directclone.go:16`: `func WriteDirectCloneSSHScript(w io.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\directclone.go:21`: `func writeDirectCloneScriptTemplate(w io.Writer, records []model.ScanRecord, templateName string, useSSH bool) error {`
+- `.\gitmap\formatter\json.go:16`: `func WriteJSON(w io.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\json.go:31`: `func WriteJSONCompact(w io.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\json.go:66`: `func ParseJSON(reader io.Reader) ([]model.ScanRecord, error) {`
+- `.\gitmap\formatter\structure.go:15`: `func WriteStructure(w io.Writer, records []model.ScanRecord) error {`
+- `.\gitmap\formatter\structure.go:99`: `func renderTree(w io.Writer, node *treeNode, prefix string) error {`
+- `.\gitmap\formatter\structure.go:123`: `func renderNode(w io.Writer, node *treeNode, prefix, connector string) error {`
+- `.\gitmap\formatter\template.go:32`: `func loadTemplate(name string) (*template.Template, error) {`
+- `.\gitmap\formatter\terminal.go:21`: `func Terminal(w io.Writer, records []model.ScanRecord, outputDir string, quiet bool) error {`
+- `.\gitmap\fsutil\path_normalize.go:23`: `func CanonicalPath(path string) (string, error) {`
+- `.\gitmap\fsutil\safe_fs.go:11`: `func SafeRemoveAll(path string) error {`
+- `.\gitmap\fsutil\safe_fs.go:24`: `func SafeRename(src, dst string) error {`
+- `.\gitmap\fsutil\safe_fs.go:36`: `func CopyDirectory(src, dst string) error {`
+- `.\gitmap\fsutil\safe_fs.go:53`: `func copyFile(src, dst string, mode os.FileMode) error {`
+- `.\gitmap\ghtoken\ghtoken.go:44`: `func Resolve() (string, SourceType, error) {`
+- `.\gitmap\gitutil\checkout.go:20`: `func CheckoutBranch(repoPath, branch string) (string, error) {`
+- `.\gitmap\gitutil\gitutil.go:27`: `func RemoteURL(repoPath string) (string, error) {`
+- `.\gitmap\gitutil\gitutil.go:40`: `func RepoRoot(startPath string) (string, error) {`
+- `.\gitmap\gitutil\gitutil.go:59`: `func CurrentBranch(repoPath string) (string, error) {`
+- `.\gitmap\gitutil\gitutil.go:298`: `func runGit(dir string, args ...string) (string, error) {`
+- `.\gitmap\gitutil\latestbranch.go:31`: `func FetchAllPrune() error {`
+- `.\gitmap\gitutil\latestbranch.go:39`: `func ListRemoteBranches() ([]string, error) {`
+- `.\gitmap\gitutil\latestbranchresolve.go:14`: `func ReadBranchTips(refs []string) ([]RemoteBranchInfo, error) {`
+- `.\gitmap\gitutil\network.go:12`: `func CheckOnline() error {`
+- `.\gitmap\goldenguard\determinism.go:87`: `func collectWriterRuns(writer WriterFn) ([][]byte, error) {`
+- `.\gitmap\helptext\coverage_test.go:52`: `func parsePrimaryCmdIDs() ([]cmdID, error) {`
+- `.\gitmap\helptext\print.go:65`: `func ReadRaw(command string) ([]byte, error) {`
+- `.\gitmap\helptext\stamp.go:38`: `func ValidateStamp(command string, body string, want fixtureversion.Expectation) error {`
+- `.\gitmap\jsonenv\jsonenv.go:43`: `func WriteOK(w io.Writer, command string, data interface{}) error {`
+- `.\gitmap\jsonenv\jsonenv.go:50`: `func WriteErr(w io.Writer, command string, errMsg string, data interface{}) error {`
+- `.\gitmap\jsonenv\jsonenv.go:56`: `func write(w io.Writer, env Envelope) error {`
+- `.\gitmap\lockcheck\lockcheck_unix.go:13`: `func FindLockingProcesses(dirPath string) ([]LockingProcess, error) {`
+- `.\gitmap\lockcheck\lockcheck_unix.go:50`: `func KillProcess(pid int) error {`
+- `.\gitmap\lockcheck\lockcheck_windows.go:15`: `func FindLockingProcesses(dirPath string) ([]LockingProcess, error) {`
+- `.\gitmap\lockcheck\lockcheck_windows.go:29`: `func findViaHandle(dirPath string) ([]LockingProcess, error) {`
+- `.\gitmap\lockcheck\lockcheck_windows.go:87`: `func findViaWMI(dirPath string) ([]LockingProcess, error) {`
+- `.\gitmap\lockcheck\lockcheck_windows.go:131`: `func KillProcess(pid int) error {`
+- `.\gitmap\lockfile\lockfile.go:46`: `func Acquire(name string) (Releaser, error) {`
+- `.\gitmap\lockfile\lockfile.go:60`: `func ForceAcquire(name string) (Releaser, error) {`
+- `.\gitmap\lockfile\lockfile.go:90`: `func tryClaim(path string) error {`
+- `.\gitmap\lockfile\lockfile.go:107`: `func recoverOrFail(path string) error {`
+- `.\gitmap\lockfile\lockfile.go:134`: `func writePIDFile(path string) error {`
+- `.\gitmap\lockfile\lockfile.go:141`: `func readPID(path string) (int, error) {`
+- `.\gitmap\macro\execute.go:15`: `func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {`
+- `.\gitmap\macro\execute.go:43`: `func executeStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions) error {`
+- `.\gitmap\macro\record.go:17`: `func RecordInteractive(name string) error {`
+- `.\gitmap\macro\storage.go:14`: `func getMacroDir() (string, error) {`
+- `.\gitmap\macro\storage.go:27`: `func SaveMacro(m *Macro) error {`
+- `.\gitmap\macro\storage.go:43`: `func LoadMacro(name string) (*Macro, error) {`
+- `.\gitmap\macro\storage.go:61`: `func ListMacros() ([]Macro, error) {`
+- `.\gitmap\macro\storage.go:84`: `func DeleteMacro(name string) error {`
+- `.\gitmap\movemerge\conflict.go:50`: `func (r *Resolver) Resolve(rel string, l, rgt FileMeta) (ChoiceType, error) {`
+- `.\gitmap\movemerge\conflict.go:90`: `func (r *Resolver) resolveInteractive(rel string, l, rgt FileMeta) (ChoiceType, error) {`
+- `.\gitmap\movemerge\copy.go:12`: `func CopyFile(src, dst string, info os.FileInfo) error {`
+- `.\gitmap\movemerge\copy.go:24`: `func copySymlink(src, dst string) error {`
+- `.\gitmap\movemerge\copy.go:35`: `func copyRegular(src, dst string, mode os.FileMode) error {`
+- `.\gitmap\movemerge\copy.go:54`: `func CopyTree(src, dst string, opts Options) (int, error) {`
+- `.\gitmap\movemerge\diff.go:29`: `func DiffTrees(leftDir, rightDir string, opts Options) ([]DiffEntry, error) {`
+- `.\gitmap\movemerge\diff.go:52`: `func classifyOne(rel string, li, ri map[string]FileMeta, leftDir, rightDir string) (DiffEntry, error) {`
+- `.\gitmap\movemerge\diff.go:71`: `func classifyBoth(entry DiffEntry, leftDir, rightDir string) (DiffEntry, error) {`
+- `.\gitmap\movemerge\endpoint.go:60`: `func IsFolderExisting(path string) (bool, error) {`
+- `.\gitmap\movemerge\finalize.go:11`: `func finalizeURLSides(left, right Endpoint, dir DirectionType, opts Options) error {`
+- `.\gitmap\movemerge\finalize.go:50`: `func commitAndPushOne(ep Endpoint, otherDisp string, opts Options) error {`
+- `.\gitmap\movemerge\git.go:13`: `func runGit(dir string, args ...string) (string, error) {`
+- `.\gitmap\movemerge\git.go:22`: `func GetOriginURL(dir string) (string, error) {`
+- `.\gitmap\movemerge\git.go:27`: `func CloneURL(url, branch, dir string) error {`
+- `.\gitmap\movemerge\git.go:44`: `func PullFFOnly(dir string) error {`
+- `.\gitmap\movemerge\git.go:55`: `func AddCommitPush(dir, msg string, push bool) (string, error) {`
+- `.\gitmap\movemerge\guard.go:12`: `func GuardEndpoints(left, right Endpoint) error {`
+- `.\gitmap\movemerge\merge.go:13`: `func RunMerge(left, right Endpoint, dir DirectionType, opts Options) error {`
+- `.\gitmap\movemerge\merge.go:57`: `func applyEntry(e DiffEntry, l, r Endpoint, dir DirectionType, res *Resolver, opts Options) error {`
+- `.\gitmap\movemerge\merge.go:72`: `func applyMissing(e DiffEntry, l, r Endpoint, dir DirectionType, opts Options, isFromLeft bool) error {`
+- `.\gitmap\movemerge\merge.go:84`: `func applyConflict(e DiffEntry, l, r Endpoint, dir DirectionType, res *Resolver, opts Options) error {`
+- `.\gitmap\movemerge\merge.go:102`: `func writeChoice(c ChoiceType, e DiffEntry, l, r Endpoint, dir DirectionType, opts Options) error {`
+- `.\gitmap\movemerge\merge.go:117`: `func copyOne(srcDir, dstDir, rel string, info os.FileInfo, opts Options) error {`
+- `.\gitmap\movemerge\move.go:13`: `func RunMove(left, right Endpoint, opts Options) error {`
+- `.\gitmap\movemerge\move.go:35`: `func ensureRightExists(right Endpoint, opts Options) error {`
+- `.\gitmap\movemerge\move.go:58`: `func copyOrDryRun(src, dst string, opts Options) (int, error) {`
+- `.\gitmap\movemerge\move.go:75`: `func deleteLeftFolder(left Endpoint, opts Options) error {`
+- `.\gitmap\movemerge\resolve.go:15`: `func ResolveEndpoint(raw string, isLeft bool, opts Options) (Endpoint, error) {`
+- `.\gitmap\movemerge\resolve.go:26`: `func resolveFolderEndpoint(ep Endpoint, isLeft bool, opts Options) (Endpoint, error) {`
+- `.\gitmap\movemerge\resolve.go:55`: `func resolveURLEndpoint(ep Endpoint, opts Options) (Endpoint, error) {`
+- `.\gitmap\movemerge\resolve.go:79`: `func reuseExistingURLFolder(ep Endpoint, dir string, opts Options) (Endpoint, error) {`
+- `.\gitmap\movemerge\resolve.go:94`: `func handleMatchingOrigin(ep Endpoint, dir string) (Endpoint, error) {`
+- `.\gitmap\movemerge\resolve.go:103`: `func handleForceFolder(ep Endpoint, dir string) (Endpoint, error) {`
+- `.\gitmap\movemerge\walk.go:21`: `func IndexTree(root string, opts Options) (map[string]FileMeta, error) {`
+- `.\gitmap\movemerge\walk.go:81`: `func HashFile(path string) (string, error) {`
+- `.\gitmap\probe\clone.go:17`: `func tryShallowClone(url string, depth int) (string, error) {`
+- `.\gitmap\probe\clone.go:55`: `func summarize(out []byte, err error) string {`
+- `.\gitmap\release\assets.go:37`: `func ReadModuleName() (string, error) {`
+- `.\gitmap\release\assets.go:179`: `func EnsureStagingDir() (string, error) {`
+- `.\gitmap\release\assetstargets.go:25`: `func ResolveTargets(flagTargets string, configTargets []model.ReleaseTarget) ([]BuildTarget, error) {`
+- `.\gitmap\release\assetstargets.go:50`: `func ParseTargets(input string) ([]BuildTarget, error) {`
+- `.\gitmap\release\assetstargets.go:71`: `func parseOneTarget(s string) (BuildTarget, error) {`
+- `.\gitmap\release\assetsupload.go:16`: `func UploadAsset(owner, repo string, releaseID int, filePath, token string) error {`
+- `.\gitmap\release\autocommitgit.go:62`: `func stageFiles(files []string) error {`
+- `.\gitmap\release\autocommitgit.go:69`: `func stageAll() error {`
+- `.\gitmap\release\autocommitgit.go:74`: `func commitStaged(msg string) error {`
+- `.\gitmap\release\autocommitgit.go:79`: `func pushCurrentBranch() error {`
+- `.\gitmap\release\autocommitgit.go:97`: `func syncBranchAndRetryPush(branch, pushOutput string) error {`
+- `.\gitmap\release\autocommitgit.go:142`: `func runGitCmdCombined(args ...string) (string, error) {`
+- `.\gitmap\release\autocommitgit.go:157`: `func formatGitCommandError(output string, err error) error {`
+- `.\gitmap\release\changelog.go:35`: `func ReadChangelog() ([]ChangelogEntry, error) {`
+- `.\gitmap\release\changeloggen.go:12`: `func GenerateChangelog(fromTag, toRef string) ([]string, error) {`
+- `.\gitmap\release\changeloggen.go:62`: `func ListTags() ([]string, error) {`
+- `.\gitmap\release\changeloggen.go:76`: `func ResolveTagRange(fromTag, toTag string) (string, string, error) {`
+- `.\gitmap\release\changeloggen.go:98`: `func resolveDefaultTagRange() (string, string, error) {`
+- `.\gitmap\release\changelogparse.go:14`: `func parseChangelogStream(r io.Reader) ([]ChangelogEntry, error) {`
+- `.\gitmap\release\checksums.go:18`: `func GenerateChecksums(assets []string) (string, error) {`
+- `.\gitmap\release\checksums.go:51`: `func hashFile(path string) (string, error) {`
+- `.\gitmap\release\compress.go:20`: `func CompressAssets(assets []string) ([]string, error) {`

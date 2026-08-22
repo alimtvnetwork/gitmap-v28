@@ -1,0 +1,156 @@
+# Fix return without blank line (Part 5)
+
+Total items: 150
+
+## Files to Modify
+
+- `.\gitmap\cloner\pulldiag.go:21`: `return false`
+- `.\gitmap\cloner\pulldiag.go:38`: `return true`
+- `.\gitmap\cloner\pulldiag.go:76`: `return false`
+- `.\gitmap\cloner\pulldiag.go:81`: `return true`
+- `.\gitmap\cloner\pulldiag.go:127`: `return trimmed`
+- `.\gitmap\cloner\runners.go:71`: `return 1`
+- `.\gitmap\cloner\runners.go:74`: `return jobs`
+- `.\gitmap\cloner\runners.go:111`: `return rec.RepoName`
+- `.\gitmap\cloner\runners.go:138`: `return conflicts`
+- `.\gitmap\cloner\safe_pull.go:32`: `return model.CloneResult{Record: rec, IsSuccess: true, Notes: "skipped (existing directory)"}`
+- `.\gitmap\cloner\safe_pull.go:38`: `return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}`
+- `.\gitmap\cloner\safe_pull.go:45`: `return safePullRepo(rec, dest)`
+- `.\gitmap\cloner\safe_pull.go:50`: `return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}`
+- `.\gitmap\cloner\safe_pull.go:57`: `return IsGitRepo(path)`
+- `.\gitmap\cloner\safe_pull.go:76`: `return safePullRepo(rec, repoDir)`
+- `.\gitmap\cloner\safe_pull.go:103`: `return *successResult`
+- `.\gitmap\cloner\safe_pull.go:152`: `return nil`
+- `.\gitmap\cloner\safe_pull.go:154`: `return os.RemoveAll(dest)`
+- `.\gitmap\cloner\safe_push.go:37`: `return *successResult`
+- `.\gitmap\cloner\safe_push.go:82`: `return string(out), err`
+- `.\gitmap\cloner\safe_push.go:93`: `return string(out), err`
+- `.\gitmap\cloner\safe_push.go:99`: `return false`
+- `.\gitmap\cloner\safe_push.go:101`: `return strings.Contains(lower, "fetch first") `
+- `.\gitmap\cloner\strategy.go:37`: `return cloneStrategy{`
+- `.\gitmap\cloner\strategy.go:50`: `return cloneStrategy{`
+- `.\gitmap\cloner\strategy.go:63`: `return cloneStrategy{`
+- `.\gitmap\cloner\strategy.go:75`: `return cloneStrategy{`
+- `.\gitmap\cloner\strategy.go:80`: `return cloneStrategy{`
+- `.\gitmap\cloner\summary.go:22`: `return fmt.Sprintf("%s (%s)", rec.RepoName, rec.RelativePath)`
+- `.\gitmap\cloner\summary.go:24`: `return rec.RepoName`
+- `.\gitmap\cloner\summary.go:26`: `return rec.RelativePath`
+- `.\gitmap\cloner\summary.go:28`: `return rec.HTTPSUrl`
+- `.\gitmap\cloner\summary.go:30`: `return rec.SSHUrl`
+- `.\gitmap\cloner\summary.go:32`: `return "<unnamed record>"`
+- `.\gitmap\cloner\summary.go:43`: `return rec.SSHUrl`
+- `.\gitmap\cloner\summary.go:46`: `return rec.HTTPSUrl`
+- `.\gitmap\cluster\agent.go:17`: `return err`
+- `.\gitmap\cluster\agent.go:25`: `return err`
+- `.\gitmap\cluster\client.go:19`: `return &NodeClient{id: id, address: address, token: token}`
+- `.\gitmap\cluster\client.go:27`: `return nil, err`
+- `.\gitmap\cluster\client.go:29`: `return rpc.NewClient(conn), nil`
+- `.\gitmap\cluster\client.go:36`: `return err`
+- `.\gitmap\cluster\client.go:43`: `return err`
+- `.\gitmap\cluster\client.go:53`: `return err`
+- `.\gitmap\cluster\client.go:59`: `return client.Call("Server.Ping", args, &reply)`
+- `.\gitmap\cluster\distribution.go:30`: `return nil`
+- `.\gitmap\cluster\distribution.go:84`: `return active`
+- `.\gitmap\cluster\distribution.go:89`: `return true`
+- `.\gitmap\cluster\distribution.go:93`: `return true`
+- `.\gitmap\cluster\distribution.go:96`: `return false`
+- `.\gitmap\cluster\exec_clone.go:6`: `return "", "", 0, nil`
+- `.\gitmap\cluster\exec_cmd.go:21`: `return cmd.Run()`
+- `.\gitmap\cluster\exec_cmd.go:25`: `return exec.LookPath(file)`
+- `.\gitmap\cluster\exec_git.go:9`: `return ExecCmd(ctx, node, "gitmap pull --all")`
+- `.\gitmap\cluster\exec_git.go:14`: `return ExecCmd(ctx, node, "gitmap push --all")`
+- `.\gitmap\cluster\exec_git.go:19`: `return ExecCmd(ctx, node, "gitmap commit --all")`
+- `.\gitmap\cluster\exec_git.go:24`: `return ExecCmd(ctx, node, "gitmap status --all")`
+- `.\gitmap\cluster\exec_git_test.go:20`: `return []gitExecTestCase{`
+- `.\gitmap\cluster\exec_git_test.go:35`: `return nil`
+- `.\gitmap\cluster\exec_install.go:23`: `return detectWindowsPackageManager(ctx)`
+- `.\gitmap\cluster\exec_install.go:25`: `return detectUnixPackageManager(ctx)`
+- `.\gitmap\cluster\exec_install.go:30`: `return checkManagers(ctx, managers)`
+- `.\gitmap\cluster\exec_install.go:35`: `return checkManagers(ctx, managers)`
+- `.\gitmap\cluster\exec_install.go:44`: `return mgr, nil`
+- `.\gitmap\cluster\exec_install.go:47`: `return "", errors.New(constants.ErrNoPackageManager)`
+- `.\gitmap\cluster\exec_install.go:55`: `return nil, err`
+- `.\gitmap\cluster\exec_install_test.go:20`: `return nil`
+- `.\gitmap\cluster\exec_install_test.go:23`: `return errors.New("not found")`
+- `.\gitmap\cluster\exec_install_test.go:29`: `return errors.New("unexpected command: " + cmdStr)`
+- `.\gitmap\cluster\exec_install_test.go:33`: `return &exec.ExitError{}`
+- `.\gitmap\cluster\exec_install_test.go:35`: `return nil`
+- `.\gitmap\cluster\exec_lifecycle.go:19`: `return "", "", constants.ExitCodeError, err`
+- `.\gitmap\cluster\exec_lifecycle.go:21`: `return runCmd(buildRestartCmd(ctx))`
+- `.\gitmap\cluster\exec_lifecycle.go:26`: `return exec.CommandContext(ctx, constants.LifecycleCmdShutdown, constants.ArgRestart, constants.ArgTimeout, constants.ArgZero)`
+- `.\gitmap\cluster\exec_lifecycle.go:28`: `return exec.CommandContext(ctx, constants.LifecycleCmdReboot)`
+- `.\gitmap\cluster\exec_lifecycle.go:34`: `return "", "", constants.ExitCodeError, err`
+- `.\gitmap\cluster\exec_lifecycle.go:36`: `return runCmd(buildShutdownCmd(ctx))`
+- `.\gitmap\cluster\exec_lifecycle.go:41`: `return exec.CommandContext(ctx, constants.LifecycleCmdShutdown, constants.ArgShutdownWin, constants.ArgTimeout, constants.ArgZero)`
+- `.\gitmap\cluster\exec_lifecycle.go:43`: `return exec.CommandContext(ctx, constants.LifecycleCmdShutdown, constants.ArgHalt, constants.ArgNow)`
+- `.\gitmap\cluster\exec_lifecycle.go:49`: `return "", "", constants.ExitCodeError, err`
+- `.\gitmap\cluster\exec_lifecycle.go:51`: `return runCmd(buildLogoffCmd(ctx))`
+- `.\gitmap\cluster\exec_lifecycle.go:56`: `return exec.CommandContext(ctx, constants.LifecycleCmdLogoff)`
+- `.\gitmap\cluster\exec_lifecycle.go:58`: `return exec.CommandContext(ctx, constants.UnixShell, constants.UnixShellArg, constants.LifecycleCmdUnixLogoffArgs)`
+- `.\gitmap\cluster\exec_lifecycle.go:63`: `return errors.New(constants.ErrClusterServerProtected)`
+- `.\gitmap\cluster\exec_lifecycle.go:66`: `return errors.New(constants.ErrClusterLifecycleRequiresForce)`
+- `.\gitmap\cluster\exec_lifecycle.go:68`: `return checkPasswordAuth(node.PasswordHash, providedPassword)`
+- `.\gitmap\cluster\exec_lifecycle.go:73`: `return nil`
+- `.\gitmap\cluster\exec_lifecycle.go:76`: `return errors.New(constants.ErrClusterPasswordRequired)`
+- `.\gitmap\cluster\exec_lifecycle.go:79`: `return errors.New(constants.ErrClusterInvalidPassword)`
+- `.\gitmap\cluster\exec_lifecycle.go:81`: `return nil`
+- `.\gitmap\cluster\exec_lifecycle.go:90`: `return outBuf.String(), errBuf.String(), exitCode, err`
+- `.\gitmap\cluster\exec_lifecycle.go:95`: `return constants.ExitCodeSuccess`
+- `.\gitmap\cluster\exec_lifecycle.go:98`: `return exitErr.ExitCode()`
+- `.\gitmap\cluster\exec_lifecycle.go:100`: `return constants.ExitCodeError`
+- `.\gitmap\cluster\exec_lifecycle.go:109`: `return err`
+- `.\gitmap\cluster\exec_lifecycle.go:112`: `return nil`
+- `.\gitmap\cluster\exec_lifecycle.go:120`: `return ctx.Err()`
+- `.\gitmap\cluster\exec_lifecycle.go:122`: `return nil`
+- `.\gitmap\cluster\exec_proj.go:41`: `return nil, fmt.Errorf("failed to open store: %w", err)`
+- `.\gitmap\cluster\exec_proj.go:48`: `return nil, fmt.Errorf("failed to list repos: %w", err)`
+- `.\gitmap\cluster\exec_proj.go:98`: `return ProjRunResult{`
+- `.\gitmap\cluster\exec_proj.go:109`: `return ProjRunResult{`
+- `.\gitmap\cluster\exec_proj.go:135`: `return db.ResultStatusDeferred, msgCreateCICDStub`
+- `.\gitmap\cluster\exec_ps.go:32`: `return "", "", 1, errLook`
+- `.\gitmap\cluster\exec_ps.go:39`: `return "", "pwsh not found, skipping", 0, nil`
+- `.\gitmap\cluster\exec_ps_test.go:26`: `return "C:\\pwsh.exe", nil`
+- `.\gitmap\cluster\exec_ps_test.go:28`: `return "", errors.New("not found")`
+- `.\gitmap\cluster\exec_ps_test.go:36`: `return nil`
+- `.\gitmap\cluster\exec_ps_test.go:68`: `return "", errors.New("pwsh not found")`
+- `.\gitmap\cluster\exec_ps_test.go:71`: `return "C:\\powershell.exe", nil`
+- `.\gitmap\cluster\exec_ps_test.go:73`: `return "", errors.New("not found")`
+- `.\gitmap\cluster\exec_ps_test.go:80`: `return nil`
+- `.\gitmap\cluster\exec_ps_test.go:103`: `return "/bin/pwsh", nil`
+- `.\gitmap\cluster\exec_ps_test.go:105`: `return "", errors.New("not found")`
+- `.\gitmap\cluster\exec_ps_test.go:112`: `return nil`
+- `.\gitmap\cluster\exec_ps_test.go:134`: `return "", errors.New("pwsh not found")`
+- `.\gitmap\cluster\exec_update.go:6`: `return "", "", 0, nil`
+- `.\gitmap\cluster\lsrender.go:11`: `return ""`
+- `.\gitmap\cluster\lsrender.go:79`: `return sb.String()`
+- `.\gitmap\cluster\lsrender.go:84`: `return str`
+- `.\gitmap\cluster\lsrender.go:86`: `return str + strings.Repeat(" ", length-len(str))`
+- `.\gitmap\cluster\node_resolver.go:43`: `return nil, errors.New(constants.ErrClusterNoNodes)`
+- `.\gitmap\cluster\node_resolver.go:51`: `return nil, errors.New(constants.ErrFilterExclusive)`
+- `.\gitmap\cluster\node_resolver.go:78`: `return true`
+- `.\gitmap\cluster\node_resolver.go:84`: `return true`
+- `.\gitmap\cluster\node_resolver.go:87`: `return false`
+- `.\gitmap\cluster\node_resolver.go:101`: `return true`
+- `.\gitmap\cluster\node_resolver.go:107`: `return true`
+- `.\gitmap\cluster\node_resolver.go:111`: `return true`
+- `.\gitmap\cluster\node_resolver.go:114`: `return false`
+- `.\gitmap\cluster\node_resolver.go:121`: `return false`
+- `.\gitmap\cluster\node_resolver.go:128`: `return false`
+- `.\gitmap\cluster\node_resolver.go:133`: `return true`
+- `.\gitmap\cluster\node_resolver.go:137`: `return false`
+- `.\gitmap\cluster\node_resolver.go:143`: `return false`
+- `.\gitmap\cluster\node_resolver.go:148`: `return true`
+- `.\gitmap\cluster\node_resolver.go:163`: `return true`
+- `.\gitmap\cluster\node_resolver.go:166`: `return false`
+- `.\gitmap\cluster\node_resolver.go:171`: `return true`
+- `.\gitmap\cluster\node_resolver.go:175`: `return false`
+- `.\gitmap\cluster\node_resolver.go:181`: `return false`
+- `.\gitmap\cluster\node_resolver.go:186`: `return true`
+- `.\gitmap\cluster\node_resolver.go:199`: `return included`
+- `.\gitmap\cluster\node_resolver.go:209`: `return excluded`
+- `.\gitmap\cluster\preflight.go:38`: `return true, nil`
+- `.\gitmap\cluster\preflight.go:45`: `return false, err`
+- `.\gitmap\cluster\preflight.go:50`: `return isConfirmed, nil`
+- `.\gitmap\cluster\registry.go:34`: `return &Registry{`
+- `.\gitmap\cluster\registry.go:86`: `return snapshot`
+- `.\gitmap\cluster\runref.go:22`: `return "", err`

@@ -16,7 +16,7 @@ import (
 // Accepts an absolute path, a ~/-relative path, or a bare filename
 // (resolved under ~/.ssh). Exits 0 on success, 1 on any failure.
 func runSSHBind(args []string) {
-	isNonGitRepoCWD := isGitRepoCWD == false()
+	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap ssh-bind` inside a repo)")
 		exitWith(1)
