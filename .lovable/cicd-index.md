@@ -15,6 +15,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 02 | `lint-regression-guard` → `lint-hard-floor` → `lint-baseline-guard` (now uniformly baseline-diff for all 5 linters) | golangci-lint (baseline-guard job) | ✅ Resolved | [02-lint-regression-guard-semantics.md](cicd-issues/02-lint-regression-guard-semantics.md) |
 | 03 | pterm SpinnerPrinter DATA RACE | go test -race | ✅ Resolved | [03-pterm-spinner-data-race.md](cicd-issues/03-pterm-spinner-data-race.md) |
 | 04 | Legacy SQLite Migration Failures & `cmdFaithful` Concurrency Race | go test -race / Test Matrix | ✅ Resolved | [04-zipgroupitems-migration-and-cmdfaithful-race.md](cicd-issues/04-zipgroupitems-migration-and-cmdfaithful-race.md) |
+| 05 | Cluster TLS Dial Timeout & VSCode PM Sync Test Env Race | go test -race / Test Matrix | ✅ Resolved | [05-cluster-tls-dial-timeout-and-test-env-race.md](cicd-issues/05-cluster-tls-dial-timeout-and-test-env-race.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.
@@ -26,3 +27,5 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 - **Conditional UI Component Allocation**: Always wrap background UI routines (e.g. `pterm.SpinnerPrinter`) in `isMultiActive` checks. Unconditional start leads to `-race` failures when tests disable output.
 - **Guard Legacy Schema Migrations with Table Existence**: In SQLite database migrations, check `db.tableExists("Table")` before issuing `ALTER TABLE` or `UPDATE` on legacy tables, and execute benign-tolerant DDL statements via `db.conn.Exec` rather than `ExecWrapper` to prevent stderr error spam.
 - **Synchronize Package Globals and Mocks**: Use `atomic.Bool` and `sync.RWMutex` on package-level state and test hooks to guarantee race-free execution during `go test -race` runs.
+- **Bound Network Dialing with Timeouts**: Always use `tls.DialWithDialer` or `net.DialTimeout` with bounded connection deadlines (e.g. 500ms - 2s) to prevent tests and commands from hanging on OS TCP SYN retransmission loops when connecting to unreachable nodes.
+- **Use `t.Setenv` Exclusively in Tests**: Never use raw `os.Setenv` in unit/integration test helpers; `t.Setenv` ensures test-isolated and race-safe environment restoration.

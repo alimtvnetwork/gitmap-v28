@@ -3,6 +3,7 @@ package cluster
 import (
 	"context"
 	"crypto/tls"
+	"net"
 	"net/rpc"
 	"time"
 
@@ -18,6 +19,8 @@ type AgentExecReply struct {
 	Stderr   string
 	ExitCode int
 }
+
+const dialAgentTimeout = 500 * time.Millisecond
 
 // Dispatch routes the subcommand to the correct executor for the node.
 // This is currently a stub for executors.
@@ -40,7 +43,8 @@ func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) d
 		if !node.IsServer {
 			// Dial the remote agent
 			conf := &tls.Config{InsecureSkipVerify: true}
-			client, err := tls.Dial("tcp", node.IP+":8081", conf)
+			dialer := &net.Dialer{Timeout: dialAgentTimeout}
+			client, err := tls.DialWithDialer(dialer, "tcp", node.IP+":8081", conf)
 			if err != nil {
 				res.ResultStatus = db.ResultStatusFailed
 				msg := err.Error()
@@ -82,7 +86,8 @@ func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) d
 		res.ResultStatus = db.ResultStatusSucceeded
 		if !node.IsServer {
 			conf := &tls.Config{InsecureSkipVerify: true}
-			client, err := tls.Dial("tcp", node.IP+":8081", conf)
+			dialer := &net.Dialer{Timeout: dialAgentTimeout}
+			client, err := tls.DialWithDialer(dialer, "tcp", node.IP+":8081", conf)
 			if err != nil {
 				res.ResultStatus = db.ResultStatusFailed
 				msg := err.Error()

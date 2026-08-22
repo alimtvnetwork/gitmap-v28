@@ -42,7 +42,7 @@ func setupVSCodePMSyncFixture(t *testing.T) (string, func()) {
 	jsonPath := vscodepmSyncFixturePath(t, tmp)
 	writeVSCodePMSyncSeed(t, jsonPath, repoDir)
 
-	restore := swapHomeEnv(tmp)
+	restore := swapHomeEnv(t, tmp)
 
 	return repoDir, restore
 }
@@ -126,7 +126,7 @@ func setupVSCodePMSyncFixtureWithTags(t *testing.T, seedTags []string) (string, 
 		t.Fatalf("write seed: %v", err)
 	}
 
-	return repoDir, swapHomeEnv(tmp)
+	return repoDir, swapHomeEnv(t, tmp)
 }
 
 // setupVSCodePMSyncEmptyHome wires HOME / XDG_CONFIG_HOME to a fresh
@@ -139,7 +139,7 @@ func setupVSCodePMSyncEmptyHome(t *testing.T) func() {
 	// valid path, but leave projects.json itself absent.
 	_ = vscodepmSyncFixturePath(t, tmp)
 
-	return swapHomeEnv(tmp)
+	return swapHomeEnv(t, tmp)
 }
 
 // setupVSCodePMSyncMalformedFile writes a deliberately broken
@@ -155,23 +155,15 @@ func setupVSCodePMSyncMalformedFile(t *testing.T) (string, func()) {
 		t.Fatalf("write malformed: %v", err)
 	}
 
-	return jsonPath, swapHomeEnv(tmp)
+	return jsonPath, swapHomeEnv(t, tmp)
 }
 
-// swapHomeEnv points HOME / XDG_CONFIG_HOME / APPDATA at tmp and returns
-// a restore func that puts the original values back. Centralized so every
-// fixture uses the same swap shape across darwin / linux / windows.
-func swapHomeEnv(tmp string) func() {
-	prevHome := os.Getenv(constants.VSCodeEnvHome)
-	prevXDG := os.Getenv(constants.VSCodeEnvXDGConfigHome)
-	prevAppData := os.Getenv(constants.VSCodeEnvAppData)
-	os.Setenv(constants.VSCodeEnvHome, tmp)
-	os.Setenv(constants.VSCodeEnvXDGConfigHome, filepath.Join(tmp, ".config"))
-	os.Setenv(constants.VSCodeEnvAppData, tmp)
+// swapHomeEnv points HOME / XDG_CONFIG_HOME / APPDATA at tmp using t.Setenv.
+func swapHomeEnv(t *testing.T, tmp string) func() {
+	t.Helper()
+	t.Setenv(constants.VSCodeEnvHome, tmp)
+	t.Setenv(constants.VSCodeEnvXDGConfigHome, filepath.Join(tmp, ".config"))
+	t.Setenv(constants.VSCodeEnvAppData, tmp)
 
-	return func() {
-		os.Setenv(constants.VSCodeEnvHome, prevHome)
-		os.Setenv(constants.VSCodeEnvXDGConfigHome, prevXDG)
-		os.Setenv(constants.VSCodeEnvAppData, prevAppData)
-	}
+	return func() {}
 }

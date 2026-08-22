@@ -2,7 +2,9 @@ package cluster
 
 import (
 	"crypto/tls"
+	"net"
 	"net/rpc"
+	"time"
 )
 
 // NodeClient represents a node joining the cluster.
@@ -19,7 +21,8 @@ func NewNodeClient(id, address, token string) *NodeClient {
 
 func (c *NodeClient) dialTLS() (*rpc.Client, error) {
 	conf := &tls.Config{InsecureSkipVerify: true}
-	conn, err := tls.Dial("tcp", c.address, conf)
+	dialer := &net.Dialer{Timeout: 2 * time.Second}
+	conn, err := tls.DialWithDialer(dialer, "tcp", c.address, conf)
 	if err != nil {
 		return nil, err
 	}
