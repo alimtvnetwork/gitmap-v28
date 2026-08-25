@@ -26,3 +26,6 @@ completed/021-task.md
 completed/022-task.md
 completed/023-task.md
 completed/024-task.md
+completed/025-task.md
+completed/026-task.md
+completed/027-task.md
