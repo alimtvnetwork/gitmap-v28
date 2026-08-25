@@ -170,3 +170,6 @@ completed/165-task.md
 completed/166-task.md
 completed/167-task.md
 completed/168-task.md
+completed/169-task.md
+completed/170-task.md
+completed/171-task.md
