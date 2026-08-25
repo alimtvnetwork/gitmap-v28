@@ -78,8 +78,10 @@ func lookupCDRecords(name string) []model.ScanRecord {
 		os.Exit(1)
 	}
 	defer db.Close()
+	
+	cleanName := strings.TrimRight(name, "/\\")
 
-	repos, err := db.FindBySlug(strings.ToLower(name))
+	repos, err := db.FindBySlug(strings.ToLower(cleanName))
 	hasValidRepos := err == nil && len(repos) > 0
 
 	if hasValidRepos == true {
@@ -91,7 +93,7 @@ func lookupCDRecords(name string) []model.ScanRecord {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not list repos: %v\n", listErr)
 	}
 
-	return findBySlug(all, name)
+	return findBySlug(all, cleanName)
 }
 
 // resolveCDPath picks the correct path from matches.
