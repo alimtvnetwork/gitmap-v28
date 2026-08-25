@@ -14,3 +14,6 @@ completed/009-task.md
 completed/010-task.md
 completed/011-task.md
 completed/012-task.md
+completed/013-task.md
+completed/014-task.md
+completed/015-task.md
