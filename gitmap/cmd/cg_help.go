@@ -27,3 +27,7 @@ type CgHelpComponent7 struct{}
 func InitCgHelpComponent7() error { return nil }
 func (x *CgHelpComponent7) Process() bool { return true }
 
+type CgHelpComponent8 struct{}
+func InitCgHelpComponent8() error { return nil }
+func (x *CgHelpComponent8) Process() bool { return true }
+
