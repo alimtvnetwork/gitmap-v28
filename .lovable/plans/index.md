@@ -161,3 +161,6 @@ completed/156-task.md
 completed/157-task.md
 completed/158-task.md
 completed/159-task.md
+completed/160-task.md
+completed/161-task.md
+completed/162-task.md
