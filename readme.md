@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.102.0**
+**Pinned version: v6.103.0**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v28/ci.yml?style=flat-square&label=CI)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
 [![Vulnerability Scan](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v28/vulncheck.yml?style=flat-square&label=vulnerability%20scan)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
@@ -2949,3 +2949,4 @@ To install or update the Coding Guidelines locally:
 **Windows:** irm https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.ps1 | iex
 **Unix:** curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.sh | bash
 Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
+
