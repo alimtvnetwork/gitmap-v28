@@ -56,3 +56,6 @@ completed/051-task.md
 completed/052-task.md
 completed/053-task.md
 completed/054-task.md
+completed/055-task.md
+completed/056-task.md
+completed/057-task.md
