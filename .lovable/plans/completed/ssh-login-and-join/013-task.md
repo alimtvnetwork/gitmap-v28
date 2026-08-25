@@ -2,8 +2,8 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Wire+Test
-target_files: ["gitmap/cmd/ip_resolver_test.go"]
-depends_on: [Task 019]
+target_files: ["gitmap/cmd/ssh_parser_test.go"]
+depends_on: [Task 012]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +18,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestTestGetLocalIP"
+  tests: "unit TestTestParseSSHTarget"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 020 — Test Local IP Detection
+# Task 013 — Test SSH Target Parser
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ip_resolver_test.go](file:///d:/work/gitmap/gitmap/cmd/ip_resolver_test.go) — Why: Target file.
+- [gitmap/cmd/ssh_parser_test.go](file:///d:/work/gitmap/gitmap/cmd/ssh_parser_test.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Wire+Test step for `TestGetLocalIP` to support the Test Local IP Detection feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Wire+Test step for `TestParseSSHTarget` to support the Test SSH Target Parser feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,12 +39,12 @@ Deliver the Wire+Test step for `TestGetLocalIP` to support the Test Local IP Det
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func TestGetLocalIP(t *testing.T, skipLoopback bool, expected string)
+  func TestParseSSHTarget(t *testing.T, raw string, expected *SSHTarget)
   ```
 
 ## 4. Execute
-1. Assert returned IP matches standard IPv4 regex.
-2. Ensure it does not return `127.0.0.1`.
+1. Table-driven tests for inputs: `192.168.1.9@a`, `a@192.168.1.9`, `m1`.
+2. Assert correct assignment to `Username` and `IP` fields.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -53,7 +53,7 @@ Deliver the Wire+Test step for `TestGetLocalIP` to support the Test Local IP Det
 
 ## 6. Verify
 ```bash
-go test ./... -v -run TestGetLocalIP
+go test ./... -v -run TestParseSSHTarget
 ```
 Expected output:
 ```text
@@ -61,7 +61,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `TestGetLocalIP` is fully functional.
+- [ ] 1. `TestParseSSHTarget` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -71,3 +71,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

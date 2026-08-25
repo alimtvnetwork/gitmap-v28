@@ -1,9 +1,9 @@
 ---
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
-phase: Wire+Test
-target_files: ["gitmap/cmd/ssh_client_test.go"]
-depends_on: [Task 015, Task 016]
+phase: Implement
+target_files: ["gitmap/cmd/ssh_client.go"]
+depends_on: [Task 014]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +18,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestTestSSHClient"
+  tests: "unit TestPromptSSHPassword"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 017 — Test SSH Client Config
+# Task 016 — Implement SSH Password Fallback logic
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ssh_client_test.go](file:///d:/work/gitmap/gitmap/cmd/ssh_client_test.go) — Why: Target file.
+- [gitmap/cmd/ssh_client.go](file:///d:/work/gitmap/gitmap/cmd/ssh_client.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Wire+Test step for `TestSSHClient` to support the Test SSH Client Config feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Implement step for `PromptSSHPassword` to support the Implement SSH Password Fallback logic feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,12 +39,12 @@ Deliver the Wire+Test step for `TestSSHClient` to support the Test SSH Client Co
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func TestSSHClient(t *testing.T, target SSHTarget, expected []string)
+  func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, error)
   ```
 
 ## 4. Execute
-1. Use mock or echo binary to simulate SSH spawn.
-2. Verify the arguments passed to `exec.Command` are correct.
+1. Use `golang.org/x/term` to prompt for password securely.
+2. (Future-proofing: return string without echoing to stdout).
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -53,7 +53,7 @@ Deliver the Wire+Test step for `TestSSHClient` to support the Test SSH Client Co
 
 ## 6. Verify
 ```bash
-go test ./... -v -run TestSSHClient
+go test ./... -v -run PromptSSHPassword
 ```
 Expected output:
 ```text
@@ -61,7 +61,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `TestSSHClient` is fully functional.
+- [ ] 1. `PromptSSHPassword` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -71,3 +71,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

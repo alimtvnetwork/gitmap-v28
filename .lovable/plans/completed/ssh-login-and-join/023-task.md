@@ -1,9 +1,9 @@
 ---
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
-phase: Wire+Test
-target_files: ["gitmap/store/ssh_repo_test.go"]
-depends_on: [Task 003, Task 004, Task 005, Task 008, Task 009]
+phase: Scaffold
+target_files: ["gitmap/cmd/ssh_alias_cmd.go"]
+depends_on: [None]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +18,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestTestSSHRepoIntegration"
+  tests: "unit TestrunSSHAlias"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 010 — Integration Test for SSH Store
+# Task 023 — Scaffold `gitmap ssh as` alias cmd
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/store/ssh_repo_test.go](file:///d:/work/gitmap/gitmap/store/ssh_repo_test.go) — Why: Target file.
+- [gitmap/cmd/ssh_alias_cmd.go](file:///d:/work/gitmap/gitmap/cmd/ssh_alias_cmd.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Wire+Test step for `TestSSHRepoIntegration` to support the Integration Test for SSH Store feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Scaffold step for `runSSHAlias` to support the Scaffold `gitmap ssh as` alias cmd feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,13 +39,12 @@ Deliver the Wire+Test step for `TestSSHRepoIntegration` to support the Integrati
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func TestSSHRepoIntegration(t *testing.T, db *sql.DB, ctx context.Context)
+  func runSSHAlias(cmd *cobra.Command, args []string, ctx context.Context) error
   ```
 
 ## 4. Execute
-1. Setup in-memory SQLite (`:memory:`).
-2. Run migrations, insert a host, log history, assert counts.
-3. Use `require.NoError` for setup steps.
+1. Define command taking `ip` and `alias name`.
+2. Prepare help text indicating 'as' keyword support.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -54,7 +53,7 @@ Deliver the Wire+Test step for `TestSSHRepoIntegration` to support the Integrati
 
 ## 6. Verify
 ```bash
-go test ./... -v -run TestSSHRepoIntegration
+go test ./... -v -run runSSHAlias
 ```
 Expected output:
 ```text
@@ -62,7 +61,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `TestSSHRepoIntegration` is fully functional.
+- [ ] 1. `runSSHAlias` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -72,3 +71,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+
