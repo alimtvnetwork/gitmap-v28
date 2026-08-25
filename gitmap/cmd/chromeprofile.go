@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -105,7 +106,7 @@ func guardChromeClosedOrExit(src, dst string) {
 // and prints both paths in a consistent Artifacts block. Used by cpc
 // and cpe so the output is identical and copy-paste friendly.
 func emitChromeSnapshots(srcPath, name string) chromeExportRecord {
-	jsonPath := defaultChromeExportPath(name)
+	jsonPath := defaultChromeExportPath(name, constants.OutputJSON)
 	jsonBytes, err := writeChromeExport(srcPath, name, jsonPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, err)
@@ -126,8 +127,16 @@ func emitChromeSnapshots(srcPath, name string) chromeExportRecord {
 // emits both rows so callers can grep `json:`/`csv:` deterministically.
 func printChromeArtifacts(rec chromeExportRecord) {
 	fmt.Print(constants.MsgChromeProfileArtifactsHd)
-	fmt.Printf(constants.MsgChromeProfileArtifactRow, "json:", artifactValue(rec.JSONPath))
-	fmt.Printf(constants.MsgChromeProfileArtifactRow, "csv:", artifactValue(rec.CSVPath))
+	if rec.JSONPath != "" || rec.CSVPath != "" {
+		fmt.Printf(constants.MsgChromeProfileArtifactRow, "json:", artifactValue(rec.JSONPath))
+		fmt.Printf(constants.MsgChromeProfileArtifactRow, "csv:", artifactValue(rec.CSVPath))
+	}
+	if rec.ZIPPath != "" {
+		fmt.Printf(constants.MsgChromeProfileArtifactRow, "zip:", artifactValue(rec.ZIPPath))
+	}
+	if rec.SQLitePath != "" {
+		fmt.Printf(constants.MsgChromeProfileArtifactRow, "sqlite:", artifactValue(rec.SQLitePath))
+	}
 }
 
 func artifactValue(path string) string {
@@ -140,14 +149,25 @@ func artifactValue(path string) string {
 // runChromeProfileExport implements `gitmap chrome-profile-export`.
 func runChromeProfileExport(args []string) {
 	checkHelp(constants.CmdChromeProfileExport, args)
-	if len(args) < 1 {
+	
+	format := constants.OutputJSON
+	var positionalArgs []string
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--format=") {
+			format = strings.TrimPrefix(arg, "--format=")
+		} else {
+			positionalArgs = append(positionalArgs, arg)
+		}
+	}
+	
+	if len(positionalArgs) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageExport)
 		os.Exit(constants.ExitChromeProfileUsage)
 	}
-	name := args[0]
-	outPath := defaultChromeExportPath(name)
-	if len(args) >= 2 {
-		outPath = args[1]
+	name := positionalArgs[0]
+	outPath := defaultChromeExportPath(name, format)
+	if len(positionalArgs) >= 2 {
+		outPath = positionalArgs[1]
 	}
 	srcPath, ok := resolveChromeProfileDir(name)
 	if !ok {
@@ -155,33 +175,74 @@ func runChromeProfileExport(args []string) {
 		printAvailableChromeProfilesWithDisplay()
 		os.Exit(constants.ExitChromeProfileNotFound)
 	}
-	jsonBytes, err := writeChromeExport(srcPath, name, outPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, err)
-		os.Exit(constants.ExitChromeProfileCopyFailed)
+	
+	// We will hand off to the actual export logic based on format.
+	// For now, it delegates to the existing JSON/CSV exporter.
+	// Later steps will inject the ZIP and SQLite code.
+	var jsonBytes, csvBytes int
+	var err, csvErr error
+	var csvPath string
+	
+	if format == constants.OutputJSON || format == constants.OutputCSV {
+		jsonBytes, err = writeChromeExport(srcPath, name, outPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, err)
+			os.Exit(constants.ExitChromeProfileCopyFailed)
+		}
+		csvPath = outPath
+		if ext := constants.ExtJSON; len(csvPath) > len(ext) && csvPath[len(csvPath)-len(ext):] == ext {
+			csvPath = csvPath[:len(csvPath)-len(ext)] + constants.ExtCSV
+		} else {
+			csvPath += constants.ExtCSV
+		}
+		csvBytes, csvErr = writeChromeExportCSV(srcPath, name, csvPath)
+		if csvErr != nil {
+			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, csvErr)
+			csvPath = ""
+		}
+	} else if format == constants.OutputZIP {
+		var zipErr error
+		jsonBytes, zipErr = writeChromeExportZIP(srcPath, name, outPath)
+		if zipErr != nil {
+			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, zipErr)
+			os.Exit(constants.ExitChromeProfileCopyFailed)
+		}
+	} else if format == constants.OutputSQLite {
+		var sqErr error
+		jsonBytes, sqErr = writeChromeExportSQLite(srcPath, name, outPath)
+		if sqErr != nil {
+			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, sqErr)
+			os.Exit(constants.ExitChromeProfileCopyFailed)
+		}
 	}
-	csvPath := outPath
-	if ext := constants.ExtJSON; len(csvPath) > len(ext) && csvPath[len(csvPath)-len(ext):] == ext {
-		csvPath = csvPath[:len(csvPath)-len(ext)] + constants.ExtCSV
-	} else {
-		csvPath += constants.ExtCSV
-	}
-	csvBytes, csvErr := writeChromeExportCSV(srcPath, name, csvPath)
-	if csvErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, csvErr)
-		csvPath = ""
-	}
+	
 	rec := chromeExportRecord{
 		JSONPath: outPath, JSONSize: jsonBytes,
 		CSVPath: csvPath, CSVSize: csvBytes,
+		ZIPPath: outPath, ZIPSize: jsonBytes,
+		SQLitePath: outPath, SQLiteSize: jsonBytes,
 	}
+	// For ZIP/SQLite formats, outPath represents the ZIP/SQLite file, and we use JSONSize as a generic ByteSize field for now.
+	if format == constants.OutputJSON || format == constants.OutputCSV {
+		rec.ZIPPath = ""
+		rec.ZIPSize = 0
+		rec.SQLitePath = ""
+		rec.SQLiteSize = 0
+	} else if format == constants.OutputZIP {
+		rec.JSONPath = ""
+		rec.CSVPath = ""
+		rec.SQLitePath = ""
+	} else if format == constants.OutputSQLite {
+		rec.JSONPath = ""
+		rec.CSVPath = ""
+		rec.ZIPPath = ""
+	}
+
 	printChromeArtifacts(rec)
 	persistChromeProfile(name, srcPath, rec)
 }
 
 // runChromeProfileImport implements `gitmap chrome-profile-import`.
-// Accepts both .json (full snapshot) and .csv (lossy: extension IDs +
-// known preferences only — bookmarks omitted).
 func runChromeProfileImport(args []string) {
 	checkHelp(constants.CmdChromeProfileImport, args)
 	if len(args) < 1 {
@@ -189,14 +250,33 @@ func runChromeProfileImport(args []string) {
 		os.Exit(constants.ExitChromeProfileUsage)
 	}
 	srcFile := args[0]
+	name := ""
+	if len(args) >= 2 {
+		name = args[1]
+	}
+
+	if strings.HasSuffix(srcFile, ".zip") || strings.HasSuffix(srcFile, ".sqlite") {
+		if name == "" {
+			// guess name from zip filename without extension
+			base := filepath.Base(srcFile)
+			name = strings.TrimSuffix(base, filepath.Ext(base))
+		}
+		dstPath := chromeProfilePath(name)
+		if err := applyChromeExportZIP(srcFile, dstPath); err != nil {
+			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
+			os.Exit(constants.ExitChromeProfileCopyFailed)
+		}
+		fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, name)
+		return
+	}
+
 	exp, err := loadChromeImport(srcFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
 		os.Exit(constants.ExitChromeProfileCopyFailed)
 	}
-	name := exp.Name
-	if len(args) >= 2 {
-		name = args[1]
+	if name == "" {
+		name = exp.Name
 	}
 	dstPath := chromeProfilePath(name)
 	if err := applyChromeExport(exp, dstPath); err != nil {
@@ -227,10 +307,16 @@ func runChromeProfileList(args []string) {
 	listChromeProfilesFromDB()
 }
 
-// defaultChromeExportPath builds the default JSON output location
-// under .gitmap/chrome/<name>.json (cwd-relative).
-func defaultChromeExportPath(name string) string {
-	return filepath.Join(constants.GitMapDir, "chrome", name+constants.ExtJSON)
+// defaultChromeExportPath builds the default output location
+// under .gitmap/chrome/<name>.<format> (cwd-relative).
+func defaultChromeExportPath(name, format string) string {
+	ext := constants.ExtJSON
+	if format == constants.OutputZIP {
+		ext = ".zip"
+	} else if format == constants.OutputSQLite {
+		ext = ".sqlite"
+	}
+	return filepath.Join(constants.GitMapDir, "chrome", name+ext)
 }
 
 // readChromeExport loads a JSON export file from disk.

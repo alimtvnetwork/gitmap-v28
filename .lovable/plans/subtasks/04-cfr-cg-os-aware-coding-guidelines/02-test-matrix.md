@@ -5,7 +5,7 @@ Status: pending
 Created: 2026-07-16
 ---
 
-# SS-02 — Test matrix
+# Task 02 — Test matrix
 
 ## Modifier parser (`clonefixrepo_modifiers_test.go`)
 
@@ -38,3 +38,4 @@ Golden URL constants asserted against `constants.DefaultCodingGuidelinesURLWindo
 ## No network in tests
 
 The test suite MUST NOT hit `raw.githubusercontent.com`. Verified by the injectable `Runner` never being replaced with the real `exec.Command` in test paths.
+

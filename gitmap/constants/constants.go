@@ -37,6 +37,8 @@ const (
 	OutputTerminal = "terminal"
 	OutputCSV      = "csv"
 	OutputJSON     = "json"
+	OutputZIP      = "zip"
+	OutputSQLite   = "sqlite"
 )
 
 // Format constants.

@@ -27,6 +27,7 @@ func printGroupGitOps() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupGitOps))
 	fmt.Println(constants.HelpPull)
+	fmt.Println(constants.HelpPullAll)
 	fmt.Println(constants.HelpExec)
 	fmt.Println(constants.HelpStatus)
 	fmt.Println(constants.HelpWatch)

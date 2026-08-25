@@ -105,3 +105,4 @@ commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commit
 - [Install Gitmap Oneliner](mem://features/install-gitmap-oneliner) — `gitmap install gitmap-oneliner` prints canonical Win (PowerShell irm|iex) + macOS/Linux (curl|sh) bootstrap one-liners with icons. URLs fixed, header/version dynamic via constants.Version. Reuses MsgInstallHint{Header,Windows,Unix}. v5.15.0+.
 - [LFS Smudge Fallback](mem://features/01-lfs-smudge-fallback) — `gitmap clone` intercepts missing LFS blob 404s, prompts user, and executes interactive un-tracking fix via `executeLFSFix`.
 - [LFS Smudge RCA Spec](mem://specs/02-lfs-smudge-rca) — Verbatim RCA for the Git LFS smudge error and PowerShell un-tracking script.
+- [Subtask Naming Convention](learned/subtask-naming-convention.md) - Enforces XX-<slug>.md rule for subtasks.

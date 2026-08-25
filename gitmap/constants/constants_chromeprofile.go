@@ -61,8 +61,8 @@ const (
 // Chrome profile help-line entries surfaced by `gitmap help`.
 const (
 	HelpChromeProfileCopy   = "  chrome-profile-copy (cpc) <src> <dst>   Copy a Chrome profile (bookmarks, extensions, prefs, flags) into an offline profile"
-	HelpChromeProfileExport = "  chrome-profile-export (cpe) <name> [out] Export profile to JSON (default: .gitmap/chrome/<name>.json)"
-	HelpChromeProfileImport = "  chrome-profile-import (cpi) <file> [name] Import a Chrome profile from a JSON export"
+	HelpChromeProfileExport = "  chrome-profile-export (cpe) <name> [out] [--format=json|zip|sqlite] Export profile (default: json)"
+	HelpChromeProfileImport = "  chrome-profile-import (cpi) <file> [name] Import a Chrome profile from a JSON or ZIP export"
 	HelpChromeProfileList   = "  chrome-profile-list (cpl)               List Chrome profiles known to gitmap"
 )
 
@@ -94,8 +94,8 @@ const (
 	MsgChromeProfileDeleteAbort = "chrome-profile-delete: aborted — re-run with --yes to confirm\n"
 
 	ErrChromeProfileUsageCopy   = "chrome-profile-copy: ERROR <src> and <dst> are required\n  usage: gitmap chrome-profile-copy <src-profile> <dst-profile>\n"
-	ErrChromeProfileUsageExport = "chrome-profile-export: ERROR <name> is required\n  usage: gitmap chrome-profile-export <name> [out.json]\n"
-	ErrChromeProfileUsageImport = "chrome-profile-import: ERROR <file> is required\n  usage: gitmap chrome-profile-import <file.json|file.csv> [dst-profile]\n"
+	ErrChromeProfileUsageExport = "chrome-profile-export: ERROR <name> is required\n  usage: gitmap chrome-profile-export <name> [out] [--format=json|zip|sqlite]\n"
+	ErrChromeProfileUsageImport = "chrome-profile-import: ERROR <file> is required\n  usage: gitmap chrome-profile-import <file.json|file.zip|file.sqlite> [dst-profile]\n"
 	ErrChromeProfileUsageDelete = "chrome-profile-delete: ERROR <name> is required\n  usage: gitmap chrome-profile-delete <name> [--yes]\n"
 	ErrChromeProfileSrcMissing  = "chrome-profile-copy: ERROR source profile %q not found at %s\n"
 	ErrChromeProfileCopyFailed  = "chrome-profile-copy: ERROR copy failed\n  source profile: %s\n  destination profile: %s\n  source path: %s\n  destination path: %s\n  failed entry: %s\n  operation: %s\n  cause: %v\n  hint: close Chrome completely, then retry. If it still fails, check the listed file permissions.\n"
@@ -149,6 +149,17 @@ const (
 
 // Chrome User Data subpaths copied by cpc. Excluded by design:
 // Cookies, Login Data, History, Cache, GPUCache, sync tokens.
+// ChromeProfileSQLiteEntries defines the portable SQLite databases
+// included when exporting via --format=zip or --format=sqlite.
+var ChromeProfileSQLiteEntries = []string{
+	"History",
+	"Web Data",
+	"Shortcuts",
+	"Top Sites",
+	"Favicons",
+	"Network Action Predictor",
+}
+
 var ChromeProfileCopyEntries = []string{
 	"Bookmarks",
 	"Favicons",

@@ -465,6 +465,7 @@ const (
 	HelpDesktopSync      = "  desktop-sync (ds)   Sync repos to GitHub Desktop from output"
 	HelpGitHubDesktop    = "  github-desktop (gd) Register current repo with GitHub Desktop (no scan needed)"
 	HelpPull             = "  pull (p) <name>     Pull a specific repo by its name"
+	HelpPullAll          = "  pull-all (pa)       Pull all tracked repos (equivalent to pull --all)"
 	HelpRescan           = "  rescan (rsc)        Re-run last scan with cached flags"
 	HelpSetup            = "  setup               Configure Git diff/merge tool, aliases & core settings"
 	HelpStatus           = "  status (st)         Show dirty/clean, ahead/behind, stash for all repos"

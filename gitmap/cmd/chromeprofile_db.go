@@ -12,13 +12,17 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-// chromeExportRecord groups the two snapshot artifacts a single
+// chromeExportRecord groups the snapshot artifacts a single
 // export emits. Either path may be empty if that format was skipped.
 type chromeExportRecord struct {
-	JSONPath string
-	JSONSize int
-	CSVPath  string
-	CSVSize  int
+	JSONPath   string
+	JSONSize   int
+	CSVPath    string
+	CSVSize    int
+	ZIPPath    string
+	ZIPSize    int
+	SQLitePath string
+	SQLiteSize int
 }
 
 // persistChromeProfile upserts the profile row and inserts one
@@ -38,17 +42,31 @@ func persistChromeProfile(name, sourcePath string, rec chromeExportRecord) {
 	}
 	if rec.JSONPath != "" {
 		err = db.InsertChromeProfileExport(id, constants.OutputJSON, rec.JSONPath, rec.JSONSize)
-	}
-	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
-		return
+		if err != nil {
+			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+			return
+		}
 	}
 	if rec.CSVPath != "" {
 		err = db.InsertChromeProfileExport(id, constants.OutputCSV, rec.CSVPath, rec.CSVSize)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+			return
+		}
 	}
-	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
-		return
+	if rec.ZIPPath != "" {
+		err = db.InsertChromeProfileExport(id, constants.OutputZIP, rec.ZIPPath, rec.ZIPSize)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+			return
+		}
+	}
+	if rec.SQLitePath != "" {
+		err = db.InsertChromeProfileExport(id, constants.OutputSQLite, rec.SQLitePath, rec.SQLiteSize)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+			return
+		}
 	}
 	fmt.Printf(constants.MsgChromeProfileDBSynced, name)
 }

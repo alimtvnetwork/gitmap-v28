@@ -35,3 +35,6 @@ release-assets
 test-reports/
 artifacts/
 *.test
+
+*.db
+cited-paths.txt
