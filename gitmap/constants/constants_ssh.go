@@ -174,3 +174,12 @@ const (
 
 // SSH completion flag.
 const CompListSSHKeys = "--list-ssh-keys"
+
+const MsgSSHAvailableCommands = "\n\nAvailable SSH subcommands:\n" +
+	"  ssh create [name]    Generate or reuse an SSH key\n" +
+	"  ssh list (ls)        List all managed SSH keys\n" +
+	"  ssh status (st)      Check ssh-agent and connection status\n" +
+	"  ssh copy (cp)        Copy a public key to your clipboard\n" +
+	"  ssh cat (view)       Print a public key to the terminal\n" +
+	"  ssh delete (rm)      Remove a key from gitmap (and disk)\n" +
+	"  ssh config           Rebuild ~/.ssh/config for all managed keys\n"

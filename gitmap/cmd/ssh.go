@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -9,7 +12,7 @@ func runSSH(args []string) {
 	checkHelp("ssh", args)
 	if len(args) == 0 {
 		runSSHGenerate(args)
-
+		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
 		return
 	}
 	dispatchSSH(args[0], args[1:])
@@ -55,4 +58,9 @@ func dispatchSSH(sub string, args []string) {
 
 	// Not a subcommand — treat all args as flags for generate.
 	runSSHGenerate(append([]string{sub}, args...))
+	fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+}, args...))
 }
+
+
+
