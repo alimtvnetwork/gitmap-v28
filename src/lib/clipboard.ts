@@ -16,7 +16,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text);
       return true;
     });
-    if (res.isSuccess && res.data) {
+    if (!res.isFail && res.data) {
       return true;
     }
   }
@@ -70,7 +70,7 @@ function legacyCopy(text: string): boolean {
     return document.execCommand("copy");
   });
 
-  if (res.isFailure) {
+  if (res.isFail) {
     succeeded = false;
   } else {
     succeeded = Boolean(res.data);
@@ -84,3 +84,4 @@ function legacyCopy(text: string): boolean {
 
   return succeeded;
 }
+

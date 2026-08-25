@@ -125,7 +125,7 @@ function getHighlightedHtml(code: string, lang: string): string | null {
     if (!hasLanguage) return null;
     return hljs.highlight(code, { language: lang }).value;
   });
-  const isHighlighted = Boolean(res.isSuccess && res.data);
+  const isHighlighted = Boolean(!res.isFail && res.data);
   if (!isHighlighted) return null;
   return res.data;
 }
@@ -379,4 +379,5 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
 };
 
 export default CodeBlock;
+
 

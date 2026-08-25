@@ -70,3 +70,10 @@ Hard prohibitions. Violating ANY of these is a critical failure.
 - NEVER use string union types (e.g., "pass" | "fail"). Use TypeScript Enums with the suffix `Type` (e.g., `StatusType`).
 - NEVER invert success booleans (e.g., `!response.isSuccess`). Always use explicit boolean state checks (e.g., `response.isFail`).
 - NEVER rewrite published git history (no force push, no rebasing, no squash).
+
+## Query Wrapper and State Properties
+
+- **NEVER** use isSuccess or isFailure (or their Python equivalents is_success, is_failure) in query wrapper returns.
+- **MUST** strictly use isFail (TypeScript/PHP) and is_fail (Python) to represent the explicit failure state.
+- **NEVER** write inverted logic like !isSuccess. Always evaluate isFail directly (e.g., if (res.isFail) or if (!res.isFail)).
+- **NEVER** use naked 	ry/catch or 	ry/except in generic data operations in TS/Python. Always use the central query wrapper (query_wrapper.py, queryWrapper.ts).

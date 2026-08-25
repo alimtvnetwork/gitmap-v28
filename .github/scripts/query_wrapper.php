@@ -7,20 +7,20 @@ class QueryResult {
     public $data;
     public $error;
     public bool $isSuccess;
-    public bool $isFailure;
+    public bool $isFail;
 
-    public function __construct($data, $error, bool $isSuccess, bool $isFailure) {
+    public function __construct($data, $error, bool $isSuccess, bool $isFail) {
         $this->data = $data;
         $this->error = $error;
         $this->isSuccess = $isSuccess;
-        $this->isFailure = $isFailure;
+        $this->isFail = $isFail;
     }
 }
 
 /**
  * Wraps an operation (API, database, or command logic), catching exceptions,
  * logging errors explicitly to stderr without scattered try/catch, 
- * and returning a structured result with explicit `isSuccess` and `isFailure` properties.
+ * and returning a structured result with explicit `isSuccess` and `isFail` properties.
  */
 function query_wrapper(callable $operation, ...$args): QueryResult {
     try {
@@ -33,3 +33,4 @@ function query_wrapper(callable $operation, ...$args): QueryResult {
         return new QueryResult(null, $e, false, true);
     }
 }
+

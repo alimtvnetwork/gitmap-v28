@@ -89,7 +89,7 @@ func assertLinuxSilentBody(t *testing.T, path, body string) {
 	t.Helper()
 	hasNotify := strings.Contains(body, "notify-send")
 	isNotifyMissing := !hasNotify
-	if isNonifyMissing {
+	if isNotifyMissing {
 		t.Errorf("%s silent missing notify-send. body=%s", path, body)
 	}
 }
@@ -242,7 +242,7 @@ func TestCtxLinuxThunarIsIdempotent(t *testing.T) {
 	}
 	count := strings.Count(string(body), constants.CtxThunarMarkBegin)
 	isNotSingleBlock := count != 1
-	if isNonSingleBlock {
+	if isNotSingleBlock {
 		t.Fatalf("thunar marker block appears %d times after double-install, want 1", count)
 	}
 }
@@ -335,3 +335,4 @@ func firstN(str string, limit int) string {
 
 	return str[:limit]
 }
+
