@@ -2943,3 +2943,9 @@ Riseup Asia is the product and delivery arm behind gitmap and the XProduct engag
 ## License
 
 This project is licensed under the [MIT License](./LICENSE).
+
+## Coding Guidelines
+To install or update the Coding Guidelines locally:
+**Windows:** irm https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.ps1 | iex
+**Unix:** curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.sh | bash
+Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
