@@ -1,9 +1,10 @@
+Status: completed
 ---
 plan: .lovable/plans/pending/01-zsh-kube-consolidation.md
 domain: Cli
 phase: Wire+Test
-target_files: ["gitmap/cmd/comp_243.go"]
-depends_on: ["242-task.md"]
+target_files: ["gitmap/cmd/comp_241.go"]
+depends_on: ["240-task.md"]
 citations:
   app_spec: "spec/21-app/04-json-contract/02-section-and-asset-schema.md §Section"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
@@ -18,43 +19,43 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "n/a — no database"
   ui_surface: "n/a — no ui"
-  tests: "unit TestComp243"
+  tests: "unit TestComp241"
   ci_cd_guard: "linter-scripts/check-golang.sh"
   ambiguity: "n/a — spec is clear"
   issue_rca: "n/a — not a bug fix"
 ---
-# Task 243 — Wire and test integration for unit component 243
+# Task 241 — Wire and test integration for unit component 241
 
 ## 1. Learn
-- [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 243 stays within size limits.
+- [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 241 stays within size limits.
 - [App Spec](spec/21-app/04-json-contract/02-section-and-asset-schema.md) - Why read this: aligns data contracts.
 - [Naming](spec/02-coding-guidelines/08-file-folder-naming/golang.md) - Why read this: keeps file names compliant.
 
 ## 2. Goal
-This task handles the Wire and test integration for of component 243. It interacts with specific data structures bound to identifier 72440a20f540. It will not mutate global state outside its sandbox.
+This task handles the Wire and test integration for of component 241. It interacts with specific data structures bound to identifier 749fc650cacb. It will not mutate global state outside its sandbox.
 
 ## 3. Inputs and Contracts
-Input: `struct Input243 { ID string }`
-Output: `struct Output243 { Result bool }`
-Emits error codes: E_COMP_243_FAIL
+Input: `struct Input241 { ID string }`
+Output: `struct Output241 { Result bool }`
+Emits error codes: E_COMP_241_FAIL
 
 ## 4. Execute
-1. Create `gitmap/cmd/comp_243.go`.
-2. Define `func HandleComp243(in Input243) (Output243, error)`.
-3. Process data uniqueness string: 86b700fab5db.
+1. Create `gitmap/cmd/comp_241.go`.
+2. Define `func HandleComp241(in Input241) (Output241, error)`.
+3. Process data uniqueness string: d4679c618f1a.
 4. Return success.
 
 ## 5. Constraints
-- [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp243` under 50 lines.
+- [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp241` under 50 lines.
 - [Rule 2](spec/03-error-manage/02-error-architecture/00-overview.md) - Always return properly wrapped `apperror`.
 - [Rule 3](.lovable/strictly-avoid.md) - Avoid panic.
 
 ## 6. Verify
-Run `go test ./cmd/... -run TestComp243`.
+Run `go test ./cmd/... -run TestComp241`.
 Expected output: `PASS` and `ok gitmap/cmd`
 
 ## 7. Done When
-1. `HandleComp243` is implemented according to contract.
+1. `HandleComp241` is implemented according to contract.
 2. The unit test passes without errors.
 3. No global mutation occurs.
 
