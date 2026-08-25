@@ -203,3 +203,6 @@ completed/198-task.md
 completed/199-task.md
 completed/200-task.md
 completed/201-task.md
+completed/202-task.md
+completed/203-task.md
+completed/204-task.md
