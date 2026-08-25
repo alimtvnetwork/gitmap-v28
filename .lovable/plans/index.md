@@ -125,3 +125,6 @@ completed/120-task.md
 completed/121-task.md
 completed/122-task.md
 completed/123-task.md
+completed/124-task.md
+completed/125-task.md
+completed/126-task.md
