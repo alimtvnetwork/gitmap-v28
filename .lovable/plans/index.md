@@ -206,3 +206,6 @@ completed/201-task.md
 completed/202-task.md
 completed/203-task.md
 completed/204-task.md
+completed/205-task.md
+completed/206-task.md
+completed/207-task.md
