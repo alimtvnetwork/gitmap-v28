@@ -5,3 +5,6 @@
 completed/001-task.md
 completed/002-task.md
 completed/003-task.md
+completed/004-task.md
+completed/005-task.md
+completed/006-task.md
