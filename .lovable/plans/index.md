@@ -152,3 +152,6 @@ completed/147-task.md
 completed/148-task.md
 completed/149-task.md
 completed/150-task.md
+completed/151-task.md
+completed/152-task.md
+completed/153-task.md
