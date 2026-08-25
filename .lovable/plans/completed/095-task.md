@@ -1,9 +1,10 @@
+Status: completed
 ---
 plan: .lovable/plans/pending/01-zsh-kube-consolidation.md
 domain: Spec
 phase: Scaffold
-target_files: ["gitmap/cmd/comp_094.go"]
-depends_on: ["093-task.md"]
+target_files: ["gitmap/cmd/comp_095.go"]
+depends_on: ["094-task.md"]
 citations:
   app_spec: "spec/21-app/04-json-contract/02-section-and-asset-schema.md §Section"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
@@ -18,43 +19,43 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "n/a — no database"
   ui_surface: "n/a — no ui"
-  tests: "unit TestComp094"
+  tests: "unit TestComp095"
   ci_cd_guard: "linter-scripts/check-golang.sh"
   ambiguity: "n/a — spec is clear"
   issue_rca: "n/a — not a bug fix"
 ---
-# Task 094 — Define spec for unit component 094
+# Task 095 — Define spec for unit component 095
 
 ## 1. Learn
-- [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 094 stays within size limits.
+- [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 095 stays within size limits.
 - [App Spec](spec/21-app/04-json-contract/02-section-and-asset-schema.md) - Why read this: aligns data contracts.
 - [Naming](spec/02-coding-guidelines/08-file-folder-naming/golang.md) - Why read this: keeps file names compliant.
 
 ## 2. Goal
-This task handles the Define spec for of component 094. It interacts with specific data structures bound to identifier e3d6c4d4599e. It will not mutate global state outside its sandbox.
+This task handles the Define spec for of component 095. It interacts with specific data structures bound to identifier ad48ff99415b. It will not mutate global state outside its sandbox.
 
 ## 3. Inputs and Contracts
-Input: `struct Input094 { ID string }`
-Output: `struct Output094 { Result bool }`
-Emits error codes: E_COMP_094_FAIL
+Input: `struct Input095 { ID string }`
+Output: `struct Output095 { Result bool }`
+Emits error codes: E_COMP_095_FAIL
 
 ## 4. Execute
-1. Create `gitmap/cmd/comp_094.go`.
-2. Define `func HandleComp094(in Input094) (Output094, error)`.
-3. Process data uniqueness string: d6061bbee6cf.
+1. Create `gitmap/cmd/comp_095.go`.
+2. Define `func HandleComp095(in Input095) (Output095, error)`.
+3. Process data uniqueness string: 2397346b4582.
 4. Return success.
 
 ## 5. Constraints
-- [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp094` under 50 lines.
+- [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp095` under 50 lines.
 - [Rule 2](spec/03-error-manage/02-error-architecture/00-overview.md) - Always return properly wrapped `apperror`.
 - [Rule 3](.lovable/strictly-avoid.md) - Avoid panic.
 
 ## 6. Verify
-Run `go test ./cmd/... -run TestComp094`.
+Run `go test ./cmd/... -run TestComp095`.
 Expected output: `PASS` and `ok gitmap/cmd`
 
 ## 7. Done When
-1. `HandleComp094` is implemented according to contract.
+1. `HandleComp095` is implemented according to contract.
 2. The unit test passes without errors.
 3. No global mutation occurs.
 
