@@ -23,3 +23,6 @@ completed/018-task.md
 completed/019-task.md
 completed/020-task.md
 completed/021-task.md
+completed/022-task.md
+completed/023-task.md
+completed/024-task.md
