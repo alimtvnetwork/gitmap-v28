@@ -29,7 +29,7 @@ func createMockSSHScript(t *testing.T) (string, string) {
 	return dir, argsFile
 }
 
-func TestgetLocalPublicKey(t *testing.T) {
+func TestGetLocalPublicKey(t *testing.T) {
 	tmpDir := t.TempDir()
 	keyPath := filepath.Join(tmpDir, "id_rsa.pub")
 
@@ -55,7 +55,7 @@ func TestgetLocalPublicKey(t *testing.T) {
 	}
 }
 
-func TestappendKeyRemote(t *testing.T) {
+func TestAppendKeyRemote(t *testing.T) {
 	// Test cancelled context
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
