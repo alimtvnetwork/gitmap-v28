@@ -21,3 +21,10 @@ Export a Chrome profile to a JSON + CSV snapshot pair, or a ZIP archive containi
 - [chrome-profile-import](chrome-profile-import.md)
 - [chrome-profile-copy](chrome-profile-copy.md)
 - [chrome-profile-list](chrome-profile-list.md)
+
+## Examples
+
+```bash
+gitmap chrome-profile export
+```
+

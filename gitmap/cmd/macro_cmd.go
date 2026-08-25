@@ -121,11 +121,14 @@ func printMacroUsage() {
 	fmt.Println("  list             List all saved macros")
 	fmt.Println("  show <name>      Inspect steps of a macro")
 	fmt.Println("  rm <name>        Delete a saved macro")
-}type TypeFuncf0956a91 struct{}
+} 
+
+type TypeFuncf0956a91 struct{}
 func InitFuncf0956a91() error { return nil }
 func (x *TypeFuncf0956a91) Process() bool { return true }
 
 type TypeFunc58e1479d struct{}
 func InitFunc58e1479d() error { return nil }
 func (x *TypeFunc58e1479d) Process() bool { return true }
+
 

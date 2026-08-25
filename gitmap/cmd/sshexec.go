@@ -24,7 +24,7 @@ func parseSEFlags(args []string) seOptions {
 	fs := flag.NewFlagSet(seCommand, flag.ExitOnError)
 	var opts seOptions
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude machines (comma separated)")
-	fs.Parse(reorderFlagsBeforeArgs(args))
+	fs.Parse(args)
 
 	opts.Args = fs.Args()
 	if len(opts.Args) == 0 {
@@ -211,3 +211,4 @@ func ensurePowerShellInstalled(client *ssh.Client, osType, header string) error 
 	}
 	return nil
 }
+

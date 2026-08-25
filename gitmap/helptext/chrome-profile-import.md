@@ -19,3 +19,10 @@ Import a Chrome profile from a JSON or ZIP export file.
 - [chrome-profile-export](chrome-profile-export.md)
 - [chrome-profile-copy](chrome-profile-copy.md)
 - [chrome-profile-list](chrome-profile-list.md)
+
+## Examples
+
+```bash
+gitmap chrome-profile import
+```
+

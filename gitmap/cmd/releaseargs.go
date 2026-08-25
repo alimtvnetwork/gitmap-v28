@@ -34,7 +34,7 @@ var knownValueFlags = map[string]bool{
 	// would split into `--kind` (parsed as a bare bool-style flag,
 	// value left empty) and `ignore` (re-classified as positional),
 	// which is why TestParseTemplatesListFlagsLowersValues failed.
-	"--kind": true, "--lang": true,
+	"--kind": true, "--lang": true, "--exclude": true, "--except": true,
 }
 
 // isKnownValueFlag reports whether the specified flag expects a value argument.
@@ -85,3 +85,4 @@ func reorderFlagsBeforeArgs(args []string) []string {
 
 	return append(flags, positional...)
 }
+
