@@ -224,3 +224,6 @@ completed/219-task.md
 completed/220-task.md
 completed/221-task.md
 completed/222-task.md
+completed/223-task.md
+completed/224-task.md
+completed/225-task.md
