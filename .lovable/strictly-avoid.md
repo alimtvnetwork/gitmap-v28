@@ -66,3 +66,7 @@ Hard prohibitions. Violating ANY of these is a critical failure.
 - **NEVER** use non-ASCII punctuation in PowerShell scripts or CLI terminal messages. ASCII only.
 - **NEVER** store roles on the profile or users table. Use a separate roles table.
 - NEVER link to, open, or mention gitmap.dev. It is an unrelated site. The gitmap hd (help-dashboard) command must serve documentation on a localhost port and open it locally in the browser, rather than redirecting to external sites.
+
+- NEVER use string union types (e.g., "pass" | "fail"). Use TypeScript Enums with the suffix `Type` (e.g., `StatusType`).
+- NEVER invert success booleans (e.g., `!response.isSuccess`). Always use explicit boolean state checks (e.g., `response.isFail`).
+- NEVER rewrite published git history (no force push, no rebasing, no squash).
