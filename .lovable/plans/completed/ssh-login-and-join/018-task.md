@@ -2,7 +2,8 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Scaffold
-target_files: ["gitmap/cmd/ssh_parser.go"]
+Status: completed
+target_files: ["gitmap/cmd/ip_resolver.go"]
 depends_on: [None]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
@@ -18,20 +19,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestSSHTarget"
+  tests: "unit TestIPResolver"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 011 — Define SSH Target Struct
+# Task 018 — Scaffold `gitmap ip` resolver struct
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ssh_parser.go](file:///d:/work/gitmap/gitmap/cmd/ssh_parser.go) — Why: Target file.
+- [gitmap/cmd/ip_resolver.go](file:///d:/work/gitmap/gitmap/cmd/ip_resolver.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Scaffold step for `SSHTarget` to support the Define SSH Target Struct feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Scaffold step for `IPResolver` to support the Scaffold `gitmap ip` resolver struct feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,12 +40,12 @@ Deliver the Scaffold step for `SSHTarget` to support the Define SSH Target Struc
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  type SSHTarget struct { Username string; IP string; Port int }
+  type IPResolver struct { Cache map[string]string; Timeout time.Duration }
   ```
 
 ## 4. Execute
-1. Declare `SSHTarget` with `Username` and `IP` strings.
-2. Add a `String()` method returning `username@ip` format.
+1. Empty struct with method signatures for fetching local IP.
+2. Prepare cross-platform implementation structure.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -53,7 +54,7 @@ Deliver the Scaffold step for `SSHTarget` to support the Define SSH Target Struc
 
 ## 6. Verify
 ```bash
-go test ./... -v -run SSHTarget
+go test ./... -v -run IPResolver
 ```
 Expected output:
 ```text
@@ -61,7 +62,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `SSHTarget` is fully functional.
+- [ ] 1. `IPResolver` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -71,3 +72,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

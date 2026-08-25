@@ -2,7 +2,8 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Scaffold
-target_files: ["gitmap/store/models_ssh.go"]
+Status: completed
+target_files: ["gitmap/store/migrations_ssh_hist.go"]
 depends_on: [None]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
@@ -18,20 +19,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestSSHHost"
+  tests: "unit TestSQLCreateSSHHistory"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 002 — Define Go struct for SSHHost
+# Task 006 — Create SQLite table for SSH History
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/store/models_ssh.go](file:///d:/work/gitmap/gitmap/store/models_ssh.go) — Why: Target file.
+- [gitmap/store/migrations_ssh_hist.go](file:///d:/work/gitmap/gitmap/store/migrations_ssh_hist.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Scaffold step for `SSHHost` to support the Define Go struct for SSHHost feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Scaffold step for `SQLCreateSSHHistory` to support the Create SQLite table for SSH History feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,13 +40,12 @@ Deliver the Scaffold step for `SSHHost` to support the Define Go struct for SSHH
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  type SSHHost struct { ID string; Alias string; IP string }
+  func RegisterSSHHistoryMigration(db *sql.DB, v int, force bool) error
   ```
 
 ## 4. Execute
-1. Create `SSHHost` struct with fields `ID`, `Alias`, `IP`, `Username`, `CreatedAt`.
-2. Tag fields with `json:"..."` and `db:"..."`.
-3. Keep fields strictly typed (e.g., time.Time for CreatedAt).
+1. Define `CREATE TABLE ssh_history (id TEXT PRIMARY KEY, host_ip TEXT, joined_at DATETIME, user TEXT);`.
+2. Apply migration using the standard store package pattern.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -54,7 +54,7 @@ Deliver the Scaffold step for `SSHHost` to support the Define Go struct for SSHH
 
 ## 6. Verify
 ```bash
-go test ./... -v -run SSHHost
+go test ./... -v -run SQLCreateSSHHistory
 ```
 Expected output:
 ```text
@@ -62,7 +62,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `SSHHost` is fully functional.
+- [ ] 1. `SQLCreateSSHHistory` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -72,3 +72,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

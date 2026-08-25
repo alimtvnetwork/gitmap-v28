@@ -2,6 +2,7 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Scaffold
+Status: completed
 target_files: ["gitmap/cmd/ssh_client.go"]
 depends_on: [None]
 citations:
@@ -71,3 +72,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+
