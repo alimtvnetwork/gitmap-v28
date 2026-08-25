@@ -110,3 +110,6 @@ completed/105-task.md
 completed/106-task.md
 completed/107-task.md
 completed/108-task.md
+completed/109-task.md
+completed/110-task.md
+completed/111-task.md
