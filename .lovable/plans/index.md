@@ -251,3 +251,6 @@ completed/246-task.md
 completed/247-task.md
 completed/248-task.md
 completed/249-task.md
+completed/250-task.md
+completed/251-task.md
+completed/252-task.md
