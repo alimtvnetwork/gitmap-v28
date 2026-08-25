@@ -101,3 +101,6 @@ completed/096-task.md
 completed/097-task.md
 completed/098-task.md
 completed/099-task.md
+completed/100-task.md
+completed/101-task.md
+completed/102-task.md
