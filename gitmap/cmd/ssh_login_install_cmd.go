@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
@@ -54,7 +53,7 @@ func getInstallPayload(ctx context.Context, target string, version string) (stri
 }
 
 func executeRemoteInstall(ctx context.Context, payload string, target SSHTarget) error {
-	cmd := exec.CommandContext(ctx, "ssh", target.String())
+	cmd := sshExecutor(ctx, "ssh", target.String())
 	cmd.Stdin = strings.NewReader(payload)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

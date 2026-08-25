@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/theme"
+	"github.com/spf13/cobra"
 )
 
 // Run is the main entry point for the CLI.
@@ -178,9 +180,18 @@ func dispatch(command string) {
 
 		return
 	}
-	
+
 	if command == "ip" || command == "ip-change" {
 		if err := dispatchIP(context.Background(), os.Args[1:], nil); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+		return
+	}
+
+	if command == "sj" || command == "ssh-join" || command == "ssh-joined" || command == "ssh-joiner" {
+		if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
@@ -276,7 +287,6 @@ func isSpace(b byte) bool {
 	return b == ' ' || b == '\t' || b == '\n' || b == '\r'
 }
 
-
 func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error {
 	if len(args) == 0 {
 		return nil
@@ -292,3 +302,51 @@ func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error
 	}
 	return nil
 }
+
+func runSJ(args []string) {
+	if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func dispatchSJ(ctx context.Context, args []string, root *cobra.Command) error {
+	if len(args) == 0 {
+		return SSHJoinCmd.ExecuteContext(ctx)
+	}
+
+	cleanArgs := stripLeadingSJCommand(args)
+	if len(cleanArgs) == 0 {
+		SSHJoinCmd.SetArgs([]string{})
+		return SSHJoinCmd.ExecuteContext(ctx)
+	}
+
+	return routeSJSubcommand(ctx, cleanArgs, root)
+}
+
+func stripLeadingSJCommand(args []string) []string {
+	first := args[0]
+	if first == "sj" || first == "ssh-join" || first == "ssh-joined" || first == "ssh-joiner" {
+		return args[1:]
+	}
+
+	return args
+}
+
+func routeSJSubcommand(ctx context.Context, args []string, root *cobra.Command) error {
+	subCmd := args[0]
+	switch subCmd {
+	case "ls", "list":
+		return runSJLs(root, args[1:], ctx)
+	case "rm", "remove":
+		return runSJRm(root, args[1:], ctx)
+	case "history", "hist":
+		return runSJHistory(root, args[1:], ctx)
+	case "add-auth", "auth":
+		return runSJAddAuth(root, args[1:], ctx)
+	default:
+		SSHJoinCmd.SetArgs(args)
+		return SSHJoinCmd.ExecuteContext(ctx)
+	}
+}
+

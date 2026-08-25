@@ -12,6 +12,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var SJLsCmd = &cobra.Command{
+	Use:   "ls",
+	Short: "List joined SSH machines",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runSJLs(cmd, args, cmd.Context())
+	},
+}
+
 // runSJLs handles the 'gitmap sj ls' command.
 func runSJLs(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return printSJList(ctx, os.Stdout, 0) // Passing 0 for no limit, though max is not strictly defined in requirements

@@ -2,12 +2,34 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
-func TestGetLocalPublicKey(t *testing.T) {
+func createMockSSHScript(t *testing.T) (string, string) {
+	dir := t.TempDir()
+	argsFile := filepath.Join(dir, "args.txt")
+
+	var scriptPath string
+	var scriptContent string
+	if os.PathSeparator == '\\' {
+		scriptPath = filepath.Join(dir, "ssh.bat")
+		scriptContent = fmt.Sprintf("@echo %%* > \"%s\"", argsFile)
+	} else {
+		scriptPath = filepath.Join(dir, "ssh")
+		scriptContent = fmt.Sprintf("#!/bin/sh\necho \"$@\" > \"%s\"", argsFile)
+	}
+
+	if err := os.WriteFile(scriptPath, []byte(scriptContent), 0755); err != nil {
+		t.Fatalf("failed to write mock ssh script: %v", err)
+	}
+
+	return dir, argsFile
+}
+
+func TestgetLocalPublicKey(t *testing.T) {
 	tmpDir := t.TempDir()
 	keyPath := filepath.Join(tmpDir, "id_rsa.pub")
 
@@ -18,7 +40,8 @@ func TestGetLocalPublicKey(t *testing.T) {
 	}
 
 	// Create key
-	err = os.WriteFile(keyPath, []byte("ssh-rsa AAAAB3NzaC1yc2E... test@test\n"), 0644)
+	expectedKey := "ssh-rsa AAAAB3NzaC1yc2E... test@test"
+	err = os.WriteFile(keyPath, []byte(expectedKey+"\n"), 0644)
 	if err != nil {
 		t.Fatalf("failed to write key: %v", err)
 	}
@@ -27,31 +50,76 @@ func TestGetLocalPublicKey(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if key != "ssh-rsa AAAAB3NzaC1yc2E... test@test" {
+	if key != expectedKey {
 		t.Errorf("unexpected key content: %v", key)
 	}
 }
 
-// appendKeyRemote needs to test if it attempts to execute SpawnSSH.
-// SpawnSSH might be hard to unit test without executing real ssh. We'll add a dummy test or use whatever exists.
-// Wait, Task 041 says `go test ./... -v -run appendKeyRemote`.
-func TestAppendKeyRemote(t *testing.T) {
-	// Simple test to ensure it compiles and can be invoked.
-	// Since SpawnSSH will try to run 'ssh' and likely fail or hang, we might need a mock or we just test with a dummy target that fails quickly.
-	ctx := context.Background()
+func TestappendKeyRemote(t *testing.T) {
+	// Test cancelled context
+	canceledCtx, cancel := context.WithCancel(context.Background())
+	cancel()
 	target := SSHTarget{Username: "test", IP: "127.0.0.1", Port: 22}
-	// This will fail because no ssh server is listening or authentication fails, but we just check if it returns an error wrapped with our code.
-	err := appendKeyRemote(ctx, "ssh-rsa ABC", target)
+	err := appendKeyRemote(canceledCtx, "ssh-rsa ABC", target)
 	if err == nil {
-		t.Log("Expected an error if ssh fails, but it succeeded? Check environment.")
+		t.Errorf("expected error with canceled context")
+	}
+
+	// Test with mock SSH
+	dir, _ := createMockSSHScript(t)
+	oldPath := os.Getenv("PATH")
+	os.Setenv("PATH", dir+string(os.PathListSeparator)+oldPath)
+	defer os.Setenv("PATH", oldPath)
+
+	err = appendKeyRemote(context.Background(), "ssh-rsa ABC", target)
+	if err != nil {
+		t.Errorf("expected no error with mock ssh, got %v", err)
 	}
 }
 
-func Test_runSJAddAuth(t *testing.T) {
-	// A simple test to satisfy verification
-	err := runSJAddAuth(nil, []string{"test@127.0.0.1"}, context.Background())
+func TestRunSJAddAuth(t *testing.T) {
+	ctx := context.Background()
+
+	// Missing args
+	err := runSJAddAuth(nil, []string{}, ctx)
+	if err == nil {
+		t.Errorf("expected error for missing args")
+	}
+
+	// Invalid target format
+	err = runSJAddAuth(nil, []string{"@invalid@target@here"}, ctx)
+	if err == nil {
+		t.Errorf("expected error for invalid target format")
+	}
+
+	// Valid target with mock SSH
+	dir, _ := createMockSSHScript(t)
+	oldPath := os.Getenv("PATH")
+	os.Setenv("PATH", dir+string(os.PathListSeparator)+oldPath)
+	defer os.Setenv("PATH", oldPath)
+
+	// Create a dummy local key in a temp location
+	tmpDir := t.TempDir()
+	keyFile := filepath.Join(tmpDir, "id_rsa.pub")
+	_ = os.WriteFile(keyFile, []byte("ssh-rsa DUMMY test\n"), 0644)
+	oldHome := os.Getenv("USERPROFILE")
+	if oldHome == "" {
+		oldHome = os.Getenv("HOME")
+	}
+	sshDir := filepath.Join(tmpDir, ".ssh")
+	_ = os.MkdirAll(sshDir, 0755)
+	_ = os.WriteFile(filepath.Join(sshDir, "id_rsa.pub"), []byte("ssh-rsa DUMMY test\n"), 0644)
+	os.Setenv("USERPROFILE", tmpDir)
+	os.Setenv("HOME", tmpDir)
+	defer func() {
+		os.Setenv("USERPROFILE", oldHome)
+		os.Setenv("HOME", oldHome)
+	}()
+
+	err = runSJAddAuth(nil, []string{"test@127.0.0.1"}, ctx)
 	if err != nil {
-		t.Errorf("expected no error, got %v", err)
+		t.Errorf("expected no error with mock ssh, got %v", err)
 	}
 }
+
 

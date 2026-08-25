@@ -12,6 +12,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var SJHistCmd = &cobra.Command{
+	Use:   "history",
+	Short: "Show SSH join history",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runSJHistory(cmd, args, cmd.Context())
+	},
+}
+
 // runSJHistory handles the 'gitmap sj history' command.
 func runSJHistory(cmd *cobra.Command, args []string, ctx context.Context) error {
 	filter := ""

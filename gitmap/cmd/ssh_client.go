@@ -12,6 +12,8 @@ import (
 	"golang.org/x/term"
 )
 
+var sshExecutor = exec.CommandContext
+
 type InteractiveSSHClient struct {
 	Stdin  io.Reader
 	Stdout io.Writer
@@ -19,7 +21,7 @@ type InteractiveSSHClient struct {
 }
 
 func (c *InteractiveSSHClient) Run(ctx context.Context, target string) error {
-	cmd := exec.CommandContext(ctx, "ssh", target)
+	cmd := sshExecutor(ctx, "ssh", target)
 	cmd.Stdin = c.Stdin
 	cmd.Stdout = c.Stdout
 	cmd.Stderr = c.Stderr
@@ -39,7 +41,7 @@ func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
 	cmdArgs := []string{target.String()}
 	cmdArgs = append(cmdArgs, args...)
 
-	cmd := exec.CommandContext(ctx, "ssh", cmdArgs...)
+	cmd := sshExecutor(ctx, "ssh", cmdArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

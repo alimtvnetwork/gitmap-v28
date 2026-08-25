@@ -82,7 +82,7 @@ func toolingOpsEntries() []dispatchEntry {
 func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"cg", "coding-guide", "coding-guidelines"}, func() { runCG(argsTail()) }},
-		{[]string{"sj", "ssh-joiner", "ssh-join"}, func() { runSSHJoinLegacy(argsTail()) }},
+		{[]string{"sj", "ssh-joiner", "ssh-join", "ssh-joined"}, func() { runSJ(argsTail()) }},
 		{[]string{"se", "ssh-exe", "ssh-exec", "ssh-execute"}, func() { runSSHExec(argsTail()) }},
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() { runInstall(argsTail()) }},
 		{[]string{constants.CmdUninstall, constants.CmdUninstallAlias}, func() { runUninstall(argsTail()) }},
