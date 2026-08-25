@@ -146,3 +146,6 @@ completed/141-task.md
 completed/142-task.md
 completed/143-task.md
 completed/144-task.md
+completed/145-task.md
+completed/146-task.md
+completed/147-task.md
