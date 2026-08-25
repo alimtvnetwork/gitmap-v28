@@ -131,3 +131,6 @@ completed/126-task.md
 completed/127-task.md
 completed/128-task.md
 completed/129-task.md
+completed/130-task.md
+completed/131-task.md
+completed/132-task.md
