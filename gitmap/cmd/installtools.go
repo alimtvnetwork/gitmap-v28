@@ -395,3 +395,52 @@ func recordInstallation(tool, manager string) {
 		fmt.Printf(constants.MsgInstallRecorded, tool, version)
 	}
 }
+
+func runInstallGitHubDesktopLinux(opts installOptions) {
+	if alreadyInstalled(opts.Tool) {
+		return
+	}
+	manager := resolvePackageManager(opts.Manager, opts.Tool)
+	if manager != constants.PkgMgrApt {
+		executeGenericInstall(opts)
+		return
+	}
+
+	fmt.Printf("\n  +-- Install Plan ---------------------\n")
+	fmt.Printf("  | Tool:    %s\n", opts.Tool)
+	fmt.Printf("  | Version: shiftkey/desktop\n")
+	fmt.Printf("  | Manager: apt (shiftkey repo)\n")
+	fmt.Printf("  | Command: add shiftkey apt repository & sudo apt install github-desktop\n")
+	fmt.Printf("  +--------------------------------------\n\n")
+
+	if handleDryRunInstall(opts.DryRun, "apt", []string{"sudo", "apt", "install", "-y", "github-desktop"}) {
+		return
+	}
+	
+	fmt.Printf("  [1/3] Adding shiftkey/desktop APT repository...\n")
+	
+	cmd1 := exec.Command("sh", "-c", "wget -qO - https://apt.packages.shiftkey.dev/ubuntu/any/ANY.gpg | sudo tee /etc/apt/keyrings/shiftkey-packages.asc > /dev/null")
+	cmd1.Stdout = os.Stdout
+	cmd1.Stderr = os.Stderr
+	if err := cmd1.Run(); err != nil {
+		fmt.Printf("  Error adding GPG key: %v\n", err)
+		os.Exit(1)
+	}
+
+	cmd2 := exec.Command("sh", "-c", "sudo sh -c 'echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/shiftkey-packages.asc] https://apt.packages.shiftkey.dev/ubuntu/ any main\" > /etc/apt/sources.list.d/shiftkey-packages.list'")
+	cmd2.Stdout = os.Stdout
+	cmd2.Stderr = os.Stderr
+	if err := cmd2.Run(); err != nil {
+		fmt.Printf("  Error adding apt source list: %v\n", err)
+		os.Exit(1)
+	}
+	
+	fmt.Printf("  [2/3] Updating package index...\n")
+	runAptUpdate(opts.Verbose)
+	
+	fmt.Printf("  [3/3] Installing github-desktop via apt...\n")
+	runInstallCommand([]string{"sudo", "apt", "install", "-y", "github-desktop"}, opts)
+	
+	recordInstallation(opts.Tool, "apt")
+	fmt.Printf("  Done!\n")
+}

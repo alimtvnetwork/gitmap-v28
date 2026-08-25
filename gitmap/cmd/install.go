@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -105,6 +106,9 @@ func specialToolHandler(tool string) func(installOptions) {
 func specialInstallHandler(tool string) func(installOptions) {
 	if isCleanCodeAlias(tool) {
 		return func(installOptions) { runInstallCleanCode() }
+	}
+	if tool == constants.ToolGitHubDesktop && runtime.GOOS == "linux" {
+		return func(opts installOptions) { runInstallGitHubDesktopLinux(opts) }
 	}
 	if h := specialSyncHandler(tool); h != nil {
 		return h
