@@ -20,3 +20,6 @@ completed/015-task.md
 completed/016-task.md
 completed/017-task.md
 completed/018-task.md
+completed/019-task.md
+completed/020-task.md
+completed/021-task.md
