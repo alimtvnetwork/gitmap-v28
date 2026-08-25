@@ -184,3 +184,8 @@ func printGroupCluster() {
 	fmt.Println(constants.HelpCluster)
 	fmt.Println(constants.HelpServe)
 }
+func printGroupUser() {
+	fmt.Println()
+	fmt.Println(colorGroupHeader(constants.HelpGroupUser))
+	fmt.Println(constants.HelpUser)
+}

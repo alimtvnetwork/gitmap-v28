@@ -66,6 +66,7 @@ func printUsageReleaseAndProjectCategories() {
 func printUsageAdvancedCategories() {
 	printSuperCategory("CLUSTER & NETWORK", func() {
 		printGroupCluster()
+		printGroupUser()
 	})
 	printSuperCategory("ADVANCED", func() {
 		printGroupUtilities()
@@ -120,3 +121,4 @@ func printUsageQuickStart() {
 	fmt.Println(colorGroupHeader(constants.HelpGroupHint))
 	fmt.Println(constants.HelpCompactHint)
 }
+

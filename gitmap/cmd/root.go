@@ -108,6 +108,11 @@ func runDispatch(command string) {
 func dispatch(command string) {
 	auditID, auditStart, shouldAudit := beginCommandAudit(command, os.Args[2:])
 
+	if dispatchUser(command) {
+		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+
+		return
+	}
 	if dispatchCore(command) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 
@@ -261,3 +266,4 @@ func trimSpaces(s string) string {
 func isSpace(b byte) bool {
 	return b == ' ' || b == '\t' || b == '\n' || b == '\r'
 }
+
