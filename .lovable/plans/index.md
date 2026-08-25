@@ -239,3 +239,6 @@ completed/234-task.md
 completed/235-task.md
 completed/236-task.md
 completed/237-task.md
+completed/238-task.md
+completed/239-task.md
+completed/240-task.md
