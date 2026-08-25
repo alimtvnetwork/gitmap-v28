@@ -173,3 +173,6 @@ completed/168-task.md
 completed/169-task.md
 completed/170-task.md
 completed/171-task.md
+completed/172-task.md
+completed/173-task.md
+completed/174-task.md
