@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"io"
+	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
@@ -40,6 +43,32 @@ func runSJRm(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) != 1 {
 		return apperror.New("runSJRm", "E_INTERNAL_ERROR", map[string]any{"msg": "invalid argument count"})
 	}
+	return nil
+}
+
+var IPCmd = &cobra.Command{
+	Use:   "ip",
+	Short: "Print local IP",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runIPCmd(cmd, args, cmd.Context())
+	},
+}
+
+func runIPCmd(cmd *cobra.Command, args []string, ctx context.Context) error {
+	return executeIPCmd(ctx, true, os.Stdout)
+}
+
+func executeIPCmd(ctx context.Context, skipLoopback bool, w io.Writer) error {
+	ip, err := GetLocalIP(ctx, skipLoopback, "")
+	if err != nil {
+		return apperror.New("executeIPCmd", "E_INTERNAL_ERROR", map[string]any{"err": err.Error()})
+	}
+	// loopback only would error from GetLocalIP if skipLoopback is true.
+	// We also return error manually if for some reason loopback is returned.
+	if skipLoopback && (ip == "127.0.0.1" || ip == "::1") {
+		return apperror.New("executeIPCmd", "E_INTERNAL_ERROR", map[string]any{"err": "only loopback found"})
+	}
+	fmt.Fprintln(w, ip)
 	return nil
 }
 

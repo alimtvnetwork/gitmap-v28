@@ -65,3 +65,40 @@ func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
 	
 	return nil
 }
+
+// ListHosts retrieves all SSH hosts from the database.
+func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
+	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts ORDER BY created_at DESC`
+	
+	rows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		appErr := apperror.Wrap(err, "ListHosts", nil)
+		appErr.Code = "E_INTERNAL_ERROR"
+		return nil, appErr
+	}
+	defer rows.Close()
+
+	var hosts []SSHHost
+	for rows.Next() {
+		var host SSHHost
+		if err := rows.Scan(&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt); err != nil {
+			appErr := apperror.Wrap(err, "ListHosts_Scan", nil)
+			appErr.Code = "E_INTERNAL_ERROR"
+			return nil, appErr
+		}
+		hosts = append(hosts, host)
+	}
+
+	if err := rows.Err(); err != nil {
+		appErr := apperror.Wrap(err, "ListHosts_Rows", nil)
+		appErr.Code = "E_INTERNAL_ERROR"
+		return nil, appErr
+	}
+	
+	if hosts == nil {
+		hosts = []SSHHost{}
+	}
+
+	return hosts, nil
+}
+

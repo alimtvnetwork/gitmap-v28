@@ -178,6 +178,15 @@ func dispatch(command string) {
 
 		return
 	}
+	
+	if command == "ip" || command == "ip-change" {
+		if err := dispatchIP(context.Background(), os.Args[1:], nil); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+		return
+	}
 
 	if looksLikeURLToken(command) {
 		fmt.Fprintf(os.Stderr, constants.ErrUnknownCommandURLHint, command)
@@ -267,3 +276,19 @@ func isSpace(b byte) bool {
 	return b == ' ' || b == '\t' || b == '\n' || b == '\r'
 }
 
+
+func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error {
+	if len(args) == 0 {
+		return nil
+	}
+	switch args[0] {
+	case "ip":
+		// IPCmd expects to parse args itself, so let Cobra do its thing.
+		IPCmd.SetArgs(args[1:])
+		return IPCmd.ExecuteContext(ctx)
+	case "ip-change":
+		IPChangeCmd.SetArgs(args[1:])
+		return IPChangeCmd.ExecuteContext(ctx)
+	}
+	return nil
+}
