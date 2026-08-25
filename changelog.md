@@ -1,5 +1,10 @@
 # Changelog
 
+## [6.104.0] - 2026-08-25
+
+### Added
+- SSH login and join features plan
+
 ## [v6.103.0] 2026-08-25 CG & Macro Extensions Installer
 
 ### Added / Changed / Fixed / Removed
