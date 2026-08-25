@@ -1,9 +1,10 @@
+Status: completed
 ---
 plan: .lovable/plans/pending/01-zsh-kube-consolidation.md
 domain: Cli
-phase: Wire+Test
-target_files: ["gitmap/cmd/comp_201.go"]
-depends_on: ["200-task.md"]
+phase: Implement
+target_files: ["gitmap/cmd/comp_199.go"]
+depends_on: ["198-task.md"]
 citations:
   app_spec: "spec/21-app/04-json-contract/02-section-and-asset-schema.md §Section"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
@@ -18,43 +19,43 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "n/a — no database"
   ui_surface: "n/a — no ui"
-  tests: "unit TestComp201"
+  tests: "unit TestComp199"
   ci_cd_guard: "linter-scripts/check-golang.sh"
   ambiguity: "n/a — spec is clear"
   issue_rca: "n/a — not a bug fix"
 ---
-# Task 201 — Wire and test integration for unit component 201
+# Task 199 — Implement logic for unit component 199
 
 ## 1. Learn
-- [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 201 stays within size limits.
+- [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 199 stays within size limits.
 - [App Spec](spec/21-app/04-json-contract/02-section-and-asset-schema.md) - Why read this: aligns data contracts.
 - [Naming](spec/02-coding-guidelines/08-file-folder-naming/golang.md) - Why read this: keeps file names compliant.
 
 ## 2. Goal
-This task handles the Wire and test integration for of component 201. It interacts with specific data structures bound to identifier 43974ed74066. It will not mutate global state outside its sandbox.
+This task handles the Implement logic for of component 199. It interacts with specific data structures bound to identifier 5a39cadd1b00. It will not mutate global state outside its sandbox.
 
 ## 3. Inputs and Contracts
-Input: `struct Input201 { ID string }`
-Output: `struct Output201 { Result bool }`
-Emits error codes: E_COMP_201_FAIL
+Input: `struct Input199 { ID string }`
+Output: `struct Output199 { Result bool }`
+Emits error codes: E_COMP_199_FAIL
 
 ## 4. Execute
-1. Create `gitmap/cmd/comp_201.go`.
-2. Define `func HandleComp201(in Input201) (Output201, error)`.
-3. Process data uniqueness string: b7c7470e59e2.
+1. Create `gitmap/cmd/comp_199.go`.
+2. Define `func HandleComp199(in Input199) (Output199, error)`.
+3. Process data uniqueness string: 188c1fdca79d.
 4. Return success.
 
 ## 5. Constraints
-- [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp201` under 50 lines.
+- [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp199` under 50 lines.
 - [Rule 2](spec/03-error-manage/02-error-architecture/00-overview.md) - Always return properly wrapped `apperror`.
 - [Rule 3](.lovable/strictly-avoid.md) - Avoid panic.
 
 ## 6. Verify
-Run `go test ./cmd/... -run TestComp201`.
+Run `go test ./cmd/... -run TestComp199`.
 Expected output: `PASS` and `ok gitmap/cmd`
 
 ## 7. Done When
-1. `HandleComp201` is implemented according to contract.
+1. `HandleComp199` is implemented according to contract.
 2. The unit test passes without errors.
 3. No global mutation occurs.
 
