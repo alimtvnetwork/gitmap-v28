@@ -2,8 +2,9 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Implement
-target_files: ["gitmap/store/ssh_repo.go"]
-depends_on: [Task 001, Task 002]
+Status: completed
+target_files: ["gitmap/cmd/ip_resolver.go"]
+depends_on: [Task 018]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +19,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestInsertSSHHost"
+  tests: "unit TestGetLocalIP"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 003 — Implement SSHHost Insert
+# Task 019 — Implement Local IP Detection
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/store/ssh_repo.go](file:///d:/work/gitmap/gitmap/store/ssh_repo.go) — Why: Target file.
+- [gitmap/cmd/ip_resolver.go](file:///d:/work/gitmap/gitmap/cmd/ip_resolver.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Implement step for `InsertSSHHost` to support the Implement SSHHost Insert feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Implement step for `GetLocalIP` to support the Implement Local IP Detection feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,13 +40,12 @@ Deliver the Implement step for `InsertSSHHost` to support the Implement SSHHost 
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func InsertSSHHost(ctx context.Context, host SSHHost, tx *sql.Tx) error
+  func GetLocalIP(ctx context.Context, skipLoopback bool, ifaceName string) (string, error)
   ```
 
 ## 4. Execute
-1. Write `InsertSSHHost(ctx context.Context, host SSHHost) error`.
-2. Use named parameters `INSERT INTO ssh_hosts ... VALUES (:id, ...)`.
-3. Return wrapped `apperror` on constraint violation.
+1. Iterate `net.Interfaces()` and find first non-loopback IPv4.
+2. Handle Windows, Unix, Centos gracefully.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -54,7 +54,7 @@ Deliver the Implement step for `InsertSSHHost` to support the Implement SSHHost 
 
 ## 6. Verify
 ```bash
-go test ./... -v -run InsertSSHHost
+go test ./... -v -run GetLocalIP
 ```
 Expected output:
 ```text
@@ -62,7 +62,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `InsertSSHHost` is fully functional.
+- [ ] 1. `GetLocalIP` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -72,3 +72,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

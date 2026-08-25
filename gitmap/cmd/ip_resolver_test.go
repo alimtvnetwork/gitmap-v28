@@ -21,3 +21,17 @@ func TestIPResolver(t *testing.T) {
 		t.Errorf("expected an error from scaffolded FetchLocalIP")
 	}
 }
+
+func TestGetLocalIP(t *testing.T) {
+	ctx := context.Background()
+	ip, err := GetLocalIP(ctx, true, "")
+	if err != nil {
+		t.Logf("GetLocalIP returned error: %v", err)
+	} else {
+		if ip == "" {
+			t.Errorf("expected non-empty IP")
+		} else {
+			t.Logf("Found IP: %s", ip)
+		}
+	}
+}

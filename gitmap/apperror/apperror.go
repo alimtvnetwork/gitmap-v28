@@ -1,8 +1,11 @@
 package apperror
 
 import (
+	"errors"
 	"fmt"
 )
+
+var ErrNotFound = errors.New("not found")
 
 // AppError is a typed error that encapsulates an operation label,
 // key input context, and the underlying cause.

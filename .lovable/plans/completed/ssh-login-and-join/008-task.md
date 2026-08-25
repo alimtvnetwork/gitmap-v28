@@ -2,6 +2,7 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Implement
+Status: completed
 target_files: ["gitmap/store/ssh_hist_repo.go"]
 depends_on: [Task 006, Task 007]
 citations:
@@ -18,12 +19,12 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestListSSHHistory"
+  tests: "unit TestLogSSHJoin"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 009 — Implement SSHHistory List
+# Task 008 — Implement SSHHistory Log
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
@@ -31,7 +32,7 @@ citations:
 - [gitmap/store/ssh_hist_repo.go](file:///d:/work/gitmap/gitmap/store/ssh_hist_repo.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Implement step for `ListSSHHistory` to support the Implement SSHHistory List feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Implement step for `LogSSHJoin` to support the Implement SSHHistory Log feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,13 +40,12 @@ Deliver the Implement step for `ListSSHHistory` to support the Implement SSHHist
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func ListSSHHistory(ctx context.Context, limit int, offset int) ([]SSHHistory, error)
+  func LogSSHJoin(ctx context.Context, h SSHHistory, db *sql.DB) error
   ```
 
 ## 4. Execute
-1. Create `ListSSHHistory(ctx context.Context) ([]SSHHistory, error)`.
-2. Order by `joined_at DESC`.
-3. Return empty slice (not nil) if no records.
+1. Create `LogSSHJoin(ctx context.Context, h SSHHistory) error`.
+2. Use standard SQL driver to insert the record.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -54,7 +54,7 @@ Deliver the Implement step for `ListSSHHistory` to support the Implement SSHHist
 
 ## 6. Verify
 ```bash
-go test ./... -v -run ListSSHHistory
+go test ./... -v -run LogSSHJoin
 ```
 Expected output:
 ```text
@@ -62,7 +62,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `ListSSHHistory` is fully functional.
+- [ ] 1. `LogSSHJoin` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -72,3 +72,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

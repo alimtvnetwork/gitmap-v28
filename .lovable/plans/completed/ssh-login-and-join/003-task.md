@@ -2,8 +2,9 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Implement
-target_files: ["gitmap/cmd/ssh_client.go"]
-depends_on: [Task 014]
+Status: completed
+target_files: ["gitmap/store/ssh_repo.go"]
+depends_on: [Task 001, Task 002]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +19,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestSpawnSSH"
+  tests: "unit TestInsertSSHHost"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 015 — Implement Spawn SSH
+# Task 003 — Implement SSHHost Insert
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ssh_client.go](file:///d:/work/gitmap/gitmap/cmd/ssh_client.go) — Why: Target file.
+- [gitmap/store/ssh_repo.go](file:///d:/work/gitmap/gitmap/store/ssh_repo.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Implement step for `SpawnSSH` to support the Implement Spawn SSH feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Implement step for `InsertSSHHost` to support the Implement SSHHost Insert feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,13 +40,13 @@ Deliver the Implement step for `SpawnSSH` to support the Implement Spawn SSH fea
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error
+  func InsertSSHHost(ctx context.Context, host SSHHost, tx *sql.Tx) error
   ```
 
 ## 4. Execute
-1. Create command `ssh target.String()`.
-2. Wire I/O streams directly to terminal.
-3. Call `cmd.Run()` and wrap `*exec.ExitError`.
+1. Write `InsertSSHHost(ctx context.Context, host SSHHost) error`.
+2. Use named parameters `INSERT INTO ssh_hosts ... VALUES (:id, ...)`.
+3. Return wrapped `apperror` on constraint violation.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -54,7 +55,7 @@ Deliver the Implement step for `SpawnSSH` to support the Implement Spawn SSH fea
 
 ## 6. Verify
 ```bash
-go test ./... -v -run SpawnSSH
+go test ./... -v -run InsertSSHHost
 ```
 Expected output:
 ```text
@@ -62,7 +63,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `SpawnSSH` is fully functional.
+- [ ] 1. `InsertSSHHost` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -72,3 +73,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+
