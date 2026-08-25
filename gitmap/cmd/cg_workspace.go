@@ -15,3 +15,15 @@ type CgWorkspaceComponent4 struct{}
 func InitCgWorkspaceComponent4() error { return nil }
 func (x *CgWorkspaceComponent4) Process() bool { return true }
 
+type CgWorkspaceComponent5 struct{}
+func InitCgWorkspaceComponent5() error { return nil }
+func (x *CgWorkspaceComponent5) Process() bool { return true }
+
+type CgWorkspaceComponent6 struct{}
+func InitCgWorkspaceComponent6() error { return nil }
+func (x *CgWorkspaceComponent6) Process() bool { return true }
+
+type CgWorkspaceComponent7 struct{}
+func InitCgWorkspaceComponent7() error { return nil }
+func (x *CgWorkspaceComponent7) Process() bool { return true }
+
