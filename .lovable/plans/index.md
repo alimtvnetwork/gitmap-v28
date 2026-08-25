@@ -188,3 +188,6 @@ completed/183-task.md
 completed/184-task.md
 completed/185-task.md
 completed/186-task.md
+completed/187-task.md
+completed/188-task.md
+completed/189-task.md
