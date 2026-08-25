@@ -74,3 +74,6 @@ completed/069-task.md
 completed/070-task.md
 completed/071-task.md
 completed/072-task.md
+completed/073-task.md
+completed/074-task.md
+completed/075-task.md
