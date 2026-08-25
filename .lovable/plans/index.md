@@ -8,3 +8,6 @@ completed/003-task.md
 completed/004-task.md
 completed/005-task.md
 completed/006-task.md
+completed/007-task.md
+completed/008-task.md
+completed/009-task.md
