@@ -65,3 +65,6 @@ completed/060-task.md
 completed/061-task.md
 completed/062-task.md
 completed/063-task.md
+completed/064-task.md
+completed/065-task.md
+completed/066-task.md
