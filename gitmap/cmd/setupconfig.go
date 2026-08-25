@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -11,17 +12,51 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-// mustLoadSetupConfig loads the resolved setup config or exits.
+
+const fallbackGitSetupJSON = `{
+  "diffTool": {
+    "name": "vscode",
+    "cmd": "code --wait --diff $LOCAL $REMOTE",
+    "trustExitCode": true
+  },
+  "mergeTool": {
+    "name": "vscode",
+    "cmd": "code --wait --merge $REMOTE $LOCAL $BASE $MERGED",
+    "trustExitCode": true
+  },
+  "aliases": {
+    "co": "checkout",
+    "br": "branch",
+    "ci": "commit",
+    "st": "status",
+    "unstage": "reset HEAD --",
+    "last": "log -1 HEAD",
+    "lg": "log --oneline --graph --decorate --all",
+    "df": "diff --stat",
+    "pushf": "push --force-with-lease",
+    "amend": "commit --amend --no-edit"
+  },
+  "credentialHelper": "manager",
+  "core": {
+    "autocrlf": "true",
+    "longpaths": "true",
+    "editor": "code --wait",
+    "defaultBranch": "main",
+    "safecrlf": "warn"
+  }
+}`
+
+// mustLoadSetupConfig loads the resolved setup config or uses a fallback.
 func mustLoadSetupConfig(configPath string) setup.GitSetupConfig {
 	cfg, err := setup.LoadConfig(configPath)
 	if err == nil {
 		return cfg
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrSetupLoadFailed, configPath, err)
-	os.Exit(1)
-
-	return setup.GitSetupConfig{}
+	fmt.Fprintf(os.Stderr, "  WARN  could not load %s, using embedded fallback config\n", filepath.Base(configPath))
+	var fallbackCfg setup.GitSetupConfig
+	_ = json.Unmarshal([]byte(fallbackGitSetupJSON), &fallbackCfg)
+	return fallbackCfg
 }
 
 // resolveSetupConfigPath prefers the bundled config unless overridden.
