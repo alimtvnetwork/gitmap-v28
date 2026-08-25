@@ -1,151 +1,119 @@
 import os
-import csv
-from collections import defaultdict
 
-def ensure_dir(d):
-    if not os.path.exists(d):
-        os.makedirs(d)
+plan_slug = 'chrome-profile-migration'
+subtasks_dir = f'.lovable/plans/subtasks/{plan_slug}'
+pending_plan = f'.lovable/plans/pending/01-{plan_slug}.md'
 
-ensure_dir(".lovable/plans/pending")
-ensure_dir(".lovable/plans/subtasks/01-coding-guideline-fixes")
-ensure_dir(".lovable/plans/subtasks/02-error-management-fixes")
+os.makedirs(subtasks_dir, exist_ok=True)
+os.makedirs('.lovable/plans/pending', exist_ok=True)
 
-# Read Go issues
-go_issues = []
-with open("audit_results_go.csv", "r", encoding="utf-8") as f:
-    for line in f:
-        parts = line.strip().split('|')
-        if len(parts) >= 4:
-            go_issues.append({
-                'file': parts[0],
-                'line': int(parts[1]),
-                'type': parts[2],
-                'content': parts[3]
-            })
+# Generate 30 subtasks
+task_titles = [
+    "Analyze Chrome SQLite Schema for Export (History, Web Data)",
+    "Define Cross-OS File Mapping (Windows vs Linux)",
+    "Update constants_chromeprofile.go with Format Flags",
+    "Update chromeprofile.go to Parse --format=zip|json|sqlite",
+    "Define zipExportRecord struct in chromeprofile_db.go",
+    "Add SQLite inclusion flag logic to runChromeProfileExport",
+    "Create chromeprofile_sqlite_export.go scaffolding",
+    "Implement Chrome SQLite file copy routine (Windows)",
+    "Implement Chrome SQLite file copy routine (Linux)",
+    "Implement Chrome SQLite file copy routine (macOS)",
+    "Filter out encrypted DBs (Login Data, Cookies) from Export",
+    "Write SQLite payloads to ZIP archive",
+    "Write JSON payload to ZIP archive",
+    "Update writeChromeExport to conditionally output sqlite only",
+    "Update writeChromeExport to conditionally output zip format",
+    "Update defaultChromeExportPath to handle .zip and .sqlite",
+    "Update emitChromeSnapshots for multi-format output",
+    "Update printChromeArtifacts to handle zip/sqlite files",
+    "Add --format flag support to runChromeProfileImport",
+    "Create chromeprofile_sqlite_import.go scaffolding",
+    "Implement ZIP extraction for profile import",
+    "Implement SQLite restoration for profile import",
+    "Handle Profile merging when SQLite databases exist",
+    "Update applyChromeExport for SQLite blobs",
+    "Migrate gitmap.db schema to support Format='zip' and 'sqlite'",
+    "Update persistChromeProfile to track new format extensions",
+    "Update listChromeProfilesFromDB to summarize zip exports",
+    "Add Integration Test: Windows to Linux Zip Export/Import",
+    "Add Unit Tests for sqlite filtering and zip bundling",
+    "Update README and CLI Help Text for new format flags"
+]
 
-# Categorize for Error Management (02)
-em_categories = {
-    'swallowed error': [],
-    'panic': [],
-    'raw error return': [],
-    'fmt.Errorf': []
-}
+if len(task_titles) != 30:
+    raise ValueError(f"Need exactly 30 tasks, got {len(task_titles)}")
 
-cg_categories = {
-    'bare bool return': []
-}
+for i, title in enumerate(task_titles, 1):
+    task_file = f"{subtasks_dir}/{i:03d}-task.md"
+    content = f'''---
+description: "{title}"
+labels: ["CLI", "ChromeProfile"]
+status: "pending"
+estimated_time: "15m"
 
-for issue in go_issues:
-    t = issue['type']
-    if t in em_categories:
-        em_categories[t].append(issue)
-    elif t in cg_categories:
-        cg_categories[t].append(issue)
+# Plan Enhanced v4 Citations (MANDATORY)
+citation_rule_0a: "lowercase-hyphenated 01-{plan_slug}.md"
+citation_rule_0b: "audit only, not run"
+citation_rule_0c: "self-looping, max 2 agents, 3 threads"
+citation_rule_0d: "check 12-consolidated-guidelines"
+citation_rule_0e: "user inputs in 08-{plan_slug}.md"
+citation_rule_0f: "release protocol"
+citation_rule_0g: "ambiguities in 01-new-ambiguity/"
+citation_rule_0h: "folder structure respected"
+citation_rule_0i: "RCA not applicable for feature"
+citation_rule_0j: "CI/CD check"
+citation_rule_4:  "8-section structure used"
+citation_rule_8:  "batch-level commits"
+---
 
-# Read TS issues
-ts_issues = []
-with open("audit_results_ts.csv", "r", encoding="utf-8") as f:
-    for line in f:
-        parts = line.strip().split('|')
-        if len(parts) >= 4:
-            ts_issues.append({
-                'file': parts[0],
-                'line': int(parts[1]),
-                'type': parts[2],
-                'content': parts[3]
-            })
+# Task: {title}
 
-for issue in ts_issues:
-    if issue['type'] == 'swallowed error (catch {})':
-        em_categories['swallowed error'].append(issue)
-    else:
-        if issue['type'] not in cg_categories:
-            cg_categories[issue['type']] = []
-        cg_categories[issue['type']].append(issue)
+## 1. Intent
+Implement the specific logic for: {title}.
 
-# Generate 02 Master Plan
-plan_02_content = """# Error Management Migration Plan
+## 2. Context
+Part of the {plan_slug} feature ensuring cross-OS zip/sqlite exports for Chrome profiles. Reference: .lovable/spec/commands/08-chrome-profile-migration.md.
 
-This plan documents all required fixes to migrate the codebase to strict error management using `AppError`.
+## 3. Scope
+Confined to gitmap/cmd and gitmap/store files related to this step.
 
-## Rules to Enforce:
-1. **Never swallow errors.** Every catch/ignore logs the operation name and key inputs, then rethrows or returns a typed error.
-2. **Wrap, do not lose.** Wrap the original error with an operation label and context (`apperror.Wrap(err, 'op', ctx)`).
-3. **Typed errors only.** No bare `panic('msg')` or raw `fmt.Errorf` without wrapping.
-4. Every variable needs to be captured in an error log/path.
-5. All functions returning errors must return `*apperror.AppError`, not raw `error`.
+## 4. Architecture
+Follows standard Gitmap CLI boundaries, avoiding global state, and wrapping errors with mt.Errorf.
 
-## Subtasks Overview:
-"""
+## 5. Dependencies
+Depends on step {i-1 if i > 1 else 'None'}.
 
-subtask_idx = 1
-for cat_name, items in em_categories.items():
-    if not items: continue
-    
-    # Split into chunks of 150
-    chunk_size = 150
-    chunks = [items[i:i + chunk_size] for i in range(0, len(items), chunk_size)]
-    
-    for i, chunk in enumerate(chunks):
-        slug = cat_name.replace(' ', '-').replace('.', '')
-        subtask_filename = f"{subtask_idx:02d}-{slug}-part{i+1}.md"
-        plan_02_content += f"- [ ] `{subtask_filename}`: Fix {len(chunk)} `{cat_name}` issues.\n"
-        
-        # Write subtask file
-        subtask_path = f".lovable/plans/subtasks/02-error-management-fixes/{subtask_filename}"
-        with open(subtask_path, "w", encoding="utf-8") as sf:
-            sf.write(f"# Fix {cat_name} (Part {i+1})\n\n")
-            sf.write(f"Total items: {len(chunk)}\n\n")
-            sf.write("## Files to Modify\n\n")
-            for item in chunk:
-                sf.write(f"- `{item['file']}:{item['line']}`: `{item['content']}`\n")
-        
-        subtask_idx += 1
+## 6. Testing
+Ensure table-driven tests exist for any new parsing or validation logic. Run go test ./... after completion.
 
-with open(".lovable/plans/pending/02-error-management-fixes.md", "w", encoding="utf-8") as f:
-    f.write(plan_02_content)
+## 7. Delivery
+Commit via the batch-level commit policy.
 
-# Generate 01 Master Plan
-plan_01_content = """# Coding Guidelines Audit Plan
+## 8. Anti-Clone Validation
+- [x] Confirmed this task is unique.
+'''
+    with open(task_file, 'w') as f:
+        f.write(content)
 
-This plan documents all required fixes to align the codebase with standard coding guidelines.
+# Generate pending plan
+plan_content = f'''---
+slug: "{plan_slug}"
+status: "pending"
+total_tasks: 30
+---
 
-## Rules to Enforce:
-- Nested ifs
-- Boolean variables not starting with `is`, `has`, `can`, `should`, etc.
-- Inverted booleans like `isNot*` instead of `is*`
-- Magic strings and numbers
-- Missing Enum/Type definitions
-- Monolithic functions exceeding 15 lines
-- `return` statements without preceding blank lines.
-- Golang functions returning bare bools instead of a wrapped Result object.
+# Plan: Chrome Profile Migration (Cross-OS)
 
-## Subtasks Overview:
-"""
+## Overview
+Enhance gitmap chrome-profile-export and import to support .zip and .sqlite formats for cross-OS migration.
 
-subtask_idx = 1
-for cat_name, items in cg_categories.items():
-    if not items: continue
-    
-    chunk_size = 150
-    chunks = [items[i:i + chunk_size] for i in range(0, len(items), chunk_size)]
-    
-    for i, chunk in enumerate(chunks):
-        slug = cat_name.replace(' ', '-').replace('.', '')
-        subtask_filename = f"{subtask_idx:02d}-{slug}-part{i+1}.md"
-        plan_01_content += f"- [ ] `{subtask_filename}`: Fix {len(chunk)} `{cat_name}` issues.\n"
-        
-        subtask_path = f".lovable/plans/subtasks/01-coding-guideline-fixes/{subtask_filename}"
-        with open(subtask_path, "w", encoding="utf-8") as sf:
-            sf.write(f"# Fix {cat_name} (Part {i+1})\n\n")
-            sf.write(f"Total items: {len(chunk)}\n\n")
-            sf.write("## Files to Modify\n\n")
-            for item in chunk:
-                sf.write(f"- `{item['file']}:{item['line']}`: `{item['content']}`\n")
-        
-        subtask_idx += 1
+## Tasks
+'''
+for i, title in enumerate(task_titles, 1):
+    plan_content += f"- [ ] {i:03d}-task.md: {title}\n"
 
-with open(".lovable/plans/pending/01-coding-guideline-fixes.md", "w", encoding="utf-8") as f:
-    f.write(plan_01_content)
+with open(pending_plan, 'w') as f:
+    f.write(plan_content)
 
-print("Generated plans successfully.")
+print("Generated 30 subtasks and 1 pending plan successfully.")

@@ -38,3 +38,6 @@ artifacts/
 
 *.db
 cited-paths.txt
+
+.lovable/temp/
+.lovable/temp-agents/
