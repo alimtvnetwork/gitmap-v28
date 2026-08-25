@@ -2,8 +2,8 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Implement
-target_files: ["gitmap/cmd/ssh_login_cmd.go"]
-depends_on: [Task 004, Task 012, Task 015, Task 021]
+target_files: ["gitmap/cmd/sshjoin_cmd.go"]
+depends_on: [Task 003, Task 008, Task 031]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +18,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestexecuteSSHLogin"
+  tests: "unit TestexecuteSSHJoin"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 022 — Wire Login with DB & Parser
+# Task 032 — Implement Join Record Logic
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ssh_login_cmd.go](file:///d:/work/gitmap/gitmap/cmd/ssh_login_cmd.go) — Why: Target file.
+- [gitmap/cmd/sshjoin_cmd.go](file:///d:/work/gitmap/gitmap/cmd/sshjoin_cmd.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Implement step for `executeSSHLogin` to support the Wire Login with DB & Parser feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Implement step for `executeSSHJoin` to support the Implement Join Record Logic feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,13 +39,13 @@ Deliver the Implement step for `executeSSHLogin` to support the Wire Login with 
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func executeSSHLogin(ctx context.Context, target string, force bool) error
+  func executeSSHJoin(ctx context.Context, target string, history SSHHistory) error
   ```
 
 ## 4. Execute
-1. Call `ParseSSHTarget`.
-2. If alias, lookup via `GetHostByAlias`.
-3. Call `SpawnSSH`.
+1. When joining, record the host via `InsertSSHHost`.
+2. Log event via `LogSSHJoin`.
+3. Print 'Joined successfully'.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -54,7 +54,7 @@ Deliver the Implement step for `executeSSHLogin` to support the Wire Login with 
 
 ## 6. Verify
 ```bash
-go test ./... -v -run executeSSHLogin
+go test ./... -v -run executeSSHJoin
 ```
 Expected output:
 ```text
@@ -62,7 +62,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `executeSSHLogin` is fully functional.
+- [ ] 1. `executeSSHJoin` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -72,3 +72,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

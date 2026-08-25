@@ -2,8 +2,8 @@
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
 phase: Implement
-target_files: ["gitmap/cmd/sshjoin_cmd.go"]
-depends_on: [Task 003, Task 008, Task 031]
+target_files: ["gitmap/cmd/sshjoin_rm_cmd.go"]
+depends_on: [Task 005, Task 033]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +18,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestexecuteSSHJoin"
+  tests: "unit TestexecuteSJRm"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 032 — Implement Join Record Logic
+# Task 034 — Implement SJ Remove Logic
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/sshjoin_cmd.go](file:///d:/work/gitmap/gitmap/cmd/sshjoin_cmd.go) — Why: Target file.
+- [gitmap/cmd/sshjoin_rm_cmd.go](file:///d:/work/gitmap/gitmap/cmd/sshjoin_rm_cmd.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Implement step for `executeSSHJoin` to support the Implement Join Record Logic feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Implement step for `executeSJRm` to support the Implement SJ Remove Logic feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,13 +39,12 @@ Deliver the Implement step for `executeSSHJoin` to support the Implement Join Re
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func executeSSHJoin(ctx context.Context, target string, history SSHHistory) error
+  func executeSJRm(ctx context.Context, target string, force bool) error
   ```
 
 ## 4. Execute
-1. When joining, record the host via `InsertSSHHost`.
-2. Log event via `LogSSHJoin`.
-3. Print 'Joined successfully'.
+1. Call `DeleteHostByIP` or by Alias.
+2. Print 'Machine removed'.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -54,7 +53,7 @@ Deliver the Implement step for `executeSSHJoin` to support the Implement Join Re
 
 ## 6. Verify
 ```bash
-go test ./... -v -run executeSSHJoin
+go test ./... -v -run executeSJRm
 ```
 Expected output:
 ```text
@@ -62,7 +61,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `executeSSHJoin` is fully functional.
+- [ ] 1. `executeSJRm` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -72,3 +71,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

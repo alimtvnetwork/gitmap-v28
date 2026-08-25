@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"context"
+	"strings"
+	"net"
 
-	"github.com/spf13/cobra"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+	"github.com/spf13/cobra"
 )
 
 // SSHLoginCmd represents the gitmap ssh login command.
@@ -23,7 +26,26 @@ func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	}
 
 	target := args[0]
-	_ = target
+	return executeSSHLogin(ctx, target, false)
+}
 
-	return nil
+func executeSSHLogin(ctx context.Context, target string, force bool) error {
+	sshTarget, err := ParseSSHTarget(target, "root", 22)
+	if err != nil {
+		return err
+	}
+
+	if !strings.Contains(target, "@") && net.ParseIP(target) == nil {
+		db, err := store.OpenDefault()
+		if err == nil {
+			host, err := store.GetHostByAlias(ctx, target, db.Conn())
+			if err == nil {
+				sshTarget.Username = host.Username
+				sshTarget.IP = host.IP
+			}
+			db.Close()
+		}
+	}
+
+	return SpawnSSH(ctx, *sshTarget, nil)
 }

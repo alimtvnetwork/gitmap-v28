@@ -1,9 +1,9 @@
 ---
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
-phase: Implement
-target_files: ["gitmap/cmd/sshjoin_rm_cmd.go"]
-depends_on: [Task 005, Task 033]
+phase: Scaffold
+target_files: ["gitmap/cmd/ssh_login_install_cmd.go"]
+depends_on: [None]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +18,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestexecuteSJRm"
+  tests: "unit TestrunSSHLoginInstall"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 034 — Implement SJ Remove Logic
+# Task 025 — Scaffold `gitmap ssh login-install` cmd
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/sshjoin_rm_cmd.go](file:///d:/work/gitmap/gitmap/cmd/sshjoin_rm_cmd.go) — Why: Target file.
+- [gitmap/cmd/ssh_login_install_cmd.go](file:///d:/work/gitmap/gitmap/cmd/ssh_login_install_cmd.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Implement step for `executeSJRm` to support the Implement SJ Remove Logic feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Scaffold step for `runSSHLoginInstall` to support the Scaffold `gitmap ssh login-install` cmd feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,12 +39,12 @@ Deliver the Implement step for `executeSJRm` to support the Implement SJ Remove 
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func executeSJRm(ctx context.Context, target string, force bool) error
+  func runSSHLoginInstall(cmd *cobra.Command, args []string, ctx context.Context) error
   ```
 
 ## 4. Execute
-1. Call `DeleteHostByIP` or by Alias.
-2. Print 'Machine removed'.
+1. Command definition to login and immediately install gitmap.
+2. Prepare `target` argument.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -53,7 +53,7 @@ Deliver the Implement step for `executeSJRm` to support the Implement SJ Remove 
 
 ## 6. Verify
 ```bash
-go test ./... -v -run executeSJRm
+go test ./... -v -run runSSHLoginInstall
 ```
 Expected output:
 ```text
@@ -61,7 +61,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `executeSJRm` is fully functional.
+- [ ] 1. `runSSHLoginInstall` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -71,3 +71,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

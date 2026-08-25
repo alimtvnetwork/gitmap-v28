@@ -16,3 +16,15 @@ func Test_getInstallPayload(t *testing.T) {
 		t.Errorf("expected %q, got %q", expected, payload)
 	}
 }
+
+func TestExecuteRemoteInstall(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // cancel immediately to avoid actually executing SSH
+	
+	target := SSHTarget{Username: "root", IP: "127.0.0.1", Port: 22}
+	err := executeRemoteInstall(ctx, "echo 1", target)
+	if err == nil {
+		t.Errorf("expected error due to canceled context, got nil")
+	}
+}
+
