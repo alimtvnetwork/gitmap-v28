@@ -11,3 +11,15 @@ type CgInstallUnixComponent3 struct{}
 func InitCgInstallUnixComponent3() error { return nil }
 func (x *CgInstallUnixComponent3) Process() bool { return true }
 
+type CgInstallUnixComponent4 struct{}
+func InitCgInstallUnixComponent4() error { return nil }
+func (x *CgInstallUnixComponent4) Process() bool { return true }
+
+type CgInstallUnixComponent5 struct{}
+func InitCgInstallUnixComponent5() error { return nil }
+func (x *CgInstallUnixComponent5) Process() bool { return true }
+
+type CgInstallUnixComponent6 struct{}
+func InitCgInstallUnixComponent6() error { return nil }
+func (x *CgInstallUnixComponent6) Process() bool { return true }
+
