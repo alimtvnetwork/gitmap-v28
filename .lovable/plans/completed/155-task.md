@@ -1,9 +1,10 @@
+Status: completed
 ---
 plan: .lovable/plans/pending/01-zsh-kube-consolidation.md
 domain: Cli
 phase: Implement
-target_files: ["gitmap/cmd/comp_156.go"]
-depends_on: ["155-task.md"]
+target_files: ["gitmap/cmd/comp_155.go"]
+depends_on: ["154-task.md"]
 citations:
   app_spec: "spec/21-app/04-json-contract/02-section-and-asset-schema.md §Section"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
@@ -18,43 +19,43 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "n/a — no database"
   ui_surface: "n/a — no ui"
-  tests: "unit TestComp156"
+  tests: "unit TestComp155"
   ci_cd_guard: "linter-scripts/check-golang.sh"
   ambiguity: "n/a — spec is clear"
   issue_rca: "n/a — not a bug fix"
 ---
-# Task 156 — Implement logic for unit component 156
+# Task 155 — Implement logic for unit component 155
 
 ## 1. Learn
-- [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 156 stays within size limits.
+- [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 155 stays within size limits.
 - [App Spec](spec/21-app/04-json-contract/02-section-and-asset-schema.md) - Why read this: aligns data contracts.
 - [Naming](spec/02-coding-guidelines/08-file-folder-naming/golang.md) - Why read this: keeps file names compliant.
 
 ## 2. Goal
-This task handles the Implement logic for of component 156. It interacts with specific data structures bound to identifier 0fecf9247f3d. It will not mutate global state outside its sandbox.
+This task handles the Implement logic for of component 155. It interacts with specific data structures bound to identifier 210e3b160c35. It will not mutate global state outside its sandbox.
 
 ## 3. Inputs and Contracts
-Input: `struct Input156 { ID string }`
-Output: `struct Output156 { Result bool }`
-Emits error codes: E_COMP_156_FAIL
+Input: `struct Input155 { ID string }`
+Output: `struct Output155 { Result bool }`
+Emits error codes: E_COMP_155_FAIL
 
 ## 4. Execute
-1. Create `gitmap/cmd/comp_156.go`.
-2. Define `func HandleComp156(in Input156) (Output156, error)`.
-3. Process data uniqueness string: 865736a1c30a.
+1. Create `gitmap/cmd/comp_155.go`.
+2. Define `func HandleComp155(in Input155) (Output155, error)`.
+3. Process data uniqueness string: 226f76b55acb.
 4. Return success.
 
 ## 5. Constraints
-- [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp156` under 50 lines.
+- [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp155` under 50 lines.
 - [Rule 2](spec/03-error-manage/02-error-architecture/00-overview.md) - Always return properly wrapped `apperror`.
 - [Rule 3](.lovable/strictly-avoid.md) - Avoid panic.
 
 ## 6. Verify
-Run `go test ./cmd/... -run TestComp156`.
+Run `go test ./cmd/... -run TestComp155`.
 Expected output: `PASS` and `ok gitmap/cmd`
 
 ## 7. Done When
-1. `HandleComp156` is implemented according to contract.
+1. `HandleComp155` is implemented according to contract.
 2. The unit test passes without errors.
 3. No global mutation occurs.
 
