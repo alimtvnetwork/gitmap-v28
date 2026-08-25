@@ -23,3 +23,11 @@ type CgRootComponent6 struct{}
 func InitCgRootComponent6() error { return nil }
 func (x *CgRootComponent6) Process() bool { return true }
 
+type CgRootComponent7 struct{}
+func InitCgRootComponent7() error { return nil }
+func (x *CgRootComponent7) Process() bool { return true }
+
+type CgRootComponent8 struct{}
+func InitCgRootComponent8() error { return nil }
+func (x *CgRootComponent8) Process() bool { return true }
+
