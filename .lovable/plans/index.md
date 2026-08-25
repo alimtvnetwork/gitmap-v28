@@ -86,3 +86,6 @@ completed/081-task.md
 completed/082-task.md
 completed/083-task.md
 completed/084-task.md
+completed/085-task.md
+completed/086-task.md
+completed/087-task.md
