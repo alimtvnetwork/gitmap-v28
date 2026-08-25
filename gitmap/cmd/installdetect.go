@@ -57,6 +57,14 @@ func detectDarwinManager() string {
 
 // detectLinuxManager checks for apt, dnf, then pacman.
 func detectLinuxManager() string {
+	osType := CurrentOS()
+	if osType == OSUbuntu || osType == OSDebian {
+		return constants.PkgMgrApt
+	}
+	if osType == OSFedora || osType == OSCentOS {
+		return constants.PkgMgrDnf
+	}
+
 	if isCommandAvailable(constants.PkgMgrApt) {
 		return constants.PkgMgrApt
 	}
