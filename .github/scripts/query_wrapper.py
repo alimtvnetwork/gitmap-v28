@@ -13,7 +13,7 @@ def query_wrapper(operation: Callable[..., Any], *args, **kwargs) -> Dict[str, A
             "data": data,
             "error": None,
             "is_success": True,
-            "is_fail": False
+            "is_success": True,`n            "is_fail": False
         }
     except Exception as e:
         # We explicitly log the caught error as per the error management guidelines.
@@ -25,6 +25,7 @@ def query_wrapper(operation: Callable[..., Any], *args, **kwargs) -> Dict[str, A
             "data": None,
             "error": e,
             "is_success": False,
-            "is_fail": True
+            "is_success": False,`n            "is_fail": True
         }
+
 

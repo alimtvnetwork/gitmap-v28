@@ -1,11 +1,14 @@
 /**
  * Generic query wrapper result structure.
- * Returns structured state with `isFail: true` or `isFail: false`.
+ * Returns structured state with `isSuccess: false,
+      isFail: true,` or `isSuccess: true,
+      isFail: false,`.
  * DO NOT use `isSuccess` inline.
  */
 export interface QueryResult<T> {
   data: T | null;
   error: Error | null;
+  isSuccess: boolean;
   isFail: boolean;
 }
 
@@ -21,6 +24,7 @@ export async function queryWrapper<T>(
     return {
       data,
       error: null,
+      isSuccess: true,
       isFail: false,
     };
   } catch (err) {
@@ -29,6 +33,7 @@ export async function queryWrapper<T>(
     return {
       data: null,
       error,
+      isSuccess: false,
       isFail: true,
     };
   }
@@ -46,6 +51,7 @@ export function queryWrapperSync<T>(
     return {
       data,
       error: null,
+      isSuccess: true,
       isFail: false,
     };
   } catch (err) {
@@ -54,11 +60,13 @@ export function queryWrapperSync<T>(
     return {
       data: null,
       error,
+      isSuccess: false,
       isFail: true,
     };
   }
 }
 
 export default queryWrapper;
+
 
 
