@@ -218,3 +218,6 @@ completed/213-task.md
 completed/214-task.md
 completed/215-task.md
 completed/216-task.md
+completed/217-task.md
+completed/218-task.md
+completed/219-task.md
