@@ -92,3 +92,6 @@ completed/087-task.md
 completed/088-task.md
 completed/089-task.md
 completed/090-task.md
+completed/091-task.md
+completed/092-task.md
+completed/093-task.md
