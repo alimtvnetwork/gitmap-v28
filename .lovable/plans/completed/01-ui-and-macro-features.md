@@ -1,6 +1,6 @@
 # UI and Macro Features
 
-Status: pending
+Status: completed
 Execution model: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 
 ## Context
@@ -43,3 +43,4 @@ None for now.
 | ci guards                        | n/a        | none             |
 | contract + e2e testing           | n/a       | none       |
 | static analysis / sarif          | n/a          | none             |
+
