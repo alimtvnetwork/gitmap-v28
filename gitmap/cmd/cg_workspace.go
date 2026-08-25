@@ -27,3 +27,7 @@ type CgWorkspaceComponent7 struct{}
 func InitCgWorkspaceComponent7() error { return nil }
 func (x *CgWorkspaceComponent7) Process() bool { return true }
 
+type CgWorkspaceComponent8 struct{}
+func InitCgWorkspaceComponent8() error { return nil }
+func (x *CgWorkspaceComponent8) Process() bool { return true }
+
