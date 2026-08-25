@@ -690,12 +690,56 @@ install_binary() {
     fi
 
     # Echo the app dir so main() can use it for PATH + summary.
+    
+    # Symlink into parent dir if possible, to allow immediate recognition 
+    # without PATH reload if the parent dir is already in PATH.
+    local parent_bin="${install_dir}/${BINARY_NAME}"
+    local parent_alias="${install_dir}/${BINARY_ALIAS}"
+    rm -f "${parent_bin}" "${parent_alias}" 2>/dev/null || true
+    if ln -s "${APP_SUBDIR}/${BINARY_NAME}" "${parent_bin}" 2>/dev/null; then
+        :
+    fi
+    if ln -s "${APP_SUBDIR}/${BINARY_ALIAS}" "${parent_alias}" 2>/dev/null; then
+        :
+    fi
+
     APP_DIR="${app_dir}"
 }
 
 # ── Download and extract docs-site.zip release asset ───────────────
 # Required for `gitmap help-dashboard` (hd). Best-effort: skip silently
 # if the release does not bundle docs-site.zip (older versions).
+
+install_seed_data() {
+    local version="$1" app_dir="$2"
+    local data_dir="${app_dir}/data"
+    
+    mkdir -p "${data_dir}" 2>/dev/null || true
+
+    local seed_files="downloader-config.json config.json git-setup.json seo-templates.json"
+    local installed=0
+    for name in $seed_files; do
+        local raw_url="https://raw.githubusercontent.com/${REPO}/${version}/gitmap/data/${name}"
+        local dest="${data_dir}/${name}"
+        if command -v curl >/dev/null 2>&1; then
+            if curl -fsSL --max-time 10 "${raw_url}" -o "${dest}" 2>/dev/null; then
+                installed=$((installed + 1))
+            fi
+        elif command -v wget >/dev/null 2>&1; then
+            if wget -qO "${dest}" "${raw_url}" 2>/dev/null; then
+                installed=$((installed + 1))
+            fi
+        fi
+    done
+
+    if [ "$installed" -gt 0 ]; then
+        ok "Installed ${installed} seed file(s) to ${data_dir}"
+    else
+        warn "No seed files downloaded; gitmap will use built-in defaults"
+    fi
+}
+
+#  Download and extract docs-site.zip release asset 
 install_docs_site() {
     local version="$1" install_dir="$2"
     local asset_name="docs-site.zip"
@@ -1564,6 +1608,9 @@ main() {
 
     # Bundle the docs site so `gitmap help-dashboard` works after install.
     install_docs_site "${version}" "${APP_DIR}"
+
+    # Bundle the seed files (git-setup.json, etc.)
+    install_seed_data "${version}" "${APP_DIR}"
 
     if [ "${NO_PATH}" = false ]; then
         add_to_path "${APP_DIR}"
