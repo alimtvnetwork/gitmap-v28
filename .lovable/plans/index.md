@@ -209,3 +209,6 @@ completed/204-task.md
 completed/205-task.md
 completed/206-task.md
 completed/207-task.md
+completed/208-task.md
+completed/209-task.md
+completed/210-task.md
