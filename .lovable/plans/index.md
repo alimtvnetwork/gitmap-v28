@@ -215,3 +215,6 @@ completed/210-task.md
 completed/211-task.md
 completed/212-task.md
 completed/213-task.md
+completed/214-task.md
+completed/215-task.md
+completed/216-task.md
