@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+	"github.com/spf13/cobra"
 )
 
 // SSHAliasCmd represents the gitmap ssh as command.
@@ -24,8 +27,40 @@ func runSSHAlias(cmd *cobra.Command, args []string, ctx context.Context) error {
 
 	ip := args[0]
 	aliasName := args[1]
-	_ = ip
-	_ = aliasName
 
+	return saveAliasCommand(ctx, ip, aliasName)
+}
+
+func saveAliasCommand(ctx context.Context, ip string, alias string) error {
+	db, err := openDB()
+	if err != nil {
+		return apperror.Wrap(err, "saveAliasCommand", nil)
+	}
+	defer db.Close()
+
+	tx, err := db.Conn().BeginTx(ctx, nil)
+	if err != nil {
+		return apperror.Wrap(err, "saveAliasCommand", nil)
+	}
+	defer tx.Rollback()
+
+	id := fmt.Sprintf("ssh-%d", time.Now().UnixNano())
+	host := store.SSHHost{
+		ID:        id,
+		Alias:     alias,
+		IP:        ip,
+		Username:  "",
+		CreatedAt: time.Now().UTC(),
+	}
+
+	if err := store.InsertSSHHost(ctx, host, tx); err != nil {
+		return apperror.Wrap(err, "saveAliasCommand", nil)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return apperror.Wrap(err, "saveAliasCommand", nil)
+	}
+
+	fmt.Printf("Successfully saved alias %s for %s\n", alias, ip)
 	return nil
 }

@@ -1,9 +1,9 @@
 ---
 plan: .lovable/plans/pending/01-ssh-login-and-join.md
 domain: Cli
-phase: Scaffold
-target_files: ["gitmap/cmd/sshjoin_rm_cmd.go"]
-depends_on: [None]
+phase: Wire+Test
+target_files: ["gitmap/helptext/docs/cmd/ssh.go"]
+depends_on: [Task 028]
 citations:
   app_spec: "spec/19-ssh-executor/01-spec.md §Section"
   canonical_size: "spec/05-coding-guidelines/01-code-quality-improvement.md"
@@ -18,20 +18,20 @@ citations:
   strictly_avoid: ".lovable/strictly-avoid.md"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a — cli tool"
-  tests: "unit TestrunSJRm"
+  tests: "unit TestappendSSHHelp"
   ci_cd_guard: ".github/workflows/ci.yml"
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
-# Task 033 — Scaffold `gitmap sj rm` cmd
+# Task 030 — Document Login Commands in Help
 
 ## 1. Learn
 - [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/sshjoin_rm_cmd.go](file:///d:/work/gitmap/gitmap/cmd/sshjoin_rm_cmd.go) — Why: Target file.
+- [gitmap/helptext/docs/cmd/ssh.go](file:///d:/work/gitmap/gitmap/helptext/docs/cmd/ssh.go) — Why: Target file.
 
 ## 2. Goal
-Deliver the Scaffold step for `runSJRm` to support the Scaffold `gitmap sj rm` cmd feature. This is isolated logic for the SSH/IP subdomains.
+Deliver the Wire+Test step for `appendSSHHelp` to support the Document Login Commands in Help feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
 - Types: `string`, `context.Context`
@@ -39,12 +39,12 @@ Deliver the Scaffold step for `runSJRm` to support the Scaffold `gitmap sj rm` c
 - Codes: `E_INTERNAL_ERROR`
 - Signature:
   ```go
-  func runSJRm(cmd *cobra.Command, args []string, ctx context.Context) error
+  func appendSSHHelp(cmd *cobra.Command, args []string, buf io.Writer) error
   ```
 
 ## 4. Execute
-1. Handler for `remove machine-alias` or `rm ip`.
-2. Validate input argument count.
+1. Add examples for `gitmap ssh m1`.
+2. Explain alias resolution mechanism in markdown block.
 
 ## 5. Constraints
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
@@ -53,7 +53,7 @@ Deliver the Scaffold step for `runSJRm` to support the Scaffold `gitmap sj rm` c
 
 ## 6. Verify
 ```bash
-go test ./... -v -run runSJRm
+go test ./... -v -run appendSSHHelp
 ```
 Expected output:
 ```text
@@ -61,7 +61,7 @@ PASS
 ```
 
 ## 7. Done When
-- [ ] 1. `runSJRm` is fully functional.
+- [ ] 1. `appendSSHHelp` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
@@ -71,3 +71,4 @@ None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
+

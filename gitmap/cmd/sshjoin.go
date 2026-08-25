@@ -40,7 +40,7 @@ func parseSJFlags(args []string) sjOptions {
 	return opts
 }
 
-func runSSHJoin(args []string) {
+func runSSHJoinLegacy(args []string) {
 	opts := parseSJFlags(args)
 
 	if opts.List {

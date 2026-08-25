@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/spf13/cobra"
 )
 
 // runSSH handles the "ssh" subcommand and routes to sub-handlers.
@@ -15,48 +17,57 @@ func runSSH(args []string) {
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
 		return
 	}
-	dispatchSSH(args[0], args[1:])
+	_ = dispatchSSH(context.Background(), args, nil)
 }
 
-// dispatchSSH routes SSH subcommands to their handlers.
-func dispatchSSH(sub string, args []string) {
-	if sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS {
-		runSSHCat(args)
-
-		return
-	}
-	if sub == constants.SubCmdSSHCopy || sub == constants.SubCmdSSHCopyS {
-		runSSHCopy(args)
-
-		return
-	}
-	if sub == constants.SubCmdSSHCreate {
+func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) error {
+	if len(args) == 0 {
 		runSSHGenerate(args)
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
-		return
-	}
-	if sub == constants.SubCmdSSHList || sub == constants.SubCmdSSHListS {
-		runSSHList(args...)
-
-		return
-	}
-	if sub == constants.SubCmdSSHDelete || sub == constants.SubCmdSSHDeleteS {
-		runSSHDelete(args)
-
-		return
-	}
-	if sub == constants.SubCmdSSHConfig {
-		runSSHConfig()
-
-		return
-	}
-	if sub == constants.SubCmdSSHStatus || sub == constants.SubCmdSSHStatusS {
-		runSSHStatus(args)
-
-		return
+		return nil
 	}
 
-	// Not a subcommand — treat all args as flags for generate.
-	runSSHGenerate(append([]string{sub}, args...))
-	fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+	sub := args[0]
+	switch sub {
+	case "login":
+		return runSSHLogin(parent, args[1:], ctx)
+	case "login-install":
+		// Handle login-install command
+		// Implicit alias fallback will catch if sub is not known.
+		return runSSHLogin(parent, args[1:], ctx)
+	default:
+		// Fallback for $username@ip and implicit aliases
+		if sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS {
+			runSSHCat(args[1:])
+			return nil
+		}
+		if sub == constants.SubCmdSSHCopy || sub == constants.SubCmdSSHCopyS {
+			runSSHCopy(args[1:])
+			return nil
+		}
+		if sub == constants.SubCmdSSHCreate {
+			runSSHGenerate(args[1:])
+			fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+			return nil
+		}
+		if sub == constants.SubCmdSSHList || sub == constants.SubCmdSSHListS {
+			runSSHList(args[1:]...)
+			return nil
+		}
+		if sub == constants.SubCmdSSHDelete || sub == constants.SubCmdSSHDeleteS {
+			runSSHDelete(args[1:])
+			return nil
+		}
+		if sub == constants.SubCmdSSHConfig {
+			runSSHConfig()
+			return nil
+		}
+		if sub == constants.SubCmdSSHStatus || sub == constants.SubCmdSSHStatusS {
+			runSSHStatus(args[1:])
+			return nil
+		}
+		
+		// If it reaches here, treat as raw arguments for implicit alias or username@ip
+		return runSSHLogin(parent, args, ctx)
+	}
 }
