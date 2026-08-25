@@ -182,3 +182,6 @@ completed/177-task.md
 completed/178-task.md
 completed/179-task.md
 completed/180-task.md
+completed/181-task.md
+completed/182-task.md
+completed/183-task.md
