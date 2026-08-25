@@ -32,7 +32,7 @@ func dispatchSSH(sub string, args []string) {
 	}
 	if sub == constants.SubCmdSSHCreate {
 		runSSHGenerate(args)
-
+		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
 		return
 	}
 	if sub == constants.SubCmdSSHList || sub == constants.SubCmdSSHListS {
@@ -59,8 +59,4 @@ func dispatchSSH(sub string, args []string) {
 	// Not a subcommand — treat all args as flags for generate.
 	runSSHGenerate(append([]string{sub}, args...))
 	fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
-}, args...))
 }
-
-
-
