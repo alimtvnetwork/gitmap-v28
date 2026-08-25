@@ -1,0 +1,10 @@
+Plan: 03-cg-and-macro-installer.md                 Steps: 50 (counted twice)
+Subtasks: 50 in .lovable/plans/subtasks/cg-and-macro-installer/
+Clone buckets > 1: 0            Max similarity: 28%
+Citations total: 600            Missing files: 0    Missing sections: 0
+Guideline checklist: 30 topics, duplicates: 0
+Execution model: one step per run, self-loop, max 2 agents x 3 threads
+Ci/cd verification: 2 jobs per domain
+Tasks blocked on ambiguity: 0 (Q..)   Rca records written: 0
+Self-score: 10/10/10/10/10/10/10 -> 100/100
+Spec gaps filed: none
