@@ -160,3 +160,77 @@ func TestDeleteHostByIP(t *testing.T) {
 		t.Errorf("expected no error deleting non-existent, got %v", err)
 	}
 }
+
+func TestSSHRepoIntegration(t *testing.T) {
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		t.Fatalf("failed to open memory db: %v", err)
+	}
+	defer db.Close()
+
+	ctx := context.Background()
+
+	err = RegisterSSHHostMigration(db, 1, false)
+	if err != nil {
+		t.Fatalf("failed to run host migration: %v", err)
+	}
+
+	err = RegisterSSHHistoryMigration(db, 1, false)
+	if err != nil {
+		t.Fatalf("failed to run history migration: %v", err)
+	}
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatalf("failed to begin tx: %v", err)
+	}
+
+	now := time.Now().Truncate(time.Second).UTC()
+	host := SSHHost{
+		ID:        "host-int-1",
+		Alias:     "int-server",
+		IP:        "10.0.0.50",
+		Username:  "int-user",
+		CreatedAt: now,
+	}
+
+	err = InsertSSHHost(ctx, host, tx)
+	if err != nil {
+		t.Fatalf("InsertSSHHost failed: %v", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		t.Fatalf("failed to commit: %v", err)
+	}
+
+	hist := SSHHistory{
+		ID:       "hist-1",
+		HostIP:   "10.0.0.50",
+		JoinedAt: now,
+		User:     "int-user",
+	}
+
+	err = LogSSHJoin(ctx, hist, db)
+	if err != nil {
+		t.Fatalf("LogSSHJoin failed: %v", err)
+	}
+
+	var hostCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM ssh_hosts WHERE id = 'host-int-1'").Scan(&hostCount)
+	if err != nil {
+		t.Fatalf("failed to query host count: %v", err)
+	}
+	if hostCount != 1 {
+		t.Errorf("expected 1 host record, got %d", hostCount)
+	}
+
+	var histCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM ssh_history WHERE id = 'hist-1'").Scan(&histCount)
+	if err != nil {
+		t.Fatalf("failed to query hist count: %v", err)
+	}
+	if histCount != 1 {
+		t.Errorf("expected 1 hist record, got %d", histCount)
+	}
+}

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"regexp"
 	"testing"
 	"time"
 )
@@ -26,12 +27,19 @@ func TestGetLocalIP(t *testing.T) {
 	ctx := context.Background()
 	ip, err := GetLocalIP(ctx, true, "")
 	if err != nil {
-		t.Logf("GetLocalIP returned error: %v", err)
-	} else {
-		if ip == "" {
-			t.Errorf("expected non-empty IP")
-		} else {
-			t.Logf("Found IP: %s", ip)
-		}
+		t.Skipf("GetLocalIP returned error (maybe no network): %v", err)
+	}
+	
+	if ip == "" {
+		t.Errorf("expected non-empty IP")
+	}
+
+	if ip == "127.0.0.1" {
+		t.Errorf("expected non-loopback IP, got 127.0.0.1")
+	}
+
+	matched, _ := regexp.MatchString(`^\d{1,3}(\.\d{1,3}){3}$`, ip)
+	if !matched {
+		t.Errorf("expected IPv4 format, got %s", ip)
 	}
 }

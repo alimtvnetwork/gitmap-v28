@@ -3,11 +3,13 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"golang.org/x/term"
 )
 
 type InteractiveSSHClient struct {
@@ -61,4 +63,18 @@ func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
 	}
 
 	return nil
+}
+
+func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, error) {
+	fmt.Print(prompt)
+	password, err := term.ReadPassword(fd)
+	fmt.Println()
+	if err != nil {
+		return "", &apperror.AppError{
+			Op:    "PromptSSHPassword",
+			Code:  "E_INTERNAL_ERROR",
+			Cause: err,
+		}
+	}
+	return string(password), nil
 }

@@ -15,33 +15,50 @@ func TestSSHTarget(t *testing.T) {
 }
 
 func TestParseSSHTarget(t *testing.T) {
-	t.Run("user@ip", func(t *testing.T) {
-		target, err := ParseSSHTarget("admin@192.168.1.1", "root", 22)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if target.Username != "admin" || target.IP != "192.168.1.1" {
-			t.Errorf("unexpected parsing result: %+v", target)
-		}
-	})
+	tests := []struct {
+		name     string
+		raw      string
+		expected *SSHTarget
+	}{
+		{
+			name: "ip@user",
+			raw:  "192.168.1.9@a",
+			expected: &SSHTarget{
+				Username: "a",
+				IP:       "192.168.1.9",
+				Port:     22,
+			},
+		},
+		{
+			name: "user@ip",
+			raw:  "a@192.168.1.9",
+			expected: &SSHTarget{
+				Username: "a",
+				IP:       "192.168.1.9",
+				Port:     22,
+			},
+		},
+		{
+			name: "no user",
+			raw:  "m1",
+			expected: &SSHTarget{
+				Username: "root",
+				IP:       "m1",
+				Port:     22,
+			},
+		},
+	}
 
-	t.Run("ip@user", func(t *testing.T) {
-		target, err := ParseSSHTarget("192.168.1.1@admin", "root", 22)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if target.Username != "admin" || target.IP != "192.168.1.1" {
-			t.Errorf("unexpected parsing result: %+v", target)
-		}
-	})
-
-	t.Run("no user", func(t *testing.T) {
-		target, err := ParseSSHTarget("192.168.1.1", "root", 22)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if target.Username != "root" || target.IP != "192.168.1.1" {
-			t.Errorf("unexpected parsing result: %+v", target)
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			target, err := ParseSSHTarget(tt.raw, "root", 22)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if target.Username != tt.expected.Username || target.IP != tt.expected.IP {
+				t.Errorf("expected Username=%q IP=%q, got Username=%q IP=%q",
+					tt.expected.Username, tt.expected.IP, target.Username, target.IP)
+			}
+		})
+	}
 }
