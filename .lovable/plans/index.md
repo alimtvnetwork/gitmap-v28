@@ -104,3 +104,6 @@ completed/099-task.md
 completed/100-task.md
 completed/101-task.md
 completed/102-task.md
+completed/103-task.md
+completed/104-task.md
+completed/105-task.md
