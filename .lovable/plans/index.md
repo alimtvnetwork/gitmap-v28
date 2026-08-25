@@ -38,3 +38,6 @@ completed/033-task.md
 completed/034-task.md
 completed/035-task.md
 completed/036-task.md
+completed/037-task.md
+completed/038-task.md
+completed/039-task.md
