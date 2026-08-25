@@ -230,3 +230,6 @@ completed/225-task.md
 completed/226-task.md
 completed/227-task.md
 completed/228-task.md
+completed/229-task.md
+completed/230-task.md
+completed/231-task.md
