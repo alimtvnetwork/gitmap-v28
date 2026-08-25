@@ -8,12 +8,18 @@ import (
 )
 
 // resolvePackageManager detects or uses the specified package manager.
-func resolvePackageManager(override string) string {
+func resolvePackageManager(override, tool string) string {
 	if override != "" {
 		return override
 	}
 
-	return detectPackageManager()
+	pm := detectPackageManager()
+	if pm == constants.PkgMgrApt && tool == constants.ToolVSCode {
+		if isCommandAvailable(constants.PkgMgrSnap) {
+			return constants.PkgMgrSnap
+		}
+	}
+	return pm
 }
 
 // detectPackageManager finds the available package manager.

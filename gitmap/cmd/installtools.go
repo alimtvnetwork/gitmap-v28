@@ -13,7 +13,7 @@ import (
 
 // installTool dispatches to the platform-specific installer.
 func installTool(opts installOptions) {
-	manager := resolvePackageManager(opts.Manager)
+	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	installCmd := buildInstallCommand(manager, opts.Tool, opts.Version)
 	versionLabel := opts.Version
 	if versionLabel == "" {
@@ -134,6 +134,10 @@ func buildBrewCommand(tool, pkg string) []string {
 
 // buildSnapCommand builds a Snap install command.
 func buildSnapCommand(pkg string) []string {
+	if pkg == "code" {
+		return []string{"sudo", "snap", "install", pkg, "--classic"}
+	}
+
 	return []string{"sudo", "snap", "install", pkg}
 }
 
@@ -184,7 +188,7 @@ func execInstallCommand(args []string, verbose bool) ([]byte, error) {
 }
 
 func handleInstallError(args []string, opts installOptions, output []byte, err error) {
-	manager := resolvePackageManager(opts.Manager)
+	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	logPath := writeInstallErrorLog(opts.Tool, manager, opts.Version, args, output, err)
 	printInstallFailureDetails(opts.Tool, manager, opts.Version, args, err, logPath)
 	os.Exit(1)
@@ -368,6 +372,7 @@ func resolveBrewPackage(tool string) string {
 var snapPackageMap = map[string]string{
 	constants.ToolCouchDB: constants.SnapPkgCouchDB,
 	constants.ToolRedis:   constants.SnapPkgRedis,
+	constants.ToolVSCode:  "code",
 }
 
 // resolveSnapPackage maps tool names to Snap package IDs.

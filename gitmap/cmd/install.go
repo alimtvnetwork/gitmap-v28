@@ -125,7 +125,7 @@ func shouldProceedInstall(opts installOptions, installName string) bool {
 
 func runToolInstallation(opts installOptions, originalTool, installName string) {
 	opts.Tool = installName
-	manager := resolvePackageManager(opts.Manager)
+	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	announceInstallPlan(opts.Version, manager)
 	if confirmInstallIfNeeded(opts, installName, manager) {
 		installTool(opts)

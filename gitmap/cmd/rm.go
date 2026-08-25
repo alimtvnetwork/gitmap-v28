@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
@@ -55,7 +56,20 @@ func runRm(args []string) {
 	defer db.Close()
 
 	matches, missing := ResolveMultiRepos(db, targets)
+	var finalMissing []string
 	for _, m := range missing {
+		abs, err := filepath.Abs(m)
+		if err == nil && fsutil.DirExists(abs) {
+			matches = append(matches, model.ScanRecord{
+				AbsolutePath: abs,
+				Slug:         filepath.Base(abs) + " (untracked)",
+			})
+			continue
+		}
+		finalMissing = append(finalMissing, m)
+	}
+
+	for _, m := range finalMissing {
 		fmt.Fprintf(os.Stderr, "rm: no repo matched %q\n", m)
 	}
 	if len(matches) == 0 {

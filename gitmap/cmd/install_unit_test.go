@@ -162,7 +162,7 @@ func TestSortedCategoryNamesCoreFirst(t *testing.T) {
 // ─────────────────────────── installdetect: override path ─────────────
 
 func TestResolvePackageManagerOverride(t *testing.T) {
-	got := resolvePackageManager("brew")
+	got := resolvePackageManager("brew", "")
 	if got != "brew" {
 		t.Fatalf("override must win; got %q", got)
 	}
@@ -171,7 +171,7 @@ func TestResolvePackageManagerOverride(t *testing.T) {
 func TestResolvePackageManagerEmptyDelegates(t *testing.T) {
 	// Empty override delegates to detectPackageManager — result is
 	// platform-dependent but must be a non-empty known manager.
-	got := resolvePackageManager("")
+	got := resolvePackageManager("", "")
 	if got == "" {
 		t.Fatal("empty override must still return a default manager")
 	}

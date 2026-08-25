@@ -39,7 +39,7 @@ func syncVSCodeSettings() {
 
 	entries, err := os.ReadDir(sourcePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  Error: VS Code settings source not found at %s: %v\n", sourcePath, err)
+		fmt.Fprintf(os.Stderr, "  Error: VS Code settings source folder not found at %s. Place your settings.json and keybindings.json there to sync them.\n", sourcePath)
 
 		return
 	}

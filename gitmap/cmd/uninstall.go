@@ -141,12 +141,12 @@ func hasPositionalToolArg(args []string) bool {
 // resolveUninstallManager determines which manager was used to install.
 func resolveUninstallManager(db *store.DB, tool string) string {
 	if db == nil {
-		return resolvePackageManager("")
+		return resolvePackageManager("", tool)
 	}
 
 	record, err := db.GetInstalledTool(tool)
 	if err != nil || record.PackageManager == "" {
-		return resolvePackageManager("")
+		return resolvePackageManager("", tool)
 	}
 
 	return record.PackageManager
