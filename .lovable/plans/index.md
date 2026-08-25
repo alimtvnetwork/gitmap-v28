@@ -158,3 +158,6 @@ completed/153-task.md
 completed/154-task.md
 completed/155-task.md
 completed/156-task.md
+completed/157-task.md
+completed/158-task.md
+completed/159-task.md
