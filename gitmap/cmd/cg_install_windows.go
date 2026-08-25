@@ -19,3 +19,15 @@ type CgInstallWinComponent5 struct{}
 func InitCgInstallWinComponent5() error { return nil }
 func (x *CgInstallWinComponent5) Process() bool { return true }
 
+type CgInstallWinComponent6 struct{}
+func InitCgInstallWinComponent6() error { return nil }
+func (x *CgInstallWinComponent6) Process() bool { return true }
+
+type CgInstallWinComponent7 struct{}
+func InitCgInstallWinComponent7() error { return nil }
+func (x *CgInstallWinComponent7) Process() bool { return true }
+
+type CgInstallWinComponent8 struct{}
+func InitCgInstallWinComponent8() error { return nil }
+func (x *CgInstallWinComponent8) Process() bool { return true }
+
