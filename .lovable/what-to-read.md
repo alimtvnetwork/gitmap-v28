@@ -22,6 +22,8 @@
 
 ## Before writing code
 
+- `.lovable/memory/release-architecture-map.md`, why: Details the repository Single Source of Truth versioning, component inheritance, and release propagation rules.
+
 - `.lovable/memory/style/code-quality-improvement.md`, why: Defines architectural resilience, dynamic paths, generic wrapping, and iteration reduction rules.
 - `.lovable/memory/style/01-ts-enums-and-query-wrappers.md`, why: Defines the strict requirement for `*Type` enums instead of TS string unions, and query logging wrappers.
 - `.lovable/memory/tech/01-version-json-architecture.md`, why: Explains that `version.json` is the sole source of truth and `constants.go` is injected via `-ldflags`. Do not use powershell arrays.

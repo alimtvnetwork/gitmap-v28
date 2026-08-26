@@ -14,7 +14,7 @@ This repository and all managed repositories adhere to a strict **Single Source 
 {
   "$schema_description": "Canonical Single Source of Truth for repository versioning. Every tool, script, and AI agent must read and update this file exclusively.",
   "$documentation": "docs/versioning.md",
-  "version": "6.108.0",
+  "version": "6.109.0",
   "coding-guidelines": {
     "version": "v24.0.0",
     "installed_at": "2026-08-26T14:30:00Z",

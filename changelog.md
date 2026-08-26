@@ -1,5 +1,20 @@
 # Changelog
 
+## [v6.109.0] 2026-08-26 Version JSON Installer, Component Inheritance & Release Architecture Map
+
+### Install Prompt Architect v6.109.0
+To pin your repository to this exact version, run the following one-liner:
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.109.0/install.sh | bash -s -- ".lovable/prompts" "v6.109.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.109.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.109.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added `gitmap cg install-version-json` command to install root `version.json`, generate `.lovable` memory docs, and enqueue in `what-to-read.md`.
+- Implemented component version inheritance engine (`backend`, `frontend`, `cli`) supporting `"inherit"` and explicit overrides in `gitmap/model/version_manifest.go`.
+- Added `.lovable/memory/release-architecture-map.md` detailing the Single Source of Truth versioning and propagation architecture.
+- Enqueued release architecture map in `.lovable/what-to-read.md` and linked in root `readme.md`.
+- Enforced strict Test File Ban in release protocol prohibiting reading or modifying test files during version discovery.
+
 ## [v6.108.0] 2026-08-26 SSOT Versioning Directives & Test Isolation Hardening
 
 ### Install Prompt Architect v6.108.0
