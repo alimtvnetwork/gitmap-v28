@@ -1,5 +1,19 @@
 # Changelog
 
+## [v6.108.0] 2026-08-26 SSOT Versioning Directives & Test Isolation Hardening
+
+### Install Prompt Architect v6.108.0
+To pin your repository to this exact version, run the following one-liner:
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.108.0/install.sh | bash -s -- ".lovable/prompts" "v6.108.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.108.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.108.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added `docs/versioning.md` and `.lovable/versioning.md` defining the canonical `version.json` Single Source of Truth protocol.
+- Added self-explaining schema metadata and documentation pointers inside `version.json`.
+- Added prominent AI and developer directives across test suites to strictly prohibit assuming test mocks (e.g. `v9.9.0`) as real versions.
+- Hardened `gitmap/release/autocommit_test.go` with strict `t.TempDir()` filesystem isolation to eliminate accidental Git commits during test runs.
+
 ## [v6.107.0] 2026-08-26 Prompt Architect Installer, Cross-Platform POSIX Builds & WorkDir Suite
 
 ### Install Prompt Architect v6.107.0
