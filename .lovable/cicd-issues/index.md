@@ -1,0 +1,1 @@
+- [14-top-level-cmd-registry.md](14-top-level-cmd-registry.md): TestTopLevelCmdRegistryMatchesAST fails when new top-level Cmd constants are not added to topLevelCmds() registry.

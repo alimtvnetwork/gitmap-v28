@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.116.0] - 2026-08-27
+
+### Fixed
+- Fixed CI/CD failure where `TestTopLevelCmdRegistryMatchesAST` failed because `CmdCloneSync` and `CmdCloneSyncAlias` were not added to the `topLevelCmds()` test registry map.
+
 ## [v6.115.0] - 2026-08-26
 
 ### Added

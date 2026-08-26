@@ -20,6 +20,8 @@ func topLevelCmds() map[string]string {
 		"CmdScanAlias":             CmdScanAlias,
 		"CmdClone":                 CmdClone,
 		"CmdCloneAlias":            CmdCloneAlias,
+		"CmdCloneSync":             CmdCloneSync,
+		"CmdCloneSyncAlias":        CmdCloneSyncAlias,
 		"CmdUpdate":                CmdUpdate,
 		"CmdInstalledDirAlias":     CmdInstalledDirAlias,
 		"CmdVersion":               CmdVersion,
