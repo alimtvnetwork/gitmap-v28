@@ -1,0 +1,18 @@
+{
+  "version": "6.110.0",
+  "branch": "release/v6.110.0",
+  "sourceBranch": "main",
+  "commit": "99cc015bfea78a158b7689e200dd6ed4e958ee68",
+  "tag": "v6.110.0",
+  "assets": [],
+  "changelog": [
+    "Fixed CI constants collision false-positives by hardening `.github/scripts/check-constants-collisions.py` with multi-line binary operator continuation tracking.",
+    "Resolved identifier collisions in `gitmap/constants/constants_clone_pretty.go` and `gitmap/constants/constants_clone_recent.go`.",
+    "Regenerated CLI tab-completion commands in `gitmap/completion/allcommands_generated.go` to eliminate CI generate drift.",
+    "Replaced third-party cached shields with GitHub native live SVG workflow status badges pinned to `branch=main`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-08-26T12:18:23Z",
+  "isLatest": false
+}
