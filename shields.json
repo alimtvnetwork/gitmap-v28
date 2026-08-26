@@ -1,1 +1,1 @@
-{"ci-lint":{"label":"lint","status":"failure","color":"red"}}
+{"ci-lint":{"label":"lint","status":"failure","color":"red"},"ci-tests":{"label":"tests","status":"skipped","color":"lightgrey"}}
