@@ -56,9 +56,9 @@ go test ./store -run TestMigrations
 Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
-- [ ] `installer_scripts table, installer_versions table` is successfully mapped and tested in `gitmap/store/migrations.go`.
-- [ ] All CI and `go test` commands exit zero.
-- [ ] No hardcoded or dummy assumptions are left in the code.
+- [x] `installer_scripts table, installer_versions table` is successfully mapped and tested in `gitmap/store/migrations.go`.
+- [x] All CI and `go test` commands exit zero.
+- [x] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
 None.
