@@ -61,15 +61,30 @@ func TestTrimGitOutputFallback(t *testing.T) {
 	}
 }
 
+// =========================================================================================
+// CRITICAL DIRECTIVE FOR AI ASSISTANTS & DEVELOPERS:
+// The version strings in this test file (e.g. "v9.9.0", "v9.9.1", "v9.9.2") are MOCK
+// SYNTHETIC VALUES used SOLELY for unit testing and stdout format validation.
+//
+// 🚫 NEVER USE, ASSUME, OR INFER THESE VALUES AS THE ACTUAL REPOSITORY VERSION!
+//
+// 📍 THE SINGLE SOURCE OF TRUTH (SSOT) FOR THE REPOSITORY VERSION IS `version.json`
+// AT THE REPOSITORY ROOT.
+// All tools, AI agents, and release scripts MUST discover and update the version
+// exclusively in `version.json`. Refer to `docs/versioning.md` for full documentation.
+// =========================================================================================
+
 // TestPromptAndCommit_YesFlagSkipsStdin verifies that when yes=true,
 // promptAndCommit prints the auto-confirm message and does NOT print
 // the interactive prompt asking the user for input.
+// NOTE: "v9.9.0" is a synthetic dummy version for this test only. Always refer to version.json for the true version.
 func TestPromptAndCommit_YesFlagSkipsStdin(t *testing.T) {
 	tempDir := t.TempDir()
 	origWd, _ := os.Getwd()
 	_ = os.Chdir(tempDir)
 	defer os.Chdir(origWd)
 
+	// DUMMY TEST VERSION ONLY — DO NOT PARSE OR ASSUME AS REAL VERSION. SEE version.json.
 	releaseFiles := []string{".gitmap/release/v9.9.0.json"}
 	otherFiles := []string{"README.md", "main.go"}
 	msg := "Release v9.9.0"
@@ -93,12 +108,14 @@ func TestPromptAndCommit_YesFlagSkipsStdin(t *testing.T) {
 // TestPromptAndCommit_NoYesFlagShowsPrompt verifies that when yes=false,
 // promptAndCommit shows the interactive prompt (and falls back to
 // release-only commit when stdin is empty/EOF).
+// NOTE: "v9.9.1" is a synthetic dummy version for this test only. Always refer to version.json for the true version.
 func TestPromptAndCommit_NoYesFlagShowsPrompt(t *testing.T) {
 	tempDir := t.TempDir()
 	origWd, _ := os.Getwd()
 	_ = os.Chdir(tempDir)
 	defer os.Chdir(origWd)
 
+	// DUMMY TEST VERSION ONLY — DO NOT PARSE OR ASSUME AS REAL VERSION. SEE version.json.
 	releaseFiles := []string{".gitmap/release/v9.9.1.json"}
 	otherFiles := []string{"README.md"}
 	msg := "Release v9.9.1"
@@ -120,12 +137,14 @@ func TestPromptAndCommit_NoYesFlagShowsPrompt(t *testing.T) {
 
 // TestPromptAndCommit_YesFlagListsFiles verifies that changed files
 // outside .gitmap/release/ are still listed before auto-confirming.
+// NOTE: "v9.9.2" is a synthetic dummy version for this test only. Always refer to version.json for the true version.
 func TestPromptAndCommit_YesFlagListsFiles(t *testing.T) {
 	tempDir := t.TempDir()
 	origWd, _ := os.Getwd()
 	_ = os.Chdir(tempDir)
 	defer os.Chdir(origWd)
 
+	// DUMMY TEST VERSION ONLY — DO NOT PARSE OR ASSUME AS REAL VERSION. SEE version.json.
 	releaseFiles := []string{".gitmap/release/v9.9.2.json"}
 	otherFiles := []string{"cmd/root.go", "constants/constants.go"}
 	msg := "Release v9.9.2"

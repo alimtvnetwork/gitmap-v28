@@ -1,4 +1,6 @@
 {
+  "$schema_description": "Canonical Single Source of Truth for repository versioning. Every tool, script, and AI agent must read and update this file exclusively.",
+  "$documentation": "docs/versioning.md",
   "version": "6.107.0",
   "coding-guidelines": {
     "version": "v24.0.0",
