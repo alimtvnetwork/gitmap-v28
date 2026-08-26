@@ -1,0 +1,11 @@
+{
+  "_headers": {
+    "Content-Type": "application/json; charset=utf-8",
+    "X-Correlation-Id": "01HZQK4N3M5P8RXVT7BWAGQYC2",
+    "X-Idempotency-Key": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  "_body": {
+    "Email": "alice@example.com",
+    "Password": "Sup3r-Secret-Pa$$w0rd"
+  }
+}

@@ -1,0 +1,471 @@
+{
+  "Title": "Ecosystem Error Code Master Index",
+  "Description": "Aggregated machine-readable index of all project error codes across all modules. Single source of truth for tooling integration.",
+  "Version": "1.1.0",
+  "Generated": "2026-05-04",
+  "CanonicalRegistry": "spec/07-error-code-registry/01-registry.md",
+  "Modules": [
+    {
+      "Project": "SM",
+      "Name": "Spec Management",
+      "Range": {
+        "Min": 2000,
+        "Max": 2999
+      },
+      "TotalCodes": 0,
+      "RetryableCodes": 0,
+      "Notes": [
+        "Range allocated, no consolidated error code index yet. Sub-modules SM-CG, SM-PE, SM-GS tracked separately."
+      ]
+    },
+    {
+      "Project": "GS",
+      "Name": "GSearch CLI",
+      "Range": {
+        "Min": 7000,
+        "Max": 7919
+      },
+      "LocalCodes": true,
+      "EcosystemRemapProject": "SM-GS",
+      "EcosystemRemapRange": {
+        "Min": 18000,
+        "Max": 18249
+      },
+      "IndexFile": "spec/09-gsearch-cli/error-codes.json",
+      "EcosystemRemapIndex": "spec/02-spec-management-software/05-features/22-golang-search-cli/error-codes.json",
+      "TotalCodes": 102,
+      "RetryableCodes": 37,
+      "Categories": [
+        "Validation",
+        "Authentication",
+        "Database",
+        "Network",
+        "Blocking",
+        "Quota",
+        "Parser",
+        "Movie Search",
+        "Cache",
+        "Export",
+        "Resource",
+        "Configuration",
+        "Encryption"
+      ],
+      "Notes": [
+        "Uses local codes (1xxx-12xxx) internally; ecosystem-mapped to SM-GS 18000-18249"
+      ]
+    },
+    {
+      "Project": "AB",
+      "Name": "AI Bridge CLI",
+      "Ranges": [
+        {
+          "Min": 9000,
+          "Max": 9999
+        },
+        {
+          "Min": 19000,
+          "Max": 19049
+        }
+      ],
+      "IndexFile": "spec/11-ai-bridge-cli/error-codes.json",
+      "TotalCodes": 168,
+      "RetryableCodes": 8,
+      "Categories": [
+        "Core",
+        "SEO",
+        "Tool Delegation",
+        "Voice",
+        "WebSocket",
+        "Long Chain",
+        "RAG",
+        "Lovable Reasoning"
+      ],
+      "Notes": [
+        "PS/AB SEO 9500-9540 overlap is intentional (format-separated)",
+        "Lovable Reasoning reassigned from 9830-9835 to 19000-19019"
+      ]
+    },
+    {
+      "Project": "BR",
+      "Name": "BRun CLI",
+      "Range": {
+        "Min": 7100,
+        "Max": 7599
+      },
+      "TotalCodes": 0,
+      "RetryableCodes": 0,
+      "Notes": [
+        "Range allocated within GS superrange, no error code index yet"
+      ]
+    },
+    {
+      "Project": "NF",
+      "Name": "Nexus Flow CLI",
+      "Range": {
+        "Min": 8000,
+        "Max": 8349
+      },
+      "IndexFile": "spec/12-nexus-flow-cli/error-codes.json",
+      "TotalCodes": 15,
+      "RetryableCodes": 1,
+      "Categories": [
+        "Canvas",
+        "Workflow",
+        "Execution",
+        "State"
+      ]
+    },
+    {
+      "Project": "WPB",
+      "Name": "WP Plugin Builder",
+      "Range": {
+        "Min": 10000,
+        "Max": 10499
+      },
+      "IndexFile": "spec/14-wp-plugin-builder/error-codes.json",
+      "TotalCodes": 70,
+      "RetryableCodes": 9,
+      "Categories": [
+        "General",
+        "Template",
+        "Generation",
+        "Validation",
+        "File System"
+      ],
+      "Notes": [
+        "Compressed from original 10000-10999; codes 10500-10999 are unallocated"
+      ]
+    },
+    {
+      "Project": "SRC",
+      "Name": "Spec Reverse CLI",
+      "Range": {
+        "Min": 11000,
+        "Max": 11999
+      },
+      "TotalCodes": 0,
+      "RetryableCodes": 0,
+      "Notes": [
+        "Range allocated, no error code index yet"
+      ]
+    },
+    {
+      "Project": "WSP",
+      "Name": "WP SEO Publish CLI",
+      "Range": {
+        "Min": 12000,
+        "Max": 12599
+      },
+      "IndexFile": "spec/21-wp-seo-publish-cli/error-codes.json",
+      "TotalCodes": 75,
+      "RetryableCodes": 4,
+      "Categories": [
+        "Connection",
+        "Publishing",
+        "AI Bridge Integration",
+        "Variable Processing",
+        "Import/Export",
+        "Database",
+        "Settings",
+        "Reset API"
+      ]
+    },
+    {
+      "Project": "WPP",
+      "Name": "WP Plugin Publish",
+      "Range": {
+        "Min": 13000,
+        "Max": 13499
+      },
+      "Format": "E{category}xxx \u2192 13xxx integers",
+      "IndexFile": "spec/13-wp-plugin/05-wp-plugin-publish/error-codes.json",
+      "TotalCodes": 46,
+      "RetryableCodes": 1,
+      "Categories": [
+        "Auth",
+        "Connection",
+        "Content",
+        "Media",
+        "Taxonomy",
+        "Cache",
+        "Validation",
+        "Sync"
+      ]
+    },
+    {
+      "Project": "AIT",
+      "Name": "AI Transcribe CLI",
+      "Range": {
+        "Min": 14000,
+        "Max": 14499
+      },
+      "IndexFile": "spec/16-ai-transcribe-cli/error-codes.json",
+      "TotalCodes": 141,
+      "RetryableCodes": 27,
+      "Categories": [
+        "General",
+        "Audio Pipeline",
+        "STT",
+        "TTS",
+        "Voice Commands",
+        "Voice Cloning",
+        "Realtime/WebSocket",
+        "Session Management",
+        "Configuration",
+        "Provider",
+        "Model Download"
+      ]
+    },
+    {
+      "Project": "EQM",
+      "Name": "Exam Manager",
+      "Range": {
+        "Min": 14500,
+        "Max": 14999
+      },
+      "Format": "ERR_{code} (PHP string constants, local 1xxx-9xxx \u2192 ecosystem 14500-14999)",
+      "IndexFile": "spec/13-wp-plugin/03-exam-manager/error-codes.json",
+      "TotalCodes": 57,
+      "RetryableCodes": 5,
+      "Categories": [
+        "Validation",
+        "Authentication/Authorization",
+        "Database",
+        "External Service",
+        "Business Logic",
+        "File",
+        "Configuration",
+        "System/Fatal"
+      ],
+      "Notes": [
+        "Local PHP ERR_xxxx codes remapped to ecosystem integers 14500-14999"
+      ]
+    },
+    {
+      "Project": "LM",
+      "Name": "License Manager",
+      "Range": {
+        "Min": 15000,
+        "Max": 15999
+      },
+      "IndexFile": "spec/19-license-manager/error-codes.json",
+      "TotalCodes": 0,
+      "RetryableCodes": 0,
+      "Notes": [
+        "Range allocated, no error code spec exists yet"
+      ]
+    },
+    {
+      "Project": "SM-CG",
+      "Name": "Spec Management - Code Generation System",
+      "Range": {
+        "Min": 16000,
+        "Max": 16799
+      },
+      "ReassignedFrom": "12000-12799",
+      "IndexFile": "spec/02-spec-management-software/05-features/24-code-generation-system/error-codes.json",
+      "TotalCodes": 79,
+      "RetryableCodes": 32,
+      "Categories": [
+        "Parsing",
+        "Validation",
+        "Generation",
+        "Template",
+        "Output",
+        "Integration",
+        "Configuration",
+        "Runtime"
+      ]
+    },
+    {
+      "Project": "SM-PE",
+      "Name": "Spec Management - Project Editor",
+      "Range": {
+        "Min": 17000,
+        "Max": 17999
+      },
+      "ReassignedFrom": "13000-13999",
+      "IndexFile": "spec/02-spec-management-software/05-features/28-project-editor/error-codes.json",
+      "TotalCodes": 82,
+      "RetryableCodes": 3,
+      "Categories": [
+        "Project",
+        "File Operations",
+        "Editor",
+        "Preview",
+        "Git",
+        "Build",
+        "Plugin",
+        "Configuration"
+      ]
+    },
+    {
+      "Project": "SM-GS",
+      "Name": "Spec Management - GSearch (Ecosystem Remap)",
+      "Range": {
+        "Min": 18000,
+        "Max": 18249
+      },
+      "RemappedFrom": "GS local 1xxx-12xxx",
+      "IndexFile": "spec/02-spec-management-software/05-features/22-golang-search-cli/error-codes.json",
+      "TotalCodes": 92,
+      "RetryableCodes": 32,
+      "Categories": [
+        "Validation",
+        "Authentication",
+        "Database",
+        "Network",
+        "Blocking",
+        "Quota",
+        "Parser",
+        "Cache",
+        "Export",
+        "Resource",
+        "Configuration",
+        "Encryption"
+      ]
+    },
+    {
+      "Project": "AB-LR",
+      "Name": "AI Bridge - Lovable Reasoning",
+      "Range": {
+        "Min": 19000,
+        "Max": 19049
+      },
+      "ReassignedFrom": "10500-10519",
+      "IndexFile": "spec/11-ai-bridge-cli/error-codes.json",
+      "TotalCodes": 6,
+      "RetryableCodes": 0,
+      "Notes": [
+        "Subset of AB index; reassigned via Resolution 13"
+      ]
+    },
+    {
+      "Project": "MWS",
+      "Name": "Main / Worker Service",
+      "Range": {
+        "Min": 21000,
+        "Max": 21199
+      },
+      "SubRanges": [
+        {
+          "Tier": "Worker",
+          "Min": 21000,
+          "Max": 21099
+        },
+        {
+          "Tier": "Main",
+          "Min": 21100,
+          "Max": 21199
+        }
+      ],
+      "IndexFile": "spec/19-main-worker-service/error-codes.json",
+      "TotalCodes": 48,
+      "RetryableCodes": 7,
+      "Categories": [
+        "Bootstrap",
+        "Authentication",
+        "Authorization",
+        "Validation",
+        "BusinessLogic",
+        "Database",
+        "ExternalServices",
+        "FileSystem",
+        "Network",
+        "Routing"
+      ],
+      "Notes": [
+        "Two-tier service; Worker uses 21000-21099, Main uses 21100-21199.",
+        "Both prefixed (WORKER-XYY-ZZ / MAIN-XYY-ZZ) and flat (21NNN) formats are valid; mapping is bijective.",
+        "Authoritative catalogue: spec/19-main-worker-service/13-error-codes.md."
+      ]
+    }
+  ],
+  "UnallocatedRanges": [
+    {
+      "Min": 8350,
+      "Max": 8999,
+      "Note": "Between NF and AB"
+    },
+    {
+      "Min": 10500,
+      "Max": 10999,
+      "Note": "Between WPB and SRC"
+    },
+    {
+      "Min": 12600,
+      "Max": 12999,
+      "Note": "Between WSP and WPP"
+    },
+    {
+      "Min": 13500,
+      "Max": 13999,
+      "Note": "Freed from WPP compression"
+    },
+    {
+      "Min": 15000,
+      "Max": 15999,
+      "Note": "LM allocated, no index"
+    },
+    {
+      "Min": 18250,
+      "Max": 18999,
+      "Note": "After SM-GS"
+    },
+    {
+      "Min": 19050,
+      "Max": 20999,
+      "Note": "After AB-LR, before MWS"
+    }
+  ],
+  "SpecialRanges": [
+    {
+      "Project": "GEN",
+      "Name": "General Error Codes",
+      "Range": {
+        "Min": 0,
+        "Max": 999
+      },
+      "Description": "Cross-cutting error categories (Init, Auth, Authz, Validation, Business Logic, Database, Type Casting, File System, Network)"
+    },
+    {
+      "Project": "SM",
+      "Name": "Spec Management - Misc",
+      "Ranges": [
+        {
+          "Min": 6010,
+          "Max": 6013,
+          "Label": "Spec Editor"
+        },
+        {
+          "Min": 6020,
+          "Max": 6027,
+          "Label": "Error Recovery Patterns"
+        }
+      ]
+    },
+    {
+      "Project": "PS/AB",
+      "Name": "PowerShell / AB SEO Overlap",
+      "Range": {
+        "Min": 9500,
+        "Max": 9540
+      },
+      "Description": "Intentional overlap; PS uses 'PS-9500-00' format, AB uses flat integers"
+    }
+  ],
+  "Stats": {
+    "TotalModules": 17,
+    "IndexedModules": 13,
+    "PendingModules": [
+      "SM",
+      "BR",
+      "SRC"
+    ],
+    "TotalIndexedCodes": 981,
+    "TotalRetryableCodes": 166,
+    "AllocatedRange": "2000-21199",
+    "CollisionResolutions": 13,
+    "CollisionResolutionReport": "spec/07-error-code-registry/collision-resolution-summary.md"
+  }
+}

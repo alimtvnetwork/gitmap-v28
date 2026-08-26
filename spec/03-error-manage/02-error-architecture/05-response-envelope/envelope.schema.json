@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riseup.asia/schemas/response-envelope/v1.0.0",
+  "title": "Universal Response Envelope",
+  "description": "Single source of truth for the Universal Response Envelope. All implementations (Go, TypeScript, PHP) MUST conform to this schema. See ADR.md for rationale.",
+  "type": "object",
+  "required": ["Status", "Attributes", "Results"],
+  "additionalProperties": false,
+  "properties": {
+    "Status": { "$ref": "#/$defs/Status" },
+    "Attributes": { "$ref": "#/$defs/Attributes" },
+    "Results": {
+      "type": "array",
+      "description": "Payload — always an array, even for single items or empty responses.",
+      "items": {}
+    },
+    "Navigation": {
+      "oneOf": [
+        { "$ref": "#/$defs/Navigation" },
+        { "type": "null" }
+      ],
+      "description": "Pagination links. Present only for paginated list responses."
+    },
+    "Errors": {
+      "oneOf": [
+        { "$ref": "#/$defs/Errors" },
+        { "type": "null" }
+      ],
+      "description": "Error details. Present only when HasAnyErrors is true AND reporting is enabled."
+    },
+    "MethodsStack": {
+      "oneOf": [
+        { "$ref": "#/$defs/MethodsStack" },
+        { "type": "null" }
+      ],
+      "description": "Debug call-chain trace. Present only when enabled in config."
+    }
+  },
+
+  "$defs": {
+    "Status": {
+      "type": "object",
+      "required": ["IsSuccess", "IsFailed", "Code", "Message", "Timestamp"],
+      "additionalProperties": false,
+      "properties": {
+        "IsSuccess": {
+          "type": "boolean",
+          "description": "true if the request succeeded."
+        },
+        "IsFailed": {
+          "type": "boolean",
+          "description": "true if the request failed (inverse of IsSuccess)."
+        },
+        "Code": {
+          "type": "integer",
+          "description": "HTTP status code."
+        },
+        "Message": {
+          "type": "string",
+          "description": "Human-readable status message."
+        },
+        "Timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of the response."
+        }
+      }
+    },
+
+    "Attributes": {
+      "type": "object",
+      "required": ["HasAnyErrors", "IsSingle", "IsMultiple"],
+      "additionalProperties": false,
+      "properties": {
+        "RequestedAt": {
+          "type": "string",
+          "description": "The Go backend endpoint that handled the request."
+        },
+        "RequestDelegatedAt": {
+          "type": "string",
+          "description": "REQUIRED when the Go backend proxied/delegated the request to any downstream service. Must contain the full URL of the downstream endpoint (e.g., 'https://example.com/wp-json/...'). Empty string only when the request was NOT delegated."
+        },
+        "SessionId": {
+          "type": "string",
+          "description": "Session identifier for linking with session-level diagnostics."
+        },
+        "HasAnyErrors": {
+          "type": "boolean",
+          "description": "true if any errors occurred (even partial)."
+        },
+        "IsSingle": {
+          "type": "boolean",
+          "description": "true if Results contains exactly one item."
+        },
+        "IsMultiple": {
+          "type": "boolean",
+          "description": "true if Results contains multiple items."
+        },
+        "IsEmpty": {
+          "type": "boolean",
+          "description": "true when Results is empty (TotalRecords is 0 or Results array has no items)."
+        },
+        "TotalRecords": {
+          "type": "integer",
+          "description": "Total number of records across all pages."
+        },
+        "PerPage": {
+          "type": "integer",
+          "description": "Number of records per page."
+        },
+        "TotalPages": {
+          "type": "integer",
+          "description": "Total number of pages."
+        },
+        "CurrentPage": {
+          "type": "integer",
+          "description": "Current page number."
+        }
+      }
+    },
+
+    "Navigation": {
+      "type": "object",
+      "required": ["NextPage", "PrevPage", "CloserLinks"],
+      "additionalProperties": false,
+      "properties": {
+        "NextPage": {
+          "type": ["string", "null"],
+          "description": "URL for the next page, null if on last page."
+        },
+        "PrevPage": {
+          "type": ["string", "null"],
+          "description": "URL for the previous page, null if on first page."
+        },
+        "CloserLinks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Sliding window of nearby page URLs."
+        }
+      }
+    },
+
+    "Errors": {
+      "type": "object",
+      "required": ["BackendMessage"],
+      "additionalProperties": false,
+      "properties": {
+        "BackendMessage": {
+          "type": "string",
+          "description": "Primary error message from the Go backend."
+        },
+        "DelegatedServiceErrorStack": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Stack trace lines from downstream PHP/other services. Legacy field — prefer DelegatedRequestServer for structured data."
+        },
+        "Backend": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Stack trace lines from the Go backend."
+        },
+        "Frontend": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Reserved for frontend-injected error context."
+        },
+        "DelegatedRequestServer": {
+          "oneOf": [
+            { "$ref": "#/$defs/DelegatedRequestServer" },
+            { "type": "null" }
+          ],
+          "description": "REQUIRED when IsFailed=true AND RequestDelegatedAt is non-empty. Must contain structured error details from the delegated downstream server (PHP, Chrome extension, or any 3rd-party). Omitting this when a delegated request failed is a backend bug."
+        }
+      }
+    },
+
+    "MethodsStack": {
+      "type": "object",
+      "required": ["Backend", "Frontend"],
+      "additionalProperties": false,
+      "properties": {
+        "Backend": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/StackFrame" },
+          "description": "Ordered list of method calls in the Go backend."
+        },
+        "Frontend": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/StackFrame" },
+          "description": "Reserved for frontend-injected call chain."
+        }
+      }
+    },
+
+    "StackFrame": {
+      "type": "object",
+      "required": ["Method", "File", "LineNumber"],
+      "additionalProperties": false,
+      "properties": {
+        "Method": {
+          "type": "string",
+          "description": "Function or method name."
+        },
+        "File": {
+          "type": "string",
+          "description": "Source file name."
+        },
+        "LineNumber": {
+          "type": "integer",
+          "description": "Line number in the source file."
+        }
+      }
+    },
+
+    "DelegatedRequestServer": {
+      "type": "object",
+      "required": ["DelegatedEndpoint", "Method", "StatusCode"],
+      "additionalProperties": false,
+      "description": "Structured error details from a downstream delegated server (PHP/WordPress, Chrome extension, or any 3rd-party service). Populated when the Go backend proxied a request that failed.",
+      "properties": {
+        "DelegatedEndpoint": {
+          "type": "string",
+          "description": "Exact URL of the downstream endpoint that was called."
+        },
+        "Method": {
+          "type": "string",
+          "description": "HTTP method used for the delegated request (GET, POST, etc.)."
+        },
+        "StatusCode": {
+          "type": "integer",
+          "description": "HTTP status code returned by the delegated server."
+        },
+        "RequestBody": {
+          "description": "Request body sent to the delegated server. Null for GET requests.",
+          "oneOf": [
+            { "type": "object" },
+            { "type": "null" }
+          ]
+        },
+        "Response": {
+          "description": "Full response body from the delegated server. Should include stacktrace if the delegated server supports structured error responses.",
+          "oneOf": [
+            { "type": "object" },
+            { "type": "null" }
+          ]
+        },
+        "StackTrace": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Stack trace lines from the delegated server (e.g., PHP backtrace, Node.js stack)."
+        },
+        "AdditionalMessages": {
+          "type": "string",
+          "description": "Human-readable context or diagnostic message about the delegated error."
+        }
+      }
+    }
+  }
+}

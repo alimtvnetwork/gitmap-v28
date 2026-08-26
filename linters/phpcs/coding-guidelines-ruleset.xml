@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PHP_CodeSniffer Ruleset — Coding Guidelines Enforcement
+  
+  Maps CODE RED rules to PHPCS built-in sniffs where possible.
+  
+  Usage:
+    phpcs - -standard=linters/phpcs/coding-guidelines-ruleset.xml src/
+    
+  Or add to phpcs.xml:
+    <rule ref="linters/phpcs/coding-guidelines-ruleset.xml"/>
+-->
+<ruleset name="CodingGuidelines"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+
+  <description>
+    Enforces CODE RED coding standards from spec/02-coding-guidelines/.
+    Author: Md. Alim Ul Karim — Riseup Asia LLC (http://riseup-asia.com/)
+  </description>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- Base Standards                                                  -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <rule ref="PSR12"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- CODE-RED-001: No nested if                                      -->
+  <!-- Use Generic.Metrics.NestingLevel to enforce max nesting depth  -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <rule ref="Generic.Metrics.NestingLevel">
+    <properties>
+      <!-- Absolute max: no nesting beyond 1 level -->
+      <property name="absoluteNestingLevel" value="2"/>
+      <property name="nestingLevel" value="1"/>
+    </properties>
+    <type>error</type>
+    <message>🔴 CODE RED: Nested control structure detected. Flatten with early returns or extract into helper methods.</message>
+  </rule>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- CODE-RED-004: Max function length (15 lines)                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <rule ref="Generic.Metrics.FunctionLength">
+    <properties>
+      <property name="lineLimit" value="15"/>
+      <property name="absoluteLineLimit" value="25"/>
+    </properties>
+    <type>error</type>
+    <message>🔴 CODE RED: Function exceeds 15 lines. Extract logic into smaller helpers.</message>
+  </rule>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- CODE-RED-004: Cyclomatic complexity                             -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <rule ref="Generic.Metrics.CyclomaticComplexity">
+    <properties>
+      <property name="complexity" value="10"/>
+      <property name="absoluteComplexity" value="15"/>
+    </properties>
+    <type>error</type>
+  </rule>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- CODE-RED-008: PHP enum comparison                               -->
+  <!-- No built-in sniff for this — use validate-guidelines.py        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- Style Rules                                                     -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- STYLE-002: No else after return (via Squiz standard) -->
+  <rule ref="Squiz.ControlStructures.ElseIfDeclaration"/>
+
+  <!-- General spacing and formatting -->
+  <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+  <rule ref="Generic.Files.LineLength">
+    <properties>
+      <property name="lineLimit" value="120"/>
+      <property name="absoluteLineLimit" value="150"/>
+    </properties>
+  </rule>
+
+  <!-- Naming conventions -->
+  <rule ref="Squiz.NamingConventions.ValidVariableName"/>
+  <rule ref="Squiz.NamingConventions.ValidFunctionName"/>
+
+  <!-- No unused variables -->
+  <rule ref="SlevomatCodingStandard.Variables.UnusedVariable" />
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- Exclusions                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*/dist/*</exclude-pattern>
+  <exclude-pattern>*.min.php</exclude-pattern>
+
+</ruleset>

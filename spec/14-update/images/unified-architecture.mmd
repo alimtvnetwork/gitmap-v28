@@ -1,0 +1,19 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Unified self-update architecture (probe + rename-first + handoff loop)
+%% Authoritative:  spec/14-update/01-self-update-overview.md + 03-rename-first-deploy.md + 05-handoff-mechanism.md
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-07)
+%% ==========================================================
+flowchart TD
+    Active["Active binary (vOld)"] --> Detect["Detect update"]
+    Detect --> Probe["Probe GitHub Releases"]
+    Probe --> Download["Download to binary.new"]
+    Download --> Verify["Verify sha256 vs checksums.txt"]
+    Verify --> RenameOld["Rename active -> binary.bak"]
+    RenameOld --> RenameNew["Rename binary.new -> active"]
+    RenameNew --> Handoff["Spawn handoff copy"]
+    Handoff --> ReExec["Re-exec new binary (vNew)"]
+    ReExec --> Cleanup["Cleanup binary.bak on next start"]
+    Cleanup --> Active

@@ -1,0 +1,14 @@
+{
+  "_headers": {
+    "Content-Type": "application/json; charset=utf-8",
+    "Authorization": "Bearer <oauth-client-credentials-token>",
+    "X-Correlation-Id": "01HZQK4T5R5P4V6ZFEQKHGQYC6",
+    "X-Idempotency-Key": "11223344-5566-4778-8899-aabbccddeeff"
+  },
+  "_body": {
+    "WorkerVersionSemver": "5.23.0",
+    "ActiveTenantCount": 12,
+    "InFlightRequestCount": 3,
+    "UptimeSeconds": 86412
+  }
+}

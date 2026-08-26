@@ -1,0 +1,33 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Self-update end-to-end flow (probe -> download -> verify -> rename -> handoff)
+%% Authoritative:  spec/14-update/01-self-update-overview.md + 03-rename-first-deploy.md
+%%                 + 05-handoff-mechanism.md + 09-version-verification.md + 14-checksums-verification.md
+%% Status:         Illustrative only. If this diagram disagrees with the cited specs, the spec wins.
+%% Banner version: 1.0.0 (2026-05-07)
+%% ==========================================================
+sequenceDiagram
+    autonumber
+    participant U as User / CLI
+    participant App as Active Binary
+    participant GH as GitHub Releases
+    participant FS as Local Filesystem
+
+    U->>App: "app update"
+    App->>App: requireOnline (network preflight)
+    App->>GH: "GET /releases/latest"
+    GH-->>App: "version + asset URLs + checksums"
+    App->>App: "compare semver vs current"
+    alt already current
+        App-->>U: "Already up to date"
+    else newer available
+        App->>GH: "download asset (tar.gz / zip)"
+        GH-->>App: "binary blob + sha256"
+        App->>App: "verify sha256 vs checksums.txt"
+        App->>FS: "write next to active as binary.new"
+        App->>FS: "rename active to binary.bak"
+        App->>FS: "rename binary.new to active"
+        App->>App: "spawn handoff copy"
+        App-->>U: "Update complete: vOld to vNew"
+    end

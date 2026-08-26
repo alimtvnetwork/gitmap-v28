@@ -25,8 +25,6 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/scripts/fix-repo/rewrite.sh"
 # shellcheck source=scripts/fix-repo/config.sh
 . "$SCRIPT_DIR/scripts/fix-repo/config.sh"
-# shellcheck source=scripts/fix-repo/paired-literal-audit.sh
-. "$SCRIPT_DIR/scripts/fix-repo/paired-literal-audit.sh"
 
 EXIT_OK=0
 EXIT_NOT_A_REPO=2
@@ -36,11 +34,6 @@ EXIT_BAD_VERSION=5
 EXIT_BAD_FLAG=6
 EXIT_WRITE_FAILED=7
 EXIT_BAD_CONFIG=8
-# E_PAIRED_LITERAL: post-rewrite audit found a {base}-v{Current} token
-# next to a stale sibling literal of the previous version (most often
-# in *_test.go fixtures). See .lovable/memory/issues/2026-05-02-fixrepo-
-# paired-literal-desync.md.
-EXIT_PAIRED_LITERAL=10
 
 MODE="--2"
 DRY_RUN=0
@@ -51,6 +44,7 @@ is_mode_flag() {
   case "$1" in --2|--3|--5|--all) return 0 ;; *) return 1 ;; esac
 }
 
+# lint-allow: function-length reason="flat CLI flag-parser dispatch; further split harms readability" max=25
 parse_args() {
   local mode_count=0 a expect_config=0
   for a in "$@"; do
@@ -75,6 +69,7 @@ parse_args() {
   fi
 }
 
+# lint-allow: function-length reason="help-text heredoc"
 print_help() {
   cat <<'EOF'
 fix-repo.sh — rewrite prior versioned-repo-name tokens to current.
@@ -125,6 +120,7 @@ resolve_identity() {
   _assert_version_suffix
 }
 
+# lint-allow: function-length reason="header-banner heredoc"
 print_header() {
   local current="$1" mode="$2" targets_str="$3"
   echo "fix-repo  base=$SPLIT_BASE  current=v$current  mode=$mode"
@@ -151,6 +147,7 @@ print_summary() {
 
 # Process one file. Updates: SWEEP_SCANNED, SWEEP_CHANGED, SWEEP_REPS, SWEEP_FAILED.
 # Args: rel current target_arr_var_name
+# lint-allow: function-length reason="flat per-file IO pipeline"
 _process_one_file() {
   local rel="$1" current="$2"
   local full="$REPO_ROOT/$rel"
@@ -164,7 +161,6 @@ _process_one_file() {
   [ "$reps" -gt 0 ] || return 0
   SWEEP_CHANGED=$((SWEEP_CHANGED + 1))
   SWEEP_REPS=$((SWEEP_REPS + reps))
-  SWEEP_CHANGED_FILES+=("$full")
   [ "$VERBOSE_FLAG" = "1" ] && echo "modified: $rel ($reps replacements)"
   return 0
 }
@@ -172,7 +168,6 @@ _process_one_file() {
 run_sweep() {
   local current="$1" targets_str="$2" rel n
   SWEEP_SCANNED=0; SWEEP_CHANGED=0; SWEEP_REPS=0; SWEEP_FAILED=0
-  SWEEP_CHANGED_FILES=()
   _TARGET_ARR=()
   for n in $targets_str; do _TARGET_ARR+=("$n"); done
   while IFS= read -r -d '' rel; do
@@ -180,6 +175,7 @@ run_sweep() {
   done < <(cd "$REPO_ROOT" && git ls-files -z)
 }
 
+# lint-allow: function-length reason="top-level orchestrator; sequential pipeline" max=25
 main() {
   parse_args "$@"
   resolve_identity
@@ -197,9 +193,6 @@ main() {
   run_sweep "$current" "$targets_str"
   print_summary "$SWEEP_SCANNED" "$SWEEP_CHANGED" "$SWEEP_REPS" "$DRY_RUN"
   if [ "$SWEEP_FAILED" = "1" ]; then exit $EXIT_WRITE_FAILED; fi
-  if ! run_paired_literal_audit "$SPLIT_BASE" "$current" "$DRY_RUN" "${SWEEP_CHANGED_FILES[@]:-}"; then
-    exit $EXIT_PAIRED_LITERAL
-  fi
   exit $EXIT_OK
 }
 

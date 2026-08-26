@@ -1,0 +1,618 @@
+diff --git a/.gitignore b/.gitignore
+index 64f36a9..9d6376d 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -46,3 +46,4 @@ cited-paths.txt
+ .lovable/temp-scripts/
+ 
+ .lovable/temp/
++.lovable/temp-scripts/
+diff --git a/gitmap/cmd/clonepmsync.go b/gitmap/cmd/clonepmsync.go
+index 0ba04bb..afe943e 100644
+--- a/gitmap/cmd/clonepmsync.go
++++ b/gitmap/cmd/clonepmsync.go
+@@ -22,6 +22,7 @@ import (
+ 
+ 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+ 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
++	"github.com/alimtvnetwork/gitmap-v28/gitmap/workspacesync"
+ )
+ 
+ // canonicalizePMPath returns the canonical Windows-friendly form of an
+@@ -143,6 +144,10 @@ func syncClonedReposToVSCodePM(pairs []vscodepm.Pair, skip bool) {
+ 		return
+ 	}
+ 
++	for _, pair := range pairs {
++		workspacesync.SyncAntigravity(pair.RootPath, pair.Name)
++	}
++
+ 	fmt.Printf(constants.MsgVSCodePMSyncSummary,
+ 		summary.Added, summary.Updated, summary.Unchanged, summary.Total)
+ }
+diff --git a/gitmap/cmd/clonepretty.go b/gitmap/cmd/clonepretty.go
+index f401505..f3ce0a6 100644
+--- a/gitmap/cmd/clonepretty.go
++++ b/gitmap/cmd/clonepretty.go
+@@ -94,10 +94,14 @@ func newCloneCommand(url, dest string) *exec.Cmd {
+ // clone-class command. Matches the visual language already used by
+ // the chrome-profile-copy and release pipelines.
+ func printClonePrettyHeader(url, dest string) {
+-	fmt.Printf(constants.MsgClonePrettyHeader, url, dest,
++	idx := atomic.AddUint64(&clonePrettyCounter, 1) - 1
++	pastelColor := constants.ColorCycle[idx%uint64(len(constants.ColorCycle))]
++	fmt.Printf(constants.MsgClonePrettyHeader, pastelColor, url, dest,
+ 		constants.GitBin, constants.GitClone, url, dest)
+ }
+ 
++var clonePrettyCounter uint64
++
+ // printClonePrettyFailure renders the red failure panel: exact
+ // argv that ran, exit code (when available), and a list of concrete
+ // retry hints. Hint set was tuned for the failure modes we see most
+@@ -133,3 +137,4 @@ func buildClonePrettyHints(url, dest string) string {
+ 		"  • preview without cloning:  "+constants.ColorCyan+"gitmap clone "+url+" --dry-run"+constants.ColorReset)
+ 	return strings.Join(hints, "\n")
+ }
++
+diff --git a/gitmap/cmd/helpdashboard.go b/gitmap/cmd/helpdashboard.go
+index b64ce0b..f9476f5 100644
+--- a/gitmap/cmd/helpdashboard.go
++++ b/gitmap/cmd/helpdashboard.go
+@@ -125,9 +125,13 @@ func serveStatic(distDir string, port int) {
+ 	fmt.Printf(constants.MsgHDServingStatic, distDir, port)
+ 	openBrowser(port)
+ 
++	mux := http.NewServeMux()
++	mountTerminalHandlers(mux)
++	mux.Handle("/", spaHandler(distDir))
++
+ 	server := &http.Server{
+ 		Addr:              fmt.Sprintf(":%d", port),
+-		Handler:           spaHandler(distDir),
++		Handler:           mux,
+ 		ReadHeaderTimeout: 5 * time.Second,
+ 	}
+ 
+diff --git a/gitmap/cmd/move.go b/gitmap/cmd/move.go
+index aef1b95..f013558 100644
+--- a/gitmap/cmd/move.go
++++ b/gitmap/cmd/move.go
+@@ -132,10 +132,13 @@ func newMoveFlagSet() (*flag.FlagSet, *movemergeFlagSet) {
+ 	return fs, mf
+ }
+ 
+-// mustResolve resolves an endpoint or exits with code 1 on failure.
+ func mustResolve(raw string, isLeft bool, opts movemerge.Options) movemerge.Endpoint {
+ 	ep, err := movemerge.ResolveEndpoint(raw, isLeft, opts)
+ 	if err != nil {
++		if db, dbErr := openDB(); dbErr == nil {
++			PrintRepoSuggestions(db, raw)
++			db.Close()
++		}
+ 		cliexit.Fail(constants.CmdMv, constants.OpResolveEndpoint, raw, err, constants.ExitCodeError)
+ 	}
+ 
+diff --git a/gitmap/cmd/pull_table_row.go b/gitmap/cmd/pull_table_row.go
+index d18babd..d6ee873 100644
+--- a/gitmap/cmd/pull_table_row.go
++++ b/gitmap/cmd/pull_table_row.go
+@@ -3,14 +3,21 @@ package cmd
+ 
+ import (
+ 	"fmt"
++	"sync/atomic"
+ 
++	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+ 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+ )
+ 
++var pullRowCounter uint64
++
+ func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
+ 	statusFmt := formatPullStatus(r.PullStatus, r.IsDirty)
+-	fmt.Printf("  %-*s   %-*s   %-*s   %-*s   %-*s   %s\n",
+-		l.MaxRepo, r.RepoName,
++	idx := atomic.AddUint64(&pullRowCounter, 1) - 1
++	pastelColor := constants.ColorCycle[idx%uint64(len(constants.ColorCycle))]
++
++	fmt.Printf("  %s%-*s%s   %-*s   %-*s   %-*s   %-*s   %s\n",
++		pastelColor, l.MaxRepo, r.RepoName, constants.ColorReset,
+ 		l.MaxBranch, r.Branch,
+ 		l.MaxSHA, r.LastSHA,
+ 		l.MaxPR, r.PRStatus,
+diff --git a/gitmap/cmd/reconcile_db.go b/gitmap/cmd/reconcile_db.go
+index 966867a..2df1aab 100644
+--- a/gitmap/cmd/reconcile_db.go
++++ b/gitmap/cmd/reconcile_db.go
+@@ -1,11 +1,52 @@
+ package cmd
+ 
+-type TypeFunc251086c8 struct{}
++import (
++	"fmt"
+ 
+-func InitFunc251086c8() error             { return nil }
+-func (x *TypeFunc251086c8) Process() bool { return true }
++	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
++	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
++	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
++)
+ 
+-type TypeFunc7853fea6 struct{}
++func runReconcile(dir string, currentRecords []model.ScanRecord) {
++	fmt.Printf("  " + constants.ColorDim + "→ reconciling missing/stale db entries..." + constants.ColorReset)
+ 
+-func InitFunc7853fea6() error             { return nil }
+-func (x *TypeFunc7853fea6) Process() bool { return true }
++	db, err := store.OpenDefault()
++	if err != nil {
++		fmt.Printf(" [failed: %v]\n", err)
++		return
++	}
++	defer db.Close()
++
++	validPaths := make(map[string]bool)
++	for _, r := range currentRecords {
++		validPaths[r.AbsolutePath] = true
++	}
++
++	allRepos, err := db.ListRepos()
++	if err != nil {
++		fmt.Printf(" [failed: load repos]\n")
++		return
++	}
++
++	removed := 0
++	for _, repo := range allRepos {
++		if isSubPath(dir, repo.AbsolutePath) {
++			if !validPaths[repo.AbsolutePath] {
++				_, err := db.DeleteByPath(repo.AbsolutePath)
++				if err == nil {
++					removed++
++				}
++			}
++		}
++	}
++
++	fmt.Printf(" [reconciled: "+constants.ColorGreen+"ok"+constants.ColorReset+" - removed %d stale entries]\n", removed)
++}
++
++func isSubPath(parent, child string) bool {
++	if len(child) > len(parent) {
++		return child[:len(parent)] == parent
++	}
++	return false
++}
+diff --git a/gitmap/cmd/resolver.go b/gitmap/cmd/resolver.go
+index c014bba..9f18099 100644
+--- a/gitmap/cmd/resolver.go
++++ b/gitmap/cmd/resolver.go
+@@ -2,6 +2,7 @@ package cmd
+ 
+ import (
+ 	"fmt"
++	"os"
+ 	"strings"
+ 
+ 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+@@ -77,3 +78,15 @@ func resolveBySlug(target string, all []model.ScanRecord) *model.ScanRecord {
+ 	}
+ 	return nil
+ }
++
++// PrintRepoSuggestions queries the database for suggestions and prints them.
++func PrintRepoSuggestions(db *store.DB, target string) {
++	suggs, _ := db.GetRepoSuggestions(target)
++	if len(suggs) > 0 {
++		fmt.Fprintf(os.Stderr, "Did you mean:\n")
++		for _, s := range suggs {
++			fmt.Fprintf(os.Stderr, "  %s\n", s)
++		}
++	}
++}
++
+diff --git a/gitmap/cmd/rm.go b/gitmap/cmd/rm.go
+index 8b034eb..111ade5 100644
+--- a/gitmap/cmd/rm.go
++++ b/gitmap/cmd/rm.go
+@@ -71,6 +71,7 @@ func runRm(args []string) {
+ 
+ 	for _, m := range finalMissing {
+ 		fmt.Fprintf(os.Stderr, "rm: no repo matched %q\n", m)
++		PrintRepoSuggestions(db, m)
+ 	}
+ 	if len(matches) == 0 {
+ 		os.Exit(1)
+diff --git a/gitmap/cmd/rootcore.go b/gitmap/cmd/rootcore.go
+index 8ae5813..8f45b30 100644
+--- a/gitmap/cmd/rootcore.go
++++ b/gitmap/cmd/rootcore.go
+@@ -26,6 +26,7 @@ func coreBasicEntries() []dispatchEntry {
+ 	return []dispatchEntry{
+ 		{[]string{constants.CmdScan, constants.CmdScanAlias}, func() { runScan(argsTail()) }},
+ 		{[]string{constants.CmdClone, constants.CmdCloneAlias}, func() { runClone(argsTail()) }},
++		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, func() { runCloneSync() }},
+ 		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() { runPull(argsTail()) }},
+ 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() { runPush(argsTail()) }},
+ 		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias}, func() { runPullAll(argsTail()) }},
+diff --git a/gitmap/cmd/rootflags.go b/gitmap/cmd/rootflags.go
+index 208b3cd..8829e44 100644
+--- a/gitmap/cmd/rootflags.go
++++ b/gitmap/cmd/rootflags.go
+@@ -49,6 +49,7 @@ type scanFlagPointers struct {
+ 	noAutoTagsFlag    *bool
+ 	reportErrFlag     *bool
+ 	compactFlag       *bool
++	fixFlag           *bool
+ 	workersFlag       *int
+ 	concurrencyFlag   *int
+ 	maxDepthFlag      *int
+@@ -78,6 +79,7 @@ func registerScanToggles(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
+ 	flagPtrs.noAutoTagsFlag = fs.Bool(constants.FlagNoAutoTags, false, constants.FlagDescNoAutoTags)
+ 	flagPtrs.reportErrFlag = fs.Bool(constants.FlagScanReportErrors, false, constants.FlagDescScanReportErrors)
+ 	flagPtrs.compactFlag = fs.Bool(constants.FlagScanCompact, false, constants.FlagDescScanCompact)
++	flagPtrs.fixFlag = fs.Bool("fix", false, "Reconcile missing/stale repositories from the gitmap tracking database")
+ }
+ 
+ func registerScanIntFlags(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
+@@ -117,7 +119,7 @@ func resolveScanOutputPath(outputPath, manifest string) string {
+ }
+ 
+ // parseScanFlags parses flags for the scan command.
+-func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
++func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
+ 	fs := flag.NewFlagSet(constants.CmdScan, flag.ExitOnError)
+ 	scanFlags := newScanFlagSet(fs)
+ 	fs.Parse(args)
+@@ -128,7 +130,7 @@ func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
+ 	resolvedWorkers := resolveScanWorkers(fs, scanFlags.workersFlag, scanFlags.concurrencyFlag)
+ 	resolvedOutputPath := resolveScanOutputPath(*scanFlags.outputPathFlag, *scanFlags.manifestFlag)
+ 
+-	return dir, *scanFlags.cfgFlag, *scanFlags.modeFlag, *scanFlags.outputFlag, *scanFlags.outFileFlag, resolvedOutputPath, *scanFlags.relRootFlag, *scanFlags.defaultBranchFlag, *scanFlags.ghDesktopFlag, *scanFlags.openFlag, *scanFlags.quietFlag, *scanFlags.noVSCodeSyncFlag, *scanFlags.noAutoTagsFlag, *scanFlags.reportErrFlag, *scanFlags.compactFlag, resolvedWorkers, *scanFlags.maxDepthFlag, probeOpts
++	return dir, *scanFlags.cfgFlag, *scanFlags.modeFlag, *scanFlags.outputFlag, *scanFlags.outFileFlag, resolvedOutputPath, *scanFlags.relRootFlag, *scanFlags.defaultBranchFlag, *scanFlags.ghDesktopFlag, *scanFlags.openFlag, *scanFlags.quietFlag, *scanFlags.noVSCodeSyncFlag, *scanFlags.noAutoTagsFlag, *scanFlags.reportErrFlag, *scanFlags.compactFlag, *scanFlags.fixFlag, resolvedWorkers, *scanFlags.maxDepthFlag, probeOpts
+ }
+ 
+ // resolveScanWorkers reconciles --workers (canonical) against the
+diff --git a/gitmap/cmd/rootusage_groups.go b/gitmap/cmd/rootusage_groups.go
+index 5bc2314..2b498e7 100644
+--- a/gitmap/cmd/rootusage_groups.go
++++ b/gitmap/cmd/rootusage_groups.go
+@@ -18,6 +18,7 @@ func printGroupCloning() {
+ 	fmt.Println()
+ 	fmt.Println(colorGroupHeader(constants.HelpGroupCloning))
+ 	fmt.Println(constants.HelpClone)
++	fmt.Println(constants.HelpCloneSync)
+ 	fmt.Println(constants.HelpCloneNext)
+ 	fmt.Println(constants.HelpDesktopSync)
+ 	fmt.Println(constants.HelpGitHubDesktop)
+diff --git a/gitmap/cmd/rootusagefilter_rows.go b/gitmap/cmd/rootusagefilter_rows.go
+index 7462890..5328101 100644
+--- a/gitmap/cmd/rootusagefilter_rows.go
++++ b/gitmap/cmd/rootusagefilter_rows.go
+@@ -18,7 +18,7 @@ func allHelpRows() []helpRow {
+ 	addGroup(&rows, constants.HelpGroupScanning,
+ 		constants.HelpScan, constants.HelpRescan, constants.HelpList)
+ 	addGroup(&rows, constants.HelpGroupCloning,
+-		constants.HelpClone, constants.HelpCloneNext,
++		constants.HelpClone, constants.HelpCloneSync, constants.HelpCloneNext,
+ 		constants.HelpDesktopSync, constants.HelpGitHubDesktop)
+ 	addGroup(&rows, constants.HelpGroupGitOps,
+ 		constants.HelpPull, constants.HelpExec, constants.HelpStatus,
+diff --git a/gitmap/cmd/scan.go b/gitmap/cmd/scan.go
+index 2e56c02..486c7e5 100644
+--- a/gitmap/cmd/scan.go
++++ b/gitmap/cmd/scan.go
+@@ -21,7 +21,7 @@ import (
+ // runScan handles the "scan" subcommand.
+ func runScan(args []string) {
+ 	checkHelp("scan", args)
+-	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, workers, maxDepth, probeOpts := parseScanFlags(args)
++	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
+ 	cfg, err := config.LoadFromFile(cfgPath)
+ 	if err != nil {
+ 		fmt.Fprintf(os.Stderr, constants.ErrConfigLoad, cfgPath, err)
+@@ -33,7 +33,7 @@ func runScan(args []string) {
+ 		OutFile: outFile, OutputPath: outputPath,
+ 		IsGithubDesktop: ghDesktop, IsOpenFolder: openFolder, IsQuiet: quiet,
+ 	}
+-	executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
++	executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
+ }
+ 
+ // executeScan performs the directory scan and outputs results.
+@@ -43,7 +43,7 @@ func runScan(args []string) {
+ // stage. This is the file users should attach when reporting "scan is
+ // slow" — it pinpoints which phase (walk, DB upsert, project detection,
+ // release import, desktop sync, …) actually consumed the time.
+-func executeScan(dir string, cfg model.Config, outFile string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact bool, workers, maxDepth int, cache model.ScanCache, probeOpts ScanProbeOptions, relativeRoot, defaultBranch string) {
++func executeScan(dir string, cfg model.Config, outFile string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix bool, workers, maxDepth int, cache model.ScanCache, probeOpts ScanProbeOptions, relativeRoot, defaultBranch string) {
+ 	absDir := resolveScanTarget(dir)
+ 
+ 	bench := newScanBenchmark(absDir)
+@@ -98,6 +98,11 @@ func executeScan(dir string, cfg model.Config, outFile string, ghDesktop, openFo
+ 		saveScanCache(outputDir, cache)
+ 	})
+ 	fmt.Print(constants.MsgSectionDatabase)
++	if fix {
++		bench.Phase("scan.reconcileDB", func() {
++			runReconcile(absDir, records)
++		})
++	}
+ 	bench.Phase("scan.dbUpsertRepos", func() {
+ 		upsertToDB(records, outputDir)
+ 	})
+diff --git a/gitmap/cmd/statusprint.go b/gitmap/cmd/statusprint.go
+index 1a55e98..cd661db 100644
+--- a/gitmap/cmd/statusprint.go
++++ b/gitmap/cmd/statusprint.go
+@@ -123,10 +123,11 @@ func printStatusTableWithContext(c *statusTableContext) {
+ 
+ 	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
+ 
+-	for _, r := range c.Rows {
++	for i, r := range c.Rows {
++		pastelColor := constants.ColorCycle[i%len(constants.ColorCycle)]
+ 		if r.Missing {
+-			fmt.Printf("  %s%-*s%s%s✖ not found%s\n",
+-				constants.ColorDim, c.MaxRepo, r.RepoName, colGap,
++			fmt.Printf("  %s%-*s%s%s%s✖ not found%s\n",
++				constants.ColorDim, c.MaxRepo, r.RepoName, constants.ColorReset, colGap,
+ 				constants.ColorRed, constants.ColorReset)
+ 			continue
+ 		}
+@@ -139,8 +140,9 @@ func printStatusTableWithContext(c *statusTableContext) {
+ 		padStash := c.MaxStash + (len(r.StashText) - len(stripANSI(r.StashText)))
+ 		padFiles := c.MaxFiles + (len(r.FilesText) - len(stripANSI(r.FilesText)))
+ 
+-		fmt.Printf("  %-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s\n",
+-			c.MaxRepo, r.RepoName, colGap,
++		fmt.Printf("  %s%-*s%s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s\n",
++			pastelColor,
++			c.MaxRepo, r.RepoName, constants.ColorReset, colGap,
+ 			padBranch, branchStr, colGap,
+ 			padStatus, r.StateIcon, colGap,
+ 			padSync, r.SyncText, colGap,
+@@ -186,3 +188,4 @@ func appendSummaryPart(parts []string, count int, color, format string) []string
+ 
+ 	return append(parts, fmt.Sprintf(format, count))
+ }
++
+diff --git a/gitmap/cmd/update.go b/gitmap/cmd/update.go
+index 2c4a3ec..99e450d 100644
+--- a/gitmap/cmd/update.go
++++ b/gitmap/cmd/update.go
+@@ -11,6 +11,7 @@ import (
+ 	"runtime"
+ 
+ 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
++	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
+ 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
+ )
+ 
+@@ -211,7 +212,7 @@ func runUpdateRunner() {
+ 	executeUpdate(repoPath, report)
+ 	runPostUpdateMigrate()
+ 	report.summarize()
+-	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, repoPath)
++	printUpdateSummary(currentVersion, targetVersion, repoPath)
+ 	scheduleDeployedCleanupHandoff()
+ }
+ 
+@@ -289,3 +290,32 @@ func readTargetVersion(repoPath string) string {
+ 	}
+ 	return parsed.Version
+ }
++
++// printUpdateSummary outputs the final update summary.
++func printUpdateSummary(oldVer, newVer, repoPath string) {
++	fmt.Printf(constants.MsgUpdateSummaryDetail, oldVer, newVer, repoPath)
++	fmt.Printf("  → Update: %s -> %s\n", oldVer, newVer)
++	printUpdateChangelog()
++	fmt.Printf("\n\n")
++}
++
++// printUpdateChangelog prints the last two notes from the changelog.
++func printUpdateChangelog() {
++	entries, err := release.ReadChangelog()
++	hasEntries := err == nil && len(entries) > 0
++	if hasEntries == false {
++		return
++	}
++
++	for _, note := range getLastTwoNotes(entries[0].Notes) {
++		fmt.Printf("    - %s\n", note)
++	}
++}
++
++func getLastTwoNotes(notes []string) []string {
++	count := len(notes)
++	if count > 2 {
++		return notes[count-2:]
++	}
++	return notes
++}
+diff --git a/gitmap/constants/constants_cli.go b/gitmap/constants/constants_cli.go
+index dc243e5..5b58275 100644
+--- a/gitmap/constants/constants_cli.go
++++ b/gitmap/constants/constants_cli.go
+@@ -7,6 +7,8 @@ const (
+ 	CmdScanAlias          = "s"
+ 	CmdClone              = "clone"
+ 	CmdCloneAlias         = "c"
++	CmdCloneSync          = "clone-sync"
++	CmdCloneSyncAlias     = "cs"
+ 	CmdUpdate             = "update"
+ 	CmdUpdateRunner       = "update-runner"  // gitmap:cmd skip
+ 	CmdUpdateCleanup      = "update-cleanup" // gitmap:cmd skip
+@@ -458,6 +460,7 @@ const (
+ 	HelpCommands         = "Commands:"
+ 	HelpScan             = "  scan (s) [dir]      Scan directory for Git repos"
+ 	HelpClone            = "  clone (c) <source|json|csv|text>  Re-clone from file (shorthands auto-resolve)"
++	HelpCloneSync        = "  clone-sync (cs) <url> [urls] Clone and immediately sync to Workspaces & Antigravity"
+ 	HelpUpdate           = "  update              Self-update from source repo"
+ 	HelpUpdateCleanup    = "  update-cleanup      Remove leftover update temp files and .old backups"
+ 	HelpInstalledDir     = "  installed-dir (id)  Show the active installed binary path"
+diff --git a/gitmap/constants/constants_clone_pretty.go b/gitmap/constants/constants_clone_pretty.go
+index d7b633f..7659b55 100644
+--- a/gitmap/constants/constants_clone_pretty.go
++++ b/gitmap/constants/constants_clone_pretty.go
+@@ -8,7 +8,7 @@ const (
+ 	// MsgClonePrettyHeader prints before every git clone invocation.
+ 	// Format slots: url, dest, gitBin, gitClone, url, dest.
+ 	MsgClonePrettyHeader = "\n" +
+-		"  " + ColorCyan + "▸ git clone" + ColorReset + "  " + ColorWhite + "%s" + ColorReset + "\n" +
++		"  %s▸ git clone" + ColorReset + "  " + ColorWhite + "%s" + ColorReset + "\n" +
+ 		"  " + ColorDim + "  target  " + ColorReset + "%s\n" +
+ 		"  " + ColorDim + "  exec    " + ColorReset + "%s %s %s %s\n"
+ 
+diff --git a/gitmap/constants/constants_messages.go b/gitmap/constants/constants_messages.go
+index 036f444..3203600 100644
+--- a/gitmap/constants/constants_messages.go
++++ b/gitmap/constants/constants_messages.go
+@@ -139,7 +139,7 @@ const (
+ 	MsgUpdateStarting       = "\n  Updating gitmap from source repo...\n"
+ 	MsgUpdateRepoPath       = "  → Repo path: %s\n"
+ 	MsgUpdateVersionCompare = "\n  → Upgrading gitmap from v%s to v%s...\n"
+-	MsgUpdateSummaryDetail  = "\n  ✓ Successfully updated from v%s to v%s\n  → Source: %s\n\n"
++	MsgUpdateSummaryDetail  = "\n  ✓ Successfully updated from v%s to v%s\n  → Source: %s\n"
+ )
+ 
+ // List and group messages.
+diff --git a/gitmap/constants/constants_store.go b/gitmap/constants/constants_store.go
+index d6a8c37..c3c96a6 100644
+--- a/gitmap/constants/constants_store.go
++++ b/gitmap/constants/constants_store.go
+@@ -132,6 +132,8 @@ const (
+ 
+ 	SQLSelectRepoByPath = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE AbsolutePath = ?"
+ 
++	SQLSuggestRepoBySlug = "SELECT Slug FROM Repo WHERE Slug LIKE ? ORDER BY Slug ASC LIMIT 10"
++
+ 	SQLDeleteRepoByPath = "DELETE FROM Repo WHERE AbsolutePath = ?"
+ 	SQLDeleteRepoBySlug = "DELETE FROM Repo WHERE Slug = ?"
+ )
+diff --git a/gitmap/constants/constants_terminal.go b/gitmap/constants/constants_terminal.go
+index 36e9e67..35917a7 100644
+--- a/gitmap/constants/constants_terminal.go
++++ b/gitmap/constants/constants_terminal.go
+@@ -22,8 +22,22 @@ const (
+ 	ColorMagenta = "\033[1;95m"            // bright bold magenta — release/version highlights
+ 	ColorBlue    = "\033[1;94m"            // bright bold blue — info banners
+ 	ColorOrange  = "\033[38;5;208m\033[1m" // 256-color bold orange — upload/transfer accents
++
++	// TrueColor Pastel Palette (Catppuccin Macchiato) for multi-item lists (clone-all, pull-all).
++	ColorPastelGreen   = "\033[38;2;166;227;161m"
++	ColorPastelCyan    = "\033[38;2;137;220;235m"
++	ColorPastelYellow  = "\033[38;2;249;226;175m"
++	ColorPastelMagenta = "\033[38;2;203;166;247m"
+ )
+ 
++// ColorCycle provides a rotating array of pastel colors for lists.
++var ColorCycle = []string{
++	ColorPastelGreen,
++	ColorPastelCyan,
++	ColorPastelYellow,
++	ColorPastelMagenta,
++}
++
+ // Status banner box-drawing.
+ const (
+ 	StatusBannerTop    = "╔══════════════════════════════════════╗"
+diff --git a/gitmap/helptext/scan.md b/gitmap/helptext/scan.md
+index a29f842..8e039ee 100644
+--- a/gitmap/helptext/scan.md
++++ b/gitmap/helptext/scan.md
+@@ -20,6 +20,7 @@ s
+ | --output-path \<dir\> | ./.gitmap/output | Output directory |
+ | --manifest \<dir\> | (alias) | Alias for `--output-path`; mirrors `gitmap reclone --manifest` so the scan→reclone round-trip uses one vocabulary. Honored only when `--output-path` is empty |
+ | --github-desktop | false | Add repos to GitHub Desktop |
++| --fix | false | Run database reconciliation (removes stale repo entries and adds missing ones from the cache) |
+ | --open | false | Open output folder after scan |
+ | --quiet | false | Suppress clone help section |
+ | --no-vscode-sync | false | Skip syncing into VS Code Project Manager projects.json |
+@@ -282,3 +283,4 @@ gitmap help --json --filter scan
+ ```
+ 
+ The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
++
+diff --git a/gitmap/store/repo.go b/gitmap/store/repo.go
+index af1121f..626cd47 100644
+--- a/gitmap/store/repo.go
++++ b/gitmap/store/repo.go
+@@ -113,3 +113,22 @@ func scanOneRow(row interface{ Scan(dest ...any) error }) (model.ScanRecord, err
+ 
+ 	return r, err
+ }
++
++// GetRepoSuggestions returns up to 10 repo slugs matching the partial string.
++func (db *DB) GetRepoSuggestions(partial string) ([]string, error) {
++	rows, err := QueryWrapper(db.conn, constants.SQLSuggestRepoBySlug, "%"+partial+"%").Destruct()
++	if err != nil {
++		return nil, err
++	}
++	defer rows.Close()
++
++	var matches []string
++	for rows.Next() {
++		var slug string
++		if err := rows.Scan(&slug); err != nil {
++			return nil, err
++		}
++		matches = append(matches, slug)
++	}
++	return matches, nil
++}
+diff --git a/package-lock.json b/package-lock.json
+index e625af6..0a7928b 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -37,6 +37,8 @@
+         "@radix-ui/react-toggle-group": "^1.1.10",
+         "@radix-ui/react-tooltip": "^1.2.7",
+         "@tanstack/react-query": "^5.83.0",
++        "@xterm/addon-fit": "0.11.0",
++        "@xterm/xterm": "6.0.0",
+         "axios": "1.14.0",
+         "class-variance-authority": "^0.7.1",
+         "clsx": "^2.1.1",
+@@ -3938,6 +3940,21 @@
+         "url": "https://opencollective.com/vitest"
+       }
+     },
++    "node_modules/@xterm/addon-fit": {
++      "version": "0.11.0",
++      "resolved": "https://registry.npmjs.org/@xterm/addon-fit/-/addon-fit-0.11.0.tgz",
++      "integrity": "sha512-jYcgT6xtVYhnhgxh3QgYDnnNMYTcf8ElbxxFzX0IZo+vabQqSPAjC3c1wJrKB5E19VwQei89QCiZZP86DCPF7g==",
++      "license": "MIT"
++    },
++    "node_modules/@xterm/xterm": {
++      "version": "6.0.0",
++      "resolved": "https://registry.npmjs.org/@xterm/xterm/-/xterm-6.0.0.tgz",
++      "integrity": "sha512-TQwDdQGtwwDt+2cgKDLn0IRaSxYu1tSUjgKarSDkUM0ZNiSRXFpjxEsvc/Zgc5kq5omJ+V0a8/kIM2WD3sMOYg==",
++      "license": "MIT",
++      "workspaces": [
++        "addons/*"
++      ]
++    },
+     "node_modules/abab": {
+       "version": "2.0.6",
+       "resolved": "https://registry.npmjs.org/abab/-/abab-2.0.6.tgz",
+diff --git a/package.json b/package.json
+index 1c8e2fc..7dc8b1a 100644
+--- a/package.json
++++ b/package.json
+@@ -43,6 +43,8 @@
+     "@radix-ui/react-toggle-group": "^1.1.10",
+     "@radix-ui/react-tooltip": "^1.2.7",
+     "@tanstack/react-query": "^5.83.0",
++    "@xterm/addon-fit": "0.11.0",
++    "@xterm/xterm": "6.0.0",
+     "axios": "1.14.0",
+     "class-variance-authority": "^0.7.1",
+     "clsx": "^2.1.1",
+@@ -104,4 +106,3 @@
+     "wrap-ansi-cjs": "npm:wrap-ansi@7.0.0"
+   }
+ }
+-

@@ -1,0 +1,47 @@
+flowchart TD
+    Start["binary update"] --> Online{"requireOnline()"}
+    Online -- FAIL --> ErrNet["Print: No internet - EXIT 1"]
+    Online -- OK --> Resolve["resolveRepoPath()"]
+
+    Resolve --> Flag{"--repo-path flag?"}
+    Flag -- YES --> SaveFlag["Save to DB, use path"]
+    Flag -- NO --> Embedded{"Embedded constant?"}
+    Embedded -- YES --> SaveEmbed["Save to DB, use path"]
+    Embedded -- NO --> DBLookup{"Database lookup?"}
+    DBLookup -- YES --> UseDB["Use stored path"]
+    DBLookup -- NO --> Prompt{"Interactive prompt?"}
+    Prompt -- YES --> SavePrompt["Save to DB, use path"]
+    Prompt -- NO --> Updater{"binary-updater on PATH?"}
+    Updater -- YES --> Delegate["Delegate: binary-updater run - EXIT"]
+    Updater -- NO --> ErrRepo["Print: No repo path - EXIT 1"]
+
+    SaveFlag --> SelfPath
+    SaveEmbed --> SelfPath
+    UseDB --> SelfPath
+    SavePrompt --> SelfPath
+
+    SelfPath["os.Executable() - get selfPath"] --> Copy["createHandoffCopy(selfPath)"]
+    Copy --> CopySame{"Try same directory?"}
+    CopySame -- OK --> PrintStatus
+    CopySame -- FAIL --> CopyTemp{"Try temp directory?"}
+    CopyTemp -- OK --> PrintStatus
+    CopyTemp -- FAIL --> ErrCopy["Print: Copy failed - EXIT 1"]
+
+    PrintStatus["Print: Running + Worker paths"] --> Launch["launchHandoff(copyPath, repoPath)"]
+    Launch --> Worker["Worker: update-runner"]
+
+    Worker --> Platform{"Platform?"}
+    Platform -- Windows --> GenPS1["Generate temp .ps1 script with UTF-8 BOM"]
+    Platform -- Unix --> RunSH["bash run.sh --update"]
+
+    GenPS1 --> RunPS1["powershell.exe -File script.ps1"]
+    RunPS1 --> BuildScript
+    RunSH --> BuildScript
+
+    BuildScript["Build Script Execution"] --> Pull["git pull"]
+    Pull --> Deps["go mod download"]
+    Deps --> Build["go build"]
+    Build --> Deploy["Rename-first deploy"]
+    Deploy --> Verify{"Version changed?"}
+    Verify -- YES --> Success["Print: Before/After versions - EXIT 0"]
+    Verify -- NO --> Warn["Warn: Version unchanged - EXIT 0"]

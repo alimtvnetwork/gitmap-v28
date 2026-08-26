@@ -1,0 +1,23 @@
+{
+  "$schema": "./envelope.schema.json",
+  "Status": {
+    "IsSuccess": true,
+    "IsFailed": false,
+    "Code": 200,
+    "Message": "Deleted",
+    "Timestamp": "2026-02-07T12:00:00Z"
+  },
+  "Attributes": {
+    "RequestedAt": "http://localhost:8080/api/v1/sites/delete",
+    "RequestDelegatedAt": "",
+    "HasAnyErrors": false,
+    "IsSingle": false,
+    "IsMultiple": false,
+    "IsEmpty": true,
+    "TotalRecords": 0,
+    "PerPage": 0,
+    "TotalPages": 0,
+    "CurrentPage": 0
+  },
+  "Results": []
+}

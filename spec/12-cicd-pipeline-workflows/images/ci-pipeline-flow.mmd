@@ -1,0 +1,32 @@
+graph TD
+    subgraph "CI Pipeline"
+        A["Push/PR to main"] --> B["actions/checkout@v6"]
+        B --> C["actions/setup-go@v6"]
+        C --> D["Cache dependencies"]
+        D --> E["golangci-lint@v1.64.8"]
+        E --> F["govulncheck@v1.1.4"]
+        F --> G["Cross-compile builds"]
+        G --> H["Run tests"]
+        H --> I["Upload artifacts"]
+    end
+
+    subgraph "Release Pipeline"
+        J["Push to release/** or v* tag"] --> K["Resolve version"]
+        K --> L["Build all targets"]
+        L --> M["Package binaries"]
+        M --> N["Generate install scripts"]
+        N --> O["Create GitHub Release"]
+        O --> P["Attach assets + checksums"]
+    end
+
+    subgraph "Vulnerability Scan"
+        Q["Weekly schedule or manual"] --> R["govulncheck@v1.1.4"]
+        R --> S["Scan dependencies"]
+        S --> T["Report findings"]
+    end
+
+    I --> U{"All checks pass?"}
+    U -->|Yes| V["Merge to main"]
+    U -->|No| W["Block merge"]
+    V --> X["Trigger release?"]
+    X -->|Tag pushed| J

@@ -1,0 +1,39 @@
+{
+  "$schema": "./envelope.schema.json",
+  "Status": {
+    "IsSuccess": true,
+    "IsFailed": false,
+    "Code": 200,
+    "Message": "OK",
+    "Timestamp": "2026-02-07T12:00:00Z"
+  },
+  "Attributes": {
+    "RequestedAt": "http://localhost:8080/api/v1/publish/upload",
+    "RequestDelegatedAt": "https://example.com/wp-json/riseup-asia-uploader/v1/upload",
+    "HasAnyErrors": false,
+    "IsSingle": true,
+    "IsMultiple": false,
+    "IsEmpty": false,
+    "TotalRecords": 1,
+    "PerPage": 0,
+    "TotalPages": 0,
+    "CurrentPage": 0
+  },
+  "Results": [
+    {
+      "Id": 42,
+      "Slug": "my-plugin",
+      "UploadedVersion": "1.2.3",
+      "Status": "activated"
+    }
+  ],
+  "MethodsStack": {
+    "Backend": [
+      { "Method": "HandlePublishUpload", "File": "publish_handlers.go", "LineNumber": 55 },
+      { "Method": "UploadToSite", "File": "publish_service.go", "LineNumber": 112 },
+      { "Method": "MultipartUpload", "File": "http_client.go", "LineNumber": 78 },
+      { "Method": "ActivatePlugin", "File": "publish_service.go", "LineNumber": 145 }
+    ],
+    "Frontend": []
+  }
+}

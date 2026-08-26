@@ -1,0 +1,122 @@
+[
+  {
+    "path": "docs/new-name.md",
+    "status": "matched",
+    "reason": "under --root, extension allowed, file present on disk",
+    "similarity": {
+      "kind": "R",
+      "score": 92,
+      "old_path": "docs/old-name.md"
+    }
+  },
+  {
+    "path": "spec/copy.md",
+    "status": "matched",
+    "reason": "under --root, extension allowed, file present on disk",
+    "similarity": {
+      "kind": "C",
+      "score": 75,
+      "old_path": "spec/template.md"
+    }
+  },
+  {
+    "path": "spec/renamed-no-score.md",
+    "status": "matched",
+    "reason": "under --root, extension allowed, file present on disk",
+    "similarity": {
+      "kind": "R",
+      "score": null,
+      "old_path": "spec/old.md"
+    }
+  },
+  {
+    "path": "spec/copy-no-score.md",
+    "status": "matched",
+    "reason": "under --root, extension allowed, file present on disk",
+    "similarity": {
+      "kind": "C",
+      "score": null,
+      "old_path": "spec/src.md"
+    }
+  },
+  {
+    "path": "readme.md",
+    "status": "matched",
+    "reason": "under --root, extension allowed, file present on disk",
+    "similarity": null
+  },
+  {
+    "path": "spec/notes.txt",
+    "status": "ignored-extension",
+    "reason": "extension '.txt' not in allowlist ['.md']",
+    "similarity": {
+      "kind": "R",
+      "score": 88,
+      "old_path": "spec/legacy.txt"
+    }
+  },
+  {
+    "path": "spec/draft.txt",
+    "status": "ignored-extension",
+    "reason": "extension '.txt' not in allowlist ['.md']",
+    "similarity": {
+      "kind": "R",
+      "score": null,
+      "old_path": "spec/sketch.txt"
+    }
+  },
+  {
+    "path": "spec/scratch.txt",
+    "status": "ignored-extension",
+    "reason": "extension '.txt' not in allowlist ['.md']",
+    "similarity": null
+  },
+  {
+    "path": "tools/moved-here.md",
+    "status": "ignored-out-of-root",
+    "reason": "path is outside --root spec",
+    "similarity": {
+      "kind": "R",
+      "score": 95,
+      "old_path": "spec/moved-from-here.md"
+    }
+  },
+  {
+    "path": "tools/cloned-here.md",
+    "status": "ignored-out-of-root",
+    "reason": "path is outside --root spec",
+    "similarity": {
+      "kind": "C",
+      "score": null,
+      "old_path": "spec/cloned-from-here.md"
+    }
+  },
+  {
+    "path": "docs/outside.md",
+    "status": "ignored-out-of-root",
+    "reason": "path is outside --root spec",
+    "similarity": null
+  },
+  {
+    "path": "spec/missing-rename.md",
+    "status": "ignored-missing",
+    "reason": "post-state path is not on disk (reverted later in the push, or filtered by .gitignore on checkout)",
+    "similarity": {
+      "kind": "R",
+      "score": 81,
+      "old_path": "spec/old-missing-name.md"
+    }
+  },
+  {
+    "path": "spec/missing.md",
+    "status": "ignored-missing",
+    "reason": "post-state path is not on disk (reverted later in the push, or filtered by .gitignore on checkout)",
+    "similarity": null
+  },
+  {
+    "path": "spec/deleted.md",
+    "status": "ignored-deleted",
+    "reason": "git diff reported D (deleted)",
+    "similarity": null
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "EnvelopeVersion": "1.1.0",
+  "Error": {
+    "ErrorCode": "TotpBackupExhausted",
+    "ErrorMessage": "All single-use backup codes consumed; regeneration required",
+    "ErrorCategory": "Auth",
+    "ErrorSeverity": "Warn",
+    "CorrelationId": "01HZQK4N3M5P8RXVT7BWAGQYC2",
+    "WorkerNodeId": 3,
+    "OperationName": "Auth.Verify2FA",
+    "OccurredAt": "2026-05-06T10:22:14Z",
+    "Retryable": false,
+    "OperationId": null,
+    "SubCode": "RegenerateBackupCodes",
+    "FieldErrors": null
+  }
+}

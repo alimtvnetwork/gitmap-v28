@@ -1,0 +1,17 @@
+{
+  "_headers": {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cookie": "MainSession=<opaque-session-cookie>",
+    "X-Correlation-Id": "01HZQK4Q9P3M2R8XDBNHFEQYC4",
+    "X-Idempotency-Key": "5d6e7f80-1234-4abc-9def-fedcba987654"
+  },
+  "_body": {
+    "CompanySlug": "acme-co",
+    "CompanyName": "Acme Co",
+    "CompanyWebsite": "https://acme.example.com",
+    "Address": "1 Main St, Wellington, NZ",
+    "PhoneNumber": "+64-4-555-0100",
+    "NumberOfPeople": 42,
+    "PreferredWorkerSelectionStrategyCode": "RoundRobin"
+  }
+}

@@ -1,0 +1,15 @@
+# AI Instructions — WordPress Plugin Gold Standard
+
+**Read `00-quick-start.md` first.** It is the condensed onboarding guide covering starter files, critical patterns, decision matrix, and common mistakes.
+
+Then consult `README.md` for the full 18-phase index and cross-references.
+
+## Rules
+
+- PHP 8.1+ required — use backed enums, match expressions, named arguments.
+- Every REST handler must use `safeExecute()` (Phase 3, §3.4).
+- No magic strings — use enums for all fixed values (Phase 2).
+- 200-line file limit — use Orchestrator Pattern for larger pages (Phase 11).
+- Standard response envelope via `EnvelopeBuilder` with PascalCase keys (Phase 5).
+- Two-tier logging: `ErrorLogHelper` (bootstrap) → `FileLogger` (runtime) (Phase 4).
+- All new features require: enum, trait, migration, route, template, and test (see checklist in Phase 0).

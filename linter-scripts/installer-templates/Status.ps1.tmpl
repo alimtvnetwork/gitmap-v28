@@ -1,0 +1,76 @@
+# ============================================================================
+#  Status.ps1 — Update-check status emitter (Windows / PowerShell)
+#  ----------------------------------------------------------------------------
+#  Generated at release time by the pipeline. Placeholders of the form
+#  __EmbeddedXxx__ are substituted with the pinned values for this release.
+#
+#  Contract: spec/14-update/24-update-check-mechanism/02-status-script-json.md
+#  Producer: spec/16-generic-release/08-version-pinned-release-installers.md
+#
+#  Invocation (server-side, never local):
+#      irm https://raw.githubusercontent.com/<Owner>/<Repo>/main/Status.ps1 | iex
+#
+#  This script writes a single JSON document to stdout and exits 0.
+#  All keys and string-enum values are PascalCase. Do NOT add prose
+#  output — the consumer parses stdout directly.
+# ============================================================================
+
+[CmdletBinding()]
+param()
+
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+# ---- Embedded values (substituted by the release pipeline) -----------------
+$EmbeddedVersion     = '__EmbeddedVersion__'      # e.g. V1.5.0
+$EmbeddedRepo        = '__EmbeddedRepo__'         # e.g. https://github.com/Owner/Repo
+$EmbeddedCommit      = '__EmbeddedCommit__'       # 40-char SHA
+$EmbeddedChecksum    = '__EmbeddedChecksum__'     # e.g. Sha256:Abc123...
+$EmbeddedReleaseUrl  = '__EmbeddedReleaseUrl__'   # GitHub release page
+$EmbeddedPublishedAt = '__EmbeddedPublishedAt__'  # ISO 8601 UTC
+$EmbeddedNotes       = '__EmbeddedNotes__'        # Short release-notes summary
+$EmbeddedMinFrom     = '__EmbeddedMinSupportedFrom__'  # e.g. V1.0.0
+$EmbeddedNewRepoUrl  = '__EmbeddedNewRepoUrl__'   # null or new repo URL
+
+# ---- Derived install URLs --------------------------------------------------
+$LowerVersionTag    = $EmbeddedVersion.ToLower()  # V1.5.0 -> v1.5.0
+$WindowsInstallUrl  = "$EmbeddedRepo/releases/download/$LowerVersionTag/Install.ps1"
+$UnixInstallUrl     = "$EmbeddedRepo/releases/download/$LowerVersionTag/Install.sh"
+$WindowsCommand     = "iwr -useb $WindowsInstallUrl | iex"
+$UnixCommand        = "curl -fsSL $UnixInstallUrl | bash"
+
+# ---- Build the contract object --------------------------------------------
+$NewRepoValue = $null
+if ($EmbeddedNewRepoUrl -and $EmbeddedNewRepoUrl -ne '__EmbeddedNewRepoUrl__' -and $EmbeddedNewRepoUrl -ne 'null') {
+    $NewRepoValue = $EmbeddedNewRepoUrl
+}
+
+$NotesValue = $null
+if ($EmbeddedNotes -and $EmbeddedNotes -ne '__EmbeddedNotes__') {
+    $NotesValue = $EmbeddedNotes
+}
+
+$Payload = [ordered]@{
+    Version          = $EmbeddedVersion
+    ReleaseUrl       = $EmbeddedReleaseUrl
+    PublishedAt      = $EmbeddedPublishedAt
+    Checksum         = $EmbeddedChecksum
+    Install          = [ordered]@{
+        Windows = [ordered]@{
+            ScriptUrl = $WindowsInstallUrl
+            Command   = $WindowsCommand
+        }
+        Unix    = [ordered]@{
+            ScriptUrl = $UnixInstallUrl
+            Command   = $UnixCommand
+        }
+    }
+    Notes            = $NotesValue
+    MinSupportedFrom = $EmbeddedMinFrom
+    NewRepoUrl       = $NewRepoValue
+}
+
+# ---- Emit JSON -------------------------------------------------------------
+# -Depth 6 covers Install.Windows.* / Install.Unix.* nesting safely.
+$Payload | ConvertTo-Json -Depth 6 -Compress:$false
+exit 0

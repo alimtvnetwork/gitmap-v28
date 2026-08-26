@@ -1,0 +1,23 @@
+{
+  "_note": "Short-lived 2FA-gate token issued by Main when password verification succeeds but TOTP is required. Audience is `main-2fa`, NOT `worker`. Workers MUST reject tokens with this audience.",
+  "Header": {
+    "alg": "RS256",
+    "kid": "main-2026-05",
+    "typ": "JWT"
+  },
+  "Payload": {
+    "iss": "https://main.example.com",
+    "sub": "42",
+    "aud": "main-2fa",
+    "exp": 1762423434,
+    "iat": 1762423334,
+    "jti": "8f3a1b2c-4d5e-41fb-a9c8-7e6f5a4b3c2d",
+    "challengeId": "c0f4a3b1-9d2e-4b1a-8e7c-5b6d7e8f9012"
+  },
+  "VerificationRules": {
+    "AudienceMustEqual": "main-2fa",
+    "TtlSecondsMaxFromTunable": "MainWorker.Auth.PartialAuthJwtTtlSeconds",
+    "OneTimeUse": true,
+    "ConsumedOn": "POST /API/V1/Auth/Verify2FA"
+  }
+}

@@ -1,0 +1,96 @@
+# Allowlist for check-spec-folder-refs.py
+#
+# Two categories, each under a [section] header:
+#
+#   [external]  — Folders that physically exist in a sibling repository
+#                 (notably `gitmap-v3`) and are intentionally NOT imported
+#                 into this repo per the avoid-app-sync rule
+#                 (see .lovable/memory/constraints/avoid-app-sync).
+#                 References are real and resolvable in the other repo.
+#
+#   [doc-only]  — Illustrative or historical folder names that do NOT exist
+#                 anywhere. They appear in narrative documentation
+#                 (changelogs, migration write-ups, examples) purely as
+#                 prose. They MUST NOT be used as live navigation links.
+#
+# Format:
+#   - Section headers: `[external]` or `[doc-only]` on their own line.
+#   - One folder name per line within a section.
+#   - Lines starting with `#` and blank lines are ignored.
+#   - Entries before the first section header default to [external] for
+#     backward compatibility with the pre-section format.
+
+[external]
+
+# --- gitmap-v3 sibling repo (app, app-issues, general layout) ---
+01-app
+02-app-issues
+03-general
+01-general-spec
+02-spec-management-software
+03-issues
+03-tasks
+
+# --- gitmap-v3 CLI suite (cross-repo references) ---
+09-api-integration
+09-gsearch-cli
+10-brun-cli
+11-ai-bridge-cli
+12-nexus-flow-cli
+13-wp-plugin
+14-wp-plugin-builder
+15-spec-reverse-cli
+16-ai-transcribe-cli
+17-research-queries
+20-gsearch-cli
+21-brun-cli
+21-wp-seo-publish-cli
+22-ai-bridge-cli
+23-how-app-issues-track
+24-nexus-flow-cli
+28-wp-plugin-development
+31-generic-enforce
+33-ai-bridge-non-vector-rag
+
+[doc-only]
+
+# Add illustrative / historical folder names here. They must never appear
+# as live links — only inside prose, code fences, or example tables.
+
+# --- Removed/historical folders (referenced only in changelog docs) ---
+15-domain-migration
+19-ai-reliability
+
+# --- Sibling-repo umbrella folder referenced only in CI/CD issue write-ups
+# (see .lovable/cicd-issues/07-cross-spec-missing-file-link-checker.md).
+# Lives in gitmap-v3, not in this repo. Documentation-only here. ---
+26-spec-outsides
+
+# --- Allowlist documentation example (used in spec/17-consolidated-guidelines/27-linter-authoring-guide.md §6.1 Format B) ---
+99-future-work
+
+# --- Historical folder numbers from spec/26-spec-outsides/ archive ---
+# These appear in archived spec-outsides documents that reference an
+# older numbering scheme (pre-renumbering). The current equivalents are:
+#   04-generic-cli         → 13-generic-cli
+#   05-coding-guidelines   → 02-coding-guidelines
+#   07-generic-release     → 16-generic-release
+#   08-generic-update      → 14-update
+#   09-pipeline            → 12-cicd-pipeline-workflows
+#   12-consolidated-guidelines → 17-consolidated-guidelines
+# The archived files are preserved verbatim for historical accuracy and
+# are not converted to live links.
+04-generic-cli
+05-coding-guidelines
+07-generic-release
+08-generic-update
+09-pipeline
+12-consolidated-guidelines
+
+# --- Illustrative PR example in readme.md §"What's new" (SS-02 task 18 slide narrative) ---
+12-payments
+
+# --- Prompts repository examples ---
+# These are referenced strictly inside .lovable/prompts/ example AI workflows
+02-app
+05-failing-tests

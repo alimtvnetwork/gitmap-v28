@@ -14,6 +14,7 @@ FIXREPO_IGNORE_DIRS=""
 FIXREPO_IGNORE_PATTERNS=""
 FIXREPO_CONFIG_PATH=""
 
+# lint-allow: function-length reason="embedded python heredoc + bash glue; one logical operation" max=25
 _extract_json_array() {
   # Args: <file> <key>. Emits one element per line. Pure-bash, no jq.
   local file="$1" key="$2"
@@ -62,6 +63,7 @@ _path_starts_with_dir() {
   return 1
 }
 
+# lint-allow: function-length reason="flat ignore-list match"
 is_ignored_dir() {
   local rel="$1" dir
   [ -n "$FIXREPO_IGNORE_DIRS" ] || return 1
@@ -74,6 +76,7 @@ EOF
   return 1
 }
 
+# lint-allow: function-length reason="flat glob-to-regex converter"
 _glob_to_regex() {
   # Translate **, *, ? into ERE. Escapes regex metacharacters.
   local pat="$1" out="" i ch
@@ -90,6 +93,7 @@ _glob_to_regex() {
   printf '^%s$' "$out"
 }
 
+# lint-allow: function-length reason="flat ignore-pattern match"
 is_ignored_pattern() {
   local rel="$1" pat re
   [ -n "$FIXREPO_IGNORE_PATTERNS" ] || return 1

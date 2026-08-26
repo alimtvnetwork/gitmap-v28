@@ -1,0 +1,27 @@
+{
+  "_note": "Decoded representation of fixtures/jwt/worker-jwt.example.txt. Header and payload shown as separate JSON objects in canonical claim order per 12-§6. Signature is RS256 over base64url(header)+'.'+base64url(payload), verified by the worker's trust store keyed by `kid` (12-§7).",
+  "Header": {
+    "alg": "RS256",
+    "kid": "main-2026-05",
+    "typ": "JWT"
+  },
+  "Payload": {
+    "iss": "https://main.example.com",
+    "sub": "42",
+    "aud": "worker",
+    "exp": 1762424234,
+    "iat": 1762423334,
+    "jti": "81f593ec-e394-4210-93d9-f378f48fd23b",
+    "cmp": 17,
+    "wnk": 3,
+    "kid": "main-2026-05",
+    "roles": ["CompanyAdmin"]
+  },
+  "VerificationRules": {
+    "ClockSkewToleranceSeconds": 60,
+    "RequiredClaims": ["iss", "sub", "aud", "exp", "iat", "jti", "cmp", "wnk", "kid"],
+    "AudienceMustEqual": "worker",
+    "WnkMustMatchLocalWorkerNodeId": true,
+    "TtlSecondsMaxFromTunable": "MainWorker.Auth.WorkerJwtTtlSeconds"
+  }
+}

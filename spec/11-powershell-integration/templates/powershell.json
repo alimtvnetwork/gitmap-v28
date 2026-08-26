@@ -1,0 +1,66 @@
+{
+  "$schema": "../schemas/powershell.schema.json",
+  "projectName": "My Fullstack App",
+  "rootDir": ".",
+  "backendDir": "backend",
+  "frontendDir": ".",
+  "distDir": "dist",
+  "targetDir": "backend/frontend/dist",
+  "dataDir": "backend/data",
+  "ports": [8080],
+  "prerequisites": {
+    "go": true,
+    "node": true,
+    "pnpm": true
+  },
+  "usePnp": true,
+  "pnpmStorePath": ".pnpm-store",
+  "cleanPaths": [
+    "node_modules",
+    "dist",
+    ".vite",
+    ".pnp.cjs",
+    ".pnp.loader.mjs",
+    "backend/data/*.db",
+    "backend/data/*.db-shm",
+    "backend/data/*.db-wal"
+  ],
+  "buildCommand": "pnpm run build",
+  "installCommand": "pnpm install",
+  "runCommand": "go run cmd/server/main.go",
+  "configFile": "config.json",
+  "configExampleFile": "config.example.json",
+  "requiredModules": [
+    "react",
+    "react-dom"
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "_comment_upload": "Optional: Remove this section if you don't need WordPress plugin upload",
+  "upload": {
+    "scriptPath": "wp-plugins/scripts/upload-plugin-v2.ps1",
+    "defaultPluginPath": "wp-plugins/my-plugin",
+    "configPath": "wp-plugins/scripts/wp-plugin-config.json"
+  },
+  "_comment_wpPlugins": "Optional: WordPress plugin registry for -q (QUpload) and -z (ZIP) modes",
+  "wpPlugins": {
+    "pluginsDir": "wp-plugins",
+    "defaultUploader": "riseup-asia-uploader",
+    "defaultQUploader": "qupload",
+    "plugins": {
+      "qupload": {
+        "name": "Quick Upload",
+        "path": "wp-plugins/qupload",
+        "mainFile": "qupload.php",
+        "autoUpload": false
+      },
+      "my-plugin": {
+        "name": "My Plugin",
+        "path": "wp-plugins/my-plugin",
+        "mainFile": "my-plugin.php",
+        "autoUpload": true
+      }
+    }
+  }
+}

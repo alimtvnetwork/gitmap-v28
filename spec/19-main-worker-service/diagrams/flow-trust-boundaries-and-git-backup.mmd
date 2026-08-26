@@ -1,0 +1,55 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Trust gradient + git backup target lane
+%%                 (one-way isolation: Main > Worker > Backup > Git)
+%% Authoritative:  spec/19/26-trust-boundaries-and-isolation.md
+%%                 + spec/19/27-git-backup-targets.md
+%%                 + spec/19/18-backup-nodes.md
+%%                 + spec/19/19-incremental-backup-sync.md
+%% Status:         Illustrative only. If this diagram disagrees
+%%                 with the authoritative spec(s) above, the
+%%                 spec wins and this file is the bug.
+%% Banner version: 1.0.0 (2026-05-08, Phase 14 — covers
+%%                 trust matrix + git-push lane).
+%% ==========================================================
+flowchart LR
+    subgraph TrustGradient["Trust gradient (downhill only)"]
+        direction LR
+        Main["Main Server<br/>HIGHEST trust<br/>Issues JWTs, routing, updates"]
+        Worker["Primary Worker<br/>Holds tenant data<br/>Holds git SSH key"]
+        Backup["Backup Node<br/>Passive mirror<br/>NO outbound to peers"]
+        Git["Git Backup Target<br/>Cold archive<br/>Encrypted blobs only"]
+
+        Main -->|"Push update / mint JWT / route"| Worker
+        Main -->|"Failover-promotion instruction"| Backup
+        Worker -->|"Sealed CDC envelopes (BE-1)"| Backup
+        Worker -->|"git push (encrypted)"| Git
+    end
+
+    subgraph ForbiddenChannels["Forbidden reverse channels (MUST NOT exist)"]
+        direction LR
+        WorkerX["Worker"]
+        BackupX["Backup"]
+        GitX["Git host"]
+        MainX["Main"]
+
+        WorkerX -. "X NO write to Main<br/>MAIN-960-01" .-> MainX
+        BackupX -. "X NO contact with primary Worker" .-> WorkerX
+        BackupX -. "X NO git push (no SSH key)" .-> GitX
+        GitX -. "X Cannot call back into Worker" .-> WorkerX
+    end
+
+    Worker -->|"Heartbeat / UpdateAck<br/>(read-only beacon)"| Main
+    Backup -->|"Heartbeat / Apply ACK only"| Main
+
+    classDef high fill:#1e3a5f,stroke:#0d1b2a,color:#fff
+    classDef mid  fill:#2d5a3d,stroke:#1a3c2a,color:#fff
+    classDef low  fill:#5a4a2d,stroke:#3c2f1a,color:#fff
+    classDef cold fill:#4a4a4a,stroke:#1a1a1a,color:#fff
+    classDef forbid fill:#6b1f1f,stroke:#3d0d0d,color:#fff
+
+    class Main,MainX high
+    class Worker,WorkerX mid
+    class Backup,BackupX low
+    class Git,GitX cold

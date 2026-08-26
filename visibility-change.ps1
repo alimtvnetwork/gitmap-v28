@@ -1,23 +1,22 @@
 <#
 .SYNOPSIS
-  Toggle (or set) the visibility of the current repo on GitHub / GitLab.
+    Toggle (or set) the visibility of the current repo on GitHub / GitLab.
 
 .DESCRIPTION
-  Detects provider + owner/repo from `git remote get-url origin`, reads
-  current visibility via `gh` / `glab`, then either toggles it or sets
-  it to the value passed via -Visible.
+    Detects provider + owner/repo from `git remote get-url origin`, reads
+    current visibility via `gh` / `glab`, then either toggles it or sets
+    it to the value passed via -Visible.
 
-  Confirmation is prompted only when going private -> public (skip with -Yes).
-  Use -DryRun to preview without API calls.
+    Confirmation is prompted only when going private → public (skip with -Yes).
+    Use -DryRun to preview without API calls.
 
-  Mirrors the Go-native `gitmap make-public` / `gitmap make-private`
-  commands so CI and shell users have a script-only fallback.
+    Spec: spec-authoring/23-visibility-change/01-spec.md
 
 .EXAMPLE
-  .\visibility-change.ps1                          # toggle
-  .\visibility-change.ps1 -Visible pub             # force public (with confirm)
-  .\visibility-change.ps1 -Visible pri             # force private
-  .\visibility-change.ps1 -Visible pub -Yes -DryRun
+    .\visibility-change.ps1                  # toggle
+    .\visibility-change.ps1 -Visible pub     # force public (with confirm)
+    .\visibility-change.ps1 -Visible pri     # force private
+    .\visibility-change.ps1 -Visible pub -Yes -DryRun
 #>
 
 [CmdletBinding()]
@@ -31,8 +30,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $Script:HereDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-. (Join-Path $Script:HereDir 'visibility-change/Provider.ps1')
-. (Join-Path $Script:HereDir 'visibility-change/Apply.ps1')
+. (Join-Path $Script:HereDir 'scripts/visibility-change/Provider.ps1')
+. (Join-Path $Script:HereDir 'scripts/visibility-change/Apply.ps1')
 
 $Script:ExitOk           = 0
 $Script:ExitNotARepo     = 2
@@ -43,9 +42,10 @@ $Script:ExitBadFlag      = 6
 $Script:ExitConfirmReq   = 7
 $Script:ExitVerifyFailed = 8
 
+# lint-allow: function-length reason="help-text heredoc"
 function Show-Help {
     @"
-visibility-change.ps1 - toggle/set GitHub/GitLab repo visibility.
+visibility-change.ps1 — toggle/set GitHub/GitLab repo visibility.
 
 Usage:
   .\visibility-change.ps1                  # toggle current visibility
@@ -54,8 +54,7 @@ Usage:
   .\visibility-change.ps1 -Yes             # skip private->public prompt
   .\visibility-change.ps1 -DryRun          # preview, no API call
 
-Env:
-  VISIBILITY_GITLAB_HOSTS  comma-separated allow-list of self-hosted GitLab hosts
+Spec: spec-authoring/23-visibility-change/01-spec.md
 "@ | Write-Host
 }
 
@@ -89,7 +88,7 @@ function Get-OriginUrlOrDie {
 }
 
 function Resolve-Context {
-    $url = Get-OriginUrlOrDie
+    $url      = Get-OriginUrlOrDie
     $provider = Resolve-Provider -Url $url
     if (-not $provider) { Write-Err ("visibility-change: ERROR unsupported host in '{0}'" -f $url); exit $Script:ExitBadProvider }
     $slug = Resolve-OwnerRepo -Url $url
@@ -122,7 +121,7 @@ function Invoke-MaybeConfirm {
     exit $Script:ExitConfirmReq
 }
 
-# -- Main ----------------------------------------------------------------
+# ── Main ──────────────────────────────────────────────────────────────
 if ($Help) { Show-Help; exit $Script:ExitOk }
 
 $forced = Resolve-TargetValue -Raw $Visible
@@ -150,7 +149,7 @@ if ($current -eq $target) {
 Invoke-MaybeConfirm -Current $current -Target $target -YesFlag $Yes.IsPresent -Slug $ctx.Slug -Provider $ctx.Provider
 
 if ($DryRun) {
-    Write-Host ("[dry-run] visibility: {0} -> {1} ({2})" -f $current, $target, $ctx.Provider)
+    Write-Host ("[dry-run] visibility: {0} → {1} ({2})" -f $current, $target, $ctx.Provider)
     exit $Script:ExitOk
 }
 
@@ -165,5 +164,5 @@ if (-not (Test-VisibilityMatches -Provider $ctx.Provider -Slug $ctx.Slug -Target
     exit $Script:ExitVerifyFailed
 }
 
-Write-Host ("visibility: {0} -> {1} ({2})" -f $current, $target, $ctx.Provider)
+Write-Host ("visibility: {0} → {1} ({2})" -f $current, $target, $ctx.Provider)
 exit $Script:ExitOk

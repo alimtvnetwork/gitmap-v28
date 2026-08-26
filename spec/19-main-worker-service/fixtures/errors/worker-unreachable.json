@@ -1,0 +1,18 @@
+{
+  "EnvelopeVersion": "1.1.0",
+  "Error": {
+    "ErrorCode": "WorkerUnreachable",
+    "ErrorMessage": "Worker w3.example.com did not respond within 30s",
+    "ErrorCategory": "Transport",
+    "ErrorSeverity": "Error",
+    "CorrelationId": "01HZQK4N3M5P8RXVT7BWAGQYC2",
+    "WorkerNodeId": 3,
+    "OperationName": "Company.Resolve",
+    "OccurredAt": "2026-05-06T10:22:14Z",
+    "Retryable": true,
+    "RetryAfterSeconds": 5,
+    "OperationId": null,
+    "SubCode": null,
+    "FieldErrors": null
+  }
+}

@@ -1,0 +1,44 @@
+graph TB
+    subgraph "Foundation"
+        A[08 - Terminal Output Standards]
+        B[06 - Version and Help System]
+    end
+    
+    subgraph "Distribution"
+        C[04 - Installation Flow]
+        D[07 - Environment Variable Setup]
+        E[05 - Changelog Integration]
+    end
+    
+    subgraph "Validation"
+        F[01 - CI Pipeline]
+        G[03 - Vulnerability Scanning]
+    end
+    
+    subgraph "Delivery"
+        H[02 - Release Pipeline]
+        I[09 - Binary Icon Branding]
+    end
+    
+    subgraph "Reusable Patterns"
+        J[03-reusable-ci-guards]
+        J1[Forbidden Names]
+        J2[Grandfather Baseline]
+        J3[Collision Audit]
+        J4[Lint Diff Gate]
+        J5[Lint Suggestions]
+        J6[Test Aggregator]
+        J --> J1 & J2 & J3 & J4 & J5 & J6
+    end
+    
+    A --> C
+    B --> C
+    C --> D
+    D --> F
+    E --> F
+    F --> G
+    G --> H
+    F --> H
+    H --> I
+    J --> F
+    J --> H

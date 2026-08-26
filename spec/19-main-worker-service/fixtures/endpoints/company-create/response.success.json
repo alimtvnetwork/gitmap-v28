@@ -1,0 +1,9 @@
+{
+  "CompanyId": 17,
+  "CompanySlug": "acme-co",
+  "CompanyName": "Acme Co",
+  "WorkerNodeId": 3,
+  "WorkerEndpoint": "https://w3.example.com",
+  "CompanyAssignedAt": "2026-05-06T10:22:14Z",
+  "CorrelationId": "01HZQK4Q9P3M2R8XDBNHFEQYC4"
+}

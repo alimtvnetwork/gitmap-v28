@@ -1,0 +1,18 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Post-update .bak cleanup on next successful start
+%% Authoritative:  spec/14-update/06-cleanup.md
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-07)
+%% ==========================================================
+flowchart TD
+    Boot(["Process start"]) --> Probe{"binary.bak present?"}
+    Probe -- "no" --> Resume(["Continue normal startup"])
+    Probe -- "yes" --> SelfCheck{"Self version OK?"}
+    SelfCheck -- "no" --> Rollback["Rename binary.bak -> active and restart"]
+    SelfCheck -- "yes" --> Age{"binary.bak older than retention?"}
+    Age -- "no" --> Resume
+    Age -- "yes" --> Remove["Delete binary.bak"]
+    Remove --> Resume
+    Rollback --> Resume

@@ -1,0 +1,17 @@
+{
+  "EnvelopeVersion": "1.1.0",
+  "Error": {
+    "ErrorCode": "EndpointAuthLocked",
+    "ErrorMessage": "Endpoint /API/V1/Workers/Register has IsEnabled=0",
+    "ErrorCategory": "Auth",
+    "ErrorSeverity": "Error",
+    "CorrelationId": "01HZQK4S2Q4N3T7YEDPJGFQYC5",
+    "WorkerNodeId": null,
+    "OperationName": "Workers.Register",
+    "OccurredAt": "2026-05-06T10:22:14Z",
+    "Retryable": false,
+    "OperationId": null,
+    "SubCode": null,
+    "FieldErrors": null
+  }
+}

@@ -1,0 +1,3 @@
+
+--- FAIL: TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol (0.17s)
+FAIL	github.com/alimtvnetwork/gitmap-v28/gitmap/cmd	15.876s
