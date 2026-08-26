@@ -1,39 +1,24 @@
-# Release Architecture Map (Single Source of Truth)
+# Release Architecture Map
 
-## 1. Canonical Version Source
-- **File**: `version.json` at repository root.
-- **Role**: Sole Single Source of Truth (SSOT) for the entire repository and its sub-components.
-- **Format**:
-```json
-{
-  "$schema_description": "Canonical Single Source of Truth for repository versioning. Every tool, script, and AI agent must read and update this file exclusively.",
-  "$documentation": "docs/versioning.md",
-  "$inheritance_rules": "Sub-components specify 'inherit' to use top-level version or define an explicit SemVer string.",
-  "version": "6.111.0",
-  "backend": {
-    "version": "inherit",
-    "status": "active"
-  },
-  "frontend": {
-    "version": "inherit",
-    "status": "active"
-  }
-}
-```
+## Overview
+Releases in this repository are managed primarily via Git tags (`vMAJOR.MINOR.PATCH`) pushing to GitHub, which trigger Goreleaser via GitHub Actions (`.github/workflows/goreleaser.yml` or `release.yml`). 
+However, the single source of truth for the *current* application version is **`version.json`** located at the repository root.
 
-## 2. Component Inheritance Protocol
-- Sub-components declaring `"version": "inherit"` dynamically resolve to the top-level `"version"`.
-- Sub-components never bump independently when set to `"inherit"`.
-- Any external service or internal package imports root `version.json` directly.
+## Source of Truth
+1. **`version.json`**: This file contains the authoritative version string (e.g., `{"version": "6.117.0"}`). It MUST be updated manually or via script during every release.
+2. **`changelog.md`**: Contains release notes mapped to the specific version. Must be updated with a matching header `## [vX.Y.Z] - YYYY-MM-DD`.
 
-## 3. Version Propagation Pin Sites
-When a MINOR release is executed, the following sites update in lock-step:
-1. `version.json`: Canonical version of record.
-2. `readme.md`: Header badge and pinned version references.
-3. `what-to-read.md`: Header badge and pinned version references.
-4. `changelog.md`: Mandatory new version entry with Prompt Architect installer commands.
-5. `docs/versioning.md` & `.lovable/versioning.md`: SSOT specification guides.
+## The Release Process (Agent Guidelines)
+When instructed to "bump the MINOR version" and trigger a release at the end of a tunnel:
+1. **Update `version.json`**: Increment the MINOR part and reset PATCH to `0` (e.g., `6.117.0` -> `6.118.0`).
+2. **Update Badges / Links**: Run a find-and-replace to update hardcoded versions in:
+   - `readme.md`
+   - `.lovable/what-to-read.md`
+   (e.g., replacing `gitmap-v27` with `gitmap-v28` or pinned versions).
+3. **Update `changelog.md`**: Append the latest fixes to a new `## [vX.Y.Z]` block.
+4. **DO NOT CREATE GIT TAGS VIA CLI**: The user explicitly stated in previous instructions: "you should not create the tag... I will release it, uh, using the Git map." You should only prepare the commit. Wait for the user to trigger the actual tag/release process unless explicitly asked to run `git tag`.
+5. **DO NOT modify test files**: Never modify `*_test.*` or `*.spec.*` during version scanning.
 
-## 4. Test File Ban
-- **Strict Rule**: No test files (`*_test.*`, `*.spec.*`, `test/*`) are ever scanned or modified during a release.
-- Test files contain mock/synthetic data (e.g. dummy versions) and must remain isolated to prevent test suite corruption.
+## GitHub Actions Triggers
+- Commit builds: `ci.yml` triggers on pushes to branches matching `**`, ignoring tags `v*`.
+- Releases: `release.yml` triggers on pushes to tags matching `v*`.

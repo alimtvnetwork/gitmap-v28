@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.118.0] - 2026-08-27
+
+### Fixed
+- Fixed GitHub Actions workflows failing to trigger due to syntax errors (`ci.yml`, `race-detector.yml`).
+
 ## [v6.117.0] - 2026-08-27
 
 ### Fixed

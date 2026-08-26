@@ -1273,6 +1273,7 @@ jobs:
       - name: Run installer smoke (source mode)
         if: needs.sha-check.outputs.already-built != 'true'
         shell: pwsh
+        run: ./.github/scripts/smoke-installer.ps1 source
 
   e2e-cross-platform:
     # Runs the end-to-end test suites on each target OS so platform-
@@ -1906,7 +1907,7 @@ jobs:
       contents: write
     steps:
       - name: Lint badge
-        uses: RubbaBoy/[email protected]
+        uses: RubbaBoy/BYOB@v1.3.0
         with:
           NAME: ci-lint
           LABEL: lint
@@ -1915,7 +1916,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Tests badge
-        uses: RubbaBoy/[email protected]
+        uses: RubbaBoy/BYOB@v1.3.0
         with:
           NAME: ci-tests
           LABEL: tests
@@ -1924,7 +1925,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Vulncheck badge
-        uses: RubbaBoy/[email protected]
+        uses: RubbaBoy/BYOB@v1.3.0
         with:
           NAME: ci-vulncheck
           LABEL: vulncheck
@@ -1933,7 +1934,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build badge
-        uses: RubbaBoy/[email protected]
+        uses: RubbaBoy/BYOB@v1.3.0
         with:
           NAME: ci-build
           LABEL: build
