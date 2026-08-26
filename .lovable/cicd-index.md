@@ -22,6 +22,8 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 09 | Test $HOME Mutation Isolation in Tilde Expansion Tests | go test -race / Test Matrix | ✅ Resolved | [09-home-env-race-in-tilde-tests.md](cicd-issues/09-home-env-race-in-tilde-tests.md) |
 | 10 | VS Code Project Manager Cross-Platform Slash Normalization | go test / Test Matrix | ✅ Resolved | [10-vscodepm-cross-platform-path-normalization.md](cicd-issues/10-vscodepm-cross-platform-path-normalization.md) |
 | 11 | cmdFaithfulExiter Mutex Isolation & maybeExitOnCmdFaithfulMismatch Race | go test -race / Test Matrix | ✅ Resolved | [11-clonetermverifyexit-process-exit-race.md](cicd-issues/11-clonetermverifyexit-process-exit-race.md) |
+| 12 | Query Wrapper Property Mismatch & E2E Typos | Audit / Test Matrix | ✅ Resolved | [12-query-wrapper-isfail-typo.md](cicd-issues/12-query-wrapper-isfail-typo.md) |
+| 13 | Cross-Platform `undefined: swapIP` & Go Filename Suffix Compiler Rules | go vet / go build matrix | ✅ Resolved | [13-undefined-swapip-cross-compile-filename-suffix.md](cicd-issues/13-undefined-swapip-cross-compile-filename-suffix.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.
@@ -41,3 +43,4 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 - **Avoid Stale Environment Snapshots in Assertions**: Validate structural invariants (prefix/suffix removal) rather than comparing against static `os.UserHomeDir()` snapshots that may be mutated by concurrent `t.Setenv` test fixtures.
 - **Normalize Slashes with `filepath.ToSlash` for Cross-Platform Path Keys**: Always normalize backslashes before comparing filesystem keys across operating systems, since POSIX treats `\` as a regular character.
 - **Lock Out Exit-Triggering Hooks Exclusively During Tests**: When overriding `os.Exit` with a test stub, hold an exclusive mutex lock across the entire test to prevent concurrent tests from evaluating the exit trigger while the global handler transitions.
+- **Never use `*_linux.go` for multi-OS POSIX fallbacks**: In Go, file suffix `*_linux.go` forces `GOOS=linux` even with `//go:build !windows`. Always use `*_posix.go` or `*_unix.go` with `//go:build !windows` to include macOS (`darwin`), FreeBSD, etc.
