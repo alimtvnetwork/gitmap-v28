@@ -1,5 +1,24 @@
 # Changelog
 
+## [v6.107.0] 2026-08-26 Prompt Architect Installer, Cross-Platform POSIX Builds & WorkDir Suite
+
+### Install Prompt Architect v6.107.0
+To pin your repository to this exact version, run the following one-liner:
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.107.0/install.sh | bash -s -- ".lovable/prompts" "v6.107.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.107.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.107.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added `gitmap cg install-prompts` (aliases: `update-prompts`, `prompts-status`, `prompts-version`, `install-prompts`) for seamless Prompt Architect v2 installation, in-place updates, and version tracking.
+- Added OS-aware remote bootstrap execution via Bash (`install.sh`) on Unix/macOS/Linux and PowerShell (`install.ps1`) on Windows.
+- Added multi-repo auto-discovery and batch execution for prompt installations across work directories.
+- Added `version.json` metadata integration with `promptArchitectByRiseupAsia` section inspection.
+- Added `gitmap workdir` / `gitmap wd` suite (`ls`, `add`, `rm`, `set-default`) with SQLite persistence.
+- Added `gitmap status --dirty` / `--only-dirty` filtering with rich remediation recipe generation.
+- Added Rich Pull Table displaying Repo, Branch, Short SHA, and Upstream tracking delta.
+- Fixed cross-platform compilation and `go vet` failure on macOS/Darwin (`undefined: swapIP`) by renaming `ipchange_linux.go` to `ipchange_posix.go` and removing platform-specific filename suffixes on installer commands.
+- Recorded CI/CD Issue 13 RCA in `.lovable/cicd-issues/13-undefined-swapip-cross-compile-filename-suffix.md` and updated `.lovable/strictly-avoid.md`.
+
 ## [6.104.0] - 2026-08-25
 
 ### Added
