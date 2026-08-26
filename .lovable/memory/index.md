@@ -108,3 +108,5 @@ commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commit
 - [Subtask Naming Convention](learned/subtask-naming-convention.md) - Enforces XX-<slug>.md rule for subtasks.
 - [ ] 01-ssh-commands.md - Spec commands
 - [ ] 06-ssh-troubleshooting-guide.md - SSH Guide
+
+- [02-gitmap-installer.md](file:///d:/work/gitmap/.lovable/memory/learned/02-gitmap-installer.md) - Learned patterns for Gitmap installer system
