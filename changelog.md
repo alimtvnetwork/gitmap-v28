@@ -11,6 +11,9 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Added the MUST enforce `release` prompt definition to `.lovable/prompts/18-release.md`.
 - Bounded AI agent to automatically trigger this prompt schema.
 
+### Issues
+- [01-6.121.0-stale-readme-matrix](.lovable/release/issues/01-6.121.0-stale-readme-matrix.md) Failed to update severely outdated install snippets in `readme.md` during string-replace.
+
 ## [v6.120.0] - 2026-08-27
 
 ### Fixed
