@@ -81,6 +81,7 @@ func toolingOpsEntries() []dispatchEntry {
 
 func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"installer", "in"}, func() { RunInstallerCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines"}, func() { runCG(argsTail()) }},
 		{[]string{"sj", "ssh-joiner", "ssh-join", "ssh-joined"}, func() { runSJ(argsTail()) }},
 		{[]string{"se", "ssh-exe", "ssh-exec", "ssh-execute"}, func() { runSSHExec(argsTail()) }},

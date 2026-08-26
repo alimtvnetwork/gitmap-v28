@@ -27,6 +27,7 @@ var installerUpdateCmd = &cobra.Command{
 	Use:   "update <slug>",
 	Short: "Update an existing installer script record",
 	Long:  "Updates an installer script record and bumps its version in history.",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerUpdate(cmd, args)
 	},

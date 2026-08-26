@@ -32,3 +32,9 @@ func runInstaller(cmd *cobra.Command, args []string) error {
 	}
 	return nil
 }
+
+// RunInstallerCLI routes CLI arguments to the Cobra installer command tree.
+func RunInstallerCLI(args []string) error {
+	installerCmd.SetArgs(args)
+	return installerCmd.Execute()
+}

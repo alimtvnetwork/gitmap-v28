@@ -28,6 +28,7 @@ var installerCreateCmd = &cobra.Command{
 	Use:   "create <name>",
 	Short: "Create a new installer script record",
 	Long:  "Creates and registers a new installer script with target OS and versioning metadata.",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerCreate(cmd, args)
 	},

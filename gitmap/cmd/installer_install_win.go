@@ -23,6 +23,7 @@ var installerInstallWinCmd = &cobra.Command{
 	Use:   "install-win <slug>",
 	Short: "Execute a Windows-targeted installer script",
 	Long:  "Fetches the installer script for Windows and runs the mapped installation instructions.",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerInstallWin(cmd, args)
 	},

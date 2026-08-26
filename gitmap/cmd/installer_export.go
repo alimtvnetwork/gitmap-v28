@@ -29,6 +29,7 @@ var installerExportCmd = &cobra.Command{
 	Use:   "export <slug>",
 	Short: "Export an installer script into a zip bundle",
 	Long:  "Packages installer definitions and versions as JSON within a .zip archive.",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerExport(cmd, args, false)
 	},
@@ -39,6 +40,7 @@ var installerExportAllCmd = &cobra.Command{
 	Use:   "export-all",
 	Short: "Export all installer scripts into a zip bundle",
 	Long:  "Packages all registered installer scripts as JSON files inside a .zip archive.",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerExport(cmd, args, true)
 	},

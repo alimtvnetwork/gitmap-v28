@@ -33,3 +33,25 @@ func MakeRelativeToRoot(base, target string) (string, error) {
 
 	return NormalizeToForwardSlashes(rel), nil
 }
+
+// TrimTrailingSlashes removes trailing slashes from path string.
+func TrimTrailingSlashes(p string) string {
+	return strings.TrimRight(p, "/\\")
+}
+
+// NormalizeSlashes converts backslashes to forward slashes.
+func NormalizeSlashes(p string) string {
+	return NormalizeToForwardSlashes(p)
+}
+
+// EqualPaths checks if two paths are identical after normalization.
+func EqualPaths(p1, p2 string) bool {
+	return NormalizeToForwardSlashes(p1) == NormalizeToForwardSlashes(p2)
+}
+
+// IsSubdirectory checks if child is within parent.
+func IsSubdirectory(parent, child string) bool {
+	p := NormalizeToForwardSlashes(parent)
+	c := NormalizeToForwardSlashes(child)
+	return strings.HasPrefix(c, p+"/")
+}
