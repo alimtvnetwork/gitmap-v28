@@ -1,7 +1,7 @@
 # Plans Index
 
 ## Pending Plans
-*None — All pending plans completed.*
+- [ ] [06-prompt-architect-installer.md](file:///d:/work/gitmap/.lovable/plans/pending/06-prompt-architect-installer.md)
 
 ## Completed Plans
 - [x] [00-execution-plan.md](file:///d:/work/gitmap/.lovable/plans/completed/00-execution-plan.md)
