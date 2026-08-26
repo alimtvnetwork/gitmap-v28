@@ -14,8 +14,7 @@ const (
 
 	// MsgClonePrettyOK renders after a successful clone. Format slots:
 	// dest, elapsed.
-	MsgClonePrettyOK = "  " + ColorGreen + "✓ cloned" + ColorReset + " %s " +
-		ColorDim + "(in %s)" + ColorReset + "\n"
+	MsgClonePrettyOK = "  " + ColorGreen + "✓ cloned" + ColorReset + " %s " + ColorDim + "(in %s)" + ColorReset + "\n"
 
 	// MsgClonePrettyFail renders the failure panel on stderr. Format
 	// slots: cmdline, exitCode, err, elapsed, hints.

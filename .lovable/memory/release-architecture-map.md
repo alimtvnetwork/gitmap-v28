@@ -9,7 +9,7 @@
   "$schema_description": "Canonical Single Source of Truth for repository versioning. Every tool, script, and AI agent must read and update this file exclusively.",
   "$documentation": "docs/versioning.md",
   "$inheritance_rules": "Sub-components specify 'inherit' to use top-level version or define an explicit SemVer string.",
-  "version": "6.109.0",
+  "version": "6.110.0",
   "backend": {
     "version": "inherit",
     "status": "active"

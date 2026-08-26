@@ -49,6 +49,7 @@ def parse_file(path: str):
     out: list[tuple[str, str, int]] = []
     in_raw = False
     in_block: str | None = None
+    prev_ended_with_op = False
     with open(path, encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
             line = raw.rstrip("\n")
@@ -69,9 +70,11 @@ def parse_file(path: str):
             if in_block is None:
                 if re.match(r"^\s*const\s*\(\s*(?://.*)?$", decl_part):
                     in_block = "const"
+                    prev_ended_with_op = False
                     continue
                 if re.match(r"^\s*var\s*\(\s*(?://.*)?$", decl_part):
                     in_block = "var"
+                    prev_ended_with_op = False
                     continue
                 m = re.match(r"^\s*const\s+([A-Z][A-Za-z0-9_]*)\b", decl_part)
                 if m:
@@ -83,7 +86,12 @@ def parse_file(path: str):
                 continue
             if re.match(r"^\s*\)\s*(?://.*)?$", decl_part):
                 in_block = None
+                prev_ended_with_op = False
                 continue
+            if prev_ended_with_op or stripped.startswith("+"):
+                prev_ended_with_op = raw.rstrip().endswith("+")
+                continue
+            prev_ended_with_op = raw.rstrip().endswith("+")
             m = IDENT_TOP_RE.match(stripped)
             if not m:
                 continue

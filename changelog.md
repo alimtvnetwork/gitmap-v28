@@ -1,5 +1,19 @@
 # Changelog
 
+## [v6.110.0] 2026-08-26 CI Constants Collision Fix, Generated Tab Completion Sync & Live Branch Badges
+
+### Install Prompt Architect v6.110.0
+To pin your repository to this exact version, run the following one-liner:
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.110.0/install.sh | bash -s -- ".lovable/prompts" "v6.110.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.110.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.110.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed CI constants collision false-positives by hardening `.github/scripts/check-constants-collisions.py` with multi-line binary operator continuation tracking.
+- Resolved identifier collisions in `gitmap/constants/constants_clone_pretty.go` and `gitmap/constants/constants_clone_recent.go`.
+- Regenerated CLI tab-completion commands in `gitmap/completion/allcommands_generated.go` to eliminate CI generate drift.
+- Replaced third-party cached shields with GitHub native live SVG workflow status badges pinned to `branch=main`.
+
 ## [v6.109.0] 2026-08-26 Version JSON Installer, Component Inheritance & Release Architecture Map
 
 ### Install Prompt Architect v6.109.0

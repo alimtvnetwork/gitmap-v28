@@ -28,8 +28,7 @@ LIMIT 1`
 
 // User-facing messages for the auto-cd-into-recent-clone fallback.
 const (
-	MsgReleaseAutoCdRecent = "  " + ColorCyan + "↳ release: not inside a git repo — switching to most recently cloned: " +
-		ColorReset + "%s" + ColorDim + " (cloned %s)" + ColorReset + "\n"
+	MsgReleaseAutoCdRecent = "  " + ColorCyan + "↳ release: not inside a git repo — switching to most recently cloned: " + ColorReset + "%s" + ColorDim + " (cloned %s)" + ColorReset + "\n"
 	MsgReleaseAutoCdReturn = "  " + ColorDim + "↩ release: returned to %s" + ColorReset + "\n"
 	WarnReleaseAutoCdNone  = "  " + ColorYellow + "⚠ release: not inside a git repo and no recently-cloned repo recorded" + ColorReset + "\n"
 )
