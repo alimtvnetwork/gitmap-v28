@@ -25,7 +25,11 @@ This ensures that the repository is instantly available across all your favorite
 ## Examples
 
 Clone a single repository and synchronize it:
-    gitmap clone-sync https://github.com/example/repo
+```bash
+gitmap clone-sync https://github.com/example/repo
+```
 
 Clone multiple repositories and synchronize them sequentially:
-    gitmap cs https://github.com/example/repo1 https://github.com/example/repo2
+```bash
+gitmap cs https://github.com/example/repo1 https://github.com/example/repo2
+```

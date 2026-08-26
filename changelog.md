@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.117.0] - 2026-08-27
+
+### Fixed
+- Fixed CI/CD failure where `TestEveryHelpFileHasExamples` failed on `clone-sync.md` due to missing fenced code blocks.
+
 ## [v6.116.0] - 2026-08-27
 
 ### Fixed

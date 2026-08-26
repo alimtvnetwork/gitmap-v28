@@ -1,1 +1,2 @@
 - [14-top-level-cmd-registry.md](14-top-level-cmd-registry.md): TestTopLevelCmdRegistryMatchesAST fails when new top-level Cmd constants are not added to topLevelCmds() registry.
+- [15-clone-sync-examples.md](15-clone-sync-examples.md): TestEveryHelpFileHasExamples fails when using 4-space indents instead of fenced code blocks.
