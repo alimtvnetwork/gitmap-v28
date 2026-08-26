@@ -1,5 +1,16 @@
 # Changelog
 
+## [v6.121.0] - 2026-08-27 Save AI release prompt body
+
+### Install Prompt Architect v6.121.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.121.0/install.sh | bash -s -- ".lovable/prompts" "v6.121.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.121.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.121.0"`
+
+### Added
+- Added the MUST enforce `release` prompt definition to `.lovable/prompts/18-release.md`.
+- Bounded AI agent to automatically trigger this prompt schema.
+
 ## [v6.120.0] - 2026-08-27
 
 ### Fixed
