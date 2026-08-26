@@ -1,0 +1,17 @@
+{
+  "version": "6.121.0",
+  "branch": "release/v6.121.0",
+  "sourceBranch": "main",
+  "commit": "070eac7180f0b01bb66c5112d539c7c90d9e6ae9",
+  "tag": "v6.121.0",
+  "assets": [],
+  "changelog": [
+    "Added the MUST enforce `release` prompt definition to `.lovable/prompts/18-release.md`.",
+    "Bounded AI agent to automatically trigger this prompt schema.",
+    "[01-6.121.0-stale-readme-matrix](.lovable/release/issues/01-6.121.0-stale-readme-matrix.md) Failed to update severely outdated install snippets in `readme.md` during string-replace."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-08-26T18:59:17Z",
+  "isLatest": false
+}
