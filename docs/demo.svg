@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" width="900" height="540">
+  <defs>
+    <linearGradient id="winGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e1e2e"/>
+      <stop offset="100%" stop-color="#13131f"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a2a3d"/>
+      <stop offset="100%" stop-color="#1e1e2e"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="20" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="540" fill="#0d0d1a"/>
+
+  <!-- Subtle grid -->
+  <g opacity="0.03">
+    <line x1="0" y1="60" x2="900" y2="60" stroke="#6c6f93" stroke-width="1"/>
+    <line x1="0" y1="120" x2="900" y2="120" stroke="#6c6f93" stroke-width="1"/>
+    <line x1="0" y1="180" x2="900" y2="180" stroke="#6c6f93" stroke-width="1"/>
+    <line x1="0" y1="240" x2="900" y2="240" stroke="#6c6f93" stroke-width="1"/>
+    <line x1="0" y1="300" x2="900" y2="300" stroke="#6c6f93" stroke-width="1"/>
+    <line x1="0" y1="360" x2="900" y2="360" stroke="#6c6f93" stroke-width="1"/>
+    <line x1="0" y1="420" x2="900" y2="420" stroke="#6c6f93" stroke-width="1"/>
+    <line x1="0" y1="480" x2="900" y2="480" stroke="#6c6f93" stroke-width="1"/>
+  </g>
+
+  <!-- Terminal Window -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="20" width="840" height="500" rx="10" ry="10" fill="url(#winGrad)" stroke="#3a3a52" stroke-width="1"/>
+    <rect x="30" y="20" width="840" height="34" rx="10" ry="10" fill="url(#titleGrad)"/>
+    <rect x="30" y="40" width="840" height="14" fill="url(#titleGrad)"/>
+    <circle cx="56" cy="37" r="6" fill="#ff5f57"/>
+    <circle cx="76" cy="37" r="6" fill="#ffbd2e"/>
+    <circle cx="96" cy="37" r="6" fill="#28ca41"/>
+    <text x="450" y="42" text-anchor="middle" fill="#6c6f93" font-size="12" font-family="Menlo, Monaco, Consolas, monospace">gitmap — bash</text>
+  </g>
+
+  <!-- === SCENE 1: SCAN (0-8s, 0-19%) === -->
+  <g font-family="Menlo, Monaco, Consolas, monospace">
+    <animate attributeName="opacity" values="1;1;1;0;0;0;0;0;0;0;0;0;0;0;1" keyTimes="0;0.15;0.19;0.21;0.4;0.42;0.6;0.62;0.79;0.81;0.95;0.97;0.99;0.995;1" dur="42s" repeatCount="indefinite"/>
+
+    <text x="450" y="68" text-anchor="middle" fill="#6c6f93" font-size="10">scan · catalog · discover</text>
+    <text x="50" y="92" fill="#a6e3a1" font-size="13">→</text>
+    <text x="65" y="92" fill="#89dceb" font-size="13">~/repos</text>
+    <text x="135" y="92" fill="#cdd6f4" font-size="13">$</text>
+    <text x="148" y="92" fill="#f38ba8" font-size="13">gitmap scan . --json --csv</text>
+
+    <text x="50" y="115" fill="#6c6f93" font-size="12"><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.04;1" dur="42s" repeatCount="indefinite"/>scanning ~/repos ...</text>
+    <text x="50" y="133" fill="#a6e3a1" font-size="12"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.06;0.09;1" dur="42s" repeatCount="indefinite"/>✓  found  <tspan fill="#89dceb">47 repositories</tspan></text>
+    <text x="50" y="151" fill="#cdd6f4" font-size="12"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;1" dur="42s" repeatCount="indefinite"/>↳  public  <tspan fill="#a6e3a1">31</tspan>   private  <tspan fill="#f9e2af">16</tspan></text>
+    <text x="50" y="169" fill="#cdd6f4" font-size="12"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;1" dur="42s" repeatCount="indefinite"/>↳  stale   <tspan fill="#f38ba8">3</tspan>    clean    <tspan fill="#a6e3a1">44</tspan></text>
+
+    <text x="50" y="192" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;0.15;1" dur="42s" repeatCount="indefinite"/>NAME                        BRANCH           STATUS</text>
+    <line x1="50" y1="197" x2="750" y2="197" stroke="#3a3a52" stroke-width="1"><animate attributeName="opacity" values="0;0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;0.15;1" dur="42s" repeatCount="indefinite"/></line>
+    <text x="50" y="212" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;0.15;0.17;1" dur="42s" repeatCount="indefinite"/>gitmap-v28                  <tspan fill="#a6e3a1">main</tspan>             <tspan fill="#a6e3a1">✓ clean</tspan></text>
+    <text x="50" y="227" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;0.15;0.17;0.18;1" dur="42s" repeatCount="indefinite"/>api-service                 <tspan fill="#89dceb">feature/auth</tspan>     <tspan fill="#f9e2af">⚠ uncommitted</tspan></text>
+    <text x="50" y="242" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;0.15;0.17;0.18;0.19;1" dur="42s" repeatCount="indefinite"/>frontend-ui                 <tspan fill="#a6e3a1">main</tspan>             <tspan fill="#a6e3a1">✓ clean</tspan></text>
+    <text x="50" y="257" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;0.15;0.17;0.18;0.19;0.2;1" dur="42s" repeatCount="indefinite"/>infra-deploy                <tspan fill="#f38ba8">detached</tspan>         <tspan fill="#f38ba8">✗ stale (14d)</tspan></text>
+    <text x="50" y="275" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;0.15;0.17;0.18;0.19;0.2;0.21;1" dur="42s" repeatCount="indefinite"/>... 43 more rows</text>
+    <text x="50" y="298" fill="#a6e3a1" font-size="12"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.06;0.09;0.11;0.13;0.15;0.17;0.18;0.19;0.2;0.21;0.23;1" dur="42s" repeatCount="indefinite"/>✓  exported → repos.json   repos.csv</text>
+  </g>
+
+  <!-- === SCENE 2: CLONE-ALL (8-17s, 21-40%) === -->
+  <g font-family="Menlo, Monaco, Consolas, monospace">
+    <animate attributeName="opacity" values="0;0;0;1;1;1;0;0;0;0;0;0;0;0;0" keyTimes="0;0.19;0.21;0.23;0.38;0.4;0.42;0.6;0.62;0.79;0.81;0.95;0.97;0.99;1" dur="42s" repeatCount="indefinite"/>
+
+    <text x="450" y="68" text-anchor="middle" fill="#6c6f93" font-size="10">clone-all · parallel · multi-repo seeding</text>
+    <text x="50" y="92" fill="#a6e3a1" font-size="13">→</text>
+    <text x="65" y="92" fill="#89dceb" font-size="13">~/dev</text>
+    <text x="105" y="92" fill="#cdd6f4" font-size="13">$</text>
+    <text x="118" y="92" fill="#f38ba8" font-size="13">gitmap clone-all --from repos.json --parallel 4</text>
+
+    <text x="50" y="115" fill="#6c6f93" font-size="12"><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.03;1" dur="42s" repeatCount="indefinite"/>cloning 47 repositories · workers: 4</text>
+
+    <!-- Repo bars -->
+    <text x="50" y="138" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.04;0.06;1" dur="42s" repeatCount="indefinite"/>[1] gitmap-v28</text>
+    <rect x="175" y="129" width="160" height="8" rx="4" fill="#313244"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.04;0.06;1" dur="42s" repeatCount="indefinite"/></rect>
+    <rect x="175" y="129" height="8" rx="4" fill="#a6e3a1"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.04;0.06;1" dur="42s" repeatCount="indefinite"/><animate attributeName="width" values="0;0;120;160;160" keyTimes="0;0.04;0.1;0.13;1" dur="42s" repeatCount="indefinite"/></rect>
+    <text x="342" y="138" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.04;0.12;0.14;1" dur="42s" repeatCount="indefinite"/>✓ done</text>
+
+    <text x="50" y="156" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.05;0.07;1" dur="42s" repeatCount="indefinite"/>[2] api-service</text>
+    <rect x="175" y="147" width="160" height="8" rx="4" fill="#313244"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.05;0.07;1" dur="42s" repeatCount="indefinite"/></rect>
+    <rect x="175" y="147" height="8" rx="4" fill="#89dceb"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.05;0.07;1" dur="42s" repeatCount="indefinite"/><animate attributeName="width" values="0;0;60;160;160" keyTimes="0;0.05;0.12;0.17;1" dur="42s" repeatCount="indefinite"/></rect>
+    <text x="342" y="156" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.05;0.12;0.17;0.19;1" dur="42s" repeatCount="indefinite"/>✓ done</text>
+
+    <text x="50" y="174" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.06;0.08;0.1;1" dur="42s" repeatCount="indefinite"/>[3] frontend-ui</text>
+    <rect x="175" y="165" width="160" height="8" rx="4" fill="#313244"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.06;0.08;0.1;1" dur="42s" repeatCount="indefinite"/></rect>
+    <rect x="175" y="165" height="8" rx="4" fill="#f9e2af"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.06;0.08;0.1;1" dur="42s" repeatCount="indefinite"/><animate attributeName="width" values="0;0;40;110;160;160" keyTimes="0;0.06;0.11;0.16;0.2;1" dur="42s" repeatCount="indefinite"/></rect>
+    <text x="342" y="174" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;1;1" keyTimes="0;0.06;0.11;0.16;0.2;0.22;1" dur="42s" repeatCount="indefinite"/>✓ done</text>
+
+    <text x="50" y="192" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.07;0.09;0.11;0.13;1" dur="42s" repeatCount="indefinite"/>[4] infra-deploy</text>
+    <rect x="175" y="183" width="160" height="8" rx="4" fill="#313244"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.07;0.09;0.11;0.13;1" dur="42s" repeatCount="indefinite"/></rect>
+    <rect x="175" y="183" height="8" rx="4" fill="#cba6f7"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.07;0.09;0.11;0.13;1" dur="42s" repeatCount="indefinite"/><animate attributeName="width" values="0;0;20;80;160;160" keyTimes="0;0.07;0.12;0.17;0.21;1" dur="42s" repeatCount="indefinite"/></rect>
+    <text x="342" y="192" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;1;1" keyTimes="0;0.07;0.12;0.17;0.21;0.24;0.26;1" dur="42s" repeatCount="indefinite"/>✓ done</text>
+
+    <text x="50" y="215" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;1;1" keyTimes="0;0.08;0.12;0.17;0.21;0.24;0.26;0.3;1" dur="42s" repeatCount="indefinite"/>... 43 more cloned in background</text>
+    <text x="50" y="240" fill="#a6e3a1" font-size="12"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.08;0.12;0.17;0.21;0.24;0.26;0.3;0.42;1" dur="42s" repeatCount="indefinite"/>✓  47/47 cloned  ·  elapsed: 38s  ·  errors: 0</text>
+    <text x="50" y="258" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.08;0.12;0.17;0.21;0.24;0.26;0.3;0.42;0.46;1" dur="42s" repeatCount="indefinite"/>↳  all repos seeded to  <tspan fill="#89dceb">~/dev</tspan></text>
+  </g>
+
+  <!-- === SCENE 3: SSH CLUSTER (17-25s, 42-60%) === -->
+  <g font-family="Menlo, Monaco, Consolas, monospace">
+    <animate attributeName="opacity" values="0;0;0;0;0;0;1;1;1;0;0;0;0;0;0" keyTimes="0;0.4;0.42;0.44;0.5;0.58;0.6;0.65;0.79;0.81;0.95;0.97;0.99;0.995;1" dur="42s" repeatCount="indefinite"/>
+
+    <text x="450" y="68" text-anchor="middle" fill="#6c6f93" font-size="10">ssh-bind · cluster sync · broadcast commands</text>
+    <text x="50" y="92" fill="#a6e3a1" font-size="13">→</text>
+    <text x="65" y="92" fill="#89dceb" font-size="13">~/repos</text>
+    <text x="135" y="92" fill="#cdd6f4" font-size="13">$</text>
+    <text x="148" y="92" fill="#f38ba8" font-size="13">gitmap ssh-bind --cluster prod --all</text>
+
+    <text x="50" y="115" fill="#6c6f93" font-size="12"><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.03;1" dur="42s" repeatCount="indefinite"/>connecting to cluster:  <tspan fill="#cba6f7">prod</tspan>  (4 nodes)</text>
+
+    <text x="50" y="140" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.04;0.07;1" dur="42s" repeatCount="indefinite"/>● node-01  <tspan fill="#6c6f93">192.168.1.10</tspan></text>
+    <text x="215" y="140" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.04;0.09;0.12;1" dur="42s" repeatCount="indefinite"/>✓ connected  · latency 4ms</text>
+
+    <text x="50" y="157" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.05;0.09;0.12;1" dur="42s" repeatCount="indefinite"/>● node-02  <tspan fill="#6c6f93">192.168.1.11</tspan></text>
+    <text x="215" y="157" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.05;0.09;0.14;0.17;1" dur="42s" repeatCount="indefinite"/>✓ connected  · latency 6ms</text>
+
+    <text x="50" y="174" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.06;0.1;0.14;0.17;1" dur="42s" repeatCount="indefinite"/>● node-03  <tspan fill="#6c6f93">192.168.1.12</tspan></text>
+    <text x="215" y="174" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;1;1" keyTimes="0;0.06;0.1;0.14;0.18;0.21;1" dur="42s" repeatCount="indefinite"/>✓ connected  · latency 3ms</text>
+
+    <text x="50" y="191" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;1;1" keyTimes="0;0.07;0.11;0.15;0.19;0.22;1" dur="42s" repeatCount="indefinite"/>● node-04  <tspan fill="#6c6f93">192.168.1.13</tspan></text>
+    <text x="215" y="191" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;1;1" keyTimes="0;0.07;0.11;0.15;0.19;0.22;0.25;1" dur="42s" repeatCount="indefinite"/>✓ connected  · latency 5ms</text>
+
+    <text x="50" y="215" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;1;1" keyTimes="0;0.07;0.11;0.15;0.19;0.22;0.25;0.28;1" dur="42s" repeatCount="indefinite"/>broadcasting: gitmap pull-all</text>
+    <text x="50" y="232" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.07;0.11;0.15;0.19;0.22;0.25;0.28;0.33;1" dur="42s" repeatCount="indefinite"/>node-01 <tspan fill="#a6e3a1">✓</tspan>  node-02 <tspan fill="#a6e3a1">✓</tspan>  node-03 <tspan fill="#a6e3a1">✓</tspan>  node-04 <tspan fill="#a6e3a1">✓</tspan></text>
+    <text x="50" y="258" fill="#a6e3a1" font-size="12"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.07;0.11;0.15;0.19;0.22;0.25;0.28;0.33;0.45;1" dur="42s" repeatCount="indefinite"/>✓  cluster sync complete  ·  4/4 nodes updated</text>
+  </g>
+
+  <!-- === SCENE 4: INSTALLER (25-33s, 62-81%) === -->
+  <g font-family="Menlo, Monaco, Consolas, monospace">
+    <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;1;1;0;0;0" keyTimes="0;0.58;0.6;0.62;0.64;0.68;0.72;0.77;0.79;0.81;0.9;0.95;0.97;0.99;1" dur="42s" repeatCount="indefinite"/>
+
+    <text x="450" y="68" text-anchor="middle" fill="#6c6f93" font-size="10">install · prompt-architect · rollback support</text>
+    <text x="50" y="92" fill="#a6e3a1" font-size="13">→</text>
+    <text x="65" y="92" fill="#89dceb" font-size="13">~/project</text>
+    <text x="143" y="92" fill="#cdd6f4" font-size="13">$</text>
+    <text x="156" y="92" fill="#f38ba8" font-size="13">gitmap install my-configs --target remote</text>
+
+    <text x="50" y="115" fill="#89dceb" font-size="12"><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.03;1" dur="42s" repeatCount="indefinite"/>▸ installing  <tspan fill="#cba6f7">my-configs</tspan>  v2.1.0</text>
+
+    <text x="50" y="138" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.04;0.07;1" dur="42s" repeatCount="indefinite"/>step 1/4  download assets</text>
+    <text x="195" y="138" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.04;0.1;0.13;1" dur="42s" repeatCount="indefinite"/>✓ done (1.2 MB)</text>
+
+    <text x="50" y="155" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.04;0.1;0.13;1" dur="42s" repeatCount="indefinite"/>step 2/4  verify checksums</text>
+    <text x="195" y="155" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.19;1" dur="42s" repeatCount="indefinite"/>✓ SHA256 ok</text>
+
+    <text x="50" y="172" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.19;1" dur="42s" repeatCount="indefinite"/>step 3/4  run install scripts</text>
+    <text x="195" y="172" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;1" dur="42s" repeatCount="indefinite"/>✓ bash + ps1 executed</text>
+
+    <text x="50" y="189" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;1" dur="42s" repeatCount="indefinite"/>step 4/4  register in gitmap store</text>
+    <text x="195" y="189" fill="#a6e3a1" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.29;1" dur="42s" repeatCount="indefinite"/>✓ stored</text>
+
+    <line x1="50" y1="200" x2="750" y2="200" stroke="#3a3a52" stroke-width="1"><animate attributeName="opacity" values="0;0;0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.29;0.33;1" dur="42s" repeatCount="indefinite"/></line>
+    <text x="50" y="217" fill="#a6e3a1" font-size="12"><animate attributeName="opacity" values="0;0;0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.29;0.38;1" dur="42s" repeatCount="indefinite"/>✓  install complete  ·  my-configs@2.1.0 active</text>
+    <text x="50" y="235" fill="#cdd6f4" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.29;0.38;0.44;1" dur="42s" repeatCount="indefinite"/>↳ revert with:  <tspan fill="#89dceb">gitmap install --revert my-configs</tspan></text>
+  </g>
+
+  <!-- === SCENE 5: RELEASE (33-42s, 81-100%) === -->
+  <g font-family="Menlo, Monaco, Consolas, monospace">
+    <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;1;1;1" keyTimes="0;0.77;0.79;0.81;0.83;0.85;0.87;0.89;0.91;0.93;0.95;0.97;0.98;0.99;1" dur="42s" repeatCount="indefinite"/>
+
+    <text x="450" y="68" text-anchor="middle" fill="#6c6f93" font-size="10">release · semver bump · CI + artifact publish</text>
+    <text x="50" y="92" fill="#a6e3a1" font-size="13">→</text>
+    <text x="65" y="92" fill="#89dceb" font-size="13">~/repos/gitmap-v28</text>
+    <text x="237" y="92" fill="#cdd6f4" font-size="13">$</text>
+    <text x="250" y="92" fill="#f38ba8" font-size="13">gitmap release --minor</text>
+
+    <text x="50" y="115" fill="#89dceb" font-size="12"><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.03;1" dur="42s" repeatCount="indefinite"/>▸ release  <tspan fill="#6c6f93">v6.110.0</tspan>  →  <tspan fill="#a6e3a1">v6.111.0</tspan></text>
+
+    <text x="50" y="138" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.04;0.07;1" dur="42s" repeatCount="indefinite"/>bumping version.json      <tspan fill="#a6e3a1">✓</tspan></text>
+    <text x="50" y="155" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.04;0.1;0.13;1" dur="42s" repeatCount="indefinite"/>updating changelog.md     <tspan fill="#a6e3a1">✓</tspan></text>
+    <text x="50" y="172" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.19;1" dur="42s" repeatCount="indefinite"/>pinning readme.md         <tspan fill="#a6e3a1">✓</tspan></text>
+    <text x="50" y="189" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;1" dur="42s" repeatCount="indefinite"/>git tag v6.111.0          <tspan fill="#a6e3a1">✓</tspan></text>
+    <text x="50" y="206" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.3;1" dur="42s" repeatCount="indefinite"/>git push + CI triggered   <tspan fill="#a6e3a1">✓</tspan></text>
+    <text x="50" y="223" fill="#6c6f93" font-size="11"><animate attributeName="opacity" values="0;0;0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.3;0.35;1" dur="42s" repeatCount="indefinite"/>artifacts published        <tspan fill="#a6e3a1">✓</tspan></text>
+
+    <text x="50" y="248" fill="#a6e3a1" font-size="12"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.3;0.35;0.52;1" dur="42s" repeatCount="indefinite"/>✓  released  v6.111.0  ·  CI green  ·  artifacts live</text>
+
+    <text x="50" y="272" fill="#a6e3a1" font-size="13"><animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.3;0.35;0.52;0.68;1" dur="42s" repeatCount="indefinite"/>→ ~/repos/gitmap-v28 $</text>
+    <rect x="298" y="261" width="8" height="13" fill="#a6e3a1">
+      <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;0;1;0;1;0;1;0;1" keyTimes="0;0.04;0.1;0.16;0.21;0.25;0.3;0.35;0.52;0.68;0.71;0.74;0.77;0.8;0.83;0.86;0.89;0.92;1" dur="42s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Bottom bar -->
+  <rect x="30" y="492" width="840" height="28" fill="#111120"/>
+  <rect x="30" y="492" width="840" height="1" fill="#3a3a52"/>
+
+  <!-- Scene indicator dots -->
+  <g>
+    <!-- Dot 1 - scan -->
+    <circle cx="415" cy="509" r="4" fill="#a6e3a1">
+      <animate attributeName="opacity" values="1;1;0.3;0.3;0.3;0.3;0.3;0.3;0.3;0.3;1;1" keyTimes="0;0.19;0.21;0.4;0.42;0.6;0.62;0.79;0.81;0.97;0.99;1" dur="42s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Dot 2 - clone -->
+    <circle cx="431" cy="509" r="4" fill="#89dceb">
+      <animate attributeName="opacity" values="0.3;0.3;1;1;0.3;0.3;0.3;0.3;0.3;0.3;0.3;0.3" keyTimes="0;0.19;0.21;0.4;0.42;0.6;0.62;0.79;0.81;0.97;0.99;1" dur="42s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Dot 3 - ssh -->
+    <circle cx="447" cy="509" r="4" fill="#cba6f7">
+      <animate attributeName="opacity" values="0.3;0.3;0.3;0.3;1;1;0.3;0.3;0.3;0.3;0.3;0.3" keyTimes="0;0.4;0.42;0.44;0.6;0.62;0.79;0.81;0.97;0.99;0.995;1" dur="42s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Dot 4 - install -->
+    <circle cx="463" cy="509" r="4" fill="#f9e2af">
+      <animate attributeName="opacity" values="0.3;0.3;0.3;0.3;0.3;0.3;1;1;0.3;0.3;0.3;0.3" keyTimes="0;0.6;0.62;0.64;0.79;0.81;0.83;0.95;0.97;0.99;0.995;1" dur="42s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Dot 5 - release -->
+    <circle cx="479" cy="509" r="4" fill="#f38ba8">
+      <animate attributeName="opacity" values="0.3;0.3;0.3;0.3;0.3;0.3;0.3;0.3;1;1;0.3;0.3" keyTimes="0;0.79;0.81;0.83;0.95;0.97;0.98;0.985;0.99;0.995;0.999;1" dur="42s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

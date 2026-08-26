@@ -20,9 +20,9 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 <br>
 
-<img src="docs/demo.gif" alt="Animated terminal demo of GitMap commands: clone, scan, history, release, ssh, make-public/make-private, merge-left/right/both, and the interactive TUI" width="900">
+<img src="docs/demo.svg" alt="Animated terminal demo of GitMap: scan repos, clone-all in parallel, SSH cluster sync, installer, and release ceremony" width="900">
 
-<sub><i>30-second tour: clone · scan · history · release · ssh · visibility · merge · interactive TUI</i></sub>
+<sub><i>42-second tour: scan · clone-all (parallel) · ssh cluster · install · release</i></sub>
 
 </div>
 
