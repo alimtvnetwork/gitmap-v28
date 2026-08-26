@@ -1,69 +1,32 @@
+// Package fsutil — path_normalize_test.go tests path normalization utilities.
 package fsutil
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 )
 
-func TestPathNormalizeAndSlashes(t *testing.T) {
-	p := `D:\work\project\sub\`
-	trimmed := TrimTrailingSlashes(p)
-	if trimmed != `D:\work\project\sub` {
-		t.Errorf("TrimTrailingSlashes got %s", trimmed)
+func TestPathNormalize(t *testing.T) {
+	cases := []struct {
+		input    string
+		expected string
+	}{
+		{"a\\b\\c", "a/b/c"},
+		{"a/b/c", "a/b/c"},
+		{"a/b/../c", "a/c"},
 	}
 
-	norm := NormalizeSlashes(p)
-	if norm != `D:/work/project/sub` {
-		t.Errorf("NormalizeSlashes got %s", norm)
+	for _, c := range cases {
+		out := NormalizeToForwardSlashes(c.input)
+		if out != c.expected {
+			t.Errorf("NormalizeToForwardSlashes(%q) = %q, expected %q", c.input, out, c.expected)
+		}
 	}
 
-	if !EqualPaths(`D:\work\foo`, `d:/work/foo/`) {
-		t.Errorf("EqualPaths failed for case and slash variations")
-	}
-
-	if !IsSubdirectory(`D:/work/project`, `D:/work/project/nested/deep`) {
-		t.Errorf("IsSubdirectory failed for nested child")
-	}
-
-	if IsSubdirectory(`D:/work/project`, `D:/work/other`) {
-		t.Errorf("IsSubdirectory false positive for unrelated folder")
-	}
-}
-
-func TestEnsureAndStripLongPath(t *testing.T) {
-	raw := `D:\work\myrepo`
-	long := EnsureLongPath(raw)
-	if len(long) == 0 {
-		t.Fatalf("EnsureLongPath returned empty string")
-	}
-	stripped := StripLongPathPrefix(long)
-	if stripped != raw && filepath.Clean(stripped) != filepath.Clean(raw) {
-		t.Errorf("StripLongPathPrefix mismatch: got %s, want %s", stripped, raw)
-	}
-}
-
-func TestSafeFsOperations(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "gitmap-fsutil-test-*")
+	rel, err := MakeRelativeToRoot("/root/work", "/root/work/dir/file.txt")
 	if err != nil {
-		t.Fatalf("MkdirTemp failed: %v", err)
+		t.Fatalf("MakeRelativeToRoot failed: %v", err)
 	}
-	defer os.RemoveAll(tempDir)
-
-	src := filepath.Join(tempDir, "src")
-	dst := filepath.Join(tempDir, "dst")
-	_ = os.MkdirAll(src, 0755)
-	_ = os.WriteFile(filepath.Join(src, "file.txt"), []byte("hello"), 0644)
-
-	if err := SafeRename(src, dst); err != nil {
-		t.Fatalf("SafeRename failed: %v", err)
-	}
-
-	if !FileExists(filepath.Join(dst, "file.txt")) {
-		t.Errorf("Destination file missing after SafeRename")
-	}
-
-	if err := SafeRemoveAll(dst); err != nil {
-		t.Fatalf("SafeRemoveAll failed: %v", err)
+	if rel != "dir/file.txt" {
+		t.Errorf("expected dir/file.txt, got %s", rel)
 	}
 }

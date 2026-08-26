@@ -1,50 +1,35 @@
+// Package fsutil — path_normalize.go provides cross-platform path utilities for installer portable paths.
 package fsutil
 
 import (
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
-// NormalizeSlashes converts backslashes to forward slashes.
-func NormalizeSlashes(path string) string {
-	return filepath.ToSlash(filepath.Clean(strings.ReplaceAll(path, "\\", "/")))
+// NormalizeToForwardSlashes converts all backslashes to forward slashes.
+func NormalizeToForwardSlashes(p string) string {
+	return strings.ReplaceAll(filepath.Clean(p), "\\", "/")
 }
 
-// TrimTrailingSlashes removes trailing slashes and backslashes.
-func TrimTrailingSlashes(path string) string {
-	trimmed := strings.TrimRight(path, "/\\")
-	if len(trimmed) == 0 && len(path) > 0 {
-		return path
+// MakeRelativeToRoot calculates relative path from root and normalizes with forward slashes.
+func MakeRelativeToRoot(base, target string) (string, error) {
+	if strings.TrimSpace(base) == "" || strings.TrimSpace(target) == "" {
+		return "", apperror.New("MakeRelativeToRoot", "E_INSTALLER_INVALID_INPUT", map[string]any{
+			"error": "base and target cannot be empty",
+		})
 	}
-	return trimmed
-}
 
-// CanonicalPath returns a clean, absolute, normalized path.
-func CanonicalPath(path string) (string, error) {
-	trimmed := TrimTrailingSlashes(path)
-	abs, err := filepath.Abs(trimmed)
+	rel, err := filepath.Rel(base, target)
 	if err != nil {
-		return "", err
+		appErr := apperror.Wrap(err, "MakeRelativeToRoot", map[string]any{
+			"base":   base,
+			"target": target,
+		})
+		appErr.Code = "E_INSTALLER_PATH_ERROR"
+		return "", appErr
 	}
-	return filepath.Clean(abs), nil
-}
 
-// EqualPaths checks case-insensitive equality across path formats.
-func EqualPaths(pathA, pathB string) bool {
-	normA := strings.ToLower(NormalizeSlashes(pathA))
-	normB := strings.ToLower(NormalizeSlashes(pathB))
-	return normA == normB
-}
-
-// IsSubdirectory reports whether child is inside parent directory.
-func IsSubdirectory(parent, child string) bool {
-	pNorm := strings.ToLower(NormalizeSlashes(parent))
-	cNorm := strings.ToLower(NormalizeSlashes(child))
-	if pNorm == cNorm {
-		return true
-	}
-	if !strings.HasSuffix(pNorm, "/") {
-		pNorm += "/"
-	}
-	return strings.HasPrefix(cNorm, pNorm)
+	return NormalizeToForwardSlashes(rel), nil
 }
