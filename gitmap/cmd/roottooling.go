@@ -82,6 +82,7 @@ func toolingOpsEntries() []dispatchEntry {
 func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"installer", "in"}, func() { RunInstallerCLI(argsTail()) }},
+		{[]string{"ct", "code-tools", "install-prompts", "prompts"}, func() { runCT(argsTail()) }},
 		{[]string{"workdir", "work-dir", "wd"}, func() { runWorkDir(argsTail()) }},
 		{[]string{"os", "os-update"}, func() { RunOSCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines"}, func() { runCG(argsTail()) }},

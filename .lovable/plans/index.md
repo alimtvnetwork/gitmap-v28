@@ -1,7 +1,7 @@
 # Plans Index
 
 ## Pending Plans
-- [ ] [06-prompt-architect-installer.md](file:///d:/work/gitmap/.lovable/plans/pending/06-prompt-architect-installer.md)
+*None — All pending plans completed.*
 
 ## Completed Plans
 - [x] [00-execution-plan.md](file:///d:/work/gitmap/.lovable/plans/completed/00-execution-plan.md)
@@ -24,5 +24,6 @@
 - [x] [05-mv-rm-resolver-replace-100-steps.md](file:///d:/work/gitmap/.lovable/plans/completed/05-mv-rm-resolver-replace-100-steps.md)
 - [x] [05-workdir-pull-table-dirty-remedy.md](file:///d:/work/gitmap/.lovable/plans/completed/05-workdir-pull-table-dirty-remedy.md)
 - [x] [06-cluster-command-delegation.md](file:///d:/work/gitmap/.lovable/plans/completed/06-cluster-command-delegation.md)
+- [x] [06-prompt-architect-installer.md](file:///d:/work/gitmap/.lovable/plans/completed/06-prompt-architect-installer.md)
 - [x] [07-update-terminal-visualization.md](file:///d:/work/gitmap/.lovable/plans/completed/07-update-terminal-visualization.md)
 - [x] [08-dashboard-recent-and-terminal-ui.md](file:///d:/work/gitmap/.lovable/plans/completed/08-dashboard-recent-and-terminal-ui.md)
