@@ -1,4 +1,3 @@
-// Package cmd — installer_smart_install.go provides smart auto-detect installation.
 package cmd
 
 import (
@@ -30,8 +29,8 @@ func detectCurrentHostOSTarget() string {
 		return constants.OSTargetWin
 	case "darwin":
 		return constants.OSTargetMac
-	default: // linux / unix
-		return constants.OSTargetUbuntu // default linux target or unix
+	default:
+		return constants.OSTargetUbuntu
 	}
 }
 
@@ -61,7 +60,8 @@ func runSmartInstaller(slug, osTarget string) error {
 }
 
 func hasProfilePrefix(slug string) bool {
-	return strings.HasPrefix(slug, "ubuntu+") || strings.HasPrefix(slug, "ubuntu-") || slug == "ub"
+	_, ok := resolveProfileTree(slug)
+	return ok
 }
 
 func renderSmartInstallSummary(slug, osTarget string) {
