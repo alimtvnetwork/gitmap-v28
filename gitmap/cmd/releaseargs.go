@@ -85,4 +85,3 @@ func reorderFlagsBeforeArgs(args []string) []string {
 
 	return append(flags, positional...)
 }
-

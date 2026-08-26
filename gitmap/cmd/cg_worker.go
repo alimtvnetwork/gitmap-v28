@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"runtime"
 	"sync"
+
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -15,7 +16,7 @@ func executeCGWorkers(repos []string) {
 	fmt.Printf("Running coding guidelines installer on %d repositories...\n", len(repos))
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 10)
-	
+
 	for _, repo := range repos {
 		wg.Add(1)
 		sem <- struct{}{}
@@ -28,7 +29,7 @@ func executeCGWorkers(repos []string) {
 func runCgWorker(repo string, wg *sync.WaitGroup, sem chan struct{}) {
 	defer wg.Done()
 	defer func() { <-sem }()
-	
+
 	if err := runCgScriptInRepo(repo); err != nil {
 		fmt.Printf("%s [%s] %v\n", cgErrorStyle.Render("✖"), repo, err)
 		return

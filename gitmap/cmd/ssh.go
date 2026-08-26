@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runSSH handles the "ssh" subcommand and routes to sub-handlers.
@@ -66,7 +67,7 @@ func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) erro
 			runSSHStatus(args[1:])
 			return nil
 		}
-		
+
 		// If it reaches here, treat as raw arguments for implicit alias or username@ip
 		return runSSHLogin(parent, args, ctx)
 	}

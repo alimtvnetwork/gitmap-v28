@@ -6,11 +6,13 @@ import (
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/crypto/ssh"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/charmbracelet/lipgloss"
-	"golang.org/x/crypto/ssh"
 )
 
 var seCommand = "se"
@@ -94,7 +96,7 @@ func executeOnAllSSH(conns []db.SSHConnection, args []string) {
 }
 func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	
+
 	header := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd")).Render(fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress))
 
 	var client *ssh.Client
@@ -130,7 +132,7 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) {
 	if shellType == "ps" || shellType == "pwsh" {
 		_ = ensurePowerShellInstalled(client, c.OS, header)
 	}
-	
+
 	if delegateToGitmap {
 		commandStr = "gitmap " + strings.Join(args, " ")
 		shellType = "" // default shell
@@ -187,7 +189,7 @@ func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {
 		installCmd = "curl -fsSL https://gitmap.dev/install.sh | bash"
 		_, err = crypto.RunCommand(client, installCmd, "bash")
 	}
-	
+
 	if err != nil {
 		return fmt.Errorf("auto-install failed: %w", err)
 	}
@@ -211,4 +213,3 @@ func ensurePowerShellInstalled(client *ssh.Client, osType, header string) error 
 	}
 	return nil
 }
-

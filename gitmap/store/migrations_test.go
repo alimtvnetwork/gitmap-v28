@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	_ "modernc.org/sqlite"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 func setupMigrationTestMemoryDB(testingT *testing.T) *sql.DB {

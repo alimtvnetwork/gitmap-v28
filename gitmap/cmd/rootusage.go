@@ -121,4 +121,3 @@ func printUsageQuickStart() {
 	fmt.Println(colorGroupHeader(constants.HelpGroupHint))
 	fmt.Println(constants.HelpCompactHint)
 }
-

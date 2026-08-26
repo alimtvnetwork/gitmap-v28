@@ -140,4 +140,3 @@ func TestCommitCodingGuidelinesNoCommitNoPushPrintsBothNotes(t *testing.T) {
 	}
 	assertCGNotes(t, stderr.String())
 }
-

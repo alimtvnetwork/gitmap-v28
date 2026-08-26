@@ -3,7 +3,6 @@ package cmd
 
 import (
 	"fmt"
-
 )
 
 type PromptStatusTableLayout struct {

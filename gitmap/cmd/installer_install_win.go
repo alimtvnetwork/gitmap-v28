@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 // InstallWinFlags encapsulates parsed CLI options for windows installation execution.
@@ -20,9 +21,9 @@ type InstallWinFlags struct {
 
 // installerInstallWinCmd represents the 'gitmap installer install-win' subcommand.
 var installerInstallWinCmd = &cobra.Command{
-	Use:   "install-win <slug>",
-	Short: "Execute a Windows-targeted installer script",
-	Long:  "Fetches the installer script for Windows and runs the mapped installation instructions.",
+	Use:                "install-win <slug>",
+	Short:              "Execute a Windows-targeted installer script",
+	Long:               "Fetches the installer script for Windows and runs the mapped installation instructions.",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerInstallWin(cmd, args)

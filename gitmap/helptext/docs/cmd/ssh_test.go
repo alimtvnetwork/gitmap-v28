@@ -15,7 +15,7 @@ func TestAppendSSHHelp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
-	
+
 	output := buf.String()
 	if !strings.Contains(output, "gitmap ssh m1") {
 		t.Errorf("expected output to contain 'gitmap ssh m1', got %s", output)

@@ -8,11 +8,11 @@ import (
 
 func TestMkdirAndCat(t *testing.T) {
 	tempDir := t.TempDir()
-	
+
 	// Test mkdir
 	testDir := filepath.Join(tempDir, "test1", "test2")
 	runMkdir([]string{"-p", testDir})
-	
+
 	if _, err := os.Stat(testDir); os.IsNotExist(err) {
 		t.Errorf("Mkdir -p failed to create directory: %s", testDir)
 	}

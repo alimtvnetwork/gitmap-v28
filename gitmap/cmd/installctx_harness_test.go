@@ -147,4 +147,3 @@ func containsAll(haystack string, needles []string) (string, bool) {
 
 	return "", true
 }
-

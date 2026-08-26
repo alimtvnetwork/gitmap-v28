@@ -27,10 +27,10 @@ func TestSpawnSSH(t *testing.T) {
 	// Running a cancelled context is a safe way to test execution framework.
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	
+
 	target := SSHTarget{Username: "test", IP: "127.0.0.1"}
 	err := SpawnSSH(ctx, target, []string{"date"})
-	
+
 	if err == nil {
 		t.Errorf("expected error due to cancelled context")
 	}

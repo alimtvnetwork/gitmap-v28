@@ -9,7 +9,7 @@ import (
 
 func TestChromeProfileZipExport(t *testing.T) {
 	src := t.TempDir()
-	
+
 	// Create mock sqlite database files
 	os.MkdirAll(filepath.Join(src, "Extensions"), 0755)
 	os.WriteFile(filepath.Join(src, "History"), []byte("history-blob"), 0644)

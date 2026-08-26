@@ -54,7 +54,7 @@ func removeWindowsRegistryHKLM(clean string, opts RemoveOptions) (RemoveResult, 
 	if err != nil {
 		return RemoveResult{}, err
 	}
-	
+
 	// 2. If it doesn't exist or isn't managed, we can return the correct status
 	// without needing elevation.
 	if !exists {

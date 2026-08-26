@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 // UpdateInstallerFlags encapsulates parsed CLI options for installer updates.
@@ -24,9 +25,9 @@ type UpdateInstallerFlags struct {
 
 // installerUpdateCmd represents the 'gitmap installer update' subcommand.
 var installerUpdateCmd = &cobra.Command{
-	Use:   "update <slug>",
-	Short: "Update an existing installer script record",
-	Long:  "Updates an installer script record and bumps its version in history.",
+	Use:                "update <slug>",
+	Short:              "Update an existing installer script record",
+	Long:               "Updates an installer script record and bumps its version in history.",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerUpdate(cmd, args)

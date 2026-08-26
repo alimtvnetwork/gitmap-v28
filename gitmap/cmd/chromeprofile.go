@@ -149,7 +149,7 @@ func artifactValue(path string) string {
 // runChromeProfileExport implements `gitmap chrome-profile-export`.
 func runChromeProfileExport(args []string) {
 	checkHelp(constants.CmdChromeProfileExport, args)
-	
+
 	format := constants.OutputJSON
 	var positionalArgs []string
 	for _, arg := range args {
@@ -159,7 +159,7 @@ func runChromeProfileExport(args []string) {
 			positionalArgs = append(positionalArgs, arg)
 		}
 	}
-	
+
 	if len(positionalArgs) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageExport)
 		os.Exit(constants.ExitChromeProfileUsage)
@@ -175,14 +175,14 @@ func runChromeProfileExport(args []string) {
 		printAvailableChromeProfilesWithDisplay()
 		os.Exit(constants.ExitChromeProfileNotFound)
 	}
-	
+
 	// We will hand off to the actual export logic based on format.
 	// For now, it delegates to the existing JSON/CSV exporter.
 	// Later steps will inject the ZIP and SQLite code.
 	var jsonBytes, csvBytes int
 	var err, csvErr error
 	var csvPath string
-	
+
 	if format == constants.OutputJSON || format == constants.OutputCSV {
 		jsonBytes, err = writeChromeExport(srcPath, name, outPath)
 		if err != nil {
@@ -215,7 +215,7 @@ func runChromeProfileExport(args []string) {
 			os.Exit(constants.ExitChromeProfileCopyFailed)
 		}
 	}
-	
+
 	rec := chromeExportRecord{
 		JSONPath: outPath, JSONSize: jsonBytes,
 		CSVPath: csvPath, CSVSize: csvBytes,

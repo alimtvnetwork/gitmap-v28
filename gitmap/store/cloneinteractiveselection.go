@@ -41,6 +41,5 @@ func (db *DB) SaveClonePickSelection(plan clonepick.Plan) (int64, error) {
 	return res.LastInsertId()
 }
 
-
 // boolToInt is shared with release.go (same package). Defined once
 // there to avoid `redeclared in this block` (go vet / go build).

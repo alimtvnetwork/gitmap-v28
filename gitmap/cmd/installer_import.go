@@ -12,10 +12,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 // ImportInstallerFlags encapsulates parsed CLI options for installer imports.
@@ -25,9 +26,9 @@ type ImportInstallerFlags struct {
 
 // installerImportCmd represents the 'gitmap installer import' subcommand.
 var installerImportCmd = &cobra.Command{
-	Use:   "import [path]",
-	Short: "Import installer scripts from a zip archive or json file",
-	Long:  "Loads installer records and versions from an exported .zip archive or .json file.",
+	Use:                "import [path]",
+	Short:              "Import installer scripts from a zip archive or json file",
+	Long:               "Loads installer records and versions from an exported .zip archive or .json file.",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerImport(cmd, args)

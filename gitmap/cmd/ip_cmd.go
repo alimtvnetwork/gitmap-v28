@@ -6,8 +6,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 var SSHJoinCmd = &cobra.Command{

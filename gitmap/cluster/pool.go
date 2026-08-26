@@ -10,8 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 	"github.com/pterm/pterm"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 )
 
 // RunPool executes sub-commands across multiple nodes using a bounded worker pool.

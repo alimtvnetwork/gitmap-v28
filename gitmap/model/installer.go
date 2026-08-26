@@ -3,9 +3,9 @@ package model
 
 // OSScript represents script instructions and runtime engine for a specific operating system.
 type OSScript struct {
-	Runtime      string `json:"runtime,omitempty"`      // e.g., "bash", "powershell", "python", "node"
-	Instructions string `json:"instructions"`           // script commands or JSON payload
-	VerifyCmd    string `json:"verifyCmd,omitempty"`    // post-installation health check command
+	Runtime      string `json:"runtime,omitempty"`   // e.g., "bash", "powershell", "python", "node"
+	Instructions string `json:"instructions"`        // script commands or JSON payload
+	VerifyCmd    string `json:"verifyCmd,omitempty"` // post-installation health check command
 }
 
 // InstallerScript represents an installer script record stored in SQLite.

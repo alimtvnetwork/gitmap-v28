@@ -165,4 +165,3 @@ func applyCGExclusions(repos []string, excludeCSV string) []string {
 	}
 	return filtered
 }
-

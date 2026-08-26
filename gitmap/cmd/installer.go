@@ -2,8 +2,9 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // installerCmd represents the root command for managing installation scripts.

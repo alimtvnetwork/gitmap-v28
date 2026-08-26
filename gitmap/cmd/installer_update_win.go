@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 // UpdateWinInstallerFlags encapsulates parsed CLI options for windows installer updates.
@@ -23,9 +24,9 @@ type UpdateWinInstallerFlags struct {
 
 // installerUpdateWinCmd represents the 'gitmap installer update-win' subcommand.
 var installerUpdateWinCmd = &cobra.Command{
-	Use:   "update-win <slug>",
-	Short: "Update an existing installer script record specifically for Windows",
-	Long:  "Updates an installer script record for Windows target OS and records version history.",
+	Use:                "update-win <slug>",
+	Short:              "Update an existing installer script record specifically for Windows",
+	Long:               "Updates an installer script record for Windows target OS and records version history.",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerUpdateWin(cmd, args)

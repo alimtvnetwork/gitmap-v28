@@ -9,8 +9,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // ExecRestart triggers a machine restart.

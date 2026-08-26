@@ -21,6 +21,6 @@ func HandleComp097(in Input097) (Output097, error) {
 	if in.ID == "" {
 		return Output097{Result: false}, apperror.New("HandleComp097", "E_COMP_097_FAIL", map[string]any{"ID": in.ID})
 	}
-	
+
 	return Output097{Result: true}, nil
 }

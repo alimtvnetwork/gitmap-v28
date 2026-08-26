@@ -32,7 +32,7 @@ func InsertSSHHost(ctx context.Context, host SSHHost, tx *sql.Tx) error {
 // GetHostByAlias retrieves an SSHHost by its alias.
 func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, error) {
 	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts WHERE alias = ?`
-	
+
 	var host SSHHost
 	err := db.QueryRowContext(ctx, query, alias).Scan(
 		&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt,
@@ -59,17 +59,17 @@ func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
 		appErr.Code = "E_INTERNAL_ERROR"
 		return appErr
 	}
-	
+
 	// Task 5: Return nil if 0 rows affected (idempotency)
 	_, _ = res.RowsAffected() // Idempotent, so we just ignore if 0.
-	
+
 	return nil
 }
 
 // ListHosts retrieves all SSH hosts from the database.
 func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts ORDER BY created_at DESC`
-	
+
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		appErr := apperror.Wrap(err, "ListHosts", nil)
@@ -94,11 +94,10 @@ func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 		appErr.Code = "E_INTERNAL_ERROR"
 		return nil, appErr
 	}
-	
+
 	if hosts == nil {
 		hosts = []SSHHost{}
 	}
 
 	return hosts, nil
 }
-

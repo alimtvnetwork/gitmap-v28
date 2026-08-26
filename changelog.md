@@ -1,5 +1,22 @@
 # Changelog
 
+## [v6.111.0] 2026-08-26 Global gofmt Normalization, CI Lint Gating & RCA Resolution
+
+### Install Prompt Architect v6.111.0
+To pin your repository to this exact version, run the following one-liner:
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.111.0/install.sh | bash -s -- ".lovable/prompts" "v6.111.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.111.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.111.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Formatted all Go packages across `gitmap/` with `gofmt -w .` and `goimports -w` to pass strict CI format gating.
+- Documented RCA in `.lovable/release/issues/14-v6.111.0-gofmt-and-constants-collision-ci-failure.md`.
+- Synchronized all release pins and platform matrix tables across `readme.md` and `what-to-read.md` to `v6.111.0`.
+
+### Issues
+
+- [14-v6.111.0-gofmt-and-constants-collision-ci-failure](.lovable/release/issues/14-v6.111.0-gofmt-and-constants-collision-ci-failure.md) CI failure caused by unformatted Go source files and constants collision parser edge-case.
+
 ## [v6.110.0] 2026-08-26 CI Constants Collision Fix, Generated Tab Completion Sync & Live Branch Badges
 
 ### Install Prompt Architect v6.110.0

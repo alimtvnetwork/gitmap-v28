@@ -4,8 +4,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 func RenderPromptInstallSummary(results []model.PromptInstallResult) {

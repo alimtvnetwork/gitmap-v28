@@ -9,10 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/charmbracelet/lipgloss"
 )
 
 var sjCommand = "sj"

@@ -5,9 +5,10 @@ import (
 	"os/exec"
 	"sort"
 
+	"github.com/charmbracelet/lipgloss"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/charmbracelet/lipgloss"
 )
 
 var (

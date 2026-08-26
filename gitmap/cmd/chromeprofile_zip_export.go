@@ -39,7 +39,7 @@ func buildChromeProfileArchive(srcProfile, name, outPath string, includeJSON, in
 	if includeJSON {
 		// Just write to a temporary file, then copy it into the zip
 		// Or build it in memory and write to the zip.
-		// writeChromeExport currently writes to a file. 
+		// writeChromeExport currently writes to a file.
 		// We can just use it with a temp file.
 		tmpJSON := filepath.Join(os.TempDir(), name+"-snapshot.json")
 		_, err := writeChromeExport(srcProfile, name, tmpJSON)
@@ -52,7 +52,7 @@ func buildChromeProfileArchive(srcProfile, name, outPath string, includeJSON, in
 		if err != nil {
 			return 0, err
 		}
-		
+
 		jsonFile, err := os.Open(tmpJSON)
 		if err != nil {
 			return 0, err
@@ -93,7 +93,7 @@ func buildChromeProfileArchive(srcProfile, name, outPath string, includeJSON, in
 	if err := zw.Close(); err != nil {
 		return 0, err
 	}
-	
+
 	info, err := f.Stat()
 	if err != nil {
 		return 0, err

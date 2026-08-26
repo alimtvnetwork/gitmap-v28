@@ -12,7 +12,7 @@ func dispatchUser(command string) bool {
 	if command != "user" {
 		return false
 	}
-	
+
 	args := os.Args[2:]
 	if len(args) == 0 {
 		printUserUsage()
@@ -26,7 +26,7 @@ func dispatchUser(command string) bool {
 			fmt.Fprintf(os.Stderr, "Error: missing username\n\nUsage: gitmap user add <username> [--password <pwd>]\n")
 			os.Exit(1)
 		}
-		
+
 		username := args[1]
 		password := ""
 		for i, a := range args[2:] {
@@ -46,17 +46,17 @@ func dispatchUser(command string) bool {
 			fmt.Fprintf(os.Stderr, "Error: missing username\n\nUsage: gitmap user rm <username>\n")
 			os.Exit(1)
 		}
-		
+
 		username := args[1]
 		if err := osuser.RemoveUser(username); err != nil {
 			fmt.Fprintf(os.Stderr, "Error removing user: %v\n", err)
 			os.Exit(1)
 		}
 		fmt.Printf("✔ Successfully removed user %q\n", username)
-		
+
 	case "help", "--help", "-h":
 		printUserUsage()
-		
+
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown user command: %s\n", sub)
 		printUserUsage()

@@ -121,5 +121,3 @@ func TestRunSJAddAuth(t *testing.T) {
 		t.Errorf("expected no error with mock ssh, got %v", err)
 	}
 }
-
-

@@ -78,7 +78,7 @@ func lookupCDRecords(name string) []model.ScanRecord {
 		os.Exit(1)
 	}
 	defer db.Close()
-	
+
 	cleanName := strings.TrimRight(name, "/\\")
 
 	repos, err := db.FindBySlug(strings.ToLower(cleanName))

@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 func TestComp053(t *testing.T) {
@@ -17,7 +18,7 @@ func TestComp053(t *testing.T) {
 
 	inFail := Input053{ID: ""}
 	_, errFail := HandleComp053(inFail)
-	
+
 	if errFail == nil {
 		t.Errorf("expected error, got nil")
 	} else {

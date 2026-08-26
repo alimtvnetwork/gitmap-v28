@@ -34,4 +34,3 @@ func TestRunSSHLogin(t *testing.T) {
 		t.Errorf("Expected error for missing arguments")
 	}
 }
-

@@ -29,7 +29,7 @@ func TestGetLocalIP(t *testing.T) {
 	if err != nil {
 		t.Skipf("GetLocalIP returned error (maybe no network): %v", err)
 	}
-	
+
 	if ip == "" {
 		t.Errorf("expected non-empty IP")
 	}

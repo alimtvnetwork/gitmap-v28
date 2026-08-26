@@ -7,8 +7,9 @@ import (
 	"runtime"
 	"strconv"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 var IPChangeCmd = &cobra.Command{
@@ -45,11 +46,11 @@ func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
 		interfaceName = "Ethernet"
 	}
 	swapErr = swapIP(ctx, interfaceName, "", newIP)
-	
+
 	if swapErr != nil {
 		return apperror.Wrap(swapErr, "executeIPChange", map[string]any{"ip": newIP})
 	}
-	
+
 	if doPing {
 		if !validatePing(ctx, "8.8.8.8", 3) {
 			fmt.Println("reverting")

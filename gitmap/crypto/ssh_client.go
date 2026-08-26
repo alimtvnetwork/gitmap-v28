@@ -10,8 +10,8 @@ import (
 // ConnectWithPassword establishes an SSH connection using a password.
 func ConnectWithPassword(ip, user, password string) (*ssh.Client, error) {
 	config := &ssh.ClientConfig{
-		User: user,
-		Auth: []ssh.AuthMethod{ssh.Password(password)},
+		User:            user,
+		Auth:            []ssh.AuthMethod{ssh.Password(password)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)
@@ -25,8 +25,8 @@ func ConnectWithKey(ip, user, keyPath string) (*ssh.Client, error) {
 	}
 
 	config := &ssh.ClientConfig{
-		User: user,
-		Auth: []ssh.AuthMethod{ssh.PublicKeys(signer)},
+		User:            user,
+		Auth:            []ssh.AuthMethod{ssh.PublicKeys(signer)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)

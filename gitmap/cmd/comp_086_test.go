@@ -23,7 +23,7 @@ func TestComp086(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
-	
+
 	appErr, ok := err.(*apperror.AppError)
 	if !ok {
 		t.Fatalf("expected apperror.AppError, got %T", err)

@@ -8,8 +8,9 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"golang.org/x/term"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 var sshExecutor = exec.CommandContext

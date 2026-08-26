@@ -4,8 +4,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 )
 
 func PrintRemediationBox(repoName, repoPath string, d gitutil.DirtyDiagnosis) {

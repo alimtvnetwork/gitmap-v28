@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/installer"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 var installerRmCmd = &cobra.Command{
-	Use:     "rm <slug>",
-	Aliases: []string{"delete"},
-	Short:   "Delete an installer script record or specific OS target",
+	Use:                "rm <slug>",
+	Aliases:            []string{"delete"},
+	Short:              "Delete an installer script record or specific OS target",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return executeInstallerRm(args)

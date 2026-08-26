@@ -1,9 +1,11 @@
 package cmd
+
 type TypeFunc9fa1b3a0 struct{}
-func InitFunc9fa1b3a0() error { return nil }
+
+func InitFunc9fa1b3a0() error             { return nil }
 func (x *TypeFunc9fa1b3a0) Process() bool { return true }
 
 type TypeFunca93a6071 struct{}
-func InitFunca93a6071() error { return nil }
-func (x *TypeFunca93a6071) Process() bool { return true }
 
+func InitFunca93a6071() error             { return nil }
+func (x *TypeFunca93a6071) Process() bool { return true }

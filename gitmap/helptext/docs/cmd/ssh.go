@@ -3,9 +3,10 @@ package cmd
 import (
 	"fmt"
 	"io"
-	
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // appendSSHHelp appends SSH documentation to the provided writer.

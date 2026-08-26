@@ -416,9 +416,9 @@ func runInstallGitHubDesktopLinux(opts installOptions) {
 	if handleDryRunInstall(opts.DryRun, "apt", []string{"sudo", "apt", "install", "-y", "github-desktop"}) {
 		return
 	}
-	
+
 	fmt.Printf("  [1/3] Adding shiftkey/desktop APT repository...\n")
-	
+
 	cmd1 := exec.Command("sh", "-c", "wget -qO - https://apt.packages.shiftkey.dev/ubuntu/any/ANY.gpg | sudo tee /etc/apt/keyrings/shiftkey-packages.asc > /dev/null")
 	cmd1.Stdout = os.Stdout
 	cmd1.Stderr = os.Stderr
@@ -434,13 +434,13 @@ func runInstallGitHubDesktopLinux(opts installOptions) {
 		fmt.Printf("  Error adding apt source list: %v\n", err)
 		os.Exit(1)
 	}
-	
+
 	fmt.Printf("  [2/3] Updating package index...\n")
 	runAptUpdate(opts.Verbose)
-	
+
 	fmt.Printf("  [3/3] Installing github-desktop via apt...\n")
 	runInstallCommand([]string{"sudo", "apt", "install", "-y", "github-desktop"}, opts)
-	
+
 	recordInstallation(opts.Tool, "apt")
 	fmt.Printf("  Done!\n")
 }
@@ -465,7 +465,7 @@ func runInstallVSCodeLinux(opts installOptions) {
 	if handleDryRunInstall(opts.DryRun, "apt", []string{"sudo", "apt", "install", "-y", "code"}) {
 		return
 	}
-	
+
 	fmt.Printf("  [1/4] Adding Microsoft GPG key...\n")
 	cmd1 := exec.Command("sh", "-c", "wget -qO - https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/keyrings/microsoft.asc > /dev/null")
 	cmd1.Stdout = os.Stdout
@@ -501,6 +501,6 @@ func runInstallVSCodeLinux(opts installOptions) {
 		fmt.Printf("  Error installing code: %v\n", err)
 		os.Exit(1)
 	}
-	
+
 	fmt.Println("  ✓ VS Code installed successfully.")
 }

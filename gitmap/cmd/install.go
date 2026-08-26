@@ -92,11 +92,11 @@ func specialSyncHandler(tool string) func(installOptions) {
 
 func specialToolHandler(tool string) func(installOptions) {
 	return map[string]func(installOptions){
-		constants.ToolVSCodeCtx:      func(installOptions) { runVSCodeContextMenu() },
-		constants.ToolPwshCtx:        func(installOptions) { runPwshContextMenu() },
-		constants.ToolCtx:            func(opts installOptions) { runInstallCtx(opts.Explain) },
-		constants.ToolAllDevTools:    func(opts installOptions) { runAllDevTools(opts) },
-		constants.ToolGitmapOneliner: func(installOptions) { runInstallGitmapOneliner() },
+		constants.ToolVSCodeCtx:        func(installOptions) { runVSCodeContextMenu() },
+		constants.ToolPwshCtx:          func(installOptions) { runPwshContextMenu() },
+		constants.ToolCtx:              func(opts installOptions) { runInstallCtx(opts.Explain) },
+		constants.ToolAllDevTools:      func(opts installOptions) { runAllDevTools(opts) },
+		constants.ToolGitmapOneliner:   func(installOptions) { runInstallGitmapOneliner() },
 		constants.ToolScriptsFixer:     func(installOptions) { runInstallCustomTool("scripts-fixer") },
 		constants.ToolCodingGuidelines: func(installOptions) { runInstallCustomTool("coding-guidelines") },
 		constants.ToolMacroAhk:         func(installOptions) { runInstallCustomTool("macro-ahk") },

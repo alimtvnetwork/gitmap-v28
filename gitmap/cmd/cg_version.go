@@ -9,8 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // CGMetadata represents the coding guidelines section inside version.json.

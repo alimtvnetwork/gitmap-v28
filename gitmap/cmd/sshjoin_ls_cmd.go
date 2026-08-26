@@ -7,9 +7,10 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 var SJLsCmd = &cobra.Command{
@@ -44,7 +45,7 @@ func printSJList(ctx context.Context, out io.Writer, max int) error {
 
 	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "ID\tALIAS\tIP\tUSERNAME\tCREATED_AT")
-	
+
 	for _, host := range hosts {
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
 			host.ID,

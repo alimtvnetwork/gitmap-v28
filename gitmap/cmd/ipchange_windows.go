@@ -25,4 +25,3 @@ func swapIPWindows(ctx context.Context, interfaceName string, newIP string) erro
 func swapIP(ctx context.Context, interfaceName, oldIP, newIP string) error {
 	return swapIPWindows(ctx, interfaceName, newIP)
 }
-

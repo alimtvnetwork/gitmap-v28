@@ -6,11 +6,11 @@ import (
 )
 
 type promptInstallOptions struct {
-	Targets   []string
-	Exclude   string
-	IsDryRun  bool
-	IsAll     bool
-	Action    string
+	Targets  []string
+	Exclude  string
+	IsDryRun bool
+	IsAll    bool
+	Action   string
 }
 
 func parsePromptArgs(args []string) promptInstallOptions {

@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 // ResetInstallerFlags encapsulates parsed CLI options for installer resets.
@@ -20,9 +21,9 @@ type ResetInstallerFlags struct {
 
 // installerResetCmd represents the 'gitmap reset installer' or 'gitmap installer reset' subcommand.
 var installerResetCmd = &cobra.Command{
-	Use:   "reset [slug]",
-	Short: "Reset installer script records",
-	Long:  "Resets installer definitions and version histories by slug or with --all.",
+	Use:                "reset [slug]",
+	Short:              "Reset installer script records",
+	Long:               "Resets installer definitions and version histories by slug or with --all.",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerReset(cmd, args)

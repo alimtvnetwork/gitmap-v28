@@ -7,9 +7,10 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 var SJHistCmd = &cobra.Command{
@@ -45,7 +46,7 @@ func printSJHistory(ctx context.Context, out io.Writer, filter string) error {
 
 	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "ID\tHOST_IP\tUSER\tJOINED_AT")
-	
+
 	for _, h := range history {
 		if filter != "" && h.HostIP != filter && h.User != filter {
 			continue // simple filter

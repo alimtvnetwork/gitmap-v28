@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/theme"
-	"github.com/spf13/cobra"
 )
 
 // Run is the main entry point for the CLI.
@@ -349,4 +350,3 @@ func routeSJSubcommand(ctx context.Context, args []string, root *cobra.Command) 
 		return SSHJoinCmd.ExecuteContext(ctx)
 	}
 }
-

@@ -60,7 +60,7 @@ func TestInsertSSHHost(t *testing.T) {
 	if count != 1 {
 		t.Errorf("expected 1 record, got %d", count)
 	}
-	
+
 	// Test constraint violation
 	tx2, _ := db.BeginTx(ctx, nil)
 	err = InsertSSHHost(ctx, host, tx2)
@@ -68,7 +68,7 @@ func TestInsertSSHHost(t *testing.T) {
 		t.Fatal("expected error on duplicate insert, got nil")
 	}
 	tx2.Rollback()
-	
+
 	if appErr, ok := err.(*apperror.AppError); ok {
 		if appErr.Code != "E_INTERNAL_ERROR" {
 			t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
@@ -111,7 +111,7 @@ func TestGetHostByAlias(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for non-existent alias, got nil")
 	}
-	
+
 	if appErr, ok := err.(*apperror.AppError); ok {
 		if appErr.Code != "E_INTERNAL_ERROR" {
 			t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
@@ -129,7 +129,7 @@ func TestDeleteHostByIP(t *testing.T) {
 	defer db.Close()
 
 	ctx := context.Background()
-	
+
 	host := SSHHost{
 		ID:        "host-3",
 		Alias:     "delete-me",

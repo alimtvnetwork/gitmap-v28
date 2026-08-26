@@ -44,9 +44,9 @@ func renderLogRows(b *strings.Builder, filtered []model.CommandHistoryRecord, cu
 	for i, e := range filtered {
 		line := formatLogRow(e)
 		if i == cursor {
-			b.WriteString(styleCursorRow.Render("> " + line) + "\n")
+			b.WriteString(styleCursorRow.Render("> "+line) + "\n")
 		} else {
-			b.WriteString(styleNormalRow.Render("  " + line) + "\n")
+			b.WriteString(styleNormalRow.Render("  "+line) + "\n")
 		}
 	}
 }

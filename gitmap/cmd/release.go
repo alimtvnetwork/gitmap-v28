@@ -127,10 +127,10 @@ func (z *zipItemFlag) Set(val string) error {
 }
 
 type releaseFlagHolders struct {
-	assets, commit, branch, bump, notes, targets, bundle *string
+	assets, commit, branch, bump, notes, targets, bundle                         *string
 	draft, dryRun, verbose, compress, checksums, bin, listTargets, noCommit, yes *bool
-	zgGroups zipGroupFlag
-	zgItems  zipItemFlag
+	zgGroups                                                                     zipGroupFlag
+	zgItems                                                                      zipItemFlag
 }
 
 func initStringFlags(fs *flag.FlagSet, h *releaseFlagHolders) {

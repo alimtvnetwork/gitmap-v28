@@ -17,37 +17,37 @@ const (
 
 // Supported tool names — Core.
 const (
-	ToolVSCode         = "vscode"
-	ToolNodeJS         = "node"
-	ToolYarn           = "yarn"
-	ToolBun            = "bun"
-	ToolPnpm           = "pnpm"
-	ToolPython         = "python"
-	ToolGo             = "go"
-	ToolGit            = "git"
-	ToolGitLFS         = "git-lfs"
-	ToolGHCLI          = "gh"
-	ToolGitHubDesktop  = "github-desktop"
-	ToolCPP            = "cpp"
-	ToolPHP            = "php"
-	ToolPowerShell     = "powershell"
-	ToolChocolatey     = "chocolatey"
-	ToolWinget         = "winget"
-	ToolNpp            = "npp"
-	ToolNppSettings    = "npp-settings"
-	ToolNppInstall     = "install-npp"
-	ToolVSCodeSync     = "vscode-settings"
-	ToolOBSSync        = "obs-settings"
-	ToolWTSync         = "wt-settings"
-	ToolScripts        = "scripts"
-	ToolDbeaver        = "dbeaver"
-	ToolStickyNotes    = "sticky-notes"
-	ToolLiteDB         = "litedb"
-	ToolVSCodeCtx      = "vscode-ctx"
-	ToolPwshCtx        = "pwsh-ctx"
-	ToolOBS            = "obs"
-	ToolAllDevTools    = "all"
-	ToolGitmapOneliner = "gitmap-oneliner"
+	ToolVSCode           = "vscode"
+	ToolNodeJS           = "node"
+	ToolYarn             = "yarn"
+	ToolBun              = "bun"
+	ToolPnpm             = "pnpm"
+	ToolPython           = "python"
+	ToolGo               = "go"
+	ToolGit              = "git"
+	ToolGitLFS           = "git-lfs"
+	ToolGHCLI            = "gh"
+	ToolGitHubDesktop    = "github-desktop"
+	ToolCPP              = "cpp"
+	ToolPHP              = "php"
+	ToolPowerShell       = "powershell"
+	ToolChocolatey       = "chocolatey"
+	ToolWinget           = "winget"
+	ToolNpp              = "npp"
+	ToolNppSettings      = "npp-settings"
+	ToolNppInstall       = "install-npp"
+	ToolVSCodeSync       = "vscode-settings"
+	ToolOBSSync          = "obs-settings"
+	ToolWTSync           = "wt-settings"
+	ToolScripts          = "scripts"
+	ToolDbeaver          = "dbeaver"
+	ToolStickyNotes      = "sticky-notes"
+	ToolLiteDB           = "litedb"
+	ToolVSCodeCtx        = "vscode-ctx"
+	ToolPwshCtx          = "pwsh-ctx"
+	ToolOBS              = "obs"
+	ToolAllDevTools      = "all"
+	ToolGitmapOneliner   = "gitmap-oneliner"
 	ToolScriptsFixer     = "scripts-fixer"
 	ToolCodingGuidelines = "coding-guidelines"
 	ToolMacroAhk         = "macro-ahk"
@@ -325,46 +325,46 @@ const (
 
 // Tool display names for --list output.
 var InstallToolDescriptions = map[string]string{
-	ToolVSCode:         "Visual Studio Code editor",
-	ToolNodeJS:         "Node.js JavaScript runtime",
-	ToolYarn:           "Yarn package manager",
-	ToolBun:            "Bun JavaScript runtime",
-	ToolPnpm:           "pnpm package manager",
-	ToolPython:         "Python programming language",
-	ToolGo:             "Go programming language",
-	ToolGit:            "Git version control",
-	ToolGitLFS:         "Git Large File Storage",
-	ToolGHCLI:          "GitHub CLI",
-	ToolGitHubDesktop:  "GitHub Desktop application",
-	ToolCPP:            "C++ compiler (MinGW/g++)",
-	ToolPHP:            "PHP programming language",
-	ToolPowerShell:     "PowerShell shell",
-	ToolChocolatey:     "Chocolatey package manager",
-	ToolWinget:         "Winget package manager",
-	ToolMySQL:          "MySQL relational database",
-	ToolMariaDB:        "MariaDB (MySQL-compatible fork)",
-	ToolPostgreSQL:     "PostgreSQL relational database",
-	ToolSQLite:         "SQLite embedded database",
-	ToolMongoDB:        "MongoDB document database",
-	ToolCouchDB:        "CouchDB document database (REST API)",
-	ToolRedis:          "Redis in-memory key-value store",
-	ToolCassandra:      "Apache Cassandra wide-column NoSQL",
-	ToolNeo4j:          "Neo4j graph database",
-	ToolElasticsearch:  "Elasticsearch search and analytics",
-	ToolDuckDB:         "DuckDB analytical columnar database",
-	ToolDbeaver:        "DBeaver database management tool",
-	ToolStickyNotes:    "Microsoft Sticky Notes",
-	ToolLiteDB:         "LiteDB embedded NoSQL database for .NET",
-	ToolOBS:            "OBS Studio screen recorder and streamer",
-	ToolVSCodeCtx:      "Add VS Code to Windows right-click context menu",
-	ToolPwshCtx:        "Add PowerShell to Windows right-click context menu",
-	ToolCtx:            ToolCtxDesc,
-	ToolAllDevTools:    "Install all core developer tools at once",
-	ToolNpp:            "NPP + Settings -- Notepad++ with settings",
-	ToolNppSettings:    "NPP Settings -- Notepad++ settings sync only",
-	ToolNppInstall:     "Install NPP -- Notepad++ install only (no settings)",
-	ToolVSCodeSync:     "VS Code Settings -- sync VS Code settings and extensions",
-	ToolOBSSync:        "OBS Settings -- sync OBS Studio profiles and scenes",
+	ToolVSCode:           "Visual Studio Code editor",
+	ToolNodeJS:           "Node.js JavaScript runtime",
+	ToolYarn:             "Yarn package manager",
+	ToolBun:              "Bun JavaScript runtime",
+	ToolPnpm:             "pnpm package manager",
+	ToolPython:           "Python programming language",
+	ToolGo:               "Go programming language",
+	ToolGit:              "Git version control",
+	ToolGitLFS:           "Git Large File Storage",
+	ToolGHCLI:            "GitHub CLI",
+	ToolGitHubDesktop:    "GitHub Desktop application",
+	ToolCPP:              "C++ compiler (MinGW/g++)",
+	ToolPHP:              "PHP programming language",
+	ToolPowerShell:       "PowerShell shell",
+	ToolChocolatey:       "Chocolatey package manager",
+	ToolWinget:           "Winget package manager",
+	ToolMySQL:            "MySQL relational database",
+	ToolMariaDB:          "MariaDB (MySQL-compatible fork)",
+	ToolPostgreSQL:       "PostgreSQL relational database",
+	ToolSQLite:           "SQLite embedded database",
+	ToolMongoDB:          "MongoDB document database",
+	ToolCouchDB:          "CouchDB document database (REST API)",
+	ToolRedis:            "Redis in-memory key-value store",
+	ToolCassandra:        "Apache Cassandra wide-column NoSQL",
+	ToolNeo4j:            "Neo4j graph database",
+	ToolElasticsearch:    "Elasticsearch search and analytics",
+	ToolDuckDB:           "DuckDB analytical columnar database",
+	ToolDbeaver:          "DBeaver database management tool",
+	ToolStickyNotes:      "Microsoft Sticky Notes",
+	ToolLiteDB:           "LiteDB embedded NoSQL database for .NET",
+	ToolOBS:              "OBS Studio screen recorder and streamer",
+	ToolVSCodeCtx:        "Add VS Code to Windows right-click context menu",
+	ToolPwshCtx:          "Add PowerShell to Windows right-click context menu",
+	ToolCtx:              ToolCtxDesc,
+	ToolAllDevTools:      "Install all core developer tools at once",
+	ToolNpp:              "NPP + Settings -- Notepad++ with settings",
+	ToolNppSettings:      "NPP Settings -- Notepad++ settings sync only",
+	ToolNppInstall:       "Install NPP -- Notepad++ install only (no settings)",
+	ToolVSCodeSync:       "VS Code Settings -- sync VS Code settings and extensions",
+	ToolOBSSync:          "OBS Settings -- sync OBS Studio profiles and scenes",
 	ToolWTSync:           "WT Settings -- sync Windows Terminal settings.json",
 	ToolScripts:          "Clone gitmap scripts to local folder",
 	ToolGitmapOneliner:   "Print the Windows + macOS install-gitmap one-liners",

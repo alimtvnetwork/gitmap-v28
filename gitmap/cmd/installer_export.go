@@ -11,10 +11,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 // ExportInstallerFlags encapsulates options for installer exports.
@@ -26,9 +27,9 @@ type ExportInstallerFlags struct {
 
 // installerExportCmd represents the 'gitmap installer export' subcommand.
 var installerExportCmd = &cobra.Command{
-	Use:   "export <slug>",
-	Short: "Export an installer script into a zip bundle",
-	Long:  "Packages installer definitions and versions as JSON within a .zip archive.",
+	Use:                "export <slug>",
+	Short:              "Export an installer script into a zip bundle",
+	Long:               "Packages installer definitions and versions as JSON within a .zip archive.",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerExport(cmd, args, false)
@@ -37,9 +38,9 @@ var installerExportCmd = &cobra.Command{
 
 // installerExportAllCmd represents the 'gitmap installer export-all' subcommand.
 var installerExportAllCmd = &cobra.Command{
-	Use:   "export-all",
-	Short: "Export all installer scripts into a zip bundle",
-	Long:  "Packages all registered installer scripts as JSON files inside a .zip archive.",
+	Use:                "export-all",
+	Short:              "Export all installer scripts into a zip bundle",
+	Long:               "Packages all registered installer scripts as JSON files inside a .zip archive.",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerExport(cmd, args, true)

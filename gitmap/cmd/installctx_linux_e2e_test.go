@@ -335,4 +335,3 @@ func firstN(str string, limit int) string {
 
 	return str[:limit]
 }
-

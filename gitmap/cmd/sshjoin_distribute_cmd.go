@@ -4,14 +4,15 @@ package cmd
 import (
 	"context"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 var sjDistributeKeysCmd = &cobra.Command{
-	Use:     "distribute-keys <ip1,ip2...>",
-	Aliases: []string{"broadcast-keys"},
-	Short:   "Distribute local SSH public key to multiple remote machines",
+	Use:                "distribute-keys <ip1,ip2...>",
+	Aliases:            []string{"broadcast-keys"},
+	Short:              "Distribute local SSH public key to multiple remote machines",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return executeDistributeKeys(args)

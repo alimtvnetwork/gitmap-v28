@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"

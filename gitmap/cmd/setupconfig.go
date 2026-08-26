@@ -12,7 +12,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-
 const fallbackGitSetupJSON = `{
   "diffTool": {
     "name": "vscode",

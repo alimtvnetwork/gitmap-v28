@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-	"github.com/spf13/cobra"
 )
 
 // CreateInstallerFlags encapsulates parsed CLI options for installer creation.
@@ -25,9 +26,9 @@ type CreateInstallerFlags struct {
 
 // installerCreateCmd represents the 'gitmap installer create' subcommand.
 var installerCreateCmd = &cobra.Command{
-	Use:   "create <name>",
-	Short: "Create a new installer script record",
-	Long:  "Creates and registers a new installer script with target OS and versioning metadata.",
+	Use:                "create <name>",
+	Short:              "Create a new installer script record",
+	Long:               "Creates and registers a new installer script with target OS and versioning metadata.",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerCreate(cmd, args)

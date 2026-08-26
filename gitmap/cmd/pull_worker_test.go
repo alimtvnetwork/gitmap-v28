@@ -13,4 +13,3 @@ func TestInitFunc008(t *testing.T) {
 		t.Fatal(err)
 	}
 }
-

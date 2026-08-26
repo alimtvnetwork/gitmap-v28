@@ -7,8 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 var SJAddAuthCmd = &cobra.Command{
@@ -102,4 +103,3 @@ func runSJAddAuth(cmd *cobra.Command, args []string, ctx context.Context) error 
 	fmt.Printf("Added auth to %s\n", target.String())
 	return nil
 }
-

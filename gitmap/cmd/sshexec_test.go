@@ -6,11 +6,11 @@ import (
 
 func TestDetermineSSHCommand(t *testing.T) {
 	cases := []struct {
-		osType           string
-		args             []string
-		wantShell        string
-		wantCommand      string
-		wantDelegate     bool
+		osType       string
+		args         []string
+		wantShell    string
+		wantCommand  string
+		wantDelegate bool
 	}{
 		{"unix", []string{"mkdir", "-p"}, "", "", true},
 		{"windows", []string{"cat", "foo.txt"}, "", "", true},

@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	_ "modernc.org/sqlite"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
-	_ "modernc.org/sqlite"
 )
 
 func setupInstallerResetTestDB(t *testing.T) *DB {

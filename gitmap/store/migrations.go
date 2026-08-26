@@ -211,4 +211,3 @@ func RegisterInstallerMigrations(dbConn *sql.DB, migrationVersion int, isForce b
 func (dbInstance *DB) MigrateInstallers() error {
 	return RegisterInstallerMigration(dbInstance.conn, 1, false)
 }
-

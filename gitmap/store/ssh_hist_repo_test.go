@@ -88,7 +88,7 @@ func TestListSSHHistory(t *testing.T) {
 	if results[1].ID != "list-test-2" {
 		t.Errorf("expected list-test-2 to be second, got %s", results[1].ID)
 	}
-	
+
 	// Test Empty
 	emptyResults, err := ListSSHHistory(ctx, 10, 10, db)
 	if err != nil {

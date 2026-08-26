@@ -81,4 +81,3 @@ func assertPickCloneStrategy(t *testing.T, tc pickCloneStrategyCase) {
 		t.Fatalf("expected non-empty reason")
 	}
 }
-

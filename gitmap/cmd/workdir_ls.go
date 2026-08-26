@@ -4,8 +4,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 func runWorkDirLs() error {

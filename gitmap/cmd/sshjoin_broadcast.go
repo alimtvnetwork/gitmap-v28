@@ -5,13 +5,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 var sjBroadcastCmd = &cobra.Command{
-	Use:     "broadcast <ip1,ip2...> <command>",
-	Short:   "Broadcast a shell command across multiple SSH nodes",
+	Use:                "broadcast <ip1,ip2...> <command>",
+	Short:              "Broadcast a shell command across multiple SSH nodes",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return executeSJBroadcast(args)

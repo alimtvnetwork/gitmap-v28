@@ -5,13 +5,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 var sjSyncProfileCmd = &cobra.Command{
-	Use:     "sync-profile <ip1,ip2...>",
-	Short:   "Sync ZSH and user shell profile configurations to remote machines",
+	Use:                "sync-profile <ip1,ip2...>",
+	Short:              "Sync ZSH and user shell profile configurations to remote machines",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return executeSJSyncProfile(args)

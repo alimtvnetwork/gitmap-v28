@@ -10,15 +10,15 @@ type ComponentVersion struct {
 
 // RepositoryVersionManifest is the canonical schema for version.json.
 type RepositoryVersionManifest struct {
-	SchemaDescription string                    `json:"$schema_description"`
-	Documentation     string                    `json:"$documentation"`
-	InheritanceRules  string                    `json:"$inheritance_rules,omitempty"`
-	Version           string                    `json:"version"`
-	Backend           *ComponentVersion         `json:"backend,omitempty"`
-	Frontend          *ComponentVersion         `json:"frontend,omitempty"`
-	CLI               *ComponentVersion         `json:"cli,omitempty"`
-	CodingGuidelines  *PromptArchitectMetadata  `json:"coding-guidelines,omitempty"`
-	PromptArchitect   *PromptArchitectMetadata  `json:"promptArchitectByRiseupAsia,omitempty"`
+	SchemaDescription string                   `json:"$schema_description"`
+	Documentation     string                   `json:"$documentation"`
+	InheritanceRules  string                   `json:"$inheritance_rules,omitempty"`
+	Version           string                   `json:"version"`
+	Backend           *ComponentVersion        `json:"backend,omitempty"`
+	Frontend          *ComponentVersion        `json:"frontend,omitempty"`
+	CLI               *ComponentVersion        `json:"cli,omitempty"`
+	CodingGuidelines  *PromptArchitectMetadata `json:"coding-guidelines,omitempty"`
+	PromptArchitect   *PromptArchitectMetadata `json:"promptArchitectByRiseupAsia,omitempty"`
 }
 
 // ResolveVersion returns the resolved version for a given component, resolving "inherit" to the root version.

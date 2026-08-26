@@ -6,8 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // SSHLoginInstallCmd represents the gitmap ssh login-install command.
@@ -44,11 +45,11 @@ func getInstallPayload(ctx context.Context, target string, version string) (stri
 	if strings.TrimSpace(target) == "" {
 		return "", apperror.New("getInstallPayload", "E_INTERNAL_ERROR", nil)
 	}
-	
+
 	// Create curl to bash payload
 	url := fmt.Sprintf("https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/refs/heads/main/install.sh?version=%s", version)
 	payload := fmt.Sprintf("curl -fsSL %s | bash", url)
-	
+
 	return payload, nil
 }
 

@@ -122,4 +122,3 @@ func closeTaskDB(db *store.DB) {
 // the cleanup either runs unconditionally before this call or is
 // safe to skip on the failure path.
 var exitWith = os.Exit
-
