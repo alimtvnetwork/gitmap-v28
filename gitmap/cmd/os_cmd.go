@@ -42,3 +42,9 @@ func init() {
 	osCmd.AddCommand(osFullUpgradeCmd)
 	osCmd.AddCommand(osFixMirrorsCmd)
 }
+
+// RunOSCLI routes OS CLI commands.
+func RunOSCLI(args []string) error {
+	osCmd.SetArgs(args)
+	return osCmd.Execute()
+}
