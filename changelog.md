@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.120.0] - 2026-08-27
+
+### Fixed
+- Cleaned up AI agent temporary scripts from the root directory that were accidentally tracked in Git. Moved all scripts to the isolated `.lovable/temp-scripts/` directory to prevent pollution.
+
 ## [v6.119.0] - 2026-08-27
 
 ### Added
