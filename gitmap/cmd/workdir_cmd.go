@@ -24,10 +24,10 @@ func runWorkDir(args []string) {
 		_ = runWorkDirAdd(opts.Target, opts.Label)
 	case "rm", "remove", "delete":
 		_ = runWorkDirRm(opts.Target)
-	case "set-default", "default":
+	case "set-default", "default", "set":
 		_ = runWorkDirSetDefault(opts.Target)
 	default:
-		fmt.Printf("Usage: gitmap workdir [ls|add <path>|rm <path|id>|set-default <path|id>]\n")
+		fmt.Printf("Usage: gitmap workdir [ls|add <path>|rm <path|id>|set <path|id>|default]\n")
 		os.Exit(1)
 	}
 }

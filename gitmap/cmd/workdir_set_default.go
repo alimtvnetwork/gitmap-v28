@@ -3,15 +3,19 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 func runWorkDirSetDefault(target string) error {
 	if target == "" {
-		return apperror.New("runWorkDirSetDefault", "E_INVALID_ARGS", map[string]any{"error": "target path or ID required"})
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		target = cwd
 	}
 
 	absPath, _ := filepath.Abs(target)

@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.24.1] - 2026-08-27
+
+### Added
+- Added `gitmap workdir default` command to automatically register the current working directory as the default.
+- Added `gitmap workdir set <path>` alias to set a workspace path, ID, or label as the default (shorthand for `set-default`).
+
 ## [v6.24.0] - 2026-08-27
 
 ### Added
