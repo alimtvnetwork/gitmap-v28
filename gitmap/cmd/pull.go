@@ -52,10 +52,17 @@ func runPull(args []string) {
 		runPullCWD()
 		return
 	}
-	if pullNoTargetsHint(opts) {
-		return
+	var records []model.ScanRecord
+	if opts.slug == "" && opts.group == "" && !opts.all && !HasAlias() {
+		cwd, _ := os.Getwd()
+		records = findChildrenOfCWD(cwd)
+		if len(records) == 0 {
+			fmt.Println("  ↳ nothing to pull: no tracked repositories found in or under this directory.")
+			return
+		}
+	} else {
+		records = resolvePullTargets(opts.slug, opts.group, opts.all)
 	}
-	records := resolvePullTargets(opts.slug, opts.group, opts.all)
 	fmt.Printf("  ↳ resolved %d repo(s) to pull\n", len(records))
 	if opts.onlyAvailable == true {
 		records = filterByAvailableUpdates(records)
@@ -408,4 +415,20 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	if result.IsSuccess == false {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
+}
+
+// findChildrenOfCWD returns all tracked repos that are inside the given directory.
+func findChildrenOfCWD(cwd string) []model.ScanRecord {
+	all := loadAllRecordsDB()
+	var children []model.ScanRecord
+	prefix := cwd
+	if !strings.HasSuffix(prefix, string(os.PathSeparator)) {
+		prefix += string(os.PathSeparator)
+	}
+	for _, r := range all {
+		if strings.HasPrefix(r.AbsolutePath, prefix) || r.AbsolutePath == cwd {
+			children = append(children, r)
+		}
+	}
+	return children
 }

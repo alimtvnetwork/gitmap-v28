@@ -136,7 +136,7 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 }
 
 func runGitPull(repoDir string) (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, constants.GitFFOnlyFlag)
+	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, constants.GitFFOnlyFlag, "--autostash")
 	cmd.Env = append(os.Environ(),
 		constants.EnvGitTerminalPromptZero,
 		constants.EnvGitAskpassEmpty,
