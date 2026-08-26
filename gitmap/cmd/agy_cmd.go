@@ -18,6 +18,9 @@ var AgyCmd = &cobra.Command{
 }
 
 func dispatchAgy(ctx context.Context, args []string, root *cobra.Command) error {
+	if len(args) > 0 && (args[0] == "agy" || args[0] == "ag" || args[0] == "antigravity") {
+		args = args[1:]
+	}
 	AgyCmd.SetArgs(args)
 	return AgyCmd.ExecuteContext(ctx)
 }
@@ -28,11 +31,24 @@ func init() {
 	AgyCmd.AddCommand(agyLsCmd)
 	AgyCmd.AddCommand(agyStatsCmd)
 	AgyCmd.AddCommand(agyUpdateCmd)
+	AgyCmd.AddCommand(agyClearCmd)
+	AgyCmd.AddCommand(agyOpenCmd)
+	AgyCmd.AddCommand(agyPromptCmd)
+	AgyCmd.AddCommand(agyRwCmd)
+	AgyCmd.AddCommand(agySyncCmd)
+	AgyCmd.AddCommand(agyPapCmd)
+	AgyCmd.AddCommand(agyExportCmd)
+	AgyCmd.AddCommand(agyImportCmd)
+	AgyCmd.AddCommand(agyPluginsCmd)
+	initPlugins()
 }
+
+
 
 // agyAddCmd handles adding a project
 var agyAddCmd = &cobra.Command{
 	Use:   "add [id] [name]",
+	Aliases: []string{"add-project"},
 	Short: "Add a project",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyAdd(args)
@@ -89,7 +105,7 @@ func writeAgyProjectJSON(projectsPath, projectID, projectName string) error {
 // agyRmCmd handles removing a project
 var agyRmCmd = &cobra.Command{
 	Use:     "rm [id]",
-	Aliases: []string{"del"},
+	Aliases: []string{"del", "remove"},
 	Short:   "Remove a project",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyRm(args)
@@ -147,6 +163,7 @@ func printProjectEntries(entries []os.DirEntry) error {
 // agyStatsCmd handles project stats
 var agyStatsCmd = &cobra.Command{
 	Use:   "stats",
+	Aliases: []string{"stat", "status"},
 	Short: "Project stats",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyStats()
@@ -232,4 +249,108 @@ func saveProjectFile(filePath string, projectMap map[string]interface{}) error {
 	}
 	writeErr := os.WriteFile(filePath, newBytes, 0644)
 	return writeErr
+}
+
+var agyClearCmd = &cobra.Command{
+	Use:   "clear",
+	Short: "Clear Antigravity cache and projects",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [clear] is not yet implemented")
+		return nil
+	},
+}
+
+var agyOpenCmd = &cobra.Command{
+	Use:   "open [slug or path]",
+	Short: "Open Antigravity or a specific project",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [open] is not yet implemented")
+		return nil
+	},
+}
+
+var agyPromptCmd = &cobra.Command{
+	Use:   "prompt [project slug/id/path] [prompt or text file]",
+	Short: "Send a prompt to Antigravity",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [prompt] is not yet implemented")
+		return nil
+	},
+}
+
+var agyRwCmd = &cobra.Command{
+	Use:   "rw [path or project slug]",
+	Short: "Enable rewrite both for project",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [rw] is not yet implemented")
+		return nil
+	},
+}
+
+var agySyncCmd = &cobra.Command{
+	Use:   "sync [path or dir]",
+	Short: "Load and sync all projects to Antigravity",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [sync] is not yet implemented")
+		return nil
+	},
+}
+
+var agyPapCmd = &cobra.Command{
+	Use:     "prompt-all-project [title] [prompt or text file]",
+	Aliases: []string{"pap"},
+	Short:   "Send prompt to all projects",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [prompt-all-project] is not yet implemented")
+		return nil
+	},
+}
+
+var agyExportCmd = &cobra.Command{
+	Use:     "export-projects [file or path]",
+	Aliases: []string{"ep"},
+	Short:   "Create a zip backup of Antigravity projects",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [export-projects] is not yet implemented")
+		return nil
+	},
+}
+
+var agyImportCmd = &cobra.Command{
+	Use:     "import-projects [file or path]",
+	Aliases: []string{"ip"},
+	Short:   "Import a zip backup of Antigravity projects",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [import-projects] is not yet implemented")
+		return nil
+	},
+}
+
+var agyPluginsCmd = &cobra.Command{
+	Use:   "plugin",
+	Aliases: []string{"plugins"},
+	Short: "Manage Antigravity plugins",
+}
+
+var agyPluginLsCmd = &cobra.Command{
+	Use:   "ls",
+	Short: "List installed and installable plugins",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [plugin ls] is not yet implemented")
+		return nil
+	},
+}
+
+var agyPluginInstallCmd = &cobra.Command{
+	Use:   "install [slug]",
+	Short: "Install an Antigravity plugin",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Feature [plugin install] is not yet implemented")
+		return nil
+	},
+}
+
+func initPlugins() {
+	agyPluginsCmd.AddCommand(agyPluginLsCmd)
+	agyPluginsCmd.AddCommand(agyPluginInstallCmd)
 }

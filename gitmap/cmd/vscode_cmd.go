@@ -24,9 +24,13 @@ func dispatchVSCodeAction(args []string) {
 	switch strings.ToLower(args[0]) {
 	case "ls", "list":
 		_ = runVSCodeLs()
-	case "add":
+	case "pap", "prompt-all-project":
+		fmt.Println("Feature [vscode pap] is not yet implemented")
+	case "plugins", "plugin":
+		fmt.Println("Feature [vscode plugins] is not yet implemented")
+	case "add", "add-project", "ap":
 		handleVSCodeAdd(args)
-	case "rm", "remove", "delete":
+	case "rm", "remove", "delete", "del":
 		handleVSCodeRm(args)
 	default:
 		printVSCodeUsage()

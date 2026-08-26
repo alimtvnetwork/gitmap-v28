@@ -1,5 +1,16 @@
 # Changelog
 
+## [v6.119.0] - 2026-08-27
+
+### Added
+- Added `gitmap agy` (Antigravity) alias `ag` and `antigravity` with complete command parity (`pap`, `open`, `rw`, `sync`, `export-projects`, etc).
+- Added `gitmap vscode` commands parity (`pap`, `plugins`, `add-project`, `rm`).
+- Added `(use --help to expand)` hint for all multi-step commands (`ag`, `vscode`, `schedule`, `macro`, `installer`, `sj`) in the main help text.
+
+### Fixed
+- Fixed `gitmap help` spacing to add readable newline gaps between category headers and command lists.
+- Integrated missing Installer, Macro, VS Code, and Schedule help sections into the main CLI help menu.
+
 ## [v6.118.0] - 2026-08-27
 
 ### Fixed

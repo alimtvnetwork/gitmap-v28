@@ -23,6 +23,8 @@ const (
 	HelpGroupChromeProf   = "  Chrome Profile (copy / export / import / list / delete):"
 	HelpGroupTemplates    = "  Templates & Scaffolding (.gitignore / .gitattributes / LFS):"
 	HelpGroupCluster      = "  Cluster & Delegation (multi-machine networks):"
+	HelpGroupInstallers   = "  Installers & Macros:"
+	HelpGroupIntegrations = "  Integrations (VS Code, Antigravity, Scheduler):"
 
 	HelpAddIgnore     = "  add ignore [langs...]      Merge curated .gitignore block into ./.gitignore (idempotent, marker-block aware)"
 	HelpAddAttributes = "  add attributes [langs...]  Merge curated .gitattributes block into ./.gitattributes (idempotent, marker-block aware)"
@@ -37,7 +39,6 @@ const (
 	HelpServersClients = "  servers-clients (sc) <sub> Broadcast commands across all server + client nodes"
 	HelpClients        = "  clients <sub>              Broadcast commands across client nodes only"
 	HelpCluster        = "  cluster <sub>              Manage cluster nodes, history, exports, passwords"
-	HelpMacro          = "  macro (m) <sub>            Record, replay, and manage interactive terminal macros"
 	HelpExecute        = "  execute (exec) <name>      Replay recorded macro steps with dry-run/verbose options"
 
 	HelpGroupHint    = "  Run any command with --help or -h for detailed usage and examples."
@@ -50,9 +51,8 @@ const (
 
 	HelpAlias           = "  alias (a) <sub>     Assign short names to repos (set, remove, list, show, suggest)"
 	HelpSSH             = "  ssh <sub>           Generate, list, and manage SSH keys for Git authentication"
-	HelpSSHJoin         = "  sj (ssh-join) <sub> Join an SSH network and manage connections"
+	HelpSSHJoin         = "  sj (ssh-join) <sub> Join an SSH network and manage connections (use --help to expand)"
 	HelpCodingGuideline = "  cg <sub>            Install Coding Guidelines (v24) into a repo"
-	HelpInstaller       = "  installer <sub>     Manage, create, export, and version installation scripts"
 	HelpZipGroup        = "  zip-group (z) <sub> Manage named file collections for release ZIP archives"
 	HelpMV              = "  mv (move) <s..> <d..> Relocate repo directory with VSCode & GitHub Desktop sync"
 	HelpImportExport    = "  import-export (ie)  Export or import gitmap tracked repos, aliases, and groups"
@@ -81,6 +81,14 @@ const (
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
+	HelpInstaller         = "  installer (in) [cmd]       Manage installer scripts and history (tree view) (use --help to expand)"
+	HelpMacro             = "  macro (m) [cmd]            Manage and execute macros (tree view) (use --help to expand)"
+	HelpSchedule          = "  schedule (sc) [cmd]        Schedule tasks and run jobs asynchronously (tree view) (use --help to expand)"
+	HelpVSCode            = "  vscode (vsc) [cmd]         Manage VS Code Project Manager integrations (use --help to expand)"
+	HelpAgy               = "  antigravity (ag) [cmd]     Manage Google Antigravity workspaces and plugins (use --help to expand)"
+
+
+
 )
 
 // HelpGroupKeys returns short keywords for tab-completion of group filtering.

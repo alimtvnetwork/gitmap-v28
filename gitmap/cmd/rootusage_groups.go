@@ -9,6 +9,7 @@ import (
 func printGroupScanning() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupScanning))
+	fmt.Println()
 	fmt.Println(constants.HelpScan)
 	fmt.Println(constants.HelpRescan)
 	fmt.Println(constants.HelpList)
@@ -17,6 +18,7 @@ func printGroupScanning() {
 func printGroupCloning() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupCloning))
+	fmt.Println()
 	fmt.Println(constants.HelpClone)
 	fmt.Println(constants.HelpCloneSync)
 	fmt.Println(constants.HelpCloneNext)
@@ -27,6 +29,7 @@ func printGroupCloning() {
 func printGroupGitOps() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupGitOps))
+	fmt.Println()
 	fmt.Println(constants.HelpPull)
 	fmt.Println(constants.HelpPullAll)
 	fmt.Println(constants.HelpExec)
@@ -40,6 +43,7 @@ func printGroupGitOps() {
 func printGroupNavigation() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupNavigation))
+	fmt.Println()
 	fmt.Println(constants.HelpCD)
 	fmt.Println(constants.HelpGroup)
 	fmt.Println(constants.HelpMultiGroup)
@@ -51,6 +55,7 @@ func printGroupNavigation() {
 func printGroupRelease() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupRelease))
+	fmt.Println()
 	fmt.Println(constants.HelpRelease)
 	fmt.Println(constants.HelpReleasePull)
 	fmt.Println(constants.HelpReleaseSelf)
@@ -61,6 +66,7 @@ func printGroupRelease() {
 func printGroupReleaseInfo() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupReleaseInfo))
+	fmt.Println()
 	fmt.Println(constants.HelpChangelog)
 	fmt.Println(constants.HelpChangelogGen)
 	fmt.Println(constants.HelpListVersions)
@@ -74,6 +80,7 @@ func printGroupReleaseInfo() {
 func printGroupData() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupData))
+	fmt.Println()
 	fmt.Println(constants.HelpExport)
 	fmt.Println(constants.HelpImport)
 	fmt.Println(constants.HelpProfile)
@@ -86,6 +93,7 @@ func printGroupData() {
 func printGroupImportExport() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupImportExport))
+	fmt.Println()
 	fmt.Println(constants.HelpImportExport)
 	fmt.Println(constants.HelpExportSummary)
 	fmt.Println(constants.HelpImportSummary)
@@ -94,6 +102,7 @@ func printGroupImportExport() {
 func printGroupHistory() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupHistory))
+	fmt.Println()
 	fmt.Println(constants.HelpHistory)
 	fmt.Println(constants.HelpHistoryReset)
 	fmt.Println(constants.HelpVersionHistory)
@@ -103,6 +112,7 @@ func printGroupHistory() {
 func printGroupAmend() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupAmendGroup))
+	fmt.Println()
 	fmt.Println(constants.HelpAmend)
 	fmt.Println(constants.HelpAmendList)
 }
@@ -110,6 +120,7 @@ func printGroupAmend() {
 func printGroupProject() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupProject))
+	fmt.Println()
 	fmt.Println(constants.HelpGoRepos)
 	fmt.Println(constants.HelpNodeRepos)
 	fmt.Println(constants.HelpReactRepos)
@@ -120,6 +131,7 @@ func printGroupProject() {
 func printGroupSSH() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupSSH))
+	fmt.Println()
 	fmt.Println(constants.HelpSSH)
 	fmt.Println(constants.HelpSSHJoin)
 }
@@ -127,12 +139,14 @@ func printGroupSSH() {
 func printGroupZip() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupZip))
+	fmt.Println()
 	fmt.Println(constants.HelpZipGroup)
 }
 
 func printGroupEnvTools() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupEnvTools))
+	fmt.Println()
 	fmt.Println(constants.HelpEnv)
 	fmt.Println(constants.HelpInstall)
 	fmt.Println(constants.HelpUninstall)
@@ -143,6 +157,7 @@ func printGroupEnvTools() {
 func printGroupTasks() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupTasks))
+	fmt.Println()
 	fmt.Println(constants.HelpTask)
 	fmt.Println(constants.HelpPending)
 	fmt.Println(constants.HelpDoPending)
@@ -153,12 +168,14 @@ func printGroupTasks() {
 func printGroupVisualize() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupVisualize))
+	fmt.Println()
 	fmt.Println(constants.HelpDashboard)
 }
 
 func printGroupCommitXfer() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupCommitXfer))
+	fmt.Println()
 	fmt.Println(constants.HelpCommitRight)
 	fmt.Println(constants.HelpCommitLeft)
 	fmt.Println(constants.HelpCommitBoth)
@@ -167,6 +184,7 @@ func printGroupCommitXfer() {
 func printGroupChromeProfile() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupChromeProf))
+	fmt.Println()
 	fmt.Println(constants.HelpChromeProfileCopy)
 	fmt.Println(constants.HelpChromeProfileExport)
 	fmt.Println(constants.HelpChromeProfileImport)
@@ -177,6 +195,7 @@ func printGroupChromeProfile() {
 func printGroupTemplates() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupTemplates))
+	fmt.Println()
 	fmt.Println(constants.HelpAddIgnore)
 	fmt.Println(constants.HelpAddAttributes)
 	fmt.Println(constants.HelpAddLFSInstall)
@@ -191,6 +210,7 @@ func printGroupTemplates() {
 func printGroupCluster() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupCluster))
+	fmt.Println()
 	fmt.Println(constants.HelpServersClients)
 	fmt.Println(constants.HelpClients)
 	fmt.Println(constants.HelpCluster)
@@ -199,5 +219,25 @@ func printGroupCluster() {
 func printGroupUser() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupUser))
+	fmt.Println()
 	fmt.Println(constants.HelpUser)
+}
+
+func printGroupInstallers() {
+	fmt.Println()
+	fmt.Println(colorGroupHeader(constants.HelpGroupInstallers))
+	fmt.Println()
+	fmt.Println(constants.HelpInstall)
+	fmt.Println(constants.HelpInstaller)
+	fmt.Println(constants.HelpMacro)
+	fmt.Println(constants.HelpSetup)
+}
+
+func printGroupIntegrations() {
+	fmt.Println()
+	fmt.Println(colorGroupHeader(constants.HelpGroupIntegrations))
+	fmt.Println()
+	fmt.Println(constants.HelpVSCode)
+	fmt.Println(constants.HelpAgy)
+	fmt.Println(constants.HelpSchedule)
 }

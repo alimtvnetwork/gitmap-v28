@@ -10,7 +10,6 @@ import (
 func printGroupUtilities() {
 	fmt.Println()
 	fmt.Println(constants.HelpGroupUtilities)
-	fmt.Println(constants.HelpSetup)
 	fmt.Println(constants.HelpDoctor)
 	fmt.Println(constants.HelpUpdate)
 	fmt.Println(constants.HelpUpdateCleanup)

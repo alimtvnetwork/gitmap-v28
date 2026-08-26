@@ -191,7 +191,7 @@ func dispatch(command string) {
 		return
 	}
 
-	if command == "agy" {
+	if command == "agy" || command == "ag" || command == "antigravity" {
 		if err := dispatchAgy(context.Background(), os.Args[1:], nil); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)

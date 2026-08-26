@@ -69,7 +69,14 @@ func printUsageProjectsGroups() {
 
 // printUsageAdvancedCategories prints the Cluster and Advanced categories.
 func printUsageAdvancedCategories() {
+	printSuperCategory("INSTALL & AUTOMATION", func() {
+		printGroupInstallers()
+	})
+	printSuperCategory("INTEGRATIONS", func() {
+		printGroupIntegrations()
+	})
 	printSuperCategory("CLUSTER & NETWORK", func() {
+
 		printGroupCluster()
 		printGroupUser()
 	})
@@ -118,11 +125,13 @@ func colorGroupHeader(header string) string {
 // printUsageQuickStart prints examples and the help hint.
 func printUsageQuickStart() {
 	fmt.Println(colorGroupHeader(constants.HelpGroupExample))
+	fmt.Println()
 	fmt.Println(constants.HelpExampleScan)
 	fmt.Println(constants.HelpExampleList)
 	fmt.Println(constants.HelpExamplePull)
 	fmt.Println(constants.HelpExampleCD)
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupHint))
+	fmt.Println()
 	fmt.Println(constants.HelpCompactHint)
 }
