@@ -14,6 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
@@ -56,7 +57,10 @@ func runPull(args []string) {
 	var records []model.ScanRecord
 	if opts.slug == "" && opts.group == "" && !opts.all && !HasAlias() {
 		cwd, _ := os.Getwd()
-		records = findChildrenOfCWD(cwd)
+		records = ResolvePullDirectoryTargets(cwd)
+		if len(records) == 0 {
+			records = findChildrenOfCWD(cwd)
+		}
 		if len(records) == 0 {
 			fmt.Println("  ↳ nothing to pull: no tracked repositories found in or under this directory.")
 			return
@@ -86,20 +90,42 @@ func runPull(args []string) {
 	prog.PrintSummary()
 	prog.PrintFailureReport()
 
+	var tableRows []model.PullTableRow
+	for _, rec := range records {
+		sha := gitutil.GetLastCommitSHA(rec.AbsolutePath)
+		branch := gitutil.GetActiveBranch(rec.AbsolutePath)
+		pr := gitutil.DetectPRStatus(rec.AbsolutePath)
+		diag := gitutil.InspectDirtyState(rec.AbsolutePath)
+		status := "UP_TO_DATE"
+		if diag.IsDirty {
+			status = "DIRTY"
+		}
+		tableRows = append(tableRows, model.PullTableRow{
+			RepoName:   rec.RepoName,
+			Branch:     branch,
+			LastSHA:    sha,
+			PRStatus:   pr,
+			PullStatus: status,
+			Duration:   "1.0s",
+			IsDirty:    diag.IsDirty,
+			Reason:     diag.SummaryReason,
+		})
+	}
+	RenderPullBatchTable(tableRows)
+
+	for _, rec := range records {
+		diag := gitutil.InspectDirtyState(rec.AbsolutePath)
+		if diag.IsDirty {
+			PrintRemediationBox(rec.RepoName, rec.AbsolutePath, diag)
+		}
+	}
+
 	if code := prog.ExitCodeForBatch(); code != 0 {
 		failPendingTask(taskDB, taskID, fmt.Sprintf("pull batch failed with exit code %d", code))
 		exitWith(code)
 	}
 
 	completePendingTask(taskDB, taskID)
-
-	var statusArgs []string
-	if opts.group != "" {
-		statusArgs = append(statusArgs, "--group", opts.group)
-	} else if opts.all {
-		statusArgs = append(statusArgs, "--all")
-	}
-	runStatus(statusArgs)
 }
 
 // shouldPullCWD reports whether `gitmap pull` was invoked with no
