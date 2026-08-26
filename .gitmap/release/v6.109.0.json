@@ -1,0 +1,19 @@
+{
+  "version": "6.109.0",
+  "branch": "release/v6.109.0",
+  "sourceBranch": "main",
+  "commit": "aa463ecaabb547c1a023337e79115b3d077e64ed",
+  "tag": "v6.109.0",
+  "assets": [],
+  "changelog": [
+    "Added `gitmap cg install-version-json` command to install root `version.json`, generate `.lovable` memory docs, and enqueue in `what-to-read.md`.",
+    "Implemented component version inheritance engine (`backend`, `frontend`, `cli`) supporting `\"inherit\"` and explicit overrides in `gitmap/model/version_manifest.go`.",
+    "Added `.lovable/memory/release-architecture-map.md` detailing the Single Source of Truth versioning and propagation architecture.",
+    "Enqueued release architecture map in `.lovable/what-to-read.md` and linked in root `readme.md`.",
+    "Enforced strict Test File Ban in release protocol prohibiting reading or modifying test files during version discovery."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-08-26T10:36:25Z",
+  "isLatest": false
+}
