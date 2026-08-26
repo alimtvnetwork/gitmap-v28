@@ -102,6 +102,7 @@ func expandRmTargets(args []string) []string {
 	for _, a := range args {
 		for _, p := range strings.Split(a, ",") {
 			if p = strings.TrimSpace(p); p != "" {
+				p = strings.TrimRight(p, "/\\")
 				out = append(out, p)
 			}
 		}

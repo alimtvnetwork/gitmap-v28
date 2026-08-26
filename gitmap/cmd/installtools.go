@@ -444,3 +444,63 @@ func runInstallGitHubDesktopLinux(opts installOptions) {
 	recordInstallation(opts.Tool, "apt")
 	fmt.Printf("  Done!\n")
 }
+
+func runInstallVSCodeLinux(opts installOptions) {
+	if alreadyInstalled(opts.Tool) {
+		return
+	}
+	manager := resolvePackageManager(opts.Manager, opts.Tool)
+	if manager != constants.PkgMgrApt {
+		executeGenericInstall(opts)
+		return
+	}
+
+	fmt.Printf("\n  +-- Install Plan ---------------------\n")
+	fmt.Printf("  | Tool:    %s\n", opts.Tool)
+	fmt.Printf("  | Version: latest\n")
+	fmt.Printf("  | Manager: apt (Microsoft repo)\n")
+	fmt.Printf("  | Command: add Microsoft apt repository & sudo apt install code\n")
+	fmt.Printf("  +--------------------------------------\n\n")
+
+	if handleDryRunInstall(opts.DryRun, "apt", []string{"sudo", "apt", "install", "-y", "code"}) {
+		return
+	}
+	
+	fmt.Printf("  [1/4] Adding Microsoft GPG key...\n")
+	cmd1 := exec.Command("sh", "-c", "wget -qO - https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/keyrings/microsoft.asc > /dev/null")
+	cmd1.Stdout = os.Stdout
+	cmd1.Stderr = os.Stderr
+	if err := cmd1.Run(); err != nil {
+		fmt.Printf("  Error adding GPG key: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("  [2/4] Adding VS Code repository...\n")
+	cmd2 := exec.Command("sh", "-c", "echo \"deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/repos/code stable main\" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null")
+	cmd2.Stdout = os.Stdout
+	cmd2.Stderr = os.Stderr
+	if err := cmd2.Run(); err != nil {
+		fmt.Printf("  Error adding repository: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("  [3/4] Updating package index...\n")
+	cmd3 := exec.Command("sudo", "apt-get", "update")
+	cmd3.Stdout = os.Stdout
+	cmd3.Stderr = os.Stderr
+	if err := cmd3.Run(); err != nil {
+		fmt.Printf("  Error updating apt: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("  [4/4] Installing code (VS Code)...\n")
+	cmd4 := exec.Command("sudo", "apt", "install", "-y", "code")
+	cmd4.Stdout = os.Stdout
+	cmd4.Stderr = os.Stderr
+	if err := cmd4.Run(); err != nil {
+		fmt.Printf("  Error installing code: %v\n", err)
+		os.Exit(1)
+	}
+	
+	fmt.Println("  ✓ VS Code installed successfully.")
+}

@@ -110,6 +110,9 @@ func specialInstallHandler(tool string) func(installOptions) {
 	if tool == constants.ToolGitHubDesktop && runtime.GOOS == "linux" {
 		return func(opts installOptions) { runInstallGitHubDesktopLinux(opts) }
 	}
+	if tool == constants.ToolVSCode && runtime.GOOS == "linux" {
+		return func(opts installOptions) { runInstallVSCodeLinux(opts) }
+	}
 	if h := specialSyncHandler(tool); h != nil {
 		return h
 	}
