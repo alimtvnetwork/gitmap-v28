@@ -9,14 +9,23 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // runStatus handles the "status" subcommand.
 func runStatus(args []string) {
 	checkHelp("status", args)
-	groupName, all := parseStatusFlags(args)
+	groupName, all, onlyDirty := parseStatusFlags(args)
 	records := loadStatusByScope(groupName, all)
+
+	if onlyDirty {
+		records = filterDirtyRecords(records)
+		if len(records) == 0 {
+			fmt.Println("✨ All repositories are clean!")
+			return
+		}
+	}
 
 	printStatusBanner(len(records))
 	prog := cloner.NewBatchProgress(len(records), "Status", true)
@@ -24,15 +33,28 @@ func runStatus(args []string) {
 	printStatusSummary(summary)
 }
 
-// parseStatusFlags parses --group and --all flags.
-func parseStatusFlags(args []string) (groupName string, all bool) {
+func filterDirtyRecords(records []model.ScanRecord) []model.ScanRecord {
+	var dirty []model.ScanRecord
+	for _, rec := range records {
+		rs := gitutil.Status(rec.AbsolutePath)
+		if rs.Dirty || rs.Ahead > 0 || rs.Behind > 0 || rs.StashCount > 0 {
+			dirty = append(dirty, rec)
+		}
+	}
+	return dirty
+}
+
+// parseStatusFlags parses --group, --all, and --dirty flags.
+func parseStatusFlags(args []string) (groupName string, all bool, onlyDirty bool) {
 	fs := flag.NewFlagSet(constants.CmdStatus, flag.ExitOnError)
 	gFlag := fs.String("group", "", constants.FlagDescGroup)
 	fs.StringVar(gFlag, "g", "", constants.FlagDescGroup)
 	aFlag := fs.Bool("all", false, constants.FlagDescAll)
+	dFlag := fs.Bool("dirty", false, "Display only repositories with uncommitted, unstaged, or unpushed changes")
+	fs.BoolVar(dFlag, "only-dirty", false, "Display only repositories with uncommitted, unstaged, or unpushed changes")
 	fs.Parse(args)
 
-	return *gFlag, *aFlag
+	return *gFlag, *aFlag, *dFlag
 }
 
 // loadStatusByScope returns records filtered by alias, group, all DB repos, or JSON fallback.

@@ -18,6 +18,7 @@
 - [x] [03-installer-multios-cluster.md](file:///d:/work/gitmap/.lovable/plans/completed/03-installer-multios-cluster.md)
 - [x] [03-reclone-transport-and-vscode-open.md](file:///d:/work/gitmap/.lovable/plans/completed/03-reclone-transport-and-vscode-open.md)
 - [x] [04-cfr-cg-os-aware-coding-guidelines.md](file:///d:/work/gitmap/.lovable/plans/completed/04-cfr-cg-os-aware-coding-guidelines.md)
+- [x] [04-cg-multirepo-and-status-dirty.md](file:///d:/work/gitmap/.lovable/plans/completed/04-cg-multirepo-and-status-dirty.md)
 - [x] [05-gitmap-improvements.md](file:///d:/work/gitmap/.lovable/plans/completed/05-gitmap-improvements.md)
 - [x] [05-lfs-smudge-fallback.md](file:///d:/work/gitmap/.lovable/plans/completed/05-lfs-smudge-fallback.md)
 - [x] [05-mv-rm-resolver-replace-100-steps.md](file:///d:/work/gitmap/.lovable/plans/completed/05-mv-rm-resolver-replace-100-steps.md)

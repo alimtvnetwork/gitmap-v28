@@ -4,8 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
@@ -28,15 +30,15 @@ func parseCGFlags(args []string) cgOptions {
 
 	argsAfterParse := fs.Args()
 	if len(argsAfterParse) == 0 {
-		fmt.Fprintf(os.Stderr, "Usage: gitmap cg install|update [--all] [--except repo1,repo2] [repo1 repo2...]\n")
+		fmt.Fprintf(os.Stderr, "Usage: gitmap cg [version|status|install|update|repo] [repo1 repo2...] [--all]\n")
 		os.Exit(1)
 	}
 
 	opts.Action = argsAfterParse[0]
-	if opts.Action == "all" {
-		opts.All = true
-		if len(argsAfterParse) > 1 {
-			opts.Repos = argsAfterParse[1:]
+	if opts.Action == "repo" && len(argsAfterParse) > 1 {
+		opts.Action = argsAfterParse[1]
+		if len(argsAfterParse) > 2 {
+			opts.Repos = argsAfterParse[2:]
 		}
 	} else if len(argsAfterParse) > 1 {
 		if argsAfterParse[1] == "all" {
@@ -54,10 +56,6 @@ func parseCGFlags(args []string) cgOptions {
 
 func runCG(args []string) {
 	opts := parseCGFlags(args)
-	if opts.Action != "install" && opts.Action != "update" {
-		fmt.Fprintf(os.Stderr, "Unknown action: %s\n", opts.Action)
-		os.Exit(1)
-	}
 
 	repos := resolveCGRepos(opts)
 	if len(repos) == 0 {
@@ -65,7 +63,30 @@ func runCG(args []string) {
 		return
 	}
 
-	executeCGWorkers(repos)
+	switch opts.Action {
+	case "version", "ver", "-v":
+		PrintCGVersion(repos)
+	case "status", "stat", "ls":
+		PrintCGStatus(repos)
+	case "update":
+		// Selective update: only update repos with coding-guidelines in version.json
+		var toUpdate []string
+		for _, r := range repos {
+			if _, err := ReadCGMetadata(r); err == nil {
+				toUpdate = append(toUpdate, r)
+			} else {
+				fmt.Printf("Skipping %s (coding guidelines not installed, run `gitmap cg install` first)\n", r)
+			}
+		}
+		if len(toUpdate) > 0 {
+			executeCGWorkers(toUpdate)
+		}
+	case "install":
+		executeCGWorkers(repos)
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown action: %s\n", opts.Action)
+		os.Exit(1)
+	}
 }
 
 func resolveCGRepos(opts cgOptions) []string {
@@ -78,18 +99,28 @@ func resolveCGRepos(opts cgOptions) []string {
 			return []string{}
 		}
 		defer db.Close()
-		
+
 		repos, err := db.ListRepos()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to list repos: %v\n", err)
 			return []string{}
 		}
-		
+
 		for _, r := range repos {
 			targetRepos = append(targetRepos, r.AbsolutePath)
 		}
+	} else if len(opts.Repos) > 0 {
+		targetRepos = ResolveAllCGTargets(opts.Repos)
 	} else {
-		targetRepos = opts.Repos
+		cwd, _ := os.Getwd()
+		gitDir := filepath.Join(cwd, ".git")
+		if info, errStat := os.Stat(gitDir); errStat == nil && (info.IsDir() || !info.IsDir()) {
+			targetRepos = []string{cwd}
+		} else if childRepos, err := fsutil.DiscoverChildGitRepos(cwd); err == nil && len(childRepos) > 0 {
+			targetRepos = childRepos
+		} else {
+			targetRepos = []string{cwd}
+		}
 	}
 
 	return applyCGExclusions(targetRepos, opts.Exclude)
@@ -99,20 +130,24 @@ func applyCGExclusions(repos []string, excludeCSV string) []string {
 	if excludeCSV == "" {
 		return repos
 	}
-	
-	excludeList := strings.Split(excludeCSV, ",")
+
+	excludes := strings.Split(excludeCSV, ",")
+	excludeMap := make(map[string]bool)
+	for _, e := range excludes {
+		excludeMap[strings.TrimSpace(e)] = true
+	}
+
 	var filtered []string
 	for _, r := range repos {
-		excluded := false
-		for _, ex := range excludeList {
-			if strings.TrimSpace(ex) == r {
-				excluded = true
-				break
-			}
+		base := strings.TrimSpace(r)
+		name := base[strings.LastIndex(base, "/")+1:]
+		if name == "" {
+			name = base[strings.LastIndex(base, "\\")+1:]
 		}
-		if !excluded {
+		if !excludeMap[name] && !excludeMap[base] {
 			filtered = append(filtered, r)
 		}
 	}
 	return filtered
 }
+

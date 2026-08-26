@@ -4,7 +4,7 @@ package constants
 // Changelog generate command.
 const (
 	CmdChangelogGen      = "changelog-generate"
-	CmdChangelogGenAlias = "cg"
+	CmdChangelogGenAlias = "clg"
 )
 
 // Changelog generate help text.

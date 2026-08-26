@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
@@ -161,6 +162,18 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
 	cwd, _ := os.Getwd()
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
+		if childRepos, err := fsutil.DiscoverChildGitRepos(cwd); err == nil && len(childRepos) > 0 {
+			fmt.Printf("→ Discovered %d child repositories in %s for pull:\n", len(childRepos), cwd)
+			for _, r := range childRepos {
+				fmt.Printf("  • %s\n", filepath.Base(r))
+				gitArgs := append([]string{"-C", r, "pull"}, extraArgs...)
+				cmd := exec.Command("git", gitArgs...)
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				_ = cmd.Run()
+			}
+			return
+		}
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap pull` inside a repo)")
 		exitWith(1)
 		return

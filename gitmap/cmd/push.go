@@ -8,11 +8,13 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -98,6 +100,18 @@ func pushNoTargetsHint(opts pushOptions) bool {
 	}
 	if isGitRepoCWD() {
 		return false
+	}
+	cwd, _ := os.Getwd()
+	if childRepos, err := fsutil.DiscoverChildGitRepos(cwd); err == nil && len(childRepos) > 0 {
+		fmt.Printf("→ Discovered %d child repositories in %s for push:\n", len(childRepos), cwd)
+		for _, r := range childRepos {
+			fmt.Printf("  • %s\n", filepath.Base(r))
+			cmd := exec.Command("git", "-C", r, "push")
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			_ = cmd.Run()
+		}
+		return true
 	}
 	fmt.Println("  ↳ nothing to push:")
 	fmt.Println("     • current directory is not a git repository")
