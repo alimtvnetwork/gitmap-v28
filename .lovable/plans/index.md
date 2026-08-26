@@ -1,7 +1,7 @@
 # Plans Index
 
 ## Pending Plans
-*None — All pending plans completed.*
+- [ ] [03-installer-multios-cluster.md](file:///d:/work/gitmap/.lovable/plans/pending/03-installer-multios-cluster.md)
 
 ## Completed Plans
 - [x] [00-execution-plan.md](file:///d:/work/gitmap/.lovable/plans/completed/00-execution-plan.md)
