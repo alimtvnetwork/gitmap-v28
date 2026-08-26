@@ -7,16 +7,28 @@ const (
 	OSTargetUbuntu = "ubuntu"
 	OSTargetCentOS = "centos"
 	OSTargetDebian = "debian"
+	OSTargetFedora = "fedora"
 	OSTargetArch   = "arch-linux"
+	OSTargetMac    = "macos"
+	OSTargetUnix   = "unix"
 	OSTargetAll    = "all"
+
+	// Execution ordering modes for multi-OS installers
+	OrderUnixFirst = "unix-first"
+	OrderOSFirst   = "os-first"
+	OrderOSOnly    = "os-only"
+	OrderFallback  = "fallback"
 )
 
 // SupportedOSTargets returns the list of all supported installer operating systems.
 var SupportedOSTargets = []string{
 	OSTargetWin,
 	OSTargetUbuntu,
-	OSTargetCentOS,
 	OSTargetDebian,
+	OSTargetCentOS,
+	OSTargetFedora,
 	OSTargetArch,
+	OSTargetMac,
+	OSTargetUnix,
 	OSTargetAll,
 }

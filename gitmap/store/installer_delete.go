@@ -11,6 +11,9 @@ const SQLDeleteInstallerScript = `DELETE FROM installer_scripts WHERE slug = ?;`
 // SQLDeleteInstallerVersions deletes all installer version records for a given slug.
 const SQLDeleteInstallerVersions = `DELETE FROM installer_versions WHERE slug = ?;`
 
+// SQLDeleteInstallerExactVersion deletes a specific version record for a given slug.
+const SQLDeleteInstallerExactVersion = `DELETE FROM installer_versions WHERE slug = ? AND version = ?;`
+
 // DeleteInstaller removes an installer script and associated version records by slug.
 func (db *DB) DeleteInstaller(slug string) error {
 	if db == nil || db.conn == nil {
@@ -46,4 +49,13 @@ func (db *DB) DeleteInstaller(slug string) error {
 	}
 
 	return nil
+}
+
+// DeleteInstallerVersion removes a specific version record for an installer.
+func (db *DB) DeleteInstallerVersion(slug, version string) error {
+	if db == nil || db.conn == nil {
+		return apperror.New("DeleteInstallerVersion", "E_INSTALLER_NIL_DB", map[string]any{"slug": slug})
+	}
+	_, err := ExecWrapper(db.conn, SQLDeleteInstallerExactVersion, slug, version).Destruct()
+	return err
 }
