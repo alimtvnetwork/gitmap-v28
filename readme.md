@@ -6,10 +6,10 @@
 
 **Pinned version: v6.109.0**
 
-[![CI](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v28/ci.yml?style=flat-square&label=CI)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
-[![Vulnerability Scan](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v28/vulncheck.yml?style=flat-square&label=vulnerability%20scan)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
-[![Cross-Platform Build](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v28/cross-platform.yml?style=flat-square&label=cross-platform%20build)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/cross-platform.yml)
-[![Startup Build-Tag Guard](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v28/startup-build-tags.yml?style=flat-square&label=startup%20build-tag%20guard)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/startup-build-tags.yml)
+[![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
+[![Vulnerability Scan](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
+[![Cross-Platform Build](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/cross-platform.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/cross-platform.yml)
+[![Startup Build-Tag Guard](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/startup-build-tags.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/startup-build-tags.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/alimtvnetwork/gitmap-v28?style=flat-square&label=version)](https://github.com/alimtvnetwork/gitmap-v28/releases)
 [![Go](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)](https://github.com/alimtvnetwork/gitmap-v28)
