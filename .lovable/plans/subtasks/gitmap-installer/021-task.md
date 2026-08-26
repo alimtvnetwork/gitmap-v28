@@ -1,66 +1,64 @@
 ---
 plan: .lovable/plans/pending/02-gitmap-installer.md
-domain: Cli
-phase: Implement
-target_files: ["gitmap/cmd/install_comp_021.go", "gitmap/cmd/install_comp_021_test.go"]
+domain: Plugin
+phase: Scaffold
+target_files: ["gitmap/installer/manager.go", "gitmap/installer/manager_test.go"]
 depends_on: ["Task 020"]
 citations:
-  app_spec: "spec/commands/01-gitmap-installer.md §Command Specifications"
+  app_spec: ".lovable/spec/commands/01-gitmap-installer.md §Core Requirements"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
   language_guideline: "spec/02-coding-guidelines/03-golang/00-overview.md"
-  boolean_styling: "n/a - no boolean parsing"
+  boolean_styling: "spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md"
   folder_naming: "spec/02-coding-guidelines/08-file-folder-naming/03-golang.md"
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   error_codes: "spec/21-app/07-error-and-logging/01-error-code-allocation.md"
   logging_traces: "spec/21-app/07-error-and-logging/02-logging-and-stack-traces.md"
   response_envelope: "spec/21-app/07-error-and-logging/03-response-envelope.md"
-  golden_fixture: "n/a - no fixtures needed"
+  golden_fixture: "n/a — no wire format in this step"
   strictly_avoid: ".lovable/strictly-avoid.md"
-  database: "n/a - no DB yet"
-  ui_surface: "n/a"
-  tests: "unit TestInstallComp021"
+  database: "spec/04-database-conventions/01-sqlite-schema.md"
+  ui_surface: "n/a — no direct UI in this step"
+  tests: "unit TestManagerStruct"
   ci_cd_guard: "linter-scripts/check-go-build"
-  ambiguity: "n/a"
-  issue_rca: "n/a"
+  ambiguity: "n/a — no ambiguity filed"
+  issue_rca: "n/a — not a bugfix"
 ---
-# Task 021 — Scaffold Installer Component 021
+# Task 021 — Manager Struct
 
 ## 1. Learn
-- Read `spec/commands/01-gitmap-installer.md` to understand the goal.
-- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` for sizing rules.
-- Read `spec/03-error-manage/02-error-architecture/00-overview.md` for `apperror` usage.
+- Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for Manager, NewManager(db).
+- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/installer/manager.go` remains concisely sized.
+- Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
+- Inspect `gitmap/installer/manager.go` dependencies to see how Manager, NewManager(db) interacts with its callers.
 
 ## 2. Goal
-Implement `InstallComp021` which processes a subset of the installer specifications logic. This task will scaffold the unit, add the interface and strict typing for installer commands, and ensure it builds correctly.
+The objective is to implement `Manager, NewManager(db)` natively in `gitmap/installer/manager.go`. This explicitly unblocks downstream operations dependent on `Manager Struct` in the Plugin domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
-Input: `Input021` struct
-Output: `Output021` struct
-Error: standard `apperror.Result` envelope.
-Data Uniqueness: `65a0c42d58ae` (for testing).
+- Exported Symbols: `Manager, NewManager(db)`
+- Package: `installer`
+- Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
-1. Create `gitmap/cmd/install_comp_021.go`.
-2. Define `type Input021 struct { Data string }` and `type Output021 struct { Result string }`.
-3. Define `func HandleInstallComp021(in Input021) (Output021, error)`.
-4. Create `gitmap/cmd/install_comp_021_test.go`.
-5. Write unit test `TestInstallComp021` covering success and failure.
+1. Open `gitmap/installer/manager.go`.
+2. Implement the required structure, type, or function for `Manager, NewManager(db)`.
+3. Write unit tests for success and failure boundaries in `gitmap/installer/manager_test.go`.
+4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
-- Functions under 50 lines (canonical size).
-- Errors wrapped in `apperror`.
-- No negatives in booleans.
+- Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
+- Error wrapping must include stack traces.
 
 ## 6. Verify
 ```bash
-go test ./cmd/... -run TestInstallComp021
+go test ./installer -run TestManagerStruct
 ```
-Expected output: `PASS` and `ok`.
+Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
-- [ ] `HandleInstallComp021` exists and passes unit tests.
-- [ ] No magic strings used outside test constants.
-- [ ] Function is correctly typed.
+- [ ] `Manager, NewManager(db)` is successfully mapped and tested in `gitmap/installer/manager.go`.
+- [ ] All CI and `go test` commands exit zero.
+- [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
 None.

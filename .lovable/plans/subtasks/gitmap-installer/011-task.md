@@ -2,65 +2,63 @@
 plan: .lovable/plans/pending/02-gitmap-installer.md
 domain: Cli
 phase: Implement
-target_files: ["gitmap/cmd/install_comp_011.go", "gitmap/cmd/install_comp_011_test.go"]
+target_files: ["gitmap/cmd/installer_update.go", "gitmap/cmd/installer_update_test.go"]
 depends_on: ["Task 010"]
 citations:
-  app_spec: "spec/commands/01-gitmap-installer.md §Command Specifications"
+  app_spec: ".lovable/spec/commands/01-gitmap-installer.md §Core Requirements"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
   language_guideline: "spec/02-coding-guidelines/03-golang/00-overview.md"
-  boolean_styling: "n/a - no boolean parsing"
+  boolean_styling: "spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md"
   folder_naming: "spec/02-coding-guidelines/08-file-folder-naming/03-golang.md"
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   error_codes: "spec/21-app/07-error-and-logging/01-error-code-allocation.md"
   logging_traces: "spec/21-app/07-error-and-logging/02-logging-and-stack-traces.md"
   response_envelope: "spec/21-app/07-error-and-logging/03-response-envelope.md"
-  golden_fixture: "n/a - no fixtures needed"
+  golden_fixture: "n/a — no wire format in this step"
   strictly_avoid: ".lovable/strictly-avoid.md"
-  database: "n/a - no DB yet"
-  ui_surface: "n/a"
-  tests: "unit TestInstallComp011"
+  database: "spec/04-database-conventions/01-sqlite-schema.md"
+  ui_surface: "n/a — no direct UI in this step"
+  tests: "unit TestInstallerUpdateCmd"
   ci_cd_guard: "linter-scripts/check-go-build"
-  ambiguity: "n/a"
-  issue_rca: "n/a"
+  ambiguity: "n/a — no ambiguity filed"
+  issue_rca: "n/a — not a bugfix"
 ---
-# Task 011 — Scaffold Installer Component 011
+# Task 011 — Installer Update Command
 
 ## 1. Learn
-- Read `spec/commands/01-gitmap-installer.md` to understand the goal.
-- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` for sizing rules.
-- Read `spec/03-error-manage/02-error-architecture/00-overview.md` for `apperror` usage.
+- Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for installerUpdateCmd.
+- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/cmd/installer_update.go` remains concisely sized.
+- Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
+- Inspect `gitmap/cmd/installer_update.go` dependencies to see how installerUpdateCmd interacts with its callers.
 
 ## 2. Goal
-Implement `InstallComp011` which processes a subset of the installer specifications logic. This task will scaffold the unit, add the interface and strict typing for installer commands, and ensure it builds correctly.
+The objective is to implement `installerUpdateCmd` natively in `gitmap/cmd/installer_update.go`. This explicitly unblocks downstream operations dependent on `Installer Update Command` in the Cli domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
-Input: `Input011` struct
-Output: `Output011` struct
-Error: standard `apperror.Result` envelope.
-Data Uniqueness: `b9693c46252c` (for testing).
+- Exported Symbols: `installerUpdateCmd`
+- Package: `cmd`
+- Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
-1. Create `gitmap/cmd/install_comp_011.go`.
-2. Define `type Input011 struct { Data string }` and `type Output011 struct { Result string }`.
-3. Define `func HandleInstallComp011(in Input011) (Output011, error)`.
-4. Create `gitmap/cmd/install_comp_011_test.go`.
-5. Write unit test `TestInstallComp011` covering success and failure.
+1. Open `gitmap/cmd/installer_update.go`.
+2. Implement the required structure, type, or function for `installerUpdateCmd`.
+3. Write unit tests for success and failure boundaries in `gitmap/cmd/installer_update_test.go`.
+4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
-- Functions under 50 lines (canonical size).
-- Errors wrapped in `apperror`.
-- No negatives in booleans.
+- Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
+- Error wrapping must include stack traces.
 
 ## 6. Verify
 ```bash
-go test ./cmd/... -run TestInstallComp011
+go test ./cmd -run TestInstallerUpdateCmd
 ```
-Expected output: `PASS` and `ok`.
+Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
-- [ ] `HandleInstallComp011` exists and passes unit tests.
-- [ ] No magic strings used outside test constants.
-- [ ] Function is correctly typed.
+- [ ] `installerUpdateCmd` is successfully mapped and tested in `gitmap/cmd/installer_update.go`.
+- [ ] All CI and `go test` commands exit zero.
+- [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
 None.

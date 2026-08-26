@@ -1,66 +1,64 @@
 ---
 plan: .lovable/plans/pending/02-gitmap-installer.md
-domain: Cli
+domain: Plugin
 phase: Implement
-target_files: ["gitmap/cmd/install_comp_003.go", "gitmap/cmd/install_comp_003_test.go"]
+target_files: ["gitmap/store/installer_create.go", "gitmap/store/installer_create_test.go"]
 depends_on: ["Task 002"]
 citations:
-  app_spec: "spec/commands/01-gitmap-installer.md §Command Specifications"
+  app_spec: ".lovable/spec/commands/01-gitmap-installer.md §Core Requirements"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
   language_guideline: "spec/02-coding-guidelines/03-golang/00-overview.md"
-  boolean_styling: "n/a - no boolean parsing"
+  boolean_styling: "spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md"
   folder_naming: "spec/02-coding-guidelines/08-file-folder-naming/03-golang.md"
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   error_codes: "spec/21-app/07-error-and-logging/01-error-code-allocation.md"
   logging_traces: "spec/21-app/07-error-and-logging/02-logging-and-stack-traces.md"
   response_envelope: "spec/21-app/07-error-and-logging/03-response-envelope.md"
-  golden_fixture: "n/a - no fixtures needed"
+  golden_fixture: "n/a — no wire format in this step"
   strictly_avoid: ".lovable/strictly-avoid.md"
-  database: "n/a - no DB yet"
-  ui_surface: "n/a"
-  tests: "unit TestInstallComp003"
+  database: "spec/04-database-conventions/01-sqlite-schema.md"
+  ui_surface: "n/a — no direct UI in this step"
+  tests: "unit TestCreateInstaller"
   ci_cd_guard: "linter-scripts/check-go-build"
-  ambiguity: "n/a"
-  issue_rca: "n/a"
+  ambiguity: "n/a — no ambiguity filed"
+  issue_rca: "n/a — not a bugfix"
 ---
-# Task 003 — Scaffold Installer Component 003
+# Task 003 — Store CreateInstaller
 
 ## 1. Learn
-- Read `spec/commands/01-gitmap-installer.md` to understand the goal.
-- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` for sizing rules.
-- Read `spec/03-error-manage/02-error-architecture/00-overview.md` for `apperror` usage.
+- Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for CreateInstaller(script *model.InstallerScript).
+- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/store/installer_create.go` remains concisely sized.
+- Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
+- Inspect `gitmap/store/installer_create.go` dependencies to see how CreateInstaller(script *model.InstallerScript) interacts with its callers.
 
 ## 2. Goal
-Implement `InstallComp003` which processes a subset of the installer specifications logic. This task will scaffold the unit, add the interface and strict typing for installer commands, and ensure it builds correctly.
+The objective is to implement `CreateInstaller(script *model.InstallerScript)` natively in `gitmap/store/installer_create.go`. This explicitly unblocks downstream operations dependent on `Store CreateInstaller` in the Plugin domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
-Input: `Input003` struct
-Output: `Output003` struct
-Error: standard `apperror.Result` envelope.
-Data Uniqueness: `31312e993619` (for testing).
+- Exported Symbols: `CreateInstaller(script *model.InstallerScript)`
+- Package: `store`
+- Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
-1. Create `gitmap/cmd/install_comp_003.go`.
-2. Define `type Input003 struct { Data string }` and `type Output003 struct { Result string }`.
-3. Define `func HandleInstallComp003(in Input003) (Output003, error)`.
-4. Create `gitmap/cmd/install_comp_003_test.go`.
-5. Write unit test `TestInstallComp003` covering success and failure.
+1. Open `gitmap/store/installer_create.go`.
+2. Implement the required structure, type, or function for `CreateInstaller(script *model.InstallerScript)`.
+3. Write unit tests for success and failure boundaries in `gitmap/store/installer_create_test.go`.
+4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
-- Functions under 50 lines (canonical size).
-- Errors wrapped in `apperror`.
-- No negatives in booleans.
+- Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
+- Error wrapping must include stack traces.
 
 ## 6. Verify
 ```bash
-go test ./cmd/... -run TestInstallComp003
+go test ./store -run TestCreateInstaller
 ```
-Expected output: `PASS` and `ok`.
+Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
-- [ ] `HandleInstallComp003` exists and passes unit tests.
-- [ ] No magic strings used outside test constants.
-- [ ] Function is correctly typed.
+- [ ] `CreateInstaller(script *model.InstallerScript)` is successfully mapped and tested in `gitmap/store/installer_create.go`.
+- [ ] All CI and `go test` commands exit zero.
+- [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
 None.

@@ -1,66 +1,64 @@
 ---
 plan: .lovable/plans/pending/02-gitmap-installer.md
-domain: Cli
+domain: Plugin
 phase: Implement
-target_files: ["gitmap/cmd/install_comp_030.go", "gitmap/cmd/install_comp_030_test.go"]
+target_files: ["gitmap/installer/export_global.go", "gitmap/installer/export_global_test.go"]
 depends_on: ["Task 029"]
 citations:
-  app_spec: "spec/commands/01-gitmap-installer.md §Command Specifications"
+  app_spec: ".lovable/spec/commands/01-gitmap-installer.md §Core Requirements"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
   language_guideline: "spec/02-coding-guidelines/03-golang/00-overview.md"
-  boolean_styling: "n/a - no boolean parsing"
+  boolean_styling: "spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md"
   folder_naming: "spec/02-coding-guidelines/08-file-folder-naming/03-golang.md"
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   error_codes: "spec/21-app/07-error-and-logging/01-error-code-allocation.md"
   logging_traces: "spec/21-app/07-error-and-logging/02-logging-and-stack-traces.md"
   response_envelope: "spec/21-app/07-error-and-logging/03-response-envelope.md"
-  golden_fixture: "n/a - no fixtures needed"
+  golden_fixture: "n/a — no wire format in this step"
   strictly_avoid: ".lovable/strictly-avoid.md"
-  database: "n/a - no DB yet"
-  ui_surface: "n/a"
-  tests: "unit TestInstallComp030"
+  database: "spec/04-database-conventions/01-sqlite-schema.md"
+  ui_surface: "n/a — no direct UI in this step"
+  tests: "unit TestExportGlobalState"
   ci_cd_guard: "linter-scripts/check-go-build"
-  ambiguity: "n/a"
-  issue_rca: "n/a"
+  ambiguity: "n/a — no ambiguity filed"
+  issue_rca: "n/a — not a bugfix"
 ---
-# Task 030 — Scaffold Installer Component 030
+# Task 030 — Export Global State
 
 ## 1. Learn
-- Read `spec/commands/01-gitmap-installer.md` to understand the goal.
-- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` for sizing rules.
-- Read `spec/03-error-manage/02-error-architecture/00-overview.md` for `apperror` usage.
+- Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for (m *Manager) ExportGlobalState(path).
+- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/installer/export_global.go` remains concisely sized.
+- Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
+- Inspect `gitmap/installer/export_global.go` dependencies to see how (m *Manager) ExportGlobalState(path) interacts with its callers.
 
 ## 2. Goal
-Implement `InstallComp030` which processes a subset of the installer specifications logic. This task will scaffold the unit, add the interface and strict typing for installer commands, and ensure it builds correctly.
+The objective is to implement `(m *Manager) ExportGlobalState(path)` natively in `gitmap/installer/export_global.go`. This explicitly unblocks downstream operations dependent on `Export Global State` in the Plugin domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
-Input: `Input030` struct
-Output: `Output030` struct
-Error: standard `apperror.Result` envelope.
-Data Uniqueness: `c3f6fb938888` (for testing).
+- Exported Symbols: `(m *Manager) ExportGlobalState(path)`
+- Package: `installer`
+- Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
-1. Create `gitmap/cmd/install_comp_030.go`.
-2. Define `type Input030 struct { Data string }` and `type Output030 struct { Result string }`.
-3. Define `func HandleInstallComp030(in Input030) (Output030, error)`.
-4. Create `gitmap/cmd/install_comp_030_test.go`.
-5. Write unit test `TestInstallComp030` covering success and failure.
+1. Open `gitmap/installer/export_global.go`.
+2. Implement the required structure, type, or function for `(m *Manager) ExportGlobalState(path)`.
+3. Write unit tests for success and failure boundaries in `gitmap/installer/export_global_test.go`.
+4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
-- Functions under 50 lines (canonical size).
-- Errors wrapped in `apperror`.
-- No negatives in booleans.
+- Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
+- Error wrapping must include stack traces.
 
 ## 6. Verify
 ```bash
-go test ./cmd/... -run TestInstallComp030
+go test ./installer -run TestExportGlobalState
 ```
-Expected output: `PASS` and `ok`.
+Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
-- [ ] `HandleInstallComp030` exists and passes unit tests.
-- [ ] No magic strings used outside test constants.
-- [ ] Function is correctly typed.
+- [ ] `(m *Manager) ExportGlobalState(path)` is successfully mapped and tested in `gitmap/installer/export_global.go`.
+- [ ] All CI and `go test` commands exit zero.
+- [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
 None.

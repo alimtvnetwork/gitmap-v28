@@ -257,3 +257,4 @@ completed/252-task.md
 completed/253-task.md
 completed/254-task.md
 completed/255-task.md
+- [ ] 02-gitmap-installer.md (pending)

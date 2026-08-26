@@ -4,311 +4,51 @@ status: pending
 # Gitmap Installer Commands & Scripts Implementation
 
 ## Context
-Goal: Implement the gitmap installer create/export/import commands and sqlite persistence (300 steps).
-Reference spec: `spec/commands/01-gitmap-installer.md`.
+Goal: Implement the gitmap installer create/export/import commands and sqlite persistence (40 steps).
+Reference spec: `.lovable/spec/commands/01-gitmap-installer.md`.
 
 Execution model:
 One step per run. Exactly one step is executed per run. Self-loop after Verify.
 At most 2 spawned agents, max 3 threads.
 
 ## Tasks
-- [ ] Task 001 — Scaffold Installer Component 001
-- [ ] Task 002 — Scaffold Installer Component 002
-- [ ] Task 003 — Scaffold Installer Component 003
-- [ ] Task 004 — Scaffold Installer Component 004
-- [ ] Task 005 — Scaffold Installer Component 005
-- [ ] Task 006 — Scaffold Installer Component 006
-- [ ] Task 007 — Scaffold Installer Component 007
-- [ ] Task 008 — Scaffold Installer Component 008
-- [ ] Task 009 — Scaffold Installer Component 009
-- [ ] Task 010 — Scaffold Installer Component 010
-- [ ] Task 011 — Scaffold Installer Component 011
-- [ ] Task 012 — Scaffold Installer Component 012
-- [ ] Task 013 — Scaffold Installer Component 013
-- [ ] Task 014 — Scaffold Installer Component 014
-- [ ] Task 015 — Scaffold Installer Component 015
-- [ ] Task 016 — Scaffold Installer Component 016
-- [ ] Task 017 — Scaffold Installer Component 017
-- [ ] Task 018 — Scaffold Installer Component 018
-- [ ] Task 019 — Scaffold Installer Component 019
-- [ ] Task 020 — Scaffold Installer Component 020
-- [ ] Task 021 — Scaffold Installer Component 021
-- [ ] Task 022 — Scaffold Installer Component 022
-- [ ] Task 023 — Scaffold Installer Component 023
-- [ ] Task 024 — Scaffold Installer Component 024
-- [ ] Task 025 — Scaffold Installer Component 025
-- [ ] Task 026 — Scaffold Installer Component 026
-- [ ] Task 027 — Scaffold Installer Component 027
-- [ ] Task 028 — Scaffold Installer Component 028
-- [ ] Task 029 — Scaffold Installer Component 029
-- [ ] Task 030 — Scaffold Installer Component 030
-- [ ] Task 031 — Scaffold Installer Component 031
-- [ ] Task 032 — Scaffold Installer Component 032
-- [ ] Task 033 — Scaffold Installer Component 033
-- [ ] Task 034 — Scaffold Installer Component 034
-- [ ] Task 035 — Scaffold Installer Component 035
-- [ ] Task 036 — Scaffold Installer Component 036
-- [ ] Task 037 — Scaffold Installer Component 037
-- [ ] Task 038 — Scaffold Installer Component 038
-- [ ] Task 039 — Scaffold Installer Component 039
-- [ ] Task 040 — Scaffold Installer Component 040
-- [ ] Task 041 — Scaffold Installer Component 041
-- [ ] Task 042 — Scaffold Installer Component 042
-- [ ] Task 043 — Scaffold Installer Component 043
-- [ ] Task 044 — Scaffold Installer Component 044
-- [ ] Task 045 — Scaffold Installer Component 045
-- [ ] Task 046 — Scaffold Installer Component 046
-- [ ] Task 047 — Scaffold Installer Component 047
-- [ ] Task 048 — Scaffold Installer Component 048
-- [ ] Task 049 — Scaffold Installer Component 049
-- [ ] Task 050 — Scaffold Installer Component 050
-- [ ] Task 051 — Scaffold Installer Component 051
-- [ ] Task 052 — Scaffold Installer Component 052
-- [ ] Task 053 — Scaffold Installer Component 053
-- [ ] Task 054 — Scaffold Installer Component 054
-- [ ] Task 055 — Scaffold Installer Component 055
-- [ ] Task 056 — Scaffold Installer Component 056
-- [ ] Task 057 — Scaffold Installer Component 057
-- [ ] Task 058 — Scaffold Installer Component 058
-- [ ] Task 059 — Scaffold Installer Component 059
-- [ ] Task 060 — Scaffold Installer Component 060
-- [ ] Task 061 — Scaffold Installer Component 061
-- [ ] Task 062 — Scaffold Installer Component 062
-- [ ] Task 063 — Scaffold Installer Component 063
-- [ ] Task 064 — Scaffold Installer Component 064
-- [ ] Task 065 — Scaffold Installer Component 065
-- [ ] Task 066 — Scaffold Installer Component 066
-- [ ] Task 067 — Scaffold Installer Component 067
-- [ ] Task 068 — Scaffold Installer Component 068
-- [ ] Task 069 — Scaffold Installer Component 069
-- [ ] Task 070 — Scaffold Installer Component 070
-- [ ] Task 071 — Scaffold Installer Component 071
-- [ ] Task 072 — Scaffold Installer Component 072
-- [ ] Task 073 — Scaffold Installer Component 073
-- [ ] Task 074 — Scaffold Installer Component 074
-- [ ] Task 075 — Scaffold Installer Component 075
-- [ ] Task 076 — Scaffold Installer Component 076
-- [ ] Task 077 — Scaffold Installer Component 077
-- [ ] Task 078 — Scaffold Installer Component 078
-- [ ] Task 079 — Scaffold Installer Component 079
-- [ ] Task 080 — Scaffold Installer Component 080
-- [ ] Task 081 — Scaffold Installer Component 081
-- [ ] Task 082 — Scaffold Installer Component 082
-- [ ] Task 083 — Scaffold Installer Component 083
-- [ ] Task 084 — Scaffold Installer Component 084
-- [ ] Task 085 — Scaffold Installer Component 085
-- [ ] Task 086 — Scaffold Installer Component 086
-- [ ] Task 087 — Scaffold Installer Component 087
-- [ ] Task 088 — Scaffold Installer Component 088
-- [ ] Task 089 — Scaffold Installer Component 089
-- [ ] Task 090 — Scaffold Installer Component 090
-- [ ] Task 091 — Scaffold Installer Component 091
-- [ ] Task 092 — Scaffold Installer Component 092
-- [ ] Task 093 — Scaffold Installer Component 093
-- [ ] Task 094 — Scaffold Installer Component 094
-- [ ] Task 095 — Scaffold Installer Component 095
-- [ ] Task 096 — Scaffold Installer Component 096
-- [ ] Task 097 — Scaffold Installer Component 097
-- [ ] Task 098 — Scaffold Installer Component 098
-- [ ] Task 099 — Scaffold Installer Component 099
-- [ ] Task 100 — Scaffold Installer Component 100
-- [ ] Task 101 — Scaffold Installer Component 101
-- [ ] Task 102 — Scaffold Installer Component 102
-- [ ] Task 103 — Scaffold Installer Component 103
-- [ ] Task 104 — Scaffold Installer Component 104
-- [ ] Task 105 — Scaffold Installer Component 105
-- [ ] Task 106 — Scaffold Installer Component 106
-- [ ] Task 107 — Scaffold Installer Component 107
-- [ ] Task 108 — Scaffold Installer Component 108
-- [ ] Task 109 — Scaffold Installer Component 109
-- [ ] Task 110 — Scaffold Installer Component 110
-- [ ] Task 111 — Scaffold Installer Component 111
-- [ ] Task 112 — Scaffold Installer Component 112
-- [ ] Task 113 — Scaffold Installer Component 113
-- [ ] Task 114 — Scaffold Installer Component 114
-- [ ] Task 115 — Scaffold Installer Component 115
-- [ ] Task 116 — Scaffold Installer Component 116
-- [ ] Task 117 — Scaffold Installer Component 117
-- [ ] Task 118 — Scaffold Installer Component 118
-- [ ] Task 119 — Scaffold Installer Component 119
-- [ ] Task 120 — Scaffold Installer Component 120
-- [ ] Task 121 — Scaffold Installer Component 121
-- [ ] Task 122 — Scaffold Installer Component 122
-- [ ] Task 123 — Scaffold Installer Component 123
-- [ ] Task 124 — Scaffold Installer Component 124
-- [ ] Task 125 — Scaffold Installer Component 125
-- [ ] Task 126 — Scaffold Installer Component 126
-- [ ] Task 127 — Scaffold Installer Component 127
-- [ ] Task 128 — Scaffold Installer Component 128
-- [ ] Task 129 — Scaffold Installer Component 129
-- [ ] Task 130 — Scaffold Installer Component 130
-- [ ] Task 131 — Scaffold Installer Component 131
-- [ ] Task 132 — Scaffold Installer Component 132
-- [ ] Task 133 — Scaffold Installer Component 133
-- [ ] Task 134 — Scaffold Installer Component 134
-- [ ] Task 135 — Scaffold Installer Component 135
-- [ ] Task 136 — Scaffold Installer Component 136
-- [ ] Task 137 — Scaffold Installer Component 137
-- [ ] Task 138 — Scaffold Installer Component 138
-- [ ] Task 139 — Scaffold Installer Component 139
-- [ ] Task 140 — Scaffold Installer Component 140
-- [ ] Task 141 — Scaffold Installer Component 141
-- [ ] Task 142 — Scaffold Installer Component 142
-- [ ] Task 143 — Scaffold Installer Component 143
-- [ ] Task 144 — Scaffold Installer Component 144
-- [ ] Task 145 — Scaffold Installer Component 145
-- [ ] Task 146 — Scaffold Installer Component 146
-- [ ] Task 147 — Scaffold Installer Component 147
-- [ ] Task 148 — Scaffold Installer Component 148
-- [ ] Task 149 — Scaffold Installer Component 149
-- [ ] Task 150 — Scaffold Installer Component 150
-- [ ] Task 151 — Scaffold Installer Component 151
-- [ ] Task 152 — Scaffold Installer Component 152
-- [ ] Task 153 — Scaffold Installer Component 153
-- [ ] Task 154 — Scaffold Installer Component 154
-- [ ] Task 155 — Scaffold Installer Component 155
-- [ ] Task 156 — Scaffold Installer Component 156
-- [ ] Task 157 — Scaffold Installer Component 157
-- [ ] Task 158 — Scaffold Installer Component 158
-- [ ] Task 159 — Scaffold Installer Component 159
-- [ ] Task 160 — Scaffold Installer Component 160
-- [ ] Task 161 — Scaffold Installer Component 161
-- [ ] Task 162 — Scaffold Installer Component 162
-- [ ] Task 163 — Scaffold Installer Component 163
-- [ ] Task 164 — Scaffold Installer Component 164
-- [ ] Task 165 — Scaffold Installer Component 165
-- [ ] Task 166 — Scaffold Installer Component 166
-- [ ] Task 167 — Scaffold Installer Component 167
-- [ ] Task 168 — Scaffold Installer Component 168
-- [ ] Task 169 — Scaffold Installer Component 169
-- [ ] Task 170 — Scaffold Installer Component 170
-- [ ] Task 171 — Scaffold Installer Component 171
-- [ ] Task 172 — Scaffold Installer Component 172
-- [ ] Task 173 — Scaffold Installer Component 173
-- [ ] Task 174 — Scaffold Installer Component 174
-- [ ] Task 175 — Scaffold Installer Component 175
-- [ ] Task 176 — Scaffold Installer Component 176
-- [ ] Task 177 — Scaffold Installer Component 177
-- [ ] Task 178 — Scaffold Installer Component 178
-- [ ] Task 179 — Scaffold Installer Component 179
-- [ ] Task 180 — Scaffold Installer Component 180
-- [ ] Task 181 — Scaffold Installer Component 181
-- [ ] Task 182 — Scaffold Installer Component 182
-- [ ] Task 183 — Scaffold Installer Component 183
-- [ ] Task 184 — Scaffold Installer Component 184
-- [ ] Task 185 — Scaffold Installer Component 185
-- [ ] Task 186 — Scaffold Installer Component 186
-- [ ] Task 187 — Scaffold Installer Component 187
-- [ ] Task 188 — Scaffold Installer Component 188
-- [ ] Task 189 — Scaffold Installer Component 189
-- [ ] Task 190 — Scaffold Installer Component 190
-- [ ] Task 191 — Scaffold Installer Component 191
-- [ ] Task 192 — Scaffold Installer Component 192
-- [ ] Task 193 — Scaffold Installer Component 193
-- [ ] Task 194 — Scaffold Installer Component 194
-- [ ] Task 195 — Scaffold Installer Component 195
-- [ ] Task 196 — Scaffold Installer Component 196
-- [ ] Task 197 — Scaffold Installer Component 197
-- [ ] Task 198 — Scaffold Installer Component 198
-- [ ] Task 199 — Scaffold Installer Component 199
-- [ ] Task 200 — Scaffold Installer Component 200
-- [ ] Task 201 — Scaffold Installer Component 201
-- [ ] Task 202 — Scaffold Installer Component 202
-- [ ] Task 203 — Scaffold Installer Component 203
-- [ ] Task 204 — Scaffold Installer Component 204
-- [ ] Task 205 — Scaffold Installer Component 205
-- [ ] Task 206 — Scaffold Installer Component 206
-- [ ] Task 207 — Scaffold Installer Component 207
-- [ ] Task 208 — Scaffold Installer Component 208
-- [ ] Task 209 — Scaffold Installer Component 209
-- [ ] Task 210 — Scaffold Installer Component 210
-- [ ] Task 211 — Scaffold Installer Component 211
-- [ ] Task 212 — Scaffold Installer Component 212
-- [ ] Task 213 — Scaffold Installer Component 213
-- [ ] Task 214 — Scaffold Installer Component 214
-- [ ] Task 215 — Scaffold Installer Component 215
-- [ ] Task 216 — Scaffold Installer Component 216
-- [ ] Task 217 — Scaffold Installer Component 217
-- [ ] Task 218 — Scaffold Installer Component 218
-- [ ] Task 219 — Scaffold Installer Component 219
-- [ ] Task 220 — Scaffold Installer Component 220
-- [ ] Task 221 — Scaffold Installer Component 221
-- [ ] Task 222 — Scaffold Installer Component 222
-- [ ] Task 223 — Scaffold Installer Component 223
-- [ ] Task 224 — Scaffold Installer Component 224
-- [ ] Task 225 — Scaffold Installer Component 225
-- [ ] Task 226 — Scaffold Installer Component 226
-- [ ] Task 227 — Scaffold Installer Component 227
-- [ ] Task 228 — Scaffold Installer Component 228
-- [ ] Task 229 — Scaffold Installer Component 229
-- [ ] Task 230 — Scaffold Installer Component 230
-- [ ] Task 231 — Scaffold Installer Component 231
-- [ ] Task 232 — Scaffold Installer Component 232
-- [ ] Task 233 — Scaffold Installer Component 233
-- [ ] Task 234 — Scaffold Installer Component 234
-- [ ] Task 235 — Scaffold Installer Component 235
-- [ ] Task 236 — Scaffold Installer Component 236
-- [ ] Task 237 — Scaffold Installer Component 237
-- [ ] Task 238 — Scaffold Installer Component 238
-- [ ] Task 239 — Scaffold Installer Component 239
-- [ ] Task 240 — Scaffold Installer Component 240
-- [ ] Task 241 — Scaffold Installer Component 241
-- [ ] Task 242 — Scaffold Installer Component 242
-- [ ] Task 243 — Scaffold Installer Component 243
-- [ ] Task 244 — Scaffold Installer Component 244
-- [ ] Task 245 — Scaffold Installer Component 245
-- [ ] Task 246 — Scaffold Installer Component 246
-- [ ] Task 247 — Scaffold Installer Component 247
-- [ ] Task 248 — Scaffold Installer Component 248
-- [ ] Task 249 — Scaffold Installer Component 249
-- [ ] Task 250 — Scaffold Installer Component 250
-- [ ] Task 251 — Scaffold Installer Component 251
-- [ ] Task 252 — Scaffold Installer Component 252
-- [ ] Task 253 — Scaffold Installer Component 253
-- [ ] Task 254 — Scaffold Installer Component 254
-- [ ] Task 255 — Scaffold Installer Component 255
-- [ ] Task 256 — Scaffold Installer Component 256
-- [ ] Task 257 — Scaffold Installer Component 257
-- [ ] Task 258 — Scaffold Installer Component 258
-- [ ] Task 259 — Scaffold Installer Component 259
-- [ ] Task 260 — Scaffold Installer Component 260
-- [ ] Task 261 — Scaffold Installer Component 261
-- [ ] Task 262 — Scaffold Installer Component 262
-- [ ] Task 263 — Scaffold Installer Component 263
-- [ ] Task 264 — Scaffold Installer Component 264
-- [ ] Task 265 — Scaffold Installer Component 265
-- [ ] Task 266 — Scaffold Installer Component 266
-- [ ] Task 267 — Scaffold Installer Component 267
-- [ ] Task 268 — Scaffold Installer Component 268
-- [ ] Task 269 — Scaffold Installer Component 269
-- [ ] Task 270 — Scaffold Installer Component 270
-- [ ] Task 271 — Scaffold Installer Component 271
-- [ ] Task 272 — Scaffold Installer Component 272
-- [ ] Task 273 — Scaffold Installer Component 273
-- [ ] Task 274 — Scaffold Installer Component 274
-- [ ] Task 275 — Scaffold Installer Component 275
-- [ ] Task 276 — Scaffold Installer Component 276
-- [ ] Task 277 — Scaffold Installer Component 277
-- [ ] Task 278 — Scaffold Installer Component 278
-- [ ] Task 279 — Scaffold Installer Component 279
-- [ ] Task 280 — Scaffold Installer Component 280
-- [ ] Task 281 — Scaffold Installer Component 281
-- [ ] Task 282 — Scaffold Installer Component 282
-- [ ] Task 283 — Scaffold Installer Component 283
-- [ ] Task 284 — Scaffold Installer Component 284
-- [ ] Task 285 — Scaffold Installer Component 285
-- [ ] Task 286 — Scaffold Installer Component 286
-- [ ] Task 287 — Scaffold Installer Component 287
-- [ ] Task 288 — Scaffold Installer Component 288
-- [ ] Task 289 — Scaffold Installer Component 289
-- [ ] Task 290 — Scaffold Installer Component 290
-- [ ] Task 291 — Scaffold Installer Component 291
-- [ ] Task 292 — Scaffold Installer Component 292
-- [ ] Task 293 — Scaffold Installer Component 293
-- [ ] Task 294 — Scaffold Installer Component 294
-- [ ] Task 295 — Scaffold Installer Component 295
-- [ ] Task 296 — Scaffold Installer Component 296
-- [ ] Task 297 — Scaffold Installer Component 297
-- [ ] Task 298 — Scaffold Installer Component 298
-- [ ] Task 299 — Scaffold Installer Component 299
-- [ ] Task 300 — Scaffold Installer Component 300
+- [ ] Task 001 — Define Installer Models
+- [ ] Task 002 — Add SQLite Migrations for Installers
+- [ ] Task 003 — Store CreateInstaller
+- [ ] Task 004 — Store GetInstallerBySlug
+- [ ] Task 005 — Store SaveVersion
+- [ ] Task 006 — Store ListInstallers
+- [ ] Task 007 — Store ResetInstallers
+- [ ] Task 008 — Store DeleteInstaller
+- [ ] Task 009 — Root Installer Command
+- [ ] Task 010 — Installer Create Command
+- [ ] Task 011 — Installer Update Command
+- [ ] Task 012 — Installer Update Win Command
+- [ ] Task 013 — Installer Install Win Command
+- [ ] Task 014 — Installer Export Commands
+- [ ] Task 015 — Installer Import Command
+- [ ] Task 016 — Installer Reset Command
+- [ ] Task 017 — Installer Revert Commands
+- [ ] Task 018 — Installer List Command
+- [ ] Task 019 — Path Normalization Utilities
+- [ ] Task 020 — OS Targets Constants
+- [ ] Task 021 — Manager Struct
+- [ ] Task 022 — Manager Create Logic
+- [ ] Task 023 — Manager Update Logic
+- [ ] Task 024 — Semantic Versioning Helper
+- [ ] Task 025 — Manager Undo Logic
+- [ ] Task 026 — Manager Redo Logic
+- [ ] Task 027 — Manager Exact Revert Logic
+- [ ] Task 028 — Export Single ZIP
+- [ ] Task 029 — Export All Installers
+- [ ] Task 030 — Export Global State
+- [ ] Task 031 — Import ZIP Dispatcher
+- [ ] Task 032 — Import JSON Content
+- [ ] Task 033 — Import Global State
+- [ ] Task 034 — Import Conflict Resolver
+- [ ] Task 035 — Installer Execution Dispatch
+- [ ] Task 036 — Instruction Parser
+- [ ] Task 037 — OS Command Runner
+- [ ] Task 038 — Format Installer Table
+- [ ] Task 039 — Detailed Help Printer
+- [ ] Task 040 — Composer Example Printer

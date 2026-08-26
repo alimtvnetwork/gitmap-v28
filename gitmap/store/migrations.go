@@ -13,9 +13,12 @@
 package store
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // MigrationReport summarizes a single Migrate() run for `gitmap db-migrate`.
@@ -99,3 +102,113 @@ func isBenignAlterError(err error) bool {
 
 	return false
 }
+
+// SQLCreateInstallerScripts creates the installer_scripts table.
+const SQLCreateInstallerScripts = `CREATE TABLE IF NOT EXISTS installer_scripts (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	slug TEXT NOT NULL UNIQUE,
+	description TEXT DEFAULT '',
+	target_os TEXT DEFAULT '',
+	version TEXT DEFAULT '',
+	instructions TEXT DEFAULT '',
+	created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+	updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);`
+
+// SQLCreateInstallerVersions creates the installer_versions table.
+const SQLCreateInstallerVersions = `CREATE TABLE IF NOT EXISTS installer_versions (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	script_id INTEGER NOT NULL DEFAULT 0,
+	slug TEXT NOT NULL,
+	version TEXT NOT NULL,
+	target_os TEXT NOT NULL DEFAULT '',
+	instructions TEXT NOT NULL DEFAULT '',
+	created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);`
+
+// SQLCreateInstallerVersionsIndex creates the index on installer_versions(slug).
+const SQLCreateInstallerVersionsIndex = `CREATE INDEX IF NOT EXISTS idx_installer_versions_slug ON installer_versions(slug);`
+
+// SQLCreateInstallerVersionsScriptIDIndex creates the index on installer_versions(script_id).
+const SQLCreateInstallerVersionsScriptIDIndex = `CREATE INDEX IF NOT EXISTS idx_installer_versions_script_id ON installer_versions(script_id);`
+
+// RegisterInstallerScriptsMigration creates the installer_scripts table if it does not exist.
+func RegisterInstallerScriptsMigration(dbConn *sql.DB, migrationVersion int, isForce bool) error {
+	if _, errExec := dbConn.Exec(SQLCreateInstallerScripts); errExec != nil {
+		migrationErr := apperror.Wrap(errExec, "RegisterInstallerScriptsMigration", map[string]any{
+			"table":   "installer_scripts",
+			"version": migrationVersion,
+			"force":   isForce,
+		})
+		migrationErr.Code = "E_INSTALLER_SCRIPTS_MIGRATION_FAILED"
+
+		return migrationErr
+	}
+
+	return nil
+}
+
+// RegisterInstallerVersionsMigration creates the installer_versions table and its index if they do not exist.
+func RegisterInstallerVersionsMigration(dbConn *sql.DB, migrationVersion int, isForce bool) error {
+	if _, errExec := dbConn.Exec(SQLCreateInstallerVersions); errExec != nil {
+		migrationErr := apperror.Wrap(errExec, "RegisterInstallerVersionsMigration", map[string]any{
+			"table":   "installer_versions",
+			"version": migrationVersion,
+			"force":   isForce,
+		})
+		migrationErr.Code = "E_INSTALLER_VERSIONS_MIGRATION_FAILED"
+
+		return migrationErr
+	}
+
+	if _, errIdx := dbConn.Exec(SQLCreateInstallerVersionsIndex); errIdx != nil {
+		indexErr := apperror.Wrap(errIdx, "RegisterInstallerVersionsMigration", map[string]any{
+			"table":   "installer_versions",
+			"index":   "idx_installer_versions_slug",
+			"version": migrationVersion,
+			"force":   isForce,
+		})
+		indexErr.Code = "E_INSTALLER_VERSIONS_MIGRATION_FAILED"
+
+		return indexErr
+	}
+
+	if _, errIdx := dbConn.Exec(SQLCreateInstallerVersionsScriptIDIndex); errIdx != nil {
+		indexErr := apperror.Wrap(errIdx, "RegisterInstallerVersionsMigration", map[string]any{
+			"table":   "installer_versions",
+			"index":   "idx_installer_versions_script_id",
+			"version": migrationVersion,
+			"force":   isForce,
+		})
+		indexErr.Code = "E_INSTALLER_VERSIONS_MIGRATION_FAILED"
+
+		return indexErr
+	}
+
+	return nil
+}
+
+// RegisterInstallerMigration creates installer_scripts and installer_versions tables if they do not exist.
+func RegisterInstallerMigration(dbConn *sql.DB, migrationVersion int, isForce bool) error {
+	if errScripts := RegisterInstallerScriptsMigration(dbConn, migrationVersion, isForce); errScripts != nil {
+		return errScripts
+	}
+
+	if errVersions := RegisterInstallerVersionsMigration(dbConn, migrationVersion, isForce); errVersions != nil {
+		return errVersions
+	}
+
+	return nil
+}
+
+// RegisterInstallerMigrations applies all installer-related migrations.
+func RegisterInstallerMigrations(dbConn *sql.DB, migrationVersion int, isForce bool) error {
+	return RegisterInstallerMigration(dbConn, migrationVersion, isForce)
+}
+
+// MigrateInstallers creates the installer_scripts and installer_versions tables on the DB.
+func (dbInstance *DB) MigrateInstallers() error {
+	return RegisterInstallerMigration(dbInstance.conn, 1, false)
+}
+

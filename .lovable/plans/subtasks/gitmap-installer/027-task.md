@@ -1,66 +1,64 @@
 ---
 plan: .lovable/plans/pending/02-gitmap-installer.md
-domain: Cli
+domain: Plugin
 phase: Implement
-target_files: ["gitmap/cmd/install_comp_027.go", "gitmap/cmd/install_comp_027_test.go"]
+target_files: ["gitmap/installer/revert_exact.go", "gitmap/installer/revert_exact_test.go"]
 depends_on: ["Task 026"]
 citations:
-  app_spec: "spec/commands/01-gitmap-installer.md §Command Specifications"
+  app_spec: ".lovable/spec/commands/01-gitmap-installer.md §Core Requirements"
   canonical_size: "spec/02-coding-guidelines/00-canonical-size-tier.md"
   language_guideline: "spec/02-coding-guidelines/03-golang/00-overview.md"
-  boolean_styling: "n/a - no boolean parsing"
+  boolean_styling: "spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md"
   folder_naming: "spec/02-coding-guidelines/08-file-folder-naming/03-golang.md"
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   error_codes: "spec/21-app/07-error-and-logging/01-error-code-allocation.md"
   logging_traces: "spec/21-app/07-error-and-logging/02-logging-and-stack-traces.md"
   response_envelope: "spec/21-app/07-error-and-logging/03-response-envelope.md"
-  golden_fixture: "n/a - no fixtures needed"
+  golden_fixture: "n/a — no wire format in this step"
   strictly_avoid: ".lovable/strictly-avoid.md"
-  database: "n/a - no DB yet"
-  ui_surface: "n/a"
-  tests: "unit TestInstallComp027"
+  database: "spec/04-database-conventions/01-sqlite-schema.md"
+  ui_surface: "n/a — no direct UI in this step"
+  tests: "unit TestManagerRevertExact"
   ci_cd_guard: "linter-scripts/check-go-build"
-  ambiguity: "n/a"
-  issue_rca: "n/a"
+  ambiguity: "n/a — no ambiguity filed"
+  issue_rca: "n/a — not a bugfix"
 ---
-# Task 027 — Scaffold Installer Component 027
+# Task 027 — Manager Exact Revert Logic
 
 ## 1. Learn
-- Read `spec/commands/01-gitmap-installer.md` to understand the goal.
-- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` for sizing rules.
-- Read `spec/03-error-manage/02-error-architecture/00-overview.md` for `apperror` usage.
+- Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for (m *Manager) RevertTo(slug, version).
+- Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/installer/revert_exact.go` remains concisely sized.
+- Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
+- Inspect `gitmap/installer/revert_exact.go` dependencies to see how (m *Manager) RevertTo(slug, version) interacts with its callers.
 
 ## 2. Goal
-Implement `InstallComp027` which processes a subset of the installer specifications logic. This task will scaffold the unit, add the interface and strict typing for installer commands, and ensure it builds correctly.
+The objective is to implement `(m *Manager) RevertTo(slug, version)` natively in `gitmap/installer/revert_exact.go`. This explicitly unblocks downstream operations dependent on `Manager Exact Revert Logic` in the Plugin domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
-Input: `Input027` struct
-Output: `Output027` struct
-Error: standard `apperror.Result` envelope.
-Data Uniqueness: `b3bd89670f16` (for testing).
+- Exported Symbols: `(m *Manager) RevertTo(slug, version)`
+- Package: `installer`
+- Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
-1. Create `gitmap/cmd/install_comp_027.go`.
-2. Define `type Input027 struct { Data string }` and `type Output027 struct { Result string }`.
-3. Define `func HandleInstallComp027(in Input027) (Output027, error)`.
-4. Create `gitmap/cmd/install_comp_027_test.go`.
-5. Write unit test `TestInstallComp027` covering success and failure.
+1. Open `gitmap/installer/revert_exact.go`.
+2. Implement the required structure, type, or function for `(m *Manager) RevertTo(slug, version)`.
+3. Write unit tests for success and failure boundaries in `gitmap/installer/revert_exact_test.go`.
+4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
-- Functions under 50 lines (canonical size).
-- Errors wrapped in `apperror`.
-- No negatives in booleans.
+- Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
+- Error wrapping must include stack traces.
 
 ## 6. Verify
 ```bash
-go test ./cmd/... -run TestInstallComp027
+go test ./installer -run TestManagerRevertExact
 ```
-Expected output: `PASS` and `ok`.
+Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
-- [ ] `HandleInstallComp027` exists and passes unit tests.
-- [ ] No magic strings used outside test constants.
-- [ ] Function is correctly typed.
+- [ ] `(m *Manager) RevertTo(slug, version)` is successfully mapped and tested in `gitmap/installer/revert_exact.go`.
+- [ ] All CI and `go test` commands exit zero.
+- [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
 None.
