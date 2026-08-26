@@ -14,11 +14,12 @@ import (
 var cgCommand = "cg"
 
 type cgOptions struct {
-	All     bool
-	DryRun  bool
-	Exclude string
-	Repos   []string
-	Action  string
+	All          bool
+	DryRun       bool
+	Exclude      string
+	VersionValue string
+	Repos        []string
+	Action       string
 }
 
 func parseCGFlags(args []string) cgOptions {
@@ -28,11 +29,13 @@ func parseCGFlags(args []string) cgOptions {
 	fs.BoolVar(&opts.DryRun, "dry-run", false, "Simulate execution without modifying files")
 	fs.StringVar(&opts.Exclude, "except", "", "Exclude repos (comma separated)")
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude repos (comma separated)")
+	fs.StringVar(&opts.VersionValue, "version", "", "Starting version value for version.json (default: 1.0.0)")
+	fs.StringVar(&opts.VersionValue, "version-value", "", "Starting version value for version.json (default: 1.0.0)")
 	fs.Parse(reorderFlagsBeforeArgs(args))
 
 	argsAfterParse := fs.Args()
 	if len(argsAfterParse) == 0 {
-		fmt.Fprintf(os.Stderr, "Usage: gitmap cg [version|status|install|update|install-prompts|update-prompts|prompts-status|prompts-version] [repo1 repo2...] [--all]\n")
+		fmt.Fprintf(os.Stderr, "Usage: gitmap cg [version|status|install|update|install-version-json|install-prompts|update-prompts|prompts-status|prompts-version] [repo1 repo2...] [--all]\n")
 		os.Exit(1)
 	}
 
@@ -70,6 +73,8 @@ func runCG(args []string) {
 		PrintCGVersion(repos)
 	case "status", "stat", "ls":
 		PrintCGStatus(repos)
+	case "install-version-json", "install-version", "init-version", "version-init":
+		runCGInstallVersionJSON(repos, opts.VersionValue, opts.DryRun)
 	case "install-prompts", "install-prompt", "prompts-install":
 		runCGInstallPrompts(repos, opts.DryRun)
 	case "update-prompts", "update-prompt", "prompts-update":
