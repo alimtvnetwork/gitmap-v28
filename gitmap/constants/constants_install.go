@@ -51,6 +51,7 @@ const (
 	ToolScriptsFixer     = "scripts-fixer"
 	ToolCodingGuidelines = "coding-guidelines"
 	ToolMacroAhk         = "macro-ahk"
+	ToolAgManager        = "ag-manager"
 )
 
 // Supported tool names — Databases.
@@ -371,6 +372,7 @@ var InstallToolDescriptions = map[string]string{
 	ToolScriptsFixer:     "Install Scripts Fixer tool",
 	ToolCodingGuidelines: "Install Coding Guidelines per repo",
 	ToolMacroAhk:         "Install Macro AHK scripts",
+	ToolAgManager:        "Install Antigravity Manager GUI",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -384,7 +386,7 @@ var InstallToolCategories = map[string][]string{
 		ToolNpp, ToolNppSettings, ToolNppInstall,
 		ToolVSCodeSync, ToolOBSSync, ToolWTSync,
 		ToolScripts, ToolGitmapOneliner, ToolAllDevTools,
-		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk,
+		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk, ToolAgManager,
 	},
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,

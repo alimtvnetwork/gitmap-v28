@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.24.0] - 2026-08-27
+
+### Added
+- Integrated Antigravity Manager installation logic directly into `gitmap install ag-manager` (and `ag-m`).
+- Added smart GitHub release resolution to automatically fetch the latest `lbjlaq/Antigravity-Manager` release, detect the target OS/Architecture, download the appropriate binary (`.exe`, `.msi`, `.dmg`, `.deb`, `.AppImage`), and execute the installer seamlessly.
+
 ## [v6.23.0] - 2026-08-27
 
 ### Changed

@@ -64,6 +64,9 @@ func validateToolName(tool string) {
 	if isCleanCodeAlias(tool) {
 		return
 	}
+	if tool == "ag-m" {
+		return
+	}
 	if _, exists := constants.InstallToolDescriptions[tool]; exists {
 		return
 	}
@@ -73,6 +76,7 @@ func validateToolName(tool string) {
 
 // executeInstall runs the install flow for a tool.
 func executeInstall(opts installOptions) {
+	if opts.Tool == "ag-m" { opts.Tool = constants.ToolAgManager }
 	if handler := specialInstallHandler(opts.Tool); handler != nil {
 		handler(opts)
 		return
@@ -100,6 +104,7 @@ func specialToolHandler(tool string) func(installOptions) {
 		constants.ToolScriptsFixer:     func(installOptions) { runInstallCustomTool("scripts-fixer") },
 		constants.ToolCodingGuidelines: func(installOptions) { runInstallCustomTool("coding-guidelines") },
 		constants.ToolMacroAhk:         func(installOptions) { runInstallCustomTool("macro-ahk") },
+		constants.ToolAgManager:        func(installOptions) { runInstallAgManager() },
 	}[tool]
 }
 
