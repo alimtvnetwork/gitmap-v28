@@ -1,7 +1,7 @@
 # Plans Index
 
 ## Pending Plans
-- [ ] [03-installer-multios-cluster.md](file:///d:/work/gitmap/.lovable/plans/pending/03-installer-multios-cluster.md)
+*None — All pending plans completed.*
 
 ## Completed Plans
 - [x] [00-execution-plan.md](file:///d:/work/gitmap/.lovable/plans/completed/00-execution-plan.md)
@@ -15,6 +15,7 @@
 - [x] [02-gitmap-installer.md](file:///d:/work/gitmap/.lovable/plans/completed/02-gitmap-installer.md)
 - [x] [02-ssh-aware-clone.md](file:///d:/work/gitmap/.lovable/plans/completed/02-ssh-aware-clone.md)
 - [x] [03-cg-and-macro-installer.md](file:///d:/work/gitmap/.lovable/plans/completed/03-cg-and-macro-installer.md)
+- [x] [03-installer-multios-cluster.md](file:///d:/work/gitmap/.lovable/plans/completed/03-installer-multios-cluster.md)
 - [x] [03-reclone-transport-and-vscode-open.md](file:///d:/work/gitmap/.lovable/plans/completed/03-reclone-transport-and-vscode-open.md)
 - [x] [04-cfr-cg-os-aware-coding-guidelines.md](file:///d:/work/gitmap/.lovable/plans/completed/04-cfr-cg-os-aware-coding-guidelines.md)
 - [x] [05-gitmap-improvements.md](file:///d:/work/gitmap/.lovable/plans/completed/05-gitmap-improvements.md)
