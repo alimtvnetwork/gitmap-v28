@@ -33,6 +33,7 @@ func runSetup(args []string) {
 	installCDFunction(dryRun)
 	installPathSnippet(dryRun)
 	ensureGitignoreStep(dryRun)
+	ensureZshUbuntuStep(dryRun)
 	verifyShellWrapper(dryRun)
 	printSetupSummary(result)
 }

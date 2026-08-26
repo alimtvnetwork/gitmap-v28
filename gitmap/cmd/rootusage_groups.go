@@ -18,6 +18,7 @@ func printGroupCloning() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupCloning))
 	fmt.Println(constants.HelpClone)
+	fmt.Println(constants.HelpCloneSync)
 	fmt.Println(constants.HelpCloneNext)
 	fmt.Println(constants.HelpDesktopSync)
 	fmt.Println(constants.HelpGitHubDesktop)
@@ -82,6 +83,14 @@ func printGroupData() {
 	fmt.Println(constants.HelpDBReset)
 }
 
+func printGroupImportExport() {
+	fmt.Println()
+	fmt.Println(colorGroupHeader(constants.HelpGroupImportExport))
+	fmt.Println(constants.HelpImportExport)
+	fmt.Println(constants.HelpExportSummary)
+	fmt.Println(constants.HelpImportSummary)
+}
+
 func printGroupHistory() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupHistory))
@@ -112,6 +121,7 @@ func printGroupSSH() {
 	fmt.Println()
 	fmt.Println(colorGroupHeader(constants.HelpGroupSSH))
 	fmt.Println(constants.HelpSSH)
+	fmt.Println(constants.HelpSSHJoin)
 }
 
 func printGroupZip() {
@@ -126,6 +136,8 @@ func printGroupEnvTools() {
 	fmt.Println(constants.HelpEnv)
 	fmt.Println(constants.HelpInstall)
 	fmt.Println(constants.HelpUninstall)
+	fmt.Println(constants.HelpInstaller)
+	fmt.Println(constants.HelpCodingGuideline)
 }
 
 func printGroupTasks() {

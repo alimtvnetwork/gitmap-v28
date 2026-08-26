@@ -1,0 +1,34 @@
+package cmd
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/workspacesync"
+)
+
+func runCloneSync() {
+	args := argsTail()
+	if len(args) == 0 {
+		fmt.Println("Usage: gitmap clone-sync <url1> [url2] ...")
+		os.Exit(1)
+	}
+
+	for _, arg := range args {
+		// Use internal direct clone one which handles retry, db upsert, etc
+		err := executeDirectCloneOne(arg, "", false, false)
+		if err != nil {
+			continue
+		}
+
+		name := extractRepoNameFromURL(arg)
+		// Assuming we just clone into current directory for now
+		absPath := resolveCloneFolder(name, "")
+
+		workspacesync.SyncAll(absPath, name)
+	}
+}
+
+func extractRepoNameFromURL(u string) string {
+	return repoNameFromURL(u)
+}

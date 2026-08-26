@@ -132,6 +132,8 @@ const (
 
 	SQLSelectRepoByPath = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE AbsolutePath = ?"
 
+	SQLSuggestRepoBySlug = "SELECT Slug FROM Repo WHERE Slug LIKE ? ORDER BY Slug ASC LIMIT 10"
+
 	SQLDeleteRepoByPath = "DELETE FROM Repo WHERE AbsolutePath = ?"
 	SQLDeleteRepoBySlug = "DELETE FROM Repo WHERE Slug = ?"
 )

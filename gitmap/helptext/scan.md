@@ -20,6 +20,7 @@ s
 | --output-path \<dir\> | ./.gitmap/output | Output directory |
 | --manifest \<dir\> | (alias) | Alias for `--output-path`; mirrors `gitmap reclone --manifest` so the scan→reclone round-trip uses one vocabulary. Honored only when `--output-path` is empty |
 | --github-desktop | false | Add repos to GitHub Desktop |
+| --fix | false | Run database reconciliation (removes stale repo entries and adds missing ones from the cache) |
 | --open | false | Open output folder after scan |
 | --quiet | false | Suppress clone help section |
 | --no-vscode-sync | false | Skip syncing into VS Code Project Manager projects.json |
@@ -282,3 +283,4 @@ gitmap help --json --filter scan
 ```
 
 The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+

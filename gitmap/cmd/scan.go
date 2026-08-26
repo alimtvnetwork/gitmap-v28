@@ -21,7 +21,7 @@ import (
 // runScan handles the "scan" subcommand.
 func runScan(args []string) {
 	checkHelp("scan", args)
-	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, workers, maxDepth, probeOpts := parseScanFlags(args)
+	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
 	cfg, err := config.LoadFromFile(cfgPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrConfigLoad, cfgPath, err)
@@ -33,7 +33,7 @@ func runScan(args []string) {
 		OutFile: outFile, OutputPath: outputPath,
 		IsGithubDesktop: ghDesktop, IsOpenFolder: openFolder, IsQuiet: quiet,
 	}
-	executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
+	executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
 }
 
 // executeScan performs the directory scan and outputs results.
@@ -43,7 +43,7 @@ func runScan(args []string) {
 // stage. This is the file users should attach when reporting "scan is
 // slow" — it pinpoints which phase (walk, DB upsert, project detection,
 // release import, desktop sync, …) actually consumed the time.
-func executeScan(dir string, cfg model.Config, outFile string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact bool, workers, maxDepth int, cache model.ScanCache, probeOpts ScanProbeOptions, relativeRoot, defaultBranch string) {
+func executeScan(dir string, cfg model.Config, outFile string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix bool, workers, maxDepth int, cache model.ScanCache, probeOpts ScanProbeOptions, relativeRoot, defaultBranch string) {
 	absDir := resolveScanTarget(dir)
 
 	bench := newScanBenchmark(absDir)
@@ -98,6 +98,11 @@ func executeScan(dir string, cfg model.Config, outFile string, ghDesktop, openFo
 		saveScanCache(outputDir, cache)
 	})
 	fmt.Print(constants.MsgSectionDatabase)
+	if fix {
+		bench.Phase("scan.reconcileDB", func() {
+			runReconcile(absDir, records)
+		})
+	}
 	bench.Phase("scan.dbUpsertRepos", func() {
 		upsertToDB(records, outputDir)
 	})

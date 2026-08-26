@@ -132,10 +132,13 @@ func newMoveFlagSet() (*flag.FlagSet, *movemergeFlagSet) {
 	return fs, mf
 }
 
-// mustResolve resolves an endpoint or exits with code 1 on failure.
 func mustResolve(raw string, isLeft bool, opts movemerge.Options) movemerge.Endpoint {
 	ep, err := movemerge.ResolveEndpoint(raw, isLeft, opts)
 	if err != nil {
+		if db, dbErr := openDB(); dbErr == nil {
+			PrintRepoSuggestions(db, raw)
+			db.Close()
+		}
 		cliexit.Fail(constants.CmdMv, constants.OpResolveEndpoint, raw, err, constants.ExitCodeError)
 	}
 

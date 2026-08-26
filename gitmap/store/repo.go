@@ -113,3 +113,22 @@ func scanOneRow(row interface{ Scan(dest ...any) error }) (model.ScanRecord, err
 
 	return r, err
 }
+
+// GetRepoSuggestions returns up to 10 repo slugs matching the partial string.
+func (db *DB) GetRepoSuggestions(partial string) ([]string, error) {
+	rows, err := QueryWrapper(db.conn, constants.SQLSuggestRepoBySlug, "%"+partial+"%").Destruct()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var matches []string
+	for rows.Next() {
+		var slug string
+		if err := rows.Scan(&slug); err != nil {
+			return nil, err
+		}
+		matches = append(matches, slug)
+	}
+	return matches, nil
+}

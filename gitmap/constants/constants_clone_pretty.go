@@ -8,7 +8,7 @@ const (
 	// MsgClonePrettyHeader prints before every git clone invocation.
 	// Format slots: url, dest, gitBin, gitClone, url, dest.
 	MsgClonePrettyHeader = "\n" +
-		"  " + ColorCyan + "▸ git clone" + ColorReset + "  " + ColorWhite + "%s" + ColorReset + "\n" +
+		"  %s▸ git clone" + ColorReset + "  " + ColorWhite + "%s" + ColorReset + "\n" +
 		"  " + ColorDim + "  target  " + ColorReset + "%s\n" +
 		"  " + ColorDim + "  exec    " + ColorReset + "%s %s %s %s\n"
 

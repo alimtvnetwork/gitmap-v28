@@ -9,6 +9,20 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
+// runImportExport provides a unified entry point for export and import commands.
+func runImportExport(args []string) {
+	hasArgs := len(args) > 0
+	if hasArgs && (args[0] == "import" || args[0] == "im") {
+		runImport(args[1:])
+		return
+	}
+	if hasArgs && (args[0] == "export" || args[0] == "ex") {
+		runExport(args[1:])
+		return
+	}
+	runExport(args)
+}
+
 // runExport handles the "export" subcommand.
 func runExport(args []string) {
 	checkHelp("export", args)

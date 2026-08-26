@@ -46,3 +46,8 @@ func (db *DB) ListInstallers() ([]model.InstallerScript, error) {
 
 	return scripts, nil
 }
+
+// ListInstallHistory retrieves all installer script records for history listing.
+func (db *DB) ListInstallHistory() ([]model.InstallerScript, error) {
+	return db.ListInstallers()
+}

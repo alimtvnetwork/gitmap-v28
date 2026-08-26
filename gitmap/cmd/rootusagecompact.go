@@ -24,6 +24,7 @@ func compactGroups() []compactGroup {
 		{constants.HelpGroupRelease, constants.CompactRelease},
 		{constants.HelpGroupReleaseInfo, constants.CompactRelInfo},
 		{constants.HelpGroupData, constants.CompactData},
+		{constants.HelpGroupImportExport, constants.CompactImportExport},
 		{constants.HelpGroupHistory, constants.CompactHistory},
 		{constants.HelpGroupAmendGroup, constants.CompactAmend},
 		{constants.HelpGroupProject, constants.CompactProject},
@@ -70,6 +71,7 @@ func printCompactAll() {
 	fmt.Println()
 
 	for _, g := range compactGroups() {
+		fmt.Println()
 		fmt.Println(g.Header)
 		fmt.Println(g.Compact)
 	}
@@ -88,6 +90,7 @@ func printCompactFiltered(filter string) {
 			continue
 		}
 
+		fmt.Println()
 		fmt.Println(g.Header)
 		fmt.Println(g.Compact)
 		matched = true

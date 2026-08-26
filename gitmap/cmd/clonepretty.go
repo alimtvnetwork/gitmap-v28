@@ -94,9 +94,13 @@ func newCloneCommand(url, dest string) *exec.Cmd {
 // clone-class command. Matches the visual language already used by
 // the chrome-profile-copy and release pipelines.
 func printClonePrettyHeader(url, dest string) {
-	fmt.Printf(constants.MsgClonePrettyHeader, url, dest,
+	idx := atomic.AddUint64(&clonePrettyCounter, 1) - 1
+	pastelColor := constants.ColorCycle[idx%uint64(len(constants.ColorCycle))]
+	fmt.Printf(constants.MsgClonePrettyHeader, pastelColor, url, dest,
 		constants.GitBin, constants.GitClone, url, dest)
 }
+
+var clonePrettyCounter uint64
 
 // printClonePrettyFailure renders the red failure panel: exact
 // argv that ran, exit code (when available), and a list of concrete

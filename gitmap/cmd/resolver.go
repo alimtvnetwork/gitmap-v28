@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -76,4 +77,15 @@ func resolveBySlug(target string, all []model.ScanRecord) *model.ScanRecord {
 		}
 	}
 	return nil
+}
+
+// PrintRepoSuggestions queries the database for suggestions and prints them.
+func PrintRepoSuggestions(db *store.DB, target string) {
+	suggs, _ := db.GetRepoSuggestions(target)
+	if len(suggs) > 0 {
+		fmt.Fprintf(os.Stderr, "Did you mean:\n")
+		for _, s := range suggs {
+			fmt.Fprintf(os.Stderr, "  %s\n", s)
+		}
+	}
 }

@@ -45,21 +45,26 @@ func printUsageCoreCategories() {
 
 // printUsageReleaseAndProjectCategories prints the Release and Projects categories.
 func printUsageReleaseAndProjectCategories() {
-	printSuperCategory("RELEASE & HISTORY", func() {
-		printGroupRelease()
-		printGroupReleaseInfo()
-		printGroupHistory()
-		printGroupAmend()
-		printGroupCommitXfer()
-	})
-	printSuperCategory("PROJECTS & DATA", func() {
-		printGroupProject()
-		printGroupData()
-		printGroupChromeProfile()
-		printGroupZip()
-		printGroupTasks()
-		printGroupVisualize()
-	})
+	printSuperCategory("RELEASE & HISTORY", printUsageReleaseGroups)
+	printSuperCategory("PROJECTS & DATA", printUsageProjectsGroups)
+}
+
+func printUsageReleaseGroups() {
+	printGroupRelease()
+	printGroupReleaseInfo()
+	printGroupHistory()
+	printGroupAmend()
+	printGroupCommitXfer()
+}
+
+func printUsageProjectsGroups() {
+	printGroupProject()
+	printGroupData()
+	printGroupImportExport()
+	printGroupChromeProfile()
+	printGroupZip()
+	printGroupTasks()
+	printGroupVisualize()
 }
 
 // printUsageAdvancedCategories prints the Cluster and Advanced categories.

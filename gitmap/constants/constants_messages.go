@@ -139,7 +139,7 @@ const (
 	MsgUpdateStarting       = "\n  Updating gitmap from source repo...\n"
 	MsgUpdateRepoPath       = "  → Repo path: %s\n"
 	MsgUpdateVersionCompare = "\n  → Upgrading gitmap from v%s to v%s...\n"
-	MsgUpdateSummaryDetail  = "\n  ✓ Successfully updated from v%s to v%s\n  → Source: %s\n\n"
+	MsgUpdateSummaryDetail  = "\n  ✓ Successfully updated from v%s to v%s\n  → Source: %s\n"
 )
 
 // List and group messages.

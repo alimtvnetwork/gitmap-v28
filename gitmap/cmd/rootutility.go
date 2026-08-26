@@ -43,6 +43,7 @@ func utilityDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdSetSourceRepo}, func() { runSetSourceRepo() }},
 		{[]string{constants.CmdSf}, func() { runSf(argsTail()) }},
 		{[]string{constants.CmdProbe}, func() { runProbe(argsTail()) }},
+		{[]string{"vscode", "vsc"}, func() { runVSCode(argsTail()) }},
 		{[]string{constants.CmdFindNext, constants.CmdFindNextAlias}, func() { runFindNext(argsTail()) }},
 		{[]string{constants.CmdVSCodePMPath, constants.CmdVSCodePMPathAlias}, func() { runVSCodePMPath(argsTail()) }},
 		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() { runVSCodeWorkspace(argsTail()) }},

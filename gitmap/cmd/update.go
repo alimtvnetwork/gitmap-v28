@@ -11,6 +11,7 @@ import (
 	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
 )
 
@@ -211,7 +212,7 @@ func runUpdateRunner() {
 	executeUpdate(repoPath, report)
 	runPostUpdateMigrate()
 	report.summarize()
-	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, repoPath)
+	printUpdateSummary(currentVersion, targetVersion, repoPath)
 	scheduleDeployedCleanupHandoff()
 }
 
@@ -288,4 +289,33 @@ func readTargetVersion(repoPath string) string {
 		return "unknown"
 	}
 	return parsed.Version
+}
+
+// printUpdateSummary outputs the final update summary.
+func printUpdateSummary(oldVer, newVer, repoPath string) {
+	fmt.Printf(constants.MsgUpdateSummaryDetail, oldVer, newVer, repoPath)
+	fmt.Printf("  → Update: %s -> %s\n", oldVer, newVer)
+	printUpdateChangelog()
+	fmt.Printf("\n\n")
+}
+
+// printUpdateChangelog prints the last two notes from the changelog.
+func printUpdateChangelog() {
+	entries, err := release.ReadChangelog()
+	hasEntries := err == nil && len(entries) > 0
+	if hasEntries == false {
+		return
+	}
+
+	for _, note := range getLastTwoNotes(entries[0].Notes) {
+		fmt.Printf("    - %s\n", note)
+	}
+}
+
+func getLastTwoNotes(notes []string) []string {
+	count := len(notes)
+	if count > 2 {
+		return notes[count-2:]
+	}
+	return notes
 }

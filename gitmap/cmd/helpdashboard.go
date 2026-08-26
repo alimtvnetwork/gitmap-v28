@@ -125,9 +125,13 @@ func serveStatic(distDir string, port int) {
 	fmt.Printf(constants.MsgHDServingStatic, distDir, port)
 	openBrowser(port)
 
+	mux := http.NewServeMux()
+	mountTerminalHandlers(mux)
+	mux.Handle("/", spaHandler(distDir))
+
 	server := &http.Server{
 		Addr:              fmt.Sprintf(":%d", port),
-		Handler:           spaHandler(distDir),
+		Handler:           mux,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 

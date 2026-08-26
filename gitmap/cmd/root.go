@@ -191,6 +191,15 @@ func dispatch(command string) {
 		return
 	}
 
+	if command == "agy" {
+		if err := dispatchAgy(context.Background(), os.Args[1:], nil); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+		return
+	}
+
 	if command == "sj" || command == "ssh-join" || command == "ssh-joined" || command == "ssh-joiner" {
 		if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)

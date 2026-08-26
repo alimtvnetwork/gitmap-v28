@@ -18,7 +18,7 @@ func allHelpRows() []helpRow {
 	addGroup(&rows, constants.HelpGroupScanning,
 		constants.HelpScan, constants.HelpRescan, constants.HelpList)
 	addGroup(&rows, constants.HelpGroupCloning,
-		constants.HelpClone, constants.HelpCloneNext,
+		constants.HelpClone, constants.HelpCloneSync, constants.HelpCloneNext,
 		constants.HelpDesktopSync, constants.HelpGitHubDesktop)
 	addGroup(&rows, constants.HelpGroupGitOps,
 		constants.HelpPull, constants.HelpExec, constants.HelpStatus,
@@ -37,6 +37,8 @@ func allHelpRows() []helpRow {
 	addGroup(&rows, constants.HelpGroupData,
 		constants.HelpExport, constants.HelpImport, constants.HelpProfile,
 		constants.HelpBookmark, constants.HelpMV, constants.HelpRm, constants.HelpDBReset)
+	addGroup(&rows, constants.HelpGroupImportExport,
+		constants.HelpImportExport, constants.HelpExportSummary, constants.HelpImportSummary)
 	addGroup(&rows, constants.HelpGroupHistory,
 		constants.HelpHistory, constants.HelpHistoryReset,
 		constants.HelpVersionHistory, constants.HelpStats)

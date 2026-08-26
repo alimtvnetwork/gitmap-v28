@@ -22,7 +22,21 @@ const (
 	ColorMagenta = "\033[1;95m"            // bright bold magenta — release/version highlights
 	ColorBlue    = "\033[1;94m"            // bright bold blue — info banners
 	ColorOrange  = "\033[38;5;208m\033[1m" // 256-color bold orange — upload/transfer accents
+
+	// TrueColor Pastel Palette (Catppuccin Macchiato) for multi-item lists (clone-all, pull-all).
+	ColorPastelGreen   = "\033[38;2;166;227;161m"
+	ColorPastelCyan    = "\033[38;2;137;220;235m"
+	ColorPastelYellow  = "\033[38;2;249;226;175m"
+	ColorPastelMagenta = "\033[38;2;203;166;247m"
 )
+
+// ColorCycle provides a rotating array of pastel colors for lists.
+var ColorCycle = []string{
+	ColorPastelGreen,
+	ColorPastelCyan,
+	ColorPastelYellow,
+	ColorPastelMagenta,
+}
 
 // Status banner box-drawing.
 const (

@@ -106,6 +106,7 @@ func toolingInstallEntries() []dispatchEntry {
 
 func toolingUtilEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"schedule"}, func() { runSchedule(argsTail()) }},
 		{[]string{constants.CmdDownloaderConfig, constants.CmdDownloaderConfigAlias}, func() { runDownloaderConfig(argsTail()) }},
 		{[]string{constants.CmdUnzipCompact, constants.CmdUnzipCompactAlias}, func() { runUnzipCompact(argsTail()) }},
 		{[]string{constants.CmdZip}, func() { runZip(argsTail()) }},

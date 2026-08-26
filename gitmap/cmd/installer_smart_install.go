@@ -35,37 +35,54 @@ func detectCurrentHostOSTarget() string {
 	}
 }
 
-func executeSmartInstall(args []string) error {
+func validateInstallSlug(args []string) (string, error) {
 	if len(args) == 0 {
-		return apperror.New("executeSmartInstall", "E_INSTALLER_INVALID_INPUT", map[string]any{
+		return "", apperror.New("validateInstallSlug", "E_INSTALLER_INVALID_INPUT", map[string]any{
 			"error": "slug is required",
 		})
 	}
+	return strings.TrimSpace(args[0]), nil
+}
 
-	slug := strings.TrimSpace(args[0])
-	osTarget := detectCurrentHostOSTarget()
-
+func runSmartInstaller(slug, osTarget string) error {
 	db, errDB := store.OpenDefault()
 	if errDB != nil {
 		return errDB
 	}
 	defer db.Close()
-
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		return errMigrate
 	}
-
 	mgr, errMgr := installer.NewManager(db)
 	if errMgr != nil {
 		return errMgr
 	}
+	return mgr.ExecuteOrdered(context.Background(), slug, osTarget)
+}
 
-	ctx := context.Background()
-	if err := mgr.ExecuteOrdered(ctx, slug, osTarget); err != nil {
-		return err
-	}
+func hasProfilePrefix(slug string) bool {
+	return strings.HasPrefix(slug, "ubuntu+") || strings.HasPrefix(slug, "ubuntu-") || slug == "ub"
+}
 
+func renderSmartInstallSummary(slug, osTarget string) {
 	fmt.Printf("Installer \"%s\" auto-installed for %s successfully.\n", slug, osTarget)
+	if hasProfilePrefix(slug) {
+		printProfileInstallSummary(slug)
+		return
+	}
+	printInstallSummaryHeader(slug)
+}
+
+func executeSmartInstall(args []string) error {
+	slug, errValidate := validateInstallSlug(args)
+	if errValidate != nil {
+		return errValidate
+	}
+	osTarget := detectCurrentHostOSTarget()
+	if errRun := runSmartInstaller(slug, osTarget); errRun != nil {
+		return errRun
+	}
+	renderSmartInstallSummary(slug, osTarget)
 	return nil
 }
 

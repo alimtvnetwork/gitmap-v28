@@ -9,30 +9,43 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
 )
 
+// parseExecOptions parses runtime flags for macro execution.
+func parseExecOptions(flagArgs []string) macro.ExecOptions {
+	executionOptions := macro.ExecOptions{}
+	for _, argument := range flagArgs {
+		if argument == "--dry-run" {
+			executionOptions.DryRun = true
+		}
+		if argument == "--verbose" || argument == "-v" {
+			executionOptions.Verbose = true
+		}
+	}
+	return executionOptions
+}
+
+// executeMacroByName loads and executes the named macro.
+func executeMacroByName(macroName string, executionOptions macro.ExecOptions) {
+	loadedMacro, loadErr := macro.LoadMacro(macroName)
+	if loadErr != nil {
+		fmt.Fprintf(os.Stderr, "%s✖ Error: %v%s\n", constants.ColorRed, loadErr, constants.ColorReset)
+		os.Exit(1)
+	}
+	if len(loadedMacro.Steps) > 0 {
+		printMacroStepsTree(loadedMacro)
+	}
+	if execErr := macro.Execute(context.Background(), loadedMacro, executionOptions); execErr != nil {
+		os.Exit(1)
+	}
+}
+
 // runExecuteCmd executes a recorded macro by name.
 func runExecuteCmd(args []string) {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap execute <macro_name> [--dry-run] [--verbose]\n")
 		os.Exit(1)
 	}
-	name := args[0]
-	opts := macro.ExecOptions{}
-	for _, a := range args[1:] {
-		if a == "--dry-run" {
-			opts.DryRun = true
-		}
-		if a == "--verbose" || a == "-v" {
-			opts.Verbose = true
-		}
-	}
-	m, err := macro.LoadMacro(name)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s✖ Error: %v%s\n", constants.ColorRed, err, constants.ColorReset)
-		os.Exit(1)
-	}
-	if err := macro.Execute(context.Background(), m, opts); err != nil {
-		os.Exit(1)
-	}
+	executionOptions := parseExecOptions(args[1:])
+	executeMacroByName(args[0], executionOptions)
 }
 
 // runMacroCmd handles `gitmap macro` subcommands.

@@ -18,9 +18,9 @@ const (
 
 // TUI help text.
 const (
-	HelpInteractive      = "  interactive (i)     Launch interactive TUI with repo browser and batch actions"
+	HelpInteractive      = "  interactive (i)                          Launch interactive TUI with repo browser and batch actions"
 	HelpInteractiveFlags = "Interactive Flags:"
-	HelpRefresh          = "  --refresh <seconds>  Dashboard auto-refresh interval (default: config or 30s)"
+	HelpRefresh          = "  " + ColorCyan + "--refresh" + ColorReset + " <seconds>  Dashboard auto-refresh interval (default: config or 30s)"
 )
 
 // TUI view labels.

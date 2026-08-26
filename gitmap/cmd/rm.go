@@ -71,6 +71,7 @@ func runRm(args []string) {
 
 	for _, m := range finalMissing {
 		fmt.Fprintf(os.Stderr, "rm: no repo matched %q\n", m)
+		PrintRepoSuggestions(db, m)
 	}
 	if len(matches) == 0 {
 		os.Exit(1)

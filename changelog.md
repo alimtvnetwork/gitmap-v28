@@ -1,5 +1,50 @@
 # Changelog
 
+## [v6.115.0] - 2026-08-26
+
+### Added
+- Colorful UTF-8 tree-view output for installer profiles, macro steps, and scheduler tasks.
+- `installer ls --tree` expands full Ubuntu profile inheritance chains.
+- Macro step composition tree printed before `gitmap macro run` execution.
+- Scheduler task tree confirmation view before persisting.
+- Import/Export section added to `gitmap help`.
+- CLI help re-alignment with CYAN flag coloring and newline gaps before headers.
+- Cross-platform Scheduler CLI (`gitmap schedule`) backed by SQLite.
+- OS Startup Macro Hook integration (Windows Registry and Linux Autostart).
+- ZSH + Oh-My-Zsh installer for Ubuntu environments via `gitmap setup`.
+- Web UI terminal sessions with distinct UUID routing.
+- `gitmap agy` and `gitmap vscode` project management commands.
+- SQLite-backed partial-match repo suggestions for `rm` and `mv`.
+
+## [v6.114.0] - 2026-08-26
+
+### Added
+- UTF-8 box-drawing tree view for installer profiles (ubuntu-basic → ubuntu+dev hierarchy).
+- `installer ls --tree` flag expands full profile inheritance chains with CYAN/WHITE/DIM coloring.
+- Macro step composition tree printed before each `gitmap macro run` execution.
+- Scheduler task tree confirmation view before persisting to SQLite.
+- Import/Export section added to `gitmap help` output.
+
+## [v6.113.0] - 2026-08-26
+
+### Added
+- Re-aligned CLI help output with distinct colors for flags and added missing sections (SSH, SSH Join, Coding Guideline, Installer, Macro).
+- Cross-platform Scheduler CLI (`gitmap schedule`) supporting intervals and delays, backed by SQLite.
+- OS Startup Macro Hook integration (Windows Registry and Linux Autostart).
+- Native OS triggers for scheduled restart and shutdown commands.
+- Automated ZSH installer, Oh-My-Zsh setup, and Agnoster theme hook for Ubuntu.
+- Robust Web UI Terminal sync logic allowing multiple concurrent UUID terminal sessions.
+
+## [v6.112.0] - 2026-08-26
+
+### Added
+- UI Terminal Frontend inside `hd` with multi-OS high contrast themes and bottom padding.
+- Backend UI Terminal proxy with WebSocket and autocomplete capabilities.
+- SQLite-backed Suggestion Engine for partial-matching on `rm` and `mv` commands.
+- `gitmap agy` command suite for autonomous workspace configuration.
+- `gitmap vscode` command suite for Project Manager syncing.
+- Enhanced end-of-communication update summary output showing `vOLD -> vNEW`.
+
 ## [v6.111.0] 2026-08-26 Global gofmt Normalization, CI Lint Gating & RCA Resolution
 
 ### Install Prompt Architect v6.111.0

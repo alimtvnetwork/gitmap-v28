@@ -49,6 +49,7 @@ type scanFlagPointers struct {
 	noAutoTagsFlag    *bool
 	reportErrFlag     *bool
 	compactFlag       *bool
+	fixFlag           *bool
 	workersFlag       *int
 	concurrencyFlag   *int
 	maxDepthFlag      *int
@@ -78,6 +79,7 @@ func registerScanToggles(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
 	flagPtrs.noAutoTagsFlag = fs.Bool(constants.FlagNoAutoTags, false, constants.FlagDescNoAutoTags)
 	flagPtrs.reportErrFlag = fs.Bool(constants.FlagScanReportErrors, false, constants.FlagDescScanReportErrors)
 	flagPtrs.compactFlag = fs.Bool(constants.FlagScanCompact, false, constants.FlagDescScanCompact)
+	flagPtrs.fixFlag = fs.Bool("fix", false, "Reconcile missing/stale repositories from the gitmap tracking database")
 }
 
 func registerScanIntFlags(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
@@ -117,7 +119,7 @@ func resolveScanOutputPath(outputPath, manifest string) string {
 }
 
 // parseScanFlags parses flags for the scan command.
-func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
+func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
 	fs := flag.NewFlagSet(constants.CmdScan, flag.ExitOnError)
 	scanFlags := newScanFlagSet(fs)
 	fs.Parse(args)
@@ -128,7 +130,7 @@ func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
 	resolvedWorkers := resolveScanWorkers(fs, scanFlags.workersFlag, scanFlags.concurrencyFlag)
 	resolvedOutputPath := resolveScanOutputPath(*scanFlags.outputPathFlag, *scanFlags.manifestFlag)
 
-	return dir, *scanFlags.cfgFlag, *scanFlags.modeFlag, *scanFlags.outputFlag, *scanFlags.outFileFlag, resolvedOutputPath, *scanFlags.relRootFlag, *scanFlags.defaultBranchFlag, *scanFlags.ghDesktopFlag, *scanFlags.openFlag, *scanFlags.quietFlag, *scanFlags.noVSCodeSyncFlag, *scanFlags.noAutoTagsFlag, *scanFlags.reportErrFlag, *scanFlags.compactFlag, resolvedWorkers, *scanFlags.maxDepthFlag, probeOpts
+	return dir, *scanFlags.cfgFlag, *scanFlags.modeFlag, *scanFlags.outputFlag, *scanFlags.outFileFlag, resolvedOutputPath, *scanFlags.relRootFlag, *scanFlags.defaultBranchFlag, *scanFlags.ghDesktopFlag, *scanFlags.openFlag, *scanFlags.quietFlag, *scanFlags.noVSCodeSyncFlag, *scanFlags.noAutoTagsFlag, *scanFlags.reportErrFlag, *scanFlags.compactFlag, *scanFlags.fixFlag, resolvedWorkers, *scanFlags.maxDepthFlag, probeOpts
 }
 
 // resolveScanWorkers reconciles --workers (canonical) against the

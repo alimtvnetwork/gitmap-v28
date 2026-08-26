@@ -123,10 +123,11 @@ func printStatusTableWithContext(c *statusTableContext) {
 
 	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
 
-	for _, r := range c.Rows {
+	for i, r := range c.Rows {
+		pastelColor := constants.ColorCycle[i%len(constants.ColorCycle)]
 		if r.Missing {
-			fmt.Printf("  %s%-*s%s%s✖ not found%s\n",
-				constants.ColorDim, c.MaxRepo, r.RepoName, colGap,
+			fmt.Printf("  %s%-*s%s%s%s✖ not found%s\n",
+				constants.ColorDim, c.MaxRepo, r.RepoName, constants.ColorReset, colGap,
 				constants.ColorRed, constants.ColorReset)
 			continue
 		}
@@ -139,8 +140,9 @@ func printStatusTableWithContext(c *statusTableContext) {
 		padStash := c.MaxStash + (len(r.StashText) - len(stripANSI(r.StashText)))
 		padFiles := c.MaxFiles + (len(r.FilesText) - len(stripANSI(r.FilesText)))
 
-		fmt.Printf("  %-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s\n",
-			c.MaxRepo, r.RepoName, colGap,
+		fmt.Printf("  %s%-*s%s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s\n",
+			pastelColor,
+			c.MaxRepo, r.RepoName, constants.ColorReset, colGap,
 			padBranch, branchStr, colGap,
 			padStatus, r.StateIcon, colGap,
 			padSync, r.SyncText, colGap,
