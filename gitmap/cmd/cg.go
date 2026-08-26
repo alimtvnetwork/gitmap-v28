@@ -15,6 +15,7 @@ var cgCommand = "cg"
 
 type cgOptions struct {
 	All     bool
+	DryRun  bool
 	Exclude string
 	Repos   []string
 	Action  string
@@ -24,13 +25,14 @@ func parseCGFlags(args []string) cgOptions {
 	fs := flag.NewFlagSet(cgCommand, flag.ExitOnError)
 	var opts cgOptions
 	fs.BoolVar(&opts.All, "all", false, "Run on all workspaces")
+	fs.BoolVar(&opts.DryRun, "dry-run", false, "Simulate execution without modifying files")
 	fs.StringVar(&opts.Exclude, "except", "", "Exclude repos (comma separated)")
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude repos (comma separated)")
 	fs.Parse(reorderFlagsBeforeArgs(args))
 
 	argsAfterParse := fs.Args()
 	if len(argsAfterParse) == 0 {
-		fmt.Fprintf(os.Stderr, "Usage: gitmap cg [version|status|install|update|repo] [repo1 repo2...] [--all]\n")
+		fmt.Fprintf(os.Stderr, "Usage: gitmap cg [version|status|install|update|install-prompts|update-prompts|prompts-status|prompts-version] [repo1 repo2...] [--all]\n")
 		os.Exit(1)
 	}
 
@@ -68,6 +70,14 @@ func runCG(args []string) {
 		PrintCGVersion(repos)
 	case "status", "stat", "ls":
 		PrintCGStatus(repos)
+	case "install-prompts", "install-prompt", "prompts-install":
+		runCGInstallPrompts(repos, opts.DryRun)
+	case "update-prompts", "update-prompt", "prompts-update":
+		runCGInstallPrompts(repos, opts.DryRun)
+	case "prompts-status", "prompts-ls", "prompt-status":
+		runPromptStatus(repos)
+	case "prompts-version", "prompt-version":
+		runPromptVersion(repos)
 	case "update":
 		// Selective update: only update repos with coding-guidelines in version.json
 		var toUpdate []string
