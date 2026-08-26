@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.23.0] - 2026-08-27
+
+### Changed
+- Fixed CI/CD `Can't find action.yml` errors by injecting `actions/checkout@v6` before local `.github/actions/policy-check` calls across all jobs in `.github/workflows/ci.yml`.
+- Reimplemented `gitmap cg update` terminal UI to provide a vibrant summary of the update process, detailing previous and new versions, affected files, and individual repository status.
+
 ## [v6.121.0] - 2026-08-27 Save AI release prompt body
 
 ### Install Prompt Architect v6.121.0
