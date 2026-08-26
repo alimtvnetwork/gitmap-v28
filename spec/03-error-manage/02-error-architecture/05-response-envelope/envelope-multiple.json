@@ -1,0 +1,44 @@
+{
+  "$schema": "./envelope.schema.json",
+  "Status": {
+    "IsSuccess": true,
+    "IsFailed": false,
+    "Code": 200,
+    "Message": "OK",
+    "Timestamp": "2026-02-07T12:00:00Z"
+  },
+  "Attributes": {
+    "RequestedAt": "http://localhost:8080/api/v1/plugins",
+    "RequestDelegatedAt": "",
+    "HasAnyErrors": false,
+    "IsSingle": false,
+    "IsMultiple": true,
+    "IsEmpty": false,
+    "TotalRecords": 47,
+    "PerPage": 10,
+    "TotalPages": 5,
+    "CurrentPage": 2
+  },
+  "Results": [
+    { "Id": 11, "Name": "Plugin A", "Slug": "plugin-a" },
+    { "Id": 12, "Name": "Plugin B", "Slug": "plugin-b" },
+    { "Id": 13, "Name": "Plugin C", "Slug": "plugin-c" },
+    { "Id": 14, "Name": "Plugin D", "Slug": "plugin-d" },
+    { "Id": 15, "Name": "Plugin E", "Slug": "plugin-e" },
+    { "Id": 16, "Name": "Plugin F", "Slug": "plugin-f" },
+    { "Id": 17, "Name": "Plugin G", "Slug": "plugin-g" },
+    { "Id": 18, "Name": "Plugin H", "Slug": "plugin-h" },
+    { "Id": 19, "Name": "Plugin I", "Slug": "plugin-i" },
+    { "Id": 20, "Name": "Plugin J", "Slug": "plugin-j" }
+  ],
+  "Navigation": {
+    "NextPage": "http://localhost:8080/api/v1/plugins?page=3&perPage=10",
+    "PrevPage": "http://localhost:8080/api/v1/plugins?page=1&perPage=10",
+    "CloserLinks": [
+      "http://localhost:8080/api/v1/plugins?page=1&perPage=10",
+      "http://localhost:8080/api/v1/plugins?page=3&perPage=10",
+      "http://localhost:8080/api/v1/plugins?page=4&perPage=10",
+      "http://localhost:8080/api/v1/plugins?page=5&perPage=10"
+    ]
+  }
+}

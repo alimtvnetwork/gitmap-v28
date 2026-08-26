@@ -1,0 +1,24 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Console-safe parent->child handoff for self-update
+%% Authoritative:  spec/14-update/05-handoff-mechanism.md + 07-console-safe-handoff.md
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-07)
+%% ==========================================================
+sequenceDiagram
+    autonumber
+    participant Old as "Old Process (active)"
+    participant Copy as "Handoff Copy (temp)"
+    participant New as "New Active Binary"
+    participant FS as "Filesystem"
+
+    Old->>FS: "createHandoffCopy(self) -> tempPath"
+    FS-->>Old: "tempPath"
+    Old->>Copy: "exec(tempPath, --update, repoPath)"
+    Old-->>Old: "exit 0 (release file lock)"
+    Copy->>FS: "git pull and build new binary"
+    Copy->>FS: "rename-first deploy (see rename-first-deploy-flow)"
+    Copy->>New: "spawn (verify only)"
+    New-->>Copy: "version OK"
+    Copy-->>Copy: "exit 0"

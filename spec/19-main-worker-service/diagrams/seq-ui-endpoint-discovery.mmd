@@ -1,0 +1,48 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        UI endpoint discovery — how React learns its Worker endpoint and uses it
+%% Authoritative:  spec/19-main-worker-service/12-jwt-delivery-contract.md
+%%                 + 04-worker-routing.md + 06-core-api-endpoints.md
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-07)
+%% ==========================================================
+sequenceDiagram
+    autonumber
+    participant React as "React Frontend"
+    participant Main as "Main Server"
+    participant Cache as "Main Cache (CompanyId -> WorkerNodeId)"
+    participant DB as "Main SQLite (Root tier)"
+    participant Worker as "Worker Node (primary)"
+
+    Note over React,Worker: Phase 1 — Endpoint discovery (post-login)
+    React->>Main: "POST /API/V1/Auth/Login (Email, Password)"
+    Main->>DB: "SELECT CompanyId, WorkerNodeId FROM UserDirectory"
+    Main->>Cache: "GET MainWorker:Company:{id}:WorkerNodeId"
+    alt cache miss
+        Main->>DB: "SELECT WorkerNodeEndpoint WHERE IsBackup=0"
+        DB-->>Main: "WorkerNodeEndpoint"
+        Main->>Cache: "SET TTL=CompanyToWorkerTtlSeconds (default 900s)"
+    end
+    Main->>Worker: "POST /API/V1/Auth/VerifyCredential (proxy)"
+    Worker-->>Main: "200 (Verified, Has2FAEnabled)"
+    Main->>Main: "Mint RS256 worker JWT (sub, cmp, wnk, aud=worker, exp, kid)"
+    Main-->>React: "200 { WorkerEndpoint, WorkerJwt, JwtExpiresAt }"
+
+    Note over React: JWT held in-memory only (useRef). Never localStorage / cookie / URL.
+
+    Note over React,Worker: Phase 2 — Direct calls (Main bypassed)
+    React->>Worker: "GET /API/V1/Company/{slug} (Authorization: Bearer JWT)"
+    Worker->>Worker: "Verify RS256 sig, kid, exp(skew=60s), aud, wnk, iss"
+    Worker-->>React: "200 (data)"
+
+    Note over React,Worker: Phase 3 — Endpoint refresh (JWT near-expiry or 401)
+    React->>Main: "POST /API/V1/Auth/RefreshEndpoint (session cookie)"
+    Main->>Cache: "GET CompanyId -> WorkerNodeId"
+    alt worker reassigned
+        Main->>DB: "Re-resolve mapping and invalidate stale cache"
+    end
+    Main->>Main: "Mint fresh worker JWT"
+    Main-->>React: "200 { WorkerEndpoint, WorkerJwt, JwtExpiresAt }"
+    React->>Worker: "Retry original request with new JWT"
+    Worker-->>React: "200 (data)"

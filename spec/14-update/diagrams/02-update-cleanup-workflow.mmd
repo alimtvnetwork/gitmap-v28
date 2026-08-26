@@ -1,0 +1,41 @@
+flowchart TD
+    Start["binary update-cleanup"] --> Msg["Print: Cleaning up update artifacts..."]
+
+    Msg --> TempClean["cleanupTempCopies()"]
+    TempClean --> SelfPath["os.Executable() - get selfPath"]
+    SelfPath --> Patterns["Build glob patterns"]
+    Patterns --> P1["Pattern 1: TEMP_DIR/binary-update-*"]
+    Patterns --> P2["Pattern 2: BINARY_DIR/binary-update-*"]
+
+    P1 --> Scan["Scan both patterns for matches"]
+    P2 --> Scan
+
+    Scan --> Loop{"For each match"}
+    Loop --> Normalize["filepath.Clean(match)"]
+    Normalize --> Seen{"Already processed?"}
+    Seen -- YES --> Loop
+    Seen -- NO --> IsSelf{"Is current binary?"}
+    IsSelf -- YES --> Loop
+    IsSelf -- NO --> Remove["os.Remove(match)"]
+    Remove --> PrintTemp["Print: OK Removed filename"]
+    PrintTemp --> Loop
+
+    Loop -- "Done" --> OldClean["cleanupOldBackups()"]
+
+    OldClean --> RepoCheck{"Embedded RepoPath set?"}
+    RepoCheck -- NO --> Skip["Skip old backup cleanup"]
+    RepoCheck -- YES --> ReadConfig["Read .gitmap/powershell.json"]
+    ReadConfig --> ExtractDeploy["Extract DeployPath from JSON"]
+    ExtractDeploy --> DeployCheck{"DeployPath found?"}
+    DeployCheck -- NO --> Skip
+    DeployCheck -- YES --> GlobOld["Glob: deploy-path/binary/*.old"]
+    GlobOld --> OldLoop{"For each .old file"}
+    OldLoop --> RemoveOld["os.Remove(match)"]
+    RemoveOld --> PrintOld["Print: OK Removed filename"]
+    PrintOld --> OldLoop
+
+    OldLoop -- "Done" --> Total{"Total cleaned > 0?"}
+    Skip --> Total
+
+    Total -- YES --> Done["Print: Cleaned N artifact(s)"]
+    Total -- NO --> None["Print: Nothing to clean up."]

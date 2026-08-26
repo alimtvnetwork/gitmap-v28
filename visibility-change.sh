@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-# ----------------------------------------------------------------------
-# visibility-change.sh - toggle/set GitHub/GitLab repo visibility
+# ──────────────────────────────────────────────────────────────────────
+# visibility-change.sh — toggle/set GitHub/GitLab repo visibility
 #
-# Mirrors the Go-native `gitmap make-public` / `gitmap make-private`
-# commands so CI and shell users have a script-only fallback.
-# ----------------------------------------------------------------------
+# Spec: spec-authoring/23-visibility-change/01-spec.md
+# ──────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# shellcheck source=visibility-change/provider.sh
-. "$SCRIPT_DIR/visibility-change/provider.sh"
-# shellcheck source=visibility-change/apply.sh
-. "$SCRIPT_DIR/visibility-change/apply.sh"
+# shellcheck source=scripts/visibility-change/provider.sh
+. "$SCRIPT_DIR/scripts/visibility-change/provider.sh"
+# shellcheck source=scripts/visibility-change/apply.sh
+. "$SCRIPT_DIR/scripts/visibility-change/apply.sh"
 
 EXIT_OK=0
 EXIT_NOT_A_REPO=2
@@ -27,32 +26,33 @@ VISIBLE_RAW=""
 YES_FLAG=0
 DRY_RUN=0
 
+# lint-allow: function-length reason="help-text heredoc"
 print_help() {
   cat <<'EOF'
-visibility-change.sh - toggle/set GitHub/GitLab repo visibility.
-
+visibility-change.sh — toggle/set GitHub/GitLab repo visibility.
 Usage:
-  ./visibility-change.sh                  # toggle current visibility
-  ./visibility-change.sh --visible pub    # force public
-  ./visibility-change.sh --visible pri    # force private
-  ./visibility-change.sh --yes            # skip private->public prompt
-  ./visibility-change.sh --dry-run        # preview, no API call
+  ./visibility-change.sh                   # toggle current visibility
+  ./visibility-change.sh --visible pub     # force public
+  ./visibility-change.sh --visible pri     # force private
+  ./visibility-change.sh --yes             # skip private->public prompt
+  ./visibility-change.sh --dry-run         # preview, no API call
   ./visibility-change.sh -h | --help
-
 Env:
-  VISIBILITY_GITLAB_HOSTS  comma-separated allow-list of self-hosted GitLab hosts
+  VISIBILITY_GITLAB_HOSTS   comma-separated allow-list of self-hosted GitLab hosts
+Spec: spec-authoring/23-visibility-change/01-spec.md
 EOF
 }
 
 err() { echo "$@" >&2; }
 
+# lint-allow: function-length reason="flat CLI flag-parser dispatch"
 parse_args() {
   while [ $# -gt 0 ]; do
     case "$1" in
-      --visible)   VISIBLE_RAW="${2:-}"; shift 2 ;;
-      --yes|-y)    YES_FLAG=1; shift ;;
-      --dry-run)   DRY_RUN=1; shift ;;
-      -h|--help)   print_help; exit $EXIT_OK ;;
+      --visible) VISIBLE_RAW="${2:-}"; shift 2 ;;
+      --yes|-y)  YES_FLAG=1; shift ;;
+      --dry-run) DRY_RUN=1; shift ;;
+      -h|--help) print_help; exit $EXIT_OK ;;
       *) err "visibility-change: ERROR unknown flag '$1'"; exit $EXIT_BAD_FLAG ;;
     esac
   done
@@ -78,6 +78,7 @@ required_cli_for() {
   if [ "$1" = "github" ]; then echo "gh"; else echo "glab"; fi
 }
 
+# lint-allow: function-length reason="flat context-resolution chain"
 resolve_context() {
   if ! is_repo_root; then
     err "visibility-change: ERROR not a git repository"; exit $EXIT_NOT_A_REPO
@@ -111,9 +112,9 @@ resolve_next_target() {
 
 maybe_confirm() {
   local current="$1" target="$2"
-  if [ "$target" != "public" ]; then return 0; fi
+  if [ "$target" != "public" ];  then return 0; fi
   if [ "$current" != "private" ]; then return 0; fi
-  if [ "$YES_FLAG" = "1" ]; then return 0; fi
+  if [ "$YES_FLAG" = "1" ];       then return 0; fi
   if confirm_public_change "$SLUG" "$PROVIDER"; then return 0; fi
   err "visibility-change: ERROR confirmation required (pass --yes for non-interactive)"
   exit $EXIT_CONFIRM_REQ
@@ -140,6 +141,7 @@ _apply_and_verify() {
     || { err "visibility-change: ERROR verification failed (visibility did not change)"; exit $EXIT_VERIFY_FAILED; }
 }
 
+# lint-allow: function-length reason="top-level orchestrator"
 main() {
   parse_args "$@"
   local forced; forced="$(resolve_target_value "$VISIBLE_RAW")"
@@ -150,9 +152,9 @@ main() {
   local target; target="$(resolve_next_target "$forced" "$current")"
   [ "$current" != "$target" ] || { echo "visibility: already $current ($PROVIDER)"; exit $EXIT_OK; }
   maybe_confirm "$current" "$target"
-  [ "$DRY_RUN" != "1" ] || { echo "[dry-run] visibility: $current -> $target ($PROVIDER)"; exit $EXIT_OK; }
+  [ "$DRY_RUN" != "1" ] || { echo "[dry-run] visibility: $current → $target ($PROVIDER)"; exit $EXIT_OK; }
   _apply_and_verify "$current" "$target"
-  echo "visibility: $current -> $target ($PROVIDER)"
+  echo "visibility: $current → $target ($PROVIDER)"
 }
 
 main "$@"

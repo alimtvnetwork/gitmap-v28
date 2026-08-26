@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# =============================================================================
+#  Status.sh — Update-check status emitter (Unix / POSIX shell)
+#  ---------------------------------------------------------------------------
+#  Generated at release time by the pipeline. Placeholders of the form
+#  __EmbeddedXxx__ are substituted with the pinned values for this release.
+#
+#  Contract: spec/14-update/24-update-check-mechanism/02-status-script-json.md
+#  Producer: spec/16-generic-release/08-version-pinned-release-installers.md
+#
+#  Invocation (server-side, never local):
+#      curl -fsSL https://raw.githubusercontent.com/<Owner>/<Repo>/main/Status.sh | bash
+#
+#  This script writes a single JSON document to stdout and exits 0.
+#  All keys and string-enum values are PascalCase. Do NOT add prose
+#  output — the consumer parses stdout directly.
+# =============================================================================
+
+set -euo pipefail
+
+# ---- Embedded values (substituted by the release pipeline) -----------------
+EmbeddedVersion='__EmbeddedVersion__'                 # e.g. V1.5.0
+EmbeddedRepo='__EmbeddedRepo__'                       # e.g. https://github.com/Owner/Repo
+EmbeddedCommit='__EmbeddedCommit__'                   # 40-char SHA
+EmbeddedChecksum='__EmbeddedChecksum__'               # e.g. Sha256:Abc123...
+EmbeddedReleaseUrl='__EmbeddedReleaseUrl__'           # GitHub release page
+EmbeddedPublishedAt='__EmbeddedPublishedAt__'         # ISO 8601 UTC
+EmbeddedNotes='__EmbeddedNotes__'                     # Short release-notes summary
+EmbeddedMinSupportedFrom='__EmbeddedMinSupportedFrom__'  # e.g. V1.0.0
+EmbeddedNewRepoUrl='__EmbeddedNewRepoUrl__'           # null or new repo URL
+
+# ---- Derived install URLs --------------------------------------------------
+LowerVersionTag="$(printf '%s' "$EmbeddedVersion" | tr '[:upper:]' '[:lower:]')"
+WindowsInstallUrl="${EmbeddedRepo}/releases/download/${LowerVersionTag}/Install.ps1"
+UnixInstallUrl="${EmbeddedRepo}/releases/download/${LowerVersionTag}/Install.sh"
+WindowsCommand="iwr -useb ${WindowsInstallUrl} | iex"
+UnixCommand="curl -fsSL ${UnixInstallUrl} | bash"
+
+# ---- JSON-string encoder (RFC 8259: escape \ " and control chars) ----------
+JsonEscape() {
+    local Raw="$1"
+    local Out=""
+    local i Char Code
+    for (( i = 0; i < ${#Raw}; i++ )); do
+        Char="${Raw:i:1}"
+        case "$Char" in
+            '\') Out+='\\' ;;
+            '"') Out+='\"' ;;
+            $'\n') Out+='\n' ;;
+            $'\r') Out+='\r' ;;
+            $'\t') Out+='\t' ;;
+            *)
+                Code=$(printf '%d' "'$Char")
+                if [ "$Code" -lt 32 ]; then
+                    Out+=$(printf '\\u%04x' "$Code")
+                else
+                    Out+="$Char"
+                fi
+                ;;
+        esac
+    done
+    printf '%s' "$Out"
+}
+
+JsonStringOrNull() {
+    local Raw="$1"
+    local PlaceholderName="$2"
+    if [ -z "$Raw" ] || [ "$Raw" = "__${PlaceholderName}__" ] || [ "$Raw" = "null" ]; then
+        printf 'null'
+        return
+    fi
+    printf '"%s"' "$(JsonEscape "$Raw")"
+}
+
+JsonString() {
+    printf '"%s"' "$(JsonEscape "$1")"
+}
+
+# ---- Compute optional fields ----------------------------------------------
+NotesField=$(JsonStringOrNull "$EmbeddedNotes" "EmbeddedNotes")
+NewRepoField=$(JsonStringOrNull "$EmbeddedNewRepoUrl" "EmbeddedNewRepoUrl")
+
+# ---- Emit JSON (PascalCase keys, contract-compliant ordering) -------------
+cat <<JSON
+{
+  "Version": $(JsonString "$EmbeddedVersion"),
+  "ReleaseUrl": $(JsonString "$EmbeddedReleaseUrl"),
+  "PublishedAt": $(JsonString "$EmbeddedPublishedAt"),
+  "Checksum": $(JsonString "$EmbeddedChecksum"),
+  "Install": {
+    "Windows": {
+      "ScriptUrl": $(JsonString "$WindowsInstallUrl"),
+      "Command": $(JsonString "$WindowsCommand")
+    },
+    "Unix": {
+      "ScriptUrl": $(JsonString "$UnixInstallUrl"),
+      "Command": $(JsonString "$UnixCommand")
+    }
+  },
+  "Notes": $NotesField,
+  "MinSupportedFrom": $(JsonString "$EmbeddedMinSupportedFrom"),
+  "NewRepoUrl": $NewRepoField
+}
+JSON
+
+exit 0

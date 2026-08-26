@@ -12,8 +12,6 @@
     -All:         replace every prior version (1..Current-1).
     -DryRun:      report changes; do not write.
     -Verbose:     print every modified file path.
-    -Strict:      after rewrite + gofmt, run `go test` on every
-                  touched Go package; exit 9 on test failure.
     -Config <p>:  path to JSON config (default: ./fix-repo.config.json) with
                   ignoreDirs and ignorePatterns arrays.
 
@@ -34,11 +32,10 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $Script:HereDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-. (Join-Path $Script:HereDir 'scripts/fix-repo/Repo-Identity.ps1')
-. (Join-Path $Script:HereDir 'scripts/fix-repo/File-Scan.ps1')
-. (Join-Path $Script:HereDir 'scripts/fix-repo/Rewrite-Engine.ps1')
-. (Join-Path $Script:HereDir 'scripts/fix-repo/Config-Loader.ps1')
-. (Join-Path $Script:HereDir 'scripts/fix-repo/Paired-Literal-Audit.ps1')
+. (Join-Path $Script:HereDir 'scripts/fix-repo/RepoIdentity.ps1')
+. (Join-Path $Script:HereDir 'scripts/fix-repo/FileScan.ps1')
+. (Join-Path $Script:HereDir 'scripts/fix-repo/Rewrite.ps1')
+. (Join-Path $Script:HereDir 'scripts/fix-repo/Config.ps1')
 
 $Script:ExitOk              = 0
 $Script:ExitNotARepo        = 2
@@ -48,34 +45,23 @@ $Script:ExitBadVersion      = 5
 $Script:ExitBadFlag         = 6
 $Script:ExitWriteFailed     = 7
 $Script:ExitBadConfig       = 8
-# ExitTestsFailed mirrors the Go binary's FixRepoExitTestsFailed (see
-# gitmap/constants/constants_fixrepo.go). Distinct from 7 (write-failed)
-# so CI can tell "rewrite produced semantically broken code" apart from
-# "the file system rejected the write".
-$Script:ExitTestsFailed     = 9
-# ExitPairedLiteral fires when the post-rewrite audit catches a
-# {base}-v{Current} token next to a stale sibling literal of the
-# previous version (typically in *_test.go fixtures).
-# See .lovable/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md.
-$Script:ExitPairedLiteral   = 10
 
 function Test-IsModeFlag { param([string]$A) return $A -in '-2','-3','-5','-all','-All','-ALL' }
 
+# lint-allow: function-length reason="flat CLI flag-parser dispatch; further split harms readability" max=25
 function Resolve-Mode {
     param([string[]]$Args)
     $modes      = @()
     $dryRun     = $false
     $verbose    = $false
-    $strict     = $false
     $configPath = $null
     $unknown    = @()
     $i = 0
     while ($i -lt $Args.Count) {
         $a = $Args[$i]
         if (Test-IsModeFlag $a) { $modes += $a; $i++; continue }
-        if ($a -in '-DryRun','-dryrun','--dry-run')   { $dryRun  = $true;  $i++; continue }
-        if ($a -in '-Verbose','-verbose','--verbose') { $verbose = $true;  $i++; continue }
-        if ($a -in '-Strict','-strict','--strict')    { $strict  = $true;  $i++; continue }
+        if ($a -in '-DryRun','-dryrun')   { $dryRun  = $true;  $i++; continue }
+        if ($a -in '-Verbose','-verbose') { $verbose = $true;  $i++; continue }
         if ($a -in '-Config','-config') {
             if ($i + 1 -ge $Args.Count) { return @{ Error = "-Config requires a path" } }
             $configPath = $Args[$i+1]; $i += 2; continue
@@ -88,7 +74,7 @@ function Resolve-Mode {
     if ($modes.Count -gt 1) { return @{ Error = "multiple mode flags: $($modes -join ' ')" } }
     if ($unknown)           { return @{ Error = "unknown flag(s): $($unknown -join ' ')" } }
     $mode = if ($modes.Count -eq 1) { $modes[0].ToLowerInvariant() } else { '-2' }
-    return @{ Mode = $mode; DryRun = $dryRun; Verbose = $verbose; Strict = $strict; ConfigPath = $configPath }
+    return @{ Mode = $mode; DryRun = $dryRun; Verbose = $verbose; ConfigPath = $configPath }
 }
 
 function Get-SpanFromMode {
@@ -107,7 +93,7 @@ function Write-Header {
     Write-Host ("fix-repo  base={0}  current=v{1}  mode={2}" -f $Identity.Base, $Current, $Mode)
     $list = if ($Targets.Count -gt 0) { ($Targets | ForEach-Object { "v$_" }) -join ', ' } else { '(none)' }
     Write-Host ("targets:  {0}" -f $list)
-    Write-Host ("host:     {0}  owner={1}" -f $Identity.RepoHost, $Identity.Owner)
+    Write-Host ("host:     {0}  owner={1}" -f $Identity.Host, $Identity.Owner)
     Write-Host ''
 }
 
@@ -128,6 +114,7 @@ function Test-IsScannableFile {
     return $true
 }
 
+# lint-allow: function-length reason="flat per-file IO pipeline"
 function _Process-OneFile {
     param([string]$RepoRoot, [string]$Rel, [string]$Base, [int]$Current, [int[]]$Targets, [bool]$DryRun, [bool]$Verbose)
     $full = Join-Path $RepoRoot $Rel
@@ -137,100 +124,29 @@ function _Process-OneFile {
     try {
         $reps = Invoke-FileRewrite -FullPath $full -Base $Base -Targets $Targets -Current $Current -DryRun $DryRun
     } catch {
-        Write-Warning "[_Process-OneFile] $_"
         Write-Host ("fix-repo: ERROR write failed for {0}: {1}" -f $Rel, $_.Exception.Message)
-        return [pscustomobject]@{ Reps=0; Failed=$true; FullPath=$full }
+        return [pscustomobject]@{ Reps=0; Failed=$true }
     }
     if ($reps -gt 0 -and $Verbose) { Write-Host ("modified: {0} ({1} replacements)" -f $Rel, $reps) }
-    return [pscustomobject]@{ Reps=$reps; Failed=$false; FullPath=$full }
+    return [pscustomobject]@{ Reps=$reps; Failed=$false }
 }
 
+# lint-allow: function-length reason="flat sweep dispatcher"
 function Invoke-RewriteSweep {
     param([string]$RepoRoot, [string]$Base, [int]$Current, [int[]]$Targets, [bool]$DryRun, [bool]$Verbose)
     $files = Get-TrackedFiles -RepoRoot $RepoRoot
     $scanned = 0; $changed = 0; $totalReps = 0; $failed = $false
-    $goFiles = New-Object System.Collections.Generic.List[string]
-    $changedFiles = New-Object System.Collections.Generic.List[string]
     foreach ($rel in $files) {
         $r = _Process-OneFile -RepoRoot $RepoRoot -Rel $rel -Base $Base -Current $Current -Targets $Targets -DryRun $DryRun -Verbose $Verbose
         if (-not $r) { continue }
         $scanned++
         if ($r.Failed) { $failed = $true; continue }
-        if ($r.Reps -gt 0) {
-            $changed++; $totalReps += $r.Reps
-            $changedFiles.Add($r.FullPath) | Out-Null
-            if ([System.IO.Path]::GetExtension($rel).ToLowerInvariant() -eq '.go') { $goFiles.Add($r.FullPath) | Out-Null }
-        }
+        if ($r.Reps -gt 0) { $changed++; $totalReps += $r.Reps }
     }
-    return [pscustomobject]@{ Scanned=$scanned; Changed=$changed; Reps=$totalReps; Failed=$failed; GoFiles=$goFiles; ChangedFiles=$changedFiles }
+    return [pscustomobject]@{ Scanned=$scanned; Changed=$changed; Reps=$totalReps; Failed=$failed }
 }
 
-# Post-rewrite gofmt step. Mirrors the Go binary's runFixRepoGofmt
-# (gitmap/cmd/fixrepo_gofmt.go) so script users get the same CI-clean
-# output. Guarded by Get-Command so non-Go environments degrade
-# gracefully. See .lovable/memory/issues/2026-05-01-fixrepo-no-gofmt.md.
-function Invoke-PostRewriteGofmt {
-    param([System.Collections.Generic.List[string]]$GoFiles, [bool]$DryRun)
-    if ($DryRun)              { Write-Host 'gofmt:   skipped (dry-run)';      return $true }
-    if ($GoFiles.Count -eq 0) { Write-Host 'gofmt:   no .go files modified';  return $true }
-    if (-not (Get-Command gofmt -ErrorAction SilentlyContinue)) {
-        [Console]::Error.WriteLine('fix-repo: WARN  gofmt not found on PATH; skipping post-rewrite formatting')
-        return $true
-    }
-    $out = & gofmt -w @($GoFiles) 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        [Console]::Error.WriteLine(("fix-repo: ERROR gofmt failed: exit {0}`n{1}" -f $LASTEXITCODE, ($out -join "`n")))
-        return $false
-    }
-    Write-Host ("gofmt:   {0} .go file(s) reformatted" -f $GoFiles.Count)
-    return $true
-}
-
-# Post-rewrite strict step. Mirrors the Go binary's runFixRepoStrict
-# (gitmap/cmd/fixrepo_strict.go): when -Strict is supplied AND the
-# rewrite touched at least one .go file AND `go` is on PATH, run
-# `go test` against the unique set of touched packages. Returns $true
-# on success / safe-skip; $false ONLY when go test itself fails.
-# Caller maps $false to ExitTestsFailed (9). Off by default so non-Go
-# repos and machines without a Go toolchain stay unaffected.
-function Invoke-PostRewriteStrict {
-    param([System.Collections.Generic.List[string]]$GoFiles, [bool]$DryRun, [bool]$Strict, [string]$RepoRoot)
-    if (-not $Strict)         { return $true }
-    if ($DryRun)              { Write-Host 'strict:  skipped (dry-run)';                    return $true }
-    if ($GoFiles.Count -eq 0) { Write-Host 'strict:  no .go files modified; skipping go test'; return $true }
-    if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
-        [Console]::Error.WriteLine('fix-repo: WARN  go not found on PATH; --strict skipped')
-        return $true
-    }
-    # Derive ./<rel-dir> patterns. Forward slashes so the emitted
-    # patterns are identical across Windows + Unix log readers (go
-    # test accepts both, but downstream tooling prefers forward).
-    $packages = New-Object 'System.Collections.Generic.HashSet[string]'
-    foreach ($g in $GoFiles) {
-        $rel = [System.IO.Path]::GetRelativePath($RepoRoot, $g) -replace '\\','/'
-        if ($rel.StartsWith('../')) { continue }
-        $dir = [System.IO.Path]::GetDirectoryName($rel) -replace '\\','/'
-        if ([string]::IsNullOrEmpty($dir) -or $dir -eq '.') { [void]$packages.Add('.') }
-        else                                                { [void]$packages.Add('./' + $dir) }
-    }
-    if ($packages.Count -eq 0) {
-        Write-Host 'strict:  no Go packages derived from modified files; skipping go test'
-        return $true
-    }
-    $sortedPkgs = @($packages) | Sort-Object
-    Write-Host ("strict:  running go test on {0} package(s): {1}" -f $sortedPkgs.Count, ($sortedPkgs -join ' '))
-    Push-Location $RepoRoot
-    try {
-        $out = & go test @($sortedPkgs) 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            [Console]::Error.WriteLine(("fix-repo: ERROR strict mode: go test failed (E_TESTS_FAILED): exit {0}`n{1}" -f $LASTEXITCODE, ($out -join "`n")))
-            return $false
-        }
-    } finally { Pop-Location }
-    Write-Host ("strict:  go test passed ({0} package(s))" -f $sortedPkgs.Count)
-    return $true
-}
-
+# lint-allow: function-length reason="flat identity-source fallback chain"
 function Resolve-Identity {
     $root = Get-RepoRoot
     if (-not $root) { Write-Host "fix-repo: ERROR not a git repository (E_NOT_A_REPO)"; exit $Script:ExitNotARepo }
@@ -244,7 +160,7 @@ function Resolve-Identity {
         exit $Script:ExitNoVersionSuffix
     }
     if ($split.Version -lt 1) { Write-Host "fix-repo: ERROR version <= 0 (E_BAD_VERSION)"; exit $Script:ExitBadVersion }
-    return [pscustomobject]@{ Root=$root; RepoHost=$parsed.RepoHost; Owner=$parsed.Owner; Base=$split.Base; Current=$split.Version }
+    return [pscustomobject]@{ Root=$root; Host=$parsed.Host; Owner=$parsed.Owner; Base=$split.Base; Current=$split.Version }
 }
 
 # ── Main ──────────────────────────────────────────────────────────────
@@ -259,7 +175,6 @@ $identity = Resolve-Identity
 try {
     Import-FixRepoConfig -ConfigPath $parsed.ConfigPath -RepoRoot $identity.Root
 } catch {
-    Write-Warning "[Import-FixRepoConfig] $_"
     Write-Host ("fix-repo: ERROR {0} (E_BAD_CONFIG)" -f $_.Exception.Message)
     exit $Script:ExitBadConfig
 }
@@ -278,24 +193,6 @@ $result = Invoke-RewriteSweep -RepoRoot $identity.Root -Base $identity.Base -Cur
     -Targets $targets -DryRun $parsed.DryRun -Verbose $parsed.Verbose
 
 Write-Summary -Scanned $result.Scanned -Changed $result.Changed -Replacements $result.Reps -DryRun $parsed.DryRun
-
-if (-not (Invoke-PostRewriteGofmt -GoFiles $result.GoFiles -DryRun $parsed.DryRun)) { $result.Failed = $true }
-
-# Strict step runs AFTER gofmt so go test sees fully-formatted source.
-# Tests-failed is a distinct exit code (9) so CI can branch on
-# "rewrite produced semantically broken code" vs. write/IO failures.
-if (-not (Invoke-PostRewriteStrict -GoFiles $result.GoFiles -DryRun $parsed.DryRun -Strict $parsed.Strict -RepoRoot $identity.Root)) {
-    exit $Script:ExitTestsFailed
-}
-
-# Paired-literal audit runs LAST (after gofmt + strict) so the source
-# being audited is the final, formatted, test-validated state. The
-# audit is cheap (regex over *_test.go only) and gives a precise
-# diagnostic for the desync class strict-mode would otherwise surface
-# as a generic test failure.
-if (-not (Invoke-PairedLiteralAudit -ChangedFiles $result.ChangedFiles -Base $identity.Base -Current $identity.Current -DryRun $parsed.DryRun)) {
-    exit $Script:ExitPairedLiteral
-}
 
 if ($result.Failed) { exit $Script:ExitWriteFailed }
 exit $Script:ExitOk

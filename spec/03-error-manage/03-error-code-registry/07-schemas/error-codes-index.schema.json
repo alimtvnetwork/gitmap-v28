@@ -1,0 +1,217 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Module Error Codes Index Schema",
+  "description": "Schema for validating per-module error-codes.json index files used across the ecosystem. Supports integer codes, local ERR_xxxx PHP codes, and prefixed E{x}xxx Go codes.",
+  "type": "object",
+  "required": ["Title", "Project", "Categories", "Stats"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional JSON Schema reference"
+    },
+    "Title": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Human-readable title of the error code index"
+    },
+    "Description": {
+      "type": "string",
+      "description": "Summary of the module and its error code range"
+    },
+    "Version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the index file"
+    },
+    "Generated": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "ISO date when the index was generated"
+    },
+    "Source": {
+      "oneOf": [
+        { "type": "string", "description": "Path to the source spec document" },
+        { "type": "null", "description": "No source spec exists yet" }
+      ]
+    },
+    "Project": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,4}(-[A-Z]{2,4})?$",
+      "description": "Project prefix (e.g., AB, WSP, SM-CG)"
+    },
+    "Range": {
+      "$ref": "#/definitions/Range",
+      "description": "Single allocated ecosystem range"
+    },
+    "Ranges": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Range" },
+      "minItems": 1,
+      "description": "Multiple allocated ecosystem ranges (e.g., AB uses 9000-9999 and 19000-19019)"
+    },
+    "Format": {
+      "type": "string",
+      "description": "Description of the code format if non-standard (e.g., PHP ERR_ constants, E{x}xxx prefixed)"
+    },
+    "Note": {
+      "type": "string",
+      "description": "Additional context about the index"
+    },
+    "ReassignedFrom": {
+      "type": "string",
+      "description": "Previous range before collision resolution (e.g., '12000-12799')"
+    },
+    "RemappedFrom": {
+      "type": "string",
+      "description": "Source of remapped codes (e.g., 'GS local 1xxx-12xxx')"
+    },
+    "ExitCodes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/ExitCodeEntry" },
+      "description": "CLI exit code mapping (used by Go CLI tools like GSearch)"
+    },
+    "Categories": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Category" }
+    },
+    "Stats": { "$ref": "#/definitions/Stats" }
+  },
+  "oneOf": [
+    { "required": ["Range"] },
+    { "required": ["Ranges"] }
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "Range": {
+      "type": "object",
+      "required": ["Min", "Max"],
+      "properties": {
+        "Min": { "type": "integer", "minimum": 0 },
+        "Max": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "Category": {
+      "type": "object",
+      "required": ["Name", "Codes"],
+      "properties": {
+        "Name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Category name (e.g., Connection, Publishing)"
+        },
+        "Range": { "$ref": "#/definitions/Range" },
+        "LocalRange": {
+          "type": "string",
+          "description": "Local code range descriptor for modules using non-ecosystem codes (e.g., '1xxx')"
+        },
+        "EcosystemRange": {
+          "$ref": "#/definitions/Range",
+          "description": "Mapped ecosystem range for modules with local codes (e.g., GSearch)"
+        },
+        "Prefix": {
+          "type": "string",
+          "description": "Code prefix pattern for prefixed-format modules (e.g., 'E1xxx')"
+        },
+        "Source": {
+          "type": "string",
+          "description": "Path to the source spec for this category"
+        },
+        "Codes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/CodeEntry" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "CodeEntry": {
+      "type": "object",
+      "required": ["Constant", "Description", "Retryable"],
+      "properties": {
+        "Code": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "description": "Integer error code" },
+            { "type": "string", "pattern": "^E[0-9]{4}$", "description": "Prefixed code (e.g., E1001)" }
+          ]
+        },
+        "LocalCode": {
+          "oneOf": [
+            { "type": "string", "pattern": "^ERR_[0-9]{4}$", "description": "Local PHP string code (e.g., ERR_1001)" },
+            { "type": "integer", "minimum": 1000, "description": "Local integer code (e.g., 1001 for Go CLI tools)" }
+          ],
+          "description": "Local code before ecosystem remapping"
+        },
+        "Constant": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Error constant name (UPPER_SNAKE_CASE or PascalCase for Go)"
+        },
+        "Description": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 200,
+          "description": "Human-readable error description"
+        },
+        "Retryable": {
+          "type": "boolean",
+          "description": "Whether the error condition can be retried"
+        },
+        "Http": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599,
+          "description": "Suggested HTTP status code"
+        },
+        "Exit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "CLI exit code (used by Go CLI tools)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExitCodeEntry": {
+      "type": "object",
+      "required": ["Code", "Constant", "Description"],
+      "properties": {
+        "Code": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Exit code value"
+        },
+        "Constant": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Exit code constant name"
+        },
+        "Description": {
+          "type": "string",
+          "description": "Exit code description"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Stats": {
+      "type": "object",
+      "required": ["TotalCodes", "RetryableCodes"],
+      "properties": {
+        "TotalCodes": { "type": "integer", "minimum": 0 },
+        "TotalCategories": { "type": "integer", "minimum": 0 },
+        "RetryableCodes": { "type": "integer", "minimum": 0 },
+        "RangeUtilization": {
+          "type": "string",
+          "description": "Human-readable utilization (e.g., '78/600 (13.0%)')"
+        },
+        "EcosystemRemapStatus": {
+          "type": "string",
+          "enum": ["pending", "complete"],
+          "description": "Whether local codes have been remapped to ecosystem integers"
+        },
+        "Note": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

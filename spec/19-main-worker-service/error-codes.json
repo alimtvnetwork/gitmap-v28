@@ -1,0 +1,518 @@
+{
+  "Title": "MWS \u2014 Main / Worker Service Error Code Index",
+  "Project": "MWS",
+  "Name": "Main / Worker Service",
+  "Version": "1.2.0",
+  "Generated": "2026-05-05",
+  "Source": "spec/19-main-worker-service/13-error-codes.md",
+  "Range": {
+    "Min": 21000,
+    "Max": 21199
+  },
+  "SubRanges": [
+    {
+      "Tier": "Worker",
+      "Min": 21000,
+      "Max": 21099
+    },
+    {
+      "Tier": "Main",
+      "Min": 21100,
+      "Max": 21199
+    }
+  ],
+  "TotalCodes": 49,
+  "RetryableCodes": 7,
+  "Codes": [
+    {
+      "Code": "WORKER-000-01",
+      "Flat": 21001,
+      "Name": "BootstrapConfigMissing",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Required bootstrap config key missing.",
+      "Source": "`10-worker-bootstrap-protocol.md` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-000-02",
+      "Flat": 21002,
+      "Name": "SplitDbTierMissing",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Required split-DB tier failed self-test.",
+      "Source": "`10` \u00a76 + `11` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-100-01",
+      "Flat": 21010,
+      "Name": "OAuthHandshakeFail",
+      "HttpStatus": 401,
+      "Tier": "Worker",
+      "Message": "OAuth client-credentials handshake failed.",
+      "Source": "`10` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-100-02",
+      "Flat": 21011,
+      "Name": "KidUnknown",
+      "HttpStatus": 401,
+      "Tier": "Worker",
+      "Message": "JWT signing key id not in trust store.",
+      "Source": "`12-jwt-delivery-contract.md` \u00a77",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-100-03",
+      "Flat": 21012,
+      "Name": "WrongWorker",
+      "HttpStatus": 403,
+      "Tier": "Worker",
+      "Message": "JWT `wnk` claim does not match this worker.",
+      "Source": "`12` \u00a77",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-100-04",
+      "Flat": 21013,
+      "Name": "JwtSignatureInvalid",
+      "HttpStatus": 401,
+      "Tier": "Worker",
+      "Message": "JWT RS256 signature failed verification.",
+      "Source": "`12` \u00a77",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-100-05",
+      "Flat": 21014,
+      "Name": "JwtExpired",
+      "HttpStatus": 401,
+      "Tier": "Worker",
+      "Message": "JWT `exp` is in the past (allowing 60s skew).",
+      "Source": "`12` \u00a77",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-100-06",
+      "Flat": 21015,
+      "Name": "JwtIssuerMismatch",
+      "HttpStatus": 401,
+      "Tier": "Worker",
+      "Message": "JWT `iss` claim does not match configured Main host.",
+      "Source": "`12` \u00a77",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-200-01",
+      "Flat": 21020,
+      "Name": "InstructionAlreadyApplied",
+      "HttpStatus": 200,
+      "Tier": "Worker",
+      "Message": "Idempotent replay; instruction already applied.",
+      "Source": "`spec/14-update/28-worker-push-instruction.md` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-200-02",
+      "Flat": 21021,
+      "Name": "RoleMissingForPage",
+      "HttpStatus": 403,
+      "Tier": "Worker",
+      "Message": "Caller role lacks `RolePageAccess` for requested page.",
+      "Source": "`07-role-based-dashboards.md`",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-300-01",
+      "Flat": 21030,
+      "Name": "IdempotencyKeyMissing",
+      "HttpStatus": 400,
+      "Tier": "Worker",
+      "Message": "Required `X-Idempotency-Key` header absent on POST/PUT/PATCH.",
+      "Source": "`06-core-api-endpoints.md` \u00a71",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-300-02",
+      "Flat": 21031,
+      "Name": "CorrelationIdMissing",
+      "HttpStatus": 400,
+      "Tier": "Worker",
+      "Message": "Required `X-Correlation-Id` header absent.",
+      "Source": "`06` \u00a71",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-300-03",
+      "Flat": 21032,
+      "Name": "RequestBodyInvalid",
+      "HttpStatus": 400,
+      "Tier": "Worker",
+      "Message": "Request body fails JSON schema validation.",
+      "Source": "`06`",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-400-01",
+      "Flat": 21040,
+      "Name": "WorkerVersionTooOld",
+      "HttpStatus": 409,
+      "Tier": "Worker",
+      "Message": "Worker `WorkerVersionPin` below `AcceptedVersionRange` lower bound.",
+      "Source": "`10` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-400-02",
+      "Flat": 21041,
+      "Name": "VersionMismatch",
+      "HttpStatus": 409,
+      "Tier": "Worker",
+      "Message": "Worker version not in Main's accepted range.",
+      "Source": "`10` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-400-03",
+      "Flat": 21042,
+      "Name": "InstructionExpired",
+      "HttpStatus": 409,
+      "Tier": "Worker",
+      "Message": "Push-update instruction past `LatestStartUtc`.",
+      "Source": "`spec/14-update/28` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-400-04",
+      "Flat": 21043,
+      "Name": "InstructionKindUnsupported",
+      "HttpStatus": 409,
+      "Tier": "Worker",
+      "Message": "PayloadKind not implemented in this worker version.",
+      "Source": "`spec/14-update/28` \u00a74",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-500-01",
+      "Flat": 21050,
+      "Name": "ClockSkewTooLarge",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Local clock differs from Main `ServerTimeUtc` by >60s.",
+      "Source": "`10` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-500-02",
+      "Flat": 21051,
+      "Name": "HandoffFailed",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Post-update handoff did not confirm within 60s; rolled back.",
+      "Source": "`spec/14-update/28` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-500-03",
+      "Flat": 21052,
+      "Name": "SplitDbWriteFail",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Write to App or Session tier DB failed.",
+      "Source": "`11-split-db-tier-reconciliation.md`",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-600-01",
+      "Flat": 21060,
+      "Name": "PayloadVerificationFail",
+      "HttpStatus": 502,
+      "Tier": "Worker",
+      "Message": "Payload RS256 signature did not verify.",
+      "Source": "`spec/14-update/28` \u00a76",
+      "Retryable": true
+    },
+    {
+      "Code": "WORKER-600-02",
+      "Flat": 21061,
+      "Name": "PayloadChecksumFail",
+      "HttpStatus": 502,
+      "Tier": "Worker",
+      "Message": "Downloaded payload SHA256 mismatch.",
+      "Source": "`spec/14-update/28` \u00a76",
+      "Retryable": true
+    },
+    {
+      "Code": "WORKER-600-03",
+      "Flat": 21062,
+      "Name": "PayloadSizeFail",
+      "HttpStatus": 502,
+      "Tier": "Worker",
+      "Message": "Downloaded payload size mismatch.",
+      "Source": "`spec/14-update/28` \u00a76",
+      "Retryable": true
+    },
+    {
+      "Code": "WORKER-600-04",
+      "Flat": 21063,
+      "Name": "PayloadDownloadFail",
+      "HttpStatus": 502,
+      "Tier": "Worker",
+      "Message": "Could not download payload from `PayloadUrl`.",
+      "Source": "`spec/14-update/28` \u00a73",
+      "Retryable": true
+    },
+    {
+      "Code": "WORKER-700-01",
+      "Flat": 21070,
+      "Name": "SettingsPersistFail",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Failed to persist `WorkerBootstrapState` to Settings tier.",
+      "Source": "`10` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-700-02",
+      "Flat": 21071,
+      "Name": "SchemaMigrateFail",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Tier schema migration failed.",
+      "Source": "`10` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-700-03",
+      "Flat": 21072,
+      "Name": "DeployIoFail",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Disk-IO failure during rename-first deploy.",
+      "Source": "`spec/14-update/28` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-800-01",
+      "Flat": 21080,
+      "Name": "ListenerBindFail",
+      "HttpStatus": 500,
+      "Tier": "Worker",
+      "Message": "Failed to bind public listener.",
+      "Source": "`10` \u00a76",
+      "Retryable": false
+    },
+    {
+      "Code": "WORKER-800-02",
+      "Flat": 21081,
+      "Name": "WorkerUnreachable",
+      "HttpStatus": 502,
+      "Tier": "Worker",
+      "Message": "Main could not reach worker on `WorkerEndpointPublic`.",
+      "Source": "`04-worker-routing.md`",
+      "Retryable": true
+    },
+    {
+      "Code": "MAIN-100-01",
+      "Flat": 21110,
+      "Name": "AuthHandshakeFail",
+      "HttpStatus": 401,
+      "Tier": "Main",
+      "Message": "Sign-in credentials invalid.",
+      "Source": "`05-auth-and-2fa.md`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-100-02",
+      "Flat": 21111,
+      "Name": "SessionExpired",
+      "HttpStatus": 401,
+      "Tier": "Main",
+      "Message": "Main session cookie expired.",
+      "Source": "`05`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-100-03",
+      "Flat": 21112,
+      "Name": "TwoFactorRequired",
+      "HttpStatus": 401,
+      "Tier": "Main",
+      "Message": "User has 2FA enabled; supply TOTP.",
+      "Source": "`05`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-100-04",
+      "Flat": 21113,
+      "Name": "TwoFactorInvalid",
+      "HttpStatus": 401,
+      "Tier": "Main",
+      "Message": "TOTP code invalid or replayed.",
+      "Source": "`05`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-200-01",
+      "Flat": 21120,
+      "Name": "PowerAdminRequired",
+      "HttpStatus": 403,
+      "Tier": "Main",
+      "Message": "Endpoint requires PowerAdmin role.",
+      "Source": "`06` \u00a72.5/\u00a72.7",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-200-02",
+      "Flat": 21121,
+      "Name": "RoleMissingForPage",
+      "HttpStatus": 403,
+      "Tier": "Main",
+      "Message": "Caller role lacks `RolePageAccess` for requested page.",
+      "Source": "`07`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-300-01",
+      "Flat": 21130,
+      "Name": "CorrelationIdMissing",
+      "HttpStatus": 400,
+      "Tier": "Main",
+      "Message": "Required `X-Correlation-Id` header absent.",
+      "Source": "`04-worker-routing.md` \u00a77.4 + `spec/04-database-conventions/06-rest-api-format.md`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-300-04",
+      "Flat": 21131,
+      "Name": "IdempotencyBodyMismatch",
+      "HttpStatus": 409,
+      "Tier": "Main",
+      "Message": "Replay with different request body for same `X-Idempotency-Key`.",
+      "Source": "`04-worker-routing.md` \u00a77.3",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-300-05",
+      "Flat": 21132,
+      "Name": "RoutingResolveFail",
+      "HttpStatus": 404,
+      "Tier": "Main",
+      "Message": "Could not resolve `(CompanyId) -> WorkerNode` mapping.",
+      "Source": "`04-worker-routing.md` \u00a77.2",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-400-01",
+      "Flat": 21140,
+      "Name": "TenantNotFound",
+      "HttpStatus": 404,
+      "Tier": "Main",
+      "Message": "No `Tenant` row for given `CompanySlug`.",
+      "Source": "`04-worker-routing.md`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-400-02",
+      "Flat": 21141,
+      "Name": "WorkerQuarantined",
+      "HttpStatus": 503,
+      "Tier": "Main",
+      "Message": "Resolved worker is quarantined; routing refused.",
+      "Source": "`04` + `10` \u00a77",
+      "Retryable": true
+    },
+    {
+      "Code": "MAIN-400-03",
+      "Flat": 21142,
+      "Name": "NoEligibleWorker",
+      "HttpStatus": 503,
+      "Tier": "Main",
+      "Message": "No worker matches placement strategy.",
+      "Source": "`04`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-400-05",
+      "Flat": 21143,
+      "Name": "TwoFactorChallengeUnknown",
+      "HttpStatus": 401,
+      "Tier": "Main",
+      "Message": "TOTP submitted for unknown / expired challenge id.",
+      "Source": "`04-worker-routing.md` \u00a77.2 (`/Auth/TwoFactor/Verify`)",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-400-08",
+      "Flat": 21144,
+      "Name": "RefreshNotEligible",
+      "HttpStatus": 401,
+      "Tier": "Main",
+      "Message": "JWT not within refresh window or already rotated.",
+      "Source": "`04-worker-routing.md` \u00a77.2 (`/Auth/Refresh`)",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-400-09",
+      "Flat": 21145,
+      "Name": "RefreshReplay",
+      "HttpStatus": 401,
+      "Tier": "Main",
+      "Message": "Single-use refresh JWT replayed after rotation.",
+      "Source": "`04-worker-routing.md` \u00a77.2 + diagrams/seq-login-routing",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-400-11",
+      "Flat": 21146,
+      "Name": "AuthActionMissing",
+      "HttpStatus": 400,
+      "Tier": "Main",
+      "Message": "Required `X-Auth-Action` header absent on multi-step auth flow.",
+      "Source": "`04-worker-routing.md` \u00a77.4",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-500-01",
+      "Flat": 21150,
+      "Name": "MainDbWriteFail",
+      "HttpStatus": 500,
+      "Tier": "Main",
+      "Message": "Write to Main Root tier DB failed.",
+      "Source": "`03-main-db-schema.md`",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-600-01",
+      "Flat": 21160,
+      "Name": "WorkerUnreachable",
+      "HttpStatus": 502,
+      "Tier": "Main",
+      "Message": "Main could not reach worker on `WorkerEndpointPublic`.",
+      "Source": "`04`",
+      "Retryable": true
+    },
+    {
+      "Code": "MAIN-600-02",
+      "Flat": 21161,
+      "Name": "WorkerHeartbeatStale",
+      "HttpStatus": null,
+      "Tier": "Main",
+      "Message": "Worker missed \u22653 heartbeats; quarantining.",
+      "Source": "`10` \u00a77",
+      "Retryable": false
+    },
+    {
+      "Code": "MAIN-400-10",
+      "Flat": 21170,
+      "Name": "EndpointAuthLocked",
+      "HttpStatus": 403,
+      "Tier": "Main",
+      "Message": "Endpoint pattern matches the lock-list (`/API/V1/Workers/*` or `/API/V1/SelfUpdate`) and cannot be reconfigured via `PATCH /API/V1/Settings/EndpointAuth`.",
+      "Source": "`06-core-api-endpoints.md` \u00a75.4 R-5 + `05-auth-and-2fa.md` \u00a78",
+      "Retryable": false
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "EndpointAuthSettingId": 14,
+  "EndpointPathPattern": "/API/V1/Workers/Register",
+  "HttpMethodMask": "POST",
+  "IsEnabled": 1,
+  "AcceptedMechanismCodes": ["OAuth"],
+  "UpdatedByUserDirectoryId": 7,
+  "UpdatedByUserEmail": "poweradmin@example.com",
+  "UpdatedAt": "2026-05-06T10:22:14Z",
+  "CorrelationId": "01HZQK4V8S6Q5W5AGFRLIHQYC7"
+}

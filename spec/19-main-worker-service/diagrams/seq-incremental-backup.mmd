@@ -1,0 +1,40 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Incremental backup sync — primary → backup
+%% Authoritative:  spec/19-main-worker-service/19-incremental-backup-sync.md,
+%%                 20-backup-encryption-and-keys.md,
+%%                 21-backup-endpoints.md,
+%%                 22-backup-apply-logic.md
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-06, Phase 12)
+%% ==========================================================
+sequenceDiagram
+    autonumber
+    participant Tx as Primary Worker (CDC trigger)
+    participant Led as SyncOpLedger
+    participant Out as BackupOutbox (envelope builder)
+    participant Pri as Primary Worker (sender)
+    participant BE1 as Backup Node BE-1
+    participant App as Apply Pipeline (22-…md)
+    participant DB as Backup App-DB
+
+    Tx->>Led: INSERT SyncOp (SyncOpSeq monotonic)
+    Out->>Led: SELECT WHERE SyncOpSeq > Watermark
+    Out->>Out: Build envelope (FromSeq..ToSeq), seal under Active KeyEpoch
+    Pri->>BE1: POST /API/V1/Backup/IncrementalDiff (S2S OAuth, PairingId)
+    BE1->>App: Hand off sealed envelope
+    App->>App: Stage 1 Decrypt → 2 Open → 3 Validate (V1–V7)
+    alt Idempotent replay (V7 hit)
+        App-->>BE1: 200 OK (LastAcceptedSyncOpSeq unchanged)
+    else New envelope
+        App->>DB: BEGIN IMMEDIATE
+        App->>DB: Dispatch upserts/deletes per row
+        App->>DB: UPDATE BackupSyncWatermark = ToSeq
+        App->>DB: COMMIT
+        App-->>BE1: 200 OK { LastAcceptedSyncOpSeq: ToSeq }
+    end
+    BE1-->>Pri: ACK
+    Pri->>Pri: Advance local cursor and mark envelope Acked
+
+    Note over App,DB: Any Stage failure → BackupApplyDeadLetter (no silent skip per CODE RED).

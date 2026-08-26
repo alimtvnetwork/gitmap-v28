@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Error Code Schema",
+  "description": "Schema for validating standardized error codes (supports both prefixed and integer formats)",
+  "type": "object",
+  "definitions": {
+    "ErrorCode": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Z]{2,4}-[0-9]{3}-[0-9]{2}$",
+          "description": "Prefixed format: PROJECT-CATEGORY-NUMBER (e.g., SM-400-01)",
+          "examples": ["GEN-100-01", "SM-400-01", "LM-300-02", "PS-9500-01"]
+        },
+        {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 99999,
+          "description": "Integer format for Go CLI tools (e.g., 7001, 9301, 14200)",
+          "examples": [7001, 9301, 14200]
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9]{4,5}$",
+          "description": "Integer format as string for Go CLI tools",
+          "examples": ["7001", "9301", "14200"]
+        }
+      ]
+    },
+    "ErrorEntry": {
+      "type": "object",
+      "required": ["Code", "Name", "Message"],
+      "properties": {
+        "Code": {
+          "$ref": "#/definitions/ErrorCode"
+        },
+        "Name": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Constant name in UPPER_SNAKE_CASE",
+          "examples": ["CONFIG_MISSING", "AUTH_REQUIRED", "DB_CONNECTION"]
+        },
+        "Message": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 200,
+          "description": "Human-readable error message"
+        },
+        "Category": {
+          "type": "string",
+          "enum": [
+            "general",
+            "authentication",
+            "authorization",
+            "validation",
+            "business_logic",
+            "database",
+            "external_services",
+            "file_system",
+            "network"
+          ]
+        },
+        "Severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error", "critical"],
+          "default": "error"
+        },
+        "Recoverable": {
+          "type": "boolean",
+          "description": "Whether the error condition can be recovered from",
+          "default": true
+        },
+        "UserVisible": {
+          "type": "boolean",
+          "description": "Whether to show this error to end users",
+          "default": true
+        },
+        "HttpStatus": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599,
+          "description": "Suggested HTTP status code for API responses"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "Project": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,4}$",
+      "description": "Project prefix (2-4 uppercase letters)"
+    },
+    "Version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "Errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ErrorEntry"
+      }
+    }
+  },
+  "required": ["Project", "Errors"],
+  "additionalProperties": false
+}

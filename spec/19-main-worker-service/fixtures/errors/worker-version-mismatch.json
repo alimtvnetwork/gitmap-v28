@@ -1,0 +1,17 @@
+{
+  "EnvelopeVersion": "1.1.0",
+  "Error": {
+    "ErrorCode": "WorkerVersionMismatch",
+    "ErrorMessage": "Worker reports 5.21.0; Main expects 5.23.0",
+    "ErrorCategory": "Configuration",
+    "ErrorSeverity": "Error",
+    "CorrelationId": "01HZQK4N3M5P8RXVT7BWAGQYC2",
+    "WorkerNodeId": 3,
+    "OperationName": "Worker.Heartbeat",
+    "OccurredAt": "2026-05-06T10:22:14Z",
+    "Retryable": false,
+    "OperationId": null,
+    "SubCode": null,
+    "FieldErrors": null
+  }
+}

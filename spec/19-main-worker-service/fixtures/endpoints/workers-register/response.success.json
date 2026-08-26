@@ -1,0 +1,9 @@
+{
+  "WorkerNodeId": 3,
+  "WorkerNodeStatusCode": "Active",
+  "AssignedSequence": 3,
+  "WorkerNodeRegisteredAt": "2026-05-06T10:22:14Z",
+  "MainServerVersion": "5.23.0",
+  "TrustStoreKidList": ["main-2026-05", "main-2026-04"],
+  "CorrelationId": "01HZQK4S2Q4N3T7YEDPJGFQYC5"
+}

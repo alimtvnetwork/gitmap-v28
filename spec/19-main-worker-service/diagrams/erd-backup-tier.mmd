@@ -1,0 +1,136 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Backup-tier App-DB tables (Phases 7–11)
+%% Authoritative:  spec/19-main-worker-service/19-incremental-backup-sync.md,
+%%                 20-backup-encryption-and-keys.md,
+%%                 22-backup-apply-logic.md,
+%%                 23-snapshot-storage-and-restore.md
+%% Status:         Illustrative only. If this diagram disagrees
+%%                 with the authoritative spec(s) above, the
+%%                 spec wins and this file is the bug.
+%% Banner version: 1.1.0 (2026-05-06, Phase 12.2 — added PinReason / PinnedAtEpoch / PinnedByActor on BackupSnapshotCatalog per OQ-23-3)
+%% ==========================================================
+erDiagram
+    %% Backup-side App-tier tables. PascalCase, INTEGER PKs, Notes/Comments on transactional rows.
+
+    %% ---- Source-side (primary Worker) CDC ledger ----
+    SyncOpLedger ||--o{ BackupOutboxEnvelope : "batched into"
+    BackupSyncWatermark ||--|| BackupPairing : "tracks per pairing"
+    BackupPairing ||--o{ BackupKeyEpoch : "rotates"
+
+    %% ---- Sink-side (backup node) apply pipeline ----
+    BackupOutboxEnvelope ||--o{ BackupApplyIdempotency : "received as"
+    BackupApplyIdempotency ||--o{ BackupApplyDeadLetter : "dead-letters on failure"
+
+    %% ---- Sink-side snapshot lifecycle ----
+    BackupSnapshotJob ||--|| BackupSnapshotCatalog : "produces"
+    BackupSnapshotCatalog ||--o{ BackupRestoreJob : "restored as"
+
+    SyncOpLedger {
+        INTEGER SyncOpLedgerId PK
+        INTEGER SyncOpSeq
+        TEXT SourceTable
+        TEXT OperationType
+        TEXT PrimaryKeyJson
+        TEXT RowJson
+        INTEGER OccurredAt
+        TEXT Notes
+        TEXT Comments
+    }
+
+    BackupPairing {
+        INTEGER BackupPairingId PK
+        TEXT PairingId
+        TEXT PrimaryNodeId
+        TEXT BackupNodeId
+        TEXT Status
+        INTEGER CreatedAt
+        TEXT Description
+    }
+
+    BackupKeyEpoch {
+        INTEGER BackupKeyEpochId PK
+        INTEGER BackupPairingId FK
+        INTEGER Epoch
+        TEXT Status
+        TEXT PublicKeyPem
+        INTEGER ActivatedAt
+        INTEGER RetiredAt
+        TEXT Description
+    }
+
+    BackupSyncWatermark {
+        INTEGER BackupSyncWatermarkId PK
+        INTEGER BackupPairingId FK
+        INTEGER LastAcceptedSyncOpSeq
+        INTEGER UpdatedAt
+        TEXT Notes
+        TEXT Comments
+    }
+
+    BackupOutboxEnvelope {
+        INTEGER BackupOutboxEnvelopeId PK
+        TEXT EnvelopeId
+        INTEGER FromSyncOpSeq
+        INTEGER ToSyncOpSeq
+        INTEGER KeyEpoch
+        TEXT Status
+        INTEGER CreatedAt
+        TEXT Notes
+        TEXT Comments
+    }
+
+    BackupApplyIdempotency {
+        INTEGER BackupApplyIdempotencyId PK
+        TEXT EnvelopeId
+        TEXT Status
+        INTEGER ReceivedAt
+        INTEGER AppliedAt
+        TEXT Notes
+        TEXT Comments
+    }
+
+    BackupApplyDeadLetter {
+        INTEGER BackupApplyDeadLetterId PK
+        TEXT EnvelopeId
+        TEXT FailureCode
+        TEXT FailureReason
+        INTEGER FailedAt
+        TEXT Notes
+        TEXT Comments
+    }
+
+    BackupSnapshotCatalog {
+        INTEGER BackupSnapshotCatalogId PK
+        TEXT SnapshotDate
+        TEXT FilePath
+        INTEGER MaxSyncOpSeq
+        INTEGER KeyEpoch
+        TEXT Status
+        TEXT PinReason
+        INTEGER PinnedAtEpoch
+        TEXT PinnedByActor
+        TEXT Description
+    }
+
+    BackupSnapshotJob {
+        INTEGER BackupSnapshotJobId PK
+        TEXT SnapshotDate
+        TEXT Status
+        INTEGER StartedAt
+        INTEGER FinishedAt
+        TEXT Notes
+        TEXT Comments
+    }
+
+    BackupRestoreJob {
+        INTEGER BackupRestoreJobId PK
+        TEXT RestoreJobId
+        INTEGER BackupSnapshotCatalogId FK
+        TEXT Status
+        INTEGER RequestedAt
+        INTEGER FinishedAt
+        TEXT Notes
+        TEXT Comments
+    }

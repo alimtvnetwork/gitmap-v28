@@ -1,0 +1,40 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Backup restore by date — backup → primary
+%% Authoritative:  spec/19-main-worker-service/23-snapshot-storage-and-restore.md,
+%%                 21-backup-endpoints.md (BE-3, BE-6)
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-06, Phase 12)
+%% ==========================================================
+sequenceDiagram
+    autonumber
+    participant Op as Operator (Power Admin)
+    participant Main as Main Server
+    participant BE3 as Backup Node BE-3
+    participant Cat as BackupSnapshotCatalog
+    participant Job as BackupRestoreJob
+    participant BE6 as Primary Worker BE-6
+    participant PriDB as Primary App-DB
+
+    Op->>Main: Request restore (PairingId, SnapshotDate)
+    Main->>BE3: POST /API/V1/Backup/RestoreByDate (S2S, scope Backup.Restore.Write)
+    BE3->>Cat: Lookup snapshot for date
+    alt Not found
+        BE3-->>Main: 404 MAIN-830-01 SnapshotNotFound
+    else In progress
+        BE3-->>Main: 409 MAIN-830-02 RestoreAlreadyInProgress
+    else Found
+        BE3->>Job: Enqueue RestoreJob (Status=Pending)
+        BE3-->>Main: 202 Accepted { RestoreJobId }
+
+        Job->>Job: Decrypt snapshot zip (HKDF "BackupSnapshot/v1")
+        Job->>Job: Re-seal under current Active KeyEpoch (forward secrecy)
+        Job->>BE6: POST /API/V1/Backup/RestoreInbox (scope Backup.Restore.Apply)
+        BE6->>PriDB: Offline App-tier import (bypass Stage-4 dispatch)
+        PriDB->>PriDB: Reset BackupSyncWatermark = MaxSyncOpSeq(snapshot)
+        BE6-->>Job: 200 OK
+        Job->>Job: Status=Completed
+    end
+
+    Note over Job,PriDB: Restore success realigns watermark — subsequent BE-1 deliveries resume cleanly.

@@ -1,0 +1,49 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Seedable-Config layout
+%% Authoritative:  spec/06-seedable-config-architecture/ (schema) + spec/19/14-rbac-and-status-seed.md (rows)
+%% Status:         Illustrative only. If this diagram disagrees
+%%                 with the authoritative spec(s) above, the
+%%                 spec wins and this file is the bug.
+%% Banner version: 1.0.0 (2026-05-04, audit fix #9)
+%% ==========================================================
+erDiagram
+    %% Seedable-Config layout shared by Main and Worker tiers.
+    %% Authoritative rules: spec/06-seedable-config-architecture/
+    %% This diagram shows how the seed file (config.seed.json) is materialized.
+
+    SeedableConfigFile ||--o{ SeedableConfigEntry : "contains"
+    SeedableConfigEntry ||--o{ SeedableConfigVersion : "history"
+    SeedableConfigNamespace ||--o{ SeedableConfigEntry : "groups"
+
+    SeedableConfigFile {
+        INTEGER SeedableConfigFileId PK
+        TEXT SeedableConfigFilePath UK
+        TEXT SeedableConfigFileSemver
+        TEXT SeedableConfigFileLoadedAt
+        TEXT Description
+    }
+    SeedableConfigNamespace {
+        INTEGER SeedableConfigNamespaceId PK
+        TEXT SeedableConfigNamespaceCode UK
+        TEXT SeedableConfigNamespaceLabel
+        TEXT Description
+    }
+    SeedableConfigEntry {
+        INTEGER SeedableConfigEntryId PK
+        INTEGER SeedableConfigFileId FK
+        INTEGER SeedableConfigNamespaceId FK
+        TEXT SeedableConfigEntryKey
+        TEXT SeedableConfigEntryValue
+        INTEGER IsSecret
+        TEXT Description
+    }
+    SeedableConfigVersion {
+        INTEGER SeedableConfigVersionId PK
+        INTEGER SeedableConfigEntryId FK
+        TEXT SeedableConfigVersionSemver
+        TEXT SeedableConfigVersionAppliedAt
+        TEXT Notes
+        TEXT Comments
+    }

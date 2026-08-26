@@ -1,0 +1,4 @@
+spec/05-coding-guidelines/02-go-code-style.md
+spec/05-coding-guidelines/04-error-handling.md
+spec/05-coding-guidelines/07-logging-observability.md
+spec/05-coding-guidelines/11-database-patterns.md

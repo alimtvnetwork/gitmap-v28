@@ -1,0 +1,118 @@
+# ============================================================
+# Forbidden Strings Configuration
+# ============================================================
+# Each [[rule]] defines a regex pattern that must NOT appear in the
+# repository (outside of excluded dirs and allowlisted paths).
+#
+# To add a new rename guard, append a [[rule]] block — no new
+# scripts needed. The generic checker reads this file.
+#
+# Fields:
+#   id          — unique short identifier (used in output)
+#   description — human-readable explanation
+#   pattern     — ERE regex (Python re syntax)
+#   replacement — canonical string the stale match should become.
+#                 Used by `forbidden-strings-summary.py` to emit a
+#                 precise per-file `sed` command. Optional but
+#                 strongly recommended for any rename guard.
+#   fix_hint    — suggested bulk-fix command shown on failure
+#   exclude_dirs— directories to skip entirely (always: .git, node_modules, dist, build)
+#   exclude_files— glob patterns for files to skip (e.g. the checker itself)
+#   allowlist   — repo-relative paths/globs that may legitimately contain the pattern
+# ============================================================
+
+# --- Rule: stale repo slug (pre-renumber references) ---
+[[rule]]
+id = "STALE-REPO-SLUG"
+description = "Pre-renumber repo slug (pre-renumber major versions). Current canonical slug is the latest major version."
+summary_description = "Pre-renumber repo slug references. See TOML for exact pattern."
+summary_pattern = "<redacted: see linter-scripts/forbidden-strings.toml>"
+summary_replacement = "<redacted: current canonical slug>"
+pattern = 'coding-guidelines-v(1[0-4]|[1-9])(?!\.\d)\b'
+replacement = "coding-guidelines-v24"
+fix_hint = "python3 linter-scripts/forbidden-strings-summary.py --rule STALE-REPO-SLUG --emit-fix-command | bash"
+exclude_dirs = ["release-artifacts", ".gitmap"]
+exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbidden-strings-summary.py"]
+allowlist = [
+  "spec/06-seedable-config-architecture/97-changelog.md",
+  "changelog.md",
+  "spec/14-update/23-install-script-version-probe.md",
+  "spec/14-update/26-repo-major-version-migrator.md",
+  "src/data/specTree.json",
+  ".lovable/memory/index.md",
+  ".lovable/strictly-avoid.md",
+  # Historical session log: documents the v14 → v17 rebrand itself, so
+  # the old slug must remain literally for the audit trail to make sense.
+  ".lovable/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md",
+  # Cites a path inside release-artifacts/coding-guidelines-v24.4.0/ —
+  # that directory is a frozen snapshot of v1.4.0 (already excluded from
+  # the scan); the prose reference to its path must be allowlisted too.
+  ".lovable/memory/constraints/standalone-script-standards.md",
+  # Tooling README that documents these rules; literal stale forms are required for accurate examples.
+  "linter-scripts/readme-forbidden-strings.md",
+  # Quickref 'Don't' table cell legitimately demonstrates the forbidden v1 slug to teach the rename; the literal stale form is required for the example to make sense.
+  "spec/17-consolidated-guidelines/00-strictly-avoid-quickref.md",
+  # fix-repo test fixture: intentionally contains stale slugs (v1, v15, v16, v19, v170)
+  # as synthetic input to verify default vs --all rewrite behavior. Must remain literal.
+  "linters-cicd/tests/fixtures/fix-repo/README.md",
+  # Documentation file that explains the rule itself; must cite stale slugs verbatim as examples.
+  "linter-scripts/readme-forbidden-strings.md",
+]
+# --- Rule: stale module path (movie-cli v1 references) ---
+[[rule]]
+id = "STALE-MODULE-PATH"
+description = "Stale module path reference (legacy v1 namespace). Current canonical namespace is the v2 module path."
+summary_description = "Stale module path reference. See TOML for exact pattern."
+summary_pattern = "<redacted: see linter-scripts/forbidden-strings.toml>"
+summary_replacement = "<redacted: current canonical module path>"
+pattern = 'movie-cli-v1\b'
+replacement = "movie-cli-v2"
+fix_hint = "python3 linter-scripts/forbidden-strings-summary.py --rule STALE-MODULE-PATH --emit-fix-command | bash"
+exclude_dirs = ["release-artifacts", ".gitmap"]
+exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbidden-strings-summary.py"]
+allowlist = [
+  "spec/14-update/23-install-script-version-probe.md",
+  # Historical changelog entry that documents this very rule's introduction.
+  "changelog.md",
+  # Tooling README that documents these rules; literal stale forms are required for accurate examples.
+  "linter-scripts/readme-forbidden-strings.md",
+  # Documentation file that explains the rule itself; must cite stale module path verbatim as an example.
+  "linter-scripts/readme-forbidden-strings.md",
+]
+
+# --- Rule: legacy CDN domain references ---
+[[rule]]
+id = "LEGACY-CDN-DOMAIN"
+description = "Legacy CDN domain reference. Current canonical CDN domain is the renamed host."
+summary_description = "Legacy CDN domain reference. See TOML for exact pattern."
+summary_pattern = "<redacted: see linter-scripts/forbidden-strings.toml>"
+summary_replacement = "<redacted: current canonical CDN domain>"
+pattern = 'cdn\.riseup-asia\.com'
+replacement = "cdn.riseup.asia"
+fix_hint = "python3 linter-scripts/forbidden-strings-summary.py --rule LEGACY-CDN-DOMAIN --emit-fix-command | bash"
+exclude_dirs = ["release-artifacts", ".gitmap"]
+exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbidden-strings-summary.py", "changelog.md"]
+allowlist = []
+
+# --- Rule: Spec/19 implementation suggestions (TOTAL BAN) ---
+# This repo is spec-only for spec/19-main-worker-service. Any phrase that
+# proposes coding, scaffolding, or shipping the worker service is forbidden.
+# See `.lovable/strictly-avoid.md` and `mem://constraints/spec19-no-implementation`.
+[[rule]]
+id = "SPEC19-NO-IMPL"
+description = "Forbidden Spec/19 implementation phrases. spec/19-main-worker-service is spec-only — see linter-scripts/forbidden-strings.toml for the exact phrase list (kept only in this TOML to avoid self-trips)."
+summary_description = "Forbidden Spec/19 implementation phrases. spec/19-main-worker-service is spec-only."
+summary_pattern = "<redacted: see linter-scripts/forbidden-strings.toml>"
+pattern = '(?i)\b(phase\s*1\s*implementation|begin\s*coding|ship\s*the\s*service|starter\s*skeleton|begin\s*spec[/\s-]*19\s*phase\s*1|start\s*implementing\s*spec[/\s-]*19)\b'
+fix_hint = "Remove the phrase. spec/19-main-worker-service is spec-only — no implementation work is permitted in this repo. See .lovable/strictly-avoid.md."
+exclude_dirs = ["release-artifacts", ".gitmap"]
+exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbidden-strings-summary.py", "changelog.md"]
+allowlist = [
+  # Canonical ban definitions must cite the forbidden phrases verbatim.
+  ".lovable/strictly-avoid.md",
+  ".lovable/memory/constraints/spec19-no-implementation.md",
+  "spec/17-consolidated-guidelines/00-strictly-avoid-quickref.md",
+  # Tooling README documenting the rule itself.
+  "linter-scripts/readme-forbidden-strings.md",
+  "linter-scripts/readme-forbidden-strings.md",
+]

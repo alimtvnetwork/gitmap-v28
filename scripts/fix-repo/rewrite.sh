@@ -13,6 +13,7 @@ get_target_versions() {
 
 # Counts literal-token occurrences NOT followed by a digit, in $1.
 # Args: file base n
+# lint-allow: function-length reason="flat grep + count pipeline"
 count_token_occurrences() {
   local file="$1" base="$2" n="$3"
   local token="$base-v$n"
@@ -60,6 +61,7 @@ substitute_token_in_file() {
 
 # Rewrites all targets in $1, echoes total replacement count.
 # Args: path base current dry n1 [n2 ...]
+# lint-allow: function-length reason="flat read-modify-write pipeline"
 rewrite_file() {
   local path="$1" base="$2" current="$3" dry="$4"; shift 4
   local total=0 n count

@@ -1,0 +1,24 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Deploy path resolution (flag -> embedded -> DB -> prompt -> updater)
+%% Authoritative:  spec/14-update/02-deploy-path-resolution.md + 08-repo-path-sync.md
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-07)
+%% ==========================================================
+flowchart TD
+    Start(["resolveRepoPath()"]) --> Flag{"--repo-path flag?"}
+    Flag -- "yes" --> SaveFlag["Persist to DB"]
+    Flag -- "no" --> Embed{"Embedded constant?"}
+    Embed -- "yes" --> SaveEmbed["Persist to DB"]
+    Embed -- "no" --> DB{"DB lookup hit?"}
+    DB -- "yes" --> UseDB["Use stored path"]
+    DB -- "no" --> Prompt{"Interactive TTY?"}
+    Prompt -- "yes" --> Ask["Prompt user and persist"]
+    Prompt -- "no" --> Updater{"binary-updater on PATH?"}
+    Updater -- "yes" --> Delegate["Delegate: binary-updater run"]
+    Updater -- "no" --> Fail(["Exit 1: no repo path"])
+    SaveFlag --> Done(["Return path"])
+    SaveEmbed --> Done
+    UseDB --> Done
+    Ask --> Done

@@ -1,0 +1,129 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Main Server SQLite catalog
+%% Authoritative:  spec/19-main-worker-service/03-main-db-schema.md (v2.2.0+)
+%%                 + spec/04-database-conventions/
+%% Status:         Illustrative only. If this diagram disagrees
+%%                 with the authoritative spec(s) above, the
+%%                 spec wins and this file is the bug.
+%% Banner version: 2.0.0 (2026-05-06, Phase 13.3 — refreshed for:
+%%                 (a) UserDirectory replaces legacy User table (no secrets at Main);
+%%                 (b) WorkerNode backup fields (Sequence, IsBackup, BackupOfWorkerNodeId, D8/D9);
+%%                 (c) EndpointAuthSetting + EndpointAuthChangeAudit (FK → UserDirectory);
+%%                 (d) 4-tier DB framing — Main DB shown here is the Root tier.
+%% ==========================================================
+erDiagram
+    WorkerNode ||--o{ Company : "hosts"
+    WorkerNode ||--o{ WorkerVersion : "has versions"
+    WorkerNode ||--o{ WorkerSelectionEvent : "selected in"
+    WorkerNode ||--o{ AccessDenialEvent : "denied at"
+    WorkerNode ||--o| WorkerNode : "backup of (self-FK, no chains)"
+    WorkerNodeStatus ||--o{ WorkerNode : "classifies"
+    WorkerNodeKind ||--o{ WorkerNode : "classifies"
+    Company ||--o{ UserDirectory : "employs (routing index)"
+    Company ||--o{ WorkerSelectionEvent : "routed in"
+    UserDirectory ||--o{ AccessDenialEvent : "triggered by"
+    UserDirectory ||--o{ EndpointAuthChangeAudit : "performed"
+    EndpointAuthSetting ||--o{ EndpointAuthChangeAudit : "audited by"
+    EnumPage ||--o{ AccessDenialEvent : "denied for"
+    WorkerSelectionStrategy ||--o{ WorkerSelectionEvent : "used by"
+
+    WorkerNode {
+        INTEGER WorkerNodeId PK
+        TEXT WorkerNodeTitle "UI label: Region (D7)"
+        TEXT WorkerNodeIdentity UK
+        TEXT WorkerNodeEndpoint
+        INTEGER WorkerNodeStatusId FK
+        INTEGER WorkerNodeKindId FK
+        INTEGER Sequence "RoundRobin order (D8)"
+        INTEGER IsBackup "0/1 (D8/D9)"
+        INTEGER BackupOfWorkerNodeId FK "self-FK, NULL when IsBackup=0"
+        INTEGER WorkerNodeRegisteredAt
+        INTEGER WorkerNodeLastSeenAt
+        TEXT Description
+    }
+    WorkerNodeStatus {
+        INTEGER WorkerNodeStatusId PK
+        TEXT WorkerNodeStatusCode UK
+        TEXT WorkerNodeStatusLabel
+        TEXT Description
+    }
+    WorkerNodeKind {
+        INTEGER WorkerNodeKindId PK
+        TEXT WorkerNodeKindCode UK
+        TEXT WorkerNodeKindLabel
+        TEXT Description
+    }
+    Company {
+        INTEGER CompanyId PK
+        TEXT CompanySlug UK
+        TEXT CompanyName
+        INTEGER WorkerNodeId FK
+        INTEGER CompanyAssignedAt
+        TEXT Description
+    }
+    UserDirectory {
+        INTEGER UserDirectoryId PK
+        TEXT UserEmail UK
+        INTEGER CompanyId FK
+        INTEGER WorkerNodeId FK "denormalized for single-row routing lookup"
+        TEXT Description
+    }
+    EnumPage {
+        INTEGER EnumPageId PK
+        TEXT EnumPageCode UK
+        TEXT EnumPageLabel
+        TEXT Description
+    }
+    EndpointAuthSetting {
+        INTEGER EndpointAuthSettingId PK
+        TEXT EndpointPath UK
+        TEXT AuthMode
+        INTEGER UpdatedByUserDirectoryId FK
+        TEXT UpdatedByUserEmail
+        INTEGER UpdatedAt
+        TEXT Description
+    }
+    EndpointAuthChangeAudit {
+        INTEGER EndpointAuthChangeAuditId PK
+        INTEGER EndpointAuthSettingId FK
+        INTEGER UpdatedByUserDirectoryId FK
+        TEXT IdempotencyKey UK
+        INTEGER OccurredAt
+        TEXT Notes
+        TEXT Comments
+    }
+    AccessDenialEvent {
+        INTEGER AccessDenialEventId PK
+        INTEGER UserDirectoryId FK
+        INTEGER EnumPageId FK
+        INTEGER WorkerNodeId FK "NULL when denied at Main edge"
+        TEXT CorrelationId
+        INTEGER OccurredAt
+        TEXT Notes
+        TEXT Comments
+    }
+    WorkerVersion {
+        INTEGER WorkerVersionId PK
+        INTEGER WorkerNodeId FK
+        TEXT WorkerVersionSemver
+        INTEGER WorkerVersionRecordedAt
+        TEXT Notes
+        TEXT Comments
+    }
+    WorkerSelectionEvent {
+        INTEGER WorkerSelectionEventId PK
+        INTEGER CompanyId FK
+        INTEGER WorkerNodeId FK
+        INTEGER WorkerSelectionStrategyId FK
+        INTEGER WorkerSelectionEventAt
+        TEXT Notes
+        TEXT Comments
+    }
+    WorkerSelectionStrategy {
+        INTEGER WorkerSelectionStrategyId PK
+        TEXT WorkerSelectionStrategyCode UK
+        TEXT WorkerSelectionStrategyLabel
+        TEXT Description
+    }

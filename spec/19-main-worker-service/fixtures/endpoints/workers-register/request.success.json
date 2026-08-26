@@ -1,0 +1,18 @@
+{
+  "_headers": {
+    "Content-Type": "application/json; charset=utf-8",
+    "Authorization": "Bearer <oauth-client-credentials-token>",
+    "X-Correlation-Id": "01HZQK4S2Q4N3T7YEDPJGFQYC5",
+    "X-Idempotency-Key": "9a8b7c6d-5e4f-43ab-bcde-0123456789ab"
+  },
+  "_body": {
+    "WorkerNodeIdentity": "machine-fp-7c8d9e0f1a2b",
+    "WorkerNodeTitle": "Region 3 — APAC",
+    "WorkerNodeEndpoint": "https://w3.example.com",
+    "WorkerNodeKindCode": "Primary",
+    "WorkerVersionSemver": "5.23.0",
+    "Sequence": 3,
+    "IsBackup": 0,
+    "BackupOfWorkerNodeId": null
+  }
+}

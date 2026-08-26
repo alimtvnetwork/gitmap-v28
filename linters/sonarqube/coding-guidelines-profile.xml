@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SonarQube Quality Profile — Coding Guidelines Enforcement
+  
+  Import this profile in SonarQube: Quality Profiles → Create → Restore Profile
+  
+  Maps CODE RED rules to SonarQube built-in rules where possible.
+  For rules without direct SonarQube equivalents, use the Python/Go validator scripts.
+-->
+<profile>
+  <name>Coding Guidelines - CODE RED</name>
+  <language>go</language>
+
+  <rules>
+    <!-- CODE-RED-001: No nested if → Cognitive Complexity -->
+    <rule>
+      <repositoryKey>go</repositoryKey>
+      <key>go:S3776</key>
+      <priority>BLOCKER</priority>
+      <parameters>
+        <parameter>
+          <key>threshold</key>
+          <value>5</value>
+        </parameter>
+      </parameters>
+    </rule>
+
+    <!-- CODE-RED-003: No magic strings → String literals should not be duplicated -->
+    <rule>
+      <repositoryKey>go</repositoryKey>
+      <key>go:S1192</key>
+      <priority>CRITICAL</priority>
+      <parameters>
+        <parameter>
+          <key>threshold</key>
+          <value>2</value>
+        </parameter>
+      </parameters>
+    </rule>
+
+    <!-- CODE-RED-004: Max function lines -->
+    <rule>
+      <repositoryKey>go</repositoryKey>
+      <key>go:S138</key>
+      <priority>BLOCKER</priority>
+      <parameters>
+        <parameter>
+          <key>max</key>
+          <value>15</value>
+        </parameter>
+      </parameters>
+    </rule>
+
+    <!-- STYLE-002: No else after return -->
+    <rule>
+      <repositoryKey>go</repositoryKey>
+      <key>go:S1871</key>
+      <priority>MAJOR</priority>
+    </rule>
+
+    <!-- General: Functions should not have too many parameters -->
+    <rule>
+      <repositoryKey>go</repositoryKey>
+      <key>go:S107</key>
+      <priority>MAJOR</priority>
+      <parameters>
+        <parameter>
+          <key>max</key>
+          <value>4</value>
+        </parameter>
+      </parameters>
+    </rule>
+  </rules>
+</profile>

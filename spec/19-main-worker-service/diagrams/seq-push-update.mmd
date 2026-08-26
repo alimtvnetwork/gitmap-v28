@@ -1,0 +1,43 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Power-Admin push-update fan-out
+%% Authoritative:  spec/14-update/28-worker-push-instruction.md + spec/19/15-tunable-constants.md
+%% Status:         Illustrative only. If this diagram disagrees
+%%                 with the authoritative spec(s) above, the
+%%                 spec wins and this file is the bug.
+%% Banner version: 1.0.0 (2026-05-04, audit fix #9)
+%% ==========================================================
+sequenceDiagram
+    autonumber
+    participant Admin as Power Admin (UI)
+    participant Main as Main Server
+    participant DB as Main SQLite
+    participant W1 as Worker 1
+    participant W2 as Worker 2
+    participant Wn as Worker N
+
+    Admin->>Main: POST /API/V1/Workers/All/Update
+    Main->>Main: Guard userHasAccessToPage(PushUpdatePage)
+    Main->>DB: SELECT all Active WorkerNode rows
+
+    par Push to all workers in parallel
+        Main->>W1: POST /API/V1/SelfUpdate (OAuth, X-Correlation-Id)
+        W1->>W1: Run self-update workflow (see 09-self-update-pointer.md)
+        W1-->>Main: 200 { NewVersion: "1.5.0" }
+        Main->>DB: INSERT WorkerVersion (W1, 1.5.0)
+    and
+        Main->>W2: POST /API/V1/SelfUpdate (OAuth, X-Correlation-Id)
+        W2-->>Main: 200 { NewVersion: "1.5.0" }
+        Main->>DB: INSERT WorkerVersion (W2, 1.5.0)
+    and
+        Main->>Wn: POST /API/V1/SelfUpdate (OAuth, X-Correlation-Id)
+        Wn--xMain: 503 Unavailable
+        Main->>Main: Retry exp backoff (max 3)
+        Main--xAdmin: Surface partial failure for Wn
+    end
+
+    Main-->>Admin: 207 Multi-Status { successes: [W1, W2], failures: [Wn] }
+
+    Note over Main,Wn: Single-worker variant: POST /API/V1/Workers/{id}/Update
+    Note over Admin,Main: PowerShell zip publish: POST /API/V1/Workers/PublishZip<br/>then Main fans out to workers using the uploaded zip URL

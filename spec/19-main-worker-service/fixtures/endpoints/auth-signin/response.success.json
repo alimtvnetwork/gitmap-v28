@@ -1,0 +1,7 @@
+{
+  "Step": "Authenticated",
+  "WorkerEndpoint": "https://w3.example.com",
+  "WorkerJwt": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im1haW4tMjAyNi0wNSJ9.eyJpc3MiOiJodHRwczovL21haW4uZXhhbXBsZS5jb20iLCJzdWIiOiI0MiIsImF1ZCI6IndvcmtlciIsImV4cCI6MTc2MjQyNDIzNCwiaWF0IjoxNzYyNDIzMzM0LCJqdGkiOiI4MWY1OTNlYy1lMzk0LTQyMTAtOTNkOS1mMzc4ZjQ4ZmQyM2IiLCJjbXAiOjE3LCJ3bmsiOjMsImtpZCI6Im1haW4tMjAyNi0wNSIsInJvbGVzIjpbIkNvbXBhbnlBZG1pbiJdfQ.<rs256-sig>",
+  "JwtExpiresAt": "2026-05-06T10:37:14Z",
+  "CorrelationId": "01HZQK4N3M5P8RXVT7BWAGQYC2"
+}

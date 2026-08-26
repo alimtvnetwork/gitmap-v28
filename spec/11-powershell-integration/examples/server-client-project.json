@@ -1,0 +1,29 @@
+{
+  "projectName": "My Project",
+  "rootDir": ".",
+  "backendDir": "server",
+  "frontendDir": "client",
+  "distDir": "dist",
+  "targetDir": "server/frontend/dist",
+  "dataDir": "server/data",
+  "ports": [8080],
+  "prerequisites": {
+    "go": true,
+    "node": true,
+    "npm": true
+  },
+  "cleanPaths": [
+    "client/node_modules",
+    "client/dist",
+    "client/.vite",
+    "server/data/*.db",
+    "server/data/*.db-shm",
+    "server/data/*.db-wal"
+  ],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "runCommand": "go run main.go",
+  "seedingDir": "server/data/seeding",
+  "configFile": "config.json",
+  "configExampleFile": "config.example.json"
+}

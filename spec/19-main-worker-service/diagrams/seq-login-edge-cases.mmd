@@ -1,0 +1,67 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Login + endpoint-refresh EDGE CASES
+%%                 (2FA failure, JWT expiry / 401 retry,
+%%                  worker reassignment mid-session)
+%% Authoritative:  spec/19/12-jwt-delivery-contract.md
+%%                 + spec/19/04-worker-routing.md
+%%                 + spec/19/06-core-api-endpoints.md
+%%                 + spec/19/08-error-contract.md (error envelope)
+%% Status:         Illustrative only. If this diagram disagrees
+%%                 with the authoritative spec(s) above, the
+%%                 spec wins and this file is the bug.
+%% Banner version: 1.0.0 (2026-05-08, Phase 13.6 — covers
+%%                 MAIN-2FA-*, MAIN-401-*, MAIN-RTNG-* lanes).
+%% ==========================================================
+sequenceDiagram
+    autonumber
+    actor User
+    participant UI as React UI
+    participant Main as Main Server
+    participant Worker as Worker Node
+    participant NewWorker as Reassigned Worker
+
+    rect rgb(245,235,235)
+    Note over User,Main: Lane A — 2FA failure (MAIN-2FA-001/002)
+    User->>UI: Submit credentials
+    UI->>Main: POST /API/V1/Auth/Login
+    Main->>Main: Verify password and mint 2FA challenge
+    Main-->>UI: 200 ChallengeId and 2FA required
+    User->>UI: Enter wrong OTP
+    UI->>Main: POST /API/V1/Auth/2FA Verify
+    Main->>Main: Compare OTP and increment fail counter
+    alt Attempts under threshold
+        Main-->>UI: 401 MAIN-2FA-001 InvalidOtp with retriesLeft
+        UI-->>User: Show error and allow retry
+    else Threshold exceeded
+        Main->>Main: Lock ChallengeId and audit log
+        Main-->>UI: 423 MAIN-2FA-002 ChallengeLocked
+        UI-->>User: Force restart of login
+    end
+    end
+
+    rect rgb(235,245,235)
+    Note over UI,Worker: Lane B — JWT expiry and 401 retry (MAIN-401-001)
+    UI->>Worker: GET /API/V1/Resource (Bearer expiredJwt)
+    Worker->>Worker: Validate JWT signature and exp
+    Worker-->>UI: 401 MAIN-401-001 JwtExpired
+    UI->>Main: POST /API/V1/Auth/Refresh (session cookie)
+    Main->>Main: Validate session and re-mint Worker JWT
+    Main-->>UI: 200 newJwt with workerEndpoint and exp
+    UI->>Worker: Retry GET /API/V1/Resource (Bearer newJwt)
+    Worker-->>UI: 200 Resource payload
+    end
+
+    rect rgb(235,235,245)
+    Note over UI,NewWorker: Lane C — Worker reassignment mid-session (MAIN-RTNG-003)
+    UI->>Worker: POST /API/V1/Company/Action (Bearer validJwt)
+    Worker->>Worker: Detect tenant moved to NewWorker
+    Worker-->>UI: 410 MAIN-RTNG-003 WorkerReassigned with hint
+    UI->>Main: GET /API/V1/Auth/Endpoint (session cookie)
+    Main->>Main: Resolve current Worker for tenant
+    Main-->>UI: 200 newWorkerEndpoint and freshJwt
+    UI->>NewWorker: Retry POST /API/V1/Company/Action (Bearer freshJwt)
+    NewWorker-->>UI: 200 Action accepted
+    UI-->>User: Operation completed transparently
+    end

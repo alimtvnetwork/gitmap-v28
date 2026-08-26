@@ -1,0 +1,19 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Build entry points (run.sh / run.ps1) and produced artifacts
+%% Authoritative:  spec/14-update/04-build-scripts.md + 13-release-assets.md + 16-cross-compilation.md
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-07)
+%% ==========================================================
+flowchart LR
+    Source["Source tree"] --> Entry{"OS?"}
+    Entry -- "Unix" --> Sh["run.sh build"]
+    Entry -- "Windows" --> Ps1["run.ps1 -Build"]
+    Sh --> GoMod["go mod download"]
+    Ps1 --> GoMod
+    GoMod --> Compile["go build (cross-compile matrix)"]
+    Compile --> Sign["Code signing (Windows / macOS)"]
+    Sign --> Pack["Package: tar.gz + zip + checksums.txt"]
+    Pack --> Artifacts["release-artifacts/vX.Y.Z/"]
+    Artifacts --> Publish["GitHub release upload"]

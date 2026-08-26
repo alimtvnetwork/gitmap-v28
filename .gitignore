@@ -9,8 +9,28 @@ lerna-debug.log*
 
 node_modules
 dist
+!slides-app/dist/
+!slides-app/dist/**
 dist-ssr
 *.local
+
+# Generated code, artifacts, test data, and binaries (NEVER COMMIT)
+*.generated.*
+*_generated.*
+!linters-cicd/codegen/fixtures/expected/*.generated.*
+coverage/
+test-results/
+test-reports/
+*.test-report.*
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+build/
+bin/
+obj/
+*.class
 
 # Editor directories and files
 .vscode/*
@@ -22,28 +42,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-/gitmap-output
-*.exe
-/bin
-/scan
-.gitmap/release-assets
 release-assets
-*.syso
-/.gitmap/backup
-/gitmap/data/unit-test-reports
-.lovable/temp/
-test-reports/
-artifacts/
-*.test
+reports/runner-guard-report.md
+.gitmap/release-assets
+.cache/diagrams-hashes.json
 
-*.db
-cited-paths.txt
+# Repo-size diet (v5.49.0): historical release bundles + gitmap backup snapshots
+# are reproducible from git tags / GitHub Releases — keep them out of clones.
+release-artifacts/coding-guidelines-v*
+release-artifacts/*.tar.gz
+release-artifacts/*.zip
+release-artifacts/checksums.txt
+.gitmap/backup/
+/linters-cicd/codegen
 
-.lovable/temp/
-.lovable/temp-agents/
-.lovable/temp/
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
 
-.lovable/temp-scripts/
-
-.lovable/temp/
 .lovable/temp-scripts/

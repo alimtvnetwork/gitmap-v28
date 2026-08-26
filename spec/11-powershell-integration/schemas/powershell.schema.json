@@ -1,0 +1,268 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PowerShell Runner Configuration",
+  "description": "Configuration file for the PowerShell build & run script with pnpm support",
+  "type": "object",
+  "required": ["projectName", "backendDir"],
+  "properties": {
+    "projectName": {
+      "type": "string",
+      "description": "Display name for the project shown in console output",
+      "examples": ["WP Plugin Publish", "Spec Management Software", "My App"]
+    },
+    "rootDir": {
+      "type": "string",
+      "default": ".",
+      "description": "Root directory of the project (relative to script location). Empty or '.' means script location is root."
+    },
+    "backendDir": {
+      "type": "string",
+      "description": "Path to Go backend directory containing main.go or cmd/server/main.go",
+      "examples": ["backend", "go-backend", "server", "packages/api"]
+    },
+    "frontendDir": {
+      "type": "string",
+      "default": ".",
+      "description": "Path to React frontend directory containing package.json"
+    },
+    "distDir": {
+      "type": "string",
+      "default": "dist",
+      "description": "Frontend build output directory (relative to frontendDir)"
+    },
+    "targetDir": {
+      "type": "string",
+      "description": "Where to copy built frontend for serving by Go backend",
+      "examples": ["backend/frontend/dist", "server/static", "packages/api/public"]
+    },
+    "dataDir": {
+      "type": "string",
+      "description": "Data directory for SQLite databases and storage files",
+      "examples": ["backend/data", "data", "server/data"]
+    },
+    "ports": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535
+      },
+      "default": [8080],
+      "description": "Ports to open in Windows Firewall with -OpenFirewall flag"
+    },
+    "prerequisites": {
+      "type": "object",
+      "properties": {
+        "go": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check/install Go runtime"
+        },
+        "node": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check/install Node.js"
+        },
+        "npm": {
+          "type": "boolean",
+          "default": false,
+          "description": "Verify npm is available (deprecated, use pnpm)"
+        },
+        "pnpm": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check/install pnpm package manager"
+        },
+        "bun": {
+          "type": "boolean",
+          "default": false,
+          "description": "Check/install Bun runtime (alternative to pnpm)"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Which prerequisites to check and auto-install"
+    },
+    "usePnp": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable pnpm Plug'n'Play (PnP) mode for disk-efficient installs"
+    },
+    "pnpmStorePath": {
+      "type": "string",
+      "default": "E:/.pnpm-store",
+      "description": "Path for pnpm shared store. Default: E:/.pnpm-store (shared across all projects).",
+      "examples": ["E:/.pnpm-store", ".pnpm-store", "~/.pnpm-store"]
+    },
+    "cleanPaths": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": ["node_modules", "dist", ".vite", ".pnp.cjs"],
+      "description": "Paths to remove when using -Force flag. Supports wildcards.",
+      "examples": [
+        ["node_modules", "dist", ".vite", ".pnp.cjs"],
+        ["node_modules", "dist", ".vite", "backend/data/*.db"]
+      ]
+    },
+    "buildCommand": {
+      "type": "string",
+      "default": "pnpm run build",
+      "description": "Command to build the frontend",
+      "examples": ["pnpm run build", "npm run build", "bun run build", "yarn build"]
+    },
+    "installCommand": {
+      "type": "string",
+      "default": "pnpm install",
+      "description": "Command to install frontend dependencies",
+      "examples": ["pnpm install", "npm install", "bun install", "yarn install"]
+    },
+    "runCommand": {
+      "type": "string",
+      "default": "go run cmd/server/main.go",
+      "description": "Command to start the Go backend",
+      "examples": ["go run cmd/server/main.go", "go run main.go", "./server"]
+    },
+    "seedingDir": {
+      "type": "string",
+      "description": "Directory for seed data files (created automatically)",
+      "examples": ["backend/data/seeding", "data/seeds"]
+    },
+    "configFile": {
+      "type": "string",
+      "default": "config.json",
+      "description": "Backend configuration file name"
+    },
+    "configExampleFile": {
+      "type": "string",
+      "default": "config.example.json",
+      "description": "Template config file to copy if main config is missing"
+    },
+    "requiredModules": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": [],
+      "description": "NPM modules that trigger reinstall if missing (catches new deps after git pull)",
+      "examples": [["react", "lucide-react", "marked"]]
+    },
+    "env": {
+      "type": "object",
+      "additionalProperties": {"type": "string"},
+      "description": "Environment variables to set before running commands",
+      "examples": [{"NODE_ENV": "production", "GO_ENV": "development"}]
+    },
+    "wpPlugins": {
+      "type": "object",
+      "description": "WordPress plugin management configuration",
+      "properties": {
+        "defaultUploader": {
+          "type": "string",
+          "description": "Key in plugins map used by -u (upload) flag when no -pp is provided",
+          "examples": ["riseup-asia-uploader"]
+        },
+        "defaultQUploader": {
+          "type": "string",
+          "description": "Key in plugins map used by -q (qupload) flag when no -pp is provided. Falls back to defaultUploader if not set.",
+          "examples": ["qupload"]
+        },
+        "pluginsDir": {
+          "type": "string",
+          "default": "wp-plugins",
+          "description": "Directory containing WordPress plugin folders"
+        },
+        "skipPlugins": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Plugin keys excluded from -za (ZIP all) and -ua (upload all) operations"
+        },
+        "phpCheckSkipFolders": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["vendor"],
+          "description": "Folder names to skip during PHP syntax checks (applied globally to all plugins)"
+        },
+        "sites": {
+          "type": "array",
+          "description": "WordPress sites for multi-site deployment. Credentials are Base64-encoded for security.",
+          "items": {
+            "type": "object",
+            "required": ["name", "url", "credentials"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Human-readable site name for logging"
+              },
+              "url": {
+                "type": "string",
+                "description": "WordPress site URL (without trailing slash or /wp-admin)"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this site is included in multi-site uploads"
+              },
+              "credentials": {
+                "type": "array",
+                "description": "Credentials for this site. First entry with isDefault=true is used for uploads.",
+                "items": {
+                  "type": "object",
+                  "required": ["appName", "usernameBase64", "passwordBase64"],
+                  "properties": {
+                    "appName": {
+                      "type": "string",
+                      "description": "Application password name for identification"
+                    },
+                    "usernameBase64": {
+                      "type": "string",
+                      "description": "Base64-encoded WordPress username"
+                    },
+                    "passwordBase64": {
+                      "type": "string",
+                      "description": "Base64-encoded WordPress application password"
+                    },
+                    "isDefault": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Whether this is the default credential used for uploads"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "plugins": {
+          "type": "object",
+          "description": "Map of plugin keys to their configuration",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["name", "path", "mainFile"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Human-readable plugin name"
+              },
+              "path": {
+                "type": "string",
+                "description": "Relative path to the plugin folder"
+              },
+              "mainFile": {
+                "type": "string",
+                "description": "Main PHP file of the plugin"
+              },
+              "autoUpload": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether to auto-upload after build"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

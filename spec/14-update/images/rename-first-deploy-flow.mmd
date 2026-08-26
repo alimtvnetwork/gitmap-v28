@@ -1,0 +1,21 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Rename-first deploy ordering (.new -> active, old -> .bak) with rollback
+%% Authoritative:  spec/14-update/03-rename-first-deploy.md + 06-cleanup.md
+%% Status:         Illustrative only. Spec wins on conflict.
+%% Banner version: 1.0.0 (2026-05-07)
+%% ==========================================================
+flowchart TD
+    Start(["Begin deploy"]) --> Download["Stage new binary as binary.new"]
+    Download --> Verify{"sha256 matches checksums.txt?"}
+    Verify -- "no" --> AbortBad["Delete binary.new and abort"]
+    Verify -- "yes" --> RenameOld["Rename active -> binary.bak (atomic)"]
+    RenameOld --> RenameNew["Rename binary.new -> active (atomic)"]
+    RenameNew --> Handoff["Spawn handoff copy and exit"]
+    Handoff --> NextStart{"Next start succeeds?"}
+    NextStart -- "yes" --> Cleanup["Delete binary.bak"]
+    NextStart -- "no" --> Rollback["Rename binary.bak -> active"]
+    Rollback --> Recovered(["Recovered to previous version"])
+    Cleanup --> Done(["Deploy complete"])
+    AbortBad --> Done

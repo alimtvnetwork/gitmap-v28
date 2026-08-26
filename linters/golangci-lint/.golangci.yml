@@ -1,0 +1,118 @@
+# golangci-lint configuration
+# Enforces CODE RED coding guidelines from spec/02-coding-guidelines/
+#
+# Usage: golangci-lint run
+# Docs:  https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  skip-dirs:
+    - vendor
+    - dist
+    - node_modules
+
+linters:
+  enable:
+    # ── CODE RED enforcement ──────────────────────────────────────
+    - nestif          # CODE-RED-001: No nested if
+    - cyclop          # CODE-RED-004: Function complexity / length
+    - goerr113        # CODE-RED-005: No fmt.Errorf (forces wrapping)
+    - funlen          # CODE-RED-004: Max function length
+    - gocognit        # Cognitive complexity (supports nesting detection)
+
+    # ── Style enforcement ─────────────────────────────────────────
+    - gofmt           # Standard formatting
+    - goimports       # Import ordering
+    - revive          # Extensible linter with custom rules
+    - goconst         # CODE-RED-003: Detect magic strings
+    - predeclared     # Catch shadowed built-ins
+    - unconvert       # Remove unnecessary type conversions
+    - whitespace      # STYLE-001/003: Blank line rules
+
+    # ── Error handling ────────────────────────────────────────────
+    - errcheck        # Ensure errors are handled
+    - errorlint       # Error wrapping best practices
+
+    # ── General quality ───────────────────────────────────────────
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - misspell
+
+linters-settings:
+  nestif:
+    # CODE-RED-001: Zero nesting allowed
+    min-complexity: 1
+
+  funlen:
+    # CODE-RED-004: Max 15 lines per function
+    lines: 15
+    statements: 15
+
+  cyclop:
+    # Keep cyclomatic complexity low
+    max-complexity: 10
+
+  gocognit:
+    # Cognitive complexity threshold
+    min-complexity: 10
+
+  goconst:
+    # CODE-RED-003: Flag repeated strings (magic strings)
+    min-len: 2
+    min-occurrences: 2
+
+  revive:
+    rules:
+      # CODE-RED-002: Boolean naming conventions
+      - name: var-naming
+        severity: error
+        arguments:
+          - []  # allowList
+          - []  # denyList
+
+      # STYLE-002: No else after return
+      - name: early-return
+        severity: error
+
+      # CODE-RED-010: No boolean parameters
+      - name: flag-parameter
+        severity: error
+
+      # General
+      - name: blank-imports
+        severity: warning
+      - name: context-as-argument
+        severity: error
+      - name: unexported-return
+        severity: warning
+
+  whitespace:
+    multi-func: true
+
+issues:
+  # CODE-RED-007: Custom pattern — detect string-based enum types
+  # golangci-lint doesn't have a built-in rule for this, so we use
+  # the Python/Go validator scripts for full coverage.
+
+  exclude-rules:
+    # Allow longer functions in test files
+    - path: _test\.go
+      linters:
+        - funlen
+        - nestif
+        - gocognit
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+severity:
+  default-severity: error
+  rules:
+    - linters:
+        - goconst
+        - whitespace
+        - misspell
+      severity: warning

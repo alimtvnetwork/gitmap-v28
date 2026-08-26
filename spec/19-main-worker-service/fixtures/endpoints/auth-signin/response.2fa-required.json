@@ -1,0 +1,7 @@
+{
+  "Step": "AwaitTotp",
+  "ChallengeId": "c0f4a3b1-9d2e-4b1a-8e7c-5b6d7e8f9012",
+  "PartialAuthJwt": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im1haW4tMjAyNi0wNSJ9.eyJpc3MiOiJodHRwczovL21haW4uZXhhbXBsZS5jb20iLCJzdWIiOiI0MiIsImF1ZCI6Im1haW4tMmZhIiwiZXhwIjoxNzYyNDIzNDM0LCJpYXQiOjE3NjI0MjMzMzQsImp0aSI6IjhmM2ExYjJjLTRkNWUtNDFmYi1hOWM4LTdlNmY1YTRiM2MyZCIsImNoYWxsZW5nZUlkIjoiYzBmNGEzYjEtOWQyZS00YjFhLThlN2MtNWI2ZDdlOGY5MDEyIn0.<rs256-sig>",
+  "PartialAuthJwtExpiresAt": "2026-05-06T10:23:54Z",
+  "CorrelationId": "01HZQK4N3M5P8RXVT7BWAGQYC2"
+}

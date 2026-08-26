@@ -1,0 +1,62 @@
+%% ==========================================================
+%% NON-AUTHORITATIVE PROJECTION
+%% ==========================================================
+%% Subject:        Reverse-channel denial test matrix —
+%%                 forbidden interactions across the trust
+%%                 gradient (Main > Worker > Backup > Git).
+%% Authoritative:  spec/19/26-trust-boundaries-and-isolation.md
+%%                 + spec/19/27-git-backup-targets.md
+%% Status:         Illustrative. If this disagrees with the
+%%                 authoritative spec, the spec wins.
+%% Banner version: 1.0.0 (closes audit-12 §7 gap — reverse-
+%%                 channel denial test matrix had no diagram).
+%% ==========================================================
+flowchart TB
+    subgraph Legend["Legend"]
+        direction LR
+        L1["✓ ALLOWED"]:::ok
+        L2["✗ DENIED (MUST fail closed)"]:::deny
+    end
+
+    subgraph Matrix["Reverse-channel denial matrix"]
+        direction TB
+
+        subgraph WtoM["Worker → Main (read-only beacon)"]
+            direction LR
+            T1["✓ Heartbeat (GET)"]:::ok
+            T2["✓ UpdateAck (POST self-status)"]:::ok
+            T3["✗ Write tenant routing (MAIN-960-01)"]:::deny
+            T4["✗ Mint JWT for peer worker"]:::deny
+            T5["✗ Mutate Main DB row"]:::deny
+        end
+
+        subgraph BtoW["Backup → Worker (zero outbound)"]
+            direction LR
+            T6["✗ TCP connect to primary"]:::deny
+            T7["✗ Replay CDC envelope back"]:::deny
+            T8["✗ Read worker secrets"]:::deny
+            T9["✓ Receive sealed CDC (BE-1)"]:::ok
+        end
+
+        subgraph WtoB["Worker → Backup (CDC-only)"]
+            direction LR
+            T10["✓ Push sealed CDC envelope"]:::ok
+            T11["✗ Exec command on backup"]:::deny
+            T12["✗ Read backup-local files"]:::deny
+        end
+
+        subgraph GtoAny["Git host → Worker / Main / Backup"]
+            direction LR
+            T13["✗ Webhook into worker"]:::deny
+            T14["✗ Push back into Main DB"]:::deny
+            T15["✗ Decrypt envelopes (no key offsite)"]:::deny
+        end
+
+        subgraph BtoG["Backup → Git (no SSH key)"]
+            direction LR
+            T16["✗ git push (key absent by design)"]:::deny
+        end
+    end
+
+    classDef ok   fill:#1f4d2b,stroke:#0d2a16,color:#fff
+    classDef deny fill:#6b1f1f,stroke:#3d0d0d,color:#fff

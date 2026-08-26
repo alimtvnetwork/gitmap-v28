@@ -1,0 +1,16 @@
+{
+  "version": "6.24.1",
+  "branch": "release/v6.24.1",
+  "sourceBranch": "main",
+  "commit": "ec4debaff8a2a5d0568c7b9726257ddb23de3548",
+  "tag": "v6.24.1",
+  "assets": [],
+  "changelog": [
+    "Added `gitmap workdir default` command to automatically register the current working directory as the default.",
+    "Added `gitmap workdir set \u003cpath\u003e` alias to set a workspace path, ID, or label as the default (shorthand for `set-default`)."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-08-26T19:33:43Z",
+  "isLatest": false
+}

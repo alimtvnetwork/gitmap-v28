@@ -1,0 +1,17 @@
+{
+  "EnvelopeVersion": "1.1.0",
+  "Error": {
+    "ErrorCode": "IdempotencyConflict",
+    "ErrorMessage": "Idempotency-Key replayed with non-matching body within TTL window",
+    "ErrorCategory": "Validation",
+    "ErrorSeverity": "Warn",
+    "CorrelationId": "01HZQK4Q9P3M2R8XDBNHFEQYC4",
+    "WorkerNodeId": null,
+    "OperationName": "Company.Create",
+    "OccurredAt": "2026-05-06T10:22:14Z",
+    "Retryable": false,
+    "OperationId": "1f5a3c7d-2b8e-4a1c-9d6f-8e7c5b6d7e8f",
+    "SubCode": null,
+    "FieldErrors": null
+  }
+}
