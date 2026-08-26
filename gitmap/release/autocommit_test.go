@@ -2,6 +2,7 @@ package release
 
 import (
 	"errors"
+	"os"
 	"strings"
 	"testing"
 
@@ -64,12 +65,17 @@ func TestTrimGitOutputFallback(t *testing.T) {
 // promptAndCommit prints the auto-confirm message and does NOT print
 // the interactive prompt asking the user for input.
 func TestPromptAndCommit_YesFlagSkipsStdin(t *testing.T) {
+	tempDir := t.TempDir()
+	origWd, _ := os.Getwd()
+	_ = os.Chdir(tempDir)
+	defer os.Chdir(origWd)
+
 	releaseFiles := []string{".gitmap/release/v9.9.0.json"}
 	otherFiles := []string{"README.md", "main.go"}
 	msg := "Release v9.9.0"
 
 	// With yes=true: should print auto-confirm, not the interactive ask.
-	// commitAll will fail (no git repo), but we only care about the output
+	// commitAll will fail (no git repo in tempDir), but we only care about the output
 	// before it attempts the commit.
 	output := captureStdout(t, func() {
 		promptAndCommit(releaseFiles, otherFiles, msg, true)
@@ -88,6 +94,11 @@ func TestPromptAndCommit_YesFlagSkipsStdin(t *testing.T) {
 // promptAndCommit shows the interactive prompt (and falls back to
 // release-only commit when stdin is empty/EOF).
 func TestPromptAndCommit_NoYesFlagShowsPrompt(t *testing.T) {
+	tempDir := t.TempDir()
+	origWd, _ := os.Getwd()
+	_ = os.Chdir(tempDir)
+	defer os.Chdir(origWd)
+
 	releaseFiles := []string{".gitmap/release/v9.9.1.json"}
 	otherFiles := []string{"README.md"}
 	msg := "Release v9.9.1"
@@ -110,6 +121,11 @@ func TestPromptAndCommit_NoYesFlagShowsPrompt(t *testing.T) {
 // TestPromptAndCommit_YesFlagListsFiles verifies that changed files
 // outside .gitmap/release/ are still listed before auto-confirming.
 func TestPromptAndCommit_YesFlagListsFiles(t *testing.T) {
+	tempDir := t.TempDir()
+	origWd, _ := os.Getwd()
+	_ = os.Chdir(tempDir)
+	defer os.Chdir(origWd)
+
 	releaseFiles := []string{".gitmap/release/v9.9.2.json"}
 	otherFiles := []string{"cmd/root.go", "constants/constants.go"}
 	msg := "Release v9.9.2"
