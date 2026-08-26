@@ -1,0 +1,15 @@
+{
+  "version": "6.120.0",
+  "branch": "release/v6.120.0",
+  "sourceBranch": "main",
+  "commit": "b24b9fc61d086cbf71b666fab1e13158bda2039e",
+  "tag": "v6.120.0",
+  "assets": [],
+  "changelog": [
+    "Cleaned up AI agent temporary scripts from the root directory that were accidentally tracked in Git. Moved all scripts to the isolated `.lovable/temp-scripts/` directory to prevent pollution."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-08-26T18:02:32Z",
+  "isLatest": false
+}
