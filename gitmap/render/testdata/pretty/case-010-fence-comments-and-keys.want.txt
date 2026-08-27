@@ -1,0 +1,4 @@
+  [G]# sync settings to %APPDATA%[/G]
+  gitmap install npp-settings
+  export [P]GITMAP_API_KEY[/P]=sk-xxxx
+  gitmap [P]hd[/P] help

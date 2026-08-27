@@ -1,0 +1,4 @@
+# Deploy
+  [M]one-shot, idempotent[/M]
+
+  run the deploy script

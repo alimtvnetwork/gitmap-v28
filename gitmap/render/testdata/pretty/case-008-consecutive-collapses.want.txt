@@ -1,0 +1,3 @@
+  [Y]→ first command[/Y]
+
+  [Y]→ second command[/Y]

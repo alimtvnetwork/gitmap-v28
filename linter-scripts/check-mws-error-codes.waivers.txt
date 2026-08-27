@@ -1,0 +1,28 @@
+# MWS error-code orphan waivers (Rule R2 exemptions).
+# Authoritative table: spec/19-main-worker-service/13-error-codes.md §7.1.
+# Format: one prefixed code per line. Lines starting with `#` are comments.
+
+# Worker — referenced only via range-notation or table heading
+WORKER-100-04
+WORKER-100-05
+WORKER-100-06
+WORKER-200-02
+WORKER-300-02
+WORKER-400-04
+WORKER-500-02
+WORKER-500-03
+WORKER-600-04
+WORKER-700-03
+WORKER-800-02
+
+# Main — catalogue-only / range references
+MAIN-100-01
+MAIN-100-02
+MAIN-100-03
+MAIN-100-04
+MAIN-200-01
+MAIN-200-02
+MAIN-400-02
+MAIN-400-03
+MAIN-500-01
+MAIN-600-02
