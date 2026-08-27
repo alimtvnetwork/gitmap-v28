@@ -48,6 +48,8 @@ const (
 	CmdGitRm = "git-rm"
 	CmdIgnore = "ignore"
 	CmdIgnoreRm = "ignore-rm"
+	CmdAg = "ag"
+	CmdAntigravity = "antigravity"
 	CmdAdd = "add"
 	CmdReleaseShort        = "r"
 	CmdReleaseBranch       = "release-branch"

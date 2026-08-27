@@ -51,3 +51,6 @@ gitmap/cmd/gitrm/gitrm.go
 .lovable/plans/pending/03-ignore-and-add.md
 gitmap/cmd/ignore/ignore.go
 gitmap/cmd/add/add.go
+
+.lovable/plans/pending/04-ag-vscode-commands.md
+gitmap/cmd/ag/ag.go

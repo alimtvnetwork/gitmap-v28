@@ -60,6 +60,8 @@ func topLevelCmds() map[string]string {
 		"CmdGitRm":                 CmdGitRm,
 		"CmdIgnore":                CmdIgnore,
 		"CmdIgnoreRm":              CmdIgnoreRm,
+		"CmdAg":                    CmdAg,
+		"CmdAntigravity":           CmdAntigravity,
 		"CmdAdd":                   CmdAdd,
 		"CmdReleaseShort":          CmdReleaseShort,
 		"CmdReleaseBranch":         CmdReleaseBranch,

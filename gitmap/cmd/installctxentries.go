@@ -30,6 +30,7 @@ func ctxMenu() []ctxEntry {
 		{KeyName: "50_visibility", MUIVerb: "Visibility", Children: visibilityChildren()},
 		{KeyName: "60_tools", MUIVerb: "Tools", Children: toolsChildren()},
 		{KeyName: "70_git", MUIVerb: "Git", Children: gitChildren()},
+		{KeyName: "80_antigravity", MUIVerb: "Open project with Antigravity", Args: []string{constants.CmdAg}, Mode: constants.CtxModeTerminal, Icon: constants.CtxIconGitmap},
 		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: constants.CtxModePrefill},
 		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: constants.CtxModeSilent},
 		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: constants.CtxModePrefill},

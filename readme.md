@@ -2962,3 +2962,5 @@ For repository versioning and propagation design, see [.lovable/memory/release-a
 
 - [Ignore Command Logic](gitmap/cmd/ignore/ignore.go)
 - [Add Command Logic](gitmap/cmd/add/add.go)
+
+- [Antigravity Command Logic](gitmap/cmd/ag/ag.go)
