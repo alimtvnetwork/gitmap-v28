@@ -419,7 +419,7 @@ func runInstallGitHubDesktopLinux(opts installOptions) {
 
 	fmt.Printf("  [1/3] Adding shiftkey/desktop APT repository...\n")
 
-	cmd1 := exec.Command("sh", "-c", "wget -qO - https://apt.packages.shiftkey.dev/ubuntu/any/ANY.gpg | sudo tee /etc/apt/keyrings/shiftkey-packages.asc > /dev/null")
+	cmd1 := exec.Command("sh", "-c", "wget -qO - https://mirror.mwt.me/ghd/gpgkey | sudo tee /etc/apt/keyrings/shiftkey-packages.asc > /dev/null")
 	cmd1.Stdout = os.Stdout
 	cmd1.Stderr = os.Stderr
 	if err := cmd1.Run(); err != nil {
@@ -427,7 +427,7 @@ func runInstallGitHubDesktopLinux(opts installOptions) {
 		os.Exit(1)
 	}
 
-	cmd2 := exec.Command("sh", "-c", "sudo sh -c 'echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/shiftkey-packages.asc] https://apt.packages.shiftkey.dev/ubuntu/ any main\" > /etc/apt/sources.list.d/shiftkey-packages.list'")
+	cmd2 := exec.Command("sh", "-c", "sudo sh -c 'echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/shiftkey-packages.asc] https://mirror.mwt.me/ghd/deb/ any main\" > /etc/apt/sources.list.d/shiftkey-packages.list'")
 	cmd2.Stdout = os.Stdout
 	cmd2.Stderr = os.Stderr
 	if err := cmd2.Run(); err != nil {

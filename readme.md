@@ -2964,3 +2964,5 @@ For repository versioning and propagation design, see [.lovable/memory/release-a
 - [Add Command Logic](gitmap/cmd/add/add.go)
 
 - [Antigravity Command Logic](gitmap/cmd/ag/ag.go)
+
+- [Install Tools Logic](gitmap/cmd/installtools.go)
