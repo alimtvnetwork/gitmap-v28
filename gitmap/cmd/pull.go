@@ -100,10 +100,12 @@ func runPull(args []string) {
 		if diag.IsDirty {
 			status = "DIRTY"
 		}
+				latestBranch := gitutil.GetLatestRemoteBranch(rec.AbsolutePath)
 		tableRows = append(tableRows, model.PullTableRow{
-			RepoName:   rec.RepoName,
-			Branch:     branch,
-			LastSHA:    sha,
+			RepoName:     rec.RepoName,
+			Branch:       branch,
+			LatestBranch: latestBranch,
+			LastSHA:      sha,
 			PRStatus:   pr,
 			PullStatus: status,
 			Duration:   "1.0s",
