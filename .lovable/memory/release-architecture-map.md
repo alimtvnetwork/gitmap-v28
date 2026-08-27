@@ -13,4 +13,4 @@ Once the changes are committed, the CI/CD pipeline (when correctly configured) h
 
 - v6.130.0: github-desktop apt install fix
 
-- v6.132.0: search and llm feature spec added
+- v6.133.0: search and llm feature spec added

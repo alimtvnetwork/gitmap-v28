@@ -75,3 +75,10 @@ gitmap/cmd/installtools.go
 - gitmap/searcher/engine.go
 - gitmap/searcher/types.go
 - gitmap/worker/pool.go
+
+
+- .lovable/plans/pending/07-file-find-commands.md
+- .lovable/plans/subtasks/07-file-find-commands/01-cli-registry.md
+- .lovable/plans/subtasks/07-file-find-commands/02-find-engine.md
+- .lovable/plans/subtasks/07-file-find-commands/03-read-engine.md
+- .lovable/plans/subtasks/07-file-find-commands/04-help-routers.md
