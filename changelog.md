@@ -1,3 +1,11 @@
+## [v6.126.0] - 2026-08-27
+
+### Added
+- PR Engine integration for commit-transfer and commit-in.
+- Left padding and improved formatting for commit CLI output.
+- Keep URL toggle in commit replay settings.
+- Template overrides for generic commit messages.
+
 ## [v6.28.0] - 2026-08-27
 
 ### Fixed

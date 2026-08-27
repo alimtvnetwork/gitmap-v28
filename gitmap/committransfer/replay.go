@@ -2,6 +2,7 @@ package committransfer
 
 import (
 	"fmt"
+	"github.com/pterm/pterm"
 	"io"
 	"os"
 	"path/filepath"
@@ -38,8 +39,8 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 		if newSHA == "" && emptyAfterSnapshot {
 			res.SkippedEmpty++
 			fmt.Fprintf(os.Stdout,
-				"%s [%d/%d] %s → empty (snapshot tree unchanged on target)\n",
-				opts.LogPrefix, i+1, len(plan.Commits), commit.ShortSHA)
+				"%s %s %s → empty (snapshot tree unchanged on target)\n",
+				"  "+pterm.Magenta(opts.LogPrefix), pterm.Gray(fmt.Sprintf("[%d/%d]", i+1, len(plan.Commits))), pterm.Cyan(commit.ShortSHA))
 			continue
 		}
 		if newSHA == "" {
@@ -48,6 +49,10 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 		}
 		res.Replayed++
 		res.NewSHAs = append(res.NewSHAs, newSHA)
+		
+		if err := ProcessPR(plan.TargetDir, commit.Subject, commit.Cleaned, commit.ShortSHA, opts.PRMode, newSHA); err != nil {
+			return res, fmt.Errorf("PR processing failed for %s: %w", commit.ShortSHA, err)
+		}
 	}
 
 	return res, nil

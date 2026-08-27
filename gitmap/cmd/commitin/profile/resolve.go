@@ -7,6 +7,7 @@ import (
 // Resolved is the final flattened settings after applying the load
 // order from spec §5.6 (CLI > --profile > --default > defaults).
 type Resolved struct {
+	PRMode           string
 	ConflictMode     string
 	Author           *Author
 	Exclusions       []Exclusion
@@ -24,6 +25,7 @@ type Resolved struct {
 // CliOverrides represents flag-level overrides; nil-pointer fields
 // mean "user did not pass this flag" so the next layer wins.
 type CliOverrides struct {
+	PRMode           *string
 	ConflictMode     *string
 	Author           *Author
 	Exclusions       []Exclusion // empty slice = no override
@@ -64,6 +66,9 @@ func defaultResolved() Resolved {
 }
 
 func applyProfile(r *Resolved, p *Profile) {
+	if p.PRMode != "" {
+		r.PRMode = p.PRMode
+	}
 	if p.ConflictMode != "" {
 		r.ConflictMode = p.ConflictMode
 	}
@@ -85,6 +90,9 @@ func applyProfile(r *Resolved, p *Profile) {
 }
 
 func applyCli(r *Resolved, c *CliOverrides) {
+	if c.PRMode != nil {
+		r.PRMode = *c.PRMode
+	}
 	if c.ConflictMode != nil {
 		r.ConflictMode = *c.ConflictMode
 	}

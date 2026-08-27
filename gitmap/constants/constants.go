@@ -14,7 +14,7 @@ package constants
 
 // Version holds the current release version of gitmap.
 // This is overridden at compile time via -ldflags during CI/CD.
-var Version = "6.125.0" // Overridden at compile time via -ldflags
+var Version = "6.126.0" // Overridden at compile time via -ldflags // Overridden at compile time via -ldflags
 
 // RepoPath is set at build time via -ldflags.
 var RepoPath = ""

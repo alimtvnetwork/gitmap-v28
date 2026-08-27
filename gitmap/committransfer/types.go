@@ -55,6 +55,18 @@ type MessagePolicy struct {
 	// `gitmap-replay-cmd:` footer line. Set by the dispatcher
 	// (e.g. "commit-right").
 	CommandName string
+
+	// AppendFooters adds literal strings as footers to every replayed commit.
+	AppendFooters []string
+
+	// TemplateOverride applies setting-based replacement for generic titles.
+	TemplateOverride bool
+
+	// KeepUrl controls whether the original commit URL is appended to the message.
+	KeepUrl bool
+
+	// Templates provides user-defined rewrites for generic titles.
+	Templates map[string]string
 }
 
 // PreferPolicyType mirrors movemerge.PreferPolicyType for file-level conflicts
@@ -94,6 +106,7 @@ type Options struct {
 	MaxHistoryScan int              // 0 = unbounded target log scan (spec 114 Gap A); >0 caps the idempotence-check log query at N commits
 	Prefer         PreferPolicyType // file-conflict policy
 	Message        MessagePolicy    // §6 pipeline knobs
+	PRMode         string           // PR integration mode: "all", "tags", "release", or "" (off)
 	CommandName    string           // "commit-right" etc.
 	LogPrefix      string           // "[commit-right]" etc.
 }

@@ -4,10 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/committransfer"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/movemerge"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 )
 
 // commitTransferSpec describes one of the three commit-transfer commands.
@@ -44,12 +46,15 @@ func executeCommitTransfer(spec commitTransferSpec, args []string) {
 			opts.LogPrefix, spec.Name)
 		os.Exit(2)
 	}
+	cfg, _ := config.LoadFromFile(constants.DefaultConfigPath)
+	opts.Message.KeepUrl = cfg.CommitReplayKeepUrl
+	opts.Message.Templates = cfg.CommitReplayTemplates
 	left, right, resolveErr := resolveCommitEndpoints(positional[0], positional[1], opts)
 	if resolveErr != nil {
 		fmt.Fprintf(os.Stderr, "%s endpoint resolve failed: %v\n", opts.LogPrefix, resolveErr)
 		os.Exit(1)
 	}
-	opts.Message.SourceDisplayName = pickSourceDisplayName(spec.Name, left, right)
+	opts.Message.SourceDisplayName = pickSourceDisplayName(spec.Name, left, right, opts.Message.KeepUrl)
 	if err := dispatchDirection(spec.Name, left.WorkingDir, right.WorkingDir, opts); err != nil {
 		fmt.Fprintf(os.Stderr, "%s replay failed: %v\n", opts.LogPrefix, err)
 		os.Exit(1)
@@ -80,7 +85,25 @@ func dispatchDirection(name, leftDir, rightDir string, opts committransfer.Optio
 // that's being read from. commit-left reads from RIGHT; commit-right
 // reads from LEFT; commit-both reads from both — we pick LEFT as the
 // canonical label because the RunBoth implementation uses (L→R) first.
-func pickSourceDisplayName(name string, left, right movemerge.Endpoint) string {
+func pickSourceDisplayName(name string, left, right movemerge.Endpoint, keepUrl bool) string {
+	display := left.DisplayName
+	if name == constants.CmdCommitLeft {
+		display = right.DisplayName
+	}
+	if !keepUrl {
+		// Strip url and use base name
+		base := display
+		if strings.Contains(base, "://") || strings.HasPrefix(base, "git@") {
+			parts := strings.Split(base, "/")
+			base = parts[len(parts)-1]
+			base = strings.TrimSuffix(base, ".git")
+		}
+		return base
+	}
+	return display
+}
+
+func _deprecated_pickSourceDisplayName(name string, left, right movemerge.Endpoint) string {
 	if name == constants.CmdCommitLeft {
 		return right.DisplayName
 	}
@@ -153,6 +176,7 @@ func registerMessagePolicyToggles(fs *flag.FlagSet, opts *committransfer.Options
 		func(string) error { opts.Message.Conventional = false; return nil })
 	fs.BoolFunc(constants.FlagCTProvenance, constants.FlagDescCTProvenance,
 		func(string) error { opts.Message.Provenance = true; return nil })
+	fs.BoolVar(&opts.Message.TemplateOverride, constants.FlagCTTemplateOverride, false, constants.FlagDescCTTemplateOverride)
 	fs.BoolFunc(constants.FlagCTNoProvenance, constants.FlagDescCTNoProvenance,
 		func(string) error { opts.Message.Provenance = false; return nil })
 }
@@ -160,12 +184,17 @@ func registerMessagePolicyToggles(fs *flag.FlagSet, opts *committransfer.Options
 // registerCommitTransferStrings wires value-taking flags + repeatable
 // regex patterns. --no-strip and --no-drop are BoolFunc (no value).
 func registerCommitTransferStrings(fs *flag.FlagSet, opts *committransfer.Options) {
+	fs.StringVar(&opts.PRMode, constants.FlagCTPR, "", constants.FlagDescCTPR)
 	fs.IntVar(&opts.Limit, constants.FlagCTLimit, 0, constants.FlagDescCTLimit)
 	fs.StringVar(&opts.Since, constants.FlagCTSince, "", constants.FlagDescCTSince)
 	fs.IntVar(&opts.MaxHistoryScan, constants.FlagCTMaxHistoryScan, 0, constants.FlagDescCTMaxHistoryScan)
 	fs.Func(constants.FlagCTStrip, constants.FlagDescCTStrip, func(v string) error {
 		opts.Message.StripPatterns = append(opts.Message.StripPatterns, v)
 
+		return nil
+	})
+	fs.Func(constants.FlagCTAppendFooter, constants.FlagDescCTAppendFooter, func(v string) error {
+		opts.Message.AppendFooters = append(opts.Message.AppendFooters, v)
 		return nil
 	})
 	fs.Func(constants.FlagCTDrop, constants.FlagDescCTDrop, func(v string) error {

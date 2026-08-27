@@ -21,6 +21,7 @@ func BuildFromResolved(args BuildArgs) *Profile {
 		SchemaVersion:    CurrentSchemaVersion,
 		SourceRepoPath:   args.SourceRepoPath,
 		IsDefault:        args.IsDefault,
+		PRMode:           r.PRMode,
 		ConflictMode:     r.ConflictMode,
 		Author:           r.Author,
 		Exclusions:       cloneExclusions(r.Exclusions),

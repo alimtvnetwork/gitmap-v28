@@ -28,6 +28,7 @@ type FunctionIntel struct {
 // profile (matches spec §5.2 byte-for-byte when re-serialized).
 type Profile struct {
 	Name             string
+	PRMode           string
 	SchemaVersion    int
 	SourceRepoPath   string
 	IsDefault        bool

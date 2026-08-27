@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"github.com/pterm/pterm"
 )
 
 // PrintPlan writes a human-readable preview of plan to w (spec §3).
@@ -34,6 +35,10 @@ func PrintPlan(w io.Writer, plan ReplayPlan, prefix string) int {
 
 // printPlanLine renders one commit's preview row.
 func printPlanLine(w io.Writer, prefix string, i, n int, c SourceCommit) {
+	// Apply left padding and color-coding
+	padPrefix := "  " + pterm.Magenta(prefix)
+	idxStr := pterm.Gray(fmt.Sprintf("[%d/%d]", i, n))
+	shaStr := pterm.Cyan(c.ShortSHA)
 	if c.SkipCause != "" {
 		fmt.Fprintf(w, "%s [%d/%d] %s → -        skipped: %s\n",
 			prefix, i, n, c.ShortSHA, c.SkipCause)
@@ -41,7 +46,7 @@ func printPlanLine(w io.Writer, prefix string, i, n int, c SourceCommit) {
 		return
 	}
 	subject := firstLine(c.Cleaned)
-	fmt.Fprintf(w, "%s [%d/%d] %s  %s\n", prefix, i, n, c.ShortSHA, subject)
+	fmt.Fprintf(w, "%s %s %s  %s\n", padPrefix, idxStr, shaStr, pterm.White(subject))
 }
 
 // firstLine returns everything before the first newline.
