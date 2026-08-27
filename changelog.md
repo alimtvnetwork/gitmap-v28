@@ -1,3 +1,18 @@
+## [v6.128.0] 2026-08-27 - ignore and add commands
+
+### Install gitmap v6.128.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.sh | bash -s -- ".lovable/prompts" "v6.128.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.128.0"`
+
+### Added
+
+- gitmap ignore dynamically updates .gitignore without duplicates.
+- gitmap ignore-rm automatically cleans git history and updates .gitignore in one action.
+- gitmap add common-attr instantly bootstraps standardized .gitattributes.
+- gitmap add common-ignore instantly bootstraps standardized .gitignore template.
+
+
 ## [v6.127.0] 2026-08-27 - git-rm and folder export features
 
 ### Install gitmap v6.127.0

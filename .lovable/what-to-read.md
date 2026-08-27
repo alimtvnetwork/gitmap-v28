@@ -47,3 +47,7 @@
 .lovable/plans/pending/02-git-rm-and-folder.md
 gitmap/cmd/folder/folder.go
 gitmap/cmd/gitrm/gitrm.go
+
+.lovable/plans/pending/03-ignore-and-add.md
+gitmap/cmd/ignore/ignore.go
+gitmap/cmd/add/add.go
