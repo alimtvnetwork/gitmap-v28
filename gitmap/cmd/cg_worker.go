@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
 
 	"github.com/charmbracelet/lipgloss"
@@ -22,6 +23,7 @@ type cgUpdateResult struct {
 	oldVersion  string
 	newVersion  string
 	hasChanged  bool
+	stdout      string
 }
 
 func executeCGWorkers(repos []string) {
@@ -44,10 +46,12 @@ func runCgWorker(repo string, wg *sync.WaitGroup, sem chan struct{}, results cha
 	defer func() { <-sem }()
 	res := cgUpdateResult{repo: repo, isSuccess: true}
 	if oldMeta, err := ReadCGMetadata(repo); err == nil { res.oldVersion = oldMeta.Version }
-	if runErr := runCgScriptInRepo(repo); runErr != nil {
+	out, runErr := runCgScriptInRepo(repo)
+	if runErr != nil {
 		res.isSuccess = false
 		res.errorMsg = runErr.Error()
 	}
+	res.stdout = out
 	if newMeta, err := ReadCGMetadata(repo); err == nil { res.newVersion = newMeta.Version }
 	res.hasChanged = (res.oldVersion != res.newVersion)
 	results <- res
@@ -62,15 +66,16 @@ func getCgScriptCmd(repo string) *exec.Cmd {
 	return exec.Command("bash", "-c", shCmd)
 }
 
-func runCgScriptInRepo(repo string) error {
+func runCgScriptInRepo(repo string) (string, error) {
 	cmd := getCgScriptCmd(repo)
 	cmd.Dir = repo
-	var stderr bytes.Buffer
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("%w: %s", err, stderr.String())
+		return "", fmt.Errorf("%w: %s", err, stderr.String())
 	}
-	return nil
+	return stdout.String(), nil
 }
 
 func printCGUpdateSummary(results <-chan cgUpdateResult) {
@@ -81,8 +86,24 @@ func printCGUpdateSummary(results <-chan cgUpdateResult) {
 		} else if !r.hasChanged {
 			fmt.Printf("%s [%s] Up to date (%s)\n", cgSuccessStyle.Render("OK"), r.repo, cgVersionStyle.Render(r.newVersion))
 		} else {
-			fmt.Printf("%s [%s] Updated: %s -> %s\n    Updated files: version.json, .lovable/coding-guidelines/\n", cgSuccessStyle.Render("OK"), r.repo, cgErrorStyle.Render(r.oldVersion), cgSuccessStyle.Render(r.newVersion))
+			fmt.Printf("%s [%s] Updated: %s -> %s\n", cgSuccessStyle.Render("OK"), r.repo, cgErrorStyle.Render(r.oldVersion), cgSuccessStyle.Render(r.newVersion))
+			printModifiedFiles(r.stdout)
 		}
 	}
 	fmt.Println(cgHeaderStyle.Render("Done."))
+}
+
+func printModifiedFiles(stdout string) {
+	lines := strings.Split(stdout, "\n")
+	hasFiles := false
+	for _, line := range lines {
+		lower := strings.ToLower(line)
+		if strings.Contains(lower, "downloaded") || strings.Contains(lower, "created") || strings.Contains(lower, "updated") {
+			fmt.Printf("    - %s\n", strings.TrimSpace(line))
+			hasFiles = true
+		}
+	}
+	if !hasFiles {
+		fmt.Printf("    - version.json\n    - .lovable/coding-guidelines/\n")
+	}
 }

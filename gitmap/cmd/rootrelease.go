@@ -21,6 +21,7 @@ func releaseDispatchEntries() []dispatchEntry {
 		},
 		{[]string{constants.CmdReleaseBranch, constants.CmdReleaseBranchAlias}, func() { runReleaseBranch(argsTail()) }},
 		{[]string{constants.CmdReleasePending, constants.CmdReleasePendingAlias}, func() { runReleasePending(argsTail()) }},
+		{[]string{"release-scan-commits", "rsc-commits"}, func() { runReleaseScanCommits(argsTail()) }},
 		{[]string{constants.CmdReleaseUndo, constants.CmdReleaseUndoAlias}, func() { runReleaseUndo(argsTail()) }},
 		{[]string{constants.CmdChangelog, constants.CmdChangelogAlias}, func() { runChangelog(argsTail()) }},
 		{[]string{constants.CmdChangelogMD}, func() { runChangelog([]string{constants.FlagOpenValue}) }},
@@ -30,3 +31,4 @@ func releaseDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdReleaseAliasPull, constants.CmdReleaseAliasPullShort}, func() { runReleaseAlias(argsTail(), true) }},
 	}
 }
+
