@@ -1,0 +1,7 @@
+  it's a user's repo with no double quotes at all
+
+  run [C]"git status"[/C] then check user's repo and [C]"git log"[/C]
+
+  empty [C]""[/C] span between user's words
+
+  mix of [C]"first span"[/C] and 'single' and [C]"second span"[/C] tokens

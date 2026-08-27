@@ -1,0 +1,16 @@
+# Explicitly-unallocated MWS error codes.
+#
+# These codes appear in spec/19 prose because future-work sections RESERVE the
+# label and explicitly forbid allocating them today. Per `24-threat-model.md`
+# and `98-changelog.md`, allocating these codes "for future use" is itself a
+# CODE RED violation — they materialise only when the corresponding feature
+# ships.
+#
+# The R1 (Presence) check waives them so docs may reference the labels for
+# planning purposes without forcing a placeholder catalogue row.
+#
+# When any of these labels graduates to a real allocation, the line MUST move
+# from this file into a §2/§3 sub-table in 13-error-codes.md.
+WORKER-940-05
+WORKER-940-10
+MAIN-830-04
