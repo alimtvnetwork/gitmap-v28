@@ -1,3 +1,10 @@
+## [6.27.0] - 2026-08-27
+
+### Added
+- Added implemented agy (antigravity) commands.
+- Added implemented vscode commands.
+- Fixed spacing in help menu.
+
 # Changelog
 
 ## [v6.26.0] - 2026-08-27

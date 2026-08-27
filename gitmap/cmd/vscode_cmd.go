@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
 )
 
@@ -40,18 +41,26 @@ func dispatchVSCodeAction(args []string) {
 
 func handleVSCodeAdd(args []string) {
 	if len(args) < 2 {
-		fmt.Println("Usage: gitmap vscode add <path>")
+		fmt.Println("Usage: gitmap vscode add <path1,path2,...>")
 		os.Exit(1)
 	}
-	_ = runVSCodeAdd(args[1])
+	for _, p := range strings.Split(args[1], ",") {
+		if p = strings.TrimSpace(p); p != "" {
+			_ = runVSCodeAdd(p)
+		}
+	}
 }
 
 func handleVSCodeRm(args []string) {
 	if len(args) < 2 {
-		fmt.Println("Usage: gitmap vscode rm <path or name>")
+		fmt.Println("Usage: gitmap vscode rm <path or name,...>")
 		os.Exit(1)
 	}
-	_ = runVSCodeRm(args[1])
+	for _, t := range strings.Split(args[1], ",") {
+		if t = strings.TrimSpace(t); t != "" {
+			_ = runVSCodeRm(t)
+		}
+	}
 }
 
 func printVSCodeUsage() {
@@ -101,11 +110,14 @@ func runVSCodeAdd(target string) error {
 func resolveVSCodePath(target string) (string, error) {
 	absPath, err := filepath.Abs(target)
 	if err != nil {
-		return "", fmt.Errorf("error resolving path: %v", err)
+		return "", apperror.Wrap(err, "ResolveVSCodePath", map[string]any{"target": target})
 	}
 	info, err := os.Stat(absPath)
-	if err != nil || !info.IsDir() {
-		return "", fmt.Errorf("invalid directory: %s", absPath)
+	if err != nil {
+		return "", apperror.Wrap(err, "ResolveVSCodePath", map[string]any{"path": absPath})
+	}
+	if !info.IsDir() {
+		return "", apperror.New("ResolveVSCodePath", "INVALID_DIR", map[string]any{"path": absPath})
 	}
 	return absPath, nil
 }
