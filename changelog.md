@@ -1,5 +1,11 @@
 # Changelog
 
+## [v6.26.0] - 2026-08-27
+
+### Added
+- Auto-detect and execute release bumps from commit messages (`gitmap release-scan-commits`).
+- Gitmap UI terminal update output mapping capabilities.
+
 ## [v6.25.0] - 2026-08-27
 
 ### Added
