@@ -57,3 +57,5 @@ gitmap/cmd/ag/ag.go
 
 .lovable/plans/pending/05-github-desktop-apt-fix.md
 gitmap/cmd/installtools.go
+
+.lovable/plans/pending/06-search-and-llm-feature.md

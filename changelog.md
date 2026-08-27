@@ -1,3 +1,14 @@
+## [v6.131.0] 2026-08-27 - search and llm feature spec
+
+### Install gitmap v6.131.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.sh | bash -s -- ".lovable/prompts" "v6.131.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.131.0"`
+
+### Added
+
+- Added comprehensive AI Instruction Generic Spec for upcoming gitmap search, gitmap llm, and Split DB architecture LLM search tooling feature set.
+
 ## [v6.130.0] 2026-08-27 - github-desktop linux install fix
 
 ### Install gitmap v6.130.0
