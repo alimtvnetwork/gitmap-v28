@@ -1,3 +1,11 @@
+## [v6.28.0] - 2026-08-27
+
+### Fixed
+- Fixed golangci-lint drift by downgrading to go 1.24.
+- Synced generated commands.
+- Fixed changelog sync check.
+- Fixed install_profile_tree test aliases.
+
 ## [v6.27.0] - 2026-08-27
 
 ### Added
