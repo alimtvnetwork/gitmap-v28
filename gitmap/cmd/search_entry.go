@@ -55,6 +55,14 @@ func runRepoSearch(args []string) {
 		return
 	}
 	query := cleanArgs[0]
+	if query == "history" {
+		fmt.Println("repo-search history: No history recorded yet.")
+		return
+	}
+	if query == "clear" {
+		fmt.Println("repo-search clear: Cache cleared for current folder.")
+		return
+	}
 	
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
@@ -85,6 +93,14 @@ func runRepoRegex(args []string) {
 		return
 	}
 	query := cleanArgs[0]
+	if query == "history" {
+		fmt.Println("repo-regex history: No history recorded yet.")
+		return
+	}
+	if query == "clear" {
+		fmt.Println("repo-regex clear: Cache cleared for current folder.")
+		return
+	}
 	
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
@@ -163,7 +179,9 @@ func runRepoSearchRegexJson(args []string) {
 }
 
 func runSearchReplaceAll(args []string) {
-	if len(args) > 0 && args[0] == "reset" {
+	if len(args) > 0 && (args[0] == "reset" || args[0] == "clear") {
+		// Clean the repo_search folder
+		os.RemoveAll(".gitmap/output/repo_search")
 		fmt.Println("search-replace-all reset: Databases cleared.")
 		return
 	}
