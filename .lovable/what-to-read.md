@@ -59,3 +59,19 @@ gitmap/cmd/ag/ag.go
 gitmap/cmd/installtools.go
 
 .lovable/plans/pending/06-search-and-llm-feature.md
+
+
+- .lovable/plans/subtasks/06-search-and-llm/01-llm-command.md
+- .lovable/plans/subtasks/06-search-and-llm/02-db-and-workers.md
+- .lovable/plans/subtasks/06-search-and-llm/03-file-indexer.md
+- .lovable/plans/subtasks/06-search-and-llm/04-search-engine.md
+- .lovable/plans/subtasks/06-search-and-llm/05-commands-caching.md
+- gitmap/cmd/llm/llm.go
+- gitmap/indexer/walker.go
+- gitmap/lazyregex/lazyregex.go
+- gitmap/repodb/repo_db.go
+- gitmap/repodb/root.go
+- gitmap/searcher/db_search.go
+- gitmap/searcher/engine.go
+- gitmap/searcher/types.go
+- gitmap/worker/pool.go
