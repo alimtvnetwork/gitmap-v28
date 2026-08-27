@@ -18,7 +18,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CONSTANTS_FILE="$REPO_ROOT/gitmap/constants/constants.go"
-CHANGELOG_FILE="$REPO_ROOT/CHANGELOG.md"
+CHANGELOG_FILE="$REPO_ROOT/changelog.md"
 
 if [[ ! -f "$CONSTANTS_FILE" ]]; then
   echo "✗ constants.go not found at $CONSTANTS_FILE" >&2
@@ -58,3 +58,4 @@ if ! grep -Eq "$HEADING_RE" "$CHANGELOG_FILE"; then
 fi
 
 echo "✓ CHANGELOG.md has entry for v$VERSION"
+

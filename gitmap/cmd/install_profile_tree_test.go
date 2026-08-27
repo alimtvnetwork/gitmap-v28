@@ -58,7 +58,7 @@ func TestResolveProfileTree_Aliases(t *testing.T) {
 		{"ubuntu+basic", "ubuntu-basic"},
 		{"UBUNTU-BASIC", "ubuntu-basic"},
 		{"  ub+code  ", "ubuntu+vscode"},
-		{"vscode", "ubuntu+vscode"},
+		{"vscode", "vscode-settings"},
 		{"ubuntu-vscode", "ubuntu+vscode"},
 		{"ub+sdev", "ubuntu+small-dev"},
 		{"small-dev", "ubuntu+small-dev"},

@@ -1,4 +1,4 @@
-## [6.27.0] - 2026-08-27
+## [v6.27.0] - 2026-08-27
 
 ### Added
 - Added implemented agy (antigravity) commands.
@@ -5898,6 +5898,7 @@ const (
 
 ## v2.2.1
 - Patched PowerShell parsing edge cases affecting update flow.
+
 
 
 

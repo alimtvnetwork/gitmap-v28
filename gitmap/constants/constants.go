@@ -14,7 +14,7 @@ package constants
 
 // Version holds the current release version of gitmap.
 // This is overridden at compile time via -ldflags during CI/CD.
-var Version = "6.103.0" // Overridden at compile time via -ldflags
+var Version = "6.27.0" // Overridden at compile time via -ldflags
 
 // RepoPath is set at build time via -ldflags.
 var RepoPath = ""
@@ -150,3 +150,4 @@ const (
 
 // Verbose log file.
 const VerboseLogFileFmt = "gitmap-verbose-%s.log"
+

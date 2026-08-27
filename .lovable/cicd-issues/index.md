@@ -1,3 +1,4 @@
 - [14-top-level-cmd-registry.md](14-top-level-cmd-registry.md): TestTopLevelCmdRegistryMatchesAST fails when new top-level Cmd constants are not added to topLevelCmds() registry.
 - [15-clone-sync-examples.md](15-clone-sync-examples.md): TestEveryHelpFileHasExamples fails when using 4-space indents instead of fenced code blocks.
 - [16-github-actions-yaml-parse-fatal.md](16-github-actions-yaml-parse-fatal.md): Workflows stopped triggering due to fatal YAML syntax errors (missing runs, email obfuscation artifacts, missing required inputs).
+- [17-cicd-fixes-go-version-drift.md](./17-cicd-fixes-go-version-drift.md) - Go Version Drift, Linter Failure, and Generate Desync

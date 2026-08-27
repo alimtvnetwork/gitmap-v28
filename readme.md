@@ -70,11 +70,11 @@ One-line installers and release assets for the pinned **v6.27.0** build across e
 
 | Platform | Shell | Install-script URL | Release binary asset |
 | --- | --- | --- | --- |
-| **Windows** (amd64) | PowerShell | [`release-version-v6.27.0.ps1`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.ps1) | [`gitmap-6.26.0-windows-amd64.zip`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.26.0-windows-amd64.zip) |
-| **macOS** (arm64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.26.0-darwin-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.26.0-darwin-arm64.tar.gz) |
-| **macOS** (amd64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.26.0-darwin-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.26.0-darwin-amd64.tar.gz) |
-| **Linux** (amd64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.26.0-linux-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.26.0-linux-amd64.tar.gz) |
-| **Linux** (arm64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.26.0-linux-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.26.0-linux-arm64.tar.gz) |
+| **Windows** (amd64) | PowerShell | [`release-version-v6.27.0.ps1`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.ps1) | [`gitmap-6.27.0-windows-amd64.zip`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-windows-amd64.zip) |
+| **macOS** (arm64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.27.0-darwin-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-darwin-arm64.tar.gz) |
+| **macOS** (amd64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.27.0-darwin-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-darwin-amd64.tar.gz) |
+| **Linux** (amd64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.27.0-linux-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-linux-amd64.tar.gz) |
+| **Linux** (arm64) | Bash | [`release-version-v6.27.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/release-version-v6.27.0.sh) | [`gitmap-6.27.0-linux-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.27.0/gitmap-6.27.0-linux-arm64.tar.gz) |
 
 > **Release page:** [github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.27.0](https://github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.27.0) · **Asset naming contract:** `gitmap-<version>-<os>-<arch>.<ext>` (`.zip` on Windows, `.tar.gz` elsewhere) - verified by the installer pre-flight HEAD probe.
 
@@ -2954,4 +2954,5 @@ Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 
 ## Release Architecture
 For repository versioning and propagation design, see [.lovable/memory/release-architecture-map.md](.lovable/memory/release-architecture-map.md).
+
 
