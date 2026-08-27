@@ -56,6 +56,8 @@ func topLevelCmds() map[string]string {
 		"CmdExec":                  CmdExec,
 		"CmdExecAlias":             CmdExecAlias,
 		"CmdRelease":               CmdRelease,
+		"CmdFolder":                CmdFolder,
+		"CmdGitRm":                 CmdGitRm,
 		"CmdReleaseShort":          CmdReleaseShort,
 		"CmdReleaseBranch":         CmdReleaseBranch,
 		"CmdReleaseBranchAlias":    CmdReleaseBranchAlias,
