@@ -1,1 +1,0 @@
-gitmap repository readme

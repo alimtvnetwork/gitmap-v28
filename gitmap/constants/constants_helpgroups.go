@@ -36,7 +36,7 @@ const (
 	HelpSync          = "  sync (sy) <target>         Union-merge curated defaults: ignore | attributes | lfs-install | prettier-ignore | prettier-rc | all  [--dry-run] [--force]"
 	HelpCommons       = "  commons (co)               Shortcut for 'sync all' — add/dedupe curated .gitignore, .gitattributes, .prettierignore, .prettierrc + git lfs install  [--dry-run]"
 
-	HelpServersClients = "  servers-clients (sc) <sub> Broadcast commands across all server + client nodes"
+	HelpServersClients = "  servers-clients (sc) <sub>       Broadcast commands across all server + client nodes"
 	HelpClients        = "  clients <sub>              Broadcast commands across client nodes only"
 	HelpCluster        = "  cluster <sub>              Manage cluster nodes, history, exports, passwords"
 	HelpExecute        = "  execute (exec) <name>      Replay recorded macro steps with dry-run/verbose options"
@@ -51,10 +51,10 @@ const (
 
 	HelpAlias           = "  alias (a) <sub>     Assign short names to repos (set, remove, list, show, suggest)"
 	HelpSSH             = "  ssh <sub>           Generate, list, and manage SSH keys for Git authentication"
-	HelpSSHJoin         = "  sj (ssh-join) [ls|rm|history|auth] Join an SSH network and manage connections"
+	HelpSSHJoin         = "  sj (ssh-join) [ls|rm|history|auth]   Join an SSH network and manage connections (use --help to expand)"
 	HelpCodingGuideline = "  cg <sub>            Install Coding Guidelines (v24) into a repo"
-	HelpZipGroup        = "  zip-group (z) <sub> Manage named file collections for release ZIP archives"
-	HelpMV              = "  mv (move) <s..> <d..> Relocate repo directory with VSCode & GitHub Desktop sync"
+	HelpZipGroup        = "  zip-group (z) <sub>       Manage named file collections for release ZIP archives"
+	HelpMV              = "  mv (move) <s..> <d..>       Relocate repo directory with VSCode & GitHub Desktop sync"
 	HelpImportExport    = "  import-export (ie)  Export or import gitmap tracked repos, aliases, and groups"
 	HelpExportSummary   = "  export              Export tracked repos and settings to a JSON snapshot"
 	HelpImportSummary   = "  import              Import a JSON snapshot to restore tracking state"
@@ -81,11 +81,11 @@ const (
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
-	HelpInstaller         = "  installer (in) [run|ls|rm|history|edit] Manage installer scripts and history"
-	HelpMacro             = "  macro (m) [run|ls|rm|history|edit] Manage and execute macros"
-	HelpSchedule          = "  schedule (sc) [add|ls|rm|pause|resume] Schedule tasks and run jobs"
-	HelpVSCode            = "  vscode (vsc) [ls|add|rm|pap|plugins] Manage VS Code PM integrations"
-	HelpAgy               = "  antigravity (ag) [ls|add|rm|clear|open|prompt|rw|sync|pap|ep|ip|stats|plugin] Manage workspaces"
+	HelpInstaller         = "  installer (in) [run|ls|rm|history|edit]   Manage installer scripts and history (use --help to expand)"
+	HelpMacro             = "  macro (m) [run|ls|rm|history|edit]   Manage and execute macros (use --help to expand)"
+	HelpSchedule          = "  schedule (sc) [add|ls|rm|pause|resume]   Schedule tasks and run jobs (use --help to expand)"
+	HelpVSCode            = "  vscode (vsc) [ls|add|rm|pap|plugins]   Manage VS Code PM integrations (use --help to expand)"
+	HelpAgy               = "  antigravity (ag) [ls|add|rm|clear|open|prompt|rw|sync|pap|ep|ip|stats|plugin]   Manage workspaces (use --help to expand)"
 
 
 

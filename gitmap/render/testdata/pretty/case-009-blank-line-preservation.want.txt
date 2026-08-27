@@ -1,7 +1,0 @@
-# Heading
-
-  first paragraph
-
-  second paragraph with [C]"quoted"[/C] content
-
-  third paragraph

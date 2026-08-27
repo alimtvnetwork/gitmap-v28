@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/pterm/pterm"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -13,6 +16,13 @@ const (
 
 // printUsage displays grouped help text for all commands and flags.
 func printUsage() {
+	measuringHelp = true
+	maxHelpCmdLen = 0
+	printUsageCoreCategories()
+	printUsageReleaseAndProjectCategories()
+	printUsageAdvancedCategories()
+
+	measuringHelp = false
 	printUsageHeader()
 	printUsageCoreCategories()
 	printUsageReleaseAndProjectCategories()
@@ -20,7 +30,7 @@ func printUsage() {
 	printUsageTrailer()
 }
 
-// printUsageHeader prints the header banner, usage line, and quick-start section.
+
 func printUsageHeader() {
 	fmt.Printf(constants.UsageHeaderFmt, constants.Version)
 	fmt.Println(constants.HelpUsage)
@@ -96,6 +106,10 @@ func printUsageTrailer() {
 // related sub-groups, so users can pinpoint the right area without
 // scanning 17 sub-headers.
 func printSuperCategory(title string, body func()) {
+	if measuringHelp {
+		body()
+		return
+	}
 	fmt.Println()
 	rule := repeatRule(superCategoryLineWidth - len(title))
 	fmt.Println("  " + constants.ColorMagenta + "━━ " +
@@ -103,6 +117,7 @@ func printSuperCategory(title string, body func()) {
 		" " + constants.ColorMagenta + rule + constants.ColorReset)
 	body()
 }
+
 
 func repeatRule(count int) string {
 	if count < minRuleLength {
@@ -134,4 +149,117 @@ func printUsageQuickStart() {
 	fmt.Println(colorGroupHeader(constants.HelpGroupHint))
 	fmt.Println()
 	fmt.Println(constants.HelpCompactHint)
+}
+
+
+var (
+	measuringHelp bool
+	maxHelpCmdLen int
+)
+
+func renderHeader(header string) {
+	if measuringHelp {
+		return
+	}
+	fmt.Println()
+	fmt.Println(colorGroupHeader(header))
+	fmt.Println()
+}
+
+func renderLine(line string) {
+	if line == "" {
+		return
+	}
+	line = strings.TrimLeft(line, " ")
+	cmd := line
+	desc := ""
+	
+	for i := 0; i < len(line)-1; i++ {
+		if line[i] == ' ' && line[i+1] == ' ' {
+			cmd = strings.TrimRight(line[:i], " ")
+			desc = strings.TrimLeft(line[i:], " ")
+			break
+		}
+	}
+
+	expandable := false
+	if strings.Contains(desc, "(use --help to expand)") {
+		expandable = true
+		desc = strings.ReplaceAll(desc, "(use --help to expand)", "")
+		desc = strings.TrimSpace(desc)
+	} else if strings.Contains(cmd, "(use --help to expand)") {
+		expandable = true
+		cmd = strings.ReplaceAll(cmd, "(use --help to expand)", "")
+		cmd = strings.TrimSpace(cmd)
+	}
+
+	if measuringHelp {
+		l := lipgloss.Width(cmd)
+		if l > maxHelpCmdLen {
+			maxHelpCmdLen = l
+		}
+		return
+	}
+
+	pad := maxHelpCmdLen - lipgloss.Width(cmd)
+	if pad < 0 {
+		pad = 0
+	}
+
+	marker := ""
+	if expandable {
+		parts := strings.Split(cmd, " ")
+		firstWord := parts[0]
+		marker = fmt.Sprintf("  ▸ subcommands — see `gitmap %s --help`", firstWord)
+	}
+
+	fullDesc := desc + marker
+	termWidth := pterm.GetTerminalWidth()
+	if termWidth <= 0 {
+		termWidth = 120
+	}
+	
+	prefix := fmt.Sprintf("  %s%s  ", cmd, strings.Repeat(" ", pad))
+	descWidth := termWidth - lipgloss.Width(prefix)
+	
+	if descWidth > 10 {
+		wrapped := wrapText(fullDesc, descWidth)
+		lines := strings.Split(wrapped, "\n")
+		for i, l := range lines {
+			if i == 0 {
+				fmt.Printf("%s%s\n", prefix, l)
+			} else {
+				fmt.Printf("%s%s\n", strings.Repeat(" ", lipgloss.Width(prefix)), l)
+			}
+		}
+	} else {
+		fmt.Printf("%s%s\n", prefix, fullDesc)
+	}
+}
+
+func wrapText(text string, width int) string {
+	words := strings.Fields(text)
+	if len(words) == 0 {
+		return ""
+	}
+	var out strings.Builder
+	curLen := 0
+	for i, w := range words {
+		wLen := lipgloss.Width(w)
+		if i == 0 {
+			out.WriteString(w)
+			curLen = wLen
+		} else {
+			if curLen+1+wLen > width {
+				out.WriteString("\n")
+				out.WriteString(w)
+				curLen = wLen
+			} else {
+				out.WriteString(" ")
+				out.WriteString(w)
+				curLen += 1 + wLen
+			}
+		}
+	}
+	return out.String()
 }
