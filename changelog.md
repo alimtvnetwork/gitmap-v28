@@ -1,3 +1,14 @@
+## [v6.130.0] 2026-08-27 - github-desktop linux install fix
+
+### Install gitmap v6.130.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.sh | bash -s -- ".lovable/prompts" "v6.130.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.130.0"`
+
+### Fixed
+
+- Fixed gitmap install github-desktop on Linux (APT) failing with exit status 100 by migrating from the deprecated pt.packages.shiftkey.dev APT repository to the new official mirror.mwt.me mirror.
+
 ## [v6.129.0] 2026-08-27 - ag and vscode install commands
 
 ### Install gitmap v6.129.0
