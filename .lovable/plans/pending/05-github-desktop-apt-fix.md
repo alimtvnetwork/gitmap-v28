@@ -12,5 +12,8 @@ The old Shiftkey APT repository (pt.packages.shiftkey.dev) has certificate erro
 - Ensure wget does not fail silently by removing the -q flag if possible (optional, but good practice). Actually, it is better to leave it but the URL fix is the main solution.
 
 ## 3. Subtasks
-1. **Fix URLs in installtools.go**: Update the GPG key and repo URL in unInstallGitHubDesktopLinux.
+1. **Fix URLs in installtools.go**: Update the GPG key and repo URL in 
+unInstallGitHubDesktopLinux.
 2. **Commit and Release**: Bump version, update changelog, and push.
+
+2. **Fix Tests**: Resolve TestEveryCmdIDHasHelpFile and drain_regression_test.go failures.
