@@ -1,243 +1,238 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 func printGroupScanning() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupScanning))
-	fmt.Println()
-	fmt.Println(constants.HelpScan)
-	fmt.Println(constants.HelpRescan)
-	fmt.Println(constants.HelpList)
+	
+	renderHeader(constants.HelpGroupScanning)
+	
+	renderLine(constants.HelpScan)
+	renderLine(constants.HelpRescan)
+	renderLine(constants.HelpList)
 }
 
 func printGroupCloning() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupCloning))
-	fmt.Println()
-	fmt.Println(constants.HelpClone)
-	fmt.Println(constants.HelpCloneSync)
-	fmt.Println(constants.HelpCloneNext)
-	fmt.Println(constants.HelpDesktopSync)
-	fmt.Println(constants.HelpGitHubDesktop)
+	
+	renderHeader(constants.HelpGroupCloning)
+	
+	renderLine(constants.HelpClone)
+	renderLine(constants.HelpCloneSync)
+	renderLine(constants.HelpCloneNext)
+	renderLine(constants.HelpDesktopSync)
+	renderLine(constants.HelpGitHubDesktop)
 }
 
 func printGroupGitOps() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupGitOps))
-	fmt.Println()
-	fmt.Println(constants.HelpPull)
-	fmt.Println(constants.HelpPullAll)
-	fmt.Println(constants.HelpExec)
-	fmt.Println(constants.HelpStatus)
-	fmt.Println(constants.HelpWatch)
-	fmt.Println(constants.HelpHasAnyUpdates)
-	fmt.Println(constants.HelpLatestBr)
-	fmt.Println(constants.MsgHelpLFSCommon)
+	
+	renderHeader(constants.HelpGroupGitOps)
+	
+	renderLine(constants.HelpPull)
+	renderLine(constants.HelpPullAll)
+	renderLine(constants.HelpExec)
+	renderLine(constants.HelpStatus)
+	renderLine(constants.HelpWatch)
+	renderLine(constants.HelpHasAnyUpdates)
+	renderLine(constants.HelpLatestBr)
+	renderLine(constants.MsgHelpLFSCommon)
 }
 
 func printGroupNavigation() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupNavigation))
-	fmt.Println()
-	fmt.Println(constants.HelpCD)
-	fmt.Println(constants.HelpGroup)
-	fmt.Println(constants.HelpMultiGroup)
-	fmt.Println(constants.HelpSf)
-	fmt.Println(constants.HelpAlias)
-	fmt.Println(constants.HelpDiffProfiles)
+	
+	renderHeader(constants.HelpGroupNavigation)
+	
+	renderLine(constants.HelpCD)
+	renderLine(constants.HelpGroup)
+	renderLine(constants.HelpMultiGroup)
+	renderLine(constants.HelpSf)
+	renderLine(constants.HelpAlias)
+	renderLine(constants.HelpDiffProfiles)
 }
 
 func printGroupRelease() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupRelease))
-	fmt.Println()
-	fmt.Println(constants.HelpRelease)
-	fmt.Println(constants.HelpReleasePull)
-	fmt.Println(constants.HelpReleaseSelf)
-	fmt.Println(constants.HelpReleaseBr)
-	fmt.Println(constants.HelpTempRelease)
+	
+	renderHeader(constants.HelpGroupRelease)
+	
+	renderLine(constants.HelpRelease)
+	renderLine(constants.HelpReleasePull)
+	renderLine(constants.HelpReleaseSelf)
+	renderLine(constants.HelpReleaseBr)
+	renderLine(constants.HelpTempRelease)
 }
 
 func printGroupReleaseInfo() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupReleaseInfo))
-	fmt.Println()
-	fmt.Println(constants.HelpChangelog)
-	fmt.Println(constants.HelpChangelogGen)
-	fmt.Println(constants.HelpListVersions)
-	fmt.Println(constants.HelpListReleases)
-	fmt.Println(constants.HelpReleasePend)
-	fmt.Println(constants.HelpRevert)
-	fmt.Println(constants.HelpClearReleaseJSON)
-	fmt.Println(constants.HelpPrune)
+	
+	renderHeader(constants.HelpGroupReleaseInfo)
+	
+	renderLine(constants.HelpChangelog)
+	renderLine(constants.HelpChangelogGen)
+	renderLine(constants.HelpListVersions)
+	renderLine(constants.HelpListReleases)
+	renderLine(constants.HelpReleasePend)
+	renderLine(constants.HelpRevert)
+	renderLine(constants.HelpClearReleaseJSON)
+	renderLine(constants.HelpPrune)
 }
 
 func printGroupData() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupData))
-	fmt.Println()
-	fmt.Println(constants.HelpExport)
-	fmt.Println(constants.HelpImport)
-	fmt.Println(constants.HelpProfile)
-	fmt.Println(constants.HelpBookmark)
-	fmt.Println(constants.HelpMV)
-	fmt.Println(constants.HelpRm)
-	fmt.Println(constants.HelpDBReset)
+	
+	renderHeader(constants.HelpGroupData)
+	
+	renderLine(constants.HelpExport)
+	renderLine(constants.HelpImport)
+	renderLine(constants.HelpProfile)
+	renderLine(constants.HelpBookmark)
+	renderLine(constants.HelpMV)
+	renderLine(constants.HelpRm)
+	renderLine(constants.HelpDBReset)
 }
 
 func printGroupImportExport() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupImportExport))
-	fmt.Println()
-	fmt.Println(constants.HelpImportExport)
-	fmt.Println(constants.HelpExportSummary)
-	fmt.Println(constants.HelpImportSummary)
+	
+	renderHeader(constants.HelpGroupImportExport)
+	
+	renderLine(constants.HelpImportExport)
+	renderLine(constants.HelpExportSummary)
+	renderLine(constants.HelpImportSummary)
 }
 
 func printGroupHistory() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupHistory))
-	fmt.Println()
-	fmt.Println(constants.HelpHistory)
-	fmt.Println(constants.HelpHistoryReset)
-	fmt.Println(constants.HelpVersionHistory)
-	fmt.Println(constants.HelpStats)
+	
+	renderHeader(constants.HelpGroupHistory)
+	
+	renderLine(constants.HelpHistory)
+	renderLine(constants.HelpHistoryReset)
+	renderLine(constants.HelpVersionHistory)
+	renderLine(constants.HelpStats)
 }
 
 func printGroupAmend() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupAmendGroup))
-	fmt.Println()
-	fmt.Println(constants.HelpAmend)
-	fmt.Println(constants.HelpAmendList)
+	
+	renderHeader(constants.HelpGroupAmendGroup)
+	
+	renderLine(constants.HelpAmend)
+	renderLine(constants.HelpAmendList)
 }
 
 func printGroupProject() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupProject))
-	fmt.Println()
-	fmt.Println(constants.HelpGoRepos)
-	fmt.Println(constants.HelpNodeRepos)
-	fmt.Println(constants.HelpReactRepos)
-	fmt.Println(constants.HelpCppRepos)
-	fmt.Println(constants.HelpCsharpRepos)
+	
+	renderHeader(constants.HelpGroupProject)
+	
+	renderLine(constants.HelpGoRepos)
+	renderLine(constants.HelpNodeRepos)
+	renderLine(constants.HelpReactRepos)
+	renderLine(constants.HelpCppRepos)
+	renderLine(constants.HelpCsharpRepos)
 }
 
 func printGroupSSH() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupSSH))
-	fmt.Println()
-	fmt.Println(constants.HelpSSH)
-	fmt.Println(constants.HelpSSHJoin)
+	
+	renderHeader(constants.HelpGroupSSH)
+	
+	renderLine(constants.HelpSSH)
+	renderLine(constants.HelpSSHJoin)
 }
 
 func printGroupZip() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupZip))
-	fmt.Println()
-	fmt.Println(constants.HelpZipGroup)
+	
+	renderHeader(constants.HelpGroupZip)
+	
+	renderLine(constants.HelpZipGroup)
 }
 
 func printGroupEnvTools() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupEnvTools))
-	fmt.Println()
-	fmt.Println(constants.HelpEnv)
-	fmt.Println(constants.HelpInstall)
-	fmt.Println(constants.HelpUninstall)
-	fmt.Println(constants.HelpInstaller)
-	fmt.Println(constants.HelpCodingGuideline)
+	
+	renderHeader(constants.HelpGroupEnvTools)
+	
+	renderLine(constants.HelpEnv)
+				renderLine(constants.HelpCodingGuideline)
 }
 
 func printGroupTasks() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupTasks))
-	fmt.Println()
-	fmt.Println(constants.HelpTask)
-	fmt.Println(constants.HelpPending)
-	fmt.Println(constants.HelpDoPending)
-	fmt.Println(constants.HelpMacro)
-	fmt.Println(constants.HelpExecute)
+	
+	renderHeader(constants.HelpGroupTasks)
+	
+	renderLine(constants.HelpTask)
+	renderLine(constants.HelpPending)
+	renderLine(constants.HelpDoPending)
+	renderLine(constants.HelpMacro)
+	renderLine(constants.HelpExecute)
 }
 
 func printGroupVisualize() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupVisualize))
-	fmt.Println()
-	fmt.Println(constants.HelpDashboard)
+	
+	renderHeader(constants.HelpGroupVisualize)
+	
+	renderLine(constants.HelpDashboard)
 }
 
 func printGroupCommitXfer() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupCommitXfer))
-	fmt.Println()
-	fmt.Println(constants.HelpCommitRight)
-	fmt.Println(constants.HelpCommitLeft)
-	fmt.Println(constants.HelpCommitBoth)
+	
+	renderHeader(constants.HelpGroupCommitXfer)
+	
+	renderLine(constants.HelpCommitRight)
+	renderLine(constants.HelpCommitLeft)
+	renderLine(constants.HelpCommitBoth)
 }
 
 func printGroupChromeProfile() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupChromeProf))
-	fmt.Println()
-	fmt.Println(constants.HelpChromeProfileCopy)
-	fmt.Println(constants.HelpChromeProfileExport)
-	fmt.Println(constants.HelpChromeProfileImport)
-	fmt.Println(constants.HelpChromeProfileList)
-	fmt.Println(constants.HelpChromeProfileDelete)
+	
+	renderHeader(constants.HelpGroupChromeProf)
+	
+	renderLine(constants.HelpChromeProfileCopy)
+	renderLine(constants.HelpChromeProfileExport)
+	renderLine(constants.HelpChromeProfileImport)
+	renderLine(constants.HelpChromeProfileList)
+	renderLine(constants.HelpChromeProfileDelete)
 }
 
 func printGroupTemplates() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupTemplates))
-	fmt.Println()
-	fmt.Println(constants.HelpAddIgnore)
-	fmt.Println(constants.HelpAddAttributes)
-	fmt.Println(constants.HelpAddLFSInstall)
-	fmt.Println(constants.HelpTemplatesInit)
-	fmt.Println(constants.HelpTemplatesList)
-	fmt.Println(constants.HelpTemplatesShow)
-	fmt.Println(constants.HelpTemplatesDiff)
-	fmt.Println(constants.HelpSync)
-	fmt.Println(constants.HelpCommons)
+	
+	renderHeader(constants.HelpGroupTemplates)
+	
+	renderLine(constants.HelpAddIgnore)
+	renderLine(constants.HelpAddAttributes)
+	renderLine(constants.HelpAddLFSInstall)
+	renderLine(constants.HelpTemplatesInit)
+	renderLine(constants.HelpTemplatesList)
+	renderLine(constants.HelpTemplatesShow)
+	renderLine(constants.HelpTemplatesDiff)
+	renderLine(constants.HelpSync)
+	renderLine(constants.HelpCommons)
 }
 
 func printGroupCluster() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupCluster))
-	fmt.Println()
-	fmt.Println(constants.HelpServersClients)
-	fmt.Println(constants.HelpClients)
-	fmt.Println(constants.HelpCluster)
-	fmt.Println(constants.HelpServe)
+	
+	renderHeader(constants.HelpGroupCluster)
+	
+	renderLine(constants.HelpServersClients)
+	renderLine(constants.HelpClients)
+	renderLine(constants.HelpCluster)
+	renderLine(constants.HelpServe)
 }
 func printGroupUser() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupUser))
-	fmt.Println()
-	fmt.Println(constants.HelpUser)
+	
+	renderHeader(constants.HelpGroupUser)
+	
+	renderLine(constants.HelpUser)
 }
 
 func printGroupInstallers() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupInstallers))
-	fmt.Println()
-	fmt.Println(constants.HelpInstall)
-	fmt.Println(constants.HelpInstaller)
-	fmt.Println(constants.HelpMacro)
-	fmt.Println(constants.HelpSetup)
+	renderHeader(constants.HelpGroupInstallers)
+	renderLine(constants.HelpInstall)
+	renderLine(constants.HelpUninstall)
+	renderLine(constants.HelpInstaller)
+	renderLine(constants.HelpMacro + " (also performs installer behavior)")
+	renderLine(constants.HelpSetup)
 }
 
+
 func printGroupIntegrations() {
-	fmt.Println()
-	fmt.Println(colorGroupHeader(constants.HelpGroupIntegrations))
-	fmt.Println()
-	fmt.Println(constants.HelpVSCode)
-	fmt.Println(constants.HelpAgy)
-	fmt.Println(constants.HelpSchedule)
+	
+	renderHeader(constants.HelpGroupIntegrations)
+	
+	renderLine(constants.HelpVSCode)
+	renderLine(constants.HelpAgy)
+	renderLine(constants.HelpSchedule)
 }

@@ -1,1 +1,0 @@
-  use the [C]"atomic"[/C] write strategy and quote [C]"names"[/C] carefully

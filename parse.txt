@@ -1,9 +1,0 @@
-// parseResetFlags parses the flags for the reset command.
-func parseResetFlags(args []string) (bool, bool) {
-	fs := flag.NewFlagSet(constants.CmdReset, flag.ExitOnError)
-	confirmFlag := fs.Bool("confirm", false, constants.FlagDescConfirm)
-	rescanFlag := fs.Bool("rescan", false, "Rescan after reset")
-	fs.Parse(args)
-
-	return *confirmFlag, *rescanFlag
-}
