@@ -56,6 +56,9 @@ const (
 	FlagCTNoPush          = "no-push"
 	FlagCTNoCommit        = "no-commit"
 	FlagCTInterleave      = "interleave"
+	FlagCTPR              = "pr"
+	FlagCTAppendFooter    = "append-footer"
+	FlagCTTemplateOverride = "template-override"
 )
 
 // Commit-transfer flag descriptions.
@@ -82,6 +85,9 @@ const (
 	FlagDescCTNoPush          = "Stop after the local commit (skip git push)"
 	FlagDescCTNoCommit        = "Copy files but skip both commit and push"
 	FlagDescCTInterleave      = "commit-both only: replay both sides in author-date order (instead of sequential L→R then R→L)"
+	FlagDescCTPR              = "Create a pull request for the replayed commits (values: 'all', 'tags', 'release')"
+	FlagDescCTAppendFooter    = "Append a literal footer to every replayed commit (repeatable)"
+	FlagDescCTTemplateOverride = "Enable template replacement for generic commit titles"
 )
 
 // Commit-transfer messages and errors.

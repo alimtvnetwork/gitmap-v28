@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/walk"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/workspace"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/committransfer"
 )
 
 // processOneCommit runs one source commit through dedupe → build →
@@ -126,6 +127,9 @@ func doReplayAndRecord(ctx *runContext, staged workspace.StagedInput, c walk.Sou
 		return
 	}
 	recordCreated(ctx, srcID, c, msg, res.NewSha, stdout)
+	if err := committransfer.ProcessPR(plan.TargetRepoDir, c.OriginalMessage, msg, c.Sha[:7], ctx.Resolved.PRMode, res.NewSha); err != nil {
+		fmt.Fprintf(stdout, "PR processing failed: %v\n", err)
+	}
 }
 
 func buildReplayPlan(ctx *runContext, staged workspace.StagedInput, c walk.SourceCommit, msg string) replay.Plan {

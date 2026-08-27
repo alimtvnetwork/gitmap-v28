@@ -17,6 +17,7 @@ type RawArgs struct {
 	KeywordTail int    // N when Keyword == "-N"; 0 otherwise
 
 	// Behavior flags (defaults match spec §2.5 column "Default").
+	PRMode               string
 	UseDefaultProfile    bool
 	ProfileName          string
 	SaveProfileName      string

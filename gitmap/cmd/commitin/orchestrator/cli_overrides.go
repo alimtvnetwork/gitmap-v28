@@ -24,6 +24,10 @@ func addAuthor(c *profile.CliOverrides, raw *commitin.RawArgs) {
 }
 
 func addConflictAndAffixes(c *profile.CliOverrides, raw *commitin.RawArgs) {
+	if raw.PRMode != "" {
+		s := raw.PRMode
+		c.PRMode = &s
+	}
 	if raw.ConflictMode != "" {
 		s := raw.ConflictMode
 		c.ConflictMode = &s

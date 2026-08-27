@@ -56,6 +56,7 @@ func registerStringFlags(fs *flag.FlagSet, raw *RawArgs) {
 	fs.StringVar(&raw.TitlePrefix, constants.CommitInFlagTitlePrefix, "", constants.CommitInDescTitlePrefix)
 	fs.StringVar(&raw.TitleSuffix, constants.CommitInFlagTitleSuffix, "", constants.CommitInDescTitleSuffix)
 	fs.StringVar(&raw.FunctionIntel, constants.CommitInFlagFunctionIntel, "", constants.CommitInDescFunctionIntel)
+	fs.StringVar(&raw.PRMode, constants.CommitInFlagPR, "", constants.CommitInDescPR)
 }
 
 func registerCsvFlags(fs *flag.FlagSet, csv *csvHolder) {

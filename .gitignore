@@ -62,3 +62,4 @@ __pycache__/
 *.pyo
 
 .lovable/temp-scripts/
+.lovable/temp-scripts/
