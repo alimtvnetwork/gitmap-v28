@@ -1,5 +1,10 @@
 # Changelog
 
+## [v6.25.0] - 2026-08-27
+
+### Added
+- Authored a comprehensive, generic AI Instruction Specification (`ssh-commands.md`) outlining the data model, terminal rendering contract, and command tree for implementing a cross-platform SSH and Profile Management system.
+
 ## [v6.24.1] - 2026-08-27
 
 ### Added
