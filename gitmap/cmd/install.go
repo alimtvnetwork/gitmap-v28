@@ -105,6 +105,8 @@ func specialToolHandler(tool string) func(installOptions) {
 		constants.ToolCodingGuidelines: func(installOptions) { runInstallCustomTool("coding-guidelines") },
 		constants.ToolMacroAhk:         func(installOptions) { runInstallCustomTool("macro-ahk") },
 		constants.ToolAgManager:        func(installOptions) { runInstallAgManager() },
+		constants.ToolAgCtx:            func(opts installOptions) { runInstallCtx(opts.Explain) },
+		constants.ToolAntigravity:      func(opts installOptions) { runInstallAntigravity() },
 	}[tool]
 }
 
@@ -208,4 +210,8 @@ func confirmInstall(tool, version, manager string) bool {
 	var answer string
 	fmt.Scanln(&answer)
 	return answer == "y" || answer == "Y"
+}
+
+func runInstallAntigravity() {
+	fmt.Println("To install Antigravity, please follow the official setup guide or run: npm install -g @google/antigravity")
 }

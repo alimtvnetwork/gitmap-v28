@@ -52,6 +52,8 @@ const (
 	ToolCodingGuidelines = "coding-guidelines"
 	ToolMacroAhk         = "macro-ahk"
 	ToolAgManager        = "ag-manager"
+	ToolAgCtx            = "ag-ctx"
+	ToolAntigravity      = "antigravity"
 )
 
 // Supported tool names — Databases.
@@ -373,6 +375,8 @@ var InstallToolDescriptions = map[string]string{
 	ToolCodingGuidelines: "Install Coding Guidelines per repo",
 	ToolMacroAhk:         "Install Macro AHK scripts",
 	ToolAgManager:        "Install Antigravity Manager GUI",
+	ToolAgCtx:            "Add Antigravity to Windows right-click context menu",
+	ToolAntigravity:      "Antigravity",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -386,7 +390,7 @@ var InstallToolCategories = map[string][]string{
 		ToolNpp, ToolNppSettings, ToolNppInstall,
 		ToolVSCodeSync, ToolOBSSync, ToolWTSync,
 		ToolScripts, ToolGitmapOneliner, ToolAllDevTools,
-		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk, ToolAgManager,
+		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk, ToolAgManager, ToolAgCtx, ToolAntigravity,
 	},
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,

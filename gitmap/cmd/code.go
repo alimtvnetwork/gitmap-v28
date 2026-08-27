@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -29,6 +30,9 @@ func runCode(args []string) {
 
 	if len(args) > 0 {
 		switch strings.ToLower(args[0]) {
+		case "install":
+			runCodeInstall()
+			return
 		case "paths":
 			runCodePaths(args[1:])
 			return
@@ -436,5 +440,17 @@ func syncAliasEntry(rootPath, name string, paths []string) {
 func overwriteAliasEntry(rootPath, name string, paths []string) {
 	if err := vscodepm.OverwritePaths(rootPath, name, paths); err != nil {
 		reportVSCodePMSoftError(err)
+	}
+}
+
+// runCodeInstall handles \gitmap vscode install\ and \gitmap code install\.
+func runCodeInstall() {
+	cmd := exec.Command("gitmap", "install", "vscode-ctx")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "gitmap install vscode-ctx failed: %v\n", err)
+		os.Exit(1)
 	}
 }

@@ -8,3 +8,5 @@ Once the changes are committed, the CI/CD pipeline (when correctly configured) h
 - v6.127.0: git-rm and folder export commands added
 
 - v6.128.0: ignore and add commands added
+
+- v6.129.0: ag and vscode install commands added

@@ -1,3 +1,20 @@
+## [v6.129.0] 2026-08-27 - ag and vscode install commands
+
+### Install gitmap v6.129.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.sh | bash -s -- ".lovable/prompts" "v6.129.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.129.0"`
+
+### Added
+
+- gitmap ag and gitmap antigravity top-level commands to seamlessly open projects with Antigravity.
+- gitmap ag install and gitmap vscode install subcommands to automatically install the respective tools and Windows right-click context menus.
+- "Open project with Antigravity" option integrated into the gitmap install ctx right-click registry generation.
+
+### Fixed
+
+- Fixed missing command registrations for folder, git-rm, ignore, and add commands in the command dispatcher routing table.
+
 ## [v6.128.0] 2026-08-27 - ignore and add commands
 
 ### Install gitmap v6.128.0
