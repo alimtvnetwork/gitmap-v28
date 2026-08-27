@@ -1,9 +1,8 @@
 # repo-search-regex-json
 
-Executes repo-search-regex-json operations within the Split DB environment.
+Searches file contents using regex, outputting in JSON format.
 
 ## Examples
-
 ```bash
-gitmap repo-search-regex-json "query"
+gitmap repo-search-regex-json "func run[A-Z]"
 ```

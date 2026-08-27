@@ -1,9 +1,8 @@
 # replace
 
-Executes replace operations within the Split DB environment.
+Replaces text in repository files.
 
 ## Examples
-
 ```bash
-gitmap replace "query"
+gitmap replace "func run(" "func execute("
 ```

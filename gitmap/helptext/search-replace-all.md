@@ -1,9 +1,8 @@
 # search-replace-all
 
-Executes search-replace-all operations within the Split DB environment.
+Clears search DBs.
 
 ## Examples
-
 ```bash
-gitmap search-replace-all "query"
+gitmap search-replace-all reset
 ```

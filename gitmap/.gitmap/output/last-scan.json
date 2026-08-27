@@ -1,0 +1,11 @@
+{
+  "dir": ".",
+  "configPath": "./data/config.json",
+  "mode": "",
+  "output": "",
+  "outFile": "",
+  "outputPath": "",
+  "githubDesktop": false,
+  "openFolder": false,
+  "quiet": false
+}

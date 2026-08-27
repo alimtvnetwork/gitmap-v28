@@ -1,9 +1,8 @@
 # repo-regex
 
-Executes repo-regex operations within the Split DB environment.
+Searches file contents using regex.
 
 ## Examples
-
 ```bash
-gitmap repo-regex "query"
+gitmap repo-regex "func run[A-Z]"
 ```

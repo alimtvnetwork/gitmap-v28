@@ -1,0 +1,20 @@
+[
+  {
+    "id": 0,
+    "slug": "gitmap-v28",
+    "repoId": "github.com/alimtvnetwork/gitmap-v28",
+    "repoName": "gitmap-v28",
+    "httpsUrl": "https://github.com/alimtvnetwork/gitmap-v28",
+    "sshUrl": "git@github.com:alimtvnetwork/gitmap-v28",
+    "discoveredUrl": "https://github.com/alimtvnetwork/gitmap-v28",
+    "branch": "main",
+    "branchSource": "HEAD",
+    "relativePath": ".",
+    "absolutePath": "D:\\work\\gitmap",
+    "cloneInstruction": "git clone -b main https://github.com/alimtvnetwork/gitmap-v28 .",
+    "notes": "",
+    "depth": 0,
+    "transport": "https",
+    "identifiedTransport": "https"
+  }
+]

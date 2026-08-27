@@ -1,9 +1,8 @@
 # repo-search
 
-Executes repo-search operations within the Split DB environment.
+Searches file contents using the cached DB.
 
 ## Examples
-
 ```bash
-gitmap repo-search "query"
+gitmap repo-search "func run"
 ```

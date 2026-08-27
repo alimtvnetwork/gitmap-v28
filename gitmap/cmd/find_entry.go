@@ -2,17 +2,13 @@ package cmd
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/repodb"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/searcher"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	"github.com/pterm/pterm"
 )
 
@@ -36,32 +32,7 @@ func parseLimit(args []string) (int, []string) {
 	return limit, cleanArgs
 }
 
-func getFindDB(ctx context.Context) (*store.DB, *sql.DB, error) {
-	mainDB, err := store.OpenDefault()
-	if err != nil {
-		return nil, nil, err
-	}
-	
-	cwd, err := os.Getwd()
-	if err != nil {
-		mainDB.Close()
-		return nil, nil, err
-	}
-	
-	repos, err := mainDB.FindByPath(cwd)
-	if err != nil || len(repos) == 0 {
-		mainDB.Close()
-		return nil, nil, fmt.Errorf("current directory is not a tracked gitmap repository. run 'gitmap scan' first")
-	}
-	
-	repoDB, err := repodb.OpenRepoDB(ctx, constants.DefaultOutputDir, repos[0].AbsolutePath, repos[0].ID)
-	if err != nil {
-		mainDB.Close()
-		return nil, nil, err
-	}
-	
-	return mainDB, repoDB, nil
-}
+// getRepoDB is used from cmd_db.go
 
 func runFind(args []string) {
 	limit, cleanArgs := parseLimit(args)
@@ -72,7 +43,7 @@ func runFind(args []string) {
 	query := cleanArgs[0]
 	
 	ctx := context.Background()
-	mainDB, db, err := getFindDB(ctx)
+	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		pterm.Error.Println(err)
 		os.Exit(1)
@@ -100,7 +71,7 @@ func runFindRegex(args []string) {
 	query := cleanArgs[0]
 	
 	ctx := context.Background()
-	mainDB, db, err := getFindDB(ctx)
+	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		pterm.Error.Println(err)
 		os.Exit(1)
@@ -128,7 +99,7 @@ func runFindRead(args []string) {
 	query := cleanArgs[0]
 	
 	ctx := context.Background()
-	mainDB, db, err := getFindDB(ctx)
+	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		pterm.Error.Println(err)
 		os.Exit(1)
@@ -158,7 +129,7 @@ func runFindReadJson(args []string) {
 	query := cleanArgs[0]
 	
 	ctx := context.Background()
-	mainDB, db, err := getFindDB(ctx)
+	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		fmt.Println("[]")
 		return
@@ -185,7 +156,7 @@ func runFindRegexRead(args []string) {
 	query := cleanArgs[0]
 	
 	ctx := context.Background()
-	mainDB, db, err := getFindDB(ctx)
+	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		pterm.Error.Println(err)
 		os.Exit(1)
@@ -215,7 +186,7 @@ func runFindRegexReadJson(args []string) {
 	query := cleanArgs[0]
 	
 	ctx := context.Background()
-	mainDB, db, err := getFindDB(ctx)
+	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		fmt.Println("[]")
 		return
