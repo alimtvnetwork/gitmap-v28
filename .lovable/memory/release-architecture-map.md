@@ -14,3 +14,5 @@ Once the changes are committed, the CI/CD pipeline (when correctly configured) h
 - v6.130.0: github-desktop apt install fix
 
 - v6.133.0: search and llm feature spec added
+
+- v6.134.0: Wired CLI File Search / Regex Search Commands to SplitDB Indexer Engine
