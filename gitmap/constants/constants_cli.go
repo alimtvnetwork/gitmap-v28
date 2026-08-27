@@ -48,6 +48,24 @@ const (
 	CmdGitRm = "git-rm"
 	CmdIgnore = "ignore"
 	CmdIgnoreRm = "ignore-rm"
+	// CmdCommitPush stages all changes, commits with a message, and pushes.
+	CmdCommitPush             = "commit-push"
+	CmdCommitPushAlias        = "cp"
+	// CmdCommitPushPull pulls first (resolving conflicts), then stages, commits, pushes.
+	CmdCommitPushPull         = "commit-push-pull"
+	CmdCommitPushPullAlias    = "cpp"
+	// CmdCommitPushBug commits with a "Bug: " prefix and pushes.
+	CmdCommitPushBug          = "commit-push-bug"
+	CmdCommitPushBugAlias     = "cpb"
+	// CmdCommitPushFeature commits with a "Feature: " prefix and pushes.
+	CmdCommitPushFeature      = "commit-push-feature"
+	CmdCommitPushFeatureAlias = "cpf"
+	// CmdCommitPushRelease commits with a "Release: " prefix and pushes.
+	CmdCommitPushRelease      = "commit-push-release"
+	CmdCommitPushReleaseAlias = "cpr"
+	// CmdRmGit removes a commit by its last 4-digit SHA prefix.
+	CmdRmGit                  = "rm-git"
+	CmdRmGitAlias             = "rg"
 	CmdAg = "ag"
 	CmdAntigravity = "antigravity"
 	CmdAdd = "add"
