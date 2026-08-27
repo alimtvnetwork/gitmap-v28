@@ -2959,3 +2959,6 @@ For repository versioning and propagation design, see [.lovable/memory/release-a
 
 - [Folder Command Logic](gitmap/cmd/folder/folder.go)
 - [Git-Rm Command Logic](gitmap/cmd/gitrm/gitrm.go)
+
+- [Ignore Command Logic](gitmap/cmd/ignore/ignore.go)
+- [Add Command Logic](gitmap/cmd/add/add.go)
