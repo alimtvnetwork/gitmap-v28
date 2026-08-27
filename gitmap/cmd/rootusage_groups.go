@@ -30,6 +30,7 @@ func printGroupGitOps() {
 	
 	renderLine(constants.HelpPull)
 	renderLine(constants.HelpPullAll)
+	renderLine(constants.HelpFix)
 	renderLine(constants.HelpExec)
 	renderLine(constants.HelpStatus)
 	renderLine(constants.HelpWatch)

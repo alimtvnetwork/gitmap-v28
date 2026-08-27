@@ -1,27 +1,29 @@
-// Package cmd — pull_table_row.go renders an individual rich pull table row.
 package cmd
 
 import (
 	"fmt"
-	"sync/atomic"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
-var pullRowCounter uint64
-
 func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
-	statusFmt := formatPullStatus(r.PullStatus, r.IsDirty)
-	idx := atomic.AddUint64(&pullRowCounter, 1) - 1
-	pastelColor := constants.ColorCycle[idx%uint64(len(constants.ColorCycle))]
+	statusStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
+	if r.PullStatus != "UP_TO_DATE" && r.PullStatus != "synced" {
+		statusStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffb86c")).Bold(true)
+	}
 
-	fmt.Printf("  %s%-*s%s   %-*s   %-*s   %-*s   %-*s   %s\n",
-		pastelColor, l.MaxRepo, r.RepoName, constants.ColorReset,
+	repoStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
+	if r.IsDirty {
+		repoStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffb86c"))
+	}
+
+	fmt.Printf("  %-*s   %-*s   %-*s   %-*s   %-*s   %-*s   %s\n",
+		l.MaxRepo, repoStyle.Render(r.RepoName),
 		l.MaxBranch, r.Branch,
-		l.MaxSHA, r.LastSHA,
+		l.MaxLatestBr, r.LatestBranch,
 		l.MaxPR, r.PRStatus,
-		l.MaxStatus, statusFmt,
+		l.MaxStatus, statusStyle.Render(r.PullStatus),
+		l.MaxSHA, r.LastSHA,
 		r.Duration,
 	)
 }
