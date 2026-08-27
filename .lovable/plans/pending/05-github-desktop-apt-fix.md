@@ -16,4 +16,4 @@ The old Shiftkey APT repository (pt.packages.shiftkey.dev) has certificate erro
 unInstallGitHubDesktopLinux.
 2. **Commit and Release**: Bump version, update changelog, and push.
 
-2. **Fix Tests**: Resolve TestEveryCmdIDHasHelpFile and drain_regression_test.go failures.
+2. **Fix Tests (COMPLETED)**: Resolve TestEveryCmdIDHasHelpFile and drain_regression_test.go failures.
