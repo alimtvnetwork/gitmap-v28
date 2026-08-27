@@ -1,3 +1,20 @@
+## [v6.127.0] 2026-08-27 - git-rm and folder export features
+
+### Install gitmap v6.127.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.sh | bash -s -- ".lovable/prompts" "v6.127.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.127.0"`
+
+### Added
+
+- Implemented gitmap folder for exporting directory trees to .txt, .md, .json, and .yaml with pattern exclusion support.
+- Implemented gitmap git-rm for aggressively scrubbing files from git history with automated backups to the global .gitmap folder.
+
+
+## [v6.26.0] - 2026-08-27
+
+
+
 ## [v6.126.0] - 2026-08-27
 
 ### Added
@@ -23,7 +40,6 @@
 
 # Changelog
 
-## [v6.26.0] - 2026-08-27
 
 ### Added
 - Auto-detect and execute release bumps from commit messages (`gitmap release-scan-commits`).
