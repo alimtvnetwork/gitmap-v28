@@ -2950,3 +2950,4 @@ To install or update the Coding Guidelines locally:
 **Unix:** curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.sh | bash
 Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 
+- .lovable/memory/release-architecture-map.md

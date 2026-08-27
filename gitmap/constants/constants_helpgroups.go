@@ -51,7 +51,7 @@ const (
 
 	HelpAlias           = "  alias (a) <sub>     Assign short names to repos (set, remove, list, show, suggest)"
 	HelpSSH             = "  ssh <sub>           Generate, list, and manage SSH keys for Git authentication"
-	HelpSSHJoin         = "  sj (ssh-join) <sub> Join an SSH network and manage connections (use --help to expand)"
+	HelpSSHJoin         = "  sj (ssh-join) [ls|rm|history|auth] Join an SSH network and manage connections"
 	HelpCodingGuideline = "  cg <sub>            Install Coding Guidelines (v24) into a repo"
 	HelpZipGroup        = "  zip-group (z) <sub> Manage named file collections for release ZIP archives"
 	HelpMV              = "  mv (move) <s..> <d..> Relocate repo directory with VSCode & GitHub Desktop sync"
@@ -81,11 +81,11 @@ const (
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
-	HelpInstaller         = "  installer (in) [cmd]       Manage installer scripts and history (tree view) (use --help to expand)"
-	HelpMacro             = "  macro (m) [cmd]            Manage and execute macros (tree view) (use --help to expand)"
-	HelpSchedule          = "  schedule (sc) [cmd]        Schedule tasks and run jobs asynchronously (tree view) (use --help to expand)"
-	HelpVSCode            = "  vscode (vsc) [cmd]         Manage VS Code Project Manager integrations (use --help to expand)"
-	HelpAgy               = "  antigravity (ag) [cmd]     Manage Google Antigravity workspaces and plugins (use --help to expand)"
+	HelpInstaller         = "  installer (in) [run|ls|rm|history|edit] Manage installer scripts and history"
+	HelpMacro             = "  macro (m) [run|ls|rm|history|edit] Manage and execute macros"
+	HelpSchedule          = "  schedule (sc) [add|ls|rm|pause|resume] Schedule tasks and run jobs"
+	HelpVSCode            = "  vscode (vsc) [ls|add|rm|pap|plugins] Manage VS Code PM integrations"
+	HelpAgy               = "  antigravity (ag) [ls|add|rm|clear|open|prompt|rw|sync|pap|ep|ip|stats|plugin] Manage workspaces"
 
 
 
