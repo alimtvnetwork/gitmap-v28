@@ -1,0 +1,2 @@
+repoName,httpsUrl,sshUrl,branch,branchSource,relativePath,absolutePath,cloneInstruction,notes,depth,repoId,discoveredUrl,transport
+gitmap-v28,https://github.com/alimtvnetwork/gitmap-v28,git@github.com:alimtvnetwork/gitmap-v28,main,HEAD,.,D:\work\gitmap,git clone -b main https://github.com/alimtvnetwork/gitmap-v28 .,,0,github.com/alimtvnetwork/gitmap-v28,https://github.com/alimtvnetwork/gitmap-v28,https

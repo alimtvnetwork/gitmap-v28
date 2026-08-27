@@ -1,9 +1,8 @@
 # repo-search-json
 
-Executes repo-search-json operations within the Split DB environment.
+Searches file contents using the cached DB, outputting in JSON format.
 
 ## Examples
-
 ```bash
-gitmap repo-search-json "query"
+gitmap repo-search-json "func run"
 ```

@@ -1,0 +1,36 @@
+[
+  {
+    "Project": {
+      "id": 0,
+      "repoId": 1,
+      "repoName": "gitmap-v28",
+      "projectTypeId": 3,
+      "projectType": "react",
+      "projectName": "vite_react_shadcn_ts",
+      "absolutePath": "D:\\work\\gitmap",
+      "repoPath": "D:\\work\\gitmap",
+      "relativePath": ".",
+      "primaryIndicator": "package.json",
+      "detectedAt": ""
+    },
+    "GoMeta": null,
+    "Csharp": null
+  },
+  {
+    "Project": {
+      "id": 0,
+      "repoId": 1,
+      "repoName": "gitmap-v28",
+      "projectTypeId": 3,
+      "projectType": "react",
+      "projectName": "remotion-demo",
+      "absolutePath": "D:\\work\\gitmap\\remotion-demo",
+      "repoPath": "D:\\work\\gitmap",
+      "relativePath": "remotion-demo",
+      "primaryIndicator": "package.json",
+      "detectedAt": ""
+    },
+    "GoMeta": null,
+    "Csharp": null
+  }
+]

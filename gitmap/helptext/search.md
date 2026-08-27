@@ -1,9 +1,8 @@
 # search
 
-Executes search operations within the Split DB environment.
+Searches repository file contents on-the-fly.
 
 ## Examples
-
 ```bash
-gitmap search "query"
+gitmap search "func run"
 ```

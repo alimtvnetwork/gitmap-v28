@@ -30,7 +30,7 @@ func OpenRepoDB(ctx context.Context, rootDbDir, absolutePath string, repoId int6
 
 	dbPath := filepath.Join(repoSearchDir, fmt.Sprintf("%s-%d.db", slug, repoId))
 	
-	db, err := sql.Open("sqlite3", dbPath)
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
 	}

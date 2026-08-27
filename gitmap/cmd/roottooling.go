@@ -129,6 +129,7 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdReplace}, func() { runReplace(argsTail()) }},
 		{[]string{constants.CmdReplaceRegex}, func() { runReplaceRegex(argsTail()) }},
 		{[]string{constants.CmdRepoSearch, constants.CmdRepoSearchAlias}, func() { runRepoSearch(argsTail()) }},
+		{[]string{"_index"}, func() { runIndex(argsTail()) }},
 		{[]string{constants.CmdRepoRegex, constants.CmdRepoRegexAlias}, func() { runRepoRegex(argsTail()) }},
 		{[]string{constants.CmdRepoSearchJson, constants.CmdRepoSearchJsonAlias}, func() { runRepoSearchJson(argsTail()) }},
 		{[]string{constants.CmdRepoSearchRegexJson}, func() { runRepoSearchRegexJson(argsTail()) }},

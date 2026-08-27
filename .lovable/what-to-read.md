@@ -82,3 +82,9 @@ gitmap/cmd/installtools.go
 - .lovable/plans/subtasks/07-file-find-commands/02-find-engine.md
 - .lovable/plans/subtasks/07-file-find-commands/03-read-engine.md
 - .lovable/plans/subtasks/07-file-find-commands/04-help-routers.md
+
+
+- .lovable/plans/pending/08-search-replace-commands.md
+- .lovable/plans/subtasks/08-search-replace-commands/01-helptext.md
+- .lovable/plans/subtasks/08-search-replace-commands/02-search-wiring.md
+- .lovable/plans/subtasks/08-search-replace-commands/03-terminal-examples.md

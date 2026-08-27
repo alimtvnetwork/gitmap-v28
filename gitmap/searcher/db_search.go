@@ -9,7 +9,7 @@ import (
 )
 
 // SearchRepoDB searches the RepoDB for exact match, with analytical caching.
-func SearchRepoDB(ctx context.Context, db *sql.DB, query string, useCache bool) ([]SearchResult, error) {
+func SearchRepoDB(ctx context.Context, db *sql.DB, query string, limit int, useCache bool) ([]SearchResult, error) {
 	if useCache {
 		var cachedJson string
 		err := db.QueryRowContext(ctx, "SELECT ResultJson FROM SearchCache WHERE Query = ?", query).Scan(&cachedJson)
@@ -19,6 +19,9 @@ func SearchRepoDB(ctx context.Context, db *sql.DB, query string, useCache bool) 
 			if err := json.Unmarshal([]byte(cachedJson), &res); err == nil {
 				// Bump hit count
 				db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", query)
+				if limit > 0 && len(res) > limit {
+					res = res[:limit]
+				}
 				return res, nil
 			}
 		}
@@ -46,11 +49,14 @@ func SearchRepoDB(ctx context.Context, db *sql.DB, query string, useCache bool) 
 		updateCache(ctx, db, query, allResults)
 	}
 
+	if limit > 0 && len(allResults) > limit {
+		allResults = allResults[:limit]
+	}
 	return allResults, nil
 }
 
 // SearchRepoDBRegex searches the RepoDB using a regex pattern.
-func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, useCache bool) ([]SearchResult, error) {
+func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, limit int, useCache bool) ([]SearchResult, error) {
 	if useCache {
 		var cachedJson string
 		err := db.QueryRowContext(ctx, "SELECT ResultJson FROM SearchCache WHERE Query = ?", "regex:"+expr).Scan(&cachedJson)
@@ -58,6 +64,9 @@ func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, useCache bo
 			var res []SearchResult
 			if err := json.Unmarshal([]byte(cachedJson), &res); err == nil {
 				db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", "regex:"+expr)
+				if limit > 0 && len(res) > limit {
+					res = res[:limit]
+				}
 				return res, nil
 			}
 		}
@@ -85,6 +94,9 @@ func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, useCache bo
 		updateCache(ctx, db, "regex:"+expr, allResults)
 	}
 
+	if limit > 0 && len(allResults) > limit {
+		allResults = allResults[:limit]
+	}
 	return allResults, nil
 }
 

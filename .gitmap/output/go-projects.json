@@ -1,0 +1,108 @@
+[
+  {
+    "Project": {
+      "id": 0,
+      "repoId": 1,
+      "repoName": "gitmap-v28",
+      "projectTypeId": 1,
+      "projectType": "go",
+      "projectName": "github.com/alimtvnetwork/gitmap-v28/gitmap",
+      "absolutePath": "D:\\work\\gitmap\\gitmap",
+      "repoPath": "D:\\work\\gitmap",
+      "relativePath": "gitmap",
+      "primaryIndicator": "go.mod",
+      "detectedAt": ""
+    },
+    "GoMeta": {
+      "id": 0,
+      "detectedProjectId": 0,
+      "goModPath": "D:\\work\\gitmap\\gitmap\\go.mod",
+      "goSumPath": "D:\\work\\gitmap\\gitmap\\go.sum",
+      "moduleName": "github.com/alimtvnetwork/gitmap-v28/gitmap",
+      "goVersion": "1.25.0",
+      "runnables": [
+        {
+          "id": 0,
+          "goMetadataId": 0,
+          "runnableName": "gitmap-node-join",
+          "filePath": "D:\\work\\gitmap\\gitmap\\cmd\\gitmap-node-join\\main.go",
+          "relativePath": "cmd\\gitmap-node-join\\main.go"
+        },
+        {
+          "id": 0,
+          "goMetadataId": 0,
+          "runnableName": "gitmap",
+          "filePath": "D:\\work\\gitmap\\gitmap\\main.go",
+          "relativePath": "main.go"
+        }
+      ]
+    },
+    "Csharp": null
+  },
+  {
+    "Project": {
+      "id": 0,
+      "repoId": 1,
+      "repoName": "gitmap-v28",
+      "projectTypeId": 1,
+      "projectType": "go",
+      "projectName": "github.com/alimtvnetwork/gitmap-v28/gitmap-updater",
+      "absolutePath": "D:\\work\\gitmap\\gitmap-updater",
+      "repoPath": "D:\\work\\gitmap",
+      "relativePath": "gitmap-updater",
+      "primaryIndicator": "go.mod",
+      "detectedAt": ""
+    },
+    "GoMeta": {
+      "id": 0,
+      "detectedProjectId": 0,
+      "goModPath": "D:\\work\\gitmap\\gitmap-updater\\go.mod",
+      "goSumPath": "",
+      "moduleName": "github.com/alimtvnetwork/gitmap-v28/gitmap-updater",
+      "goVersion": "1.23.0",
+      "runnables": [
+        {
+          "id": 0,
+          "goMetadataId": 0,
+          "runnableName": "gitmap-updater",
+          "filePath": "D:\\work\\gitmap\\gitmap-updater\\main.go",
+          "relativePath": "main.go"
+        }
+      ]
+    },
+    "Csharp": null
+  },
+  {
+    "Project": {
+      "id": 0,
+      "repoId": 1,
+      "repoName": "gitmap-v28",
+      "projectTypeId": 1,
+      "projectType": "go",
+      "projectName": "github.com/alimtvnetwork/gitmap-v28/scripts/changelog",
+      "absolutePath": "D:\\work\\gitmap\\scripts\\changelog",
+      "repoPath": "D:\\work\\gitmap",
+      "relativePath": "scripts\\changelog",
+      "primaryIndicator": "go.mod",
+      "detectedAt": ""
+    },
+    "GoMeta": {
+      "id": 0,
+      "detectedProjectId": 0,
+      "goModPath": "D:\\work\\gitmap\\scripts\\changelog\\go.mod",
+      "goSumPath": "",
+      "moduleName": "github.com/alimtvnetwork/gitmap-v28/scripts/changelog",
+      "goVersion": "1.24",
+      "runnables": [
+        {
+          "id": 0,
+          "goMetadataId": 0,
+          "runnableName": "changelog",
+          "filePath": "D:\\work\\gitmap\\scripts\\changelog\\main.go",
+          "relativePath": "main.go"
+        }
+      ]
+    },
+    "Csharp": null
+  }
+]
