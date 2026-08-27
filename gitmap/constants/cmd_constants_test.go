@@ -13,6 +13,15 @@ import "testing"
 func topLevelCmds() map[string]string {
 	return map[string]string{
 				"CmdLlm": CmdLlm,
+		"CmdFind": CmdFind,
+		"CmdFindRegex": CmdFindRegex,
+		"CmdFindRead": CmdFindRead,
+		"CmdFindReadJson": CmdFindReadJson,
+		"CmdFindRegexRead": CmdFindRegexRead,
+		"CmdFindRegexReadJson": CmdFindRegexReadJson,
+		"CmdFindHelp": CmdFindHelp,
+		"CmdSearchHelp": CmdSearchHelp,
+		"CmdRegexHelp": CmdRegexHelp,
 		"CmdSearch": CmdSearch,
 		"CmdReplaceRegex": CmdReplaceRegex,
 		"CmdRepoSearch": CmdRepoSearch,
