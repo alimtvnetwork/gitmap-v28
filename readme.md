@@ -2966,3 +2966,5 @@ For repository versioning and propagation design, see [.lovable/memory/release-a
 - [Antigravity Command Logic](gitmap/cmd/ag/ag.go)
 
 - [Install Tools Logic](gitmap/cmd/installtools.go)
+
+- [Search and LLM Specs](.lovable/plans/pending/06-search-and-llm-feature.md)
