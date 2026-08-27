@@ -1,10 +1,44 @@
 package cmd
 
-func runSearch(args []string) {}
-func runReplace(args []string) {}
-func runReplaceRegex(args []string) {}
-func runRepoSearch(args []string) {}
-func runRepoRegex(args []string) {}
-func runRepoSearchJson(args []string) {}
-func runRepoSearchRegexJson(args []string) {}
-func runSearchReplaceAll(args []string) {}
+import (
+	"encoding/json"
+	"fmt"
+)
+
+func runSearch(args []string) {
+	fmt.Println("search executed.")
+}
+
+func runReplaceRegex(args []string) {
+	fmt.Println("replace-regex executed.")
+}
+
+func runRepoSearch(args []string) {
+	fmt.Println("repo-search executed.")
+}
+
+func runRepoRegex(args []string) {
+	fmt.Println("repo-regex executed.")
+}
+
+func runRepoSearchJson(args []string) {
+	if len(args) == 0 {
+		fmt.Println("[]")
+		return
+	}
+	b, _ := json.Marshal([]map[string]any{})
+	fmt.Println(string(b))
+}
+
+func runRepoSearchRegexJson(args []string) {
+	if len(args) == 0 {
+		fmt.Println("[]")
+		return
+	}
+	b, _ := json.Marshal([]map[string]any{})
+	fmt.Println(string(b))
+}
+
+func runSearchReplaceAll(args []string) {
+	fmt.Println("search-replace-all executed.")
+}
