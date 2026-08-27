@@ -43,3 +43,7 @@
 ## See also
 
 - Root `README.md` (must stay in sync with this file)
+
+.lovable/plans/pending/02-git-rm-and-folder.md
+gitmap/cmd/folder/folder.go
+gitmap/cmd/gitrm/gitrm.go

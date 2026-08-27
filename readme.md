@@ -2956,3 +2956,6 @@ Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 For repository versioning and propagation design, see [.lovable/memory/release-architecture-map.md](.lovable/memory/release-architecture-map.md).
 
 
+
+- [Folder Command Logic](gitmap/cmd/folder/folder.go)
+- [Git-Rm Command Logic](gitmap/cmd/gitrm/gitrm.go)
