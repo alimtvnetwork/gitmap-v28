@@ -30,3 +30,7 @@ Once the changes are committed, the CI/CD pipeline (when correctly configured) h
 - feat: rm-git now correctly utilizes git reset --hard <sha>^ instead of rebase --onto.
 - feat: introduced apperror.WrapSimple and eliminated 171 instances of swallowed nil contexts.
 - docs: updated llm.md with exact search alternatives to explicitly ban raw ripgrep/rg in favor of native gitmap search capabilities.
+
+## v6.143.0
+- docs(plan): Drafted generic AI instruction specifications for file manipulation (lowercase and sequencing) commands.
+- docs(plan): Drafted AI instruction specification for reusable Python file manipulator script.
