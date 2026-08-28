@@ -106,7 +106,7 @@ func TestValidateConfig_AcceptsAllValidEnums(t *testing.T) {
 	for _, mode := range validModeValues {
 		for _, output := range validOutputValues {
 			cfg := model.Config{
-				DefaultMode: mode, DefaultOutput: output, OutputDir: "./out",
+				DefaultMode: mode, DefaultOutput: output, OutputDir: "./out", ErrorDisplay: "full",
 			}
 			if err := ValidateConfig(cfg); err != nil {
 				t.Errorf("rejected valid combo mode=%s output=%s: %v", mode, output, err)

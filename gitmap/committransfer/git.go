@@ -160,6 +160,11 @@ func addAll(dir string) error {
 
 // hasStagedChanges reports whether `git diff --cached --quiet` exits
 // non-zero (which means there ARE staged changes).
+func isWorkingTreeDirty(dir string) bool {
+	out, _ := gitOut(dir, "status", "--porcelain")
+	return strings.TrimSpace(out) != ""
+}
+
 func hasStagedChanges(dir string) bool {
 	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, dir,
 		"diff", "--cached", "--quiet")

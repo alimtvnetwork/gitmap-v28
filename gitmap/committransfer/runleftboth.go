@@ -47,6 +47,9 @@ func RunBoth(leftDir, rightDir string, opts Options) error {
 // RunLeft / RunBoth can reuse it without duplicating the prompt+replay
 // orchestration. The legacy RunRight wraps this for backward compat.
 func runOneDirection(sourceDir, targetDir string, opts Options) error {
+	if isWorkingTreeDirty(sourceDir) {
+		return fmt.Errorf("source repository has uncommitted changes — please commit or stash them before running %s", opts.LogPrefix)
+	}
 	plan, err := BuildPlan(sourceDir, targetDir, opts)
 	if err != nil {
 		return fmt.Errorf("build plan: %w", err)

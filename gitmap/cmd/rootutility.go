@@ -22,6 +22,7 @@ func dispatchUtility(command string) (bool, error) {
 // utilityDispatchEntries returns the routing table for utility commands.
 func utilityDispatchEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"error"}, func() error { return runErrorCmd(argsTail()) }},
 		{[]string{constants.CmdUpdate}, func() error { checkHelp("update", argsTail()); return runUpdate() }},
 		{[]string{constants.CmdUpdateRunner}, func() error { return runUpdateRunner() }},
 		{[]string{constants.CmdUpdateCleanup}, func() error { return runUpdateCleanup() }},

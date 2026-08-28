@@ -59,7 +59,8 @@ type Config struct {
 	ExcludeDirs      []string      `json:"excludeDirs"`
 	Notes            string        `json:"notes"`
 	Release          ReleaseConfig `json:"release"`
-	DashboardRefresh int           `json:"dashboardRefresh"` 
+	DashboardRefresh int           `json:"dashboardRefresh"`
+	ErrorDisplay     string        `json:"errorDisplay"` 
 	CommitReplayKeepUrl   bool              `json:"commitReplayKeepUrl"` 
 	CommitReplayTemplates map[string]string `json:"commitReplayTemplates"`
 }
@@ -74,6 +75,7 @@ func DefaultConfig() Config {
 		ExcludeDirs:      []string{},
 		Notes:            "",
 		DashboardRefresh: constants.DefaultDashboardRefresh,
+		ErrorDisplay:     "full",
 		CommitReplayKeepUrl: false,
 		CommitReplayTemplates: map[string]string{"Changes": "chore: apply automated updates", "Work in progress": "chore: work in progress", "Lovable update": "chore: lovable update"},
 		Release: ReleaseConfig{
