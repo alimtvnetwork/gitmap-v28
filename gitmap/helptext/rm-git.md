@@ -19,13 +19,13 @@ gitmap rm-git <last-4-digits-of-sha>
 
 ## Aliases
 
-- `gitmap rg <sha-fragment>`
+- `gitmap rmg <sha-fragment>`
 
 ## Examples
 
 ```bash
 gitmap rm-git a5f2
-gitmap rg 5a82
+gitmap rmg 5a82
 gitmap rm-git 022575f
 ```
 

@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.28.0**
+**Pinned version: v6.137.0**
 
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
 [![Vulnerability Scan](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
@@ -52,31 +52,31 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-### 📌 Pinned version (`v6.28.0`)
+### 📌 Pinned version (`v6.137.0`)
 
 ```powershell
 # Windows · PowerShell
-irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/release-version-v6.28.0.ps1 | iex
+irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/release-version-v6.137.0.ps1 | iex
 ```
 
 ```bash
 # macOS · Linux · Bash
-curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/release-version-v6.28.0.sh | bash
+curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/release-version-v6.137.0.sh | bash
 ```
 
-#### 🧭 Version matrix - `v6.28.0` install-script URLs
+#### 🧭 Version matrix - `v6.137.0` install-script URLs
 
-One-line installers and release assets for the pinned **v6.28.0** build across every supported platform. All URLs resolve to the exact release tag - no fallback, no discovery.
+One-line installers and release assets for the pinned **v6.137.0** build across every supported platform. All URLs resolve to the exact release tag - no fallback, no discovery.
 
 | Platform | Shell | Install-script URL | Release binary asset |
 | --- | --- | --- | --- |
-| **Windows** (amd64) | PowerShell | [`release-version-v6.28.0.ps1`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/release-version-v6.28.0.ps1) | [`gitmap-6.28.0-windows-amd64.zip`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/gitmap-6.28.0-windows-amd64.zip) |
-| **macOS** (arm64) | Bash | [`release-version-v6.28.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/release-version-v6.28.0.sh) | [`gitmap-6.28.0-darwin-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/gitmap-6.28.0-darwin-arm64.tar.gz) |
-| **macOS** (amd64) | Bash | [`release-version-v6.28.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/release-version-v6.28.0.sh) | [`gitmap-6.28.0-darwin-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/gitmap-6.28.0-darwin-amd64.tar.gz) |
-| **Linux** (amd64) | Bash | [`release-version-v6.28.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/release-version-v6.28.0.sh) | [`gitmap-6.28.0-linux-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/gitmap-6.28.0-linux-amd64.tar.gz) |
-| **Linux** (arm64) | Bash | [`release-version-v6.28.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/release-version-v6.28.0.sh) | [`gitmap-6.28.0-linux-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/gitmap-6.28.0-linux-arm64.tar.gz) |
+| **Windows** (amd64) | PowerShell | [`release-version-v6.137.0.ps1`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/release-version-v6.137.0.ps1) | [`gitmap-6.137.0-windows-amd64.zip`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/gitmap-6.137.0-windows-amd64.zip) |
+| **macOS** (arm64) | Bash | [`release-version-v6.137.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/release-version-v6.137.0.sh) | [`gitmap-6.137.0-darwin-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/gitmap-6.137.0-darwin-arm64.tar.gz) |
+| **macOS** (amd64) | Bash | [`release-version-v6.137.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/release-version-v6.137.0.sh) | [`gitmap-6.137.0-darwin-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/gitmap-6.137.0-darwin-amd64.tar.gz) |
+| **Linux** (amd64) | Bash | [`release-version-v6.137.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/release-version-v6.137.0.sh) | [`gitmap-6.137.0-linux-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/gitmap-6.137.0-linux-amd64.tar.gz) |
+| **Linux** (arm64) | Bash | [`release-version-v6.137.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/release-version-v6.137.0.sh) | [`gitmap-6.137.0-linux-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/gitmap-6.137.0-linux-arm64.tar.gz) |
 
-> **Release page:** [github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.28.0](https://github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.28.0) · **Asset naming contract:** `gitmap-<version>-<os>-<arch>.<ext>` (`.zip` on Windows, `.tar.gz` elsewhere) - verified by the installer pre-flight HEAD probe.
+> **Release page:** [github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.137.0](https://github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.137.0) · **Asset naming contract:** `gitmap-<version>-<os>-<arch>.<ext>` (`.zip` on Windows, `.tar.gz` elsewhere) - verified by the installer pre-flight HEAD probe.
 
 ### 🎯 Install — Quick (pick your install drive)
 
@@ -399,7 +399,7 @@ To handle missing versions in automated environments:
 1. **Use `--allow-fallback`** — Automatically picks the newest patch in the same
    minor series (e.g., `v3.38.0` requested but missing → uses `v3.38.5`):
    ```powershell
-   irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.28.0/release-version-v6.28.0.ps1 | iex
+   irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.137.0/release-version-v6.137.0.ps1 | iex
    # Or with generic script:
    irm https://gitmap.dev/scripts/release-version.ps1 | iex; Install-Gitmap -Version "v3.38.0" -AllowFallback
    ```
@@ -1785,7 +1785,7 @@ the exact command + flags gitmap runs. It mirrors
 
 ## 🚀 gitmap Release
 
-**Current version:** `v6.28.0` · Cross-platform (Windows · Linux · macOS) · Single static binary
+**Current version:** `v6.137.0` · Cross-platform (Windows · Linux · macOS) · Single static binary
 
 </div>
 
@@ -1811,7 +1811,7 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 
 ```powershell
 # Windows — install v3.50.0 exactly, skip the "latest" lookup
-$ver = 'v6.28.0'
+$ver = 'v6.137.0'
 $installer = irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1
 & ([scriptblock]::Create($installer)) -Version $ver -NoDiscovery
 ```
@@ -1826,7 +1826,7 @@ Verify:
 
 ```bash
 gitmap --version
-# gitmap v6.28.0
+# gitmap v6.137.0
 ```
 
 ### Release CLI examples

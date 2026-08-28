@@ -65,7 +65,7 @@ const (
 	CmdCommitPushReleaseAlias = "cpr"
 	// CmdRmGit removes a commit by its last 4-digit SHA prefix.
 	CmdRmGit                  = "rm-git"
-	CmdRmGitAlias             = "rg"
+	CmdRmGitAlias             = "rmg"
 	CmdAg = "ag"
 	CmdAntigravity = "antigravity"
 	CmdAdd = "add"
