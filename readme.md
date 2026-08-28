@@ -2952,3 +2952,6 @@ For repository versioning and propagation design, see [.lovable/memory/release-a
 - [.lovable/plans/pending/01-file-manipulation-spec.md](.lovable/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
 
 - [.lovable/plans/pending/02-python-file-manipulation-spec.md](.lovable/plans/pending/02-python-file-manipulation-spec.md) - AI Instruction spec for generating the Python file manipulation script.
+
+- [.lovable/plans/pending/03-fix-release-tag-ordering.md](.lovable/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
+- [.lovable/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.lovable/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
