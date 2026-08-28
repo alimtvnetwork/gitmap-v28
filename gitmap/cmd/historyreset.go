@@ -20,7 +20,7 @@ func runHistoryReset(args []string) error {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrHistoryResetNoConfirm)
-	return apperror.New("fatal error", "E9000", nil)
+	return apperror.NewSimple("fatal error", "E9000")
 	return nil
 }
 
@@ -37,14 +37,14 @@ func parseHistoryResetFlags(args []string) bool {
 func executeHistoryReset() {
 	db, err := openDB()
 	if err != nil {
-		apperror.Wrap(err, constants.ErrHistoryResetFailed, nil)
+		apperror.WrapSimple(err, constants.ErrHistoryResetFailed)
 		return
 	}
 	defer db.Close()
 
 	err = db.ClearHistory()
 	if err != nil {
-		apperror.Wrap(err, constants.ErrHistoryResetFailed, nil)
+		apperror.WrapSimple(err, constants.ErrHistoryResetFailed)
 		return
 	}
 

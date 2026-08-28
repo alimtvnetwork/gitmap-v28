@@ -16,12 +16,12 @@ func runReleaseBranch(args []string) error {
 	_ = verbose
 
 	if len(branch) == 0 {
-		return apperror.New(constants.ErrReleaseBranchUsage, "E9000", nil)
+		return apperror.NewSimple(constants.ErrReleaseBranchUsage, "E9000")
 	}
 
 	err := release.ExecuteFromBranch(branch, assets, notes, draft, dryRun, noCommit, yes)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
 	return nil
 }

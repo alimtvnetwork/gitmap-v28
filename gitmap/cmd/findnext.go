@@ -35,7 +35,7 @@ func runFindNext(args []string) error {
 
 	rows, err := db.FindNext(scanFolderID)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrFindNextQueryFmt, nil)
+		return apperror.WrapSimple(err, constants.ErrFindNextQueryFmt)
 	}
 
 	emitFindNext(rows, jsonOut)
@@ -59,7 +59,7 @@ func emitFindNext(rows []model.FindNextRow, jsonOut bool) {
 // cross-checks against spec/08-json-schemas/find-next.schema.json).
 func emitFindNextJSON(rows []model.FindNextRow) {
 	if err := encodeFindNextJSON(os.Stdout, rows); err != nil {
-		apperror.Wrap(err, constants.ErrFindNextJSONEncodeFmt, nil)
+		apperror.WrapSimple(err, constants.ErrFindNextJSONEncodeFmt)
 		return
 	}
 }

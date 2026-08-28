@@ -53,7 +53,7 @@ func validateDPProfiles(nameA, nameB string) {
 
 	for _, name := range []string{nameA, nameB} {
 		if !profileExists(cfg.Profiles, name) {
-			apperror.New(constants.ErrDPProfileMissing, "E9000", nil)
+			apperror.NewSimple(constants.ErrDPProfileMissing, "E9000")
 			return
 		}
 	}
@@ -63,7 +63,7 @@ func validateDPProfiles(nameA, nameB string) {
 func loadProfileRepos(name string) []model.ScanRecord {
 	db, err := store.OpenDefaultProfile(name)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrDPOpenFailed, "E9000", nil).Error())
+		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
 		os.Exit(1)
 	}
 	defer db.Close()
@@ -74,7 +74,7 @@ func loadProfileRepos(name string) []model.ScanRecord {
 
 	repos, err := db.ListRepos()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrDPOpenFailed, "E9000", nil).Error())
+		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
 		os.Exit(1)
 	}
 

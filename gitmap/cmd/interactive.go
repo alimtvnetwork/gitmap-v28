@@ -38,12 +38,12 @@ func runInteractive() error {
 
 	db, err := store.OpenDefault()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrTUIDBOpen, nil)
+		return apperror.WrapSimple(err, constants.ErrTUIDBOpen)
 	}
 	defer db.Close()
 
 	if err := tui.Run(db, cfg); err != nil {
-		return apperror.Wrap(err, "", nil)
+		return apperror.WrapSimple(err, "")
 	}
 	return nil
 }

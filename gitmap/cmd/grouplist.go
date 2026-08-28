@@ -14,17 +14,17 @@ import (
 func runGroupList() error {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
 	defer db.Close()
 
 	groups, err := db.ListGroups()
 	if err != nil && isLegacyDataError(err) == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
 
 	printGroupList(db, groups)

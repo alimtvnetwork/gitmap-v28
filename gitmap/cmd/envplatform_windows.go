@@ -41,7 +41,7 @@ func runSetx(args []string) error {
 
 	err := cmd.Run()
 	if err != nil {
-		return apperror.New("constants.ErrEnvProfileWrite "+"system registry", "E9000", nil)
+		return apperror.NewSimple("constants.ErrEnvProfileWrite "+"system registry", "E9000")
 	}
 	return nil
 }

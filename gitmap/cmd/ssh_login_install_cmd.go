@@ -43,7 +43,7 @@ func runSSHLoginInstall(cmd *cobra.Command, args []string, ctx context.Context) 
 
 func getInstallPayload(ctx context.Context, target string, version string) (string, error) {
 	if strings.TrimSpace(target) == "" {
-		return "", apperror.New("getInstallPayload", "E_INTERNAL_ERROR", nil)
+		return "", apperror.NewSimple("getInstallPayload", "E_INTERNAL_ERROR")
 	}
 
 	// Create curl to bash payload

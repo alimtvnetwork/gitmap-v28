@@ -22,7 +22,7 @@ func Run(args []string) error {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(err, "Run: failed to launch antigravity", nil)
+		return apperror.WrapSimple(err, "Run: failed to launch antigravity")
 	}
 	return nil
 }
@@ -34,7 +34,7 @@ func runAgInstall() error {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(err, "runAgInstall: install failed", nil)
+		return apperror.WrapSimple(err, "runAgInstall: install failed")
 	}
 	return nil
 }

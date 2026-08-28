@@ -13,7 +13,7 @@ func runBookmark(args []string) *apperror.AppError {
 	checkHelp("bookmark", args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	sub := args[0]
@@ -42,5 +42,5 @@ func routeBookmarkSub(sub string, args []string) *apperror.AppError {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrBookmarkUsage)
-	return apperror.New("fatal error", "E9000", nil)
+	return apperror.NewSimple("fatal error", "E9000")
 }

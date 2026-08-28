@@ -11,7 +11,7 @@ import (
 
 func runHead(args []string) error {
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap head <file> [lines]", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap head <file> [lines]", "E9000")
 	}
 
 	filePath := args[0]
@@ -24,7 +24,7 @@ func runHead(args []string) error {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return apperror.Wrap(err, "Error opening file:", nil)
+		return apperror.WrapSimple(err, "Error opening file:")
 	}
 	defer file.Close()
 
@@ -39,14 +39,14 @@ func runHead(args []string) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return apperror.Wrap(err, "Error reading file:", nil)
+		return apperror.WrapSimple(err, "Error reading file:")
 	}
 	return nil
 }
 
 func runTail(args []string) error {
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap tail <file> [lines]", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap tail <file> [lines]", "E9000")
 	}
 
 	filePath := args[0]
@@ -59,7 +59,7 @@ func runTail(args []string) error {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return apperror.Wrap(err, "Error opening file:", nil)
+		return apperror.WrapSimple(err, "Error opening file:")
 	}
 	defer file.Close()
 
@@ -73,7 +73,7 @@ func runTail(args []string) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return apperror.Wrap(err, "Error reading file:", nil)
+		return apperror.WrapSimple(err, "Error reading file:")
 	}
 
 	start := 0

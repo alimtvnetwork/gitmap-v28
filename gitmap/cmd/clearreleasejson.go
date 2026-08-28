@@ -35,12 +35,12 @@ func runClearReleaseJSON(args []string) error {
 	version, dryRun := parseClearReleaseJSONFlags(args)
 
 	if version == "" {
-		return apperror.New(constants.ErrClearReleaseUsage, "E9000", nil)
+		return apperror.NewSimple(constants.ErrClearReleaseUsage, "E9000")
 	}
 
 	v, err := release.Parse(version)
 	if err != nil {
-		return apperror.New(constants.ErrReleaseInvalidVersion, "E9000", nil)
+		return apperror.NewSimple(constants.ErrReleaseInvalidVersion, "E9000")
 	}
 
 	filename := v.String() + constants.ExtJSON
@@ -48,7 +48,7 @@ func runClearReleaseJSON(args []string) error {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, constants.ErrClearReleaseNotFound, v.String())
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	if dryRun {
@@ -58,7 +58,7 @@ func runClearReleaseJSON(args []string) error {
 
 	err = os.Remove(path)
 	if err != nil {
-		return apperror.New(constants.ErrClearReleaseFailed, "E9000", nil)
+		return apperror.NewSimple(constants.ErrClearReleaseFailed, "E9000")
 	}
 
 	fmt.Printf(constants.MsgClearReleaseDone, v.String())

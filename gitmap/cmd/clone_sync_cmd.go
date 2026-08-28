@@ -11,7 +11,7 @@ func runCloneSync() error {
 	args := argsTail()
 	if len(args) == 0 {
 		fmt.Println("Usage: gitmap clone-sync <url1> [url2] ...")
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	for _, arg := range args {

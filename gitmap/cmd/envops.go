@@ -56,7 +56,7 @@ func runEnvSet(args []string) error {
 func runEnvGet(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrEnvNameRequired)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	name := args[0]
@@ -136,7 +136,7 @@ func runEnvPathAdd(args []string) error {
 func validateEnvPathRemove(dir string) {
 	if dir == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvPathRequired)
-		apperror.New("fatal error", "E9000", nil)
+		apperror.NewSimple("fatal error", "E9000")
 		return
 	}
 }

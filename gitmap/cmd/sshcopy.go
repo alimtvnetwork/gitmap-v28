@@ -23,7 +23,7 @@ func runSSHCopy(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrSSHQuery, nil)
+		return apperror.WrapSimple(err, constants.ErrSSHQuery)
 	}
 	defer db.Close()
 
@@ -31,7 +31,7 @@ func runSSHCopy(args []string) error {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, *nameFlag)
 		printAvailableKeys(db)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	pub := strings.TrimSpace(key.PublicKey)

@@ -9,7 +9,7 @@ import (
 func runFolder(args []string) error {
 	checkHelp(constants.CmdFolder, args)
 	if err := folder.Run(args); err != nil {
-		return apperror.Wrap(err, "Error:", nil)
+		return apperror.WrapSimple(err, "Error:")
 	}
 	return nil
 }

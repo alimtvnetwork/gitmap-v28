@@ -266,7 +266,7 @@ func runReleaseNotesV2(args []string) error {
 	}
 	lines, err := gitLogForOpts(opts)
 	if err != nil {
-		return apperror.Wrap(err, "release-notes: ERROR", nil)
+		return apperror.WrapSimple(err, "release-notes: ERROR")
 	}
 	if len(lines) == 0 {
 		fmt.Fprintln(os.Stderr, "release-notes: no commits in selected range")

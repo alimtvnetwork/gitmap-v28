@@ -37,13 +37,13 @@ func runFileSearch(args []string) error {
 
 	rx, err := regexp.Compile(pattern)
 	if err != nil {
-		return apperror.Wrap(err, "Invalid regex pattern:", nil)
+		return apperror.WrapSimple(err, "Invalid regex pattern:")
 	}
 
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "Error connecting to db:", nil)
+		return apperror.WrapSimple(err, "Error connecting to db:")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -69,7 +69,7 @@ func runFileSearch(args []string) error {
 		// Fallback to reading from disk
 		b, errDisk := os.ReadFile(filePath)
 		if errDisk != nil {
-			return apperror.Wrap(errDisk, "Error reading file:", nil)
+			return apperror.WrapSimple(errDisk, "Error reading file:")
 		}
 		content = string(b)
 		absPath = filePath

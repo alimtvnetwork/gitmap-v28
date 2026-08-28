@@ -52,8 +52,8 @@ For committing and pushing, NEVER use raw 'git commit' and 'git push'. Use the s
 - 'gitmap commit-push-feature "<message>"' (alias 'gitmap cpf'): Commit and push a feature.
 - 'gitmap commit-push-bug "<message>"' (alias 'gitmap cpb'): Commit and push a bug fix.
 - 'gitmap commit-push-release "<message>"' (alias 'gitmap cpr'): Commit and push a release chore.
-- 'gitmap commit-push-pull "<message>"' (alias 'gitmap cpp'): Pull latest, then commit and push.
-- 'gitmap rm-git <last-4-digits>': Drop a recent commit safely using rebase --onto.
+- 'gitmap pull-commit-push "<message>"' (alias 'gitmap pcp'): Pull latest, then commit and push.
+- 'gitmap rm-git <last-4-digits>': Drop a recent commit safely using git reset --hard <sha>^.
 
 ## AI File Search Patterns
 When searching codebases, LLMs can use native gitmap commands OR standard terminal tools.
@@ -70,6 +70,11 @@ Here are equivalent alternative command samples for LLM search operations:
 - **Find specific function contexts**:
   - 'gitmap file-search cmd/root.go "func finishCommandAudit" 0 10'
   - 'cat gitmap/cmd/root.go | Select-String "func finishCommandAudit" -Context 0,10'
+
+- **Global Text/Keyword Search (Instead of ripgrep/rg)**:
+  - 'gitmap search "CHANGELOG"'
+  - 'gitmap search "CHANGELOG\.md" --case-sensitive'
+  *(Never use raw rg or grep when gitmap search utilizes the built-in Split DB index for much faster cross-repo lookups).*
 `
 
 // Run executes the llm command
@@ -78,11 +83,11 @@ func Run(args []string) *apperror.AppError {
 	isUrl := fs.Bool("url", false, "Output the URL to the LLM spec")
 
 	if err := fs.Parse(args); err != nil {
-		return apperror.Wrap(err, "parse flags", nil)
+		return apperror.WrapSimple(err, "parse flags")
 	}
 
 	if *isUrl {
-		fmt.Println("https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/LLM.md")
+		fmt.Println("https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/llm.md")
 		return nil
 	}
 

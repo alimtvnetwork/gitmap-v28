@@ -31,7 +31,7 @@ func runAs(args []string) *apperror.AppError {
 	if err != nil {
 		cwd, _ := os.Getwd()
 		fmt.Fprintf(os.Stderr, constants.ErrAsNotInRepoFmt, cwd)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	if aliasName == "" {
@@ -103,7 +103,7 @@ func buildSingleRepoRecord(absPath string) (model.ScanRecord, *apperror.AppError
 	records := mapper.BuildRecords(repos, constants.ModeHTTPS, "")
 	if len(records) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrAsResolveFmt, absPath, "no record built")
-		return model.ScanRecord{}, apperror.New("fatal error", "E9000", nil)
+		return model.ScanRecord{}, apperror.NewSimple("fatal error", "E9000")
 	}
 
 	return records[0], nil

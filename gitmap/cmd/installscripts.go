@@ -83,7 +83,7 @@ func runInstallScripts() error {
 	targetDir := resolveScriptsDir()
 	fmt.Printf(constants.MsgScriptsTarget, targetDir)
 	if err := os.MkdirAll(targetDir, constants.DirPermission); err != nil {
-		return apperror.New(constants.ErrScriptsMkdir, "E9000", nil)
+		return apperror.NewSimple(constants.ErrScriptsMkdir, "E9000")
 	}
 	tmpDir, err := cloneRepoToTemp()
 	if err != nil {

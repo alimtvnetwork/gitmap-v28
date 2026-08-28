@@ -20,10 +20,10 @@ func runJoin(args []string) error {
 
 	positionalArgs := fs.Args()
 	if len(positionalArgs) < 1 {
-		return apperror.New(constants.ErrJoinMissingAddress, "E9000", nil)
+		return apperror.NewSimple(constants.ErrJoinMissingAddress, "E9000")
 	}
 	if *token == "" {
-		return apperror.New(constants.ErrJoinMissingToken, "E9000", nil)
+		return apperror.NewSimple(constants.ErrJoinMissingToken, "E9000")
 	}
 
 	address := positionalArgs[0]
@@ -35,7 +35,7 @@ func runJoin(args []string) error {
 	}
 	client := cluster.NewNodeClient(hostname, address, *token)
 	if err := client.Handshake(); err != nil {
-		return apperror.Wrap(err, constants.ErrJoinFailed, nil)
+		return apperror.WrapSimple(err, constants.ErrJoinFailed)
 	}
 
 	fmt.Println(constants.MsgJoinSuccess)

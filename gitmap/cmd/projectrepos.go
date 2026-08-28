@@ -55,7 +55,7 @@ func printProjectCount(db *store.DB, typeKey string) {
 	}
 
 	if err != nil {
-		panic(apperror.Wrap(err, constants.ErrProjectQuery, nil))
+		panic(apperror.WrapSimple(err, constants.ErrProjectQuery))
 	}
 
 	fmt.Printf(constants.MsgProjectCount, count)
@@ -72,7 +72,7 @@ func printProjectList(db *store.DB, typeKey string, jsonOut bool) {
 	}
 
 	if err != nil {
-		panic(apperror.Wrap(err, constants.ErrProjectQuery, nil))
+		panic(apperror.WrapSimple(err, constants.ErrProjectQuery))
 	}
 
 	if len(projects) == 0 {

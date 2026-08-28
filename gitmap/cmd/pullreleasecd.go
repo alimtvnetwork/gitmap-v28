@@ -29,7 +29,7 @@ func runPullReleaseCD(args []string) error {
 
 	self, err := os.Executable()
 	if err != nil {
-		return apperror.Wrap(err, "✗ resolve gitmap binary:", nil)
+		return apperror.WrapSimple(err, "✗ resolve gitmap binary:")
 	}
 
 	results := executePRCEntries(self, entries)
@@ -37,7 +37,7 @@ func runPullReleaseCD(args []string) error {
 
 	for _, r := range results {
 		if !r.ok {
-			return apperror.New("fatal error", "E9000", nil)
+			return apperror.NewSimple("fatal error", "E9000")
 		}
 	}
 	return nil

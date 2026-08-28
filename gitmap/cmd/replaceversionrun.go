@@ -12,7 +12,7 @@ import (
 func runReplaceLiteral(oldS, newS string, opts replaceOpts) error {
 	if oldS == "" {
 		fmt.Fprint(os.Stderr, constants.ErrReplaceEmptyOld)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	root := repoRoot()
 	files := loadRepoFiles(root, opts.exts, opts.extCaseIns)

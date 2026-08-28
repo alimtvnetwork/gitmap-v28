@@ -85,7 +85,7 @@ var generatedCommands = []string{
 	"commit-push",
 	"commit-push-bug",
 	"commit-push-feature",
-	"commit-push-pull",
+	"pull-commit-push",
 	"commit-push-release",
 	"commit-right",
 	"commons",

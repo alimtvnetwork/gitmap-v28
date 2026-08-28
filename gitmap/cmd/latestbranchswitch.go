@@ -28,7 +28,7 @@ func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
 	}
 	target := pickSwitchTarget(result)
 	if target == "" {
-		panic(apperror.New(constants.ErrLatestBranchSwitchNoTarget, "E9000", nil))
+		panic(apperror.NewSimple(constants.ErrLatestBranchSwitchNoTarget, "E9000"))
 	}
 	fmt.Printf(constants.MsgLatestBranchSwitching, target)
 	out, err := gitutil.CheckoutBranch(".", target)
@@ -36,7 +36,7 @@ func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
 		fmt.Println(out)
 	}
 	if err != nil {
-		panic(apperror.New(constants.ErrLatestBranchSwitchFailed, "E9000", nil))
+		panic(apperror.NewSimple(constants.ErrLatestBranchSwitchFailed, "E9000"))
 	}
 }
 

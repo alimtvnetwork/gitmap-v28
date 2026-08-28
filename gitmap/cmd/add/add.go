@@ -10,7 +10,7 @@ import (
 // Run executes the add command logic.
 func Run(args []string) error {
 	if len(args) < 1 {
-		return apperror.New("AddRun", "E_ADD_MISSING_ARG", nil)
+		return apperror.NewSimple("AddRun", "E_ADD_MISSING_ARG")
 	}
 	target := args[0]
 	switch target {
@@ -26,7 +26,7 @@ func Run(args []string) error {
 func writeCommonAttr() error {
 	content := "* text=auto eol=lf\n*.png binary\n*.jpg binary\n*.jpeg binary\n*.gif binary\n*.ico binary\n"
 	if err := os.WriteFile(".gitattributes", []byte(content), 0644); err != nil {
-		return apperror.Wrap(err, "writeCommonAttr: failed to write", nil)
+		return apperror.WrapSimple(err, "writeCommonAttr: failed to write")
 	}
 	pterm.Success.Println("Created .gitattributes")
 	return nil
@@ -35,7 +35,7 @@ func writeCommonAttr() error {
 func writeCommonIgnore() error {
 	content := "node_modules/\n.DS_Store\nThumbs.db\n.idea/\n.vscode/\n*.log\n*.tmp\n*.bak\n.env\ndist/\nbuild/\ncoverage/\n"
 	if err := os.WriteFile(".gitignore", []byte(content), 0644); err != nil {
-		return apperror.Wrap(err, "writeCommonIgnore: failed to write", nil)
+		return apperror.WrapSimple(err, "writeCommonIgnore: failed to write")
 	}
 	pterm.Success.Println("Created .gitignore")
 	return nil

@@ -16,7 +16,7 @@ func runTempReleaseList(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
@@ -25,7 +25,7 @@ func runTempReleaseList(args []string) error {
 
 	releases, err := db.ListTempReleases()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
 
 	if jsonOutput == false {

@@ -18,7 +18,7 @@ func runDBReset(args []string) error {
 		return nil
 	}
 
-	return apperror.New(constants.ErrDBResetNoConfirm, "E9000", nil)
+	return apperror.NewSimple(constants.ErrDBResetNoConfirm, "E9000")
 	return nil
 }
 
@@ -35,13 +35,13 @@ func parseDBResetFlags(args []string) bool {
 func executeDBReset() {
 	db, err := openDB()
 	if err != nil {
-		apperror.Wrap(err, constants.ErrDBResetFailed, nil)
+		apperror.WrapSimple(err, constants.ErrDBResetFailed)
 		return
 	}
 	defer db.Close()
 	err = db.Reset()
 	if err != nil {
-		apperror.Wrap(err, constants.ErrDBResetFailed, nil)
+		apperror.WrapSimple(err, constants.ErrDBResetFailed)
 		return
 	}
 

@@ -44,7 +44,7 @@ func runInject(args []string) error {
 
 	target, err := resolveInjectTarget(args)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrInjectResolve, nil)
+		return apperror.WrapSimple(err, constants.ErrInjectResolve)
 	}
 
 	repoName := filepath.Base(target)

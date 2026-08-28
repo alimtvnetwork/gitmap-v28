@@ -18,7 +18,7 @@ func runAliasSuggest(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
 	defer db.Close()
 

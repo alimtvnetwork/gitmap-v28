@@ -33,7 +33,7 @@ func runActiveGroupStatus() error {
 // runActiveGroupExec runs a git command across active group repos.
 func runActiveGroupExec(args []string) error {
 	if len(args) == 0 {
-		return apperror.New(constants.ErrExecUsage, "E9000", nil)
+		return apperror.NewSimple(constants.ErrExecUsage, "E9000")
 	}
 
 	name := requireActiveGroup()
@@ -49,14 +49,14 @@ func runActiveGroupExec(args []string) error {
 func requireActiveGroup() string {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.ErrListDBFailed, nil).Error())
+		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.ErrListDBFailed).Error())
 		os.Exit(1)
 	}
 	defer db.Close()
 
 	name := db.GetSetting(constants.SettingActiveGroup)
 	if len(name) == 0 {
-		fmt.Fprintln(os.Stderr, apperror.New(constants.MsgGroupNoActive, "E9000", nil).Error())
+		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.MsgGroupNoActive, "E9000").Error())
 		os.Exit(1)
 	}
 

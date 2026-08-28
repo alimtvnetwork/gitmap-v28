@@ -52,7 +52,7 @@ func castTerminal(existingSess any) (*termSession, error) {
 	if isValid {
 		return termSess, nil
 	}
-	return nil, apperror.New("term_cast", "invalid_type", nil)
+	return nil, apperror.NewSimple("term_cast", "invalid_type")
 }
 
 func createTerminal(sessionID string) (*termSession, error) {
@@ -72,7 +72,7 @@ func newTerminal() (*termSession, error) {
 		return nil, pipeErr
 	}
 	if startErr := cmdExec.Start(); startErr != nil {
-		return nil, apperror.Wrap(startErr, "term_start", nil)
+		return nil, apperror.WrapSimple(startErr, "term_start")
 	}
 	return &termSession{cmdExec: cmdExec, stdIn: stdIn, stdOut: stdOut}, nil
 }
@@ -80,11 +80,11 @@ func newTerminal() (*termSession, error) {
 func attachPipes(cmdExec *exec.Cmd) (io.WriteCloser, io.ReadCloser, error) {
 	stdIn, inErr := cmdExec.StdinPipe()
 	if inErr != nil {
-		return nil, nil, apperror.Wrap(inErr, "term_stdin", nil)
+		return nil, nil, apperror.WrapSimple(inErr, "term_stdin")
 	}
 	stdOut, outErr := cmdExec.StdoutPipe()
 	if outErr != nil {
-		return nil, nil, apperror.Wrap(outErr, "term_stdout", nil)
+		return nil, nil, apperror.WrapSimple(outErr, "term_stdout")
 	}
 	cmdExec.Stderr = cmdExec.Stdout
 	return stdIn, stdOut, nil
@@ -168,7 +168,7 @@ func termInputHandler(httpWriter http.ResponseWriter, httpRequest *http.Request)
 func readInputBody(httpRequest *http.Request) ([]byte, error) {
 	reqBody, readErr := io.ReadAll(httpRequest.Body)
 	if readErr != nil {
-		return nil, apperror.Wrap(readErr, "term_input_read", nil)
+		return nil, apperror.WrapSimple(readErr, "term_input_read")
 	}
 	return reqBody, nil
 }
@@ -178,7 +178,7 @@ func writeTermInput(termSess *termSession, reqBody []byte) error {
 	defer termSess.termMu.Unlock()
 	_, writeErr := termSess.stdIn.Write(reqBody)
 	if writeErr != nil {
-		return apperror.Wrap(writeErr, "term_input_write", nil)
+		return apperror.WrapSimple(writeErr, "term_input_write")
 	}
 	return nil
 }

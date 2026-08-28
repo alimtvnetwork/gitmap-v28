@@ -12,14 +12,14 @@ import (
 // runGroupAdd handles "group add <group> <slug...>".
 func runGroupAdd(args []string) error {
 	if len(args) < 2 {
-		return apperror.New(constants.ErrGroupSlugReq, "E9000", nil)
+		return apperror.NewSimple(constants.ErrGroupSlugReq, "E9000")
 	}
 	groupName := args[0]
 	slugs := args[1:]
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
 	defer db.Close()
 

@@ -91,7 +91,7 @@ func executeAmend(f amendFlags) *apperror.AppError {
 func requireAmendCommits(f amendFlags) ([]model.CommitEntry, *apperror.AppError) {
 	commits := listCommitsForAmend(f)
 	if len(commits) == 0 {
-		return nil, apperror.New(constants.ErrAmendNoCommits, "E9000", nil)
+		return nil, apperror.NewSimple(constants.ErrAmendNoCommits, "E9000")
 	}
 	return commits, nil
 }

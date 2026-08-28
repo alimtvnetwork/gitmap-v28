@@ -18,7 +18,7 @@ func runExec(args []string) error {
 	checkHelp("exec", args)
 	groupName, all, stopOnFail, gitArgs := parseExecFlags(args)
 	if len(gitArgs) == 0 {
-		return apperror.New(constants.ErrExecUsage, "E9000", nil)
+		return apperror.NewSimple(constants.ErrExecUsage, "E9000")
 	}
 
 	records := loadExecByScope(groupName, all)
@@ -153,7 +153,7 @@ func loadExecRecordsJSON() []model.ScanRecord {
 	jsonPath := filepath.Join(constants.DefaultOutputFolder, constants.DefaultJSONFile)
 	records, err := loadExecRecords(jsonPath)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrExecLoadFailed, "E9000", nil).Error())
+		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrExecLoadFailed, "E9000").Error())
 		os.Exit(1)
 	}
 

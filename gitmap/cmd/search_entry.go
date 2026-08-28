@@ -22,7 +22,7 @@ func runSearch(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -69,7 +69,7 @@ func runRepoSearch(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -107,7 +107,7 @@ func runRepoRegex(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -138,7 +138,7 @@ func runRepoSearchJson(args []string) error {
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		fmt.Println("[]")
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -166,7 +166,7 @@ func runRepoSearchRegexJson(args []string) error {
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		fmt.Println("[]")
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	defer mainDB.Close()
 	defer db.Close()

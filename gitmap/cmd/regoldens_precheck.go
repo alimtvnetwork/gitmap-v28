@@ -41,7 +41,7 @@ func runDeterminismPrecheck(cfg regoldensFlags) error {
 	fmt.Fprint(os.Stderr, constants.MsgRegoldensPrecheckHeader)
 	captured := runPrecheckGoTest(cfg)
 	if precheckFoundNonDeterminism(captured) {
-		return apperror.New(constants.ErrRegoldensPrecheckFailed, "E9000", nil)
+		return apperror.NewSimple(constants.ErrRegoldensPrecheckFailed, "E9000")
 	}
 	fmt.Fprint(os.Stderr, constants.MsgRegoldensPrecheckPass)
 	return nil

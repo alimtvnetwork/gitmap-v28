@@ -58,11 +58,11 @@ func runBackup(args []string) error {
 func runBackupLs(_ []string) error {
 	root, err := backupRoot()
 	if err != nil {
-		return apperror.Wrap(err, "gitmap backup ls:", nil)
+		return apperror.WrapSimple(err, "gitmap backup ls:")
 	}
 	snaps, err := collectSnapshots(root)
 	if err != nil {
-		return apperror.Wrap(err, "gitmap backup ls:", nil)
+		return apperror.WrapSimple(err, "gitmap backup ls:")
 	}
 	if len(snaps) == 0 {
 		fmt.Fprintf(os.Stdout, "\n  no backups under %s\n\n", root)
@@ -88,11 +88,11 @@ func runBackupPrune(args []string) error {
 	}
 	root, err := backupRoot()
 	if err != nil {
-		return apperror.Wrap(err, "gitmap backup prune:", nil)
+		return apperror.WrapSimple(err, "gitmap backup prune:")
 	}
 	snaps, err := collectSnapshots(root)
 	if err != nil {
-		return apperror.Wrap(err, "gitmap backup prune:", nil)
+		return apperror.WrapSimple(err, "gitmap backup prune:")
 	}
 	victims := selectPruneVictims(snaps, *keep, *olderDays)
 	applyPrune(victims, *dryRun)

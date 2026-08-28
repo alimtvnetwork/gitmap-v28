@@ -47,7 +47,7 @@ func validateLatestBranchRepo() {
 
 		return
 	}
-	panic(apperror.New(constants.ErrLatestBranchNotRepo, "E9000", nil))
+	panic(apperror.NewSimple(constants.ErrLatestBranchNotRepo, "E9000"))
 }
 
 // fetchLatestBranchRefs fetches remotes when shouldFetch is enabled.

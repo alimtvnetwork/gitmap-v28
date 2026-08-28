@@ -32,7 +32,7 @@ func runReleaseUndo(args []string) error {
 
 	latest, ok := latestReleaseJSONVersion()
 	if version == "" && ok == false {
-		return apperror.New("release-undo: no .gitmap/release/v*.json found and no version argument given", "E9000", nil)
+		return apperror.NewSimple("release-undo: no .gitmap/release/v*.json found and no version argument given", "E9000")
 	}
 	if version == "" {
 		version = latest
@@ -40,7 +40,7 @@ func runReleaseUndo(args []string) error {
 
 	v, err := release.Parse(version)
 	if err != nil {
-		return apperror.New(constants.ErrReleaseInvalidVersion, "E9000", nil)
+		return apperror.NewSimple(constants.ErrReleaseInvalidVersion, "E9000")
 	}
 	tag := "v" + v.String()
 	jsonPath := filepath.Join(constants.DefaultReleaseDir, v.String()+constants.ExtJSON)
@@ -57,7 +57,7 @@ func runReleaseUndo(args []string) error {
 		return nil
 	}
 	if !yes && !confirmUndoRelease(tag) {
-		return apperror.New("release-undo: aborted", "E9000", nil)
+		return apperror.NewSimple("release-undo: aborted", "E9000")
 	}
 
 	steps := applyReleaseUndo(tag, jsonPath, keepRemote)

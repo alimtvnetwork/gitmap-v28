@@ -34,12 +34,12 @@ func RunLeft(leftDir, rightDir string, opts Options) error {
 func RunBoth(leftDir, rightDir string, opts Options) error {
 	leftToRightOpts := withDirectionLabel(opts, "(left→right)")
 	if err := runOneDirection(leftDir, rightDir, leftToRightOpts); err != nil {
-		return apperror.Wrap(err, "left→right pass", nil)
+		return apperror.WrapSimple(err, "left→right pass")
 	}
 
 	rightToLeftOpts := withDirectionLabel(opts, "(right→left)")
 	if err := runOneDirection(rightDir, leftDir, rightToLeftOpts); err != nil {
-		return apperror.Wrap(err, "right→left pass", nil)
+		return apperror.WrapSimple(err, "right→left pass")
 	}
 
 	return nil
@@ -54,7 +54,7 @@ func runOneDirection(sourceDir, targetDir string, opts Options) error {
 	}
 	plan, err := BuildPlan(sourceDir, targetDir, opts)
 	if err != nil {
-		return apperror.Wrap(err, "build plan", nil)
+		return apperror.WrapSimple(err, "build plan")
 	}
 	willReplay := PrintPlan(os.Stdout, plan, opts.LogPrefix)
 	if willReplay == 0 {

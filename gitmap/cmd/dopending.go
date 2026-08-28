@@ -26,13 +26,13 @@ func runDoPending(args []string) error {
 func runDoPendingAll() error {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.WarnPendingDBOpen, nil)
+		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}
 	defer db.Close()
 
 	tasks, err := db.ListPendingTasks()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrPendingTaskQuery, nil)
+		return apperror.WrapSimple(err, constants.ErrPendingTaskQuery)
 	}
 
 	if len(tasks) == 0 {
@@ -53,18 +53,18 @@ func runDoPendingAll() error {
 func runDoPendingSingle(idStr string) error {
 	taskID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return apperror.New(constants.ErrPendingTaskNotFound, "E9000", nil)
+		return apperror.NewSimple(constants.ErrPendingTaskNotFound, "E9000")
 	}
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.WarnPendingDBOpen, nil)
+		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}
 	defer db.Close()
 
 	task, err := db.FindPendingTaskByID(taskID)
 	if err != nil {
-		return apperror.New(constants.ErrPendingTaskNotFound, "E9000", nil)
+		return apperror.NewSimple(constants.ErrPendingTaskNotFound, "E9000")
 	}
 
 	fmt.Printf(constants.MsgPendingRetryOne, taskID)

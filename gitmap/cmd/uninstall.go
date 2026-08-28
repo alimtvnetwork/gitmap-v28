@@ -59,14 +59,14 @@ func runUninstall(args []string) error {
 
 	db, err := openDB()
 	if err != nil && force == false {
-		return apperror.New(constants.ErrUninstallNotFound, "E9000", nil)
+		return apperror.NewSimple(constants.ErrUninstallNotFound, "E9000")
 	}
 
 	if db != nil {
 		defer db.Close()
 	}
 	if db != nil && db.IsToolInstalled(tool) == false && force == false {
-		return apperror.New(constants.ErrUninstallNotFound, "E9000", nil)
+		return apperror.NewSimple(constants.ErrUninstallNotFound, "E9000")
 	}
 
 	if !force && !confirmUninstall(tool) {

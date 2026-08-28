@@ -15,7 +15,7 @@ func runCluster(args []string) error {
 	checkHelp("cluster", args)
 	isEmptyArgs := len(args) == 0
 	if isEmptyArgs {
-		return apperror.New(usageMsg, "E9000", nil)
+		return apperror.NewSimple(usageMsg, "E9000")
 	}
 
 	sub := args[0]
@@ -52,6 +52,6 @@ func runCluster(args []string) error {
 		return nil
 	}
 
-	return apperror.New("unknown command", "E9000", nil)
+	return apperror.NewSimple("unknown command", "E9000")
 	return nil
 }

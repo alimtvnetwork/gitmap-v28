@@ -30,7 +30,7 @@ func runDashboard(args []string) error {
 func collectDashboardData(opts dashboard.CollectOptions) model.DashboardData {
 	data, err := dashboard.Collect(opts)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.ErrDashCollect, nil).Error())
+		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.ErrDashCollect).Error())
 		os.Exit(1)
 	}
 	return data
@@ -45,7 +45,7 @@ func emitDashboardOutputs(outDir string, data model.DashboardData) {
 func writeDashboardJSON(outDir string, data model.DashboardData) {
 	jsonPath, err := dashboard.WriteJSON(outDir, data)
 	if err != nil {
-		apperror.New(constants.ErrDashWriteJSON, "E9000", nil)
+		apperror.NewSimple(constants.ErrDashWriteJSON, "E9000")
 		return
 	}
 	fmt.Printf(constants.MsgDashWriteJSON, dashboard.Summary(jsonPath),
@@ -55,7 +55,7 @@ func writeDashboardJSON(outDir string, data model.DashboardData) {
 func writeDashboardHTML(outDir string, data model.DashboardData) {
 	htmlPath, err := dashboard.WriteHTML(outDir, data)
 	if err != nil {
-		apperror.New(constants.ErrDashWriteHTML, "E9000", nil)
+		apperror.NewSimple(constants.ErrDashWriteHTML, "E9000")
 		return
 	}
 	fmt.Printf(constants.MsgDashWriteHTML, dashboard.Summary(htmlPath))

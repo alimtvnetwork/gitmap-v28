@@ -43,7 +43,7 @@ For committing and pushing, NEVER use raw 'git commit' and 'git push'. Use the s
 - 'gitmap commit-push-feature "<message>"' (alias 'gitmap cpf'): Commit and push a feature.
 - 'gitmap commit-push-bug "<message>"' (alias 'gitmap cpb'): Commit and push a bug fix.
 - 'gitmap commit-push-release "<message>"' (alias 'gitmap cpr'): Commit and push a release chore.
-- 'gitmap commit-push-pull "<message>"' (alias 'gitmap cpp'): Pull latest, then commit and push.
+- 'gitmap commit-push-pull "<message>"' (alias 'gitmap pcp'): Pull latest, then commit and push.
 - 'gitmap rm-git <last-4-digits>': Drop a recent commit safely using rebase --onto.
 
 ## AI File Search Patterns
@@ -61,3 +61,9 @@ Here are equivalent alternative command samples for LLM search operations:
 - **Find specific function contexts**:
   - 'gitmap file-search cmd/root.go "func finishCommandAudit" 0 10'
   - 'cat gitmap/cmd/root.go | Select-String "func finishCommandAudit" -Context 0,10'
+
+
+- **Global Text/Keyword Search (Instead of ripgrep/rg)**:
+  - 'gitmap search "CHANGELOG"'
+  - 'gitmap search "CHANGELOG\.md" --case-sensitive'
+  *(Never use raw rg or grep when gitmap search utilizes the built-in Split DB index for much faster cross-repo lookups).*

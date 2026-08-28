@@ -34,7 +34,7 @@ func runSelfUninstall(args []string) error {
 	opts := parseSelfUninstallFlags(args)
 	if !opts.Confirm && !confirmSelfUninstall(opts) {
 		fmt.Fprint(os.Stderr, constants.ErrSelfUninstallNoConfirm)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	if shouldHandoffSelfUninstall() {
 		handoffSelfUninstall(opts, args)

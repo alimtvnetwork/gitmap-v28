@@ -71,13 +71,13 @@ func replayOne(plan ReplayPlan, commit SourceCommit, opts Options) (string, bool
 		return "", false, apperror.Wrap(err, "checkout source", map[string]any{"sha": commit.ShortSHA})
 	}
 	if err := snapshotCopy(plan.SourceDir, plan.TargetDir, opts); err != nil {
-		return "", false, apperror.Wrap(err, "snapshot copy", nil)
+		return "", false, apperror.WrapSimple(err, "snapshot copy")
 	}
 	if opts.NoCommit {
 		return "", false, nil
 	}
 	if err := addAll(plan.TargetDir); err != nil {
-		return "", false, apperror.Wrap(err, "git add target", nil)
+		return "", false, apperror.WrapSimple(err, "git add target")
 	}
 	if !hasStagedChanges(plan.TargetDir) {
 		return "", true, nil

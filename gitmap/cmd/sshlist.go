@@ -15,13 +15,13 @@ func runSSHList(args ...string) error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrSSHQuery, nil)
+		return apperror.WrapSimple(err, constants.ErrSSHQuery)
 	}
 	defer db.Close()
 
 	keys, err := db.ListSSHKeys()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrSSHQuery, nil)
+		return apperror.WrapSimple(err, constants.ErrSSHQuery)
 	}
 
 	if jsonOut {

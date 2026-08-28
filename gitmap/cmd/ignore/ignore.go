@@ -13,7 +13,7 @@ import (
 // RunIgnore appends a pattern to .gitignore idempotently.
 func RunIgnore(args []string) error {
 	if len(args) < 1 {
-		return apperror.New("RunIgnore", "E_IGNORE_MISSING_PATTERN", nil)
+		return apperror.NewSimple("RunIgnore", "E_IGNORE_MISSING_PATTERN")
 	}
 	pattern := args[0]
 	return addToGitignore(pattern)
@@ -22,7 +22,7 @@ func RunIgnore(args []string) error {
 // RunIgnoreRm removes matching files from git history then ignores them.
 func RunIgnoreRm(args []string) error {
 	if len(args) < 1 {
-		return apperror.New("RunIgnoreRm", "E_IGNORERM_MISSING_PATTERN", nil)
+		return apperror.NewSimple("RunIgnoreRm", "E_IGNORERM_MISSING_PATTERN")
 	}
 	pattern := args[0]
 
@@ -36,7 +36,7 @@ func RunIgnoreRm(args []string) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(err, "RunIgnoreRm: history rewrite failed", nil)
+		return apperror.WrapSimple(err, "RunIgnoreRm: history rewrite failed")
 	}
 
 	exec.Command("git", "for-each-ref", "--format=%(refname)", "refs/original/").Run()
@@ -69,7 +69,7 @@ func addToGitignore(pattern string) error {
 	content += pattern + "\n"
 
 	if err := os.WriteFile(".gitignore", []byte(content), 0644); err != nil {
-		return apperror.Wrap(err, "addToGitignore: failed to write file", nil)
+		return apperror.WrapSimple(err, "addToGitignore: failed to write file")
 	}
 	pterm.Success.Printf("Added '%s' to .gitignore\n", pattern)
 	return nil

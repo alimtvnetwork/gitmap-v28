@@ -29,7 +29,7 @@ func runReleasePending(args []string) error {
 
 	err := release.ExecutePending(assets, notes, draft, dryRun, noCommit, yes)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
 	return nil
 }

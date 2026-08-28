@@ -10,7 +10,7 @@ import (
 
 func runMkdir(args []string) error {
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap mkdir [-p] <path>", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap mkdir [-p] <path>", "E9000")
 	}
 
 	createParents := false
@@ -26,12 +26,12 @@ func runMkdir(args []string) error {
 	}
 
 	if pathArg == "" {
-		return apperror.New("Error: missing path argument", "E9000", nil)
+		return apperror.NewSimple("Error: missing path argument", "E9000")
 	}
 
 	absPath, err := filepath.Abs(pathArg)
 	if err != nil {
-		return apperror.Wrap(err, "Error resolving path:", nil)
+		return apperror.WrapSimple(err, "Error resolving path:")
 	}
 
 	if createParents {
@@ -41,7 +41,7 @@ func runMkdir(args []string) error {
 	}
 
 	if err != nil {
-		return apperror.Wrap(err, "Error creating directory:", nil)
+		return apperror.WrapSimple(err, "Error creating directory:")
 	}
 	fmt.Printf("Created directory: %s\n", absPath)
 	return nil

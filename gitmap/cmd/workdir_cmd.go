@@ -28,7 +28,7 @@ func runWorkDir(args []string) error {
 		_ = runWorkDirSetDefault(opts.Target)
 	default:
 		fmt.Printf("Usage: gitmap workdir [ls|add <path>|rm <path|id>|set <path|id>|default]\n")
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	return nil
 }

@@ -65,7 +65,7 @@ func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Fo
 func completeCompactExtract(ctx context.Context, srcArchive, destBaseDir, tempDir string, res ExtractResult) (ExtractResult, error) {
 	written, err := extractAllIntoDir(ctx, srcArchive, tempDir)
 	if err != nil {
-		return res, apperror.Wrap(err, "extract", nil)
+		return res, apperror.WrapSimple(err, "extract")
 	}
 	res.EntriesWritten = written
 
@@ -96,7 +96,7 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 
 	format, stream, err := archives.Identify(ctx, filepath.Base(srcArchive), f)
 	if err != nil {
-		return 0, apperror.Wrap(err, "identify", nil)
+		return 0, apperror.WrapSimple(err, "identify")
 	}
 
 	extractor, ok := format.(archives.Extractor)

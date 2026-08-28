@@ -19,21 +19,21 @@ func runReleaseScanCommits(args []string) error {
 	isAll := parseRscArgs(args)
 	cwd, err := os.Getwd()
 	if err != nil {
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	head, err := getGitHead(cwd)
 	if err != nil {
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	commits, err := fetchCommits(cwd, isAll)
 	if err != nil {
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	actions, err := release.ExecuteCommitActions(cwd, commits)
 	if err != nil {
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	printScanCommitsSummary(actions)
@@ -55,7 +55,7 @@ func getGitHead(cwd string) (string, error) {
 	cmd.Dir = cwd
 	out, err := cmd.Output()
 	if err != nil {
-		return "", apperror.Wrap(err, "getGitHead", nil)
+		return "", apperror.WrapSimple(err, "getGitHead")
 	}
 	return strings.TrimSpace(string(out)), nil
 }
@@ -74,7 +74,7 @@ func fetchCommits(cwd string, isAll bool) ([]release.ParsedCommit, error) {
 	cmd.Dir = cwd
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, apperror.Wrap(err, "fetchCommits", nil)
+		return nil, apperror.WrapSimple(err, "fetchCommits")
 	}
 	return parseGitLogLines(string(out)), nil
 }
