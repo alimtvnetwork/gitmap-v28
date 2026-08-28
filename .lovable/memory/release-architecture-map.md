@@ -24,3 +24,9 @@ Once the changes are committed, the CI/CD pipeline (when correctly configured) h
 - v6.134.0: Wired CLI File Search / Regex Search Commands to SplitDB Indexer Engine
 - v6.141.0: E2E tests for commit-right and comprehensive apperror integration across committransfer
 - v6.141.1: update llm.md with alternative gitmap CLI commands for AI agents
+
+## v6.142.0
+- feat: rename commit-push-pull to pull-commit-push (pcp) to fix logical ordering.
+- feat: rm-git now correctly utilizes git reset --hard <sha>^ instead of rebase --onto.
+- feat: introduced apperror.WrapSimple and eliminated 171 instances of swallowed nil contexts.
+- docs: updated llm.md with exact search alternatives to explicitly ban raw ripgrep/rg in favor of native gitmap search capabilities.
