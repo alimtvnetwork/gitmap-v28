@@ -3,16 +3,18 @@
 Searches file contents using the cached DB.
 
 ## Why use this instead of shell commands?
-Instead of running an expensive recursive search:
-`grep -rn "func run" gitmap/cmd/`
-or
-`Get-ChildItem -Path gitmap/cmd -Filter *.go -Recurse | Select-String -Pattern "func run"`
+Instead of running an expensive recursive search or complex pipeline:
+`Get-ChildItem -Path gitmap/store -Filter *.go | Select-String "OpenDefault"`
+or:
+`cat .github/scripts/smoke-installer.ps1 | Select-String "constants.go" -Context 3,3`
 
-You should use the SplitDB cache for instant results:
-`gitmap repo-search "func run"`
+Use the high-speed cached DB to instantly find references:
+`gitmap repo-search "constants.go"`
+`gitmap repo-search "OpenDefault"`
 
 ## Examples
 ```bash
-gitmap repo-search "func run"
+gitmap repo-search "constants.go"
+gitmap repo-search "OpenDefault"
 gitmap repo-search "GetDB" -l 10
 ```
