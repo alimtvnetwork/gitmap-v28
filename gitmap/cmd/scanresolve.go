@@ -32,16 +32,19 @@ func resolveScanTarget(raw string) string {
 
 	abs, err := filepath.Abs(expanded)
 	if err != nil {
-		panic(constants.ErrScanFailed)
+		fmt.Fprintf(os.Stderr, constants.ErrScanFailed, original, err)
+		os.Exit(1)
 	}
 	abs = filepath.Clean(abs)
 
 	info, err := os.Stat(abs)
 	if err != nil {
-		panic(constants.ErrScanDirNotFound)
+		fmt.Fprintf(os.Stderr, constants.ErrScanDirNotFound, original, abs)
+		os.Exit(1)
 	}
 	if !info.IsDir() {
-		panic(constants.ErrScanDirNotDir)
+		fmt.Fprintf(os.Stderr, constants.ErrScanDirNotDir, original, abs)
+		os.Exit(1)
 	}
 
 	if shouldAnnounceResolve(original, abs) {
