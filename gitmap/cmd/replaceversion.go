@@ -6,8 +6,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // remoteSlugRe matches the trailing `<base>-vN` segment of a git remote
@@ -19,12 +17,12 @@ var remoteSlugRe = regexp.MustCompile(`^(?P<base>.+)-v(?P<num>\d+)$`)
 func detectVersion() (string, int) {
 	out, err := exec.Command("git", "remote", "get-url", "origin").Output()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrReplaceNoRemote, nil)
+		panic(err)
 	}
 	slug := slugFromRemote(strings.TrimSpace(string(out)))
 	m := remoteSlugRe.FindStringSubmatch(slug)
 	if m == nil {
-		return apperror.New(constants.ErrReplaceVersionParse, "E9000", nil)
+		panic("error")
 	}
 	num, _ := strconv.Atoi(m[2])
 	return m[1], num

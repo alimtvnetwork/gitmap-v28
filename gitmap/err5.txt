@@ -1,0 +1,29 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\envregistry.go:4:8: fmt redeclared in this block
+	cmd\envregistry.go:3:8: other declaration of fmt
+cmd\find_entry.go:48:48: too many arguments in call to apperror.Wrap
+	have (error, string, string, nil)
+	want (error, string, map[string]any)
+cmd\find_entry.go:76:48: too many arguments in call to apperror.Wrap
+	have (error, string, string, nil)
+	want (error, string, map[string]any)
+cmd\find_entry.go:104:48: too many arguments in call to apperror.Wrap
+	have (error, string, string, nil)
+	want (error, string, map[string]any)
+cmd\find_entry.go:162:48: too many arguments in call to apperror.Wrap
+	have (error, string, string, nil)
+	want (error, string, map[string]any)
+cmd\githubdesktop.go:70:2: declared and not used: output
+cmd\importcmd.go:73:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\index_cmd.go:16:48: too many arguments in call to apperror.Wrap
+	have (error, string, string, nil)
+	want (error, string, map[string]any)
+cmd\index_cmd.go:25:48: too many arguments in call to apperror.Wrap
+	have (error, string, string, nil)
+	want (error, string, map[string]any)
+cmd\install.go:75:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\install.go:75:9: too many errors

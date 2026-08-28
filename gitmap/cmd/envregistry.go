@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -26,7 +27,8 @@ func loadEnvRegistry() model.EnvRegistry {
 
 	err = json.Unmarshal(data, &registry)
 	if err != nil {
-		return apperror.New(constants.ErrEnvRegistryLoad, "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrEnvRegistryLoad, "E9000", nil).Error())
+		os.Exit(1)
 	}
 
 	return registry
@@ -38,17 +40,20 @@ func saveEnvRegistry(registry model.EnvRegistry) {
 
 	err := os.MkdirAll(filepath.Dir(path), constants.DirPermission)
 	if err != nil {
-		return apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
+		apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
+		return
 	}
 
 	data, err := json.MarshalIndent(registry, "", constants.JSONIndent)
 	if err != nil {
-		return apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
+		apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
+		return
 	}
 
 	err = os.WriteFile(path, data, constants.FilePermission)
 	if err != nil {
-		return apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
+		apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
+		return
 	}
 }
 
@@ -75,7 +80,8 @@ func findEnvVariable(registry model.EnvRegistry, name string) model.EnvVariable 
 		}
 	}
 
-	return apperror.New(constants.ErrEnvNotFound, "E9000", nil)
+	fmt.Fprintln(os.Stderr, apperror.New(constants.ErrEnvNotFound, "E9000", nil).Error())
+	os.Exit(1)
 
 	return model.EnvVariable{}
 }
@@ -118,7 +124,8 @@ func removeEnvPath(registry model.EnvRegistry, dir string) model.EnvRegistry {
 func checkEnvPathNotDuplicate(registry model.EnvRegistry, dir string) {
 	for _, p := range registry.Paths {
 		if p.Path == dir {
-			return apperror.New(constants.ErrEnvPathDuplicate, "E9000", nil)
+			apperror.New(constants.ErrEnvPathDuplicate, "E9000", nil)
+			return
 		}
 	}
 }

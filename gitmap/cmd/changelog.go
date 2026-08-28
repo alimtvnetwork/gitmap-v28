@@ -24,7 +24,9 @@ func runChangelog(args []string) *apperror.AppError {
 	version, latest, limit, openFile, source := parseChangelogFlags(cleaned)
 	version, openFile = resolveChangelogAlias(version, openFile)
 	if openFile {
-		if err := handleChangelogOpen(latest, version); err != nil { return err }
+		if err := handleChangelogOpen(latest, version); err != nil {
+			return err
+		}
 	}
 	if !latest && len(version) == 0 && openFile {
 		return nil

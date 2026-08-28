@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
@@ -82,7 +81,7 @@ func loadStatusByScope(groupName string, all bool) []model.ScanRecord {
 func loadRecordsByGroup(groupName string) []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic("error")
 	}
 	defer db.Close()
 	records, err := db.ShowGroup(groupName)
@@ -97,7 +96,7 @@ func loadRecordsByGroup(groupName string) []model.ScanRecord {
 func loadAllRecordsDB() []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic("error")
 	}
 	defer db.Close()
 	records, err := db.ListRepos()
@@ -124,7 +123,7 @@ func loadRecordsJSONFallback() []model.ScanRecord {
 	}
 	records, err := loadStatusRecords(jsonPath)
 	if err != nil {
-		return apperror.New(constants.ErrStatusLoadFailed, "E9000", nil)
+		panic("error")
 	}
 
 	return records
@@ -136,7 +135,7 @@ func loadAllRecordsDBOrEmpty() []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.MsgStatusNoData)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 	defer db.Close()
 	records, err := db.ListRepos()
@@ -145,7 +144,7 @@ func loadAllRecordsDBOrEmpty() []model.ScanRecord {
 	}
 	if len(records) == 0 {
 		fmt.Fprint(os.Stderr, constants.MsgStatusNoData)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 
 	return records
@@ -177,7 +176,7 @@ type statusSummary struct {
 func handleStatusDBError(err error) {
 	if isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
-	return apperror.Wrap(err, constants.ErrGenericFmt, nil)
+	panic("error")
 }

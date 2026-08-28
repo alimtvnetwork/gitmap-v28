@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -20,7 +19,7 @@ func runSSHGenerate(args []string) error {
 
 	if err := validateSSHKeygen(); err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrSSHKeygenMissing)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 
 	if len(email) == 0 {
@@ -28,7 +27,7 @@ func runSSHGenerate(args []string) error {
 	}
 	if len(email) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrSSHEmailResolve)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 
 	keyPath = expandHome(keyPath)
@@ -41,7 +40,7 @@ func runSSHGenerate(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrSSHCreate, nil)
+		panic("error")
 	}
 	defer db.Close()
 
@@ -148,7 +147,7 @@ func handleExistingKey(db *store.DB, name string, keyPath *string) bool {
 // generateAndStore runs ssh-keygen and stores the result in the database.
 func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	if err := ensureSSHDir(filepath.Dir(keyPath)); err != nil {
-		return apperror.New(constants.ErrSSHKeygen, "E9000", nil)
+		panic("error")
 	}
 
 	cmd := exec.Command(constants.SSHKeygenBin,
@@ -161,12 +160,12 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return apperror.New(constants.ErrSSHKeygen, "E9000", nil)
+		panic("error")
 	}
 
 	pubKey, err := os.ReadFile(keyPath + ".pub")
 	if err != nil {
-		return apperror.Wrap(keyPath+".pub", "constants.ErrSSHReadPub", nil)
+		panic("error")
 	}
 
 	fingerprint := readFingerprint(keyPath)
@@ -204,7 +203,7 @@ func askConfirm(name, keyPath string) bool {
 
 func exitOnBackupError(err error) {
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrSSHBackup, nil)
+		panic("error")
 	}
 }
 

@@ -38,7 +38,9 @@ func runChangelogGen(args []string) error {
 	fmt.Printf(constants.MsgChangelogGenHeader, fromTag, toRef)
 
 	if write {
-		if err := writeChangelogSection(section); err != nil { return err }
+		if err := writeChangelogSection(section); err != nil {
+			return err
+		}
 	} else {
 		printChangelogPreview(section)
 	}

@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )

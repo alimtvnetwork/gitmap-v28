@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -34,7 +33,7 @@ func printExistingKeyOnDisk(db *store.DB, name, keyPath, host string) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHReadPub, keyPath+".pub", err)
 		fmt.Fprint(os.Stderr, constants.MsgSSHForceHint)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 	fingerprint := readFingerprint(keyPath)
 

@@ -1,0 +1,22 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\installtools.go:198:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\latestbranch.go:50:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\latestbranchswitch.go:31:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\latestbranchswitch.go:39:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\lfscommon.go:90:10: cannot use apperror.Wrap(err, "Γ£ù Could not parse flags:", nil) (value of type *apperror.AppError) as lfsCommonFlags value in return statement
+cmd\list.go:42:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\list.go:54:10: cannot use apperror.New("fatal error", "E9000", nil) (value of type *apperror.AppError) as []model.ScanRecord value in return statement
+cmd\list.go:57:10: cannot use apperror.Wrap(err, constants.ErrListDBFailed, nil) (value of type *apperror.AppError) as []model.ScanRecord value in return statement
+cmd\listreleasesallrepos.go:33:10: cannot use apperror.New(constants.ErrNoDatabase, "E9000", nil) (value of type *apperror.AppError) as []store.ReleaseAcrossRepos value in return statement
+cmd\listreleasesallrepos.go:39:10: cannot use apperror.Wrap(err, constants.ErrListReleasesFailed, nil) (value of type *apperror.AppError) as []store.ReleaseAcrossRepos value in return statement
+cmd\listreleasesallrepos.go:39:10: too many errors

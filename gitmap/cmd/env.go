@@ -9,7 +9,7 @@ import (
 func runEnv(args []string) error {
 	checkHelp("env", args)
 	if len(args) < 1 {
-		return apperror.Wrap("", "constants.ErrEnvSubcommand", nil)
+		return apperror.New("constants.ErrEnvSubcommand "+"", "E9000", nil)
 	}
 
 	sub := args[0]
@@ -47,7 +47,8 @@ func routeEnvSub(sub string, args []string) {
 		return
 	}
 
-	return apperror.New(constants.ErrEnvSubcommand, "E9000", nil)
+	apperror.New(constants.ErrEnvSubcommand, "E9000", nil)
+	return
 }
 
 // routeEnvPath routes path subcommands (path add, path remove, path list).
@@ -77,5 +78,6 @@ func routeEnvPath(args []string) {
 		return
 	}
 
-	return apperror.Wrap("path "+sub, "constants.ErrEnvSubcommand", nil)
+	apperror.New("constants.ErrEnvSubcommand "+"path "+sub, "E9000", nil)
+	return
 }

@@ -28,17 +28,20 @@ import (
 func initDownloaderConfigDB() *store.DB {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, "✗", nil)
+		fmt.Fprintln(os.Stderr, apperror.Wrap(err, "✗", nil).Error())
+		os.Exit(1)
 	}
 	if err := db.Migrate(); err != nil {
-		return apperror.Wrap(err, "✗ Migrate:", nil)
+		fmt.Fprintln(os.Stderr, apperror.Wrap(err, "✗ Migrate:", nil).Error())
+		os.Exit(1)
 	}
 	return db
 }
 
 func saveAndReportDownloaderConfig(db *store.DB, doc downloaderconfig.Document, source string) {
 	if err := db.SetDownloaderConfig(doc); err != nil {
-		return apperror.Wrap(err, "✗ Could not save downloader config:", nil)
+		apperror.Wrap(err, "✗ Could not save downloader config:", nil)
+		return
 	}
 	if source != "" {
 		fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigLoaded+"\n", source)
@@ -80,7 +83,7 @@ func loadDocOrPrompt(db *store.DB, args []string) (downloaderconfig.Document, st
 func loadDocFromFile(path string) (downloaderconfig.Document, string) {
 	doc, err := downloaderconfig.LoadFile(path)
 	if err != nil {
-		return apperror.Wrap(err, "✗", nil)
+		panic("not enough return values")
 	}
 	return doc, path
 }
@@ -111,7 +114,8 @@ func promptFlagConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig
 
 func validatePromptedDoc(doc downloaderconfig.Document) downloaderconfig.Document {
 	if err := downloaderconfig.Validate(doc); err != nil {
-		return apperror.Wrap(err, "✗", nil)
+		fmt.Fprintln(os.Stderr, apperror.Wrap(err, "✗", nil).Error())
+		os.Exit(1)
 	}
 	return doc
 }

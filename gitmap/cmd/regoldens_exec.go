@@ -61,7 +61,7 @@ func exitOnPass1Failure(cfg regoldensFlags, code int) {
 	if cfg.hasDiff() {
 		fmt.Fprintf(os.Stderr, constants.MsgRegoldensPass2NotRun, code)
 	}
-	return apperror.New("fatal error", "E9000", nil)
+	panic(apperror.New("fatal error", "E9000", nil))
 }
 
 // handleSkipVerify emits the skip-verify success path and returns

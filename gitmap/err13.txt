@@ -1,0 +1,2 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\pendingclear.go:62:2: syntax error: non-declaration statement outside function body

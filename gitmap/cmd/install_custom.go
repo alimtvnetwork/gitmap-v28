@@ -27,7 +27,7 @@ var customToolUrls = map[string]struct{ win, unix string }{
 func runInstallCustomTool(tool string) error {
 	urls, ok := customToolUrls[tool]
 	if !ok {
-		return apperror.Wrap(tool, "Unknown custom tool:", nil)
+		return apperror.New("Unknown custom tool: "+tool, "E9000", nil)
 	}
 
 	cmd := buildCustomToolCmd(urls.win, urls.unix)
@@ -35,7 +35,7 @@ func runInstallCustomTool(tool string) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(tool, "Failed to install :", nil)
+		return apperror.New("Failed to install: "+tool, "E9000", nil)
 	}
 	return nil
 }

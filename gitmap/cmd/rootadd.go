@@ -3,8 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // addUsage is the umbrella usage block printed when `gitmap add` is
@@ -33,7 +31,7 @@ func dispatchAdd(command string) (bool, error) {
 	}
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, addUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 
 	sub, rest := os.Args[2], os.Args[3:]
@@ -47,7 +45,7 @@ func dispatchAdd(command string) (bool, error) {
 	default:
 		fmt.Fprintf(os.Stderr, "unknown 'add' subcommand: %s\n", sub)
 		fmt.Fprint(os.Stderr, addUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 
 	return true, nil

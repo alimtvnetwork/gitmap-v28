@@ -153,7 +153,8 @@ func loadExecRecordsJSON() []model.ScanRecord {
 	jsonPath := filepath.Join(constants.DefaultOutputFolder, constants.DefaultJSONFile)
 	records, err := loadExecRecords(jsonPath)
 	if err != nil {
-		return apperror.New(constants.ErrExecLoadFailed, "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrExecLoadFailed, "E9000", nil).Error())
+		os.Exit(1)
 	}
 
 	return records

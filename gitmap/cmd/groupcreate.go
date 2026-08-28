@@ -22,13 +22,15 @@ func runGroupCreate(args []string) error {
 func executeGroupCreate(name, desc, color string) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return
 	}
 	defer db.Close()
 
 	_, err = db.CreateGroup(name, desc, color)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		apperror.Wrap(err, constants.ErrBareFmt, nil)
+		return
 	}
 	fmt.Printf(constants.MsgGroupCreated, name)
 }

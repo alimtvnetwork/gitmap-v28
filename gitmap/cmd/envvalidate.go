@@ -16,21 +16,24 @@ var envNamePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 func validateEnvName(name string) {
 	if name == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvNameRequired)
-		return apperror.New("fatal error", "E9000", nil)
+		apperror.New("fatal error", "E9000", nil)
+		return
 	}
 
 	if envNamePattern.MatchString(name) {
 		return
 	}
 
-	return apperror.New(constants.ErrEnvInvalidName, "E9000", nil)
+	apperror.New(constants.ErrEnvInvalidName, "E9000", nil)
+	return
 }
 
 // validateEnvValue checks value is provided.
 func validateEnvValue(value string) {
 	if value == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvValueRequired)
-		return apperror.New("fatal error", "E9000", nil)
+		apperror.New("fatal error", "E9000", nil)
+		return
 	}
 }
 
@@ -38,11 +41,13 @@ func validateEnvValue(value string) {
 func validateEnvPathDir(dir string) {
 	if dir == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvPathRequired)
-		return apperror.New("fatal error", "E9000", nil)
+		apperror.New("fatal error", "E9000", nil)
+		return
 	}
 
 	_, err := os.Stat(dir)
 	if err != nil {
-		return apperror.New(constants.ErrEnvPathNotExist, "E9000", nil)
+		apperror.New(constants.ErrEnvPathNotExist, "E9000", nil)
+		return
 	}
 }

@@ -72,7 +72,7 @@ func validateToolName(tool string) {
 	if _, exists := constants.InstallToolDescriptions[tool]; exists {
 		return
 	}
-	return apperror.New(constants.ErrInstallUnknownTool, "E9000", nil)
+	panic("unknown tool")
 }
 
 // executeInstall runs the install flow for a tool.

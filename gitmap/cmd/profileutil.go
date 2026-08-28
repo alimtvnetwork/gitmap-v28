@@ -39,16 +39,16 @@ func removeProfile(profiles []string, name string) []string {
 func validateProfileDelete(name string, cfg model.ProfileConfig) {
 	if name == constants.DefaultProfileName {
 		fmt.Fprint(os.Stderr, constants.ErrProfileDeleteDefault)
-		return apperror.New("fatal error", "E9000", nil)
+		panic(apperror.New("fatal error", "E9000", nil))
 	}
 
 	if name == cfg.Active {
 		fmt.Fprint(os.Stderr, constants.ErrProfileDeleteActive)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal")
 	}
 
 	if !profileExists(cfg.Profiles, name) {
-		return apperror.New(constants.ErrProfileNotFound, "E9000", nil)
+		panic("not found")
 	}
 }
 
@@ -56,7 +56,7 @@ func validateProfileDelete(name string, cfg model.ProfileConfig) {
 func saveProfileOrExit(cfg model.ProfileConfig) {
 	err := store.SaveProfileConfig(constants.DefaultOutputFolder, cfg)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrProfileConfig, nil)
+		panic(apperror.Wrap(err, constants.ErrProfileConfig, nil))
 	}
 }
 

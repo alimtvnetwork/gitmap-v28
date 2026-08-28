@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
 
@@ -43,7 +42,7 @@ func executeSelfRelease(version, assets, commit, branch, bump, notes, targets st
 
 	err := release.ExecuteSelf(opts)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic(err)
 	}
 
 	persistReleaseToDB()

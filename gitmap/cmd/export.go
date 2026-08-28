@@ -49,17 +49,20 @@ func resolveExportFile(args []string) string {
 func loadExportData() model.DatabaseExport {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.MsgExportFailed, nil)
+		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.MsgExportFailed, nil).Error())
+		os.Exit(1)
 	}
 	defer db.Close()
 
 	export, err := db.ExportAll()
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		return apperror.New("fatal error", "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New("fatal error", "E9000", nil).Error())
+		os.Exit(1)
 	}
 	if err != nil {
-		return apperror.Wrap(err, constants.MsgExportFailed, nil)
+		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.MsgExportFailed, nil).Error())
+		os.Exit(1)
 	}
 
 	return export
@@ -70,11 +73,13 @@ func loadExportData() model.DatabaseExport {
 func writeExportFile(path string, export model.DatabaseExport) {
 	var buf bytes.Buffer
 	if err := encodeDatabaseExportJSON(&buf, export); err != nil {
-		return apperror.Wrap(err, constants.MsgExportFailed, nil)
+		apperror.Wrap(err, constants.MsgExportFailed, nil)
+		return
 	}
 
 	if err := os.WriteFile(path, buf.Bytes(), constants.DirPermission); err != nil {
-		return apperror.Wrap(err, constants.MsgExportFailed, nil)
+		apperror.Wrap(err, constants.MsgExportFailed, nil)
+		return
 	}
 }
 

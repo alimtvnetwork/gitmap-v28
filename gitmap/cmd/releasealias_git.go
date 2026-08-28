@@ -47,7 +47,8 @@ func autoStashIfDirty(target, alias, version string) string {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAStashFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		return apperror.New("fatal error", "E9000", nil)
+		var empty string
+		return empty
 	}
 
 	fmt.Printf(constants.MsgRAStashCreatedFmt, label)

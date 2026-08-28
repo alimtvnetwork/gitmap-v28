@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -15,13 +14,13 @@ import (
 func runZipGroupList() error {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic("error")
 	}
 	defer db.Close()
 
 	groups, err := db.ListZipGroupsWithCount()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic("error")
 	}
 
 	printZipGroupList(groups)
@@ -52,7 +51,7 @@ func printZipGroupList(groups []store.ZipGroupWithCount) {
 // runZipGroupShow handles "zip-group show <name>".
 func runZipGroupShow(args []string) error {
 	if len(args) == 0 {
-		return apperror.New(constants.ErrZGEmpty, "E9000", nil)
+		panic("error")
 	}
 
 	name := args[0]
@@ -64,13 +63,13 @@ func runZipGroupShow(args []string) error {
 func executeZipGroupShow(name string) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic("error")
 	}
 	defer db.Close()
 
 	items, err := db.ListZipGroupItems(name)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic("error")
 	}
 
 	group, grpErr := db.FindZipGroupByName(name)

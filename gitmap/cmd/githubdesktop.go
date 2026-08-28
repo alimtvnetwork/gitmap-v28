@@ -61,14 +61,16 @@ func isGitRepo(dir string) bool {
 func registerGHDesktop(target string) {
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		return apperror.New(constants.MsgDesktopNotFound, "E9000", nil)
+		apperror.New(constants.MsgDesktopNotFound, "E9000", nil)
+		return
 	}
 
 	fmt.Printf(constants.MsgGHDesktopRegister, target)
 	cmd := exec.Command(cli, target)
-	output, runErr := cmd.CombinedOutput()
+	_, runErr := cmd.CombinedOutput()
 	if runErr != nil {
-		return apperror.New(constants.ErrGHDesktopInvoke, "E9000", nil)
+		apperror.New(constants.ErrGHDesktopInvoke, "E9000", nil)
+		return
 	}
 
 	fmt.Printf(constants.MsgGHDesktopDone, target)

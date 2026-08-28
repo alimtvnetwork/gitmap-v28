@@ -59,7 +59,8 @@ func emitFindNext(rows []model.FindNextRow, jsonOut bool) {
 // cross-checks against spec/08-json-schemas/find-next.schema.json).
 func emitFindNextJSON(rows []model.FindNextRow) {
 	if err := encodeFindNextJSON(os.Stdout, rows); err != nil {
-		return apperror.Wrap(err, constants.ErrFindNextJSONEncodeFmt, nil)
+		apperror.Wrap(err, constants.ErrFindNextJSONEncodeFmt, nil)
+		return
 	}
 }
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -50,7 +49,7 @@ func parseRAArgs(args []string, forcePull bool) (string, string, bool, bool, boo
 func resolveReleaseAliasPath(alias string) string {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic(err)
 	}
 	defer db.Close()
 
@@ -58,7 +57,7 @@ func resolveReleaseAliasPath(alias string) string {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAUnknownAliasFmt, alias, alias)
 		fmt.Fprintln(os.Stderr)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 
 	return resolved.AbsolutePath
@@ -70,7 +69,7 @@ func performReleaseAlias(target, alias, version string, pull, noStash, dryRun bo
 	if err := os.Chdir(target); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAChdirFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 	defer func() { _ = os.Chdir(originalDir) }()
 

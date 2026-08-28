@@ -16,7 +16,7 @@ import (
 func runVSCode(args []string) error {
 	if len(args) == 0 {
 		printVSCodeUsage()
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 	dispatchVSCodeAction(args)
 	return nil
@@ -36,14 +36,14 @@ func dispatchVSCodeAction(args []string) {
 		handleVSCodeRm(args)
 	default:
 		printVSCodeUsage()
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 }
 
 func handleVSCodeAdd(args []string) {
 	if len(args) < 2 {
 		fmt.Println("Usage: gitmap vscode add <path1,path2,...>")
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 	for _, p := range strings.Split(args[1], ",") {
 		if p = strings.TrimSpace(p); p != "" {
@@ -55,7 +55,7 @@ func handleVSCodeAdd(args []string) {
 func handleVSCodeRm(args []string) {
 	if len(args) < 2 {
 		fmt.Println("Usage: gitmap vscode rm <path or name,...>")
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 	for _, t := range strings.Split(args[1], ",") {
 		if t = strings.TrimSpace(t); t != "" {

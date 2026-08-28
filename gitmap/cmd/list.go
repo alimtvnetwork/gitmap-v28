@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -39,7 +38,7 @@ func executeList(args []string) {
 	groupFilter, verboseMode := parseListFlags(args)
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return
 	}
 	defer db.Close()
 	records := fetchListRecords(db, groupFilter)
@@ -51,10 +50,10 @@ func fetchListRecords(db *store.DB, groupFilter string) []model.ScanRecord {
 	records, err := loadListRecords(db, groupFilter)
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		return apperror.New("fatal error", "E9000", nil)
+		return nil
 	}
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return nil
 	}
 	return records
 }

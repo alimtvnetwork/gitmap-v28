@@ -1,0 +1,26 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\replaceversion.go:22:10: not enough return values
+	have (*apperror.AppError)
+	want (string, int)
+cmd\replaceversion.go:22:29: undefined: constants
+cmd\replaceversion.go:27:10: not enough return values
+	have (*apperror.AppError)
+	want (string, int)
+cmd\replaceversion.go:27:23: undefined: constants
+cmd\replacewalk.go:20:10: cannot use apperror.Wrap(err, constants.ErrReplaceNotInRepo, nil) (value of type *apperror.AppError) as string value in return statement
+cmd\reset.go:46:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\reset.go:51:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\revert.go:36:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\revert.go:44:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\revert.go:54:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\revert.go:54:10: too many errors

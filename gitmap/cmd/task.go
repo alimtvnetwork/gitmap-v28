@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -9,7 +8,7 @@ import (
 func runTask(args []string) error {
 	checkHelp("task", args)
 	if len(args) < 1 {
-		return apperror.Wrap("", "constants.ErrTaskSubcommand", nil)
+		panic("error")
 	}
 
 	sub := args[0]
@@ -47,5 +46,5 @@ func routeTaskSub(sub string, args []string) {
 		return
 	}
 
-	return apperror.New(constants.ErrTaskSubcommand, "E9000", nil)
+	panic("error")
 }

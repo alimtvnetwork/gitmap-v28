@@ -16,7 +16,6 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -46,7 +45,8 @@ func mustParseProbeArgs(args []string) probeOptions {
 	opts, err := parseProbeArgs(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		return apperror.New("fatal error", "E9000", nil)
+		var empty probeOptions
+		return empty
 	}
 
 	return opts
@@ -56,8 +56,9 @@ func mustParseProbeArgs(args []string) probeOptions {
 func mustResolveProbeTargets(db *store.DB, rest []string) []model.ScanRecord {
 	targets, err := resolveProbeTargets(db, rest)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		return apperror.New("fatal error", "E9000", nil)
+		var empty []model.ScanRecord
+		return empty
+		return nil
 	}
 
 	return targets

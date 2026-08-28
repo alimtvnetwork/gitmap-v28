@@ -16,7 +16,8 @@ func readModulePath() string {
 	data, err := os.ReadFile(constants.GoModFile)
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrGoModNoFile)
-		return apperror.New("fatal error", "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New("fatal error", "E9000", nil).Error())
+		os.Exit(1)
 	}
 
 	return parseModuleLine(string(data))
@@ -33,7 +34,8 @@ func parseModuleLine(content string) string {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrGoModNoModule)
-	return apperror.New("fatal error", "E9000", nil)
+	fmt.Fprintln(os.Stderr, apperror.New("fatal error", "E9000", nil).Error())
+	os.Exit(1)
 
 	return ""
 }
@@ -63,7 +65,8 @@ func replaceModulePath(oldPath, newPath string, verbose bool, exts []string) int
 func replaceInGoMod(oldPath, newPath string) {
 	data, err := os.ReadFile(constants.GoModFile)
 	if err != nil {
-		return apperror.Wrap(constants.GoModFile, "constants.ErrGoModReadFailed", nil)
+		apperror.New("constants.ErrGoModReadFailed "+constants.GoModFile, "E9000", nil)
+		return
 	}
 
 	updated := strings.ReplaceAll(string(data), oldPath, newPath)
@@ -180,11 +183,13 @@ func replaceInFile(path, oldPath, newPath string) {
 func writeFileContent(path, content string) {
 	info, err := os.Stat(path)
 	if err != nil {
-		return apperror.New(constants.ErrGoModWriteFailed, "E9000", nil)
+		apperror.New(constants.ErrGoModWriteFailed, "E9000", nil)
+		return
 	}
 
 	err = os.WriteFile(path, []byte(content), info.Mode())
 	if err != nil {
-		return apperror.New(constants.ErrGoModWriteFailed, "E9000", nil)
+		apperror.New(constants.ErrGoModWriteFailed, "E9000", nil)
+		return
 	}
 }

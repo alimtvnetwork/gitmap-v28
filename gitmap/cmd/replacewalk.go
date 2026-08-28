@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -17,7 +16,7 @@ import (
 func repoRoot() string {
 	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrReplaceNotInRepo, nil)
+		panic(err)
 	}
 	clean := filepath.Clean(filepath.FromSlash(strings.TrimSpace(string(out))))
 	return clean

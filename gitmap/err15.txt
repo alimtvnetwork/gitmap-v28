@@ -1,0 +1,24 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\multigroupops.go:54:10: not enough return values
+	have (*apperror.AppError)
+	want (*store.DB, []model.ScanRecord)
+cmd\profileutil.go:47:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\profileutil.go:59:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\projectrepos.go:58:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\projectrepos.go:75:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\pull.go:276:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\pull.go:276:24: cannot use opts.parallel (variable of type int) as error value in argument to apperror.Wrap: int does not implement error (missing method Error)
+cmd\pull.go:344:10: cannot use apperror.New(constants.ErrPullUsage, "E9000", nil) (value of type *apperror.AppError) as []model.ScanRecord value in return statement
+cmd\pull.go:373:10: cannot use apperror.New(constants.ErrPullLoadFailed, "E9000", nil) (value of type *apperror.AppError) as []model.ScanRecord value in return statement
+cmd\push.go:193:24: cannot use opts.parallel (variable of type int) as error value in argument to apperror.Wrap: int does not implement error (missing method Error)
+cmd\push.go:193:24: too many errors

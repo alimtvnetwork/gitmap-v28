@@ -37,13 +37,15 @@ func parseHistoryResetFlags(args []string) bool {
 func executeHistoryReset() {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrHistoryResetFailed, nil)
+		apperror.Wrap(err, constants.ErrHistoryResetFailed, nil)
+		return
 	}
 	defer db.Close()
 
 	err = db.ClearHistory()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrHistoryResetFailed, nil)
+		apperror.Wrap(err, constants.ErrHistoryResetFailed, nil)
+		return
 	}
 
 	fmt.Print(constants.MsgHistoryResetDone)

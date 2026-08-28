@@ -26,7 +26,7 @@ func runMultiGroup(args []string) error {
 func showActiveMultiGroup() {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic(apperror.Wrap(err, constants.ErrListDBFailed, nil))
 	}
 	defer db.Close()
 
@@ -70,14 +70,14 @@ func routeMultiGroup(sub string, args []string) {
 func setMultiGroup(groups string) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic(apperror.Wrap(err, constants.ErrListDBFailed, nil))
 	}
 	defer db.Close()
 
 	validateMultiGroupNames(db, groups)
 	err = db.SetSetting(constants.SettingActiveMultiGroup, groups)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrGenericFmt, nil)
+		panic(apperror.Wrap(err, constants.ErrGenericFmt, nil))
 	}
 	fmt.Printf(constants.MsgMGSet, groups)
 }
@@ -91,7 +91,7 @@ func validateMultiGroupNames(db interface{ GetSetting(string) string }, groups s
 func clearMultiGroup() {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic(apperror.Wrap(err, constants.ErrListDBFailed, nil))
 	}
 	defer db.Close()
 
@@ -106,7 +106,8 @@ func loadMultiGroupNames(dbGetter interface{ GetSetting(string) string }) []stri
 	value := dbGetter.GetSetting(constants.SettingActiveMultiGroup)
 	if len(value) == 0 {
 		fmt.Fprint(os.Stderr, constants.MsgMGNone)
-		return apperror.New("fatal error", "E9000", nil)
+		var empty []string
+		return empty
 	}
 
 	return strings.Split(value, ",")
