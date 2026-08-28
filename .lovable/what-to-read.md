@@ -88,3 +88,4 @@ gitmap/cmd/installtools.go
 - .lovable/plans/subtasks/08-search-replace-commands/01-helptext.md
 - .lovable/plans/subtasks/08-search-replace-commands/02-search-wiring.md
 - .lovable/plans/subtasks/08-search-replace-commands/03-terminal-examples.md
+- .lovable/plans/pending/14-commit-right-e2e-tests.md
