@@ -6,7 +6,7 @@ import "testing"
 // produces a no-dry-run config — the default path that actually writes
 // to disk.
 func TestParseAddLFSInstallFlagsDefaults(t *testing.T) {
-	got := parseAddLFSInstallFlags(nil)
+	got, _ := parseAddLFSInstallFlags(nil)
 	if got.dryRun {
 		t.Errorf("dryRun: want false by default, got true")
 	}
@@ -15,7 +15,7 @@ func TestParseAddLFSInstallFlagsDefaults(t *testing.T) {
 // TestParseAddLFSInstallFlagsDryRun verifies the --dry-run flag flips
 // the bool. This is the safety net users rely on before committing.
 func TestParseAddLFSInstallFlagsDryRun(t *testing.T) {
-	got := parseAddLFSInstallFlags([]string{"--dry-run"})
+	got, _ := parseAddLFSInstallFlags([]string{"--dry-run"})
 	if !got.dryRun {
 		t.Errorf("dryRun: want true with --dry-run, got false")
 	}

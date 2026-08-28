@@ -46,7 +46,8 @@ func runOpen(args []string) error {
 // root), and falls back to plain cwd when git isn't available or the folder isn't a repo.
 func resolveOpenTarget(args []string) (string, error) {
 	if len(args) > 0 && args[0] != "" {
-		return filepath.Abs(args[0])
+		resolved := resolveEndpointString(args[0])
+		return filepath.Abs(resolved)
 	}
 
 	if root, err := gitTopLevel(); err == nil && len(root) > 0 {

@@ -14,6 +14,10 @@ cmr
 > Spec §13 reserved `cr`, but `cr` is already taken by `cpp-repos`.
 > Use `cmr` instead. The long-form `commit-right` always works.
 
+> **Note on Endpoints:** 
+> The LEFT and RIGHT endpoints can be specified as any of the following: an absolute path, a relative path, a clone URL (HTTPS/SSH), a database Alias, a database Slug (e.g. prompt-architect-v2), or a Repo ID.
+
+
 ## Usage
 
     gitmap commit-right LEFT RIGHT [flags]
@@ -55,6 +59,7 @@ either a local folder path or an `https://` / `git@` URL with optional
 ## Examples (planned UX, from spec §3)
 
     gitmap commit-right ./repo-A ./repo-B
+    gitmap commit-right prompt-architect-v2 https://github.com/alimtvnetwork/prompt-architect-v3
 
 Output:
 

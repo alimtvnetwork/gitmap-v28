@@ -59,6 +59,10 @@ The replay set is computed **once per direction** before any side effects. A
 preview is printed up front:
 
 ```
+
+> **Note on Endpoints:** 
+> The LEFT and RIGHT endpoints can be specified as any of the following: an absolute path, a relative path, a clone URL (HTTPS/SSH), a database Alias, a database Slug, or a Repo ID. These are globally resolved via the SQLite DB in all commands.
+
 [commit-right] replaying 7 commits from LEFT onto RIGHT:
   [1/7] a3f2c1d  feat: add OAuth flow
   [2/7] b7e4a9f  fix: handle expired tokens
