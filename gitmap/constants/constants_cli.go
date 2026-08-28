@@ -73,6 +73,7 @@ const (
 	CmdWrite = "write"
 	CmdHead = "head"
 	CmdTail = "tail"
+	CmdFileSearch = "file-search"
 	CmdReleaseShort        = "r"
 		CmdLlm = "llm"
 	CmdFind = "find"

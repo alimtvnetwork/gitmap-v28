@@ -59,6 +59,7 @@ func topLevelCmds() map[string]string {
 		"CmdWrite":                 CmdWrite,
 		"CmdHead":                  CmdHead,
 		"CmdTail":                  CmdTail,
+		"CmdFileSearch":            CmdFileSearch,
 		"CmdInstalledDirAlias":     CmdInstalledDirAlias,
 		"CmdVersion":               CmdVersion,
 		"CmdVersionAlias":          CmdVersionAlias,
