@@ -20,7 +20,7 @@ import (
 )
 
 // runOpen is the entrypoint for `gitmap open` / `op`.
-func runOpen(args []string) {
+func runOpen(args []string) error {
 	checkHelp(constants.CmdOpen, args)
 
 	force := parseInjectForceFlag(constants.CmdOpen, args)
@@ -28,7 +28,8 @@ func runOpen(args []string) {
 	target, err := resolveOpenTarget()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrOpenResolveCwd, err)
-		os.Exit(1)
+		return err
+
 	}
 
 	repoName := filepath.Base(target)
@@ -55,6 +56,7 @@ func runOpen(args []string) {
 	}
 
 	fmt.Printf(constants.MsgOpenDone, repoName)
+	return nil
 }
 
 // resolveOpenTarget picks the directory to open. Prefers the git
