@@ -1,0 +1,20 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\code.go:390:10: cannot use apperror.Wrap(err, "error", nil) (value of type *apperror.AppError) as aliasRow value in return statement
+cmd\code.go:392:9: cannot use nil as aliasRow value in return statement
+cmd\code.go:402:10: cannot use apperror.Wrap(err, "error", nil) (value of type *apperror.AppError) as aliasRow value in return statement
+cmd\code.go:404:9: cannot use nil as aliasRow value in return statement
+cmd\code.go:421:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\code.go:423:9: too many return values
+	have (nil)
+	want ()
+cmd\committransfer.go:42:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\committransfer.go:42:24: cannot use spec.Name (variable of type string) as error value in argument to apperror.Wrap: string does not implement error (missing method Error)
+cmd\committransfer.go:55:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\committransfer.go:55:24: cannot use opts.LogPrefix (variable of type string) as error value in argument to apperror.Wrap: string does not implement error (missing method Error)
+cmd\committransfer.go:55:10: too many errors

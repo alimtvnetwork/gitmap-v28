@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -23,7 +24,7 @@ func loadTemplateMessages(flags seoWriteFlags) []commitMessage {
 	titles, descriptions := loadTemplatePairs(flags)
 	if len(titles) == 0 || len(descriptions) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrSEOTemplateEmpty)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return generateMessages(titles, descriptions, flags)
@@ -42,14 +43,12 @@ func loadTemplatePairs(flags seoWriteFlags) ([]string, []string) {
 func loadFromJSONFile(path string) ([]string, []string) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSEOTemplateRead, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrSEOTemplateRead, "E9000", nil)
 	}
 
 	var tf templateFile
 	if err := json.Unmarshal(data, &tf); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSEOTemplateRead, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrSEOTemplateRead, "E9000", nil)
 	}
 
 	return tf.Titles, tf.Descriptions
@@ -69,13 +68,11 @@ func loadFromDatabase() ([]string, []string) {
 func openSEODatabase() *store.DB {
 	db, err := store.OpenDefault()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDBOpen, "default", err)
-		os.Exit(1)
+		return apperror.Wrap("default", "constants.ErrDBOpen", nil)
 	}
 
 	if err := db.Migrate(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDBMigrate, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrDBMigrate, nil)
 	}
 
 	return db

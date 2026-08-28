@@ -3,10 +3,9 @@ package cmd
 import (
 	"errors"
 	"flag"
-	"fmt"
-	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -80,10 +79,7 @@ func resolveExtCase(raw string) bool {
 	case constants.ReplaceExtCaseSensitive:
 		return false
 	default:
-		fmt.Fprintf(os.Stderr, constants.ErrReplaceBadExtCase,
-			constants.ReplaceExtCaseSensitive,
-			constants.ReplaceExtCaseInsensitive, raw)
-		os.Exit(1)
+		return apperror.Wrap(constants.ReplaceExtCaseSensitive, "constants.ErrReplaceBadExtCase", nil)
 		return true
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -15,7 +16,7 @@ func readModulePath() string {
 	data, err := os.ReadFile(constants.GoModFile)
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrGoModNoFile)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return parseModuleLine(string(data))
@@ -32,7 +33,7 @@ func parseModuleLine(content string) string {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrGoModNoModule)
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 
 	return ""
 }
@@ -62,8 +63,7 @@ func replaceModulePath(oldPath, newPath string, verbose bool, exts []string) int
 func replaceInGoMod(oldPath, newPath string) {
 	data, err := os.ReadFile(constants.GoModFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGoModReadFailed, constants.GoModFile, err)
-		os.Exit(1)
+		return apperror.Wrap(constants.GoModFile, "constants.ErrGoModReadFailed", nil)
 	}
 
 	updated := strings.ReplaceAll(string(data), oldPath, newPath)
@@ -180,13 +180,11 @@ func replaceInFile(path, oldPath, newPath string) {
 func writeFileContent(path, content string) {
 	info, err := os.Stat(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGoModWriteFailed, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrGoModWriteFailed, "E9000", nil)
 	}
 
 	err = os.WriteFile(path, []byte(content), info.Mode())
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGoModWriteFailed, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrGoModWriteFailed, "E9000", nil)
 	}
 }

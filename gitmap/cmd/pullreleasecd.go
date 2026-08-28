@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -28,8 +29,7 @@ func runPullReleaseCD(args []string) error {
 
 	self, err := os.Executable()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ resolve gitmap binary: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗ resolve gitmap binary:", nil)
 	}
 
 	results := executePRCEntries(self, entries)
@@ -37,7 +37,7 @@ func runPullReleaseCD(args []string) error {
 
 	for _, r := range results {
 		if !r.ok {
-			os.Exit(1)
+			return apperror.New("fatal error", "E9000", nil)
 		}
 	}
 	return nil

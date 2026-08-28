@@ -14,9 +14,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonefrom"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runCloneFromEmitSchema writes the requested JSON Schema to stdout
@@ -26,10 +25,10 @@ import (
 func runCloneFromEmitSchema(kind string) error {
 	body, err := clonefrom.EmitSchema(kind)
 	if err != nil {
-		cliexit.Fail(constants.CmdCloneFrom, "emit-schema", kind, err, 2)
+		return apperror.Wrap(err, "emit-schema kind", nil)
 	}
 	if _, err := os.Stdout.Write(body); err != nil {
-		cliexit.Fail(constants.CmdCloneFrom, "write-stdout", "emit-schema", err, 1)
+		return apperror.Wrap(err, "write-stdout emit-schema", nil)
 	}
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
@@ -39,8 +40,7 @@ func runUpdate() error {
 
 	selfPath, err := os.Executable()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateExecFind, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrUpdateExecFind, nil)
 	}
 
 	copyPath := createHandoffCopy(selfPath)
@@ -78,7 +78,7 @@ func resolveRepoPath() string {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrNoRepoPath)
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 
 	return ""
 }
@@ -126,8 +126,7 @@ func createHandoffCopy(selfPath string) string {
 
 	fallbackPath := filepath.Join(os.TempDir(), name)
 	if err := copyFile(selfPath, fallbackPath); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateCopyFail, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrUpdateCopyFail, nil)
 	}
 
 	makeExecutable(fallbackPath)
@@ -184,8 +183,7 @@ func handleHandoffError(err error) {
 		os.Exit(exitErr.ExitCode())
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrUpdateFailed, err)
-	os.Exit(1)
+	return apperror.Wrap(err, constants.ErrUpdateFailed, nil)
 }
 
 // runUpdateRunner is a hidden command that performs the real update work.

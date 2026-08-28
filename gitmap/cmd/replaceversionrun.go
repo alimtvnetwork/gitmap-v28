@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -11,7 +12,7 @@ import (
 func runReplaceLiteral(oldS, newS string, opts replaceOpts) error {
 	if oldS == "" {
 		fmt.Fprint(os.Stderr, constants.ErrReplaceEmptyOld)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	root := repoRoot()
 	files := loadRepoFiles(root, opts.exts, opts.extCaseIns)

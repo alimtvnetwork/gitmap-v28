@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -17,7 +18,10 @@ func runAmendList(args []string) error {
 	limit := parseAmendListLimit(args)
 	branch := parseAmendListBranch(args)
 
-	amendments := loadAmendments(branch)
+	amendments, err := loadAmendments(branch)
+	if err != nil {
+		return err
+	}
 	amendments = applyAmendmentLimit(amendments, limit)
 
 	if asJSON {
@@ -69,11 +73,10 @@ func parseAmendListBranch(args []string) string {
 }
 
 // loadAmendments opens the DB and fetches amendments, optionally filtered by branch.
-func loadAmendments(branch string) []store.AmendmentRow {
+func loadAmendments(branch string) ([]store.AmendmentRow, *apperror.AppError) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, constants.ErrNoDatabase)
-		os.Exit(1)
+		return nil, apperror.New(constants.ErrNoDatabase, "E9000", nil)
 	}
 	defer db.Close()
 
@@ -86,11 +89,10 @@ func loadAmendments(branch string) []store.AmendmentRow {
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrAmendListFailed, err)
-		os.Exit(1)
+		return nil, apperror.Wrap(err, constants.ErrAmendListFailed, nil)
 	}
 
-	return amendments
+	return amendments, nil
 }
 
 // applyAmendmentLimit trims amendments to at most n items (0 means no limit).

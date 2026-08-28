@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
 )
@@ -27,8 +28,7 @@ func executeUpdate(repoPath string, report reportErrorsConfig) {
 func executeUpdateWindows(repoPath string, report reportErrorsConfig) {
 	scriptPath, err := writeUpdateScript(repoPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrUpdateFailed, nil)
 	}
 	defer os.Remove(scriptPath)
 
@@ -45,8 +45,7 @@ func executeUpdateUnix(repoPath string, report reportErrorsConfig) {
 	runSH := filepath.Join(repoPath, "run.sh")
 
 	if _, err := os.Stat(runSH); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateNoRunSH, runSH)
-		os.Exit(1)
+		return apperror.New(constants.ErrUpdateNoRunSH, "E9000", nil)
 	}
 
 	log := verbose.Get()
@@ -72,8 +71,7 @@ func executeUpdateUnix(repoPath string, report reportErrorsConfig) {
 	logScriptResult(err)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrUpdateFailed, nil)
 	}
 }
 
@@ -200,8 +198,7 @@ func runUpdateScript(scriptPath string, report reportErrorsConfig) error {
 
 	logScriptResult(err)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrUpdateFailed, nil)
 	}
 	return nil
 }

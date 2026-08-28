@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
@@ -74,7 +75,9 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 
 	cmdStr := strings.Join(positional, " ")
 
-	performPreflight(flags, selector, effective, cmdStr, runRef)
+	if err := performPreflight(flags, selector, effective, cmdStr, runRef); err != nil {
+		return err
+	}
 
 	var runId int64
 	totalNodes := len(effective)
@@ -160,21 +163,20 @@ func generateRunRef(dbConn *sql.DB) string {
 	return runRef
 }
 
-func performPreflight(flags ClusterFlags, selector cluster.TargetSelectorType, effective []cluster.ClusterNode, cmdStr string, runRef string) {
+func performPreflight(flags ClusterFlags, selector cluster.TargetSelectorType, effective []cluster.ClusterNode, cmdStr string, runRef string) *apperror.AppError {
 	if flags.NoPreflight == true {
-		return
+		return nil
 	}
 	confirmed, err := cluster.PrintPreflight(selector, effective, cmdStr, runRef, flags.AutoConfirm)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Preflight error: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Preflight error", nil)
 	}
 
 	isConfirmed := confirmed == true
 	if isConfirmed == false {
-		fmt.Fprintln(os.Stderr, "Operation aborted.")
-		os.Exit(1)
+		return apperror.New("Operation aborted", "E9000", nil)
 	}
+	return nil
 }
 
 func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {

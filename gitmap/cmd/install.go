@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -41,7 +42,7 @@ func runInstall(args []string) error {
 	}
 	if opts.Tool == "" {
 		fmt.Fprint(os.Stderr, constants.ErrInstallToolRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	validateToolName(opts.Tool)
 	executeInstall(opts)
@@ -71,8 +72,7 @@ func validateToolName(tool string) {
 	if _, exists := constants.InstallToolDescriptions[tool]; exists {
 		return
 	}
-	fmt.Fprintf(os.Stderr, constants.ErrInstallUnknownTool, tool)
-	os.Exit(1)
+	return apperror.New(constants.ErrInstallUnknownTool, "E9000", nil)
 }
 
 // executeInstall runs the install flow for a tool.

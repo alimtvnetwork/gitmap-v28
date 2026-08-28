@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -11,8 +9,7 @@ import (
 func runTask(args []string) error {
 	checkHelp("task", args)
 	if len(args) < 1 {
-		fmt.Fprintf(os.Stderr, constants.ErrTaskSubcommand, "")
-		os.Exit(1)
+		return apperror.Wrap("", "constants.ErrTaskSubcommand", nil)
 	}
 
 	sub := args[0]
@@ -50,6 +47,5 @@ func routeTaskSub(sub string, args []string) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrTaskSubcommand, sub)
-	os.Exit(1)
+	return apperror.New(constants.ErrTaskSubcommand, "E9000", nil)
 }

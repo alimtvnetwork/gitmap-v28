@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -56,13 +57,12 @@ func runLFSCommon(args []string) error {
 	if !insideGitRepo() {
 		fmt.Fprintln(os.Stderr, "  ✗ Not inside a Git repository.")
 		fmt.Fprintln(os.Stderr, "    Run this command from the root of a repo (where .git/ lives).")
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	if !lfsAvailable() {
 		fmt.Fprintln(os.Stderr, "  ✗ Git LFS is not installed or not on PATH.")
-		fmt.Fprintln(os.Stderr, "    Install it from https://git-lfs.com and re-run.")
-		os.Exit(1)
+		return apperror.New("    Install it from https://git-lfs.com and re-run.", "E9000", nil)
 	}
 
 	printLFSCommonBanner(flags.dryRun)
@@ -87,8 +87,7 @@ func parseLFSCommonFlags(args []string) lfsCommonFlags {
 	fs := flag.NewFlagSet(constants.CmdLFSCommon, flag.ExitOnError)
 	dryRun := fs.Bool("dry-run", false, constants.FlagDescDryRun)
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not parse flags: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗ Could not parse flags:", nil)
 	}
 
 	return lfsCommonFlags{dryRun: *dryRun}

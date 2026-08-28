@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -38,17 +39,16 @@ func removeProfile(profiles []string, name string) []string {
 func validateProfileDelete(name string, cfg model.ProfileConfig) {
 	if name == constants.DefaultProfileName {
 		fmt.Fprint(os.Stderr, constants.ErrProfileDeleteDefault)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	if name == cfg.Active {
 		fmt.Fprint(os.Stderr, constants.ErrProfileDeleteActive)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	if !profileExists(cfg.Profiles, name) {
-		fmt.Fprintf(os.Stderr, constants.ErrProfileNotFound, name)
-		os.Exit(1)
+		return apperror.New(constants.ErrProfileNotFound, "E9000", nil)
 	}
 }
 
@@ -56,8 +56,7 @@ func validateProfileDelete(name string, cfg model.ProfileConfig) {
 func saveProfileOrExit(cfg model.ProfileConfig) {
 	err := store.SaveProfileConfig(constants.DefaultOutputFolder, cfg)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrProfileConfig, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrProfileConfig, nil)
 	}
 }
 

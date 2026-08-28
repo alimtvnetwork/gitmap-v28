@@ -57,9 +57,9 @@ var expectedCtxArgv = map[string]struct {
 	"70_git/40_status":  {constants.CtxExeGit, constants.CtxGitStatusArgs},
 	// Top-level standalone entries
 	"80_antigravity": {"", []string{"ag"}},
-	"90_terminal": {"", nil}, // Prefill mode; no argv
-	"91_docs":     {"", []string{"docs"}},
-	"92_help":     {"", []string{constants.CmdHelp}},
+	"90_terminal":    {"", nil}, // Prefill mode; no argv
+	"91_docs":        {"", []string{"docs"}},
+	"92_help":        {"", []string{constants.CmdHelp}},
 }
 
 // flattenCtxMenu walks ctxMenu() and returns a path→entry map keyed by the

@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -16,8 +17,7 @@ func runRevert(args []string) error {
 		return nil
 	}
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrRevertUsage)
-		os.Exit(1)
+		return apperror.New(constants.ErrRevertUsage, "E9000", nil)
 	}
 
 	version := release.NormalizeVersion(args[0])
@@ -33,8 +33,7 @@ func validateRevertVersion(version string) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrRevertTagNotFound, version)
-	os.Exit(1)
+	return apperror.New(constants.ErrRevertTagNotFound, "E9000", nil)
 }
 
 // checkoutRevertTag checks out the tag in the repo directory.
@@ -42,7 +41,7 @@ func checkoutRevertTag(version string) {
 	repoPath := constants.RepoPath
 	if len(repoPath) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrNoRepoPath)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgRevertCheckout, version)
@@ -52,8 +51,7 @@ func checkoutRevertTag(version string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRevertCheckoutFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrRevertCheckoutFailed, nil)
 	}
 }
 
@@ -61,8 +59,7 @@ func checkoutRevertTag(version string) {
 func launchRevertHandoff() {
 	selfPath, err := os.Executable()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateExecFind, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrUpdateExecFind, nil)
 	}
 
 	copyPath := createHandoffCopy(selfPath)

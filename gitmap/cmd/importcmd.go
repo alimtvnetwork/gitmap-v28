@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -16,7 +17,7 @@ func runImport(args []string) error {
 	inFile, confirm := parseImportFlags(args)
 	if !confirm {
 		fmt.Fprint(os.Stderr, constants.ErrImportNoConfirm)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	data := readImportFile(inFile)
@@ -43,16 +44,14 @@ func parseImportFlags(args []string) (string, bool) {
 func readImportFile(path string) model.DatabaseExport {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgImportReadFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.MsgImportReadFailed, nil)
 	}
 
 	var data model.DatabaseExport
 
 	err = json.Unmarshal(raw, &data)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgImportParseFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.MsgImportParseFailed, nil)
 	}
 
 	return data
@@ -62,15 +61,13 @@ func readImportFile(path string) model.DatabaseExport {
 func executeImport(data model.DatabaseExport) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgImportFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.MsgImportFailed, nil)
 	}
 	defer db.Close()
 
 	err = db.ImportAll(data)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgImportFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.MsgImportFailed, nil)
 	}
 }
 

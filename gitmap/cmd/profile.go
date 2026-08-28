@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -12,7 +13,7 @@ func runProfile(args []string) error {
 	checkHelp("profile", args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	sub := args[0]
@@ -51,5 +52,5 @@ func routeProfileSub(sub string, args []string) {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 }

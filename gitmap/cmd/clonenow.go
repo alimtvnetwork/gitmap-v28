@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenow"
@@ -96,7 +97,7 @@ func initCloneNowPlan(cfg cloneNowFlags) clonenow.Plan {
 	setCmdPrintArgv(cfg.printCloneArgv)
 	plan, err := clonenow.ParseFile(cfg.file, cfg.format, cfg.mode, cfg.onExists)
 	if err != nil {
-		cliexit.Fail(constants.CmdCloneReclone, "parse-manifest", cfg.file, err, 1)
+		return clonenow.Plan{}
 	}
 	plan.CoerceURL = coerceURLToStoredTransport
 	plan.PersistURL = persistRecloneTransport
@@ -200,7 +201,7 @@ func runCloneNowDry(plan clonenow.Plan, cfg cloneNowFlags) error {
 		return nil
 	}
 	if err := clonenow.Render(os.Stdout, plan); err != nil {
-		cliexit.Fail(constants.CmdCloneReclone, "render-dry-run", cfg.file, err, 1)
+		return apperror.Wrap(err, "render-dry-run cfg.file", nil)
 	}
 	return nil
 }

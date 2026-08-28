@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -25,13 +26,11 @@ func isWindows() bool {
 func handoffSelfUninstall(opts selfUninstallOpts, args []string) {
 	self, err := os.Executable()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSelfUninstallHandoffCopy, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSelfUninstallHandoffCopy, nil)
 	}
 	copyPath, err := writeHandoffCopy(self)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSelfUninstallHandoffCopy, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSelfUninstallHandoffCopy, nil)
 	}
 	fmt.Printf(constants.MsgSelfUninstallHandoffActive, copyPath)
 	runHandoffCopy(copyPath, opts, args)
@@ -95,7 +94,7 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 	if isExitErr == true {
 		os.Exit(exitErr.ExitCode())
 	}
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 	return nil
 }
 

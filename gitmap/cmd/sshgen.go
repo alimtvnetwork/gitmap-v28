@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -19,7 +20,7 @@ func runSSHGenerate(args []string) error {
 
 	if err := validateSSHKeygen(); err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrSSHKeygenMissing)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	if len(email) == 0 {
@@ -27,7 +28,7 @@ func runSSHGenerate(args []string) error {
 	}
 	if len(email) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrSSHEmailResolve)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	keyPath = expandHome(keyPath)
@@ -40,8 +41,7 @@ func runSSHGenerate(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHCreate, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSSHCreate, nil)
 	}
 	defer db.Close()
 
@@ -148,8 +148,7 @@ func handleExistingKey(db *store.DB, name string, keyPath *string) bool {
 // generateAndStore runs ssh-keygen and stores the result in the database.
 func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	if err := ensureSSHDir(filepath.Dir(keyPath)); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHKeygen, keyPath, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrSSHKeygen, "E9000", nil)
 	}
 
 	cmd := exec.Command(constants.SSHKeygenBin,
@@ -162,14 +161,12 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHKeygen, keyPath, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrSSHKeygen, "E9000", nil)
 	}
 
 	pubKey, err := os.ReadFile(keyPath + ".pub")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHReadPub, keyPath+".pub", err)
-		os.Exit(1)
+		return apperror.Wrap(keyPath+".pub", "constants.ErrSSHReadPub", nil)
 	}
 
 	fingerprint := readFingerprint(keyPath)
@@ -207,8 +204,7 @@ func askConfirm(name, keyPath string) bool {
 
 func exitOnBackupError(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHBackup, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSSHBackup, nil)
 	}
 }
 

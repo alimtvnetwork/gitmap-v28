@@ -19,21 +19,21 @@ func runReleaseScanCommits(args []string) error {
 	isAll := parseRscArgs(args)
 	cwd, err := os.Getwd()
 	if err != nil {
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	head, err := getGitHead(cwd)
 	if err != nil {
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	commits, err := fetchCommits(cwd, isAll)
 	if err != nil {
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	actions, err := release.ExecuteCommitActions(cwd, commits)
 	if err != nil {
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	printScanCommitsSummary(actions)

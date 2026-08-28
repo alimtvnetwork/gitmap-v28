@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 )
@@ -46,8 +47,7 @@ func validateLatestBranchRepo() {
 
 		return
 	}
-	fmt.Fprintln(os.Stderr, constants.ErrLatestBranchNotRepo)
-	os.Exit(1)
+	return apperror.New(constants.ErrLatestBranchNotRepo, "E9000", nil)
 }
 
 // fetchLatestBranchRefs fetches remotes when shouldFetch is enabled.
@@ -71,7 +71,7 @@ func loadFilteredRefs(cfg latestBranchConfig) []string {
 	refs, err := gitutil.ListRemoteBranches()
 	if err != nil || len(refs) == 0 {
 		printNoRefsError(cfg)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	refs = applyRemoteFilter(refs, cfg)
 	refs = applyPatternFilter(refs, cfg)
@@ -97,8 +97,7 @@ func applyRemoteFilter(refs []string, cfg latestBranchConfig) []string {
 
 	filtered := gitutil.FilterByRemote(refs, cfg.remote)
 	if len(filtered) == 0 {
-		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoRefs, cfg.remote)
-		os.Exit(1)
+		return apperror.Wrap(cfg.remote, "constants.ErrLatestBranchNoRefs", nil)
 	}
 
 	return filtered
@@ -112,8 +111,7 @@ func applyPatternFilter(refs []string, cfg latestBranchConfig) []string {
 
 	filtered := gitutil.FilterByPattern(refs, cfg.filter)
 	if len(filtered) == 0 {
-		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoMatch, cfg.filter)
-		os.Exit(1)
+		return apperror.Wrap(cfg.filter, "constants.ErrLatestBranchNoMatch", nil)
 	}
 
 	return filtered
@@ -124,7 +122,7 @@ func readAndSortBranches(refs []string, sortBy string) []gitutil.RemoteBranchInf
 	items, err := gitutil.ReadBranchTips(refs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoCommits+"\n")
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if sortBy == constants.SortByName {
 		gitutil.SortByNameAsc(items)

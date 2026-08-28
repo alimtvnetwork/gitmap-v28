@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 type bookmarkItem struct {
@@ -26,7 +28,7 @@ func runChromeExportBookmarks(args []string) error {
 	if !ok {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR profile %q not found\n", args[0])
 		printAvailableChromeProfilesWithDisplay()
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	format, outPath, rootName, folderPath, match, title := "md", "", "", "", "", ""
 	for i := 1; i < len(args); i++ {
@@ -66,7 +68,7 @@ func runChromeExportBookmarks(args []string) error {
 	roots := loadBookmarkRoots(profile.Path)
 	if len(roots) == 0 {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR no Bookmarks file found or it is empty/unreadable at %q\n  hint: open Chrome with this profile once so it writes %s\n", profile.Path, filepath.Join(profile.Path, "Bookmarks"))
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	available := availableRootNames(roots)
 	if rootName != "" {
@@ -75,7 +77,7 @@ func runChromeExportBookmarks(args []string) error {
 	isEmptyRootsAfterRootName := rootName != "" && len(roots) == 0
 	if isEmptyRootsAfterRootName {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --root=%q did not match any top-level root\n  available roots: %s\n", rootName, strings.Join(available, ", "))
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if folderPath != "" {
 		roots = filterBookmarkRoots(roots, "", folderPath)
@@ -83,7 +85,7 @@ func runChromeExportBookmarks(args []string) error {
 	isEmptyRootsAfterFolderPath := folderPath != "" && len(roots) == 0
 	if isEmptyRootsAfterFolderPath {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --folder=%q not found under root=%q\n  available top-level folders: %s\n  hint: paths are slash-delimited and case-insensitive (e.g. --folder \"Work/Docs\")\n", folderPath, fallback(rootName, "<all>"), strings.Join(topLevelFolderNames(roots), ", "))
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	hasMatchOrTitle := match != "" || title != ""
 	if hasMatchOrTitle == true {
@@ -91,22 +93,19 @@ func runChromeExportBookmarks(args []string) error {
 	}
 	isEmptyRootsAfterMatch := hasMatchOrTitle == true && len(roots) == 0
 	if isEmptyRootsAfterMatch {
-		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR no bookmarks matched --match=%q --title=%q within the selected subtree\n  hint: --match is a case-insensitive substring; --title is an exact title match\n", match, title)
-		os.Exit(1)
+		return apperror.New("chrome export-bookmarks: ERROR no bookmarks matched", "E9000", nil)
 	}
 
 	body, err := renderBookmarks(roots, format)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome export-bookmarks: ERROR", nil)
 	}
 	if outPath == "" {
 		fmt.Print(body)
 		return nil
 	}
 	if err := os.WriteFile(outPath, []byte(body), 0o644); err != nil { //nolint:gosec
-		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR write: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome export-bookmarks: ERROR write:", nil)
 	}
 	fmt.Printf("\033[1;92m✓ wrote\033[0m %s (%d bytes)\n", outPath, len(body))
 	return nil

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -194,7 +195,7 @@ func handleInstallError(args []string, opts installOptions, output []byte, err e
 	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	logPath := writeInstallErrorLog(opts.Tool, manager, opts.Version, args, output, err)
 	printInstallFailureDetails(opts.Tool, manager, opts.Version, args, err, logPath)
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 }
 
 func printInstallFailureDetails(tool, manager, version string, args []string, err error, logPath string) {
@@ -427,7 +428,7 @@ func runInstallGitHubDesktopLinux(opts installOptions) error {
 	cmd1.Stderr = os.Stderr
 	if err := cmd1.Run(); err != nil {
 		fmt.Printf("  Error adding GPG key: %v\n", err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	cmd2 := exec.Command("sh", "-c", "sudo sh -c 'echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/shiftkey-packages.asc] https://mirror.mwt.me/ghd/deb/ any main\" > /etc/apt/sources.list.d/shiftkey-packages.list'")
@@ -435,7 +436,7 @@ func runInstallGitHubDesktopLinux(opts installOptions) error {
 	cmd2.Stderr = os.Stderr
 	if err := cmd2.Run(); err != nil {
 		fmt.Printf("  Error adding apt source list: %v\n", err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf("  [2/3] Updating package index...\n")
@@ -476,7 +477,7 @@ func runInstallVSCodeLinux(opts installOptions) error {
 	cmd1.Stderr = os.Stderr
 	if err := cmd1.Run(); err != nil {
 		fmt.Printf("  Error adding GPG key: %v\n", err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf("  [2/4] Adding VS Code repository...\n")
@@ -485,7 +486,7 @@ func runInstallVSCodeLinux(opts installOptions) error {
 	cmd2.Stderr = os.Stderr
 	if err := cmd2.Run(); err != nil {
 		fmt.Printf("  Error adding repository: %v\n", err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf("  [3/4] Updating package index...\n")
@@ -494,7 +495,7 @@ func runInstallVSCodeLinux(opts installOptions) error {
 	cmd3.Stderr = os.Stderr
 	if err := cmd3.Run(); err != nil {
 		fmt.Printf("  Error updating apt: %v\n", err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf("  [4/4] Installing code (VS Code)...\n")
@@ -503,7 +504,7 @@ func runInstallVSCodeLinux(opts installOptions) error {
 	cmd4.Stderr = os.Stderr
 	if err := cmd4.Run(); err != nil {
 		fmt.Printf("  Error installing code: %v\n", err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Println("  ✓ VS Code installed successfully.")

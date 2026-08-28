@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
@@ -82,19 +83,17 @@ func markLatestRecord(records []model.ReleaseRecord) {
 func loadReleasesFromDB() []model.ReleaseRecord {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, constants.ErrNoDatabase)
-		os.Exit(1)
+		return apperror.New(constants.ErrNoDatabase, "E9000", nil)
 	}
 	defer db.Close()
 
 	releases, err := db.ListReleases()
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListReleasesFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListReleasesFailed, nil)
 	}
 
 	return releases

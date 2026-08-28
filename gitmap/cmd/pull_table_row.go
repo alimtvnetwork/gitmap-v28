@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/charmbracelet/lipgloss"
 )
 
 func (l *PullTableLayout) PrintRow(r model.PullTableRow) {

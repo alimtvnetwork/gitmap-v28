@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -15,22 +16,21 @@ var envNamePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 func validateEnvName(name string) {
 	if name == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvNameRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	if envNamePattern.MatchString(name) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrEnvInvalidName, name)
-	os.Exit(1)
+	return apperror.New(constants.ErrEnvInvalidName, "E9000", nil)
 }
 
 // validateEnvValue checks value is provided.
 func validateEnvValue(value string) {
 	if value == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvValueRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 }
 
@@ -38,12 +38,11 @@ func validateEnvValue(value string) {
 func validateEnvPathDir(dir string) {
 	if dir == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvPathRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	_, err := os.Stat(dir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrEnvPathNotExist, dir)
-		os.Exit(1)
+		return apperror.New(constants.ErrEnvPathNotExist, "E9000", nil)
 	}
 }

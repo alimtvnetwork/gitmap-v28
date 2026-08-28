@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -197,7 +198,7 @@ func dispatchSync(command string) (bool, error) {
 	}
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, syncUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	sub, rest := os.Args[2], os.Args[3:]
 	dry, force := parseSyncFlags(rest)
@@ -222,7 +223,7 @@ func dispatchSync(command string) (bool, error) {
 	default:
 		fmt.Fprintf(os.Stderr, "unknown sync target: %s\n\n", sub)
 		fmt.Fprint(os.Stderr, syncUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	return true, nil
 }
@@ -289,8 +290,7 @@ func runSyncLines(path, baseline string, dry bool) error {
 		buf += "\n"
 	}
 	if err := os.WriteFile(path, []byte(buf), 0o644); err != nil {
-		fmt.Fprintf(os.Stderr, "  x   %s: %v\n", path, err)
-		os.Exit(1)
+		return apperror.Wrap(path, "x   :", nil)
 	}
 	fmt.Printf("  +   %s: added %d line(s)\n", path, len(toAdd))
 	return nil
@@ -340,13 +340,11 @@ func runSyncPrettierRC(dry, force bool) error {
 
 	out, err := json.MarshalIndent(current, "", "  ")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  x   marshal %s: %v\n", path, err)
-		os.Exit(1)
+		return apperror.Wrap(path, "x   marshal :", nil)
 	}
 	out = append(out, '\n')
 	if err := os.WriteFile(path, out, 0o644); err != nil {
-		fmt.Fprintf(os.Stderr, "  x   %s: %v\n", path, err)
-		os.Exit(1)
+		return apperror.Wrap(path, "x   :", nil)
 	}
 	if len(added) > 0 {
 		fmt.Printf("  +   %s: added keys %s\n", path, strings.Join(added, ", "))
@@ -382,7 +380,6 @@ func runSyncLFSInstall(dry bool) error {
 func parsePrettierRC(path string, data []byte, current *map[string]any) {
 	err := json.Unmarshal(data, current)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  x   %s: not valid JSON (%v). Fix or delete first.\n", path, err)
-		os.Exit(1)
+		return apperror.Wrap(path, "x   : not valid JSON (). Fix or delete first.", nil)
 	}
 }

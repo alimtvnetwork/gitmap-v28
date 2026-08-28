@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 func runSnapshot(args []string) error {
@@ -22,13 +24,11 @@ func runSnapshot(args []string) error {
 	ts := time.Now().UTC().Format("20060102-150405")
 	out := filepath.Join(root, ".gitmap", "snapshot", "snap-"+ts+".tar.gz")
 	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
-		fmt.Fprintf(os.Stderr, "snapshot: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "snapshot: ERROR", nil)
 	}
 	n, err := writeSnapshot(root, out)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "snapshot: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "snapshot: ERROR", nil)
 	}
 	fmt.Printf("\033[1;92m✓ snapshot\033[0m  %d files → \033[1;96m%s\033[0m\n", n, out)
 	fmt.Printf("  rollback: \033[1;96mgitmap rollback %s\033[0m\n", out)
@@ -90,8 +90,7 @@ func runRollback(args []string) error {
 	}
 	n, err := readChromeBackup(src, ".") // tar.gz extractor reused
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "rollback: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "rollback: ERROR", nil)
 	}
 	fmt.Printf("\033[1;92m✓ rollback\033[0m  restored %d files from %s\n", n, src)
 	return nil
@@ -128,8 +127,7 @@ func runGuard(args []string) error {
 	}
 	hook := filepath.Join(hooks, "pre-commit")
 	if err := os.WriteFile(hook, []byte(guardHookBody), 0o755); err != nil { //nolint:gosec
-		fmt.Fprintf(os.Stderr, "guard: ERROR write hook: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "guard: ERROR write hook:", nil)
 	}
 	fmt.Printf("\033[1;92m✓ installed\033[0m pre-commit guard → %s\n", hook)
 	fmt.Println("  blocks: secrets (API_KEY/PRIVATE_KEY), large files (>10MB), -vN drift")

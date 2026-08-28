@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
@@ -24,8 +25,7 @@ func runScan(args []string) error {
 	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
 	cfg, err := config.LoadFromFile(cfgPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrConfigLoad, cfgPath, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrConfigLoad, "E9000", nil)
 	}
 	cfg = config.MergeWithFlags(cfg, mode, output, outputPath)
 	cache := model.ScanCache{

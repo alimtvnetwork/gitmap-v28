@@ -9,13 +9,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/searcher"
 )
 
 func runFileSearch(args []string) error {
 	if len(args) < 2 {
-		fmt.Fprintln(os.Stderr, "Usage: gitmap file-search <file> <regex> [contextBefore] [contextAfter]")
-		os.Exit(1)
+		return apperror.New("Usage: gitmap file-search <file> <regex> [contextBefore] [contextAfter]", "E9000", nil)
 	}
 
 	filePath := args[0]
@@ -37,15 +37,13 @@ func runFileSearch(args []string) error {
 
 	rx, err := regexp.Compile(pattern)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Invalid regex pattern: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Invalid regex pattern:", nil)
 	}
 
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error connecting to db: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Error connecting to db:", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -71,8 +69,7 @@ func runFileSearch(args []string) error {
 		// Fallback to reading from disk
 		b, errDisk := os.ReadFile(filePath)
 		if errDisk != nil {
-			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", errDisk)
-			os.Exit(1)
+			return apperror.Wrap(errDisk, "Error reading file:", nil)
 		}
 		content = string(b)
 		absPath = filePath

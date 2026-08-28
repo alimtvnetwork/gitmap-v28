@@ -107,7 +107,7 @@ func renderFilteredGroups(hits []helpRow, query string) {
 		constants.ColorCyan, constants.ColorReset, query, len(hits))
 	for _, g := range groupOrder {
 		fmt.Println(colorGroupHeader(g))
-	fmt.Println()
+		fmt.Println()
 		for _, ln := range byGroup[g] {
 			fmt.Println(ln)
 		}

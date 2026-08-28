@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -19,7 +20,7 @@ func runHistoryReset(args []string) error {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrHistoryResetNoConfirm)
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 	return nil
 }
 
@@ -36,15 +37,13 @@ func parseHistoryResetFlags(args []string) bool {
 func executeHistoryReset() {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrHistoryResetFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrHistoryResetFailed, nil)
 	}
 	defer db.Close()
 
 	err = db.ClearHistory()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrHistoryResetFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrHistoryResetFailed, nil)
 	}
 
 	fmt.Print(constants.MsgHistoryResetDone)

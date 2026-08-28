@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dashboard"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -29,8 +30,7 @@ func runDashboard(args []string) error {
 func collectDashboardData(opts dashboard.CollectOptions) model.DashboardData {
 	data, err := dashboard.Collect(opts)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDashCollect, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrDashCollect, nil)
 	}
 	return data
 }
@@ -44,8 +44,7 @@ func emitDashboardOutputs(outDir string, data model.DashboardData) {
 func writeDashboardJSON(outDir string, data model.DashboardData) {
 	jsonPath, err := dashboard.WriteJSON(outDir, data)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDashWriteJSON, jsonPath, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrDashWriteJSON, "E9000", nil)
 	}
 	fmt.Printf(constants.MsgDashWriteJSON, dashboard.Summary(jsonPath),
 		data.Meta.TotalCommits, len(data.Authors))
@@ -54,8 +53,7 @@ func writeDashboardJSON(outDir string, data model.DashboardData) {
 func writeDashboardHTML(outDir string, data model.DashboardData) {
 	htmlPath, err := dashboard.WriteHTML(outDir, data)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDashWriteHTML, htmlPath, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrDashWriteHTML, "E9000", nil)
 	}
 	fmt.Printf(constants.MsgDashWriteHTML, dashboard.Summary(htmlPath))
 }

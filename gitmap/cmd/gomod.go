@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -25,7 +26,7 @@ func runGoMod(args []string) error {
 
 	if len(opts.newPath) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrGoModUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	oldPath := readModulePath()
@@ -94,7 +95,7 @@ func validateGoModPreconditions(oldPath, newPath string) {
 
 	if isWorkTreeDirty() {
 		fmt.Fprint(os.Stderr, constants.ErrGoModDirtyTree)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 }
 

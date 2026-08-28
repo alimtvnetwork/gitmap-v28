@@ -16,6 +16,8 @@ import (
 	"os/exec"
 	"sort"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // ReleaseNotesOpts holds parsed flags for release-notes.
@@ -264,8 +266,7 @@ func runReleaseNotesV2(args []string) error {
 	}
 	lines, err := gitLogForOpts(opts)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "release-notes: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "release-notes: ERROR", nil)
 	}
 	if len(lines) == 0 {
 		fmt.Fprintln(os.Stderr, "release-notes: no commits in selected range")

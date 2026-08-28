@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -140,8 +141,7 @@ func serveStatic(distDir string, port int) {
 
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
-		fmt.Fprintf(os.Stderr, constants.ErrHDServe, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrHDServe, nil)
 	}
 
 	fmt.Print(constants.MsgHDStopped)
@@ -180,7 +180,7 @@ func serveDev(docsDir string, port int) {
 	npmPath, err := exec.LookPath("npm")
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrHDNPMNotFound)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgHDRunningNPM)
@@ -191,8 +191,7 @@ func serveDev(docsDir string, port int) {
 	install.Stderr = os.Stderr
 
 	if err := install.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrHDNPMInstall, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrHDNPMInstall, nil)
 	}
 
 	fmt.Printf(constants.MsgHDStartingDev, docsDir)
@@ -203,8 +202,7 @@ func serveDev(docsDir string, port int) {
 	dev.Stderr = os.Stderr
 
 	if err := dev.Start(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrHDDevServer, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrHDDevServer, nil)
 	}
 
 	openBrowser(port)

@@ -22,6 +22,7 @@ import (
 
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -57,13 +58,11 @@ func runBackup(args []string) error {
 func runBackupLs(_ []string) error {
 	root, err := backupRoot()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "gitmap backup ls: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "gitmap backup ls:", nil)
 	}
 	snaps, err := collectSnapshots(root)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "gitmap backup ls: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "gitmap backup ls:", nil)
 	}
 	if len(snaps) == 0 {
 		fmt.Fprintf(os.Stdout, "\n  no backups under %s\n\n", root)
@@ -89,13 +88,11 @@ func runBackupPrune(args []string) error {
 	}
 	root, err := backupRoot()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "gitmap backup prune: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "gitmap backup prune:", nil)
 	}
 	snaps, err := collectSnapshots(root)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "gitmap backup prune: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "gitmap backup prune:", nil)
 	}
 	victims := selectPruneVictims(snaps, *keep, *olderDays)
 	applyPrune(victims, *dryRun)

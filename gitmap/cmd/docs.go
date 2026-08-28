@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -28,8 +28,7 @@ func runDocs(args []string) error {
 
 	err := cmd.Start()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDocsOpen, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrDocsOpen, nil)
 	}
 
 	fmt.Printf(constants.MsgDocsOpened, url)

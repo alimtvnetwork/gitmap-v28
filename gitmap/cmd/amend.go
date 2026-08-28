@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -68,29 +69,31 @@ func validateAmendFlags(f amendFlags) {
 }
 
 // executeAmend runs the main amend workflow.
-func executeAmend(f amendFlags) {
+func executeAmend(f amendFlags) *apperror.AppError {
 	originalBranch := getCurrentBranch()
 	if f.branch != "" {
 		switchBranch(f.branch)
 	}
-	commits := requireAmendCommits(f)
+	commits, err := requireAmendCommits(f)
+	if err != nil {
+		return err
+	}
 	prevName, prevEmail := detectPreviousAuthor(commits)
 	if f.dryRun {
 		handleAmendDryRun(f, commits, originalBranch, prevName, prevEmail)
-		return
+		return nil
 	}
 	targetBranch := resolveTargetBranch(f)
 	mode := resolveAmendMode(f)
-	runAmendWorkflow(f, commits, targetBranch, mode, prevName, prevEmail, originalBranch)
+	return runAmendWorkflow(f, commits, targetBranch, mode, prevName, prevEmail, originalBranch)
 }
 
-func requireAmendCommits(f amendFlags) []model.CommitEntry {
+func requireAmendCommits(f amendFlags) ([]model.CommitEntry, *apperror.AppError) {
 	commits := listCommitsForAmend(f)
 	if len(commits) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrAmendNoCommits)
-		os.Exit(1)
+		return nil, apperror.New(constants.ErrAmendNoCommits, "E9000", nil)
 	}
-	return commits
+	return commits, nil
 }
 
 func handleAmendDryRun(f amendFlags, commits []model.CommitEntry, originalBranch, prevName, prevEmail string) {
@@ -98,7 +101,7 @@ func handleAmendDryRun(f amendFlags, commits []model.CommitEntry, originalBranch
 	returnToBranch(f, originalBranch)
 }
 
-func runAmendWorkflow(f amendFlags, commits []model.CommitEntry, targetBranch, mode, prevName, prevEmail, originalBranch string) error {
+func runAmendWorkflow(f amendFlags, commits []model.CommitEntry, targetBranch, mode, prevName, prevEmail, originalBranch string) *apperror.AppError {
 	fmt.Print(constants.MsgAmendWarnRewrite)
 	printAmendHeader(f, commits, targetBranch, prevName, prevEmail)
 	runFilterBranch(f, commits)

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -39,15 +40,15 @@ func runTaskCreate(args []string) error {
 func validateTaskCreateInputs(name, src, dest string) {
 	if name == "" {
 		fmt.Fprint(os.Stderr, constants.ErrTaskNameRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if src == "" {
 		fmt.Fprint(os.Stderr, constants.ErrTaskSrcRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if dest == "" {
 		fmt.Fprint(os.Stderr, constants.ErrTaskDestRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	validateTaskSrcExists(src)
@@ -57,8 +58,7 @@ func validateTaskCreateInputs(name, src, dest string) {
 func validateTaskSrcExists(src string) {
 	_, err := os.Stat(src)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrTaskSrcNotExist, src)
-		os.Exit(1)
+		return apperror.New(constants.ErrTaskSrcNotExist, "E9000", nil)
 	}
 }
 
@@ -66,8 +66,7 @@ func validateTaskSrcExists(src string) {
 func checkTaskNotExists(tasks model.TaskFile, name string) {
 	for _, t := range tasks.Tasks {
 		if t.Name == name {
-			fmt.Fprintf(os.Stderr, constants.ErrTaskAlreadyExists, name)
-			os.Exit(1)
+			return apperror.New(constants.ErrTaskAlreadyExists, "E9000", nil)
 		}
 	}
 }
@@ -115,7 +114,7 @@ func runTaskDelete(args []string) error {
 func requireTaskName(args []string) string {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrTaskNameRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return args[0]
@@ -129,8 +128,7 @@ func findTaskByName(tasks model.TaskFile, name string) model.TaskEntry {
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrTaskNotFound, name)
-	os.Exit(1)
+	return apperror.New(constants.ErrTaskNotFound, "E9000", nil)
 
 	return model.TaskEntry{}
 }
@@ -148,8 +146,7 @@ func removeTaskByName(tasks model.TaskFile, name string) model.TaskFile {
 	}
 
 	if len(filtered) == len(tasks.Tasks) {
-		fmt.Fprintf(os.Stderr, constants.ErrTaskNotFound, name)
-		os.Exit(1)
+		return apperror.New(constants.ErrTaskNotFound, "E9000", nil)
 	}
 
 	tasks.Tasks = filtered
@@ -170,8 +167,7 @@ func loadTaskFile() model.TaskFile {
 
 	err = json.Unmarshal(data, &tasks)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrTaskLoadFile, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrTaskLoadFile, "E9000", nil)
 	}
 
 	return tasks
@@ -183,19 +179,16 @@ func saveTaskFile(tasks model.TaskFile) {
 
 	err := os.MkdirAll(filepath.Dir(path), constants.DirPermission)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrTaskSaveFile, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrTaskSaveFile, "E9000", nil)
 	}
 
 	data, err := json.MarshalIndent(tasks, "", constants.JSONIndent)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrTaskSaveFile, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrTaskSaveFile, "E9000", nil)
 	}
 
 	err = os.WriteFile(path, data, constants.FilePermission)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrTaskSaveFile, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrTaskSaveFile, "E9000", nil)
 	}
 }

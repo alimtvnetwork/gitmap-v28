@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -31,8 +32,7 @@ func runReleaseUndo(args []string) error {
 
 	latest, ok := latestReleaseJSONVersion()
 	if version == "" && ok == false {
-		fmt.Fprintln(os.Stderr, "release-undo: no .gitmap/release/v*.json found and no version argument given")
-		os.Exit(1)
+		return apperror.New("release-undo: no .gitmap/release/v*.json found and no version argument given", "E9000", nil)
 	}
 	if version == "" {
 		version = latest
@@ -40,8 +40,7 @@ func runReleaseUndo(args []string) error {
 
 	v, err := release.Parse(version)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrReleaseInvalidVersion, version)
-		os.Exit(1)
+		return apperror.New(constants.ErrReleaseInvalidVersion, "E9000", nil)
 	}
 	tag := "v" + v.String()
 	jsonPath := filepath.Join(constants.DefaultReleaseDir, v.String()+constants.ExtJSON)
@@ -58,8 +57,7 @@ func runReleaseUndo(args []string) error {
 		return nil
 	}
 	if !yes && !confirmUndoRelease(tag) {
-		fmt.Fprintln(os.Stderr, "release-undo: aborted")
-		os.Exit(1)
+		return apperror.New("release-undo: aborted", "E9000", nil)
 	}
 
 	steps := applyReleaseUndo(tag, jsonPath, keepRemote)

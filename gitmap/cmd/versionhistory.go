@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
@@ -19,8 +20,7 @@ func runVersionHistory(args []string) error {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrVersionHistoryCwd, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrVersionHistoryCwd, nil)
 	}
 
 	absPath := resolveVersionHistoryPath(cwd)
@@ -63,8 +63,7 @@ func resolveVersionHistoryPath(cwd string) string {
 func loadVersionHistory(absPath string, limit int) []model.RepoVersionHistoryRecord {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrVersionHistoryDB, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrVersionHistoryDB, nil)
 	}
 	defer db.Close()
 
@@ -76,8 +75,7 @@ func loadVersionHistory(absPath string, limit int) []model.RepoVersionHistoryRec
 
 	records, queryErr := db.ListVersionHistory(repoID)
 	if queryErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrVersionHistoryDB, queryErr)
-		os.Exit(1)
+		return apperror.New(constants.ErrVersionHistoryDB, "E9000", nil)
 	}
 
 	if limit > 0 && limit < len(records) {

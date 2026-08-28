@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -64,7 +65,7 @@ func removeElements(args []string, index, count int) []string {
 
 // resolveAliasContext looks up an alias and sets the global context.
 // Returns the resolved repo path for use in commands.
-func resolveAliasContext(aliasName string) {
+func resolveAliasContext(aliasName string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
@@ -74,8 +75,7 @@ func resolveAliasContext(aliasName string) {
 
 	resolved, err := db.ResolveAlias(aliasName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		exitWith(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 
 	aliasContext = &resolvedAlias{
@@ -84,8 +84,8 @@ func resolveAliasContext(aliasName string) {
 		Slug:         resolved.Slug,
 	}
 
-	fmt.Fprintf(os.Stderr, constants.MsgAliasResolved,
-		resolved.Alias, resolved.AbsolutePath, resolved.Slug)
+	fmt.Fprintf(os.Stderr, constants.MsgAliasResolved, resolved.Alias, resolved.AbsolutePath, resolved.Slug)
+	return nil
 }
 
 // GetAliasPath returns the resolved alias path if set, or empty string.

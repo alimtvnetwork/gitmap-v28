@@ -20,7 +20,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonepick"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -36,7 +36,7 @@ func runClonePick(args []string) error {
 
 	plan, replayId, err := buildClonePickPlan(parsed)
 	if err != nil {
-		cliexit.Fail(constants.CmdClonePick, "parse-args", parsed.RawURL, err, 2)
+		return apperror.Wrap(err, "parse-args parsed.RawURL", nil)
 	}
 	plan = maybeRunClonePickPicker(plan, parsed.Flags.Ask)
 
@@ -63,7 +63,7 @@ func runClonePickDryRun(plan clonepick.Plan, parsed clonePickParsed) error {
 		return nil
 	}
 	if err := clonepick.Render(os.Stdout, plan); err != nil {
-		cliexit.Fail(constants.CmdClonePick, "render-dry-run", parsed.RawURL, err, 1)
+		return apperror.Wrap(err, "render-dry-run parsed.RawURL", nil)
 	}
 	maybeExitOnCmdFaithfulMismatch()
 	return nil

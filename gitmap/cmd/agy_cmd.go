@@ -1,14 +1,15 @@
 package cmd
 
 import (
+	"archive/zip"
 	"context"
 	"encoding/json"
 	"fmt"
-	"archive/zip"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
 )
 
@@ -44,23 +45,24 @@ func init() {
 	initPlugins()
 }
 
-
-
 // agyAddCmd handles adding a project
 var agyAddCmd = &cobra.Command{
-	Use:   "add [id] [name]",
+	Use:     "add [id] [name]",
 	Aliases: []string{"add-project"},
-	Short: "Add a project",
+	Short:   "Add a project",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyAdd(args)
 	},
 }
 
-func runAgyAdd(args []string) error {
+func runAgyAdd(args []string) *apperror.AppError {
 	if !hasEnoughArgs(args, 2) {
-		return fmt.Errorf("requires id and name")
+		return apperror.New("requires id and name", "E9000", nil)
 	}
-	return createProjectFile(args[0], args[1])
+	if err := createProjectFile(args[0], args[1]); err != nil {
+		return apperror.Wrap(err, "create", nil)
+	}
+	return nil
 }
 
 func hasEnoughArgs(args []string, requiredCount int) bool {
@@ -80,7 +82,7 @@ func getProjectsDirPath() (string, error) {
 func createProjectFile(projectID, projectName string) error {
 	projectsPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {
-		return pathErr
+		return apperror.Wrap(pathErr, "path error", nil)
 	}
 	isCreated := ensureDirExists(projectsPath)
 	if !isCreated {
@@ -113,17 +115,20 @@ var agyRmCmd = &cobra.Command{
 	},
 }
 
-func runAgyRm(args []string) error {
+func runAgyRm(args []string) *apperror.AppError {
 	if !hasEnoughArgs(args, 1) {
-		return fmt.Errorf("requires id")
+		return apperror.New("requires id", "E9000", nil)
 	}
-	return deleteProjectFile(args[0])
+	if err := deleteProjectFile(args[0]); err != nil {
+		return apperror.Wrap(err, "delete", nil)
+	}
+	return nil
 }
 
 func deleteProjectFile(projectID string) error {
 	projectsPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {
-		return pathErr
+		return apperror.Wrap(pathErr, "path error", nil)
 	}
 	filePath := filepath.Join(projectsPath, projectID+".json")
 	removeErr := os.Remove(filePath)
@@ -139,16 +144,19 @@ var agyLsCmd = &cobra.Command{
 	},
 }
 
-func runAgyLs() error {
+func runAgyLs() *apperror.AppError {
 	projectsPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {
-		return pathErr
+		return apperror.Wrap(pathErr, "path error", nil)
 	}
 	entries, readErr := os.ReadDir(projectsPath)
 	if readErr != nil {
-		return readErr
+		return apperror.Wrap(readErr, "read error", nil)
 	}
-	return printProjectEntries(entries)
+	if err := printProjectEntries(entries); err != nil {
+		return apperror.Wrap(err, "print entries", nil)
+	}
+	return nil
 }
 
 func printProjectEntries(entries []os.DirEntry) error {
@@ -163,24 +171,27 @@ func printProjectEntries(entries []os.DirEntry) error {
 
 // agyStatsCmd handles project stats
 var agyStatsCmd = &cobra.Command{
-	Use:   "stats",
+	Use:     "stats",
 	Aliases: []string{"stat", "status"},
-	Short: "Project stats",
+	Short:   "Project stats",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyStats()
 	},
 }
 
-func runAgyStats() error {
+func runAgyStats() *apperror.AppError {
 	projectsPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {
-		return pathErr
+		return apperror.Wrap(pathErr, "path error", nil)
 	}
 	entries, readErr := os.ReadDir(projectsPath)
 	if readErr != nil {
-		return readErr
+		return apperror.Wrap(readErr, "read error", nil)
 	}
-	return printProjectStats(entries)
+	if err := printProjectStats(entries); err != nil {
+		return apperror.Wrap(err, "print stats", nil)
+	}
+	return nil
 }
 
 func printProjectStats(entries []os.DirEntry) error {
@@ -211,17 +222,20 @@ var agyUpdateCmd = &cobra.Command{
 	},
 }
 
-func runAgyUpdate(args []string) error {
+func runAgyUpdate(args []string) *apperror.AppError {
 	if !hasEnoughArgs(args, 1) {
-		return fmt.Errorf("requires id")
+		return apperror.New("requires id", "E9000", nil)
 	}
-	return updateProjectFile(args[0])
+	if err := updateProjectFile(args[0]); err != nil {
+		return apperror.Wrap(err, "update error", nil)
+	}
+	return nil
 }
 
 func updateProjectFile(projectID string) error {
 	projectsPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {
-		return pathErr
+		return apperror.Wrap(pathErr, "path error", nil)
 	}
 	filePath := filepath.Join(projectsPath, projectID+".json")
 	return modifyProjectFile(filePath)
@@ -230,7 +244,7 @@ func updateProjectFile(projectID string) error {
 func modifyProjectFile(filePath string) error {
 	fileBytes, readErr := os.ReadFile(filePath)
 	if readErr != nil {
-		return readErr
+		return apperror.Wrap(readErr, "read error", nil)
 	}
 	return rewriteProjectFile(filePath, fileBytes)
 }
@@ -348,9 +362,9 @@ var agyImportCmd = &cobra.Command{
 }
 
 var agyPluginsCmd = &cobra.Command{
-	Use:   "plugin",
+	Use:     "plugin",
 	Aliases: []string{"plugins"},
-	Short: "Manage Antigravity plugins",
+	Short:   "Manage Antigravity plugins",
 }
 
 var agyPluginLsCmd = &cobra.Command{

@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -33,7 +34,7 @@ func mustParsePendingClearArgs(args []string) (string, bool, bool, int64) {
 	mode, dryRun, yes, idMatch, err := parsePendingClearArgs(args)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return mode, dryRun, yes, idMatch
@@ -43,8 +44,7 @@ func mustParsePendingClearArgs(args []string) (string, bool, bool, int64) {
 func mustOpenPendingDB() *store.DB {
 	db, dbErr := openDB()
 	if dbErr != nil {
-		fmt.Fprintf(os.Stderr, constants.WarnPendingDBOpen, dbErr)
-		os.Exit(1)
+		return apperror.New(constants.WarnPendingDBOpen, "E9000", nil)
 	}
 
 	return db
@@ -54,8 +54,7 @@ func mustOpenPendingDB() *store.DB {
 func mustListPendingTasks(db *store.DB) []model.PendingTaskRecord {
 	tasks, listErr := db.ListPendingTasks()
 	if listErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrPendingTaskQuery, listErr)
-		os.Exit(1)
+		return apperror.New(constants.ErrPendingTaskQuery, "E9000", nil)
 	}
 
 	return tasks
@@ -70,7 +69,7 @@ func executePendingClear(db *store.DB, candidates []pendingClearCandidate, dryRu
 	}
 	if !yes && !confirmPendingClear(len(candidates)) {
 		fmt.Print(constants.MsgPendingClearAborted)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	deleted := deletePendingClearCandidates(db, candidates)
 	fmt.Printf(constants.MsgPendingClearDone, deleted, len(candidates))

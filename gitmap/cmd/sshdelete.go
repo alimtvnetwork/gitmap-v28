@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -23,21 +24,18 @@ func runSSHDelete(args []string) error {
 		name = fs.Arg(0)
 	}
 	if len(name) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrSSHNameEmpty)
-		os.Exit(1)
+		return apperror.New(constants.ErrSSHNameEmpty, "E9000", nil)
 	}
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSSHQuery, nil)
 	}
 	defer db.Close()
 
 	key, err := db.FindSSHKeyByName(name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, name)
-		os.Exit(1)
+		return apperror.New(constants.ErrSSHNotFound, "E9000", nil)
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHDeleteConfirm, name)
@@ -49,8 +47,7 @@ func runSSHDelete(args []string) error {
 	}
 
 	if err := db.DeleteSSHKey(name); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHDelete, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSSHDelete, nil)
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHDeleted, name)

@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -28,8 +29,7 @@ func runReleasePending(args []string) error {
 
 	err := release.ExecutePending(assets, notes, draft, dryRun, noCommit, yes)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -14,8 +15,7 @@ import (
 // runTempReleaseRemove handles "tr remove <version>|<v1> to <v2>|all".
 func runTempReleaseRemove(args []string) error {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrTRRemoveUsage)
-		os.Exit(1)
+		return apperror.New(constants.ErrTRRemoveUsage, "E9000", nil)
 	}
 
 	if args[0] == "all" {
@@ -51,8 +51,7 @@ func removeTempReleaseSingle(version string) {
 func removeTempReleaseRange(from, to string) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
@@ -108,8 +107,7 @@ func collectRangeTargets(db *store.DB, from, to string) []string {
 func removeTempReleaseAll() {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 	if err := db.Migrate(); err != nil {

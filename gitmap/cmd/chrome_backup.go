@@ -11,9 +11,11 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
-func runChromeBackup(args []string) error {
+func runChromeBackup(args []string) *apperror.AppError {
 	out := chromeBackupDefaultPath()
 	for i := 0; i < len(args); i++ {
 		isOutFlag := args[i] == "-o" || args[i] == "--out"
@@ -25,14 +27,12 @@ func runChromeBackup(args []string) error {
 		}
 	}
 	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
-		fmt.Fprintf(os.Stderr, "chrome backup: ERROR mkdir: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome backup: ERROR mkdir:", nil)
 	}
 	srcRoot := chromeUserDataDir()
 	n, err := writeChromeBackup(srcRoot, out)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "chrome backup: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome backup: ERROR", nil)
 	}
 	manifestPath, mErr := writeChromeManifestWithSource(out, srcRoot)
 	if mErr != nil {
@@ -47,7 +47,7 @@ func runChromeBackup(args []string) error {
 	return nil
 }
 
-func runChromeRestore(args []string) error {
+func runChromeRestore(args []string) *apperror.AppError {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "chrome restore: ERROR usage: gitmap chrome restore <tarball> [--into <dir>] [--force|-f] [--yes|-y] [--dry-run] [--no-verify]")
 		os.Exit(2)
@@ -98,19 +98,17 @@ func runChromeRestore(args []string) error {
 			fmt.Fprintf(os.Stderr, "chrome restore: WARN checksum verify skipped: %v\n", err)
 		case !ok:
 			fmt.Fprintf(os.Stderr, "chrome restore: ERROR checksum mismatch in %d file(s):\n  - %s\n  rerun with --no-verify to override\n", len(miss), strings.Join(miss, "\n  - "))
-			os.Exit(1)
+			return apperror.New("fatal error", "E9000", nil)
 		default:
 			fmt.Printf("\033[1;92m✓ checksum verified\033[0m  %s\n", src+chromeManifestSuffix)
 		}
 	}
 	if err := os.MkdirAll(dst, 0o755); err != nil {
-		fmt.Fprintf(os.Stderr, "chrome restore: ERROR mkdir: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome restore: ERROR mkdir:", nil)
 	}
 	existing := countChromeProfileFiles(dst)
 	if existing > 0 && !force {
-		fmt.Fprintf(os.Stderr, "chrome restore: REFUSED %s already contains %d file(s); pass --force to overwrite\n", dst, existing)
-		os.Exit(1)
+		return apperror.New(fmt.Sprintf("chrome restore: REFUSED  already contains %d file(s); pass --force to overwrite", existing), "E9000", nil)
 	}
 	needsConfirm := existing > 0 && force && !yes
 	if needsConfirm == true {
@@ -123,17 +121,14 @@ func runChromeRestore(args []string) error {
 	}
 
 	if isConfirmed == false {
-		fmt.Fprintln(os.Stderr, "chrome restore: aborted")
-		os.Exit(1)
+		return apperror.New("chrome restore: aborted", "E9000", nil)
 	}
 	if dryRun {
-		doDryRun(src, dst)
-		return nil
+		return doDryRun(src, dst)
 	}
 	n, err := readChromeBackup(src, dst)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "chrome restore: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome restore: ERROR", nil)
 	}
 	fmt.Printf("\033[1;92m✓ chrome restore\033[0m  %d files → \033[1;96m%s\033[0m\n", n, dst)
 	return nil
@@ -276,11 +271,11 @@ func readChromeBackup(src, dstRoot string) (int, error) {
 	return count, nil
 }
 
-func doDryRun(src, dst string) {
+func doDryRun(src, dst string) *apperror.AppError {
 	n, err := previewChromeBackup(src)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "chrome restore: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome restore: ERROR", nil)
 	}
-	fmt.Printf("\033[1;93m✓ chrome restore (dry-run)\033[0m  %d file(s) would land in \033[1;96m%s\033[0m\n", n, dst)
+	fmt.Printf("\\033[1;93m✓ chrome restore (dry-run)\\033[0m  %d file(s) would land in \\033[1;96m%s\\033[0m\\n", n, dst)
+	return nil
 }

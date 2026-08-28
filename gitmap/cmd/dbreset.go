@@ -3,8 +3,8 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -18,8 +18,7 @@ func runDBReset(args []string) error {
 		return nil
 	}
 
-	fmt.Fprintln(os.Stderr, constants.ErrDBResetNoConfirm)
-	os.Exit(1)
+	return apperror.New(constants.ErrDBResetNoConfirm, "E9000", nil)
 	return nil
 }
 
@@ -36,14 +35,12 @@ func parseDBResetFlags(args []string) bool {
 func executeDBReset() {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDBResetFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrDBResetFailed, nil)
 	}
 	defer db.Close()
 	err = db.Reset()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDBResetFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrDBResetFailed, nil)
 	}
 
 	fmt.Print(constants.MsgDBResetDone)

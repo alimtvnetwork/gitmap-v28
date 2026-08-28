@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/indexer"
-	"github.com/pterm/pterm"
 )
 
 func runIndex(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		pterm.Error.Println(err)
-		os.Exit(1)
+		return apperror.New(err, "E9000", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -23,8 +22,7 @@ func runIndex(args []string) error {
 	w := indexer.NewWalker(cwd, db, false)
 	fmt.Println("Indexing starting...")
 	if err := w.Walk(ctx, 4); err != nil {
-		pterm.Error.Println(err)
-		os.Exit(1)
+		return apperror.New(err, "E9000", nil)
 	}
 	fmt.Println("Indexing complete.")
 	return nil

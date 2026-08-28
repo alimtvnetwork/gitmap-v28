@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -14,7 +15,7 @@ func loadCSVMessages(path string) []commitMessage {
 	records := readCSVFile(path)
 	if len(records) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrSEOCSVEmpty)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return csvToMessages(records)
@@ -24,8 +25,7 @@ func loadCSVMessages(path string) []commitMessage {
 func readCSVFile(path string) [][]string {
 	f, err := os.Open(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSEOCSVRead, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrSEOCSVRead, "E9000", nil)
 	}
 	defer f.Close()
 

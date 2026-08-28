@@ -65,7 +65,7 @@ func runClusterFlagTest(t *testing.T, tt clusterFlagTestCase) {
 		got, pos, err := ParseClusterFlags(tt.args)
 		if (err != nil) != tt.wantErr {
 			t.Errorf("ParseClusterFlags() error = %v, wantErr %v", err, tt.wantErr)
-			return
+			return nil
 		}
 		if !tt.wantErr {
 			assertClusterScalars(t, got, tt)

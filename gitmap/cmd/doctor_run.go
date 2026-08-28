@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -52,7 +53,7 @@ func runDoctor(args []string) error {
 		emitDoctorText(results, failed)
 	}
 	if failed > 0 {
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/mapper"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -22,7 +23,7 @@ import (
 //  3. Creates (or updates with --force) an alias mapping name -> repo.
 //
 // When alias-name is omitted, the repo folder basename is used.
-func runAs(args []string) error {
+func runAs(args []string) *apperror.AppError {
 	checkHelp(constants.CmdAs, args)
 	aliasName, force := parseAsArgs(args)
 
@@ -30,17 +31,16 @@ func runAs(args []string) error {
 	if err != nil {
 		cwd, _ := os.Getwd()
 		fmt.Fprintf(os.Stderr, constants.ErrAsNotInRepoFmt, cwd)
-		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	if aliasName == "" {
 		aliasName = filepath.Base(root)
 	}
 
-	rec := buildSingleRepoRecord(root)
-	upsertSingleRepo(rec)
-	registerAlias(aliasName, rec, force)
+	rec, buildErr := buildSingleRepoRecord(root); if buildErr != nil { return buildErr }
+	if upsertErr := upsertSingleRepo(rec); upsertErr != nil { return upsertErr }
+	if regErr := registerAlias(aliasName, rec, force); regErr != nil { return regErr }
 
 	// Shell handoff: cd the parent shell to the alias root if invoked
 	// via the wrapper function (e.g. `gitmap as foo` from elsewhere).
@@ -88,7 +88,7 @@ func gitTopLevel() (string, error) {
 }
 
 // buildSingleRepoRecord constructs a ScanRecord for one already-known repo.
-func buildSingleRepoRecord(absPath string) model.ScanRecord {
+func buildSingleRepoRecord(absPath string) (model.ScanRecord, *apperror.AppError) {
 	repos := []scanner.RepoInfo{{
 		AbsolutePath: absPath,
 		RelativePath: filepath.Base(absPath),
@@ -96,9 +96,8 @@ func buildSingleRepoRecord(absPath string) model.ScanRecord {
 	records := mapper.BuildRecords(repos, constants.ModeHTTPS, "")
 	if len(records) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrAsResolveFmt, absPath, "no record built")
-		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return model.ScanRecord{}, apperror.New("fatal error", "E9000", nil)
 	}
 
-	return records[0]
+	return records[0], nil
 }

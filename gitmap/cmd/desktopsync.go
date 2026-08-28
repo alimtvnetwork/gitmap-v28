@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -26,13 +27,11 @@ func runDesktopSync() error {
 func validateDesktopSyncPaths(outputDir, jsonPath string) {
 	info, err := os.Stat(outputDir)
 	if err != nil || !info.IsDir() {
-		fmt.Fprintln(os.Stderr, constants.MsgNoOutputDir)
-		os.Exit(1)
+		return apperror.New(constants.MsgNoOutputDir, "E9000", nil)
 	}
 	_, jsonErr := os.Stat(jsonPath)
 	if jsonErr != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgNoJSONFile, jsonPath)
-		os.Exit(1)
+		return apperror.New(constants.MsgNoJSONFile, "E9000", nil)
 	}
 }
 
@@ -40,14 +39,12 @@ func validateDesktopSyncPaths(outputDir, jsonPath string) {
 func loadDesktopRecords(path string) []model.ScanRecord {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDesktopReadFailed, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrDesktopReadFailed, "E9000", nil)
 	}
 	var records []model.ScanRecord
 	err = json.Unmarshal(data, &records)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDesktopParseFailed, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrDesktopParseFailed, "E9000", nil)
 	}
 
 	return records
@@ -57,8 +54,7 @@ func loadDesktopRecords(path string) []model.ScanRecord {
 func syncToDesktop(records []model.ScanRecord, source string) {
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		fmt.Fprintln(os.Stderr, constants.MsgDesktopNotFound)
-		os.Exit(1)
+		return apperror.New(constants.MsgDesktopNotFound, "E9000", nil)
 	}
 	fmt.Printf(constants.MsgDesktopSyncStart, source)
 	added, skipped, failed := syncAll(records, cli)

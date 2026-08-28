@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -62,7 +63,7 @@ func applyBareReleaseAutoBump(version, bump, commit, branch string, yes bool) st
 	}
 	if !confirmAutoBump(current, next, yes) {
 		fmt.Fprint(os.Stderr, constants.MsgReleaseAutoBumpAborted)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	return constants.BumpMinor
 }
@@ -91,8 +92,7 @@ func executeRelease(version, assets, commit, branch, bump, notes, targets string
 	cfg := loadReleaseConfig()
 	opts := buildReleaseOptions(version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes, cfg)
 	if err := release.Execute(opts); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 	persistReleaseToDB()
 }
@@ -101,11 +101,11 @@ func executeRelease(version, assets, commit, branch, bump, notes, targets string
 func validateReleaseFlags(version, bump, commit, branch string) {
 	if len(bump) > 0 && len(version) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrReleaseBumpConflict)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if len(commit) > 0 && len(branch) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrReleaseCommitBranch)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 }
 
@@ -206,8 +206,7 @@ func printListTargets(flagTargets string) {
 	cfg := loadReleaseConfig()
 	targets, err := release.ResolveTargets(flagTargets, cfg.Release.Targets)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 	printTargetDetails(flagTargets, cfg.Release.Targets, targets)
 }

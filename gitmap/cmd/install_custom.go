@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 var customToolUrls = map[string]struct{ win, unix string }{
@@ -25,8 +27,7 @@ var customToolUrls = map[string]struct{ win, unix string }{
 func runInstallCustomTool(tool string) error {
 	urls, ok := customToolUrls[tool]
 	if !ok {
-		fmt.Fprintf(os.Stderr, "Unknown custom tool: %s\n", tool)
-		os.Exit(1)
+		return apperror.Wrap(tool, "Unknown custom tool:", nil)
 	}
 
 	cmd := buildCustomToolCmd(urls.win, urls.unix)
@@ -34,8 +35,7 @@ func runInstallCustomTool(tool string) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to install %s: %v\n", tool, err)
-		os.Exit(1)
+		return apperror.Wrap(tool, "Failed to install :", nil)
 	}
 	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -22,8 +23,7 @@ func runSSHCopy(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSSHQuery, nil)
 	}
 	defer db.Close()
 
@@ -31,7 +31,7 @@ func runSSHCopy(args []string) error {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, *nameFlag)
 		printAvailableKeys(db)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	pub := strings.TrimSpace(key.PublicKey)

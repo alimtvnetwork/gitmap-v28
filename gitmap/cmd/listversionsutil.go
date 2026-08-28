@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -17,14 +18,12 @@ func collectVersionTags() []release.Version {
 		constants.GitTagListFlag, constants.GitTagGlob)
 	out, err := cmd.Output()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, constants.ErrListVersionsNoTags)
-		os.Exit(1)
+		return apperror.New(constants.ErrListVersionsNoTags, "E9000", nil)
 	}
 
 	versions := parseVersionTags(strings.TrimSpace(string(out)))
 	if len(versions) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrListVersionsNoTags)
-		os.Exit(1)
+		return apperror.New(constants.ErrListVersionsNoTags, "E9000", nil)
 	}
 
 	sort.Slice(versions, func(i, j int) bool {

@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -11,8 +9,7 @@ import (
 func runEnv(args []string) error {
 	checkHelp("env", args)
 	if len(args) < 1 {
-		fmt.Fprintf(os.Stderr, constants.ErrEnvSubcommand, "")
-		os.Exit(1)
+		return apperror.Wrap("", "constants.ErrEnvSubcommand", nil)
 	}
 
 	sub := args[0]
@@ -50,8 +47,7 @@ func routeEnvSub(sub string, args []string) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrEnvSubcommand, sub)
-	os.Exit(1)
+	return apperror.New(constants.ErrEnvSubcommand, "E9000", nil)
 }
 
 // routeEnvPath routes path subcommands (path add, path remove, path list).
@@ -81,6 +77,5 @@ func routeEnvPath(args []string) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrEnvSubcommand, "path "+sub)
-	os.Exit(1)
+	return apperror.Wrap("path "+sub, "constants.ErrEnvSubcommand", nil)
 }

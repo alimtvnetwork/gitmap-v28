@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/folder"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -11,8 +9,7 @@ import (
 func runFolder(args []string) error {
 	checkHelp(constants.CmdFolder, args)
 	if err := folder.Run(args); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Error:", nil)
 	}
 	return nil
 }

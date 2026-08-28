@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/searcher"
 	"github.com/pterm/pterm"
 )
@@ -45,8 +45,7 @@ func runFind(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		pterm.Error.Println(err)
-		os.Exit(1)
+		return apperror.New(err, "E9000", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -74,8 +73,7 @@ func runFindRegex(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		pterm.Error.Println(err)
-		os.Exit(1)
+		return apperror.New(err, "E9000", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -103,8 +101,7 @@ func runFindRead(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		pterm.Error.Println(err)
-		os.Exit(1)
+		return apperror.New(err, "E9000", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -162,8 +159,7 @@ func runFindRegexRead(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		pterm.Error.Println(err)
-		os.Exit(1)
+		return apperror.New(err, "E9000", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()

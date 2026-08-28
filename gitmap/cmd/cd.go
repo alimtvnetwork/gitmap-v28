@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -12,7 +13,7 @@ func runCD(args []string) error {
 	checkHelp("cd", args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCDUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	sub := args[0]

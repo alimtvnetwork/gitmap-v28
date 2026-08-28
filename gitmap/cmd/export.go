@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -48,19 +49,17 @@ func resolveExportFile(args []string) string {
 func loadExportData() model.DatabaseExport {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgExportFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.MsgExportFailed, nil)
 	}
 	defer db.Close()
 
 	export, err := db.ExportAll()
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgExportFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.MsgExportFailed, nil)
 	}
 
 	return export
@@ -71,13 +70,11 @@ func loadExportData() model.DatabaseExport {
 func writeExportFile(path string, export model.DatabaseExport) {
 	var buf bytes.Buffer
 	if err := encodeDatabaseExportJSON(&buf, export); err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgExportFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.MsgExportFailed, nil)
 	}
 
 	if err := os.WriteFile(path, buf.Bytes(), constants.DirPermission); err != nil {
-		fmt.Fprintf(os.Stderr, constants.MsgExportFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.MsgExportFailed, nil)
 	}
 }
 

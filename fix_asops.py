@@ -1,0 +1,20 @@
+import os
+
+p = 'gitmap/cmd/asops.go'
+with open(p, 'r', encoding='utf8') as f: c = f.read()
+c = c.replace('func upsertSingleRepo(rec model.ScanRecord) {', 'func upsertSingleRepo(rec model.ScanRecord) *apperror.AppError {')
+c = c.replace('func registerAlias(name string, rec model.ScanRecord, force bool) {', 'func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppError {')
+c = c.replace('func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.ScanRecord, force bool) {', 'func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.ScanRecord, force bool) *apperror.AppError {')
+c = c.replace('func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.ScanRecord) {', 'func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.ScanRecord) *apperror.AppError {')
+c = c.replace('func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force bool) {', 'func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force bool) *apperror.AppError {')
+c = c.replace('fmt.Printf(constants.MsgAsDBSyncedFmt, rec.RepoName, rec.Slug)\n}', 'fmt.Printf(constants.MsgAsDBSyncedFmt, rec.RepoName, rec.Slug)\n\treturn nil\n}')
+c = c.replace('createOrUpdateAliasRow(db, name, repoID, rec, force)\n}', 'return createOrUpdateAliasRow(db, name, repoID, rec, force)\n}')
+c = c.replace('if db.AliasExists(name) == false {\n\t\tcreateAliasAndReturn(db, name, repoID, rec)\n\t\treturn\n\t}', 'if db.AliasExists(name) == false {\n\t\treturn createAliasAndReturn(db, name, repoID, rec)\n\t}')
+c = c.replace('checkAliasConflict(db, name, rec, force)', 'if err := checkAliasConflict(db, name, rec, force); err != nil { return err }')
+c = c.replace('renameVSCodePMByPath(rec.AbsolutePath, name)\n}', 'renameVSCodePMByPath(rec.AbsolutePath, name)\n\treturn nil\n}')
+c = c.replace('if force == true {\n\t\treturn\n\t}', 'if force == true {\n\t\treturn nil\n\t}')
+c = c.replace('return apperror.New("fatal error", "E9000", nil)\n\t}', 'return apperror.New("fatal error", "E9000", nil)\n\t}\n\treturn nil')
+c = c.replace('return apperror.Wrap(err, "constants.MsgDBUpsertFailed", nil)', 'return apperror.Wrap(err, constants.MsgDBUpsertFailed, nil)')
+c = c.replace('return apperror.Wrap(err, "constants.ErrListDBFailed", nil)', 'return apperror.Wrap(err, constants.ErrListDBFailed, nil)')
+c = c.replace('return apperror.Wrap(err, "constants.ErrBareFmt", nil)', 'return apperror.Wrap(err, constants.ErrBareFmt, nil)')
+with open(p, 'w', encoding='utf8') as f: f.write(c)

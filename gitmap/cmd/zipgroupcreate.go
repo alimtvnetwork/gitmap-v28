@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -15,8 +16,7 @@ import (
 func runZipGroupCreate(args []string) error {
 	name, archiveName, paths := parseZipGroupCreateFlags(args)
 	if len(name) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrZGEmpty)
-		os.Exit(1)
+		return apperror.New(constants.ErrZGEmpty, "E9000", nil)
 	}
 	executeZipGroupCreate(name, archiveName, paths)
 	return nil
@@ -43,15 +43,13 @@ func parseZipGroupCreateFlags(args []string) (name, archive string, paths []stri
 func executeZipGroupCreate(name, archiveName string, paths []string) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 
 	_, err = db.CreateZipGroup(name, archiveName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 
 	if len(paths) == 0 {
@@ -79,8 +77,7 @@ func executeZipGroupCreate(name, archiveName string, paths []string) {
 // runZipGroupAdd handles "zip-group add <group> <path...>".
 func runZipGroupAdd(args []string) error {
 	if len(args) < 2 {
-		fmt.Fprintln(os.Stderr, constants.ErrZGEmpty)
-		os.Exit(1)
+		return apperror.New(constants.ErrZGEmpty, "E9000", nil)
 	}
 
 	groupName := args[0]
@@ -88,8 +85,7 @@ func runZipGroupAdd(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 

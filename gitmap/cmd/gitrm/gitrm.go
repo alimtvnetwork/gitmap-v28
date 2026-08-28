@@ -114,11 +114,11 @@ func rewriteHistory(paths []string) error {
 	}
 	filesStr := strings.Join(quoted, " ")
 	filterCmd := fmt.Sprintf("git rm --cached --ignore-unmatch %s", filesStr)
-	
+
 	cmd := exec.Command("git", "filter-branch", "--force", "--index-filter", filterCmd, "--prune-empty", "--tag-name-filter", "cat", "--", "--all")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	if err := cmd.Run(); err != nil {
 		return apperror.Wrap(err, "git-rm: history rewrite failed", nil)
 	}

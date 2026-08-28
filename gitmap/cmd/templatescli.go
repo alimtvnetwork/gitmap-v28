@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
@@ -87,7 +88,7 @@ func dispatchTemplates(command string) (bool, error) {
 	}
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, usageTemplatesRoot)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	sub, rest := os.Args[2], os.Args[3:]
@@ -103,7 +104,7 @@ func dispatchTemplates(command string) (bool, error) {
 	default:
 		fmt.Fprintf(os.Stderr, errUnknownTemplatesSub, sub)
 		fmt.Fprint(os.Stderr, usageTemplatesRoot)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return true, nil
@@ -117,14 +118,12 @@ func runTemplatesList(args []string) error {
 	kindFilter, langFilter := parseTemplatesListFlags(args)
 	isNonValidKindFilter := !isValidKindFilter(kindFilter)
 	if isNonValidKindFilter {
-		fmt.Fprintf(os.Stderr, errTemplatesListKind, kindFilter)
-		os.Exit(1)
+		return apperror.Wrap(kindFilter, "errTemplatesListKind", nil)
 	}
 
 	entries, err := templates.List()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, errTemplatesListFail, err)
-		os.Exit(1)
+		return apperror.Wrap(err, "errTemplatesListFail", nil)
 	}
 	if len(entries) == 0 {
 		fmt.Print(msgTemplatesEmpty)
@@ -206,13 +205,12 @@ func runTemplatesShow(args []string) error {
 	rest, mode := parseTemplatesShowFlags(args)
 	if len(rest) < 2 {
 		fmt.Fprint(os.Stderr, errTemplatesShowArgs)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	kind, lang := rest[0], rest[1]
 	r, err := templates.Resolve(kind, lang)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, errTemplatesShowFail, err)
-		os.Exit(1)
+		return apperror.Wrap(err, "errTemplatesShowFail", nil)
 	}
 
 	out := r.Content
@@ -221,8 +219,7 @@ func runTemplatesShow(args []string) error {
 	}
 
 	if _, err := os.Stdout.Write(out); err != nil {
-		fmt.Fprintf(os.Stderr, errTemplatesShowFail, err)
-		os.Exit(1)
+		return apperror.Wrap(err, "errTemplatesShowFail", nil)
 	}
 	return nil
 }

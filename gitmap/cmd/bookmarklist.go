@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -13,15 +14,13 @@ func runBookmarkList(args []string) error {
 	jsonOut := hasJSONFlag(args)
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBookmarkQuery+"\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "constants.ErrBookmarkQuery+", nil)
 	}
 	defer db.Close()
 
 	records, err := db.ListBookmarks()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBookmarkQuery+"\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "constants.ErrBookmarkQuery+", nil)
 	}
 
 	if jsonOut {
@@ -70,34 +69,31 @@ func printBookmarkJSON(records []model.BookmarkRecord) {
 func runBookmarkDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkDelUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	name := args[0]
-	deleteBookmarkFromDB(name)
-	return nil
+	return deleteBookmarkFromDB(name)
 }
 
 // deleteBookmarkFromDB removes the bookmark and prints confirmation.
-func deleteBookmarkFromDB(name string) {
+func deleteBookmarkFromDB(name string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBookmarkDelete, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBookmarkDelete, nil)
 	}
 	defer db.Close()
 
 	_, findErr := db.FindBookmarkByName(name)
 	if findErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBookmarkNotFound, name)
-		os.Exit(1)
+		return apperror.Wrap(findErr, constants.ErrBookmarkNotFound, nil)
 	}
 
 	err = db.DeleteBookmark(name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBookmarkDelete, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBookmarkDelete, nil)
 	}
 
 	fmt.Printf(constants.MsgBookmarkDeleted, name)
+	return nil
 }

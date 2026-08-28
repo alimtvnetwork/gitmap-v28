@@ -2,28 +2,29 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 type PullTableLayout struct {
-	MaxRepo       int
-	MaxBranch     int
-	MaxLatestBr   int
-	MaxSHA        int
-	MaxPR         int
-	MaxStatus     int
-	Rows          []model.PullTableRow
+	MaxRepo     int
+	MaxBranch   int
+	MaxLatestBr int
+	MaxSHA      int
+	MaxPR       int
+	MaxStatus   int
+	Rows        []model.PullTableRow
 }
 
 func NewPullTableLayout(rows []model.PullTableRow) *PullTableLayout {
 	layout := &PullTableLayout{
-		MaxRepo:       10,
-		MaxBranch:     8,
-		MaxLatestBr:   13,
-		MaxSHA:        7,
-		MaxPR:         10,
-		MaxStatus:     8,
-		Rows:          rows,
+		MaxRepo:     10,
+		MaxBranch:   8,
+		MaxLatestBr: 13,
+		MaxSHA:      7,
+		MaxPR:       10,
+		MaxStatus:   8,
+		Rows:        rows,
 	}
 
 	for _, r := range rows {

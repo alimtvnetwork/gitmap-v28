@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 const llmMarkdownSpec = `# Gitmap LLM Specification
@@ -44,18 +43,19 @@ Gitmap is a powerful CLI designed for autonomous agents, LLMs, and developers to
 `
 
 // Run executes the llm command
-func Run(args []string) {
+func Run(args []string) *apperror.AppError {
 	fs := flag.NewFlagSet("llm", flag.ExitOnError)
 	isUrl := fs.Bool("url", false, "Output the URL to the LLM spec")
-	
+
 	if err := fs.Parse(args); err != nil {
-		cliexit.Fail("llm", "parse_flags", "flags", apperror.Wrap(err, "failed to parse llm flags", nil), 1)
+		return apperror.Wrap(err, "parse flags", nil)
 	}
 
 	if *isUrl {
 		fmt.Println("https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/LLM.md")
-		return
+		return nil
 	}
 
 	fmt.Print(llmMarkdownSpec)
+	return nil
 }

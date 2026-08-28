@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -14,8 +15,7 @@ import (
 func runRescan() error {
 	cache, err := loadScanCache()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRescanNoCache, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrRescanNoCache, nil)
 	}
 	fmt.Printf(constants.MsgRescanReplay, cache.Dir)
 	runScanFromCache(cache)

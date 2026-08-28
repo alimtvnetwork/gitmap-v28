@@ -12,7 +12,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -39,7 +39,7 @@ func runAuditLegacy(args []string) error {
 	checkHelp(constants.CmdAuditLegacy, args)
 	opts, err := parseAuditLegacyArgs(args)
 	if err != nil {
-		cliexit.Fail(constants.CmdAuditLegacy, "parse-args", "", err, 2)
+		return apperror.Wrap(err, "parse-args", nil)
 	}
 	hits, n, walkErr := scanAuditLegacy(opts)
 	if walkErr != nil {
@@ -50,7 +50,7 @@ func runAuditLegacy(args []string) error {
 	plans := writeAuditLegacyDiffs(opts, hits)
 	writeAuditLegacyReport(opts, hits, n, plans)
 	if len(hits) > 0 {
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	return nil
 }
