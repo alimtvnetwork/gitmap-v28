@@ -1,3 +1,0 @@
-# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
-cmd\list.go:61:2: syntax error: non-declaration statement outside function body
-cmd\listreleasesallrepos.go:44:2: syntax error: non-declaration statement outside function body
