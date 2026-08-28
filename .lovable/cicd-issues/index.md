@@ -9,3 +9,4 @@
 
 - [19-ci-gitmap-open-error-refactor.md](19-ci-gitmap-open-error-refactor.md): Fixed Python cp1252 decode errors, completed mass AST refactoring of 80+ commands to return typed errors instead of os.Exit(1), and implemented gitmap open cross-platform.
 - [20-cicd-four-headed-hydra.md](./20-cicd-four-headed-hydra.md): Fix for env platform return types, gofmt, lint script key errors, and legacy gitmap-v6 markdown references.
+- [21-go-generate-drift.md](./21-go-generate-drift.md): Fix generated files drift caused by modified CLI constants.
