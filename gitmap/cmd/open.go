@@ -1,69 +1,54 @@
-// Package cmd — open.go implements `gitmap open` (alias `op`).
-//
-// Detects the repo for the current working directory (preferring
-// `git rev-parse --show-toplevel` when available, falling back to
-// cwd) and launches BOTH GitHub Desktop and VS Code on that path.
-//
-// Behavior is intentionally idempotent-by-side-effect: GitHub
-// Desktop silently skips if the repo is already registered, and
-// VS Code happily re-opens an already-open window. The DB upsert
-// step mirrors `inject`: best-effort, only when a remote origin
-// exists, never aborts the user-visible side effects.
 package cmd
 
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// runOpen is the entrypoint for `gitmap open` / `op`.
+// runOpen is the entrypoint for `gitmap open` / `o`.
+// It opens the specified directory (or the repo root, or cwd) using the OS's default opener.
 func runOpen(args []string) error {
 	checkHelp(constants.CmdOpen, args)
 
-	force := parseInjectForceFlag(constants.CmdOpen, args)
-
-	target, err := resolveOpenTarget()
+	target, err := resolveOpenTarget(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrOpenResolveCwd, err)
 		return err
-
 	}
 
-	repoName := filepath.Base(target)
-	fmt.Printf(constants.MsgOpenStart, repoName, target)
-
-	if force {
-		fmt.Printf(constants.MsgInjectForceNotice, repoName)
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", target)
+	case "darwin":
+		cmd = exec.Command("open", target)
+	default:
+		cmd = exec.Command("xdg-open", target)
 	}
 
-	// Best-effort DB upsert (skipped silently if no origin remote).
-	upsertInjectIfRemote(target, repoName)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	stamps := loadInjectStamps(target)
-
-	// Always re-inject when forced; otherwise gate on per-tool stamp.
-	if shouldRunDesktop(target, stamps, force) {
-		registerSingleDesktop(repoName, target)
-		markInjected(target, constants.InjectKindDesktop)
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to open target %q: %w", target, err)
 	}
 
-	if shouldRunVSCode(target, stamps, force) {
-		openInVSCode(target)
-		markInjected(target, constants.InjectKindVSCode)
-	}
-
-	fmt.Printf(constants.MsgOpenDone, repoName)
-	return nil
+	return cmd.Wait()
 }
 
-// resolveOpenTarget picks the directory to open. Prefers the git
-// toplevel (so running `open` from a subfolder still opens the repo
-// root), and falls back to plain cwd when git isn't available or
-// the folder isn't a repo.
-func resolveOpenTarget() (string, error) {
+// resolveOpenTarget picks the directory to open. Prefers args[0] if provided,
+// else the git toplevel (so running `open` from a subfolder still opens the repo
+// root), and falls back to plain cwd when git isn't available or the folder isn't a repo.
+func resolveOpenTarget(args []string) (string, error) {
+	if len(args) > 0 && args[0] != "" {
+		return filepath.Abs(args[0])
+	}
+
 	if root, err := gitTopLevel(); err == nil && len(root) > 0 {
 		return root, nil
 	}
@@ -73,10 +58,5 @@ func resolveOpenTarget() (string, error) {
 		return "", err
 	}
 
-	abs, err := filepath.Abs(cwd)
-	if err != nil {
-		return "", err
-	}
-
-	return abs, nil
+	return filepath.Abs(cwd)
 }

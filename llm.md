@@ -50,3 +50,14 @@ Here are equivalent alternative command samples for LLM search operations:
   - `gitmap file-search cmd/root.go "func finishCommandAudit" 0 10` 
   - `cat gitmap/cmd/root.go | Select-String "func finishCommandAudit" -Context 0,10` 
 
+
+
+## STRICT Commit Guidelines for AI Agents
+AI Agents MUST NEVER use raw git commands for committing or pushing (e.g., git commit, git push).
+Instead, you MUST use the native Gitmap commands for grouping and committing:
+- gitmap feature <name>: Start or group a feature.
+- gitmap bar: Use the bar command to handle specific groups.
+- gitmap release: Use this to finalize and release grouped commits.
+- gitmap commit-in: Commit changes inside grouped nodes.
+
+Always group your commits. DO NOT commit every single file as a separate big node. Use Gitmap's orchestration.
