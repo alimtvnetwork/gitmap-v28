@@ -69,6 +69,8 @@ const (
 	CmdAg = "ag"
 	CmdAntigravity = "antigravity"
 	CmdAdd = "add"
+	CmdAppend = "append"
+	CmdWrite = "write"
 	CmdReleaseShort        = "r"
 		CmdLlm = "llm"
 	CmdFind = "find"
