@@ -62,6 +62,17 @@ func (db *DB) ListRepos() ([]model.ScanRecord, error) {
 	return scanRows(rows)
 }
 
+
+// FindByID returns all repos matching the given ID.
+func (db *DB) FindByID(id int64) ([]model.ScanRecord, error) {
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoByID, id).Destruct()
+	if err != nil {
+		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+	}
+	defer rows.Close()
+
+	return scanRows(rows)
+}
 // FindBySlug returns all repos matching the given slug.
 func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoBySlug, slug).Destruct()

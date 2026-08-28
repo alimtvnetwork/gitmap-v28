@@ -89,3 +89,20 @@ func PrintRepoSuggestions(db *store.DB, target string) {
 		}
 	}
 }
+
+// resolveEndpointString tries to resolve a user-provided string to an absolute path.
+func resolveEndpointString(raw string) string {
+	lower := strings.ToLower(raw)
+	for _, p := range []string{"https://", "http://", "ssh://", "git@"} {
+		if strings.HasPrefix(lower, p) { return raw }
+	}
+	db, err := openDB()
+	if err == nil && db != nil {
+		defer db.Close()
+		if rec, err := ResolveRepo(db, raw); err == nil && rec != nil {
+			return rec.AbsolutePath
+		}
+	}
+	return raw
+}
+

@@ -118,11 +118,13 @@ func _deprecated_pickSourceDisplayName(name string, left, right movemerge.Endpoi
 func resolveCommitEndpoints(leftRaw, rightRaw string, _ committransfer.Options,
 ) (movemerge.Endpoint, movemerge.Endpoint, error) {
 	mmOpts := movemerge.Options{}
-	left, err := movemerge.ResolveEndpoint(leftRaw, true, mmOpts)
+	resolvedLeft := resolveEndpointString(leftRaw)
+	left, err := movemerge.ResolveEndpoint(resolvedLeft, true, mmOpts)
 	if err != nil {
 		return left, movemerge.Endpoint{}, err
 	}
-	right, err := movemerge.ResolveEndpoint(rightRaw, false, mmOpts)
+	resolvedRight := resolveEndpointString(rightRaw)
+	right, err := movemerge.ResolveEndpoint(resolvedRight, false, mmOpts)
 
 	return left, right, err
 }

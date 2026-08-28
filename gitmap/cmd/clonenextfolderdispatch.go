@@ -124,6 +124,7 @@ func tryFolderArgTwoPositional(first, second string, originalArgs []string) bool
 // the path exists but is a file; the underlying stat error otherwise.
 func resolveCloneNextFolder(token string) (string, error) {
 	expanded := expandTilde(token)
+	expanded = resolveEndpointString(expanded)
 
 	expanded, errExpand := ensureAbsolutePath(expanded)
 	if errExpand != nil {
