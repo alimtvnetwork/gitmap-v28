@@ -71,6 +71,8 @@ const (
 	CmdAdd = "add"
 	CmdAppend = "append"
 	CmdWrite = "write"
+	CmdHead = "head"
+	CmdTail = "tail"
 	CmdReleaseShort        = "r"
 		CmdLlm = "llm"
 	CmdFind = "find"
