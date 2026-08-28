@@ -30,20 +30,22 @@ import (
 )
 
 // runCloneFixRepo implements `gitmap clone-fix-repo` (alias cfr).
-func runCloneFixRepo(args []string) {
+func runCloneFixRepo(args []string) error {
 	checkHelp(constants.CmdCloneFixRepo, args)
 	runCloneFixRepoPipeline(args, false)
+	return nil
 }
 
 // runCloneFixRepoPub implements `gitmap clone-fix-repo-pub` (alias cfrp).
-func runCloneFixRepoPub(args []string) {
+func runCloneFixRepoPub(args []string) error {
 	checkHelp(constants.CmdCloneFixRepoPub, args)
 	runCloneFixRepoPipeline(args, true)
+	return nil
 }
 
 // runCloneFixRepoPipeline is the shared core. `makePublic` controls
 // whether the optional 3rd step (visibility flip) runs.
-func runCloneFixRepoPipeline(args []string, makePublic bool) {
+func runCloneFixRepoPipeline(args []string, makePublic bool) error {
 	parallel, args := extractParallelFlag(args)
 	modifiers, args := ParseCfrModifiers(args)
 	if modifiers.PromotePublic {
@@ -54,9 +56,10 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) {
 	modifiers.NoPush = modifiers.NoPush || noPush
 	f := cloneFixRepoFlags{url, folder, noVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush}
 	if dispatchCFRMultiURL(f, makePublic, modifiers, parallel) {
-		return
+		return nil
 	}
 	runSingleCloneFixRepo(f, makePublic, modifiers)
+	return nil
 }
 
 func dispatchCFRMultiURL(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags, parallel int) bool {
@@ -68,14 +71,15 @@ func dispatchCFRMultiURL(f cloneFixRepoFlags, makePublic bool, modifiers CfrModi
 	return true
 }
 
-func runSingleCloneFixRepo(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags) {
+func runSingleCloneFixRepo(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags) error {
 	folderName, absPath := validateAndPrepareCFR(&f)
 	executeCFRClone(f.url, folderName, absPath, f)
 	if f.dryRun {
 		printDryRunMessage(makePublic, absPath)
-		return
+		return nil
 	}
 	executeCFRPostSteps(absPath, makePublic, f, modifiers)
+	return nil
 }
 
 func validateAndPrepareCFR(f *cloneFixRepoFlags) (string, string) {
@@ -118,7 +122,7 @@ func executeCFRPostSteps(absPath string, makePublic bool, f cloneFixRepoFlags, m
 }
 
 // runParallelCloneFixRepo encapsulates the parallel clone execution to avoid nested ifs.
-func runParallelCloneFixRepo(urls []string, makePublic bool, noVSCodeSync bool, requireVersion bool, useSSH bool, useHTTPS bool, autoYes bool, dryRun bool, modifiers CfrModifierFlags, parallel int) {
+func runParallelCloneFixRepo(urls []string, makePublic bool, noVSCodeSync bool, requireVersion bool, useSSH bool, useHTTPS bool, autoYes bool, dryRun bool, modifiers CfrModifierFlags, parallel int) error {
 	subcmd := constants.CmdCloneFixRepo
 	if makePublic == true {
 		subcmd = constants.CmdCloneFixRepoPub
@@ -129,6 +133,7 @@ func runParallelCloneFixRepo(urls []string, makePublic bool, noVSCodeSync bool, 
 	if failed > 0 {
 		os.Exit(constants.ExitCloneFixRepoChainFailed)
 	}
+	return nil
 }
 
 func printDryRunMessage(makePublic bool, absPath string) {
@@ -356,7 +361,7 @@ func deriveFolderNameForCFR(url string, folderName string) string {
 // runChainedGitmapStep re-execs the current gitmap binary with the
 // given args, streaming stdin/stdout/stderr through. Any non-zero
 // exit propagates immediately so the pipeline halts on first failure.
-func runChainedGitmapStep(args []string) {
+func runChainedGitmapStep(args []string) error {
 	bin, err := os.Executable()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, err)
@@ -367,6 +372,7 @@ func runChainedGitmapStep(args []string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	handleChainedStepResult(cmd.Run())
+	return nil
 }
 
 func handleChainedStepResult(runErr error) {

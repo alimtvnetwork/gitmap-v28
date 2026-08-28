@@ -50,7 +50,7 @@ func saveAndReportDownloaderConfig(db *store.DB, doc downloaderconfig.Document, 
 }
 
 // runDownloaderConfig is the dispatch entrypoint.
-func runDownloaderConfig(args []string) {
+func runDownloaderConfig(args []string) error {
 	checkHelp(constants.CmdDownloaderConfig, args)
 	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigBanner+"\n", constants.Version)
 
@@ -59,6 +59,7 @@ func runDownloaderConfig(args []string) {
 
 	doc, source := loadDocOrPrompt(db, args)
 	saveAndReportDownloaderConfig(db, doc, source)
+	return nil
 }
 
 // loadDocOrPrompt resolves the final Document either from a JSON file

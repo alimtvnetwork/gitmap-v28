@@ -26,7 +26,7 @@ import (
 )
 
 // runClonePick is the dispatcher entry registered in rootcore.go.
-func runClonePick(args []string) {
+func runClonePick(args []string) error {
 	checkHelp("clone-pick", args)
 
 	parsed := parseClonePickFlags(args)
@@ -43,28 +43,30 @@ func runClonePick(args []string) {
 	if plan.DryRun {
 		runClonePickDryRun(plan, parsed)
 
-		return
+		return nil
 	}
 
 	if parsed.Output == constants.OutputTerminal {
 		printClonePickTermBlock(plan)
 	}
 	runClonePickExecute(plan, parsed.NoVSCodeSync, replayId)
+	return nil
 }
 
 // runClonePickDryRun handles the --dry-run branch. Split out so the
 // dispatcher stays under the function-length cap.
-func runClonePickDryRun(plan clonepick.Plan, parsed clonePickParsed) {
+func runClonePickDryRun(plan clonepick.Plan, parsed clonePickParsed) error {
 	if parsed.Output == constants.OutputTerminal {
 		printClonePickTermBlock(plan)
 		maybeExitOnCmdFaithfulMismatch()
 
-		return
+		return nil
 	}
 	if err := clonepick.Render(os.Stdout, plan); err != nil {
 		cliexit.Fail(constants.CmdClonePick, "render-dry-run", parsed.RawURL, err, 1)
 	}
 	maybeExitOnCmdFaithfulMismatch()
+	return nil
 }
 
 // buildClonePickPlan picks between the parse path (positional args)

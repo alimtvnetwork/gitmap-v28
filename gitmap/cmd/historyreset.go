@@ -9,17 +9,18 @@ import (
 )
 
 // runHistoryReset handles the "history-reset" subcommand.
-func runHistoryReset(args []string) {
+func runHistoryReset(args []string) error {
 	checkHelp("history-reset", args)
 	confirm := parseHistoryResetFlags(args)
 	if confirm {
 		executeHistoryReset()
 
-		return
+		return nil
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrHistoryResetNoConfirm)
 	os.Exit(1)
+	return nil
 }
 
 // parseHistoryResetFlags parses the --confirm flag.

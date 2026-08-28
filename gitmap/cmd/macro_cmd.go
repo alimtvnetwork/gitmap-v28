@@ -39,20 +39,21 @@ func executeMacroByName(macroName string, executionOptions macro.ExecOptions) {
 }
 
 // runExecuteCmd executes a recorded macro by name.
-func runExecuteCmd(args []string) {
+func runExecuteCmd(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap execute <macro_name> [--dry-run] [--verbose]\n")
 		os.Exit(1)
 	}
 	executionOptions := parseExecOptions(args[1:])
 	executeMacroByName(args[0], executionOptions)
+	return nil
 }
 
 // runMacroCmd handles `gitmap macro` subcommands.
-func runMacroCmd(args []string) {
+func runMacroCmd(args []string) error {
 	if len(args) == 0 {
 		printMacroUsage()
-		return
+		return nil
 	}
 	sub := args[0]
 	switch sub {
@@ -92,6 +93,7 @@ func runMacroCmd(args []string) {
 	default:
 		printMacroUsage()
 	}
+	return nil
 }
 
 func listMacros() {

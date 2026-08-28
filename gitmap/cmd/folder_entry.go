@@ -8,10 +8,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func runFolder(args []string) {
+func runFolder(args []string) error {
 	checkHelp(constants.CmdFolder, args)
 	if err := folder.Run(args); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+	return nil
 }

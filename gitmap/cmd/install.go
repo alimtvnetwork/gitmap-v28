@@ -32,12 +32,12 @@ func parseInstallFlags(args []string) (installOptions, bool) {
 }
 
 // runInstall handles the "install" command.
-func runInstall(args []string) {
+func runInstall(args []string) error {
 	checkHelp("install", args)
 	opts, list := parseInstallFlags(args)
 	if list || opts.Tool == "ls" || opts.Tool == "list" {
 		printInstallListGrouped()
-		return
+		return nil
 	}
 	if opts.Tool == "" {
 		fmt.Fprint(os.Stderr, constants.ErrInstallToolRequired)
@@ -45,6 +45,7 @@ func runInstall(args []string) {
 	}
 	validateToolName(opts.Tool)
 	executeInstall(opts)
+	return nil
 }
 
 // installOptions holds parsed install flags.
@@ -76,7 +77,9 @@ func validateToolName(tool string) {
 
 // executeInstall runs the install flow for a tool.
 func executeInstall(opts installOptions) {
-	if opts.Tool == "ag-m" { opts.Tool = constants.ToolAgManager }
+	if opts.Tool == "ag-m" {
+		opts.Tool = constants.ToolAgManager
+	}
 	if handler := specialInstallHandler(opts.Tool); handler != nil {
 		handler(opts)
 		return
@@ -137,7 +140,7 @@ func shouldProceedInstall(opts installOptions, installName string) bool {
 	return true
 }
 
-func runToolInstallation(opts installOptions, originalTool, installName string) {
+func runToolInstallation(opts installOptions, originalTool, installName string) error {
 	opts.Tool = installName
 	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	announceInstallPlan(opts.Version, manager)
@@ -145,6 +148,7 @@ func runToolInstallation(opts installOptions, originalTool, installName string) 
 		installTool(opts)
 		postInstallSettingsSync(originalTool)
 	}
+	return nil
 }
 
 // executeGenericInstall runs the standard package-manager-backed install pipeline.
@@ -212,6 +216,7 @@ func confirmInstall(tool, version, manager string) bool {
 	return answer == "y" || answer == "Y"
 }
 
-func runInstallAntigravity() {
+func runInstallAntigravity() error {
 	fmt.Println("To install Antigravity, please follow the official setup guide or run: npm install -g @google/antigravity")
+	return nil
 }

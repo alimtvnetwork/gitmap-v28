@@ -13,12 +13,13 @@ import (
 )
 
 // runVSCode handles `gitmap vscode` CLI commands.
-func runVSCode(args []string) {
+func runVSCode(args []string) error {
 	if len(args) == 0 {
 		printVSCodeUsage()
 		os.Exit(1)
 	}
 	dispatchVSCodeAction(args)
+	return nil
 }
 
 func dispatchVSCodeAction(args []string) {

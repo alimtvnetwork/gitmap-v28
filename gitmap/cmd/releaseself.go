@@ -9,7 +9,7 @@ import (
 )
 
 // runReleaseSelf handles the 'release-self' command.
-func runReleaseSelf(args []string) {
+func runReleaseSelf(args []string) error {
 	checkHelp("release-self", args)
 	requireOnline()
 	version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, listTargets, noCommit, yes := parseReleaseFlags(args)
@@ -18,11 +18,12 @@ func runReleaseSelf(args []string) {
 	if listTargets {
 		printListTargets(targets)
 
-		return
+		return nil
 	}
 
 	validateReleaseFlags(version, bump, commit, branch)
 	executeSelfRelease(version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes)
+	return nil
 }
 
 // executeSelfRelease builds options and runs the self-release workflow.

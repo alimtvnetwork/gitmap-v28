@@ -257,7 +257,7 @@ func handleReleaseNotesArgsError(err error) {
 }
 
 // runReleaseNotesV2 is the flag-aware entry point used by the dispatcher.
-func runReleaseNotesV2(args []string) {
+func runReleaseNotesV2(args []string) error {
 	opts, err := parseReleaseNotesArgs(args)
 	if err != nil {
 		handleReleaseNotesArgsError(err)
@@ -269,7 +269,8 @@ func runReleaseNotesV2(args []string) {
 	}
 	if len(lines) == 0 {
 		fmt.Fprintln(os.Stderr, "release-notes: no commits in selected range")
-		return
+		return nil
 	}
 	fmt.Print(renderReleaseNotes(opts, lines))
+	return nil
 }

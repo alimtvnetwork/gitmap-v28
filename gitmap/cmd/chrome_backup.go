@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func runChromeBackup(args []string) {
+func runChromeBackup(args []string) error {
 	out := chromeBackupDefaultPath()
 	for i := 0; i < len(args); i++ {
 		isOutFlag := args[i] == "-o" || args[i] == "--out"
@@ -44,9 +44,10 @@ func runChromeBackup(args []string) {
 		fmt.Printf("  manifest: \033[2;37m%s\033[0m\n", manifestPath)
 	}
 	fmt.Printf("  restore: \033[1;96mgitmap chrome restore %s\033[0m\n", out)
+	return nil
 }
 
-func runChromeRestore(args []string) {
+func runChromeRestore(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "chrome restore: ERROR usage: gitmap chrome restore <tarball> [--into <dir>] [--force|-f] [--yes|-y] [--dry-run] [--no-verify]")
 		os.Exit(2)
@@ -127,7 +128,7 @@ func runChromeRestore(args []string) {
 	}
 	if dryRun {
 		doDryRun(src, dst)
-		return
+		return nil
 	}
 	n, err := readChromeBackup(src, dst)
 	if err != nil {
@@ -135,6 +136,7 @@ func runChromeRestore(args []string) {
 		os.Exit(1)
 	}
 	fmt.Printf("\033[1;92m✓ chrome restore\033[0m  %d files → \033[1;96m%s\033[0m\n", n, dst)
+	return nil
 }
 
 // countChromeProfileFiles returns the number of regular files already

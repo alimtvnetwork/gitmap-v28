@@ -12,7 +12,7 @@ import (
 )
 
 // runSSHCat displays the public key for a named SSH key.
-func runSSHCat(args []string) {
+func runSSHCat(args []string) error {
 	fs := flag.NewFlagSet("ssh-cat", flag.ExitOnError)
 	nameFlag := fs.String("name", constants.DefaultSSHKeyName, "Key name")
 	fs.StringVar(nameFlag, "n", constants.DefaultSSHKeyName, "Key name (short)")
@@ -49,7 +49,7 @@ func runSSHCat(args []string) {
 		fmt.Println(pub)
 		copyPubKeyAndAnnounce(pub)
 
-		return
+		return nil
 	}
 
 	diskPath := defaultSSHKeyPath(name)
@@ -68,6 +68,7 @@ func runSSHCat(args []string) {
 	upsertExistingKeyToDB(db, name, diskPath, string(pubBytes), fp)
 	fmt.Println(pub)
 	copyPubKeyAndAnnounce(pub)
+	return nil
 }
 
 func printSSHNotFound(db *store.DB, name string) {

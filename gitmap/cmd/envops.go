@@ -43,15 +43,16 @@ func applyEnvSet(name, value string, f envSetFlags) {
 }
 
 // runEnvSet sets an environment variable persistently.
-func runEnvSet(args []string) {
+func runEnvSet(args []string) error {
 	name, value, flags := parseEnvSetFlags(args)
 	validateEnvName(name)
 	validateEnvValue(value)
 	applyEnvSet(name, value, flags)
+	return nil
 }
 
 // runEnvGet retrieves a managed environment variable value.
-func runEnvGet(args []string) {
+func runEnvGet(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrEnvNameRequired)
 		os.Exit(1)
@@ -62,6 +63,7 @@ func runEnvGet(args []string) {
 	entry := findEnvVariable(registry, name)
 
 	fmt.Printf(constants.MsgEnvGetFmt, entry.Name, entry.Value)
+	return nil
 }
 
 func parseEnvCommonFlags(cmdName string, args []string) (string, envCommonFlags) {
@@ -87,23 +89,25 @@ func applyEnvDelete(name string, f envCommonFlags) {
 }
 
 // runEnvDelete removes a managed environment variable.
-func runEnvDelete(args []string) {
+func runEnvDelete(args []string) error {
 	name, flags := parseEnvCommonFlags("env-delete", args)
 	validateEnvName(name)
 	applyEnvDelete(name, flags)
+	return nil
 }
 
 // runEnvList prints all managed environment variables.
-func runEnvList() {
+func runEnvList() error {
 	registry := loadEnvRegistry()
 	if len(registry.Variables) == 0 {
 		fmt.Print(constants.MsgEnvListEmpty)
-		return
+		return nil
 	}
 	fmt.Print(constants.MsgEnvListHeader)
 	for _, v := range registry.Variables {
 		fmt.Printf(constants.MsgEnvListRow, v.Name, v.Value)
 	}
+	return nil
 }
 
 func applyEnvPathAdd(dir string, f envCommonFlags) {
@@ -119,12 +123,13 @@ func applyEnvPathAdd(dir string, f envCommonFlags) {
 }
 
 // runEnvPathAdd adds a directory to the system PATH.
-func runEnvPathAdd(args []string) {
+func runEnvPathAdd(args []string) error {
 	dir, flags := parseEnvCommonFlags("env-path-add", args)
 	validateEnvPathDir(dir)
 	registry := loadEnvRegistry()
 	checkEnvPathNotDuplicate(registry, dir)
 	applyEnvPathAdd(dir, flags)
+	return nil
 }
 
 func validateEnvPathRemove(dir string) {
@@ -147,21 +152,23 @@ func applyEnvPathRemove(dir string, f envCommonFlags) {
 }
 
 // runEnvPathRemove removes a directory from the system PATH.
-func runEnvPathRemove(args []string) {
+func runEnvPathRemove(args []string) error {
 	dir, flags := parseEnvCommonFlags("env-path-remove", args)
 	validateEnvPathRemove(dir)
 	applyEnvPathRemove(dir, flags)
+	return nil
 }
 
 // runEnvPathList prints all managed PATH entries.
-func runEnvPathList() {
+func runEnvPathList() error {
 	registry := loadEnvRegistry()
 	if len(registry.Paths) == 0 {
 		fmt.Print(constants.MsgEnvPathEmpty)
-		return
+		return nil
 	}
 	fmt.Print(constants.MsgEnvPathHeader)
 	for _, p := range registry.Paths {
 		fmt.Printf(constants.MsgEnvPathRow, p.Path)
 	}
+	return nil
 }

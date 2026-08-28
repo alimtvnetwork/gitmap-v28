@@ -40,7 +40,7 @@ func applySSHKey(name string) {
 }
 
 // runClone handles the "clone" subcommand.
-func runClone(args []string) {
+func runClone(args []string) error {
 	checkHelp("clone", args)
 	cf := parseCloneFlags(args)
 	if len(cf.Source) == 0 {
@@ -62,7 +62,7 @@ func runClone(args []string) {
 		runCloneAudit(cf)
 		maybeExitOnCmdFaithfulMismatch()
 
-		return
+		return nil
 	}
 
 	requireOnline()
@@ -77,19 +77,20 @@ func runClone(args []string) {
 		runCloneMulti(cf)
 		maybeExitOnCmdFaithfulMismatch()
 
-		return
+		return nil
 	}
 
 	if isDirectURL(cf.Source) {
 		executeDirectClone(cf.Source, cf.FolderName, cf.GHDesktop, cf.NoReplace, cf.Output, cf.NoVSCodeSync)
 		maybeExitOnCmdFaithfulMismatch()
 
-		return
+		return nil
 	}
 
 	source := resolveCloneShorthand(cf.Source)
 	executeClone(source, cf.TargetDir, cf.SafePull, cf.GHDesktop, cf.MaxConcurrency, cf.DefaultBranch, cf.NoVSCodeSync, cf.Clean, cf.MissingOnly)
 	maybeExitOnCmdFaithfulMismatch()
+	return nil
 }
 
 // shouldUseMultiClone returns true when the positional args describe a
@@ -133,7 +134,7 @@ func shouldUseMultiClone(cf CloneFlags) bool {
 // runCloneMulti clones every URL in the flattened positional list, continuing
 // on per-URL failure. Folder name is ignored in this mode (each repo lands in
 // its own auto-derived folder). Exit codes follow mem://features/clone-multi.
-func runCloneMulti(cf CloneFlags) {
+func runCloneMulti(cf CloneFlags) error {
 	flat := flattenURLArgs(cf.Positional)
 	urls, invalid := classifyURLs(flat)
 
@@ -189,6 +190,7 @@ func runCloneMulti(cf CloneFlags) {
 	if failed > 0 {
 		os.Exit(constants.ExitCloneMultiPartialFail)
 	}
+	return nil
 }
 
 // isDirectURL returns true when source is a git URL (not a file path).

@@ -16,12 +16,13 @@ import (
 //  3. Auto-stash dirty changes (unless --no-stash).
 //  4. chdir into the repo and invoke the existing runRelease pipeline.
 //  5. Pop the auto-stash on the way out.
-func runReleaseAlias(args []string, forcePull bool) {
+func runReleaseAlias(args []string, forcePull bool) error {
 	checkHelp(constants.CmdReleaseAlias, args)
 
 	alias, version, pull, noStash, dryRun := parseRAArgs(args, forcePull)
 	target := resolveReleaseAliasPath(alias)
 	performReleaseAlias(target, alias, version, pull, noStash, dryRun)
+	return nil
 }
 
 // parseRAArgs extracts positional <alias> <version> + flags.

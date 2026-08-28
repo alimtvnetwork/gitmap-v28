@@ -14,7 +14,7 @@ import (
 // Desktop in one shot. Unlike `desktop-sync` (which walks last-scan output),
 // this command requires no prior scan — it just verifies cwd is a git repo
 // and invokes the GitHub Desktop CLI on it.
-func runGitHubDesktop(args []string) {
+func runGitHubDesktop(args []string) error {
 	checkHelp(constants.CmdGitHubDesktop, args)
 
 	cwd, err := os.Getwd()
@@ -31,6 +31,7 @@ func runGitHubDesktop(args []string) {
 	}
 
 	registerGHDesktop(target)
+	return nil
 }
 
 // resolveGHDesktopTarget returns the absolute path to register: cwd by

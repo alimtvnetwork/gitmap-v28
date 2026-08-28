@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/committransfer"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/movemerge"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 )
 
 // commitTransferSpec describes one of the three commit-transfer commands.
@@ -24,9 +24,10 @@ type commitTransferSpec struct {
 // Phase 1 (v3.76.0): commit-right.
 // Phase 2 (v3.102.0): commit-left wired through committransfer.RunLeft.
 // Phase 3 (v3.102.0): commit-both wired through committransfer.RunBoth.
-func runCommitTransfer(spec commitTransferSpec, args []string) {
+func runCommitTransfer(spec commitTransferSpec, args []string) error {
 	checkHelp(spec.Name, args)
 	executeCommitTransfer(spec, args)
+	return nil
 }
 
 // executeCommitTransfer parses flags, resolves endpoints, and dispatches

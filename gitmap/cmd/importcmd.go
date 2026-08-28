@@ -11,7 +11,7 @@ import (
 )
 
 // runImport handles the "import" subcommand.
-func runImport(args []string) {
+func runImport(args []string) error {
 	checkHelp("import", args)
 	inFile, confirm := parseImportFlags(args)
 	if !confirm {
@@ -22,6 +22,7 @@ func runImport(args []string) {
 	data := readImportFile(inFile)
 	executeImport(data)
 	printImportSummary(inFile, data)
+	return nil
 }
 
 // parseImportFlags parses the optional file arg and --confirm flag.

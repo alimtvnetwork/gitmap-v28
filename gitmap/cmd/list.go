@@ -21,16 +21,17 @@ var typeKeywords = map[string]string{
 	"csharp": constants.ProjectKeyCsharp,
 }
 
-func runList(args []string) {
+func runList(args []string) error {
 	checkHelp(constants.CmdList, args)
 
 	if len(args) > 0 && isListTypeOrGroups(args[0]) {
 		handleListSpecial(args[0], args[1:])
 
-		return
+		return nil
 	}
 
 	executeList(args)
+	return nil
 }
 
 func executeList(args []string) {

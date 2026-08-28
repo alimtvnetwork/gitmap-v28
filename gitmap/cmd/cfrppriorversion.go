@@ -19,15 +19,15 @@ import (
 
 // runCFRPPriorVersionPrivatize is invoked after the make-public step
 // in cfrp succeeds. autoYes mirrors the cfrp `-y` flag.
-func runCFRPPriorVersionPrivatize(absPath string, autoYes bool) {
+func runCFRPPriorVersionPrivatize(absPath string, autoYes bool) error {
 	base, current := resolvePriorScanIdentity(absPath)
 	if len(base) == 0 || current < 2 {
-		return
+		return nil
 	}
 
 	ctx, ok := resolvePriorScanProvider(absPath)
 	if !ok {
-		return
+		return nil
 	}
 
 	fmt.Printf(constants.MsgCFRPPriorHeaderFmt, base, constants.CFRPPriorMaxLookback)
@@ -36,7 +36,7 @@ func runCFRPPriorVersionPrivatize(absPath string, autoYes bool) {
 	if len(publicSlugs) == 0 {
 		fmt.Print(constants.MsgCFRPPriorNoneFound)
 
-		return
+		return nil
 	}
 
 	fmt.Printf(constants.MsgCFRPPriorFoundFmt, len(publicSlugs),
@@ -45,10 +45,11 @@ func runCFRPPriorVersionPrivatize(absPath string, autoYes bool) {
 	if !autoYes && !promptPrivatize(len(publicSlugs)) {
 		fmt.Print(constants.MsgCFRPPriorSkipped)
 
-		return
+		return nil
 	}
 
 	privatizeSlugs(ctx, publicSlugs)
+	return nil
 }
 
 // resolvePriorScanIdentity returns (baseName, currentVer). Returns

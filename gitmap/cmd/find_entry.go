@@ -34,14 +34,14 @@ func parseLimit(args []string) (int, []string) {
 
 // getRepoDB is used from cmd_db.go
 
-func runFind(args []string) {
+func runFind(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap find <query> [--limit <n>]")
-		return
+		return nil
 	}
 	query := cleanArgs[0]
-	
+
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
@@ -54,22 +54,23 @@ func runFind(args []string) {
 	res, err := searcher.FindFile(ctx, db, query, limit, true)
 	if err != nil {
 		pterm.Error.Println(err)
-		return
+		return nil
 	}
-	
+
 	for _, r := range res {
 		fmt.Println(r.RelativePath)
 	}
+	return nil
 }
 
-func runFindRegex(args []string) {
+func runFindRegex(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap find-regex <regex> [--limit <n>]")
-		return
+		return nil
 	}
 	query := cleanArgs[0]
-	
+
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
@@ -82,22 +83,23 @@ func runFindRegex(args []string) {
 	res, err := searcher.FindFileRegex(ctx, db, query, limit, true)
 	if err != nil {
 		pterm.Error.Println(err)
-		return
+		return nil
 	}
-	
+
 	for _, r := range res {
 		fmt.Println(r.RelativePath)
 	}
+	return nil
 }
 
-func runFindRead(args []string) {
+func runFindRead(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap find-read <query> [--limit <n>]")
-		return
+		return nil
 	}
 	query := cleanArgs[0]
-	
+
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
@@ -110,29 +112,30 @@ func runFindRead(args []string) {
 	res, err := searcher.FindAndRead(ctx, db, query, false, limit, true)
 	if err != nil {
 		pterm.Error.Println(err)
-		return
+		return nil
 	}
-	
+
 	for _, r := range res {
 		pterm.DefaultHeader.WithFullWidth().Println(r.RelativePath)
 		fmt.Println(r.Content)
 		fmt.Println()
 	}
+	return nil
 }
 
-func runFindReadJson(args []string) {
+func runFindReadJson(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("[]")
-		return
+		return nil
 	}
 	query := cleanArgs[0]
-	
+
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		fmt.Println("[]")
-		return
+		return nil
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -140,21 +143,22 @@ func runFindReadJson(args []string) {
 	res, err := searcher.FindAndRead(ctx, db, query, false, limit, true)
 	if err != nil {
 		fmt.Println("[]")
-		return
+		return nil
 	}
-	
+
 	b, _ := json.Marshal(res)
 	fmt.Println(string(b))
+	return nil
 }
 
-func runFindRegexRead(args []string) {
+func runFindRegexRead(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap find-regex-read <regex> [--limit <n>]")
-		return
+		return nil
 	}
 	query := cleanArgs[0]
-	
+
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
@@ -167,29 +171,30 @@ func runFindRegexRead(args []string) {
 	res, err := searcher.FindAndRead(ctx, db, query, true, limit, true)
 	if err != nil {
 		pterm.Error.Println(err)
-		return
+		return nil
 	}
-	
+
 	for _, r := range res {
 		pterm.DefaultHeader.WithFullWidth().Println(r.RelativePath)
 		fmt.Println(r.Content)
 		fmt.Println()
 	}
+	return nil
 }
 
-func runFindRegexReadJson(args []string) {
+func runFindRegexReadJson(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("[]")
-		return
+		return nil
 	}
 	query := cleanArgs[0]
-	
+
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		fmt.Println("[]")
-		return
+		return nil
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -197,31 +202,35 @@ func runFindRegexReadJson(args []string) {
 	res, err := searcher.FindAndRead(ctx, db, query, true, limit, true)
 	if err != nil {
 		fmt.Println("[]")
-		return
+		return nil
 	}
-	
+
 	b, _ := json.Marshal(res)
 	fmt.Println(string(b))
+	return nil
 }
 
-func runFindHelp(args []string) {
+func runFindHelp(args []string) error {
 	pterm.DefaultSection.Println("Find Help Options")
 	pterm.Println("  gitmap find <query> [--limit <n>]")
 	pterm.Println("  gitmap find-regex <regex> [--limit <n>]")
 	pterm.Println("  gitmap find-read <query> [--limit <n>]")
 	pterm.Println("  gitmap find-read-json <query> [--limit <n>]")
+	return nil
 }
 
-func runSearchHelp(args []string) {
+func runSearchHelp(args []string) error {
 	pterm.DefaultSection.Println("Search Help Options")
 	pterm.Println("  gitmap search <query>")
 	pterm.Println("  gitmap search-replace-all <query>")
 	pterm.Println("  gitmap repo-search <query>")
+	return nil
 }
 
-func runRegexHelp(args []string) {
+func runRegexHelp(args []string) error {
 	pterm.DefaultSection.Println("Regex Help Options")
 	pterm.Println("  gitmap replace-regex <regex>")
 	pterm.Println("  gitmap repo-regex <regex>")
 	pterm.Println("  gitmap find-regex <regex>")
+	return nil
 }

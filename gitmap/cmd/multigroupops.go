@@ -10,27 +10,29 @@ import (
 )
 
 // runMultiGroupPull pulls all repos across active multi-groups.
-func runMultiGroupPull() {
+func runMultiGroupPull() error {
 	db, records := loadMultiGroupRepos()
 	defer db.Close()
 
 	for _, r := range records {
 		pullOneRepo(r)
 	}
+	return nil
 }
 
 // runMultiGroupStatus shows status for active multi-group repos.
-func runMultiGroupStatus() {
+func runMultiGroupStatus() error {
 	db, records := loadMultiGroupRepos()
 	defer db.Close()
 
 	printStatusBanner(len(records))
 	summary := printStatusTable(records)
 	printStatusSummary(summary)
+	return nil
 }
 
 // runMultiGroupExec runs a git command across active multi-group repos.
-func runMultiGroupExec(args []string) {
+func runMultiGroupExec(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrExecUsage)
 		os.Exit(1)
@@ -42,6 +44,7 @@ func runMultiGroupExec(args []string) {
 	printExecBanner(args, len(records))
 	succeeded, failed, missing := execAllRepos(records, args)
 	printExecSummary(succeeded, failed, missing, len(records))
+	return nil
 }
 
 // loadMultiGroupRepos loads all repos from the active multi-group.

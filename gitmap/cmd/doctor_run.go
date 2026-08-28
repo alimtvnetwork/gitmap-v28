@@ -15,14 +15,14 @@ import (
 )
 
 // runDoctor is invoked by the root dispatcher.
-func runDoctor(args []string) {
+func runDoctor(args []string) error {
 	// Sub-command dispatch (v6.80.1+): `gitmap doctor fix-repo [...]`
 	// routes to the fix-repo → gofmt probe suite instead of the
 	// generic dependency checks. Alias `fr` matches CmdFixRepoAlias.
 	if len(args) > 0 && (args[0] == constants.CmdFixRepo || args[0] == constants.CmdFixRepoAlias) {
 		runDoctorFixRepo(args[1:])
 
-		return
+		return nil
 	}
 	wantJSON, wantFix := false, false
 	for _, a := range args {
@@ -54,6 +54,7 @@ func runDoctor(args []string) {
 	if failed > 0 {
 		os.Exit(1)
 	}
+	return nil
 }
 
 func emitDoctorJSON(results []DoctorResult, failed int) {

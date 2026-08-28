@@ -10,7 +10,7 @@ import (
 // runReplace is the entrypoint for `gitmap replace`. It dispatches into
 // literal mode, version mode (-N / all), or audit mode based on the
 // shape of args. See spec/04-generic-cli/15-replace-command.md.
-func runReplace(args []string) {
+func runReplace(args []string) error {
 	checkHelp(constants.CmdReplace, args)
 
 	opts, positional, err := parseReplaceFlags(args)
@@ -21,6 +21,7 @@ func runReplace(args []string) {
 
 	mode := classifyReplaceMode(positional, opts)
 	dispatchReplaceMode(mode, positional, opts)
+	return nil
 }
 
 // dispatchReplaceMode runs the right handler for a classified mode.

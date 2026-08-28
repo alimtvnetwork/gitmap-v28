@@ -9,7 +9,7 @@ import (
 )
 
 // runSSHList displays all stored SSH keys as an aligned table or JSON.
-func runSSHList(args ...string) {
+func runSSHList(args ...string) error {
 	jsonOut := hasFlagInArgs(args, constants.FlagSSHJSON)
 
 	db, err := openDB()
@@ -28,13 +28,13 @@ func runSSHList(args ...string) {
 	if jsonOut {
 		printSSHListJSON(keys)
 
-		return
+		return nil
 	}
 
 	if len(keys) == 0 {
 		fmt.Println("  No SSH keys stored. Run 'gitmap ssh' to generate one.")
 
-		return
+		return nil
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHListHeader, len(keys))
@@ -51,6 +51,7 @@ func runSSHList(args ...string) {
 
 		fmt.Fprintf(os.Stdout, constants.MsgSSHListRow, k.Name, k.PrivatePath, k.Fingerprint, created)
 	}
+	return nil
 }
 
 // printSSHListJSON outputs SSH keys as JSON.

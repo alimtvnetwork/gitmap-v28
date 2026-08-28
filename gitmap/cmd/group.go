@@ -8,14 +8,15 @@ import (
 )
 
 // runGroup handles the "group" subcommand and routes to sub-handlers.
-func runGroup(args []string) {
+func runGroup(args []string) error {
 	checkHelp("group", args)
 	if len(args) == 0 {
 		showActiveGroup()
 
-		return
+		return nil
 	}
 	dispatchGroup(args[0], args[1:])
+	return nil
 }
 
 // showActiveGroup prints the currently active group.

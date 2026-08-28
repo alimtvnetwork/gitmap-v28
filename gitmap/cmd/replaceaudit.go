@@ -12,12 +12,12 @@ import (
 // eligible file for any older `<base>-vT` or `<base>/vT` reference and
 // prints `path:line: matched-text` per occurrence. Never writes.
 // Honors --ext to restrict the scan surface.
-func runReplaceAudit(opts replaceOpts) {
+func runReplaceAudit(opts replaceOpts) error {
 	base, k := detectVersion()
 	targets := versionTargets(k, 0)
 	if len(targets) == 0 {
 		fmt.Print(constants.MsgReplaceAlreadyAtV1)
-		return
+		return nil
 	}
 	root := repoRoot()
 	files := loadRepoFiles(root, opts.exts, opts.extCaseIns)
@@ -27,6 +27,7 @@ func runReplaceAudit(opts replaceOpts) {
 	if totalHits == 0 {
 		fmt.Print(constants.MsgReplaceAuditClean)
 	}
+	return nil
 }
 
 // buildAuditNeedles flattens every (target -> dash form, slash form)

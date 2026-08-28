@@ -11,7 +11,7 @@ import (
 )
 
 // runProjectRepos handles go-repos, node-repos, react-repos, cpp-repos, csharp-repos.
-func runProjectRepos(typeKey string, args []string) {
+func runProjectRepos(typeKey string, args []string) error {
 	checkHelp(typeKey+"-repos", args)
 	jsonOut, countOnly := parseProjectReposFlags(args)
 	db, err := store.OpenDefault()
@@ -24,12 +24,13 @@ func runProjectRepos(typeKey string, args []string) {
 	if countOnly {
 		printProjectCount(db, typeKey)
 
-		return
+		return nil
 	}
 	printProjectList(db, typeKey, jsonOut)
 	if !jsonOut {
 		printHints(projectReposHints())
 	}
+	return nil
 }
 
 // parseProjectReposFlags parses --json and --count flags.

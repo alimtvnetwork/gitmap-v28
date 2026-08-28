@@ -28,7 +28,7 @@ func parseClearReleaseJSONFlags(args []string) (string, bool) {
 }
 
 // runClearReleaseJSON handles the "clear-release-json" subcommand.
-func runClearReleaseJSON(args []string) {
+func runClearReleaseJSON(args []string) error {
 	checkHelp("clear-release-json", args)
 
 	version, dryRun := parseClearReleaseJSONFlags(args)
@@ -54,7 +54,7 @@ func runClearReleaseJSON(args []string) {
 
 	if dryRun {
 		fmt.Printf(constants.MsgClearReleaseDryRun, path)
-		return
+		return nil
 	}
 
 	err = os.Remove(path)
@@ -64,4 +64,5 @@ func runClearReleaseJSON(args []string) {
 	}
 
 	fmt.Printf(constants.MsgClearReleaseDone, v.String())
+	return nil
 }

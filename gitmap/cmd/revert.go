@@ -10,10 +10,10 @@ import (
 )
 
 // runRevert handles the "revert" command.
-func runRevert(args []string) {
+func runRevert(args []string) error {
 	checkHelp("revert", args)
 	if handleRevertTxnFlags(args) {
-		return
+		return nil
 	}
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrRevertUsage)
@@ -24,6 +24,7 @@ func runRevert(args []string) {
 	validateRevertVersion(version)
 	checkoutRevertTag(version)
 	launchRevertHandoff()
+	return nil
 }
 
 // validateRevertVersion ensures the tag exists locally.

@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func runRecent(args []string) {
+func runRecent(args []string) error {
 	checkHelp("recent", args)
 
 	path := recentLogPath()
@@ -35,13 +35,14 @@ func runRecent(args []string) {
 		for _, p := range uniq {
 			fmt.Println(p)
 		}
-		return
+		return nil
 	}
 	fmt.Println("\033[1;94mRecent repos\033[0m")
 	for i, p := range uniq {
 		fmt.Printf("  \033[2;37m%2d\033[0m %s\n", i+1, p)
 	}
 	fmt.Println("\n\033[2;37mhint:\033[0m pipe to fzf — \033[1;96mgitmap recent --print | fzf\033[0m")
+	return nil
 }
 
 func recentLogPath() string {
@@ -61,7 +62,7 @@ func dedupeReverse(in []string, max int) []string {
 	return out
 }
 
-func runTodo(args []string) {
+func runTodo(args []string) error {
 	root := "."
 	if len(args) > 0 {
 		root = args[0]
@@ -69,7 +70,7 @@ func runTodo(args []string) {
 	out, err := exec.Command("git", "-C", root, "grep", "-nE", `TODO|FIXME|XXX`).Output()
 	if err != nil && len(out) == 0 {
 		fmt.Println("todo: no matches")
-		return
+		return nil
 	}
 	fmt.Printf("\033[1;94mTODO / FIXME / XXX\033[0m in %s\n", root)
 	sc := bufio.NewScanner(strings.NewReader(string(out)))
@@ -91,4 +92,5 @@ func runTodo(args []string) {
 		fmt.Printf("  \033[2;37m%s:%s\033[0m  \033[1;93m%s\033[0m  %s\n",
 			file, lno, author, strings.TrimSpace(parts[2]))
 	}
+	return nil
 }

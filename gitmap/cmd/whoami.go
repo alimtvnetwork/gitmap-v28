@@ -17,13 +17,13 @@ import (
 // runWhoAmI prints the effective git identity + transport + probable
 // auth principal for the current repo, and offers copy-paste fixes.
 // Exits 0 always; this is a diagnostic, never a mutator.
-func runWhoAmI(_ []string) {
+func runWhoAmI(_ []string) error {
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap whoami` inside a repo)")
 		exitWith(1)
 
-		return
+		return nil
 	}
 
 	printWhoAmIIdentity()
@@ -31,6 +31,7 @@ func runWhoAmI(_ []string) {
 	printWhoAmIAuth(url)
 	printWhoAmISSHKeys()
 	printWhoAmIFixHints(url)
+	return nil
 }
 
 // printWhoAmISSHKeys lists private keys in ~/.ssh so the user can

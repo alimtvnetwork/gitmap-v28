@@ -10,7 +10,7 @@ import (
 )
 
 // runChangelogGen handles the 'changelog-generate' command.
-func runChangelogGen(args []string) {
+func runChangelogGen(args []string) error {
 	checkHelp("changelog-generate", args)
 
 	from, to, write := parseChangelogGenFlags(args)
@@ -30,7 +30,7 @@ func runChangelogGen(args []string) {
 	if len(commits) == 0 {
 		fmt.Printf(constants.MsgChangelogGenEmpty, fromTag, toRef)
 
-		return
+		return nil
 	}
 
 	version := resolveGenVersion(toRef)
@@ -43,6 +43,7 @@ func runChangelogGen(args []string) {
 	} else {
 		printChangelogPreview(section)
 	}
+	return nil
 }
 
 // parseChangelogGenFlags parses flags for changelog-generate.

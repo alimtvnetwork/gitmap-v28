@@ -6,8 +6,9 @@ package cmd
 // stays in one place. Useful for users and the right-click context
 // menu's power-user "pull-all" action; equivalent to
 // `gitmap pull --all <forwarded flags>`.
-func runPullAll(args []string) {
+func runPullAll(args []string) error {
 	runPull(prependAll(args))
+	return nil
 }
 
 // prependAll injects --all at the front of args unless the caller

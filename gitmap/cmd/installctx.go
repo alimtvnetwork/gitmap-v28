@@ -37,7 +37,7 @@ func isCtxExplainEnabled() bool {
 // the platform-specific implementation. Spec: spec/04-generic-cli/30-install-ctx.md.
 // When explain=true, generated entries print their resolved invocation
 // before executing.
-func runInstallCtx(explain bool) {
+func runInstallCtx(explain bool) error {
 	setCtxExplainEnabled(explain)
 	switch runtime.GOOS {
 	case "windows":
@@ -49,10 +49,11 @@ func runInstallCtx(explain bool) {
 	default:
 		fmt.Fprintf(os.Stderr, constants.MsgCtxOSUnsupported, runtime.GOOS)
 	}
+	return nil
 }
 
 // runUninstallCtx dispatches removal to the platform implementation.
-func runUninstallCtx() {
+func runUninstallCtx() error {
 	switch runtime.GOOS {
 	case "windows":
 		runUninstallCtxWindows()
@@ -63,10 +64,11 @@ func runUninstallCtx() {
 	default:
 		fmt.Fprintf(os.Stderr, constants.MsgCtxOSUnsupported, runtime.GOOS)
 	}
+	return nil
 }
 
 // runInstallCtxWindows writes the full nested HKCU registry tree.
-func runInstallCtxWindows() {
+func runInstallCtxWindows() error {
 	fmt.Print(constants.MsgCtxInstallStart)
 
 	exe := resolveCtxExe()
@@ -74,10 +76,11 @@ func runInstallCtxWindows() {
 
 	successes := runRegistryCommandsCtx(cmds)
 	fmt.Printf(constants.MsgCtxInstallDone, successes, len(cmds))
+	return nil
 }
 
 // runUninstallCtxWindows removes the gitmap subtree from both HKCU roots.
-func runUninstallCtxWindows() {
+func runUninstallCtxWindows() error {
 	fmt.Print(constants.MsgCtxUninstallStart)
 
 	cmds := [][]string{
@@ -87,6 +90,7 @@ func runUninstallCtxWindows() {
 
 	successes := runRegistryCommandsCtx(cmds)
 	fmt.Printf(constants.MsgCtxUninstallDone, successes, len(cmds))
+	return nil
 }
 
 // resolveCtxExe returns the absolute path to the running gitmap binary.

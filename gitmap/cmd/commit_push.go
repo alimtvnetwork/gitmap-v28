@@ -18,10 +18,10 @@ func isCommitPushHelpArg(args []string) bool {
 }
 
 // runCommitPush stages all changes, commits with the given message, and pushes.
-func runCommitPush(args []string) {
+func runCommitPush(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPush, []string{"--help"})
-		return
+		return nil
 	}
 	if len(args) == 0 {
 		pterm.Error.Println("Usage: gitmap commit-push \"<commit message>\"")
@@ -29,13 +29,14 @@ func runCommitPush(args []string) {
 	}
 	commitMessage := strings.Join(args, " ")
 	executeCommitPush(commitMessage)
+	return nil
 }
 
 // runCommitPushPull pulls first, then stages, commits, and pushes.
-func runCommitPushPull(args []string) {
+func runCommitPushPull(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPushPull, []string{"--help"})
-		return
+		return nil
 	}
 	if len(args) == 0 {
 		pterm.Error.Println("Usage: gitmap commit-push-pull \"<commit message>\"")
@@ -51,13 +52,14 @@ func runCommitPushPull(args []string) {
 	}
 	pterm.Success.Println("Pull complete.")
 	executeCommitPush(commitMessage)
+	return nil
 }
 
 // runCommitPushBug commits with a "Bug: " prefix.
-func runCommitPushBug(args []string) {
+func runCommitPushBug(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPushBug, []string{"--help"})
-		return
+		return nil
 	}
 	if len(args) == 0 {
 		pterm.Error.Println("Usage: gitmap commit-push-bug \"<what was fixed>\"")
@@ -65,13 +67,14 @@ func runCommitPushBug(args []string) {
 	}
 	commitMessage := "Bug: " + strings.Join(args, " ")
 	executeCommitPush(commitMessage)
+	return nil
 }
 
 // runCommitPushFeature commits with a "Feature: " prefix.
-func runCommitPushFeature(args []string) {
+func runCommitPushFeature(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPushFeature, []string{"--help"})
-		return
+		return nil
 	}
 	if len(args) == 0 {
 		pterm.Error.Println("Usage: gitmap commit-push-feature \"<what feature was added>\"")
@@ -79,13 +82,14 @@ func runCommitPushFeature(args []string) {
 	}
 	commitMessage := "Feature: " + strings.Join(args, " ")
 	executeCommitPush(commitMessage)
+	return nil
 }
 
 // runCommitPushRelease commits with a "Release: " prefix.
-func runCommitPushRelease(args []string) {
+func runCommitPushRelease(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPushRelease, []string{"--help"})
-		return
+		return nil
 	}
 	if len(args) == 0 {
 		pterm.Error.Println("Usage: gitmap commit-push-release \"<what release changes>\"")
@@ -93,13 +97,14 @@ func runCommitPushRelease(args []string) {
 	}
 	commitMessage := "Release: " + strings.Join(args, " ")
 	executeCommitPush(commitMessage)
+	return nil
 }
 
 // runRmGit removes a commit by its last 4-digit SHA prefix using rebase --onto.
-func runRmGit(args []string) {
+func runRmGit(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdRmGit, []string{"--help"})
-		return
+		return nil
 	}
 	if len(args) == 0 {
 		pterm.Error.Println("Usage: gitmap rm-git <last-4-digits-of-sha>")
@@ -135,6 +140,7 @@ func runRmGit(args []string) {
 		os.Exit(1)
 	}
 	pterm.Success.Printf("Commit %s removed successfully.\n", fullSha[:8])
+	return nil
 }
 
 // executeCommitPush is the shared logic for all commit-push variants.

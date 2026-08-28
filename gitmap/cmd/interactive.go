@@ -21,7 +21,7 @@ func parseInteractiveFlags(args []string) int {
 }
 
 // runInteractive launches the full-screen TUI.
-func runInteractive() {
+func runInteractive() error {
 	checkHelp("interactive", os.Args[2:])
 
 	refresh := parseInteractiveFlags(os.Args[2:])
@@ -46,4 +46,5 @@ func runInteractive() {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
+	return nil
 }

@@ -14,21 +14,22 @@ import (
 )
 
 // runRelease handles the 'release' command.
-func runRelease(args []string) {
+func runRelease(args []string) error {
 	if tryCrossDirRelease(args) {
-		return
+		return nil
 	}
 	checkHelp("release", args)
 	v, assets, commit, branch, bump, notes, targets, zg, zi, bundle, draft, dryRun, verbose, comp, cs, bin, listTgts, noComm, yes := parseReleaseFlags(args)
 	_ = verbose
 	if listTgts {
 		printListTargets(targets)
-		return
+		return nil
 	}
 	if handleOutsideRepoRelease(args, v, bump, commit, branch, yes) {
-		return
+		return nil
 	}
 	performInsideRepoRelease(v, assets, commit, branch, bump, notes, targets, zg, zi, bundle, draft, dryRun, verbose, comp, cs, bin, noComm, yes)
+	return nil
 }
 
 func handleOutsideRepoRelease(args []string, version, bump, commit, branch string, yes bool) bool {

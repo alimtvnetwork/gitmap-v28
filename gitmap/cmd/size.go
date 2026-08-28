@@ -18,7 +18,7 @@ type repoSize struct {
 }
 
 // runSize executes `gitmap size`.
-func runSize(args []string) {
+func runSize(args []string) error {
 	checkHelp("size", args)
 	fs := flag.NewFlagSet("size", flag.ContinueOnError)
 	root := fs.String("root", ".", "scan root directory")
@@ -46,6 +46,7 @@ func runSize(args []string) {
 	if *prune {
 		runAggressiveGC(sizes, *dryRun)
 	}
+	return nil
 }
 
 // emitSize dispatches to the requested output format.
@@ -91,7 +92,7 @@ func printSizeReport(sizes []repoSize) {
 }
 
 // runAggressiveGC invokes `git gc --aggressive --prune=now` on each repo.
-func runAggressiveGC(sizes []repoSize, dryRun bool) {
+func runAggressiveGC(sizes []repoSize, dryRun bool) error {
 	for _, s := range sizes {
 		if dryRun {
 			fmt.Fprintf(os.Stdout, "  \033[33mwould gc\033[0m %s\n", s.path)
@@ -110,4 +111,5 @@ func runAggressiveGC(sizes []repoSize, dryRun bool) {
 		after := dirSize(filepath.Join(s.path, ".git"))
 		fmt.Fprintf(os.Stdout, "  \033[32mdone\033[0m %s  %s -> %s\n", s.path, humanBytes(s.size), humanBytes(after))
 	}
+	return nil
 }

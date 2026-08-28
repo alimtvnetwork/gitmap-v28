@@ -19,7 +19,7 @@ const findNextUsageExitCode = 2
 // As of v3.122.0 the parser rejects unknown flags, malformed values,
 // and `--json=...` boolean misuse with a clear stderr message + the
 // usage header, then exits 2. Previously these were silently ignored.
-func runFindNext(args []string) {
+func runFindNext(args []string) error {
 	checkHelp("find-next", args)
 
 	scanFolderID, jsonOut, err := parseFindNextFlags(args)
@@ -39,6 +39,7 @@ func runFindNext(args []string) {
 	}
 
 	emitFindNext(rows, jsonOut)
+	return nil
 }
 
 // emitFindNext writes either JSON or the human-readable summary.

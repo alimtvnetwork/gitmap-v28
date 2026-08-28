@@ -79,14 +79,15 @@ type cloneNowFlags struct {
 // the canonical `reclone` help page; the legacy `clone-now` and
 // `relclone` page stubs (kept for `gitmap help clone-now` users)
 // redirect to the same content.
-func runCloneNow(args []string) {
+func runCloneNow(args []string) error {
 	checkHelp(constants.CmdCloneReclone, args)
 	if tryRunRepoReclone(args) {
-		return
+		return nil
 	}
 	cfg := parseCloneNowFlags(args)
 	plan := initCloneNowPlan(cfg)
 	dispatchCloneNow(plan, cfg)
+	return nil
 }
 
 func initCloneNowPlan(cfg cloneNowFlags) clonenow.Plan {
@@ -193,14 +194,15 @@ func validateCloneNowFlags(cfg cloneNowFlags) {
 // runCloneNowDry renders the dry-run preview. No side effects --
 // dry-run never touches the network or filesystem outside reading
 // the input file.
-func runCloneNowDry(plan clonenow.Plan, cfg cloneNowFlags) {
+func runCloneNowDry(plan clonenow.Plan, cfg cloneNowFlags) error {
 	if cfg.output == constants.OutputTerminal {
 		printCloneNowTermBlocks(plan)
-		return
+		return nil
 	}
 	if err := clonenow.Render(os.Stdout, plan); err != nil {
 		cliexit.Fail(constants.CmdCloneReclone, "render-dry-run", cfg.file, err, 1)
 	}
+	return nil
 }
 
 func executeCloneNowPlan(plan clonenow.Plan, cfg cloneNowFlags) []clonenow.Result {
@@ -230,9 +232,10 @@ func finalizeCloneNowRun(cfg cloneNowFlags, results []clonenow.Result) {
 // runCloneNowExecute is the side-effecting branch. Picks the
 // progress writer based on --quiet, executes the plan, prints the
 // summary, then translates the result tally to an exit code.
-func runCloneNowExecute(plan clonenow.Plan, cfg cloneNowFlags) {
+func runCloneNowExecute(plan clonenow.Plan, cfg cloneNowFlags) error {
 	results := executeCloneNowPlan(plan, cfg)
 	finalizeCloneNowRun(cfg, results)
+	return nil
 }
 
 // cloneNowExitCode returns 1 if any row failed, else 0. Skipped

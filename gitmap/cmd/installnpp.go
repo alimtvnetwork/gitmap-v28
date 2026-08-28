@@ -21,28 +21,30 @@ func resolveNppInstallName(tool string) string {
 }
 
 // runNppSettingsOnly syncs Notepad++ settings without installing the binary.
-func runNppSettingsOnly() {
+func runNppSettingsOnly() error {
 	fmt.Print(constants.MsgInstallNppSkipBin)
 	runNppSettings()
+	return nil
 }
 
 // runNppSettings syncs Notepad++ settings to the AppData directory.
-func runNppSettings() {
+func runNppSettings() error {
 	fmt.Print(constants.MsgInstallNppSettings)
 
 	target := nppSettingsTarget()
 	if target == "" {
-		return
+		return nil
 	}
 
 	err := os.MkdirAll(target, 0o755)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrNppDirCreate, target, err)
 
-		return
+		return nil
 	}
 
 	extractNppSettingsZip(target)
+	return nil
 }
 
 // nppSettingsTarget returns the Notepad++ AppData settings path.

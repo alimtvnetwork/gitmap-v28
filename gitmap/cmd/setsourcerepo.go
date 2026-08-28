@@ -10,7 +10,7 @@ import (
 // runSetSourceRepo handles the hidden "set-source-repo" command.
 // Called by run.ps1 after deploy to persist the current repo root
 // so future "gitmap update" uses the correct source location.
-func runSetSourceRepo() {
+func runSetSourceRepo() error {
 	args := os.Args[2:]
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrSetSourceRepoNoPath)
@@ -26,4 +26,5 @@ func runSetSourceRepo() {
 
 	saveRepoPathToDB(normalized)
 	fmt.Printf(constants.MsgSetSourceRepoDone, normalized)
+	return nil
 }

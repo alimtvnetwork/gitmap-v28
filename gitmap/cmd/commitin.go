@@ -10,7 +10,7 @@ import (
 )
 
 // runCommitIn is the top-level entry point for `gitmap commit-in` / `gitmap cin`.
-func runCommitIn(args []string) {
+func runCommitIn(args []string) error {
 	for _, a := range args {
 		if a == "--help" || a == "-h" || a == "help" {
 			fmt.Println(commitin.PrintCommitInHelp())
@@ -25,4 +25,5 @@ func runCommitIn(args []string) {
 	}
 	exitCode := orchestrator.Run(raw, os.Stdout, os.Stderr)
 	os.Exit(exitCode)
+	return nil
 }

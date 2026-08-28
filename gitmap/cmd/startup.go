@@ -31,7 +31,7 @@ import (
 // for piping into other tools (jq, spreadsheet imports, etc).
 // --backend and --name filter the result set in-memory before the
 // renderer runs so format-specific code paths stay untouched.
-func runStartupList(args []string) {
+func runStartupList(args []string) error {
 	opts, err := parseStartupListFlags(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -48,6 +48,7 @@ func runStartupList(args []string) {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // startupListOpts bundles the parsed flag values so the dispatcher
@@ -143,7 +144,7 @@ func validateStartupListBackend(b string) error {
 // would happen. --output=json emits the shared startupStatus
 // object instead, with the same field shape as startup-add for
 // uniform downstream parsing.
-func runStartupRemove(args []string) {
+func runStartupRemove(args []string) error {
 	cfg, err := parseStartupRemoveFlags(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, constants.ErrStartupRemoveUsage)
@@ -169,9 +170,10 @@ func runStartupRemove(args []string) {
 		_ = emitStartupStatus(cfg.output, cfg.jsonIndent,
 			removeResultToStatus(cfg.name, res))
 
-		return
+		return nil
 	}
 	printRemoveResult(cfg.name, res)
+	return nil
 }
 
 // startupRemoveFlags bundles parsed flag values so the dispatcher

@@ -9,20 +9,21 @@ import (
 )
 
 // runDoPending retries all pending tasks or a single task by ID.
-func runDoPending(args []string) {
+func runDoPending(args []string) error {
 	checkHelp("do-pending", args)
 
 	if len(args) > 0 {
 		runDoPendingSingle(args[0])
 
-		return
+		return nil
 	}
 
 	runDoPendingAll()
+	return nil
 }
 
 // runDoPendingAll retries all pending tasks.
-func runDoPendingAll() {
+func runDoPendingAll() error {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingDBOpen, err)
@@ -39,7 +40,7 @@ func runDoPendingAll() {
 	if len(tasks) == 0 {
 		fmt.Print(constants.MsgPendingListEmpty)
 
-		return
+		return nil
 	}
 
 	fmt.Printf(constants.MsgPendingRetryAll, len(tasks))
@@ -47,10 +48,11 @@ func runDoPendingAll() {
 	for _, t := range tasks {
 		retryPendingTask(db, t.ID, t.TaskTypeName, t.TargetPath, t.WorkingDirectory, t.CommandArgs)
 	}
+	return nil
 }
 
 // runDoPendingSingle retries a single pending task by its ID string.
-func runDoPendingSingle(idStr string) {
+func runDoPendingSingle(idStr string) error {
 	taskID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrPendingTaskNotFound, 0)
@@ -72,4 +74,5 @@ func runDoPendingSingle(idStr string) {
 
 	fmt.Printf(constants.MsgPendingRetryOne, taskID)
 	retryPendingTask(db, task.ID, task.TaskTypeName, task.TargetPath, task.WorkingDirectory, task.CommandArgs)
+	return nil
 }

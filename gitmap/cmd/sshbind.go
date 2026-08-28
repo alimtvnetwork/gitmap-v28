@@ -15,27 +15,27 @@ import (
 // runSSHBind sets core.sshCommand for the cwd repo to the given key.
 // Accepts an absolute path, a ~/-relative path, or a bare filename
 // (resolved under ~/.ssh). Exits 0 on success, 1 on any failure.
-func runSSHBind(args []string) {
+func runSSHBind(args []string) error {
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap ssh-bind` inside a repo)")
 		exitWith(1)
 
-		return
+		return nil
 	}
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: gitmap ssh-bind <key-filename-or-path>")
 		fmt.Fprintln(os.Stderr, "  tip: run `gitmap whoami` to list available keys under ~/.ssh")
 		exitWith(1)
 
-		return
+		return nil
 	}
 	keyRef, keyPath := resolveSSHKeyPath(args[0])
 	if _, err := os.Stat(keyPath); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ key not found: %s (%v)\n", keyPath, err)
 		exitWith(1)
 
-		return
+		return nil
 	}
 	cmdStr := fmt.Sprintf("ssh -i %s -F /dev/null -o IdentitiesOnly=yes", keyRef)
 	out, err := exec.Command("git", "config", "core.sshCommand", cmdStr).CombinedOutput()
@@ -43,11 +43,12 @@ func runSSHBind(args []string) {
 		fmt.Fprintf(os.Stderr, "✗ git config failed: %v\n%s", err, out)
 		exitWith(1)
 
-		return
+		return nil
 	}
 	fmt.Printf("✓ pinned SSH key for this repo: %s\n", keyPath)
 	fmt.Printf("  core.sshCommand = %s\n", cmdStr)
 	fmt.Println("  test with: git push")
+	return nil
 }
 
 // resolveSSHKeyPath returns (refForSSH, absoluteForStat). Bare names

@@ -10,7 +10,7 @@ import (
 )
 
 // runBookmarkSave saves a new bookmark from name + command + args/flags.
-func runBookmarkSave(args []string) {
+func runBookmarkSave(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkSaveUsage)
 		os.Exit(1)
@@ -21,6 +21,7 @@ func runBookmarkSave(args []string) {
 	flags, positional := splitBookmarkArgs(args[2:])
 
 	saveBookmarkToDB(name, command, positional, flags)
+	return nil
 }
 
 // splitBookmarkArgs separates flags from positional arguments.

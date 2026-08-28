@@ -17,13 +17,13 @@ var cgHeaderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd")).Bo
 var cgVersionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#bd93f9"))
 
 type cgUpdateResult struct {
-	repo        string
-	isSuccess   bool
-	errorMsg    string
-	oldVersion  string
-	newVersion  string
-	hasChanged  bool
-	stdout      string
+	repo       string
+	isSuccess  bool
+	errorMsg   string
+	oldVersion string
+	newVersion string
+	hasChanged bool
+	stdout     string
 }
 
 func executeCGWorkers(repos []string) {
@@ -41,20 +41,25 @@ func executeCGWorkers(repos []string) {
 	printCGUpdateSummary(results)
 }
 
-func runCgWorker(repo string, wg *sync.WaitGroup, sem chan struct{}, results chan<- cgUpdateResult) {
+func runCgWorker(repo string, wg *sync.WaitGroup, sem chan struct{}, results chan<- cgUpdateResult) error {
 	defer wg.Done()
 	defer func() { <-sem }()
 	res := cgUpdateResult{repo: repo, isSuccess: true}
-	if oldMeta, err := ReadCGMetadata(repo); err == nil { res.oldVersion = oldMeta.Version }
+	if oldMeta, err := ReadCGMetadata(repo); err == nil {
+		res.oldVersion = oldMeta.Version
+	}
 	out, runErr := runCgScriptInRepo(repo)
 	if runErr != nil {
 		res.isSuccess = false
 		res.errorMsg = runErr.Error()
 	}
 	res.stdout = out
-	if newMeta, err := ReadCGMetadata(repo); err == nil { res.newVersion = newMeta.Version }
+	if newMeta, err := ReadCGMetadata(repo); err == nil {
+		res.newVersion = newMeta.Version
+	}
 	res.hasChanged = (res.oldVersion != res.newVersion)
 	results <- res
+	return nil
 }
 
 func getCgScriptCmd(repo string) *exec.Cmd {

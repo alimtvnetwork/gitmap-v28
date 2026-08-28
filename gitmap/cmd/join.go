@@ -10,7 +10,7 @@ import (
 )
 
 // runJoin connects to an existing orchestrator daemon.
-func runJoin(args []string) {
+func runJoin(args []string) error {
 	checkHelp("join", args)
 
 	fs := flag.NewFlagSet(constants.CmdJoin, flag.ExitOnError)
@@ -41,4 +41,5 @@ func runJoin(args []string) {
 	}
 
 	fmt.Println(constants.MsgJoinSuccess)
+	return nil
 }

@@ -32,7 +32,7 @@ type pullOptions struct {
 }
 
 // runPull handles the "pull" subcommand.
-func runPull(args []string) {
+func runPull(args []string) error {
 	checkHelp("pull", args)
 	cwd, _ := os.Getwd()
 	fmt.Printf("→ gitmap pull (cwd: %s)\n", cwd)
@@ -43,7 +43,7 @@ func runPull(args []string) {
 	useSSH, useHTTPS, rest := extractTransportFlags(args)
 	if useSSH || useHTTPS {
 		runPullCWDWithTransport(useSSH, useHTTPS, rest)
-		return
+		return nil
 	}
 	opts := parsePullFlags(args)
 	if opts.verbose {
@@ -52,7 +52,7 @@ func runPull(args []string) {
 	if shouldPullCWD(opts) {
 		fmt.Println("  ↳ cwd is a git repo — running plain `git pull` here")
 		runPullCWD()
-		return
+		return nil
 	}
 	var records []model.ScanRecord
 	if opts.slug == "" && opts.group == "" && !opts.all && !HasAlias() {
@@ -63,7 +63,7 @@ func runPull(args []string) {
 		}
 		if len(records) == 0 {
 			fmt.Println("  ↳ nothing to pull: no tracked repositories found in or under this directory.")
-			return
+			return nil
 		}
 	} else {
 		records = resolvePullTargets(opts.slug, opts.group, opts.all)
@@ -76,7 +76,7 @@ func runPull(args []string) {
 	isAvailableEmpty := opts.onlyAvailable == true && len(records) == 0
 	if isAvailableEmpty == true {
 		fmt.Print(constants.MsgPullNoAvailable)
-		return
+		return nil
 	}
 
 	taskID, taskDB := beginPullTask(records)
@@ -100,17 +100,17 @@ func runPull(args []string) {
 		if diag.IsDirty {
 			status = "DIRTY"
 		}
-				latestBranch := gitutil.GetLatestRemoteBranch(rec.AbsolutePath)
+		latestBranch := gitutil.GetLatestRemoteBranch(rec.AbsolutePath)
 		tableRows = append(tableRows, model.PullTableRow{
 			RepoName:     rec.RepoName,
 			Branch:       branch,
 			LatestBranch: latestBranch,
 			LastSHA:      sha,
-			PRStatus:   pr,
-			PullStatus: status,
-			Duration:   "1.0s",
-			IsDirty:    diag.IsDirty,
-			Reason:     diag.SummaryReason,
+			PRStatus:     pr,
+			PullStatus:   status,
+			Duration:     "1.0s",
+			IsDirty:      diag.IsDirty,
+			Reason:       diag.SummaryReason,
 		})
 	}
 	RenderPullBatchTable(tableRows)
@@ -128,6 +128,7 @@ func runPull(args []string) {
 	}
 
 	completePendingTask(taskDB, taskID)
+	return nil
 }
 
 // shouldPullCWD reports whether `gitmap pull` was invoked with no
@@ -178,15 +179,16 @@ func isGitRepoCWD() bool {
 
 // runPullCWD streams `git pull` in the current directory, forwarding
 // stdout/stderr/stdin and propagating the underlying exit code.
-func runPullCWD() {
+func runPullCWD() error {
 	runPullCWDWithTransport(false, false, nil)
+	return nil
 }
 
 // runPullCWDWithTransport is the shared cwd runner. Applies the
 // optional transport rewrite (persisting via `git remote set-url`)
 // before invoking `git pull`. Extra positional args after the
 // transport flags are forwarded verbatim.
-func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
+func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	cwd, _ := os.Getwd()
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
@@ -200,16 +202,16 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
 				cmd.Stderr = os.Stderr
 				_ = cmd.Run()
 			}
-			return
+			return nil
 		}
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap pull` inside a repo)")
 		exitWith(1)
-		return
+		return nil
 	}
 	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
 		exitWith(1)
-		return
+		return nil
 	}
 	gitArgs := append([]string{"pull"}, extraArgs...)
 	fmt.Printf("→ Running: git %s (cwd: %s)\n", joinForLog(gitArgs), cwd)
@@ -228,6 +230,7 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
 		fmt.Fprintf(os.Stderr, "git pull failed: %v\n", err)
 		exitWith(1)
 	}
+	return nil
 }
 
 // extractTransportFlags scans args for --ssh/-ssh/--sh/--https/-https/--ht

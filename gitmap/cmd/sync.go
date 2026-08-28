@@ -191,9 +191,9 @@ Examples:
 `
 
 // dispatchSync routes `gitmap sync <target>` subcommands.
-func dispatchSync(command string) bool {
+func dispatchSync(command string) (bool, error) {
 	if command != constants.CmdSync && command != constants.CmdSyncAlias {
-		return false
+		return false, nil
 	}
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, syncUsage)
@@ -224,7 +224,7 @@ func dispatchSync(command string) bool {
 		fmt.Fprint(os.Stderr, syncUsage)
 		os.Exit(1)
 	}
-	return true
+	return true, nil
 }
 
 // parseSyncFlags scans args for --dry-run and --force (position agnostic).
@@ -242,7 +242,7 @@ func parseSyncFlags(args []string) (dry, force bool) {
 
 // runSyncLines appends every line from baseline that is not already
 // present (verbatim, trimmed compare) in the target file.
-func runSyncLines(path, baseline string, dry bool) {
+func runSyncLines(path, baseline string, dry bool) error {
 	existing, _ := os.ReadFile(path)
 	present := map[string]bool{}
 	for _, l := range strings.Split(string(existing), "\n") {
@@ -266,7 +266,7 @@ func runSyncLines(path, baseline string, dry bool) {
 
 	if len(toAdd) == 0 {
 		fmt.Printf("  ok  %s already has all curated entries\n", path)
-		return
+		return nil
 	}
 
 	if dry {
@@ -274,7 +274,7 @@ func runSyncLines(path, baseline string, dry bool) {
 		for _, l := range toAdd {
 			fmt.Printf("      %s\n", l)
 		}
-		return
+		return nil
 	}
 
 	buf := string(existing)
@@ -293,11 +293,12 @@ func runSyncLines(path, baseline string, dry bool) {
 		os.Exit(1)
 	}
 	fmt.Printf("  +   %s: added %d line(s)\n", path, len(toAdd))
+	return nil
 }
 
 // runSyncPrettierRC does a JSON key-union. Existing keys are kept unless
 // --force is passed; missing keys are inserted from the baseline.
-func runSyncPrettierRC(dry, force bool) {
+func runSyncPrettierRC(dry, force bool) error {
 	const path = ".prettierrc"
 	current := map[string]any{}
 
@@ -321,7 +322,7 @@ func runSyncPrettierRC(dry, force bool) {
 
 	if len(added) == 0 && len(overwritten) == 0 {
 		fmt.Printf("  ok  %s already has all curated keys\n", path)
-		return
+		return nil
 	}
 
 	sort.Strings(added)
@@ -334,7 +335,7 @@ func runSyncPrettierRC(dry, force bool) {
 		fmt.Printf("  ~   %s would overwrite (--force): %s\n", path, strings.Join(overwritten, ", "))
 	}
 	if dry == true {
-		return
+		return nil
 	}
 
 	out, err := json.MarshalIndent(current, "", "  ")
@@ -353,6 +354,7 @@ func runSyncPrettierRC(dry, force bool) {
 	if len(overwritten) > 0 {
 		fmt.Printf("  ~   %s: overwrote keys %s\n", path, strings.Join(overwritten, ", "))
 	}
+	return nil
 }
 
 // syncJSONEqual compares two JSON-decoded values by re-marshaling. Small
@@ -368,12 +370,13 @@ func syncJSONEqual(a, b any) bool {
 // thin wrapper so the sync surface stays a single dispatch table while
 // the LFS logic (marker block, templates.Merge, git-lfs probe) lives
 // once in addlfsinstall.go.
-func runSyncLFSInstall(dry bool) {
+func runSyncLFSInstall(dry bool) error {
 	args := []string{}
 	if dry {
 		args = append(args, "--dry-run")
 	}
 	runAddLFSInstall(args)
+	return nil
 }
 
 func parsePrettierRC(path string, data []byte, current *map[string]any) {

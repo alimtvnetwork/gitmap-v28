@@ -8,14 +8,15 @@ import (
 )
 
 // runAlias handles the "alias" subcommand and routes to sub-handlers.
-func runAlias(args []string) {
+func runAlias(args []string) error {
 	checkHelp("alias", args)
 	if len(args) == 0 {
 		runAliasList()
 
-		return
+		return nil
 	}
 	dispatchAlias(args[0], args[1:])
+	return nil
 }
 
 // dispatchAlias routes alias subcommands to their handlers.

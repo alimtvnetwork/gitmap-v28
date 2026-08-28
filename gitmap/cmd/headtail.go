@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func runHead(args []string) {
+func runHead(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "Usage: gitmap head <file> [lines]")
 		os.Exit(1)
@@ -42,9 +42,10 @@ func runHead(args []string) {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
 		os.Exit(1)
 	}
+	return nil
 }
 
-func runTail(args []string) {
+func runTail(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "Usage: gitmap tail <file> [lines]")
 		os.Exit(1)
@@ -89,4 +90,5 @@ func runTail(args []string) {
 	for i := 0; i < lines; i++ {
 		fmt.Println(buffer[(start+i)%len(buffer)])
 	}
+	return nil
 }

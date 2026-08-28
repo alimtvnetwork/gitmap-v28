@@ -36,11 +36,12 @@ func TestResolveCloneFixRepoNameFallsBackToFolder(t *testing.T) {
 	}
 }
 
-func runTestGit(t *testing.T, dir string, args ...string) {
+func runTestGit(t *testing.T, dir string, args ...string) error {
 	t.Helper()
 	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Dir = dir
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("git %v failed: %v\n%s", args, err, out)
 	}
+	return nil
 }

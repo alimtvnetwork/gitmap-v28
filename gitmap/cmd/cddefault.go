@@ -9,7 +9,7 @@ import (
 )
 
 // runCDSetDefault sets a default path for a repo name.
-func runCDSetDefault(args []string) {
+func runCDSetDefault(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrCDSetDefaultUsage)
 		os.Exit(1)
@@ -23,10 +23,11 @@ func runCDSetDefault(args []string) {
 
 	saveCDDefaultsOrExit(defaults)
 	fmt.Printf(constants.MsgCDDefaultSet, name, path)
+	return nil
 }
 
 // runCDClearDefault removes the default path for a repo name.
-func runCDClearDefault(args []string) {
+func runCDClearDefault(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCDClearDefaultUsage)
 		os.Exit(1)
@@ -43,6 +44,7 @@ func runCDClearDefault(args []string) {
 	delete(defaults, name)
 	saveCDDefaultsOrExit(defaults)
 	fmt.Printf(constants.MsgCDDefaultCleared, name)
+	return nil
 }
 
 // loadCDDefault returns the default path for a repo, or empty string.

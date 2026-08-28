@@ -13,7 +13,7 @@ import (
 )
 
 // runExec handles the "exec" subcommand.
-func runExec(args []string) {
+func runExec(args []string) error {
 	checkHelp("exec", args)
 	groupName, all, stopOnFail, gitArgs := parseExecFlags(args)
 	if len(gitArgs) == 0 {
@@ -47,6 +47,7 @@ func runExec(args []string) {
 
 	completePendingTask(taskDB, taskID)
 	closeTaskDB(taskDB)
+	return nil
 }
 
 // execAllReposTracked runs a git command across all repos with progress.

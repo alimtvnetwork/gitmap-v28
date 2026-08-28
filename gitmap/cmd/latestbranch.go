@@ -27,7 +27,7 @@ type latestBranchConfig struct {
 }
 
 // runLatestBranch handles the 'latest-branch' / 'lb' command.
-func runLatestBranch(args []string) {
+func runLatestBranch(args []string) error {
 	checkHelp("latest-branch", args)
 	cfg := parseLatestBranchFlags(args)
 	validateLatestBranchRepo()
@@ -37,6 +37,7 @@ func runLatestBranch(args []string) {
 	result := resolveLatestResult(items, cfg)
 	dispatchLatestOutput(result, items, cfg)
 	maybeSwitchToLatest(result, cfg)
+	return nil
 }
 
 // validateLatestBranchRepo exits if the current directory is outside a git repo.

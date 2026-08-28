@@ -10,7 +10,7 @@ import (
 )
 
 // runStats handles the "stats" subcommand.
-func runStats(args []string) {
+func runStats(args []string) error {
 	checkHelp("stats", args)
 	cmdFilter, jsonOut := parseStatsFlags(args)
 	overall, commands := loadStats(cmdFilter)
@@ -18,10 +18,11 @@ func runStats(args []string) {
 	if jsonOut {
 		printStatsJSON(overall, commands)
 
-		return
+		return nil
 	}
 
 	printStatsTerminal(overall, commands)
+	return nil
 }
 
 // parseStatsFlags parses --command and --json flags.

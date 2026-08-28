@@ -21,20 +21,21 @@ import (
 
 // runRevertLastN parses N, confirms with the user (unless --force), and
 // reverts the N most recent committed transactions newest-first.
-func runRevertLastN(raw string, force bool) {
+func runRevertLastN(raw string, force bool) error {
 	count := mustParseLastN(raw)
 	rows := loadLastCommittedTxns(count)
 	if len(rows) == 0 {
 		fmt.Print(constants.MsgTxnLastNNoneFound)
 
-		return
+		return nil
 	}
 	if !force && !confirmRevertLastN(rows) {
 		fmt.Print(constants.MsgTxnAbortedByUser)
 
-		return
+		return nil
 	}
 	revertManyOrExit(rows, force)
+	return nil
 }
 
 // mustParseLastN validates the --last-n-txn count argument.

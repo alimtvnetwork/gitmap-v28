@@ -11,12 +11,12 @@ import (
 )
 
 // runSSHConfig regenerates and displays the managed SSH config block.
-func runSSHConfig() {
+func runSSHConfig() error {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHConfig, sshConfigPath(), err)
 
-		return
+		return nil
 	}
 	defer db.Close()
 
@@ -27,6 +27,7 @@ func runSSHConfig() {
 		fmt.Fprint(os.Stdout, constants.MsgSSHConfigShow)
 		fmt.Println(block)
 	}
+	return nil
 }
 
 // updateSSHConfig writes the managed block to ~/.ssh/config.

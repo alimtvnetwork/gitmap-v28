@@ -25,32 +25,32 @@ import (
 //
 // The first three forms launch VS Code on the resolved root. The `paths`
 // subcommand never opens VS Code — it only mutates the registry.
-func runCode(args []string) {
+func runCode(args []string) error {
 	checkHelp(constants.CmdCode, args)
 
 	if len(args) > 0 {
 		switch strings.ToLower(args[0]) {
 		case "install":
 			runCodeInstall()
-			return
+			return nil
 		case "paths":
 			runCodePaths(args[1:])
-			return
+			return nil
 		case "pap", "prompt-all-project":
 			fmt.Println("Feature [vscode pap] is not yet implemented")
-			return
+			return nil
 		case "plugins", "plugin":
 			fmt.Println("Feature [vscode plugins] is not yet implemented")
-			return
+			return nil
 		case "add-project", "ap":
 			fmt.Println("Feature [vscode add-project] is not yet implemented")
-			return
+			return nil
 		case "ls", "list":
 			fmt.Println("Feature [vscode ls] is not yet implemented")
-			return
+			return nil
 		case "rm", "remove", "delete", "del":
 			fmt.Println("Feature [vscode rm] is not yet implemented")
-			return
+			return nil
 		}
 	}
 
@@ -73,6 +73,7 @@ func runCode(args []string) {
 
 	syncCodeEntry(resolved, alias, extras)
 	openInVSCode(resolved)
+	return nil
 }
 
 // parseCodeArgs returns (alias, rootPath, extraPaths).
@@ -267,7 +268,7 @@ func openCodeDB() (*store.DB, error) {
 }
 
 // runCodePaths dispatches the `code paths` subcommand.
-func runCodePaths(args []string) {
+func runCodePaths(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: gitmap code paths <add|rm|list> <alias> [path]")
 		os.Exit(2)
@@ -287,10 +288,11 @@ func runCodePaths(args []string) {
 		fmt.Fprintf(os.Stderr, "unknown subcommand: %s\nusage: gitmap code paths <add|rm|list> <alias> [path]\n", op)
 		os.Exit(2)
 	}
+	return nil
 }
 
 // runCodePathsAdd attaches one extra path to the entry matching <alias>.
-func runCodePathsAdd(args []string) {
+func runCodePathsAdd(args []string) error {
 	alias, extra := requireAliasAndPath(args, "add")
 	row := lookupAlias(alias)
 	abs, err := absoluteExisting(extra)
@@ -303,17 +305,18 @@ func runCodePathsAdd(args []string) {
 	if len(merged) == len(row.Paths) {
 		fmt.Printf(constants.MsgVSCodePMPathsExists, alias, abs)
 
-		return
+		return nil
 	}
 
 	persistAliasPaths(row.RootPath, alias, merged)
 	syncAliasEntry(row.RootPath, row.Name, merged)
 	fmt.Printf(constants.MsgVSCodePMPathsAdded, alias, abs)
+	return nil
 }
 
 // runCodePathsRm detaches one extra path from the entry matching <alias>.
 // projects.json is then re-synced so the user-visible UI reflects the drop.
-func runCodePathsRm(args []string) {
+func runCodePathsRm(args []string) error {
 	alias, extra := requireAliasAndPath(args, "rm")
 	row := lookupAlias(alias)
 	abs, err := filepath.Abs(extra)
@@ -338,16 +341,17 @@ func runCodePathsRm(args []string) {
 	if !dropped {
 		fmt.Printf(constants.MsgVSCodePMPathsMissing, alias, abs)
 
-		return
+		return nil
 	}
 
 	persistAliasPaths(row.RootPath, alias, pruned)
 	overwriteAliasEntry(row.RootPath, row.Name, pruned)
 	fmt.Printf(constants.MsgVSCodePMPathsRemoved, alias, abs)
+	return nil
 }
 
 // runCodePathsList prints the rootPath + all attached extras for <alias>.
-func runCodePathsList(args []string) {
+func runCodePathsList(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: gitmap code paths list <alias>")
 		os.Exit(2)
@@ -364,6 +368,7 @@ func runCodePathsList(args []string) {
 	if len(row.Paths) == 0 {
 		fmt.Print(constants.MsgVSCodePMPathsNone)
 	}
+	return nil
 }
 
 // requireAliasAndPath enforces the two-arg contract for add/rm.
@@ -444,7 +449,7 @@ func overwriteAliasEntry(rootPath, name string, paths []string) {
 }
 
 // runCodeInstall handles \gitmap vscode install\ and \gitmap code install\.
-func runCodeInstall() {
+func runCodeInstall() error {
 	cmd := exec.Command("gitmap", "install", "vscode-ctx")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -453,4 +458,5 @@ func runCodeInstall() {
 		fmt.Fprintf(os.Stderr, "gitmap install vscode-ctx failed: %v\n", err)
 		os.Exit(1)
 	}
+	return nil
 }

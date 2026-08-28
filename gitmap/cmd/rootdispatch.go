@@ -9,7 +9,7 @@ import (
 // dispatcher a flat table instead of a deep if/else chain.
 type dispatchEntry struct {
 	names   []string
-	handler func()
+	handler func() error
 }
 
 // runDispatchTable looks up command in entries and invokes the
@@ -18,16 +18,15 @@ type dispatchEntry struct {
 // This helper exists so individual dispatchers (dispatchCore,
 // dispatchData, dispatchTooling, ...) stay below gocyclo's 15
 // complexity threshold by replacing N `if` branches with one loop.
-func runDispatchTable(command string, entries []dispatchEntry) bool {
+func runDispatchTable(command string, entries []dispatchEntry) (bool, error) {
 	for _, entry := range entries {
 		if matchAny(command, entry.names) {
-			entry.handler()
-
-			return true
+			err := entry.handler()
+			return true, err
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 // matchAny reports whether command equals any name in names.

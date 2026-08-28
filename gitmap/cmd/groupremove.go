@@ -9,7 +9,7 @@ import (
 )
 
 // runGroupRemove handles "group remove <group> <slug...>".
-func runGroupRemove(args []string) {
+func runGroupRemove(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, constants.ErrGroupSlugReq)
 		os.Exit(1)
@@ -27,6 +27,7 @@ func runGroupRemove(args []string) {
 	for _, slug := range slugs {
 		removeOneSlugFromGroup(db, groupName, slug)
 	}
+	return nil
 }
 
 // removeOneSlugFromGroup resolves a slug and removes matching repos.

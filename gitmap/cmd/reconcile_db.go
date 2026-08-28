@@ -8,13 +8,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-func runReconcile(dir string, currentRecords []model.ScanRecord) {
+func runReconcile(dir string, currentRecords []model.ScanRecord) error {
 	fmt.Printf("  " + constants.ColorDim + "→ reconciling missing/stale db entries..." + constants.ColorReset)
 
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf(" [failed: %v]\n", err)
-		return
+		return nil
 	}
 	defer db.Close()
 
@@ -26,7 +26,7 @@ func runReconcile(dir string, currentRecords []model.ScanRecord) {
 	allRepos, err := db.ListRepos()
 	if err != nil {
 		fmt.Printf(" [failed: load repos]\n")
-		return
+		return nil
 	}
 
 	removed := 0
@@ -42,6 +42,7 @@ func runReconcile(dir string, currentRecords []model.ScanRecord) {
 	}
 
 	fmt.Printf(" [reconciled: "+constants.ColorGreen+"ok"+constants.ColorReset+" - removed %d stale entries]\n", removed)
+	return nil
 }
 
 func isSubPath(parent, child string) bool {

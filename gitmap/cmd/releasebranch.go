@@ -11,7 +11,7 @@ import (
 )
 
 // runReleaseBranch handles the 'release-branch' command.
-func runReleaseBranch(args []string) {
+func runReleaseBranch(args []string) error {
 	checkHelp("release-branch", args)
 	branch, assets, notes, draft, dryRun, verbose, noCommit, yes := parseReleaseBranchFlags(args)
 	_ = verbose
@@ -26,6 +26,7 @@ func runReleaseBranch(args []string) {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // parseReleaseBranchFlags parses flags for the release-branch command.

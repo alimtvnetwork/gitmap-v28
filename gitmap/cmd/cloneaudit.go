@@ -14,7 +14,7 @@ import (
 // invokes git, never writes outside stdout. Direct-URL invocations are
 // rejected so the audit always operates on a manifest the user can
 // inspect later.
-func runCloneAudit(cf CloneFlags) {
+func runCloneAudit(cf CloneFlags) error {
 	source := resolveCloneShorthand(cf.Source)
 	if isDirectURL(source) {
 		fmt.Fprint(os.Stderr, constants.ErrCloneAuditDirectURL)
@@ -30,4 +30,5 @@ func runCloneAudit(cf CloneFlags) {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneAuditLoad, source, printErr)
 		os.Exit(1)
 	}
+	return nil
 }

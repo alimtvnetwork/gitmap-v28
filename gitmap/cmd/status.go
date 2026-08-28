@@ -14,7 +14,7 @@ import (
 )
 
 // runStatus handles the "status" subcommand.
-func runStatus(args []string) {
+func runStatus(args []string) error {
 	checkHelp("status", args)
 	groupName, all, onlyDirty := parseStatusFlags(args)
 	records := loadStatusByScope(groupName, all)
@@ -23,7 +23,7 @@ func runStatus(args []string) {
 		records = filterDirtyRecords(records)
 		if len(records) == 0 {
 			fmt.Println("✨ All repositories are clean!")
-			return
+			return nil
 		}
 	}
 
@@ -31,6 +31,7 @@ func runStatus(args []string) {
 	prog := cloner.NewBatchProgress(len(records), "Status", true)
 	summary := printStatusTableTracked(records, prog)
 	printStatusSummary(summary)
+	return nil
 }
 
 func filterDirtyRecords(records []model.ScanRecord) []model.ScanRecord {

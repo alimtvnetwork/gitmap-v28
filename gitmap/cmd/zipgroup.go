@@ -8,14 +8,15 @@ import (
 )
 
 // runZipGroup handles the "zip-group" subcommand and routes to sub-handlers.
-func runZipGroup(args []string) {
+func runZipGroup(args []string) error {
 	checkHelp("zip-group", args)
 	if len(args) == 0 {
 		runZipGroupList()
 
-		return
+		return nil
 	}
 	dispatchZipGroup(args[0], args[1:])
+	return nil
 }
 
 // dispatchZipGroup routes zip-group subcommands to their handlers.

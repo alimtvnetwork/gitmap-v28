@@ -103,10 +103,10 @@ func buildFilterBranchArgs(f amendFlags) []string {
 }
 
 // runFilterBranch executes the git filter-branch command.
-func runFilterBranch(f amendFlags, commits []model.CommitEntry) {
+func runFilterBranch(f amendFlags, commits []model.CommitEntry) error {
 	if f.commitHash == constants.GitHEAD {
 		runAmendHead(f)
-		return
+		return nil
 	}
 	args := buildFilterBranchArgs(f)
 	cmd := exec.Command("git", args...)
@@ -116,10 +116,11 @@ func runFilterBranch(f amendFlags, commits []model.CommitEntry) {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendFilter, err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // runAmendHead uses git commit --amend for single HEAD commit.
-func runAmendHead(f amendFlags) {
+func runAmendHead(f amendFlags) error {
 	author := buildAuthorString(f)
 	args := []string{"commit", "--amend", "--no-edit", "--author", author}
 	cmd := exec.Command("git", args...)
@@ -127,4 +128,5 @@ func runAmendHead(f amendFlags) {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendCommitAmend, err)
 		os.Exit(1)
 	}
+	return nil
 }

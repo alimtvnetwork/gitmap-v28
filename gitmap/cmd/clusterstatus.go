@@ -18,7 +18,7 @@ const (
 )
 
 // runClusterStatus handles the "cluster status" subcommand.
-func runClusterStatus(args []string) {
+func runClusterStatus(args []string) error {
 	_ = args // Unused for now
 
 	// Mocking a server-side registry to satisfy the command display requirements.
@@ -48,4 +48,5 @@ func runClusterStatus(args []string) {
 	for _, n := range currentNodes {
 		fmt.Printf(statusNodePrint, n.ID, n.State, n.LastSeen.Format(time.RFC3339))
 	}
+	return nil
 }

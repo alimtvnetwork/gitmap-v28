@@ -20,12 +20,13 @@ import (
 var sshStatusHosts = []string{"github.com", "gitlab.com", "bitbucket.org"}
 
 // runSSHStatus prints the SSH health summary.
-func runSSHStatus(_ []string) {
+func runSSHStatus(_ []string) error {
 	fmt.Fprint(os.Stdout, constants.MsgSSHStatusHeader)
 	printSSHAgentStatus()
 	printSSHLoadedKeys()
 	printSSHProbe()
 	fmt.Fprint(os.Stdout, constants.MsgSSHStatusFooter)
+	return nil
 }
 
 // printSSHAgentStatus reports whether ssh-agent is reachable.

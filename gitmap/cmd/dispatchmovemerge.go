@@ -11,19 +11,19 @@ import (
 // merge-right (and their short aliases mb / ml / mr).
 //
 // Spec: spec/01-app/97-move-and-merge.md
-func dispatchMoveMerge(command string) bool {
+func dispatchMoveMerge(command string) (bool, error) {
 	if command == constants.CmdMv || command == constants.CmdMove {
 		runMove(os.Args[2:])
 
-		return true
+		return true, nil
 	}
 	if spec, ok := mergeSpecFor(command); ok {
 		runMerge(spec, os.Args[2:])
 
-		return true
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 // mergeSpecFor maps a command/alias to its mergeSpec; ok=false otherwise.

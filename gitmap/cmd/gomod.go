@@ -19,7 +19,7 @@ type goModOpts struct {
 }
 
 // runGoMod is the entry point for the gomod command.
-func runGoMod(args []string) {
+func runGoMod(args []string) error {
 	checkHelp("gomod", args)
 	opts := parseGoModFlags(args)
 
@@ -34,7 +34,7 @@ func runGoMod(args []string) {
 	if opts.dryRun {
 		runGoModDryRun(oldPath, opts.newPath, opts.exts)
 
-		return
+		return nil
 	}
 
 	originalBranch := goModCurrentBranch()
@@ -48,11 +48,12 @@ func runGoMod(args []string) {
 	if opts.noMerge {
 		printGoModSummaryNoMerge(oldPath, opts.newPath, fileCount, backupBranch, featureBranch)
 
-		return
+		return nil
 	}
 
 	mergeGoModBranch(originalBranch, featureBranch, opts.newPath)
 	printGoModSummary(oldPath, opts.newPath, fileCount, backupBranch, featureBranch, originalBranch)
+	return nil
 }
 
 // parseGoModFlags parses flags for the gomod command.
@@ -98,7 +99,7 @@ func validateGoModPreconditions(oldPath, newPath string) {
 }
 
 // runGoModDryRun previews changes without modifying files.
-func runGoModDryRun(oldPath, newPath string, exts []string) {
+func runGoModDryRun(oldPath, newPath string, exts []string) error {
 	files := findFilesWithPath(oldPath, exts)
 
 	fmt.Print(constants.MsgGoModDryHeader)
@@ -109,6 +110,7 @@ func runGoModDryRun(oldPath, newPath string, exts []string) {
 	for _, f := range files {
 		fmt.Printf(constants.MsgGoModDryFile, f)
 	}
+	return nil
 }
 
 // printGoModSummary prints the final summary after merge.
@@ -133,13 +135,14 @@ func printGoModSummaryNoMerge(oldPath, newPath string, fileCount int, backup, fe
 }
 
 // runGoModTidy runs go mod tidy unless --no-tidy is set.
-func runGoModTidy(noTidy bool) {
+func runGoModTidy(noTidy bool) error {
 	if noTidy {
-		return
+		return nil
 	}
 
 	err := goModTidy()
 	if err != nil {
 		fmt.Printf(constants.MsgGoModTidyWarn, err)
 	}
+	return nil
 }

@@ -9,7 +9,7 @@ import (
 )
 
 // runWorkDir handles `gitmap workdir` / `gitmap wd` CLI commands.
-func runWorkDir(args []string) {
+func runWorkDir(args []string) error {
 	db, errDB := store.OpenDefault()
 	if errDB == nil {
 		_, _ = db.SQL().Exec(store.SQLCreateWorkDirsTable)
@@ -30,4 +30,5 @@ func runWorkDir(args []string) {
 		fmt.Printf("Usage: gitmap workdir [ls|add <path>|rm <path|id>|set <path|id>|default]\n")
 		os.Exit(1)
 	}
+	return nil
 }

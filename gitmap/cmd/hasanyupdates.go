@@ -11,7 +11,7 @@ import (
 )
 
 // runHasAnyUpdates checks if the current repo is behind remote.
-func runHasAnyUpdates(args []string) {
+func runHasAnyUpdates(args []string) error {
 	checkHelp("has-any-updates", args)
 
 	isNonInsideGitRepo := !isInsideGitRepo()
@@ -27,10 +27,11 @@ func runHasAnyUpdates(args []string) {
 	if !ok {
 		fmt.Fprint(os.Stdout, constants.MsgHAUNoUpstream)
 
-		return
+		return nil
 	}
 
 	hauPrintResult(ahead, behind)
+	return nil
 }
 
 // isInsideGitRepo returns true if cwd is inside a git work tree.

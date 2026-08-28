@@ -78,7 +78,7 @@ func copyScriptFiles(tmpDir, targetDir string) int {
 }
 
 // runInstallScripts clones/copies gitmap scripts to a platform-specific folder.
-func runInstallScripts() {
+func runInstallScripts() error {
 	targetDir := resolveScriptsDir()
 	fmt.Printf(constants.MsgScriptsTarget, targetDir)
 	if err := os.MkdirAll(targetDir, constants.DirPermission); err != nil {
@@ -94,6 +94,7 @@ func runInstallScripts() {
 	copied := copyScriptFiles(tmpDir, targetDir)
 	fmt.Println()
 	fmt.Printf(constants.MsgScriptsDone, copied, targetDir)
+	return nil
 }
 
 // resolveScriptsDir returns the target directory for scripts.

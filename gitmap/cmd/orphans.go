@@ -20,7 +20,7 @@ type orphanRepo struct {
 }
 
 // runOrphans executes `gitmap orphans`.
-func runOrphans(args []string) {
+func runOrphans(args []string) error {
 	checkHelp("orphans", args)
 	fs := flag.NewFlagSet("orphans", flag.ContinueOnError)
 	root := fs.String("root", ".", "scan root directory")
@@ -49,10 +49,10 @@ func runOrphans(args []string) {
 	})
 	emitOrphans(orphans, fmtKind)
 	if fmtKind != hygieneFormatTable || *dryRun || len(orphans) == 0 {
-		return
+		return nil
 	}
 	if !*yes && !confirmYesNo(fmt.Sprintf("delete %d orphan(s)?", len(orphans))) {
-		return
+		return nil
 	}
 	for _, o := range orphans {
 		if err := os.RemoveAll(o.path); err != nil {
@@ -62,6 +62,7 @@ func runOrphans(args []string) {
 		}
 		fmt.Fprintf(os.Stdout, "  \033[32mdeleted\033[0m %s\n", o.path)
 	}
+	return nil
 }
 
 // emitOrphans dispatches to the requested output format.

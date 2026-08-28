@@ -39,7 +39,7 @@ type addLFSInstallFlags struct {
 }
 
 // runAddLFSInstall is the entry point dispatched from rootadd.go.
-func runAddLFSInstall(args []string) {
+func runAddLFSInstall(args []string) error {
 	checkHelp("add-lfs-install", args)
 
 	flags := parseAddLFSInstallFlags(args)
@@ -72,7 +72,7 @@ func runAddLFSInstall(args []string) {
 	if flags.dryRun {
 		printAddLFSInstallDryRun(target, resolved.Content)
 
-		return
+		return nil
 	}
 
 	if err := runGitLFSInstall(); err != nil {
@@ -90,6 +90,7 @@ func runAddLFSInstall(args []string) {
 	}
 
 	printAddLFSInstallSummary(res)
+	return nil
 }
 
 // parseAddLFSInstallFlags parses CLI flags. Currently only --dry-run.

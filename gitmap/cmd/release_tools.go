@@ -8,13 +8,14 @@ import (
 	"strings"
 )
 
-func runReleaseNotes(args []string) {
+func runReleaseNotes(args []string) error {
 	// Delegates to the flag-aware implementation in release_notes_opts.go,
 	// which still accepts the legacy bare-range positional form.
 	runReleaseNotesV2(args)
+	return nil
 }
 
-func runReleaseDry(args []string) {
+func runReleaseDry(args []string) error {
 	tag := ""
 	if len(args) > 0 {
 		tag = args[0]
@@ -25,7 +26,7 @@ func runReleaseDry(args []string) {
 	}
 	if tag == "" {
 		fmt.Println("\033[1;92m✓ dry release complete\033[0m  nothing pushed")
-		return
+		return nil
 	}
 	if err := runStep("git tag "+tag, "git", "tag", tag); err != nil {
 		os.Exit(1)
@@ -34,6 +35,7 @@ func runReleaseDry(args []string) {
 	_ = runStep("git log -10 --oneline", "git", "log", "-10", "--oneline")
 	fmt.Printf("\n\033[2;37mundo:  \033[0m \033[1;96mgit tag -d %s\033[0m\n", tag)
 	fmt.Println("\033[1;92m✓ dry release complete\033[0m  nothing pushed")
+	return nil
 }
 
 func runStep(label string, name string, args ...string) error {
@@ -43,7 +45,7 @@ func runStep(label string, name string, args ...string) error {
 	return cmd.Run()
 }
 
-func runTagRename(args []string) {
+func runTagRename(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, "tag-rename: ERROR usage: gitmap tag-rename <old> <new>")
 		os.Exit(2)
@@ -62,4 +64,5 @@ func runTagRename(args []string) {
 		}
 	}
 	fmt.Printf("\033[1;92m✓ renamed\033[0m %s → %s (local + origin)\n", oldTag, newTag)
+	return nil
 }

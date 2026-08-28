@@ -10,7 +10,7 @@ import (
 )
 
 // runDocs opens the documentation website in the default browser.
-func runDocs(args []string) {
+func runDocs(args []string) error {
 	checkHelp("docs", args)
 
 	url := constants.DocsURL
@@ -33,4 +33,5 @@ func runDocs(args []string) {
 	}
 
 	fmt.Printf(constants.MsgDocsOpened, url)
+	return nil
 }

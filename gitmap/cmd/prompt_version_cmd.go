@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func runPromptVersion(targets []string) {
+func runPromptVersion(targets []string) error {
 	if len(targets) == 0 {
 		targets, _ = ResolvePromptTarget("")
 	}
@@ -20,4 +20,5 @@ func runPromptVersion(targets []string) {
 			fmt.Printf("%s: not installed\n", name)
 		}
 	}
+	return nil
 }

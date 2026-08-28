@@ -56,7 +56,7 @@ func writeLLMDocsFile(content, format string) {
 }
 
 // runLLMDocs generates LLM.md or prints to stdout with --stdout.
-func runLLMDocs(args []string) {
+func runLLMDocs(args []string) error {
 	checkHelp(constants.CmdLLMDocs, args)
 	opts, err := parseLLMDocsFlags(args)
 	if err != nil {
@@ -68,9 +68,10 @@ func runLLMDocs(args []string) {
 	if opts.toStdout {
 		fmt.Print(content)
 
-		return
+		return nil
 	}
 	writeLLMDocsFile(content, opts.format)
+	return nil
 }
 
 func collectValidSections() map[string]bool {

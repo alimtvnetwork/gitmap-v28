@@ -17,7 +17,7 @@ type bookmarkItem struct {
 	Children []bookmarkItem
 }
 
-func runChromeExportBookmarks(args []string) {
+func runChromeExportBookmarks(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "chrome export-bookmarks: ERROR usage: gitmap chrome export-bookmarks <profile> [--format md|html|json] [--out <file>] [--root <bookmark_bar|other|synced>] [--folder <path/to/folder>] [--match <substr>] [--title <exact>]")
 		os.Exit(2)
@@ -102,13 +102,14 @@ func runChromeExportBookmarks(args []string) {
 	}
 	if outPath == "" {
 		fmt.Print(body)
-		return
+		return nil
 	}
 	if err := os.WriteFile(outPath, []byte(body), 0o644); err != nil { //nolint:gosec
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR write: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("\033[1;92m✓ wrote\033[0m %s (%d bytes)\n", outPath, len(body))
+	return nil
 }
 
 // filterBookmarkRoots narrows the tree to a top-level root (bookmark_bar,

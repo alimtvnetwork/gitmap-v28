@@ -18,11 +18,11 @@ import (
 // gitmap subcommand to execute inside the resolved repo directory
 // (e.g. `gitmap cd myrepo cn v++` clones the next version of myrepo
 // and hands off to the new folder via the inner command's handoff).
-func runCDLookup(name string, args []string) {
+func runCDLookup(name string, args []string) error {
 	if HasAlias() {
 		fmt.Print(GetAliasPath())
 
-		return
+		return nil
 	}
 
 	pick, rest := parseCDPickFlag(args)
@@ -38,19 +38,20 @@ func runCDLookup(name string, args []string) {
 	if len(rest) > 0 {
 		runCDInner(path, rest)
 
-		return
+		return nil
 	}
 
 	fmt.Print(path)
 	WriteShellHandoff(path)
 	warnIfNoWrapper()
+	return nil
 }
 
 // runCDInner chdirs into path and dispatches the inner subcommand
 // (the args after `gitmap cd <name>`). The inner command is
 // responsible for writing its own shell handoff if it relocates the
 // caller — `cn`, `cfr`, `cfrp`, etc. already do this.
-func runCDInner(path string, innerArgs []string) {
+func runCDInner(path string, innerArgs []string) error {
 	if err := os.Chdir(path); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCDChdirFmt, path, err)
 		os.Exit(1)
@@ -58,6 +59,7 @@ func runCDInner(path string, innerArgs []string) {
 
 	os.Args = append([]string{os.Args[0]}, innerArgs...)
 	dispatch(innerArgs[0])
+	return nil
 }
 
 // parseCDPickFlag extracts --pick and returns it plus any remaining
@@ -141,7 +143,7 @@ func readCDSelection(records []model.ScanRecord) string {
 }
 
 // runCDRepos shows an interactive numbered list of all repos.
-func runCDRepos(args []string) {
+func runCDRepos(args []string) error {
 	groupFilter := parseCDReposFlags(args)
 	db, err := openDB()
 	if err != nil {
@@ -159,6 +161,7 @@ func runCDRepos(args []string) {
 	path := promptCDReposPick(records)
 	fmt.Print(path)
 	WriteShellHandoff(path)
+	return nil
 }
 
 // parseCDReposFlags parses the --group flag for the repos subcommand.

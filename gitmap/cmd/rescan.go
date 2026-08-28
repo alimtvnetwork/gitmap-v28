@@ -11,7 +11,7 @@ import (
 )
 
 // runRescan handles the "rescan" subcommand.
-func runRescan() {
+func runRescan() error {
 	cache, err := loadScanCache()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRescanNoCache, err)
@@ -19,6 +19,7 @@ func runRescan() {
 	}
 	fmt.Printf(constants.MsgRescanReplay, cache.Dir)
 	runScanFromCache(cache)
+	return nil
 }
 
 // loadScanCache reads the last-scan.json from the output folder.
@@ -57,9 +58,10 @@ func saveScanCache(outputDir string, cache model.ScanCache) {
 }
 
 // runScanFromCache replays a scan using cached flags.
-func runScanFromCache(c model.ScanCache) {
+func runScanFromCache(c model.ScanCache) error {
 	args := buildScanArgs(c)
 	runScan(args)
+	return nil
 }
 
 // buildScanArgs reconstructs CLI args from a ScanCache.

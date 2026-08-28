@@ -19,7 +19,7 @@ import (
 //
 // We don't gate on `--help` here because each subcommand handler does
 // its own help check via checkHelp at the top.
-func runBranch(args []string) {
+func runBranch(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrBranchMissingSubcommand)
 		os.Exit(1)
@@ -29,10 +29,11 @@ func runBranch(args []string) {
 	case constants.CmdBranchSubDefault, constants.CmdBranchSubDefaultAlias:
 		runBranchDefault(rest)
 
-		return
+		return nil
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrBranchUnknownSubcommand, sub)
 	os.Exit(1)
+	return nil
 }
 
 // runBranchDefault implements `gitmap branch default` / `b def`.
@@ -49,7 +50,7 @@ func runBranch(args []string) {
 //
 // Errors are printed with the standardized "  ✗ ..." prefix and exit 1
 // to short-circuit shell pipelines.
-func runBranchDefault(args []string) {
+func runBranchDefault(args []string) error {
 	checkHelp("branch", args)
 	if !gitutil.IsInsideWorkTree() {
 		fmt.Fprint(os.Stderr, constants.ErrBranchNotRepo)
@@ -65,4 +66,5 @@ func runBranchDefault(args []string) {
 		fmt.Fprintf(os.Stderr, constants.ErrBranchDefaultFailed, target, err)
 		os.Exit(1)
 	}
+	return nil
 }

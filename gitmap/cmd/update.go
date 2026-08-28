@@ -25,10 +25,10 @@ import (
 //
 // The legacy source-rebuild handoff is preserved behind --source-rebuild
 // for users who maintain a local clone and want to ship in-tree changes.
-func runUpdate() {
+func runUpdate() error {
 	requireOnline()
 	if hasFlag(constants.FlagSourceRebuild) == false && runUpdateRemoteInstall() == true {
-		return
+		return nil
 	}
 	if hasFlag(constants.FlagSourceRebuild) == false {
 		fmt.Fprint(os.Stderr, constants.MsgUpdateRemoteFallback)
@@ -46,6 +46,7 @@ func runUpdate() {
 	copyPath := createHandoffCopy(selfPath)
 	fmt.Printf(constants.MsgUpdateActive, selfPath, copyPath)
 	launchHandoff(copyPath, repoPath, report)
+	return nil
 }
 
 // resolveRepoPath returns the repo path from --repo-path flag or embedded constant.
@@ -198,7 +199,7 @@ func handleHandoffError(err error) {
 // the still-locked handoff copy and the just-renamed *.exe.old.
 // See spec/08-generic-update/06-cleanup.md and
 // spec/03-general/02f-self-update-orchestration.md.
-func runUpdateRunner() {
+func runUpdateRunner() error {
 	repoPath := resolveRepoPath()
 	report := resolveReportErrors()
 
@@ -214,6 +215,7 @@ func runUpdateRunner() {
 	report.summarize()
 	printUpdateSummary(currentVersion, targetVersion, repoPath)
 	scheduleDeployedCleanupHandoff()
+	return nil
 }
 
 // getFlagValue returns the value following a flag like --repo-path <value>.

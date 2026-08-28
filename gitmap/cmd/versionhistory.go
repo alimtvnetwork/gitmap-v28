@@ -13,7 +13,7 @@ import (
 )
 
 // runVersionHistory handles the "version-history" subcommand.
-func runVersionHistory(args []string) {
+func runVersionHistory(args []string) error {
 	checkHelp("version-history", args)
 	limit, jsonOut := parseVersionHistoryFlags(args)
 
@@ -29,10 +29,11 @@ func runVersionHistory(args []string) {
 	if jsonOut {
 		printVersionHistoryJSON(records)
 
-		return
+		return nil
 	}
 
 	printVersionHistoryTerminal(records, absPath)
+	return nil
 }
 
 // parseVersionHistoryFlags parses --limit and --json flags.

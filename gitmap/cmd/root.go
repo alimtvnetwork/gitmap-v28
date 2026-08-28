@@ -111,74 +111,116 @@ func runDispatch(command string) {
 func dispatch(command string) {
 	auditID, auditStart, shouldAudit := beginCommandAudit(command, os.Args[2:])
 
-	if dispatchUser(command) {
+	if found, err := dispatchUser(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchCore(command) {
+	if found, err := dispatchCore(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchRelease(command) {
+	if found, err := dispatchRelease(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchUtility(command) {
+	if found, err := dispatchUtility(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchData(command) {
+	if found, err := dispatchData(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchTooling(command) {
+	if found, err := dispatchTooling(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchProjectRepos(command) {
+	if found, err := dispatchProjectRepos(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchDiff(command) {
+	if found, err := dispatchDiff(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchMoveMerge(command) {
+	if found, err := dispatchMoveMerge(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchAdd(command) {
+	if found, err := dispatchAdd(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchSync(command) {
+	if found, err := dispatchSync(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchCommons(command) {
+	if found, err := dispatchCommons(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchTemplates(command) {
+	if found, err := dispatchTemplates(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
-	if dispatchCommitTransfer(command) {
+	if found, err := dispatchCommitTransfer(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-
+		if err != nil {
+			cliexit.Reportf(command, "execute", "", err)
+			os.Exit(1)
+		}
 		return
 	}
 
@@ -313,11 +355,12 @@ func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error
 	return nil
 }
 
-func runSJ(args []string) {
+func runSJ(args []string) error {
 	if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 func dispatchSJ(ctx context.Context, args []string, root *cobra.Command) error {

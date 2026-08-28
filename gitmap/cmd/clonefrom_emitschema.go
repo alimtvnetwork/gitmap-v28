@@ -23,7 +23,7 @@ import (
 // and exits. Errors are routed to stderr per the standard CLI split
 // (data on stdout so users can pipe `gitmap clone-from
 // --emit-schema=report > schema.json` cleanly).
-func runCloneFromEmitSchema(kind string) {
+func runCloneFromEmitSchema(kind string) error {
 	body, err := clonefrom.EmitSchema(kind)
 	if err != nil {
 		cliexit.Fail(constants.CmdCloneFrom, "emit-schema", kind, err, 2)
@@ -31,4 +31,5 @@ func runCloneFromEmitSchema(kind string) {
 	if _, err := os.Stdout.Write(body); err != nil {
 		cliexit.Fail(constants.CmdCloneFrom, "write-stdout", "emit-schema", err, 1)
 	}
+	return nil
 }

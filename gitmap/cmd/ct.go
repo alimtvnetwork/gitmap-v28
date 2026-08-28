@@ -9,16 +9,16 @@ import (
 )
 
 // runCT handles `gitmap ct [install-prompts|update-prompts|status|version]`.
-func runCT(args []string) {
+func runCT(args []string) error {
 	opts := parsePromptArgs(args)
 
 	switch opts.Action {
 	case "status", "prompts-status":
 		runPromptStatus(opts.Targets)
-		return
+		return nil
 	case "version", "prompts-version":
 		runPromptVersion(opts.Targets)
-		return
+		return nil
 	}
 
 	// Install or Update action
@@ -45,7 +45,7 @@ func runCT(args []string) {
 	targetDirs = FilterPromptExclusions(targetDirs, opts.Exclude)
 	if len(targetDirs) == 0 {
 		fmt.Println("No target repositories found to install Prompt Architect.")
-		return
+		return nil
 	}
 
 	fmt.Printf("→ Installing Prompt Architect v2 in %d repository(ies)...\n", len(targetDirs))
@@ -65,4 +65,5 @@ func runCT(args []string) {
 
 	RenderPromptInstallSummary(results)
 	ReportPromptFailures(results)
+	return nil
 }

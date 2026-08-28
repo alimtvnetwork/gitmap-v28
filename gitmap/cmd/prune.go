@@ -10,15 +10,16 @@ import (
 )
 
 // runPrune handles the prune command.
-func runPrune(args []string) {
+func runPrune(args []string) error {
 	checkHelp(constants.CmdPrune, args)
 	dryRun, confirm, remote := parsePruneFlags(args)
 	stale := filterStaleBranches(listReleaseBranches())
 	if len(stale) == 0 {
 		fmt.Print(constants.MsgPruneNone)
-		return
+		return nil
 	}
 	executePruneWorkflow(stale, dryRun, confirm, remote)
+	return nil
 }
 
 func executePruneWorkflow(stale []staleBranch, dryRun, confirm, remote bool) {

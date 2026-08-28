@@ -10,7 +10,7 @@ import (
 )
 
 // runZipGroupRemove handles "zip-group remove <group> <path>".
-func runZipGroupRemove(args []string) {
+func runZipGroupRemove(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, constants.ErrZGEmpty)
 		os.Exit(1)
@@ -37,10 +37,11 @@ func runZipGroupRemove(args []string) {
 
 	fmt.Printf(constants.MsgZGItemRemoved, rawPath, groupName)
 	syncZipGroupJSON(db)
+	return nil
 }
 
 // runZipGroupDelete handles "zip-group delete <name>".
-func runZipGroupDelete(args []string) {
+func runZipGroupDelete(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrZGEmpty)
 		os.Exit(1)
@@ -63,10 +64,11 @@ func runZipGroupDelete(args []string) {
 
 	fmt.Printf(constants.MsgZGDeleted, name)
 	syncZipGroupJSON(db)
+	return nil
 }
 
 // runZipGroupRename handles "zip-group rename <group> --archive <name>".
-func runZipGroupRename(args []string) {
+func runZipGroupRename(args []string) error {
 	name, archiveName := parseZipGroupRenameFlags(args)
 	if len(name) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrZGEmpty)
@@ -77,6 +79,7 @@ func runZipGroupRename(args []string) {
 		os.Exit(1)
 	}
 	executeZipGroupRename(name, archiveName)
+	return nil
 }
 
 // parseZipGroupRenameFlags parses flags for zip-group rename.

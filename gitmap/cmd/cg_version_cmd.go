@@ -7,7 +7,7 @@ import (
 )
 
 // runCGInstallVersionJSON handles `gitmap cg install-version-json [targets...] [--version=<ver>] [--all]`.
-func runCGInstallVersionJSON(targetDirs []string, initialVersion string, isDryRun bool) {
+func runCGInstallVersionJSON(targetDirs []string, initialVersion string, isDryRun bool) error {
 	if len(targetDirs) == 0 {
 		resolved, err := ResolvePromptTarget("")
 		if err == nil {
@@ -17,7 +17,7 @@ func runCGInstallVersionJSON(targetDirs []string, initialVersion string, isDryRu
 
 	if len(targetDirs) == 0 {
 		fmt.Println("No target repositories found to install version.json.")
-		return
+		return nil
 	}
 
 	cfg := DefaultVersionInstallConfig(initialVersion)
@@ -38,4 +38,5 @@ func runCGInstallVersionJSON(targetDirs []string, initialVersion string, isDryRu
 	}
 
 	fmt.Printf("\nversion.json Installation Summary: %d Success | %d Failed\n", successCount, failCount)
+	return nil
 }

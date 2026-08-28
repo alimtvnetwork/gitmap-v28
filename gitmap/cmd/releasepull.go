@@ -20,7 +20,7 @@ import (
 //	--ff-only (default)  fast-forward only; hard-fail on divergence.
 //	--rebase             rebase local commits onto upstream; abort on conflict.
 //	--merge              classic merge (passes --no-rebase); creates merge commit.
-func runReleasePull(args []string) {
+func runReleasePull(args []string) error {
 	checkHelp(constants.CmdReleasePull, args)
 	printCanonicalCmdBanner(constants.CmdReleasePull, constants.CmdReleasePullAlias)
 
@@ -30,6 +30,7 @@ func runReleasePull(args []string) {
 	pullCurrentRepo(dir, mode, dryRun, verbose)
 	forceYesOverride = true
 	runRelease(ensureYesForward(rest))
+	return nil
 }
 
 // ensureYesForward guarantees `-y` is present in the args forwarded to

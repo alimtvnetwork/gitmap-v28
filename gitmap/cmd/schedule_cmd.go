@@ -10,13 +10,14 @@ import (
 )
 
 // runSchedule handles gitmap schedule commands.
-func runSchedule(args []string) {
+func runSchedule(args []string) error {
 	hasArgs := len(args) > 0
 	if !hasArgs {
 		runScheduleAdd(args)
-		return
+		return nil
 	}
 	dispatchSchedule(args[0], args)
+	return nil
 }
 
 func dispatchSchedule(commandName string, args []string) {
@@ -32,16 +33,17 @@ func dispatchSchedule(commandName string, args []string) {
 }
 
 // runScheduleStatus prints out current schedules.
-func runScheduleStatus() {
+func runScheduleStatus() error {
 	db, err := store.OpenDefault()
 	if err != nil {
-		return
+		return nil
 	}
 	defer db.Close()
 	tasks, _ := db.ListSchedules()
 	for _, t := range tasks {
 		fmt.Printf("Task %s: interval=%s delay=%s\n", t.Name, t.IntervalVal, t.DelayVal)
 	}
+	return nil
 }
 
 // parseScheduleArgs parses CLI arguments.
@@ -71,7 +73,7 @@ func promptIfEmpty(prompt, val string) string {
 }
 
 // runScheduleAdd handles adding a new schedule.
-func runScheduleAdd(args []string) {
+func runScheduleAdd(args []string) error {
 	name, interval, delay := parseScheduleArgs(args)
 	name = promptIfEmpty("Name: ", name)
 	interval = promptIfEmpty("Interval: ", interval)
@@ -84,6 +86,7 @@ func runScheduleAdd(args []string) {
 	printScheduleSummaryTree(name, interval, "default", steps)
 
 	saveSchedule(name, interval, delay, isScheduled, hasDelay)
+	return nil
 }
 
 // buildScheduleStepList creates step descriptions for schedule confirmation.

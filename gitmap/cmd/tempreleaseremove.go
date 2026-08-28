@@ -12,7 +12,7 @@ import (
 )
 
 // runTempReleaseRemove handles "tr remove <version>|<v1> to <v2>|all".
-func runTempReleaseRemove(args []string) {
+func runTempReleaseRemove(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrTRRemoveUsage)
 		os.Exit(1)
@@ -21,16 +21,17 @@ func runTempReleaseRemove(args []string) {
 	if args[0] == "all" {
 		removeTempReleaseAll()
 
-		return
+		return nil
 	}
 
 	if len(args) >= 3 && args[1] == "to" {
 		removeTempReleaseRange(args[0], args[2])
 
-		return
+		return nil
 	}
 
 	removeTempReleaseSingle(args[0])
+	return nil
 }
 
 // removeTempReleaseSingle removes one temp-release branch.

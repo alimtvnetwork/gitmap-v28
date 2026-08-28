@@ -10,23 +10,24 @@ import (
 )
 
 // runFixPath syncs the active PATH binary from the deployed binary.
-func runFixPath() {
+func runFixPath() error {
 	fmt.Println()
 	fmt.Printf(constants.DoctorFixBannerFmt, constants.Version)
 	fmt.Println(constants.DoctorBannerRule)
 
 	absActive, activeVersion := resolveActiveBinary()
 	if len(absActive) == 0 {
-		return
+		return nil
 	}
 
 	absDeployed, deployedVersion := resolveDeployedForSync()
 	if len(absDeployed) == 0 {
-		return
+		return nil
 	}
 
 	printFixPathInfo(absActive, activeVersion, absDeployed, deployedVersion)
 	syncBinaries(absActive, activeVersion, absDeployed, deployedVersion)
+	return nil
 }
 
 // resolveActiveBinary finds and validates the active PATH binary.

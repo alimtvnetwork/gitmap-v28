@@ -9,9 +9,10 @@ import (
 )
 
 // runWTSettingsOnly syncs Windows Terminal settings from the bundled folder.
-func runWTSettingsOnly() {
+func runWTSettingsOnly() error {
 	fmt.Println("  Syncing Windows Terminal settings...")
 	syncWTSettings()
+	return nil
 }
 
 // syncWTSettings copies Windows Terminal settings to the LocalState directory.

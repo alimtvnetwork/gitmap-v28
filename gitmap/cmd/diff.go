@@ -15,7 +15,7 @@ import (
 // of what `gitmap merge-*` would change between two folders.
 //
 // Spec: companion to spec/01-app/97-move-and-merge.md
-func runDiff(args []string) {
+func runDiff(args []string) error {
 	checkHelp("diff", args)
 	left, right, walkOpts, printOpts := parseDiffArgs(args)
 
@@ -40,6 +40,7 @@ func runDiff(args []string) {
 		fmt.Fprintf(os.Stderr, "%s report failed: %v\n", constants.LogPrefixDiff, reportErr)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // parseDiffArgs parses positional + flag arguments.

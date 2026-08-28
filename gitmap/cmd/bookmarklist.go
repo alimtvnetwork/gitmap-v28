@@ -9,7 +9,7 @@ import (
 )
 
 // runBookmarkList displays all saved bookmarks.
-func runBookmarkList(args []string) {
+func runBookmarkList(args []string) error {
 	jsonOut := hasJSONFlag(args)
 	db, err := openDB()
 	if err != nil {
@@ -27,10 +27,11 @@ func runBookmarkList(args []string) {
 	if jsonOut {
 		printBookmarkJSON(records)
 
-		return
+		return nil
 	}
 
 	printBookmarkTerminal(records)
+	return nil
 }
 
 // hasJSONFlag checks if --json is present in args.
@@ -66,7 +67,7 @@ func printBookmarkJSON(records []model.BookmarkRecord) {
 }
 
 // runBookmarkDelete removes a saved bookmark by name.
-func runBookmarkDelete(args []string) {
+func runBookmarkDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkDelUsage)
 		os.Exit(1)
@@ -74,6 +75,7 @@ func runBookmarkDelete(args []string) {
 
 	name := args[0]
 	deleteBookmarkFromDB(name)
+	return nil
 }
 
 // deleteBookmarkFromDB removes the bookmark and prints confirmation.

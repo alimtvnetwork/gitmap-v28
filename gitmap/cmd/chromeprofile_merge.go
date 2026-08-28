@@ -40,7 +40,7 @@ type mergeStats struct {
 }
 
 // runChromeProfileMerge implements `gitmap cpm`.
-func runChromeProfileMerge(args []string) {
+func runChromeProfileMerge(args []string) error {
 	checkHelp(constants.CmdChromeProfileMerge, args)
 	fs := flag.NewFlagSet(constants.CmdChromeProfileMerge, flag.ExitOnError)
 	what := fs.String("what", constants.ChromeMergeWhatAll, "settings|bookmarks|extensions|all")
@@ -74,6 +74,7 @@ func runChromeProfileMerge(args []string) {
 	executeChromeProfileMerge(src, dst, *what, mergePolicy{
 		autoKeep: *yes, autoOverwrite: *force, dryRun: *dryRun, reader: bufio.NewReader(os.Stdin),
 	})
+	return nil
 }
 
 func executeChromeProfileMerge(src, dst chromeProfileResolution, what string, pol mergePolicy) {

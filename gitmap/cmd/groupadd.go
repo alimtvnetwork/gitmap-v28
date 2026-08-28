@@ -9,7 +9,7 @@ import (
 )
 
 // runGroupAdd handles "group add <group> <slug...>".
-func runGroupAdd(args []string) {
+func runGroupAdd(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, constants.ErrGroupSlugReq)
 		os.Exit(1)
@@ -27,6 +27,7 @@ func runGroupAdd(args []string) {
 	for _, slug := range slugs {
 		addOneSlugToGroup(db, groupName, slug)
 	}
+	return nil
 }
 
 // addOneSlugToGroup resolves a slug and adds matching repos to the group.

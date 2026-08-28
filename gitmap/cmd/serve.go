@@ -16,7 +16,7 @@ import (
 )
 
 // runServe starts the orchestrator daemon and generates a join token.
-func runServe(args []string) {
+func runServe(args []string) error {
 	checkHelp("serve", args)
 	port := parseServeFlags(args)
 
@@ -54,6 +54,7 @@ func runServe(args []string) {
 	<-sigChan
 
 	fmt.Println(constants.MsgServeShutdown)
+	return nil
 }
 
 // parseServeFlags parses serve-specific CLI flags.

@@ -9,7 +9,7 @@ import (
 )
 
 // runProfileCreate creates a new named profile.
-func runProfileCreate(args []string) {
+func runProfileCreate(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileCreateUsage)
 		os.Exit(1)
@@ -28,16 +28,17 @@ func runProfileCreate(args []string) {
 	initProfileDB(name)
 
 	fmt.Printf(constants.MsgProfileCreated, name)
+	return nil
 }
 
 // runProfileList displays all profiles with active marker.
-func runProfileList() {
+func runProfileList() error {
 	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
 
 	if len(cfg.Profiles) == 0 {
 		fmt.Print(constants.MsgProfileEmpty)
 
-		return
+		return nil
 	}
 
 	fmt.Println(constants.MsgProfileColumns)
@@ -48,10 +49,11 @@ func runProfileList() {
 		}
 		fmt.Printf(constants.MsgProfileRowFmt, p, tag)
 	}
+	return nil
 }
 
 // runProfileSwitch changes the active profile.
-func runProfileSwitch(args []string) {
+func runProfileSwitch(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileSwitchUsage)
 		os.Exit(1)
@@ -69,10 +71,11 @@ func runProfileSwitch(args []string) {
 	saveProfileOrExit(cfg)
 
 	fmt.Printf(constants.MsgProfileSwitched, name)
+	return nil
 }
 
 // runProfileDelete removes a profile (not the active or default).
-func runProfileDelete(args []string) {
+func runProfileDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileDeleteUsage)
 		os.Exit(1)
@@ -87,10 +90,12 @@ func runProfileDelete(args []string) {
 	removeProfileDB(name)
 
 	fmt.Printf(constants.MsgProfileDeleted, name)
+	return nil
 }
 
 // runProfileShow displays the currently active profile.
-func runProfileShow() {
+func runProfileShow() error {
 	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
 	fmt.Printf(constants.MsgProfileActive, cfg.Active)
+	return nil
 }

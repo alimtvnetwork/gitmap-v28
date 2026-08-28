@@ -24,7 +24,7 @@ import (
 )
 
 // runHasChange handles the `has-change` command.
-func runHasChange(args []string) {
+func runHasChange(args []string) error {
 	checkHelp(constants.CmdHasChange, args)
 
 	alias, mode, all, fetch := parseHasChangeFlags(args)
@@ -42,10 +42,11 @@ func runHasChange(args []string) {
 	if all {
 		printHasChangeAll(target)
 
-		return
+		return nil
 	}
 
 	printHasChangeOne(target, mode)
+	return nil
 }
 
 // parseHasChangeFlags extracts the repo alias and mode flags.

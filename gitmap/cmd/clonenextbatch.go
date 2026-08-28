@@ -35,7 +35,7 @@ type batchRowResult struct {
 // `noProgress` suppresses the live per-repo progress line printed as
 // each worker finishes (v3.124.0+). The end-of-batch summary always
 // prints regardless.
-func runCloneNextBatch(csvPath string, walkAll bool, maxConcurrency int, noProgress, reportErrors bool) {
+func runCloneNextBatch(csvPath string, walkAll bool, maxConcurrency int, noProgress, reportErrors bool) error {
 	repos, err := loadBatchRepos(csvPath, walkAll)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNextBatchLoad, err)
@@ -49,6 +49,7 @@ func runCloneNextBatch(csvPath string, walkAll bool, maxConcurrency int, noProgr
 	reportPath := writeBatchReport(results)
 	printBatchSummary(results, reportPath)
 	writeCNErrorReport(reportErrors, results)
+	return nil
 }
 
 // loadBatchRepos resolves the input source (csv > walk > implicit walk)

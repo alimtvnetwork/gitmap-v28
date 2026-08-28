@@ -22,7 +22,7 @@ type commitMessage struct {
 }
 
 // runCommitLoop executes the timed commit-and-push cycle.
-func runCommitLoop(flags seoWriteFlags, messages []commitMessage, minSec, maxSec int) {
+func runCommitLoop(flags seoWriteFlags, messages []commitMessage, minSec, maxSec int) error {
 	pendingFiles := resolvePendingFiles(flags.files)
 	printHeader(flags.maxCommits, minSec, maxSec)
 
@@ -42,6 +42,7 @@ func runCommitLoop(flags seoWriteFlags, messages []commitMessage, minSec, maxSec
 
 	runRotation(flags, messages, pendingFiles, stop, &count, minSec, maxSec)
 	printDone(count, time.Since(start))
+	return nil
 }
 
 // commitOne stages, commits, and pushes a single file.
@@ -54,20 +55,21 @@ func commitOne(flags seoWriteFlags, files []string, m commitMessage, idx, count,
 }
 
 // runRotation handles rotation mode when pending files are exhausted.
-func runRotation(flags seoWriteFlags, msgs []commitMessage, files []string, stop <-chan bool, count *int, minSec, maxSec int) {
+func runRotation(flags seoWriteFlags, msgs []commitMessage, files []string, stop <-chan bool, count *int, minSec, maxSec int) error {
 	if flags.maxCommits > 0 && *count >= flags.maxCommits {
-		return
+		return nil
 	}
 	if len(msgs) <= *count && flags.maxCommits == 0 {
-		return
+		return nil
 	}
 
 	rotateFile := resolveRotateFile(flags.rotateFile)
 	if rotateFile == "" {
-		return
+		return nil
 	}
 
 	rotateLoop(flags, msgs, rotateFile, stop, count, minSec, maxSec)
+	return nil
 }
 
 // rotateLoop appends text, commits, reverts, commits in a cycle.

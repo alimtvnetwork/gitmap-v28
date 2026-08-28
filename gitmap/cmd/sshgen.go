@@ -14,7 +14,7 @@ import (
 )
 
 // runSSHGenerate generates a new SSH key pair.
-func runSSHGenerate(args []string) {
+func runSSHGenerate(args []string) error {
 	name, keyPath, email, force, host, confirm := parseSSHGenFlags(args)
 
 	if err := validateSSHKeygen(); err != nil {
@@ -35,7 +35,7 @@ func runSSHGenerate(args []string) {
 	if confirm && askConfirm(name, keyPath) == false {
 		fmt.Fprint(os.Stdout, constants.MsgSSHCanceled)
 
-		return
+		return nil
 	}
 
 	db, err := openDB()
@@ -54,7 +54,7 @@ func runSSHGenerate(args []string) {
 	if keyExistsOnDisk(keyPath) && !force {
 		printExistingKeyOnDisk(db, name, keyPath, host)
 
-		return
+		return nil
 	}
 	if keyExistsOnDisk(keyPath) && force {
 		err2 := backupKeyForRegenerate(keyPath)
@@ -64,10 +64,11 @@ func runSSHGenerate(args []string) {
 
 	shouldHandle := db.SSHKeyExists(name) && !force
 	if shouldHandle && !handleExistingKey(db, name, &keyPath) {
-		return
+		return nil
 	}
 
 	generateAndStore(db, name, keyPath, email, host)
+	return nil
 }
 
 // parseSSHGenFlags parses flags for SSH key generation.

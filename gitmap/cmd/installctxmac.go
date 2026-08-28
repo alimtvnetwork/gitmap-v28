@@ -12,14 +12,14 @@ import (
 // runInstallCtxMac generates one Automator Quick Action .workflow
 // bundle per flat menu entry under ~/Library/Services. macOS shows
 // these in Finder's right-click "Quick Actions" / "Services" submenu.
-func runInstallCtxMac() {
+func runInstallCtxMac() error {
 	fmt.Print(constants.MsgCtxMacInstallStart)
 
 	dir, err := macServicesDir()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgCtxFsWriteFail, "$HOME", err)
 
-		return
+		return nil
 	}
 
 	exe := resolveCtxExe()
@@ -31,18 +31,19 @@ func runInstallCtxMac() {
 		}
 	}
 	fmt.Printf(constants.MsgCtxMacInstallDone, ok, len(flat))
+	return nil
 }
 
 // runUninstallCtxMac removes every gitmap-prefixed .workflow bundle
 // previously written by runInstallCtxMac. Other Services are left alone.
-func runUninstallCtxMac() {
+func runUninstallCtxMac() error {
 	fmt.Print(constants.MsgCtxMacUninstallStart)
 
 	dir, err := macServicesDir()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgCtxFsWriteFail, "$HOME", err)
 
-		return
+		return nil
 	}
 
 	flat := flattenCtxMenu()
@@ -57,6 +58,7 @@ func runUninstallCtxMac() {
 		ok++
 	}
 	fmt.Printf(constants.MsgCtxMacUninstallDone, ok, len(flat))
+	return nil
 }
 
 // macServicesDir returns ~/Library/Services, creating it if missing.

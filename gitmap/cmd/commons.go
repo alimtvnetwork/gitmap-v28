@@ -37,16 +37,16 @@ Examples:
 
 // dispatchCommons routes `gitmap commons` / `gitmap co` to the same
 // logic as `gitmap sync all` without requiring a subcommand token.
-func dispatchCommons(command string) bool {
+func dispatchCommons(command string) (bool, error) {
 	if command != constants.CmdCommons && command != constants.CmdCommonsAlias {
-		return false
+		return false, nil
 	}
 	rest := os.Args[2:]
 	for _, a := range rest {
 		if a == "--help" || a == "-h" {
 			fmt.Print(commonsUsage)
 
-			return true
+			return true, nil
 		}
 	}
 	dry, force := parseSyncFlags(rest)
@@ -57,5 +57,5 @@ func dispatchCommons(command string) bool {
 	runSyncLines(".prettierignore", defaultPrettierignoreBaseline, dry)
 	runSyncPrettierRC(dry, force)
 
-	return true
+	return true, nil
 }

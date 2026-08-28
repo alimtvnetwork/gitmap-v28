@@ -60,12 +60,13 @@ func TestScanExportCloneFrom_HTTPSAndSSH_RoundTrips(t *testing.T) {
 
 // runRoundTrip executes one scan → export(format) → transform →
 // clone-from cycle and asserts every executed row landed ok.
-func runRoundTrip(t *testing.T, scanRoot, mode, format string) {
+func runRoundTrip(t *testing.T, scanRoot, mode, format string) error {
 	t.Helper()
 	records := scanAndBuildRecords(t, scanRoot, mode)
 	exportPath := exportRecords(t, records, format)
 	manifest := writeCloneFromManifest(t, records, mode, format)
 	executePlanAndAssertOK(t, manifest, exportPath)
+	return nil
 }
 
 // scanAndBuildRecords runs the real scanner against the seeded

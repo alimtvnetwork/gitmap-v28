@@ -10,7 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func runChrome(args []string) {
+func runChrome(args []string) error {
 	if len(args) == 0 {
 		printChromeUsage()
 		os.Exit(2)
@@ -32,6 +32,7 @@ func runChrome(args []string) {
 		printChromeUsage()
 		os.Exit(2)
 	}
+	return nil
 }
 
 func printChromeUsage() {

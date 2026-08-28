@@ -24,7 +24,7 @@ import (
 // When no version is supplied the newest `.gitmap/release/v*.json` is used.
 // The summary line is intentionally copy-friendly so the user can paste it
 // into a task-completion report.
-func runReleaseUndo(args []string) {
+func runReleaseUndo(args []string) error {
 	checkHelp(constants.CmdReleaseUndo, args)
 
 	version, keepRemote, dryRun, yes := parseReleaseUndoFlags(args)
@@ -55,7 +55,7 @@ func runReleaseUndo(args []string) {
 
 	if dryRun {
 		fmt.Println("\x1b[33m(dry-run; no changes applied)\x1b[0m")
-		return
+		return nil
 	}
 	if !yes && !confirmUndoRelease(tag) {
 		fmt.Fprintln(os.Stderr, "release-undo: aborted")
@@ -66,6 +66,7 @@ func runReleaseUndo(args []string) {
 	summary := fmt.Sprintf("✅ release-undo complete — %s removed (%s)", tag, strings.Join(steps, ", "))
 	fmt.Println("\x1b[1;32m" + summary + "\x1b[0m")
 	fmt.Println("\x1b[2m(share this line in your task report)\x1b[0m")
+	return nil
 }
 
 // parseReleaseUndoFlags parses CLI flags for release-undo.

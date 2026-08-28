@@ -37,29 +37,30 @@ func parseSEFlags(args []string) seOptions {
 	return opts
 }
 
-func runSSHExec(args []string) {
+func runSSHExec(args []string) error {
 	opts := parseSEFlags(args)
 
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
-		return
+		return nil
 	}
 	defer dbConn.Close()
 
 	conns, err := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if err != nil {
 		fmt.Printf("Failed to get connections: %v\n", err)
-		return
+		return nil
 	}
 
 	conns = filterSSHConns(conns, opts.Exclude)
 	if len(conns) == 0 {
 		fmt.Println("No machines to execute on.")
-		return
+		return nil
 	}
 
 	executeOnAllSSH(conns, opts.Args)
+	return nil
 }
 
 func filterSSHConns(conns []db.SSHConnection, excludeCSV string) []db.SSHConnection {
@@ -94,7 +95,7 @@ func executeOnAllSSH(conns []db.SSHConnection, args []string) {
 	wg.Wait()
 	fmt.Println("SSH Execution Done.")
 }
-func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) {
+func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
 	header := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd")).Render(fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress))
@@ -106,25 +107,25 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) {
 		passBytes, decErr := crypto.Decrypt(c.EncryptedPassword, getEncryptionKey())
 		if decErr != nil {
 			fmt.Printf("%s Decrypt error: %v\n", header, decErr)
-			return
+			return nil
 		}
 		client, err = crypto.ConnectWithPassword(c.IPAddress, c.Username, string(passBytes))
 	} else if c.KeyPath != "" {
 		client, err = crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
 	} else {
 		fmt.Printf("%s No password or key configured\n", header)
-		return
+		return nil
 	}
 
 	if err != nil {
 		fmt.Printf("%s Connect error: %v\n", header, err)
-		return
+		return nil
 	}
 	defer client.Close()
 
 	if err := ensureGitmapInstalled(client, c.OS, header); err != nil {
 		fmt.Printf("%s Failed to ensure gitmap: %v\n", header, err)
-		return
+		return nil
 	}
 
 	shellType, commandStr, delegateToGitmap := determineSSHCommand(c.OS, args)
@@ -141,10 +142,11 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) {
 	out, err := crypto.RunCommand(client, commandStr, shellType)
 	if err != nil {
 		fmt.Printf("%s Execute error: %v\n%s\n", header, err, strings.TrimSpace(out))
-		return
+		return nil
 	}
 
 	fmt.Printf("%s\n%s\n", header, strings.TrimSpace(out))
+	return nil
 }
 
 func determineSSHCommand(osType string, args []string) (string, string, bool) {

@@ -23,15 +23,16 @@ type agManagerRelease struct {
 	Assets []agManagerAsset `json:"assets"`
 }
 
-func runInstallAgManager() {
+func runInstallAgManager() error {
 	fmt.Println("Fetching latest release for Antigravity-Manager...")
 	assetURL, err := getAgManagerAssetURL()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error fetching release: %v\n", err)
-		return
+		return nil
 	}
 	fmt.Printf("Downloading %s...\n", assetURL)
 	performAgManagerDownloadAndInstall(assetURL)
+	return nil
 }
 
 func performAgManagerDownloadAndInstall(assetURL string) {
@@ -50,7 +51,9 @@ func performAgManagerDownloadAndInstall(assetURL string) {
 
 func getAgManagerAssetURL() (string, error) {
 	resp, err := http.Get("https://api.github.com/repos/lbjlaq/Antigravity-Manager/releases/latest")
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 	defer resp.Body.Close()
 	var release agManagerRelease
 	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
@@ -97,13 +100,17 @@ func matchArch(n, archStr string) bool {
 
 func downloadAgManagerFile(url string) (string, error) {
 	resp, err := http.Get(url)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 	defer resp.Body.Close()
 	parts := strings.Split(url, "/")
 	name := parts[len(parts)-1]
 	tmpPath := filepath.Join(os.TempDir(), name)
 	out, err := os.Create(tmpPath)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 	return tmpPath, err
@@ -113,11 +120,20 @@ func executeAgManagerInstaller(path string) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
-		if strings.HasSuffix(path, ".msi") { cmd = exec.Command("msiexec", "/i", path, "/qn") } else { cmd = exec.Command(path, "/S") }
+		if strings.HasSuffix(path, ".msi") {
+			cmd = exec.Command("msiexec", "/i", path, "/qn")
+		} else {
+			cmd = exec.Command(path, "/S")
+		}
 	case "darwin":
 		cmd = exec.Command("open", path)
 	case "linux":
-		if strings.HasSuffix(strings.ToLower(path), ".deb") { cmd = exec.Command("sudo", "dpkg", "-i", path) } else { os.Chmod(path, 0755); cmd = exec.Command(path) }
+		if strings.HasSuffix(strings.ToLower(path), ".deb") {
+			cmd = exec.Command("sudo", "dpkg", "-i", path)
+		} else {
+			os.Chmod(path, 0755)
+			cmd = exec.Command(path)
+		}
 	}
 	if cmd != nil {
 		cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr

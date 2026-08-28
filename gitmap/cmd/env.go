@@ -8,7 +8,7 @@ import (
 )
 
 // runEnv handles the "env" subcommand routing.
-func runEnv(args []string) {
+func runEnv(args []string) error {
 	checkHelp("env", args)
 	if len(args) < 1 {
 		fmt.Fprintf(os.Stderr, constants.ErrEnvSubcommand, "")
@@ -19,6 +19,7 @@ func runEnv(args []string) {
 	rest := args[1:]
 
 	routeEnvSub(sub, rest)
+	return nil
 }
 
 // routeEnvSub routes to the appropriate env subcommand.

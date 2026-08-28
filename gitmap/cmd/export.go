@@ -10,27 +10,29 @@ import (
 )
 
 // runImportExport provides a unified entry point for export and import commands.
-func runImportExport(args []string) {
+func runImportExport(args []string) error {
 	hasArgs := len(args) > 0
 	if hasArgs && (args[0] == "import" || args[0] == "im") {
 		runImport(args[1:])
-		return
+		return nil
 	}
 	if hasArgs && (args[0] == "export" || args[0] == "ex") {
 		runExport(args[1:])
-		return
+		return nil
 	}
 	runExport(args)
+	return nil
 }
 
 // runExport handles the "export" subcommand.
-func runExport(args []string) {
+func runExport(args []string) error {
 	checkHelp("export", args)
 	outFile := resolveExportFile(args)
 	export := loadExportData()
 
 	writeExportFile(outFile, export)
 	printExportSummary(outFile, export)
+	return nil
 }
 
 // resolveExportFile determines the output file from args or default.

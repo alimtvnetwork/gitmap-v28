@@ -12,7 +12,7 @@ import (
 )
 
 // runTaskCreate creates a new named file-sync task.
-func runTaskCreate(args []string) {
+func runTaskCreate(args []string) error {
 	fs := flag.NewFlagSet("task-create", flag.ExitOnError)
 
 	var src, dest string
@@ -32,6 +32,7 @@ func runTaskCreate(args []string) {
 	saveTaskFile(tasks)
 
 	fmt.Printf(constants.MsgTaskCreated, name)
+	return nil
 }
 
 // validateTaskCreateInputs checks required fields for task creation.
@@ -72,13 +73,13 @@ func checkTaskNotExists(tasks model.TaskFile, name string) {
 }
 
 // runTaskList prints all saved tasks.
-func runTaskList() {
+func runTaskList() error {
 	tasks := loadTaskFile()
 
 	if len(tasks.Tasks) == 0 {
 		fmt.Print(constants.MsgTaskListEmpty)
 
-		return
+		return nil
 	}
 
 	fmt.Print(constants.MsgTaskListHeader)
@@ -86,25 +87,28 @@ func runTaskList() {
 	for _, t := range tasks.Tasks {
 		fmt.Printf(constants.MsgTaskListRow, t.Name, t.Source, t.Dest)
 	}
+	return nil
 }
 
 // runTaskShow prints details of a single task.
-func runTaskShow(args []string) {
+func runTaskShow(args []string) error {
 	name := requireTaskName(args)
 	tasks := loadTaskFile()
 	entry := findTaskByName(tasks, name)
 
 	fmt.Printf(constants.MsgTaskShowFmt, entry.Name, entry.Source, entry.Dest)
+	return nil
 }
 
 // runTaskDelete removes a task by name.
-func runTaskDelete(args []string) {
+func runTaskDelete(args []string) error {
 	name := requireTaskName(args)
 	tasks := loadTaskFile()
 	tasks = removeTaskByName(tasks, name)
 	saveTaskFile(tasks)
 
 	fmt.Printf(constants.MsgTaskDeleted, name)
+	return nil
 }
 
 // requireTaskName extracts and validates the task name argument.

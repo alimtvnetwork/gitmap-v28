@@ -43,7 +43,7 @@ type startupAddFlags struct {
 // supported via the Registry / Startup-folder backends — no early
 // short-circuit needed here. The startup package's runtime guards
 // surface ErrStartupUnsupportedOS for any remaining unsupported OS.
-func runStartupAdd(args []string) {
+func runStartupAdd(args []string) error {
 	checkHelp("startup-add", args)
 	cfg := parseStartupAddFlags(args)
 	if err := validateStartupOutput(constants.CmdStartupAdd, cfg.output, cfg.jsonIndent); err != nil {
@@ -75,9 +75,10 @@ func runStartupAdd(args []string) {
 		_ = emitStartupStatus(cfg.output, cfg.jsonIndent,
 			addResultToStatus(cfg.name, cfg.force, res))
 
-		return
+		return nil
 	}
 	printAddResult(cfg.name, res)
+	return nil
 }
 
 // parseStartupAddFlags wires the 6 CLI flags into a startupAddFlags.

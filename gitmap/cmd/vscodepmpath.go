@@ -19,7 +19,7 @@ import (
 //
 // This is the user-facing way to confirm where gitmap will write
 // projects.json before running `scan` or `code`.
-func runVSCodePMPath(args []string) {
+func runVSCodePMPath(args []string) error {
 	checkHelp("vscode-pm-path", args)
 
 	path, err := vscodepm.ProjectsJSONPath()
@@ -29,6 +29,7 @@ func runVSCodePMPath(args []string) {
 	}
 
 	fmt.Println(path)
+	return nil
 }
 
 // printVSCodePMPathError surfaces the two soft-fail sentinels with

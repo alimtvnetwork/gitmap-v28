@@ -6,7 +6,7 @@ import (
 )
 
 // dispatchCore routes scan, clone, pull, and status commands.
-func dispatchCore(command string) bool {
+func dispatchCore(command string) (bool, error) {
 	return runDispatchTable(command, coreDispatchEntries())
 }
 
@@ -24,73 +24,73 @@ func coreDispatchEntries() []dispatchEntry {
 
 func coreBasicEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdScan, constants.CmdScanAlias}, func() { runScan(argsTail()) }},
-		{[]string{constants.CmdClone, constants.CmdCloneAlias}, func() { runClone(argsTail()) }},
-		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, func() { runCloneSync() }},
-		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() { runPull(argsTail()) }},
-		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() { runPush(argsTail()) }},
-		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias}, func() { runPullAll(argsTail()) }},
-		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() { runStatus(argsTail()) }},
-		{[]string{"fix"}, func() { runFix(argsTail(), "") }},
-		{[]string{"stash"}, func() { runFix(argsTail(), "stash") }},
-		{[]string{"wip"}, func() { runFix(argsTail(), "wip") }},
-		{[]string{"discard"}, func() { runFix(argsTail(), "discard") }},
+		{[]string{constants.CmdScan, constants.CmdScanAlias}, func() error { return runScan(argsTail()) }},
+		{[]string{constants.CmdClone, constants.CmdCloneAlias}, func() error { return runClone(argsTail()) }},
+		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, func() error { return runCloneSync() }},
+		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() error { return runPull(argsTail()) }},
+		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},
+		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias}, func() error { return runPullAll(argsTail()) }},
+		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return runStatus(argsTail()) }},
+		{[]string{"fix"}, func() error { return runFix(argsTail(), "") }},
+		{[]string{"stash"}, func() error { return runFix(argsTail(), "stash") }},
+		{[]string{"wip"}, func() error { return runFix(argsTail(), "wip") }},
+		{[]string{"discard"}, func() error { return runFix(argsTail(), "discard") }},
 
-		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() { runExec(argsTail()) }},
+		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return runExec(argsTail()) }},
 	}
 }
 
 func coreWorkflowEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdHasAnyUpdates, constants.CmdHasAnyUpdatesAlias, constants.CmdHasAnyChanges, constants.CmdHasAnyChangesAlias}, func() { runHasAnyUpdates(argsTail()) }},
-		{[]string{constants.CmdHasChange, constants.CmdHasChangeAlias}, func() { runHasChange(argsTail()) }},
-		{[]string{constants.CmdCloneNext, constants.CmdCloneNextAlias}, func() { runCloneNext(argsTail()) }},
-		{[]string{constants.CmdAs, constants.CmdAsAlias}, func() { runAs(argsTail()) }},
-		{[]string{constants.CmdCode, constants.CmdCodeAlias, constants.CmdCodeAlias2}, func() { runCode(argsTail()) }},
-		{[]string{constants.CmdInject, constants.CmdInjectAlias}, func() { runInject(argsTail()) }},
-		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() { runOpen(argsTail()) }},
-		{[]string{constants.CmdCloneFrom, constants.CmdCloneFromAlias}, func() { runCloneFrom(argsTail()) }},
+		{[]string{constants.CmdHasAnyUpdates, constants.CmdHasAnyUpdatesAlias, constants.CmdHasAnyChanges, constants.CmdHasAnyChangesAlias}, func() error { return runHasAnyUpdates(argsTail()) }},
+		{[]string{constants.CmdHasChange, constants.CmdHasChangeAlias}, func() error { return runHasChange(argsTail()) }},
+		{[]string{constants.CmdCloneNext, constants.CmdCloneNextAlias}, func() error { return runCloneNext(argsTail()) }},
+		{[]string{constants.CmdAs, constants.CmdAsAlias}, func() error { return runAs(argsTail()) }},
+		{[]string{constants.CmdCode, constants.CmdCodeAlias, constants.CmdCodeAlias2}, func() error { return runCode(argsTail()) }},
+		{[]string{constants.CmdInject, constants.CmdInjectAlias}, func() error { return runInject(argsTail()) }},
+		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() error { return runOpen(argsTail()) }},
+		{[]string{constants.CmdCloneFrom, constants.CmdCloneFromAlias}, func() error { return runCloneFrom(argsTail()) }},
 	}
 }
 
 func coreCloneExtEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdCloneReclone, constants.CmdCloneRecloneAlias, constants.CmdCloneNow, constants.CmdCloneNowAlias, constants.CmdCloneRel, constants.CmdCloneRelAlias}, func() { runCloneNow(argsTail()) }},
-		{[]string{constants.CmdClonePick, constants.CmdClonePickAlias}, func() { runClonePick(argsTail()) }},
-		{[]string{constants.CmdCommitIn, constants.CmdCommitInAlias}, func() { runCommitIn(argsTail()) }},
-		{[]string{constants.CmdCloneFixRepo, constants.CmdCloneFixRepoAlias}, func() { runCloneFixRepo(argsTail()) }},
-		{[]string{constants.CmdCloneFixRepoPub, constants.CmdCloneFixRepoPubAlias}, func() { runCloneFixRepoPub(argsTail()) }},
-		{[]string{constants.CmdVSCodePMSync, constants.CmdVSCodePMSyncAlias}, func() { runVSCodePMSync(argsTail()) }},
+		{[]string{constants.CmdCloneReclone, constants.CmdCloneRecloneAlias, constants.CmdCloneNow, constants.CmdCloneNowAlias, constants.CmdCloneRel, constants.CmdCloneRelAlias}, func() error { return runCloneNow(argsTail()) }},
+		{[]string{constants.CmdClonePick, constants.CmdClonePickAlias}, func() error { return runClonePick(argsTail()) }},
+		{[]string{constants.CmdCommitIn, constants.CmdCommitInAlias}, func() error { return runCommitIn(argsTail()) }},
+		{[]string{constants.CmdCloneFixRepo, constants.CmdCloneFixRepoAlias}, func() error { return runCloneFixRepo(argsTail()) }},
+		{[]string{constants.CmdCloneFixRepoPub, constants.CmdCloneFixRepoPubAlias}, func() error { return runCloneFixRepoPub(argsTail()) }},
+		{[]string{constants.CmdVSCodePMSync, constants.CmdVSCodePMSyncAlias}, func() error { return runVSCodePMSync(argsTail()) }},
 	}
 }
 
 func coreVisibilityActionEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdMakePublic}, func() { runMakePublic(argsTail()) }},
-		{[]string{constants.CmdMakePrivate}, func() { runMakePrivate(argsTail()) }},
-		{[]string{constants.CmdMakeAllPublic, constants.CmdMAPUB}, func() { runMakeAllPublic(argsTail()) }},
-		{[]string{constants.CmdMakeAllPrivate, constants.CmdMAPRI}, func() { runMakeAllPrivate(argsTail()) }},
-		{[]string{constants.CmdMakeAllPublicExceptLatest, constants.CmdMAPUBXL}, func() { runMakeAllPublicExceptLatest(argsTail()) }},
-		{[]string{constants.CmdMakeAllPrivateExceptLatest, constants.CmdMAPRIXL}, func() { runMakeAllPrivateExceptLatest(argsTail()) }},
-		{[]string{constants.CmdMakeLastPublic, constants.CmdMLPUB}, func() { runMakeLastPublic(argsTail()) }},
-		{[]string{constants.CmdMakeLastPrivate, constants.CmdMLPRI}, func() { runMakeLastPrivate(argsTail()) }},
+		{[]string{constants.CmdMakePublic}, func() error { return runMakePublic(argsTail()) }},
+		{[]string{constants.CmdMakePrivate}, func() error { return runMakePrivate(argsTail()) }},
+		{[]string{constants.CmdMakeAllPublic, constants.CmdMAPUB}, func() error { return runMakeAllPublic(argsTail()) }},
+		{[]string{constants.CmdMakeAllPrivate, constants.CmdMAPRI}, func() error { return runMakeAllPrivate(argsTail()) }},
+		{[]string{constants.CmdMakeAllPublicExceptLatest, constants.CmdMAPUBXL}, func() error { return runMakeAllPublicExceptLatest(argsTail()) }},
+		{[]string{constants.CmdMakeAllPrivateExceptLatest, constants.CmdMAPRIXL}, func() error { return runMakeAllPrivateExceptLatest(argsTail()) }},
+		{[]string{constants.CmdMakeLastPublic, constants.CmdMLPUB}, func() error { return runMakeLastPublic(argsTail()) }},
+		{[]string{constants.CmdMakeLastPrivate, constants.CmdMLPRI}, func() error { return runMakeLastPrivate(argsTail()) }},
 	}
 }
 
 func coreVisibilityHistoryEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdVisibilityUndo, constants.CmdVisibilityUndoAlias}, func() { runVisibilityUndo(argsTail()) }},
-		{[]string{constants.CmdVisibilityRedo, constants.CmdVisibilityRedoAlias}, func() { runVisibilityRedo(argsTail()) }},
-		{[]string{constants.CmdVisibilityHistory, constants.CmdVisibilityHistoryAlias}, func() { runVisibilityHistory(argsTail()) }},
+		{[]string{constants.CmdVisibilityUndo, constants.CmdVisibilityUndoAlias}, func() error { return runVisibilityUndo(argsTail()) }},
+		{[]string{constants.CmdVisibilityRedo, constants.CmdVisibilityRedoAlias}, func() error { return runVisibilityRedo(argsTail()) }},
+		{[]string{constants.CmdVisibilityHistory, constants.CmdVisibilityHistoryAlias}, func() error { return runVisibilityHistory(argsTail()) }},
 	}
 }
 
 func coreClusterEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdServersClients, constants.CmdSC}, func() { dispatchServersClients(argsTail()) }},
-		{[]string{constants.CmdClients}, func() { dispatchClients(argsTail()) }},
-		{[]string{"servers"}, func() { dispatchServers(argsTail()) }},
-		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() { runCluster(argsTail()) }},
+		{[]string{constants.CmdServersClients, constants.CmdSC}, func() error { dispatchServersClients(argsTail()); return nil }},
+		{[]string{constants.CmdClients}, func() error { dispatchClients(argsTail()); return nil }},
+		{[]string{"servers"}, func() error { dispatchServers(argsTail()); return nil }},
+		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() error { return runCluster(argsTail()) }},
 	}
 }
 

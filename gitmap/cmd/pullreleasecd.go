@@ -16,7 +16,7 @@ import (
 // For each parsed entry it resolves the repo path (cloning URLs first),
 // then spawns `gitmap pull-release <version> -y` with cwd set to that
 // path. See spec/01-app/112-pull-release-cd.md.
-func runPullReleaseCD(args []string) {
+func runPullReleaseCD(args []string) error {
 	checkHelp(constants.CmdPullReleaseCD, args)
 	printCanonicalCmdBanner(constants.CmdPullReleaseCD, constants.CmdPullReleaseCDAlias)
 
@@ -40,6 +40,7 @@ func runPullReleaseCD(args []string) {
 			os.Exit(1)
 		}
 	}
+	return nil
 }
 
 // prcEntry is one `<name-or-url> <version>` pair.

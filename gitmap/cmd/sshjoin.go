@@ -41,43 +41,45 @@ func parseSJFlags(args []string) sjOptions {
 	return opts
 }
 
-func runSSHJoinLegacy(args []string) {
+func runSSHJoinLegacy(args []string) error {
 	opts := parseSJFlags(args)
 
 	if opts.List {
 		runSSHJoinLs()
-		return
+		return nil
 	}
 	if opts.ImportFile != "" {
 		runSSHJoinImport(opts.ImportFile)
-		return
+		return nil
 	}
 	if opts.ExportFile != "" {
 		runSSHJoinExport(opts.ExportFile)
-		return
+		return nil
 	}
 
 	runSSHJoinInteractive(opts.Args)
+	return nil
 }
 
-func runSSHJoinLs() {
+func runSSHJoinLs() error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
-		return
+		return nil
 	}
 	defer dbConn.Close()
 
 	conns, err := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if err != nil {
 		fmt.Printf("Failed to get connections: %v\n", err)
-		return
+		return nil
 	}
 
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#bd93f9")).Render("SSH Joined Machines:"))
 	for _, c := range conns {
 		fmt.Printf("  Alias: %-15s IP: %-15s User: %-10s OS: %-8s\n", c.Alias, c.IPAddress, c.Username, c.OS)
 	}
+	return nil
 }
 
 func getEncryptionKey() []byte {
@@ -85,7 +87,7 @@ func getEncryptionKey() []byte {
 	return []byte("gitmap-ssh-secret-key-0123456789")
 }
 
-func runSSHJoinInteractive(args []string) {
+func runSSHJoinInteractive(args []string) error {
 	reader := bufio.NewReader(os.Stdin)
 
 	alias := promptInput(reader, "Machine Alias")
@@ -104,11 +106,12 @@ func runSSHJoinInteractive(args []string) {
 		encPass, err = crypto.Encrypt([]byte(password), getEncryptionKey())
 		if err != nil {
 			fmt.Printf("Encryption failed: %v\n", err)
-			return
+			return nil
 		}
 	}
 
 	saveSSHConnection(alias, ip, user, encPass, keyPath, osType)
+	return nil
 }
 
 func promptInput(reader *bufio.Reader, prompt string) string {
@@ -142,23 +145,23 @@ func saveSSHConnection(alias, ip, user, encPass, keyPath, osType string) {
 	fmt.Printf("Successfully joined %s (%s)\n", alias, ip)
 }
 
-func runSSHJoinImport(file string) {
+func runSSHJoinImport(file string) error {
 	data, err := os.ReadFile(file)
 	if err != nil {
 		fmt.Printf("Read file error: %v\n", err)
-		return
+		return nil
 	}
 
 	var conns []db.SSHConnection
 	if err := json.Unmarshal(data, &conns); err != nil {
 		fmt.Printf("JSON unmarshal error: %v\n", err)
-		return
+		return nil
 	}
 
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
-		return
+		return nil
 	}
 	defer dbConn.Close()
 
@@ -169,31 +172,33 @@ func runSSHJoinImport(file string) {
 			fmt.Printf("Imported %s\n", c.Alias)
 		}
 	}
+	return nil
 }
 
-func runSSHJoinExport(file string) {
+func runSSHJoinExport(file string) error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
-		return
+		return nil
 	}
 	defer dbConn.Close()
 
 	conns, err := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if err != nil {
 		fmt.Printf("Failed to get connections: %v\n", err)
-		return
+		return nil
 	}
 
 	data, err := json.MarshalIndent(conns, "", "  ")
 	if err != nil {
 		fmt.Printf("JSON marshal error: %v\n", err)
-		return
+		return nil
 	}
 
 	if err := os.WriteFile(file, data, 0600); err != nil {
 		fmt.Printf("Write file error: %v\n", err)
-		return
+		return nil
 	}
 	fmt.Printf("Exported %d connections to %s\n", len(conns), file)
+	return nil
 }

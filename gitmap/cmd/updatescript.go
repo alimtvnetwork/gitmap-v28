@@ -189,7 +189,7 @@ func joinComma(parts []string) string {
 }
 
 // runUpdateScript executes the PowerShell script with output piped to terminal.
-func runUpdateScript(scriptPath string, report reportErrorsConfig) {
+func runUpdateScript(scriptPath string, report reportErrorsConfig) error {
 	cmd := exec.Command(constants.PSBin, constants.PSExecPolicy, constants.PSBypass,
 		constants.PSNoProfile, constants.PSNoLogo, constants.PSFile, scriptPath)
 	cmd.Stdout = os.Stdout
@@ -203,6 +203,7 @@ func runUpdateScript(scriptPath string, report reportErrorsConfig) {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateFailed, err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // logScriptResult logs the update script exit status if verbose is active.

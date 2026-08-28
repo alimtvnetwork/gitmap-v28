@@ -42,7 +42,7 @@ const goTestUpdateTriggerEnv = "GITMAP_UPDATE_GOLDEN"
 
 // runRegoldens is the dispatcher entry. checkHelp first so `--help`
 // works even if other flags would fail to parse.
-func runRegoldens(args []string) {
+func runRegoldens(args []string) error {
 	checkHelp("regoldens", args)
 	cfg := parseRegoldensFlags(args)
 	if cfg.pattern == "" {
@@ -52,9 +52,10 @@ func runRegoldens(args []string) {
 	validateDiffMode(cfg.diffMode)
 	if cfg.isDryRun {
 		emitRegoldensDryRun(cfg)
-		return
+		return nil
 	}
 	executeRegoldens(cfg)
+	return nil
 }
 
 // validateDiffMode lives in regoldens_validate.go (file-length cap).
@@ -106,15 +107,16 @@ func goTestArgv(cfg regoldensFlags) []string {
 // runRegoldensPass prints the header, runs one pass, and exits 1
 // with the supplied error format on failure. withGate toggles the
 // gate-vars-injected (pass 1) vs gate-vars-stripped (pass 2) env.
-func runRegoldensPass(cfg regoldensFlags, withGate bool, header, errFmt string) {
+func runRegoldensPass(cfg regoldensFlags, withGate bool, header, errFmt string) error {
 	fmt.Fprint(os.Stderr, header)
 	code := runGoTestPass(cfg, withGate)
 	if code == 0 {
-		return
+		return nil
 	}
 	fmt.Fprintf(os.Stderr, errFmt, code)
 	fmt.Fprintln(os.Stderr)
 	os.Exit(1)
+	return nil
 }
 
 // runGoTestPass executes one `go test` invocation and returns its

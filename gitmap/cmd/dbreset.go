@@ -9,17 +9,18 @@ import (
 )
 
 // runDBReset handles the "db-reset" subcommand.
-func runDBReset(args []string) {
+func runDBReset(args []string) error {
 	checkHelp("db-reset", args)
 	confirm := parseDBResetFlags(args)
 	if confirm {
 		executeDBReset()
 
-		return
+		return nil
 	}
 
 	fmt.Fprintln(os.Stderr, constants.ErrDBResetNoConfirm)
 	os.Exit(1)
+	return nil
 }
 
 // parseDBResetFlags parses the --confirm flag.

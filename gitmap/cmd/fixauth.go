@@ -25,32 +25,33 @@ import (
 )
 
 // runFixAuth parses flags and orchestrates the auth-fix pipeline.
-func runFixAuth(args []string) {
+func runFixAuth(args []string) error {
 	user, email, assumeYes, force := parseFixAuthFlags(args)
 	if user == "" {
 		fmt.Fprintln(os.Stderr, "✗ --user <github-username> is required")
 		fmt.Fprintln(os.Stderr, "  example: gitmap fix-auth --user aukgit --email me@example.com")
 		exitWith(1)
 
-		return
+		return nil
 	}
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run inside the repo you want to fix)")
 		exitWith(1)
 
-		return
+		return nil
 	}
 	keyPath := fixAuthKeyPath(user)
 	if err := ensureSSHDir(filepath.Dir(keyPath)); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ mkdir ~/.ssh failed: %v\n", err)
 		exitWith(1)
 
-		return
+		return nil
 	}
 	fixAuthGenerate(keyPath, resolveFixAuthEmail(email), assumeYes, force)
 	fixAuthBind(keyPath)
 	fixAuthAnnounce(user, keyPath)
+	return nil
 }
 
 // parseFixAuthFlags parses fix-auth CLI flags with short aliases.
@@ -130,7 +131,7 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 }
 
 // runSSHKeygenEd25519 invokes ssh-keygen with an empty passphrase.
-func runSSHKeygenEd25519(keyPath, email string) {
+func runSSHKeygenEd25519(keyPath, email string) error {
 	cmd := exec.Command(constants.SSHKeygenBin,
 		"-t", "ed25519", "-C", email, "-f", keyPath, "-N", "")
 	cmd.Stdout = os.Stdout
@@ -139,6 +140,7 @@ func runSSHKeygenEd25519(keyPath, email string) {
 		fmt.Fprintf(os.Stderr, "✗ ssh-keygen failed: %v\n", err)
 		exitWith(1)
 	}
+	return nil
 }
 
 // confirmOverwrite prompts y/N before clobbering an existing key.

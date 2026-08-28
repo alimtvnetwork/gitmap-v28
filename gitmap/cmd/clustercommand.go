@@ -16,7 +16,7 @@ import (
 // runClusterCommand is the orchestrator for delegated cluster commands.
 // It parses flags, resolves nodes, prints preflight, confirms,
 // inserts a ClusterRun, and dispatches the sub-commands via the bounded worker pool.
-func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
+func runClusterCommand(selector cluster.TargetSelectorType, args []string) error {
 	flags, positional, err := ParseClusterFlags(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing flags: %v\n", err)
@@ -145,6 +145,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) {
 	fmt.Printf("┌%s%s┐\n", summaryTitle, strings.Repeat("─", titlePad))
 	fmt.Printf("│%s%s│\n", summaryData, strings.Repeat(" ", dataPad))
 	fmt.Printf("└%s┘\n", strings.Repeat("─", boxWidth))
+	return nil
 }
 
 func generateRunRef(dbConn *sql.DB) string {

@@ -13,7 +13,7 @@ import (
 // Dolphin and Thunar (the three file managers covering ~95% of Linux
 // desktops). Each manager uses its own format; the flat menu list is
 // the single source of truth.
-func runInstallCtxLinux() {
+func runInstallCtxLinux() error {
 	fmt.Print(constants.MsgCtxLinuxInstallStart)
 
 	exe := resolveCtxExe()
@@ -34,24 +34,26 @@ func runInstallCtxLinux() {
 		ok += len(flat)
 	}
 	fmt.Printf(constants.MsgCtxLinuxInstallDone, ok, managers)
+	return nil
 }
 
 // runUninstallCtxLinux removes the previously installed entries from
 // every supported file manager, leaving foreign entries untouched.
-func runUninstallCtxLinux() {
+func runUninstallCtxLinux() error {
 	fmt.Print(constants.MsgCtxLinuxUninstallStart)
 
 	home, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgCtxFsRmFail, "$HOME", err)
 
-		return
+		return nil
 	}
 	ok := 0
 	ok += rmDirCtx(filepath.Join(home, constants.CtxLinuxNautilusRel))
 	ok += rmFileCtx(filepath.Join(home, constants.CtxLinuxDolphinRel, constants.CtxLinuxDolphinFile))
 	ok += stripThunarBlock(filepath.Join(home, constants.CtxLinuxThunarRel))
 	fmt.Printf(constants.MsgCtxLinuxUninstallDone, ok)
+	return nil
 }
 
 // installNautilus drops one executable shell script per menu entry

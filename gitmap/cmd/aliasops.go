@@ -10,7 +10,7 @@ import (
 )
 
 // runAliasSet handles "alias set <alias> <slug>".
-func runAliasSet(args []string) {
+func runAliasSet(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
 		os.Exit(1)
@@ -20,6 +20,7 @@ func runAliasSet(args []string) {
 	slug := args[1]
 
 	executeAliasSet(alias, slug)
+	return nil
 }
 
 // executeAliasSet resolves the slug and creates or updates the alias.
@@ -75,7 +76,7 @@ func createAliasAndReturnCode(db *store.DB, alias string, repoID int64, slug str
 }
 
 // runAliasRemove handles "alias remove <alias>".
-func runAliasRemove(args []string) {
+func runAliasRemove(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
 		os.Exit(1)
@@ -85,6 +86,7 @@ func runAliasRemove(args []string) {
 	if code := runAliasRemoveCode(alias); code != 0 {
 		os.Exit(code)
 	}
+	return nil
 }
 
 // runAliasRemoveCode returns an exit code so deferred db.Close runs
@@ -106,10 +108,11 @@ func runAliasRemoveCode(alias string) int {
 }
 
 // runAliasList handles "alias list".
-func runAliasList() {
+func runAliasList() error {
 	if code := runAliasListCode(); code != 0 {
 		os.Exit(code)
 	}
+	return nil
 }
 
 // runAliasListCode returns an exit code so deferred db.Close runs
@@ -148,7 +151,7 @@ func printAliasList(aliases []store.AliasWithRepo) {
 }
 
 // runAliasShow handles "alias show <alias>".
-func runAliasShow(args []string) {
+func runAliasShow(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
 		os.Exit(1)
@@ -170,6 +173,7 @@ func runAliasShow(args []string) {
 	}
 
 	fmt.Printf(constants.MsgAliasResolved, resolved.Alias, resolved.AbsolutePath, resolved.Slug)
+	return nil
 }
 
 // isLegacyDataError checks if an error indicates legacy UUID-format data.

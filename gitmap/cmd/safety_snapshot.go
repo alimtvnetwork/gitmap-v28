@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func runSnapshot(args []string) {
+func runSnapshot(args []string) error {
 	root := "."
 	if len(args) > 0 {
 		root = args[0]
@@ -32,6 +32,7 @@ func runSnapshot(args []string) {
 	}
 	fmt.Printf("\033[1;92m✓ snapshot\033[0m  %d files → \033[1;96m%s\033[0m\n", n, out)
 	fmt.Printf("  rollback: \033[1;96mgitmap rollback %s\033[0m\n", out)
+	return nil
 }
 
 func writeSnapshot(root, outPath string) (int, error) {
@@ -76,7 +77,7 @@ func writeSnapshot(root, outPath string) (int, error) {
 	return count, err
 }
 
-func runRollback(args []string) {
+func runRollback(args []string) error {
 	src := ""
 	if len(args) > 0 {
 		src = args[0]
@@ -93,6 +94,7 @@ func runRollback(args []string) {
 		os.Exit(1)
 	}
 	fmt.Printf("\033[1;92m✓ rollback\033[0m  restored %d files from %s\n", n, src)
+	return nil
 }
 
 func latestSnapshot(root string) string {
@@ -114,7 +116,7 @@ func latestSnapshot(root string) string {
 	return filepath.Join(dir, names[len(names)-1])
 }
 
-func runGuard(args []string) {
+func runGuard(args []string) error {
 	root := "."
 	if len(args) > 0 {
 		root = args[0]
@@ -131,6 +133,7 @@ func runGuard(args []string) {
 	}
 	fmt.Printf("\033[1;92m✓ installed\033[0m pre-commit guard → %s\n", hook)
 	fmt.Println("  blocks: secrets (API_KEY/PRIVATE_KEY), large files (>10MB), -vN drift")
+	return nil
 }
 
 const guardHookBody = `#!/usr/bin/env bash

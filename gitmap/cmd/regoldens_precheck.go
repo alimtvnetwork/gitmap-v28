@@ -36,7 +36,7 @@ import (
 // runDeterminismPrecheck executes the trigger-only pass and returns
 // true on success (proceed to pass 1). On non-determinism it logs
 // the failure and exits 1; pass 1 is never reached.
-func runDeterminismPrecheck(cfg regoldensFlags) {
+func runDeterminismPrecheck(cfg regoldensFlags) error {
 	fmt.Fprint(os.Stderr, constants.MsgRegoldensPrecheckHeader)
 	captured := runPrecheckGoTest(cfg)
 	if precheckFoundNonDeterminism(captured) {
@@ -44,6 +44,7 @@ func runDeterminismPrecheck(cfg regoldensFlags) {
 		os.Exit(1)
 	}
 	fmt.Fprint(os.Stderr, constants.MsgRegoldensPrecheckPass)
+	return nil
 }
 
 // runPrecheckGoTest runs `go test` with trigger ON / allow OFF and

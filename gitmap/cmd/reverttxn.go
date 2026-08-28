@@ -88,7 +88,7 @@ func flagValue(args []string, name string) (string, bool) {
 }
 
 // runListTxn prints the most recent transactions and exits.
-func runListTxn() {
+func runListTxn() error {
 	db := mustOpenForTxn()
 	defer db.Close()
 	rows, err := db.ListTransactions(constants.TxnRetentionCap)
@@ -97,6 +97,7 @@ func runListTxn() {
 		os.Exit(1)
 	}
 	printTxnRows(rows)
+	return nil
 }
 
 // printTxnRows renders one TransactionRecord per line.
@@ -115,7 +116,7 @@ func printTxnRows(rows []model.TransactionRecord) {
 }
 
 // runShowTxn prints one transaction (header + every captured file) by id.
-func runShowTxn(raw string) {
+func runShowTxn(raw string) error {
 	id := mustParseTxnID(raw)
 	db := mustOpenForTxn()
 	defer db.Close()
@@ -130,6 +131,7 @@ func runShowTxn(raw string) {
 		os.Exit(1)
 	}
 	printTxnDetail(rec, files)
+	return nil
 }
 
 // printTxnDetail renders one record + its file list.
@@ -143,13 +145,14 @@ func printTxnDetail(r model.TransactionRecord, files []model.TransactionFileReco
 }
 
 // runRevertTxn reverts the named transaction id.
-func runRevertTxn(raw string, force bool) {
+func runRevertTxn(raw string, force bool) error {
 	id := mustParseTxnID(raw)
 	revertOne(id, force)
+	return nil
 }
 
 // runRevertLastTxn reverts the newest committed transaction.
-func runRevertLastTxn(force bool) {
+func runRevertLastTxn(force bool) error {
 	db := mustOpenForTxn()
 	id, err := db.LastCommittedTransactionID()
 	db.Close()
@@ -160,9 +163,10 @@ func runRevertLastTxn(force bool) {
 	if id == 0 {
 		fmt.Print(constants.MsgTxnNoCommitted)
 
-		return
+		return nil
 	}
 	revertOne(id, force)
+	return nil
 }
 
 // revertOne is the shared confirm + apply path for --txn / --last-txn.
@@ -205,7 +209,7 @@ func confirmRevert(r model.TransactionRecord, fileCount int) bool {
 }
 
 // runPruneTxn forces an immediate prune cycle.
-func runPruneTxn() {
+func runPruneTxn() error {
 	db := mustOpenForTxn()
 	defer db.Close()
 	dropped, err := db.PruneOldestTransactions(constants.TxnRetentionCap)
@@ -214,6 +218,7 @@ func runPruneTxn() {
 		os.Exit(1)
 	}
 	fmt.Printf(constants.MsgTxnPruned, len(dropped))
+	return nil
 }
 
 // mustOpenForTxn opens the gitmap database or exits.

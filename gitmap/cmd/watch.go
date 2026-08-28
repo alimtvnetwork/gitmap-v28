@@ -12,7 +12,7 @@ import (
 )
 
 // runWatch handles the "watch" subcommand.
-func runWatch(args []string) {
+func runWatch(args []string) error {
 	checkHelp("watch", args)
 	interval, groupName, noFetch, jsonMode := parseWatchFlags(args)
 	records := loadWatchRecords(groupName)
@@ -25,10 +25,11 @@ func runWatch(args []string) {
 	if jsonMode {
 		printWatchJSON(records, noFetch)
 
-		return
+		return nil
 	}
 
 	runWatchLoop(records, interval, noFetch)
+	return nil
 }
 
 // parseWatchFlags parses flags for the watch command.
@@ -69,7 +70,7 @@ func loadWatchRecords(groupName string) []model.ScanRecord {
 }
 
 // runWatchLoop runs the refresh loop until interrupted.
-func runWatchLoop(records []model.ScanRecord, interval int, noFetch bool) {
+func runWatchLoop(records []model.ScanRecord, interval int, noFetch bool) error {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 
@@ -80,10 +81,11 @@ func runWatchLoop(records []model.ScanRecord, interval int, noFetch bool) {
 		case <-stop:
 			fmt.Println(constants.WatchStoppedMsg)
 
-			return
+			return nil
 		case <-time.After(time.Duration(interval) * time.Second):
 		}
 	}
+	return nil
 }
 
 // printWatchJSON outputs a single snapshot as stable JSON and exits.

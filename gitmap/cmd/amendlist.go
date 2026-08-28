@@ -11,7 +11,7 @@ import (
 )
 
 // runAmendList handles the "amend-list" command.
-func runAmendList(args []string) {
+func runAmendList(args []string) error {
 	checkHelp("amend-list", args)
 	asJSON := hasAmendListJSONFlag(args)
 	limit := parseAmendListLimit(args)
@@ -23,10 +23,11 @@ func runAmendList(args []string) {
 	if asJSON {
 		printAmendmentsJSON(amendments)
 
-		return
+		return nil
 	}
 
 	printAmendmentsTerminal(amendments)
+	return nil
 }
 
 // hasAmendListJSONFlag checks if --json is present in args.

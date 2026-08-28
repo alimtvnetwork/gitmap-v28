@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func runMkdir(args []string) {
+func runMkdir(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "Usage: gitmap mkdir [-p] <path>")
 		os.Exit(1)
@@ -46,4 +46,5 @@ func runMkdir(args []string) {
 		os.Exit(1)
 	}
 	fmt.Printf("Created directory: %s\n", absPath)
+	return nil
 }

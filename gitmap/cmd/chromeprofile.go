@@ -23,7 +23,7 @@ import (
 )
 
 // runChromeProfileCopy implements `gitmap chrome-profile-copy`.
-func runChromeProfileCopy(args []string) {
+func runChromeProfileCopy(args []string) error {
 	checkHelp(constants.CmdChromeProfileCopy, args)
 	fs := flag.NewFlagSet(constants.CmdChromeProfileCopy, flag.ExitOnError)
 	registerOnly := fs.Bool("register-only", false, "skip copy; only (re)register the destination in Chrome's Local State")
@@ -47,7 +47,7 @@ func runChromeProfileCopy(args []string) {
 		rec := emitChromeSnapshots(dstProfile.Path, pos[1])
 		persistChromeProfile(pos[1], dstProfile.Path, rec)
 		fmt.Printf(constants.MsgChromeProfileNextSteps, pos[1], pos[0], pos[1])
-		return
+		return nil
 	}
 	guardChromeClosedOrExit(pos[0], pos[1])
 	fmt.Printf(constants.MsgChromeProfileCopyStart, chromeProfileSummary(srcProfile), chromeProfileSummary(dstProfile), srcProfile.Path, dstProfile.Path)
@@ -66,6 +66,7 @@ func runChromeProfileCopy(args []string) {
 	rec := emitChromeSnapshots(dstProfile.Path, pos[1])
 	persistChromeProfile(pos[1], dstProfile.Path, rec)
 	fmt.Printf(constants.MsgChromeProfileNextSteps, pos[1], pos[0], pos[1])
+	return nil
 }
 
 // registerCopiedChromeProfile makes the destination directory visible
@@ -147,7 +148,7 @@ func artifactValue(path string) string {
 }
 
 // runChromeProfileExport implements `gitmap chrome-profile-export`.
-func runChromeProfileExport(args []string) {
+func runChromeProfileExport(args []string) error {
 	checkHelp(constants.CmdChromeProfileExport, args)
 
 	format := constants.OutputJSON
@@ -240,10 +241,11 @@ func runChromeProfileExport(args []string) {
 
 	printChromeArtifacts(rec)
 	persistChromeProfile(name, srcPath, rec)
+	return nil
 }
 
 // runChromeProfileImport implements `gitmap chrome-profile-import`.
-func runChromeProfileImport(args []string) {
+func runChromeProfileImport(args []string) error {
 	checkHelp(constants.CmdChromeProfileImport, args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageImport)
@@ -267,7 +269,7 @@ func runChromeProfileImport(args []string) {
 			os.Exit(constants.ExitChromeProfileCopyFailed)
 		}
 		fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, name)
-		return
+		return nil
 	}
 
 	exp, err := loadChromeImport(srcFile)
@@ -284,17 +286,18 @@ func runChromeProfileImport(args []string) {
 		os.Exit(constants.ExitChromeProfileCopyFailed)
 	}
 	fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, name)
+	return nil
 }
 
 // runChromeProfileList implements `gitmap chrome-profile-list`.
-func runChromeProfileList(args []string) {
+func runChromeProfileList(args []string) error {
 	checkHelp(constants.CmdChromeProfileList, args)
 	root := chromeUserDataDir()
 	entries := chromeProfileEntries()
 	if len(entries) == 0 {
 		fmt.Printf(constants.MsgChromeProfileListEmpty, root)
 		listChromeProfilesFromDB()
-		return
+		return nil
 	}
 	fmt.Printf(constants.MsgChromeProfileListHdr, root)
 	for _, e := range entries {
@@ -305,6 +308,7 @@ func runChromeProfileList(args []string) {
 		fmt.Printf("  - %s\n", e.Dir)
 	}
 	listChromeProfilesFromDB()
+	return nil
 }
 
 // defaultChromeExportPath builds the default output location

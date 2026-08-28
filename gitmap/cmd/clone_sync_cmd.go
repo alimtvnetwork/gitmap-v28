@@ -7,7 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/workspacesync"
 )
 
-func runCloneSync() {
+func runCloneSync() error {
 	args := argsTail()
 	if len(args) == 0 {
 		fmt.Println("Usage: gitmap clone-sync <url1> [url2] ...")
@@ -27,6 +27,7 @@ func runCloneSync() {
 
 		workspacesync.SyncAll(absPath, name)
 	}
+	return nil
 }
 
 func extractRepoNameFromURL(u string) string {

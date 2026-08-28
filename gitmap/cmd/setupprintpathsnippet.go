@@ -17,7 +17,7 @@ import (
 // guaranteeing single-source-of-truth across all three drivers.
 //
 // Spec: spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
-func runPrintPathSnippet(args []string) {
+func runPrintPathSnippet(args []string) error {
 	shell, dir, manager := parsePrintPathSnippetFlags(args)
 	out, err := setup.RenderPathSnippet(shell, dir, manager)
 	if err != nil {
@@ -26,6 +26,7 @@ func runPrintPathSnippet(args []string) {
 	}
 	// Trailing newline so callers can `>>` straight into a profile file.
 	fmt.Println(out)
+	return nil
 }
 
 // parsePrintPathSnippetFlags parses --shell --dir --manager.

@@ -19,7 +19,7 @@ import (
 )
 
 // runScan handles the "scan" subcommand.
-func runScan(args []string) {
+func runScan(args []string) error {
 	checkHelp("scan", args)
 	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
 	cfg, err := config.LoadFromFile(cfgPath)
@@ -34,6 +34,7 @@ func runScan(args []string) {
 		IsGithubDesktop: ghDesktop, IsOpenFolder: openFolder, IsQuiet: quiet,
 	}
 	executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
+	return nil
 }
 
 // executeScan performs the directory scan and outputs results.

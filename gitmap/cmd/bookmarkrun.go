@@ -9,7 +9,7 @@ import (
 )
 
 // runBookmarkRun loads a bookmark by name and dispatches the saved command.
-func runBookmarkRun(args []string) {
+func runBookmarkRun(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkRunUsage)
 		os.Exit(1)
@@ -17,6 +17,7 @@ func runBookmarkRun(args []string) {
 
 	name := args[0]
 	loadAndDispatchBookmark(name)
+	return nil
 }
 
 // loadAndDispatchBookmark fetches the bookmark and runs it.
