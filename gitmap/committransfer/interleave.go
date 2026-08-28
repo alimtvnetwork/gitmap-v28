@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"sort"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // RunBothInterleaved replays LEFT and RIGHT commits in a single
@@ -24,11 +26,11 @@ import (
 func RunBothInterleaved(leftDir, rightDir string, opts Options) error {
 	leftToRight, err := BuildPlan(leftDir, rightDir, opts)
 	if err != nil {
-		return fmt.Errorf("interleave plan L→R: %w", err)
+		return apperror.Wrap(err, "interleave plan L→R", nil)
 	}
 	rightToLeft, err := BuildPlan(rightDir, leftDir, opts)
 	if err != nil {
-		return fmt.Errorf("interleave plan R→L: %w", err)
+		return apperror.Wrap(err, "interleave plan R→L", nil)
 	}
 
 	stream := buildInterleavedStream(leftToRight, rightToLeft)
@@ -107,8 +109,7 @@ func replayInterleaveSteps(stream []interleaveStep, ltr, rtl ReplayPlan, opts Op
 		}
 		newSHA, _, err := replayOne(plan, step.Commit, opts)
 		if err != nil {
-			return fmt.Errorf("interleave step %d (%s %s): %w",
-				i+1, step.Direction, step.Commit.ShortSHA, err)
+			return apperror.Wrap(err, fmt.Sprintf("interleave step %d (%s %s)", i+1, step.Direction, step.Commit.ShortSHA), nil)
 		}
 		if newSHA == "" {
 			results[step.Direction].SkippedEmpty++

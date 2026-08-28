@@ -38,18 +38,18 @@ func CleanMessage(subject, body string, p MessagePolicy, shortSHA string, when t
 	if p.Conventional {
 		cleanedSubject = normalizeConventional(cleanedSubject)
 	}
-	
+
 	if p.TemplateOverride && p.Templates != nil {
 		if mapped, ok := p.Templates[cleanedSubject]; ok {
 			cleanedSubject = mapped
 		}
-	
+
 	}
 	final := assembleMessage(cleanedSubject, body)
 	for _, footer := range p.AppendFooters {
 		final += "\n\n" + footer
 	}
-	
+
 	if p.Provenance {
 		final = appendProvenanceFooter(final, p, shortSHA, when)
 	}

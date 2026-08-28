@@ -3,6 +3,8 @@ package committransfer
 import (
 	"fmt"
 	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // RunLeft replays RIGHT → LEFT (writes commits on LEFT). It is the
@@ -32,12 +34,12 @@ func RunLeft(leftDir, rightDir string, opts Options) error {
 func RunBoth(leftDir, rightDir string, opts Options) error {
 	leftToRightOpts := withDirectionLabel(opts, "(left→right)")
 	if err := runOneDirection(leftDir, rightDir, leftToRightOpts); err != nil {
-		return fmt.Errorf("left→right pass: %w", err)
+		return apperror.Wrap(err, "left→right pass", nil)
 	}
 
 	rightToLeftOpts := withDirectionLabel(opts, "(right→left)")
 	if err := runOneDirection(rightDir, leftDir, rightToLeftOpts); err != nil {
-		return fmt.Errorf("right→left pass: %w", err)
+		return apperror.Wrap(err, "right→left pass", nil)
 	}
 
 	return nil
@@ -48,11 +50,11 @@ func RunBoth(leftDir, rightDir string, opts Options) error {
 // orchestration. The legacy RunRight wraps this for backward compat.
 func runOneDirection(sourceDir, targetDir string, opts Options) error {
 	if isWorkingTreeDirty(sourceDir) {
-		return fmt.Errorf("source repository has uncommitted changes — please commit or stash them before running %s", opts.LogPrefix)
+		return apperror.New("dirty check", "dirty_source", map[string]any{"message": fmt.Sprintf("source repository has uncommitted changes — please commit or stash them before running %s", opts.LogPrefix)})
 	}
 	plan, err := BuildPlan(sourceDir, targetDir, opts)
 	if err != nil {
-		return fmt.Errorf("build plan: %w", err)
+		return apperror.Wrap(err, "build plan", nil)
 	}
 	willReplay := PrintPlan(os.Stdout, plan, opts.LogPrefix)
 	if willReplay == 0 {

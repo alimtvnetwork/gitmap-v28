@@ -1,7 +1,7 @@
 package committransfer
 
 import (
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // BuildPlan computes the replay set for one direction. It does NOT
@@ -10,7 +10,7 @@ import (
 func BuildPlan(sourceDir, targetDir string, opts Options) (ReplayPlan, error) {
 	sourceHead, err := currentRefName(sourceDir)
 	if err != nil {
-		return ReplayPlan{}, fmt.Errorf("read source HEAD ref: %w", err)
+		return ReplayPlan{}, apperror.Wrap(err, "read source HEAD ref", nil)
 	}
 	base, err := resolveBase(sourceDir, targetDir, opts.Since)
 	if err != nil {
@@ -18,7 +18,7 @@ func BuildPlan(sourceDir, targetDir string, opts Options) (ReplayPlan, error) {
 	}
 	shas, err := revListReverse(sourceDir, base, "HEAD", opts.IncludeMerges)
 	if err != nil {
-		return ReplayPlan{}, fmt.Errorf("rev-list source: %w", err)
+		return ReplayPlan{}, apperror.Wrap(err, "rev-list source", nil)
 	}
 	mergeExcluded := countMergeExcluded(sourceDir, base, opts.IncludeMerges, len(shas))
 	if opts.Limit > 0 && len(shas) > opts.Limit {
@@ -104,7 +104,7 @@ func assemblePlan(sourceDir, targetDir, sourceHead, base string,
 func hydrateCommit(sourceDir, sha string, replayedSet map[string]struct{}, opts Options) (SourceCommit, error) {
 	subject, body, author, shortSHA, when, err := readCommit(sourceDir, sha)
 	if err != nil {
-		return SourceCommit{}, fmt.Errorf("read commit %s: %w", sha, err)
+		return SourceCommit{}, apperror.Wrap(err, "read commit", map[string]any{"sha": sha})
 	}
 	entry := SourceCommit{
 		SHA: sha, ShortSHA: shortSHA, Subject: subject, Body: body,

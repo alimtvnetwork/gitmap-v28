@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+
 	"github.com/pterm/pterm"
 )
 
