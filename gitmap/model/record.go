@@ -53,15 +53,15 @@ type ReleaseTarget struct {
 
 // Config holds application configuration loaded from JSON and CLI flags.
 type Config struct {
-	DefaultMode      string        `json:"defaultMode"`
-	DefaultOutput    string        `json:"defaultOutput"`
-	OutputDir        string        `json:"outputDir"`
-	ExcludeDirs      []string      `json:"excludeDirs"`
-	Notes            string        `json:"notes"`
-	Release          ReleaseConfig `json:"release"`
-	DashboardRefresh int           `json:"dashboardRefresh"`
-	ErrorDisplay     string        `json:"errorDisplay"` 
-	CommitReplayKeepUrl   bool              `json:"commitReplayKeepUrl"` 
+	DefaultMode           string            `json:"defaultMode"`
+	DefaultOutput         string            `json:"defaultOutput"`
+	OutputDir             string            `json:"outputDir"`
+	ExcludeDirs           []string          `json:"excludeDirs"`
+	Notes                 string            `json:"notes"`
+	Release               ReleaseConfig     `json:"release"`
+	DashboardRefresh      int               `json:"dashboardRefresh"`
+	ErrorDisplay          string            `json:"errorDisplay"`
+	CommitReplayKeepUrl   bool              `json:"commitReplayKeepUrl"`
 	CommitReplayTemplates map[string]string `json:"commitReplayTemplates"`
 }
 
@@ -69,14 +69,14 @@ type Config struct {
 func DefaultConfig() Config {
 
 	return Config{
-		DefaultMode:      constants.ModeHTTPS,
-		DefaultOutput:    constants.OutputTerminal,
-		OutputDir:        constants.DefaultOutputDir,
-		ExcludeDirs:      []string{},
-		Notes:            "",
-		DashboardRefresh: constants.DefaultDashboardRefresh,
-		ErrorDisplay:     "full",
-		CommitReplayKeepUrl: false,
+		DefaultMode:           constants.ModeHTTPS,
+		DefaultOutput:         constants.OutputTerminal,
+		OutputDir:             constants.DefaultOutputDir,
+		ExcludeDirs:           []string{},
+		Notes:                 "",
+		DashboardRefresh:      constants.DefaultDashboardRefresh,
+		ErrorDisplay:          "full",
+		CommitReplayKeepUrl:   false,
 		CommitReplayTemplates: map[string]string{"Changes": "chore: apply automated updates", "Work in progress": "chore: work in progress", "Lovable update": "chore: lovable update"},
 		Release: ReleaseConfig{
 			Targets:      []ReleaseTarget{},

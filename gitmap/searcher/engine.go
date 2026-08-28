@@ -12,17 +12,17 @@ func SearchExact(content, query, absPath, relPath string) []SearchResult {
 	if query == "" {
 		return results
 	}
-	
+
 	offset := 0
 	for {
 		idx := strings.Index(content[offset:], query)
 		if idx == -1 {
 			break
 		}
-		
+
 		start := offset + idx
 		end := start + len(query)
-		
+
 		results = append(results, SearchResult{
 			MatchedText:   query,
 			StartPosition: start,
@@ -30,7 +30,7 @@ func SearchExact(content, query, absPath, relPath string) []SearchResult {
 			FilePath:      absPath,
 			RelativePath:  relPath,
 		})
-		
+
 		offset = end
 	}
 	return results
@@ -40,7 +40,7 @@ func SearchExact(content, query, absPath, relPath string) []SearchResult {
 func SearchRegex(content string, lz *lazyregex.LazyRegexp, absPath, relPath string) []SearchResult {
 	var results []SearchResult
 	matches := lz.Re().FindAllStringIndex(content, -1)
-	
+
 	for _, m := range matches {
 		if len(m) == 2 {
 			start := m[0]

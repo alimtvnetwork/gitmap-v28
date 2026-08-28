@@ -17,7 +17,7 @@ every repository in this family MUST follow so that:
 - A new contributor recognises the project family within 3 seconds.
 - An AI agent can locate canonical entry points without scanning the tree.
 - The visual identity (icon, badges, author block) is consistent across
-  all sibling repositories (e.g. `coding-guidelines-v24`, `gitmap-v6`).
+  all sibling repositories (e.g. `coding-guidelines-v24`, `gitmap-v28`).
 
 Any deviation from §3 is a release blocker. Use `linter-scripts/check-root-readme.py`
 (roadmap) or manual review against §9's checklist before tagging a release.
@@ -254,7 +254,7 @@ Before tagging a release, verify **all** of the following on the root
 
 - Sync script: [`scripts/sync-readme-stats.mjs`](../../scripts/sync-readme-stats.mjs)
 - Long-form docs: [`docs/principles.md`](../../docs/principles.md), [`docs/architecture.md`](../../docs/architecture.md), [`docs/author.md`](../../docs/author.md)
-- Sibling-repo reference implementation: `gitmap-v6` root README
+- Sibling-repo reference implementation: `gitmap-v28` root README
 - Folder structure rules: [`01-folder-structure.md`](./01-folder-structure.md)
 - Naming conventions: [`02-naming-conventions.md`](./02-naming-conventions.md)
 - Required files (per spec module): [`03-required-files.md`](./03-required-files.md)

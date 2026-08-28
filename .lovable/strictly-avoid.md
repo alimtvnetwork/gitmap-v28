@@ -12,3 +12,7 @@ Strictly avoid using flash model for high concurrency batches that exceed rate l
 - NEVER open files in Python scripts without explicitly specifying encoding="utf-8".
 
 - NEVER use global or greedy regex replacements for version bumping in documentation; always target a specific anchor.
+
+- NEVER run text-replacements on .go files without subsequently running gofmt -w ..
+- NEVER change a return type inside a deeply nested utility without cascading it all the way to the top-level invoker.
+- NEVER rename API JSON boolean keys without verifying downstream Python/Bash scripts that consume them.

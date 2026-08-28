@@ -7,7 +7,7 @@ import (
 func TestReadWriteLastScannedCommit(t *testing.T) {
 	repoDir := t.TempDir()
 	commitHash := "abcd123"
-	
+
 	if err := WriteLastScannedCommit(repoDir, commitHash); err != nil {
 		t.Fatalf("Write failed: %v", err)
 	}

@@ -112,7 +112,7 @@ func (w *Walker) processFile(ctx context.Context, info FileInfo) (bool, error) {
 	}
 
 	now := time.Now().Unix()
-	
+
 	// Upsert file into SQLite
 	query := `
 		INSERT INTO RepoFile (RelativePath, AbsolutePath, Content, IsBig, WriteTime, CreatedAt, UpdatedAt)

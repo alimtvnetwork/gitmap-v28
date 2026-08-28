@@ -10,5 +10,5 @@ const HelpCmdOpen = "  open (o)            Open target (or current repo) in defa
 
 // Open command messages.
 const (
-	ErrOpenResolveCwd  = "open: ERROR cannot determine current directory: %v\n"
+	ErrOpenResolveCwd = "open: ERROR cannot determine current directory: %v\n"
 )

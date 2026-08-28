@@ -94,7 +94,9 @@ func PrintRepoSuggestions(db *store.DB, target string) {
 func resolveEndpointString(raw string) string {
 	lower := strings.ToLower(raw)
 	for _, p := range []string{"https://", "http://", "ssh://", "git@"} {
-		if strings.HasPrefix(lower, p) { return raw }
+		if strings.HasPrefix(lower, p) {
+			return raw
+		}
 	}
 	db, err := openDB()
 	if err == nil && db != nil {
@@ -105,4 +107,3 @@ func resolveEndpointString(raw string) string {
 	}
 	return raw
 }
-

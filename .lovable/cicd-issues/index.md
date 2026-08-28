@@ -8,3 +8,4 @@
 - [19-bump-script-unicode-and-regex-corruption.md](19-bump-script-unicode-and-regex-corruption.md): Fixed UnicodeDecodeError in python script and greedy regex corruption of readme.md.
 
 - [19-ci-gitmap-open-error-refactor.md](19-ci-gitmap-open-error-refactor.md): Fixed Python cp1252 decode errors, completed mass AST refactoring of 80+ commands to return typed errors instead of os.Exit(1), and implemented gitmap open cross-platform.
+- [20-cicd-four-headed-hydra.md](./20-cicd-four-headed-hydra.md): Fix for env platform return types, gofmt, lint script key errors, and legacy gitmap-v6 markdown references.

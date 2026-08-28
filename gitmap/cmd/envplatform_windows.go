@@ -11,15 +11,15 @@ import (
 )
 
 // setEnvPersistent sets an environment variable on Windows via setx.
-func setEnvPersistent(name, value string, system bool, _ string) {
+func setEnvPersistent(name, value string, system bool, _ string) error {
 	args := buildSetxArgs(name, value, system)
-	runSetx(args)
+	return runSetx(args)
 }
 
 // deleteEnvPersistent removes an environment variable on Windows.
-func deleteEnvPersistent(name string, system bool, _ string) {
+func deleteEnvPersistent(name string, system bool, _ string) error {
 	args := buildSetxArgs(name, "", system)
-	runSetx(args)
+	return runSetx(args)
 }
 
 // buildSetxArgs builds setx command arguments.
@@ -47,21 +47,21 @@ func runSetx(args []string) error {
 }
 
 // addPathPersistent adds a directory to PATH on Windows via setx.
-func addPathPersistent(dir string, system bool, _ string) {
+func addPathPersistent(dir string, system bool, _ string) error {
 	currentPath := os.Getenv("PATH")
 	newPath := currentPath + ";" + dir
 
-	setEnvPersistent("PATH", newPath, system, "")
+	return setEnvPersistent("PATH", newPath, system, "")
 }
 
 // removePathPersistent removes a directory from PATH on Windows.
-func removePathPersistent(dir string, system bool, _ string) {
+func removePathPersistent(dir string, system bool, _ string) error {
 	currentPath := os.Getenv("PATH")
 	parts := strings.Split(currentPath, ";")
 	filtered := filterPathParts(parts, dir)
 	newPath := strings.Join(filtered, ";")
 
-	setEnvPersistent("PATH", newPath, system, "")
+	return setEnvPersistent("PATH", newPath, system, "")
 }
 
 // filterPathParts removes matching entries from PATH parts.
