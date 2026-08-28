@@ -54,7 +54,7 @@ function Get-DeployManifestSmokeConfig {
 $deployConfig = Get-DeployManifestSmokeConfig
 if (-not $expected) {
     $constantsPath = Join-Path $repoRoot 'gitmap\constants\constants.go'
-    $line = Select-String -Path $constantsPath -Pattern '^const Version' | Select-Object -First 1
+    $line = Select-String -Path $constantsPath -Pattern '^(const|var) Version' | Select-Object -First 1
     if (-not $line) {
         Write-Error '::error::Could not determine expected version from constants.go'
         exit 2

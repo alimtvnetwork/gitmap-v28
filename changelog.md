@@ -1,3 +1,13 @@
+## [v6.137.0] 2026-08-28 - commit-push and rm-git
+
+### Install gitmap v6.137.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.sh | bash -s -- ".lovable/prompts" "v6.137.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.137.0"`
+
+### Added
+- Added commit-push suite commands and rm-git for agile CLI workflow
+
 ## [v6.131.0] 2026-08-27 - search and llm feature spec
 
 ### Install gitmap v6.131.0

@@ -129,7 +129,11 @@ jobs:
         if: needs.sha-check.outputs.already-built == 'true'
         run: echo "✅ SHA ${{ github.sha }} already passed spell-check"
 
-      # Composite: checkout + setup-go + warm GOCACHE in one step.
+      # Checkout first so the local action can be found
+      - if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/checkout@v6
+
+      # Composite: setup-go + warm GOCACHE in one step.
       # See .github/actions/setup-go-cached/action.yml.
       - if: needs.sha-check.outputs.already-built != 'true'
         uses: ./.github/actions/setup-go-cached
@@ -166,7 +170,11 @@ jobs:
         if: needs.sha-check.outputs.already-built == 'true'
         run: echo "✅ SHA ${{ github.sha }} already passed lint"
 
-      # Composite: checkout + setup-go + warm GOCACHE in one step.
+      # Checkout first so the local action can be found
+      - if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/checkout@v6
+
+      # Composite: setup-go + warm GOCACHE in one step.
       # See .github/actions/setup-go-cached/action.yml.
       - if: needs.sha-check.outputs.already-built != 'true'
         uses: ./.github/actions/setup-go-cached
