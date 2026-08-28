@@ -132,6 +132,7 @@ var generatedCommands = []string{
 	"exec",
 	"export",
 	"fa",
+	"file-search",
 	"find",
 	"find-help",
 	"find-next",
