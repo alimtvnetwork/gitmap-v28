@@ -22,3 +22,4 @@ Once the changes are committed, the CI/CD pipeline (when correctly configured) h
 - v6.133.0: search and llm feature spec added
 
 - v6.134.0: Wired CLI File Search / Regex Search Commands to SplitDB Indexer Engine
+- v6.141.0: E2E tests for commit-right and comprehensive apperror integration across committransfer
