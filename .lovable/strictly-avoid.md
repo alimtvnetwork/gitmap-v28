@@ -16,3 +16,5 @@ Strictly avoid using flash model for high concurrency batches that exceed rate l
 - NEVER run text-replacements on .go files without subsequently running gofmt -w ..
 - NEVER change a return type inside a deeply nested utility without cascading it all the way to the top-level invoker.
 - NEVER rename API JSON boolean keys without verifying downstream Python/Bash scripts that consume them.
+
+- NEVER add or modify CLI constants, shell commands, or help text without subsequently running go generate ./... in the gitmap directory to prevent generated file drift.
