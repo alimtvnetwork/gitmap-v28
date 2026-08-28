@@ -123,13 +123,18 @@ func findMissingKeys(raw map[string]json.RawMessage, required []string) []string
 // collectEnumViolations gathers every enum-mismatch from the typed
 // config. Split out from ValidateConfig so the per-field check stays
 // under the 15-line function budget.
+var validErrorDisplayValues = []string{"full", "simple"}
+
 func collectEnumViolations(cfg model.Config) []string {
-	violations := make([]string, 0, 2)
+	violations := make([]string, 0, 3)
 	violations = appendEnumViolation(
 		violations, "defaultMode", cfg.DefaultMode, validModeValues,
 	)
 	violations = appendEnumViolation(
 		violations, "defaultOutput", cfg.DefaultOutput, validOutputValues,
+	)
+	violations = appendEnumViolation(
+		violations, "errorDisplay", cfg.ErrorDisplay, validErrorDisplayValues,
 	)
 
 	return violations

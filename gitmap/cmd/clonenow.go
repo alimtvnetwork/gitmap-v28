@@ -86,23 +86,26 @@ func runCloneNow(args []string) error {
 		return nil
 	}
 	cfg := parseCloneNowFlags(args)
-	plan := initCloneNowPlan(cfg)
+	plan, err := initCloneNowPlan(cfg)
+	if err != nil {
+		return err
+	}
 	dispatchCloneNow(plan, cfg)
 	return nil
 }
 
-func initCloneNowPlan(cfg cloneNowFlags) clonenow.Plan {
+func initCloneNowPlan(cfg cloneNowFlags) (clonenow.Plan, error) {
 	setCmdFaithfulVerify(cfg.verifyCmdFaithful)
 	setCmdFaithfulExitOnMismatch(cfg.verifyCmdFaithfulExitOnMismatch)
 	setCmdPrintArgv(cfg.printCloneArgv)
 	plan, err := clonenow.ParseFile(cfg.file, cfg.format, cfg.mode, cfg.onExists)
 	if err != nil {
-		return clonenow.Plan{}
+		return clonenow.Plan{}, apperror.Wrap(err, "parse-manifest cfg.file", nil)
 	}
 	plan.CoerceURL = coerceURLToStoredTransport
 	plan.PersistURL = persistRecloneTransport
 	validateRecloneManifestOrExit(plan)
-	return plan
+	return plan, nil
 }
 
 func dispatchCloneNow(plan clonenow.Plan, cfg cloneNowFlags) {

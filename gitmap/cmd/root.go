@@ -8,7 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/theme"
@@ -107,6 +109,39 @@ func runDispatch(command string) {
 	dispatch(command)
 }
 
+func handleGlobalError(command string, err error) {
+	cfg, cfgErr := config.LoadFromFile(constants.DefaultConfigPath)
+	display := "full"
+	if cfgErr == nil {
+		display = cfg.ErrorDisplay
+	}
+
+	os.MkdirAll(".gitmap", 0755)
+	errStr := fmt.Sprintf("%v", err)
+	os.WriteFile(".gitmap/last_error.log", []byte(errStr), 0644)
+
+	if display == "simple" {
+		if appErr, ok := err.(*apperror.AppError); ok {
+			cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %v", appErr.Op, getRootCause(err)))
+		} else {
+			cliexit.Reportf(command, "execute", "", err)
+		}
+	} else {
+		cliexit.Reportf(command, "execute", "", err)
+	}
+	os.Exit(1)
+}
+
+func getRootCause(err error) error {
+	for {
+		if appErr, ok := err.(*apperror.AppError); ok && appErr.Cause != nil {
+			err = appErr.Cause
+		} else {
+			return err
+		}
+	}
+}
+
 // dispatch routes to the correct subcommand handler with audit tracking.
 func dispatch(command string) {
 	auditID, auditStart, shouldAudit := beginCommandAudit(command, os.Args[2:])
@@ -114,112 +149,98 @@ func dispatch(command string) {
 	if found, err := dispatchUser(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchCore(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchRelease(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchUtility(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchData(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchTooling(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchProjectRepos(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchDiff(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchMoveMerge(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchAdd(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchSync(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchCommons(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchTemplates(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
 	if found, err := dispatchCommitTransfer(command); found {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
-			cliexit.Reportf(command, "execute", "", err)
-			panic("fatal error")
+			handleGlobalError(command, err)
 		}
 		return
 	}
