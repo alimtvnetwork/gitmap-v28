@@ -40,6 +40,36 @@ Gitmap is a powerful CLI designed for autonomous agents, LLMs, and developers to
 - Always prefer JSON output commands (rsj, repo-search-json) when parsing data programmatically.
 - Avoid modifying the root SQLite DB manually; rely on the CLI commands.
 - Before running heavy regex operations across a large repo, use gitmap search to verify matches.
+
+## Alternative Commands for AI (Instead of Raw Git)
+When checking repository status or logs, DO NOT use raw 'git status && git log -1'. Instead, use:
+- 'gitmap status': Checks dirty/clean status, ahead/behind, and stash for all tracked repos.
+- 'gitmap history': View a rich audit log of command executions.
+- 'gitmap changelog': See concise release notes and recent commits.
+- Or use the standard aliases configured by gitmap setup: 'git st && git last'.
+
+For committing and pushing, NEVER use raw 'git commit' and 'git push'. Use the semantic commit-push suite:
+- 'gitmap commit-push-feature "<message>"' (alias 'gitmap cpf'): Commit and push a feature.
+- 'gitmap commit-push-bug "<message>"' (alias 'gitmap cpb'): Commit and push a bug fix.
+- 'gitmap commit-push-release "<message>"' (alias 'gitmap cpr'): Commit and push a release chore.
+- 'gitmap commit-push-pull "<message>"' (alias 'gitmap cpp'): Pull latest, then commit and push.
+- 'gitmap rm-git <last-4-digits>': Drop a recent commit safely using rebase --onto.
+
+## AI File Search Patterns
+When searching codebases, LLMs can use native gitmap commands OR standard terminal tools.
+Here are equivalent alternative command samples for LLM search operations:
+
+- **Find a specific struct definition**:
+  - 'gitmap file-search . "type SearchResult struct"'
+  - 'Get-ChildItem -Path gitmap -Recurse -File | Select-String "type SearchResult struct"'
+
+- **Search functions with Regex context**:
+  - 'gitmap file-search cmd/ "func dispatch[A-Z]" 0 10'
+  - 'Get-ChildItem -Path gitmap/cmd -Filter *.go | Select-String "func dispatch[A-Z]"'
+
+- **Find specific function contexts**:
+  - 'gitmap file-search cmd/root.go "func finishCommandAudit" 0 10'
+  - 'cat gitmap/cmd/root.go | Select-String "func finishCommandAudit" -Context 0,10'
 `
 
 // Run executes the llm command
