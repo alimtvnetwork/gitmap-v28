@@ -74,6 +74,7 @@ const (
 	CmdHead = "head"
 	CmdTail = "tail"
 	CmdFileSearch = "file-search"
+	CmdInstallScript = "install-script"
 	CmdReleaseShort        = "r"
 		CmdLlm = "llm"
 	CmdFind = "find"

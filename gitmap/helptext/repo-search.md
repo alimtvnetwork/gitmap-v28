@@ -5,6 +5,7 @@ Searches file contents using the cached DB.
 ## Why use this instead of shell commands?
 Instead of running an expensive recursive search or complex pipeline:
 `Get-ChildItem -Path gitmap/store -Filter *.go | Select-String "OpenDefault"`
+`Get-ChildItem -Path gitmap -Recurse -File | Select-String "type SearchResult struct"`
 or:
 `cat .github/scripts/smoke-installer.ps1 | Select-String "constants.go" -Context 3,3`
 
