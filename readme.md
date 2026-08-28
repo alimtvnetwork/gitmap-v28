@@ -2950,3 +2950,5 @@ For repository versioning and propagation design, see [.lovable/memory/release-a
 - [Search and LLM Specs](.lovable/plans/pending/06-search-and-llm-feature.md)
 
 - [.lovable/plans/pending/01-file-manipulation-spec.md](.lovable/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
+
+- [.lovable/plans/pending/02-python-file-manipulation-spec.md](.lovable/plans/pending/02-python-file-manipulation-spec.md) - AI Instruction spec for generating the Python file manipulation script.
