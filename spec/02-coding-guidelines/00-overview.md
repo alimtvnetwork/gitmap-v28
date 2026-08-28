@@ -25,8 +25,15 @@ Consolidated coding standards and conventions organized by category. This folder
 > 5. **Database conventions** - Singular table names (`User` not `Users`), PascalCase everywhere, `{TableName}Id` as `INTEGER PRIMARY KEY AUTOINCREMENT`, FK uses the exact PK name. See [Database Conventions](../04-database-conventions/00-overview.md).
 > 6. **Never hallucinate** - If a requirement is unclear or missing, **ask a clarifying question** instead of guessing. Wrong assumptions cause rewrites.
 > 7. **Function metrics** - Functions: 8-15 lines. Files: < 300 lines. React components: < 100 lines.
+> 8. **Error Architecture** - All core functions and command handlers MUST return `*apperror.AppError` and never call `os.Exit(1)` directly, to ensure `finishCommandAudit` logs them to the DB.
 >
 > These rules are **CODE RED** — violations are treated as bugs and must be fixed before merge.
+
+---
+
+## ⚠️ Error Architecture
+
+All core functions and command handlers MUST return `*apperror.AppError` and never call `os.Exit(1)` directly. This is a strict requirement to ensure that `finishCommandAudit` can correctly log errors to the database. Silent failures or bypassing the error wrapper is prohibited.
 
 ---
 

@@ -90,6 +90,12 @@ auto-reject on the same tier as RULE 0.
 
 ---
 
+## Error Architecture
+
+All core functions and command handlers MUST return `*apperror.AppError` and never call `os.Exit(1)` directly. This is a strict requirement to ensure that `finishCommandAudit` can correctly log errors to the database. Silent failures or bypassing the error wrapper is prohibited.
+
+---
+
 ## Error Management (One-Liner Digest)
 
 If this repository has a `spec/xx-error-manage/` folder, that folder is binding and overrides any conflict here. Otherwise follow these rules directly.
@@ -221,6 +227,7 @@ The same rules apply to TypeScript, PHP, Rust, C#, PowerShell, and Python. Only 
 - [ ] **Language/Runtime**: TypeScript, PHP, Python, Go.
 - [ ] **Enums**: TypeScript string unions are banned. All Enums must end with the `Type` suffix.
 - [ ] **Error Handling (R7)**: No silent failures or swallowed errors. Every error/failure is propagated with context. Use explicit boolean states (e.g. `isFail`), do not invert success booleans (e.g. `!isSuccess`).
+- [ ] **Error Architecture**: All core functions and command handlers MUST return `*apperror.AppError` and never call `os.Exit(1)` directly, to ensure `finishCommandAudit` logs them to the DB.
 - [ ] **Magic Strings/Numbers (R8)**: No magic strings or numbers except for loggers. Extract named constants. See `.lovable/strictly-avoid.md`.
 - [ ] **Naming & Casing (R1, R2)**: PascalCase everywhere. Acronyms (Id, Json, Url) are Pascal case, never all-caps (e.g. `UserId`, not `UserID`). JSON/serialization keys are Pascal case.
 - [ ] **Booleans (R3)**: Every boolean starts with `is` or `has` (e.g., `isEnabled`, `hasAdminRole`).
