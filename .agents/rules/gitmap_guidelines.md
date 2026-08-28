@@ -1,9 +1,9 @@
-name: gitmap_error_and_coding_guidelines
+---
 description: Enforces Gitmap's strict error management architecture and coding style guidelines.
 trigger:
   - ".*"
 
-instructions: |
+---
   **Gitmap Strict Error Architecture and Coding Guidelines**
 
   When working on the Gitmap repository, you MUST adhere to the following rules at all times. Failure to follow these rules will break the DB audit logging and violate the project's standards.

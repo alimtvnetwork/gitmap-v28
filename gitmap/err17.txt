@@ -1,2 +1,0 @@
-# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
-cmd\releasepull.go:69:2: syntax error: non-declaration statement outside function body
