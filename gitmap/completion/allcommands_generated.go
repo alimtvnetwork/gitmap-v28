@@ -185,6 +185,7 @@ var generatedCommands = []string{
 	"inj",
 	"inject",
 	"install",
+	"install-script",
 	"interactive",
 	"jn",
 	"join",
