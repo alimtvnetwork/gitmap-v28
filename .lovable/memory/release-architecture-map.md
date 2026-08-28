@@ -1,5 +1,11 @@
 # Release Architecture Map
 
+## v6.139.0
+- Rewrote gitmap open to use native OS openers (Windows undll32, macOS open, Linux xdg-open).
+- Centralized application errors to fully return *apperror.AppError and propagate correctly to inishCommandAudit.
+- Included strict LLM grouping guidelines for AI agents to prevent un-orchestrated commits.
+
+
 Releases for Gitmap are triggered by bumping the version in ersion.json. 
 When the version is bumped, you must ensure the corresponding versions in 
 eadme.md and changelog.md are synchronized.
