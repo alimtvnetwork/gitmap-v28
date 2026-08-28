@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/archive"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -28,15 +29,13 @@ func runUnzipCompact(args []string) error {
 	src, dest, err := resolveUnzipInputs(positional)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ "+constants.ErrArchiveNoSource+"\n", constants.CmdUnzipCompact)
-		fmt.Fprintf(os.Stderr, "    %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "", nil)
 	}
 
 	ctx := context.Background()
 	resolved, err := archive.ResolveSource(ctx, src)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 	defer archive.CleanupResolved(resolved)
 
@@ -56,8 +55,7 @@ func parseUnzipCompactFlags(args []string) (listMode bool, positional []string) 
 	fs.BoolVar(&listMode, constants.FlagArchiveList, false, constants.FlagDescArchiveList)
 	fs.BoolVar(&listMode, constants.FlagArchiveListShrt, listMode, constants.FlagDescArchiveList)
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 
 	return listMode, fs.Args()
@@ -90,8 +88,7 @@ func resolveUnzipInputs(positional []string) (src, dest string, err error) {
 func runListMode(ctx context.Context, path string) error {
 	entries, format, err := archive.ListEntries(ctx, path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveListHeader+"\n", path, format, len(entries))
 	for _, e := range entries {
@@ -122,8 +119,7 @@ func executeCompactExtract(ctx context.Context, resolved archive.ResolvedSource,
 	res, err := archive.CompactExtract(ctx, resolved.LocalPath, dest)
 	finishArchiveRow(db, historyID, res.OutputDir, string(res.Format), res.UsedTempDir, err)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveExtractDone+"\n", res.OutputDir, res.EntriesWritten, res.Format)

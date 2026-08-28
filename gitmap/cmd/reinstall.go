@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -29,7 +30,7 @@ func runReinstall(args []string) error {
 	announceReinstallMode(opts.Mode, mode, detected)
 	if !opts.Yes && !confirmReinstall() {
 		fmt.Fprint(os.Stderr, constants.ErrReinstallAborted)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	dispatchReinstall(mode)
 	fmt.Print(constants.MsgReinstallDone)
@@ -55,7 +56,7 @@ func resolveReinstallMode(override string) (string, bool) {
 	case constants.ReinstallModeRepo:
 		if len(constants.RepoPath) == 0 {
 			fmt.Fprint(os.Stderr, constants.ErrReinstallNoRepoLinked)
-			os.Exit(1)
+			return apperror.New("fatal error", "E9000", nil)
 		}
 		return constants.ReinstallModeRepo, false
 	case constants.ReinstallModeSelf:
@@ -66,8 +67,7 @@ func resolveReinstallMode(override string) (string, bool) {
 		}
 		return constants.ReinstallModeSelf, true
 	default:
-		fmt.Fprintf(os.Stderr, constants.ErrReinstallUnknownMode, override)
-		os.Exit(1)
+		return apperror.New(constants.ErrReinstallUnknownMode, "E9000", nil)
 	}
 
 	return constants.ReinstallModeSelf, true
@@ -113,8 +113,7 @@ func dispatchReinstall(mode string) {
 func executeReinstallRepo() {
 	scriptPath, scriptName := pickReinstallScriptPath()
 	if _, err := os.Stat(scriptPath); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrReinstallScriptNotFound, scriptName, scriptPath)
-		os.Exit(1)
+		return apperror.New(constants.ErrReinstallScriptNotFound, "E9000", nil)
 	}
 	fmt.Printf(constants.MsgReinstallRunningRepo, scriptName)
 	cmd := buildReinstallScriptCmd(scriptPath)
@@ -130,8 +129,7 @@ func executeReinstallRepo() {
 		os.Exit(exitCode)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrReinstallScriptFailed, scriptName, 1)
-		os.Exit(1)
+		return apperror.New(constants.ErrReinstallScriptFailed, "E9000", nil)
 	}
 }
 

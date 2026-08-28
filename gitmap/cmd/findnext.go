@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -34,8 +35,7 @@ func runFindNext(args []string) error {
 
 	rows, err := db.FindNext(scanFolderID)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrFindNextQueryFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrFindNextQueryFmt, nil)
 	}
 
 	emitFindNext(rows, jsonOut)
@@ -59,8 +59,7 @@ func emitFindNext(rows []model.FindNextRow, jsonOut bool) {
 // cross-checks against spec/08-json-schemas/find-next.schema.json).
 func emitFindNextJSON(rows []model.FindNextRow) {
 	if err := encodeFindNextJSON(os.Stdout, rows); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrFindNextJSONEncodeFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrFindNextJSONEncodeFmt, nil)
 	}
 }
 

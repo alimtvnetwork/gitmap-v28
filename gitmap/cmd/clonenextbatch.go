@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -38,8 +39,7 @@ type batchRowResult struct {
 func runCloneNextBatch(csvPath string, walkAll bool, maxConcurrency int, noProgress, reportErrors bool) error {
 	repos, err := loadBatchRepos(csvPath, walkAll)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneNextBatchLoad, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrCloneNextBatchLoad, nil)
 	}
 
 	fmt.Printf(constants.MsgCloneNextBatchStart, len(repos))

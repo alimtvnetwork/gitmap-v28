@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pterm/pterm"
 
@@ -29,7 +30,6 @@ func printUsage() {
 	printUsageAdvancedCategories()
 	printUsageTrailer()
 }
-
 
 func printUsageHeader() {
 	fmt.Printf(constants.UsageHeaderFmt, constants.Version)
@@ -118,7 +118,6 @@ func printSuperCategory(title string, body func()) {
 	body()
 }
 
-
 func repeatRule(count int) string {
 	if count < minRuleLength {
 		count = minRuleLength
@@ -151,7 +150,6 @@ func printUsageQuickStart() {
 	fmt.Println(constants.HelpCompactHint)
 }
 
-
 var (
 	measuringHelp bool
 	maxHelpCmdLen int
@@ -173,7 +171,7 @@ func renderLine(line string) {
 	line = strings.TrimLeft(line, " ")
 	cmd := line
 	desc := ""
-	
+
 	for i := 0; i < len(line)-1; i++ {
 		if line[i] == ' ' && line[i+1] == ' ' {
 			cmd = strings.TrimRight(line[:i], " ")
@@ -218,10 +216,10 @@ func renderLine(line string) {
 	if termWidth <= 0 {
 		termWidth = 120
 	}
-	
+
 	prefix := fmt.Sprintf("  %s%s  ", cmd, strings.Repeat(" ", pad))
 	descWidth := termWidth - lipgloss.Width(prefix)
-	
+
 	if descWidth > 10 {
 		wrapped := wrapText(fullDesc, descWidth)
 		lines := strings.Split(wrapped, "\n")

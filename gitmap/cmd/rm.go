@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -45,13 +46,12 @@ func runRm(args []string) error {
 	targets := expandRmTargets(rest)
 	if len(targets) == 0 {
 		fmt.Fprint(os.Stderr, rmUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "rm: open db: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "rm: open db:", nil)
 	}
 	defer db.Close()
 
@@ -74,12 +74,12 @@ func runRm(args []string) error {
 		PrintRepoSuggestions(db, m)
 	}
 	if len(matches) == 0 {
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if removeRmMatches(db, matches, yes, dbOnly) {
 		os.Exit(0)
 	}
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 	return nil
 }
 

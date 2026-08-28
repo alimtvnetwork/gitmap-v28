@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/downloaderconfig"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -27,20 +28,17 @@ import (
 func initDownloaderConfigDB() *store.DB {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 	if err := db.Migrate(); err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Migrate: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗ Migrate:", nil)
 	}
 	return db
 }
 
 func saveAndReportDownloaderConfig(db *store.DB, doc downloaderconfig.Document, source string) {
 	if err := db.SetDownloaderConfig(doc); err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not save downloader config: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗ Could not save downloader config:", nil)
 	}
 	if source != "" {
 		fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigLoaded+"\n", source)
@@ -82,8 +80,7 @@ func loadDocOrPrompt(db *store.DB, args []string) (downloaderconfig.Document, st
 func loadDocFromFile(path string) (downloaderconfig.Document, string) {
 	doc, err := downloaderconfig.LoadFile(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 	return doc, path
 }
@@ -114,8 +111,7 @@ func promptFlagConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig
 
 func validatePromptedDoc(doc downloaderconfig.Document) downloaderconfig.Document {
 	if err := downloaderconfig.Validate(doc); err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 	return doc
 }

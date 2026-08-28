@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -19,12 +20,10 @@ func runJoin(args []string) error {
 
 	positionalArgs := fs.Args()
 	if len(positionalArgs) < 1 {
-		fmt.Fprintln(os.Stderr, constants.ErrJoinMissingAddress)
-		os.Exit(1)
+		return apperror.New(constants.ErrJoinMissingAddress, "E9000", nil)
 	}
 	if *token == "" {
-		fmt.Fprintln(os.Stderr, constants.ErrJoinMissingToken)
-		os.Exit(1)
+		return apperror.New(constants.ErrJoinMissingToken, "E9000", nil)
 	}
 
 	address := positionalArgs[0]
@@ -36,8 +35,7 @@ func runJoin(args []string) error {
 	}
 	client := cluster.NewNodeClient(hostname, address, *token)
 	if err := client.Handshake(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrJoinFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrJoinFailed, nil)
 	}
 
 	fmt.Println(constants.MsgJoinSuccess)

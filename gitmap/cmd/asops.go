@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // upsertSingleRepo persists a single repo's ScanRecord and prints a status.
-func upsertSingleRepo(rec model.ScanRecord) {
+func upsertSingleRepo(rec model.ScanRecord) *apperror.AppError {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
@@ -29,11 +30,12 @@ func upsertSingleRepo(rec model.ScanRecord) {
 	}
 
 	fmt.Printf(constants.MsgAsDBSyncedFmt, rec.RepoName, rec.Slug)
+	return nil
 }
 
 // registerAlias creates or updates the alias mapping using the just-upserted
 // repo. With force=false, conflicting aliases (different slug) abort the run.
-func registerAlias(name string, rec model.ScanRecord, force bool) {
+func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
@@ -45,21 +47,23 @@ func registerAlias(name string, rec model.ScanRecord, force bool) {
 	if err != nil || len(repos) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrAsResolveFmt, rec.Slug, err)
 		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
+	return nil
 
 	repoID := repos[0].ID
-	createOrUpdateAliasRow(db, name, repoID, rec, force)
+	return createOrUpdateAliasRow(db, name, repoID, rec, force)
 }
 
 // createOrUpdateAliasRow handles the conflict-detection + write.
-func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.ScanRecord, force bool) {
+func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.ScanRecord, force bool) *apperror.AppError {
 	if db.AliasExists(name) == false {
-		createAliasAndReturn(db, name, repoID, rec)
-		return
+		return createAliasAndReturn(db, name, repoID, rec)
 	}
 
-	checkAliasConflict(db, name, rec, force)
+	if err := checkAliasConflict(db, name, rec, force); err != nil {
+		return err
+	}
 
 	if err := db.UpdateAlias(name, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
@@ -69,9 +73,10 @@ func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.S
 	fmt.Printf(constants.MsgAsUpdatedFmt, name, rec.RepoName, rec.AbsolutePath)
 	fmt.Printf(constants.MsgAsHintNext, name)
 	renameVSCodePMByPath(rec.AbsolutePath, name)
+	return nil
 }
 
-func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.ScanRecord) {
+func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.ScanRecord) *apperror.AppError {
 	if _, err := db.CreateAlias(name, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 		os.Exit(1)
@@ -79,16 +84,18 @@ func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.Sca
 	fmt.Printf(constants.MsgAsRegisteredFmt, rec.RepoName, name, rec.AbsolutePath)
 	fmt.Printf(constants.MsgAsHintNext, name)
 	renameVSCodePMByPath(rec.AbsolutePath, name)
+	return nil
 }
 
-func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force bool) {
+func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force bool) *apperror.AppError {
 	if force == true {
-		return
+		return nil
 	}
 	existing, err := db.ResolveAlias(name)
 	if err == nil && existing.Slug != rec.Slug {
 		fmt.Fprintf(os.Stderr, constants.ErrAsAliasInUseFmt, name, existing.Slug)
 		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
+	return nil
 }

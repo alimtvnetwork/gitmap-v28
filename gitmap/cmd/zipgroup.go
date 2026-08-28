@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -57,6 +55,5 @@ func dispatchZipGroup(sub string, args []string) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrUnknownCommand, sub)
-	os.Exit(1)
+	return apperror.New(constants.ErrUnknownCommand, "E9000", nil)
 }

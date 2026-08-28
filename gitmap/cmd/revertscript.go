@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
 )
@@ -22,7 +23,7 @@ func runRevertRunner() error {
 	repoPath := constants.RepoPath
 	if len(repoPath) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrNoRepoPath)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	initRunnerVerbose()
@@ -36,8 +37,7 @@ func runRevertRunner() error {
 func executeRevert(repoPath string) {
 	scriptPath, err := writeRevertScript(repoPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRevertFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrRevertFailed, nil)
 	}
 	defer os.Remove(scriptPath)
 
@@ -75,8 +75,7 @@ func runRevertPS(scriptPath string) error {
 
 	logRevertResult(err)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRevertFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrRevertFailed, nil)
 	}
 
 	fmt.Printf(constants.MsgRevertDone)

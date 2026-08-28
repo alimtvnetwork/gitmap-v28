@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -27,7 +28,7 @@ func runTaskRun(args []string) error {
 	name := fs.Arg(0)
 	if name == "" {
 		fmt.Fprint(os.Stderr, constants.ErrTaskNameRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	interval = enforceMinInterval(interval)

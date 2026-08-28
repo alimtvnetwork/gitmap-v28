@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -33,7 +34,7 @@ func runSelfUninstall(args []string) error {
 	opts := parseSelfUninstallFlags(args)
 	if !opts.Confirm && !confirmSelfUninstall(opts) {
 		fmt.Fprint(os.Stderr, constants.ErrSelfUninstallNoConfirm)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if shouldHandoffSelfUninstall() {
 		handoffSelfUninstall(opts, args)

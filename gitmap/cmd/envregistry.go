@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -26,8 +26,7 @@ func loadEnvRegistry() model.EnvRegistry {
 
 	err = json.Unmarshal(data, &registry)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrEnvRegistryLoad, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrEnvRegistryLoad, "E9000", nil)
 	}
 
 	return registry
@@ -39,20 +38,17 @@ func saveEnvRegistry(registry model.EnvRegistry) {
 
 	err := os.MkdirAll(filepath.Dir(path), constants.DirPermission)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrEnvRegistrySave, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
 	}
 
 	data, err := json.MarshalIndent(registry, "", constants.JSONIndent)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrEnvRegistrySave, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
 	}
 
 	err = os.WriteFile(path, data, constants.FilePermission)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrEnvRegistrySave, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrEnvRegistrySave, "E9000", nil)
 	}
 }
 
@@ -79,8 +75,7 @@ func findEnvVariable(registry model.EnvRegistry, name string) model.EnvVariable 
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrEnvNotFound, name)
-	os.Exit(1)
+	return apperror.New(constants.ErrEnvNotFound, "E9000", nil)
 
 	return model.EnvVariable{}
 }
@@ -123,8 +118,7 @@ func removeEnvPath(registry model.EnvRegistry, dir string) model.EnvRegistry {
 func checkEnvPathNotDuplicate(registry model.EnvRegistry, dir string) {
 	for _, p := range registry.Paths {
 		if p.Path == dir {
-			fmt.Fprintf(os.Stderr, constants.ErrEnvPathDuplicate, dir)
-			os.Exit(1)
+			return apperror.New(constants.ErrEnvPathDuplicate, "E9000", nil)
 		}
 	}
 }

@@ -10,26 +10,27 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 )
 
 // runChangelog handles the 'changelog' command.
-func runChangelog(args []string) error {
+func runChangelog(args []string) *apperror.AppError {
 	checkHelp("changelog", args)
 	cleaned, mode := ParsePrettyFlag(args)
 	pretty := render.Decide(mode, render.StdoutIsTerminal(), true)
 	version, latest, limit, openFile, source := parseChangelogFlags(cleaned)
 	version, openFile = resolveChangelogAlias(version, openFile)
 	if openFile {
-		handleChangelogOpen(latest, version)
+		if err := handleChangelogOpen(latest, version); err != nil { return err }
 	}
 	if !latest && len(version) == 0 && openFile {
 		return nil
 	}
 
-	dispatchChangelogOutput(version, latest, limit, source, pretty)
+	return dispatchChangelogOutput(version, latest, limit, source, pretty)
 	return nil
 }
 
@@ -43,38 +44,40 @@ func resolveChangelogAlias(version string, openFile bool) (string, bool) {
 }
 
 // handleChangelogOpen opens the changelog file and exits on error.
-func handleChangelogOpen(latest bool, version string) {
+func handleChangelogOpen(latest bool, version string) *apperror.AppError {
 	err := openChangelogFile()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrChangelogOpen, constants.ChangelogFile, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrChangelogOpen, nil)
 	}
 	if !latest && len(version) == 0 {
-		os.Exit(0)
+		return nil
 	}
+	return nil
+	if !latest && len(version) == 0 {
+		return nil
+	}
+	return nil
 }
 
 // dispatchChangelogOutput prints the appropriate changelog entries.
 // `pretty` controls ANSI rendering for headers + bullet bodies; pass
 // false to emit terminal-safe plain text (no escape codes anywhere).
-func dispatchChangelogOutput(version string, latest bool, limit int, source string, pretty bool) {
+func dispatchChangelogOutput(version string, latest bool, limit int, source string, pretty bool) *apperror.AppError {
 	entries, err := release.ReadChangelog()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrChangelogRead, constants.ChangelogFile, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrChangelogRead, nil)
 	}
 	entries = filterChangelogBySource(entries, source)
 	if latest {
 		printChangelogEntries(entries, 1, pretty)
-
-		return
+		return nil
 	}
 	if len(version) > 0 {
 		printSingleVersion(entries, version, pretty)
-
-		return
+		return nil
 	}
 	printChangelogEntries(entries, limit, pretty)
+	return nil
 }
 
 // filterChangelogBySource keeps only entries whose version exists in the DB with the given source.
@@ -117,13 +120,14 @@ func loadChangelogSourceMap() map[string]string {
 }
 
 // printSingleVersion finds and prints one version's changelog.
-func printSingleVersion(entries []release.ChangelogEntry, version string, pretty bool) {
+func printSingleVersion(entries []release.ChangelogEntry, version string, pretty bool) *apperror.AppError {
 	entry, found := release.FindChangelogEntry(entries, version)
 	if !found {
 		fmt.Fprintf(os.Stderr, constants.ErrChangelogVersionNotFound, release.NormalizeVersion(version))
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	printChangelogEntry(entry, pretty)
+	return nil
 }
 
 // parseChangelogFlags parses flags for the changelog command. The

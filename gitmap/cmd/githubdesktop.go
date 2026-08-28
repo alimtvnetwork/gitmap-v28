@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
 )
@@ -19,15 +20,13 @@ func runGitHubDesktop(args []string) error {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGHDesktopCwd, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrGHDesktopCwd, nil)
 	}
 
 	target := resolveGHDesktopTarget(cwd, args)
 	isNonGitRepo := !isGitRepo(target)
 	if isNonGitRepo {
-		fmt.Fprintf(os.Stderr, constants.ErrGHDesktopNotRepo, target)
-		os.Exit(1)
+		return apperror.New(constants.ErrGHDesktopNotRepo, "E9000", nil)
 	}
 
 	registerGHDesktop(target)
@@ -62,16 +61,14 @@ func isGitRepo(dir string) bool {
 func registerGHDesktop(target string) {
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		fmt.Fprintln(os.Stderr, constants.MsgDesktopNotFound)
-		os.Exit(1)
+		return apperror.New(constants.MsgDesktopNotFound, "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgGHDesktopRegister, target)
 	cmd := exec.Command(cli, target)
 	output, runErr := cmd.CombinedOutput()
 	if runErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGHDesktopInvoke, runErr, output)
-		os.Exit(1)
+		return apperror.New(constants.ErrGHDesktopInvoke, "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgGHDesktopDone, target)

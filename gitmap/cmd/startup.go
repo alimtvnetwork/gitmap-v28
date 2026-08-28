@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/startup"
 )
@@ -39,14 +40,12 @@ func runStartupList(args []string) error {
 	}
 	entries, err := startup.List()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "", nil)
 	}
 	entries = filterStartupList(entries, opts.backend, opts.name)
 	dir, _ := startup.AutostartDir()
 	if err := renderStartupList(opts.format, opts.jsonIndent, dir, entries); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "", nil)
 	}
 	return nil
 }
@@ -163,8 +162,7 @@ func runStartupRemove(args []string) error {
 		DryRun: cfg.dryRun, Backend: backend,
 	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "", nil)
 	}
 	if cfg.output == constants.OutputJSON {
 		_ = emitStartupStatus(cfg.output, cfg.jsonIndent,

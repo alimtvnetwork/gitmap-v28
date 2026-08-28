@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -60,7 +61,7 @@ func exitOnPass1Failure(cfg regoldensFlags, code int) {
 	if cfg.hasDiff() {
 		fmt.Fprintf(os.Stderr, constants.MsgRegoldensPass2NotRun, code)
 	}
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 }
 
 // handleSkipVerify emits the skip-verify success path and returns

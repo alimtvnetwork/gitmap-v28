@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -17,8 +15,7 @@ func runCluster(args []string) error {
 	checkHelp("cluster", args)
 	isEmptyArgs := len(args) == 0
 	if isEmptyArgs {
-		fmt.Fprintln(os.Stderr, usageMsg)
-		os.Exit(1)
+		return apperror.New(usageMsg, "E9000", nil)
 	}
 
 	sub := args[0]
@@ -55,7 +52,6 @@ func runCluster(args []string) error {
 		return nil
 	}
 
-	fmt.Fprintf(os.Stderr, unknownCmdMsg, sub)
-	os.Exit(1)
+	return apperror.New("unknown command", "E9000", nil)
 	return nil
 }

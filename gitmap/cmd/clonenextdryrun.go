@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -42,8 +43,7 @@ func printCloneNextDryRun(url, dest string) {
 func previewDryRunBatch(csvPath string, walkAll bool) {
 	repos, err := loadBatchRepos(csvPath, walkAll)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneNextBatchLoad, err)
-		os.Exit(1)
+		return
 	}
 	fmt.Print(constants.MsgCloneNextDryRunHeader)
 	count := emitDryRunRows(repos)

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -22,7 +23,7 @@ func runReleaseAliasPull(target string) error {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAPullFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	return nil
 }
@@ -46,7 +47,7 @@ func autoStashIfDirty(target, alias, version string) string {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAStashFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgRAStashCreatedFmt, label)

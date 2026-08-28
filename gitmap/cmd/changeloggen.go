@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -17,14 +18,12 @@ func runChangelogGen(args []string) error {
 	fromTag, toRef, err := release.ResolveTagRange(from, to)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 
 	commits, err := release.GenerateChangelog(fromTag, toRef)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 
 	if len(commits) == 0 {
@@ -39,7 +38,7 @@ func runChangelogGen(args []string) error {
 	fmt.Printf(constants.MsgChangelogGenHeader, fromTag, toRef)
 
 	if write {
-		writeChangelogSection(section)
+		if err := writeChangelogSection(section); err != nil { return err }
 	} else {
 		printChangelogPreview(section)
 	}
@@ -73,20 +72,19 @@ func printChangelogPreview(section string) {
 }
 
 // writeChangelogSection prepends the section to CHANGELOG.md.
-func writeChangelogSection(section string) {
+func writeChangelogSection(section string) *apperror.AppError {
 	existing, err := os.ReadFile(constants.ChangelogFile)
 	if err != nil && !os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, constants.ErrChangelogGenRead, constants.ChangelogFile, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrChangelogGenRead, nil)
 	}
 
 	content := section + "\n" + string(existing)
 
 	err = os.WriteFile(constants.ChangelogFile, []byte(content), 0o644)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrChangelogGenWrite, constants.ChangelogFile, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrChangelogGenWrite, nil)
 	}
 
 	fmt.Printf(constants.MsgChangelogGenWritten, constants.ChangelogFile)
+	return nil
 }

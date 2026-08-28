@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -22,15 +23,13 @@ func runPending() error {
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.WarnPendingDBOpen, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.WarnPendingDBOpen, nil)
 	}
 	defer db.Close()
 
 	tasks, err := db.ListPendingTasks()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrPendingTaskQuery, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrPendingTaskQuery, nil)
 	}
 
 	if len(tasks) == 0 {

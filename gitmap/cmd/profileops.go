@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -12,15 +13,14 @@ import (
 func runProfileCreate(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileCreateUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	name := args[0]
 	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
 
 	if profileExists(cfg.Profiles, name) {
-		fmt.Fprintf(os.Stderr, constants.ErrProfileExists, name)
-		os.Exit(1)
+		return apperror.New(constants.ErrProfileExists, "E9000", nil)
 	}
 
 	cfg.Profiles = append(cfg.Profiles, name)
@@ -56,15 +56,14 @@ func runProfileList() error {
 func runProfileSwitch(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileSwitchUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	name := args[0]
 	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
 
 	if !profileExists(cfg.Profiles, name) {
-		fmt.Fprintf(os.Stderr, constants.ErrProfileNotFound, name)
-		os.Exit(1)
+		return apperror.New(constants.ErrProfileNotFound, "E9000", nil)
 	}
 
 	cfg.Active = name
@@ -78,7 +77,7 @@ func runProfileSwitch(args []string) error {
 func runProfileDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileDeleteUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	name := args[0]

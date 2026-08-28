@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -23,8 +24,7 @@ func runGroup(args []string) error {
 func showActiveGroup() {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 
@@ -107,15 +107,13 @@ func dispatchGroupScoped(sub string, args []string) bool {
 func activateGroup(name string) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 
 	_, gErr := db.ShowGroup(name)
 	if gErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, gErr)
-		os.Exit(1)
+		return apperror.New(constants.ErrBareFmt, "E9000", nil)
 	}
 
 	if err := db.SetSetting(constants.SettingActiveGroup, name); err != nil {
@@ -129,8 +127,7 @@ func activateGroup(name string) {
 func clearActiveGroup() {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -82,8 +83,7 @@ func runInstallScripts() error {
 	targetDir := resolveScriptsDir()
 	fmt.Printf(constants.MsgScriptsTarget, targetDir)
 	if err := os.MkdirAll(targetDir, constants.DirPermission); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrScriptsMkdir, targetDir, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrScriptsMkdir, "E9000", nil)
 	}
 	tmpDir, err := cloneRepoToTemp()
 	if err != nil {

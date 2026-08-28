@@ -1,0 +1,26 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\clustercommand.go:153:10: cannot use apperror.Wrap(err, "Error generating run ref:", nil) (value of type *apperror.AppError) as string value in return statement
+cmd\clustercommand.go:164:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\clustercommand.go:169:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\clustercommand.go:179:10: cannot use apperror.Wrap(err, "Error inserting ClusterRun:", nil) (value of type *apperror.AppError) as int64 value in return statement
+cmd\code.go:137:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\code.go:143:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\code.go:156:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\code.go:163:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\code.go:173:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\code.go:185:11: cannot use apperror.New("fatal error", "E9000", nil) (value of type *apperror.AppError) as []string value in return statement
+cmd\code.go:185:11: too many errors

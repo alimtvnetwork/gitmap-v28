@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -37,14 +38,12 @@ func runInteractive() error {
 
 	db, err := store.OpenDefault()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrTUIDBOpen, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrTUIDBOpen, nil)
 	}
 	defer db.Close()
 
 	if err := tui.Run(db, cfg); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "", nil)
 	}
 	return nil
 }

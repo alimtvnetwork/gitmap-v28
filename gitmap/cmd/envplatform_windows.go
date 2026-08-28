@@ -3,12 +3,11 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // setEnvPersistent sets an environment variable on Windows via setx.
@@ -42,8 +41,7 @@ func runSetx(args []string) error {
 
 	err := cmd.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrEnvProfileWrite, "system registry", err)
-		os.Exit(1)
+		return apperror.Wrap("system registry", "constants.ErrEnvProfileWrite", nil)
 	}
 	return nil
 }

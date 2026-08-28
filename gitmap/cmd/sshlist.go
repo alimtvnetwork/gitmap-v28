@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -14,15 +15,13 @@ func runSSHList(args ...string) error {
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSSHQuery, nil)
 	}
 	defer db.Close()
 
 	keys, err := db.ListSSHKeys()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrSSHQuery, nil)
 	}
 
 	if jsonOut {

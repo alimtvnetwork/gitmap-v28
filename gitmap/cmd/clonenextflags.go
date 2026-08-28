@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"flag"
-	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -108,8 +107,7 @@ func parseCloneNextFlags(args []string) CloneNextFlags {
 func resolveCloneNextConcurrency(maxConc int) int {
 	resolvedConc, ok := cloneconcurrency.Resolve(maxConc)
 	if !ok {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConc)
-		os.Exit(1)
+		return 1
 	}
 	return resolvedConc
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -34,14 +35,12 @@ func runClearReleaseJSON(args []string) error {
 	version, dryRun := parseClearReleaseJSONFlags(args)
 
 	if version == "" {
-		fmt.Fprintln(os.Stderr, constants.ErrClearReleaseUsage)
-		os.Exit(1)
+		return apperror.New(constants.ErrClearReleaseUsage, "E9000", nil)
 	}
 
 	v, err := release.Parse(version)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrReleaseInvalidVersion, version)
-		os.Exit(1)
+		return apperror.New(constants.ErrReleaseInvalidVersion, "E9000", nil)
 	}
 
 	filename := v.String() + constants.ExtJSON
@@ -49,7 +48,7 @@ func runClearReleaseJSON(args []string) error {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, constants.ErrClearReleaseNotFound, v.String())
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	if dryRun {
@@ -59,8 +58,7 @@ func runClearReleaseJSON(args []string) error {
 
 	err = os.Remove(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrClearReleaseFailed, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrClearReleaseFailed, "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgClearReleaseDone, v.String())

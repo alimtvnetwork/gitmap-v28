@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -138,8 +139,7 @@ func readProfileContent(path string) string {
 func writeProfileContent(path, content string) {
 	err := os.WriteFile(path, []byte(content), constants.FilePermission)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrEnvProfileWrite, path, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrEnvProfileWrite, "E9000", nil)
 	}
 }
 

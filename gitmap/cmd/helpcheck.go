@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"os"
-
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/helptext"
@@ -45,5 +44,5 @@ func requireOnline() {
 	}
 
 	gitutil.PrintOfflineWarning()
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 }

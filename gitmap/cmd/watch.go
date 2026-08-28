@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -18,8 +19,7 @@ func runWatch(args []string) error {
 	records := loadWatchRecords(groupName)
 
 	if len(records) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrWatchNoRepos)
-		os.Exit(1)
+		return apperror.New(constants.ErrWatchNoRepos, "E9000", nil)
 	}
 
 	if jsonMode {

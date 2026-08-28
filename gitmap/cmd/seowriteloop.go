@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -158,14 +159,14 @@ func parseInterval(s string) (int, int) {
 	parts := strings.SplitN(s, "-", 2)
 	if len(parts) != 2 {
 		fmt.Fprint(os.Stderr, constants.ErrSEOIntervalFmt)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	min, err1 := strconv.Atoi(parts[0])
 	max, err2 := strconv.Atoi(parts[1])
 	if err1 != nil || err2 != nil || min > max {
 		fmt.Fprint(os.Stderr, constants.ErrSEOIntervalFmt)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return min, max

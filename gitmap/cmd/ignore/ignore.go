@@ -27,14 +27,14 @@ func RunIgnoreRm(args []string) error {
 	pattern := args[0]
 
 	pterm.Info.Printf("Removing '%s' from git history...\n", pattern)
-	
+
 	// Single quotes are safer for filter-branch.
 	filterCmd := fmt.Sprintf("git rm --cached --ignore-unmatch -r '%s'", pattern)
-	
+
 	cmd := exec.Command("git", "filter-branch", "--force", "--index-filter", filterCmd, "--prune-empty", "--tag-name-filter", "cat", "--", "--all")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	if err := cmd.Run(); err != nil {
 		return apperror.Wrap(err, "RunIgnoreRm: history rewrite failed", nil)
 	}

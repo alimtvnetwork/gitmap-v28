@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -42,7 +43,7 @@ func performCrossDirCloneNext(target, alias, version string, originalArgs []stri
 	if err := os.Chdir(target); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAChdirFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return
 	}
 	defer func() { _ = os.Chdir(originalDir) }()
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/diff"
 )
@@ -21,24 +21,22 @@ func runDiff(args []string) error {
 
 	leftEP, err := diff.ResolveEndpoint(left)
 	if err != nil {
-		cliexit.Fail(constants.CmdDiff, "resolve-endpoint", left, err, 1)
+		return apperror.Wrap(err, "resolve-endpoint left", nil)
 	}
 	rightEP, err := diff.ResolveEndpoint(right)
 	if err != nil {
-		cliexit.Fail(constants.CmdDiff, "resolve-endpoint", right, err, 1)
+		return apperror.Wrap(err, "resolve-endpoint right", nil)
 	}
 	if guardErr := guardDiffPaths(leftEP, rightEP); guardErr != nil {
-		cliexit.Fail(constants.CmdDiff, "guard-paths", left+" vs "+right, guardErr, 1)
+		return apperror.Wrap(guardErr, "guard-paths", nil)
 	}
 
 	entries, err := diff.DiffTrees(leftEP.WorkingDir, rightEP.WorkingDir, walkOpts)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s diff failed: %v\n", constants.LogPrefixDiff, err)
-		os.Exit(1)
+		return apperror.Wrap(constants.LogPrefixDiff, "diff failed:", nil)
 	}
 	if reportErr := diff.Report(os.Stdout, entries, printOpts); reportErr != nil {
-		fmt.Fprintf(os.Stderr, "%s report failed: %v\n", constants.LogPrefixDiff, reportErr)
-		os.Exit(1)
+		return apperror.Wrap(constants.LogPrefixDiff, "report failed:", nil)
 	}
 	return nil
 }

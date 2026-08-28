@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
 )
@@ -25,7 +26,7 @@ func runVSCodePMPath(args []string) error {
 	path, err := vscodepm.ProjectsJSONPath()
 	if err != nil {
 		printVSCodePMPathError(path, err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Println(path)

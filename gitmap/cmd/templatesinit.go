@@ -35,6 +35,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
 )
@@ -63,20 +64,17 @@ func runTemplatesInit(args []string) error {
 
 	flags, err := parseTemplatesInitFlags(args)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗", nil)
 	}
 	if len(flags.langs) == 0 {
 		fmt.Fprintln(os.Stderr, "  ✗ templates init requires at least one <lang>")
 		fmt.Fprintln(os.Stderr, "    Example: gitmap templates init go node --lfs")
-		fmt.Fprintln(os.Stderr, "    Run 'gitmap templates list' to see available languages.")
-		os.Exit(1)
+		return apperror.New("    Run 'gitmap templates list' to see available languages.", "E9000", nil)
 	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not resolve CWD: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗ Could not resolve CWD:", nil)
 	}
 
 	printTemplatesInitBanner(flags, cwd)
@@ -177,8 +175,7 @@ func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, requ
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Required template missing: %v\n", err)
-		fmt.Fprintln(os.Stderr, "    Run 'gitmap templates list' to see available languages.")
-		os.Exit(1)
+		return apperror.New("    Run 'gitmap templates list' to see available languages.", "E9000", nil)
 	}
 	step.resolved = res
 
@@ -195,14 +192,12 @@ func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, requ
 		errRm = os.Remove(step.target)
 	}
 	if errRm != nil && os.IsNotExist(errRm) == false {
-		fmt.Fprintf(os.Stderr, "  ✗ --force could not remove %s: %v\n", step.target, errRm)
-		os.Exit(1)
+		return apperror.Wrap(step.target, "✗ --force could not remove :", nil)
 	}
 
 	merged, err := templates.Merge(step.target, step.tag, res.Content)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ merge %s into %s: %v\n", step.tag, step.target, err)
-		os.Exit(1)
+		return apperror.Wrap(step.tag, "✗ merge  into :", nil)
 	}
 
 	return templatesInitResult{step: step, merge: merged}

@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // runInstalledDir prints the directory and full path of the active gitmap binary.
 func runInstalledDir() error {
 	selfPath, err := os.Executable()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not resolve executable path: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "✗ Could not resolve executable path:", nil)
 	}
 
 	resolved, err := filepath.EvalSymlinks(selfPath)

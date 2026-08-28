@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -17,8 +18,7 @@ func runAliasSuggest(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 

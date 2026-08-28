@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type RemediationState struct {
@@ -43,16 +43,16 @@ func PrintRemediationBox(repoName, repoPath string, d gitutil.DirtyDiagnosis) {
 	fmt.Println()
 	fmt.Printf("  %s %s (%s)\n", headerStyle.Render("Remediation Options for:"), repoName, d.SummaryReason)
 	for i, rec := range recipes {
-        // Rewrite the output to recommend the gitmap fix command
-        alias := ""
-        if i == 0 {
-            alias = "stash"
-        } else if i == 1 {
-            alias = "wip"
-        } else if i == 2 {
-            alias = "discard"
-        }
-        
+		// Rewrite the output to recommend the gitmap fix command
+		alias := ""
+		if i == 0 {
+			alias = "stash"
+		} else if i == 1 {
+			alias = "wip"
+		} else if i == 2 {
+			alias = "discard"
+		}
+
 		fmt.Printf("    • %s: %s\n", rec.Title, rec.Description)
 		fmt.Printf("      %s\n", cmdStyle.Render(fmt.Sprintf("Run: gitmap fix %d  (or 'gitmap %s')", i+1, alias)))
 	}

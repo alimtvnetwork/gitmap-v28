@@ -19,11 +19,11 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
 )
@@ -69,8 +69,7 @@ func tryFolderArgSinglePositional(token string, originalArgs []string) bool {
 
 	resolved, err := resolveCloneNextFolder(token)
 	if err != nil && hasFolderHint(token) == true {
-		fmt.Fprintf(os.Stderr, constants.ErrCNFolderNotFound, token)
-		os.Exit(1)
+		return false
 	}
 	if err != nil {
 		return false
@@ -91,8 +90,7 @@ func tryFolderArgTwoPositional(first, second string, originalArgs []string) bool
 	secondIsVersion := looksLikeVersion(second)
 
 	if firstIsVersion && secondIsVersion {
-		fmt.Fprintln(os.Stderr, constants.ErrCNAmbiguousBothVersions)
-		os.Exit(1)
+		return false
 	}
 
 	if !firstIsVersion {
@@ -109,14 +107,12 @@ func tryFolderArgTwoPositional(first, second string, originalArgs []string) bool
 		// is almost certainly a typo — the user meant a folder but
 		// gave a bare alias. Refuse with the canonical message
 		// rather than silently swallowing it.
-		fmt.Fprintln(os.Stderr, constants.ErrCNAmbiguousBothFolders)
-		os.Exit(1)
+		return false
 	}
 
 	resolved, err := resolveCloneNextFolder(second)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrCNFolderNotFound, second)
-		os.Exit(1)
+		return false
 	}
 
 	performCrossDirCloneNext(resolved, filepath.Base(resolved), first, originalArgs)

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -31,8 +32,7 @@ func resolveReportErrors() reportErrorsConfig {
 	}
 
 	if value != constants.ReportErrorsJSON {
-		fmt.Fprintf(os.Stderr, constants.ErrReportErrorsValue, value)
-		os.Exit(1)
+		return apperror.New(constants.ErrReportErrorsValue, "E9000", nil)
 	}
 
 	path := getFlagValue(constants.FlagReportErrorsFile)

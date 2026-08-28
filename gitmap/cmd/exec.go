@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -17,8 +18,7 @@ func runExec(args []string) error {
 	checkHelp("exec", args)
 	groupName, all, stopOnFail, gitArgs := parseExecFlags(args)
 	if len(gitArgs) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrExecUsage)
-		os.Exit(1)
+		return apperror.New(constants.ErrExecUsage, "E9000", nil)
 	}
 
 	records := loadExecByScope(groupName, all)
@@ -153,8 +153,7 @@ func loadExecRecordsJSON() []model.ScanRecord {
 	jsonPath := filepath.Join(constants.DefaultOutputFolder, constants.DefaultJSONFile)
 	records, err := loadExecRecords(jsonPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrExecLoadFailed, jsonPath, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrExecLoadFailed, "E9000", nil)
 	}
 
 	return records

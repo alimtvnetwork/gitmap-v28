@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -55,7 +56,7 @@ func runEnvSet(args []string) error {
 func runEnvGet(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrEnvNameRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	name := args[0]
@@ -135,7 +136,7 @@ func runEnvPathAdd(args []string) error {
 func validateEnvPathRemove(dir string) {
 	if dir == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvPathRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 }
 

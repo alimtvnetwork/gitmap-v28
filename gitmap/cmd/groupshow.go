@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -11,8 +12,7 @@ import (
 // runGroupShow handles "group show <name>".
 func runGroupShow(args []string) error {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrGroupNameReq)
-		os.Exit(1)
+		return apperror.New(constants.ErrGroupNameReq, "E9000", nil)
 	}
 	name := args[0]
 	executeGroupShow(name)
@@ -23,19 +23,17 @@ func runGroupShow(args []string) error {
 func executeGroupShow(name string) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 
 	repos, err := db.ShowGroup(name)
 	if err != nil && isLegacyDataError(err) == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 	printGroupShowOutput(name, repos)
 }

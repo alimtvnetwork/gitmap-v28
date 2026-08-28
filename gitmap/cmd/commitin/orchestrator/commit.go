@@ -11,8 +11,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/runlog"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/walk"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd/commitin/workspace"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/committransfer"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // processOneCommit runs one source commit through dedupe → build →

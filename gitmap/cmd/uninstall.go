@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -58,16 +59,14 @@ func runUninstall(args []string) error {
 
 	db, err := openDB()
 	if err != nil && force == false {
-		fmt.Fprintf(os.Stderr, constants.ErrUninstallNotFound, tool)
-		os.Exit(1)
+		return apperror.New(constants.ErrUninstallNotFound, "E9000", nil)
 	}
 
 	if db != nil {
 		defer db.Close()
 	}
 	if db != nil && db.IsToolInstalled(tool) == false && force == false {
-		fmt.Fprintf(os.Stderr, constants.ErrUninstallNotFound, tool)
-		os.Exit(1)
+		return apperror.New(constants.ErrUninstallNotFound, "E9000", nil)
 	}
 
 	if !force && !confirmUninstall(tool) {

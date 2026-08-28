@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -108,8 +109,7 @@ func isGitRepoDir(dir string) bool {
 func runRepoReclone(target string, yes bool) error {
 	origin, err := currentOriginURL(target)
 	if err != nil || origin == "" {
-		fmt.Fprintf(os.Stderr, constants.ErrRepoRecloneNoOrigin, target, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrRepoRecloneNoOrigin, "E9000", nil)
 	}
 	parent := filepath.Dir(target)
 	folderName := filepath.Base(target)
@@ -117,26 +117,24 @@ func runRepoReclone(target string, yes bool) error {
 
 	if !yes && !confirmRepoReclone(target, origin) {
 		fmt.Fprint(os.Stderr, constants.MsgRepoRecloneAborted)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	if _, escapeErr := escapeCwdIfInside(target); escapeErr != nil {
 		fmt.Fprintln(os.Stderr, escapeErr.Error())
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgRepoRecloneRemoving, target)
 	if rmErr := os.RemoveAll(target); rmErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRepoRecloneRemove, target, rmErr)
-		os.Exit(1)
+		return apperror.New(constants.ErrRepoRecloneRemove, "E9000", nil)
 	}
 
 	dest := filepath.Join(parent, folderName)
 	origin = coerceURLToStoredTransport(origin)
 	fmt.Printf(constants.MsgRepoRecloneCloning, origin, dest)
 	if cloneErr := runCloneCommand(origin, dest); cloneErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRepoRecloneClone, origin, dest, cloneErr)
-		os.Exit(1)
+		return apperror.New(constants.ErrRepoRecloneClone, "E9000", nil)
 	}
 	persistRecloneTransport(origin)
 

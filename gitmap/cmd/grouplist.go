@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -13,19 +14,17 @@ import (
 func runGroupList() error {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 
 	groups, err := db.ListGroups()
 	if err != nil && isLegacyDataError(err) == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 
 	printGroupList(db, groups)

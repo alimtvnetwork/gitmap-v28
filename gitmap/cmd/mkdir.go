@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 func runMkdir(args []string) error {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, "Usage: gitmap mkdir [-p] <path>")
-		os.Exit(1)
+		return apperror.New("Usage: gitmap mkdir [-p] <path>", "E9000", nil)
 	}
 
 	createParents := false
@@ -25,14 +26,12 @@ func runMkdir(args []string) error {
 	}
 
 	if pathArg == "" {
-		fmt.Fprintln(os.Stderr, "Error: missing path argument")
-		os.Exit(1)
+		return apperror.New("Error: missing path argument", "E9000", nil)
 	}
 
 	absPath, err := filepath.Abs(pathArg)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error resolving path: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Error resolving path:", nil)
 	}
 
 	if createParents {
@@ -42,8 +41,7 @@ func runMkdir(args []string) error {
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error creating directory: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Error creating directory:", nil)
 	}
 	fmt.Printf("Created directory: %s\n", absPath)
 	return nil

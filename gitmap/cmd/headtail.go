@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 func runHead(args []string) error {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, "Usage: gitmap head <file> [lines]")
-		os.Exit(1)
+		return apperror.New("Usage: gitmap head <file> [lines]", "E9000", nil)
 	}
 
 	filePath := args[0]
@@ -23,8 +24,7 @@ func runHead(args []string) error {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening file: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Error opening file:", nil)
 	}
 	defer file.Close()
 
@@ -39,16 +39,14 @@ func runHead(args []string) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Error reading file:", nil)
 	}
 	return nil
 }
 
 func runTail(args []string) error {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, "Usage: gitmap tail <file> [lines]")
-		os.Exit(1)
+		return apperror.New("Usage: gitmap tail <file> [lines]", "E9000", nil)
 	}
 
 	filePath := args[0]
@@ -61,8 +59,7 @@ func runTail(args []string) error {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening file: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Error opening file:", nil)
 	}
 	defer file.Close()
 
@@ -76,8 +73,7 @@ func runTail(args []string) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "Error reading file:", nil)
 	}
 
 	start := 0

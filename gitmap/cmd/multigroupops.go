@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -34,8 +35,7 @@ func runMultiGroupStatus() error {
 // runMultiGroupExec runs a git command across active multi-group repos.
 func runMultiGroupExec(args []string) error {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrExecUsage)
-		os.Exit(1)
+		return apperror.New(constants.ErrExecUsage, "E9000", nil)
 	}
 
 	db, records := loadMultiGroupRepos()
@@ -51,8 +51,7 @@ func runMultiGroupExec(args []string) error {
 func loadMultiGroupRepos() (*store.DB, []model.ScanRecord) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 
 	names := loadMultiGroupNames(db)

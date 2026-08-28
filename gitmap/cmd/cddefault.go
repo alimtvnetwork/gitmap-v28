@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -12,7 +13,7 @@ import (
 func runCDSetDefault(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrCDSetDefaultUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	name := args[0]
@@ -30,15 +31,14 @@ func runCDSetDefault(args []string) error {
 func runCDClearDefault(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCDClearDefaultUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	name := args[0]
 	defaults := store.LoadCDDefaults(constants.DefaultOutputFolder)
 
 	if _, ok := defaults[name]; !ok {
-		fmt.Fprintf(os.Stderr, constants.ErrCDDefaultNotFound, name)
-		os.Exit(1)
+		return apperror.New(constants.ErrCDDefaultNotFound, "E9000", nil)
 	}
 
 	delete(defaults, name)
@@ -55,10 +55,10 @@ func loadCDDefault(name string) string {
 }
 
 // saveCDDefaultsOrExit saves the cd-defaults.json, exiting on error.
-func saveCDDefaultsOrExit(defaults map[string]string) {
+func saveCDDefaultsOrExit(defaults map[string]string) *apperror.AppError {
 	err := store.SaveCDDefaults(constants.DefaultOutputFolder, defaults)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGenericFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrGenericFmt, nil)
 	}
+	return nil
 }

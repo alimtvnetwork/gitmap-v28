@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 func runChromeDiff(args []string) error {
@@ -20,7 +22,7 @@ func runChromeDiff(args []string) error {
 	if !okA || !okB {
 		fmt.Fprintln(os.Stderr, "chrome diff: ERROR one or both profiles not found")
 		printAvailableChromeProfilesWithDisplay()
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	fmt.Printf("\n\033[1;96m▸ chrome diff\033[0m  \033[1m%s\033[0m ↔ \033[1m%s\033[0m\n",
 		chromeProfileSummary(a), chromeProfileSummary(b))

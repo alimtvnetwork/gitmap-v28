@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -40,7 +41,7 @@ func parseDPFlags(args []string) (string, string, bool, bool) {
 
 	if fs.NArg() < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrDPUsage)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return fs.Arg(0), fs.Arg(1), *allFlag, *jsonFlag
@@ -52,8 +53,7 @@ func validateDPProfiles(nameA, nameB string) {
 
 	for _, name := range []string{nameA, nameB} {
 		if !profileExists(cfg.Profiles, name) {
-			fmt.Fprintf(os.Stderr, constants.ErrDPProfileMissing, name)
-			os.Exit(1)
+			return apperror.New(constants.ErrDPProfileMissing, "E9000", nil)
 		}
 	}
 }
@@ -62,8 +62,7 @@ func validateDPProfiles(nameA, nameB string) {
 func loadProfileRepos(name string) []model.ScanRecord {
 	db, err := store.OpenDefaultProfile(name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDPOpenFailed, name, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrDPOpenFailed, "E9000", nil)
 	}
 	defer db.Close()
 
@@ -73,8 +72,7 @@ func loadProfileRepos(name string) []model.ScanRecord {
 
 	repos, err := db.ListRepos()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrDPOpenFailed, name, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrDPOpenFailed, "E9000", nil)
 	}
 
 	return repos

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -15,8 +16,7 @@ func runTempReleaseList(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
@@ -25,8 +25,7 @@ func runTempReleaseList(args []string) error {
 
 	releases, err := db.ListTempReleases()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 
 	if jsonOutput == false {

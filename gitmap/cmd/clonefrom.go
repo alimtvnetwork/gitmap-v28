@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonefrom"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -82,7 +83,7 @@ func runCloneFrom(args []string) error {
 	setCmdPrintArgv(cfg.printCloneArgv)
 	plan, err := clonefrom.ParseFile(cfg.file)
 	if err != nil {
-		cliexit.Fail(constants.CmdCloneFrom, "parse-manifest", cfg.file, err, 1)
+		return apperror.Wrap(err, "parse-manifest cfg.file", nil)
 	}
 	applyCheckoutDefault(&plan, cfg.checkout)
 	if !cfg.execute {
@@ -113,7 +114,7 @@ func runCloneFrom(args []string) error {
 func runCloneFromDry(plan clonefrom.Plan, cfg cloneFromFlags) error {
 	render := pickCloneFromRenderer(cfg.output)
 	if err := render(os.Stdout, plan); err != nil {
-		cliexit.Fail(constants.CmdCloneFrom, "render-dry-run", cfg.file, err, 1)
+		return apperror.Wrap(err, "render-dry-run cfg.file", nil)
 	}
 	return nil
 }

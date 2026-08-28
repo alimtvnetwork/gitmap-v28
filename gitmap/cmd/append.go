@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 func runAppend(args []string) error {
@@ -17,7 +19,7 @@ func runAppend(args []string) error {
 	err := doAppendFile(filePath, content)
 	if err != nil {
 		fmt.Println("Error appending to file:", err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	return nil
 }
@@ -33,7 +35,7 @@ func runWrite(args []string) error {
 	err := doWriteFile(filePath, content)
 	if err != nil {
 		fmt.Println("Error writing to file:", err)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	return nil
 }

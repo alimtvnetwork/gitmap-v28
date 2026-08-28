@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -45,7 +46,7 @@ func runVSCodeWorkspace(args []string) error {
 	records, err := loadReposForWorkspace()
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	folders := buildFoldersFromRecords(records, flags.tag, flags.rootSubdir)
@@ -159,7 +160,7 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 	outPath, err := filepath.Abs(flags.out)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	finalFolders := folders
@@ -175,7 +176,7 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 	ws := vscodeworkspace.Build(finalFolders)
 	if err := vscodeworkspace.WriteAtomic(outPath, ws); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgVSCodeWorkspaceWritten, outPath, len(ws.Folders))

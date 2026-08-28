@@ -30,6 +30,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -43,8 +44,7 @@ func runInject(args []string) error {
 
 	target, err := resolveInjectTarget(args)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrInjectResolve, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrInjectResolve, nil)
 	}
 
 	repoName := filepath.Base(target)

@@ -3,8 +3,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
@@ -28,7 +28,7 @@ func runWorkDir(args []string) error {
 		_ = runWorkDirSetDefault(opts.Target)
 	default:
 		fmt.Printf("Usage: gitmap workdir [ls|add <path>|rm <path|id>|set <path|id>|default]\n")
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	return nil
 }

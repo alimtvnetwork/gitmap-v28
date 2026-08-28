@@ -23,6 +23,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
 )
@@ -45,50 +46,47 @@ type addTemplateSpec struct {
 // runAddIgnore handles `gitmap add ignore [langs...]`. Always merges
 // `common` first so OS junk + IDE noise are guaranteed to land regardless
 // of which languages the user picked.
-func runAddIgnore(args []string) error {
+func runAddIgnore(args []string) *apperror.AppError {
 	checkHelp("add-ignore", args)
-	executeAddTemplate(addTemplateSpec{
+	return executeAddTemplate(addTemplateSpec{
 		kind:        "ignore",
 		subcommand:  "ignore",
 		targetName:  ".gitignore",
 		bannerLabel: "merge curated .gitignore template block",
 	}, args)
-	return nil
 }
 
 // runAddAttributes handles `gitmap add attributes [langs...]`. Same
 // pipeline as runAddIgnore, just a different file + extension.
-func runAddAttributes(args []string) error {
+func runAddAttributes(args []string) *apperror.AppError {
 	checkHelp("add-attributes", args)
-	executeAddTemplate(addTemplateSpec{
+	return executeAddTemplate(addTemplateSpec{
 		kind:        "attributes",
 		subcommand:  "attributes",
 		targetName:  ".gitattributes",
 		bannerLabel: "merge curated .gitattributes template block",
 	}, args)
-	return nil
 }
 
 // executeAddTemplate is the shared pipeline. Kept to a single high-level
 // flow so the per-step helpers below can stay small and self-documenting.
-func executeAddTemplate(spec addTemplateSpec, args []string) {
-	flags, langs := parseAddTemplateArgs(spec, args)
+func executeAddTemplate(spec addTemplateSpec, args []string) *apperror.AppError {
+	flags, langs, err := parseAddTemplateArgs(spec, args)
+	if err != nil {
+		return err
+	}
 	if !insideGitRepo() {
-		fmt.Fprintln(os.Stderr, "  ✗ Not inside a Git repository.")
-		fmt.Fprintln(os.Stderr, "    Run this from the root of a repo (where .git/ lives).")
-		os.Exit(1)
+		return apperror.New("Not inside a Git repository", "E9000", nil)
 	}
 
-	resolved, err := resolveAddTemplates(spec.kind, langs)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+	resolved, err2 := resolveAddTemplates(spec.kind, langs)
+	if err2 != nil {
+		return apperror.Wrap(err2, "?", nil)
 	}
 
-	target, err := repoFilePath(spec.targetName)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not locate repo root: %v\n", err)
-		os.Exit(1)
+	target, err3 := repoFilePath(spec.targetName)
+	if err3 != nil {
+		return apperror.Wrap(err3, "? Could not locate repo root", nil)
 	}
 
 	tag := buildAddTag(spec.kind, langs)
@@ -98,20 +96,20 @@ func executeAddTemplate(spec addTemplateSpec, args []string) {
 	if flags.dryRun {
 		printAddTemplateDryRun(target, tag, body)
 
-		return
+		return nil
 	}
 
 	res, mergeErr := templates.Merge(target, tag, body)
 	if mergeErr != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not merge into %s: %v\n", target, mergeErr)
-		os.Exit(1)
+		return apperror.Wrap(mergeErr, "merge error", nil)
 	}
 	printAddTemplateSummary(spec, res)
+	return nil
 }
 
 // parseAddTemplateArgs separates `--dry-run` / `-h` from positional langs.
 // Empty langs is allowed — the pipeline still merges `common` alone.
-func parseAddTemplateArgs(spec addTemplateSpec, args []string) (addTemplateFlags, []string) {
+func parseAddTemplateArgs(spec addTemplateSpec, args []string) (addTemplateFlags, []string, *apperror.AppError) {
 	fs := flag.NewFlagSet("add "+spec.subcommand, flag.ExitOnError)
 	dryRun := fs.Bool("dry-run", false, "preview the merged "+spec.targetName+" block without writing anything")
 	if err := fs.Parse(args); err != nil {
@@ -119,7 +117,7 @@ func parseAddTemplateArgs(spec addTemplateSpec, args []string) (addTemplateFlags
 		os.Exit(1)
 	}
 
-	return addTemplateFlags{dryRun: *dryRun}, normalizeLangs(fs.Args())
+	return addTemplateFlags{dryRun: *dryRun}, normalizeLangs(fs.Args()), nil
 }
 
 // normalizeLangs lowercases, trims, and de-duplicates the language list

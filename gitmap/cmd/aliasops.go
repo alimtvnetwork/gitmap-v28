@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -12,8 +13,7 @@ import (
 // runAliasSet handles "alias set <alias> <slug>".
 func runAliasSet(args []string) error {
 	if len(args) < 2 {
-		fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
-		os.Exit(1)
+		return apperror.New(constants.ErrAliasEmpty, "E9000", nil)
 	}
 
 	alias := args[0]
@@ -78,8 +78,7 @@ func createAliasAndReturnCode(db *store.DB, alias string, repoID int64, slug str
 // runAliasRemove handles "alias remove <alias>".
 func runAliasRemove(args []string) error {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
-		os.Exit(1)
+		return apperror.New(constants.ErrAliasEmpty, "E9000", nil)
 	}
 
 	alias := args[0]
@@ -153,16 +152,14 @@ func printAliasList(aliases []store.AliasWithRepo) {
 // runAliasShow handles "alias show <alias>".
 func runAliasShow(args []string) error {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
-		os.Exit(1)
+		return apperror.New(constants.ErrAliasEmpty, "E9000", nil)
 	}
 
 	alias := args[0]
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 

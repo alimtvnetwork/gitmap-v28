@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
 )
@@ -39,10 +40,13 @@ type addLFSInstallFlags struct {
 }
 
 // runAddLFSInstall is the entry point dispatched from rootadd.go.
-func runAddLFSInstall(args []string) error {
+func runAddLFSInstall(args []string) *apperror.AppError {
 	checkHelp("add-lfs-install", args)
 
-	flags := parseAddLFSInstallFlags(args)
+	flags, err := parseAddLFSInstallFlags(args)
+	if err != nil {
+		return err
+	}
 
 	if !insideGitRepo() {
 		fmt.Fprintln(os.Stderr, "  ✗ Not inside a Git repository.")
@@ -55,16 +59,14 @@ func runAddLFSInstall(args []string) error {
 		os.Exit(1)
 	}
 
-	resolved, err := templates.Resolve("lfs", "common")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not resolve lfs/common template: %v\n", err)
-		os.Exit(1)
+	resolved, err2 := templates.Resolve("lfs", "common")
+	if err2 != nil {
+		return apperror.Wrap(err2, "? Could not resolve lfs/common template", nil)
 	}
 
-	target, err := gitattributesPath()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not locate repo root: %v\n", err)
-		os.Exit(1)
+	target, err3 := gitattributesPath()
+	if err3 != nil {
+		return apperror.Wrap(err3, "? Could not locate repo root", nil)
 	}
 
 	printAddLFSInstallBanner(flags.dryRun, resolved.Source, resolved.Path)
@@ -83,10 +85,9 @@ func runAddLFSInstall(args []string) error {
 			constants.ColorGreen, constants.ColorReset)
 	}
 
-	res, err := templates.Merge(target, addLFSInstallTag, resolved.Content)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not merge template into %s: %v\n", target, err)
-		os.Exit(1)
+	res, err4 := templates.Merge(target, addLFSInstallTag, resolved.Content)
+	if err4 != nil {
+		return apperror.Wrap(err4, "? Could not merge template", nil)
 	}
 
 	printAddLFSInstallSummary(res)
@@ -94,15 +95,14 @@ func runAddLFSInstall(args []string) error {
 }
 
 // parseAddLFSInstallFlags parses CLI flags. Currently only --dry-run.
-func parseAddLFSInstallFlags(args []string) addLFSInstallFlags {
+func parseAddLFSInstallFlags(args []string) (addLFSInstallFlags, *apperror.AppError) {
 	fs := flag.NewFlagSet("add lfs-install", flag.ExitOnError)
 	dryRun := fs.Bool("dry-run", false, "preview the merged .gitattributes without writing anything")
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Could not parse flags: %v\n", err)
-		os.Exit(1)
+		return addLFSInstallFlags{}, apperror.Wrap(err, "✗ Could not parse flags", nil)
 	}
 
-	return addLFSInstallFlags{dryRun: *dryRun}
+	return addLFSInstallFlags{dryRun: *dryRun}, nil
 }
 
 // gitattributesPath resolves the absolute path to .gitattributes at the

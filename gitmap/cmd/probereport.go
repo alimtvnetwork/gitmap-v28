@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/probe"
@@ -67,7 +68,7 @@ func makeProbeEntry(repo model.ScanRecord, r probe.Result) probeJSONEntry {
 func emitProbeJSON(entries []probeJSONEntry) {
 	if err := encodeProbeJSON(os.Stdout, entries); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 }
 

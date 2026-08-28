@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 func runChromeWhich(_ []string) error {
@@ -14,8 +16,7 @@ func runChromeWhich(_ []string) error {
 	statePath := filepath.Join(root, "Local State")
 	raw, err := os.ReadFile(statePath) //nolint:gosec
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "chrome which: ERROR read Local State: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome which: ERROR read Local State:", nil)
 	}
 	var doc struct {
 		Profile struct {
@@ -27,8 +28,7 @@ func runChromeWhich(_ []string) error {
 		} `json:"profile"`
 	}
 	if err := json.Unmarshal(raw, &doc); err != nil {
-		fmt.Fprintf(os.Stderr, "chrome which: ERROR parse Local State: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "chrome which: ERROR parse Local State:", nil)
 	}
 	fmt.Printf("\033[1;96mChrome User Data\033[0m %s\n", root)
 	if doc.Profile.LastUsed != "" {

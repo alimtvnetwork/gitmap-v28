@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -18,17 +19,15 @@ func runCloneAudit(cf CloneFlags) error {
 	source := resolveCloneShorthand(cf.Source)
 	if isDirectURL(source) {
 		fmt.Fprint(os.Stderr, constants.ErrCloneAuditDirectURL)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	report, err := cloner.PlanCloneAudit(source, cf.TargetDir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneAuditLoad, source, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrCloneAuditLoad, "E9000", nil)
 	}
 	if printErr := report.Print(os.Stdout); printErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneAuditLoad, source, printErr)
-		os.Exit(1)
+		return apperror.New(constants.ErrCloneAuditLoad, "E9000", nil)
 	}
 	return nil
 }

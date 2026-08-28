@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"regexp"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -86,7 +87,7 @@ func performCrossDirRelease(target, alias, version string, originalArgs []string
 	if err := os.Chdir(target); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAChdirFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	defer func() { _ = os.Chdir(originalDir) }()
 
@@ -140,7 +141,7 @@ func rebasePull(target string) {
 	if err := fetch.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRRFetchFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgRRRebasingFmt, target)
@@ -151,6 +152,6 @@ func rebasePull(target string) {
 	if err := pull.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRRRebaseFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 }

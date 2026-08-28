@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonepick"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -41,7 +42,7 @@ func runClonePickExecute(plan clonepick.Plan, noVSCodeSync bool, replayId int64)
 
 	if result.Status == clonepick.StatusFailed {
 		maybeExitOnCmdFaithfulMismatch()
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	// VS Code Project Manager sync. Result.Detail carries the

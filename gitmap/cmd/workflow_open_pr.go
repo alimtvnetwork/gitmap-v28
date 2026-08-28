@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -58,8 +59,7 @@ func runPR(args []string) error {
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "pull-requests: ERROR %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "pull-requests: ERROR", nil)
 	}
 	defer resp.Body.Close()
 	var body struct {
@@ -90,8 +90,7 @@ func runBlameStats(args []string) error {
 	}
 	out, err := exec.Command("git", "-C", root, "ls-files").Output()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "blame-stats: ERROR ls-files: %v\n", err)
-		os.Exit(1)
+		return apperror.Wrap(err, "blame-stats: ERROR ls-files:", nil)
 	}
 	totals := map[string]int{}
 	for _, f := range strings.Split(strings.TrimSpace(string(out)), "\n") {

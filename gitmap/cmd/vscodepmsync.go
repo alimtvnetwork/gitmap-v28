@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
 )
@@ -24,7 +24,7 @@ func runVSCodePMSync(args []string) error {
 
 	opts, err := parseVSCodePMSyncFlags(args)
 	if err != nil {
-		cliexit.Fail(constants.CmdVSCodePMSync, "parse-args", "", err, 2)
+		return apperror.Wrap(err, "parse-args", nil)
 	}
 
 	path, entries, ok := loadVSCodePMEntries(opts)

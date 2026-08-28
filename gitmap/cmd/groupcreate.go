@@ -3,8 +3,8 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -12,8 +12,7 @@ import (
 func runGroupCreate(args []string) error {
 	name, desc, color := parseGroupCreateFlags(args)
 	if len(name) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrGroupNameReq)
-		os.Exit(1)
+		return apperror.New(constants.ErrGroupNameReq, "E9000", nil)
 	}
 	executeGroupCreate(name, desc, color)
 	return nil
@@ -23,15 +22,13 @@ func runGroupCreate(args []string) error {
 func executeGroupCreate(name, desc, color string) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
 	}
 	defer db.Close()
 
 	_, err = db.CreateGroup(name, desc, color)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 	fmt.Printf(constants.MsgGroupCreated, name)
 }

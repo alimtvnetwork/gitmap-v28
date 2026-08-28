@@ -3,9 +3,8 @@ package cmd
 
 import (
 	"flag"
-	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -17,14 +16,12 @@ func runReleaseBranch(args []string) error {
 	_ = verbose
 
 	if len(branch) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrReleaseBranchUsage)
-		os.Exit(1)
+		return apperror.New(constants.ErrReleaseBranchUsage, "E9000", nil)
 	}
 
 	err := release.ExecuteFromBranch(branch, assets, notes, draft, dryRun, noCommit, yes)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBareFmt, nil)
 	}
 	return nil
 }

@@ -5,12 +5,13 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // runBookmarkSave saves a new bookmark from name + command + args/flags.
-func runBookmarkSave(args []string) error {
+func runBookmarkSave(args []string) *apperror.AppError {
 	if len(args) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkSaveUsage)
 		os.Exit(1)
@@ -40,7 +41,7 @@ func splitBookmarkArgs(args []string) (string, string) {
 }
 
 // saveBookmarkToDB persists the bookmark record.
-func saveBookmarkToDB(name, command, args, flags string) {
+func saveBookmarkToDB(name, command, args, flags string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkSave, err)
@@ -48,7 +49,9 @@ func saveBookmarkToDB(name, command, args, flags string) {
 	}
 	defer db.Close()
 
-	checkBookmarkNotExists(db, name)
+	if err := checkBookmarkNotExists(db, name); err != nil {
+		return err
+	}
 
 	record := model.BookmarkRecord{
 		Name:    name,
@@ -64,17 +67,17 @@ func saveBookmarkToDB(name, command, args, flags string) {
 	}
 
 	fmt.Printf(constants.MsgBookmarkSaved, name, command, args, flags)
+	return nil
 }
 
 // checkBookmarkNotExists exits with error if a bookmark name is taken.
 func checkBookmarkNotExists(db interface {
 	FindBookmarkByName(string) (model.BookmarkRecord, error)
-}, name string) {
+}, name string) *apperror.AppError {
 	_, err := db.FindBookmarkByName(name)
 	if err != nil {
-		return
+		return nil
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrBookmarkExists, name)
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 }

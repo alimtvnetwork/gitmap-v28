@@ -30,6 +30,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -40,8 +41,7 @@ func runDeterminismPrecheck(cfg regoldensFlags) error {
 	fmt.Fprint(os.Stderr, constants.MsgRegoldensPrecheckHeader)
 	captured := runPrecheckGoTest(cfg)
 	if precheckFoundNonDeterminism(captured) {
-		fmt.Fprintln(os.Stderr, constants.ErrRegoldensPrecheckFailed)
-		os.Exit(1)
+		return apperror.New(constants.ErrRegoldensPrecheckFailed, "E9000", nil)
 	}
 	fmt.Fprint(os.Stderr, constants.MsgRegoldensPrecheckPass)
 	return nil

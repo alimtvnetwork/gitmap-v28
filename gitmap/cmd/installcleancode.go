@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -38,8 +39,7 @@ func isCleanCodeAlias(tool string) bool {
 func runInstallCleanCode() error {
 	pwsh := resolvePowerShellBinary()
 	if pwsh == "" {
-		fmt.Fprintf(os.Stderr, constants.MsgCleanCodeNoPwsh, constants.DefaultCleanCodeURL)
-		os.Exit(1)
+		return apperror.Wrap(constants.DefaultCleanCodeURL, "constants.MsgCleanCodeNoPwsh", nil)
 	}
 
 	if runtime.GOOS != "windows" {
@@ -56,8 +56,7 @@ func runInstallCleanCode() error {
 	cmd.Stdin = os.Stdin
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrCleanCodeFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrCleanCodeFailed, nil)
 	}
 
 	fmt.Print(constants.MsgCleanCodeDone)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -21,13 +22,11 @@ func createTemplateFile() {
 	sample := buildSampleTemplate()
 	data, err := json.MarshalIndent(sample, "", constants.JSONIndent)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSEOCreateWrite, constants.SEOTemplateOutputFile, err)
-		os.Exit(1)
+		return apperror.Wrap(constants.SEOTemplateOutputFile, "constants.ErrSEOCreateWrite", nil)
 	}
 
 	if err := os.WriteFile(constants.SEOTemplateOutputFile, data, 0o644); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSEOCreateWrite, constants.SEOTemplateOutputFile, err)
-		os.Exit(1)
+		return apperror.Wrap(constants.SEOTemplateOutputFile, "constants.ErrSEOCreateWrite", nil)
 	}
 
 	fmt.Printf(constants.MsgSEOCreated, constants.SEOTemplateOutputFile)

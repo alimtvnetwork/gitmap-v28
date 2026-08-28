@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -84,7 +85,7 @@ func resolveMessages(flags seoWriteFlags) []commitMessage {
 
 	if flags.url == "" {
 		fmt.Fprint(os.Stderr, constants.ErrSEOURLRequired)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 
 	return loadTemplateMessages(flags)

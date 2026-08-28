@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -44,13 +45,11 @@ func writeLLMDocsFile(content, format string) {
 	fmt.Print(constants.MsgLLMDocsGenning)
 	wd, err := os.Getwd()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrLLMDocsWrite, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrLLMDocsWrite, nil)
 	}
 	outPath := filepath.Join(wd, "LLM"+llmDocsExt(format))
 	if writeErr := os.WriteFile(outPath, []byte(content), constants.FilePermission); writeErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrLLMDocsWrite, writeErr)
-		os.Exit(1)
+		return apperror.New(constants.ErrLLMDocsWrite, "E9000", nil)
 	}
 	fmt.Printf(constants.MsgLLMDocsWritten, outPath)
 }
@@ -61,7 +60,7 @@ func runLLMDocs(args []string) error {
 	opts, err := parseLLMDocsFlags(args)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	sectionSet := parseSections(opts.sections)
 	content := buildLLMOutput(opts.format, sectionSet)
@@ -97,8 +96,7 @@ func parseSections(raw string) map[string]bool {
 			continue
 		}
 		if !valid[s] {
-			fmt.Fprintf(os.Stderr, constants.ErrLLMDocsSections, s)
-			os.Exit(1)
+			return apperror.New(constants.ErrLLMDocsSections, "E9000", nil)
 		}
 		set[s] = true
 	}

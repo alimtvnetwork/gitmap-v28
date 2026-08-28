@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 )
@@ -19,10 +20,10 @@ import (
 //
 // We don't gate on `--help` here because each subcommand handler does
 // its own help check via checkHelp at the top.
-func runBranch(args []string) error {
+func runBranch(args []string) *apperror.AppError {
 	if len(args) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrBranchMissingSubcommand)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	sub, rest := args[0], args[1:]
 	switch sub {
@@ -31,8 +32,7 @@ func runBranch(args []string) error {
 
 		return nil
 	}
-	fmt.Fprintf(os.Stderr, constants.ErrBranchUnknownSubcommand, sub)
-	os.Exit(1)
+	return apperror.New(constants.ErrBranchUnknownSubcommand, "E9000", nil)
 	return nil
 }
 
@@ -54,7 +54,7 @@ func runBranchDefault(args []string) error {
 	checkHelp("branch", args)
 	if !gitutil.IsInsideWorkTree() {
 		fmt.Fprint(os.Stderr, constants.ErrBranchNotRepo)
-		os.Exit(1)
+		return apperror.New("fatal error", "E9000", nil)
 	}
 	target := gitutil.ResolveDefaultBranchName(".")
 	fmt.Printf(constants.MsgBranchDefaultSwitching, target)
@@ -63,8 +63,7 @@ func runBranchDefault(args []string) error {
 		fmt.Println(out)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrBranchDefaultFailed, target, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrBranchDefaultFailed, nil)
 	}
 	return nil
 }

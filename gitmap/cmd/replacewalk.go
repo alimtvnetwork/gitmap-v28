@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"bytes"
-	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -17,8 +17,7 @@ import (
 func repoRoot() string {
 	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrReplaceNotInRepo, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrReplaceNotInRepo, nil)
 	}
 	clean := filepath.Clean(filepath.FromSlash(strings.TrimSpace(string(out))))
 	return clean

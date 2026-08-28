@@ -3,8 +3,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 )
@@ -28,8 +28,7 @@ func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
 	}
 	target := pickSwitchTarget(result)
 	if target == "" {
-		fmt.Fprintln(os.Stderr, constants.ErrLatestBranchSwitchNoTarget)
-		os.Exit(1)
+		return apperror.New(constants.ErrLatestBranchSwitchNoTarget, "E9000", nil)
 	}
 	fmt.Printf(constants.MsgLatestBranchSwitching, target)
 	out, err := gitutil.CheckoutBranch(".", target)
@@ -37,8 +36,7 @@ func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
 		fmt.Println(out)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchSwitchFailed, target, err)
-		os.Exit(1)
+		return apperror.New(constants.ErrLatestBranchSwitchFailed, "E9000", nil)
 	}
 }
 

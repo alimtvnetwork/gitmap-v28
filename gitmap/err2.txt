@@ -1,0 +1,18 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\clustercommand.go:163:144: undefined: apperror
+cmd\clustercommand.go:178:1: missing return
+cmd\code.go:132:46: undefined: apperror
+cmd\code.go:144:1: missing return
+cmd\code.go:149:61: undefined: apperror
+cmd\code.go:174:1: missing return
+cmd\commit_push.go:119:25: cannot use shaFragment (variable of type string) as error value in argument to apperror.Wrap: string does not implement error (missing method Error)
+cmd\commit_push.go:143:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\commit_push.go:148:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\commit_push.go:153:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\commit_push.go:153:10: too many errors

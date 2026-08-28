@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 )
@@ -17,7 +18,7 @@ func requireInsideWorkTree() {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrGoModNotRepo)
-	os.Exit(1)
+	return apperror.New("fatal error", "E9000", nil)
 }
 
 // deriveSlug sanitizes a module path into a branch-safe slug.
@@ -53,8 +54,7 @@ func ensureBranchNotExists(branch string) {
 	}
 
 	if len(strings.TrimSpace(string(out))) > 0 {
-		fmt.Fprintf(os.Stderr, constants.ErrGoModBranchExists, branch)
-		os.Exit(1)
+		return apperror.New(constants.ErrGoModBranchExists, "E9000", nil)
 	}
 }
 
@@ -64,8 +64,7 @@ func createBranchAtHead(branch string) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGoModBranchExists, branch)
-		os.Exit(1)
+		return apperror.New(constants.ErrGoModBranchExists, "E9000", nil)
 	}
 }
 
@@ -113,8 +112,7 @@ func commitGoModChanges(oldPath, newPath string, fileCount int) {
 	commitCmd.Stderr = os.Stderr
 	err := commitCmd.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGoModCommitFailed, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrGoModCommitFailed, nil)
 	}
 }
 
@@ -128,8 +126,7 @@ func mergeGoModBranch(originalBranch, featureBranch, newPath string) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrGoModMergeConflict, featureBranch)
-		os.Exit(1)
+		return apperror.New(constants.ErrGoModMergeConflict, "E9000", nil)
 	}
 }
 

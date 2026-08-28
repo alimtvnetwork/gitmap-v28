@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -26,15 +26,13 @@ func runDoPending(args []string) error {
 func runDoPendingAll() error {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.WarnPendingDBOpen, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.WarnPendingDBOpen, nil)
 	}
 	defer db.Close()
 
 	tasks, err := db.ListPendingTasks()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrPendingTaskQuery, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.ErrPendingTaskQuery, nil)
 	}
 
 	if len(tasks) == 0 {
@@ -55,21 +53,18 @@ func runDoPendingAll() error {
 func runDoPendingSingle(idStr string) error {
 	taskID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrPendingTaskNotFound, 0)
-		os.Exit(1)
+		return apperror.New(constants.ErrPendingTaskNotFound, "E9000", nil)
 	}
 
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.WarnPendingDBOpen, err)
-		os.Exit(1)
+		return apperror.Wrap(err, constants.WarnPendingDBOpen, nil)
 	}
 	defer db.Close()
 
 	task, err := db.FindPendingTaskByID(taskID)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrPendingTaskNotFound, taskID)
-		os.Exit(1)
+		return apperror.New(constants.ErrPendingTaskNotFound, "E9000", nil)
 	}
 
 	fmt.Printf(constants.MsgPendingRetryOne, taskID)
