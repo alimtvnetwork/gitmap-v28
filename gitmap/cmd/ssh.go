@@ -11,14 +11,15 @@ import (
 )
 
 // runSSH handles the "ssh" subcommand and routes to sub-handlers.
-func runSSH(args []string) {
+func runSSH(args []string) error {
 	checkHelp("ssh", args)
 	if len(args) == 0 {
 		runSSHGenerate(args)
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
-		return
+		return nil
 	}
 	_ = dispatchSSH(context.Background(), args, nil)
+	return nil
 }
 
 func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) error {

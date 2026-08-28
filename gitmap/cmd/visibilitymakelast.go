@@ -26,14 +26,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/visibility"
 )
 
-func runMakeLastPublic(args []string) {
+func runMakeLastPublic(args []string) error {
 	runMakeLast(constants.VisibilityPublic, constants.CmdMakeLastPublic, args)
+	return nil
 }
-func runMakeLastPrivate(args []string) {
+func runMakeLastPrivate(args []string) error {
 	runMakeLast(constants.VisibilityPrivate, constants.CmdMakeLastPrivate, args)
+	return nil
 }
 
-func runMakeLast(target, cmdName string, args []string) {
+func runMakeLast(target, cmdName string, args []string) error {
 	checkHelp(cmdName, args)
 	if len(args) < 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrMakeLastMissingArg, cmdName)
@@ -64,6 +66,7 @@ func runMakeLast(target, cmdName string, args []string) {
 	changed, skipped, failed := tallyStatus(status)
 	fmt.Fprintf(os.Stdout, constants.MsgBulkSummaryFmt, changed, skipped, failed, 1)
 	os.Exit(bulkExitCode(changed, failed))
+	return nil
 }
 
 func parseMakeLastArgs(args []string) (string, string, bool) {

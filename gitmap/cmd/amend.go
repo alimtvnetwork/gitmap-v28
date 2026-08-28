@@ -21,11 +21,12 @@ type amendFlags struct {
 }
 
 // runAmend is the entry point for the amend command.
-func runAmend(args []string) {
+func runAmend(args []string) error {
 	checkHelp(constants.CmdAmend, args)
 	flags := parseAmendFlags(args)
 	validateAmendFlags(flags)
 	executeAmend(flags)
+	return nil
 }
 
 // parseAmendFlags parses command-line flags for amend.
@@ -97,7 +98,7 @@ func handleAmendDryRun(f amendFlags, commits []model.CommitEntry, originalBranch
 	returnToBranch(f, originalBranch)
 }
 
-func runAmendWorkflow(f amendFlags, commits []model.CommitEntry, targetBranch, mode, prevName, prevEmail, originalBranch string) {
+func runAmendWorkflow(f amendFlags, commits []model.CommitEntry, targetBranch, mode, prevName, prevEmail, originalBranch string) error {
 	fmt.Print(constants.MsgAmendWarnRewrite)
 	printAmendHeader(f, commits, targetBranch, prevName, prevEmail)
 	runFilterBranch(f, commits)
@@ -106,6 +107,7 @@ func runAmendWorkflow(f amendFlags, commits []model.CommitEntry, targetBranch, m
 	saveAmendToDB(f, commits, targetBranch, mode, prevName, prevEmail)
 	printAmendSummary(len(commits), auditPath, f.forcePush)
 	returnToBranch(f, originalBranch)
+	return nil
 }
 
 func printAmendSummary(commitCount int, auditPath string, forcePush bool) {

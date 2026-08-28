@@ -8,7 +8,7 @@ import (
 )
 
 // runProfile handles the "profile" subcommand routing.
-func runProfile(args []string) {
+func runProfile(args []string) error {
 	checkHelp("profile", args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
@@ -19,6 +19,7 @@ func runProfile(args []string) {
 	rest := args[1:]
 
 	routeProfileSub(sub, rest)
+	return nil
 }
 
 // routeProfileSub routes to the appropriate profile subcommand.

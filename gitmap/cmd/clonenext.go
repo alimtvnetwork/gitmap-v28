@@ -23,15 +23,15 @@ import (
 //
 //	clone-next, chdir back. See
 //	`clonenextcrossdir.go`.
-func runCloneNext(args []string) {
+func runCloneNext(args []string) error {
 	// v3.117.0: folder-arg dispatch runs FIRST so path-shaped tokens
 	// win over the release-alias resolver. Order matters — see
 	// spec/01-app/111-cn-folder-arg.md §Disambiguation.
 	if tryFolderArgCloneNext(args) {
-		return
+		return nil
 	}
 	if tryCrossDirCloneNext(args) {
-		return
+		return nil
 	}
 	checkHelp("clone-next", args)
 	cnFlags := parseCloneNextFlags(args)
@@ -53,12 +53,12 @@ func runCloneNext(args []string) {
 	isBatch := shouldRunBatch(cnFlags, currentWorkingDir())
 	if isBatch == true && cnFlags.DryRun == true {
 		previewDryRunBatch(cnFlags.CSVPath, cnFlags.All)
-		return
+		return nil
 	}
 	if isBatch == true && cnFlags.DryRun == false {
 		runCloneNextBatch(cnFlags.CSVPath, cnFlags.All, cnFlags.MaxConcurrency, cnFlags.NoProgress, cnFlags.ReportErrors)
 		maybeExitOnCmdFaithfulMismatch()
-		return
+		return nil
 	}
 
 	if len(cnFlags.VersionArg) == 0 {
@@ -198,6 +198,7 @@ func runCloneNext(args []string) {
 		fmt.Printf(constants.MsgCNDone, flattenedFolder)
 	}
 	maybeExitOnCmdFaithfulMismatch()
+	return nil
 }
 
 func initVerboseSafe(isVerbose bool) (*verbose.Logger, error) {

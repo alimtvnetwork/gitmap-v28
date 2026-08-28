@@ -11,7 +11,7 @@ import (
 )
 
 // runReleaseAliasPull runs `git pull --ff-only` in target. Aborts on failure.
-func runReleaseAliasPull(target string) {
+func runReleaseAliasPull(target string) error {
 	fmt.Printf(constants.MsgRAPullingFmt, target)
 
 	cmd := exec.Command(constants.GitBin, "pull", "--ff-only")
@@ -24,6 +24,7 @@ func runReleaseAliasPull(target string) {
 		fmt.Fprintln(os.Stderr)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // autoStashIfDirty stashes the working tree when dirty and returns the label

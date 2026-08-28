@@ -39,7 +39,7 @@ Examples:
 // runRm handles `gitmap rm`. Supports globs, comma-joined targets,
 // the -y/--yes auto-confirm flag, and removes the on-disk folder in
 // addition to the DB row.
-func runRm(args []string) {
+func runRm(args []string) error {
 	checkHelp("rm", args)
 	yes, dbOnly, rest := parseRmFlags(args)
 	targets := expandRmTargets(rest)
@@ -80,6 +80,7 @@ func runRm(args []string) {
 		os.Exit(0)
 	}
 	os.Exit(1)
+	return nil
 }
 
 func parseRmFlags(args []string) (bool, bool, []string) {

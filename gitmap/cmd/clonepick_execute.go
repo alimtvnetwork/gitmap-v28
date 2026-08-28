@@ -22,7 +22,7 @@ import (
 // sparse-checkout, and translates the Result to an exit code.
 // replayId is non-zero when the Plan came from --replay; on success
 // CreatedAt is bumped so most-recently-replayed sorts to the top.
-func runClonePickExecute(plan clonepick.Plan, noVSCodeSync bool, replayId int64) {
+func runClonePickExecute(plan clonepick.Plan, noVSCodeSync bool, replayId int64) error {
 	progress := io.Writer(os.Stderr)
 	if plan.Quiet {
 		progress = io.Discard
@@ -53,6 +53,7 @@ func runClonePickExecute(plan clonepick.Plan, noVSCodeSync bool, replayId int64)
 		WriteShellHandoff(result.Detail)
 	}
 	maybeExitOnCmdFaithfulMismatch()
+	return nil
 }
 
 // announceClonePickPersistence prints the saved/replayed line and,

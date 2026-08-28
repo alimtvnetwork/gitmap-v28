@@ -8,7 +8,7 @@ import (
 )
 
 // runTask handles the "task" subcommand routing.
-func runTask(args []string) {
+func runTask(args []string) error {
 	checkHelp("task", args)
 	if len(args) < 1 {
 		fmt.Fprintf(os.Stderr, constants.ErrTaskSubcommand, "")
@@ -19,6 +19,7 @@ func runTask(args []string) {
 	rest := args[1:]
 
 	routeTaskSub(sub, rest)
+	return nil
 }
 
 // routeTaskSub routes to the appropriate task subcommand.

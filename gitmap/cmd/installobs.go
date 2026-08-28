@@ -11,9 +11,10 @@ import (
 )
 
 // runOBSSettingsOnly syncs OBS Studio settings from the bundled settings folder.
-func runOBSSettingsOnly() {
+func runOBSSettingsOnly() error {
 	fmt.Println("  Syncing OBS Studio settings...")
 	syncOBSSettings()
+	return nil
 }
 
 // syncOBSSettings copies OBS Studio settings from the bundled folder.

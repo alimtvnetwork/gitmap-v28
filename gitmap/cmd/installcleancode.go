@@ -35,7 +35,7 @@ func isCleanCodeAlias(tool string) bool {
 // runInstallCleanCode pipes the published install.ps1 through PowerShell.
 // On Windows it prefers `powershell` (pre-installed); falls back to `pwsh`
 // (PowerShell 7+) on every platform.
-func runInstallCleanCode() {
+func runInstallCleanCode() error {
 	pwsh := resolvePowerShellBinary()
 	if pwsh == "" {
 		fmt.Fprintf(os.Stderr, constants.MsgCleanCodeNoPwsh, constants.DefaultCleanCodeURL)
@@ -61,6 +61,7 @@ func runInstallCleanCode() {
 	}
 
 	fmt.Print(constants.MsgCleanCodeDone)
+	return nil
 }
 
 // resolvePowerShellBinary returns the first available PowerShell on PATH,

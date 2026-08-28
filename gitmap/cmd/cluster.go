@@ -13,7 +13,7 @@ const (
 )
 
 // runCluster handles the "cluster" subcommand and routes to sub-handlers.
-func runCluster(args []string) {
+func runCluster(args []string) error {
 	checkHelp("cluster", args)
 	isEmptyArgs := len(args) == 0
 	if isEmptyArgs {
@@ -25,36 +25,37 @@ func runCluster(args []string) {
 	switch sub {
 	case constants.CmdClusterStatus:
 		runClusterStatus(args[1:])
-		return
+		return nil
 	case "history", "hi":
 		runClusterHistory(args[1:])
-		return
+		return nil
 	case "export":
 		runClusterExport(args[1:])
-		return
+		return nil
 	case "import":
 		runClusterImport(args[1:])
-		return
+		return nil
 	case "set-password":
 		runClusterSetPassword(args[1:])
-		return
+		return nil
 	case "reset-password":
 		runClusterResetPassword(args[1:])
-		return
+		return nil
 	case "nodes", "ls":
 		runClusterNodes(args[1:])
-		return
+		return nil
 	case "remove", "rm":
 		runClusterRemove(args[1:])
-		return
+		return nil
 	case "audit-clean":
 		runClusterAuditClean(args[1:])
-		return
+		return nil
 	case "stats":
 		runClusterStats(args[1:])
-		return
+		return nil
 	}
 
 	fmt.Fprintf(os.Stderr, unknownCmdMsg, sub)
 	os.Exit(1)
+	return nil
 }

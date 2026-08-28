@@ -35,22 +35,24 @@ type selfInstallFlagVars struct {
 }
 
 // runSelfInstall is the entry point for `gitmap self-install`.
-func runSelfInstall(args []string) {
+func runSelfInstall(args []string) error {
 	checkHelp(constants.CmdSelfInstall, args)
 	opts := parseSelfInstallFlags(args)
 	release := acquireSelfInstallLock(opts)
 	defer release()
 
 	runSelfInstallWorkflow(opts)
+	return nil
 }
 
-func runSelfInstallWorkflow(opts selfInstallOpts) {
+func runSelfInstallWorkflow(opts selfInstallOpts) error {
 	dir := resolveSelfInstallDir(opts)
 	printSelfInstallStart(dir)
 	executeSelfInstallScript(dir, opts)
 	fmt.Print(constants.MsgSelfInstallDone)
 	autoRunSetupAfterInstall()
 	fmt.Print(constants.MsgSelfInstallReminder)
+	return nil
 }
 
 func printSelfInstallStart(dir string) {

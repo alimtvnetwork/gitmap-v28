@@ -19,7 +19,7 @@ import (
 const maxDocsSiteSize = 100 * 1024 * 1024
 
 // runHelpDashboard serves the docs site locally.
-func runHelpDashboard(args []string) {
+func runHelpDashboard(args []string) error {
 	checkHelp("help-dashboard", args)
 
 	port := parseHelpDashboardFlags(args)
@@ -40,14 +40,14 @@ func runHelpDashboard(args []string) {
 	}
 	if isMissing == true && ensureErr != nil {
 		openHostedDocsFallback()
-		return
+		return nil
 	}
 
 	_, err = os.Stat(docsDir)
 	if os.IsNotExist(err) == true {
 		fmt.Fprintf(os.Stderr, constants.ErrHDNoDocsDir, docsDir)
 		openHostedDocsFallback()
-		return
+		return nil
 	}
 
 	distDir := filepath.Join(docsDir, constants.HDDistDir)
@@ -55,11 +55,12 @@ func runHelpDashboard(args []string) {
 	info, err := os.Stat(distDir)
 	if err == nil && info.IsDir() == true {
 		serveStatic(distDir, port)
-		return
+		return nil
 	}
 
 	fmt.Print(constants.MsgHDNoDistFallback)
 	serveDev(docsDir, port)
+	return nil
 }
 
 // ensureDocsSite downloads and extracts the docs site zip if it is missing.

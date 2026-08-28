@@ -22,7 +22,7 @@ var customToolUrls = map[string]struct{ win, unix string }{
 	},
 }
 
-func runInstallCustomTool(tool string) {
+func runInstallCustomTool(tool string) error {
 	urls, ok := customToolUrls[tool]
 	if !ok {
 		fmt.Fprintf(os.Stderr, "Unknown custom tool: %s\n", tool)
@@ -37,6 +37,7 @@ func runInstallCustomTool(tool string) {
 		fmt.Fprintf(os.Stderr, "Failed to install %s: %v\n", tool, err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 func buildCustomToolCmd(winUrl, unixUrl string) *exec.Cmd {

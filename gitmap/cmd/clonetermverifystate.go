@@ -105,9 +105,9 @@ func resetCmdFaithfulState() {
 // exit non-zero when --verify-cmd-faithful-exit-on-mismatch is set.
 // It does NOT abort here — every row gets a chance to print its
 // block before the run-end exit fires.
-func runCmdFaithfulCheck(in CloneTermBlockInput, executorArgv []string) {
+func runCmdFaithfulCheck(in CloneTermBlockInput, executorArgv []string) error {
 	if !cmdFaithfulVerifyEnabled() {
-		return
+		return nil
 	}
 	report := VerifyCmdFaithful(in, executorArgv)
 	if report.HasMismatch() {
@@ -120,4 +120,5 @@ func runCmdFaithfulCheck(in CloneTermBlockInput, executorArgv []string) {
 			"  Warning: --verify-cmd-faithful: failed to write report: " +
 				err.Error() + "\n")
 	}
+	return nil
 }

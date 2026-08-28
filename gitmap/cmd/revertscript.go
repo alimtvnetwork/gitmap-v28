@@ -18,7 +18,7 @@ import (
 // The PS template (RevertPSPostActions) intentionally does NOT call
 // `update-cleanup` synchronously — that would race against this still-alive
 // handoff process and emit two scary "Access is denied" lines.
-func runRevertRunner() {
+func runRevertRunner() error {
 	repoPath := constants.RepoPath
 	if len(repoPath) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrNoRepoPath)
@@ -29,6 +29,7 @@ func runRevertRunner() {
 	fmt.Printf(constants.MsgRevertStarting)
 	executeRevert(repoPath)
 	scheduleDeployedCleanupHandoff()
+	return nil
 }
 
 // executeRevert writes a temp PS1 script and runs it.
@@ -64,7 +65,7 @@ func buildRevertScript(repoPath, runPS1 string) string {
 }
 
 // runRevertPS executes the PowerShell script with output piped to terminal.
-func runRevertPS(scriptPath string) {
+func runRevertPS(scriptPath string) error {
 	cmd := exec.Command(constants.PSBin, constants.PSExecPolicy, constants.PSBypass,
 		constants.PSNoProfile, constants.PSNoLogo, constants.PSFile, scriptPath)
 	cmd.Stdout = os.Stdout
@@ -79,6 +80,7 @@ func runRevertPS(scriptPath string) {
 	}
 
 	fmt.Printf(constants.MsgRevertDone)
+	return nil
 }
 
 // logRevertResult logs the revert script exit status if verbose is active.

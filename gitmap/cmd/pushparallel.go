@@ -14,7 +14,7 @@ import (
 // stopOnFail is honored: once any worker reports a failure, the dispatcher
 // drains the queue without spawning more work and returning workers exit
 // after their in-flight task finishes.
-func runPushParallel(records []model.ScanRecord, prog *cloner.BatchProgress, parallel int, stopOnFail bool) {
+func runPushParallel(records []model.ScanRecord, prog *cloner.BatchProgress, parallel int, stopOnFail bool) error {
 	if parallel < 1 {
 		parallel = 1
 	}
@@ -32,6 +32,7 @@ func runPushParallel(records []model.ScanRecord, prog *cloner.BatchProgress, par
 	startPushWorkers(parallel, jobs, prog, &progMu, &wg, stopOnFail, &stopped)
 	dispatchPushJobs(records, jobs, &progMu, &stopped)
 	wg.Wait()
+	return nil
 }
 
 // startPushWorkers spins up `count` workers, each draining the jobs channel
@@ -74,13 +75,13 @@ func pushWorker(jobs <-chan model.ScanRecord, prog *cloner.BatchProgress,
 // runOnePushJob handles a single record under the progress mutex. Sets
 // *stopped when a failure occurs and stopOnFail is enabled.
 func runOnePushJob(rec model.ScanRecord, prog *cloner.BatchProgress,
-	progMu *sync.Mutex, stopOnFail bool, stopped *bool) {
+	progMu *sync.Mutex, stopOnFail bool, stopped *bool) error {
 	if cloner.IsMissingRepo(rec.AbsolutePath) {
 		progMu.Lock()
 		prog.BeginItem(rec.RepoName)
 		prog.Skip(rec.RepoName)
 		progMu.Unlock()
-		return
+		return nil
 	}
 
 	progMu.Lock()
@@ -98,7 +99,7 @@ func runOnePushJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 	}
 	if result.IsSuccess == false {
 		progMu.Unlock()
-		return
+		return nil
 	}
 	if result.Notes == "up-to-date" {
 		prog.UpToDate(rec.RepoName)
@@ -106,4 +107,5 @@ func runOnePushJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 		prog.Succeed(rec.RepoName)
 	}
 	progMu.Unlock()
+	return nil
 }

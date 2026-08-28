@@ -7,7 +7,7 @@ import (
 )
 
 // runInstalledDir prints the directory and full path of the active gitmap binary.
-func runInstalledDir() {
+func runInstalledDir() error {
 	selfPath, err := os.Executable()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Could not resolve executable path: %v\n", err)
@@ -29,4 +29,5 @@ func runInstalledDir() {
 	fmt.Printf("\n  📂 Installed directory\n\n")
 	fmt.Printf("  Binary:    %s\n", absPath)
 	fmt.Printf("  Directory: %s\n\n", dir)
+	return nil
 }

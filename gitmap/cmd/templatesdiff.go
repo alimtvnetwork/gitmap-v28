@@ -44,7 +44,7 @@ const (
 // Compares the on-disk gitmap-managed block (if any) against what
 // `add <kind> <lang>` would write, prints unified-style hunks, and exits
 // 0 / 1 / 2 per standard diff(1) conventions for script friendliness.
-func runTemplatesDiff(args []string) {
+func runTemplatesDiff(args []string) error {
 	lang, kind, cwd := parseTemplatesDiffFlags(args)
 	if lang == "" {
 		fmt.Fprint(os.Stderr, errDiffLangRequired)
@@ -61,6 +61,7 @@ func runTemplatesDiff(args []string) {
 		os.Exit(exitDiffChanged)
 	}
 	os.Exit(exitDiffNoChange)
+	return nil
 }
 
 // parseTemplatesDiffFlags pulls --lang/--kind/--cwd out of args. All

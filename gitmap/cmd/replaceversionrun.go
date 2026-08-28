@@ -8,7 +8,7 @@ import (
 )
 
 // runReplaceLiteral implements `gitmap replace "<old>" "<new>"`.
-func runReplaceLiteral(oldS, newS string, opts replaceOpts) {
+func runReplaceLiteral(oldS, newS string, opts replaceOpts) error {
 	if oldS == "" {
 		fmt.Fprint(os.Stderr, constants.ErrReplaceEmptyOld)
 		os.Exit(1)
@@ -23,21 +23,22 @@ func runReplaceLiteral(oldS, newS string, opts replaceOpts) {
 
 	if total == 0 {
 		fmt.Print(constants.MsgReplaceNoMatches)
-		return
+		return nil
 	}
 	if opts.dryRun || !confirmLiteral(hits, total, opts) {
-		return
+		return nil
 	}
 	commitHits(hits)
+	return nil
 }
 
 // runReplaceVersion implements `-N` and `all` modes. n==0 means all.
-func runReplaceVersion(n int, opts replaceOpts, isAll bool) {
+func runReplaceVersion(n int, opts replaceOpts, isAll bool) error {
 	base, k := detectVersion()
 	targets := versionTargets(k, n)
 	if len(targets) == 0 {
 		fmt.Print(constants.MsgReplaceAlreadyAtV1)
-		return
+		return nil
 	}
 	root := repoRoot()
 	files := loadRepoFiles(root, opts.exts, opts.extCaseIns)
@@ -46,12 +47,13 @@ func runReplaceVersion(n int, opts replaceOpts, isAll bool) {
 	fmt.Printf(constants.MsgReplaceSummary, len(hits), total)
 	if total == 0 {
 		fmt.Print(constants.MsgReplaceNoMatches)
-		return
+		return nil
 	}
 	if opts.dryRun || !confirmVersion(targets, k, opts, isAll) {
-		return
+		return nil
 	}
 	commitHits(hits)
+	return nil
 }
 
 // scanVersionTargets runs one scan per target version, accumulating

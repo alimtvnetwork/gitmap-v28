@@ -21,20 +21,22 @@ const (
 )
 
 // runHistoryPurge is the dispatch entry for `history-purge` / `hp`.
-func runHistoryPurge(args []string) {
+func runHistoryPurge(args []string) error {
 	checkHelp(constants.CmdHistoryPurge, args)
 	runHistoryRewrite(historyModePurge, args)
+	return nil
 }
 
 // runHistoryPin is the dispatch entry for `history-pin` / `hpin`.
-func runHistoryPin(args []string) {
+func runHistoryPin(args []string) error {
 	checkHelp(constants.CmdHistoryPin, args)
 	runHistoryRewrite(historyModePin, args)
+	return nil
 }
 
 // runHistoryRewrite is the shared phase pipeline for both commands.
 // Each phase is its own function so this stays under 15 lines.
-func runHistoryRewrite(mode historyMode, args []string) {
+func runHistoryRewrite(mode historyMode, args []string) error {
 	opts, paths := parseHistoryArgs(args)
 	opts.modeLabel = historyModeLabel(mode)
 	opts.pathCount = len(paths)
@@ -49,9 +51,10 @@ func runHistoryRewrite(mode historyMode, args []string) {
 
 	if opts.dryRun {
 		fmt.Fprintf(os.Stdout, constants.HistoryMsgDryRunDone, sandbox)
-		return
+		return nil
 	}
 	finalizePush(sandbox, originURL, opts)
+	return nil
 }
 
 // historyModeLabel returns a short human label used in the confirm

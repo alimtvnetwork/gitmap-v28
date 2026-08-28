@@ -19,7 +19,7 @@ import (
 var versionLikeArgPattern = regexp.MustCompile(`^v?\d+(\.\d+){0,2}(-[A-Za-z0-9.]+)?$`)
 
 // runReleasePending handles the 'release-pending' command.
-func runReleasePending(args []string) {
+func runReleasePending(args []string) error {
 	checkHelp("release-pending", args)
 	printCanonicalCmdBanner(constants.CmdReleasePending, constants.CmdReleasePendingAlias)
 	rejectVersionArgOnPending(args)
@@ -31,6 +31,7 @@ func runReleasePending(args []string) {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // printCanonicalCmdBanner prints "→ Running: gitmap <canonical> (alias: <alias>)"

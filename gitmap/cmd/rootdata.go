@@ -5,7 +5,7 @@ import (
 )
 
 // dispatchData routes data management, history, profiles, and TUI commands.
-func dispatchData(command string) bool {
+func dispatchData(command string) (bool, error) {
 	return runDispatchTable(command, dataDispatchEntries())
 }
 
@@ -21,46 +21,46 @@ func dataDispatchEntries() []dispatchEntry {
 
 func dataListingEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdList, constants.CmdListAlias}, func() { runList(argsTail()) }},
-		{[]string{constants.CmdGroup, constants.CmdGroupAlias}, func() { runGroup(argsTail()) }},
-		{[]string{constants.CmdMultiGroup, constants.CmdMultiGroupAlias}, func() { runMultiGroup(argsTail()) }},
-		{[]string{constants.CmdHistory, constants.CmdHistoryAlias}, func() { runHistory(argsTail()) }},
-		{[]string{constants.CmdHistoryReset, constants.CmdHistoryResetAlias}, func() { runHistoryReset(argsTail()) }},
-		{[]string{constants.CmdStats, constants.CmdStatsAlias}, func() { runStats(argsTail()) }},
-		{[]string{constants.CmdBookmark, constants.CmdBookmarkAlias}, func() { runBookmark(argsTail()) }},
+		{[]string{constants.CmdList, constants.CmdListAlias}, func() error { return runList(argsTail()) }},
+		{[]string{constants.CmdGroup, constants.CmdGroupAlias}, func() error { return runGroup(argsTail()) }},
+		{[]string{constants.CmdMultiGroup, constants.CmdMultiGroupAlias}, func() error { return runMultiGroup(argsTail()) }},
+		{[]string{constants.CmdHistory, constants.CmdHistoryAlias}, func() error { return runHistory(argsTail()) }},
+		{[]string{constants.CmdHistoryReset, constants.CmdHistoryResetAlias}, func() error { return runHistoryReset(argsTail()) }},
+		{[]string{constants.CmdStats, constants.CmdStatsAlias}, func() error { return runStats(argsTail()) }},
+		{[]string{constants.CmdBookmark, constants.CmdBookmarkAlias}, func() error { return runBookmark(argsTail()) }},
 	}
 }
 
 func dataProfileEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdExport, constants.CmdExportAlias}, func() { runExport(argsTail()) }},
-		{[]string{constants.CmdImport, constants.CmdImportAlias}, func() { runImport(argsTail()) }},
-		{[]string{"import-export", "ie"}, func() { runImportExport(argsTail()) }},
-		{[]string{constants.CmdProfile, constants.CmdProfileAlias}, func() { runProfile(argsTail()) }},
-		{[]string{constants.CmdDiffProfiles, constants.CmdDiffProfilesAlias}, func() { runDiffProfiles(argsTail()) }},
-		{[]string{constants.CmdCD, constants.CmdCDAlias}, func() { runCD(argsTail()) }},
-		{[]string{constants.CmdWatch, constants.CmdWatchAlias}, func() { runWatch(argsTail()) }},
-		{[]string{constants.CmdInteractive, constants.CmdInteractiveAlias}, func() { runInteractive() }},
+		{[]string{constants.CmdExport, constants.CmdExportAlias}, func() error { return runExport(argsTail()) }},
+		{[]string{constants.CmdImport, constants.CmdImportAlias}, func() error { return runImport(argsTail()) }},
+		{[]string{"import-export", "ie"}, func() error { return runImportExport(argsTail()) }},
+		{[]string{constants.CmdProfile, constants.CmdProfileAlias}, func() error { return runProfile(argsTail()) }},
+		{[]string{constants.CmdDiffProfiles, constants.CmdDiffProfilesAlias}, func() error { return runDiffProfiles(argsTail()) }},
+		{[]string{constants.CmdCD, constants.CmdCDAlias}, func() error { return runCD(argsTail()) }},
+		{[]string{constants.CmdWatch, constants.CmdWatchAlias}, func() error { return runWatch(argsTail()) }},
+		{[]string{constants.CmdInteractive, constants.CmdInteractiveAlias}, func() error { return runInteractive() }},
 	}
 }
 
 func dataDatabaseEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdDBReset}, func() { runDBReset(argsTail()) }},
-		{[]string{constants.CmdReset}, func() { runReset(argsTail()) }},
-		{[]string{constants.CmdDBMigrate, constants.CmdDBMigrateAlias}, func() { runDBMigrate(argsTail()) }},
-		{[]string{constants.CmdAmend, constants.CmdAmendAlias}, func() { runAmend(argsTail()) }},
-		{[]string{constants.CmdAmendList, constants.CmdAmendListAlias}, func() { runAmendList(argsTail()) }},
-		{[]string{constants.CmdDashboard, constants.CmdDashboardAlias}, func() { runDashboard(argsTail()) }},
-		{[]string{constants.CmdVersionHistory, constants.CmdVersionHistoryAlias}, func() { runVersionHistory(argsTail()) }},
+		{[]string{constants.CmdDBReset}, func() error { return runDBReset(argsTail()) }},
+		{[]string{constants.CmdReset}, func() error { return runReset(argsTail()) }},
+		{[]string{constants.CmdDBMigrate, constants.CmdDBMigrateAlias}, func() error { return runDBMigrate(argsTail()) }},
+		{[]string{constants.CmdAmend, constants.CmdAmendAlias}, func() error { return runAmend(argsTail()) }},
+		{[]string{constants.CmdAmendList, constants.CmdAmendListAlias}, func() error { return runAmendList(argsTail()) }},
+		{[]string{constants.CmdDashboard, constants.CmdDashboardAlias}, func() error { return runDashboard(argsTail()) }},
+		{[]string{constants.CmdVersionHistory, constants.CmdVersionHistoryAlias}, func() error { return runVersionHistory(argsTail()) }},
 	}
 }
 
 func dataExecutionEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{"execute", "exec"}, func() { runExecuteCmd(argsTail()) }},
-		{[]string{"macro", "m"}, func() { runMacroCmd(argsTail()) }},
-		{[]string{"record", "rec"}, func() { runMacroCmd(append([]string{"record"}, argsTail()...)) }},
-		{[]string{"mv", "move"}, func() { runMove(argsTail()) }},
+		{[]string{"execute", "exec"}, func() error { return runExecuteCmd(argsTail()) }},
+		{[]string{"macro", "m"}, func() error { return runMacroCmd(argsTail()) }},
+		{[]string{"record", "rec"}, func() error { return runMacroCmd(append([]string{"record"}, argsTail()...)) }},
+		{[]string{"mv", "move"}, func() error { return runMove(argsTail()) }},
 	}
 }

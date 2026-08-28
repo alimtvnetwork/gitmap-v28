@@ -15,58 +15,62 @@ func isFlagToken(arg string) bool {
 }
 
 // dispatchUtility routes setup, update, doctor, and other utility commands.
-func dispatchUtility(command string) bool {
+func dispatchUtility(command string) (bool, error) {
 	return runDispatchTable(command, utilityDispatchEntries())
 }
 
 // utilityDispatchEntries returns the routing table for utility commands.
 func utilityDispatchEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdUpdate}, func() { checkHelp("update", argsTail()); runUpdate() }},
-		{[]string{constants.CmdUpdateRunner}, func() { runUpdateRunner() }},
-		{[]string{constants.CmdUpdateCleanup}, func() { runUpdateCleanup() }},
+		{[]string{constants.CmdUpdate}, func() error { checkHelp("update", argsTail()); return runUpdate() }},
+		{[]string{constants.CmdUpdateRunner}, func() error { return runUpdateRunner() }},
+		{[]string{constants.CmdUpdateCleanup}, func() error { return runUpdateCleanup() }},
 		{
 			[]string{constants.CmdInstalledDir, constants.CmdInstalledDirAlias},
-			func() { checkHelp("installed-dir", argsTail()); runInstalledDir() },
+			func() error { checkHelp("installed-dir", argsTail()); return runInstalledDir() },
 		},
-		{[]string{constants.CmdRevert}, func() { runRevert(argsTail()) }},
-		{[]string{constants.CmdRm, constants.CmdRmAlias, constants.CmdRmAlias2}, func() { runRm(argsTail()) }},
-		{[]string{constants.CmdRevertRunner}, func() { runRevertRunner() }},
+		{[]string{constants.CmdRevert}, func() error { return runRevert(argsTail()) }},
+		{[]string{constants.CmdRm, constants.CmdRmAlias, constants.CmdRmAlias2}, func() error { return runRm(argsTail()) }},
+		{[]string{constants.CmdRevertRunner}, func() error { return runRevertRunner() }},
 		{
 			[]string{constants.CmdVersion, constants.CmdVersionAlias},
-			func() { checkHelp("version", argsTail()); fmt.Printf(constants.MsgVersionFmt, constants.Version) },
+			func() error {
+				checkHelp("version", argsTail())
+				fmt.Printf(constants.MsgVersionFmt, constants.Version)
+				return nil
+			},
 		},
 		{[]string{constants.CmdHelp}, runHelpDispatch},
-		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() { runDocs(argsTail()) }},
-		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() { runHelpDashboard(argsTail()) }},
-		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias}, func() { runLLMDocs(argsTail()) }},
-		{[]string{constants.CmdSetSourceRepo}, func() { runSetSourceRepo() }},
-		{[]string{constants.CmdSf}, func() { runSf(argsTail()) }},
-		{[]string{constants.CmdProbe}, func() { runProbe(argsTail()) }},
-		{[]string{"vscode", "vsc"}, func() { runVSCode(argsTail()) }},
-		{[]string{constants.CmdFindNext, constants.CmdFindNextAlias}, func() { runFindNext(argsTail()) }},
-		{[]string{constants.CmdVSCodePMPath, constants.CmdVSCodePMPathAlias}, func() { runVSCodePMPath(argsTail()) }},
-		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() { runVSCodeWorkspace(argsTail()) }},
-		{[]string{constants.CmdLFSCommon, constants.CmdLFSCommonAlias}, func() { runLFSCommon(argsTail()) }},
-		{[]string{constants.CmdReinstall}, func() { runReinstall(argsTail()) }},
-		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() { checkHelp("whoami", argsTail()); runWhoAmI(argsTail()) }},
-		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() { checkHelp("ssh-bind", argsTail()); runSSHBind(argsTail()) }},
-		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() { checkHelp("fix-auth", argsTail()); runFixAuth(argsTail()) }},
+		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return runDocs(argsTail()) }},
+		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
+		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias}, func() error { return runLLMDocs(argsTail()) }},
+		{[]string{constants.CmdSetSourceRepo}, func() error { return runSetSourceRepo() }},
+		{[]string{constants.CmdSf}, func() error { return runSf(argsTail()) }},
+		{[]string{constants.CmdProbe}, func() error { return runProbe(argsTail()) }},
+		{[]string{"vscode", "vsc"}, func() error { return runVSCode(argsTail()) }},
+		{[]string{constants.CmdFindNext, constants.CmdFindNextAlias}, func() error { return runFindNext(argsTail()) }},
+		{[]string{constants.CmdVSCodePMPath, constants.CmdVSCodePMPathAlias}, func() error { return runVSCodePMPath(argsTail()) }},
+		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() error { return runVSCodeWorkspace(argsTail()) }},
+		{[]string{constants.CmdLFSCommon, constants.CmdLFSCommonAlias}, func() error { return runLFSCommon(argsTail()) }},
+		{[]string{constants.CmdReinstall}, func() error { return runReinstall(argsTail()) }},
+		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
+		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
+		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
 	}
 }
 
 // runHelpDispatch handles the `help` subcommand including topic
 // help, --groups, --compact, and the default usage screen.
-func runHelpDispatch() {
+func runHelpDispatch() error {
 	hasTopic := len(os.Args) >= 3 && isFlagToken(os.Args[2]) == false
 	if hasTopic == true {
 		dispatchHelpTopic(os.Args[2])
-		return
+		return nil
 	}
 
 	if hasFlag(constants.FlagJSON) == true {
 		printUsageJSON(resolveFilterQuery())
-		return
+		return nil
 	}
 
 	q := resolveFilterQuery()
@@ -74,10 +78,11 @@ func runHelpDispatch() {
 	if needsFilter == true {
 		printUsageFiltered(q)
 
-		return
+		return nil
 	}
 
 	printUsage()
+	return nil
 }
 
 // dispatchHelpTopic renders help for a named topic, falling back to filtered

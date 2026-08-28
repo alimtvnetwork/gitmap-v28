@@ -10,7 +10,7 @@ import (
 	"sort"
 )
 
-func runChromeDiff(args []string) {
+func runChromeDiff(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, "chrome diff: ERROR usage: gitmap chrome diff <A> <B>")
 		os.Exit(2)
@@ -30,6 +30,7 @@ func runChromeDiff(args []string) {
 
 	bmA, bmB := collectBookmarkURLs(a.Path), collectBookmarkURLs(b.Path)
 	printSetDiff("bookmarks", bmA, bmB)
+	return nil
 }
 
 func listChromeExtensions(profile string) map[string]bool {

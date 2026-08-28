@@ -59,13 +59,13 @@ func parseCGFlags(args []string) cgOptions {
 	return opts
 }
 
-func runCG(args []string) {
+func runCG(args []string) error {
 	opts := parseCGFlags(args)
 
 	repos := resolveCGRepos(opts)
 	if len(repos) == 0 {
 		fmt.Println("No repositories to process.")
-		return
+		return nil
 	}
 
 	switch opts.Action {
@@ -102,6 +102,7 @@ func runCG(args []string) {
 		fmt.Fprintf(os.Stderr, "Unknown action: %s\n", opts.Action)
 		os.Exit(1)
 	}
+	return nil
 }
 
 func resolveCGRepos(opts cgOptions) []string {

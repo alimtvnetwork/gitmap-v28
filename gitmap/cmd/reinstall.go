@@ -22,7 +22,7 @@ type reinstallOpts struct {
 // runReinstall is the entry point for `gitmap reinstall`. It picks an
 // install path (repo-script vs self-uninstall+self-install), prompts
 // for confirmation unless --yes, then delegates.
-func runReinstall(args []string) {
+func runReinstall(args []string) error {
 	checkHelp(constants.CmdReinstall, args)
 	opts := parseReinstallFlags(args)
 	mode, detected := resolveReinstallMode(opts.Mode)
@@ -33,6 +33,7 @@ func runReinstall(args []string) {
 	}
 	dispatchReinstall(mode)
 	fmt.Print(constants.MsgReinstallDone)
+	return nil
 }
 
 // parseReinstallFlags reads --mode / --yes / -y.

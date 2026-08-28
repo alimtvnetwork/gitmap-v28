@@ -21,14 +21,14 @@ import (
 //     `gitmap self-uninstall`. Flags pass through verbatim, so e.g.
 //     `gitmap uninstall --confirm --keep-data` works the same as
 //     `gitmap self-uninstall --confirm --keep-data`.
-func runUninstall(args []string) {
+func runUninstall(args []string) error {
 	checkHelp("uninstall", args)
 
 	lacksPositionalToolArg := !hasPositionalToolArg(args)
 	if lacksPositionalToolArg {
 		runSelfUninstall(args)
 
-		return
+		return nil
 	}
 
 	fs := flag.NewFlagSet("uninstall", flag.ExitOnError)
@@ -45,7 +45,7 @@ func runUninstall(args []string) {
 		// Defensive — hasPositionalToolArg already filtered this case.
 		runSelfUninstall(args)
 
-		return
+		return nil
 	}
 
 	validateToolName(tool)
@@ -53,7 +53,7 @@ func runUninstall(args []string) {
 	if tool == constants.ToolCtx {
 		runUninstallCtx()
 
-		return
+		return nil
 	}
 
 	db, err := openDB()
@@ -71,7 +71,7 @@ func runUninstall(args []string) {
 	}
 
 	if !force && !confirmUninstall(tool) {
-		return
+		return nil
 	}
 
 	manager := resolveUninstallManager(db, tool)
@@ -80,7 +80,7 @@ func runUninstall(args []string) {
 	if dryRun {
 		fmt.Printf(constants.MsgUninstallDryCmd, strings.Join(uninstallCmd, " "))
 
-		return
+		return nil
 	}
 
 	fmt.Printf(constants.MsgUninstallRemoving, tool)
@@ -95,6 +95,7 @@ func runUninstall(args []string) {
 	}
 
 	fmt.Printf(constants.MsgUninstallSuccess, tool)
+	return nil
 }
 
 // confirmUninstall prompts the user for confirmation.

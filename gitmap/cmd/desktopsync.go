@@ -13,12 +13,13 @@ import (
 )
 
 // runDesktopSync handles the "desktop-sync" subcommand.
-func runDesktopSync() {
+func runDesktopSync() error {
 	outputDir := constants.DefaultOutputFolder
 	jsonPath := filepath.Join(outputDir, constants.DefaultJSONFile)
 	validateDesktopSyncPaths(outputDir, jsonPath)
 	records := loadDesktopRecords(jsonPath)
 	syncToDesktop(records, jsonPath)
+	return nil
 }
 
 // validateDesktopSyncPaths checks that the output dir and JSON file exist.

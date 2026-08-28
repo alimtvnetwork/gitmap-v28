@@ -36,7 +36,7 @@ import (
 )
 
 // runInject is the entrypoint for `gitmap inject` / `inj`.
-func runInject(args []string) {
+func runInject(args []string) error {
 	checkHelp("inject", args)
 
 	force := parseInjectForceFlag("inject", args)
@@ -81,6 +81,7 @@ func runInject(args []string) {
 	WriteShellHandoff(target)
 
 	fmt.Printf(constants.MsgInjectDone, repoName)
+	return nil
 }
 
 // resolveInjectTarget returns the absolute path of the folder to

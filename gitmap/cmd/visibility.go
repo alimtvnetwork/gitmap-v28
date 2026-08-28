@@ -28,15 +28,17 @@ import (
 )
 
 // runMakePublic implements `gitmap make-public`.
-func runMakePublic(args []string) {
+func runMakePublic(args []string) error {
 	checkHelp(constants.CmdMakePublic, args)
 	runVisibility(args, constants.VisibilityPublic)
+	return nil
 }
 
 // runMakePrivate implements `gitmap make-private`.
-func runMakePrivate(args []string) {
+func runMakePrivate(args []string) error {
 	checkHelp(constants.CmdMakePrivate, args)
 	runVisibility(args, constants.VisibilityPrivate)
+	return nil
 }
 
 // visibilityFlags captures parsed flag state. Kept as a struct so
@@ -49,13 +51,13 @@ type visibilityFlags struct {
 
 // runVisibility is the shared core for both commands. Steps mirror
 // the PowerShell reference verbatim so behavior parity is auditable.
-func runVisibility(args []string, target string) {
+func runVisibility(args []string, target string) error {
 	opts, positional := parseVisibilityFlags(args, target)
 
 	// Spec 113 §2.2 — bulk form takes over when positional args
 	// describe a `<repo> <count>` or `<count>` request.
 	if maybeRunBulkVisibility(positional, target, opts) {
-		return
+		return nil
 	}
 
 	ctx := mustResolveVisibilityContext()
@@ -79,6 +81,7 @@ func runVisibility(args []string, target string) {
 	applyVisibilityOrExit(ctx, target, opts.verbose)
 	verifyVisibilityOrExit(ctx, target, opts.verbose)
 	fmt.Printf(constants.MsgVisChangedFmt, current, target, ctx.Slug, ctx.Provider)
+	return nil
 }
 
 // parseVisibilityFlags reads the supported flags and returns the

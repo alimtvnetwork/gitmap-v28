@@ -74,7 +74,7 @@ func copySelfFile(src, dst string) error {
 
 // runHandoffCopy invokes the temp binary with the hidden runner verb
 // and the same opts as the parent invocation.
-func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) {
+func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 	runnerArgs := []string{constants.CmdSelfUninstallRunner, "--confirm"}
 	if opts.KeepData {
 		runnerArgs = append(runnerArgs, "--keep-data")
@@ -88,7 +88,7 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) {
 	cmd.Stdin = os.Stdin
 	err := cmd.Run()
 	if err == nil {
-		return
+		return nil
 	}
 	var exitErr *exec.ExitError
 	isExitErr := errors.As(err, &exitErr)
@@ -96,6 +96,7 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) {
 		os.Exit(exitErr.ExitCode())
 	}
 	os.Exit(1)
+	return nil
 }
 
 // scheduleSelfDelete arranges for the temp handoff binary to remove

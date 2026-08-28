@@ -21,7 +21,7 @@ import (
 )
 
 // runZip is the dispatch entrypoint for `zip` / `z`.
-func runZip(args []string) {
+func runZip(args []string) error {
 	checkHelp(constants.CmdZip, args)
 
 	opts, sources, err := parseZipFlags(args)
@@ -49,6 +49,7 @@ func runZip(args []string) {
 
 	opts.Sources = resolvedToPaths(resolved)
 	executeZip(ctx, opts, sources)
+	return nil
 }
 
 // zipFlags is the parsed flag set the cmd layer feeds into CreateArchive.

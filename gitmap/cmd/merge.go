@@ -21,7 +21,7 @@ type mergeSpec struct {
 // runMerge implements merge-both / merge-left / merge-right.
 //
 // Spec: spec/01-app/97-move-and-merge.md
-func runMerge(spec mergeSpec, args []string) {
+func runMerge(spec mergeSpec, args []string) error {
 	checkHelp(spec.cmd, args)
 	left, right, opts := parseMergeArgs(spec, args)
 	leftEP := mustResolve(left, true, opts)
@@ -30,6 +30,7 @@ func runMerge(spec mergeSpec, args []string) {
 	if err := movemerge.RunMerge(leftEP, rightEP, spec.direction, opts); err != nil {
 		cliexit.Fail(spec.cmd, "merge", leftEP.DisplayName+" <-> "+rightEP.DisplayName, err, 1)
 	}
+	return nil
 }
 
 // parseMergeArgs parses positional + flag arguments for any merge-*.

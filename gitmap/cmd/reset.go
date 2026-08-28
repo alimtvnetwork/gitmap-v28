@@ -13,7 +13,7 @@ import (
 
 // runReset handles the "reset" subcommand: deletes the active profile's
 // SQLite database file from disk, recreates the schema, and reseeds it.
-func runReset(args []string) {
+func runReset(args []string) error {
 	checkHelp(constants.CmdReset, args)
 	confirm, rescan := parseResetFlags(args)
 	if !confirm {
@@ -25,6 +25,7 @@ func runReset(args []string) {
 	if rescan {
 		runRescan()
 	}
+	return nil
 }
 
 // parseResetFlags parses the --confirm flag for the reset command.

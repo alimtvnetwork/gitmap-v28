@@ -90,13 +90,14 @@ func printCloneArgv(w io.Writer, executorArgv []string) error {
 // Errors are surfaced (per zero-swallow policy) but do NOT abort
 // the clone — the dump is purely informational. Same contract as
 // runCmdFaithfulCheck so the two integrations behave identically.
-func runCmdPrintArgv(executorArgv []string) {
+func runCmdPrintArgv(executorArgv []string) error {
 	if !cmdPrintArgvEnabled() {
-		return
+		return nil
 	}
 	if err := printCloneArgv(os.Stderr, executorArgv); err != nil {
 		_, _ = os.Stderr.WriteString(
 			"  Warning: --print-clone-argv: failed to write dump: " +
 				err.Error() + "\n")
 	}
+	return nil
 }

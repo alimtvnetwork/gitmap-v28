@@ -28,7 +28,7 @@ type selfUninstallOpts struct {
 // runSelfUninstall is the entry point for `gitmap self-uninstall`.
 // On Windows the running .exe is locked, so we copy ourselves to a temp
 // path and re-exec the hidden self-uninstall-runner from there.
-func runSelfUninstall(args []string) {
+func runSelfUninstall(args []string) error {
 	checkHelp(constants.CmdSelfUninstall, args)
 	opts := parseSelfUninstallFlags(args)
 	if !opts.Confirm && !confirmSelfUninstall(opts) {
@@ -37,9 +37,10 @@ func runSelfUninstall(args []string) {
 	}
 	if shouldHandoffSelfUninstall() {
 		handoffSelfUninstall(opts, args)
-		return
+		return nil
 	}
 	executeSelfUninstall(opts)
+	return nil
 }
 
 // parseSelfUninstallFlags reads --confirm / --keep-data / --keep-snippet
@@ -134,8 +135,9 @@ func shouldHandoffSelfUninstall() bool {
 
 // runSelfUninstallRunner is the hidden command run by the temp-copy
 // handoff. It performs the actual removal then deletes itself.
-func runSelfUninstallRunner() {
+func runSelfUninstallRunner() error {
 	opts := parseSelfUninstallFlags(os.Args[2:])
 	executeSelfUninstall(opts)
 	scheduleSelfDelete()
+	return nil
 }

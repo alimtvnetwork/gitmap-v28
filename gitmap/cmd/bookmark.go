@@ -8,7 +8,7 @@ import (
 )
 
 // runBookmark handles the "bookmark" subcommand routing.
-func runBookmark(args []string) {
+func runBookmark(args []string) error {
 	checkHelp("bookmark", args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkUsage)
@@ -19,6 +19,7 @@ func runBookmark(args []string) {
 	rest := args[1:]
 
 	routeBookmarkSub(sub, rest)
+	return nil
 }
 
 // routeBookmarkSub routes to the appropriate bookmark subcommand.

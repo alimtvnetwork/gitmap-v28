@@ -39,27 +39,31 @@ type bulkFlags struct {
 }
 
 // runMakeAllPublic / runMakeAllPrivate are the dispatcher entry points.
-func runMakeAllPublic(args []string) {
+func runMakeAllPublic(args []string) error {
 	runMakeAllVisibility(constants.VisibilityPublic, constants.CmdMakeAllPublic, args, false)
+	return nil
 }
 
-func runMakeAllPrivate(args []string) {
+func runMakeAllPrivate(args []string) error {
 	runMakeAllVisibility(constants.VisibilityPrivate, constants.CmdMakeAllPrivate, args, false)
+	return nil
 }
 
 // Except-latest entry points pre-set the filter and reuse the rest
 // of the pipeline so behavior stays in lock-step with the base
 // commands.
-func runMakeAllPublicExceptLatest(args []string) {
+func runMakeAllPublicExceptLatest(args []string) error {
 	runMakeAllVisibility(constants.VisibilityPublic, constants.CmdMakeAllPublicExceptLatest, args, true)
+	return nil
 }
 
-func runMakeAllPrivateExceptLatest(args []string) {
+func runMakeAllPrivateExceptLatest(args []string) error {
 	runMakeAllVisibility(constants.VisibilityPrivate, constants.CmdMakeAllPrivateExceptLatest, args, true)
+	return nil
 }
 
 // runMakeAllVisibility orchestrates the full bulk run.
-func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDefault bool) {
+func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDefault bool) error {
 	checkHelp(cmdName, args)
 	if len(args) < 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrMakeAllMissingArgFmt, cmdName)
@@ -122,6 +126,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	exit := bulkExitCode(changed, failed)
 	audit.finalize(excludedCount, changed, skipped, failed, exit)
 	os.Exit(exit)
+	return nil
 }
 
 // partitionByName splits `final` into (mainSet, invertSet) using the

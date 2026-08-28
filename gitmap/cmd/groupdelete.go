@@ -8,13 +8,14 @@ import (
 )
 
 // runGroupDelete handles "group delete <name>".
-func runGroupDelete(args []string) {
+func runGroupDelete(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrGroupNameReq)
 		os.Exit(1)
 	}
 	name := args[0]
 	executeGroupDelete(name)
+	return nil
 }
 
 // executeGroupDelete opens the DB and deletes the group.

@@ -13,7 +13,7 @@ import (
 // It opens the active-profile database, runs Migrate() (which is idempotent
 // and safe to invoke repeatedly), and prints a single-line summary. The
 // --verbose flag prints every migration step that ran.
-func runDBMigrate(args []string) {
+func runDBMigrate(args []string) error {
 	checkHelp(constants.CmdDBMigrate, args)
 	verbose := parseDBMigrateFlags(args)
 
@@ -32,6 +32,7 @@ func runDBMigrate(args []string) {
 	}
 
 	printDBMigrateSummary(verbose)
+	return nil
 }
 
 // parseDBMigrateFlags extracts the --verbose flag.
@@ -63,22 +64,23 @@ func printDBMigrateSummary(verbose bool) {
 // runPostUpdateMigrate is invoked from the update flow after the binary is
 // replaced. It is best-effort: any failure is warned, never fatal, since the
 // user may have an in-flight DB lock or read-only environment.
-func runPostUpdateMigrate() {
+func runPostUpdateMigrate() error {
 	fmt.Print(constants.MsgDBMigratePostUpdate)
 
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnDBMigratePostFail, err)
 
-		return
+		return nil
 	}
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnDBMigratePostFail, err)
 
-		return
+		return nil
 	}
 
 	fmt.Println("  ✓ Schema migrations complete.")
+	return nil
 }

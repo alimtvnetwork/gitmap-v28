@@ -16,7 +16,7 @@ import (
 )
 
 // runChangelog handles the 'changelog' command.
-func runChangelog(args []string) {
+func runChangelog(args []string) error {
 	checkHelp("changelog", args)
 	cleaned, mode := ParsePrettyFlag(args)
 	pretty := render.Decide(mode, render.StdoutIsTerminal(), true)
@@ -26,10 +26,11 @@ func runChangelog(args []string) {
 		handleChangelogOpen(latest, version)
 	}
 	if !latest && len(version) == 0 && openFile {
-		return
+		return nil
 	}
 
 	dispatchChangelogOutput(version, latest, limit, source, pretty)
+	return nil
 }
 
 // resolveChangelogAlias detects if the version arg is actually a file-open alias.

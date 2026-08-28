@@ -55,7 +55,7 @@ func buildAuthorString(f amendFlags) string {
 }
 
 // runForcePush executes git push --force-with-lease.
-func runForcePush() {
+func runForcePush() error {
 	cmd := exec.Command("git", "push", "--force-with-lease")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -63,10 +63,11 @@ func runForcePush() {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendForcePush, err)
 
-		return
+		return nil
 	}
 
 	fmt.Print(constants.MsgAmendForcePush)
+	return nil
 }
 
 // printAmendHeader outputs the operation header.

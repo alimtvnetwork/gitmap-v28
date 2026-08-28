@@ -12,7 +12,7 @@ import (
 )
 
 // runAliasSuggest handles "alias suggest [--apply]".
-func runAliasSuggest(args []string) {
+func runAliasSuggest(args []string) error {
 	apply := parseAliasSuggestFlags(args)
 
 	db, err := openDB()
@@ -31,12 +31,13 @@ func runAliasSuggest(args []string) {
 	if len(repos) == 0 {
 		fmt.Println(constants.MsgAliasSuggestNone)
 
-		return
+		return nil
 	}
 
 	created := suggestAliases(db, repos, apply)
 	fmt.Printf(constants.MsgAliasSuggestDone, created)
 	printHints(aliasSuggestHints())
+	return nil
 }
 
 // parseAliasSuggestFlags parses flags for alias suggest.

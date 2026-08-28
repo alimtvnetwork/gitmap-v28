@@ -22,7 +22,7 @@ import (
 //  3. Creates (or updates with --force) an alias mapping name -> repo.
 //
 // When alias-name is omitted, the repo folder basename is used.
-func runAs(args []string) {
+func runAs(args []string) error {
 	checkHelp(constants.CmdAs, args)
 	aliasName, force := parseAsArgs(args)
 
@@ -45,6 +45,7 @@ func runAs(args []string) {
 	// Shell handoff: cd the parent shell to the alias root if invoked
 	// via the wrapper function (e.g. `gitmap as foo` from elsewhere).
 	WriteShellHandoff(root)
+	return nil
 }
 
 // parseAsArgs extracts the optional alias-name positional and --force flag.

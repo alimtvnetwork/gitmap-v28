@@ -10,9 +10,10 @@ import (
 )
 
 // runVSCodeSettingsOnly syncs VS Code settings without installing the binary.
-func runVSCodeSettingsOnly() {
+func runVSCodeSettingsOnly() error {
 	fmt.Println("  Syncing VS Code settings (settings-only mode)...")
 	syncVSCodeSettings()
+	return nil
 }
 
 // syncVSCodeSettings copies VS Code settings from the bundled settings folder.

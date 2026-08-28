@@ -11,7 +11,7 @@ import (
 )
 
 // runSSHDelete removes an SSH key record and optionally its files.
-func runSSHDelete(args []string) {
+func runSSHDelete(args []string) error {
 	fs := flag.NewFlagSet("ssh-delete", flag.ExitOnError)
 	nameFlag := fs.String("name", "", "Key name")
 	fs.StringVar(nameFlag, "n", "", "Key name (short)")
@@ -45,7 +45,7 @@ func runSSHDelete(args []string) {
 	input, _ := reader.ReadString('\n')
 
 	if strings.TrimSpace(strings.ToLower(input)) != "y" {
-		return
+		return nil
 	}
 
 	if err := db.DeleteSSHKey(name); err != nil {
@@ -61,4 +61,5 @@ func runSSHDelete(args []string) {
 	}
 
 	updateSSHConfig(db)
+	return nil
 }

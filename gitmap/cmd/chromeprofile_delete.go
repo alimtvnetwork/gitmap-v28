@@ -13,7 +13,7 @@ import (
 )
 
 // runChromeProfileDelete is the dispatch entry point.
-func runChromeProfileDelete(args []string) {
+func runChromeProfileDelete(args []string) error {
 	checkHelp(constants.CmdChromeProfileDelete, args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageDelete)
@@ -41,6 +41,7 @@ func runChromeProfileDelete(args []string) {
 	}
 	removed := removeChromeArtifactFiles(paths)
 	fmt.Printf(constants.MsgChromeProfileDeleteOk, name, removed)
+	return nil
 }
 
 // parseChromeDeleteArgs extracts <name> and the --yes confirmation flag.

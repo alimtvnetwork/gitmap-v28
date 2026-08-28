@@ -14,7 +14,7 @@ import (
 )
 
 // runDashboard handles the "dashboard" subcommand.
-func runDashboard(args []string) {
+func runDashboard(args []string) error {
 	checkHelp("dashboard", args)
 	opts, outDir, openFlag := parseDashboardFlags(args)
 	fmt.Println(constants.MsgDashCollecting)
@@ -23,6 +23,7 @@ func runDashboard(args []string) {
 	if openFlag {
 		openDashboard(filepath.Join(outDir, constants.DashboardHTMLFile))
 	}
+	return nil
 }
 
 func collectDashboardData(opts dashboard.CollectOptions) model.DashboardData {

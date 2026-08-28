@@ -58,7 +58,7 @@ type templatesInitFlags struct {
 }
 
 // runTemplatesInit is the entry point for `gitmap templates init`.
-func runTemplatesInit(args []string) {
+func runTemplatesInit(args []string) error {
 	checkHelp("templates-init", args)
 
 	flags, err := parseTemplatesInitFlags(args)
@@ -83,6 +83,7 @@ func runTemplatesInit(args []string) {
 
 	results := executeTemplatesInit(cwd, flags)
 	printTemplatesInitSummary(results, flags.dryRun)
+	return nil
 }
 
 // parseTemplatesInitFlags extracts --lfs / --dry-run / --force from args

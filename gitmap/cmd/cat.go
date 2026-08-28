@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func runCat(args []string) {
+func runCat(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "Usage: gitmap cat <file>")
 		os.Exit(1)
@@ -24,4 +24,5 @@ func runCat(args []string) {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
 		os.Exit(1)
 	}
+	return nil
 }

@@ -21,7 +21,7 @@ import (
 )
 
 // runUnzipCompact is the dispatch entrypoint for `unzip-compact` / `uzc`.
-func runUnzipCompact(args []string) {
+func runUnzipCompact(args []string) error {
 	checkHelp(constants.CmdUnzipCompact, args)
 
 	listMode, positional := parseUnzipCompactFlags(args)
@@ -42,10 +42,11 @@ func runUnzipCompact(args []string) {
 
 	if listMode {
 		runListMode(ctx, resolved.LocalPath)
-		return
+		return nil
 	}
 
 	executeCompactExtract(ctx, resolved, src, dest)
+	return nil
 }
 
 // parseUnzipCompactFlags pulls --list off the args and returns the rest
@@ -86,7 +87,7 @@ func resolveUnzipInputs(positional []string) (src, dest string, err error) {
 }
 
 // runListMode prints the entry table for the archive at path and exits.
-func runListMode(ctx context.Context, path string) {
+func runListMode(ctx context.Context, path string) error {
 	entries, format, err := archive.ListEntries(ctx, path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
@@ -96,6 +97,7 @@ func runListMode(ctx context.Context, path string) {
 	for _, e := range entries {
 		fmt.Fprintf(os.Stderr, constants.MsgArchiveListEntry+"\n", e.Path, e.Size)
 	}
+	return nil
 }
 
 // executeCompactExtract is the success-path: open DB, persist a

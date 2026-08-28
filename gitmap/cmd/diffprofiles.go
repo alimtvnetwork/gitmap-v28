@@ -11,7 +11,7 @@ import (
 )
 
 // runDiffProfiles handles the "diff-profiles" command.
-func runDiffProfiles(args []string) {
+func runDiffProfiles(args []string) error {
 	checkHelp("diff-profiles", args)
 	nameA, nameB, showAll, jsonMode := parseDPFlags(args)
 	validateDPProfiles(nameA, nameB)
@@ -24,10 +24,11 @@ func runDiffProfiles(args []string) {
 	if jsonMode {
 		printDPJSON(nameA, nameB, result)
 
-		return
+		return nil
 	}
 
 	printDPOutput(nameA, nameB, result, showAll)
+	return nil
 }
 
 // parseDPFlags parses flags for the diff-profiles command.

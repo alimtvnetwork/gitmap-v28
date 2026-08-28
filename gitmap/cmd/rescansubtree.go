@@ -37,7 +37,7 @@ import (
 //	    existing directory. Distinct from the scan failure exit code so
 //	    shell wrappers can tell "you invoked me wrong" apart from "the
 //	    walk itself failed".
-func runRescanSubtree(args []string) {
+func runRescanSubtree(args []string) error {
 	checkHelp("rescan-subtree", args)
 
 	path, rest, err := splitRescanSubtreeArgs(args)
@@ -56,6 +56,7 @@ func runRescanSubtree(args []string) {
 	fmt.Printf("  ▶ gitmap rescan-subtree — %s (max-depth=%s)\n",
 		abs, extractMaxDepthForLog(scanArgs))
 	runScan(scanArgs)
+	return nil
 }
 
 // splitRescanSubtreeArgs separates the required <path> positional from

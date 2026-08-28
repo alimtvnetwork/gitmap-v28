@@ -18,7 +18,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-func runClusterHistory(args []string) {
+func runClusterHistory(args []string) error {
 	ctx := context.Background()
 	storeDB, err := store.OpenDefault()
 	if err != nil {
@@ -30,9 +30,10 @@ func runClusterHistory(args []string) {
 
 	if len(args) == 0 {
 		printClusterHistoryList(ctx, conn)
-		return
+		return nil
 	}
 	printClusterRunDetails(ctx, conn, args[0])
+	return nil
 }
 
 func printClusterHistoryList(ctx context.Context, conn *sql.DB) {
@@ -131,7 +132,7 @@ func parseClusterExportArgs(args []string) (string, string) {
 	return format, output
 }
 
-func runClusterExport(args []string) {
+func runClusterExport(args []string) error {
 	format, output := parseClusterExportArgs(args)
 	ctx := context.Background()
 	storeDB, err := store.OpenDefault()
@@ -147,6 +148,7 @@ func runClusterExport(args []string) {
 	}
 	data := formatClusterExportNodes(nodes, format)
 	writeClusterExportData(data, output)
+	return nil
 }
 
 func sanitizeClusterNodes(nodes []db.ClusterNode) {
@@ -190,7 +192,7 @@ func writeClusterExportData(data []byte, output string) {
 	}
 }
 
-func runClusterImport(args []string) {
+func runClusterImport(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "missing input file")
 		os.Exit(1)
@@ -204,6 +206,7 @@ func runClusterImport(args []string) {
 	}
 	defer storeDB.Close()
 	importClusterNodes(ctx, storeDB.Conn(), nodes)
+	return nil
 }
 
 func loadClusterImportNodes(file string) []db.ClusterNode {
@@ -268,7 +271,7 @@ func promptClusterPassword() string {
 	return pass1
 }
 
-func runClusterSetPassword(args []string) {
+func runClusterSetPassword(args []string) error {
 	id := parseClusterNodeID(args)
 	if id == "" {
 		fmt.Fprintln(os.Stderr, "missing --id")
@@ -283,6 +286,7 @@ func runClusterSetPassword(args []string) {
 	hashStr := string(hash)
 	updateClusterNodePasswordInDB(id, &hashStr)
 	fmt.Println("Password updated successfully.")
+	return nil
 }
 
 func updateClusterNodePasswordInDB(id string, hash *string) {
@@ -313,7 +317,7 @@ func parseClusterConfirmArgs(args []string) (string, bool) {
 	return id, confirm
 }
 
-func runClusterResetPassword(args []string) {
+func runClusterResetPassword(args []string) error {
 	id, confirm := parseClusterConfirmArgs(args)
 	if id == "" {
 		fmt.Fprintln(os.Stderr, "missing --id")
@@ -325,6 +329,7 @@ func runClusterResetPassword(args []string) {
 	}
 	updateClusterNodePasswordInDB(id, nil)
 	fmt.Println("Password reset successfully.")
+	return nil
 }
 
 func hasClusterJSONFlag(args []string) bool {
@@ -336,7 +341,7 @@ func hasClusterJSONFlag(args []string) bool {
 	return false
 }
 
-func runClusterNodes(args []string) {
+func runClusterNodes(args []string) error {
 	ctx := context.Background()
 	storeDB, err := store.OpenDefault()
 	if err != nil {
@@ -350,6 +355,7 @@ func runClusterNodes(args []string) {
 		os.Exit(1)
 	}
 	displayClusterNodes(nodes, hasClusterJSONFlag(args))
+	return nil
 }
 
 func displayClusterNodes(nodes []db.ClusterNode, asJson bool) {
@@ -390,7 +396,7 @@ func warnUnreachableNodes(unreachable []db.ClusterNode) {
 	fmt.Println()
 }
 
-func runClusterRemove(args []string) {
+func runClusterRemove(args []string) error {
 	id, confirm := parseClusterConfirmArgs(args)
 	if id == "" {
 		fmt.Fprintln(os.Stderr, "missing --id")
@@ -402,6 +408,7 @@ func runClusterRemove(args []string) {
 	}
 	deleteClusterNodeInDB(id)
 	fmt.Println("Node deleted successfully.")
+	return nil
 }
 
 func deleteClusterNodeInDB(id string) {
@@ -432,7 +439,7 @@ func parseClusterAuditCleanArgs(args []string) (string, bool) {
 	return beforeStr, confirm
 }
 
-func runClusterAuditClean(args []string) {
+func runClusterAuditClean(args []string) error {
 	beforeStr, confirm := parseClusterAuditCleanArgs(args)
 	if beforeStr == "" {
 		fmt.Fprintln(os.Stderr, "missing --before")
@@ -443,6 +450,7 @@ func runClusterAuditClean(args []string) {
 		os.Exit(1)
 	}
 	cleanClusterAuditRecords(beforeStr)
+	return nil
 }
 
 func cleanClusterAuditRecords(beforeStr string) {
@@ -466,7 +474,7 @@ func cleanClusterAuditRecords(beforeStr string) {
 	fmt.Printf("Cleaned %d cluster run records older than %s.\n", count, beforeStr)
 }
 
-func runClusterStats(args []string) {
+func runClusterStats(args []string) error {
 	ctx := context.Background()
 	storeDB, err := store.OpenDefault()
 	if err != nil {
@@ -480,6 +488,7 @@ func runClusterStats(args []string) {
 		os.Exit(1)
 	}
 	printClusterStatsReport(stats)
+	return nil
 }
 
 func printClusterStatsReport(stats db.ClusterStats) {

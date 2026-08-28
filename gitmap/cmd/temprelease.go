@@ -9,7 +9,7 @@ import (
 )
 
 // runTempRelease handles the "temp-release" command and routes subcommands.
-func runTempRelease(args []string) {
+func runTempRelease(args []string) error {
 	checkHelp("temp-release", args)
 
 	if len(args) == 0 {
@@ -19,6 +19,7 @@ func runTempRelease(args []string) {
 
 	sub := args[0]
 	dispatchTempRelease(sub, args)
+	return nil
 }
 
 // dispatchTempRelease routes to list, remove, or create.

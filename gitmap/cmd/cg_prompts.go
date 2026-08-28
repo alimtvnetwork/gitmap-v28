@@ -8,7 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
-func runCGInstallPrompts(targetDirs []string, isDryRun bool) {
+func runCGInstallPrompts(targetDirs []string, isDryRun bool) error {
 	if len(targetDirs) == 0 {
 		resolved, err := ResolvePromptTarget("")
 		if err == nil {
@@ -18,7 +18,7 @@ func runCGInstallPrompts(targetDirs []string, isDryRun bool) {
 
 	if len(targetDirs) == 0 {
 		fmt.Println("No target repositories found to install Prompt Architect.")
-		return
+		return nil
 	}
 
 	fmt.Printf("→ Installing Prompt Architect v2 in %d repository(ies)...\n", len(targetDirs))
@@ -38,4 +38,5 @@ func runCGInstallPrompts(targetDirs []string, isDryRun bool) {
 
 	RenderPromptInstallSummary(results)
 	ReportPromptFailures(results)
+	return nil
 }

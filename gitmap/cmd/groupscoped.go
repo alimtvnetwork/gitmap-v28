@@ -8,27 +8,29 @@ import (
 )
 
 // runActiveGroupPull pulls all repos in the active group.
-func runActiveGroupPull() {
+func runActiveGroupPull() error {
 	name := requireActiveGroup()
 	records := loadRecordsByGroup(name)
 
 	for _, r := range records {
 		pullOneRepo(r)
 	}
+	return nil
 }
 
 // runActiveGroupStatus shows status for active group repos.
-func runActiveGroupStatus() {
+func runActiveGroupStatus() error {
 	name := requireActiveGroup()
 	records := loadRecordsByGroup(name)
 
 	printStatusBanner(len(records))
 	summary := printStatusTable(records)
 	printStatusSummary(summary)
+	return nil
 }
 
 // runActiveGroupExec runs a git command across active group repos.
-func runActiveGroupExec(args []string) {
+func runActiveGroupExec(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrExecUsage)
 		os.Exit(1)
@@ -40,6 +42,7 @@ func runActiveGroupExec(args []string) {
 	printExecBanner(args, len(records))
 	succeeded, failed, missing := execAllRepos(records, args)
 	printExecSummary(succeeded, failed, missing, len(records))
+	return nil
 }
 
 // requireActiveGroup returns the active group name or exits.

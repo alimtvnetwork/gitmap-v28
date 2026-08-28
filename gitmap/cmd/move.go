@@ -14,13 +14,14 @@ import (
 )
 
 // runMove implements `gitmap mv <source> <dest>`.
-func runMove(args []string) {
+func runMove(args []string) error {
 	checkHelp(constants.CmdMv, args)
 	mOpts, positional := parseMoveFlags(args)
 	if len(positional) == constants.ExpectedMoveArgsCount && handleRepoMove(positional[0], positional[1], mOpts) {
-		return
+		return nil
 	}
 	runMoveMerge(args)
+	return nil
 }
 
 func handleRepoMove(srcTarget, destTarget string, opts moveOpts) bool {
@@ -61,7 +62,7 @@ func executeRepoMove(db *store.DB, rec model.ScanRecord, destPath string, opts m
 	return true
 }
 
-func runMoveMerge(args []string) {
+func runMoveMerge(args []string) error {
 	left, right, opts := parseMoveArgs(args)
 	leftEP := mustResolve(left, true, opts)
 	rightEP := mustResolve(right, false, opts)
@@ -72,6 +73,7 @@ func runMoveMerge(args []string) {
 		cliexit.Fail(constants.CmdMv, constants.OpMove, leftEP.DisplayName+" -> "+rightEP.DisplayName, err, constants.ExitCodeError)
 	}
 	finalizeMoveTxn(j, leftEP, rightEP)
+	return nil
 }
 
 // beginMoveTxn opens a journal row for a folder→folder mv. Returns a no-op

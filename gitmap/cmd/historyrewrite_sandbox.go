@@ -71,17 +71,18 @@ func mirrorClone(originURL string, opts historyOpts) string {
 // runFilterRepo dispatches to the per-mode runner.
 func runFilterRepo(mode historyMode, sandbox string, paths []string,
 	pinPayloads map[string][]byte, opts historyOpts,
-) {
+) error {
 	if mode == historyModePurge {
 		runFilterRepoPurge(sandbox, paths, opts)
-		return
+		return nil
 	}
 	runFilterRepoPin(sandbox, paths, pinPayloads, opts)
+	return nil
 }
 
 // runFilterRepoPurge invokes filter-repo with --invert-paths --path P
 // for every requested path.
-func runFilterRepoPurge(sandbox string, paths []string, opts historyOpts) {
+func runFilterRepoPurge(sandbox string, paths []string, opts historyOpts) error {
 	if !opts.quiet {
 		fmt.Fprintf(os.Stderr, constants.HistoryMsgPhaseFilterPurge, len(paths))
 	}
@@ -91,6 +92,7 @@ func runFilterRepoPurge(sandbox string, paths []string, opts historyOpts) {
 	}
 	args = append(args, historyMessageArgs(opts, sandbox, paths)...)
 	execFilterRepo(args)
+	return nil
 }
 
 // runFilterRepoPin generates a Python --blob-callback that swaps every
@@ -98,7 +100,7 @@ func runFilterRepoPurge(sandbox string, paths []string, opts historyOpts) {
 // working tree.
 func runFilterRepoPin(sandbox string, paths []string,
 	pinPayloads map[string][]byte, opts historyOpts,
-) {
+) error {
 	if !opts.quiet {
 		fmt.Fprintf(os.Stderr, constants.HistoryMsgPhaseFilterPin, len(paths))
 	}
@@ -113,6 +115,7 @@ func runFilterRepoPin(sandbox string, paths []string,
 	}
 	args = append(args, historyMessageArgs(opts, sandbox, paths)...)
 	execFilterRepo(args)
+	return nil
 }
 
 // historyMessageArgs returns the filter-repo args needed to rewrite

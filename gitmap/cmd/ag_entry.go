@@ -8,10 +8,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func runAg(args []string) {
+func runAg(args []string) error {
 	checkHelp(constants.CmdAg, args)
 	if err := ag.Run(args); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+	return nil
 }

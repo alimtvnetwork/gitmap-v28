@@ -85,7 +85,7 @@ func handleSkipVerify(cfg regoldensFlags) bool {
 // failure (via runRegoldensPass), so reaching the final Fprintf
 // implies both passes succeeded. With --diff enabled it also emits
 // the explicit "Pass 2 ran and PASSED" final line.
-func runPass2AndAnnounce(cfg regoldensFlags) {
+func runPass2AndAnnounce(cfg regoldensFlags) error {
 	runRegoldensPass(cfg, false,
 		constants.MsgRegoldensPass2Header,
 		constants.ErrRegoldensPass2Failed)
@@ -94,4 +94,5 @@ func runPass2AndAnnounce(cfg regoldensFlags) {
 	}
 	fmt.Fprintf(os.Stdout, constants.MsgRegoldensSuccess,
 		cfg.pattern, cfg.pkg)
+	return nil
 }

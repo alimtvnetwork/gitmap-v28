@@ -37,7 +37,7 @@ type fixRepoOptions struct {
 
 // runFixRepo is the dispatcher entry. checkHelp first so `--help`
 // works even when other args would fail to parse.
-func runFixRepo(args []string) {
+func runFixRepo(args []string) error {
 	checkHelp(constants.CmdFixRepo, args)
 	opts, err := parseFixRepoArgs(args)
 	if err != nil {
@@ -76,6 +76,7 @@ func runFixRepo(args []string) {
 		cliexit.Exit(constants.FixRepoExitWriteFailed)
 	}
 	cliexit.Exit(constants.FixRepoExitOk)
+	return nil
 }
 
 // computeFixRepoSpan maps the mode flag to an integer span. `--all`

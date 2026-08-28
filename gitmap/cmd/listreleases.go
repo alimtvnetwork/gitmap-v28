@@ -10,7 +10,7 @@ import (
 )
 
 // runListReleases handles the "list-releases" command.
-func runListReleases(args []string) {
+func runListReleases(args []string) error {
 	checkHelp("list-releases", args)
 	asJSON := hasListReleasesJSONFlag(args)
 	limit := parseListReleasesLimit(args)
@@ -19,7 +19,7 @@ func runListReleases(args []string) {
 	if hasAllReposFlag(args) {
 		runListReleasesAllRepos(asJSON, limit)
 
-		return
+		return nil
 	}
 
 	source := parseListReleasesSource(args)
@@ -30,10 +30,11 @@ func runListReleases(args []string) {
 	if asJSON {
 		printReleasesJSON(releases)
 
-		return
+		return nil
 	}
 
 	printReleasesTerminal(releases)
+	return nil
 }
 
 // parseListReleasesSource extracts the --source value from args.

@@ -35,7 +35,7 @@ func buildSetxArgs(name, value string, system bool) []string {
 }
 
 // runSetx executes the setx command.
-func runSetx(args []string) {
+func runSetx(args []string) error {
 	cmd := exec.Command("setx", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -45,6 +45,7 @@ func runSetx(args []string) {
 		fmt.Fprintf(os.Stderr, constants.ErrEnvProfileWrite, "system registry", err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // addPathPersistent adds a directory to PATH on Windows via setx.

@@ -81,9 +81,9 @@ Examples:
 )
 
 // dispatchTemplates routes `gitmap templates <subcommand>` calls.
-func dispatchTemplates(command string) bool {
+func dispatchTemplates(command string) (bool, error) {
 	if command != constants.CmdTemplates && command != constants.CmdTemplatesAlias {
-		return false
+		return false, nil
 	}
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, usageTemplatesRoot)
@@ -106,14 +106,14 @@ func dispatchTemplates(command string) bool {
 		os.Exit(1)
 	}
 
-	return true
+	return true, nil
 }
 
 // runTemplatesList prints every available template grouped by kind.
 // Optional `--kind <k>` and `--lang <l>` filters narrow the output.
 // Unknown --kind values exit 1 with a clear error so typos surface
 // instead of silently emptying the table.
-func runTemplatesList(args []string) {
+func runTemplatesList(args []string) error {
 	kindFilter, langFilter := parseTemplatesListFlags(args)
 	isNonValidKindFilter := !isValidKindFilter(kindFilter)
 	if isNonValidKindFilter {
@@ -129,20 +129,21 @@ func runTemplatesList(args []string) {
 	if len(entries) == 0 {
 		fmt.Print(msgTemplatesEmpty)
 
-		return
+		return nil
 	}
 
 	filtered := filterTemplates(entries, kindFilter, langFilter)
 	if len(filtered) == 0 {
 		fmt.Print(msgTemplatesFiltered)
 
-		return
+		return nil
 	}
 
 	fmt.Print(headerTemplatesList)
 	for _, e := range filtered {
 		fmt.Printf(fmtTemplatesListRow, e.Kind, e.Lang, sourceLabel(e.Source), e.Path)
 	}
+	return nil
 }
 
 // parseTemplatesListFlags pulls --kind/--lang out of args. Both are
@@ -201,7 +202,7 @@ func filterTemplates(in []templates.Entry, kindFilter, langFilter string) []temp
 // Flag precedence: --pretty / --no-pretty (preferred) win over the
 // legacy --raw flag, which is kept as a deprecated alias for
 // --no-pretty (back-compat with v3.23.x scripts).
-func runTemplatesShow(args []string) {
+func runTemplatesShow(args []string) error {
 	rest, mode := parseTemplatesShowFlags(args)
 	if len(rest) < 2 {
 		fmt.Fprint(os.Stderr, errTemplatesShowArgs)
@@ -223,6 +224,7 @@ func runTemplatesShow(args []string) {
 		fmt.Fprintf(os.Stderr, errTemplatesShowFail, err)
 		os.Exit(1)
 	}
+	return nil
 }
 
 // parseTemplatesShowFlags extracts --pretty / --no-pretty (preferred) and

@@ -22,7 +22,7 @@ import (
 // the in-memory `applyHistoryFilters` (step 36) is retained as a
 // defense-in-depth second pass that also drops malformed StartedAt
 // rows the SQL `>=` comparison would let through as text-compare.
-func runVisibilityHistory(args []string) {
+func runVisibilityHistory(args []string) error {
 	limit := parseHistoryLimit(args)
 	filters := parseHistoryFilters(args, time.Now())
 	db := openDBOrExit(constants.CmdVisibilityHistory)
@@ -38,6 +38,7 @@ func runVisibilityHistory(args []string) {
 	}
 	printHistory(runs)
 	os.Exit(constants.ExitVisOK)
+	return nil
 }
 
 // loadHistoryRuns picks the pushdown path when any filter is set,

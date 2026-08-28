@@ -9,15 +9,16 @@ import (
 )
 
 // runMultiGroup handles the "multi-group" subcommand.
-func runMultiGroup(args []string) {
+func runMultiGroup(args []string) error {
 	checkHelp("multi-group", args)
 	if len(args) == 0 {
 		showActiveMultiGroup()
 
-		return
+		return nil
 	}
 
 	routeMultiGroup(args[0], args[1:])
+	return nil
 }
 
 // showActiveMultiGroup prints the current multi-group selection.

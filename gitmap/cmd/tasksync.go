@@ -13,7 +13,7 @@ import (
 )
 
 // runTaskRun starts the file-sync watch loop for a named task.
-func runTaskRun(args []string) {
+func runTaskRun(args []string) error {
 	fs := flag.NewFlagSet("task-run", flag.ExitOnError)
 
 	var interval int
@@ -36,6 +36,7 @@ func runTaskRun(args []string) {
 
 	fmt.Printf(constants.MsgTaskRunning, name, interval)
 	runSyncLoop(entry, interval, verbose, dryRun)
+	return nil
 }
 
 // enforceMinInterval clamps the interval to the minimum.
@@ -48,7 +49,7 @@ func enforceMinInterval(interval int) int {
 }
 
 // runSyncLoop runs the sync cycle on a timer until interrupted.
-func runSyncLoop(entry model.TaskEntry, interval int, verbose, dryRun bool) {
+func runSyncLoop(entry model.TaskEntry, interval int, verbose, dryRun bool) error {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt)
 
@@ -62,11 +63,12 @@ func runSyncLoop(entry model.TaskEntry, interval int, verbose, dryRun bool) {
 		case <-sigChan:
 			fmt.Printf(constants.MsgTaskStopped, entry.Name)
 
-			return
+			return nil
 		case <-ticker.C:
 			syncOnce(entry, verbose, dryRun)
 		}
 	}
+	return nil
 }
 
 // syncOnce performs a single sync pass from source to destination.

@@ -9,13 +9,14 @@ import (
 )
 
 // runGroupCreate handles "group create <name>".
-func runGroupCreate(args []string) {
+func runGroupCreate(args []string) error {
 	name, desc, color := parseGroupCreateFlags(args)
 	if len(name) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrGroupNameReq)
 		os.Exit(1)
 	}
 	executeGroupCreate(name, desc, color)
+	return nil
 }
 
 // executeGroupCreate opens the DB and creates the group.

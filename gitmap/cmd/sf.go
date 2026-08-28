@@ -12,7 +12,7 @@ import (
 )
 
 // runSf dispatches `gitmap sf <add|list|rm>`.
-func runSf(args []string) {
+func runSf(args []string) error {
 	if len(args) == 0 {
 		printSfUsage()
 		os.Exit(1)
@@ -32,6 +32,7 @@ func runSf(args []string) {
 		printSfUsage()
 		os.Exit(1)
 	}
+	return nil
 }
 
 // printSfUsage prints the gitmap sf subcommand help.
@@ -43,7 +44,7 @@ func printSfUsage() {
 }
 
 // runSfAdd registers a new scan folder.
-func runSfAdd(args []string) {
+func runSfAdd(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrSFMissingArg+"\n", "<absolute-path>")
 		printSfUsage()
@@ -72,13 +73,14 @@ func runSfAdd(args []string) {
 	if isExistingScanFolder(existing, folder.ID) {
 		fmt.Printf(constants.MsgSFAddedExistsFmt, folder.AbsolutePath, folder.ID, folder.LastScannedAt)
 
-		return
+		return nil
 	}
 	fmt.Printf(constants.MsgSFAddedFmt, folder.AbsolutePath, folder.ID)
+	return nil
 }
 
 // runSfList prints every registered scan folder.
-func runSfList(_ []string) {
+func runSfList(_ []string) error {
 	db := openSfDB()
 	defer db.Close()
 
@@ -91,17 +93,18 @@ func runSfList(_ []string) {
 	if len(folders) == 0 {
 		fmt.Print(constants.MsgSFListEmpty)
 
-		return
+		return nil
 	}
 
 	fmt.Printf(constants.MsgSFListHeaderFmt, len(folders))
 	for _, f := range folders {
 		printSfRow(db, f)
 	}
+	return nil
 }
 
 // runSfRemove removes a scan folder by absolute path or numeric id.
-func runSfRemove(args []string) {
+func runSfRemove(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrSFMissingArg+"\n", "<absolute-path|id>")
 		printSfUsage()
@@ -119,6 +122,7 @@ func runSfRemove(args []string) {
 	}
 
 	fmt.Printf(constants.MsgSFRemovedFmt, folder.AbsolutePath, folder.ID, detached)
+	return nil
 }
 
 // removeSfTarget resolves whether target is an id or a path and removes it.

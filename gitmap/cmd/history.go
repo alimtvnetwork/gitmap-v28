@@ -14,7 +14,7 @@ import (
 )
 
 // runHistory handles the "history" subcommand.
-func runHistory(args []string) {
+func runHistory(args []string) error {
 	checkHelp("history", args)
 	detail, cmdFilter, limit, jsonOut := parseHistoryFlags(args)
 	records := loadHistory(cmdFilter)
@@ -22,10 +22,11 @@ func runHistory(args []string) {
 
 	if jsonOut {
 		printHistoryJSON(records)
-		return
+		return nil
 	}
 
 	printHistoryTerminal(records, detail)
+	return nil
 }
 
 // parseHistoryFlags parses --detail, --command, --limit, --json flags.

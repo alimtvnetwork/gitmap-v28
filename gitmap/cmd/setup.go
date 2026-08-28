@@ -13,14 +13,14 @@ import (
 )
 
 // runSetup handles the "setup" subcommand.
-func runSetup(args []string) {
+func runSetup(args []string) error {
 	// Subcommand: `gitmap setup print-path-snippet ...`
 	// Used by run.sh + install.sh to fetch the canonical marker-block
 	// snippet so all three drivers emit byte-identical output.
 	if len(args) > 0 && args[0] == "print-path-snippet" {
 		runPrintPathSnippet(args[1:])
 
-		return
+		return nil
 	}
 
 	checkHelp("setup", args)
@@ -36,6 +36,7 @@ func runSetup(args []string) {
 	ensureZshUbuntuStep(dryRun)
 	verifyShellWrapper(dryRun)
 	printSetupSummary(result)
+	return nil
 }
 
 // installPathSnippet writes the canonical marker-block PATH snippet to

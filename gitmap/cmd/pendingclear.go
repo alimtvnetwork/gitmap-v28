@@ -92,13 +92,14 @@ func processPendingClear(db *store.DB, tasks []model.PendingTaskRecord,
 
 // runPendingClear is wired in from runPending when args[0] == "clear".
 // args is everything after the "clear" token.
-func runPendingClear(args []string) {
+func runPendingClear(args []string) error {
 	mode, dryRun, yes, idMatch := mustParsePendingClearArgs(args)
 	db := mustOpenPendingDB()
 	defer db.Close()
 
 	tasks := mustListPendingTasks(db)
 	processPendingClear(db, tasks, mode, idMatch, dryRun, yes)
+	return nil
 }
 
 // parsePendingClearID validates a string as numeric ID and flags invalid modes.

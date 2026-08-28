@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func runPromptStatus(targets []string) {
+func runPromptStatus(targets []string) error {
 	if len(targets) == 0 {
 		targets, _ = ResolvePromptTarget("")
 	}
@@ -22,4 +22,5 @@ func runPromptStatus(targets []string) {
 		layout.PrintRow(t, meta)
 	}
 	fmt.Println("  --------------------------------------------------------------------------------")
+	return nil
 }

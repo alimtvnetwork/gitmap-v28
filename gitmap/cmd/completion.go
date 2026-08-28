@@ -9,17 +9,18 @@ import (
 )
 
 // runCompletion handles the "completion" subcommand.
-func runCompletion(args []string) {
+func runCompletion(args []string) error {
 	checkHelp("completion", args)
 	if hasListFlag(args) {
 		handleCompletionList(args)
-		return
+		return nil
 	}
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCompUsage)
 		os.Exit(1)
 	}
 	printCompletionScript(args[0])
+	return nil
 }
 
 // hasListFlag checks if any --list-* flag is present.

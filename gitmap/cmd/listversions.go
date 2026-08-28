@@ -15,7 +15,7 @@ type versionEntry struct {
 }
 
 // runListVersions handles the "list-versions" command.
-func runListVersions(args []string) {
+func runListVersions(args []string) error {
 	checkHelp("list-versions", args)
 	asJSON := hasListVersionsJSONFlag(args)
 	limit := parseListVersionsLimit(args)
@@ -27,10 +27,11 @@ func runListVersions(args []string) {
 	if asJSON {
 		printVersionEntriesJSON(entries)
 
-		return
+		return nil
 	}
 
 	printVersionEntriesTerminal(entries)
+	return nil
 }
 
 // parseListVersionsSource extracts the --source value from args.

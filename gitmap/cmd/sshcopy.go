@@ -14,7 +14,7 @@ import (
 // runSSHCopy prints the public key (like `ssh cat`) AND pushes it to the
 // OS clipboard. Falls back to a "copy it manually" warning when no
 // clipboard tool is available — never fails the user.
-func runSSHCopy(args []string) {
+func runSSHCopy(args []string) error {
 	fs := flag.NewFlagSet("ssh-copy", flag.ExitOnError)
 	nameFlag := fs.String("name", constants.DefaultSSHKeyName, "Key name")
 	fs.StringVar(nameFlag, "n", constants.DefaultSSHKeyName, "Key name (short)")
@@ -38,6 +38,7 @@ func runSSHCopy(args []string) {
 	fmt.Println(pub)
 
 	copyPubKeyAndAnnounce(pub)
+	return nil
 }
 
 // copyPubKeyAndAnnounce pushes the public key to the OS clipboard and

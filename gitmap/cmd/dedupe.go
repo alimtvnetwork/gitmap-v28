@@ -18,7 +18,7 @@ type headTreeEntry struct {
 }
 
 // runDedupe executes `gitmap dedupe`.
-func runDedupe(args []string) {
+func runDedupe(args []string) error {
 	checkHelp("dedupe", args)
 	fs := flag.NewFlagSet("dedupe", flag.ContinueOnError)
 	root := fs.String("root", ".", "scan root directory")
@@ -45,6 +45,7 @@ func runDedupe(args []string) {
 	}
 	dupes := filterDuplicateGroups(groups)
 	emitDedupe(dupes, fmtKind)
+	return nil
 }
 
 // headTreeSHA returns the tree SHA pointed to by HEAD for repo at dir.

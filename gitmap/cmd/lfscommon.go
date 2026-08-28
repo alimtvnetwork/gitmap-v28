@@ -48,7 +48,7 @@ type lfsCommonFlags struct {
 // canonical "<pattern> filter=lfs diff=lfs merge=lfs -text" lines into
 // .gitattributes. Idempotent: re-running prints which patterns were
 // added vs. already tracked.
-func runLFSCommon(args []string) {
+func runLFSCommon(args []string) error {
 	checkHelp("lfs-common", args)
 
 	flags := parseLFSCommonFlags(args)
@@ -70,7 +70,7 @@ func runLFSCommon(args []string) {
 	if flags.dryRun {
 		printLFSCommonDryRun()
 
-		return
+		return nil
 	}
 
 	if err := runGitLFSInstall(); err != nil {
@@ -79,6 +79,7 @@ func runLFSCommon(args []string) {
 
 	added, existing, failed := trackLFSPatterns(lfsCommonPatterns)
 	printLFSCommonSummary(added, existing, failed)
+	return nil
 }
 
 // parseLFSCommonFlags parses CLI flags for lfs-common.

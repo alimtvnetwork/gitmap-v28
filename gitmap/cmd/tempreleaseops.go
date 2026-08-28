@@ -13,7 +13,7 @@ import (
 )
 
 // runTempReleaseCreate creates temp-release branches from recent commits.
-func runTempReleaseCreate(args []string) {
+func runTempReleaseCreate(args []string) error {
 	count, pattern, start, dryRun, _ := parseTempReleaseCreateFlags(args)
 	prefix, digitCount := parseVersionPattern(pattern)
 
@@ -36,6 +36,7 @@ func runTempReleaseCreate(args []string) {
 
 	validateSequenceRange(start, count, digitCount)
 	executeTRCreate(db, count, prefix, digitCount, start, dryRun)
+	return nil
 }
 
 // executeTRCreate fetches commits and creates branches or prints dry-run.

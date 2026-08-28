@@ -25,9 +25,9 @@ Examples:
 // true when the top-level command was "add" so root.go knows the request
 // was consumed (success or failure both count — failure exits inside the
 // handler).
-func dispatchAdd(command string) bool {
+func dispatchAdd(command string) (bool, error) {
 	if command != "add" {
-		return false
+		return false, nil
 	}
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, addUsage)
@@ -48,5 +48,5 @@ func dispatchAdd(command string) bool {
 		os.Exit(1)
 	}
 
-	return true
+	return true, nil
 }

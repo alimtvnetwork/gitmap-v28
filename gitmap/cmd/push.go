@@ -30,7 +30,7 @@ type pushOptions struct {
 }
 
 // runPush is the entry point for `gitmap push`.
-func runPush(args []string) {
+func runPush(args []string) error {
 	checkHelp(constants.CmdPush, args)
 	cwd, _ := os.Getwd()
 	fmt.Printf("→ gitmap push (cwd: %s)\n", cwd)
@@ -39,7 +39,7 @@ func runPush(args []string) {
 	useSSH, useHTTPS, rest := extractTransportFlags(args)
 	if useSSH || useHTTPS {
 		runPushCWDWithTransport(useSSH, useHTTPS, rest)
-		return
+		return nil
 	}
 	opts := parsePushFlags(args)
 	if opts.verbose {
@@ -49,10 +49,10 @@ func runPush(args []string) {
 	if shouldPushCWD(opts) {
 		fmt.Println("  ↳ cwd is a git repo — running plain `git push` here")
 		runPushCWD(rest)
-		return
+		return nil
 	}
 	if pushNoTargetsHint(opts) {
-		return
+		return nil
 	}
 	records := resolvePullTargets(opts.slug, opts.group, opts.all) // Reusing target resolver from pull.go
 	fmt.Printf("  ↳ resolved %d repo(s) to push\n", len(records))
@@ -82,6 +82,7 @@ func runPush(args []string) {
 		statusArgs = append(statusArgs, "--all")
 	}
 	runStatus(statusArgs)
+	return nil
 }
 
 // shouldPushCWD reports whether `gitmap push` was invoked with no targeting flags
@@ -144,25 +145,27 @@ func parsePushFlags(args []string) pushOptions {
 	return opts
 }
 
-func runPushCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) {
+func runPushCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	cwd, _ := os.Getwd()
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap push` inside a repo)")
 		exitWith(1)
-		return
+		return nil
 	}
 	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
 		exitWith(1)
-		return
+		return nil
 	}
 	pushWithAutoRebase(cwd, extraArgs)
+	return nil
 }
 
-func runPushCWD(extraArgs []string) {
+func runPushCWD(extraArgs []string) error {
 	cwd, _ := os.Getwd()
 	pushWithAutoRebase(cwd, extraArgs)
+	return nil
 }
 
 func beginPushTask(records []model.ScanRecord, rest []string) (int64, *store.DB) {

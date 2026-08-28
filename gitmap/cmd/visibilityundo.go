@@ -36,7 +36,7 @@ type undoFlags struct {
 }
 
 // runVisibilityUndo is the dispatcher entry point.
-func runVisibilityUndo(args []string) {
+func runVisibilityUndo(args []string) error {
 	flags := parseVisUndoArgs(args)
 	run, results := loadReversible(flags.RunID, "", constants.ErrUndoNoRunFound)
 	if flags.DryRun {
@@ -44,6 +44,7 @@ func runVisibilityUndo(args []string) {
 		os.Exit(constants.ExitVisOK)
 	}
 	reverseRunAndExit(run, results, flags, constants.CmdVisibilityUndo)
+	return nil
 }
 
 // parseVisUndoArgs + mustParseRunID + printVisDryRun live in

@@ -24,7 +24,7 @@ import (
 // runProbe dispatches `gitmap probe [<repo-path>|--all] [--json] [--workers N]`.
 // The probe pool is capped at constants.ProbeMaxWorkers (default 2) to
 // stay under provider rate limits.
-func runProbe(args []string) {
+func runProbe(args []string) error {
 	checkHelp("probe", args)
 	opts := mustParseProbeArgs(args)
 
@@ -34,9 +34,10 @@ func runProbe(args []string) {
 	targets := mustResolveProbeTargets(db, opts.rest)
 	if len(targets) == 0 {
 		emitProbeEmpty(opts.jsonOut)
-		return
+		return nil
 	}
 	probeAndReport(db, targets, opts)
+	return nil
 }
 
 // mustParseProbeArgs is a fatal wrapper around parseProbeArgs.

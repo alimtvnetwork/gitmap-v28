@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-func runChromeWhich(_ []string) {
+func runChromeWhich(_ []string) error {
 	root := chromeUserDataDir()
 	statePath := filepath.Join(root, "Local State")
 	raw, err := os.ReadFile(statePath) //nolint:gosec
@@ -41,4 +41,5 @@ func runChromeWhich(_ []string) {
 			fmt.Printf("  - %s  \033[2;37m(display: %q)\033[0m\n", d, doc.Profile.InfoCache[d].Name)
 		}
 	}
+	return nil
 }

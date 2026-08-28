@@ -12,7 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/searcher"
 )
 
-func runFileSearch(args []string) {
+func runFileSearch(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, "Usage: gitmap file-search <file> <regex> [contextBefore] [contextAfter]")
 		os.Exit(1)
@@ -59,7 +59,7 @@ func runFileSearch(args []string) {
 		if err := json.Unmarshal([]byte(cachedJson), &res); err == nil {
 			db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", cacheKey)
 			printFileSearchResults(res)
-			return
+			return nil
 		}
 	}
 
@@ -113,6 +113,7 @@ func runFileSearch(args []string) {
 	}
 
 	printFileSearchResults(results)
+	return nil
 }
 
 func printFileSearchResults(res []searcher.SearchResult) {

@@ -30,7 +30,7 @@ func currentRepoOwnerRepo() (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
-func runPR(args []string) {
+func runPR(args []string) error {
 	checkHelp(constants.CmdPR, args)
 
 	owner := ""
@@ -80,9 +80,10 @@ func runPR(args []string) {
 	if token == "" {
 		fmt.Println("\n\033[2;37mhint:\033[0m export GITHUB_TOKEN for higher rate limits + private repos")
 	}
+	return nil
 }
 
-func runBlameStats(args []string) {
+func runBlameStats(args []string) error {
 	root := "."
 	if len(args) > 0 {
 		root = args[0]
@@ -111,4 +112,5 @@ func runBlameStats(args []string) {
 	for who, n := range totals {
 		fmt.Printf("  %-30s %d\n", who, n)
 	}
+	return nil
 }

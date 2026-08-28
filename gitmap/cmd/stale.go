@@ -20,7 +20,7 @@ type staleRepo struct {
 }
 
 // runStale executes `gitmap stale`.
-func runStale(args []string) {
+func runStale(args []string) error {
 	checkHelp("stale", args)
 	fs := flag.NewFlagSet("stale", flag.ContinueOnError)
 	days := fs.Int("days", 90, "report repos with no commits in the last N days")
@@ -50,6 +50,7 @@ func runStale(args []string) {
 	if *archive {
 		archiveStaleRepos(probed, *dryRun)
 	}
+	return nil
 }
 
 // emitStale dispatches to the requested output format.

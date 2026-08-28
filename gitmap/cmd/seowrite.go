@@ -31,22 +31,23 @@ type seoWriteFlags struct {
 }
 
 // runSEOWrite is the entry point for the seo-write command.
-func runSEOWrite(args []string) {
+func runSEOWrite(args []string) error {
 	checkHelp("seo-write", args)
 	if isCreateTemplateShorthand(args) {
 		createTemplateFile()
 
-		return
+		return nil
 	}
 
 	flags := parseSEOWriteFlags(args)
 	if flags.createTemplate {
 		createTemplateFile()
 
-		return
+		return nil
 	}
 
 	executeSEOWrite(flags)
+	return nil
 }
 
 // isCreateTemplateShorthand checks if the first arg is the "ct" alias.

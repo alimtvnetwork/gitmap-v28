@@ -10,7 +10,7 @@ import (
 )
 
 // runTempReleaseList lists all temp-release branches.
-func runTempReleaseList(args []string) {
+func runTempReleaseList(args []string) error {
 	jsonOutput := hasTRListFlag(args, "--json")
 
 	db, err := openDB()
@@ -31,13 +31,14 @@ func runTempReleaseList(args []string) {
 
 	if jsonOutput == false {
 		printTRList(releases)
-		return
+		return nil
 	}
 
 	errEncode := encodeTempReleaseListJSON(os.Stdout, releases)
 	if errEncode != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to encode temp releases to JSON: %v\n", errEncode)
 	}
+	return nil
 }
 
 // printTRList prints temp-release records in terminal format.

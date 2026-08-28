@@ -8,15 +8,15 @@ import (
 )
 
 // dispatchUser handles the "user" command routing.
-func dispatchUser(command string) bool {
+func dispatchUser(command string) (bool, error) {
 	if command != "user" {
-		return false
+		return false, nil
 	}
 
 	args := os.Args[2:]
 	if len(args) == 0 {
 		printUserUsage()
-		return true
+		return true, nil
 	}
 
 	sub := args[0]
@@ -63,7 +63,7 @@ func dispatchUser(command string) bool {
 		os.Exit(1)
 	}
 
-	return true
+	return true, nil
 }
 
 func printUserUsage() {

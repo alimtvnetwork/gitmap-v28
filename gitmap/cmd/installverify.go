@@ -174,27 +174,30 @@ func toolBinaryName(tool string) string {
 }
 
 // runPostInstall executes post-install actions for specific tools.
-func runPostInstall(tool string) {
+func runPostInstall(tool string) error {
 	if tool == constants.ToolGitLFS {
 		runPostInstallGitLFS()
 
-		return
+		return nil
 	}
 	if tool == constants.ToolGit {
 		runPostInstallGit()
 
-		return
+		return nil
 	}
+	return nil
 }
 
 // runPostInstallGitLFS runs git lfs install.
-func runPostInstallGitLFS() {
+func runPostInstallGitLFS() error {
 	cmd := exec.Command("git", "lfs", "install")
 	_ = cmd.Run()
+	return nil
 }
 
 // runPostInstallGit configures git longpaths.
-func runPostInstallGit() {
+func runPostInstallGit() error {
 	cmd := exec.Command("git", "config", "--global", "core.longpaths", "true")
 	_ = cmd.Run()
+	return nil
 }

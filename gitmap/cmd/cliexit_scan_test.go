@@ -54,7 +54,7 @@ func TestScanCLI_ExitCodes(t *testing.T) {
 	}
 }
 
-func runScanExitTestCase(t *testing.T, tc scanExitTestCase) {
+func runScanExitTestCase(t *testing.T, tc scanExitTestCase) error {
 	if tc.name == "failure_missing_dir" {
 		skipOnWindowsSubprocess(t)
 	}
@@ -64,6 +64,7 @@ func runScanExitTestCase(t *testing.T, tc scanExitTestCase) {
 		t.Fatalf("exit=%d want=%d\nstdout=%s\nstderr=%s", code, tc.wantCode, stdout, stderr)
 	}
 	assertScanExitOutput(t, stdout, stderr, tc)
+	return nil
 }
 
 func assertScanExitOutput(t *testing.T, stdout, stderr string, tc scanExitTestCase) {

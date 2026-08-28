@@ -17,10 +17,11 @@ import (
 // version reported by constants.Version.
 //
 // Spec: spec/01-app/109-install-gitmap-oneliner.md
-func runInstallGitmapOneliner() {
+func runInstallGitmapOneliner() error {
 	w := os.Stdout
 
 	fmt.Fprintf(w, constants.MsgInstallHintHeader, constants.Version)
 	fmt.Fprint(w, constants.MsgInstallHintWindows)
 	fmt.Fprint(w, constants.MsgInstallHintUnix)
+	return nil
 }

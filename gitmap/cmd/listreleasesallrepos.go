@@ -11,16 +11,17 @@ import (
 // runListReleasesAllRepos executes the multi-repo batch view that reads
 // EVERY Release row joined with its owning Repo. Triggered by
 // `gitmap releases --all-repos` (or `gitmap lr --all-repos`).
-func runListReleasesAllRepos(asJSON bool, limit int) {
+func runListReleasesAllRepos(asJSON bool, limit int) error {
 	records := loadReleasesAcrossRepos()
 	records = applyAllReposLimit(records, limit)
 
 	if asJSON {
 		printAllReposJSON(records)
 
-		return
+		return nil
 	}
 	printAllReposTerminal(records)
+	return nil
 }
 
 // loadReleasesAcrossRepos opens the DB and queries the joined view.

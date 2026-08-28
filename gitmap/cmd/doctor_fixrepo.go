@@ -25,7 +25,7 @@ import (
 // runDoctorFixRepo executes the fix-repo probe suite. Called by
 // runDoctor when args[0] == "fix-repo" (or "fr"). Honors --json and
 // --budget <N>.
-func runDoctorFixRepo(args []string) {
+func runDoctorFixRepo(args []string) error {
 	wantJSON := false
 	budget := constants.FixRepoGofmtMaxCmdLen
 	for i := 0; i < len(args); i++ {
@@ -57,6 +57,7 @@ func runDoctorFixRepo(args []string) {
 	if failed > 0 {
 		os.Exit(1)
 	}
+	return nil
 }
 
 func parseBudget(val string, defaultBudget int) int {

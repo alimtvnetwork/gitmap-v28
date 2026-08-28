@@ -45,7 +45,7 @@ type addTemplateSpec struct {
 // runAddIgnore handles `gitmap add ignore [langs...]`. Always merges
 // `common` first so OS junk + IDE noise are guaranteed to land regardless
 // of which languages the user picked.
-func runAddIgnore(args []string) {
+func runAddIgnore(args []string) error {
 	checkHelp("add-ignore", args)
 	executeAddTemplate(addTemplateSpec{
 		kind:        "ignore",
@@ -53,11 +53,12 @@ func runAddIgnore(args []string) {
 		targetName:  ".gitignore",
 		bannerLabel: "merge curated .gitignore template block",
 	}, args)
+	return nil
 }
 
 // runAddAttributes handles `gitmap add attributes [langs...]`. Same
 // pipeline as runAddIgnore, just a different file + extension.
-func runAddAttributes(args []string) {
+func runAddAttributes(args []string) error {
 	checkHelp("add-attributes", args)
 	executeAddTemplate(addTemplateSpec{
 		kind:        "attributes",
@@ -65,6 +66,7 @@ func runAddAttributes(args []string) {
 		targetName:  ".gitattributes",
 		bannerLabel: "merge curated .gitattributes template block",
 	}, args)
+	return nil
 }
 
 // executeAddTemplate is the shared pipeline. Kept to a single high-level

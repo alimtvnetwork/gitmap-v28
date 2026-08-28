@@ -113,7 +113,7 @@ func extractBaseAndVersionFromArg(arg string) (string, int) {
 // seen and exits with it at the end so the user sees a real failure
 // signal even when most items succeed.
 func runBulkVisibility(ctx visibilityContext, req bulkVisibilityRequest,
-	target string, opts visibilityFlags) {
+	target string, opts visibilityFlags) error {
 
 	fmt.Printf(constants.MsgVisBulkHeaderFmt, target, req.Count, req.BaseRepo, ctx.Provider)
 
@@ -136,6 +136,7 @@ func runBulkVisibility(ctx visibilityContext, req bulkVisibilityRequest,
 	}
 
 	os.Exit(worst)
+	return nil
 }
 
 // flipOneSlug visits a single owner/base-vN slug, flipping to target.

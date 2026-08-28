@@ -10,11 +10,11 @@ import (
 )
 
 // runVSCodeContextMenu adds VS Code to the Windows right-click context menu.
-func runVSCodeContextMenu() {
+func runVSCodeContextMenu() error {
 	if runtime.GOOS != "windows" {
 		fmt.Fprintf(os.Stderr, "  Error: vscode-ctx is only supported on Windows (current OS: %s)\n", runtime.GOOS)
 
-		return
+		return nil
 	}
 
 	fmt.Println("  Adding VS Code to Windows context menu...")
@@ -29,14 +29,15 @@ func runVSCodeContextMenu() {
 	}
 
 	runRegistryCommands("VS Code", regCommands)
+	return nil
 }
 
 // runPwshContextMenu adds PowerShell 7 to the Windows right-click context menu.
-func runPwshContextMenu() {
+func runPwshContextMenu() error {
 	if runtime.GOOS != "windows" {
 		fmt.Fprintf(os.Stderr, "  Error: pwsh-ctx is only supported on Windows (current OS: %s)\n", runtime.GOOS)
 
-		return
+		return nil
 	}
 
 	fmt.Println("  Adding PowerShell 7 to Windows context menu...")
@@ -51,10 +52,11 @@ func runPwshContextMenu() {
 	}
 
 	runRegistryCommands("PowerShell 7", regCommands)
+	return nil
 }
 
 // runRegistryCommands executes a set of registry commands and reports results.
-func runRegistryCommands(label string, commands [][]string) {
+func runRegistryCommands(label string, commands [][]string) error {
 	success := 0
 
 	for _, args := range commands {
@@ -70,10 +72,11 @@ func runRegistryCommands(label string, commands [][]string) {
 	}
 
 	fmt.Printf("  ✓ %s context menu entries added (%d/%d registry keys).\n", label, success, len(commands))
+	return nil
 }
 
 // runAllDevTools installs all core developer tools sequentially.
-func runAllDevTools(opts installOptions) {
+func runAllDevTools(opts installOptions) error {
 	allTools := []string{
 		constants.ToolGit,
 		constants.ToolGitLFS,
@@ -120,4 +123,5 @@ func runAllDevTools(opts installOptions) {
 	}
 
 	fmt.Printf("\n  ✅ All dev tools: %d installed, %d already present.\n", installed, skipped)
+	return nil
 }

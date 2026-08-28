@@ -69,13 +69,13 @@ type cloneFromFlags struct {
 // runCloneFrom is the dispatcher entry. checkHelp handles `--help`
 // per the project's help-system convention before any flag parsing
 // so unparseable flags don't suppress the help text.
-func runCloneFrom(args []string) {
+func runCloneFrom(args []string) error {
 	checkHelp("clone-from", args)
 	cfg := parseCloneFromFlags(args)
 	if cfg.emitSchema != "" {
 		runCloneFromEmitSchema(cfg.emitSchema)
 
-		return
+		return nil
 	}
 	setCmdFaithfulVerify(cfg.verifyCmdFaithful)
 	setCmdFaithfulExitOnMismatch(cfg.verifyCmdFaithfulExitOnMismatch)
@@ -89,9 +89,10 @@ func runCloneFrom(args []string) {
 		runCloneFromDry(plan, cfg)
 		maybeExitOnCmdFaithfulMismatch()
 
-		return
+		return nil
 	}
 	runCloneFromExecute(plan, cfg)
+	return nil
 }
 
 // runCloneFromEmitSchema lives in clonefrom_emitschema.go to keep
@@ -109,11 +110,12 @@ func runCloneFrom(args []string) {
 // dry-run conventional code (0 = "I would do these things"). No
 // side effects — by design, a dry-run never touches the network
 // or the filesystem outside of READING the input file.
-func runCloneFromDry(plan clonefrom.Plan, cfg cloneFromFlags) {
+func runCloneFromDry(plan clonefrom.Plan, cfg cloneFromFlags) error {
 	render := pickCloneFromRenderer(cfg.output)
 	if err := render(os.Stdout, plan); err != nil {
 		cliexit.Fail(constants.CmdCloneFrom, "render-dry-run", cfg.file, err, 1)
 	}
+	return nil
 }
 
 // pickCloneFromRenderer dispatches between the legacy and the
@@ -132,7 +134,7 @@ func pickCloneFromRenderer(output string) func(io.Writer, clonefrom.Plan) error 
 // progress writer based on --quiet, executes the plan, writes the
 // CSV report (unless --no-report), prints the summary, then
 // translates the result tally to an exit code.
-func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) {
+func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) error {
 	progress := io.Writer(os.Stderr)
 	if cfg.quiet {
 		progress = io.Discard
@@ -168,6 +170,7 @@ func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) {
 	}
 	maybeExitOnCmdFaithfulMismatch()
 	os.Exit(cloneFromExitCode(results))
+	return nil
 }
 
 // writeCloneFromReports lives in clonefrom_reports.go to keep this

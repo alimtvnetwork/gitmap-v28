@@ -34,12 +34,12 @@ type backupSnapshot struct {
 }
 
 // runBackup dispatches `gitmap backup <sub>`.
-func runBackup(args []string) {
+func runBackup(args []string) error {
 	checkHelp("backup", args)
 	if len(args) == 0 {
 		runBackupLs(nil)
 
-		return
+		return nil
 	}
 	switch args[0] {
 	case constants.SubCmdBackupLs, constants.SubCmdBackupList:
@@ -50,10 +50,11 @@ func runBackup(args []string) {
 		fmt.Fprintf(os.Stderr, "gitmap backup: unknown subcommand %q (want: ls | prune)\n", args[0])
 		os.Exit(2)
 	}
+	return nil
 }
 
 // runBackupLs prints a per-repo summary of backup snapshots.
-func runBackupLs(_ []string) {
+func runBackupLs(_ []string) error {
 	root, err := backupRoot()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "gitmap backup ls: %v\n", err)
@@ -67,13 +68,14 @@ func runBackupLs(_ []string) {
 	if len(snaps) == 0 {
 		fmt.Fprintf(os.Stdout, "\n  no backups under %s\n\n", root)
 
-		return
+		return nil
 	}
 	printBackupTable(root, snaps)
+	return nil
 }
 
 // runBackupPrune deletes snapshots per --keep / --older-than flags.
-func runBackupPrune(args []string) {
+func runBackupPrune(args []string) error {
 	fs := flag.NewFlagSet("backup prune", flag.ContinueOnError)
 	keep := fs.Int("keep", 0, "keep newest N snapshots per repo (0 = unlimited)")
 	olderDays := fs.Int("older-than", 0, "delete snapshots older than N days (0 = no age filter)")
@@ -97,6 +99,7 @@ func runBackupPrune(args []string) {
 	}
 	victims := selectPruneVictims(snaps, *keep, *olderDays)
 	applyPrune(victims, *dryRun)
+	return nil
 }
 
 // backupRoot returns the absolute `<cwd>/.gitmap/backup` path.

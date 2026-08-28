@@ -15,7 +15,7 @@ import (
 )
 
 // runVisibilityRedo is the dispatcher entry point.
-func runVisibilityRedo(args []string) {
+func runVisibilityRedo(args []string) error {
 	flags := parseVisUndoArgs(args)
 	run, results := loadReversible(flags.RunID, constants.CommandKindVisibilityUndo, constants.ErrRedoNoRunFound)
 	if flags.DryRun {
@@ -23,4 +23,5 @@ func runVisibilityRedo(args []string) {
 		os.Exit(constants.ExitVisOK)
 	}
 	reverseRunAndExit(run, results, flags, constants.CmdVisibilityRedo)
+	return nil
 }

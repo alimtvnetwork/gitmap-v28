@@ -35,7 +35,7 @@ type auditLegacyOpts struct {
 }
 
 // runAuditLegacy is the dispatch entry point.
-func runAuditLegacy(args []string) {
+func runAuditLegacy(args []string) error {
 	checkHelp(constants.CmdAuditLegacy, args)
 	opts, err := parseAuditLegacyArgs(args)
 	if err != nil {
@@ -52,6 +52,7 @@ func runAuditLegacy(args []string) {
 	if len(hits) > 0 {
 		os.Exit(1)
 	}
+	return nil
 }
 
 // (parseAuditLegacyArgs and pattern helpers live in auditlegacy_parse.go)

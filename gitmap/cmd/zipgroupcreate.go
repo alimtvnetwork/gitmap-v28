@@ -12,13 +12,14 @@ import (
 
 // runZipGroupCreate handles "zip-group create <name> [path...] [--archive <name>]".
 // If paths are provided, they are resolved and added as items immediately.
-func runZipGroupCreate(args []string) {
+func runZipGroupCreate(args []string) error {
 	name, archiveName, paths := parseZipGroupCreateFlags(args)
 	if len(name) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrZGEmpty)
 		os.Exit(1)
 	}
 	executeZipGroupCreate(name, archiveName, paths)
+	return nil
 }
 
 // parseZipGroupCreateFlags parses flags for zip-group create.
@@ -76,7 +77,7 @@ func executeZipGroupCreate(name, archiveName string, paths []string) {
 }
 
 // runZipGroupAdd handles "zip-group add <group> <path...>".
-func runZipGroupAdd(args []string) {
+func runZipGroupAdd(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, constants.ErrZGEmpty)
 		os.Exit(1)
@@ -97,6 +98,7 @@ func runZipGroupAdd(args []string) {
 	}
 
 	syncZipGroupJSON(db)
+	return nil
 }
 
 // addResolvedZipGroupItem resolves a path relative to CWD and adds it to the group.

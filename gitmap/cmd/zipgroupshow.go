@@ -11,7 +11,7 @@ import (
 )
 
 // runZipGroupList handles "zip-group list".
-func runZipGroupList() {
+func runZipGroupList() error {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
@@ -27,6 +27,7 @@ func runZipGroupList() {
 
 	printZipGroupList(groups)
 	printHints(zipGroupListHints())
+	return nil
 }
 
 // printZipGroupList renders the zip group table to stdout.
@@ -50,7 +51,7 @@ func printZipGroupList(groups []store.ZipGroupWithCount) {
 }
 
 // runZipGroupShow handles "zip-group show <name>".
-func runZipGroupShow(args []string) {
+func runZipGroupShow(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrZGEmpty)
 		os.Exit(1)
@@ -58,6 +59,7 @@ func runZipGroupShow(args []string) {
 
 	name := args[0]
 	executeZipGroupShow(name)
+	return nil
 }
 
 // executeZipGroupShow opens the DB and displays group items with dynamic expansion.

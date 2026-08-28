@@ -9,13 +9,14 @@ import (
 )
 
 // runGroupShow handles "group show <name>".
-func runGroupShow(args []string) {
+func runGroupShow(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrGroupNameReq)
 		os.Exit(1)
 	}
 	name := args[0]
 	executeGroupShow(name)
+	return nil
 }
 
 // executeGroupShow opens the DB and displays group repos.

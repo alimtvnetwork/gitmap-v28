@@ -58,7 +58,7 @@ func executeInstallSteps(installCmd []string, opts installOptions, manager, vers
 	runStepInstall(installCmd, opts, manager, versionLabel, step, totalSteps)
 }
 
-func runStepInstall(installCmd []string, opts installOptions, manager, versionLabel string, step, totalSteps int) {
+func runStepInstall(installCmd []string, opts installOptions, manager, versionLabel string, step, totalSteps int) error {
 	fmt.Printf("  [%d/%d] Installing %s v%s via %s...\n", step, totalSteps, opts.Tool, versionLabel, manager)
 	runInstallCommand(installCmd, opts)
 	step++
@@ -67,6 +67,7 @@ func runStepInstall(installCmd []string, opts installOptions, manager, versionLa
 	step++
 	fmt.Printf("  [%d/%d] Recording installation...\n", step, totalSteps)
 	recordInstallation(opts.Tool, manager)
+	return nil
 }
 
 // buildInstallCommand builds the install command for a given manager and tool.
@@ -153,7 +154,7 @@ func isBrewCaskTool(tool string) bool {
 }
 
 // runAptUpdate runs sudo apt-get update to refresh the package index.
-func runAptUpdate(verbose bool) {
+func runAptUpdate(verbose bool) error {
 	fmt.Print(constants.MsgInstallAptUpdate)
 	cmd := exec.Command("sudo", "apt-get", "update")
 	if verbose {
@@ -162,19 +163,21 @@ func runAptUpdate(verbose bool) {
 	}
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrInstallAptUpdateFailed, err)
-		return
+		return nil
 	}
 	fmt.Print(constants.MsgInstallAptUpdateDone)
+	return nil
 }
 
 // runInstallCommand executes the install command and logs errors.
-func runInstallCommand(args []string, opts installOptions) {
+func runInstallCommand(args []string, opts installOptions) error {
 	output, err := execInstallCommand(args, opts.Verbose)
 	if err != nil {
 		handleInstallError(args, opts, output, err)
-		return
+		return nil
 	}
 	fmt.Printf("  ✓ %s install command completed successfully.\n", opts.Tool)
+	return nil
 }
 
 func execInstallCommand(args []string, verbose bool) ([]byte, error) {
@@ -396,14 +399,14 @@ func recordInstallation(tool, manager string) {
 	}
 }
 
-func runInstallGitHubDesktopLinux(opts installOptions) {
+func runInstallGitHubDesktopLinux(opts installOptions) error {
 	if alreadyInstalled(opts.Tool) {
-		return
+		return nil
 	}
 	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	if manager != constants.PkgMgrApt {
 		executeGenericInstall(opts)
-		return
+		return nil
 	}
 
 	fmt.Printf("\n  +-- Install Plan ---------------------\n")
@@ -414,7 +417,7 @@ func runInstallGitHubDesktopLinux(opts installOptions) {
 	fmt.Printf("  +--------------------------------------\n\n")
 
 	if handleDryRunInstall(opts.DryRun, "apt", []string{"sudo", "apt", "install", "-y", "github-desktop"}) {
-		return
+		return nil
 	}
 
 	fmt.Printf("  [1/3] Adding shiftkey/desktop APT repository...\n")
@@ -443,16 +446,17 @@ func runInstallGitHubDesktopLinux(opts installOptions) {
 
 	recordInstallation(opts.Tool, "apt")
 	fmt.Printf("  Done!\n")
+	return nil
 }
 
-func runInstallVSCodeLinux(opts installOptions) {
+func runInstallVSCodeLinux(opts installOptions) error {
 	if alreadyInstalled(opts.Tool) {
-		return
+		return nil
 	}
 	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	if manager != constants.PkgMgrApt {
 		executeGenericInstall(opts)
-		return
+		return nil
 	}
 
 	fmt.Printf("\n  +-- Install Plan ---------------------\n")
@@ -463,7 +467,7 @@ func runInstallVSCodeLinux(opts installOptions) {
 	fmt.Printf("  +--------------------------------------\n\n")
 
 	if handleDryRunInstall(opts.DryRun, "apt", []string{"sudo", "apt", "install", "-y", "code"}) {
-		return
+		return nil
 	}
 
 	fmt.Printf("  [1/4] Adding Microsoft GPG key...\n")
@@ -503,4 +507,5 @@ func runInstallVSCodeLinux(opts installOptions) {
 	}
 
 	fmt.Println("  ✓ VS Code installed successfully.")
+	return nil
 }

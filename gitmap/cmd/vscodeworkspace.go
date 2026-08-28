@@ -38,7 +38,7 @@ type vscodeWorkspaceFlags struct {
 }
 
 // runVSCodeWorkspace is the dispatcher entry point.
-func runVSCodeWorkspace(args []string) {
+func runVSCodeWorkspace(args []string) error {
 	checkHelp("vscode-workspace", args)
 
 	flags := parseVSCodeWorkspaceFlags(args)
@@ -52,10 +52,11 @@ func runVSCodeWorkspace(args []string) {
 	if len(folders) == 0 {
 		fmt.Print(constants.MsgVSCodeWorkspaceEmpty)
 
-		return
+		return nil
 	}
 
 	writeWorkspaceFile(flags, folders)
+	return nil
 }
 
 // parseVSCodeWorkspaceFlags parses the three supported flags.

@@ -82,11 +82,12 @@ func makeIntegrationBareRepo(t *testing.T) string {
 
 // runIntegrationGit fatals on error with the combined output
 // included so a CI failure points at the offending git invocation.
-func runIntegrationGit(t *testing.T, dir string, args ...string) {
+func runIntegrationGit(t *testing.T, dir string, args ...string) error {
 	t.Helper()
 	cmd := exec.Command("git", args...)
 	cmd.Dir = dir
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("git %v in %s: %v\n%s", args, dir, err, string(out))
 	}
+	return nil
 }

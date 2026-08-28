@@ -33,7 +33,7 @@ type undoOptions struct {
 }
 
 // runUndo is the CLI dispatcher.
-func runUndo(args []string) {
+func runUndo(args []string) error {
 	checkHelp(constants.CmdUndo, args)
 	opts := parseUndoArgs(args)
 	identity := resolveFixRepoIdentity()
@@ -53,6 +53,7 @@ func runUndo(args []string) {
 		os.Exit(constants.FixRepoExitBadFlag)
 	}
 	restoreUndoSnapshot(filepath.Join(baseDir, chosen), identity.root, opts.isDryRun)
+	return nil
 }
 
 // parseUndoArgs is a tiny flag walker (no os.Args dep). Unknown flags

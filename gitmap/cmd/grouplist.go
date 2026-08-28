@@ -10,7 +10,7 @@ import (
 )
 
 // runGroupList handles "group list".
-func runGroupList() {
+func runGroupList() error {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
@@ -30,6 +30,7 @@ func runGroupList() {
 
 	printGroupList(db, groups)
 	printHints(groupListHints())
+	return nil
 }
 
 // printGroupList renders the group table to stdout.

@@ -105,7 +105,7 @@ func isGitRepoDir(dir string) bool {
 // runRepoReclone executes the destructive wipe + re-clone after
 // confirmation. Each failure path emits a standardized stderr line
 // per the zero-swallow error policy and exits non-zero.
-func runRepoReclone(target string, yes bool) {
+func runRepoReclone(target string, yes bool) error {
 	origin, err := currentOriginURL(target)
 	if err != nil || origin == "" {
 		fmt.Fprintf(os.Stderr, constants.ErrRepoRecloneNoOrigin, target, err)
@@ -142,6 +142,7 @@ func runRepoReclone(target string, yes bool) {
 
 	fmt.Printf(constants.MsgRepoRecloneDone, dest)
 	WriteShellHandoff(dest)
+	return nil
 }
 
 // confirmRepoReclone reads y/N from stdin. Non-TTY callers get a

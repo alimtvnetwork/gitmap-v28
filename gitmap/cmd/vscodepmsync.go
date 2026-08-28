@@ -19,7 +19,7 @@ import (
 )
 
 // runVSCodePMSync is the entry point wired into the dispatcher.
-func runVSCodePMSync(args []string) {
+func runVSCodePMSync(args []string) error {
 	checkHelp(constants.CmdVSCodePMSync, args)
 
 	opts, err := parseVSCodePMSyncFlags(args)
@@ -29,12 +29,12 @@ func runVSCodePMSync(args []string) {
 
 	path, entries, ok := loadVSCodePMEntries(opts)
 	if !ok {
-		return
+		return nil
 	}
 
 	if len(entries) == 0 {
 		fmt.Print(constants.MsgVSCodePMSyncEmptyFile)
-		return
+		return nil
 	}
 
 	fmt.Printf(constants.MsgVSCodePMSyncStart, path)
@@ -43,10 +43,11 @@ func runVSCodePMSync(args []string) {
 
 	if opts.DryRun {
 		emitVSCodePMSyncDryRunReport(entries, pairs, skipped)
-		return
+		return nil
 	}
 
 	commitVSCodePMSync(pairs, skipped, opts)
+	return nil
 }
 
 // loadVSCodePMEntries reads projects.json and returns the parsed
