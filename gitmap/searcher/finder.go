@@ -32,7 +32,7 @@ func FindFile(ctx context.Context, db *sql.DB, query string, limit int, useCache
 
 	sqlQuery := "SELECT RelativePath, AbsolutePath FROM RepoFile WHERE RelativePath LIKE ?"
 	likePattern := "%" + query + "%"
-	
+
 	if limit > 0 {
 		sqlQuery += " LIMIT ?"
 	}
@@ -150,7 +150,7 @@ func FindAndRead(ctx context.Context, db *sql.DB, query string, isRegex bool, li
 		if err != nil {
 			continue
 		}
-		
+
 		if isBig == 1 {
 			// Stub for big file read
 			content = "[BIG_FILE_CONTENT]"

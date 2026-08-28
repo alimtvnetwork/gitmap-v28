@@ -42,4 +42,3 @@ func TestDirtySource_RejectsRunRight(t *testing.T) {
 		t.Fatalf("expected uncommitted changes error, got: %v", err)
 	}
 }
-

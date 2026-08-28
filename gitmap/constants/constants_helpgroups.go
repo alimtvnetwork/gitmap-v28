@@ -81,14 +81,11 @@ const (
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
-	HelpInstaller         = "  installer (in) [run|ls|rm|history|edit]   Manage installer scripts and history (use --help to expand)"
-	HelpMacro             = "  macro (m) [run|ls|rm|history|edit]   Manage and execute macros (use --help to expand)"
-	HelpSchedule          = "  schedule (sc) [add|ls|rm|pause|resume]   Schedule tasks and run jobs (use --help to expand)"
-	HelpVSCode            = "  vscode (vsc) [ls|add|rm|pap|plugins]   Manage VS Code PM integrations (use --help to expand)"
-	HelpAgy               = "  antigravity (ag) [ls|add|rm|clear|open|prompt|rw|sync|pap|ep|ip|stats|plugin]   Manage workspaces (use --help to expand)"
-
-
-
+	HelpInstaller     = "  installer (in) [run|ls|rm|history|edit]   Manage installer scripts and history (use --help to expand)"
+	HelpMacro         = "  macro (m) [run|ls|rm|history|edit]   Manage and execute macros (use --help to expand)"
+	HelpSchedule      = "  schedule (sc) [add|ls|rm|pause|resume]   Schedule tasks and run jobs (use --help to expand)"
+	HelpVSCode        = "  vscode (vsc) [ls|add|rm|pap|plugins]   Manage VS Code PM integrations (use --help to expand)"
+	HelpAgy           = "  antigravity (ag) [ls|add|rm|clear|open|prompt|rw|sync|pap|ep|ip|stats|plugin]   Manage workspaces (use --help to expand)"
 )
 
 // HelpGroupKeys returns short keywords for tab-completion of group filtering.

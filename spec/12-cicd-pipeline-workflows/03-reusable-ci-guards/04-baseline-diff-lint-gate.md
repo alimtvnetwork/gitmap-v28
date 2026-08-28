@@ -199,7 +199,7 @@ Per-finding annotations follow:
 
 ## Reference Implementation
 
-See `.github/scripts/lint-diff.py` in `gitmap-v6`.
+See `.github/scripts/lint-diff.py` in `gitmap-v28`.
 
 ---
 

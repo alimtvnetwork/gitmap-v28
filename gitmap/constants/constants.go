@@ -150,4 +150,3 @@ const (
 
 // Verbose log file.
 const VerboseLogFileFmt = "gitmap-verbose-%s.log"
-

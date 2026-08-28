@@ -8,7 +8,7 @@ import (
 
 func TestLazyRegexp_Compilation(t *testing.T) {
 	lr := New("a(b)c")
-	
+
 	if lr.re != nil {
 		t.Errorf("expected re to be nil before compilation")
 	}
@@ -32,26 +32,26 @@ func TestLazyRegexp_Compilation(t *testing.T) {
 func TestLazyRegexp_ThreadSafety(t *testing.T) {
 	lr := New("foo|bar")
 	var wg sync.WaitGroup
-	
+
 	numGoroutines := 100
 	wg.Add(numGoroutines)
-	
+
 	instances := make([]*regexp.Regexp, numGoroutines)
-	
+
 	for i := 0; i < numGoroutines; i++ {
 		go func(idx int) {
 			defer wg.Done()
 			instances[idx] = lr.Re()
 		}(i)
 	}
-	
+
 	wg.Wait()
-	
+
 	first := instances[0]
 	if first == nil {
 		t.Fatalf("expected non-nil regexp")
 	}
-	
+
 	for i := 1; i < numGoroutines; i++ {
 		if instances[i] != first {
 			t.Errorf("expected instance %d to be same as first instance", i)
@@ -86,12 +86,12 @@ func TestLazyRegexp_Wrappers(t *testing.T) {
 
 func TestLazyRegexp_MustCompilePanic(t *testing.T) {
 	lr := New("[invalid regex")
-	
+
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("expected Re() to panic with invalid regex")
 		}
 	}()
-	
+
 	lr.Re()
 }

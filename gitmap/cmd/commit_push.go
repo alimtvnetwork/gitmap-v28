@@ -167,4 +167,3 @@ func execGitOutputCP(gitArgs ...string) (string, error) {
 	out, err := cmd.Output()
 	return string(out), err
 }
-

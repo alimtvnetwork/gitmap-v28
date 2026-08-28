@@ -153,7 +153,7 @@ CI step exit `1` with no `::error::` output.
 
 ## Reference Implementation
 
-See `.github/scripts/check-constants-naming.sh` in `gitmap-v6`.
+See `.github/scripts/check-constants-naming.sh` in `gitmap-v28`.
 
 ---
 

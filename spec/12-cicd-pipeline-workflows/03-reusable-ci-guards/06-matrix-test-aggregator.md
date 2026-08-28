@@ -190,7 +190,7 @@ jobs:
 
 ## Reference Implementation
 
-See `.github/scripts/test-summary.sh` in `gitmap-v6`.
+See `.github/scripts/test-summary.sh` in `gitmap-v28`.
 
 ---
 

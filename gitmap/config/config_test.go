@@ -38,7 +38,7 @@ func TestLoadFromFile_Valid(t *testing.T) {
 	tmpFile := createTempConfig(t, model.Config{
 		DefaultMode:   "ssh",
 		DefaultOutput: "csv",
-		ErrorDisplay: "full",
+		ErrorDisplay:  "full",
 		OutputDir:     "./custom-output",
 		ExcludeDirs:   []string{"vendor"},
 		Notes:         "test note",
@@ -78,7 +78,7 @@ func TestMergeWithFlags_Empty(t *testing.T) {
 	cfg := model.Config{
 		DefaultMode:   "ssh",
 		DefaultOutput: "csv",
-		ErrorDisplay: "full",
+		ErrorDisplay:  "full",
 		OutputDir:     "./original",
 	}
 	merged := MergeWithFlags(cfg, "", "", "")

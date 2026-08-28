@@ -241,7 +241,6 @@ func performRelease(v Version, sourceRef, sourceName string, opts Options) error
 		return err
 	}
 
-
 	return nil
 }
 

@@ -106,7 +106,7 @@ func updateCache(ctx context.Context, db *sql.DB, cacheKey string, results []Sea
 	if err != nil {
 		return
 	}
-	
+
 	query := `
 		INSERT INTO SearchCache (Query, Hits, ResultJson, CreatedAt, UpdatedAt)
 		VALUES (?, 1, ?, 0, 0)

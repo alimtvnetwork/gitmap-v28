@@ -31,16 +31,19 @@ func parseEnvSetFlags(args []string) (string, string, envSetFlags) {
 	return fs.Arg(0), fs.Arg(1), f
 }
 
-func applyEnvSet(name, value string, f envSetFlags) {
+func applyEnvSet(name, value string, f envSetFlags) error {
 	if f.dryRun {
 		fmt.Printf(constants.MsgEnvDrySet, name, value)
-		return
+		return nil
 	}
-	setEnvPersistent(name, value, f.system, f.shell)
+	if err := setEnvPersistent(name, value, f.system, f.shell); err != nil {
+		return err
+	}
 	registry := loadEnvRegistry()
 	registry = upsertEnvVariable(registry, name, value)
 	saveEnvRegistry(registry)
 	fmt.Printf(constants.MsgEnvSet, name, value)
+	return nil
 }
 
 // runEnvSet sets an environment variable persistently.
@@ -48,8 +51,7 @@ func runEnvSet(args []string) error {
 	name, value, flags := parseEnvSetFlags(args)
 	validateEnvName(name)
 	validateEnvValue(value)
-	applyEnvSet(name, value, flags)
-	return nil
+	return applyEnvSet(name, value, flags)
 }
 
 // runEnvGet retrieves a managed environment variable value.
@@ -77,24 +79,26 @@ func parseEnvCommonFlags(cmdName string, args []string) (string, envCommonFlags)
 	return fs.Arg(0), f
 }
 
-func applyEnvDelete(name string, f envCommonFlags) {
+func applyEnvDelete(name string, f envCommonFlags) error {
 	if f.dryRun {
 		fmt.Printf(constants.MsgEnvDryDelete, name)
-		return
+		return nil
 	}
-	deleteEnvPersistent(name, f.system, f.shell)
+	if err := deleteEnvPersistent(name, f.system, f.shell); err != nil {
+		return err
+	}
 	registry := loadEnvRegistry()
 	registry = removeEnvVariable(registry, name)
 	saveEnvRegistry(registry)
 	fmt.Printf(constants.MsgEnvDeleted, name)
+	return nil
 }
 
 // runEnvDelete removes a managed environment variable.
 func runEnvDelete(args []string) error {
 	name, flags := parseEnvCommonFlags("env-delete", args)
 	validateEnvName(name)
-	applyEnvDelete(name, flags)
-	return nil
+	return applyEnvDelete(name, flags)
 }
 
 // runEnvList prints all managed environment variables.
@@ -111,16 +115,19 @@ func runEnvList() error {
 	return nil
 }
 
-func applyEnvPathAdd(dir string, f envCommonFlags) {
+func applyEnvPathAdd(dir string, f envCommonFlags) error {
 	if f.dryRun {
 		fmt.Printf(constants.MsgEnvDryPath, dir)
-		return
+		return nil
 	}
-	addPathPersistent(dir, f.system, f.shell)
+	if err := addPathPersistent(dir, f.system, f.shell); err != nil {
+		return err
+	}
 	registry := loadEnvRegistry()
 	registry.Paths = append(registry.Paths, model.EnvPathEntry{Path: dir})
 	saveEnvRegistry(registry)
 	fmt.Printf(constants.MsgEnvPathAdded, dir)
+	return nil
 }
 
 // runEnvPathAdd adds a directory to the system PATH.
@@ -129,8 +136,7 @@ func runEnvPathAdd(args []string) error {
 	validateEnvPathDir(dir)
 	registry := loadEnvRegistry()
 	checkEnvPathNotDuplicate(registry, dir)
-	applyEnvPathAdd(dir, flags)
-	return nil
+	return applyEnvPathAdd(dir, flags)
 }
 
 func validateEnvPathRemove(dir string) {
@@ -141,24 +147,26 @@ func validateEnvPathRemove(dir string) {
 	}
 }
 
-func applyEnvPathRemove(dir string, f envCommonFlags) {
+func applyEnvPathRemove(dir string, f envCommonFlags) error {
 	if f.dryRun {
 		fmt.Printf(constants.MsgEnvDryDelete, dir)
-		return
+		return nil
 	}
-	removePathPersistent(dir, f.system, f.shell)
+	if err := removePathPersistent(dir, f.system, f.shell); err != nil {
+		return err
+	}
 	registry := loadEnvRegistry()
 	registry = removeEnvPath(registry, dir)
 	saveEnvRegistry(registry)
 	fmt.Printf(constants.MsgEnvPathRemoved, dir)
+	return nil
 }
 
 // runEnvPathRemove removes a directory from the system PATH.
 func runEnvPathRemove(args []string) error {
 	dir, flags := parseEnvCommonFlags("env-path-remove", args)
 	validateEnvPathRemove(dir)
-	applyEnvPathRemove(dir, flags)
-	return nil
+	return applyEnvPathRemove(dir, flags)
 }
 
 // runEnvPathList prints all managed PATH entries.

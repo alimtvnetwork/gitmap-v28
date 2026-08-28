@@ -150,7 +150,7 @@ Anchor on `pub fn` — private `fn`s are file-scoped.
 
 ## Reference Implementation
 
-See `.github/scripts/check-cmd-naming.sh` in `gitmap-v6` for the
+See `.github/scripts/check-cmd-naming.sh` in `gitmap-v28` for the
 production Go implementation that originated this pattern.
 
 ---

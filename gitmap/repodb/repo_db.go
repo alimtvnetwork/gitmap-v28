@@ -12,7 +12,7 @@ import (
 func InitRepoSchema(ctx context.Context, db *sql.DB) error {
 	query1 := "CREATE TABLE IF NOT EXISTS RepoFile ( Id INTEGER PRIMARY KEY AUTOINCREMENT, RelativePath TEXT NOT NULL UNIQUE, AbsolutePath TEXT NOT NULL, Content TEXT, IsBig INTEGER NOT NULL, WriteTime INTEGER NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );"
 	query2 := "CREATE TABLE IF NOT EXISTS SearchCache ( Id INTEGER PRIMARY KEY AUTOINCREMENT, Query TEXT NOT NULL UNIQUE, Hits INTEGER NOT NULL, ResultJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );"
-	
+
 	if _, err := db.ExecContext(ctx, query1); err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func OpenRepoDB(ctx context.Context, rootDbDir, absolutePath string, repoId int6
 	}
 
 	dbPath := filepath.Join(repoSearchDir, fmt.Sprintf("%s-%d.db", slug, repoId))
-	
+
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err

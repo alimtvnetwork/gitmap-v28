@@ -151,7 +151,7 @@ def load_findings(path: str) -> set[Finding]:
             return json.load(f)
             
     res = query_wrapper(_read_json)
-    if res["is_failure"]:
+    if res["is_fail"]:
         log(f"could not parse {path}: {res['error']}")
         return set()
     data = res["data"]
@@ -314,7 +314,7 @@ def read_text_or_empty(path: str) -> str:
             return fh.read()
             
     res = query_wrapper(_read)
-    if res["is_failure"]:
+    if res["is_fail"]:
         log(f"could not read {path}: {res['error']}")
         return ""
     return res["data"]

@@ -167,7 +167,7 @@ full JSON report is attached as the `lint-report` artifact._
 
 ## Reference Implementation
 
-See `.github/scripts/lint-suggest.py` in `gitmap-v6`.
+See `.github/scripts/lint-suggest.py` in `gitmap-v28`.
 
 ---
 

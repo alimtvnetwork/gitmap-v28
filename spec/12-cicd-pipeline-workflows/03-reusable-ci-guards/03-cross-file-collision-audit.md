@@ -171,7 +171,7 @@ Total unique top-level identifiers: 2734
 
 ## Reference Implementation
 
-See `.github/scripts/check-constants-collisions.py` in `gitmap-v6`.
+See `.github/scripts/check-constants-collisions.py` in `gitmap-v28`.
 
 ---
 
