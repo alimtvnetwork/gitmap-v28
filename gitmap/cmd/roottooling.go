@@ -145,6 +145,8 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{"cat"}, func() { runCat(argsTail()) }},
 		{[]string{constants.CmdAppend}, func() { runAppend(argsTail()) }},
 		{[]string{constants.CmdWrite}, func() { runWrite(argsTail()) }},
+		{[]string{constants.CmdHead}, func() { runHead(argsTail()) }},
+		{[]string{constants.CmdTail}, func() { runTail(argsTail()) }},
 		{[]string{"reset-and-rescan"}, func() { runReset([]string{"--confirm", "--rescan"}) }},
 		{[]string{constants.CmdReplace, constants.CmdReplaceAlias}, func() { runReplace(argsTail()) }},
 		{[]string{constants.CmdRegoldens, constants.CmdRegoldensAlias}, func() { runRegoldens(argsTail()) }},
