@@ -22,7 +22,7 @@ func runChromeDiff(args []string) error {
 	if !okA || !okB {
 		fmt.Fprintln(os.Stderr, "chrome diff: ERROR one or both profiles not found")
 		printAvailableChromeProfilesWithDisplay()
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	fmt.Printf("\n\033[1;96m▸ chrome diff\033[0m  \033[1m%s\033[0m ↔ \033[1m%s\033[0m\n",
 		chromeProfileSummary(a), chromeProfileSummary(b))

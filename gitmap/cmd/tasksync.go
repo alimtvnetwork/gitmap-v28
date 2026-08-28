@@ -28,7 +28,7 @@ func runTaskRun(args []string) error {
 	name := fs.Arg(0)
 	if name == "" {
 		fmt.Fprint(os.Stderr, constants.ErrTaskNameRequired)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	interval = enforceMinInterval(interval)

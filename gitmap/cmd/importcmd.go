@@ -17,7 +17,7 @@ func runImport(args []string) error {
 	inFile, confirm := parseImportFlags(args)
 	if !confirm {
 		fmt.Fprint(os.Stderr, constants.ErrImportNoConfirm)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	data := readImportFile(inFile)
@@ -44,7 +44,7 @@ func parseImportFlags(args []string) (string, bool) {
 func readImportFile(path string) model.DatabaseExport {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.MsgImportReadFailed, nil).Error())
+		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgImportReadFailed).Error())
 		os.Exit(1)
 	}
 
@@ -52,7 +52,7 @@ func readImportFile(path string) model.DatabaseExport {
 
 	err = json.Unmarshal(raw, &data)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.MsgImportParseFailed, nil).Error())
+		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgImportParseFailed).Error())
 		os.Exit(1)
 	}
 
@@ -63,7 +63,7 @@ func readImportFile(path string) model.DatabaseExport {
 func executeImport(data model.DatabaseExport) {
 	db, err := openDB()
 	if err != nil {
-		apperror.Wrap(err, constants.MsgImportFailed, nil)
+		apperror.WrapSimple(err, constants.MsgImportFailed)
 		return
 	}
 	defer db.Close()

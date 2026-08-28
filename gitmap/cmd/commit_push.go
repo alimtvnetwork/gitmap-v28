@@ -25,20 +25,20 @@ func runCommitPush(args []string) error {
 		return nil
 	}
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap commit-push \"<commit message>\"", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap commit-push \"<commit message>\"", "E9000")
 	}
 	commitMessage := strings.Join(args, " ")
 	return executeCommitPush(commitMessage)
 }
 
-// runCommitPushPull pulls first, then stages, commits, and pushes.
-func runCommitPushPull(args []string) error {
+// runPullCommitPush pulls first, then stages, commits, and pushes.
+func runPullCommitPush(args []string) error {
 	if isCommitPushHelpArg(args) {
-		checkHelp(constants.CmdCommitPushPull, []string{"--help"})
+		checkHelp(constants.CmdPullCommitPush, []string{"--help"})
 		return nil
 	}
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap commit-push-pull \"<commit message>\"", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap pull-commit-push \"<commit message>\"", "E9000")
 	}
 	commitMessage := strings.Join(args, " ")
 
@@ -46,7 +46,7 @@ func runCommitPushPull(args []string) error {
 	if err := execGitInheritCP("pull", "--rebase"); err != nil {
 		pterm.Warning.Println("Pull failed — you may need to resolve conflicts manually.")
 		pterm.Warning.Printf("Error: %v\n", err)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	pterm.Success.Println("Pull complete.")
 	return executeCommitPush(commitMessage)
@@ -59,7 +59,7 @@ func runCommitPushBug(args []string) error {
 		return nil
 	}
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap commit-push-bug \"<what was fixed>\"", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap commit-push-bug \"<what was fixed>\"", "E9000")
 	}
 	commitMessage := "Bug: " + strings.Join(args, " ")
 	return executeCommitPush(commitMessage)
@@ -72,7 +72,7 @@ func runCommitPushFeature(args []string) error {
 		return nil
 	}
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap commit-push-feature \"<what feature was added>\"", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap commit-push-feature \"<what feature was added>\"", "E9000")
 	}
 	commitMessage := "Feature: " + strings.Join(args, " ")
 	return executeCommitPush(commitMessage)
@@ -85,7 +85,7 @@ func runCommitPushRelease(args []string) error {
 		return nil
 	}
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap commit-push-release \"<what release changes>\"", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap commit-push-release \"<what release changes>\"", "E9000")
 	}
 	commitMessage := "Release: " + strings.Join(args, " ")
 	return executeCommitPush(commitMessage)
@@ -98,11 +98,11 @@ func runRmGit(args []string) error {
 		return nil
 	}
 	if len(args) == 0 {
-		return apperror.New("Usage: gitmap rm-git <last-4-digits-of-sha>", "E9000", nil)
+		return apperror.NewSimple("Usage: gitmap rm-git <last-4-digits-of-sha>", "E9000")
 	}
 	shaFragment := args[0]
 	if len(shaFragment) < 4 {
-		return apperror.New("SHA fragment must be at least 4 characters.", "E9000", nil)
+		return apperror.NewSimple("SHA fragment must be at least 4 characters.", "E9000")
 	}
 
 	// Resolve the full SHA from the fragment
@@ -111,7 +111,7 @@ func runRmGit(args []string) error {
 		// Try log search if rev-parse fails
 		fullSha, err = execGitOutputCP("log", "--all", "--format=%H", "--grep="+shaFragment)
 		if err != nil || fullSha == "" {
-			return apperror.New("Could not resolve SHA fragment: "+shaFragment, "E9000", nil)
+			return apperror.NewSimple("Could not resolve SHA fragment: "+shaFragment, "E9000")
 		}
 		// Take first match
 		fullSha = strings.Split(strings.TrimSpace(fullSha), "\n")[0]
@@ -121,11 +121,11 @@ func runRmGit(args []string) error {
 	pterm.Info.Printf("Resolved SHA: %s\n", fullSha)
 	pterm.Warning.Println("This will rewrite history. Use with caution.")
 
-	// Use git rebase to drop the commit
-	if err := execGitInheritCP("rebase", "--onto", fullSha+"^", fullSha); err != nil {
+	// Use git reset --hard to drop the commit
+	if err := execGitInheritCP("reset", "--hard", fullSha+"^"); err != nil {
 		pterm.Error.Printf("Failed to remove commit %s: %v\n", fullSha, err)
-		pterm.Info.Println("You may need to run: git rebase --abort")
-		return apperror.New("fatal error", "E9000", nil)
+		pterm.Info.Println("You may need to check your git reflog to recover.")
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	pterm.Success.Printf("Commit %s removed successfully.\n", fullSha[:8])
 	return nil
@@ -135,17 +135,17 @@ func runRmGit(args []string) error {
 func executeCommitPush(commitMessage string) *apperror.AppError {
 	pterm.Info.Println("Staging all changes...")
 	if err := execGitInheritCP("add", "-A"); err != nil {
-		return apperror.Wrap(err, "git add failed:", nil)
+		return apperror.WrapSimple(err, "git add failed:")
 	}
 
 	pterm.Info.Printf("Committing: %s\n", commitMessage)
 	if err := execGitInheritCP("commit", "-m", commitMessage); err != nil {
-		return apperror.Wrap(err, "git commit failed:", nil)
+		return apperror.WrapSimple(err, "git commit failed:")
 	}
 
 	pterm.Info.Println("Pushing to remote...")
 	if err := execGitInheritCP("push"); err != nil {
-		return apperror.Wrap(err, "git push failed:", nil)
+		return apperror.WrapSimple(err, "git push failed:")
 	}
 
 	pterm.Success.Println("Done! Changes committed and pushed.")
@@ -167,3 +167,4 @@ func execGitOutputCP(gitArgs ...string) (string, error) {
 	out, err := cmd.Output()
 	return string(out), err
 }
+

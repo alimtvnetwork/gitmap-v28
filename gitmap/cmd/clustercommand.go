@@ -169,12 +169,12 @@ func performPreflight(flags ClusterFlags, selector cluster.TargetSelectorType, e
 	}
 	confirmed, err := cluster.PrintPreflight(selector, effective, cmdStr, runRef, flags.AutoConfirm)
 	if err != nil {
-		return apperror.Wrap(err, "Preflight error", nil)
+		return apperror.WrapSimple(err, "Preflight error")
 	}
 
 	isConfirmed := confirmed == true
 	if isConfirmed == false {
-		return apperror.New("Operation aborted", "E9000", nil)
+		return apperror.NewSimple("Operation aborted", "E9000")
 	}
 	return nil
 }

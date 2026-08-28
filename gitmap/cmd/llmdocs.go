@@ -45,11 +45,11 @@ func writeLLMDocsFile(content, format string) {
 	fmt.Print(constants.MsgLLMDocsGenning)
 	wd, err := os.Getwd()
 	if err != nil {
-		panic(apperror.Wrap(err, constants.ErrLLMDocsWrite, nil))
+		panic(apperror.WrapSimple(err, constants.ErrLLMDocsWrite))
 	}
 	outPath := filepath.Join(wd, "LLM"+llmDocsExt(format))
 	if writeErr := os.WriteFile(outPath, []byte(content), constants.FilePermission); writeErr != nil {
-		panic(apperror.New(constants.ErrLLMDocsWrite, "E9000", nil))
+		panic(apperror.NewSimple(constants.ErrLLMDocsWrite, "E9000"))
 	}
 	fmt.Printf(constants.MsgLLMDocsWritten, outPath)
 }
@@ -60,7 +60,7 @@ func runLLMDocs(args []string) error {
 	opts, err := parseLLMDocsFlags(args)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	sectionSet := parseSections(opts.sections)
 	content := buildLLMOutput(opts.format, sectionSet)

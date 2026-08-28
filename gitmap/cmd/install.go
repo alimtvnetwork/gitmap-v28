@@ -42,7 +42,7 @@ func runInstall(args []string) error {
 	}
 	if opts.Tool == "" {
 		fmt.Fprint(os.Stderr, constants.ErrInstallToolRequired)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	validateToolName(opts.Tool)
 	executeInstall(opts)

@@ -27,12 +27,12 @@ func runChromeBackup(args []string) *apperror.AppError {
 		}
 	}
 	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
-		return apperror.Wrap(err, "chrome backup: ERROR mkdir:", nil)
+		return apperror.WrapSimple(err, "chrome backup: ERROR mkdir:")
 	}
 	srcRoot := chromeUserDataDir()
 	n, err := writeChromeBackup(srcRoot, out)
 	if err != nil {
-		return apperror.Wrap(err, "chrome backup: ERROR", nil)
+		return apperror.WrapSimple(err, "chrome backup: ERROR")
 	}
 	manifestPath, mErr := writeChromeManifestWithSource(out, srcRoot)
 	if mErr != nil {
@@ -98,13 +98,13 @@ func runChromeRestore(args []string) *apperror.AppError {
 			fmt.Fprintf(os.Stderr, "chrome restore: WARN checksum verify skipped: %v\n", err)
 		case !ok:
 			fmt.Fprintf(os.Stderr, "chrome restore: ERROR checksum mismatch in %d file(s):\n  - %s\n  rerun with --no-verify to override\n", len(miss), strings.Join(miss, "\n  - "))
-			return apperror.New("fatal error", "E9000", nil)
+			return apperror.NewSimple("fatal error", "E9000")
 		default:
 			fmt.Printf("\033[1;92m✓ checksum verified\033[0m  %s\n", src+chromeManifestSuffix)
 		}
 	}
 	if err := os.MkdirAll(dst, 0o755); err != nil {
-		return apperror.Wrap(err, "chrome restore: ERROR mkdir:", nil)
+		return apperror.WrapSimple(err, "chrome restore: ERROR mkdir:")
 	}
 	existing := countChromeProfileFiles(dst)
 	if existing > 0 && !force {
@@ -121,14 +121,14 @@ func runChromeRestore(args []string) *apperror.AppError {
 	}
 
 	if isConfirmed == false {
-		return apperror.New("chrome restore: aborted", "E9000", nil)
+		return apperror.NewSimple("chrome restore: aborted", "E9000")
 	}
 	if dryRun {
 		return doDryRun(src, dst)
 	}
 	n, err := readChromeBackup(src, dst)
 	if err != nil {
-		return apperror.Wrap(err, "chrome restore: ERROR", nil)
+		return apperror.WrapSimple(err, "chrome restore: ERROR")
 	}
 	fmt.Printf("\033[1;92m✓ chrome restore\033[0m  %d files → \033[1;96m%s\033[0m\n", n, dst)
 	return nil
@@ -274,7 +274,7 @@ func readChromeBackup(src, dstRoot string) (int, error) {
 func doDryRun(src, dst string) *apperror.AppError {
 	n, err := previewChromeBackup(src)
 	if err != nil {
-		return apperror.Wrap(err, "chrome restore: ERROR", nil)
+		return apperror.WrapSimple(err, "chrome restore: ERROR")
 	}
 	fmt.Printf("\\033[1;93m✓ chrome restore (dry-run)\\033[0m  %d file(s) would land in \\033[1;96m%s\\033[0m\\n", n, dst)
 	return nil

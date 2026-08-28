@@ -20,13 +20,13 @@ func runGitHubDesktop(args []string) error {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrGHDesktopCwd, nil)
+		return apperror.WrapSimple(err, constants.ErrGHDesktopCwd)
 	}
 
 	target := resolveGHDesktopTarget(cwd, args)
 	isNonGitRepo := !isGitRepo(target)
 	if isNonGitRepo {
-		return apperror.New(constants.ErrGHDesktopNotRepo, "E9000", nil)
+		return apperror.NewSimple(constants.ErrGHDesktopNotRepo, "E9000")
 	}
 
 	registerGHDesktop(target)
@@ -61,7 +61,7 @@ func isGitRepo(dir string) bool {
 func registerGHDesktop(target string) {
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		apperror.New(constants.MsgDesktopNotFound, "E9000", nil)
+		apperror.NewSimple(constants.MsgDesktopNotFound, "E9000")
 		return
 	}
 
@@ -69,7 +69,7 @@ func registerGHDesktop(target string) {
 	cmd := exec.Command(cli, target)
 	_, runErr := cmd.CombinedOutput()
 	if runErr != nil {
-		apperror.New(constants.ErrGHDesktopInvoke, "E9000", nil)
+		apperror.NewSimple(constants.ErrGHDesktopInvoke, "E9000")
 		return
 	}
 

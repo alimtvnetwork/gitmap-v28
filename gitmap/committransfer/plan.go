@@ -10,7 +10,7 @@ import (
 func BuildPlan(sourceDir, targetDir string, opts Options) (ReplayPlan, error) {
 	sourceHead, err := currentRefName(sourceDir)
 	if err != nil {
-		return ReplayPlan{}, apperror.Wrap(err, "read source HEAD ref", nil)
+		return ReplayPlan{}, apperror.WrapSimple(err, "read source HEAD ref")
 	}
 	base, err := resolveBase(sourceDir, targetDir, opts.Since)
 	if err != nil {
@@ -18,7 +18,7 @@ func BuildPlan(sourceDir, targetDir string, opts Options) (ReplayPlan, error) {
 	}
 	shas, err := revListReverse(sourceDir, base, "HEAD", opts.IncludeMerges)
 	if err != nil {
-		return ReplayPlan{}, apperror.Wrap(err, "rev-list source", nil)
+		return ReplayPlan{}, apperror.WrapSimple(err, "rev-list source")
 	}
 	mergeExcluded := countMergeExcluded(sourceDir, base, opts.IncludeMerges, len(shas))
 	if opts.Limit > 0 && len(shas) > opts.Limit {

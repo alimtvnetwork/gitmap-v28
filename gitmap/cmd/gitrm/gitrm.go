@@ -16,21 +16,21 @@ import (
 // Run executes the git-rm command logic.
 func Run(args []string) error {
 	if len(args) < 1 {
-		return apperror.New("GitRmRun", "E_GITRM_MISSING_INPUT", nil)
+		return apperror.NewSimple("GitRmRun", "E_GITRM_MISSING_INPUT")
 	}
 	input := args[0]
 	paths, err := parseInput(input)
 	if err != nil {
-		return apperror.Wrap(err, "git-rm: failed to parse input", nil)
+		return apperror.WrapSimple(err, "git-rm: failed to parse input")
 	}
 	if len(paths) == 0 {
-		return apperror.New("GitRmRun", "E_GITRM_NO_PATHS", nil)
+		return apperror.NewSimple("GitRmRun", "E_GITRM_NO_PATHS")
 	}
 
 	// 1. Backup paths to global location
 	backupDir, err := createBackupDir()
 	if err != nil {
-		return apperror.Wrap(err, "git-rm: failed to create backup directory", nil)
+		return apperror.WrapSimple(err, "git-rm: failed to create backup directory")
 	}
 	for _, p := range paths {
 		backupFile(p, backupDir)
@@ -120,7 +120,7 @@ func rewriteHistory(paths []string) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(err, "git-rm: history rewrite failed", nil)
+		return apperror.WrapSimple(err, "git-rm: history rewrite failed")
 	}
 
 	// Clean up refs

@@ -49,7 +49,7 @@ func resolveChangelogAlias(version string, openFile bool) (string, bool) {
 func handleChangelogOpen(latest bool, version string) *apperror.AppError {
 	err := openChangelogFile()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrChangelogOpen, nil)
+		return apperror.WrapSimple(err, constants.ErrChangelogOpen)
 	}
 	if !latest && len(version) == 0 {
 		return nil
@@ -67,7 +67,7 @@ func handleChangelogOpen(latest bool, version string) *apperror.AppError {
 func dispatchChangelogOutput(version string, latest bool, limit int, source string, pretty bool) *apperror.AppError {
 	entries, err := release.ReadChangelog()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrChangelogRead, nil)
+		return apperror.WrapSimple(err, constants.ErrChangelogRead)
 	}
 	entries = filterChangelogBySource(entries, source)
 	if latest {
@@ -126,7 +126,7 @@ func printSingleVersion(entries []release.ChangelogEntry, version string, pretty
 	entry, found := release.FindChangelogEntry(entries, version)
 	if !found {
 		fmt.Fprintf(os.Stderr, constants.ErrChangelogVersionNotFound, release.NormalizeVersion(version))
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	printChangelogEntry(entry, pretty)
 	return nil

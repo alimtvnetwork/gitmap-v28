@@ -59,7 +59,7 @@ func runPR(args []string) error {
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return apperror.Wrap(err, "pull-requests: ERROR", nil)
+		return apperror.WrapSimple(err, "pull-requests: ERROR")
 	}
 	defer resp.Body.Close()
 	var body struct {
@@ -90,7 +90,7 @@ func runBlameStats(args []string) error {
 	}
 	out, err := exec.Command("git", "-C", root, "ls-files").Output()
 	if err != nil {
-		return apperror.Wrap(err, "blame-stats: ERROR ls-files:", nil)
+		return apperror.WrapSimple(err, "blame-stats: ERROR ls-files:")
 	}
 	totals := map[string]int{}
 	for _, f := range strings.Split(strings.TrimSpace(string(out)), "\n") {

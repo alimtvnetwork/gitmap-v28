@@ -30,12 +30,12 @@ func (db *DB) EnsureWorkDir(absPath, label string, isDefault bool) (*model.WorkD
 // ListWorkDirs returns all registered work directories.
 func (db *DB) ListWorkDirs() ([]model.WorkDir, error) {
 	if db == nil || db.conn == nil {
-		return nil, apperror.New("ListWorkDirs", "E_NIL_DB", nil)
+		return nil, apperror.NewSimple("ListWorkDirs", "E_NIL_DB")
 	}
 
 	rows, err := QueryWrapper(db.conn, SQLSelectAllWorkDirs).Destruct()
 	if err != nil {
-		return nil, apperror.Wrap(err, "ListWorkDirs", nil)
+		return nil, apperror.WrapSimple(err, "ListWorkDirs")
 	}
 	defer rows.Close()
 

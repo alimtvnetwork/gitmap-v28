@@ -1,4 +1,4 @@
-# commit-push-pull
+# pull-commit-push
 
 Pulls the latest changes first (with rebase), then stages all changes, commits with the given message, and pushes to the remote.
 
@@ -16,19 +16,20 @@ git push
 You should use:
 
 ```bash
-gitmap commit-push-pull "your message"
+gitmap pull-commit-push "your message"
 ```
 
 If the pull fails due to conflicts, GitMap will stop and notify you to resolve them manually before retrying.
 
 ## Aliases
 
-- `gitmap cpp "message"`
+- `gitmap pcp "message"`
 
 ## Examples
 
 ```bash
-gitmap commit-push-pull "fix: resolve merge conflict in constants.go"
-gitmap cpp "feat: add new search command"
-gitmap commit-push-pull "chore: sync with upstream before pushing release"
+gitmap pull-commit-push "fix: resolve merge conflict in constants.go"
+gitmap pcp "feat: add new search command"
+gitmap pull-commit-push "chore: sync with upstream before pushing release"
 ```
+

@@ -30,11 +30,29 @@ func (e *AppError) Unwrap() error {
 }
 
 // Wrap wraps an existing error with an operation label and context.
+// WrapSimple creates a new AppError with an underlying cause but no context map.
+func WrapSimple(err error, op string) *AppError {
+	return &AppError{
+		Op:    op,
+		Cause: err,
+	}
+}
+
+// Wrap creates a new AppError with an underlying cause and context.
 func Wrap(err error, op string, ctx map[string]any) *AppError {
 	return &AppError{
 		Op:    op,
 		Ctx:   ctx,
 		Cause: err,
+	}
+}
+
+// New creates a new AppError without an underlying cause.
+// NewSimple creates a new AppError without an underlying cause and no context map.
+func NewSimple(op string, code string) *AppError {
+	return &AppError{
+		Op:   op,
+		Code: code,
 	}
 }
 

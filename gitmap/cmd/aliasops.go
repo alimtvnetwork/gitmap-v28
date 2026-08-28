@@ -13,7 +13,7 @@ import (
 // runAliasSet handles "alias set <alias> <slug>".
 func runAliasSet(args []string) error {
 	if len(args) < 2 {
-		return apperror.New(constants.ErrAliasEmpty, "E9000", nil)
+		return apperror.NewSimple(constants.ErrAliasEmpty, "E9000")
 	}
 
 	alias := args[0]
@@ -78,7 +78,7 @@ func createAliasAndReturnCode(db *store.DB, alias string, repoID int64, slug str
 // runAliasRemove handles "alias remove <alias>".
 func runAliasRemove(args []string) error {
 	if len(args) == 0 {
-		return apperror.New(constants.ErrAliasEmpty, "E9000", nil)
+		return apperror.NewSimple(constants.ErrAliasEmpty, "E9000")
 	}
 
 	alias := args[0]
@@ -152,14 +152,14 @@ func printAliasList(aliases []store.AliasWithRepo) {
 // runAliasShow handles "alias show <alias>".
 func runAliasShow(args []string) error {
 	if len(args) == 0 {
-		return apperror.New(constants.ErrAliasEmpty, "E9000", nil)
+		return apperror.NewSimple(constants.ErrAliasEmpty, "E9000")
 	}
 
 	alias := args[0]
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
 	defer db.Close()
 

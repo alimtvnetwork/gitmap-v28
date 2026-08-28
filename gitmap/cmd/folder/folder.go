@@ -14,7 +14,7 @@ import (
 // Run executes the folder command logic.
 func Run(args []string) error {
 	if len(args) < 1 {
-		return apperror.New("FolderRun", "E_FOLDER_MISSING_DIR", nil)
+		return apperror.NewSimple("FolderRun", "E_FOLDER_MISSING_DIR")
 	}
 	dir := args[0]
 	outFile := "files.txt"
@@ -30,7 +30,7 @@ func Run(args []string) error {
 
 	paths, err := walkAndFilter(dir, excludePattern)
 	if err != nil {
-		return apperror.Wrap(err, "folder: failed to walk directory", nil)
+		return apperror.WrapSimple(err, "folder: failed to walk directory")
 	}
 
 	ext := strings.ToLower(filepath.Ext(outFile))

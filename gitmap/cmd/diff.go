@@ -21,22 +21,22 @@ func runDiff(args []string) error {
 
 	leftEP, err := diff.ResolveEndpoint(left)
 	if err != nil {
-		return apperror.Wrap(err, "resolve-endpoint left", nil)
+		return apperror.WrapSimple(err, "resolve-endpoint left")
 	}
 	rightEP, err := diff.ResolveEndpoint(right)
 	if err != nil {
-		return apperror.Wrap(err, "resolve-endpoint right", nil)
+		return apperror.WrapSimple(err, "resolve-endpoint right")
 	}
 	if guardErr := guardDiffPaths(leftEP, rightEP); guardErr != nil {
-		return apperror.Wrap(guardErr, "guard-paths", nil)
+		return apperror.WrapSimple(guardErr, "guard-paths")
 	}
 
 	entries, err := diff.DiffTrees(leftEP.WorkingDir, rightEP.WorkingDir, walkOpts)
 	if err != nil {
-		return apperror.New("diff failed: "+constants.LogPrefixDiff, "E9000", nil)
+		return apperror.NewSimple("diff failed: "+constants.LogPrefixDiff, "E9000")
 	}
 	if reportErr := diff.Report(os.Stdout, entries, printOpts); reportErr != nil {
-		return apperror.New("report failed: "+constants.LogPrefixDiff, "E9000", nil)
+		return apperror.NewSimple("report failed: "+constants.LogPrefixDiff, "E9000")
 	}
 	return nil
 }

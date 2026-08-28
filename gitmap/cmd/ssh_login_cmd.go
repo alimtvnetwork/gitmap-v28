@@ -23,7 +23,7 @@ var SSHLoginCmd = &cobra.Command{
 
 func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) < 1 {
-		return apperror.New("runSSHLogin", "E_INTERNAL_ERROR", nil)
+		return apperror.NewSimple("runSSHLogin", "E_INTERNAL_ERROR")
 	}
 
 	target := args[0]

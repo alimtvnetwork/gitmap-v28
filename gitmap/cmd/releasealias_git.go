@@ -23,7 +23,7 @@ func runReleaseAliasPull(target string) error {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAPullFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	return nil
 }

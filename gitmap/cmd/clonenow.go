@@ -100,7 +100,7 @@ func initCloneNowPlan(cfg cloneNowFlags) (clonenow.Plan, error) {
 	setCmdPrintArgv(cfg.printCloneArgv)
 	plan, err := clonenow.ParseFile(cfg.file, cfg.format, cfg.mode, cfg.onExists)
 	if err != nil {
-		return clonenow.Plan{}, apperror.Wrap(err, "parse-manifest cfg.file", nil)
+		return clonenow.Plan{}, apperror.WrapSimple(err, "parse-manifest cfg.file")
 	}
 	plan.CoerceURL = coerceURLToStoredTransport
 	plan.PersistURL = persistRecloneTransport
@@ -204,7 +204,7 @@ func runCloneNowDry(plan clonenow.Plan, cfg cloneNowFlags) error {
 		return nil
 	}
 	if err := clonenow.Render(os.Stdout, plan); err != nil {
-		return apperror.Wrap(err, "render-dry-run cfg.file", nil)
+		return apperror.WrapSimple(err, "render-dry-run cfg.file")
 	}
 	return nil
 }

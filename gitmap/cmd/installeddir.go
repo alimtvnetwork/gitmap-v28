@@ -12,7 +12,7 @@ import (
 func runInstalledDir() error {
 	selfPath, err := os.Executable()
 	if err != nil {
-		return apperror.Wrap(err, "✗ Could not resolve executable path:", nil)
+		return apperror.WrapSimple(err, "✗ Could not resolve executable path:")
 	}
 
 	resolved, err := filepath.EvalSymlinks(selfPath)

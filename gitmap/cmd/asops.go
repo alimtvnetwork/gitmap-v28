@@ -47,7 +47,7 @@ func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppE
 	if err != nil || len(repos) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrAsResolveFmt, rec.Slug, err)
 		fmt.Fprintln(os.Stderr)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	return nil
 
@@ -95,7 +95,7 @@ func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force b
 	if err == nil && existing.Slug != rec.Slug {
 		fmt.Fprintf(os.Stderr, constants.ErrAsAliasInUseFmt, name, existing.Slug)
 		fmt.Fprintln(os.Stderr)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	return nil
 }

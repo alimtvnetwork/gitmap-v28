@@ -36,7 +36,7 @@ func runClonePick(args []string) error {
 
 	plan, replayId, err := buildClonePickPlan(parsed)
 	if err != nil {
-		return apperror.Wrap(err, "parse-args parsed.RawURL", nil)
+		return apperror.WrapSimple(err, "parse-args parsed.RawURL")
 	}
 	plan = maybeRunClonePickPicker(plan, parsed.Flags.Ask)
 
@@ -63,7 +63,7 @@ func runClonePickDryRun(plan clonepick.Plan, parsed clonePickParsed) error {
 		return nil
 	}
 	if err := clonepick.Render(os.Stdout, plan); err != nil {
-		return apperror.Wrap(err, "render-dry-run parsed.RawURL", nil)
+		return apperror.WrapSimple(err, "render-dry-run parsed.RawURL")
 	}
 	maybeExitOnCmdFaithfulMismatch()
 	return nil

@@ -76,17 +76,17 @@ func executeAddTemplate(spec addTemplateSpec, args []string) *apperror.AppError 
 		return err
 	}
 	if !insideGitRepo() {
-		return apperror.New("Not inside a Git repository", "E9000", nil)
+		return apperror.NewSimple("Not inside a Git repository", "E9000")
 	}
 
 	resolved, err2 := resolveAddTemplates(spec.kind, langs)
 	if err2 != nil {
-		return apperror.Wrap(err2, "?", nil)
+		return apperror.WrapSimple(err2, "?")
 	}
 
 	target, err3 := repoFilePath(spec.targetName)
 	if err3 != nil {
-		return apperror.Wrap(err3, "? Could not locate repo root", nil)
+		return apperror.WrapSimple(err3, "? Could not locate repo root")
 	}
 
 	tag := buildAddTag(spec.kind, langs)
@@ -101,7 +101,7 @@ func executeAddTemplate(spec addTemplateSpec, args []string) *apperror.AppError 
 
 	res, mergeErr := templates.Merge(target, tag, body)
 	if mergeErr != nil {
-		return apperror.Wrap(mergeErr, "merge error", nil)
+		return apperror.WrapSimple(mergeErr, "merge error")
 	}
 	printAddTemplateSummary(spec, res)
 	return nil

@@ -24,18 +24,18 @@ func runSSHDelete(args []string) error {
 		name = fs.Arg(0)
 	}
 	if len(name) == 0 {
-		return apperror.New(constants.ErrSSHNameEmpty, "E9000", nil)
+		return apperror.NewSimple(constants.ErrSSHNameEmpty, "E9000")
 	}
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrSSHQuery, nil)
+		return apperror.WrapSimple(err, constants.ErrSSHQuery)
 	}
 	defer db.Close()
 
 	key, err := db.FindSSHKeyByName(name)
 	if err != nil {
-		return apperror.New(constants.ErrSSHNotFound, "E9000", nil)
+		return apperror.NewSimple(constants.ErrSSHNotFound, "E9000")
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHDeleteConfirm, name)
@@ -47,7 +47,7 @@ func runSSHDelete(args []string) error {
 	}
 
 	if err := db.DeleteSSHKey(name); err != nil {
-		return apperror.Wrap(err, constants.ErrSSHDelete, nil)
+		return apperror.WrapSimple(err, constants.ErrSSHDelete)
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHDeleted, name)

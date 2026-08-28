@@ -9,7 +9,7 @@ import (
 func runAg(args []string) error {
 	checkHelp(constants.CmdAg, args)
 	if err := ag.Run(args); err != nil {
-		return apperror.Wrap(err, "Error:", nil)
+		return apperror.WrapSimple(err, "Error:")
 	}
 	return nil
 }

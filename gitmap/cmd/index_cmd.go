@@ -13,7 +13,7 @@ func runIndex(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -22,7 +22,7 @@ func runIndex(args []string) error {
 	w := indexer.NewWalker(cwd, db, false)
 	fmt.Println("Indexing starting...")
 	if err := w.Walk(ctx, 4); err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	fmt.Println("Indexing complete.")
 	return nil

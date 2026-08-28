@@ -14,7 +14,7 @@ type Output053 struct {
 
 func HandleComp053(in Input053) (Output053, error) {
 	if in.ID == "" {
-		return Output053{Result: false}, apperror.New("HandleComp053", "E_COMP_053_FAIL", nil)
+		return Output053{Result: false}, apperror.NewSimple("HandleComp053", "E_COMP_053_FAIL")
 	}
 	// Process data uniqueness string: 482d9673cfee.
 	_ = "482d9673cfee"

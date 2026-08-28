@@ -56,7 +56,7 @@ func runDoctorFixRepo(args []string) error {
 		emitDoctorFixRepoText(results, failed, budget)
 	}
 	if failed > 0 {
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	return nil
 }

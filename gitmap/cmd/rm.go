@@ -46,12 +46,12 @@ func runRm(args []string) error {
 	targets := expandRmTargets(rest)
 	if len(targets) == 0 {
 		fmt.Fprint(os.Stderr, rmUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, "rm: open db:", nil)
+		return apperror.WrapSimple(err, "rm: open db:")
 	}
 	defer db.Close()
 
@@ -74,12 +74,12 @@ func runRm(args []string) error {
 		PrintRepoSuggestions(db, m)
 	}
 	if len(matches) == 0 {
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	if removeRmMatches(db, matches, yes, dbOnly) {
 		os.Exit(0)
 	}
-	return apperror.New("fatal error", "E9000", nil)
+	return apperror.NewSimple("fatal error", "E9000")
 	return nil
 }
 

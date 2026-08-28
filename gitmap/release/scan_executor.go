@@ -39,10 +39,10 @@ func processCommit(repoDir string, commit ParsedCommit) (ScanCommitAction, error
 		Version:    commit.Version,
 	}
 	if err := processBranch(repoDir, commit, &action); err != nil {
-		return action, apperror.Wrap(err, "processCommit", nil)
+		return action, apperror.WrapSimple(err, "processCommit")
 	}
 	if err := processTag(repoDir, commit, &action); err != nil {
-		return action, apperror.Wrap(err, "processCommit", nil)
+		return action, apperror.WrapSimple(err, "processCommit")
 	}
 	return action, nil
 }
@@ -51,7 +51,7 @@ func processBranch(repoDir string, commit ParsedCommit, action *ScanCommitAction
 	branchName := "release/" + commit.Version
 	isExists, err := isRefExists(repoDir, "refs/heads/"+branchName)
 	if err != nil {
-		return apperror.Wrap(err, "processBranch", nil)
+		return apperror.WrapSimple(err, "processBranch")
 	}
 	if isExists {
 		action.IsBranchSkipped = true
@@ -73,7 +73,7 @@ func createBranch(repoDir, branchName, hash string, action *ScanCommitAction) er
 func processTag(repoDir string, commit ParsedCommit, action *ScanCommitAction) error {
 	isExists, err := isRefExists(repoDir, "refs/tags/"+commit.Version)
 	if err != nil {
-		return apperror.Wrap(err, "processTag", nil)
+		return apperror.WrapSimple(err, "processTag")
 	}
 	if isExists {
 		action.IsTagSkipped = true

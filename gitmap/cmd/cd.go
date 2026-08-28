@@ -13,7 +13,7 @@ func runCD(args []string) error {
 	checkHelp("cd", args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCDUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	sub := args[0]

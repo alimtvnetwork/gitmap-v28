@@ -18,7 +18,7 @@ func requireInsideWorkTree() {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrGoModNotRepo)
-	apperror.New("fatal error", "E9000", nil)
+	apperror.NewSimple("fatal error", "E9000")
 	return
 }
 
@@ -55,7 +55,7 @@ func ensureBranchNotExists(branch string) {
 	}
 
 	if len(strings.TrimSpace(string(out))) > 0 {
-		apperror.New(constants.ErrGoModBranchExists, "E9000", nil)
+		apperror.NewSimple(constants.ErrGoModBranchExists, "E9000")
 		return
 	}
 }
@@ -66,7 +66,7 @@ func createBranchAtHead(branch string) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		apperror.New(constants.ErrGoModBranchExists, "E9000", nil)
+		apperror.NewSimple(constants.ErrGoModBranchExists, "E9000")
 		return
 	}
 }
@@ -115,7 +115,7 @@ func commitGoModChanges(oldPath, newPath string, fileCount int) {
 	commitCmd.Stderr = os.Stderr
 	err := commitCmd.Run()
 	if err != nil {
-		apperror.Wrap(err, constants.ErrGoModCommitFailed, nil)
+		apperror.WrapSimple(err, constants.ErrGoModCommitFailed)
 		return
 	}
 }
@@ -130,7 +130,7 @@ func mergeGoModBranch(originalBranch, featureBranch, newPath string) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		apperror.New(constants.ErrGoModMergeConflict, "E9000", nil)
+		apperror.NewSimple(constants.ErrGoModMergeConflict, "E9000")
 		return
 	}
 }

@@ -116,7 +116,7 @@ func runRegoldensPass(cfg regoldensFlags, withGate bool, header, errFmt string) 
 	}
 	fmt.Fprintf(os.Stderr, errFmt, code)
 	fmt.Fprintln(os.Stderr)
-	return apperror.New("fatal error", "E9000", nil)
+	return apperror.NewSimple("fatal error", "E9000")
 	return nil
 }
 

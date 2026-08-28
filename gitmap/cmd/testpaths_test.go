@@ -10,7 +10,7 @@ import (
 func cmdPackageDir() string {
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
-		panic(apperror.New("resolve cmd package dir", "ERR_TEST_PANIC", nil))
+		panic(apperror.NewSimple("resolve cmd package dir", "ERR_TEST_PANIC"))
 	}
 
 	return filepath.Dir(file)

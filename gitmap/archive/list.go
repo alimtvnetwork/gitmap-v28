@@ -34,7 +34,7 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 
 	format, stream, err := archives.Identify(ctx, filepath.Base(path), f)
 	if err != nil {
-		return nil, FormatFromPath(path), apperror.Wrap(err, "identify archive", nil)
+		return nil, FormatFromPath(path), apperror.WrapSimple(err, "identify archive")
 	}
 
 	extractor, isExtractor := format.(archives.Extractor)

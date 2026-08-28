@@ -39,7 +39,7 @@ func runAuditLegacy(args []string) error {
 	checkHelp(constants.CmdAuditLegacy, args)
 	opts, err := parseAuditLegacyArgs(args)
 	if err != nil {
-		return apperror.Wrap(err, "parse-args", nil)
+		return apperror.WrapSimple(err, "parse-args")
 	}
 	hits, n, walkErr := scanAuditLegacy(opts)
 	if walkErr != nil {
@@ -50,7 +50,7 @@ func runAuditLegacy(args []string) error {
 	plans := writeAuditLegacyDiffs(opts, hits)
 	writeAuditLegacyReport(opts, hits, n, plans)
 	if len(hits) > 0 {
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	return nil
 }

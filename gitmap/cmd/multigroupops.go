@@ -35,7 +35,7 @@ func runMultiGroupStatus() error {
 // runMultiGroupExec runs a git command across active multi-group repos.
 func runMultiGroupExec(args []string) error {
 	if len(args) == 0 {
-		return apperror.New(constants.ErrExecUsage, "E9000", nil)
+		return apperror.NewSimple(constants.ErrExecUsage, "E9000")
 	}
 
 	db, records := loadMultiGroupRepos()

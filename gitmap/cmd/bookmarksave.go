@@ -79,5 +79,5 @@ func checkBookmarkNotExists(db interface {
 		return nil
 	}
 
-	return apperror.New("fatal error", "E9000", nil)
+	return apperror.NewSimple("fatal error", "E9000")
 }

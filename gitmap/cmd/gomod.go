@@ -26,7 +26,7 @@ func runGoMod(args []string) error {
 
 	if len(opts.newPath) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrGoModUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	oldPath := readModulePath()
@@ -95,7 +95,7 @@ func validateGoModPreconditions(oldPath, newPath string) {
 
 	if isWorkTreeDirty() {
 		fmt.Fprint(os.Stderr, constants.ErrGoModDirtyTree)
-		apperror.New("fatal error", "E9000", nil)
+		apperror.NewSimple("fatal error", "E9000")
 		return
 	}
 }

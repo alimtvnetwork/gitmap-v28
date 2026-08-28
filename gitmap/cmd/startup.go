@@ -40,12 +40,12 @@ func runStartupList(args []string) error {
 	}
 	entries, err := startup.List()
 	if err != nil {
-		return apperror.Wrap(err, "", nil)
+		return apperror.WrapSimple(err, "")
 	}
 	entries = filterStartupList(entries, opts.backend, opts.name)
 	dir, _ := startup.AutostartDir()
 	if err := renderStartupList(opts.format, opts.jsonIndent, dir, entries); err != nil {
-		return apperror.Wrap(err, "", nil)
+		return apperror.WrapSimple(err, "")
 	}
 	return nil
 }
@@ -162,7 +162,7 @@ func runStartupRemove(args []string) error {
 		DryRun: cfg.dryRun, Backend: backend,
 	})
 	if err != nil {
-		return apperror.Wrap(err, "", nil)
+		return apperror.WrapSimple(err, "")
 	}
 	if cfg.output == constants.OutputJSON {
 		_ = emitStartupStatus(cfg.output, cfg.jsonIndent,

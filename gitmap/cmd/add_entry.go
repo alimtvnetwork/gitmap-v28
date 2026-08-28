@@ -9,7 +9,7 @@ import (
 func runAdd(args []string) error {
 	checkHelp(constants.CmdAdd, args)
 	if err := add.Run(args); err != nil {
-		return apperror.Wrap(err, "Error:", nil)
+		return apperror.WrapSimple(err, "Error:")
 	}
 	return nil
 }

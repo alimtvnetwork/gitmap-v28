@@ -16,7 +16,7 @@ func runChromeWhich(_ []string) error {
 	statePath := filepath.Join(root, "Local State")
 	raw, err := os.ReadFile(statePath) //nolint:gosec
 	if err != nil {
-		return apperror.Wrap(err, "chrome which: ERROR read Local State:", nil)
+		return apperror.WrapSimple(err, "chrome which: ERROR read Local State:")
 	}
 	var doc struct {
 		Profile struct {
@@ -28,7 +28,7 @@ func runChromeWhich(_ []string) error {
 		} `json:"profile"`
 	}
 	if err := json.Unmarshal(raw, &doc); err != nil {
-		return apperror.Wrap(err, "chrome which: ERROR parse Local State:", nil)
+		return apperror.WrapSimple(err, "chrome which: ERROR parse Local State:")
 	}
 	fmt.Printf("\033[1;96mChrome User Data\033[0m %s\n", root)
 	if doc.Profile.LastUsed != "" {

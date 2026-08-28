@@ -14,13 +14,13 @@ func runBookmarkList(args []string) error {
 	jsonOut := hasJSONFlag(args)
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, "constants.ErrBookmarkQuery+", nil)
+		return apperror.WrapSimple(err, "constants.ErrBookmarkQuery+")
 	}
 	defer db.Close()
 
 	records, err := db.ListBookmarks()
 	if err != nil {
-		return apperror.Wrap(err, "constants.ErrBookmarkQuery+", nil)
+		return apperror.WrapSimple(err, "constants.ErrBookmarkQuery+")
 	}
 
 	if jsonOut {
@@ -69,7 +69,7 @@ func printBookmarkJSON(records []model.BookmarkRecord) {
 func runBookmarkDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkDelUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	name := args[0]
@@ -80,18 +80,18 @@ func runBookmarkDelete(args []string) error {
 func deleteBookmarkFromDB(name string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBookmarkDelete, nil)
+		return apperror.WrapSimple(err, constants.ErrBookmarkDelete)
 	}
 	defer db.Close()
 
 	_, findErr := db.FindBookmarkByName(name)
 	if findErr != nil {
-		return apperror.Wrap(findErr, constants.ErrBookmarkNotFound, nil)
+		return apperror.WrapSimple(findErr, constants.ErrBookmarkNotFound)
 	}
 
 	err = db.DeleteBookmark(name)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBookmarkDelete, nil)
+		return apperror.WrapSimple(err, constants.ErrBookmarkDelete)
 	}
 
 	fmt.Printf(constants.MsgBookmarkDeleted, name)

@@ -15,7 +15,7 @@ import (
 func runRescan() error {
 	cache, err := loadScanCache()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrRescanNoCache, nil)
+		return apperror.WrapSimple(err, constants.ErrRescanNoCache)
 	}
 	fmt.Printf(constants.MsgRescanReplay, cache.Dir)
 	runScanFromCache(cache)

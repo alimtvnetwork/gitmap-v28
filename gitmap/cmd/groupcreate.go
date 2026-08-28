@@ -12,7 +12,7 @@ import (
 func runGroupCreate(args []string) error {
 	name, desc, color := parseGroupCreateFlags(args)
 	if len(name) == 0 {
-		return apperror.New(constants.ErrGroupNameReq, "E9000", nil)
+		return apperror.NewSimple(constants.ErrGroupNameReq, "E9000")
 	}
 	executeGroupCreate(name, desc, color)
 	return nil
@@ -22,14 +22,14 @@ func runGroupCreate(args []string) error {
 func executeGroupCreate(name, desc, color string) {
 	db, err := openDB()
 	if err != nil {
-		apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		apperror.WrapSimple(err, constants.ErrListDBFailed)
 		return
 	}
 	defer db.Close()
 
 	_, err = db.CreateGroup(name, desc, color)
 	if err != nil {
-		apperror.Wrap(err, constants.ErrBareFmt, nil)
+		apperror.WrapSimple(err, constants.ErrBareFmt)
 		return
 	}
 	fmt.Printf(constants.MsgGroupCreated, name)

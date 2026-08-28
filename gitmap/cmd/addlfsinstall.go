@@ -61,12 +61,12 @@ func runAddLFSInstall(args []string) *apperror.AppError {
 
 	resolved, err2 := templates.Resolve("lfs", "common")
 	if err2 != nil {
-		return apperror.Wrap(err2, "? Could not resolve lfs/common template", nil)
+		return apperror.WrapSimple(err2, "? Could not resolve lfs/common template")
 	}
 
 	target, err3 := gitattributesPath()
 	if err3 != nil {
-		return apperror.Wrap(err3, "? Could not locate repo root", nil)
+		return apperror.WrapSimple(err3, "? Could not locate repo root")
 	}
 
 	printAddLFSInstallBanner(flags.dryRun, resolved.Source, resolved.Path)
@@ -87,7 +87,7 @@ func runAddLFSInstall(args []string) *apperror.AppError {
 
 	res, err4 := templates.Merge(target, addLFSInstallTag, resolved.Content)
 	if err4 != nil {
-		return apperror.Wrap(err4, "? Could not merge template", nil)
+		return apperror.WrapSimple(err4, "? Could not merge template")
 	}
 
 	printAddLFSInstallSummary(res)
@@ -99,7 +99,7 @@ func parseAddLFSInstallFlags(args []string) (addLFSInstallFlags, *apperror.AppEr
 	fs := flag.NewFlagSet("add lfs-install", flag.ExitOnError)
 	dryRun := fs.Bool("dry-run", false, "preview the merged .gitattributes without writing anything")
 	if err := fs.Parse(args); err != nil {
-		return addLFSInstallFlags{}, apperror.Wrap(err, "✗ Could not parse flags", nil)
+		return addLFSInstallFlags{}, apperror.WrapSimple(err, "✗ Could not parse flags")
 	}
 
 	return addLFSInstallFlags{dryRun: *dryRun}, nil

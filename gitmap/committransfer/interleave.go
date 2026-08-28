@@ -26,11 +26,11 @@ import (
 func RunBothInterleaved(leftDir, rightDir string, opts Options) error {
 	leftToRight, err := BuildPlan(leftDir, rightDir, opts)
 	if err != nil {
-		return apperror.Wrap(err, "interleave plan L→R", nil)
+		return apperror.WrapSimple(err, "interleave plan L→R")
 	}
 	rightToLeft, err := BuildPlan(rightDir, leftDir, opts)
 	if err != nil {
-		return apperror.Wrap(err, "interleave plan R→L", nil)
+		return apperror.WrapSimple(err, "interleave plan R→L")
 	}
 
 	stream := buildInterleavedStream(leftToRight, rightToLeft)

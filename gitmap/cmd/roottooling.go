@@ -112,7 +112,7 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdFolder}, func() error { return runFolder(argsTail()) }},
 		{[]string{constants.CmdGitRm}, func() error { return runGitRm(argsTail()) }},
 		{[]string{constants.CmdCommitPush, constants.CmdCommitPushAlias}, func() error { return runCommitPush(argsTail()) }},
-		{[]string{constants.CmdCommitPushPull, constants.CmdCommitPushPullAlias}, func() error { return runCommitPushPull(argsTail()) }},
+		{[]string{constants.CmdPullCommitPush, constants.CmdPullCommitPushAlias}, func() error { return runPullCommitPush(argsTail()) }},
 		{[]string{constants.CmdCommitPushBug, constants.CmdCommitPushBugAlias}, func() error { return runCommitPushBug(argsTail()) }},
 		{[]string{constants.CmdCommitPushFeature, constants.CmdCommitPushFeatureAlias}, func() error { return runCommitPushFeature(argsTail()) }},
 		{[]string{constants.CmdCommitPushRelease, constants.CmdCommitPushReleaseAlias}, func() error { return runCommitPushRelease(argsTail()) }},

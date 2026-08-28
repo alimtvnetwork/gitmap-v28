@@ -18,12 +18,12 @@ func runChangelogGen(args []string) error {
 	fromTag, toRef, err := release.ResolveTagRange(from, to)
 
 	if err != nil {
-		return apperror.Wrap(err, "✗", nil)
+		return apperror.WrapSimple(err, "✗")
 	}
 
 	commits, err := release.GenerateChangelog(fromTag, toRef)
 	if err != nil {
-		return apperror.Wrap(err, "✗", nil)
+		return apperror.WrapSimple(err, "✗")
 	}
 
 	if len(commits) == 0 {
@@ -77,14 +77,14 @@ func printChangelogPreview(section string) {
 func writeChangelogSection(section string) *apperror.AppError {
 	existing, err := os.ReadFile(constants.ChangelogFile)
 	if err != nil && !os.IsNotExist(err) {
-		return apperror.Wrap(err, constants.ErrChangelogGenRead, nil)
+		return apperror.WrapSimple(err, constants.ErrChangelogGenRead)
 	}
 
 	content := section + "\n" + string(existing)
 
 	err = os.WriteFile(constants.ChangelogFile, []byte(content), 0o644)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrChangelogGenWrite, nil)
+		return apperror.WrapSimple(err, constants.ErrChangelogGenWrite)
 	}
 
 	fmt.Printf(constants.MsgChangelogGenWritten, constants.ChangelogFile)

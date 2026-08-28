@@ -28,7 +28,7 @@ func runDocs(args []string) error {
 
 	err := cmd.Start()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrDocsOpen, nil)
+		return apperror.WrapSimple(err, constants.ErrDocsOpen)
 	}
 
 	fmt.Printf(constants.MsgDocsOpened, url)

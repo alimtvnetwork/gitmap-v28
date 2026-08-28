@@ -45,7 +45,7 @@ func runFind(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -73,7 +73,7 @@ func runFindRegex(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -101,7 +101,7 @@ func runFindRead(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -159,7 +159,7 @@ func runFindRegexRead(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.Wrap(err, "error", nil)
+		return apperror.WrapSimple(err, "error")
 	}
 	defer mainDB.Close()
 	defer db.Close()

@@ -83,7 +83,7 @@ func runCloneFrom(args []string) error {
 	setCmdPrintArgv(cfg.printCloneArgv)
 	plan, err := clonefrom.ParseFile(cfg.file)
 	if err != nil {
-		return apperror.Wrap(err, "parse-manifest cfg.file", nil)
+		return apperror.WrapSimple(err, "parse-manifest cfg.file")
 	}
 	applyCheckoutDefault(&plan, cfg.checkout)
 	if !cfg.execute {
@@ -114,7 +114,7 @@ func runCloneFrom(args []string) error {
 func runCloneFromDry(plan clonefrom.Plan, cfg cloneFromFlags) error {
 	render := pickCloneFromRenderer(cfg.output)
 	if err := render(os.Stdout, plan); err != nil {
-		return apperror.Wrap(err, "render-dry-run cfg.file", nil)
+		return apperror.WrapSimple(err, "render-dry-run cfg.file")
 	}
 	return nil
 }

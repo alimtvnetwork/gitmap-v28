@@ -75,7 +75,7 @@ func resolveAliasContext(aliasName string) *apperror.AppError {
 
 	resolved, err := db.ResolveAlias(aliasName)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
 
 	aliasContext = &resolvedAlias{

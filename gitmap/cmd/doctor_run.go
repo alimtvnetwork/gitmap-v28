@@ -53,7 +53,7 @@ func runDoctor(args []string) error {
 		emitDoctorText(results, failed)
 	}
 	if failed > 0 {
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 	return nil
 }

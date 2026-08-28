@@ -12,7 +12,7 @@ import (
 func executeOSCommand(op string, cmd *exec.Cmd) {
 	err := cmd.Run()
 	if err != nil {
-		appErr := apperror.Wrap(err, op, nil)
+		appErr := apperror.WrapSimple(err, op)
 		fmt.Println("Error:", appErr)
 	} else {
 		fmt.Println(op, "executed successfully")

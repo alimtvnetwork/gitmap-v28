@@ -13,7 +13,7 @@ func runProfile(args []string) error {
 	checkHelp("profile", args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	sub := args[0]
@@ -52,5 +52,5 @@ func routeProfileSub(sub string, args []string) {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
-	panic(apperror.New("fatal error", "E9000", nil))
+	panic(apperror.NewSimple("fatal error", "E9000"))
 }

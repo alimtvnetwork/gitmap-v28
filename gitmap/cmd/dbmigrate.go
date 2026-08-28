@@ -22,12 +22,12 @@ func runDBMigrate(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrDBMigrateFailFmt, nil)
+		return apperror.WrapSimple(err, constants.ErrDBMigrateFailFmt)
 	}
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
-		return apperror.Wrap(err, constants.ErrDBMigrateFailFmt, nil)
+		return apperror.WrapSimple(err, constants.ErrDBMigrateFailFmt)
 	}
 
 	printDBMigrateSummary(verbose)

@@ -23,13 +23,13 @@ func runPending() error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.WarnPendingDBOpen, nil)
+		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}
 	defer db.Close()
 
 	tasks, err := db.ListPendingTasks()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrPendingTaskQuery, nil)
+		return apperror.WrapSimple(err, constants.ErrPendingTaskQuery)
 	}
 
 	if len(tasks) == 0 {

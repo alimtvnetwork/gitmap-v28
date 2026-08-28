@@ -19,7 +19,7 @@ func runWatch(args []string) error {
 	records := loadWatchRecords(groupName)
 
 	if len(records) == 0 {
-		return apperror.New(constants.ErrWatchNoRepos, "E9000", nil)
+		return apperror.NewSimple(constants.ErrWatchNoRepos, "E9000")
 	}
 
 	if jsonMode {

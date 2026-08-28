@@ -9,7 +9,7 @@ import (
 func runGitRm(args []string) error {
 	checkHelp(constants.CmdGitRm, args)
 	if err := gitrm.Run(args); err != nil {
-		return apperror.Wrap(err, "Error:", nil)
+		return apperror.WrapSimple(err, "Error:")
 	}
 	return nil
 }

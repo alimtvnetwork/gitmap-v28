@@ -72,7 +72,7 @@ func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
-		appErr := apperror.Wrap(err, "ListHosts", nil)
+		appErr := apperror.WrapSimple(err, "ListHosts")
 		appErr.Code = "E_INTERNAL_ERROR"
 		return nil, appErr
 	}
@@ -82,7 +82,7 @@ func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 	for rows.Next() {
 		var host SSHHost
 		if err := rows.Scan(&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt); err != nil {
-			appErr := apperror.Wrap(err, "ListHosts_Scan", nil)
+			appErr := apperror.WrapSimple(err, "ListHosts_Scan")
 			appErr.Code = "E_INTERNAL_ERROR"
 			return nil, appErr
 		}
@@ -90,7 +90,7 @@ func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		appErr := apperror.Wrap(err, "ListHosts_Rows", nil)
+		appErr := apperror.WrapSimple(err, "ListHosts_Rows")
 		appErr.Code = "E_INTERNAL_ERROR"
 		return nil, appErr
 	}

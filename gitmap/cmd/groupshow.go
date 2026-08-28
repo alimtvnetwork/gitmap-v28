@@ -12,7 +12,7 @@ import (
 // runGroupShow handles "group show <name>".
 func runGroupShow(args []string) error {
 	if len(args) == 0 {
-		return apperror.New(constants.ErrGroupNameReq, "E9000", nil)
+		return apperror.NewSimple(constants.ErrGroupNameReq, "E9000")
 	}
 	name := args[0]
 	executeGroupShow(name)
@@ -23,7 +23,7 @@ func runGroupShow(args []string) error {
 func executeGroupShow(name string) {
 	db, err := openDB()
 	if err != nil {
-		apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		apperror.WrapSimple(err, constants.ErrListDBFailed)
 		return
 	}
 	defer db.Close()
@@ -31,11 +31,11 @@ func executeGroupShow(name string) {
 	repos, err := db.ShowGroup(name)
 	if err != nil && isLegacyDataError(err) == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		apperror.New("fatal error", "E9000", nil)
+		apperror.NewSimple("fatal error", "E9000")
 		return
 	}
 	if err != nil {
-		apperror.Wrap(err, constants.ErrBareFmt, nil)
+		apperror.WrapSimple(err, constants.ErrBareFmt)
 		return
 	}
 	printGroupShowOutput(name, repos)

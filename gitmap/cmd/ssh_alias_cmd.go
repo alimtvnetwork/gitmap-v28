@@ -23,7 +23,7 @@ var SSHAliasCmd = &cobra.Command{
 
 func runSSHAlias(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) < 2 {
-		return apperror.New("runSSHAlias", "E_INTERNAL_ERROR", nil)
+		return apperror.NewSimple("runSSHAlias", "E_INTERNAL_ERROR")
 	}
 
 	ip := args[0]
@@ -35,13 +35,13 @@ func runSSHAlias(cmd *cobra.Command, args []string, ctx context.Context) error {
 func saveAliasCommand(ctx context.Context, ip string, alias string) error {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, "saveAliasCommand", nil)
+		return apperror.WrapSimple(err, "saveAliasCommand")
 	}
 	defer db.Close()
 
 	tx, err := db.Conn().BeginTx(ctx, nil)
 	if err != nil {
-		return apperror.Wrap(err, "saveAliasCommand", nil)
+		return apperror.WrapSimple(err, "saveAliasCommand")
 	}
 	defer tx.Rollback()
 
@@ -55,11 +55,11 @@ func saveAliasCommand(ctx context.Context, ip string, alias string) error {
 	}
 
 	if err := store.InsertSSHHost(ctx, host, tx); err != nil {
-		return apperror.Wrap(err, "saveAliasCommand", nil)
+		return apperror.WrapSimple(err, "saveAliasCommand")
 	}
 
 	if err := tx.Commit(); err != nil {
-		return apperror.Wrap(err, "saveAliasCommand", nil)
+		return apperror.WrapSimple(err, "saveAliasCommand")
 	}
 
 	fmt.Printf("Successfully saved alias %s for %s\n", alias, ip)

@@ -51,9 +51,9 @@ const (
 	// CmdCommitPush stages all changes, commits with a message, and pushes.
 	CmdCommitPush             = "commit-push"
 	CmdCommitPushAlias        = "cp"
-	// CmdCommitPushPull pulls first (resolving conflicts), then stages, commits, pushes.
-	CmdCommitPushPull         = "commit-push-pull"
-	CmdCommitPushPullAlias    = "cpp"
+	// CmdPullCommitPush pulls first (resolving conflicts), then stages, commits, pushes.
+	CmdPullCommitPush         = "pull-commit-push"
+	CmdPullCommitPushAlias    = "pcp"
 	// CmdCommitPushBug commits with a "Bug: " prefix and pushes.
 	CmdCommitPushBug          = "commit-push-bug"
 	CmdCommitPushBugAlias     = "cpb"
@@ -704,3 +704,4 @@ const (
 	ClusterFlagVerbose        = "verbose"
 	ClusterFlagDryRun         = "dry-run"
 )
+

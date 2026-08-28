@@ -12,12 +12,12 @@ const SQLSelectAllInstallers = `SELECT id, name, slug, description, target_os, v
 // ListInstallers retrieves all installer scripts from the database.
 func (db *DB) ListInstallers() ([]model.InstallerScript, error) {
 	if db == nil || db.conn == nil {
-		return nil, apperror.New("ListInstallers", "E_INSTALLER_NIL_DB", nil)
+		return nil, apperror.NewSimple("ListInstallers", "E_INSTALLER_NIL_DB")
 	}
 
 	rows, errQuery := QueryWrapper(db.conn, SQLSelectAllInstallers).Destruct()
 	if errQuery != nil {
-		appErr := apperror.Wrap(errQuery, "ListInstallers", nil)
+		appErr := apperror.WrapSimple(errQuery, "ListInstallers")
 		appErr.Code = "E_INSTALLER_LIST_FAILED"
 		return nil, appErr
 	}
@@ -31,7 +31,7 @@ func (db *DB) ListInstallers() ([]model.InstallerScript, error) {
 			&script.TargetOS, &script.Version, &script.Instructions,
 			&script.CreatedAt, &script.UpdatedAt,
 		); errScan != nil {
-			appErr := apperror.Wrap(errScan, "ListInstallers", nil)
+			appErr := apperror.WrapSimple(errScan, "ListInstallers")
 			appErr.Code = "E_INSTALLER_LIST_FAILED"
 			return nil, appErr
 		}
@@ -39,7 +39,7 @@ func (db *DB) ListInstallers() ([]model.InstallerScript, error) {
 	}
 
 	if errRows := rows.Err(); errRows != nil {
-		appErr := apperror.Wrap(errRows, "ListInstallers", nil)
+		appErr := apperror.WrapSimple(errRows, "ListInstallers")
 		appErr.Code = "E_INSTALLER_LIST_FAILED"
 		return nil, appErr
 	}

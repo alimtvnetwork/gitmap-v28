@@ -13,14 +13,14 @@ import (
 func runProfileCreate(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileCreateUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	name := args[0]
 	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
 
 	if profileExists(cfg.Profiles, name) {
-		return apperror.New(constants.ErrProfileExists, "E9000", nil)
+		return apperror.NewSimple(constants.ErrProfileExists, "E9000")
 	}
 
 	cfg.Profiles = append(cfg.Profiles, name)
@@ -56,14 +56,14 @@ func runProfileList() error {
 func runProfileSwitch(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileSwitchUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	name := args[0]
 	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
 
 	if !profileExists(cfg.Profiles, name) {
-		return apperror.New(constants.ErrProfileNotFound, "E9000", nil)
+		return apperror.NewSimple(constants.ErrProfileNotFound, "E9000")
 	}
 
 	cfg.Active = name
@@ -77,7 +77,7 @@ func runProfileSwitch(args []string) error {
 func runProfileDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileDeleteUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	name := args[0]

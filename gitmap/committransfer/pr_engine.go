@@ -45,10 +45,10 @@ func shouldCreatePR(subject, prMode string) bool {
 
 func createAndPushBranch(dir, branchName string) error {
 	if err := exec.Command("git", "-C", dir, "checkout", "-b", branchName).Run(); err != nil {
-		return apperror.Wrap(err, "ProcessPR: failed to checkout new PR branch", nil)
+		return apperror.WrapSimple(err, "ProcessPR: failed to checkout new PR branch")
 	}
 	if err := exec.Command("git", "-C", dir, "push", "-u", "origin", branchName).Run(); err != nil {
-		return apperror.Wrap(err, "ProcessPR: failed to push PR branch", nil)
+		return apperror.WrapSimple(err, "ProcessPR: failed to push PR branch")
 	}
 	return nil
 }
@@ -58,7 +58,7 @@ func createGHPR(dir, branchName, body string) error {
 	cmd := exec.Command("gh", "pr", "create", "--title", title, "--body", body, "--head", branchName)
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(err, "ProcessPR: failed to create PR via gh", nil)
+		return apperror.WrapSimple(err, "ProcessPR: failed to create PR via gh")
 	}
 	return nil
 }
@@ -67,13 +67,13 @@ func mergeAndRestore(dir, branchName string) error {
 	cmd := exec.Command("gh", "pr", "merge", branchName, "--squash", "--delete-branch")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(err, "ProcessPR: failed to merge PR via gh", nil)
+		return apperror.WrapSimple(err, "ProcessPR: failed to merge PR via gh")
 	}
 	if err := exec.Command("git", "-C", dir, "checkout", "-").Run(); err != nil {
-		return apperror.Wrap(err, "ProcessPR: failed to checkout previous branch", nil)
+		return apperror.WrapSimple(err, "ProcessPR: failed to checkout previous branch")
 	}
 	if err := exec.Command("git", "-C", dir, "pull").Run(); err != nil {
-		return apperror.Wrap(err, "ProcessPR: failed to pull latest after PR merge", nil)
+		return apperror.WrapSimple(err, "ProcessPR: failed to pull latest after PR merge")
 	}
 	return nil
 }

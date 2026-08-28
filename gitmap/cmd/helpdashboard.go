@@ -141,7 +141,7 @@ func serveStatic(distDir string, port int) {
 
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
-		apperror.Wrap(err, constants.ErrHDServe, nil)
+		apperror.WrapSimple(err, constants.ErrHDServe)
 		return
 	}
 
@@ -181,7 +181,7 @@ func serveDev(docsDir string, port int) {
 	npmPath, err := exec.LookPath("npm")
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrHDNPMNotFound)
-		apperror.New("fatal error", "E9000", nil)
+		apperror.NewSimple("fatal error", "E9000")
 		return
 	}
 
@@ -193,7 +193,7 @@ func serveDev(docsDir string, port int) {
 	install.Stderr = os.Stderr
 
 	if err := install.Run(); err != nil {
-		apperror.Wrap(err, constants.ErrHDNPMInstall, nil)
+		apperror.WrapSimple(err, constants.ErrHDNPMInstall)
 		return
 	}
 
@@ -205,7 +205,7 @@ func serveDev(docsDir string, port int) {
 	dev.Stderr = os.Stderr
 
 	if err := dev.Start(); err != nil {
-		apperror.Wrap(err, constants.ErrHDDevServer, nil)
+		apperror.WrapSimple(err, constants.ErrHDDevServer)
 		return
 	}
 

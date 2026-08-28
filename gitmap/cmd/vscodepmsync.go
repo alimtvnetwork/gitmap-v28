@@ -24,7 +24,7 @@ func runVSCodePMSync(args []string) error {
 
 	opts, err := parseVSCodePMSyncFlags(args)
 	if err != nil {
-		return apperror.Wrap(err, "parse-args", nil)
+		return apperror.WrapSimple(err, "parse-args")
 	}
 
 	path, entries, ok := loadVSCodePMEntries(opts)

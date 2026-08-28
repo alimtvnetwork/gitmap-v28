@@ -72,7 +72,7 @@ func validateCreateFormat(path string) (Format, error) {
 func prepareArchiveFiles(ctx context.Context, opts CreateOptions) ([]archives.FileInfo, error) {
 	files, err := gatherFiles(ctx, opts.Sources)
 	if err != nil {
-		return nil, apperror.Wrap(err, "gather sources", nil)
+		return nil, apperror.WrapSimple(err, "gather sources")
 	}
 
 	return filterFiles(files, opts.Includes, opts.Excludes), nil

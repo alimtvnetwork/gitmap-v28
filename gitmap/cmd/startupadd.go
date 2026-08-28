@@ -69,7 +69,7 @@ func runStartupAdd(args []string) error {
 		Backend:    backend,
 	})
 	if err != nil {
-		return apperror.Wrap(err, "", nil)
+		return apperror.WrapSimple(err, "")
 	}
 	if cfg.output == constants.OutputJSON {
 		_ = emitStartupStatus(cfg.output, cfg.jsonIndent,

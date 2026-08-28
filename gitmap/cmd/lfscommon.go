@@ -57,12 +57,12 @@ func runLFSCommon(args []string) error {
 	if !insideGitRepo() {
 		fmt.Fprintln(os.Stderr, "  ✗ Not inside a Git repository.")
 		fmt.Fprintln(os.Stderr, "    Run this command from the root of a repo (where .git/ lives).")
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	if !lfsAvailable() {
 		fmt.Fprintln(os.Stderr, "  ✗ Git LFS is not installed or not on PATH.")
-		return apperror.New("    Install it from https://git-lfs.com and re-run.", "E9000", nil)
+		return apperror.NewSimple("    Install it from https://git-lfs.com and re-run.", "E9000")
 	}
 
 	printLFSCommonBanner(flags.dryRun)

@@ -21,5 +21,5 @@ func HandleComp120(in Input120) (Output120, error) {
 	if in.ID == Comp120Uniqueness {
 		return Output120{Result: true}, nil
 	}
-	return Output120{}, apperror.New(ErrComp120Fail, OpHandleComp120, nil)
+	return Output120{}, apperror.NewSimple(ErrComp120Fail, OpHandleComp120)
 }

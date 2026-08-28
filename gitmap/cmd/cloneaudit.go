@@ -19,15 +19,15 @@ func runCloneAudit(cf CloneFlags) error {
 	source := resolveCloneShorthand(cf.Source)
 	if isDirectURL(source) {
 		fmt.Fprint(os.Stderr, constants.ErrCloneAuditDirectURL)
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	report, err := cloner.PlanCloneAudit(source, cf.TargetDir)
 	if err != nil {
-		return apperror.New(constants.ErrCloneAuditLoad, "E9000", nil)
+		return apperror.NewSimple(constants.ErrCloneAuditLoad, "E9000")
 	}
 	if printErr := report.Print(os.Stdout); printErr != nil {
-		return apperror.New(constants.ErrCloneAuditLoad, "E9000", nil)
+		return apperror.NewSimple(constants.ErrCloneAuditLoad, "E9000")
 	}
 	return nil
 }

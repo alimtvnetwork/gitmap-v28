@@ -42,7 +42,7 @@ func runClonePickExecute(plan clonepick.Plan, noVSCodeSync bool, replayId int64)
 
 	if result.Status == clonepick.StatusFailed {
 		maybeExitOnCmdFaithfulMismatch()
-		return apperror.New("fatal error", "E9000", nil)
+		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	// VS Code Project Manager sync. Result.Detail carries the
