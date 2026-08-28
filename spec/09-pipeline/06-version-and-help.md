@@ -61,7 +61,7 @@ After long-running operations complete, print a summary that includes the versio
 Before every release, verify these are in sync:
 
 1. `constants.Version` in source code
-2. `CHANGELOG.md` has a matching entry
+2. `changelog.md` has a matching entry
 3. `.gitmap/release/<version>.json` metadata file
 4. Documentation site changelog (if applicable)
 5. Git tag matches the version

@@ -56,7 +56,7 @@ func writeLLMTopLevelTree(sb *strings.Builder) {
 	sb.WriteString("├── gitmap-updater/            # Standalone updater (Go module)\n")
 	sb.WriteString("├── spec/                      # Specifications & design docs\n")
 	sb.WriteString("├── docs-site/                 # Documentation website\n")
-	sb.WriteString("├── CHANGELOG.md\n")
+	sb.WriteString("├── changelog.md\n")
 	sb.WriteString("├── README.md\n")
 	sb.WriteString("└── LLM.md                     # This file\n")
 }

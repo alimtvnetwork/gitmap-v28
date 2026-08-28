@@ -37,4 +37,4 @@ A `generate-check` job in `.github/workflows/ci.yml` runs `go generate ./...` an
 - `gitmap/completion/completion.go::manualExtras` is now empty with a doc comment pointing future contributors at the marker convention.
 
 ## Migration guide
-Full guide for external contributors lives at the top of `CHANGELOG.md` under **Migration guide — v2.x → v3.0.0**.
+Full guide for external contributors lives at the top of `changelog.md` under **Migration guide — v2.x → v3.0.0**.

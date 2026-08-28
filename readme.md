@@ -1870,7 +1870,7 @@ windows/amd64  windows/arm64
   ✓ Release metadata written to .gitmap/release/latest.json
   ✓ Committed release metadata on release/v3.51.0
   ✓ Marked v3.51.0 as latest release
-  ✓ Using CHANGELOG.md as release body
+  ✓ Using changelog.md as release body
   ✓ Attached gitmap_v3.51.0_windows_amd64.exe
   ✓ Attached gitmap_v3.51.0_linux_amd64
   ✓ Attached SHA256SUMS.txt
@@ -1976,7 +1976,7 @@ gitmap r       [version] [flags]
 
 - 2026-08-22T04:46:47Z, Enqueued massively granular codebase audit plan for v1.4.5 coding guidelines (453 violations mapped).
 
-Concise, grouped per version. Each entry calls out **💥 Breaking**, **✨ Enhancements**, and **🐛 Fixes**. Versions with nothing in a category omit it. Full history lives in [`CHANGELOG.md`](CHANGELOG.md); query it from the CLI with `gitmap changelog vX.Y.Z` or `gitmap cl --limit 5`.
+Concise, grouped per version. Each entry calls out **💥 Breaking**, **✨ Enhancements**, and **🐛 Fixes**. Versions with nothing in a category omit it. Full history lives in [`changelog.md`](changelog.md); query it from the CLI with `gitmap changelog vX.Y.Z` or `gitmap cl --limit 5`.
 
 #### v5.10.0 — 2026-05-16 — PowerShell wrapper loads last
 
@@ -2063,7 +2063,7 @@ Concise, grouped per version. Each entry calls out **💥 Breaking**, **✨ Enha
 
 - ✨ **Enhancements:** `gitmap r` auto-registers the cwd repo in the database if it isn't tracked yet, instead of failing with "repo not found". The new repo is tagged with the current scan folder.
 
-> Versions older than v3.22 are summarized in [`CHANGELOG.md`](CHANGELOG.md). Notable jumps: **v3.21** (schema-version fast path + `db-migrate --force`), **v3.19** (bare release auto-bumps **minor** + multi-repo scan-dir release), **v3.17** (`Release.RepoId` foreign key + doctor duplicate-binary check), **v3.16** (repo renamed to `gitmap-v28`).
+> Versions older than v3.22 are summarized in [`changelog.md`](changelog.md). Notable jumps: **v3.21** (schema-version fast path + `db-migrate --force`), **v3.19** (bare release auto-bumps **minor** + multi-repo scan-dir release), **v3.17** (`Release.RepoId` foreign key + doctor duplicate-binary check), **v3.16** (repo renamed to `gitmap-v28`).
 
 ### Copy-paste workflows — scan, output, re-clone
 
@@ -2622,7 +2622,7 @@ gitmap ssh config
 
 ```bash
 gitmap z create docs-bundle
-gitmap z add docs-bundle ./README.md ./CHANGELOG.md ./docs/
+gitmap z add docs-bundle ./README.md ./changelog.md ./docs/
 gitmap z show docs-bundle
 gitmap release v3.0.0 --zip-group docs-bundle
 ```
@@ -2798,7 +2798,7 @@ PowerShell flags are case-insensitive, so `-uninstall`, `-Uninstall`, and
 ```
 /                                repo root
 ├── README.md                    this file (pinned version + install)
-├── CHANGELOG.md                 version-by-version history
+├── changelog.md                 version-by-version history
 ├── gitmap/                      Go CLI source (the product)
 │   ├── cmd/                     command handlers + JSON contract tests
 │   ├── constants/               ALL string constants (no magic strings)

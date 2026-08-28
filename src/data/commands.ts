@@ -935,12 +935,12 @@ export const commands: CommandDef[] = [
 
   {
     category: "changelog",
-    name: "changelog", alias: "cl", description: "View release notes from CHANGELOG.md with filtering and version lookup",
+    name: "changelog", alias: "cl", description: "View release notes from changelog.md with filtering and version lookup",
     usage: "gitmap changelog [version] [--latest] [--limit N] [--open] [--source <type>]",
     flags: [
       { flag: "--latest", description: "Show only the most recent version" },
       { flag: "--limit <n>", description: "Max number of versions to display (default: 5)" },
-      { flag: "--open", description: "Open CHANGELOG.md in default application" },
+      { flag: "--open", description: "Open changelog.md in default application" },
       { flag: "--source <type>", description: "Filter by source: release or import" },
     ],
     examples: [
@@ -948,7 +948,7 @@ export const commands: CommandDef[] = [
       { command: "gitmap cl --latest", description: "Most recent version only" },
       { command: "gitmap changelog v2.3.0", description: "Notes for a specific version" },
       { command: "gitmap cl --source release --limit 10", description: "Last 10 release-sourced entries" },
-      { command: "gitmap cl --open", description: "Open CHANGELOG.md in your editor" },
+      { command: "gitmap cl --open", description: "Open changelog.md in your editor" },
     ],
     seeAlso: [
       { name: "release", description: "Create a release", url: "/release" },
@@ -958,7 +958,7 @@ export const commands: CommandDef[] = [
   },
   {
     category: "changelog",
-    name: "changelog-generate", alias: "cg", description: "Auto-generate CHANGELOG.md entries from commits between Git tags",
+    name: "changelog-generate", alias: "cg", description: "Auto-generate changelog.md entries from commits between Git tags",
     usage: "gitmap changelog-generate [--from <tag>] [--to <tag>]",
     flags: [
       { flag: "--from <tag>", description: "Start tag (default: second-latest)" },
@@ -977,7 +977,7 @@ export const commands: CommandDef[] = [
   },
   {
     category: "changelog",
-    name: "list-versions", alias: "lv", description: "List all Git release tags with optional notes from CHANGELOG.md",
+    name: "list-versions", alias: "lv", description: "List all Git release tags with optional notes from changelog.md",
     usage: "gitmap list-versions [--json] [--limit N]",
     flags: [
       { flag: "--json", description: "Output as structured JSON" },
@@ -2233,7 +2233,7 @@ export const commands: CommandDef[] = [
   },
   {
     category: "maintenance",
-    name: "changelog-regen", description: "Regenerate CHANGELOG.md from the JSON release manifests under .gitmap/release/. Useful after manual edits or after restoring release metadata from backup.",
+    name: "changelog-regen", description: "Regenerate changelog.md from the JSON release manifests under .gitmap/release/. Useful after manual edits or after restoring release metadata from backup.",
     usage: "gitmap changelog-regen [--dry-run]",
     examples: [{ command: "gitmap changelog-regen --dry-run" }],
   },

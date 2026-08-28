@@ -11,7 +11,7 @@ When the user says "bump the minor", "bump version", "release it", "cut a releas
 
 1. **`gitmap/constants/constants.go`** — `const Version = "X.Y.Z"`. Minor = X.Y+1.0, patch = X.Y.Z+1, major = X+1.0.0.
 2. **`src/constants/index.ts`** — `export const VERSION = "vX.Y.Z"` (note the `v` prefix). MUST match the Go literal exactly. Enforced by `src/test/version-sync.test.ts` — CI fails if the two drift. Stale-VERSION drift was the v3.0.0 → v4.22.0 follow-up bug; do not let it recur.
-3. **`CHANGELOG.md`** — rename `## Unreleased — ...` to `## vX.Y.Z — (YYYY-MM-DD) — <summary>`.
+3. **`changelog.md`** — rename `## Unreleased — ...` to `## vX.Y.Z — (YYYY-MM-DD) — <summary>`.
 
 ## ABSOLUTE RULES
 

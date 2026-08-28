@@ -61,7 +61,7 @@ gitmap-v28 zip-group rename <name> --archive <filename.zip>
 ```bash
 # Create a group and add items
 gitmap-v28 z create docs-bundle
-gitmap-v28 z add docs-bundle ./README.md ./CHANGELOG.md ./docs/
+gitmap-v28 z add docs-bundle ./README.md ./changelog.md ./docs/
 
 # Create with custom archive name
 gitmap-v28 z create extras --archive extra-files.zip
@@ -171,7 +171,7 @@ archive filenames:
     {
       "name": "docs-bundle",
       "archive": "docs-bundle_v3.0.0.zip",
-      "items": ["README.md", "CHANGELOG.md", "docs/"]
+      "items": ["README.md", "changelog.md", "docs/"]
     }
   ],
   "assets": [
@@ -235,7 +235,7 @@ The zip group step runs **after** Go cross-compilation (step 7a) and
 
 ```
 [dry-run] Would create 2 zip archive(s):
-  → docs-bundle_v3.0.0.zip (3 items: README.md, CHANGELOG.md, docs/)
+  → docs-bundle_v3.0.0.zip (3 items: README.md, changelog.md, docs/)
   → report.pdf.zip (1 item: dist/report.pdf)
 [dry-run] Would upload 8 assets + checksums.txt
 ```

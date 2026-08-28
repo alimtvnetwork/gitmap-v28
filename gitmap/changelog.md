@@ -855,7 +855,7 @@ Verified post-rename:
 
 ### Files (this section)
 
-- Edited: 404 files (391 `.go` files in `gitmap/`, plus `gitmap/go.mod`, `gitmap-updater/go.mod`, `gitmap-updater/main.go`, `Makefile`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `run.ps1`, `run.sh`, multiple `spec/` docs, `CHANGELOG.md` history references, `src/data/changelog.ts`, `src/pages/GettingStarted.tsx`).
+- Edited: 404 files (391 `.go` files in `gitmap/`, plus `gitmap/go.mod`, `gitmap-updater/go.mod`, `gitmap-updater/main.go`, `Makefile`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `run.ps1`, `run.sh`, multiple `spec/` docs, `changelog.md` history references, `src/data/changelog.ts`, `src/pages/GettingStarted.tsx`).
 - Edited: `gitmap/constants/constants.go` — bumped Version to 3.27.0.
 - Created: `.gitmap/release/v3.27.0.json` — release metadata.
 - Edited: `.gitmap/release/latest.json` — pointer to v3.27.0.
@@ -1246,7 +1246,7 @@ Targeted unit tests are preferred over broad CI sandbox-layout assertions when a
 ### Added (DFD-3 migration)
 
 - **Two-stage legacy layout migration** in `repair_deploy_layout()` (run.sh) and `repair_layout()` (install.sh):
-  1. **Migration A** — pre-DFD unwrapped install: `<target>/gitmap` (binary at top level) → `<target>/gitmap-cli/gitmap` + sibling data/, CHANGELOG.md, docs/, docs-site/.
+  1. **Migration A** — pre-DFD unwrapped install: `<target>/gitmap` (binary at top level) → `<target>/gitmap-cli/gitmap` + sibling data/, changelog.md, docs/, docs-site/.
   2. **Migration B** — v3.6.0..v3.13.10 wrapped install: `<target>/gitmap/` (folder) → `<target>/gitmap-cli/` via single `mv`. Skipped with a warning if both folders already exist (manual review needed).
 - **PATH-resolution backwards-compat** — `resolve_deploy_target()` in run.sh now accepts both `gitmap-cli` and legacy `gitmap` as the active-binary parent dir name, so users on the v3.6.0..v3.13.10 layout still get their existing deploy target detected on first migration run.
 
@@ -2586,7 +2586,7 @@ const (
 - Note: existing databases will need `gitmap db-reset --confirm` to adopt the new schema.
 
 ## v2.13.0
-- Release metadata JSON (`.release/vX.Y.Z.json`) now includes a `changelog` field with notes from CHANGELOG.md (gracefully omitted if unreadable).
+- Release metadata JSON (`.release/vX.Y.Z.json`) now includes a `changelog` field with notes from changelog.md (gracefully omitted if unreadable).
 - `gitmap list-versions` (`lv`) now shows changelog notes as sub-points under each version in terminal output.
 - `gitmap list-versions --json` includes changelog array per version in JSON output.
 
@@ -2685,7 +2685,7 @@ const (
 ## v2.3.2
 - `gitmap update` now syncs the active PATH binary with the deployed binary, so commands like `release` are available immediately.
 - `gitmap update` now prints changelog bullet points after update (or no-op update) for quick visibility.
-- Added `gitmap changelog --open` and `gitmap changelog.md` to open `CHANGELOG.md` in the default app.
+- Added `gitmap changelog --open` and `gitmap changelog.md` to open `changelog.md` in the default app.
 
 ## v2.3.1
 - Added `gitmap changelog` command for concise, CLI-friendly release notes.

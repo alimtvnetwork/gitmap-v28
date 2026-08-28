@@ -69,7 +69,7 @@ func classify(commits []gitlog.Commit, warnOut io.Writer) []group.Section {
 }
 
 func dispatchMode(mode Mode, entry render.Entry, repoRoot string) (int, error) {
-	mdPath := filepath.Join(repoRoot, "CHANGELOG.md")
+	mdPath := filepath.Join(repoRoot, "changelog.md")
 	tsPath := filepath.Join(repoRoot, "src/data/changelog.ts")
 
 	switch mode {

@@ -36,4 +36,4 @@ Extracted compress and checksum into a separate step with an explicit `working-d
 
 - `spec/05-coding-guidelines/17-cicd-patterns.md` — CI/CD Patterns
 - `spec/05-coding-guidelines/29-ci-sha-deduplication.md` — SHA Deduplication
-- CHANGELOG.md v2.54.0 — Release Pipeline Fix
+- changelog.md v2.54.0 — Release Pipeline Fix

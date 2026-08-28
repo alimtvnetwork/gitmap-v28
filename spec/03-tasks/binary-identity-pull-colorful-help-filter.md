@@ -103,7 +103,7 @@ prints a summary block at the bottom.
 
 - `gitmap/constants/constants.go` → `Version = "5.58.0"`
 - `src/constants/index.ts` → `VERSION = "v5.58.0"`
-- `CHANGELOG.md` → new top entry covering steps 1–4.
+- `changelog.md` → new top entry covering steps 1–4.
 - `src/data/changelog.ts` → matching entry.
 - `README.md` → version matrix + pinned-version block updated.
 - Verify `version-sync.test.ts` passes.

@@ -1233,7 +1233,7 @@ function Repair-DeployLayout {
         New-Item -ItemType Directory -Path $appDir -Force | Out-Null
     }
 
-    foreach ($name in @($BinaryName, "data", "CHANGELOG.md", "docs")) {
+    foreach ($name in @($BinaryName, "data", "changelog.md", "docs")) {
         $src = Join-Path $DeployTarget $name
         $dst = Join-Path $appDir $name
         if (-not (Test-Path $src)) { continue }

@@ -173,7 +173,7 @@ func printChangelogEntry(entry release.ChangelogEntry, pretty bool) {
 	renderChangelogEntry(entry, pretty)
 }
 
-// openChangelogFile opens CHANGELOG.md with the default OS app.
+// openChangelogFile opens changelog.md with the default OS app.
 func openChangelogFile() error {
 	absPath, err := filepath.Abs(constants.ChangelogFile)
 	if err != nil {

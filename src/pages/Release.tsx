@@ -534,7 +534,7 @@ const ReleasePage = () => {
     {
       "name": "docs-bundle",
       "archive": "docs-bundle_v3.0.0.zip",
-      "items": ["README.md", "CHANGELOG.md", "docs/"]
+      "items": ["README.md", "changelog.md", "docs/"]
     }
   ],
   "assets": [
@@ -547,7 +547,7 @@ const ReleasePage = () => {
           <div className="bg-card border border-border rounded-lg p-5 font-mono text-sm space-y-1">
             <p className="text-muted-foreground">$ gitmap release v3.0.0 --zip-group docs-bundle -Z ./report.pdf --dry-run</p>
             <p className="text-foreground/80">&nbsp;&nbsp;[dry-run] Would create 2 zip archive(s):</p>
-            <p className="text-foreground/60">&nbsp;&nbsp;&nbsp;&nbsp;→ docs-bundle_v3.0.0.zip (3 items: README.md, CHANGELOG.md, docs/)</p>
+            <p className="text-foreground/60">&nbsp;&nbsp;&nbsp;&nbsp;→ docs-bundle_v3.0.0.zip (3 items: README.md, changelog.md, docs/)</p>
             <p className="text-foreground/60">&nbsp;&nbsp;&nbsp;&nbsp;→ report.pdf.zip (1 item: dist/report.pdf)</p>
             <p className="text-foreground/80">&nbsp;&nbsp;[dry-run] Would upload 8 assets + checksums.txt</p>
           </div>

@@ -1,4 +1,4 @@
-// Package writer splices a freshly-rendered Entry into CHANGELOG.md
+// Package writer splices a freshly-rendered Entry into changelog.md
 // (after the leading "# Changelog" header) and src/data/changelog.ts
 // (at the top of the exported array).
 package writer
@@ -21,7 +21,7 @@ const (
 func PrependBoth(mdPath, tsPath string, entry render.Entry) error {
 	err := prependFile(mdPath, mdHeader+"\n", render.Markdown(entry))
 	if err != nil {
-		return fmt.Errorf("CHANGELOG.md: %w", err)
+		return fmt.Errorf("changelog.md: %w", err)
 	}
 
 	err = spliceAfterMarker(tsPath, tsArrayMarker, render.TypeScript(entry))

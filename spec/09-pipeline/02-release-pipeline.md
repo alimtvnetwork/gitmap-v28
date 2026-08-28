@@ -209,7 +209,7 @@ Both scripts follow the same flow:
 
 ## Changelog Extraction
 
-Extract the matching version section from `CHANGELOG.md` using `awk`:
+Extract the matching version section from `changelog.md` using `awk`:
 
 ```bash
 awk -v ver="$VERSION" '
@@ -218,7 +218,7 @@ awk -v ver="$VERSION" '
     if (index($0, ver)) found=1
   }
   found { print }
-' CHANGELOG.md
+' changelog.md
 ```
 
 Falls back to a "No changelog entry found" message if the version section doesn't exist.
@@ -229,7 +229,7 @@ Falls back to a "No changelog entry found" message if the version section doesn'
 
 The GitHub Release description is assembled from multiple sources:
 
-1. **Changelog entry** — extracted from `CHANGELOG.md`
+1. **Changelog entry** — extracted from `changelog.md`
 2. **Release info table** — version, commit SHA (truncated), branch, build date, Go version
 3. **Checksums block** — full `checksums.txt` in a code fence
 4. **Install instructions** — quick install one-liners for PowerShell and Bash, plus version-pinned alternatives

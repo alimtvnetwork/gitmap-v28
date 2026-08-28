@@ -150,7 +150,7 @@ Total items: 150
 - `.\scripts\changelog\internal\runner\execute.go:100`: `return a.ReleaseTag`
 - `.\scripts\changelog\internal\runner\execute.go:104`: `return lowerBound + "+next"`
 - `.\scripts\changelog\internal\runner\execute.go:112`: `return "HEAD"`
-- `.\scripts\changelog\internal\writer\writer.go:24`: `return fmt.Errorf("CHANGELOG.md: %w", err)`
+- `.\scripts\changelog\internal\writer\writer.go:24`: `return fmt.Errorf("changelog.md: %w", err)`
 - `.\scripts\changelog\internal\writer\writer.go:29`: `return fmt.Errorf("src/data/changelog.ts: %w", err)`
 - `.\scripts\changelog\internal\writer\writer.go:38`: `return err`
 - `.\scripts\changelog\internal\writer\writer.go:50`: `return err`

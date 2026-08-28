@@ -63,14 +63,14 @@ Zip groups are persisted in two locations:
 ### Example 2: Create a group and add items separately
 
     gitmap z create docs-bundle
-    gitmap z add docs-bundle ./README.md ./CHANGELOG.md ./docs/
+    gitmap z add docs-bundle ./README.md ./changelog.md ./docs/
 
 **Output:**
 
     ✓ Created zip group "docs-bundle"
 
     ✓ Added ./README.md to "docs-bundle" (file)
-    ✓ Added ./CHANGELOG.md to "docs-bundle" (file)
+    ✓ Added ./changelog.md to "docs-bundle" (file)
     ✓ Added ./docs/ to "docs-bundle" (folder)
 
 ### Example 3: Create with custom archive name

@@ -3547,7 +3547,7 @@
 .\scripts\changelog\internal\runner\execute.go|71|raw error return|func dispatchMode(mode Mode, entry render.Entry, repoRoot string) (int, error) {
 .\scripts\changelog\internal\runner\execute.go|86|fmt.Errorf|return 0, fmt.Errorf("unhandled mode %q", mode)
 .\scripts\changelog\internal\writer\writer.go|21|raw error return|func PrependBoth(mdPath, tsPath string, entry render.Entry) error {
-.\scripts\changelog\internal\writer\writer.go|24|fmt.Errorf|return fmt.Errorf("CHANGELOG.md: %w", err)
+.\scripts\changelog\internal\writer\writer.go|24|fmt.Errorf|return fmt.Errorf("changelog.md: %w", err)
 .\scripts\changelog\internal\writer\writer.go|29|fmt.Errorf|return fmt.Errorf("src/data/changelog.ts: %w", err)
 .\scripts\changelog\internal\writer\writer.go|35|raw error return|func prependFile(path, header, body string) error {
 .\scripts\changelog\internal\writer\writer.go|47|raw error return|func spliceAfterMarker(path, marker, fragment string) error {

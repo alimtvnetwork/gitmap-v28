@@ -83,7 +83,7 @@ confirmation ("you explicitly opted out").
 - `gitmap/committransfer/plan.go` — verify `countMergeExcluded` logic still
   reports correctly under the new default
 - `gitmap/helptext/commit-in.md`, `commit-out.md` — update help text
-- `CHANGELOG.md` — breaking-change section
+- `changelog.md` — breaking-change section
 - `README.md` — commit-transfer command table if it mentions merge handling
 
 ## Acceptance

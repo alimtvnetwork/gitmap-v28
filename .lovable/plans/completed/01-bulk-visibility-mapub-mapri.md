@@ -36,7 +36,7 @@ operate owner-wide or accept wildcards. `MAPUB` / `MAPRI` do not exist.
 - `gitmap/db/migrations/0NN_gitmap_run_repo_result.sql` (new)
 - `gitmap/db/enums.go` + `gitmap/db/gitmaprunrepo.go` (new)
 - Help: `gitmap/cmd/help/make-all-public.md`, `make-all-private.md`, `MAPUB.md`, `MAPRI.md`
-- `CHANGELOG.md` + docs-site changelog mirror
+- `changelog.md` + docs-site changelog mirror
 - `gitmap/constants/constants_version.go` — bump
 
 **Verbatim user spec** (for traceability — DO NOT lose):
@@ -83,7 +83,7 @@ operate owner-wide or accept wildcards. `MAPUB` / `MAPRI` do not exist.
 33. Tests: DB layer — open `:memory:` SQLite, run migration, insert run + results, read back; assert FK cascade by deleting run row.
 34. Tests: Golden command-help fixtures — run `gitmap regoldens` after the new help MDs land (per Regoldens Command memory).
 35. Update help MD files: create `gitmap/cmd/help/make-all-public.md`, `make-all-private.md`, `MAPUB.md`, `MAPRI.md` — each ≤120 lines, with a 3-8 line realistic simulation (per Command Help System memory). `MAPUB.md` / `MAPRI.md` may be 5-line stubs pointing at the long form.
-36. Add `CHANGELOG.md` entry under a new minor version section: list the four commands, the two new tables, the migration filename; mirror to docs-site React changelog (per Changelog System memory).
+36. Add `changelog.md` entry under a new minor version section: list the four commands, the two new tables, the migration filename; mirror to docs-site React changelog (per Changelog System memory).
 37. Bump version constant (locate via `rg 'CurrentVersion|VersionString' gitmap/constants/`); run `gitmap fix-repo --strict` over the touched packages to auto-rewrite `{base}-vN` references and re-run package tests (per Fix-Repo Strict Mode memory).
 38. Run `gofmt -l .`, `go vet ./...`, `golangci-lint run ./...` (golangci-lint v1.64.8 per Core memory). Zero findings required.
 39. Run targeted tests: `go test ./gitmap/cmd/... ./gitmap/visibility/... ./gitmap/db/... -count=1 -race`. All green.

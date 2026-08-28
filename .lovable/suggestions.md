@@ -206,7 +206,7 @@ Pending improvement ideas — not yet approved for implementation.
 
 ### Migration guide section in CHANGELOG
 - **Implemented:** v3.0.0 session (this session)
-- **Notes:** Added `## Migration guide — v2.x → v3.0.0 (constants contributors)` block at the top of `CHANGELOG.md` with marker-comment example and verification steps.
+- **Notes:** Added `## Migration guide — v2.x → v3.0.0 (constants contributors)` block at the top of `changelog.md` with marker-comment example and verification steps.
 
 ### Spec doc `spec/01-app/98-as-and-release-alias.md`
 - **Implemented:** v3.0.0 session (this session)

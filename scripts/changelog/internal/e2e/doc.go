@@ -1,6 +1,6 @@
 // Package e2e runs the changelog generator end-to-end against an
 // ephemeral git repository and asserts that both regenerated outputs
-// (CHANGELOG.md fragment and src/data/changelog.ts fragment) match
+// (changelog.md fragment and src/data/changelog.ts fragment) match
 // committed golden fixtures byte-for-byte.
 //
 // This is the highest-value test in the changelog suite: it exercises

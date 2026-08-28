@@ -125,7 +125,7 @@ Files to commit:
 - `gitmap-v28/clonefrom/summary.go` (the writer change)
 - `gitmap-v28/clonefrom/testdata/clonefrom_report_empty.json`
 - `gitmap-v28/clonefrom/testdata/clonefrom_report_canonical.json`
-- `CHANGELOG.md` (downstream-visible break note — see §5)
+- `changelog.md` (downstream-visible break note — see §5)
 
 If the change involves the `schemaVersion` field, **also** bump the
 literal in `gitmap-v28/clonefrom/summary_jsonschemaversion_test.go`
@@ -179,7 +179,7 @@ Every regenerate PR must include, in a **single commit**:
 2. Every regenerated file under `testdata/` — never partial.
 3. Any pinned literal that mirrors the format (e.g.
    `expectedSchemaVersionPinned`, `CloneFromReportSchemaVersion`).
-4. A `CHANGELOG.md` entry under the next release if the change is
+4. A `changelog.md` entry under the next release if the change is
    visible to downstream tooling (see §5).
 
 **Never** commit a fixture rewrite without the corresponding code
@@ -205,7 +205,7 @@ true:
 - The CSV line ending or quoting policy changed.
 
 For any of the above, add a `### Breaking` or `### Changed` entry to
-`CHANGELOG.md` describing the consumer impact and the migration path
+`changelog.md` describing the consumer impact and the migration path
 (e.g. "JSON report now wraps rows in `{schemaVersion, rows}` —
 update jq to `.rows[]`").
 

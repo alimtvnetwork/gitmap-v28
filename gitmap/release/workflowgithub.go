@@ -37,7 +37,7 @@ func uploadToGitHub(v Version, assets []string, opts Options) {
 	}
 
 	// Release body: only the gitmap source repo gets the auto-detected
-	// CHANGELOG.md notes + pinned install snippet. For any other repo,
+	// changelog.md notes + pinned install snippet. For any other repo,
 	// the body stays empty — the user wanted "just create the tag,
 	// don't dump gitmap's changelog into their release notes".
 	var body string

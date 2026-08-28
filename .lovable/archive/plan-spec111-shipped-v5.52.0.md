@@ -40,7 +40,7 @@ Create `spec/01-app/111-update-remote-probe.md` describing:
 ## Step 5 — Version Bump + Docs
 
 - Bump to **v5.52.0** in `gitmap/constants/constants.go`, `README.md` pinned block + matrix, `src/constants/index.ts`.
-- Append changelog entry to `CHANGELOG.md` and `src/data/changelog.ts`.
+- Append changelog entry to `changelog.md` and `src/data/changelog.ts`.
 - Create `.gitmap/release/v5.52.0.json` and update `.gitmap/release/latest.json`.
 - Link new spec from README "Update" section.
 

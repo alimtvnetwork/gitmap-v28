@@ -185,6 +185,6 @@ outside the constants file.
 - Parallel inter-repo walks (covered by future spec).
 - Auto-pull / auto-checkout to the verified version (probe stays
   read-only).
-- Reading remote `CHANGELOG.md` per verified version (separate
+- Reading remote `changelog.md` per verified version (separate
   `gitmap changelog-fetch` candidate).
 - `--depth all` / unbounded walks (rejected by user; capped at 10).

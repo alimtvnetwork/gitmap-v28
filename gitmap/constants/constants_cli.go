@@ -646,7 +646,7 @@ const (
 	FlagDescDraft            = "Create an unpublished draft release"
 	FlagDescLatest           = "Show only the latest changelog entry"
 	FlagDescLimit            = "Number of changelog versions to show"
-	FlagDescOpenChangelog    = "Open CHANGELOG.md with the default system app"
+	FlagDescOpenChangelog    = "Open changelog.md with the default system app"
 	FlagDescLBRemote         = "Remote to filter branches against (default: origin)"
 	FlagDescLBAllRemotes     = "Include branches from all remotes"
 	FlagDescLBContains       = "Fall back to --contains if --points-at returns empty"

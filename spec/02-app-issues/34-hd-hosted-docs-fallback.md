@@ -10,7 +10,7 @@ is absent AND `docs-site.zip` cannot be auto-downloaded.
 
 > **Number history:** this spec is numbered **34**, not 33. Number 33 was
 > previously occupied by `spec/02-app-issues/33-stale-binary-clone-folder-url-guard.md`
-> (see `CHANGELOG.md` v3.95.0 entry, ~line 2230). That file was deleted
+> (see `changelog.md` v3.95.0 entry, ~line 2230). That file was deleted
 > upstream but the CHANGELOG link is permanent, so number 33 is
 > reserved-historical and MUST NOT be reused. Future specs continue at 35+.
 

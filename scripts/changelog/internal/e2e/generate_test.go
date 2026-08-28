@@ -26,7 +26,7 @@ func generate(t *testing.T, repoRoot, version, date string) (string, string) {
 
 	entry := render.Entry{Version: version, Date: date, Groups: groups}
 
-	mdPath, tsPath := repoRoot+"/CHANGELOG.md", repoRoot+"/src/data/changelog.ts"
+	mdPath, tsPath := repoRoot+"/changelog.md", repoRoot+"/src/data/changelog.ts"
 
 	err = writer.PrependBoth(mdPath, tsPath, entry)
 	if err != nil {

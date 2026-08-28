@@ -1,6 +1,6 @@
 # scripts/changelog
 
-Regenerates `CHANGELOG.md` and `src/data/changelog.ts` from Conventional
+Regenerates `changelog.md` and `src/data/changelog.ts` from Conventional
 Commits since the most-recent annotated git tag.
 
 ## Usage

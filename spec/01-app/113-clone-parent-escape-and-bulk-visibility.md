@@ -115,4 +115,4 @@ slug succeeded (or was already in the target state).
 
 - Update `gitmap/helptext/{clone,clone-fix-repo,clone-fix-repo-pub,clone-next,make-public,make-private}.md`.
 - Update root `README.md` Visibility + Clone sections.
-- Add CHANGELOG.md entry under v5.61.0.
+- Add changelog.md entry under v5.61.0.

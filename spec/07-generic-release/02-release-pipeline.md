@@ -45,7 +45,7 @@ The pipeline executes these stages **in strict order**:
 | 5 | **Compress** | Archive each binary into `.zip` or `.tar.gz` | Yes |
 | 6 | **Checksum** | Generate `checksums.txt` with SHA-256 hashes | Yes |
 | 7 | **Generate Scripts** | Create version-pinned `install.ps1` and `install.sh` | Yes |
-| 8 | **Extract Changelog** | Pull the relevant `CHANGELOG.md` section | No |
+| 8 | **Extract Changelog** | Pull the relevant `changelog.md` section | No |
 | 9 | **Publish** | Create GitHub Release with all assets | Yes |
 
 ---
@@ -138,7 +138,7 @@ Create a GitHub Release with all assets from `dist/`:
 
 The release body should include:
 
-1. **Changelog section** — extracted from `CHANGELOG.md`
+1. **Changelog section** — extracted from `changelog.md`
 2. **Installation one-liners** — for PowerShell and Bash
 3. **Checksum table** — formatted SHA-256 hashes
 

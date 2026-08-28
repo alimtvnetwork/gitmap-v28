@@ -11,7 +11,7 @@ Running `gitmap-v28 release` inside a non-gitmap repository (e.g. `img-pdf-v2`,
    A user who copy-pasted that one-liner would download and install the
    gitmap-v28 binary into the wrong repo's release flow.
 
-2. **Dumped gitmap-v28's `CHANGELOG.md` notes into the release body** because
+2. **Dumped gitmap-v28's `changelog.md` notes into the release body** because
    `DetectChangelog()` was always called and `AppendPinnedInstallSnippet`
    was the only gated step. The body therefore contained release notes
    for a totally unrelated project.

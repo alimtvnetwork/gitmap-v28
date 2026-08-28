@@ -18,7 +18,7 @@
       },
       "changelog": {
         "type": "array",
-        "description": "Changelog bullet points associated with the version, sourced from CHANGELOG.md. Omitted when empty.",
+        "description": "Changelog bullet points associated with the version, sourced from changelog.md. Omitted when empty.",
         "items": {
           "type": "string"
         }

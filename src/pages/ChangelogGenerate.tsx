@@ -53,7 +53,7 @@ const ChangelogGenerate = () => {
                 <tr className="border-b border-border last:border-0">
                   <td className="px-4 py-2 font-mono text-primary">--write</td>
                   <td className="px-4 py-2 font-mono text-muted-foreground">false</td>
-                  <td className="px-4 py-2 text-foreground">Prepend output to CHANGELOG.md instead of printing</td>
+                  <td className="px-4 py-2 text-foreground">Prepend output to changelog.md instead of printing</td>
                 </tr>
               </tbody>
             </table>
@@ -141,13 +141,13 @@ const ChangelogGenerate = () => {
               />
             </div>
             <div>
-              <h3 className="font-mono text-sm font-semibold text-foreground mb-2">Write directly to CHANGELOG.md</h3>
+              <h3 className="font-mono text-sm font-semibold text-foreground mb-2">Write directly to changelog.md</h3>
               <CodeBlock
                 code={`$ gitmap cg --from v2.23.0 --to v2.24.0 --write
 
   Changelog: v2.23.0 → v2.24.0
 
-  ✓ Prepended changelog to CHANGELOG.md`}
+  ✓ Prepended changelog to changelog.md`}
                 language="bash"
                 title="Terminal"
               />

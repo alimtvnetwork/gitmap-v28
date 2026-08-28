@@ -1,11 +1,11 @@
-// changelog_regen.go — derives CHANGELOG.md entries from the
+// changelog_regen.go — derives changelog.md entries from the
 // canonical per-release JSON files under `.gitmap/release/` (#18).
 //
 // Until v6.60.0 the changelog was hand-edited in lockstep with the
 // version bump, drifting easily. The release JSONs already capture
 // `{version, tag, branch}` per release; this helper enumerates them,
 // sorts by semver descending, and prints a freshly-rendered block
-// that can be diffed against CHANGELOG.md (or piped in).
+// that can be diffed against changelog.md (or piped in).
 //
 // Invoked via `gitmap changelog regen` (read-only stdout). The
 // existing scripts/changelog/ Go module remains the authoritative

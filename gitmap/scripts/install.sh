@@ -530,7 +530,7 @@ repair_layout() {
             step "Layout: migrating legacy unwrapped install -> ${app_dir}"
             mkdir -p "$app_dir"
             local name src dst
-            for name in "${BINARY_NAME}" data CHANGELOG.md docs docs-site; do
+            for name in "${BINARY_NAME}" data changelog.md docs docs-site; do
                 src="$target/$name"
                 dst="$app_dir/$name"
                 [ ! -e "$src" ] && continue

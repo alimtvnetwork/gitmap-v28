@@ -447,7 +447,7 @@ To pin your repository to this exact version, run the following one-liner:
 - **Reclone Transport Reuse**: Re-clone operations (`cfr`, `cfrp`, `clone-now`/`reclone`, direct-URL `clone`) now intelligently preserve the original transport (SSH vs HTTPS). An SSH-origin repo will never silently downgrade to HTTPS on reclone, resolving the browser-auth-free behavior loss. The used transport is logged in `gitmap history`.
 - **`gitmap code` command**: Added new command (aliases `vcode`, `vscode`) to open the current or argument folder in VS Code and append/update it in the Project Manager's `projects.json` via VS Code integration hooks.
 
-- **Files:** `gitmap/cmd/code.go` (new), `gitmap/cmd/code_test.go` (new), `gitmap/constants/constants_cli.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/cmd/rootcore.go`, `gitmap/cmd/clonefixrepo.go`, `gitmap/cmd/reporeclone.go`, `gitmap/cmd/clone.go`, `gitmap/cmd/clonemulti.go`, `gitmap/cmd/clonenow.go`, `gitmap/clonenow/clonenow.go`, `gitmap/clonenow/execute.go`, `gitmap/constants/constants.go` (`6.25.0`), `src/constants/index.ts` (`v6.25.0`), `version.json`, `README.md` (pin → v6.25.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/code.go` (new), `gitmap/cmd/code_test.go` (new), `gitmap/constants/constants_cli.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/cmd/rootcore.go`, `gitmap/cmd/clonefixrepo.go`, `gitmap/cmd/reporeclone.go`, `gitmap/cmd/clone.go`, `gitmap/cmd/clonemulti.go`, `gitmap/cmd/clonenow.go`, `gitmap/clonenow/clonenow.go`, `gitmap/clonenow/execute.go`, `gitmap/constants/constants.go` (`6.25.0`), `src/constants/index.ts` (`v6.25.0`), `version.json`, `README.md` (pin → v6.25.0), `changelog.md`.
 
 ## [v6.19.0] 2026-08-17
 ### Added
@@ -496,7 +496,7 @@ To pin your repository to this exact version, run the following one-liner:
 - Cleaned up boolean checks, converting inverted logic (`!isSuccess`) to explicit explicit positive checks (`isFail`)
 - Removed magic strings and numbers across the codebase
 - Created a centralized generic API wrapper (`queryWrapper`) in TypeScript for structured error catching and logging
-- Fixed GitHub Actions release workflow bug where it sought `CHANGELOG.md` instead of `changelog.md`
+- Fixed GitHub Actions release workflow bug where it sought `changelog.md` instead of `changelog.md`
 
 ## [v6.86.0] 2026-08-09 maintenance bump
 
@@ -799,7 +799,7 @@ gitmap cfr cg https://github.com/you/your-repo.git
 - **Uniform `--json` envelope** (#12): new `gitmap/jsonenv` package emits `{schema, version, command, ok, data, error}` so external tooling can dispatch by command without sniffing keys. Inner per-command payloads unchanged.
 - **Dynamic tab-completion** (#14): `gitmap/completion/dynamic.go` adds context-aware suggestions for repo paths (cd/clone/reclone) and Chrome profiles (cpc/cpm) on top of the static command list.
 - **Chrome VSS snapshot on Windows** (#8): `gitmap/cmd/chromeprofile_vss_windows.go` creates a VSS shadow copy so `cpc` can read Chrome files while the browser is open. Graceful fallback to the existing skip-list path on non-admin / non-NTFS / non-Windows.
-- **Changelog regen from `.gitmap/release/`** (#18): `cmd.RegenChangelog` enumerates per-release JSONs and emits a semver-sorted skeleton - eliminates hand-edit drift between release files and `CHANGELOG.md`.
+- **Changelog regen from `.gitmap/release/`** (#18): `cmd.RegenChangelog` enumerates per-release JSONs and emits a semver-sorted skeleton - eliminates hand-edit drift between release files and `changelog.md`.
 
 ### Deferred
 - **#6 `zombiezen.com/go/sqlite` migration**: deferred - requires touching every store call site + revalidating the `SetMaxOpenConns(1)` rule. Tracked separately.
@@ -950,7 +950,7 @@ JSON-everywhere) will land in subsequent minors.
 - **Soft-fail by design.** If `Local State` is unreadable, malformed, or locked (Chrome still running), the registration step prints a yellow warn line directing the user to add the profile manually - it never aborts a copy that already succeeded on disk.
 - **Log surface.** Successful registration prints a green `✓ registered <name> in Chrome's profile picker (Local State)` line between the copy summary and the artifacts block.
 - **New constants.** `ChromeLocalStateFile`, `ChromeLocalStateTmpSuffix`, `MsgChromeProfileRegistered`, `WarnChromeProfileRegister` in `gitmap/constants/constants_chromeprofile.go`.
-- **Files:** `gitmap/cmd/chromeprofile.go`, `gitmap/cmd/chromeprofile_register.go` (new), `gitmap/constants/constants_chromeprofile.go`, `gitmap/constants/constants.go` (`6.47.0`), `src/constants/index.ts` (`v6.47.0`), `README.md` (pin → v6.47.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/chromeprofile.go`, `gitmap/cmd/chromeprofile_register.go` (new), `gitmap/constants/constants_chromeprofile.go`, `gitmap/constants/constants.go` (`6.47.0`), `src/constants/index.ts` (`v6.47.0`), `README.md` (pin → v6.47.0), `changelog.md`.
 
 
 ## v6.46.0 - (2026-06-20) - Chrome profile copy: colorful professional logs + undo/redo footer
@@ -959,21 +959,21 @@ JSON-everywhere) will land in subsequent minors.
 - **LOCK warnings collapsed.** Each volatile Chrome `LOCK` skip is now a single dim one-liner (`· skipped volatile Chrome lock file: <path>`) instead of a 4-line WARN banner per file. A final yellow `⚠ skipped N volatile Chrome lock file(s) (held by Chrome/extension; safe to ignore)` summary prints once before the success line.
 - **Undo / redo footer.** Every successful copy ends with a `Next steps` block listing copy-paste-ready commands: `gitmap chrome-profile-delete <dst> --yes` (undo), `gitmap chrome-profile-copy <src> <dst>` (redo), and `gitmap chrome-profile-list` (verify). Commands are highlighted in cyan so they're easy to grab from terminal output.
 - **Implementation.** Added `chromeProfileLockSkipCount` package-level counter (reset per run) so the summary line prints exactly once. Reworked message constants in `gitmap/constants/constants_chromeprofile.go` to embed ANSI color codes - gitmap's theme filter rewrites them when `--theme=monochrome` is active, so non-color terminals stay clean. The `skipped volatile Chrome lock file` substring is preserved so `TestHandleChromeFileOpenErrorSkipsLockFile` continues to pass.
-- **Files:** `gitmap/cmd/chromeprofile.go`, `gitmap/cmd/chromeprofile_copy.go`, `gitmap/constants/constants_chromeprofile.go`, `gitmap/constants/constants.go` (`6.46.0`), `src/constants/index.ts` (`v6.46.0`), `README.md` (pin → v6.46.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/chromeprofile.go`, `gitmap/cmd/chromeprofile_copy.go`, `gitmap/constants/constants_chromeprofile.go`, `gitmap/constants/constants.go` (`6.46.0`), `src/constants/index.ts` (`v6.46.0`), `README.md` (pin → v6.46.0), `changelog.md`.
 
 
 ## v6.45.0 - (2026-06-19) - Chrome profile copy: drop flaky platform-dependent destination-parent test
 
 - **Removed** `TestCopyEntryReturnsWrappedErrorOnDestinationParentFile` from `gitmap/cmd/chromeprofile_copy_test.go`. The Windows runner's `os.MkdirAll` semantics over a file-as-parent did not consistently surface an `Op = Mkdir` wrapped error, causing the `windows-latest / go build + test` job to fail on the v6.44.0 release.
 - **Coverage preserved.** The unreadable-non-`LOCK` wrapped-error contract is fully exercised by `TestHandleChromeFileOpenErrorPropagatesNonLockErrors`, which calls the helper directly and is platform-independent. A short comment in the test file points future readers to that assertion.
-- **Files:** `gitmap/cmd/chromeprofile_copy_test.go`, `gitmap/constants/constants.go` (`6.45.0`), `src/constants/index.ts` (`v6.45.0`), `README.md` (pin → v6.45.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/chromeprofile_copy_test.go`, `gitmap/constants/constants.go` (`6.45.0`), `src/constants/index.ts` (`v6.45.0`), `README.md` (pin → v6.45.0), `changelog.md`.
 
 ## v6.44.0 - (2026-06-19) - Chrome profile copy: edge-case coverage + unit tests
 
 - **New tests - `chromeprofile_copy_test.go`.** Covers: missing source entries are silently skipped, regular file copy preserves bytes and auto-creates nested destination dirs, recursive directory tree counts every leaf file, empty source directory still materializes the destination, `copyChromeProfile` only copies present curated entries, `handleChromeFileOpenError` and `handleChromeFileCopyError` swallow Chrome runtime `LOCK` files with a warn banner but propagate any other error wrapped as `*chromeProfileCopyError` with `Op = read/write` and the original cause intact, `isChromeVolatileLockFile` matches only the exact `LOCK` basename (rejects `LOCK.txt`, `prefix-LOCK`, `locked`, `LOCK/child`), `unwrapChromeProfileCopyError` falls back to the `(unknown)` shape for plain errors, and an unreadable non-`LOCK` file produces a wrapped error (skipped when running as root).
 - **New tests - `chromeprofile_resolve_test.go`.** Drives a fake Chrome User Data root via `GITMAP_CHROME_USER_DATA` and a synthetic `Local State` JSON to verify: resolution by directory name, case-insensitive + whitespace-trimmed display-name resolution, absolute-path passthrough (and `!ok` when the absolute path is missing), unknown identifiers return `!ok`, `resolveChromeProfileDir` thin wrapper, `chromeProfileDestination` carries the enriched `DisplayName`, `chromeProfileSummary` formatting across all four shapes (`display+dir`, dir-only, display==dir, input fallback), `availableChromeProfileNames` filters non-profile dirs and regular files, and `readChromeLocalState` returns `nil` gracefully for missing or malformed JSON instead of panicking.
 - **Edge cases hardened.** The test matrix locks in the LOCK-skip contract (open-time and mid-copy), the wrapped-error contract on the unhappy path, and the display-name enrichment contract - preventing future regressions in the resilient copy + resolution code paths exercised by `gitmap cpc`.
-- **Files:** `gitmap/cmd/chromeprofile_copy_test.go` (new), `gitmap/cmd/chromeprofile_resolve_test.go` (new), `gitmap/constants/constants.go` (`6.44.0`), `src/constants/index.ts` (`v6.44.0`), `README.md` (pin → v6.44.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/chromeprofile_copy_test.go` (new), `gitmap/cmd/chromeprofile_resolve_test.go` (new), `gitmap/constants/constants.go` (`6.44.0`), `src/constants/index.ts` (`v6.44.0`), `README.md` (pin → v6.44.0), `changelog.md`.
 
 
 
@@ -982,7 +982,7 @@ JSON-everywhere) will land in subsequent minors.
 - **Profile visualization.** `gitmap chrome-profile-copy` / `gitmap cpc` now prints the Chrome display name plus resolved directory, e.g. `Lovable (dir: Profile 15) → lv2`, followed by explicit source and destination paths.
 - **Detailed copy errors.** Copy failures now show source profile, destination profile, source path, destination path, failed entry, operation, cause, and retry hint instead of a single wrapped error line.
 - **Locked extension files.** Runtime-only Chrome `LOCK` files are skipped with a warning when Chrome or an extension still holds them, so `Local Extension Settings\...\LOCK` no longer aborts the entire copy.
-- **Files:** `gitmap/cmd/chromeprofile.go`, `gitmap/cmd/chromeprofile_copy.go`, `gitmap/cmd/chromeprofile_resolve.go`, `gitmap/cmd/chromeprofile_csv_test.go`, `gitmap/constants/constants_chromeprofile.go`, `gitmap/helptext/chrome-profile-copy.md`, `gitmap/constants/constants.go` (`6.43.0`), `src/constants/index.ts` (`v6.43.0`), `README.md` (pin → v6.43.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/chromeprofile.go`, `gitmap/cmd/chromeprofile_copy.go`, `gitmap/cmd/chromeprofile_resolve.go`, `gitmap/cmd/chromeprofile_csv_test.go`, `gitmap/constants/constants_chromeprofile.go`, `gitmap/helptext/chrome-profile-copy.md`, `gitmap/constants/constants.go` (`6.43.0`), `src/constants/index.ts` (`v6.43.0`), `README.md` (pin → v6.43.0), `changelog.md`.
 
 ## v6.42.0 - (2026-06-19) - Build fix: rename `matchGlob` helper in `taskfilter.go`
 
@@ -999,54 +999,54 @@ JSON-everywhere) will land in subsequent minors.
 - **Comma-joined batches.** A single argument may pack multiple targets separated by commas: `gitmap rm macro*,gitmap*` expands to both globs in one command.
 - **`-y` / `--yes` auto-confirm.** Skips every per-repo prompt so CI/scripts can run `gitmap rm macro* -y` non-interactively. Flag may appear anywhere in the arg list.
 - **De-dup.** When overlapping targets/globs match the same repo, it is only deleted once (de-duped by DB id).
-- **Files:** `gitmap/cmd/rm.go` (rewrite - glob/comma/-y/folder-removal), `gitmap/helptext/rm.md` (updated examples), `gitmap/constants/constants.go` (`6.41.0`), `src/constants/index.ts` (`v6.41.0`), `README.md` (pin → v6.41.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/rm.go` (rewrite - glob/comma/-y/folder-removal), `gitmap/helptext/rm.md` (updated examples), `gitmap/constants/constants.go` (`6.41.0`), `src/constants/index.ts` (`v6.41.0`), `README.md` (pin → v6.41.0), `changelog.md`.
 
 ## v6.40.0 - (2026-06-19) - `cpc`/`cpe` accept Chrome display names (e.g. `Lovable`)
 
 - **Display-name resolution.** `gitmap chrome-profile-copy` (`cpc`), `chrome-profile-export` (`cpe`), and `chrome-profile-list` (`cpl`) now resolve a user-supplied profile identifier through Chrome's `<UserData>/Local State` → `profile.info_cache[*].name`. You can pass the same name shown in Chrome's profile picker (e.g. `Lovable`) instead of guessing the on-disk directory (e.g. `Profile 7`). Resolution order: absolute path → literal dir → display name (case-insensitive, trimmed).
 - **Better not-found hints.** The "available profiles" stderr block now prints both the directory and the display name (`- Profile 7  (display: "Lovable")`) so mismatches are obvious at a glance. `cpl` output gains the same column.
-- **Files:** `gitmap/cmd/chromeprofile_resolve.go` (new), `gitmap/cmd/chromeprofile.go` (cpc/cpe/cpl wiring, dropped dead `hasPrefixProfile`), `gitmap/constants/constants.go` (`6.40.0`), `src/constants/index.ts` (`v6.40.0`), `README.md` (pin → v6.40.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/chromeprofile_resolve.go` (new), `gitmap/cmd/chromeprofile.go` (cpc/cpe/cpl wiring, dropped dead `hasPrefixProfile`), `gitmap/constants/constants.go` (`6.40.0`), `src/constants/index.ts` (`v6.40.0`), `README.md` (pin → v6.40.0), `changelog.md`.
 
 ## v6.39.0 - (2026-06-19) - minor version bump + README pin refresh
 
 - **Version bump only.** No behavior changes. Refreshes the pinned version across `gitmap/constants/constants.go`, `src/constants/index.ts`, and the README install/asset matrix to v6.39.0.
-- **Files:** `gitmap/constants/constants.go` (`6.39.0`), `src/constants/index.ts` (`v6.39.0`), `README.md` (pin → v6.39.0), `CHANGELOG.md`.
+- **Files:** `gitmap/constants/constants.go` (`6.39.0`), `src/constants/index.ts` (`v6.39.0`), `README.md` (pin → v6.39.0), `changelog.md`.
 
 ## v6.38.0 - (2026-06-19) - `gitmap rm` gains `del` alias + full help coverage
 
 - **Alias expansion.** `gitmap rm` now also dispatches through `gitmap del`, matching the existing full-word `gitmap remove` alias. All three spellings run the same path-first, slug-fallback database untracking flow and still leave on-disk files untouched.
 - **Help coverage.** Updated the embedded `rm.md` help page, no-arg usage text, full help screen, compact help, filtered help, LLM docs command catalog, and README command table so `rm`, `remove`, and `del` are discoverable consistently.
-- **Files:** `gitmap/constants/constants_cli.go` (`CmdRmAlias2`, `HelpRm`), `gitmap/cmd/rootutility.go`, `gitmap/cmd/rm.go`, `gitmap/cmd/rootusage.go`, `gitmap/cmd/rootusagefilter.go`, `gitmap/cmd/llmdocsgroups.go`, `gitmap/constants/constants_helpgroups.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/helptext/rm.md`, `gitmap/constants/constants.go` (`6.38.0`), `src/constants/index.ts` (`v6.38.0`), `README.md` (pin → v6.38.0), `CHANGELOG.md`.
+- **Files:** `gitmap/constants/constants_cli.go` (`CmdRmAlias2`, `HelpRm`), `gitmap/cmd/rootutility.go`, `gitmap/cmd/rm.go`, `gitmap/cmd/rootusage.go`, `gitmap/cmd/rootusagefilter.go`, `gitmap/cmd/llmdocsgroups.go`, `gitmap/constants/constants_helpgroups.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/helptext/rm.md`, `gitmap/constants/constants.go` (`6.38.0`), `src/constants/index.ts` (`v6.38.0`), `README.md` (pin → v6.38.0), `changelog.md`.
 
 ## v6.37.0 - (2026-06-19) - release rollup for `gitmap rm` + chrome-profile help discoverability
 
 - **Rollup release.** Cuts a fresh minor that bundles the v6.35.x / v6.36.0 work - `gitmap rm` repo-removal command, `gitmap help chrome` group + per-command help text, and the chrome-profile not-found "available profiles" listing - into a single installable artifact for users tracking minor releases only.
 - **No new behavior** beyond what shipped in v6.35.0 → v6.36.0. See those entries below for the underlying changes.
-- **Files:** `gitmap/constants/constants.go` (`6.37.0`), `src/constants/index.ts` (`v6.37.0`), `README.md` (pin → v6.37.0), `CHANGELOG.md`.
+- **Files:** `gitmap/constants/constants.go` (`6.37.0`), `src/constants/index.ts` (`v6.37.0`), `README.md` (pin → v6.37.0), `changelog.md`.
 
 ## v6.36.0 - (2026-06-19) - `gitmap rm` repo-removal command
 
 - **New top-level `gitmap rm <name-or-path> [<name-or-path> ...]`** (alias: `gitmap remove`) removes one or more repositories from the gitmap database. Each target is resolved as an absolute path first (`filepath.Abs`); on no match it falls back to slug/name. On-disk files are NOT touched - this only untracks the repo in the DB. Missing targets emit a per-target warning but never abort the batch; exit code is `1` if any target was not found, `0` only when every target was removed.
 - **Implementation:** new `gitmap/cmd/rm.go` with `runRm` + `removeOne`; new `DeleteByPath` / `DeleteBySlug` methods on `*store.DB` in `gitmap/store/repo.go`; new `SQLDeleteRepoByPath` / `SQLDeleteRepoBySlug` constants in `gitmap/constants/constants_store.go`; new `CmdRm` / `CmdRmAlias` constants under the existing top-level block in `gitmap/constants/constants_cli.go`; dispatch wired in `gitmap/cmd/rootutility.go`; AST-vs-registry parity guard updated in `gitmap/constants/cmd_constants_test.go`.
-- **Files:** `gitmap/cmd/rm.go`, `gitmap/store/repo.go`, `gitmap/constants/constants_store.go`, `gitmap/constants/constants_cli.go`, `gitmap/cmd/rootutility.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/constants/constants.go` (`6.36.0`), `src/constants/index.ts` (`v6.36.0`), `README.md` (pin → v6.36.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/rm.go`, `gitmap/store/repo.go`, `gitmap/constants/constants_store.go`, `gitmap/constants/constants_cli.go`, `gitmap/cmd/rootutility.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/constants/constants.go` (`6.36.0`), `src/constants/index.ts` (`v6.36.0`), `README.md` (pin → v6.36.0), `changelog.md`.
 
 ## v6.35.1 - (2026-06-19) - `gitmap rm` adds repo removal + parity-test alias fix
 
 - **New `gitmap rm <name-or-path> [...]`** removes one or more repos from the gitmap DB. Each target is resolved as a path first (`filepath.Abs`), then falls back to slug. On-disk files are NOT touched. Aliases: `gitmap remove`. Files: `gitmap/cmd/rm.go` (new), `gitmap/store/repo.go` (`DeleteByPath` / `DeleteBySlug`), `gitmap/constants/constants_store.go` (`SQLDeleteRepoByPath` / `SQLDeleteRepoBySlug`), `gitmap/constants/constants_cli.go` (`CmdRm` / `CmdRmAlias`), `gitmap/cmd/rootutility.go` (dispatch wiring), `gitmap/constants/cmd_constants_test.go` (registry parity).
 - **Parity-test fix.** Removed the `// gitmap:cmd skip` marker from `CmdRmAlias` so the AST-vs-registry parity guard in `TestTopLevelCmdRegistryMatchesAST` stays balanced - the registry already lists `CmdRmAlias`, so leaving it skip-marked would have produced an "extra in registry" failure.
-- **Files:** `gitmap/cmd/rm.go`, `gitmap/store/repo.go`, `gitmap/constants/constants_store.go`, `gitmap/constants/constants_cli.go`, `gitmap/cmd/rootutility.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/constants/constants.go` (`6.35.1`), `src/constants/index.ts` (`v6.35.1`), `README.md` (pin → v6.35.1), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/rm.go`, `gitmap/store/repo.go`, `gitmap/constants/constants_store.go`, `gitmap/constants/constants_cli.go`, `gitmap/cmd/rootutility.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/constants/constants.go` (`6.35.1`), `src/constants/index.ts` (`v6.35.1`), `README.md` (pin → v6.35.1), `changelog.md`.
 
 ## v6.35.0 - (2026-06-19) - chrome-profile commands gain help text + root help discoverability
 
 - **`gitmap help chrome` now resolves.** Added a dedicated `Chrome Profile (copy / export / import / list / delete)` group under the **PROJECTS & DATA** super-category in `gitmap help`, wired via new `HelpGroupChromeProf` constant and `printGroupChromeProfile()` in `gitmap/cmd/rootusage.go`. The same group is registered in `allHelpRows()` (`gitmap/cmd/rootusagefilter.go`) so `gitmap help --filter chrome` and the fuzzy "did you mean" matcher surface every cpc/cpe/cpi/cpl/cpd line instead of returning `No matches`.
 - **Per-command `--help` works.** New embedded markdown files in `gitmap/helptext/`: `chrome-profile-copy.md`, `chrome-profile-export.md`, `chrome-profile-import.md`, `chrome-profile-list.md`, `chrome-profile-delete.md`. Each lists usage, alias, what is copied/excluded, prerequisites (close Chrome first), 2 examples with realistic output, exit codes table, and cross-links. `gitmap cpc --help`, `gitmap cpe -h`, etc. no longer error with `No help available`.
-- **Files:** `gitmap/constants/constants_helpgroups.go`, `gitmap/cmd/rootusage.go`, `gitmap/cmd/rootusagefilter.go`, `gitmap/helptext/chrome-profile-*.md` (5 new), `gitmap/constants/constants.go` (`6.35.0`), `src/constants/index.ts` (`v6.35.0`), `README.md` (pin → v6.35.0), `CHANGELOG.md`.
+- **Files:** `gitmap/constants/constants_helpgroups.go`, `gitmap/cmd/rootusage.go`, `gitmap/cmd/rootusagefilter.go`, `gitmap/helptext/chrome-profile-*.md` (5 new), `gitmap/constants/constants.go` (`6.35.0`), `src/constants/index.ts` (`v6.35.0`), `README.md` (pin → v6.35.0), `changelog.md`.
 
 ## v6.34.0 - (2026-06-19) - chrome-profile not-found errors now list every available profile
 
 - **Discoverability fix for `cpc` / `cpe`.** When the user passes a profile name that doesn't exist under Chrome's User Data root, the not-found error is followed by `available profiles under <root>:` and one indented line per real profile (`Default`, `Profile 1`, `Profile 2`, …). Eliminates the "ERROR profile X not found" dead end that forced users to manually `ls` the User Data dir.
 - **Implementation:** new `availableChromeProfileNames()` + `printAvailableChromeProfiles()` helpers in `gitmap/cmd/chromeprofile_paths.go` (reuses `chromeUserDataDir()`; honors `GITMAP_CHROME_USER_DATA` test override). Both `runChromeProfileCopy` and `runChromeProfileExport` invoke the printer before `os.Exit(ExitChromeProfileNotFound)`. Read failures degrade to `(none found)` so the helper never panics on unreadable roots.
-- **Files:** `gitmap/cmd/chromeprofile_paths.go`, `gitmap/cmd/chromeprofile.go`, `gitmap/constants/constants.go` (`6.34.0`), `src/constants/index.ts` (`v6.34.0`), `README.md` (pin → v6.34.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/chromeprofile_paths.go`, `gitmap/cmd/chromeprofile.go`, `gitmap/constants/constants.go` (`6.34.0`), `src/constants/index.ts` (`v6.34.0`), `README.md` (pin → v6.34.0), `changelog.md`.
 
 
 
@@ -1055,7 +1055,7 @@ JSON-everywhere) will land in subsequent minors.
 - **`TestTopLevelCmdRegistryMatchesAST` fixed.** Added the 10 new `CmdChromeProfile{Copy,Export,Import,List,Delete}` constants (plus their `cpc`/`cpe`/`cpi`/`cpl`/`cpd` aliases) to `topLevelCmds()` in `gitmap/constants/cmd_constants_test.go` so the AST↔registry parity gate stays green.
 - **`TestParseBulkRequest_TwoArgValid` fixed.** `parseBulkRequest` now returns `StartVer = ver - 1` in both single- and pair-arg branches: `gitmap-v28 3` flips v25, v24, v23 (skip-current). `runBulkVisibility`'s existing `ver < 1` guard keeps unversioned inputs safe.
 - **`TestApplyAllTargets_VersionScopeMatrix/v2_bare_base_rewritten` fixed.** Test had hard-coded `gitmap-v28` for a `current=2` case (violating the digit-capture derive-from-int rule); `want` now correctly reads `gitmap-v28`.
-- **Files:** `gitmap/constants/constants.go` (`6.33.0`), `gitmap/constants/cmd_constants_test.go`, `gitmap/cmd/visibilitybulk.go`, `gitmap/cmd/fixrepo_rewrite_versionscope_test.go`, `src/constants/index.ts` (`v6.33.0`), `README.md` (pin → v6.33.0), `CHANGELOG.md`.
+- **Files:** `gitmap/constants/constants.go` (`6.33.0`), `gitmap/constants/cmd_constants_test.go`, `gitmap/cmd/visibilitybulk.go`, `gitmap/cmd/fixrepo_rewrite_versionscope_test.go`, `src/constants/index.ts` (`v6.33.0`), `README.md` (pin → v6.33.0), `changelog.md`.
 
 
 
@@ -1064,12 +1064,12 @@ JSON-everywhere) will land in subsequent minors.
 - **`gitmap pull` is no longer silent.** Prints `→ gitmap pull (cwd: …)` at startup so users always see something, plus `↳ resolved N repo(s) to pull` after target resolution and `↳ cwd is a git repo - running plain git pull here` when short-circuiting.
 - **Actionable hint on bare `gitmap pull`** outside a git repo with no slug/group/--all/-A alias: lists the four valid invocation shapes instead of exiting with a stderr-only error that some terminals swallow.
 - **Scan → DB → cd already works:** confirmed `scan` upserts every discovered repo via `UpsertRepos` (scan.go:199) before `cd <name>` lookup hits `db.FindBySlug` (cdops.go:82). No code change needed for cd-after-scan.
-- **Files:** `gitmap/cmd/pull.go` (startup banner, `pullNoTargetsHint`), `gitmap/constants/constants.go` (`6.29.0`), `src/constants/index.ts` (`v6.29.0`), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/pull.go` (startup banner, `pullNoTargetsHint`), `gitmap/constants/constants.go` (`6.29.0`), `src/constants/index.ts` (`v6.29.0`), `changelog.md`.
 
 ## v6.28.0 - (2026-06-07) - Planning artifact: next-task prompt 20 (Plan 03 Step 2 re-queued)
 
 - **Planning bump (no Go code changes).** v6.27.0 stamped the Step 2 scoping prompt but did not execute the migration. v6.28.0 re-queues the same work with prompt `20-next-task.md` and refreshes the README pin.
-- **Files:** `.lovable/prompts/20-next-task.md` (new), `gitmap/constants/constants.go` (`6.28.0`), `src/constants/index.ts` (`v6.28.0`), `README.md` (pin → v6.28.0), `CHANGELOG.md`.
+- **Files:** `.lovable/prompts/20-next-task.md` (new), `gitmap/constants/constants.go` (`6.28.0`), `src/constants/index.ts` (`v6.28.0`), `README.md` (pin → v6.28.0), `changelog.md`.
 - **Plan 03 status:** Step 1 ✅ (v6.25.0), Step 3 `cfr`/`cfrp` half ✅ (v6.26.0). **Next: Step 2** - migration 007, `model.Repo.IdentifiedTransport`, `Select*` + `UpsertRepoByPath` extension, lazy URL-prefix backfill.
 
 
@@ -1077,7 +1077,7 @@ JSON-everywhere) will land in subsequent minors.
 ## v6.27.0 - (2026-06-07) - Planning artifact: next-task prompt 19 + plan 03 step-2 scoping
 
 - **Planning bump (no Go code changes).** Per the project rule "at the end of the task always bump the minor version", this release stamps the next-task report that scopes Plan 03 Step 2 (DB migration 007 adding `Repo.IdentifiedTransport`).
-- **Files:** `.lovable/prompts/19-next-task.md` (new), `gitmap/constants/constants.go` (`6.27.0`), `src/constants/index.ts` (`v6.27.0`), `README.md` (pin → v6.27.0), `CHANGELOG.md`.
+- **Files:** `.lovable/prompts/19-next-task.md` (new), `gitmap/constants/constants.go` (`6.27.0`), `src/constants/index.ts` (`v6.27.0`), `README.md` (pin → v6.27.0), `changelog.md`.
 - **Plan 03 status:** Step 1 ✅ (v6.25.0), Step 3 `cfr`/`cfrp` half ✅ (v6.26.0). **Next: Step 2** - migration 007, `model.Repo.IdentifiedTransport`, `Select*` + `UpsertRepoByPath` extension, lazy backfill from URL prefix.
 
 
@@ -1088,7 +1088,7 @@ JSON-everywhere) will land in subsequent minors.
 - **Root cause (one sentence):** `runCloneFixRepoPipeline` resolved `absPath` only to know which folder to `cd` into afterwards; it never read the existing origin to decide which transport the actual `git clone` should use.
 - **Fix:** new `preferExistingFolderTransport(url, absPath)` in `gitmap/cmd/clonefixrepofoldertransport.go`, called between `applyCloneFixRepoScheme` and `executeDirectClone`. When `absPath/.git` exists, it reads `gitutil.RemoteURL`, classifies SSH vs HTTPS via the new `isSSHURL` helper, and - only when the positional URL diverges from the existing origin - rewrites it with `ConvertURLToSSH` / `ConvertURLToHTTPS`, surfacing the swap with a one-line `MsgCFRFolderTransport` stderr notice. Fail-open: any detection or rewrite failure logs a `WarnCFRFolderTransport` line and keeps the user's URL so the clone still attempts (zero-swallow per memory rule).
 - **Tests (5 cases, package `cmd`):** `TestIsSSHURL` (7 boundary inputs), `TestPreferExistingFolderTransport_NoDotGit` (fresh-clone untouched), `TestRewriteToMatchExisting_SSHFromHTTPS`, `TestRewriteToMatchExisting_HTTPSFromSSH`. Could not run `go test` in this sandbox (`go: command not found`) - the harness build/lint will exercise them on push.
-- **Files:** `gitmap/cmd/clonefixrepo.go` (3-line wiring), `gitmap/cmd/clonefixrepofoldertransport.go` (new, 99 lines), `gitmap/cmd/clonefixrepofoldertransport_test.go` (new), `gitmap/constants/constants_clonefixrepo.go` (3 new message constants), `gitmap/constants/constants.go` (`6.26.0`), `src/constants/index.ts` (`v6.26.0`), `README.md` (pin → v6.26.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/clonefixrepo.go` (3-line wiring), `gitmap/cmd/clonefixrepofoldertransport.go` (new, 99 lines), `gitmap/cmd/clonefixrepofoldertransport_test.go` (new), `gitmap/constants/constants_clonefixrepo.go` (3 new message constants), `gitmap/constants/constants.go` (`6.26.0`), `src/constants/index.ts` (`v6.26.0`), `README.md` (pin → v6.26.0), `changelog.md`.
 - **Plan progress:** closes the `cfr`/`cfrp` half of plan 03 step 3. Step 2 (`Repo.IdentifiedTransport` persistence + migration 007) and the reclone-history log half of step 3 remain.
 
 
@@ -1100,7 +1100,7 @@ JSON-everywhere) will land in subsequent minors.
   - `clone-now` / `reclone` (manifest shape via `gitmap/cmd/clonenow.go:82`) - HONORS transport per-record through the shared `cloner.pickURL` (fixed in v6.20.0).
   - `clone` direct-URL (`gitmap/cmd/clone.go:337`) - HONORS trivially; clones the literal URL.
   - `cfr` / `cfrp` (`gitmap/cmd/clonefixrepo.go:33,39,46`) - **PARTIAL.** Honors only the user-supplied URL + `--ssh`/`--https` flags; does NOT consult the destination folder's existing `remote.origin.url` before issuing the clone. Plan 03 step 3 will close this.
-- **Files:** `.lovable/audits/2026-06-07-reclone-pickers.md` (new), `.lovable/plans/subtasks/03-reclone-transport-and-vscode-open/01-audit-reclone-pickers.md` (status → completed), `gitmap/constants/constants.go` (`6.25.0`), `src/constants/index.ts` (`v6.25.0`), `README.md` (pin → v6.25.0), `CHANGELOG.md`.
+- **Files:** `.lovable/audits/2026-06-07-reclone-pickers.md` (new), `.lovable/plans/subtasks/03-reclone-transport-and-vscode-open/01-audit-reclone-pickers.md` (status → completed), `gitmap/constants/constants.go` (`6.25.0`), `src/constants/index.ts` (`v6.25.0`), `README.md` (pin → v6.25.0), `changelog.md`.
 
 
 ## v6.24.0 - (2026-06-07) - `desktop-sync` finds GitHub Desktop without PATH config
@@ -1108,7 +1108,7 @@ JSON-everywhere) will land in subsequent minors.
 - **Bugfix (silent failure):** `gitmap desktop-sync` (and `gitmap github-desktop` / `gd`) returned to the shell prompt with no visible action on Windows even when GitHub Desktop was installed. Root cause: every call site used `exec.LookPath("github")`, but the Desktop installer drops its `github.bat` shim under `%LOCALAPPDATA%\GitHubDesktop\bin\` which is **not** on `PATH` by default - so the lookup silently failed and only printed `GitHub Desktop CLI not found` to stderr (often invisible in PowerShell paste-back), making the command look like a no-op.
 - **Fix:** new `desktop.ResolveCLI()` in `gitmap/desktop/resolve.go` probes `PATH` first, then falls back to the platform-specific install locations the installer actually writes to - `%LOCALAPPDATA%\GitHubDesktop\bin\github.bat` plus any newer `app-*\bin\github.bat` siblings on Windows, and `/Applications/GitHub Desktop.app/Contents/Resources/app/static/github` on macOS. All three consumers (`cmd/desktopsync.go`, `cmd/githubdesktop.go`, `desktop/desktop.go`) now call the shared resolver and invoke the returned absolute path directly.
 - **End-to-end test:** `gitmap/desktop/resolve_test.go` builds a temp `%LOCALAPPDATA%\GitHubDesktop\bin\github.bat` shim with `PATH` cleared and asserts `ResolveCLI()` still returns it; a sibling test confirms the resolver returns `""` (not a fabricated path) when Desktop is truly missing, and `TestCollectAppDirs` guards the Squirrel `app-*` filter that underpins newest-version fallback.
-- **Files:** `gitmap/desktop/resolve.go` (new), `gitmap/desktop/resolve_test.go` (new), `gitmap/desktop/desktop.go`, `gitmap/cmd/desktopsync.go`, `gitmap/cmd/githubdesktop.go`, `gitmap/constants/constants.go` (`6.24.0`), `src/constants/index.ts` (`v6.24.0`), `README.md` (pin → v6.24.0), `CHANGELOG.md`.
+- **Files:** `gitmap/desktop/resolve.go` (new), `gitmap/desktop/resolve_test.go` (new), `gitmap/desktop/desktop.go`, `gitmap/cmd/desktopsync.go`, `gitmap/cmd/githubdesktop.go`, `gitmap/constants/constants.go` (`6.24.0`), `src/constants/index.ts` (`v6.24.0`), `README.md` (pin → v6.24.0), `changelog.md`.
 
 ## v6.23.0 - (2026-06-07) - Per-repo terminal block shows transport audit fields
 
@@ -1116,79 +1116,79 @@ JSON-everywhere) will land in subsequent minors.
 - **Root cause (one sentence):** `render.FromScanRecord` mapped only branch/from/to/command into `RepoTermBlock`, so the shared renderer had no transport metadata available to print the explicit audit lines required by `.lovable/spec/commands/03-respect-identified-transport.md`.
 - **Fix:** extended `render.RepoTermBlock` with `Transport`, `HTTPSUrl`, and `SSHUrl`; `FromScanRecord` now passes the scan record fields through, while clone/probe-style URL-only blocks infer transport from the displayed URL and show `(unknown)` for the missing alternate URL.
 - **Verification:** focused Go tests could not run in this sandbox because `go` is not installed (`go: command not found`); checked-in golden fixtures were updated to the deterministic new 8-line block shape.
-- **Files:** `gitmap/render/repotermblock.go`, `gitmap/render/adapters.go`, `gitmap/render/repotermblock_test.go`, `gitmap/cmd/testdata/clonetermblock_*.golden`, `gitmap/cmd/testdata/clonestream_blocks_3rows.stdout.golden`, `gitmap/constants/constants.go` (`6.23.0`), `src/constants/index.ts` (`v6.23.0`), `README.md` (pin → v6.23.0), `CHANGELOG.md`.
+- **Files:** `gitmap/render/repotermblock.go`, `gitmap/render/adapters.go`, `gitmap/render/repotermblock_test.go`, `gitmap/cmd/testdata/clonetermblock_*.golden`, `gitmap/cmd/testdata/clonestream_blocks_3rows.stdout.golden`, `gitmap/constants/constants.go` (`6.23.0`), `src/constants/index.ts` (`v6.23.0`), `README.md` (pin → v6.23.0), `changelog.md`.
 
 ## v6.22.0 - (2026-06-07) - Direct-clone script honors per-repo SSH transport
 
 - **Bugfix (closes the v6.19/v6.20/v6.21 chain for the `.sh`/`.ps1` clone-all generators):** `buildDirectCloneEntries` in `gitmap/formatter/directclone.go` picked `r.HTTPSUrl` whenever the scan-wide `--mode` was `https` (the default), ignoring the per-repo identified `Transport`. So even after v6.21.0 made the terminal log show SSH commands for SSH-origin repos, the *generated* `clone.sh` / `clone.ps1` scripts users actually run later still contained HTTPS URLs - re-introducing the browser-auth prompt at clone time.
 - **Root cause (one sentence):** the direct-clone template builder treated the scan-wide `--mode` as the source of truth instead of the per-record `Transport` classified from `origin`.
 - **Fix:** new `pickDirectCloneURL(r, useSSH)` helper - if `r.Transport == "ssh"` and `SSHUrl` is non-empty it returns SSH; if `r.Transport == "https"` and `HTTPSUrl` is non-empty it returns HTTPS; only when `Transport` is `"other"` / unset does it fall back to the user's `useSSH` mode. Mirrors the v6.19/v6.20/v6.21 rule across the last remaining consumer.
-- **Files:** `gitmap/formatter/directclone.go`, `gitmap/constants/constants.go` (`6.22.0`), `src/constants/index.ts` (`v6.22.0`), `README.md` (pin → v6.22.0), `CHANGELOG.md`.
+- **Files:** `gitmap/formatter/directclone.go`, `gitmap/constants/constants.go` (`6.22.0`), `src/constants/index.ts` (`v6.22.0`), `README.md` (pin → v6.22.0), `changelog.md`.
 
 ## v6.21.0 - (2026-06-07) - Per-repo terminal block reports the SSH URL for SSH-origin repos
 
 - **Bugfix (last consumer in the v6.19/v6.20 chain):** the "Per-Repo Summary" block (rendered by `gitmap/render/adapters.go`'s `FromScanRecord` via `preferHTTPS`) still picked `HTTPSUrl` first regardless of the record's identified `Transport`. So even after v6.19.0 (mapper / formatter) and v6.20.0 (probe / cloner) honored SSH, the scan log's `from:` / `to:` / `command:` lines kept showing the HTTPS URL for SSH-origin repos - a confusing UX mismatch that hid the v6.20.0 fix from users reading the report.
 - **Fix:** replaced `preferHTTPS(https, ssh)` with `pickURLForTransport(transport, https, ssh)`. When `transport == "ssh"` and the SSH URL is non-empty it returns SSH; otherwise it falls back to the previous "HTTPS, else SSH" order so HTTPS-origin and "other"/unknown repos behave identically to v6.20.0. `FromScanRecord` now passes `r.Transport` in.
 - **Why this is the minimum correct change:** `FromScanRecord` is the sole adapter feeding `RenderRepoTermBlocks`, and its only caller is `formatter.printRepoSummaryBlocks` - fixing the picker fixes every "from / to / command" line everywhere without changing the block layout (no golden churn for HTTPS-origin fixtures; the existing SSH-only goldens already render `git@…` because their `HTTPSUrl` is empty, which the new path still handles).
-- **Files:** `gitmap/render/adapters.go`, `gitmap/constants/constants.go` (`6.21.0`), `src/constants/index.ts` (`v6.21.0`), `README.md` (pin → v6.21.0), `CHANGELOG.md`.
+- **Files:** `gitmap/render/adapters.go`, `gitmap/constants/constants.go` (`6.21.0`), `src/constants/index.ts` (`v6.21.0`), `README.md` (pin → v6.21.0), `changelog.md`.
 
 ## v6.20.0 - (2026-06-07) - Probe + cloner honor identified SSH transport (kills browser-auth prompt)
 
 - **Bugfix (fatal, follow-up to v6.19.0):** v6.19.0 fixed the clone *command* shown in the scan report, but the background **probe** that runs at the end of `gitmap scan` (and the **cloner**'s `pickURL`) still hardcoded HTTPS-first, so SSH-origin repos kept triggering `info: please complete authentication in your browser...` against private GitHub/GitLab remotes. Root cause: `pickProbeURL` in `gitmap/cmd/probereport.go` and `pickURL` in `gitmap/cloner/summary.go` both returned `r.HTTPSUrl` unconditionally when present, ignoring the per-repo `Transport` already classified from `origin`.
 - **Fix:** Both pickers now check `Transport == "ssh"` first and return `SSHUrl` (falling back to HTTPS only when SSH is empty). HTTPS-origin and "other"/unknown repos still prefer HTTPS as before, preserving the CI auth-friction behavior the original comment called out.
-- **Files:** `gitmap/cmd/probereport.go`, `gitmap/cloner/summary.go`, `gitmap/constants/constants.go` (`6.20.0`), `src/constants/index.ts` (`v6.20.0`), `README.md` (pin → v6.20.0), `CHANGELOG.md`.
+- **Files:** `gitmap/cmd/probereport.go`, `gitmap/cloner/summary.go`, `gitmap/constants/constants.go` (`6.20.0`), `src/constants/index.ts` (`v6.20.0`), `README.md` (pin → v6.20.0), `changelog.md`.
 
 ## v6.19.0 - (2026-06-07) - Scan/clone honor per-repo identified transport (SSH stays SSH)
 
 - **Bugfix (fatal):** `gitmap scan` on a repo whose `origin` is SSH was emitting an **HTTPS** `git clone` command (and the background probe + clone scripts followed suit), which prompted `info: please complete authentication in your browser...` against private GitHub/GitLab remotes. Root cause: `mapper.buildOneRecord` selected the per-record clone URL via the scan-wide `--mode` flag (default `https`), and `formatter.cloneURL` unconditionally preferred `HTTPSUrl` even when the repo's identified `Transport` was `ssh`. The `Transport` field was correctly classified from `origin` but ignored by every downstream URL consumer.
 - **Fix:** New `selectCloneURLForTransport(httpsURL, sshURL, transport, mode)` in `gitmap/mapper/mapper.go` - if `transport == "ssh"` it returns the SSH URL (falling back to HTTPS only when SSH is empty); if `transport == "https"` it returns HTTPS; only `"other"` falls back to the user-mode default. `formatter.cloneURL` got the same treatment so generated `clone.ps1` entries and the terminal `command:` line both honor the repo's identified transport. Mixed-transport manifests now emit mixed clone commands as they should.
-- **Files:** `gitmap/mapper/mapper.go`, `gitmap/formatter/clonescript.go`, `gitmap/constants/constants.go` (`6.19.0`), `src/constants/index.ts` (`v6.19.0`), `README.md` (pin → v6.19.0), `CHANGELOG.md`.
+- **Files:** `gitmap/mapper/mapper.go`, `gitmap/formatter/clonescript.go`, `gitmap/constants/constants.go` (`6.19.0`), `src/constants/index.ts` (`v6.19.0`), `README.md` (pin → v6.19.0), `changelog.md`.
 
 ## v6.18.0 - (2026-06-06) - Fix `make-all-*` owner extraction from URLs + richer provider-CLI errors
 
 - **Bugfix:** `gitmap make-all-public https://github.com/<owner>` (and `make-all-private` / `MAPUB` / `MAPRI`) previously extracted the **host** (`github.com`) as the owner because `firstPathSegment` started its scan at `parts[2]` - which is the host, not the first path segment. The provider CLI then failed with `gh repo list github.com → exit status 1`. Rewrote `firstPathSegment` in `gitmap/cmd/visibilityresolveowner.go` to strip the scheme (`https://`, `http://`, `ssh://`, `git://`), then drop the host, then return the first non-empty path component. Works for `https://github.com/alice`, `https://github.com/alice/`, `https://github.com/alice/repo`, `git@github.com:alice/repo.git`, and `github.com/alice` bare form.
 - **Trailing slash:** `ResolveOwnerOnly` now strips one-or-more trailing `/` from the input before classification, so `https://github.com/alice/` and `github.com/alice/` resolve identically to the no-slash form.
 - **Better diagnostics:** Provider-CLI failures from `listOwnerRepos` now include the **full argv** (`gh repo list <owner> --limit 1000 --json name`) and the **captured stderr** from the child process in the error message - previously you only got `exit status 1` with no context. Makes auth / 404 / rate-limit failures self-diagnosing.
-- Files: `gitmap/cmd/visibilityresolveowner.go`, `gitmap/cmd/visibilityownerlist.go`, `gitmap/constants/constants.go` (`6.18.0`), `src/constants/index.ts` (`v6.18.0`), `README.md` (pin → v6.18.0), `CHANGELOG.md`.
+- Files: `gitmap/cmd/visibilityresolveowner.go`, `gitmap/cmd/visibilityownerlist.go`, `gitmap/constants/constants.go` (`6.18.0`), `src/constants/index.ts` (`v6.18.0`), `README.md` (pin → v6.18.0), `changelog.md`.
 
 ## v6.17.0 - (2026-06-06) - Docs site pages for `make-all-public` / `make-all-private`
 
 - **Docs:** Added standalone documentation pages for `make-all-public` (alias `MAPUB`) and `make-all-private` (alias `MAPRI`) to the React docs site. Each page covers overview, usage, flags, pattern syntax (exact / `prefix*` / `*contains*` / `prefix*suffix` / `!negation`), copy-pasteable examples for both long form and uppercase shorthand, exit codes (0/4/5/6/7/9), and cross-links to the sibling command. Routes: `/make-all-public`, `/mapub`, `/make-all-private`, `/mapri`. Sidebar entries added under the visibility section.
 - **Sync:** `src/constants/index.ts` was stale at `6.5.0` (CI version-sync gate would have tripped on the next bump). Resynced to `v6.17.0` alongside the Go-side bump.
-- Files: `src/pages/MakeAllPublic.tsx` (new), `src/pages/MakeAllPrivate.tsx` (new), `src/App.tsx` (4 routes), `src/components/docs/DocsSidebar.tsx` (2 sidebar entries), `src/constants/index.ts` (`v6.17.0`), `gitmap/constants/constants.go` (`6.17.0`), `README.md` (pin → v6.17.0), `CHANGELOG.md`.
+- Files: `src/pages/MakeAllPublic.tsx` (new), `src/pages/MakeAllPrivate.tsx` (new), `src/App.tsx` (4 routes), `src/components/docs/DocsSidebar.tsx` (2 sidebar entries), `src/constants/index.ts` (`v6.17.0`), `gitmap/constants/constants.go` (`6.17.0`), `README.md` (pin → v6.17.0), `changelog.md`.
 
 ## v6.16.0 - (2026-06-06) - `make-all-public` / `make-all-private` honor `--help` / `-h`
 
 - **Fix:** `gitmap make-all-public --help` and `gitmap make-all-private --help` (plus aliases `MAPUB`/`MAPRI`) previously fell straight into the arg-count guard and printed the one-line usage stub instead of the embedded help. Root cause: `runMakeAllVisibility` checked `len(args) < 2` before consulting `checkHelp`, so `--help` counted as a single positional and tripped `ErrMakeAllMissingArgFmt`. Now `runMakeAllVisibility` calls `checkHelp(cmdName, args)` as its first statement - same pattern every other top-level handler uses - so `--help` / `-h` render `helptext/make-all-public.md` / `helptext/make-all-private.md` (already shipped in v6.x) and exit 0 before any flag parsing runs. Aliases inherit the fix because the dispatcher passes the canonical `cmdName` (`make-all-public` / `make-all-private`) into `runMakeAllVisibility`.
-- Files: `gitmap/cmd/visibilityallbulk.go` (single-line `checkHelp` insertion at top of `runMakeAllVisibility`), `gitmap/constants/constants.go` (`6.16.0`), `README.md` (pin → v6.16.0), `CHANGELOG.md`.
+- Files: `gitmap/cmd/visibilityallbulk.go` (single-line `checkHelp` insertion at top of `runMakeAllVisibility`), `gitmap/constants/constants.go` (`6.16.0`), `README.md` (pin → v6.16.0), `changelog.md`.
 
 
 ## v6.15.0 - (2026-06-06) - SQL filter pushdown for `vh` (step 39)
 
 
 - **Step 39 - `vh` SQL-side filter pushdown:** at thousands of historical runs, `vh --kind X --since 24h` was loading every row into memory and discarding 99% client-side. Added pure `store.BuildRecentRunsQuery(RecentRunsFilter)` builder (composes `WHERE CommandKind = ?` / `AND StartedAt >= ?` / `ORDER BY ... DESC LIMIT ?` from supplied filters, returns sql + positional args - no DB handle, fully unit-testable) and `(db *DB).SelectRecentMakeAllVisibilityRunsFiltered`. New SQL fragments (`SQLSelectRecentRunsBase`, `SQLWhereCommandKindEq`, `SQLWhereStartedAtGTE`, `SQLOrderRunIDDescLimit`, `SQLKeywordWHERE`, `SQLKeywordAND`) centralized in `constants_visibility_store_sql.go` to honor the no-magic-strings rule. `runVisibilityHistory` now routes through new `loadHistoryRuns` helper: zero-filter → original unfiltered SELECT (no behavior change for the default `vh`); any filter set → pushdown path with `--since` converted to ISO-8601 lower bound via `time.Now().Add(-d).UTC().Format(time.RFC3339)`. Step-36's `applyHistoryFilters` is retained as defense-in-depth second pass - SQL `>=` is a lexicographic text compare on ISO-8601 strings (works only for well-formed timestamps); the in-memory `time.Parse` pass still drops malformed `StartedAt` rows the SQL would let through. Tests: 4-case builder coverage (no-filter, kind-only, both-filters, suffix invariant) + 1 round-trip pushdown test confirming SQLite actually filters by `CommandKind`.
-- Files: `gitmap/store/makeallvisibility_history_filtered.go` (new), `gitmap/store/makeallvisibility_history_filtered_test.go` (new), `gitmap/cmd/visibilityhistory.go` (route via `loadHistoryRuns`, add `store` import), `gitmap/constants/constants_visibility_store_sql.go` (new SQL fragments), `gitmap/constants/constants.go` (`6.15.0`), `README.md` (pin), `CHANGELOG.md`, `.lovable/prompts/12-next-task.md` (new).
+- Files: `gitmap/store/makeallvisibility_history_filtered.go` (new), `gitmap/store/makeallvisibility_history_filtered_test.go` (new), `gitmap/cmd/visibilityhistory.go` (route via `loadHistoryRuns`, add `store` import), `gitmap/constants/constants_visibility_store_sql.go` (new SQL fragments), `gitmap/constants/constants.go` (`6.15.0`), `README.md` (pin), `changelog.md`, `.lovable/prompts/12-next-task.md` (new).
 
 
 ## v6.14.0 - (2026-06-06) - `vu`/`vr` `--json` summary + rate-limit backoff helper (steps 37-38)
 
 - **Step 37 - `vu` / `vr` `--json` output (v5.43.0+ JSON contract parity):** `undoFlags` gains `JSON bool`; `parseUndoArgs` recognizes `--json`. New `gitmap/cmd/visibilityundojson.go` defines the canonical wire shape `undoJSONSummary` (command/runId/sourceRunId/provider/owner/matched/changed/skipped/failed/exitCode) - zero values are emitted explicitly so downstream JSON parsers never see missing keys. `reverseRunAndExit` now calls new `emitUndoJSON` after `audit.finalize`, writing one JSON line to stdout while preserving the human-readable summary above it (stdout doubles as both). JSON-render errors are surfaced to stderr but do not override the apply-outcome exit code (zero-swallow but non-fatal - the work succeeded, only the receipt failed). Added `(a *runAudit) RunID() int64` accessor in `visibilityallbulkaudit.go` so the new audit row's primary key can be included in the JSON without exposing the unexported `runID` field. Tests in `visibilityundojson_test.go` cover round-trip stability and explicit zero-key emission.
 - **Step 38 - Rate-limit backoff helper:** new `gitmap/visibility/backoff.go` ships `ErrRateLimited` sentinel + `RetryRateLimited(op, schedule, sleep)` - pure, no `time.Sleep` baked in (caller injects so tests run instantly). Default `backoffSchedule()` is 1s/2s/4s/8s/16s/32s (63s total, deliberately under GitHub's 60s secondary-rate-limit window per attempt) across 6 retries. `errors.Is` predicate distinguishes retryable rate-limits from non-retryable failures (404/auth/schema) so a typo in a repo slug exits in 1 call instead of burning the full backoff. Test file covers: succeed-first-try, recover-mid-schedule, non-retryable-exits-immediately, exhaust-schedule, and a contract test that the schedule sum stays under the 60s rate-limit ceiling (regression guard against accidental schedule bloat). Wiring into the actual `gh repo edit` call site is deferred to item 45 (provider mock harness); the policy + tests ship now so the contract is locked.
-- Files: `gitmap/cmd/visibilityundojson.go` (new), `gitmap/cmd/visibilityundojson_test.go` (new), `gitmap/visibility/backoff.go` (new), `gitmap/visibility/backoff_test.go` (new), `gitmap/cmd/visibilityundoflags.go` (`--json` parse), `gitmap/cmd/visibilityundo.go` (`JSON` field + `emitUndoJSON`), `gitmap/cmd/visibilityallbulkaudit.go` (`RunID()` accessor), `gitmap/constants/constants.go` (`6.14.0`), `README.md` (pin), `CHANGELOG.md`, `.lovable/prompts/11-next-task.md` (new).
+- Files: `gitmap/cmd/visibilityundojson.go` (new), `gitmap/cmd/visibilityundojson_test.go` (new), `gitmap/visibility/backoff.go` (new), `gitmap/visibility/backoff_test.go` (new), `gitmap/cmd/visibilityundoflags.go` (`--json` parse), `gitmap/cmd/visibilityundo.go` (`JSON` field + `emitUndoJSON`), `gitmap/cmd/visibilityallbulkaudit.go` (`RunID()` accessor), `gitmap/constants/constants.go` (`6.14.0`), `README.md` (pin), `changelog.md`, `.lovable/prompts/11-next-task.md` (new).
 
 
 ## v6.13.0 - (2026-06-06) - `vh` round-trip test + `--kind` / `--since` filters (steps 35-36)
 
 - **Step 35 - Data-layer round-trip test:** new `gitmap/store/makeallvisibility_roundtrip_test.go` exercises the full `MakeAllPublic → VisibilityUndo → VisibilityRedo` lifecycle at the store layer. Inserts three runs with monotonically increasing `StartedAt`, asserts `SelectRecentMakeAllVisibilityRuns(10)` returns them newest-first (redo, undo, pub), and confirms `SelectMakeAllVisibilityRunByID(undoID)` resolves to the correct kind. Locks in the column-order + kind-routing contract that vu/vr depend on; provider-level e2e (real `gh` calls) still pending item 45 (mock harness).
 - **Step 36 - `vh --kind <K>` / `vh --since <dur>` filters:** new `gitmap/cmd/visibilityhistoryfilters.go` (37 lines) introduces pure `parseHistoryFilters` + `applyHistoryFilters` helpers - zero DB, zero I/O, fully table-testable. `runVisibilityHistory` now parses the two flags alongside `--limit` and applies them post-fetch. `--since` accepts any Go `time.ParseDuration` string (`24h`, `7d` → use `168h`, `30m`); bad values are silently ignored (limit-style strict-fail would break existing scripts that pipe extra tokens). Bogus `StartedAt` strings are dropped under `--since` (zero-swallow not applicable - these are data-side malformations, not user errors). New `gitmap/cmd/visibilityhistoryfilters_test.go` covers parse defaults, parse happy-path, bad `--since` ignored, kind-only filter, since-only filter, combined kind+since filter, and the no-op zero-value path.
-- Files: `gitmap/store/makeallvisibility_roundtrip_test.go` (new), `gitmap/cmd/visibilityhistoryfilters.go` (new), `gitmap/cmd/visibilityhistoryfilters_test.go` (new), `gitmap/cmd/visibilityhistory.go` (wire filters), `gitmap/constants/constants.go` (`6.13.0`), `README.md` (pin), `CHANGELOG.md`, `.lovable/prompts/10-next-task.md` (new).
+- Files: `gitmap/store/makeallvisibility_roundtrip_test.go` (new), `gitmap/cmd/visibilityhistoryfilters.go` (new), `gitmap/cmd/visibilityhistoryfilters_test.go` (new), `gitmap/cmd/visibilityhistory.go` (wire filters), `gitmap/constants/constants.go` (`6.13.0`), `README.md` (pin), `changelog.md`, `.lovable/prompts/10-next-task.md` (new).
 
 
 ## v6.12.0 - (2026-06-06) - Drift-guard seam + marker-comment audit (steps 33-34)
 
 - **Step 33 - Marker-comment audit:** verified `CmdVisibilityUndo` / `CmdVisibilityUndoAlias` / `CmdVisibilityRedo` / `CmdVisibilityRedoAlias` / `CmdVisibilityHistory` / `CmdVisibilityHistoryAlias` in `gitmap/constants/constants_cli.go` (lines 187-205) correctly inherit the file-level `// gitmap:cmd top-level` marker on line 3 - they are intentionally NOT tagged `// gitmap:cmd skip` because all six are first-class top-level CLI tokens. No code change required; audit recorded here so the next CI `generate-check` drift run has a citable baseline.
 - **Step 34 - Drift-guard integration seam:** the drift policy used by `reverseOneRepo` was previously inlined as bare `if flags.Force` / `if current != r.NewVisibility` branches, untestable without a real GitHub/GitLab provider client. Extracted the total decision function `decideDriftAction(current, expected string, force bool) driftAction` into new `gitmap/cmd/visibilitydriftguard.go` (37 lines). `reverseOneRepo` now delegates to it on both branches - behavior is byte-identical, but the policy is now table-testable. Added `gitmap/cmd/visibilitydriftguard_test.go` covering: no-drift-no-force → proceed, drift-no-force → skip, no-drift-force → force, drift-force → force (override wins), empty-current → skip. Locks in the three-way contract so a future refactor cannot silently flip the guard direction.
-- Files: `gitmap/cmd/visibilitydriftguard.go` (new), `gitmap/cmd/visibilitydriftguard_test.go` (new), `gitmap/cmd/visibilityundo.go` (delegate to helper), `gitmap/constants/constants.go` (`6.12.0`), `README.md` (pin), `CHANGELOG.md`, `.lovable/prompts/09-next-task.md` (new).
+- Files: `gitmap/cmd/visibilitydriftguard.go` (new), `gitmap/cmd/visibilitydriftguard_test.go` (new), `gitmap/cmd/visibilityundo.go` (delegate to helper), `gitmap/constants/constants.go` (`6.12.0`), `README.md` (pin), `changelog.md`, `.lovable/prompts/09-next-task.md` (new).
 
 
 ## v6.11.0 - (2026-06-06) - Store SELECT tests + 5 missing help files (unblocks CI)
@@ -2028,7 +2028,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.16.0 - (2026-05-18) - `gitmap release` no longer leaks gitmap-specific content into other repos' releases
 
 ### Fixed
-- **Release body**: `gitmap release` no longer dumps gitmap's own `CHANGELOG.md` notes into the GitHub release body of unrelated repositories. `uploadToGitHub` in `gitmap/release/workflowgithub.go` now starts with an empty body and only calls `DetectChangelog()` + `AppendPinnedInstallSnippet` when `ShouldPrintInstallHint(getRemoteURL())` is true (i.e. the current repo is a `alimtvnetwork/gitmap-v<N>` source repo). Non-gitmap repos get a tag-only release with an empty body.
+- **Release body**: `gitmap release` no longer dumps gitmap's own `changelog.md` notes into the GitHub release body of unrelated repositories. `uploadToGitHub` in `gitmap/release/workflowgithub.go` now starts with an empty body and only calls `DetectChangelog()` + `AppendPinnedInstallSnippet` when `ShouldPrintInstallHint(getRemoteURL())` is true (i.e. the current repo is a `alimtvnetwork/gitmap-v<N>` source repo). Non-gitmap repos get a tag-only release with an empty body.
 - **`release-version-vX.Y.Z.{ps1,sh}` snapshot assets** are no longer attached to non-gitmap releases. Those snapshots hard-code `REPO="alimtvnetwork/gitmap-v28"` and `BINARY_NAME="gitmap"` - uploading them to `img-pdf-v2`, `some-tool-v3`, etc. would mislead users into downloading the gitmap binary from the wrong release page. `pushAndFinalize` in `gitmap/release/workflowfinalize.go` now wraps `buildReleaseVersionSnapshots` in the same `ShouldPrintInstallHint` gate.
 - All other assets (cross-compiled Go binaries, zip groups, ad-hoc bundles, checksums, docs-site) are unaffected - only the two gitmap-specific pieces are gated.
 
@@ -2968,7 +2968,7 @@ A healthy build log starts with:
 
 If the `commit` line does not match the SHA you expected to build, or
 the `declared-version` is older than the version in your local
-`CHANGELOG.md`, **stop** - you are building a stale snapshot. Run
+`changelog.md`, **stop** - you are building a stale snapshot. Run
 `git pull origin main` and re-run.
 
 ## v3.114.0 - (2026-04-24) - Source-level AST guard: `updatedebugwindows.go` must call `fsutil.FileOrDirExists` and declare zero local `fileExists*` helpers
@@ -3286,7 +3286,7 @@ The source is correct. To clear CI:
 - New: `gitmap/templates/diff.go`, `gitmap/templates/diff_test.go`,
   `gitmap/cmd/templatesdiff.go`, `gitmap/helptext/templates-diff.md`
 - Edited: `gitmap/cmd/templatescli.go` (dispatch + usage banner),
-  `gitmap/constants/constants.go` (v3.108.0), `CHANGELOG.md`,
+  `gitmap/constants/constants.go` (v3.108.0), `changelog.md`,
   `.lovable/memory/index.md`,
   `.lovable/memory/plans/05-templates-polish-plan.md` (Phase 3 → done)
 
@@ -3322,7 +3322,7 @@ The source is correct. To clear CI:
 - New: `gitmap/render/testdata/pretty/case-007-heading-without-subtitle.{in.md,want.txt}`,
   `case-008-consecutive-collapses.{in.md,want.txt}`,
   `case-009-blank-line-preservation.{in.md,want.txt}`
-- Edited: `gitmap/constants/constants.go` (v3.107.0), `CHANGELOG.md`,
+- Edited: `gitmap/constants/constants.go` (v3.107.0), `changelog.md`,
   `.lovable/memory/index.md`
 
 ## v3.106.0 - (2026-04-24) - `templates list` --kind / --lang filters
@@ -3358,7 +3358,7 @@ The source is correct. To clear CI:
 - Edited: `gitmap/cmd/templatescli.go` (filter parsing, validation,
   pure `filterTemplates` helper), `gitmap/helptext/templates.md`
   (Flags table + Example 5), `gitmap/constants/constants.go` (v3.106.0),
-  `CHANGELOG.md`, `.lovable/memory/index.md`
+  `changelog.md`, `.lovable/memory/index.md`
 - New: `gitmap/cmd/templatescli_filter_test.go`
 
 
@@ -3405,7 +3405,7 @@ The source is correct. To clear CI:
 - New: `gitmap/cmd/addignoreattrs_test.go`, `addignoreattrs_testhelper_test.go`
 - New: `gitmap/helptext/add-ignore.md`, `gitmap/helptext/add-attributes.md`
 - Edited: `gitmap/cmd/rootadd.go` (router + usage banner),
-  `gitmap/constants/constants.go` (v3.105.0), `CHANGELOG.md`,
+  `gitmap/constants/constants.go` (v3.105.0), `changelog.md`,
   `.lovable/memory/{plans/04-templates-ignore-attributes-plan,index}.md`
 
 
@@ -4137,7 +4137,7 @@ Verified post-rename:
 
 ### Files (this section)
 
-- Edited: 404 files (391 `.go` files in `gitmap/`, plus `gitmap/go.mod`, `gitmap-updater/go.mod`, `gitmap-updater/main.go`, `Makefile`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `run.ps1`, `run.sh`, multiple `spec/` docs, `CHANGELOG.md` history references, `src/data/changelog.ts`, `src/pages/GettingStarted.tsx`).
+- Edited: 404 files (391 `.go` files in `gitmap/`, plus `gitmap/go.mod`, `gitmap-updater/go.mod`, `gitmap-updater/main.go`, `Makefile`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `run.ps1`, `run.sh`, multiple `spec/` docs, `changelog.md` history references, `src/data/changelog.ts`, `src/pages/GettingStarted.tsx`).
 - Edited: `gitmap/constants/constants.go` - bumped Version to 3.27.0.
 - Created: `.gitmap/release/v3.27.0.json` - release metadata.
 - Edited: `.gitmap/release/latest.json` - pointer to v3.27.0.
@@ -4528,7 +4528,7 @@ Targeted unit tests are preferred over broad CI sandbox-layout assertions when a
 ### Added (DFD-3 migration)
 
 - **Two-stage legacy layout migration** in `repair_deploy_layout()` (run.sh) and `repair_layout()` (install.sh):
-  1. **Migration A** - pre-DFD unwrapped install: `<target>/gitmap` (binary at top level) → `<target>/gitmap-cli/gitmap` + sibling data/, CHANGELOG.md, docs/, docs-site/.
+  1. **Migration A** - pre-DFD unwrapped install: `<target>/gitmap` (binary at top level) → `<target>/gitmap-cli/gitmap` + sibling data/, changelog.md, docs/, docs-site/.
   2. **Migration B** - v3.6.0..v3.13.10 wrapped install: `<target>/gitmap/` (folder) → `<target>/gitmap-cli/` via single `mv`. Skipped with a warning if both folders already exist (manual review needed).
 - **PATH-resolution backwards-compat** - `resolve_deploy_target()` in run.sh now accepts both `gitmap-cli` and legacy `gitmap` as the active-binary parent dir name, so users on the v3.6.0..v3.13.10 layout still get their existing deploy target detected on first migration run.
 
@@ -5875,7 +5875,7 @@ const (
 - Note: existing databases will need `gitmap db-reset --confirm` to adopt the new schema.
 
 ## v2.13.0
-- Release metadata JSON (`.release/vX.Y.Z.json`) now includes a `changelog` field with notes from CHANGELOG.md (gracefully omitted if unreadable).
+- Release metadata JSON (`.release/vX.Y.Z.json`) now includes a `changelog` field with notes from changelog.md (gracefully omitted if unreadable).
 - `gitmap list-versions` (`lv`) now shows changelog notes as sub-points under each version in terminal output.
 - `gitmap list-versions --json` includes changelog array per version in JSON output.
 
@@ -5974,7 +5974,7 @@ const (
 ## v2.3.2
 - `gitmap update` now syncs the active PATH binary with the deployed binary, so commands like `release` are available immediately.
 - `gitmap update` now prints changelog bullet points after update (or no-op update) for quick visibility.
-- Added `gitmap changelog --open` and `gitmap changelog.md` to open `CHANGELOG.md` in the default app.
+- Added `gitmap changelog --open` and `gitmap changelog.md` to open `changelog.md` in the default app.
 
 ## v2.3.1
 - Added `gitmap changelog` command for concise, CLI-friendly release notes.

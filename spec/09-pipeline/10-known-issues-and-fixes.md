@@ -267,7 +267,7 @@ Pinned every tool to an exact version tag:
 
 1. **`@latest` and `@main` are PROHIBITED** in any CI workflow or `setup.sh`.
 2. **Pin every action and CLI tool to an exact tag** (`@v1.2.3`, not `@v1`).
-3. **Document version bumps** in `CHANGELOG.md` so regressions can be bisected.
+3. **Document version bumps** in `changelog.md` so regressions can be bisected.
 4. **Use Dependabot or Renovate** to propose pinned-version bumps via PR.
 
 ### Related Files
