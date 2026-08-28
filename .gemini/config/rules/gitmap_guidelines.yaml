@@ -1,0 +1,24 @@
+name: gitmap_error_and_coding_guidelines
+description: Enforces Gitmap's strict error management architecture and coding style guidelines.
+trigger:
+  - ".*"
+
+instructions: |
+  **Gitmap Strict Error Architecture and Coding Guidelines**
+
+  When working on the Gitmap repository, you MUST adhere to the following rules at all times. Failure to follow these rules will break the DB audit logging and violate the project's standards.
+
+  ### 1. Error Management (CRITICAL)
+  - **Always Return `*apperror.AppError`**: Command handlers and core application code must return `*apperror.AppError` (or `error`), never a generic string or direct terminal print.
+  - **No `os.Exit(1)`**: Never use `os.Exit(1)` or `pterm.Error.Println` inside helper functions or command handlers. If a function encounters a fatal error, it MUST return an error up the call stack.
+  - **Database Audit Capture**: Errors must bubble up to the `dispatch` handler in `root.go` so they can be captured by `finishCommandAudit`. The exit code and error string are logged into the SQLite database.
+  - **Full Text Compilation**: Ensure errors that are meant to be shown in the terminal are compiled to a full text combination (e.g., via `err.Error()`) before they are emitted or logged.
+
+  ### 2. Coding Style & Naming Rules
+  - **Boolean Naming**: All booleans MUST begin with `is`, `has`, `can`, or `should`. NO negative booleans (e.g., use `isValid`, not `isInvalid`).
+  - **15-Line Function Limit**: Strictly adhere to the 15-line maximum size for functions. Break down larger functions into smaller helpers.
+  - **No Magic Strings**: Extract all magic strings to constants.
+  - **Return Styling**: Before any `return` statement, there MUST be an empty newline, following the project's style guidelines.
+  
+  ### 3. Automated Refactoring Warning
+  - **No Blind Regex Mass Refactoring**: Never run automated scripts (like Python regex or PowerShell replace) that blindly replace `os.Exit(1)` with `return apperror` across the codebase without properly matching and fixing the helper function's return signature. This will break hundreds of files. If you must mass-refactor, use proper Go AST tools.
