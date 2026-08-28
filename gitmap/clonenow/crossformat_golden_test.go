@@ -31,7 +31,7 @@ package clonenow
 //	  go test ./gitmap/clonenow/ -run TestCloneNowCrossFormat_Golden
 //
 // then commit clonenow/testdata/crossformat_rows.golden and call
-// out the consumer-visible change in CHANGELOG.md.
+// out the consumer-visible change in changelog.md.
 
 import (
 	"bytes"

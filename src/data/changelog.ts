@@ -830,7 +830,7 @@ export const changelog: ChangelogEntry[] = [
     date: "2026-05-18",
     subtitle: "`gitmap release` no longer leaks gitmap-specific content (CHANGELOG body + release-version.{ps1,sh} snapshots) into other repos' releases",
     items: [
-      "Release body: `uploadToGitHub` in `gitmap-v28/release/workflowgithub.go` now starts with an empty body and only calls `DetectChangelog()` + `AppendPinnedInstallSnippet` when `ShouldPrintInstallHint(getRemoteURL())` is true. Non-gitmap repos get a tag-only release with an empty body — no more gitmap CHANGELOG.md notes dumped into unrelated release pages.",
+      "Release body: `uploadToGitHub` in `gitmap-v28/release/workflowgithub.go` now starts with an empty body and only calls `DetectChangelog()` + `AppendPinnedInstallSnippet` when `ShouldPrintInstallHint(getRemoteURL())` is true. Non-gitmap repos get a tag-only release with an empty body — no more gitmap changelog.md notes dumped into unrelated release pages.",
       "`release-version-vX.Y.Z.{ps1,sh}` snapshot assets are no longer attached to non-gitmap releases. Those snapshots hard-code `REPO=\"alimtvnetwork/gitmap-v28\"` and `BINARY_NAME=\"gitmap-v28\"`. `pushAndFinalize` in `gitmap-v28/release/workflowfinalize.go` wraps `buildReleaseVersionSnapshots` in the same `ShouldPrintInstallHint` gate.",
       "All other assets (cross-compiled Go binaries, zip groups, ad-hoc bundles, checksums, docs-site) are unaffected.",
       "New spec `spec/02-app-issues/27-release-body-and-snapshots-gitmap-only.md` + memory `.lovable/memory/features/release-gitmap-only-body-and-snapshots.md` document the contract.",
@@ -864,7 +864,7 @@ export const changelog: ChangelogEntry[] = [
       "Bumped the `📌 Pinned version` section in the root `README.md` from `v5.12.0` to `v5.13.0` — heading, PowerShell + Bash one-line installers, the Version matrix table (all five OS/arch rows), and the release-page link all now resolve to the `v5.13.0` tag and the `release-version-v5.13.0.{ps1,sh}` assets.",
       "Synced version constants so the regression test in `src/test/version-sync.test.ts` stays green: `gitmap-v28/constants/constants.go` `Version` `5.10.0` → `5.13.0`, and `src/constants/index.ts` web `VERSION` `v5.10.0` → `v5.13.0`.",
       "Dropped the `&branch=main` filter from the four workflow status badges in `README.md` (`ci.yml`, `vulncheck.yml`, `cross-platform.yml`, `startup-build-tags.yml`). Lovable pushes commits to whichever branch the project is connected to (not `main`), so the `main` view was stale and rendered the `CI` badge red while the active branch was actually green; the unfiltered badge now reflects the latest run.",
-      "Files: `README.md` (pinned-version block + 4 CI badge URLs), `gitmap-v28/constants/constants.go` (`Version`), `src/constants/index.ts` (`VERSION`), `CHANGELOG.md` (v5.13.0 entry), `src/data/changelog.ts` (this entry).",
+      "Files: `README.md` (pinned-version block + 4 CI badge URLs), `gitmap-v28/constants/constants.go` (`Version`), `src/constants/index.ts` (`VERSION`), `changelog.md` (v5.13.0 entry), `src/data/changelog.ts` (this entry).",
     ],
   },
   {
@@ -1064,7 +1064,7 @@ export const changelog: ChangelogEntry[] = [
       "New `scripts/build-stamp.sh` (bash) prints: git commit SHA (full + short), branch, `describe --tags --dirty`, commit date/subject; declared `constants.Version`; sha256:<12-hex> + line-count fingerprint of `constants.go`, `updaterepo.go`, `updatedebugwindows.go`; and a redeclaration-risk pre-check that grep-scans both cmd/ files for local `func fileExists*` declarations. `--strict` mode escalates the redecl check to `exit 1`, predicting the build failure before `go build` runs.",
       "New `scripts/build-stamp.ps1` (PowerShell) is the Windows companion with identical semantics — `-Strict` switch, `Get-FileHash` + `Select-String` equivalents. All probes fall back to `(unknown)` so the stamp itself never blocks a build (shallow clones, tarball builds, missing git).",
       "`run.sh` and `run.ps1` now invoke the stamp script immediately before `go build`. Wrapped in `|| true` / try-catch so a stamp bug never breaks a working local build. `.github/workflows/ci.yml` runs the stamp in `--strict` mode in the build matrix job, so CI fails fast on a stale checkout instead of burning minutes on a doomed Go compilation.",
-      "Reading the stamp: if the `commit` line does not match the SHA you expected to build, or `declared-version` is older than your local CHANGELOG.md, stop — you are building a stale snapshot. Run `git pull origin main` and re-run. Bumped `constants.Version` to `3.115.0`.",
+      "Reading the stamp: if the `commit` line does not match the SHA you expected to build, or `declared-version` is older than your local changelog.md, stop — you are building a stale snapshot. Run `git pull origin main` and re-run. Bumped `constants.Version` to `3.115.0`.",
     ],
   },
   {

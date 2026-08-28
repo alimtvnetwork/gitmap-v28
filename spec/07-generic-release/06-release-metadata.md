@@ -66,12 +66,12 @@ git tag -d "v${VERSION}"
 
 ## Changelog Extraction
 
-The release pipeline extracts the relevant section from `CHANGELOG.md`
+The release pipeline extracts the relevant section from `changelog.md`
 for the release body:
 
 ```bash
 # Extract everything between ## v1.2.0 and the next ## heading
-awk '/^## v1\.2\.0/{found=1; next} /^## v/{if(found) exit} found{print}' CHANGELOG.md
+awk '/^## v1\.2\.0/{found=1; next} /^## v/{if(found) exit} found{print}' changelog.md
 ```
 
 ### Changelog Format
@@ -96,12 +96,12 @@ Three sources must always be in sync:
 | Source | Location | Purpose |
 |--------|----------|---------|
 | `Version` value    | Source code (`version.json`) | Injected via `-ldflags`  |
-| `CHANGELOG.md` | Repository root | Human-readable history |
+| `changelog.md` | Repository root | Human-readable history |
 | Release metadata | `.release/latest.json` or tags | CI/CD and tooling |
 
 When bumping a version:
 1. Update the `Version` constant in source code.
-2. Add the new section to `CHANGELOG.md`.
+2. Add the new section to `changelog.md`.
 3. Update any metadata files (e.g., `latest.json`).
 
 All three changes must happen in the **same commit** that is tagged.

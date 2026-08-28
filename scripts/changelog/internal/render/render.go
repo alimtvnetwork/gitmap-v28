@@ -1,4 +1,4 @@
-// Package render formats a release Entry into Markdown (CHANGELOG.md)
+// Package render formats a release Entry into Markdown (changelog.md)
 // and TypeScript (src/data/changelog.ts) fragments.
 package render
 
@@ -16,7 +16,7 @@ type Entry struct {
 	Groups  []group.Section
 }
 
-// Markdown renders the entry as a CHANGELOG.md block (no trailing
+// Markdown renders the entry as a changelog.md block (no trailing
 // newline beyond the usual blank-line separator).
 func Markdown(e Entry) string {
 	var b strings.Builder

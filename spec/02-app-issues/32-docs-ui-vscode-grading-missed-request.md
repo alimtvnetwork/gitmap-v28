@@ -33,4 +33,4 @@ The user asked multiple times for the docs UI to use a VS Code-style color gradi
 
 1. When a user asks for a UI style change, handle the frontend request directly unless they explicitly ask to debug backend logic too.
 2. Partial design similarity in tokens does **not** count as completion; verify the visible shell, hero, cards, and code surfaces all match the requested direction.
-3. Any user-visible fix must ship with synced version metadata in `CHANGELOG.md` and `src/data/changelog.ts`.
+3. Any user-visible fix must ship with synced version metadata in `changelog.md` and `src/data/changelog.ts`.

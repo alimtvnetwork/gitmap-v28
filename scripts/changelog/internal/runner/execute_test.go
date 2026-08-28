@@ -17,7 +17,7 @@ import (
 // drift.Check and assert exit code 0.
 func TestEndToEndWriteThenCheck(t *testing.T) {
 	dir := t.TempDir()
-	mdPath := filepath.Join(dir, "CHANGELOG.md")
+	mdPath := filepath.Join(dir, "changelog.md")
 	tsPath := filepath.Join(dir, "src/data/changelog.ts")
 
 	if err := os.MkdirAll(filepath.Dir(tsPath), 0o755); err != nil {

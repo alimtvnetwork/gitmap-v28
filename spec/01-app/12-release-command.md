@@ -413,7 +413,7 @@ The `release.yml` workflow triggers automatically when:
 5. **Generate install scripts** — version-pinned `install.ps1` (Windows)
    and `install.sh` (Linux/macOS) are created and attached as release
    assets.
-6. **Extract changelog** — the matching section from `CHANGELOG.md` is
+6. **Extract changelog** — the matching section from `changelog.md` is
    extracted for the release body.
 7. **Build release body** — combines: changelog entry, release metadata
    table (version, commit, branch, build date, Go version), SHA256

@@ -27,7 +27,7 @@
 ```
 /                                      repo root
 ├── README.md                          product README + pinned version
-├── CHANGELOG.md                       version-by-version changes
+├── changelog.md                       version-by-version changes
 ├── gitmap/                            Go CLI source (the product)
 │   ├── cmd/                           command handlers + contract tests
 │   ├── constants/                     ALL string constants (no magic strings)
@@ -130,7 +130,7 @@ the order declared by the matching `<name>Key*` constants.
    `dispatch`, add help in `gitmap/helptext/`, add constants ID in
    `gitmap/constants/constants_cli.go`.
 9. **Bump version** (minor for new feature) → `gitmap/constants/constants.go`
-   `Version`, `src/constants/index.ts`, `CHANGELOG.md`, pin in `README.md`.
+   `Version`, `src/constants/index.ts`, `changelog.md`, pin in `README.md`.
 
 ---
 

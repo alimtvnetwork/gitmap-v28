@@ -26,7 +26,7 @@ const (
 //   - Mode: write | check (see ModeWrite / ModeCheck).
 //   - Version: explicit version label for the new entry. Falls back to
 //     `<lastTag>+next` or `vNEXT` when empty.
-//   - RepoRoot: repository root containing CHANGELOG.md and
+//   - RepoRoot: repository root containing changelog.md and
 //     src/data/changelog.ts.
 //   - Since: optional revision (tag, branch, or hash) used as the
 //     lower boundary instead of the highest-semver tag. Enables

@@ -200,12 +200,12 @@ database. Only the on-disk JSON file is deleted.
 
 ### `gitmap changelog [version]` (alias: `cl`)
 
-Display concise, CLI-friendly release notes from `CHANGELOG.md`.
+Display concise, CLI-friendly release notes from `changelog.md`.
 
 - **No args** — prints the last 5 versions (configurable via `--limit`).
 - **`--latest`** — prints only the most recent version's notes.
 - **`<version>`** — prints notes for a specific version (e.g., `gitmap changelog v2.3.0`).
-- **`--open`** — opens `CHANGELOG.md` in the default system application.
+- **`--open`** — opens `changelog.md` in the default system application.
 - **`changelog.md`** (as command) — shorthand for `changelog --open`.
 
 The `gitmap update` command automatically runs `gitmap changelog --latest`
@@ -223,7 +223,7 @@ and prints `[OK]`, `[!!]`, or `[--]` for each:
    prints exact `Copy-Item` fix commands when they differ.
 5. **Git available** — checks `git --version`.
 6. **Go available** — checks `go version` (warning only, needed for building).
-7. **CHANGELOG.md present** — confirms changelog command will work.
+7. **changelog.md present** — confirms changelog command will work.
 
 If issues are found, each is accompanied by a recommended fix command.
 
@@ -285,7 +285,7 @@ releases from the SQLite database.
 ### `gitmap list-versions` (alias: `lv`)
 
 List all Git release tags (matching `v*`) sorted from highest to lowest
-semantic version. Attaches changelog notes from `CHANGELOG.md` as
+semantic version. Attaches changelog notes from `changelog.md` as
 sub-points under each version.
 
 - Supports `--json` for structured JSON output.
@@ -525,7 +525,7 @@ activates whenever existing repos are detected during a clone operation.
 |-------------------|------------------------------------------|---------|
 | `--latest`        | Show only the most recent version        | `false` |
 | `--limit <n>`     | Max number of versions to display        | `5`     |
-| `--open`          | Open CHANGELOG.md in default application | `false` |
+| `--open`          | Open changelog.md in default application | `false` |
 | `--source`        | Filter by source: `release` or `import`  | (all)   |
 
 ## Latest-Branch Flags
@@ -717,7 +717,7 @@ gitmap release-pending --dry-run
 gitmap changelog             # last 5 versions
 gitmap cl --latest           # most recent only
 gitmap changelog v2.3.0      # specific version
-gitmap changelog --open      # open CHANGELOG.md
+gitmap changelog --open      # open changelog.md
 gitmap changelog.md          # shorthand for --open
 gitmap cl --source release   # only changelog entries from gitmap release
 gitmap cl --source import    # only changelog entries from imported releases

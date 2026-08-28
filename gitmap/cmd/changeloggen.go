@@ -73,7 +73,7 @@ func printChangelogPreview(section string) {
 	fmt.Print(section)
 }
 
-// writeChangelogSection prepends the section to CHANGELOG.md.
+// writeChangelogSection prepends the section to changelog.md.
 func writeChangelogSection(section string) *apperror.AppError {
 	existing, err := os.ReadFile(constants.ChangelogFile)
 	if err != nil && !os.IsNotExist(err) {

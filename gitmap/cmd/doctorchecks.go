@@ -168,7 +168,7 @@ func getToolVersion(tool, arg string) string {
 	return strings.TrimSpace(string(out))
 }
 
-// checkChangelogFile verifies CHANGELOG.md exists.
+// checkChangelogFile verifies changelog.md exists.
 func checkChangelogFile() int {
 	if _, err := os.Stat(constants.ChangelogFile); err != nil {
 		printWarn(constants.DoctorChangelogWarn)

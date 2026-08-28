@@ -261,9 +261,9 @@ const (
 	ErrReleasePushFailed        = "Error: failed to push to remote: %v\n"
 	ErrReleaseVersionLoad       = "Error: could not read version.json at %s: %v (operation: read)\n"
 	ErrReleaseMetaWrite         = "Error: could not write release metadata at %s: %v (operation: write)\n"
-	ErrChangelogRead            = "Error: could not read CHANGELOG.md at %s: %v (operation: read)\n"
-	ErrChangelogVersionNotFound = "Error: version %s not found in CHANGELOG.md\n"
-	ErrChangelogOpen            = "Error: could not open CHANGELOG.md at %s: %v (operation: open)\n"
+	ErrChangelogRead            = "Error: could not read changelog.md at %s: %v (operation: read)\n"
+	ErrChangelogVersionNotFound = "Error: version %s not found in changelog.md\n"
+	ErrChangelogOpen            = "Error: could not open changelog.md at %s: %v (operation: open)\n"
 )
 
 // List-versions error messages.

@@ -50,7 +50,7 @@ Single canonical layout — no shims, no shortcuts, no parallel copies:
     │   ├── config.json
     │   └── ...
     ├── docs/                    <- optional bundled docs
-    └── CHANGELOG.md             <- optional
+    └── changelog.md             <- optional
 ```
 
 `<deploy-root>` is whatever the existing install resolved to
@@ -96,7 +96,7 @@ When an existing install is detected at `<dir>/<binary>(.exe)` and
 1. Create `<dir>/<binary>/` (the new app folder).
 2. Move `<binary>(.exe)` into the new folder.
 3. Move `data/` into the new folder if it sits beside the binary.
-4. Move `*.old`, `CHANGELOG.md`, and any `docs/` sibling.
+4. Move `*.old`, `changelog.md`, and any `docs/` sibling.
 5. Continue the deploy targeting the new folder.
 
 Repair MUST be idempotent: re-running on an already-correct layout is

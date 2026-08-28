@@ -24,7 +24,7 @@ package clonefrom
 //	  go test ./gitmap/clonefrom/ -run TestCloneFromReportJSON_Golden
 //
 // then commit the regenerated files under clonefrom/testdata/ and
-// call out the consumer-visible change in CHANGELOG.md.
+// call out the consumer-visible change in changelog.md.
 
 import (
 	"bytes"

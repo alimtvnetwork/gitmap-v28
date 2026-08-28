@@ -31,7 +31,7 @@ When the gate is **true** (gitmap source repo): behavior is unchanged.
 ## Why
 
 The two pieces of gitmap-specific content were unconditional before
-v5.16.0. A user releasing `img-pdf-v2` saw gitmap's CHANGELOG.md in
+v5.16.0. A user releasing `img-pdf-v2` saw gitmap's changelog.md in
 their release body and `release-version.sh` files pointing at the
 wrong repo as assets.
 

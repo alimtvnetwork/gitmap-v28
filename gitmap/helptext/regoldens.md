@@ -115,7 +115,7 @@ commit:
 1. The writer/code change that caused the format drift.
 2. Every regenerated file under `testdata/`.
 3. Any pinned schema-version literal that mirrors the format.
-4. A `CHANGELOG.md` entry if the change is downstream-visible.
+4. A `changelog.md` entry if the change is downstream-visible.
 
 ## Scripting (JSON)
 

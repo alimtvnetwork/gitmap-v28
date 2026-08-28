@@ -10,7 +10,7 @@ When the user says **"release"**, **"mark this as release"**, or similar shortha
 
 1. Bump MINOR in `gitmap/constants/constants.go` (`Version`)
 2. Mirror to `src/constants/index.ts` (`VERSION`, with `v` prefix)
-3. Add a new `## vX.Y.Z — (YYYY-MM-DD) — <summary>` entry at the top of `CHANGELOG.md`
+3. Add a new `## vX.Y.Z — (YYYY-MM-DD) — <summary>` entry at the top of `changelog.md`
 4. Pin the new version everywhere it appears in root `README.md` (sed replace of the previous pinned version)
 
 Do NOT touch `.gitmap/release/` — that is managed by the `gitmap` CLI itself (see `version-bump-procedure.md` and the Core constraint).

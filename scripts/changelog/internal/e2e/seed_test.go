@@ -12,13 +12,13 @@ func formatUnix(unix int64) string {
 	return fmt.Sprintf("%d +0000", unix)
 }
 
-// seedFiles writes the on-disk CHANGELOG.md / changelog.ts skeletons the
+// seedFiles writes the on-disk changelog.md / changelog.ts skeletons the
 // writer expects to find before it splices a new entry. Returns the two
 // absolute paths.
 func seedFiles(t *testing.T, root string) (string, string) {
 	t.Helper()
 
-	mdPath := filepath.Join(root, "CHANGELOG.md")
+	mdPath := filepath.Join(root, "changelog.md")
 	tsDir := filepath.Join(root, "src", "data")
 	tsPath := filepath.Join(tsDir, "changelog.ts")
 

@@ -16,7 +16,7 @@ const (
 const (
 	FlagDescFrom  = "Start tag (older). Defaults to second-latest tag"
 	FlagDescTo    = "End tag or HEAD. Defaults to latest tag"
-	FlagDescWrite = "Prepend output to CHANGELOG.md instead of printing"
+	FlagDescWrite = "Prepend output to changelog.md instead of printing"
 )
 
 // Changelog generate git arguments.

@@ -1250,7 +1250,7 @@ jobs:
           go-version-file: gitmap/go.mod
           cache-dependency-path: gitmap/go.sum
 
-      - name: CHANGELOG version-sync (constants.go ↔ CHANGELOG.md)
+      - name: CHANGELOG version-sync (constants.go ↔ changelog.md)
         if: needs.sha-check.outputs.already-built != 'true'
         shell: bash
         run: bash .github/scripts/check-changelog-version-sync.sh

@@ -8,7 +8,7 @@ package clonefrom
 // bump the version. This test asserts the version literal is 1
 // and the field exists in BOTH the empty and populated cases, so
 // any deliberate bump must be made here AND justified in the PR
-// (and CHANGELOG.md, since it's a downstream-visible break).
+// (and changelog.md, since it's a downstream-visible break).
 //
 // The version is sourced from constants.CloneFromReportSchemaVersion
 // and the literal expectation lives here — they must stay in sync.
@@ -28,7 +28,7 @@ import (
 // expectedSchemaVersionPinned is the version every clone-from JSON
 // report must declare. Bumping requires: (1) editing this literal,
 // (2) editing constants.CloneFromReportSchemaVersion to match, (3)
-// regenerating both JSON goldens, (4) noting the break in CHANGELOG.md.
+// regenerating both JSON goldens, (4) noting the break in changelog.md.
 const expectedSchemaVersionPinned = 3
 
 // envelopePeek is a minimal decoder used only by this test — we
@@ -47,7 +47,7 @@ func TestCloneFromReportJSON_SchemaVersion_ConstantPinned(t *testing.T) {
 		t.Fatalf("CloneFromReportSchemaVersion drifted: got %d, "+
 			"expected %d. If this bump is intentional, update "+
 			"expectedSchemaVersionPinned in this file, regenerate "+
-			"the JSON goldens, and document the break in CHANGELOG.md.",
+			"the JSON goldens, and document the break in changelog.md.",
 			constants.CloneFromReportSchemaVersion,
 			expectedSchemaVersionPinned)
 	}

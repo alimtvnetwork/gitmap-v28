@@ -10,7 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// ChangelogEntry represents one version section in CHANGELOG.md.
+// ChangelogEntry represents one version section in changelog.md.
 //
 // Notes is preserved for backward compatibility (flat top-level bullets).
 // Title and Bullets are populated by the new structured parser used by the
@@ -31,7 +31,7 @@ type ChangelogBullet struct {
 	Text    string
 }
 
-// ReadChangelog reads concise changelog entries from CHANGELOG.md.
+// ReadChangelog reads concise changelog entries from changelog.md.
 func ReadChangelog() ([]ChangelogEntry, error) {
 	file, err := os.Open(constants.ChangelogFile)
 	if err != nil {

@@ -29,7 +29,7 @@
 - ✅ `revert <version>`: checkout tag + handoff rebuild (same mechanism as update)
 
 ### v2.13.0 — Changelog Enhancements
-- ✅ Release metadata JSON includes changelog field from CHANGELOG.md
+- ✅ Release metadata JSON includes changelog field from changelog.md
 - ✅ `list-versions` shows changelog notes as sub-points (terminal + JSON)
 
 ### v2.14.0 — Go Release Assets, Compression & Checksums

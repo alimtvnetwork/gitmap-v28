@@ -2,11 +2,11 @@
 
 ## Overview
 
-The changelog is a critical piece of the release pipeline. It must be synchronized across three surfaces: the `CHANGELOG.md` file, the GitHub Release description, and (optionally) a documentation site. This document describes the format, automation, and integration points.
+The changelog is a critical piece of the release pipeline. It must be synchronized across three surfaces: the `changelog.md` file, the GitHub Release description, and (optionally) a documentation site. This document describes the format, automation, and integration points.
 
 ---
 
-## CHANGELOG.md Format
+## changelog.md Format
 
 Use [Keep a Changelog](https://keepachangelog.com/) conventions with SemVer headers:
 
@@ -46,11 +46,11 @@ Use [Keep a Changelog](https://keepachangelog.com/) conventions with SemVer head
 
 ### When to Add
 
-Add a changelog entry **before** creating a release branch or tag. The entry must already exist in `CHANGELOG.md` on the commit that gets tagged.
+Add a changelog entry **before** creating a release branch or tag. The entry must already exist in `changelog.md` on the commit that gets tagged.
 
 ### How to Add
 
-1. Open `CHANGELOG.md`
+1. Open `changelog.md`
 2. Insert a new `## v<version>` section at the top (below any header)
 3. Add bullets under the appropriate subsection (`Added`, `Fixed`, `Changed`)
 4. Commit the changelog update as part of the release preparation
@@ -59,9 +59,9 @@ Add a changelog entry **before** creating a release branch or tag. The entry mus
 
 ```bash
 # 1. Bump version constant in code
-# 2. Update CHANGELOG.md with new entry
+# 2. Update changelog.md with new entry
 # 3. Commit both changes
-git add version.json CHANGELOG.md
+git add version.json changelog.md
 git commit -m "Prepare v1.3.0 release"
 
 # 4. Create release branch
@@ -89,7 +89,7 @@ CHANGELOG=$(awk -v ver="$CLEAN_VERSION" '
     if (index($0, ver)) found=1
   }
   found { print }
-' CHANGELOG.md)
+' changelog.md)
 
 if [ -z "$CHANGELOG" ]; then
   CHANGELOG="No changelog entry found for $VERSION."
@@ -250,7 +250,7 @@ export const changelog = [
 ];
 ```
 
-Both `CHANGELOG.md` and the data file must be updated together during release preparation.
+Both `changelog.md` and the data file must be updated together during release preparation.
 
 ---
 

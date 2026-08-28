@@ -1,4 +1,4 @@
-// Command changelog regenerates CHANGELOG.md and src/data/changelog.ts
+// Command changelog regenerates changelog.md and src/data/changelog.ts
 // from git commits since the most-recent annotated tag (or all commits if
 // no tag exists yet).
 //

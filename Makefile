@@ -64,7 +64,7 @@ clean:
 	@rm -rf $(MODULE)/.gitmap/release-assets
 	@echo "Cleaned."
 
-## Changelog — regenerate CHANGELOG.md and src/data/changelog.ts from
+## Changelog — regenerate changelog.md and src/data/changelog.ts from
 ## Conventional Commits since the latest annotated git tag.
 ## Usage:
 ##   make changelog VERSION=v3.92.0

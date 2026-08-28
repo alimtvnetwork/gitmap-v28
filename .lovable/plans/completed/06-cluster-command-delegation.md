@@ -120,7 +120,7 @@ After `gitmap serve` and `gitmap join` establish a cluster of machines (Phase 6)
 76. Add a **Cluster Command Delegation** section to the docs-site `commands.md` or equivalent page. Describe target selectors, chaining, `--except` / `--ip` / `--id` semantics, and the audit trail.
 77. Add a **Security** note to the docs: credentials stored as bcrypt, passwords never exported, TLS required.
 78. Update the main `README.md` with a `## Cluster` section showing the 3 most common command patterns as a quick-start.
-79. Update `CHANGELOG.md` with a new `## Added` block under the next version describing all cluster delegation commands.
+79. Update `changelog.md` with a new `## Added` block under the next version describing all cluster delegation commands.
 80. Bump version constant across unified sites (Go constants, `version.json`, README pins, `src/constants/index.ts`).
 
 ---

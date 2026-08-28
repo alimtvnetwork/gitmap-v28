@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # check-changelog-version-sync.sh — CI gate that fails when the
 # version pinned in gitmap/constants/constants.go is not documented
-# in CHANGELOG.md.
+# in changelog.md.
 #
 # Motivation: version bumps have historically drifted from the
 # changelog (see the v4.28 → v4.30 cycle documented in project
 # memory). Every constants.Version = "X.Y.Z" MUST have a matching
-# `## vX.Y.Z` heading in CHANGELOG.md. This script enforces that
+# `## vX.Y.Z` heading in changelog.md. This script enforces that
 # invariant in CI so the drift cannot land on main.
 #
 # Exit codes:
-#   0 — version present in CHANGELOG.md
+#   0 — version present in changelog.md
 #   1 — version missing or constants.go unreadable
 #   2 — bad invocation
 
@@ -25,7 +25,7 @@ if [[ ! -f "$CONSTANTS_FILE" ]]; then
   exit 1
 fi
 if [[ ! -f "$CHANGELOG_FILE" ]]; then
-  echo "✗ CHANGELOG.md not found at $CHANGELOG_FILE" >&2
+  echo "✗ changelog.md not found at $CHANGELOG_FILE" >&2
   exit 1
 fi
 
@@ -50,12 +50,12 @@ HEADING_RE="^##[[:space:]]+\[?v${VERSION//./\\.}\]?([[:space:]]|$)"
 if ! grep -Eq "$HEADING_RE" "$CHANGELOG_FILE"; then
   echo "" >&2
   echo "✗ CHANGELOG drift: constants.Version is $VERSION but no matching" >&2
-  echo "  '## v$VERSION' heading exists in CHANGELOG.md." >&2
+  echo "  '## v$VERSION' heading exists in changelog.md." >&2
   echo "" >&2
   echo "  Fix: add a '## v$VERSION' section to $CHANGELOG_FILE describing" >&2
   echo "  the release, then re-run this check." >&2
   exit 1
 fi
 
-echo "✓ CHANGELOG.md has entry for v$VERSION"
+echo "✓ changelog.md has entry for v$VERSION"
 

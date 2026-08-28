@@ -61,4 +61,4 @@ Error: [message] at [path]: [error] (operation: [op], reason: [reason])
 - `.golangci.yml` — gosec exclusion rules with inline comments
 - `spec/05-coding-guidelines/08-security-secrets.md` — Security & Secrets
 - `spec/02-app-issues/27-error-management-file-path-and-missing-file-code-red-rule.md` — Code Red Rule
-- CHANGELOG.md v2.54.1, v2.54.2, v2.54.3
+- changelog.md v2.54.1, v2.54.2, v2.54.3

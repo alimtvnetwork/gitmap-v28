@@ -45,4 +45,4 @@ $_.Name -match "^gitmap-v[\d.]+-windows-(amd64|arm64)\.exe$"
 
 - `gitmap-v28/scripts/install.ps1` — One-liner installer
 - `spec/02-app-issues/13-release-pipeline-dist-directory.md` — CI pipeline issues
-- CHANGELOG.md v2.55.0 — Installer Fix
+- changelog.md v2.55.0 — Installer Fix

@@ -8685,7 +8685,7 @@
 .\scripts\changelog\internal\runner\execute.go|17|monolithic function|length 25
 .\scripts\changelog\internal\runner\execute.go|71|monolithic function|length 17
 .\scripts\changelog\internal\runner\execute_test.go|18|monolithic function|length 39
-.\scripts\changelog\internal\writer\writer.go|24|return without blank line|return fmt.Errorf("CHANGELOG.md: %w", err)
+.\scripts\changelog\internal\writer\writer.go|24|return without blank line|return fmt.Errorf("changelog.md: %w", err)
 .\scripts\changelog\internal\writer\writer.go|29|return without blank line|return fmt.Errorf("src/data/changelog.ts: %w", err)
 .\scripts\changelog\internal\writer\writer.go|38|return without blank line|return err
 .\scripts\changelog\internal\writer\writer.go|50|return without blank line|return err

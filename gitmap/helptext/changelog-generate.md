@@ -16,7 +16,7 @@ cg
 |------|---------|-------------|
 | --from | second-latest tag | Start tag (older boundary) |
 | --to | latest tag | End tag or HEAD |
-| --write | false | Prepend output to CHANGELOG.md |
+| --write | false | Prepend output to changelog.md |
 
 ## Prerequisites
 
@@ -56,7 +56,7 @@ cg
     - Add TUI log viewer with detail panel
     - Fix zip-group archive naming
 
-### Example 3: Write directly to CHANGELOG.md
+### Example 3: Write directly to changelog.md
 
     gitmap cg --from v2.23.0 --to v2.24.0 --write
 
@@ -64,7 +64,7 @@ cg
 
     Changelog: v2.23.0 → v2.24.0
 
-    ✓ Prepended changelog to CHANGELOG.md
+    ✓ Prepended changelog to changelog.md
 
 ## See Also
 

@@ -49,7 +49,7 @@ When v4.0.0 is cut:
 
 1. **Delete `gitmap/store/migrate_v15phase5.go`** entirely. The v3.x line will have run the migration on every active install for >12 months by then; any database still on the v3.4.x shape is by definition abandoned. If a holdout user surfaces, the v3.12.x binary remains downloadable from the GitHub release page and acts as a one-shot upgrade tool (`gitmap` v3.12.x → run once → upgrade to v4.0.x).
 2. **Delete the JSON legacy-overlay block** in `gitmap/release/metadata.go::ReadReleaseMeta` (lines 153-167 plus the accompanying comment). The function reduces to a single `json.Unmarshal` + return.
-3. **Add a v4.0 migration note** to `CHANGELOG.md` under "Removed": *"Pre-v15 SQLite `Release.Draft` / `Release.PreRelease` column rename and JSON `draft` / `preRelease` key compat overlay. Users on v3.4.x or earlier must run any v3.5.0+ binary once before upgrading to v4.0."*
+3. **Add a v4.0 migration note** to `changelog.md` under "Removed": *"Pre-v15 SQLite `Release.Draft` / `Release.PreRelease` column rename and JSON `draft` / `preRelease` key compat overlay. Users on v3.4.x or earlier must run any v3.5.0+ binary once before upgrading to v4.0."*
 4. **Remove `migrateV15Phase5()` from the migration chain** in `gitmap/store/migrations.go` (or wherever it's invoked).
 5. **Drop the v15 phase tests** that exercise the legacy code path, if any exist under `gitmap/store/*_test.go`.
 

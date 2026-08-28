@@ -52,7 +52,7 @@ func parseVersionTags(output string) []release.Version {
 	return versions
 }
 
-// loadChangelogMap reads CHANGELOG.md into a version→notes map.
+// loadChangelogMap reads changelog.md into a version→notes map.
 func loadChangelogMap() map[string][]string {
 	entries, err := release.ReadChangelog()
 	if err != nil {

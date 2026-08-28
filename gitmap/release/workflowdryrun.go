@@ -59,7 +59,7 @@ func printDryRunSteps(branchName, tag, sourceName string) {
 
 	body := DetectChangelog()
 	if len(body) > 0 {
-		fmt.Printf(constants.MsgReleaseDryRun, "Use CHANGELOG.md as release body")
+		fmt.Printf(constants.MsgReleaseDryRun, "Use changelog.md as release body")
 	}
 	readme := DetectReadme()
 	if len(readme) > 0 {

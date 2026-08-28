@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `changelog-generate` command auto-generates changelog entries by reading commit messages between two Git tags. It outputs Markdown-formatted changelog sections that can be previewed or written directly to `CHANGELOG.md`.
+The `changelog-generate` command auto-generates changelog entries by reading commit messages between two Git tags. It outputs Markdown-formatted changelog sections that can be previewed or written directly to `changelog.md`.
 
 ## Command
 
@@ -17,7 +17,7 @@ gitmap-v28 cg [--from <tag>] [--to <tag>] [--write]
 |------|---------|-------------|
 | `--from` | second-latest tag | Start tag (older boundary) |
 | `--to` | latest tag | End tag or HEAD |
-| `--write` | `false` | Prepend output to CHANGELOG.md instead of printing |
+| `--write` | `false` | Prepend output to changelog.md instead of printing |
 
 ## Tag Resolution
 
@@ -39,7 +39,7 @@ Uses `git log --format=%s --no-merges <from>..<to>` to collect commit subjects:
 
 ## Output Format
 
-The generated section follows standard CHANGELOG.md format:
+The generated section follows standard changelog.md format:
 
 ```markdown
 ## v2.24.0
@@ -51,7 +51,7 @@ The generated section follows standard CHANGELOG.md format:
 
 ## Write Mode
 
-With `--write`, the generated section is prepended to `CHANGELOG.md`:
+With `--write`, the generated section is prepended to `changelog.md`:
 
 1. Read existing file content (or start fresh if missing)
 2. Prepend the new section with a blank line separator

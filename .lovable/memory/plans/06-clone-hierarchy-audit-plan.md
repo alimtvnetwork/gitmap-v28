@@ -96,7 +96,7 @@ End-to-end tree assertion using a stub `git` binary on `$PATH` that just
 
 - Update `gitmap/helptext/clone.md` with the hierarchy guarantee, the
   normalisation rules, and the new `--dry-run` flag.
-- Append a changelog entry in both `CHANGELOG.md` and
+- Append a changelog entry in both `changelog.md` and
   `src/data/changelog.ts` (Plan-06-Clone-Hierarchy-Hardening).
 - Update spec `05-cloner.md` "Behavior → File-based clone" with explicit
   reference to spec 110.

@@ -142,12 +142,12 @@ const ZipGroupPage = () => (
     <h2 className="text-xl font-heading font-semibold mt-10 mb-3">Subcommands</h2>
     <CodeBlock code={`gitmap z create "chrome extension" chrome-extension/dist`} title="Create group with path (one step)" />
     <CodeBlock code="gitmap z create docs-bundle" title="Create empty group" />
-    <CodeBlock code="gitmap z add docs-bundle ./README.md ./CHANGELOG.md ./docs/" title="Add items to a group" />
+    <CodeBlock code="gitmap z add docs-bundle ./README.md ./changelog.md ./docs/" title="Add items to a group" />
     <CodeBlock code="gitmap z create extras --archive extra-files.zip" title="Create with custom archive name" />
     <CodeBlock code={`gitmap z show "chrome extension"`} title="Show group contents (folders expanded)" />
     <CodeBlock code="gitmap z list" title="List all zip groups" />
     <CodeBlock code="gitmap z rename docs-bundle --archive release-docs.zip" title="Set custom archive name" />
-    <CodeBlock code="gitmap z remove docs-bundle ./CHANGELOG.md" title="Remove an item from a group" />
+    <CodeBlock code="gitmap z remove docs-bundle ./changelog.md" title="Remove an item from a group" />
     <CodeBlock code="gitmap z delete extras" title="Delete a zip group" />
 
     <h2 className="text-xl font-heading font-semibold mt-10 mb-3">Release Integration</h2>

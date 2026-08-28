@@ -12,7 +12,7 @@ import (
 
 func TestPrependBothInsertsAtTopWithoutLosingExisting(t *testing.T) {
 	dir := t.TempDir()
-	mdPath := filepath.Join(dir, "CHANGELOG.md")
+	mdPath := filepath.Join(dir, "changelog.md")
 	tsPath := filepath.Join(dir, "changelog.ts")
 
 	mdSeed := "# Changelog\n\n## v3.91.0 — (2026-04-24)\n\n### Added\n\n- existing\n\n"

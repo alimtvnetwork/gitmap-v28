@@ -132,7 +132,7 @@ $ <tool> release --bump minor
   Creating release v1.4.0...
 
   [1/5] Bumping version: 1.3.0 -> 1.4.0
-  [2/5] Updating CHANGELOG.md
+  [2/5] Updating changelog.md
   [3/5] Committing changes
   [4/5] Creating branch: release/v1.4.0
   [5/5] Pushing to origin

@@ -81,7 +81,7 @@ When cutting a new release tag:
 
 1. **Bump version** in `gitmap-v28/version.json` and
    `src/constants/index.ts`.
-2. **Update `CHANGELOG.md`** and `src/data/changelog.ts`.
+2. **Update `changelog.md`** and `src/data/changelog.ts`.
 3. **Update this spec** if either the snippet template or the installer
    contract changes. If only the rendered output changes (new flags,
    new repo URL), update §2.1/§2.2.

@@ -18,14 +18,14 @@ Captured inputs:
 2. Update every URL consumer (formatter, clone scripts, probe, pull, terminal report) to honor identified transport. See ./subtasks/02-ssh-aware-clone/02-consumers-honor-transport.md
 3. Update terminal scan report to show `transport:`, `https:`, `ssh:`, and `command:` (identified transport) per repo; refresh affected golden fixtures.
 4. Finish docs/UI delivery for `make-all-public` / `make-all-private` (routes, sidebar, search, dedicated pages) and add a "Transport awareness" note to the scan docs page. See ./subtasks/02-ssh-aware-clone/03-docs-and-ui.md
-5. Bump minor: `gitmap/constants/constants.go` Version → 6.19.0, `src/constants/index.ts` VERSION → "v6.19.0", add `## v6.19.0` entry to `CHANGELOG.md`, pin `v6.19.0` in `README.md`. Do NOT touch `.gitmap/release/`.
+5. Bump minor: `gitmap/constants/constants.go` Version → 6.19.0, `src/constants/index.ts` VERSION → "v6.19.0", add `## v6.19.0` entry to `changelog.md`, pin `v6.19.0` in `README.md`. Do NOT touch `.gitmap/release/`.
 
 ## Verification
 - `gitmap scan` on a repo with SSH origin shows SSH `command:` line and SSH-form `clone.ps1`/probe — no browser auth prompt.
 - SQLite `Repos` row for that repo has BOTH `HTTPSUrl` and `SSHUrl` populated and `IdentifiedTransport='ssh'`.
 - `go test ./...` green (including refreshed goldens + version-sync test).
 - Docs preview: `/docs/make-all-public` and `/docs/make-all-private` render; both appear in sidebar + search.
-- `README.md` shows v6.19.0; `CHANGELOG.md` has the new entry.
+- `README.md` shows v6.19.0; `changelog.md` has the new entry.
 
 ## Appended from prior pending tasks
 - `01-bulk-visibility-mapub-mapri.md` — UI/data wiring for the bulk visibility commands is absorbed into step 4 of this plan.

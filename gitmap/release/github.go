@@ -73,7 +73,7 @@ func collectDirFiles(dir string) []string {
 	return files
 }
 
-// DetectChangelog returns the content of CHANGELOG.md if it exists.
+// DetectChangelog returns the content of changelog.md if it exists.
 func DetectChangelog() string {
 	data, err := os.ReadFile(constants.ChangelogFile)
 	if err != nil {

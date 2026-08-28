@@ -9,7 +9,7 @@ The CI release pipeline (`.github/workflows/release.yml`) automates the producti
 3. **Compress** — Windows binaries → `.zip`; Linux/macOS → `.tar.gz`.
 4. **Generate checksums** — SHA256 for all dist files → `checksums.txt`.
 5. **Generate install scripts** — version-pinned `install.ps1` (Windows) and `install.sh` (Linux/macOS) are created with placeholder substitution and attached as release assets.
-6. **Extract changelog** — matching section from `CHANGELOG.md`.
+6. **Extract changelog** — matching section from `changelog.md`.
 7. **Build release body** — changelog, metadata table, checksums, install instructions (PowerShell + Bash one-liners), and asset matrix.
 8. **Create GitHub Release** — `softprops/action-gh-release@v2`; pre-release when version contains `-`; `make_latest` for stable releases.
 

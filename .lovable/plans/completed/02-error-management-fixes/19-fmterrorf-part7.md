@@ -46,6 +46,6 @@ Total items: 45
 - `.\scripts\changelog\internal\runner\args.go:62`: `return Args{}, fmt.Errorf("invalid -mode %q (want write or check)", *mode)`
 - `.\scripts\changelog\internal\runner\execute.go:20`: `return 0, fmt.Errorf("collecting commits: %w", err)`
 - `.\scripts\changelog\internal\runner\execute.go:86`: `return 0, fmt.Errorf("unhandled mode %q", mode)`
-- `.\scripts\changelog\internal\writer\writer.go:24`: `return fmt.Errorf("CHANGELOG.md: %w", err)`
+- `.\scripts\changelog\internal\writer\writer.go:24`: `return fmt.Errorf("changelog.md: %w", err)`
 - `.\scripts\changelog\internal\writer\writer.go:29`: `return fmt.Errorf("src/data/changelog.ts: %w", err)`
 - `.\scripts\changelog\internal\writer\writer.go:55`: `return fmt.Errorf("marker %q not found", marker)`
