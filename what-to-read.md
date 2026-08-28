@@ -2951,3 +2951,5 @@ To install or update the Coding Guidelines locally:
 Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 
 - .lovable/memory/release-architecture-map.md
+
+- [.lovable/plans/pending/01-file-manipulation-spec.md](.lovable/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
