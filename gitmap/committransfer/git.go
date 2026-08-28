@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -17,7 +19,7 @@ func gitOut(dir string, args ...string) (string, error) {
 	out, err := exec.Command(constants.GitBin, full...).CombinedOutput()
 	trimmed := strings.TrimSpace(string(out))
 	if err != nil {
-		return trimmed, fmt.Errorf("git %s: %w (%s)", strings.Join(args, " "), err, trimmed)
+		return trimmed, apperror.Wrap(err, "git "+strings.Join(args, " "), map[string]any{"output": trimmed})
 	}
 
 	return trimmed, nil
@@ -82,7 +84,7 @@ func readCommit(dir, sha string) (subject, body, author, shortSHA string, when t
 	}
 	parts := strings.SplitN(out, "\x1f", 5)
 	if len(parts) != 5 {
-		err = fmt.Errorf("unexpected git show output for %s: %q", sha, out)
+		err = apperror.Wrap(fmt.Errorf("unexpected output: %q", out), "git show", map[string]any{"sha": sha})
 
 		return
 	}
@@ -118,7 +120,7 @@ func commitWithEnv(dir, msg, author string, when time.Time) (string, error) {
 		"--allow-empty-message", "-m", msg)
 	cmd.Env = appendCommitEnv(author, when)
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return "", fmt.Errorf("git commit: %w (%s)", err, strings.TrimSpace(string(out)))
+		return "", apperror.Wrap(err, "git commit", map[string]any{"output": strings.TrimSpace(string(out))})
 	}
 
 	return gitOut(dir, "rev-parse", "HEAD")

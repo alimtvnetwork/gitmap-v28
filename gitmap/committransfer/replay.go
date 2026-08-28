@@ -2,11 +2,13 @@ package committransfer
 
 import (
 	"fmt"
-	"github.com/pterm/pterm"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/pterm/pterm"
 )
 
 // Replay walks plan.Commits in order and applies each one to the
@@ -33,8 +35,8 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 		}
 		newSHA, emptyAfterSnapshot, err := replayOne(plan, commit, opts)
 		if err != nil {
-			return res, fmt.Errorf("commit %d/%d (%s): %w",
-				i+1, len(plan.Commits), commit.ShortSHA, err)
+			return res, apperror.Wrap(err, fmt.Sprintf("commit %d/%d (%s)",
+				i+1, len(plan.Commits), commit.ShortSHA), nil)
 		}
 		if newSHA == "" && emptyAfterSnapshot {
 			res.SkippedEmpty++
@@ -49,9 +51,9 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 		}
 		res.Replayed++
 		res.NewSHAs = append(res.NewSHAs, newSHA)
-		
+
 		if err := ProcessPR(plan.TargetDir, commit.Subject, commit.Cleaned, commit.ShortSHA, opts.PRMode, newSHA); err != nil {
-			return res, fmt.Errorf("PR processing failed for %s: %w", commit.ShortSHA, err)
+			return res, apperror.Wrap(err, "PR processing failed", map[string]any{"sha": commit.ShortSHA})
 		}
 	}
 
@@ -66,16 +68,16 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 // 212→150 commit-count mismatch (issue 2026-05-09).
 func replayOne(plan ReplayPlan, commit SourceCommit, opts Options) (string, bool, error) {
 	if err := checkoutDetached(plan.SourceDir, commit.SHA); err != nil {
-		return "", false, fmt.Errorf("checkout source %s: %w", commit.ShortSHA, err)
+		return "", false, apperror.Wrap(err, "checkout source", map[string]any{"sha": commit.ShortSHA})
 	}
 	if err := snapshotCopy(plan.SourceDir, plan.TargetDir, opts); err != nil {
-		return "", false, fmt.Errorf("snapshot copy: %w", err)
+		return "", false, apperror.Wrap(err, "snapshot copy", nil)
 	}
 	if opts.NoCommit {
 		return "", false, nil
 	}
 	if err := addAll(plan.TargetDir); err != nil {
-		return "", false, fmt.Errorf("git add -A target: %w", err)
+		return "", false, apperror.Wrap(err, "git add target", nil)
 	}
 	if !hasStagedChanges(plan.TargetDir) {
 		return "", true, nil
