@@ -48,7 +48,7 @@ readme_path = "readme.md"
 with open(readme_path, "r", encoding="utf-8") as f:
     content = f.read()
 
-content = re.sub(r'v\d+\.\d+\.\d+', f'v{new_version}', content)
+content = re.sub(r'Pinned version: v\d+\.\d+\.\d+', f'Pinned version: v{new_version}', content)
 
 with open(readme_path, "w", encoding="utf-8") as f:
     f.write(content)
