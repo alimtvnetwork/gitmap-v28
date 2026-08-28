@@ -2953,3 +2953,5 @@ Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 - .lovable/memory/release-architecture-map.md
 
 - [.lovable/plans/pending/01-file-manipulation-spec.md](.lovable/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
+
+- [.lovable/plans/pending/02-python-file-manipulation-spec.md](.lovable/plans/pending/02-python-file-manipulation-spec.md) - AI Instruction spec for generating the Python file manipulation script.
