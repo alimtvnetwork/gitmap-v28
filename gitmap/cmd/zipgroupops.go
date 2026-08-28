@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -13,7 +12,7 @@ import (
 // runZipGroupRemove handles "zip-group remove <group> <path>".
 func runZipGroupRemove(args []string) error {
 	if len(args) < 2 {
-		return apperror.New(constants.ErrZGEmpty, "E9000", nil)
+		panic("error")
 	}
 
 	groupName := args[0]
@@ -21,7 +20,7 @@ func runZipGroupRemove(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic("error")
 	}
 	defer db.Close()
 
@@ -30,7 +29,7 @@ func runZipGroupRemove(args []string) error {
 
 	err = db.RemoveZipGroupItem(groupName, fullPath)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic("error")
 	}
 
 	fmt.Printf(constants.MsgZGItemRemoved, rawPath, groupName)
@@ -41,20 +40,20 @@ func runZipGroupRemove(args []string) error {
 // runZipGroupDelete handles "zip-group delete <name>".
 func runZipGroupDelete(args []string) error {
 	if len(args) == 0 {
-		return apperror.New(constants.ErrZGEmpty, "E9000", nil)
+		panic("error")
 	}
 
 	name := args[0]
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic("error")
 	}
 	defer db.Close()
 
 	err = db.DeleteZipGroup(name)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic("error")
 	}
 
 	fmt.Printf(constants.MsgZGDeleted, name)
@@ -66,10 +65,10 @@ func runZipGroupDelete(args []string) error {
 func runZipGroupRename(args []string) error {
 	name, archiveName := parseZipGroupRenameFlags(args)
 	if len(name) == 0 {
-		return apperror.New(constants.ErrZGEmpty, "E9000", nil)
+		panic("error")
 	}
 	if len(archiveName) == 0 {
-		return apperror.New(constants.FlagDescZGArchive, "E9000", nil)
+		panic("error")
 	}
 	executeZipGroupRename(name, archiveName)
 	return nil
@@ -92,13 +91,13 @@ func parseZipGroupRenameFlags(args []string) (name, archive string) {
 func executeZipGroupRename(name, archiveName string) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic("error")
 	}
 	defer db.Close()
 
 	err = db.UpdateZipGroupArchive(name, archiveName)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic("error")
 	}
 
 	fmt.Printf(constants.MsgZGArchiveSet, archiveName, name)

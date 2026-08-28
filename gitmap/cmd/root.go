@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/glyphs"
@@ -22,7 +21,7 @@ func Run() {
 	if len(os.Args) < 2 {
 		PrintBinaryLocations()
 		printUsage()
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 
 	// Strip the global `--theme` palette selector first so it is
@@ -58,7 +57,7 @@ func Run() {
 	if len(os.Args) < 2 {
 		PrintBinaryLocations()
 		printUsage()
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 
 	// Skip migration for commands that must produce clean stdout
@@ -116,7 +115,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -124,7 +123,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -132,7 +131,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -140,7 +139,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -148,7 +147,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -156,7 +155,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -164,7 +163,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -172,7 +171,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -180,7 +179,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -188,7 +187,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -196,7 +195,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -204,7 +203,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -212,7 +211,7 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
@@ -220,14 +219,14 @@ func dispatch(command string) {
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		if err != nil {
 			cliexit.Reportf(command, "execute", "", err)
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		return
 	}
 
 	if command == "ip" || command == "ip-change" {
 		if err := dispatchIP(context.Background(), os.Args[1:], nil); err != nil {
-			return apperror.Wrap(err, "Error:", nil)
+			panic(err)
 		}
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		return
@@ -235,7 +234,7 @@ func dispatch(command string) {
 
 	if command == "agy" || command == "ag" || command == "antigravity" {
 		if err := dispatchAgy(context.Background(), os.Args[1:], nil); err != nil {
-			return apperror.Wrap(err, "Error:", nil)
+			panic(err)
 		}
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		return
@@ -243,7 +242,7 @@ func dispatch(command string) {
 
 	if command == "sj" || command == "ssh-join" || command == "ssh-joined" || command == "ssh-joiner" {
 		if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
-			return apperror.Wrap(err, "Error:", nil)
+			panic(err)
 		}
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		return
@@ -255,7 +254,7 @@ func dispatch(command string) {
 		fmt.Fprintf(os.Stderr, constants.ErrUnknownCommand, command)
 	}
 	printUsage()
-	return apperror.New("fatal error", "E9000", nil)
+	panic("fatal error")
 }
 
 // shouldRewriteToClone returns true when the args (excluding argv[0])
@@ -355,7 +354,7 @@ func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error
 
 func runSJ(args []string) error {
 	if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
-		return apperror.Wrap(err, "Error:", nil)
+		panic(err)
 	}
 	return nil
 }

@@ -41,7 +41,7 @@ func parseDPFlags(args []string) (string, string, bool, bool) {
 
 	if fs.NArg() < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrDPUsage)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("not enough return values")
 	}
 
 	return fs.Arg(0), fs.Arg(1), *allFlag, *jsonFlag
@@ -53,7 +53,8 @@ func validateDPProfiles(nameA, nameB string) {
 
 	for _, name := range []string{nameA, nameB} {
 		if !profileExists(cfg.Profiles, name) {
-			return apperror.New(constants.ErrDPProfileMissing, "E9000", nil)
+			apperror.New(constants.ErrDPProfileMissing, "E9000", nil)
+			return
 		}
 	}
 }
@@ -62,7 +63,8 @@ func validateDPProfiles(nameA, nameB string) {
 func loadProfileRepos(name string) []model.ScanRecord {
 	db, err := store.OpenDefaultProfile(name)
 	if err != nil {
-		return apperror.New(constants.ErrDPOpenFailed, "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrDPOpenFailed, "E9000", nil).Error())
+		os.Exit(1)
 	}
 	defer db.Close()
 
@@ -72,7 +74,8 @@ func loadProfileRepos(name string) []model.ScanRecord {
 
 	repos, err := db.ListRepos()
 	if err != nil {
-		return apperror.New(constants.ErrDPOpenFailed, "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrDPOpenFailed, "E9000", nil).Error())
+		os.Exit(1)
 	}
 
 	return repos

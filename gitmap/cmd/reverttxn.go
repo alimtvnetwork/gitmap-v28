@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -94,7 +93,7 @@ func runListTxn() error {
 	defer db.Close()
 	rows, err := db.ListTransactions(constants.TxnRetentionCap)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrTxnDBWrite, nil)
+		panic(err)
 	}
 	printTxnRows(rows)
 	return nil
@@ -122,11 +121,11 @@ func runShowTxn(raw string) error {
 	defer db.Close()
 	rec, err := db.FindTransactionByID(id)
 	if err != nil {
-		return apperror.New(constants.ErrTxnRowNotFound, "E9000", nil)
+		panic(constants.ErrTxnRowNotFound)
 	}
 	files, err := db.ListTransactionFiles(id)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrTxnDBWrite, nil)
+		panic(err)
 	}
 	printTxnDetail(rec, files)
 	return nil
@@ -155,7 +154,7 @@ func runRevertLastTxn(force bool) error {
 	id, err := db.LastCommittedTransactionID()
 	db.Close()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrTxnDBWrite, nil)
+		panic(err)
 	}
 	if id == 0 {
 		fmt.Print(constants.MsgTxnNoCommitted)
@@ -172,7 +171,7 @@ func revertOne(id int64, force bool) {
 	defer db.Close()
 	rec, err := db.FindTransactionByID(id)
 	if err != nil {
-		return apperror.New(constants.ErrTxnRowNotFound, "E9000", nil)
+		panic(constants.ErrTxnRowNotFound)
 	}
 	files, _ := db.ListTransactionFiles(id)
 	if !force && !confirmRevert(rec, len(files)) {
@@ -187,7 +186,7 @@ func revertOne(id int64, force bool) {
 func applyRevertOrExit(db *store.DB, id int64, rec model.TransactionRecord, force bool) {
 	if err := txn.Revert(db, id, txn.RevertOptions{Force: force}); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 	fmt.Printf(constants.MsgTxnReverted, id, rec.Kind)
 }
@@ -210,7 +209,7 @@ func runPruneTxn() error {
 	defer db.Close()
 	dropped, err := db.PruneOldestTransactions(constants.TxnRetentionCap)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrTxnDBWrite, nil)
+		panic(err)
 	}
 	fmt.Printf(constants.MsgTxnPruned, len(dropped))
 	return nil
@@ -220,7 +219,7 @@ func runPruneTxn() error {
 func mustOpenForTxn() *store.DB {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrTxnDBOpen, nil)
+		panic(err)
 	}
 
 	return db

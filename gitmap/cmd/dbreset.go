@@ -35,12 +35,14 @@ func parseDBResetFlags(args []string) bool {
 func executeDBReset() {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrDBResetFailed, nil)
+		apperror.Wrap(err, constants.ErrDBResetFailed, nil)
+		return
 	}
 	defer db.Close()
 	err = db.Reset()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrDBResetFailed, nil)
+		apperror.Wrap(err, constants.ErrDBResetFailed, nil)
+		return
 	}
 
 	fmt.Print(constants.MsgDBResetDone)

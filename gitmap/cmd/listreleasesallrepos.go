@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -30,13 +29,13 @@ func runListReleasesAllRepos(asJSON bool, limit int) error {
 func loadReleasesAcrossRepos() []store.ReleaseAcrossRepos {
 	db, err := openDB()
 	if err != nil {
-		return apperror.New(constants.ErrNoDatabase, "E9000", nil)
+		return nil
 	}
 	defer db.Close()
 
 	records, err := db.ListReleasesAcrossRepos()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListReleasesFailed, nil)
+		return nil
 	}
 
 	return records

@@ -5,7 +5,6 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -79,7 +78,7 @@ func resolveExtCase(raw string) bool {
 	case constants.ReplaceExtCaseSensitive:
 		return false
 	default:
-		return apperror.Wrap(constants.ReplaceExtCaseSensitive, "constants.ErrReplaceBadExtCase", nil)
+		panic(constants.ReplaceExtCaseSensitive)
 		return true
 	}
 }

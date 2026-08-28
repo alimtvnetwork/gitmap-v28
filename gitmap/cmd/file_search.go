@@ -15,7 +15,7 @@ import (
 
 func runFileSearch(args []string) error {
 	if len(args) < 2 {
-		return apperror.New("Usage: gitmap file-search <file> <regex> [contextBefore] [contextAfter]", "E9000", nil)
+		return apperror.New("Usage: gitmap file-search <file> <regex> [contextBefore] [contextAfter]\n\nAlternative LLM Examples:\n  Get-ChildItem -Path . -Recurse -File | Select-String \"type SearchResult struct\"\n  Get-ChildItem -Path cmd -Filter *.go | Select-String \"func dispatch[A-Z]\"\n  cat cmd/root.go | Select-String \"func finishCommandAudit\" -Context 0,10", "E9000", nil)
 	}
 
 	filePath := args[0]

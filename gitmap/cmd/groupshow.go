@@ -23,17 +23,20 @@ func runGroupShow(args []string) error {
 func executeGroupShow(name string) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return
 	}
 	defer db.Close()
 
 	repos, err := db.ShowGroup(name)
 	if err != nil && isLegacyDataError(err) == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		return apperror.New("fatal error", "E9000", nil)
+		apperror.New("fatal error", "E9000", nil)
+		return
 	}
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		apperror.Wrap(err, constants.ErrBareFmt, nil)
+		return
 	}
 	printGroupShowOutput(name, repos)
 }

@@ -1,0 +1,14 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\list.go:42:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\list.go:54:10: cannot use apperror.New("fatal error", "E9000", nil) (value of type *apperror.AppError) as []model.ScanRecord value in return statement
+cmd\list.go:57:10: cannot use apperror.Wrap(err, constants.ErrListDBFailed, nil) (value of type *apperror.AppError) as []model.ScanRecord value in return statement
+cmd\listreleasesallrepos.go:33:10: cannot use apperror.New(constants.ErrNoDatabase, "E9000", nil) (value of type *apperror.AppError) as []store.ReleaseAcrossRepos value in return statement
+cmd\listreleasesallrepos.go:39:10: cannot use apperror.Wrap(err, constants.ErrListReleasesFailed, nil) (value of type *apperror.AppError) as []store.ReleaseAcrossRepos value in return statement
+cmd\listreleasesload.go:86:10: cannot use apperror.New(constants.ErrNoDatabase, "E9000", nil) (value of type *apperror.AppError) as []model.ReleaseRecord value in return statement
+cmd\listreleasesload.go:93:10: cannot use apperror.New("fatal error", "E9000", nil) (value of type *apperror.AppError) as []model.ReleaseRecord value in return statement
+cmd\listreleasesload.go:96:10: cannot use apperror.Wrap(err, constants.ErrListReleasesFailed, nil) (value of type *apperror.AppError) as []model.ReleaseRecord value in return statement
+cmd\listversionsutil.go:21:10: cannot use apperror.New(constants.ErrListVersionsNoTags, "E9000", nil) (value of type *apperror.AppError) as []release.Version value in return statement
+cmd\listversionsutil.go:26:10: cannot use apperror.New(constants.ErrListVersionsNoTags, "E9000", nil) (value of type *apperror.AppError) as []release.Version value in return statement
+cmd\listversionsutil.go:26:10: too many errors

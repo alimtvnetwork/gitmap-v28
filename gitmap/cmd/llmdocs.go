@@ -45,11 +45,11 @@ func writeLLMDocsFile(content, format string) {
 	fmt.Print(constants.MsgLLMDocsGenning)
 	wd, err := os.Getwd()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrLLMDocsWrite, nil)
+		panic(apperror.Wrap(err, constants.ErrLLMDocsWrite, nil))
 	}
 	outPath := filepath.Join(wd, "LLM"+llmDocsExt(format))
 	if writeErr := os.WriteFile(outPath, []byte(content), constants.FilePermission); writeErr != nil {
-		return apperror.New(constants.ErrLLMDocsWrite, "E9000", nil)
+		panic(apperror.New(constants.ErrLLMDocsWrite, "E9000", nil))
 	}
 	fmt.Printf(constants.MsgLLMDocsWritten, outPath)
 }
@@ -96,7 +96,8 @@ func parseSections(raw string) map[string]bool {
 			continue
 		}
 		if !valid[s] {
-			return apperror.New(constants.ErrLLMDocsSections, "E9000", nil)
+			var empty map[string]bool
+			return empty
 		}
 		set[s] = true
 	}

@@ -1,0 +1,25 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\reinstall.go:59:11: not enough return values
+	have (*apperror.AppError)
+	want (string, bool)
+cmd\reinstall.go:70:10: not enough return values
+	have (*apperror.AppError)
+	want (string, bool)
+cmd\releasealias.go:63:6: empty redeclared in this block
+	cmd\releasealias.go:61:6: other declaration of empty
+cmd\releasepull.go:207:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\releasepull.go:210:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\releaserebase.go:155:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\releaseself.go:46:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\releaseself.go:46:29: undefined: constants
+cmd\replaceflags.go:82:10: cannot use apperror.Wrap(constants.ReplaceExtCaseSensitive, "constants.ErrReplaceBadExtCase", nil) (value of type *apperror.AppError) as bool value in return statement
+cmd\replaceflags.go:82:24: cannot use constants.ReplaceExtCaseSensitive (constant "sensitive" of type string) as error value in argument to apperror.Wrap: string does not implement error (missing method Error)
+cmd\replaceflags.go:82:10: too many errors

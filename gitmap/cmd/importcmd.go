@@ -44,14 +44,16 @@ func parseImportFlags(args []string) (string, bool) {
 func readImportFile(path string) model.DatabaseExport {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return apperror.Wrap(err, constants.MsgImportReadFailed, nil)
+		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.MsgImportReadFailed, nil).Error())
+		os.Exit(1)
 	}
 
 	var data model.DatabaseExport
 
 	err = json.Unmarshal(raw, &data)
 	if err != nil {
-		return apperror.Wrap(err, constants.MsgImportParseFailed, nil)
+		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.MsgImportParseFailed, nil).Error())
+		os.Exit(1)
 	}
 
 	return data
@@ -61,13 +63,14 @@ func readImportFile(path string) model.DatabaseExport {
 func executeImport(data model.DatabaseExport) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.MsgImportFailed, nil)
+		apperror.Wrap(err, constants.MsgImportFailed, nil)
+		return
 	}
 	defer db.Close()
 
 	err = db.ImportAll(data)
 	if err != nil {
-		return apperror.Wrap(err, constants.MsgImportFailed, nil)
+		panic(err)
 	}
 }
 

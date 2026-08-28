@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -20,7 +19,7 @@ func runTempReleaseCreate(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		panic("error")
 	}
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
@@ -43,7 +42,7 @@ func runTempReleaseCreate(args []string) error {
 func executeTRCreate(db *store.DB, count int, prefix string, digitCount, start int, dryRun bool) {
 	commits, err := release.ListRecentCommits(count)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic("error")
 	}
 
 	if len(commits) < count {
@@ -66,7 +65,7 @@ func executeTRCreate(db *store.DB, count int, prefix string, digitCount, start i
 func parseVersionPattern(pattern string) (string, int) {
 	idx := strings.Index(pattern, "$")
 	if idx < 0 {
-		return apperror.New(constants.ErrTRNoPlaceholder, "E9000", nil)
+		panic("error")
 	}
 
 	prefix := pattern[:idx]
@@ -95,7 +94,7 @@ func validateSequenceRange(start, count, digits int) {
 	endSeq := start + count - 1
 
 	if endSeq > maxVal {
-		return apperror.Wrap(endSeq, "constants.ErrTROverflow+", nil)
+		panic("error")
 	}
 }
 

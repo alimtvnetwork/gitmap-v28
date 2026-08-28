@@ -63,7 +63,8 @@ func applyBareReleaseAutoBump(version, bump, commit, branch string, yes bool) st
 	}
 	if !confirmAutoBump(current, next, yes) {
 		fmt.Fprint(os.Stderr, constants.MsgReleaseAutoBumpAborted)
-		return apperror.New("fatal error", "E9000", nil)
+		var empty string
+		return empty
 	}
 	return constants.BumpMinor
 }
@@ -92,7 +93,7 @@ func executeRelease(version, assets, commit, branch, bump, notes, targets string
 	cfg := loadReleaseConfig()
 	opts := buildReleaseOptions(version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes, cfg)
 	if err := release.Execute(opts); err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic(apperror.Wrap(err, constants.ErrBareFmt, nil))
 	}
 	persistReleaseToDB()
 }
@@ -101,11 +102,11 @@ func executeRelease(version, assets, commit, branch, bump, notes, targets string
 func validateReleaseFlags(version, bump, commit, branch string) {
 	if len(bump) > 0 && len(version) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrReleaseBumpConflict)
-		return apperror.New("fatal error", "E9000", nil)
+		panic(apperror.New("fatal error", "E9000", nil))
 	}
 	if len(commit) > 0 && len(branch) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrReleaseCommitBranch)
-		return apperror.New("fatal error", "E9000", nil)
+		panic(apperror.New("fatal error", "E9000", nil))
 	}
 }
 
@@ -206,7 +207,7 @@ func printListTargets(flagTargets string) {
 	cfg := loadReleaseConfig()
 	targets, err := release.ResolveTargets(flagTargets, cfg.Release.Targets)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		panic(apperror.Wrap(err, constants.ErrBareFmt, nil))
 	}
 	printTargetDetails(flagTargets, cfg.Release.Targets, targets)
 }

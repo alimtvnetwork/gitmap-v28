@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
@@ -88,7 +87,7 @@ func dispatchTemplates(command string) (bool, error) {
 	}
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, usageTemplatesRoot)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 
 	sub, rest := os.Args[2], os.Args[3:]
@@ -104,7 +103,7 @@ func dispatchTemplates(command string) (bool, error) {
 	default:
 		fmt.Fprintf(os.Stderr, errUnknownTemplatesSub, sub)
 		fmt.Fprint(os.Stderr, usageTemplatesRoot)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 
 	return true, nil
@@ -118,12 +117,12 @@ func runTemplatesList(args []string) error {
 	kindFilter, langFilter := parseTemplatesListFlags(args)
 	isNonValidKindFilter := !isValidKindFilter(kindFilter)
 	if isNonValidKindFilter {
-		return apperror.Wrap(kindFilter, "errTemplatesListKind", nil)
+		panic("error")
 	}
 
 	entries, err := templates.List()
 	if err != nil {
-		return apperror.Wrap(err, "errTemplatesListFail", nil)
+		panic("error")
 	}
 	if len(entries) == 0 {
 		fmt.Print(msgTemplatesEmpty)
@@ -205,12 +204,12 @@ func runTemplatesShow(args []string) error {
 	rest, mode := parseTemplatesShowFlags(args)
 	if len(rest) < 2 {
 		fmt.Fprint(os.Stderr, errTemplatesShowArgs)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("error")
 	}
 	kind, lang := rest[0], rest[1]
 	r, err := templates.Resolve(kind, lang)
 	if err != nil {
-		return apperror.Wrap(err, "errTemplatesShowFail", nil)
+		panic("error")
 	}
 
 	out := r.Content
@@ -219,7 +218,7 @@ func runTemplatesShow(args []string) error {
 	}
 
 	if _, err := os.Stdout.Write(out); err != nil {
-		return apperror.Wrap(err, "errTemplatesShowFail", nil)
+		panic("error")
 	}
 	return nil
 }

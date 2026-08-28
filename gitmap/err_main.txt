@@ -1,0 +1,26 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\dashboard.go:33:10: cannot use apperror.Wrap(err, constants.ErrDashCollect, nil) (value of type *apperror.AppError) as model.DashboardData value in return statement
+cmd\dashboard.go:47:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\dashboard.go:56:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\dbreset.go:38:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\dbreset.go:43:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\desktopsync.go:30:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\desktopsync.go:34:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\desktopsync.go:42:10: cannot use apperror.New(constants.ErrDesktopReadFailed, "E9000", nil) (value of type *apperror.AppError) as []model.ScanRecord value in return statement
+cmd\desktopsync.go:47:10: cannot use apperror.New(constants.ErrDesktopParseFailed, "E9000", nil) (value of type *apperror.AppError) as []model.ScanRecord value in return statement
+cmd\desktopsync.go:57:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\desktopsync.go:57:10: too many errors

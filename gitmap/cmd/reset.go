@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -18,7 +17,7 @@ func runReset(args []string) error {
 	checkHelp(constants.CmdReset, args)
 	confirm, rescan := parseResetFlags(args)
 	if !confirm {
-		return apperror.New(constants.ErrResetNoConfirm, "E9000", nil)
+		panic(constants.ErrResetNoConfirm)
 	}
 
 	executeReset()
@@ -43,12 +42,12 @@ func parseResetFlags(args []string) (bool, bool) {
 func executeReset() {
 	if err := removeActiveDBFile(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrResetRemoveFile, activeDBPath(), err)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrResetReinit, nil)
+		panic(err)
 	}
 	defer db.Close()
 

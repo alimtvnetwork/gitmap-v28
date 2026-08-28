@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -55,5 +54,5 @@ func dispatchZipGroup(sub string, args []string) {
 		return
 	}
 
-	return apperror.New(constants.ErrUnknownCommand, "E9000", nil)
+	panic("error")
 }

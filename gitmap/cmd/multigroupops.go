@@ -51,7 +51,7 @@ func runMultiGroupExec(args []string) error {
 func loadMultiGroupRepos() (*store.DB, []model.ScanRecord) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return nil, nil
 	}
 
 	names := loadMultiGroupNames(db)

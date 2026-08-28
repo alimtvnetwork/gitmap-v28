@@ -47,7 +47,7 @@ func validateLatestBranchRepo() {
 
 		return
 	}
-	return apperror.New(constants.ErrLatestBranchNotRepo, "E9000", nil)
+	panic(apperror.New(constants.ErrLatestBranchNotRepo, "E9000", nil))
 }
 
 // fetchLatestBranchRefs fetches remotes when shouldFetch is enabled.
@@ -71,7 +71,7 @@ func loadFilteredRefs(cfg latestBranchConfig) []string {
 	refs, err := gitutil.ListRemoteBranches()
 	if err != nil || len(refs) == 0 {
 		printNoRefsError(cfg)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal")
 	}
 	refs = applyRemoteFilter(refs, cfg)
 	refs = applyPatternFilter(refs, cfg)
@@ -97,7 +97,7 @@ func applyRemoteFilter(refs []string, cfg latestBranchConfig) []string {
 
 	filtered := gitutil.FilterByRemote(refs, cfg.remote)
 	if len(filtered) == 0 {
-		return apperror.Wrap(cfg.remote, "constants.ErrLatestBranchNoRefs", nil)
+		return nil
 	}
 
 	return filtered
@@ -111,7 +111,7 @@ func applyPatternFilter(refs []string, cfg latestBranchConfig) []string {
 
 	filtered := gitutil.FilterByPattern(refs, cfg.filter)
 	if len(filtered) == 0 {
-		return apperror.Wrap(cfg.filter, "constants.ErrLatestBranchNoMatch", nil)
+		return nil
 	}
 
 	return filtered
@@ -122,7 +122,7 @@ func readAndSortBranches(refs []string, sortBy string) []gitutil.RemoteBranchInf
 	items, err := gitutil.ReadBranchTips(refs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoCommits+"\n")
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal")
 	}
 	if sortBy == constants.SortByName {
 		gitutil.SortByNameAsc(items)

@@ -52,5 +52,5 @@ func routeProfileSub(sub string, args []string) {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
-	return apperror.New("fatal error", "E9000", nil)
+	panic(apperror.New("fatal error", "E9000", nil))
 }

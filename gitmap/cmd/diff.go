@@ -33,10 +33,10 @@ func runDiff(args []string) error {
 
 	entries, err := diff.DiffTrees(leftEP.WorkingDir, rightEP.WorkingDir, walkOpts)
 	if err != nil {
-		return apperror.Wrap(constants.LogPrefixDiff, "diff failed:", nil)
+		return apperror.New("diff failed: "+constants.LogPrefixDiff, "E9000", nil)
 	}
 	if reportErr := diff.Report(os.Stdout, entries, printOpts); reportErr != nil {
-		return apperror.Wrap(constants.LogPrefixDiff, "report failed:", nil)
+		return apperror.New("report failed: "+constants.LogPrefixDiff, "E9000", nil)
 	}
 	return nil
 }

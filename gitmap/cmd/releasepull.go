@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -56,12 +55,12 @@ func ensureYesForward(args []string) []string {
 func requireReleasePullCwd() string {
 	if !release.IsInsideGitRepo() {
 		fmt.Fprint(os.Stderr, constants.ErrRPNotInRepo)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrRPCwdFailedFmt, nil)
+		panic(err)
 	}
 
 	return cwd
@@ -204,8 +203,8 @@ func handleReleasePullFailure(dir, mode, flagArg string, err error) {
 		abort := exec.Command(constants.GitBin, constants.GitRebase, constants.GitRebaseAbortFlag)
 		abort.Dir = dir
 		_ = abort.Run()
-		return apperror.New(constants.ErrRPRebaseAbortFmt, "E9000", nil)
+		panic(constants.ErrRPRebaseAbortFmt)
 	}
 
-	return apperror.New(constants.ErrRPPullFailedFmt, "E9000", nil)
+	panic(constants.ErrRPPullFailedFmt)
 }

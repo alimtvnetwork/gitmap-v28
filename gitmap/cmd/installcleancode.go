@@ -39,7 +39,7 @@ func isCleanCodeAlias(tool string) bool {
 func runInstallCleanCode() error {
 	pwsh := resolvePowerShellBinary()
 	if pwsh == "" {
-		return apperror.Wrap(constants.DefaultCleanCodeURL, "constants.MsgCleanCodeNoPwsh", nil)
+		return apperror.New(constants.MsgCleanCodeNoPwsh, "E9000", nil)
 	}
 
 	if runtime.GOOS != "windows" {

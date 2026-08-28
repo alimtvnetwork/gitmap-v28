@@ -27,11 +27,13 @@ func runDesktopSync() error {
 func validateDesktopSyncPaths(outputDir, jsonPath string) {
 	info, err := os.Stat(outputDir)
 	if err != nil || !info.IsDir() {
-		return apperror.New(constants.MsgNoOutputDir, "E9000", nil)
+		apperror.New(constants.MsgNoOutputDir, "E9000", nil)
+		return
 	}
 	_, jsonErr := os.Stat(jsonPath)
 	if jsonErr != nil {
-		return apperror.New(constants.MsgNoJSONFile, "E9000", nil)
+		apperror.New(constants.MsgNoJSONFile, "E9000", nil)
+		return
 	}
 }
 
@@ -39,12 +41,14 @@ func validateDesktopSyncPaths(outputDir, jsonPath string) {
 func loadDesktopRecords(path string) []model.ScanRecord {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return apperror.New(constants.ErrDesktopReadFailed, "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrDesktopReadFailed, "E9000", nil).Error())
+		os.Exit(1)
 	}
 	var records []model.ScanRecord
 	err = json.Unmarshal(data, &records)
 	if err != nil {
-		return apperror.New(constants.ErrDesktopParseFailed, "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New(constants.ErrDesktopParseFailed, "E9000", nil).Error())
+		os.Exit(1)
 	}
 
 	return records
@@ -54,7 +58,8 @@ func loadDesktopRecords(path string) []model.ScanRecord {
 func syncToDesktop(records []model.ScanRecord, source string) {
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		return apperror.New(constants.MsgDesktopNotFound, "E9000", nil)
+		apperror.New(constants.MsgDesktopNotFound, "E9000", nil)
+		return
 	}
 	fmt.Printf(constants.MsgDesktopSyncStart, source)
 	added, skipped, failed := syncAll(records, cli)

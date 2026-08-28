@@ -18,7 +18,8 @@ func requireInsideWorkTree() {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrGoModNotRepo)
-	return apperror.New("fatal error", "E9000", nil)
+	apperror.New("fatal error", "E9000", nil)
+	return
 }
 
 // deriveSlug sanitizes a module path into a branch-safe slug.
@@ -54,7 +55,8 @@ func ensureBranchNotExists(branch string) {
 	}
 
 	if len(strings.TrimSpace(string(out))) > 0 {
-		return apperror.New(constants.ErrGoModBranchExists, "E9000", nil)
+		apperror.New(constants.ErrGoModBranchExists, "E9000", nil)
+		return
 	}
 }
 
@@ -64,7 +66,8 @@ func createBranchAtHead(branch string) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return apperror.New(constants.ErrGoModBranchExists, "E9000", nil)
+		apperror.New(constants.ErrGoModBranchExists, "E9000", nil)
+		return
 	}
 }
 
@@ -112,7 +115,8 @@ func commitGoModChanges(oldPath, newPath string, fileCount int) {
 	commitCmd.Stderr = os.Stderr
 	err := commitCmd.Run()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrGoModCommitFailed, nil)
+		apperror.Wrap(err, constants.ErrGoModCommitFailed, nil)
+		return
 	}
 }
 
@@ -126,7 +130,8 @@ func mergeGoModBranch(originalBranch, featureBranch, newPath string) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return apperror.New(constants.ErrGoModMergeConflict, "E9000", nil)
+		apperror.New(constants.ErrGoModMergeConflict, "E9000", nil)
+		return
 	}
 }
 

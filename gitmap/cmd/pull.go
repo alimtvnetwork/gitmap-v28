@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -273,7 +272,7 @@ func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 func executePull(records []model.ScanRecord, prog *cloner.BatchProgress, opts pullOptions) {
 	workers, ok := cloneconcurrency.Resolve(opts.parallel)
 	if !ok {
-		return apperror.Wrap(opts.parallel, "constants.ErrCloneMaxConcurrencyInvalid", nil)
+		panic("invalid concurrency")
 	}
 	opts.parallel = workers
 
@@ -341,7 +340,7 @@ func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {
 	}
 	if len(slug) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrPullSlugRequired)
-		return apperror.New(constants.ErrPullUsage, "E9000", nil)
+		return nil
 	}
 
 	return lookupBySlugDBFirst(slug)
@@ -370,7 +369,7 @@ func lookupBySlugJSON(slug string) []model.ScanRecord {
 	jsonPath := filepath.Join(constants.DefaultOutputFolder, constants.DefaultJSONFile)
 	records, err := loadJSONRecords(jsonPath)
 	if err != nil {
-		return apperror.New(constants.ErrPullLoadFailed, "E9000", nil)
+		return nil
 	}
 
 	return findBySlug(records, slug)

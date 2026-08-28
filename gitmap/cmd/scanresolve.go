@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -33,16 +32,16 @@ func resolveScanTarget(raw string) string {
 
 	abs, err := filepath.Abs(expanded)
 	if err != nil {
-		return apperror.New(constants.ErrScanFailed, "E9000", nil)
+		panic(constants.ErrScanFailed)
 	}
 	abs = filepath.Clean(abs)
 
 	info, err := os.Stat(abs)
 	if err != nil {
-		return apperror.New(constants.ErrScanDirNotFound, "E9000", nil)
+		panic(constants.ErrScanDirNotFound)
 	}
 	if !info.IsDir() {
-		return apperror.New(constants.ErrScanDirNotDir, "E9000", nil)
+		panic(constants.ErrScanDirNotDir)
 	}
 
 	if shouldAnnounceResolve(original, abs) {
@@ -100,17 +99,17 @@ func resolveRelativeRoot(raw, scanDir string, quiet bool) string {
 	expanded := expandHome(trimmed)
 	abs, err := filepath.Abs(expanded)
 	if err != nil {
-		return apperror.New(constants.ErrScanRelativeRootInvalid, "E9000", nil)
+		panic(constants.ErrScanRelativeRootInvalid)
 	}
 	abs = filepath.Clean(abs)
 	info, statErr := os.Stat(abs)
 	if statErr != nil {
-		return apperror.New(constants.ErrScanRelativeRootInvalid, "E9000", nil)
+		panic(constants.ErrScanRelativeRootInvalid)
 	}
 	if !info.IsDir() {
 		fmt.Fprintf(os.Stderr, constants.ErrScanRelativeRootInvalid, raw,
 			fmt.Errorf("not a directory"))
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 	if !quiet && abs != scanDir {
 		fmt.Fprintf(os.Stderr, constants.MsgScanRelativeRoot, abs)

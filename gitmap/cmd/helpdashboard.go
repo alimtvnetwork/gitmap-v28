@@ -141,7 +141,8 @@ func serveStatic(distDir string, port int) {
 
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
-		return apperror.Wrap(err, constants.ErrHDServe, nil)
+		apperror.Wrap(err, constants.ErrHDServe, nil)
+		return
 	}
 
 	fmt.Print(constants.MsgHDStopped)
@@ -180,7 +181,8 @@ func serveDev(docsDir string, port int) {
 	npmPath, err := exec.LookPath("npm")
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrHDNPMNotFound)
-		return apperror.New("fatal error", "E9000", nil)
+		apperror.New("fatal error", "E9000", nil)
+		return
 	}
 
 	fmt.Printf(constants.MsgHDRunningNPM)
@@ -191,7 +193,8 @@ func serveDev(docsDir string, port int) {
 	install.Stderr = os.Stderr
 
 	if err := install.Run(); err != nil {
-		return apperror.Wrap(err, constants.ErrHDNPMInstall, nil)
+		apperror.Wrap(err, constants.ErrHDNPMInstall, nil)
+		return
 	}
 
 	fmt.Printf(constants.MsgHDStartingDev, docsDir)
@@ -202,7 +205,8 @@ func serveDev(docsDir string, port int) {
 	dev.Stderr = os.Stderr
 
 	if err := dev.Start(); err != nil {
-		return apperror.Wrap(err, constants.ErrHDDevServer, nil)
+		apperror.Wrap(err, constants.ErrHDDevServer, nil)
+		return
 	}
 
 	openBrowser(port)

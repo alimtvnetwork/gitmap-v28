@@ -195,7 +195,7 @@ func handleInstallError(args []string, opts installOptions, output []byte, err e
 	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	logPath := writeInstallErrorLog(opts.Tool, manager, opts.Version, args, output, err)
 	printInstallFailureDetails(opts.Tool, manager, opts.Version, args, err, logPath)
-	return apperror.New("fatal error", "E9000", nil)
+	panic(apperror.New("fatal error", "E9000", nil))
 }
 
 func printInstallFailureDetails(tool, manager, version string, args []string, err error, logPath string) {

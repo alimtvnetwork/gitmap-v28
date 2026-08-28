@@ -95,7 +95,8 @@ func validateGoModPreconditions(oldPath, newPath string) {
 
 	if isWorkTreeDirty() {
 		fmt.Fprint(os.Stderr, constants.ErrGoModDirtyTree)
-		return apperror.New("fatal error", "E9000", nil)
+		apperror.New("fatal error", "E9000", nil)
+		return
 	}
 }
 

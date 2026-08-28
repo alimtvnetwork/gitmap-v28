@@ -35,7 +35,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
 )
@@ -64,17 +63,17 @@ func runTemplatesInit(args []string) error {
 
 	flags, err := parseTemplatesInitFlags(args)
 	if err != nil {
-		return apperror.Wrap(err, "✗", nil)
+		panic("error")
 	}
 	if len(flags.langs) == 0 {
 		fmt.Fprintln(os.Stderr, "  ✗ templates init requires at least one <lang>")
 		fmt.Fprintln(os.Stderr, "    Example: gitmap templates init go node --lfs")
-		return apperror.New("    Run 'gitmap templates list' to see available languages.", "E9000", nil)
+		panic("error")
 	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		return apperror.Wrap(err, "✗ Could not resolve CWD:", nil)
+		panic("error")
 	}
 
 	printTemplatesInitBanner(flags, cwd)
@@ -175,7 +174,7 @@ func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, requ
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Required template missing: %v\n", err)
-		return apperror.New("    Run 'gitmap templates list' to see available languages.", "E9000", nil)
+		panic("error")
 	}
 	step.resolved = res
 
@@ -192,12 +191,12 @@ func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, requ
 		errRm = os.Remove(step.target)
 	}
 	if errRm != nil && os.IsNotExist(errRm) == false {
-		return apperror.Wrap(step.target, "✗ --force could not remove :", nil)
+		panic("error")
 	}
 
 	merged, err := templates.Merge(step.target, step.tag, res.Content)
 	if err != nil {
-		return apperror.Wrap(step.tag, "✗ merge  into :", nil)
+		panic("error")
 	}
 
 	return templatesInitResult{step: step, merge: merged}

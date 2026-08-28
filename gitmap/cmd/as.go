@@ -38,9 +38,16 @@ func runAs(args []string) *apperror.AppError {
 		aliasName = filepath.Base(root)
 	}
 
-	rec, buildErr := buildSingleRepoRecord(root); if buildErr != nil { return buildErr }
-	if upsertErr := upsertSingleRepo(rec); upsertErr != nil { return upsertErr }
-	if regErr := registerAlias(aliasName, rec, force); regErr != nil { return regErr }
+	rec, buildErr := buildSingleRepoRecord(root)
+	if buildErr != nil {
+		return buildErr
+	}
+	if upsertErr := upsertSingleRepo(rec); upsertErr != nil {
+		return upsertErr
+	}
+	if regErr := registerAlias(aliasName, rec, force); regErr != nil {
+		return regErr
+	}
 
 	// Shell handoff: cd the parent shell to the alias root if invoked
 	// via the wrapper function (e.g. `gitmap as foo` from elsewhere).

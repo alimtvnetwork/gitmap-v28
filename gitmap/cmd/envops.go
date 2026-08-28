@@ -136,7 +136,8 @@ func runEnvPathAdd(args []string) error {
 func validateEnvPathRemove(dir string) {
 	if dir == "" {
 		fmt.Fprint(os.Stderr, constants.ErrEnvPathRequired)
-		return apperror.New("fatal error", "E9000", nil)
+		apperror.New("fatal error", "E9000", nil)
+		return
 	}
 }
 

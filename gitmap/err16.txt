@@ -1,0 +1,30 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\profileutil.go:59:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\projectrepos.go:58:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\projectrepos.go:75:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\regoldens_exec.go:64:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\reinstall.go:59:11: not enough return values
+	have (*apperror.AppError)
+	want (string, bool)
+cmd\reinstall.go:70:10: not enough return values
+	have (*apperror.AppError)
+	want (string, bool)
+cmd\reinstall.go:116:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\reinstall.go:132:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\release.go:66:10: cannot use apperror.New("fatal error", "E9000", nil) (value of type *apperror.AppError) as string value in return statement
+cmd\release.go:95:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\release.go:95:10: too many errors

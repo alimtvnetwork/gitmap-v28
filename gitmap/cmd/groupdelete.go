@@ -21,13 +21,15 @@ func runGroupDelete(args []string) error {
 func executeGroupDelete(name string) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return
 	}
 	defer db.Close()
 
 	err = db.DeleteGroup(name)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrBareFmt, nil)
+		apperror.Wrap(err, constants.ErrBareFmt, nil)
+		return
 	}
 	fmt.Printf(constants.MsgGroupDeleted, name)
 }

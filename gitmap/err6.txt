@@ -1,0 +1,20 @@
+# github.com/alimtvnetwork/gitmap-v28/gitmap/cmd
+cmd\envregistry.go:29:2: undefined: fmt
+cmd\envregistry.go:82:2: undefined: fmt
+cmd\githubdesktop.go:70:2: declared and not used: output
+cmd\importcmd.go:73:10: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\install.go:75:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\install_custom.go:30:24: cannot use tool (variable of type string) as error value in argument to apperror.Wrap: string does not implement error (missing method Error)
+cmd\install_custom.go:38:24: cannot use tool (variable of type string) as error value in argument to apperror.Wrap: string does not implement error (missing method Error)
+cmd\installcleancode.go:42:24: cannot use constants.DefaultCleanCodeURL (constant "https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v1... of type string) as error value in argument to apperror.Wrap: string does not implement error (missing method Error)
+cmd\installtools.go:198:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\latestbranch.go:50:9: too many return values
+	have (*apperror.AppError)
+	want ()
+cmd\latestbranch.go:50:9: too many errors

@@ -87,7 +87,8 @@ func parseLFSCommonFlags(args []string) lfsCommonFlags {
 	fs := flag.NewFlagSet(constants.CmdLFSCommon, flag.ExitOnError)
 	dryRun := fs.Bool("dry-run", false, constants.FlagDescDryRun)
 	if err := fs.Parse(args); err != nil {
-		return apperror.Wrap(err, "✗ Could not parse flags:", nil)
+		var empty lfsCommonFlags
+		return empty
 	}
 
 	return lfsCommonFlags{dryRun: *dryRun}

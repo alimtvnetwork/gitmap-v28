@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -190,7 +189,7 @@ func beginPushTask(records []model.ScanRecord, rest []string) (int64, *store.DB)
 func executePush(records []model.ScanRecord, prog *cloner.BatchProgress, opts pushOptions) {
 	workers, ok := cloneconcurrency.Resolve(opts.parallel)
 	if !ok {
-		return apperror.Wrap(opts.parallel, "constants.ErrCloneMaxConcurrencyInvalid", nil)
+		panic("invalid concurrency")
 	}
 	opts.parallel = workers
 

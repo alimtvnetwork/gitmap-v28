@@ -24,7 +24,8 @@ func runGroup(args []string) error {
 func showActiveGroup() {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return
 	}
 	defer db.Close()
 
@@ -107,13 +108,15 @@ func dispatchGroupScoped(sub string, args []string) bool {
 func activateGroup(name string) {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return
 	}
 	defer db.Close()
 
 	_, gErr := db.ShowGroup(name)
 	if gErr != nil {
-		return apperror.New(constants.ErrBareFmt, "E9000", nil)
+		apperror.New(constants.ErrBareFmt, "E9000", nil)
+		return
 	}
 
 	if err := db.SetSetting(constants.SettingActiveGroup, name); err != nil {
@@ -127,7 +130,8 @@ func activateGroup(name string) {
 func clearActiveGroup() {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		return
 	}
 	defer db.Close()
 

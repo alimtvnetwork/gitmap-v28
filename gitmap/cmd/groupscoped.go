@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -46,13 +49,15 @@ func runActiveGroupExec(args []string) error {
 func requireActiveGroup() string {
 	db, err := openDB()
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrListDBFailed, nil)
+		fmt.Fprintln(os.Stderr, apperror.Wrap(err, constants.ErrListDBFailed, nil).Error())
+		os.Exit(1)
 	}
 	defer db.Close()
 
 	name := db.GetSetting(constants.SettingActiveGroup)
 	if len(name) == 0 {
-		return apperror.New(constants.MsgGroupNoActive, "E9000", nil)
+		fmt.Fprintln(os.Stderr, apperror.New(constants.MsgGroupNoActive, "E9000", nil).Error())
+		os.Exit(1)
 	}
 
 	return name

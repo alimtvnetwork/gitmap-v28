@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -18,18 +17,19 @@ type sampleTemplateFile struct {
 }
 
 // createTemplateFile writes a sample seo-templates.json to the current directory.
-func createTemplateFile() {
+func createTemplateFile() error {
 	sample := buildSampleTemplate()
 	data, err := json.MarshalIndent(sample, "", constants.JSONIndent)
 	if err != nil {
-		return apperror.Wrap(constants.SEOTemplateOutputFile, "constants.ErrSEOCreateWrite", nil)
+		return err
 	}
 
 	if err := os.WriteFile(constants.SEOTemplateOutputFile, data, 0o644); err != nil {
-		return apperror.Wrap(constants.SEOTemplateOutputFile, "constants.ErrSEOCreateWrite", nil)
+		return err
 	}
 
 	fmt.Printf(constants.MsgSEOCreated, constants.SEOTemplateOutputFile)
+	return nil
 }
 
 // buildSampleTemplate returns a starter template with examples.

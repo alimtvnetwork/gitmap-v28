@@ -14,7 +14,7 @@ import (
 func runSearch(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("Usage: gitmap search <query> [--limit <n>]")
+		fmt.Println("Usage: gitmap search <query> [--limit <n>]\n\nAlternative LLM Examples:\n  Get-ChildItem -Path . -Recurse -File | Select-String \"type SearchResult struct\"\n  Get-ChildItem -Path cmd -Filter *.go | Select-String \"func dispatch[A-Z]\"\n  cat cmd/root.go | Select-String \"func finishCommandAudit\" -Context 0,10")
 		return nil
 	}
 	query := cleanArgs[0]
@@ -22,7 +22,7 @@ func runSearch(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.New(err, "E9000", nil)
+		return apperror.Wrap(err, "error", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -69,7 +69,7 @@ func runRepoSearch(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.New(err, "E9000", nil)
+		return apperror.Wrap(err, "error", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -107,7 +107,7 @@ func runRepoRegex(args []string) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.New(err, "E9000", nil)
+		return apperror.Wrap(err, "error", nil)
 	}
 	defer mainDB.Close()
 	defer db.Close()

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -35,16 +34,12 @@ type seoWriteFlags struct {
 func runSEOWrite(args []string) error {
 	checkHelp("seo-write", args)
 	if isCreateTemplateShorthand(args) {
-		createTemplateFile()
-
-		return nil
+		return createTemplateFile()
 	}
 
 	flags := parseSEOWriteFlags(args)
 	if flags.createTemplate {
-		createTemplateFile()
-
-		return nil
+		return createTemplateFile()
 	}
 
 	executeSEOWrite(flags)
@@ -85,7 +80,7 @@ func resolveMessages(flags seoWriteFlags) []commitMessage {
 
 	if flags.url == "" {
 		fmt.Fprint(os.Stderr, constants.ErrSEOURLRequired)
-		return apperror.New("fatal error", "E9000", nil)
+		panic("fatal error")
 	}
 
 	return loadTemplateMessages(flags)

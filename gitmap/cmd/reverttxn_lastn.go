@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/txn"
@@ -58,7 +57,7 @@ func loadLastCommittedTxns(want int) []model.TransactionRecord {
 	defer db.Close()
 	all, err := db.ListTransactions(constants.TxnRetentionCap)
 	if err != nil {
-		return apperror.Wrap(err, constants.ErrTxnDBWrite, nil)
+		panic(err)
 	}
 	out := make([]model.TransactionRecord, 0, want)
 	for _, r := range all {
@@ -99,7 +98,7 @@ func revertManyOrExit(rows []model.TransactionRecord, force bool) {
 	for _, r := range rows {
 		if err := txn.Revert(db, r.ID, txn.RevertOptions{Force: force}); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
-			return apperror.New("fatal error", "E9000", nil)
+			panic("fatal error")
 		}
 		fmt.Printf(constants.MsgTxnReverted, r.ID, r.Kind)
 	}

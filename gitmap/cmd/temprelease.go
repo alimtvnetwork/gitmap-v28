@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -13,7 +12,7 @@ func runTempRelease(args []string) error {
 	checkHelp("temp-release", args)
 
 	if len(args) == 0 {
-		return apperror.New(constants.ErrTRUsage, "E9000", nil)
+		panic("error")
 	}
 
 	sub := args[0]
@@ -51,7 +50,7 @@ func parseTempReleaseCreateFlags(args []string) (count int, pattern string, star
 	fs.Parse(args)
 
 	if fs.NArg() < 2 {
-		return apperror.New(constants.ErrTRUsage, "E9000", nil)
+		panic("error")
 	}
 
 	count = parseCount(fs.Arg(0))
@@ -66,7 +65,7 @@ func parseCount(s string) int {
 
 	_, err := fmt.Sscanf(s, "%d", &n)
 	if err != nil || n < 1 || n > constants.TempReleaseMaxCount {
-		return apperror.Wrap(constants.TempReleaseMaxCount, "constants.ErrTRInvalidCount+", nil)
+		panic("error")
 	}
 
 	return n
