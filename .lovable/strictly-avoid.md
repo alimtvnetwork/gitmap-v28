@@ -8,3 +8,7 @@ Strictly avoid using flash model for high concurrency batches that exceed rate l
 - NEVER invoke a local GitHub Action composite (uses: ./.github/actions/...) without running actions/checkout FIRST in the job.
 
 - NEVER use PowerShell literal newlines (\`n) as text replacement values in non-PowerShell files.
+
+- NEVER open files in Python scripts without explicitly specifying encoding="utf-8".
+
+- NEVER use global or greedy regex replacements for version bumping in documentation; always target a specific anchor.

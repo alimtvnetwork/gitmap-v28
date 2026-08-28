@@ -4,3 +4,5 @@
 - [17-cicd-fixes-go-version-drift.md](./17-cicd-fixes-go-version-drift.md) - Go Version Drift, Linter Failure, and Generate Desync
 
 - [18-ci-multi-regression-drift.md](18-ci-multi-regression-drift.md): Fixed go generate drift, setup-go-cached checkout order, python syntax corruption, changelog sync, installer regex, and golangci-lint go version mismatch.
+
+- [19-bump-script-unicode-and-regex-corruption.md](19-bump-script-unicode-and-regex-corruption.md): Fixed UnicodeDecodeError in python script and greedy regex corruption of readme.md.
