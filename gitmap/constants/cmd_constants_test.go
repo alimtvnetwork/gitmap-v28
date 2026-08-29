@@ -55,6 +55,8 @@ func topLevelCmds() map[string]string {
 		"CmdCommitPushReleaseAlias": CmdCommitPushReleaseAlias,
 		"CmdRmGit":                  CmdRmGit,
 		"CmdRmGitAlias":             CmdRmGitAlias,
+		"CmdGitReset":               CmdGitReset,
+		"CmdGitResetAlias":          CmdGitResetAlias,
 		"CmdAppend":                 CmdAppend,
 		"CmdWrite":                  CmdWrite,
 		"CmdHead":                   CmdHead,
