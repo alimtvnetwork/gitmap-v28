@@ -20,11 +20,12 @@ func TestComp102(t *testing.T) {
 		t.Fatalf("expected error, got nil")
 	}
 
-	if appErr, ok := err.(*apperror.AppError); ok {
-		if appErr.Code != "E_COMP_102_FAIL" {
-			t.Errorf("expected code E_COMP_102_FAIL, got %s", appErr.Code)
-		}
-	} else {
-		t.Errorf("expected error to be of type *apperror.AppError")
+	appErr, ok := err.(*apperror.AppError)
+	if !ok {
+		t.Fatalf("expected error to be of type *apperror.AppError")
+	}
+
+	if appErr.Code != "E_COMP_102_FAIL" {
+		t.Errorf("expected code E_COMP_102_FAIL, got %s", appErr.Code)
 	}
 }

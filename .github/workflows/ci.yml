@@ -881,6 +881,38 @@ jobs:
           message: boolean and naming check
           run: python linter-scripts/check-enum-and-boolean.py
 
+  boolean-guidelines-check:
+    name: Boolean Guidelines Linter
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: boolean guidelines check
+          run: python linter-scripts/check-boolean-guidelines.py
+
+  nested-if-check:
+    name: Nested If Linter
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: nested if check
+          run: python linter-scripts/check-nested-ifs.py
+
   relative-paths-check:
     name: Relative Path Check
     runs-on: ubuntu-latest

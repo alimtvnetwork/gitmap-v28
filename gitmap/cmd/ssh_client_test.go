@@ -40,14 +40,11 @@ func TestPromptSSHPassword(t *testing.T) {
 	ctx := context.Background()
 	_, err := PromptSSHPassword(ctx, "Password: ", -1)
 	if err == nil {
-		t.Errorf("expected error when reading password from invalid fd")
+		t.Fatalf("expected error when reading password from invalid fd")
 	}
 
-	// Verify error type
-	if err != nil {
-		if _, ok := err.(interface{ Error() string }); !ok {
-			t.Errorf("expected error interface")
-		}
+	if _, ok := err.(interface{ Error() string }); !ok {
+		t.Errorf("expected error interface")
 	}
 }
 

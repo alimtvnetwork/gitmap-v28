@@ -244,11 +244,24 @@ func printWrappedHelpLines(prefix, fullDesc string, descWidth int) {
 	}
 }
 
+func appendWord(out *strings.Builder, w string, wLen int, curLen int, width int) int {
+	if curLen+1+wLen > width {
+		out.WriteString("\n")
+		out.WriteString(w)
+		return wLen
+	}
+
+	out.WriteString(" ")
+	out.WriteString(w)
+	return curLen + 1 + wLen
+}
+
 func wrapText(text string, width int) string {
 	words := strings.Fields(text)
 	if len(words) == 0 {
 		return ""
 	}
+
 	var out strings.Builder
 	curLen := 0
 	for i, w := range words {
@@ -256,17 +269,11 @@ func wrapText(text string, width int) string {
 		if i == 0 {
 			out.WriteString(w)
 			curLen = wLen
-		} else {
-			if curLen+1+wLen > width {
-				out.WriteString("\n")
-				out.WriteString(w)
-				curLen = wLen
-			} else {
-				out.WriteString(" ")
-				out.WriteString(w)
-				curLen += 1 + wLen
-			}
+			continue
 		}
+
+		curLen = appendWord(&out, w, wLen, curLen, width)
 	}
+
 	return out.String()
 }

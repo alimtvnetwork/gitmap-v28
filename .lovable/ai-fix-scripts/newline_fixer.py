@@ -42,9 +42,10 @@ for root, dirs, files in os.walk('.'):
     # Exclude node_modules, .git, etc
     dirs[:] = [d for d in dirs if d not in ['.git', 'node_modules', 'dist', 'build']]
     for file in files:
-        if file.endswith(extensions):
-            filepath = os.path.join(root, file)
-            if fix_trailing_newline(filepath):
-                count += 1
+        if not file.endswith(extensions):
+            continue
+        filepath = os.path.join(root, file)
+        if fix_trailing_newline(filepath):
+            count += 1
 
 print(f"Fixed trailing newlines on {count} files.")

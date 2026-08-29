@@ -138,14 +138,18 @@ func TestScanProgressFinalAlwaysFiresEvenOnFastScans(t *testing.T) {
 		done     = make(chan struct{})
 	)
 
-	if _, err := ScanDirWithOptions(root, ScanOptions{
+	opts := ScanOptions{
 		Progress: func(p ScanProgress) {
-			if p.IsFinal {
-				gotFinal.Store(true)
-				close(done)
+			if !p.IsFinal {
+				return
 			}
+			gotFinal.Store(true)
+			close(done)
 		},
-	}); err != nil {
+	}
+
+	_, err := ScanDirWithOptions(root, opts)
+	if err != nil {
 		t.Fatalf("ScanDirWithOptions: %v", err)
 	}
 
@@ -155,8 +159,7 @@ func TestScanProgressFinalAlwaysFiresEvenOnFastScans(t *testing.T) {
 		t.Fatal("Final snapshot never delivered within 2s")
 	}
 
-	if gotFinal.Load() {
-	} else {
+	if !gotFinal.Load() {
 		t.Fatal("expected Final=true snapshot to fire even on empty scans")
 	}
 }

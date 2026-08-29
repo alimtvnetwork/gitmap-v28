@@ -85,8 +85,8 @@ FormLabel.displayName = "FormLabel";
 const FormControl = React.forwardRef<React.ElementRef<typeof Slot>, React.ComponentPropsWithoutRef<typeof Slot>>(
   ({ ...props }, ref) => {
     const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
-    const hasNoError = !error;
-    const describedBy = hasNoError ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`;
+    const hasError = Boolean(error);
+    const describedBy = hasError ? `${formDescriptionId} ${formMessageId}` : `${formDescriptionId}`;
 
     return (
       <Slot
