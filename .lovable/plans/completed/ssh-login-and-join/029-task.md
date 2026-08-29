@@ -26,9 +26,9 @@ citations:
 # Task 029 — E2E Test SSH Login Dispatcher
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
-- [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ssh_e2e_test.go](file:///d:/work/gitmap/gitmap/cmd/ssh_e2e_test.go) — Why: Target file.
+- [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
+- [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
+- [gitmap/cmd/ssh_e2e_test.go](gitmap/cmd/ssh_e2e_test.go) — Why: Target file.
 
 ## 2. Goal
 Deliver the Wire+Test step for `TestDispatchSSHLogin` to support the E2E Test SSH Login Dispatcher feature. This is isolated logic for the SSH/IP subdomains.

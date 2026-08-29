@@ -9,7 +9,7 @@ During GitHub Actions CI execution of the `Spell Check (misspell, US locale)` jo
 - `pickerModel` in `clonepick` had an unexported field `canceled` that diverged from references (`isCanceled`).
 
 ## 3. Corrective and Preventive Actions
-- Removed the faulty temporary script and wrote a strict repository-bounded scanner using `git ls-files` targeting only `d:\work\gitmap`.
+- Removed the faulty temporary script and wrote a strict repository-bounded scanner using `git ls-files` targeting only the local git workspace.
 - Corrected all British spellings across the codebase to standard US English using `misspell -w -locale US`.
 - Renamed the field in `pickerModel` to `isCanceled bool` following project boolean conventions.
 - Removed unused `//nolint:misspell` directives.

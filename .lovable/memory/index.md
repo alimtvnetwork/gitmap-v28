@@ -109,13 +109,13 @@ commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commit
 - [ ] 01-ssh-commands.md - Spec commands
 - [ ] 06-ssh-troubleshooting-guide.md - SSH Guide
 
-- [02-gitmap-installer.md](file:///d:/work/gitmap/.lovable/memory/learned/02-gitmap-installer.md) - Learned patterns for Gitmap installer system
-- [2026-08-29-coding-guideline-violations.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-coding-guideline-violations.md) - RCA on coding guideline violations and 150-step audit
-- [2026-08-29-go-125-dependency-linter-break.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-go-125-dependency-linter-break.md) - RCA on Go 1.25 dependency version bump causing CI linter break
-- [2026-08-29-go-125-gofmt-and-goimports-drift.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-go-125-gofmt-and-goimports-drift.md) - RCA on Go 1.25 gofmt and goimports drift across all repository packages
-- [2026-08-29-installctx-e2e-with-explain-type-mismatch.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-installctx-e2e-with-explain-type-mismatch.md) - RCA on installctx E2E withExplain type signature mismatch under Linux/Darwin
-- [2026-08-29-legacy-refs-bare-err-and-lint-keyerror.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-legacy-refs-bare-err-and-lint-keyerror.md) - RCA on legacy refs whitelist, bare stderr prints in cmd, and lint script KeyError
-- [2026-08-29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md) - RCA on Git LFS zip drift, changelog version sync, and jq diff argjson
-- [2026-08-29-smoke-installer-var-version.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-smoke-installer-var-version.md) - RCA on smoke-installer.sh regex failing to parse var Version in constants.go
-- [2026-08-29-docs-site-usetheme-syntax-error.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-docs-site-usetheme-syntax-error.md) - RCA on check!res typo in useTheme.ts breaking docs-site build
-- [2026-08-29-root-cli-panic-on-zero-args.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-root-cli-panic-on-zero-args.md) - RCA on panic("fatal error") in cmd/root.go and across command files
+- [02-gitmap-installer.md](.lovable/memory/learned/02-gitmap-installer.md) - Learned patterns for Gitmap installer system
+- [2026-08-29-coding-guideline-violations.md](.lovable/memory/issues/2026-08-29-coding-guideline-violations.md) - RCA on coding guideline violations and 150-step audit
+- [2026-08-29-go-125-dependency-linter-break.md](.lovable/memory/issues/2026-08-29-go-125-dependency-linter-break.md) - RCA on Go 1.25 dependency version bump causing CI linter break
+- [2026-08-29-go-125-gofmt-and-goimports-drift.md](.lovable/memory/issues/2026-08-29-go-125-gofmt-and-goimports-drift.md) - RCA on Go 1.25 gofmt and goimports drift across all repository packages
+- [2026-08-29-installctx-e2e-with-explain-type-mismatch.md](.lovable/memory/issues/2026-08-29-installctx-e2e-with-explain-type-mismatch.md) - RCA on installctx E2E withExplain type signature mismatch under Linux/Darwin
+- [2026-08-29-legacy-refs-bare-err-and-lint-keyerror.md](.lovable/memory/issues/2026-08-29-legacy-refs-bare-err-and-lint-keyerror.md) - RCA on legacy refs whitelist, bare stderr prints in cmd, and lint script KeyError
+- [2026-08-29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md](.lovable/memory/issues/2026-08-29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md) - RCA on Git LFS zip drift, changelog version sync, and jq diff argjson
+- [2026-08-29-smoke-installer-var-version.md](.lovable/memory/issues/2026-08-29-smoke-installer-var-version.md) - RCA on smoke-installer.sh regex failing to parse var Version in constants.go
+- [2026-08-29-docs-site-usetheme-syntax-error.md](.lovable/memory/issues/2026-08-29-docs-site-usetheme-syntax-error.md) - RCA on check!res typo in useTheme.ts breaking docs-site build
+- [2026-08-29-root-cli-panic-on-zero-args.md](.lovable/memory/issues/2026-08-29-root-cli-panic-on-zero-args.md) - RCA on panic("fatal error") in cmd/root.go and across command files

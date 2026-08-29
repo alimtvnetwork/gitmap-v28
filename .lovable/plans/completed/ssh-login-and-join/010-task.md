@@ -26,9 +26,9 @@ citations:
 # Task 010 — Integration Test for SSH Store
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
-- [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/store/ssh_repo_test.go](file:///d:/work/gitmap/gitmap/store/ssh_repo_test.go) — Why: Target file.
+- [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
+- [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
+- [gitmap/store/ssh_repo_test.go](gitmap/store/ssh_repo_test.go) — Why: Target file.
 
 ## 2. Goal
 Deliver the Wire+Test step for `TestSSHRepoIntegration` to support the Integration Test for SSH Store feature. This is isolated logic for the SSH/IP subdomains.

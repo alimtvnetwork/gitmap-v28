@@ -26,9 +26,9 @@ citations:
 # Task 050 — Wire IP commands to dispatcher
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
-- [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/root.go](file:///d:/work/gitmap/gitmap/cmd/root.go) — Why: Target file.
+- [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
+- [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
+- [gitmap/cmd/root.go](gitmap/cmd/root.go) — Why: Target file.
 
 ## 2. Goal
 Deliver the Wire+Test step for `dispatchIP` to support the Wire IP commands to dispatcher feature. This is isolated logic for the SSH/IP subdomains.

@@ -26,9 +26,9 @@ citations:
 # Task 038 — Implement SJ History Print
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
-- [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/sshjoin_hist_cmd.go](file:///d:/work/gitmap/gitmap/cmd/sshjoin_hist_cmd.go) — Why: Target file.
+- [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
+- [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
+- [gitmap/cmd/sshjoin_hist_cmd.go](gitmap/cmd/sshjoin_hist_cmd.go) — Why: Target file.
 
 ## 2. Goal
 Deliver the Implement step for `printSJHistory` to support the Implement SJ History Print feature. This is isolated logic for the SSH/IP subdomains.

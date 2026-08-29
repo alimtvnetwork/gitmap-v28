@@ -5,31 +5,31 @@ phase: Scaffold
 target_files: [gitmap/cmd/status_pr.go]
 depends_on: ['Task 020']
 citations:
-  app_spec: "n/a — spec gap filed"
-  canonical_size: "n/a — spec gap filed"
+  app_spec: "n/a ï¿½ spec gap filed"
+  canonical_size: "n/a ï¿½ spec gap filed"
   language_guideline: "spec/05-coding-guidelines/02-go-code-style.md"
-  boolean_styling: "n/a — spec gap filed"
-  folder_naming: "n/a — spec gap filed"
+  boolean_styling: "n/a ï¿½ spec gap filed"
+  folder_naming: "n/a ï¿½ spec gap filed"
   error_architecture: "spec/05-coding-guidelines/04-error-handling.md"
-  error_codes: "n/a — spec gap filed"
+  error_codes: "n/a ï¿½ spec gap filed"
   logging_traces: "spec/05-coding-guidelines/07-logging-observability.md"
-  response_envelope: "n/a — spec gap filed"
-  golden_fixture: "n/a — spec gap filed"
-  strictly_avoid: "n/a — spec gap filed"
+  response_envelope: "n/a ï¿½ spec gap filed"
+  golden_fixture: "n/a ï¿½ spec gap filed"
+  strictly_avoid: "n/a ï¿½ spec gap filed"
   database: "spec/05-coding-guidelines/11-database-patterns.md"
   ui_surface: "n/a"
   tests: "unit TestInitStatusPRsPart1"
-  ci_cd_guard: "n/a — spec gap filed"
+  ci_cd_guard: "n/a ï¿½ spec gap filed"
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
-# Task 021 — Implement StatusPRs - Part 1
+# Task 021 ï¿½ Implement StatusPRs - Part 1
 
 ## 1. Learn
-- [Go Style](file:///d:/work/gitmap/spec/05-coding-guidelines/02-go-code-style.md) - why: styling 21
-- [DB Patterns](file:///d:/work/gitmap/spec/05-coding-guidelines/11-database-patterns.md) - why: db 21
-- [Error handling](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) - why: errors 21
-- [Custom Link 21](file:///d:/work/gitmap/spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 21
+- [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 21
+- [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 21
+- [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 21
+- [Custom Link 21](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 21
 
 ## 2. Goal
 Isolate StatusPRs logic for part 1. This ensures modular architecture.
@@ -60,4 +60,4 @@ None.
 
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
-This task is standalone — read it plus its cited files, nothing else is assumed.
+This task is standalone ï¿½ read it plus its cited files, nothing else is assumed.

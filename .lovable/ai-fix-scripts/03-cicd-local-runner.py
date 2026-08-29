@@ -113,22 +113,30 @@ def main():
         ("Legacy Refs Check", None, "python .github/scripts/check-legacy-refs.py", ROOT_DIR),
         ("Bare Stderr Check", None, "python .github/scripts/check-bare-stderr-err.py", ROOT_DIR),
         ("Cmd Naming Check", None, "python .github/scripts/check-cmd-naming.py gitmap/cmd", ROOT_DIR),
+
         ("Constants Naming Check", None, "python .github/scripts/check-constants-naming.py", ROOT_DIR),
         ("Deploy Layout Check", None, "python .github/scripts/check-deploy-layout.py", ROOT_DIR),
         ("No Golden Allow Leak Check", None, "python .github/scripts/check-no-golden-allow-leak.py", ROOT_DIR),
+
         ("File Size Check", None, "python .github/scripts/file-size-check.py 200", ROOT_DIR),
         ("CI Scripts Unit Tests", None, "python .github/scripts/tests/test_ci_scripts.py", ROOT_DIR),
         ("Error Management Linter", None, "python linter-scripts/check-error-management.py", ROOT_DIR),
+
         ("Boolean & Enum Linter", None, "python linter-scripts/check-enum-and-boolean.py", ROOT_DIR),
         ("Changelog Version Sync", None, "python .github/scripts/check-changelog-version-sync.py", ROOT_DIR),
+        ("Relative Path Check", None, "python linter-scripts/check-relative-paths.py", ROOT_DIR),
+
         ("Generate Drift Check", run_generate_drift_check, None, None),
-        ("Installer Smoke", None, "python .github/scripts/smoke-installer.py source", ROOT_DIR),
         ("Web Version Sync", None, "npx vitest run src/test/version-sync.test.ts", ROOT_DIR),
         ("Docs Site Build", None, "npm run build", ROOT_DIR),
-        ("CLI Zero-Args Smoke", None, "go run .", GITMAP_DIR),
-        ("Go Vet", None, "go vet ./...", GITMAP_DIR),
+
         ("Spell Check (misspell)", None, "python .github/scripts/misspell-changed.py", ROOT_DIR),
+        ("Go Vet", None, "go vet ./...", GITMAP_DIR),
+        ("Installer Smoke", None, "python .github/scripts/smoke-installer.py source", ROOT_DIR),
+
+        ("CLI Zero-Args Smoke", None, "go run .", GITMAP_DIR),
         ("Compile Gate", None, "go test -run=^$ ./... -count=1", GITMAP_DIR),
+
         ("Full Suite Lint", None, "golangci-lint run ./...", GITMAP_DIR),
     ]
 

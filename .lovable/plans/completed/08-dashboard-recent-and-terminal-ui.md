@@ -8,7 +8,7 @@ Created: 2026-08-20
 ## Context
 The user requested better terminal visualization with more coloring for dashboard commands, a new `--recent` flag to filter recent items, and an update to the interactive HTML UI App (`dashboard.html`) to prominently display these recent items. All new flags and features must be documented in the corresponding help texts. Affected files span CLI parsing, data collection, HTML templates, and Markdown documentation.
 Links:
-- Spec: [.lovable/spec/tasks/08-dashboard-recent-and-terminal-ui.md](file:///d:/work/gitmap/.lovable/spec/tasks/08-dashboard-recent-and-terminal-ui.md)
+- Spec: [.lovable/spec/tasks/08-dashboard-recent-and-terminal-ui.md](.lovable/spec/tasks/08-dashboard-recent-and-terminal-ui.md)
 - Adheres to: `.lovable/coding-guidelines.md`
 
 ## Steps
