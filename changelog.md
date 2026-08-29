@@ -104,6 +104,25 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.145.0] 2026-08-29 Release v6.145.0
+
+### Install gitmap v6.145.0
+
+Unix/Bash:
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.145.0/install.sh | bash -s -- ".lovable/prompts" "v6.145.0"`
+
+PowerShell:
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.145.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.145.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix smoke-installer.sh version extraction to support var Version alongside const Version
+- Fix Git LFS binary zip false-positive in generate drift check
+- Synchronize constants.Version with changelog.md and version.json
+- Sanitize jq --argjson line parsing in check-single-linter-diff.sh and check-misspell-diff.sh
+- Synchronize web VERSION export from version.json in src/constants/index.ts
+
+
 ## [v6.144.0] - 2026-08-29
 - Fix: Reverted go.mod to 1.24.13 to maintain golangci-lint v1.64.8 compatibility
 - Fix: S1002, unparam, gocritic, and ineffectual assignment linters globally resolved.
