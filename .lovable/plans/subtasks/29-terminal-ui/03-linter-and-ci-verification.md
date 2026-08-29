@@ -1,7 +1,8 @@
 # Subtask 03: Linter & CI Verification
 
 ## Scope
-1. Run `python linter-scripts/check-function-lengths.py`.
+
+1. Run `python linter-scripts/check-function-lengths.py`:
 2. Run `python linter-scripts/check-nested-ifs.py`.
 3. Run `python linter-scripts/check-boolean-guidelines.py`.
 4. Run `python linter-scripts/check-enum-and-boolean.py`.

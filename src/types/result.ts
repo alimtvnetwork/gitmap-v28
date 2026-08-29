@@ -25,6 +25,7 @@ export type Result<T> =
       unwrap(): [T, null];
       unwrapOr(defaultVal: T): T;
     }
+
   | {
       readonly isSuccess: false;
       readonly isFailed: true;

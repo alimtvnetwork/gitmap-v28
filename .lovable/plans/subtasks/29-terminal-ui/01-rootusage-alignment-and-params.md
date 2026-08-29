@@ -1,6 +1,7 @@
 # Subtask 01: Root Usage Alignment & Parameter Structs
 
 ## Scope
+
 1. Update `gitmap/cmd/rootusage.go`:
    - Encapsulate `renderStandardHelpRow` parameters into `HelpRowParams`.
    - Encapsulate `parseExpandableMarker` return into `ExpandableMarkerResult`.
