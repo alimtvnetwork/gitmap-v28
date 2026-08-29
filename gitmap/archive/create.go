@@ -155,7 +155,7 @@ func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, er
 }
 
 func isEntryIncluded(name string, includes, excludes []string) result.Result[bool] {
-	if matchAny(name, includes, true).Data == false {
+	if !matchAny(name, includes, true).Data {
 		return result.NewSuccess(false)
 	}
 	if matchAny(name, excludes, false).Data {

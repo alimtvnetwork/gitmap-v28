@@ -14,7 +14,7 @@ const (
 	FlagDescRepoRecloneYes = "Skip the destructive confirmation prompt"
 )
 
-// User-facing strings. Centralised per the no-magic-strings rule.
+// User-facing strings. Centralized per the no-magic-strings rule.
 const (
 	MsgRepoReclonePlan    = "repo-reclone: target=%s origin=%s parent=%s\n"
 	MsgRepoRecloneConfirm = "repo-reclone: about to DELETE %q and re-clone from %s.\n" +

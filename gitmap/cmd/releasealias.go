@@ -80,7 +80,7 @@ func performReleaseAlias(target, alias, version string, pull, noStash, dryRun bo
 	}
 
 	stashLabel := ""
-	if noStash == false {
+	if !noStash {
 		stashLabel = autoStashIfDirty(target, alias, version)
 	}
 	if stashLabel != "" {

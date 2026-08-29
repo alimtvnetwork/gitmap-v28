@@ -124,7 +124,7 @@ func executeCFRPostSteps(absPath string, makePublic bool, f cloneFixRepoFlags, m
 // runParallelCloneFixRepo encapsulates the parallel clone execution to avoid nested ifs.
 func runParallelCloneFixRepo(urls []string, makePublic bool, noVSCodeSync bool, requireVersion bool, useSSH bool, useHTTPS bool, autoYes bool, dryRun bool, modifiers CfrModifierFlags, parallel int) error {
 	subcmd := constants.CmdCloneFixRepo
-	if makePublic == true {
+	if makePublic {
 		subcmd = constants.CmdCloneFixRepoPub
 	}
 	passthrough := buildCFRPassthroughFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, modifiers.NoCommit, modifiers.NoPush)
@@ -138,7 +138,7 @@ func runParallelCloneFixRepo(urls []string, makePublic bool, noVSCodeSync bool, 
 
 func printDryRunMessage(makePublic bool, absPath string) {
 	suffix := ""
-	if makePublic == true {
+	if makePublic {
 		suffix = " → make-public --yes"
 	}
 	fmt.Printf("  "+constants.MsgCloneDryRunNoop+"\n  would chain: fix-repo --all%s @ %s\n",
@@ -177,11 +177,11 @@ func dispatchCodingGuidelinesModifier(absPath string, m CfrModifierFlags) {
 	}
 }
 
-// applyCloneFixRepoScheme honours --ssh / --https (and short aliases
+// applyCloneFixRepoScheme honors --ssh / --https (and short aliases
 // --sh / --ht) by rewriting the URL before the in-process clone runs.
 //
 // Mirrors `gitmap clone --ssh` semantics: when both flags are set,
-// --ssh wins and a one-line stderr warning is printed. Unrecognised
+// --ssh wins and a one-line stderr warning is printed. Unrecognized
 // URL shapes are returned unchanged so non-URL positionals still flow
 // through.
 func applyCloneFixRepoScheme(url string, useSSH, useHTTPS bool) string {
@@ -324,7 +324,7 @@ func assignCFRPositionals(positional []string, f *cloneFixRepoFlags) {
 // destination folder. Recognized flags:
 // --no-vscode-sync, --require-version, --ssh/-ssh/--sh,
 // --https/-https/--ht, --no-commit, --no-push. Single-dash forms are
-// accepted to match Go's stdlib `flag` package behaviour the user
+// accepted to match Go's stdlib `flag` package behavior the user
 // expects from `-ssh`.
 func parseCloneFixRepoArgs(args []string) (string, string, bool, bool, bool, bool, bool, bool, bool, bool) {
 	var f cloneFixRepoFlags
@@ -352,7 +352,7 @@ func deriveFolderNameForCFR(url string, folderName string) string {
 	}
 	repoName := repoNameFromURL(url)
 	parsed := clonenext.ParseRepoName(repoName)
-	if parsed.HasVersion == true {
+	if parsed.HasVersion {
 		return parsed.BaseName
 	}
 	return repoName

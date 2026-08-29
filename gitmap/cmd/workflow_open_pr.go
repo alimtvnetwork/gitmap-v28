@@ -36,24 +36,24 @@ func runPR(args []string) error {
 
 	owner := ""
 	hasArgs := len(args) > 0
-	if hasArgs == true {
+	if hasArgs {
 		owner = args[0]
 	}
 	o, _, err := "", "", error(nil)
-	if hasArgs == false {
+	if !hasArgs {
 		o, _, err = currentRepoOwnerRepo()
 	}
-	isErr := hasArgs == false && err != nil
-	if isErr == true {
+	isErr := !hasArgs && err != nil
+	if isErr {
 		fmt.Fprintln(os.Stderr, "pull-requests: ERROR specify <owner> or run inside a github repo")
 		os.Exit(2)
 	}
-	if hasArgs == false && isErr == false {
+	if !hasArgs && !isErr {
 		owner = o
 	}
 	token := os.Getenv("GITHUB_TOKEN")
 	url := fmt.Sprintf("https://api.github.com/search/issues?q=is:pr+is:open+user:%s&per_page=50", owner)
-	req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}

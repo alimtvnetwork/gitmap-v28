@@ -21,7 +21,7 @@ func TestApplyTransportFlag_E2E(t *testing.T) {
 	mustGit(t, tmp, "clone", bare, work)
 
 	// Seed remote.origin.url with a synthetic HTTPS URL so the
-	// converter has a recognisable host/owner/repo to flip.
+	// converter has a recognizable host/owner/repo to flip.
 	mustGit(t, work, "remote", "set-url", "origin", "https://github.com/acme/widgets.git")
 
 	t.Run("https_to_ssh_persists", func(t *testing.T) {
@@ -74,14 +74,14 @@ func TestApplyTransportFlag_E2E(t *testing.T) {
 		}
 	})
 
-	t.Run("unrecognised_url_fails_open", func(t *testing.T) {
+	t.Run("unrecognized_url_fails_open", func(t *testing.T) {
 		mustGit(t, work, "remote", "set-url", "origin", "file:///tmp/local-bare")
 		changed, _, _, err := ApplyTransportFlag(work, true, false)
 		if err != nil {
 			t.Fatalf("ApplyTransportFlag should fail-open, got err: %v", err)
 		}
 		if changed {
-			t.Fatalf("expected changed=false for unrecognised url")
+			t.Fatalf("expected changed=false for unrecognized url")
 		}
 	})
 }

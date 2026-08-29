@@ -69,7 +69,6 @@ func resolveReinstallMode(override string) (string, bool) {
 		panic(constants.ErrReinstallUnknownMode)
 	}
 
-	return constants.ReinstallModeSelf, true
 }
 
 // announceReinstallMode prints the resolved mode (and the linked repo

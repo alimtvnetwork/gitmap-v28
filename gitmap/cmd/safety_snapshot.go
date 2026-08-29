@@ -36,7 +36,7 @@ func runSnapshot(args []string) error {
 }
 
 func writeSnapshot(root, outPath string) (int, error) {
-	f, err := os.Create(outPath) //nolint:gosec
+	f, err := os.Create(outPath)
 	if err != nil {
 		return 0, err
 	}
@@ -51,7 +51,7 @@ func writeSnapshot(root, outPath string) (int, error) {
 			return nil
 		}
 		rel, _ := filepath.Rel(root, p)
-		if rel == "." || strings.HasPrefix(rel, ".gitmap"+string(os.PathSeparator)+"snapshot") {
+		if rel == "." || strings.HasPrefix(rel, filepath.Join(".gitmap", "snapshot")) {
 			return nil
 		}
 		hdr, err := tar.FileInfoHeader(info, "")
@@ -65,7 +65,7 @@ func writeSnapshot(root, outPath string) (int, error) {
 		if !info.Mode().IsRegular() {
 			return nil
 		}
-		in, err := os.Open(p) //nolint:gosec
+		in, err := os.Open(p)
 		if err != nil {
 			return nil
 		}
@@ -126,7 +126,7 @@ func runGuard(args []string) error {
 		os.Exit(2)
 	}
 	hook := filepath.Join(hooks, "pre-commit")
-	if err := os.WriteFile(hook, []byte(guardHookBody), 0o755); err != nil { //nolint:gosec
+	if err := os.WriteFile(hook, []byte(guardHookBody), 0o755); err != nil {
 		return apperror.WrapSimple(err, "guard: ERROR write hook:")
 	}
 	fmt.Printf("\033[1;92m✓ installed\033[0m pre-commit guard → %s\n", hook)

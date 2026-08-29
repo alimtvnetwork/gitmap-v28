@@ -8,7 +8,7 @@ import (
 )
 
 func applyCloneAssumeYesEnv(isAssumeYes bool) {
-	isNonAssumeYes := isAssumeYes == false
+	isNonAssumeYes := !isAssumeYes
 	if isNonAssumeYes {
 		return
 	}

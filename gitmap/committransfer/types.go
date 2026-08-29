@@ -88,7 +88,7 @@ const (
 //
 // v6.0.0 breaking change: IncludeMerges defaults to true in the CLI layer.
 // Direct API users who create Options{} get the zero value (false), which
-// preserves legacy strip behaviour; set IncludeMerges = true explicitly
+// preserves legacy strip behavior; set IncludeMerges = true explicitly
 // for the new default.
 type Options struct {
 	Yes            bool             // skip the confirm prompt

@@ -72,7 +72,7 @@ func detectTagsWithExtraMarkers(rootPath string, extra map[string]string) []stri
 		if _, builtin := constants.AutoTagMarkers[marker]; builtin {
 			continue
 		}
-		if markerExists(rootPath, marker) == false {
+		if !markerExists(rootPath, marker) {
 			continue
 		}
 		if _, dup := hits[tag]; !dup {

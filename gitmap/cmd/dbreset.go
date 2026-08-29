@@ -19,7 +19,6 @@ func runDBReset(args []string) error {
 	}
 
 	return apperror.NewSimple(constants.ErrDBResetNoConfirm, "E9000")
-	return nil
 }
 
 // parseDBResetFlags parses the --confirm flag.

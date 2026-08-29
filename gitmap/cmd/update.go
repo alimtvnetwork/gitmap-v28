@@ -27,10 +27,10 @@ import (
 // for users who maintain a local clone and want to ship in-tree changes.
 func runUpdate() error {
 	requireOnline()
-	if hasFlag(constants.FlagSourceRebuild) == false && runUpdateRemoteInstall() == true {
+	if !hasFlag(constants.FlagSourceRebuild) && runUpdateRemoteInstall() {
 		return nil
 	}
-	if hasFlag(constants.FlagSourceRebuild) == false {
+	if !hasFlag(constants.FlagSourceRebuild) {
 		fmt.Fprint(os.Stderr, constants.MsgUpdateRemoteFallback)
 	}
 	repoPath := resolveRepoPath()
@@ -79,7 +79,6 @@ func resolveRepoPath() string {
 	fmt.Fprint(os.Stderr, constants.ErrNoRepoPath)
 	panic("error")
 
-	return ""
 }
 
 // tryUpdaterFallback looks for gitmap-updater on PATH and launches it.
@@ -97,7 +96,7 @@ func tryUpdaterFallback() bool {
 
 	errRun := cmd.Run()
 	var exitErr *exec.ExitError
-	if errRun != nil && errors.As(errRun, &exitErr) == true {
+	if errRun != nil && errors.As(errRun, &exitErr) {
 		os.Exit(exitErr.ExitCode())
 	}
 	if errRun != nil {
@@ -229,7 +228,7 @@ func getFlagValue(name string) string {
 
 // initRunnerVerbose initializes verbose logging if --verbose flag is present.
 func initRunnerVerbose() {
-	if hasFlag(constants.FlagVerbose) == false {
+	if !hasFlag(constants.FlagVerbose) {
 		return
 	}
 	log, err := verbose.Init()
@@ -302,7 +301,7 @@ func printUpdateSummary(oldVer, newVer, repoPath string) {
 func printUpdateChangelog() {
 	entries, err := release.ReadChangelog()
 	hasEntries := err == nil && len(entries) > 0
-	if hasEntries == false {
+	if !hasEntries {
 		return
 	}
 

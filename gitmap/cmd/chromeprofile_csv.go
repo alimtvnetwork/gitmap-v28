@@ -21,7 +21,7 @@ func writeChromeExportCSV(srcProfile, name, outPath string) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil {
 		return 0, fmt.Errorf("mkdir %s: %w", filepath.Dir(outPath), err)
 	}
-	f, err := os.Create(outPath) //nolint:gosec // curated output path
+	f, err := os.Create(outPath)
 	if err != nil {
 		return 0, fmt.Errorf("create %s: %w", outPath, err)
 	}
@@ -58,7 +58,7 @@ func buildChromeCSVRows(srcProfile, name string) [][]string {
 
 // flattenPreferences extracts a small allow-list of non-secret keys.
 func flattenPreferences(prefsPath string) [][]string {
-	raw, err := os.ReadFile(prefsPath) //nolint:gosec // curated path
+	raw, err := os.ReadFile(prefsPath)
 	if err != nil {
 		return nil
 	}
@@ -95,7 +95,7 @@ func lookupDotted(doc map[string]any, dotted string) string {
 
 // bookmarkSummary returns one row per top-level bookmark folder.
 func bookmarkSummary(bookmarksPath string) [][]string {
-	raw, err := os.ReadFile(bookmarksPath) //nolint:gosec // curated path
+	raw, err := os.ReadFile(bookmarksPath)
 	if err != nil {
 		return nil
 	}

@@ -28,7 +28,7 @@ func runTempReleaseList(args []string) error {
 		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
 
-	if jsonOutput == false {
+	if !jsonOutput {
 		printTRList(releases)
 		return nil
 	}

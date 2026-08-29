@@ -224,7 +224,7 @@ func joinKey(prefix, k string) string {
 }
 
 func readJSONObject(path string) (map[string]any, error) {
-	raw, err := os.ReadFile(path) //nolint:gosec // user-supplied path
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +249,7 @@ func writeJSONObject(path string, m map[string]any) error {
 func jsonEqual(a, b any) bool {
 	ja, _ := json.Marshal(a)
 	jb, _ := json.Marshal(b)
-	return string(ja) == string(jb)
+	return bytes.Equal(ja, jb)
 }
 
 // mergeChromeBookmarks merges the `roots.{bookmark_bar,other,synced}`
@@ -436,7 +436,7 @@ func copyTree(src, dst string) error {
 }
 
 func copyOneFile(src, dst string) error {
-	in, err := os.Open(src) //nolint:gosec // user-supplied path
+	in, err := os.Open(src)
 	if err != nil {
 		return err
 	}
@@ -444,7 +444,7 @@ func copyOneFile(src, dst string) error {
 	if err := os.MkdirAll(filepath.Dir(dst), constants.DirPermission); err != nil {
 		return err
 	}
-	out, err := os.Create(dst) //nolint:gosec // user-supplied path
+	out, err := os.Create(dst)
 	if err != nil {
 		return err
 	}

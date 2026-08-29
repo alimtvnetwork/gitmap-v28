@@ -61,7 +61,7 @@ func resolveFixRepoConfigPath(explicit, repoRoot string) (string, error) {
 
 	def := filepath.Join(repoRoot, constants.FixRepoConfigFileName)
 	info, err := os.Stat(def)
-	if err != nil || info.IsDir() == true {
+	if err != nil || info.IsDir() {
 		return "", nil
 	}
 
@@ -70,7 +70,7 @@ func resolveFixRepoConfigPath(explicit, repoRoot string) (string, error) {
 
 func resolveExplicitConfigPath(explicit string) (string, error) {
 	info, err := os.Stat(explicit)
-	if err != nil || info.IsDir() == true {
+	if err != nil || info.IsDir() {
 		return "", fmt.Errorf("config file not found: %s", explicit)
 	}
 

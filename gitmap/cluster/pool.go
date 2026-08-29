@@ -20,7 +20,7 @@ import (
 // It also tracks progress using a parallel-spinner UI and handles Ctrl+C.
 func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubCommand, dbConn *sql.DB, runId int64, maxWorkers int, resultCh chan<- db.ClusterExecResult, verbose bool) {
 	isInvalidWorkers := maxWorkers <= 0
-	if isInvalidWorkers == true {
+	if isInvalidWorkers {
 		maxWorkers = 10
 	}
 
@@ -74,7 +74,7 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 				multi.Stop()
 			}
 
-			fmt.Println("\n┌ Cluster Run Cancelled ─────────────────┐")
+			fmt.Println("\n┌ Cluster Run Canceled ─────────────────┐")
 			mu.Lock()
 			fmt.Printf("│ Nodes: %d  OK: %d  Failed: %d  Skipped: %d │\n", totalNodes, succeeded, failed, totalNodes-(succeeded+failed))
 			mu.Unlock()

@@ -38,7 +38,7 @@ func tryRunRepoReclone(args []string) bool {
 
 // splitRepoRecloneArgs separates the -y / --y / -yes flag from
 // positionals without disturbing the broader flagset. Anything we
-// don't recognise is forwarded as a positional so the manifest
+// don't recognize is forwarded as a positional so the manifest
 // pipeline can still flag it.
 func splitRepoRecloneArgs(args []string) (bool, []string) {
 	var yes bool

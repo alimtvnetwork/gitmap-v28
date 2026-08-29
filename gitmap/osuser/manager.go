@@ -19,7 +19,7 @@ func AddUser(username, password string) error {
 
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("windows user add failed: %v\nOutput: %s", err, out)
+			return fmt.Errorf("windows user add failed: %w\nOutput: %s", err, out)
 		}
 
 	case "linux":
@@ -27,7 +27,7 @@ func AddUser(username, password string) error {
 		cmd := exec.Command("useradd", "-m", username)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("linux useradd failed: %v\nOutput: %s", err, out)
+			return fmt.Errorf("linux useradd failed: %w\nOutput: %s", err, out)
 		}
 
 		if password != "" {
@@ -35,21 +35,21 @@ func AddUser(username, password string) error {
 			chCmd := exec.Command("chpasswd")
 			stdin, err := chCmd.StdinPipe()
 			if err != nil {
-				return fmt.Errorf("failed to pipe chpasswd: %v", err)
+				return fmt.Errorf("failed to pipe chpasswd: %w", err)
 			}
 
 			if err := chCmd.Start(); err != nil {
-				return fmt.Errorf("failed to start chpasswd: %v", err)
+				return fmt.Errorf("failed to start chpasswd: %w", err)
 			}
 
 			// write username:password format
-			if _, err := stdin.Write([]byte(fmt.Sprintf("%s:%s", username, password))); err != nil {
-				return fmt.Errorf("failed to write to chpasswd: %v", err)
+			if _, err := fmt.Fprintf(stdin, "%s:%s", username, password); err != nil {
+				return fmt.Errorf("failed to write to chpasswd: %w", err)
 			}
 			stdin.Close()
 
 			if err := chCmd.Wait(); err != nil {
-				return fmt.Errorf("chpasswd failed: %v", err)
+				return fmt.Errorf("chpasswd failed: %w", err)
 			}
 		}
 
@@ -67,7 +67,7 @@ func RemoveUser(username string) error {
 		cmd := exec.Command("net", "user", username, "/DELETE")
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("windows user remove failed: %v\nOutput: %s", err, out)
+			return fmt.Errorf("windows user remove failed: %w\nOutput: %s", err, out)
 		}
 
 	case "linux":
@@ -75,7 +75,7 @@ func RemoveUser(username string) error {
 		cmd := exec.Command("userdel", "-r", username)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("linux userdel failed: %v\nOutput: %s", err, out)
+			return fmt.Errorf("linux userdel failed: %w\nOutput: %s", err, out)
 		}
 
 	default:

@@ -43,7 +43,7 @@ type chromeProfileResolution struct {
 // any I/O or parse error so callers degrade gracefully to dir-only.
 func readChromeLocalState() *chromeLocalState {
 	path := filepath.Join(chromeUserDataDir(), "Local State")
-	raw, err := os.ReadFile(path) //nolint:gosec // user-data path
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil
 	}
@@ -63,7 +63,7 @@ func chromeProfileEntries() []chromeProfileEntry {
 	for _, d := range dirs {
 		display := ""
 		if state != nil {
-			info, _ := state.Profile.InfoCache[d]
+			info := state.Profile.InfoCache[d]
 			display = info.Name
 		}
 		out = append(out, chromeProfileEntry{Dir: d, DisplayName: display})

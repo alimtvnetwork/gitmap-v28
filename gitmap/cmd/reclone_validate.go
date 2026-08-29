@@ -107,11 +107,11 @@ func checkRecloneRow(row clonenow.Row, mode string) []string {
 		reasons = append(reasons, constants.MsgRecloneValidateMissingRepoName)
 	}
 	noURL := len(strings.TrimSpace(row.HTTPSUrl)) == 0 && len(strings.TrimSpace(row.SSHUrl)) == 0
-	if noURL == true {
+	if noURL {
 		reasons = append(reasons, constants.MsgRecloneValidateNoURL)
 	}
 	picked := row.PickURL(mode)
-	if noURL == false && !isPlausibleGitURL(picked) {
+	if !noURL && !isPlausibleGitURL(picked) {
 		reasons = append(reasons, constants.MsgRecloneValidateMalformedURL)
 	}
 	reasons = append(reasons, checkRecloneDest(row.RelativePath)...)

@@ -122,7 +122,7 @@ func handleGlobalError(command string, err error) {
 
 	if display == "simple" {
 		if appErr, ok := err.(*apperror.AppError); ok {
-			cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %v", appErr.Op, getRootCause(err)))
+			cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
 		} else {
 			cliexit.Reportf(command, "execute", "", err)
 		}

@@ -49,7 +49,6 @@ func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppE
 		fmt.Fprintln(os.Stderr)
 		return apperror.NewSimple("fatal error", "E9000")
 	}
-	return nil
 
 	repoID := repos[0].ID
 	return createOrUpdateAliasRow(db, name, repoID, rec, force)
@@ -57,7 +56,7 @@ func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppE
 
 // createOrUpdateAliasRow handles the conflict-detection + write.
 func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.ScanRecord, force bool) *apperror.AppError {
-	if db.AliasExists(name) == false {
+	if !db.AliasExists(name) {
 		return createAliasAndReturn(db, name, repoID, rec)
 	}
 
@@ -88,7 +87,7 @@ func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.Sca
 }
 
 func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force bool) *apperror.AppError {
-	if force == true {
+	if force {
 		return nil
 	}
 	existing, err := db.ResolveAlias(name)

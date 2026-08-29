@@ -67,7 +67,7 @@ func tryFolderArgSinglePositional(token string, originalArgs []string) bool {
 	}
 
 	resolved, err := resolveCloneNextFolder(token)
-	if err != nil && hasFolderHint(token) == true {
+	if err != nil && hasFolderHint(token) {
 		return false
 	}
 	if err != nil {
@@ -136,10 +136,10 @@ func resolveCloneNextFolder(token string) (string, error) {
 		return "", err
 	}
 
-	if fsutil.DirExists(abs) == false && fsutil.FileExists(abs) == true {
+	if !fsutil.DirExists(abs) && fsutil.FileExists(abs) {
 		return "", errCNFolderNotDir
 	}
-	if fsutil.DirExists(abs) == false {
+	if !fsutil.DirExists(abs) {
 		return "", os.ErrNotExist
 	}
 
@@ -177,7 +177,7 @@ func hasFolderHint(token string) bool {
 }
 
 func ensureAbsolutePath(expanded string) (string, error) {
-	if filepath.IsAbs(expanded) == true {
+	if filepath.IsAbs(expanded) {
 		return expanded, nil
 	}
 	cwd, err := os.Getwd()

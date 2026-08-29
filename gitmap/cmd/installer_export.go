@@ -110,7 +110,7 @@ func parseExportFlags(args []string, isAll bool) (*ExportInstallerFlags, error) 
 	}, nil
 }
 
-// writeZipEntry writes a JSON-marshalled installer script into a zip archive.
+// writeZipEntry writes a JSON-marshaled installer script into a zip archive.
 func writeZipEntry(zw *zip.Writer, script model.InstallerScript) error {
 	data, errMarshal := json.MarshalIndent(script, "", "  ")
 	if errMarshal != nil {

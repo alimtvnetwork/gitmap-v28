@@ -69,12 +69,12 @@ func runPull(args []string) error {
 		records = resolvePullTargets(opts.slug, opts.group, opts.all)
 	}
 	fmt.Printf("  ↳ resolved %d repo(s) to pull\n", len(records))
-	if opts.onlyAvailable == true {
+	if opts.onlyAvailable {
 		records = filterByAvailableUpdates(records)
 	}
 
-	isAvailableEmpty := opts.onlyAvailable == true && len(records) == 0
-	if isAvailableEmpty == true {
+	isAvailableEmpty := opts.onlyAvailable && len(records) == 0
+	if isAvailableEmpty {
 		fmt.Print(constants.MsgPullNoAvailable)
 		return nil
 	}
@@ -168,7 +168,7 @@ func pullNoTargetsHint(opts pullOptions) bool {
 
 // isGitRepoCWD returns true when the cwd (or an ancestor) is inside a
 // git work tree. Uses `git rev-parse --is-inside-work-tree` so worktrees
-// and submodules are honoured.
+// and submodules are honored.
 func isGitRepoCWD() bool {
 	out, err := exec.Command("git", "rev-parse", "--is-inside-work-tree").Output()
 	if err != nil {
@@ -221,9 +221,9 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	var exitErr *exec.ExitError
-	isExitErr := err != nil && errors.As(err, &exitErr) == true
+	isExitErr := err != nil && errors.As(err, &exitErr)
 
-	if isExitErr == true {
+	if isExitErr {
 		exitWith(exitErr.ExitCode())
 	}
 	if err != nil {
@@ -357,7 +357,7 @@ func lookupBySlugDBFirst(slug string) []model.ScanRecord {
 	repos, dbErr := db.FindBySlug(strings.ToLower(slug))
 
 	foundRepos := dbErr == nil && len(repos) > 0
-	if foundRepos == true {
+	if foundRepos {
 		return repos
 	}
 
@@ -444,16 +444,16 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	}
 
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
-	isUpToDate := result.IsSuccess == true && result.Notes == "up-to-date"
-	isSucceed := result.IsSuccess == true && result.Notes != "up-to-date"
+	isUpToDate := result.IsSuccess && result.Notes == "up-to-date"
+	isSucceed := result.IsSuccess && result.Notes != "up-to-date"
 
-	if isUpToDate == true {
+	if isUpToDate {
 		prog.UpToDate(rec.RepoName)
 	}
-	if isSucceed == true {
+	if isSucceed {
 		prog.Succeed(rec.RepoName)
 	}
-	if result.IsSuccess == false {
+	if !result.IsSuccess {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
 }
