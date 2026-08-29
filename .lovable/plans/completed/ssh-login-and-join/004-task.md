@@ -27,7 +27,7 @@ citations:
 # Task 004 — Implement SSHHost Get by Alias
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
+- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [gitmap/store/ssh_repo.go](file:///d:/work/gitmap/gitmap/store/ssh_repo.go) — Why: Target file.
 

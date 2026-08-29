@@ -100,7 +100,7 @@ export const sections: SpecSection[] = [
   {
     folder: "02-app-issues",
     title: "Issue Post-Mortems",
-    description: "Root-cause analyses and resolution records for production bugs.",
+    description: "Root-cause analyzes and resolution records for production bugs.",
     iconName: IconNameType.AlertTriangle,
     color: "text-yellow-500",
     entries: [

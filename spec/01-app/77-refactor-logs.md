@@ -24,7 +24,7 @@ Moves:
 Imports: `fmt`, `strings`, `constants`
 
 ## Migration Rules
-- No behaviour changes, no signature renames.
+- No behavior changes, no signature renames.
 - Package remains `tui`.
 - Deduplicate imports per file.
 - Blank line before every `return`.

@@ -45,7 +45,7 @@ Columns: SelectionId PK, Name (optional, unique-non-empty enforced in store laye
 - 0 success / dry-run ok
 - 1 runtime (git/fs/replay-not-found)
 - 2 bad CLI usage
-- 130 user cancelled picker (`q`)
+- 130 user canceled picker (`q`)
 
 ## Where it lives
 - `gitmap/clonepick/` (parse, plan, sparse, picker, persist, render)

@@ -77,7 +77,7 @@ emitted.
 `ignored-deleted` is the only status whose `reason` text varies by
 intake source. Each delete is tagged at parse time with one of the
 provenance keys below, and the audit emitter looks the key up in a
-per-source reason table (centralised at `_DELETED_REASON` in
+per-source reason table (centralized at `_DELETED_REASON` in
 `check-placeholder-comments.py`). All four surfaces (text table,
 JSON payload, CSV export, dedupe footer) use the same wording for
 a given source.
@@ -239,7 +239,7 @@ The full `reason` text is intentionally not part of the machine
 contract (it may be re-worded for clarity), but the substrings above
 are stable and safe to grep in CI logs. New provenance tags will be
 added alongside their parser changes; an unknown tag falls back to
-a clearly labelled "provenance unknown" reason rather than crashing.
+a clearly labeled "provenance unknown" reason rather than crashing.
 
 ### Verbose mode (`--list-changed-files-verbose`)
 
@@ -488,7 +488,7 @@ recorded. Treat `score: 0` as "git observed and rated 0% similar"
 - **Unknown statuses** are never emitted today — the closed vocabulary
   is enforced at the renderer. New statuses, if added, will land in a
   major version bump and be announced in `changelog.md`.
-- **`--dedupe-changed-files`** runs before serialisation; the JSON
+- **`--dedupe-changed-files`** runs before serialization; the JSON
   array contains at most one record per `path` when that flag is set,
   with first-seen-wins semantics applied to the `similarity` record
   too.

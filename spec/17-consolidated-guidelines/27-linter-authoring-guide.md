@@ -162,7 +162,7 @@ plain text and exit codes.
 
 ## §5 — CLI Flag Contract
 
-| Flag | Required | Behaviour |
+| Flag | Required | Behavior |
 |---|---|---|
 | `--help` / `-h` | ✅ | Print usage, exit `0` |
 | `--version` | ✅ for `linters-cicd/checks/` plugins | Print `coding-guidelines/<rule-slug> <X.Y.Z>`, exit `0` |
@@ -372,7 +372,7 @@ If a linter starts producing false positives after a refactor:
 |---|---|---|
 | `try: … except: pass` around the whole script | Hides structural errors as silent passes | Catch specific exceptions; exit `2` with stderr message |
 | Reading config from env vars without a sibling `.toml` | Invisible coupling, no audit trail | Use a sibling config file checked into git |
-| Hard-coding allowlist entries inside the script | Requires a code change for every exemption | Externalise to `<script>.allowlist` |
+| Hard-coding allowlist entries inside the script | Requires a code change for every exemption | Externalize to `<script>.allowlist` |
 | Writing findings to stdout instead of stderr | Breaks `run.sh` summary parsing | Findings → stderr; success line → stdout |
 | Calling `git` to discover files | Fails in tarball / shallow-clone contexts | Use `pathlib.Path.rglob` or the shared `walker.py` |
 | `sleep` loops to wait for resources | Flaky on slow CI runners | Use a polling loop with timeout and explicit failure message |

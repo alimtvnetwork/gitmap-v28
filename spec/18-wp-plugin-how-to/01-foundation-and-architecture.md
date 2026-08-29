@@ -70,9 +70,9 @@ The bootstrap file is **non-namespaced** because WordPress loads it directly. It
 
 The autoloader is a `final` class with a single responsibility: map the plugin's root namespace to the `includes/` directory using PSR-4 conventions.
 
-### Required behaviours
+### Required behaviors
 
-| Behaviour | Detail |
+| Behavior | Detail |
 |-----------|--------|
 | Namespace prefix check | Only load classes within the plugin's own namespace |
 | File existence check | Verify the resolved file exists before `require_once` |

@@ -7,7 +7,7 @@
 #   $2  out_path      — file to write the rendered Markdown comment to
 #
 # Required env:
-#   FULL_SUITE_RESULT   — "success" | "failure" | "cancelled" | "skipped"
+#   FULL_SUITE_RESULT   — "success" | "failure" | "canceled" | "skipped"
 #   GITHUB_REPO         — "owner/repo"
 #   GITHUB_RUN_ID       — Actions run ID for log deep links
 #   GITHUB_SHA_SHORT    — full or short SHA for display
@@ -32,7 +32,7 @@ readonly RUN_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
 readonly ARTIFACTS_URL="${RUN_URL}#artifacts"
 
 # Tally counts from the captured output files. Defensive defaults so a
-# missing artifact (e.g. job cancelled before upload) still renders cleanly.
+# missing artifact (e.g. job canceled before upload) still renders cleanly.
 hasTestOutput=true
 if [ -f "$TEST_OUT" ]; then
   hasTestOutput=true
@@ -104,7 +104,7 @@ gateRow() {
   case "$raw" in
     success)   icon="✅ pass" ;;
     failure)   icon="❌ fail" ;;
-    cancelled) icon="🛑 cancelled" ;;
+    canceled) icon="🛑 canceled" ;;
     skipped)   icon="⏭ skipped" ;;
     "")        icon="⏭ not run" ;;
     *)         icon="⚠ ${raw}" ;;

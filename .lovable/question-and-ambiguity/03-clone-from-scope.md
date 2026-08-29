@@ -12,10 +12,10 @@ Three reasonable interpretations:
 
 ### A — Extend existing `gitmap clone` to ALSO accept `--from <file>` flag
 - **Pros**: One command, one mental model. URLs and files coexist.
-- **Cons**: Mixes two semantically different inputs in one entry point. Behaviour change to a published command. The "dry-run by default" rule would either break the existing URL form or be limited to file mode (confusing).
+- **Cons**: Mixes two semantically different inputs in one entry point. Behavior change to a published command. The "dry-run by default" rule would either break the existing URL form or be limited to file mode (confusing).
 
 ### B — Add a new sibling subcommand `gitmap clone-from <file>` (RECOMMENDED)
-- **Pros**: Zero behaviour change to existing `gitmap clone`. Clear semantics: file in, plan out, execute on confirm. Can have its own help, flags, and tests. Matches the existing `gitmap clone` / `gitmap cn` / `gitmap clone-next-batch` family naming style.
+- **Pros**: Zero behavior change to existing `gitmap clone`. Clear semantics: file in, plan out, execute on confirm. Can have its own help, flags, and tests. Matches the existing `gitmap clone` / `gitmap cn` / `gitmap clone-next-batch` family naming style.
 - **Cons**: One more verb on the CLI surface (mitigated by adding to the help index and completion generator).
 
 ### C — Tell the user `gitmap cn --csv` already exists and don't build anything

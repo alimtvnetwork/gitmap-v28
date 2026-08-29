@@ -1581,7 +1581,7 @@ jobs:
           GITHUB_SHA_SHORT: ${{ github.sha }}
           # Dashboard inputs — one env var per gate, value is the raw
           # GitHub job conclusion ("success" / "failure" / "skipped" /
-          # "cancelled"). pr-summary.sh maps these to ✅ / ❌ / ⏭ /
+          # "canceled"). pr-summary.sh maps these to ✅ / ❌ / ⏭ /
           # ♻ icons. Repo-policy is a roll-up: red if ANY of its 7
           # checks failed, otherwise the worst non-success status.
           GATE_SPELL_CHECK: ${{ needs.spell-check.result }}

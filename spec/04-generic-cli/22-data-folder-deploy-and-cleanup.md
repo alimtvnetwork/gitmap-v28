@@ -22,9 +22,9 @@ one location, one PATH entry.
 
 ---
 
-## Required Behaviours
+## Required Behaviors
 
-| ID | Behaviour | Required For |
+| ID | Behavior | Required For |
 |----|-----------|--------------|
 | DFD-1 | Binary deploys as `<root>/<binary>/<binary>(.exe)` with `data/` and any docs alongside it. The leaf folder name MUST match the binary name (no extension). | All OSes |
 | DFD-2 | Deploy target is resolved from the **existing** install: walk up from the active binary on PATH; only fall back to config when nothing is on PATH. | All OSes |

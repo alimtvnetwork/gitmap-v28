@@ -140,7 +140,7 @@ gitmap client cmd "<cmd-command>", ps "<ps-command>", install "<pkg1>,<pkg2>" --
 **Rules:**
 - Sub-commands separated by `,` are executed **sequentially** on each node (not in parallel).
 - Each sub-command's result is captured separately in `ClusterExecResult`.
-- If any sub-command fails on a node, subsequent sub-commands on that node are **skipped** (not cancelled) and recorded with `ResultStatus = Skipped`.
+- If any sub-command fails on a node, subsequent sub-commands on that node are **skipped** (not canceled) and recorded with `ResultStatus = Skipped`.
 
 **Examples:**
 ```
@@ -464,13 +464,13 @@ gitmap servers-clients cfr    <url1>[,<url2>,...] [--workdir "<path>"] [--except
 
 ### 11.2 `--workdir` Flag
 
-| Value | Behaviour |
+| Value | Behavior |
 |-------|-----------|
 | Omitted | Uses the `DefaultPath` stored for each node (see §12). If no default is set, uses the node's home directory (`~` on Unix, `%USERPROFILE%` on Windows). |
 | Absolute path | Clones into that exact directory on the remote node. |
 | Path alias (e.g. `p1`) | Resolves the registered alias (see §12) for each target node and clones there. |
 
-### 11.3 Behaviour
+### 11.3 Behavior
 
 - URLs are comma-separated, whitespace-tolerant.
 - Each URL is cloned (or `cfrp`/`cfr` processed) sequentially per node, in parallel across nodes.
@@ -612,7 +612,7 @@ gitmap sc cat <path-or-alias>[/<subpath>]
 
 Reads and prints the content of a file from each target node. Output is prefixed with `[<ID>/<Alias>]`.
 
-**Behaviour:**
+**Behavior:**
 - `<path-or-alias>` resolves registered aliases first; falls back to treating it as a literal path.
 - If the file is not found on a node, prints `[<ID>/<Alias>] ✗ file not found: <resolved-path>` and continues.
 - Binary files are rejected: if the file contains non-UTF-8 bytes, prints `[<ID>/<Alias>] ✗ binary file, cannot display`.
@@ -655,7 +655,7 @@ gitmap sc write <path-or-alias>[/<subpath>] "<content>"
 
 Writes the quoted `<content>` string to the specified file on each target node. The write is **atomic** — content is written to a temp file then renamed to prevent partial writes.
 
-**Behaviour:**
+**Behavior:**
 - Parent directories are created automatically (`mkdir -p` / `New-Item -Force`).
 - Content length is capped at **1 MB** — larger content is rejected with a clear error before any network dispatch.
 - On success, `[<ID>/<Alias>] ✓ wrote <N> bytes to <resolved-path>` is printed per node.

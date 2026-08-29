@@ -98,20 +98,31 @@ def main():
         print("no files to scan for misspell")
         sys.exit(0)
 
-    # Check if misspell binary exists
-    misspell_bin = "misspell"
-    try:
-        subprocess.run([misspell_bin, "-v"], capture_output=True)
-    except FileNotFoundError:
-        # If misspell is not on path, install or warn
+    # Locate misspell binary
+    import shutil
+    misspell_bin = shutil.which("misspell")
+    if not misspell_bin:
+        try:
+            gp = subprocess.run(["go", "env", "GOPATH"], capture_output=True, text=True).stdout.strip()
+            candidate = os.path.join(gp, "bin", "misspell.exe" if os.name == "nt" else "misspell")
+            if os.path.isfile(candidate):
+                misspell_bin = candidate
+        except Exception:
+            pass
+
+    if not misspell_bin:
         print(f"misspell tool not installed. Scanned {len(scannable)} files.")
         sys.exit(0)
 
-    cmd = [misspell_bin, "-locale", "US", "-error"] + scannable
-    res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, encoding="utf-8", errors="replace")
-    if res.returncode != 0:
-        print(res.stderr or res.stdout, file=sys.stderr)
-        sys.exit(res.returncode)
+    # Process in batches to avoid command line length limits on Windows
+    batch_size = 100
+    for i in range(0, len(scannable), batch_size):
+        batch = scannable[i:i + batch_size]
+        cmd = [misspell_bin, "-locale", "US", "-error"] + batch
+        res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        if res.returncode != 0:
+            print(res.stderr or res.stdout, file=sys.stderr)
+            sys.exit(res.returncode)
 
     print(f"✅ Spell check passed on {len(scannable)} file(s).")
     sys.exit(0)

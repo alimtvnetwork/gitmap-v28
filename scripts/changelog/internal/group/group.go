@@ -48,7 +48,7 @@ var prefixToSection = map[string]string{
 }
 
 // ByPrefix splits commits by Conventional-Commit prefix. Commits without
-// a recognised prefix are returned in `skipped` so the caller can warn.
+// a recognized prefix are returned in `skipped` so the caller can warn.
 func ByPrefix(commits []gitlog.Commit) ([]Section, []gitlog.Commit) {
 	buckets := map[string][]string{}
 

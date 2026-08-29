@@ -75,7 +75,7 @@ Allowed Backup outbound calls:
 | Main | `POST /API/V1/Worker/Heartbeat` (with `IsBackup=1`) | Liveness only |
 | Main | `POST /API/V1/Backup/Apply/Ack` | ACK envelope apply (per `21-backup-endpoints.md`) |
 
-Everything else — including DNS resolution of the primary worker's FQDN — SHOULD be firewalled at the host level. See `24-threat-model.md` (when materialised) for the firewall recipe.
+Everything else — including DNS resolution of the primary worker's FQDN — SHOULD be firewalled at the host level. See `24-threat-model.md` (when materialized) for the firewall recipe.
 
 ### 3.3 Primary Worker → Backup: narrow CDC seal channel only
 

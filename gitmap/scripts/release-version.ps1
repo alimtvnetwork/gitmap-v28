@@ -291,7 +291,7 @@ function Resolve-RequestedVersion([string]$requested) {
 #   - `iwr ... | iex` runs with $Host.Name = 'ConsoleHost' but stdin is the
 #     piped scriptblock, so Read-Host hangs forever.
 #   - CI runners (GitHub Actions, etc.) report UserInteractive=$false but
-#     still have a console; honour the $env:CI hint as the override.
+#     still have a console; honor the $env:CI hint as the override.
 function Test-Interactive() {
     if ($Quiet) { return $false }
     if ($env:CI -eq 'true' -or $env:CI -eq '1') { return $false }

@@ -33,7 +33,7 @@ Rules enforced (lightweight, no AST):
 
            * Wording follows the marker (``TODO:`` / ``FIXME:`` for
              legacy comments, ``reason="…"`` for ``<spec-placeholder>``).
-           * It must be non-empty and start with a recognised
+           * It must be non-empty and start with a recognized
              imperative verb (``activate``, ``add``, ``link``,
              ``replace``, ``wire``, ``update``, ``write``, ``create``,
              ``document``, ``cross-reference``). Extend the allowlist
@@ -64,7 +64,7 @@ Rules enforced (lightweight, no AST):
 
 Only multi-line comment blocks that start with the ``TODO:``/``FIXME:``
 marker on the opening line are linted. Single-line comments and
-non-placeholder comments (e.g. licence headers) are left alone. The
+non-placeholder comments (e.g. license headers) are left alone. The
 ``<spec-placeholder>`` form is *always* linted because the tag itself
 declares intent.
 
@@ -146,7 +146,7 @@ BULLET_LINK_RE = re.compile(r"^-\s+\[[^\]]+\]\(([^)\s]+)\)\s*$")
 # Per-rule one-line replacement scaffold inserted into the suggested
 # `git apply` patch in place of the offending post-state line. The
 # linter cannot infer the author's correct fix — these are TODO
-# markers labelled with the rule code so a reviewer doing a copy-
+# markers labeled with the rule code so a reviewer doing a copy-
 # paste apply immediately sees what kind of edit is required.
 #
 # Rules NOT in this table (e.g. the structural P-006 "missing closer"
@@ -284,7 +284,7 @@ def iter_markdown_files(
     a future ``--extension md --extension mdx`` run can't yield the
     same path twice (e.g. on a case-insensitive filesystem).
 
-    Extension matching is **case-insensitive** to keep behaviour
+    Extension matching is **case-insensitive** to keep behavior
     identical across platforms. On Linux CI ``rglob("*.md")`` only
     finds the lowercase form, so a file checked in as ``README.MD``
     (legitimate on Windows + macOS where the FS folds case) would be
@@ -726,7 +726,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--diff-empty-passes", action="store_true",
         help="With --diff-base/--changed-files, when the resolved "
              "changed-file set has no `.md` under --root, exit 0 "
-             "without scanning. Default behaviour is the same; this "
+             "without scanning. Default behavior is the same; this "
              "flag is accepted for explicitness in CI configs.")
     ap.add_argument("--list-changed-files", action="store_true",
         help="Diff-mode audit: after resolving the changed-file set "
@@ -738,7 +738,7 @@ def main(argv: list[str] | None = None) -> int:
              "always written to STDERR so STDOUT remains a clean, "
              "single-document JSON payload (when --json is set) or "
              "the usual human summary. With --json the audit is "
-             "serialised as a JSON array (still on STDERR) using the "
+             "serialized as a JSON array (still on STDERR) using the "
              "schema `{\"path\":str, \"status\":str, \"reason\":str}` "
              "so dashboards can ingest it without scraping the text "
              "table. No-op outside diff mode.")
@@ -849,7 +849,7 @@ def main(argv: list[str] | None = None) -> int:
         choices=("csv", "tsv"),
         help="Field-separator dialect for the --similarity-csv export. "
              "`csv` (default) writes RFC 4180 with comma separators "
-             "and double-quote quoting (the legacy behaviour, "
+             "and double-quote quoting (the legacy behavior, "
              "byte-for-byte unchanged when the flag is absent). `tsv` "
              "writes tab-separated values using the stdlib "
              "`csv.excel_tab` dialect — handy when your paths or "
@@ -1015,7 +1015,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # ---- Resolve --extension allowlist ---------------------------
     # ``--extension`` is repeatable; ``None`` (no flag passed) keeps
-    # the historical ``("md",)`` behaviour. We normalise to lowercase,
+    # the historical ``("md",)`` behavior. We normalise to lowercase,
     # strip any leading dot the user typed by accident, and dedupe via
     # ``dict.fromkeys`` so the FIRST occurrence wins (preserves the
     # CLI order in error messages without affecting the cache segment,
@@ -1058,7 +1058,7 @@ def main(argv: list[str] | None = None) -> int:
     extensions = tuple(dict.fromkeys(cleaned))
 
     # ---- Resolve diff-mode changed-file allowlist (if any) -------
-    # ``changed_md`` is None ⇒ full-tree mode (legacy behaviour).
+    # ``changed_md`` is None ⇒ full-tree mode (legacy behavior).
     # ``changed_md`` is a set of resolved Paths ⇒ diff mode: only
     # those files emit per-file violations. Cross-file P-007 still
     # walks every `.md` so a changed file colliding with an
@@ -1390,7 +1390,7 @@ _SIMILARITY_BLANK = "-"
 # the provenance tag emitted by :func:`_parse_name_status` /
 # :func:`_normalise_changed_lines` alongside each captured delete; the
 # VALUE is the human-readable explanation that lands on the audit
-# row. Centralised so the four callers (text table, JSON payload,
+# row. Centralized so the four callers (text table, JSON payload,
 # CSV export, dedupe footer) all surface the same wording for a
 # given source.
 #
@@ -1431,7 +1431,7 @@ _SIMILARITY_CSV_HEADER_LABELED: tuple[str, ...] = (
     *_SIMILARITY_CSV_HEADER, "score_kind",
 )
 
-# Recognised values for ``--similarity-csv-format``. Centralised so
+# Recognized values for ``--similarity-csv-format``. Centralized so
 # the argparse ``choices=`` list, the writer's dispatch, and the
 # tests all agree on the exact spelling. ``csv`` is the legacy
 # default (RFC 4180 with comma separators); ``tsv`` switches to
@@ -1444,7 +1444,7 @@ _SIMILARITY_CSV_FORMATS: tuple[str, ...] = (
     _SIMILARITY_CSV_FORMAT_TSV,
 )
 
-# Canonical labels for the ``score_kind`` discriminator. Centralised so
+# Canonical labels for the ``score_kind`` discriminator. Centralized so
 # the JSON serializer, the text-table renderer, the CSV exporter, and
 # the tests all agree on the exact spelling. The vocabulary is
 # deliberately tiny and hyphenated so downstream grep / jq pipelines
@@ -1526,7 +1526,7 @@ def _write_similarity_csv(rows: list[_ChangedFileAudit],
 
     * ``"csv"`` (default) — stdlib default dialect: comma separator,
       double-quote quoting, RFC 4180 escapes. Byte-for-byte
-      unchanged from the legacy behaviour when the caller doesn't
+      unchanged from the legacy behavior when the caller doesn't
       pass the kwarg.
     * ``"tsv"`` — stdlib ``csv.excel_tab`` dialect: tab separator,
       same double-quote quoting rules. Use when commas inside
@@ -1580,7 +1580,7 @@ def _write_similarity_csv(rows: list[_ChangedFileAudit],
             _emit(fh)
 
 
-# Canonical legend modes for ``--similarity-legend``. Centralised so
+# Canonical legend modes for ``--similarity-legend``. Centralized so
 # the argparse ``choices=`` list, the resolver, and the tests all
 # spell the vocabulary the same way. ``auto`` is the default and
 # means "emit only on an interactive TTY".
@@ -1609,7 +1609,7 @@ def _should_emit_similarity_legend(
       ``OSError`` because the fd was closed) is treated as
       "not a TTY" so non-interactive contexts default to silent.
 
-    Centralised so the renderer call site stays a one-liner and the
+    Centralized so the renderer call site stays a one-liner and the
     tests can drive every branch directly without a subprocess.
     """
     if mode == _SIMILARITY_LEGEND_ON:
@@ -1719,7 +1719,7 @@ def _render_changed_files_audit(rows: list[_ChangedFileAudit],
     diff the array length against the upstream intake size.
 
     When ``only_statuses`` is a non-None frozenset, only rows whose
-    ``status`` is in that set are printed (or serialised). Filtering
+    ``status`` is in that set are printed (or serialized). Filtering
     runs AFTER dedupe so first-seen semantics are evaluated against
     the full intake — a ``matched`` row that lost the dedupe race to
     an earlier ``ignored-extension`` for the same path stays hidden,
@@ -2216,7 +2216,7 @@ def _unquote_git_path(field: str) -> str:
     double quotes; otherwise return ``field`` unchanged.
 
     Tolerant of malformed input: a stray ``\\x`` (where ``x`` is not
-    a recognised escape) is passed through verbatim rather than
+    a recognized escape) is passed through verbatim rather than
     raising — this matches how a human would copy-paste the row out
     of ``git status`` and into ``--changed-files``. Also tolerant of
     a trailing CR (Windows line endings) which can survive
@@ -2381,7 +2381,7 @@ def _normalise_changed_lines(lines: list[str],
     """Collapse rename-bearing rows in a ``--changed-files`` payload
     down to their post-rename path.
 
-    When ``deleted`` is provided and a row is recognisable as a
+    When ``deleted`` is provided and a row is recognizable as a
     delete (``D\\tpath`` — the exact shape ``git diff --name-status``
     emits), the path is captured into ``deleted`` as a
     ``(path, "changed-files-D")`` tuple and the row is NOT forwarded
@@ -2443,10 +2443,10 @@ def _normalise_changed_lines(lines: list[str],
             # don't shift our column index. Then pick the last
             # *non-empty* field as the post-rename path.
             cols = line.split("\t")
-            # Recognise the exact ``D\tpath`` delete shape so we can
+            # Recognize the exact ``D\tpath`` delete shape so we can
             # divert it into the audit trail instead of letting the
             # path pretend it was modified. Only fires when the
-            # caller asked for delete capture; otherwise behaviour is
+            # caller asked for delete capture; otherwise behavior is
             # byte-identical to the historical implementation.
             if (deleted is not None
                     and len(cols) == 2
@@ -2613,7 +2613,7 @@ class _DiffExcerpts:
         prepends a one-line breadcrumb so the reader knows the
         excerpt is not centered on the violation line itself but on
         the closest changed region. This is far more useful than the
-        old behaviour of returning an empty list, which made the
+        old behavior of returning an empty list, which made the
         violation line look like it had no diff context at all.
         """
         if not self.lines:
@@ -2624,7 +2624,7 @@ class _DiffExcerpts:
         # Window selection:
         #   * Violation INSIDE the hunk → ±context around the
         #     violation line, clamped to hunk bounds. Mirrors the
-        #     classic single-hunk behaviour.
+        #     classic single-hunk behavior.
         #   * Violation OUTSIDE every hunk → render the *entire*
         #     selected hunk (capped at 2*context+1 lines so we
         #     don't blow up output for a huge nearby hunk). This

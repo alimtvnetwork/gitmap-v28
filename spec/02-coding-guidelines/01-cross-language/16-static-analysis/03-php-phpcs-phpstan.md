@@ -193,7 +193,7 @@ rules:
 | 4 | PHPStan at level 9 installed | 🔲 |
 | 5 | `phpstan-strict-rules` installed | 🔲 |
 | 6 | CI runs `phpcs --standard=phpcs.xml src/` on every PR | 🔲 |
-| 7 | CI runs `phpstan analyse` on every PR | 🔲 |
+| 7 | CI runs `phpstan analyze` on every PR | 🔲 |
 | 8 | SonarQube sonar-php plugin enabled | 🔲 |
 | 9 | `phpcpd` installed for duplicate detection | 🔲 |
 | 10 | Team reviewed and approved thresholds | 🔲 |

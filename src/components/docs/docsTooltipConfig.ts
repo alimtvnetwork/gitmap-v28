@@ -13,7 +13,7 @@ export const DOCS_TOOLTIP_SIDE_OFFSET = 6;
 export const DOCS_TOOLTIP_ALIGN = "center" as const;
 
 // Hover latency before a tooltip opens (ms). Re-tooltipping a
-// neighbour within DOCS_TOOLTIP_SKIP_DELAY_MS opens instantly so
+// neighbor within DOCS_TOOLTIP_SKIP_DELAY_MS opens instantly so
 // scrubbing across an icon row feels snappy.
 export const DOCS_TOOLTIP_DELAY_MS = 150;
 export const DOCS_TOOLTIP_SKIP_DELAY_MS = 300;

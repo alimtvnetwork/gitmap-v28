@@ -15,7 +15,7 @@ The plugin uses two independent logging tiers:
 
 ### Why two tiers
 
-The autoloader and bootstrap run before any plugin classes are available. If they fail, Tier 1 (native `error_log()`) captures the failure. Once the plugin initialises, Tier 2 (FileLogger) handles all logging with structured output and file management.
+The autoloader and bootstrap run before any plugin classes are available. If they fail, Tier 1 (native `error_log()`) captures the failure. Once the plugin initializes, Tier 2 (FileLogger) handles all logging with structured output and file management.
 
 ---
 
@@ -141,7 +141,7 @@ class FileLogger
 }
 ```
 
-### Method behaviour matrix
+### Method behavior matrix
 
 | Method | Level | Writes to info.log | Writes to error.log | Writes stacktrace | Dedup enabled | Skipped in non-debug |
 |--------|-------|--------------------|---------------------|--------------------|---------------|---------------------|
@@ -295,7 +295,7 @@ Logging only `$e->getMessage()` without the trace is a **critical defect**.
 
 When FileLogger is not available (autoloader, bootstrap), use the `ErrorLogHelper` static class:
 
-| Method | Behaviour |
+| Method | Behavior |
 |--------|-----------|
 | `ErrorLogHelper::log($e, 'Context:')` | Logs message + trace to `error_log()` |
 | `ErrorLogHelper::logAndThrow($e, 'Context:')` | Logs and re-throws (return type `never`) |
@@ -779,7 +779,7 @@ register_shutdown_function(function (): void {
 
 ## 4.14 DateHelper — Timestamp Specification
 
-All timestamps flow through a centralised `DateHelper` class:
+All timestamps flow through a centralized `DateHelper` class:
 
 | Method | Returns | Used for |
 |--------|---------|----------|

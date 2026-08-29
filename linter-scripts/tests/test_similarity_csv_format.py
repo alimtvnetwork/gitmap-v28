@@ -71,7 +71,7 @@ def _sample_rows() -> list:
 
 class TestFormatVocabulary(unittest.TestCase):
 
-    def test_recognised_formats_are_frozen(self) -> None:
+    def test_recognized_formats_are_frozen(self) -> None:
         # Pin the contract: exactly two dialects, in this order.
         # Adding a third (e.g. semicolon for German Excel) is a
         # deliberate breaking decision.

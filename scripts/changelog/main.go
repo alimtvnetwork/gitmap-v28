@@ -10,7 +10,7 @@
 //
 // Conventional Commits prefixes (feat:, fix:, docs:, chore:, refactor:,
 // perf:, test:, build:, ci:, style:, revert:) are grouped into named
-// sections. Commits without a recognised prefix are reported on stderr
+// sections. Commits without a recognized prefix are reported on stderr
 // and skipped so a single sloppy "Changes" subject cannot pollute the
 // release notes.
 package main

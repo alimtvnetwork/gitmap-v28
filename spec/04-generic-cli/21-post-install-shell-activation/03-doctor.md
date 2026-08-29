@@ -2,7 +2,7 @@
 
 > **Parent spec:** [../21-post-install-shell-activation.md](../21-post-install-shell-activation.md)
 > **Sibling files:**
-> - [01-contract.md](01-contract.md) — Required behaviours and activation flow
+> - [01-contract.md](01-contract.md) — Required behaviors and activation flow
 > - [02-snippets.md](02-snippets.md) — Per-shell profile snippet bodies
 > - [04-idempotency.md](04-idempotency.md) — Rewrite, removal, and version-bump rules
 

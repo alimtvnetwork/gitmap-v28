@@ -278,7 +278,7 @@ Handlers are created fresh on each `useEffect` cycle (triggered by `html` or `se
 ## Cross-References
 
 - HTML structure of code blocks: `02-html-structure.md`
-- Full interaction catalogue: `04-interactions.md` (sections 5-10)
+- Full interaction catalog: `04-interactions.md` (sections 5-10)
 - CSS class definitions: `05-styling.md`
 - Clipboard utility: `07-clipboard.md`
 - DOM helpers and selectors: `codeBlockDomHelpers.ts`

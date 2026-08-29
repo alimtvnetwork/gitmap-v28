@@ -835,7 +835,7 @@ The manifest declares every seed file, which table it targets, and the strategy 
 
 ### Seeding strategies
 
-| Strategy | Behaviour | Use when |
+| Strategy | Behavior | Use when |
 |----------|-----------|----------|
 | `insert_if_empty` | Only seeds if the target table has zero rows | First activation — don't overwrite user customisations |
 | `upsert_by_key` | Inserts new rows, updates existing rows by primary key | Version upgrade adds new defaults without wiping user data |

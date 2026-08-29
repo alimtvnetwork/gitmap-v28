@@ -24,3 +24,4 @@
 - [33-gocritic-appendassign-diff.md](./33-gocritic-appendassign-diff.md): Fix gocritic appendAssign new finding in CI diff gate and eliminate unused helper warnings.
 - [34-gocritic-ifelsechain-diff.md](./34-gocritic-ifelsechain-diff.md): Fix gocritic ifElseChain findings by converting multi-branch conditionals to switch statements.
 - [35-exhaustive-switch-diff.md](./35-exhaustive-switch-diff.md): Fix exhaustive switch linter findings by providing complete case coverage across all enum switches.
+- [36-misspell-changed-diff.md](./36-misspell-changed-diff.md): Fix misspell findings across repo files and standardize on US English.

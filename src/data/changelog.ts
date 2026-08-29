@@ -49,12 +49,12 @@ export const changelog: ChangelogEntry[] = [
     date: "2026-05-26",
     subtitle: "Spec 114 Gap A follow-up: `--max-history-scan` escape hatch",
     items: [
-      "Added: `Options.MaxHistoryScan int` in `gitmap/committransfer/types.go` — opt-in cap on the target-history scan used by the idempotence check. Default `0` preserves the v5.78.0 unbounded behaviour; positive values cap the `git log` query at N commits for operators running against pathologically large targets (mirrored monorepos, tens of millions of commits) where the full log is prohibitive.",
+      "Added: `Options.MaxHistoryScan int` in `gitmap/committransfer/types.go` — opt-in cap on the target-history scan used by the idempotence check. Default `0` preserves the v5.78.0 unbounded behavior; positive values cap the `git log` query at N commits for operators running against pathologically large targets (mirrored monorepos, tens of millions of commits) where the full log is prohibitive.",
       "Wired: `gitmap/committransfer/plan.go` — `BuildPlan` now passes `opts.MaxHistoryScan` to `recentLogSubjectsAndBodies(targetDir, opts.MaxHistoryScan)` instead of the hard-coded `0`. The existing `<= 0` branch in `recentLogSubjectsAndBodies` keeps the unbounded default working with no other changes.",
       "Added: `--max-history-scan N` CLI flag on all commit-transfer commands (`commit-in`, `commit-out`, `commit-left`, `commit-right`, `commit-both`). Constants: `FlagCTMaxHistoryScan` + `FlagDescCTMaxHistoryScan` in `gitmap/constants/constants_committransfer.go`. Wired in `registerCommitTransferStrings`.",
       "Added: `gitmap/committransfer/maxhistoryscan_test.go` — pins the zero-value-means-unbounded contract and the struct-field round-trip so rename/removal triggers a compile failure here BEFORE it reaches CLI wiring or `plan.go`.",
       "Updated: `spec/01-app/114-committransfer-idempotence-and-merge-default.md` — Gap A resolution gains an explicit step (4) documenting the v5.83.0 escape hatch.",
-      "Verified: `TestPlanIdempotenceBeyond200Commits` continues to pass because the default (`MaxHistoryScan=0`) preserves the unbounded scan behaviour added in v5.78.0.",
+      "Verified: `TestPlanIdempotenceBeyond200Commits` continues to pass because the default (`MaxHistoryScan=0`) preserves the unbounded scan behavior added in v5.78.0.",
     ],
   },
   {
@@ -695,9 +695,9 @@ export const changelog: ChangelogEntry[] = [
     items: [
       "Added: `gitmap push` (alias `ph`) — runs `git push` in the current repo with full stdin/stdout/stderr forwarding and exit-code propagation, mirroring the v5.28.0 `gitmap pull` cwd short-circuit.",
       "Added: `--ssh` / `-ssh` / `--sh` and `--https` / `-https` / `--ht` transport flags on both `gitmap push` and `gitmap pull` — rewrites `remote.origin.url` to the requested transport and **persists** the change via `git remote set-url origin`, so subsequent plain `git push` / `git pull` invocations keep the new transport.",
-      "Added: when both flags are set, `--ssh` wins with a one-line stderr warning (mirrors `gitmap clone` semantics from spec 110). Unrecognised origin URLs fail-open — a warning is printed but git push/pull still runs.",
+      "Added: when both flags are set, `--ssh` wins with a one-line stderr warning (mirrors `gitmap clone` semantics from spec 110). Unrecognized origin URLs fail-open — a warning is printed but git push/pull still runs.",
       "Added: extra positional args after the flags forward verbatim, so `gitmap push --ssh origin main` runs `git push origin main` against the freshly-rewritten SSH origin.",
-      "Added: end-to-end tests in `gitmap-v28/cmd/pushpull_transport_e2e_test.go` cover HTTPS↔SSH conversion + persistence, idempotent no-op, `--ssh` winning conflict, and unrecognised-URL fail-open — using a real `git` binary against a temp bare repo (skipped when git is missing).",
+      "Added: end-to-end tests in `gitmap-v28/cmd/pushpull_transport_e2e_test.go` cover HTTPS↔SSH conversion + persistence, idempotent no-op, `--ssh` winning conflict, and unrecognized-URL fail-open — using a real `git` binary against a temp bare repo (skipped when git is missing).",
       "Spec: `spec/01-app/111-push-pull-transport-flags.md`.",
       "Pinned: README pinned-version block + version matrix moved to **v5.29.0**.",
       "Synced: `gitmap-v28/constants/constants.go` (`Version = \"5.29.0\"`) and `src/constants/index.ts` (`VERSION = \"v5.29.0\"`).",
@@ -718,9 +718,9 @@ export const changelog: ChangelogEntry[] = [
   {
     version: "v5.27.0",
     date: "2026-05-19",
-    subtitle: "`gitmap cfrp` / `cfr` now honour `--ssh` / `--https`",
+    subtitle: "`gitmap cfrp` / `cfr` now honor `--ssh` / `--https`",
     items: [
-      "Fixed: `gitmap cfrp <url> --ssh` (and `cfr`) was ignoring the transport flag — `parseCloneFixRepoArgs` only recognised `--no-vscode-sync` and `--require-version`, so the HTTPS URL was passed straight to the in-process clone.",
+      "Fixed: `gitmap cfrp <url> --ssh` (and `cfr`) was ignoring the transport flag — `parseCloneFixRepoArgs` only recognized `--no-vscode-sync` and `--require-version`, so the HTTPS URL was passed straight to the in-process clone.",
       "Fixed: URL is now rewritten via `ConvertURLToSSH` / `ConvertURLToHTTPS` before the clone runs, mirroring `gitmap clone --ssh` exactly.",
       "Added: accepts `--ssh`, `-ssh`, `--sh`, `-sh`, `--https`, `-https`, `--ht`, `-ht` (single- and double-dash, plus the same short aliases as `gitmap clone`). When both `--ssh` and `--https` are set, `--ssh` wins with a stderr warning.",
       "Added: prints a `↪ --ssh rewrite: <before> → <after>` breadcrumb so the substitution is visible before `git clone` runs.",
@@ -735,7 +735,7 @@ export const changelog: ChangelogEntry[] = [
     items: [
       "Pinned: README pinned-version block + version matrix moved to **v5.26.0** (PowerShell + Bash installer URLs and all per-platform release assets).",
       "Synced: `gitmap-v28/constants/constants.go` (`Version = \"5.26.0\"`) and `src/constants/index.ts` (`VERSION = \"v5.26.0\"`).",
-      "Rolled up: `gitmap clone <url> --ssh` (and every other bool clone flag) is honoured regardless of position — `parseCloneFlags` routes through `reorderFlagsBeforeArgs` so a trailing `--ssh` no longer slips past Go's `flag` package.",
+      "Rolled up: `gitmap clone <url> --ssh` (and every other bool clone flag) is honored regardless of position — `parseCloneFlags` routes through `reorderFlagsBeforeArgs` so a trailing `--ssh` no longer slips past Go's `flag` package.",
       "Clarified: SSH-shorthand and `ssh://` URLs still clone natively through `git`; the `--ssh` converter only fires to coerce an HTTPS URL into shorthand before `git` runs.",
     ],
   },
@@ -745,7 +745,7 @@ export const changelog: ChangelogEntry[] = [
     subtitle: "`gitmap clone --ssh` now works when the flag follows the URL",
     items: [
       "Fixed: `gitmap clone <url> --ssh` (and `--https`, `--no-replace`, every other bool flag) was silently ignored when written AFTER the positional URL. Go's `flag` package stops parsing at the first non-flag, so the trailing `--ssh` never reached `applyURLSchemeFlags` and the HTTPS URL was cloned as-is.",
-      "Fixed: `parseCloneFlags` now routes through `reorderFlagsBeforeArgs` (the same helper used by `release`, `clone-next`, `clone-from`, `commit-transfer`, etc.), so flags are honoured regardless of position. `gitmap clone --ssh <url>`, `gitmap clone <url> --ssh`, and `gitmap clone <url> --ssh --no-replace` all behave identically.",
+      "Fixed: `parseCloneFlags` now routes through `reorderFlagsBeforeArgs` (the same helper used by `release`, `clone-next`, `clone-from`, `commit-transfer`, etc.), so flags are honored regardless of position. `gitmap clone --ssh <url>`, `gitmap clone <url> --ssh`, and `gitmap clone <url> --ssh --no-replace` all behave identically.",
       "Clarified: SSH-shorthand and `ssh://` URLs already work natively through `git clone` — no extra wiring required. The `--ssh` converter only fires when explicitly supplied, to coerce an HTTPS URL into shorthand before `git` runs.",
       "Pinned: README pinned-version block + version matrix moved to **v5.24.0**.",
       "Synced: `gitmap-v28/constants/constants.go` (`Version = \"5.24.0\"`) and `src/constants/index.ts` (`VERSION = \"v5.24.0\"`).",
@@ -788,9 +788,9 @@ export const changelog: ChangelogEntry[] = [
     date: "2026-05-18",
     subtitle: "`gitmap clone --ssh` / `--https` coerce every URL into the requested transport before git runs",
     items: [
-      "Added: `gitmap clone --ssh` rewrites every recognised Git URL into its `git@host:owner/repo.git` SSH-shorthand form before `git clone` is invoked. HTTPS (`https://github.com/owner/repo`) and `ssh://git@host[:port]/owner/repo` URLs are both converted; already-shorthand URLs are normalized (`.git` suffix appended). The flag flows through the multi-URL form too — `clone url1,url2,url3 --ssh` converts the whole batch in one shot.",
+      "Added: `gitmap clone --ssh` rewrites every recognized Git URL into its `git@host:owner/repo.git` SSH-shorthand form before `git clone` is invoked. HTTPS (`https://github.com/owner/repo`) and `ssh://git@host[:port]/owner/repo` URLs are both converted; already-shorthand URLs are normalized (`.git` suffix appended). The flag flows through the multi-URL form too — `clone url1,url2,url3 --ssh` converts the whole batch in one shot.",
       "Added: `gitmap clone --https` is the symmetric counterpart — forces every URL into `https://host/owner/repo.git` form. Useful in CI/headless environments where the SSH agent isn't unlocked. `--ssh` and `--https` are mutually exclusive; when both are set, `--ssh` wins and a one-line stderr warning is printed.",
-      "Behaviour: conversion happens AFTER `applySSHKey` and BEFORE the multi-URL / direct-URL routers, so the multi-URL detector sees the converted URLs. Non-URL positionals (folder names, `json`/`csv`/`text` shorthands) are skipped via the existing `isDirectURL` predicate — a stray `--ssh` cannot corrupt a manifest invocation. Port hints in `ssh://` URLs are dropped (SSH-shorthand has no port slot — use `~/.ssh/config` for non-default ports).",
+      "Behavior: conversion happens AFTER `applySSHKey` and BEFORE the multi-URL / direct-URL routers, so the multi-URL detector sees the converted URLs. Non-URL positionals (folder names, `json`/`csv`/`text` shorthands) are skipped via the existing `isDirectURL` predicate — a stray `--ssh` cannot corrupt a manifest invocation. Port hints in `ssh://` URLs are dropped (SSH-shorthand has no port slot — use `~/.ssh/config` for non-default ports).",
       "Files: `gitmap-v28/cmd/cloneurlconvert.go` (new — `ConvertURLToSSH`, `ConvertURLToHTTPS`, `httpsToSSHShorthand`, `shorthandToHTTPS`, `sshSchemeToShorthand`, `sshSchemeToHTTPS`, `ensureGitSuffix`); `gitmap-v28/cmd/rootflags.go` (UseSSH/UseHTTPS on CloneFlags, `--ssh`/`--https` registration); `gitmap-v28/cmd/clone.go` (`applyURLSchemeFlags`, wired into `runClone`).",
       "Spec: `spec/01-app/110-clone-ssh-flag.md`. Memory: `.lovable/memory/features/clone-ssh-flag.md`.",
     ],
@@ -982,7 +982,7 @@ export const changelog: ChangelogEntry[] = [
     items: [
       "`gitmap-v28/cmd/clonefixrepo.go`: replaced direct type assertion `runErr.(*exec.ExitError)` with `errors.As(runErr, &exitErr)` so wrapped exec errors still propagate the child exit code through the `clone-fix-repo` / `clone-fix-repo-pub` pipelines. Satisfies golangci-lint `errorlint` and keeps exit-code fidelity for chained steps.",
       "`gitmap-v28/cmd/visibilityapply.go`: collapsed `func parseVisibilityOutput(_ string, out string) string` to `func parseVisibilityOutput(_, out string) string` per gocritic `paramTypeCombine`.",
-      "`gitmap-v28/constants/constants_visibility.go`: spelling fix `centralised` → `centralized` per misspell linter.",
+      "`gitmap-v28/constants/constants_visibility.go`: spelling fix `centralized` → `centralized` per misspell linter.",
       "Files: `gitmap-v28/cmd/clonefixrepo.go`, `gitmap-v28/cmd/visibilityapply.go`, `gitmap-v28/constants/constants_visibility.go`, `src/constants/index.ts` (VERSION → v4.6.0), `src/data/changelog.ts` (this entry).",
     ],
   },
@@ -1379,7 +1379,7 @@ export const changelog: ChangelogEntry[] = [
     items: [
       "Filled the documentation gap around `gitmap templates list` (alias `tpl tl`) and `gitmap templates show <kind> <lang>` (alias `tpl ts`). The CLI commands themselves have been live since v3.16.0 (`gitmap-v28/cmd/templatescli.go::dispatchTemplates`) — this release adds the `gitmap-v28/helptext/templates.md` page they were missing and registers two entries in `src/data/commands.ts` so they appear in the docs-site Commands index under **Tools & Setup**, alongside `setup` and `doctor`.",
       "Helptext covers the SOURCE column semantics (user overlay vs embedded asset, overlay-wins resolution), a worked example showing what a forked entry looks like in the table, the `templates show ignore <lang> > /tmp/curated && diff` recipe for auditing forks against the curated embed, and the full forking workflow (`mkdir -p ~/.gitmap/templates/<kind> && gitmap templates show … > overlay.file && $EDITOR overlay.file`). Also documents the unfork path: delete the overlay file → next resolve falls back to embed.",
-      "No code changes — `dispatchTemplates`, `templates.List()`, and `templates.Resolve()` already implement the requested behaviour. This release only makes the commands discoverable from the help system and the docs site.",
+      "No code changes — `dispatchTemplates`, `templates.List()`, and `templates.Resolve()` already implement the requested behavior. This release only makes the commands discoverable from the help system and the docs site.",
     ],
   },
   {
@@ -1403,7 +1403,7 @@ export const changelog: ChangelogEntry[] = [
     items: [
       "Added an **End-to-End Examples** section to `gitmap-v28/helptext/scan.md` with four complete workflows that string the three most-asked-about flags together: (E2E 1) custom config + JSON output + re-clone on another host via `gitmap clone <file> --target-dir`, exercising hierarchy preservation across machines; (E2E 2) one scan, two consumers — SSH-mode JSON for CI plus CSV for spreadsheets, with a custom `--output-path`; (E2E 3) terminal preview → author config → re-scan with `--output json`, the recommended onboarding flow when you don't yet know what to exclude; (E2E 4) CLI flag overrides config file, demonstrating `config.MergeWithFlags` precedence without mutating the file on disk.",
       "Each example is copy-pasteable: shell-prompt-free commands, real artifact paths under `.gitmap/output/`, and an **Expected output** block where the result isn't obvious. Cross-references to `gitmap clone` make the scan→clone round-trip discoverable from the scan page alone — users no longer need to read two helptext files to understand the full pipeline.",
-      "No code changes — the underlying `parseScanFlags` / `config.LoadFromFile` / `config.MergeWithFlags` behaviour was already correct. This release only fills the documentation gap that made the four workflows look like separate features instead of one composable pipeline.",
+      "No code changes — the underlying `parseScanFlags` / `config.LoadFromFile` / `config.MergeWithFlags` behavior was already correct. This release only fills the documentation gap that made the four workflows look like separate features instead of one composable pipeline.",
     ],
   },
   {
@@ -1672,8 +1672,8 @@ export const changelog: ChangelogEntry[] = [
     version: "v2.62.0",
     date: "2026-04-07",
     items: [
-      "Release branches (`release/**`) are no longer cancelled by `cancel-in-progress` — every release commit runs to completion.",
-      "CI workflow uses conditional `cancel-in-progress` expression to protect release branches while cancelling superseded runs on other branches.",
+      "Release branches (`release/**`) are no longer canceled by `cancel-in-progress` — every release commit runs to completion.",
+      "CI workflow uses conditional `cancel-in-progress` expression to protect release branches while canceling superseded runs on other branches.",
       "Updated CI pipeline spec with release branch protection documentation.",
     ],
   },

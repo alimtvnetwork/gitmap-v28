@@ -23,7 +23,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 
 ## Contents
 
-_No app issue analyses added yet. Add issue files as numbered entries within this folder._
+_No app issue analyzes added yet. Add issue files as numbered entries within this folder._
 
 ---
 

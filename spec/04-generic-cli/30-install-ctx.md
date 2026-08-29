@@ -268,7 +268,7 @@ Append to `constants_install.go`:
 Because Finder Services and Linux file-manager menus do not support
 arbitrary nested cascades, `flattenCtxMenu()` (in
 `gitmap-v28/cmd/installctxflatten.go`) collapses each `Category ▸ Child`
-into a single labelled `flatCtxEntry`:
+into a single labeled `flatCtxEntry`:
 
 ```
 gitmap-v28: Release — Release next (bump minor)

@@ -101,7 +101,7 @@ sha-check:
     key: ci-passed-${{ github.sha }}
 ```
 
-**Why inline the cache write?** A separate `mark-success` job could be cancelled by `cancel-in-progress` after all validation jobs pass but before the cache is saved. Inlining it into the final validation step prevents this race condition.
+**Why inline the cache write?** A separate `mark-success` job could be canceled by `cancel-in-progress` after all validation jobs pass but before the cache is saved. Inlining it into the final validation step prevents this race condition.
 
 ---
 

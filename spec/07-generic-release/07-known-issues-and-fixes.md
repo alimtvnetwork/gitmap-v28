@@ -15,7 +15,7 @@
 | 1 | `go-winres` icon > 256x256 | resource embed | 🔴 Blocker | ✅ Fixed v2.81.0 |
 | 2 | `cd: dist: No such file or directory` | compress | 🔴 Blocker | ✅ Fixed v2.54.0 |
 | 3 | `npm ci` lockfile drift (docs-site sub-build) | docs-site | 🔴 Blocker | ✅ Fixed v2.82.0 |
-| 4 | Release branch run cancelled by follow-up commit | concurrency | 🔴 Blocker | ✅ Fixed |
+| 4 | Release branch run canceled by follow-up commit | concurrency | 🔴 Blocker | ✅ Fixed |
 | 5 | Install script version-pinning placeholder unreplaced | script generation | 🟠 High | ✅ Fixed |
 | 6 | Missing `GITHUB_TOKEN` silently skips upload | asset upload | 🟡 Medium | ✅ Mitigated |
 | 7 | Asset name mismatch between checksum and upload | packaging | 🟠 High | ✅ Fixed |
@@ -165,11 +165,11 @@ Commit the regenerated `package-lock.json` alongside the `package.json` change.
 
 ---
 
-## Issue #4 — Release Branch Run Cancelled by Follow-Up Commit
+## Issue #4 — Release Branch Run Canceled by Follow-Up Commit
 
 ### Symptom
 
-A push to `release/v2.5x.0` started the release workflow. A follow-up commit (changelog fix, typo) on the same branch cancelled the in-progress run. Result: GitHub Release created with partial assets, or no release at all.
+A push to `release/v2.5x.0` started the release workflow. A follow-up commit (changelog fix, typo) on the same branch canceled the in-progress run. Result: GitHub Release created with partial assets, or no release at all.
 
 ### Root Cause
 

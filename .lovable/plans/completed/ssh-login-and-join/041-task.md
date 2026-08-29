@@ -26,7 +26,7 @@ citations:
 # Task 041 — Implement Remote Sudo Key Append
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
+- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [gitmap/cmd/sshjoin_auth_cmd.go](file:///d:/work/gitmap/gitmap/cmd/sshjoin_auth_cmd.go) — Why: Target file.
 

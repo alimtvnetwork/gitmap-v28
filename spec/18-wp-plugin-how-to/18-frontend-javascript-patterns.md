@@ -397,7 +397,7 @@ $('#riseup-clear-errors').on('click', function() {
 |------|--------|
 | Always confirm | Delete, clear, remove, reset — any destructive action |
 | Localized message | Confirmation text from `i18n` — never hardcode |
-| Return early | If cancelled, `return` immediately — don't nest the AJAX call |
+| Return early | If canceled, `return` immediately — don't nest the AJAX call |
 
 ---
 

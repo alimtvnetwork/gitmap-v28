@@ -806,7 +806,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Updated behaviour description
+- Updated behavior description
 
 ### Fixed
 
@@ -959,7 +959,7 @@ jobs:
           php-version: '8.2'
       - run: composer install
       - run: vendor/bin/phpunit
-      - run: vendor/bin/phpstan analyse
+      - run: vendor/bin/phpstan analyze
 
   package:
     needs: test

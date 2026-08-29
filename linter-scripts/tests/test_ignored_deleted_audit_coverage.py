@@ -1,5 +1,5 @@
 """Comprehensive coverage for `--list-changed-files` deleted-path
-behaviour and the `ignored-deleted` audit row.
+behavior and the `ignored-deleted` audit row.
 
 These tests fill gaps left by the existing suites
 (``test_list_changed_files_flag.py``,
@@ -95,7 +95,7 @@ class _Sandbox:
 class DeletesOnlyIntakeIsCleanPass(unittest.TestCase):
     """A payload of pure deletes resolves to zero linted files.
 
-    The expected behaviour is a fast PASS (exit 0) with the deleted
+    The expected behavior is a fast PASS (exit 0) with the deleted
     rows surfaced in the audit on STDERR — the lint step has nothing
     to scan, so it must NOT spend cycles walking the tree.
     """
@@ -263,7 +263,7 @@ class OnlyStatusFilterCanIsolateDeletes(unittest.TestCase):
 
 
 class ParserProvenanceTagSurvivesWhitespace(unittest.TestCase):
-    """The `D\\tpath` shape is recognised regardless of trailing CR."""
+    """The `D\\tpath` shape is recognized regardless of trailing CR."""
 
     def test_trailing_cr_does_not_break_d_row(self) -> None:
         # CRLF-pasted authored payloads (Windows runner copy-paste)

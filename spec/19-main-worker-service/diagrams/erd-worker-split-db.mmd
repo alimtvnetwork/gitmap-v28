@@ -19,7 +19,7 @@ erDiagram
     %% NOTE: AppUser below is the AUTHORITATIVE user record (PasswordHash,
     %%       TotpSecret, BackupCodesHash). Main only holds UserDirectory (routing index).
     %% NOTE (FU-4): Settings-tier tables (WorkerBootstrapState, WorkerUpdateInstruction)
-    %%              are catalogued in 11-…md §5 but not redrawn here to keep the ERD readable.
+    %%              are cataloged in 11-…md §5 but not redrawn here to keep the ERD readable.
 
     %% ---- Root tier (one DB per worker) ----
     RootCompany ||--o{ AppCompanyShard : "shards into"

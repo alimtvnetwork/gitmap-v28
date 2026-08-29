@@ -44,7 +44,7 @@ concurrency:
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
 ```
 
-**Why**: If two pushes land on the same branch in quick succession, the first run is cancelled to save resources. Release branches are exempt because every release commit must produce complete artifacts.
+**Why**: If two pushes land on the same branch in quick succession, the first run is canceled to save resources. Release branches are exempt because every release commit must produce complete artifacts.
 
 ---
 
@@ -121,7 +121,7 @@ sha-check:
     key: ci-passed-${{ github.sha }}
 ```
 
-**Why inline the cache write?** A separate `mark-success` job could be cancelled by `cancel-in-progress` after all validation jobs pass but before the cache is saved. Inlining it into the final validation step prevents this race condition.
+**Why inline the cache write?** A separate `mark-success` job could be canceled by `cancel-in-progress` after all validation jobs pass but before the cache is saved. Inlining it into the final validation step prevents this race condition.
 
 ---
 

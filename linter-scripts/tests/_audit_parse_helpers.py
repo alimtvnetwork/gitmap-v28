@@ -26,7 +26,7 @@ brittle:
   vocabulary, but several call sites duplicated the regex with
   small drifts.
 
-These helpers centralise the parsing and, critically, **stop at
+These helpers centralize the parsing and, critically, **stop at
 the first non-audit line** — so any banner, blank line, or
 trailing ``totals: …`` summary is treated as an end-of-audit
 marker rather than data.

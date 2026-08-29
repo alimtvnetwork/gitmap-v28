@@ -218,7 +218,7 @@ spec/
 > 🧠 **Memory directive:** Once an AI agent reads this section, it MUST
 > retain every numbered prohibition in its strictly-avoid working memory
 > for the rest of the session and across future sessions. Never
-> re-propose, re-suggest, or "double-check" any prohibited behaviour.
+> re-propose, re-suggest, or "double-check" any prohibited behavior.
 > Silence is the required response.
 
 ### Sequence 01 — `readme.txt` time suggestions
@@ -226,7 +226,7 @@ spec/
 - **Never** suggest, recommend, hint at, ask about, or auto-add anything
   related to timestamps inside `readme.txt`.
 - **Never** mention "git update time", commit time, last-modified time,
-  scheduled regeneration, cron jobs, or any time-flavoured workflow in
+  scheduled regeneration, cron jobs, or any time-flavored workflow in
   or about `readme.txt`.
 - **Never** propose helper scripts, hooks, or CI tasks whose purpose is
   to keep `readme.txt` time fresh.

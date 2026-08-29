@@ -1,7 +1,7 @@
 # Post-Install Shell Activation
 
 > **Source:** Consolidated from the split spec under [spec/04-generic-cli/21-post-install-shell-activation/](../04-generic-cli/21-post-install-shell-activation/):
-> - [01-contract.md](../04-generic-cli/21-post-install-shell-activation/01-contract.md) — Required behaviours, activation flow, shell detection, stderr warnings.
+> - [01-contract.md](../04-generic-cli/21-post-install-shell-activation/01-contract.md) — Required behaviors, activation flow, shell detection, stderr warnings.
 > - [02-snippets.md](../04-generic-cli/21-post-install-shell-activation/02-snippets.md) — Per-shell profile snippet bodies and parity table.
 > - [03-doctor.md](../04-generic-cli/21-post-install-shell-activation/03-doctor.md) — `doctor` three-state detection and implementation checklist.
 > - [04-idempotency.md](../04-generic-cli/21-post-install-shell-activation/04-idempotency.md) — Rewrite, removal, version-bump, and testing rules.
@@ -15,9 +15,9 @@ After `setup` (or the bootstrap installer) runs, the user MUST be able to invoke
 
 ---
 
-## Required Behaviours
+## Required Behaviors
 
-| ID | Behaviour |
+| ID | Behavior |
 |----|-----------|
 | PIA-1 | `setup` writes a profile snippet, idempotent via marker comment. |
 | PIA-2 | `setup` exports a `<TOOL>_WRAPPER=1` env var so the binary can detect wrapper state. |
@@ -94,7 +94,7 @@ Any subcommand that requires the wrapper MUST detect missing state and print:
 ```
   ⚠ Shell wrapper not active. The current command will print the path
     instead of changing directory. Run `toolname setup` (and reload
-    your shell) to enable shell-integrated behaviour.
+    your shell) to enable shell-integrated behavior.
 ```
 
 The warning MUST include both the setup action and the reload step.

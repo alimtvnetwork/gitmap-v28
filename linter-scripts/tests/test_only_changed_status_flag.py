@@ -1,6 +1,6 @@
 """Tests for ``--only-changed-status`` audit-row filtering.
 
-Behaviour under test:
+Behavior under test:
 
 * A single ``--only-changed-status matched`` invocation hides every
   ignored row in both text and JSON output.

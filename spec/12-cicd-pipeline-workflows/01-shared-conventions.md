@@ -74,7 +74,7 @@ concurrency:
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
 ```
 
-**Why**: If two pushes land on the same branch in quick succession, the first run is cancelled to save compute. Release branches are **exempt** — every release commit must run to completion.
+**Why**: If two pushes land on the same branch in quick succession, the first run is canceled to save compute. Release branches are **exempt** — every release commit must run to completion.
 
 ### Release Pipelines — Never Cancel
 
@@ -84,7 +84,7 @@ concurrency:
   cancel-in-progress: false
 ```
 
-**Why**: Every release commit must produce a complete set of artifacts. Cancelling a release build could leave a partial release in an inconsistent state.
+**Why**: Every release commit must produce a complete set of artifacts. Canceling a release build could leave a partial release in an inconsistent state.
 
 ---
 

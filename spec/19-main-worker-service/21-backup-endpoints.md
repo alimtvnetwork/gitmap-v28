@@ -33,7 +33,7 @@ Pin the five HTTP endpoints that connect Main, primary Workers, and Backup nodes
 | BE-4 | GET | `/API/V1/Backup/Snapshots` | Backup node | S2S OAuth (Main only) | List available snapshot dates (machine-readable inventory). |
 | BE-5 | GET | `/API/V1/Backup/Health` | Backup node | S2S OAuth (Main only) | Liveness + lag + key-epoch state for dashboards. |
 
-**Defence-in-depth:** every backup endpoint MUST also assert the request reached the node via the dedicated `s2s` reverse-proxy hostname per `18-backup-nodes.md` §1 D9. Inbound user-facing traffic returns `421 Misdirected Request` + `MAIN-800-04 TrafficOnBackupRejected` at the proxy layer **before** routing reaches these handlers.
+**Defense-in-depth:** every backup endpoint MUST also assert the request reached the node via the dedicated `s2s` reverse-proxy hostname per `18-backup-nodes.md` §1 D9. Inbound user-facing traffic returns `421 Misdirected Request` + `MAIN-800-04 TrafficOnBackupRejected` at the proxy layer **before** routing reaches these handlers.
 
 ---
 
@@ -174,7 +174,7 @@ Replays of the same `X-Idempotency-Key` MUST return the original `200 OK` body v
 
 | Trigger | Code |
 |---|---|
-| Snapshot for date not present | `MAIN-830-01 SnapshotNotFound` (Phase 11 will register the catalogue entry) |
+| Snapshot for date not present | `MAIN-830-01 SnapshotNotFound` (Phase 11 will register the catalog entry) |
 | `TargetPrimaryWorkerNodeId` does not match `BackupOf` pairing | `MAIN-800-04 TrafficOnBackupRejected` (proxy) |
 | Concurrent restore already in progress for this pairing | `MAIN-830-02 RestoreAlreadyInProgress` (reserved Phase 11) |
 
@@ -283,7 +283,7 @@ Endpoint ↔ scope matrix:
 | `MainWorker.Backup.Endpoint.IncrementalDiffTimeoutSeconds` | **120** | seconds | BE-1 | Primary-side HTTP timeout. Larger than `MainWorker.Routing.HttpTimeoutSeconds=15` because envelope upload may be MB-scale. |
 | `MainWorker.Backup.Endpoint.RotateKeysTimeoutSeconds` | **30** | seconds | BE-2 | Per §5.4. |
 | `MainWorker.Backup.Endpoint.RestoreByDateTimeoutSeconds` | **60** | seconds | BE-3 | Accepts the job; the actual restore is a long-running worker job. |
-| `MainWorker.Backup.Endpoint.SnapshotsTimeoutSeconds` | **15** | seconds | BE-4 | Catalogue read. |
+| `MainWorker.Backup.Endpoint.SnapshotsTimeoutSeconds` | **15** | seconds | BE-4 | Catalog read. |
 | `MainWorker.Backup.Endpoint.HealthTimeoutSeconds` | **5** | seconds | BE-5 | Dashboard polling — keep tight to avoid masking real outages. |
 
 ---
@@ -299,7 +299,7 @@ Reserved sub-range for Phase 9 wire-only failures: **`MAIN-830-*` / 21189-21190*
 
 §4 (range table) of `13-error-codes.md` updates: previously-pending `MAIN-21189-21199` narrows to `MAIN-21191-21199`.
 
-No new `WORKER-*` codes — every decrypt / watermark / CDC failure on BE-1 is already catalogued in Phases 5–8.
+No new `WORKER-*` codes — every decrypt / watermark / CDC failure on BE-1 is already cataloged in Phases 5–8.
 
 ---
 

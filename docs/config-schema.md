@@ -71,7 +71,7 @@ A no-frills personal config:
 }
 ```
 
-## CI-flavoured example (SSH + JSON + custom artifact dir)
+## CI-flavored example (SSH + JSON + custom artifact dir)
 
 ```json
 {

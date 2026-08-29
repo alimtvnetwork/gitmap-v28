@@ -12,7 +12,7 @@ The CI/CD pipeline failed during `bash ../.github/scripts/full-suite-lint.sh` wi
 ## Solution Applied
 1. Downgraded `gitmap/go.mod` to `go 1.24.13` and pinned `golang.org/x/*` dependencies to their stable Go 1.24-compatible releases (`golang.org/x/crypto v0.36.0`, `golang.org/x/sys v0.41.0`, `golang.org/x/term v0.40.0`, `golang.org/x/text v0.23.0`, `golang.org/x/tools v0.31.0`, `golang.org/x/mod v0.24.0`).
 2. Ran `go build -mod=mod ./...` to refresh `go.sum` hashes without allowing local Go toolchains to auto-upgrade to 1.25.
-3. Fixed `misspell` false positive on `D:\work\other-app` in `vscodepm/update_remove_test.go` by renaming test fixtures to `second-app`.
+3. Fixed `misspell` false positive on `D:\work\othere-app` in `vscodepm/update_remove_test.go` by renaming test fixtures to `second-app`.
 4. Verified that all tests (`go test ./... -count=1`) and `.lovable/ai-fix-scripts/02-cicd-local-runner.py` pass 100% locally with 0 lint errors and 0 vet warnings.
 
 ## What NOT to Repeat

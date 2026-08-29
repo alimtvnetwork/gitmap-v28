@@ -59,7 +59,7 @@ python3 linter-scripts/allowlist-forbidden-string.py \
 
 ## Guard rails
 
-| Check | Behaviour |
+| Check | Behavior |
 |-------|-----------|
 | `--reason` empty or whitespace | exit `2` |
 | Unknown `--rule` id | exit `1` (lists available ids) |

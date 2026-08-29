@@ -17,8 +17,8 @@ underpin the v2.0 reopen of two formally-deferred open questions:
 
 | Origin OQ | Source disposition | What the threat model must cover |
 |---|---|---|
-| **OQ-12-1** — Separate `RefreshToken` cookie + rotation | [`12-jwt-delivery-contract.md` §11.3](./12-jwt-delivery-contract.md) — *Future-work catalogue* | Token-theft window, sign-out-everywhere, refresh-replay attack tree, cross-origin isolation assumptions. |
-| **OQ-23-1** / **OQ-23-2** — Snapshot dedup pyramid + partial-tenant restore | [`23-snapshot-storage-and-restore.md` §14.4](./23-snapshot-storage-and-restore.md) — *Future-work catalogue* | Snapshot-chain integrity, per-tenant blast radius, re-seal/key-rotation interaction, audit-bypass risk of partial restore. |
+| **OQ-12-1** — Separate `RefreshToken` cookie + rotation | [`12-jwt-delivery-contract.md` §11.3](./12-jwt-delivery-contract.md) — *Future-work catalog* | Token-theft window, sign-out-everywhere, refresh-replay attack tree, cross-origin isolation assumptions. |
+| **OQ-23-1** / **OQ-23-2** — Snapshot dedup pyramid + partial-tenant restore | [`23-snapshot-storage-and-restore.md` §14.4](./23-snapshot-storage-and-restore.md) — *Future-work catalog* | Snapshot-chain integrity, per-tenant blast radius, re-seal/key-rotation interaction, audit-bypass risk of partial restore. |
 
 Both deferred OQs declared `24-threat-model.md` as a **shared prerequisite**
 for any v2.0 reopen. Until this file becomes a real spec, neither OQ may be
@@ -28,7 +28,7 @@ reopened.
 
 ## 2. What is **not** in this file (CODE RED)
 
-Per the formalised dispositions in §11.3 / §14.4, this stub MUST NOT contain
+Per the formalized dispositions in §11.3 / §14.4, this stub MUST NOT contain
 any of the following — adding them here is itself a CODE RED violation:
 
 - ❌ Any STRIDE / attack-tree content (premature without the v2.0 trigger).
@@ -59,7 +59,7 @@ This file may be promoted from **stub** (v0.x) to **draft** (v1.0+) only when
    `WORKER-940-05+` / `MAIN-830-04+` for backup) has been formally allocated in
    `13-error-codes.md` — **not** before.
 4. A corresponding row exists in `97-acceptance-criteria.md` covering the new
-   threat-model-derived behaviour.
+   threat-model-derived behavior.
 
 Until **all four** are satisfied, this file stays at v0.1.0 and contains
 only this reservation notice.

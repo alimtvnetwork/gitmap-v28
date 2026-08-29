@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: false
 ```
 
-Release builds MUST NEVER be cancelled — every release tag must produce a GitHub Release regardless of subsequent commits.
+Release builds MUST NEVER be canceled — every release tag must produce a GitHub Release regardless of subsequent commits.
 
 ---
 

@@ -210,7 +210,7 @@ Every enum must include `isEqual()`, `isOtherThan()`, and `isAnyOf()`.
 | Go | Info-object with `map[Variant]EnumInfo` — see [Go Info-Object Pattern](../../02-coding-guidelines/03-golang/01-enum-specification/05-info-object-pattern.md) |
 | TypeScript | Info-object with `Record<EnumValue, EnumInfo>` |
 
-PHP uses `match` because it is idiomatic, compile-time optimized, and requires no extra classes. Go and TypeScript use the info-object pattern because their type systems benefit from centralised metadata maps.
+PHP uses `match` because it is idiomatic, compile-time optimized, and requires no extra classes. Go and TypeScript use the info-object pattern because their type systems benefit from centralized metadata maps.
 
 ---
 

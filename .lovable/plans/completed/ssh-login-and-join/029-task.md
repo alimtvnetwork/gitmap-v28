@@ -26,7 +26,7 @@ citations:
 # Task 029 — E2E Test SSH Login Dispatcher
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behaviour.
+- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
 - [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [gitmap/cmd/ssh_e2e_test.go](file:///d:/work/gitmap/gitmap/cmd/ssh_e2e_test.go) — Why: Target file.
 

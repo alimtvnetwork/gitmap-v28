@@ -885,7 +885,7 @@ gitmap cfr cg https://github.com/you/your-repo.git
 ### Verified
 - **`hd` / `help-dashboard`**: confirmed end-to-end - extracts bundled `docs-site.zip` (auto-downloads from GitHub release when missing), serves the static `dist/` over HTTP at `--port` (default), opens the user's default browser via `openURL`, and falls back to `npm run dev` or the hosted docs URL when assets are unavailable. Help file `gitmap/helptext/help-dashboard.md` present; listed in `CompactUtilities` group, `rootusage.go`, and `llmdocsgroups.go`.
 - **Help coverage**: every recent command (`rm`, `del`, `backup`, `cpc`, `cpm`, `chrome-profile-*`, `make-last-public`, `make-last-private`, `ssh status`) has a matching `gitmap/helptext/<id>.md` file - `TestEveryCmdIDHasHelpFile` passes.
-- **UI parity**: `src/constants/index.ts` `VERSION` pinned to the new tag; React docs surface mirrors the same command catalogue as the CLI help groups.
+- **UI parity**: `src/constants/index.ts` `VERSION` pinned to the new tag; React docs surface mirrors the same command catalog as the CLI help groups.
 
 ### Changed
 - **File-size CI lint**: converted to non-blocking baseline warning (item #16) so the pre-existing >200-line legacy files no longer block CI while new code is still held to the 200-line ceiling.
@@ -1354,7 +1354,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v6.4.0 - (2026-05-30) - `gitmap hd` auto-downloads `docs-site.zip`
 
 - Fixed: `gitmap hd` (help-dashboard) no longer dies with `Docs site directory not found at <install>\docs-site` when the installer skipped the docs asset (older installs, or releases that didn't ship `docs-site.zip`).
-- New behaviour: when neither `docs-site/` nor `docs-site.zip` exists next to the binary, `runHelpDashboard` now fetches the archive at runtime over HTTPS, trying `releases/download/v<Version>/docs-site.zip` first, then `releases/latest/download/docs-site.zip`, before extracting in place.
+- New behavior: when neither `docs-site/` nor `docs-site.zip` exists next to the binary, `runHelpDashboard` now fetches the archive at runtime over HTTPS, trying `releases/download/v<Version>/docs-site.zip` first, then `releases/latest/download/docs-site.zip`, before extracting in place.
 - Files: `gitmap/cmd/helpdashboard.go` (download branch), new `gitmap/cmd/helpdashboard_download.go` (HTTP fetch with 30s timeout and `maxDocsSiteSize` cap), `gitmap/constants/constants_helpdashboard.go` (new messages + `DocsSiteDownloadTimeoutSec`).
 - On total failure, the error now tells the user exactly which path to drop `docs-site.zip` into and suggests `gitmap update`.
 
@@ -1391,7 +1391,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ## v6.0.0 - (2026-05-26) - Breaking: `commit-transfer` merge default flips to `true`
 
-**Breaking change:** `gitmap commit-in`, `commit-out`, `commit-left`, `commit-right`, and `commit-both` now preserve merge commits by default. The legacy strip behaviour requires explicit `--no-include-merges`.
+**Breaking change:** `gitmap commit-in`, `commit-out`, `commit-left`, `commit-right`, and `commit-both` now preserve merge commits by default. The legacy strip behavior requires explicit `--no-include-merges`.
 
 - Changed: `gitmap/cmd/committransfer.go` - `parseCommitTransferArgs` now initializes `Options.IncludeMerges = true`. The `--include-merges` flag is still accepted (redundant but harmless). Added `--no-include-merges` flag for explicit opt-out. Both flags use `BoolFunc` so they toggle without consuming a value.
 - Changed: `gitmap/committransfer/log.go` - `PrintPlan` notice inverted. When `--no-include-merges` strips merge commits, the message now reads `note: N merge commits excluded by --no-include-merges` (confirmation) instead of the old advisory `pass --include-merges to also replay merge commits`.
@@ -1412,12 +1412,12 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ## v5.83.0 - (2026-05-26) - Spec 114 Gap A follow-up: `--max-history-scan` escape hatch
 
-- Added: `Options.MaxHistoryScan int` in `gitmap/committransfer/types.go` - opt-in cap on the target-history scan used by the idempotence check. Default `0` preserves the v5.78.0 unbounded behaviour; positive values cap the `git log` query at N commits for operators running against pathologically large targets (mirrored monorepos, tens of millions of commits) where the full log is prohibitive.
+- Added: `Options.MaxHistoryScan int` in `gitmap/committransfer/types.go` - opt-in cap on the target-history scan used by the idempotence check. Default `0` preserves the v5.78.0 unbounded behavior; positive values cap the `git log` query at N commits for operators running against pathologically large targets (mirrored monorepos, tens of millions of commits) where the full log is prohibitive.
 - Wired: `gitmap/committransfer/plan.go` - `BuildPlan` now passes `opts.MaxHistoryScan` to `recentLogSubjectsAndBodies(targetDir, opts.MaxHistoryScan)` instead of the hard-coded `0`. The existing `<= 0` branch in `recentLogSubjectsAndBodies` keeps the unbounded default working with no other changes.
 - Added: `--max-history-scan N` CLI flag on all commit-transfer commands (`commit-in`, `commit-out`, `commit-left`, `commit-right`, `commit-both`). Constants: `FlagCTMaxHistoryScan` + `FlagDescCTMaxHistoryScan` in `gitmap/constants/constants_committransfer.go`. Wired in `registerCommitTransferStrings`.
 - Added: `gitmap/committransfer/maxhistoryscan_test.go` - pins the zero-value-means-unbounded contract and the struct-field round-trip so rename/removal triggers a compile failure here BEFORE it reaches CLI wiring or `plan.go`.
 - Updated: `spec/01-app/114-committransfer-idempotence-and-merge-default.md` - Gap A resolution gains an explicit step (4) documenting the v5.83.0 escape hatch.
-- Verified: `TestPlanIdempotenceBeyond200Commits` continues to pass because the default (`MaxHistoryScan=0`) preserves the unbounded scan behaviour added in v5.78.0.
+- Verified: `TestPlanIdempotenceBeyond200Commits` continues to pass because the default (`MaxHistoryScan=0`) preserves the unbounded scan behavior added in v5.78.0.
 
 
 
@@ -1889,7 +1889,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ### Added
 - **Colorful, emoji-rich help text** for `gitmap clone-fix-repo` (`cfr`) and `gitmap clone-fix-repo-pub` (`cfrp`). The pretty markdown renderer (`gitmap/render`) already cyans double-quoted spans, greens shell comments, magentas credential-looking tokens, and yellow-collapses fenced blocks that mirror their preceding paragraph - the help files now lean into that with status emojis (🚀 📥 📂 🔧 🌍 🔐 🌐 ✅ ❌), exit-code tables, and per-flag glyphs.
-- Help docs now explicitly document the **`--ssh` / `-ssh` / `--sh`** and **`--https` / `-https` / `--ht`** transport flags on both `cfr` and `cfrp` (the wiring shipped in v5.27.0 but was undocumented). Behaviour mirrors `gitmap clone --ssh` exactly: URL is rewritten in-place before the clone step runs, `↪ --ssh rewrite: <old> → <new>` is printed to stdout, and `--ssh` wins when both flags are set.
+- Help docs now explicitly document the **`--ssh` / `-ssh` / `--sh`** and **`--https` / `-https` / `--ht`** transport flags on both `cfr` and `cfrp` (the wiring shipped in v5.27.0 but was undocumented). Behavior mirrors `gitmap clone --ssh` exactly: URL is rewritten in-place before the clone step runs, `↪ --ssh rewrite: <old> → <new>` is printed to stdout, and `--ssh` wins when both flags are set.
 - Help docs surface the **`--require-version`** strict-mode flag (exit 4 when the cloned repo identity has no `-vN` suffix) that was previously only discoverable by reading `parseCloneFixRepoArgs`.
 
 ### Pinned
@@ -1949,9 +1949,9 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - **`gitmap push`** (alias `ph`) - runs `git push` in the current repo with full stdin/stdout/stderr forwarding and exit-code propagation. Mirrors the v5.28.0 `gitmap pull` cwd short-circuit.
 - **`--ssh` / `-ssh` / `--sh` and `--https` / `-https` / `--ht`** transport flags on both `gitmap push` and `gitmap pull`. They rewrite `remote.origin.url` to the requested transport and **persist** the change via `git remote set-url origin`, so subsequent plain `git push` / `git pull` invocations keep the new transport.
 - Mutual-exclusion handling: when both flags are set, `--ssh` wins with a one-line stderr warning (mirrors `gitmap clone` semantics from spec 110).
-- Unrecognised origin URLs fail-open - a warning is printed but git push/pull still runs.
+- Unrecognized origin URLs fail-open - a warning is printed but git push/pull still runs.
 - Extra positional args after the flags forward verbatim, so `gitmap push --ssh origin main` runs `git push origin main` against the freshly-rewritten SSH origin.
-- End-to-end tests in `gitmap/cmd/pushpull_transport_e2e_test.go` cover HTTPS↔SSH conversion + persistence, idempotent no-op, `--ssh` winning conflict, and unrecognised-URL fail-open - using a real `git` binary against a temp bare repo (skipped when git is missing).
+- End-to-end tests in `gitmap/cmd/pushpull_transport_e2e_test.go` cover HTTPS↔SSH conversion + persistence, idempotent no-op, `--ssh` winning conflict, and unrecognized-URL fail-open - using a real `git` binary against a temp bare repo (skipped when git is missing).
 
 ### Spec
 - New: `spec/01-app/111-push-pull-transport-flags.md`.
@@ -1965,7 +1965,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.28.0 - (2026-05-19) - `gitmap pull` cwd short-circuit + `gitm` short alias
 
 ### Added
-- **`gitmap pull` (no args, inside a git repo)** now short-circuits to a plain `git pull` in the current directory - stdin/stdout/stderr are forwarded and the underlying exit code is propagated. Slug / `--group` / `--all` / aliased-repo modes are unchanged; the new behaviour only triggers when none of those targeting modes are in effect.
+- **`gitmap pull` (no args, inside a git repo)** now short-circuits to a plain `git pull` in the current directory - stdin/stdout/stderr are forwarded and the underlying exit code is propagated. Slug / `--group` / `--all` / aliased-repo modes are unchanged; the new behavior only triggers when none of those targeting modes are in effect.
 - **`gitm` shell alias** - every install of the shell wrapper (Bash / Zsh / PowerShell, installed by `gitmap setup`) now also defines `gitm` as a thin forwarder to `gitmap`, so `gitm pull`, `gitm cd <name>`, `gitm clone <url>` all behave identically. Re-run `gitmap setup` (or reinstall) to pick up the new wrapper block.
 
 ### Confirmed
@@ -1975,10 +1975,10 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - README pinned-version block + version matrix moved to **v5.28.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.28.0"`) and `src/constants/index.ts` (`VERSION = "v5.28.0"`).
 
-## v5.27.0 - (2026-05-19) - `gitmap cfrp` / `cfr` honour `--ssh` / `--https`
+## v5.27.0 - (2026-05-19) - `gitmap cfrp` / `cfr` honor `--ssh` / `--https`
 
 ### Fixed
-- `gitmap clone-fix-repo-pub <url> --ssh` (alias `cfrp`) and `gitmap clone-fix-repo <url> --ssh` (alias `cfr`) were ignoring the transport flag - the chained `clone` step ran the raw HTTPS URL because `parseCloneFixRepoArgs` only recognised `--no-vscode-sync` and `--require-version`. The URL is now rewritten via `ConvertURLToSSH` / `ConvertURLToHTTPS` before the in-process clone runs, mirroring `gitmap clone --ssh` exactly.
+- `gitmap clone-fix-repo-pub <url> --ssh` (alias `cfrp`) and `gitmap clone-fix-repo <url> --ssh` (alias `cfr`) were ignoring the transport flag - the chained `clone` step ran the raw HTTPS URL because `parseCloneFixRepoArgs` only recognized `--no-vscode-sync` and `--require-version`. The URL is now rewritten via `ConvertURLToSSH` / `ConvertURLToHTTPS` before the in-process clone runs, mirroring `gitmap clone --ssh` exactly.
 - Accepts `--ssh`, `-ssh`, `--sh`, `-sh`, `--https`, `-https`, `--ht`, `-ht` (single- and double-dash, plus the same short aliases as `gitmap clone`). When both `--ssh` and `--https` are set, `--ssh` wins with a stderr warning.
 - Prints a `↪ --ssh rewrite: <before> → <after>` breadcrumb so the substitution is visible before `git clone` runs.
 
@@ -1993,14 +1993,14 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Synced `gitmap/constants/constants.go` (`Version = "5.26.0"`) and `src/constants/index.ts` (`VERSION = "v5.26.0"`).
 
 ### Rolled up
-- `gitmap clone <url> --ssh` (and every other bool clone flag) is honoured regardless of position - `parseCloneFlags` routes through `reorderFlagsBeforeArgs` so `--ssh` after the URL no longer slips past Go's `flag` package.
+- `gitmap clone <url> --ssh` (and every other bool clone flag) is honored regardless of position - `parseCloneFlags` routes through `reorderFlagsBeforeArgs` so `--ssh` after the URL no longer slips past Go's `flag` package.
 - SSH-shorthand and `ssh://` URLs continue to clone natively through `git`; the `--ssh` converter only fires to coerce an HTTPS URL into shorthand.
 
 ## v5.24.0 - (2026-05-18) - `gitmap clone --ssh` actually parses when placed after the URL
 
 ### Fixed
 - `gitmap clone <url> --ssh` (and `--https`, `--no-replace`, every other bool flag) was silently ignored when written AFTER the positional URL. Go's `flag` package stops parsing at the first non-flag argument, so the trailing `--ssh` never reached `applyURLSchemeFlags` and the HTTPS URL was cloned as-is.
-- `parseCloneFlags` now routes through `reorderFlagsBeforeArgs` (the same helper used by `release`, `clone-next`, `clone-from`, `commit-transfer`, etc.), so flags are honoured regardless of position: `gitmap clone --ssh <url>`, `gitmap clone <url> --ssh`, and `gitmap clone <url> --ssh --no-replace` all behave identically.
+- `parseCloneFlags` now routes through `reorderFlagsBeforeArgs` (the same helper used by `release`, `clone-next`, `clone-from`, `commit-transfer`, etc.), so flags are honored regardless of position: `gitmap clone --ssh <url>`, `gitmap clone <url> --ssh`, and `gitmap clone <url> --ssh --no-replace` all behave identically.
 - SSH-shorthand and `ssh://` URLs already work natively through `git clone` - no extra wiring required; the converter only fires when `--ssh` is supplied to coerce an HTTPS URL into shorthand before `git` runs.
 
 ### Pinned
@@ -2051,11 +2051,11 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.20.0 - (2026-05-18) - `gitmap clone --ssh` / `--https` coerce every URL into the requested transport
 
 ### Added
-- **`gitmap clone --ssh`** rewrites every recognised Git URL into its `git@host:owner/repo.git` SSH-shorthand form before `git clone` runs. HTTPS (`https://github.com/owner/repo`) and `ssh://git@host[:port]/owner/repo` URLs are both converted; already-shorthand URLs are normalized (`.git` suffix appended). Flows through the multi-URL form too - `clone url1,url2,url3 --ssh` converts the whole batch.
+- **`gitmap clone --ssh`** rewrites every recognized Git URL into its `git@host:owner/repo.git` SSH-shorthand form before `git clone` runs. HTTPS (`https://github.com/owner/repo`) and `ssh://git@host[:port]/owner/repo` URLs are both converted; already-shorthand URLs are normalized (`.git` suffix appended). Flows through the multi-URL form too - `clone url1,url2,url3 --ssh` converts the whole batch.
 - **`gitmap clone --https`** is the symmetric counterpart - forces every URL into `https://host/owner/repo.git`. Useful in CI/headless environments where the SSH agent isn't unlocked.
 - `--ssh` and `--https` are mutually exclusive; when both are set, `--ssh` wins and a one-line stderr warning is printed.
 
-### Behaviour
+### Behavior
 - Conversion happens AFTER `applySSHKey` and BEFORE the multi-URL / direct-URL routers, so the multi-URL detector sees the converted URLs.
 - Non-URL positionals (folder names, `json` / `csv` / `text` shorthands) are skipped via the existing `isDirectURL` predicate.
 - Port hints in `ssh://` URLs are dropped (SSH-shorthand has no port slot - use `~/.ssh/config` for non-default ports).
@@ -2420,12 +2420,12 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
   and the per-platform version matrix (Windows/macOS/Linux × amd64/arm64) to
   the new `v4.40.0` release tag and `gitmap-v28.40.0-*` asset names.
 
-## v4.39.0 - (2026-05-07) - CI lint cleanup: misspellings (`centralised`/`materialises`/`honoured`), unused `mergePairs`, gofmt drift, `string(before) != string(after)` → `bytes.Equal`
+## v4.39.0 - (2026-05-07) - CI lint cleanup: misspellings (`centralized`/`materializes`/`honored`), unused `mergePairs`, gofmt drift, `string(before) != string(after)` → `bytes.Equal`
 
 ### Fixed
 
 - Resolved all NEW golangci-lint findings vs baseline from the v4.38.0 batch:
-  `misspell` (`centralised`/`Centralised`/`materialises`/`honoured` → US spelling)
+  `misspell` (`centralized`/`Centralized`/`materializes`/`honored` → US spelling)
   across `gitmap/cmd/commitin/runlog/`, `gitmap/cmd/vscodepmsync*.go`, and
   `constants/constants_commitin_tagreplay.go`.
 - Removed unused `mergePairs` helper from `gitmap/vscodepm/merge.go` (`unused`).
@@ -2454,16 +2454,16 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
   AND its name matches `constants.VersionTagPattern`. Lightweight tags
   named `v1.2.3` are NEVER promoted to version-tag status.
 - **`--no-release-branch` flag on `gitmap commit-in`** - defaults branch
-  generation ON; suppresses `release/<tag>` materialisation across
+  generation ON; suppresses `release/<tag>` materialization across
   replay-mapping and the (forthcoming §08) runner integration. Decision
-  centralised in `runlog.ResolveReleaseBranchName(tag, isAnnotated,
+  centralized in `runlog.ResolveReleaseBranchName(tag, isAnnotated,
   isNoReleaseBranch, isDryRun)` - single choke point.
 - **`--projects-json <path>` and `--tag <name>` flags on
   `gitmap vscode-pm-sync` (`vpm`)** - override the resolved projects.json
   location and append/replace the auto-derived tag set without touching
   user-added tags.
 - New constants file `gitmap/constants/constants_commitin_tagreplay.go` and
-  SQL twin `constants_commitin_tagreplay_sql.go` centralise every magic
+  SQL twin `constants_commitin_tagreplay_sql.go` centralize every magic
   string (table names, enum literals, INSERT/SELECT statements).
 
 ### Changed
@@ -2611,7 +2611,7 @@ existing CI / scripts) gets the v4.36.0 union behavior unchanged.
 
 ## v4.35.0 - (2026-05-06) - commit-in docs: 7 worked examples, auto-init dispatch table, sample profile JSON
 
-- `src/pages/CommitIn.tsx` rewritten with seven labelled, scenario-driven
+- `src/pages/CommitIn.tsx` rewritten with seven labeled, scenario-driven
   examples that cover the full surface: (1) plain folder → git repo +
   history replay, (2) mixed local-folder + multi-URL inputs, (3) brand-new
   target via mkdir+init+replay, (4) `all` / `-N` versioned-sibling expansion,
@@ -3688,7 +3688,7 @@ The console dump (v3.86) and on-disk handoff log (v3.87) both have limitations: 
 
 ### Compatibility
 
-Pure addition. The sink is OFF by default - `--debug-windows` alone keeps the v3.90 console-only behaviour byte-for-byte. Opt-in writes one small append-only file per handoff under `output/`. File-open failures degrade silently to console-only.
+Pure addition. The sink is OFF by default - `--debug-windows` alone keeps the v3.90 console-only behavior byte-for-byte. Opt-in writes one small append-only file per handoff under `output/`. File-open failures degrade silently to console-only.
 
 
 ## v3.90.0 - (2026-04-24) - `--debug-windows` shows the exact spawn command and cleanup plan
@@ -3742,18 +3742,18 @@ Pure addition gated behind `--debug-windows` / `GITMAP_DEBUG_WINDOWS=1`. Default
 
 ### Added
 
-- **Semicolon as a list separator.** `gitmap clone "url1;url2;url3"` now works alongside the existing comma form. Both can be mixed in one invocation. Bash users reach for `;` naturally; PowerShell users who quote the whole list (`'a;b;c'`) get the same behaviour.
+- **Semicolon as a list separator.** `gitmap clone "url1;url2;url3"` now works alongside the existing comma form. Both can be mixed in one invocation. Bash users reach for `;` naturally; PowerShell users who quote the whole list (`'a;b;c'`) get the same behavior.
 - **Sanitisation of paste artifacts on every URL token:**
   - U+FEFF (BOM) - Windows clipboard frequently injects this when copying from PowerShell history or browser dev tools.
   - U+200B / U+200C / U+200D (zero-width spaces) - copied from rich-text sources (Slack, Notion, web docs).
   - Smart quotes (U+2018/U+2019/U+201C/U+201D) folded back to ASCII so wrapper-trim works in one pass.
-  - Matched outer `'`, `"`, or backtick pairs stripped (only matched pairs - a stray trailing quote stays so the user sees a recognisably broken URL).
+  - Matched outer `'`, `"`, or backtick pairs stripped (only matched pairs - a stray trailing quote stays so the user sees a recognizably broken URL).
   - Leading/trailing list separators stripped (`,url2`, `url1;`, `;url2,` all collapse cleanly).
 
 ### Changed
 
 - **`shouldUseMultiClone` now scans every positional, not just the first two.** Previously `gitmap clone https://x my-folder https://y` silently dropped the third URL because the heuristic only looked at indices 0 and 1. Three triggers now (any one is sufficient): (a) any positional contains `,` or `;`; (b) 2+ positionals AND any arg beyond the first parses as a URL; (c) the first positional flattens to 2+ valid URLs.
-- **`isDirectURL` accepts `git@host:owner/repo` SSH-shorthand.** Previously only `https://`, `http://`, and `ssh://` were recognised, which meant `clone git@github.com:foo/bar.git` was misclassified as a file path in some code paths and as a URL in others (`isLikelyURL` already accepted it). Now both helpers agree.
+- **`isDirectURL` accepts `git@host:owner/repo` SSH-shorthand.** Previously only `https://`, `http://`, and `ssh://` were recognized, which meant `clone git@github.com:foo/bar.git` was misclassified as a file path in some code paths and as a URL in others (`isLikelyURL` already accepted it). Now both helpers agree.
 - **`isLikelyURL` accepts `ssh://` for symmetry with `isDirectURL`.**
 - **Empty/whitespace/separator-only tokens are dropped silently** instead of producing a bogus "invalid URL" warning. A token that was nothing but punctuation was almost certainly a typo, not a URL the user wanted to clone.
 
@@ -3766,7 +3766,7 @@ Three real failure modes from issue #11 / #16 + user reports:
 
 ### Implementation
 
-- `gitmap/cmd/clonemulti.go` - replaced `flattenURLArgs` body with a sanitising pipeline (`splitOnURLSeparators` → `sanitizeURLToken` → dedup). New helpers: `splitOnURLSeparators`, `sanitizeURLToken`, `stripInvisibleRunes`, `replaceSmartQuotes`, `trimMatchingWrappers`. New constant `urlListSeparators = ",;"`.
+- `gitmap/cmd/clonemulti.go` - replaced `flattenURLArgs` body with a sanitizing pipeline (`splitOnURLSeparators` → `sanitizeURLToken` → dedup). New helpers: `splitOnURLSeparators`, `sanitizeURLToken`, `stripInvisibleRunes`, `replaceSmartQuotes`, `trimMatchingWrappers`. New constant `urlListSeparators = ",;"`.
 - `gitmap/cmd/clone.go` - `shouldUseMultiClone` rewritten with three triggers; `isDirectURL` extended to accept `git@host:` shorthand.
 - `gitmap/cmd/rootflags.go` - `isLikelyURL` extended to accept `ssh://`. Doc-comment cross-reference added so future edits keep both helpers in lockstep.
 - `gitmap/constants/constants.go` - bumped `Version` to `3.89.0`.
@@ -3781,7 +3781,7 @@ Pure superset. Every previously valid invocation still works identically:
     gitmap clone url1,url2 url3,url4           # mixed - unchanged
     gitmap clone "url1;url2;url3"              # NEW: semicolon
     gitmap clone "url1,url2;url3"              # NEW: mixed separators
-    gitmap clone git@github.com:foo/bar.git    # NEW: SSH shorthand recognised everywhere
+    gitmap clone git@github.com:foo/bar.git    # NEW: SSH shorthand recognized everywhere
     gitmap clone https://x.com/y my-folder     # single URL + folder name - unchanged
 
 
@@ -3805,7 +3805,7 @@ Issue #11 (PowerShell comma-splitting) and issue #12 added defensive guards in t
 ### Implementation
 
 - `gitmap/cmd/pendingclear.go` (new) - `runPendingClear`, arg parser, candidate selector, three classifiers (`isURLShapedTarget`, `hasIllegalPathChar`, `isOrphanTarget`), confirmation prompt, per-row deletion loop.
-- `gitmap/cmd/pending.go` - `runPending` now dispatches to `runPendingClear` when `os.Args[2] == "clear"`. List behaviour unchanged for plain `gitmap pending`.
+- `gitmap/cmd/pending.go` - `runPending` now dispatches to `runPendingClear` when `os.Args[2] == "clear"`. List behavior unchanged for plain `gitmap pending`.
 - `gitmap/store/pendingtask.go` - new `DeletePendingTask(id int64) error` (uses existing `SQLDeletePendingTask`; returns `ErrPendingTaskNotFound` for unknown IDs).
 - `gitmap/constants/constants_pending_task_msg.go` - new `MsgPendingClear*` and `ErrPendingClear*` constants (no magic strings).
 - `gitmap/helptext/pending-clear.md` - new help page.
@@ -3868,12 +3868,12 @@ Issues #09 and #10 in `.lovable/pending-issues/01-current-issues.md` covered the
 - `gitmap/cmd/updatecleanup.go` - dump runs at the start of `runUpdateCleanup` so the deployed binary prints its own view of the env, self path, and parent PID.
 - `gitmap/cmd/update.go` - `launchHandoff` forwards `--debug-windows` and `GITMAP_DEBUG_WINDOWS=1` into the handoff copy and prints a Phase 2 dump line.
 - `gitmap/constants/constants_update.go` - `FlagDebugWindows`, `EnvDebugWindows`, `MsgDebugWin*` constants.
-- `gitmap/helptext/update.md` - flag table updated with full env-key list and behaviour notes.
+- `gitmap/helptext/update.md` - flag table updated with full env-key list and behavior notes.
 - `gitmap/constants/constants.go` - bumped `Version` to `3.86.0`.
 
 ### Compatibility
 
-Pure addition. Without the flag (and without `GITMAP_DEBUG_WINDOWS=1`), behaviour is byte-identical to the previous release. The dump goes to stderr only, so existing stdout-capturing wrappers stay clean.
+Pure addition. Without the flag (and without `GITMAP_DEBUG_WINDOWS=1`), behavior is byte-identical to the previous release. The dump goes to stderr only, so existing stdout-capturing wrappers stay clean.
 
 ### Usage
 
@@ -4044,7 +4044,7 @@ Pure addition. Without the flag (and without `GITMAP_DEBUG_WINDOWS=1`), behaviou
 - New top-level verbs `self-install` and `self-uninstall` manage the gitmap binary itself, separate from the existing third-party `install` / `uninstall` (npp, vscode, dev tools).
 - `self-install` defaults: `D:\gitmap` (Windows), `~/.local/bin/gitmap` (Unix). Override with `--dir`. Skip the prompt with `--yes`. Forwards `--version <tag>` to the installer.
 - Installer scripts (`install.ps1`, `install.sh`, `uninstall.ps1`) embedded into the binary via `go:embed` (`gitmap/scripts/embed.go`), with HTTP fallback to `raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.{ps1,sh}` if the embedded copy is missing.
-- `self-uninstall` removes: deploy-dir artefacts, `.gitmap/` data dir, PATH snippet, completion files. Confirm gates: typed `yes` (interactive) or `--confirm` (CI). Selective skip with `--keep-data` / `--keep-snippet`.
+- `self-uninstall` removes: deploy-dir artifacts, `.gitmap/` data dir, PATH snippet, completion files. Confirm gates: typed `yes` (interactive) or `--confirm` (CI). Selective skip with `--keep-data` / `--keep-snippet`.
 
 ### Implementation
 
@@ -4358,7 +4358,7 @@ Locally everything passed because dev environments (and this Lovable sandbox) ha
       # → Registering with GitHub Desktop: D:\wp-work\riseup-asia\my-api
       # → ✓ Registered with GitHub Desktop: D:\wp-work\riseup-asia\my-api
 
-  Optional path argument also supported: `gitmap gd D:\path\to\other\repo`.
+  Optional path argument also supported: `gitmap gd D:\path\to\othere\repo`.
 
 ### Why this exists
 
@@ -4697,10 +4697,10 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Fixed
 
-- **UK English residue eliminated across source files** - Audit scanned every `*.go`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.sh`, `*.ps1` (excluding `node_modules`, `.git`, `.gitmap`, `dist`, `build`) for ~80 UK spelling patterns (colour, optimise, organise, analyse, fibre, behaviour, honour, favour, realise, recognise, normalise, summarise, finalise, utilise, customise, artefact, catalogue, dialogue, licence, defence, traveller, etc.). Found 9 remaining hits and converted to US English:
-  - `install-quick.ps1`, `install-quick.sh`, `run.ps1` (3 files): `behaviour → behavior` in script comments.
-  - `src/pages/ClearReleaseJSON.tsx`: 7 occurrences of `behaviour → behavior` (object keys + JSX accessor + heading + table column header), plus `Normalised → Normalized` in edge-case data row. Object keys, accessors, and visible UI text remain consistent.
-- **Intentionally preserved**: `cancelled` / `cancelling` (GitHub Actions CI terminology - `cancel-in-progress` is the official feature name), `analyses` (valid US English plural of "analysis"), `grey` (UI status descriptor matching GitHub's grey-icon convention), historical CHANGELOG/spec/memory entries (immutable record).
+- **UK English residue eliminated across source files** - Audit scanned every `*.go`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.sh`, `*.ps1` (excluding `node_modules`, `.git`, `.gitmap`, `dist`, `build`) for ~80 UK spelling patterns (color, optimize, organize, analyze, fiber, behavior, honor, favor, realize, recognize, normalise, summarize, finalize, utilize, customize, artifact, catalog, dialog, license, defense, traveler, etc.). Found 9 remaining hits and converted to US English:
+  - `install-quick.ps1`, `install-quick.sh`, `run.ps1` (3 files): `behavior → behavior` in script comments.
+  - `src/pages/ClearReleaseJSON.tsx`: 7 occurrences of `behavior → behavior` (object keys + JSX accessor + heading + table column header), plus `Normalised → Normalized` in edge-case data row. Object keys, accessors, and visible UI text remain consistent.
+- **Intentionally preserved**: `canceled` / `canceling` (GitHub Actions CI terminology - `cancel-in-progress` is the official feature name), `analyzes` (valid US English plural of "analysis"), `grey` (UI status descriptor matching GitHub's grey-icon convention), historical CHANGELOG/spec/memory entries (immutable record).
 
 ### Verified
 
@@ -4722,7 +4722,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
   - `unparam`: Removed unused `info os.FileInfo` parameters from `shouldIgnore` and `shouldSkipWalk`.
   - `wastedassign`: Removed dead `stashLabel` assignment in `cmd/releasealias.go`.
   - `exhaustive`: Added missing switch cases for `PreferPolicy`, `Direction`, and `DiffKind`.
-- **US-English spelling sweep** - Converted UK spellings to US: `behaviour→behavior`, `honours→honors`, `honouring→honoring`, `artefacts→artifacts`, `Centralised→Centralized`, `summarises→summarizes`, `Recognises→Recognizes`.
+- **US-English spelling sweep** - Converted UK spellings to US: `behavior→behavior`, `honors→honors`, `honoring→honoring`, `artifacts→artifacts`, `Centralized→Centralized`, `summarizes→summarizes`, `Recognizes→Recognizes`.
 - **Remote installer URLs** - Updated `constants_selfinstall.go` `SelfInstallRemotePwsh` and `SelfInstallRemoteBash` from `gitmap-v28` to `gitmap-v28`.
 
 ### Changed
@@ -4906,7 +4906,7 @@ const (
 ### Added
 
 - `gitmap diff LEFT RIGHT` (alias `df`) - read-only preview of what `gitmap merge-both / merge-left / merge-right` would change between two folders. Lists conflicts (different content on both sides), missing-on-LEFT, missing-on-RIGHT, and (optionally) identical files. Writes nothing, commits nothing, pushes nothing.
-- Flags: `--json` (machine-readable output with `{summary, entries}` payload), `--only-conflicts`, `--only-missing`, `--include-identical`, `--include-vcs`, `--include-node-modules`. Honours the same default ignore list as `merge-*` (`.git/`, `node_modules/`, `.gitmap/release-assets/`).
+- Flags: `--json` (machine-readable output with `{summary, entries}` payload), `--only-conflicts`, `--only-missing`, `--include-identical`, `--include-vcs`, `--include-node-modules`. Honors the same default ignore list as `merge-*` (`.git/`, `node_modules/`, `.gitmap/release-assets/`).
 - New `gitmap/diff/` package: `endpoint.go` (folder-only resolver - URL endpoints are intentionally rejected with a hint to clone first), `tree.go` (parallel walk + SHA-256 classification), `report.go` (text/JSON renderer + `Summary` tally). Unit tests cover all four diff kinds and the default ignore list.
 - `gitmap/helptext/diff.md` and `gitmap/cmd/diff.go` + `gitmap/cmd/dispatchdiff.go` wire the command into the existing dispatcher chain in `root.go`.
 
@@ -5221,8 +5221,8 @@ const (
 
 ### CI/CD
 
-- Release branches (`release/**`) are no longer cancelled by `cancel-in-progress` - every release commit now runs the full CI and release pipeline to completion.
-- CI workflow uses a conditional expression: `cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}` to protect release branches while still cancelling superseded runs on `main` and feature branches.
+- Release branches (`release/**`) are no longer canceled by `cancel-in-progress` - every release commit now runs the full CI and release pipeline to completion.
+- CI workflow uses a conditional expression: `cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}` to protect release branches while still canceling superseded runs on `main` and feature branches.
 - Release workflow changed to `cancel-in-progress: false` unconditionally.
 - Updated CI pipeline spec (`spec/03-general/08-ci-pipeline.md`) with release branch protection documentation.
 
@@ -5290,7 +5290,7 @@ const (
 
 ### CI Pipeline Fix
 
-- Eliminated separate `mark-success` job - inlined cache write as the final step of `test-summary` to prevent `cancel-in-progress` from cancelling the SHA marker after all validation passed.
+- Eliminated separate `mark-success` job - inlined cache write as the final step of `test-summary` to prevent `cancel-in-progress` from canceling the SHA marker after all validation passed.
 - `test-summary` now depends on `[sha-check, lint, vulncheck, test]` to ensure full validation before caching.
 
 ### Documentation

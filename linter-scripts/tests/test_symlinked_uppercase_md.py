@@ -116,7 +116,7 @@ class IterMarkdownFilesFollowsFileSymlinks(unittest.TestCase):
     def test_mixed_case_link_to_lowercase_target_is_yielded(self) -> None:
         # Suffix on the *link* drives classification — the walker
         # never inspects the target's suffix. This pins that
-        # behaviour so a future refactor that lowercases the
+        # behavior so a future refactor that lowercases the
         # resolved path instead of the link path can't change
         # semantics.
         target = self.root / "real.md"
@@ -133,7 +133,7 @@ class IterMarkdownFilesFollowsFileSymlinks(unittest.TestCase):
         # A symlink whose own suffix is ``.txt`` must NOT be picked
         # up even if the target is a ``.MD``. Case-insensitivity does
         # not widen the allowlist (see test_case_insensitive_extensions
-        # for the non-symlink analogue).
+        # for the non-symlink analog).
         target = self.root / "real.MD"
         target.write_text("# real\n", encoding="utf-8")
         scanned = self.root / "spec"

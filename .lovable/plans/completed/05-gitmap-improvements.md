@@ -82,7 +82,7 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [x] 4.24 Print a summary box: `Completed: 12, Skipped: 1, Failed: 1`.
 - [x] 4.25 List specific errors below the summary box with actionable next steps.
 - [x] 4.26 Ensure the terminal cursor is restored and visible upon exit.
-- [x] 4.27 Handle `Ctrl+C` gracefully, cancelling all workers and cleaning up the terminal UI.
+- [x] 4.27 Handle `Ctrl+C` gracefully, canceling all workers and cleaning up the terminal UI.
 - [x] 4.28 Add visual padding (empty lines) around the summary for aesthetic breathing room.
 - [x] 4.29 Use distinct colors for `Clone`, `Pull`, `Skip`, and `Fail` events.
 - [x] 4.30 Test the UI with large JSON files (50+ repos) to ensure smooth scrolling.

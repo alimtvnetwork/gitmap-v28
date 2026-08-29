@@ -621,7 +621,7 @@ CREATE TABLE ResetRequests (
     ConfirmedAt DATETIME,
     CancelledAt DATETIME,
     CompletedAt DATETIME,
-    Status TEXT DEFAULT 'pending',                 -- pending, confirmed, expired, cancelled, completed
+    Status TEXT DEFAULT 'pending',                 -- pending, confirmed, expired, canceled, completed
     DeletedCount INTEGER,
     FreedBytes INTEGER,
     ErrorMessage TEXT
@@ -653,7 +653,7 @@ POST /api/v1/reset/confirm
 
 POST /api/v1/reset/cancel
   Request:  { "ResetId": "rst_abc123" }
-  Response: { "Status": "cancelled" }
+  Response: { "Status": "canceled" }
 ```
 
 ### Example: AI Bridge Reset Flow

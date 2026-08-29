@@ -5,7 +5,7 @@
 Enhances `gitmap-v28 release-pending` (alias `rp`) to discover unreleased
 versions from **two sources**:
 
-1. **Git branches** (existing behaviour) — local `release/v*` branches
+1. **Git branches** (existing behavior) — local `release/v*` branches
    missing their corresponding `vX.Y.Z` tag.
 2. **Release metadata files** (new) — `.gitmap/release/vX.Y.Z.json` files
    where neither the Git tag nor the Git branch exists.
@@ -27,7 +27,7 @@ tags it, pushes both, and writes updated metadata.
    b. Check if vX.Y.Z tag exists (local or remote)
    c. Check if release/vX.Y.Z branch exists
    d. If BOTH missing (metadata-only) → create branch from stored SHA, then tag + push
-   e. If branch exists but tag missing → tag + push (existing behaviour)
+   e. If branch exists but tag missing → tag + push (existing behavior)
 4. Report summary
 ```
 
@@ -61,14 +61,14 @@ warning and continue processing remaining candidates.
 
 A version discovered from both a Git branch AND a metadata file
 should only be processed once. Branch-based discovery takes priority
-(existing behaviour). Metadata-based discovery only applies when
+(existing behavior). Metadata-based discovery only applies when
 **neither** the branch nor the tag exists.
 
 ---
 
 ## Error Handling
 
-| Condition | Behaviour |
+| Condition | Behavior |
 |-----------|-----------|
 | `.gitmap/release/` directory missing | Skip metadata scan silently |
 | JSON parse error | Warn and skip file |

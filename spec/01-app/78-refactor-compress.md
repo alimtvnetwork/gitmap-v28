@@ -23,7 +23,7 @@ Moves:
 Imports: `archive/tar`, `compress/gzip`, `fmt`, `io`, `os`, `path/filepath`
 
 ## Migration Rules
-- No behaviour changes, no signature renames.
+- No behavior changes, no signature renames.
 - Package remains `release`.
 - Deduplicate imports per file.
 - Blank line before every `return`.

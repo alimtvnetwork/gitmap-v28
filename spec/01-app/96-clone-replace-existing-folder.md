@@ -1,14 +1,14 @@
 # Clone: Replace Existing Target Folder Safely
 
 **Status:** Draft
-**Audience:** Any AI or human implementing the `gitmap-v28 clone <url>` flow (or any command that materialises a Git working copy into a target directory).
+**Audience:** Any AI or human implementing the `gitmap-v28 clone <url>` flow (or any command that materializes a Git working copy into a target directory).
 **Scope:** Generic. Applies wherever an installer/cloner needs to replace an existing on-disk folder without aborting on "already exists".
 
 ---
 
 ## 1. Purpose
 
-When `gitmap-v28 clone <url>` (or `clone-next`, or any flatten-style clone) targets a folder that **already exists** on disk, the current behaviour aborts with:
+When `gitmap-v28 clone <url>` (or `clone-next`, or any flatten-style clone) targets a folder that **already exists** on disk, the current behavior aborts with:
 
 ```
 Error: target folder already exists: D:\wp-work\riseup-asia\scripts-fixer
@@ -144,16 +144,16 @@ On failure of strategy 2, the final line MUST tell the user what to do:
 
 ## 7. Edge Cases
 
-| Case                                                | Behaviour                                                |
+| Case                                                | Behavior                                                |
 |-----------------------------------------------------|----------------------------------------------------------|
 | Target does not exist                               | Direct clone. No strategy negotiation.                   |
 | Target is the cwd of *this* gitmap-v28 process         | Same as user-shell cwd — strategy 2 handles it via empty-contents. |
 | Target is a file, not a directory                   | Remove the file (via `RemoveAll`) and clone fresh.       |
-| `tempclone` path already exists (stale)             | Remove it before cloning. Use a random suffix to minimise collisions. |
+| `tempclone` path already exists (stale)             | Remove it before cloning. Use a random suffix to minimize collisions. |
 | `git clone <url> <tempclone>` fails                 | Surface git's stderr, abort. Target left untouched.       |
 | Mid-swap failure (some entries moved, some not)     | Log every failure. Exit non-zero. Target is in a known-broken state — this is acceptable because the user explicitly asked for a replace and we can't roll back without doubling disk usage. |
 | Cross-volume target & tempclone                     | Use `os.Rename` first; on `EXDEV` fall back to copy+remove. (Same-volume sibling avoids this.) |
-| User passes `--no-replace` (future flag)            | Restore the old "abort if exists" behaviour.             |
+| User passes `--no-replace` (future flag)            | Restore the old "abort if exists" behavior.             |
 
 ---
 
@@ -162,7 +162,7 @@ On failure of strategy 2, the final line MUST tell the user what to do:
 | Flag             | Default | Purpose                                            |
 |------------------|---------|----------------------------------------------------|
 | `--replace`      | **on**  | New default. Existing target → replace via §3.     |
-| `--no-replace`   | off     | Restore abort-on-exists behaviour.                 |
+| `--no-replace`   | off     | Restore abort-on-exists behavior.                 |
 | `--temp-suffix`  | `.gitmap-tmp-<rand>` | Override the staging folder suffix.   |
 
 `--replace` being default is the right call: every observed user invocation of `gitmap-v28 clone <url>` against an existing folder so far has meant "replace it".
@@ -191,7 +191,7 @@ An implementation conforms when:
 - [ ] Strategy 2 (temp-clone + swap) kicks in automatically on strategy-1 failure.
 - [ ] Every step logs with the `[clone]` prefix.
 - [ ] The temp folder is always removed on success and left in place on partial failure.
-- [ ] `--no-replace` opts back into the strict abort behaviour.
+- [ ] `--no-replace` opts back into the strict abort behavior.
 - [ ] Pending tasks track both success modes and the failure mode.
 - [ ] No data loss when both strategies fail (target is either fully old or fully new — never silently merged).
 

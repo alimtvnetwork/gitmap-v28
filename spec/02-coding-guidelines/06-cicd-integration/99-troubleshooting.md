@@ -290,7 +290,7 @@ A check fires on code you believe is correct. Examples:
                                   ▼                                 ▼
                           File a spec issue with             File a check issue
                           repro + proposed wording.          with the source line
-                          Once merged, regenerate            and expected behaviour.
+                          Once merged, regenerate            and expected behavior.
                           baseline.                          Suppress locally until
                                                              a fix ships.
 ```
@@ -425,7 +425,7 @@ python3 -c "import tomllib; print(tomllib.loads(open('.codeguidelines.toml').rea
 A `tomllib.TOMLDecodeError` traceback pinpoints the exact line and
 column.
 
-### Reference config (copy + customise)
+### Reference config (copy + customize)
 
 ```toml
 

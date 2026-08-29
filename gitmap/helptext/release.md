@@ -57,7 +57,7 @@ Answering `n` (or pressing Enter) aborts the release.
 
 When `gitmap release` (alias `r`) is invoked with **no version argument and
 no `--bump` / `--commit` / `--branch` flag**, gitmap auto-increments the
-**MINOR** segment of the last release. Behaviour depends on the cwd:
+**MINOR** segment of the last release. Behavior depends on the cwd:
 
 - **Inside a git repo** — reads `.gitmap/release/latest.json` (falling back
   to the highest local `v*` tag), computes `vX.(Y+1).0`, prints the

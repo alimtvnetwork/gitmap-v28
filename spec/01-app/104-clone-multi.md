@@ -48,7 +48,7 @@ are silently skipped.
 | `--workers <n>` | Parallel clone count (default 4) |
 | `--stop-on-fail` | Halt the batch on first failure (default: continue) |
 
-## Behaviour
+## Behavior
 
 1. Parse all URLs into a flat ordered list, deduplicate (case-insensitive,
    trailing `.git` normalised), preserving first-seen order.
@@ -56,7 +56,7 @@ are silently skipped.
    ssh://). Invalid URLs are reported but the rest still run.
 3. Clone in parallel up to `--workers` concurrent jobs.
 4. For each successful clone:
-   - Insert/upsert into the `Repo` table (existing direct-URL behaviour).
+   - Insert/upsert into the `Repo` table (existing direct-URL behavior).
    - If `--github-desktop`, call `desktop.RegisterRepo` immediately.
 5. Print a per-repo progress line and a final summary:
 
@@ -81,7 +81,7 @@ are silently skipped.
 ## Idempotency
 
 - A URL whose target folder already contains a healthy clone is treated as
-  a no-op success (matches existing single-URL behaviour).
+  a no-op success (matches existing single-URL behavior).
 - `--github-desktop` re-registration of an already-registered repo is a
   no-op at the Desktop layer.
 
@@ -121,5 +121,5 @@ Base `clone` never rewrites the destination folder name.
 
 ## See also
 
-- [clone direct-URL feature](mem://features/clone-direct-url) — the single-URL behaviour this extends
+- [clone direct-URL feature](mem://features/clone-direct-url) — the single-URL behavior this extends
 - [github-desktop / desktop-sync (spec 11)](/desktop-sync)

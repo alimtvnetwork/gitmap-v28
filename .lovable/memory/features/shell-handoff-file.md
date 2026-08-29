@@ -29,7 +29,7 @@ and `cd`s the parent shell to the recorded path.
    - Invokes `command gitmap "$@"`
 3. Binary calls `cmd.WriteShellHandoff(targetPath)`:
    - Reads `EnvGitmapHandoffFile` from env
-   - If unset → no-op (legacy behaviour preserved)
+   - If unset → no-op (legacy behavior preserved)
    - If set → writes `targetPath` verbatim to that file
 4. Wrapper after binary exits:
    - If `$handoff` is non-empty → `cd` to its contents

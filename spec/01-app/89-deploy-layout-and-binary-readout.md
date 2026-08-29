@@ -25,7 +25,7 @@ After every successful deploy, `Sync-ConfigDeployPath` rewrites `powershell.json
 
 ## Bare-invocation binary readout
 
-Running `gitmap-v28` with no arguments prints a three-line readout BEFORE the usage text. The readout always prints (even when all three paths match) so users build a habit of recognising which binary they're hitting; CI scripts and pipelines that capture gitmap-v28 output can suppress it with `--no-banner` or by setting `GITMAP_QUIET=1`:
+Running `gitmap-v28` with no arguments prints a three-line readout BEFORE the usage text. The readout always prints (even when all three paths match) so users build a habit of recognizing which binary they're hitting; CI scripts and pipelines that capture gitmap-v28 output can suppress it with `--no-banner` or by setting `GITMAP_QUIET=1`:
 
 ```
   Active binary:    E:\bin-run\gitmap-cli\gitmap.exe

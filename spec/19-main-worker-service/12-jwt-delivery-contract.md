@@ -177,9 +177,9 @@ Tracked as follow-up FU-7 / FU-8 (extends §8 list of `11-split-db-tier-reconcil
 
 ---
 
-## 11. Open Questions — formalised dispositions
+## 11. Open Questions — formalized dispositions
 
-This section formalises the dispositions of v1.0 open questions so dumb-AI implementers do not re-litigate them mid-implementation. Each disposition is **binding** for v1.0; the Future-Work block at the bottom names what a v2.0 spec MUST cover if a disposition is reopened.
+This section formalizes the dispositions of v1.0 open questions so dumb-AI implementers do not re-litigate them mid-implementation. Each disposition is **binding** for v1.0; the Future-Work block at the bottom names what a v2.0 spec MUST cover if a disposition is reopened.
 
 ### 11.1 OQ-12-1 — Separate `RefreshToken` cookie (rotation pattern)
 
@@ -196,7 +196,7 @@ This section formalises the dispositions of v1.0 open questions so dumb-AI imple
 | Server state | Zero new tables | Requires `RefreshTokenRotation` table with `(TokenHash, IssuedAtEpoch, RotatedFromHash, RevokedAtEpoch)`, sweeper, and replay-detection family of error codes |
 | Sign-out-everywhere | Already works via `/Auth/SignOutAll` invalidating the session row | Requires cascading revocation across rotation chain |
 | CODE RED footprint | Adds 0 functions | Adds ≥4 functions (issue / rotate / revoke / detect-replay), each must obey the 8–15 line + 0-nesting + ≤2-operand caps |
-| What it would actually buy | nothing in the current threat model — the Main session cookie's TTL is already the controlling factor | Defence against a stolen refresh token being usable for the full session lifetime; only matters once we ship long-lived "remember me" sessions |
+| What it would actually buy | nothing in the current threat model — the Main session cookie's TTL is already the controlling factor | Defense against a stolen refresh token being usable for the full session lifetime; only matters once we ship long-lived "remember me" sessions |
 
 **Trigger conditions that would force OQ-12-1 to be reopened in v2.0** (any one is sufficient):
 
@@ -225,7 +225,7 @@ This section formalises the dispositions of v1.0 open questions so dumb-AI imple
 | Reload survival | None (forces re-resolve — a feature, per §3) | Survives reload (re-introduces the persistence we explicitly chose against) |
 | Browser support matrix | 100% | SW lifecycle and termination behavior varies across browsers; non-trivial debugging surface |
 | Network interception | None | SW intercepts `fetch` — every API call now traverses an extra worker boundary |
-| What it would actually buy | nothing in the current threat model — the SW is not a privilege boundary against same-origin XSS | A perceived "off-thread" benefit that the spec authors of `12` consider security theatre absent a cross-origin isolation story |
+| What it would actually buy | nothing in the current threat model — the SW is not a privilege boundary against same-origin XSS | A perceived "off-thread" benefit that the spec authors of `12` consider security theater absent a cross-origin isolation story |
 
 **Trigger conditions that would force OQ-12-2 to be reopened:**
 
@@ -234,7 +234,7 @@ This section formalises the dispositions of v1.0 open questions so dumb-AI imple
 
 Until **both** trigger conditions hold, this OQ stays rejected — re-opening it without them is a CODE RED violation of "no swallowed reasons" (the swallowed reason being "it sounds more secure").
 
-### 11.3 Future-work catalogue (v2.0 prerequisites)
+### 11.3 Future-work catalog (v2.0 prerequisites)
 
 If/when the product reopens §11.1 or §11.2, the v2.0 spec MUST specify, in this order:
 
@@ -256,7 +256,7 @@ If/when the product reopens §11.1 or §11.2, the v2.0 spec MUST specify, in thi
 
 ---
 
-*JWT delivery contract v1.2.0 — 2026-05-06 (Phase 12.4 — §11 OQ-12-1 / OQ-12-2 dispositions formalised: forbidden v1.0 patterns + v2.0 trigger conditions + future-work catalogue).*
+*JWT delivery contract v1.2.0 — 2026-05-06 (Phase 12.4 — §11 OQ-12-1 / OQ-12-2 dispositions formalized: forbidden v1.0 patterns + v2.0 trigger conditions + future-work catalog).*
 
 ---
 

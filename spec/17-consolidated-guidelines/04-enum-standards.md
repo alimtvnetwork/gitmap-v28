@@ -246,7 +246,7 @@ interface WsState { status: 'connected' | 'disconnected'; }
 |------|--------|
 | `ConnectionStatus` | Connected, Disconnected, Connecting, Reconnecting, Error |
 | `EntityStatus` | Active, Inactive, Pending, Archived |
-| `ExecutionStatus` | Pending, Running, Completed, Failed, Cancelled |
+| `ExecutionStatus` | Pending, Running, Completed, Failed, Canceled |
 | `ExportStatus` | Pending, Processing, Completed, Failed |
 | `HttpMethod` | Get, Post, Put, Patch, Delete |
 | `MessageStatus` | Pending, Streaming, Completed, Error |

@@ -29,7 +29,7 @@ permissions:
   contents: write
 ```
 
-Release builds must **NEVER** be cancelled — every release commit must produce a GitHub Release regardless of newer commits.
+Release builds must **NEVER** be canceled — every release commit must produce a GitHub Release regardless of newer commits.
 
 ---
 
@@ -150,7 +150,7 @@ Binaries and extension bundles are compiled **exactly once**. Compression, check
 - All assets pass through checksum generation
 - Release notes are written to a file, not inline YAML
 - The same build graph as CI is used — no shortcuts in release builds
-- Every release commit runs to completion — never cancelled
+- Every release commit runs to completion — never canceled
 
 ---
 

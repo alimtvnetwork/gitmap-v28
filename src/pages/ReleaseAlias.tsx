@@ -108,7 +108,7 @@ gitmap as backend -f       # overwrite an existing 'backend' alias`} />
           <li>If the working tree is dirty, gitmap stashes with the label <code>alias-version-unixts</code> before chdir + release.</li>
           <li>After the release pipeline returns, only the stash whose label matches is popped — concurrent <code>ra</code> calls in the same repo never clobber each other.</li>
           <li><code>--no-stash</code> opts out: a dirty tree aborts the release with a clear error instead of stashing.</li>
-          <li>If the release pipeline fails, the labelled stash is left in place so you can recover with <code>git stash list</code> + <code>git stash apply</code>.</li>
+          <li>If the release pipeline fails, the labeled stash is left in place so you can recover with <code>git stash list</code> + <code>git stash apply</code>.</li>
         </ul>
       </section>
 

@@ -94,7 +94,7 @@ When a cached SHA is detected:
 | Second push (same SHA) | Hit | "Already validated" echo | ✅ Green |
 | Failed pipeline | Never cached | Re-run executes fully | ❌ Red |
 | Job-level skip (old pattern) | Hit | Entire job skipped | ⚪ Grey |
-| Concurrency cancellation | Hit/Miss | `mark-success` cancelled | ⚪ Grey (safe) |
+| Concurrency cancellation | Hit/Miss | `mark-success` canceled | ⚪ Grey (safe) |
 
 ---
 
@@ -104,14 +104,14 @@ When a cached SHA is detected:
 
 When `mark-success` was a **separate job**, `cancel-in-progress: true`
 could cancel it after all validation jobs passed, leaving the SHA
-uncached. The job appeared as cancelled (grey) in the GitHub UI.
+uncached. The job appeared as canceled (grey) in the GitHub UI.
 
 ### Resolution
 
 The cache write was **inlined as the final step of `test-summary`**.
 Since `test-summary` is the last validation job and must complete for
 the cache write to trigger (`if: success()`), cancellation can only
-occur if `test-summary` itself is cancelled — which means validation
+occur if `test-summary` itself is canceled — which means validation
 did not complete, so not caching is correct behavior.
 
 ### Remaining Edge Case

@@ -16,7 +16,7 @@
 | 4 | Job-level `if` blocks required status checks | CI: SHA dedup | 🟠 High | ✅ Fixed |
 | 5 | `cancel-in-progress` cancels mark-success job | CI: SHA dedup | 🟠 High | ✅ Fixed |
 | 6 | `@latest` tool installs are non-reproducible | CI: setup | 🟡 Medium | ✅ Fixed |
-| 7 | Release branch runs cancelled mid-pipeline | release | 🔴 Blocker | ✅ Fixed |
+| 7 | Release branch runs canceled mid-pipeline | release | 🔴 Blocker | ✅ Fixed |
 
 ---
 
@@ -215,7 +215,7 @@ Adopted the **passthrough gate pattern**:
 
 ### Symptom
 
-A separate `mark-success` job was added at the end of the CI pipeline to write the `ci-passed-<SHA>` cache entry. Intermittently, this job was cancelled before completing, leaving the SHA uncached. Re-runs of the same SHA then re-executed the entire pipeline.
+A separate `mark-success` job was added at the end of the CI pipeline to write the `ci-passed-<SHA>` cache entry. Intermittently, this job was canceled before completing, leaving the SHA uncached. Re-runs of the same SHA then re-executed the entire pipeline.
 
 ### Root Cause
 
@@ -223,7 +223,7 @@ The workflow used `concurrency.cancel-in-progress: true`. When all validation jo
 
 ### Fix
 
-**Inlined the cache write as the final step of the `test-summary` job** instead of using a separate job. Because `test-summary` is itself a validation job that downstream success depends on, it cannot be cancelled after success without also affecting the visible status.
+**Inlined the cache write as the final step of the `test-summary` job** instead of using a separate job. Because `test-summary` is itself a validation job that downstream success depends on, it cannot be canceled after success without also affecting the visible status.
 
 ### Prevention Rules
 
@@ -280,11 +280,11 @@ Pinned every tool to an exact version tag:
 
 ---
 
-## Issue #7 — Release Branch Runs Cancelled Mid-Pipeline
+## Issue #7 — Release Branch Runs Canceled Mid-Pipeline
 
 ### Symptom
 
-A push to `release/v2.5x.0` triggered the release workflow, but a follow-up commit (e.g., changelog typo fix) cancelled the in-progress release run, leaving artifacts half-built and the GitHub Release in an inconsistent state.
+A push to `release/v2.5x.0` triggered the release workflow, but a follow-up commit (e.g., changelog typo fix) canceled the in-progress release run, leaving artifacts half-built and the GitHub Release in an inconsistent state.
 
 ### Root Cause
 

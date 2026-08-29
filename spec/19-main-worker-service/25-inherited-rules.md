@@ -30,7 +30,7 @@ Operative subset for spec/19 implementers (full text in [`../03-error-manage/`](
 3. **Log context MUST include explicit file path + operation name** (per `mem://architecture/error-handling`). Format: `{file: "path/to/file.go", op: "Company.Create", err: <raw>}`.
 4. **Use the `apperror` package equivalent** in the implementer's stack. Wrap every error crossing a layer boundary; preserve the cause chain.
 5. **Never `String(caught)` — pass the raw error object through.** Stringification at the boundary is the loggers' job.
-6. **Error codes are catalogued in [`13-error-codes.md`](./13-error-codes.md);** the cross-tier envelope is defined in [`08-error-contract.md`](./08-error-contract.md) §2. The envelope is the sole wire shape.
+6. **Error codes are cataloged in [`13-error-codes.md`](./13-error-codes.md);** the cross-tier envelope is defined in [`08-error-contract.md`](./08-error-contract.md) §2. The envelope is the sole wire shape.
 
 **Conflict rule:** if any of the above conflicts with `08-error-contract.md`, **`spec/03-error-manage/` wins** for the rule itself; the envelope shape is owned by `08-§2`.
 
@@ -50,7 +50,7 @@ Operative subset for spec/19 implementers (full text in [`../03-error-manage/`](
 
 ### 3.2 REST API headers (from `06-rest-api-format.md`)
 
-Every Main↔Worker call MUST honour:
+Every Main↔Worker call MUST honor:
 
 | Header | Direction | Required when | Notes |
 | --- | --- | --- | --- |

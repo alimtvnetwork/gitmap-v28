@@ -227,7 +227,7 @@ resolve_effective_repo() {
 
 ## 10. Edge Cases
 
-| Case                                        | Behaviour                                                  |
+| Case                                        | Behavior                                                  |
 |---------------------------------------------|------------------------------------------------------------|
 | Repo URL has no `-v<N>` suffix              | Skip discovery; install baseline.                          |
 | Baseline repo itself doesn't exist (404)    | Probe anyway — user might be on an old name. If nothing found, exit 1 with clear error. |
@@ -255,7 +255,7 @@ An implementation conforms when:
 - [x] Logs every probe with `[discovery]` prefix.
 - [x] Delegates to the highest existing `-v<M>` installer, passing through flags.
 - [x] Sets `INSTALLER_DELEGATED=1` to prevent recursion.
-- [x] Honours `--no-discovery`, `--probe-ceiling`. (`--no-fail-fast` not yet implemented — fail-fast is the only mode.)
+- [x] Honors `--no-discovery`, `--probe-ceiling`. (`--no-fail-fast` not yet implemented — fail-fast is the only mode.)
 - [x] Falls back gracefully on network errors (use baseline, never crash).
 - [x] No more than `probeCeiling - N + 1` HTTP requests in worst case.
 

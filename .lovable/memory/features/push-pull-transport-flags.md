@@ -20,7 +20,7 @@ the existing `pull` cwd short-circuit.
   exist because Go's `flag` rejects them and we route them via
   `reorderFlagsBeforeArgs` + manual recognition in
   `parseTransportFlags`.
-- Unrecognised URLs fail OPEN: print a warning, skip the rewrite,
+- Unrecognized URLs fail OPEN: print a warning, skip the rewrite,
   still run git push/pull.
 - Extra positionals after the flags forward verbatim to git
   (`gitmap push --ssh origin main` ⇒ `git push origin main`).

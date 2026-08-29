@@ -179,7 +179,7 @@ After any of the above commits, Main:
 A JWT minted before the invalidation still embeds the old AccessItem list. Two complementary mitigations:
 
 1. **Short JWT TTL** — recommended `MainWorker.Jwt.TtlSeconds` ≤ 900 s.
-2. **Catalog-version stamp in JWT** — the JWT body MUST include `CatalogVersion` (the value at mint time). Route guards compare against the Worker's current `CatalogVersion`; on mismatch the guard MUST re-resolve the user's roles and either issue a refresh hint (`401 + ReauthRequired`) or transparently recompute against the live cache. Default behaviour = transparent recompute; strict deployments MAY enforce reauth via `MainWorker.RoleCache.RequireReauthOnCatalogBump = true`.
+2. **Catalog-version stamp in JWT** — the JWT body MUST include `CatalogVersion` (the value at mint time). Route guards compare against the Worker's current `CatalogVersion`; on mismatch the guard MUST re-resolve the user's roles and either issue a refresh hint (`401 + ReauthRequired`) or transparently recompute against the live cache. Default behavior = transparent recompute; strict deployments MAY enforce reauth via `MainWorker.RoleCache.RequireReauthOnCatalogBump = true`.
 
 ---
 

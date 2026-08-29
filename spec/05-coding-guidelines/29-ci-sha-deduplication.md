@@ -98,7 +98,7 @@ also include the gate in their `needs` array.
 ### Cache Write (Inlined in Test Summary)
 
 The cache write is the **final step of `test-summary`**, not a separate
-job. This prevents `cancel-in-progress` from cancelling the cache save
+job. This prevents `cancel-in-progress` from canceling the cache save
 after all validation jobs have already passed.
 
 ```yaml
@@ -124,7 +124,7 @@ after all validation jobs have already passed.
 upstream jobs pass. A failed pipeline never caches.
 
 **Why not a separate job?** A standalone `mark-success` job can be
-cancelled by `cancel-in-progress` concurrency controls while all
+canceled by `cancel-in-progress` concurrency controls while all
 validation has already completed. Inlining into `test-summary`
 guarantees the cache write happens atomically with the last
 validation step.

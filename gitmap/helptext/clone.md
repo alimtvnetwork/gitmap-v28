@@ -59,7 +59,7 @@ Pass `--debug-paths` to emit one `[debug-paths] in=… clean=…
 resolved=…` line per canonicalize call on **stderr** (or set
 `GITMAP_DEBUG_PATHS=1` directly in CI). See the README "Windows path
 canonicalization & EvalSymlinks soft-fail" subsection for the full
-failure-mode catalogue.
+failure-mode catalog.
 
 ## Hierarchy preservation
 
@@ -85,7 +85,7 @@ When parallel mode is active gitmap prints a single header line
 so you know which value was resolved. Progress lines arrive in
 completion order rather than input order; the on-disk hierarchy is
 unaffected. The clone-cache fingerprint, audit short-circuit, and
-safe-pull retry behaviour all operate identically regardless of N.
+safe-pull retry behavior all operate identically regardless of N.
 
 The same `--max-concurrency` flag — same name, same semantics, same
 auto-default — is also accepted by `gitmap clone-next`, `gitmap

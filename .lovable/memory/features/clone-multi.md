@@ -10,7 +10,7 @@ type: feature
 **Depends on:** existing direct-URL clone (`mem://features/clone-direct-url`)
 **Triggered by:** Pending issue 06 — PowerShell silently splits unquoted commas, so `clone a,b,c` was mis-parsing `b` as a folder name and producing illegal Windows paths like `D:\...\https:\...`.
 
-## Behaviour
+## Behavior
 
 - **Both syntaxes accepted, mixable.** `gitmap clone a b c`, `gitmap clone a,b,c`, and `gitmap clone a,b c d,e` all work. Parser: for each positional arg, split on `,`, strip whitespace, drop empties, append to ordered list.
 - **Dedup case-insensitively** with trailing `.git` normalised, preserving first-seen order.

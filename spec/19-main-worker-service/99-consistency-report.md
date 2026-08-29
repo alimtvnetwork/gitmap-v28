@@ -1,6 +1,6 @@
 # 99 — Consistency Report
 
-> **⚠ STALE — historical snapshot.** This file's cross-link claims pre-date Phase 13.2 hardening (WorkerNode dedupe, endpoint-catalogue dedupe, FK repoint, tunable alias map, 11- stub). For current consistency status see `audit/07-blind-ai-readiness-2026-05-06-v2.md` and re-run `npm run spec:links:check`.
+> **⚠ STALE — historical snapshot.** This file's cross-link claims pre-date Phase 13.2 hardening (WorkerNode dedupe, endpoint-catalog dedupe, FK repoint, tunable alias map, 11- stub). For current consistency status see `audit/07-blind-ai-readiness-2026-05-06-v2.md` and re-run `npm run spec:links:check`.
 
 **Spec:** `19-main-worker-service`
 **Version:** 1.1.0

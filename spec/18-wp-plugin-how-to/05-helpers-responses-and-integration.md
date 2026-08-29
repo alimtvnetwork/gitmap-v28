@@ -23,7 +23,7 @@ Helpers are **stateless static utility classes**. They never hold instance state
 
 ### PathHelper specification
 
-PathHelper centralises all file system path resolution. It uses trait decomposition for large helpers:
+PathHelper centralizes all file system path resolution. It uses trait decomposition for large helpers:
 
 ```
 Helpers/
@@ -106,7 +106,7 @@ Path resolution uses `wp_upload_dir()` for the base and caches the result. If `w
 
 ## 5.1.1 BooleanHelpers — Semantic Guard Class
 
-BooleanHelpers is a **static utility class** providing readable boolean checks for common conditions. It eliminates negation-heavy code like `!class_exists()` and `!function_exists()` in favour of intention-revealing method names.
+BooleanHelpers is a **static utility class** providing readable boolean checks for common conditions. It eliminates negation-heavy code like `!class_exists()` and `!function_exists()` in favor of intention-revealing method names.
 
 ### Structure
 
@@ -238,7 +238,7 @@ $pdo = InitHelpers::initSqliteConnection($dbPath, $logger);
 
 ## 5.1.3 HttpConfigType — HTTP Request Factories
 
-`HttpConfigType` is a backed enum that centralises HTTP timeout values and provides static factory methods for `wp_remote_get()` / `wp_remote_request()` option arrays.
+`HttpConfigType` is a backed enum that centralizes HTTP timeout values and provides static factory methods for `wp_remote_get()` / `wp_remote_request()` option arrays.
 
 ```php
 enum HttpConfigType: int {

@@ -32,9 +32,9 @@ This contract eliminates the "PATH not active after install" and
 
 ---
 
-## Required Behaviours
+## Required Behaviors
 
-| ID | Behaviour | Required For |
+| ID | Behavior | Required For |
 |----|-----------|--------------|
 | PIA-1 | `setup` writes shell snippet to user's profile, idempotent via marker comment. | All shells |
 | PIA-2 | `setup` exports a shell-detection env var (e.g. `<TOOL>_WRAPPER=1`) so the binary can tell if the wrapper is active. | All shells |
@@ -214,12 +214,12 @@ Detection algorithm:
 Any subcommand that requires the wrapper (typically anything that
 would change the parent shell's CWD or env) MUST detect missing
 wrapper state and print a stderr warning, then continue with reduced
-behaviour where possible:
+behavior where possible:
 
 ```
   ⚠ Shell wrapper not active. The current command will print the path
     instead of changing directory. Run `toolname setup` (and reload
-    your shell) to enable shell-integrated behaviour.
+    your shell) to enable shell-integrated behavior.
 ```
 
 The warning text MUST include both:

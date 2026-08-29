@@ -141,7 +141,7 @@ export const postMortems: PostMortemEntry[] = [
   {
     id: "18",
     title: "CI Release Branch Cancellation Protection",
-    summary: "Unconditional `cancel-in-progress: true` cancelled release branch CI runs on rapid pushes, risking incomplete artifacts. Fixed with a conditional expression that protects `release/**` branches from cancellation.",
+    summary: "Unconditional `cancel-in-progress: true` canceled release branch CI runs on rapid pushes, risking incomplete artifacts. Fixed with a conditional expression that protects `release/**` branches from cancellation.",
     version: "v2.62.0",
     category: "general",
   },

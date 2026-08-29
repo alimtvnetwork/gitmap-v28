@@ -133,7 +133,7 @@ Each row below is **the** value. Implementations MAY override via Seedable-Confi
 | `MainWorker.Backup.Endpoint.IncrementalDiffTimeoutSeconds` | **120** | seconds | BE-1 (`21-…` §4) | Larger than routing default — envelope upload may be MB-scale. |
 | `MainWorker.Backup.Endpoint.RotateKeysTimeoutSeconds` | **30** | seconds | BE-2 (`21-…` §5) | Below `RotationAckTimeoutSeconds=120` so step retries fit inside the budget. |
 | `MainWorker.Backup.Endpoint.RestoreByDateTimeoutSeconds` | **60** | seconds | BE-3 (`21-…` §6) | Accepts the job; restore itself runs as a long-running worker job. |
-| `MainWorker.Backup.Endpoint.SnapshotsTimeoutSeconds` | **15** | seconds | BE-4 (`21-…` §7) | Catalogue read. |
+| `MainWorker.Backup.Endpoint.SnapshotsTimeoutSeconds` | **15** | seconds | BE-4 (`21-…` §7) | Catalog read. |
 | `MainWorker.Backup.Endpoint.HealthTimeoutSeconds` | **5** | seconds | BE-5 (`21-…` §8) | Tight on purpose so dashboard polling surfaces real outages. |
 
 ### 2.14 Backup apply pipeline (consumer: `22-backup-apply-logic.md`)
@@ -142,7 +142,7 @@ Each row below is **the** value. Implementations MAY override via Seedable-Confi
 |---|---:|---|---|---|
 | `MainWorker.Backup.Apply.MaxRetriesPerEnvelope` | **5** | count | `22-…` §6.2 | Exceeding = `MAIN-840-01 BackupApplyExhausted` surfaced via BE-5. |
 | `MainWorker.Backup.Apply.TransactionTimeoutSeconds` | **30** | seconds | `22-…` §4 Stage-4 TX | Exceeding = `WORKER-930-04 ApplyTransactionTimeout`. |
-| `MainWorker.Backup.Apply.DeadLetterRetentionDays` | **30** | days | DLQ sweeper (`22-…` §6) | Symmetric with snapshot retention default; finalised in Phase 11 with OQ-A4. |
+| `MainWorker.Backup.Apply.DeadLetterRetentionDays` | **30** | days | DLQ sweeper (`22-…` §6) | Symmetric with snapshot retention default; finalized in Phase 11 with OQ-A4. |
 | `MainWorker.Backup.Apply.IdempotencyRowRetentionDays` | **14** | days | DLQ sweeper (`22-…` §7) | `BackupApplyIdempotency.Status='Applied'` rows reaped after this; replay-protection window. |
 
 ### 2.15 Backup snapshot + restore (consumer: `23-snapshot-storage-and-restore.md`)
@@ -159,7 +159,7 @@ All Backup-tier tunables now allocated. Phase 12 closes the backup work with dia
 
 ### 2.16 In-process Main caches (consumer: `01-architecture.md` §5)
 
-Promoted from §4.2 to a first-class catalogue entry so T3 (seed parity) covers them. Defaults match §4.2 verbatim; §4.2 retains the prose discussion.
+Promoted from §4.2 to a first-class catalog entry so T3 (seed parity) covers them. Defaults match §4.2 verbatim; §4.2 retains the prose discussion.
 
 | Key | Default | Unit | Used by | Notes |
 |---|---:|---|---|---|
@@ -232,7 +232,7 @@ Add (or merge with) the following category at SemVer `2.0.0` of `config.seed.jso
 
     "CacheCompanyToWorkerTtlSeconds":     { "Type": "number", "Default": 900,   "Min": 30 },
     "CacheWorkerRegistryTtlSeconds":      { "Type": "number", "Default": 60,    "Min": 5  },
-    "CacheRecentCompanyPerUserTtlSeconds":{ "Type": "number", "Default": 28800, "Min": 300, "Description": "Default mirrors MainSessionTtlSeconds; runtime resolver MAY substitute the live MainSessionTtlSeconds value to honour §4.2 binding." },
+    "CacheRecentCompanyPerUserTtlSeconds":{ "Type": "number", "Default": 28800, "Min": 300, "Description": "Default mirrors MainSessionTtlSeconds; runtime resolver MAY substitute the live MainSessionTtlSeconds value to honor §4.2 binding." },
 
     // ─── Backup tier (added v2.0.0; gated by Backup.Enabled) ─────────────────
     // Source: §2.11–2.15. All defaults match the prose verbatim.
@@ -388,7 +388,7 @@ The following docs cite tunables inline. Each MUST be edited to cite this file i
    (b) explicitly waivered via `<!-- TUNABLE-WAIVER: rationale -->` comment.
 2. **T2 (unique keys)** — no two §2 rows share the same Key.
 3. **T3 (seed parity)** — `config.seed.json` `Categories.MainWorker.Settings.*.Default` matches §4 verbatim. **As of seed v2.0.0**, this includes the full `MainWorker.Backup.*` namespace (the previous Phase-13.4 waiver is lifted). The only suppression remaining: `Backup.RetiredKeyGraceSeconds=0` may be substituted at request time when rotation `Reason="Compromise"` — this is a runtime override, not a seed default change, and T3 ignores it.
-4. **T4 (session-TTL invariant — FU-16)** — `MainWorker.Auth.MainSessionAbsoluteMaxSeconds` >= `MainWorker.Auth.MainSessionTtlSeconds` in BOTH §2 catalogue defaults AND §4 seed defaults. Sliding TTL must never exceed the absolute cap (otherwise the cap is unreachable). Resolves FU-16; cited in §7.2.
+4. **T4 (session-TTL invariant — FU-16)** — `MainWorker.Auth.MainSessionAbsoluteMaxSeconds` >= `MainWorker.Auth.MainSessionTtlSeconds` in BOTH §2 catalog defaults AND §4 seed defaults. Sliding TTL must never exceed the absolute cap (otherwise the cap is unreachable). Resolves FU-16; cited in §7.2.
 
 Failure = build break.
 
@@ -419,7 +419,7 @@ Failure = build break.
 - **Pure sliding is unbounded** — a user keeping a tab open for 90 days never re-authenticates. Compliance frameworks (SOC 2, ISO 27001 §9.4.2) require periodic re-authentication.
 - **Sliding + absolute cap** is the industry compromise (used by Auth0, Okta, AWS Cognito) — refresh on activity, but force re-login at the absolute boundary regardless of activity.
 
-**Existing tunable retained, two new ones added in §2.4 above + §4** (not re-tabled here to avoid catalogue duplication; this section explains the contract):
+**Existing tunable retained, two new ones added in §2.4 above + §4** (not re-tabled here to avoid catalog duplication; this section explains the contract):
 
 - `MainWorker.Auth.MainSessionTtlSeconds` (existing, **28800s/8h**) — sliding window; reset on every qualifying authenticated request.
 - `MainWorker.Auth.MainSessionAbsoluteMaxSeconds` (NEW, **86400s/24h**) — hard ceiling from initial login regardless of activity; forces `Reauthenticate`. MUST be ≥ sliding TTL.

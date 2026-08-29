@@ -11,7 +11,7 @@ Pairs with lint-diff.py and lint-suggest.py:
     same regression class is tracked in-repo and not just in the PR
     transcript.
 
-Behaviour:
+Behavior:
   - Reads the same JSON report lint-diff.py consumes (--current).
   - Diffs against the same baseline (--baseline) — if no baseline exists
     or no NEW findings are present, the script writes nothing and exits 0.

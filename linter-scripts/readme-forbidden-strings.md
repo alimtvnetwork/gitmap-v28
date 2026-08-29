@@ -73,7 +73,7 @@ themselves.
 
 `check-forbidden-strings.py` is intentionally verbose — it shows file +
 line + content for every hit so reviewers can audit. The summary tool
-distils the same data into the form an operator actually needs to act
+distills the same data into the form an operator actually needs to act
 on it: *which files, what's the exact replacement, give me the
 command.* And because the command uses the **actual matched text from
 the scan** (not a hardcoded template), it can fan out across multiple

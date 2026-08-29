@@ -145,7 +145,7 @@ def load_findings(path: str) -> set[Finding]:
 # ---------------------------------------------------------------------------
 
 def suggest_misspell(message: str) -> tuple[str, str]:
-    # Message shape: "`colour` is a misspelling of `color`"
+    # Message shape: "`color` is a misspelling of `color`"
     match = re.search(r"`([^`]+)`\s+is a misspelling of\s+`([^`]+)`",
                       message)
     if not match:

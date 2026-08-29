@@ -78,10 +78,10 @@ The original 2026-05-06 user message ("Complete it in 7 iterations…") is the s
   refusal, ProfilePath under <root>/.gitmap/commit-in/profiles/,
   Resolve() applies four-layer precedence defaults<profile<CLI.
   message/: Build() runs §6.1 stages in order — strip rules + blank
-  collapse, override gate (honours OverrideOnlyWeak via §6.2 first-
+  collapse, override gate (honors OverrideOnlyWeak via §6.2 first-
   word lowercase + punctuation strip), title affix on first line,
   body affix random-pick wrap, function-intel block append, IsEmpty
-  flag for EmptyAfterMessageRules skip. prompt/: Asker honours
+  flag for EmptyAfterMessageRules skip. prompt/: Asker honors
   --no-prompt by emitting standardized stderr line + ErrNoPrompt for
   exit-code mapping; AskEnum loops until valid. 18 tests across the
   three packages; PickIndex injection keeps message tests determini-
@@ -93,7 +93,7 @@ The original 2026-05-06 user message ("Complete it in 7 iterations…") is the s
   registry; render.go emits §6.3 per-file block sorted ascending,
   includes newly-added files even when no functions detected.
   finalize/: Counters + Outcome (PartiallyFailed when Failed>0),
-  PrintSummary using CommitInMsgSummaryLine, CleanupTemp honours
+  PrintSummary using CommitInMsgSummaryLine, CleanupTemp honors
   --keep-temp, Resolve maps ConflictMode→ConflictDecision with
   standardized abort banner. Dispatcher: runCommitIn parses argv +
   exits BadArgs on parse error + emits "orchestration loop pending"

@@ -114,12 +114,12 @@ the order declared by the matching `<name>Key*` constants.
    arrays via `WriteObjectIndent` / `WriteArrayIndent` and embed as
    `json.RawMessage` — never call `json.MarshalIndent`.
 5. **Add a JSON Schema contract test** → `gitmap/cmd/<newname>_jsonschema_contract_test.go`
-   modelled on `amendaudit_jsonschema_contract_test.go`:
+   modeled on `amendaudit_jsonschema_contract_test.go`:
    - assert `type == "object"`
    - assert sorted `required` matches a hard-coded slice
    - run the encoder and assert every emitted key is in `properties`.
 6. **Add a golden-bytes test** → `gitmap/cmd/<newname>json_contract_test.go`
-   modelled on `amendauditjson_contract_test.go`, using
+   modeled on `amendauditjson_contract_test.go`, using
    `assertGoldenBytesDeterministic` + `assertSchemaKeysFirstObject`.
 7. **Generate the golden fixture**:
    ```
