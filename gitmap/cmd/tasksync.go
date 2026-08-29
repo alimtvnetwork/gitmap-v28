@@ -69,7 +69,6 @@ func runSyncLoop(entry model.TaskEntry, interval int, verbose, dryRun bool) erro
 			syncOnce(entry, verbose, dryRun)
 		}
 	}
-	return nil
 }
 
 // syncOnce performs a single sync pass from source to destination.

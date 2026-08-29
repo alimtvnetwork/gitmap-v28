@@ -66,10 +66,10 @@ func indexTree(root string, opts WalkOptions) (map[string]os.FileInfo, error) {
 		if relErr != nil || rel == "." {
 			return relErr
 		}
-		if shouldIgnore(rel, opts) == true && info.IsDir() == true {
+		if shouldIgnore(rel, opts) && info.IsDir() {
 			return filepath.SkipDir
 		}
-		if shouldIgnore(rel, opts) == true {
+		if shouldIgnore(rel, opts) {
 			return nil
 		}
 		if info.IsDir() {

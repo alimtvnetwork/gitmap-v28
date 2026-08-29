@@ -85,7 +85,6 @@ func runWatchLoop(records []model.ScanRecord, interval int, noFetch bool) error 
 		case <-time.After(time.Duration(interval) * time.Second):
 		}
 	}
-	return nil
 }
 
 // printWatchJSON outputs a single snapshot as stable JSON and exits.

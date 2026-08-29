@@ -58,7 +58,6 @@ func mustResolveProbeTargets(db *store.DB, rest []string) []model.ScanRecord {
 	if err != nil {
 		var empty []model.ScanRecord
 		return empty
-		return nil
 	}
 
 	return targets

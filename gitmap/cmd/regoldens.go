@@ -117,7 +117,6 @@ func runRegoldensPass(cfg regoldensFlags, withGate bool, header, errFmt string) 
 	fmt.Fprintf(os.Stderr, errFmt, code)
 	fmt.Fprintln(os.Stderr)
 	return apperror.NewSimple("fatal error", "E9000")
-	return nil
 }
 
 // runGoTestPass executes one `go test` invocation and returns its

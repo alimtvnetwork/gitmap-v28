@@ -39,7 +39,7 @@ func walkRepoFiles(root string, exts []string, caseInsensitive bool) ([]string, 
 }
 
 func handleDirReplaceWalk(root, path string, d fs.DirEntry) error {
-	if isExcludedDir(d.Name()) == true || isExcludedPrefix(root, path) == true {
+	if isExcludedDir(d.Name()) || isExcludedPrefix(root, path) {
 		return filepath.SkipDir
 	}
 	return nil
@@ -51,7 +51,7 @@ func visitReplaceEntry(
 	root, path string, d fs.DirEntry,
 	exts []string, caseInsensitive bool, out *[]string,
 ) error {
-	if d.IsDir() == true {
+	if d.IsDir() {
 		return handleDirReplaceWalk(root, path, d)
 	}
 	if !matchesExtFilter(path, exts, caseInsensitive) {

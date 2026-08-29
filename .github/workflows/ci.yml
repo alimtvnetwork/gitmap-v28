@@ -234,7 +234,7 @@ jobs:
         if: needs.sha-check.outputs.already-built != 'true'
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.64.8
+          version: v2.13.2
           working-directory: gitmap
           args: --timeout=5m --issues-exit-code=1
 

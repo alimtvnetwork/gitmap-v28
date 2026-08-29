@@ -79,7 +79,7 @@ func copyRegularFile(src, dst string) (int, error) {
 
 // chromeProfileCopyFile copies a single file from src to dst preserving mode.
 func chromeProfileCopyFile(src, dst string) (bool, error) {
-	in, err := os.Open(src) //nolint:gosec // curated entry list
+	in, err := os.Open(src)
 	if err != nil {
 		return handleChromeFileOpenError(src, dst, err)
 	}
@@ -99,7 +99,7 @@ func writeChromeProfileCopyFile(in *os.File, src, dst string) (bool, error) {
 	if err := os.MkdirAll(filepath.Dir(dst), constants.DirPermission); err != nil {
 		return false, newChromeProfileCopyError(src, dst, constants.ChromeProfileCopyOpMkdir, err)
 	}
-	out, err := os.Create(dst) //nolint:gosec // curated entry list
+	out, err := os.Create(dst)
 	if err != nil {
 		return false, newChromeProfileCopyError(src, dst, constants.ChromeProfileCopyOpWrite, err)
 	}

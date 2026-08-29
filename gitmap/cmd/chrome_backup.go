@@ -75,19 +75,19 @@ func runChromeRestore(args []string) *apperror.AppError {
 		}
 	}
 	recorded := ""
-	needsDst := intoSet == false
-	if needsDst == true {
+	needsDst := !intoSet
+	if needsDst {
 		recorded = readChromeManifestSource(src)
 	}
 
 	useRecorded := needsDst && recorded != ""
-	if useRecorded == true {
+	if useRecorded {
 		dst = recorded
 		fmt.Printf("\033[2;37m• restoring to recorded source profile: %s\033[0m\n", dst)
 	}
 
 	useDefault := needsDst && recorded == ""
-	if useDefault == true {
+	if useDefault {
 		dst = chromeUserDataDir()
 	}
 
@@ -111,16 +111,16 @@ func runChromeRestore(args []string) *apperror.AppError {
 		return apperror.New(fmt.Sprintf("chrome restore: REFUSED  already contains %d file(s); pass --force to overwrite", existing), "E9000", nil)
 	}
 	needsConfirm := existing > 0 && force && !yes
-	if needsConfirm == true {
+	if needsConfirm {
 		fmt.Fprintf(os.Stderr, "\033[1;31m! chrome restore --force\033[0m will overwrite %d existing file(s) under %s\n", existing, dst)
 	}
 
 	isConfirmed := true
-	if needsConfirm == true {
+	if needsConfirm {
 		isConfirmed = confirmYesNo("proceed?")
 	}
 
-	if isConfirmed == false {
+	if !isConfirmed {
 		return apperror.NewSimple("chrome restore: aborted", "E9000")
 	}
 	if dryRun {
@@ -150,7 +150,7 @@ func countChromeProfileFiles(dst string) int {
 // previewChromeBackup walks the tarball without writing and returns the
 // number of regular file entries that would be restored.
 func previewChromeBackup(src string) (int, error) {
-	f, err := os.Open(src) //nolint:gosec
+	f, err := os.Open(src)
 	if err != nil {
 		return 0, err
 	}
@@ -182,7 +182,7 @@ func chromeBackupDefaultPath() string {
 }
 
 func writeChromeBackup(srcRoot, outPath string) (int, error) {
-	f, err := os.Create(outPath) //nolint:gosec
+	f, err := os.Create(outPath)
 	if err != nil {
 		return 0, err
 	}
@@ -214,7 +214,7 @@ func writeChromeBackup(srcRoot, outPath string) (int, error) {
 		if !info.Mode().IsRegular() {
 			return nil
 		}
-		in, err := os.Open(p) //nolint:gosec
+		in, err := os.Open(p)
 		if err != nil {
 			return nil
 		}
@@ -227,7 +227,7 @@ func writeChromeBackup(srcRoot, outPath string) (int, error) {
 }
 
 func readChromeBackup(src, dstRoot string) (int, error) {
-	f, err := os.Open(src) //nolint:gosec
+	f, err := os.Open(src)
 	if err != nil {
 		return 0, err
 	}
@@ -257,7 +257,7 @@ func readChromeBackup(src, dstRoot string) (int, error) {
 			continue
 		}
 		_ = os.MkdirAll(filepath.Dir(target), 0o755)
-		out, err := os.Create(target) //nolint:gosec
+		out, err := os.Create(target)
 		if err != nil {
 			continue
 		}

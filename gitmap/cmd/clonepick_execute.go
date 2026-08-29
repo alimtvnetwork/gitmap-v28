@@ -77,7 +77,7 @@ func announceClonePickPersistence(plan clonepick.Plan, result clonepick.Result, 
 }
 
 func touchAfterReplay(plan clonepick.Plan, db *store.DB, replayId int64) {
-	if plan.DryRun == true {
+	if plan.DryRun {
 		return
 	}
 	if db == nil {

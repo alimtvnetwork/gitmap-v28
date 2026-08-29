@@ -51,7 +51,7 @@ func listChromeExtensions(profile string) map[string]bool {
 
 func collectBookmarkURLs(profile string) map[string]bool {
 	out := map[string]bool{}
-	raw, err := os.ReadFile(filepath.Join(profile, "Bookmarks")) //nolint:gosec
+	raw, err := os.ReadFile(filepath.Join(profile, "Bookmarks"))
 	if err != nil {
 		return out
 	}

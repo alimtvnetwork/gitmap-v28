@@ -80,7 +80,6 @@ func runRm(args []string) error {
 		os.Exit(0)
 	}
 	return apperror.NewSimple("fatal error", "E9000")
-	return nil
 }
 
 func parseRmFlags(args []string) (bool, bool, []string) {

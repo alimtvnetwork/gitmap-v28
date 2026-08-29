@@ -26,7 +26,7 @@ func BroadcastEvent(clients []ClientConnection, event Event) []error {
 	for _, client := range clients {
 		err := client.SendEvent(event)
 		hasError := err != nil
-		if hasError == true {
+		if hasError {
 			errors = append(errors, err)
 		}
 	}

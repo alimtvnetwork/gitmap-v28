@@ -170,12 +170,12 @@ func extractOBSSettingsZip(zipPath, target string) {
 	for _, entry := range entries {
 		srcPath := filepath.Join(tmpDir, entry.Name())
 
-		if entry.IsDir() == true {
+		if entry.IsDir() {
 			profiles += handleOBSProfileDir(srcPath, entry.Name(), profilesDir)
 			continue
 		}
 
-		if strings.HasSuffix(strings.ToLower(entry.Name()), ".json") == true {
+		if strings.HasSuffix(strings.ToLower(entry.Name()), ".json") {
 			scenes += handleOBSSceneFile(srcPath, entry.Name(), scenesDir)
 		}
 	}
@@ -202,7 +202,7 @@ func extractOBSZipEntry(target string, file *zip.File) {
 		return
 	}
 
-	if file.FileInfo().IsDir() == true {
+	if file.FileInfo().IsDir() {
 		handleOBSExtractDir(destPath)
 		return
 	}
@@ -260,7 +260,7 @@ func copyDirRecursive(src, dst string) (int, error) {
 			continue
 		}
 
-		if entry.IsDir() == true {
+		if entry.IsDir() {
 			copied += handleOBSCopyDir(srcPath, dstPath, entry.Name())
 			continue
 		}

@@ -30,7 +30,7 @@ type ChromeManifestEntry struct {
 // for every regular file inside it. Used by both write (post-backup) and
 // verify (pre-restore) so the hashes are guaranteed comparable.
 func buildChromeManifest(tarballPath string) ([]ChromeManifestEntry, error) {
-	f, err := os.Open(tarballPath) //nolint:gosec
+	f, err := os.Open(tarballPath)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func writeChromeManifestWithSource(tarballPath, sourcePath string) (string, erro
 // readChromeManifestSource returns the `# source: <path>` header from the
 // sidecar manifest if present, or "" when missing/unreadable.
 func readChromeManifestSource(tarballPath string) string {
-	raw, err := os.ReadFile(tarballPath + chromeManifestSuffix) //nolint:gosec
+	raw, err := os.ReadFile(tarballPath + chromeManifestSuffix)
 	if err != nil {
 		return ""
 	}
@@ -139,7 +139,7 @@ func readChromeManifestSource(tarballPath string) string {
 // callers can warn instead of hard-failing on older backups.
 func verifyChromeManifest(tarballPath string) (bool, []string, error) {
 	manifestPath := tarballPath + chromeManifestSuffix
-	raw, err := os.ReadFile(manifestPath) //nolint:gosec
+	raw, err := os.ReadFile(manifestPath)
 	if err != nil {
 		return false, nil, fmt.Errorf("manifest missing (%s): %w", manifestPath, err)
 	}

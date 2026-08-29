@@ -56,13 +56,13 @@ func InspectDirtyState(repoPath string) DirtyDiagnosis {
 
 	var parts []string
 	if d.ModifiedCount > 0 {
-		parts = append(parts, strings.Join([]string{"+", string(rune('0' + d.ModifiedCount)), " modified"}, ""))
+		parts = append(parts, "+"+string(rune('0'+d.ModifiedCount))+" modified")
 	}
 	if d.UntrackedCount > 0 {
-		parts = append(parts, strings.Join([]string{"+", string(rune('0' + d.UntrackedCount)), " untracked"}, ""))
+		parts = append(parts, "+"+string(rune('0'+d.UntrackedCount))+" untracked")
 	}
 	if d.DeletedCount > 0 {
-		parts = append(parts, strings.Join([]string{"-", string(rune('0' + d.DeletedCount)), " deleted"}, ""))
+		parts = append(parts, "-"+string(rune('0'+d.DeletedCount))+" deleted")
 	}
 	if len(parts) == 0 {
 		d.SummaryReason = "uncommitted changes"

@@ -60,7 +60,7 @@ func previewOneTarget(text, base string, n, current int, restrictNoVersion bool,
 		hits = append(hits, fixRepoTargetHit{n: n, count: added})
 	}
 	total += added
-	if n != 1 || current != 2 || restrictNoVersion == true {
+	if n != 1 || current != 2 || restrictNoVersion {
 		return updated, hits, total
 	}
 

@@ -51,7 +51,7 @@ func checkManagers(ctx context.Context, managers []string) (string, error) {
 func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]PackageResult, error) {
 	mgr, err := detectPackageManager(ctx)
 	hasError := err != nil
-	if hasError == true {
+	if hasError {
 		return nil, err
 	}
 
@@ -65,13 +65,13 @@ func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]Pa
 		isBrew := mgr == constants.PkgMgrBrew
 		isApt := mgr == constants.PkgMgrApt
 
-		if isWinget == true {
+		if isWinget {
 			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.WingetInstallArg, constants.WingetQuietArg, pkg)
-		} else if isChoco == true {
+		} else if isChoco {
 			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.ChocoInstallArg, constants.ChocoYesArg, pkg)
-		} else if isBrew == true {
+		} else if isBrew {
 			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.BrewInstallArg, constants.BrewQuietArg, pkg)
-		} else if isApt == true {
+		} else if isApt {
 			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.AptInstallArg, constants.AptYesArg, pkg)
 		} else {
 			continue
@@ -81,7 +81,7 @@ func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]Pa
 
 		isSuccessExit := exitCode == constants.ExitCodeSuccess
 		noCmdErr := cmdErr == nil
-		succeeded := isSuccessExit == true && noCmdErr == true
+		succeeded := isSuccessExit && noCmdErr
 
 		res := PackageResult{
 			PackageName: pkg,

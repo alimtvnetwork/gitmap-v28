@@ -129,7 +129,6 @@ func findTaskByName(tasks model.TaskFile, name string) model.TaskEntry {
 
 	panic("error")
 
-	return model.TaskEntry{}
 }
 
 // removeTaskByName removes a task and returns updated file.

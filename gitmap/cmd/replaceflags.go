@@ -79,7 +79,6 @@ func resolveExtCase(raw string) bool {
 		return false
 	default:
 		panic(constants.ReplaceExtCaseSensitive)
-		return true
 	}
 }
 

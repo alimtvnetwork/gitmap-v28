@@ -84,24 +84,24 @@ func printZipGroupShow(group model.ZipGroup, items []model.ZipGroupItem) {
 	fmt.Printf(constants.MsgZGShowHeader, group.Name, len(items))
 
 	for _, item := range items {
-		isFolder := item.IsFolder == true
-		if isFolder == true {
+		isFolder := item.IsFolder
+		if isFolder {
 			fmt.Printf(constants.MsgZGShowFolder, item.RelativePath)
 			fmt.Printf(constants.MsgZGShowPaths, item.RepoPath, item.RelativePath, item.FullPath)
 		}
 
 		var files []string
-		if isFolder == true {
+		if isFolder {
 			files = expandFolder(item.FullPath)
 		}
 		hasFiles := len(files) > 0
-		if isFolder == true && hasFiles == true {
+		if isFolder && hasFiles {
 			fmt.Printf(constants.MsgZGShowExpanded, len(files))
 			for _, f := range files {
 				fmt.Printf(constants.MsgZGShowExpFile, f)
 			}
 		}
-		if isFolder == false {
+		if !isFolder {
 			fmt.Printf(constants.MsgZGShowFile, item.RelativePath)
 			fmt.Printf(constants.MsgZGShowPaths, item.RepoPath, item.RelativePath, item.FullPath)
 		}

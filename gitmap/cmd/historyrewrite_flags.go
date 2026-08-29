@@ -90,7 +90,7 @@ func splitHistoryFlagsAndArgs(args []string) ([]string, []string) {
 		tok := args[i]
 		isFlag := len(tok) > 1 && tok[0] == '-'
 
-		if isFlag == false {
+		if !isFlag {
 			positional = append(positional, tok)
 			i++
 			continue
@@ -98,7 +98,7 @@ func splitHistoryFlagsAndArgs(args []string) ([]string, []string) {
 
 		flags = append(flags, tok)
 		hasValue := isHistoryStringFlag(tok) && i+1 < len(args)
-		if hasValue == true {
+		if hasValue {
 			flags = append(flags, args[i+1])
 			i += 2
 			continue

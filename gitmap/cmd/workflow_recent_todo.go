@@ -16,7 +16,7 @@ func runRecent(args []string) error {
 	checkHelp("recent", args)
 
 	path := recentLogPath()
-	f, err := os.Open(path) //nolint:gosec
+	f, err := os.Open(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "recent: no history yet (%s)\n", path)
 		os.Exit(0)

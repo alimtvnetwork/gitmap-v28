@@ -26,7 +26,7 @@ import (
 // ErrPickerCancelled is returned by RunPicker when the user pressed
 // q / ctrl-c. The cmd layer maps this to exit code 130 and prints
 // MsgClonePickUserCancelled.
-var ErrPickerCancelled = errors.New("clone-pick: picker cancelled") //nolint:misspell // stable exported API name + message, do not rename.
+var ErrPickerCancelled = errors.New("clone-pick: picker canceled")
 
 // (program lifecycle -- RunPicker / RunPickerKeep -- lives in
 // picker_run.go to keep this file under the 200-line cap.)
@@ -47,7 +47,7 @@ type pickerModel struct {
 	// Always in [0, len(paths)-viewportHeight] -- clamped by
 	// clampScroll after every cursor move.
 	scrollOffset int
-	cancelled    bool //nolint:misspell // matches exported ErrPickerCancelled spelling.
+	canceled     bool
 	done         bool
 }
 
@@ -118,7 +118,7 @@ func (m pickerModel) handleResize(msg tea.WindowSizeMsg) pickerModel {
 func (m pickerModel) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch k.String() {
 	case "ctrl+c", "q":
-		m.cancelled = true
+		m.canceled = true
 
 		return m, tea.Quit
 	case "s", "enter":

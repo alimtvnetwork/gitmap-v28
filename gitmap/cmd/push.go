@@ -213,7 +213,7 @@ func pushOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	}
 
 	result := cloner.SafePushOne(rec, rec.AbsolutePath)
-	if result.IsSuccess == false {
+	if !result.IsSuccess {
 		prog.FailWithError(rec.RepoName, result.Error)
 		return
 	}

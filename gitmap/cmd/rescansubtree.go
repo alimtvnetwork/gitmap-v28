@@ -76,7 +76,7 @@ func splitRescanSubtreeArgs(args []string) (string, []string, error) {
 			flags = append(flags, a)
 			continue
 		}
-		if len(a) > 0 && a[0] == '-' && i+1 < len(args) && flagHasInlineValue(a) == false && isLikelyBoolFlag(a) == false {
+		if len(a) > 0 && a[0] == '-' && i+1 < len(args) && !flagHasInlineValue(a) && !isLikelyBoolFlag(a) {
 			flags = append(flags, a)
 			skipNext = true
 			continue
@@ -141,7 +141,7 @@ func resolveRescanSubtreePath(path string) (string, error) {
 		return "", fmt.Errorf("  Error: cannot resolve %q: %w", path, err)
 	}
 	info, err := os.Stat(abs)
-	if err != nil && os.IsNotExist(err) == true {
+	if err != nil && os.IsNotExist(err) {
 		return "", fmt.Errorf(
 			"  Error: rescan-subtree target does not exist: %s\n"+
 				"         Did you copy the absolutePath from a row that has since moved?",

@@ -157,7 +157,7 @@ func resolvePRCTarget(self, token string) (string, string, error) {
 	return slug, path, nil
 }
 
-// isPRCURL recognises an HTTPS or SSH git URL.
+// isPRCURL recognizes an HTTPS or SSH git URL.
 func isPRCURL(token string) bool {
 	return strings.Contains(token, "://") || strings.HasPrefix(token, constants.PrefixSSH)
 }

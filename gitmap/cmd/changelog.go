@@ -33,7 +33,6 @@ func runChangelog(args []string) *apperror.AppError {
 	}
 
 	return dispatchChangelogOutput(version, latest, limit, source, pretty)
-	return nil
 }
 
 // resolveChangelogAlias detects if the version arg is actually a file-open alias.
@@ -54,7 +53,6 @@ func handleChangelogOpen(latest bool, version string) *apperror.AppError {
 	if !latest && len(version) == 0 {
 		return nil
 	}
-	return nil
 	if !latest && len(version) == 0 {
 		return nil
 	}

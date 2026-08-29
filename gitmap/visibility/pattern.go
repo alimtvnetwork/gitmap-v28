@@ -54,8 +54,8 @@ func ParsePattern(raw string) (Pattern, error) {
 // `anchorL` is true when the pattern does NOT start with `*`; `anchorR`
 // is true when the pattern does NOT end with `*`.
 func splitPatternParts(raw string) ([]string, bool, bool) {
-	anchorL := strings.HasPrefix(raw, "*") == false
-	anchorR := strings.HasSuffix(raw, "*") == false
+	anchorL := !strings.HasPrefix(raw, "*")
+	anchorR := !strings.HasSuffix(raw, "*")
 
 	rawParts := strings.Split(raw, "*")
 	parts := make([]string, 0, len(rawParts))

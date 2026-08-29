@@ -230,7 +230,7 @@ func TestWindowsLifecycle_StartupFolderRefusesThirdParty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("re-read third-party .lnk: %v", err)
 	}
-	if string(body) != string(original) {
+	if !bytes.Equal(body, original) {
 		t.Errorf("third-party .lnk modified: %q", body)
 	}
 

@@ -9,7 +9,7 @@ import (
 // ConvertURLToSSH rewrites a Git remote URL into its `git@host:owner/repo.git`
 // SSH-shorthand form. Inputs that already look like SSH are normalized
 // (`.git` suffix appended) but otherwise returned as-is. Inputs that are
-// not a recognised Git URL shape are returned unchanged with ok=false so
+// not a recognized Git URL shape are returned unchanged with ok=false so
 // the caller can decide whether to abort or fall through.
 //
 // Supported input shapes:

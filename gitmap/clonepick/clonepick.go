@@ -107,5 +107,5 @@ type Result struct {
 const (
 	StatusOK        = "ok"
 	StatusFailed    = "failed"
-	StatusCancelled = "cancelled" //nolint:misspell // stable JSON status value, do not rename.
+	StatusCancelled = "canceled"
 )

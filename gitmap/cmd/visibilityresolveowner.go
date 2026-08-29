@@ -116,10 +116,10 @@ func firstPathSegment(url string) string {
 		hasNoSlash = !strings.Contains(trimmed[:idx], "/")
 	}
 	colon := -1
-	if idx >= 0 && hasNoSlash == true {
+	if idx >= 0 && hasNoSlash {
 		colon = strings.Index(trimmed[idx:], ":")
 	}
-	if idx >= 0 && hasNoSlash == true && colon >= 0 {
+	if idx >= 0 && hasNoSlash && colon >= 0 {
 		rest := trimmed[idx+colon+1:]
 
 		return strings.Split(strings.TrimLeft(rest, "/"), "/")[0]
@@ -158,16 +158,16 @@ func ownerFromBareHostOwner(arg string) (ownerContext, error) {
 func ownerFromFolder(path string) (ownerContext, error) {
 	abs, err := filepath.Abs(path)
 	if err != nil {
-		return ownerContext{}, fmt.Errorf("Error: failed to resolve folder at %s: %v (operation: filepath.Abs, reason: %s)", path, err, err.Error())
+		return ownerContext{}, fmt.Errorf("Error: failed to resolve folder at %s: %w (operation: filepath.Abs, reason: %s)", path, err, err.Error())
 	}
 
 	if _, statErr := os.Stat(abs); statErr != nil {
-		return ownerContext{}, fmt.Errorf("Error: folder not found at %s: %v (operation: stat, reason: %s)", abs, statErr, statErr.Error())
+		return ownerContext{}, fmt.Errorf("Error: folder not found at %s: %w (operation: stat, reason: %s)", abs, statErr, statErr.Error())
 	}
 
 	url, err := gitutil.RemoteURL(abs)
 	if err != nil || len(url) == 0 {
-		return ownerContext{}, fmt.Errorf("Error: no origin remote at %s: %v (operation: gitutil.RemoteURL, reason: %s)", abs, err, errString(err))
+		return ownerContext{}, fmt.Errorf("Error: no origin remote at %s: %w (operation: gitutil.RemoteURL, reason: %s)", abs, err, errString(err))
 	}
 
 	ctx, err := ownerFromURL(url)

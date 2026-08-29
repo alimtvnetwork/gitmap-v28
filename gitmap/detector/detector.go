@@ -51,10 +51,10 @@ func walkRepoOnce(repoPath string) repoHits {
 		if err != nil {
 			return nil
 		}
-		if info.IsDir() == true && shouldExcludeDir(info.Name()) == true {
+		if info.IsDir() && shouldExcludeDir(info.Name()) {
 			return filepath.SkipDir
 		}
-		if info.IsDir() == true {
+		if info.IsDir() {
 			return nil
 		}
 		name := info.Name()

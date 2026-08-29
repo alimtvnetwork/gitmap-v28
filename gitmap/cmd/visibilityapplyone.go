@@ -62,7 +62,7 @@ func applyOneRepoTo(w io.Writer, owner ownerContext, repoName, target string, ve
 
 	verified, verifyErr := readVisibilityNoExit(repoCtx, verbose)
 	if verifyErr != nil || verified != target {
-		err := fmt.Errorf("verify failed: got=%q want=%q (%v)", verified, target, verifyErr)
+		err := fmt.Errorf("verify failed: got=%q want=%q (%w)", verified, target, verifyErr)
 		fmt.Fprintf(w, constants.MsgBulkApplyFailFmt, err)
 
 		return applyStatus{outcome: "fail", err: err, prev: current, next: verified}
@@ -80,7 +80,7 @@ func readVisibilityNoExit(ctx visibilityContext, verbose bool) (string, error) {
 	args := readVisibilityArgs(ctx.Provider, ctx.Slug)
 	out, err := runProviderCLI(ctx.Provider, args, verbose)
 	if err != nil {
-		return "", fmt.Errorf("Error: read visibility failed for %s: %v (operation: %s repo view, reason: %s)",
+		return "", fmt.Errorf("Error: read visibility failed for %s: %w (operation: %s repo view, reason: %s)",
 			ctx.Slug, err, providerCLI(ctx.Provider), err.Error())
 	}
 
@@ -96,6 +96,6 @@ func applyVisibilityNoExit(ctx visibilityContext, target string, verbose bool) e
 		return nil
 	}
 
-	return fmt.Errorf("Error: apply visibility failed for %s: %v (operation: %s repo edit, reason: %s)",
+	return fmt.Errorf("Error: apply visibility failed for %s: %w (operation: %s repo edit, reason: %s)",
 		ctx.Slug, err, providerCLI(ctx.Provider), strings.TrimSpace(stderr))
 }

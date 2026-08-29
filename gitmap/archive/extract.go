@@ -101,7 +101,7 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 
 	extractor, ok := format.(archives.Extractor)
 	isMissingExtractor := !ok
-	if isMissingExtractor == true {
+	if isMissingExtractor {
 		return 0, apperror.New("extract", "ERR_UNSUPPORTED_FORMAT", map[string]any{"format": format.Extension()})
 	}
 
@@ -123,12 +123,12 @@ func runArchiveExtraction(ctx context.Context, extractor archives.Extractor, str
 func extractArchiveEntry(destDir string, entry archives.FileInfo, written *int) error {
 	clean := safeJoin(destDir, entry.NameInArchive)
 	isEmptyClean := clean == ""
-	if isEmptyClean == true {
+	if isEmptyClean {
 		return apperror.New("extract entry", "ERR_UNSAFE_PATH", map[string]any{"path": entry.NameInArchive})
 	}
 
 	isDir := entry.IsDir()
-	if isDir == true {
+	if isDir {
 		return os.MkdirAll(clean, constants.DirPermission)
 	}
 
@@ -142,7 +142,7 @@ func extractArchiveEntry(destDir string, entry archives.FileInfo, written *int) 
 // Split out so extractAllIntoDir stays under gocyclo's 15-complexity cap.
 func writeArchiveFile(entry archives.FileInfo, destPath string, written *int) error {
 	hasLinkTarget := entry.LinkTarget != ""
-	if hasLinkTarget == true {
+	if hasLinkTarget {
 		// Symlinks are skipped on purpose — see CompactExtract docstring.
 		return nil
 	}
@@ -186,8 +186,8 @@ func safeJoin(destDir, name string) string {
 	}
 	isOutsideDest := !strings.HasPrefix(abs+string(filepath.Separator), destAbs+string(filepath.Separator))
 	isSame := abs == destAbs
-	isEscaped := isOutsideDest == true && isSame == false
-	if isEscaped == true {
+	isEscaped := isOutsideDest && !isSame
+	if isEscaped {
 		return ""
 	}
 
@@ -223,12 +223,12 @@ func findDeepestRoot(tempDir string) (string, int, error) {
 			return root, flattened, err
 		}
 		hasSingleEntry := len(entries) == 1
-		if hasSingleEntry == false {
+		if !hasSingleEntry {
 			break
 		}
 		isDir := entries[0].IsDir()
 		isNonDir := !isDir
-		if isNonDir == true {
+		if isNonDir {
 			break
 		}
 		root = filepath.Join(root, entries[0].Name())
@@ -260,7 +260,7 @@ func moveOrCopy(src, dst string) error {
 		return err
 	}
 	isDir := info.IsDir()
-	if isDir == true {
+	if isDir {
 		return copyDir(src, dst)
 	}
 
@@ -284,7 +284,7 @@ func copyDirEntry(src, dst, path string, d fs.DirEntry) error {
 	}
 	target := filepath.Join(dst, rel)
 	isDir := d.IsDir()
-	if isDir == true {
+	if isDir {
 		return os.MkdirAll(target, constants.DirPermission)
 	}
 	info, err := d.Info()
@@ -331,7 +331,7 @@ func archiveBaseName(path string) string {
 		".7z", ".rar",
 	} {
 		hasExt := strings.HasSuffix(strings.ToLower(base), ext)
-		if hasExt == true {
+		if hasExt {
 			return base[:len(base)-len(ext)]
 		}
 	}

@@ -32,7 +32,7 @@ func runSSHGenerate(args []string) error {
 
 	keyPath = expandHome(keyPath)
 
-	if confirm && askConfirm(name, keyPath) == false {
+	if confirm && !askConfirm(name, keyPath) {
 		fmt.Fprint(os.Stdout, constants.MsgSSHCanceled)
 
 		return nil
@@ -171,11 +171,11 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	fingerprint := readFingerprint(keyPath)
 
 	exists := db.SSHKeyExists(name)
-	if exists == true {
+	if exists {
 		errUpdate := db.UpdateSSHKey(name, keyPath, string(pubKey), fingerprint, email)
 		printDBError(errUpdate, "update")
 	}
-	if exists == false {
+	if !exists {
 		_, errInsert := db.InsertSSHKey(name, keyPath, string(pubKey), fingerprint, email)
 		printDBError(errInsert, "save")
 	}

@@ -56,7 +56,7 @@ func TestGetLocalPublicKey(t *testing.T) {
 }
 
 func TestAppendKeyRemote(t *testing.T) {
-	// Test cancelled context
+	// Test canceled context
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
 	target := SSHTarget{Username: "test", IP: "127.0.0.1", Port: 22}

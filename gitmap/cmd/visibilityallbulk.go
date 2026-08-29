@@ -93,8 +93,8 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	}
 	isEmptyMatch := len(matches) == 0
 	isEmptyInvert := len(latestInvert) == 0
-	isExceptEmpty := flags.ExceptLatest == true && isEmptyMatch == true && isEmptyInvert == true
-	if isExceptEmpty == true {
+	isExceptEmpty := flags.ExceptLatest && isEmptyMatch && isEmptyInvert
+	if isExceptEmpty {
 		fmt.Fprint(os.Stderr, constants.MsgBulkNoMatches)
 		os.Exit(constants.ExitVisOK)
 	}
@@ -170,10 +170,10 @@ func parseBulkArgs(args []string) (string, string, bulkFlags) {
 		case strings.HasPrefix(a, constants.FlagBulkParallel+"="):
 			n, err := strconv.Atoi(strings.TrimPrefix(a, constants.FlagBulkParallel+"="))
 			isValid := err == nil && n > 0
-			if isValid == true && n > constants.MaxBulkParallelism {
+			if isValid && n > constants.MaxBulkParallelism {
 				n = constants.MaxBulkParallelism
 			}
-			if isValid == true {
+			if isValid {
 				flags.Parallel = n
 			}
 		case strings.HasPrefix(a, constants.FlagBulkCacheTTL+"="):

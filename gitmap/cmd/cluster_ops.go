@@ -375,7 +375,7 @@ func printClusterNodesTable(nodes []db.ClusterNode) {
 		if n.LastHeartbeat != nil {
 			hb = n.LastHeartbeat.Format(time.RFC3339)
 		}
-		if strings.ToLower(n.Status) == constants.ClusterStatusOffline || strings.ToLower(n.Status) == constants.ClusterStatusUnreachable {
+		if strings.EqualFold(n.Status, constants.ClusterStatusOffline) || strings.EqualFold(n.Status, constants.ClusterStatusUnreachable) {
 			unreachable = append(unreachable, n)
 		}
 		fmt.Printf("%-10d | %-15s | %-15s | %-10s | %-10s | %-10s | %s\n", n.DisplayId, n.Alias, n.IPAddress, n.OS, n.NodeRole, n.Status, hb)
