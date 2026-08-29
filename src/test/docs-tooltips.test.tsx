@@ -118,7 +118,6 @@ describe("docs tooltip wiring — CodeBlock toolbar", () => {
 // header shows "gitmap docs" only, no version chip). The previous
 // test asserting a tooltip on the badge no longer applies.
 
-
 // Pointer-event sanity check: also verify userEvent.hover() opens
 // the tooltip in jsdom for at least one well-known trigger. If
 // Radix changes its opener semantics this test will catch it.
@@ -398,6 +397,7 @@ describe("DocsTooltip — interaction mode switching", () => {
 
   const isOpen = (triggerName: string) => {
     const tips = screen.queryAllByRole("tooltip");
+
     return tips.some((t) =>
       (t.textContent ?? "").toLowerCase().includes(triggerName.toLowerCase()),
     );
@@ -499,4 +499,3 @@ describe("DocsTooltip — aria-label injection scope (combined)", () => {
     expect(leaked).toBeNull();
   });
 });
-

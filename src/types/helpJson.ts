@@ -32,6 +32,7 @@ export const isHelpJsonPayload = (value: unknown): value is HelpJsonPayload => {
   if (typeof v.version !== "string") return false;
   if (typeof v.count !== "number") return false;
   if (!Array.isArray(v.groups)) return false;
+
   return v.groups.every(
     (g) =>
       g &&

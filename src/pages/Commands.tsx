@@ -97,6 +97,7 @@ function useCommandNavigate(
       if (element) {
         highlightElement(element, () => setHighlightCmd(null));
       }
+
       setForceOpen(null);
     }, 100);
   }, [commandRefs, setForceOpen, setHighlightCmd, setSearch]);

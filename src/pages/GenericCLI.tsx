@@ -12,6 +12,7 @@ interface SectionProps {
 
 const Section = ({ id, title, children, defaultOpen = false }: SectionProps) => {
   const [open, setOpen] = useState(defaultOpen);
+
   return (
     <div id={id} className="border border-border rounded-lg overflow-hidden">
       <button
@@ -202,6 +203,7 @@ const GenericCLIPage = () => {
     if fs.NArg() > 0 {
         dir = fs.Arg(0)
     }
+
     return
 }`} />
           <Table
@@ -444,6 +446,7 @@ const GenericCLIPage = () => {
 func FormatDisplayDate(t time.Time) string {
     utc := t.UTC()
     local := utc.Local()
+
     return local.Format(constants.DateDisplayLayout)
 }`} />
           <BulletList items={[
@@ -575,8 +578,10 @@ func initVerboseLog() {
     logger, err := verbose.Init()
     if err != nil {
         fmt.Fprintf(os.Stderr, constants.ErrVerboseInit, err)
+
         return                 // Non-fatal — continue without logging
     }
+
     defer logger.Close()
 }`} />
           <BulletList items={[
@@ -703,6 +708,7 @@ func (p *Progress) Begin(name string) {
     if p.quiet {
         return
     }
+
     fmt.Fprintf(os.Stderr, constants.ProgressBeginFmt, p.current, p.total, name)
 }
 
@@ -713,9 +719,11 @@ func (p *Progress) Done(result model.CloneResult, pulled bool) {
     } else {
         p.cloned++
     }
+
     if p.quiet {
         return
     }
+
     elapsed := time.Since(p.start)
     fmt.Fprintf(os.Stderr, constants.ProgressDoneFmt, formatDuration(elapsed))
 }
@@ -726,6 +734,7 @@ func (p *Progress) Fail(result model.CloneResult) {
     if p.quiet {
         return
     }
+
     fmt.Fprintf(os.Stderr, constants.ProgressFailFmt)
 }
 
@@ -734,6 +743,7 @@ func (p *Progress) PrintSummary() {
     if p.quiet {
         return
     }
+
     elapsed := time.Since(p.start)
     fmt.Fprintf(os.Stderr, constants.ProgressSummaryFmt,
         p.current, p.total, formatDuration(elapsed))
@@ -752,8 +762,10 @@ Done: 24/24 (1m 12s)
     if d < time.Minute {
         return fmt.Sprintf("%.1fs", d.Seconds())
     }
+
     mins := int(d.Minutes())
     secs := int(d.Seconds()) % 60
+
     return fmt.Sprintf("%dm %ds", mins, secs)
 }`} />
           <Table
@@ -859,6 +871,7 @@ toolname exec -g backend log --oneline -5   # Group subset`} />
     if len(groupName) > 0 {
         return loadRecordsByGroup(groupName)  // DB: group members
     }
+
     if all {
         return loadAllRecordsDB()             // DB: all repos
     }
@@ -912,12 +925,14 @@ toolname exec -g backend log --oneline -5   # Group subset`} />
     if err == nil && execInRepo(rec, gitArgs) {
         return 1, 0, 0    // succeeded
     }
+
     if err == nil {
         return 0, 1, 0    // failed (command error)
     }
 
     // Directory does not exist
     fmt.Printf(constants.ExecMissingFmt, ...)
+
     return 0, 0, 1        // missing
 }`} />
           <H3>Output Format</H3>
@@ -1025,6 +1040,7 @@ toolname completion --list-commands          # one command per line`} />
 
     if [[ \${COMP_CWORD} -eq 1 ]]; then
         COMPREPLY=($(compgen -W "$(toolname completion --list-commands)" -- "$cur"))
+
         return
     fi
 
@@ -1037,6 +1053,7 @@ toolname completion --list-commands          # one command per line`} />
             ;;
     esac
 }
+
 complete -F _toolname_completions toolname`} />
 
           <H3>Setup Integration</H3>
@@ -1069,6 +1086,7 @@ func addSourceLine(scriptPath, profilePath, shell string) error {
     f, _ := os.OpenFile(profilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     defer f.Close()
     fmt.Fprintf(f, "\\n# toolname shell completion\\n%s\\n", sourceLine)
+
     return nil
 }`} />
 

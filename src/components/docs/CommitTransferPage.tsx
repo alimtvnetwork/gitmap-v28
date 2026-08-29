@@ -8,6 +8,7 @@ export enum DirectionType {
   Right = "right",
   Both = "both",
 }
+
 export type Direction = DirectionType;
 
 interface CommitTransferPageProps {

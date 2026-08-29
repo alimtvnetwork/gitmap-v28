@@ -26,6 +26,7 @@ const COLOR_CLASS = {
 
 function HelpBlock({ block }: { block: (typeof HELP_BLOCKS)[number] }) {
   const [Icon, title, body, color] = block;
+
   return (
     <div className={`border-l-4 ${COLOR_CLASS[color]} bg-card p-4`}>
       <Icon className="mb-3 h-5 w-5" />

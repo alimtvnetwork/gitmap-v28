@@ -39,6 +39,7 @@ const TerminalPreview = () => {
   useEffect(() => {
     if (paused) return;
     const id = setInterval(() => setTick((t) => t + 1), 4000);
+
     return () => clearInterval(id);
   }, [paused]);
 

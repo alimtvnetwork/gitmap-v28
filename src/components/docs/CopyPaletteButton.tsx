@@ -43,9 +43,11 @@ function buildPaletteCss(themeName: string, selector: string): string {
   const lines = PALETTE_VARS
     .map((name) => {
       const value = styles.getPropertyValue(name).trim();
+
       return value ? `  ${name}: ${value};` : null;
     })
     .filter((line): line is string => line !== null);
+
   return `/* ${themeName} */\n${selector} {\n${lines.join("\n")}\n}\n`;
 }
 
@@ -59,6 +61,7 @@ export function CopyPaletteButton() {
     const res = await queryWrapper(async () => {
       const css = buildPaletteCss(themeLabel, selector);
       await navigator.clipboard.writeText(css);
+
       return true;
     });
     if (!res.isFail && res.data) {
@@ -90,4 +93,3 @@ export function CopyPaletteButton() {
 }
 
 export default CopyPaletteButton;
-

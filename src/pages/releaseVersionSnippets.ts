@@ -9,6 +9,7 @@ export enum ReleasePlatformType {
   Windows = "windows",
   Unix = "unix",
 }
+
 export type ReleasePlatform = ReleasePlatformType;
 
 export interface InstallSnippet {

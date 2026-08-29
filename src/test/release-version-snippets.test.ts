@@ -57,6 +57,7 @@ describe("releaseVersionSnippets — Windows", () => {
       iwr https://github.com/alimtvnetwork/gitmap-v28/releases/download/v3.39.0/release-version-v3.39.0.ps1 -OutFile $env:TEMP\\rv.ps1
       & $env:TEMP\\rv.ps1",
       }
+
     `);
   });
 });
@@ -86,6 +87,7 @@ describe("releaseVersionSnippets — Unix", () => {
         "pinned": "# Pinned install — locks gitmap-v28 to v3.39.0 (no auto-upgrade)
       curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v3.39.0/release-version-v3.39.0.sh | bash",
       }
+
     `);
   });
 });

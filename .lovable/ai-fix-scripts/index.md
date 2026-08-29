@@ -47,3 +47,16 @@ python .lovable/ai-fix-scripts/03-cicd-local-runner.py
 python .lovable/ai-fix-scripts/04-relative-path-fixer.py
 ```
 </details>
+
+<details>
+<summary>05-naming-autofixer.py</summary>
+
+**Purpose:** Scans and refactors variable and boolean naming violations across Go, TypeScript, and Python codebases, replacing bare `ok` identifiers with domain-specific affirmative booleans, eliminating negative booleans (`hasNo*`, `isNot*`), and enforcing positive framing with inverted guard clauses.
+
+**Usage Examples:**
+```bash
+python .lovable/ai-fix-scripts/05-naming-autofixer.py
+python .lovable/ai-fix-scripts/05-naming-autofixer.py gitmap/cmd
+```
+</details>
+

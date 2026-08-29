@@ -16,6 +16,7 @@ export enum ProjectFilterType {
   Cpp = "cpp",
   Csharp = "csharp",
 }
+
 export type ProjectFilter = ProjectFilterType;
 
 export interface GoRunnable {

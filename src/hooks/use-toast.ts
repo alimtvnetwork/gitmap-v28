@@ -23,6 +23,7 @@ let count = 0;
 
 function genId() {
   count = (count + 1) % Number.MAX_SAFE_INTEGER;
+
   return count.toString();
 }
 
@@ -33,14 +34,17 @@ type Action =
       type: ActionType["ADD_TOAST"];
       toast: ToasterToast;
     }
+
   | {
       type: ActionType["UPDATE_TOAST"];
       toast: Partial<ToasterToast>;
     }
+
   | {
       type: ActionType["DISMISS_TOAST"];
       toastId?: ToasterToast["id"];
     }
+
   | {
       type: ActionType["REMOVE_TOAST"];
       toastId?: ToasterToast["id"];
@@ -76,6 +80,7 @@ function dismissToasts(state: State, toastId?: string): State {
     toasts: state.toasts.map((t) => {
       const isTarget = t.id === toastId || toastId === undefined;
       if (isTarget) return { ...t, open: false };
+
       return t;
     }),
   };
@@ -86,6 +91,7 @@ function removeToasts(state: State, toastId?: string): State {
   if (isClearAll) {
     return { ...state, toasts: [] };
   }
+
   return {
     ...state,
     toasts: state.toasts.filter((t) => t.id !== toastId),
@@ -96,14 +102,17 @@ export const reducer = (state: State, action: Action): State => {
   if (action.type === "ADD_TOAST") {
     return { ...state, toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT) };
   }
+
   if (action.type === "UPDATE_TOAST") {
     return {
       ...state,
       toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
     };
   }
+
   if (action.type === "DISMISS_TOAST") return dismissToasts(state, action.toastId);
   if (action.type === "REMOVE_TOAST") return removeToasts(state, action.toastId);
+
   return state;
 };
 
@@ -147,6 +156,7 @@ function useToast() {
 
   React.useEffect(() => {
     listeners.push(setState);
+
     return () => {
       const index = listeners.indexOf(setState);
       const isPresent = index > -1;
@@ -162,4 +172,3 @@ function useToast() {
 }
 
 export { useToast, toast };
-

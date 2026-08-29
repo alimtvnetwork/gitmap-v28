@@ -20,6 +20,7 @@ export enum ThemeSourceType {
   System = "system",
   User = "user",
 }
+
 export type ThemeSource = ThemeSourceType;
 
 interface UseThemeResult {
@@ -35,6 +36,7 @@ function readSource(): ThemeSourceType {
   const res = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
   if (res.isFail) return ThemeSourceType.System;
   const stored = res.data;
+
   return stored === "light" || stored === "dark" ? ThemeSourceType.User : ThemeSourceType.System;
 }
 
@@ -117,4 +119,3 @@ export function useTheme(): UseThemeResult {
     toggleTheme,
   };
 }
-

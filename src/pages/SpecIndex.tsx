@@ -33,12 +33,14 @@ const SpecIndexPage = () => {
         e.preventDefault();
         inputRef.current?.focus();
       }
+
       if (e.key === "Escape" && document.activeElement === inputRef.current) {
         inputRef.current?.blur();
         setQuery("");
       }
     };
     window.addEventListener("keydown", handler);
+
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
@@ -56,6 +58,7 @@ const SpecIndexPage = () => {
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
     if (!q) return sections;
+
     return sections
       .map((section) => ({
         ...section,

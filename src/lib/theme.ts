@@ -6,6 +6,7 @@ export enum ThemeType {
   Light = "light",
   Dark = "dark",
 }
+
 export type Theme = ThemeType;
 
 /** Read the currently applied theme from the <html> element. */
@@ -18,6 +19,7 @@ export function getCurrentTheme(): ThemeType {
   if (!res.isFail && (res.data === "light" || res.data === "dark")) {
     return res.data as ThemeType;
   }
+
   return ThemeType.Dark;
 }
 
@@ -33,6 +35,6 @@ export function setTheme(theme: ThemeType): void {
 export function toggleTheme(): ThemeType {
   const next: ThemeType = getCurrentTheme() === ThemeType.Dark ? ThemeType.Light : ThemeType.Dark;
   setTheme(next);
+
   return next;
 }
-

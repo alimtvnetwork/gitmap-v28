@@ -15,6 +15,7 @@ export enum ChangelogTagType {
   Fix = "fix",
   Perf = "perf",
 }
+
 export type ChangelogTag = ChangelogTagType;
 
 const RULES: Array<{ tag: ChangelogTagType; pattern: RegExp }> = [
@@ -32,6 +33,7 @@ export function classifyChangelogItem(item: string): ChangelogTagType[] {
   for (const { tag, pattern } of RULES) {
     if (pattern.test(item)) tags.add(tag);
   }
+
   return [...tags];
 }
 

@@ -14,6 +14,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
   ) {
     const res = await queryWrapper(async () => {
       await navigator.clipboard.writeText(text);
+
       return true;
     });
     if (!res.isFail && res.data) {
@@ -67,6 +68,7 @@ function legacyCopy(text: string): boolean {
     textarea.select();
     // Some browsers ignore .select() unless setSelectionRange runs too.
     textarea.setSelectionRange(0, text.length);
+
     return document.execCommand("copy");
   });
 
@@ -84,4 +86,3 @@ function legacyCopy(text: string): boolean {
 
   return succeeded;
 }
-

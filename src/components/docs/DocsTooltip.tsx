@@ -40,6 +40,7 @@ const resolveAccessibleName = (
 ): string | undefined => {
   if (ariaLabel) return ariaLabel;
   if (typeof label === "string") return label;
+
   return undefined;
 };
 
@@ -68,6 +69,7 @@ const withAccessibleName = (
   const childProps = child.props as Record<string, unknown>;
   if (childProps[FALLBACK_WRAPPER_PROP]) return child;
   if (childProps["aria-label"]) return child;
+
   return cloneElement(child as ReactElement, { "aria-label": accessibleName });
 };
 
@@ -82,6 +84,7 @@ const withAccessibleName = (
 const normalizeTrigger = (child: ReactNode): ReactElement => {
   const count = Children.count(child);
   if (count === 1 && isValidElement(child)) return child;
+
   return (
     <span
       tabIndex={0}
@@ -97,6 +100,7 @@ export const DocsTooltip = ({ children, label, ariaLabel }: DocsTooltipProps) =>
   const accessibleName = resolveAccessibleName(label, ariaLabel);
   const normalized = normalizeTrigger(children);
   const trigger = withAccessibleName(normalized, accessibleName);
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
@@ -112,4 +116,3 @@ export const DocsTooltip = ({ children, label, ariaLabel }: DocsTooltipProps) =>
 };
 
 export default DocsTooltip;
-

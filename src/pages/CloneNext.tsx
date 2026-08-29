@@ -27,6 +27,7 @@ const TerminalPreview = ({ title, lines }: { title: string; lines: string[] }) =
               ? "text-yellow-400"
               : "text-terminal-foreground"
           }
+
         >
           {line || "\u00A0"}
         </div>

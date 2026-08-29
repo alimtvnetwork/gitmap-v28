@@ -56,6 +56,7 @@ const hasHiddenAncestor = (el: HTMLElement): boolean => {
     if (s.pointerEvents === "none" && node === el) return true;
     node = node.parentElement;
   }
+
   return false;
 };
 
@@ -63,6 +64,7 @@ const isPointCovered = (x: number, y: number, el: HTMLElement): boolean => {
   if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) return false;
   const top = document.elementFromPoint(x, y);
   const isTopFound = Boolean(top);
+
   return isTopFound && (top === el || el.contains(top));
 };
 
@@ -81,6 +83,7 @@ const isCoveredByOverlay = (el: HTMLElement, rects: DOMRectList): boolean => {
   if (isOutsideViewport) return false;
   const isHitOrDescendant = samples.some(([x, y]) => isPointCovered(x, y, el));
   const isCovered = !isHitOrDescendant;
+
   return isCovered;
 };
 
@@ -95,6 +98,7 @@ const isVisible = (el: HTMLElement): boolean => {
 
   if (hasHiddenAncestor(el)) return false;
   if (isCoveredByOverlay(el, rects)) return false;
+
   return true;
 };
 
@@ -102,6 +106,7 @@ const isVisible = (el: HTMLElement): boolean => {
 const resolveIdRefs = (ids: string | null): string => {
   const isMissingIds = !ids;
   if (isMissingIds) return "";
+
   return ids
     .split(/\s+/)
     .map((id) => document.getElementById(id)?.textContent?.trim() ?? "")
@@ -124,6 +129,7 @@ const getFormElementLabel = (el: HTMLElement): string | null => {
       .join(" ");
     if (text) return truncate(text.replace(/\s+/g, " "));
   }
+
   return null;
 };
 
@@ -142,6 +148,7 @@ const labelFor = (el: HTMLElement): string => {
   if (title) return truncate(title.trim());
   const text = (el.textContent ?? "").replace(/\s+/g, " ").trim();
   if (text) return truncate(text);
+
   return el instanceof HTMLInputElement ? `${el.type} input` : el.tagName.toLowerCase();
 };
 
@@ -166,8 +173,10 @@ const getLandmarkSection = (el: HTMLElement): string | null => {
   );
   if (landmark) {
     const role = landmark.getAttribute("role") ?? landmark.tagName.toLowerCase();
+
     return role.charAt(0).toUpperCase() + role.slice(1);
   }
+
   return null;
 };
 
@@ -180,7 +189,9 @@ const getAriaSection = (el: HTMLElement): string | null => {
     const ref = document.getElementById(labelId);
     if (ref?.textContent) return ref.textContent.trim();
   }
+
   const label = section.getAttribute("aria-label");
+
   return label ? label.trim() : null;
 };
 
@@ -190,6 +201,7 @@ const sectionFor = (el: HTMLElement): string => {
   if (landmark) return landmark;
   const ariaSection = getAriaSection(el);
   if (ariaSection) return ariaSection;
+
   return "Page";
 };
 
@@ -207,6 +219,7 @@ const compareTabOrder = (a: IndexedElement, b: IndexedElement): number => {
   if (aPositive && isBNotPositive) return -1;
   if (isANotPositive && bPositive) return 1;
   if (aPositive && bPositive && a.ti !== b.ti) return a.ti - b.ti;
+
   return a.i - b.i;
 };
 
@@ -228,6 +241,7 @@ export const getTabOrder = (root: ParentNode = document.body): HTMLElement[] => 
   }));
 
   indexed.sort(compareTabOrder);
+
   return indexed.map((x) => x.el);
 };
 
@@ -241,6 +255,7 @@ const buildFocusEntry = (el: HTMLElement, idx: number, selfEl: HTMLElement | nul
   const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
   const sublabel = desc && norm(desc) !== norm(label) ? desc : undefined;
   const isSelf = Boolean(selfEl && selfEl.contains(el));
+
   return {
     step: idx + 1,
     label,
@@ -259,6 +274,7 @@ const groupEntriesBySection = (entries: FocusEntry[]): { section: string; items:
     if (last && last.section === e.section) last.items.push(e);
     else groups.push({ section: e.section, items: [e] });
   }
+
   return groups;
 };
 
@@ -298,6 +314,7 @@ const TabOrderMap = () => {
       attributeFilter: ["disabled", "tabindex", "aria-hidden", "hidden"],
     });
     window.addEventListener("resize", schedule);
+
     return () => {
       cancelAnimationFrame(raf);
       mo.disconnect();
@@ -317,6 +334,7 @@ const TabOrderMap = () => {
         setFocusedStep(null);
         return;
       }
+
       const idx = elementsRef.current.indexOf(target);
       setFocusedStep(idx >= 0 ? idx + 1 : null);
     };
@@ -332,6 +350,7 @@ const TabOrderMap = () => {
     document.addEventListener("focusin", onFocusIn);
     document.addEventListener("focusout", onFocusOut);
     onFocusIn({ target: document.activeElement } as unknown as FocusEvent);
+
     return () => {
       document.removeEventListener("focusin", onFocusIn);
       document.removeEventListener("focusout", onFocusOut);
@@ -420,6 +439,7 @@ const TabOrderMap = () => {
                       <ol className="space-y-1.5 list-none p-0 m-0">
                         {group.items.map((e) => {
                           const isActive = focusedStep === e.step;
+
                           return (
                             <li
                               key={e.step}

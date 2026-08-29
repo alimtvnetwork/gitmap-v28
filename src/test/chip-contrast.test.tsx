@@ -64,6 +64,7 @@ function hslTokenToRgb(token: string): [number, number, number] {
   else if (h < 240) [r, g, b] = [0, x, c];
   else if (h < 300) [r, g, b] = [x, 0, c];
   else [r, g, b] = [c, 0, x];
+
   return [
     Math.round((r + m) * 255),
     Math.round((g + m) * 255),
@@ -88,8 +89,10 @@ function compositeOver(
 function luminance([r, g, b]: [number, number, number]): number {
   const lin = (c: number) => {
     const v = c / 255;
+
     return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
   };
+
   return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
 }
 
@@ -100,6 +103,7 @@ function contrastRatio(
   const l1 = luminance(fg);
   const l2 = luminance(bg);
   const [light, dark] = l1 > l2 ? [l1, l2] : [l2, l1];
+
   return (light + 0.05) / (dark + 0.05);
 }
 
@@ -108,6 +112,7 @@ export enum ModeType {
   Light = "light",
   Dark = "dark",
 }
+
 interface ChipCase {
   name: string;
   /** Foreground token resolved by Tailwind classes + global override. */
@@ -168,6 +173,7 @@ function effectiveBg(mode: ModeType, alpha: number): [number, number, number] {
   const tokens = mode === ModeType.Dark ? DARK_TOKENS : LIGHT_TOKENS;
   const tint = hslTokenToRgb(tokens.primary);
   const page = hslTokenToRgb(tokens.background);
+
   return compositeOver(tint, alpha, page);
 }
 
@@ -175,6 +181,7 @@ function fgRgb(mode: ModeType, key: string): [number, number, number] {
   const tokens = mode === ModeType.Dark ? DARK_TOKENS : LIGHT_TOKENS;
   const token = (tokens as Record<string, string>)[key];
   if (!token) throw new Error(`Unknown token: ${key} in ${mode}`);
+
   return hslTokenToRgb(token);
 }
 

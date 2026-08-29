@@ -18,6 +18,7 @@ export enum ProtocolType {
   Ssh = "ssh",
   SshAlias = "ssh-alias",
 }
+
 export type Protocol = ProtocolType;
 
 export enum VersionModeType {
@@ -25,6 +26,7 @@ export enum VersionModeType {
   VPlusOne = "v+1",
   VN = "vN",
 }
+
 export type VersionMode = VersionModeType;
 
 const PROTOCOL_LABEL: Record<ProtocolType, string> = {
@@ -106,6 +108,7 @@ function buildGitmapCommand(s: BuilderState): string {
   if (s.branch.trim().length > 0) parts.push(`--branch ${s.branch.trim()}`);
   const isNoFlatten = !s.flatten;
   if (isNoFlatten) parts.push("--no-flatten");
+
   return parts.join(" ");
 }
 
@@ -116,12 +119,14 @@ function buildGitCloneCommand(s: BuilderState): string {
   const base = `git clone ${branchArg}${url} ${folder}`;
   if (s.protocol !== ProtocolType.Https && s.sshKeyName.trim().length > 0) {
     const keyName = s.sshKeyName.trim();
+
     return [
       `# Routed through named SSH key "${keyName}"`,
       `GIT_SSH_COMMAND="ssh -i ~/.ssh/id_${keyName} -o IdentitiesOnly=yes" \\`,
       `  ${base}`,
     ].join("\n");
   }
+
   return base;
 }
 
@@ -137,12 +142,15 @@ function buildResolvedSummary(s: BuilderState): string {
   if (s.force) {
     lines.push(`force      : -f set — chdir-to-parent if cwd == folder; aborts on lock instead of fallback`);
   }
+
   if (s.protocol !== ProtocolType.Https && s.sshKeyName.trim().length > 0) {
     lines.push(`ssh key    : ~/.ssh/id_${s.sshKeyName.trim()}`);
   }
+
   if (s.branch.trim().length > 0) {
     lines.push(`branch     : ${s.branch.trim()}`);
   }
+
   return lines.join("\n");
 }
 

@@ -15,6 +15,7 @@ function formatCommandExamples(examples?: CommandExample[]): string {
 
   const formatted = examples!.map((item) => {
     const desc = item.description ? `${item.description}:\n` : "";
+
     return `${desc}\`\`\`bash\n${item.command}\n\`\`\``;
   });
 
