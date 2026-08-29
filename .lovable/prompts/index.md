@@ -10,3 +10,4 @@
 | `23-execute-pending-tasks` | Execute Pending Tasks | "Execute pending tasks" | `active` |
 | `24-read-memory-enhanced` | Read Memory Enhanced | "Read memory enhanced" | `active` |
 | `25-execute-batched-loop` | Execute Batched Loop | "go", "continue", "next" | `active` |
+| `26-plan-coding-guideline-audit` | Plan: Coding Guideline Audit & Enforcement (v4) | "Audit coding guidelines", "Plan coding guideline audit" | `active` |
