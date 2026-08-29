@@ -11,3 +11,4 @@
 | `24-read-memory-enhanced` | Read Memory Enhanced | "Read memory enhanced" | `active` |
 | `25-execute-batched-loop` | Execute Batched Loop | "go", "continue", "next" | `active` |
 | `26-plan-coding-guideline-audit` | Plan: Coding Guideline Audit & Enforcement (v4) | "Audit coding guidelines", "Plan coding guideline audit" | `active` |
+| `27-centralized-error-handling-checklist` | Centralized Error Handling & Anti-Pattern Prevention | "Check error handling", "Centralized error handling" | `active` |

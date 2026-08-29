@@ -117,6 +117,7 @@ def main():
         ("Installer Smoke", None, "pwsh -File .github/scripts/smoke-installer.ps1 source", ROOT_DIR),
         ("Web Version Sync", None, "npx vitest run src/test/version-sync.test.ts", ROOT_DIR),
         ("Docs Site Build", None, "npm run build", ROOT_DIR),
+        ("CLI Zero-Args Smoke", None, "go run .", GITMAP_DIR),
         ("Go Vet", None, "go vet ./...", GITMAP_DIR),
         ("Compile Gate", None, "go test -run=^$ ./... -count=1", GITMAP_DIR),
         ("Full Suite Lint", None, "golangci-lint run ./...", GITMAP_DIR),

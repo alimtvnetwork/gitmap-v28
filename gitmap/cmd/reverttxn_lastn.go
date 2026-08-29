@@ -14,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/txn"
@@ -97,8 +99,17 @@ func revertManyOrExit(rows []model.TransactionRecord, force bool) {
 	defer db.Close()
 	for _, r := range rows {
 		if err := txn.Revert(db, r.ID, txn.RevertOptions{Force: force}); err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			panic("fatal error")
+			appErr := apperror.WrapWithDetails(
+				err,
+				"txn.revertMany",
+				"E2015",
+				err.Error(),
+				"cmd.reverttxn_lastn",
+				apperror.ErrorTypeExecution,
+				apperror.SeverityError,
+				map[string]any{"id": r.ID, "kind": r.Kind, "force": force},
+			)
+			cliexit.HandleError(appErr, 1)
 		}
 		fmt.Printf(constants.MsgTxnReverted, r.ID, r.Kind)
 	}

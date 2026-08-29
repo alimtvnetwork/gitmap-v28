@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -13,8 +15,16 @@ import (
 func loadCSVMessages(path string) []commitMessage {
 	records := readCSVFile(path)
 	if len(records) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrSEOCSVEmpty)
-		panic("fatal error")
+		appErr := apperror.NewWithDetails(
+			"seo.loadCSV",
+			"E2019",
+			constants.ErrSEOCSVEmpty,
+			"cmd.seowritecsv",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	return csvToMessages(records)

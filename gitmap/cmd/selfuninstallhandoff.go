@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -89,11 +91,22 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 		return nil
 	}
 	var exitErr *exec.ExitError
-	isExitErr := errors.As(err, &exitErr)
-	if isExitErr == true {
+	if errors.As(err, &exitErr) {
 		os.Exit(exitErr.ExitCode())
 	}
-	panic("fatal error")
+	appErr := apperror.WrapWithDetails(
+		err,
+		"selfuninstall.handoff",
+		"E2017",
+		"handoff execution failed",
+		"cmd.selfuninstallhandoff",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityError,
+		nil,
+	)
+	cliexit.HandleError(appErr, 1)
+
+	return nil
 	// 	return nil
 }
 

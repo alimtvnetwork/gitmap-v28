@@ -10,6 +10,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -28,8 +30,16 @@ func runReinstall(args []string) error {
 	mode, detected := resolveReinstallMode(opts.Mode)
 	announceReinstallMode(opts.Mode, mode, detected)
 	if !opts.Yes && !confirmReinstall() {
-		fmt.Fprint(os.Stderr, constants.ErrReinstallAborted)
-		panic("fatal error")
+		err := apperror.NewWithDetails(
+			"cmd.reinstall",
+			"E2002",
+			constants.ErrReinstallAborted,
+			"cmd.reinstall",
+			apperror.ErrorTypeAbort,
+			apperror.SeverityWarn,
+			map[string]any{"mode": mode},
+		)
+		cliexit.HandleError(err, 1)
 	}
 	dispatchReinstall(mode)
 	fmt.Print(constants.MsgReinstallDone)
@@ -54,8 +64,16 @@ func resolveReinstallMode(override string) (string, bool) {
 	switch override {
 	case constants.ReinstallModeRepo:
 		if len(constants.RepoPath) == 0 {
-			fmt.Fprint(os.Stderr, constants.ErrReinstallNoRepoLinked)
-			panic("fatal error")
+			err := apperror.NewWithDetails(
+				"reinstall.resolve",
+				"E2003",
+				constants.ErrReinstallNoRepoLinked,
+				"cmd.reinstall",
+				apperror.ErrorTypePrecondition,
+				apperror.SeverityError,
+				map[string]any{"mode": override},
+			)
+			cliexit.HandleError(err, 1)
 		}
 		return constants.ReinstallModeRepo, false
 	case constants.ReinstallModeSelf:

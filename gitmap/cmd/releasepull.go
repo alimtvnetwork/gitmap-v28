@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -54,8 +56,16 @@ func ensureYesForward(args []string) []string {
 // requireReleasePullCwd validates we are inside a repo and returns cwd.
 func requireReleasePullCwd() string {
 	if !release.IsInsideGitRepo() {
-		fmt.Fprint(os.Stderr, constants.ErrRPNotInRepo)
-		panic("fatal error")
+		err := apperror.NewWithDetails(
+			"release.pull",
+			"E2001",
+			constants.ErrRPNotInRepo,
+			"cmd.releasepull",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	cwd, err := os.Getwd()

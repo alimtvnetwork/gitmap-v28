@@ -3,6 +3,9 @@ package cmd
 import (
 	"fmt"
 	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // addUsage is the umbrella usage block printed when `gitmap add` is
@@ -31,7 +34,16 @@ func dispatchAdd(command string) (bool, error) {
 	}
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, addUsage)
-		panic("fatal error")
+		err := apperror.NewWithDetails(
+			"cmd.add",
+			"E2004",
+			"insufficient arguments for 'add' command",
+			"cmd.rootadd",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"args": os.Args},
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	sub, rest := os.Args[2], os.Args[3:]
@@ -45,7 +57,16 @@ func dispatchAdd(command string) (bool, error) {
 	default:
 		fmt.Fprintf(os.Stderr, "unknown 'add' subcommand: %s\n", sub)
 		fmt.Fprint(os.Stderr, addUsage)
-		panic("fatal error")
+		err := apperror.NewWithDetails(
+			"cmd.add",
+			"E2005",
+			fmt.Sprintf("unknown 'add' subcommand: %s", sub),
+			"cmd.rootadd",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"subcommand": sub},
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	return true, nil

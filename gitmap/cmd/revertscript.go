@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
 )
@@ -21,8 +23,16 @@ import (
 func runRevertRunner() error {
 	repoPath := constants.RepoPath
 	if len(repoPath) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrNoRepoPath)
-		panic("fatal error")
+		appErr := apperror.NewWithDetails(
+			"revert.runner",
+			"E2013",
+			constants.ErrNoRepoPath,
+			"cmd.revertscript",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	initRunnerVerbose()

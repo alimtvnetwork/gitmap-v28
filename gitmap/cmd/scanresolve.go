@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -110,9 +112,16 @@ func resolveRelativeRoot(raw, scanDir string, quiet bool) string {
 		panic(constants.ErrScanRelativeRootInvalid)
 	}
 	if !info.IsDir() {
-		fmt.Fprintf(os.Stderr, constants.ErrScanRelativeRootInvalid, raw,
-			fmt.Errorf("not a directory"))
-		panic("fatal error")
+		appErr := apperror.NewWithDetails(
+			"scan.resolve",
+			"E2016",
+			fmt.Sprintf(constants.ErrScanRelativeRootInvalid, raw, fmt.Errorf("not a directory")),
+			"cmd.scanresolve",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"raw": raw, "abs": abs},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 	if !quiet && abs != scanDir {
 		fmt.Fprintf(os.Stderr, constants.MsgScanRelativeRoot, abs)

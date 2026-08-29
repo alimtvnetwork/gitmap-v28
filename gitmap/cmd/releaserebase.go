@@ -14,6 +14,8 @@ import (
 	"os/exec"
 	"regexp"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -84,9 +86,17 @@ func extractPositionalArgs(args []string) []string {
 func performCrossDirRelease(target, alias, version string, originalArgs []string) {
 	originalDir, _ := os.Getwd()
 	if err := os.Chdir(target); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRAChdirFailedFmt, target, err)
-		fmt.Fprintln(os.Stderr)
-		panic("fatal error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"release.rebase",
+			"E2008",
+			fmt.Sprintf(constants.ErrRAChdirFailedFmt, target, err),
+			"cmd.releaserebase",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"target": target, "alias": alias},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 	defer func() { _ = os.Chdir(originalDir) }()
 
@@ -138,9 +148,17 @@ func rebasePull(target string) {
 	fetch.Stdout = os.Stdout
 	fetch.Stderr = os.Stderr
 	if err := fetch.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRRFetchFailedFmt, target, err)
-		fmt.Fprintln(os.Stderr)
-		panic("fatal error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"rebase.fetch",
+			"E2009",
+			fmt.Sprintf(constants.ErrRRFetchFailedFmt, target, err),
+			"cmd.releaserebase",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"target": target},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	fmt.Printf(constants.MsgRRRebasingFmt, target)
@@ -149,8 +167,16 @@ func rebasePull(target string) {
 	pull.Stdout = os.Stdout
 	pull.Stderr = os.Stderr
 	if err := pull.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRRRebaseFailedFmt, target, err)
-		fmt.Fprintln(os.Stderr)
-		panic("fatal error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"rebase.pull",
+			"E2010",
+			fmt.Sprintf(constants.ErrRRRebaseFailedFmt, target, err),
+			"cmd.releaserebase",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"target": target},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 }

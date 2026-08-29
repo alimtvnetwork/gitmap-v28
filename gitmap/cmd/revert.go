@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 )
@@ -39,8 +41,16 @@ func validateRevertVersion(version string) {
 func checkoutRevertTag(version string) {
 	repoPath := constants.RepoPath
 	if len(repoPath) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrNoRepoPath)
-		panic("fatal error")
+		appErr := apperror.NewWithDetails(
+			"revert.checkout",
+			"E2012",
+			constants.ErrNoRepoPath,
+			"cmd.revert",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			map[string]any{"version": version},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	fmt.Printf(constants.MsgRevertCheckout, version)

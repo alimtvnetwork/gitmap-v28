@@ -23,7 +23,7 @@ func Run() {
 	if len(os.Args) < 2 {
 		PrintBinaryLocations()
 		printUsage()
-		panic("fatal error")
+		return
 	}
 
 	// Strip the global `--theme` palette selector first so it is
@@ -59,7 +59,7 @@ func Run() {
 	if len(os.Args) < 2 {
 		PrintBinaryLocations()
 		printUsage()
-		panic("fatal error")
+		return
 	}
 
 	// Skip migration for commands that must produce clean stdout
@@ -269,13 +269,21 @@ func dispatch(command string) {
 		return
 	}
 
+	msg := fmt.Sprintf(constants.ErrUnknownCommand, command)
 	if looksLikeURLToken(command) {
-		fmt.Fprintf(os.Stderr, constants.ErrUnknownCommandURLHint, command)
-	} else {
-		fmt.Fprintf(os.Stderr, constants.ErrUnknownCommand, command)
+		msg = fmt.Sprintf(constants.ErrUnknownCommandURLHint, command)
 	}
 	printUsage()
-	panic("fatal error")
+	err := apperror.NewWithDetails(
+		"cmd.dispatch",
+		"E1001",
+		msg,
+		"cmd.root",
+		apperror.ErrorTypeValidation,
+		apperror.SeverityError,
+		map[string]any{"command": command},
+	)
+	cliexit.HandleError(err, 1)
 }
 
 // shouldRewriteToClone returns true when the args (excluding argv[0])
