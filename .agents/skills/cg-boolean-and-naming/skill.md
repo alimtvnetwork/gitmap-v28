@@ -14,8 +14,9 @@ This skill governs autonomous execution for boolean conventions, semantic naming
    - Positive booleans MUST ALWAYS be evaluated implicitly: `if isReady { ... }` or `if !isReady { ... }`.
    - Never compare against boolean literals (`== false`, `!= true`).
 
-2. **Affirmative Prefixes (`is`, `has`, `can`, `should`, `was`, `will`, `did`, `must`):**
-   - Every boolean identifier must begin with an approved prefix (e.g. `isValid`, `hasAccess`, `canExecute`).
+2. **Boolean Prefixes (`is`, `has`):**
+   - `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, `was`, `will`, `did`, `must`, etc.
+   - Every boolean identifier must begin with `is` or `has` (e.g. `isValid`, `hasAccess`).
    - No negative boolean identifiers (`isNotValid`, `hasNoData` are banned).
 
 3. **No Inverted Success Checks:**

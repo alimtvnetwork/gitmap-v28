@@ -30,7 +30,12 @@ import (
 
 func TestExecuteWithHooksConcurrent_FallbackBelowTwoWorkers(t *testing.T) {
 	plan := Plan{Mode: constants.CloneNowModeHTTPS, Rows: []Row{{RelativePath: "z"}}}
-	res := ExecuteWithHooksConcurrent(plan, t.TempDir(), io.Discard, nil, 1)
+	res := ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
+		Plan:     plan,
+		Cwd:      t.TempDir(),
+		Progress: io.Discard,
+		Workers:  1,
+	})
 	if len(res) != 1 {
 		t.Fatalf("len(res)=%d, want 1", len(res))
 	}
@@ -49,7 +54,12 @@ func TestExecuteWithHooksConcurrent_PreservesInputOrder(t *testing.T) {
 		rows[i] = Row{RelativePath: padIdx(i)}
 	}
 	plan := Plan{Mode: constants.CloneNowModeHTTPS, Rows: rows}
-	res := ExecuteWithHooksConcurrent(plan, t.TempDir(), io.Discard, nil, 4)
+	res := ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
+		Plan:     plan,
+		Cwd:      t.TempDir(),
+		Progress: io.Discard,
+		Workers:  4,
+	})
 	if len(res) != len(rows) {
 		t.Fatalf("len(res)=%d, want %d", len(res), len(rows))
 	}
@@ -79,7 +89,13 @@ func TestExecuteWithHooksConcurrent_HookOrderAndCount(t *testing.T) {
 			t.Errorf("hook total=%d, want %d", total, len(rows))
 		}
 	}
-	_ = ExecuteWithHooksConcurrent(plan, t.TempDir(), io.Discard, hook, 4)
+	_ = ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
+		Plan:      plan,
+		Cwd:       t.TempDir(),
+		Progress:  io.Discard,
+		BeforeRow: hook,
+		Workers:   4,
+	})
 	if len(seen) != len(rows) {
 		t.Fatalf("hook fired %d times, want %d", len(seen), len(rows))
 	}
@@ -99,7 +115,12 @@ func TestExecuteWithHooksConcurrent_ProgressLinesEmittedInOrder(t *testing.T) {
 	}
 	plan := Plan{Mode: constants.CloneNowModeHTTPS, Rows: rows}
 	var buf bytes.Buffer
-	_ = ExecuteWithHooksConcurrent(plan, t.TempDir(), &buf, nil, 4)
+	_ = ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
+		Plan:     plan,
+		Cwd:      t.TempDir(),
+		Progress: &buf,
+		Workers:  4,
+	})
 	got := buf.String()
 	for i, r := range rows {
 		marker := " " + r.RelativePath + "\n"

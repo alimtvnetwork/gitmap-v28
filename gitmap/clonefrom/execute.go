@@ -62,6 +62,31 @@ func Execute(plan Plan, cwd string, progress io.Writer) []Result {
 	return out
 }
 
+// RowLifecycleParams encapsulates parameters for running a clone row lifecycle.
+type RowLifecycleParams struct {
+	Row     Row
+	Dest    string
+	AbsDest string
+	Cwd     string
+	Start   time.Time
+}
+
+// PrepareCloneParams encapsulates parameters for preparing parent dir and cloning.
+type PrepareCloneParams struct {
+	Row     Row
+	Dest    string
+	AbsDest string
+	Cwd     string
+}
+
+// FailedResultParams encapsulates parameters for creating a failed clone result.
+type FailedResultParams struct {
+	Row    Row
+	Dest   string
+	Detail string
+	Start  time.Time
+}
+
 // executeRow handles one row's lifecycle: resolve dest, check
 // skip rule, ensure parent dir, git clone, checkout, time, return.
 func executeRow(r Row, cwd string) Result {
@@ -72,40 +97,56 @@ func executeRow(r Row, cwd string) Result {
 		return Result{Row: r, Dest: dest, Status: constants.CloneFromStatusSkipped,
 			Detail: constants.MsgCloneFromDestExists, Duration: time.Since(start)}
 	}
-	return runRowLifecycle(r, dest, absDest, cwd, start)
+
+	lifecycleParams := RowLifecycleParams{
+		Row:     r,
+		Dest:    dest,
+		AbsDest: absDest,
+		Cwd:     cwd,
+		Start:   start,
+	}
+
+	return runRowLifecycle(lifecycleParams)
 }
 
-func runRowLifecycle(r Row, dest, absDest, cwd string, start time.Time) Result {
-	detail, ok := prepareAndClone(r, dest, absDest, cwd)
+func runRowLifecycle(params RowLifecycleParams) Result {
+	cloneParams := PrepareCloneParams{
+		Row:     params.Row,
+		Dest:    params.Dest,
+		AbsDest: params.AbsDest,
+		Cwd:     params.Cwd,
+	}
+
+	detail, ok := prepareAndClone(cloneParams)
 	isFailed := !ok
 	if isFailed {
-		return makeFailedResult(r, dest, detail, start)
+		return makeFailedResult(FailedResultParams{Row: params.Row, Dest: params.Dest, Detail: detail, Start: params.Start})
 	}
-	coDetail, coOK := runPostCloneCheckout(r, dest, cwd)
+	coDetail, coOK := runPostCloneCheckout(params.Row, params.Dest, params.Cwd)
 	isCheckoutFailed := !coOK
 	if isCheckoutFailed {
-		return makeFailedResult(r, dest, coDetail, start)
+		return makeFailedResult(FailedResultParams{Row: params.Row, Dest: params.Dest, Detail: coDetail, Start: params.Start})
 	}
-	return Result{Row: r, Dest: dest, Status: constants.CloneFromStatusOK,
-		Detail: "", Duration: time.Since(start)}
+	return Result{Row: params.Row, Dest: params.Dest, Status: constants.CloneFromStatusOK,
+		Detail: "", Duration: time.Since(params.Start)}
 }
 
-func prepareAndClone(r Row, dest, absDest, cwd string) (string, bool) {
-	detail, ok := prepareDestParent(absDest)
+func prepareAndClone(params PrepareCloneParams) (string, bool) {
+	detail, ok := prepareDestParent(params.AbsDest)
 	isParentFailed := !ok
 	if isParentFailed {
 		return detail, false
 	}
-	return runGitClone(r, dest, cwd)
+	return runGitClone(params.Row, params.Dest, params.Cwd)
 }
 
-func makeFailedResult(r Row, dest, detail string, start time.Time) Result {
+func makeFailedResult(params FailedResultParams) Result {
 	return Result{
-		Row:      r,
-		Dest:     dest,
+		Row:      params.Row,
+		Dest:     params.Dest,
 		Status:   constants.CloneFromStatusFailed,
-		Detail:   detail,
-		Duration: time.Since(start),
+		Detail:   params.Detail,
+		Duration: time.Since(params.Start),
 	}
 }
 
@@ -131,26 +172,41 @@ func execGitClone(r Row, dest, cwd string) ([]byte, error) {
 func handleGitCloneError(dest, outputStr string, err error) (string, bool) {
 	file, isSmudge := detectLFSSmudgeError(outputStr)
 	if isSmudge {
-		return tryLfsAutoFix(dest, file, outputStr, err)
+		fixParams := LfsFixParams{
+			Dest:        dest,
+			File:        file,
+			OutputStr:   outputStr,
+			OriginalErr: err,
+		}
+
+		return tryLfsAutoFix(fixParams)
 	}
 	return trimGitError(outputStr, err), false
 }
 
-func tryLfsAutoFix(dest, file, outputStr string, originalErr error) (string, bool) {
-	fmt.Fprintf(os.Stderr, "\n[Warning] Git clone succeeded but checkout failed due to missing LFS object (404) for file: %s\n", file)
+// LfsFixParams encapsulates parameters for attempting an LFS auto-fix.
+type LfsFixParams struct {
+	Dest        string
+	File        string
+	OutputStr   string
+	OriginalErr error
+}
+
+func tryLfsAutoFix(params LfsFixParams) (string, bool) {
+	fmt.Fprintf(os.Stderr, "\n[Warning] Git clone succeeded but checkout failed due to missing LFS object (404) for file: %s\n", params.File)
 	confirmed := confirmYesNo("Do you want to automatically drop this broken LFS pointer to fix the clone and push the fix?")
 	isDeclined := !confirmed
 	if isDeclined {
-		return trimGitError(outputStr, originalErr), false
+		return trimGitError(params.OutputStr, params.OriginalErr), false
 	}
-	return applyLfsFix(dest, file, outputStr, originalErr)
+	return applyLfsFix(params)
 }
 
-func applyLfsFix(dest, file, outputStr string, originalErr error) (string, bool) {
-	fixErr := executeLFSFix(dest, file)
+func applyLfsFix(params LfsFixParams) (string, bool) {
+	fixErr := executeLFSFix(params.Dest, params.File)
 	isFixFailed := fixErr != nil
 	if isFixFailed {
-		return trimGitError(outputStr+"\n[LFS Fix Failed: "+fixErr.Error()+"]", originalErr), false
+		return trimGitError(params.OutputStr+"\n[LFS Fix Failed: "+fixErr.Error()+"]", params.OriginalErr), false
 	}
 	return "", true
 }

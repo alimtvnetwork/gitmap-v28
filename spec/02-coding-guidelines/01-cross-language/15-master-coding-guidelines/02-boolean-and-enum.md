@@ -14,7 +14,7 @@
 
 | # | Principle | Rule |
 |---|-----------|------|
-| P1 | `is`/`has` prefix (99%), `should` rare | Every boolean must start with `is` or `has`. Use `should` only for recommendations. Never use `can`, `was`, `will`. |
+| P1 | `is`/`has` prefix only | `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc. |
 | P2 | No negative words | `not`, `no`, `non` are banned from boolean names |
 | P3 | Named guards | Never use `!` on function calls — use semantic inverse |
 | P4 | Extract complex expressions | 2+ operators → extract to named boolean |

@@ -99,17 +99,14 @@ func TestCompressionLevels(t *testing.T) {
 	}
 }
 
-func TestMatchAny_Patterns(t *testing.T) {
-	if !matchAny("test.txt", nil, true).Data {
-		t.Errorf("empty patterns should return emptyDefault=true")
+func TestHasMatchingPattern_Patterns(t *testing.T) {
+	if hasMatchingPattern("test.txt", nil) {
+		t.Errorf("empty patterns should return false")
 	}
-	if matchAny("test.txt", nil, false).Data {
-		t.Errorf("empty patterns should return emptyDefault=false")
-	}
-	if !matchAny("dir/test.txt", []string{"*.txt"}, false).Data {
+	if !hasMatchingPattern("dir/test.txt", []string{"*.txt"}) {
 		t.Errorf("basename match failed")
 	}
-	if !matchAny("dir/test.txt", []string{"dir/*"}, false).Data {
+	if !hasMatchingPattern("dir/test.txt", []string{"dir/*"}) {
 		t.Errorf("path match failed")
 	}
 }

@@ -48,7 +48,12 @@ func TestExecuteWithHooksConcurrent_FallbackBelowTwoWorkers(t *testing.T) {
 	dir := t.TempDir()
 	rows := seedSkippableRows(t, dir, 1)
 	plan := Plan{Rows: rows}
-	res := ExecuteWithHooksConcurrent(plan, dir, io.Discard, nil, 1)
+	res := ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
+		Plan:     plan,
+		Cwd:      dir,
+		Progress: io.Discard,
+		Workers:  1,
+	})
 	if len(res) != 1 {
 		t.Fatalf("len(res)=%d, want 1", len(res))
 	}
@@ -62,7 +67,12 @@ func TestExecuteWithHooksConcurrent_PreservesInputOrder(t *testing.T) {
 	dir := t.TempDir()
 	rows := seedSkippableRows(t, dir, 8)
 	plan := Plan{Rows: rows}
-	res := ExecuteWithHooksConcurrent(plan, dir, io.Discard, nil, 4)
+	res := ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
+		Plan:     plan,
+		Cwd:      dir,
+		Progress: io.Discard,
+		Workers:  4,
+	})
 	if len(res) != len(rows) {
 		t.Fatalf("len(res)=%d, want %d", len(res), len(rows))
 	}
@@ -89,7 +99,13 @@ func TestExecuteWithHooksConcurrent_HookOrderAndCount(t *testing.T) {
 			t.Errorf("hook total=%d, want %d", total, len(rows))
 		}
 	}
-	_ = ExecuteWithHooksConcurrent(plan, dir, io.Discard, hook, 4)
+	_ = ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
+		Plan:      plan,
+		Cwd:       dir,
+		Progress:  io.Discard,
+		BeforeRow: hook,
+		Workers:   4,
+	})
 	if len(seen) != len(rows) {
 		t.Fatalf("hook fired %d times, want %d", len(seen), len(rows))
 	}
@@ -106,7 +122,12 @@ func TestExecuteWithHooksConcurrent_ProgressLinesEmitted(t *testing.T) {
 	rows := seedSkippableRows(t, dir, 3)
 	plan := Plan{Rows: rows}
 	var buf bytes.Buffer
-	_ = ExecuteWithHooksConcurrent(plan, dir, &buf, nil, 4)
+	_ = ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
+		Plan:     plan,
+		Cwd:      dir,
+		Progress: &buf,
+		Workers:  4,
+	})
 	got := buf.Bytes()
 	for i, r := range rows {
 		if !bytes.Contains(got, []byte(r.URL)) {

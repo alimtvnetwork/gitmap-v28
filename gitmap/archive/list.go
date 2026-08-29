@@ -44,17 +44,27 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 		return nil, mholtToFormat(format), apperror.New("list archive", "ERR_UNSUPPORTED_FORMAT", map[string]any{"format": format.Extension()})
 	}
 
-	return extractListEntries(ctx, extractor, stream, format)
+	listParams := ListExtractParams{
+		Ctx:       ctx,
+		Extractor: extractor,
+		Stream:    stream,
+		Format:    format,
+	}
+
+	return extractListEntries(listParams)
 }
 
-func extractListEntries(
-	ctx context.Context,
-	extractor archives.Extractor,
-	stream io.Reader,
-	format archives.Format,
-) ([]Entry, Format, error) {
+// ListExtractParams encapsulates parameters for extracting list entries.
+type ListExtractParams struct {
+	Ctx       context.Context
+	Extractor archives.Extractor
+	Stream    io.Reader
+	Format    archives.Format
+}
+
+func extractListEntries(params ListExtractParams) ([]Entry, Format, error) {
 	var out []Entry
-	err := extractor.Extract(ctx, stream, func(_ context.Context, entry archives.FileInfo) error {
+	err := params.Extractor.Extract(params.Ctx, params.Stream, func(_ context.Context, entry archives.FileInfo) error {
 		isLimitReached := len(out) >= maxListEntries
 		if isLimitReached {
 			return io.EOF
@@ -64,7 +74,7 @@ func extractListEntries(
 	})
 	isSuccess := err == nil || errors.Is(err, io.EOF)
 	if isSuccess {
-		return out, mholtToFormat(format), nil
+		return out, mholtToFormat(params.Format), nil
 	}
-	return out, mholtToFormat(format), err
+	return out, mholtToFormat(params.Format), err
 }

@@ -35,15 +35,15 @@ type BatchProgress struct {
 	spinners map[string]*pterm.SpinnerPrinter
 }
 
-func NewBatchProgress(total int, operation string, quiet bool) *BatchProgress {
+func NewBatchProgress(total int, operation string, isQuiet bool) *BatchProgress {
 	p := &BatchProgress{
 		total:     total,
 		start:     time.Now(),
-		quiet:     quiet,
+		quiet:     isQuiet,
 		operation: operation,
 		spinners:  make(map[string]*pterm.SpinnerPrinter),
 	}
-	if !quiet {
+	if !isQuiet {
 		initBatchProgressUI(p, total, operation)
 	}
 	return p

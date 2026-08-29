@@ -17,7 +17,7 @@
 - Classes/types: `PascalCase` — `OrderService`
 - Functions: `camelCase` (TS/PHP), `PascalCase` (Go exported)
 - Variables: `camelCase` — `orderTotal`
-- Booleans (vars **and** functions): **must** start with `is` or `has` (99% of cases) — `should` only for recommendations/preferences
+- Booleans (vars **and** functions): `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc.
 - **Never** use `not`/`no` in boolean names — use inverse: `isInactive`, `isMissing`, `isDisabled`
 - Bool functions: `checkPermission()` → `hasPermission()`, `validateToken()` → `isTokenValid()`
 - Abbreviations: `Id`, `Url`, `Json`, `Api`, `Http`, `Sql` (first letter only)

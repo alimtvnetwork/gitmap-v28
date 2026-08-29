@@ -123,7 +123,12 @@ func writeStructured(w io.Writer, ctx Context, mode OutputMode) {
 // writeHuman emits the canonical text line followed by indented
 // "  key=value" lines for every populated context field.
 func writeHuman(w io.Writer, ctx Context) {
-	fmt.Fprintln(w, formatLine(ctx.Command, ctx.Op, ctx.Path, ctx.Err))
+	fmt.Fprintln(w, formatLine(ReportParams{
+		Command: ctx.Command,
+		Op:      ctx.Op,
+		Subject: ctx.Path,
+		Err:     ctx.Err,
+	}))
 	for _, line := range humanContextLines(ctx) {
 		fmt.Fprintln(w, "  "+line)
 	}

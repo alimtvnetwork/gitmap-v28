@@ -112,7 +112,7 @@ function sendEmail(opts: SendEmailInput): Result<void> { ... }
 
 ### Boolean Naming (All Languages — TS, Go, PHP, C#, Rust)
 
-Every boolean variable **and** every function/method that returns a boolean **must** start with `is` or `has` (99% of cases). Use `should` only when expressing a recommendation or preference (e.g., `shouldRetry`). Never use `can`, `was`, or `will`.
+Every boolean variable **and** every function/method that returns a boolean: `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc.
 
 **Never use `not`, `no`, or any negative word** in a boolean name. Use the semantic inverse instead.
 

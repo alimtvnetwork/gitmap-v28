@@ -30,17 +30,25 @@ type concurrentJob struct {
 	row Row
 }
 
+// ConcurrentExecutionParams encapsulates parameters for concurrent clone execution.
+type ConcurrentExecutionParams struct {
+	Plan      Plan
+	Cwd       string
+	Progress  io.Writer
+	BeforeRow BeforeRowHook
+	Workers   int
+}
+
 // ExecuteWithHooksConcurrent is the parallel sibling of
 // ExecuteWithHooks. See file header for the contract.
-func ExecuteWithHooksConcurrent(plan Plan, cwd string, progress io.Writer,
-	beforeRow BeforeRowHook, workers int) []Result {
-	if workers <= 1 {
-		return ExecuteWithHooks(plan, cwd, progress, beforeRow)
+func ExecuteWithHooksConcurrent(params ConcurrentExecutionParams) []Result {
+	if params.Workers <= 1 {
+		return ExecuteWithHooks(params.Plan, params.Cwd, params.Progress, params.BeforeRow)
 	}
-	cwd = resolveCwd(cwd)
-	out := make([]Result, len(plan.Rows))
-	dispatchConcurrent(plan, cwd, beforeRow, workers, out)
-	emitProgressInOrder(progress, out)
+	params.Cwd = resolveCwd(params.Cwd)
+	out := make([]Result, len(params.Plan.Rows))
+	dispatchConcurrent(params.Plan, params.Cwd, params.BeforeRow, params.Workers, out)
+	emitProgressInOrder(params.Progress, out)
 
 	return out
 }

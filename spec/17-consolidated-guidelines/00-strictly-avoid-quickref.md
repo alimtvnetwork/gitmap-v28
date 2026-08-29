@@ -64,7 +64,7 @@ Sequence numbers are stable — never renumber, only append.
 |---------|------|
 | Underscores in identifiers (except Rust + Go test files) | Camel/Pascal case appropriate to language |
 | `IsNotX` / `HasNoX` / `HasNoLicense` boolean names or DB columns | Use the **Approved Inverse** (`IsDisabled`, `IsInvalid`, `IsIncomplete`, `IsUnavailable`, `IsUnread`, `IsHidden`, `IsBroken`, `IsLocked`, `IsUnpublished`, `IsUnverified`) — enforced by `BOOL-NEG-001` |
-| `can` / `was` / `will` / `not` / `no` as boolean prefixes | `is` / `has` (rarely `should`) |
+| `can`, `should`, `was`, `will`, `did`, `must`, `not`, `no` as boolean prefixes | `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc. |
 | UUID primary keys | Integer `{TableName}Id` PK |
 | camelCase DB columns or JSON keys | PascalCase |
 | Persist a derived inverse boolean as a second column | Derive in code per DB Rule 9; use `linters-cicd/codegen/` |

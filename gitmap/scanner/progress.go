@@ -37,7 +37,14 @@ func startProgress(st *scanState, progress func(ScanProgress)) func() {
 	stop := make(chan struct{})
 	done := make(chan struct{})
 
-	go runProgressLoop(st, progress, stop, done)
+	loopParams := ProgressLoopParams{
+		State:    st,
+		Progress: progress,
+		Stop:     stop,
+		Done:     done,
+	}
+
+	go runProgressLoop(loopParams)
 
 	return func() {
 		close(stop)
@@ -45,12 +52,20 @@ func startProgress(st *scanState, progress func(ScanProgress)) func() {
 	}
 }
 
+// ProgressLoopParams encapsulates parameters for running the progress loop.
+type ProgressLoopParams struct {
+	State    *scanState
+	Progress func(ScanProgress)
+	Stop     chan struct{}
+	Done     chan struct{}
+}
+
 // runProgressLoop is the emitter goroutine body. It ticks at
 // progressTickInterval, emitting non-final snapshots, then emits exactly
 // one Final=true snapshot when stop is closed. Splitting this out keeps
 // startProgress tiny and the cleanup contract obvious.
-func runProgressLoop(st *scanState, progress func(ScanProgress), stop, done chan struct{}) {
-	defer close(done)
+func runProgressLoop(params ProgressLoopParams) {
+	defer close(params.Done)
 
 	ticker := time.NewTicker(progressTickInterval)
 	defer ticker.Stop()
@@ -58,9 +73,9 @@ func runProgressLoop(st *scanState, progress func(ScanProgress), stop, done chan
 	for {
 		select {
 		case <-ticker.C:
-			progress(st.snapshot(false))
-		case <-stop:
-			progress(st.snapshot(true))
+			params.Progress(params.State.snapshot(false))
+		case <-params.Stop:
+			params.Progress(params.State.snapshot(true))
 
 			return
 		}

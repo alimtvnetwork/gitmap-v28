@@ -54,7 +54,7 @@ You MUST audit the codebase against this exact mechanical checklist derived from
 
 ### Boolean Standards & Logic (R3, R10, R14, R16, R17)
 
-- [ ] **R3 - Mandatory Prefixes**: Every boolean variable, parameter, struct field, JSON key, or boolean-returning function MUST begin with `is`, `has`, `can`, `should`, `was`, `will`, `did`, or `must` (e.g., `isEnabled`, `hasAdminRole`, `isReady`).
+- [ ] **R3 - Mandatory Prefixes**: `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc. (e.g., `isEnabled`, `hasAdminRole`, `isReady`).
 - [ ] **Positive Framing Only**: Never use negative booleans (e.g., `isNotReady`, `disableCache`, `hasNoAccess` are banned). Invert them to positive (`isReady`, `isCacheEnabled`).
 - [ ] **Never Invert Success**: Never use `!response.isSuccess` or `!ok`. Instead, use explicit failure checks (`response.isFail`, `isMissingEntry := !ok; if isMissingEntry == true { ... }`).
 - [ ] **R10 - No Boolean Positional Arguments**: Never do `save(true)` or `render(false)`. Use explicit configuration objects or named methods: `save(SaveOptions{ IsForce: true })` or `renderExpanded()`.

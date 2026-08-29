@@ -24,7 +24,7 @@ Check every generated code block against these rules before outputting.
 - [ ] Types/Classes/Components: PascalCase (`SnapshotManager`)
 - [ ] JSON/API keys: PascalCase (`"PluginSlug"`, not `"pluginSlug"`)
 - [ ] Abbreviations: First-letter-only (`Id`, `Url`, `Api`, `Http`, `Json`)
-- [ ] Booleans: `is`/`has` prefix (99%), `should` rare, no `can`/`was`/`will`, no negative words
+- [ ] Booleans: is, has as prefix is only acceptable and nothing else acceptable including but not limited to can, should etc; no negative words
 
 ### Structure (7 checks)
 

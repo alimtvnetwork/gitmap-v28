@@ -159,7 +159,14 @@ func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) error {
 	var results []clonefrom.Result
 	if cfg.maxConcurrency > 1 {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneConcurrencyEnabledFmt, cfg.maxConcurrency)
-		results = clonefrom.ExecuteWithHooksConcurrent(plan, "", progress, hook, cfg.maxConcurrency)
+		concurrentParams := clonefrom.ConcurrentExecutionParams{
+			Plan:      plan,
+			Cwd:       "",
+			Progress:  progress,
+			BeforeRow: hook,
+			Workers:   cfg.maxConcurrency,
+		}
+		results = clonefrom.ExecuteWithHooksConcurrent(concurrentParams)
 	} else {
 		results = clonefrom.ExecuteWithHooks(plan, "", progress, hook)
 	}
