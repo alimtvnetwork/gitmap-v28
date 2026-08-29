@@ -9,6 +9,7 @@
 - [ ] [22-completed-plans-consolidation.md](.lovable/plans/pending/22-completed-plans-consolidation.md) — Memory consolidation: cluster completed plans into 6 unified milestones and re-sequence monotonically.
 - [ ] [23-cli-commands-help-audit.md](.lovable/plans/pending/23-cli-commands-help-audit.md) — CLI commands, help text parity & help UI architecture audit.
 - [ ] [24-function-signatures-audit.md](.lovable/plans/pending/24-function-signatures-audit.md) — Function signatures, invocations & multi-line standards audit.
+- [ ] [25-typescript-types-audit.md](.lovable/plans/pending/25-typescript-types-audit.md) — TypeScript strict typing, discriminated unions & architecture audit.
 
 ## Completed Plans
 
