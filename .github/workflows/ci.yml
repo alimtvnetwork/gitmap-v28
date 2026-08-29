@@ -223,6 +223,10 @@ jobs:
         working-directory: gitmap
         run: go test -run=^$ ./... -count=1
 
+      - name: Install golangci-lint (pinned)
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: ./.github/actions/install-golangci-lint
+
       - name: golangci-lint (strict, fail on any error)
         # Hard-gate. Pinned to v1.64.8 (Core memory: linter version is
         # locked — never use @latest). `--issues-exit-code=1` is the
@@ -232,11 +236,9 @@ jobs:
         # soft-gate baseline-diff job (`lint-baseline-diff`) is the
         # separate place where pre-existing findings are tolerated.
         if: needs.sha-check.outputs.already-built != 'true'
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: v1.64.8
-          working-directory: gitmap
-          args: --timeout=5m --issues-exit-code=1
+        working-directory: gitmap
+        shell: bash
+        run: golangci-lint run --timeout=5m --issues-exit-code=1
 
   lint-script-tests:
     # Unit tests for the lint diff/guard scripts under .github/scripts/.
@@ -296,12 +298,9 @@ jobs:
           go-version-file: gitmap/go.mod
           cache-dependency-path: gitmap/go.sum
 
-      - name: Install golangci-lint v1.64.8
+      - name: Install golangci-lint (pinned)
         if: needs.sha-check.outputs.already-built != 'true'
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-            | sh -s -- -b "$(go env GOPATH)/bin" v1.64.8
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+        uses: ./.github/actions/install-golangci-lint
 
       # ---- unused diff (baseline-diff, full-path only) --------------
       - name: Restore unused baseline (rolling, single slot)
