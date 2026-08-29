@@ -11,7 +11,7 @@ Run bash .github/scripts/smoke-installer.sh release
 ▶ Smoke mode:    release
 ▶ Expected:      v6.150.0
 ▶ Running install.sh --version v6.150.0 --no-discovery
-RELEASE ASSET NOT FOUND: expected asset gitmap-v6.150.0-linux-amd64.tar.gz not found at https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.150.0/gitmap-v6.150.0-linux-amd64.tar.gz
+RELEASE ASSET NOT FOUND: expected asset gitmap-v6.150.0-linux-amd64.tar.gz not found at https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.150.0/gitmap-v6.150.0-linux-amd64.tar.gz <!-- gitmap-legacy-ref-allow -->
 Error: Process completed with exit code 1.
 ```
 
