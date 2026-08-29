@@ -48,6 +48,7 @@ func runAllGitExecTests(t *testing.T, lastCmd *string) {
 	}
 }
 
+//nolint:revive
 func runSingleGitExecTest(t *testing.T, tc gitExecTestCase, lastCmd *string, node ClusterNode, ctx context.Context) {
 	if _, _, _, err := tc.fn(ctx, node); err != nil {
 		t.Fatalf("unexpected error: %v", err)

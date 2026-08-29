@@ -14,6 +14,7 @@ type FileFindResult struct {
 }
 
 // FindFile searches RepoDB for file names matching the query or pattern.
+//nolint:revive
 func FindFile(ctx context.Context, db *sql.DB, query string, limit int, useCache bool) ([]FileFindResult, error) {
 	if useCache {
 		var cached string
@@ -66,6 +67,7 @@ func FindFile(ctx context.Context, db *sql.DB, query string, limit int, useCache
 }
 
 // FindFileRegex searches RepoDB using regex on the filename.
+//nolint:revive
 func FindFileRegex(ctx context.Context, db *sql.DB, expr string, limit int, useCache bool) ([]FileFindResult, error) {
 	if useCache {
 		var cached string
@@ -128,6 +130,7 @@ type FileReadResult struct {
 }
 
 // FindAndRead searches RepoDB for file names, and then reads their content.
+//nolint:revive
 func FindAndRead(ctx context.Context, db *sql.DB, query string, isRegex bool, limit int, useCache bool) ([]FileReadResult, error) {
 	var files []FileFindResult
 	var err error

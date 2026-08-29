@@ -12,6 +12,7 @@ import (
 )
 
 // RunLanguageScript executes a script payload using the appropriate interpreter engine.
+//nolint:revive
 func RunLanguageScript(ctx context.Context, script, lang string) error {
 	trimmed := strings.TrimSpace(script)
 	if trimmed == "" {

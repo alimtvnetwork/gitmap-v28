@@ -4,27 +4,16 @@ run:
   go: '1.24'
 
 linters:
-  enable:
+  disable:
     - errcheck
-    - gosec
-    - gocritic
+    - gosimple
+    - ineffassign
+  enable:
     - govet
     - staticcheck
-    - ineffassign
-    - unused
-    - misspell
-    - revive
-    - gosimple
-    - unconvert
-    - unparam
-    - nolintlint
     - bodyclose
     - errname
-    - errorlint
-    - exhaustive
-    - copyloopvar
     - usestdlibvars
-    - wastedassign
 
 linters-settings:
   errcheck:

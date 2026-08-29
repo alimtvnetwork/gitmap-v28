@@ -48,7 +48,7 @@ func executeAliasSetCode(alias, slug string) int {
 
 	repoID := repos[0].ID
 
-	if db.AliasExists(alias) {
+	if db.AliasExists(alias) == true {
 		return updateAliasAndReturn(db, alias, repoID, slug)
 	}
 

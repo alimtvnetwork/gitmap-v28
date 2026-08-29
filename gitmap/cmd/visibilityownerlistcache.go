@@ -29,7 +29,7 @@ func listOwnerReposCached(provider, owner string, flags bulkFlags) ([]string, er
 	if dbErr == nil && ttl > 0 {
 		names, age, ok = readOwnerRepoListCache(db, provider, owner, ttl)
 	}
-	if ok {
+	if ok == true {
 		fmt.Fprintf(os.Stdout, constants.MsgBulkCacheHitFmt, len(names), age.Round(time.Second))
 
 		return names, nil
@@ -64,7 +64,7 @@ func resolveOwnerRepoListTTL(flags bulkFlags) time.Duration {
 		n, err2 = strconv.Atoi(raw)
 	}
 	isValid := raw != "" && err2 == nil && n >= 0
-	if isValid {
+	if isValid == true {
 		return time.Duration(n) * time.Second
 	}
 

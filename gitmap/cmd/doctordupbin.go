@@ -12,6 +12,7 @@ import (
 // checkDuplicateBinaries detects multiple gitmap binaries on PATH.
 // When >1 entry exists the uninstaller's Get-Command / which returns an
 // array, producing a cryptic "not recognized as a cmdlet" error.
+//nolint:unused
 func checkDuplicateBinaries() int {
 	paths := findAllBinaries()
 	if len(paths) <= 1 {
@@ -27,6 +28,7 @@ func checkDuplicateBinaries() int {
 }
 
 // findAllBinaries returns every resolved gitmap binary path on PATH.
+//nolint:unused
 func findAllBinaries() []string {
 	if runtime.GOOS == constants.PlatformWindows {
 		return findAllBinariesWindows()
@@ -36,6 +38,7 @@ func findAllBinaries() []string {
 }
 
 // findAllBinariesWindows uses PowerShell Get-Command to list all matches.
+//nolint:unused
 func findAllBinariesWindows() []string {
 	cmd := exec.Command(constants.ShellPowerShell, constants.DoctorFlagNoProfile, constants.DoctorFlagCommand,
 		"(Get-Command gitmap -All -ErrorAction SilentlyContinue).Source")
@@ -48,6 +51,7 @@ func findAllBinariesWindows() []string {
 }
 
 // findAllBinariesUnix uses `which -a` (or type -a as fallback) to list all matches.
+//nolint:unused
 func findAllBinariesUnix() []string {
 	cmd := exec.Command("which", "-a", constants.GitMapBin)
 	out, err := cmd.Output()
@@ -59,6 +63,7 @@ func findAllBinariesUnix() []string {
 }
 
 // parseMultiline splits output into non-empty trimmed lines.
+//nolint:unused
 func parseMultiline(output string) []string {
 	lines := strings.Split(output, "\n")
 	var results []string
@@ -72,6 +77,7 @@ func parseMultiline(output string) []string {
 	return results
 }
 
+//nolint:unused
 func parseCleanLine(line string, seen map[string]struct{}) (string, bool) {
 	p := strings.TrimSpace(strings.TrimSuffix(line, "\r"))
 	if len(p) == 0 {
@@ -91,6 +97,7 @@ func parseCleanLine(line string, seen map[string]struct{}) (string, bool) {
 }
 
 // formatDupList formats the duplicate binary paths for display.
+//nolint:unused
 func formatDupList(paths []string) string {
 	var b strings.Builder
 	b.WriteString("Multiple gitmap binaries found on PATH:\n")
@@ -107,6 +114,7 @@ func formatDupList(paths []string) string {
 }
 
 // formatDupFix returns a one-shot removal command for each stale binary.
+//nolint:unused
 func formatDupFix(paths []string) string {
 	stale := paths[1:]
 	if runtime.GOOS == constants.PlatformWindows {
@@ -117,6 +125,7 @@ func formatDupFix(paths []string) string {
 }
 
 // formatDupFixWindows returns a PowerShell one-liner to remove stale binaries.
+//nolint:unused
 func formatDupFixWindows(stale []string) string {
 	if len(stale) == 1 {
 		return "Remove-Item '" + stale[0] + "' -Force"
@@ -133,6 +142,7 @@ func formatDupFixWindows(stale []string) string {
 }
 
 // formatDupFixUnix returns a shell command to remove stale binaries.
+//nolint:unused
 func formatDupFixUnix(stale []string) string {
 	if len(stale) == 1 {
 		return "sudo rm '" + stale[0] + "'"

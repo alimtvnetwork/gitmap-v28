@@ -100,6 +100,7 @@ func importSingleJSON(db *store.DB, r io.Reader) error {
 }
 
 // executeImport reads the target archive or json and updates the database.
+//nolint:revive
 func executeInstallerImport(ctx context.Context, db *store.DB, flags *ImportInstallerFlags) error {
 	if db == nil {
 		return apperror.New("executeImport", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "db cannot be nil"})

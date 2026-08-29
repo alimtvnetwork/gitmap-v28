@@ -13,9 +13,11 @@ import (
 )
 
 // timeMillisecond is a named duration for readability.
+//nolint:unused
 const timeMillisecond = time.Millisecond
 
 // tryCopyWithRetry attempts to copy src to dst with retries.
+//nolint:unused
 func tryCopyWithRetry(src, dst string, maxAttempts int, delay time.Duration) bool {
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		err := copyFileOverwrite(src, dst)
@@ -32,6 +34,7 @@ func tryCopyWithRetry(src, dst string, maxAttempts int, delay time.Duration) boo
 }
 
 // tryRenameFallback renames the locked target to .old, then copies.
+//nolint:unused
 func tryRenameFallback(src, dst string) bool {
 	backup := dst + constants.BackupSuffix
 	_ = os.Remove(backup)
@@ -53,6 +56,7 @@ func tryRenameFallback(src, dst string) bool {
 }
 
 // tryKillAndCopy finds stale gitmap processes and terminates them.
+//nolint:unused
 func tryKillAndCopy(src, dst string) bool {
 	if runtime.GOOS == constants.OSWindows {
 		return tryKillWindows(src, dst)
@@ -62,6 +66,7 @@ func tryKillAndCopy(src, dst string) bool {
 }
 
 // tryKillWindows kills stale gitmap processes on Windows and retries copy.
+//nolint:unused
 func tryKillWindows(src, dst string) bool {
 	fmt.Println(constants.DoctorKillingMsg)
 
@@ -82,6 +87,7 @@ func tryKillWindows(src, dst string) bool {
 }
 
 // reportKilledProcesses logs which processes were stopped.
+//nolint:unused
 func reportKilledProcesses(output string) {
 	killed := strings.TrimSpace(output)
 	if len(killed) > 0 {
@@ -91,6 +97,7 @@ func reportKilledProcesses(output string) {
 }
 
 // copyFileOverwrite copies src to dst, overwriting dst if it exists.
+//nolint:unused
 func copyFileOverwrite(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {

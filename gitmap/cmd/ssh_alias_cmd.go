@@ -21,6 +21,7 @@ var SSHAliasCmd = &cobra.Command{
 	},
 }
 
+//nolint:revive
 func runSSHAlias(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) < 2 {
 		return apperror.NewSimple("runSSHAlias", "E_INTERNAL_ERROR")
@@ -32,6 +33,7 @@ func runSSHAlias(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return saveAliasCommand(ctx, ip, aliasName)
 }
 
+//nolint:revive
 func saveAliasCommand(ctx context.Context, ip string, alias string) error {
 	db, err := openDB()
 	if err != nil {

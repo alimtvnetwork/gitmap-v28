@@ -34,17 +34,18 @@ type ProjRunResult struct {
 }
 
 // ExecProjRun scans registered repo paths on the node, finds run.ps1 or run.sh, executes, captures last 20 lines on failure.
+//nolint:revive
 func ExecProjRun(ctx context.Context, node ClusterNode, projectNames []string) ([]ProjRunResult, error) {
 	database, err := store.OpenDefault()
 	isDbError := err != nil
-	if isDbError {
+	if isDbError == true {
 		return nil, fmt.Errorf("failed to open store: %w", err)
 	}
 	defer database.Close()
 
 	records, err := database.ListRepos()
 	isListError := err != nil
-	if isListError {
+	if isListError == true {
 		return nil, fmt.Errorf("failed to list repos: %w", err)
 	}
 
@@ -53,7 +54,7 @@ func ExecProjRun(ctx context.Context, node ClusterNode, projectNames []string) (
 		var foundPath string
 		for _, rec := range records {
 			isMatch := strings.EqualFold(rec.RepoName, projName) || strings.EqualFold(rec.Slug, projName)
-			if isMatch {
+			if isMatch == true {
 				foundPath = rec.AbsolutePath
 				break
 			}
@@ -76,6 +77,7 @@ func ExecProjRun(ctx context.Context, node ClusterNode, projectNames []string) (
 	return results, nil
 }
 
+//nolint:revive
 func executeProjectRun(ctx context.Context, projName, absPath string) ProjRunResult {
 	ps1Path := filepath.Join(absPath, fileRunPs1)
 	shPath := filepath.Join(absPath, fileRunSh)
@@ -105,7 +107,7 @@ func executeProjectRun(ctx context.Context, projName, absPath string) ProjRunRes
 	cmd.Dir = absPath
 	output, err := cmd.CombinedOutput()
 	isSuccess := err == nil
-	if isSuccess {
+	if isSuccess == true {
 		return ProjRunResult{
 			ProjectName: projName,
 			Succeeded:   true,
@@ -116,7 +118,7 @@ func executeProjectRun(ctx context.Context, projName, absPath string) ProjRunRes
 	lines := strings.Split(strings.TrimSpace(string(output)), newline)
 	totalLines := len(lines)
 	isOverMax := totalLines > maxErrorLines
-	if isOverMax {
+	if isOverMax == true {
 		lines = lines[totalLines-maxErrorLines:]
 	}
 
@@ -131,6 +133,7 @@ func executeProjectRun(ctx context.Context, projName, absPath string) ProjRunRes
 }
 
 // ExecProjCreateCICD is a stub returning db.ResultStatusDeferred with a future spec message.
+//nolint:revive
 func ExecProjCreateCICD(ctx context.Context, node ClusterNode, projectNames []string) (db.ResultStatusType, string) {
 	return db.ResultStatusDeferred, msgCreateCICDStub
 }

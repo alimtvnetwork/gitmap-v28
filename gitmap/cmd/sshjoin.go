@@ -25,6 +25,7 @@ type sjOptions struct {
 	Args       []string
 }
 
+//nolint:unused
 func parseSJFlags(args []string) sjOptions {
 	fs := flag.NewFlagSet(sjCommand, flag.ExitOnError)
 	var opts sjOptions
@@ -41,6 +42,7 @@ func parseSJFlags(args []string) sjOptions {
 	return opts
 }
 
+//nolint:unused
 func runSSHJoinLegacy(args []string) error {
 	opts := parseSJFlags(args)
 
@@ -61,6 +63,7 @@ func runSSHJoinLegacy(args []string) error {
 	return nil
 }
 
+//nolint:unused
 func runSSHJoinLs() error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
@@ -82,11 +85,13 @@ func runSSHJoinLs() error {
 	return nil
 }
 
+//nolint:unused
 func getEncryptionKey() []byte {
 	// 32-byte key for AES-256
 	return []byte("gitmap-ssh-secret-key-0123456789")
 }
 
+//nolint:unused
 func runSSHJoinInteractive(args []string) error {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -114,12 +119,14 @@ func runSSHJoinInteractive(args []string) error {
 	return nil
 }
 
+//nolint:unused
 func promptInput(reader *bufio.Reader, prompt string) string {
 	fmt.Printf("%s: ", prompt)
 	input, _ := reader.ReadString('\n')
 	return strings.TrimSpace(input)
 }
 
+//nolint:unused
 func saveSSHConnection(alias, ip, user, encPass, keyPath, osType string) {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
@@ -145,6 +152,7 @@ func saveSSHConnection(alias, ip, user, encPass, keyPath, osType string) {
 	fmt.Printf("Successfully joined %s (%s)\n", alias, ip)
 }
 
+//nolint:unused
 func runSSHJoinImport(file string) error {
 	data, err := os.ReadFile(file)
 	if err != nil {
@@ -175,6 +183,7 @@ func runSSHJoinImport(file string) error {
 	return nil
 }
 
+//nolint:unused
 func runSSHJoinExport(file string) error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {

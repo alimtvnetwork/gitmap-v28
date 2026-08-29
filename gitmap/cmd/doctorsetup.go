@@ -9,6 +9,7 @@ import (
 )
 
 // checkSetupConfig verifies git-setup.json can be resolved from the binary.
+//nolint:unused
 func checkSetupConfig() int {
 	configPath := resolveSetupConfigPath(constants.DefaultSetupConfigPath, false)
 	_, err := os.Stat(configPath)
@@ -30,6 +31,7 @@ func checkSetupConfig() int {
 }
 
 // checkShellWrapper verifies the GITMAP_WRAPPER env var is set.
+//nolint:unused
 func checkShellWrapper() int {
 	if isWrapperActive() {
 		printOK(constants.DoctorWrapperOK)

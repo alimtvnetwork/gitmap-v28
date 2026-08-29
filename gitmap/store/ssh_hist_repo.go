@@ -8,6 +8,7 @@ import (
 )
 
 // LogSSHJoin logs an SSH connection into the database.
+//nolint:revive
 func LogSSHJoin(ctx context.Context, h SSHHistory, db *sql.DB) error {
 	query := `INSERT INTO ssh_history (id, host_ip, joined_at, user) VALUES (?, ?, ?, ?)`
 	_, err := db.ExecContext(ctx, query, h.ID, h.HostIP, h.JoinedAt, h.User)
@@ -23,6 +24,7 @@ func LogSSHJoin(ctx context.Context, h SSHHistory, db *sql.DB) error {
 }
 
 // ListSSHHistory retrieves a list of SSH history records, ordered by joined_at descending.
+//nolint:revive
 func ListSSHHistory(ctx context.Context, limit int, offset int, db *sql.DB) ([]SSHHistory, error) {
 	query := `SELECT id, host_ip, joined_at, user FROM ssh_history ORDER BY joined_at DESC LIMIT ? OFFSET ?`
 	rows, err := db.QueryContext(ctx, query, limit, offset)

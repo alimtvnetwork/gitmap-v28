@@ -167,8 +167,8 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 	if flags.isRelative {
 		finalFolders, errRel = vscodeworkspace.Relativize(folders, filepath.Dir(outPath))
 	}
-	isRelErr := flags.isRelative && errRel != nil
-	if isRelErr {
+	isRelErr := flags.isRelative == true && errRel != nil
+	if isRelErr == true {
 		fmt.Fprintln(os.Stderr, errRel.Error())
 	}
 

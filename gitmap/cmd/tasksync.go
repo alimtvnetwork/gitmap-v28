@@ -33,7 +33,10 @@ func runTaskRun(args []string) error {
 
 	interval = enforceMinInterval(interval)
 	tasks := loadTaskFile()
-	entry := findTaskByName(tasks, name)
+	entry, err := findTaskByName(tasks, name)
+	if err != nil {
+		return err
+	}
 
 	fmt.Printf(constants.MsgTaskRunning, name, interval)
 	runSyncLoop(entry, interval, verbose, dryRun)

@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
@@ -27,13 +28,16 @@ import (
 // for users who maintain a local clone and want to ship in-tree changes.
 func runUpdate() error {
 	requireOnline()
-	if !hasFlag(constants.FlagSourceRebuild) && runUpdateRemoteInstall() {
+	if hasFlag(constants.FlagSourceRebuild) == false && runUpdateRemoteInstall() == true {
 		return nil
 	}
-	if !hasFlag(constants.FlagSourceRebuild) {
+	if hasFlag(constants.FlagSourceRebuild) == false {
 		fmt.Fprint(os.Stderr, constants.MsgUpdateRemoteFallback)
 	}
-	repoPath := resolveRepoPath()
+	repoPath, err := resolveRepoPath()
+	if err != nil {
+		return err
+	}
 	report := resolveReportErrors()
 	report.announce()
 
@@ -50,25 +54,21 @@ func runUpdate() error {
 
 // resolveRepoPath returns the repo path from --repo-path flag or embedded constant.
 // If neither is available, it attempts to delegate to gitmap-updater.
-func resolveRepoPath() string {
-	for _, repoPath := range []string{
+func resolveRepoPath() (string, error) {
+	for _, path := range []string{
 		resolveRepoPathFromFlag(),
 		resolveRepoPathFromEmbedded(),
 		resolveRepoPathFromDB(),
 	} {
-		if len(repoPath) == 0 {
-			continue
+		if len(path) > 0 {
+			saveRepoPathToDB(path)
+			return path, nil
 		}
-
-		saveRepoPathToDB(repoPath)
-
-		return repoPath
 	}
 
 	if prompted := promptRepoPath(); len(prompted) > 0 {
 		saveRepoPathToDB(prompted)
-
-		return prompted
+		return prompted, nil
 	}
 
 	// Try to fall back to gitmap-updater for release-based update
@@ -76,9 +76,7 @@ func resolveRepoPath() string {
 		os.Exit(0)
 	}
 
-	fmt.Fprint(os.Stderr, constants.ErrNoRepoPath)
-	panic("error")
-
+	return "", apperror.NewSimple("no repo path resolved", "E9024")
 }
 
 // tryUpdaterFallback looks for gitmap-updater on PATH and launches it.
@@ -96,7 +94,7 @@ func tryUpdaterFallback() bool {
 
 	errRun := cmd.Run()
 	var exitErr *exec.ExitError
-	if errRun != nil && errors.As(errRun, &exitErr) {
+	if errRun != nil && errors.As(errRun, &exitErr) == true {
 		os.Exit(exitErr.ExitCode())
 	}
 	if errRun != nil {
@@ -196,7 +194,10 @@ func handleHandoffError(err error) {
 // See spec/08-generic-update/06-cleanup.md and
 // spec/03-general/02f-self-update-orchestration.md.
 func runUpdateRunner() error {
-	repoPath := resolveRepoPath()
+	repoPath, err := resolveRepoPath()
+	if err != nil {
+		return err
+	}
 	report := resolveReportErrors()
 
 	currentVersion := constants.Version
@@ -228,7 +229,7 @@ func getFlagValue(name string) string {
 
 // initRunnerVerbose initializes verbose logging if --verbose flag is present.
 func initRunnerVerbose() {
-	if !hasFlag(constants.FlagVerbose) {
+	if hasFlag(constants.FlagVerbose) == false {
 		return
 	}
 	log, err := verbose.Init()
@@ -301,7 +302,7 @@ func printUpdateSummary(oldVer, newVer, repoPath string) {
 func printUpdateChangelog() {
 	entries, err := release.ReadChangelog()
 	hasEntries := err == nil && len(entries) > 0
-	if !hasEntries {
+	if hasEntries == false {
 		return
 	}
 

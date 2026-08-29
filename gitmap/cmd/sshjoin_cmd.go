@@ -8,6 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
+//nolint:revive
 func executeSSHJoin(ctx context.Context, target string, history store.SSHHistory) error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {

@@ -202,7 +202,7 @@ func resolveCloneFolder(repoName, folderName string) string {
 }
 
 func executeCloneStrategy(url string, absPath string, noReplace bool) error {
-	if noReplace {
+	if noReplace == true {
 		return handleNoReplaceClone(url, absPath)
 	}
 	return handleReplaceClone(url, absPath)

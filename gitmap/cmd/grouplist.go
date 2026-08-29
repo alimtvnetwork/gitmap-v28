@@ -19,7 +19,7 @@ func runGroupList() error {
 	defer db.Close()
 
 	groups, err := db.ListGroups()
-	if err != nil && isLegacyDataError(err) {
+	if err != nil && isLegacyDataError(err) == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 		return apperror.NewSimple("fatal error", "E9000")
 	}

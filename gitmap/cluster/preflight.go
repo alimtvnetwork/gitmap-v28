@@ -34,7 +34,7 @@ func PrintPreflight(selector TargetSelectorType, effective []ClusterNode, comman
 
 	fmt.Print(constants.ColorCyan + "==================================================================\n" + constants.ColorReset)
 
-	if autoConfirm {
+	if autoConfirm == true {
 		return true, nil
 	}
 

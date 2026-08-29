@@ -80,7 +80,7 @@ func pickProfile(raw *commitin.RawArgs, paths *workspace.Paths, stderr io.Writer
 	if raw.ProfileName != "" {
 		return pickNamedProfile(paths.SourceRoot, raw.ProfileName, stderr)
 	}
-	if raw.UseDefaultProfile {
+	if raw.UseDefaultProfile == true {
 		return loadDefaultProfile(paths.SourceRoot)
 	}
 	return nil, constants.CommitInExitOk

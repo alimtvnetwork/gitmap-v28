@@ -42,7 +42,7 @@ func printWhoAmISSHKeys() {
 	if err != nil {
 		return
 	}
-	dir := filepath.Join(home, ".ssh")
+	dir := home + string(os.PathSeparator) + ".ssh"
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println("\n── SSH keys (~/.ssh) ──\n  (none — directory missing)")
@@ -169,14 +169,14 @@ func extractSSHHost(url string) string {
 
 	restSSH := strings.TrimPrefix(url, "ssh://")
 	atSSH := strings.Index(restSSH, "@")
-	if isSSHScheme && atSSH >= 0 {
+	if isSSHScheme == true && atSSH >= 0 {
 		restSSH = restSSH[atSSH+1:]
 	}
 	slashSSH := strings.IndexAny(restSSH, "/:")
-	if isSSHScheme && slashSSH >= 0 {
+	if isSSHScheme == true && slashSSH >= 0 {
 		return restSSH[:slashSSH]
 	}
-	if isSSHScheme {
+	if isSSHScheme == true {
 		return restSSH
 	}
 

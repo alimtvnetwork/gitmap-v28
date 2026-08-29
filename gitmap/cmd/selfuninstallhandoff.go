@@ -90,10 +90,11 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 	}
 	var exitErr *exec.ExitError
 	isExitErr := errors.As(err, &exitErr)
-	if isExitErr {
+	if isExitErr == true {
 		os.Exit(exitErr.ExitCode())
 	}
 	panic("fatal error")
+// 	return nil
 }
 
 // scheduleSelfDelete arranges for the temp handoff binary to remove

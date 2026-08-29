@@ -32,7 +32,7 @@ func cloneReplacing(url, target string) (cloneReplaceResult, error) {
 	}
 
 	_, statErr := os.Stat(target)
-	if errors.Is(statErr, fs.ErrNotExist) {
+	if errors.Is(statErr, fs.ErrNotExist) == true {
 		return handleFreeTarget(url, target)
 	}
 

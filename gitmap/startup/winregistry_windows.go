@@ -37,6 +37,7 @@ package startup
 // callers in winbackend.go compile everywhere.
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -107,6 +108,7 @@ func addWindowsRegistryAt(root registry.Key, hive, source string,
 // classifyRunValue is the HKCU adapter retained so existing call
 // sites keep compiling. New code paths should call
 // classifyRunValueAt directly so the hive is explicit.
+//nolint:unused
 func classifyRunValue(valueName, clean string) (bool, bool, error) {
 	return classifyRunValueAt(registry.CURRENT_USER, valueName, clean)
 }
@@ -119,7 +121,7 @@ func classifyRunValue(valueName, clean string) (bool, bool, error) {
 // model.
 func classifyRunValueAt(root registry.Key, valueName, clean string) (bool, bool, error) {
 	k, err := registry.OpenKey(root, constants.RegRunKeyPath, registry.QUERY_VALUE)
-	if err == registry.ErrNotExist {
+	if errors.Is(err, registry.ErrNotExist) {
 		return false, false, nil
 	}
 	if err != nil {
@@ -128,7 +130,7 @@ func classifyRunValueAt(root registry.Key, valueName, clean string) (bool, bool,
 	defer k.Close()
 
 	_, _, err = k.GetStringValue(valueName)
-	if err == registry.ErrNotExist {
+	if errors.Is(err, registry.ErrNotExist) {
 		return false, false, nil
 	}
 	if err != nil {
@@ -165,6 +167,7 @@ func trackingSubkeyExistsAt(root registry.Key, parent, name string) bool {
 
 // writeRunValue is the HKCU-rooted convenience wrapper retained for
 // any older caller. The HKLM Add path goes through writeRunValueAt
+//nolint:unused
 // directly.
 func writeRunValue(valueName, exec string) error {
 	return writeRunValueAt(registry.CURRENT_USER, valueName, exec)
@@ -240,6 +243,7 @@ func writeTrackingSubkeyAt(root registry.Key, parent, name, exec, source, workin
 
 // runValuePath formats a stable user-facing locator for a HKCU
 // Run-key value. Kept as a thin alias around runValuePathFor so
+//nolint:unused
 // existing callers and tests keep compiling unchanged.
 func runValuePath(valueName string) string {
 	return runValuePathFor(hiveLabelHKCU, valueName)

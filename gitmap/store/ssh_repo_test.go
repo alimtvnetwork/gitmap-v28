@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
@@ -116,7 +117,7 @@ func TestGetHostByAlias(t *testing.T) {
 		if appErr.Code != "E_INTERNAL_ERROR" {
 			t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
 		}
-		if appErr.Cause != apperror.ErrNotFound {
+		if !errors.Is(appErr.Cause, apperror.ErrNotFound) {
 			t.Errorf("expected cause ErrNotFound, got %v", appErr.Cause)
 		}
 	} else {

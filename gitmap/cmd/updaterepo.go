@@ -156,10 +156,10 @@ func promptRepoPath() string {
 
 		cloned := cloneRepoInto(absPath)
 		root = ""
-		if cloned {
+		if cloned == true {
 			root = normalizeRepoPath(absPath)
 		}
-		if cloned && len(root) > 0 {
+		if cloned == true && len(root) > 0 {
 			return root
 		}
 

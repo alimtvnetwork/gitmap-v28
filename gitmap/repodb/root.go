@@ -8,6 +8,7 @@ import (
 )
 
 // InitRootSchema initializes the required tables in the root database for SplitDB
+//nolint:revive
 func InitRootSchema(ctx context.Context, db *sql.DB) error {
 	query := "CREATE TABLE IF NOT EXISTS IndexedRepo ( Id INTEGER PRIMARY KEY AUTOINCREMENT, Path TEXT NOT NULL UNIQUE, Slug TEXT NOT NULL, MigratedVersion INTEGER NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );"
 	_, err := db.ExecContext(ctx, query)

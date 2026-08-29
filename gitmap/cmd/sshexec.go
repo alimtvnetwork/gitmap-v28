@@ -170,7 +170,7 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 
 	// Default shell based on OS
 	shell := "bash"
-	if strings.EqualFold(osType, "windows") {
+	if strings.ToLower(osType) == "windows" {
 		shell = "ps"
 	}
 	return shell, strings.Join(args, " "), false
@@ -184,7 +184,7 @@ func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {
 
 	fmt.Printf("%s gitmap not found, installing...\n", header)
 	var installCmd string
-	if strings.EqualFold(osType, "windows") {
+	if strings.ToLower(osType) == "windows" {
 		installCmd = "irm https://gitmap.dev/install.ps1 | iex"
 		_, err = crypto.RunCommand(client, installCmd, "ps")
 	} else {
@@ -198,7 +198,7 @@ func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {
 	return nil
 }
 func ensurePowerShellInstalled(client *ssh.Client, osType, header string) error {
-	if strings.EqualFold(osType, "windows") {
+	if strings.ToLower(osType) == "windows" {
 		return nil
 	}
 

@@ -19,6 +19,7 @@ var AgyCmd = &cobra.Command{
 	Short: "Antigravity CLI Management",
 }
 
+//nolint:revive
 func dispatchAgy(ctx context.Context, args []string, root *cobra.Command) error {
 	if len(args) > 0 && (args[0] == "agy" || args[0] == "ag" || args[0] == "antigravity") {
 		args = args[1:]

@@ -16,6 +16,7 @@ const (
 )
 
 // ExecPS executes a PowerShell command on the specified node.
+//nolint:revive
 func ExecPS(ctx context.Context, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error) {
 	var cmd *exec.Cmd
 

@@ -42,7 +42,7 @@ func preferExistingFolderTransport(positional, absPath string) string {
 }
 
 func rewriteToMatchExisting(positional string, targetSSH bool) string {
-	if targetSSH {
+	if targetSSH == true {
 		return handleSSHRewrite(positional)
 	}
 	return handleHTTPSRewrite(positional)
@@ -50,7 +50,7 @@ func rewriteToMatchExisting(positional string, targetSSH bool) string {
 
 func handleSSHRewrite(positional string) string {
 	out, ok := ConvertURLToSSH(positional)
-	if !ok {
+	if ok == false {
 		warnPreferTransport("", "ssh rewrite failed", nil)
 		return positional
 	}
@@ -60,7 +60,7 @@ func handleSSHRewrite(positional string) string {
 
 func handleHTTPSRewrite(positional string) string {
 	out, ok := ConvertURLToHTTPS(positional)
-	if !ok {
+	if ok == false {
 		warnPreferTransport("", "https rewrite failed", nil)
 		return positional
 	}
@@ -77,7 +77,7 @@ func hasDotGitDir(absPath string) bool {
 }
 
 // isSSHURL classifies a URL as SSH (shorthand or scheme). Anything
-// else — including https://, http://, file://, or unrecognized — is
+// else — including https://, http://, file://, or unrecognised — is
 // treated as not-SSH so the caller defaults to the HTTPS-friendly
 // branch.
 func isSSHURL(url string) bool {

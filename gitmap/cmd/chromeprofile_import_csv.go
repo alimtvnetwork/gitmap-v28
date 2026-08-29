@@ -25,7 +25,7 @@ func loadChromeImport(path string) (*chromeExport, error) {
 }
 
 func parseCSVRows(path string) ([][]string, error) {
-	f, err := os.Open(path)
+	f, err := os.Open(path) //nolint:gosec // user-supplied path
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}

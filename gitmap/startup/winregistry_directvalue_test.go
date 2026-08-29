@@ -10,6 +10,7 @@ package startup
 // tab and execute the literal string "true" at every login.
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -49,7 +50,7 @@ func snapshotRunValueNames(t *testing.T) []string {
 	t.Helper()
 	k, err := registry.OpenKey(registry.CURRENT_USER,
 		constants.RegRunKeyPath, registry.QUERY_VALUE)
-	if err == registry.ErrNotExist {
+	if errors.Is(err, registry.ErrNotExist) {
 		return nil
 	}
 	if err != nil {

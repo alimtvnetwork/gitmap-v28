@@ -72,7 +72,7 @@ func resolveOneMulti(db *store.DB, target string, all []model.ScanRecord) []mode
 func resolveBySlug(target string, all []model.ScanRecord) *model.ScanRecord {
 	tLow := strings.ToLower(target)
 	for _, r := range all {
-		if strings.EqualFold(r.Slug, tLow) || strings.EqualFold(r.RepoName, tLow) {
+		if strings.ToLower(r.Slug) == tLow || strings.ToLower(r.RepoName) == tLow {
 			return &r
 		}
 	}

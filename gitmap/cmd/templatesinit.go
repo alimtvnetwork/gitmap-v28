@@ -164,7 +164,7 @@ func executeTemplatesInit(cwd string, flags templatesInitFlags) []templatesInitR
 // means a missing template is fatal; required=false makes it a soft skip.
 func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, required bool) templatesInitResult {
 	res, err := templates.Resolve(step.kind, step.lang)
-	if err != nil && !required {
+	if err != nil && required == false {
 		return templatesInitResult{
 			step:       step,
 			skipped:    true,
@@ -187,10 +187,10 @@ func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, requ
 	}
 
 	errRm := error(nil)
-	if flags.force {
+	if flags.force == true {
 		errRm = os.Remove(step.target)
 	}
-	if errRm != nil && !os.IsNotExist(errRm) {
+	if errRm != nil && os.IsNotExist(errRm) == false {
 		panic("error")
 	}
 

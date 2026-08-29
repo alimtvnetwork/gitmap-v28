@@ -54,7 +54,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 	}
 
 	hasExceptClause := flags.ExceptClause != ""
-	if hasExceptClause {
+	if hasExceptClause == true {
 		filter.Except = strings.Split(flags.ExceptClause, ",")
 	}
 
@@ -96,7 +96,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 		TotalNodes:     &totalNodes,
 	}
 
-	if hasExceptClause {
+	if hasExceptClause == true {
 		run.ExceptClause = &flags.ExceptClause
 	}
 
@@ -164,7 +164,7 @@ func generateRunRef(dbConn *sql.DB) string {
 }
 
 func performPreflight(flags ClusterFlags, selector cluster.TargetSelectorType, effective []cluster.ClusterNode, cmdStr string, runRef string) *apperror.AppError {
-	if flags.NoPreflight {
+	if flags.NoPreflight == true {
 		return nil
 	}
 	confirmed, err := cluster.PrintPreflight(selector, effective, cmdStr, runRef, flags.AutoConfirm)
@@ -172,13 +172,14 @@ func performPreflight(flags ClusterFlags, selector cluster.TargetSelectorType, e
 		return apperror.WrapSimple(err, "Preflight error")
 	}
 
-	isConfirmed := confirmed
-	if !isConfirmed {
+	isConfirmed := confirmed == true
+	if isConfirmed == false {
 		return apperror.NewSimple("Operation aborted", "E9000")
 	}
 	return nil
 }
 
+//nolint:revive
 func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
 	if dbConn == nil {
 		return 0
@@ -191,6 +192,7 @@ func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
 	return runId
 }
 
+//nolint:revive
 func updateRunCounts(ctx context.Context, dbConn *sql.DB, runId int64, totalNodes, succeeded, failed, skipped int) {
 	if dbConn == nil {
 		return

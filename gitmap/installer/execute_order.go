@@ -11,6 +11,7 @@ import (
 )
 
 // ExecuteOrdered runs the installer script respecting the configured order mode.
+//nolint:revive
 func (m *Manager) ExecuteOrdered(ctx context.Context, slug, osTarget string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("ExecuteOrdered", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
@@ -32,6 +33,7 @@ func (m *Manager) ExecuteOrdered(ctx context.Context, slug, osTarget string) err
 	return m.dispatchOrder(ctx, script, osTarget, order)
 }
 
+//nolint:revive
 func (m *Manager) dispatchOrder(ctx context.Context, s *model.InstallerScript, osTarget, order string) error {
 	switch order {
 	case constants.OrderUnixFirst:

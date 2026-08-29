@@ -33,7 +33,7 @@ func maybeSaveProfile(ctx *runContext, stderr io.Writer) int {
 }
 
 func clearDefaultsIfNeeded(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
-	if !p.IsDefault {
+	if p.IsDefault == false {
 		return constants.CommitInExitOk
 	}
 	err := profile.ClearOtherDefaults(ctx.Paths.SourceRoot, ctx.Source.Path, p.Name)

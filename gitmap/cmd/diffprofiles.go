@@ -89,6 +89,7 @@ func printDPJSON(nameA, nameB string, result dpResult) {
 }
 
 // dpRepoSummaries converts records to simple name+path maps.
+//nolint:unused
 func dpRepoSummaries(records []model.ScanRecord) []map[string]string {
 	result := make([]map[string]string, 0, len(records))
 

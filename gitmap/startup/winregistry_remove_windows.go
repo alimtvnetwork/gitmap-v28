@@ -19,6 +19,7 @@ package startup
 // backwards compatible with code that doesn't care about the hive.
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -87,7 +88,7 @@ func deleteRunValueAt(root registry.Key, valueName string) error {
 	}
 	defer k.Close()
 
-	if err := k.DeleteValue(valueName); err != nil && err != registry.ErrNotExist {
+	if err := k.DeleteValue(valueName); err != nil && !errors.Is(err, registry.ErrNotExist) {
 
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, valueName, err)
 	}
@@ -108,7 +109,7 @@ func deleteTrackingSubkey(parent, name string) error {
 func deleteTrackingSubkeyAt(root registry.Key, parent, name string) error {
 	full := parent + `\` + name
 	if err := registry.DeleteKey(root, full); err != nil &&
-		err != registry.ErrNotExist {
+		!errors.Is(err, registry.ErrNotExist) {
 
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, full, err)
 	}
@@ -137,7 +138,7 @@ func listWindowsRegistry() ([]Entry, error) {
 func listWindowsRegistryAt(root registry.Key, hive string) ([]Entry, error) {
 	k, err := registry.OpenKey(root,
 		constants.RegRunKeyPath, registry.QUERY_VALUE|registry.ENUMERATE_SUB_KEYS)
-	if err == registry.ErrNotExist {
+	if errors.Is(err, registry.ErrNotExist) {
 		return nil, nil
 	}
 	if err != nil {

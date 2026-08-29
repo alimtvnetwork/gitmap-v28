@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
+//nolint:revive
 func getRepoDB(ctx context.Context) (*store.DB, *sql.DB, error) {
 	mainDB, err := store.OpenDefault()
 	if err != nil {

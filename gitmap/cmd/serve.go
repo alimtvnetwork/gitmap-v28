@@ -83,7 +83,7 @@ func getLocalIP() string {
 
 	for _, address := range addrs {
 		ipnet, ok := address.(*net.IPNet)
-		if !ok {
+		if ok == false {
 			continue
 		}
 		if ipnet.IP.IsLoopback() {

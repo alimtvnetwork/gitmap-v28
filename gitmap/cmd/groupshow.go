@@ -29,7 +29,7 @@ func executeGroupShow(name string) {
 	defer db.Close()
 
 	repos, err := db.ShowGroup(name)
-	if err != nil && isLegacyDataError(err) {
+	if err != nil && isLegacyDataError(err) == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 		apperror.NewSimple("fatal error", "E9000")
 		return

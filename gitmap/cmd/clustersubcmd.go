@@ -11,7 +11,7 @@ import (
 func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 	var subCmds []cluster.ClusterSubCommand
 	isEmptyTokens := len(tokens) == 0
-	if isEmptyTokens {
+	if isEmptyTokens == true {
 		return nil, nil
 	}
 
@@ -19,7 +19,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 
 	commitCurrent := func() error {
 		isEmpty := len(currentTokens) == 0
-		if isEmpty {
+		if isEmpty == true {
 			return nil
 		}
 
@@ -31,14 +31,14 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 		isProj := cmdToken == "proj"
 		hasMinTokens := len(currentTokens) >= 2
 
-		if isGit && !hasMinTokens {
+		if isGit == true && hasMinTokens == false {
 			return fmt.Errorf("missing git sub-command")
 		}
-		if isProj && !hasMinTokens {
+		if isProj == true && hasMinTokens == false {
 			return fmt.Errorf("missing proj sub-command")
 		}
 
-		if isGit {
+		if isGit == true {
 			subToken := strings.ToLower(currentTokens[1])
 			switch subToken {
 			case "pull":
@@ -53,7 +53,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 				return fmt.Errorf("unknown git sub-command: %s", subToken)
 			}
 			rawArgParts = currentTokens[2:]
-		} else if isProj {
+		} else if isProj == true {
 			subToken := strings.ToLower(currentTokens[1])
 			switch subToken {
 			case "run":
@@ -96,13 +96,13 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 		isComma := token == ","
 		var err error
 
-		if isComma {
+		if isComma == true {
 			err = commitCurrent()
 		}
 		if err != nil {
 			return nil, err
 		}
-		if isComma {
+		if isComma == true {
 			continue
 		}
 
@@ -110,18 +110,18 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 		stripped := strings.TrimSuffix(token, ",")
 		isStrippedEmpty := stripped == ""
 
-		if hasCommaSuffix && !isStrippedEmpty {
+		if hasCommaSuffix == true && isStrippedEmpty == false {
 			currentTokens = append(currentTokens, stripped)
 		}
 
-		if hasCommaSuffix {
+		if hasCommaSuffix == true {
 			err = commitCurrent()
 		}
 
 		if err != nil {
 			return nil, err
 		}
-		if hasCommaSuffix {
+		if hasCommaSuffix == true {
 			continue
 		}
 
@@ -130,7 +130,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 
 	err := commitCurrent()
 	hasErr := err != nil
-	if hasErr {
+	if hasErr == true {
 		return nil, err
 	}
 

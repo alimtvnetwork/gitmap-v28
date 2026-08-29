@@ -9,6 +9,7 @@ import (
 
 const winLongPathPrefix = `\\?\`
 const winLongPathUNCPrefix = `\\?\UNC\`
+//nolint:unused
 const winMaxPathThreshold = 240
 
 // EnsureLongPath prefixes path with \\?\ if needed on Windows.

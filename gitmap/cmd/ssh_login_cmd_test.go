@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+//nolint:revive
 func fakeSSHCommand(ctx context.Context, name string, args ...string) *exec.Cmd {
 	if runtime.GOOS == "windows" {
 		return exec.CommandContext(ctx, "cmd", "/c", "exit 0")

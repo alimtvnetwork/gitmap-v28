@@ -149,7 +149,7 @@ func lastPathSegment(p string) string {
 func TestCtxWindowsCommandBodyMatchesMode(t *testing.T) {
 	exe := fakeGitmapExe(t)
 	for _, l := range collectCtxLeaves(t) {
-
+		l := l
 		t.Run(l.Slug, func(t *testing.T) {
 			body := commandTemplate(ctxEntry{
 				KeyName: l.Slug, MUIVerb: l.Label, Args: l.Args,
@@ -239,7 +239,7 @@ func flattenCmdsForSearch(cmds [][]string) []string {
 	return out
 }
 
-// TestCtxWindowsUninstallTargetsBothRoots pins the uninstall behavior:
+// TestCtxWindowsUninstallTargetsBothRoots pins the uninstall behaviour:
 // removing the two root keys (with /f) is sufficient because every
 // gitmap key lives under one of them. A regression here would either
 // orphan keys (forgotten /f) or hit unrelated keys.

@@ -20,6 +20,7 @@ type staleRepo struct {
 }
 
 // runStale executes `gitmap stale`.
+//nolint:unused
 func runStale(args []string) error {
 	checkHelp("stale", args)
 	fs := flag.NewFlagSet("stale", flag.ContinueOnError)
@@ -54,6 +55,7 @@ func runStale(args []string) error {
 }
 
 // emitStale dispatches to the requested output format.
+//nolint:unused
 func emitStale(stale []staleRepo, days int, f hygieneFormat) {
 	switch f {
 	case hygieneFormatJSON:
@@ -86,6 +88,7 @@ func emitStale(stale []staleRepo, days int, f hygieneFormat) {
 }
 
 // scanForRepos returns directories under root that contain a .git folder.
+//nolint:unused
 func scanForRepos(root string) []string {
 	var out []string
 	entries, err := os.ReadDir(root)
@@ -108,6 +111,7 @@ func scanForRepos(root string) []string {
 // (isGitRepo lives in githubdesktop.go and is reused here.)
 
 // lastCommitTime returns the last commit time for repo at dir.
+//nolint:unused
 func lastCommitTime(dir string) (time.Time, bool) {
 	cmd := exec.Command("git", "-C", dir, "log", "-1", "--format=%ct")
 	out, err := cmd.Output()
@@ -127,6 +131,7 @@ func lastCommitTime(dir string) (time.Time, bool) {
 }
 
 // printStaleTable renders the stale-repo list.
+//nolint:unused
 func printStaleTable(stale []staleRepo, days int) {
 	if len(stale) == 0 {
 		fmt.Fprintf(os.Stdout, "\n  no repos stale beyond %d days\n\n", days)
@@ -143,6 +148,7 @@ func printStaleTable(stale []staleRepo, days int) {
 }
 
 // archiveStaleRepos moves repos into .gitmap/archive/<basename>-<ts>/.
+//nolint:unused
 func archiveStaleRepos(stale []staleRepo, dryRun bool) {
 	if len(stale) == 0 {
 		return

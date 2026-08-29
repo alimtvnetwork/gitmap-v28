@@ -65,7 +65,7 @@ func TestResolveProviderAndSlug_LocalRemote_ExitsZero(t *testing.T) {
 		"C:/repos/local-bare.git",
 	}
 	for _, url := range urls {
-
+		url := url
 		t.Run(url, func(t *testing.T) {
 			cmd := exec.Command(os.Args[0], "-test.run=TestResolveProviderAndSlug_LocalRemote_ExitsZero")
 			cmd.Env = append(os.Environ(), "GITMAP_TEST_RESOLVE_LOCAL="+url)

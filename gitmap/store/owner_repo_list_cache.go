@@ -59,6 +59,7 @@ func (db *DB) PurgeOwnerRepoListCache() error {
 
 // ensureOwnerRepoListCacheTable runs the CREATE TABLE IF NOT EXISTS
 // for callers that need the cache without a full Migrate().
+//nolint:unused
 func (db *DB) ensureOwnerRepoListCacheTable() error {
 	_, err := ExecWrapper(db.conn, constants.SQLCreateOwnerRepoListCache).Destruct()
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {

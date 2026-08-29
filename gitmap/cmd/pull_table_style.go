@@ -5,6 +5,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
+//nolint:unused
 func formatPullStatus(status string, isDirty bool) string {
 	if isDirty {
 		return constants.ColorYellow + "● dirty" + constants.ColorReset

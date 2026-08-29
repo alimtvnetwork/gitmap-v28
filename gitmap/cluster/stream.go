@@ -29,7 +29,7 @@ func NewLogStreamServer(handler StreamHandler) *LogStreamServer {
 // ReceiveLog acts as the endpoint where clients push their logs.
 func (s *LogStreamServer) ReceiveLog(log ProgressLog) {
 	hasHandler := s.Handler != nil
-	if hasHandler {
+	if hasHandler == true {
 		s.Handler.OnLogReceived(log)
 	}
 }

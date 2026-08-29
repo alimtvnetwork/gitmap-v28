@@ -33,6 +33,7 @@ func NewPool[T any, R any](workerCount int, taskFunc TaskFunc[T, R]) *Pool[T, R]
 
 // Run executes the worker pool over a channel of inputs.
 // It returns a channel of results.
+//nolint:revive
 func (p *Pool[T, R]) Run(ctx context.Context, inputs <-chan T) <-chan Result[R] {
 	results := make(chan Result[R])
 	var wg sync.WaitGroup

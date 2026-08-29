@@ -18,9 +18,10 @@ import (
 // RunPool executes sub-commands across multiple nodes using a bounded worker pool.
 // Each worker processes one node's sub-command chain sequentially.
 // It also tracks progress using a parallel-spinner UI and handles Ctrl+C.
+//nolint:revive
 func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubCommand, dbConn *sql.DB, runId int64, maxWorkers int, resultCh chan<- db.ClusterExecResult, verbose bool) {
 	isInvalidWorkers := maxWorkers <= 0
-	if isInvalidWorkers {
+	if isInvalidWorkers == true {
 		maxWorkers = 10
 	}
 
@@ -74,7 +75,7 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 				multi.Stop()
 			}
 
-			fmt.Println("\n┌ Cluster Run Canceled ─────────────────┐")
+			fmt.Println("\n┌ Cluster Run Cancelled ─────────────────┐")
 			mu.Lock()
 			fmt.Printf("│ Nodes: %d  OK: %d  Failed: %d  Skipped: %d │\n", totalNodes, succeeded, failed, totalNodes-(succeeded+failed))
 			mu.Unlock()

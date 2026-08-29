@@ -46,15 +46,15 @@ func ResolveTargetNodes(selector TargetSelectorType, filter NodeFilter, allNodes
 	hasExcept := len(filter.Except) > constants.EmptySliceLength
 	hasInclude := len(filter.IPs) > constants.EmptySliceLength || len(filter.IDs) > constants.EmptySliceLength
 
-	isExclusiveError := hasExcept && hasInclude
-	if isExclusiveError {
+	isExclusiveError := hasExcept == true && hasInclude == true
+	if isExclusiveError == true {
 		return nil, errors.New(constants.ErrFilterExclusive)
 	}
 
 	var selectorFiltered []ClusterNode
 	for _, n := range allNodes {
-		isClientOnlyServer := selector == ClientsOnly && n.IsServer
-		if isClientOnlyServer {
+		isClientOnlyServer := selector == ClientsOnly && n.IsServer == true
+		if isClientOnlyServer == true {
 			continue
 		}
 		selectorFiltered = append(selectorFiltered, n)
@@ -74,13 +74,13 @@ func ResolveTargetNodes(selector TargetSelectorType, filter NodeFilter, allNodes
 func isNodeIncluded(n ClusterNode, filter NodeFilter) bool {
 	for _, ip := range filter.IPs {
 		isMatchIP := n.IP == ip
-		if isMatchIP {
+		if isMatchIP == true {
 			return true
 		}
 	}
 	for _, id := range filter.IDs {
 		isMatchID := n.DisplayId == id
-		if isMatchID {
+		if isMatchID == true {
 			return true
 		}
 	}
@@ -91,13 +91,13 @@ func matchesExclusion(n ClusterNode, excepts []string) bool {
 	ipParts := strings.Split(n.IP, constants.DotSeparator)
 	trailingOctet := ""
 	hasTrailing := len(ipParts) == constants.IPv4OctetCount
-	if hasTrailing {
+	if hasTrailing == true {
 		trailingOctet = ipParts[constants.IPv4TrailingOctetIndex]
 	}
 
 	for _, ex := range excepts {
 		isExactIPMatch := ex == n.IP
-		if isExactIPMatch {
+		if isExactIPMatch == true {
 			return true
 		}
 
@@ -117,7 +117,7 @@ func matchesExclusion(n ClusterNode, excepts []string) bool {
 func matchesRange(n ClusterNode, ex string, trailingOctet string, hasTrailing bool) bool {
 	parts := strings.Split(ex, constants.RangeSeparator)
 	isTwoParts := len(parts) == constants.RangePartsCount
-	if !isTwoParts {
+	if isTwoParts == false {
 		return false
 	}
 

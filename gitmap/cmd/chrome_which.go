@@ -14,7 +14,7 @@ import (
 func runChromeWhich(_ []string) error {
 	root := chromeUserDataDir()
 	statePath := filepath.Join(root, "Local State")
-	raw, err := os.ReadFile(statePath)
+	raw, err := os.ReadFile(statePath) //nolint:gosec
 	if err != nil {
 		return apperror.WrapSimple(err, "chrome which: ERROR read Local State:")
 	}

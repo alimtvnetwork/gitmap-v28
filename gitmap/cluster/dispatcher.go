@@ -24,6 +24,7 @@ const dialAgentTimeout = 500 * time.Millisecond
 
 // Dispatch routes the subcommand to the correct executor for the node.
 // This is currently a stub for executors.
+//nolint:revive
 func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) db.ClusterExecResult {
 	start := time.Now()
 	res := db.ClusterExecResult{

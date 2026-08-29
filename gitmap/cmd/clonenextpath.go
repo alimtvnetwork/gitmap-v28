@@ -18,6 +18,7 @@ import (
 // don't gate on runtime.GOOS because the strings.EqualFold fallback is
 // safe everywhere — Linux paths that differ only in case are pathological
 // edge cases not worth optimizing against.
+//nolint:unused
 func samePath(a, b string) bool {
 	aClean := filepath.Clean(a)
 	bClean := filepath.Clean(b)

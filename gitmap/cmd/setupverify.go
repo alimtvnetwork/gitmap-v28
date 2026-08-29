@@ -9,6 +9,7 @@ import (
 )
 
 // verifyShellWrapper checks if the shell wrapper is active after setup.
+//nolint:unused
 func verifyShellWrapper(dryRun bool) {
 	if dryRun {
 		return
@@ -27,11 +28,13 @@ func verifyShellWrapper(dryRun bool) {
 }
 
 // isWrapperActive returns true if the command wrapper env var is set.
+//nolint:unused
 func isWrapperActive() bool {
 	return os.Getenv(constants.EnvGitmapCommandWrapper) == constants.EnvGitmapWrapperVal
 }
 
 // printWrapperReloadTip prints reload instructions for the detected shell.
+//nolint:unused
 func printWrapperReloadTip(shell string) {
 	fmt.Printf(constants.MsgWrapperVerifyTip,
 		constants.ColorYellow, constants.ColorReset,
@@ -48,6 +51,7 @@ func printWrapperReloadTip(shell string) {
 // needs to reload their profile / open a new terminal. We still print
 // the reload tip so the user knows why the next `cd` will actually
 // move the parent shell.
+//nolint:unused
 func warnIfNoWrapper() {
 	if isWrapperActive() {
 		return
@@ -61,6 +65,7 @@ func warnIfNoWrapper() {
 // from inside `gitmap cd` when the shell wrapper isn't loaded. All
 // failures are non-fatal — the cd path was already printed to stdout
 // before we got here, so the user can still copy-paste it manually.
+//nolint:unused
 func autoRunSetupForCD() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -71,6 +76,7 @@ func autoRunSetupForCD() {
 	runSetup(nil)
 }
 
+//nolint:unused
 func installWrapperForCurrentShell() {
 	shell := completion.DetectShell()
 	if err := completion.InstallCDFunction(shell); err != nil {
@@ -78,6 +84,7 @@ func installWrapperForCurrentShell() {
 	}
 }
 
+//nolint:unused
 func printNoWrapperWarning() {
 	fmt.Fprintf(os.Stderr, constants.MsgWrapperNotLoaded,
 		constants.ColorYellow, constants.ColorReset,

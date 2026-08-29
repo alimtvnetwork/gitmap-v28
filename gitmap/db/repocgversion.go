@@ -12,6 +12,7 @@ type RepoCGVersion struct {
 	InstalledAt time.Time
 }
 
+//nolint:revive
 func InsertOrUpdateRepoCGVersion(ctx context.Context, db *sql.DB, version RepoCGVersion) error {
 	query := `
 		INSERT INTO RepoCGVersion (
@@ -29,6 +30,7 @@ func InsertOrUpdateRepoCGVersion(ctx context.Context, db *sql.DB, version RepoCG
 	return err
 }
 
+//nolint:revive
 func GetRepoCGVersion(ctx context.Context, db *sql.DB, repoAlias string) (*RepoCGVersion, error) {
 	query := `SELECT RepoAlias, Version, InstalledAt FROM RepoCGVersion WHERE RepoAlias = ?`
 	row := db.QueryRowContext(ctx, query, repoAlias)

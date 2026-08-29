@@ -36,7 +36,7 @@ func writeCWDJSONOutput(records []model.ScanRecord, compact bool) {
 		return
 	}
 	defer file.Close()
-	if compact {
+	if compact == true {
 		compactErr := formatter.WriteJSONCompact(file, records)
 		printJSONError(compactErr, "compact JSON", path)
 		return

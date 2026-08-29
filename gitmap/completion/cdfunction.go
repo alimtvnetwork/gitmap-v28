@@ -145,6 +145,7 @@ func hasCDFunctionEnd(text string) bool {
 		strings.Contains(text, constants.CDFuncMarkerEndLegacy)
 }
 
+//nolint:unused
 func replaceCDFunction(text, snippet string) string {
 	start := strings.Index(text, constants.CDFuncMarker)
 	if start < 0 {
@@ -185,7 +186,9 @@ func reconcileCDFunction(text, snippet string) string {
 
 	return appendBlock(text[:start]+after, desired)
 }
+//nolint:unused
 
+//nolint:unused
 func moveCDFunctionToEnd(text, snippet string) string {
 	without := removeCDFunction(text)
 	block := constants.CDFuncMarker + "\n" + snippet
@@ -193,6 +196,7 @@ func moveCDFunctionToEnd(text, snippet string) string {
 	return appendBlock(without, block)
 }
 
+//nolint:unused
 func removeCDFunction(text string) string {
 	start := strings.Index(text, constants.CDFuncMarker)
 	if start < 0 {

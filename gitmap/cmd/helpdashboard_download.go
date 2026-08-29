@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -77,7 +78,7 @@ func fetchToFile(client *http.Client, url, destPath string) (int64, error) {
 	defer out.Close()
 
 	n, err := io.CopyN(out, resp.Body, maxDocsSiteSize)
-	if err != nil && err != io.EOF {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return n, fmt.Errorf("download body: %w", err)
 	}
 

@@ -50,7 +50,7 @@ func runConcurrent(records []model.ScanRecord, targetDir string, opts CloneOptio
 	out := make(chan cloneOutcome, len(records))
 
 	startWorkers(workers, jobs, out, targetDir, opts, progress)
-	enqueueJobs(records, targetDir, cache, progress, jobs, out)
+	enqueueJobs(records, targetDir, cache, jobs, out)
 	close(jobs)
 
 	return collectOutcomes(records, targetDir, opts.SafePull, progress, cache, out)
@@ -78,7 +78,7 @@ func cloneWorker(jobs <-chan cloneJob, out chan<- cloneOutcome,
 // progress line lands before any worker output) and dispatches the rest
 // onto the job channel.
 func enqueueJobs(records []model.ScanRecord, targetDir string, cache *CloneCache,
-	progress *Progress, jobs chan<- cloneJob, out chan<- cloneOutcome) {
+	jobs chan<- cloneJob, out chan<- cloneOutcome) {
 	for _, rec := range records {
 		dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
 		if cache.IsUpToDate(rec, dest) {

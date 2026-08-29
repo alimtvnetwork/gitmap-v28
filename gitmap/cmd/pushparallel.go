@@ -91,13 +91,13 @@ func runOnePushJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 	result := cloner.SafePushOne(rec, rec.AbsolutePath)
 
 	progMu.Lock()
-	if !result.IsSuccess {
+	if result.IsSuccess == false {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
-	if !result.IsSuccess && stopOnFail {
+	if result.IsSuccess == false && stopOnFail == true {
 		*stopped = true
 	}
-	if !result.IsSuccess {
+	if result.IsSuccess == false {
 		progMu.Unlock()
 		return nil
 	}

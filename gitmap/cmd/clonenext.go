@@ -51,11 +51,11 @@ func runCloneNext(args []string) error {
 	// but has git subdirs one level down) triggers the multi-repo
 	// dispatcher. See shouldRunBatch for the priority order.
 	isBatch := shouldRunBatch(cnFlags, currentWorkingDir())
-	if isBatch && cnFlags.DryRun {
+	if isBatch == true && cnFlags.DryRun == true {
 		previewDryRunBatch(cnFlags.CSVPath, cnFlags.All)
 		return nil
 	}
-	if isBatch && !cnFlags.DryRun {
+	if isBatch == true && cnFlags.DryRun == false {
 		runCloneNextBatch(cnFlags.CSVPath, cnFlags.All, cnFlags.MaxConcurrency, cnFlags.NoProgress, cnFlags.ReportErrors)
 		maybeExitOnCmdFaithfulMismatch()
 		return nil
@@ -202,7 +202,7 @@ func runCloneNext(args []string) error {
 }
 
 func initVerboseSafe(isVerbose bool) (*verbose.Logger, error) {
-	if !isVerbose {
+	if isVerbose == false {
 		return nil, nil
 	}
 	return verbose.Init()
@@ -243,7 +243,7 @@ func removeExistingTargetFolder(targetPath string, flattenedFolder string) {
 }
 
 func handleCreateRemote(createRemote bool, remoteURL string, targetName string) {
-	if !createRemote {
+	if createRemote == false {
 		return
 	}
 	owner, _, parseErr := clonenext.ParseOwnerRepo(remoteURL)
@@ -257,7 +257,7 @@ func handleCreateRemote(createRemote bool, remoteURL string, targetName string) 
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRepoCheck, checkErr)
 		exitWith(1)
 	}
-	if exists {
+	if exists == true {
 		return
 	}
 
@@ -339,7 +339,7 @@ func handleCloneNextRemoval(folderName, fullPath, targetPath string, deleteFlag,
 }
 
 func handlePostRemovalChdir(removed bool, targetPath string) {
-	if !removed {
+	if removed == false {
 		return
 	}
 	chErr := os.Chdir(targetPath)

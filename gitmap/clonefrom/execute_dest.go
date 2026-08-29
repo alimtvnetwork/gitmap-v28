@@ -20,12 +20,12 @@ import (
 func resolveDest(r Row, cwd string) (string, string) {
 	dest := r.Dest
 	isEmptyDest := len(dest) == 0
-	if isEmptyDest {
+	if isEmptyDest == true {
 		dest = DeriveDest(r.URL)
 	}
 	absDest := dest
 	isRelativeDest := !filepath.IsAbs(absDest)
-	if isRelativeDest {
+	if isRelativeDest == true {
 		absDest = filepath.Join(cwd, dest)
 	}
 
@@ -39,7 +39,7 @@ func prepareDestParent(absDest string) (string, bool) {
 	parent := filepath.Dir(absDest)
 	err := os.MkdirAll(parent, constants.DirPermission)
 	isMkdirFailed := err != nil
-	if isMkdirFailed {
+	if isMkdirFailed == true {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFromMkdirParent, parent, err)
 		return fmt.Sprintf(constants.MsgCloneFromMkdirParentFailFmt, err), false
 	}
@@ -53,12 +53,12 @@ func prepareDestParent(absDest string) (string, bool) {
 func shouldSkip(absDest string) bool {
 	info, err := os.Stat(absDest)
 	isInvalidDir := err != nil || !info.IsDir()
-	if isInvalidDir {
+	if isInvalidDir == true {
 		return false
 	}
 	entries, err := os.ReadDir(absDest)
 	isReadFailed := err != nil
-	if isReadFailed {
+	if isReadFailed == true {
 		return false
 	}
 
