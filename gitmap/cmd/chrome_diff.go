@@ -10,12 +10,14 @@ import (
 	"sort"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func runChromeDiff(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, "chrome diff: ERROR usage: gitmap chrome diff <A> <B>")
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	a, okA := resolveChromeProfile(args[0])
 	b, okB := resolveChromeProfile(args[1])

@@ -148,7 +148,7 @@ func resolveCloneNowConcurrency(maxConc int) int {
 	resolved, ok := cloneconcurrency.Resolve(maxConc)
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConc)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	return resolved
 }
@@ -172,13 +172,13 @@ func parseCloneNowFlags(args []string) cloneNowFlags {
 func validateCloneNowModeAndFormat(mode, format string) {
 	if mode != constants.CloneNowModeHTTPS && mode != constants.CloneNowModeSSH {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadMode+"\n", mode)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	switch format {
 	case "", constants.CloneNowFormatJSON, constants.CloneNowFormatCSV, constants.CloneNowFormatText:
 	default:
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadFormat+"\n", format)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 }
 
@@ -192,7 +192,7 @@ func validateCloneNowFlags(cfg cloneNowFlags) {
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadOnExists+"\n", cfg.onExists)
-	os.Exit(2)
+	cliexit.HandleError(nil, 2)
 }
 
 // runCloneNowDry renders the dry-run preview. No side effects --
@@ -230,7 +230,7 @@ func finalizeCloneNowRun(cfg cloneNowFlags, results []clonenow.Result) {
 		cliexit.Reportf(constants.CmdCloneReclone, "render-summary", cfg.file, err)
 	}
 	syncCloneNowResultsToVSCodePM(results, cfg.noVSCodeSync)
-	os.Exit(cloneNowExitCode(results))
+	cliexit.HandleError(nil, cloneNowExitCode(results))
 }
 
 // runCloneNowExecute is the side-effecting branch. Picks the

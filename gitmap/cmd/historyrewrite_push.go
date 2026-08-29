@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // finalizePush handles the final phase: --no-push prints the manual
@@ -51,7 +53,7 @@ func pushSandbox(sandbox, originURL string, opts historyOpts) {
 	cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrPush, err)
-		os.Exit(constants.HistoryExitPushFailed)
+		cliexit.HandleError(nil, constants.HistoryExitPushFailed)
 	}
 	fmt.Fprint(os.Stderr, constants.HistoryMsgPushOk)
 }

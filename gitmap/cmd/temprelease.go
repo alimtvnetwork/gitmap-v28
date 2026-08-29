@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -12,7 +14,17 @@ func runTempRelease(args []string) error {
 	checkHelp("temp-release", args)
 
 	if len(args) == 0 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.temprelease.run",
+			"E1116",
+			"missing required arguments for temp-release",
+			"cmd.temprelease",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 
 	sub := args[0]
@@ -50,7 +62,16 @@ func parseTempReleaseCreateFlags(args []string) (count int, pattern string, star
 	fs.Parse(args)
 
 	if fs.NArg() < 2 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.temprelease.parseCreateFlags",
+			"E1117",
+			"insufficient arguments for temp-release create; usage: gitmap temp-release <count> <pattern>",
+			"cmd.temprelease",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	count = parseCount(fs.Arg(0))
@@ -65,7 +86,16 @@ func parseCount(s string) int {
 
 	_, err := fmt.Sscanf(s, "%d", &n)
 	if err != nil || n < 1 || n > constants.TempReleaseMaxCount {
-		panic("error")
+		appErr := apperror.NewWithDetails(
+			"cmd.temprelease.parseCount",
+			"E1118",
+			fmt.Sprintf("invalid count '%s', must be between 1 and %d", s, constants.TempReleaseMaxCount),
+			"cmd.temprelease",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"raw": s},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	return n

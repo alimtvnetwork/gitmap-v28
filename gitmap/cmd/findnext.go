@@ -7,6 +7,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // findNextUsageExitCode is the conventional CLI usage-error exit code.
@@ -27,7 +29,7 @@ func runFindNext(args []string) error {
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 		fmt.Fprintln(os.Stderr, constants.MsgFindNextUsageHeader)
-		os.Exit(findNextUsageExitCode)
+		cliexit.HandleError(nil, findNextUsageExitCode)
 	}
 
 	db := openSfDB()

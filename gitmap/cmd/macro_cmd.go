@@ -7,6 +7,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // parseExecOptions parses runtime flags for macro execution.
@@ -28,13 +30,13 @@ func executeMacroByName(macroName string, executionOptions macro.ExecOptions) {
 	loadedMacro, loadErr := macro.LoadMacro(macroName)
 	if loadErr != nil {
 		fmt.Fprintf(os.Stderr, "%s✖ Error: %v%s\n", constants.ColorRed, loadErr, constants.ColorReset)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	if len(loadedMacro.Steps) > 0 {
 		printMacroStepsTree(loadedMacro)
 	}
 	if execErr := macro.Execute(context.Background(), loadedMacro, executionOptions); execErr != nil {
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 }
 
@@ -42,7 +44,7 @@ func executeMacroByName(macroName string, executionOptions macro.ExecOptions) {
 func runExecuteCmd(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap execute <macro_name> [--dry-run] [--verbose]\n")
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	executionOptions := parseExecOptions(args[1:])
 	executeMacroByName(args[0], executionOptions)
@@ -60,34 +62,34 @@ func runMacroCmd(args []string) error {
 	case "run", "exec":
 		if len(args) < 2 {
 			fmt.Fprintf(os.Stderr, "Usage: gitmap macro run <name>\n")
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 		runExecuteCmd(args[1:])
 	case "record", "rec":
 		if len(args) < 2 {
 			fmt.Fprintf(os.Stderr, "Usage: gitmap macro record <name>\n")
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 		if err := macro.RecordInteractive(args[1]); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 	case "list", "ls":
 		listMacros()
 	case "show":
 		if len(args) < 2 {
 			fmt.Fprintf(os.Stderr, "Usage: gitmap macro show <name>\n")
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 		showMacro(args[1])
 	case "rm", "delete":
 		if len(args) < 2 {
 			fmt.Fprintf(os.Stderr, "Usage: gitmap macro rm <name>\n")
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 		if err := macro.DeleteMacro(args[1]); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 		fmt.Printf("✔ Removed macro %q\n", args[1])
 	default:

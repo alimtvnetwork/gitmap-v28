@@ -7,6 +7,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/setup"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runPrintPathSnippet handles `gitmap setup print-path-snippet`.
@@ -22,7 +24,7 @@ func runPrintPathSnippet(args []string) error {
 	out, err := setup.RenderPathSnippet(shell, dir, manager)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	// Trailing newline so callers can `>>` straight into a profile file.
 	fmt.Println(out)

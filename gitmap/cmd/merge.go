@@ -39,12 +39,12 @@ func parseMergeArgs(spec mergeSpec, args []string) (string, string, movemerge.Op
 	mf := &movemergeFlagSet{}
 	mf.bindFlags(fs)
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	rest := fs.Args()
 	if len(rest) != 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrMMUsageFmt, spec.cmd)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	opts := mf.toOptions(spec.cmd, spec.prefix, spec.msgFmt)
 

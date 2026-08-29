@@ -12,6 +12,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dashboard"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runDashboard handles the "dashboard" subcommand.
@@ -31,7 +33,7 @@ func collectDashboardData(opts dashboard.CollectOptions) model.DashboardData {
 	data, err := dashboard.Collect(opts)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.ErrDashCollect).Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return data
 }

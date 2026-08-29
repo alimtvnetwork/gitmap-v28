@@ -10,6 +10,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runChromeProfileDelete is the dispatch entry point.
@@ -17,27 +19,27 @@ func runChromeProfileDelete(args []string) error {
 	checkHelp(constants.CmdChromeProfileDelete, args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageDelete)
-		os.Exit(constants.ExitChromeProfileUsage)
+		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
 	name, confirmed := parseChromeDeleteArgs(args)
 	if !confirmed {
 		fmt.Fprint(os.Stderr, constants.MsgChromeProfileDeleteAbort)
-		os.Exit(constants.ExitChromeProfileUsage)
+		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileDeleteFail, err)
-		os.Exit(constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 	}
 	defer db.Close()
 	paths, err := db.DeleteChromeProfile(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileDeleteFail, err)
-		os.Exit(constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 	}
 	if len(paths) == 0 && !db.ChromeProfileExists(name) {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileNotInDB, name)
-		os.Exit(constants.ExitChromeProfileNotFound)
+		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
 	}
 	removed := removeChromeArtifactFiles(paths)
 	fmt.Printf(constants.MsgChromeProfileDeleteOk, name, removed)

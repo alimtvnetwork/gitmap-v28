@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runReleaseSelf handles the 'release-self' command.
@@ -42,7 +44,7 @@ func executeSelfRelease(version, assets, commit, branch, bump, notes, targets st
 
 	err := release.ExecuteSelf(opts)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 
 	persistReleaseToDB()

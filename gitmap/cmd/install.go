@@ -8,6 +8,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func bindInstallFlags(fs *flag.FlagSet, opts *installOptions, list *bool) {
@@ -72,7 +74,7 @@ func validateToolName(tool string) {
 	if _, exists := constants.InstallToolDescriptions[tool]; exists {
 		return
 	}
-	panic("unknown tool")
+	cliexit.HandleError(apperror.NewSimple("unknown tool", "E9000"), 1)
 }
 
 // executeInstall runs the install flow for a tool.

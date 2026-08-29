@@ -8,6 +8,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runAliasSet handles "alias set <alias> <slug>".
@@ -26,7 +28,7 @@ func runAliasSet(args []string) error {
 // executeAliasSet resolves the slug and creates or updates the alias.
 func executeAliasSet(alias, slug string) {
 	if code := executeAliasSetCode(alias, slug); code != 0 {
-		os.Exit(code)
+		cliexit.HandleError(nil, code)
 	}
 }
 
@@ -83,7 +85,7 @@ func runAliasRemove(args []string) error {
 
 	alias := args[0]
 	if code := runAliasRemoveCode(alias); code != 0 {
-		os.Exit(code)
+		cliexit.HandleError(nil, code)
 	}
 	return nil
 }
@@ -109,7 +111,7 @@ func runAliasRemoveCode(alias string) int {
 // runAliasList handles "alias list".
 func runAliasList() error {
 	if code := runAliasListCode(); code != 0 {
-		os.Exit(code)
+		cliexit.HandleError(nil, code)
 	}
 	return nil
 }

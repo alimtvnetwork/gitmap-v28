@@ -6,6 +6,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runReplaceLiteral implements `gitmap replace "<old>" "<new>"`.
@@ -81,7 +83,7 @@ func loadRepoFiles(root string, exts []string, caseInsensitive bool) []string {
 	files, err := walkRepoFiles(root, exts, caseInsensitive)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrReplaceWalk, err)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	fmt.Printf(constants.MsgReplaceScanning, len(files), root)
 	return files

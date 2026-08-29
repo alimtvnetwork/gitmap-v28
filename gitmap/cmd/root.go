@@ -129,7 +129,7 @@ func handleGlobalError(command string, err error) {
 	} else {
 		cliexit.Reportf(command, "execute", "", err)
 	}
-	os.Exit(1)
+	cliexit.HandleError(nil, 1)
 }
 
 func getRootCause(err error) error {
@@ -247,7 +247,7 @@ func dispatch(command string) {
 
 	if command == "ip" || command == "ip-change" {
 		if err := dispatchIP(context.Background(), os.Args[1:], nil); err != nil {
-			panic(err)
+			cliexit.HandleError(err, 1)
 		}
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		return
@@ -255,7 +255,7 @@ func dispatch(command string) {
 
 	if command == "agy" || command == "ag" || command == "antigravity" {
 		if err := dispatchAgy(context.Background(), os.Args[1:], nil); err != nil {
-			panic(err)
+			cliexit.HandleError(err, 1)
 		}
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		return
@@ -263,7 +263,7 @@ func dispatch(command string) {
 
 	if command == "sj" || command == "ssh-join" || command == "ssh-joined" || command == "ssh-joiner" {
 		if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
-			panic(err)
+			cliexit.HandleError(err, 1)
 		}
 		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 		return
@@ -383,7 +383,7 @@ func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error
 
 func runSJ(args []string) error {
 	if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	return nil
 }

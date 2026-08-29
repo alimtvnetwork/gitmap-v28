@@ -6,6 +6,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runActiveGroupPull pulls all repos in the active group.
@@ -50,14 +52,14 @@ func requireActiveGroup() string {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.ErrListDBFailed).Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
 	name := db.GetSetting(constants.SettingActiveGroup)
 	if len(name) == 0 {
 		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.MsgGroupNoActive, "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return name

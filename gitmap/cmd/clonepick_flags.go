@@ -13,6 +13,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonepick"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // clonePickParsed bundles every output of parseClonePickFlags so a
@@ -117,7 +119,7 @@ func bindClonePickAuxFlags(fs *flag.FlagSet) (*string, clonePickAuditFlags, *boo
 func requireClonePickPositional(fs *flag.FlagSet, flags clonepick.Flags) (string, string) {
 	if fs.NArg() < 1 && len(flags.Replay) == 0 {
 		fmt.Fprintln(os.Stderr, constants.MsgClonePickMissingURL)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	var rawURL, rawPaths string
 	if fs.NArg() >= 1 {

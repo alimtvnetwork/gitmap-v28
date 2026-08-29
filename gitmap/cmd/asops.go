@@ -8,6 +8,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // upsertSingleRepo persists a single repo's ScanRecord and prints a status.
@@ -15,18 +17,18 @@ func upsertSingleRepo(rec model.ScanRecord) *apperror.AppError {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	if err := db.UpsertRepos([]model.ScanRecord{rec}); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	fmt.Printf(constants.MsgAsDBSyncedFmt, rec.RepoName, rec.Slug)
@@ -39,7 +41,7 @@ func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppE
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
@@ -66,7 +68,7 @@ func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.S
 
 	if err := db.UpdateAlias(name, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	fmt.Printf(constants.MsgAsUpdatedFmt, name, rec.RepoName, rec.AbsolutePath)
@@ -78,7 +80,7 @@ func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.S
 func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.ScanRecord) *apperror.AppError {
 	if _, err := db.CreateAlias(name, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	fmt.Printf(constants.MsgAsRegisteredFmt, rec.RepoName, name, rec.AbsolutePath)
 	fmt.Printf(constants.MsgAsHintNext, name)

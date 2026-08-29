@@ -10,6 +10,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // latestBranchConfig holds parsed flags for the latest-branch command.
@@ -47,7 +49,7 @@ func validateLatestBranchRepo() {
 
 		return
 	}
-	panic(apperror.NewSimple(constants.ErrLatestBranchNotRepo, "E9000"))
+	cliexit.HandleError(apperror.NewSimple(constants.ErrLatestBranchNotRepo, "E9000"), 1)
 }
 
 // fetchLatestBranchRefs fetches remotes when shouldFetch is enabled.
@@ -71,7 +73,7 @@ func loadFilteredRefs(cfg latestBranchConfig) []string {
 	refs, err := gitutil.ListRemoteBranches()
 	if err != nil || len(refs) == 0 {
 		printNoRefsError(cfg)
-		panic("fatal")
+		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
 	refs = applyRemoteFilter(refs, cfg)
 	refs = applyPatternFilter(refs, cfg)
@@ -122,7 +124,7 @@ func readAndSortBranches(refs []string, sortBy string) []gitutil.RemoteBranchInf
 	items, err := gitutil.ReadBranchTips(refs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoCommits+"\n")
-		panic("fatal")
+		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
 	if sortBy == constants.SortByName {
 		gitutil.SortByNameAsc(items)

@@ -11,6 +11,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runExec handles the "exec" subcommand.
@@ -42,7 +44,7 @@ func runExec(args []string) error {
 	if code := prog.ExitCodeForBatch(); code != 0 {
 		failPendingTask(taskDB, taskID, fmt.Sprintf("exec batch failed with exit code %d", code))
 		closeTaskDB(taskDB)
-		os.Exit(code)
+		cliexit.HandleError(nil, code)
 	}
 
 	completePendingTask(taskDB, taskID)
@@ -154,7 +156,7 @@ func loadExecRecordsJSON() []model.ScanRecord {
 	records, err := loadExecRecords(jsonPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrExecLoadFailed, "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return records

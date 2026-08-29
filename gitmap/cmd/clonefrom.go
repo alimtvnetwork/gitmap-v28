@@ -170,7 +170,7 @@ func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) error {
 		cliexit.Reportf(constants.CmdCloneFrom, "render-summary", csvPath, errRender)
 	}
 	maybeExitOnCmdFaithfulMismatch()
-	os.Exit(cloneFromExitCode(results))
+	cliexit.HandleError(nil, cloneFromExitCode(results))
 	return nil
 }
 

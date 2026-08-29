@@ -15,7 +15,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/archive"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -27,14 +29,34 @@ func runUnzipCompact(args []string) error {
 	listMode, positional := parseUnzipCompactFlags(args)
 	src, dest, err := resolveUnzipInputs(positional)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ "+constants.ErrArchiveNoSource+"\n", constants.CmdUnzipCompact)
-		panic("error")
+		appErr := apperror.NewWithDetails(
+			"cmd.unzipcompact.inputs",
+			"E1126",
+			fmt.Sprintf(constants.ErrArchiveNoSource, constants.CmdUnzipCompact),
+			"cmd.unzipcompact",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	ctx := context.Background()
 	resolved, err := archive.ResolveSource(ctx, src)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.unzipcompact.resolve",
+			"E1127",
+			"failed to resolve archive source",
+			"cmd.unzipcompact",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"src": src},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer archive.CleanupResolved(resolved)
 
@@ -54,7 +76,17 @@ func parseUnzipCompactFlags(args []string) (listMode bool, positional []string) 
 	fs.BoolVar(&listMode, constants.FlagArchiveList, false, constants.FlagDescArchiveList)
 	fs.BoolVar(&listMode, constants.FlagArchiveListShrt, listMode, constants.FlagDescArchiveList)
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.unzipcompact.parseFlags",
+			"E1128",
+			"failed to parse unzip-compact flags",
+			"cmd.unzipcompact",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	return listMode, fs.Args()
@@ -84,11 +116,21 @@ func resolveUnzipInputs(positional []string) (src, dest string, err error) {
 }
 
 // runListMode prints the entry table for the archive at path and exits.
-
 func runListMode(ctx context.Context, path string) error {
 	entries, format, err := archive.ListEntries(ctx, path)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.unzipcompact.listEntries",
+			"E1129",
+			"failed to list archive entries",
+			"cmd.unzipcompact",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveListHeader+"\n", path, format, len(entries))
 	for _, e := range entries {
@@ -99,7 +141,6 @@ func runListMode(ctx context.Context, path string) error {
 
 // executeCompactExtract is the success-path: open DB, persist a
 // pre-flight history row, run the extraction, finalize the row.
-
 func executeCompactExtract(ctx context.Context, resolved archive.ResolvedSource, originalSrc, dest string) {
 	db, dbErr := openDB()
 	var historyID int64
@@ -120,7 +161,18 @@ func executeCompactExtract(ctx context.Context, resolved archive.ResolvedSource,
 	res, err := archive.CompactExtract(ctx, resolved.LocalPath, dest)
 	finishArchiveRow(db, historyID, res.OutputDir, string(res.Format), res.UsedTempDir, err)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.unzipcompact.compactExtract",
+			"E1130",
+			"compact extract failed",
+			"cmd.unzipcompact",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": resolved.LocalPath, "dest": dest},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveExtractDone+"\n", res.OutputDir, res.EntriesWritten, res.Format)

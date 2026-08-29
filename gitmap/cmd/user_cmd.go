@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/osuser"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // dispatchUser handles the "user" command routing.
@@ -24,7 +26,7 @@ func dispatchUser(command string) (bool, error) {
 	case "add":
 		if len(args) < 2 {
 			fmt.Fprintf(os.Stderr, "Error: missing username\n\nUsage: gitmap user add <username> [--password <pwd>]\n")
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 
 		username := args[1]
@@ -37,20 +39,20 @@ func dispatchUser(command string) (bool, error) {
 
 		if err := osuser.AddUser(username, password); err != nil {
 			fmt.Fprintf(os.Stderr, "Error creating user: %v\n", err)
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 		fmt.Printf("✔ Successfully created user %q\n", username)
 
 	case "rm", "delete", "remove":
 		if len(args) < 2 {
 			fmt.Fprintf(os.Stderr, "Error: missing username\n\nUsage: gitmap user rm <username>\n")
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 
 		username := args[1]
 		if err := osuser.RemoveUser(username); err != nil {
 			fmt.Fprintf(os.Stderr, "Error removing user: %v\n", err)
-			os.Exit(1)
+			cliexit.HandleError(nil, 1)
 		}
 		fmt.Printf("✔ Successfully removed user %q\n", username)
 
@@ -60,7 +62,7 @@ func dispatchUser(command string) (bool, error) {
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown user command: %s\n", sub)
 		printUserUsage()
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return true, nil

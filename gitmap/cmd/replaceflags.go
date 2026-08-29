@@ -6,6 +6,9 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // replaceOpts holds parsed flags for `gitmap replace`. Kept tiny so
@@ -78,8 +81,8 @@ func resolveExtCase(raw string) bool {
 	case constants.ReplaceExtCaseSensitive:
 		return false
 	default:
-		panic(constants.ReplaceExtCaseSensitive)
-		// 		return true
+		cliexit.HandleError(apperror.NewSimple(constants.ReplaceExtCaseSensitive, "E9000"), 1)
+		return false
 	}
 }
 

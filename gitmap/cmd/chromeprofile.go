@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runChromeProfileCopy implements `gitmap chrome-profile-copy`.
@@ -32,14 +34,14 @@ func runChromeProfileCopy(args []string) error {
 	pos := fs.Args()
 	if len(pos) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageCopy)
-		os.Exit(constants.ExitChromeProfileUsage)
+		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
 	srcProfile, ok := resolveChromeProfile(pos[0])
 	dstProfile := chromeProfileDestination(pos[1])
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileSrcMissing, pos[0], srcProfile.Path)
 		printAvailableChromeProfilesWithDisplay()
-		os.Exit(constants.ExitChromeProfileNotFound)
+		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
 	}
 	if *registerOnly {
 		fmt.Printf(constants.MsgChromeProfileRegOnly, pos[1])
@@ -56,7 +58,7 @@ func runChromeProfileCopy(args []string) error {
 	files, err := copyChromeProfile(srcProfile.Path, dstProfile.Path)
 	if err != nil {
 		printChromeProfileCopyError(srcProfile, dstProfile, err)
-		os.Exit(constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 	}
 	if chromeProfileLockSkipCount > 0 {
 		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileLockSummary, chromeProfileLockSkipCount)
@@ -100,7 +102,7 @@ func guardChromeClosedOrExit(src, dst string) {
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrChromeProfileChromeOpen, src, dst)
-	os.Exit(constants.ExitChromeProfileCopyFailed)
+	cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 }
 
 // emitChromeSnapshots writes the JSON + CSV companions for a profile
@@ -163,7 +165,7 @@ func runChromeProfileExport(args []string) error {
 
 	if len(positionalArgs) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageExport)
-		os.Exit(constants.ExitChromeProfileUsage)
+		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
 	name := positionalArgs[0]
 	outPath := defaultChromeExportPath(name, format)
@@ -174,7 +176,7 @@ func runChromeProfileExport(args []string) error {
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileSrcMissing, name, srcPath)
 		printAvailableChromeProfilesWithDisplay()
-		os.Exit(constants.ExitChromeProfileNotFound)
+		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
 	}
 
 	// We will hand off to the actual export logic based on format.
@@ -188,7 +190,7 @@ func runChromeProfileExport(args []string) error {
 		jsonBytes, err = writeChromeExport(srcPath, name, outPath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, err)
-			os.Exit(constants.ExitChromeProfileCopyFailed)
+			cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 		}
 		csvPath = outPath
 		if ext := constants.ExtJSON; len(csvPath) > len(ext) && csvPath[len(csvPath)-len(ext):] == ext {
@@ -206,14 +208,14 @@ func runChromeProfileExport(args []string) error {
 		jsonBytes, zipErr = writeChromeExportZIP(srcPath, name, outPath)
 		if zipErr != nil {
 			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, zipErr)
-			os.Exit(constants.ExitChromeProfileCopyFailed)
+			cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 		}
 	} else if format == constants.OutputSQLite {
 		var sqErr error
 		jsonBytes, sqErr = writeChromeExportSQLite(srcPath, name, outPath)
 		if sqErr != nil {
 			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, sqErr)
-			os.Exit(constants.ExitChromeProfileCopyFailed)
+			cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 		}
 	}
 
@@ -249,7 +251,7 @@ func runChromeProfileImport(args []string) error {
 	checkHelp(constants.CmdChromeProfileImport, args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageImport)
-		os.Exit(constants.ExitChromeProfileUsage)
+		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
 	srcFile := args[0]
 	name := ""
@@ -266,7 +268,7 @@ func runChromeProfileImport(args []string) error {
 		dstPath := chromeProfilePath(name)
 		if err := applyChromeExportZIP(srcFile, dstPath); err != nil {
 			fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
-			os.Exit(constants.ExitChromeProfileCopyFailed)
+			cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 		}
 		fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, name)
 		return nil
@@ -275,7 +277,7 @@ func runChromeProfileImport(args []string) error {
 	exp, err := loadChromeImport(srcFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
-		os.Exit(constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 	}
 	if name == "" {
 		name = exp.Name
@@ -283,7 +285,7 @@ func runChromeProfileImport(args []string) error {
 	dstPath := chromeProfilePath(name)
 	if err := applyChromeExport(exp, dstPath); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
-		os.Exit(constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 	}
 	fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, name)
 	return nil

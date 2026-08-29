@@ -115,12 +115,12 @@ func finalizeMoveTxn(j *txn.Journal, left, right movemerge.Endpoint) {
 func parseMoveArgs(args []string) (string, string, movemerge.Options) {
 	fs, mf := newMoveFlagSet()
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		os.Exit(constants.ExitCodeUsage)
+		cliexit.HandleError(nil, constants.ExitCodeUsage)
 	}
 	rest := fs.Args()
 	if len(rest) != constants.ExpectedMoveArgsCount {
 		fmt.Fprintf(os.Stderr, constants.ErrMMUsageFmt, constants.CmdMv)
-		os.Exit(constants.ExitCodeUsage)
+		cliexit.HandleError(nil, constants.ExitCodeUsage)
 	}
 	opts := mf.toOptions(constants.CmdMv, constants.LogPrefixMv, constants.CommitMsgMv)
 

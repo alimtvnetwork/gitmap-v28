@@ -27,6 +27,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runCloneFixRepo implements `gitmap clone-fix-repo` (alias cfr).
@@ -88,7 +90,7 @@ func validateAndPrepareCFR(f *cloneFixRepoFlags) (string, string) {
 	applyCloneAssumeYesEnv(f.autoYes)
 	if len(f.url) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrCloneFixRepoUsage)
-		os.Exit(constants.ExitCloneFixRepoBadFlag)
+		cliexit.HandleError(nil, constants.ExitCloneFixRepoBadFlag)
 	}
 	f.url = applyCloneFixRepoScheme(f.url, f.useSSH, f.useHTTPS)
 	escapeNestedGitRepo()
@@ -110,7 +112,7 @@ func executeCFRClone(url, folderName, absPath string, f cloneFixRepoFlags) {
 func executeCFRPostSteps(absPath string, makePublic bool, f cloneFixRepoFlags, modifiers CfrModifierFlags) {
 	if err := os.Chdir(absPath); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoChdirFmt, absPath, err)
-		os.Exit(constants.ExitCloneFixRepoChdir)
+		cliexit.HandleError(nil, constants.ExitCloneFixRepoChdir)
 	}
 	maybeRunFixRepoStep(absPath, f.requireVersion)
 	if makePublic {
@@ -131,7 +133,7 @@ func runParallelCloneFixRepo(urls []string, makePublic bool, noVSCodeSync bool, 
 	leadingMods := buildCFRLeadingModifiers(modifiers)
 	failed := runCloneFixRepoParallel(urls, subcmd, leadingMods, passthrough, parallel)
 	if failed > 0 {
-		os.Exit(constants.ExitCloneFixRepoChainFailed)
+		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
 	return nil
 }
@@ -169,11 +171,11 @@ func dispatchCodingGuidelinesModifier(absPath string, m CfrModifierFlags) {
 		return
 	}
 	if err := RunCodingGuidelinesInstall(CodingGuidelinesOpts{WorkingDir: absPath}); err != nil {
-		os.Exit(constants.ExitCloneFixRepoChainFailed)
+		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
 	commitOpts := CGCommitOpts{WorkingDir: absPath, NoCommit: m.NoCommit, NoPush: m.NoPush}
 	if err := CommitCodingGuidelines(commitOpts); err != nil {
-		os.Exit(constants.ExitCloneFixRepoChainFailed)
+		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
 }
 
@@ -233,7 +235,7 @@ func maybeRunFixRepoStep(absPath string, requireVersion bool) {
 	}
 	if requireVersion {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoNeedVersion, parsed.BaseName)
-		os.Exit(constants.ExitCloneFixRepoChainFailed)
+		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
 	fmt.Printf(constants.MsgCloneFixRepoSkipNoVer, parsed.BaseName)
 }
@@ -365,7 +367,7 @@ func runChainedGitmapStep(args []string) error {
 	bin, err := os.Executable()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, err)
-		os.Exit(constants.ExitCloneFixRepoChainFailed)
+		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
 	cmd := exec.Command(bin, args...)
 	cmd.Stdin = os.Stdin
@@ -381,8 +383,8 @@ func handleChainedStepResult(runErr error) {
 	}
 	var exitErr *exec.ExitError
 	if errors.As(runErr, &exitErr) {
-		os.Exit(exitErr.ExitCode())
+		cliexit.HandleError(nil, exitErr.ExitCode())
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, runErr)
-	os.Exit(constants.ExitCloneFixRepoChainFailed)
+	cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 }

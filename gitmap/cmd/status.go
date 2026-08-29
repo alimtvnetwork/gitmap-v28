@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
@@ -81,7 +83,18 @@ func loadStatusByScope(groupName string, all bool) []model.ScanRecord {
 func loadRecordsByGroup(groupName string) []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.status.loadGroup.openDB",
+			"E1083",
+			"failed to open database for status group load",
+			"cmd.status",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			map[string]any{"group": groupName},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 	records, err := db.ShowGroup(groupName)
@@ -96,7 +109,18 @@ func loadRecordsByGroup(groupName string) []model.ScanRecord {
 func loadAllRecordsDB() []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.status.loadAll.openDB",
+			"E1084",
+			"failed to open database for status load",
+			"cmd.status",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 	records, err := db.ListRepos()
@@ -123,7 +147,18 @@ func loadRecordsJSONFallback() []model.ScanRecord {
 	}
 	records, err := loadStatusRecords(jsonPath)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.status.loadJSON",
+			"E1085",
+			"failed to read status records from JSON",
+			"cmd.status",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": jsonPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	return records
@@ -134,8 +169,17 @@ func loadRecordsJSONFallback() []model.ScanRecord {
 func loadAllRecordsDBOrEmpty() []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprint(os.Stderr, constants.MsgStatusNoData)
-		panic("error")
+		appErr := apperror.NewWithDetails(
+			"cmd.status.openDB",
+			"E1086",
+			constants.MsgStatusNoData,
+			"cmd.status",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 	records, err := db.ListRepos()
@@ -143,8 +187,17 @@ func loadAllRecordsDBOrEmpty() []model.ScanRecord {
 		handleStatusDBError(err)
 	}
 	if len(records) == 0 {
-		fmt.Fprint(os.Stderr, constants.MsgStatusNoData)
-		panic("error")
+		appErr := apperror.NewWithDetails(
+			"cmd.status.noRepos",
+			"E1087",
+			constants.MsgStatusNoData,
+			"cmd.status",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	return records
@@ -175,8 +228,28 @@ type statusSummary struct {
 
 func handleStatusDBError(err error) {
 	if isLegacyDataError(err) {
-		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.status.legacyData",
+			"E1088",
+			constants.MsgLegacyProjectData,
+			"cmd.status",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
-	panic("error")
+	appErr := apperror.WrapWithDetails(
+		err,
+		"cmd.status.dbError",
+		"E1089",
+		"database operation failed during status lookup",
+		"cmd.status",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityError,
+		nil,
+	)
+	cliexit.HandleError(appErr, 1)
 }

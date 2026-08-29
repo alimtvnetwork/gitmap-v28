@@ -10,6 +10,8 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // historyMode picks which filter-repo behavior to wrap.
@@ -78,7 +80,7 @@ func loadPinPayloads(mode historyMode, paths []string) map[string][]byte {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs,
 				fmt.Sprintf(constants.HistoryErrPathNotReadable, p, err))
-			os.Exit(constants.HistoryExitBadArgs)
+			cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 		}
 		out[p] = data
 	}

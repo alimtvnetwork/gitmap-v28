@@ -13,6 +13,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
@@ -31,20 +33,45 @@ type visibilityContext struct {
 // PowerShell reference).
 func mustResolveVisibilityContext() visibilityContext {
 	if !release.IsInsideGitRepo() {
-		fmt.Fprint(os.Stderr, constants.ErrVisNotInRepo)
-		os.Exit(constants.ExitVisNotARepo)
+		err := apperror.NewWithDetails(
+			"cmd.visibility.mustResolve",
+			"E1053",
+			constants.ErrVisNotInRepo,
+			"cmd.visibility",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, constants.ExitVisNotARepo)
 	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		fmt.Fprint(os.Stderr, constants.ErrVisNotInRepo)
-		os.Exit(constants.ExitVisNotARepo)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.visibility.getwd",
+			"E1054",
+			constants.ErrVisNotInRepo,
+			"cmd.visibility",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, constants.ExitVisNotARepo)
 	}
 
 	url, err := gitutil.RemoteURL(cwd)
 	if err != nil || len(url) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrVisNoOrigin)
-		os.Exit(constants.ExitVisNoOrigin)
+		appErr := apperror.NewWithDetails(
+			"cmd.visibility.remoteURL",
+			"E1055",
+			constants.ErrVisNoOrigin,
+			"cmd.visibility",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			map[string]any{"cwd": cwd},
+		)
+		cliexit.HandleError(appErr, constants.ExitVisNoOrigin)
 	}
 
 	return resolveProviderAndSlugOrExit(url)
@@ -57,19 +84,35 @@ func mustResolveVisibilityContext() visibilityContext {
 func resolveProviderAndSlugOrExit(url string) visibilityContext {
 	if isLocalRemote(url) {
 		fmt.Fprintf(os.Stderr, constants.MsgVisLocalSkipFmt, url)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
 	}
 
 	provider := classifyProvider(url)
 	if len(provider) == 0 {
-		fmt.Fprintf(os.Stderr, constants.ErrVisBadProviderFmt, url)
-		os.Exit(constants.ExitVisBadProvider)
+		err := apperror.NewWithDetails(
+			"cmd.visibility.classifyProvider",
+			"E1056",
+			fmt.Sprintf(constants.ErrVisBadProviderFmt, url),
+			"cmd.visibility",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"url": url},
+		)
+		cliexit.HandleError(err, constants.ExitVisBadProvider)
 	}
 
 	slug := parseOwnerRepo(url)
 	if len(slug) == 0 {
-		fmt.Fprintf(os.Stderr, constants.ErrVisBadSlugFmt, url)
-		os.Exit(constants.ExitVisBadProvider)
+		err := apperror.NewWithDetails(
+			"cmd.visibility.parseOwnerRepo",
+			"E1057",
+			fmt.Sprintf(constants.ErrVisBadSlugFmt, url),
+			"cmd.visibility",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"url": url},
+		)
+		cliexit.HandleError(err, constants.ExitVisBadProvider)
 	}
 
 	return visibilityContext{URL: url, Provider: provider, Slug: slug}
@@ -139,8 +182,16 @@ func mustEnsureProviderCLI(provider string, verbose bool) {
 		fmt.Fprintf(os.Stderr, constants.MsgVisVerboseExec, "which", cli)
 	}
 	if _, err := exec.LookPath(cli); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrVisCLIMissingFmt, cli)
-		os.Exit(constants.ExitVisAuthFailed)
+		appErr := apperror.NewWithDetails(
+			"cmd.visibility.ensureCLI",
+			"E1058",
+			fmt.Sprintf(constants.ErrVisCLIMissingFmt, cli),
+			"cmd.visibility",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			map[string]any{"cli": cli},
+		)
+		cliexit.HandleError(appErr, constants.ExitVisAuthFailed)
 	}
 }
 
@@ -161,12 +212,28 @@ func confirmPublicOrExit(ctx visibilityContext) {
 	reader := bufio.NewReader(os.Stdin)
 	line, err := reader.ReadString('\n')
 	if err != nil {
-		fmt.Fprint(os.Stderr, constants.ErrVisConfirmRequired)
-		os.Exit(constants.ExitVisConfirmReq)
+		appErr := apperror.NewWithDetails(
+			"cmd.visibility.confirm",
+			"E1059",
+			constants.ErrVisConfirmRequired,
+			"cmd.visibility",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, constants.ExitVisConfirmReq)
 	}
 
 	if strings.TrimSpace(strings.ToLower(line)) != "yes" {
-		fmt.Fprint(os.Stderr, constants.ErrVisConfirmRequired)
-		os.Exit(constants.ExitVisConfirmReq)
+		appErr := apperror.NewWithDetails(
+			"cmd.visibility.confirm.rejected",
+			"E1060",
+			constants.ErrVisConfirmRequired,
+			"cmd.visibility",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, constants.ExitVisConfirmReq)
 	}
 }

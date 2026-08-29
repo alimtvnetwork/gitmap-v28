@@ -9,6 +9,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func getAmendLogArgs(f amendFlags) []string {
@@ -90,7 +92,7 @@ func switchBranch(branch string) {
 	cmd := exec.Command("git", "checkout", branch)
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendCheckout, branch, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 }
 
@@ -114,7 +116,7 @@ func runFilterBranch(f amendFlags, commits []model.CommitEntry) error {
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendFilter, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return nil
 }
@@ -126,7 +128,7 @@ func runAmendHead(f amendFlags) error {
 	cmd := exec.Command("git", args...)
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendCommitAmend, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return nil
 }

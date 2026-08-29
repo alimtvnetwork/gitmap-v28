@@ -10,6 +10,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -41,14 +43,31 @@ func parseVisUndoArgs(args []string) undoFlags {
 // input (zero-swallow — a typo here would silently undo the wrong run).
 func mustParseRunID(args []string, i int) int64 {
 	if i+1 >= len(args) {
-		fmt.Fprintf(os.Stderr, constants.ErrUndoBadRunFlagFmt, "", fmt.Errorf("missing value"), "no value after --run")
-		os.Exit(constants.ExitVisBadFlag)
+		err := apperror.NewWithDetails(
+			"cmd.visibility.mustParseRunID",
+			"E1068",
+			fmt.Sprintf(constants.ErrUndoBadRunFlagFmt, "", fmt.Errorf("missing value"), "no value after --run"),
+			"cmd.visibility",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, constants.ExitVisBadFlag)
 	}
 	raw := args[i+1]
 	id, err := strconv.ParseInt(raw, 10, 64)
 	if err != nil || id <= 0 {
-		fmt.Fprintf(os.Stderr, constants.ErrUndoBadRunFlagFmt, raw, err, "must be positive integer")
-		os.Exit(constants.ExitVisBadFlag)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.visibility.mustParseRunID",
+			"E1069",
+			fmt.Sprintf(constants.ErrUndoBadRunFlagFmt, raw, err, "must be positive integer"),
+			"cmd.visibility",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"raw": raw},
+		)
+		cliexit.HandleError(appErr, constants.ExitVisBadFlag)
 	}
 
 	return id

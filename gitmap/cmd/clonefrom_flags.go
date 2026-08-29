@@ -22,6 +22,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // parseCloneFromFlags wires flags + extracts the positional file
@@ -46,7 +48,7 @@ func parseCloneFromFlags(args []string) cloneFromFlags {
 func validateCloneFromArgs(fs *flag.FlagSet, checkout string) {
 	if fs.NArg() < 1 {
 		fmt.Fprintln(os.Stderr, constants.MsgCloneFromMissingArg)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	validateCheckoutFlag(checkout)
 }
@@ -55,7 +57,7 @@ func resolveCloneFromConcurrency(maxConc int) int {
 	resolvedConc, ok := cloneconcurrency.Resolve(maxConc)
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConc)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	return resolvedConc
 }

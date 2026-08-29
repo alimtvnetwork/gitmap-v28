@@ -22,6 +22,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -44,8 +46,18 @@ func runVSCodeWorkspace(args []string) error {
 	flags := parseVSCodeWorkspaceFlags(args)
 	records, err := loadReposForWorkspace()
 	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.vscodeworkspace.load",
+			"E1020",
+			"failed to load repository records for workspace",
+			"cmd.vscodeworkspace",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	folders := buildFoldersFromRecords(records, flags.tag, flags.rootSubdir)
@@ -158,8 +170,18 @@ func matchesWorkspaceTag(rootPath, tag string) bool {
 func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Folder) {
 	outPath, err := filepath.Abs(flags.out)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.vscodeworkspace.abs",
+			"E1021",
+			"failed to resolve absolute output path for workspace",
+			"cmd.vscodeworkspace",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"path": flags.out},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	finalFolders := folders
@@ -174,8 +196,18 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 
 	ws := vscodeworkspace.Build(finalFolders)
 	if err := vscodeworkspace.WriteAtomic(outPath, ws); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.vscodeworkspace.write",
+			"E1022",
+			"failed to write vscode workspace file",
+			"cmd.vscodeworkspace",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"outPath": outPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	fmt.Printf(constants.MsgVSCodeWorkspaceWritten, outPath, len(ws.Folders))

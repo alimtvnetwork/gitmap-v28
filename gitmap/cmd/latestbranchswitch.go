@@ -7,6 +7,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // maybeSwitchToLatest is the post-output hook for `gitmap lb --switch`
@@ -28,7 +30,7 @@ func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
 	}
 	target := pickSwitchTarget(result)
 	if target == "" {
-		panic(apperror.NewSimple(constants.ErrLatestBranchSwitchNoTarget, "E9000"))
+		cliexit.HandleError(apperror.NewSimple(constants.ErrLatestBranchSwitchNoTarget, "E9000"), 1)
 	}
 	fmt.Printf(constants.MsgLatestBranchSwitching, target)
 	out, err := gitutil.CheckoutBranch(".", target)
@@ -36,7 +38,7 @@ func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
 		fmt.Println(out)
 	}
 	if err != nil {
-		panic(apperror.NewSimple(constants.ErrLatestBranchSwitchFailed, "E9000"))
+		cliexit.HandleError(apperror.NewSimple(constants.ErrLatestBranchSwitchFailed, "E9000"), 1)
 	}
 }
 

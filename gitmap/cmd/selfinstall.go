@@ -16,6 +16,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/lockfile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/scripts"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // selfInstallOpts holds parsed flags for self-install.
@@ -95,17 +97,17 @@ func handleLockError(err error) {
 	if errors.Is(err, lockfile.ErrAlreadyHeld) {
 		holder := lockfile.HolderPID(constants.SelfInstallLockName)
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallLockHeld, holder)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrSelfInstallLock, err)
-	os.Exit(constants.ExitCodeError)
+	cliexit.HandleError(nil, constants.ExitCodeError)
 }
 
 func forceAcquireOrExit() lockfile.Releaser {
 	release, err := lockfile.ForceAcquire(constants.SelfInstallLockName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallLock, err)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 	return release
 }
@@ -161,7 +163,7 @@ func validateShellMode(mode string) {
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrSelfInstallShellModeInvalid,
 		mode, strings.Join(constants.SelfInstallShellModes, constants.ShellPipeSep))
-	os.Exit(constants.ExitCodeError)
+	cliexit.HandleError(nil, constants.ExitCodeError)
 }
 
 func isValidSingletonShellMode(mode string) bool {
@@ -232,7 +234,7 @@ func promptInstallDir(def string) string {
 	line, err := reader.ReadString('\n')
 	if err != nil && err != io.EOF {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallReadStdin, err)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 	answer := strings.TrimSpace(line)
 	if len(answer) == 0 {
@@ -257,7 +259,7 @@ func downloadFallbackInstallScript() []byte {
 	body, dlErr := downloadInstallScript(remote)
 	if dlErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallDownload, remote, dlErr)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 	return body
 }
@@ -293,7 +295,7 @@ func writeInstallScriptTemp(name string, body []byte) string {
 	f, err := os.CreateTemp(os.TempDir(), pattern)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptWrite, err)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 	defer f.Close()
 	writeScriptBody(f, name, body)
@@ -341,7 +343,7 @@ func executeInstallScript(name, path, dir string, opts selfInstallOpts) {
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptRun, err)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 }
 

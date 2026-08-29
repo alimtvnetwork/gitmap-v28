@@ -4,16 +4,16 @@ package cmd
 //
 // Split out of clonenext.go and clonenextbatch.go to keep both files
 // under the 200-line per-file budget. The single-repo path calls
-// printCloneNextDryRun + os.Exit(0) right before the actual
+// printCloneNextDryRun + cliexit.HandleError(nil, 0) right before the actual
 // runGitClone invocation; the batch path replaces its
 // processBatchRepos pass with previewDryRunBatch which emits one
 // preview line per repo and then exits.
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -28,7 +28,7 @@ func printCloneNextDryRun(url, dest string) {
 		constants.GitBin, constants.GitClone, url, dest)
 	fmt.Printf(constants.MsgCloneNextDryRunFooter, 1)
 	maybeExitOnCmdFaithfulMismatch()
-	os.Exit(0)
+	cliexit.HandleError(nil, 0)
 }
 
 // previewDryRunBatch handles `--dry-run` for `cn --all` and
@@ -48,7 +48,7 @@ func previewDryRunBatch(csvPath string, walkAll bool) {
 	count := emitDryRunRows(repos)
 	fmt.Printf(constants.MsgCloneNextDryRunFooter, count)
 	maybeExitOnCmdFaithfulMismatch()
-	os.Exit(0)
+	cliexit.HandleError(nil, 0)
 }
 
 // emitDryRunRows iterates repos and prints one preview line per

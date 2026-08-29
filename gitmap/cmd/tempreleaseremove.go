@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -14,7 +16,17 @@ import (
 // runTempReleaseRemove handles "tr remove <version>|<v1> to <v2>|all".
 func runTempReleaseRemove(args []string) error {
 	if len(args) == 0 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.temprelease.remove",
+			"E1123",
+			"missing argument for temp-release remove; usage: gitmap tr remove <version>|<v1> to <v2>|all",
+			"cmd.temprelease",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 
 	if args[0] == "all" {
@@ -50,7 +62,18 @@ func removeTempReleaseSingle(version string) {
 func removeTempReleaseRange(from, to string) {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.temprelease.removeRange.openDB",
+			"E1124",
+			"failed to open database for temp-release remove range",
+			"cmd.temprelease",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
@@ -106,7 +129,18 @@ func collectRangeTargets(db *store.DB, from, to string) []string {
 func removeTempReleaseAll() {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.temprelease.removeAll.openDB",
+			"E1125",
+			"failed to open database for temp-release remove all",
+			"cmd.temprelease",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 	defer db.Close()
 	if err := db.Migrate(); err != nil {

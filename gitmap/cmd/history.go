@@ -11,6 +11,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runHistory handles the "history" subcommand.
@@ -46,7 +48,7 @@ func loadHistory(cmdFilter string) []model.CommandHistoryRecord {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrHistoryQuery+"\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
@@ -68,10 +70,10 @@ func queryHistoryRecords(db *store.DB, cmdFilter string) ([]model.CommandHistory
 func handleHistoryError(err error) {
 	if isLegacyDataError(err) == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrHistoryQuery+"\n", err)
-	os.Exit(1)
+	cliexit.HandleError(nil, 1)
 }
 
 // applyHistoryLimit truncates results to the given limit.

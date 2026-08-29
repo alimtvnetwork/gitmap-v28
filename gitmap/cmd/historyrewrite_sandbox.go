@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // ensureFilterRepoInstalled exits 3 with an OS-appropriate install
@@ -27,7 +29,7 @@ func ensureFilterRepoInstalled() {
 	default:
 		fmt.Fprint(os.Stderr, constants.HistoryMsgInstallHintLinux)
 	}
-	os.Exit(constants.HistoryExitNoFilterRepo)
+	cliexit.HandleError(nil, constants.HistoryExitNoFilterRepo)
 }
 
 // readOriginURL invokes `git remote get-url origin` in the cwd. Exits
@@ -37,12 +39,12 @@ func readOriginURL() string {
 	out, err := cmd.Output()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrNoOrigin, err)
-		os.Exit(constants.HistoryExitNotInRepo)
+		cliexit.HandleError(nil, constants.HistoryExitNotInRepo)
 	}
 	url := strings.TrimSpace(string(out))
 	if url == "" {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrNoOrigin, fmt.Errorf("empty origin URL"))
-		os.Exit(constants.HistoryExitNotInRepo)
+		cliexit.HandleError(nil, constants.HistoryExitNotInRepo)
 	}
 	return url
 }
@@ -53,7 +55,7 @@ func mirrorClone(originURL string, opts historyOpts) string {
 	sandbox, err := os.MkdirTemp("", constants.HistorySandboxPrefix)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrSandbox, err)
-		os.Exit(constants.HistoryExitBadArgs)
+		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}
 	if !opts.quiet {
 		fmt.Fprintf(os.Stderr, constants.HistoryMsgPhaseClone, originURL, sandbox)
@@ -63,7 +65,7 @@ func mirrorClone(originURL string, opts historyOpts) string {
 	if err := cmd.Run(); err != nil {
 		_ = os.RemoveAll(sandbox)
 		fmt.Fprintf(os.Stderr, constants.HistoryErrMirrorClone, err)
-		os.Exit(constants.HistoryExitFilterFailed)
+		cliexit.HandleError(nil, constants.HistoryExitFilterFailed)
 	}
 	return sandbox
 }
@@ -107,7 +109,7 @@ func runFilterRepoPin(sandbox string, paths []string,
 	manifest, err := writePinManifest(sandbox, paths, pinPayloads)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrManifest, err)
-		os.Exit(constants.HistoryExitFilterFailed)
+		cliexit.HandleError(nil, constants.HistoryExitFilterFailed)
 	}
 	args := []string{
 		"-C", sandbox, "filter-repo", "--force",
@@ -193,7 +195,7 @@ func execFilterRepo(args []string) {
 	cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrFilterRepo, exitCodeOf(err), err.Error())
-		os.Exit(constants.HistoryExitFilterFailed)
+		cliexit.HandleError(nil, constants.HistoryExitFilterFailed)
 	}
 }
 

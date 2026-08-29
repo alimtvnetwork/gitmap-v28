@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -45,8 +46,17 @@ func runPR(args []string) error {
 	}
 	isErr := hasArgs == false && err != nil
 	if isErr == true {
-		fmt.Fprintln(os.Stderr, "pull-requests: ERROR specify <owner> or run inside a github repo")
-		os.Exit(2)
+		appErr := apperror.NewWithDetails(
+			"cmd.pr.resolveOwner",
+			"E1070",
+			"pull-requests: ERROR specify <owner> or run inside a github repo",
+			"cmd.pr",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 2)
+		return nil
 	}
 	if hasArgs == false && isErr == false {
 		owner = o

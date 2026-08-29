@@ -13,6 +13,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // bulkVisibilityRequest captures a parsed bulk invocation.
@@ -69,13 +71,13 @@ func parseBulkPairArg(repoArg, countArg string) (bulkVisibilityRequest, bool) {
 	count, err := strconv.Atoi(countArg)
 	if err != nil || count < 1 {
 		fmt.Fprintf(os.Stderr, constants.ErrVisBulkBadCountFmt, countArg)
-		os.Exit(constants.ExitVisBadFlag)
+		cliexit.HandleError(nil, constants.ExitVisBadFlag)
 	}
 
 	base, ver := extractBaseAndVersionFromArg(repoArg)
 	if len(base) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrVisBulkRepoParseFmt, repoArg)
-		os.Exit(constants.ExitVisBadFlag)
+		cliexit.HandleError(nil, constants.ExitVisBadFlag)
 	}
 
 	return bulkVisibilityRequest{BaseRepo: base, StartVer: ver - 1, Count: count}, true
@@ -135,7 +137,7 @@ func runBulkVisibility(ctx visibilityContext, req bulkVisibilityRequest,
 		}
 	}
 
-	os.Exit(worst)
+	cliexit.HandleError(nil, worst)
 	return nil
 }
 

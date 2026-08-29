@@ -12,6 +12,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/glyphs"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // stripGlyphsFlag removes every `--glyphs` / `-glyphs` occurrence and
@@ -63,6 +65,15 @@ func matchGlyphsArg(a string, args []string, i int, short, long string) (val str
 	return "", 0, false
 }
 
+// stripEqPrefix returns the value after prefix when a starts with it.
+func stripEqPrefix(a, prefix string) (string, bool) {
+	if len(a) <= len(prefix) || a[:len(prefix)] != prefix {
+		return "", false
+	}
+
+	return a[len(prefix):], true
+}
+
 // applyGlyphsChoice validates and exports the choice, or aborts.
 func applyGlyphsChoice(choice string) {
 	if !glyphs.IsValidLabel(choice) {
@@ -73,7 +84,7 @@ func applyGlyphsChoice(choice string) {
 			constants.GlyphsRich,
 			constants.GlyphsSafe,
 		)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	os.Setenv(constants.EnvGlyphs, choice)
 }

@@ -154,7 +154,7 @@ var chromeProfileLockSkipCount int
 
 func warnChromeProfileLockSkip(src, dst string, err error) {
 	_ = dst
-	_ = err
+	_ = err // lint-allow: ignore-error
 	chromeProfileLockSkipCount++
 	fmt.Fprintf(os.Stderr, constants.WarnChromeProfileSkipLock, src)
 }

@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -14,13 +16,35 @@ import (
 func runZipGroupList() error {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.list.openDB",
+			"E1043",
+			"failed to open database for zip-group list",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 
 	groups, err := db.ListZipGroupsWithCount()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.list.groups",
+			"E1044",
+			"failed to list zip groups from database",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	printZipGroupList(groups)
@@ -51,7 +75,17 @@ func printZipGroupList(groups []store.ZipGroupWithCount) {
 // runZipGroupShow handles "zip-group show <name>".
 func runZipGroupShow(args []string) error {
 	if len(args) == 0 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.zipgroup.show",
+			"E1045",
+			"missing required group name for zip-group show",
+			"cmd.zipgroup",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 
 	name := args[0]
@@ -63,13 +97,35 @@ func runZipGroupShow(args []string) error {
 func executeZipGroupShow(name string) {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.show.openDB",
+			"E1046",
+			"failed to open database for zip-group show",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 	defer db.Close()
 
 	items, err := db.ListZipGroupItems(name)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.show.items",
+			"E1047",
+			"failed to list zip group items from database",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"group": name},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	group, grpErr := db.FindZipGroupByName(name)

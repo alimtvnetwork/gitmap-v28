@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // historyOpts is the parsed flag bundle for both history-* commands.
@@ -28,7 +30,7 @@ func parseHistoryArgs(args []string) (historyOpts, []string) {
 	flagsOnly, positional := splitHistoryFlagsAndArgs(args)
 	if err := fs.Parse(flagsOnly); err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs, err.Error())
-		os.Exit(constants.HistoryExitBadArgs)
+		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}
 	opts := assembleHistoryOpts(raw)
 	paths := parseHistoryPaths(positional)
@@ -73,11 +75,11 @@ func assembleHistoryOpts(r rawHistoryFlags) historyOpts {
 func validateHistoryOpts(opts historyOpts, paths []string) {
 	if len(paths) == 0 {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs, constants.HistoryErrNoPaths)
-		os.Exit(constants.HistoryExitBadArgs)
+		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}
 	if opts.yes && opts.noPush {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs, constants.HistoryErrConflictFlags)
-		os.Exit(constants.HistoryExitBadArgs)
+		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}
 }
 

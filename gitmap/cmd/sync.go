@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -197,8 +199,17 @@ func dispatchSync(command string) (bool, error) {
 		return false, nil
 	}
 	if len(os.Args) < 3 {
-		fmt.Fprint(os.Stderr, syncUsage)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.sync.dispatch",
+			"E1144",
+			syncUsage,
+			"cmd.sync",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return true, nil
 	}
 	sub, rest := os.Args[2], os.Args[3:]
 	dry, force := parseSyncFlags(rest)
@@ -221,9 +232,16 @@ func dispatchSync(command string) (bool, error) {
 		runSyncLines(".prettierignore", defaultPrettierignoreBaseline, dry)
 		runSyncPrettierRC(dry, force)
 	default:
-		fmt.Fprintf(os.Stderr, "unknown sync target: %s\n\n", sub)
-		fmt.Fprint(os.Stderr, syncUsage)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.sync.dispatch.unknown",
+			"E1145",
+			fmt.Sprintf("unknown sync target: %s\n\n%s", sub, syncUsage),
+			"cmd.sync",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"subcommand": sub},
+		)
+		cliexit.HandleError(err, 1)
 	}
 	return true, nil
 }
@@ -290,7 +308,18 @@ func runSyncLines(path, baseline string, dry bool) error {
 		buf += "\n"
 	}
 	if err := os.WriteFile(path, []byte(buf), 0o644); err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sync.writeLines",
+			"E1146",
+			"failed to write synced lines to file",
+			"cmd.sync",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	fmt.Printf("  +   %s: added %d line(s)\n", path, len(toAdd))
 	return nil
@@ -340,11 +369,33 @@ func runSyncPrettierRC(dry, force bool) error {
 
 	out, err := json.MarshalIndent(current, "", "  ")
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sync.marshalPrettierRC",
+			"E1147",
+			"failed to marshal .prettierrc JSON",
+			"cmd.sync",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	out = append(out, '\n')
 	if err := os.WriteFile(path, out, 0o644); err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sync.writePrettierRC",
+			"E1148",
+			"failed to write .prettierrc",
+			"cmd.sync",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	if len(added) > 0 {
 		fmt.Printf("  +   %s: added keys %s\n", path, strings.Join(added, ", "))
@@ -380,6 +431,16 @@ func runSyncLFSInstall(dry bool) error {
 func parsePrettierRC(path string, data []byte, current *map[string]any) {
 	err := json.Unmarshal(data, current)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sync.parsePrettierRC",
+			"E1149",
+			"failed to parse existing .prettierrc JSON",
+			"cmd.sync",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runProjectRepos handles go-repos, node-repos, react-repos, cpp-repos, csharp-repos.
@@ -18,7 +20,7 @@ func runProjectRepos(typeKey string, args []string) error {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.MsgProjectNoDB)
-		panic("fatal")
+		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
 	defer db.Close()
 
@@ -51,11 +53,11 @@ func printProjectCount(db *store.DB, typeKey string) {
 	isLegacyErr := err != nil && isLegacyDataError(err) == true
 	if isLegacyErr == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		panic("fatal")
+		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
 
 	if err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrProjectQuery))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrProjectQuery), 1)
 	}
 
 	fmt.Printf(constants.MsgProjectCount, count)
@@ -68,11 +70,11 @@ func printProjectList(db *store.DB, typeKey string, jsonOut bool) {
 	isLegacyErr := err != nil && isLegacyDataError(err) == true
 	if isLegacyErr == true {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		panic("fatal")
+		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
 
 	if err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrProjectQuery))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrProjectQuery), 1)
 	}
 
 	if len(projects) == 0 {

@@ -16,7 +16,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/archive"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -26,25 +28,63 @@ func runZip(args []string) error {
 
 	opts, sources, err := parseZipFlags(args)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zip.parseFlags",
+			"E1048",
+			"failed to parse flags for zip command",
+			"cmd.zip",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	if opts.OutputPath == "" {
-		fmt.Fprintln(os.Stderr, "  ✗ "+constants.ErrArchiveCreateNeedsOut)
-		os.Exit(1)
+		appErr := apperror.NewWithDetails(
+			"cmd.zip.outputPath",
+			"E1049",
+			constants.ErrArchiveCreateNeedsOut,
+			"cmd.zip",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	if len(sources) == 0 {
-		fmt.Fprintf(os.Stderr, "  ✗ "+constants.ErrArchiveNoSource+"\n", constants.CmdZip)
-		os.Exit(1)
+		appErr := apperror.NewWithDetails(
+			"cmd.zip.sources",
+			"E1050",
+			fmt.Sprintf(constants.ErrArchiveNoSource, constants.CmdZip),
+			"cmd.zip",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	ctx := context.Background()
 	resolved, err := resolveAllSources(ctx, sources)
 	defer cleanupAllSources(resolved)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
 		cleanupAllSources(resolved)
-		exitWith(1)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zip.resolveSources",
+			"E1051",
+			"failed to resolve sources for zip command",
+			"cmd.zip",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"sources": sources},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	opts.Sources = resolvedToPaths(resolved)
@@ -192,8 +232,18 @@ func executeZip(ctx context.Context, opts archive.CreateOptions, originalSrcs []
 	res, err := archive.CreateArchive(ctx, opts)
 	finishArchiveRow(db, historyID, res.OutputPath, string(res.Format), false, err)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(1)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zip.createArchive",
+			"E1052",
+			"failed to create zip archive",
+			"cmd.zip",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"outputPath": opts.OutputPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveCreateDone+"\n", res.OutputPath)

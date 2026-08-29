@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 type bookmarkItem struct {
@@ -22,7 +24,7 @@ type bookmarkItem struct {
 func runChromeExportBookmarks(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "chrome export-bookmarks: ERROR usage: gitmap chrome export-bookmarks <profile> [--format md|html|json] [--out <file>] [--root <bookmark_bar|other|synced>] [--folder <path/to/folder>] [--match <substr>] [--title <exact>]")
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	profile, ok := resolveChromeProfile(args[0])
 	if !ok {

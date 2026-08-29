@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -15,7 +17,17 @@ import (
 func runZipGroupCreate(args []string) error {
 	name, archiveName, paths := parseZipGroupCreateFlags(args)
 	if len(name) == 0 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.zipgroup.create",
+			"E1028",
+			"missing required name argument for zip-group create",
+			"cmd.zipgroup",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 	executeZipGroupCreate(name, archiveName, paths)
 	return nil
@@ -42,13 +54,35 @@ func parseZipGroupCreateFlags(args []string) (name, archive string, paths []stri
 func executeZipGroupCreate(name, archiveName string, paths []string) {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.openDB",
+			"E1029",
+			"failed to open database for zip-group create",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 	defer db.Close()
 
 	_, err = db.CreateZipGroup(name, archiveName)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.createGroup",
+			"E1030",
+			"failed to create zip group in database",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"name": name},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	if len(paths) == 0 {
@@ -76,7 +110,17 @@ func executeZipGroupCreate(name, archiveName string, paths []string) {
 // runZipGroupAdd handles "zip-group add <group> <path...>".
 func runZipGroupAdd(args []string) error {
 	if len(args) < 2 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.zipgroup.add",
+			"E1031",
+			"insufficient arguments for zip-group add; usage: gitmap zip-group add <group> <path...>",
+			"cmd.zipgroup",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 
 	groupName := args[0]
@@ -84,7 +128,18 @@ func runZipGroupAdd(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.add.openDB",
+			"E1032",
+			"failed to open database for zip-group add",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 

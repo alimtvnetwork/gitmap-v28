@@ -10,6 +10,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/movemerge"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // commitTransferSpec describes one of the three commit-transfer commands.
@@ -39,13 +41,13 @@ func executeCommitTransfer(spec commitTransferSpec, args []string) {
 	if len(positional) != 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrCTArgCountFmt, spec.Name, len(positional))
 		fmt.Fprintf(os.Stderr, constants.MsgCTUsageFmt, spec.Name, spec.Name)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	if opts.Interleave && spec.Name != constants.CmdCommitBoth {
 		fmt.Fprintf(os.Stderr,
 			"%s --interleave is only valid for commit-both (got %s)\n",
 			opts.LogPrefix, spec.Name)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	cfg, _ := config.LoadFromFile(constants.DefaultConfigPath)
 	opts.Message.KeepUrl = cfg.CommitReplayKeepUrl
@@ -53,12 +55,12 @@ func executeCommitTransfer(spec commitTransferSpec, args []string) {
 	left, right, resolveErr := resolveCommitEndpoints(positional[0], positional[1], opts)
 	if resolveErr != nil {
 		fmt.Fprintf(os.Stderr, "%s endpoint resolve failed: %v\n", opts.LogPrefix, resolveErr)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	opts.Message.SourceDisplayName = pickSourceDisplayName(spec.Name, left, right, opts.Message.KeepUrl)
 	if err := dispatchDirection(spec.Name, left.WorkingDir, right.WorkingDir, opts); err != nil {
 		fmt.Fprintf(os.Stderr, "%s replay failed: %v\n", opts.LogPrefix, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 }
 

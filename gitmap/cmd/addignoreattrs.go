@@ -26,6 +26,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // addTemplateFlags holds parsed flags shared by ignore + attributes.
@@ -114,7 +116,7 @@ func parseAddTemplateArgs(spec addTemplateSpec, args []string) (addTemplateFlags
 	dryRun := fs.Bool("dry-run", false, "preview the merged "+spec.targetName+" block without writing anything")
 	if err := fs.Parse(args); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Could not parse flags: %v\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return addTemplateFlags{dryRun: *dryRun}, normalizeLangs(fs.Args()), nil

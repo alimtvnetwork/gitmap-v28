@@ -17,6 +17,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // pushOptions holds parsed push flags.
@@ -189,7 +192,7 @@ func beginPushTask(records []model.ScanRecord, rest []string) (int64, *store.DB)
 func executePush(records []model.ScanRecord, prog *cloner.BatchProgress, opts pushOptions) {
 	workers, ok := cloneconcurrency.Resolve(opts.parallel)
 	if !ok {
-		panic("invalid concurrency")
+		cliexit.HandleError(apperror.NewSimple("invalid concurrency", "E9000"), 1)
 	}
 	opts.parallel = workers
 

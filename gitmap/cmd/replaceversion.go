@@ -6,6 +6,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // remoteSlugRe matches the trailing `<base>-vN` segment of a git remote
@@ -17,12 +20,33 @@ var remoteSlugRe = regexp.MustCompile(`^(?P<base>.+)-v(?P<num>\d+)$`)
 func detectVersion() (string, int) {
 	out, err := exec.Command("git", "remote", "get-url", "origin").Output()
 	if err != nil {
-		panic(err)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.detectVersion.remoteURL",
+			"E1073",
+			"failed to get git remote url for origin",
+			"cmd.replaceversion",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return "", 0
 	}
 	slug := slugFromRemote(strings.TrimSpace(string(out)))
 	m := remoteSlugRe.FindStringSubmatch(slug)
 	if m == nil {
-		panic("error")
+		appErr := apperror.NewWithDetails(
+			"cmd.detectVersion.slugMatch",
+			"E1074",
+			fmt.Sprintf("remote slug '%s' does not match version pattern <base>-vN", slug),
+			"cmd.replaceversion",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"slug": slug},
+		)
+		cliexit.HandleError(appErr, 1)
+		return "", 0
 	}
 	num, _ := strconv.Atoi(m[2])
 	return m[1], num

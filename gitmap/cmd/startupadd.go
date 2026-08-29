@@ -22,6 +22,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/startup"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // startupAddFlags bundles the parsed flag values so the orchestrator
@@ -49,17 +51,17 @@ func runStartupAdd(args []string) error {
 	cfg := parseStartupAddFlags(args)
 	if err := validateStartupOutput(constants.CmdStartupAdd, cfg.output, cfg.jsonIndent); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	exec, ok := resolveStartupAddExec(cfg.exec)
 	if !ok {
 		fmt.Fprintln(os.Stderr, constants.ErrStartupAddMissingExec)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	backend, err := startup.ParseBackend(cfg.backend)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	res, err := startup.Add(startup.AddOptions{
 		Name: cfg.name, Exec: exec,
@@ -112,7 +114,7 @@ func parseStartupAddFlags(args []string) startupAddFlags {
 	if cfg.name == "" {
 		fmt.Fprintln(os.Stderr,
 			"startup-add: --name is required (e.g. --name myapp)")
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	return cfg

@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // repoRoot returns the absolute path of the current git repo. Exits 1
@@ -16,7 +18,7 @@ import (
 func repoRoot() string {
 	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	clean := filepath.Clean(filepath.FromSlash(strings.TrimSpace(string(out))))
 	return clean

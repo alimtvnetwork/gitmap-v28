@@ -95,7 +95,7 @@ func runListTxn() error {
 	defer db.Close()
 	rows, err := db.ListTransactions(constants.TxnRetentionCap)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	printTxnRows(rows)
 	return nil
@@ -123,11 +123,11 @@ func runShowTxn(raw string) error {
 	defer db.Close()
 	rec, err := db.FindTransactionByID(id)
 	if err != nil {
-		panic(constants.ErrTxnRowNotFound)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrTxnRowNotFound, "E9000"), 1)
 	}
 	files, err := db.ListTransactionFiles(id)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	printTxnDetail(rec, files)
 	return nil
@@ -156,7 +156,7 @@ func runRevertLastTxn(force bool) error {
 	id, err := db.LastCommittedTransactionID()
 	db.Close()
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	if id == 0 {
 		fmt.Print(constants.MsgTxnNoCommitted)
@@ -173,7 +173,7 @@ func revertOne(id int64, force bool) {
 	defer db.Close()
 	rec, err := db.FindTransactionByID(id)
 	if err != nil {
-		panic(constants.ErrTxnRowNotFound)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrTxnRowNotFound, "E9000"), 1)
 	}
 	files, _ := db.ListTransactionFiles(id)
 	if !force && !confirmRevert(rec, len(files)) {
@@ -220,7 +220,7 @@ func runPruneTxn() error {
 	defer db.Close()
 	dropped, err := db.PruneOldestTransactions(constants.TxnRetentionCap)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	fmt.Printf(constants.MsgTxnPruned, len(dropped))
 	return nil
@@ -230,7 +230,7 @@ func runPruneTxn() error {
 func mustOpenForTxn() *store.DB {
 	db, err := openDB()
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 
 	return db
@@ -241,7 +241,7 @@ func mustParseTxnID(raw string) int64 {
 	id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 	if err != nil || id <= 0 {
 		fmt.Fprintf(os.Stderr, "revert: invalid transaction id %q\n", raw)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	return id

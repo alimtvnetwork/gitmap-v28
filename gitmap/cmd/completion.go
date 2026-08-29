@@ -6,6 +6,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/completion"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runCompletion handles the "completion" subcommand.
@@ -17,7 +19,7 @@ func runCompletion(args []string) error {
 	}
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCompUsage)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	printCompletionScript(args[0])
 	return nil
@@ -158,7 +160,7 @@ func printCompletionScript(shell string) {
 	script, err := completion.Generate(shell)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCompUnknownShell, shell)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	fmt.Print(script)
 }

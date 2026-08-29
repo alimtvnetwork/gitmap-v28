@@ -9,6 +9,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runImport handles the "import" subcommand.
@@ -45,7 +47,7 @@ func readImportFile(path string) model.DatabaseExport {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgImportReadFailed).Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	var data model.DatabaseExport
@@ -53,7 +55,7 @@ func readImportFile(path string) model.DatabaseExport {
 	err = json.Unmarshal(raw, &data)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgImportParseFailed).Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return data
@@ -70,7 +72,7 @@ func executeImport(data model.DatabaseExport) {
 
 	err = db.ImportAll(data)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 }
 

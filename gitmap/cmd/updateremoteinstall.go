@@ -12,6 +12,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -55,7 +57,16 @@ func runUpdateRemoteInstall() bool {
 	errRun := runRemoteInstaller(scriptPath)
 	var exitErr *exec.ExitError
 	if errRun != nil && errors.As(errRun, &exitErr) == true {
-		os.Exit(exitErr.ExitCode())
+		appErr := apperror.NewWithDetails(
+			"cmd.updateremoteinstall.run",
+			"E1153",
+			fmt.Sprintf("remote installer exited with code %d", exitErr.ExitCode()),
+			"cmd.updateremoteinstall",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"exitCode": exitErr.ExitCode()},
+		)
+		cliexit.HandleError(appErr, exitErr.ExitCode())
 	}
 	if errRun != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateRemoteRun, errRun)

@@ -13,6 +13,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // parseInjectForceFlag extracts --force/-f from the trailing flag set
@@ -27,7 +29,7 @@ func parseInjectForceFlag(name string, args []string) bool {
 	fs.BoolVar(&force, constants.FlagInjectForceShort, false, constants.FlagDescInjectForce)
 
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	return force

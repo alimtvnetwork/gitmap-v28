@@ -70,7 +70,7 @@ func requireReleasePullCwd() string {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 
 	return cwd
@@ -88,7 +88,7 @@ func parseReleasePullFlags(args []string) (mode string, dryRun, verbose bool, re
 
 	relevant, forwarded := splitReleasePullArgs(args)
 	if err := fs.Parse(relevant); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	mode = resolvePullMode(*ffOnly, *rebase, *merge)
@@ -135,7 +135,7 @@ func resolvePullMode(ffOnly, rebase, merge bool) string {
 
 	if count > 1 {
 		fmt.Fprintf(os.Stderr, constants.ErrRPModeConflictFmt, describePickedModes(ffOnly, rebase, merge))
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	if rebase {
@@ -213,8 +213,8 @@ func handleReleasePullFailure(dir, mode, flagArg string, err error) {
 		abort := exec.Command(constants.GitBin, constants.GitRebase, constants.GitRebaseAbortFlag)
 		abort.Dir = dir
 		_ = abort.Run()
-		panic(constants.ErrRPRebaseAbortFmt)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrRPRebaseAbortFmt, "E9000"), 1)
 	}
 
-	panic(constants.ErrRPPullFailedFmt)
+	cliexit.HandleError(apperror.NewSimple(constants.ErrRPPullFailedFmt, "E9000"), 1)
 }

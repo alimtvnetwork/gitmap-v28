@@ -11,6 +11,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 const (
@@ -48,19 +50,19 @@ func runTemplatesDiff(args []string) error {
 	lang, kind, cwd := parseTemplatesDiffFlags(args)
 	if lang == "" {
 		fmt.Fprint(os.Stderr, errDiffLangRequired)
-		os.Exit(exitDiffError)
+		cliexit.HandleError(nil, exitDiffError)
 	}
 	kinds, ok := resolveDiffKinds(kind)
 	if !ok {
 		fmt.Fprintf(os.Stderr, errDiffBadKind, kind)
-		os.Exit(exitDiffError)
+		cliexit.HandleError(nil, exitDiffError)
 	}
 
 	anyChanged := runDiffForKinds(kinds, lang, cwd)
 	if anyChanged {
-		os.Exit(exitDiffChanged)
+		cliexit.HandleError(nil, exitDiffChanged)
 	}
-	os.Exit(exitDiffNoChange)
+	cliexit.HandleError(nil, exitDiffNoChange)
 	return nil
 }
 
@@ -116,14 +118,14 @@ func diffOneKind(kind, lang, cwd string) bool {
 	r, err := templates.Resolve(kind, lang)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, errDiffResolve, kind, lang, err)
-		os.Exit(exitDiffError)
+		cliexit.HandleError(nil, exitDiffError)
 	}
 	target := filepath.Join(cwd, targetFileFor(kind))
 	tag := kind + "/" + lang
 	res, err := templates.Diff(target, tag, r.Content)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, errDiffRun, err)
-		os.Exit(exitDiffError)
+		cliexit.HandleError(nil, exitDiffError)
 	}
 	if res.Status == templates.DiffNoChange {
 		fmt.Printf(msgDiffNoChange, kind, lang, res.Path)

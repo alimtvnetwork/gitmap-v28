@@ -16,6 +16,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -42,7 +43,8 @@ func runVisibilityUndo(args []string) error {
 	run, results := loadReversible(flags.RunID, "", constants.ErrUndoNoRunFound)
 	if flags.DryRun {
 		printVisDryRun(constants.CmdVisibilityUndo, run, results)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
+		return nil
 	}
 	reverseRunAndExit(run, results, flags, constants.CmdVisibilityUndo)
 	return nil
@@ -81,8 +83,16 @@ func mustLoadRunByID(db *store.DB, id int64) model.MakeAllVisibilityRunRecord {
 		cliexit.Fail("visibility-undo", "load-run", fmt.Sprintf("id=%d", id), err, constants.ExitVisAuthFailed)
 	}
 	if run.ID == 0 {
-		fmt.Fprintf(os.Stderr, constants.ErrUndoRunNotFoundFmt, id)
-		os.Exit(constants.ExitVisConfirmReq)
+		appErr := apperror.NewWithDetails(
+			"cmd.visibility.loadRunByID",
+			"E1064",
+			fmt.Sprintf(constants.ErrUndoRunNotFoundFmt, id),
+			"cmd.visibility",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"id": id},
+		)
+		cliexit.HandleError(appErr, constants.ExitVisConfirmReq)
 	}
 
 	return run
@@ -103,8 +113,16 @@ func mustLoadLatestRun(db *store.DB, kind, notFoundMsg string) model.MakeAllVisi
 		cliexit.Fail("visibility-undo", "load-latest-run", kind, err, constants.ExitVisAuthFailed)
 	}
 	if run.ID == 0 {
-		fmt.Fprintln(os.Stderr, notFoundMsg)
-		os.Exit(constants.ExitVisConfirmReq)
+		appErr := apperror.NewWithDetails(
+			"cmd.visibility.loadLatestRun",
+			"E1065",
+			notFoundMsg,
+			"cmd.visibility",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"kind": kind},
+		)
+		cliexit.HandleError(appErr, constants.ExitVisConfirmReq)
 	}
 
 	return run
@@ -114,8 +132,17 @@ func mustLoadLatestRun(db *store.DB, kind, notFoundMsg string) model.MakeAllVisi
 func openDBOrExit(cmdLabel string) *store.DB {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUndoAuditDBOpenFmt, cmdLabel, err)
-		os.Exit(constants.ExitVisAuthFailed)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.visibility.openDB",
+			"E1066",
+			fmt.Sprintf(constants.ErrUndoAuditDBOpenFmt, cmdLabel, err),
+			"cmd.visibility",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			map[string]any{"label": cmdLabel},
+		)
+		cliexit.HandleError(appErr, constants.ExitVisAuthFailed)
 	}
 
 	return db
@@ -140,7 +167,18 @@ func reverseRunAndExit(run model.MakeAllVisibilityRunRecord, results []model.Mak
 	if flags.JSON {
 		emitUndoJSON(cmdName, run, audit.RunID(), len(results), changed, skipped, failed, exit)
 	}
-	os.Exit(exit)
+	if exit != 0 {
+		appErr := apperror.NewWithDetails(
+			"cmd.visibility.reverse",
+			"E1067",
+			fmt.Sprintf("bulk reverse finished with exit code %d", exit),
+			"cmd.visibility",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"exit": exit, "changed": changed, "failed": failed},
+		)
+		cliexit.HandleError(appErr, exit)
+	}
 }
 
 // emitUndoJSON writes the canonical --json summary line to stdout.

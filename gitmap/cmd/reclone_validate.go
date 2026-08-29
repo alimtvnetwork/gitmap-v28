@@ -40,6 +40,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenow"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // validateRecloneManifestOrExit runs every row through the semantic
@@ -55,7 +57,7 @@ func validateRecloneManifestOrExit(plan clonenow.Plan) {
 		return
 	}
 	printRecloneManifestIssues(plan, issues)
-	os.Exit(constants.CloneNowExitManifestInvalid)
+	cliexit.HandleError(nil, constants.CloneNowExitManifestInvalid)
 }
 
 // recloneRowIssue is one validation finding, scoped to a single

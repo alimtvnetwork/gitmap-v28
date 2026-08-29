@@ -19,7 +19,7 @@ func runRecent(args []string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "recent: no history yet (%s)\n", path)
-		os.Exit(0)
+		return nil
 	}
 	defer f.Close()
 	var lines []string

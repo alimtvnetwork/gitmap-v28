@@ -11,6 +11,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runDesktopSync handles the "desktop-sync" subcommand.
@@ -42,13 +44,13 @@ func loadDesktopRecords(path string) []model.ScanRecord {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDesktopReadFailed, "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	var records []model.ScanRecord
 	err = json.Unmarshal(data, &records)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDesktopParseFailed, "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return records
