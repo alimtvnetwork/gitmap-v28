@@ -112,3 +112,4 @@ commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commit
 - [02-gitmap-installer.md](file:///d:/work/gitmap/.lovable/memory/learned/02-gitmap-installer.md) - Learned patterns for Gitmap installer system
 - [2026-08-29-coding-guideline-violations.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-coding-guideline-violations.md) - RCA on coding guideline violations and 150-step audit
 - [2026-08-29-go-125-dependency-linter-break.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-go-125-dependency-linter-break.md) - RCA on Go 1.25 dependency version bump causing CI linter break
+- [2026-08-29-go-125-gofmt-and-goimports-drift.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-go-125-gofmt-and-goimports-drift.md) - RCA on Go 1.25 gofmt and goimports drift across all repository packages

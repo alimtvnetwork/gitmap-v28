@@ -9,8 +9,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // AgyCmd is the root agy command

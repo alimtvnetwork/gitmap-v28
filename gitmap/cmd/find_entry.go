@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pterm/pterm"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/searcher"
-	"github.com/pterm/pterm"
 )
 
 func parseLimit(args []string) (int, []string) {

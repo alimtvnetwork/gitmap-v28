@@ -6,8 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 )
 
 type RemediationState struct {

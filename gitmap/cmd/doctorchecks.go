@@ -12,6 +12,7 @@ import (
 )
 
 // checkRepoPath reports whether RepoPath is embedded.
+//
 //nolint:unused
 func checkRepoPath() int {
 	if len(constants.RepoPath) == 0 {
@@ -26,8 +27,9 @@ func checkRepoPath() int {
 	return 0
 }
 
-//nolint:unused
 // checkActiveBinary reports the gitmap binary on PATH.
+//
+//nolint:unused
 func checkActiveBinary() int {
 	path, err := exec.LookPath(constants.GitMapBin)
 	if err != nil {
@@ -56,6 +58,7 @@ func resolveBinaryAbsPath(path string) string {
 }
 
 // checkDeployedBinary reports the deployed binary from powershell.json.
+//
 //nolint:unused
 func checkDeployedBinary() int {
 	if len(constants.RepoPath) == 0 {
@@ -86,6 +89,7 @@ func verifyDeployedBinary(data []byte) int {
 }
 
 // readPowershellJSON reads the powershell.json config file.
+//
 //nolint:unused
 func readPowershellJSON() ([]byte, error) {
 	configPath := filepath.Join(constants.RepoPath, constants.GitMapSubdir, constants.PowershellConfigFile)
@@ -94,8 +98,9 @@ func readPowershellJSON() ([]byte, error) {
 	return os.ReadFile(configPath)
 }
 
-//nolint:unused
 // resolveDeployedFromData extracts and validates the deployed binary path.
+//
+//nolint:unused
 func resolveDeployedFromData(data []byte) (string, int) {
 	deployPath := extractJSONString(data, constants.JSONKeyDeployPath)
 	if len(deployPath) == 0 {
@@ -127,8 +132,9 @@ func checkDeployedFileExists(deployedBinary string) (string, int) {
 	return deployedBinary, 0
 }
 
-//nolint:unused
 // checkGit verifies git is available.
+//
+//nolint:unused
 func checkGit() int {
 	path, err := exec.LookPath(constants.GitBin)
 	if err != nil {
@@ -149,8 +155,9 @@ func checkGit() int {
 	return 0
 }
 
-//nolint:unused
 // checkGo verifies Go is available for building.
+//
+//nolint:unused
 func checkGo() int {
 	path, err := exec.LookPath(constants.GoBin)
 	if err != nil {
@@ -171,8 +178,9 @@ func checkGo() int {
 	return 0
 }
 
-//nolint:unused
 // getToolVersion runs a tool with an arg and returns trimmed output.
+//
+//nolint:unused
 func getToolVersion(tool, arg string) string {
 	cmd := exec.Command(tool, arg)
 	out, err := cmd.Output()
@@ -184,8 +192,9 @@ func getToolVersion(tool, arg string) string {
 	return strings.TrimSpace(string(out))
 }
 
-//nolint:unused
 // checkChangelogFile verifies changelog.md exists.
+//
+//nolint:unused
 func checkChangelogFile() int {
 	if _, err := os.Stat(constants.ChangelogFile); err != nil {
 		printWarn(constants.DoctorChangelogWarn)
@@ -200,8 +209,9 @@ func checkChangelogFile() int {
 
 // checkLegacyDirs confirms no legacy directories remain after auto-migration.
 // Since migrateLegacyDirs now merges and removes legacy folders, this check
-//nolint:unused
 // serves only as a safety net for edge cases (e.g., permission errors).
+//
+//nolint:unused
 func checkLegacyDirs() int {
 	printOK(constants.DoctorLegacyDirsOK)
 
@@ -210,8 +220,9 @@ func checkLegacyDirs() int {
 }
 
 // checkSignature verifies whether the active binary has a valid digital signature.
-//nolint:unused
 // Only runs on Windows — signature verification uses PowerShell's Get-AuthenticodeSignature.
+//
+//nolint:unused
 func checkSignature() int {
 	if runtime.GOOS != constants.PlatformWindows {
 		printWarn(constants.DoctorSignSkipUnix)
@@ -280,8 +291,9 @@ func evaluateSignatureStatus(absPath, status string) int {
 	return 1
 }
 
-//nolint:unused
 // getSignatureSigner extracts the signer subject from a signed binary.
+//
+//nolint:unused
 func getSignatureSigner(binaryPath string) string {
 	cmd := exec.Command(constants.ShellPowerShell, constants.DoctorFlagNoProfile, constants.DoctorFlagCommand,
 		"(Get-AuthenticodeSignature '"+binaryPath+"').SignerCertificate.Subject")

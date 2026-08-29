@@ -82,6 +82,7 @@ func appendKeyRemote(ctx context.Context, pubKey string, target SSHTarget) error
 }
 
 // runSJAddAuth handles the 'gitmap sj add-auth' command.
+//
 //nolint:revive
 func runSJAddAuth(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) < 1 {

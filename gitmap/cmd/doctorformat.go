@@ -10,6 +10,7 @@ import (
 )
 
 // getBinaryVersion runs a binary with "version" and returns the output.
+//
 //nolint:unused
 func getBinaryVersion(path string) string {
 	if _, err := os.Stat(path); err != nil {
@@ -25,14 +26,16 @@ func getBinaryVersion(path string) string {
 	return strings.TrimSpace(string(out))
 }
 
-//nolint:unused
 // printOK prints a green check with formatted message.
+//
+//nolint:unused
 func printOK(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
 	fmt.Printf(constants.DoctorOKFmt, constants.ColorGreen, constants.ColorReset, msg)
 }
 
 // printIssue prints a red issue with title and detail.
+//
 //nolint:unused
 func printIssue(title, detail string) {
 	fmt.Printf(constants.DoctorIssueFmt, constants.ColorRed, constants.ColorReset, title)
@@ -40,13 +43,15 @@ func printIssue(title, detail string) {
 }
 
 // printFix prints a fix recommendation in cyan.
+//
 //nolint:unused
 func printFix(fix string) {
 	fmt.Printf(constants.DoctorFixFmt, constants.ColorCyan, constants.ColorReset, fix)
-//nolint:unused
+	//nolint:unused
 }
 
 // printWarn prints a yellow warning.
+//
 //nolint:unused
 func printWarn(msg string) {
 	fmt.Printf(constants.DoctorWarnFmt, constants.ColorYellow, constants.ColorReset, msg)

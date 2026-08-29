@@ -12,6 +12,7 @@ import (
 // checkDuplicateBinaries detects multiple gitmap binaries on PATH.
 // When >1 entry exists the uninstaller's Get-Command / which returns an
 // array, producing a cryptic "not recognized as a cmdlet" error.
+//
 //nolint:unused
 func checkDuplicateBinaries() int {
 	paths := findAllBinaries()
@@ -28,6 +29,7 @@ func checkDuplicateBinaries() int {
 }
 
 // findAllBinaries returns every resolved gitmap binary path on PATH.
+//
 //nolint:unused
 func findAllBinaries() []string {
 	if runtime.GOOS == constants.PlatformWindows {
@@ -38,6 +40,7 @@ func findAllBinaries() []string {
 }
 
 // findAllBinariesWindows uses PowerShell Get-Command to list all matches.
+//
 //nolint:unused
 func findAllBinariesWindows() []string {
 	cmd := exec.Command(constants.ShellPowerShell, constants.DoctorFlagNoProfile, constants.DoctorFlagCommand,
@@ -51,6 +54,7 @@ func findAllBinariesWindows() []string {
 }
 
 // findAllBinariesUnix uses `which -a` (or type -a as fallback) to list all matches.
+//
 //nolint:unused
 func findAllBinariesUnix() []string {
 	cmd := exec.Command("which", "-a", constants.GitMapBin)
@@ -63,6 +67,7 @@ func findAllBinariesUnix() []string {
 }
 
 // parseMultiline splits output into non-empty trimmed lines.
+//
 //nolint:unused
 func parseMultiline(output string) []string {
 	lines := strings.Split(output, "\n")
@@ -97,6 +102,7 @@ func parseCleanLine(line string, seen map[string]struct{}) (string, bool) {
 }
 
 // formatDupList formats the duplicate binary paths for display.
+//
 //nolint:unused
 func formatDupList(paths []string) string {
 	var b strings.Builder
@@ -114,6 +120,7 @@ func formatDupList(paths []string) string {
 }
 
 // formatDupFix returns a one-shot removal command for each stale binary.
+//
 //nolint:unused
 func formatDupFix(paths []string) string {
 	stale := paths[1:]
@@ -125,6 +132,7 @@ func formatDupFix(paths []string) string {
 }
 
 // formatDupFixWindows returns a PowerShell one-liner to remove stale binaries.
+//
 //nolint:unused
 func formatDupFixWindows(stale []string) string {
 	if len(stale) == 1 {
@@ -142,6 +150,7 @@ func formatDupFixWindows(stale []string) string {
 }
 
 // formatDupFixUnix returns a shell command to remove stale binaries.
+//
 //nolint:unused
 func formatDupFixUnix(stale []string) string {
 	if len(stale) == 1 {

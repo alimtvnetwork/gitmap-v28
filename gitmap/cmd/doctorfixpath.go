@@ -10,6 +10,7 @@ import (
 )
 
 // runFixPath syncs the active PATH binary from the deployed binary.
+//
 //nolint:unused
 func runFixPath() error {
 	fmt.Println()
@@ -32,6 +33,7 @@ func runFixPath() error {
 }
 
 // resolveActiveBinary finds and validates the active PATH binary.
+//
 //nolint:unused
 func resolveActiveBinary() (string, string) {
 	activePath, activeErr := exec.LookPath(constants.GitMapBin)
@@ -52,6 +54,7 @@ func resolveActiveBinary() (string, string) {
 }
 
 // resolveDeployedForSync finds the deployed binary for syncing.
+//
 //nolint:unused
 func resolveDeployedForSync() (string, string) {
 	deployedPath, deployedErr := resolveDeployedBinary()
@@ -71,6 +74,7 @@ func resolveDeployedForSync() (string, string) {
 }
 
 // printFixPathInfo displays the active and deployed binary paths.
+//
 //nolint:unused
 func printFixPathInfo(absActive, activeVersion, absDeployed, deployedVersion string) {
 	fmt.Printf(constants.DoctorActivePathFmt, absActive, activeVersion)
@@ -78,6 +82,7 @@ func printFixPathInfo(absActive, activeVersion, absDeployed, deployedVersion str
 }
 
 // syncBinaries orchestrates the 3-layer sync strategy.
+//
 //nolint:unused
 func syncBinaries(absActive, activeVersion, absDeployed, deployedVersion string) {
 	if absActive == absDeployed {
@@ -98,6 +103,7 @@ func syncBinaries(absActive, activeVersion, absDeployed, deployedVersion string)
 }
 
 // attemptSync tries copy, rename fallback, and kill strategies.
+//
 //nolint:unused
 func attemptSync(absDeployed, absActive, deployedVersion string) {
 	if tryCopyWithRetry(absDeployed, absActive, 20, 500*timeMillisecond) {
@@ -122,6 +128,7 @@ func attemptSync(absDeployed, absActive, deployedVersion string) {
 }
 
 // printSyncFailure reports that all sync strategies failed.
+//
 //nolint:unused
 func printSyncFailure(absDeployed, absActive string) {
 	fmt.Println()
@@ -131,6 +138,7 @@ func printSyncFailure(absDeployed, absActive string) {
 }
 
 // resolveDeployedBinary finds the deployed binary path from powershell.json.
+//
 //nolint:unused
 func resolveDeployedBinary() (string, error) {
 	if len(constants.RepoPath) == 0 {
@@ -147,6 +155,7 @@ func resolveDeployedBinary() (string, error) {
 }
 
 // resolveDeployedPath extracts and validates the deployed path from config data.
+//
 //nolint:unused
 func resolveDeployedPath(data []byte) (string, error) {
 	deployPath := extractJSONString(data, constants.JSONKeyDeployPath)
@@ -168,6 +177,7 @@ func resolveDeployedPath(data []byte) (string, error) {
 }
 
 // verifySync checks that the synced binary reports the expected version.
+//
 //nolint:unused
 func verifySync(path, expectedVersion string) {
 	fmt.Println()

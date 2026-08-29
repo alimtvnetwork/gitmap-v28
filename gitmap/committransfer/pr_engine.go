@@ -6,8 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/pterm/pterm"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // ProcessPR optionally creates and merges a PR for the given commit based on PRMode.
