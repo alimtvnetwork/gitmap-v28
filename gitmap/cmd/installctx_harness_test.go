@@ -130,6 +130,7 @@ func fakeGitmapExe(t *testing.T) string {
 
 // sortedSlugs returns every leaf slug, sorted, for set-equality
 // assertions across platforms (parity test in step 5).
+//
 //nolint:unused
 func sortedSlugs(leaves []ctxFlatLeaf) []string {
 	out := make([]string, 0, len(leaves))
@@ -143,6 +144,7 @@ func sortedSlugs(leaves []ctxFlatLeaf) []string {
 
 // containsAll asserts every needle is a substring of haystack and
 // returns the first miss for a focused failure message.
+//
 //nolint:unused
 func containsAll(haystack string, needles []string) (string, bool) {
 	for _, n := range needles {

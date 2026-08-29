@@ -14,3 +14,4 @@
 - [23-linter-guideline-conflict.md](./23-linter-guideline-conflict.md): Linter guideline conflict resolution and explicit boolean rule protection.
 - [24-equalfold-and-us-english-fix.md](./24-equalfold-and-us-english-fix.md): EqualFold reversion fix and US English misspell linter enforcement.
 - [25-go-125-dependency-linter-break.md](./25-go-125-dependency-linter-break.md): Revert go.mod and golang.org/x/* dependencies to Go 1.24 compatibility to fix CI typecheck crash.
+- [26-go-125-gofmt-and-goimports-drift.md](./26-go-125-gofmt-and-goimports-drift.md): Fix Go 1.25 gofmt and goimports drift across all repository packages.

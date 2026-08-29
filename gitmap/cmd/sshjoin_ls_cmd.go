@@ -22,6 +22,7 @@ var SJLsCmd = &cobra.Command{
 }
 
 // runSJLs handles the 'gitmap sj ls' command.
+//
 //nolint:revive
 func runSJLs(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return printSJList(ctx, os.Stdout, 0) // Passing 0 for no limit, though max is not strictly defined in requirements

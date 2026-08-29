@@ -65,6 +65,7 @@ func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 }
 
 // profileExists returns an error if a file already exists at path.
+//
 //nolint:unused
 func profileExists(path string) error {
 	_, err := os.Stat(path)

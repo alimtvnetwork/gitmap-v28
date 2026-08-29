@@ -88,6 +88,7 @@ func emitStale(stale []staleRepo, days int, f hygieneFormat) {
 }
 
 // scanForRepos returns directories under root that contain a .git folder.
+//
 //nolint:unused
 func scanForRepos(root string) []string {
 	var out []string

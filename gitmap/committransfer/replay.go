@@ -7,8 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/pterm/pterm"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // Replay walks plan.Commits in order and applies each one to the

@@ -179,6 +179,7 @@ func isStdinTTY() bool {
 // parseRepoRecloneFromFlagSet is a thin wrapper used by tests +
 // future direct callers that want to register -y on a parent
 // flagset rather than rely on splitRepoRecloneArgs.
+//
 //nolint:unused
 func parseRepoRecloneFromFlagSet(fs *flag.FlagSet) *bool {
 	return fs.Bool(constants.FlagRepoRecloneYes, false,

@@ -8,6 +8,7 @@ import (
 )
 
 // printScheduleTree is an alias for printScheduleSummaryTree.
+//
 //nolint:unused
 func printScheduleTree(taskName, interval, shellType string, steps []string) {
 	printScheduleSummaryTree(taskName, interval, shellType, steps)

@@ -94,7 +94,7 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 		os.Exit(exitErr.ExitCode())
 	}
 	panic("fatal error")
-// 	return nil
+	// 	return nil
 }
 
 // scheduleSelfDelete arranges for the temp handoff binary to remove

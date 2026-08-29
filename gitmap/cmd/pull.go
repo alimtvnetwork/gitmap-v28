@@ -150,6 +150,7 @@ func shouldPullCWD(opts pullOptions) bool {
 // the command would exit via resolvePullTargets' stderr error, which
 // is easy to miss in some terminals — leaving the user staring at a
 // blank prompt. Returns true when the hint was printed (caller stops).
+//
 //nolint:unused
 func pullNoTargetsHint(opts pullOptions) bool {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {

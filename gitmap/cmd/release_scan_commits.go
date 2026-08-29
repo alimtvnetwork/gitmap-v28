@@ -6,9 +6,10 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
-	"github.com/charmbracelet/lipgloss"
 )
 
 var rscSuccessStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))

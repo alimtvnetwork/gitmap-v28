@@ -7,8 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"gopkg.in/yaml.v3"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // Run executes the folder command logic.

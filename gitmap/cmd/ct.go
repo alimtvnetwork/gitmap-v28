@@ -9,6 +9,7 @@ import (
 )
 
 // runCT handles `gitmap ct [install-prompts|update-prompts|status|version]`.
+//
 //nolint:unused
 func runCT(args []string) error {
 	opts := parsePromptArgs(args)
