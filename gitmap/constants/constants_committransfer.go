@@ -109,7 +109,7 @@ const (
 // without already knowing it exists. Long-form name first, alias in
 // parens — matches the merge-* convention.
 const (
-	HelpCommitRight = "  commit-right (cmr)  Replay LEFT's commits onto RIGHT (cleaned, idempotent)  [LIVE]"
-	HelpCommitLeft  = "  commit-left  (cml)  Replay RIGHT's commits onto LEFT (cleaned, idempotent)  [LIVE]"
-	HelpCommitBoth  = "  commit-both  (cmb)  Bidirectional replay (sequential by default; --interleave for author-date) [LIVE]"
+	HelpCommitRight = "  commit-right (cmr)  Replay LEFT's commits onto RIGHT (cleaned, idempotent) [LIVE]"
+	HelpCommitLeft  = "  commit-left (cml)  Replay RIGHT's commits onto LEFT (cleaned, idempotent) [LIVE]"
+	HelpCommitBoth  = "  commit-both (cmb)  Bidirectional replay (sequential by default; --interleave for author-date) [LIVE]"
 )
