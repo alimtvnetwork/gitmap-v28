@@ -59,7 +59,12 @@ func printGitmapIdentityBlock() {
 		constants.ColorWhite, constants.Version, constants.ColorReset)
 
 	src := gitmapSourceDir()
-	emitIdentityRows(src, BuildRepo, BuildBranch, BuildCommit)
+	emitIdentityRows(IdentityRowParams{
+		Dir:            src,
+		RepoOverride:   BuildRepo,
+		BranchOverride: BuildBranch,
+		ShaOverride:    BuildCommit,
+	})
 	if len(BuildDate) > 0 {
 		fmt.Printf("  %s● Built:%s       %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
@@ -71,34 +76,44 @@ func printGitmapIdentityBlock() {
 func printCurrentRepoIdentityBlock(cwd string) {
 	fmt.Println("  " + constants.ColorCyan + footerRule + constants.ColorReset)
 	fmt.Println("  " + constants.ColorCyan + "current repo" + constants.ColorReset)
-	emitIdentityRows(cwd, "", "", "")
+	emitIdentityRows(IdentityRowParams{
+		Dir: cwd,
+	})
 	fmt.Println()
+}
+
+// IdentityRowParams encapsulates parameters for rendering an identity block.
+type IdentityRowParams struct {
+	Dir            string
+	RepoOverride   string
+	BranchOverride string
+	ShaOverride    string
 }
 
 // emitIdentityRows prints Repo/Branch/Last commit/Commit SHA rows for dir,
 // preferring the supplied build-time overrides when non-empty.
-func emitIdentityRows(dir, repoOverride, branchOverride, shaOverride string) {
-	repo := firstNonEmptyVar(repoOverride, captureGit(dir, "config", "--get", "remote.origin.url"))
+func emitIdentityRows(params IdentityRowParams) {
+	repo := firstNonEmptyVar(params.RepoOverride, captureGit(params.Dir, "config", "--get", "remote.origin.url"))
 	if len(repo) > 0 {
 		fmt.Printf("  %s● Repo:%s        %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorCyan, repo, constants.ColorReset)
 	}
 
-	branch := firstNonEmptyVar(branchOverride, captureGit(dir, "rev-parse", "--abbrev-ref", "HEAD"))
+	branch := firstNonEmptyVar(params.BranchOverride, captureGit(params.Dir, "rev-parse", "--abbrev-ref", "HEAD"))
 	if len(branch) > 0 {
 		fmt.Printf("  %s● Branch:%s      %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorGreen, branch, constants.ColorReset)
 	}
 
-	if commit := captureGit(dir, "log", "-1", "--format=%h · %s · %cr"); len(commit) > 0 {
+	if commit := captureGit(params.Dir, "log", "-1", "--format=%h · %s · %cr"); len(commit) > 0 {
 		fmt.Printf("  %s● Last commit:%s %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorYellow, commit, constants.ColorReset)
 	}
 
-	sha := firstNonEmptyVar(shaOverride, captureGit(dir, "rev-parse", "HEAD"))
+	sha := firstNonEmptyVar(params.ShaOverride, captureGit(params.Dir, "rev-parse", "HEAD"))
 	if len(sha) > 0 {
 		fmt.Printf("  %s● Commit SHA:%s  %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,

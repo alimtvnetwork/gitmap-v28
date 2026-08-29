@@ -82,12 +82,12 @@ func printCompactAll() {
 
 	for _, g := range compactGroups() {
 		fmt.Println()
-		fmt.Println(g.Header)
+		fmt.Println(colorGroupHeader(g.Header))
 		fmt.Println(g.Compact)
 	}
 
 	fmt.Println()
-	fmt.Println(constants.HelpGroupHint)
+	fmt.Println(colorGroupHeader(constants.HelpGroupHint))
 }
 
 // printCompactFiltered prints only groups matching the filter keyword.
@@ -103,7 +103,7 @@ func printCompactFiltered(filter string) {
 		}
 
 		fmt.Println()
-		fmt.Println(g.Header)
+		fmt.Println(colorGroupHeader(g.Header))
 		fmt.Println(g.Compact)
 		matched = true
 	}

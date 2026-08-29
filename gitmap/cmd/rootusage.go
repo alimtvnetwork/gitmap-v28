@@ -187,20 +187,39 @@ func extractCmdAndDesc(line string) (string, string) {
 	return line, ""
 }
 
-func parseExpandableMarker(cmd, desc string) (string, string, string) {
+// ExpandableMarkerResult contains the extracted command, description, and expandable marker.
+type ExpandableMarkerResult struct {
+	Cmd    string
+	Desc   string
+	Marker string
+}
+
+func parseExpandableMarker(cmd, desc string) ExpandableMarkerResult {
 	if strings.Contains(desc, "(use --help to expand)") {
-		desc = strings.TrimSpace(strings.ReplaceAll(desc, "(use --help to expand)", ""))
+		cleanDesc := strings.TrimSpace(strings.ReplaceAll(desc, "(use --help to expand)", ""))
 		firstWord := strings.Split(cmd, " ")[0]
-		return cmd, desc, fmt.Sprintf("  ▸ subcommands — see `gitmap %s --help`", firstWord)
+		return ExpandableMarkerResult{
+			Cmd:    cmd,
+			Desc:   cleanDesc,
+			Marker: fmt.Sprintf("  ▸ subcommands — see `gitmap %s --help`", firstWord),
+		}
 	}
 
 	if strings.Contains(cmd, "(use --help to expand)") {
-		cmd = strings.TrimSpace(strings.ReplaceAll(cmd, "(use --help to expand)", ""))
+		cleanCmd := strings.TrimSpace(strings.ReplaceAll(cmd, "(use --help to expand)", ""))
 		firstWord := strings.Split(cmd, " ")[0]
-		return cmd, desc, fmt.Sprintf("  ▸ subcommands — see `gitmap %s --help`", firstWord)
+		return ExpandableMarkerResult{
+			Cmd:    cleanCmd,
+			Desc:   desc,
+			Marker: fmt.Sprintf("  ▸ subcommands — see `gitmap %s --help`", firstWord),
+		}
 	}
 
-	return cmd, desc, ""
+	return ExpandableMarkerResult{
+		Cmd:    cmd,
+		Desc:   desc,
+		Marker: "",
+	}
 }
 
 func renderLongHelpRow(cmd, fullDesc string, termWidth int) {
@@ -215,20 +234,28 @@ func renderLongHelpRow(cmd, fullDesc string, termWidth int) {
 	printWrappedHelpLines(indent, fullDesc, descWidth)
 }
 
-func renderStandardHelpRow(cmd, fullDesc string, cmdWidth, termWidth int) {
-	pad := maxHelpCmdLen - cmdWidth
+// HelpRowParams encapsulates parameters for rendering a standard 2-column help row.
+type HelpRowParams struct {
+	Cmd       string
+	FullDesc  string
+	CmdWidth  int
+	TermWidth int
+}
+
+func renderStandardHelpRow(params HelpRowParams) {
+	pad := maxHelpCmdLen - params.CmdWidth
 	if pad < 0 {
 		pad = 0
 	}
 
-	prefix := fmt.Sprintf("  %s%s  ", cmd, strings.Repeat(" ", pad))
-	descWidth := termWidth - lipgloss.Width(prefix)
+	prefix := fmt.Sprintf("  %s%s  ", params.Cmd, strings.Repeat(" ", pad))
+	descWidth := params.TermWidth - lipgloss.Width(prefix)
 	if descWidth <= 10 {
-		fmt.Printf("%s%s\n", prefix, fullDesc)
+		fmt.Printf("%s%s\n", prefix, params.FullDesc)
 		return
 	}
 
-	printWrappedHelpLines(prefix, fullDesc, descWidth)
+	printWrappedHelpLines(prefix, params.FullDesc, descWidth)
 }
 
 func renderHelpRow(cmd string, fullDesc string, termWidth int) {
@@ -238,7 +265,12 @@ func renderHelpRow(cmd string, fullDesc string, termWidth int) {
 		return
 	}
 
-	renderStandardHelpRow(cmd, fullDesc, cmdWidth, termWidth)
+	renderStandardHelpRow(HelpRowParams{
+		Cmd:       cmd,
+		FullDesc:  fullDesc,
+		CmdWidth:  cmdWidth,
+		TermWidth: termWidth,
+	})
 }
 
 func renderLine(line string) {
@@ -247,10 +279,10 @@ func renderLine(line string) {
 	}
 
 	cmd, desc := extractCmdAndDesc(line)
-	cmd, desc, marker := parseExpandableMarker(cmd, desc)
+	markerResult := parseExpandableMarker(cmd, desc)
 
 	if measuringHelp {
-		updateMaxHelpCmdLen(cmd)
+		updateMaxHelpCmdLen(markerResult.Cmd)
 		return
 	}
 
@@ -259,7 +291,7 @@ func renderLine(line string) {
 		termWidth = 120
 	}
 
-	renderHelpRow(cmd, desc+marker, termWidth)
+	renderHelpRow(markerResult.Cmd, markerResult.Desc+markerResult.Marker, termWidth)
 }
 
 func printWrappedHelpLines(prefix, fullDesc string, descWidth int) {
