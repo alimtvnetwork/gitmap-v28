@@ -1,11 +1,13 @@
 # Subtask 21.03: SSH Subcommands Expansion in Help & CLI
 
 ## Target Files
+
 - `gitmap/constants/constants_ssh.go`
 - `gitmap/cmd/ssh.go`
 - `gitmap/cmd/rootusage_groups.go`
 
 ## Actions
+
 - [ ] Update `MsgSSHAvailableCommands` in `gitmap/constants/constants_ssh.go` to list:
   - `ssh create [name]`
   - `ssh list (ls)`
@@ -21,4 +23,5 @@
 - [ ] Ensure `gitmap/cmd/ssh.go` routes `join`, `alias`, `login`, `exec`.
 
 ## Acceptance Criteria
+
 - [ ] `gitmap ssh` prints full subcommands list.
