@@ -72,3 +72,13 @@ python .lovable/ai-fix-scripts/06-file-hygiene-fixer.py src gitmap
 ```
 </details>
 
+<details>
+<summary>07-batch-ok-fixer.py</summary>
+
+**Purpose:** Comprehensively refactors remaining comma-ok idioms and bare `ok` identifier assignments across all Go packages to domain-specific affirmative boolean variables (`isAppErr`, `isFound`, `isResolved`, `isParsed`, `isMatch`, `hasValue`).
+
+**Usage Examples:**
+```bash
+python .lovable/ai-fix-scripts/07-batch-ok-fixer.py
+```
+</details>
