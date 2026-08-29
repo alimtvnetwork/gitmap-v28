@@ -33,7 +33,7 @@ def is_brace_needing_newline(prev_line: str, stripped: str, out_len: int, out_li
         return False
     if stripped == '':
         return False
-    if stripped.startswith(('}', 'else', 'catch', 'finally', ')', ']', ',', ';', '//', '/*', '</')):
+    if stripped.startswith(('}', 'else', 'catch', 'finally', ')', ']', ',', ';', '//', '/*', '</', '|', '&')):
         return False
     if out_len >= 2 and out_list[-2].strip() == '':
         return False
