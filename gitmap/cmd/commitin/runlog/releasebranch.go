@@ -24,7 +24,12 @@ import "github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 //     to override.
 //
 // Pure: no git, no DB, no clock. Trivially testable.
-func ResolveReleaseBranchName(tagName string, isAnnotated, isNoReleaseBranch, isDryRun bool) string {
+func ResolveReleaseBranchName(
+	tagName string,
+	isAnnotated,
+	isNoReleaseBranch,
+	isDryRun bool,
+) string {
 	if isNoReleaseBranch {
 		return ""
 	}

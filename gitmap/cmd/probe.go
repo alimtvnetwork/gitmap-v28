@@ -124,7 +124,11 @@ type probeJob struct {
 // workers finish (matches the cloner pattern); the trailing summary
 // totals are guarded by counterMu so concurrent tallies cannot lose
 // updates.
-func runProbePool(db *store.DB, targets []model.ScanRecord, opts probeOptions) ([]probeJSONEntry, int, int, int) {
+func runProbePool(
+	db *store.DB,
+	targets []model.ScanRecord,
+	opts probeOptions,
+) ([]probeJSONEntry, int, int, int) {
 	jobs := make(chan probeJob, len(targets))
 	entries := make([]probeJSONEntry, len(targets))
 	var counterMu sync.Mutex

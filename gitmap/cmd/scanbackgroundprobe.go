@@ -35,7 +35,12 @@ import (
 // connection-pool restriction (`SetMaxOpenConns(1)`) means we want
 // the background pool to share a single dedicated connection rather
 // than fight with the foreground for the main handle.
-func startBackgroundProbe(records []model.ScanRecord, opts ScanProbeOptions, quiet bool, errCollector *errreport.Collector) *probe.BackgroundRunner {
+func startBackgroundProbe(
+	records []model.ScanRecord,
+	opts ScanProbeOptions,
+	quiet bool,
+	errCollector *errreport.Collector,
+) *probe.BackgroundRunner {
 	workers := resolveProbeWorkers(records, opts, quiet)
 	if workers < 1 {
 		return nil

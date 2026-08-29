@@ -10,7 +10,14 @@ import (
 )
 
 // detectCpp checks if a file indicates a C++ project.
-func detectCpp(name, dir, repoPath string, repoID int64, repoName string, results *[]DetectionResult) {
+func detectCpp(
+	name,
+	dir,
+	repoPath string,
+	repoID int64,
+	repoName string,
+	results *[]DetectionResult,
+) {
 	indicator := ""
 	if name == constants.IndicatorCMakeLists {
 		indicator = constants.IndicatorCMakeLists
@@ -32,7 +39,15 @@ func detectCpp(name, dir, repoPath string, repoID int64, repoName string, result
 }
 
 // detectCsharpFile handles .sln and standalone .csproj detection.
-func detectCsharpFile(name, dir, repoPath string, repoID int64, repoName string, slnDirs map[string]bool, results *[]DetectionResult) {
+func detectCsharpFile(
+	name,
+	dir,
+	repoPath string,
+	repoID int64,
+	repoName string,
+	slnDirs map[string]bool,
+	results *[]DetectionResult,
+) {
 	if strings.HasSuffix(name, constants.ExtSln) {
 		detectCsharpSln(name, dir, repoPath, repoID, repoName, results)
 
@@ -44,7 +59,14 @@ func detectCsharpFile(name, dir, repoPath string, repoID int64, repoName string,
 }
 
 // detectCsharpSln creates a project entry for a .sln file.
-func detectCsharpSln(name, dir, repoPath string, repoID int64, repoName string, results *[]DetectionResult) {
+func detectCsharpSln(
+	name,
+	dir,
+	repoPath string,
+	repoID int64,
+	repoName string,
+	results *[]DetectionResult,
+) {
 	if isDuplicate(dir, constants.ProjectKeyCsharp, results) {
 		return
 	}
@@ -57,7 +79,15 @@ func detectCsharpSln(name, dir, repoPath string, repoID int64, repoName string, 
 }
 
 // detectCsharpStandalone creates an entry for .csproj without parent .sln.
-func detectCsharpStandalone(name, dir, repoPath string, repoID int64, repoName string, slnDirs map[string]bool, results *[]DetectionResult) {
+func detectCsharpStandalone(
+	name,
+	dir,
+	repoPath string,
+	repoID int64,
+	repoName string,
+	slnDirs map[string]bool,
+	results *[]DetectionResult,
+) {
 	if isUnderSlnDir(dir, slnDirs) {
 		return
 	}
@@ -92,13 +122,32 @@ func isDuplicate(dir, typeKey string, results *[]DetectionResult) bool {
 }
 
 // addResult creates and appends a basic DetectionResult.
-func addResult(dir, repoPath string, repoID int64, repoName string, typeID int64, typeKey, projName, indicator string, results *[]DetectionResult) {
+func addResult(
+	dir,
+	repoPath string,
+	repoID int64,
+	repoName string,
+	typeID int64,
+	typeKey,
+	projName,
+	indicator string,
+	results *[]DetectionResult,
+) {
 	result := buildBaseResult(dir, repoPath, repoID, repoName, typeID, typeKey, projName, indicator)
 	*results = append(*results, result)
 }
 
 // buildBaseResult creates a DetectionResult with the project fields populated.
-func buildBaseResult(dir, repoPath string, repoID int64, repoName string, typeID int64, typeKey, projName, indicator string) DetectionResult {
+func buildBaseResult(
+	dir,
+	repoPath string,
+	repoID int64,
+	repoName string,
+	typeID int64,
+	typeKey,
+	projName,
+	indicator string,
+) DetectionResult {
 	relPath := buildRelativePath(dir, repoPath)
 
 	return DetectionResult{

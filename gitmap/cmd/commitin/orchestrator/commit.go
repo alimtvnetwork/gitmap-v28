@@ -18,7 +18,12 @@ import (
 // processOneCommit runs one source commit through dedupe → build →
 // replay → record. Errors at any stage become Failed counters but
 // never abort the loop (spec §3.4: best-effort partial success).
-func processOneCommit(ctx *runContext, staged workspace.StagedInput, c walk.SourceCommit, pick func(int) int, stdout io.Writer) {
+func processOneCommit(
+	ctx *runContext,
+	staged workspace.StagedInput,
+	c walk.SourceCommit,
+	pick func(int,
+) int, stdout io.Writer) {
 	inputRepoID, srcID, ok := persistSource(ctx, staged, c, stdout)
 	if !ok {
 		return
@@ -43,7 +48,12 @@ func processOneCommit(ctx *runContext, staged workspace.StagedInput, c walk.Sour
 
 // persistSource inserts InputRepo (once per staged input via cache)
 // and the SourceCommit row. Returns (inputRepoID, sourceCommitID, ok).
-func persistSource(ctx *runContext, staged workspace.StagedInput, c walk.SourceCommit, stdout io.Writer) (int64, int64, bool) {
+func persistSource(
+	ctx *runContext,
+	staged workspace.StagedInput,
+	c walk.SourceCommit,
+	stdout io.Writer,
+) (int64, int64, bool) {
 	inputRepoID, err := ctx.inputRepoID(staged)
 	if err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrDbWrite, err)
@@ -92,7 +102,12 @@ func handleDedupe(ctx *runContext, srcID int64, c walk.SourceCommit, stdout io.W
 	return true
 }
 
-func buildMessage(ctx *runContext, c walk.SourceCommit, intelBlock string, pick func(int) int) message.Result {
+func buildMessage(
+	ctx *runContext,
+	c walk.SourceCommit,
+	intelBlock string,
+	pick func(int,
+) int) message.Result {
 	return message.Build(message.Inputs{
 		OriginalMessage: c.OriginalMessage,
 		FunctionIntel:   intelBlock,
@@ -107,7 +122,15 @@ func recordSkip(ctx *runContext, srcID int64, reason string, stdout io.Writer, s
 	ctx.Counters.Skipped++
 }
 
-func doReplayAndRecord(ctx *runContext, staged workspace.StagedInput, c walk.SourceCommit, msg string, inputRepoID, srcID int64, stdout io.Writer) {
+func doReplayAndRecord(
+	ctx *runContext,
+	staged workspace.StagedInput,
+	c walk.SourceCommit,
+	msg string,
+	inputRepoID,
+	srcID int64,
+	stdout io.Writer,
+) {
 	_ = inputRepoID
 	if ctx.Raw.IsDryRun {
 		recordSkip(ctx, srcID, constants.CommitInSkipReasonDryRun, stdout, c.Sha)
@@ -132,7 +155,12 @@ func doReplayAndRecord(ctx *runContext, staged workspace.StagedInput, c walk.Sou
 	}
 }
 
-func buildReplayPlan(ctx *runContext, staged workspace.StagedInput, c walk.SourceCommit, msg string) replay.Plan {
+func buildReplayPlan(
+	ctx *runContext,
+	staged workspace.StagedInput,
+	c walk.SourceCommit,
+	msg string,
+) replay.Plan {
 	return replay.Plan{
 		SourceRepoDir: staged.WorkPath,
 		TargetRepoDir: ctx.Source.Path,
@@ -160,7 +188,14 @@ func pickAuthorEmail(ctx *runContext, c walk.SourceCommit) string {
 	return c.AuthorEmail
 }
 
-func recordCreated(ctx *runContext, srcID int64, c walk.SourceCommit, msg, newSha string, stdout io.Writer) {
+func recordCreated(
+	ctx *runContext,
+	srcID int64,
+	c walk.SourceCommit,
+	msg,
+	newSha string,
+	stdout io.Writer,
+) {
 	row := runlog.RewrittenRow{
 		NewSha:               newSha,
 		SourceSha:            c.Sha,
@@ -178,7 +213,14 @@ func recordCreated(ctx *runContext, srcID int64, c walk.SourceCommit, msg, newSh
 	ctx.Counters.Created++
 }
 
-func recordFail(ctx *runContext, srcID int64, c walk.SourceCommit, msg string, cause error, stdout io.Writer) {
+func recordFail(
+	ctx *runContext,
+	srcID int64,
+	c walk.SourceCommit,
+	msg string,
+	cause error,
+	stdout io.Writer,
+) {
 	row := runlog.RewrittenRow{
 		SourceSha:            c.Sha,
 		FinalMessage:         msg,

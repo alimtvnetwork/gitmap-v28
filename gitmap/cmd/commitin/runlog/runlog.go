@@ -12,7 +12,14 @@ import (
 // returns its primary key. Maps to spec §3.1 stage 04 follow-up (the
 // row is created right after MigrateDb so every later stage can carry
 // the runId for FK references).
-func StartRun(db *sql.DB, sourceRepoPath string, sourceURL *string, wasFreshlyInit bool, profileID *int64, startedAt time.Time) (int64, error) {
+func StartRun(
+	db *sql.DB,
+	sourceRepoPath string,
+	sourceURL *string,
+	wasFreshlyInit bool,
+	profileID *int64,
+	startedAt time.Time,
+) (int64, error) {
 	statusID, err := lookupEnumID(db, constants.TableCommitInRunStatus, "RunStatusId", constants.CommitInRunStatusRunning)
 	if err != nil {
 		return 0, fmt.Errorf("runlog: lookup RunStatus: %w", err)

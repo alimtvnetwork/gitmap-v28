@@ -10,7 +10,13 @@ import (
 )
 
 // InsertSSHKey stores a new SSH key record.
-func (db *DB) InsertSSHKey(name, privatePath, publicKey, fingerprint, email string) (model.SSHKey, error) {
+func (db *DB) InsertSSHKey(
+	name,
+	privatePath,
+	publicKey,
+	fingerprint,
+	email string,
+) (model.SSHKey, error) {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertSSHKey, name, privatePath, publicKey, fingerprint, email).Destruct()
 	if err != nil {
 		return model.SSHKey{}, fmt.Errorf(constants.ErrSSHCreate, err)

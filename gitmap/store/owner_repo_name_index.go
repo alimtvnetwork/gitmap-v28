@@ -15,7 +15,12 @@ import (
 // UpsertOwnerRepoNameIndex replaces every row for (provider, owner)
 // with one row per name, deriving BaseName/VersionNumber from the
 // `-vN` convention via visibility.ParseRepoNameMeta.
-func (db *DB) UpsertOwnerRepoNameIndex(provider, owner string, names []string, fetchedAt time.Time) error {
+func (db *DB) UpsertOwnerRepoNameIndex(
+	provider,
+	owner string,
+	names []string,
+	fetchedAt time.Time,
+) error {
 	tx, err := db.conn.Begin()
 	if err != nil {
 		return err

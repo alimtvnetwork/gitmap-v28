@@ -248,7 +248,14 @@ func repoNameFromURL(url string) string {
 // noVSCodeSync, when true, skips the post-clone update of the
 // alefragnani.project-manager projects.json file. See
 // spec/01-vscode-project-manager-sync/02-clone-sync.md.
-func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, output string, noVSCodeSync bool) {
+func executeDirectClone(
+	url,
+	folderName string,
+	ghDesktopFlag,
+	noReplace bool,
+	output string,
+	noVSCodeSync bool,
+) {
 	escapeNestedGitRepo()
 	repoName := repoNameFromURL(url)
 
@@ -437,7 +444,17 @@ func validateShorthandPath(resolved string) string {
 // in cloner.applyDefaultBranchFallback so they go through the
 // untrusted (detached, unknown) git clone is invoked without -b and
 // the remote's default HEAD decides the checkout.
-func executeClone(source, targetDir string, safePull, ghDesktop bool, maxConcurrency int, defaultBranch string, noVSCodeSync bool, clean bool, missingOnly bool) {
+func executeClone(
+	source,
+	targetDir string,
+	safePull,
+	ghDesktop bool,
+	maxConcurrency int,
+	defaultBranch string,
+	noVSCodeSync bool,
+	clean bool,
+	missingOnly bool,
+) {
 	workers, ok := cloneconcurrency.Resolve(maxConcurrency)
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConcurrency)

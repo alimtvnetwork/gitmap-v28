@@ -54,7 +54,16 @@ func InsertClusterRun(ctx context.Context, db *sql.DB, run ClusterRun) (int64, e
 	return id, nil
 }
 
-func UpdateClusterRun(ctx context.Context, db *sql.DB, id int64, finishedAt *time.Time, totalNodes, succeededNodes, failedNodes, skippedNodes *int) error {
+func UpdateClusterRun(
+	ctx context.Context,
+	db *sql.DB,
+	id int64,
+	finishedAt *time.Time,
+	totalNodes,
+	succeededNodes,
+	failedNodes,
+	skippedNodes *int,
+) error {
 	query := `
 		UPDATE ClusterRun
 		SET FinishedAt = ?, TotalNodes = ?, SucceededNodes = ?, FailedNodes = ?, SkippedNodes = ?

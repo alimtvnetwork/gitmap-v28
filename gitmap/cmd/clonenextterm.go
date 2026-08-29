@@ -26,7 +26,14 @@ import (
 // targetURL is the rewritten next-version URL that will actually be
 // cloned. The standardized block surfaces both so the user can spot
 // any URL-rewrite surprises before the clone starts.
-func maybePrintCloneNextTermBlock(flags CloneNextFlags, name, branch, originalURL, targetURL, dest string) {
+func maybePrintCloneNextTermBlock(
+	flags CloneNextFlags,
+	name,
+	branch,
+	originalURL,
+	targetURL,
+	dest string,
+) {
 	if flags.Output != constants.OutputTerminal {
 		return
 	}

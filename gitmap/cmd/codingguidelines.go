@@ -107,7 +107,11 @@ func dispatchCGUnix(opts CodingGuidelinesOpts, hasCustomRunner bool) error {
 	return runCGInstaller(cmd, opts, runtime.GOOS, url)
 }
 
-func buildCGUnixCommand(opts CodingGuidelinesOpts, url string, hasCustomRunner bool) (*exec.Cmd, func(), error) {
+func buildCGUnixCommand(
+	opts CodingGuidelinesOpts,
+	url string,
+	hasCustomRunner bool,
+) (*exec.Cmd, func(), error) {
 	if hasCustomRunner {
 		script := fmt.Sprintf("curl -fsSL %s | bash", url)
 		return opts.Runner("bash", "-c", script), func() {}, nil

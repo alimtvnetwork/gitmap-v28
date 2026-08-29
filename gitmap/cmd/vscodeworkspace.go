@@ -118,7 +118,11 @@ func loadReposForWorkspace() ([]model.ScanRecord, error) {
 // filter semantics match what the PM sync writes. When rootSubdir is
 // non-empty, each folder's path is the repo root joined with that
 // subdir; repos missing that subdir are skipped with a notice.
-func buildFoldersFromRecords(records []model.ScanRecord, tag, rootSubdir string) []vscodeworkspace.Folder {
+func buildFoldersFromRecords(
+	records []model.ScanRecord,
+	tag,
+	rootSubdir string,
+) []vscodeworkspace.Folder {
 	out := make([]vscodeworkspace.Folder, 0, len(records))
 	for _, r := range records {
 		if !matchesWorkspaceTag(r.AbsolutePath, tag) {

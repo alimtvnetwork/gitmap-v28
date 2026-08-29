@@ -18,7 +18,12 @@ import (
 
 // writeAuditLegacyReport renders a Markdown audit report to disk.
 // No-op when ReportPath is empty (the user didn't pass --report).
-func writeAuditLegacyReport(opts auditLegacyOpts, hits []auditLegacyHit, fileCount int, plans []auditDiffPlan) {
+func writeAuditLegacyReport(
+	opts auditLegacyOpts,
+	hits []auditLegacyHit,
+	fileCount int,
+	plans []auditDiffPlan,
+) {
 	if opts.ReportPath == "" {
 		return
 	}
@@ -53,7 +58,12 @@ func setupDir(dir string) error {
 }
 
 // renderAuditMarkdown builds the full report body.
-func renderAuditMarkdown(opts auditLegacyOpts, hits []auditLegacyHit, fileCount int, plans []auditDiffPlan) string {
+func renderAuditMarkdown(
+	opts auditLegacyOpts,
+	hits []auditLegacyHit,
+	fileCount int,
+	plans []auditDiffPlan,
+) string {
 	var b strings.Builder
 	writeAuditMDHeader(&b, opts, hits, fileCount)
 	writeAuditMDPatternCounts(&b, opts, hits)
@@ -65,7 +75,12 @@ func renderAuditMarkdown(opts auditLegacyOpts, hits []auditLegacyHit, fileCount 
 }
 
 // writeAuditMDHeader writes the title + summary block.
-func writeAuditMDHeader(b *strings.Builder, opts auditLegacyOpts, hits []auditLegacyHit, fileCount int) {
+func writeAuditMDHeader(
+	b *strings.Builder,
+	opts auditLegacyOpts,
+	hits []auditLegacyHit,
+	fileCount int,
+) {
 	files := uniqueAuditFiles(hits)
 	fmt.Fprintf(b, "# Legacy Reference Audit\n\n")
 	fmt.Fprintf(b, "- Root scanned: `%s`\n", opts.Root)
@@ -101,7 +116,11 @@ func writeAuditMDFileCounts(b *strings.Builder, hits []auditLegacyHit, plans []a
 }
 
 // writeAuditMDFileCountsTable renders the actual table rows.
-func writeAuditMDFileCountsTable(b *strings.Builder, hits []auditLegacyHit, links map[string]string) {
+func writeAuditMDFileCountsTable(
+	b *strings.Builder,
+	hits []auditLegacyHit,
+	links map[string]string,
+) {
 	hasDiffs := len(links) > 0
 	if hasDiffs {
 		fmt.Fprintf(b, "| File | Matches | Diff |\n|---|---:|---|\n")
@@ -115,7 +134,12 @@ func writeAuditMDFileCountsTable(b *strings.Builder, hits []auditLegacyHit, link
 }
 
 // writeAuditMDFileCountRow emits one row of the file-counts table.
-func writeAuditMDFileCountRow(b *strings.Builder, row auditFileCount, links map[string]string, hasDiffs bool) {
+func writeAuditMDFileCountRow(
+	b *strings.Builder,
+	row auditFileCount,
+	links map[string]string,
+	hasDiffs bool,
+) {
 	lacksDiffs := !hasDiffs
 	if lacksDiffs {
 		fmt.Fprintf(b, "| `%s` | %d |\n", row.file, row.count)

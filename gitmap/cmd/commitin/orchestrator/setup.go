@@ -58,7 +58,12 @@ func openAndMigrate(paths *workspace.Paths, stderr io.Writer) (dbCloser, int) {
 // and computes the layered Resolved settings. Missing-but-requested
 // profile is fatal; the default-profile case is best-effort (missing
 // returns nil so defaults+CLI still apply).
-func loadProfile(raw *commitin.RawArgs, paths *workspace.Paths, _ dbCloser, stderr io.Writer) (profile.Resolved, *profile.Profile, int) {
+func loadProfile(
+	raw *commitin.RawArgs,
+	paths *workspace.Paths,
+	_ dbCloser,
+	stderr io.Writer,
+) (profile.Resolved, *profile.Profile, int) {
 	prof, code := pickProfile(raw, paths, stderr)
 	if code != constants.CommitInExitOk {
 		return profile.Resolved{}, nil, code
@@ -76,7 +81,11 @@ func pickNamedProfile(sourceRoot, name string, stderr io.Writer) (*profile.Profi
 	return p, constants.CommitInExitOk
 }
 
-func pickProfile(raw *commitin.RawArgs, paths *workspace.Paths, stderr io.Writer) (*profile.Profile, int) {
+func pickProfile(
+	raw *commitin.RawArgs,
+	paths *workspace.Paths,
+	stderr io.Writer,
+) (*profile.Profile, int) {
 	if raw.ProfileName != "" {
 		return pickNamedProfile(paths.SourceRoot, raw.ProfileName, stderr)
 	}

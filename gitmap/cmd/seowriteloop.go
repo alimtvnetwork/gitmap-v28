@@ -57,7 +57,15 @@ func commitOne(flags seoWriteFlags, files []string, m commitMessage, idx, count,
 }
 
 // runRotation handles rotation mode when pending files are exhausted.
-func runRotation(flags seoWriteFlags, msgs []commitMessage, files []string, stop <-chan bool, count *int, minSec, maxSec int) error {
+func runRotation(
+	flags seoWriteFlags,
+	msgs []commitMessage,
+	files []string,
+	stop <-chan bool,
+	count *int,
+	minSec,
+	maxSec int,
+) error {
 	if flags.maxCommits > 0 && *count >= flags.maxCommits {
 		return nil
 	}
@@ -75,7 +83,15 @@ func runRotation(flags seoWriteFlags, msgs []commitMessage, files []string, stop
 }
 
 // rotateLoop appends text, commits, reverts, commits in a cycle.
-func rotateLoop(flags seoWriteFlags, msgs []commitMessage, file string, stop <-chan bool, count *int, minSec, maxSec int) {
+func rotateLoop(
+	flags seoWriteFlags,
+	msgs []commitMessage,
+	file string,
+	stop <-chan bool,
+	count *int,
+	minSec,
+	maxSec int,
+) {
 	for flags.maxCommits == 0 || *count < flags.maxCommits {
 		if shouldStop(stop, 0, 0) {
 			break

@@ -12,7 +12,13 @@ import (
 // createPendingTask inserts a pending task into the database.
 // For replayable task types, duplicate detection includes CommandArgs.
 // Returns the task ID and DB handle (caller must close), or 0 on failure.
-func createPendingTask(typeName, targetPath, workDir, sourceCmd, cmdArgs string) (int64, *store.DB) {
+func createPendingTask(
+	typeName,
+	targetPath,
+	workDir,
+	sourceCmd,
+	cmdArgs string,
+) (int64, *store.DB) {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingDBOpen, err)

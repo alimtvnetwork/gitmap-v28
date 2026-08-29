@@ -194,7 +194,11 @@ func executeTemplatesInit(cwd string, flags templatesInitFlags) []templatesInitR
 // runTemplatesInitStep resolves a single (kind, lang) template and either
 // merges it into target or returns a soft-skip result. required=true
 // means a missing template is fatal; required=false makes it a soft skip.
-func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, required bool) templatesInitResult {
+func runTemplatesInitStep(
+	step templatesInitStep,
+	flags templatesInitFlags,
+	required bool,
+) templatesInitResult {
 	res, err := templates.Resolve(step.kind, step.lang)
 	if err != nil && !required {
 		return templatesInitResult{

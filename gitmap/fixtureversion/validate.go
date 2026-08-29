@@ -129,7 +129,13 @@ func MustValidateBodyWithAutobump(t *testing.T, body, sourcePath string, want Ex
 // treat the test as passing for this run since the rewrite landed).
 // Refreshes BOTH the generation and the body-hash so a content-only
 // drift heals in the same pass as a generation drift.
-func tryAutobumpAndReport(t *testing.T, body string, stamp Stamp, sourcePath string, want Expectation) bool {
+func tryAutobumpAndReport(
+	t *testing.T,
+	body string,
+	stamp Stamp,
+	sourcePath string,
+	want Expectation,
+) bool {
 	t.Helper()
 	newGen := NextGeneration(stamp, want)
 	newSHA := ShortHash(BodyHashExcludingMarker(body))

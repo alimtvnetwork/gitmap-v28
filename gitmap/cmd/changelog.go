@@ -67,7 +67,13 @@ func handleChangelogOpen(latest bool, version string) *apperror.AppError {
 // dispatchChangelogOutput prints the appropriate changelog entries.
 // `pretty` controls ANSI rendering for headers + bullet bodies; pass
 // false to emit terminal-safe plain text (no escape codes anywhere).
-func dispatchChangelogOutput(version string, latest bool, limit int, source string, pretty bool) *apperror.AppError {
+func dispatchChangelogOutput(
+	version string,
+	latest bool,
+	limit int,
+	source string,
+	pretty bool,
+) *apperror.AppError {
 	entries, err := release.ReadChangelog()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrChangelogRead)
@@ -125,7 +131,11 @@ func loadChangelogSourceMap() map[string]string {
 }
 
 // printSingleVersion finds and prints one version's changelog.
-func printSingleVersion(entries []release.ChangelogEntry, version string, pretty bool) *apperror.AppError {
+func printSingleVersion(
+	entries []release.ChangelogEntry,
+	version string,
+	pretty bool,
+) *apperror.AppError {
 	entry, found := release.FindChangelogEntry(entries, version)
 	if !found {
 		fmt.Fprintf(os.Stderr, constants.ErrChangelogVersionNotFound, release.NormalizeVersion(version))

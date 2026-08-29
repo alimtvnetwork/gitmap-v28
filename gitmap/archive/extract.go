@@ -63,7 +63,13 @@ func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Fo
 	return format, nil
 }
 
-func completeCompactExtract(ctx context.Context, srcArchive, destBaseDir, tempDir string, res ExtractResult) (ExtractResult, error) {
+func completeCompactExtract(
+	ctx context.Context,
+	srcArchive,
+	destBaseDir,
+	tempDir string,
+	res ExtractResult,
+) (ExtractResult, error) {
 	written, err := extractAllIntoDir(ctx, srcArchive, tempDir)
 	if err != nil {
 		return res, apperror.WrapSimple(err, "extract")
@@ -110,7 +116,12 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 	return runArchiveExtraction(ctx, extractor, stream, destDir)
 }
 
-func runArchiveExtraction(ctx context.Context, extractor archives.Extractor, stream io.Reader, destDir string) (int, error) {
+func runArchiveExtraction(
+	ctx context.Context,
+	extractor archives.Extractor,
+	stream io.Reader,
+	destDir string,
+) (int, error) {
 	written := 0
 	handler := func(_ context.Context, entry archives.FileInfo) error {
 		return extractArchiveEntry(destDir, entry, &written)

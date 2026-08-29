@@ -50,7 +50,11 @@ func auditDiffsDir(reportPath string) string {
 }
 
 // buildAuditDiffPlans iterates unique files and writes one diff each.
-func buildAuditDiffPlans(opts auditLegacyOpts, hits []auditLegacyHit, diffsDir string) []auditDiffPlan {
+func buildAuditDiffPlans(
+	opts auditLegacyOpts,
+	hits []auditLegacyHit,
+	diffsDir string,
+) []auditDiffPlan {
 	files := uniqueAuditFiles(hits)
 	plans := make([]auditDiffPlan, 0, len(files))
 	for _, file := range files {

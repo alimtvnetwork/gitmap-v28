@@ -208,7 +208,15 @@ type testAmendFlags struct {
 	forcePush bool
 }
 
-func buildAuditRecord(f testAmendFlags, commits []model.CommitEntry, branch, mode, prevName, prevEmail string, ts time.Time) model.AmendmentRecord {
+func buildAuditRecord(
+	f testAmendFlags,
+	commits []model.CommitEntry,
+	branch,
+	mode,
+	prevName,
+	prevEmail string,
+	ts time.Time,
+) model.AmendmentRecord {
 	fromCommit := ""
 	toCommit := ""
 

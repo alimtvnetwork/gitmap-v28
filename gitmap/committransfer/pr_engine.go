@@ -12,7 +12,14 @@ import (
 )
 
 // ProcessPR optionally creates and merges a PR for the given commit based on PRMode.
-func ProcessPR(targetDir string, originalSubject, cleanedBody, shortSHA, prMode, newSHA string) error {
+func ProcessPR(
+	targetDir string,
+	originalSubject,
+	cleanedBody,
+	shortSHA,
+	prMode,
+	newSHA string,
+) error {
 	if !shouldCreatePR(originalSubject, prMode) {
 		return nil
 	}

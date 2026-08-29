@@ -113,7 +113,13 @@ func assertStderrContext(t *testing.T, command, stderr, subject string, errPhras
 // and (c) at least one of the underlying-error phrases. Each missing
 // piece is reported separately so a failing run pinpoints exactly
 // which contract field regressed.
-func assertStderrContextAny(t *testing.T, commands []string, stderr, subject string, errPhrases []string) {
+func assertStderrContextAny(
+	t *testing.T,
+	commands []string,
+	stderr,
+	subject string,
+	errPhrases []string,
+) {
 	t.Helper()
 	if !containsAnyCI(stderr, commands) {
 		t.Errorf("stderr missing command label (any of %v)\nstderr=%s",

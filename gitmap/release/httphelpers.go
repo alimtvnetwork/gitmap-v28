@@ -36,7 +36,12 @@ func buildGitHubUploadURL(owner, repo string, releaseID int, filename string) *u
 	}
 }
 
-func newGitHubRequest(method string, u *url.URL, body io.ReadCloser, contentLength int64) *http.Request {
+func newGitHubRequest(
+	method string,
+	u *url.URL,
+	body io.ReadCloser,
+	contentLength int64,
+) *http.Request {
 	return &http.Request{
 		Method:        method,
 		URL:           u,

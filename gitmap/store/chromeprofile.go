@@ -93,7 +93,12 @@ func (db *DB) UpsertChromeProfile(name, sourcePath string, isOffline bool) (int6
 }
 
 // InsertChromeProfileExport records a snapshot (json or csv).
-func (db *DB) InsertChromeProfileExport(profileID int64, format, filePath string, byteSize int) error {
+func (db *DB) InsertChromeProfileExport(
+	profileID int64,
+	format,
+	filePath string,
+	byteSize int,
+) error {
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		return err
 	}

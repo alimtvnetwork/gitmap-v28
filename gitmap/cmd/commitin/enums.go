@@ -233,12 +233,10 @@ func AllLanguages() []FunctionIntelLanguage {
 type (
 	ConflictModeType          = ConflictMode
 	InputKindType             = InputKind
-	MatchRuleType             = MatchRule
-	ResolutionKindType        = ResolutionKind
-	ActionKindType            = ActionKind
-	StepKindType              = StepKind
-	OutputFormatType          = OutputFormat
-	ValidationVerdictType     = ValidationVerdict
+	RunStatusType             = RunStatus
+	CommitOutcomeType         = CommitOutcome
+	SkipReasonType            = SkipReason
+	ExclusionKindType         = ExclusionKind
 	MessageRuleKindType       = MessageRuleKind
 	FunctionIntelLanguageType = FunctionIntelLanguage
 )

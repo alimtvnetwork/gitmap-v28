@@ -24,7 +24,18 @@ type AmendmentRow struct {
 }
 
 // InsertAmendment saves an amendment record to the database.
-func (db *DB) InsertAmendment(branch, fromCommit, toCommit string, total int, prevName, prevEmail, newName, newEmail, mode string, forcePushed bool) error {
+func (db *DB) InsertAmendment(
+	branch,
+	fromCommit,
+	toCommit string,
+	total int,
+	prevName,
+	prevEmail,
+	newName,
+	newEmail,
+	mode string,
+	forcePushed bool,
+) error {
 	fp := boolToIntAmend(forcePushed)
 
 	_, err := ExecWrapper(db.conn, constants.SQLInsertAmendment,

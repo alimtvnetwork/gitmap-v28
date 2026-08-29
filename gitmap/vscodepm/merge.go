@@ -36,7 +36,13 @@ func mergePairsWithMode(existing []Entry, pairs []Pair, mode MergeMode) ([]Entry
 
 // applyMerge reconciles one already-present entry against its incoming
 // Pair under the given MergeMode and bumps the appropriate counter.
-func applyMerge(existing []Entry, idx int, p Pair, mode MergeMode, summary SyncSummary) ([]Entry, SyncSummary) {
+func applyMerge(
+	existing []Entry,
+	idx int,
+	p Pair,
+	mode MergeMode,
+	summary SyncSummary,
+) ([]Entry, SyncSummary) {
 	mergedPaths := unionPaths(existing[idx].Paths, p.Paths)
 	mergedTags := mergeTags(mode, existing[idx].Tags, p.Tags)
 	nameChanged := existing[idx].Name != p.Name

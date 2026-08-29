@@ -41,7 +41,12 @@ func executeCGWorkers(repos []string) {
 	printCGUpdateSummary(results)
 }
 
-func runCgWorker(repo string, wg *sync.WaitGroup, sem chan struct{}, results chan<- cgUpdateResult) error {
+func runCgWorker(
+	repo string,
+	wg *sync.WaitGroup,
+	sem chan struct{},
+	results chan<- cgUpdateResult,
+) error {
 	defer wg.Done()
 	defer func() { <-sem }()
 	res := cgUpdateResult{repo: repo, isFail: false}

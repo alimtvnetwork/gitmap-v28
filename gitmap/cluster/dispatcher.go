@@ -25,7 +25,11 @@ const dialAgentTimeout = 500 * time.Millisecond
 // Dispatch routes the subcommand to the correct executor for the node.
 // This is currently a stub for executors.
 
-func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) db.ClusterExecResult {
+func Dispatch(
+	ctx context.Context,
+	node ClusterNode,
+	subCmd ClusterSubCommand,
+) db.ClusterExecResult {
 	start := time.Now()
 	res := db.ClusterExecResult{
 		NodeId:       node.ID,
@@ -72,7 +76,12 @@ func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) d
 	return res
 }
 
-func dispatchPSCommand(ctx context.Context, node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+func dispatchPSCommand(
+	ctx context.Context,
+	node ClusterNode,
+	rawArg string,
+	res *db.ClusterExecResult,
+) {
 	res.ResultStatus = db.ResultStatusSucceeded
 	if !node.IsServer {
 		dispatchRemotePS(node, rawArg, res)
@@ -100,7 +109,12 @@ func dispatchRemotePS(node ClusterNode, rawArg string, res *db.ClusterExecResult
 	applyReply(res, reply)
 }
 
-func dispatchLocalPS(ctx context.Context, node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+func dispatchLocalPS(
+	ctx context.Context,
+	node ClusterNode,
+	rawArg string,
+	res *db.ClusterExecResult,
+) {
 	stdout, stderr, exitCode, err := ExecPS(ctx, node, rawArg)
 	res.Stdout = &stdout
 	res.Stderr = &stderr
@@ -114,7 +128,12 @@ func dispatchLocalPS(ctx context.Context, node ClusterNode, rawArg string, res *
 	}
 }
 
-func dispatchCmdCommand(ctx context.Context, node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+func dispatchCmdCommand(
+	ctx context.Context,
+	node ClusterNode,
+	rawArg string,
+	res *db.ClusterExecResult,
+) {
 	res.ResultStatus = db.ResultStatusSucceeded
 	if !node.IsServer {
 		dispatchRemoteCmd(node, rawArg, res)
@@ -142,7 +161,12 @@ func dispatchRemoteCmd(node ClusterNode, rawArg string, res *db.ClusterExecResul
 	applyReply(res, reply)
 }
 
-func dispatchLocalCmd(ctx context.Context, node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+func dispatchLocalCmd(
+	ctx context.Context,
+	node ClusterNode,
+	rawArg string,
+	res *db.ClusterExecResult,
+) {
 	stdout, stderr, exitCode, err := ExecCmd(ctx, node, rawArg)
 	res.Stdout = &stdout
 	res.Stderr = &stderr

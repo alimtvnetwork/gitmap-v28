@@ -25,7 +25,26 @@ func runReleaseSelf(args []string) error {
 }
 
 // executeSelfRelease builds options and runs the self-release workflow.
-func executeSelfRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {
+func executeSelfRelease(
+	version,
+	assets,
+	commit,
+	branch,
+	bump,
+	notes,
+	targets string,
+	zipGroups,
+	zipItems []string,
+	bundleName string,
+	draft,
+	dryRun,
+	verbose,
+	compress,
+	checksums,
+	bin,
+	noCommit,
+	yes bool,
+) {
 	opts := release.Options{
 		Version: version, Assets: assets,
 		Commit: commit, Branch: branch,

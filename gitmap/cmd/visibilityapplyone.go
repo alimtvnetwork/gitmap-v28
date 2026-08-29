@@ -37,7 +37,13 @@ func applyOneRepo(owner ownerContext, repoName, target string, verbose bool) app
 // applyOneRepoTo is the writer-aware variant used by the parallel
 // bulk loop so per-repo output can be captured into a buffer and
 // flushed atomically once the worker finishes.
-func applyOneRepoTo(w io.Writer, owner ownerContext, repoName, target string, verbose bool) applyStatus {
+func applyOneRepoTo(
+	w io.Writer,
+	owner ownerContext,
+	repoName,
+	target string,
+	verbose bool,
+) applyStatus {
 	slug := owner.Owner + "/" + repoName
 	repoCtx := visibilityContext{Provider: owner.Provider, Slug: slug}
 

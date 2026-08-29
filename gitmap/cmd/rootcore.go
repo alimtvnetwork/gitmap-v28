@@ -119,7 +119,11 @@ func dispatchServersClientsPathCmd(subCmd string, rest []string) bool {
 	}
 }
 
-func dispatchClusterReadWrite(selector cluster.TargetSelectorType, subCmd string, rest []string) bool {
+func dispatchClusterReadWrite(
+	selector cluster.TargetSelectorType,
+	subCmd string,
+	rest []string,
+) bool {
 	switch subCmd {
 	case "ls":
 		runClusterLS(selector, rest)

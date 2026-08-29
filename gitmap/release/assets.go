@@ -98,7 +98,12 @@ func FindMainPackages() []string {
 
 // CrossCompile builds binaries for all targets and packages.
 // Returns the list of successfully built binary paths.
-func CrossCompile(version string, targets []BuildTarget, packages []string, stagingDir string) []CrossCompileResult {
+func CrossCompile(
+	version string,
+	targets []BuildTarget,
+	packages []string,
+	stagingDir string,
+) []CrossCompileResult {
 	var results []CrossCompileResult
 
 	binName := resolveBinName()

@@ -86,7 +86,12 @@ func findCmdRunnables(projectDir string, runnables []model.GoRunnableFile) []mod
 }
 
 // checkCmdSubdir looks for main.go in a cmd subdirectory.
-func checkCmdSubdir(cmdDir, subName, projectDir string, runnables []model.GoRunnableFile) []model.GoRunnableFile {
+func checkCmdSubdir(
+	cmdDir,
+	subName,
+	projectDir string,
+	runnables []model.GoRunnableFile,
+) []model.GoRunnableFile {
 	mainPath := filepath.Join(cmdDir, subName, constants.GoMainFile)
 	if fileExists(mainPath) {
 		rel := buildRelativePath(filepath.Dir(mainPath), projectDir)

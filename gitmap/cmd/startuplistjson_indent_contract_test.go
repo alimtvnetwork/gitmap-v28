@@ -49,7 +49,13 @@ func TestStartupListJSONIndent_KeyOrderStableAcrossIndents(t *testing.T) {
 // object's keys appear in the expected order. Uses Decoder.Token
 // because a regular Unmarshal into map[string]any loses order.
 // Split out so the parent test stays under the 15-line budget.
-func assertJSONArrayKeyOrder(t *testing.T, indent int, data []byte, want []string, wantObjects int) {
+func assertJSONArrayKeyOrder(
+	t *testing.T,
+	indent int,
+	data []byte,
+	want []string,
+	wantObjects int,
+) {
 	t.Helper()
 	dec := json.NewDecoder(bytes.NewReader(data))
 	if _, err := dec.Token(); err != nil { // opening `[`

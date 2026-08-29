@@ -204,7 +204,11 @@ func resolveOwnerOrExit(arg string) ownerContext {
 // exits 0 with a friendly message when nothing matched. Returns the
 // matched subset AND the owner-wide total so the audit layer can
 // persist OwnerRepoTotal.
-func matchOrExitEmpty(ctx ownerContext, patterns []visibility.Pattern, flags bulkFlags) ([]visibility.MatchedRepo, int) {
+func matchOrExitEmpty(
+	ctx ownerContext,
+	patterns []visibility.Pattern,
+	flags bulkFlags,
+) ([]visibility.MatchedRepo, int) {
 	names, err := listOwnerReposCached(ctx.Provider, ctx.Owner, flags)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)

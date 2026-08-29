@@ -43,7 +43,11 @@ func runVisibilityHistory(args []string) error {
 
 // loadHistoryRuns picks the pushdown path when any filter is set,
 // otherwise falls back to the unfiltered newest-first SELECT.
-func loadHistoryRuns(db *store.DB, limit int, f historyFilters) ([]model.MakeAllVisibilityRunRecord, error) {
+func loadHistoryRuns(
+	db *store.DB,
+	limit int,
+	f historyFilters,
+) ([]model.MakeAllVisibilityRunRecord, error) {
 	if f.Kind == "" && f.Since == 0 {
 		return db.SelectRecentMakeAllVisibilityRuns(limit)
 	}

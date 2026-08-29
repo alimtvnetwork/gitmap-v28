@@ -47,7 +47,12 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 	return extractListEntries(ctx, extractor, stream, format)
 }
 
-func extractListEntries(ctx context.Context, extractor archives.Extractor, stream io.Reader, format archives.Format) ([]Entry, Format, error) {
+func extractListEntries(
+	ctx context.Context,
+	extractor archives.Extractor,
+	stream io.Reader,
+	format archives.Format,
+) ([]Entry, Format, error) {
 	var out []Entry
 	err := extractor.Extract(ctx, stream, func(_ context.Context, entry archives.FileInfo) error {
 		isLimitReached := len(out) >= maxListEntries

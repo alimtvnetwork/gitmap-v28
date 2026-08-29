@@ -10,7 +10,14 @@ import (
 )
 
 // ExportToRemoteGitRepo clones a remote repository into a sandbox, writes the export, commits, and pushes.
-func (m *Manager) ExportToRemoteGitRepo(slug, repoURL, branch, filename, commitMsg string, isPush bool) error {
+func (m *Manager) ExportToRemoteGitRepo(
+	slug,
+	repoURL,
+	branch,
+	filename,
+	commitMsg string,
+	isPush bool,
+) error {
 	if m == nil || m.db == nil {
 		return apperror.New("ExportToRemoteGitRepo", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}

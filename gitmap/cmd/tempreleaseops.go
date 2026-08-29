@@ -146,7 +146,13 @@ func formatSeq(seq, digits int) string {
 }
 
 // createTempBranches creates branches from commits and records them in DB.
-func createTempBranches(commits []release.TempReleaseCommit, prefix string, start, digits int, db *store.DB) []string {
+func createTempBranches(
+	commits []release.TempReleaseCommit,
+	prefix string,
+	start,
+	digits int,
+	db *store.DB,
+) []string {
 	fmt.Printf(constants.MsgTRCreating, len(commits))
 
 	var created []string

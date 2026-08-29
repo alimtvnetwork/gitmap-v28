@@ -98,12 +98,26 @@ func requireAmendCommits(f amendFlags) ([]model.CommitEntry, *apperror.AppError)
 	return commits, nil
 }
 
-func handleAmendDryRun(f amendFlags, commits []model.CommitEntry, originalBranch, prevName, prevEmail string) {
+func handleAmendDryRun(
+	f amendFlags,
+	commits []model.CommitEntry,
+	originalBranch,
+	prevName,
+	prevEmail string,
+) {
 	printAmendDryRun(commits, f, prevName, prevEmail)
 	returnToBranch(f, originalBranch)
 }
 
-func runAmendWorkflow(f amendFlags, commits []model.CommitEntry, targetBranch, mode, prevName, prevEmail, originalBranch string) *apperror.AppError {
+func runAmendWorkflow(
+	f amendFlags,
+	commits []model.CommitEntry,
+	targetBranch,
+	mode,
+	prevName,
+	prevEmail,
+	originalBranch string,
+) *apperror.AppError {
 	fmt.Print(constants.MsgAmendWarnRewrite)
 	printAmendHeader(f, commits, targetBranch, prevName, prevEmail)
 	runFilterBranch(f, commits)

@@ -37,7 +37,11 @@ type NodeFilter struct {
 }
 
 // ResolveTargetNodes implements IP/ID inclusion and exclusion matching.
-func ResolveTargetNodes(selector TargetSelectorType, filter NodeFilter, allNodes []ClusterNode) ([]ClusterNode, error) {
+func ResolveTargetNodes(
+	selector TargetSelectorType,
+	filter NodeFilter,
+	allNodes []ClusterNode,
+) ([]ClusterNode, error) {
 	isEmptyNodes := len(allNodes) == constants.EmptySliceLength
 	if isEmptyNodes {
 		return nil, errors.New(constants.ErrClusterNoNodes)

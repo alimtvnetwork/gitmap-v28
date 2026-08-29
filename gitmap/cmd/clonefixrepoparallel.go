@@ -73,7 +73,17 @@ func resolveCFRWorkers(workers, total int) int {
 	return workers
 }
 
-func startCFRWorker(bin, subcmd string, total int, leadingMods, passthroughFlags []string, jobs <-chan cfrJob, mu *sync.Mutex, failed *int, wg *sync.WaitGroup) {
+func startCFRWorker(
+	bin,
+	subcmd string,
+	total int,
+	leadingMods,
+	passthroughFlags []string,
+	jobs <-chan cfrJob,
+	mu *sync.Mutex,
+	failed *int,
+	wg *sync.WaitGroup,
+) {
 	defer wg.Done()
 	for j := range jobs {
 		if !runOneCFRJob(bin, subcmd, j.url, j.i+1, total, leadingMods, passthroughFlags, mu) {
@@ -84,7 +94,14 @@ func startCFRWorker(bin, subcmd string, total int, leadingMods, passthroughFlags
 	}
 }
 
-func runCFRWorkerPool(bin, subcmd string, urls []string, leadingMods, passthroughFlags []string, workers int) int {
+func runCFRWorkerPool(
+	bin,
+	subcmd string,
+	urls []string,
+	leadingMods,
+	passthroughFlags []string,
+	workers int,
+) int {
 	jobs := initCFRJobQueue(urls)
 	var (
 		mu     sync.Mutex
@@ -106,7 +123,13 @@ func runCFRWorkerPool(bin, subcmd string, urls []string, leadingMods, passthroug
 // each worker observes the same semantics.
 //
 // Returns the count of failed URLs (exit-non-zero from the re-exec).
-func runCloneFixRepoParallel(urls []string, subcmd string, leadingMods, passthroughFlags []string, workers int) int {
+func runCloneFixRepoParallel(
+	urls []string,
+	subcmd string,
+	leadingMods,
+	passthroughFlags []string,
+	workers int,
+) int {
 	workers = resolveCFRWorkers(workers, len(urls))
 	bin, err := os.Executable()
 	if err != nil {
@@ -127,7 +150,14 @@ func buildCFRJobArgs(subcmd, url string, leadingMods, passthroughFlags []string)
 	return append(args, passthroughFlags...)
 }
 
-func logCFRJobResult(buf *bytes.Buffer, idx, total int, url string, elapsed time.Duration, runErr error) {
+func logCFRJobResult(
+	buf *bytes.Buffer,
+	idx,
+	total int,
+	url string,
+	elapsed time.Duration,
+	runErr error,
+) {
 	if runErr == nil {
 		fmt.Fprintf(buf, constants.MsgCloneFixRepoParallelItemOk, idx, total, url, elapsed)
 		return
@@ -147,7 +177,16 @@ func execCFRJobCommand(bin string, args []string, buf *bytes.Buffer) (time.Durat
 // runOneCFRJob re-execs the binary with a single URL, captures both
 // streams into one buffer, and flushes under the shared mutex so
 // per-URL blocks stay contiguous. Returns true on exit code 0.
-func runOneCFRJob(bin, subcmd, url string, idx, total int, leadingMods, passthroughFlags []string, mu *sync.Mutex) bool {
+func runOneCFRJob(
+	bin,
+	subcmd,
+	url string,
+	idx,
+	total int,
+	leadingMods,
+	passthroughFlags []string,
+	mu *sync.Mutex,
+) bool {
 	args := buildCFRJobArgs(subcmd, url, leadingMods, passthroughFlags)
 	buf := &bytes.Buffer{}
 	fmt.Fprintf(buf, constants.MsgCloneFixRepoParallelItem, idx, total, url)
@@ -266,7 +305,16 @@ func buildCFRActionFlags(autoYes, dryRun, noCommit, noPush bool) []string {
 // parseCloneFixRepoArgs so each worker sees the same semantics. The
 // --parallel flag is intentionally NOT forwarded — workers run a
 // single URL and must not recurse into another fan-out.
-func buildCFRPassthroughFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush bool) []string {
+func buildCFRPassthroughFlags(
+	noVSCodeSync,
+	requireVersion,
+	useSSH,
+	useHTTPS,
+	autoYes,
+	dryRun,
+	noCommit,
+	noPush bool,
+) []string {
 	flags := buildCFRTransportAndSyncFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS)
 	return append(flags, buildCFRActionFlags(autoYes, dryRun, noCommit, noPush)...)
 }

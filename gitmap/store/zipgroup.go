@@ -107,7 +107,13 @@ func (db *DB) UpdateZipGroupArchive(name, archiveName string) error {
 }
 
 // AddZipGroupItem adds a file or folder to a zip group with full path metadata.
-func (db *DB) AddZipGroupItem(groupName, repoPath, relativePath, fullPath string, isFolder bool) error {
+func (db *DB) AddZipGroupItem(
+	groupName,
+	repoPath,
+	relativePath,
+	fullPath string,
+	isFolder bool,
+) error {
 	g, err := db.FindZipGroupByName(groupName)
 	if err != nil {
 		return err

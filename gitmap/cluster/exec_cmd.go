@@ -30,7 +30,11 @@ func defaultLookPath(file string) (string, error) {
 
 // ExecCmd runs a command on the target node (currently executing locally via the OS shell).
 
-func ExecCmd(ctx context.Context, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error) {
+func ExecCmd(
+	ctx context.Context,
+	node ClusterNode,
+	command string,
+) (stdout, stderr string, exitCode int, err error) {
 	var cmd *exec.Cmd
 	isWindows := runtime.GOOS == constants.WindowsOS
 	if isWindows {

@@ -35,7 +35,11 @@ type ProjRunResult struct {
 
 // ExecProjRun scans registered repo paths on the node, finds run.ps1 or run.sh, executes, captures last 20 lines on failure.
 
-func ExecProjRun(ctx context.Context, node ClusterNode, projectNames []string) ([]ProjRunResult, error) {
+func ExecProjRun(
+	ctx context.Context,
+	node ClusterNode,
+	projectNames []string,
+) ([]ProjRunResult, error) {
 	database, err := store.OpenDefault()
 	isDbError := err != nil
 	if isDbError {
@@ -133,6 +137,10 @@ func executeProjectRun(ctx context.Context, projName, absPath string) ProjRunRes
 
 // ExecProjCreateCICD is a stub returning db.ResultStatusDeferred with a future spec message.
 
-func ExecProjCreateCICD(ctx context.Context, node ClusterNode, projectNames []string) (db.ResultStatusType, string) {
+func ExecProjCreateCICD(
+	ctx context.Context,
+	node ClusterNode,
+	projectNames []string,
+) (db.ResultStatusType, string) {
 	return db.ResultStatusDeferred, msgCreateCICDStub
 }

@@ -40,7 +40,15 @@ type runContext struct {
 	aborted bool
 }
 
-func newContext(raw *commitin.RawArgs, src *workspace.SourceHandle, paths *workspace.Paths, lock *workspace.LockHandle, db dbCloser, resolved profile.Resolved, runID int64) *runContext {
+func newContext(
+	raw *commitin.RawArgs,
+	src *workspace.SourceHandle,
+	paths *workspace.Paths,
+	lock *workspace.LockHandle,
+	db dbCloser,
+	resolved profile.Resolved,
+	runID int64,
+) *runContext {
 	return &runContext{
 		Raw:      raw,
 		Source:   src,

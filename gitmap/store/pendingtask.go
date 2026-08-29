@@ -10,7 +10,13 @@ import (
 )
 
 // InsertPendingTask creates a new pending task and returns its ID.
-func (db *DB) InsertPendingTask(taskTypeID int64, targetPath, workDir, sourceCmd, cmdArgs string) (int64, error) {
+func (db *DB) InsertPendingTask(
+	taskTypeID int64,
+	targetPath,
+	workDir,
+	sourceCmd,
+	cmdArgs string,
+) (int64, error) {
 	result, err := ExecWrapper(db.conn, constants.SQLInsertPendingTask,
 		taskTypeID, targetPath, workDir, sourceCmd, cmdArgs).Destruct()
 	if err != nil {

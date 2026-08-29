@@ -61,7 +61,14 @@ func executeInstallSteps(installCmd []string, opts installOptions, manager, vers
 	runStepInstall(installCmd, opts, manager, versionLabel, step, totalSteps)
 }
 
-func runStepInstall(installCmd []string, opts installOptions, manager, versionLabel string, step, totalSteps int) error {
+func runStepInstall(
+	installCmd []string,
+	opts installOptions,
+	manager,
+	versionLabel string,
+	step,
+	totalSteps int,
+) error {
 	fmt.Printf("  [%d/%d] Installing %s v%s via %s...\n", step, totalSteps, opts.Tool, versionLabel, manager)
 	runInstallCommand(installCmd, opts)
 	step++
@@ -200,7 +207,14 @@ func handleInstallError(args []string, opts installOptions, output []byte, err e
 	cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 }
 
-func printInstallFailureDetails(tool, manager, version string, args []string, err error, logPath string) {
+func printInstallFailureDetails(
+	tool,
+	manager,
+	version string,
+	args []string,
+	err error,
+	logPath string,
+) {
 	versionLabel := version
 	if versionLabel == "" {
 		versionLabel = "latest"
@@ -217,7 +231,14 @@ func printInstallFailureDetails(tool, manager, version string, args []string, er
 }
 
 // writeInstallErrorLog writes detailed error information to a log file.
-func writeInstallErrorLog(tool, manager, version string, args []string, output []byte, installErr error) string {
+func writeInstallErrorLog(
+	tool,
+	manager,
+	version string,
+	args []string,
+	output []byte,
+	installErr error,
+) string {
 	logDir := constants.InstallLogDir
 	if err := os.MkdirAll(logDir, 0o755); err != nil {
 		fmt.Fprintf(os.Stderr, "  Warning: could not create log directory %s: %v\n", logDir, err)
@@ -232,7 +253,14 @@ func writeInstallErrorLog(tool, manager, version string, args []string, output [
 	return logPath
 }
 
-func buildInstallErrorLogContent(tool, manager, version string, args []string, output []byte, installErr error) string {
+func buildInstallErrorLogContent(
+	tool,
+	manager,
+	version string,
+	args []string,
+	output []byte,
+	installErr error,
+) string {
 	versionLabel := version
 	if versionLabel == "" {
 		versionLabel = "latest"

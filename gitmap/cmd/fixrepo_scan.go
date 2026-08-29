@@ -42,7 +42,11 @@ type fixRepoSweepResult struct {
 }
 
 // runFixRepoSweep enumerates tracked files and rewrites each.
-func runFixRepoSweep(identity fixRepoIdentity, targets []int, opts fixRepoOptions) fixRepoSweepResult {
+func runFixRepoSweep(
+	identity fixRepoIdentity,
+	targets []int,
+	opts fixRepoOptions,
+) fixRepoSweepResult {
 	files := listTrackedFiles(identity.root)
 	result := fixRepoSweepResult{}
 	if !opts.isDryRun {

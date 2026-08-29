@@ -47,7 +47,13 @@ func stripGlyphsFlag(args []string) []string {
 }
 
 // matchGlyphsArg recognizes the four legal flag forms.
-func matchGlyphsArg(a string, args []string, i int, short, long string) (val string, consumed int, matched bool) {
+func matchGlyphsArg(
+	a string,
+	args []string,
+	i int,
+	short,
+	long string,
+) (val string, consumed int, matched bool) {
 	matchBare := a == short || a == long
 	if matchBare && i+1 < len(args) && glyphs.IsValidLabel(args[i+1]) {
 		return args[i+1], 2, true

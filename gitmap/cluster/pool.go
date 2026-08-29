@@ -19,7 +19,16 @@ import (
 // Each worker processes one node's sub-command chain sequentially.
 // It also tracks progress using a parallel-spinner UI and handles Ctrl+C.
 
-func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubCommand, dbConn *sql.DB, runId int64, maxWorkers int, resultCh chan<- db.ClusterExecResult, verbose bool) {
+func RunPool(
+	ctx context.Context,
+	nodes []ClusterNode,
+	subCmds []ClusterSubCommand,
+	dbConn *sql.DB,
+	runId int64,
+	maxWorkers int,
+	resultCh chan<- db.ClusterExecResult,
+	verbose bool,
+) {
 	isInvalidWorkers := maxWorkers <= 0
 	if isInvalidWorkers {
 		maxWorkers = 10
@@ -194,7 +203,15 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 	close(resultCh)
 }
 
-func reportNodeExecutionResult(spinner *pterm.SpinnerPrinter, nodeLabel, displayCmd string, durMs int, exitCode int, ctxErr error, allOk bool) (bool, bool, bool) {
+func reportNodeExecutionResult(
+	spinner *pterm.SpinnerPrinter,
+	nodeLabel,
+	displayCmd string,
+	durMs int,
+	exitCode int,
+	ctxErr error,
+	allOk bool,
+) (bool, bool, bool) {
 	if ctxErr != nil {
 		reportNodeSkipped(spinner, nodeLabel)
 		return true, false, false
@@ -231,7 +248,11 @@ func reportNodeFailure(spinner *pterm.SpinnerPrinter, nodeLabel, displayCmd stri
 	pterm.Error.Printf("%s %s (exit %d)\n", nodeLabel, displayCmd, exitCode)
 }
 
-func finishClusterPool(multi *pterm.MultiPrinter, isMultiActive bool, updateCounts func(bool), runId int64, totalNodes, succeeded, failed, skipped int) {
+func finishClusterPool(
+	multi *pterm.MultiPrinter,
+	isMultiActive bool,
+	updateCounts func(bool,
+), runId int64, totalNodes, succeeded, failed, skipped int) {
 	updateCounts(false)
 	if isMultiActive {
 		multi.Stop()

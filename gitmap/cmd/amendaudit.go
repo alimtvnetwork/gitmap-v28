@@ -15,7 +15,14 @@ import (
 )
 
 // writeAmendAudit writes the audit JSON file to .gitmap/amendments/.
-func writeAmendAudit(f amendFlags, commits []model.CommitEntry, branch, mode, prevName, prevEmail string) string {
+func writeAmendAudit(
+	f amendFlags,
+	commits []model.CommitEntry,
+	branch,
+	mode,
+	prevName,
+	prevEmail string,
+) string {
 	dir := constants.AmendAuditDir
 	ensureAmendDir(dir)
 
@@ -39,7 +46,15 @@ func writeAmendAudit(f amendFlags, commits []model.CommitEntry, branch, mode, pr
 }
 
 // buildAuditRecord constructs the AmendmentRecord for JSON output.
-func buildAuditRecord(f amendFlags, commits []model.CommitEntry, branch, mode, prevName, prevEmail string, ts time.Time) model.AmendmentRecord {
+func buildAuditRecord(
+	f amendFlags,
+	commits []model.CommitEntry,
+	branch,
+	mode,
+	prevName,
+	prevEmail string,
+	ts time.Time,
+) model.AmendmentRecord {
 	fromCommit := ""
 	toCommit := ""
 
@@ -69,7 +84,14 @@ func buildAuditRecord(f amendFlags, commits []model.CommitEntry, branch, mode, p
 }
 
 // saveAmendToDB persists the amendment record to the SQLite database.
-func saveAmendToDB(f amendFlags, commits []model.CommitEntry, branch, mode, prevName, prevEmail string) {
+func saveAmendToDB(
+	f amendFlags,
+	commits []model.CommitEntry,
+	branch,
+	mode,
+	prevName,
+	prevEmail string,
+) {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  Warning: could not save amendment to database: %v\n", err)

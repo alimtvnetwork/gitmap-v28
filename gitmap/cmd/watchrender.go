@@ -51,7 +51,12 @@ const (
 
 // encodeWatchJSON writes a single watch snapshot as stable JSON.
 // `timestamp` is injected so tests can pass a fixed value.
-func encodeWatchJSON(w io.Writer, snapshots []watchSnapshot, summary watchSummary, timestamp string) error {
+func encodeWatchJSON(
+	w io.Writer,
+	snapshots []watchSnapshot,
+	summary watchSummary,
+	timestamp string,
+) error {
 	reposRaw, err := renderWatchReposRaw(snapshots)
 	if err != nil {
 		return err

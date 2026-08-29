@@ -56,7 +56,11 @@ func runVisibilityUndo(args []string) error {
 // loadReversible resolves the target run for either undo or redo.
 // When runID > 0 it loads that exact row; otherwise it picks the
 // latest row matching `kind` (empty kind = any undoable run).
-func loadReversible(runID int64, kind, notFoundMsg string) (model.MakeAllVisibilityRunRecord, []model.MakeAllVisibilityResultRecord) {
+func loadReversible(
+	runID int64,
+	kind,
+	notFoundMsg string,
+) (model.MakeAllVisibilityRunRecord, []model.MakeAllVisibilityResultRecord) {
 	db := openDBOrExit("visibility-undo/redo")
 	run := pickReversibleRun(db, runID, kind, notFoundMsg)
 	results, err := db.SelectUndoableResultsForRun(run.ID)
@@ -68,7 +72,12 @@ func loadReversible(runID int64, kind, notFoundMsg string) (model.MakeAllVisibil
 }
 
 // pickReversibleRun dispatches between the by-ID and by-latest paths.
-func pickReversibleRun(db *store.DB, runID int64, kind, notFoundMsg string) model.MakeAllVisibilityRunRecord {
+func pickReversibleRun(
+	db *store.DB,
+	runID int64,
+	kind,
+	notFoundMsg string,
+) model.MakeAllVisibilityRunRecord {
 	if runID > 0 {
 		return mustLoadRunByID(db, runID)
 	}
@@ -151,7 +160,12 @@ func openDBOrExit(cmdLabel string) *store.DB {
 // reverseRunAndExit replays each result row's PrevVisibility through
 // the existing read→apply→verify pipeline, logging the operation as
 // a fresh run keyed by `cmdName` (CmdVisibilityUndo or *Redo).
-func reverseRunAndExit(run model.MakeAllVisibilityRunRecord, results []model.MakeAllVisibilityResultRecord, flags undoFlags, cmdName string) {
+func reverseRunAndExit(
+	run model.MakeAllVisibilityRunRecord,
+	results []model.MakeAllVisibilityResultRecord,
+	flags undoFlags,
+	cmdName string,
+) {
 	mustEnsureProviderCLI(run.Provider, flags.Verbose)
 	mustEnsureProviderAuth(run.Provider, flags.Verbose)
 	ctx := ownerContext{Provider: run.Provider, Owner: run.Owner, TargetRaw: run.TargetRaw}
@@ -184,7 +198,16 @@ func reverseRunAndExit(run model.MakeAllVisibilityRunRecord, results []model.Mak
 // emitUndoJSON writes the canonical --json summary line to stdout.
 // Errors are surfaced to stderr (zero-swallow) but do not change
 // the process exit code, which is owned by the apply outcome.
-func emitUndoJSON(cmdName string, run model.MakeAllVisibilityRunRecord, newRunID int64, matched, changed, skipped, failed, exit int) {
+func emitUndoJSON(
+	cmdName string,
+	run model.MakeAllVisibilityRunRecord,
+	newRunID int64,
+	matched,
+	changed,
+	skipped,
+	failed,
+	exit int,
+) {
 	out, err := renderUndoJSON(undoJSONSummary{
 		Command: cmdName, RunID: newRunID, SourceRun: run.ID,
 		Provider: run.Provider, Owner: run.Owner,
@@ -211,7 +234,13 @@ func matchesFromResults(rs []model.MakeAllVisibilityResultRecord) []visibility.M
 
 // beginReverseAudit writes a fresh MakeAllVisibilityRun row with the
 // supplied cmdName (which `commandKindFor` maps to the right enum).
-func beginReverseAudit(ctx ownerContext, flags undoFlags, sourceRunID int64, matches []visibility.MatchedRepo, cmdName string) *runAudit {
+func beginReverseAudit(
+	ctx ownerContext,
+	flags undoFlags,
+	sourceRunID int64,
+	matches []visibility.MatchedRepo,
+	cmdName string,
+) *runAudit {
 	patternsRaw := fmt.Sprintf(constants.UndoPatternsRawFmt, cmdName, sourceRunID)
 
 	return beginRunAudit(ctx, "mixed", cmdName, patternsRaw, bulkFlags{Yes: true, Verbose: flags.Verbose}, len(matches), matches)
@@ -224,7 +253,12 @@ func beginReverseAudit(ctx ownerContext, flags undoFlags, sourceRunID int64, mat
 // persisted NewVisibility — i.e. someone (or something) changed it
 // out-of-band after the original run; blindly re-applying PrevVisibility
 // would silently destroy that intentional change.
-func applyUndoLoop(ctx ownerContext, rs []model.MakeAllVisibilityResultRecord, flags undoFlags, audit *runAudit) (int, int, int) {
+func applyUndoLoop(
+	ctx ownerContext,
+	rs []model.MakeAllVisibilityResultRecord,
+	flags undoFlags,
+	audit *runAudit,
+) (int, int, int) {
 	changed, skipped, failed := 0, 0, 0
 	total := len(rs)
 	for i, r := range rs {
@@ -248,7 +282,11 @@ func applyUndoLoop(ctx ownerContext, rs []model.MakeAllVisibilityResultRecord, f
 // reverseOneRepo enforces the drift guard, then delegates to applyOneRepo.
 // Drift = current visibility != the NewVisibility we persisted last time.
 // Force overrides the guard with an audible log line.
-func reverseOneRepo(ctx ownerContext, r model.MakeAllVisibilityResultRecord, flags undoFlags) applyStatus {
+func reverseOneRepo(
+	ctx ownerContext,
+	r model.MakeAllVisibilityResultRecord,
+	flags undoFlags,
+) applyStatus {
 	if decideDriftAction("", "", flags.Force) == driftActionForce {
 		fmt.Fprintf(os.Stdout, constants.MsgUndoForceOverrideFmt, r.RepoName)
 

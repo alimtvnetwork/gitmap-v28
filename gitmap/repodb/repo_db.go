@@ -23,7 +23,12 @@ func InitRepoSchema(ctx context.Context, db *sql.DB) error {
 
 // OpenRepoDB opens or creates the split DB for a specific repository.
 
-func OpenRepoDB(ctx context.Context, rootDbDir, absolutePath string, repoId int64) (*sql.DB, error) {
+func OpenRepoDB(
+	ctx context.Context,
+	rootDbDir,
+	absolutePath string,
+	repoId int64,
+) (*sql.DB, error) {
 	slug := GenerateSlug(absolutePath)
 	repoSearchDir := filepath.Join(rootDbDir, "repo_search")
 	if err := os.MkdirAll(repoSearchDir, 0755); err != nil {

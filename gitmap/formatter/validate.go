@@ -67,7 +67,14 @@ func validateOne(idx int, rec model.ScanRecord) []ValidationIssue {
 }
 
 // appendIfMissing records an issue when value is empty after trimming.
-func appendIfMissing(issues []ValidationIssue, idx int, rec model.ScanRecord, value, field, reason string) []ValidationIssue {
+func appendIfMissing(
+	issues []ValidationIssue,
+	idx int,
+	rec model.ScanRecord,
+	value,
+	field,
+	reason string,
+) []ValidationIssue {
 	if len(strings.TrimSpace(value)) > 0 {
 		return issues
 	}
@@ -103,7 +110,11 @@ func hasURL(rec model.ScanRecord) bool {
 
 // checkSlugConsistency verifies Slug matches the lowercased RepoName when
 // both are populated. Mismatches break the DB dedupe key.
-func checkSlugConsistency(issues []ValidationIssue, idx int, rec model.ScanRecord) []ValidationIssue {
+func checkSlugConsistency(
+	issues []ValidationIssue,
+	idx int,
+	rec model.ScanRecord,
+) []ValidationIssue {
 	if len(rec.Slug) == 0 || len(rec.RepoName) == 0 {
 		return issues
 	}

@@ -38,7 +38,12 @@ func (db *DB) LookupOwnerRepoListCache(provider, owner string) (string, time.Tim
 }
 
 // UpsertOwnerRepoListCache writes (or replaces) the cache row.
-func (db *DB) UpsertOwnerRepoListCache(provider, owner, namesJSON string, fetchedAt time.Time) error {
+func (db *DB) UpsertOwnerRepoListCache(
+	provider,
+	owner,
+	namesJSON string,
+	fetchedAt time.Time,
+) error {
 	const q = `INSERT INTO OwnerRepoListCache (Provider, Owner, NamesJson, FetchedAt)
 		VALUES (?, ?, ?, ?)
 		ON CONFLICT(Provider, Owner) DO UPDATE SET

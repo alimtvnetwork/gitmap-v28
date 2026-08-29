@@ -165,7 +165,13 @@ func generateRunRef(dbConn *sql.DB) string {
 	return runRef
 }
 
-func performPreflight(flags ClusterFlags, selector cluster.TargetSelectorType, effective []cluster.ClusterNode, cmdStr string, runRef string) *apperror.AppError {
+func performPreflight(
+	flags ClusterFlags,
+	selector cluster.TargetSelectorType,
+	effective []cluster.ClusterNode,
+	cmdStr string,
+	runRef string,
+) *apperror.AppError {
 	if flags.NoPreflight {
 		return nil
 	}
@@ -193,7 +199,15 @@ func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
 	return runId
 }
 
-func updateRunCounts(ctx context.Context, dbConn *sql.DB, runId int64, totalNodes, succeeded, failed, skipped int) {
+func updateRunCounts(
+	ctx context.Context,
+	dbConn *sql.DB,
+	runId int64,
+	totalNodes,
+	succeeded,
+	failed,
+	skipped int,
+) {
 	if dbConn == nil {
 		return
 	}

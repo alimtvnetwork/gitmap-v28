@@ -273,7 +273,12 @@ func repoFilePath(name string) (string, error) {
 }
 
 // printAddTemplateBanner mirrors the visual idiom of `add lfs-install`.
-func printAddTemplateBanner(spec addTemplateSpec, dryRun bool, resolved []templates.Resolved, tag string) {
+func printAddTemplateBanner(
+	spec addTemplateSpec,
+	dryRun bool,
+	resolved []templates.Resolved,
+	tag string,
+) {
 	fmt.Println()
 	fmt.Printf("  %s■ gitmap add %s —%s %s\n",
 		constants.ColorCyan, spec.subcommand, constants.ColorReset, spec.bannerLabel)

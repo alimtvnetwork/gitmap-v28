@@ -64,7 +64,12 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) error {
 	return nil
 }
 
-func dispatchCFRMultiURL(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags, parallel int) bool {
+func dispatchCFRMultiURL(
+	f cloneFixRepoFlags,
+	makePublic bool,
+	modifiers CfrModifierFlags,
+	parallel int,
+) bool {
 	urls := splitCommaURLs(f.url)
 	if len(urls) <= 1 {
 		return false
@@ -109,7 +114,12 @@ func executeCFRClone(url, folderName, absPath string, f cloneFixRepoFlags) {
 	}
 }
 
-func executeCFRPostSteps(absPath string, makePublic bool, f cloneFixRepoFlags, modifiers CfrModifierFlags) {
+func executeCFRPostSteps(
+	absPath string,
+	makePublic bool,
+	f cloneFixRepoFlags,
+	modifiers CfrModifierFlags,
+) {
 	if err := os.Chdir(absPath); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoChdirFmt, absPath, err)
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChdir)
@@ -124,7 +134,18 @@ func executeCFRPostSteps(absPath string, makePublic bool, f cloneFixRepoFlags, m
 }
 
 // runParallelCloneFixRepo encapsulates the parallel clone execution to avoid nested ifs.
-func runParallelCloneFixRepo(urls []string, makePublic bool, noVSCodeSync bool, requireVersion bool, useSSH bool, useHTTPS bool, autoYes bool, dryRun bool, modifiers CfrModifierFlags, parallel int) error {
+func runParallelCloneFixRepo(
+	urls []string,
+	makePublic bool,
+	noVSCodeSync bool,
+	requireVersion bool,
+	useSSH bool,
+	useHTTPS bool,
+	autoYes bool,
+	dryRun bool,
+	modifiers CfrModifierFlags,
+	parallel int,
+) error {
 	subcmd := constants.CmdCloneFixRepo
 	if makePublic {
 		subcmd = constants.CmdCloneFixRepoPub

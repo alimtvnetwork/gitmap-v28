@@ -73,7 +73,12 @@ func resolveOwnerRepoListTTL(flags bulkFlags) time.Duration {
 
 // readOwnerRepoListCache returns (names, age, true) on HIT, or
 // (nil, 0, false) on MISS / expired.
-func readOwnerRepoListCache(db *store.DB, provider, owner string, ttl time.Duration) ([]string, time.Duration, bool) {
+func readOwnerRepoListCache(
+	db *store.DB,
+	provider,
+	owner string,
+	ttl time.Duration,
+) ([]string, time.Duration, bool) {
 	raw, fetchedAt, ok := db.LookupOwnerRepoListCache(provider, owner)
 	if !ok {
 		return nil, 0, false

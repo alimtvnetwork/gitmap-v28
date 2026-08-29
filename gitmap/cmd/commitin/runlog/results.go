@@ -32,7 +32,13 @@ func RecordRewritten(db *sql.DB, runID, sourceCommitID int64, r RewrittenRow) (i
 
 // RecordSkip persists one SkipLog entry. Reason MUST be a
 // constants.CommitInSkipReason* literal.
-func RecordSkip(db *sql.DB, runID, sourceCommitID int64, reason string, previousRewrittenID *int64) error {
+func RecordSkip(
+	db *sql.DB,
+	runID,
+	sourceCommitID int64,
+	reason string,
+	previousRewrittenID *int64,
+) error {
 	reasonID, err := lookupEnumID(db, constants.TableCommitInSkipReason, "SkipReasonId", reason)
 	if err != nil {
 		return fmt.Errorf("runlog: lookup skip reason %q: %w", reason, err)
@@ -45,7 +51,13 @@ func RecordSkip(db *sql.DB, runID, sourceCommitID int64, reason string, previous
 
 // insertRewritten is a small helper kept separate so RecordRewritten
 // stays under the 15-line cap.
-func insertRewritten(db *sql.DB, runID, sourceCommitID, outcomeID int64, r RewrittenRow) (int64, error) {
+func insertRewritten(
+	db *sql.DB,
+	runID,
+	sourceCommitID,
+	outcomeID int64,
+	r RewrittenRow,
+) (int64, error) {
 	var newSha any
 	if r.NewSha != "" {
 		newSha = r.NewSha

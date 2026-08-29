@@ -70,7 +70,11 @@ func parsePositionalInt(args []string, index int) int {
 	return val
 }
 
-func fetchCachedFileSearch(ctx context.Context, db *sql.DB, cacheKey string) ([]searcher.SearchResult, bool) {
+func fetchCachedFileSearch(
+	ctx context.Context,
+	db *sql.DB,
+	cacheKey string,
+) ([]searcher.SearchResult, bool) {
 	var cachedJson string
 	err := db.QueryRowContext(ctx, "SELECT ResultJson FROM SearchCache WHERE Query = ?", cacheKey).Scan(&cachedJson)
 	if err != nil || cachedJson == "" {
@@ -84,7 +88,11 @@ func fetchCachedFileSearch(ctx context.Context, db *sql.DB, cacheKey string) ([]
 	return res, true
 }
 
-func readFileSearchContent(ctx context.Context, db *sql.DB, filePath string) (string, string, error) {
+func readFileSearchContent(
+	ctx context.Context,
+	db *sql.DB,
+	filePath string,
+) (string, string, error) {
 	var content, absPath string
 	err := db.QueryRowContext(ctx, "SELECT AbsolutePath, Content FROM RepoFile WHERE RelativePath = ?", filePath).Scan(&absPath, &content)
 	if err == nil {
@@ -98,7 +106,14 @@ func readFileSearchContent(ctx context.Context, db *sql.DB, filePath string) (st
 	return string(b), filePath, nil
 }
 
-func executeLineSearch(content string, rx *regexp.Regexp, filePath, absPath string, before, after int) []searcher.SearchResult {
+func executeLineSearch(
+	content string,
+	rx *regexp.Regexp,
+	filePath,
+	absPath string,
+	before,
+	after int,
+) []searcher.SearchResult {
 	lines := strings.Split(content, "\n")
 	var results []searcher.SearchResult
 
@@ -149,7 +164,12 @@ func printFileSearchResults(results []searcher.SearchResult) {
 	}
 }
 
-func updateFileSearchCache(ctx context.Context, db *sql.DB, cacheKey string, results []searcher.SearchResult) {
+func updateFileSearchCache(
+	ctx context.Context,
+	db *sql.DB,
+	cacheKey string,
+	results []searcher.SearchResult,
+) {
 	b, err := json.Marshal(results)
 	if err != nil {
 		return

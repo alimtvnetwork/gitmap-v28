@@ -101,7 +101,12 @@ func assemblePlan(sourceDir, targetDir, sourceHead, base string,
 // hydrateCommit reads one source commit, runs the message pipeline, and
 // flags it as skipped when the pipeline says so or when the target
 // already carries its provenance footer.
-func hydrateCommit(sourceDir, sha string, replayedSet map[string]struct{}, opts Options) (SourceCommit, error) {
+func hydrateCommit(
+	sourceDir,
+	sha string,
+	replayedSet map[string]struct{},
+	opts Options,
+) (SourceCommit, error) {
 	subject, body, author, shortSHA, when, err := readCommit(sourceDir, sha)
 	if err != nil {
 		return SourceCommit{}, apperror.Wrap(err, "read commit", map[string]any{"sha": sha})

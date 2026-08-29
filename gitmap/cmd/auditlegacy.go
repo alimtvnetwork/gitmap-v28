@@ -132,7 +132,11 @@ func scanAuditLegacyFile(path string, pats []*regexp.Regexp) []auditLegacyHit {
 }
 
 // collectAuditLineHits iterates the scanner and gathers matches.
-func collectAuditLineHits(path string, scanner *bufio.Scanner, pats []*regexp.Regexp) []auditLegacyHit {
+func collectAuditLineHits(
+	path string,
+	scanner *bufio.Scanner,
+	pats []*regexp.Regexp,
+) []auditLegacyHit {
 	var hits []auditLegacyHit
 	lineNo := 0
 	for scanner.Scan() {

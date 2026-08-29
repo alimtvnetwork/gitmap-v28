@@ -54,7 +54,11 @@ func CloneFromFileQuiet(sourcePath, targetDir string, safePull bool) (model.Clon
 
 // CloneFromFileWithOptions is the full-control entry point. The legacy
 // helpers above are thin wrappers that fill in CloneOptions defaults.
-func CloneFromFileWithOptions(sourcePath, targetDir string, opts CloneOptions) (model.CloneSummary, error) {
+func CloneFromFileWithOptions(
+	sourcePath,
+	targetDir string,
+	opts CloneOptions,
+) (model.CloneSummary, error) {
 	records, err := loadRecords(sourcePath)
 	if err != nil {
 		return model.CloneSummary{}, err

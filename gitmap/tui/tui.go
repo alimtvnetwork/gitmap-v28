@@ -61,7 +61,12 @@ func Run(db *store.DB, cfg model.Config) error {
 	return err
 }
 
-func newRootModel(db *store.DB, repos []model.ScanRecord, groups []model.Group, cfg model.Config) rootModel {
+func newRootModel(
+	db *store.DB,
+	repos []model.ScanRecord,
+	groups []model.Group,
+	cfg model.Config,
+) rootModel {
 	return rootModel{
 		db:           db,
 		repos:        repos,
