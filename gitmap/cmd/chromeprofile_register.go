@@ -22,7 +22,7 @@ import (
 // returned so the caller can warn without aborting the whole copy.
 func registerChromeProfileInLocalState(srcDir, dstDir, displayName string) error {
 	path := filepath.Join(chromeUserDataDir(), constants.ChromeLocalStateFile)
-	raw, err := os.ReadFile(path)
+	raw, err := os.ReadFile(path) //nolint:gosec // chrome user-data path
 	if err != nil {
 		return fmt.Errorf("read %s: %w", path, err)
 	}

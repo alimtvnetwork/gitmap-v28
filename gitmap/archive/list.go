@@ -25,6 +25,7 @@ const maxListEntries = 50_000
 
 // ListEntries returns up to maxListEntries entries plus the detected
 // format. Used by `gitmap uzc --list <archive>`.
+//nolint:revive
 func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -39,25 +40,26 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 
 	extractor, isExtractor := format.(archives.Extractor)
 	isNonExtractor := !isExtractor
-	if isNonExtractor {
+	if isNonExtractor == true {
 		return nil, mholtToFormat(format), apperror.New("list archive", "ERR_UNSUPPORTED_FORMAT", map[string]any{"format": format.Extension()})
 	}
 
 	return extractListEntries(ctx, extractor, stream, format)
 }
 
+//nolint:revive
 func extractListEntries(ctx context.Context, extractor archives.Extractor, stream io.Reader, format archives.Format) ([]Entry, Format, error) {
 	var out []Entry
 	err := extractor.Extract(ctx, stream, func(_ context.Context, entry archives.FileInfo) error {
 		isLimitReached := len(out) >= maxListEntries
-		if isLimitReached {
+		if isLimitReached == true {
 			return io.EOF
 		}
 		out = append(out, Entry{Path: entry.NameInArchive, Size: entry.Size(), IsDir: entry.IsDir()})
 		return nil
 	})
 	isSuccess := err == nil || errors.Is(err, io.EOF)
-	if isSuccess {
+	if isSuccess == true {
 		return out, mholtToFormat(format), nil
 	}
 	return out, mholtToFormat(format), err

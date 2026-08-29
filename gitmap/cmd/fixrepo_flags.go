@@ -195,10 +195,10 @@ func consumeFixRepoConfigArg(args []string, i int, out *fixRepoOptions) (int, bo
 	bareLong := "--" + constants.FixRepoFlagConfig
 	bareShort := "-" + constants.FixRepoFlagConfig
 	matchBare := low == bareLong || low == bareShort
-	if matchBare && i+1 >= len(args) {
+	if matchBare == true && i+1 >= len(args) {
 		return 0, true, errors.New("--config requires a path")
 	}
-	if matchBare {
+	if matchBare == true {
 		out.configPath = args[i+1]
 
 		return 2, true, nil
@@ -229,10 +229,10 @@ func consumeFixRepoRestrictArg(args []string, i int, out *fixRepoOptions) (int, 
 	bareShort := "-" + constants.FixRepoFlagRestrict
 	bareTiny := "-" + constants.FixRepoFlagRestrictShort
 	matchBare := low == bareLong || low == bareShort || low == bareTiny
-	if matchBare && i+1 >= len(args) {
+	if matchBare == true && i+1 >= len(args) {
 		return 0, true, fmt.Errorf("%s requires a value (no-version|nv)", a)
 	}
-	if matchBare {
+	if matchBare == true {
 		return 2, true, applyRestrictValue(out, args[i+1])
 	}
 	for _, p := range []string{bareLong + "=", bareShort + "=", bareTiny + "="} {

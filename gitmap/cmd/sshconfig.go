@@ -88,7 +88,7 @@ func replaceManagedBlock(content, block string) string {
 	endIdx := strings.Index(content, constants.SSHConfigMarkerEnd)
 
 	hasMarkers := startIdx >= 0 && endIdx >= 0
-	if hasMarkers {
+	if hasMarkers == true {
 		endIdx += len(constants.SSHConfigMarkerEnd)
 		before := content[:startIdx]
 		after := content[endIdx:]

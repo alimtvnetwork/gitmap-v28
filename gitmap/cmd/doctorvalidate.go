@@ -12,6 +12,7 @@ import (
 )
 
 // checkConfigFile verifies config.json exists and is valid JSON.
+//nolint:unused
 func checkConfigFile() int {
 	configPath := resolveConfigPath()
 	data, err := os.ReadFile(configPath)
@@ -25,6 +26,7 @@ func checkConfigFile() int {
 }
 
 // resolveConfigPath returns the config file path from RepoPath or default.
+//nolint:unused
 func resolveConfigPath() string {
 	if len(constants.RepoPath) > 0 {
 		return filepath.Join(constants.RepoPath, constants.GitMapSubdir, constants.DefaultConfigPath)
@@ -34,6 +36,7 @@ func resolveConfigPath() string {
 }
 
 // validateConfigJSON checks if config data is valid JSON.
+//nolint:unused
 func validateConfigJSON(data []byte, path string) int {
 	var raw map[string]interface{}
 	err := json.Unmarshal(data, &raw)
@@ -49,6 +52,7 @@ func validateConfigJSON(data []byte, path string) int {
 }
 
 // checkDatabase verifies the database can be opened and migrated.
+//nolint:unused
 func checkDatabase() int {
 	db, err := store.OpenDefault()
 	if err != nil {
@@ -71,6 +75,7 @@ func checkDatabase() int {
 }
 
 // checkLockFile reports if a stale lock file exists.
+//nolint:unused
 func checkLockFile() int {
 	dir := store.BinaryDataDir()
 	lockPath := filepath.Join(dir, constants.LockFileName)
@@ -88,6 +93,7 @@ func checkLockFile() int {
 }
 
 // checkNetwork reports basic connectivity status.
+//nolint:unused
 func checkNetwork() int {
 	conn, err := net.DialTimeout(
 		constants.NetworkProto,

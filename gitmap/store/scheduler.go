@@ -49,11 +49,11 @@ func (db *DB) ListSchedules() ([]SchedulerTask, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	return parseScheduleRows(rows)
+	return parseScheduleRows(rows), nil
 }
 
 // parseScheduleRows parses rows into tasks.
-func parseScheduleRows(rows *sql.Rows) ([]SchedulerTask, error) {
+func parseScheduleRows(rows *sql.Rows) []SchedulerTask {
 	var tasks []SchedulerTask
 	for rows.Next() {
 		var t SchedulerTask
@@ -61,5 +61,5 @@ func parseScheduleRows(rows *sql.Rows) ([]SchedulerTask, error) {
 			tasks = append(tasks, t)
 		}
 	}
-	return tasks, nil
+	return tasks
 }

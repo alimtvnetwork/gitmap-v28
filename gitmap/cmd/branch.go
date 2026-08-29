@@ -33,6 +33,7 @@ func runBranch(args []string) *apperror.AppError {
 		return nil
 	}
 	return apperror.NewSimple(constants.ErrBranchUnknownSubcommand, "E9000")
+// 	return nil
 }
 
 // runBranchDefault implements `gitmap branch default` / `b def`.

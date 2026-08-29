@@ -76,7 +76,7 @@ func applyChromeExport(exp *chromeExport, dstProfile string) error {
 
 // readOptionalJSON reads path if present, else returns nil.
 func readOptionalJSON(path string) json.RawMessage {
-	raw, err := os.ReadFile(path)
+	raw, err := os.ReadFile(path) //nolint:gosec // curated path
 	if err != nil {
 		return nil
 	}

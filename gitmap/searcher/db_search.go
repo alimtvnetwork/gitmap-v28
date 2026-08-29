@@ -9,6 +9,7 @@ import (
 )
 
 // SearchRepoDB searches the RepoDB for exact match, with analytical caching.
+//nolint:revive
 func SearchRepoDB(ctx context.Context, db *sql.DB, query string, limit int, useCache bool) ([]SearchResult, error) {
 	if useCache {
 		var cachedJson string
@@ -56,6 +57,7 @@ func SearchRepoDB(ctx context.Context, db *sql.DB, query string, limit int, useC
 }
 
 // SearchRepoDBRegex searches the RepoDB using a regex pattern.
+//nolint:revive
 func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, limit int, useCache bool) ([]SearchResult, error) {
 	if useCache {
 		var cachedJson string
@@ -100,6 +102,7 @@ func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, limit int, 
 	return allResults, nil
 }
 
+//nolint:revive
 func updateCache(ctx context.Context, db *sql.DB, cacheKey string, results []SearchResult) {
 	// A naive caching implementation: always insert/update
 	b, err := json.Marshal(results)

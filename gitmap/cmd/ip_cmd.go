@@ -20,6 +20,7 @@ var SSHJoinCmd = &cobra.Command{
 	},
 }
 
+//nolint:revive
 func runSSHJoin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) > 0 {
 		switch args[0] {
@@ -41,6 +42,7 @@ var SJRmCmd = &cobra.Command{
 	},
 }
 
+//nolint:revive
 func runSJRm(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) != 1 {
 		return apperror.New("runSJRm", "E_INTERNAL_ERROR", map[string]any{"msg": "invalid argument count"})
@@ -57,10 +59,12 @@ var IPCmd = &cobra.Command{
 	},
 }
 
+//nolint:revive
 func runIPCmd(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return executeIPCmd(ctx, true, os.Stdout)
 }
 
+//nolint:revive
 func executeIPCmd(ctx context.Context, skipLoopback bool, writer io.Writer) error {
 	ipStr, err := GetLocalIP(ctx, skipLoopback, "")
 	if err != nil {

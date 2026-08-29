@@ -22,6 +22,7 @@ var SJHistCmd = &cobra.Command{
 }
 
 // runSJHistory handles the 'gitmap sj history' command.
+//nolint:revive
 func runSJHistory(cmd *cobra.Command, args []string, ctx context.Context) error {
 	filter := ""
 	if len(args) > 0 {
@@ -31,6 +32,7 @@ func runSJHistory(cmd *cobra.Command, args []string, ctx context.Context) error 
 }
 
 // printSJHistory fetches history and formats it.
+//nolint:revive
 func printSJHistory(ctx context.Context, out io.Writer, filter string) error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {

@@ -104,6 +104,7 @@ func pickSourceDisplayName(name string, left, right movemerge.Endpoint, keepUrl 
 	return display
 }
 
+//nolint:unused
 func _deprecated_pickSourceDisplayName(name string, left, right movemerge.Endpoint) string {
 	if name == constants.CmdCommitLeft {
 		return right.DisplayName

@@ -110,7 +110,7 @@ func parseExportFlags(args []string, isAll bool) (*ExportInstallerFlags, error) 
 	}, nil
 }
 
-// writeZipEntry writes a JSON-marshaled installer script into a zip archive.
+// writeZipEntry writes a JSON-marshalled installer script into a zip archive.
 func writeZipEntry(zw *zip.Writer, script model.InstallerScript) error {
 	data, errMarshal := json.MarshalIndent(script, "", "  ")
 	if errMarshal != nil {
@@ -128,6 +128,7 @@ func writeZipEntry(zw *zip.Writer, script model.InstallerScript) error {
 }
 
 // executeExport writes matching installer scripts to the specified zip file.
+//nolint:revive
 func executeExport(ctx context.Context, db *store.DB, flags *ExportInstallerFlags) error {
 	if db == nil {
 		return apperror.New("executeExport", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "db cannot be nil"})

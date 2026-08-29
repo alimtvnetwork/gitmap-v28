@@ -110,7 +110,7 @@ func matchesLogQuery(e model.CommandHistoryRecord, q string) bool {
 
 func (m logsModel) handleKey(msg tea.KeyMsg) logsModel {
 	max := len(m.filtered) - 1
-	if max < 0 && keys.search(msg) {
+	if max < 0 && keys.search(msg) == true {
 		m.searching = true
 	}
 	if max < 0 {

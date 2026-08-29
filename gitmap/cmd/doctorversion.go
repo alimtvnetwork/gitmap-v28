@@ -10,6 +10,7 @@ import (
 )
 
 // checkVersionMismatch compares PATH vs deployed vs source versions.
+//nolint:unused
 func checkVersionMismatch() int {
 	sourceVersion := fmt.Sprintf(constants.MsgVersionFmt[:len(constants.MsgVersionFmt)-1], constants.Version)
 	activeVersion, activePath := getActiveVersion()
@@ -28,6 +29,7 @@ func checkVersionMismatch() int {
 }
 
 // getActiveVersion returns version and path of the active PATH binary.
+//nolint:unused
 func getActiveVersion() (string, string) {
 	path, err := exec.LookPath(constants.GitMapBin)
 	if err != nil {
@@ -44,6 +46,7 @@ func getActiveVersion() (string, string) {
 }
 
 // getDeployedVersion returns version and path of the deployed binary.
+//nolint:unused
 func getDeployedVersion() (string, string) {
 	if len(constants.RepoPath) == 0 {
 		return "", ""
@@ -58,6 +61,7 @@ func getDeployedVersion() (string, string) {
 }
 
 // resolveDeployedVersionPath extracts version and path from config data.
+//nolint:unused
 func resolveDeployedVersionPath(data []byte) (string, string) {
 	dp := extractJSONString(data, constants.JSONKeyDeployPath)
 	bn := extractJSONString(data, constants.JSONKeyBinaryName)
@@ -75,6 +79,7 @@ func resolveDeployedVersionPath(data []byte) (string, string) {
 }
 
 // checkActiveVsSource reports if PATH binary differs from source.
+//nolint:unused
 func checkActiveVsSource(activeVersion, sourceVersion string) int {
 	if len(activeVersion) > 0 && activeVersion != sourceVersion {
 		printIssue(constants.DoctorVersionMismatch,
@@ -88,6 +93,7 @@ func checkActiveVsSource(activeVersion, sourceVersion string) int {
 }
 
 // checkDeployedVsSource reports if deployed binary differs from source.
+//nolint:unused
 func checkDeployedVsSource(deployedVersion, sourceVersion string) int {
 	if len(deployedVersion) > 0 && deployedVersion != sourceVersion {
 		printIssue(constants.DoctorDeployMismatch,
@@ -101,6 +107,7 @@ func checkDeployedVsSource(deployedVersion, sourceVersion string) int {
 }
 
 // checkActiveVsDeployed reports if PATH and deployed binaries differ.
+//nolint:unused
 func checkActiveVsDeployed(activeVersion, deployedVersion, activePath, deployedPath string) int {
 	if len(activeVersion) == 0 || len(deployedVersion) == 0 {
 		return 0

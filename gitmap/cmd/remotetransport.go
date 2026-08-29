@@ -15,7 +15,7 @@ import (
 // When both flags are set, --ssh wins and a one-line warning is
 // printed to stderr (mirrors `gitmap clone` semantics).
 //
-// Unrecognized origin URLs fail-open: a warning is printed but no
+// Unrecognised origin URLs fail-open: a warning is printed but no
 // error is returned, so the caller can still run git push/pull.
 //
 // Spec: spec/01-app/111-push-pull-transport-flags.md
@@ -41,7 +41,7 @@ func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string
 		converted, ok = ConvertURLToHTTPS(old)
 	}
 	if !ok {
-		fmt.Fprintf(os.Stderr, "⚠ remote.origin.url %q is not a recognized Git URL; skipping transport rewrite\n", old)
+		fmt.Fprintf(os.Stderr, "⚠ remote.origin.url %q is not a recognised Git URL; skipping transport rewrite\n", old)
 
 		return false, old, old, nil
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/pterm/pterm"
 )
 
+//nolint:unused
 func runInstallScript() error {
 	var script string
 

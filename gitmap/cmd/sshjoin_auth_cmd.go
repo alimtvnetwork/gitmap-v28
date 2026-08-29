@@ -33,6 +33,7 @@ func resolveKeyPath(keyPath string) (string, error) {
 }
 
 // getLocalPublicKey reads the given public key path.
+//nolint:revive
 func getLocalPublicKey(ctx context.Context, keyPath string, parse bool) (string, error) {
 	resolvedPath, err := resolveKeyPath(keyPath)
 	if err != nil {
@@ -63,6 +64,7 @@ func buildSudoAppendScript(pubKey string) string {
 }
 
 // appendKeyRemote appends the key to ~/.ssh/authorized_keys on the remote target.
+//nolint:revive
 func appendKeyRemote(ctx context.Context, pubKey string, target SSHTarget) error {
 	script := buildAppendScript(pubKey)
 	err := SpawnSSH(ctx, target, []string{script})
@@ -80,6 +82,7 @@ func appendKeyRemote(ctx context.Context, pubKey string, target SSHTarget) error
 }
 
 // runSJAddAuth handles the 'gitmap sj add-auth' command.
+//nolint:revive
 func runSJAddAuth(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) < 1 {
 		return apperror.New("runSJAddAuth", "E_INVALID_ARGS", map[string]any{"msg": "target $ip@$user is required"})

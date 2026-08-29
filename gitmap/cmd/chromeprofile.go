@@ -95,7 +95,7 @@ func guardChromeClosedOrExit(src, dst string) {
 		fmt.Fprint(os.Stderr, constants.MsgChromeProfileSkipChrome)
 		return
 	}
-	isNonRunning := !isRunning
+	isNonRunning := isRunning == false
 	if isNonRunning {
 		return
 	}
@@ -325,7 +325,7 @@ func defaultChromeExportPath(name, format string) string {
 
 // readChromeExport loads a JSON export file from disk.
 func readChromeExport(path string) (*chromeExport, error) {
-	raw, err := os.ReadFile(path)
+	raw, err := os.ReadFile(path) //nolint:gosec // user-supplied path
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}

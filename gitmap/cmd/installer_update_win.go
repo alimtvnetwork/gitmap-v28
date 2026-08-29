@@ -102,6 +102,7 @@ func parseUpdateWinFlags(args []string) (*UpdateWinInstallerFlags, error) {
 }
 
 // executeUpdateWin executes the update logic specifically for Windows target OS.
+//nolint:revive
 func executeUpdateWin(ctx context.Context, db *store.DB, flags *UpdateWinInstallerFlags) error {
 	if db == nil {
 		return apperror.New("executeUpdateWin", "E_INSTALLER_INVALID_INPUT", map[string]any{

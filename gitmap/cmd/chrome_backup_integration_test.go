@@ -8,6 +8,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -55,7 +56,7 @@ func mutateTarMember(t *testing.T, path, target, newBody string) {
 	found := false
 	for {
 		hdr, err := tr.Next()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {

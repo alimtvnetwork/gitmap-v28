@@ -100,21 +100,21 @@ func recordProbeResult(db *store.DB, repo model.ScanRecord, result probe.Result)
 // the counters; with the worker pool that's `counterMu` in runProbePool.
 func tallyProbe(repo model.ScanRecord, r probe.Result, ok, none, fail int, jsonOut bool) (int, int, int) {
 	hasError := r.Error != ""
-	if hasError && !jsonOut {
+	if hasError == true && jsonOut == false {
 		fmt.Printf(constants.MsgProbeFailFmt, repo.Slug, r.Error)
 	}
-	if hasError {
+	if hasError == true {
 		return ok, none, fail + 1
 	}
 
-	if r.IsAvailable && !jsonOut {
+	if r.IsAvailable == true && jsonOut == false {
 		fmt.Printf(constants.MsgProbeOkFmt, repo.Slug, r.NextVersionTag, r.Method)
 	}
-	if r.IsAvailable {
+	if r.IsAvailable == true {
 		return ok + 1, none, fail
 	}
 
-	if !jsonOut {
+	if jsonOut == false {
 		fmt.Printf(constants.MsgProbeNoneFmt, repo.Slug, r.Method)
 	}
 

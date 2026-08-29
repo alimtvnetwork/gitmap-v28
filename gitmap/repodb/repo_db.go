@@ -9,6 +9,7 @@ import (
 )
 
 // InitRepoSchema initializes the repository-specific SQLite DB tables
+//nolint:revive
 func InitRepoSchema(ctx context.Context, db *sql.DB) error {
 	query1 := "CREATE TABLE IF NOT EXISTS RepoFile ( Id INTEGER PRIMARY KEY AUTOINCREMENT, RelativePath TEXT NOT NULL UNIQUE, AbsolutePath TEXT NOT NULL, Content TEXT, IsBig INTEGER NOT NULL, WriteTime INTEGER NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );"
 	query2 := "CREATE TABLE IF NOT EXISTS SearchCache ( Id INTEGER PRIMARY KEY AUTOINCREMENT, Query TEXT NOT NULL UNIQUE, Hits INTEGER NOT NULL, ResultJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );"
@@ -21,6 +22,7 @@ func InitRepoSchema(ctx context.Context, db *sql.DB) error {
 }
 
 // OpenRepoDB opens or creates the split DB for a specific repository.
+//nolint:revive
 func OpenRepoDB(ctx context.Context, rootDbDir, absolutePath string, repoId int64) (*sql.DB, error) {
 	slug := GenerateSlug(absolutePath)
 	repoSearchDir := filepath.Join(rootDbDir, "repo_search")

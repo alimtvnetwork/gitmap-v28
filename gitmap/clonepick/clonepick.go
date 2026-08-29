@@ -107,5 +107,5 @@ type Result struct {
 const (
 	StatusOK        = "ok"
 	StatusFailed    = "failed"
-	StatusCancelled = "canceled"
+	StatusCancelled = "cancelled"
 )

@@ -9,7 +9,7 @@ import (
 // flatCtxEntry is the macOS/Linux representation of a menu item — those
 // platforms do not support arbitrary nested cascades inside Finder
 // Services / Nautilus scripts, so we flatten "Category ▸ Child" into a
-// single labeled entry. Single source of truth: ctxMenu().
+// single labelled entry. Single source of truth: ctxMenu().
 type flatCtxEntry struct {
 	Label    string   // "gitmap: Release — Release next (bump minor)"
 	Slug     string   // filesystem-safe id derived from label, "gitmap-release-release-next"

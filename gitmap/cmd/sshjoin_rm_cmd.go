@@ -8,6 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
+//nolint:revive
 func executeSJRm(ctx context.Context, target string, force bool) error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {

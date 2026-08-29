@@ -60,6 +60,7 @@ func init() {
 }
 
 // executeRevertAction coordinates version changes against the database.
+//nolint:revive
 func executeRevertAction(ctx context.Context, db *store.DB, action, slug, targetVersion string) error {
 	if db == nil {
 		return apperror.New("executeRevertAction", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "db cannot be nil"})

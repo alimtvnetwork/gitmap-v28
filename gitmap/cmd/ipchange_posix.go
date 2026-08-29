@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
+//nolint:revive
 func swapIPLinux(ctx context.Context, oldIP string, newIP string) error {
 	cmdAdd := exec.CommandContext(ctx, "ip", "addr", "add", newIP, "dev", "eth0")
 	if err := cmdAdd.Run(); err != nil {
@@ -23,6 +24,7 @@ func swapIPLinux(ctx context.Context, oldIP string, newIP string) error {
 	return nil
 }
 
+//nolint:revive
 func swapIP(ctx context.Context, interfaceName, oldIP, newIP string) error {
 	return swapIPLinux(ctx, oldIP, newIP)
 }

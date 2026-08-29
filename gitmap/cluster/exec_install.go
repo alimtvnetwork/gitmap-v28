@@ -17,6 +17,7 @@ type PackageResult struct {
 	Stderr      string
 }
 
+//nolint:revive
 func detectPackageManager(ctx context.Context) (string, error) {
 	isWindows := runtime.GOOS == constants.WindowsOS
 	if isWindows {
@@ -25,16 +26,19 @@ func detectPackageManager(ctx context.Context) (string, error) {
 	return detectUnixPackageManager(ctx)
 }
 
+//nolint:revive
 func detectWindowsPackageManager(ctx context.Context) (string, error) {
 	managers := []string{constants.PkgMgrWinget, constants.PkgMgrChocolatey}
 	return checkManagers(ctx, managers)
 }
 
+//nolint:revive
 func detectUnixPackageManager(ctx context.Context) (string, error) {
 	managers := []string{constants.PkgMgrBrew, constants.PkgMgrApt}
 	return checkManagers(ctx, managers)
 }
 
+//nolint:revive
 func checkManagers(ctx context.Context, managers []string) (string, error) {
 	for _, mgr := range managers {
 		cmd := exec.CommandContext(ctx, mgr, constants.PkgMgrVersionArg)
@@ -48,10 +52,11 @@ func checkManagers(ctx context.Context, managers []string) (string, error) {
 }
 
 // ExecInstall installs the specified packages using the detected package manager.
+//nolint:revive
 func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]PackageResult, error) {
 	mgr, err := detectPackageManager(ctx)
 	hasError := err != nil
-	if hasError {
+	if hasError == true {
 		return nil, err
 	}
 
@@ -65,13 +70,13 @@ func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]Pa
 		isBrew := mgr == constants.PkgMgrBrew
 		isApt := mgr == constants.PkgMgrApt
 
-		if isWinget {
+		if isWinget == true {
 			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.WingetInstallArg, constants.WingetQuietArg, pkg)
-		} else if isChoco {
+		} else if isChoco == true {
 			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.ChocoInstallArg, constants.ChocoYesArg, pkg)
-		} else if isBrew {
+		} else if isBrew == true {
 			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.BrewInstallArg, constants.BrewQuietArg, pkg)
-		} else if isApt {
+		} else if isApt == true {
 			cmdStr = fmt.Sprintf(constants.FormatCmdSpace, mgr, constants.AptInstallArg, constants.AptYesArg, pkg)
 		} else {
 			continue
@@ -81,7 +86,7 @@ func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]Pa
 
 		isSuccessExit := exitCode == constants.ExitCodeSuccess
 		noCmdErr := cmdErr == nil
-		succeeded := isSuccessExit && noCmdErr
+		succeeded := isSuccessExit == true && noCmdErr == true
 
 		res := PackageResult{
 			PackageName: pkg,

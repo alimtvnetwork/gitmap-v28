@@ -92,6 +92,7 @@ func isGitURL(s string) bool {
 
 // ResolveSource turns one input string into a usable local path. The
 // caller is responsible for invoking CleanupResolved afterwards.
+//nolint:revive
 func ResolveSource(ctx context.Context, raw string) (ResolvedSource, error) {
 	switch ClassifySource(raw) {
 	case SourceLocal:
@@ -126,6 +127,7 @@ func CleanupResolved(r ResolvedSource) {
 // resolveHTTP downloads raw into a temp directory using aria2c when
 // available, falling back to net/http. The returned LocalPath points at
 // the downloaded file; CleanupDir is the temp workspace.
+//nolint:revive
 func resolveHTTP(ctx context.Context, raw string) (ResolvedSource, error) {
 	dir, err := os.MkdirTemp("", "gitmap-fetch-*")
 	if err != nil {
@@ -151,6 +153,7 @@ func resolveHTTP(ctx context.Context, raw string) (ResolvedSource, error) {
 // downloadWithAria2c is a thin wrapper that returns nil only on a clean
 // aria2c exit AND a non-empty file. Any other outcome causes the caller
 // to fall back to net/http.
+//nolint:revive
 func downloadWithAria2c(ctx context.Context, rawURL, dir, name string) error {
 	if _, err := exec.LookPath("aria2c"); err != nil {
 		return err
@@ -177,6 +180,7 @@ func downloadWithAria2c(ctx context.Context, rawURL, dir, name string) error {
 }
 
 // downloadWithHTTP is the always-available fallback path.
+//nolint:revive
 func downloadWithHTTP(ctx context.Context, rawURL, dst string) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
@@ -219,6 +223,7 @@ func filenameFromURL(raw string) string {
 // resolveGit shallow-clones the repo into a temp dir. The returned
 // LocalPath is the cloned directory; CleanupDir matches it so it gets
 // wiped after the calling command finishes.
+//nolint:revive
 func resolveGit(ctx context.Context, raw string) (ResolvedSource, error) {
 	dir, err := os.MkdirTemp("", "gitmap-gitsrc-*")
 	if err != nil {

@@ -10,6 +10,7 @@ import (
 // checkReleaseRepoIntegrity verifies the Release↔Repo FK relationship:
 //   - orphaned Release rows (RepoId pointing to a non-existent Repo)
 //   - Repo rows with zero releases (informational, not an error)
+//nolint:unused
 func checkReleaseRepoIntegrity() int {
 	db, err := store.OpenDefault()
 	if err != nil {

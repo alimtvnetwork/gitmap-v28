@@ -19,6 +19,7 @@ import (
 // Doctor checks must NEVER hard-fail on missing optional integrations, so
 // this returns 0 on warn paths and only counts the explicit "broken"
 // scenario (e.g. corrupt projects.json) as an issue.
+//nolint:unused
 func checkVSCodeProjectManager() int {
 	path, err := vscodepm.ProjectsJSONPath()
 

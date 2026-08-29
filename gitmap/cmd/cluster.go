@@ -53,4 +53,5 @@ func runCluster(args []string) error {
 	}
 
 	return apperror.NewSimple("unknown command", "E9000")
+// 	return nil
 }

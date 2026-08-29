@@ -83,6 +83,7 @@ func parseInstallerResetFlags(args []string) (*ResetInstallerFlags, error) {
 }
 
 // executeInstallerReset coordinates resetting through the store DB.
+//nolint:revive
 func executeInstallerReset(ctx context.Context, db *store.DB, flags *ResetInstallerFlags) error {
 	if db == nil {
 		return apperror.New("executeInstallerReset", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "db cannot be nil"})

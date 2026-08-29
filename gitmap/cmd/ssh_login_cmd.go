@@ -21,6 +21,7 @@ var SSHLoginCmd = &cobra.Command{
 	},
 }
 
+//nolint:revive
 func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) < 1 {
 		return apperror.NewSimple("runSSHLogin", "E_INTERNAL_ERROR")
@@ -30,6 +31,7 @@ func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return executeSSHLogin(ctx, target, false)
 }
 
+//nolint:revive
 func executeSSHLogin(ctx context.Context, target string, force bool) error {
 	sshTarget, err := ParseSSHTarget(target, "root", 22)
 	if err != nil {

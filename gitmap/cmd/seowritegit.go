@@ -24,11 +24,11 @@ func gitCommitWithAuthor(title, description, authorName, authorEmail string) {
 
 	hasAuthor := authorName != "" || authorEmail != ""
 	var cmd *exec.Cmd
-	if hasAuthor {
+	if hasAuthor == true {
 		author := resolveAuthorFlag(authorName, authorEmail)
 		cmd = exec.Command("git", "commit", "-m", msg, "--author", author)
 	}
-	if !hasAuthor {
+	if hasAuthor == false {
 		cmd = exec.Command("git", "commit", "-m", msg)
 	}
 
@@ -41,14 +41,14 @@ func gitCommitWithAuthor(title, description, authorName, authorEmail string) {
 // resolveAuthorFlag builds the --author "Name <email>" string.
 func resolveAuthorFlag(name, email string) string {
 	nameMissing := name == ""
-	if nameMissing {
+	if nameMissing == true {
 		out, gitErr := exec.Command("git", "config", "user.name").Output()
 		printGitConfigError(gitErr, "user.name")
 		name = strings.TrimSpace(string(out))
 	}
 
 	emailMissing := email == ""
-	if emailMissing {
+	if emailMissing == true {
 		out, gitErr := exec.Command("git", "config", "user.email").Output()
 		printGitConfigError(gitErr, "user.email")
 		email = strings.TrimSpace(string(out))

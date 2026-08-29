@@ -58,14 +58,14 @@ func runUninstall(args []string) error {
 	}
 
 	db, err := openDB()
-	if err != nil && !force {
+	if err != nil && force == false {
 		return apperror.NewSimple(constants.ErrUninstallNotFound, "E9000")
 	}
 
 	if db != nil {
 		defer db.Close()
 	}
-	if db != nil && !db.IsToolInstalled(tool) && !force {
+	if db != nil && db.IsToolInstalled(tool) == false && force == false {
 		return apperror.NewSimple(constants.ErrUninstallNotFound, "E9000")
 	}
 
@@ -124,11 +124,11 @@ func hasPositionalToolArg(args []string) bool {
 			skipNext = false
 			continue
 		}
-		if isFlagToken(a) && (a == "--shell-mode" || a == "-shell-mode") {
+		if isFlagToken(a) == true && (a == "--shell-mode" || a == "-shell-mode") {
 			skipNext = true
 			continue
 		}
-		if isFlagToken(a) {
+		if isFlagToken(a) == true {
 			continue
 		}
 

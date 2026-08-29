@@ -327,13 +327,13 @@ func runSyncPrettierRC(dry, force bool) error {
 	sort.Strings(added)
 	sort.Strings(overwritten)
 
-	if dry && len(added) > 0 {
+	if dry == true && len(added) > 0 {
 		fmt.Printf("  +   %s would add: %s\n", path, strings.Join(added, ", "))
 	}
-	if dry && len(overwritten) > 0 {
+	if dry == true && len(overwritten) > 0 {
 		fmt.Printf("  ~   %s would overwrite (--force): %s\n", path, strings.Join(overwritten, ", "))
 	}
-	if dry {
+	if dry == true {
 		return nil
 	}
 
@@ -360,7 +360,7 @@ func runSyncPrettierRC(dry, force bool) error {
 func syncJSONEqual(a, b any) bool {
 	ab, _ := json.Marshal(a)
 	bb, _ := json.Marshal(b)
-	return bytes.Equal(ab, bb)
+	return string(ab) == string(bb)
 }
 
 // runSyncLFSInstall delegates to `gitmap add lfs-install`. Kept as a

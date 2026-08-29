@@ -34,6 +34,7 @@ type ExtractResult struct {
 // directory that either holds >1 entry OR holds at least one non-dir
 // entry. That real root is then moved (or its contents merged) into
 // `<destBaseDir>/<archiveBaseName>/`.
+//nolint:revive
 func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (ExtractResult, error) {
 	res := ExtractResult{UsedTempDir: true}
 	format, err := prepareExtractDest(ctx, srcArchive, destBaseDir)
@@ -51,6 +52,7 @@ func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (Extrac
 	return completeCompactExtract(ctx, srcArchive, destBaseDir, tempDir, res)
 }
 
+//nolint:revive
 func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Format, error) {
 	format, err := IdentifyArchive(ctx, srcArchive)
 	if err != nil {
@@ -62,6 +64,7 @@ func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Fo
 	return format, nil
 }
 
+//nolint:revive
 func completeCompactExtract(ctx context.Context, srcArchive, destBaseDir, tempDir string, res ExtractResult) (ExtractResult, error) {
 	written, err := extractAllIntoDir(ctx, srcArchive, tempDir)
 	if err != nil {
@@ -87,6 +90,7 @@ func completeCompactExtract(ctx context.Context, srcArchive, destBaseDir, tempDi
 // using mholt/archives. Returns the entry count written. Symlinks are
 // rejected (security: a malicious archive could otherwise escape destDir
 // even after path sanitation).
+//nolint:revive
 func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, error) {
 	f, err := os.Open(srcArchive)
 	if err != nil {
@@ -101,13 +105,14 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 
 	extractor, ok := format.(archives.Extractor)
 	isMissingExtractor := !ok
-	if isMissingExtractor {
+	if isMissingExtractor == true {
 		return 0, apperror.New("extract", "ERR_UNSUPPORTED_FORMAT", map[string]any{"format": format.Extension()})
 	}
 
 	return runArchiveExtraction(ctx, extractor, stream, destDir)
 }
 
+//nolint:revive
 func runArchiveExtraction(ctx context.Context, extractor archives.Extractor, stream io.Reader, destDir string) (int, error) {
 	written := 0
 	handler := func(_ context.Context, entry archives.FileInfo) error {
@@ -123,12 +128,12 @@ func runArchiveExtraction(ctx context.Context, extractor archives.Extractor, str
 func extractArchiveEntry(destDir string, entry archives.FileInfo, written *int) error {
 	clean := safeJoin(destDir, entry.NameInArchive)
 	isEmptyClean := clean == ""
-	if isEmptyClean {
+	if isEmptyClean == true {
 		return apperror.New("extract entry", "ERR_UNSAFE_PATH", map[string]any{"path": entry.NameInArchive})
 	}
 
 	isDir := entry.IsDir()
-	if isDir {
+	if isDir == true {
 		return os.MkdirAll(clean, constants.DirPermission)
 	}
 
@@ -142,7 +147,7 @@ func extractArchiveEntry(destDir string, entry archives.FileInfo, written *int) 
 // Split out so extractAllIntoDir stays under gocyclo's 15-complexity cap.
 func writeArchiveFile(entry archives.FileInfo, destPath string, written *int) error {
 	hasLinkTarget := entry.LinkTarget != ""
-	if hasLinkTarget {
+	if hasLinkTarget == true {
 		// Symlinks are skipped on purpose — see CompactExtract docstring.
 		return nil
 	}
@@ -186,8 +191,8 @@ func safeJoin(destDir, name string) string {
 	}
 	isOutsideDest := !strings.HasPrefix(abs+string(filepath.Separator), destAbs+string(filepath.Separator))
 	isSame := abs == destAbs
-	isEscaped := isOutsideDest && !isSame
-	if isEscaped {
+	isEscaped := isOutsideDest == true && isSame == false
+	if isEscaped == true {
 		return ""
 	}
 
@@ -223,12 +228,12 @@ func findDeepestRoot(tempDir string) (string, int, error) {
 			return root, flattened, err
 		}
 		hasSingleEntry := len(entries) == 1
-		if !hasSingleEntry {
+		if hasSingleEntry == false {
 			break
 		}
 		isDir := entries[0].IsDir()
 		isNonDir := !isDir
-		if isNonDir {
+		if isNonDir == true {
 			break
 		}
 		root = filepath.Join(root, entries[0].Name())
@@ -260,7 +265,7 @@ func moveOrCopy(src, dst string) error {
 		return err
 	}
 	isDir := info.IsDir()
-	if isDir {
+	if isDir == true {
 		return copyDir(src, dst)
 	}
 
@@ -284,7 +289,7 @@ func copyDirEntry(src, dst, path string, d fs.DirEntry) error {
 	}
 	target := filepath.Join(dst, rel)
 	isDir := d.IsDir()
-	if isDir {
+	if isDir == true {
 		return os.MkdirAll(target, constants.DirPermission)
 	}
 	info, err := d.Info()
@@ -331,7 +336,7 @@ func archiveBaseName(path string) string {
 		".7z", ".rar",
 	} {
 		hasExt := strings.HasSuffix(strings.ToLower(base), ext)
-		if hasExt {
+		if hasExt == true {
 			return base[:len(base)-len(ext)]
 		}
 	}

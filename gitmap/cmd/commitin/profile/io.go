@@ -44,7 +44,7 @@ func LoadFromDisk(workspaceRoot, name string) (*Profile, error) {
 func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 	path := ProfilePath(workspaceRoot, p.Name)
 	fileAlreadyExists := isExistingFile(path)
-	if !allowOverwrite && fileAlreadyExists {
+	if allowOverwrite == false && fileAlreadyExists == true {
 		return fmt.Errorf("profile %q already exists", p.Name)
 	}
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
@@ -65,6 +65,7 @@ func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 }
 
 // profileExists returns an error if a file already exists at path.
+//nolint:unused
 func profileExists(path string) error {
 	_, err := os.Stat(path)
 	if err == nil {

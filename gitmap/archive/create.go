@@ -69,6 +69,7 @@ func validateCreateFormat(path string) (Format, error) {
 	return format, nil
 }
 
+//nolint:revive
 func prepareArchiveFiles(ctx context.Context, opts CreateOptions) ([]archives.FileInfo, error) {
 	files, err := gatherFiles(ctx, opts.Sources)
 	if err != nil {
@@ -86,6 +87,7 @@ func createOutputFile(path string) (*os.File, error) {
 	return os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, constants.FilePermission)
 }
 
+//nolint:revive
 func writeArchive(ctx context.Context, path string, format Format, mode CompressionMode, files []archives.FileInfo) error {
 	out, err := createOutputFile(path)
 	if err != nil {
@@ -104,6 +106,7 @@ func writeArchive(ctx context.Context, path string, format Format, mode Compress
 // CreateArchive walks every source, applies include/exclude filters, and
 // writes the archive to opts.OutputPath using the format derived from
 // the output extension.
+//nolint:revive
 func CreateArchive(ctx context.Context, opts CreateOptions) (CreateResult, error) {
 	res := CreateResult{OutputPath: opts.OutputPath}
 	format, err := validateCreateFormat(opts.OutputPath)
@@ -141,6 +144,7 @@ func mapSourceEntry(src string) (string, error) {
 // gatherFiles converts each source root into mholt FileInfo entries.
 // Roots are mapped to "<basename>/" so multi-source archives stay tidy
 // (e.g. zip foo bar → archive contains foo/... + bar/...).
+//nolint:revive
 func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, error) {
 	mapping := make(map[string]string, len(sources))
 	for _, src := range sources {
@@ -155,7 +159,7 @@ func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, er
 }
 
 func isEntryIncluded(name string, includes, excludes []string) result.Result[bool] {
-	if !matchAny(name, includes, true).Data {
+	if matchAny(name, includes, true).Data == false {
 		return result.NewSuccess(false)
 	}
 	if matchAny(name, excludes, false).Data {

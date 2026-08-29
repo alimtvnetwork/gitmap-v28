@@ -78,12 +78,12 @@ func applyPrettyToken(token, value string, hasValue bool, mode render.PrettyMode
 // Recognizes every prefix in prettyFlagPrefixes (pretty + color synonyms).
 func splitPrettyToken(arg string) (token, value string, hasValue bool) {
 	isMissingPrefix := !hasPrettyPrefix(arg)
-	if isMissingPrefix {
+	if isMissingPrefix == true {
 		return arg, "", false
 	}
 	eq := strings.IndexByte(arg, '=')
 	hasEqual := eq >= 0
-	if hasEqual {
+	if hasEqual == true {
 		return arg[:eq], arg[eq+1:], true
 	}
 
@@ -95,7 +95,7 @@ func splitPrettyToken(arg string) (token, value string, hasValue bool) {
 func hasPrettyPrefix(arg string) bool {
 	for _, prefix := range prettyFlagPrefixes {
 		hasMatch := strings.HasPrefix(arg, prefix)
-		if hasMatch {
+		if hasMatch == true {
 			return true
 		}
 	}
@@ -108,7 +108,7 @@ func hasPrettyPrefix(arg string) bool {
 // the value is unrecognized so flag.Parse downstream can report it.
 func resolvePositivePretty(value string, hasValue bool, current render.PrettyModeType, out *[]string, original string) render.PrettyModeType {
 	isMissingValue := !hasValue
-	if isMissingValue {
+	if isMissingValue == true {
 		return render.PrettyOn
 	}
 	switch strings.ToLower(value) {

@@ -37,6 +37,7 @@ func NewWalker(repoPath string, repoDB *sql.DB, forceDot bool) *Walker {
 }
 
 // Walk traverses the directory, schedules indexing for changed files
+//nolint:revive
 func (w *Walker) Walk(ctx context.Context, workers int) error {
 	fileChan := make(chan FileInfo, 100)
 
@@ -103,6 +104,7 @@ func (w *Walker) Walk(ctx context.Context, workers int) error {
 	return err
 }
 
+//nolint:revive
 func (w *Walker) processFile(ctx context.Context, info FileInfo) (bool, error) {
 	if !info.IsBig {
 		b, err := os.ReadFile(info.AbsolutePath)

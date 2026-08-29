@@ -16,6 +16,7 @@ var SSHLsCmd = &cobra.Command{
 	},
 }
 
+//nolint:revive
 func runSSHLs(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return nil
 }

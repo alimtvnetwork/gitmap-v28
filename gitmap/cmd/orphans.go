@@ -135,13 +135,13 @@ func gitURLToHTTPS(u string) string {
 	u = strings.TrimSuffix(u, ".git")
 	isSSH := strings.HasPrefix(u, "git@")
 
-	if isSSH {
+	if isSSH == true {
 		parts := strings.SplitN(strings.TrimPrefix(u, "git@"), ":", 2)
 		return formatSSHParts(parts)
 	}
 
 	isHTTP := strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://")
-	if isHTTP {
+	if isHTTP == true {
 		return u
 	}
 

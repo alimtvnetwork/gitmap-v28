@@ -71,10 +71,10 @@ func walkTokenHits(body, token string, onUnguarded, onGuarded func(int)) {
 		idx := pos + rel
 		end := idx + tlen
 		hasDigitSuffix := end < len(body) && isASCIIDigit(body[end])
-		if hasDigitSuffix && onGuarded != nil {
+		if hasDigitSuffix == true && onGuarded != nil {
 			onGuarded(idx)
 		}
-		if !hasDigitSuffix {
+		if hasDigitSuffix == false {
 			onUnguarded(idx)
 		}
 		pos = end

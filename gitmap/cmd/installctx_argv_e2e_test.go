@@ -69,7 +69,7 @@ func TestCtxExplainAffectsEveryNonPrefillLeaf(t *testing.T) {
 		if l.Mode == constants.CtxModePrefill {
 			continue
 		}
-
+		l := l
 		t.Run(l.Slug, func(t *testing.T) {
 			target := l.resolvedTarget(exe)
 			expect := "> " + target + " " + strings.Join(l.Args, " ")
@@ -94,7 +94,7 @@ func TestCtxExplainAffectsEveryNonPrefillLeaf(t *testing.T) {
 
 // renderAllPlatformsForLeaf concatenates the Windows pwsh template,
 // the Linux shell-script body and the macOS Automator shell payload
-// so a single substring assertion proves every platform honors the
+// so a single substring assertion proves every platform honours the
 // explain toggle. ctxEntry / flatCtxEntry are reconstructed from the
 // harness leaf so the renderers see exactly what the install path
 // would feed them.

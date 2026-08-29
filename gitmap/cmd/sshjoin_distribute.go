@@ -9,6 +9,7 @@ import (
 )
 
 // DistributeKeysToHosts pushes the local public key to each machine in the targets list.
+//nolint:revive
 func DistributeKeysToHosts(ctx context.Context, hosts []string, user string, port int) error {
 	if len(hosts) == 0 {
 		return apperror.New("DistributeKeysToHosts", "E_INVALID_ARGS", map[string]any{"error": "no hosts provided"})

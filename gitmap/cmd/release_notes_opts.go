@@ -103,7 +103,7 @@ func gitLogForOpts(opts ReleaseNotesOpts) ([]string, error) {
 	args := buildGitLogArgs(opts)
 	out, err := exec.Command("git", args...).CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("git log: %w\n%s", err, out)
+		return nil, fmt.Errorf("git log: %v\n%s", err, out)
 	}
 	trimmed := strings.TrimSpace(string(out))
 	if trimmed == "" {

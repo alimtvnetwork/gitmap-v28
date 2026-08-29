@@ -20,7 +20,7 @@ func RecordRewritten(db *sql.DB, runID, sourceCommitID int64, r RewrittenRow) (i
 		return 0, err
 	}
 	shouldInsertShaMap := r.Outcome == constants.CommitInOutcomeCreated && r.NewSha != ""
-	if !shouldInsertShaMap {
+	if shouldInsertShaMap == false {
 		return rewrittenID, nil
 	}
 	err = insertShaMap(db, r.SourceSha, rewrittenID)

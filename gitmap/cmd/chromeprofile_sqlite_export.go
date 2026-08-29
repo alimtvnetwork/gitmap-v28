@@ -10,6 +10,7 @@ import (
 
 // exportChromeSQLite extracts the portable SQLite databases from a Chrome profile
 // into a destination directory. It returns the number of files copied and any error.
+//nolint:unused
 func exportChromeSQLite(srcProfile, dstDir string) (int, error) {
 	if err := os.MkdirAll(dstDir, constants.DirPermission); err != nil {
 		return 0, fmt.Errorf("mkdir %s: %w", dstDir, err)

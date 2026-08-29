@@ -68,7 +68,7 @@ func (r *Registry) CheckHeartbeats() {
 	now := time.Now()
 	for _, node := range r.nodes {
 		isDropped := now.Sub(node.LastSeen) > r.heartbeatTimeout
-		if isDropped {
+		if isDropped == true {
 			node.State = StateDisconnected
 		}
 	}
@@ -91,7 +91,7 @@ func (r *Registry) Disconnect(id string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if node, exists := r.nodes[id]; exists {
+	if node, exists := r.nodes[id]; exists == true {
 		node.State = StateDisconnected
 	}
 }

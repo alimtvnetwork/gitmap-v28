@@ -25,7 +25,7 @@ func TestDecideDriftAction(t *testing.T) {
 		{"empty current, no force → skip", "", pub, false, driftActionSkip},
 	}
 	for _, tc := range cases {
-
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			got := decideDriftAction(tc.current, tc.expected, tc.force)
 			if got != tc.want {

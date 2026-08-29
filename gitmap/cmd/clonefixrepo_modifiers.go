@@ -6,7 +6,7 @@ import "github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 // `cfr` and `cfrp`. Tokens are order-independent and may appear anywhere
 // before the first non-modifier positional (the repo URL or a flag).
 //
-// Modifiers currently recognized:
+// Modifiers currently recognised:
 //
 //	cg  → install alimtvnetwork coding-guidelines (v24) after clone/fix.
 //	p   → promote to public (equivalent to using `cfrp`); no-op when the
@@ -31,7 +31,7 @@ type CfrModifierFlags struct {
 // ParseCfrModifiers walks args from the front, consuming known modifier
 // tokens (`cg`, `p`) in any order, and returns the parsed flags plus the
 // remaining argv. Parsing stops at the first token that is either a flag
-// (leading `-`) or an unrecognized positional so URLs and existing flags
+// (leading `-`) or an unrecognised positional so URLs and existing flags
 // pass through untouched.
 //
 // Examples (rest shown as a Go slice literal):
@@ -56,7 +56,7 @@ func ParseCfrModifiers(args []string) (CfrModifierFlags, []string) {
 	return flags, args[i:]
 }
 
-// isCfrModifierToken reports whether tok is one of the recognized
+// isCfrModifierToken reports whether tok is one of the recognised
 // pre-URL modifier tokens.
 func isCfrModifierToken(tok string) bool {
 	switch tok {

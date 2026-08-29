@@ -24,7 +24,7 @@ func TestInteractiveSSHClient(t *testing.T) {
 func TestSpawnSSH(t *testing.T) {
 	// We can't actually spawn SSH effectively in this unit test without a real server,
 	// but we can ensure it compiles and has the correct signature.
-	// Running a canceled context is a safe way to test execution framework.
+	// Running a cancelled context is a safe way to test execution framework.
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -32,7 +32,7 @@ func TestSpawnSSH(t *testing.T) {
 	err := SpawnSSH(ctx, target, []string{"date"})
 
 	if err == nil {
-		t.Errorf("expected error due to canceled context")
+		t.Errorf("expected error due to cancelled context")
 	}
 }
 

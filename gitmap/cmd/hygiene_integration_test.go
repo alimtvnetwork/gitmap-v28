@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-// makeRepo initializes a real git repo at dir with a single commit
+// makeRepo initialises a real git repo at dir with a single commit
 // whose contents differ when uniqueBody is true.
 func makeRepo(t *testing.T, dir string, uniqueBody bool) {
 	t.Helper()

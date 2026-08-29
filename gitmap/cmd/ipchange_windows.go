@@ -11,6 +11,7 @@ import (
 
 var netshExecutor = exec.CommandContext
 
+//nolint:revive
 func swapIPWindows(ctx context.Context, interfaceName string, newIP string) error {
 	if interfaceName == "" {
 		interfaceName = "Ethernet"
@@ -22,6 +23,7 @@ func swapIPWindows(ctx context.Context, interfaceName string, newIP string) erro
 	return nil
 }
 
+//nolint:revive
 func swapIP(ctx context.Context, interfaceName, oldIP, newIP string) error {
 	return swapIPWindows(ctx, interfaceName, newIP)
 }

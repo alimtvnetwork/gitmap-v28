@@ -15,6 +15,7 @@ var MigrationsFS embed.FS
 
 // ApplyMigrations applies all SQL migration files in the migrations directory
 // against the provided standard database/sql connection.
+//nolint:revive
 func ApplyMigrations(ctx context.Context, conn *sql.DB) error {
 	entries, err := MigrationsFS.ReadDir("migrations")
 	if err != nil {

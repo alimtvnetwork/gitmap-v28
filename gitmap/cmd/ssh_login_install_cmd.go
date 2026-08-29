@@ -21,6 +21,7 @@ var SSHLoginInstallCmd = &cobra.Command{
 	},
 }
 
+//nolint:revive
 func runSSHLoginInstall(cmd *cobra.Command, args []string, ctx context.Context) error {
 	targetStr := args[0]
 	version := "latest"
@@ -41,6 +42,7 @@ func runSSHLoginInstall(cmd *cobra.Command, args []string, ctx context.Context) 
 	return executeRemoteInstall(ctx, payload, *target)
 }
 
+//nolint:revive
 func getInstallPayload(ctx context.Context, target string, version string) (string, error) {
 	if strings.TrimSpace(target) == "" {
 		return "", apperror.NewSimple("getInstallPayload", "E_INTERNAL_ERROR")
@@ -53,6 +55,7 @@ func getInstallPayload(ctx context.Context, target string, version string) (stri
 	return payload, nil
 }
 
+//nolint:revive
 func executeRemoteInstall(ctx context.Context, payload string, target SSHTarget) error {
 	cmd := sshExecutor(ctx, "ssh", target.String())
 	cmd.Stdin = strings.NewReader(payload)

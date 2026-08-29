@@ -21,6 +21,7 @@ func runHistoryReset(args []string) error {
 
 	fmt.Fprint(os.Stderr, constants.ErrHistoryResetNoConfirm)
 	return apperror.NewSimple("fatal error", "E9000")
+// 	return nil
 }
 
 // parseHistoryResetFlags parses the --confirm flag.

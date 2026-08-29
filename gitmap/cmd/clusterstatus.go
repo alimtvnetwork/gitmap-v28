@@ -35,7 +35,7 @@ func runClusterStatus(args []string) error {
 	nodes := reg.GetNodes()
 	for _, n := range nodes {
 		isNode3 := n.ID == mockNode3
-		if isNode3 {
+		if isNode3 == true {
 			// Fast forward last seen to force timeout
 			reg.Ping(n.ID)
 		}

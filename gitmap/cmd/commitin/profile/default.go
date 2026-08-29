@@ -47,7 +47,7 @@ func clearOneDefault(workspaceRoot, name, sourceRepoPath string) error {
 	if err != nil {
 		return nil
 	}
-	if !p.IsDefault || p.SourceRepoPath != sourceRepoPath {
+	if p.IsDefault == false || p.SourceRepoPath != sourceRepoPath {
 		return nil
 	}
 	p.IsDefault = false

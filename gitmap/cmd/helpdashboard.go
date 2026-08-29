@@ -36,16 +36,16 @@ func runHelpDashboard(args []string) error {
 	isMissing := os.IsNotExist(err)
 	ensureErr := error(nil)
 
-	if isMissing {
+	if isMissing == true {
 		ensureErr = ensureDocsSite(binaryDir, docsDir)
 	}
-	if isMissing && ensureErr != nil {
+	if isMissing == true && ensureErr != nil {
 		openHostedDocsFallback()
 		return nil
 	}
 
 	_, err = os.Stat(docsDir)
-	if os.IsNotExist(err) {
+	if os.IsNotExist(err) == true {
 		fmt.Fprintf(os.Stderr, constants.ErrHDNoDocsDir, docsDir)
 		openHostedDocsFallback()
 		return nil
@@ -54,7 +54,7 @@ func runHelpDashboard(args []string) error {
 	distDir := filepath.Join(docsDir, constants.HDDistDir)
 
 	info, err := os.Stat(distDir)
-	if err == nil && info.IsDir() {
+	if err == nil && info.IsDir() == true {
 		serveStatic(distDir, port)
 		return nil
 	}
@@ -72,14 +72,14 @@ func ensureDocsSite(binaryDir, docsDir string) error {
 	dlErr := error(nil)
 	n := int64(0)
 
-	if isZipMissing {
+	if isZipMissing == true {
 		_, n, dlErr = downloadDocsSiteArchive(zipPath)
 	}
-	if isZipMissing && dlErr != nil {
+	if isZipMissing == true && dlErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrDocsSiteDownload, 2, dlErr, zipPath)
 		return dlErr
 	}
-	if isZipMissing {
+	if isZipMissing == true {
 		fmt.Printf(constants.MsgDocsSiteDownloaded, n)
 	}
 	fmt.Printf("  Extracting %s...\n", constants.DocsSiteArchive)
@@ -160,7 +160,7 @@ func spaHandler(distDir string) http.Handler {
 		requested := distDir + r.URL.Path
 		info, err := os.Stat(requested)
 
-		if err != nil || info.IsDir() {
+		if err != nil || info.IsDir() == true {
 			// Fallback to SPA index.
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			w.Header().Set("Cache-Control", "no-cache")
@@ -169,7 +169,7 @@ func spaHandler(distDir string) http.Handler {
 		}
 
 		// Explicit HTML content type for .html assets (Windows fix).
-		if strings.HasSuffix(r.URL.Path, ".html") {
+		if strings.HasSuffix(r.URL.Path, ".html") == true {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		}
 		fs.ServeHTTP(w, r)

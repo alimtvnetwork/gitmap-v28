@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -92,7 +93,10 @@ func runTaskList() error {
 func runTaskShow(args []string) error {
 	name := requireTaskName(args)
 	tasks := loadTaskFile()
-	entry := findTaskByName(tasks, name)
+	entry, err := findTaskByName(tasks, name)
+	if err != nil {
+		return err
+	}
 
 	fmt.Printf(constants.MsgTaskShowFmt, entry.Name, entry.Source, entry.Dest)
 	return nil
@@ -120,15 +124,14 @@ func requireTaskName(args []string) string {
 }
 
 // findTaskByName returns the task entry or exits with error.
-func findTaskByName(tasks model.TaskFile, name string) model.TaskEntry {
+func findTaskByName(tasks model.TaskFile, name string) (model.TaskEntry, error) {
 	for _, t := range tasks.Tasks {
 		if t.Name == name {
-			return t
+			return t, nil
 		}
 	}
 
-	panic("error")
-
+	return model.TaskEntry{}, apperror.NewSimple("task not found: "+name, "E9023")
 }
 
 // removeTaskByName removes a task and returns updated file.
