@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -55,9 +57,17 @@ func resolveReleaseAliasPath(alias string) string {
 
 	resolved, err := db.ResolveAlias(alias)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRAUnknownAliasFmt, alias, alias)
-		fmt.Fprintln(os.Stderr)
-		panic("fatal error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"release.alias",
+			"E2006",
+			fmt.Sprintf(constants.ErrRAUnknownAliasFmt, alias, alias),
+			"cmd.releasealias",
+			apperror.ErrorTypeNotFound,
+			apperror.SeverityError,
+			map[string]any{"alias": alias},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	return resolved.AbsolutePath
@@ -67,9 +77,17 @@ func resolveReleaseAliasPath(alias string) string {
 func performReleaseAlias(target, alias, version string, pull, noStash, dryRun bool) {
 	originalDir, _ := os.Getwd()
 	if err := os.Chdir(target); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrRAChdirFailedFmt, target, err)
-		fmt.Fprintln(os.Stderr)
-		panic("fatal error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"release.alias",
+			"E2007",
+			fmt.Sprintf(constants.ErrRAChdirFailedFmt, target, err),
+			"cmd.releasealias",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"target": target, "alias": alias},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 	defer func() { _ = os.Chdir(originalDir) }()
 

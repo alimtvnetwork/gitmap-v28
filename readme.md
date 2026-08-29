@@ -2835,7 +2835,8 @@ project, the JSON output contracts, and how to add a new JSON surface:
    (schema ↔ model ↔ encoder ↔ test ↔ fixture), and the step-by-step
    recipe for adding a new JSON output.
 3. `.lovable/memory/index.md` — master memory index (Core rules + topic links).
-4. `.lovable/overview.md` and `.lovable/strictly-avoid.md` — invariants & hard NOs.
+4. [`.lovable/coding-guidelines/centralized-error-handling-architecture.md`](./.lovable/coding-guidelines/centralized-error-handling-architecture.md) — Centralized error management & anti-pattern elimination.
+5. `.lovable/overview.md` and `.lovable/strictly-avoid.md` — invariants & hard NOs.
 5. `spec/08-json-schemas/` — every JSON output's schema.
 6. `gitmap/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
    — canonical example of the encoder + contract-test pattern to copy.

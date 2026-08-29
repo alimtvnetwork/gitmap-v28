@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -22,8 +24,16 @@ type templateFile struct {
 func loadTemplateMessages(flags seoWriteFlags) []commitMessage {
 	titles, descriptions := loadTemplatePairs(flags)
 	if len(titles) == 0 || len(descriptions) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrSEOTemplateEmpty)
-		panic("fatal error")
+		appErr := apperror.NewWithDetails(
+			"seo.loadTemplate",
+			"E2021",
+			constants.ErrSEOTemplateEmpty,
+			"cmd.seowritetemplate",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"templatePath": flags.templatePath},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	return generateMessages(titles, descriptions, flags)

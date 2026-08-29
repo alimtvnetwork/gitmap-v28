@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -73,8 +75,16 @@ func runSSHCat(args []string) error {
 func printSSHNotFound(db *store.DB, name string) {
 	fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, name)
 	printAvailableKeys(db)
-	fmt.Fprint(os.Stderr, "\n  Hint: run `gitmap ssh` to generate a new SSH key for GitHub.\n")
-	panic("fatal error")
+	appErr := apperror.NewWithDetails(
+		"ssh.findKey",
+		"E2022",
+		fmt.Sprintf(constants.ErrSSHNotFound, name),
+		"cmd.sshcat",
+		apperror.ErrorTypeNotFound,
+		apperror.SeverityError,
+		map[string]any{"name": name},
+	)
+	cliexit.HandleError(appErr, 1)
 }
 func fallbackToSingleKey(db *store.DB, fallbackKey *model.SSHKey, fallbackErr error) (*model.SSHKey, error) {
 	keys, lerr := db.ListSSHKeys()

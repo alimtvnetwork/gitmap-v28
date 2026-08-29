@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -41,8 +43,17 @@ func parseResetFlags(args []string) (bool, bool) {
 // reapplies any JSON-based seeds.
 func executeReset() {
 	if err := removeActiveDBFile(); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrResetRemoveFile, activeDBPath(), err)
-		panic("fatal error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"db.reset",
+			"E2011",
+			fmt.Sprintf(constants.ErrResetRemoveFile, activeDBPath(), err),
+			"cmd.reset",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": activeDBPath()},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	db, err := openDB()

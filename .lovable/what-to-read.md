@@ -15,6 +15,8 @@
 
 - `.lovable/memory/index.md`, why: Contains the central index of all project features, constraints, bugs, and design decisions.
 - `.lovable/coding-guidelines.md`, why: Enforces strict TS Enum suffix rules, TS/Python query wrappers, Golang styles, and structural bans.
+- `.lovable/coding-guidelines/centralized-error-handling-architecture.md`, why: Architectural standard preventing bare exits, panics, and silent failures across the repository.
+- `.lovable/prompts/27-centralized-error-handling-checklist.md`, why: Canonical AI system prompt enforcing structured AppError handling and pre-commit verification.
 - `.lovable/plans/index.md`, why: Lists active and completed tasks to ensure efforts don't conflict with ongoing work.
 - `.lovable/plan.md`, why: The current single-file tracker for the active AI tasks.
 - `.lovable/strictly-avoid.md`, why: Contains the absolute list of project prohibitions.

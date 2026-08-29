@@ -20,3 +20,4 @@
 - [29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md](./29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md): Fix Git LFS binary zip false-positive in generate drift check, sync constants.Version with changelog.md, and sanitize jq --argjson in linter diff scripts.
 - [30-smoke-installer-var-version.md](./30-smoke-installer-var-version.md): Fix smoke-installer.sh version extraction to support var Version alongside const Version.
 - [31-docs-site-usetheme-syntax-error.md](./31-docs-site-usetheme-syntax-error.md): Fix check!res typo in src/hooks/useTheme.ts breaking docs-site Vite build.
+- [32-root-cli-panic-on-zero-args.md](./32-root-cli-panic-on-zero-args.md): Fix panic("fatal error") in gitmap/cmd/root.go and across command files, ensuring zero-args CLI exits cleanly with usage.

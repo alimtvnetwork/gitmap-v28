@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -185,8 +187,17 @@ func revertOne(id int64, force bool) {
 // applyRevertOrExit calls txn.Revert and prints the success line.
 func applyRevertOrExit(db *store.DB, id int64, rec model.TransactionRecord, force bool) {
 	if err := txn.Revert(db, id, txn.RevertOptions{Force: force}); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		panic("fatal error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"txn.revert",
+			"E2014",
+			err.Error(),
+			"cmd.reverttxn",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"id": id, "kind": rec.Kind, "force": force},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 	fmt.Printf(constants.MsgTxnReverted, id, rec.Kind)
 }

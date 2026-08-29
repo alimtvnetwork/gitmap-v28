@@ -4,8 +4,9 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -79,8 +80,16 @@ func resolveMessages(flags seoWriteFlags) []commitMessage {
 	}
 
 	if flags.url == "" {
-		fmt.Fprint(os.Stderr, constants.ErrSEOURLRequired)
-		panic("fatal error")
+		appErr := apperror.NewWithDetails(
+			"seo.resolveMessages",
+			"E2018",
+			constants.ErrSEOURLRequired,
+			"cmd.seowrite",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"csv": flags.csv},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	return loadTemplateMessages(flags)
