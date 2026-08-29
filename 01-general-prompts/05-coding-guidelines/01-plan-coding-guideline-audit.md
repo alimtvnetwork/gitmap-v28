@@ -46,12 +46,14 @@ Autonomously self-loop and read:
 You MUST audit the codebase against this exact mechanical checklist derived from `.lovable/coding-guidelines/coding-guidelines.md`:
 
 ### Naming & Syntax (R1, R2, R8, R20)
+
 - [ ] **R1 - Acronym Casing (PascalCase)**: Acronyms (`Id`, `Json`, `Url`, `Ip`, `Http`, `Api`, `Tls`, `Sql`, `Uuid`) MUST be PascalCase, NEVER all-caps. Write `UserId`, `HttpClient`, `SwapIpWindows`, `ParseJsonUrl`. Do NOT write `UserID`, `HTTPClient`, `swapIPWindows`, `parseJSONURL`.
 - [ ] **R2 - Serialization & JSON Keys**: Serialized keys use PascalCase matching the Go/struct field name (`{"Id": "123", "ApiUrl": "...", "IsActive": true}`). Never use camelCase or snake_case for internal JSON schemas.
 - [ ] **R8 - No Magic Strings or Numbers**: Every comparison, status check, or option literal MUST be against a named enum symbol or typed constant. Never compare against raw string literals (e.g. `status === "ACTIVE"`).
 - [ ] **R20 - Anti-Garbage Naming**: Never generate arbitrary, generic, or sequential names like `temp`, `data`, `obj`, `comp_100.go`, or `TestHandleComp100`. All identifiers must semantically describe domain behavior.
 
 ### Boolean Standards & Logic (R3, R10, R14, R16, R17)
+
 - [ ] **R3 - Mandatory Prefixes**: Every boolean variable, parameter, struct field, JSON key, or boolean-returning function MUST begin with `is`, `has`, `can`, `should`, `was`, `will`, `did`, or `must` (e.g., `isEnabled`, `hasAdminRole`, `isReady`).
 - [ ] **Positive Framing Only**: Never use negative booleans (e.g., `isNotReady`, `disableCache`, `hasNoAccess` are banned). Invert them to positive (`isReady`, `isCacheEnabled`).
 - [ ] **Never Invert Success**: Never use `!response.isSuccess` or `!ok`. Instead, use explicit failure checks (`response.isFail`, `isMissingEntry := !ok; if isMissingEntry == true { ... }`).
@@ -61,6 +63,7 @@ You MUST audit the codebase against this exact mechanical checklist derived from
 - [ ] **R17 - No Mixed Polarity**: Never mix positive and negative conditions in a single conditional join (e.g., `if (a && !b)` is forbidden; extract positive variables).
 
 ### Function Structure, Signatures & Spacing (R4, R5, R6, R13, R14, R15, R16, R17, R18, R19)
+
 - [ ] **Function Length Cap**: 8 lines preferred, 15 lines hard cap. Functions exceeding 15 lines MUST be decomposed into single-responsibility helpers using Shell-and-Wire or Table-Driven Dispatch.
 - [ ] **No Nested Ifs**: Zero tolerance for nested `if` blocks. Flatten with early returns and guard clauses.
 - [ ] **R4 - Signature Line Splitting**: If a function has > 3 parameters OR the signature exceeds 100 characters, split into one parameter per line with trailing commas where allowed.
@@ -74,16 +77,19 @@ You MUST audit the codebase against this exact mechanical checklist derived from
 - [ ] **R18 - Import Grouping**: Group imports strictly: standard library, third-party, first-party absolute, first-party relative.
 
 ### Enums & Type Safety (R19, R21, R22, R24)
+
 - [ ] **R21 - Enum Type Suffix**: Every enum alias MUST end with the suffix `Type` (e.g., `FormatType`, `UserRoleType`, `NodeStateType`).
 - [ ] **Dedicated Files**: Types, enums, constants, and interfaces MUST live in their own dedicated files, never inline alongside business logic.
 - [ ] **Exhaustive Pattern Matching**: Switches on enums must handle every case or include a safe error-handling default branch.
 
 ### Error Management (AppError Architecture)
+
 - [ ] **Zero Swallowed Errors**: Never use `_ = err` or empty `catch {}`. Every error must be logged or returned.
 - [ ] **Context Wrapping**: Wrap every error with an operation label and domain parameters (`apperror.Wrap(err, "operationName", context)`). Original stack traces must survive.
 - [ ] **Return AppError**: Core functions and CLI command handlers MUST return `*apperror.AppError` and avoid calling raw `os.Exit(1)` inside business logic so that command auditing can log failures.
 
 ### Language-Specific Rules
+
 - [ ] **Go**: Return `*apperror.AppError`. Use result types for multi-returns containing booleans (`(T, bool)` forbidden; return a struct). Define enums as typed bytes/ints (`type StatusType byte`) with `iota`.
 - [ ] **TypeScript / React**: `useEffect` conditions must extract guards into positively named booleans. State is strictly immutable: no in-place array/object mutations (`push`, `splice`, direct assignments banned; use spread or `structuredClone`). No public tuples.
 - [ ] **Python**: Strict type hints on every public signature; use `@dataclass` or `pydantic` for structured data.
@@ -125,6 +131,7 @@ Your final output must be a massively detailed plan stored at `.lovable/plans/pe
 The plan must break the work down so granularly (exactly `N = 150` steps) that 3 concurrent sub-agents can be spawned later to safely execute the fixes.
 
 ### Sub-Agent Orchestration Requirements:
+
 1. **Specific Titling**: Each sub-agent must be spawned with a highly specific title reflecting its exact task (e.g. `Enum Suffix Refactorer`, `Boolean Logic Normalizer`, `Guard Clause Flattener`).
 2. **Micro-Tasking**: Sub-agents must only be assigned simple, small micro-tasks rather than monolithic passes.
 3. **Agent Delegation**: Each subtask file MUST explicitly state that it will be executed by a separate standalone agent.

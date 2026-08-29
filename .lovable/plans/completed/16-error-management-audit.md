@@ -18,6 +18,7 @@
 ## 2. Violation Inventory
 
 ### A. Bare Panics (`panic("error")`)
+
 - `gitmap/cmd/vscodeworkspace.go` (Lines 48, 162, 178)
 - `gitmap/cmd/vscode_cmd.go` (Lines 19, 39, 46, 58)
 - `gitmap/cmd/zipgroup.go` (Line 57)
@@ -26,6 +27,7 @@
 - `gitmap/cmd/zipgroupshow.go` (Lines 17, 23, 54, 66, 72)
 
 ### B. Bare Exits (`os.Exit`)
+
 - `gitmap/cmd/visibilitymakelast.go` (Lines 42, 52, 60, 68)
 - `gitmap/cmd/visibilityredo.go` (Line 23)
 - `gitmap/cmd/visibilityresolve.go` (Lines 35, 41, 47, 60, 66, 72, 143, 165, 170)

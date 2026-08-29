@@ -3,6 +3,7 @@ name: version-probe
 description: Hybrid HEAD-then-clone version probe (v3.8.0+). v3.134.0 added a capped foreground worker pool. v3.135.0 unifies flag names (--probe-workers / --probe-depth) across `probe` and `scan`, deprecating --workers and --probe-concurrency.
 type: feature
 ---
+
 # Version Probe (Phase 2.3, v3.8.0)
 
 ## Overview

@@ -33,6 +33,7 @@ gitmap relclone <file> --execute                          # legacy alias
 gitmap rc       <file> --execute                          # legacy short alias
 
 # Single-repo mode (overlay) — wipe + re-clone ONE git repo from its origin
+
 gitmap reclone                                            # inside a git repo: prompts, then deletes + re-clones from remote.origin.url
 gitmap reclone -y                                         # skip the y/N prompt
 gitmap rc      ./some/repo                                # target a sibling repo by path
@@ -173,13 +174,17 @@ the exact same command and flag set, kept for backward compatibility:
 ## Examples
 
 ```
+
 # Round-trip a previously scanned tree under a fresh root.
+
 gitmap reclone .gitmap/output/repos.json --cwd ./mirror --execute
 
 # Re-align an existing checkout with the recorded URL/branch.
+
 gitmap reclone .gitmap/output/repos.csv --on-exists update --execute
 
 # Inspect what would happen, with no side effects.
+
 gitmap reclone .gitmap/output/repos.json
 ```
 

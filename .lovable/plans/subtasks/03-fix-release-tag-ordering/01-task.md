@@ -1,6 +1,7 @@
 # Subtask 1: Reorder Release Workflow Steps
 
 ## Instructions
+
 1. Open `gitmap/release/workflow.go`.
 2. Locate the `performRelease` function.
 3. Move Step 3 (`localdirs.MigrateLegacyDirs`), Step 4 (`writeMetadataIfRequired`), and Step 5 (`AutoCommit`) **above** Step 1 (`executeSteps`).

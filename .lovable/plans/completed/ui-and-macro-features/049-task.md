@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 049 � Implement ScanShellExport - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 49
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 49
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 49
 - [Custom Link 49](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 49
 
 ## 2. Goal
+
 Isolate ScanShellExport logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes ScanShellExportRequest, emits ScanShellExportResponse.
 
 ## 4. Execute
+
 1. Define 	ype ScanShellExportPart1 struct { ... } in gitmap/cmd/scan_shell.go.
 2. Define unc InitScanShellExportPart1() error in gitmap/cmd/scan_shell.go.
 3. Define unc (x *ScanShellExportPart1) Process49() bool in gitmap/cmd/scan_shell.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitScanShellExportPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype ScanShellExportPart1 is defined
 - [ ] unc InitScanShellExportPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

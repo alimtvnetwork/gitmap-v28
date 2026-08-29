@@ -22,7 +22,9 @@ The Author section appears near the bottom of `README.md`, just before the **Lic
 ## 1. Author Header
 
 ```markdown
+
 ## Author
+
 ```
 
 - Uses `##` (H2) heading.
@@ -117,6 +119,7 @@ A two-column table with no header text (empty header row):
 ## 5. Riseup Asia LLC Subsection
 
 ```markdown
+
 ### Riseup Asia LLC
 
 [Top Leading Software Company in WY (2026)](https://riseup-asia.com)

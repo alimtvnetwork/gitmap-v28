@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 017 — SSH Broadcast Command Core
 
 ## 1. Goal
+
 Execute remote commands across multiple machines in `cmd/sshjoin_broadcast.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `cmd/sshjoin_broadcast.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestSSHBroadcastCommandCore
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

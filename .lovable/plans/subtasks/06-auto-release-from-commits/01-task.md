@@ -1,9 +1,11 @@
 # Subtask 01: State Management & Regex Parsing
 
 ## Goal
+
 Implement the state manager and regex parsers for the commit scanning feature.
 
 ## Requirements
+
 1. **File**: `gitmap/release/scan_state.go`
    - Implement `ReadLastScannedCommit(repoDir string) (string, error)` that reads `commit_scan_state.json` inside `.gitmap/`.
    - Implement `WriteLastScannedCommit(repoDir, commitHash string) error` that writes to it.

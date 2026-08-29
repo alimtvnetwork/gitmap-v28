@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 046 � Implement InstallAdd - Part 2
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 46
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 46
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 46
 - [Custom Link 46](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 46
 
 ## 2. Goal
+
 Isolate InstallAdd logic for part 2. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes InstallAddRequest, emits InstallAddResponse.
 
 ## 4. Execute
+
 1. Define 	ype InstallAddPart2 struct { ... } in gitmap/cmd/install_add.go.
 2. Define unc InitInstallAddPart2() error in gitmap/cmd/install_add.go.
 3. Define unc (x *InstallAddPart2) Process46() bool in gitmap/cmd/install_add.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitInstallAddPart2 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype InstallAddPart2 is defined
 - [ ] unc InitInstallAddPart2 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

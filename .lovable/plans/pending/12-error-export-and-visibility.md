@@ -1,9 +1,11 @@
 # 12 Error Export and Visibility Settings
 
 ## Parent Task Goal
+
 Give users control over error visibility (full traces vs simple messages) via a settings configuration, and provide a dedicated `gitmap error export <file>` command to extract the last failure (so users can easily copy/paste errors into AI tools or issues without manual terminal scraping).
 
 ## Architectural Plan
+
 1. **Settings / Config:**
    - Add `ErrorDisplay string json:"errorDisplay"` to `model.Config`.
    - Update `model.DefaultConfig()` to set it to `"full"`.
@@ -22,12 +24,14 @@ Give users control over error visibility (full traces vs simple messages) via a 
    - `gitmap error export <file>` simply copies `.gitmap/last_error.log` to the specified path, or prints it to standard output if no path is given.
 
 ## Subtasks
+
 - **Subtask 1:** Add `ErrorDisplay` configuration logic.
 - **Subtask 2:** Modify the global error handler to respect `ErrorDisplay`, and write the last encountered error to a local file.
 - **Subtask 3:** Implement the `gitmap error` command and its `export` sub-action.
 - **Subtask 4:** Update the documentation and user help text.
 
 ## Code Review Guide
+
 - Do not swallow errors; use `apperror`.
 - Boolean variables must be prefixed with `is`, `has`, `should`, or `can`.
 - No generic variable names (`temp`, `data`, `res`).

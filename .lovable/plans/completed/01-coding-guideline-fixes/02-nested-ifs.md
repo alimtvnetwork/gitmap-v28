@@ -3,6 +3,7 @@
 According to the Coding Guidelines: 'No nested `if` branches; flatten logic using early returns.'
 
 ## Files to fix
+
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_ignored_errs.go:34: Nested if statement found
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_ignored_errs.go:35: Nested if statement found
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_ignored_errs.go:36: Nested if statement found

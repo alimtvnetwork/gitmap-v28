@@ -138,6 +138,7 @@ Most `model/*.go` structs use Go-idiomatic `ID int64` with no `db:` tag. SQL Sca
 ## 3. Execution Phases (one per "next")
 
 ### Phase 1.1 — Repo + GroupRepo + index (small, safe pilot)
+
 - Rewrite `constants_store.go`: `Repos→Repo`, `Id→RepoId`, `GroupRepos→GroupRepo`, index → `IdxRepo_AbsolutePath`.
 - Update every SQL string in that file to use `RepoId`.
 - Update `store/repo.go` Scan calls (positional, no change needed) + any inline `WHERE Id =` → `WHERE RepoId =`.
@@ -146,24 +147,29 @@ Most `model/*.go` structs use Go-idiomatic `ID int64` with no `db:` tag. SQL Sca
 - **Stop. Wait for "next".**
 
 ### Phase 1.2 — Group + Release + Alias + Bookmark
+
 - Same procedure for these 4 tables in one batch.
 - Build + test.
 - **Stop. Wait for "next".**
 
 ### Phase 1.3 — Amendment + CommitTemplate + Setting + SshKey + InstalledTool + TempRelease
+
 - 6 tables.
 - Build + test.
 - **Stop.**
 
 ### Phase 1.4 — ZipGroup family + Project family + Task family + History tables
+
 - Remaining 11 tables.
 - Build + test.
 - **Stop.**
 
 ### Phase 1.5 — Boolean prefix fixes (`Draft`→`IsDraft`, `PreRelease`→`IsPreRelease`)
+
 - Smaller cleanup, separate to keep blast radius isolated.
 
 ### Phase 1.6 — Spec, ERD, memory, version bump
+
 - Update `spec/12-consolidated-guidelines/11-database.md` to v15 (singular + `{Table}Id`).
 - Regenerate both `.mmd` ERDs.
 - Update `mem://index.md` core: "Database schema follows v15 PascalCase + singular tables + `{Table}Id` PKs."

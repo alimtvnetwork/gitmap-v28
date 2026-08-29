@@ -67,28 +67,37 @@ soft-fail" for the full rule set.
 ## Examples
 
 ```
+
 # HTTPS clone + fix
+
 gitmap clone-fix-repo https://github.com/acme/myrepo-v13.git
 
 # 🔐 Same URL, force SSH transport before clone
+
 gitmap cfr https://github.com/acme/myrepo-v13.git --ssh
 
 # 🌐 SSH URL, coerce to HTTPS (CI without SSH agent)
+
 gitmap cfr git@github.com:acme/myrepo-v13.git --https
 
 # SSH clone with explicit folder name
+
 gitmap cfr git@github.com:acme/myrepo-v13.git myrepo-fresh
 
 # 🧭 Clone + fix + install coding-guidelines v24 (auto-commit + push)
+
 gitmap cfr cg https://github.com/acme/myrepo-v13.git
 
 # 🧭 Same, but stage the guideline files without committing
+
 gitmap cfr cg https://github.com/acme/myrepo-v13.git --no-commit
 
 # 🧭 Commit locally but don't push (review before publishing)
+
 gitmap cfr cg https://github.com/acme/myrepo-v13.git --no-push
 
 # 🌍 Combine cg + p → clone, fix, publish, then install guidelines
+
 gitmap cfr p cg https://github.com/acme/myrepo-v13.git
 ```
 

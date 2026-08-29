@@ -1,9 +1,11 @@
 # Specification 17 — Chapter 2: Unified Project Resolver Engine
 
 ## 1. The Core Problem
+
 In prior versions, commands like `gitmap rm .\prompt-architect` or `gitmap cd ./my-repo/` failed because target lookup performed direct string comparisons (`r.Slug == target` or byte-exact `r.AbsolutePath == abs`). On Windows, path separators (`\` vs `/`), trailing slashes, drive letter casing (`D:\` vs `d:\`), and relative path notations (`.\`, `..\`, `.`) created mismatches against the normalized paths in SQLite.
 
 ## 2. Resolver Resolution Hierarchy
+
 When a user specifies a target string `T`, the resolver executes the following ordered evaluation:
 
 1. **Working Directory Fallback (Empty or `.`)**:
@@ -27,6 +29,7 @@ When a user specifies a target string `T`, the resolver executes the following o
    - If `T` contains `*`, `?`, or `[`, expand via `filepath.Match` against both `Slug` and directory basename.
 
 ## 3. Path Normalization Contract
+
 ```go
 type CanonicalPath struct {
     Original   string

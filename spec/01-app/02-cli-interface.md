@@ -600,120 +600,154 @@ activates whenever existing repos are detected during a clone operation.
 ## Examples
 
 ```bash
+
 # Scan current directory — outputs terminal + CSV + JSON + folder-structure.md
+
 gitmap scan
 gitmap s             # alias
 
 # Scan with SSH URLs
+
 gitmap scan ./projects --mode ssh
 
 # Scan and add repos to GitHub Desktop
+
 gitmap scan ./projects --github-desktop
 
 # Scan parent directory
+
 gitmap scan ..
 
 # Re-run the last scan with the same flags
+
 gitmap rescan
 gitmap rs            # alias
 
 # Clone using shorthand (auto-resolves to ./.gitmap/output/gitmap.json)
+
 gitmap clone json
 gitmap c json        # alias
 
 # Clone using CSV shorthand
+
 gitmap clone csv
 
 # Clone from JSON, preserving folder structure
+
 gitmap clone ./.gitmap/output/gitmap.json --target-dir ./restored
 
 # Clone with verbose logging
+
 gitmap clone json --verbose
 
 # Clone and register with GitHub Desktop
+
 gitmap clone ./.gitmap/output/gitmap.csv --target-dir ./restored --github-desktop
 
 # Pull a single repo by name
+
 gitmap pull my-api-service
 gitmap p my-api      # partial match works
 
 # Pull all repos in a group
+
 gitmap pull --group backend
 gitmap p -g backend  # alias + short flag
 
 # Pull every tracked repo
+
 gitmap pull --all
 
 # Sync existing scan output to GitHub Desktop
+
 gitmap desktop-sync
 gitmap ds            # alias
 
 # Configure Git global settings (preview first)
+
 gitmap setup --dry-run
 gitmap setup
 
 # Show repo status dashboard
+
 gitmap status
 gitmap st            # alias
 
 # Show status for a specific group
+
 gitmap status --group backend
 gitmap st -g backend
 
 # Show status for all tracked repos
+
 gitmap status --all
 
 # Run git fetch across all repos
+
 gitmap exec fetch --prune
 gitmap x status -s   # alias
 
 # Run git command on a specific group
+
 gitmap exec --group backend fetch --prune
 gitmap x -g backend status -s
 
 # Run git command on all tracked repos
+
 gitmap exec --all fetch --prune
 
 # Self-update from source repo
+
 gitmap update
 
 # Clean up leftover update artifacts manually
+
 gitmap update-cleanup
 
 # Create a release from HEAD
+
 gitmap release v1.2.3
 gitmap r v1.0.0      # alias
 
 # Partial version (padded to v1.0.0)
+
 gitmap release v1
 
 # Release with assets
+
 gitmap release v2.0.0 --assets ./dist
 
 # Release from specific commit or branch
+
 gitmap release v1.2.3 --commit abc123
 gitmap release v1.0.0 --branch develop
 
 # Auto-increment version
+
 gitmap release --bump patch
 gitmap release --bump minor --assets ./bin
 
 # Draft / pre-release
+
 gitmap release v3.0.0-rc.1 --draft
 
 # Read version from version.json
+
 gitmap release
 
 # Complete release from existing release branch
+
 gitmap release-branch release/v1.2.0
 gitmap rb release/v1.2.0
 
 # Release all untagged release branches
+
 gitmap release-pending
 gitmap rp            # alias
 gitmap release-pending --dry-run
 
 # View changelog
+
 gitmap changelog             # last 5 versions
 gitmap cl --latest           # most recent only
 gitmap changelog v2.3.0      # specific version
@@ -723,13 +757,16 @@ gitmap cl --source release   # only changelog entries from gitmap release
 gitmap cl --source import    # only changelog entries from imported releases
 
 # Diagnose environment issues
+
 gitmap doctor
 
 # Print version number
+
 gitmap version
 gitmap v             # alias
 
 # Find the most recently updated remote branch
+
 gitmap lb                        # latest branch (single)
 gitmap lb 5                      # top 5 most recently updated branches
 gitmap lb --top 5                # same as above
@@ -748,12 +785,14 @@ gitmap lb --filter 'feature/*'   # only branches matching feature/*
 gitmap lb 5 --filter release     # top 5 branches containing "release"
 
 # List tracked repos
+
 gitmap list
 gitmap ls                        # alias
 gitmap list --group backend      # filter by group
 gitmap list --verbose            # show full paths
 
 # Manage groups
+
 gitmap group create backend --description "Backend services"
 gitmap g create frontend --color green
 gitmap group add backend my-api my-worker
@@ -763,6 +802,7 @@ gitmap group show backend        # show repos in group
 gitmap group delete old-group
 
 # List versions (from Git tags)
+
 gitmap list-versions
 gitmap lv                        # alias
 gitmap lv --limit 5              # top 5 versions
@@ -772,6 +812,7 @@ gitmap lv --source release       # only versions from gitmap release
 gitmap lv --source import        # only versions imported from .gitmap/release/ files
 
 # List releases (from database)
+
 gitmap list-releases
 gitmap lr                        # alias
 gitmap lr --limit 10             # top 10 releases
@@ -780,66 +821,85 @@ gitmap lr --source release       # only releases created via gitmap release
 gitmap lr --source import        # only releases imported from .gitmap/release/ files
 
 # Reset database
+
 gitmap db-reset --confirm
 
 # Revert to a previous version
+
 gitmap revert v2.9.0
 
 # SEO-write — template mode with placeholders
+
 gitmap seo-write --url example.com --service "Web Design" --area "London" --company "Acme Ltd"
 gitmap sw --url example.com --service Plumbing --area Manchester --max-commits 50
 
 # SEO-write — CSV mode
+
 gitmap seo-write --csv ./commits.csv
 gitmap sw --csv ./commits.csv --interval 30-90
 
 # SEO-write — dry run (preview without committing)
+
 gitmap sw --url example.com --service SEO --area Bristol --dry-run
 
 # SEO-write — custom template file
+
 gitmap sw --url example.com --template ./my-templates.json --service Roofing --area Leeds
 
 # SEO-write — create starter template
+
 gitmap seo-write --create-template
 gitmap seo-write ct                    # shorthand
 
 # SEO-write — rotation mode with explicit file
+
 gitmap sw --url example.com --service HVAC --area York --rotate-file index.html --max-commits 100
 
 # SEO-write — all placeholders
+
 gitmap sw --url example.com --service "Pest Control" --area "Edinburgh" \
   --company "BugFree Ltd" --phone "0800 123 456" --email info@bugfree.com \
   --address "10 High Street, Edinburgh"
 
 # SEO-write — custom author
+
 gitmap sw --url example.com --service SEO --area Bristol \
   --author-name "Marketing Bot" --author-email "bot@example.com"
 
 # SEO-write — only override name (email stays from git config)
+
 gitmap sw --url example.com --service SEO --area Bristol --author-name "CI Bot"
 
 # Amend all commits on current branch
+
 gitmap amend --name "John Smith" --email "john@company.com"
 gitmap am --name "John Smith" --email "john@company.com"
 
 # Amend all commits on a specific branch
+
 gitmap amend --branch develop --name "John Smith" --email "john@company.com"
 
 # Amend from a specific SHA onwards (SHA is first positional arg)
+
 gitmap amend a1b2c3d --name "John Smith" --email "john@company.com"
 
 # Amend from SHA on a specific branch
+
 gitmap amend a1b2c3d --branch main --name "John Smith" --email "john@company.com"
 
 # Amend only HEAD
+
 gitmap amend HEAD --name "John Smith" --email "john@company.com"
 
 # Preview what would change (dry-run, no audit saved)
+
 gitmap amend --name "John Smith" --email "john@company.com" --dry-run
 
 # Amend and auto force-push
+
 gitmap amend a1b2c3d --name "John Smith" --email "john@company.com" --force-push
 
 # Only change email (keep existing author name)
+
 gitmap amend --email "newemail@company.com"
 ```

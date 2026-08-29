@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 003 — Language Runtime Runner
 
 ## 1. Goal
+
 Interpreter dispatch for bash/python/node/powershell in `installer/runner_lang.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `installer/runner_lang.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestLanguageRuntimeRunner
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

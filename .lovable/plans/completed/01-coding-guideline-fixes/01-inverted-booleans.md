@@ -3,6 +3,7 @@
 According to the Coding Guidelines: 'Always use explicit boolean state variables (e.g., `isFail`) instead of inverting positive ones (`!isSuccess`).'
 
 ## Files to fix
+
 - d:\wp-work\riseup-asia\gitmap\gitmap\clonefrom\jsonschema_test.go:172: isNotNumber := !isNumber
 - d:\wp-work\riseup-asia\gitmap\gitmap\cluster\distribution.go:28: hasNoClients := len(clients) == EmptySize
 - d:\wp-work\riseup-asia\gitmap\gitmap\cluster\exec_proj.go:62: isNotFound := foundPath == emptyString

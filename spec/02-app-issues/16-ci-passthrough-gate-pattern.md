@@ -21,7 +21,9 @@ of green ✅ Success.
 ### Root Cause
 
 ```yaml
+
 # BEFORE — job-level skip (broken)
+
 lint:
   needs: sha-check
   if: needs.sha-check.outputs.already-built != 'true'
@@ -42,7 +44,9 @@ Replace job-level `if` with **step-level conditionals**. Every job
 always runs, but individual steps are guarded:
 
 ```yaml
+
 # AFTER — step-level guard (correct)
+
 lint:
   needs: sha-check
   steps:

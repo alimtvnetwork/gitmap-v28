@@ -12,19 +12,25 @@
 ### Build
 
 ```powershell
+
 # From the repo root:
+
 .\run.ps1
 
 # Skip git pull:
+
 .\run.ps1 -NoPull
 
 # Build only, no deploy:
+
 .\run.ps1 -NoPull -NoDeploy
 
 # Deploy to custom path:
+
 .\run.ps1 -DeployPath "D:\tools"
 
 # Build and run immediately:
+
 .\run.ps1 -Run
 .\run.ps1 -Run -RunPath "D:\projects"
 .\run.ps1 -Run -RunArgs "--mode ssh"
@@ -48,20 +54,26 @@ go build -o ../bin/gitmap.exe .
 Every scan **always produces all outputs** — terminal, CSV, JSON, and a folder structure Markdown file. They are written to a `gitmap-output/` folder at the root of the scanned directory.
 
 ```bash
+
 # Scan current directory (outputs everything to ./gitmap-output/)
+
 gitmap scan
 gitmap s                    # shorthand
 
 # Scan a specific folder with SSH URLs
+
 gitmap scan ./projects --mode ssh
 
 # Scan and add repos to GitHub Desktop
+
 gitmap scan ./projects --github-desktop
 
 # Scan and auto-open output folder
+
 gitmap scan ./projects --open
 
 # Custom output directory
+
 gitmap scan ./projects --output-path ./my-exports
 ```
 
@@ -80,6 +92,7 @@ projects/
 The **folder-structure.md** shows a visual tree of all discovered repos:
 
 ```
+
 # Folder Structure
 
 Git repositories discovered by gitmap.
@@ -102,20 +115,26 @@ Git repositories discovered by gitmap.
 ### Clone from a previous scan
 
 ```bash
+
 # Clone using shorthand (auto-resolves to ./gitmap-output/gitmap.json)
+
 gitmap clone json
 gitmap c json               # shorthand alias
 
 # Clone using CSV shorthand
+
 gitmap clone csv
 
 # Clone from JSON with explicit path (preserves original folder structure)
+
 gitmap clone ./gitmap-output/gitmap.json --target-dir ./restored
 
 # Safe-pull existing clones (retries unlink/read-only failures)
+
 gitmap clone ./gitmap-output/gitmap.json --target-dir ./restored --safe-pull
 
 # Clone and add all repos to GitHub Desktop
+
 gitmap clone ./gitmap-output/gitmap.json --target-dir ./restored --github-desktop
 ```
 
@@ -225,20 +244,26 @@ gitmap/
 Every CLI command is automatically logged to the SQLite database. View the audit trail:
 
 ```bash
+
 # Show recent history
+
 gitmap history
 gitmap hi
 
 # Basic view (just command + time + status)
+
 gitmap history --detail basic
 
 # Detailed view filtered to scan commands
+
 gitmap history --detail detailed --command scan
 
 # Last 5 entries as JSON
+
 gitmap history --json --limit 5
 
 # Clear all history
+
 gitmap history-reset --confirm
 ```
 
@@ -247,19 +272,24 @@ gitmap history-reset --confirm
 Save and replay frequently-used command+flag combinations:
 
 ```bash
+
 # Save a bookmark
+
 gitmap bookmark save ssh-scan scan --mode ssh
 gitmap bk save quick-status status
 
 # List all bookmarks
+
 gitmap bookmark list
 gitmap bk list --json
 
 # Replay a saved bookmark
+
 gitmap bookmark run ssh-scan
 gitmap bk run quick-status
 
 # Delete a bookmark
+
 gitmap bookmark delete ssh-scan
 ```
 
@@ -268,14 +298,18 @@ gitmap bookmark delete ssh-scan
 View aggregated command usage patterns:
 
 ```bash
+
 # Show all command stats
+
 gitmap stats
 gitmap ss
 
 # Stats for a specific command
+
 gitmap stats --command scan
 
 # JSON output
+
 gitmap stats --json
 ```
 
@@ -284,11 +318,14 @@ gitmap stats --json
 Export the full database for backup or sharing:
 
 ```bash
+
 # Export to default file (gitmap-export.json)
+
 gitmap export
 gitmap ex
 
 # Export to custom path
+
 gitmap export backup-2026-03.json
 ```
 
@@ -297,11 +334,14 @@ gitmap export backup-2026-03.json
 Restore a database from a backup file:
 
 ```bash
+
 # Import from default file
+
 gitmap import --confirm
 gitmap im --confirm
 
 # Import from custom path
+
 gitmap import backup-2026-03.json --confirm
 ```
 
@@ -310,20 +350,26 @@ gitmap import backup-2026-03.json --confirm
 Manage multiple separate database environments:
 
 ```bash
+
 # Create a new profile
+
 gitmap profile create work
 gitmap pf create personal
 
 # List all profiles
+
 gitmap profile list
 
 # Switch active profile
+
 gitmap profile switch work
 
 # Show current profile
+
 gitmap profile show
 
 # Delete a profile
+
 gitmap profile delete personal
 ```
 

@@ -12,11 +12,13 @@ configuration store.
 ## How It Works
 
 ### Windows
+
 - Uses `os/exec` to call `setx` for User-level variables.
 - With `--system` flag, calls `setx /M` (requires elevated prompt).
 - PATH modifications update the registry `Environment` key.
 
 ### Linux / macOS
+
 - Appends `export VAR=value` to the user's shell profile.
 - Detects active shell: `~/.bashrc` (Bash), `~/.zshrc` (Zsh), `~/.profile` (fallback).
 - Deduplicates entries before writing.
@@ -97,6 +99,7 @@ gitmap-v28 tracks which variables it has set in `.gitmap/env-registry.json`:
 ## Cross-Platform Details
 
 ### Windows — User Level (default)
+
 ```
 setx GOPATH "C:\Users\alim\go"
 ```
@@ -104,6 +107,7 @@ setx GOPATH "C:\Users\alim\go"
 - Effective on next terminal session.
 
 ### Windows — System Level (`--system`)
+
 ```
 setx /M GOPATH "C:\Users\alim\go"
 ```
@@ -111,22 +115,31 @@ setx /M GOPATH "C:\Users\alim\go"
 - Requires elevated (admin) prompt.
 
 ### Linux — Bash
+
 ```bash
+
 # Appended to ~/.bashrc
+
 export GOPATH="/home/alim/go"
 export PATH="$PATH:/usr/local/go/bin"
 ```
 
 ### Linux / macOS — Zsh
+
 ```bash
+
 # Appended to ~/.zshrc
+
 export GOPATH="/home/alim/go"
 export PATH="$PATH:/usr/local/go/bin"
 ```
 
 ### macOS — Fallback
+
 ```bash
+
 # Appended to ~/.profile if no .bashrc or .zshrc exists
+
 export GOPATH="/Users/alim/go"
 ```
 
@@ -135,6 +148,7 @@ export GOPATH="/Users/alim/go"
 ## PATH Management
 
 ### Adding a Path
+
 1. Read current PATH from OS/profile.
 2. Check for duplicates (case-insensitive on Windows).
 3. If not present, append to PATH.
@@ -142,6 +156,7 @@ export GOPATH="/Users/alim/go"
 5. Record in env-registry.json.
 
 ### Removing a Path
+
 1. Read current PATH.
 2. Filter out the target entry.
 3. Write updated PATH back.
@@ -188,23 +203,30 @@ export GOPATH="/Users/alim/go"
 ## Examples
 
 ```bash
+
 # Set a variable
+
 gitmap-v28 env set GOPATH "C:\Users\alim\go"
 
 # Set system-level variable (Windows admin)
+
 gitmap-v28 env set JAVA_HOME "C:\Java\jdk-21" --system
 
 # Add to PATH
+
 gitmap-v28 env path add "C:\Program Files\Go\bin"
 gitmap-v28 env path add /usr/local/go/bin
 
 # List managed variables
+
 gitmap-v28 env list
 
 # Preview changes
+
 gitmap-v28 env set NODE_ENV production --dry-run
 
 # Remove a PATH entry
+
 gitmap-v28 env path remove /old/path
 ```
 

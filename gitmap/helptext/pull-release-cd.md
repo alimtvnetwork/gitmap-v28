@@ -55,10 +55,13 @@ multi-repo release, so the post-release auto-commit prompt is always answered
 ## Examples
 
 ```
+
 # Three already-registered repos
+
 gitm prc gitmap v5.31.0, marco v2.5.0, other-rep v3.5.0
 
 # Mix of registered slug and a fresh URL to clone-then-release
+
 gitm prc gitmap v5.31.0, https://github.com/me/url-git v3.1.0
 ```
 

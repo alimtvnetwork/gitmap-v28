@@ -3,6 +3,7 @@ name: Fixture Stamp Autobump
 description: GITMAP_FIXTURE_AUTOBUMP=1 + MustValidateBodyWithAutobump self-heal stale fixture-stamp markers; `make fixtures-bump RUN=...` runs the cycle and verifies
 type: feature
 ---
+
 # Fixture Stamp Autobump
 
 `gitmap/fixtureversion` ships pure helpers (`BumpStampInBody`, `NextGeneration`, `ParseGenerationFromBody`, `FormatBumpSummary`) plus an env-gated file rewriter `MaybeAutoBumpFile`. Tests opt in by calling `MustValidateBodyWithAutobump(t, body, sourcePath, want)` instead of `MustValidateBody`.

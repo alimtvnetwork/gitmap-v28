@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 036 � Implement MacroTypes - Part 2
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 36
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 36
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 36
 - [Custom Link 36](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 36
 
 ## 2. Goal
+
 Isolate MacroTypes logic for part 2. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes MacroTypesRequest, emits MacroTypesResponse.
 
 ## 4. Execute
+
 1. Define 	ype MacroTypesPart2 struct { ... } in gitmap/cmd/macro_types.go.
 2. Define unc InitMacroTypesPart2() error in gitmap/cmd/macro_types.go.
 3. Define unc (x *MacroTypesPart2) Process36() bool in gitmap/cmd/macro_types.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitMacroTypesPart2 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype MacroTypesPart2 is defined
 - [ ] unc InitMacroTypesPart2 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

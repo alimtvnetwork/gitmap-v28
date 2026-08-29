@@ -21,6 +21,7 @@ Phases:
 ## P0 Stabilize
 
 ### P0-1: Sync current-version references
+
 - **Project**: spec-hygiene
 - **Objective**: Make `.lovable/overview.md` and `.lovable/memory/index.md` state the same version as `gitmap/constants/constants.go`.
 - **Dependencies**: none.
@@ -31,6 +32,7 @@ Phases:
   - Files still parse as valid markdown.
 
 ### P0-2: Deduplicate numeric prefixes in spec/01-app and spec/02-app-issues
+
 - **Project**: spec-hygiene
 - **Objective**: Every spec file has a unique numeric prefix, and a README maps prefixes to topics.
 - **Dependencies**: none.
@@ -44,6 +46,7 @@ Phases:
   - No broken internal links (`rg '\[.*\]\(.*01-app/.*\)'` all resolve).
 
 ### P0-3: Resolve function-length contradiction
+
 - **Project**: spec-hygiene
 - **Objective**: One canonical function-length rule.
 - **Dependencies**: none.
@@ -51,6 +54,7 @@ Phases:
 - **Acceptance criteria**: All three files agree on the same maximum lines per function, and cross-link each other.
 
 ### P0-4: Split Core rules from session flags in mem://index.md
+
 - **Project**: spec-hygiene
 - **Objective**: Prevent "NO-QUESTIONS MODE" and its 40-task budget from silently persisting across sessions.
 - **Dependencies**: none.
@@ -62,6 +66,7 @@ Phases:
 ## P1 Feature completion
 
 ### P1-1: Ship spec 100 `scan-all` and spec 101 `pull-all`
+
 - **Project**: gitmap-cli
 - **Objective**: Implement the two planned bulk commands.
 - **Dependencies**: P0-2 (prefix map so `100-scan-all` vs `100-clone-pick` is unambiguous).
@@ -69,6 +74,7 @@ Phases:
 - **Acceptance criteria**: specs 100 (scan-all) and 101 acceptance criteria pass; help text present; parallel worker respects `--max-concurrency`.
 
 ### P1-2: Resolve open SSH bug (`.lovable/issues/01-ssh-repo-cloned-as-https.md`)
+
 - **Project**: gitmap-cli
 - **Objective**: Fix reclone losing SSH transport (spec `110-clone-ssh-flag` + plan `03-reclone-transport-and-vscode-open`).
 - **Dependencies**: P0-1.
@@ -76,6 +82,7 @@ Phases:
 - **Acceptance criteria**: automated test passes; issue file moved to `.lovable/solved-issues/`.
 
 ### P1-3: `commit-in` command
+
 - **Project**: gitmap-cli
 - **Objective**: Implement per `spec/03-commit-in/`.
 - **Dependencies**: P0-2, user typing `next` (the spec is gated).
@@ -83,6 +90,7 @@ Phases:
 - **Acceptance criteria**: spec `01-overview-and-glossary` invariants hold; profile schema matches `spec/03-commit-in/05-profiles-and-json-shape.md`.
 
 ### P1-4: `update-remote-probe` (spec 111)
+
 - **Project**: gitmap-cli
 - **Objective**: Ship remote-probe update flow.
 - **Dependencies**: P1-2 not required; P0-2 required.
@@ -90,6 +98,7 @@ Phases:
 - **Acceptance criteria**: spec `111-update-remote-probe` acceptance criteria pass; no overlap with `110`.
 
 ### P1-5: Bulk visibility (spec 113 + 116)
+
 - **Project**: gitmap-cli
 - **Objective**: `mapub` / `mapri` bulk visibility flip.
 - **Dependencies**: P1-2 (uses the transport work).
@@ -101,6 +110,7 @@ Phases:
 ## P2 Polish
 
 ### P2-1: Backfill unit tests for `task`, `env`, `install`
+
 - **Project**: gitmap-cli
 - **Objective**: Close gap flagged in `.lovable/pending-issues/`.
 - **Dependencies**: none.
@@ -108,6 +118,7 @@ Phases:
 - **Acceptance criteria**: coverage floor (`.github/coverage.floor`) raised; CI green.
 
 ### P2-2: Compress `.lovable/prompts/03-*` through `20-next-task.md`
+
 - **Project**: spec-hygiene
 - **Objective**: One canonical `next-task.md`; older per-invocation copies moved to `.lovable/prompts/archive/`.
 - **Dependencies**: none.
@@ -115,18 +126,21 @@ Phases:
 - **Acceptance criteria**: repo policy from user memory ("no per-invocation archive mirrors") satisfied.
 
 ### P2-3: Deduplicate `.lovable/spec/commands/` vs `spec/01-app/`
+
 - **Project**: spec-hygiene
 - **Objective**: Single source of truth.
 - **Dependencies**: P0-2.
 - **Expected outputs**: `.lovable/spec/commands/README.md` redirecting to root `spec/01-app/`.
 
 ### P2-4: Contract-test index
+
 - **Project**: spec-hygiene
 - **Objective**: One page listing every contract test that guards an invariant (hosted-docs fallback, wrapper marker, stablejson, cn folder-arg dispatcher, clone-next flatten).
 - **Dependencies**: P0-2.
 - **Expected outputs**: `spec/01-app/CONTRACT-TESTS.md`.
 
 ### P2-5: Docs-site content parity with shipped features
+
 - **Project**: docs-site
 - **Objective**: Ensure pages under `src/pages/` cover every command listed in `spec/01-app/` up to the current version.
 - **Dependencies**: P0-1, P0-2.

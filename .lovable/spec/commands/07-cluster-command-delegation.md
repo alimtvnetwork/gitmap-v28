@@ -693,4 +693,3 @@ Add help MD files for the new commands:
 - Cross-cloud or internet-routed cluster connectivity (LAN-only in this version).
 - GUI/web dashboard for cluster management.
 - Binary file transfer (only UTF-8 text via `cat`/`write`; large binary transfer is out of scope).
-

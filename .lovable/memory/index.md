@@ -1,9 +1,11 @@
 # Memory: index.md
+
 Updated: now
 
 # Project Memory
 
 ## Core
+
 NO-QUESTIONS MODE ACTIVE (40-task budget): never ask user clarifying questions. Log every ambiguity to `.lovable/question-and-ambiguity/xx-brief-title.md` (sequential numbering, update `00-index.md` table). Each entry: original task + spec ref, ambiguity, all options w/ pros/cons, recommendation, decision taken. Proceed with best inference. Resume questions only when user says "ask question".
 Strict code style: <200 lines/file, <15 lines/func, positive logic, pascal case constants, 'is/has' boolean prefixes.
 Organize constants by owning package/domain; do not force artificial prefix-only naming rules.
@@ -41,6 +43,7 @@ Clone-pick / cpk (v3.153.0+, spec 100): sparse-checkout subset of repo into cwd.
 commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commits from N input repos into one source repo, dedupes by SourceSha via ShaMap, replicates BOTH AuthorDate+CommitterDate, profiles in .gitmap/commit-in/profiles/. Source auto-init: URL→clone, repo→reuse, non-repo folder→git init in place, missing→mkdir+init. NO IMPLEMENTATION until user types `next`.
 
 ## Memories
+
 - [Release Keyword](mem://project/release-keyword) — "release" = bump minor + CHANGELOG + pin in root README (no .gitmap/release/ edits)
 - [What to Read (AI onboarding map)](.lovable/memory/project/what-to-read.md) — Read-order, folder map, JSON output contract triangle (schema ↔ model ↔ encoder ↔ test ↔ fixture), and step-by-step recipe for adding a new JSON output. **Start here on a fresh session.**
 - [Code Constraints](mem://style/code-constraints) — Strict rules for code style, structure, and pull requests

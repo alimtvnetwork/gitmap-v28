@@ -20,6 +20,7 @@ repo metadata, task definitions, and configuration. This enables:
 - Cloud-based task management and monitoring.
 
 ### Open Questions
+
 - Self-hosted vs managed service?
 - Authentication model (API key, OAuth)?
 - Conflict resolution strategy for concurrent edits?
@@ -38,12 +39,14 @@ gitmap-v28 install --from https://company.com/dev-setup.json
 ```
 
 ### Capabilities
+
 - Fetch a JSON manifest listing tools and versions.
 - Execute batch installation from the manifest.
 - Version pinning and update tracking.
 - Organization-specific tool configurations.
 
 ### Open Questions
+
 - Manifest schema and versioning?
 - Signature verification for security?
 - Offline caching of manifests?

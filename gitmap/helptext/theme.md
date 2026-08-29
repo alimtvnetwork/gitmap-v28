@@ -31,16 +31,21 @@ flagset.
 ## Examples
 
 ```
+
 # Brighten everything — the default; explicit form for scripts
+
 gitmap --theme bright status
 
 # Calmer palette for a light terminal
+
 gitmap --theme standard scan
 
 # Strip all color for log scraping
+
 gitmap --theme=mono release v2.0.0 > release.log
 
 # Pin via env so every subprocess inherits it
+
 export GITMAP_THEME=monochrome
 gitmap clone json --target-dir ./projects
 ```

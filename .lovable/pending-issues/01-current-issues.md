@@ -1,6 +1,7 @@
 # Pending Issues
 
 ## 01 — Unit Test Coverage Gaps
+
 - **Status**: Open since v2.49.0
 - **Description**: Missing unit tests for `task`, `env`, and `install` command families
 - **Impact**: Low — commands work but lack automated regression coverage
@@ -8,30 +9,35 @@
 - **Files Affected**: `cmd/task*.go`, `cmd/env*.go`, `cmd/install*.go`
 
 ## 02 — Install --check Missing "Not Found" Message
+
 - **Status**: Open since v2.49.0
 - **Description**: `gitmap install --check <tool>` doesn't print a distinct message when a tool is not installed; constant was added but wiring is incomplete
 - **Impact**: Low — tool still works, just poor UX for missing tools
 - **Files Affected**: `cmd/installtools.go`
 
 ## 03 — Docs Site Navigation Missing Pages
+
 - **Status**: Open since v2.76.0
 - **Description**: `version-history` and `clone` pages exist but are not linked from the sidebar or commands page navigation
 - **Impact**: Low — pages exist at `/version-history` and users won't discover them organically
 - **Files Affected**: Sidebar component, `src/data/commands.ts`
 
 ## 04 — Helptext/env.md Missing --shell Examples
+
 - **Status**: Open since v2.49.0
 - **Description**: The `--shell` flag was wired into env commands but the help text file doesn't demonstrate usage
 - **Impact**: Low — flag works but users won't know about it from `gitmap help env`
 - **Files Affected**: `helptext/env.md`
 
 ## 05 — Clone-Next Missing --dry-run Support
+
 - **Status**: Open (feature gap)
 - **Description**: The flatten spec (87-clone-next-flatten.md) mentions `--dry-run` for previewing clone-next actions but it's not implemented
 - **Impact**: Medium — users can't preview destructive folder removal before it happens
 - **Files Affected**: `cmd/clonenext.go`, `cmd/clonenextflags.go`, `constants/constants_clonenext.go`
 
 ## 06 — Multi-URL Clone: PowerShell Comma-Splitting Crash (FIXED v3.80.0)
+
 - **Status**: Fixed in v3.80.0
 - **Reported**: User ran `gitmap clone url1,url2,url3` in PowerShell on Windows; got `fatal: could not create leading directories of 'D:\...\https:\github.com\alimtvnetwork\email-reader-v3.gitmap-tmp-...': Invalid argument`
 - **Root Cause**:
@@ -55,6 +61,7 @@
 - **PowerShell Note**: Even after this fix, users should prefer space-separated URLs in PowerShell to avoid relying on PS's implicit comma-splitting (which differs across PS 5.1 / 7.x). Both forms now work either way.
 
 ## 07 — URL Shortcut: `gitmap <url>` Should Auto-Clone (FIXED v3.81.0)
+
 - **Status**: Fixed in v3.81.0
 - **Reported**: User ran `gitmap https://github.com/...,https://...,https://...` (omitting the `clone` subcommand) and got `Unknown command: https://github.com/...`. Same with single-URL `gitmap <url>` and any GitHub/GitLab/SSH URL.
 - **Root Cause**: `Run()` treated `os.Args[1]` strictly as a subcommand name and dispatched it through `dispatchCore`/`dispatchRelease`/etc. A bare URL has no matching subcommand, so it fell through to `ErrUnknownCommand`. There was no shortcut layer between argv and dispatch.
@@ -65,6 +72,7 @@
 - **UX Note**: The shortcut only fires for URLs (HTTPS/SSH git). Local file paths, shorthands (`json`/`csv`/`text`), and all existing subcommands keep their current behavior.
 
 ## 08 — CI Lint Failures: errorlint / gocritic / unparam (FIXED v3.81.1)
+
 - **Status**: Fixed in v3.81.1
 - **Reported**: `golangci-lint run` failed in CI with 3 NEW findings vs main baseline:
   1. `cmd/reinstall.go:125` — `errorlint`: `err.(*exec.ExitError)` type assertion fails on wrapped errors
@@ -86,6 +94,7 @@
 - **Prevention**: All three rules (`errorlint`, `gocritic`, `unparam`) are already enabled in `.golangci.yml` — the issue was that they passed silently before the offending code was introduced. Going forward, run `golangci-lint run --path-prefix=gitmap` locally before pushing (or rely on the CI diff-vs-baseline gate which now catches this).
 
 ## 09 — Windows Update Cleanup Popup: `Windows cannot find '\\'` (FIXED v3.82.0)
+
 - **Status**: Fixed in v3.82.0
 - **Reported**: After a successful `gitmap update`, the terminal showed `→ Handing off cleanup to deployed binary: gitmap.exe update-cleanup`, then Windows displayed a popup: `Windows cannot find '\\'`. This repeated across multiple update attempts and the terminal showed no useful diagnostics.
 - **Reproduction Context**:
@@ -118,6 +127,7 @@
   3. Keep Windows-only process attributes in `_windows.go` files so non-Windows builds stay clean.
 
 ## 10 — Windows Update Cleanup Repeats After "Fix": PATH-First Handoff Targets Wrong Binary (FIXED v3.83.0)
+
 - **Status**: Fixed in v3.83.0
 - **Reported**: User kept seeing the update-cleanup failure repeatedly even after the earlier `cmd.exe` popup fix. The update appeared to complete, but cleanup still did not reliably run, and the console still lacked enough evidence to show *which binary* actually received `update-cleanup`.
 - **Root Cause**:
@@ -156,6 +166,7 @@
   4. Best-effort cleanup may stay non-fatal, but target-resolution failures must always be visible in the console and verbose log.
 
 ## 11 — `Unknown command: https://...` Recurs Even After v3.81.0 URL-Shortcut Fix (FIXED v3.84.0)
+
 - **Status**: Fixed in v3.84.0
 - **Reported (4th time)**: User typed `gitmap https://github.com/.../email-creator-v1,https://github.com/.../email-reader-v3,https://github.com/.../account-automator` (and space-separated and mixed comma+space variants). All three forms produced `Unknown command: https://github.com/alimtvnetwork/email-creator-v1`. Issue #07 logged this as fixed in v3.81.0 — yet it kept happening.
 - **Root Cause** (two layers, why the same error keeps showing up):
@@ -176,6 +187,7 @@
   - `gitmap/constants/constants.go` — version bumped to `3.84.0`
 
 ## 12 — Phase 3 `update-cleanup` Child Failures Were Not Logged Durably (FIXED v3.93.0)
+
 - **Status**: Fixed in v3.93.0
 - **Reported**: User repeatedly hit the same `update-cleanup` failure after the deployed-binary handoff and reported that there were still "no logs" even after earlier cleanup/handoff fixes.
 - **Root Cause**:
@@ -200,6 +212,7 @@
   4. Every recurrence report for update-cleanup should start by checking the durable handoff log and JSON sink before changing the handoff architecture itself.
 
 ## 13 — Docs UI Did Not Switch to VS Code Grading Despite Repeated Requests (FIXED v3.94.0)
+
 - **Status**: Fixed in v3.94.0
 - **Reported**: User repeatedly asked for the docs UI to use a VS Code-style color grading, but the work kept returning to update-cleanup/root-cause debugging instead of changing the visible frontend shell.
 - **Root Cause**:
@@ -230,6 +243,7 @@
   3. Sync version + both changelog sources for every user-visible fix so release state stays trustworthy.
 
 ## 17 — `clone <url1> <url2>` Treats URL #2 as Folder Name on Stale Binary (FIXED v3.95.0)
+
 - **Status**: Fixed in v3.95.0
 - **Reported (5th time)**: User ran `gitmap clone https://.../email-creator-v1,https://.../email-reader-v3,https://.../account-automator` in PowerShell. Output:
   ```
@@ -265,6 +279,7 @@
   3. Recurrence reports for fixes already shipped in source must immediately check the deployed binary version (`gitmap doctor`), not the source.
 
 ## 14 — `--debug-windows` flag added for self-update handoff diagnostics (FIXED v3.86.0)
+
 - **Status**: Fixed in v3.86.0
 - **Reported**: Follow-up to #09 / #10. Even with the cleanup-target resolution lines (`→ Cleanup target resolved via: …`, `→ Cleanup target path: …`, `→ Cleanup process started (pid=…)`), the *child* `update-cleanup` process printed almost nothing about its own environment, so when cleanup misbehaved on Windows the user could not tell which env vars, deploy path, or PID the child actually saw. There was also no way to enable richer diagnostics ad-hoc without rebuilding with `--verbose` plumbed through.
 - **Root Cause**:
@@ -293,6 +308,7 @@
   3. Any future addition to the cleanup handoff (extra phases, extra spawns) must extend the `[debug-windows]` dump in lockstep so the trace stays complete.
 
 ## 15 — Durable on-disk handoff log for self-update cleanup (FIXED v3.87.0)
+
 - **Status**: Fixed in v3.87.0
 - **Reported**: Follow-up to #14. Even with `--debug-windows`, failures during the detached Windows cleanup spawn could still vanish if an intermediate launcher (run.ps1 wrapper, hidden process attr, third-party AV) discarded stdout/stderr. There was no on-disk forensic trail for the dispatcher's resolution decision or the child's start status.
 - **Root Cause**:
@@ -318,6 +334,7 @@
   4. Daily-named log files keep the file bounded without needing rotation logic.
 
 ## 16 — `gitmap pending clear` to remove orphaned/illegal pending tasks (FIXED v3.88.0)
+
 - **Status**: Fixed in v3.88.0
 - **Reported**: Follow-up to #11/#12. Even after the defensive guards in `executeDirectClone` / `executeDirectCloneOne`, **pre-existing** rows from older crashes still blocked subsequent runs with `pending task already exists for Clone at <bad-path>`. There was no surgical way to drop one row — only nuking the SQLite file or running raw SQL.
 - **Root Cause**: The clone pipeline records a pending task before it begins. A crash mid-clone (file-lock, broken FS path, OS reboot) can leave the DB pointing at a target that no longer makes sense (or never made sense, e.g. a URL accidentally treated as a folder name). `runPending` could only **list** rows, and `do-pending` would just retry them — neither could selectively delete.
@@ -344,6 +361,7 @@
   4. Path classifiers (`isURLShapedTarget`, `hasIllegalPathChar`) belong in the cleanup command, not in the clone path — the clone path already rejects bad inputs at the entry point (issues #11/#12); the cleanup command exists specifically to handle rows that predate those guards.
 
 ## 17 — Robust multi-URL clone parsing (PowerShell + bash) (FIXED v3.89.0)
+
 - **Status**: Fixed in v3.89.0
 - **Reported**: Follow-up to #11/#16. Three real failure modes still bit users after the v3.80 multi-URL feature shipped:
   1. `gitmap clone url1;url2` in bash (bash users naturally reach for `;`) produced a single ugly task and a "command not found" hint because semicolon wasn't a list separator.

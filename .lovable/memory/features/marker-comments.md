@@ -7,6 +7,7 @@ type: feature
 # Marker-Comment Opt-In for Completion Generator (v3.0.0)
 
 ## Why
+
 Replaces the centralized `sourceFiles` allowlist + `skipNames` map in `gitmap/completion/internal/gencommands/main.go`. Domain owners now control inclusion **locally**, without ever editing the generator.
 
 ## How
@@ -31,10 +32,12 @@ const (
 A `generate-check` job in `.github/workflows/ci.yml` runs `go generate ./...` and fails via `git diff --exit-code` if anything drifts. Wired into `test-summary`'s `needs` so the SHA-passthrough cache cannot mark a green run unless the drift check passes.
 
 ## Migration done in v3.0.0
+
 - 40 const blocks across 34 constants files annotated `// gitmap:cmd top-level`.
 - 52 `// gitmap:cmd skip` annotations mirror the previous policy exactly.
 - `allcommands_generated.go` regenerates byte-for-byte identically (143 entries).
 - `gitmap/completion/completion.go::manualExtras` is now empty with a doc comment pointing future contributors at the marker convention.
 
 ## Migration guide
+
 Full guide for external contributors lives at the top of `changelog.md` under **Migration guide — v2.x → v3.0.0**.

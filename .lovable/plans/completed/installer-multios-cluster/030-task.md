@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 030 — Full System Verification
 
 ## 1. Goal
+
 Verification of all new command trees and help outputs in `tests/system_multios_e2e_test.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `tests/system_multios_e2e_test.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestFullSystemVerification
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

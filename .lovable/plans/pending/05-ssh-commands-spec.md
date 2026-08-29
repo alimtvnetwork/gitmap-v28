@@ -1,11 +1,14 @@
 # Goal
+
 Generate a generic, tool-agnostic AI Instruction Specification (`ssh-commands.md`) at the root of the repository to guide any AI agent in implementing a comprehensive SSH and SSH Profile management system for a CLI tool (referred to as `<cli>`). 
 
 ## 50/50 Strategy Allocation
+
 - **Phase 1 (Planning)**: We are currently writing this detailed execution plan.
 - **Phase 2 (Execution)**: We will write the `ssh-commands.md` file to the root, commit it to the repository, trigger a version bump, update the changelog, and finally output the markdown text directly to the chat along with the End of Run Summary and Compliance Checklists.
 
 ## Execution Steps
+
 1. **Draft `ssh-commands.md`**:
    - Write a strict AI-to-AI prompt instruction.
    - Section 1: Purpose & mental model (SQLite as source of truth, `~/.ssh/` for private keys, `<cli-dir>/` for repo bindings).

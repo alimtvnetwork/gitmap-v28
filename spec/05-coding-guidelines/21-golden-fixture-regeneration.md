@@ -146,15 +146,19 @@ go test ./gitmap-v28/clonefrom/ -run 'TestCloneFromReportCSV_Golden|TestCloneFro
 ### 3c. Scan / clone-now / E2E plan goldens
 
 ```bash
+
 # Scan formatter goldens
+
 GITMAP_UPDATE_GOLDEN=1 GITMAP_ALLOW_GOLDEN_UPDATE=1 \
   go test ./gitmap-v28/formatter/ -run ScanGolden
 
 # Clone-now cross-format consistency
+
 GITMAP_UPDATE_GOLDEN=1 GITMAP_ALLOW_GOLDEN_UPDATE=1 \
   go test ./gitmap-v28/clonenow/ -run TestCloneNow_CrossFormat
 
 # Scan→clone-from end-to-end plan
+
 GITMAP_UPDATE_GOLDEN=1 GITMAP_ALLOW_GOLDEN_UPDATE=1 \
   go test ./gitmap-v28/tests/scanclone_test/ -run TestScanClone_E2E
 ```

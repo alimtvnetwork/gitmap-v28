@@ -1,6 +1,7 @@
 # 03-ignore-and-add: Ignore management and Common Files generation
 
 ## 1. Context and Problem Statement
+
 The user requested four new commands for gitmap:
 1. gitmap ignore <pattern>: Adds a pattern to .gitignore cleanly without duplicates.
 2. gitmap ignore-rm <pattern>: Rewrites git history to remove matching files, then adds the pattern to .gitignore.
@@ -10,6 +11,7 @@ The user requested four new commands for gitmap:
 ## 2. Architecture & Design
 
 ### Command ignore & ignore-rm
+
 - **Location**: gitmap/cmd/ignore
 - **Logic for ignore**:
   - Open .gitignore (create if doesn't exist).
@@ -20,6 +22,7 @@ The user requested four new commands for gitmap:
   - Then call the ignore logic to append the pattern.
 
 ### Command dd
+
 - **Location**: gitmap/cmd/add
 - **Logic**:
   - Switch on the argument (common-attr or common-ignore).

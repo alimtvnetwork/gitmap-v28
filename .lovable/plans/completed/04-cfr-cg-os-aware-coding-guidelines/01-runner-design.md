@@ -46,4 +46,3 @@ Sourced from `constants_codingguidelines.go`:
 ## Function-size cap
 
 Split into `dispatchWindows`, `dispatchUnix`, `runInstaller` so each stays under the 15-line cap.
-

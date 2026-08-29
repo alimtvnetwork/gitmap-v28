@@ -38,4 +38,3 @@ Golden URL constants asserted against `constants.DefaultCodingGuidelinesURLWindo
 ## No network in tests
 
 The test suite MUST NOT hit `raw.githubusercontent.com`. Verified by the injectable `Runner` never being replaced with the real `exec.Command` in test paths.
-

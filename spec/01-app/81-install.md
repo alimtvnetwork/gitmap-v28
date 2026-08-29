@@ -134,16 +134,19 @@ Some tools require post-install configuration:
 ## Cross-Platform Notes
 
 ### Windows (Primary)
+
 - Chocolatey preferred; Winget as fallback.
 - Some tools require admin prompt (detected and warned).
 - VS Code context menu fix modifies Windows registry.
 
 ### Linux
+
 - apt-based commands for Debian/Ubuntu (primary).
 - Official install scripts for tools not in package repos.
 - No sudo assumption; prompt user if needed.
 
 ### macOS
+
 - Homebrew preferred.
 - Xcode CLI tools installed via `xcode-select --install`.
 - Cask used for GUI applications.
@@ -197,22 +200,29 @@ Some tools require post-install configuration:
 ## Examples
 
 ```bash
+
 # Install VS Code
+
 gitmap-v28 install vscode
 
 # Install Node.js with verbose output
+
 gitmap-v28 install node --verbose
 
 # Check if Go is installed
+
 gitmap-v28 install go --check
 
 # Preview install command without running
+
 gitmap-v28 install python --dry-run
 
 # Force Winget on Windows
+
 gitmap-v28 install git --manager winget
 
 # List all supported tools
+
 gitmap-v28 install --list
 ```
 

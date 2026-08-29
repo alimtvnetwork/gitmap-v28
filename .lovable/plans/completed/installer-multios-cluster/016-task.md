@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 016 — SSH Key Distribute CLI
 
 ## 1. Goal
+
 CLI for gitmap sj distribute-keys and broadcast-keys in `cmd/sshjoin_distribute_cmd.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `cmd/sshjoin_distribute_cmd.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestSSHKeyDistributeCLI
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

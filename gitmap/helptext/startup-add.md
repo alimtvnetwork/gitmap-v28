@@ -175,11 +175,17 @@ same `startup-add` invocation is **always safe**:
 
 ```
 gitmap startup-add --name watch --exec "C:\gitmap.exe watch"
+
 # → created
+
 gitmap startup-add --name watch --exec "C:\gitmap.exe watch"
+
 # → exists  (no-op, exit 0 — safe to put in a provisioning script)
+
 gitmap startup-add --name watch --exec "C:\gitmap.exe watch --quiet" --force
+
 # → overwritten  (Run-key value updated, tracking subkey rewritten)
+
 ```
 
 Crash safety: the tracking subkey is written **before** the

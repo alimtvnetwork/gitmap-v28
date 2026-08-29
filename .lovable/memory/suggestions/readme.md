@@ -32,18 +32,23 @@ status: open   # open | inProgress | done
 # Fix spec/01-app prefix collisions
 
 ## Description
+
 One paragraph explaining the observation.
 
 ## Rationale
+
 Why it matters. Link the risk from the reliability report or a concrete failure.
 
 ## Proposed change
+
 Specific spec files, code files, or config to change. No implementation code here.
 
 ## Acceptance criteria
+
 - Bullet list of verifiable outcomes.
 
 ## Completion notes
+
 (Filled in only when status flips to done.)
 ```
 

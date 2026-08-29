@@ -8,10 +8,12 @@ Parent: 01-bulk-visibility-mapub-mapri
 # Subtask 02 — SQLite schema & migration
 
 ## Goal
+
 Persist every bulk-visibility run and per-repo result. PascalCase column names,
 INTEGER PRIMARY KEY AUTOINCREMENT (Core memory rule).
 
 ## Migration
+
 New file: `gitmap/db/migrations/0NN_gitmap_run_repo_result.sql`
 (N = next free migration index; check `gitmap/db/migrations/` first).
 
@@ -40,6 +42,7 @@ CREATE INDEX IF NOT EXISTS IxGitMapRepoResultRunId
 ```
 
 ## Enums (Go)
+
 `gitmap/db/enums.go`:
 ```go
 type CommandKindEnum int
@@ -58,6 +61,7 @@ const (
 ```
 
 ## Repository
+
 `gitmap/db/gitmaprunrepo.go`:
 - `InsertGitMapRun(ctx, OwnerOrOrg, CommandKindEnum, RawPatterns, AutoConfirm) (int64, error)`
 - `InsertGitMapRepoResult(ctx, GitMapRunId, RepoName, MatchedPattern, IsExcluded) (int64, error)` — defaults `ResultStatus = Pending`
@@ -66,6 +70,7 @@ const (
 All wrapped in a single tx per run. SetMaxOpenConns(1) per Core rule.
 
 ## ERD (Mermaid — copy into spec file)
+
 ```mermaid
 erDiagram
   GitMapRun ||--o{ GitMapRepoResult : has
@@ -89,5 +94,6 @@ erDiagram
 ```
 
 ## Verification
+
 - Migration idempotent (re-run is no-op via `IF NOT EXISTS`).
 - `go test ./gitmap/db -run GitMapRun -count=1` inserts + reads back.

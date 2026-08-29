@@ -140,9 +140,11 @@ INPUT:  baselineUrl = https://github.com/<owner>/<stem>-v<N>
 candidates = [ <owner>/<stem>-v<M>  for M in (N+1) .. (N+windowSize) ]
 
 # Issue all HEAD requests CONCURRENTLY.
+
 results = parallelMap(candidates, head, timeout=5s, maxConcurrency=20)
 
 # Pick the highest M whose HEAD returned 200.
+
 hits        = [ M  for (M, status) in results if status == 200 ]
 effectiveN  = max(hits) if hits else N
 ```

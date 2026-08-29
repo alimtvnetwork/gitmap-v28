@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 027 — Commit-In CLI Help Integration
 
 ## 1. Goal
+
 Deep interactive help display for commit-in and commit-write in `cmd/commitin/help.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `cmd/commitin/help.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestCommit-InCLIHelpIntegration
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

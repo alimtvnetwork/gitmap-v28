@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 029 � Implement ErrorWarnings - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 29
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 29
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 29
 - [Custom Link 29](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 29
 
 ## 2. Goal
+
 Isolate ErrorWarnings logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes ErrorWarningsRequest, emits ErrorWarningsResponse.
 
 ## 4. Execute
+
 1. Define 	ype ErrorWarningsPart1 struct { ... } in gitmap/cmd/error_warnings.go.
 2. Define unc InitErrorWarningsPart1() error in gitmap/cmd/error_warnings.go.
 3. Define unc (x *ErrorWarningsPart1) Process29() bool in gitmap/cmd/error_warnings.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitErrorWarningsPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype ErrorWarningsPart1 is defined
 - [ ] unc InitErrorWarningsPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

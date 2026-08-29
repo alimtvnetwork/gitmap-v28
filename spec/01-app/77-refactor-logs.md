@@ -1,11 +1,13 @@
 # Refactor: tui/logs.go
 
 ## Problem
+
 `logs.go` is 215 lines with two responsibilities: model state management (struct, initialization, update, search, filtering, key handling) and view rendering (list view, detail view, row formatting).
 
 ## Target Layout
 
 ### logs.go (~137 lines) — Model & Update
+
 Stays:
 - `type logsModel`
 - `newLogsModel()`
@@ -16,6 +18,7 @@ Stays:
 - `handleKey()`
 
 ### logsview.go (~88 lines) — View Rendering
+
 Moves:
 - `View()`
 - `viewList()`
@@ -24,12 +27,14 @@ Moves:
 Imports: `fmt`, `strings`, `constants`
 
 ## Migration Rules
+
 - No behavior changes, no signature renames.
 - Package remains `tui`.
 - Deduplicate imports per file.
 - Blank line before every `return`.
 
 ## Acceptance Criteria
+
 - Both files ≤ 200 lines.
 - `go build ./...` succeeds.
 - All existing tests pass unchanged.

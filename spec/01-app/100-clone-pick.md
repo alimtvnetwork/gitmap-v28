@@ -98,21 +98,27 @@ Sparse checkout was selected over "shallow clone to /tmp + copy" because:
 ### 5.1 Steps
 
 ```bash
+
 # 1. partial clone, no working tree
+
 git clone --filter=blob:none --no-checkout \
   [--branch <name>] [--depth <n>] <url> <dest>
 
 # 2. enable sparse-checkout
+
 cd <dest>
 git sparse-checkout init [--cone]   # cone unless --cone=false
 
 # 3. set the path patterns (cone mode = folders only)
+
 git sparse-checkout set <path1> <path2> ...
 
 # 4. materialize the working tree
+
 git checkout            # or `git read-tree -mu HEAD` when no branch given
 
 # 5. optional: drop .git when --keep-git=false
+
 rm -rf .git
 ```
 

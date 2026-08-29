@@ -50,6 +50,7 @@ final step; it never appears earlier, and it never appears in a
 sub-plan that leaves siblings pending.
 
 ## Grouping by Folder/File Structure
+
 When planning, you MUST group steps logically by file and folder structure. Related changes in the same directory or file must be grouped together in the plan. Do not scatter changes across unrelated steps.
 
 ## Subtasks
@@ -69,6 +70,7 @@ When your plan dictates that a sub-agent should be spawned, you must enforce the
 3. **Agent Delegation (Mandatory):** Each group or subtask MUST explicitly mention that it will be executed by a separate standalone agent.
 
 ## Subtask Naming Correction (Non-Negotiable)
+
 If you find any existing subtasks in the .lovable/plans/subtasks/ folder that start with SS- or SS-XX-, you MUST correct them and rename them to strictly follow the XX-<subslug>.md format (where XX is the zero-padded sequence). You must also find and update any references to these files in parent plans, index files, and memory files.
 
 ## End-of-Loop Commit Fix (Non-Negotiable)
@@ -108,6 +110,7 @@ Every attachment is REQUIRED input. Never leave one only in chat.
 ## Plan file shape
 
 ```
+
 # <Task title>
 
 Slug: <slug>
@@ -116,18 +119,22 @@ Status: pending
 Created: <YYYY-MM-DD>
 
 ## Context
+
 <1-3 sentences: what + why, files involved>
 <Links to spec task files, captured commands, issues, cicd-issues, memory, resolved ambiguity, attachments>
 
 ## Steps
+
 1. <concrete, verifiable, references spec task file>
 2. ...
 ... exactly [N=?] items ...
 
 ## Verification
+
 <build, logs, preview, tests, screenshots, per step where relevant>
 
 ## Appended from prior pending tasks
+
 <list, or "none">
 ```
 
@@ -200,21 +207,28 @@ Ambiguity is not a license to guess. It is a file to write.
 New question file shape:
 
 ```
+
 # <one-line question>
+
 Slug: <slug>
 Status: open
 Raised: <YYYY-MM-DD>
 Blocking: <plan slug(s) or "none">
 
 ## Question
+
 ## Options considered
+
 ## Impact if guessed wrong
+
 ```
 
 When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `Status: resolved`, and append:
 
 ```
+
 ## Resolution
+
 Answered: <YYYY-MM-DD>
 Answer: <user answer>
 Applied solution: <what changed / where>

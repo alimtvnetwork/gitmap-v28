@@ -4,9 +4,11 @@
 **Created:** 2026-06-07
 
 ## Verbatim
+
 > If we do `gitmap code`, that would open the codebase to VS Code and also add this project to the project section. The command would be `gitmap code`. We can give a folder name; if we don't give any folder name and we are in the current folder, it will take the current folder. This command can have aliases like `vcode` or `vscode` — all of those will lead to VS Code open.
 
 ## Scope
+
 - New top-level CLI command:
   - Primary: `gitmap code`
   - Aliases: `gitmap vcode`, `gitmap vscode`
@@ -21,4 +23,5 @@
   - Target folder missing → exit non-zero with explicit error.
 
 ## When it applies
+
 Whenever the user invokes any of the three command IDs above. Windows-first, with macOS + Linux parity (use `code` on PATH; on Windows fall back to `code.cmd` under `%LOCALAPPDATA%\Programs\Microsoft VS Code\bin\`).

@@ -3,6 +3,7 @@
 ## v4.30.0 — golden CSVs: normalize CRLF→LF in asserts (durable cross-platform fix)
 
 ### Fixed
+
 - Windows CI was still failing `TestCloneFromReport_Golden_*` and
   `TestScanGolden_CSV*` after v4.29.0 because `git ls-files --eol` showed
   the **index** had `i/lf` for those CSVs (committed earlier as LF), so
@@ -31,6 +32,7 @@
   `scan_empty.csv` 132→131.
 
 ### Notes
+
 - This is the durable end of the v4.27 → v4.28 → v4.29 regression cycle.
   Future contributors editing CSV goldens cannot accidentally break
   byte-exact comparisons via line-ending mismatches anymore.
@@ -38,6 +40,7 @@
 ## v4.29.0 — golden CSVs: pin CRLF via .gitattributes (real root cause)
 
 ### Fixed
+
 - v4.28.0 regenerated `gitmap/clonefrom/testdata/clonefrom_report_*.csv`
   and `gitmap/formatter/testdata/scan_*.csv` but the broad
   `testdata/** text eol=lf` rule in `.gitattributes` immediately re-stripped
@@ -56,6 +59,7 @@
   generic `testdata/**` rule.
 
 ### Notes
+
 - This is the durable fix for the v4.27.0 / v4.28.0 CRLF regression class.
   Any future CRLF-emitting golden CSV must add a `-text eol=crlf` override.
 - No production code changed. Fixture-only + `.gitattributes`.
@@ -63,6 +67,7 @@
 ## v4.28.0 — golden CSVs: regenerate after gofmt-sweep CRLF→LF drift
 
 ### Fixed
+
 - `gitmap/clonefrom/testdata/clonefrom_report_{empty,canonical,quoting}.csv`
   and `gitmap/formatter/testdata/scan_{empty,canonical}.csv` were rewritten
   with LF line endings (and trailing newline) by the v4.26.0 repo-wide
@@ -75,6 +80,7 @@
   bytes match writer output exactly.
 
 ### Notes
+
 - No production code changed — fixture-only update.
 - Future protection: `.gitattributes` should pin `*.csv` under `testdata/`
   to `eol=crlf` to prevent editor/auto-format drift from recurring.
@@ -82,6 +88,7 @@
 ## v4.27.0 — clone-pick: replace bare-err with cliexit.Reportf
 
 ### Fixed
+
 - `gitmap/cmd/clonepick_execute.go:70` was printing
   `fmt.Fprintln(os.Stderr, err)` after a `TouchAfterReplay` DB
   failure. The CI gate `.github/scripts/check-bare-stderr-err.sh`
@@ -97,6 +104,7 @@
   surrounding `clonefrom` call sites.
 
 ### Notes
+
 - Imports updated: `+ cliexit`, `+ strconv`. `fmt` and `os` are
   still used elsewhere in the file (`Fprintf` for the saved /
   replayed banner) so they stay.
@@ -108,6 +116,7 @@
 ## v4.26.0 — Repo-wide gofmt sweep (CI gofmt-clean gate fix)
 
 ### Fixed
+
 - 73 `.go` files across `gitmap/` (clonepick, commitin/{dedupe,
   finalize, funcintel, message, orchestrator, profile, ...},
   store, tui, vscodeworkspace, etc.) were missing the trailing
@@ -117,6 +126,7 @@
   zero files. No semantic / token changes — newline-only edits.
 
 ### Why
+
 The CI lint job's gofmt-clean gate started failing (`The
 following .go files are not gofmt-clean: ...`). The
 `gitmap fix-repo` audit step in CI (per memory: FIX-REPO GOFMT
@@ -126,6 +136,7 @@ slipped past it. This sweep restores the global gate; future
 edits should keep files gofmt-clean on save.
 
 ### Notes
+
 - No version-bearing tokens (`-vN`) were rewritten, so the
   fix-repo digit-capture rule and `--strict` test gate are not
   involved.
@@ -136,6 +147,7 @@ edits should keep files gofmt-clean on save.
 ## v4.25.0 — ERD-vs-SQLCreate parity test (v3.12.1 publish-audit follow-up)
 
 ### Added
+
 - `gitmap/store/erd_parity_test.go` — `TestERDMatchesSQLCreate`
   walks every `constants_*.go` in `gitmap/constants/`, extracts
   table names from `CREATE TABLE IF NOT EXISTS` blocks, and
@@ -149,6 +161,7 @@ edits should keep files gofmt-clean on save.
   declare PK only; per-column refinement is a future task.
 
 ### Changed
+
 - Renamed `spec/01-app/gitmap-database-erd-v3.12.1.mmd` →
   `spec/01-app/gitmap-database-erd.mmd` (canonical, version-less).
 - Deleted stale `spec/01-app/gitmap-database-erd.mmd` (v3.5.0,
@@ -158,6 +171,7 @@ edits should keep files gofmt-clean on save.
   enforcement mechanism.
 
 ### Why
+
 The v3.5.0 ERD silently shed 11 tables and nobody noticed for
 ~6 months — drift is invisible without a test. Adding a
 name-only parity gate (intentionally not column-level, to avoid
@@ -170,6 +184,7 @@ workflow edits required.
 ## v4.24.0 — release-version snippet Vitest wiring (spec 105 follow-up)
 
 ### Added
+
 - `src/pages/releaseVersionSnippets.ts` — extracted the pure
   snippet builder (`buildReleaseSnippets`), semver guard
   (`isValidReleaseVersion`), and `normalizeReleaseVersion` from
@@ -183,11 +198,13 @@ workflow edits required.
   referenced, and the requested version is baked into every URL.
 
 ### Changed
+
 - `src/pages/ReleaseVersion.tsx` now imports the helpers from
   `releaseVersionSnippets.ts` instead of defining them inline.
   Zero behavior change; rendered output is byte-identical.
 
 ### Why
+
 Spec 105 promises that the `/release/:version` page never
 silently resolves to `latest`. Until now that promise lived only
 in the page source — easy to regress in a quick edit. The new
@@ -199,6 +216,7 @@ snippet, or that drops the version from a URL, fails CI.
 ## v4.23.0 — web `VERSION` resynced + drift-guard test
 
 ### Fixed
+
 - `src/constants/index.ts` `VERSION` had silently drifted from the
   Go binary version: it was stuck at `v4.14.0` while the binary
   shipped `v4.15.0` … `v4.22.0` (eight releases of stale "Current
@@ -207,6 +225,7 @@ snippet, or that drops the version from a URL, fails CI.
   `v4.23.0`.
 
 ### Added
+
 - `src/test/version-sync.test.ts`: reads
   `gitmap/constants/constants.go`, extracts the `Version` literal,
   and asserts `VERSION === "v" + goVersion`. Future Go bumps that
@@ -221,6 +240,7 @@ snippet, or that drops the version from a URL, fails CI.
 ## v4.22.0 — clone-pick `--ask` windowed scroller
 
 ### Added
+
 - Picker now renders only the visible window (terminal height minus
   header + footer chrome) instead of dumping every tracked path. Large
   repos (Linux kernel, Chromium-scale trees) finally fit on screen.
@@ -234,6 +254,7 @@ snippet, or that drops the version from a URL, fails CI.
   first size message arrives.
 
 ### Changed
+
 - `pickerModel` gains `viewportHeight` and `scrollOffset` fields.
   Cursor moves re-clamp `scrollOffset` via the pure `clampScroll`
   helper so the cursor row is always in view.
@@ -247,6 +268,7 @@ snippet, or that drops the version from a URL, fails CI.
   - `picker_view.go` (103) — render loop (windowed).
 
 ### Tests
+
 - `gitmap/clonepick/picker_window_test.go`: `clampScroll` table,
   `tea.WindowSizeMsg` viewport sizing, `pgdown` jump distance,
   `G` end-of-list, and a "rendered row count == viewportHeight"
@@ -256,6 +278,7 @@ snippet, or that drops the version from a URL, fails CI.
 ## v4.21.1 — clone-pick cmd file split (200-line cap audit)
 
 ### Changed
+
 - `gitmap/cmd/clonepick.go` split from 270 lines into four focused
   files, all under the strict <200 lines/file core rule:
   - `clonepick.go` (103) — dispatcher entry + dry-run branch +
@@ -274,6 +297,7 @@ snippet, or that drops the version from a URL, fails CI.
 ## v4.21.0 — clone-pick `--ask` clones once, not twice
 
 ### Changed
+
 - `gitmap clone-pick --ask` now reuses the picker's metadata-only
   clone as the final sparse-checkout destination instead of re-cloning
   after the user confirms their selection. Halves the network cost of
@@ -286,6 +310,7 @@ snippet, or that drops the version from a URL, fails CI.
   no orphan dirs accumulate under `$TMPDIR`.
 
 ### Added
+
 - `clonepick.RunPickerKeep` / `clonepick.ListRepoPathsKeep`: keep-clone
   variants that return the temp dir so the cmd layer can hand it to
   the executor. The original `RunPicker` / `listRepoPaths` are now
@@ -296,6 +321,7 @@ snippet, or that drops the version from a URL, fails CI.
   rename and copy-tree fallbacks fail during promote.
 
 ### Tests
+
 - `gitmap/clonepick/promote_test.go`: covers the rename fast path and
   the copy-tree fallback against `t.TempDir()` so the optimisation has
   regression coverage even when CI can't trigger a real EXDEV.
@@ -304,6 +330,7 @@ snippet, or that drops the version from a URL, fails CI.
 ## v4.20.0 — `gitmap clone-pick --ask` interactive picker shipped
 
 ### Added
+
 - `gitmap clone-pick --ask` opens a bubbletea picker before the
   sparse-checkout, listing every tracked path in the target repo
   (enumerated via a metadata-only `--filter=blob:none --no-checkout
@@ -330,6 +357,7 @@ snippet, or that drops the version from a URL, fails CI.
   scaffolding).
 
 ### Code-quality notes
+
 - `cmd/clonepick.go` grew past the 200-line file cap; the new picker
   glue lives in `cmd/clonepick_picker.go` to keep the new code itself
   cap-compliant. A follow-up should split `cmd/clonepick.go` further
@@ -344,6 +372,7 @@ snippet, or that drops the version from a URL, fails CI.
 - `Version` constant bumped to `4.20.0`.
 
 ### Known follow-ups
+
 - Spec §"--ask picker" wants the temp clone reused as the final
   destination ("cloned once, not twice"). v1 ships clone-twice (the
   first clone is metadata-only so the wire cost is negligible). The
@@ -355,6 +384,7 @@ snippet, or that drops the version from a URL, fails CI.
 ## v4.19.0 — `gitmap clone-pick --replay <id|name>` shipped
 
 ### Added
+
 - `gitmap clone-pick --replay <id|name>` re-runs a previously saved
   selection without retyping the URL or the path list. Numeric refs
   resolve through the `SelectionId` index; everything else is treated
@@ -377,6 +407,7 @@ snippet, or that drops the version from a URL, fails CI.
   and the dry-run skip on `TouchAfterReplay`.
 
 ### Changed
+
 - `cmd/clonepick.go` no longer requires the positional `<repo-url>`
   when `--replay` is set. Missing both still exits with code 2 and
   the existing `MsgClonePickMissingURL` message — no behavioral change
@@ -1470,6 +1501,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 If you maintain a custom `constants_*.go` file in `gitmap/constants/` that exposes command IDs for shell tab-completion, you must opt-in explicitly using marker comments.
 
 ### What changed
+
 - **Old (v2.x):** The generator (`internal/gencommands/main.go`) relied on a hard-coded `sourceFiles` list and a `skipNames` map. Adding a new command required editing the generator.
 - **New (v3.0.0):** The generator scans every `constants/*.go` file automatically. Inclusion is controlled locally via comments.
 
@@ -1496,6 +1528,7 @@ const (
 6. Verify with `git diff` — only your new command values should appear; no manual edits to the generator needed.
 
 ### Verification
+
 - CI now runs a `generate-check` job that fails if `allcommands_generated.go` drifts from the constants. If your PR fails this check, the error message prints the exact command to fix it locally.
 
 ---
@@ -2211,6 +2244,7 @@ const (
 - Added `batchreport.go` with `PrintFailureReport()` and `ExitCodeForBatch()` helpers.
 
 ## v2.36.6 — Wave 2 Refactoring (14 Files)
+
 - Split `assets.go` → `assets.go` + `assetsbuild.go` (build helpers: `buildSingleTarget`, `buildEnv`).
 - Split `zipgroupops.go` → `zipgroupops.go` + `zipgroupshow.go` (display: `runZipGroupList`, `expandFolder`).
 - Split `tui.go` → `tui.go` + `tuiview.go` (rendering: `View`, `renderTabs`, `renderContent`).
@@ -2229,6 +2263,7 @@ const (
 - All source files comply with the 200-line limit; no functional changes.
 
 ## v2.36.5 — Extended Refactoring
+
 - Split `ziparchive.go` (362 lines) into three files under `release/`:
   - `ziparchive.go` (~171 lines): orchestration, DB group routing, ad-hoc path resolution.
   - `zipio.go` (~152 lines): ZIP I/O with max Deflate compression, SHA-1 hashing, archive summary.
@@ -2249,6 +2284,7 @@ const (
 - All `release/` and `cmd/` files comply with the 200-line limit; no functional changes.
 
 ## v2.36.4
+
 - Split `workflowfinalize.go` (498 lines) into four domain-specific files under `release/`:
   - `workflowfinalize.go` (~190 lines): core pipeline orchestration and metadata persistence.
   - `workflowdryrun.go` (~123 lines): dry-run preview functions and `returnToBranch`.
@@ -2270,6 +2306,7 @@ const (
 - Added refactoring specs: `spec/01-app/58-refactor-workflowfinalize.md`, `spec/01-app/59-refactor-root-dispatch.md`.
 
 ## v2.36.3 (2026-03-26)
+
 - Bumped compiled version constant to v2.36.3.
 - Refactored legacy directory migration into shared `localdirs` package for reuse across CLI startup and release workflow.
 - Release workflow now re-runs migration after returning to the original branch, preventing `.release/` from persisting when older branches restore tracked legacy files.
@@ -2278,6 +2315,7 @@ const (
 - Removed unused legacy directory warning/fix constants from `constants_doctor.go`.
 
 ## v2.36.2 (2026-03-26)
+
 - Bumped compiled version constant to v2.36.2.
 - Fixed legacy directory migration to merge files when target already exists instead of skipping.
 - Legacy directories (`.release/`, `gitmap-output/`, `.deployed/`) are now fully removed after merging into `.gitmap/`.
@@ -2285,23 +2323,27 @@ const (
 - Replaced Unicode characters in migration messages with ASCII for Windows console compatibility.
 
 ## v2.36.1 (2026-03-26)
+
 - Bumped compiled version constant to v2.36.1.
 - Added automatic database migration from legacy UUID TEXT IDs to INTEGER AUTOINCREMENT IDs.
 - Migration detects TEXT-typed `Id` column in `Repos` via `PRAGMA table_info`, rebuilds the table preserving data, and drops dependent FK tables (project detection, group-repo associations) for clean repopulation.
 - Fixed FK constraint violation (`787`) during `scan` when legacy UUID IDs were present in the `Repos` table.
 
 ## v2.36.0
+
 - Bumped compiled version constant to v2.36.0.
 - Added automatic legacy directory migration: `gitmap-output/` → `.gitmap/output/`, `.release/` → `.gitmap/release/`, `.deployed/` → `.gitmap/deployed/`.
 - Migration runs at CLI startup before any command dispatch; skips if target already exists.
 - Added `DeployedDirName` subdirectory constant and legacy directory name constants.
 
 ## v2.35.1
+
 - Bumped compiled version constant to v2.35.1.
 - Added legacy UUID data detection to all remaining DB query paths: `group show`, `group list`, `stats`, `history`, `status`, and `export`.
 - All DB query errors from legacy string-based IDs now show a recovery prompt (`rescan` or `db-reset`) instead of raw SQL errors.
 
 ## v2.35.0
+
 - Bumped compiled version constant to v2.35.0.
 - Consolidated `.release/` and `gitmap-output/` under unified `.gitmap/` directory (`release/`, `output/`).
 - Centralized all path constants (`GitMapDir`, `DefaultReleaseDir`, `DefaultOutputDir`) for single-point configuration.
@@ -2311,35 +2353,42 @@ const (
 - Updated all helptext, spec documents, and docs site to reference `.gitmap/` paths.
 
 ## v2.34.0 (2026-03-26)
+
 - Bumped compiled version constant to v2.34.0.
 - Fixed `list-releases` to read `.release/v*.json` from the current repo first, falling back to the database only when no local files exist.
 - Added `SourceRepo` constant to release model for repo-sourced release records.
 
 ## v2.33.0 (2026-03-26)
+
 - Bumped compiled version constant to v2.33.0.
 - Fixed auto-commit push rejection when remote branch advances during release: added `pull --rebase` recovery with single retry.
 - Added 16-stage summary table with anchor links to verbose logging spec.
 
 ## v2.32.0
+
 - Bumped compiled version constant to v2.32.0.
 - Documented autocommit verbose logging as pipeline stage 16 in the verbose logging spec.
 
 ## v2.31.0 (2026-03-26)
+
 - Bumped compiled version constant to v2.31.0.
 - Added verbose logging to auto-commit step: logs version, file counts, staging, commit message, and push target.
 
 ## v2.30.0 (2026-03-26)
+
 - Bumped compiled version constant to v2.30.0.
 - Renamed TempReleases `Commit` column to `CommitSha` to avoid SQLite reserved keyword conflict.
 - Added automatic database migration (`ALTER TABLE RENAME COLUMN`) for existing TempReleases tables.
 - Added JSON struct tags to `model.TempRelease` for backward-compatible serialization.
 
 ## v2.29.0
+
 - Bumped compiled version constant to v2.29.0.
 - Fixed TempReleases SQL syntax error: quoted reserved keyword `Commit` in CREATE TABLE, INSERT, and SELECT statements.
 - Documented metadata persistence and rollback log points in verbose logging spec (stages 14–15 of 15).
 
 ## v2.28.0
+
 - Bumped compiled version constant to v2.28.0.
 - Added verbose logging to release pipeline: version resolution, source resolution, git operations, asset collection, staging, cross-compilation, compression, checksums, zip groups, ad-hoc zips, GitHub upload, retry, metadata persistence, and rollback.
 - Updated verbose logging spec with all 15 pipeline stages documented.
@@ -2350,6 +2399,7 @@ const (
 - Fixed hasListFlag redeclaration conflict between tempreleaseops.go and completion.go.
 
 ## v2.27.0 (2026-03-22)
+
 - Bumped compiled version constant to v2.27.0.
 - Added doctor validation checks for config.json, database migration, lock file, and network connectivity.
 - Added TUI release trigger overlay with patch/minor/major/custom version bump selection.
@@ -2359,17 +2409,20 @@ const (
 - Added alias suggestion tests covering auto-suggestion, conflict detection, and idempotent re-runs.
 
 ## v2.24.0 (2026-03-20)
+
 - Bumped compiled version constant to v2.24.0.
 - Moved release metadata writing from the release branch to the original branch, letting auto-commit handle `.release/` files after returning.
 - Removed `commitReleaseMeta` step from the release branch workflow; the release branch now only contains the branch, tag, and push.
 - Simplified `pushAndFinalize` to always complete without metadata writes (metadata is now the caller's responsibility).
 
 ## v2.23.0 (2026-03-20)
+
 - Bumped compiled version constant to v2.23.0.
 - Added `--notes` / `-N` flag to `release-branch` and `release-pending` commands, matching the `release` command.
 - Updated docs site Release page with metadata-first workflow diagram, release notes feature card, and `--notes` flag documentation.
 
 ## v2.22.0 (2026-03-19)
+
 - Bumped compiled version constant to v2.22.0.
 - Persisted zip group metadata in `.release/vX.Y.Z.json` via new `zipGroups` field on `ReleaseMeta`.
 - Documented `-A`/`--alias` flag in help text for `pull`, `exec`, `status`, and `cd` commands.
@@ -2378,6 +2431,7 @@ const (
 - Added unit tests for `collectZipGroupNames` covering persistent groups, ad-hoc bundles, and merged output.
 
 ## v2.21.0
+
 - Bumped compiled version constant to v2.21.0.
 - Refactored `assetsupload.go` into three focused files: `githubapi.go` (API types/helpers), `assetsupload.go` (upload logic), `remoteorigin.go` (git URL parsing).
 - Rebuilt Project Detection docs page with detection pipeline, tabbed type cards, metadata extraction deep-dive, DB schema, JSON output, and package layout sections.
@@ -2386,33 +2440,39 @@ const (
 - Added unit tests for `remoteorigin.go` covering HTTPS, SSH, and invalid URL parsing.
 
 ## v2.20.0
+
 - **Fixed**: `OpenDefault()` double-nesting bug where profile config resolved to `<binary>/data/data/profiles.json`.
 - Added `DefaultDBPath()` diagnostic helper to `store/location.go`.
 - `gitmap ls` now prints resolved DB path when `--verbose` is passed or when zero repos are found.
 - Created `spec/01-app/44-list-db-diagnostic.md` for path resolution contract.
 
 ## v2.19.0
+
 - Bumped compiled version constant to v2.19.0.
 
 ## v2.18.0
+
 - Added batch status terminal demo to Batch Actions page showing dirty/clean state across repos.
 - Fixed missing `os/exec` import in release asset upload.
 - Resolved `deriveSlug` redeclaration conflict in project repos output.
 - Removed unused `os` import from audit command.
 
 ## v2.17.0
+
 - Added 30-second auto-refresh timer to TUI dashboard via `tea.Tick`.
 - Dashboard refresh interval configurable via `dashboardRefresh` in `config.json`.
 - Added `--refresh` flag to `interactive` command for CLI-level override.
 - Refresh interval validates with fallback to default 30s when missing or invalid.
 
 ## v2.16.0
+
 - Wired real `gitutil.Status()` into TUI dashboard for live dirty/clean indicators.
 - Dashboard now shows ahead/behind counts and stash per repo.
 - Async background refresh on TUI startup; manual refresh via `r` key.
 - Summary bar with aggregate dirty/behind/stash counts and UTC timestamp.
 
 ## v2.15.1
+
 - **Fixed**: Database now resolves to `<binary-location>/data/gitmap.db` instead of CWD-relative `gitmap-output/data/`.
 - Added `store.OpenDefault()` and `store.OpenDefaultProfile()` for binary-relative database access.
 - Added `store/location.go` with `BinaryDataDir()` using `os.Executable()` + `filepath.EvalSymlinks()`.
@@ -2420,6 +2480,7 @@ const (
 - Removed unused `resolveAuditOutputDir()` and `resolveDefaultOutputDir()` helpers.
 
 ## v2.15.0
+
 - Added cross-platform build support: `run.sh` (Linux/macOS) with full parity to `run.ps1`.
 - Fixed Makefile flags to match `run.sh` argument format (`--no-pull`, `--no-deploy`, `--update`).
 - Added GitHub Actions CI workflow: test on push, cross-compile 6 OS/arch targets.
@@ -2433,6 +2494,7 @@ const (
 - Added spec documents: `42-cross-platform.md` and `43-interactive-tui.md`.
 
 ## v2.14.0
+
 - Added Go release assets: automatic cross-compilation for 6 OS/arch targets (windows/linux/darwin × amd64/arm64).
 - Added GitHub Releases API integration for asset upload — no `gh` CLI or external tools needed.
 - Added `--compress` flag to wrap release assets in `.zip` (Windows) or `.tar.gz` (Linux/macOS).
@@ -2444,6 +2506,7 @@ const (
 - Fixed duplicate hints appearing after `gitmap ls <type>` output.
 
 ## v2.13.0
+
 - Added group activation: `gitmap g <name>` sets a persistent active group for batch pull/status/exec.
 - Added `multi-group` (mg) command for selecting and operating on multiple groups at once.
 - Added `gitmap ls <type>` filtering: `gitmap ls go`, `gitmap ls node`, `gitmap ls groups`.
@@ -2451,26 +2514,32 @@ const (
 - Added Settings table for persistent key-value configuration in SQLite.
 
 ## v2.12.0 (2026-03-14)
+
 - Added global ⌘K command palette searching across commands, flags, and pages.
 
 ## v2.11.0
+
 - Added Changelog page with timeline view and expand/collapse controls.
 - Added Flag Reference page with sortable, searchable table of all flags.
 - Added Interactive Examples page with animated terminal demos.
 
 ## v2.10.0 (2026-03-13)
+
 - Version bump for next development cycle.
 
 ## v2.9.0 (2026-03-13)
+
 - Completed flags and examples for all 22 command entries on the documentation site.
 - Added detailed flag tables and usage examples for `seo-write`, `doctor`, `update`, `pull`, `version`, `history-reset`, and `db-reset`.
 - Filled in flags and examples for 15 commands missing both: `rescan`, `desktop-sync`, `status`, `latest-branch`, `release-branch`, `release-pending`, `changelog`, `group`, `list`, `diff-profiles`, `export`, `import`, `profile`, `bookmark`, and `stats`.
 
 ## v2.28.0
+
 - Removed unused `detector` import from `cmd/scan.go` that caused build failure.
 - Updated documentation site fonts: Ubuntu for headings, Poppins for body text, Ubuntu Mono for code blocks.
 
 ## v2.27.0 (2026-03-22)
+
 - Added `gitmap cd` (`go`) command: jump to any tracked repo by slug or partial name.
 - Subcommands: `cd repos`, `cd set-default`, `cd clear-default`; supports `--group` and `--pick` flags.
 - Added `gitmap watch` (`w`) command: live terminal dashboard monitoring repo status.
@@ -2494,10 +2563,12 @@ const (
   - Supports `--dry-run`, `--no-merge`, `--no-tidy`, `--verbose`, and `--ext` flags.
 
 ## v2.26.0 (2026-03-22)
+
 - Version bump to v2.26.0 following `gitmap profile` command addition.
 - All profile subcommands (`create`, `list`, `switch`, `delete`, `show`) fully integrated and documented.
 
 ## v2.25.0 (2026-03-22)
+
 - Added `gitmap profile` (`pf`) command: manage multiple database profiles (work, personal, etc.).
 - Subcommands: `create`, `list`, `switch`, `delete`, `show`.
 - Each profile has its own SQLite database file (`gitmap-{name}.db`).
@@ -2506,18 +2577,21 @@ const (
 - All commands automatically use the active profile's database.
 
 ## v2.24.0 (2026-03-20)
+
 - Added `gitmap import` (`im`) command: restore database from a `gitmap-export.json` backup file.
 - Merge semantics: upserts repos/releases, INSERT OR IGNORE for history/bookmarks/groups.
 - Group members re-linked by resolving `repoSlugs` against the Repos table.
 - Requires `--confirm` flag to prevent accidental data changes.
 
 ## v2.23.0 (2026-03-20)
+
 - Added `gitmap export` (`ex`) command: export the full database as a portable JSON file.
 - Exports all tables: repos, groups (with member repo slugs), releases, command history, and bookmarks.
 - Default output: `gitmap-export.json`; accepts optional custom file path.
 - Summary line shows counts for each exported section.
 
 ## v2.22.0 (2026-03-19)
+
 - Added `gitmap bookmark` (`bk`) command: save and replay frequently-used command+flag combinations.
 - Subcommands: `save`, `list`, `run`, `delete` — full CRUD for saved bookmarks.
 - `bookmark run <name>` replays the saved command through standard dispatch (appears in audit history).
@@ -2526,12 +2600,14 @@ const (
 - `db-reset --confirm` now also clears the Bookmarks table.
 
 ## v2.21.0
+
 - Added `gitmap stats` (`ss`) command: aggregated usage statistics from command history.
 - Shows most-used commands, success/fail counts, failure rates, and avg/min/max durations.
 - Supports `--command <name>` filter and `--json` output.
 - Summary row displays overall totals across all commands.
 
 ## v2.20.0
+
 - Added `gitmap history` (`hi`) command: queryable audit trail of all CLI command executions.
 - Three detail levels: `--detail basic` (command + timestamp), `--detail standard` (+ flags + duration), `--detail detailed` (+ args + repos + summary).
 - Supports `--command <name>` filter, `--limit N`, and `--json` output.
@@ -2540,6 +2616,7 @@ const (
 - `db-reset --confirm` now also clears the CommandHistory table.
 
 ## v2.19.0
+
 - Added `gitmap amend` (`am`) command: rewrite author name/email on existing commits with three modes (all, range, HEAD).
 - Supports `--branch` flag to operate on a specific branch (auto-switches back to original branch after completion).
 - SHA as first positional argument: `gitmap amend <sha> --name "Name"` rewrites from that commit to HEAD.
@@ -2552,6 +2629,7 @@ const (
 - SEO-write dry-run now displays the author that would be used when author flags are set.
 
 ## v2.18.0
+
 - Added `gitmap seo-write` (`sw`) command: automated SEO commit scheduler that stages, commits, and pushes files on a randomized interval.
 - Supports CSV input mode (`--csv`) for user-provided title/description pairs.
 - Supports template mode with placeholder substitution (`{service}`, `{area}`, `{url}`, `{company}`, `{phone}`, `{email}`, `{address}`).
@@ -2564,6 +2642,7 @@ const (
 - Graceful shutdown on Ctrl+C (finishes current commit before exiting).
 
 ## v2.17.0
+
 - Added `Source` column to the `Releases` table: tracks whether each release was created via `gitmap release` (`release`) or imported from `.release/` files (`import`).
 - Added `--source` flag to `gitmap list-releases` (`lr`): filter releases by origin (`--source release` or `--source import`).
 - Added `--source` flag to `gitmap list-versions` (`lv`): cross-references git tags with the Releases DB to filter by source and display source metadata.
@@ -2571,13 +2650,16 @@ const (
 - Terminal and JSON output for `list-releases` and `list-versions` now includes the Source field.
 
 ## v2.16.0
+
 - Added `gitmap list-releases` (`lr`) command: queries the Releases DB table and displays stored releases with `--json` and `--limit N` support.
 - Enhanced `gitmap scan` to import `.release/v*.json` metadata files into the Releases DB table automatically after each scan.
 
 ## v2.15.0
+
 - Added `--limit N` flag to `gitmap list-versions` (`lv`): show only the top N versions (0 or omitted = all).
 
 ## v2.14.0
+
 - Added `Releases` table to SQLite database: stores release metadata (version, tag, branch, commit, changelog, flags) persistently.
 - Release workflow now auto-persists metadata to the database after successful releases.
 - Converted all database table and column names from snake_case to PascalCase (`Repos`, `Groups`, `GroupRepos`, `Releases`).
@@ -2586,24 +2668,29 @@ const (
 - Note: existing databases will need `gitmap db-reset --confirm` to adopt the new schema.
 
 ## v2.13.0
+
 - Release metadata JSON (`.release/vX.Y.Z.json`) now includes a `changelog` field with notes from changelog.md (gracefully omitted if unreadable).
 - `gitmap list-versions` (`lv`) now shows changelog notes as sub-points under each version in terminal output.
 - `gitmap list-versions --json` includes changelog array per version in JSON output.
 
 ## v2.12.0 (2026-03-14)
+
 - Added `gitmap list-versions` (`lv`) command: lists all release tags sorted highest-first, with `--json` output support.
 - Added `gitmap revert <version>` command: checks out a release tag and rebuilds/deploys via handoff (same mechanism as `update`).
 
 ## v2.11.0
+
 - Added constants inventory audit section to compliance spec, documenting ~280 constants across 9 files and 17 categories.
 
 ## v2.10.0 (2026-03-13)
+
 - Full compliance audit (Wave 1 + Wave 2): all 75 source files pass code style rules.
   - Trimmed 4 oversized files: `workflow.go`, `terminal.go`, `safe_pull.go`, `setup.go` (all under 200 lines).
   - Fixed all negation and switch violations across `changelog.go`, `github.go`, `metadata.go`, `config.go`, `verbose.go`, `semver.go`.
   - Extracted missing constants to dedicated constants files.
 
 ## v2.9.0 (2026-03-13)
+
 - Full code style refactor of `latest-branch` command:
   - Split `cmd/latestbranch.go` into 3 files: handler, resolve, output (all under 200 lines).
   - Split `gitutil/latestbranch.go` into 2 files: core operations, resolve helpers.
@@ -2612,34 +2699,42 @@ const (
   - Extracted git constants and display message constants.
 
 ## v2.8.0 (2026-03-06)
+
 - Added `--filter` flag to `latest-branch`: filter branches by glob pattern (e.g. `feature/*`) or substring match.
 
 ## v2.7.0
+
 - Added `--sort` flag to `latest-branch`: supports `date` (default, descending) and `name` (alphabetical ascending).
 
 ## v2.6.0
+
 - Centralized date display formatting: all dates now convert to local timezone and display as `DD-Mon-YYYY hh:mm AM/PM`.
 - Added `gitutil/dateformat.go` with `FormatDisplayDate` and `FormatDisplayDateUTC` functions.
 - Updated `latest-branch` terminal, JSON, and CSV output to use the new date format.
 
 ## v2.5.1
+
 - Added `--no-fetch` flag to `latest-branch`: skips `git fetch --all --prune` when remote refs are already up to date.
 
 ## v2.5.0 (2026-03-06)
+
 - Added `--format` flag to `latest-branch`: supports `terminal` (default), `json`, and `csv` output formats.
   - CSV outputs a header row + data rows to stdout, suitable for piping and spreadsheets.
   - `--json` remains as shorthand for `--format json`.
 - Refactored `latest-branch` output into dedicated functions per format.
 
 ## v2.4.1
+
 - Added positional integer shorthand for `latest-branch`: `gitmap lb 3` is equivalent to `gitmap lb --top 3`.
 
 ## v2.4.0 (2026-03-06)
+
 - Added `gitmap latest-branch` (`lb`) command: finds the most recently updated remote branch by commit date and displays name, SHA, date, and subject.
   - Flags: `--remote`, `--all-remotes`, `--contains-fallback`, `--top N`, `--json`.
   - Positional integer shorthand: `gitmap lb 3` is equivalent to `gitmap lb --top 3`.
 
 ## v2.3.12 (2026-03-06)
+
 - Spec, issue post-mortems, and memory aligned to codify synchronous update handoff and rename-first PATH sync as permanent rules.
 - Rename-first PATH sync in `-Update` mode: renames active binary to `.old` before copying, eliminating lock-retry loops.
 - Parent `update` handoff uses `cmd.Start()` + `os.Exit(0)` to release file lock before worker runs.
@@ -2647,12 +2742,14 @@ const (
 - Spec consistency pass: all four update-flow specs now enforce identical rules.
 
 ## v2.3.10 (2026-03-06)
+
 - Fixed `Read-Host` error in non-interactive PowerShell sessions during update by removing trailing prompt.
 - Parent `update` process now exits immediately (handoff copy runs synchronously via `update-runner`).
 - Added diagnostic log at update start showing active exe path and handoff copy path.
 - Update script now uses unique temp file names (`gitmap-update-*.ps1`) to avoid stale script collisions.
 
 ## v2.3.9
+
 - Version bump for rebuild validation after update-runner handoff changes.
 
 - Replaced `update --from-copy` with hidden `update-runner` command for cleaner handoff separation.
@@ -2667,41 +2764,51 @@ const (
 - Doctor diagnostics now suggest `--fix-path` when version mismatches are detected.
 
 ## v2.3.6
+
 - Added stale-process fallback during PATH-binary sync (`update` + `run.ps1`): if copy+rename fail, it now stops stale `gitmap.exe` processes bound to the old path and retries once.
 - Improved failure guidance to run the deployed binary directly when active PATH binary remains locked.
 
 ## v2.3.5
+
 - Hardened `gitmap update` PATH sync with retry + rename fallback, and it now exits with failure if active PATH binary remains stale.
 - Clarified update output labels to distinguish source version (`constants.go`) vs active executable version.
 - Added same rename-fallback PATH sync behavior in `run.ps1`.
 
 ## v2.3.4
+
 - Updated PATH-binary sync in `run.ps1` and `gitmap update` to use retry-on-lock behavior (20 attempts × 500ms), matching the self-update spec.
 - Added explicit recovery guidance when active PATH binary is still locked, including an exact `Copy-Item` fix command.
 
 ## v2.3.3
+
 - Added `gitmap doctor` command: reports PATH binary, deployed binary, version mismatches, git/go availability, and recommends exact fix commands.
 
 ## v2.3.2
+
 - `gitmap update` now syncs the active PATH binary with the deployed binary, so commands like `release` are available immediately.
 - `gitmap update` now prints changelog bullet points after update (or no-op update) for quick visibility.
 - Added `gitmap changelog --open` and `gitmap changelog.md` to open `changelog.md` in the default app.
 
 ## v2.3.1
+
 - Added `gitmap changelog` command for concise, CLI-friendly release notes.
 - Improved `gitmap update` output to show deployed binary/version and warn if PATH points to another binary.
 - `gitmap update` now prints latest changelog notes after a successful update.
 
 ## v2.3.0
+
 - Added `gitmap release-pending` (`rp`) to release all `release/v*` branches missing tags.
 - `gitmap release` and `gitmap release-branch` now switch back to the previous branch after completion.
 
 ## v2.2.3
+
 - Fixed PowerShell parser-breaking characters in update/deploy output paths.
 - Improved deployment rollback messaging in `run.ps1`.
 
 ## v2.2.2
+
 - Added additional parser safety fixes for update script output.
 
 ## v2.2.1
+
 - Patched PowerShell parsing edge cases affecting update flow.

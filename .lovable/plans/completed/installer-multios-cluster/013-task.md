@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 013 — Git Export CLI
 
 ## 1. Goal
+
 CLI for export-git and export-all-git in `cmd/installer_export_git.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `cmd/installer_export_git.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestGitExportCLI
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

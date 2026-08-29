@@ -55,15 +55,20 @@ Before writing anything, take inventory:
 Single file. Structure:
 
 ```markdown
+
 ## Active Suggestions
+
 ### [Title]
+
 - **Status:** Pending | In Review | Approved | Rejected
 - **Priority:** High | Medium | Low
 - **Description:** What and why
 - **Added:** [date / session ref]
 
 ## Implemented Suggestions
+
 ### [Title]
+
 - **Implemented:** [date / session ref]
 - **Notes:** Implementation details
 ```
@@ -77,14 +82,23 @@ When a suggestion is implemented: move it from Active → Implemented, add notes
 ### 4A — Pending (`.lovable/pending-issues/XX-short-description.md`)
 
 ```markdown
+
 # [Title]
+
 ## Description
+
 ## Root Cause   (or "Under investigation.")
+
 ## Steps to Reproduce
+
 ## Attempted Solutions
+
 - [ ] Approach 1 — [result]
+
 ## Priority   High | Medium | Low
+
 ## Blocked By (if applicable)
+
 ```
 
 ### 4B — Solved (`.lovable/solved-issues/XX-short-description.md`)
@@ -92,10 +106,15 @@ When a suggestion is implemented: move it from Active → Implemented, add notes
 When resolved, **move** the file from `pending-issues/` → `solved-issues/` and append:
 
 ```markdown
+
 ## Solution
+
 ## Iteration Count
+
 ## Learning
+
 ## What NOT to Repeat
+
 ```
 
 ### 4C — Strictly Avoided (`.lovable/strictly-avoid.md`)

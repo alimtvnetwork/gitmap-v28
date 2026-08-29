@@ -23,44 +23,53 @@ citations:
   ambiguity: "n/a — no ambiguity filed"
   issue_rca: "n/a — not a bugfix"
 ---
+
 # Task 002 — Add SQLite Migrations for Installers
 
 ## 1. Learn
+
 - Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for installer_scripts table, installer_versions table.
 - Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/store/migrations.go` remains concisely sized.
 - Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
 - Inspect `gitmap/store/migrations.go` dependencies to see how installer_scripts table, installer_versions table interacts with its callers.
 
 ## 2. Goal
+
 The objective is to implement `installer_scripts table, installer_versions table` natively in `gitmap/store/migrations.go`. This explicitly unblocks downstream operations dependent on `Add SQLite Migrations for Installers` in the Plugin domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
+
 - Exported Symbols: `installer_scripts table, installer_versions table`
 - Package: `store`
 - Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
+
 1. Open `gitmap/store/migrations.go`.
 2. Implement the required structure, type, or function for `installer_scripts table, installer_versions table`.
 3. Write unit tests for success and failure boundaries in `gitmap/store/migrations.go`.
 4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
+
 - Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
 - Error wrapping must include stack traces.
 
 ## 6. Verify
+
 ```bash
 go test ./store -run TestMigrations
 ```
 Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
+
 - [x] `installer_scripts table, installer_versions table` is successfully mapped and tested in `gitmap/store/migrations.go`.
 - [x] All CI and `go test` commands exit zero.
 - [x] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

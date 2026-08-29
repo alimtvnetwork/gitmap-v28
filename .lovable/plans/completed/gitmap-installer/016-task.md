@@ -23,44 +23,53 @@ citations:
   ambiguity: "n/a — no ambiguity filed"
   issue_rca: "n/a — not a bugfix"
 ---
+
 # Task 016 — Installer Reset Command
 
 ## 1. Learn
+
 - Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for installerResetCmd.
 - Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/cmd/installer_reset.go` remains concisely sized.
 - Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
 - Inspect `gitmap/cmd/installer_reset.go` dependencies to see how installerResetCmd interacts with its callers.
 
 ## 2. Goal
+
 The objective is to implement `installerResetCmd` natively in `gitmap/cmd/installer_reset.go`. This explicitly unblocks downstream operations dependent on `Installer Reset Command` in the Cli domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
+
 - Exported Symbols: `installerResetCmd`
 - Package: `cmd`
 - Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
+
 1. Open `gitmap/cmd/installer_reset.go`.
 2. Implement the required structure, type, or function for `installerResetCmd`.
 3. Write unit tests for success and failure boundaries in `gitmap/cmd/installer_reset_test.go`.
 4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
+
 - Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
 - Error wrapping must include stack traces.
 
 ## 6. Verify
+
 ```bash
 go test ./cmd -run TestInstallerResetCmd
 ```
 Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
+
 - [ ] `installerResetCmd` is successfully mapped and tested in `gitmap/cmd/installer_reset.go`.
 - [ ] All CI and `go test` commands exit zero.
 - [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

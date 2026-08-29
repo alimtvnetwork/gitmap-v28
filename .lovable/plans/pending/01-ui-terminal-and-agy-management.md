@@ -1,9 +1,11 @@
 # Parent Task: UI Terminal & Antigravity/VS Code Management
 
 ## Overview
+
 This specification details the implementation of a new web-based terminal UI within the GitMap help dashboard (`hd`), as well as comprehensive Antigravity and VS Code project management commands via the GitMap CLI.
 
 ## Architectural Goals & Coding Guidelines
+
 - **Booleans**: Must use `is`, `has`, `can`, `should` (e.g., `isReady`, `hasTerminal`). No negatives (e.g., `isNotReady` is banned).
 - **Naming**: Strict semantic naming. No `temp`, `data`, `obj`, `Input1`, etc.
 - **Functions**: Max 15 lines. Arguments wrapped at 100 characters.
@@ -14,6 +16,7 @@ This specification details the implementation of a new web-based terminal UI wit
 ## Subtasks Execution Plan
 
 ### Task 1: UI Terminal Frontend (Browser)
+
 - **File**: `gitmap/web/terminal.js` / `gitmap/web/terminal.html` (or appropriate web UI directories)
 - **Features**:
   - Implement a web-based terminal UI (e.g. using `xterm.js`).
@@ -22,18 +25,21 @@ This specification details the implementation of a new web-based terminal UI wit
   - WebSockets or SSE for backend communication.
 
 ### Task 2: UI Terminal Backend & Autocomplete
+
 - **File**: `gitmap/cmd/hd_server.go` (or wherever `hd` is hosted)
 - **Features**:
   - Expose API endpoints / WebSockets to proxy terminal commands securely.
   - Implement the auto-complete provider for terminal interactions.
 
 ### Task 3: SQLite Suggestion Engine
+
 - **File**: `gitmap/store/suggestions.go`
 - **Features**:
   - Implement `GetRepoSuggestions(partialSlug string) ([]string, error)` pulling from the SQLite database.
   - Integrate into the `rm` and `mv` commands so typing partial names (e.g., `GH`) offers interactive suggestions.
 
 ### Task 4: Antigravity CLI Management (`agy`)
+
 - **Files**: `gitmap/cmd/agy_cmd.go`
 - **Features**:
   - `gitmap agy add <repo>`: Add to `~/.gemini/config/projects/`.
@@ -43,6 +49,7 @@ This specification details the implementation of a new web-based terminal UI wit
   - `gitmap agy update`: Automatically update the Antigravity instance.
 
 ### Task 5: VS Code CLI Management (`vscode`)
+
 - **Files**: `gitmap/cmd/vscode_cmd.go`
 - **Features**:
   - `gitmap vscode add <repo>`: Add to `projects.json`.
@@ -50,6 +57,7 @@ This specification details the implementation of a new web-based terminal UI wit
   - `gitmap vscode ls`: List VS Code projects.
 
 ### Task 6: Release & Architecture Map
+
 - **Files**: `version.json`, `.lovable/memory/release-architecture-map.md`
 - **Features**:
   - Document release architecture in `.lovable/memory/release-architecture-map.md`.
@@ -57,6 +65,7 @@ This specification details the implementation of a new web-based terminal UI wit
   - Perform release ceremony.
 
 ## Verification Checklist (Pre-Commit)
+
 - [ ] Coding Guidelines & Master Consolidated File enforced.
 - [ ] Boolean Examples & Fixations strictly followed.
 - [ ] Anti-Garbage Naming enforced (no generic temp names).
@@ -69,6 +78,7 @@ This specification details the implementation of a new web-based terminal UI wit
 
 
 ### Task 7: Update Output Summary
+
 - **Files**: `gitmap/cmd/update.go`, `gitmap/cmd/release.go`
 - **Features**:
   - Summarize version change (`vOLD -> vNEW`).

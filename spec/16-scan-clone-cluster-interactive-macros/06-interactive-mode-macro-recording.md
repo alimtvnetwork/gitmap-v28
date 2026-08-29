@@ -3,6 +3,7 @@
 ## 1. Interactive Session Recording Engine
 
 ### 1.1 Concept & Workflow
+
 Within `gitmap interactive` (or `gitmap i`), users can start a named macro recording session:
 ```text
   [REC] Start Recording Session: "deploy-and-sync"
@@ -11,6 +12,7 @@ Within `gitmap interactive` (or `gitmap i`), users can start a named macro recor
 ```
 
 ### 1.2 Live Execution & Capture
+
 While recording:
 - Every typed command is executed immediately in the user's active sub-shell / PowerShell environment.
 - Captures:
@@ -51,6 +53,7 @@ CREATE TABLE IF NOT EXISTS macro_steps (
 ## 3. Macro Playback & CLI Interface
 
 ### 3.1 Execution Commands
+
 - `gitmap execute <macro_name>` (alias: `gitmap macro run <name>`): Replays the recorded steps sequentially.
   - Supports `--dry-run` to preview commands without execution.
   - Supports `--verbose` for detailed step-by-step stdout streaming.
@@ -62,11 +65,15 @@ CREATE TABLE IF NOT EXISTS macro_steps (
 ## 4. Scheduled Macro Automation
 
 ### 4.1 Task Integration
+
 Saved macros can be hooked into the existing `gitmap task` scheduler:
 ```bash
+
 # Run macro every weekday at 9:00 AM
+
 gitmap task add --name "daily-sync" --macro "deploy-and-sync" --cron "0 9 * * 1-5"
 
 # Run macro every 30 minutes
+
 gitmap task add --name "repo-watcher" --macro "pull-and-test" --interval 30m
 ```

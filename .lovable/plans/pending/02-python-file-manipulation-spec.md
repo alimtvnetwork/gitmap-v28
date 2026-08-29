@@ -1,11 +1,13 @@
 # AI Implementation Spec: Python File Manipulation CLI (`ai-fix-scripts`)
 
 ## Overview
+
 You are an expert Python Developer AI. Your task is to write a standalone, reusable Python script that handles mass file renaming (lowercasing) and sequence fixing. This script will act as an autonomous tool for other AIs and developers to organize files without needing a compiled binary.
 
 **Target Path:** `.lovable/ai-fix-scripts/01-file-manipulator.py`
 
 ## Non-Negotiable Rules for the Python Script
+
 1. **Zero Dependencies**: The script MUST use only Python standard libraries (e.g., `os`, `sys`, `argparse`, `shutil`, `subprocess`, `pathlib`).
 2. **Robust CLI**: Use `argparse` to provide a professional, CLI-like experience with complete `--help` documentation and examples.
 3. **Windows Long Paths**: The script must normalize paths and safely handle Windows `MAX_PATH` limitations (e.g., prefixing absolute paths with `\\?\` on Windows environments).
@@ -15,6 +17,7 @@ You are an expert Python Developer AI. Your task is to write a standalone, reusa
 ---
 
 ## Core Feature 1: Lowercase Renamer
+
 **Command Pattern**:
 `python 01-file-manipulator.py lowercase <target_directory> [flags]`
 
@@ -30,6 +33,7 @@ You are an expert Python Developer AI. Your task is to write a standalone, reusa
 ---
 
 ## Core Feature 2: Fix File Sequencing (`fix-seq-files`)
+
 **Command Pattern**:
 `python 01-file-manipulator.py fix-seq-files <target_directory> [flags]`
 
@@ -51,6 +55,7 @@ You are an expert Python Developer AI. Your task is to write a standalone, reusa
 ---
 
 ## Execution Checklist for the AI
+
 Before completing this task, you MUST verify:
 - [ ] I saved the script precisely to `.lovable/ai-fix-scripts/01-file-manipulator.py`.
 - [ ] I used `argparse` to handle subcommands (`lowercase` and `fix-seq-files`) and provided detailed help text.

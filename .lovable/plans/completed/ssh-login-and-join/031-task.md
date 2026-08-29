@@ -23,17 +23,21 @@ citations:
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
+
 # Task 031 — Scaffold `gitmap ssh-join` (sj) cmd
 
 ## 1. Learn
+
 - [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
 - [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [gitmap/cmd/sshjoin_cmd.go](gitmap/cmd/sshjoin_cmd.go) — Why: Target file.
 
 ## 2. Goal
+
 Deliver the Scaffold step for `runSSHJoin` to support the Scaffold `gitmap ssh-join` (sj) cmd feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
+
 - Types: `string`, `context.Context`
 - Outputs: `error`
 - Codes: `E_INTERNAL_ERROR`
@@ -43,15 +47,18 @@ Deliver the Scaffold step for `runSSHJoin` to support the Scaffold `gitmap ssh-j
   ```
 
 ## 4. Execute
+
 1. Base command handler for `ssh-join` and `sj`.
 2. Identify arguments for add/rm/ls.
 
 ## 5. Constraints
+
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
 - **Error Types**: Must use `apperror`.
 - **No Globals**: .lovable/strictly-avoid.md.
 
 ## 6. Verify
+
 ```bash
 go test ./... -v -run runSSHJoin
 ```
@@ -61,14 +68,15 @@ PASS
 ```
 
 ## 7. Done When
+
 - [ ] 1. `runSSHJoin` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
-

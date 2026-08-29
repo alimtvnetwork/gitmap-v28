@@ -3,6 +3,7 @@
 This plan documents all required fixes to migrate the codebase to strict error management using `AppError`.
 
 ## Rules to Enforce:
+
 1. **Never swallow errors.** Every catch/ignore logs the operation name and key inputs, then rethrows or returns a typed error.
 2. **Wrap, do not lose.** Wrap the original error with an operation label and context (`apperror.Wrap(err, 'op', ctx)`).
 3. **Typed errors only.** No bare `panic('msg')` or raw `fmt.Errorf` without wrapping.
@@ -10,6 +11,7 @@ This plan documents all required fixes to migrate the codebase to strict error m
 5. All functions returning errors must return `*apperror.AppError`, not raw `error`.
 
 ## Subtasks Overview:
+
 - [ ] `01-swallowed-error-part1.md`: Fix 62 `swallowed error` issues.
 - [ ] `02-panic-part1.md`: Fix 5 `panic` issues.
 - [ ] `03-raw-error-return-part1.md`: Fix 150 `raw error return` issues.

@@ -45,13 +45,17 @@ prompt is ever shown (private is the safe direction).
 ## Examples
 
 ```
+
 # Standard
+
 gitmap make-private
 
 # Preview without touching the API
+
 gitmap make-private --dry-run
 
 # Debug auth or argv issues
+
 gitmap make-private --verbose
 ```
 

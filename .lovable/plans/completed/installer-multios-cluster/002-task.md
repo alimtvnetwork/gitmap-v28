@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 002 — Enhanced Installer Model
 
 ## 1. Goal
+
 Extend InstallerScript for multi-OS instructions in `model/installer.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `model/installer.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestEnhancedInstallerModel
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

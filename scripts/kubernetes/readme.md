@@ -1,3 +1,1 @@
 # kubernetes-training-v1
-
-

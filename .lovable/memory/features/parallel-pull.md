@@ -3,6 +3,7 @@ name: parallel-pull
 description: gitmap pull --parallel <N> runs a worker pool over targets; --only-available pre-filters via FindNext so we only pull repos with new tags. v3.10.0 (Phase 2.5).
 type: feature
 ---
+
 # Parallel pull (Phase 2.5, v3.10.0)
 
 ## Overview

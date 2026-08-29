@@ -69,26 +69,34 @@ gitmap <command> LEFT RIGHT [flags]
 ## Invocation cheatsheet
 
 ```bash
+
 # Live: replay LEFT's commits onto RIGHT, with confirmation prompt.
+
 gitmap commit-right ./repo-A ./repo-B
 gitmap cmr         ./repo-A ./repo-B          # alias
 
 # Skip prompt + dry-run (prints the plan, no writes).
+
 gitmap cmr ./repo-A ./repo-B --dry-run -y
 
 # Cap the replay set + override the divergence base.
+
 gitmap cmr ./repo-A ./repo-B --limit 20 --since 2026-01-01
 
 # Add a strip regex (repeatable) and disable provenance footer.
+
 gitmap cmr ./A ./B --strip '\(#\d+\)$' --strip '^\[WIP\]\s*' --no-provenance
 
 # True mirror (delete target-only files) + force re-replay over existing footers.
+
 gitmap cmr ./A ./B --mirror --force-replay
 
 # Snapshot + stage but don't commit (inspect before letting it commit).
+
 gitmap cmr ./A ./B --no-commit
 
 # Scaffold: prints "not yet implemented — see spec 106" and exits 2.
+
 gitmap commit-left  ./A ./B
 gitmap commit-both  ./A ./B
 ```

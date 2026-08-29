@@ -131,7 +131,9 @@ PATH is updated in both:
 Environment variables are persisted by writing to shell profiles:
 
 ```bash
+
 # Appended to ~/.bashrc, ~/.zshrc, etc.
+
 export GITMAP_HOME="/opt/gitmap-v28"   # <tool>-env
 ```
 
@@ -259,12 +261,16 @@ $ <tool> env remove EDITOR
 The install scripts (`install.ps1`, `install.sh`) should call `env home` logic after installation:
 
 ```powershell
+
 # install.ps1 — after binary extraction
+
 & "$InstallDir\<tool>.exe" env home "$InstallDir" --quiet
 ```
 
 ```bash
+
 # install.sh — after binary extraction
+
 "$INSTALL_DIR/<tool>" env home "$INSTALL_DIR" --quiet 2>/dev/null || true
 ```
 

@@ -59,21 +59,27 @@ gitmap-v28 zip-group rename <name> --archive <filename.zip>
 ### Examples
 
 ```bash
+
 # Create a group and add items
+
 gitmap-v28 z create docs-bundle
 gitmap-v28 z add docs-bundle ./README.md ./changelog.md ./docs/
 
 # Create with custom archive name
+
 gitmap-v28 z create extras --archive extra-files.zip
 gitmap-v28 z add extras ./config/ ./scripts/deploy.sh
 
 # List groups
+
 gitmap-v28 z list
 
 # Show group contents
+
 gitmap-v28 z show docs-bundle
 
 # Delete a group
+
 gitmap-v28 z delete extras
 ```
 
@@ -97,10 +103,13 @@ Defines ad-hoc items to zip during release. Behavior is controlled by
 the `--bundle` flag.
 
 ```bash
+
 # Each item becomes its own archive
+
 gitmap-v28 release v3.0.0 -Z ./dist/report.pdf -Z ./dist/manual.pdf
 
 # Bundle all ad-hoc items into one archive
+
 gitmap-v28 release v3.0.0 -Z ./dist/report.pdf -Z ./dist/manual.pdf --bundle docs.zip
 ```
 
@@ -220,7 +229,9 @@ The zip group step runs **after** Go cross-compilation (step 7a) and
 **before** asset upload (step 7b) in the release lifecycle:
 
 ### Step 7a — Cross-Compile (existing)
+
 ### Step 7a′ — Zip Groups
+
 1. Resolve all `--zip-group` references from the database.
 2. Resolve all `-Z` ad-hoc items.
 3. Validate all paths exist (warn and skip missing items).

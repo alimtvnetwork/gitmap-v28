@@ -1,9 +1,11 @@
 ---
 status: pending
 ---
+
 # Gitmap Installer Commands & Scripts Implementation
 
 ## Context
+
 Goal: Implement the gitmap installer create/export/import commands and sqlite persistence (40 steps).
 Reference spec: `.lovable/spec/commands/01-gitmap-installer.md`.
 
@@ -12,6 +14,7 @@ One step per run. Exactly one step is executed per run. Self-loop after Verify.
 At most 2 spawned agents, max 3 threads.
 
 ## Tasks
+
 - [ ] Task 001 — Define Installer Models
 - [ ] Task 002 — Add SQLite Migrations for Installers
 - [ ] Task 003 — Store CreateInstaller

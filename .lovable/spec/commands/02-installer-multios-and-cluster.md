@@ -1,7 +1,9 @@
 # Specification: Multi-OS Installer, Cluster SSH, OS Update & Deep Help
 
 ## 1. Multi-OS Installer Subsystem
+
 ### Dedicated OS Commands
+
 - `gitmap in install-ubuntu <slug>`: Runs Ubuntu installer sequence (`apt`, `snap`, bash).
 - `gitmap in install-debian <slug>`: Runs Debian installer sequence (`apt`, `dpkg`, bash).
 - `gitmap in install-arch <slug>`: Runs Arch Linux installer sequence (`pacman`, `yay`, `paru`, bash).
@@ -13,10 +15,12 @@
 - `gitmap in install <slug>`: Auto-detects current host OS and selects matching block.
 
 ### OS Updates & Script Modification
+
 - `gitmap in update-ubuntu <slug>` / `update-arch` / `update-centos` / `update-debian` / `update-fedora` / `update-mac` / `update-unix`
 - Bumps semantic version and updates OS-specific payload in `installer_scripts` and archives historical state in `installer_versions`.
 
 ### Universal Unix Execution Ordering & Language Runtimes
+
 - `--order unix-first`: Executes universal Unix check/setup first, then OS-specific script.
 - `--order os-first`: Executes OS-specific script first, then universal Unix post-verification.
 - `--order os-only`: Executes OS-specific script only.
@@ -24,11 +28,13 @@
 - Runtime support for interpreters: `sh`, `bash`, `powershell`, `cmd`, `python`, `node`, `bun`, `php`, `go`.
 
 ### Installer & Target Removal
+
 - `gitmap in rm <slug>` / `delete <slug>`: Deletes installer and version history.
 - `gitmap in rm <slug> --os <os_name>`: Strips specific OS target payload.
 - `gitmap in rm-version <slug> <vX.Y.Z>`: Purges specific historical version tag.
 
 ### Git Direct Export & Auto-Commit
+
 - `gitmap in export-all-git <repo-url | folder> [--file <name>] [--branch <bname>] [--message <msg>] [--push]`
 - `gitmap in export-git <slug> <repo-url | folder>`
 - Local Folder: copies JSON/ZIP, performs `git add`, `git commit -m "<msg>"`, and optional `git push`.
@@ -37,6 +43,7 @@
 ---
 
 ## 2. Distributed SSH & Multi-Node Cluster
+
 - Multi-IP Public Key Distribution: `gitmap sj distribute-keys <ip1,ip2...> [--user <u=root>] [--key <path>]`
 - Multi-Machine Login & Execution: `gitmap sj broadcast <ip1,ip2...> --cmd "<command>"`
 - ZSH & Profile Configuration Sync: `gitmap sj sync-profile <ip1,ip2...> [--zsh]`
@@ -44,6 +51,7 @@
 ---
 
 ## 3. Universal OS Update & Regional Mirror Auto-Fix
+
 - `gitmap os update`:
   - Windows: Powershell Windows Update API (`usoclient` / `wuauclt`).
   - Ubuntu/Debian: `apt-get update && apt-get upgrade -y`.
@@ -59,6 +67,7 @@
 ---
 
 ## 4. Comprehensive Help System & Deep `commit-in` Help
+
 - Detailed CLI help on root `gitmap --help` and subcommands `gitmap <cmd> help`.
 - `gitmap commit-in help` / `gitmap commit-write help`:
   - Full multi-section documentation explaining JSON configurations, author rotation, SEO scheduling templates, deduplication heuristics, AST function intelligence (funcintel), and profile synchronization with copy-pasteable JSON schemas.

@@ -78,22 +78,29 @@ the first non-zero exit.
 ## Examples
 
 ```
+
 # Clone, fix tokens, expose publicly
+
 gitmap clone-fix-repo-pub https://github.com/acme/myrepo-v13.git
 
 # 🔐 Coerce HTTPS URL to SSH transport, then fix + publish
+
 gitmap cfrp https://github.com/acme/myrepo-v13.git --ssh
 
 # 🌐 Coerce SSH URL to HTTPS (CI without SSH agent)
+
 gitmap cfrp git@github.com:acme/myrepo-v13.git --https
 
 # Explicit destination folder
+
 gitmap cfrp git@github.com:acme/myrepo-v13.git myrepo-fresh
 
 # 🧭 Publish + install coding-guidelines v24 (auto-commit + push)
+
 gitmap cfrp cg https://github.com/acme/myrepo-v13.git
 
 # 🧭 Publish + install guidelines, but skip the auto-push
+
 gitmap cfrp cg https://github.com/acme/myrepo-v13.git --no-push
 ```
 
@@ -116,4 +123,3 @@ gitmap cfrp cg https://github.com/acme/myrepo-v13.git --no-push
 
 `gitmap help --json --filter clone-fix-repo-pub` — schema at
 `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
-

@@ -23,18 +23,22 @@ citations:
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
+
 # Task 031 — Create CgInstallUnixComponent7 logic for CgInstallUnix
 
 ## 1. Learn
+
 - spec/02-coding-guidelines/03-golang/00-overview.md - Core rules for CgInstallUnixComponent7.
 - .lovable/spec/commands/01-cg-install.md - Base specification for the installer commands.
 - spec/02-coding-guidelines/00-canonical-size-tier.md - Size limits for gitmap/cmd/cg_install_unix.go.
 - spec/21-app/07-error-and-logging/01-error-code-allocation.md - Error tracking for phase 7.
 
 ## 2. Goal
+
 Develop the unc InitCgInstallUnixComponent7() error execution sequence and 	ype CgInstallUnixComponent7 struct payload targeting the gitmap/cmd/cg_install_unix.go integration. This fulfills the requirement to handle step 7 of the Implement Bash execution wrapper for CG Unix install logic.
 
 ## 3. Inputs and Contracts
+
 `go
 type CgInstallUnixComponent7 struct {
     IsActive bool
@@ -43,17 +47,20 @@ type CgInstallUnixComponent7 struct {
 Consumes local CLI arguments. Produces a boolean pass/fail status indicating execution success.
 
 ## 4. Execute
+
 1. Open gitmap/cmd/cg_install_unix.go.
 2. Define the isolated struct 	ype CgInstallUnixComponent7 struct.
 3. Implement unc InitCgInstallUnixComponent7() error returning nil on success.
 4. Implement unc (x *CgInstallUnixComponent7) Process() bool ensuring explicit boolean state checks.
 
 ## 5. Constraints
+
 - rule 01: max 80 lines per func (spec/02-coding-guidelines/00-canonical-size-tier.md)
 - rule 02: explicit boolean fields (spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md)
 - rule 03: no string unions (.lovable/strictly-avoid.md)
 
 ## 6. Verify
+
 Run isolated unit verification:
 `ash
 go test -run TestInitCgInstallUnixComponent7 ./gitmap/cmd/...
@@ -61,11 +68,13 @@ go test -run TestInitCgInstallUnixComponent7 ./gitmap/cmd/...
 Expected output includes PASS.
 
 ## 7. Done When
+
 - [ ] 1. The CgInstallUnixComponent7 struct is declared cleanly.
 - [ ] 2. The InitCgInstallUnixComponent7 initializes without panicking.
 - [ ] 3. The receiver method correctly handles state progression.
 
 ## 8. Notes and Open Questions
+
 None.
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.

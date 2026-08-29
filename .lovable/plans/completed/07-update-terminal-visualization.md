@@ -6,12 +6,14 @@ Status: completed
 Created: 2026-08-20
 
 ## Context
+
 The user requested a terminal visualization enhancement for the update process. It must clearly show the current version and target version before the update begins, and output a summary detailing the previous version, the updated version, and the source of the update. Affected files include `constants_messages.go`, `constants_update.go`, `update.go`, and `updateremoteinstall.go`.
 Links:
 - Spec: [.lovable/spec/tasks/07-update-terminal-visualization.md](.lovable/spec/tasks/07-update-terminal-visualization.md)
 - Adheres to: `.lovable/coding-guidelines.md` and `spec/12-consolidated-guidelines/02-go-code-style.md`
 
 ## Steps
+
 1. Group 1: Constants Update (Execute via standalone agent "Constants Editor"). Read `gitmap/constants/constants_messages.go` to locate existing update messages.
 2. In `gitmap/constants/constants_messages.go`, add `MsgUpdateVersionCompare` constant with the value `"\n  → Upgrading gitmap from v%s to v%s...\n"`.
 3. In `gitmap/constants/constants_messages.go`, add `MsgUpdateSummaryDetail` constant with the value `"\n  ✓ Successfully updated from v%s to v%s\n  → Source: %s\n\n"`.
@@ -44,8 +46,10 @@ Links:
 30. Execute the release ceremony per `11-release.md` (bump MINOR version, update changelog with the whole plan summary, pin new version in root README), and immediately commit and push the final release.
 
 ## Verification
+
 - Run `go run ./gitmap update` in a valid source directory and observe the pre-update version announcement and post-update summary visualization in the terminal.
 - Run `go run ./gitmap update` utilizing the remote fallback and verify the HTTP request fetches the version and outputs the same visualization structure.
 
 ## Appended from prior pending tasks
+
 none

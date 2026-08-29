@@ -1,11 +1,13 @@
 # Refactor: cmd/zipgroupops.go
 
 ## Problem
+
 `zipgroupops.go` is 252 lines with two responsibilities: mutation commands (remove, delete, rename, sync) and read-only display commands (list, show, folder expansion).
 
 ## Target Layout
 
 ### zipgroupops.go (~133 lines) — Mutation Commands
+
 Stays:
 - `runZipGroupRemove()`
 - `runZipGroupDelete()`
@@ -15,6 +17,7 @@ Stays:
 - `syncZipGroupJSON()`
 
 ### zipgroupshow.go (~140 lines) — Display Commands
+
 Moves:
 - `runZipGroupList()`
 - `printZipGroupList()`
@@ -26,12 +29,14 @@ Moves:
 Imports: `fmt`, `os`, `path/filepath`, `constants`, `model`, `store`
 
 ## Migration Rules
+
 - No behavior changes, no signature renames.
 - Package remains `cmd`.
 - Deduplicate imports per file.
 - Blank line before every `return`.
 
 ## Acceptance Criteria
+
 - Both files ≤ 200 lines.
 - `go build ./...` succeeds.
 - All existing tests pass unchanged.

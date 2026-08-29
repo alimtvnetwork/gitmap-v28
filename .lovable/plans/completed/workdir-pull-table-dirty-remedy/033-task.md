@@ -5,7 +5,9 @@ phase: Implement
 target_files: ["gitmap/gitutil/conflict_evaluator.go"]
 depends_on: ["Task 032" if int(num) > 1 else "None"]
 ---
+
 # Task 033 — Conflict Risk Evaluator
 
 ## 1. Goal
+
 Evaluate pull merge conflict risks in `gitutil/conflict_evaluator.go`.

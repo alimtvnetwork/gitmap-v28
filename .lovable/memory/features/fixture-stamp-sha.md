@@ -3,6 +3,7 @@ name: Fixture Stamp SHA Hash
 description: Optional sha=<12-hex> field on `// fixture-stamp:` markers detects content drift; ValidateBody fails if body hash diverges; autobump refreshes both generation and sha
 type: feature
 ---
+
 # Fixture Stamp SHA Hash
 
 The `// fixture-stamp:` marker accepts an optional `sha=<12-hex>` field — the first 12 hex chars of SHA-256 over the fixture body **with all fixture-stamp lines stripped** (so the hash is stable across marker edits).

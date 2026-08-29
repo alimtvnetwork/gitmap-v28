@@ -15,13 +15,17 @@ optionally registered with GitHub Desktop.
 Both forms are accepted, and they can be mixed freely:
 
 ```bash
+
 # Space-separated (Unix-idiomatic, plays well with shell expansion)
+
 gitmap clone https://github.com/a/x.git https://github.com/a/y.git https://github.com/a/z.git
 
 # Comma-separated (single arg, useful when piping or scripting)
+
 gitmap clone https://github.com/a/x.git,https://github.com/a/y.git,https://github.com/a/z.git
 
 # Mixed — each positional arg is split on commas and flattened
+
 gitmap clone url1,url2 url3 url4,url5
 ```
 

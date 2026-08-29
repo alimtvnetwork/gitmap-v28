@@ -1,4 +1,5 @@
 # Memory: features/scan-architecture
+
 Updated: now
 
 The 'scan' command is split into 'scan.go' (orchestration and folder opening) and 'scanoutput.go' (CSV, JSON, and terminal output generation) to comply with project limits.

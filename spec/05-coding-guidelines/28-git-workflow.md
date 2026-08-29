@@ -185,11 +185,15 @@ function validateCommitMessage(msg: string): string[] {
 ### Squash Merge Rules
 
 ```
+
 # Final squashed commit message follows commit conventions
+
 feat: add CSV export command
 
 # PR title becomes the squash commit subject
+
 # PR body becomes the squash commit body
+
 ```
 
 | Rule | Detail |
@@ -248,7 +252,9 @@ const Version = "1.2.0"
 
 ```bash
 #!/bin/bash
+
 # release-tag.sh
+
 set -euo pipefail
 
 VERSION="$1"

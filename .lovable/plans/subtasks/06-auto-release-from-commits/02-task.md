@@ -1,9 +1,11 @@
 # Subtask 02: Git Executor & Business Logic
 
 ## Goal
+
 Implement the Git execution logic that creates branches and tags.
 
 ## Requirements
+
 1. **File**: `gitmap/release/scan_executor.go`
    - Define a struct `ScanCommitAction` containing `CommitHash`, `Version`, `IsBranchCreated`, `IsBranchSkipped`, `IsTagCreated`, `IsTagSkipped`.
    - Implement `ExecuteCommitActions(repoDir string, commits []ParsedCommit) ([]ScanCommitAction, error)`

@@ -23,44 +23,53 @@ citations:
   ambiguity: "n/a — no ambiguity filed"
   issue_rca: "n/a — not a bugfix"
 ---
+
 # Task 023 — Manager Update Logic
 
 ## 1. Learn
+
 - Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for (m *Manager) Update(slug, osTarget).
 - Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/installer/update.go` remains concisely sized.
 - Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
 - Inspect `gitmap/installer/update.go` dependencies to see how (m *Manager) Update(slug, osTarget) interacts with its callers.
 
 ## 2. Goal
+
 The objective is to implement `(m *Manager) Update(slug, osTarget)` natively in `gitmap/installer/update.go`. This explicitly unblocks downstream operations dependent on `Manager Update Logic` in the Plugin domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
+
 - Exported Symbols: `(m *Manager) Update(slug, osTarget)`
 - Package: `installer`
 - Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
+
 1. Open `gitmap/installer/update.go`.
 2. Implement the required structure, type, or function for `(m *Manager) Update(slug, osTarget)`.
 3. Write unit tests for success and failure boundaries in `gitmap/installer/update_test.go`.
 4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
+
 - Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
 - Error wrapping must include stack traces.
 
 ## 6. Verify
+
 ```bash
 go test ./installer -run TestManagerUpdate
 ```
 Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
+
 - [ ] `(m *Manager) Update(slug, osTarget)` is successfully mapped and tested in `gitmap/installer/update.go`.
 - [ ] All CI and `go test` commands exit zero.
 - [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

@@ -55,12 +55,16 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 ### 📌 Pinned version (`v6.111.0`)
 
 ```powershell
+
 # Windows · PowerShell
+
 irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.ps1 | iex
 ```
 
 ```bash
+
 # macOS · Linux · Bash
+
 curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.sh | bash
 ```
 
@@ -83,12 +87,16 @@ One-line installers and release assets for the pinned **v6.111.0** build across 
 Use this **only** when you want to choose a specific drive or folder (e.g. install to `D:\` instead of the default location). It prompts for the install drive/folder, then delegates to the canonical installer above.
 
 ```powershell
+
 # Windows · PowerShell
+
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.ps1 | iex
 ```
 
 ```bash
+
 # macOS · Linux · Bash
+
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash
 ```
 
@@ -99,10 +107,13 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 Pass an explicit install path on the one-liner — no prompts, no auto-detection. Useful for shared drives, portable installs, or pinning gitmap next to other dev tools. Replace `D:\tools\gitmap` / `/opt/gitmap` with your preferred path.
 
 ```bash
+
 # Windows · PowerShell — pass -InstallDir through irm | iex
+
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1))) -InstallDir 'D:\tools\gitmap'
 
 # macOS · Linux · Bash — pass --dir through curl | sh
+
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh -s -- --dir /opt/gitmap
 ```
 
@@ -170,6 +181,7 @@ disk as a **map of Git repositories** and lets you operate on that
 map as a single object. Every command flows from that idea.
 
 #### 🗺️ Scan & catalog
+
 - Recursively walks any folder tree and discovers every Git repo
   underneath it (no matter how deeply nested).
 - Records each repo's remote URLs (HTTPS **and** SSH), branch,
@@ -179,6 +191,7 @@ map as a single object. Every command flows from that idea.
   the catalog is **also** the migration script.
 
 #### 🚚 Round-trip clone (`reclone`)
+
 - Re-creates the **exact folder layout** of a previous scan on any
   new machine, using the recorded relative paths verbatim.
 - Pre-flight safety prompt + dry-run summary + row-level manifest
@@ -188,6 +201,7 @@ map as a single object. Every command flows from that idea.
   (skip / update / force), and HTTPS ⇄ SSH mode switching.
 
 #### 🔢 Version tracking & history
+
 - `clone-next` flattens versioned URLs (`…-v7`, `…-v8`, …) into a
   single base folder and records every cloned version in a local
   SQLite **`RepoVersionHistory`** table.
@@ -195,6 +209,7 @@ map as a single object. Every command flows from that idea.
   timeline — when you cloned what, from where, on which machine.
 
 #### 🤝 AI-tool friendly
+
 - First-class helpers for working with **Lovable, Claude, Cursor,
   GitHub Copilot, and other AI coding agents**: structured manifests
   the agent can read, deterministic outputs that survive being
@@ -204,6 +219,7 @@ map as a single object. Every command flows from that idea.
   legible to AI — an explicit design choice, not an accident.
 
 #### 🛠️ Self-managing installation
+
 - `gitmap self-install` / `self-uninstall` manage the binary itself
   on every supported platform.
 - Canonical installers (`gitmap/scripts/install.ps1` /
@@ -215,6 +231,7 @@ map as a single object. Every command flows from that idea.
   up the PATH marker block and (optionally) the user data folder.
 
 #### 🔀 Workspace operations
+
 - `mv`, `merge-both`, `merge-left`, `merge-right` — move or merge
   two working trees with an interactive **L / R / S / A / B / Q**
   prompt and `--prefer-*` flags for non-interactive runs.
@@ -225,6 +242,7 @@ map as a single object. Every command flows from that idea.
   regeneration with built-in determinism verification.
 
 #### 🖥️ Web docs UI
+
 The repository ships with an **interactive documentation site**
 (shown above) that mirrors every CLI command, every flag, and every
 exit code — searchable, copy-paste-able, and synchronized with the
@@ -302,6 +320,7 @@ gitmap pull-all
 Broadcast shell commands and Git operations to multiple machines simultaneously after establishing a cluster (`gitmap serve` + `gitmap join`).
 
 ### 1. Execute shell commands
+
 Run PowerShell or bash commands across all server and client nodes:
 ```bash
 gitmap servers-clients ps "Get-Service | Where Status -eq Running"
@@ -309,6 +328,7 @@ gitmap sc cmd "ipconfig /all" --except 192.168.1.50
 ```
 
 ### 2. Delegate Git operations
+
 Pull, push, or commit on all machines at once:
 ```bash
 gitmap servers-clients pull --all
@@ -316,6 +336,7 @@ gitmap sc status --all
 ```
 
 ### 3. Install packages & run scripts
+
 Deploy software or run project-level automation scripts:
 ```bash
 gitmap clients install "git,nodejs" --id 1,2,3
@@ -497,14 +518,18 @@ three must pass before you run `./run.sh` / `./run.ps1`:
 
 ```bash
 grep '^const Version = ' gitmap/constants/constants.go
+
 # expected: const Version = "3.115.0"   (or higher)
+
 ```
 
 **2. `gitmap/cmd/updatedebugwindows.go` does NOT declare a local helper:**
 
 ```bash
 grep -nE '^func (fileExists|fileExistsLoose)\(' gitmap/cmd/updatedebugwindows.go
+
 # expected: (no output — the helper moved to gitmap/fsutil in v3.113.0)
+
 ```
 
 **3. The shared `fsutil` package exists and is imported by `cmd/`:**
@@ -512,7 +537,9 @@ grep -nE '^func (fileExists|fileExistsLoose)\(' gitmap/cmd/updatedebugwindows.go
 ```bash
 test -f gitmap/fsutil/exists.go && echo "fsutil package present"
 grep -l 'gitmap/fsutil' gitmap/cmd/updaterepo.go gitmap/cmd/updatedebugwindows.go
+
 # expected: both file paths printed
+
 ```
 
 If any check fails, your checkout is older than v3.113.0. Re-run the
@@ -784,9 +811,13 @@ gitmap scan ~/mono/team-c --output csv      # new root → depth resets to 0
 unbounded):
 
 ```bash
+
 # library callers only — set ScanOptions.MaxDepth = -1 for legacy
+
 # unbounded walks; this is intentionally not a CLI flag so casual
+
 # `gitmap scan` stays fast and bounded by default.
+
 ```
 
 #### Copy-paste scan commands per scenario
@@ -808,13 +839,16 @@ below; substitute your own `--config` path freely. Output lands in
 **Reproduce Example A — marker detection (`.git/` dir vs `.git` worktree file vs stray text file):**
 
 ```bash
+
 # HTTPS clone URLs, project-local config, CSV to ./.gitmap/output/gitmap.csv
+
 gitmap scan ~/code \
   --config ./gitmap.config.json \
   --mode https \
   --output csv
 
 # SSH variant — same repos, sshUrl column populated, httpsUrl empty/secondary
+
 gitmap scan ~/code \
   --config ./gitmap.config.json \
   --mode ssh \
@@ -830,16 +864,22 @@ is used to build the `cloneInstruction` column).
 **Reproduce Example B — worktrees and absorbed submodules:**
 
 ```bash
+
 # Standard run — main-repo and main-repo-feature-x get rows;
+
 # vendor/lib and modules/auth are hidden by rule 2.
+
 gitmap scan ~/work \
   --config ./gitmap.config.json \
   --mode https \
   --output csv
 
 # To also catalog the absorbed submodules / nested vendor checkouts,
+
 # re-aim at their parent (rule 2 only stops descent under a recorded
+
 # repo — these subdirs become depth-1 in their own scan):
+
 gitmap scan ~/work/main-repo/modules \
   --config ./gitmap.config.json \
   --mode https \
@@ -856,14 +896,18 @@ gitmap scan ~/work/main-repo/vendor \
 **Reproduce Example C — the 4-level depth cap:**
 
 ```bash
+
 # Standard run — service-x (depth 2) and team-b/proj/svc/mod (depth 4)
+
 # are emitted; team-c/area/group/proj/svc (depth 5) is skipped.
+
 gitmap scan ~/mono \
   --config ./gitmap.config.json \
   --mode https \
   --output csv
 
 # To catch the depth-5 repo, re-root at the at-cap directory:
+
 gitmap scan ~/mono/team-c \
   --config ./gitmap.config.json \
   --mode https \
@@ -880,8 +924,11 @@ for the full recipe and rationale.
 **Reproduce the edge-case layout — skipped non-repos and marker-like cases:**
 
 ```bash
+
 # All 7 negative cases are silently dropped; only real-repo,
+
 # nested-under-real/inner, and worktree-link appear in the CSV.
+
 gitmap scan ~/edge \
   --config ./gitmap.config.json \
   --mode https \
@@ -894,13 +941,17 @@ a `.git` child of any kind, then diff against the CSV's
 `absolutePath` column:
 
 ```bash
+
 # All candidate directories (anything with a .git child).
+
 find ~/edge -maxdepth 2 -name .git -printf '%h\n' | sort > /tmp/candidates.txt
 
 # What the scanner actually cataloged.
+
 awk -F, 'NR>1 {print $7}' ./reports/edge-cases/gitmap.csv | sort > /tmp/found.txt
 
 # The lines unique to /tmp/candidates.txt are the silent skips.
+
 comm -23 /tmp/candidates.txt /tmp/found.txt
 ```
 
@@ -930,10 +981,13 @@ How to interpret a single row at a glance:
 **Spot-check recipe — find every at-cap row in one shell pipe:**
 
 ```bash
+
 # CSV — assumes the default header order (depth is column 10)
+
 gitmap scan ~/code --output csv | awk -F, 'NR>1 && $10==4 {print $7}'
 
 # JSON — same idea, jq filter
+
 gitmap scan ~/code --output json | jq -r '.[] | select(.depth==4) | .absolutePath'
 ```
 
@@ -949,12 +1003,17 @@ the new root, so the cap effectively shifts 4 levels deeper into
 the original tree:
 
 ```bash
+
 # Original scan caps out — say team-c/area/group/proj/svc/ shows depth=4
+
 gitmap scan ~/mono --output csv
 
 # Re-aim the CLI at the at-cap directory; depth resets to 0 there,
+
 # so its children (which were depth-5 in the original scan) are now
+
 # depth-1 in the new scan and get walked normally.
+
 gitmap scan ~/mono/team-c/area/group/proj/svc --output csv
 ```
 
@@ -1253,9 +1312,13 @@ Quick verification recipe — confirms the survivors-only contract:
 ```bash
 gitmap scan ~/mono --output csv --output-path ./reports/mono
 awk -F, 'NR>1 {print $7}' ./reports/mono.csv | sort
+
 # expected output (relative paths):
+
 #   app
+
 #   tools/helper
+
 ```
 
 The two excluded-directory worktrees and the two excluded-directory
@@ -1284,50 +1347,60 @@ nor in any error or warning channel. Silence is the contract.
 | `install gitmap-oneliner` | — | Print the Win/Mac install one-liners for the current repo |
 
 ```bash
+
 # clone from a structured file
+
 gitmap clone json --target-dir ./restored
 gitmap clone csv                                # auto-resolves to ./gitmap-output/gitmap.csv
 gitmap clone ./gitmap-output/gitmap.json --safe-pull
 gitmap clone ./gitmap-output/gitmap.json --github-desktop
 
 # clone a single repo by URL (auto-flattens versioned URLs)
+
 gitmap clone https://github.com/alimtvnetwork/gitmap-v28
 gitmap clone https://github.com/alimtvnetwork/gitmap-v28 my-folder
 gitmap clone git@github.com:alimtvnetwork/gitmap-v28.git my-folder
 gitmap clone https://github.com/alimtvnetwork/gitmap-v28 --replace   # see spec 96
 
 # force the transport — auto-converts HTTPS <-> SSH-shorthand before git runs
+
 gitmap clone https://github.com/alimtvnetwork/gitmap-v28.git --ssh    # -> git@github.com:alimtvnetwork/gitmap-v28.git
 gitmap clone git@github.com:alimtvnetwork/gitmap-v28.git --https      # -> https://github.com/alimtvnetwork/gitmap-v28.git
 gitmap clone "https://github.com/a/x,https://github.com/a/y" --ssh    # batch — every URL converted
 
 # clone-next: jump to the next (or specific) versioned sibling
+
 gitmap cn v++                                   # my-app-v3 -> my-app-v4
 gitmap cn v15 --delete                          # jump to v15, delete current
 gitmap cn v++ --create-remote                   # create GitHub repo if missing
 gitmap cn v++ --no-flatten                      # keep nested folder layout
 
 # clone-fix-repo / clone-fix-repo-pub — one-shot pipelines (full clone-flag parity)
+
 gitmap cfr  https://github.com/acme/myrepo-v13.git                # clone + fix-repo --all
 gitmap cfr  https://github.com/acme/myrepo-v13.git --ssh          # coerce to SSH, then run pipeline
 gitmap cfrp git@github.com:acme/myrepo-v13.git --https            # coerce to HTTPS, fix, then make-public --yes
 gitmap cfrp https://github.com/acme/myrepo-v13.git myrepo-fresh   # explicit destination folder
 
 # push / pull — transport-aware (rewrites + persists remote.origin.url)
+
 gitmap push                                     # plain git push in cwd
 gitmap ph --ssh                                 # rewrite origin to SSH, push, persist
 gitmap pull --https                             # rewrite origin to HTTPS, pull, persist
 gitmap push --ssh origin main                   # extra args forward verbatim
 
 # pull-release-cd (prc) — release N repos in one shot
+
 gitmap prc gitmap v5.51.0, marco v2.5.0, https://github.com/me/other v3.1.0
 
 # ssh — inspect / copy / create the public key (auto-copies to clipboard)
+
 gitmap ssh view                                 # print + copy ~/.ssh/id_*.pub
 gitmap ssh copy                                 # copy without printing
 gitmap ssh create my-alias                      # generate + copy a new keypair
 
 # install gitmap-oneliner — print the Win/Mac install one-liners for the current repo
+
 gitmap install gitmap-oneliner
 ```
 
@@ -1349,16 +1422,21 @@ and [`gitmap/helptext/clone.md`](gitmap/helptext/clone.md).
 #### `--config <path>` — point scan at a non-default config
 
 ```bash
+
 # default: reads ./data/config.json relative to the binary
+
 gitmap scan ~/projects
 
 # point at a project-local config (commit it alongside your repo list)
+
 gitmap scan ~/projects --config ./gitmap.config.json
 
 # CI: point at a profile that excludes vendored & node_modules trees
+
 gitmap scan /workspace --config /etc/gitmap/ci-profile.json --quiet
 
 # different config for a different drive on Windows
+
 gitmap scan D:\wp-work --config D:\gitmap\configs\wp.json
 ```
 
@@ -1372,15 +1450,21 @@ The `--config` path is recorded in the scan cache, so a follow-up
 #### `--mode ssh|https` — pick the clone-URL flavor recorded in output
 
 ```bash
+
 # HTTPS (default) — works without keys, prompts for token on private repos
+
 gitmap scan ~/projects --mode https
+
 # → records: https://github.com/<owner>/<repo>.git
 
 # SSH — uses your ~/.ssh keys, no token prompt, works for private repos
+
 gitmap scan ~/projects --mode ssh
+
 # → records: git@github.com:<owner>/<repo>.git
 
 # scan once in HTTPS, then re-scan in SSH for a CI machine that has keys
+
 gitmap scan ~/projects --mode https --output json --output-path ./out/https
 gitmap scan ~/projects --mode ssh   --output json --output-path ./out/ssh
 ```
@@ -1392,40 +1476,55 @@ honors whichever URL the file contains, so the choice flows end-to-end.
 #### `--output csv|json|terminal` — pick the artifact format
 
 ```bash
+
 # terminal (default) — pretty-print to stdout, no files written
+
 gitmap scan ~/projects
 
 # csv — machine-readable spreadsheet (one row per repo)
+
 gitmap scan ~/projects --output csv
+
 # → writes ./.gitmap/output/gitmap.csv
 
 # json — full structured payload (branch, remote, tags, last-commit SHA, ...)
+
 gitmap scan ~/projects --output json
+
 # → writes ./.gitmap/output/gitmap.json
 
 # custom output directory (handy in CI artifact uploads)
+
 gitmap scan ~/projects --output json --output-path ./build/scan-results
 ```
 
 #### Combined recipes (the patterns you'll actually use)
 
 ```bash
+
 # 1. Daily local sync: HTTPS + JSON, cached config
+
 gitmap scan ~/projects --config ~/.gitmap/personal.json --mode https --output json
 
 # 2. CI snapshot for SSH-keyed runners: SSH + CSV
+
 gitmap scan /workspace --config /etc/gitmap/ci.json --mode ssh --output csv
 
 # 3. Quick one-off sanity check (no files, no config tweaks)
+
 gitmap scan . --output terminal
 
 # 4. Scan once, then bulk-clone elsewhere using the SSH JSON manifest
+
 gitmap scan ~/projects --mode ssh --output json --output-path ./manifest
 gitmap clone ./manifest/gitmap.json --target-dir /opt/restored --safe-pull
 
 # 5. CSV → another machine → clone everything via HTTPS
+
 gitmap scan ~/projects --mode https --output csv --output-path ./share
+
 # (copy ./share/gitmap.csv to the other host, then:)
+
 gitmap clone ./gitmap.csv --target-dir ~/work --github-desktop
 ```
 
@@ -1535,7 +1634,9 @@ URL endpoints are auto-cloned (or pulled if already cloned), and
 the result is committed + pushed back when the operation completes.
 
 ```bash
+
 # move: classic file copy + delete source
+
 gitmap mv ./gitmap-v28 ./gitmap-v28
 gitmap mv ./gitmap-v28 https://github.com/alimtvnetwork/gitmap-v28
 gitmap mv https://github.com/alimtvnetwork/gitmap-v28 ./another-folder
@@ -1543,24 +1644,29 @@ gitmap mv https://github.com/alimtvnetwork/gitmap-v28 \
          https://github.com/alimtvnetwork/gitmap-v28
 
 # merge-both: bidirectional fill (each side gains what the other has)
+
 gitmap merge-both ./gitmap-v28 ./gitmap-v28
 gitmap merge-both ./gitmap-v28 https://github.com/alimtvnetwork/gitmap-v28
 gitmap merge-both https://github.com/alimtvnetwork/gitmap-v28 \
                   https://github.com/alimtvnetwork/gitmap-v28
 
 # merge-left: take RIGHT into LEFT
+
 gitmap merge-left ./gitmap-v28 ./gitmap-v28
 gitmap merge-left ./local https://github.com/alimtvnetwork/gitmap-v28
 
 # merge-right: take LEFT into RIGHT
+
 gitmap merge-right ./gitmap-v28 ./gitmap-v28
 gitmap merge-right ./local https://github.com/alimtvnetwork/gitmap-v28
 
 # bypass conflict prompts: source-side wins by default
+
 gitmap merge-right ./gitmap-v28 ./gitmap-v28 -y
 gitmap merge-both  ./gitmap-v28 ./gitmap-v28 -y --prefer-newer
 
 # pin remote branch + preview
+
 gitmap merge-right ./local https://github.com/owner/repo:develop
 gitmap mv ./gitmap-v28 ./gitmap-v28 --dry-run
 ```
@@ -1591,59 +1697,81 @@ bypass; combine with `--prefer-left` / `--prefer-right` /
 | `commit-in` | `cin` | Walk one or more SOURCE repos chronologically and APPEND each commit into a TARGET repo, preserving both AuthorDate AND CommitterDate. Idempotent via `ShaMap`. |
 
 ```bash
+
 # Generic find/replace (preview first)
+
 gitmap replace "github.com/old-org" "github.com/new-org" --dry-run
 gitmap rpl     "github.com/old-org" "github.com/new-org" -y
 
 # Bump prior 3 versions of {base}-vN -> current vK
+
 gitmap replace -3 -y
 gitmap replace all --audit                # report-only
 
 # Just the version bump (Go-native fix-repo, --strict runs `go test`)
+
 gitmap fix-repo --all --strict
 gitmap fr -5 --dry-run --verbose
 
 # Before/after — scope depends on current version
+
 # Inside gitmap-v28 (bare sweep ACTIVE on v1->v2)
+
 #   gitmap       -> gitmap-v28
+
 #   gitmap-v28    -> gitmap-v28
+
 #   gitmap.js    -> gitmap.js     (word-boundary)
+
 # Inside gitmap-v28+ (bare sweep SKIPPED)
+
 #   gitmap                 -> gitmap                 (binary/brand preserved)
+
 #   https://.../gitmap     -> https://.../gitmap     (URL preserved)
+
 #   gitmap-v28, gitmap-v28   -> gitmap-v<current>
+
 #   gitmap-v28             -> gitmap-v28             (negative-lookahead)
+
 # Force-suppress the bare sweep even on v1->v2:
+
 gitmap fix-repo -2 --restrict no-version
 gitmap fr       -2 -r nv
 
 # Undo the most recent fix-repo write (v5.51.0+)
+
 gitmap undo --list                # show snapshots, newest first
 gitmap undo                       # restore the latest snapshot
 gitmap undo --snapshot 20260519T134210Z --dry-run
 
 # Clone + fix in one shot (versioned URLs auto-flatten)
+
 gitmap clone-fix-repo https://github.com/acme/myrepo-v13.git
 gitmap cfr            git@github.com:acme/myrepo-v13.git myrepo-fresh
 
 # Clone + fix + publish public in one shot
+
 gitmap cfrp https://github.com/acme/myrepo-v13.git
 
 # Flip current repo public on GitHub or GitLab
+
 gitmap make-public                          # interactive
 gitmap make-public --yes                    # CI / scripts
 gitmap make-public --dry-run --verbose      # preview the gh/glab call
 
 # v5.63.0+ — bulk visibility (N most recent versions of a base repo)
+
 gitmap make-public 3                                # flip current + 2 prior versions
 gitmap make-public macro-ahk-v40 5                  # flip v40..v36 of macro-ahk
 gitmap make-private https://github.com/me/foo-v9 2  # privatize v9 + v8
 
 # v5.63.0+ — cfrp now offers to privatize prior public versions
+
 gitmap cfrp https://github.com/me/foo-v40           # prompts after publishing v40
 gitmap cfrp https://github.com/me/foo-v40 -y        # auto-privatize, no prompts
 
 # Stitch every versioned sibling's history into one canonical repo
+
 gitmap commit-in ./canonical all --save-profile Default --set-default
 gitmap cin       ./canonical -3 --dry-run --function-intel on --languages Go,TypeScript
 ```
@@ -1685,6 +1813,7 @@ gitmap lb 5 --format csv
 ---
 
 ## 🤖 AI Onboarding
+
 If you are an AI assistant working on this repository, you **MUST** read [`.lovable/what-to-read.md`](.lovable/what-to-read.md) before starting any task. It is the authoritative read-list for the project architecture, constraints, and coding guidelines.
 
 ---
@@ -1810,14 +1939,18 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 #### Pin to an exact version
 
 ```powershell
+
 # Windows — install v3.50.0 exactly, skip the "latest" lookup
+
 $ver = 'v6.109.0'
 $installer = irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1
 & ([scriptblock]::Create($installer)) -Version $ver -NoDiscovery
 ```
 
 ```bash
+
 # Linux / macOS — install v3.50.0 exactly
+
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh \
   | bash -s -- --version v3.50.0 --no-discovery
 ```
@@ -1826,7 +1959,9 @@ Verify:
 
 ```bash
 gitmap --version
+
 # gitmap v6.109.0
+
 ```
 
 ### Release CLI examples
@@ -1845,7 +1980,9 @@ gitmap --version
 | List build targets that will be produced | `gitmap release --list-targets` |
 
 ```bash
+
 # End-to-end: register once, release from anywhere
+
 cd ~/code/my-api
 gitmap as my-api                  # one-time alias
 cd ~                              # go anywhere
@@ -2092,49 +2229,64 @@ End-to-end recipes for the data pipeline that feeds a release: discover repos wi
 #### Scan with HTTPS clone URLs (default)
 
 ```bash
+
 # Scan the current directory tree, terminal output only
+
 gitmap scan
 
 # Scan a specific folder
+
 gitmap scan D:\wp-work
 
 # Quiet mode (skip the post-scan clone-help section)
+
 gitmap scan D:\wp-work --quiet
 ```
 
 #### Scan with SSH clone URLs
 
 ```bash
+
 # SSH-style URLs (git@github.com:owner/repo.git) instead of HTTPS
+
 gitmap scan D:\wp-work --mode ssh
 
 # SSH + auto-register every repo with GitHub Desktop
+
 gitmap scan D:\wp-work --mode ssh --github-desktop
 ```
 
 #### Output to CSV
 
 ```bash
+
 # Write CSV to the default location: ./.gitmap/output/gitmap.csv
+
 gitmap scan D:\wp-work --output csv
 
 # CSV + custom output directory
+
 gitmap scan D:\wp-work --output csv --output-path ./reports
 
 # CSV + SSH URLs in one go
+
 gitmap scan D:\wp-work --output csv --mode ssh --output-path ./reports
 ```
 
 #### Output to JSON
 
 ```bash
+
 # Write JSON to the default location: ./.gitmap/output/gitmap.json
+
 gitmap scan D:\wp-work --output json
 
 # JSON + custom directory + open the folder when done
+
 gitmap scan D:\wp-work --output json --output-path ./reports --open
 
 # JSON + SSH URLs (handy for piping into another tool)
+
 gitmap scan D:\wp-work --output json --mode ssh
 ```
 
@@ -2143,22 +2295,29 @@ gitmap scan D:\wp-work --output json --mode ssh
 #### Re-clone everything from a scan file
 
 ```bash
+
 # Re-clone from the JSON file produced by a previous scan
+
 gitmap clone ./.gitmap/output/gitmap.json
 
 # Re-clone from CSV
+
 gitmap clone ./.gitmap/output/gitmap.csv
 
 # Re-clone from a plain text list
+
 gitmap clone ./.gitmap/output/gitmap.txt
 
 # Re-clone into a specific base directory
+
 gitmap clone ./.gitmap/output/gitmap.json --target-dir D:\restored
 
 # Re-clone + safe pull on existing repos (retries + diagnostics)
+
 gitmap clone ./.gitmap/output/gitmap.json --target-dir D:\restored --safe-pull
 
 # Re-clone + auto-register everything with GitHub Desktop (no prompt)
+
 gitmap clone ./.gitmap/output/gitmap.json --target-dir D:\restored --github-desktop
 ```
 
@@ -2267,29 +2426,40 @@ either mode.
 #### One-shot single repo (no scan file needed)
 
 ```bash
+
 # Clone a single URL — versioned URLs (e.g. -v13) auto-flatten to <base>/
+
 gitmap clone https://github.com/alimtvnetwork/wp-onboarding-v13.git
 
 # Clone into a custom folder name (skips auto-flatten)
+
 gitmap clone https://github.com/alimtvnetwork/wp-onboarding-v13.git my-onboarding
 
 # Clone via SSH
+
 gitmap clone git@github.com:alimtvnetwork/wp-onboarding-v13.git
 ```
 
 #### Full backup-and-restore round-trip
 
 ```bash
+
 # === On the source machine ===
+
 gitmap scan D:\wp-work --mode ssh --output json
+
 # → produces D:\wp-work\.gitmap\output\gitmap.json (+ all sibling artifacts)
 
 # Copy the file to the new machine, then:
 
 # === On the target machine ===
+
 gitmap clone gitmap.json --target-dir D:\wp-work --github-desktop --safe-pull
+
 # → re-clones every repo via SSH, registers each with GitHub Desktop,
+
 #   and pulls if any of them already exist on disk.
+
 ```
 
 ##### Clone-from report schema (JSON & CSV output)
@@ -2383,6 +2553,7 @@ gitmap release --bump minor --bin --compress --checksums
 gitmap release v3.0.0 -N "Major redesign"
 
 # pull-release: every spelling below does the same thing
+
 gitmap pull-release --rebase v1.4.0      # canonical
 gitmap pr --ff-only                      # canonical short alias
 gitmap release-pull --merge              # legacy long form
@@ -2390,6 +2561,7 @@ gitmap relp v1.4.0                       # legacy short alias
 gitmap rlp --dry-run                     # legacy short alias
 
 # Release any aliased repo from anywhere — no `cd` required
+
 gitmap as my-api                                   # one-time, run from inside the repo
 gitmap release-alias my-api v1.4.0
 gitmap ra my-api v1.4.0 --pull                     # pull --ff-only, then release
@@ -2466,16 +2638,21 @@ gitmap del old-repo
 #### Chrome bookmarks export (`--root` / `--folder`, md / html / json)
 
 ```bash
+
 # Whole tree → Markdown file
+
 gitmap chrome export-bookmarks Lovable --out bm.md
 
 # Only the bookmarks bar → HTML
+
 gitmap chrome export-bookmarks Lovable --root bookmark_bar --format html --out bar.html
 
 # Nested subtree → JSON
+
 gitmap chrome export-bookmarks "Profile 1" --root bookmark_bar --folder "Work/Docs" --format json --out work-docs.json
 
 # Other / synced roots
+
 gitmap chrome export-bookmarks Default --root other  --format md
 gitmap chrome export-bookmarks Default --root synced --format html --out synced.html
 ```
@@ -2572,26 +2749,34 @@ Install developer tools and databases via platform package managers directly fro
 | DuckDB | `duckdb` | Analytical columnar database |
 
 ```bash
+
 # Install a tool
+
 gitmap install node
 gitmap install postgresql
 
 # Pin a specific version
+
 gitmap install node --version 20.11.1
 
 # Check if installed (no install)
+
 gitmap install go --check
 
 # Preview install command
+
 gitmap install redis --dry-run
 
 # Force a specific package manager
+
 gitmap install vscode --manager winget
 
 # List all supported tools
+
 gitmap install --list
 
 # Uninstall a tool
+
 gitmap uninstall redis
 ```
 
@@ -2768,8 +2953,11 @@ regression.
 #### Example
 
 ```bash
+
 # Fixture for the v9->v12 fix-repo rewriter test went stale after a
+
 # legitimate writer change. Bump just that one test, then verify.
+
 make fixtures-bump \
   RUN='TestFixRepoRewriteV9ToV12Fixture' \
   PKG='./gitmap/cmd/...'
@@ -2945,6 +3133,7 @@ Riseup Asia is the product and delivery arm behind gitmap and the XProduct engag
 This project is licensed under the [MIT License](./LICENSE).
 
 ## Coding Guidelines
+
 To install or update the Coding Guidelines locally:
 **Windows:** irm https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.ps1 | iex
 **Unix:** curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.sh | bash

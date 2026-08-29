@@ -1,6 +1,7 @@
 # Plan: Coding Guidelines Multi-Repo, Version Status & Status Dirty Filter
 
 ## Context
+
 Full implementation of:
 1. Coding Guidelines version & status inspection from `version.json`.
 2. Multi-repo parent directory auto-discovery for CG install/update, pull, and push.

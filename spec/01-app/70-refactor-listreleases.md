@@ -1,11 +1,13 @@
 # Refactor: cmd/listreleases.go
 
 ## Problem
+
 `listreleases.go` is 229 lines with two responsibilities: command orchestration with flag parsing/filtering and data loading with format conversion (repo meta files, DB fallback, record sorting).
 
 ## Target Layout
 
 ### listreleases.go (~140 lines) — Command & Display
+
 Stays:
 - `runListReleases()`
 - `parseListReleasesSource()`
@@ -19,6 +21,7 @@ Stays:
 - `printReleasesJSON()`
 
 ### listreleasesload.go (~100 lines) — Data Loading
+
 Moves:
 - `loadReleasesFromRepo()`
 - `convertMetasToRecords()`
@@ -30,12 +33,14 @@ Moves:
 Imports: `fmt`, `os`, `sort`, `strings`, `constants`, `model`, `release`
 
 ## Migration Rules
+
 - No behavior changes, no signature renames.
 - Package remains `cmd`.
 - Deduplicate imports per file.
 - Blank line before every `return`.
 
 ## Acceptance Criteria
+
 - Both files ≤ 200 lines.
 - `go build ./...` succeeds.
 - All existing tests pass unchanged.

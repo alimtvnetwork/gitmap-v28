@@ -457,15 +457,19 @@ test file — promote it to the registry instead.
 ## 9. Running the suites
 
 ```bash
+
 # Unit + existing tests stay where they are.
+
 go test ./...
 
 # E2E suites — slower, opt-in flag for local dev iteration.
+
 go test -tags=e2e ./tests/e2e_probe_test/...
 go test -tags=e2e ./tests/e2e_cloner_test/...
 go test -tags=e2e ./tests/e2e_install_test/...
 
 # CI runs everything.
+
 go test -tags=e2e -race ./...
 ```
 

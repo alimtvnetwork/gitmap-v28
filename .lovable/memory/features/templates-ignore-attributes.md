@@ -46,10 +46,15 @@ language, plus a pretty markdown renderer for CLI output.
 
 Every template file starts with:
 ```
+
 # source: github.com/github/gitignore@<sha>/<file> (curated)
+
 # kind: ignore | attributes | lfs
+
 # lang: <lang>
+
 # version: <int>
+
 ```
 Bump `version:` when re-curating from upstream.
 

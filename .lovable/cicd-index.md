@@ -3,6 +3,7 @@
 Tracks every CI/CD pipeline failure or hardening decision encountered, its root cause, and resolution. New entries go in `.lovable/cicd-issues/XX-short-name.md` with sequential numeric prefixes.
 
 ## Conventions
+
 - File naming: `XX-kebab-case-name.md` (XX = zero-padded sequence starting at `01`).
 - One file per distinct issue. Do **not** duplicate — if the same root cause recurs, append a "Recurrence" section to the existing file.
 - Status values: `✅ Resolved`, `🔄 In Progress`, `⏳ Pending`, `🚫 Blocked`.
@@ -31,6 +32,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 37 | Installer Smoke Python Runner & Strict Relative Paths | Installer Smoke / Policy Gates | ✅ Resolved | [37-installer-smoke-release-diff.md](cicd-issues/37-installer-smoke-release-diff.md) |
 
 ## Patterns Learned
+
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labeled`, `canceled`, `behavior`, `color`, `occurred`, `receive`, `separate`.
 - **Pinned linter versions**: golangci-lint is pinned to `v1.64.8`; `goimports` to `v0.24.0`; `govulncheck` to `v1.1.4`. Do not assume newer rules.
 - **ARIA attributes are exempt**: `aria-labelledby` is a standard HTML/ARIA token and must never be "corrected".

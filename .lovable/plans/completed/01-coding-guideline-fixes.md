@@ -5,9 +5,11 @@ Status: completed
 Created: 2026-08-22
 
 ## Context
+
 Massive 50+ step programmatic deep read of the codebase to uncover remaining v1.4.5 coding guideline violations (long functions, nested ifs, missing enum suffixes, magic values). The previous pass missed these specific checks and hallucinated the agent completions.
 
 ## Enqueued Granular Tasks
+
 1. **enum-suffix**: `.\gitmap\archive\archive.go:32` - Type alias Format acting as enum lacks Type suffix. **Fix**: Rename to FormatType.
 2. **long-func**: `.\gitmap\archive\archive.go:92` - Function Extension exceeds 15 lines (28 lines). **Fix**: Extract helper functions or early returns.
 3. **enum-suffix**: `.\gitmap\archive\create.go:33` - Type alias CompressionMode acting as enum lacks Type suffix. **Fix**: Rename to CompressionModeType.

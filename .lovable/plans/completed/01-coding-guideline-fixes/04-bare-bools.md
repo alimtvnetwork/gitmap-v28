@@ -3,6 +3,7 @@
 According to the Coding Guidelines: Golang functions returning bare bools instead of a wrapped Result object should be refactored.
 
 ## Files to fix
+
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_ignored_errs.go:58: return true
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_monolithic.go:39: return true
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_nested_ifs.go:40: return false

@@ -3,11 +3,13 @@ name: scan-folder-and-version-probe
 description: ScanFolder/VersionProbe schema (v3.7.0+). One row per scan-root absolute path; nullable Repo.ScanFolderId FK; gitmap sf add/list/rm subcommands. Hybrid HEAD-then-clone probe wired in Phase 2.3.
 type: feature
 ---
+
 # ScanFolder + VersionProbe (Phase 2.1 + 2.2)
 
 ## Schema (v3.7.0)
 
 ### `ScanFolder`
+
 | Column | Type | Notes |
 |---|---|---|
 | ScanFolderId | INTEGER PK AUTOINCREMENT | |
@@ -18,9 +20,11 @@ type: feature
 | CreatedAt | TEXT CURRENT_TIMESTAMP | |
 
 ### `Repo` ALTER (idempotent)
+
 - `ScanFolderId INTEGER DEFAULT NULL` — points at the *most recent* scan that discovered this repo. SQLite cannot add a `REFERENCES` clause via `ALTER`; the column stores the FK value without a declared FOREIGN KEY constraint, and store code enforces validity. **No backfill** — old repos stay NULL until the next `gitmap scan` re-discovers them.
 
 ### `VersionProbe` (table created in Phase 2.1, populated in Phase 2.3)
+
 | Column | Type | Notes |
 |---|---|---|
 | VersionProbeId | INTEGER PK | |
@@ -57,9 +61,11 @@ type: feature
 | `gitmap/constants/constants_cli.go` | `CmdSf = "sf"` (top-level marker), `HelpSf` line |
 
 ## What's NOT in this phase
+
 - No HEAD probe, no parallel `git clone --depth 1 --no-checkout` fallback (Phase 2.3).
 - `ScanFolderId` is **not yet populated** by `gitmap scan` itself. Phase 2.3 will add `EnsureScanFolder(absDir, "", "")` to `executeScan` and pass the resulting id through `UpsertRepos`.
 - `VersionProbe` table exists but has zero readers/writers yet.
 
 ## Reset ordering
+
 `Reset()` drops `VersionProbe` and `ScanFolder` AFTER `RepoVersionHistory` and BEFORE `Repo`/`Repos` so the FK cascade order stays clean.

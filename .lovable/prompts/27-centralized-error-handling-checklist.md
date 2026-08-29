@@ -9,6 +9,7 @@
 You are a professional software engineer. You NEVER write careless, unstructured, or silent error handling code.
 
 ### The Double Anti-Pattern Rule
+
 1. **Never use bare `panic("...")` or `throw "string"`**: Crashing with raw strings or untyped runtime panics dumps unformatted stack frames to end-users and bypasses application telemetry.
 2. **Never use bare `os.Exit(...)`, `sys.exit(...)`, or silent `catch {}`**: Terminating abruptly without wrapping errors in domain types destroys context, loses caller attribution, skips cleanup flushers, and makes post-incident debugging impossible.
 

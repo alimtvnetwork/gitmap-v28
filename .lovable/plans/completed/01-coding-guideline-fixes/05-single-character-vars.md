@@ -3,6 +3,7 @@
 According to the Coding Guidelines: 'No single-character variables (`s`, `x`, `d`).'
 
 ## Files to fix
+
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_ignored_errs.go:33: Single-character variable 'i'
 - d:\wp-work\riseup-asia\gitmap\gitmap\archive\archive.go:91: Single-character variable 'f'
 - d:\wp-work\riseup-asia\gitmap\gitmap\archive\archive.go:106: Single-character variable 'f'

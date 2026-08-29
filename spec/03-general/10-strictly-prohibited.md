@@ -19,7 +19,9 @@ stays with an explicit `STATUS:` line so the historical decision is preserved.
 The format for every entry is:
 
 ```
+
 ### N. <Title>
+
 - Prohibition: <what must not happen>
 - Rationale:   <why>
 - Applies to:  <files / commands / contexts>

@@ -20,12 +20,16 @@ gitmap user <command> [arguments]
 ## Examples
 
 ```bash
+
 # Add a local user on Windows or Linux
+
 gitmap user add johndoe
 
 # Add a user with an initial password
+
 gitmap user add janedoe --password secret123
 
 # Completely remove the user and their home directory / profile
+
 gitmap user rm johndoe
 ```

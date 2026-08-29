@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 019 � Implement StatusBranch - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 19
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 19
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 19
 - [Custom Link 19](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 19
 
 ## 2. Goal
+
 Isolate StatusBranch logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes StatusBranchRequest, emits StatusBranchResponse.
 
 ## 4. Execute
+
 1. Define 	ype StatusBranchPart1 struct { ... } in gitmap/cmd/status_branch.go.
 2. Define unc InitStatusBranchPart1() error in gitmap/cmd/status_branch.go.
 3. Define unc (x *StatusBranchPart1) Process19() bool in gitmap/cmd/status_branch.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitStatusBranchPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype StatusBranchPart1 is defined
 - [ ] unc InitStatusBranchPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

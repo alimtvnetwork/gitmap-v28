@@ -52,16 +52,21 @@ non-fatal; the command exits with the worst code observed.
 ## Examples
 
 ```
+
 # Interactive (will prompt for confirmation)
+
 gitmap make-public
 
 # Non-interactive (CI / scripts)
+
 gitmap make-public --yes
 
 # Preview without touching the API
+
 gitmap make-public --dry-run
 
 # Debug auth or argv issues
+
 gitmap make-public --yes --verbose
 ```
 

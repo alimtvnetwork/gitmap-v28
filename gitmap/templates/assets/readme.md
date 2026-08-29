@@ -26,10 +26,15 @@ assets/
 Every template file MUST start with the audit-trail header:
 
 ```
+
 # source: <upstream-or-curated>
+
 # kind: ignore | attributes | lfs
+
 # lang: <lang>
+
 # version: 1
+
 ```
 
 Bump `version:` when re-curating from upstream.

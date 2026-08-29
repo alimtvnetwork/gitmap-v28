@@ -5,6 +5,7 @@
 - status: pending
 
 ## Execution Instructions
+
 - Strictly enforce the <= 15 lines rule for any modified or extracted functions.
 - Wrap errors with `apperror.Wrap` and domain context.
 - Never use negative booleans or `!isX` inverted logic.

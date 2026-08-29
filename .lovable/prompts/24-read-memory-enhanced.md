@@ -6,11 +6,15 @@
 ## Prompt
 
 # Read Memory (Enhanced)
+
 ## Ambiguity folder path (non-negotiable)
+
 - Open questions: `.lovable/ambiguous-questions/01-new-ambiguity/XX-<slug>.md`
 - Answered questions: `.lovable/ambiguous-questions/02-ambiguity-resolved/XX-<slug>.md`
 Read both folders in full during Phase 1. Surface open-ambiguity counts and slugs in the Completion Confirmation block. Treat resolved-ambiguity files as binding project decisions, do not re-litigate them. If an open ambiguity is relevant to the incoming task, stop and surface it before doing work; never guess past it.
+
 ## Goal
+
 Before you touch this project, load its identity into your head: who it is, what it forbids, what it has already decided, and what work is in flight.
 The specs and the `.lovable/` folder are the single source of truth. Your training data is not. If the two disagree, the repo wins, every time.
 You are done reading when you can, without guessing:
@@ -21,6 +25,7 @@ You are done reading when you can, without guessing:
 If you cannot do that, keep reading. Do not start work.
 
 ## Reading Strategy (Strictly Read-Only)
+
 The `.lovable/` folder, specs, and codebase can be massive. To process this information efficiently:
 - **Sub-Agents for Reading:** You ARE allowed to spawn sub-agents to read items and create memory in parallel.
 - **Specific Titling:** When spawning a sub-agent for reading, you must give it a highly specific title reflecting exactly what it is reading (e.g., `Reading Auth Specs` or `Scanning API Memory`). Do not use generic names. If an agent switches tasks, its title must change.
@@ -32,8 +37,11 @@ The `.lovable/` folder, specs, and codebase can be massive. To process this info
   - Updating existing memory files, capturing open ambiguities, or updating plans.
 - CRITICAL: You MUST NOT refactor, edit, or write any application source code. This is a read and analysis phase only.
 ---
+
 ## Phase 1 - Load the project
+
 ### 1.1 Read the whole `.lovable/` folder
+
 Walk `.lovable/` recursively. Every file matters. Missing files are noted, not silently skipped. In particular:
 | # | Path | What you get |
 | --- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -54,11 +62,15 @@ Walk `.lovable/` recursively. Every file matters. Missing files are noted, not s
 | 15 | `.lovable/ambiguous-questions/01-new-ambiguity/` | Open questions currently blocking work. If any exist, surface them in the completion block, do NOT guess past them. |
 | 16 | `.lovable/ambiguous-questions/02-ambiguity-resolved/` | Answered questions with their applied solution. Treat these as binding decisions, do not re-litigate. |
 | 17 | Anything else under `.lovable/` | Read it. If the folder exists, it exists for a reason. |
+
 ### 1.2 The two index files
+
 Two indexes decide what you read next. Treat them as required entry points, not as summaries:
 - `.lovable/memory/index.md` lists every institutional-knowledge file. If it points at 12 files, you read 12 files.
 - `.lovable/plans/index.md` lists every plan (pending, completed, subtasks) with its slug, status, and one-line intent. Use it to pick which plan files to open in full. If it is missing, create it as part of the next code change (see Memory Update Protocol).
+
 ### 1.3 Self-check (internal, before Phase 2)
+
 - CODE RED rules?
 - Naming conventions (files, folders, DB columns, variables)?
 - Error-handling philosophy?
@@ -66,17 +78,23 @@ Two indexes decide what you read next. Treat them as required entry points, not 
 - Top forbidden patterns?
 If any answer is fuzzy, go back and reread. Do not proceed.
 ---
+
 ## Phase 2 - Consolidated guidelines
+
 Read `spec/12-consolidated-guidelines/` in numeric order (`01-*.md` through `18-*.md`). Each file is a self-contained policy document. Missing folder: note it and continue.
 ---
+
 ## Phase 3 - Spec authoring rules
+
 Read `spec/01-spec-authoring-guide/` in numeric order. You should come out knowing:
 - file and folder naming conventions,
 - required files per spec folder (`00-overview.md`, `99-consistency-report.md`),
 - the `.lovable/` layout (see Phase 1.1),
 - the linter infrastructure.
 ---
+
 ## Phase 4 - Task-driven deep dives
+
 Only open a spec folder when the current task needs it.
 | Task involves… | Read |
 | ---------------------------------------- | --------------------------------------- |
@@ -99,7 +117,9 @@ Only open a spec folder when the current task needs it.
 Inside each folder: `00-overview.md` → numbered files → `99-consistency-report.md`.
 Fallbacks when the canonical numbered folder is absent: `.lovable/coding-guidelines.md`, `spec/coding-guidelines/`, `coding-guidelines/`, `spec/XX-error-manage/`. Numbered folder wins on conflict; call the conflict out in the plan's Context.
 ---
+
 ## Anti-Hallucination Contract
+
 1. If the specs are silent on a rule, that rule does not exist. Do not invent one.
 2. Specs beat training data. Always.
 3. Cite the file and section when you enforce a rule.
@@ -107,7 +127,9 @@ Fallbacks when the canonical numbered folder is absent: `.lovable/coding-guideli
 5. Do not blend this project's conventions with conventions from other projects you have seen.
 6. No filler. No "hope this helps", no "let me know".
 ---
+
 ## Memory Update Protocol
+
 ```
 New info discovered
 ├─ Institutional knowledge (pattern / convention / decision)?
@@ -138,7 +160,9 @@ Hard rules:
 - Editing existing memory or index files preserves unrelated content. No silent truncation.
 - Any code-base change bumps the minor version.
 ---
+
 ## Completion Confirmation
+
 After Phases 1-3, reply exactly:
 ```
 ✅ Onboarding complete.
@@ -160,7 +184,9 @@ Ready for tasks.
 ```
 Then stop. No next-step suggestions, no exploratory questions.
 ---
+
 ## Pre-reply checklist (all must be true)
+
 - [ ] Read `.lovable/what-to-read.md` first if it exists, followed its order
 - [ ] Walked `.lovable/` recursively, no folder skipped silently
 - [ ] Read `.lovable/memory/index.md` and every file it points at
@@ -177,6 +203,8 @@ Then stop. No next-step suggestions, no exploratory questions.
 - [ ] Did not replace hard user wording with polite generic language
 - [ ] Emitted the Completion Confirmation block verbatim, then stopped
 - [ ] Confirmed that self-looping remained strictly read-only regarding the codebase (no source code refactored, only memory updated)
+
 ## Tone and stance
+
 Past runs of this prompt have been stupid. The AI behaved like a stupid fuck by skimming folders, ignoring ambiguity files, forgetting CI/CD issues, half-filling the Completion Confirmation block with "[N]" placeholders, and softening explicit user instructions after being told not to. That stupidity must not repeat.
 Read aggressively and defensively. Assume the previous AI failed because it was lazy, vague, and too polite to enforce the actual rules. Your job is to load the repo's memory exactly, cite the file behind every rule, and refuse to guess. If you finish this prompt and cannot cite the file behind a rule you enforce, you failed the prompt. Read more. Then reply.

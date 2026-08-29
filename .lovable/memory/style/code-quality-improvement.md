@@ -1,4 +1,5 @@
 # Memory: style/code-quality-improvement
+
 Updated: 2026-03-29
 
 Process name: **Code Quality Improvement**. All coding guidelines are documented in `spec/05-coding-guidelines/01-code-quality-improvement.md`. Universal rules (all languages including TypeScript and Go):

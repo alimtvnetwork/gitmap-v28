@@ -1,6 +1,7 @@
 # 02-git-rm-and-folder: Folder Export and Git History Cleaning
 
 ## 1. Context and Problem Statement
+
 The user requested two new top-level commands for gitmap:
 1. gitmap folder <dir> <output_file> [-exclude <pattern> 0|1]
    - Extracts a relative folder structure into an output file.
@@ -14,6 +15,7 @@ The user requested two new top-level commands for gitmap:
 ## 2. Architecture & Design
 
 ### Command older
+
 - **Location**: gitmap/cmd/folder
 - **Logic**: Walk the specified directory recursively using standard Go ilepath.WalkDir or s.WalkDir.
 - **Filtering**: Apply -exclude globs. The format seems to be -exclude <pattern> <flag>.
@@ -22,6 +24,7 @@ The user requested two new top-level commands for gitmap:
   - json / yaml: Structured list or hierarchy.
 
 ### Command git-rm
+
 - **Location**: gitmap/cmd/gitrm
 - **Input Parsing**: Detect if input is a JSON file (parse paths), a TXT file (read lines), a CSV string, or a direct path/folder.
 - **Backup**:
@@ -46,6 +49,7 @@ The user requested two new top-level commands for gitmap:
    - Implement history rewrite mechanism (e.g., using git filter-branch or git rev-list + manual reconstruct if small, but ilter-branch is safest for generic git repos).
 
 ## 4. Coding Guidelines Checklist
+
 - All is/has/can/should booleans used.
 - PascalCase acronyms (Json, Yaml, Id).
 - Max 15 lines per function, max 200 lines per file.

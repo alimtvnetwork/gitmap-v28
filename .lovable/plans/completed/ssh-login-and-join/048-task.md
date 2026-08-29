@@ -23,17 +23,21 @@ citations:
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
+
 # Task 048 — Implement Ping Validator
 
 ## 1. Learn
+
 - [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
 - [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [gitmap/cmd/ipchange_cmd.go](gitmap/cmd/ipchange_cmd.go) — Why: Target file.
 
 ## 2. Goal
+
 Deliver the Implement step for `validatePing` to support the Implement Ping Validator feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
+
 - Types: `string`, `context.Context`
 - Outputs: `error`
 - Codes: `E_INTERNAL_ERROR`
@@ -43,15 +47,18 @@ Deliver the Implement step for `validatePing` to support the Implement Ping Vali
   ```
 
 ## 4. Execute
+
 1. Exec `ping -c 3 8.8.8.8` (or `-n 3` on Windows).
 2. Return boolean indicating success.
 
 ## 5. Constraints
+
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
 - **Error Types**: Must use `apperror`.
 - **No Globals**: .lovable/strictly-avoid.md.
 
 ## 6. Verify
+
 ```bash
 go test ./... -v -run validatePing
 ```
@@ -61,11 +68,13 @@ PASS
 ```
 
 ## 7. Done When
+
 - [ ] 1. `validatePing` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

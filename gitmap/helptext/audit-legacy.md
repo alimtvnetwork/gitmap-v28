@@ -39,19 +39,25 @@ gitmap al            [--patterns <csv>] [--path <dir>] [--json] [--report[=<file
 ## Examples
 
 ```
+
 # Default scan from repo root
+
 gitmap audit-legacy
 
 # Add custom patterns (comma-separated regexes)
+
 gitmap audit-legacy --patterns "gitmap-v[567]\b,old-org-name"
 
 # Machine-readable output for CI
+
 gitmap al --json > legacy-report.json
 
 # Scope the scan to a subtree
+
 gitmap audit-legacy --path ./src
 
 # Full audit + per-file unified diffs as downloadable artifacts
+
 gitmap audit --report --diffs
 ```
 

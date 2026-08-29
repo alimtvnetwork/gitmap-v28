@@ -51,10 +51,13 @@ then schedules its own removal via `cmd.exe /C ... del`.
 ## Re-installing afterwards
 
 ```
+
 # Linux / macOS
+
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh | bash
 
 # Windows (PowerShell)
+
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1 | iex
 ```
 

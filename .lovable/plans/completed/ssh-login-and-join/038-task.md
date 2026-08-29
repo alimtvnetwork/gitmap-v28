@@ -23,17 +23,21 @@ citations:
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
+
 # Task 038 — Implement SJ History Print
 
 ## 1. Learn
+
 - [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
 - [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [gitmap/cmd/sshjoin_hist_cmd.go](gitmap/cmd/sshjoin_hist_cmd.go) — Why: Target file.
 
 ## 2. Goal
+
 Deliver the Implement step for `printSJHistory` to support the Implement SJ History Print feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
+
 - Types: `string`, `context.Context`
 - Outputs: `error`
 - Codes: `E_INTERNAL_ERROR`
@@ -43,15 +47,18 @@ Deliver the Implement step for `printSJHistory` to support the Implement SJ Hist
   ```
 
 ## 4. Execute
+
 1. Call `ListSSHHistory`.
 2. Print 'Who joined and when' in a clean tabular format.
 
 ## 5. Constraints
+
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
 - **Error Types**: Must use `apperror`.
 - **No Globals**: .lovable/strictly-avoid.md.
 
 ## 6. Verify
+
 ```bash
 go test ./... -v -run printSJHistory
 ```
@@ -61,11 +68,13 @@ PASS
 ```
 
 ## 7. Done When
+
 - [ ] 1. `printSJHistory` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

@@ -1,6 +1,7 @@
 # Specification: WorkDir Management, Recursive Top-Level Pull, Rich Pull Table & Dirty Remediation
 
 ## 1. Overview
+
 This specification details:
 1. **WorkDir Command Suite (`gitmap workdir` / `gitmap wd`)**:
    - `gitmap workdir ls` / `list`: Displays registered work paths, labels, repo counts, and highlights the default work directory (first scanned path or explicitly set default).

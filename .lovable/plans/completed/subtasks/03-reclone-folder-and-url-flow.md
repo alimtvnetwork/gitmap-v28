@@ -4,6 +4,7 @@ This step required ensuring that `cfr`, `cfrp`, `clone-now`, `reclone`, and dire
 This ensures an SSH-cloned repository is not silently downgraded to HTTPS when re-cloned.
 
 ## Changes:
+
 - **`cmd/clonefixrepo.go`**: Was already wired to use `coerceURLToStoredTransport` and `persistRecloneTransport` by a previous task.
 - **`cmd/reporeclone.go`** (`gitmap reclone <path>`): Added calls to `coerceURLToStoredTransport` before cloning and `persistRecloneTransport` after a successful clone.
 - **`cmd/clone.go`** (`gitmap clone <url>`): Updated `executeDirectClone` to coerce the URL before issuing the `clone` command and print block, and added `persistRecloneTransport` on both replace and no-replace success branches.

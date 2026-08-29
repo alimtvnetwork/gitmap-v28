@@ -21,6 +21,7 @@
 ## 4.2 Core tables
 
 ### `CommitInRun`
+
 | Column            | Type      | Notes                                                |
 |-------------------|-----------|------------------------------------------------------|
 | `CommitInRunId`   | INT PK AI |                                                      |
@@ -34,9 +35,11 @@
 | Index             | `IX_CommitInRun_SourceRepoPath` on (`SourceRepoPath`) |
 
 ### `RunStatus` (enum mirror)
+
 Members: `Pending`, `Running`, `Completed`, `Failed`, `PartiallyFailed`.
 
 ### `InputRepo`
+
 | Column          | Type      | Notes                                                  |
 |-----------------|-----------|--------------------------------------------------------|
 | `InputRepoId`   | INT PK AI |                                                        |
@@ -48,9 +51,11 @@ Members: `Pending`, `Running`, `Completed`, `Failed`, `PartiallyFailed`.
 | Unique          | (`CommitInRunId`, `OrderIndex`)                         |
 
 ### `InputKind` (enum mirror)
+
 Members: `LocalFolder`, `GitUrl`, `VersionedSibling`.
 
 ### `SourceCommit`
+
 | Column           | Type      | Notes                                                  |
 |------------------|-----------|--------------------------------------------------------|
 | `SourceCommitId` | INT PK AI |                                                        |
@@ -66,6 +71,7 @@ Members: `LocalFolder`, `GitUrl`, `VersionedSibling`.
 | Index            | `IX_SourceCommit_SourceSha` on (`SourceSha`)            |
 
 ### `SourceCommitFile`
+
 | Column               | Type      | Notes                                              |
 |----------------------|-----------|----------------------------------------------------|
 | `SourceCommitFileId` | INT PK AI |                                                    |
@@ -74,6 +80,7 @@ Members: `LocalFolder`, `GitUrl`, `VersionedSibling`.
 | Unique               | (`SourceCommitId`, `RelativePath`)                  |
 
 ### `RewrittenCommit`
+
 | Column                 | Type      | Notes                                              |
 |------------------------|-----------|----------------------------------------------------|
 | `RewrittenCommitId`    | INT PK AI |                                                    |
@@ -90,9 +97,11 @@ Members: `LocalFolder`, `GitUrl`, `VersionedSibling`.
 | Index                  | `IX_RewrittenCommit_NewSha` on (`NewSha`)           |
 
 ### `CommitOutcome` (enum mirror)
+
 Members: `Created`, `Skipped`, `Failed`.
 
 ### `SkipLog`
+
 | Column                       | Type      | Notes                                       |
 |------------------------------|-----------|---------------------------------------------|
 | `SkipLogId`                  | INT PK AI |                                             |
@@ -102,10 +111,12 @@ Members: `Created`, `Skipped`, `Failed`.
 | `PreviousRewrittenCommitId`  | INT NULL FK → `RewrittenCommit.RewrittenCommitId` |
 
 ### `SkipReason` (enum mirror)
+
 Members: `DuplicateSourceSha`, `ExcludedAllFiles`, `EmptyAfterMessageRules`,
 `DryRun`.
 
 ### `ShaMap` (cross-run dedupe view)
+
 | Column              | Type      | Notes                                              |
 |---------------------|-----------|----------------------------------------------------|
 | `ShaMapId`          | INT PK AI |                                                    |
@@ -116,6 +127,7 @@ Members: `DuplicateSourceSha`, `ExcludedAllFiles`, `EmptyAfterMessageRules`,
 ## 4.3 Profile tables
 
 ### `Profile`
+
 | Column              | Type      | Notes                                              |
 |---------------------|-----------|----------------------------------------------------|
 | `ProfileId`         | INT PK AI |                                                    |
@@ -126,6 +138,7 @@ Members: `DuplicateSourceSha`, `ExcludedAllFiles`, `EmptyAfterMessageRules`,
 | Unique partial      | (`SourceRepoPath`) WHERE `IsDefault = 1`            |
 
 ### `ProfileExclusion`
+
 | Column                | Type      | Notes                                            |
 |-----------------------|-----------|--------------------------------------------------|
 | `ProfileExclusionId`  | INT PK AI |                                                  |
@@ -134,9 +147,11 @@ Members: `DuplicateSourceSha`, `ExcludedAllFiles`, `EmptyAfterMessageRules`,
 | `ExclusionKindId`     | INT NN FK → `ExclusionKind.ExclusionKindId`       |
 
 ### `ExclusionKind` (enum mirror)
+
 Members: `PathFolder`, `PathFile`.
 
 ### `ProfileMessageRule`
+
 | Column                  | Type      | Notes                                          |
 |-------------------------|-----------|------------------------------------------------|
 | `ProfileMessageRuleId`  | INT PK AI |                                                |
@@ -145,6 +160,7 @@ Members: `PathFolder`, `PathFile`.
 | `Value`                 | TEXT NN   |                                                |
 
 ### `MessageRuleKind` (enum mirror)
+
 Members: `StartsWith`, `EndsWith`, `Contains`.
 
 ## 4.4 Mermaid ERD

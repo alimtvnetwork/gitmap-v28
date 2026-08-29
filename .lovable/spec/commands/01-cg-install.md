@@ -1,9 +1,11 @@
 # Coding Guidelines (CG) Command & Installation Spec
 
 ## Overview
+
 The \cg\ (Coding Guidelines) commands provide automated installation and updates for the project's coding guidelines.
 
 ## Installation Scripts (Non-Negotiable)
+
 When running \cg install\ or \cg update\, the CLI MUST execute the following exact commands based on the OS:
 
 **Windows (PowerShell):**
@@ -17,6 +19,7 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24
 \\\
 
 ## Command Routing
+
 - \gitmap cg\ or \gitmap cg help\: Displays all available subcommands, help text, and explicit \--except\ examples.
 - \gitmap cg install [repo-name]\: Installs CG into the given repo. If omitted, installs in the current Git repo.
 - \gitmap cg install --workspace --except <repo1,repo2>\: Installs CG on all repos in the current workspace, skipping the exceptions.

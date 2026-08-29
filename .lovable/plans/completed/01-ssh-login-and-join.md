@@ -1,6 +1,7 @@
 # Plan: SSH Login and Join Features
 
 ## Context
+
 This plan addresses the implementation of advanced SSH wrappers, automated remote installation, IP utility commands, and host join/tracking functionalities.
 Inputs:
 - [01-ssh-commands.md](.lovable/spec/commands/01-ssh-commands.md)
@@ -10,13 +11,16 @@ Inputs:
 Individual task runs NEVER release. The release fires ONLY when the ENTIRE plan is finished. At that moment: bump MINOR version, add changelog, pin version in readme.
 
 ## CI/CD verification
+
 - Domain `Contract`: `check-go-vet.sh`, unit tests.
 - Domain `Cli`: `check-go-vet.sh`, unit tests, e2e tests.
 
 ## Execution model
+
 One step per run. Exactly one step is executed per run. Self-loop after verify. Max 2 agents, max 3 threads per agent.
 
 ## Coding Guideline Single-File Checklist
+
 | Topic                            | Single source file                                                          | Duplicates found |
 | canonical size tier              | spec/02-coding-guidelines/00-canonical-size-tier.md                         | none             |
 | boolean naming prefixes          | spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md      | none |
@@ -50,4 +54,5 @@ One step per run. Exactly one step is executed per run. Self-loop after verify. 
 | static analysis / sarif          | spec/02-coding-guidelines/06-cicd-integration/01-sarif-contract.md          | none             |
 
 ## Tasks
+
 50 tasks generated in `.lovable/plans/subtasks/ssh-login-and-join/`.

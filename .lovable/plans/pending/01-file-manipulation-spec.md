@@ -1,9 +1,11 @@
 # AI Implementation Spec: File Manipulation Commands (Lowercase & Fix Sequence)
 
 ## Overview
+
 This specification provides strict instructions for an AI to implement robust file manipulation commands in a CLI tool (e.g., GitMap). The target capabilities include mass-renaming files to lowercase (while respecting Git tracking and ignore patterns) and automatically re-sequencing files in folders based on various ordering strategies.
 
 ## Non-Negotiable Rules for the Executing AI
+
 1. **Generic Implementation**: Do not hardcode paths to specific local folders or assume framework internals outside of standard CLI parsing and filesystem utilities.
 2. **Boolean Naming**: All boolean variables MUST begin with `is`, `has`, `can`, or `should`.
 3. **No Garbage Names**: Do not use generic variables like `data`, `obj`, `temp`.
@@ -13,6 +15,7 @@ This specification provides strict instructions for an AI to implement robust fi
 ---
 
 ## Command 1: Lowercase Renamer
+
 **Command Pattern**:
 `cli-tool lowercase <source_pattern> <target_pattern> -except "<paths>"`
 
@@ -30,6 +33,7 @@ This specification provides strict instructions for an AI to implement robust fi
 ---
 
 ## Command 2: Fix File Sequencing (`fix-seq-files` / `fsf`)
+
 **Command Pattern**:
 `cli-tool fix-seq-files <folder1> <folder2> [flags]`
 
@@ -50,6 +54,7 @@ This specification provides strict instructions for an AI to implement robust fi
 ---
 
 ## Execution Checklist for the AI
+
 Before submitting the code, the executing AI MUST verify:
 - [ ] I have implemented `lowercase` with Git-native moving (`git mv`).
 - [ ] I have implemented `-ignore default` to skip `.git` and `node_modules`.

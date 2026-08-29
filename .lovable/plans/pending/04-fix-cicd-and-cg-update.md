@@ -1,6 +1,7 @@
 # Plan: Fix CI/CD checkout issue and Enhance `gitmap cg update` UI
 
 ## 1. Fix CI/CD Workflow (`.github/workflows/ci.yml`)
+
 - **Root Cause**: The `.github/actions/policy-check` is a local action. Several jobs in `ci.yml` call this action as their first step without checking out the repository first, resulting in `Can't find 'action.yml'`.
 - **Solution**: Inject `- uses: actions/checkout@v6` before the `uses: ./.github/actions/policy-check` step in the following jobs:
   - `cmd/ Naming Check`
@@ -11,6 +12,7 @@
   - `GITMAP_ALLOW_GOLDEN_UPDATE Leak Check`
 
 ## 2. Enhance `gitmap cg update` CLI UI
+
 - **Objective**: The user wants a detailed, colorful summary of the coding guidelines update process, showing version transitions (old vs new), files updated, and status for each repository.
 - **Solution in `gitmap/cmd/cg_worker.go`**:
   - Update `executeCGWorkers` to collect results instead of just printing "Done".
@@ -25,6 +27,7 @@
     - Use bright colors as requested.
 
 ## 3. Strict Compliance Checks
+
 - Follow the 15-line function limit for Go.
 - Use explicit boolean naming (e.g., `isSuccess`, `hasChanged`).
 - Wrap errors using standard error variables or `fmt.Errorf`.

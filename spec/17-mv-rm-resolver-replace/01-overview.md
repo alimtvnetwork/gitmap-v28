@@ -36,6 +36,7 @@ This specification defines the architectural design, algorithmic contracts, and 
 ```
 
 ## 3. Mandatory Engineering Constraints
+
 - Every Go file must stay under 200 lines; functions under 15 lines.
 - Zero error swallowing; all errors explicitly handled or surfaced to `os.Stderr`.
 - Positive conditional logic (`isTargetValid`, `hasMatch`), avoiding complex inverted expressions.

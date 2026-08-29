@@ -3,6 +3,7 @@ name: find-next
 description: gitmap find-next (alias fn) reads latest VersionProbe rows where IsAvailable=1 and prints repos with available updates. Read-only, supports --scan-folder filter and --json output. v3.9.0.
 type: feature
 ---
+
 # Find-Next (Phase 2.4, v3.9.0)
 
 ## Overview

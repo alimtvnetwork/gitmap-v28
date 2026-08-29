@@ -36,11 +36,14 @@ gitmap import [file] --confirm
 **Examples:**
 
 ```bash
+
 # Import from default file
+
 gitmap import --confirm
 gitmap im --confirm
 
 # Import from custom path
+
 gitmap import backup-2026-03.json --confirm
 ```
 

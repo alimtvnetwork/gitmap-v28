@@ -2034,5 +2034,3 @@ jobs:
           STATUS: ${{ needs.build.result == 'success' && 'passing' || needs.build.result }}
           COLOR: ${{ needs.build.result == 'success' && 'brightgreen' || (needs.build.result == 'skipped' && 'lightgrey' || 'red') }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-

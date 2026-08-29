@@ -118,6 +118,7 @@ code, migrations, or vendor updates (with justification).
 ### Description Template
 
 ```markdown
+
 ## What
 
 One-sentence summary of the change.

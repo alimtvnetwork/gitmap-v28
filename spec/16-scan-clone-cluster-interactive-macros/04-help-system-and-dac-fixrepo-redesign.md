@@ -3,9 +3,11 @@
 ## 1. DAC & Fix-Repo Section Redesign
 
 ### 1.1 Problem Statement
+
 The current help text for `fix-repo` and advanced developer utilities prints a dense, unstructured block of flags with run-on explanations and unaligned examples directly in the main help view.
 
 ### 1.2 Structured Presentation Standard
+
 All utility help sections (including `fix-repo`, `doctor`, `setup`, `gomod`) must follow a strict tabular structure:
 
 ```text
@@ -22,6 +24,7 @@ Fix-repo flags:
 ## 2. Prominent Surfacing of Cluster & Server Subcommands
 
 ### 2.1 Cluster Command Hierarchy
+
 The top-level `gitmap help` and interactive menus must prominently display the full cluster command hierarchy:
 
 | Command | Shorthand | Role | Purpose |
@@ -41,9 +44,11 @@ The top-level `gitmap help` and interactive menus must prominently display the f
 Searching `gitmap help --filter <q>` must return rich contextual groups for related workflows:
 
 ### 3.1 Searching `--filter cluster` or `--filter servers`
+
 Returns the `Cluster & Network` group with direct usage lines and flags.
 
 ### 3.2 Searching `--filter join`
+
 Returns the daemon join commands (`gitmap serve`, `gitmap-node-join`, join token flags, and cluster onboarding steps) along with runnable examples:
 ```text
   $ gitmap serve --port 9999

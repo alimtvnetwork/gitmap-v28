@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 024 — OS Command CLI Root
 
 ## 1. Goal
+
 CLI for gitmap os update, full-upgrade, and fix-mirrors in `cmd/os_cmd.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `cmd/os_cmd.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestOSCommandCLIRoot
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

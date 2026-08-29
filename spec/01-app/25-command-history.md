@@ -62,17 +62,22 @@ gitmap history [--detail basic|standard|detailed] [--command <name>] [--limit N]
 **Examples:**
 
 ```bash
+
 # Show recent history (standard detail)
+
 gitmap history
 gitmap hi
 
 # Show basic view
+
 gitmap history --detail basic
 
 # Show detailed view for scan commands
+
 gitmap history --detail detailed --command scan
 
 # Last 10 entries as JSON
+
 gitmap history --json --limit 10
 ```
 

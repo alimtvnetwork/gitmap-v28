@@ -49,10 +49,13 @@ v5.x workaround; they become redundant but harmless.
 Add `--no-include-merges` to every commit-transfer invocation:
 
 ```bash
+
 # Before (v5.x — merges stripped by default)
+
 gitmap commit-in ./source ./target
 
 # After (v6.0.0 — explicit opt-out required)
+
 gitmap commit-in ./source ./target --no-include-merges
 ```
 

@@ -178,7 +178,9 @@ A push to `release/v2.5x.0` started the release workflow. A follow-up commit (ch
 ### Fix
 
 ```yaml
+
 # release.yml
+
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false  # NEVER cancel release runs

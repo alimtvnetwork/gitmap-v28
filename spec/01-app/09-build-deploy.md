@@ -31,25 +31,33 @@ Build configuration lives in `gitmap/powershell.json`.
 ### Examples
 
 ```powershell
+
 # Full pipeline: pull, build, deploy
+
 .\run.ps1
 
 # Build only, no pull or deploy
+
 .\run.ps1 -NoPull -NoDeploy
 
 # Build and scan parent folder
+
 .\run.ps1 -R scan
 
 # Build and scan specific folder with SSH mode
+
 .\run.ps1 -R scan D:\repos --mode ssh
 
 # Build and clone from JSON
+
 .\run.ps1 -R clone .\.gitmap/output\gitmap.json --target-dir .\restored
 
 # Build and clone with GitHub Desktop registration
+
 .\run.ps1 -R clone .\gitmap.json --github-desktop
 
 # Deploy to custom path
+
 .\run.ps1 -DeployPath "D:\tools"
 ```
 
@@ -170,11 +178,15 @@ gitmap binary. Resolution uses `Resolve-Path` with a fallback to
 `[System.IO.Path]::GetFullPath()` for paths that don't yet exist.
 
 ```powershell
+
 # User runs:
+
 .\run.ps1 -R scan "../.."
 
 # Script resolves "../.." to absolute, e.g.:
+
 # gitmap scan D:\wp-work
+
 ```
 
 ### RUN Context Logging

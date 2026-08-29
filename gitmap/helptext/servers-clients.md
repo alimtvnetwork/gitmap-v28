@@ -35,6 +35,7 @@ gitmap servers-clients <subcommand> [args] [flags]
 ## Examples
 
 ### PowerShell & Command Prompt
+
 Execute PowerShell and cmd commands across the cluster:
 ```bash
 gitmap servers-clients ps "Get-Service | Where Status -eq Running"
@@ -42,12 +43,14 @@ gitmap servers-clients cmd "ipconfig /all" --except 24,151
 ```
 
 ### Installation
+
 Install packages across all nodes simultaneously:
 ```bash
 gitmap servers-clients install "git,nodejs,dotnet" --except 2
 ```
 
 ### Git Operations
+
 Delegate git operations to all joined machines:
 ```bash
 gitmap servers-clients pull --all
@@ -56,6 +59,7 @@ gitmap servers-clients status --all
 ```
 
 ### Project Automation
+
 Run local build scripts across nodes:
 ```bash
 gitmap servers-clients proj "api-backend" run --except 2

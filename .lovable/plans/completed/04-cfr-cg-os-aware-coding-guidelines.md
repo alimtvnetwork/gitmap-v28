@@ -40,4 +40,3 @@ Extend `gitmap cfr` and `gitmap cfrp` with a `cg` (Coding Guidelines) modifier t
 - `01-bulk-visibility-mapub-mapri.md` (still pending)
 - `02-ssh-aware-clone.md` (still pending)
 - `03-reclone-transport-and-vscode-open.md` (still pending)
-
