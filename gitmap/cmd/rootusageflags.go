@@ -8,7 +8,6 @@ import (
 
 // printGroupUtilities prints the utility commands.
 func printGroupUtilities() {
-
 	renderHeader(constants.HelpGroupUtilities)
 	renderLine(constants.HelpDoctor)
 	renderLine(constants.HelpUpdate)
@@ -47,7 +46,6 @@ func printUsageFlagSections() {
 
 // printUsageServeFlags prints the serve flags section.
 func printUsageServeFlags() {
-
 	fmt.Println("  [serve flags]")
 	fmt.Println("    -port                " + constants.FlagDescServePort)
 }
@@ -56,7 +54,6 @@ func printUsageServeFlags() {
 // -2 / -3 / -5 / --all / --dry-run family is discoverable from the
 // top-level `gitmap help` output (not only `gitmap help fix-repo`).
 func printUsageFixRepoFlags() {
-
 	renderLine(constants.HelpFixRepoFlags)
 	renderLine(constants.HelpFRMode2)
 	renderLine(constants.HelpFRMode3)
@@ -75,7 +72,6 @@ func printUsageFixRepoFlags() {
 
 // printUsageCloneNextFlags prints the clone-next flags section.
 func printUsageCloneNextFlags() {
-
 	renderLine(constants.HelpCloneNextFlags)
 	renderLine(constants.HelpCNDelete)
 	renderLine(constants.HelpCNKeep)
@@ -87,14 +83,12 @@ func printUsageCloneNextFlags() {
 
 // printUsageInteractiveFlags prints the interactive flags section.
 func printUsageInteractiveFlags() {
-
 	renderLine(constants.HelpInteractiveFlags)
 	renderLine(constants.HelpRefresh)
 }
 
 // printUsageScanFlags prints the scan flags section.
 func printUsageScanFlags() {
-
 	renderLine(constants.HelpScanFlags)
 	renderLine(constants.HelpConfig)
 	renderLine(constants.HelpMode)
@@ -108,7 +102,6 @@ func printUsageScanFlags() {
 
 // printUsageCloneFlags prints the clone flags section.
 func printUsageCloneFlags() {
-
 	renderLine(constants.HelpCloneFlags)
 	renderLine(constants.HelpTargetDir)
 	renderLine(constants.HelpSafePull)
@@ -117,7 +110,6 @@ func printUsageCloneFlags() {
 
 // printUsageReleaseFlags prints the release flags section.
 func printUsageReleaseFlags() {
-
 	renderLine(constants.HelpReleaseFlags)
 	renderLine(constants.HelpAssets)
 	renderLine(constants.HelpCommit)
@@ -134,7 +126,6 @@ func printUsageReleaseFlags() {
 
 // printUsageSEOFlags prints the seo-write flags section.
 func printUsageSEOFlags() {
-
 	renderLine(constants.HelpSEOWriteFlags)
 	renderLine(constants.HelpSEOCSV)
 	renderLine(constants.HelpSEOURL)
@@ -157,7 +148,6 @@ func printUsageSEOFlags() {
 
 // printUsageAmendFlags prints the amend flags section.
 func printUsageAmendFlags() {
-
 	renderLine(constants.HelpAmendFlags)
 	renderLine(constants.HelpAmendName)
 	renderLine(constants.HelpAmendEmail)
@@ -168,7 +158,6 @@ func printUsageAmendFlags() {
 
 // printUsageGoModFlags prints the gomod flags section.
 func printUsageGoModFlags() {
-
 	renderLine(constants.HelpGoModFlags)
 	renderLine(constants.HelpGoModDry)
 	renderLine(constants.HelpGoModNoMrg)
