@@ -62,6 +62,8 @@ func applyEntry(e DiffEntry, l, r Endpoint, dir DirectionType, res *Resolver, op
 		return applyMissing(e, l, r, dir, opts, false)
 	case DiffMissingRight:
 		return applyMissing(e, l, r, dir, opts, true)
+	case DiffConflict:
+		return applyConflict(e, l, r, dir, res, opts)
 	default:
 		return applyConflict(e, l, r, dir, res, opts)
 	}

@@ -27,6 +27,7 @@ func emitTextBlock(out *strings.Builder, b block) {
 		emitSubtitle(out, b.text)
 	case bkParagraph:
 		emitParagraph(out, b.text)
+	case bkFence, bkList, bkBlank:
 	}
 }
 

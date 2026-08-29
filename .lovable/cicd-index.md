@@ -26,6 +26,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 32 | Panic on Zero-Args & Legacy Exit Refactor | CLI Runtime / Unit Tests | ✅ Resolved | [32-root-cli-panic-on-zero-args.md](cicd-issues/32-root-cli-panic-on-zero-args.md) |
 | 33 | Gocritic appendAssign Diff Failure & Unused Helpers | CI Diff Gate / golangci-lint | ✅ Resolved | [33-gocritic-appendassign-diff.md](cicd-issues/33-gocritic-appendassign-diff.md) |
 | 34 | Gocritic ifElseChain Diff Failure & Switch Refactor | CI Diff Gate / golangci-lint | ✅ Resolved | [34-gocritic-ifelsechain-diff.md](cicd-issues/34-gocritic-ifelsechain-diff.md) |
+| 35 | Exhaustive Switch Diff Failure & Complete Enum Handlers | CI Diff Gate / golangci-lint | ✅ Resolved | [35-exhaustive-switch-diff.md](cicd-issues/35-exhaustive-switch-diff.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.

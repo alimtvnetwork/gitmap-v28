@@ -83,6 +83,8 @@ func emitStale(stale []staleRepo, days int, f hygieneFormat) {
 			rows = append(rows, []string{s.path, s.last.UTC().Format(time.RFC3339), fmt.Sprintf("%d", age)})
 		}
 		emitCSV([]string{"path", "last_commit_utc", "age_days"}, rows)
+	case hygieneFormatTable:
+		printStaleTable(stale, days)
 	default:
 		printStaleTable(stale, days)
 	}

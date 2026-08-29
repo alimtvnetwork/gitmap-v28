@@ -86,6 +86,17 @@ func emitOrphans(orphans []orphanRepo, f hygieneFormat) {
 			rows = append(rows, []string{o.path, o.remote, fmt.Sprintf("%d", o.status)})
 		}
 		emitCSV([]string{"path", "remote", "status"}, rows)
+	case hygieneFormatTable:
+		if len(orphans) == 0 {
+			fmt.Fprint(os.Stdout, "\n  no orphaned clones found\n\n")
+
+			return
+		}
+		fmt.Fprintf(os.Stdout, "\n  \033[36m%d orphan(s)\033[0m (remote returns 404/410)\n\n", len(orphans))
+		for _, o := range orphans {
+			fmt.Fprintf(os.Stdout, "  \033[31m%d\033[0m  %s  -> %s\n", o.status, o.path, o.remote)
+		}
+		fmt.Fprintln(os.Stdout, "")
 	default:
 		if len(orphans) == 0 {
 			fmt.Fprint(os.Stdout, "\n  no orphaned clones found\n\n")
