@@ -1,5 +1,5 @@
 import versionData from "../../version.json";
-export const VERSION = `v${versionData.version}` as const;
+export const VERSION = `v${(versionData as { Version?: string; version?: string }).Version || (versionData as { Version?: string; version?: string }).version}` as const;
 
 /** Repo status values used in watch/status displays. */
 export const RepoStatus = {
