@@ -33,7 +33,6 @@ func runSSHAlias(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return saveAliasCommand(ctx, ip, aliasName)
 }
 
-//nolint:revive
 func saveAliasCommand(ctx context.Context, ip string, alias string) error {
 	db, err := openDB()
 	if err != nil {

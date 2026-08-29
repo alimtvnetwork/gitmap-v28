@@ -29,7 +29,7 @@ func resolveByPath(target string, all []model.ScanRecord) *model.ScanRecord {
 	for _, r := range all {
 		rClean := fsutil.NormalizeSlashes(r.AbsolutePath)
 		rBase := strings.ToLower(filepath.Base(rClean))
-		if rBase == baseName || strings.ToLower(r.Slug) == baseName {
+		if rBase == baseName || strings.EqualFold(r.Slug, baseName) {
 			return &r
 		}
 	}

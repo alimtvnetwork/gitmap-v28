@@ -25,7 +25,6 @@ type sjOptions struct {
 	Args       []string
 }
 
-//nolint:unused
 func parseSJFlags(args []string) sjOptions {
 	fs := flag.NewFlagSet(sjCommand, flag.ExitOnError)
 	var opts sjOptions
@@ -85,7 +84,6 @@ func runSSHJoinLs() error {
 	return nil
 }
 
-//nolint:unused
 func getEncryptionKey() []byte {
 	// 32-byte key for AES-256
 	return []byte("gitmap-ssh-secret-key-0123456789")

@@ -10,7 +10,7 @@ import (
 )
 
 // ExecuteOSUpdate runs platform-specific system update commands.
-//nolint:revive
+
 func ExecuteOSUpdate(ctx context.Context) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {

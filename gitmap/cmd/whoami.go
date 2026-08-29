@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -42,7 +43,7 @@ func printWhoAmISSHKeys() {
 	if err != nil {
 		return
 	}
-	dir := home + string(os.PathSeparator) + ".ssh"
+	dir := filepath.Join(home, ".ssh")
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println("\n── SSH keys (~/.ssh) ──\n  (none — directory missing)")

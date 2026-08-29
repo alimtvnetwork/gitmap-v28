@@ -10,7 +10,7 @@ import (
 )
 
 // ExecuteOSFullUpgrade executes full OS distribution version upgrades.
-//nolint:revive
+
 func ExecuteOSFullUpgrade(ctx context.Context) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {

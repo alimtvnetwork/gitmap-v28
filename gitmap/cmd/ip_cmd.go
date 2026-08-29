@@ -64,7 +64,6 @@ func runIPCmd(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return executeIPCmd(ctx, true, os.Stdout)
 }
 
-//nolint:revive
 func executeIPCmd(ctx context.Context, skipLoopback bool, writer io.Writer) error {
 	ipStr, err := GetLocalIP(ctx, skipLoopback, "")
 	if err != nil {

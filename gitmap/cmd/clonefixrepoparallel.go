@@ -261,7 +261,7 @@ func buildCFRActionFlags(autoYes, dryRun, noCommit, noPush bool) []string {
 }
 
 // buildCFRPassthroughFlags reconstructs the non-positional flag set
-// for re-exec workers. Mirrors the flags recognised by
+// for re-exec workers. Mirrors the flags recognized by
 // parseCloneFixRepoArgs so each worker sees the same semantics. The
 // --parallel flag is intentionally NOT forwarded — workers run a
 // single URL and must not recurse into another fan-out.

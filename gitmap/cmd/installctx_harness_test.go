@@ -30,7 +30,7 @@ type ctxFlatLeaf struct {
 // same level (e.g. the documented duplicate 90_terminal / 91_docs in
 // installctxentries.go) are tolerated — both occurrences are emitted
 // so callers can assert on / dedupe as they need.
-//nolint:unused
+
 func collectCtxLeaves(t *testing.T) []ctxFlatLeaf {
 	t.Helper()
 	flat := flattenCtxMenu()
@@ -43,7 +43,6 @@ func collectCtxLeaves(t *testing.T) []ctxFlatLeaf {
 	return out
 }
 
-//nolint:unused
 func toCtxFlatLeaf(e flatCtxEntry, path string) ctxFlatLeaf {
 	return ctxFlatLeaf{
 		Path:     path,
@@ -60,7 +59,7 @@ func toCtxFlatLeaf(e flatCtxEntry, path string) ctxFlatLeaf {
 // leaf currently in ctxMenu(). Used to give each ctxFlatLeaf a stable
 // identity that is independent of the visible label (which can change
 // for UX reasons without breaking the contract).
-//nolint:unused
+
 func buildLeafPaths() map[string]string {
 	out := map[string]string{}
 	for _, e := range ctxMenu() {
@@ -70,7 +69,6 @@ func buildLeafPaths() map[string]string {
 	return out
 }
 
-//nolint:unused
 func populateLeafPaths(out map[string]string, e ctxEntry) {
 	isTopLevelOnly := len(e.Children) == 0
 	if isTopLevelOnly {
@@ -82,12 +80,10 @@ func populateLeafPaths(out map[string]string, e ctxEntry) {
 	}
 }
 
-//nolint:unused
 func topSlug(e ctxEntry) string {
 	return slugifyCtx(constants.CtxFlatPrefix + constants.CtxFlatSeparator + e.MUIVerb)
 }
 
-//nolint:unused
 func childSlug(parent, child ctxEntry) string {
 	return slugifyCtx(constants.CtxFlatPrefix + constants.CtxFlatSeparator + parent.MUIVerb + constants.CtxFlatChildJoiner + child.MUIVerb)
 }
@@ -96,7 +92,7 @@ func childSlug(parent, child ctxEntry) string {
 // guarantees the previous value is restored even on test failure.
 // Tests must serialize on this — never run subtests that mutate the
 // flag in t.Parallel mode without their own guard.
-//nolint:unused
+
 func withExplain(t *testing.T, on bool, f func()) {
 	t.Helper()
 	prev := isCtxExplainEnabled()
@@ -108,7 +104,7 @@ func withExplain(t *testing.T, on bool, f func()) {
 // resolvedTarget returns the executable path the platform templates
 // will bake into the menu entry: the per-entry Exe override (e.g.
 // "git") if set, otherwise the gitmap binary path the harness pinned.
-//nolint:unused
+
 func (l ctxFlatLeaf) resolvedTarget(gitmapExe string) string {
 	hasCustomExe := l.Exe != ""
 	if hasCustomExe {
@@ -121,7 +117,7 @@ func (l ctxFlatLeaf) resolvedTarget(gitmapExe string) string {
 // fakeGitmapExe returns a deterministic, OS-appropriate path string
 // the harness uses in place of os.Executable() so generated registry
 // values / .desktop Exec= lines are byte-stable across hosts.
-//nolint:unused
+
 func fakeGitmapExe(t *testing.T) string {
 	t.Helper()
 	isWindows := runtime.GOOS == "windows"

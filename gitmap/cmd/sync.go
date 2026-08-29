@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -360,7 +361,7 @@ func runSyncPrettierRC(dry, force bool) error {
 func syncJSONEqual(a, b any) bool {
 	ab, _ := json.Marshal(a)
 	bb, _ := json.Marshal(b)
-	return string(ab) == string(bb)
+	return bytes.Equal(ab, bb)
 }
 
 // runSyncLFSInstall delegates to `gitmap add lfs-install`. Kept as a

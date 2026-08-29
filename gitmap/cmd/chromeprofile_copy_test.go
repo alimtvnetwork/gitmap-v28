@@ -33,7 +33,7 @@ func TestCopyEntryRegularFile(t *testing.T) {
 	if err != nil || n != 1 {
 		t.Fatalf("regular file: want (1,nil), got (%d,%v)", n, err)
 	}
-	got, _ := os.ReadFile(dst) //nolint:gosec // test
+	got, _ := os.ReadFile(dst)
 	if string(got) != "data" {
 		t.Fatalf("dst content = %q", got)
 	}

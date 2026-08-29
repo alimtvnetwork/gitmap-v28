@@ -42,7 +42,6 @@ func checkActiveBinary() int {
 
 	return 0
 }
-//nolint:unused
 
 //nolint:unused
 func resolveBinaryAbsPath(path string) string {
@@ -72,7 +71,6 @@ func checkDeployedBinary() int {
 
 	return verifyDeployedBinary(data)
 }
-//nolint:unused
 
 //nolint:unused
 func verifyDeployedBinary(data []byte) int {
@@ -92,7 +90,7 @@ func verifyDeployedBinary(data []byte) int {
 func readPowershellJSON() ([]byte, error) {
 	configPath := filepath.Join(constants.RepoPath, constants.GitMapSubdir, constants.PowershellConfigFile)
 
-//nolint:unused
+	//nolint:unused
 	return os.ReadFile(configPath)
 }
 
@@ -110,12 +108,11 @@ func resolveDeployedFromData(data []byte) (string, int) {
 	if len(binaryName) == 0 {
 		binaryName = constants.DoctorDefaultBinary
 	}
-//nolint:unused
+	//nolint:unused
 
 	return checkDeployedFileExists(filepath.Join(deployPath, constants.GitMapCliSubdir, binaryName))
-//nolint:unused
+	//nolint:unused
 }
-//nolint:unused
 
 //nolint:unused
 func checkDeployedFileExists(deployedBinary string) (string, int) {
@@ -126,7 +123,7 @@ func checkDeployedFileExists(deployedBinary string) (string, int) {
 		return "", 1
 	}
 
-//nolint:unused
+	//nolint:unused
 	return deployedBinary, 0
 }
 
@@ -180,13 +177,12 @@ func getToolVersion(tool, arg string) string {
 	cmd := exec.Command(tool, arg)
 	out, err := cmd.Output()
 	if err != nil {
-//nolint:unused
+		//nolint:unused
 		return ""
 	}
 
 	return strings.TrimSpace(string(out))
 }
-//nolint:unused
 
 //nolint:unused
 // checkChangelogFile verifies changelog.md exists.
@@ -209,10 +205,9 @@ func checkChangelogFile() int {
 func checkLegacyDirs() int {
 	printOK(constants.DoctorLegacyDirsOK)
 
-//nolint:unused
+	//nolint:unused
 	return 0
 }
-//nolint:unused
 
 // checkSignature verifies whether the active binary has a valid digital signature.
 //nolint:unused
@@ -227,13 +222,12 @@ func checkSignature() int {
 	absPath, ok := resolveSignaturePath()
 	if !ok {
 		return 0
-//nolint:unused
+		//nolint:unused
 	}
-//nolint:unused
+	//nolint:unused
 
 	return verifyBinarySignature(absPath)
 }
-//nolint:unused
 
 //nolint:unused
 func resolveSignaturePath() (string, bool) {
@@ -241,10 +235,10 @@ func resolveSignaturePath() (string, bool) {
 	if err != nil {
 		printWarn(constants.DoctorSignNoPath)
 
-//nolint:unused
+		//nolint:unused
 		return "", false
 	}
-//nolint:unused
+	//nolint:unused
 
 	return resolveBinaryAbsPath(binaryPath), true
 }
@@ -260,7 +254,7 @@ func verifyBinarySignature(absPath string) int {
 		return 0
 	}
 
-//nolint:unused
+	//nolint:unused
 	return evaluateSignatureStatus(absPath, strings.TrimSpace(string(out)))
 }
 
@@ -280,12 +274,11 @@ func evaluateSignatureStatus(absPath, status string) int {
 	}
 
 	printIssue(constants.DoctorSignInvalidFmt, status)
-//nolint:unused
+	//nolint:unused
 	printFix(constants.DoctorSignUnsignFix)
 
 	return 1
 }
-//nolint:unused
 
 //nolint:unused
 // getSignatureSigner extracts the signer subject from a signed binary.

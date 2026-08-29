@@ -21,7 +21,6 @@ type InteractiveSSHClient struct {
 	Stderr io.Writer
 }
 
-//nolint:revive
 func (c *InteractiveSSHClient) Run(ctx context.Context, target string) error {
 	cmd := sshExecutor(ctx, "ssh", target)
 	cmd.Stdin = c.Stdin
@@ -39,7 +38,6 @@ func (c *InteractiveSSHClient) Run(ctx context.Context, target string) error {
 	return nil
 }
 
-//nolint:revive
 func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
 	cmdArgs := []string{target.String()}
 	cmdArgs = append(cmdArgs, args...)
@@ -70,7 +68,6 @@ func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
 	return nil
 }
 
-//nolint:revive
 func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, error) {
 	fmt.Print(prompt)
 	password, err := term.ReadPassword(fd)

@@ -1,6 +1,9 @@
 package glyphs
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
 
 // TestFilterSafeRewritesEmoji asserts representative glyphs collapse
 // to their ASCII fallbacks under ModeSafe.
@@ -24,7 +27,7 @@ func TestFilterSafeRewritesEmoji(t *testing.T) {
 func TestFilterRichPassthrough(t *testing.T) {
 	in := []byte("✓ → 📦 ⚠️")
 	got := Filter(in, ModeRich)
-	if string(got) != string(in) {
+	if !bytes.Equal(got, in) {
 		t.Errorf("ModeRich must passthrough, got %q", got)
 	}
 }

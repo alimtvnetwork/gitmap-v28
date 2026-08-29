@@ -28,7 +28,7 @@ func runSJLs(cmd *cobra.Command, args []string, ctx context.Context) error {
 }
 
 // printSJList fetches all hosts and formats them using text/tabwriter.
-//nolint:revive
+
 func printSJList(ctx context.Context, out io.Writer, max int) error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {

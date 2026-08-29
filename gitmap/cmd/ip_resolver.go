@@ -14,7 +14,6 @@ type IPResolver struct {
 	Timeout time.Duration
 }
 
-//nolint:revive
 func (r *IPResolver) FetchLocalIP(ctx context.Context) (string, error) {
 	// Prepare cross-platform implementation structure
 	return "", &apperror.AppError{
@@ -25,7 +24,6 @@ func (r *IPResolver) FetchLocalIP(ctx context.Context) (string, error) {
 	}
 }
 
-//nolint:revive
 func GetLocalIP(ctx context.Context, skipLoopback bool, ifaceName string) (string, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {

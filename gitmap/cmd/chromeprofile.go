@@ -325,7 +325,7 @@ func defaultChromeExportPath(name, format string) string {
 
 // readChromeExport loads a JSON export file from disk.
 func readChromeExport(path string) (*chromeExport, error) {
-	raw, err := os.ReadFile(path) //nolint:gosec // user-supplied path
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}

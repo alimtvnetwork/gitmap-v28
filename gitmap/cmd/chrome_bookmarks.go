@@ -104,7 +104,7 @@ func runChromeExportBookmarks(args []string) error {
 		fmt.Print(body)
 		return nil
 	}
-	if err := os.WriteFile(outPath, []byte(body), 0o644); err != nil { //nolint:gosec
+	if err := os.WriteFile(outPath, []byte(body), 0o644); err != nil {
 		return apperror.WrapSimple(err, "chrome export-bookmarks: ERROR write:")
 	}
 	fmt.Printf("\033[1;92m✓ wrote\033[0m %s (%d bytes)\n", outPath, len(body))
@@ -169,7 +169,7 @@ func findBookmarkFolder(node bookmarkItem, parts []string) (bookmarkItem, bool) 
 }
 
 func loadBookmarkRoots(profile string) []bookmarkItem {
-	raw, err := os.ReadFile(filepath.Join(profile, "Bookmarks")) //nolint:gosec
+	raw, err := os.ReadFile(filepath.Join(profile, "Bookmarks"))
 	if err != nil {
 		return nil
 	}

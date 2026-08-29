@@ -34,7 +34,6 @@ func capString(s *string, maxLen int) *string {
 	return s
 }
 
-//nolint:revive
 func InsertClusterExecResult(ctx context.Context, db *sql.DB, result ClusterExecResult) (int64, error) {
 	result.Stdout = capString(result.Stdout, 64*1024)
 	result.Stderr = capString(result.Stderr, 16*1024)
@@ -71,7 +70,6 @@ func InsertClusterExecResult(ctx context.Context, db *sql.DB, result ClusterExec
 	return id, nil
 }
 
-//nolint:revive
 func UpdateClusterExecResult(ctx context.Context, db *sql.DB, result ClusterExecResult) error {
 	query := `
 		UPDATE ClusterExecResult
@@ -106,7 +104,6 @@ func UpdateClusterExecResult(ctx context.Context, db *sql.DB, result ClusterExec
 	return nil
 }
 
-//nolint:revive
 func SelectClusterExecResultsByRunId(ctx context.Context, db *sql.DB, runId int64) ([]ClusterExecResult, error) {
 	query := `
 		SELECT 

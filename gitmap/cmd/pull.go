@@ -32,7 +32,7 @@ type pullOptions struct {
 }
 
 // runPull handles the "pull" subcommand.
-//nolint:unused
+
 func runPull(args []string) error {
 	checkHelp("pull", args)
 	cwd, _ := os.Getwd()
@@ -136,7 +136,7 @@ func runPull(args []string) error {
 // targeting flags AND the current working directory is itself a git
 // repo. In that case we short-circuit to a plain `git pull` so the
 // command behaves like the muscle-memory `git pull` users expect.
-//nolint:unused
+
 func shouldPullCWD(opts pullOptions) bool {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
 		return false
@@ -171,8 +171,8 @@ func pullNoTargetsHint(opts pullOptions) bool {
 
 // isGitRepoCWD returns true when the cwd (or an ancestor) is inside a
 // git work tree. Uses `git rev-parse --is-inside-work-tree` so worktrees
-// and submodules are honoured.
-//nolint:unused
+// and submodules are honored.
+
 func isGitRepoCWD() bool {
 	out, err := exec.Command("git", "rev-parse", "--is-inside-work-tree").Output()
 	if err != nil {
@@ -183,7 +183,7 @@ func isGitRepoCWD() bool {
 
 // runPullCWD streams `git pull` in the current directory, forwarding
 // stdout/stderr/stdin and propagating the underlying exit code.
-//nolint:unused
+
 func runPullCWD() error {
 	runPullCWDWithTransport(false, false, nil)
 	return nil
@@ -193,7 +193,7 @@ func runPullCWD() error {
 // optional transport rewrite (persisting via `git remote set-url`)
 // before invoking `git pull`. Extra positional args after the
 // transport flags are forwarded verbatim.
-//nolint:unused
+
 func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	cwd, _ := os.Getwd()
 	isNonGitRepoCWD := !isGitRepoCWD()
@@ -243,7 +243,7 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 // and returns (useSSH, useHTTPS, remaining-args-with-those-removed).
 // Used to detect the cwd-transport intent BEFORE handing args to the
 // existing parsePullFlags (which doesn't know about transport flags).
-//nolint:unused
+
 func extractTransportFlags(args []string) (bool, bool, []string) {
 	var useSSH, useHTTPS bool
 	rest := make([]string, 0, len(args))
@@ -261,7 +261,7 @@ func extractTransportFlags(args []string) (bool, bool, []string) {
 }
 
 // beginPullTask records the pending task entry for this pull batch.
-//nolint:unused
+
 func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 	workDir, wdErr := os.Getwd()
 	if wdErr != nil {
@@ -277,7 +277,7 @@ func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 }
 
 // executePull dispatches to either the serial or parallel runner.
-//nolint:unused
+
 func executePull(records []model.ScanRecord, prog *cloner.BatchProgress, opts pullOptions) {
 	workers, ok := cloneconcurrency.Resolve(opts.parallel)
 	if !ok {
@@ -299,7 +299,7 @@ func executePull(records []model.ScanRecord, prog *cloner.BatchProgress, opts pu
 }
 
 // parsePullFlags parses flags for the pull command.
-//nolint:unused
+
 func parsePullFlags(args []string) pullOptions {
 	fs := flag.NewFlagSet(constants.CmdPull, flag.ExitOnError)
 	vFlag := fs.Bool("verbose", false, constants.FlagDescVerbose)
@@ -323,7 +323,7 @@ func parsePullFlags(args []string) pullOptions {
 }
 
 // initVerboseLog sets up verbose logging, warning on failure.
-//nolint:unused
+
 func initVerboseLog() {
 	log, err := verbose.Init()
 	if err != nil {
@@ -335,7 +335,7 @@ func initVerboseLog() {
 }
 
 // resolvePullTargets returns records based on alias, group, all, or slug lookup.
-//nolint:unused
+
 func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {
 	if HasAlias() {
 		return []model.ScanRecord{{
@@ -359,7 +359,7 @@ func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {
 }
 
 // lookupBySlugDBFirst tries the database first, then falls back to JSON.
-//nolint:unused
+
 func lookupBySlugDBFirst(slug string) []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
@@ -378,7 +378,7 @@ func lookupBySlugDBFirst(slug string) []model.ScanRecord {
 }
 
 // lookupBySlugJSON loads gitmap.json and matches by repo name.
-//nolint:unused
+
 func lookupBySlugJSON(slug string) []model.ScanRecord {
 	jsonPath := filepath.Join(constants.DefaultOutputFolder, constants.DefaultJSONFile)
 	records, err := loadJSONRecords(jsonPath)
@@ -390,7 +390,7 @@ func lookupBySlugJSON(slug string) []model.ScanRecord {
 }
 
 // loadJSONRecords reads ScanRecords from a JSON file.
-//nolint:unused
+
 func loadJSONRecords(path string) ([]model.ScanRecord, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -405,7 +405,7 @@ func loadJSONRecords(path string) ([]model.ScanRecord, error) {
 }
 
 // findBySlug finds records matching the slug (case-insensitive, partial match).
-//nolint:unused
+
 func findBySlug(records []model.ScanRecord, slug string) []model.ScanRecord {
 	slugLower := strings.ToLower(slug)
 	exact, partial := partitionBySlug(records, slugLower)
@@ -418,7 +418,7 @@ func findBySlug(records []model.ScanRecord, slug string) []model.ScanRecord {
 }
 
 // partitionBySlug separates records into exact and partial matches.
-//nolint:unused
+
 func partitionBySlug(records []model.ScanRecord, slugLower string) ([]model.ScanRecord, []model.ScanRecord) {
 	var exact, partial []model.ScanRecord
 
@@ -435,7 +435,7 @@ func partitionBySlug(records []model.ScanRecord, slugLower string) ([]model.Scan
 }
 
 // pullOneRepo runs safe-pull on a single repo using its absolute path.
-//nolint:unused
+
 func pullOneRepo(rec model.ScanRecord) {
 	fmt.Printf(constants.MsgPullStarting, rec.RepoName, rec.AbsolutePath)
 
@@ -454,7 +454,7 @@ func pullOneRepo(rec model.ScanRecord) {
 }
 
 // pullOneRepoTracked runs safe-pull with progress tracking.
-//nolint:unused
+
 func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	if cloner.IsMissingRepo(rec.AbsolutePath) {
 		prog.Skip(rec.RepoName)
@@ -478,7 +478,7 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 }
 
 // findChildrenOfCWD returns all tracked repos that are inside the given directory.
-//nolint:unused
+
 func findChildrenOfCWD(cwd string) []model.ScanRecord {
 	all := loadAllRecordsDB()
 	var children []model.ScanRecord

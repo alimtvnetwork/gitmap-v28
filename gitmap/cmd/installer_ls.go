@@ -67,7 +67,7 @@ func printInstallerRows(scriptList []model.InstallerScript, osFilter string) int
 }
 
 // executeInstallerLs retrieves and displays installer records formatted as a table.
-//nolint:revive
+
 func executeInstallerLs(ctx context.Context, dbInstance *store.DB, osFilter string) error {
 	if dbInstance == nil {
 		return apperror.New("executeInstallerLs", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "db cannot be nil"})
