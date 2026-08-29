@@ -70,7 +70,7 @@ func runUpdateRemoteInstall() bool {
 func fetchRemoteTargetVersion(slug string) string {
 	url := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/main/version.json", constants.UpdateRepoOwner, slug)
 	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get(url) //nolint:gosec
+	resp, err := client.Get(url)
 	if err != nil {
 		return "unknown"
 	}

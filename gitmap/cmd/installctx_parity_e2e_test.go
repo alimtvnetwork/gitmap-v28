@@ -138,7 +138,7 @@ func TestCtxArgvParityAcrossPlatformRenders(t *testing.T) {
 		if l.Mode == constants.CtxModePrefill || len(l.Args) == 0 {
 			continue
 		}
-		l := l
+
 		t.Run(l.Slug, func(t *testing.T) {
 			fE := flatCtxEntry{Label: l.Label, Slug: l.Slug, Args: l.Args,
 				Mode: l.Mode, Exe: l.Exe, Extended: l.Extended}

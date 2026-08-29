@@ -35,7 +35,7 @@ import (
 // file-path arguments themselves. Kept conservative on purpose.
 const gofmtArgvOverhead = 32
 
-// effectiveGofmtBudget returns the per-batch argv budget honouring
+// effectiveGofmtBudget returns the per-batch argv budget honoring
 // the CLI override when set. Zero / negative user input falls back to
 // the compiled-in default; the parser rejects sub-floor values before
 // we ever reach here, but we guard anyway.

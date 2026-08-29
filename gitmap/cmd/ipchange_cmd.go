@@ -29,7 +29,6 @@ func runIPChangeCmd(cmd *cobra.Command, args []string, ctx context.Context) erro
 	return executeIPChange(ctx, newIP, true)
 }
 
-//nolint:revive
 func validatePing(ctx context.Context, targetHost string, count int) bool {
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
@@ -41,7 +40,6 @@ func validatePing(ctx context.Context, targetHost string, count int) bool {
 	return err == nil
 }
 
-//nolint:revive
 func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
 	var swapErr error
 	interfaceName := ""

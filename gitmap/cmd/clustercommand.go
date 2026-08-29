@@ -179,7 +179,6 @@ func performPreflight(flags ClusterFlags, selector cluster.TargetSelectorType, e
 	return nil
 }
 
-//nolint:revive
 func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
 	if dbConn == nil {
 		return 0
@@ -192,7 +191,6 @@ func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
 	return runId
 }
 
-//nolint:revive
 func updateRunCounts(ctx context.Context, dbConn *sql.DB, runId int64, totalNodes, succeeded, failed, skipped int) {
 	if dbConn == nil {
 		return

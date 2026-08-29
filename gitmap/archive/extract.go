@@ -34,7 +34,7 @@ type ExtractResult struct {
 // directory that either holds >1 entry OR holds at least one non-dir
 // entry. That real root is then moved (or its contents merged) into
 // `<destBaseDir>/<archiveBaseName>/`.
-//nolint:revive
+
 func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (ExtractResult, error) {
 	res := ExtractResult{UsedTempDir: true}
 	format, err := prepareExtractDest(ctx, srcArchive, destBaseDir)
@@ -52,7 +52,6 @@ func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (Extrac
 	return completeCompactExtract(ctx, srcArchive, destBaseDir, tempDir, res)
 }
 
-//nolint:revive
 func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Format, error) {
 	format, err := IdentifyArchive(ctx, srcArchive)
 	if err != nil {
@@ -64,7 +63,6 @@ func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Fo
 	return format, nil
 }
 
-//nolint:revive
 func completeCompactExtract(ctx context.Context, srcArchive, destBaseDir, tempDir string, res ExtractResult) (ExtractResult, error) {
 	written, err := extractAllIntoDir(ctx, srcArchive, tempDir)
 	if err != nil {
@@ -90,7 +88,7 @@ func completeCompactExtract(ctx context.Context, srcArchive, destBaseDir, tempDi
 // using mholt/archives. Returns the entry count written. Symlinks are
 // rejected (security: a malicious archive could otherwise escape destDir
 // even after path sanitation).
-//nolint:revive
+
 func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, error) {
 	f, err := os.Open(srcArchive)
 	if err != nil {
@@ -112,7 +110,6 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 	return runArchiveExtraction(ctx, extractor, stream, destDir)
 }
 
-//nolint:revive
 func runArchiveExtraction(ctx context.Context, extractor archives.Extractor, stream io.Reader, destDir string) (int, error) {
 	written := 0
 	handler := func(_ context.Context, entry archives.FileInfo) error {

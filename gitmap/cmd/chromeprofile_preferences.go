@@ -24,7 +24,7 @@ import (
 // fatal — the on-disk copy succeeded regardless.
 func patchCopiedChromeProfilePreferences(dstPath, displayName string) error {
 	prefPath := filepath.Join(dstPath, constants.ChromePreferencesFile)
-	raw, err := os.ReadFile(prefPath) //nolint:gosec // chrome user-data path
+	raw, err := os.ReadFile(prefPath)
 	if err != nil && os.IsNotExist(err) {
 		return nil
 	}

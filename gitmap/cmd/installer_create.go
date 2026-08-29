@@ -117,7 +117,7 @@ func parseCreateFlags(args []string) (*CreateInstallerFlags, error) {
 }
 
 // executeCreate executes the persistence logic for creating an installer in the DB.
-//nolint:revive
+
 func executeCreate(ctx context.Context, db *store.DB, flags *CreateInstallerFlags) error {
 	if db == nil {
 		return apperror.New("executeCreate", "E_INSTALLER_INVALID_INPUT", map[string]any{

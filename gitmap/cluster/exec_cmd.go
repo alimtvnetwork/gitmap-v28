@@ -11,6 +11,7 @@ import (
 
 //nolint:unused
 type execRunnerFunc func(cmd *exec.Cmd) error
+
 //nolint:unused
 type lookPathFunc func(file string) (string, error)
 
@@ -28,7 +29,7 @@ func defaultLookPath(file string) (string, error) {
 }
 
 // ExecCmd runs a command on the target node (currently executing locally via the OS shell).
-//nolint:revive
+
 func ExecCmd(ctx context.Context, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error) {
 	var cmd *exec.Cmd
 	isWindows := runtime.GOOS == constants.WindowsOS

@@ -15,7 +15,7 @@ import (
 )
 
 // ExecRestart triggers a machine restart.
-//nolint:revive
+
 func ExecRestart(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
@@ -23,7 +23,6 @@ func ExecRestart(ctx context.Context, node ClusterNode, forceLifecycle bool, pro
 	return runCmd(buildRestartCmd(ctx))
 }
 
-//nolint:revive
 func buildRestartCmd(ctx context.Context) *exec.Cmd {
 	if runtime.GOOS == constants.PlatformWindows {
 		return exec.CommandContext(ctx, constants.LifecycleCmdShutdown, constants.ArgRestart, constants.ArgTimeout, constants.ArgZero)
@@ -32,7 +31,7 @@ func buildRestartCmd(ctx context.Context) *exec.Cmd {
 }
 
 // ExecShutdown triggers a machine shutdown.
-//nolint:revive
+
 func ExecShutdown(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
@@ -40,7 +39,6 @@ func ExecShutdown(ctx context.Context, node ClusterNode, forceLifecycle bool, pr
 	return runCmd(buildShutdownCmd(ctx))
 }
 
-//nolint:revive
 func buildShutdownCmd(ctx context.Context) *exec.Cmd {
 	if runtime.GOOS == constants.PlatformWindows {
 		return exec.CommandContext(ctx, constants.LifecycleCmdShutdown, constants.ArgShutdownWin, constants.ArgTimeout, constants.ArgZero)
@@ -49,7 +47,7 @@ func buildShutdownCmd(ctx context.Context) *exec.Cmd {
 }
 
 // ExecLogoff logs off the current user.
-//nolint:revive
+
 func ExecLogoff(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
@@ -57,7 +55,6 @@ func ExecLogoff(ctx context.Context, node ClusterNode, forceLifecycle bool, prov
 	return runCmd(buildLogoffCmd(ctx))
 }
 
-//nolint:revive
 func buildLogoffCmd(ctx context.Context) *exec.Cmd {
 	if runtime.GOOS == constants.PlatformWindows {
 		return exec.CommandContext(ctx, constants.LifecycleCmdLogoff)
@@ -107,7 +104,6 @@ func extractExitCode(err error) int {
 	return constants.ExitCodeError
 }
 
-//nolint:revive
 func PrintCountdown(ctx context.Context, nodes []string, action string, seconds int) error {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
@@ -120,7 +116,6 @@ func PrintCountdown(ctx context.Context, nodes []string, action string, seconds 
 	return nil
 }
 
-//nolint:revive
 func countdownTick(ctx context.Context, tickChan <-chan time.Time, action string, count, remaining int) error {
 	fmt.Printf(constants.MsgClusterCountdown+"\n", action, count, remaining)
 	select {

@@ -22,7 +22,6 @@ type ClusterRun struct {
 	SkippedNodes   *int
 }
 
-//nolint:revive
 func InsertClusterRun(ctx context.Context, db *sql.DB, run ClusterRun) (int64, error) {
 	query := `
 		INSERT INTO ClusterRun (
@@ -55,7 +54,6 @@ func InsertClusterRun(ctx context.Context, db *sql.DB, run ClusterRun) (int64, e
 	return id, nil
 }
 
-//nolint:revive
 func UpdateClusterRun(ctx context.Context, db *sql.DB, id int64, finishedAt *time.Time, totalNodes, succeededNodes, failedNodes, skippedNodes *int) error {
 	query := `
 		UPDATE ClusterRun
@@ -70,7 +68,6 @@ func UpdateClusterRun(ctx context.Context, db *sql.DB, id int64, finishedAt *tim
 	return nil
 }
 
-//nolint:revive
 func SelectClusterRun(ctx context.Context, db *sql.DB, runRef string) (ClusterRun, error) {
 	query := `
 		SELECT 
@@ -106,7 +103,6 @@ func SelectClusterRun(ctx context.Context, db *sql.DB, runRef string) (ClusterRu
 	return run, nil
 }
 
-//nolint:revive
 func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ([]ClusterRun, error) {
 	query := `
 		SELECT 

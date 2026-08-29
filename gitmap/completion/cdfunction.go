@@ -186,7 +186,6 @@ func reconcileCDFunction(text, snippet string) string {
 
 	return appendBlock(text[:start]+after, desired)
 }
-//nolint:unused
 
 //nolint:unused
 func moveCDFunctionToEnd(text, snippet string) string {

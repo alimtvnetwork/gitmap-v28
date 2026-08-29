@@ -25,7 +25,7 @@ const maxListEntries = 50_000
 
 // ListEntries returns up to maxListEntries entries plus the detected
 // format. Used by `gitmap uzc --list <archive>`.
-//nolint:revive
+
 func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -47,7 +47,6 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 	return extractListEntries(ctx, extractor, stream, format)
 }
 
-//nolint:revive
 func extractListEntries(ctx context.Context, extractor archives.Extractor, stream io.Reader, format archives.Format) ([]Entry, Format, error) {
 	var out []Entry
 	err := extractor.Extract(ctx, stream, func(_ context.Context, entry archives.FileInfo) error {

@@ -14,7 +14,7 @@ func printScheduleTree(taskName, interval, shellType string, steps []string) {
 }
 
 // printScheduleSummaryTree renders a structured tree view for a scheduled task.
-//nolint:unused
+
 func printScheduleSummaryTree(taskName, interval, shellType string, steps []string) {
 	printScheduleTreeHeader(taskName, interval, shellType)
 	renderScheduleStepList(steps)
@@ -22,7 +22,7 @@ func printScheduleSummaryTree(taskName, interval, shellType string, steps []stri
 }
 
 // printScheduleTreeHeader outputs the root node with task name and interval/shell details.
-//nolint:unused
+
 func printScheduleTreeHeader(taskName, interval, shellType string) {
 	details := formatScheduleDetails(interval, shellType)
 	if details != "" {
@@ -36,7 +36,7 @@ func printScheduleTreeHeader(taskName, interval, shellType string) {
 }
 
 // formatScheduleDetails formats the interval and shell metadata string.
-//nolint:unused
+
 func formatScheduleDetails(interval, shellType string) string {
 	hasInterval := interval != ""
 	hasShell := shellType != ""
@@ -53,7 +53,7 @@ func formatScheduleDetails(interval, shellType string) string {
 }
 
 // renderScheduleStepList iterates over schedule steps and prints branch lines.
-//nolint:unused
+
 func renderScheduleStepList(steps []string) {
 	stepCount := len(steps)
 	if stepCount == 0 {
@@ -66,7 +66,7 @@ func renderScheduleStepList(steps []string) {
 }
 
 // renderScheduleStepNode renders an individual step branch line.
-//nolint:unused
+
 func renderScheduleStepNode(stepText string, isLastStep bool) {
 	connector := constants.TreeBranch
 	if isLastStep {

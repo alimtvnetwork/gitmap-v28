@@ -11,7 +11,7 @@ import (
 
 // Run executes the ag command.
 func Run(args []string) error {
-	if len(args) > 0 && strings.ToLower(args[0]) == "install" {
+	if len(args) > 0 && strings.EqualFold(args[0], "install") {
 		return runAgInstall()
 	}
 

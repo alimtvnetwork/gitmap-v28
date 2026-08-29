@@ -123,7 +123,7 @@ func (f FormatType) Extension() string {
 // magic bytes. Used as the authoritative format check after extension-
 // based guesses, since a misnamed file (foo.zip that is really a tarball)
 // would otherwise produce a misleading ArchiveHistory.ArchiveFormat row.
-//nolint:revive
+
 func IdentifyArchive(ctx context.Context, path string) (FormatType, error) {
 	f, err := os.Open(path)
 	if err != nil {

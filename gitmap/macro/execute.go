@@ -12,7 +12,7 @@ import (
 )
 
 // Execute runs all steps in a macro.
-//nolint:revive
+
 func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	fmt.Printf("  %s▶ Executing Macro: %q (%d steps)%s\n\n",
 		constants.ColorCyan, m.Name, len(m.Steps), constants.ColorReset)
@@ -41,7 +41,6 @@ func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	return nil
 }
 
-//nolint:revive
 func executeStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions) error {
 	fmt.Printf("  [%2d/%d] ➜ %s ... ", idx, total, step.CommandLine)
 	start := time.Now()

@@ -1,7 +1,7 @@
 package committransfer
 
 // Compile-time + plumbing assertions for the v5.83.0 --max-history-scan
-// escape hatch (spec 114 Gap A follow-up). The runtime behaviour
+// escape hatch (spec 114 Gap A follow-up). The runtime behavior
 // (bounded vs unbounded `git log`) is covered indirectly by the
 // existing TestPlanIdempotenceBeyond200Commits regression guard, which
 // continues to pass because the default (0) preserves the unbounded
@@ -12,7 +12,7 @@ import "testing"
 // TestOptions_MaxHistoryScanZeroIsUnbounded pins the contract that
 // the zero value of Options.MaxHistoryScan means "unbounded" so
 // existing callers (and Go zero-value semantics) keep the v5.78.0+
-// behaviour automatically.
+// behavior automatically.
 func TestOptions_MaxHistoryScanZeroIsUnbounded(t *testing.T) {
 	var opts Options
 	if opts.MaxHistoryScan != 0 {

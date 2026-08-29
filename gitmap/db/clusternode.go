@@ -21,7 +21,6 @@ type ClusterNode struct {
 	PackageManager *string
 }
 
-//nolint:revive
 func InsertOrUpdateClusterNode(ctx context.Context, db *sql.DB, node ClusterNode) error {
 	query := `
 		INSERT INTO ClusterNode (
@@ -48,7 +47,6 @@ func InsertOrUpdateClusterNode(ctx context.Context, db *sql.DB, node ClusterNode
 	return nil
 }
 
-//nolint:revive
 func ListClusterNodes(ctx context.Context, db *sql.DB) ([]ClusterNode, error) {
 	query := `
 		SELECT 
@@ -80,7 +78,6 @@ func ListClusterNodes(ctx context.Context, db *sql.DB) ([]ClusterNode, error) {
 	return nodes, nil
 }
 
-//nolint:revive
 func GetClusterNode(ctx context.Context, db *sql.DB, id string) (ClusterNode, error) {
 	query := `
 		SELECT 
@@ -103,7 +100,6 @@ func GetClusterNode(ctx context.Context, db *sql.DB, id string) (ClusterNode, er
 	return n, nil
 }
 
-//nolint:revive
 func UpdateClusterNodePassword(ctx context.Context, db *sql.DB, id string, hash *string) error {
 	query := `UPDATE ClusterNode SET PasswordHash = ? WHERE NodeId = ?`
 	_, err := db.ExecContext(ctx, query, hash, id)
@@ -113,7 +109,6 @@ func UpdateClusterNodePassword(ctx context.Context, db *sql.DB, id string, hash 
 	return nil
 }
 
-//nolint:revive
 func DeleteClusterNode(ctx context.Context, db *sql.DB, id string) error {
 	query := `DELETE FROM ClusterNode WHERE NodeId = ?`
 	_, err := db.ExecContext(ctx, query, id)
@@ -123,7 +118,6 @@ func DeleteClusterNode(ctx context.Context, db *sql.DB, id string) error {
 	return nil
 }
 
-//nolint:revive
 func DeleteClusterRunsBefore(ctx context.Context, db *sql.DB, before time.Time) (int64, error) {
 	query := `DELETE FROM ClusterRun WHERE StartedAt < ?`
 	res, err := db.ExecContext(ctx, query, before)
@@ -141,7 +135,6 @@ type ClusterStats struct {
 	MostUsedSubCmd   string
 }
 
-//nolint:revive
 func GetClusterStats(ctx context.Context, db *sql.DB) (ClusterStats, error) {
 	var stats ClusterStats
 

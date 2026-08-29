@@ -36,7 +36,6 @@ func runClusterHistory(args []string) error {
 	return nil
 }
 
-//nolint:revive
 func printClusterHistoryList(ctx context.Context, conn *sql.DB) {
 	runs, err := db.ListClusterRuns(ctx, conn, constants.ClusterDefaultHistoryLimit)
 	if err != nil {
@@ -72,7 +71,6 @@ func countClusterRunNodes(r db.ClusterRun) (int, int, int) {
 	return nodes, ok, fail
 }
 
-//nolint:revive
 func printClusterRunDetails(ctx context.Context, conn *sql.DB, runRef string) {
 	run, err := db.SelectClusterRun(ctx, conn, runRef)
 	if err != nil {
@@ -93,14 +91,12 @@ func printClusterRunDetails(ctx context.Context, conn *sql.DB, runRef string) {
 	}
 }
 
-//nolint:revive
 func printClusterExecResultRow(ctx context.Context, conn *sql.DB, res db.ClusterExecResult) {
 	displayStr := formatClusterNodeDisplay(ctx, conn, res.NodeId)
 	exitCode, duration := formatClusterExecMetrics(res)
 	fmt.Printf("%-20s %-20s %-15s %-8s %s\n", displayStr, res.SubCommand, res.ResultStatus.String(), exitCode, duration)
 }
 
-//nolint:revive
 func formatClusterNodeDisplay(ctx context.Context, conn *sql.DB, nodeId string) string {
 	node, err := db.GetClusterNode(ctx, conn, nodeId)
 	if err == nil {
@@ -227,7 +223,6 @@ func loadClusterImportNodes(file string) []db.ClusterNode {
 	return nodes
 }
 
-//nolint:revive
 func importClusterNodes(ctx context.Context, conn *sql.DB, nodes []db.ClusterNode) {
 	existingMap := getExistingClusterNodesMap(ctx, conn)
 	inserted, updated, skipped := 0, 0, 0
@@ -245,7 +240,6 @@ func importClusterNodes(ctx context.Context, conn *sql.DB, nodes []db.ClusterNod
 	fmt.Printf("Inserted: %d, Updated: %d, Skipped: %d\n", inserted, updated, skipped)
 }
 
-//nolint:revive
 func getExistingClusterNodesMap(ctx context.Context, conn *sql.DB) map[string]bool {
 	existing, _ := db.ListClusterNodes(ctx, conn)
 	m := make(map[string]bool, len(existing))
@@ -381,7 +375,7 @@ func printClusterNodesTable(nodes []db.ClusterNode) {
 		if n.LastHeartbeat != nil {
 			hb = n.LastHeartbeat.Format(time.RFC3339)
 		}
-		if strings.ToLower(n.Status) == constants.ClusterStatusOffline || strings.ToLower(n.Status) == constants.ClusterStatusUnreachable {
+		if strings.EqualFold(n.Status, constants.ClusterStatusOffline) || strings.EqualFold(n.Status, constants.ClusterStatusUnreachable) {
 			unreachable = append(unreachable, n)
 		}
 		fmt.Printf("%-10d | %-15s | %-15s | %-10s | %-10s | %-10s | %s\n", n.DisplayId, n.Alias, n.IPAddress, n.OS, n.NodeRole, n.Status, hb)

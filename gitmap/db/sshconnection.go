@@ -16,7 +16,6 @@ type SSHConnection struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
-//nolint:revive
 func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnection) error {
 	query := `
 		INSERT INTO SSHConnection (
@@ -41,7 +40,6 @@ func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnec
 	return err
 }
 
-//nolint:revive
 func GetSSHConnections(ctx context.Context, db *sql.DB) ([]SSHConnection, error) {
 	query := `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection`
 	rows, err := db.QueryContext(ctx, query)
@@ -61,7 +59,6 @@ func GetSSHConnections(ctx context.Context, db *sql.DB) ([]SSHConnection, error)
 	return conns, rows.Err()
 }
 
-//nolint:revive
 func DeleteSSHConnection(ctx context.Context, db *sql.DB, alias string) error {
 	query := `DELETE FROM SSHConnection WHERE Alias = ?`
 	_, err := db.ExecContext(ctx, query, alias)

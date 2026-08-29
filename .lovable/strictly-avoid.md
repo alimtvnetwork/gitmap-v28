@@ -18,4 +18,6 @@ Strictly avoid using flash model for high concurrency batches that exceed rate l
 - NEVER rename API JSON boolean keys without verifying downstream Python/Bash scripts that consume them.
 
 - NEVER add or modify CLI constants, shell commands, or help text without subsequently running go generate ./... in the gitmap directory to prevent generated file drift.
-- NEVER run golangci-lint run --fix blindly. Destructive linters like gosimple (which inverts explicit boolean == false checks to !) and misspell (which breaks stable API JSON string values) directly conflict with project guidelines.
+- NEVER blindly commit a dirty working tree without verifying git status/diff, to avoid reverting previous linter fixes.
+- NEVER use British English spelling (e.g., `behaviour`, `recognise`) in the codebase; use US English to pass the misspell linter.
+

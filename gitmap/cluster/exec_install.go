@@ -17,7 +17,6 @@ type PackageResult struct {
 	Stderr      string
 }
 
-//nolint:revive
 func detectPackageManager(ctx context.Context) (string, error) {
 	isWindows := runtime.GOOS == constants.WindowsOS
 	if isWindows {
@@ -26,19 +25,16 @@ func detectPackageManager(ctx context.Context) (string, error) {
 	return detectUnixPackageManager(ctx)
 }
 
-//nolint:revive
 func detectWindowsPackageManager(ctx context.Context) (string, error) {
 	managers := []string{constants.PkgMgrWinget, constants.PkgMgrChocolatey}
 	return checkManagers(ctx, managers)
 }
 
-//nolint:revive
 func detectUnixPackageManager(ctx context.Context) (string, error) {
 	managers := []string{constants.PkgMgrBrew, constants.PkgMgrApt}
 	return checkManagers(ctx, managers)
 }
 
-//nolint:revive
 func checkManagers(ctx context.Context, managers []string) (string, error) {
 	for _, mgr := range managers {
 		cmd := exec.CommandContext(ctx, mgr, constants.PkgMgrVersionArg)
@@ -52,7 +48,7 @@ func checkManagers(ctx context.Context, managers []string) (string, error) {
 }
 
 // ExecInstall installs the specified packages using the detected package manager.
-//nolint:revive
+
 func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]PackageResult, error) {
 	mgr, err := detectPackageManager(ctx)
 	hasError := err != nil

@@ -22,7 +22,6 @@ func runSSH(args []string) error {
 	return nil
 }
 
-//nolint:revive
 func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) error {
 	if len(args) == 0 {
 		runSSHGenerate(args)

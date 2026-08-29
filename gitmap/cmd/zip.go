@@ -134,7 +134,7 @@ func splitCSV(raw string) []string {
 // resolveAllSources turns each user input into a ResolvedSource. On the
 // first failure the previously-resolved entries are still returned so
 // the caller's deferred cleanupAllSources can wipe their temp dirs.
-//nolint:revive
+
 func resolveAllSources(ctx context.Context, sources []string) ([]archive.ResolvedSource, error) {
 	out := make([]archive.ResolvedSource, 0, len(sources))
 	for _, s := range sources {
@@ -171,7 +171,7 @@ func resolvedToPaths(rs []archive.ResolvedSource) []string {
 // executeZip runs CreateArchive with history persistence. originalSrcs
 // is preserved (not the resolved temp paths) so the history row records
 // what the user actually typed.
-//nolint:revive
+
 func executeZip(ctx context.Context, opts archive.CreateOptions, originalSrcs []string) {
 	db, dbErr := openDB()
 	var historyID int64

@@ -9,7 +9,7 @@ import (
 )
 
 // InsertSSHHost inserts a new SSHHost into the database.
-//nolint:revive
+
 func InsertSSHHost(ctx context.Context, host SSHHost, tx *sql.Tx) error {
 	query := `
 		INSERT INTO ssh_hosts (id, alias, ip, username, created_at)
@@ -31,7 +31,7 @@ func InsertSSHHost(ctx context.Context, host SSHHost, tx *sql.Tx) error {
 }
 
 // GetHostByAlias retrieves an SSHHost by its alias.
-//nolint:revive
+
 func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, error) {
 	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts WHERE alias = ?`
 
@@ -53,7 +53,7 @@ func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, err
 }
 
 // DeleteHostByIP deletes an SSHHost by its IP.
-//nolint:revive
+
 func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
 	query := `DELETE FROM ssh_hosts WHERE ip = ?`
 	res, err := db.ExecContext(ctx, query, ip)
@@ -70,7 +70,7 @@ func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
 }
 
 // ListHosts retrieves all SSH hosts from the database.
-//nolint:revive
+
 func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts ORDER BY created_at DESC`
 

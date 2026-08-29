@@ -109,7 +109,7 @@ func parseUpdateFlags(args []string) (*UpdateInstallerFlags, error) {
 }
 
 // executeUpdate executes the update logic against the SQLite database.
-//nolint:revive
+
 func executeInstallerUpdate(ctx context.Context, db *store.DB, flags *UpdateInstallerFlags) error {
 	if db == nil {
 		return apperror.New("executeUpdate", "E_INSTALLER_INVALID_INPUT", map[string]any{

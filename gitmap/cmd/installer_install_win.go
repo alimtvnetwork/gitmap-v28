@@ -89,7 +89,7 @@ func parseInstallWinFlags(args []string) (*InstallWinFlags, error) {
 }
 
 // executeInstallWin runs the installation process for Windows scripts.
-//nolint:revive
+
 func executeInstallWin(ctx context.Context, db *store.DB, flags *InstallWinFlags) error {
 	if db == nil {
 		return apperror.New("executeInstallWin", "E_INSTALLER_INVALID_INPUT", map[string]any{

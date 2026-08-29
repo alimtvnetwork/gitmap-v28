@@ -84,7 +84,7 @@ func resolveUnzipInputs(positional []string) (src, dest string, err error) {
 }
 
 // runListMode prints the entry table for the archive at path and exits.
-//nolint:revive
+
 func runListMode(ctx context.Context, path string) error {
 	entries, format, err := archive.ListEntries(ctx, path)
 	if err != nil {
@@ -99,7 +99,7 @@ func runListMode(ctx context.Context, path string) error {
 
 // executeCompactExtract is the success-path: open DB, persist a
 // pre-flight history row, run the extraction, finalize the row.
-//nolint:revive
+
 func executeCompactExtract(ctx context.Context, resolved archive.ResolvedSource, originalSrc, dest string) {
 	db, dbErr := openDB()
 	var historyID int64

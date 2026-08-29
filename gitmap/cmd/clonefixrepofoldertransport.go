@@ -77,7 +77,7 @@ func hasDotGitDir(absPath string) bool {
 }
 
 // isSSHURL classifies a URL as SSH (shorthand or scheme). Anything
-// else — including https://, http://, file://, or unrecognised — is
+// else — including https://, http://, file://, or unrecognized — is
 // treated as not-SSH so the caller defaults to the HTTPS-friendly
 // branch.
 func isSSHURL(url string) bool {

@@ -25,7 +25,7 @@ import (
 // tryRunRepoReclone owns the command and returns true when it
 // handled (and exited / completed) the request. Returns false so
 // the caller can continue with the manifest pipeline.
-//nolint:unused
+
 func tryRunRepoReclone(args []string) bool {
 	yes, positionals := splitRepoRecloneArgs(args)
 	target, ok := resolveRepoRecloneTarget(positionals)
@@ -39,9 +39,9 @@ func tryRunRepoReclone(args []string) bool {
 
 // splitRepoRecloneArgs separates the -y / --y / -yes flag from
 // positionals without disturbing the broader flagset. Anything we
-// don't recognise is forwarded as a positional so the manifest
+// don't recognize is forwarded as a positional so the manifest
 // pipeline can still flag it.
-//nolint:unused
+
 func splitRepoRecloneArgs(args []string) (bool, []string) {
 	var yes bool
 	var positionals []string
@@ -62,7 +62,7 @@ func splitRepoRecloneArgs(args []string) (bool, []string) {
 // resolveRepoRecloneTarget returns an absolute path that is a git
 // repo, or ok=false if this invocation doesn't match the
 // single-repo shape.
-//nolint:unused
+
 func resolveRepoRecloneTarget(positionals []string) (string, bool) {
 	if len(positionals) > 1 {
 		return "", false
@@ -83,7 +83,6 @@ func resolveRepoRecloneTarget(positionals []string) (string, bool) {
 	return cwd, true
 }
 
-//nolint:unused
 func resolveRepoFromArg(arg string) (string, bool) {
 	abs, err := filepath.Abs(arg)
 	if err != nil {
@@ -101,7 +100,6 @@ func resolveRepoFromArg(arg string) (string, bool) {
 	return abs, true
 }
 
-//nolint:unused
 func isGitRepoDir(dir string) bool {
 	_, err := os.Stat(filepath.Join(dir, ".git"))
 
@@ -111,7 +109,7 @@ func isGitRepoDir(dir string) bool {
 // runRepoReclone executes the destructive wipe + re-clone after
 // confirmation. Each failure path emits a standardized stderr line
 // per the zero-swallow error policy and exits non-zero.
-//nolint:unused
+
 func runRepoReclone(target string, yes bool) error {
 	origin, err := currentOriginURL(target)
 	if err != nil || origin == "" {
@@ -152,7 +150,7 @@ func runRepoReclone(target string, yes bool) error {
 // confirmRepoReclone reads y/N from stdin. Non-TTY callers get a
 // hard refusal pointing at -y; this prevents `yes | gitmap rc` from
 // silently nuking the wrong tree in a CI job.
-//nolint:unused
+
 func confirmRepoReclone(target, origin string) bool {
 	isNonStdinTTY := !isStdinTTY()
 	if isNonStdinTTY {
@@ -169,7 +167,6 @@ func confirmRepoReclone(target, origin string) bool {
 	return strings.EqualFold(strings.TrimSpace(line), "y")
 }
 
-//nolint:unused
 func isStdinTTY() bool {
 	fi, err := os.Stdin.Stat()
 	if err != nil {

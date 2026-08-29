@@ -78,7 +78,7 @@ func (db *DB) SetRepoIdentifiedTransport(url, transport string) (int64, error) {
 
 // ClassifyURLTransport returns "ssh" for SSH-shorthand or ssh:// URLs,
 // "https" for http(s):// URLs, and "" for anything unrecognized.
-// Centralised here so the reclone flow and the lookup helper agree
+// Centralized here so the reclone flow and the lookup helper agree
 // on classification — no drift with cmd/clonefixrepofoldertransport.go.
 func ClassifyURLTransport(url string) string {
 	lower := strings.ToLower(strings.TrimSpace(url))
