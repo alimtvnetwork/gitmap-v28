@@ -357,13 +357,13 @@ func runSyncPrettierRC(dry, force bool) error {
 	sort.Strings(added)
 	sort.Strings(overwritten)
 
-	if dry == true && len(added) > 0 {
+	if dry && len(added) > 0 {
 		fmt.Printf("  +   %s would add: %s\n", path, strings.Join(added, ", "))
 	}
-	if dry == true && len(overwritten) > 0 {
+	if dry && len(overwritten) > 0 {
 		fmt.Printf("  ~   %s would overwrite (--force): %s\n", path, strings.Join(overwritten, ", "))
 	}
-	if dry == true {
+	if dry {
 		return nil
 	}
 

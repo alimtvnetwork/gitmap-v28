@@ -40,35 +40,30 @@ func persistChromeProfile(name, sourcePath string, rec chromeExportRecord) {
 		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
 		return
 	}
-	if rec.JSONPath != "" {
-		err = db.InsertChromeProfileExport(id, constants.OutputJSON, rec.JSONPath, rec.JSONSize)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
-			return
-		}
+	if err := persistExportItem(db, id, constants.OutputJSON, rec.JSONPath, rec.JSONSize); err != nil {
+		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+		return
 	}
-	if rec.CSVPath != "" {
-		err = db.InsertChromeProfileExport(id, constants.OutputCSV, rec.CSVPath, rec.CSVSize)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
-			return
-		}
+	if err := persistExportItem(db, id, constants.OutputCSV, rec.CSVPath, rec.CSVSize); err != nil {
+		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+		return
 	}
-	if rec.ZIPPath != "" {
-		err = db.InsertChromeProfileExport(id, constants.OutputZIP, rec.ZIPPath, rec.ZIPSize)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
-			return
-		}
+	if err := persistExportItem(db, id, constants.OutputZIP, rec.ZIPPath, rec.ZIPSize); err != nil {
+		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+		return
 	}
-	if rec.SQLitePath != "" {
-		err = db.InsertChromeProfileExport(id, constants.OutputSQLite, rec.SQLitePath, rec.SQLiteSize)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
-			return
-		}
+	if err := persistExportItem(db, id, constants.OutputSQLite, rec.SQLitePath, rec.SQLiteSize); err != nil {
+		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+		return
 	}
 	fmt.Printf(constants.MsgChromeProfileDBSynced, name)
+}
+
+func persistExportItem(db *store.DB, id int64, kind, path string, size int) error {
+	if path == "" {
+		return nil
+	}
+	return db.InsertChromeProfileExport(id, kind, path, size)
 }
 
 // listChromeProfilesFromDB prints the tracked profiles section after

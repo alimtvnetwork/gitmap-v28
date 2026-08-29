@@ -192,10 +192,7 @@ func renderLine(line string) {
 	}
 
 	if measuringHelp {
-		l := lipgloss.Width(cmd)
-		if l > maxHelpCmdLen {
-			maxHelpCmdLen = l
-		}
+		updateMaxHelpCmdLen(cmd)
 		return
 	}
 
@@ -220,18 +217,30 @@ func renderLine(line string) {
 	prefix := fmt.Sprintf("  %s%s  ", cmd, strings.Repeat(" ", pad))
 	descWidth := termWidth - lipgloss.Width(prefix)
 
-	if descWidth > 10 {
-		wrapped := wrapText(fullDesc, descWidth)
-		lines := strings.Split(wrapped, "\n")
-		for i, l := range lines {
-			if i == 0 {
-				fmt.Printf("%s%s\n", prefix, l)
-			} else {
-				fmt.Printf("%s%s\n", strings.Repeat(" ", lipgloss.Width(prefix)), l)
-			}
-		}
-	} else {
+	if descWidth <= 10 {
 		fmt.Printf("%s%s\n", prefix, fullDesc)
+		return
+	}
+	printWrappedHelpLines(prefix, fullDesc, descWidth)
+}
+
+func updateMaxHelpCmdLen(cmd string) {
+	l := lipgloss.Width(cmd)
+	if l > maxHelpCmdLen {
+		maxHelpCmdLen = l
+	}
+}
+
+func printWrappedHelpLines(prefix, fullDesc string, descWidth int) {
+	wrapped := wrapText(fullDesc, descWidth)
+	lines := strings.Split(wrapped, "\n")
+	indent := strings.Repeat(" ", lipgloss.Width(prefix))
+	for i, l := range lines {
+		if i == 0 {
+			fmt.Printf("%s%s\n", prefix, l)
+			continue
+		}
+		fmt.Printf("%s%s\n", indent, l)
 	}
 }
 

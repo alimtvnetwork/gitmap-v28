@@ -23,26 +23,7 @@ func runCT(args []string) error {
 		return nil
 	}
 
-	// Install or Update action
-	var targetDirs []string
-	if len(opts.Targets) > 0 {
-		for _, t := range opts.Targets {
-			resolved, err := ResolvePromptTarget(t)
-			if err == nil {
-				targetDirs = append(targetDirs, resolved...)
-			}
-		}
-	} else if opts.IsAll {
-		resolved, err := ResolveAllWorkDirPromptTargets()
-		if err == nil {
-			targetDirs = resolved
-		}
-	} else {
-		resolved, err := ResolvePromptTarget("")
-		if err == nil {
-			targetDirs = resolved
-		}
-	}
+	targetDirs := resolveCTTargetDirs(opts)
 
 	targetDirs = FilterPromptExclusions(targetDirs, opts.Exclude)
 	if len(targetDirs) == 0 {
@@ -68,4 +49,29 @@ func runCT(args []string) error {
 	RenderPromptInstallSummary(results)
 	ReportPromptFailures(results)
 	return nil
+}
+
+//nolint:unused
+func resolveCTTargetDirs(opts promptInstallOptions) []string {
+	if len(opts.Targets) > 0 {
+		return resolvePromptTargetsList(opts.Targets)
+	}
+	if opts.IsAll {
+		resolved, _ := ResolveAllWorkDirPromptTargets()
+		return resolved
+	}
+	resolved, _ := ResolvePromptTarget("")
+	return resolved
+}
+
+//nolint:unused
+func resolvePromptTargetsList(targets []string) []string {
+	var targetDirs []string
+	for _, t := range targets {
+		resolved, err := ResolvePromptTarget(t)
+		if err == nil {
+			targetDirs = append(targetDirs, resolved...)
+		}
+	}
+	return targetDirs
 }

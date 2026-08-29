@@ -73,7 +73,7 @@ func runFix(args []string, aliasOverride string) error {
 		return nil // don't crash, let user see git output
 	}
 
-	fmt.Printf("\n%s Fix applied successfully!\n", constants.ColorGreen+"✓"+constants.ColorReset)
+	fmt.Printf("\n%s Fix applied !successfully\n", constants.ColorGreen+"✓"+constants.ColorReset)
 
 	// Clean up state so we don't accidentally run it again blindly
 	os.Remove(stateFile)

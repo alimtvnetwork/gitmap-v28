@@ -68,7 +68,7 @@ func printExistingKeyOnDisk(db *store.DB, name, keyPath, host string) {
 func upsertExistingKeyToDB(db *store.DB, name, keyPath, pub, fingerprint string) {
 	email := resolveGitEmail()
 	exists := db.SSHKeyExists(name)
-	if exists == true {
+	if exists {
 		errUpdate := db.UpdateSSHKey(name, keyPath, pub, fingerprint, email)
 		printDBUpdateError(errUpdate)
 
@@ -98,7 +98,7 @@ func backupKeyForRegenerate(keyPath string) error {
 	}
 	_, errStat := os.Stat(keyPath + ".pub")
 	hasPub := errStat == nil
-	if hasPub == false {
+	if !hasPub {
 		return nil
 	}
 

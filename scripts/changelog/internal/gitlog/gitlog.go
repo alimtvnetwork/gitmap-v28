@@ -84,12 +84,7 @@ func highestSemverTag(repoRoot string) (string, error) {
 
 	out, err := cmd.Output()
 	if err != nil {
-		_, isExitErr := err.(*exec.ExitError)
-		if isExitErr {
-			return "", nil
-		}
-
-		return "", fmt.Errorf("git tag failed: %w", err)
+		return handleHighestSemverTagError(err)
 	}
 
 	for _, line := range strings.Split(string(out), "\n") {
@@ -100,6 +95,13 @@ func highestSemverTag(repoRoot string) (string, error) {
 	}
 
 	return "", nil
+}
+
+func handleHighestSemverTagError(err error) (string, error) {
+	if _, isExitErr := err.(*exec.ExitError); isExitErr {
+		return "", nil
+	}
+	return "", fmt.Errorf("git tag failed: %w", err)
 }
 
 func readCommits(repoRoot, rev string) ([]Commit, error) {

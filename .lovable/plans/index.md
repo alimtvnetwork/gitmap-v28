@@ -1,9 +1,9 @@
 # Plans Index
 
 ## Pending Plans
-- [ ] [01-coding-guideline-fixes.md](file:///d:/work/gitmap/.lovable/plans/pending/01-coding-guideline-fixes.md) — 150-step audit and enforcement of coding guidelines, boolean standards, enum suffixes, and function caps.
 
 ## Completed Plans
+- [x] [17-boolean-and-naming-audit.md](file:///d:/work/gitmap/.lovable/plans/completed/17-boolean-and-naming-audit.md) — Repository-wide boolean conventions, positive prefixes, implicit checks, enum Type suffixes, and nested if flattening.
 - [x] [00-execution-plan.md](file:///d:/work/gitmap/.lovable/plans/completed/00-execution-plan.md)
 - [x] [16-error-management-audit.md](file:///d:/work/gitmap/.lovable/plans/completed/16-error-management-audit.md) — Autonomous repository-wide error management audit, AppError wrappers, cliexit handlers, and CI error linter.
 - [x] [15-centralized-error-handling-and-exit-architecture.md](file:///d:/work/gitmap/.lovable/plans/completed/15-centralized-error-handling-and-exit-architecture.md) — Centralized error management, AppError enrichment, and CLI exit dispatcher.

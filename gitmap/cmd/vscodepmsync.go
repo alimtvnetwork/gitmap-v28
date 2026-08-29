@@ -65,11 +65,11 @@ func loadVSCodePMEntries(opts vscodePMSyncOpts) (string, []vscodepm.Entry, bool)
 	}
 	isExplicitErr := opts.ProjectsJSON != "" && errExplicit != nil
 	isExplicitSuccess := opts.ProjectsJSON != "" && errExplicit == nil
-	if isExplicitErr == true {
+	if isExplicitErr {
 		reportVSCodePMSoftError(errExplicit)
 		return opts.ProjectsJSON, nil, false
 	}
-	if isExplicitSuccess == true {
+	if isExplicitSuccess {
 		return opts.ProjectsJSON, entriesExplicit, true
 	}
 

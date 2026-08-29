@@ -128,7 +128,7 @@ func resolveMakeLastRepo(ctx ownerContext, base string) (string, int) {
 	if errCache == nil {
 		nameRefresh, verRefresh, okRefresh = lookupIndexHighest(ctx.Provider, ctx.Owner, base)
 	}
-	if okRefresh == true {
+	if okRefresh {
 		return nameRefresh, verRefresh
 	}
 	// Fallback: scan names in memory (works even when the index
@@ -138,7 +138,7 @@ func resolveMakeLastRepo(ctx ownerContext, base string) (string, int) {
 	if errFallback == nil {
 		nameFallback, verFallback, okFallback = visibility.HighestVersionedMatch(names, base)
 	}
-	if okFallback == true {
+	if okFallback {
 		return nameFallback, verFallback
 	}
 

@@ -52,7 +52,7 @@ func extractDocsZipEntry(f *zip.File, absTarget string, totalSize int64) (int64,
 		return 0, fmt.Errorf("illegal file path in zip: %s", f.Name)
 	}
 
-	if f.FileInfo().IsDir() == true {
+	if f.FileInfo().IsDir() {
 		return handleExtractDir(absDestPath)
 	}
 

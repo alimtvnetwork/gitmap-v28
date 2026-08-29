@@ -10,22 +10,37 @@ import (
 // DetectPRStatus checks for tracking branches or remote pull references,
 // and optionally counts Open PRs using the GitHub CLI.
 func DetectPRStatus(repoPath string) string {
-	// 1. Check for open PRs via GitHub CLI
+	if ghStatus, ok := detectGitHubPRs(repoPath); ok {
+		return ghStatus
+	}
+	return detectGitBranchTracking(repoPath)
+}
+
+func detectGitHubPRs(repoPath string) (string, bool) {
 	cmdGh := exec.Command("gh", "pr", "list", "--state", "open", "--json", "number")
 	cmdGh.Dir = repoPath
-	if out, err := cmdGh.Output(); err == nil {
-		var prs []interface{}
-		if json.Unmarshal(out, &prs) == nil {
-			if len(prs) == 0 {
-				return "0 PRs"
-			} else if len(prs) == 1 {
-				return "1 Open PR"
-			}
-			return fmt.Sprintf("%d Open PRs", len(prs))
-		}
+	out, err := cmdGh.Output()
+	if err != nil {
+		return "", false
 	}
+	var prs []interface{}
+	if err := json.Unmarshal(out, &prs); err != nil {
+		return "", false
+	}
+	return formatPRCount(len(prs)), true
+}
 
-	// 2. Fallback to basic git branch tracking
+func formatPRCount(count int) string {
+	if count == 0 {
+		return "0 PRs"
+	}
+	if count == 1 {
+		return "1 Open PR"
+	}
+	return fmt.Sprintf("%d Open PRs", count)
+}
+
+func detectGitBranchTracking(repoPath string) string {
 	cmd := exec.Command("git", "-C", repoPath, "for-each-ref", "--format=%(upstream:track)", "refs/heads")
 	out, err := cmd.Output()
 	if err != nil {

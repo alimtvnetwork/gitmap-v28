@@ -15,10 +15,7 @@ func NextSemanticVersion(current string) string {
 
 	parts := strings.Split(vStr, ".")
 	if len(parts) != 3 {
-		if hasPrefix {
-			return "v1.0.1"
-		}
-		return "1.0.1"
+		return defaultFallbackVersion(hasPrefix)
 	}
 
 	patch, err := strconv.Atoi(parts[2])
@@ -32,4 +29,11 @@ func NextSemanticVersion(current string) string {
 		return "v" + next
 	}
 	return next
+}
+
+func defaultFallbackVersion(hasPrefix bool) string {
+	if hasPrefix {
+		return "v1.0.1"
+	}
+	return "1.0.1"
 }

@@ -106,18 +106,10 @@ func runRmGit(args []string) error {
 		return apperror.NewSimple("SHA fragment must be at least 4 characters.", "E9000")
 	}
 
-	// Resolve the full SHA from the fragment
-	fullSha, err := execGitOutputCP("rev-parse", shaFragment)
-	if err != nil {
-		// Try log search if rev-parse fails
-		fullSha, err = execGitOutputCP("log", "--all", "--format=%H", "--grep="+shaFragment)
-		if err != nil || fullSha == "" {
-			return apperror.NewSimple("Could not resolve SHA fragment: "+shaFragment, "E9000")
-		}
-		// Take first match
-		fullSha = strings.Split(strings.TrimSpace(fullSha), "\n")[0]
+	fullSha, errResolve := resolveSHAFragment(shaFragment)
+	if errResolve != nil {
+		return errResolve
 	}
-	fullSha = strings.TrimSpace(fullSha)
 
 	pterm.Info.Printf("Resolved SHA: %s\n", fullSha)
 	pterm.Warning.Println("This will rewrite history. Use with caution.")
@@ -149,7 +141,7 @@ func executeCommitPush(commitMessage string) *apperror.AppError {
 		return apperror.WrapSimple(err, "git push failed:")
 	}
 
-	pterm.Success.Println("Done! Changes committed and pushed.")
+	pterm.Success.Println("!Done Changes committed and pushed.")
 	return nil
 }
 
@@ -167,4 +159,17 @@ func execGitOutputCP(gitArgs ...string) (string, error) {
 	cmd := exec.Command("git", gitArgs...)
 	out, err := cmd.Output()
 	return string(out), err
+}
+
+func resolveSHAFragment(shaFragment string) (string, error) {
+	fullSha, err := execGitOutputCP("rev-parse", shaFragment)
+	if err == nil && fullSha != "" {
+		return strings.TrimSpace(fullSha), nil
+	}
+	fullSha, err = execGitOutputCP("log", "--all", "--format=%H", "--grep="+shaFragment)
+	if err != nil || fullSha == "" {
+		return "", apperror.NewSimple("Could not resolve SHA fragment: "+shaFragment, "E9000")
+	}
+	firstMatch := strings.Split(strings.TrimSpace(fullSha), "\n")[0]
+	return strings.TrimSpace(firstMatch), nil
 }

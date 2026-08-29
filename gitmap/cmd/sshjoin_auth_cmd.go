@@ -40,10 +40,10 @@ func getLocalPublicKey(ctx context.Context, keyPath string, parse bool) (string,
 		return "", apperror.New("getLocalPublicKey", "E_INTERNAL_ERROR", map[string]any{"err": err.Error()})
 	}
 	data, err := os.ReadFile(resolvedPath)
+	if os.IsNotExist(err) {
+		return "", apperror.New("getLocalPublicKey", "E_NOT_FOUND", map[string]any{"msg": "key missing", "path": resolvedPath})
+	}
 	if err != nil {
-		if os.IsNotExist(err) {
-			return "", apperror.New("getLocalPublicKey", "E_NOT_FOUND", map[string]any{"msg": "key missing", "path": resolvedPath})
-		}
 		return "", apperror.New("getLocalPublicKey", "E_INTERNAL_ERROR", map[string]any{"err": err.Error(), "path": resolvedPath})
 	}
 

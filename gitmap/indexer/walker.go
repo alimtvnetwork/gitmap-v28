@@ -62,14 +62,7 @@ func (w *Walker) Walk(ctx context.Context, workers int) error {
 		}
 
 		if d.IsDir() {
-			name := d.Name()
-			if name == ".git" || name == "node_modules" {
-				return filepath.SkipDir
-			}
-			if !w.ForceDot && strings.HasPrefix(name, ".") && path != w.RepoPath {
-				return filepath.SkipDir
-			}
-			return nil
+			return w.handleDirSkip(d, path)
 		}
 
 		info, err := d.Info()
@@ -104,12 +97,20 @@ func (w *Walker) Walk(ctx context.Context, workers int) error {
 	return err
 }
 
+func (w *Walker) handleDirSkip(d fs.DirEntry, path string) error {
+	name := d.Name()
+	if name == ".git" || name == "node_modules" {
+		return filepath.SkipDir
+	}
+	if !w.ForceDot && strings.HasPrefix(name, ".") && path != w.RepoPath {
+		return filepath.SkipDir
+	}
+	return nil
+}
+
 func (w *Walker) processFile(ctx context.Context, info FileInfo) (bool, error) {
 	if !info.IsBig {
-		b, err := os.ReadFile(info.AbsolutePath)
-		if err == nil {
-			info.Content = string(b)
-		}
+		info.Content = readFileContentString(info.AbsolutePath)
 	}
 
 	now := time.Now().Unix()
@@ -129,4 +130,12 @@ func (w *Walker) processFile(ctx context.Context, info FileInfo) (bool, error) {
 	)
 
 	return err == nil, err
+}
+
+func readFileContentString(path string) string {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }

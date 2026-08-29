@@ -201,23 +201,31 @@ func applyCloneFixRepoScheme(url string, useSSH, useHTTPS bool) string {
 }
 
 func applySSHScheme(url string, useSSH bool) (string, bool) {
-	if converted, ok := ConvertURLToSSH(url); useSSH && ok {
-		if converted != url {
-			fmt.Printf("↪ --ssh rewrite: %s → %s\n", url, converted)
-		}
-		return converted, true
+	if !useSSH {
+		return url, false
 	}
-	return url, false
+	converted, ok := ConvertURLToSSH(url)
+	if !ok {
+		return url, false
+	}
+	if converted != url {
+		fmt.Printf("↪ --ssh rewrite: %s → %s\n", url, converted)
+	}
+	return converted, true
 }
 
 func applyHTTPSScheme(url string, useHTTPS bool) (string, bool) {
-	if converted, ok := ConvertURLToHTTPS(url); useHTTPS && ok {
-		if converted != url {
-			fmt.Printf("↪ --https rewrite: %s → %s\n", url, converted)
-		}
-		return converted, true
+	if !useHTTPS {
+		return url, false
 	}
-	return url, false
+	converted, ok := ConvertURLToHTTPS(url)
+	if !ok {
+		return url, false
+	}
+	if converted != url {
+		fmt.Printf("↪ --https rewrite: %s → %s\n", url, converted)
+	}
+	return converted, true
 }
 
 // maybeRunFixRepoStep runs `fix-repo --all` only when the cloned repo

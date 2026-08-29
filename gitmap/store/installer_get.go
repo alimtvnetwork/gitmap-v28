@@ -35,17 +35,14 @@ func (db *DB) GetInstallerBySlug(slug string) (*model.InstallerScript, error) {
 		&script.CreatedAt,
 		&script.UpdatedAt,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		appErr := apperror.Wrap(apperror.ErrNotFound, "GetInstallerBySlug", map[string]any{"slug": slug})
+		appErr.Code = "E_INSTALLER_NOT_FOUND"
+		return nil, appErr
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			appErr := apperror.Wrap(apperror.ErrNotFound, "GetInstallerBySlug", map[string]any{"slug": slug})
-			appErr.Code = "E_INSTALLER_NOT_FOUND"
-
-			return nil, appErr
-		}
-
 		appErr := apperror.Wrap(err, "GetInstallerBySlug", map[string]any{"slug": slug})
 		appErr.Code = "E_INSTALLER_GET_FAILED"
-
 		return nil, appErr
 	}
 

@@ -46,12 +46,17 @@ func runWorkDirRm(target string) error {
 	}
 	defer db.Close()
 
-	if err := db.DeleteWorkDir(absPath); err != nil {
-		if errID := db.DeleteWorkDir(target); errID != nil {
-			return errID
-		}
+	if err := deleteWorkDirByPathOrTarget(db, absPath, target); err != nil {
+		return err
 	}
 
 	fmt.Printf("✓ Work directory removed: %s\n", target)
 	return nil
+}
+
+func deleteWorkDirByPathOrTarget(db *store.DB, absPath, target string) error {
+	if err := db.DeleteWorkDir(absPath); err == nil {
+		return nil
+	}
+	return db.DeleteWorkDir(target)
 }

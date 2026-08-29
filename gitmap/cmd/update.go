@@ -29,10 +29,10 @@ import (
 // for users who maintain a local clone and want to ship in-tree changes.
 func runUpdate() error {
 	requireOnline()
-	if hasFlag(constants.FlagSourceRebuild) == false && runUpdateRemoteInstall() == true {
+	if !hasFlag(constants.FlagSourceRebuild) && runUpdateRemoteInstall() {
 		return nil
 	}
-	if hasFlag(constants.FlagSourceRebuild) == false {
+	if !hasFlag(constants.FlagSourceRebuild) {
 		fmt.Fprint(os.Stderr, constants.MsgUpdateRemoteFallback)
 	}
 	repoPath, err := resolveRepoPath()
@@ -107,7 +107,7 @@ func tryUpdaterFallback() bool {
 
 	errRun := cmd.Run()
 	var exitErr *exec.ExitError
-	if errRun != nil && errors.As(errRun, &exitErr) == true {
+	if errRun != nil && errors.As(errRun, &exitErr) {
 		appErr := apperror.NewWithDetails(
 			"cmd.update.updaterFallback",
 			"E1132",
@@ -280,7 +280,7 @@ func getFlagValue(name string) string {
 
 // initRunnerVerbose initializes verbose logging if --verbose flag is present.
 func initRunnerVerbose() {
-	if hasFlag(constants.FlagVerbose) == false {
+	if !hasFlag(constants.FlagVerbose) {
 		return
 	}
 	log, err := verbose.Init()
@@ -353,7 +353,7 @@ func printUpdateSummary(oldVer, newVer, repoPath string) {
 func printUpdateChangelog() {
 	entries, err := release.ReadChangelog()
 	hasEntries := err == nil && len(entries) > 0
-	if hasEntries == false {
+	if !hasEntries {
 		return
 	}
 

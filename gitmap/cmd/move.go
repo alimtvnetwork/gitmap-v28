@@ -137,14 +137,20 @@ func newMoveFlagSet() (*flag.FlagSet, *movemergeFlagSet) {
 func mustResolve(raw string, isLeft bool, opts movemerge.Options) movemerge.Endpoint {
 	ep, err := movemerge.ResolveEndpoint(raw, isLeft, opts)
 	if err != nil {
-		if db, dbErr := openDB(); dbErr == nil {
-			PrintRepoSuggestions(db, raw)
-			db.Close()
-		}
+		printEndpointSuggestions(raw)
 		cliexit.Fail(constants.CmdMv, constants.OpResolveEndpoint, raw, err, constants.ExitCodeError)
 	}
 
 	return ep
+}
+
+func printEndpointSuggestions(raw string) {
+	db, dbErr := openDB()
+	if dbErr != nil {
+		return
+	}
+	defer db.Close()
+	PrintRepoSuggestions(db, raw)
 }
 
 // logResolved emits the [cmd] resolving LEFT/RIGHT lines.

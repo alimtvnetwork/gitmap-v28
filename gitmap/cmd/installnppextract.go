@@ -59,7 +59,7 @@ func extractZipEntry(target string, file *zip.File) {
 		return
 	}
 
-	if file.FileInfo().IsDir() == true {
+	if file.FileInfo().IsDir() {
 		handleNppExtractDir(destPath)
 		return
 	}

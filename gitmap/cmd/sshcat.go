@@ -51,7 +51,7 @@ func runSSHCat(args []string) error {
 	// Fallback: if the default name was requested and missing, and there
 	// is exactly one stored key, use that one.
 	hasDefaultAndErr := err != nil && name == constants.DefaultSSHKeyName
-	if hasDefaultAndErr == true {
+	if hasDefaultAndErr {
 		key, err = fallbackAndAssign(db, key, err)
 	}
 
@@ -66,7 +66,7 @@ func runSSHCat(args []string) error {
 
 	diskPath := defaultSSHKeyPath(name)
 	exists := keyExistsOnDisk(diskPath)
-	if exists == false {
+	if !exists {
 		printSSHNotFound(db, name)
 	}
 
@@ -100,7 +100,7 @@ func printSSHNotFound(db *store.DB, name string) {
 func fallbackToSingleKey(db *store.DB, fallbackKey *model.SSHKey, fallbackErr error) (*model.SSHKey, error) {
 	keys, lerr := db.ListSSHKeys()
 	hasOneKey := lerr == nil && len(keys) == 1
-	if hasOneKey == true {
+	if hasOneKey {
 		return &keys[0], nil
 	}
 	return fallbackKey, fallbackErr

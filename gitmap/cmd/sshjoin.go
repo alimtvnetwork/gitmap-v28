@@ -103,18 +103,26 @@ func runSSHJoinInteractive(args []string) error {
 	}
 	osType := promptInput(reader, "OS (windows/unix)")
 
-	var encPass string
-	if password != "" {
-		var err error
-		encPass, err = crypto.Encrypt([]byte(password), getEncryptionKey())
-		if err != nil {
-			fmt.Printf("Encryption failed: %v\n", err)
-			return nil
-		}
+	encPass, ok := maybeEncryptPassword(password)
+	if !ok {
+		return nil
 	}
 
 	saveSSHConnection(alias, ip, user, encPass, keyPath, osType)
 	return nil
+}
+
+//nolint:unused
+func maybeEncryptPassword(password string) (string, bool) {
+	if password == "" {
+		return "", true
+	}
+	encPass, err := crypto.Encrypt([]byte(password), getEncryptionKey())
+	if err != nil {
+		fmt.Printf("Encryption failed: %v\n", err)
+		return "", false
+	}
+	return encPass, true
 }
 
 //nolint:unused

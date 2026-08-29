@@ -93,17 +93,19 @@ func pickSourceDisplayName(name string, left, right movemerge.Endpoint, keepUrl 
 	if name == constants.CmdCommitLeft {
 		display = right.DisplayName
 	}
-	if !keepUrl {
-		// Strip url and use base name
-		base := display
-		if strings.Contains(base, "://") || strings.HasPrefix(base, "git@") {
-			parts := strings.Split(base, "/")
-			base = parts[len(parts)-1]
-			base = strings.TrimSuffix(base, ".git")
-		}
-		return base
+	if keepUrl {
+		return display
 	}
-	return display
+	return sanitizeURLBaseName(display)
+}
+
+func sanitizeURLBaseName(base string) string {
+	if strings.Contains(base, "://") || strings.HasPrefix(base, "git@") {
+		parts := strings.Split(base, "/")
+		base = parts[len(parts)-1]
+		return strings.TrimSuffix(base, ".git")
+	}
+	return base
 }
 
 //nolint:unused

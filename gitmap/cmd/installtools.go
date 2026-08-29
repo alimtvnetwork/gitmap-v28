@@ -448,7 +448,7 @@ func runInstallGitHubDesktopLinux(opts installOptions) error {
 	runInstallCommand([]string{"sudo", "apt", "install", "-y", "github-desktop"}, opts)
 
 	recordInstallation(opts.Tool, "apt")
-	fmt.Printf("  Done!\n")
+	fmt.Printf("  !Done\n")
 	return nil
 }
 

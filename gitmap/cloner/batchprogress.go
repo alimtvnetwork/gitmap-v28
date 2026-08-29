@@ -35,7 +35,6 @@ type BatchProgress struct {
 	spinners map[string]*pterm.SpinnerPrinter
 }
 
-// NewBatchProgress creates a progress tracker for a named operation.
 func NewBatchProgress(total int, operation string, quiet bool) *BatchProgress {
 	p := &BatchProgress{
 		total:     total,
@@ -45,13 +44,17 @@ func NewBatchProgress(total int, operation string, quiet bool) *BatchProgress {
 		spinners:  make(map[string]*pterm.SpinnerPrinter),
 	}
 	if !quiet {
-		p.multi = &pterm.DefaultMultiPrinter
-		if pterm.Output {
-			p.multi.Start()
-		}
-		pterm.Info.Printf("[gitmap] Processing %d repositories for %s...\n", total, operation)
+		initBatchProgressUI(p, total, operation)
 	}
 	return p
+}
+
+func initBatchProgressUI(p *BatchProgress, total int, operation string) {
+	p.multi = &pterm.DefaultMultiPrinter
+	if pterm.Output {
+		p.multi.Start()
+	}
+	pterm.Info.Printf("[gitmap] Processing %d repositories for %s...\n", total, operation)
 }
 
 // SetStopOnFail enables early termination after the first failure.

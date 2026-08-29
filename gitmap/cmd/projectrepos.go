@@ -50,8 +50,8 @@ func parseProjectReposFlags(args []string) (bool, bool) {
 func printProjectCount(db *store.DB, typeKey string) {
 	count, err := db.CountProjectsByTypeKey(typeKey)
 
-	isLegacyErr := err != nil && isLegacyDataError(err) == true
-	if isLegacyErr == true {
+	isLegacyErr := err != nil && isLegacyDataError(err)
+	if isLegacyErr {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
@@ -67,8 +67,8 @@ func printProjectCount(db *store.DB, typeKey string) {
 func printProjectList(db *store.DB, typeKey string, jsonOut bool) {
 	projects, err := db.SelectProjectsByTypeKey(typeKey)
 
-	isLegacyErr := err != nil && isLegacyDataError(err) == true
-	if isLegacyErr == true {
+	isLegacyErr := err != nil && isLegacyDataError(err)
+	if isLegacyErr {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
@@ -82,7 +82,7 @@ func printProjectList(db *store.DB, typeKey string, jsonOut bool) {
 
 		return
 	}
-	if jsonOut == true {
+	if jsonOut {
 		printProjectsJSON(projects)
 
 		return

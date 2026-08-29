@@ -72,11 +72,12 @@ func buildInitialManifest(vPath string, initialVersion string) model.RepositoryV
 		Description: "Frontend application inheriting root version",
 	}
 
-	if data, err := os.ReadFile(vPath); err == nil {
+	data, err := os.ReadFile(vPath)
+	if err == nil {
 		_ = json.Unmarshal(data, &manifest)
-		if manifest.Version == "" {
-			manifest.Version = initialVersion
-		}
+	}
+	if manifest.Version == "" {
+		manifest.Version = initialVersion
 	}
 	return manifest
 }

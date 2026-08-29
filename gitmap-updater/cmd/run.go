@@ -72,14 +72,18 @@ func launchWorker(copyPath, version string) {
 	cmd.Stdin = os.Stdin
 
 	if err := cmd.Run(); err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			os.Exit(exitErr.ExitCode())
-		}
-
-		fmt.Fprintf(os.Stderr, ErrLaunchWorker, err)
-		os.Exit(1)
+		handleWorkerExitError(err)
 	}
+}
+
+func handleWorkerExitError(err error) {
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) {
+		os.Exit(exitErr.ExitCode())
+	}
+
+	fmt.Fprintf(os.Stderr, ErrLaunchWorker, err)
+	os.Exit(1)
 }
 
 // copyBinary copies src to dst.

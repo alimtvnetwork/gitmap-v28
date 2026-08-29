@@ -18,7 +18,7 @@ var cgVersionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#bd93f9"))
 
 type cgUpdateResult struct {
 	repo       string
-	isSuccess  bool
+	isFail     bool
 	errorMsg   string
 	oldVersion string
 	newVersion string
@@ -44,13 +44,13 @@ func executeCGWorkers(repos []string) {
 func runCgWorker(repo string, wg *sync.WaitGroup, sem chan struct{}, results chan<- cgUpdateResult) error {
 	defer wg.Done()
 	defer func() { <-sem }()
-	res := cgUpdateResult{repo: repo, isSuccess: true}
+	res := cgUpdateResult{repo: repo, isFail: false}
 	if oldMeta, err := ReadCGMetadata(repo); err == nil {
 		res.oldVersion = oldMeta.Version
 	}
 	out, runErr := runCgScriptInRepo(repo)
 	if runErr != nil {
-		res.isSuccess = false
+		res.isFail = true
 		res.errorMsg = runErr.Error()
 	}
 	res.stdout = out
@@ -86,7 +86,7 @@ func runCgScriptInRepo(repo string) (string, error) {
 func printCGUpdateSummary(results <-chan cgUpdateResult) {
 	fmt.Println(cgHeaderStyle.Render("\n--- Update Summary ---"))
 	for r := range results {
-		if !r.isSuccess {
+		if r.isFail {
 			fmt.Printf("%s [%s] Failed: %s\n", cgErrorStyle.Render("X"), r.repo, r.errorMsg)
 		} else if !r.hasChanged {
 			fmt.Printf("%s [%s] Up to date (%s)\n", cgSuccessStyle.Render("OK"), r.repo, cgVersionStyle.Render(r.newVersion))

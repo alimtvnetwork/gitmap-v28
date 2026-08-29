@@ -66,7 +66,7 @@ func TestTrimGitOutputFallback(t *testing.T) {
 // The version strings in this test file (e.g. "v9.9.0", "v9.9.1", "v9.9.2") are MOCK
 // SYNTHETIC VALUES used SOLELY for unit testing and stdout format validation.
 //
-// 🚫 NEVER USE, ASSUME, OR INFER THESE VALUES AS THE ACTUAL REPOSITORY VERSION!
+// 🚫 NEVER USE, ASSUME, OR INFER THESE VALUES AS THE ACTUAL REPOSITORY !VERSION
 //
 // 📍 THE SINGLE SOURCE OF TRUTH (SSOT) FOR THE REPOSITORY VERSION IS `version.json`
 // AT THE REPOSITORY ROOT.

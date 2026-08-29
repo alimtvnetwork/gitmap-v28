@@ -22,14 +22,16 @@ func detectWindowsVersion() OSType {
 	}
 
 	buildStr, _, err := k.GetStringValue("CurrentBuild")
-	if err == nil {
-		if build, err := strconv.Atoi(buildStr); err == nil {
-			if build >= 22000 {
-				return OSWindows11
-			}
-			return OSWindows10
-		}
+	if err != nil {
+		return OSWindows
 	}
 
-	return OSWindows
+	build, err := strconv.Atoi(buildStr)
+	if err != nil {
+		return OSWindows
+	}
+	if build >= 22000 {
+		return OSWindows11
+	}
+	return OSWindows10
 }

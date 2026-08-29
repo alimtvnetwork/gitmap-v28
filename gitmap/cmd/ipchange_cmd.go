@@ -52,13 +52,10 @@ func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
 		return apperror.Wrap(swapErr, "executeIPChange", map[string]any{"ip": newIP})
 	}
 
-	if doPing {
-		if !validatePing(ctx, "8.8.8.8", 3) {
-			fmt.Println("reverting")
-			// swap back placeholder
-			_ = swapIP(ctx, interfaceName, newIP, "192.168.1.100") // rollback
-			return apperror.New("executeIPChange", "E_INTERNAL_ERROR", map[string]any{"msg": "ping failed, reverting"})
-		}
+	if doPing && !validatePing(ctx, "8.8.8.8", 3) {
+		fmt.Println("reverting")
+		_ = swapIP(ctx, interfaceName, newIP, "192.168.1.100") // rollback
+		return apperror.New("executeIPChange", "E_INTERNAL_ERROR", map[string]any{"msg": "ping failed, reverting"})
 	}
 	return nil
 }

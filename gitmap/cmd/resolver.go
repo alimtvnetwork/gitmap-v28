@@ -99,11 +99,14 @@ func resolveEndpointString(raw string) string {
 		}
 	}
 	db, err := openDB()
-	if err == nil && db != nil {
-		defer db.Close()
-		if rec, err := ResolveRepo(db, raw); err == nil && rec != nil {
-			return rec.AbsolutePath
-		}
+	if err != nil || db == nil {
+		return raw
+	}
+	defer db.Close()
+
+	rec, err := ResolveRepo(db, raw)
+	if err == nil && rec != nil {
+		return rec.AbsolutePath
 	}
 	return raw
 }

@@ -21,7 +21,7 @@ import (
 
 func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubCommand, dbConn *sql.DB, runId int64, maxWorkers int, resultCh chan<- db.ClusterExecResult, verbose bool) {
 	isInvalidWorkers := maxWorkers <= 0
-	if isInvalidWorkers == true {
+	if isInvalidWorkers {
 		maxWorkers = 10
 	}
 
@@ -167,27 +167,15 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 				exitCode = *lastRes.ExitCode
 			}
 
-			if ctx.Err() != nil {
+			isSkp, isSucc, isFail := reportNodeExecutionResult(spinner, nodeLabel, displayCmd, durMs, exitCode, ctx.Err(), allOk)
+			if isSkp {
 				skipped++
-				if spinner != nil {
-					spinner.Warning(fmt.Sprintf("%s Skipped", nodeLabel))
-				} else {
-					pterm.Warning.Printf("%s Skipped\n", nodeLabel)
-				}
-			} else if allOk {
+			}
+			if isSucc {
 				succeeded++
-				if spinner != nil {
-					spinner.Success(fmt.Sprintf("%s %s (%dms, exit 0)", nodeLabel, displayCmd, durMs))
-				} else {
-					pterm.Success.Printf("%s %s (%dms, exit 0)\n", nodeLabel, displayCmd, durMs)
-				}
-			} else {
+			}
+			if isFail {
 				failed++
-				if spinner != nil {
-					spinner.Fail(fmt.Sprintf("%s %s (exit %d)", nodeLabel, displayCmd, exitCode))
-				} else {
-					pterm.Error.Printf("%s %s (exit %d)\n", nodeLabel, displayCmd, exitCode)
-				}
 			}
 			mu.Unlock()
 		}
@@ -201,14 +189,54 @@ func RunPool(ctx context.Context, nodes []ClusterNode, subCmds []ClusterSubComma
 	wg.Wait()
 
 	if ctx.Err() == nil {
-		updateCounts(false)
-		if isMultiActive {
-			multi.Stop()
-		}
-		// If zero padding is required for RUN-NNN, we format it. But runId might be just the DB ID.
-		fmt.Printf("\n┌ Cluster Run RUN-%d ─────────────────┐\n", runId)
-		fmt.Printf("│ Nodes: %d  OK: %d  Failed: %d  Skipped: %d │\n", totalNodes, succeeded, failed, skipped)
-		fmt.Println("└────────────────────────────────────────┘")
+		finishClusterPool(&multi, isMultiActive, updateCounts, runId, totalNodes, succeeded, failed, skipped)
 	}
 	close(resultCh)
+}
+
+func reportNodeExecutionResult(spinner *pterm.SpinnerPrinter, nodeLabel, displayCmd string, durMs int, exitCode int, ctxErr error, allOk bool) (bool, bool, bool) {
+	if ctxErr != nil {
+		reportNodeSkipped(spinner, nodeLabel)
+		return true, false, false
+	}
+	if allOk {
+		reportNodeSuccess(spinner, nodeLabel, displayCmd, durMs)
+		return false, true, false
+	}
+	reportNodeFailure(spinner, nodeLabel, displayCmd, exitCode)
+	return false, false, true
+}
+
+func reportNodeSkipped(spinner *pterm.SpinnerPrinter, nodeLabel string) {
+	if spinner != nil {
+		spinner.Warning(fmt.Sprintf("%s Skipped", nodeLabel))
+		return
+	}
+	pterm.Warning.Printf("%s Skipped\n", nodeLabel)
+}
+
+func reportNodeSuccess(spinner *pterm.SpinnerPrinter, nodeLabel, displayCmd string, durMs int) {
+	if spinner != nil {
+		spinner.Success(fmt.Sprintf("%s %s (%dms, exit 0)", nodeLabel, displayCmd, durMs))
+		return
+	}
+	pterm.Success.Printf("%s %s (%dms, exit 0)\n", nodeLabel, displayCmd, durMs)
+}
+
+func reportNodeFailure(spinner *pterm.SpinnerPrinter, nodeLabel, displayCmd string, exitCode int) {
+	if spinner != nil {
+		spinner.Fail(fmt.Sprintf("%s %s (exit %d)", nodeLabel, displayCmd, exitCode))
+		return
+	}
+	pterm.Error.Printf("%s %s (exit %d)\n", nodeLabel, displayCmd, exitCode)
+}
+
+func finishClusterPool(multi *pterm.MultiPrinter, isMultiActive bool, updateCounts func(bool), runId int64, totalNodes, succeeded, failed, skipped int) {
+	updateCounts(false)
+	if isMultiActive {
+		multi.Stop()
+	}
+	fmt.Printf("\n┌ Cluster Run RUN-%d ─────────────────┐\n", runId)
+	fmt.Printf("│ Nodes: %d  OK: %d  Failed: %d  Skipped: %d │\n", totalNodes, succeeded, failed, skipped)
+	fmt.Println("└────────────────────────────────────────┘")
 }

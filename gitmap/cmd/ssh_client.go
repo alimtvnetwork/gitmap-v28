@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -48,15 +47,6 @@ func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			return &apperror.AppError{
-				Op:    "SpawnSSH",
-				Code:  "E_INTERNAL_ERROR",
-				Cause: exitErr,
-				Ctx:   map[string]any{"target": target.String(), "args": args},
-			}
-		}
 		return &apperror.AppError{
 			Op:    "SpawnSSH",
 			Code:  "E_INTERNAL_ERROR",

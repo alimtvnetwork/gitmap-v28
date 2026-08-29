@@ -140,7 +140,7 @@ func gitClonePartial(plan Plan, dest string, progress io.Writer) error {
 }
 
 // gitSparseInit enables sparse-checkout. Cone mode is the default --
-// non-cone is opt-in via plan.Cone == false (which ParseArgs flips
+// non-cone is opt-in via !plan.Cone (which ParseArgs flips
 // when the path list needs file-level patterns).
 func gitSparseInit(plan Plan, dest string, progress io.Writer) error {
 	args := []string{"sparse-checkout", "init"}

@@ -63,20 +63,20 @@ func utilityDispatchEntries() []dispatchEntry {
 // runHelpDispatch handles the `help` subcommand including topic
 // help, --groups, --compact, and the default usage screen.
 func runHelpDispatch() error {
-	hasTopic := len(os.Args) >= 3 && isFlagToken(os.Args[2]) == false
-	if hasTopic == true {
+	hasTopic := len(os.Args) >= 3 && !isFlagToken(os.Args[2])
+	if hasTopic {
 		dispatchHelpTopic(os.Args[2])
 		return nil
 	}
 
-	if hasFlag(constants.FlagJSON) == true {
+	if hasFlag(constants.FlagJSON) {
 		printUsageJSON(resolveFilterQuery())
 		return nil
 	}
 
 	q := resolveFilterQuery()
-	needsFilter := len(q) > 0 || hasFlag(constants.FlagFilter) == true || hasFlag(constants.FlagFilterShort) == true
-	if needsFilter == true {
+	needsFilter := len(q) > 0 || hasFlag(constants.FlagFilter) || hasFlag(constants.FlagFilterShort)
+	if needsFilter {
 		printUsageFiltered(q)
 
 		return nil

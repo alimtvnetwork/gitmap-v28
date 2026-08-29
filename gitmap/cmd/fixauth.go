@@ -106,18 +106,18 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 		keyExists = true
 	}
 
-	if keyExists == true && force == false {
+	if keyExists && !force {
 		fmt.Printf("• key already exists, reusing: %s\n", keyPath)
 
 		return
 	}
-	if keyExists == true && assumeYes == false && confirmOverwrite(keyPath) == false {
+	if keyExists && !assumeYes && !confirmOverwrite(keyPath) {
 		fmt.Println("• aborted; existing key kept")
 		exitWith(0)
 
 		return
 	}
-	if keyExists == true {
+	if keyExists {
 		_ = os.Remove(keyPath)
 		_ = os.Remove(keyPath + ".pub")
 	}

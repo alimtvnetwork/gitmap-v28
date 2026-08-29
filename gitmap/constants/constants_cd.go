@@ -78,7 +78,7 @@ const ErrShellHandoffWriteFmt = "  ⚠ Could not write shell-handoff file %s: %v
 // CD wrapper verification messages.
 const (
 	WarnWrapperInstallFmt = "  ⚠ Could not auto-install command wrapper: %v\n"
-	MsgWrapperNotLoaded   = "  %s! Command wrapper not active%s — 'gitmap cd' printed the path but cannot change your directory yet.\n    Wrapper install/update was attempted; run: %s. $PROFILE%s (PowerShell) or %ssource ~/.bashrc%s / %ssource ~/.zshrc%s, then retry.\n"
+	MsgWrapperNotLoaded   = "  %s Command wrapper not active%s — 'gitmap cd' printed the path but cannot change your directory yet.\n    Wrapper install/update was attempted; run: %s. $PROFILE%s (PowerShell) or %ssource ~/.bashrc%s / %ssource ~/.zshrc%s, then retry.\n"
 	MsgWrapperVerifyOK    = "  %s✓%s Command wrapper is active (gitmap resolves as a function)\n"
 	MsgWrapperVerifyTip   = "\n  %s→%s To activate: restart your terminal or reload your profile\n    PowerShell: %s. $PROFILE%s | Bash: %ssource ~/.bashrc%s | Zsh: %ssource ~/.zshrc%s\n"
 )

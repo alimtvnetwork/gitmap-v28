@@ -155,7 +155,7 @@ const ReleaseVersionPage = () => {
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>
               <strong className="text-foreground">Version-pinned.</strong> Hard-fails
-              if the GitHub release for{" "}
+              when the GitHub release for{" "}
               <code className="font-mono text-primary">{version}</code> doesn&apos;t
               exist — never silently falls back to <em>latest</em>.
             </li>

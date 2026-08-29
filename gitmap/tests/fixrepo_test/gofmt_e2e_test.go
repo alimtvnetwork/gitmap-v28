@@ -60,7 +60,8 @@ func TestFixRepoGofmtCleanAfterRewrite(t *testing.T) {
 
 	stdoutBytes, _ := os.ReadFile(stdoutPath)
 	stderrBytes, _ := os.ReadFile(stderrPath)
-	out := append(stdoutBytes, stderrBytes...)
+	out := append([]byte{}, stdoutBytes...)
+	out = append(out, stderrBytes...)
 
 	t.Logf("fix-repo output:\n%s", out)
 

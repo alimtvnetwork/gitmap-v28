@@ -15,12 +15,7 @@ func runHead(args []string) error {
 	}
 
 	filePath := args[0]
-	lines := 10
-	if len(args) > 1 {
-		if val, err := strconv.Atoi(args[1]); err == nil && val > 0 {
-			lines = val
-		}
-	}
+	lines := parseLineCount(args, 10)
 
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -50,12 +45,7 @@ func runTail(args []string) error {
 	}
 
 	filePath := args[0]
-	lines := 10
-	if len(args) > 1 {
-		if val, err := strconv.Atoi(args[1]); err == nil && val > 0 {
-			lines = val
-		}
-	}
+	lines := parseLineCount(args, 10)
 
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -87,4 +77,15 @@ func runTail(args []string) error {
 		fmt.Println(buffer[(start+i)%len(buffer)])
 	}
 	return nil
+}
+
+func parseLineCount(args []string, defaultVal int) int {
+	if len(args) <= 1 {
+		return defaultVal
+	}
+	val, err := strconv.Atoi(args[1])
+	if err != nil || val <= 0 {
+		return defaultVal
+	}
+	return val
 }

@@ -23,7 +23,7 @@ const (
 const (
 	MsgSSHStatusHeader       = "\n\033[36mgitmap ssh status\033[0m\n"
 	MsgSSHStatusAgentRunning = "  \033[32m✓\033[0m ssh-agent reachable (SSH_AUTH_SOCK=%s)\n"
-	MsgSSHStatusAgentMissing = "  \033[33m!\033[0m ssh-agent NOT reachable — run `ssh-agent` and `ssh-add <key>`\n"
+	MsgSSHStatusAgentMissing = "  \033[!33m\033[0m ssh-agent NOT reachable — run `ssh-agent` and `ssh-add <key>`\n"
 	MsgSSHStatusKeysHeader   = "  loaded keys (%d):\n"
 	MsgSSHStatusKeyLine      = "    • %s\n"
 	MsgSSHStatusKeysNone     = "    (none — `ssh-add ~/.ssh/id_ed25519` to load)\n"

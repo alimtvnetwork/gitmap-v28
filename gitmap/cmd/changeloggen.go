@@ -35,16 +35,11 @@ func runChangelogGen(args []string) error {
 	version := resolveGenVersion(toRef)
 	section := release.FormatChangelogSection(version, commits)
 
-	fmt.Printf(constants.MsgChangelogGenHeader, fromTag, toRef)
-
-	if write {
-		if err := writeChangelogSection(section); err != nil {
-			return err
-		}
-	} else {
+	if !write {
 		printChangelogPreview(section)
+		return nil
 	}
-	return nil
+	return writeChangelogSection(section)
 }
 
 // parseChangelogGenFlags parses flags for changelog-generate.

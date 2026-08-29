@@ -170,14 +170,14 @@ func extractSSHHost(url string) string {
 
 	restSSH := strings.TrimPrefix(url, "ssh://")
 	atSSH := strings.Index(restSSH, "@")
-	if isSSHScheme == true && atSSH >= 0 {
+	if isSSHScheme && atSSH >= 0 {
 		restSSH = restSSH[atSSH+1:]
 	}
 	slashSSH := strings.IndexAny(restSSH, "/:")
-	if isSSHScheme == true && slashSSH >= 0 {
+	if isSSHScheme && slashSSH >= 0 {
 		return restSSH[:slashSSH]
 	}
-	if isSSHScheme == true {
+	if isSSHScheme {
 		return restSSH
 	}
 

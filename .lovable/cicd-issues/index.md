@@ -21,3 +21,4 @@
 - [30-smoke-installer-var-version.md](./30-smoke-installer-var-version.md): Fix smoke-installer.sh version extraction to support var Version alongside const Version.
 - [31-docs-site-usetheme-syntax-error.md](./31-docs-site-usetheme-syntax-error.md): Fix check!res typo in src/hooks/useTheme.ts breaking docs-site Vite build.
 - [32-root-cli-panic-on-zero-args.md](./32-root-cli-panic-on-zero-args.md): Fix panic("fatal error") in gitmap/cmd/root.go and across command files, ensuring zero-args CLI exits cleanly with usage.
+- [33-gocritic-appendassign-diff.md](./33-gocritic-appendassign-diff.md): Fix gocritic appendAssign new finding in CI diff gate and eliminate unused helper warnings.

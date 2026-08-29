@@ -90,10 +90,10 @@ func runChromeExportBookmarks(args []string) error {
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 	hasMatchOrTitle := match != "" || title != ""
-	if hasMatchOrTitle == true {
+	if hasMatchOrTitle {
 		roots = filterBookmarksByTitle(roots, match, title)
 	}
-	isEmptyRootsAfterMatch := hasMatchOrTitle == true && len(roots) == 0
+	isEmptyRootsAfterMatch := hasMatchOrTitle && len(roots) == 0
 	if isEmptyRootsAfterMatch {
 		return apperror.NewSimple("chrome export-bookmarks: ERROR no bookmarks matched", "E9000")
 	}

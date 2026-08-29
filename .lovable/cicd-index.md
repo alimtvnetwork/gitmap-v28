@@ -23,7 +23,8 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 10 | VS Code Project Manager Cross-Platform Slash Normalization | go test / Test Matrix | ✅ Resolved | [10-vscodepm-cross-platform-path-normalization.md](cicd-issues/10-vscodepm-cross-platform-path-normalization.md) |
 | 11 | cmdFaithfulExiter Mutex Isolation & maybeExitOnCmdFaithfulMismatch Race | go test -race / Test Matrix | ✅ Resolved | [11-clonetermverifyexit-process-exit-race.md](cicd-issues/11-clonetermverifyexit-process-exit-race.md) |
 | 12 | Query Wrapper Property Mismatch & E2E Typos | Audit / Test Matrix | ✅ Resolved | [12-query-wrapper-isfail-typo.md](cicd-issues/12-query-wrapper-isfail-typo.md) |
-| 13 | Cross-Platform `undefined: swapIP` & Go Filename Suffix Compiler Rules | go vet / go build matrix | ✅ Resolved | [13-undefined-swapip-cross-compile-filename-suffix.md](cicd-issues/13-undefined-swapip-cross-compile-filename-suffix.md) |
+| 32 | Panic on Zero-Args & Legacy Exit Refactor | CLI Runtime / Unit Tests | ✅ Resolved | [32-root-cli-panic-on-zero-args.md](cicd-issues/32-root-cli-panic-on-zero-args.md) |
+| 33 | Gocritic appendAssign Diff Failure & Unused Helpers | CI Diff Gate / golangci-lint | ✅ Resolved | [33-gocritic-appendassign-diff.md](cicd-issues/33-gocritic-appendassign-diff.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.

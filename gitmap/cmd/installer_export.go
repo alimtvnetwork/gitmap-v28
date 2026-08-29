@@ -66,19 +66,7 @@ func parseExportFlags(args []string, isAll bool) (*ExportInstallerFlags, error) 
 	out := fs.String("output", "", "Output zip file path")
 	fs.StringVar(out, "o", "", "Output shorthand")
 
-	var flagArgs []string
-	var positional []string
-	for i := 0; i < len(args); i++ {
-		if strings.HasPrefix(args[i], "-") {
-			flagArgs = append(flagArgs, args[i])
-			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-				flagArgs = append(flagArgs, args[i+1])
-				i++
-			}
-		} else {
-			positional = append(positional, args[i])
-		}
-	}
+	flagArgs, positional := separateFlagAndPositionalArgs(args)
 
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseExportFlags", map[string]any{"args": args})
@@ -91,23 +79,50 @@ func parseExportFlags(args []string, isAll bool) (*ExportInstallerFlags, error) 
 		targetPath = "gitmap-export.zip"
 	}
 
-	slug := ""
-	if !isAll {
-		if len(positional) > 0 {
-			slug = positional[0]
-		}
-		if strings.TrimSpace(slug) == "" {
-			return nil, apperror.New("parseExportFlags", "E_INSTALLER_INVALID_INPUT", map[string]any{
-				"error": "installer slug is required for single export",
-			})
-		}
+	if isAll {
+		return &ExportInstallerFlags{
+			Slug:       "",
+			OutputPath: targetPath,
+			ExportAll:  true,
+		}, nil
+	}
+
+	slug := extractFirstPositional(positional)
+	if slug == "" {
+		return nil, apperror.New("parseExportFlags", "E_INSTALLER_INVALID_INPUT", map[string]any{
+			"error": "installer slug is required for single export",
+		})
 	}
 
 	return &ExportInstallerFlags{
-		Slug:       strings.TrimSpace(slug),
+		Slug:       slug,
 		OutputPath: targetPath,
-		ExportAll:  isAll,
+		ExportAll:  false,
 	}, nil
+}
+
+func separateFlagAndPositionalArgs(args []string) ([]string, []string) {
+	var flagArgs []string
+	var positional []string
+	for i := 0; i < len(args); i++ {
+		if !strings.HasPrefix(args[i], "-") {
+			positional = append(positional, args[i])
+			continue
+		}
+		flagArgs = append(flagArgs, args[i])
+		if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+			flagArgs = append(flagArgs, args[i+1])
+			i++
+		}
+	}
+	return flagArgs, positional
+}
+
+func extractFirstPositional(positional []string) string {
+	if len(positional) == 0 {
+		return ""
+	}
+	return strings.TrimSpace(positional[0])
 }
 
 // writeZipEntry writes a JSON-marshaled installer script into a zip archive.
@@ -127,6 +142,17 @@ func writeZipEntry(zw *zip.Writer, script model.InstallerScript) error {
 	return errWrite
 }
 
+func resolveExportScripts(db *store.DB, flags *ExportInstallerFlags) ([]model.InstallerScript, error) {
+	if flags.ExportAll {
+		return db.ListInstallers()
+	}
+	item, err := db.GetInstallerBySlug(flags.Slug)
+	if err != nil {
+		return nil, err
+	}
+	return []model.InstallerScript{*item}, nil
+}
+
 // executeExport writes matching installer scripts to the specified zip file.
 
 func executeExport(ctx context.Context, db *store.DB, flags *ExportInstallerFlags) error {
@@ -134,19 +160,9 @@ func executeExport(ctx context.Context, db *store.DB, flags *ExportInstallerFlag
 		return apperror.New("executeExport", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "db cannot be nil"})
 	}
 
-	var scripts []model.InstallerScript
-	if flags.ExportAll {
-		list, errList := db.ListInstallers()
-		if errList != nil {
-			return errList
-		}
-		scripts = list
-	} else {
-		item, errGet := db.GetInstallerBySlug(flags.Slug)
-		if errGet != nil {
-			return errGet
-		}
-		scripts = append(scripts, *item)
+	scripts, errScripts := resolveExportScripts(db, flags)
+	if errScripts != nil {
+		return errScripts
 	}
 
 	if err := os.MkdirAll(filepath.Dir(flags.OutputPath), 0755); err != nil && filepath.Dir(flags.OutputPath) != "." {

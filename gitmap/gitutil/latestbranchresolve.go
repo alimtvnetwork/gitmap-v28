@@ -133,7 +133,7 @@ func extractContainsName(line, prefix string) string {
 
 		return ""
 	}
-	if strings.HasPrefix(trimmed, prefix) == false {
+	if !strings.HasPrefix(trimmed, prefix) {
 		return ""
 	}
 

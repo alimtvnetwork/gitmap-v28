@@ -33,13 +33,13 @@ func stripThemeFlag(args []string) []string {
 			applyThemeChoice(val)
 			continue
 		}
+		if (a == short || a == long) && i+1 < len(args) {
+			applyThemeChoice(args[i+1])
+			i++
+			continue
+		}
 		if a == short || a == long {
-			if i+1 < len(args) {
-				applyThemeChoice(args[i+1])
-				i++
-				continue
-			}
-			applyThemeChoice("") // will fail validation and print help
+			applyThemeChoice("")
 			continue
 		}
 		cleaned = append(cleaned, a)

@@ -94,17 +94,21 @@ func extractOriginURL(config string) string {
 		line := strings.TrimSpace(raw)
 		if strings.HasPrefix(line, constants.GitConfigSectionStart) {
 			inOriginSection = line == constants.GitConfigRemoteOrigin
-
 			continue
 		}
 		if inOriginSection && strings.HasPrefix(line, constants.GitConfigURLPrefix) {
-			parts := strings.SplitN(line, constants.GitConfigKeyValueSeparator, constants.GitConfigSplitPartsCount)
-			if len(parts) == constants.GitConfigSplitPartsCount {
-				return strings.TrimSpace(parts[1])
-			}
+			return parseURLValue(line)
 		}
 	}
 
+	return ""
+}
+
+func parseURLValue(line string) string {
+	parts := strings.SplitN(line, constants.GitConfigKeyValueSeparator, constants.GitConfigSplitPartsCount)
+	if len(parts) == constants.GitConfigSplitPartsCount {
+		return strings.TrimSpace(parts[1])
+	}
 	return ""
 }
 
@@ -117,15 +121,14 @@ func readHeadSHA(gitDir string) string {
 		return ""
 	}
 	head := strings.TrimSpace(string(body))
-	if strings.HasPrefix(head, constants.GitRefPrefix) {
-		refPath := strings.TrimSpace(strings.TrimPrefix(head, constants.GitRefPrefix))
-		refBytes, err := os.ReadFile(filepath.Join(gitDir, refPath))
-		if err != nil {
-			return ""
-		}
-
-		return strings.TrimSpace(string(refBytes))
+	if !strings.HasPrefix(head, constants.GitRefPrefix) {
+		return head
+	}
+	refPath := strings.TrimSpace(strings.TrimPrefix(head, constants.GitRefPrefix))
+	refBytes, err := os.ReadFile(filepath.Join(gitDir, refPath))
+	if err != nil {
+		return ""
 	}
 
-	return head
+	return strings.TrimSpace(string(refBytes))
 }

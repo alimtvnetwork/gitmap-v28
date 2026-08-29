@@ -61,46 +61,48 @@ func buildCommandArgs(args []string) string {
 	return strings.Join(args, " ")
 }
 
-// completePendingTask moves a pending task to the completed table.
 func completePendingTask(db *store.DB, taskID int64) {
 	if taskID == 0 {
 		return
 	}
-	if db == nil {
-		var err error
-		db, err = openDB()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "warning: could not open database to complete pending task %d: %v\n", taskID, err)
-			return
-		}
-		defer db.Close()
+	activeDB, cleanup := ensureDB(db, "complete", taskID)
+	if activeDB == nil {
+		return
 	}
+	defer cleanup()
 
-	err := db.CompleteTask(taskID)
+	err := activeDB.CompleteTask(taskID)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingCompleteFail, taskID, err)
 	}
 }
 
-// failPendingTask updates the failure reason for a pending task.
 func failPendingTask(db *store.DB, taskID int64, reason string) {
 	if taskID == 0 {
 		return
 	}
-	if db == nil {
-		var err error
-		db, err = openDB()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "warning: could not open database to fail pending task %d: %v\n", taskID, err)
-			return
-		}
-		defer db.Close()
+	activeDB, cleanup := ensureDB(db, "fail", taskID)
+	if activeDB == nil {
+		return
 	}
+	defer cleanup()
 
-	err := db.FailTask(taskID, reason)
+	err := activeDB.FailTask(taskID, reason)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingFailUpdate, taskID, err)
 	}
+}
+
+func ensureDB(db *store.DB, action string, taskID int64) (*store.DB, func()) {
+	if db != nil {
+		return db, func() {}
+	}
+	opened, err := openDB()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not open database to %s pending task %d: %v\n", action, taskID, err)
+		return nil, nil
+	}
+	return opened, func() { opened.Close() }
 }
 
 // closeTaskDB closes a *store.DB handle returned by createPendingTask

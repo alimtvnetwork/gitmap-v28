@@ -65,16 +65,21 @@ func resolveSnippetTarget(shell, dir, manager, profile string) (string, string, 
 }
 
 func resolveProfilePath(shell, profile string) (string, error) {
-	var err error
-	if len(profile) == 0 {
-		if profile, err = defaultProfilePath(shell); err != nil {
-			return "", err
-		}
+	resolved, err := ensureProfilePath(shell, profile)
+	if err != nil {
+		return "", err
 	}
-	if err := os.MkdirAll(filepath.Dir(profile), constants.DirPermission); err != nil {
-		return "", fmt.Errorf("create profile dir %s: %w", filepath.Dir(profile), err)
+	if err := os.MkdirAll(filepath.Dir(resolved), constants.DirPermission); err != nil {
+		return "", fmt.Errorf("create profile dir %s: %w", filepath.Dir(resolved), err)
 	}
-	return profile, nil
+	return resolved, nil
+}
+
+func ensureProfilePath(shell, profile string) (string, error) {
+	if len(profile) > 0 {
+		return profile, nil
+	}
+	return defaultProfilePath(shell)
 }
 
 func rewriteProfileFile(profile, existing, open, close, body string) (PathSnippetWriteResult, error) {

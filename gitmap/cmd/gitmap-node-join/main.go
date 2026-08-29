@@ -64,21 +64,30 @@ func startHeartbeatLoop(server, token, alias string) {
 	for {
 		resp, err := client.Get(url)
 		if err != nil {
-			consecutiveFailures++
-			if consecutiveFailures <= 3 || consecutiveFailures%10 == 0 {
-				fmt.Printf("▲ [%s] Waiting for server %s (attempt %d)...\n",
-					time.Now().Format("15:04:05"), server, consecutiveFailures)
-			}
+			consecutiveFailures = handleHeartbeatFailure(server, consecutiveFailures)
 		} else {
-			resp.Body.Close()
-			if consecutiveFailures > 0 {
-				fmt.Printf("✔ [%s] Connected to cluster orchestrator at %s\n",
-					time.Now().Format("15:04:05"), server)
-				consecutiveFailures = 0
-			}
+			consecutiveFailures = handleHeartbeatSuccess(server, resp, consecutiveFailures)
 		}
 		time.Sleep(15 * time.Second)
 	}
+}
+
+func handleHeartbeatFailure(server string, failures int) int {
+	failures++
+	if failures <= 3 || failures%10 == 0 {
+		fmt.Printf("▲ [%s] Waiting for server %s (attempt %d)...\n",
+			time.Now().Format("15:04:05"), server, failures)
+	}
+	return failures
+}
+
+func handleHeartbeatSuccess(server string, resp *http.Response, failures int) int {
+	resp.Body.Close()
+	if failures > 0 {
+		fmt.Printf("✔ [%s] Connected to cluster orchestrator at %s\n",
+			time.Now().Format("15:04:05"), server)
+	}
+	return 0
 }
 
 func installStartup() {

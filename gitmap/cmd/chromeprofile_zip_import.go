@@ -30,32 +30,33 @@ func applyChromeExportZIP(zipPath, dstProfile string) error {
 			jsonFile = f
 			continue
 		}
-
-		// Extract SQLite databases
-		if isAllowedSQLiteDB(f.Name) {
-			if err := extractZipFile(f, filepath.Join(dstProfile, f.Name)); err != nil {
-				return err
-			}
+		if !isAllowedSQLiteDB(f.Name) {
+			continue
 		}
-	}
-
-	if jsonFile != nil {
-		rc, err := jsonFile.Open()
-		if err != nil {
-			return err
-		}
-		defer rc.Close()
-
-		var exp chromeExport
-		if err := json.NewDecoder(rc).Decode(&exp); err != nil {
-			return fmt.Errorf("decode json: %w", err)
-		}
-
-		if err := applyChromeExport(&exp, dstProfile); err != nil {
+		if err := extractZipFile(f, filepath.Join(dstProfile, f.Name)); err != nil {
 			return err
 		}
 	}
-	return nil
+
+	if jsonFile == nil {
+		return nil
+	}
+	return importChromeJSONFile(jsonFile, dstProfile)
+}
+
+func importChromeJSONFile(jsonFile *zip.File, dstProfile string) error {
+	rc, err := jsonFile.Open()
+	if err != nil {
+		return err
+	}
+	defer rc.Close()
+
+	var exp chromeExport
+	if err := json.NewDecoder(rc).Decode(&exp); err != nil {
+		return fmt.Errorf("decode json: %w", err)
+	}
+
+	return applyChromeExport(&exp, dstProfile)
 }
 
 func extractZipFile(f *zip.File, dest string) error {
