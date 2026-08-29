@@ -104,6 +104,25 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.150.0] 2026-08-29 Release v6.150.0
+
+### Install gitmap v6.150.0
+
+Unix/Bash:
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.150.0/install.sh | bash -s -- ".lovable/prompts" "v6.150.0"`
+
+PowerShell:
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.150.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.150.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Autonomously flatten all nested if statements across codebase with guard clauses and early returns
+- Enforce implicit boolean evaluations and positive prefix standards across all packages
+- Eliminate explicit boolean comparisons (== true, == false) repository-wide
+- Fix gocritic appendAssign finding in CI diff gate across cmd and tests
+- Connect check-enum-and-boolean.py to CI/CD local runner suite with 100% green verification
+
+
 ## [v6.149.0] 2026-08-29 Release v6.149.0
 
 ### Install gitmap v6.149.0
