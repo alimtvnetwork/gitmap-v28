@@ -2,16 +2,7 @@
 
 ## Pending Plans
 
-- [ ] [18-coding-guidelines-audit.md](.lovable/plans/pending/18-coding-guidelines-audit.md) — Master coding guidelines gap audit, 0-100 scoring ledger, and atomic remediation subtasks.
-- [ ] [19-naming-conventions-audit.md](.lovable/plans/pending/19-naming-conventions-audit.md) — Variable & boolean naming conventions, anti-ok refactoring, and positive framing guard clauses.
-- [ ] [20-style-guidelines-audit.md](.lovable/plans/pending/20-style-guidelines-audit.md) — Coding style, newline formatting, blank lines before if/return, after }, and line-gaps.
-- [ ] [21-terminal-help-llm-and-ssh-fixes.md](.lovable/plans/pending/21-terminal-help-llm-and-ssh-fixes.md) — Terminal help layout compaction, LLM guidelines with public GitHub MD URL, and expanded SSH subcommands.
-- [ ] [22-completed-plans-consolidation.md](.lovable/plans/pending/22-completed-plans-consolidation.md) — Memory consolidation: cluster completed plans into 6 unified milestones and re-sequence monotonically.
-- [ ] [23-cli-commands-help-audit.md](.lovable/plans/pending/23-cli-commands-help-audit.md) — CLI commands, help text parity & help UI architecture audit.
-- [ ] [24-function-signatures-audit.md](.lovable/plans/pending/24-function-signatures-audit.md) — Function signatures, invocations & multi-line standards audit.
-- [ ] [25-typescript-types-audit.md](.lovable/plans/pending/25-typescript-types-audit.md) — TypeScript strict typing, discriminated unions & architecture audit.
-- [ ] [26-enums-and-traits-audit.md](.lovable/plans/pending/26-enums-and-traits-audit.md) — Multi-language enums, traits & pattern matching audit.
-- [ ] [27-terminal-ui-styling-audit.md](.lovable/plans/pending/27-terminal-ui-styling-audit.md) — Terminal UI, CLI styling, Lipgloss & animation architecture audit.
+*(No pending plans. All tasks completed.)*
 
 ## Completed Plans
 
@@ -21,3 +12,13 @@
 - [x] [04-ui-terminal-and-dashboard-visualization.md](.lovable/plans/completed/04-ui-terminal-and-dashboard-visualization.md) — Terminal help layout compaction, TUI interactive tree navigation, web dashboard live streaming, and macro engine.
 - [x] [05-workspace-profile-and-repository-operations.md](.lovable/plans/completed/05-workspace-profile-and-repository-operations.md) — Bulk repository visibility, Chrome profile sync, workspace moving/untracking, and LFS smudge fallback.
 - [x] [06-installers-scaffolding-and-tooling-integrations.md](.lovable/plans/completed/06-installers-scaffolding-and-tooling-integrations.md) — Cross-platform binary installers, Ubuntu ZSH setup, Prompt Architect installer, and AI fix scripts.
+- [x] [18-coding-guidelines-audit.md](.lovable/plans/completed/18-coding-guidelines-audit.md) — Master coding guidelines gap audit, 0-100 scoring ledger, and atomic remediation subtasks.
+- [x] [19-naming-conventions-audit.md](.lovable/plans/completed/19-naming-conventions-audit.md) — Variable & boolean naming conventions, anti-ok refactoring, and positive framing guard clauses.
+- [x] [20-style-guidelines-audit.md](.lovable/plans/completed/20-style-guidelines-audit.md) — Coding style, newline formatting, blank lines before if/return, after }, and line-gaps.
+- [x] [21-terminal-help-llm-and-ssh-fixes.md](.lovable/plans/completed/21-terminal-help-llm-and-ssh-fixes.md) — Terminal help layout compaction, LLM guidelines with public GitHub MD URL, and expanded SSH subcommands.
+- [x] [22-completed-plans-consolidation.md](.lovable/plans/completed/22-completed-plans-consolidation.md) — Memory consolidation: cluster completed plans into 6 unified milestones and re-sequence monotonically.
+- [x] [23-cli-commands-help-audit.md](.lovable/plans/completed/23-cli-commands-help-audit.md) — CLI commands, help text parity & help UI architecture audit.
+- [x] [24-function-signatures-audit.md](.lovable/plans/completed/24-function-signatures-audit.md) — Function signatures, invocations & multi-line standards audit.
+- [x] [25-typescript-types-audit.md](.lovable/plans/completed/25-typescript-types-audit.md) — TypeScript strict typing, discriminated unions & architecture audit.
+- [x] [26-enums-and-traits-audit.md](.lovable/plans/completed/26-enums-and-traits-audit.md) — Multi-language enums, traits & pattern matching audit.
+- [x] [27-terminal-ui-styling-audit.md](.lovable/plans/completed/27-terminal-ui-styling-audit.md) — Terminal UI, CLI styling, Lipgloss & animation architecture audit.
