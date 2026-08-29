@@ -1289,7 +1289,7 @@ jobs:
       - name: Run installer smoke (source mode)
         if: needs.sha-check.outputs.already-built != 'true'
         shell: bash
-        run: bash .github/scripts/smoke-installer.sh source
+        run: python .github/scripts/smoke-installer.py source
 
 
 
@@ -1318,7 +1318,7 @@ jobs:
       - name: Run installer smoke (source mode)
         if: needs.sha-check.outputs.already-built != 'true'
         shell: pwsh
-        run: ./.github/scripts/smoke-installer.ps1 source
+        run: python .github/scripts/smoke-installer.py source
 
   e2e-cross-platform:
     # Runs the end-to-end test suites on each target OS so platform-

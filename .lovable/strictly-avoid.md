@@ -27,3 +27,7 @@ Strictly avoid using flash model for high concurrency batches that exceed rate l
 - NEVER bump versions across `version.json` or `readme.md` without synchronizing `var Version` in `gitmap/constants/constants.go` and adding a matching `## [vX.Y.Z]` heading in `changelog.md`.
 - NEVER pass unsanitized variables to `jq --argjson` in bash scripts without validating numeric integer format (`[[ "$LINE" =~ ^[0-9]+$ ]]`).
 
+
+### No Shell Wrappers for Python Scripts
+Cross-platform Python scripts should be invoked natively via \python script.py\ in CI/CD workflows. **Strictly avoid** creating \.sh\ or \.ps1\ wrappers that simply forward arguments to a Python script, as these wrappers can fail unexpectedly in cross-platform GitHub Actions environments.
+
