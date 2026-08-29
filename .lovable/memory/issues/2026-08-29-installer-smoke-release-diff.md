@@ -5,7 +5,7 @@ During GitHub Actions release pipeline runs, the `Installer Smoke (release)` job
 
 ## 2. Root Cause
 - `smoke-installer.sh` was written in bash with a single probe attempt without backoff, causing transient failure if asset CDN propagation had not finished.
-- Absolute machine-specific file URIs (`file:///d:/work/gitmap/...`) were recorded during automated audit planning runs, breaking cross-platform portability.
+- Absolute machine-specific file URIs (`file` URLs with local host paths) were recorded during automated audit planning runs, breaking cross-platform portability.
 
 ## 3. Corrective and Preventive Actions
 - Converted `smoke-installer.sh` and `smoke-installer.ps1` to `.github/scripts/smoke-installer.py`, adding robust multi-attempt retry logic with backoff for `release` mode.
