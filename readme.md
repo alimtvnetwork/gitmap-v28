@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.143.0**
+**Pinned version: v6.144.0**
 
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
 [![Vulnerability Scan](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
@@ -2955,3 +2955,7 @@ For repository versioning and propagation design, see [.lovable/memory/release-a
 
 - [.lovable/plans/pending/03-fix-release-tag-ordering.md](.lovable/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
 - [.lovable/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.lovable/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
+
+
+## Release Architecture
+For information on how releases are managed, see [.lovable/memory/release-architecture-map.md](.lovable/memory/release-architecture-map.md).

@@ -104,6 +104,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [6.144.0] - 2026-08-29
+- Fix: Reverted go.mod to 1.24.13 to maintain golangci-lint v1.64.8 compatibility
+- Fix: S1002, unparam, gocritic, and ineffectual assignment linters globally resolved.
+- Fix: Go generate drift in completion files.
+- Fix: Massive CI failure regarding error signature mismatch on envplatform_unix.
+
 
 ### Added
 - Auto-detect and execute release bumps from commit messages (`gitmap release-scan-commits`).
