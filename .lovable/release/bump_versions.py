@@ -121,11 +121,11 @@ PowerShell:
 
 ### Added / Changed / Fixed / Removed
 
-- Autonomously flatten all nested if statements across codebase with guard clauses and early returns
-- Enforce implicit boolean evaluations and positive prefix standards across all packages
-- Eliminate explicit boolean comparisons (== true, == false) repository-wide
-- Fix gocritic appendAssign finding in CI diff gate across cmd and tests
-- Connect check-enum-and-boolean.py to CI/CD local runner suite with 100% green verification
+- Formatted function signatures and parameter declarations across Go codebase to Rule 9a/9b multi-line standards
+- Enhanced universal Result[T] envelope in Go and TypeScript with .IsSuccess(), .IsFailed(), .Unwrap(), .UnwrapOr(), and .HasValidError()
+- Extended *AppError with helper predicates (.HasError, .HasNoError, .HasValidError, .IsErrorCode)
+- Resolved gocritic unlambda findings and gofmt checks across CLI commands
+- Passed all 23 local CI/CD quality gates with 100% green verification
 """
     if header_index != -1:
         lines.insert(header_index + 1, entry + "\n")
@@ -152,11 +152,11 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_v
 
 ## Changelog v{new_version}
 
-- Autonomously flatten all nested if statements across codebase with guard clauses and early returns
-- Enforce implicit boolean evaluations and positive prefix standards across all packages
-- Eliminate explicit boolean comparisons (== true, == false) repository-wide
-- Fix gocritic appendAssign finding in CI diff gate across cmd and tests
-- Connect check-enum-and-boolean.py to CI/CD local runner suite with 100% green verification
+- Formatted function signatures and parameter declarations across Go codebase to Rule 9a/9b multi-line standards
+- Enhanced universal Result[T] envelope in Go and TypeScript with .IsSuccess(), .IsFailed(), .Unwrap(), .UnwrapOr(), and .HasValidError()
+- Extended *AppError with helper predicates (.HasError, .HasNoError, .HasValidError, .IsErrorCode)
+- Resolved gocritic unlambda findings and gofmt checks across CLI commands
+- Passed all 23 local CI/CD quality gates with 100% green verification
 """
     os.makedirs(os.path.dirname(notes_path), exist_ok=True)
     with open(notes_path, "w", encoding="utf-8") as f:

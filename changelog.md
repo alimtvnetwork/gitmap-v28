@@ -113,6 +113,25 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.153.0] 2026-08-29 Release v6.153.0
+
+### Install gitmap v6.153.0
+
+Unix/Bash:
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.153.0/install.sh | bash -s -- ".lovable/prompts" "v6.153.0"`
+
+PowerShell:
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.153.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.153.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Formatted function signatures and parameter declarations across Go codebase to Rule 9a/9b multi-line standards
+- Enhanced universal Result[T] envelope in Go and TypeScript with .IsSuccess(), .IsFailed(), .Unwrap(), .UnwrapOr(), and .HasValidError()
+- Extended *AppError with helper predicates (.HasError, .HasNoError, .HasValidError, .IsErrorCode)
+- Resolved gocritic unlambda findings and gofmt checks across CLI commands
+- Passed all 23 local CI/CD quality gates with 100% green verification
+
+
 ## [v6.152.0] 2026-08-29 Release v6.152.0
 
 ### Install gitmap v6.152.0
