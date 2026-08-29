@@ -20,7 +20,12 @@ func stubProbe(maxExisting int) repoExistsFn {
 
 func TestCheckRemoteForUpdate_NoSuffix_NoUpdate(t *testing.T) {
 	parsed := ParseRepoName("plain-repo")
-	got, err := checkRemoteForUpdateWith("acme", parsed, 5, stubProbe(99))
+	got, err := checkRemoteForUpdateWith(RemoteProbeParams{
+		Owner:   "acme",
+		Parsed:  parsed,
+		Ceiling: 5,
+		Probe:   stubProbe(99),
+	})
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
@@ -31,7 +36,12 @@ func TestCheckRemoteForUpdate_NoSuffix_NoUpdate(t *testing.T) {
 
 func TestCheckRemoteForUpdate_RemoteHigher_TriggersUpdate(t *testing.T) {
 	parsed := ParseRepoName("alpha-v3")
-	got, err := checkRemoteForUpdateWith("acme", parsed, 10, stubProbe(5))
+	got, err := checkRemoteForUpdateWith(RemoteProbeParams{
+		Owner:   "acme",
+		Parsed:  parsed,
+		Ceiling: 10,
+		Probe:   stubProbe(5),
+	})
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
@@ -48,7 +58,12 @@ func TestCheckRemoteForUpdate_RemoteHigher_TriggersUpdate(t *testing.T) {
 
 func TestCheckRemoteForUpdate_RemoteSame_NoUpdate(t *testing.T) {
 	parsed := ParseRepoName("alpha-v5")
-	got, err := checkRemoteForUpdateWith("acme", parsed, 10, stubProbe(5))
+	got, err := checkRemoteForUpdateWith(RemoteProbeParams{
+		Owner:   "acme",
+		Parsed:  parsed,
+		Ceiling: 10,
+		Probe:   stubProbe(5),
+	})
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
@@ -74,7 +89,12 @@ func TestCheckRemoteForUpdate_FailFastOnMiss(t *testing.T) {
 		return true, nil
 	}
 	parsed := ParseRepoName("alpha-v3")
-	got, err := checkRemoteForUpdateWith("acme", parsed, 20, probe)
+	got, err := checkRemoteForUpdateWith(RemoteProbeParams{
+		Owner:   "acme",
+		Parsed:  parsed,
+		Ceiling: 20,
+		Probe:   probe,
+	})
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
@@ -90,7 +110,12 @@ func TestCheckRemoteForUpdate_ProbeError_Surfaced(t *testing.T) {
 	wantErr := errors.New("network down")
 	probe := func(_, _ string) (bool, error) { return false, wantErr }
 	parsed := ParseRepoName("alpha-v1")
-	_, err := checkRemoteForUpdateWith("acme", parsed, 5, probe)
+	_, err := checkRemoteForUpdateWith(RemoteProbeParams{
+		Owner:   "acme",
+		Parsed:  parsed,
+		Ceiling: 5,
+		Probe:   probe,
+	})
 	if !errors.Is(err, wantErr) {
 		t.Errorf("err = %v, want wrapped %v", err, wantErr)
 	}
@@ -99,7 +124,12 @@ func TestCheckRemoteForUpdate_ProbeError_Surfaced(t *testing.T) {
 func TestCheckRemoteForUpdate_CeilingClamps(t *testing.T) {
 	// Probe says everything exists; ceiling=2 means we should stop at v3 (1+2).
 	parsed := ParseRepoName("alpha-v1")
-	got, err := checkRemoteForUpdateWith("acme", parsed, 2, stubProbe(99))
+	got, err := checkRemoteForUpdateWith(RemoteProbeParams{
+		Owner:   "acme",
+		Parsed:  parsed,
+		Ceiling: 2,
+		Probe:   stubProbe(99),
+	})
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}

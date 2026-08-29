@@ -42,38 +42,48 @@ type repoExistsFn func(owner, repo string) (bool, error)
 // Returns UpdateNeeded=false when the repo has no -v<N> suffix at all
 // (cannot reason about "next version" without a baseline).
 func CheckRemoteForUpdate(owner string, parsed ParsedRepo, ceiling int) (RemoteUpdateCheck, error) {
-	return checkRemoteForUpdateWith(owner, parsed, ceiling, RepoExists)
+	probeParams := RemoteProbeParams{
+		Owner:   owner,
+		Parsed:  parsed,
+		Ceiling: ceiling,
+		Probe:   RepoExists,
+	}
+
+	return checkRemoteForUpdateWith(probeParams)
+}
+
+// RemoteProbeParams encapsulates parameters for probing remote sibling updates.
+type RemoteProbeParams struct {
+	Owner   string
+	Parsed  ParsedRepo
+	Ceiling int
+	Probe   repoExistsFn
 }
 
 // checkRemoteForUpdateWith is the test seam: identical to
 // CheckRemoteForUpdate but with an injectable probe function.
-func checkRemoteForUpdateWith(
-	owner string,
-	parsed ParsedRepo,
-	ceiling int,
-	probe repoExistsFn,
-) (RemoteUpdateCheck, error) {
+func checkRemoteForUpdateWith(params RemoteProbeParams) (RemoteUpdateCheck, error) {
 	out := RemoteUpdateCheck{
-		LocalVersion:  parsed.CurrentVersion,
-		RemoteVersion: parsed.CurrentVersion,
+		LocalVersion:  params.Parsed.CurrentVersion,
+		RemoteVersion: params.Parsed.CurrentVersion,
 	}
-	if !parsed.HasVersion {
+	if !params.Parsed.HasVersion {
 		// No -v<N> baseline → no notion of "next version" to check.
 		return out, nil
 	}
-	if ceiling <= 0 {
-		ceiling = DefaultRemoteProbeCeiling
+	if params.Ceiling <= 0 {
+		params.Ceiling = DefaultRemoteProbeCeiling
 	}
 
-	highest, err := probeHighestSibling(owner, parsed, ceiling, probe)
+	highest, err := probeHighestSibling(params)
 	if err != nil {
 		return out, err
 	}
 
 	out.RemoteVersion = highest
-	if highest > parsed.CurrentVersion {
+	if highest > params.Parsed.CurrentVersion {
 		out.UpdateNeeded = true
-		out.TargetRepo = fmt.Sprintf("%s/%s", owner, TargetRepoName(parsed.BaseName, highest))
+		out.TargetRepo = fmt.Sprintf("%s/%s", params.Owner, TargetRepoName(params.Parsed.BaseName, highest))
 	}
 
 	return out, nil
@@ -81,17 +91,12 @@ func checkRemoteForUpdateWith(
 
 // probeHighestSibling walks -v<N+1>, -v<N+2>, ... up to ceiling and
 // returns the highest M that exists. Stops at the first 404 (fail-fast).
-func probeHighestSibling(
-	owner string,
-	parsed ParsedRepo,
-	ceiling int,
-	probe repoExistsFn,
-) (int, error) {
-	highest := parsed.CurrentVersion
-	for m := parsed.CurrentVersion + 1; m <= ceiling; m++ {
-		exists, err := probe(owner, TargetRepoName(parsed.BaseName, m))
+func probeHighestSibling(params RemoteProbeParams) (int, error) {
+	highest := params.Parsed.CurrentVersion
+	for m := params.Parsed.CurrentVersion + 1; m <= params.Ceiling; m++ {
+		exists, err := params.Probe(params.Owner, TargetRepoName(params.Parsed.BaseName, m))
 		if err != nil {
-			return highest, fmt.Errorf("probe %s/%s-v%d: %w", owner, parsed.BaseName, m, err)
+			return highest, fmt.Errorf("probe %s/%s-v%d: %w", params.Owner, params.Parsed.BaseName, m, err)
 		}
 		if !exists {
 			return highest, nil

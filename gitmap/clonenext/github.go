@@ -43,44 +43,62 @@ func RepoExists(owner, repo string) (bool, error) {
 	return false, fmt.Errorf("GitHub API returned %d checking %s/%s", resp.StatusCode, owner, repo)
 }
 
+// RepoCreateParams encapsulates parameters for creating a GitHub repository.
+type RepoCreateParams struct {
+	ApiURL    string
+	RepoName  string
+	IsPrivate bool
+	Token     string
+}
+
 // CreateRepo creates a new GitHub repository under the given owner.
 // It detects whether the owner is a user or organization and calls the
 // appropriate endpoint. The repo is created as private by default.
-func CreateRepo(owner, repoName string, private bool) error {
+func CreateRepo(owner, repoName string, isPrivate bool) error {
 	token, _, err := ghtoken.Resolve()
 	if err != nil || len(token) == 0 {
 		return fmt.Errorf("no GitHub token available — set GITHUB_TOKEN or run `gh auth login`")
 	}
 
 	// Try org endpoint first; if 404, fall back to user endpoint.
-	err = createOrgRepo(owner, repoName, private, token)
+	orgParams := RepoCreateParams{
+		ApiURL:    fmt.Sprintf("https://api.github.com/orgs/%s/repos", owner),
+		RepoName:  repoName,
+		IsPrivate: isPrivate,
+		Token:     token,
+	}
+
+	err = createOrgRepo(orgParams)
 	if err == nil {
 		return nil
 	}
 
+	userParams := RepoCreateParams{
+		ApiURL:    "https://api.github.com/user/repos",
+		RepoName:  repoName,
+		IsPrivate: isPrivate,
+		Token:     token,
+	}
+
 	// Fallback: create under authenticated user.
-	return createUserRepo(repoName, private, token)
+	return createUserRepo(userParams)
 }
 
 // createOrgRepo creates a repo under an organization.
-func createOrgRepo(org, repoName string, private bool, token string) error {
-	url := fmt.Sprintf("https://api.github.com/orgs/%s/repos", org)
-
-	return postCreateRepo(url, repoName, private, token)
+func createOrgRepo(params RepoCreateParams) error {
+	return postCreateRepo(params)
 }
 
 // createUserRepo creates a repo under the authenticated user.
-func createUserRepo(repoName string, private bool, token string) error {
-	url := "https://api.github.com/user/repos"
-
-	return postCreateRepo(url, repoName, private, token)
+func createUserRepo(params RepoCreateParams) error {
+	return postCreateRepo(params)
 }
 
 // postCreateRepo sends the POST request to create a repository.
-func postCreateRepo(apiURL, repoName string, private bool, token string) error {
+func postCreateRepo(params RepoCreateParams) error {
 	payload := map[string]interface{}{
-		"name":    repoName,
-		"private": private,
+		"name":    params.RepoName,
+		"private": params.IsPrivate,
 	}
 
 	jsonData, err := json.Marshal(payload)
@@ -88,12 +106,12 @@ func postCreateRepo(apiURL, repoName string, private bool, token string) error {
 		return fmt.Errorf("marshal repo payload: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, apiURL, strings.NewReader(string(jsonData)))
+	req, err := http.NewRequest(http.MethodPost, params.ApiURL, strings.NewReader(string(jsonData)))
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}
 
-	req.Header.Set("Authorization", "token "+token)
+	req.Header.Set("Authorization", "token "+params.Token)
 	req.Header.Set("Accept", "application/vnd.github+json")
 	req.Header.Set("Content-Type", "application/json")
 
