@@ -22,7 +22,7 @@ The plugin architecture uses traits instead of service classes for a specific re
 
 ## 3.2 Trait Folder Structure
 
-Traits are organised by feature domain. Each domain gets its own subfolder under `Traits/`.
+Traits are organized by feature domain. Each domain gets its own subfolder under `Traits/`.
 
 ```
 Traits/

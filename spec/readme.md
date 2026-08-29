@@ -113,7 +113,7 @@ Feature specs, command designs, and refactor documentation for the gitmap-v28 CL
 
 ## 02-app-issues/ — Issue Post-Mortems
 
-Root-cause analyses and resolution records for production bugs.
+Root-cause analyzes and resolution records for production bugs.
 
 | # | File | Issue |
 |---|------|-------|

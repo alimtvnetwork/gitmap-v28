@@ -28,7 +28,7 @@ freshly-formatted string (``template.format(...)``) would still
 compare equal but break identity — which would also break the
 "closed vocabulary" contract this test is pinning. Equality is
 used for the rendered surfaces (text / JSON / CSV) because those
-round-trip through serialisation and lose Python identity by
+round-trip through serialization and lose Python identity by
 construction.
 """
 from __future__ import annotations
@@ -246,7 +246,7 @@ class JsonOutputReasonsAreInAllowList(unittest.TestCase):
     """The ``--json`` audit array on STDERR is the schema-stable
     surface dashboards consume. Every ``ignored-deleted`` row must
     carry a ``reason`` from the allow-list — string equality, since
-    the value has round-tripped through JSON serialisation.
+    the value has round-tripped through JSON serialization.
     """
 
     def test_every_deleted_row_in_json_has_allowed_reason(

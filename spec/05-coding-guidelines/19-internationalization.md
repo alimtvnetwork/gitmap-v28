@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Standardise how applications detect locale, externalise user-facing
+Standardize how applications detect locale, externalize user-facing
 strings, format dates and numbers, and support right-to-left (RTL)
 scripts so that adding a new language never requires code changes
 beyond a translation file.
@@ -39,12 +39,12 @@ export function detectLocale(): string {
 }
 ```
 
-## String Externalisation
+## String Externalization
 
 ### Rules
 
 1. **No user-visible literal strings in logic files** — all text lives
-   in a locale resource (JSON, constants file, or message catalogue).
+   in a locale resource (JSON, constants file, or message catalog).
 2. Keys use dot-separated namespaces: `section.action.detail`
    (e.g. `clone.error.offline`).
 3. Interpolation uses named placeholders, never positional:

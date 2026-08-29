@@ -30,7 +30,7 @@ Moves:
 Imports: `fmt`, `os`, `sort`, `strings`, `constants`, `model`, `release`
 
 ## Migration Rules
-- No behaviour changes, no signature renames.
+- No behavior changes, no signature renames.
 - Package remains `cmd`.
 - Deduplicate imports per file.
 - Blank line before every `return`.

@@ -1,6 +1,6 @@
 # Repo Aliases & Remote Release — `gitmap-v28 as` / `release-alias` / `release-alias-pull`
 
-> **Status:** Implemented in v2.97.0; auto-stash semantics finalised in v2.99.0.
+> **Status:** Implemented in v2.97.0; auto-stash semantics finalized in v2.99.0.
 > **Related specs:**
 > - [97-move-and-merge.md](97-move-and-merge.md) — sibling family of remote-aware commands
 > - [05-cloner.md](05-cloner.md) — repo discovery primitives reused by `as`
@@ -39,7 +39,7 @@ the verb is sugar for users who want a single token.
 Tags the **current** Git repository with a short alias and records it
 in the active-profile SQLite database.
 
-### Behaviour
+### Behavior
 
 1. Resolve the repo top level via `git rev-parse --show-toplevel`.
    Abort if the CWD is not inside a Git repository.
@@ -134,7 +134,7 @@ gitmap-v28 rap             project-x v1.2.0
 
 `release-alias` always wants a clean working tree before tagging. Rather
 than refusing to release dirty repos, it auto-stashes the working tree
-in a labelled stash, runs the release, then pops the stash on exit:
+in a labeled stash, runs the release, then pops the stash on exit:
 
 ```
 +-------------------+   isWorkingTreeDirty?   +------------------+
@@ -301,7 +301,7 @@ gitmap-v28 as px --force
   the user or a sibling process during the release window.
 - A failed `git stash pop` MUST warn but not exit non-zero — the
   release itself succeeded, and the stash is still recoverable.
-- `--pull` and `--no-stash` MUST be honoured even when the verb form
+- `--pull` and `--no-stash` MUST be honored even when the verb form
   (`rap`) implies one of them; the flag is the canonical truth.
 
 ---
@@ -314,7 +314,7 @@ gitmap-v28 as px --force
 - [x] `gitmap-v28 as` outside a Git repo exits 1 with a CWD-aware message.
 - [x] `gitmap-v28 ra <alias> <ver>` releases from anywhere.
 - [x] `gitmap-v28 rap <alias> <ver>` pulls then releases (equivalent to `ra --pull`).
-- [x] Dirty tree triggers labelled `git stash push --include-untracked`.
+- [x] Dirty tree triggers labeled `git stash push --include-untracked`.
 - [x] Stash is popped on the way out, even when `runRelease` aborts.
 - [x] `--no-stash` skips stashing; release fails fast on dirty repo.
 - [x] `--dry-run` is forwarded to `runRelease`.
@@ -326,4 +326,4 @@ gitmap-v28 as px --force
 > **Implementation:** v2.97.0 — `gitmap-v28/cmd/{as.go, asops.go,
 > releasealias.go, releasealias_git.go}`, `constants/constants_as.go`,
 > `constants/constants_releasealias.go`. Auto-stash defer-pop hardened
-> in v2.98.0; helptext + dispatcher coverage finalised in v2.99.0.
+> in v2.98.0; helptext + dispatcher coverage finalized in v2.99.0.

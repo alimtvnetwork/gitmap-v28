@@ -1,6 +1,6 @@
 """Tests for ``--dedupe-changed-files``.
 
-Behaviour under test:
+Behavior under test:
 
 * The flag collapses repeated ``path`` values in the
   ``--list-changed-files`` audit, keeping the FIRST-seen row's

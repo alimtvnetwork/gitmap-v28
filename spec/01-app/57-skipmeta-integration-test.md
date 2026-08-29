@@ -7,7 +7,7 @@ Verifies that `release-branch` (`rb`) and `release-pending` (`rp`) commands
 These commands process already-existing branches or metadata — only the
 primary `release` command writes release metadata files.
 
-The `SkipMeta` flag on `release.Options` controls this behaviour. Both
+The `SkipMeta` flag on `release.Options` controls this behavior. Both
 `ExecuteFromBranch` and `releaseFromMetadata` set `SkipMeta: true`,
 which causes `performRelease` to skip the `writeMetadata` call entirely.
 

@@ -96,7 +96,7 @@ I re-read the following with the literal-reader hat on, looking for any new MUST
 
 - `00-overview.md`, `01-architecture.md`, `02-glossary.md`, `03-main-db-schema.md`, `04-worker-routing.md`, `05-auth-and-2fa.md`, `06-core-api-endpoints.md`, `07-role-based-dashboards.md`, `08-error-contract.md`, `09-self-update-pointer.md`, `10-worker-bootstrap-protocol.md`, `11-split-db-tier-reconciliation.md`, `12-jwt-delivery-contract.md`, `13-error-codes.md`, `14-rbac-and-status-seed.md`, `15-tunable-constants.md`, `16-update-channels.md`, `17-cascading-roles-and-cache-bin.md`, `24-threat-model.md`, `25-inherited-rules.md`.
 
-**Findings:** zero new traps. None of these files were modified v5.41.0 → v5.43.0; every audit-12 closure remains structurally durable. The 89-code MWS catalogue still resolves cleanly.
+**Findings:** zero new traps. None of these files were modified v5.41.0 → v5.43.0; every audit-12 closure remains structurally durable. The 89-code MWS catalog still resolves cleanly.
 
 ---
 
@@ -111,7 +111,7 @@ I re-read the following with the literal-reader hat on, looking for any new MUST
 | 13.4    | `10-`       | 96/100  | Cross-spec sweep + Patches A–D. |
 | 13.5    | (impl.)     | —       | Diagrams pipeline + CI parity. |
 | 13.6    | `11-`       | 97/100  | Patch verification + drift sweep. |
-| 13.7    | `12-`       | 98/100  | Hardening Patch I; 14/14 lint-ci green; 89-code catalogue. |
+| 13.7    | `12-`       | 98/100  | Hardening Patch I; 14/14 lint-ci green; 89-code catalog. |
 | 13.7a   | `13-`       | 98/100  | Patch-I reverification — durable. |
 | 13.7b   | `14-`       | (n/a)   | Baseline diagram PNG commit (renderer-only, no markdown). |
 | **13.8**| **`15-` (this)** | **99/100** | **Baseline-PNG closure measured; 1 parser failure quarantined; backup-tier deferral preserved.** |

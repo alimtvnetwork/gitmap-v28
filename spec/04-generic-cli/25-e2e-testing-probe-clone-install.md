@@ -94,7 +94,7 @@ type Repo struct {
     Tags    []string
 }
 
-// NewBareRepo initialises an empty bare repo and seeds it with the
+// NewBareRepo initializes an empty bare repo and seeds it with the
 // supplied tags pointing at a single seed commit. Tags MUST be created
 // in semver order so `git tag --sort=-v:refname` returns them descending.
 func NewBareRepo(t *testing.T, tags ...string) *Repo

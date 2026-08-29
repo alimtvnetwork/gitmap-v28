@@ -19,7 +19,7 @@
 
 Pin the **at-rest** half of the backup story. Phases 6–10 covered registration, change capture, encryption, wire, and apply. This file owns:
 
-1. How a backup node materialises a date-anchored full snapshot from the apply mirror.
+1. How a backup node materializes a date-anchored full snapshot from the apply mirror.
 2. Where snapshots live on disk, how they are named, and how long they survive.
 3. The Main-controlled restore flow that pushes a chosen snapshot back to the primary.
 4. The `Backup` S2S audience that authenticates every Phase-9 endpoint plus the new restore-inbox endpoint on the primary.
@@ -33,7 +33,7 @@ Three lifecycle moments, each owned by a single component.
 | Moment | Owner | Trigger | Output |
 |---|---|---|---|
 | **Build** | Backup node | Daily cron at `MainWorker.Backup.Snapshot.BuildHourUtc` | New file under `var/snapshots/<YYYY-MM-DD>.zip` + new `BackupSnapshotCatalog` row |
-| **Catalogue** | Backup node | After successful Build | INSERT into `BackupSnapshotCatalog`; surfaces via BE-4 |
+| **Catalog** | Backup node | After successful Build | INSERT into `BackupSnapshotCatalog`; surfaces via BE-4 |
 | **Restore** | Main → Backup → Primary | Operator BE-3 call | Backup decompresses + signs + ships to primary's restore-inbox |
 
 Each moment is independent. A failed Build does **not** block the next day's Build (idempotent by date). A failed Restore does not damage the snapshot — Builds are append-only; Restores are read-only.
@@ -49,7 +49,7 @@ B1  AcquireSnapshotLock(date)                       — UNIQUE row in BackupSnap
 B2  AssertApplyMirrorQuiesced()                     — no in-flight Stage-4 TX (per 22-… §4)
 B3  CopyAppTierToStaging(date)                      — sqlite3 .backup INTO staging file
 B4  SealSnapshotZip(staging, date)                  — AES-256 zip; password per §4
-B5  ComputeSha256(zip)                              — fingerprint for catalogue
+B5  ComputeSha256(zip)                              — fingerprint for catalog
 B6  PersistCatalogRow(date, size, sha256, KeyEpoch) — BackupSnapshotCatalog INSERT
 B7  ReleaseSnapshotLock(date)
 B8  RunRetentionSweep()                             — see §6
@@ -120,7 +120,7 @@ CREATE TABLE BackupSnapshotJob (
 );
 ```
 
-Memory compliance: PascalCase + `{TableName}Id` PK; entity-ish catalogue carries `Description NULL` (Rule 10); transactional job table carries `Notes`+`Comments NULL` (Rule 11); INTEGER `*At` (D2).
+Memory compliance: PascalCase + `{TableName}Id` PK; entity-ish catalog carries `Description NULL` (Rule 10); transactional job table carries `Notes`+`Comments NULL` (Rule 11); INTEGER `*At` (D2).
 
 ---
 
@@ -227,7 +227,7 @@ CREATE TABLE BackupRestoreJob (
 
 ## 8. New endpoint: `POST /API/V1/Backup/RestoreInbox` (hosted on **primary** Worker)
 
-Symmetric counterpart to BE-1 but flowing **backward**. Catalogued as **BE-6** for Phase-12 merge into `06-core-api-endpoints.md`.
+Symmetric counterpart to BE-1 but flowing **backward**. Cataloged as **BE-6** for Phase-12 merge into `06-core-api-endpoints.md`.
 
 | # | Method | Path | Hosted on | Auth | Purpose |
 |---|---|---|---|---|---|
@@ -349,9 +349,9 @@ Main tier (snapshot integrity, slot `21192` — first free in Phase-11-reserved 
 
 ---
 
-## 14. Open Questions — formalised dispositions
+## 14. Open Questions — formalized dispositions
 
-This section formalises the dispositions of v1.0 open questions so dumb-AI implementers do not re-litigate them mid-implementation. Each disposition is **binding** for v1.0; the Future-Work block at the bottom names what a v2.0 spec MUST cover if a disposition is reopened. Pattern mirrors `12-jwt-delivery-contract.md` §11.
+This section formalizes the dispositions of v1.0 open questions so dumb-AI implementers do not re-litigate them mid-implementation. Each disposition is **binding** for v1.0; the Future-Work block at the bottom names what a v2.0 spec MUST cover if a disposition is reopened. Pattern mirrors `12-jwt-delivery-contract.md` §11.
 
 ### 14.1 OQ-23-1 — Snapshot dedup pyramid (rolling diff zips)
 
@@ -381,7 +381,7 @@ This section formalises the dispositions of v1.0 open questions so dumb-AI imple
 
 - ❌ Storing anything other than self-contained full-snapshot zips under `var/snapshots/`.
 - ❌ Adding a `BasedOnSnapshotCatalogId` FK to `BackupSnapshotCatalog` — there is nothing to base anything on.
-- ❌ "Optimising" the build path to skip days when no `SyncOpLedger` rows changed — every scheduled day MUST produce a snapshot row, even an identical one. Dedup is the v2.0 spec's job, not the build path's.
+- ❌ "Optimizing" the build path to skip days when no `SyncOpLedger` rows changed — every scheduled day MUST produce a snapshot row, even an identical one. Dedup is the v2.0 spec's job, not the build path's.
 - ❌ Allocating error codes `WORKER-940-05+` "for diff-chain failures" — error codes are added when the feature ships, not before.
 
 ### 14.2 OQ-23-2 — Partial-table / per-tenant restore
@@ -403,7 +403,7 @@ This section formalises the dispositions of v1.0 open questions so dumb-AI imple
 
 **Trigger conditions that would force OQ-23-2 to be reopened:**
 
-1. The application data model formally adopts **strict tenant isolation at the schema level** — i.e. no foreign keys cross tenant boundaries, every table carries a non-null `TenantId`, and the App spec defines a `TenantUndoBoundary` contract that the backup tier can honour. None of these hold today.
+1. The application data model formally adopts **strict tenant isolation at the schema level** — i.e. no foreign keys cross tenant boundaries, every table carries a non-null `TenantId`, and the App spec defines a `TenantUndoBoundary` contract that the backup tier can honor. None of these hold today.
 2. A regulatory regime lands that requires **per-tenant point-in-time recovery** as a contractual obligation (e.g. data-residency unwind). Currently no such regime is in scope.
 
 Until **both** trigger conditions hold, this OQ stays rejected. Re-opening it without them is a CODE RED violation — the swallowed reason being "operators sometimes ask for it" (which is true, and the correct answer is "use the application's undo path, not the backup tier").
@@ -418,7 +418,7 @@ Until **both** trigger conditions hold, this OQ stays rejected. Re-opening it wi
 
 ✅ **Resolved Phase 12.2.** `Status='Pinned'` requires `PinReason TEXT NULL` (NOT NULL on insert), `PinnedAtEpoch INTEGER NULL`, and `PinnedByActor TEXT NULL`. Pin/unpin contract codified in §6.1; enforced by linter `BACKUP-SNAP-005`.
 
-### 14.4 Future-work catalogue (v2.0 prerequisites)
+### 14.4 Future-work catalog (v2.0 prerequisites)
 
 If/when the product reopens §14.1 or §14.2, the v2.0 spec MUST specify, in this order:
 
@@ -431,4 +431,4 @@ If/when the product reopens §14.1 or §14.2, the v2.0 spec MUST specify, in thi
 
 ---
 
-*Snapshot storage + restore flow v1.2.0 — 2026-05-06 (Phase 12.5 — §14 OQ-23-1 / OQ-23-2 dispositions formalised: rationale matrices + v2.0 trigger conditions + forbidden v1.0 patterns + future-work catalogue. OQ-23-3 resolution preserved as §14.3).*
+*Snapshot storage + restore flow v1.2.0 — 2026-05-06 (Phase 12.5 — §14 OQ-23-1 / OQ-23-2 dispositions formalized: rationale matrices + v2.0 trigger conditions + forbidden v1.0 patterns + future-work catalog. OQ-23-3 resolution preserved as §14.3).*

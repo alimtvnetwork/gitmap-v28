@@ -102,7 +102,7 @@
   replayed banner) so they stay.
 - `bash .github/scripts/check-bare-stderr-err.sh` now reports
   `OK: no bare 'fmt.Fprintln(os.Stderr, err)' in gitmap/cmd/`.
-- gofmt-clean. No behaviour change to the success path.
+- gofmt-clean. No behavior change to the success path.
 
 
 ## v4.26.0 — Repo-wide gofmt sweep (CI gofmt-clean gate fix)
@@ -129,7 +129,7 @@ edits should keep files gofmt-clean on save.
 - No version-bearing tokens (`-vN`) were rewritten, so the
   fix-repo digit-capture rule and `--strict` test gate are not
   involved.
-- All edits are whitespace-only (final newline). No behaviour
+- All edits are whitespace-only (final newline). No behavior
   change. CI `gofmt -l .` and `lint` jobs should now go green.
 
 
@@ -185,7 +185,7 @@ workflow edits required.
 ### Changed
 - `src/pages/ReleaseVersion.tsx` now imports the helpers from
   `releaseVersionSnippets.ts` instead of defining them inline.
-  Zero behaviour change; rendered output is byte-identical.
+  Zero behavior change; rendered output is byte-identical.
 
 ### Why
 Spec 105 promises that the `/release/:version` page never
@@ -267,7 +267,7 @@ snippet, or that drops the version from a URL, fails CI.
     (`runClonePickExecute`, `announceClonePickPersistence`,
     `syncClonePickResultToVSCodePM`).
   - `clonepick_picker.go` (60) — already in shape, untouched.
-- Zero behavioural change: every public symbol kept its name and
+- Zero behavioral change: every public symbol kept its name and
   signature; only the file each one lives in moved.
 
 
@@ -975,7 +975,7 @@ Locally everything passed because dev environments (and this Lovable sandbox) ha
       # → Registering with GitHub Desktop: D:\wp-work\riseup-asia\my-api
       # → ✓ Registered with GitHub Desktop: D:\wp-work\riseup-asia\my-api
 
-  Optional path argument also supported: `gitmap gd D:\path\to\other\repo`.
+  Optional path argument also supported: `gitmap gd D:\path\to\othere\repo`.
 
 ### Why this exists
 
@@ -1314,10 +1314,10 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Fixed
 
-- **UK English residue eliminated across source files** — Audit scanned every `*.go`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.sh`, `*.ps1` (excluding `node_modules`, `.git`, `.gitmap`, `dist`, `build`) for ~80 UK spelling patterns (colour, optimise, organise, analyse, fibre, behaviour, honour, favour, realise, recognise, normalise, summarise, finalise, utilise, customise, artefact, catalogue, dialogue, licence, defence, traveller, etc.). Found 9 remaining hits and converted to US English:
-  - `install-quick.ps1`, `install-quick.sh`, `run.ps1` (3 files): `behaviour → behavior` in script comments.
-  - `src/pages/ClearReleaseJSON.tsx`: 7 occurrences of `behaviour → behavior` (object keys + JSX accessor + heading + table column header), plus `Normalised → Normalized` in edge-case data row. Object keys, accessors, and visible UI text remain consistent.
-- **Intentionally preserved**: `cancelled` / `cancelling` (GitHub Actions CI terminology — `cancel-in-progress` is the official feature name), `analyses` (valid US English plural of "analysis"), `grey` (UI status descriptor matching GitHub's grey-icon convention), historical CHANGELOG/spec/memory entries (immutable record).
+- **UK English residue eliminated across source files** — Audit scanned every `*.go`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.sh`, `*.ps1` (excluding `node_modules`, `.git`, `.gitmap`, `dist`, `build`) for ~80 UK spelling patterns (color, optimize, organize, analyze, fiber, behavior, honor, favor, realize, recognize, normalise, summarize, finalize, utilize, customize, artifact, catalog, dialog, license, defense, traveler, etc.). Found 9 remaining hits and converted to US English:
+  - `install-quick.ps1`, `install-quick.sh`, `run.ps1` (3 files): `behavior → behavior` in script comments.
+  - `src/pages/ClearReleaseJSON.tsx`: 7 occurrences of `behavior → behavior` (object keys + JSX accessor + heading + table column header), plus `Normalised → Normalized` in edge-case data row. Object keys, accessors, and visible UI text remain consistent.
+- **Intentionally preserved**: `canceled` / `canceling` (GitHub Actions CI terminology — `cancel-in-progress` is the official feature name), `analyzes` (valid US English plural of "analysis"), `grey` (UI status descriptor matching GitHub's grey-icon convention), historical CHANGELOG/spec/memory entries (immutable record).
 
 ### Verified
 
@@ -1339,7 +1339,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
   - `unparam`: Removed unused `info os.FileInfo` parameters from `shouldIgnore` and `shouldSkipWalk`.
   - `wastedassign`: Removed dead `stashLabel` assignment in `cmd/releasealias.go`.
   - `exhaustive`: Added missing switch cases for `PreferPolicy`, `Direction`, and `DiffKind`.
-- **US-English spelling sweep** — Converted UK spellings to US: `behaviour→behavior`, `honours→honors`, `honouring→honoring`, `artefacts→artifacts`, `Centralised→Centralized`, `summarises→summarizes`, `Recognises→Recognizes`.
+- **US-English spelling sweep** — Converted UK spellings to US: `behavior→behavior`, `honors→honors`, `honoring→honoring`, `artifacts→artifacts`, `Centralized→Centralized`, `summarizes→summarizes`, `Recognizes→Recognizes`.
 - **Remote installer URLs** — Updated `constants_selfinstall.go` `SelfInstallRemotePwsh` and `SelfInstallRemoteBash` from `gitmap-v28` to `gitmap-v28`.
 
 ### Changed
@@ -1523,7 +1523,7 @@ const (
 ### Added
 
 - `gitmap diff LEFT RIGHT` (alias `df`) — read-only preview of what `gitmap merge-both / merge-left / merge-right` would change between two folders. Lists conflicts (different content on both sides), missing-on-LEFT, missing-on-RIGHT, and (optionally) identical files. Writes nothing, commits nothing, pushes nothing.
-- Flags: `--json` (machine-readable output with `{summary, entries}` payload), `--only-conflicts`, `--only-missing`, `--include-identical`, `--include-vcs`, `--include-node-modules`. Honours the same default ignore list as `merge-*` (`.git/`, `node_modules/`, `.gitmap/release-assets/`).
+- Flags: `--json` (machine-readable output with `{summary, entries}` payload), `--only-conflicts`, `--only-missing`, `--include-identical`, `--include-vcs`, `--include-node-modules`. Honors the same default ignore list as `merge-*` (`.git/`, `node_modules/`, `.gitmap/release-assets/`).
 - New `gitmap/diff/` package: `endpoint.go` (folder-only resolver — URL endpoints are intentionally rejected with a hint to clone first), `tree.go` (parallel walk + SHA-256 classification), `report.go` (text/JSON renderer + `Summary` tally). Unit tests cover all four diff kinds and the default ignore list.
 - `gitmap/helptext/diff.md` and `gitmap/cmd/diff.go` + `gitmap/cmd/dispatchdiff.go` wire the command into the existing dispatcher chain in `root.go`.
 
@@ -1838,8 +1838,8 @@ const (
 
 ### CI/CD
 
-- Release branches (`release/**`) are no longer cancelled by `cancel-in-progress` — every release commit now runs the full CI and release pipeline to completion.
-- CI workflow uses a conditional expression: `cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}` to protect release branches while still cancelling superseded runs on `main` and feature branches.
+- Release branches (`release/**`) are no longer canceled by `cancel-in-progress` — every release commit now runs the full CI and release pipeline to completion.
+- CI workflow uses a conditional expression: `cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}` to protect release branches while still canceling superseded runs on `main` and feature branches.
 - Release workflow changed to `cancel-in-progress: false` unconditionally.
 - Updated CI pipeline spec (`spec/03-general/08-ci-pipeline.md`) with release branch protection documentation.
 
@@ -1907,7 +1907,7 @@ const (
 
 ### CI Pipeline Fix
 
-- Eliminated separate `mark-success` job — inlined cache write as the final step of `test-summary` to prevent `cancel-in-progress` from cancelling the SHA marker after all validation passed.
+- Eliminated separate `mark-success` job — inlined cache write as the final step of `test-summary` to prevent `cancel-in-progress` from canceling the SHA marker after all validation passed.
 - `test-summary` now depends on `[sha-check, lint, vulncheck, test]` to ensure full validation before caching.
 
 ### Documentation

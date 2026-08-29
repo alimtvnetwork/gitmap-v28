@@ -24,7 +24,7 @@ gitmap cn         (no args, anywhere)
   └─► persist every step (probe rows + RepoVersionHistory rows)
 ```
 
-`find-next` itself **stays read-only**. The new behaviour lives only in
+`find-next` itself **stays read-only**. The new behavior lives only in
 the `cn`-no-args bridge.
 
 ## CLI Surface

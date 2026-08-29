@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Standardise fault-tolerance techniques so every network call, external
+Standardize fault-tolerance techniques so every network call, external
 dependency, and resource-intensive operation degrades gracefully under
 failure instead of cascading errors to the user.
 

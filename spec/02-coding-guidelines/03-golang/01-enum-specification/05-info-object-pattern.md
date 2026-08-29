@@ -16,7 +16,7 @@ This document defines the **info-object pattern** — the Go-idiomatic way to at
 
 ## 1. Core Concept
 
-Instead of scattering metadata across multiple methods, Go enums centralise all variant metadata in a **single info struct** and a **single lookup map**.
+Instead of scattering metadata across multiple methods, Go enums centralize all variant metadata in a **single info struct** and a **single lookup map**.
 
 ```
 PHP approach (match per method):          Go approach (info-object):

@@ -71,7 +71,7 @@ with ✅ Success (passthrough gate pattern). On full success, the
 so future runs for the same SHA short-circuit immediately.
 
 The cache write is **inlined into `test-summary`** (not a separate
-job) to prevent `cancel-in-progress` from cancelling the marker
+job) to prevent `cancel-in-progress` from canceling the marker
 write while validation jobs have already passed.
 
 This eliminates redundant builds when the same commit is pushed
@@ -96,7 +96,7 @@ run is still executing, the behavior depends on the branch type.
 
 ### Release Branch Protection
 
-Release branches (`release/**`) are **never cancelled**, even when
+Release branches (`release/**`) are **never canceled**, even when
 multiple commits are pushed in quick succession. This ensures that
 every release commit runs the full CI and release pipeline to
 completion — partial builds or missed artifacts are unacceptable
@@ -132,13 +132,13 @@ The `github.ref` suffix ensures that:
 |------------------------------------------|-----------------------------------|
 | Wasted CI minutes on outdated commits    | Auto-cancel superseded runs       |
 | Queue buildup during rapid iteration     | Only latest commit matters        |
-| Stale results reported on merged PRs     | Cancelled runs produce no output  |
+| Stale results reported on merged PRs     | Canceled runs produce no output  |
 
 ### Why NOT cancel release branches?
 
 | Problem                                       | Solution                               |
 |------------------------------------------------|----------------------------------------|
-| Partial release artifacts from cancelled builds| Never cancel — run to completion       |
+| Partial release artifacts from canceled builds| Never cancel — run to completion       |
 | Missed binaries or checksums                   | Every push produces complete artifacts |
 | Incomplete metadata writes                     | Full pipeline guarantees consistency   |
 

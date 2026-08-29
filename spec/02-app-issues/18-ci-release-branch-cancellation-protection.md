@@ -5,17 +5,17 @@
 The CI pipeline used `cancel-in-progress: true` unconditionally for
 all branches, including release branches (`release/**`). When multiple
 commits were pushed to a release branch in quick succession, earlier
-runs were cancelled — potentially producing incomplete artifacts,
+runs were canceled — potentially producing incomplete artifacts,
 missing binaries, or partial metadata writes.
 
 ### Impact
 
-1. **Incomplete release artifacts** — a cancelled release pipeline
+1. **Incomplete release artifacts** — a canceled release pipeline
    could leave behind partial binary uploads or missing checksums.
 2. **Missed metadata writes** — the release metadata JSON and
    `latest.json` update could be skipped if the pipeline was
-   cancelled mid-execution.
-3. **Silent failures** — cancelled runs appeared as grey in the
+   canceled mid-execution.
+3. **Silent failures** — canceled runs appeared as grey in the
    GitHub UI, giving no indication whether the release succeeded
    or was interrupted.
 4. **Manual re-runs required** — contributors had to manually
@@ -31,7 +31,7 @@ concurrency:
 ```
 
 This applied the same cancellation policy to `main`, feature branches,
-and release branches. While cancelling superseded runs on `main` is
+and release branches. While canceling superseded runs on `main` is
 desirable (only the latest commit matters), release branches require
 every commit to produce complete, validated artifacts.
 
@@ -96,10 +96,10 @@ concurrency:
 
 | Scenario | Branch Type | cancel-in-progress | Behavior |
 |----------|-------------|-------------------|----------|
-| Rapid pushes to `main` | Non-release | `true` | Earlier run cancelled ✅ |
-| Rapid pushes to `feature/*` | Non-release | `true` | Earlier run cancelled ✅ |
+| Rapid pushes to `main` | Non-release | `true` | Earlier run canceled ✅ |
+| Rapid pushes to `feature/*` | Non-release | `true` | Earlier run canceled ✅ |
 | Rapid pushes to `release/*` | Release | `false` | Both runs complete ✅ |
-| PR update | Non-release | `true` | Earlier run cancelled ✅ |
+| PR update | Non-release | `true` | Earlier run canceled ✅ |
 | `v*` tag push | Release | `false` | Run completes ✅ |
 
 ---

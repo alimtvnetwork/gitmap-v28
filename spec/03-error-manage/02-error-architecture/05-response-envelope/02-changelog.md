@@ -62,7 +62,7 @@ Project-wide major version increment (+1.0.0) applied to all specification files
 ## v1.8.0 — 2026-02-07 · Configurability Rules
 
 - Published configurability rules document in `spec/response-envelope/`.
-- Finalised all phases (1–14) of the envelope migration plan.
+- Finalized all phases (1–14) of the envelope migration plan.
 
 ## v1.7.0 — 2026-02-05 · Pagination & Navigation
 
@@ -86,7 +86,7 @@ Project-wide major version increment (+1.0.0) applied to all specification files
 
 - Implemented `parseEnvelope<T>()` in `src/lib/api.ts` with auto-detection of PascalCase structure.
 - Global Error Modal extracts **Errors** and **MethodsStack** from the envelope.
-- Added **Traversal** tab for request-chain and method-stack visualisation.
+- Added **Traversal** tab for request-chain and method-stack visualization.
 
 ## v1.3.0 — 2026-01-27 · Go Generics — Typed Envelope Parsing
 

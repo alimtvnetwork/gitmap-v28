@@ -177,7 +177,7 @@ Say `next` to run **Step 3 (Diagram Audit)**.
 | F-A-17 | MAJOR | ✅ CLOSED | #29 | `03-§2.6.3` `AccessDenialEvent` table |
 | F-A-18 | MINOR | ✅ CLOSED | #12+#13 | `MainSetting` delegated to Seedable-Config (`14-rbac-and-status-seed.md` + `15-tunable-constants.md`) |
 | F-A-19 | MINOR | ✅ CLOSED | #13 | `MaxCompaniesPerWorker` listed in `15-§2.x` config-keys appendix |
-| F-A-20 | MINOR | ✅ CLOSED | #11 | `05-§2.3` Main is OAuth issuer; scopes catalogued in `13-error-codes.md` cross-ref |
+| F-A-20 | MINOR | ✅ CLOSED | #11 | `05-§2.3` Main is OAuth issuer; scopes cataloged in `13-error-codes.md` cross-ref |
 | F-A-21 | MAJOR | ✅ CLOSED | #11+#29 | Per-error override mechanism documented in `13-` + `08-§5` |
 | F-A-22 | BLOCKER | ✅ CLOSED | #14 | `spec/04-database-conventions/06-rest-api-format.md` X-Auth-Action authoritative |
 | F-A-23 | MAJOR | ✅ CLOSED | #29 | `03-§2.6.2` `RolePageAccess` canonical |
@@ -192,7 +192,7 @@ Say `next` to run **Step 3 (Diagram Audit)**.
 | F-A-32 | MAJOR | ✅ CLOSED | #29 | `08-§9` Worker→Main envelope spec + 3 new error codes |
 | F-A-33 | MAJOR | ✅ CLOSED | #31 | `04-§5.1` `WorkerSelectionStrategyInterface` defined |
 | F-A-34 | MINOR | ✅ CLOSED | #31 | Stack-agnostic description + Laravel example |
-| F-A-35 | MINOR | ✅ CLOSED | #31 | `08-§5` `lastResponse` initialised in pseudocode |
+| F-A-35 | MINOR | ✅ CLOSED | #31 | `08-§5` `lastResponse` initialized in pseudocode |
 | F-A-36 | MINOR | ✅ CLOSED | #31 | `02-glossary.md` `Quarantined` |
 | F-A-37 | MINOR | ✅ CLOSED | #31 | `02-glossary.md` `Draining` |
 | F-A-38 | MINOR | ✅ CLOSED | #31 | `02-glossary.md` `Seedable-Config` link |

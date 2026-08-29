@@ -11,7 +11,7 @@ import CodeBlock from "@/components/docs/CodeBlock";
 // Radix Tooltip opens on either pointer-enter OR focus. jsdom does
 // not synthesize pointer events the way real browsers do, so
 // focus is the deterministic path to "tooltip is open" in this
-// environment. Real-browser pointer behaviour is covered by the
+// environment. Real-browser pointer behavior is covered by the
 // shared DocsTooltip component (single source of truth for
 // placement/delay) — this suite verifies WIRING, not Radix internals.
 
@@ -198,7 +198,7 @@ describe("DocsTooltip — non-element children fallback", () => {
     // Contract under test: DocsTooltip MUST NOT throw for any
     // ReactNode shape. With multi-children Radix's Slot may not
     // wire the tooltip opener (Slot needs a single element to
-    // forward props onto) — that degraded behaviour is acceptable.
+    // forward props onto) — that degraded behavior is acceptable.
     // What is NOT acceptable is a render-time crash. This test
     // pins down that guarantee: render succeeds and the children
     // are present in the DOM.

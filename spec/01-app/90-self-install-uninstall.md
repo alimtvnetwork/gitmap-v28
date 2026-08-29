@@ -27,7 +27,7 @@ new top-level verbs:
 
 A single invocation removes:
 
-1. **Binary + deploy artefacts** — anything under the directory that
+1. **Binary + deploy artifacts** — anything under the directory that
    contains the running binary whose name matches `isGitmapArtifact`:
    `gitmap-v28`, `gitmap.exe`, `gitmap-handoff-*`, `*.old` backups,
    `gitmap-completion.*`.
@@ -64,7 +64,7 @@ On Unix we just `os.Remove(self)` — open files unlink cleanly.
 
 ### Install directory
 
-| Source       | Behaviour                                                  |
+| Source       | Behavior                                                  |
 |--------------|------------------------------------------------------------|
 | `--dir <p>`  | Used verbatim                                              |
 | `--yes`      | Accept default without prompt                              |

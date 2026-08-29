@@ -13,7 +13,7 @@ sequenceDiagram
     participant React as React Frontend
     participant Main as Main Server
     participant DB as Main SQLite
-    participant Strat as WorkerSelectionStrategy
+    participant Start as WorkerSelectionStrategy
     participant Worker as Chosen Worker
     participant SplitDB as Worker Split-DB
 
@@ -21,8 +21,8 @@ sequenceDiagram
     Main->>Main: Validate session + payload<br/>Idempotency cache lookup (TTL=86400s per spec/19/15)
     Main->>DB: SELECT eligible WorkerNode rows
     DB-->>Main: candidates
-    Main->>Strat: pick(candidates, strategyCode)
-    Strat-->>Main: WorkerNode (id=3)
+    Main->>Start: pick(candidates, strategyCode)
+    Start-->>Main: WorkerNode (id=3)
     Main->>DB: INSERT Company (minimal identity, WorkerNodeId=3)
     Main->>DB: INSERT WorkerSelectionEvent
     Main->>Worker: POST /Internal/Company<br/>Authorization: Bearer <internal-JWT><br/>X-Correlation-Id, X-Idempotency-Key

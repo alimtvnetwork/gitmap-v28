@@ -36,7 +36,7 @@ Files to add/update:
 - `spec/01-app/110-clone-hierarchy-guarantee.md` (new) — codify the
   guarantee, the normalisation rules, and the failure modes.
 - Cross-link from `spec/01-app/05-cloner.md` (one-line "see also" footer).
-- Memory: `mem://features/clone-hierarchy-guarantee.md` summarising the
+- Memory: `mem://features/clone-hierarchy-guarantee.md` summarizing the
   contract for future sessions.
 
 ### Open questions (need user defaults)
@@ -44,8 +44,8 @@ Files to add/update:
 | # | Question | Proposed default |
 |---|----------|------------------|
 | Q1 | Path separator normalisation: should `\` in CSV/JSON `RelativePath` be rewritten to `/` on Unix and vice versa on Windows? | **Yes**, normalise to `filepath.FromSlash` at parse time. |
-| Q2 | Reject vs. sanitise absolute paths (`/foo`, `C:\foo`) and parent escapes (`../../etc`) inside `RelativePath`? | **Reject** with a per-row error; the rest of the manifest still runs. Mirrors G305 hardening already in place for zip extraction. |
-| Q3 | Empty `RelativePath` — fall back to `RepoName`, or treat as a manifest error? | **Fall back to `RepoName`**; if both are empty, error that row. Preserves current behaviour for hand-written manifests. |
+| Q2 | Reject vs. sanitize absolute paths (`/foo`, `C:\foo`) and parent escapes (`../../etc`) inside `RelativePath`? | **Reject** with a per-row error; the rest of the manifest still runs. Mirrors G305 hardening already in place for zip extraction. |
+| Q3 | Empty `RelativePath` — fall back to `RepoName`, or treat as a manifest error? | **Fall back to `RepoName`**; if both are empty, error that row. Preserves current behavior for hand-written manifests. |
 | Q4 | Should the audit add a `--dry-run` that prints the planned tree without cloning? | **Yes** (cheap, very useful for hierarchy debugging). Behind a flag, default off. |
 
 Plan moves to Phase 1 only after the user confirms or overrides Q1–Q4.
@@ -129,7 +129,7 @@ End-to-end tree assertion using a stub `git` binary on `$PATH` that just
 
 - We are **not** redesigning the manifest schema — `ScanRecord` stays
   as-is. If new fields are wanted, that's a separate plan.
-- We are **not** changing direct-URL or text-manifest behaviour.
+- We are **not** changing direct-URL or text-manifest behavior.
 - Stubbing `git` via `$PATH` shim is the only portable way to assert the
   on-disk tree without network; CI must allow `PATH` mutation in tests
   (already the case).

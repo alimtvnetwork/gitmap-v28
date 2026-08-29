@@ -35,7 +35,7 @@ to outcomes as follows:
 
 CODE-RED-005 is the **binding** rule — it owns the build-failing
 decision for any function over 8 lines. CODE-RED-004 is retained as a
-defence-in-depth net so the registry still flags >15-line bodies even
+defense-in-depth net so the registry still flags >15-line bodies even
 if CODE-RED-005 is ever disabled by a per-file override.
 
 > **Canonical specification of the threshold and counting rules** —

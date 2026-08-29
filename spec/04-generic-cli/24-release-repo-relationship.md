@@ -30,7 +30,7 @@ exactly one repo per database, but it broke three properties we rely on:
 `Release` gains a non-null `RepoId INTEGER` column with a hard foreign key
 to `Repo(RepoId) ON DELETE CASCADE`. Every release row is now anchored to
 exactly one repo. If the repo row is deleted, its releases go with it —
-this is the desired behaviour because release metadata is meaningless
+this is the desired behavior because release metadata is meaningless
 without the source repo.
 
 ### Schema (post-migration)

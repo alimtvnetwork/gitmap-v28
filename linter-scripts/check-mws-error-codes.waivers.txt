@@ -15,7 +15,7 @@ WORKER-600-04
 WORKER-700-03
 WORKER-800-02
 
-# Main — catalogue-only / range references
+# Main — catalog-only / range references
 MAIN-100-01
 MAIN-100-02
 MAIN-100-03

@@ -8,7 +8,7 @@ const CloneMultiSpecPage = () => (
     sourcePath="spec/01-app/104-clone-multi.md"
     markdown={md}
     relatedLinks={[
-      { label: "Single-URL clone", to: "/commands", description: "Existing direct-URL behaviour this extends" },
+      { label: "Single-URL clone", to: "/commands", description: "Existing direct-URL behavior this extends" },
       { label: "desktop-sync / gd", to: "/desktop-sync", description: "Used by --github-desktop after each clone" },
       { label: "Spec index", to: "/spec" },
     ]}

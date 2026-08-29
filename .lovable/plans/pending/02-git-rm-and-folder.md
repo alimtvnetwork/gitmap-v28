@@ -37,7 +37,7 @@ The user requested two new top-level commands for gitmap:
    - Implement directory walking and -exclude flag parsing.
    - Implement .txt and .md tree export.
 2. **Subtask 2: Implement .json and .yaml exports for older**
-   - Implement JSON and YAML marshalling for the tree/list.
+   - Implement JSON and YAML marshaling for the tree/list.
 3. **Subtask 3: Scaffold git-rm Command & Input Parsing**
    - Register top-level command git-rm.
    - Implement input parser (JSON, TXT, CSV, direct paths).

@@ -29,7 +29,7 @@ The fixture deliberately includes:
   it confirms the surface filters work and that adding non-delete
   rows to the audit doesn't perturb the deleted-row parity;
 * a deleted ``path`` whose textual content contains spaces in
-  *neighbouring* paths, ensuring the text-table regex doesn't
+  *neighboring* paths, ensuring the text-table regex doesn't
   misalign columns when adjacent rows have different widths.
 """
 from __future__ import annotations

@@ -8,7 +8,7 @@ ended up with **150** commits. No clear breakdown told the user where
 the 62 missing commits went.
 
 The commit-in family (`gitmap commit-in`) shares the same family of
-silent-skip behaviours and is included below.
+silent-skip behaviors and is included below.
 
 ## Root causes (in order of impact)
 
@@ -82,7 +82,7 @@ shape but lower severity: the user already sees the row.
 ## What was *not* fixed at the time (subsequently resolved)
 
 - ✅ `recentLogSubjectsAndBodies` 200-commit cap — **resolved v5.78.0** (unbounded scan, pass `n <= 0`); **v5.83.0** added `--max-history-scan` escape hatch for pathologically large targets. See `spec/01-app/114-committransfer-idempotence-and-merge-default.md`.
-- ✅ Defaulting `IncludeMerges=true` — **resolved v6.0.0** (breaking change). Merge commits are now preserved by default; `--no-include-merges` opts back into legacy strip behaviour. See `spec/01-app/115-v6-migration.md`.
+- ✅ Defaulting `IncludeMerges=true` — **resolved v6.0.0** (breaking change). Merge commits are now preserved by default; `--no-include-merges` opts back into legacy strip behavior. See `spec/01-app/115-v6-migration.md`.
 
 ## Files touched
 

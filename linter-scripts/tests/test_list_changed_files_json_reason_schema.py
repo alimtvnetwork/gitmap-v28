@@ -3,7 +3,7 @@ both the legacy and ``--list-changed-files-verbose`` shapes.
 
 The ``--list-changed-files --json`` audit array is the
 machine-stable surface dashboards consume. The shape comes in two
-flavours today:
+flavors today:
 
 * **Legacy** (no extra flag) — three required keys per row:
   ``path``, ``status``, ``reason``. The ``source`` key is

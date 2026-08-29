@@ -6,8 +6,8 @@ Enforces the contract in `spec/19-main-worker-service/13-error-codes.md` §7:
 
   Rule R1 — Presence: every WORKER-XYY-ZZ / MAIN-XYY-ZZ literal that
             appears anywhere under spec/19/, spec/14-update/28-*,
-            and the source tree MUST be catalogued in 13-error-codes.md.
-  Rule R2 — No orphans: every code catalogued in 13-error-codes.md MUST
+            and the source tree MUST be cataloged in 13-error-codes.md.
+  Rule R2 — No orphans: every code cataloged in 13-error-codes.md MUST
             be referenced from at least one source location outside
             13-error-codes.md and the generated index files.
   Rule R3 — Bijection: prefixed code <-> flat integer mapping MUST be
@@ -38,9 +38,9 @@ MASTER_FILE = REPO_ROOT / "spec/03-error-manage/03-error-code-registry/error-cod
 WAIVER_FILE = REPO_ROOT / "linter-scripts/check-mws-error-codes.waivers.txt"
 UNALLOCATED_FILE = REPO_ROOT / "linter-scripts/check-mws-error-codes.unallocated.txt"
 
-# Files that contain catalogue entries — references inside them do NOT
+# Files that contain catalog entries — references inside them do NOT
 # count for orphan detection (Rule R2).
-CATALOGUE_FILES = {SPEC_FILE, INDEX_FILE, MASTER_FILE}
+CATALOG_FILES = {SPEC_FILE, INDEX_FILE, MASTER_FILE}
 
 WORKER_PREFIX = "WORKER"
 MAIN_PREFIX = "MAIN"
@@ -65,7 +65,7 @@ def is_spec_present() -> bool:
     return SPEC_FILE.is_file()
 
 
-def parse_catalogue() -> dict[str, int]:
+def parse_catalog() -> dict[str, int]:
     """Return {prefixed_code: flat_int} parsed from the spec tables."""
     text = SPEC_FILE.read_text(encoding="utf-8")
     rows = ROW_RX.finditer(text)
@@ -83,10 +83,10 @@ def iter_scan_files() -> list[Path]:
 
 
 def collect_references(files: list[Path]) -> dict[str, set[Path]]:
-    """{prefixed_code: {file_path,...}} — references outside catalogue files."""
+    """{prefixed_code: {file_path,...}} — references outside catalog files."""
     refs: dict[str, set[Path]] = {}
     for f in files:
-        if f.resolve() in {p.resolve() for p in CATALOGUE_FILES}:
+        if f.resolve() in {p.resolve() for p in CATALOG_FILES}:
             continue
         record_refs_in_file(f, refs)
     return refs
@@ -103,9 +103,9 @@ def record_refs_in_file(f: Path, refs: dict[str, set[Path]]) -> None:
         refs.setdefault(code, set()).add(f)
 
 
-def has_no_unknown_refs(refs: dict[str, set[Path]], catalogue: set[str], errors: list[str]) -> bool:
+def has_no_unknown_refs(refs: dict[str, set[Path]], catalog: set[str], errors: list[str]) -> bool:
     unallocated = load_unallocated()
-    unknown = sorted((set(refs) - catalogue) - unallocated)
+    unknown = sorted((set(refs) - catalog) - unallocated)
     for code in unknown:
         sample = sorted(refs[code])[0].relative_to(REPO_ROOT)
         errors.append(f"R1 unknown code {code} referenced in {sample} (and {len(refs[code])-1} more) — not in 13-error-codes.md")
@@ -127,14 +127,14 @@ def load_code_list(path: Path) -> set[str]:
     return {ln.strip() for ln in lines if ln.strip() and not ln.lstrip().startswith("#")}
 
 
-def has_no_orphans(refs: dict[str, set[Path]], catalogue: set[str], waivers: set[str], errors: list[str]) -> bool:
-    orphans = sorted((catalogue - set(refs)) - waivers)
+def has_no_orphans(refs: dict[str, set[Path]], catalog: set[str], waivers: set[str], errors: list[str]) -> bool:
+    orphans = sorted((catalog - set(refs)) - waivers)
     for code in orphans:
-        errors.append(f"R2 orphan {code} catalogued in 13-error-codes.md but never referenced elsewhere (and not waived)")
+        errors.append(f"R2 orphan {code} cataloged in 13-error-codes.md but never referenced elsewhere (and not waived)")
     return not orphans
 
 
-def is_bijective(catalogue: dict[str, int], errors: list[str]) -> bool:
+def is_bijective(catalog: dict[str, int], errors: list[str]) -> bool:
     flats = list(catalogue.values())
     dup_flats = sorted({f for f in flats if flats.count(f) > 1})
     for f in dup_flats:
@@ -143,7 +143,7 @@ def is_bijective(catalogue: dict[str, int], errors: list[str]) -> bool:
     return not dup_flats
 
 
-def is_in_range(catalogue: dict[str, int], errors: list[str]) -> bool:
+def is_in_range(catalog: dict[str, int], errors: list[str]) -> bool:
     bad = []
     for code, flat in catalogue.items():
         bad.extend(check_one_range(code, flat))
@@ -170,27 +170,27 @@ def main() -> int:
     if not is_spec_present():
         print(f"[setup] missing spec file: {SPEC_FILE}", file=sys.stderr)
         return 2
-    catalogue = parse_catalogue()
-    if not catalogue:
+    catalog = parse_catalog()
+    if not catalog:
         print(f"[setup] no codes parsed from {SPEC_FILE}", file=sys.stderr)
         return 2
     refs = collect_references(iter_scan_files())
     waivers = load_waivers()
     errors: list[str] = []
-    has_no_unknown_refs(refs, set(catalogue), errors)
-    has_no_orphans(refs, set(catalogue), waivers, errors)
-    is_bijective(catalogue, errors)
-    is_in_range(catalogue, errors)
-    return report(errors, catalogue, waivers)
+    has_no_unknown_refs(refs, set(catalog), errors)
+    has_no_orphans(refs, set(catalog), waivers, errors)
+    is_bijective(catalog, errors)
+    is_in_range(catalog, errors)
+    return report(errors, catalog, waivers)
 
 
-def report(errors: list[str], catalogue: dict[str, int], waivers: set[str]) -> int:
+def report(errors: list[str], catalog: dict[str, int], waivers: set[str]) -> int:
     if not errors:
-        print(f"[ok] check-mws-error-codes: {len(catalogue)} codes verified (R1-R4); {len(waivers)} R2 waiver(s) loaded")
+        print(f"[ok] check-mws-error-codes: {len(catalog)} codes verified (R1-R4); {len(waivers)} R2 waiver(s) loaded")
         return 0
     for e in errors:
         print(f"[fail] {e}", file=sys.stderr)
-    print(f"[summary] {len(errors)} violation(s) across {len(catalogue)} catalogued codes", file=sys.stderr)
+    print(f"[summary] {len(errors)} violation(s) across {len(catalog)} cataloged codes", file=sys.stderr)
     return 1
 
 

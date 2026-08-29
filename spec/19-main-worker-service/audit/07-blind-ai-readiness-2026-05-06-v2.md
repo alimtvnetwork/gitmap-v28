@@ -34,28 +34,28 @@ The prior audit:
 - counted the `99-consistency-report.md` and `96-linter-audit.md` "all green" claims as evidence of consistency;
 - did not stress-test the same artifact (e.g. the `WorkerNode` table) appearing in three files.
 
-This audit ran the same files through a literal reader. Every contradiction the prior audit catalogued as "to be fixed later" became a hard implementer fork.
+This audit ran the same files through a literal reader. Every contradiction the prior audit cataloged as "to be fixed later" became a hard implementer fork.
 
 ---
 
 ## 2. What the spec actually gets right (the 20 % that ships)
 
 1. **Pointer-only files** (`09-self-update-pointer.md`, `24-threat-model.md`) are unambiguous negative constraints — a blind AI will correctly *not* implement them.
-2. **Centralised registries exist** for error codes (`13-`) and tunables (`15-`). The *concept* is buildable; the execution has bugs (see §3.5).
+2. **Centralized registries exist** for error codes (`13-`) and tunables (`15-`). The *concept* is buildable; the execution has bugs (see §3.5).
 3. **Explicit forbidden-implementation lists** in `12-jwt-delivery-contract.md` and `23-snapshot-storage-and-restore.md` are best-in-class for blind AIs.
 4. **Backup / snapshot / restore subsystem** (files 18–23) is the most determinism-friendly part of the spec; a literal AI will get most of it right because the contracts are stated once and not contradicted elsewhere.
 5. **Top-level Main/Worker mental model** (`00-`, `01-`) is conceptually clear at the K8s analogy level.
 
 ---
 
-## 3. The 80 % that fails — itemised
+## 3. The 80 % that fails — itemized
 
 ### 3.1 Critical contradictions (≈65 % of all failures)
 
 | # | File(s) | Failure mode for a dumb AI | One-line fix |
 |---|---------|----------------------------|--------------|
 | C-1 | `10-§8` vs `03-§2.1` — `WorkerNode` table | Two schemas with different column names (`WorkerNodeDisplayName` vs `WorkerNodeTitle`) and different normalisation (inline vs separate `WorkerVersion` table). AI builds the first one it reads. | Delete the `WorkerNode` definition from `10-` and reference `03-` as SoT. |
-| C-2 | `04-§7.2` vs `06-` vs `10-` vs `18-` — `POST /API/V1/Workers/Register` | Four endpoint catalogues, each with a different request body. AI implements whichever file it parses first. | Make `06-core-api-endpoints.md` the only endpoint catalogue; delete the others. |
+| C-2 | `04-§7.2` vs `06-` vs `10-` vs `18-` — `POST /API/V1/Workers/Register` | Four endpoint catalogs, each with a different request body. AI implements whichever file it parses first. | Make `06-core-api-endpoints.md` the only endpoint catalog; delete the others. |
 | C-3 | `06-§5.1` `EndpointAuthSetting.UpdatedByUserId REFERENCES User(UserId)` | The `User` table was deleted in `03-`; the FK is unresolvable and SQL DDL fails at create-time. | Repoint the FK to `UserDirectory(UserDirectoryId)`. |
 | C-4 | `15-§2` (prose keys) vs `15-§4` (JSON seed keys) | Prose says `MainWorker.RateLimit.AuthEndpointsPerMinutePerIp`; seed JSON says `RateAuthPerMinutePerIp`. Lookup at runtime returns nothing → AI silently uses hard-coded defaults. | Make the two key sets byte-identical. |
 | C-5 | `13-§6` vs `08-` — JSON error envelope | `13-` adds `ErrorCodeFlat` and `ErrorName`; `08-` does not. AI emits whichever envelope it saw first; clients break either way. | Define the envelope once in `08-` and have `13-` link to it. |
@@ -115,7 +115,7 @@ The spec repeatedly says: *"if A and B disagree, the later/more-specific file wi
 
 If the goal is to lift the dumb-AI score above 90 without rewriting the spec, the *narrow* fix list is:
 
-1. **Delete-and-reference**: remove duplicate `WorkerNode` schema from `10-`; remove duplicate endpoint catalogues from `04-`, `10-`, `18-`; remove duplicate error envelope from `13-`. Each deleted block becomes a one-line `See: <file>#<section>` link.
+1. **Delete-and-reference**: remove duplicate `WorkerNode` schema from `10-`; remove duplicate endpoint catalogs from `04-`, `10-`, `18-`; remove duplicate error envelope from `13-`. Each deleted block becomes a one-line `See: <file>#<section>` link.
 2. **Apply, don't list**: execute the §3 / §8 follow-ups inside `11-split-db-tier-reconciliation.md` against their target files, then replace `11-` with a 5-line "applied on YYYY-MM-DD" stub.
 3. **Reconcile keys**: make `15-§2` prose keys byte-identical to `15-§4` JSON seed keys. Add the `04-` cache TTLs to `15-`.
 4. **Fix the FK**: change `EndpointAuthSetting.UpdatedByUserId` to reference `UserDirectory`.

@@ -88,7 +88,7 @@ A unified response contract was needed to eliminate these problems without break
 
 **Rationale:**
 - **Introspection without parsing Results:** The consumer can determine whether the response is paginated, single, or empty by reading `Attributes` alone — before touching `Results`.
-- **Delegation tracking:** `RequestedAt` records the original endpoint; `RequestDelegatedAt` records the downstream WordPress endpoint if the request was proxied. This pair powers the Traversal tab's request-chain visualisation.
+- **Delegation tracking:** `RequestedAt` records the original endpoint; `RequestDelegatedAt` records the downstream WordPress endpoint if the request was proxied. This pair powers the Traversal tab's request-chain visualization.
 - **Pagination math stays server-side:** `TotalRecords`, `TotalPages`, `CurrentPage`, and `PerPage` are computed once by the backend, preventing drift between frontend and backend calculations.
 
 ---

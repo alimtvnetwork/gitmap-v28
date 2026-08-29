@@ -196,7 +196,7 @@ class DeletedPathParserUnit(unittest.TestCase):
 
     def test_parse_name_status_no_deleted_arg_drops_d_rows(self) -> None:
         # Backwards-compat: omitting ``deleted=`` keeps the historical
-        # behaviour of silently dropping D rows from the returned list.
+        # behavior of silently dropping D rows from the returned list.
         out = self.mod._parse_name_status(
             "A\tspec/new.md\nD\tspec/old.md\n")
         self.assertEqual(out, ["spec/new.md"])

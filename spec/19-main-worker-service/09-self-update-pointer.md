@@ -130,7 +130,7 @@ Implementer wires this to a scheduler (Laravel scheduler / cron / systemd timer)
 
 When any of §1's three conditions fire, the implementer (or AI agent following this file) MUST:
 
-1. Confirm `spec/14-update/` covers every behaviour summarised in §3 of this file. Diff §3 against `spec/14-update/00-overview.md` — any remaining gap blocks deletion.
+1. Confirm `spec/14-update/` covers every behavior summarized in §3 of this file. Diff §3 against `spec/14-update/00-overview.md` — any remaining gap blocks deletion.
 2. Migrate any inbound links pointing at this file (search: `09-self-update-pointer.md`) to the equivalent anchor in `spec/14-update/`. Update `00-overview.md`, `plan.md`, `99-consistency-report.md`, `98-changelog.md`, and the diagrams' authority footers.
 3. Delete this file. Record the deletion in `98-changelog.md` with the triggering condition (`v2.0.0` / `prod-green-14d` / `2026-12-31-sunset`).
 4. Re-run the full Step-3 linter pipeline. The `check-spec-cross-links.py` linter will fail if any inbound link was missed; that is the safety net.

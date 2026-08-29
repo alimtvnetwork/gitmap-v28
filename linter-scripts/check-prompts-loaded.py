@@ -7,7 +7,7 @@ prompt file under ``.lovable/prompts/`` must be referenced by it.
 
 This is the on-disk equivalent of the AI-side "read all prompts before
 generating code" rule. If the index drifts from the prompt directory
-the AI cannot honour the rule, so we fail the build instead.
+the AI cannot honor the rule, so we fail the build instead.
 
 Failure modes detected:
 

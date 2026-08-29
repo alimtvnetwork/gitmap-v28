@@ -11,7 +11,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 
 | # | Title | Tool / Stage | Status | File |
 |---|-------|--------------|--------|------|
-| 01 | misspell: `labelled` → `labeled` | golangci-lint (misspell) | ✅ Resolved | [01-misspell-labelled.md](cicd-issues/01-misspell-labelled.md) |
+| 01 | misspell: `labeled` → `labeled` | golangci-lint (misspell) | ✅ Resolved | [01-misspell-labelled.md](cicd-issues/01-misspell-labelled.md) |
 | 02 | `lint-regression-guard` → `lint-hard-floor` → `lint-baseline-guard` (now uniformly baseline-diff for all 5 linters) | golangci-lint (baseline-guard job) | ✅ Resolved | [02-lint-regression-guard-semantics.md](cicd-issues/02-lint-regression-guard-semantics.md) |
 | 03 | pterm SpinnerPrinter DATA RACE | go test -race | ✅ Resolved | [03-pterm-spinner-data-race.md](cicd-issues/03-pterm-spinner-data-race.md) |
 | 04 | Legacy SQLite Migration Failures & `cmdFaithful` Concurrency Race | go test -race / Test Matrix | ✅ Resolved | [04-zipgroupitems-migration-and-cmdfaithful-race.md](cicd-issues/04-zipgroupitems-migration-and-cmdfaithful-race.md) |
@@ -27,9 +27,10 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 33 | Gocritic appendAssign Diff Failure & Unused Helpers | CI Diff Gate / golangci-lint | ✅ Resolved | [33-gocritic-appendassign-diff.md](cicd-issues/33-gocritic-appendassign-diff.md) |
 | 34 | Gocritic ifElseChain Diff Failure & Switch Refactor | CI Diff Gate / golangci-lint | ✅ Resolved | [34-gocritic-ifelsechain-diff.md](cicd-issues/34-gocritic-ifelsechain-diff.md) |
 | 35 | Exhaustive Switch Diff Failure & Complete Enum Handlers | CI Diff Gate / golangci-lint | ✅ Resolved | [35-exhaustive-switch-diff.md](cicd-issues/35-exhaustive-switch-diff.md) |
+| 36 | Misspell Changed Files & US English Standardization | Spell Check / misspell | ✅ Resolved | [36-misspell-changed-diff.md](cicd-issues/36-misspell-changed-diff.md) |
 
 ## Patterns Learned
-- **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.
+- **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labeled`, `canceled`, `behavior`, `color`, `occurred`, `receive`, `separate`.
 - **Pinned linter versions**: golangci-lint is pinned to `v1.64.8`; `goimports` to `v0.24.0`; `govulncheck` to `v1.1.4`. Do not assume newer rules.
 - **ARIA attributes are exempt**: `aria-labelledby` is a standard HTML/ARIA token and must never be "corrected".
 - **Decide hard-floor vs baseline-diff per linter** before adding to CI; document choice in the script header. Don't conflate them under one job.

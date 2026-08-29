@@ -9,9 +9,9 @@ type: feature
 **Spec:** `spec/01-app/105-release-version-script.md`
 **Replaces:** the (incorrect) practice of pointing `/release/:version` pages at the generic latest-resolving `install.ps1`.
 
-## Behaviour summary
+## Behavior summary
 
-- **Two artefacts per release, same script body:**
+- **Two artifacts per release, same script body:**
   - **Generic** — lives at `/scripts/release-version.ps1` on the docs site, reads `-Version` parameter, always current.
   - **Snapshot** — uploaded as a release asset (`release-version-vX.Y.Z.ps1`), has `$Version = 'vX.Y.Z'` baked at line 1, drift-proof forever.
 - **Release pages link to snapshot by default.** Generic shown as "advanced".

@@ -8,7 +8,7 @@ like ``spec/README.MD`` would be marked ``matched`` in the audit
 but then silently skipped by the full-tree walker — a "passes
 locally, fails on Windows" inconsistency.
 
-These tests pin the now-symmetric behaviour:
+These tests pin the now-symmetric behavior:
 
 * The full-tree walker (:func:`iter_markdown_files`) yields
   uppercase ``.MD`` / mixed-case ``.Md`` / ``.mDx`` files when the

@@ -22,7 +22,7 @@ and is independently auditable by both humans and AI agents.
 
 | File | Scope |
 |------|-------|
-| [21-post-install-shell-activation/01-contract.md](21-post-install-shell-activation/01-contract.md) | Purpose, required behaviours (PIA-1..PIA-7), activation flow, in-session activation, shell detection, stderr warnings, global constraints. |
+| [21-post-install-shell-activation/01-contract.md](21-post-install-shell-activation/01-contract.md) | Purpose, required behaviors (PIA-1..PIA-7), activation flow, in-session activation, shell detection, stderr warnings, global constraints. |
 | [21-post-install-shell-activation/02-snippets.md](21-post-install-shell-activation/02-snippets.md) | Per-shell profile snippet bodies (PowerShell, Bash, Zsh, Fish), marker conventions, cross-platform parity table. |
 | [21-post-install-shell-activation/03-doctor.md](21-post-install-shell-activation/03-doctor.md) | `doctor` wrapper check, three-state detection algorithm, implementation checklist for new CLIs. |
 | [21-post-install-shell-activation/04-idempotency.md](21-post-install-shell-activation/04-idempotency.md) | Rewrite & removal algorithms, version-bump rules, testing requirements. |

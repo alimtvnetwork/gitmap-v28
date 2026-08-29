@@ -25,7 +25,7 @@ and (b) which repo they're currently inside.
 - New renderer `gitmap/render/identityfooter.go`:
   - Prints `gitmap` block (magenta header) then a **blank line + thin
     rule** then `current repo` block (cyan header).
-  - Reuses the colour palette from `gitmap/glyphs` / `gitmap/theme`.
+  - Reuses the color palette from `gitmap/glyphs` / `gitmap/theme`.
 - Hook into the post-command footer path (same place the existing
   version/repo/branch lines from the screenshot are emitted).
 
@@ -56,7 +56,7 @@ correctly on a test repo. Existing `safepull` helper reused.
 
 ---
 
-## Step 3 — Colourful help: flags + command shorthand
+## Step 3 — Colorful help: flags + command shorthand
 
 **Goal.** `gitmap help` and `gitmap help <cmd>` become scannable at a
 glance.

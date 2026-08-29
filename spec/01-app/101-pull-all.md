@@ -188,7 +188,7 @@ the final summary count — never swallowed. Use `errors.Is` for the
 
 ## Out of Scope
 
-- `run.py` / `run.js` / arbitrary script languages — Python/Node-flavoured
+- `run.py` / `run.js` / arbitrary script languages — Python/Node-flavored
   follow-up for a later spec.
 - Per-repo override config (`gitmap.repo.json`) for non-default script names.
 - Rollback of partial pulls on failure (each repo is independent).

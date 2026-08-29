@@ -127,6 +127,7 @@ def main():
         ("Docs Site Build", None, "npm run build", ROOT_DIR),
         ("CLI Zero-Args Smoke", None, "go run .", GITMAP_DIR),
         ("Go Vet", None, "go vet ./...", GITMAP_DIR),
+        ("Spell Check (misspell)", None, "python .github/scripts/misspell-changed.py", ROOT_DIR),
         ("Compile Gate", None, "go test -run=^$ ./... -count=1", GITMAP_DIR),
         ("Full Suite Lint", None, "golangci-lint run ./...", GITMAP_DIR),
     ]

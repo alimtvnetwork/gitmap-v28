@@ -28,7 +28,7 @@ The `<version>` argument is parsed through `release.Parse`, which applies standa
 
 The resolved version determines the file path: `.gitmap/release/vX.Y.Z.json`.
 
-## Behaviour
+## Behavior
 
 ### Normal Mode
 
@@ -47,7 +47,7 @@ The resolved version determines the file path: `.gitmap/release/vX.Y.Z.json`.
 
 ## Edge Cases
 
-| Scenario | Behaviour |
+| Scenario | Behavior |
 |----------|-----------|
 | No version argument | Print usage message and exit 1 |
 | Invalid version string (e.g. `abc`) | Print `Error: '<input>' is not a valid version.` and exit 1 |

@@ -14,7 +14,7 @@ The root `readme.md` is the **first surface** any human or AI sees. It is
 the cover of the book. This file defines the **non-negotiable structure**
 every repository in this family MUST follow so that:
 
-- A new contributor recognises the project family within 3 seconds.
+- A new contributor recognizes the project family within 3 seconds.
 - An AI agent can locate canonical entry points without scanning the tree.
 - The visual identity (icon, badges, author block) is consistent across
   all sibling repositories (e.g. `coding-guidelines-v24`, `gitmap-v28`).
@@ -63,7 +63,7 @@ Rules:
 Immediately after the icon, the README MUST contain — **in this exact order**:
 
 1. **Centered H1 title** (`<h1 align="center">`) — the wordmark.
-2. **Centered tagline** (`<p align="center"><strong>…</strong></p>`) — one or two lines, ≤ 200 chars total. Italicise the language/scope keywords.
+2. **Centered tagline** (`<p align="center"><strong>…</strong></p>`) — one or two lines, ≤ 200 chars total. Italicize the language/scope keywords.
 3. **Centered primary badges row** — version, file count, folders, lines, license, AI ready, last-updated. Use the `<!-- STAMP:BADGES -->` marker so `scripts/sync-readme-stats.mjs` keeps them current.
 4. **Centered platform/quality badges row** — languages, platforms, bundle count, health score, audit score, PR-welcome, etc. Use the `<!-- STAMP:PLATFORM_BADGES -->` marker.
 5. **Centered author block** — see §4.

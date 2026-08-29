@@ -41,7 +41,7 @@ against whatever `remote.origin.url` is currently set.
 2. Read `git config --get remote.origin.url`. When the remote is
    unset, exit with a clear error pointing at `git remote add origin`.
 3. Run the converter from spec 110 (`ConvertURLToSSH` /
-   `ConvertURLToHTTPS`). If the URL is unrecognised, print a warning
+   `ConvertURLToHTTPS`). If the URL is unrecognized, print a warning
    and skip the rewrite (run `git push`/`pull` against the original
    URL — fail-open, not fail-closed).
 4. If the converted URL differs from the current one, run
@@ -91,7 +91,7 @@ real `git` binary (skipped when `git` is missing from PATH):
 2. **Pull SSH → HTTPS rewrite persists** — symmetric.
 3. **No-op when already correct** — `changed=false`, no config write.
 4. **Mutual exclusion** — both flags set ⇒ SSH wins.
-5. **Unrecognised URL** — `changed=false`, no error (fail-open).
+5. **Unrecognized URL** — `changed=false`, no error (fail-open).
 
 The actual `git push` call is exercised by a small wrapper test that
 runs against a local bare remote so no network is required.

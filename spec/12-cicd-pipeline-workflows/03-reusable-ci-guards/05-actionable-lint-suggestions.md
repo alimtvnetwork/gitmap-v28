@@ -86,7 +86,7 @@ any working directory).
 
 | Linter | Title | Fix Template |
 |--------|-------|--------------|
-| `misspell` | Replace `colour` with `color` (US English) | `- colour\n+ color` |
+| `misspell` | Replace `color` with `color` (US English) | `- color\n+ color` |
 | `gocritic/paramTypeCombine` | Combine consecutive params of same type | `- func f(a string, b string)\n+ func f(a, b string)` |
 | `gocritic/sprintfQuotedString` | Use `%q` instead of `"%s"` | `- fmt.Sprintf(\`KEY="%s"\`, val)\n+ fmt.Sprintf(\`KEY=%q\`, val)` |
 | `unused` | Remove the unused symbol | `- // entire declaration` + nolint hint for future-API case |

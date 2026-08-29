@@ -117,7 +117,7 @@ useEffect(() => {
 
 1. **WCAG AA minimum** — 4.5:1 for normal text, 3:1 for large text
    (18px+ or 14px+ bold).
-2. **Never convey information by colour alone** — pair with icons,
+2. **Never convey information by color alone** — pair with icons,
    text labels, or patterns.
 3. Use the project's **semantic design tokens** (`--foreground`,
    `--muted-foreground`, `--destructive`) which are pre-validated
@@ -134,7 +134,7 @@ useEffect(() => {
 | Icon-only buttons        | Must have `aria-label`           |
 | Disabled states          | 3:1 minimum against background   |
 | Error states             | Red + icon + text, not red alone |
-| Charts / data viz        | Patterns + labels + colour       |
+| Charts / data viz        | Patterns + labels + color       |
 
 ## Screen Reader Support
 
@@ -188,7 +188,7 @@ useEffect(() => {
 - Files ≤ 200 lines, functions 8–15 lines.
 - No `div` or `span` as interactive elements.
 - No `outline: none` without a visible focus replacement.
-- No colour-only information signalling.
+- No color-only information signaling.
 - All forms must have associated labels.
 - WCAG AA is the minimum standard.
 

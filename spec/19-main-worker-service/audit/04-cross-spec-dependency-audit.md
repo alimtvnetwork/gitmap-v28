@@ -146,7 +146,7 @@ Send `next` to run **Step 5 (Implementation Pivot Score)** — the final step.
 | F-X-05 | MAJOR | ✅ CLOSED | #12 | `14-rbac-and-status-seed.md` enumerates Role / WorkerNodeStatus / AuthMechanism rows via Tables-block schema (`07-reference-table-seeding.md`) |
 | F-X-06 | BLOCKER | ✅ CLOSED | #12 | `14-rbac-and-status-seed.md` ships 9 EnumPage + 19 RolePageAccess seed rows |
 | F-X-07 | MAJOR | ✅ CLOSED | #12 | `07-reference-table-seeding.md` Tables-block schema + `@-ref` resolver covers split-tier seed semantics |
-| F-X-08 | BLOCKER | ✅ CLOSED | #11 | MWS prefix (21000-21199) registered in `spec/03/03-error-code-registry/01-registry.md`; 30 codes catalogued in `13-error-codes.md` |
+| F-X-08 | BLOCKER | ✅ CLOSED | #11 | MWS prefix (21000-21199) registered in `spec/03/03-error-code-registry/01-registry.md`; 30 codes cataloged in `13-error-codes.md` |
 | F-X-09 | MINOR | ✅ CLOSED | #33 | Cross-spec anchor verification swept all `spec/(03\|04\|05\|06\|14)*` references; deep anchors validated |
 | F-X-10 | BLOCKER | ✅ CLOSED | #14 | `spec/04/06-rest-api-format.md` defines authoritative `X-Correlation-Id` / `X-Idempotency-Key` / `X-Auth-Action` conventions |
 | F-X-11 | (✅ baseline) | — | — | Not a finding (baseline confirmation) |

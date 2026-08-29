@@ -48,7 +48,7 @@ gitmap gd --all                 # register every repo currently in the gitmap DB
 - A git repository (CWD, explicit path, or DB-tracked repos under CWD).
 - **No prior `gitmap scan` is required** for the cwd-single-repo and explicit-path modes.
 
-## Behaviour matrix
+## Behavior matrix
 
 | Scenario | Result |
 |----------|--------|
@@ -58,7 +58,7 @@ gitmap gd --all                 # register every repo currently in the gitmap DB
 | Explicit path arg, valid repo | Register that path |
 | Explicit path arg, not a repo | Exit 1 with clear error |
 | `--all` flag | Register every repo in DB regardless of CWD |
-| One repo fails mid-batch | Continue, summarise at end, exit 1 if any failed |
+| One repo fails mid-batch | Continue, summarize at end, exit 1 if any failed |
 
 ## Output
 

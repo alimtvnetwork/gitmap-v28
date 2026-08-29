@@ -250,7 +250,7 @@ For every function, method, constructor, struct, and call site you touch:
 
 1. Run the **Quick checklist** (§1) top to bottom.
 2. For each violation, produce the rule number, a one-line reason, and the corrected code.
-3. Never change behaviour while applying a formatting or naming rule. Naming, splitting,
+3. Never change behavior while applying a formatting or naming rule. Naming, splitting,
    struct-grouping, and whitespace are mechanical refactors — keep logic identical unless a rule
    explicitly says otherwise (R6 unused parameters, R7 swallowed errors).
 4. If a rule conflicts with a formatter the repo already runs (`gofmt`, `prettier`, `black`,

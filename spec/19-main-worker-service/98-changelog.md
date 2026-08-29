@@ -157,7 +157,7 @@
 
 ## v5.44.0 — 2026-05-07 (Audit-15 blind-AI readiness v6 shipped: 98 → 99/100 (A+); audit-12 §2.2 closed for 8/9 diagrams; backup-tier deferral preserved.)
 
-**Scope:** Audit-only — no spec/19 markdown changed. New file: `audit/15-blind-ai-readiness-2026-05-07-v6.md`. Linter posture unchanged (12/12 non-Go lint-ci steps GREEN, 89-code MWS catalogue, 0 stale folder refs). Sole residual −1 = intentional v2.0 `Backup.Snapshot.Restore.*` freeze.
+**Scope:** Audit-only — no spec/19 markdown changed. New file: `audit/15-blind-ai-readiness-2026-05-07-v6.md`. Linter posture unchanged (12/12 non-Go lint-ci steps GREEN, 89-code MWS catalog, 0 stale folder refs). Sole residual −1 = intentional v2.0 `Backup.Snapshot.Restore.*` freeze.
 **Sync-regenerated artifacts:** `version.json`, `public/health-score.json`, `src/data/specTree.json`, `readme.md`, `docs/architecture.md`, `docs/principles.md`, `docs/author.md`
 
 ---
@@ -176,9 +176,9 @@
 
 ---
 
-## v5.41.0 — 2026-05-07 (Hardening Patch I: G1+G2+G3 closed; MWS error catalogue 84→89 codes; audit-12 (blind-AI v5) + audit-13 (Patch-I reverification) shipped; readiness 97→98/100.)
+## v5.41.0 — 2026-05-07 (Hardening Patch I: G1+G2+G3 closed; MWS error catalog 84→89 codes; audit-12 (blind-AI v5) + audit-13 (Patch-I reverification) shipped; readiness 97→98/100.)
 
-**Scope:** Spec + linter + audit work. (a) `13-error-codes.md`: catalogued 5 real codes (`WORKER-403-01` `PushDisabledInProduction`, `WORKER-403-02` `PayloadHostNotAllowed`, `WORKER-503-01` `MainUnreachable`, `WORKER-503-02` `ManifestUnreachable`, `MAIN-900-01` `SpecContradiction`); header §1 + §4 now first-class document the `21200-21299` overflow range. (b) `25-inherited-rules.md`: corrected `../03-error-manage/` link depth. (c) `linter-scripts/check-mws-error-codes.py`: R4 widened, new unallocated allowlist `check-mws-error-codes.unallocated.txt` for `WORKER-940-05/10` + `MAIN-830-04`. (d) `linter-scripts/spec-folder-refs.allowlist`: `03-tasks` allowlisted. (e) New audits `12-blind-ai-readiness-2026-05-07-v5.md` (98/100) + `13-patch-i-reverification-2026-05-07.md`. All 14/14 lint-ci steps + 4/4 ancillary checks GREEN. Spec/19 implementation constraint memory broadened (v5.40.0 reverted Phase-14 scaffold + new tracker forbidden).
+**Scope:** Spec + linter + audit work. (a) `13-error-codes.md`: cataloged 5 real codes (`WORKER-403-01` `PushDisabledInProduction`, `WORKER-403-02` `PayloadHostNotAllowed`, `WORKER-503-01` `MainUnreachable`, `WORKER-503-02` `ManifestUnreachable`, `MAIN-900-01` `SpecContradiction`); header §1 + §4 now first-class document the `21200-21299` overflow range. (b) `25-inherited-rules.md`: corrected `../03-error-manage/` link depth. (c) `linter-scripts/check-mws-error-codes.py`: R4 widened, new unallocated allowlist `check-mws-error-codes.unallocated.txt` for `WORKER-940-05/10` + `MAIN-830-04`. (d) `linter-scripts/spec-folder-refs.allowlist`: `03-tasks` allowlisted. (e) New audits `12-blind-ai-readiness-2026-05-07-v5.md` (98/100) + `13-patch-i-reverification-2026-05-07.md`. All 14/14 lint-ci steps + 4/4 ancillary checks GREEN. Spec/19 implementation constraint memory broadened (v5.40.0 reverted Phase-14 scaffold + new tracker forbidden).
 **Sync-regenerated artifacts:** `version.json`, `public/health-score.json`, `src/data/specTree.json`, `readme.md`, `docs/architecture.md`, `docs/principles.md`, `docs/author.md`
 
 ---
@@ -196,9 +196,9 @@
 
 ---
 
-## v5.38.0 — 2026-05-06 (v2.0.0 backup-tier seed materialization: 28 MainWorker.Backup.* keys + Backup.Enabled flag fully checked by T3 parity (silent waiver lifted); §2.16 cache catalogue added; check-tunable-constants linter parser fixed (§2-only scope) and wired into CI.)
+## v5.38.0 — 2026-05-06 (v2.0.0 backup-tier seed materialization: 28 MainWorker.Backup.* keys + Backup.Enabled flag fully checked by T3 parity (silent waiver lifted); §2.16 cache catalog added; check-tunable-constants linter parser fixed (§2-only scope) and wired into CI.)
 
-**Scope:** Version bump (`5.37.0` → `5.38.0`). v2.0.0 backup-tier seed materialization: 28 MainWorker.Backup.* keys + Backup.Enabled flag fully checked by T3 parity (silent waiver lifted); §2.16 cache catalogue added; check-tunable-constants linter parser fixed (§2-only scope) and wired into CI..
+**Scope:** Version bump (`5.37.0` → `5.38.0`). v2.0.0 backup-tier seed materialization: 28 MainWorker.Backup.* keys + Backup.Enabled flag fully checked by T3 parity (silent waiver lifted); §2.16 cache catalog added; check-tunable-constants linter parser fixed (§2-only scope) and wired into CI..
 **Sync-regenerated artifacts:** `version.json`, `public/health-score.json`, `src/data/specTree.json`, `readme.md`, `docs/architecture.md`, `docs/principles.md`, `docs/author.md`
 
 ---
@@ -324,7 +324,7 @@
 
 ## v2.17.0 — 2026-05-06 (Phase 12.7 — Blind-AI readiness audit + readme pin refresh)
 
-**Scope:** Minor bump (`5.19.1` → `5.20.0`). Adds **`audit/06-blind-ai-readiness-2026-05-06.md`** — a fresh audit scoring the full 24-file spec against the *dumbest plausible* AI implementer (literal-minded, no clarification questions). Result: **92/100 (A−)**. The 8-point gap is itemised as 4 mechanical prose-hardening fixes (Gap 1: stale OQ-1 hint in `05-auth-and-2fa.md` line 62; Gap 2: two `SyncOp` shapes in `19-incremental-backup-sync.md` §1; Gap 3: OQ-22-1 inferred-not-pinned in `22-backup-apply-logic.md` §12; Gap 4: stale "3-tier" prose in 4 places). Companion non-spec change: root `readme.md` line 43 stale pin `v5.7.0` → `v5.19.1` and "22 spec folders" → "23 spec folders". No spec content, schema, error-code, or AC changes.
+**Scope:** Minor bump (`5.19.1` → `5.20.0`). Adds **`audit/06-blind-ai-readiness-2026-05-06.md`** — a fresh audit scoring the full 24-file spec against the *dumbest plausible* AI implementer (literal-minded, no clarification questions). Result: **92/100 (A−)**. The 8-point gap is itemized as 4 mechanical prose-hardening fixes (Gap 1: stale OQ-1 hint in `05-auth-and-2fa.md` line 62; Gap 2: two `SyncOp` shapes in `19-incremental-backup-sync.md` §1; Gap 3: OQ-22-1 inferred-not-pinned in `22-backup-apply-logic.md` §12; Gap 4: stale "3-tier" prose in 4 places). Companion non-spec change: root `readme.md` line 43 stale pin `v5.7.0` → `v5.19.1` and "22 spec folders" → "23 spec folders". No spec content, schema, error-code, or AC changes.
 
 ---
 
@@ -339,8 +339,8 @@
 **Scope:** Closes the last unresolved item in the Backup System initiative. Creates a stub `24-threat-model.md` (v0.1.0) that visibly reserves spec slot 24 inside `19-main-worker-service/` so a future spec author cannot grab it for an unrelated topic. The stub is the **shared prerequisite** declared by `12-jwt-delivery-contract.md` §11.3 (OQ-12-1 / OQ-12-2) and `23-snapshot-storage-and-restore.md` §14.4 (OQ-23-1 / OQ-23-2). Project version bump to `5.19.0`.
 
 - **`24-threat-model.md` → v0.1.0 (NEW, stub)**
-  - §1 Purpose: explicit slot-reservation, cross-links the four origin OQs to the two future-work catalogues that depend on this slot.
-  - §2 CODE RED forbidden contents: no STRIDE, no error-code allocations, no schema sketches, no AC rows, no "for future use" allocations, no v1.0 implementation guidance — adding any of these to a stub is itself a CODE RED violation per the formalised dispositions.
+  - §1 Purpose: explicit slot-reservation, cross-links the four origin OQs to the two future-work catalogs that depend on this slot.
+  - §2 CODE RED forbidden contents: no STRIDE, no error-code allocations, no schema sketches, no AC rows, no "for future use" allocations, no v1.0 implementation guidance — adding any of these to a stub is itself a CODE RED violation per the formalized dispositions.
   - §3 Promotion criteria: 4 mandatory conditions before stub → draft (trigger fired + tunable cap added + error-code family allocated + AC row added). All four must hold.
   - §4 Cross-references back to `12-jwt-delivery-contract.md`, `23-snapshot-storage-and-restore.md`, `15-tunable-constants.md`, `13-error-codes.md`, `97-acceptance-criteria.md`.
 - **No new tables, no new error codes, no acceptance criteria changes** — by design. The stub is a structural reservation only.
@@ -348,33 +348,33 @@
 
 ---
 
-## v2.15.0 — 2026-05-06 (Phase 12.5 — OQ-23-1 / OQ-23-2 dispositions formalised)
+## v2.15.0 — 2026-05-06 (Phase 12.5 — OQ-23-1 / OQ-23-2 dispositions formalized)
 
-**Scope:** Promotes the two remaining open questions in `23-snapshot-storage-and-restore.md` from inferred-deferred / inferred-rejected to **binding v1.0 dispositions** with explicit forbidden patterns, v2.0 trigger conditions, and a future-work catalogue. Mirrors the Phase 12.4 pattern. Project version bump to `5.18.0`.
+**Scope:** Promotes the two remaining open questions in `23-snapshot-storage-and-restore.md` from inferred-deferred / inferred-rejected to **binding v1.0 dispositions** with explicit forbidden patterns, v2.0 trigger conditions, and a future-work catalog. Mirrors the Phase 12.4 pattern. Project version bump to `5.18.0`.
 
 - **`23-snapshot-storage-and-restore.md` → v1.2.0**
-  - §14 retitled *Open Questions — formalised dispositions* (was *logged, non-blocking*).
+  - §14 retitled *Open Questions — formalized dispositions* (was *logged, non-blocking*).
   - §14.1 OQ-23-1 (snapshot dedup pyramid): rationale matrix (restore complexity, failure modes, retention sweep, operator mental model, disk savings, CODE RED footprint, forward-secrecy interaction), 3 v2.0 reopen triggers (retention >180d AND p95 size >5GB; >90% no-change days + paid feature ask; per-byte tier crossover), 4 forbidden v1.0 patterns (no non-flat storage; no `BasedOnSnapshotCatalogId` FK; no skip-empty-day optimisation; no premature error-code allocation).
   - §14.2 OQ-23-2 (partial-table / per-tenant restore): rationale matrix (ownership, cross-row consistency, re-seal, watermark realignment, mental model, forward-secrecy), 2 reopen triggers (schema-level tenant isolation contract + per-tenant PITR regulatory regime), 3 forbidden patterns (no `TenantId` filter on BE-3; no `RestoreScope` column "leaving room"; no manual SQL bypass of BE-6 audit path), CODE RED reasoning against "operators sometimes ask for it".
   - §14.3 OQ-23-3 resolution preserved.
-  - §14.4 Future-work catalogue: 4 ordered v2.0 prerequisites including reservation of `24-threat-model.md` (shared with `12-jwt-delivery-contract.md` §11.3) and the `WORKER-940-05+` / `WORKER-940-10+` error-code ranges left explicitly unallocated.
+  - §14.4 Future-work catalog: 4 ordered v2.0 prerequisites including reservation of `24-threat-model.md` (shared with `12-jwt-delivery-contract.md` §11.3) and the `WORKER-940-05+` / `WORKER-940-10+` error-code ranges left explicitly unallocated.
 - **`97-acceptance-criteria.md` → v1.5.0** — Two new criteria: (a) flat-snapshot guarantee (no `BasedOnSnapshotCatalogId` column + every-day-produces-row test), (b) no-partial-restore guarantee (BE-3 rejects `TenantId`/`RestoreScope` with `MAIN-830-04 RestoreScopeUnsupported`; no `RestoreScope` column on `BackupRestoreJob`).
-- **No new tables, no new error codes** — per the formalised dispositions, allocating `WORKER-940-05+` or `MAIN-830-04` "for future use" is itself a CODE RED violation. `MAIN-830-04` referenced in the AC test is allocated **only when partial-restore actually ships**.
+- **No new tables, no new error codes** — per the formalized dispositions, allocating `WORKER-940-05+` or `MAIN-830-04` "for future use" is itself a CODE RED violation. `MAIN-830-04` referenced in the AC test is allocated **only when partial-restore actually ships**.
 - **Spec slot 24** remains reserved for `24-threat-model.md` (shared trigger of §14.4 and `12-jwt-delivery-contract.md` §11.3).
 
 ---
 
-## v2.14.0 — 2026-05-06 (Phase 12.4 — OQ-12-1 / OQ-12-2 dispositions formalised)
+## v2.14.0 — 2026-05-06 (Phase 12.4 — OQ-12-1 / OQ-12-2 dispositions formalized)
 
-**Scope:** Promotes the two open questions in `12-jwt-delivery-contract.md` from inferred-deferred / inferred-rejected to **binding v1.0 dispositions** with explicit forbidden patterns, v2.0 trigger conditions, and a future-work catalogue. Project version bump to `5.17.0`.
+**Scope:** Promotes the two open questions in `12-jwt-delivery-contract.md` from inferred-deferred / inferred-rejected to **binding v1.0 dispositions** with explicit forbidden patterns, v2.0 trigger conditions, and a future-work catalog. Project version bump to `5.17.0`.
 
 - **`12-jwt-delivery-contract.md` → v1.2.0**
-  - §11 retitled *Open Questions — formalised dispositions* (was *logged, non-blocking*).
+  - §11 retitled *Open Questions — formalized dispositions* (was *logged, non-blocking*).
   - §11.1 OQ-12-1: rationale matrix (refresh authority, theft window, server state, sign-out-everywhere, CODE RED footprint, what-it-buys), 3 trigger conditions for v2.0 reopen, 4 forbidden v1.0 patterns (`Set-Cookie: RefreshToken`, refresh-token persistence, Main-cookie-value rotation on refresh, premature error-code allocation).
   - §11.2 OQ-12-2: same matrix shape, 2 trigger conditions (cross-origin isolation + browser primitive), CODE RED reasoning ("sounds more secure" is a swallowed reason).
-  - §11.3 Future-work catalogue: 4 ordered prerequisites for any v2.0 reopen — `MainWorker.Auth.MaxSessionLifetimeSeconds` cap, threat-model spec slot 24 reserved, error-code family allocation, AC row.
+  - §11.3 Future-work catalog: 4 ordered prerequisites for any v2.0 reopen — `MainWorker.Auth.MaxSessionLifetimeSeconds` cap, threat-model spec slot 24 reserved, error-code family allocation, AC row.
 - **`97-acceptance-criteria.md` → v1.4.0** — Two new criteria: (a) grep-test for forbidden `Set-Cookie: RefreshToken`, (b) grep-test for SW token postMessage call sites. Both negative tests + positive counterparts.
-- **No new tables, no schema migrations, no error codes.** Per the formalised disposition itself, allocating "WORKER-100-04 REFRESH_REPLAY for future use" is itself a CODE RED violation — error codes are added when the feature ships.
+- **No new tables, no schema migrations, no error codes.** Per the formalized disposition itself, allocating "WORKER-100-04 REFRESH_REPLAY for future use" is itself a CODE RED violation — error codes are added when the feature ships.
 
 ---
 
@@ -411,11 +411,11 @@
 
 ## v2.11.0 — 2026-05-06 (Phase 12.1 — Cross-spec Backup stubs landed)
 
-**Scope:** Executes the deferred cross-spec stubs from Phase 12. No new behavior — purely wires the Backup-tier audience and endpoint catalogue into the three home specs that operators read first. Project version bump to `5.14.0`.
+**Scope:** Executes the deferred cross-spec stubs from Phase 12. No new behavior — purely wires the Backup-tier audience and endpoint catalog into the three home specs that operators read first. Project version bump to `5.14.0`.
 
 - **`05-auth-and-2fa.md` → v2.1.0** — added §11 *Backup S2S Audience*: codifies `aud="Backup"`, mandatory `PairingId` claim, four `Backup.*` scopes, HTTP 421 + `MAIN-800-04` enforcement at the proxy layer (CODE RED — no audience downgrade). Cross-references `21-backup-endpoints.md` §3 and `12-jwt-delivery-contract.md` §13.
 - **`12-jwt-delivery-contract.md` → v1.1.0** — added §13 *Backup-tier S2S tokens*: canonical claim shape (with `sub="PairingId:..."`), 5-step verification order, comparison table vs. UI Worker JWT, and four new test cases T-10..T-13 covering audience confusion, missing `PairingId`, wrong scope, and pairing mismatch.
-- **`06-core-api-endpoints.md` → v1.3.0** — added §6 *Backup-Tier Endpoint Catalogue*: directory pointer for BE-1..BE-6 with method, path, direction, scope, and auth surface. Codifies audience isolation (BE-* MUST NOT be satisfied by `aud=worker`/`aud=main-orchestration`), 421 misroute rule, BE-1/BE-2 rate-limit override via `MainWorker.Backup.PerPairingEnvelopesPerMinute`, and `EndpointAuthAuditEvent` wiring for BE-3/BE-6.
+- **`06-core-api-endpoints.md` → v1.3.0** — added §6 *Backup-Tier Endpoint Catalog*: directory pointer for BE-1..BE-6 with method, path, direction, scope, and auth surface. Codifies audience isolation (BE-* MUST NOT be satisfied by `aud=worker`/`aud=main-orchestration`), 421 misroute rule, BE-1/BE-2 rate-limit override via `MainWorker.Backup.PerPairingEnvelopesPerMinute`, and `EndpointAuthAuditEvent` wiring for BE-3/BE-6.
 - **Authority chain unchanged.** `21-backup-endpoints.md` remains the single authoritative file for Backup endpoint payloads, error envelopes, and idempotency contracts; the three new sections are pointer-stubs only — they MUST NOT redefine shapes.
 - **Project version** bumped from `5.13.0` to `5.14.0` (minor — additive cross-spec wiring, no breaking changes).
 
@@ -434,7 +434,7 @@
 - **Cross-spec stubs** (deferred to Phase 12 by Phases 9–11 changelogs):
   - `05-auth-and-2fa.md` §S2S — note pending: cite `21-backup-endpoints.md` §3 for the `Backup` audience and 5 scopes (`Backup.Diff.Write`, `Backup.Rotate.Write`, `Backup.Restore.Write`, `Backup.Restore.Apply`, `Backup.Read`).
   - `12-jwt-delivery-contract.md` — note pending: document mandatory `PairingId` claim on `Backup`-audience tokens (mismatch → `MAIN-800-04`).
-  - `06-core-api-endpoints.md` §2 — note pending: merge BE-1..BE-6 catalogue rows from `21-…` §2 + `23-…` §8 into the canonical endpoint table.
+  - `06-core-api-endpoints.md` §2 — note pending: merge BE-1..BE-6 catalog rows from `21-…` §2 + `23-…` §8 into the canonical endpoint table.
 - **Linter promotion** — `96-linter-audit.md` to lift the `BACKUP-*` and `DB-SYNCOP-*` rule families from "draft" to "enforced in CI" (referenced by acceptance criteria; promotion follows the standard linter-scripts cycle per memory rule).
 - **Seed promotion** — `AppBackupTrackedTable` seed referenced by acceptance criterion 1 to land via the same migration as `BackupApplyIdempotency` UNIQUE-on-`EnvelopeId` lock (no schema change in this phase).
 - **Open questions still pending** (non-blocking, carried into post-5.13.0 maintenance):
@@ -451,7 +451,7 @@
 
 **Scope:** Resolves locked decision **D14** (date-by-date full snapshot storage on backup; main-controlled restore by date). Closes open question **OQ-A4** — snapshot retention adopted at **30 days rolling** (linter floor: 7 days). Final backup-tier spec; only diagrams + acceptance criteria + linter promotion remain (Phase 12).
 
-- New file **`23-snapshot-storage-and-restore.md` v1.0.0** — three-moment lifecycle (Build / Catalogue / Restore), eight-step Build pipeline using SQLite's `sqlite3_backup_init` for transactional consistency, snapshot zip password derived from a separate HKDF salt (`"BackupSnapshot/v1"`) to prevent envelope/snapshot keystream collision, eight-step Restore flow that re-seals the snapshot under the **current Active KeyEpoch** (forward secrecy — never revives a Retired epoch), new `BackupSnapshotCatalog` (entity-ish, Rule 10) + `BackupSnapshotJob` (transactional, Rule 11) + `BackupRestoreJob` (transactional, Rule 11) tables on the backup App tier, retention sweep with `Pinned` status reserved for operator-protected snapshots, never-auto-shorten guarantee under disk pressure.
+- New file **`23-snapshot-storage-and-restore.md` v1.0.0** — three-moment lifecycle (Build / Catalog / Restore), eight-step Build pipeline using SQLite's `sqlite3_backup_init` for transactional consistency, snapshot zip password derived from a separate HKDF salt (`"BackupSnapshot/v1"`) to prevent envelope/snapshot keystream collision, eight-step Restore flow that re-seals the snapshot under the **current Active KeyEpoch** (forward secrecy — never revives a Retired epoch), new `BackupSnapshotCatalog` (entity-ish, Rule 10) + `BackupSnapshotJob` (transactional, Rule 11) + `BackupRestoreJob` (transactional, Rule 11) tables on the backup App tier, retention sweep with `Pinned` status reserved for operator-protected snapshots, never-auto-shorten guarantee under disk pressure.
 - New endpoint **BE-6** `POST /API/V1/Backup/RestoreInbox` hosted on the **primary** Worker — symmetric counterpart to BE-1 but flowing backward; uses scope `Backup.Restore.Apply`; bypasses `22-backup-apply-logic.md` Stage-4 dispatch (offline App-tier import).
 - Final wiring of the **`Backup` S2S audience** reserved by Phase 9 §9: 5 scopes (`Backup.Diff.Write`, `Backup.Rotate.Write`, `Backup.Restore.Write`, `Backup.Restore.Apply`, `Backup.Read`); mandatory `PairingId` JWT claim; mismatch short-circuits with `MAIN-800-04`.
 - `13-error-codes.md` → **v1.5.0**: §2.10 extended with `WORKER-940-01..04` (`SnapshotQuiesceTimeout` 21204, `RestoreImportFailed` 21205, `SnapshotBuildTimeout` 21206, `SnapshotSealFailed` 21207). §3.11 extended with `MAIN-840-02 SnapshotCorrupt` (21192). Reserved-range table refreshed; `MAIN-21193-21199` reserved for future overflow.
@@ -460,7 +460,7 @@
 **Cross-spec impact:**
 - `05-auth-and-2fa.md` §S2S — Phase 12 cleanup will add a one-line stub citing `23-…` §9 for the `Backup` audience (no schema change needed; audience names are config).
 - `12-jwt-delivery-contract.md` — Phase 12 cleanup will document the mandatory `PairingId` claim on `Backup`-audience tokens.
-- `06-core-api-endpoints.md` §2 — Phase 12 cleanup will merge BE-1..BE-6 catalogue rows from `21-…` §2 + `23-…` §8 into the canonical endpoint table.
+- `06-core-api-endpoints.md` §2 — Phase 12 cleanup will merge BE-1..BE-6 catalog rows from `21-…` §2 + `23-…` §8 into the canonical endpoint table.
 - ER diagram regen deferred to Phase 12 — Worker ER must show `BackupSnapshotCatalog`, `BackupSnapshotJob`, `BackupRestoreJob`.
 - A successful restore (R7) **resets** the incremental watermark by definition — `BackupSyncWatermark.LastAcceptedSyncOpSeq` is realigned to the snapshot's max `SyncOpSeq` so subsequent BE-1 deliveries continue without re-shipping pre-snapshot rows.
 
@@ -498,7 +498,7 @@
 
 **Scope:** Wire surface for Phases 6–8. Five S2S OAuth-protected HTTP endpoints hosted on the backup node, all Main-triggered. Apply logic remains Phase 10; snapshot storage / retention remains Phase 11.
 
-- New file **`21-backup-endpoints.md` v1.0.0** — `BE-1 IncrementalDiff` (multipart upload of sealed Phase-8 envelope; ACKs `LastAcceptedSyncOpSeq` back into `BackupSyncWatermark`), `BE-2 RotateKeys` (steps S3/S6 of the Pair-RSA rotation flow), `BE-3 RestoreByDate` (202-Accepted enqueue, returns `RestoreJobId`), `BE-4 Snapshots` (date-bounded catalogue), `BE-5 Health` (single-call dashboard surface; never throws on degradation). Defence-in-depth `421` re-asserted at proxy. Endpoint↔scope matrix introduces `Backup.Diff.Write`, `Backup.Rotate.Write`, `Backup.Restore.Write`, `Backup.Read` scopes plus a new `Backup` audience to be wired into `05-…` §S2S in Phase 11. CODE-RED handler size budgets pinned per endpoint.
+- New file **`21-backup-endpoints.md` v1.0.0** — `BE-1 IncrementalDiff` (multipart upload of sealed Phase-8 envelope; ACKs `LastAcceptedSyncOpSeq` back into `BackupSyncWatermark`), `BE-2 RotateKeys` (steps S3/S6 of the Pair-RSA rotation flow), `BE-3 RestoreByDate` (202-Accepted enqueue, returns `RestoreJobId`), `BE-4 Snapshots` (date-bounded catalog), `BE-5 Health` (single-call dashboard surface; never throws on degradation). Defense-in-depth `421` re-asserted at proxy. Endpoint↔scope matrix introduces `Backup.Diff.Write`, `Backup.Rotate.Write`, `Backup.Restore.Write`, `Backup.Read` scopes plus a new `Backup` audience to be wired into `05-…` §S2S in Phase 11. CODE-RED handler size budgets pinned per endpoint.
 - `13-error-codes.md` → **v1.3.0**: §3.10 added with two new wire-only Main codes — `MAIN-830-01 SnapshotNotFound` (21189, 404) and `MAIN-830-02 RestoreAlreadyInProgress` (21190, 409). Reserved-range table refreshed; `MAIN-21191-21199` now reserved for Phase 11 snapshot/restore overflow.
 - `15-tunable-constants.md` → **v1.8.0**: new §2.13 with five backup-endpoint timeouts — `IncrementalDiffTimeoutSeconds=120`, `RotateKeysTimeoutSeconds=30`, `RestoreByDateTimeoutSeconds=60`, `SnapshotsTimeoutSeconds=15`, `HealthTimeoutSeconds=5`.
 
@@ -517,14 +517,14 @@
 
 **Scope:** Per locked decision **D13** (RSA pair shared between Worker and its Backups; Main issues rotation; zip password follows known pattern). Resolves open question **OQ-A3** (zip password derivation = `HMAC-SHA256(SharedSecret, EnvelopeTimestampEpoch)` truncated to 32 hex chars). Endpoints / apply / restore remain Phases 9–11.
 
-- New file **`20-backup-encryption-and-keys.md` v1.0.0** — three-artefact key inventory (Pair-RSA / Envelope-AES / Zip-Password), envelope sealing pipeline (AES-256-GCM body + RSA-OAEP wrap + RSA-PSS sign + AES-256-ZIP outer), HKDF-derived deterministic zip password resolving OQ-A3, four-state `Pending → Active → Retired → Discarded` rotation state machine, eight-step Main-orchestrated rotation flow with split-brain alerting, `BackupKeyEpoch` table on both primary and backup (Memory: PascalCase + `{TableName}Id` PK + nullable `Description`, INTEGER `*At` per D2), defence-in-depth verification path on the backup (epoch lookup + cipher refusal + signature verify + GCM decrypt).
+- New file **`20-backup-encryption-and-keys.md` v1.0.0** — three-artifact key inventory (Pair-RSA / Envelope-AES / Zip-Password), envelope sealing pipeline (AES-256-GCM body + RSA-OAEP wrap + RSA-PSS sign + AES-256-ZIP outer), HKDF-derived deterministic zip password resolving OQ-A3, four-state `Pending → Active → Retired → Discarded` rotation state machine, eight-step Main-orchestrated rotation flow with split-brain alerting, `BackupKeyEpoch` table on both primary and backup (Memory: PascalCase + `{TableName}Id` PK + nullable `Description`, INTEGER `*At` per D2), defense-in-depth verification path on the backup (epoch lookup + cipher refusal + signature verify + GCM decrypt).
 - `13-error-codes.md` → **v1.2.0**: §2.10 extended with five new Worker decrypt codes `WORKER-920-01..05` (21095-21099 — fully consuming the Worker future-expansion range), §3.9 added with three new Main rotation-orchestration codes `MAIN-820-01..03` (21186-21188). Reserved-range table refreshed; future-expansion `MAIN-21186-21199` narrows to `MAIN-21189-21199`.
 - `15-tunable-constants.md` → **v1.7.0**: new §2.12 with five backup-encryption keys — `MaxKeyAgeSeconds=7776000` (90 d), `RotationAckTimeoutSeconds=120`, `RotationActivationDelaySeconds=60`, `RetiredKeyGraceSeconds=86400` (24 h), `RsaKeySizeBits=4096`.
 
 **Cross-spec impact:**
 - App-tier mirror: `BackupKeyEpoch` is added on both primary and backup Worker App tiers; the cross-tier reconciliation file (`11-…`) does not need a new entry because App-tier additions are local. Main holds the row too but with `PrivateKeyPem` always NULL (public halves only).
 - ER diagram regen deferred to Phase 12 — Worker ER must show `BackupKeyEpoch` with the four-state lifecycle.
-- `19-incremental-backup-sync.md` §6 envelope SQLite is now the input artefact to `20-…` §4 step 1 — no schema change.
+- `19-incremental-backup-sync.md` §6 envelope SQLite is now the input artifact to `20-…` §4 step 1 — no schema change.
 - Phase 9 (endpoints) will surface `POST /API/V1/Backup/RotateKeys` as the operator-forced rotation trigger named in `20-…` §7.1.
 
 **Open questions still pending:**
@@ -556,7 +556,7 @@
 
 **Scope:** Per locked decisions D8 / D9 / D10 (CDC referenced; defined in Phase 7). Defines what a backup node is, how it registers (extends `10-worker-bootstrap-protocol.md`), how Main propagates the pairing to both ends, and the three independent enforcement points for the "backups never serve traffic" invariant. Wire format / encryption / endpoints / restore are explicitly deferred to Phases 7–11.
 
-- New file **`18-backup-nodes.md` v1.0.0** — Kubernetes-style replica framing, three-tier relationship model (R1/R2/R3 facts), registration request/response additions, Main-side acceptance procedure (CODE RED ≤15 lines), `KnownBackupNode` Worker App-tier mirror table, defence-in-depth `421 Misdirected Request` rule for the no-traffic invariant.
+- New file **`18-backup-nodes.md` v1.0.0** — Kubernetes-style replica framing, three-tier relationship model (R1/R2/R3 facts), registration request/response additions, Main-side acceptance procedure (CODE RED ≤15 lines), `KnownBackupNode` Worker App-tier mirror table, defense-in-depth `421 Misdirected Request` rule for the no-traffic invariant.
 - `13-error-codes.md` — new §3.8 "Backup Lifecycle" series: `MAIN-800-01 BackupChainNotAllowed` (21181, 422), `MAIN-800-02 PrimaryNotFound` (21182, 404), `MAIN-800-03 BackupCapacityExceeded` (21183, 409), `MAIN-800-04 TrafficOnBackupRejected` (21184, 421). Reserved-range table updated; future-expansion ranges narrowed to `MAIN-21172-21180` and `MAIN-21185-21199`.
 - `15-tunable-constants.md` → **v1.5.0**: new §2.11 "Backup nodes" with `MainWorker.Backup.MaxBackupsPerPrimary=3`, `MainWorker.Backup.LagWarningSeconds=900`, `MainWorker.Backup.HeartbeatIntervalSeconds=60`.
 - `14-rbac-and-status-seed.md` — `WorkerNodeStatus` seed bumped to v1.5.0; row count 4 → 7. Added `Provisioning` (backup just registered, awaiting first diff), `BackupAttached` (healthy backup), `BackupLagging` (backup lag exceeds tunable). Existing primary-only codes annotated as never-assigned-to-backups.
@@ -687,7 +687,7 @@ Linter status: structural rename only — seed `Tables` block validates against 
 
 - `13-error-codes.md` → **v1.1.0**: +§3.4 row `MAIN-400-10 EndpointAuthLocked` / flat `21170` / HTTP 403, message "Endpoint pattern matches the lock-list (`/API/V1/Workers/*` or `/API/V1/SelfUpdate`) and cannot be reconfigured via `PATCH /API/V1/Settings/EndpointAuth`." Source: `06-core-api-endpoints.md` §5.4 R-5 + `05-auth-and-2fa.md` §8. Added §1 *Slot-overflow rule* documenting the first allocation that breaks strict `211{YY}` mapping (4xx routing flats `21140-21149` were exhausted by tasks #32 + #39, so the new code took `21170` from the `MAIN-21170-21199` reserved range). §4 reserved-range table refreshed: `21170` marked consumed, residual reserve narrowed to `MAIN-21171-21199` plus a new `MAIN-21162-21169` external-services band.
 - `error-codes.json` → **v1.2.0**: +entry for `MAIN-400-10` with all 8 fields (Code/Flat/Name/HttpStatus/Tier/Message/Source/Retryable=false). `TotalCodes` 48 → 49. `Generated` 2026-05-04 → 2026-05-05.
-- `06-core-api-endpoints.md` §5.4 R-5 + §5.7 cross-refs: dropped "to be catalogued / to be assigned" hedging; both now cite the assigned `MAIN-400-10` / `21170` slot directly. (No version bump — text-only refinement to v1.2.0 of the same file.)
+- `06-core-api-endpoints.md` §5.4 R-5 + §5.7 cross-refs: dropped "to be cataloged / to be assigned" hedging; both now cite the assigned `MAIN-400-10` / `21170` slot directly. (No version bump — text-only refinement to v1.2.0 of the same file.)
 
 Linter verification (4/4 green): `check-mws-error-codes` (R1-R4 — 52 codes verified, 21 R2 waivers loaded; new code has 2 source references so no waiver needed), `check-spec-cross-links`, `check-spec-folder-refs`, `check-tunable-constants`. Closes FU-18.
 
@@ -706,7 +706,7 @@ Linter verification (4/4 green): `check-mws-error-codes` (R1-R4 — 52 codes ver
 - `10-worker-bootstrap-protocol.md` (v1.0.0) — 8-step deterministic boot, `/Workers/Register` contract, JWT public-key fetch (no `/jwks` — static URL + cache), version pinning, `WorkerNode` + `WorkerBootstrapState` schemas, 9 `WORKER-*` error codes. Closes audit F-B-01/02/03, F-X-08. Unblocks AC-1, AC-3, AC-4.
 - `11-split-db-tier-reconciliation.md` (v1.0.0) — Pins Main = 3 tiers (Root/Settings/Session), Worker = 4 tiers (Root/Settings/App/Session) per spec/05's 6-tier model. Per-tier table allocation. Closes F-X-01/04, F-D-09. Unblocks AC-2.
 - `12-jwt-delivery-contract.md` (v1.0.0) — Worker JWT pinned to JSON-body + in-memory storage (NOT cookie/localStorage), mandatory CSP, claim contract, 9 CI test cases. Closes F-A-12, F-D-04, F-B-05. Closes AC-4.
-- `13-error-codes.md` (v1.1.0) — 30 codes (22 `WORKER-*` + 8 `MAIN-*`) catalogued with prefixed↔flat mapping; MWS prefix range `21000-21199` registered in `spec/03-error-manage/03-error-code-registry/01-registry.md`; `error-codes.json` mirror generated. Closes F-X-08, F-A-21, F-B-08. Unblocks AC-6.
+- `13-error-codes.md` (v1.1.0) — 30 codes (22 `WORKER-*` + 8 `MAIN-*`) cataloged with prefixed↔flat mapping; MWS prefix range `21000-21199` registered in `spec/03-error-manage/03-error-code-registry/01-registry.md`; `error-codes.json` mirror generated. Closes F-X-08, F-A-21, F-B-08. Unblocks AC-6.
 - `14-rbac-and-status-seed.md` (v1.0.0) — 3 Roles + 9 EnumPages + 19 RolePageAccess + 4 WorkerNodeStatus + 4 AuthMechanism rows; `@Role.Code` logical-key syntax. Closes F-B-09/10, F-X-06. Closes AC-5.
 - `15-tunable-constants.md` (v1.1.0) — 30 numeric tunables (retry, `IdempotencyKeyTtlSeconds=86400`, heartbeat 30s/3-miss, JWT 900s, routing timeouts, rate limits, push-update windows, bootstrap retry, IssuedSkew, SelfUpdate-RedirectStaleHours). `config.seed.json` `MainWorker` category included verbatim. Closes F-A-15, F-A-16, F-B-12, F-M-02/05/08/09, F-N-05. Closes AC-7.
 - `96-linter-audit.md` (v1.0.0) — Linter pipeline reference.
@@ -720,7 +720,7 @@ Linter verification (4/4 green): `check-mws-error-codes` (R1-R4 — 52 codes ver
 - `05-auth-and-2fa.md` → **v1.1.0**: §3 bcrypt-cost env pinning (F-A-03), pepper MUST in prod (F-A-04), breach-check MUST when enabled; §4 backup-codes-at-zero policy + `X-Auth-Action: RegenerateBackupCodes` (F-A-05/F-M-06); §5 `PasswordResetRequest` always-202 anti-enumeration (F-M-07); §6 cookie-scope vs JWT-scope paragraph (F-B-12).
 - `06-core-api-endpoints.md` → **v1.1.0**: §3.1 11-row Nullable validation table (F-M-01/F-A-01); §6 rate limits promoted to MANDATORY defaults (F-A-02); §2.5 `/Workers/Register` payload (F-B-02); `/Workers/.../Update` request body (F-B-06).
 - `07-role-based-dashboards.md` → **v1.1.0**: §5 stack-agnostic 3-step access-guard contract above the Laravel example + Express equivalent (F-A-34).
-- `08-error-contract.md` → **v1.1.0**: §2 envelope +`EnvelopeVersion`/`OperationId`/`SubCode`/`FieldErrors` (F-A-12/15/16/28); §3.4 `X-Auth-Action: Reauthenticate` header (F-A-26); §5 `lastResponse` initialised via `makeNullResponse(call)` (F-A-35); §8 ErrorCode→HTTP-status mapping (F-A-31); §9 Worker→Main envelope + 3 new ErrorCodes `WorkerRegisterRejected/WorkerHeartbeatRejected/WorkerPushAckUnknownJid` (F-A-32); §10 audit-closure log.
+- `08-error-contract.md` → **v1.1.0**: §2 envelope +`EnvelopeVersion`/`OperationId`/`SubCode`/`FieldErrors` (F-A-12/15/16/28); §3.4 `X-Auth-Action: Reauthenticate` header (F-A-26); §5 `lastResponse` initialized via `makeNullResponse(call)` (F-A-35); §8 ErrorCode→HTTP-status mapping (F-A-31); §9 Worker→Main envelope + 3 new ErrorCodes `WorkerRegisterRejected/WorkerHeartbeatRejected/WorkerPushAckUnknownJid` (F-A-32); §10 audit-closure log.
 - `09-self-update-pointer.md` → **v1.2.0**: bounded sunset (3-way expiry: spec/19 v2.0.0 OR prod-green-14d OR 2026-12-31); §9 deletion checklist (F-A-09); inline tunables replaced with §15 citations.
 - `00-overview.md`, `01-architecture.md` → **v1.1.0**: bumped for image-import + tunable citations.
 

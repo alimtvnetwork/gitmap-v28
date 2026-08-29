@@ -30,7 +30,7 @@ worker pool (`gitmap/cloner/concurrent.go`):
 - The default of `N = 1` keeps the legacy sequential runner so progress
   lines stay strictly ordered for users who script around them.
 - The pool reads from a buffered job channel and writes to a single
-  result channel; the collector goroutine serialises Progress + cache
+  result channel; the collector goroutine serializes Progress + cache
   + summary updates so callers do not need their own locking.
 - `Progress` (`progress.go`) and `CloneCache` (`cache.go`) carry their
   own mutexes — concurrent writes cannot interleave a half-written

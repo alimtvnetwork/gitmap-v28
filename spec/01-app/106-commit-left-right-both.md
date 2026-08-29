@@ -135,7 +135,7 @@ Edge cases:
 1. Build BOTH directional plans up front.
 2. Merge the two commit lists into a single stream sorted by
    `AuthorAt` (stable sort; LEFT-side wins exact ties).
-3. Print the unified plan with each step labelled `L→R` or `R→L`.
+3. Print the unified plan with each step labeled `L→R` or `R→L`.
 4. Single confirmation prompt.
 5. Walk the stream and replay each commit onto its **opposite** side
    in chronological order.

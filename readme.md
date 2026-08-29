@@ -199,7 +199,7 @@ map as a single object. Every command flows from that idea.
   two working trees with an interactive **L / R / S / A / B / Q**
   prompt and `--prefer-*` flags for non-interactive runs.
 - `as` / `release-alias` (`ra`) / `release-alias-pull` (`rap`) —
-  create labelled aliases of a release with concurrency-safe
+  create labeled aliases of a release with concurrency-safe
   auto-stash/pop.
 - `regoldens` (`rg`) — automated two-pass golden-fixture
   regeneration with built-in determinism verification.
@@ -207,7 +207,7 @@ map as a single object. Every command flows from that idea.
 #### 🖥️ Web docs UI
 The repository ships with an **interactive documentation site**
 (shown above) that mirrors every CLI command, every flag, and every
-exit code — searchable, copy-paste-able, and synchronised with the
+exit code — searchable, copy-paste-able, and synchronized with the
 release metadata so the docs can never drift from the binary.
 
 ### TL;DR
@@ -613,7 +613,7 @@ recorded as a repo when it contains a child entry literally named
 - **`.git` is a regular file but its contents do *not* start with `gitdir:`** → ❌ **ignored**. A stray `.git` text file (committed by accident, dropped by an editor, left over from a failed `git init`) does not create a false positive.
 - **`.git` is a symlink** → ✅/❌ resolved as whichever target form above it points to (directory → counted; file → counted only if `gitdir:`-prefixed). A broken symlink is ignored.
 - **`.git` is missing or unreadable** → ❌ ignored. Permission errors are treated as "not a marker" so one unreadable subtree does not abort the whole scan.
-- **A directory ends in `.git` (e.g. `myrepo.git/`)** → ❌ ignored. Bare repos and `*.git` mirror folders are not catalogued by `gitmap scan`. Only a child entry named **exactly** `.git` qualifies.
+- **A directory ends in `.git` (e.g. `myrepo.git/`)** → ❌ ignored. Bare repos and `*.git` mirror folders are not cataloged by `gitmap scan`. Only a child entry named **exactly** `.git` qualifies.
 - **Any other hand-rolled hint** (loose `HEAD` files, a `refs/` folder, a `config` with `[core]`) → ❌ ignored. The two forms above are the only positive signals.
 
 The same rules in table form (kept for backwards-compatible cross-references):
@@ -877,7 +877,7 @@ a `.git` child of any kind, then diff against the CSV's
 # All candidate directories (anything with a .git child).
 find ~/edge -maxdepth 2 -name .git -printf '%h\n' | sort > /tmp/candidates.txt
 
-# What the scanner actually catalogued.
+# What the scanner actually cataloged.
 awk -F, 'NR>1 {print $7}' ./reports/edge-cases/gitmap.csv | sort > /tmp/found.txt
 
 # The lines unique to /tmp/candidates.txt are the silent skips.
@@ -922,7 +922,7 @@ rescan below.
 
 **Rescan recipe — point the CLI at the deeper subfolder:**
 
-When an at-cap row hides nested repos you actually want catalogued,
+When an at-cap row hides nested repos you actually want cataloged,
 the simplest, most predictable fix is to re-run `gitmap scan` with
 the at-cap directory itself as the new root. Depth resets to `0` at
 the new root, so the cap effectively shifts 4 levels deeper into
@@ -992,7 +992,7 @@ repoName,httpsUrl,sshUrl,branch,branchSource,relativePath,absolutePath,cloneInst
 makes that silence explicit: each row is a directory layout that
 might *look* like a repo, the reason it was rejected, and a worked
 example of the CSV that the scan produced (showing only the
-neighbours that DID match, with the `depth` column called out).
+neighbors that DID match, with the `depth` column called out).
 
 Layout:
 
@@ -1003,7 +1003,7 @@ Layout:
 ├── empty-dotgit/          .git  (file: 0 bytes)         depth 1  ← skipped (empty file != gitdir:)
 ├── uppercase/             .Git/                         depth 1  ← skipped (case-sensitive name match)
 ├── trailing-dotgit/       myrepo.git/                   depth 1  ← skipped (only literal ".git" qualifies)
-├── bare-mirror.git/       HEAD, refs/, config           depth 1  ← skipped (bare repos are not catalogued)
+├── bare-mirror.git/       HEAD, refs/, config           depth 1  ← skipped (bare repos are not cataloged)
 ├── broken-symlink/        .git -> /missing/path         depth 1  ← skipped (unresolvable symlink)
 ├── unreadable/            .git/  (chmod 000)            depth 1  ← skipped (read error treated as "no marker")
 ├── nested-under-real/                                   depth 1
@@ -1367,7 +1367,7 @@ gitmap scan ~/projects --mode ssh   --output json --output-path ./out/ssh
 
 The mode only affects the **URL string written to the output files** —
 your local working copies are not touched. Downstream `gitmap clone`
-honours whichever URL the file contains, so the choice flows end-to-end.
+honors whichever URL the file contains, so the choice flows end-to-end.
 
 #### `--output csv|json|terminal` — pick the artifact format
 
@@ -1724,7 +1724,7 @@ the exact command + flags gitmap runs. It mirrors
 
 | Menu path                       | Command run                          | Mode     | Notes |
 |---------------------------------|--------------------------------------|----------|-------|
-| Scan ▸ Scan here                | `gitmap scan`                        | Terminal | Walks the clicked folder; honours all gitmap scan rules. |
+| Scan ▸ Scan here                | `gitmap scan`                        | Terminal | Walks the clicked folder; honors all gitmap scan rules. |
 | Scan ▸ Rescan                   | `gitmap rescan`                      | Terminal | Re-runs the most recent scan against the same root. |
 | Scan ▸ Find next                | `gitmap find-next`                   | Silent   | Probes for the next `<base>-vN+1` sibling. **No `--scan-folder`** (uses cwd); **no `--json`** (output goes to the OS notification verbatim). |
 | Clone ▸ Clone-next here         | `gitmap clone-next`                  | Terminal | Flattens to the base-name folder (v2.75.0+ default); version history tracked in `RepoVersionHistory`. |

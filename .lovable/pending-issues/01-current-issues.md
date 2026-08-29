@@ -62,7 +62,7 @@
 - **Files Affected**:
   - `gitmap/cmd/root.go` — argv-rewrite shortcut before alias extraction and dispatch
   - `gitmap/constants/constants.go` — version bumped to `3.81.0`
-- **UX Note**: The shortcut only fires for URLs (HTTPS/SSH git). Local file paths, shorthands (`json`/`csv`/`text`), and all existing subcommands keep their current behaviour.
+- **UX Note**: The shortcut only fires for URLs (HTTPS/SSH git). Local file paths, shorthands (`json`/`csv`/`text`), and all existing subcommands keep their current behavior.
 
 ## 08 — CI Lint Failures: errorlint / gocritic / unparam (FIXED v3.81.1)
 - **Status**: Fixed in v3.81.1
@@ -76,7 +76,7 @@
   3. **unparam**: `shouldSkipPath` historically accepted `info os.FileInfo` to check `IsDir()`, but that check was lifted into both call sites (so the caller can return `filepath.SkipDir`). The parameter became dead weight; `unparam` correctly flagged it.
 - **Solution**:
   1. `cmd/reinstall.go`: replaced the type assertion with `var exitErr *exec.ExitError; if errors.As(err, &exitErr) { ... }` and added `"errors"` to imports. Now correctly unwraps any future wrapping.
-  2. `committransfer/env.go`: simplified to `var currentEnv = os.Environ` — same behaviour, no allocation, no indirection. Tests can still stub it (`currentEnv = func() []string { return ... }`).
+  2. `committransfer/env.go`: simplified to `var currentEnv = os.Environ` — same behavior, no allocation, no indirection. Tests can still stub it (`currentEnv = func() []string { return ... }`).
   3. `committransfer/replay.go`: removed the unused `info os.FileInfo` parameter from `shouldSkipPath`; updated both call sites in `snapshotCopy` and `mirrorPrune`. Caller still has its own `info` in scope for the `IsDir()` branch after the skip check.
 - **Files Affected**:
   - `gitmap/cmd/reinstall.go` — `errors.As` + import
@@ -368,5 +368,5 @@
 - **Prevention**:
   1. Two helpers that classify the same thing (`isDirectURL` vs `isLikelyURL`) MUST cross-reference each other in their doc comments. Drift between them is a Code Red.
   2. Any "scan the positional args" heuristic that hardcodes `[0]` or `[1]` indices is a bug waiting to happen — always iterate the slice.
-  3. Real-world URL input is never clean: BOM, smart quotes, zero-width spaces, and stray wrappers are the norm, not edge cases. Sanitise on every entry point.
+  3. Real-world URL input is never clean: BOM, smart quotes, zero-width spaces, and stray wrappers are the norm, not edge cases. Sanitize on every entry point.
   4. Empty/separator-only tokens after sanitisation must be dropped silently — emitting "invalid URL: ``" is worse than emitting nothing.

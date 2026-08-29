@@ -32,7 +32,7 @@ any source subject; source range includes that same subject.
 during transfer. This is the safe v1 default but is a footgun for users
 transferring release branches whose merge-commits encode actual history.
 
-Flipping the default is a **semver behaviour change** and requires a
+Flipping the default is a **semver behavior change** and requires a
 deprecation window.
 
 ## Resolution
@@ -53,7 +53,7 @@ deprecation window.
    hatch for operators running against pathologically large targets
    (e.g. mirrored monorepos in the tens of millions of commits) where
    the unbounded `git log` of the v5.78.0 fix is prohibitive. Default
-   behaviour is unchanged; the knob is opt-in. Pinned by
+   behavior is unchanged; the knob is opt-in. Pinned by
    `gitmap/committransfer/maxhistoryscan_test.go`.
 
 ### Gap B — Default flip with deprecation

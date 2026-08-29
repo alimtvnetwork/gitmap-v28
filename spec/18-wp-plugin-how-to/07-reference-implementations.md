@@ -279,7 +279,7 @@ final class Plugin
 
     /**
      * Private constructor — called once via getInstance().
-     * Wires hooks and initialises logging. No business logic here.
+     * Wires hooks and initializes logging. No business logic here.
      */
     private function __construct()
     {

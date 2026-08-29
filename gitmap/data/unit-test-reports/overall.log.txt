@@ -85,7 +85,7 @@ ok  	github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency	0.297s
 === RUN   TestExecute_SkipCheckout_NoWorkingTree
 --- PASS: TestExecute_SkipCheckout_NoWorkingTree (0.67s)
 === RUN   TestExecute_ForceCheckout_BranchMissingFails
-Error: clone-from: post-clone checkout failed at C:\Users\ADMINI~1\AppData\Local\Temp\TestExecute_ForceCheckout_BranchMissingFails2808969591\003\manual for branch "nope-xyz": exit status 1 (operation: git checkout, reason: branch missing on remote or detached HEAD without target)
+Error: clone-from: post-clone checkout failed at C:\Users\ADMINI~1\AppData\Local\Temp\TestExecute_ForceCheckout_BranchMissingFails2808969591\003\mannual for branch "nope-xyz": exit status 1 (operation: git checkout, reason: branch missing on remote or detached HEAD without target)
 --- PASS: TestExecute_ForceCheckout_BranchMissingFails (0.73s)
 === RUN   TestPostCloneCheckout_NoBranchIsNoOp
 --- PASS: TestPostCloneCheckout_NoBranchIsNoOp (0.00s)
@@ -1924,14 +1924,14 @@ warning: in the working copy of 'README.md', LF will be replaced by CRLF the nex
 === RUN   TestApplyTransportFlag_E2E/ssh_wins_when_both_set
 ⚠ both --ssh and --https set; --ssh wins
 → remote.origin.url: https://github.com/acme/widgets.git → git@github.com:acme/widgets.git
-=== RUN   TestApplyTransportFlag_E2E/unrecognised_url_fails_open
-⚠ remote.origin.url "file:///tmp/local-bare" is not a recognised Git URL; skipping transport rewrite
+=== RUN   TestApplyTransportFlag_E2E/unrecognized_url_fails_open
+⚠ remote.origin.url "file:///tmp/local-bare" is not a recognized Git URL; skipping transport rewrite
 --- PASS: TestApplyTransportFlag_E2E (0.48s)
     --- PASS: TestApplyTransportFlag_E2E/https_to_ssh_persists (0.08s)
     --- PASS: TestApplyTransportFlag_E2E/ssh_to_https_persists (0.08s)
     --- PASS: TestApplyTransportFlag_E2E/noop_when_already_correct (0.02s)
     --- PASS: TestApplyTransportFlag_E2E/ssh_wins_when_both_set (0.05s)
-    --- PASS: TestApplyTransportFlag_E2E/unrecognised_url_fails_open (0.05s)
+    --- PASS: TestApplyTransportFlag_E2E/unrecognized_url_fails_open (0.05s)
 === RUN   TestExtractTransportFlags
 === RUN   TestExtractTransportFlags/none
 === RUN   TestExtractTransportFlags/double_ssh

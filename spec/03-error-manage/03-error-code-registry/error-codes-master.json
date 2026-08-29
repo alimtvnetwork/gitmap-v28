@@ -377,7 +377,7 @@
       "Notes": [
         "Two-tier service; Worker uses 21000-21099, Main uses 21100-21199.",
         "Both prefixed (WORKER-XYY-ZZ / MAIN-XYY-ZZ) and flat (21NNN) formats are valid; mapping is bijective.",
-        "Authoritative catalogue: spec/19-main-worker-service/13-error-codes.md."
+        "Authoritative catalog: spec/19-main-worker-service/13-error-codes.md."
       ]
     }
   ],

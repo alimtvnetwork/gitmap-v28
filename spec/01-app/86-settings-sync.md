@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `gitmap-v28 install <tool>-settings` command family synchronises bundled
+The `gitmap-v28 install <tool>-settings` command family synchronizes bundled
 application settings from the repository's `settings/` directory to the
 correct platform-specific config location. This provides a one-command way
 to replicate a developer's editor, terminal, and streaming setup on a new

@@ -101,7 +101,7 @@ $pluginSlug = PluginConfigType::Slug->value;
     // ── Page Header (shared partial) ────────────────────────
     $pageIcon = 'dashicons-admin-generic';
     $pageTitle = $pluginName . ' - ' . __('Settings', $pluginSlug);
-    $pageDescription = __('Configure plugin behaviour.', $pluginSlug);
+    $pageDescription = __('Configure plugin behavior.', $pluginSlug);
     include __DIR__ . '/partials/shared/page-header.php';
     ?>
 
@@ -360,8 +360,8 @@ plugin-slug/
 │   │   ├── admin-settings.css        ← Settings-page-specific styles
 │   │   └── admin-logs.css            ← Logs-page-specific styles
 │   └── js/
-│       ├── admin-settings.js         ← Settings-page-specific behaviour
-│       └── admin-logs.js             ← Logs-page-specific behaviour
+│       ├── admin-settings.js         ← Settings-page-specific behavior
+│       └── admin-logs.js             ← Logs-page-specific behavior
 ```
 
 ### Enqueuing pattern (in AdminPageTrait)

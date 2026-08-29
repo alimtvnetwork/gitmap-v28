@@ -13,7 +13,7 @@ At v5.41.0 the spec/19 non-backup surface advanced to **98 / 100** (audit `12-`)
 
 - **G1** — `03-tasks` added to `linter-scripts/spec-folder-refs.allowlist` (sibling-repo doc-only ref).
 - **G2** — broken cross-link in `spec/19/25-inherited-rules.md` corrected (`../03-error-manage/`).
-- **G3** — MWS error catalogue grew 84 → 89 codes (`WORKER-403-01/02`, `WORKER-503-01/02`, `MAIN-900-01`); R4 widened to recognise §4 overflow range `21200-21299`; new `check-mws-error-codes.unallocated.txt` codifies 3 forbidden-future codes (`WORKER-940-05`, `WORKER-940-10`, `MAIN-830-04`).
+- **G3** — MWS error catalog grew 84 → 89 codes (`WORKER-403-01/02`, `WORKER-503-01/02`, `MAIN-900-01`); R4 widened to recognize §4 overflow range `21200-21299`; new `check-mws-error-codes.unallocated.txt` codifies 3 forbidden-future codes (`WORKER-940-05`, `WORKER-940-10`, `MAIN-830-04`).
 
 All 14/14 `lint-ci.sh` steps green; 4/4 ancillary checks green. Patches A–D (audit-10) and Patch D-closure (v5.39.0) verified durable in audit `13-`.
 

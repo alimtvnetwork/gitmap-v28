@@ -225,7 +225,7 @@ N-tags-per-commit case is handled by sibling RewrittenCommit rows
   `CREATE TABLE IF NOT EXISTS` + `CREATE INDEX IF NOT EXISTS`. The
   `TagReplayOutcome` enum mirror is seeded with `INSERT OR IGNORE`.
 - **No magic strings**: all five `TagReplayOutcome` member names are
-  centralised in `constants/constants_commitin_tagreplay.go` (NEW
+  centralized in `constants/constants_commitin_tagreplay.go` (NEW
   file) — never inlined into SQL or Go literals. The `(SourceTagName,
   SourceTagSha)` lookup query lives in `constants_commitin_sql.go`
   alongside `SQLCreateCommitInShaMap`.

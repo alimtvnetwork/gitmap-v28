@@ -813,7 +813,7 @@ pwsh_profile_path() {
 # spec/04-generic-cli/21-post-install-shell-activation) to a single
 # profile file. Idempotent across all three outcomes: appends when
 # absent, rewrites in place when present-but-different, no-ops when
-# present-and-identical. Third arg is the snippet shell flavour:
+# present-and-identical. Third arg is the snippet shell flavor:
 # "bash" | "fish" | "pwsh". (Legacy callers passed "false"/"true" —
 # both are coerced to bash/fish.)
 #
@@ -942,7 +942,7 @@ files_equal() {
 
 # fallback_snippet renders the marker-block snippet body when the
 # freshly-installed gitmap binary is unavailable to do it for us.
-# Kept tiny and shell-specific so the per-shell flavour stays explicit.
+# Kept tiny and shell-specific so the per-shell flavor stays explicit.
 fallback_snippet() {
     local kind="$1" dir="$2" open="$3" close="$4"
     case "${kind}" in
@@ -1008,7 +1008,7 @@ add_to_path() {
 
     # POSIX ~/.profile — catch-all for sh and other POSIX shells.
     # Skipped under single-shell modes AND combo modes (zsh+pwsh, etc.)
-    # to honour the "only the listed families" strict contract. Only
+    # to honor the "only the listed families" strict contract. Only
     # `auto` (detect everything) and `both` (write everything) include it.
     if [ "${PROFILE_MODE}" = "auto" ] || [ "${PROFILE_MODE}" = "both" ]; then
         add_path_to_profile "${dir}" "${HOME}/.profile" false
@@ -1165,8 +1165,8 @@ print_profile_change_table() {
     print_status_lines "=" 90 "${profiles_unchanged}"
 }
 
-# print_status_lines emits one indented coloured line per path in $3,
-# tagged with the symbol $1 (e.g. +/~/=) and ANSI colour code $2.
+# print_status_lines emits one indented colored line per path in $3,
+# tagged with the symbol $1 (e.g. +/~/=) and ANSI color code $2.
 # Empty lists are silently skipped so a no-op category produces no row.
 print_status_lines() {
     local symbol="$1" color="$2" list="$3" path

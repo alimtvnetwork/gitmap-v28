@@ -381,7 +381,7 @@ Per-file conflict resolutions in `merge-*` are logged as
 - [x] `-y` / `-a` bypasses prompts using the per-command source-side default.
 - [x] `--prefer-left` / `--prefer-right` / `--prefer-newer` / `--prefer-skip` override the bypass default.
 - [x] `--dry-run` prints all actions and writes nothing.
-- [x] `--no-push` and `--no-commit` are honoured for URL endpoints.
+- [x] `--no-push` and `--no-commit` are honored for URL endpoints.
 - [x] `:branch` suffix on a URL pins the checkout + push branch.
 - [x] Same-folder and nested-folder protection trips before any file write.
 

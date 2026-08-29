@@ -64,7 +64,7 @@ exactly one test case. Do not collapse, do not split.
     boolean prefix, every error path logs to `os.Stderr` per
     `mem://tech/code-red-error-management`.
 
-## 7.2 Edge case catalogue
+## 7.2 Edge case catalog
 
 - **Empty input repo** (zero commits) — `WalkCommits` yields nothing;
   `InputRepo` row exists; no error.

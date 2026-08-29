@@ -10,7 +10,7 @@ type: feature
 **Site routes:** `/github-desktop`, `/desktop-sync`
 **Triggered by:** real bug report — `gitmap ds` failed because `.gitmap/output/gitmap.json` didn't exist; `gitmap gd` failed inside a valid git repo because the detector only looked for `.git/` as a directory and missed `.git` files (worktrees / submodules).
 
-## Behaviour summary
+## Behavior summary
 
 - **One command, two names.** `desktop-sync` (`ds`) is now a 4-line shim that calls into the `github-desktop` (`gd`) handler. Same flags, same output, same exit codes.
 - **No scan dependency.** Neither command reads `.gitmap/output/gitmap.json`. Removed entirely from the resolution path.

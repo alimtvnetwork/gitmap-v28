@@ -22,7 +22,7 @@ muscle memory; `cpk` reads as "clone-pick" with no overlap.
 
 ## 2. Why a new command
 
-| Existing command | Behaviour | Why insufficient |
+| Existing command | Behavior | Why insufficient |
 |------------------|-----------|------------------|
 | `clone <url>` | Full clone, optional folder name | Always full repo, no path filter |
 | `clone-from <file>` | Clone many repos from a manifest | Manifest-driven, not path-subset |
@@ -109,7 +109,7 @@ git sparse-checkout init [--cone]   # cone unless --cone=false
 # 3. set the path patterns (cone mode = folders only)
 git sparse-checkout set <path1> <path2> ...
 
-# 4. materialise the working tree
+# 4. materialize the working tree
 git checkout            # or `git read-tree -mu HEAD` when no branch given
 
 # 5. optional: drop .git when --keep-git=false
@@ -164,7 +164,7 @@ The temp clone is reused for the actual checkout (we just `mv` it to
 - Expanding a folder reveals children; toggling a child auto-flips cone
   off and stores the file-level selection
 - `s` writes selection to DB and proceeds to checkout
-- `q` exits with code 130 (user-cancelled)
+- `q` exits with code 130 (user-canceled)
 
 ### 6.3 Defaults shipped with the picker
 
@@ -209,7 +209,7 @@ CREATE INDEX IF NOT EXISTS idx_clonepick_name
 ### 7.2 Insert policy
 
 - Every successful run inserts exactly one row (auto-save, per the
-  user's chosen behaviour).
+  user's chosen behavior).
 - `--dry-run` does NOT insert.
 - `--replay` does NOT insert a duplicate row; it updates the
   `CreatedAt` of the matched row to record the re-run time.

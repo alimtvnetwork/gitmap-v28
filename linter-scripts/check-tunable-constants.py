@@ -8,7 +8,7 @@ Enforces the contract in `spec/19-main-worker-service/15-tunable-constants.md` �
             spec/14-update/28-worker-push-instruction.md that is followed
             by a time/count unit (s, sec, seconds, min, minutes, h, hours,
             attempts, retries, times) MUST be either:
-              (a) named in §2 of 15-tunable-constants.md (the catalogue
+              (a) named in §2 of 15-tunable-constants.md (the catalog
                   table — its key appears in `2.x` rows), OR
               (b) explicitly waivered by `<!-- TUNABLE-WAIVER: ... -->`
                   on the same line.
@@ -18,7 +18,7 @@ Enforces the contract in `spec/19-main-worker-service/15-tunable-constants.md` �
   Rule T4 — Session-TTL invariant (FU-16):
             MainWorker.Auth.MainSessionAbsoluteMaxSeconds
               >= MainWorker.Auth.MainSessionTtlSeconds
-            in BOTH §2 catalogue defaults and §4 seed defaults.
+            in BOTH §2 catalog defaults and §4 seed defaults.
 
 Exit codes:
   0   all rules pass
@@ -41,7 +41,7 @@ SCAN_GLOBS = (
     "spec/19-main-worker-service/*.md",
     "spec/14-update/28-worker-push-instruction.md",
 )
-# Files exempt from T1 scanning (catalogue + diagrams + JSON snippets).
+# Files exempt from T1 scanning (catalog + diagrams + JSON snippets).
 EXEMPT_NAMES = {"15-tunable-constants.md"}
 
 # A numeric followed by a unit token. Unit list mirrors §6.
@@ -93,19 +93,19 @@ def toggle_fence(line: str, in_fence: bool) -> bool:
     return in_fence
 
 
-CATALOGUE_START_RE = re.compile(r"^##\s+2\.\s")
-CATALOGUE_END_RE = re.compile(r"^##\s+(?!2(?:\.\d+)?\b)\d")
+CATALOG_START_RE = re.compile(r"^##\s+2\.\s")
+CATALOG_END_RE = re.compile(r"^##\s+(?!2(?:\.\d+)?\b)\d")
 
 
-def _is_inside_catalogue(line: str, inside: bool) -> bool:
-    if CATALOGUE_START_RE.match(line):
+def _is_inside_catalog(line: str, inside: bool) -> bool:
+    if CATALOG_START_RE.match(line):
         return True
-    if inside and CATALOGUE_END_RE.match(line):
+    if inside and CATALOG_END_RE.match(line):
         return False
     return inside
 
 
-def collect_catalogue_keys() -> set[str]:
+def collect_catalog_keys() -> set[str]:
     keys: set[str] = set()
     in_fence = False
     for raw in read_lines(TUNABLES_FILE):
@@ -168,9 +168,9 @@ def expand_scan_targets() -> list[Path]:
 
 
 def rule_t1() -> list[str]:
-    keys = collect_catalogue_keys()
+    keys = collect_catalog_keys()
     if not keys:
-        return ["15-tunable-constants.md §2: no catalogue rows parsed"]
+        return ["15-tunable-constants.md §2: no catalog rows parsed"]
     out: list[str] = []
     for path in expand_scan_targets():
         out.extend(scan_file_for_t1(path, keys))
@@ -182,11 +182,11 @@ def rule_t2() -> list[str]:
     # prose key, so we'd get spurious duplicates if we scanned globally.
     seen: dict[str, int] = {}
     in_fence = False
-    in_catalogue = False
+    in_catalog = False
     for raw in read_lines(TUNABLES_FILE):
         in_fence = toggle_fence(raw, in_fence)
-        in_catalogue = _is_inside_catalogue(raw, in_catalogue)
-        if in_fence or not in_catalogue:
+        in_catalog = _is_inside_catalog(raw, in_catalog)
+        if in_fence or not in_catalog:
             continue
         match = ROW_RE.match(raw)
         if not match:
@@ -200,7 +200,7 @@ def collect_seed_defaults() -> dict[str, str]:
     return {m.group(1): m.group(2).strip('"') for m in SEED_RE.finditer(text)}
 
 
-# Mapping §4 short-name -> §2 catalogue key. Pinned for explicitness.
+# Mapping §4 short-name -> §2 catalog key. Pinned for explicitness.
 SEED_TO_KEY = {
     "RetryMaxAttempts": "MainWorker.Retry.MaxAttempts",
     "RetryJitterPct": "MainWorker.Retry.JitterPct",
@@ -271,18 +271,18 @@ SEED_TO_KEY = {
 
 
 
-def collect_catalogue_defaults() -> dict[str, str]:
-    # T3 catalogue parser: only §2 rows count. Skipping §4.1's alias map
+def collect_catalog_defaults() -> dict[str, str]:
+    # T3 catalog parser: only §2 rows count. Skipping §4.1's alias map
     # (which reuses ROW_RE shape) prevents the alias map's seed-short-name
     # cells from overwriting real defaults. Lifts the silent T3 waiver
     # exposed by the v2.0.0 backup-tier materialization.
     out: dict[str, str] = {}
     in_fence = False
-    in_catalogue = False
+    in_catalog = False
     for raw in read_lines(TUNABLES_FILE):
         in_fence = toggle_fence(raw, in_fence)
-        in_catalogue = _is_inside_catalogue(raw, in_catalogue)
-        if in_fence or not in_catalogue:
+        in_catalog = _is_inside_catalog(raw, in_catalog)
+        if in_fence or not in_catalog:
             continue
         match = ROW_RE.match(raw)
         if not match:
@@ -305,7 +305,7 @@ def normalize_default(rest_of_row: str) -> str:
 
 def rule_t3() -> list[str]:
     seed = collect_seed_defaults()
-    cat = collect_catalogue_defaults()
+    cat = collect_catalog_defaults()
     out: list[str] = []
     for short, key in SEED_TO_KEY.items():
         out.extend(diff_seed_row(short, key, seed, cat))
@@ -320,7 +320,7 @@ def diff_seed_row(
     if seed_val is None:
         return [f"§4 missing seed entry `{short}` (expected for `{key}`)"]
     if cat_val is None:
-        return [f"§2 missing catalogue row `{key}` (referenced by §4 `{short}`)"]
+        return [f"§2 missing catalog row `{key}` (referenced by §4 `{short}`)"]
     if values_match(seed_val, cat_val):
         return []
     return [f"default mismatch: §4 `{short}`={seed_val!r} vs §2 `{key}`={cat_val!r}"]
@@ -364,7 +364,7 @@ def _scrub_for_duration(raw: str) -> str:
 # strings (bare ints like `28800`, bolded `**28800** (8h)`). Hardened to accept
 # `28800s`, `1h`, `12 hours`, `500ms`, `8 h`, `1 day`, code-fenced, slashed.
 # First numeric token wins (matches prior head.split()[0]); attached unit is
-# honoured; no unit → seconds.
+# honored; no unit → seconds.
 def parse_seconds(raw: str) -> int | None:
     if not raw:
         return None
@@ -402,7 +402,7 @@ def rule_t4_pair(label: str, ttl_raw: str | None, abs_raw: str | None) -> list[s
 
 
 def rule_t4() -> list[str]:
-    cat = collect_catalogue_defaults()
+    cat = collect_catalog_defaults()
     seed = collect_seed_defaults()
     out: list[str] = []
     out.extend(rule_t4_pair("§2", cat.get(SESSION_TTL_KEY), cat.get(SESSION_ABS_KEY)))

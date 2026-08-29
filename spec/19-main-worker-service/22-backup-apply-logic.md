@@ -186,7 +186,7 @@ Step 5's INSERT uses the table's `UNIQUE` constraint as the lock — second conc
 |---|---:|---|---|---|
 | `MainWorker.Backup.Apply.MaxRetriesPerEnvelope` | **5** | count | §6.2 | Primary's BE-1 retries inherit this; exceeding = `MAIN-840-01`. |
 | `MainWorker.Backup.Apply.TransactionTimeoutSeconds` | **30** | seconds | Stage 4 `BEGIN IMMEDIATE` | Wraps the per-envelope TX; exceeding = `WORKER-930-04 ApplyTransactionTimeout`. |
-| `MainWorker.Backup.Apply.DeadLetterRetentionDays` | **30** | days | DLQ sweeper | Symmetric with snapshot retention default; finalised in Phase 11 with OQ-A4. |
+| `MainWorker.Backup.Apply.DeadLetterRetentionDays` | **30** | days | DLQ sweeper | Symmetric with snapshot retention default; finalized in Phase 11 with OQ-A4. |
 | `MainWorker.Backup.Apply.IdempotencyRowRetentionDays` | **14** | days | DLQ sweeper | `Applied` rows reaped after this; replay protection window. |
 
 ---

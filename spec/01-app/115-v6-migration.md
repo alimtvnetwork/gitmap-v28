@@ -6,7 +6,7 @@ Owners: committransfer package, release management
 
 ## Summary
 
-This spec documents the single breaking behavioural change planned for
+This spec documents the single breaking behavioral change planned for
 v6.0.0 and provides the migration path for users and downstream scripts
 that rely on the v5.x default.
 
@@ -21,7 +21,7 @@ the zero-value `false`. The CLI gained `--include-merges` / `--no-include-merges
 flags in v5.62.0 as an opt-in escape hatch.
 
 In v6.0.0 the default flips to `true`. Merge commits are now preserved by
-default; users who want the legacy strip behaviour must pass
+default; users who want the legacy strip behavior must pass
 `--no-include-merges` explicitly.
 
 ## Why this is breaking
@@ -39,12 +39,12 @@ commits:
 
 ## Migration path
 
-### If you want the new behaviour (merges preserved)
+### If you want the new behavior (merges preserved)
 
 No action required. Remove any `--include-merges` flags you added as a
 v5.x workaround; they become redundant but harmless.
 
-### If you want the legacy behaviour (merges stripped)
+### If you want the legacy behavior (merges stripped)
 
 Add `--no-include-merges` to every commit-transfer invocation:
 
@@ -62,7 +62,7 @@ Set `Options.IncludeMerges = false` explicitly:
 
 ```go
 opts := committransfer.Options{
-    IncludeMerges: false, // now required for legacy behaviour
+    IncludeMerges: false, // now required for legacy behavior
 }
 ```
 

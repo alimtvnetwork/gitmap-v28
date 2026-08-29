@@ -30,7 +30,7 @@ Moves:
 Imports: `fmt`, `os`, `os/exec`, `path/filepath`, `strings`
 
 ## Migration Rules
-- No behaviour changes, no signature renames.
+- No behavior changes, no signature renames.
 - Package remains `release`.
 - Deduplicate imports per file.
 - Blank line before every `return`.

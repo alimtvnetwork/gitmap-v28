@@ -21,7 +21,7 @@
 | **Blind-AI buildability** — a literal AI can ship without asking a question | **88 / 100** | Backup-apply Stage 4 leaves a journal-mode choice to the implementer (OQ-22-1) |
 | **Overall blind-AI readiness** | **92 / 100 (A−)** | **Production-grade for a competent AI; ~92% buildable for the dumbest AI before first clarification.** |
 
-> The remaining **8 percentage points** are itemised in §5 below with the exact file, line range, and the *one* sentence each that would push the score to 100.
+> The remaining **8 percentage points** are itemized in §5 below with the exact file, line range, and the *one* sentence each that would push the score to 100.
 
 ---
 

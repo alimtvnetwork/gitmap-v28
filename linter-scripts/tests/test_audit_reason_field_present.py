@@ -53,7 +53,7 @@ _KNOWN_STATUSES: frozenset[str] = frozenset({
 
 def _is_blank(value: object) -> bool:
     """Return True for ``None``, non-strings, and strings that are
-    empty or whitespace-only after stripping. Centralised so every
+    empty or whitespace-only after stripping. Centralized so every
     surface uses the same definition of "blank reason".
     """
     return not (isinstance(value, str) and value.strip() != "")

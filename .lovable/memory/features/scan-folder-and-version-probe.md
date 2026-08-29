@@ -35,7 +35,7 @@ type: feature
 
 ## CLI: `gitmap sf <add|list|rm>`
 
-| Subcommand | Behaviour |
+| Subcommand | Behavior |
 |---|---|
 | `sf add <path> [--label X] [--notes Y]` | Resolves to absolute path, upserts ScanFolder row, prints `(id=N)` outcome. Re-running with the same path bumps `LastScannedAt` and only overwrites Label/Notes when the new values are non-empty. |
 | `sf list` (alias `ls`) | Prints `[id] absolute-path` + `label / repos / last-scanned` per row. Newest-scanned first. Repo count is `SELECT COUNT(*) FROM Repo WHERE ScanFolderId = ?`. |

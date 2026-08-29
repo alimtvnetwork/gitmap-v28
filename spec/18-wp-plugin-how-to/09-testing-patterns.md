@@ -11,7 +11,7 @@
 | **Unit tests don't need WordPress** | Helpers, enums, and pure logic are tested standalone with PHPUnit |
 | **Integration tests use WP test suite** | REST endpoints, hooks, and database are tested with `wp-phpunit` |
 | **Every public method has a test** | Enums, helpers, and trait public methods are all covered |
-| **Test names describe behaviour** | `testValidationRejectsEmptyName` not `testValidation1` |
+| **Test names describe behavior** | `testValidationRejectsEmptyName` not `testValidation1` |
 | **No test depends on another** | Each test sets up its own state and tears it down |
 
 ---
@@ -111,7 +111,7 @@ require_once __DIR__ . '/../includes/Autoloader.php';
 
 ### Why mock WordPress functions?
 
-Unit tests must run in CI without a WordPress installation. Only mock the functions your tested code actually calls. Keep mocks minimal — complex behaviour belongs in integration tests.
+Unit tests must run in CI without a WordPress installation. Only mock the functions your tested code actually calls. Keep mocks minimal — complex behavior belongs in integration tests.
 
 ---
 
@@ -869,7 +869,7 @@ public static function edgeCaseInputProvider(): array
 | Pattern | Example |
 |---------|---------|
 | `test{Action}{Condition}` | `testValidationRejectsEmptyName` |
-| `test{Subject}{Behaviour}` | `testEnvelopeBuilderOmitsErrorsOnSuccess` |
+| `test{Subject}{Behavior}` | `testEnvelopeBuilderOmitsErrorsOnSuccess` |
 | `test{Subject}{EdgeCase}` | `testIsArrayRejectsArrayObject` |
 
 ### Rules

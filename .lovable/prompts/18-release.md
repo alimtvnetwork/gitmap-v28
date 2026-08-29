@@ -58,7 +58,7 @@ When in doubt: MINOR.
 
 ## Working stance
 
-Past release turns were sloppy: guessed the version, bumped PATCH instead of MINOR, left old versions in `readme.md` install snippets, skipped the changelog, left uppercase markdown filenames, skipped the sync check, buried failures. That is stupid fuck behaviour and it broke installs. Stop it. Read the file, bump the digit, rewrite every pin site, write the changelog, run the sync check, log every failure. Going deep IS the job.
+Past release turns were sloppy: guessed the version, bumped PATCH instead of MINOR, left old versions in `readme.md` install snippets, skipped the changelog, left uppercase markdown filenames, skipped the sync check, buried failures. That is stupid fuck behavior and it broke installs. Stop it. Read the file, bump the digit, rewrite every pin site, write the changelog, run the sync check, log every failure. Going deep IS the job.
 
 ## Pre-flight (before step 1)
 
@@ -111,7 +111,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 
    ### Added / Changed / Fixed / Removed
 
-   - <one bullet per real change, naming the exact file or behaviour>
+   - <one bullet per real change, naming the exact file or behavior>
 
    ### Issues (only if any step failed or was flagged)
 

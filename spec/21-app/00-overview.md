@@ -21,7 +21,7 @@ Any content that defines a specific application feature, workflow, screen, comma
 
 Sibling folders for app-scoped concerns:
 
-- `22-app-issues/` — bug reports and root-cause analyses for this app
+- `22-app-issues/` — bug reports and root-cause analyzes for this app
 - `23-app-db/` — database schema and queries for this app
 - `24-app-ui-design-system/` — UI components and design tokens for this app
 

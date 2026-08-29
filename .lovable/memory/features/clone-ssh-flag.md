@@ -16,7 +16,7 @@ the multi-URL form (`clone url1,url2,url3 --ssh`).
 - `UseSSH` / `UseHTTPS` on `CloneFlags` in `gitmap/cmd/rootflags.go`.
 - Conversion helpers in `gitmap/cmd/cloneurlconvert.go`:
   `ConvertURLToSSH(url)` and `ConvertURLToHTTPS(url)`. Both return
-  `(string, bool)` — `ok=false` means the input wasn't a recognised
+  `(string, bool)` — `ok=false` means the input wasn't a recognized
   Git URL and is returned unchanged so callers can fall through.
 - Dispatch in `gitmap/cmd/clone.go::applyURLSchemeFlags` runs after
   `applySSHKey` and BEFORE the multi-URL / direct-URL routers, so the
@@ -33,7 +33,7 @@ the multi-URL form (`clone url1,url2,url3 --ssh`).
 - Already-shorthand URLs are normalized (`.git` suffix appended).
 - Manifest-mode clones (`json` / `csv` / `text`) currently IGNORE the
   flags — those formats already carry both `httpsUrl` and `sshUrl`
-  columns and select via `mode` upstream. Honouring `--ssh` / `--https`
+  columns and select via `mode` upstream. Honoring `--ssh` / `--https`
   as a per-record override in `cloner` is tracked as follow-up in
   `spec/01-app/110-clone-ssh-flag.md`.
 

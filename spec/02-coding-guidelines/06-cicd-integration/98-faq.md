@@ -192,7 +192,7 @@ unzip -q "coding-guidelines-linters-${VERSION}.zip"
 
 ### Verifying the pinned version at runtime
 
-Every check script honours `--version`:
+Every check script honors `--version`:
 
 ```bash
 $ python3 linters-cicd/checks/nested-if/go.py --version

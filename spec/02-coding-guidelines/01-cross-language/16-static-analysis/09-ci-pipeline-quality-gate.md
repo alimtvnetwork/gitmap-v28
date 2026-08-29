@@ -106,7 +106,7 @@ Every CI pipeline MUST execute these stages **in order**. A failure in any stage
 |-------|---------|----------------|
 | Format | `php-cs-fixer fix --dry-run --diff` | — |
 | Lint | `phpcs --standard=phpcs.xml src/` | [PHP PHPCS](./03-php-phpcs-phpstan.md) |
-| Type | `phpstan analyse --level=9` | [PHP PHPStan](./03-php-phpcs-phpstan.md) |
+| Type | `phpstan analyze --level=9` | [PHP PHPStan](./03-php-phpcs-phpstan.md) |
 | Test | `phpunit --coverage-clover coverage.xml` | — |
 
 ### 3.4 C#

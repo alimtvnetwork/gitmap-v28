@@ -8,7 +8,7 @@
 
 Two questions arose:
 
-1. **"Temporary plist files"** — literally plist (macOS only), or the per-OS analogue (`.desktop` on Linux, plist on macOS, Registry/.lnk on Windows)? The current package supports all three, and the existing test suite already mirrors `.desktop` ↔ `.plist` coverage.
+1. **"Temporary plist files"** — literally plist (macOS only), or the per-OS analog (`.desktop` on Linux, plist on macOS, Registry/.lnk on Windows)? The current package supports all three, and the existing test suite already mirrors `.desktop` ↔ `.plist` coverage.
 2. **Test surface** — call the public Go API (`startup.Add` / `startup.List` / `startup.Remove`) directly, or shell out to the actual `gitmap` binary built from source?
 
 ## Options considered
@@ -18,7 +18,7 @@ Two questions arose:
 | Option | Pros | Cons |
 |---|---|---|
 | **A. Plist only (literal reading)** | Matches the wording exactly | Only runs on darwin; Linux CI sees the test skipped; loses the cross-OS regression net |
-| **B. Per-OS analogue (recommended)** | Mirrors the existing `add_test.go` ↔ `add_darwin_test.go` split; both Linux and macOS CI exercise the lifecycle; one test body via a `withLifecycleAutostartDir` shim | Slightly stretches "plist" wording; Windows still skipped (file-based path is unsupported there) |
+| **B. Per-OS analog (recommended)** | Mirrors the existing `add_test.go` ↔ `add_darwin_test.go` split; both Linux and macOS CI exercise the lifecycle; one test body via a `withLifecycleAutostartDir` shim | Slightly stretches "plist" wording; Windows still skipped (file-based path is unsupported there) |
 | C. Shell out to a real test fixture for Windows too | Maximum coverage | Requires building the binary in the test, conflicts with `go test` parallelism, Windows backend already has dedicated tests in `windows_test.go` |
 
 ### Q2 — test surface
@@ -31,7 +31,7 @@ Two questions arose:
 
 ## Recommendation
 
-- **Q1 → Option B**: per-OS analogue. The package's existing tests already use this pattern (`startup_test.go` for `.desktop`, `plist_test.go` for plist) and the value of "integration test" is in the cross-OS round-trip.
+- **Q1 → Option B**: per-OS analog. The package's existing tests already use this pattern (`startup_test.go` for `.desktop`, `plist_test.go` for plist) and the value of "integration test" is in the cross-OS round-trip.
 - **Q2 → Option A**: direct Go API. The CLI dispatcher (`gitmap/cmd/startupadd.go`) is a thin wrapper that prints `AddResult.Status` to stdout via `printAddResult`; the lifecycle truth lives in the `startup` package.
 
 ## Decision taken

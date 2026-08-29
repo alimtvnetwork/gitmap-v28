@@ -31,9 +31,9 @@ User opens https://gitmap.dev/release/v3.36.0
 
 ## Distribution strategy: BOTH generic + snapshot
 
-Two artefacts ship for every release:
+Two artifacts ship for every release:
 
-| Artefact | Where it lives | Purpose |
+| Artifact | Where it lives | Purpose |
 |----------|---------------|---------|
 | `release-version.ps1` (generic) | `/scripts/release-version.ps1` on the docs site | Always-current installer; reads `-Version` parameter |
 | `release-version.ps1` (snapshot) | Uploaded as a release asset on every GitHub release | Per-version frozen copy with `$Version = 'vX.Y.Z'` baked at line 1 |

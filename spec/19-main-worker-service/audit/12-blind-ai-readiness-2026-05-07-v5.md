@@ -22,7 +22,7 @@
 | Estimated dumb-AI implements correctly | ~96 % | ~96 % | **~98 %** | +2 pp |
 | Estimated dumb-AI fails or builds wrong thing | ~4 % | ~4 % | **~2 %** | -2 pp |
 
-**Headline:** Hardening Patch I (G1+G2+G3) closed every red linter step. The MWS error catalogue grew from 84 → 89 codes (added `WORKER-403-01/02`, `WORKER-503-01/02`, `MAIN-900-01`), an explicit "documented-as-unallocated" allowlist now codifies the future-work labels (`WORKER-940-05/10`, `MAIN-830-04`) without forcing premature catalogue rows, and the §4 overflow range (`21200-21299`) is now first-class in both prose and linter R4. The residual 2 points are the same intentional v2.0.0 backup-tier deferrals previously documented.
+**Headline:** Hardening Patch I (G1+G2+G3) closed every red linter step. The MWS error catalog grew from 84 → 89 codes (added `WORKER-403-01/02`, `WORKER-503-01/02`, `MAIN-900-01`), an explicit "documented-as-unallocated" allowlist now codifies the future-work labels (`WORKER-940-05/10`, `MAIN-830-04`) without forcing premature catalog rows, and the §4 overflow range (`21200-21299`) is now first-class in both prose and linter R4. The residual 2 points are the same intentional v2.0.0 backup-tier deferrals previously documented.
 
 ---
 
@@ -32,7 +32,7 @@
 | --- | --- | --- | ---: |
 | G1 (sweep) | `audit/08-…v3.md` cited non-existent `spec/03-tasks/`; check-spec-folder-refs RED. | Added `03-tasks` to `[external]` allowlist (sibling-repo doc-only ref). | +0.5 |
 | G2 (sweep) | `25-inherited-rules.md` link `[../03-error-manage/](../../03-error-manage/)` resolved one level too deep. | Fixed to `../03-error-manage/`. | +0.5 |
-| G3 (sweep) | 16 MWS error-code violations: 8 missing (`MAIN-830-04`, `MAIN-900-01`, `WORKER-403-01/02`, `WORKER-503-01/02`, `WORKER-940-05/10`) + 8 R4 range mismatches (`WORKER-21200-21207`). | (a) Catalogued 5 real codes in §2.5/§2.9/§3.12. (b) Added `check-mws-error-codes.unallocated.txt` for the 3 forbidden-future codes; linter R1 honors it. (c) Header §1 + linter R4 widened to recognise `21200-21299` overflow per §4. | +1.0 |
+| G3 (sweep) | 16 MWS error-code violations: 8 missing (`MAIN-830-04`, `MAIN-900-01`, `WORKER-403-01/02`, `WORKER-503-01/02`, `WORKER-940-05/10`) + 8 R4 range mismatches (`WORKER-21200-21207`). | (a) Cataloged 5 real codes in §2.5/§2.9/§3.12. (b) Added `check-mws-error-codes.unallocated.txt` for the 3 forbidden-future codes; linter R1 honors it. (c) Header §1 + linter R4 widened to recognize `21200-21299` overflow per §4. | +1.0 |
 | Patch E/F/H (audit-11) | SHOULD→MUST polish in 4 non-spec/19 files. | Verified all closed by earlier loops; backlog retired. | +0.0 |
 | Patch G (audit-11) | code-signing.md cert-unavailable + CI banner clause. | Verified in place at `12-cicd-pipeline-workflows/05-code-signing.md:10`. | +0.0 |
 
@@ -44,7 +44,7 @@ Subtotal recovered: **+2 raw**, capped at the deferral ceiling (backup-tier T3).
 
 ### 2.1 Backup-tier seed keys partial deferral (-1)
 
-v5.38.0 materialised the 28 `MainWorker.Backup.*` tunables behind T3 silent-waiver; the cache-bin & rotation timers fully covered. One residual sub-bin (`Backup.Snapshot.Restore.*`) remains prose-only because the partial-restore feature is explicitly forbidden until v2.0 (per `24-threat-model.md` §1 and `97-acceptance-criteria.md` AC). A literal AI building this path will hit `MAIN-900-01 SpecContradiction` (now formally catalogued in §3.12) and halt — the desired safe-fail.
+v5.38.0 materialized the 28 `MainWorker.Backup.*` tunables behind T3 silent-waiver; the cache-bin & rotation timers fully covered. One residual sub-bin (`Backup.Snapshot.Restore.*`) remains prose-only because the partial-restore feature is explicitly forbidden until v2.0 (per `24-threat-model.md` §1 and `97-acceptance-criteria.md` AC). A literal AI building this path will hit `MAIN-900-01 SpecContradiction` (now formally cataloged in §3.12) and halt — the desired safe-fail.
 
 **Disposition:** intentional deferral.
 
@@ -79,7 +79,7 @@ v5.38.0 materialised the 28 `MainWorker.Backup.*` tunables behind T3 silent-waiv
 | 13.4    | `10-`       | 96/100  | Cross-spec sweep + Patches A–D applied. |
 | 13.5    | (impl.)     | —       | Diagrams pipeline + CI parity. |
 | 13.6    | `11-`       | 97/100  | Patch verification + drift sweep. |
-| **13.7**| **`12-` (this)** | **98/100** | **Hardening Patch I; 14/14 lint-ci green; MWS catalogue at 89 codes.** |
+| **13.7**| **`12-` (this)** | **98/100** | **Hardening Patch I; 14/14 lint-ci green; MWS catalog at 89 codes.** |
 
 ---
 
@@ -87,6 +87,6 @@ v5.38.0 materialised the 28 `MainWorker.Backup.*` tunables behind T3 silent-waiv
 
 - **No new SHOULD/TBD/FIXME hits** outside the benign single lint-doc example flagged in audit-11.
 - **No regressions** in audit-10 patches A–D.
-- **No new orphan codes**: every catalogued code resolves to ≥1 real reference or an explicit R2 waiver.
+- **No new orphan codes**: every cataloged code resolves to ≥1 real reference or an explicit R2 waiver.
 - **No flat-bijection violations** (R3 clean across all 89 codes).
 - **No spec/19 implementation drift**: chapters remain markdown-only; the Phase-14 kickoff scaffold attempt at v5.40.0 was reverted before this audit and the constraint memory broadened to forbid recurrence.

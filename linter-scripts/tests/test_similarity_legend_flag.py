@@ -199,7 +199,7 @@ class RendererLegendComposition(unittest.TestCase):
             msg="legend must be emitted AFTER the totals footer")
 
     def test_auto_default_quiet_on_pipe_stream(self) -> None:
-        # StringIO is the test analogue of a pipe (no TTY). Default
+        # StringIO is the test analog of a pipe (no TTY). Default
         # ``auto`` must stay quiet — this is the property that
         # protects CI log scrapers from gaining surprise prose.
         buf = io.StringIO()

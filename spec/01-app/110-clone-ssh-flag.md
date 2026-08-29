@@ -14,7 +14,7 @@ converts the whole batch in one shot.
 gitmap clone <url|json|csv|text|path> [folder] [--ssh | --https] [flags]
 ```
 
-- `--ssh` — rewrite every recognised Git URL into `git@host:owner/repo.git`
+- `--ssh` — rewrite every recognized Git URL into `git@host:owner/repo.git`
   SSH-shorthand. HTTPS URLs (`https://github.com/owner/repo`) and
   `ssh://git@host[:port]/owner/repo` URLs are both converted.
   Already-shorthand URLs are normalized (`.git` suffix appended).
@@ -45,14 +45,14 @@ in `~/.ssh/config` and continue to use the explicit `ssh://` URL.
   `flag.FlagSet`).
 - Conversion helpers live in `gitmap/cmd/cloneurlconvert.go`:
   `ConvertURLToSSH(url)` and `ConvertURLToHTTPS(url)`, both returning
-  `(string, bool)` so callers can detect unrecognised inputs.
+  `(string, bool)` so callers can detect unrecognized inputs.
 - Dispatch lives in `gitmap/cmd/clone.go` (`applyURLSchemeFlags` runs
   after `applySSHKey` and before the multi-URL / direct-URL routers).
   Non-URL positionals (`json`, folder names) are skipped via the same
   `isDirectURL` predicate used for the multi-URL detector — so a stray
   `--ssh` cannot corrupt a manifest-style invocation.
 
-## Behaviour notes
+## Behavior notes
 
 - The flag converts the URL **before** the multi-URL detector runs, so
   `clone url1,url2 --ssh` works exactly the same as
@@ -63,7 +63,7 @@ in `~/.ssh/config` and continue to use the explicit `ssh://` URL.
 - Manifest-mode clones (`json` / `csv` / `text`) ignore `--ssh` /
   `--https` for now — those formats already carry both `httpsUrl` and
   `sshUrl` columns and are selected by `mode=https|ssh` upstream in
-  `gitmap scan`. Future work: honour `--ssh` / `--https` as a
+  `gitmap scan`. Future work: honor `--ssh` / `--https` as a
   per-record override in the cloner. Tracked in
   `spec/01-app/110-clone-ssh-flag.md` (this file) as a follow-up.
 

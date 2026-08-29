@@ -43,7 +43,7 @@ Subtotal recovered: **+24 raw**, net **+21** after applying the 1-point residual
 
 ### 2.1 Backup-tier seed keys deferred to v2.0.0 (-3)
 
-~28 `MainWorker.Backup.*` tunables remain prose-only in `15-` because the entire backup-promotion subsystem is feature-flagged off (per D9 — no auto-failover). Linter check T3 is waived for this namespace until the v2.0.0 seed bump. A blind AI building only the in-scope (non-backup) surface is unaffected; one building backup logic will (correctly) hit a `MAIN-900-01 SpecContradiction` and stop, which is the desired safe-fail behaviour.
+~28 `MainWorker.Backup.*` tunables remain prose-only in `15-` because the entire backup-promotion subsystem is feature-flagged off (per D9 — no auto-failover). Linter check T3 is waived for this namespace until the v2.0.0 seed bump. A blind AI building only the in-scope (non-backup) surface is unaffected; one building backup logic will (correctly) hit a `MAIN-900-01 SpecContradiction` and stop, which is the desired safe-fail behavior.
 
 **Disposition:** intentional deferral, not a defect. Will be closed in Phase 14.
 

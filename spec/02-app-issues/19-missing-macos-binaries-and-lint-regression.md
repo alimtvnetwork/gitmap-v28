@@ -14,7 +14,7 @@ v2.64.0 release shipped without macOS (darwin) gitmap-v28 binaries and with
 2. CI fails with 5 lint errors:
    - `paramTypeCombine` on `autocommit.go` (gocritic)
    - 3× `S1039` unnecessary `fmt.Sprintf` on `installtools.go` (gosimple)
-   - `misspell`: "cancelled" → "canceled" on `constants_install.go`
+   - `misspell`: "canceled" → "canceled" on `constants_install.go`
 
 ## Root Cause
 
@@ -23,7 +23,7 @@ v2.64.0 release shipped without macOS (darwin) gitmap-v28 binaries and with
 Introduced during the v2.65.0 install UX refactor. The `writeInstallErrorLog`
 function was added with `fmt.Sprintf` wrapping bare string literals (no
 format verbs), and the `AutoCommit` signature was not updated to use Go's
-grouped-parameter syntax. The "cancelled" misspelling existed from initial
+grouped-parameter syntax. The "canceled" misspelling existed from initial
 constant creation and was never caught because misspell was not enabled in
 earlier linter configs.
 
@@ -43,7 +43,7 @@ job, a build failure in any target would prevent ALL subsequent steps
 |------|--------|
 | `release/autocommit.go` | `func AutoCommit(version string, dryRun, yes bool)` — group same-type params |
 | `cmd/installtools.go` | Replace `fmt.Sprintf("literal\n")` with `"literal\n"` (3 sites) |
-| `constants/constants_install.go` | `cancelled` → `canceled` |
+| `constants/constants_install.go` | `canceled` → `canceled` |
 
 ## Prevention
 

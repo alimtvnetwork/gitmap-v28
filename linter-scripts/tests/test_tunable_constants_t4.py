@@ -6,7 +6,7 @@ authored under FU-16) requires::
     MainWorker.Auth.MainSessionAbsoluteMaxSeconds
         >= MainWorker.Auth.MainSessionTtlSeconds
 
-in BOTH the §2 catalogue defaults and the §4 ``config.seed.json`` defaults.
+in BOTH the §2 catalog defaults and the §4 ``config.seed.json`` defaults.
 
 This file covers the two public T4 entry points:
 
@@ -15,7 +15,7 @@ This file covers the two public T4 entry points:
   passing pair (cap >= ttl), failing pair (cap < ttl), exact-equal edge.
 
 * ``rule_t4()`` — orchestrator that reads the live spec via
-  ``collect_catalogue_defaults`` / ``collect_seed_defaults``. We
+  ``collect_catalog_defaults`` / ``collect_seed_defaults``. We
   monkey-patch those so the tests do not depend on the on-disk spec
   values (otherwise a future spec edit would silently break the suite).
 
@@ -130,20 +130,20 @@ class RuleT4PairTests(unittest.TestCase):
 
 
 class RuleT4OrchestratorTests(unittest.TestCase):
-    """Tests for ``rule_t4`` — exercises the catalogue + seed pair lookup."""
+    """Tests for ``rule_t4`` — exercises the catalog + seed pair lookup."""
 
     def setUp(self) -> None:
         # Snapshot the originals so each test restores cleanly even if
         # an assertion raises mid-test.
-        self._orig_cat = LINT.collect_catalogue_defaults
+        self._orig_cat = LINT.collect_catalog_defaults
         self._orig_seed = LINT.collect_seed_defaults
 
     def tearDown(self) -> None:
-        LINT.collect_catalogue_defaults = self._orig_cat
+        LINT.collect_catalog_defaults = self._orig_cat
         LINT.collect_seed_defaults = self._orig_seed
 
     def _patch(self, cat: dict[str, str], seed: dict[str, str]) -> None:
-        LINT.collect_catalogue_defaults = lambda: cat
+        LINT.collect_catalog_defaults = lambda: cat
         LINT.collect_seed_defaults = lambda: seed
 
     def test_orchestrator_passes_when_both_layers_satisfy(self) -> None:
@@ -154,7 +154,7 @@ class RuleT4OrchestratorTests(unittest.TestCase):
         self.assertEqual(LINT.rule_t4(), [])
 
     def test_orchestrator_passes_with_unit_bearing_layers(self) -> None:
-        # Catalogue and seed allowed to use different surface forms
+        # Catalog and seed allowed to use different surface forms
         # (unit-bearing vs bare seconds) as long as the numeric value
         # satisfies the invariant. This guards the parse_seconds /
         # rule_t4 contract: same cap regardless of how authors wrote it.
@@ -164,8 +164,8 @@ class RuleT4OrchestratorTests(unittest.TestCase):
         )
         self.assertEqual(LINT.rule_t4(), [])
 
-    def test_orchestrator_flags_catalogue_failure(self) -> None:
-        # §2 broken, §4 fine — exactly one violation labelled `§2`.
+    def test_orchestrator_flags_catalog_failure(self) -> None:
+        # §2 broken, §4 fine — exactly one violation labeled `§2`.
         self._patch(
             cat={TTL_KEY: "28800", ABS_KEY: "3600"},
             seed={TTL_SEED: "28800", ABS_SEED: "86400"},
@@ -176,7 +176,7 @@ class RuleT4OrchestratorTests(unittest.TestCase):
         self.assertIn("invariant violated", out[0])
 
     def test_orchestrator_flags_seed_failure(self) -> None:
-        # §4 broken, §2 fine — exactly one violation labelled `§4`.
+        # §4 broken, §2 fine — exactly one violation labeled `§4`.
         self._patch(
             cat={TTL_KEY: "28800", ABS_KEY: "86400"},
             seed={TTL_SEED: "28800", ABS_SEED: "3600"},
@@ -195,8 +195,8 @@ class RuleT4OrchestratorTests(unittest.TestCase):
         self.assertTrue(_has_substr(out, "§2"))
         self.assertTrue(_has_substr(out, "§4"))
 
-    def test_orchestrator_flags_missing_catalogue_keys(self) -> None:
-        # Empty catalogue → both keys reported missing for §2; §4 ok.
+    def test_orchestrator_flags_missing_catalog_keys(self) -> None:
+        # Empty catalog → both keys reported missing for §2; §4 ok.
         self._patch(
             cat={},
             seed={TTL_SEED: "28800", ABS_SEED: "86400"},

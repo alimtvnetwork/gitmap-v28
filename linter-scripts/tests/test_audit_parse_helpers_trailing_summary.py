@@ -9,7 +9,7 @@ Pins the contract that each helper in
    ``totals: …`` line, a ``# totals: …`` CSV comment, a blank
    line, or arbitrary chatter — is appended after the audit
    block;
-3. **never** return a synthesised summary line as a data row.
+3. **never** return a synthesized summary line as a data row.
 
 These are pure-Python tests against the helpers (no subprocess);
 the linter's actual output already exercises the happy path

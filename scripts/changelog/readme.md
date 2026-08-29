@@ -13,7 +13,7 @@ make changelog VERSION=v3.92.0
 make changelog-check VERSION=v3.92.0
 ```
 
-When `VERSION` is omitted the new entry is labelled `<latest-tag>+next`
+When `VERSION` is omitted the new entry is labeled `<latest-tag>+next`
 (or `vNEXT` if the repository has no tags yet).
 
 ## Conventional Commit prefixes
@@ -32,8 +32,8 @@ When `VERSION` is omitted the new entry is labelled `<latest-tag>+next`
 | `chore:`    | Chore                |
 | `revert:`   | Reverted             |
 
-Scoped (`feat(cli):`) and breaking (`feat!:`) variants are recognised.
-Commits without a recognised prefix are reported on stderr and skipped
+Scoped (`feat(cli):`) and breaking (`feat!:`) variants are recognized.
+Commits without a recognized prefix are reported on stderr and skipped
 so a single `Changes` subject cannot pollute the release notes.
 
 ## Architecture

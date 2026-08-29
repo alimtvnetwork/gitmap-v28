@@ -289,7 +289,7 @@ class ParseMultiHunkAndDefensive(unittest.TestCase):
                              f"phantom line {ln} between hunks")
 
     def test_unknown_intra_hunk_row_aborts_current_hunk(self) -> None:
-        # An unrecognised first character inside a hunk (``?`` is
+        # An unrecognized first character inside a hunk (``?`` is
         # never emitted by ``git diff`` but might arrive from a
         # combined-diff or a buggy filter) must trip the defensive
         # fall-through that flips ``in_hunk = False`` so subsequent
