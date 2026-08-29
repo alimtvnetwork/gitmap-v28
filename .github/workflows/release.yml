@@ -782,7 +782,7 @@ jobs:
         env:
           EXPECTED: ${{ needs.release.outputs.version }}
         shell: bash
-        run: bash .github/scripts/smoke-installer.sh release
+        run: python .github/scripts/smoke-installer.py release
 
   installer-smoke-windows:
     # Windows post-publish smoke: pulls the freshly-released binary via
@@ -805,7 +805,7 @@ jobs:
         env:
           EXPECTED: ${{ needs.release.outputs.version }}
         shell: pwsh
-        run: pwsh -File .github/scripts/smoke-installer.ps1 release
+        run: python .github/scripts/smoke-installer.py release
 
   installer-dryrun-windows:
     # Post-publish DRY-RUN check: invokes install.ps1 with -DryRun
