@@ -112,7 +112,7 @@ func NewBackgroundRunner(
 	workers,
 	expectedJobs int,
 	urlPick func(model.ScanRecord,
-) string, sink Sink) *BackgroundRunner {
+	) string, sink Sink) *BackgroundRunner {
 	if workers < 1 {
 		return nil
 	}

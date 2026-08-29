@@ -28,9 +28,7 @@ var installerUpdateWinCmd = &cobra.Command{
 	Short:              "Update an existing installer script record specifically for Windows",
 	Long:               "Updates an installer script record for Windows target OS and records version history.",
 	DisableFlagParsing: true,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runInstallerUpdateWin(cmd, args)
-	},
+	RunE:               runInstallerUpdateWin,
 }
 
 // InstallerUpdateWinCmd is an exported alias for installerUpdateWinCmd.

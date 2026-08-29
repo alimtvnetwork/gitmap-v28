@@ -85,7 +85,7 @@ func processBatchRepos(
 	repos []string,
 	maxConcurrency int,
 	onResult func(batchRowResult,
-)) []batchRowResult {
+	)) []batchRowResult {
 	workers := normalizeBatchWorkers(maxConcurrency, len(repos))
 	if workers > 1 {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneConcurrencyEnabledFmt, workers)

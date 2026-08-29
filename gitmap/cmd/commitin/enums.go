@@ -240,4 +240,3 @@ type (
 	MessageRuleKindType       = MessageRuleKind
 	FunctionIntelLanguageType = FunctionIntelLanguage
 )
-

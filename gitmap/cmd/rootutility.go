@@ -24,15 +24,15 @@ func utilityDispatchEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"error"}, func() error { return runErrorCmd(argsTail()) }},
 		{[]string{constants.CmdUpdate}, func() error { checkHelp("update", argsTail()); return runUpdate() }},
-		{[]string{constants.CmdUpdateRunner}, func() error { return runUpdateRunner() }},
-		{[]string{constants.CmdUpdateCleanup}, func() error { return runUpdateCleanup() }},
+		{[]string{constants.CmdUpdateRunner}, runUpdateRunner},
+		{[]string{constants.CmdUpdateCleanup}, runUpdateCleanup},
 		{
 			[]string{constants.CmdInstalledDir, constants.CmdInstalledDirAlias},
 			func() error { checkHelp("installed-dir", argsTail()); return runInstalledDir() },
 		},
 		{[]string{constants.CmdRevert}, func() error { return runRevert(argsTail()) }},
 		{[]string{constants.CmdRm, constants.CmdRmAlias, constants.CmdRmAlias2}, func() error { return runRm(argsTail()) }},
-		{[]string{constants.CmdRevertRunner}, func() error { return runRevertRunner() }},
+		{[]string{constants.CmdRevertRunner}, runRevertRunner},
 		{
 			[]string{constants.CmdVersion, constants.CmdVersionAlias},
 			func() error {
@@ -45,7 +45,7 @@ func utilityDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return runDocs(argsTail()) }},
 		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
 		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias}, func() error { return runLLMDocs(argsTail()) }},
-		{[]string{constants.CmdSetSourceRepo}, func() error { return runSetSourceRepo() }},
+		{[]string{constants.CmdSetSourceRepo}, runSetSourceRepo},
 		{[]string{constants.CmdSf}, func() error { return runSf(argsTail()) }},
 		{[]string{constants.CmdProbe}, func() error { return runProbe(argsTail()) }},
 		{[]string{"vscode", "vsc"}, func() error { return runVSCode(argsTail()) }},

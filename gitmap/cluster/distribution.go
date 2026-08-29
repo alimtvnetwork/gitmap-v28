@@ -53,7 +53,7 @@ func DistributionLoop(
 	repos []Repo,
 	interval time.Duration,
 	onUpdate func([]Workload,
-)) {
+	)) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 

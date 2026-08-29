@@ -25,9 +25,7 @@ var installerResetCmd = &cobra.Command{
 	Short:              "Reset installer script records",
 	Long:               "Resets installer definitions and version histories by slug or with --all.",
 	DisableFlagParsing: true,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runInstallerReset(cmd, args)
-	},
+	RunE:               runInstallerReset,
 }
 
 // InstallerResetCmd is an exported alias for installerResetCmd.

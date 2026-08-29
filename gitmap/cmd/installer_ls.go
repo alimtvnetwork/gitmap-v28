@@ -20,9 +20,7 @@ var installerLsCmd = &cobra.Command{
 	Use:   "ls [os_filter]",
 	Short: "List registered installer scripts",
 	Long:  "Displays a tabular view of all installer scripts, optionally filtered by target OS.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runInstallerLs(cmd, args)
-	},
+	RunE:  runInstallerLs,
 }
 
 // InstallerLsCmd is an exported alias for installerLsCmd.

@@ -1220,7 +1220,7 @@
 | V-1036 | `src/pages/CloneNext.tsx` | 259 | `-` | `CG-CASE-001` | `"✓ Terminated Code.exe (PID 14320)",` | Minor | Change uppercase abbreviation to PascalCase (Id, Url, Api) |
 | V-1037 | `src/pages/CloneNext.tsx` | 260 | `-` | `CG-CASE-001` | `"✓ Terminated explorer.exe (PID 8412)",` | Minor | Change uppercase abbreviation to PascalCase (Id, Url, Api) |
 | V-1038 | `src/pages/CloneNextCommand.tsx` | 1 | `CloneNextCommand` | `CG-SIZE-002` | 428 lines (.tsx cap: 100 lines) | Major | Split React component into subcomponents or hooks |
-| V-1039 | `src/pages/CloneNextCommand.tsx` | 151 | `-` | `CG-CASE-001` | `— gitmap lists the offending PIDs (e.g. <code clas` | Minor | Change uppercase abbreviation to PascalCase (Id, Url, Api) |
+| V-1039 | `src/pages/CloneNextCommand.tsx` | 151 | `-` | `CG-CASE-001` | `— gitmap lists the offending PIDs (e.g. <code class` | Minor | Change uppercase abbreviation to PascalCase (Id, Url, Api) |
 | V-1040 | `src/pages/CloneOverview.tsx` | 1 | `CloneOverview` | `CG-SIZE-002` | 155 lines (.tsx cap: 100 lines) | Major | Split React component into subcomponents or hooks |
 | V-1041 | `src/pages/Commands.tsx` | 1 | `Commands` | `CG-SIZE-002` | 255 lines (.tsx cap: 100 lines) | Major | Split React component into subcomponents or hooks |
 | V-1042 | `src/pages/CommitIn.tsx` | 1 | `CommitIn` | `CG-SIZE-002` | 235 lines (.tsx cap: 100 lines) | Major | Split React component into subcomponents or hooks |

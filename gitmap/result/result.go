@@ -26,15 +26,16 @@ func (r Result[T]) Unwrap() (T, *apperror.AppError) {
 		return r.Value, r.Err
 	}
 
-	if r.AppError != nil {
-		if appErr, isAppErr := r.AppError.(*apperror.AppError); isAppErr {
-			return r.Value, appErr
-		}
-
-		return r.Value, apperror.WrapSimple(r.AppError, "result.Unwrap")
+	if r.AppError == nil {
+		return r.Value, nil
 	}
 
-	return r.Value, nil
+	appErr, isAppErr := r.AppError.(*apperror.AppError)
+	if isAppErr {
+		return r.Value, appErr
+	}
+
+	return r.Value, apperror.WrapSimple(r.AppError, "result.Unwrap")
 }
 
 // SuccessResult constructs a successful Result envelope with Value.

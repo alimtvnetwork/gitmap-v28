@@ -98,8 +98,8 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdStartupRemove, constants.CmdStartupRemoveAlias}, func() error { return runStartupRemove(argsTail()) }},
 		{[]string{constants.CmdSelfInstall}, func() error { return runSelfInstall(argsTail()) }},
 		{[]string{constants.CmdSelfUninstall}, func() error { return runSelfUninstall(argsTail()) }},
-		{[]string{constants.CmdSelfUninstallRunner}, func() error { return runSelfUninstallRunner() }},
-		{[]string{constants.CmdPending}, func() error { return runPending() }},
+		{[]string{constants.CmdSelfUninstallRunner}, runSelfUninstallRunner},
+		{[]string{constants.CmdPending}, runPending},
 		{[]string{constants.CmdDoPending, constants.CmdDoPendingAlias}, func() error { return runDoPending(argsTail()) }},
 	}
 }

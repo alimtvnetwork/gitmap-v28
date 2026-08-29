@@ -25,9 +25,7 @@ var installerInstallWinCmd = &cobra.Command{
 	Short:              "Execute a Windows-targeted installer script",
 	Long:               "Fetches the installer script for Windows and runs the mapped installation instructions.",
 	DisableFlagParsing: true,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runInstallerInstallWin(cmd, args)
-	},
+	RunE:               runInstallerInstallWin,
 }
 
 // InstallerInstallWinCmd is an exported alias for installerInstallWinCmd.

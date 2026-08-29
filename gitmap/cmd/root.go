@@ -420,9 +420,9 @@ func dispatchExtraCommand(
 
 func executeAndAudit(
 	fn func(context.Context,
-	[]string,
-	*cobra.Command,
-) error, shouldAudit bool, auditID int64, auditStart time.Time) {
+		[]string,
+		*cobra.Command,
+	) error, shouldAudit bool, auditID int64, auditStart time.Time) {
 	err := fn(context.Background(), os.Args[1:], nil)
 	if err != nil {
 		cliexit.HandleError(err, 1)
