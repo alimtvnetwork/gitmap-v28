@@ -110,11 +110,17 @@ def run_generate_drift_check():
 def main():
     print("=== CI/CD Local Runner (03-cicd-local-runner.py) ===")
     checks = [
-        ("Legacy Refs Check", run_legacy_refs_check, None, None),
-        ("Bare Stderr Check", run_bare_stderr_check, None, None),
+        ("Legacy Refs Check", None, "python .github/scripts/check-legacy-refs.py", ROOT_DIR),
+        ("Bare Stderr Check", None, "python .github/scripts/check-bare-stderr-err.py", ROOT_DIR),
+        ("Cmd Naming Check", None, "python .github/scripts/check-cmd-naming.py gitmap/cmd", ROOT_DIR),
+        ("Constants Naming Check", None, "python .github/scripts/check-constants-naming.py", ROOT_DIR),
+        ("Deploy Layout Check", None, "python .github/scripts/check-deploy-layout.py", ROOT_DIR),
+        ("No Golden Allow Leak Check", None, "python .github/scripts/check-no-golden-allow-leak.py", ROOT_DIR),
+        ("File Size Check", None, "python .github/scripts/file-size-check.py 200", ROOT_DIR),
+        ("CI Scripts Unit Tests", None, "python .github/scripts/tests/test_ci_scripts.py", ROOT_DIR),
         ("Error Management Linter", None, "python linter-scripts/check-error-management.py", ROOT_DIR),
         ("Boolean & Enum Linter", None, "python linter-scripts/check-enum-and-boolean.py", ROOT_DIR),
-        ("Changelog Version Sync", run_changelog_sync_check, None, None),
+        ("Changelog Version Sync", None, "python .github/scripts/check-changelog-version-sync.py", ROOT_DIR),
         ("Generate Drift Check", run_generate_drift_check, None, None),
         ("Installer Smoke", None, "pwsh -File .github/scripts/smoke-installer.ps1 source", ROOT_DIR),
         ("Web Version Sync", None, "npx vitest run src/test/version-sync.test.ts", ROOT_DIR),
