@@ -109,25 +109,8 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 
 	header := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd")).Render(fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress))
 
-	var client *ssh.Client
-	var err error
-
-	if c.EncryptedPassword != "" {
-		passBytes, decErr := crypto.Decrypt(c.EncryptedPassword, getEncryptionKey())
-		if decErr != nil {
-			fmt.Printf("%s Decrypt error: %v\n", header, decErr)
-			return nil
-		}
-		client, err = crypto.ConnectWithPassword(c.IPAddress, c.Username, string(passBytes))
-	} else if c.KeyPath != "" {
-		client, err = crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
-	} else {
-		fmt.Printf("%s No password or key configured\n", header)
-		return nil
-	}
-
-	if err != nil {
-		fmt.Printf("%s Connect error: %v\n", header, err)
+	client, ok := connectSSHClient(c, header)
+	if !ok {
 		return nil
 	}
 	defer client.Close()
@@ -158,6 +141,40 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	return nil
 }
 
+func connectSSHClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
+	if c.EncryptedPassword != "" {
+		return connectWithEncryptedPassword(c, header)
+	}
+	if c.KeyPath != "" {
+		return connectWithKeyPath(c, header)
+	}
+	fmt.Printf("%s No password or key configured\n", header)
+	return nil, false
+}
+
+func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {
+	client, err := crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
+	if err != nil {
+		fmt.Printf("%s Connect error: %v\n", header, err)
+		return nil, false
+	}
+	return client, true
+}
+
+func connectWithEncryptedPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
+	passBytes, decErr := crypto.Decrypt(c.EncryptedPassword, getEncryptionKey())
+	if decErr != nil {
+		fmt.Printf("%s Decrypt error: %v\n", header, decErr)
+		return nil, false
+	}
+	client, err := crypto.ConnectWithPassword(c.IPAddress, c.Username, string(passBytes))
+	if err != nil {
+		fmt.Printf("%s Connect error: %v\n", header, err)
+		return nil, false
+	}
+	return client, true
+}
+
 func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	if len(args) == 0 {
 		return "", "", false
@@ -170,11 +187,8 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	}
 
 	// Check if explicit shell
-	if first == "ps" || first == "cmd" || first == "bash" || first == "sh" {
-		if len(args) > 1 {
-			return first, strings.Join(args[1:], " "), false
-		}
-		return first, "", false
+	if isExplicitShell(first) {
+		return first, extractShellCommandArgs(args), false
 	}
 
 	// Default shell based on OS
@@ -183,6 +197,17 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 		shell = "ps"
 	}
 	return shell, strings.Join(args, " "), false
+}
+
+func isExplicitShell(s string) bool {
+	return s == "ps" || s == "cmd" || s == "bash" || s == "sh"
+}
+
+func extractShellCommandArgs(args []string) string {
+	if len(args) > 1 {
+		return strings.Join(args[1:], " ")
+	}
+	return ""
 }
 
 func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {

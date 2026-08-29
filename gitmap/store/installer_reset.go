@@ -26,43 +26,41 @@ func (db *DB) ResetInstallers(slug string, all bool) error {
 		})
 	}
 
-	if !all && slug == "" {
+	if all {
+		return db.resetAllInstallers(slug)
+	}
+	return db.resetSingleInstaller(slug)
+}
+
+func (db *DB) resetAllInstallers(slug string) error {
+	if _, errExec := ExecWrapper(db.conn, SQLDeleteAllInstallerVersions).Destruct(); errExec != nil {
+		appErr := apperror.Wrap(errExec, "ResetInstallers", map[string]any{"all": true, "slug": slug})
+		appErr.Code = "E_INSTALLER_RESET_FAILED"
+		return appErr
+	}
+	if _, errExec := ExecWrapper(db.conn, SQLDeleteAllInstallerScripts).Destruct(); errExec != nil {
+		appErr := apperror.Wrap(errExec, "ResetInstallers", map[string]any{"all": true, "slug": slug})
+		appErr.Code = "E_INSTALLER_RESET_FAILED"
+		return appErr
+	}
+	return nil
+}
+
+func (db *DB) resetSingleInstaller(slug string) error {
+	if slug == "" {
 		return apperror.New("ResetInstallers", "E_INSTALLER_INVALID_INPUT", map[string]any{
 			"error": "slug cannot be empty when all is false",
 		})
 	}
-
-	if all {
-		if _, errExec := ExecWrapper(db.conn, SQLDeleteAllInstallerVersions).Destruct(); errExec != nil {
-			appErr := apperror.Wrap(errExec, "ResetInstallers", map[string]any{"all": all, "slug": slug})
-			appErr.Code = "E_INSTALLER_RESET_FAILED"
-
-			return appErr
-		}
-
-		if _, errExec := ExecWrapper(db.conn, SQLDeleteAllInstallerScripts).Destruct(); errExec != nil {
-			appErr := apperror.Wrap(errExec, "ResetInstallers", map[string]any{"all": all, "slug": slug})
-			appErr.Code = "E_INSTALLER_RESET_FAILED"
-
-			return appErr
-		}
-
-		return nil
-	}
-
 	if _, errExec := ExecWrapper(db.conn, SQLDeleteInstallerVersionsBySlug, slug).Destruct(); errExec != nil {
-		appErr := apperror.Wrap(errExec, "ResetInstallers", map[string]any{"all": all, "slug": slug})
+		appErr := apperror.Wrap(errExec, "ResetInstallers", map[string]any{"all": false, "slug": slug})
 		appErr.Code = "E_INSTALLER_RESET_FAILED"
-
 		return appErr
 	}
-
 	if _, errExec := ExecWrapper(db.conn, SQLDeleteInstallerScriptBySlug, slug).Destruct(); errExec != nil {
-		appErr := apperror.Wrap(errExec, "ResetInstallers", map[string]any{"all": all, "slug": slug})
+		appErr := apperror.Wrap(errExec, "ResetInstallers", map[string]any{"all": false, "slug": slug})
 		appErr.Code = "E_INSTALLER_RESET_FAILED"
-
 		return appErr
 	}
-
 	return nil
 }

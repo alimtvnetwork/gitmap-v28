@@ -39,12 +39,12 @@ func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, err
 	err := db.QueryRowContext(ctx, query, alias).Scan(
 		&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		appErr := apperror.Wrap(apperror.ErrNotFound, "GetHostByAlias", map[string]any{"alias": alias})
+		appErr.Code = "E_INTERNAL_ERROR"
+		return SSHHost{}, appErr
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			appErr := apperror.Wrap(apperror.ErrNotFound, "GetHostByAlias", map[string]any{"alias": alias})
-			appErr.Code = "E_INTERNAL_ERROR"
-			return SSHHost{}, appErr
-		}
 		appErr := apperror.Wrap(err, "GetHostByAlias", map[string]any{"alias": alias})
 		appErr.Code = "E_INTERNAL_ERROR"
 		return SSHHost{}, appErr

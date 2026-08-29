@@ -2276,7 +2276,7 @@ export const commands: CommandDef[] = [
     usage: "gitmap doctor [--json]",
     examples: [
       { command: "gitmap doctor", description: "Human-readable report" },
-      { command: "gitmap doctor --json | jq '.data.checks[] | select(.ok==false)'", description: "Machine-readable, filter to failed probes" },
+      { command: "gitmap doctor --json | jq '.data.checks[] | select(not(.ok))'", description: "Machine-readable, filter to failed probes" },
     ],
   },
   {

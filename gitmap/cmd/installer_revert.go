@@ -89,12 +89,9 @@ func runInstallerRevertAction(cmd *cobra.Command, args []string, action string) 
 	}
 
 	slug := args[0]
-	targetVersion := ""
-	if action == "revert" {
-		if len(args) < 2 {
-			return apperror.New("runInstallerRevertAction", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "version argument required for revert-version"})
-		}
-		targetVersion = args[1]
+	targetVersion, errVer := resolveRevertTargetVersion(action, args)
+	if errVer != nil {
+		return errVer
 	}
 
 	db, errDB := store.OpenDefault()
@@ -112,4 +109,14 @@ func runInstallerRevertAction(cmd *cobra.Command, args []string, action string) 
 	}
 
 	return executeRevertAction(cmd.Context(), db, action, slug, targetVersion)
+}
+
+func resolveRevertTargetVersion(action string, args []string) (string, error) {
+	if action != "revert" {
+		return "", nil
+	}
+	if len(args) < 2 {
+		return "", apperror.New("runInstallerRevertAction", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "version argument required for revert-version"})
+	}
+	return args[1], nil
 }

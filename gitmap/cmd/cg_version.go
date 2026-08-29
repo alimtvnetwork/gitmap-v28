@@ -35,11 +35,13 @@ func ReadCGMetadata(repoPath string) (*CGMetadata, error) {
 	}
 
 	for _, key := range []string{"coding-guidelines", "coding_guidelines", "codingguideline"} {
-		if rawMeta, ok := raw[key]; ok {
-			var meta CGMetadata
-			if err := json.Unmarshal(rawMeta, &meta); err == nil {
-				return &meta, nil
-			}
+		rawMeta, ok := raw[key]
+		if !ok {
+			continue
+		}
+		var meta CGMetadata
+		if err := json.Unmarshal(rawMeta, &meta); err == nil {
+			return &meta, nil
 		}
 	}
 

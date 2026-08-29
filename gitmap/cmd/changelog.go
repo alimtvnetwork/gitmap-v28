@@ -20,19 +20,24 @@ import (
 func runChangelog(args []string) *apperror.AppError {
 	checkHelp("changelog", args)
 	cleaned, mode := ParsePrettyFlag(args)
-	pretty := render.Decide(mode, render.StdoutIsTerminal(), true)
 	version, latest, limit, openFile, source := parseChangelogFlags(cleaned)
 	version, openFile = resolveChangelogAlias(version, openFile)
-	if openFile {
-		if err := handleChangelogOpen(latest, version); err != nil {
-			return err
-		}
+	if err := maybeOpenChangelog(openFile, latest, version); err != nil {
+		return err
 	}
 	if !latest && len(version) == 0 && openFile {
 		return nil
 	}
 
-	return dispatchChangelogOutput(version, latest, limit, source, pretty)
+	isPretty := render.Decide(mode, render.StdoutIsTerminal(), true)
+	return dispatchChangelogOutput(version, latest, limit, source, isPretty)
+}
+
+func maybeOpenChangelog(openFile, latest bool, version string) *apperror.AppError {
+	if !openFile {
+		return nil
+	}
+	return handleChangelogOpen(latest, version)
 }
 
 // resolveChangelogAlias detects if the version arg is actually a file-open alias.

@@ -88,7 +88,7 @@ func lookupCDRecords(name string) []model.ScanRecord {
 	repos, err := db.FindBySlug(strings.ToLower(cleanName))
 	hasValidRepos := err == nil && len(repos) > 0
 
-	if hasValidRepos == true {
+	if hasValidRepos {
 		return repos
 	}
 
@@ -180,7 +180,7 @@ func parseCDReposFlags(args []string) string {
 func loadCDReposList(db *store.DB, group string) []model.ScanRecord {
 	hasNoGroup := len(group) == 0
 
-	if hasNoGroup == false {
+	if !hasNoGroup {
 		return loadCDGroupRepos(db, group)
 	}
 

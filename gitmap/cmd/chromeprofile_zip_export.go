@@ -36,58 +36,12 @@ func buildChromeProfileArchive(srcProfile, name, outPath string, includeJSON, in
 	zw := zip.NewWriter(f)
 	defer zw.Close()
 
-	if includeJSON {
-		// Just write to a temporary file, then copy it into the zip
-		// Or build it in memory and write to the zip.
-		// writeChromeExport currently writes to a file.
-		// We can just use it with a temp file.
-		tmpJSON := filepath.Join(os.TempDir(), name+"-snapshot.json")
-		_, err := writeChromeExport(srcProfile, name, tmpJSON)
-		if err != nil {
-			return 0, err
-		}
-		defer os.Remove(tmpJSON)
-
-		w, err := zw.Create(name + ".json")
-		if err != nil {
-			return 0, err
-		}
-
-		jsonFile, err := os.Open(tmpJSON)
-		if err != nil {
-			return 0, err
-		}
-		defer jsonFile.Close()
-
-		if _, err := io.Copy(w, jsonFile); err != nil {
-			return 0, err
-		}
+	if err := maybeExportJSON(zw, srcProfile, name, includeJSON); err != nil {
+		return 0, err
 	}
 
-	if includeSQLite {
-		for _, dbName := range constants.ChromeProfileSQLiteEntries {
-			src := filepath.Join(srcProfile, dbName)
-			info, err := os.Stat(src)
-			if err != nil {
-				continue // skip missing files
-			}
-			if info.IsDir() {
-				continue
-			}
-
-			w, err := zw.Create(dbName)
-			if err != nil {
-				return 0, err
-			}
-
-			dbFile, err := os.Open(src)
-			if err != nil {
-				continue // skip locked/inaccessible files gracefully
-			}
-
-			_, _ = io.Copy(w, dbFile)
-			dbFile.Close()
-		}
+	if err := maybeExportSQLite(zw, srcProfile, includeSQLite); err != nil {
+		return 0, err
 	}
 
 	if err := zw.Close(); err != nil {
@@ -98,5 +52,73 @@ func buildChromeProfileArchive(srcProfile, name, outPath string, includeJSON, in
 	if err != nil {
 		return 0, err
 	}
+
 	return int(info.Size()), nil
+}
+
+func maybeExportJSON(zw *zip.Writer, srcProfile, name string, shouldInclude bool) error {
+	if !shouldInclude {
+		return nil
+	}
+	return exportChromeProfileJSON(zw, srcProfile, name)
+}
+
+func maybeExportSQLite(zw *zip.Writer, srcProfile string, shouldInclude bool) error {
+	if !shouldInclude {
+		return nil
+	}
+	return exportChromeProfileSQLite(zw, srcProfile)
+}
+
+func exportChromeProfileJSON(zw *zip.Writer, srcProfile, name string) error {
+	tmpJSON := filepath.Join(os.TempDir(), name+"-snapshot.json")
+	if _, err := writeChromeExport(srcProfile, name, tmpJSON); err != nil {
+		return err
+	}
+	defer os.Remove(tmpJSON)
+
+	w, err := zw.Create(name + ".json")
+	if err != nil {
+		return err
+	}
+
+	jsonFile, err := os.Open(tmpJSON)
+	if err != nil {
+		return err
+	}
+	defer jsonFile.Close()
+
+	_, err = io.Copy(w, jsonFile)
+	return err
+}
+
+func exportChromeProfileSQLite(zw *zip.Writer, srcProfile string) error {
+	for _, dbName := range constants.ChromeProfileSQLiteEntries {
+		if err := copySQLiteEntryToZip(zw, srcProfile, dbName); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func copySQLiteEntryToZip(zw *zip.Writer, srcProfile, dbName string) error {
+	src := filepath.Join(srcProfile, dbName)
+	info, err := os.Stat(src)
+	if err != nil || info.IsDir() {
+		return nil
+	}
+
+	w, err := zw.Create(dbName)
+	if err != nil {
+		return err
+	}
+
+	dbFile, err := os.Open(src)
+	if err != nil {
+		return nil
+	}
+	defer dbFile.Close()
+
+	_, err = io.Copy(w, dbFile)
+	return err
 }

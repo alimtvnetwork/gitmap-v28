@@ -14,10 +14,8 @@ func resolvePackageManager(override, tool string) string {
 	}
 
 	pm := detectPackageManager()
-	if pm == constants.PkgMgrApt && tool == constants.ToolVSCode {
-		if isCommandAvailable(constants.PkgMgrSnap) {
-			return constants.PkgMgrSnap
-		}
+	if pm == constants.PkgMgrApt && tool == constants.ToolVSCode && isCommandAvailable(constants.PkgMgrSnap) {
+		return constants.PkgMgrSnap
 	}
 	return pm
 }

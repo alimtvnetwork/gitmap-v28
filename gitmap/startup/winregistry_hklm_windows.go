@@ -67,10 +67,8 @@ func removeWindowsRegistryHKLM(clean string, opts RemoveOptions) (RemoveResult, 
 	// 3. The entry exists and is managed. If this is a live run, we MUST be elevated
 	// to delete it. Check tokens before attempting deletion so we get a friendly error
 	// instead of a raw Access Denied from the registry API.
-	if !opts.DryRun {
-		if err := requireWindowsAdminForHKLM(); err != nil {
-			return RemoveResult{}, err
-		}
+	if err := checkHKLMElevation(opts.DryRun); err != nil {
+		return RemoveResult{}, err
 	}
 
 	// 4. Delegate to the shared deletion path.
@@ -130,4 +128,11 @@ func isProcessElevated() bool {
 	}
 
 	return elevation != 0
+}
+
+func checkHKLMElevation(isDryRun bool) error {
+	if isDryRun {
+		return nil
+	}
+	return requireWindowsAdminForHKLM()
 }

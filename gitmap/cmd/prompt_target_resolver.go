@@ -11,43 +11,62 @@ import (
 
 // ResolvePromptTarget resolves a path, alias, ID, or discovers child repos.
 func ResolvePromptTarget(target string) ([]string, error) {
-	if target != "" {
-		abs, err := filepath.Abs(target)
-		if err == nil {
-			if info, errStat := os.Stat(abs); errStat == nil && info.IsDir() {
-				// If directory is a git repo, return it directly
-				if fsutil.IsValidGitDir(abs) {
-					return []string{abs}, nil
-				}
-				// If directory has child git repos, discover them
-				if childRepos, errDisc := fsutil.DiscoverTopLevelGitRepos(abs); errDisc == nil && len(childRepos) > 0 {
-					return childRepos, nil
-				}
-				return []string{abs}, nil
-			}
-		}
+	if target == "" {
+		return resolveFallbackPromptTarget(), nil
+	}
+	if repos, ok := resolveDirPromptTarget(target); ok {
+		return repos, nil
+	}
+	if repos, ok := resolveDBPromptTarget(target); ok {
+		return repos, nil
+	}
+	return resolveFallbackPromptTarget(), nil
+}
 
-		// Try DB lookup by slug or ID
-		db, errDB := store.OpenDefault()
-		if errDB == nil {
-			defer db.Close()
-			if repos, errList := db.ListRepos(); errList == nil {
-				for _, r := range repos {
-					if r.Slug == target || r.RepoName == target {
-						return []string{r.AbsolutePath}, nil
-					}
-				}
-			}
+func resolveDirPromptTarget(target string) ([]string, bool) {
+	abs, err := filepath.Abs(target)
+	if err != nil {
+		return nil, false
+	}
+	info, errStat := os.Stat(abs)
+	if errStat != nil || !info.IsDir() {
+		return nil, false
+	}
+	if fsutil.IsValidGitDir(abs) {
+		return []string{abs}, true
+	}
+	if childRepos, errDisc := fsutil.DiscoverTopLevelGitRepos(abs); errDisc == nil && len(childRepos) > 0 {
+		return childRepos, true
+	}
+	return []string{abs}, true
+}
+
+func resolveDBPromptTarget(target string) ([]string, bool) {
+	db, errDB := store.OpenDefault()
+	if errDB != nil {
+		return nil, false
+	}
+	defer db.Close()
+
+	repos, errList := db.ListRepos()
+	if errList != nil {
+		return nil, false
+	}
+	for _, r := range repos {
+		if r.Slug == target || r.RepoName == target {
+			return []string{r.AbsolutePath}, true
 		}
 	}
+	return nil, false
+}
 
-	// Fallback to CWD
+func resolveFallbackPromptTarget() []string {
 	cwd, _ := os.Getwd()
 	if fsutil.IsValidGitDir(cwd) {
-		return []string{cwd}, nil
+		return []string{cwd}
 	}
 	if childRepos, errDisc := fsutil.DiscoverTopLevelGitRepos(cwd); errDisc == nil && len(childRepos) > 0 {
-		return childRepos, nil
+		return childRepos
 	}
-	return []string{cwd}, nil
+	return []string{cwd}
 }

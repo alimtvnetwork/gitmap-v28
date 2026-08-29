@@ -173,11 +173,12 @@ func reportVSCodeAdd(summary vscodepm.SyncSummary, name, absPath string) {
 
 func runVSCodeRm(target string) error {
 	targetPath, err := findVSCodeTarget(target)
-	if err != nil || targetPath == "" {
-		if targetPath == "" {
-			fmt.Printf("Project not found: %s\n", target)
-		}
+	if err != nil {
 		return err
+	}
+	if targetPath == "" {
+		fmt.Printf("Project not found: %s\n", target)
+		return nil
 	}
 	if err := vscodepm.RemoveEntry(targetPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Error removing project: %v\n", err)

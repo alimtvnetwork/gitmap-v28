@@ -30,17 +30,24 @@ func (m *Manager) ImportGlobalState(zipPath string) error {
 	defer zr.Close()
 
 	for _, f := range zr.File {
-		if strings.HasPrefix(f.Name, "installers/") && strings.HasSuffix(f.Name, ".json") {
-			rc, errOpen := f.Open()
-			if errOpen == nil {
-				data, errRead := io.ReadAll(rc)
-				if errRead == nil {
-					m.ImportFromJson(string(data))
-				}
-				rc.Close()
-			}
-		}
+		m.importGlobalZipEntry(f)
 	}
 
 	return nil
+}
+
+func (m *Manager) importGlobalZipEntry(f *zip.File) {
+	if !strings.HasPrefix(f.Name, "installers/") || !strings.HasSuffix(f.Name, ".json") {
+		return
+	}
+	rc, errOpen := f.Open()
+	if errOpen != nil {
+		return
+	}
+	defer rc.Close()
+
+	data, errRead := io.ReadAll(rc)
+	if errRead == nil {
+		m.ImportFromJson(string(data))
+	}
 }

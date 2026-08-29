@@ -10,27 +10,36 @@ import (
 )
 
 func runWorkDirSetDefault(target string) error {
-	if target == "" {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-		target = cwd
+	resolvedTarget, err := resolveWorkDirTarget(target)
+	if err != nil {
+		return err
 	}
 
-	absPath, _ := filepath.Abs(target)
+	absPath, _ := filepath.Abs(resolvedTarget)
 	db, errDB := store.OpenDefault()
 	if errDB != nil {
 		return errDB
 	}
 	defer db.Close()
 
-	if err := db.SetDefaultWorkDir(absPath); err != nil {
-		if errID := db.SetDefaultWorkDir(target); errID != nil {
-			return errID
-		}
+	if err := setDefaultWorkDirByPathOrTarget(db, absPath, resolvedTarget); err != nil {
+		return err
 	}
 
-	fmt.Printf("✓ Default work directory set to: %s\n", target)
+	fmt.Printf("✓ Default work directory set to: %s\n", resolvedTarget)
 	return nil
+}
+
+func resolveWorkDirTarget(target string) (string, error) {
+	if target != "" {
+		return target, nil
+	}
+	return os.Getwd()
+}
+
+func setDefaultWorkDirByPathOrTarget(db *store.DB, absPath, target string) error {
+	if err := db.SetDefaultWorkDir(absPath); err == nil {
+		return nil
+	}
+	return db.SetDefaultWorkDir(target)
 }

@@ -77,7 +77,7 @@ func getActiveClients(registry *Registry) []Client {
 	active := []Client{}
 	for _, node := range nodes {
 		isConnected := node.State == StateConnected
-		if isConnected == true {
+		if isConnected {
 			active = append(active, Client{ID: node.ID})
 		}
 	}

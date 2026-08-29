@@ -91,21 +91,21 @@ func runOnePullJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
 
 	progMu.Lock()
-	isUpToDate := result.IsSuccess == true && result.Notes == "up-to-date"
-	isSucceed := result.IsSuccess == true && result.Notes != "up-to-date"
+	isUpToDate := result.IsSuccess && result.Notes == "up-to-date"
+	isSucceed := result.IsSuccess && result.Notes != "up-to-date"
 
-	if isUpToDate == true {
+	if isUpToDate {
 		prog.UpToDate(rec.RepoName)
 	}
-	if isSucceed == true {
+	if isSucceed {
 		prog.Succeed(rec.RepoName)
 	}
-	if result.IsSuccess == false {
+	if !result.IsSuccess {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
 
-	shouldStop := result.IsSuccess == false && stopOnFail == true
-	if shouldStop == true {
+	shouldStop := !result.IsSuccess && stopOnFail
+	if shouldStop {
 		*stopped = true
 	}
 	progMu.Unlock()

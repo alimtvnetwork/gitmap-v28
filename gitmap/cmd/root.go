@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -120,152 +121,113 @@ func handleGlobalError(command string, err error) {
 	errStr := fmt.Sprintf("%v", err)
 	os.WriteFile(".gitmap/last_error.log", []byte(errStr), 0644)
 
-	if display == "simple" {
-		if appErr, ok := err.(*apperror.AppError); ok {
-			cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
-		} else {
-			cliexit.Reportf(command, "execute", "", err)
-		}
-	} else {
-		cliexit.Reportf(command, "execute", "", err)
+	appErr, isAppErr := err.(*apperror.AppError)
+	if display == "simple" && isAppErr {
+		cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
+		cliexit.HandleError(nil, 1)
+		return
 	}
+
+	cliexit.Reportf(command, "execute", "", err)
 	cliexit.HandleError(nil, 1)
 }
 
 func getRootCause(err error) error {
 	for {
-		if appErr, ok := err.(*apperror.AppError); ok && appErr.Cause != nil {
-			err = appErr.Cause
-		} else {
+		appErr, isAppErr := err.(*apperror.AppError)
+		if !isAppErr || appErr.Cause == nil {
 			return err
 		}
+		err = appErr.Cause
 	}
+}
+
+func handleDispatchResult(command string, found bool, err error, shouldAudit bool, auditID int64, auditStart time.Time) bool {
+	if !found {
+		return false
+	}
+	finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+	if err != nil {
+		handleGlobalError(command, err)
+	}
+	return true
 }
 
 // dispatch routes to the correct subcommand handler with audit tracking.
 func dispatch(command string) {
 	auditID, auditStart, shouldAudit := beginCommandAudit(command, os.Args[2:])
 
-	if found, err := dispatchUser(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchCore(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchRelease(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchUtility(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchData(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchTooling(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchProjectRepos(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchDiff(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchMoveMerge(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchAdd(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchSync(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchCommons(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchTemplates(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
-		return
-	}
-	if found, err := dispatchCommitTransfer(command); found {
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
-		if err != nil {
-			handleGlobalError(command, err)
-		}
+	found, err := dispatchUser(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
 
-	if command == "ip" || command == "ip-change" {
-		if err := dispatchIP(context.Background(), os.Args[1:], nil); err != nil {
-			cliexit.HandleError(err, 1)
-		}
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+	found, err = dispatchCore(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
 
-	if command == "agy" || command == "ag" || command == "antigravity" {
-		if err := dispatchAgy(context.Background(), os.Args[1:], nil); err != nil {
-			cliexit.HandleError(err, 1)
-		}
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+	found, err = dispatchRelease(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
 
-	if command == "sj" || command == "ssh-join" || command == "ssh-joined" || command == "ssh-joiner" {
-		if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
-			cliexit.HandleError(err, 1)
-		}
-		finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+	found, err = dispatchUtility(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchData(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchTooling(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchProjectRepos(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchDiff(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchMoveMerge(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchAdd(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchSync(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchCommons(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchTemplates(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchCommitTransfer(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	if dispatchExtraCommand(command, shouldAudit, auditID, auditStart) {
 		return
 	}
 
@@ -274,7 +236,7 @@ func dispatch(command string) {
 		msg = fmt.Sprintf(constants.ErrUnknownCommandURLHint, command)
 	}
 	printUsage()
-	err := apperror.NewWithDetails(
+	dispatchErr := apperror.NewWithDetails(
 		"cmd.dispatch",
 		"E1001",
 		msg,
@@ -283,7 +245,7 @@ func dispatch(command string) {
 		apperror.SeverityError,
 		map[string]any{"command": command},
 	)
-	cliexit.HandleError(err, 1)
+	cliexit.HandleError(dispatchErr, 1)
 }
 
 // shouldRewriteToClone returns true when the args (excluding argv[0])
@@ -426,4 +388,28 @@ func routeSJSubcommand(ctx context.Context, args []string, root *cobra.Command) 
 		SSHJoinCmd.SetArgs(args)
 		return SSHJoinCmd.ExecuteContext(ctx)
 	}
+}
+
+func dispatchExtraCommand(command string, shouldAudit bool, auditID int64, auditStart time.Time) bool {
+	switch command {
+	case "ip", "ip-change":
+		executeAndAudit(dispatchIP, shouldAudit, auditID, auditStart)
+		return true
+	case "agy", "ag", "antigravity":
+		executeAndAudit(dispatchAgy, shouldAudit, auditID, auditStart)
+		return true
+	case "sj", "ssh-join", "ssh-joined", "ssh-joiner":
+		executeAndAudit(dispatchSJ, shouldAudit, auditID, auditStart)
+		return true
+	default:
+		return false
+	}
+}
+
+func executeAndAudit(fn func(context.Context, []string, *cobra.Command) error, shouldAudit bool, auditID int64, auditStart time.Time) {
+	err := fn(context.Background(), os.Args[1:], nil)
+	if err != nil {
+		cliexit.HandleError(err, 1)
+	}
+	finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 }

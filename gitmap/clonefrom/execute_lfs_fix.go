@@ -21,16 +21,16 @@ var (
 func detectLFSSmudgeError(output string) (string, bool) {
 	hasSmudgeErr := strings.Contains(output, constants.LFSSmudgeFilterFailedSignature)
 	hasServerErr := strings.Contains(output, constants.LFSServerObjectMissingSignature)
-	if hasSmudgeErr || hasServerErr {
-		if match := rxSmudgeFatal.FindStringSubmatch(output); len(match) == constants.LFSSubmatchLength {
-			return match[1], true
-		}
-
-		if match := rxSmudgeError.FindStringSubmatch(output); len(match) == constants.LFSSubmatchLength {
-			return match[1], true
-		}
+	if !hasSmudgeErr && !hasServerErr {
+		return "", false
 	}
 
+	if match := rxSmudgeFatal.FindStringSubmatch(output); len(match) == constants.LFSSubmatchLength {
+		return match[1], true
+	}
+	if match := rxSmudgeError.FindStringSubmatch(output); len(match) == constants.LFSSubmatchLength {
+		return match[1], true
+	}
 	return "", false
 }
 

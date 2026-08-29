@@ -50,19 +50,7 @@ func parseInstallerImportFlags(args []string) (*ImportInstallerFlags, error) {
 	fileFlag := fs.String("file", "", "Target file to import from")
 	fs.StringVar(fileFlag, "f", "", "File shorthand")
 
-	var flagArgs []string
-	var positional []string
-	for i := 0; i < len(args); i++ {
-		if strings.HasPrefix(args[i], "-") {
-			flagArgs = append(flagArgs, args[i])
-			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-				flagArgs = append(flagArgs, args[i+1])
-				i++
-			}
-		} else {
-			positional = append(positional, args[i])
-		}
-	}
+	flagArgs, positional := separateFlagAndPositionalArgs(args)
 
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseImportFlags", map[string]any{"args": args})
@@ -107,10 +95,7 @@ func executeInstallerImport(ctx context.Context, db *store.DB, flags *ImportInst
 	}
 
 	if !filepath.IsAbs(flags.InputPath) {
-		abs, err := filepath.Abs(flags.InputPath)
-		if err == nil {
-			flags.InputPath = abs
-		}
+		flags.InputPath, _ = filepath.Abs(flags.InputPath)
 	}
 
 	if _, err := os.Stat(flags.InputPath); err != nil {
@@ -120,17 +105,25 @@ func executeInstallerImport(ctx context.Context, db *store.DB, flags *ImportInst
 	}
 
 	if strings.HasSuffix(strings.ToLower(flags.InputPath), ".json") {
-		f, err := os.Open(flags.InputPath)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		return importSingleJSON(db, f)
+		return importFromJSONFile(db, flags.InputPath)
 	}
 
-	zr, errZip := zip.OpenReader(flags.InputPath)
+	return importFromZipArchive(flags.InputPath, db)
+}
+
+func importFromJSONFile(db *store.DB, path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return importSingleJSON(db, f)
+}
+
+func importFromZipArchive(path string, db *store.DB) error {
+	zr, errZip := zip.OpenReader(path)
 	if errZip != nil {
-		appErr := apperror.Wrap(errZip, "executeImport", map[string]any{"path": flags.InputPath})
+		appErr := apperror.Wrap(errZip, "executeImport", map[string]any{"path": path})
 		appErr.Code = "E_INSTALLER_IMPORT_FAILED"
 		return appErr
 	}
@@ -138,19 +131,25 @@ func executeInstallerImport(ctx context.Context, db *store.DB, flags *ImportInst
 
 	count := 0
 	for _, file := range zr.File {
-		if strings.HasSuffix(strings.ToLower(file.Name), ".json") {
-			rc, errOpen := file.Open()
-			if errOpen == nil {
-				if errImport := importSingleJSON(db, rc); errImport == nil {
-					count++
-				}
-				rc.Close()
-			}
+		if importZipEntry(db, file) {
+			count++
 		}
 	}
 
-	fmt.Printf("Successfully imported %d installer script(s) from %s.\n", count, flags.InputPath)
+	fmt.Printf("Successfully imported %d installer script(s) from %s.\n", count, path)
 	return nil
+}
+
+func importZipEntry(db *store.DB, file *zip.File) bool {
+	if !strings.HasSuffix(strings.ToLower(file.Name), ".json") {
+		return false
+	}
+	rc, err := file.Open()
+	if err != nil {
+		return false
+	}
+	defer rc.Close()
+	return importSingleJSON(db, rc) == nil
 }
 
 // runInstallerImport coordinates flag parsing, database connection, and import execution.

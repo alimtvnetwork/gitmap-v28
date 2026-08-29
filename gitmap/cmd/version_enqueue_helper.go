@@ -12,10 +12,10 @@ const versioningQueueEntry = "- `.lovable/versioning.md`, why: Explains that `ve
 // EnqueueVersioningInWhatToRead appends the versioning documentation link to target what-to-read file if missing.
 func EnqueueVersioningInWhatToRead(filePath string) error {
 	data, err := os.ReadFile(filePath)
+	if os.IsNotExist(err) {
+		return nil // Optional file
+	}
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil // Optional file
-		}
 		return err
 	}
 

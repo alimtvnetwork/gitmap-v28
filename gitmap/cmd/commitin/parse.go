@@ -71,7 +71,7 @@ func applyKeywordArg(raw *RawArgs, rest []string) *ParseError {
 	if perr != nil {
 		return perr
 	}
-	if isKw == false {
+	if !isKw {
 		raw.Inputs = splitInputs(rest)
 		return nil
 	}

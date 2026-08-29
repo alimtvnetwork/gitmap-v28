@@ -164,7 +164,7 @@ func shorthandToURL(host, owner, repo, mode string) string {
 }
 
 // normalisePaths splits, validates, deduplicates, and sorts the
-// comma-separated path list. askMode==true permits an empty list:
+// comma-separated path list. askMode permits an empty list:
 // the picker will fill it in interactively, so requiring `<paths>`
 // up front would be a usability bug.
 func normalisePaths(raw string, askMode bool) ([]string, error) {

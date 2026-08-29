@@ -26,29 +26,12 @@ func (m *Manager) ExportToGitFolder(slug, folderPath, filename, commitMsg string
 		return err
 	}
 
-	var scripts []model.InstallerScript
-	if slug != "" {
-		s, errGet := m.db.GetInstallerBySlug(slug)
-		if errGet != nil {
-			return errGet
-		}
-		scripts = append(scripts, *s)
-	} else {
-		all, errList := m.db.ListInstallers()
-		if errList != nil {
-			return errList
-		}
-		scripts = all
+	scripts, errScripts := m.resolveExportScripts(slug)
+	if errScripts != nil {
+		return errScripts
 	}
 
-	targetName := filename
-	if targetName == "" {
-		if slug != "" {
-			targetName = fmt.Sprintf("%s.json", slug)
-		} else {
-			targetName = "gitmap-installers.json"
-		}
-	}
+	targetName := resolveExportTargetFilename(filename, slug)
 
 	targetFile := filepath.Join(folderPath, targetName)
 	data, errMarshal := json.MarshalIndent(scripts, "", "  ")
@@ -73,4 +56,25 @@ func (m *Manager) ExportToGitFolder(slug, folderPath, filename, commitMsg string
 	_ = cmdCommit.Run()
 
 	return nil
+}
+
+func (m *Manager) resolveExportScripts(slug string) ([]model.InstallerScript, error) {
+	if slug == "" {
+		return m.db.ListInstallers()
+	}
+	s, err := m.db.GetInstallerBySlug(slug)
+	if err != nil {
+		return nil, err
+	}
+	return []model.InstallerScript{*s}, nil
+}
+
+func resolveExportTargetFilename(filename, slug string) string {
+	if filename != "" {
+		return filename
+	}
+	if slug != "" {
+		return fmt.Sprintf("%s.json", slug)
+	}
+	return "gitmap-installers.json"
 }

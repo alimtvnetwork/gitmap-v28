@@ -9,10 +9,7 @@ import (
 // runCGInstallVersionJSON handles `gitmap cg install-version-json [targets...] [--version=<ver>] [--all]`.
 func runCGInstallVersionJSON(targetDirs []string, initialVersion string, isDryRun bool) error {
 	if len(targetDirs) == 0 {
-		resolved, err := ResolvePromptTarget("")
-		if err == nil {
-			targetDirs = resolved
-		}
+		targetDirs, _ = ResolvePromptTarget("")
 	}
 
 	if len(targetDirs) == 0 {

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
@@ -35,12 +36,8 @@ func ResolveCGTarget(spec string) (string, bool) {
 	}
 
 	// 2. Check if it matches a numeric ID
-	if id, errID := strconv.ParseInt(trimmed, 10, 64); errID == nil {
-		for _, r := range repos {
-			if r.ID == id {
-				return r.AbsolutePath, true
-			}
-		}
+	if path, ok := matchRepoByID(repos, trimmed); ok {
+		return path, true
 	}
 
 	// 3. Check alias / slug / repo name
@@ -60,18 +57,31 @@ func ResolveCGTarget(spec string) (string, bool) {
 	return "", false
 }
 
+func matchRepoByID(repos []model.ScanRecord, idStr string) (string, bool) {
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return "", false
+	}
+	for _, r := range repos {
+		if r.ID == id {
+			return r.AbsolutePath, true
+		}
+	}
+	return "", false
+}
+
 // ResolveAllCGTargets resolves a slice of specifiers into absolute filesystem paths.
 func ResolveAllCGTargets(specs []string) []string {
 	var resolved []string
 	seen := make(map[string]bool)
 
 	for _, spec := range specs {
-		if path, ok := ResolveCGTarget(spec); ok {
-			if !seen[path] {
-				seen[path] = true
-				resolved = append(resolved, path)
-			}
+		path, ok := ResolveCGTarget(spec)
+		if !ok || seen[path] {
+			continue
 		}
+		seen[path] = true
+		resolved = append(resolved, path)
 	}
 	return resolved
 }

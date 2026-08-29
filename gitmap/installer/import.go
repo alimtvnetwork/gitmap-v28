@@ -30,17 +30,24 @@ func (m *Manager) ImportFromZip(zipPath string) error {
 	defer zr.Close()
 
 	for _, f := range zr.File {
-		if strings.HasSuffix(strings.ToLower(f.Name), ".json") {
-			rc, errOpen := f.Open()
-			if errOpen == nil {
-				data, errRead := io.ReadAll(rc)
-				if errRead == nil {
-					m.ImportFromJson(string(data))
-				}
-				rc.Close()
-			}
-		}
+		m.importZipFileEntry(f)
 	}
 
 	return nil
+}
+
+func (m *Manager) importZipFileEntry(f *zip.File) {
+	if !strings.HasSuffix(strings.ToLower(f.Name), ".json") {
+		return
+	}
+	rc, errOpen := f.Open()
+	if errOpen != nil {
+		return
+	}
+	defer rc.Close()
+
+	data, errRead := io.ReadAll(rc)
+	if errRead == nil {
+		m.ImportFromJson(string(data))
+	}
 }

@@ -34,11 +34,13 @@ func DiscoverTopLevelGitRepos(rootDir string) ([]string, error) {
 
 		// Check if this directory is a Git repository
 		gitPath := filepath.Join(path, ".git")
-		if gInfo, errGit := os.Stat(gitPath); errGit == nil && (gInfo.IsDir() || !gInfo.IsDir()) {
-			repos = append(repos, path)
-			if path != rootDir {
-				return filepath.SkipDir // Prune nested sub-repositories
-			}
+		if _, errGit := os.Stat(gitPath); errGit != nil {
+			return nil
+		}
+
+		repos = append(repos, path)
+		if path != rootDir {
+			return filepath.SkipDir
 		}
 
 		return nil

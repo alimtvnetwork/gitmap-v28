@@ -68,7 +68,7 @@ func queryHistoryRecords(db *store.DB, cmdFilter string) ([]model.CommandHistory
 
 // handleHistoryError processes errors returned from the history query.
 func handleHistoryError(err error) {
-	if isLegacyDataError(err) == true {
+	if isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 		cliexit.HandleError(nil, 1)
 	}

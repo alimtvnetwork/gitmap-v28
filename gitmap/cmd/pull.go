@@ -58,27 +58,17 @@ func runPull(args []string) error {
 		runPullCWD()
 		return nil
 	}
-	var records []model.ScanRecord
-	if opts.slug == "" && opts.group == "" && !opts.all && !HasAlias() {
-		cwd, _ := os.Getwd()
-		records = ResolvePullDirectoryTargets(cwd)
-		if len(records) == 0 {
-			records = findChildrenOfCWD(cwd)
-		}
-		if len(records) == 0 {
-			fmt.Println("  ↳ nothing to pull: no tracked repositories found in or under this directory.")
-			return nil
-		}
-	} else {
-		records = resolvePullTargets(opts.slug, opts.group, opts.all)
+	records, ok := resolvePullBatchRecords(opts)
+	if !ok {
+		return nil
 	}
 	fmt.Printf("  ↳ resolved %d repo(s) to pull\n", len(records))
-	if opts.onlyAvailable == true {
+	if opts.onlyAvailable {
 		records = filterByAvailableUpdates(records)
 	}
 
-	isAvailableEmpty := opts.onlyAvailable == true && len(records) == 0
-	if isAvailableEmpty == true {
+	isAvailableEmpty := opts.onlyAvailable && len(records) == 0
+	if isAvailableEmpty {
 		fmt.Print(constants.MsgPullNoAvailable)
 		return nil
 	}
@@ -200,23 +190,8 @@ func runPullCWD() error {
 
 func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	cwd, _ := os.Getwd()
-	isNonGitRepoCWD := !isGitRepoCWD()
-	if isNonGitRepoCWD {
-		if childRepos, err := fsutil.DiscoverChildGitRepos(cwd); err == nil && len(childRepos) > 0 {
-			fmt.Printf("→ Discovered %d child repositories in %s for pull:\n", len(childRepos), cwd)
-			for _, r := range childRepos {
-				fmt.Printf("  • %s\n", filepath.Base(r))
-				gitArgs := append([]string{"-C", r, "pull"}, extraArgs...)
-				cmd := exec.Command("git", gitArgs...)
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				_ = cmd.Run()
-			}
-			return nil
-		}
-		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap pull` inside a repo)")
-		exitWith(1)
-		return nil
+	if !isGitRepoCWD() {
+		return handleNonGitPull(cwd, extraArgs)
 	}
 	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
@@ -231,9 +206,9 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	var exitErr *exec.ExitError
-	isExitErr := err != nil && errors.As(err, &exitErr) == true
+	isExitErr := err != nil && errors.As(err, &exitErr)
 
-	if isExitErr == true {
+	if isExitErr {
 		exitWith(exitErr.ExitCode())
 	}
 	if err != nil {
@@ -374,7 +349,7 @@ func lookupBySlugDBFirst(slug string) []model.ScanRecord {
 	repos, dbErr := db.FindBySlug(strings.ToLower(slug))
 
 	foundRepos := dbErr == nil && len(repos) > 0
-	if foundRepos == true {
+	if foundRepos {
 		return repos
 	}
 
@@ -467,16 +442,16 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	}
 
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
-	isUpToDate := result.IsSuccess == true && result.Notes == "up-to-date"
-	isSucceed := result.IsSuccess == true && result.Notes != "up-to-date"
+	isUpToDate := result.IsSuccess && result.Notes == "up-to-date"
+	isSucceed := result.IsSuccess && result.Notes != "up-to-date"
 
-	if isUpToDate == true {
+	if isUpToDate {
 		prog.UpToDate(rec.RepoName)
 	}
-	if isSucceed == true {
+	if isSucceed {
 		prog.Succeed(rec.RepoName)
 	}
-	if result.IsSuccess == false {
+	if !result.IsSuccess {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
 }
@@ -496,4 +471,45 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 		}
 	}
 	return children
+}
+
+func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
+	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
+		return resolvePullTargets(opts.slug, opts.group, opts.all), true
+	}
+	cwd, _ := os.Getwd()
+	records := ResolvePullDirectoryTargets(cwd)
+	if len(records) == 0 {
+		records = findChildrenOfCWD(cwd)
+	}
+	if len(records) == 0 {
+		fmt.Println("  ↳ nothing to pull: no tracked repositories found in or under this directory.")
+		return nil, false
+	}
+	return records, true
+}
+
+func handleNonGitPull(cwd string, extraArgs []string) error {
+	childRepos, err := fsutil.DiscoverChildGitRepos(cwd)
+	if err == nil && len(childRepos) > 0 {
+		return pullDiscoveredChildren(cwd, childRepos, extraArgs)
+	}
+	fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap pull` inside a repo)")
+	exitWith(1)
+	return nil
+}
+
+func pullDiscoveredChildren(cwd string, childRepos []string, extraArgs []string) error {
+	fmt.Printf("→ Discovered %d child repositories in %s for pull:\n", len(childRepos), cwd)
+	for _, r := range childRepos {
+		fmt.Printf("  • %s\n", filepath.Base(r))
+		gitArgs := make([]string, 0, 3+len(extraArgs))
+		gitArgs = append(gitArgs, "-C", r, "pull")
+		gitArgs = append(gitArgs, extraArgs...)
+		cmd := exec.Command("git", gitArgs...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		_ = cmd.Run()
+	}
+	return nil
 }

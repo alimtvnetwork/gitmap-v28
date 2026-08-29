@@ -88,7 +88,7 @@ func emitDebugPathsTrace(rawIn, cleaned, resolved string) {
 // the flag is omitted we deliberately do NOT clear the env var so
 // CI runs that pre-set GITMAP_DEBUG_PATHS=1 keep their tracing.
 func applyDebugPathsEnv(isOn bool) {
-	isNonOn := isOn == false
+	isNonOn := !isOn
 	if isNonOn {
 		return
 	}

@@ -67,20 +67,7 @@ func parseUpdateFlags(args []string) (*UpdateInstallerFlags, error) {
 	slugFlag := fs.String("slug", "", "Installer slug")
 	fs.StringVar(slugFlag, "s", "", "Slug shorthand")
 
-	// Filter positional args and flags if needed
-	var flagArgs []string
-	var positional []string
-	for i := 0; i < len(args); i++ {
-		if strings.HasPrefix(args[i], "-") {
-			flagArgs = append(flagArgs, args[i])
-			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-				flagArgs = append(flagArgs, args[i+1])
-				i++
-			}
-		} else {
-			positional = append(positional, args[i])
-		}
-	}
+	flagArgs, positional := separateFlagAndPositionalArgs(args)
 
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseUpdateFlags", map[string]any{"args": args})

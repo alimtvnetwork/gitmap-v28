@@ -32,10 +32,10 @@ func runErrorExport(args []string) error {
 
 	lastErrFile := ".gitmap/last_error.log"
 	data, err := os.ReadFile(lastErrFile)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("error export: no recent error found to export")
+	}
 	if err != nil {
-		if os.IsNotExist(err) {
-			return fmt.Errorf("error export: no recent error found to export")
-		}
 		return fmt.Errorf("error export: could not read last error: %w", err)
 	}
 

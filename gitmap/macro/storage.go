@@ -69,12 +69,13 @@ func ListMacros() ([]Macro, error) {
 	}
 	var out []Macro
 	for _, e := range entries {
-		if strings.HasSuffix(e.Name(), ".json") {
-			name := strings.TrimSuffix(e.Name(), ".json")
-			m, err := LoadMacro(name)
-			if err == nil && m != nil {
-				out = append(out, *m)
-			}
+		if !strings.HasSuffix(e.Name(), ".json") {
+			continue
+		}
+		name := strings.TrimSuffix(e.Name(), ".json")
+		m, err := LoadMacro(name)
+		if err == nil && m != nil {
+			out = append(out, *m)
 		}
 	}
 	return out, nil

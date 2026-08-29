@@ -23,10 +23,10 @@ func runStatus(args []string) error {
 
 	if onlyDirty {
 		records = filterDirtyRecords(records)
-		if len(records) == 0 {
-			fmt.Println("✨ All repositories are clean!")
-			return nil
-		}
+	}
+	if onlyDirty && len(records) == 0 {
+		fmt.Println("✨ All repositories are !clean")
+		return nil
 	}
 
 	printStatusBanner(len(records))

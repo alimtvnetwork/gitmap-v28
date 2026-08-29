@@ -54,29 +54,43 @@ func walkAndFilter(root, excludeGlob string) ([]string, error) {
 			return err
 		}
 		if d.IsDir() {
-			if d.Name() == ".git" {
-				return fs.SkipDir
-			}
+			return handleDirWalk(d)
+		}
+		rel := resolveRelPath(root, path)
+		if isExcludedPath(rel, excludeGlob) {
 			return nil
-		}
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			rel = path
-		}
-		if excludeGlob != "" {
-			matched, _ := filepath.Match(excludeGlob, rel)
-			if !matched {
-				// Also try matching just the base name or direct path
-				matched, _ = filepath.Match(excludeGlob, filepath.Base(rel))
-			}
-			if matched {
-				return nil
-			}
 		}
 		results = append(results, rel)
 		return nil
 	})
 	return results, err
+}
+
+func handleDirWalk(d fs.DirEntry) error {
+	if d.Name() == ".git" {
+		return fs.SkipDir
+	}
+	return nil
+}
+
+func resolveRelPath(root, path string) string {
+	rel, err := filepath.Rel(root, path)
+	if err != nil {
+		return path
+	}
+	return rel
+}
+
+func isExcludedPath(rel, excludeGlob string) bool {
+	if excludeGlob == "" {
+		return false
+	}
+	matched, _ := filepath.Match(excludeGlob, rel)
+	if matched {
+		return true
+	}
+	baseMatched, _ := filepath.Match(excludeGlob, filepath.Base(rel))
+	return baseMatched
 }
 
 func writeJson(paths []string, out string) error {

@@ -10,10 +10,7 @@ import (
 
 func runCGInstallPrompts(targetDirs []string, isDryRun bool) error {
 	if len(targetDirs) == 0 {
-		resolved, err := ResolvePromptTarget("")
-		if err == nil {
-			targetDirs = resolved
-		}
+		targetDirs, _ = ResolvePromptTarget("")
 	}
 
 	if len(targetDirs) == 0 {

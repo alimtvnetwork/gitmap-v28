@@ -56,7 +56,7 @@ func runUpdateRemoteInstall() bool {
 	fmt.Printf(constants.MsgUpdateRemoteRun, scriptPath)
 	errRun := runRemoteInstaller(scriptPath)
 	var exitErr *exec.ExitError
-	if errRun != nil && errors.As(errRun, &exitErr) == true {
+	if errRun != nil && errors.As(errRun, &exitErr) {
 		appErr := apperror.NewWithDetails(
 			"cmd.updateremoteinstall.run",
 			"E1153",

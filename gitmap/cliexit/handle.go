@@ -22,11 +22,12 @@ func SetExitFunc(fn func(int)) func(int) {
 // HandleError processes an error through centralized logging, flushing,
 // and process exit (or panic if debug mode is active).
 func HandleError(err error, defaultCode ...int) {
+	if err == nil && len(defaultCode) > 0 {
+		runFlushers()
+		exitFunc(defaultCode[0])
+		return
+	}
 	if err == nil {
-		if len(defaultCode) > 0 {
-			runFlushers()
-			exitFunc(defaultCode[0])
-		}
 		return
 	}
 	code := 1

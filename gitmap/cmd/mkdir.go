@@ -13,17 +13,7 @@ func runMkdir(args []string) error {
 		return apperror.NewSimple("Usage: gitmap mkdir [-p] <path>", "E9000")
 	}
 
-	createParents := false
-	pathArg := ""
-
-	if args[0] == "-p" {
-		createParents = true
-		if len(args) > 1 {
-			pathArg = args[1]
-		}
-	} else {
-		pathArg = args[0]
-	}
+	createParents, pathArg := parseMkdirArgs(args)
 
 	if pathArg == "" {
 		return apperror.NewSimple("Error: missing path argument", "E9000")
@@ -45,4 +35,14 @@ func runMkdir(args []string) error {
 	}
 	fmt.Printf("Created directory: %s\n", absPath)
 	return nil
+}
+
+func parseMkdirArgs(args []string) (bool, string) {
+	if args[0] != "-p" {
+		return false, args[0]
+	}
+	if len(args) > 1 {
+		return true, args[1]
+	}
+	return true, ""
 }

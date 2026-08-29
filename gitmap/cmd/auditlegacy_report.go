@@ -45,7 +45,7 @@ func writeAuditReportFile(path, body string) error {
 // setupDir creates the directory if it is not the current or root directory.
 func setupDir(dir string) error {
 	isLocal := dir == "" || dir == "."
-	if isLocal == true {
+	if isLocal {
 		return nil
 	}
 

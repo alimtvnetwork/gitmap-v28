@@ -17,11 +17,12 @@ func parseLimit(args []string) (int, []string) {
 	limit := 0
 	var cleanArgs []string
 	for i := 0; i < len(args); i++ {
+		if (args[i] == "--limit" || args[i] == "-l") && i+1 < len(args) {
+			limit, _ = strconv.Atoi(args[i+1])
+			i++
+			continue
+		}
 		if args[i] == "--limit" || args[i] == "-l" {
-			if i+1 < len(args) {
-				limit, _ = strconv.Atoi(args[i+1])
-				i++
-			}
 			continue
 		}
 		if strings.HasPrefix(args[i], "--limit=") {

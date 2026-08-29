@@ -21,14 +21,15 @@ func UpdateRootPathAt(projectsFile, oldPath, newPath, newName string) error {
 	}
 	found := false
 	for i := range entries {
-		if pathsEqual(entries[i].RootPath, oldPath) {
-			entries[i].RootPath = newPath
-			if len(newName) > 0 {
-				entries[i].Name = newName
-			}
-			found = true
-			break
+		if !pathsEqual(entries[i].RootPath, oldPath) {
+			continue
 		}
+		entries[i].RootPath = newPath
+		if len(newName) > 0 {
+			entries[i].Name = newName
+		}
+		found = true
+		break
 	}
 	if !found {
 		return fmt.Errorf("project not found with rootPath %s", oldPath)

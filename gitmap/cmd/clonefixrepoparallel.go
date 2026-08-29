@@ -193,14 +193,15 @@ func extractParallelFlag(args []string) (int, []string) {
 	out := make([]string, 0, len(args))
 	parallel := 0
 	for i := 0; i < len(args); i++ {
-		if pVal, advance, ok := parseParallelArgStep(args, i); ok {
-			if pVal != 0 {
-				parallel = pVal
-			}
-			i += advance
+		pVal, advance, ok := parseParallelArgStep(args, i)
+		if !ok {
+			out = append(out, args[i])
 			continue
 		}
-		out = append(out, args[i])
+		if pVal != 0 {
+			parallel = pVal
+		}
+		i += advance
 	}
 	return parallel, out
 }

@@ -116,10 +116,10 @@ func firstPathSegment(url string) string {
 		hasNoSlash = !strings.Contains(trimmed[:idx], "/")
 	}
 	colon := -1
-	if idx >= 0 && hasNoSlash == true {
+	if idx >= 0 && hasNoSlash {
 		colon = strings.Index(trimmed[idx:], ":")
 	}
-	if idx >= 0 && hasNoSlash == true && colon >= 0 {
+	if idx >= 0 && hasNoSlash && colon >= 0 {
 		rest := trimmed[idx+colon+1:]
 
 		return strings.Split(strings.TrimLeft(rest, "/"), "/")[0]

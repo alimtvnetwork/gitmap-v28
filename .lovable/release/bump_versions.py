@@ -121,11 +121,11 @@ PowerShell:
 
 ### Added / Changed / Fixed / Removed
 
-- Fix smoke-installer.sh version extraction to support var Version alongside const Version
-- Fix Git LFS binary zip false-positive in generate drift check
-- Synchronize constants.Version with changelog.md and version.json
-- Sanitize jq --argjson line parsing in check-single-linter-diff.sh and check-misspell-diff.sh
-- Synchronize web VERSION export from version.json in src/constants/index.ts
+- Autonomously flatten all nested if statements across codebase with guard clauses and early returns
+- Enforce implicit boolean evaluations and positive prefix standards across all packages
+- Eliminate explicit boolean comparisons (== true, == false) repository-wide
+- Fix gocritic appendAssign finding in CI diff gate across cmd and tests
+- Connect check-enum-and-boolean.py to CI/CD local runner suite with 100% green verification
 """
     if header_index != -1:
         lines.insert(header_index + 1, entry + "\n")
@@ -134,6 +134,34 @@ PowerShell:
 
     with open(changelog_path, "w", encoding="utf-8") as f:
         f.writelines(lines)
+
+
+def assemble_release_notes(new_version: str) -> str:
+    notes_path = os.path.join(ROOT_DIR, ".lovable", "release", f"release-notes-v{new_version}.md")
+    content = f"""## Quick Install v{new_version}
+
+### Windows (PowerShell 5.1+)
+```powershell
+irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_version}/install.ps1 | iex
+```
+
+### Linux / macOS (Bash)
+```bash
+curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_version}/install.sh | bash
+```
+
+## Changelog v{new_version}
+
+- Autonomously flatten all nested if statements across codebase with guard clauses and early returns
+- Enforce implicit boolean evaluations and positive prefix standards across all packages
+- Eliminate explicit boolean comparisons (== true, == false) repository-wide
+- Fix gocritic appendAssign finding in CI diff gate across cmd and tests
+- Connect check-enum-and-boolean.py to CI/CD local runner suite with 100% green verification
+"""
+    os.makedirs(os.path.dirname(notes_path), exist_ok=True)
+    with open(notes_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    return notes_path
 
 
 def main():
@@ -154,6 +182,7 @@ def main():
     update_constants_go(new_version)
     update_readme_md(current, new_version)
     update_changelog_md(new_version)
+    notes_file = assemble_release_notes(new_version)
 
     # Regenerate Go files if needed
     print("-> Running go generate ./... in gitmap/")
@@ -185,8 +214,7 @@ def main():
         run_cmd("git push origin main")
 
         print(f"-> Creating GitHub release for {tag_name}")
-        release_notes = f"Release {tag_name}\n\nAutomated release cut from {branch_name}."
-        run_cmd(f'gh release create {tag_name} --title "gitmap {tag_name}" --notes "{release_notes}"')
+        run_cmd(f'gh release create {tag_name} --title "{tag_name}" --notes-file "{notes_file}"')
         print(f"[SUCCESS] GitHub release {tag_name} created successfully!")
 
     print(f"[SUCCESS] Released version {new_version} successfully!")

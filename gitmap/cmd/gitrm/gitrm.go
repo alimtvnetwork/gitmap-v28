@@ -42,47 +42,67 @@ func Run(args []string) error {
 }
 
 func parseInput(input string) ([]string, error) {
-	st, err := os.Stat(input)
-	if err == nil && !st.IsDir() {
-		ext := strings.ToLower(filepath.Ext(input))
-		b, err := os.ReadFile(input)
-		if err != nil {
-			return nil, err
-		}
-		if ext == ".json" {
-			var paths []string
-			if err := json.Unmarshal(b, &paths); err == nil {
-				return paths, nil
-			}
-		} else if ext == ".csv" {
-			r := csv.NewReader(strings.NewReader(string(b)))
-			records, err := r.ReadAll()
-			if err == nil {
-				var paths []string
-				for _, rec := range records {
-					paths = append(paths, rec...)
-				}
-				return paths, nil
-			}
-		} else {
-			// Plain text file (lines)
-			lines := strings.Split(string(b), "\n")
-			var paths []string
-			for _, l := range lines {
-				l = strings.TrimSpace(l)
-				if l != "" {
-					paths = append(paths, l)
-				}
-			}
-			return paths, nil
-		}
+	if isExistingFile(input) {
+		return parseFileInput(input)
 	}
-	// Direct path or folder
-	// Or comma-separated
 	if strings.Contains(input, ",") {
 		return strings.Split(input, ","), nil
 	}
 	return []string{input}, nil
+}
+
+func isExistingFile(path string) bool {
+	st, err := os.Stat(path)
+	return err == nil && !st.IsDir()
+}
+
+func parseFileInput(input string) ([]string, error) {
+	ext := strings.ToLower(filepath.Ext(input))
+	b, err := os.ReadFile(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if ext == ".json" {
+		return parseJSONPaths(b)
+	}
+	if ext == ".csv" {
+		return parseCSVPaths(b)
+	}
+	return parseTextLines(b), nil
+}
+
+func parseJSONPaths(b []byte) ([]string, error) {
+	var paths []string
+	if err := json.Unmarshal(b, &paths); err != nil {
+		return nil, err
+	}
+	return paths, nil
+}
+
+func parseCSVPaths(b []byte) ([]string, error) {
+	r := csv.NewReader(strings.NewReader(string(b)))
+	records, err := r.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+	var paths []string
+	for _, rec := range records {
+		paths = append(paths, rec...)
+	}
+	return paths, nil
+}
+
+func parseTextLines(b []byte) []string {
+	lines := strings.Split(string(b), "\n")
+	var paths []string
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if trimmed != "" {
+			paths = append(paths, trimmed)
+		}
+	}
+	return paths
 }
 
 func createBackupDir() (string, error) {

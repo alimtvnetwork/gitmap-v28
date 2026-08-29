@@ -37,15 +37,15 @@ func runPR(args []string) error {
 
 	owner := ""
 	hasArgs := len(args) > 0
-	if hasArgs == true {
+	if hasArgs {
 		owner = args[0]
 	}
 	o, _, err := "", "", error(nil)
-	if hasArgs == false {
+	if !hasArgs {
 		o, _, err = currentRepoOwnerRepo()
 	}
-	isErr := hasArgs == false && err != nil
-	if isErr == true {
+	isErr := !hasArgs && err != nil
+	if isErr {
 		appErr := apperror.NewWithDetails(
 			"cmd.pr.resolveOwner",
 			"E1070",
@@ -58,7 +58,7 @@ func runPR(args []string) error {
 		cliexit.HandleError(appErr, 2)
 		return nil
 	}
-	if hasArgs == false && isErr == false {
+	if !hasArgs && !isErr {
 		owner = o
 	}
 	token := os.Getenv("GITHUB_TOKEN")

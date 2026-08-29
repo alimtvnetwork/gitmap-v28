@@ -91,7 +91,7 @@ type RepoInfo struct {
 // ScanProgress is a snapshot of in-flight scan counters delivered to a
 // caller-supplied callback. Snapshots are emitted on a fixed cadence
 // while the walker is running and once more when the walker terminates
-// (Final == true) — even if the totals didn't change since the last
+// (Final) — even if the totals didn't change since the last
 // emission, so renderers can clear / finalize their line.
 type ScanProgress struct {
 	// DirsWalked is the number of directories fully read by os.ReadDir.

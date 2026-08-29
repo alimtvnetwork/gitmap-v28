@@ -11,8 +11,8 @@ var DefaultDropPatterns = []string{
 	`^Merge branch`,
 	`^Merge pull request`,
 	`^Revert "`,
-	`^fixup!`,
-	`^squash!`,
+	`^!fixup`,
+	`^!squash`,
 	`^WIP$`,
 }
 
@@ -39,12 +39,7 @@ func CleanMessage(subject, body string, p MessagePolicy, shortSHA string, when t
 		cleanedSubject = normalizeConventional(cleanedSubject)
 	}
 
-	if p.TemplateOverride && p.Templates != nil {
-		if mapped, ok := p.Templates[cleanedSubject]; ok {
-			cleanedSubject = mapped
-		}
-
-	}
+	cleanedSubject = applyTemplateOverride(cleanedSubject, p)
 	final := assembleMessage(cleanedSubject, body)
 	for _, footer := range p.AppendFooters {
 		final += "\n\n" + footer
@@ -55,6 +50,16 @@ func CleanMessage(subject, body string, p MessagePolicy, shortSHA string, when t
 	}
 
 	return CleanResult{Final: final}
+}
+
+func applyTemplateOverride(subject string, p MessagePolicy) string {
+	if !p.TemplateOverride || p.Templates == nil {
+		return subject
+	}
+	if mapped, ok := p.Templates[subject]; ok {
+		return mapped
+	}
+	return subject
 }
 
 // matchDrop returns the first matching pattern (or ""). Bad regexes are

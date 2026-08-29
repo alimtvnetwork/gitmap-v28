@@ -38,16 +38,22 @@ func executeSSHLogin(ctx context.Context, target string, force bool) error {
 	}
 
 	if !strings.Contains(target, "@") && net.ParseIP(target) == nil {
-		db, err := store.OpenDefault()
-		if err == nil {
-			host, err := store.GetHostByAlias(ctx, target, db.Conn())
-			if err == nil {
-				sshTarget.Username = host.Username
-				sshTarget.IP = host.IP
-			}
-			db.Close()
-		}
+		resolveSSHHostTarget(ctx, target, sshTarget)
 	}
 
 	return SpawnSSH(ctx, *sshTarget, nil)
+}
+
+func resolveSSHHostTarget(ctx context.Context, target string, sshTarget *SSHTarget) {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	host, err := store.GetHostByAlias(ctx, target, db.Conn())
+	if err == nil {
+		sshTarget.Username = host.Username
+		sshTarget.IP = host.IP
+	}
 }

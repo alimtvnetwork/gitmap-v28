@@ -38,14 +38,14 @@ type ProjRunResult struct {
 func ExecProjRun(ctx context.Context, node ClusterNode, projectNames []string) ([]ProjRunResult, error) {
 	database, err := store.OpenDefault()
 	isDbError := err != nil
-	if isDbError == true {
+	if isDbError {
 		return nil, fmt.Errorf("failed to open store: %w", err)
 	}
 	defer database.Close()
 
 	records, err := database.ListRepos()
 	isListError := err != nil
-	if isListError == true {
+	if isListError {
 		return nil, fmt.Errorf("failed to list repos: %w", err)
 	}
 
@@ -54,7 +54,7 @@ func ExecProjRun(ctx context.Context, node ClusterNode, projectNames []string) (
 		var foundPath string
 		for _, rec := range records {
 			isMatch := strings.EqualFold(rec.RepoName, projName) || strings.EqualFold(rec.Slug, projName)
-			if isMatch == true {
+			if isMatch {
 				foundPath = rec.AbsolutePath
 				break
 			}
@@ -106,7 +106,7 @@ func executeProjectRun(ctx context.Context, projName, absPath string) ProjRunRes
 	cmd.Dir = absPath
 	output, err := cmd.CombinedOutput()
 	isSuccess := err == nil
-	if isSuccess == true {
+	if isSuccess {
 		return ProjRunResult{
 			ProjectName: projName,
 			Succeeded:   true,
@@ -117,7 +117,7 @@ func executeProjectRun(ctx context.Context, projName, absPath string) ProjRunRes
 	lines := strings.Split(strings.TrimSpace(string(output)), newline)
 	totalLines := len(lines)
 	isOverMax := totalLines > maxErrorLines
-	if isOverMax == true {
+	if isOverMax {
 		lines = lines[totalLines-maxErrorLines:]
 	}
 

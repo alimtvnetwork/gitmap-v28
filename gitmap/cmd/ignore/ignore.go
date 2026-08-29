@@ -51,27 +51,32 @@ func RunIgnoreRm(args []string) error {
 
 func addToGitignore(pattern string) error {
 	b, err := os.ReadFile(".gitignore")
-	var lines []string
-	if err == nil {
-		lines = strings.Split(string(b), "\n")
-		for _, l := range lines {
-			if strings.TrimSpace(l) == pattern {
-				pterm.Info.Printf("Pattern '%s' already in .gitignore\n", pattern)
-				return nil
-			}
-		}
+	if err == nil && containsGitignorePattern(string(b), pattern) {
+		pterm.Info.Printf("Pattern '%s' already in .gitignore\n", pattern)
+		return nil
 	}
 
-	// Ensure it ends with newline before appending
-	content := string(b)
-	if len(content) > 0 && !strings.HasSuffix(content, "\n") {
-		content += "\n"
-	}
-	content += pattern + "\n"
-
+	content := formatGitignoreContent(string(b), pattern)
 	if err := os.WriteFile(".gitignore", []byte(content), 0644); err != nil {
 		return apperror.WrapSimple(err, "addToGitignore: failed to write file")
 	}
 	pterm.Success.Printf("Added '%s' to .gitignore\n", pattern)
 	return nil
+}
+
+func containsGitignorePattern(content, pattern string) bool {
+	lines := strings.Split(content, "\n")
+	for _, l := range lines {
+		if strings.TrimSpace(l) == pattern {
+			return true
+		}
+	}
+	return false
+}
+
+func formatGitignoreContent(content, pattern string) string {
+	if len(content) > 0 && !strings.HasSuffix(content, "\n") {
+		content += "\n"
+	}
+	return content + pattern + "\n"
 }

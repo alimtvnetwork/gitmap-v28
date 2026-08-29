@@ -63,13 +63,11 @@ func executeExportGit(args []string, isAll bool) error {
 	}
 
 	if strings.HasPrefix(target, "http://") || strings.HasPrefix(target, "https://") || strings.HasPrefix(target, "git@") {
-		if err := mgr.ExportToRemoteGitRepo(slug, target, "main", "", "", false); err != nil {
-			return err
-		}
-	} else {
-		if err := mgr.ExportToGitFolder(slug, target, "", ""); err != nil {
-			return err
-		}
+		return mgr.ExportToRemoteGitRepo(slug, target, "main", "", "", false)
+	}
+
+	if err := mgr.ExportToGitFolder(slug, target, "", ""); err != nil {
+		return err
 	}
 
 	fmt.Printf("Exported installer(s) to Git target %q successfully.\n", target)

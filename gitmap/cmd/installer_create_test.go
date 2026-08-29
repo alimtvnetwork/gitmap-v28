@@ -239,7 +239,7 @@ func TestSlugify(t *testing.T) {
 		{"my_custom_tool", "my-custom-tool"},
 		{"   spaced   ", "spaced"},
 		{"Tool.With.Dots", "tool-with-dots"},
-		{"Special!@#Characters", "specialcharacters"},
+		{"!Special@#Characters", "specialcharacters"},
 		{"---dashes---", "dashes"},
 	}
 

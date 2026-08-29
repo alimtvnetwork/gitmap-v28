@@ -31,13 +31,11 @@ func runReconcile(dir string, currentRecords []model.ScanRecord) error {
 
 	removed := 0
 	for _, repo := range allRepos {
-		if isSubPath(dir, repo.AbsolutePath) {
-			if !validPaths[repo.AbsolutePath] {
-				_, err := db.DeleteByPath(repo.AbsolutePath)
-				if err == nil {
-					removed++
-				}
-			}
+		if !isSubPath(dir, repo.AbsolutePath) || validPaths[repo.AbsolutePath] {
+			continue
+		}
+		if _, err := db.DeleteByPath(repo.AbsolutePath); err == nil {
+			removed++
 		}
 	}
 
@@ -46,8 +44,5 @@ func runReconcile(dir string, currentRecords []model.ScanRecord) error {
 }
 
 func isSubPath(parent, child string) bool {
-	if len(child) > len(parent) {
-		return child[:len(parent)] == parent
-	}
-	return false
+	return len(child) > len(parent) && child[:len(parent)] == parent
 }

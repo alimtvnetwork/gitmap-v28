@@ -42,7 +42,7 @@ func preferExistingFolderTransport(positional, absPath string) string {
 }
 
 func rewriteToMatchExisting(positional string, targetSSH bool) string {
-	if targetSSH == true {
+	if targetSSH {
 		return handleSSHRewrite(positional)
 	}
 	return handleHTTPSRewrite(positional)
@@ -50,7 +50,7 @@ func rewriteToMatchExisting(positional string, targetSSH bool) string {
 
 func handleSSHRewrite(positional string) string {
 	out, ok := ConvertURLToSSH(positional)
-	if ok == false {
+	if !ok {
 		warnPreferTransport("", "ssh rewrite failed", nil)
 		return positional
 	}
@@ -60,7 +60,7 @@ func handleSSHRewrite(positional string) string {
 
 func handleHTTPSRewrite(positional string) string {
 	out, ok := ConvertURLToHTTPS(positional)
-	if ok == false {
+	if !ok {
 		warnPreferTransport("", "https rewrite failed", nil)
 		return positional
 	}

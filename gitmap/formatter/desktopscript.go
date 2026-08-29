@@ -96,6 +96,6 @@ func writeDesktopFooter(w io.Writer) {
 	fmt.Fprintln(w, `Write-Host "  XX Failed:     $failed" -ForegroundColor Red`)
 	fmt.Fprintln(w, `Write-Host "  ======================================" -ForegroundColor DarkCyan`)
 	fmt.Fprintln(w, `Write-Host ""`)
-	fmt.Fprintln(w, `Write-Host "  Done!" -ForegroundColor Green`)
+	fmt.Fprintln(w, `Write-Host "  !Done" -ForegroundColor Green`)
 	fmt.Fprintln(w, `Write-Host ""`)
 }

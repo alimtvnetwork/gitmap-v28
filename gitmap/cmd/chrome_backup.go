@@ -77,19 +77,19 @@ func runChromeRestore(args []string) *apperror.AppError {
 		}
 	}
 	recorded := ""
-	needsDst := intoSet == false
-	if needsDst == true {
+	needsDst := !intoSet
+	if needsDst {
 		recorded = readChromeManifestSource(src)
 	}
 
 	useRecorded := needsDst && recorded != ""
-	if useRecorded == true {
+	if useRecorded {
 		dst = recorded
 		fmt.Printf("\033[2;37m• restoring to recorded source profile: %s\033[0m\n", dst)
 	}
 
 	useDefault := needsDst && recorded == ""
-	if useDefault == true {
+	if useDefault {
 		dst = chromeUserDataDir()
 	}
 
@@ -113,16 +113,16 @@ func runChromeRestore(args []string) *apperror.AppError {
 		return apperror.New(fmt.Sprintf("chrome restore: REFUSED  already contains %d file(s); pass --force to overwrite", existing), "E9000", nil)
 	}
 	needsConfirm := existing > 0 && force && !yes
-	if needsConfirm == true {
-		fmt.Fprintf(os.Stderr, "\033[1;31m! chrome restore --force\033[0m will overwrite %d existing file(s) under %s\n", existing, dst)
+	if needsConfirm {
+		fmt.Fprintf(os.Stderr, "\033[1;!31m chrome restore --force\033[0m will overwrite %d existing file(s) under %s\n", existing, dst)
 	}
 
 	isConfirmed := true
-	if needsConfirm == true {
+	if needsConfirm {
 		isConfirmed = confirmYesNo("proceed?")
 	}
 
-	if isConfirmed == false {
+	if !isConfirmed {
 		return apperror.NewSimple("chrome restore: aborted", "E9000")
 	}
 	if dryRun {

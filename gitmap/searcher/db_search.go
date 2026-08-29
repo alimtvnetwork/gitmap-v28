@@ -11,21 +11,8 @@ import (
 // SearchRepoDB searches the RepoDB for exact match, with analytical caching.
 
 func SearchRepoDB(ctx context.Context, db *sql.DB, query string, limit int, useCache bool) ([]SearchResult, error) {
-	if useCache {
-		var cachedJson string
-		err := db.QueryRowContext(ctx, "SELECT ResultJson FROM SearchCache WHERE Query = ?", query).Scan(&cachedJson)
-		if err == nil && cachedJson != "" {
-			// Found in cache
-			var res []SearchResult
-			if err := json.Unmarshal([]byte(cachedJson), &res); err == nil {
-				// Bump hit count
-				db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", query)
-				if limit > 0 && len(res) > limit {
-					res = res[:limit]
-				}
-				return res, nil
-			}
-		}
+	if res, ok := maybeGetCachedSearchResults(ctx, db, query, limit, useCache); ok {
+		return res, nil
 	}
 
 	// Not in cache or cache disabled, perform full search
@@ -59,19 +46,8 @@ func SearchRepoDB(ctx context.Context, db *sql.DB, query string, limit int, useC
 // SearchRepoDBRegex searches the RepoDB using a regex pattern.
 
 func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, limit int, useCache bool) ([]SearchResult, error) {
-	if useCache {
-		var cachedJson string
-		err := db.QueryRowContext(ctx, "SELECT ResultJson FROM SearchCache WHERE Query = ?", "regex:"+expr).Scan(&cachedJson)
-		if err == nil && cachedJson != "" {
-			var res []SearchResult
-			if err := json.Unmarshal([]byte(cachedJson), &res); err == nil {
-				db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", "regex:"+expr)
-				if limit > 0 && len(res) > limit {
-					res = res[:limit]
-				}
-				return res, nil
-			}
-		}
+	if res, ok := maybeGetCachedSearchResults(ctx, db, "regex:"+expr, limit, useCache); ok {
+		return res, nil
 	}
 
 	lz := lazyregex.New(expr)
@@ -115,4 +91,28 @@ func updateCache(ctx context.Context, db *sql.DB, cacheKey string, results []Sea
 		ON CONFLICT(Query) DO UPDATE SET ResultJson=excluded.ResultJson, Hits=Hits+1;
 	`
 	db.ExecContext(ctx, query, cacheKey, string(b))
+}
+
+func getCachedSearchResults(ctx context.Context, db *sql.DB, query string, limit int) ([]SearchResult, bool) {
+	var cachedJson string
+	err := db.QueryRowContext(ctx, "SELECT ResultJson FROM SearchCache WHERE Query = ?", query).Scan(&cachedJson)
+	if err != nil || cachedJson == "" {
+		return nil, false
+	}
+	var res []SearchResult
+	if err := json.Unmarshal([]byte(cachedJson), &res); err != nil {
+		return nil, false
+	}
+	db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", query)
+	if limit > 0 && len(res) > limit {
+		res = res[:limit]
+	}
+	return res, true
+}
+
+func maybeGetCachedSearchResults(ctx context.Context, db *sql.DB, query string, limit int, useCache bool) ([]SearchResult, bool) {
+	if !useCache {
+		return nil, false
+	}
+	return getCachedSearchResults(ctx, db, query, limit)
 }

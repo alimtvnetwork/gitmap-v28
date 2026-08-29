@@ -20,7 +20,7 @@ func changelogWrapWidth() int {
 	parsed, err := strconv.Atoi(strings.TrimSpace(cols))
 	hasValidCols := err == nil && parsed > 0
 
-	if hasValidCols == true {
+	if hasValidCols {
 		width = parsed
 	}
 	if width < constants.ChangelogPrettyWrapMin {

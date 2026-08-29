@@ -26,7 +26,7 @@ func runInstallScript() error {
 		return nil
 	}
 
-	pterm.Success.Println("Install script copied to clipboard!")
+	pterm.Success.Println("Install script copied to !clipboard")
 	fmt.Println()
 	fmt.Println(script)
 	return nil

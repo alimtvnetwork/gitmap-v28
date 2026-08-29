@@ -37,94 +37,11 @@ func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) d
 	raw := subCmd.RawArg
 	res.CommandText = &raw
 
-	// Stub routing logic
 	switch subCmd.Kind {
 	case db.CommandKindPsCommand:
-		res.ResultStatus = db.ResultStatusSucceeded
-		if !node.IsServer {
-			// Dial the remote agent
-			conf := &tls.Config{InsecureSkipVerify: true}
-			dialer := &net.Dialer{Timeout: dialAgentTimeout}
-			client, err := tls.DialWithDialer(dialer, "tcp", node.IP+":8081", conf)
-			if err != nil {
-				res.ResultStatus = db.ResultStatusFailed
-				msg := err.Error()
-				res.ErrorMessage = &msg
-			} else {
-				defer client.Close()
-				rpcClient := rpc.NewClient(client)
-				args := &AgentExecArgs{Command: subCmd.RawArg}
-				var reply AgentExecReply
-				if err := rpcClient.Call("Agent.ExecPS", args, &reply); err != nil {
-					res.ResultStatus = db.ResultStatusFailed
-					msg := err.Error()
-					res.ErrorMessage = &msg
-				} else {
-					if reply.ExitCode != 0 {
-						res.ResultStatus = db.ResultStatusFailed
-					}
-					res.Stdout = &reply.Stdout
-					res.Stderr = &reply.Stderr
-					res.ExitCode = &reply.ExitCode
-				}
-			}
-		} else {
-			// Run locally
-			stdout, stderr, exitCode, err := ExecPS(ctx, node, subCmd.RawArg)
-			res.Stdout = &stdout
-			res.Stderr = &stderr
-			res.ExitCode = &exitCode
-			if err != nil || exitCode != 0 {
-				res.ResultStatus = db.ResultStatusFailed
-				if err != nil {
-					msg := err.Error()
-					res.ErrorMessage = &msg
-				}
-			}
-		}
-
+		dispatchPSCommand(ctx, node, subCmd.RawArg, &res)
 	case db.CommandKindCmdCommand:
-		res.ResultStatus = db.ResultStatusSucceeded
-		if !node.IsServer {
-			conf := &tls.Config{InsecureSkipVerify: true}
-			dialer := &net.Dialer{Timeout: dialAgentTimeout}
-			client, err := tls.DialWithDialer(dialer, "tcp", node.IP+":8081", conf)
-			if err != nil {
-				res.ResultStatus = db.ResultStatusFailed
-				msg := err.Error()
-				res.ErrorMessage = &msg
-			} else {
-				defer client.Close()
-				rpcClient := rpc.NewClient(client)
-				args := &AgentExecArgs{Command: subCmd.RawArg}
-				var reply AgentExecReply
-				if err := rpcClient.Call("Agent.ExecCmd", args, &reply); err != nil {
-					res.ResultStatus = db.ResultStatusFailed
-					msg := err.Error()
-					res.ErrorMessage = &msg
-				} else {
-					if reply.ExitCode != 0 {
-						res.ResultStatus = db.ResultStatusFailed
-					}
-					res.Stdout = &reply.Stdout
-					res.Stderr = &reply.Stderr
-					res.ExitCode = &reply.ExitCode
-				}
-			}
-		} else {
-			// Run locally
-			stdout, stderr, exitCode, err := ExecCmd(ctx, node, subCmd.RawArg)
-			res.Stdout = &stdout
-			res.Stderr = &stderr
-			res.ExitCode = &exitCode
-			if err != nil || exitCode != 0 {
-				res.ResultStatus = db.ResultStatusFailed
-				if err != nil {
-					msg := err.Error()
-					res.ErrorMessage = &msg
-				}
-			}
-		}
+		dispatchCmdCommand(ctx, node, subCmd.RawArg, &res)
 	case db.CommandKindInstall:
 		res.ResultStatus = db.ResultStatusSkipped
 		msg := "ExecInstall stubbed"
@@ -153,4 +70,102 @@ func Dispatch(ctx context.Context, node ClusterNode, subCmd ClusterSubCommand) d
 	res.DurationMs = &durMs
 
 	return res
+}
+
+func dispatchPSCommand(ctx context.Context, node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+	res.ResultStatus = db.ResultStatusSucceeded
+	if !node.IsServer {
+		dispatchRemotePS(node, rawArg, res)
+		return
+	}
+	dispatchLocalPS(ctx, node, rawArg, res)
+}
+
+func dispatchRemotePS(node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+	conf := &tls.Config{InsecureSkipVerify: true}
+	dialer := &net.Dialer{Timeout: dialAgentTimeout}
+	client, err := tls.DialWithDialer(dialer, "tcp", node.IP+":8081", conf)
+	if err != nil {
+		setCommandError(res, err.Error())
+		return
+	}
+	defer client.Close()
+	rpcClient := rpc.NewClient(client)
+	args := &AgentExecArgs{Command: rawArg}
+	var reply AgentExecReply
+	if err := rpcClient.Call("Agent.ExecPS", args, &reply); err != nil {
+		setCommandError(res, err.Error())
+		return
+	}
+	applyReply(res, reply)
+}
+
+func dispatchLocalPS(ctx context.Context, node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+	stdout, stderr, exitCode, err := ExecPS(ctx, node, rawArg)
+	res.Stdout = &stdout
+	res.Stderr = &stderr
+	res.ExitCode = &exitCode
+	if err != nil {
+		setCommandError(res, err.Error())
+		return
+	}
+	if exitCode != 0 {
+		res.ResultStatus = db.ResultStatusFailed
+	}
+}
+
+func dispatchCmdCommand(ctx context.Context, node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+	res.ResultStatus = db.ResultStatusSucceeded
+	if !node.IsServer {
+		dispatchRemoteCmd(node, rawArg, res)
+		return
+	}
+	dispatchLocalCmd(ctx, node, rawArg, res)
+}
+
+func dispatchRemoteCmd(node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+	conf := &tls.Config{InsecureSkipVerify: true}
+	dialer := &net.Dialer{Timeout: dialAgentTimeout}
+	client, err := tls.DialWithDialer(dialer, "tcp", node.IP+":8081", conf)
+	if err != nil {
+		setCommandError(res, err.Error())
+		return
+	}
+	defer client.Close()
+	rpcClient := rpc.NewClient(client)
+	args := &AgentExecArgs{Command: rawArg}
+	var reply AgentExecReply
+	if err := rpcClient.Call("Agent.ExecCmd", args, &reply); err != nil {
+		setCommandError(res, err.Error())
+		return
+	}
+	applyReply(res, reply)
+}
+
+func dispatchLocalCmd(ctx context.Context, node ClusterNode, rawArg string, res *db.ClusterExecResult) {
+	stdout, stderr, exitCode, err := ExecCmd(ctx, node, rawArg)
+	res.Stdout = &stdout
+	res.Stderr = &stderr
+	res.ExitCode = &exitCode
+	if err != nil {
+		setCommandError(res, err.Error())
+		return
+	}
+	if exitCode != 0 {
+		res.ResultStatus = db.ResultStatusFailed
+	}
+}
+
+func setCommandError(res *db.ClusterExecResult, msg string) {
+	res.ResultStatus = db.ResultStatusFailed
+	res.ErrorMessage = &msg
+}
+
+func applyReply(res *db.ClusterExecResult, reply AgentExecReply) {
+	if reply.ExitCode != 0 {
+		res.ResultStatus = db.ResultStatusFailed
+	}
+	res.Stdout = &reply.Stdout
+	res.Stderr = &reply.Stderr
+	res.ExitCode = &reply.ExitCode
 }
