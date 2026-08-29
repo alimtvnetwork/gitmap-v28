@@ -54,6 +54,8 @@ func (m MergeMode) String() string {
 		return constants.VSCodePMSyncModeReplace
 	case MergeModeIntersection:
 		return constants.VSCodePMSyncModeIntersection
+	case MergeModeUnion:
+		return constants.VSCodePMSyncModeUnion
 	default:
 		return constants.VSCodePMSyncModeUnion
 	}
@@ -88,6 +90,8 @@ func mergeTags(mode MergeMode, existing, incoming []string) []string {
 		return replaceTags(incoming)
 	case MergeModeIntersection:
 		return intersectTagsWithBrand(existing, incoming)
+	case MergeModeUnion:
+		return unionTags(existing, incoming)
 	default:
 		return unionTags(existing, incoming)
 	}

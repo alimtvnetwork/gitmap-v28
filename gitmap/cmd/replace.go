@@ -35,6 +35,9 @@ func dispatchReplaceMode(mode replaceMode, positional []string, opts replaceOpts
 		runReplaceAudit(opts)
 	case replaceModeAll, replaceModeVersionN:
 		dispatchVersionMode(mode, positional, opts)
+	case replaceModeUnknown:
+		fmt.Fprint(os.Stderr, constants.ErrReplaceNeedsArgs)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	default:
 		fmt.Fprint(os.Stderr, constants.ErrReplaceNeedsArgs)
 		cliexit.HandleError(nil, constants.ExitCodeError)

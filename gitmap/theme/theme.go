@@ -50,6 +50,8 @@ func (m ModeType) String() string {
 		return constants.ThemeStandard
 	case ModeMono:
 		return constants.ThemeMonochrome
+	case ModeBright:
+		return constants.ThemeBright
 	default:
 		return constants.ThemeBright
 	}

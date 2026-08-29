@@ -124,9 +124,9 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 		switch res.ResultStatus {
 		case db.ResultStatusSucceeded:
 			succeeded++
-		case db.ResultStatusFailed:
+		case db.ResultStatusFailed, db.ResultStatusRequiresAuth:
 			failed++
-		case db.ResultStatusSkipped:
+		case db.ResultStatusSkipped, db.ResultStatusPending, db.ResultStatusDeferred:
 			skipped++
 		}
 

@@ -23,3 +23,4 @@
 - [32-root-cli-panic-on-zero-args.md](./32-root-cli-panic-on-zero-args.md): Fix panic("fatal error") in gitmap/cmd/root.go and across command files, ensuring zero-args CLI exits cleanly with usage.
 - [33-gocritic-appendassign-diff.md](./33-gocritic-appendassign-diff.md): Fix gocritic appendAssign new finding in CI diff gate and eliminate unused helper warnings.
 - [34-gocritic-ifelsechain-diff.md](./34-gocritic-ifelsechain-diff.md): Fix gocritic ifElseChain findings by converting multi-branch conditionals to switch statements.
+- [35-exhaustive-switch-diff.md](./35-exhaustive-switch-diff.md): Fix exhaustive switch linter findings by providing complete case coverage across all enum switches.

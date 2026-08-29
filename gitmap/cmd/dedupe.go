@@ -98,6 +98,8 @@ func emitDedupe(dupes map[string][]string, f hygieneFormat) {
 			}
 		}
 		emitCSV([]string{"tree_sha", "path"}, rows)
+	case hygieneFormatTable:
+		printDedupeReport(dupes)
 	default:
 		printDedupeReport(dupes)
 	}

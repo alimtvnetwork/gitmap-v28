@@ -69,6 +69,8 @@ func emitSize(sizes []repoSize, f hygieneFormat) {
 			rows = append(rows, []string{s.path, fmt.Sprintf("%d", s.size)})
 		}
 		emitCSV([]string{"path", "bytes"}, rows)
+	case hygieneFormatTable:
+		printSizeReport(sizes)
 	default:
 		printSizeReport(sizes)
 	}
