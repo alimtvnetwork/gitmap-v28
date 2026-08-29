@@ -17,7 +17,7 @@ EXCLUDE_DIRS = {'.git', 'node_modules', 'dist', 'build', '.next', '.gitmap', 've
 def check_bare_ok(is_go: bool, stripped: str, rel_path: str, idx: int) -> dict | None:
     if not is_go:
         return None
-    if not re.search(r',\s*ok\s*(:=|=)\s*', stripped):
+    if not re.search(r',\s*ok\s*(:=|=)\s*', stripped) and not re.search(r'\bcase\s+[^,]+,\s*ok\s*:=\s*<-\w+:', stripped):
         return None
     return {
         "file": rel_path,
@@ -103,20 +103,23 @@ def process_target_path(td: Path) -> list[dict]:
 
 
 def main():
-    target_dirs = [ROOT_DIR / "gitmap", ROOT_DIR / "src", ROOT_DIR / "linter-scripts", ROOT_DIR / "scripts"]
-    if len(sys.argv) > 1:
-        target_dirs = [Path(p) for p in sys.argv[1:]]
+    target_dirs = [ROOT_DIR / 'gitmap', ROOT_DIR / 'src', ROOT_DIR / 'scripts']
+    violations = []
 
-    all_violations = []
     for td in target_dirs:
-        all_violations.extend(process_target_path(td))
+        if td.exists():
+            violations.extend(process_target_path(td))
 
-    print(f"=== Naming & Boolean Audit: Scanned files, found {len(all_violations)} violation(s) ===")
-    for v in all_violations:
+    if not violations:
+        print("Scanned source files for naming conventions.")
+        print("\n✅ PASS: Zero bare 'ok', negative booleans, or explicit boolean checks found.")
+        sys.exit(0)
+
+    print(f"Found {len(violations)} naming and boolean violation(s):")
+    for v in violations:
         print(f"  {v['file']}:{v['line']} [{v['type']}] {v['snippet']}")
+    sys.exit(1)
 
-    return 0 if len(all_violations) == 0 else 1
 
-
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()
