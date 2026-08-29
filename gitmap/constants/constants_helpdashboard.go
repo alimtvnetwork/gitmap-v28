@@ -1,7 +1,7 @@
 package constants
 
 // Help-dashboard help text.
-const HelpHelpDashboard = "  help-dashboard (hd) Serve the docs site locally in your browser"
+const HelpHelpDashboard = "  help-dashboard (hd)  Serve the docs site locally in your browser"
 
 // Help-dashboard flag descriptions.
 const (

@@ -119,7 +119,7 @@ const (
 	HelpSEOEmail       = "  --email <addr>      Email address for template placeholders"
 	HelpSEOAddress     = "  --address <addr>    Physical address for template placeholders"
 	HelpSEOMaxCommits  = "  --max-commits <N>   Stop after N commits (0 = unlimited, default: 0)"
-	HelpSEOInterval    = "  --interval <min-max> Random delay in seconds (default: 60-120)"
+	HelpSEOInterval    = "  --interval <min-max>  Random delay in seconds (default: 60-120)"
 	HelpSEOFilesFlag   = "  --files <glob>      Glob pattern to select files for staging"
 	HelpSEORotate      = "  --rotate-file <f>   File to modify in rotation mode"
 	HelpSEODryRunFlag  = "  --dry-run           Preview commit messages without executing"

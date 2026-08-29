@@ -18,7 +18,7 @@ const (
 // Clone-fix-repo help-line entries surfaced by `gitmap help`.
 const (
 	HelpCloneFixRepo    = "  clone-fix-repo (cfr) <url> [folder]      Clone, then run fix-repo " + ColorCyan + ColorCyan + "--all" + ColorReset + ColorReset + " in the new folder"
-	HelpCloneFixRepoPub = "  clone-fix-repo-pub (cfrp) <url> [folder] Clone, fix-repo " + ColorCyan + ColorCyan + "--all" + ColorReset + ColorReset + ", then make-public " + ColorCyan + ColorCyan + "--yes" + ColorReset + ColorReset
+	HelpCloneFixRepoPub = "  clone-fix-repo-pub (cfrp) <url> [folder]  Clone, fix-repo " + ColorCyan + ColorCyan + "--all" + ColorReset + ColorReset + ", then make-public " + ColorCyan + ColorCyan + "--yes" + ColorReset + ColorReset
 )
 
 // Clone-fix-repo user-facing messages and errors.

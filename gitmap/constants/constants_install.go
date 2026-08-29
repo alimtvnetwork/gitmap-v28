@@ -11,8 +11,8 @@ const (
 
 // Install help text.
 const (
-	HelpInstall   = "  install (in) <tool> Install a developer tool by name"
-	HelpUninstall = "  uninstall (un) <tool> Remove a previously installed tool"
+	HelpInstall   = "  install (in) <tool>    Install a developer tool by name"
+	HelpUninstall = "  uninstall (un) <tool>  Remove a previously installed tool"
 )
 
 // Supported tool names — Core.

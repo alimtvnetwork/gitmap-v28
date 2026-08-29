@@ -8,7 +8,7 @@ const (
 )
 
 // Version history help text.
-const HelpVersionHistory = "  version-history (vh) Show version transitions for the current repo (--limit N, --json)"
+const HelpVersionHistory = "  version-history (vh)  Show version transitions for the current repo (--limit N, --json)"
 
 // Version history terminal output.
 const (

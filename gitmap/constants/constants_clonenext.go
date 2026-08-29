@@ -79,7 +79,7 @@ const (
 	HelpCNCSV          = "  --csv <path>        Batch mode: read repo list from CSV (one path per row)"
 	HelpCNAll          = "  --all               Batch mode: cn every git repo one level under cwd"
 	HelpCNForce        = "  --force, -f         Force flatten when cwd IS the target folder (no versioned fallback)"
-	HelpCNMaxConc      = "  --max-concurrency N Batch mode: run up to N repos in parallel (1 = sequential, default)"
+	HelpCNMaxConc      = "  --max-concurrency N  Batch mode: run up to N repos in parallel (1 = sequential, default)"
 )
 
 // Clone-next batch mode messages and statuses (v3.42.0+).
