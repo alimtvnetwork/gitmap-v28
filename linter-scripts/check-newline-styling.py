@@ -51,7 +51,7 @@ def check_file(filepath):
                 next_line = lines[i+1].strip()
                 # If next line is not empty and not part of the same construct (else, catch, etc.)
                 if (next_line != '' and 
-                    not next_line.startswith(('}', 'else', 'catch', 'finally', ')', ']', ',', ';', '//', '/*', '</'))):
+                    not next_line.startswith(('}', 'else', 'catch', 'finally', ')', ']', ',', ';', '//', '/*', '</', '|', '&'))):
                     violations.append((i + 1, "Blank line required after '}' if followed by more code"))
                     
         # 5. Check for \n in Go files
