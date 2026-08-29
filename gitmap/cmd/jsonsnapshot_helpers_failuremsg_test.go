@@ -157,8 +157,8 @@ func pureCollectObjectKeys(dec *json.Decoder, objIdx int) ([]string, error) {
 
 			return nil, fmt.Errorf("reading object[%d] key: %w", objIdx, err)
 		}
-		key, ok := tok.(string)
-		if !ok {
+		key, isString := tok.(string)
+		if !isString {
 
 			return nil, fmt.Errorf("object[%d] expected string key, got %v (%T)", objIdx, tok, tok)
 		}
