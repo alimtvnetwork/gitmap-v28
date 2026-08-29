@@ -56,25 +56,32 @@ func WriteReportJSON(results []Result) (string, error) {
 	return abs, nil
 }
 
+// TermSummaryParams encapsulates parameters for rendering a terminal summary.
+type TermSummaryParams struct {
+	Writer   io.Writer
+	Results  []Result
+	CsvPath  string
+	JsonPath string
+}
+
 // RenderSummaryTerminal writes the enriched terminal-mode summary
 // block. csvPath / jsonPath may each be empty (write skipped or
 // failed); the renderer substitutes a single "(skipped …)" line
 // when BOTH are empty so the report section never disappears
 // entirely. Returns the first write error so a closed pipe
 // surfaces immediately instead of silently truncating.
-func RenderSummaryTerminal(w io.Writer, results []Result,
-	csvPath, jsonPath string) error {
-	if err := writeTermSummaryHead(w, results); err != nil {
+func RenderSummaryTerminal(params TermSummaryParams) error {
+	if err := writeTermSummaryHead(params.Writer, params.Results); err != nil {
 		return err
 	}
-	if err := writeTermSummarySchemes(w, results); err != nil {
+	if err := writeTermSummarySchemes(params.Writer, params.Results); err != nil {
 		return err
 	}
-	if err := writeTermSummaryStatus(w, results); err != nil {
+	if err := writeTermSummaryStatus(params.Writer, params.Results); err != nil {
 		return err
 	}
 
-	return writeTermSummaryReports(w, csvPath, jsonPath)
+	return writeTermSummaryReports(params.Writer, params.CsvPath, params.JsonPath)
 }
 
 // writeTermSummaryHead emits the banner + the "found N repo(s)"

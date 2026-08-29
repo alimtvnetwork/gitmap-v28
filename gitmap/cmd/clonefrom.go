@@ -219,7 +219,12 @@ func syncCloneFromResultsToVSCodePM(results []clonefrom.Result, skip bool) {
 
 func renderSummary(output string, results []clonefrom.Result, csvPath, jsonPath string) error {
 	if output == constants.OutputTerminal {
-		return clonefrom.RenderSummaryTerminal(os.Stdout, results, csvPath, jsonPath)
+		return clonefrom.RenderSummaryTerminal(clonefrom.TermSummaryParams{
+			Writer:   os.Stdout,
+			Results:  results,
+			CsvPath:  csvPath,
+			JsonPath: jsonPath,
+		})
 	}
 	return clonefrom.RenderSummary(os.Stdout, results, csvPath)
 }

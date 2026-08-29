@@ -42,7 +42,13 @@ func TestRenderSummaryTerminal_FullBlock(t *testing.T) {
 		{Status: constants.CloneFromStatusFailed, Row: Row{URL: "ssh://h/d.git"}, Detail: "boom"},
 	}
 	var buf bytes.Buffer
-	if err := RenderSummaryTerminal(&buf, results, "/r/x.csv", "/r/x.json"); err != nil {
+	summaryParams := TermSummaryParams{
+		Writer:   &buf,
+		Results:  results,
+		CsvPath:  "/r/x.csv",
+		JsonPath: "/r/x.json",
+	}
+	if err := RenderSummaryTerminal(summaryParams); err != nil {
 		t.Fatalf("RenderSummaryTerminal: %v", err)
 	}
 	out := buf.String()
@@ -75,7 +81,13 @@ func TestRenderSummaryTerminal_FullBlock(t *testing.T) {
 // placeholder line so log scrapers can pin the section's presence.
 func TestRenderSummaryTerminal_NoReportPlaceholder(t *testing.T) {
 	var buf bytes.Buffer
-	_ = RenderSummaryTerminal(&buf, nil, "", "")
+	summaryParams := TermSummaryParams{
+		Writer:   &buf,
+		Results:  nil,
+		CsvPath:  "",
+		JsonPath: "",
+	}
+	_ = RenderSummaryTerminal(summaryParams)
 	if !strings.Contains(buf.String(), "(skipped") {
 		t.Errorf("missing placeholder line:\n%s", buf.String())
 	}

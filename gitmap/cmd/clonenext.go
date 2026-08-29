@@ -140,7 +140,11 @@ func runCloneNext(args []string) error {
 	// flat layout and got two siblings instead).
 	removeExistingTargetFolder(targetPath, flattenedFolder)
 
-	handleCreateRemote(cnFlags.CreateRemote, remoteURL, targetName)
+	handleCreateRemote(CreateRemoteParams{
+		IsCreateRemote: cnFlags.CreateRemote,
+		RemoteURL:      remoteURL,
+		TargetName:     targetName,
+	})
 
 	// Dry-run gate: print the planned clone command and exit BEFORE
 	// any side effect (clone, removal, DB write, GH Desktop, VS Code,
@@ -242,17 +246,24 @@ func removeExistingTargetFolder(targetPath string, flattenedFolder string) {
 	}
 }
 
-func handleCreateRemote(createRemote bool, remoteURL string, targetName string) {
-	if !createRemote {
+// CreateRemoteParams encapsulates parameters for remote creation.
+type CreateRemoteParams struct {
+	IsCreateRemote bool
+	RemoteURL      string
+	TargetName     string
+}
+
+func handleCreateRemote(params CreateRemoteParams) {
+	if !params.IsCreateRemote {
 		return
 	}
-	owner, _, parseErr := clonenext.ParseOwnerRepo(remoteURL)
+	owner, _, parseErr := clonenext.ParseOwnerRepo(params.RemoteURL)
 	if parseErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRemoteParse, parseErr)
 		exitWith(1)
 	}
 
-	exists, checkErr := clonenext.RepoExists(owner, targetName)
+	exists, checkErr := clonenext.RepoExists(owner, params.TargetName)
 	if checkErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRepoCheck, checkErr)
 		exitWith(1)
@@ -261,13 +272,13 @@ func handleCreateRemote(createRemote bool, remoteURL string, targetName string) 
 		return
 	}
 
-	fmt.Printf(constants.MsgCloneNextCreating, targetName)
-	createErr := clonenext.CreateRepo(owner, targetName, true)
+	fmt.Printf(constants.MsgCloneNextCreating, params.TargetName)
+	createErr := clonenext.CreateRepo(owner, params.TargetName, true)
 	if createErr != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRepoCreate, targetName, createErr)
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRepoCreate, params.TargetName, createErr)
 		exitWith(1)
 	}
-	fmt.Printf(constants.MsgCloneNextCreated, targetName)
+	fmt.Printf(constants.MsgCloneNextCreated, params.TargetName)
 }
 
 // extractRepoName extracts the repository name from a remote URL.
