@@ -4,14 +4,17 @@ Status: completed
 Execution model: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 
 ## Context
+
 - Release policy: One release at the end, do not bump version per task.
 - Issues: .lovable/issues/01-clone-ui.md
 - Spec gaps: .lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md
 
 ## CI/CD verification
+
 None for now.
 
 ## Coding Guideline Checklist
+
 | Topic                            | Single source file                                                          | Duplicates found |
 | canonical size tier              | n/a             | none             |
 | boolean naming prefixes          | n/a      | none |
@@ -43,4 +46,3 @@ None for now.
 | ci guards                        | n/a        | none             |
 | contract + e2e testing           | n/a       | none       |
 | static analysis / sarif          | n/a          | none             |
-

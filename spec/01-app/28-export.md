@@ -28,11 +28,14 @@ gitmap export [file]
 **Examples:**
 
 ```bash
+
 # Export to default file
+
 gitmap export
 gitmap ex
 
 # Export to custom path
+
 gitmap export backup-2026-03.json
 ```
 

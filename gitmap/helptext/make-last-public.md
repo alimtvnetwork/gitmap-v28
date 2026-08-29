@@ -24,13 +24,17 @@ gitmap MLPRI             <owner-or-url> <base>  [-Y|--yes]
 ## Examples
 
 ```
+
 # Flip the newest macro-ahk-vN repo public:
+
 gitmap make-last-public https://github.com/alimtvnetwork macro-ahk
 
 # Same, scripted (no prompt):
+
 gitmap MLPUB alimtvnetwork macro-ahk -Y
 
 # Exact form — no lookup needed:
+
 gitmap make-last-private alimtvnetwork macro-ahk-v51
 ```
 

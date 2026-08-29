@@ -3,6 +3,7 @@
 **Status:** All phases complete (v4.18.0). End-to-end orchestration, pipeline polish, and CLI integration all landed.
 
 ## Produced
+
 - `spec/03-commit-in/` — README + 7 iteration files (overview / CLI / pipeline / DB+ERD / profiles+JSON / message+fn-intel / acceptance).
 - `.lovable/plan.md` — appended 7-phase gated implementation plan.
 - `.lovable/memory/features/commit-in.md` + index entry.
@@ -10,6 +11,7 @@
 - Strictly-prohibited entries #3, #4.
 
 ## Decisions (resolves prompt's ambiguity list)
+
 1. `all` / `-N` scope: parent dir of `<source>`.
 2. Plain `<base>` walks first as `v0`, then ascending `v1..vK`.
 3. `--exclude` per-commit BEFORE staging; existing tracked files untouched.
@@ -20,15 +22,18 @@
 8. `--save-profile` overwrite refused unless `--save-profile-overwrite`.
 
 ## Source-repo auto-init precedence (frozen, no flag, no prompt)
+
 1. URL → `git clone` into `CWD/<basename>`.
 2. Existing repo → reuse.
 3. Existing non-repo folder → `git init` in place.
 4. Missing path → `mkdir -p && git init`.
 
 ## Verbatim user prompt
+
 The original 2026-05-06 user message ("Complete it in 7 iterations…") is the single source of truth — see git history of this file rather than duplicating the prose to avoid drift.
 
 ## Progress
+
 - 2026-05-06 — **Phase 1 ✅** Constants + typed enums + parity tests landed.
   Files: gitmap/constants/constants_commitin.go, gitmap/cmd/commitin/enums.go,
   gitmap/cmd/commitin/enums_test.go; edits to constants_cli.go and

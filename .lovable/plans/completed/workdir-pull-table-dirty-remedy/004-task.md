@@ -5,7 +5,9 @@ phase: Implement
 target_files: ["gitmap/store/workdir_default.go"]
 depends_on: ["Task 003" if int(num) > 1 else "None"]
 ---
+
 # Task 004 — Store WorkDir Set Default
 
 ## 1. Goal
+
 Set and query active default work directory in `store/workdir_default.go`.

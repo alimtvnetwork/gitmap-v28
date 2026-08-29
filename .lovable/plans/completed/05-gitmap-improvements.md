@@ -3,6 +3,7 @@
 This plan details the resolution of the reported bugs, the UI/UX improvements to the CLI, and the architecture for the new Multi-Machine Join feature. It breaks the requirements down into granular tasks for execution.
 
 ## Open Questions
+
 > [!WARNING]
 > **Multi-VM Join Security & Architecture:**
 > 1. Should the connection between machines be secured with TLS, or is plain TCP/HTTP acceptable for internal networks?
@@ -12,6 +13,7 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 ## Proposed Changes
 
 ### Phase 1: Bug Fixes & Version Normalization
+
 *Fixing the double 'v' issue and ensuring semantic versioning is strictly followed during releases.*
 
 - [ ] 1.1 Locate the version parsing logic in the `release` command.
@@ -26,6 +28,7 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [ ] 1.10 End-to-end test a dummy release with a malformed version number.
 
 ### Phase 2: Gitmap Status UI Enhancements
+
 *Improving the alignment, clarity, and readability of the `gitmap status` command.*
 
 - [ ] 2.1 Audit the current `status` command terminal output logic.
@@ -40,6 +43,7 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [ ] 2.10 Test the status UI with exceptionally long branch names.
 
 ### Phase 3: Gitmap Scan & JSON Export Flow
+
 *Making repo discovery portable and self-documenting.*
 
 - [ ] 3.1 Update `gitmap scan` to automatically export a portable JSON file (`gitmap.json`) to the current working directory or a specified path.
@@ -51,6 +55,7 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [ ] 3.7 Add instructions on how to securely transfer the JSON file between machines via SSH or network.
 
 ### Phase 4: Gitmap Clone Upgrades & Parallel UI
+
 *Creating a 30-step UI and logic upgrade for parallel cloning/pulling.*
 
 **Logic Upgrades:**
@@ -90,6 +95,7 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [x] 4.32 Trigger `gitmap status` automatically on the target directory upon successful completion of the clone/pull batch.
 
 ### Phase 5: Parallel Git Push/Pull All UI
+
 *Extending the clone UI to standard push/pull all commands.*
 
 - [x] 5.1 Adapt the bounded worker pool from Phase 4 for `gitmap pull --all`.
@@ -100,6 +106,7 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 - [x] 5.6 Automatically trigger `gitmap status` on the directory once all parallel pushes/pulls finish.
 
 ### Phase 6: Multi-Machine Join (Networked Gitmap)
+
 *Research and implementation plan for the Kubernetes-like VM joining feature.*
 
 **Research & Architecture:**
@@ -129,10 +136,12 @@ This plan details the resolution of the reported bugs, the UI/UX improvements to
 ## Verification Plan
 
 ### Automated Tests
+
 - Test version normalization logic covering all permutations of `v`.
 - Test `gitmap.json` deserialization and path resolving logic.
 
 ### Manual Verification
+
 - Simulate a multi-repo directory, run `gitmap status` and verify alignment with varying branch name lengths.
 - Run `gitmap clone gitmap.json` with a mix of existing repos, missing repos, and clean flags to verify interactive prompts and safe-pulls.
 - Test the parallel UI by throttling network speeds to ensure spinners and progress bars render correctly without artifacts.

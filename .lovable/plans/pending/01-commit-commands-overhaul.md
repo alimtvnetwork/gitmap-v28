@@ -1,9 +1,11 @@
 # Master Plan: Commit Commands Overhaul
 
 ## Overview
+
 Overhaul the commit-in, commit-left, and commit-right command trio to support advanced history manipulation, pull request integration, and enhanced terminal rendering.
 
 ## Architecture & Scope
+
 1. **Help Text Enhancement**:
    - Update constants_commithelp.go or equivalent to include detailed examples for commit-in, commit-left, commit-right.
    - Add examples showing how to rewrite commit history.
@@ -28,4 +30,5 @@ elease).
 eadme.md, update architecture map, and commit.
 
 ## Subtasks Mapping
+
 See .lovable/plans/subtasks/01-commit-commands-overhaul/ for detailed subtasks.

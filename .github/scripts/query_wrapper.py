@@ -27,5 +27,3 @@ def query_wrapper(operation: Callable[..., Any], *args, **kwargs) -> Dict[str, A
             "is_success": False,
             "is_fail": True
         }
-
-

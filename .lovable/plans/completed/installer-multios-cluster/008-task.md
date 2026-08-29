@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 008 — Dedicated OS Install CLI
 
 ## 1. Goal
+
 CLI commands install-ubuntu, install-arch, install-centos, install-debian, install-fedora, install-mac, install-unix in `cmd/installer_os_cmds.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `cmd/installer_os_cmds.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestDedicatedOSInstallCLI
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

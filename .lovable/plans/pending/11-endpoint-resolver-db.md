@@ -1,6 +1,7 @@
 # 11 Endpoint Resolver DB Upgrade
 
 ## Parent Task Goal
+
 Enhance the global endpoint resolution logic in Gitmap so that commands (especially `commit-right`, `commit-left`, `commit-both`, `open`, `inject`, etc.) can seamlessly resolve repositories using five modalities:
 1. ID of the repo (from the SQLite DB)
 2. Alias (from the SQLite DB)
@@ -9,6 +10,7 @@ Enhance the global endpoint resolution logic in Gitmap so that commands (especia
 5. URL (HTTPS, SSH, git@)
 
 ## Architectural Plan
+
 1. **Core Resolution Logic:**
    - Create `gitmap/cmd/resolver.go`.
    - Implement `func ResolveEndpointString(raw string) string` which orchestrates the resolution.
@@ -36,6 +38,7 @@ Enhance the global endpoint resolution logic in Gitmap so that commands (especia
      - Update memory and specifications.
 
 ## Code Review Guide
+
 - Do not swallow errors; use `apperror`.
 - Ensure no cyclic dependencies between `cmd`, `store`, and `movemerge`.
 - Boolean variables must be prefixed with `is`, `has`, `should`, or `can`.

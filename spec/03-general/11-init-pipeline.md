@@ -91,13 +91,17 @@ See the inner scripts' specs for the full code tables:
 ## Examples
 
 ```
+
 # Standard bootstrap (Windows)
+
 .\init.ps1
 
 # Standard bootstrap (POSIX)
+
 ./init.sh
 
 # Preview both steps without touching anything
+
 ./init.sh --dry-run
 ```
 

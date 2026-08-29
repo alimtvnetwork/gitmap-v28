@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 017 � Implement StatusID - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 17
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 17
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 17
 - [Custom Link 17](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 17
 
 ## 2. Goal
+
 Isolate StatusID logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes StatusIDRequest, emits StatusIDResponse.
 
 ## 4. Execute
+
 1. Define 	ype StatusIDPart1 struct { ... } in gitmap/cmd/status_id.go.
 2. Define unc InitStatusIDPart1() error in gitmap/cmd/status_id.go.
 3. Define unc (x *StatusIDPart1) Process17() bool in gitmap/cmd/status_id.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitStatusIDPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype StatusIDPart1 is defined
 - [ ] unc InitStatusIDPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

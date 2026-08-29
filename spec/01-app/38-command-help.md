@@ -40,6 +40,7 @@ gitmap-v28/helptext/release.md
 Every help file follows this structure:
 
 ```markdown
+
 # gitmap-v28 <command>
 
 <One-line description>

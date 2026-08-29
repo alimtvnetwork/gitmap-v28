@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 011 — Git Direct Export Engine
 
 ## 1. Goal
+
 Export to local folder and auto-commit to Git in `installer/export_git.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `installer/export_git.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestGitDirectExportEngine
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

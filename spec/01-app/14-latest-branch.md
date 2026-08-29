@@ -105,6 +105,7 @@ feature/v1.5.1,origin,a1b2c3d,06-Mar-2025 03:22 PM,Fix auth token refresh,origin
 main,origin,d4e5f6a,05-Mar-2025 09:10 AM,Merge PR #42,origin/main
 release/v2.3.0,origin,b7c8d9e,04-Mar-2025 05:45 PM,Bump version,origin/release/v2.3.0
 ```
+
 ### With `--json` (or `--format json`)
 
 ```json

@@ -1,9 +1,11 @@
 # Gitmap Open Command & Global Error Management Refactor
 
 ## Parent Task Goal
+
 Implement `gitmap open <file|folder|url|mail>` for cross-platform execution and refactor the entire `cmd` package to return typed `*apperror.AppError` values from command handlers (`runXxx` functions), preventing abrupt `os.Exit` calls and allowing centralized error logging.
 
 ## Core Requirements
+
 1. **Error Management**: 
    - Refactor `dispatchEntry` in `rootdispatch.go` to use `handler func() *apperror.AppError` (or `error`).
    - Refactor all `runXxx` functions across `gitmap/cmd/*.go` to return `error` or `*apperror.AppError` instead of `void`.

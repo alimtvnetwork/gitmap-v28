@@ -126,7 +126,9 @@ Repeat for each Windows target (amd64 and arm64).
 The `gitmap-updater` Windows binaries should also be signed:
 
 ```yaml
+
 # Sign both gitmap-v28 and gitmap-updater Windows builds
+
 WINDOWS_BINARIES=(
   "dist/gitmap-windows-amd64.exe"
   "dist/gitmap-windows-arm64.exe"
@@ -161,13 +163,19 @@ The checksum must reflect the signed binary, not the unsigned one.
 After a signed release, verify on Windows:
 
 ```powershell
+
 # Check digital signature
+
 Get-AuthenticodeSignature .\gitmap.exe
 
 # Expected output:
+
 # SignerCertificate: [Thumbprint]  Riseup Asia LLC
+
 # Status:           Valid
+
 # StatusMessage:    Signature verified.
+
 ```
 
 ### CI Verification

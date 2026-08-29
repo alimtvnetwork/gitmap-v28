@@ -3,6 +3,7 @@
 Searches file contents using the cached DB.
 
 ## Why use this instead of shell commands?
+
 Instead of running an expensive recursive search or complex pipeline:
 `Get-ChildItem -Path gitmap/store -Filter *.go | Select-String "OpenDefault"`
 `Get-ChildItem -Path gitmap -Recurse -File | Select-String "type SearchResult struct"`
@@ -14,6 +15,7 @@ Use the high-speed cached DB to instantly find references:
 `gitmap repo-search "OpenDefault"`
 
 ## Examples
+
 ```bash
 gitmap repo-search "constants.go"
 gitmap repo-search "OpenDefault"

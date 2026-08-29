@@ -3,6 +3,7 @@ name: uninstall-quick-scripts
 description: Root-level uninstall-quick.ps1 / uninstall-quick.sh one-liner uninstallers that wrap `gitmap self-uninstall` with a manual-sweep fallback. Mirror install-quick.* layout.
 type: feature
 ---
+
 # Uninstall quick scripts
 
 Two new root-level scripts mirror `install-quick.ps1` / `install-quick.sh`:

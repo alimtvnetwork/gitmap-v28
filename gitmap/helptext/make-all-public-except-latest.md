@@ -38,13 +38,17 @@ For every base group with 2+ versioned siblings:
 ## Examples
 
 ```
+
 # All myapp-vN public, but myapp-v<latest> goes private
+
 gitmap make-all-public-except-latest alice "myapp-v*" -Y
 
 # Same for two base groups at once, parallel 16
+
 gitmap make-all-public-except-latest alice "demo-v*,api-v*" --parallel=16 -Y
 
 # Uppercase shorthand
+
 gitmap MAPUBXL alice "demo-v*"
 ```
 

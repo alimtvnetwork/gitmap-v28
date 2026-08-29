@@ -6,12 +6,14 @@ Status: completed
 Created: 2026-08-20
 
 ## Context
+
 The user requested better terminal visualization with more coloring for dashboard commands, a new `--recent` flag to filter recent items, and an update to the interactive HTML UI App (`dashboard.html`) to prominently display these recent items. All new flags and features must be documented in the corresponding help texts. Affected files span CLI parsing, data collection, HTML templates, and Markdown documentation.
 Links:
 - Spec: [.lovable/spec/tasks/08-dashboard-recent-and-terminal-ui.md](.lovable/spec/tasks/08-dashboard-recent-and-terminal-ui.md)
 - Adheres to: `.lovable/coding-guidelines.md`
 
 ## Steps
+
 1. Group 1: Constants and Configuration Update (Execute via standalone agent "Config Updater"). Read `gitmap/constants/constants_dashboard.go`.
 2. In `gitmap/constants/constants_dashboard.go`, define `FlagRecent` string constant with the value `"recent"`.
 3. In `gitmap/constants/constants_dashboard.go`, define `FlagDescDashRecent` string constant with the value `"Show and highlight recent items only (e.g., last 7 days)"`.
@@ -44,9 +46,11 @@ Links:
 30. Execute the release ceremony per `11-release.md` (bump MINOR version, update changelog with the whole plan summary, pin new version in root README), and immediately commit and push the final release.
 
 ## Verification
+
 - Run `gitmap dashboard --recent` and ensure terminal output utilizes colors.
 - Open the resulting HTML file and verify the "Recent Items" tab is active and populated.
 - Review `gitmap help dashboard` to verify `--recent` is documented.
 
 ## Appended from prior pending tasks
+
 none

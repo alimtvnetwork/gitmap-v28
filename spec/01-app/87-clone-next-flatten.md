@@ -55,7 +55,6 @@ contract that the user accepts losing their cwd in exchange for a
 guaranteed-flat layout.
 
 
-
 ---
 
 ## Folder Name Resolution
@@ -93,8 +92,11 @@ The target clone folder is the base name only, at the same parent
 directory level as the current folder:
 
 ```
+
 # Current: /projects/macro-ahk-v15/
+
 # Target:  /projects/macro-ahk/
+
 ```
 
 ---
@@ -232,52 +234,79 @@ be logged to `os.Stderr` using the standardized format.
 ### Basic Clone-Next (Flattened)
 
 ```bash
+
 # In /projects/macro-ahk-v15/
+
 gitmap-v28 cn v+1
 
 # Result:
+
 #   Cloned macro-ahk-v16 into macro-ahk/
+
 #   DB: CurrentVersionTag="v16", CurrentVersionNum=16
+
 #   History: v15 -> v16
+
 #   Shell navigates to /projects/macro-ahk/
+
 ```
 
 ### Clone-Next with Delete
 
 ```bash
+
 # In /projects/macro-ahk-v15/
+
 gitmap-v28 cn v+1 --delete
 
 # Result:
+
 #   Cloned macro-ahk-v16 into macro-ahk/
+
 #   Deleted /projects/macro-ahk-v15/
+
 #   DB and history updated as above
+
 ```
 
 ### Repeated Clone-Next (v16 -> v17)
 
 ```bash
+
 # In /projects/macro-ahk/ (flattened from v16)
+
 gitmap-v28 cn v+1
 
 # Result:
+
 #   Removes /projects/macro-ahk/
+
 #   Clones macro-ahk-v17 into macro-ahk/
+
 #   DB: CurrentVersionTag="v17", CurrentVersionNum=17
+
 #   History: v16 -> v17
+
 ```
 
 ### No Version Suffix
 
 ```bash
+
 # In /projects/some-tool/
+
 gitmap-v28 cn v+1
 
 # Result:
+
 #   Removes /projects/some-tool/
+
 #   Clones some-tool-v2 into some-tool/
+
 #   DB: CurrentVersionTag="v2", CurrentVersionNum=2
+
 #   History: v1 -> v2
+
 ```
 
 ---
@@ -290,13 +319,21 @@ Use `gitmap-v28 version-history` (`vh`) to see all recorded transitions:
 gitmap-v28 vh
 
 # Output:
+
 # Version history for D:\wp-work\riseup-asia\macro-ahk:
+
 #
+
 # FROM        TO          FOLDER                    TIMESTAMP
+
 # v15         v16         macro-ahk                 2026-04-16T10:30:00Z
+
 # v16         v17         macro-ahk                 2026-04-16T14:22:00Z
+
 #
+
 # 2 transition(s) recorded.
+
 ```
 
 ---

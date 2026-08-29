@@ -15,7 +15,9 @@ After every successful deploy, the build script (`run.ps1` / `run.sh`)
 calls a hidden CLI command to persist the current repo root in the database.
 
 ```
+
 # run.ps1 — after Deploy-Binary completes:
+
 & <deployed-binary> set-source-repo <repo-root>
 ```
 
@@ -52,7 +54,9 @@ tool set-source-repo <path>
 After the `Deploy-Binary` function completes successfully:
 
 ```powershell
+
 # Sync source repo path in DB so "gitmap-v28 update" uses this repo location
+
 $syncBinary = $destFile
 if (-not (Test-Path $syncBinary)) { $syncBinary = $BinaryPath }
 if (Test-Path $syncBinary) {

@@ -1,12 +1,15 @@
 # Issue 04: Database Written to Scan Output Directory Instead of Binary Location
 
 ## Date
+
 2026-03-15
 
 ## Severity
+
 High — data integrity and portability issue.
 
 ## Symptom
+
 Running `gitmap-v28 scan` creates the SQLite database at `<CWD>/.gitmap/output/data/gitmap.db`
 inside the scan output directory, instead of at `<binary-location>/data/gitmap.db`. This
 means:
@@ -16,6 +19,7 @@ means:
   scanned from a different CWD.
 
 ## Root Cause
+
 `store.Open(outputDir)` accepted a directory parameter and resolved the DB path as
 `outputDir/data/gitmap.db`. All 13 callers across the codebase passed CWD-relative
 constants like `constants.DefaultOutputDir` ("./.gitmap/output") or
@@ -23,6 +27,7 @@ constants like `constants.DefaultOutputDir` ("./.gitmap/output") or
 on the working directory rather than the binary's physical installation location.
 
 ### Affected Callers (13 total)
+
 | File | Function | Previous Path |
 |------|----------|---------------|
 | `cmd/scan.go` | `upsertToDB` | `<outputDir>/data/gitmap.db` |
@@ -40,6 +45,7 @@ on the working directory rather than the binary's physical installation location
 | `cmd/interactive.go` | `runInteractive` | `constants.DefaultDBPath` (undefined) |
 
 ## Solution
+
 1. Created `store/location.go` with `BinaryDataDir()` — resolves the executable's
    physical location via `os.Executable()` + `filepath.EvalSymlinks()`, then appends
    `/data/` to get the stable database directory.
@@ -58,12 +64,14 @@ on the working directory rather than the binary's physical installation location
    - `resolveDefaultOutputDir()` in `cmd/projectrepos.go`
 
 ## Correct Behavior After Fix
+
 - Database always lives at `<binary-dir>/data/gitmap.db`
 - Scan output files (CSV, JSON, scripts) still write to the user-specified
   output directory (unchanged behavior)
 - All commands see the same database regardless of CWD
 
 ## Learnings
+
 - Database paths must be anchored to the binary's installation directory, not CWD.
 - When a path constant is used by many callers, a single wrong default propagates
   silently across the entire codebase.

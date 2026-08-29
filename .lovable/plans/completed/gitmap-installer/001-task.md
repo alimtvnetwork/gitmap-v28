@@ -23,44 +23,53 @@ citations:
   ambiguity: "n/a — no ambiguity filed"
   issue_rca: "n/a — not a bugfix"
 ---
+
 # Task 001 — Define Installer Models
 
 ## 1. Learn
+
 - Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for InstallerScript, InstallerVersion.
 - Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/model/installer.go` remains concisely sized.
 - Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
 - Inspect `gitmap/model/installer.go` dependencies to see how InstallerScript, InstallerVersion interacts with its callers.
 
 ## 2. Goal
+
 The objective is to implement `InstallerScript, InstallerVersion` natively in `gitmap/model/installer.go`. This explicitly unblocks downstream operations dependent on `Define Installer Models` in the Contract domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
+
 - Exported Symbols: `InstallerScript, InstallerVersion`
 - Package: `model`
 - Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
+
 1. Open `gitmap/model/installer.go`.
 2. Implement the required structure, type, or function for `InstallerScript, InstallerVersion`.
 3. Write unit tests for success and failure boundaries in `gitmap/model/installer_test.go`.
 4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
+
 - Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
 - Error wrapping must include stack traces.
 
 ## 6. Verify
+
 ```bash
 go test ./model -run TestInstallerModel
 ```
 Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
+
 - [ ] `InstallerScript, InstallerVersion` is successfully mapped and tested in `gitmap/model/installer.go`.
 - [ ] All CI and `go test` commands exit zero.
 - [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

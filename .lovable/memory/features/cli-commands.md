@@ -1,4 +1,5 @@
 # Memory: features/cli-commands
+
 Updated: now
 
 The CLI supports 60 subcommands with aliases: 'scan' (s), 'clone' (c), 'clone-next' (cn), 'pull' (p), 'rescan' (rsc), 'setup', 'status' (st), 'exec' (x), 'desktop-sync' (ds), 'release' (r), 'release-self' (rs/rself), 'release-branch' (rb), 'release-pending' (rp), 'latest-branch' (lb), 'list' (ls), 'group' (g), 'multi-group' (mg), 'db-reset', 'version' (v), 'changelog' (cl), 'list-versions' (lv), 'list-releases' (lr), 'revert', 'doctor', 'update', 'seo-write' (sw), 'amend' (am), 'amend-list' (al), 'history' (hi), 'history-reset' (hr), 'stats' (ss), 'bookmark' (bk), 'export' (ex), 'import' (im), 'profile' (pf), 'cd' (go), 'watch' (w), 'diff-profiles' (dp), 'gomod' (gm), 'go-repos' (gr), 'node-repos' (nr), 'react-repos' (rr), 'cpp-repos' (cr), 'csharp-repos' (csr), 'alias' (a), 'zip-group' (z), 'completion' (cmp), 'interactive' (i), 'clear-release-json' (crj), 'update-cleanup', 'has-any-updates' (hau/hac), 'docs' (d), 'changelog-generate' (cg), 'ssh', 'prune' (pr), 'temp-release' (tr), 'dashboard' (db), 'task' (tk), 'env' (ev), and 'install' (in). Current version: v2.48.1.

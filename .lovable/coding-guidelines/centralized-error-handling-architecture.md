@@ -28,11 +28,13 @@ Consider a typical code review diff encountered during refactoring:
 ```
 
 ### Why the Original Code (`panic("fatal error")`) is Wrong
+
 * **Magic String Noise**: `"fatal error"` provides zero operational intelligence. It fails to answer: *Which command failed? What parameters were provided? What precondition was violated?*
 * **Ugly Runtime Stack Dump**: In production CLI tools, an unhandled panic spills runtime stack frames across the user's terminal, eroding user trust.
 * **Bypasses Application Telemetry**: The application cannot record the failure into audit logs, database journals, or metrics pipelines.
 
 ### Why the AI Modification (`os.Exit(1)`) is Equally Wrong
+
 * **Silent Termination**: Calling `os.Exit(1)` directly terminates execution without printing structured diagnostic information.
 * **Loss of Domain Metadata**: The failure is never wrapped in an `AppError`. Information regarding who created the error, the error code (`E...`), the error category, and parameter context is discarded.
 * **Bypasses Lifecycle Cleanups**: Calling `os.Exit` immediately aborts the process, preventing deferred cleanup hooks (e.g., closing file descriptors, flushing buffered stdout/stderr pipes, releasing database locks) from executing.

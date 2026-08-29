@@ -24,42 +24,51 @@ citations:
   ambiguity: "n/a — spec is clear"
   issue_rca: "n/a — not a bug fix"
 ---
+
 # Task 091 — Define spec for unit component 091
 
 ## 1. Learn
+
 - [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 091 stays within size limits.
 - [App Spec](spec/21-app/04-json-contract/02-section-and-asset-schema.md) - Why read this: aligns data contracts.
 - [Naming](spec/02-coding-guidelines/08-file-folder-naming/golang.md) - Why read this: keeps file names compliant.
 
 ## 2. Goal
+
 This task handles the Define spec for of component 091. It interacts with specific data structures bound to identifier 1da51b8d8ff9. It will not mutate global state outside its sandbox.
 
 ## 3. Inputs and Contracts
+
 Input: `struct Input091 { ID string }`
 Output: `struct Output091 { Result bool }`
 Emits error codes: E_COMP_091_FAIL
 
 ## 4. Execute
+
 1. Create `gitmap/cmd/comp_091.go`.
 2. Define `func HandleComp091(in Input091) (Output091, error)`.
 3. Process data uniqueness string: bfa7634640c5.
 4. Return success.
 
 ## 5. Constraints
+
 - [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp091` under 50 lines.
 - [Rule 2](spec/03-error-manage/02-error-architecture/00-overview.md) - Always return properly wrapped `apperror`.
 - [Rule 3](.lovable/strictly-avoid.md) - Avoid panic.
 
 ## 6. Verify
+
 Run `go test ./cmd/... -run TestComp091`.
 Expected output: `PASS` and `ok gitmap/cmd`
 
 ## 7. Done When
+
 1. `HandleComp091` is implemented according to contract.
 2. The unit test passes without errors.
 3. No global mutation occurs.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

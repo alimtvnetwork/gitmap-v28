@@ -6,6 +6,7 @@
 - **Status**: resolved
 
 ## Error
+
 ```text
 Error: [gocritic] ifElseChain: rewrite if-else to switch statement (NEW vs baseline)
 Error: [gocritic] ifElseChain: rewrite if-else to switch statement (NEW vs baseline)
@@ -14,9 +15,11 @@ Error: Process completed with exit code 1.
 ```
 
 ## Root Cause
+
 Several newly touched and refactored files used multi-branch `if ... else if ... else ...` constructs instead of Go `switch` statements, triggering gocritic's `ifElseChain` rule in the diff against the baseline.
 
 ## Fix Applied
+
 1. Refactored `cluster/exec_install.go` to use `switch mgr` for package manager selection.
 2. Refactored `cmd/cg.go` to use `switch` in `resolveCGRepos`.
 3. Refactored `cmd/cg_worker.go` to use `switch` in `printCGUpdateSummary`.

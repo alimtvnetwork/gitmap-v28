@@ -29,6 +29,7 @@ release body, gated by a hidden HTML marker so re-runs are idempotent:
 
 ```html
 <!-- gitmap-pinned-install-snippet:v3.11.1 -->
+
 ## Install this exact version (v3.11.1)
 
 … powershell + bash code-fences …

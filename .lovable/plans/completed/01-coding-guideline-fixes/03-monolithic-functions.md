@@ -3,6 +3,7 @@
 According to the Coding Guidelines: Monolithic functions exceeding 15 lines should be refactored.
 
 ## Files to fix
+
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_monolithic.go:13: Monolithic function main exceeds 15 lines (34 lines)
 - d:\wp-work\riseup-asia\gitmap\.lovable\scratch\find_nested_ifs.go:13: Monolithic function main exceeds 15 lines (73 lines)
 - d:\wp-work\riseup-asia\gitmap\gitmap\archive\archive_test.go:12: Monolithic function TestFormatFromPath_DoubleExtensions exceeds 15 lines (16 lines)

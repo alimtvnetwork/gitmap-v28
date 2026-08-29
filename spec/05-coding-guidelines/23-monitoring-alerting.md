@@ -125,7 +125,9 @@ const metrics = {
 ### Alert Definition
 
 ```yaml
+
 # alert_rules.yml
+
 groups:
   - name: service_health
     rules:
@@ -244,15 +246,18 @@ Alert fires → Acknowledge (< 5 min) → Triage severity → Investigate
 ### Post-Mortem Template
 
 ```markdown
+
 # Incident: [Title]
 
 ## Summary
+
 - **Duration**: Start time – End time (total minutes)
 - **Severity**: SEV-X
 - **Impact**: What users experienced
 - **Detection**: How the incident was detected (alert name, user report)
 
 ## Timeline
+
 | Time | Event |
 |------|-------|
 | HH:MM | Alert fired |
@@ -262,9 +267,11 @@ Alert fires → Acknowledge (< 5 min) → Triage severity → Investigate
 | HH:MM | Fully resolved |
 
 ## Root Cause
+
 [Description of what caused the incident]
 
 ## Action Items
+
 | Action | Owner | Due Date |
 |--------|-------|----------|
 | [Fix] | [Name] | [Date] |

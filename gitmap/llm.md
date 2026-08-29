@@ -1,6 +1,7 @@
 
 
 ## AI File Search Patterns
+
 When searching codebases, LLMs can use native gitmap commands OR standard terminal tools.
 Here are equivalent alternative command samples for LLM search operations:
 
@@ -15,4 +16,3 @@ Here are equivalent alternative command samples for LLM search operations:
 - **Find specific function contexts**:
   - gitmap file-search cmd/root.go "func finishCommandAudit" 0 10
   - cat gitmap/cmd/root.go | Select-String "func finishCommandAudit" -Context 0,10
-

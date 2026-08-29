@@ -1,6 +1,7 @@
 # Root Cause Analysis: Release Skew Incident
 
 ## Incident Overview
+
 During the `v6.87.1` deployment cycle, the CI/CD pipeline correctly triggered but abruptly failed during the `Installer Smoke Test`, leaving a broken release published on GitHub without its requisite assets or patch notes.
 
 ## Technical Post-Mortem
@@ -11,6 +12,7 @@ During the `v6.87.1` deployment cycle, the CI/CD pipeline correctly triggered bu
 4. **Fatal Crash**: The workflow proceeded to the Installer Smoke Test phase. It executed the newly built binary expecting the output `gitmap v6.87.1`. The binary instead output `v6.87.0`. The script forcefully aborted (`Version mismatch. expected: v6.87.1, actual: v6.87.0`).
 
 ## Resolution & Prevention
+
 To resolve this, an orchestrating AI agent explicitly executed the **PowerShell Version Sweep** across all canonical files, pushed a `main` commit, and then issued a `v6.88.0` tag in series. 
 
 **Prevention Rule**: All future automated releases must adhere strictly to the procedures documented in `01-ai-release-synchronization.md`. Source control dictates the tag; tags never dictate the source control.

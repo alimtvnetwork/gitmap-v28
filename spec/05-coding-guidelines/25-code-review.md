@@ -46,6 +46,7 @@ quality gates to maintain code quality and knowledge sharing across teams.
 ### Description Template
 
 ```markdown
+
 ## What
 
 One-sentence summary of the change.
@@ -129,7 +130,9 @@ All PRs must pass these checks before merge is enabled:
 ### Branch Protection Rules
 
 ```yaml
+
 # GitHub branch protection
+
 main:
   required_reviews: 1
   dismiss_stale_reviews: true

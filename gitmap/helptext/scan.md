@@ -283,4 +283,3 @@ gitmap help --json --filter scan
 ```
 
 The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
-

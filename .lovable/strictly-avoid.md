@@ -29,5 +29,5 @@ Strictly avoid using flash model for high concurrency batches that exceed rate l
 
 
 ### No Shell Wrappers for Python Scripts
-Cross-platform Python scripts should be invoked natively via \python script.py\ in CI/CD workflows. **Strictly avoid** creating \.sh\ or \.ps1\ wrappers that simply forward arguments to a Python script, as these wrappers can fail unexpectedly in cross-platform GitHub Actions environments.
 
+Cross-platform Python scripts should be invoked natively via \python script.py\ in CI/CD workflows. **Strictly avoid** creating \.sh\ or \.ps1\ wrappers that simply forward arguments to a Python script, as these wrappers can fail unexpectedly in cross-platform GitHub Actions environments.

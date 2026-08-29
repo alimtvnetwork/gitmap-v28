@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 027 � Implement ErrorTracker - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 27
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 27
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 27
 - [Custom Link 27](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 27
 
 ## 2. Goal
+
 Isolate ErrorTracker logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes ErrorTrackerRequest, emits ErrorTrackerResponse.
 
 ## 4. Execute
+
 1. Define 	ype ErrorTrackerPart1 struct { ... } in gitmap/cmd/error_tracker.go.
 2. Define unc InitErrorTrackerPart1() error in gitmap/cmd/error_tracker.go.
 3. Define unc (x *ErrorTrackerPart1) Process27() bool in gitmap/cmd/error_tracker.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitErrorTrackerPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype ErrorTrackerPart1 is defined
 - [ ] unc InitErrorTrackerPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

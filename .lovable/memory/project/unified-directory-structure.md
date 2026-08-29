@@ -1,4 +1,5 @@
 # Memory: project/unified-directory-structure
+
 Updated: now
 
 All gitmap-related artifacts are consolidated under `.gitmap/` at the repository root:

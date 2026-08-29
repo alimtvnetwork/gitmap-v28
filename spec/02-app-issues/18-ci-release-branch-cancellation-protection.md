@@ -24,7 +24,9 @@ missing binaries, or partial metadata writes.
 ### Root Cause
 
 ```yaml
+
 # BEFORE — unconditional cancellation (broken for releases)
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -45,7 +47,9 @@ Replace the unconditional `true` with a conditional expression that
 evaluates to `false` for release branches:
 
 ```yaml
+
 # AFTER — conditional cancellation (correct)
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}

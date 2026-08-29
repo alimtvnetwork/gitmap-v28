@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 033 � Implement ErrorExport - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 33
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 33
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 33
 - [Custom Link 33](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 33
 
 ## 2. Goal
+
 Isolate ErrorExport logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes ErrorExportRequest, emits ErrorExportResponse.
 
 ## 4. Execute
+
 1. Define 	ype ErrorExportPart1 struct { ... } in gitmap/cmd/error_export.go.
 2. Define unc InitErrorExportPart1() error in gitmap/cmd/error_export.go.
 3. Define unc (x *ErrorExportPart1) Process33() bool in gitmap/cmd/error_export.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitErrorExportPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype ErrorExportPart1 is defined
 - [ ] unc InitErrorExportPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

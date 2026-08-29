@@ -1,6 +1,7 @@
 # CG and Macro Extension Installer
 
 ## Context
+
 Implementing automated installation of Coding Guidelines (CG) and external Macro Extensions via CLI commands.
 Includes OS-aware shell execution (PowerShell/Unix) and workspace-aware --except logic.
 
@@ -15,9 +16,11 @@ Max 2 agents, max 3 threads per agent.
 Steps: 50
 
 ## CI/CD verification
+
 Cli: linter-scripts/check-go-fmt.sh, linter-scripts/run.sh
 
 ## Coding-guideline single-file checklist
+
 | Topic | Single source file | Duplicates found |
 |---|---|---|
 | canonical size tier | spec/02-coding-guidelines/00-canonical-size-tier.md | none |

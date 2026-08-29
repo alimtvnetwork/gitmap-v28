@@ -58,6 +58,7 @@ Same as `history-purge`.
 
 - `history-purge` (`hp`) — Remove file(s) from all history
 - `fix-repo` (`fr`) — Rewrite versioned-token strings, no history rewrite
+
 ## Scripting (JSON)
 
 Discover this command from a script using the machine-readable help payload:

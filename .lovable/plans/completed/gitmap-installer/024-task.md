@@ -23,44 +23,53 @@ citations:
   ambiguity: "n/a — no ambiguity filed"
   issue_rca: "n/a — not a bugfix"
 ---
+
 # Task 024 — Semantic Versioning Helper
 
 ## 1. Learn
+
 - Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for NextSemanticVersion(current).
 - Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/installer/versioning.go` remains concisely sized.
 - Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
 - Inspect `gitmap/installer/versioning.go` dependencies to see how NextSemanticVersion(current) interacts with its callers.
 
 ## 2. Goal
+
 The objective is to implement `NextSemanticVersion(current)` natively in `gitmap/installer/versioning.go`. This explicitly unblocks downstream operations dependent on `Semantic Versioning Helper` in the Contract domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
+
 - Exported Symbols: `NextSemanticVersion(current)`
 - Package: `installer`
 - Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
+
 1. Open `gitmap/installer/versioning.go`.
 2. Implement the required structure, type, or function for `NextSemanticVersion(current)`.
 3. Write unit tests for success and failure boundaries in `gitmap/installer/versioning_test.go`.
 4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
+
 - Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
 - Error wrapping must include stack traces.
 
 ## 6. Verify
+
 ```bash
 go test ./installer -run TestSemanticVersioning
 ```
 Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
+
 - [ ] `NextSemanticVersion(current)` is successfully mapped and tested in `gitmap/installer/versioning.go`.
 - [ ] All CI and `go test` commands exit zero.
 - [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

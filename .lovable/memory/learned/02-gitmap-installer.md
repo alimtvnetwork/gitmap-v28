@@ -1,6 +1,7 @@
 # Learned: Gitmap Installer Management System
 
 ## Architectural Patterns
+
 1. **Forward-Slash Portability**:
    - All relative file paths across Windows and Linux must use forward slashes (`/`).
    - Relative path resolution must anchor to the Gitmap workspace root (`fsutil.MakeRelativeToRoot`).

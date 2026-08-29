@@ -257,29 +257,38 @@ build if `allcommands_generated.go` drifts.
 ## Examples
 
 ```
+
 # 1. Sit in the repo once, register the alias.
+
 cd /code/project-x
 gitmap-v28 as                                # alias = "project-x" (basename)
 gitmap-v28 as px                             # explicit alias
 gitmap-v28 alias list                        # confirm
 
 # 2. From anywhere, release it.
+
 cd ~                                     # any directory
 gitmap-v28 ra px v1.2.0
 gitmap-v28 ra px v1.2.0 --dry-run            # preview without tagging
 gitmap-v28 rap px v1.2.0                     # pull --ff-only first
 
 # 3. Dirty tree? auto-stash kicks in.
+
 cd /code/project-x && echo dirt > scratch.txt
 cd ~ && gitmap-v28 ra px v1.3.0
+
 #   ▸ stashed: gitmap-release-alias autostash px-v1.3.0-1729400123
+
 #   ▸ release v1.3.0 ... ok
+
 #   ▸ popped stash: gitmap-release-alias autostash px-v1.3.0-1729400123
 
 # 4. Refuse the auto-stash on a CI runner.
+
 gitmap-v28 ra px v1.3.0 --no-stash           # exits non-zero if dirty
 
 # 5. Reassign an alias that already exists.
+
 cd /code/project-x-v2
 gitmap-v28 as px --force
 ```

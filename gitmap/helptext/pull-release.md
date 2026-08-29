@@ -60,19 +60,25 @@ All remaining args (version, `--bump`, `--bin`, `--draft`, `--dry-run`,
 ## Examples
 
 ```
+
 # Default: safe fast-forward, then release v1.4.0
+
 gitmap pr v1.4.0
 
 # Allow divergence: rebase local commits onto upstream, then release
+
 gitmap pr --rebase v1.4.0
 
 # Classic merge (overrides pull.rebase=true), build binaries, draft
+
 gitmap pr --merge v2.0.0 --bin --draft
 
 # See exactly which `git pull` would run, skip it, preview the release
+
 gitmap pr --rebase --dry-run --dry-run
 
 # Legacy names still work
+
 gitmap release-pull v1.4.0
 gitmap relp --merge v2.0.0
 ```

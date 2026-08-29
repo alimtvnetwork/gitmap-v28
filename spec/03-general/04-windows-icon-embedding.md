@@ -124,7 +124,9 @@ builds work without requiring `go-winres` to be installed.
 Add before the `go build` step:
 
 ```powershell
+
 # Step 2b/4: Generate Windows resources (icon + version info)
+
 $winresDir = Join-Path $ProjectDir "winres"
 $winresJson = Join-Path $winresDir "winres.json"
 if (Test-Path $winresJson) {
@@ -148,7 +150,9 @@ if (Test-Path $winresJson) {
 On Unix, skip resource generation (`.syso` is Windows-only):
 
 ```bash
+
 # go-winres is Windows-only; .syso files are ignored on Unix builds
+
 ```
 
 ### CI Pipeline Integration
@@ -167,7 +171,9 @@ In `.github/workflows/release.yml`, add before cross-compilation:
 For dynamic version embedding, update `winres.json` before building:
 
 ```powershell
+
 # Update version in winres.json before go-winres make
+
 $version = & .\bin\gitmap.exe version 2>&1
 $winresContent = Get-Content $winresJson | ConvertFrom-Json
 $winresContent.RT_VERSION.'#1'.'0000'.info.'0409'.ProductVersion = $version

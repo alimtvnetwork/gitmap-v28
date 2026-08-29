@@ -6,10 +6,13 @@ Commits since the most-recent annotated git tag.
 ## Usage
 
 ```sh
+
 # Regenerate the two changelog sources for the next release
+
 make changelog VERSION=v3.92.0
 
 # CI gate: exit 3 when the on-disk files drift from regenerated output
+
 make changelog-check VERSION=v3.92.0
 ```
 

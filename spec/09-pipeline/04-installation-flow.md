@@ -25,12 +25,16 @@ curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/install.sh | ba
 Always provide version-pinned alternatives alongside the "latest" install:
 
 ```powershell
+
 # PowerShell — specific version
+
 irm https://github.com/<owner>/<repo>/releases/download/v1.2.3/install.ps1 | iex
 ```
 
 ```bash
+
 # Bash — specific version
+
 curl -fsSL https://github.com/<owner>/<repo>/releases/download/v1.2.3/install.sh | bash
 ```
 

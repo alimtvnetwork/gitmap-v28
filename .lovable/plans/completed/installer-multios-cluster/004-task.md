@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 004 — Execution Order Engine
 
 ## 1. Goal
+
 Execute unix-first, os-first, and fallback ordering in `installer/execute_order.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `installer/execute_order.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestExecutionOrderEngine
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

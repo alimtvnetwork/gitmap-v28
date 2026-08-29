@@ -1,6 +1,7 @@
 # 29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson
 
 ## Error Summary
+
 The CI/CD pipeline failed across 3 jobs:
 1. `Generate Drift Check`:
    ```text
@@ -32,11 +33,13 @@ The CI/CD pipeline failed across 3 jobs:
 ## 4-Part Root Cause Analysis
 
 ### 1. Why it happened
+
 - **Generate Drift Check**: `.gitattributes` defined `*.zip filter=lfs diff=lfs merge=lfs -text`. However, 3 settings zip archives in `data/` and `settings/` had been committed into Git history as raw binary files instead of LFS pointers. In `actions/checkout@v6`, Git flagged them as non-pointer files. The `Generate Drift Check` job ran `git diff --exit-code` without directory scoping (`.`), which caused Git to evaluate the repository root and mistake these LFS filter transformations for code generation drift.
 - **Changelog Version Sync**: `version.json` and `readme.md` had already been bumped to `6.144.0`, and `changelog.md` had a heading `## [6.144.0] - 2026-08-29`, but `gitmap/constants/constants.go` remained at `var Version = "6.143.0"`. In addition, `check-changelog-version-sync.sh` required a literal `v` prefix in the markdown heading regex, failing to recognize `## [6.144.0]`.
 - **Lint Diff jq Crash**: In `check-single-linter-diff.sh` and `check-misspell-diff.sh`, `IFS='|' read -r FILE LINE TEXT` processed linter outputs. When `LINE` contained non-numeric or multiline text, `jq --argjson l "$LINE"` failed with exit code 2 because `jq` expects valid JSON tokens for `--argjson`. Furthermore, upgrading to Go 1.25 invalidated the older cached Go 1.24 lint baseline.
 
 ### 2. How it happened
+
 - `actions/checkout@v6` on Ubuntu checked out the repository without downloading LFS objects. Git reported:
   `Encountered 3 files that should have been pointers, but weren't`.
 - `Run go generate ./...` finished cleanly in `gitmap/`.
@@ -45,11 +48,13 @@ The CI/CD pipeline failed across 3 jobs:
 - `Lint Baseline Guard` ran `gocritic` on Go 1.25 against the Go 1.24 cached baseline. Upon discovering differences, it piped keys to `jq --argjson l "$LINE"`, crashing on unvalidated input.
 
 ### 3. Root Cause
+
 1. Unscoped `git diff` in `generate-check` combined with Git LFS treating committed raw zips as un-smudged files.
 2. Version drift across `constants.go` (`6.143.0`) vs `version.json` / `readme.md` / `changelog.md` (`6.144.0`).
 3. Unsanitized `LINE` variable passed to `jq --argjson` in diff scripts, plus stale Go 1.24 cache key in `ci.yml`.
 
 ### 4. Code Fix
+
 1. **LFS & Drift Scope Fix**:
    - Added `data/**/*.zip -filter -diff -merge` and `settings/**/*.zip -filter -diff -merge` to `.gitattributes`.
    - Updated `ci.yml` `generate-check` to scope `git diff --exit-code .` and `git diff --name-only .` to `gitmap/`.

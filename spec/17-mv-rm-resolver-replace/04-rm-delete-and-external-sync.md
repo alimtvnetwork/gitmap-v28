@@ -1,12 +1,14 @@
 # Specification 17 — Chapter 4: Enhanced `gitmap rm` (Remove & Delete)
 
 ## 1. CLI Signature & Syntax
+
 ```bash
 gitmap rm [-y|--yes] [--db-only] [--no-vscode] [--no-desktop] <target>[,<target>...] [<target>...]
 ```
 Aliases: `gitmap remove`, `gitmap del`, `gitmap delete`
 
 ## 2. Path-Aware Targeting
+
 Resolves all target formats seamlessly:
 - `gitmap rm .\prompt-architect` (Windows relative path)
 - `gitmap rm ./prompt-architect/` (POSIX relative with trailing slash)
@@ -15,6 +17,7 @@ Resolves all target formats seamlessly:
 - `gitmap rm macro*` (Glob match across slug and folder name)
 
 ## 3. Removal & Cascade Execution
+
 1. **Interactive Prompt**:
    - Unless `-y` / `--yes` is passed, prompts:
      `Delete folder and untrack prompt-architect (D:\work\prompt-architect)? [y/N]`

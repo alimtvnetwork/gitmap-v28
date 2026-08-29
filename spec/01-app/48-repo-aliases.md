@@ -65,19 +65,25 @@ to resolve the target repo by its alias.
 ### Usage
 
 ```bash
+
 # Pull a repo by alias
+
 gitmap-v28 pull -A api
 
 # Run a shell command in the aliased repo directory
+
 gitmap-v28 exec -A web -- npm test
 
 # Navigate to the aliased repo
+
 gitmap-v28 cd -A infra
 
 # Check status of an aliased repo
+
 gitmap-v28 status -A api
 
 # Watch an aliased repo
+
 gitmap-v28 watch -A web
 ```
 
@@ -190,7 +196,9 @@ The `-A` flag should support tab-completion for alias names. Add a
 
 ```bash
 gitmap-v28 completion --list-aliases
+
 # Output: api web infra libs
+
 ```
 
 This feeds into Bash/Zsh/PowerShell completion generators.

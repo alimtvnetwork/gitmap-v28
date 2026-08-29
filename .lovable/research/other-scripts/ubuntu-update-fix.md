@@ -297,11 +297,14 @@ forcing the other address family, or making that IP unreachable so DNS falls
 through, can be enough.
 
 ```bash
+
 # Try IPv4 only
+
 sudo apt -o Acquire::ForceIPv4=true update
 sudo apt -o Acquire::ForceIPv4=true upgrade -y
 
 # Or IPv6 only
+
 sudo apt -o Acquire::ForceIPv6=true upgrade -y
 ```
 
@@ -315,9 +318,13 @@ See which addresses the mirror has, and route the bad one nowhere:
 
 ```bash
 getent ahosts my.archive.ubuntu.com
+
 # temporary, non-persistent:
+
 sudo ip route add blackhole 202.79.180.254/32
+
 # undo with:  sudo ip route del blackhole 202.79.180.254/32
+
 ```
 
 - **Use when:** the mirror hostname resolves to several IPs and only one is broken.
@@ -343,12 +350,15 @@ sudo apt clean && sudo apt update && sudo apt upgrade -y
 ### Solution 7 — Benchmark mirrors with `netselect-apt` / `apt-select`
 
 ```bash
+
 # Option A
+
 sudo apt install -y netselect-apt
 sudo netselect-apt -n -c MY -t 20 resolute        # writes ./sources.list
 cat sources.list
 
 # Option B (Python, understands the Launchpad mirror list)
+
 sudo apt install -y python3-pip
 pip3 install --user apt-select
 ~/.local/bin/apt-select --country MY --top-number 10 --min-status up-to-date
@@ -369,12 +379,15 @@ Useful when you don't want to change mirrors at all.
 ```bash
 cd /tmp
 PKG="linux-firmware-amd-misc_20260319.git217ca6e4-0ubuntu1.1_all.deb"
+
 # try several sources until one downloads
+
 wget "http://archive.ubuntu.com/ubuntu/pool/main/l/linux-firmware-amd-misc/$PKG" \
   || wget "https://mirror.0x.sg/ubuntu/pool/main/l/linux-firmware-amd-misc/$PKG" \
   || wget "https://ftp.jaist.ac.jp/pub/Linux/ubuntu/pool/main/l/linux-firmware-amd-misc/$PKG"
 
 # stage it into apt's cache so apt uses it instead of downloading
+
 sudo cp "$PKG" /var/cache/apt/archives/
 sudo apt upgrade -y
 ```
@@ -407,7 +420,9 @@ Rule out `apt-fast` and `git-core` PPAs, and anything else in `sources.list.d`.
 
 ```bash
 ls -l /etc/apt/sources.list.d/
+
 # disable everything except the official ubuntu.sources
+
 for f in /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
   case "$(basename "$f")" in ubuntu.sources) continue;; esac
   [ -e "$f" ] && sudo mv "$f" "$f.disabled"
@@ -434,20 +449,27 @@ changes User-Agent, uses many connections, and can trip mirror rate limits — a
 common cause of sudden `403`s.
 
 ```bash
+
 # 1. Confirm plain apt behaves differently
+
 sudo /usr/bin/apt update
 sudo /usr/bin/apt upgrade -y
 
 # 2. Check for an apt-fast/aria2 apt hook
+
 grep -rn 'aria2\|apt-fast' /etc/apt/apt.conf.d/ 2>/dev/null
 cat /etc/apt-fast.conf 2>/dev/null | grep -v '^#' | grep -v '^$'
 
 # 3. Reduce parallelism in /etc/apt-fast.conf
+
 #    _MAXNUM=5   -> _MAXNUM=2
+
 #    _MAXCONPERSRV=10 -> _MAXCONPERSRV=2
+
 sudo sed -i 's/^_MAXNUM=.*/_MAXNUM=2/; s/^_MAXCONPERSRV=.*/_MAXCONPERSRV=2/' /etc/apt-fast.conf
 
 # 4. Or remove it entirely while debugging
+
 sudo apt remove -y apt-fast
 ```
 
@@ -473,20 +495,27 @@ If HTTPS also 403s and multiple mirrors fail identically, your ISP or a network
 appliance is filtering.
 
 ```bash
+
 # a) explicit HTTP proxy for apt only
+
 sudo tee /etc/apt/apt.conf.d/95proxy >/dev/null <<'EOF'
 Acquire::http::Proxy "http://PROXY_HOST:PORT/";
 Acquire::https::Proxy "http://PROXY_HOST:PORT/";
 EOF
 sudo apt update
+
 # remove with: sudo rm /etc/apt/apt.conf.d/95proxy
 
 # b) VPN / WireGuard: bring the tunnel up, then retry
+
 sudo apt update && sudo apt upgrade -y
 
 # c) run your own caching proxy on the LAN (also great for multiple machines)
+
 sudo apt install -y apt-cacher-ng
+
 # then on clients:
+
 echo 'Acquire::http::Proxy "http://CACHE_HOST:3142/";' | sudo tee /etc/apt/apt.conf.d/01proxy
 ```
 
@@ -503,7 +532,9 @@ free-for-personal-use offer and has nothing to do with the 403.
 
 ```bash
 sudo pro status
+
 # free personal token from https://ubuntu.com/pro/dashboard
+
 sudo pro attach <YOUR_TOKEN>
 sudo pro enable esm-apps
 sudo apt update && sudo apt upgrade -y
@@ -523,8 +554,11 @@ the upgrade. Idempotent and non-destructive (it never removes packages).
 
 ```bash
 #!/usr/bin/env bash
+
 # fix-apt-403.sh — recover from "403 Forbidden" apt pool download failures on
+
 # Ubuntu 24.04+ (deb822 sources). Safe to re-run.
+
 set -euo pipefail
 
 [[ ${EUID} -eq 0 ]] || { echo "Run with sudo: sudo bash $0" >&2; exit 1; }
@@ -535,6 +569,7 @@ BACKUP="${SRC}.bak.${STAMP}"
 CODENAME="$(. /etc/os-release && echo "${VERSION_CODENAME}")"
 
 # A file that is guaranteed to exist in every complete mirror.
+
 PROBE="dists/${CODENAME}/Release"
 
 CANDIDATES=(
@@ -617,30 +652,39 @@ sudo bash ~/bin/fix-apt-403.sh
 ## 6. Verification checklist
 
 ```bash
+
 # 1. Metadata refreshes with no Err: lines
+
 sudo apt update
 
 # 2. Dependency tree is consistent
+
 sudo apt-get check
 
 # 3. Nothing half-configured
+
 sudo dpkg --audit
 sudo dpkg --configure -a
 
 # 4. The upgrade actually completes
+
 sudo apt full-upgrade -y
 
 # 5. What (if anything) is still pending
+
 apt list --upgradable
 
 # 6. The specific package that used to fail
+
 apt policy linux-firmware-amd-misc
 dpkg -l linux-firmware-amd-misc | tail -n 3
 
 # 7. Which mirror is in effect
+
 grep -n 'URIs:' /etc/apt/sources.list.d/ubuntu.sources
 
 # 8. Reboot needed?
+
 [ -f /var/run/reboot-required ] && cat /var/run/reboot-required*
 ```
 
@@ -656,7 +700,9 @@ For day-to-day use on the fresh install.
 
 ```bash
 #!/usr/bin/env bash
+
 # ubuntu-update.sh — routine full system update for Ubuntu 24.04+
+
 set -euo pipefail
 [[ ${EUID} -eq 0 ]] || { echo "Run with sudo: sudo bash $0" >&2; exit 1; }
 

@@ -56,10 +56,13 @@ Pin CI tool installs to exact version tags — `@latest` is prohibited:
 | `govulncheck` | `v1.1.4` | `ci.yml`, `vulncheck.yml` |
 
 ```bash
+
 # Correct — pinned
+
 go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
 
 # Wrong — non-reproducible
+
 go install golang.org/x/vuln/cmd/govulncheck@latest
 ```
 
@@ -104,10 +107,13 @@ Use them only in library packages where flexibility is intentional.
 Run dependency audits in CI on every pull request:
 
 ```bash
+
 # Node.js
+
 npm audit --audit-level=high
 
 # Go
+
 go list -m -u all
 govulncheck ./...
 ```
@@ -170,10 +176,13 @@ bun install --frozen-lockfile
 Audit for unused packages regularly:
 
 ```bash
+
 # Node.js
+
 npx depcheck
 
 # Go
+
 go mod tidy
 ```
 

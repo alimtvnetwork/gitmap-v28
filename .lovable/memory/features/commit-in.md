@@ -3,9 +3,11 @@ name: commit-in
 description: gitmap commit-in / cin replays commits from N source repos into one destination repo, dedupes by source SHA, replicates author+committer dates, profiles in .gitmap/commit-in/profiles/. Spec at spec/03-commit-in/.
 type: feature
 ---
+
 # commit-in / cin
 
 ## What it does
+
 `gitmap commit-in <source> <inputs...>` replays every commit from one
 or more input repos (folders or Git URLs) into the source repo, in the
 order the inputs were listed and the order their commits originally

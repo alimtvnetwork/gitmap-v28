@@ -89,26 +89,36 @@ The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5
 ## Advanced Usage
 
 ### Pull Request (PR) Integration
+
 You can automatically push your commits and create a PR instead of directly merging into the target repository.
 Use the `--pr` flag to enable this behavior.
 ```bash
+
 # Create a PR for every single replayed commit
+
 gitmap commit-right --pr all
 
 # Create a PR only for commits that are tagged
+
 gitmap commit-right --pr tags
 
 # Create a PR only during a release commit
+
 gitmap commit-right --pr release
 ```
 
 ### Rewriting Commit History & Co-Authors
+
 During replay, you can seamlessly rewrite commit history (e.g., stripping out unwanted prefixes) and append multiple co-authors. This is natively supported by the templating engine (configured via settings) and footer injection.
 ```bash
+
 # Strip generic prefixes like "Changes" during replay
+
 gitmap commit-right --strip "^Changes" --template-override
 
 # Add multiple co-authors (20+ supported via standard git footers)
+
 # The replay engine preserves all Co-authored-by footers and allows appending them.
+
 gitmap commit-right --append-footer "Co-authored-by: Alice <alice@example.com>"
 ```

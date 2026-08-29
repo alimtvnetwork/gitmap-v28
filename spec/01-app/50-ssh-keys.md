@@ -159,7 +159,9 @@ When multiple keys exist, gitmap-v28 auto-manages a clearly marked block
 in `~/.ssh/config`:
 
 ```
+
 # --- gitmap-v28 managed (do not edit) ---
+
 Host github.com-default
     HostName github.com
     User git
@@ -171,7 +173,9 @@ Host github.com-work
     User git
     IdentityFile ~/.ssh/id_rsa_work
     IdentitiesOnly yes
+
 # --- end gitmap-v28 managed ---
+
 ```
 
 ### Rules

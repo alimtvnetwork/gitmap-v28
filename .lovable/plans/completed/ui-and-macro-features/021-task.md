@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 021 � Implement StatusPRs - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 21
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 21
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 21
 - [Custom Link 21](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 21
 
 ## 2. Goal
+
 Isolate StatusPRs logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes StatusPRsRequest, emits StatusPRsResponse.
 
 ## 4. Execute
+
 1. Define 	ype StatusPRsPart1 struct { ... } in gitmap/cmd/status_pr.go.
 2. Define unc InitStatusPRsPart1() error in gitmap/cmd/status_pr.go.
 3. Define unc (x *StatusPRsPart1) Process21() bool in gitmap/cmd/status_pr.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitStatusPRsPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype StatusPRsPart1 is defined
 - [ ] unc InitStatusPRsPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

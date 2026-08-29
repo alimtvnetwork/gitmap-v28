@@ -45,14 +45,18 @@ Priority 5: Config file default     → fallback from config/JSON
 If the user passes `--deploy-path <dir>`, use it unconditionally:
 
 ```powershell
+
 # PowerShell
+
 if ($DeployPath.Length -gt 0) {
     return $DeployPath
 }
 ```
 
 ```bash
+
 # Bash
+
 if [[ -n "$DEPLOY_PATH" ]]; then
     echo "$DEPLOY_PATH"
     return
@@ -66,7 +70,9 @@ is the primary default — the build script deploys back to where the
 tool is already installed:
 
 ```powershell
+
 # PowerShell — resolve the active binary's physical directory
+
 $activeCmd = Get-Command <binary> -ErrorAction SilentlyContinue
 if ($activeCmd) {
     $activePath = $activeCmd.Source
@@ -84,7 +90,9 @@ if ($activeCmd) {
 ```
 
 ```bash
+
 # Bash — resolve the active binary's physical directory
+
 active_cmd=$(command -v <binary> 2>/dev/null || true)
 if [[ -n "$active_cmd" ]] && [[ -f "$active_cmd" ]]; then
     resolved=$(readlink -f "$active_cmd" 2>/dev/null || echo "$active_cmd")
@@ -203,13 +211,17 @@ add_to_path() {
 After PATH registration, refresh the current session:
 
 ```powershell
+
 # PowerShell — refresh PATH in the current session
+
 $env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
             [Environment]::GetEnvironmentVariable("Path", "User")
 ```
 
 ```bash
+
 # Bash — source the profile or export directly
+
 export PATH="$deploy_dir:$PATH"
 ```
 
@@ -254,7 +266,9 @@ func BinaryDataDir() string {
   during deploy:
 
 ```powershell
+
 # Copy data folder to deploy target alongside the binary
+
 if ($Config.copyData) {
     $srcData = Join-Path $BuildOutput "data"
     $destData = Join-Path $appDir "data"

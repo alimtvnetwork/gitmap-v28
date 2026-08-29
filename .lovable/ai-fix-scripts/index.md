@@ -60,3 +60,15 @@ python .lovable/ai-fix-scripts/05-naming-autofixer.py gitmap/cmd
 ```
 </details>
 
+<details>
+<summary>06-file-hygiene-fixer.py</summary>
+
+**Purpose:** Enforces Unix LF line endings (`\n`), strict UTF-8 encoding (without BOM), and ensures exactly one terminating newline at EOF across all source code, markdown, and configuration files.
+
+**Usage Examples:**
+```bash
+python .lovable/ai-fix-scripts/06-file-hygiene-fixer.py
+python .lovable/ai-fix-scripts/06-file-hygiene-fixer.py src gitmap
+```
+</details>
+

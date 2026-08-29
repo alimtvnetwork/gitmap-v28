@@ -1,6 +1,7 @@
 # Master 100-Step Plan: GitMap MV, RM Resolver, and Replace Engine
 
 ## Phase 1: Windows Long-Path & Path Normalization Utility (Steps 1–15)
+
 1. Create `gitmap/fsutil/longpath.go` defining cross-platform long-path interfaces.
 2. Implement `gitmap/fsutil/longpath_windows.go` detecting paths > 240 chars and prepending `\\?\` or `\\?\UNC\`.
 3. Implement `gitmap/fsutil/longpath_other.go` as a clean pass-through for Linux and macOS.
@@ -18,6 +19,7 @@
 15. Verify `go test ./fsutil/...` passes with zero failures.
 
 ## Phase 2: Unified Project Resolver Engine (Steps 16–30)
+
 16. Create `gitmap/cmd/resolver_types.go` defining `ResolveTargetOptions` and `ResolvedRepo`.
 17. Create `gitmap/cmd/resolver.go` with main entrypoint `ResolveRepo(db *store.DB, target string) (*model.ScanRecord, error)`.
 18. Implement PWD fallback in `gitmap/cmd/resolver_pwd.go` when target is empty or `.`.
@@ -35,6 +37,7 @@
 30. Verify `go test ./cmd/ -run TestResolve` passes cleanly.
 
 ## Phase 3: External Integrations Lifecycle Sync (Steps 31–45)
+
 31. Create `gitmap/vscodepm/update_path.go` with `UpdateRootPath(oldPath, newPath, newName string) error`.
 32. Create `gitmap/vscodepm/remove.go` with `RemoveEntry(targetPath string) error`.
 33. Implement case-insensitive normalized path comparison in `vscodepm` for Windows paths.
@@ -52,6 +55,7 @@
 45. Verify `go test ./vscodepm/... ./desktop/...` passes with zero errors.
 
 ## Phase 4: `gitmap mv` (Move) Command Engine (Steps 46–60)
+
 46. Create `gitmap/cmd/mv_flags.go` parsing `--yes`, `-y`, `--dry-run`, `--no-vscode`, `--no-desktop`.
 47. Create `gitmap/cmd/mv.go` with `runMove(args []string)`.
 48. Implement destination path resolution supporting `..` (parent directory), relative paths, and absolute paths.
@@ -69,6 +73,7 @@
 60. Verify `go test ./cmd/ -run TestMove` passes.
 
 ## Phase 5: Enhanced `gitmap rm` (Remove & Delete) (Steps 61–75)
+
 61. Refactor `gitmap/cmd/rm.go` to use the Unified Project Resolver (`ResolveMultiRepos`).
 62. Ensure `gitmap rm .\prompt-architect` resolves immediately without requiring exact slug match.
 63. Ensure `gitmap rm ./prompt-architect/` and trailing slash variants resolve cleanly.
@@ -86,6 +91,7 @@
 75. Verify `go test ./cmd/ -run TestRm` passes.
 
 ## Phase 6: `gitmap replace` Diagnostics & Token Engine (Steps 76–85)
+
 76. Inspect `gitmap/cmd/replacewalk.go` and fix forward slash vs backslash path comparisons on Windows.
 77. Ensure `isExcludedPrefix` handles both `D:/path` and `D:\path` uniformly with `filepath.ToSlash`.
 78. Refine `isBinaryFile` sniffer in `replacewalk.go` to avoid false positives on UTF-8 / UTF-16 code files.
@@ -98,6 +104,7 @@
 85. Verify `go test ./cmd/ -run TestReplace` passes.
 
 ## Phase 7: Help System, Web Dashboard & Terminal UI (Steps 86–95)
+
 86. Add `HelpMV = "  mv (move) <src> <dest>     Relocate repo directory with VSCode & GitHub Desktop sync"` in `constants_helpgroups.go`.
 87. Add `mv` to `CompactData` in `gitmap/constants/constants_helpgroups.go`.
 88. Update `gitmap/cmd/rootusage_groups.go` and `rootusagefilter_rows.go` with `mv`.
@@ -110,6 +117,7 @@
 95. Run `npx vitest run` and ensure all frontend documentation tests pass.
 
 ## Phase 8: Full Automated Verification & Smoke Tests (Steps 96–100)
+
 96. Run complete Go test suite: `go test ./...` in `gitmap/`.
 97. Compile `gitmap.exe` binary into `bin/`.
 98. Execute end-to-end CLI tests for `gitmap mv`, `gitmap rm .\path`, and `gitmap replace`.

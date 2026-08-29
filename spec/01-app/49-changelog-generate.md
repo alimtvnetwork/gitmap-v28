@@ -42,6 +42,7 @@ Uses `git log --format=%s --no-merges <from>..<to>` to collect commit subjects:
 The generated section follows standard changelog.md format:
 
 ```markdown
+
 ## v2.24.0
 
 - Add TUI log viewer with detail panel

@@ -34,7 +34,9 @@ A three-layer approach that reliably bypasses file locks:
    file so there is no lock conflict with deploy — rename-first handles it.
 
 ```
+
 # Pseudocode — applies to any compiled language
+
 func runUpdate():
     tempPath = copyBinaryToTemp()
     runForeground(tempPath, ["update-runner"])  # Blocking — keeps terminal stable
@@ -61,7 +63,9 @@ it checks whether there are any changes to apply:
    bumped), confirm if different.
 
 ```
+
 # Example: generated update script
+
 $oldVersion = & $deployedBinary version 2>&1
 
 $pullOutput = git pull 2>&1
@@ -93,7 +97,9 @@ The build pipeline's deploy step includes rollback safety:
    user still has a working binary
 
 ```
+
 # Pseudocode — deploy with rollback
+
 backup = destination + ".old"
 if fileExists(destination):
     copy(destination, backup)
@@ -159,7 +165,9 @@ a successful build and deploy. This means the user doesn't need to
 remember to clean up — it happens as part of the normal update cycle.
 
 ```
+
 # At end of update script (after version comparison):
+
 if newBinaryExists:
     run(newBinary, "update-cleanup")
 ```
@@ -172,7 +180,9 @@ The command is also available for ad-hoc use. This is useful when:
 - Debugging update issues
 
 ```
+
 # Pseudocode — cleanup command
+
 func runUpdateCleanup():
     # Clean temp copies
     for file in glob("%TEMP%/<tool>-update-*.exe"):
@@ -243,10 +253,14 @@ Windows blocks *overwriting* a running `.exe` but allows *renaming*
 it. This enables a simpler deploy strategy:
 
 ```
+
 # Instead of retry-on-lock:
+
 rename("tool.exe", "tool.exe.old")   # Works even while running
 copy(newBinary, "tool.exe")          # No lock conflict
+
 # On next startup: delete("tool.exe.old")
+
 ```
 
 This is more deterministic than retry loops but requires the deploy

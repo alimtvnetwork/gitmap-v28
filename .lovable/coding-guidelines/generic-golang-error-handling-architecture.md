@@ -11,17 +11,20 @@
 Copy and paste this section directly into your AI configuration (`.cursorrules`, system prompts, or agent instructions) to permanently prevent anti-patterns in error handling.
 
 ```markdown
+
 # Non-Negotiable Directive: Centralized Error Handling Architecture
 
 You are an expert Go software engineer. You NEVER write careless, unstructured, or silent error handling code.
 
 ### The Double Anti-Pattern Rule
+
 1. **NEVER use bare `panic("...")` or `panic(err)` in business logic or command handlers**: Crashing with raw strings or untyped runtime panics dumps unformatted stack frames to end-users and bypasses application telemetry and resource cleanup.
 2. **NEVER use bare `os.Exit(...)` or silent error returns**: Terminating abruptly or failing silently destroys context, loses caller attribution, skips cleanup flushers, and makes post-incident debugging impossible.
 
 **Both patterns represent bad engineering. All errors MUST be constructed as structured domain types (`AppError`) and dispatched through a centralized error handler (`HandleError`).**
 
 ### Core Requirements
+
 1. **Always Structure Errors**: Every error must specify:
    - `Op`: Operation label (e.g. `user.create`, `config.load`, `db.migrate`).
    - `Code`: A registered, unique error code (e.g. `E1001`, `E2004`).
@@ -35,6 +38,7 @@ You are an expert Go software engineer. You NEVER write careless, unstructured, 
 3. **Never Be Silent**: Swallowed errors or silent terminations are auto-reject violations. Every failure must produce actionable diagnostic breadcrumbs.
 
 ### Mandatory Pre-Commit Checklist
+
 - [ ] Zero instances of `panic("string")` or raw `panic(err)` in production code.
 - [ ] Zero instances of bare `os.Exit(...)` bypassing the central error handler.
 - [ ] All error sites wrap or construct `AppError` with full metadata.
@@ -54,11 +58,13 @@ When developers or AI assistants refactor error handling code, they often commit
 ```
 
 ### 1. Why `panic("fatal error")` is an Anti-Pattern
+
 * **Zero Operational Context**: The magic string `"fatal error"` tells neither the user nor the developer what actually went wrong, which inputs were invalid, or how to resolve the issue.
 * **Polluted Terminal Output**: An unhandled panic prints raw goroutine stack traces and memory addresses, which confuses end-users and looks unprofessional in production software.
 * **Bypasses Application Telemetry**: Telemetry pipelines, audit tables, and structured logging sinks never get invoked.
 
 ### 2. Why Bare `os.Exit(1)` is Equally Flawed
+
 * **Silent Failure**: Calling `os.Exit(1)` abruptly halts execution without explaining the root cause.
 * **Destroys Deferred Cleanups**: In Go, `os.Exit` **does not run deferred functions** (`defer`). Open file handles, temporary scratch directories, database connections, and buffered I/O streams are terminated immediately without flushing.
 * **Loss of Domain Metadata**: The failure is never captured into a domain model. The error code, caller attribution, and contextual variables are dropped.
@@ -108,6 +114,7 @@ To implement this architecture in any Go application, create two lightweight, re
 ### Package 1: `apperror` (Domain Error Envelope)
 
 #### File 1.1: `apperror/types.go`
+
 Defines the standard error categorization and severity taxonomy.
 
 ```go
@@ -137,6 +144,7 @@ const (
 ```
 
 #### File 1.2: `apperror/apperror.go`
+
 Defines the rich `AppError` struct, standard error interface compliance, unwrapping, and constructors.
 
 ```go
@@ -280,6 +288,7 @@ func WrapWithDetails(
 ### Package 2: `cliexit` / `errorhandler` (Central Dispatcher)
 
 #### File 2.1: `cliexit/handle.go`
+
 Implements buffer flushing, formatted stderr diagnostics, debug panic switches, and clean termination.
 
 ```go
@@ -372,6 +381,7 @@ func WriteAppErrorReport(w io.Writer, e *apperror.AppError) {
 ### Example 1: Command Precondition Check
 
 #### ❌ Anti-Pattern (Before)
+
 ```go
 func runSetup(args []string) error {
     if !isConfigured() {
@@ -383,6 +393,7 @@ func runSetup(args []string) error {
 ```
 
 #### ✅ Centralized Architecture (After)
+
 ```go
 func runSetup(args []string) error {
     if !isConfigured() {
@@ -406,6 +417,7 @@ func runSetup(args []string) error {
 ### Example 2: Wrapped File / Database Errors
 
 #### ❌ Anti-Pattern (Before)
+
 ```go
 func loadDatabase(path string) *DB {
     db, err := sql.Open("sqlite", path)
@@ -417,6 +429,7 @@ func loadDatabase(path string) *DB {
 ```
 
 #### ✅ Centralized Architecture (After)
+
 ```go
 func loadDatabase(path string) *DB {
     db, err := sql.Open("sqlite", path)
@@ -444,15 +457,20 @@ func loadDatabase(path string) *DB {
 To verify that your Go codebase is 100% compliant and free of anti-patterns, run these automated checks:
 
 ```bash
+
 # 1. Ensure zero instances of bare panic("...") remain
+
 grep -rn 'panic("' .
 
 # 2. Check for bare os.Exit outside of the central error handler
+
 grep -rn 'os\.Exit(' .
 
 # 3. Verify that Go packages compile and pass vet
+
 go vet ./...
 
 # 4. Run unit tests for apperror and cliexit packages
+
 go test -v ./apperror ./cliexit
 ```

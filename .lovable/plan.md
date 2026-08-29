@@ -1,4 +1,5 @@
 ## Pipeline Extend V2: AI Release Agent Instructions
+
 All AI agents triggering releases MUST follow `spec/09-pipeline-extend-v2/readme.md` strictly. 
 **Rule**: Tag-based releases fail if the source constants aren't updated FIRST.
 **Execution**:

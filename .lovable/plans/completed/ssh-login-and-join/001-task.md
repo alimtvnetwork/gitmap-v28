@@ -24,17 +24,21 @@ citations:
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
+
 # Task 001 — Create SQLite table for SSH Hosts
 
 ## 1. Learn
+
 - [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
 - [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [gitmap/store/migrations_ssh.go](gitmap/store/migrations_ssh.go) — Why: Target file.
 
 ## 2. Goal
+
 Deliver the Scaffold step for `SQLCreateSSHHosts` to support the Create SQLite table for SSH Hosts feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
+
 - Types: `string`, `context.Context`
 - Outputs: `error`
 - Codes: `E_INTERNAL_ERROR`
@@ -44,16 +48,19 @@ Deliver the Scaffold step for `SQLCreateSSHHosts` to support the Create SQLite t
   ```
 
 ## 4. Execute
+
 1. Add a new raw SQL string `CREATE TABLE ssh_hosts (id TEXT PRIMARY KEY, alias TEXT, ip TEXT, username TEXT, created_at DATETIME);`
 2. Register this migration in the `store.Up()` sequence.
 3. Ensure `IF NOT EXISTS` is present to avoid panic on re-run.
 
 ## 5. Constraints
+
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
 - **Error Types**: Must use `apperror`.
 - **No Globals**: .lovable/strictly-avoid.md.
 
 ## 6. Verify
+
 ```bash
 go test ./... -v -run SQLCreateSSHHosts
 ```
@@ -63,14 +70,15 @@ PASS
 ```
 
 ## 7. Done When
+
 - [ ] 1. `SQLCreateSSHHosts` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
-

@@ -3,6 +3,7 @@ name: Version Bump Procedure
 description: When user says "bump minor/patch/version" or "release", update ONLY Version const + CHANGELOG. NEVER touch .gitmap/release/.
 type: feature
 ---
+
 # Version Bump Procedure
 
 When the user says "bump the minor", "bump version", "release it", "cut a release", or similar, update ONLY these files:

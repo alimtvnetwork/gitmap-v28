@@ -139,6 +139,7 @@ var helpScan string
 Each help file follows this structure:
 
 ```markdown
+
 # <tool> scan
 
 <One-line description>

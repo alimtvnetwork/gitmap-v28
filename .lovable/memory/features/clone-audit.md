@@ -20,17 +20,20 @@ per record:
 | `!`    | invalid  | record has no HTTPSUrl/SSHUrl                    |
 
 ## Why
+
 - Lets users review a manifest before a batch clone.
 - CI dry-runs against generated `.gitmap/output/` files.
 - Works offline; `requireOnline` and SSH-key resolution are skipped.
 
 ## Constraints
+
 - Refuses direct git URLs — manifest only.
 - Never invokes git, never writes outside stdout.
 - Output format is stable (constants in `constants_clone_audit.go`)
   so downstream grep/awk pipelines can rely on it.
 
 ## Source map
+
 - `gitmap/cloner/audit.go` — planner + report printer.
 - `gitmap/cloner/audit_path.go` — stat-only existence helper.
 - `gitmap/cloner/audit_test.go` — coverage for classification, command

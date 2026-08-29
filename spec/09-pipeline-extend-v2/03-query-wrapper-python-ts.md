@@ -3,9 +3,11 @@
 To prevent scattered `try/catch` logic and guarantee uniform error logging, this repository strictly mandates the use of generic query wrappers in both Python and TypeScript.
 
 ## 1. Python Wrapper Implementation
+
 Python scripts (like those in `.github/scripts/`) MUST NOT use inline `try/except` blocks. They must import and execute `.github/scripts/query_wrapper.py`.
 
 ### Structure
+
 ```python
 import traceback
 from typing import Callable, Any, Dict
@@ -20,6 +22,7 @@ def query_wrapper(operation: Callable[..., Any], *args, **kwargs) -> Dict[str, A
 ```
 
 ### Usage
+
 ```python
 from query_wrapper import query_wrapper
 
@@ -34,7 +37,9 @@ data = res["data"]
 ```
 
 ## 2. TypeScript Wrapper Implementation
+
 TypeScript code MUST use `src/lib/queryWrapper.ts`.
 
 ### Strict Boolean State Checking
+
 The wrapper returns a typed response with an `isFail` boolean property. AI Agents must strictly evaluate `isFail` rather than writing inverted logic like `!isSuccess` or `!response`.

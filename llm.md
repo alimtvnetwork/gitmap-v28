@@ -28,11 +28,13 @@ Gitmap is a powerful CLI designed for autonomous agents, LLMs, and developers to
    - gitmap commit-in: Perform robust, orchestrator-driven batch commits.
 
 ## Instructions for LLMs
+
 - Always prefer JSON output commands (rsj, repo-search-json) when parsing data programmatically.
 - Avoid modifying the root SQLite DB manually; rely on the CLI commands.
 - Before running heavy regex operations across a large repo, use gitmap search to verify matches.
 
 ## Alternative Commands for AI (Instead of Raw Git)
+
 When checking repository status or logs, DO NOT use raw 'git status && git log -1'. Instead, use:
 - 'gitmap status': Checks dirty/clean status, ahead/behind, and stash for all tracked repos.
 - 'gitmap history': View a rich audit log of command executions.
@@ -47,6 +49,7 @@ For committing and pushing, NEVER use raw 'git commit' and 'git push'. Use the s
 - 'gitmap rm-git <last-4-digits>': Drop a recent commit safely using rebase --onto.
 
 ## AI File Search Patterns
+
 When searching codebases, LLMs can use native gitmap commands OR standard terminal tools.
 Here are equivalent alternative command samples for LLM search operations:
 

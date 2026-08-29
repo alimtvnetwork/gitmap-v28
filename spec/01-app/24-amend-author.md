@@ -31,11 +31,14 @@ Two related features for controlling Git commit authorship:
 ### Examples
 
 ```bash
+
 # SEO-write with custom author
+
 gitmap sw --url example.com --service Plumbing --area London \
   --author-name "John Smith" --author-email "john@example.com"
 
 # Only override name (email stays from git config)
+
 gitmap sw --url example.com --service SEO --area Bristol \
   --author-name "Marketing Bot"
 ```
@@ -114,7 +117,9 @@ gitmap amend [SHA] [--flags...]
 3. Execute `git filter-branch`:
 
 ```bash
+
 # All commits on branch
+
 git filter-branch -f --env-filter '
   export GIT_AUTHOR_NAME="New Name"
   export GIT_AUTHOR_EMAIL="new@email.com"
@@ -123,6 +128,7 @@ git filter-branch -f --env-filter '
 ' -- HEAD
 
 # From specific SHA onwards
+
 git filter-branch -f --env-filter '
   export GIT_AUTHOR_NAME="New Name"
   export GIT_AUTHOR_EMAIL="new@email.com"
@@ -239,33 +245,43 @@ Warning: Run 'git push --force-with-lease' to update the remote
 ### Examples
 
 ```bash
+
 # Amend all commits on current branch
+
 gitmap amend --name "John Smith" --email "john@company.com"
 gitmap am --name "John Smith" --email "john@company.com"
 
 # Amend all commits on a specific branch
+
 gitmap amend --branch develop --name "John Smith" --email "john@company.com"
 
 # Amend from a specific SHA onwards (SHA is first positional arg)
+
 gitmap amend a1b2c3d --name "John Smith" --email "john@company.com"
 
 # Amend from SHA on a specific branch
+
 gitmap amend a1b2c3d --branch main --name "John Smith" --email "john@company.com"
 
 # Amend only HEAD
+
 gitmap amend HEAD --name "John Smith" --email "john@company.com"
 
 # Preview what would change (dry-run, no audit saved)
+
 gitmap amend --name "John Smith" --email "john@company.com" --dry-run
 gitmap amend a1b2c3d --branch develop --name "John Smith" --dry-run
 
 # Amend and auto force-push
+
 gitmap amend a1b2c3d --name "John Smith" --email "john@company.com" --force-push
 
 # Only change email (keep existing author name)
+
 gitmap amend --email "newemail@company.com"
 
 # Only change name on a specific branch
+
 gitmap amend --branch feature/auth --name "CI Bot"
 ```
 

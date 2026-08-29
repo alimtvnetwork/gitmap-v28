@@ -23,44 +23,53 @@ citations:
   ambiguity: "n/a — no ambiguity filed"
   issue_rca: "n/a — not a bugfix"
 ---
+
 # Task 030 — Export Global State
 
 ## 1. Learn
+
 - Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for (m *Manager) ExportGlobalState(path).
 - Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/installer/export_global.go` remains concisely sized.
 - Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
 - Inspect `gitmap/installer/export_global.go` dependencies to see how (m *Manager) ExportGlobalState(path) interacts with its callers.
 
 ## 2. Goal
+
 The objective is to implement `(m *Manager) ExportGlobalState(path)` natively in `gitmap/installer/export_global.go`. This explicitly unblocks downstream operations dependent on `Export Global State` in the Plugin domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
+
 - Exported Symbols: `(m *Manager) ExportGlobalState(path)`
 - Package: `installer`
 - Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
+
 1. Open `gitmap/installer/export_global.go`.
 2. Implement the required structure, type, or function for `(m *Manager) ExportGlobalState(path)`.
 3. Write unit tests for success and failure boundaries in `gitmap/installer/export_global_test.go`.
 4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
+
 - Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
 - Error wrapping must include stack traces.
 
 ## 6. Verify
+
 ```bash
 go test ./installer -run TestExportGlobalState
 ```
 Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
+
 - [ ] `(m *Manager) ExportGlobalState(path)` is successfully mapped and tested in `gitmap/installer/export_global.go`.
 - [ ] All CI and `go test` commands exit zero.
 - [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

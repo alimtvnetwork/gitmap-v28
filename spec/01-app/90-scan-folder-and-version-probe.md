@@ -61,11 +61,13 @@ Empty in Phase 2.1 — created so Phase 2.3 doesn't need a separate migration. `
 ## CLI surface
 
 ### `gitmap-v28 sf add <absolute-path> [--label X] [--notes Y]`
+
 - Resolves the path with `filepath.Abs` (relative paths supported, but stored as absolute).
 - Upserts via `EnsureScanFolder`.
 - Prints `✓ Registered scan folder: <path> (id=N)` for first-time registration, or `✓ Scan folder already registered: <path> (id=N, last scanned T)` when the row already existed.
 
 ### `gitmap-v28 sf list` (alias `ls`)
+
 - Prints `Scan folders (N):` header followed by one block per row:
   ```
   [3] /Users/foo/code
@@ -75,6 +77,7 @@ Empty in Phase 2.1 — created so Phase 2.3 doesn't need a separate migration. `
 - Sort: `LastScannedAt DESC, AbsolutePath ASC`.
 
 ### `gitmap-v28 sf rm <absolute-path|id>` (alias `remove`)
+
 - Accepts either a path or a numeric id (`strconv.ParseInt`).
 - Counts repos via `SELECT COUNT(*) FROM Repo WHERE ScanFolderId = ?` BEFORE detach.
 - Detaches: `UPDATE Repo SET ScanFolderId = NULL WHERE ScanFolderId = ?`.

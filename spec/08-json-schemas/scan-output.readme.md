@@ -100,16 +100,21 @@ at the right.
 ## Recipes
 
 ```sh
+
 # All SSH-cloned repos as a flat list
+
 jq -r '.[] | select(.transport=="ssh") | .sshUrl' .gitmap/output/gitmap.json
 
 # Same query against the CSV (column 13 = transport)
+
 awk -F, 'NR>1 && $13=="ssh"' .gitmap/output/gitmap.csv
 
 # Repos at the max-depth boundary — candidates for a deeper rescan
+
 jq '.[] | select(.depth==4)' .gitmap/output/gitmap.json
 
 # Validate a JSON file against the schema
+
 check-jsonschema --schemafile spec/08-json-schemas/scan-output.schema.json \
   .gitmap/output/gitmap.json
 ```

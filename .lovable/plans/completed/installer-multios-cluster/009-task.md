@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 009 — Dedicated OS Update CLI
 
 ## 1. Goal
+
 CLI commands update-ubuntu, update-arch, update-centos, update-debian, update-fedora, update-mac, update-unix in `cmd/installer_os_update.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `cmd/installer_os_update.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestDedicatedOSUpdateCLI
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

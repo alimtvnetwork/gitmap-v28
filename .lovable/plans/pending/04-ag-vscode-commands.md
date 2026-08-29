@@ -1,6 +1,7 @@
 # 04-ag-vscode-commands: Add ag and vscode top-level commands with install subcommands
 
 ## 1. Context and Problem Statement
+
 The user requested:
 1. gitmap ag install command (and ntigravity install).
 2. gitmap vscode install command.
@@ -10,6 +11,7 @@ The user requested:
 ## 2. Architecture & Design
 
 ### Top-level commands g and scode
+
 - **Location**: gitmap/cmd/ag/ag.go and gitmap/cmd/vscode/vscode.go
 - **Logic**:
   - gitmap ag / gitmap antigravity:
@@ -22,11 +24,13 @@ The user requested:
     - Otherwise, run code <args> (defaulting to code .).
 
 ### Context Menu Integration
+
 - **Location**: gitmap/cmd/installctxentries.go
 - **Logic**:
   - Add {KeyName: "80_antigravity", MUIVerb: "Open project with Antigravity", Args: []string{"ag"}, Mode: constants.CtxModeTerminal, Icon: constants.CtxIconGitmap} to ctxMenu().
 
 ### Install Command Integration
+
 - **Location**: gitmap/constants/constants_install.go
 - **Logic**:
   - Add ToolAntigravity = "antigravity" and ToolAgCtx = "ag-ctx".
@@ -35,7 +39,10 @@ The user requested:
 - **Logic**:
   - Map ToolAntigravity to a package manager install (e.g. winget or npm? Actually we can just print a message or use generic package install if available). Since AG is mostly an npm package or python package, maybe we just print instructions or run 
 pm i -g @google/antigravity if applicable. We will use xecuteGenericInstall.
-  - Map ToolAgCtx to a new unAgContextMenu() in gitmap/cmd/installtools.go which runs unInstallCtx for just the AG key. Or since gitmap install ctx installs everything, g-ctx could just be a targeted installer. Wait, unInstallCtx generates the whole registry script. We can just add it to ctxMenu() so gitmap install ctx picks it up.
+  - Map ToolAgCtx to a new 
+unAgContextMenu() in gitmap/cmd/installtools.go which runs 
+unInstallCtx for just the AG key. Or since gitmap install ctx installs everything, g-ctx could just be a targeted installer. Wait, 
+unInstallCtx generates the whole registry script. We can just add it to ctxMenu() so gitmap install ctx picks it up.
 
 ## 3. Subtasks
 

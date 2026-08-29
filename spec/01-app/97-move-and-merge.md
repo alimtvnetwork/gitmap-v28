@@ -289,33 +289,43 @@ out at whatever branch they currently hold).
 ## Examples
 
 ```
+
 # move local folder into another local folder, deleting source
+
 gitmap-v28 mv ./gitmap-v28 ./gitmap-v28
 
 # move local folder into a remote repo (clone, copy, commit, push)
+
 gitmap-v28 mv ./gitmap-v28 https://github.com/alimtvnetwork/gitmap-v28
 
 # move a remote repo's contents into a local folder
+
 gitmap-v28 mv https://github.com/alimtvnetwork/gitmap-v28 ./another-folder
 
 # move between two remote repos (clones both, copies, pushes RIGHT)
+
 gitmap-v28 mv https://github.com/alimtvnetwork/gitmap-v28 \
          https://github.com/alimtvnetwork/gitmap-v28
 
 # merge missing files only (identical or differing files prompt)
+
 gitmap-v28 merge-both ./gitmap-v28 ./gitmap-v28
 
 # merge with auto-accept: each side's source wins
+
 gitmap-v28 merge-right ./gitmap-v28 https://github.com/alimtvnetwork/gitmap-v28 -y
 
 # merge with explicit policy
+
 gitmap-v28 merge-both ./gitmap-v28 https://github.com/alimtvnetwork/gitmap-v28 \
          -y --prefer-newer
 
 # pin remote branch
+
 gitmap-v28 merge-right ./local https://github.com/owner/repo:develop
 
 # preview without writing anything
+
 gitmap-v28 mv ./gitmap-v28 ./gitmap-v28 --dry-run
 ```
 

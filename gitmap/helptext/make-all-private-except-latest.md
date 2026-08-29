@@ -38,13 +38,17 @@ For every base group with 2+ versioned siblings:
 ## Examples
 
 ```
+
 # Archive every prior version privately, keep latest public
+
 gitmap make-all-private-except-latest alice "myapp-v*" -Y
 
 # Two base groups, parallel 16
+
 gitmap make-all-private-except-latest alice "demo-v*,api-v*" --parallel=16 -Y
 
 # Uppercase shorthand
+
 gitmap MAPRIXL alice "demo-v*"
 ```
 

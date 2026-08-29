@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 008 � Implement PullParallel - Part 2
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 8
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 8
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 8
 - [Custom Link 8](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 8
 
 ## 2. Goal
+
 Isolate PullParallel logic for part 2. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes PullParallelRequest, emits PullParallelResponse.
 
 ## 4. Execute
+
 1. Define 	ype PullParallelPart2 struct { ... } in gitmap/cmd/pull_worker.go.
 2. Define unc InitPullParallelPart2() error in gitmap/cmd/pull_worker.go.
 3. Define unc (x *PullParallelPart2) Process8() bool in gitmap/cmd/pull_worker.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitPullParallelPart2 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype PullParallelPart2 is defined
 - [ ] unc InitPullParallelPart2 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

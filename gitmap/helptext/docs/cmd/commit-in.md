@@ -3,12 +3,14 @@
 Automated, intelligent commit engine featuring author rotation, SEO commit scheduling, function intelligence (funcintel), and profile synchronization.
 
 ## Syntax
+
 ```bash
 gitmap commit-in [flags]
 gitmap commit-write [flags]
 ```
 
 ## JSON Configuration Schema
+
 ```json
 {
   "profile": "default",
@@ -31,6 +33,7 @@ gitmap commit-write [flags]
 ```
 
 ## Flags & Options
+
 - `--profile <name>`: Load specific profile configuration.
 - `--seo-url <url>`: Website URL for template commit generation.
 - `--dry-run`: Preview commits without modifying Git history.

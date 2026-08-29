@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 012 — Remote Git Export Sandbox
 
 ## 1. Goal
+
 Export to remote Git repository URL with auto-push in `installer/export_git_remote.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `installer/export_git_remote.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestRemoteGitExportSandbox
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

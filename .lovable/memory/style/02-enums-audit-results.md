@@ -4,9 +4,11 @@
 - **Status**: Clean
 
 ## Overview
+
 A full codebase audit was performed to locate and fix violations of the strict code quality baseline defined in `01-ts-enums-and-query-wrappers.md`.
 
 ## Findings
+
 1. **Inverted Booleans (`!isSuccess`)**: 0 violations found.
 2. **TS String Union Types**: 0 violations found.
 3. **Query Wrappers**: 
@@ -15,4 +17,5 @@ A full codebase audit was performed to locate and fix violations of the strict c
    - PHP Wrapper created (`.github/scripts/query_wrapper.php`).
 
 ## Next Actions for Agents
+
 No pre-existing instances of inverted booleans or TS string union type violations remain in the current codebase state. Agents must strictly adhere to the baseline going forward (always use `isFail` and Enums ending in `Type`).

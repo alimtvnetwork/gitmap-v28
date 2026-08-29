@@ -100,7 +100,9 @@ if ($currentPath -notlike "*$installDir*") {
 After modifying PATH, broadcast the change so other processes pick it up:
 
 ```powershell
+
 # SendMessageTimeout to notify Explorer of environment change
+
 Add-Type -Namespace Win32 -Name NativeMethods -MemberDefinition @"
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr SendMessageTimeout(
@@ -161,6 +163,7 @@ systems is `dash` (not `bash`), add a self-re-exec guard:
 #!/usr/bin/env bash
 
 # Re-exec under bash if running under a different shell
+
 if [ -z "$BASH_VERSION" ]; then
     if command -v bash >/dev/null 2>&1; then
         exec bash -s -- "$@" < /dev/stdin

@@ -29,11 +29,14 @@ Every pipeline follows a fixed stage sequence:
 - Pin action versions to full SHA or exact tag — never use `@latest` or `@main`
 
 ```yaml
+
 # Good
+
 - uses: actions/checkout@v6
 - uses: actions/setup-go@v6
 
 # Bad
+
 - uses: actions/checkout@main
 ```
 
@@ -189,13 +192,16 @@ Examples: `gitmap-linux-amd64.tar.gz`, `gitmap-windows-arm64.zip`
 Use `working-directory` in the workflow step definition instead of `cd` in the script body. Relative `cd` commands break silently in monorepos when the working directory is not what you expect.
 
 ```yaml
+
 # ✅ Correct
+
 - name: Compress artifacts
   working-directory: gitmap-v28/dist
   run: |
     for f in gitmap-*; do ...
 
 # ❌ Wrong — fails if CWD is not gitmap-v28/
+
 - name: Compress artifacts
   run: |
     cd dist
@@ -215,10 +221,13 @@ Always verify the expected directory exists before operating on it:
 All Go tools installed via `go install` must use exact version tags, not `@latest`:
 
 ```bash
+
 # ✅ Correct
+
 go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
 
 # ❌ Wrong
+
 go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 ```
 

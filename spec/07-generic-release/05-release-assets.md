@@ -93,10 +93,13 @@ Each archive contains a **single file** — the binary itself. No nested
 directories, no READMEs, no LICENSE files inside the archive.
 
 ```bash
+
 # Correct: flat binary in archive
+
 tar czf mytool-linux-amd64.tar.gz mytool-linux-amd64
 
 # Wrong: nested directory structure
+
 tar czf mytool-linux-amd64.tar.gz mytool/mytool
 ```
 

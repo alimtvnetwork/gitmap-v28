@@ -1,9 +1,11 @@
 # Subtask 03: CLI Command & UI Rendering
 
 ## Goal
+
 Wire the logic into the CLI.
 
 ## Requirements
+
 1. **File**: `gitmap/cmd/release_scan_commits.go`
    - Implement `runReleaseScanCommits(args []string)`
    - Parse `--all` flag.

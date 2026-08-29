@@ -4,6 +4,7 @@
 **Applies to:** scan, clone, clone-next, pull, safe-pull, probe, clone scripts, terminal report, docs.
 
 ## Rule
+
 1. Scan MUST persist BOTH `HTTPSUrl` and `SSHUrl` for every repo whenever derivable.
 2. Scan MUST record the **identified transport** of `origin` (`ssh` | `https`) as a first-class field on the repo record.
 3. Any subsequent operation that needs a URL MUST select the URL matching the identified transport. Falling back to the other transport is only allowed when the matching URL is empty, and MUST be logged.

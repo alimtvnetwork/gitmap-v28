@@ -55,10 +55,13 @@ The pipeline executes these stages **in strict order**:
 Extract the version from the Git ref:
 
 ```bash
+
 # From tag: refs/tags/v1.2.0 → 1.2.0
+
 VERSION="${GITHUB_REF#refs/tags/v}"
 
 # From branch: refs/heads/release/1.2.0 → 1.2.0
+
 VERSION="${GITHUB_REF#refs/heads/release/}"
 ```
 
@@ -143,6 +146,7 @@ The release body should include:
 3. **Checksum table** — formatted SHA-256 hashes
 
 ```markdown
+
 ## Installation
 
 **Windows (PowerShell)**

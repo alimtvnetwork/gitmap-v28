@@ -57,10 +57,13 @@ files) of every repo in the batch.
 ## Examples
 
 ```bash
+
 # Three already-registered repos in one shot
+
 gitm prc gitmap v5.31.0, marco v2.5.0, other-rep v3.5.0
 
 # Mix of registered slugs and a fresh URL clone-then-release
+
 gitm prc gitmap v5.31.0, https://github.com/me/url-git v3.1.0
 ```
 

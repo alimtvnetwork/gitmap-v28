@@ -3,6 +3,7 @@ name: strictly-prohibited
 description: Append-only numbered registry of forbidden actions; mirrors spec/03-general/10-strictly-prohibited.md.
 type: constraint
 ---
+
 # Strictly-Prohibited Registry (append-only, numbered)
 
 Entries are FORBIDDEN forever. Never deleted, never renumbered. Refuse and cite the entry by number.

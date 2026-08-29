@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 042 � Implement MacroCommands - Part 2
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 42
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 42
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 42
 - [Custom Link 42](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 42
 
 ## 2. Goal
+
 Isolate MacroCommands logic for part 2. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes MacroCommandsRequest, emits MacroCommandsResponse.
 
 ## 4. Execute
+
 1. Define 	ype MacroCommandsPart2 struct { ... } in gitmap/cmd/macro_cmd.go.
 2. Define unc InitMacroCommandsPart2() error in gitmap/cmd/macro_cmd.go.
 3. Define unc (x *MacroCommandsPart2) Process42() bool in gitmap/cmd/macro_cmd.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitMacroCommandsPart2 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype MacroCommandsPart2 is defined
 - [ ] unc InitMacroCommandsPart2 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

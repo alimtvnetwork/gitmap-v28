@@ -119,6 +119,7 @@ sudo ./09-create-root-user-v2.sh worker4 awe1233401212 jnrowe && \
 sudo ./09-create-root-user-v2.sh test1 awe1233401212 dst
 
 ```
+
 ## List available Users
 
 ```bash
@@ -186,6 +187,7 @@ sudo ./01-zsh-theme-change-v2.sh half-life
 sudo chmod +x 09-repo-permissions.sh && \
 ./09-repo-permissions.sh
 ```
+
 ## 18 Git Pull
 
 ```bash

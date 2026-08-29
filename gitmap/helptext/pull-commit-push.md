@@ -32,4 +32,3 @@ gitmap pull-commit-push "fix: resolve merge conflict in constants.go"
 gitmap pcp "feat: add new search command"
 gitmap pull-commit-push "chore: sync with upstream before pushing release"
 ```
-

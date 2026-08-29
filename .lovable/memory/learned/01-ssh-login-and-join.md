@@ -1,6 +1,7 @@
 # Learned: SSH Login and Host Join
 
 ## Architectural Patterns
+
 1. **Host Target Format**:
    - Accepts targets in format `user@ip:port` or `ip@user` or `alias`.
    - Defaults: user `root`, port `22`.

@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 026 � Implement ErrorSchema - Part 2
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 26
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 26
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 26
 - [Custom Link 26](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 26
 
 ## 2. Goal
+
 Isolate ErrorSchema logic for part 2. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes ErrorSchemaRequest, emits ErrorSchemaResponse.
 
 ## 4. Execute
+
 1. Define 	ype ErrorSchemaPart2 struct { ... } in gitmap/cmd/error_schema.go.
 2. Define unc InitErrorSchemaPart2() error in gitmap/cmd/error_schema.go.
 3. Define unc (x *ErrorSchemaPart2) Process26() bool in gitmap/cmd/error_schema.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitErrorSchemaPart2 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype ErrorSchemaPart2 is defined
 - [ ] unc InitErrorSchemaPart2 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

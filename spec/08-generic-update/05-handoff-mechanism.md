@@ -134,16 +134,20 @@ func buildUpdateScript(repoPath, runPS1 string) string {
 Set-Location '%s'
 
 # Detect current deploy path
+
 $deployDir = Split-Path (Get-Command <binary>).Source -Parent
 
 # Show version before update
+
 $beforeVersion = & <binary> version 2>&1
 Write-Host "  Before: $beforeVersion"
 
 # Run the build script with update flag
+
 & '%s' -Update
 
 # Show version after update
+
 $afterVersion = & <binary> version 2>&1
 Write-Host "  After:  $afterVersion"
 

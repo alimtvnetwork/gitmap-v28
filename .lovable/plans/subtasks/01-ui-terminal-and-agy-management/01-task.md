@@ -1,4 +1,5 @@
 # Task 1: UI Terminal Frontend
+
 Implement the web-based terminal UI inside the `hd` dashboard.
 - Create `src/components/terminal/TerminalView.tsx` (using xterm.js or similar standard web terminal).
 - Styling: Ubuntu terminal background (dark eggplant), white text, Ubuntu Mono font.

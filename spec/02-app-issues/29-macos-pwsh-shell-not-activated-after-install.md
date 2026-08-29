@@ -102,7 +102,9 @@ EFFECTIVE_REPO=$(resolve_effective_repo ...)
 if [ "$EFFECTIVE_REPO" != "$REPO" ]; then
     invoke_delegated_installer "$EFFECTIVE_REPO" || true   # ← guarded
 fi
+
 # ... falls through to baseline prompt + install ...
+
 ```
 
 `invoke_delegated_installer` ends with `exit $?`, which only runs if
@@ -191,10 +193,14 @@ Manual (macOS, pwsh open in Terminal.app):
 
 ```pwsh
 PS> curl -fsSL https://raw.githubusercontent.com/.../install-quick.sh | bash
+
 # expect: prompt fires ONCE, summary shows "Shell: pwsh", reload line is `. $PROFILE`
+
 PS> . $PROFILE
 PS> gitmap-v28 --version
+
 # expect: prints v3.43.1
+
 ```
 
 Automated regression (CI, future work):

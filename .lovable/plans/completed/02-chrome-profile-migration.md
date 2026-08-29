@@ -7,9 +7,11 @@ total_tasks: 30
 # Plan: Chrome Profile Migration (Cross-OS)
 
 ## Overview
+
 Enhance gitmap chrome-profile-export and import to support .zip and .sqlite formats for cross-OS migration.
 
 ## Tasks
+
 - [ ] 001-task.md: Analyze Chrome SQLite Schema for Export (History, Web Data)
 - [ ] 002-task.md: Define Cross-OS File Mapping (Windows vs Linux)
 - [ ] 003-task.md: Update constants_chromeprofile.go with Format Flags

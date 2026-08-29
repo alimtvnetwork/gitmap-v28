@@ -20,8 +20,10 @@ The scripts .github/scripts/smoke-installer.sh and .github/scripts/smoke-install
 
 1. **Removed Wrappers:** Deleted .github/scripts/smoke-installer.sh and .github/scripts/smoke-installer.ps1 entirely.
 2. **Direct Python Invocation:** Updated .github/workflows/ci.yml and .github/workflows/release.yml to execute the Python script natively. 
-   - Old: un: bash .github/scripts/smoke-installer.sh release
-   - New: un: python .github/scripts/smoke-installer.py release
+   - Old: 
+un: bash .github/scripts/smoke-installer.sh release
+   - New: 
+un: python .github/scripts/smoke-installer.py release
 
 ## Permanent guarantees
 

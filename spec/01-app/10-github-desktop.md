@@ -17,7 +17,9 @@ automatically when GitHub Desktop is installed.
 ### With Scan
 
 ```bash
+
 # Scan and add all discovered repos to GitHub Desktop
+
 gitmap scan ./projects --github-desktop
 ```
 
@@ -28,7 +30,9 @@ in the GitHub Desktop repository list.
 ### With Clone
 
 ```bash
+
 # Clone and add all successfully cloned repos to GitHub Desktop
+
 gitmap clone ./.gitmap/output/gitmap.json --target-dir ./restored --github-desktop
 ```
 

@@ -299,56 +299,73 @@ all other files are pure helpers with no cross-dependencies.
 ## CLI Examples
 
 ```bash
+
 # Full semver release from HEAD
+
 gitmap release v1.2.3
 
 # Partial version (padded to v1.0.0)
+
 gitmap release v1
 
 # With assets
+
 gitmap release v2.0.0 --assets ./dist
 
 # With Go binary cross-compilation
+
 gitmap release v2.0.0 --bin
 gitmap release v2.0.0 -b --assets ./dist
 
 # Alias
+
 gitmap r v1.5.0
 
 # From specific commit
+
 gitmap release v1.2.3 --commit abc123def
 
 # From specific branch
+
 gitmap release v1.0.0 --branch develop
 
 # Auto-increment
+
 gitmap release --bump patch
 gitmap release --bump minor --bin
 
 # Draft release
+
 gitmap release v3.0.0-rc.1 --draft
 
 # Dry-run preview
+
 gitmap release v1.0.0 --dry-run
 
 # No version — reads version.json
+
 gitmap release
 
 # Complete release from existing release branch
+
 gitmap release-branch release/v1.2.0
 gitmap rb release/v1.2.0
 
 # Dry-run from branch
+
 gitmap release-branch release/v1.2.0 --dry-run
 
 # Release all untagged release branches
+
 gitmap release-pending
 gitmap rp              # alias
 
 # Preview pending releases
+
 gitmap release-pending --dry-run
 
 # Release pending with assets
+
 gitmap release-pending --assets ./dist
 ```
 

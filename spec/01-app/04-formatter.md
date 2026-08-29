@@ -46,6 +46,7 @@ Write a JSON array of `ScanRecord` objects with 2-space indentation.
 Write a tree view of discovered repos:
 
 ```markdown
+
 # Folder Structure
 
 Git repositories discovered by gitmap.

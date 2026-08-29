@@ -7,6 +7,7 @@ To support default work directory tracking, interactive macro recordings, and cl
 ## 2. Table Definitions
 
 ### 2.1 Scan Folders & Work Directories (`scan_folders`)
+
 ```sql
 CREATE TABLE IF NOT EXISTS scan_folders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS scan_folders (
 ```
 
 ### 2.2 Interactive Macros (`macros` & `macro_steps`)
+
 ```sql
 CREATE TABLE IF NOT EXISTS macros (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,6 +46,7 @@ CREATE TABLE IF NOT EXISTS macro_steps (
 ```
 
 ### 2.3 Cluster Nodes & Connectivity (`cluster_nodes`)
+
 ```sql
 CREATE TABLE IF NOT EXISTS cluster_nodes (
     id TEXT PRIMARY KEY,

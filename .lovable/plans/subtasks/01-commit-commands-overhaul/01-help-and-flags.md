@@ -5,4 +5,5 @@
    - Examples of altering commit history.
    - Examples of adding multiple (20+) co-authors.
    - Documentation for the new --pr flag.
-3. Add the --pr flag to the CLI parsers for these commands. Valid values: ll, 	ags, elease.
+3. Add the --pr flag to the CLI parsers for these commands. Valid values: ll, 	ags, 
+elease.

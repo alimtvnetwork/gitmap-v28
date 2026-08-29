@@ -1,11 +1,13 @@
 # Plans Index
 
 ## Pending Plans
+
 - [ ] [18-coding-guidelines-audit.md](.lovable/plans/pending/18-coding-guidelines-audit.md) — Master coding guidelines gap audit, 0-100 scoring ledger, and atomic remediation subtasks.
 - [ ] [19-naming-conventions-audit.md](.lovable/plans/pending/19-naming-conventions-audit.md) — Variable & boolean naming conventions, anti-ok refactoring, and positive framing guard clauses.
 - [ ] [20-style-guidelines-audit.md](.lovable/plans/pending/20-style-guidelines-audit.md) — Coding style, newline formatting, blank lines before if/return, after }, and line-gaps.
 
 ## Completed Plans
+
 - [x] [17-boolean-and-naming-audit.md](.lovable/plans/completed/17-boolean-and-naming-audit.md) — Repository-wide boolean conventions, positive prefixes, implicit checks, enum Type suffixes, and nested if flattening.
 - [x] [00-execution-plan.md](.lovable/plans/completed/00-execution-plan.md)
 - [x] [16-error-management-audit.md](.lovable/plans/completed/16-error-management-audit.md) — Autonomous repository-wide error management audit, AppError wrappers, cliexit handlers, and CI error linter.

@@ -1,4 +1,5 @@
 # Memory: features/interactive-tui
+
 Updated: now
 
 The Terminal User Interface (TUI), built with Bubble Tea and Lipgloss, provides a multi-view management experience with 9 primary views: 'Repos' (fuzzy-search), 'Actions' (batch operations), 'Groups' (collection management), 'Status' (live git dashboard), 'Releases' (history and metadata browser), 'Temp Releases' (lightweight branch visualization), 'Zip Groups' (archive management), 'Aliases' (shortcut mapping), and 'Logs' (searchable command history and detail viewer).

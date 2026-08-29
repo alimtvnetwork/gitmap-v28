@@ -116,13 +116,19 @@ exits 1.
 ## Examples
 
 ```sh
+
 # Preview what a removal would do, without touching the file:
+
 gitmap startup-remove --dry-run gitmap-sync-watcher
+
 #   (dry-run) would remove gitmap-managed autostart entry: /home/me/.config/autostart/gitmap-sync-watcher.desktop
 
 # Then commit:
+
 gitmap startup-remove gitmap-sync-watcher
+
 #   ✓ Removed gitmap-managed autostart entry: /home/me/.config/autostart/gitmap-sync-watcher.desktop
+
 ```
 
 ## Platform notes

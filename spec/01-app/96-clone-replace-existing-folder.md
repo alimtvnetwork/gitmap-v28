@@ -47,6 +47,7 @@ if target does NOT exist:
     return
 
 # Target exists. Try the fast path first.
+
 log "[clone] target exists: <target>"
 log "[clone] strategy 1/2 — direct remove + clone"
 
@@ -56,6 +57,7 @@ if err == nil:
     return
 
 # Direct removal failed (Windows lock, in-use, permission).
+
 log "[clone] strategy 1/2 failed: <err>"
 log "[clone] strategy 2/2 — temp-clone then swap-in-place"
 
@@ -64,10 +66,13 @@ ensure tempclone does not exist (remove if stale)
 git clone <url> <tempclone>            # never touches target
 
 # Empty target's contents (don't remove the folder itself — it may be the cwd
+
 # of the user's shell or another locked handle to the directory itself).
+
 emptyDirectoryContents(target)         # see §4
 
 # Move every entry from tempclone → target, then drop tempclone.
+
 moveDirectoryContents(tempclone, target)
 removeAll(tempclone)
 
@@ -75,6 +80,7 @@ log "[clone] swap complete; target now points at fresh clone"
 return
 
 # Both strategies failed:
+
 log "[clone] both strategies failed"
 exit non-zero with a clear actionable error
 ```

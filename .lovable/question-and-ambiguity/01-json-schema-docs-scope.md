@@ -21,18 +21,22 @@ Three independent unknowns the user did not specify:
 ## Options
 
 ### A — Narrow scope: only stablejson outputs, hand-written JSON Schema 2020-12 + propertyOrder
+
 - **Pros**: Tiny surface area (1 schema today). Matches the existing "stablejson is the contract surface" memory rule. Hand-written schemas can include human prose. No new code paths.
 - **Cons**: Doesn't help consumers of the 20+ `json.MarshalIndent` outputs. User said "each JSON output" which reads broader.
 
 ### B — Wide scope: schema for every CLI JSON output, generated from Go structs via `go generate`
+
 - **Pros**: Complete coverage. Auto-stays in sync with code. Surfaces the structs that should migrate to stablejson.
 - **Cons**: Reflection-based generation cannot express the stablejson ordering guarantee for non-stablejson outputs (because that ordering is not actually guaranteed there). Adds a code-gen toolchain dependency. ~3-5 days of work.
 
 ### C — Wide scope, hand-written schemas, ordering documented as advisory
+
 - **Pros**: Full coverage today; ordering doc explicitly says "advisory for non-stablejson outputs, contractual for stablejson outputs." Honest about the current reality. No new tooling.
 - **Cons**: Drift risk — schemas live separately from structs. Mitigated by a contract test that round-trips a sample through the schema validator.
 
 ### D — Hybrid: stablejson outputs get strict contractual schemas; non-stablejson get auto-generated descriptive schemas with a "non-contractual ordering" warning
+
 - **Pros**: Honest. Strict where we can be, descriptive where we can't. Encourages migration to stablejson by making the contract gap visible.
 - **Cons**: Two systems to maintain.
 

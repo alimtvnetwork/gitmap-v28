@@ -1,15 +1,18 @@
 # 01-zsh-kube-consolidation.md
 
 ## Context
+
 The user has requested consolidation of Kubernetes scripts and ZSH configuration logic into robust Go-based CLI commands. This plan has exactly 300 steps.
 **Execution Policy:** One step per run, self-loop after Verify passes. Max 2 agents, max 3 threads per agent. No step assumes knowledge from a previous run.
 **Release Policy:** No task file contains a commit, push, tag, or release instruction. A release fires ONLY when the ENTIRE plan is finished (all tasks moved to completed).
 
 ## CI/CD Verification
+
 - CI Pipeline: `spec/12-cicd-pipeline-workflows/01-ci-pipeline.md`
 - Code Tasks Guard: `linter-scripts/check-golang.sh`
 
 ## Coding-Guideline Single-File Checklist
+
 | Topic | Single source file | Duplicates found |
 | --- | --- | --- |
 | canonical size tier | spec/02-coding-guidelines/00-canonical-size-tier.md | none |
@@ -42,4 +45,3 @@ The user has requested consolidation of Kubernetes scripts and ZSH configuration
 | ci guards | spec/12-cicd-pipeline-workflows/03-reusable-ci-guards/00-overview.md | none |
 | contract + e2e testing | spec/12-cicd-pipeline-workflows/13-contract-testing.md, spec/12-cicd-pipeline-workflows/14-e2e-testing-pattern.md | none |
 | static analysis / sarif | spec/02-coding-guidelines/06-cicd-integration/01-sarif-contract.md | none |
-

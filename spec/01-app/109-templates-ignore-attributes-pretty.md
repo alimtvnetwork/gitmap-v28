@@ -73,10 +73,15 @@ gitmap/templates/
 Every template file starts with a header:
 
 ```
+
 # source: github.com/github/gitignore@<sha>/Go.gitignore (curated)
+
 # kind: ignore
+
 # lang: go
+
 # version: 1
+
 ```
 
 The `source:` line is the audit trail. When we re-curate from upstream we
@@ -87,11 +92,15 @@ bump `version:` and update the SHA.
 ### 4.1 Marker Block
 
 ```
+
 # >>> gitmap-ignore (do not edit between markers) >>>
+
 <merged + deduped template lines>
+
 # <<< gitmap-ignore <<<
 
 # user entries (preserved across re-runs)
+
 <existing user-defined rules>
 ```
 

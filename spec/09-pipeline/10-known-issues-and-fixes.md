@@ -54,7 +54,9 @@ Regenerate the lockfile from scratch:
 cd /dev-server
 rm -f package-lock.json
 npm install --package-lock-only --ignore-scripts
+
 # Verify:
+
 npm ci --ignore-scripts --dry-run
 ```
 

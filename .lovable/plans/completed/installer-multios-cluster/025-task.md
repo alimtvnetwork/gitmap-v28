@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 025 — Deep Help Catalog Engine
 
 ## 1. Goal
+
 Enhanced dynamic help catalog and command search in `helptext/catalog.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `helptext/catalog.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestDeepHelpCatalogEngine
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

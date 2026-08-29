@@ -77,6 +77,7 @@ if (Test-Path $destFile) {
 }
 
 # Copy new binary — destination is free after rename
+
 $maxAttempts = 5
 $attempt = 1
 while ($true) {
@@ -116,6 +117,7 @@ if [[ -f "$dest_file" ]]; then
 fi
 
 # Copy new binary — destination is free after rename
+
 max_attempts=5
 attempt=1
 while [[ $attempt -le $max_attempts ]]; do
@@ -185,8 +187,11 @@ $activeBinary = (Get-Command <binary>).Source
 $activeBackup = "$activeBinary.old"
 
 # Rename the PATH binary
+
 Rename-Item $activeBinary $activeBackup -Force
+
 # Copy the newly deployed binary to the PATH location
+
 Copy-Item $deployedBinary $activeBinary -Force
 ```
 

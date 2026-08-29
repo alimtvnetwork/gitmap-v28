@@ -43,11 +43,14 @@ When cloning a versioned URL without a custom folder name:
 ### Database Schema
 
 #### Repos table — version columns
+
 - `CurrentVersionTag TEXT DEFAULT ''` — e.g., "v16"
 - `CurrentVersionNum INTEGER DEFAULT 0` — e.g., 16
 
 #### `RepoVersionHistory` table
+
 Tracks every version transition with from/to tags, numbers, flattened path, and timestamp.
 
 ### Related Commands
+
 - `gitmap version-history` (`vh`) — Display all version transitions for the current repo

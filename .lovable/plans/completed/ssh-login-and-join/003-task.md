@@ -24,17 +24,21 @@ citations:
   ambiguity: "n/a"
   issue_rca: "n/a"
 ---
+
 # Task 003 — Implement SSHHost Insert
 
 ## 1. Learn
+
 - [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
 - [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [gitmap/store/ssh_repo.go](gitmap/store/ssh_repo.go) — Why: Target file.
 
 ## 2. Goal
+
 Deliver the Implement step for `InsertSSHHost` to support the Implement SSHHost Insert feature. This is isolated logic for the SSH/IP subdomains.
 
 ## 3. Inputs and Contracts
+
 - Types: `string`, `context.Context`
 - Outputs: `error`
 - Codes: `E_INTERNAL_ERROR`
@@ -44,16 +48,19 @@ Deliver the Implement step for `InsertSSHHost` to support the Implement SSHHost 
   ```
 
 ## 4. Execute
+
 1. Write `InsertSSHHost(ctx context.Context, host SSHHost) error`.
 2. Use named parameters `INSERT INTO ssh_hosts ... VALUES (:id, ...)`.
 3. Return wrapped `apperror` on constraint violation.
 
 ## 5. Constraints
+
 - **Canonical Size**: spec/05-coding-guidelines/01-code-quality-improvement.md.
 - **Error Types**: Must use `apperror`.
 - **No Globals**: .lovable/strictly-avoid.md.
 
 ## 6. Verify
+
 ```bash
 go test ./... -v -run InsertSSHHost
 ```
@@ -63,14 +70,15 @@ PASS
 ```
 
 ## 7. Done When
+
 - [ ] 1. `InsertSSHHost` is fully functional.
 - [ ] 2. Tests pass successfully.
 - [ ] 3. No canonical size violations exist.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---
 Execution: one step per run. Self-loop after Verify passes. Max 2 agents, max 3 threads per agent.
 This task is standalone — read it plus its cited files, nothing else is assumed.
-

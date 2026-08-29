@@ -1,4 +1,5 @@
 git-rm help
+
 ## Examples
 
 git-rm example usage

@@ -1,6 +1,7 @@
 # Specification: Coding Guidelines Multi-Repo, Version Status & Status Dirty Filter
 
 ## 1. Overview
+
 This specification covers:
 1. **Coding Guidelines Status & Version**: `gitmap cg version` and `gitmap cg status` reading `"coding-guidelines"` from `version.json`.
 2. **Multi-Repo Auto-Discovery**: When `gitmap cg install/update`, `gitmap pull`, or `gitmap push` is executed in a folder containing multiple Git repositories, auto-discover all child Git repositories.
@@ -10,6 +11,7 @@ This specification covers:
 6. **Markdown Help Output**: Support `--markdown` on help commands to output formatted markdown examples.
 
 ## 2. version.json Schema for Coding Guidelines
+
 ```json
 {
   "version": "6.104.0",
@@ -22,6 +24,7 @@ This specification covers:
 ```
 
 ## 3. Command Routing & Options
+
 - `gitmap cg version [repo...]`: Reads and prints the version of coding guidelines installed.
 - `gitmap cg status [repo...]`: Displays status table across repositories showing whether coding guidelines are installed and their version.
 - `gitmap cg repo install <path|alias|id|url>`: Installs to specified repos.

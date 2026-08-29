@@ -43,17 +43,25 @@ The pattern **must** contain at least one `$` sequence.
 ### Examples
 
 ```bash
+
 # Create 10 branches from last 10 commits, starting at sequence 5
+
 gitmap-v28 tr 10 v1.$$ -s 5
+
 # Creates: temp-release/v1.05 (oldest) through temp-release/v1.14 (newest)
 
 # Create 1 branch, auto-increment from last temp-release
+
 gitmap-v28 tr 1 v1.$$
+
 # If last temp-release was v1.43, creates: temp-release/v1.44
 
 # Create 5 branches with 3-digit padding
+
 gitmap-v28 tr 5 v2.1.$$$ -s 1
+
 # Creates: temp-release/v2.1.001 through temp-release/v2.1.005
+
 ```
 
 ### Branch Naming
@@ -143,13 +151,17 @@ Shows: branch name, short SHA, commit message (truncated), and commit date.
 ### Syntax
 
 ```bash
+
 # Remove a single branch
+
 gitmap-v28 tr remove v1.05
 
 # Remove a range (inclusive)
+
 gitmap-v28 tr remove v1.05 to v1.10
 
 # Remove all temp-release branches
+
 gitmap-v28 tr remove all
 ```
 

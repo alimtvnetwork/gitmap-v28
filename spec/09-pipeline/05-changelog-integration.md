@@ -11,16 +11,20 @@ The changelog is a critical piece of the release pipeline. It must be synchroniz
 Use [Keep a Changelog](https://keepachangelog.com/) conventions with SemVer headers:
 
 ```markdown
+
 ## v1.3.0 — 2026-04-09
 
 ### Added
+
 - New `env` command for cross-platform environment variable management.
 - Shell completion for Fish.
 
 ### Fixed
+
 - Fixed PATH registration on Git Bash when `.bash_profile` does not exist.
 
 ### Changed
+
 - Installer now prints version at both start and end of installation.
 
 ---
@@ -28,6 +32,7 @@ Use [Keep a Changelog](https://keepachangelog.com/) conventions with SemVer head
 ## v1.2.3 — 2026-04-01
 
 ### Fixed
+
 - Fixed checksum verification failure on ARM64 macOS.
 ```
 
@@ -58,13 +63,18 @@ Add a changelog entry **before** creating a release branch or tag. The entry mus
 ### Example Workflow
 
 ```bash
+
 # 1. Bump version constant in code
+
 # 2. Update changelog.md with new entry
+
 # 3. Commit both changes
+
 git add version.json changelog.md
 git commit -m "Prepare v1.3.0 release"
 
 # 4. Create release branch
+
 git checkout -b release/v1.3.0
 git push origin release/v1.3.0
 ```
@@ -81,6 +91,7 @@ The release pipeline extracts the changelog entry for the current version and in
 VERSION="${1:?Usage: extract-changelog.sh <version>}"
 
 # Strip 'v' prefix for matching
+
 CLEAN_VERSION="${VERSION#v}"
 
 CHANGELOG=$(awk -v ver="$CLEAN_VERSION" '
@@ -118,6 +129,7 @@ In the release workflow, call this after version resolution:
 The release description assembles multiple sections:
 
 ```markdown
+
 ## What's New
 
 <extracted changelog entry>
@@ -177,6 +189,7 @@ VERSION="$1"
 REPO="$2"
 
 cat > /tmp/release-body.md << EOF
+
 ## What's New
 
 $(cat /tmp/changelog-entry.md)

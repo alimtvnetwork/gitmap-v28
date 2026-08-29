@@ -5,9 +5,11 @@ subtask: 02-cliexit-central-handler
 status: pending
 
 ## Goal
+
 Enhance `gitmap/cliexit/cliexit.go` to provide centralized error handling, strategy selection (exit vs panic), pipe draining, and user-actionable reporting.
 
 ## Specifications
+
 1. Implement `cliexit.HandleError(err error, defaultCode int)`:
    - Inspects if `err` is `*apperror.AppError`.
    - If not, wraps it into `apperror.WrapSimple(err, "unknown")`.
@@ -21,4 +23,5 @@ Enhance `gitmap/cliexit/cliexit.go` to provide centralized error handling, strat
 3. Keep all functions under 15 lines.
 
 ## Verification
+
 - Unit tests in `gitmap/cliexit/cliexit_test.go` covering formatted reporting and panic mode.

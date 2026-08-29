@@ -1,6 +1,7 @@
 # 10 LLM Commit Guidelines and Final Release
 
 ## Parent Task Goal
+
 Define explicit instructions in `llm.md` prohibiting AI agents from using raw `git commit` or `git push` commands. Instead, enforce the usage of `gitmap feature`, `gitmap bar`, `gitmap commit-in`, and `gitmap release` for grouped, orchestrated commits. Following this, persist the strict error handling rules from the recent `apperror` refactoring into the coding guidelines, and finalize the turn by orchestrating a grouped commit and release sequence using the newly mandated commands.
 
 ## Subtasks Execution Strategy

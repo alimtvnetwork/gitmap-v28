@@ -165,6 +165,7 @@ path, NOT by remote URL.
 `gitmap clone-pick` (sparse-checkout single-repo clone),
 `gitmap clone-from` (one-shot mirror from a manifest),
 spec/03-commit-in/ for the full normative contract.
+
 ## Scripting (JSON)
 
 Discover this command from a script using the machine-readable help payload:
@@ -178,26 +179,36 @@ The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5
 ## Advanced Usage
 
 ### Pull Request (PR) Integration
+
 You can automatically push your commits and create a PR instead of directly merging into the target repository.
 Use the `--pr` flag to enable this behavior.
 ```bash
+
 # Create a PR for every single replayed commit
+
 gitmap commit-in --pr all
 
 # Create a PR only for commits that are tagged
+
 gitmap commit-in --pr tags
 
 # Create a PR only during a release commit
+
 gitmap commit-in --pr release
 ```
 
 ### Rewriting Commit History & Co-Authors
+
 During replay, you can seamlessly rewrite commit history (e.g., stripping out unwanted prefixes) and append multiple co-authors. This is natively supported by the templating engine (configured via settings) and footer injection.
 ```bash
+
 # Strip generic prefixes like "Changes" during replay
+
 gitmap commit-in --strip "^Changes" --template-override
 
 # Add multiple co-authors (20+ supported via standard git footers)
+
 # The replay engine preserves all Co-authored-by footers and allows appending them.
+
 gitmap commit-in --append-footer "Co-authored-by: Alice <alice@example.com>"
 ```

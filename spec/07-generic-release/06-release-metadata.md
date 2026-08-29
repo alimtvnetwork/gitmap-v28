@@ -70,13 +70,16 @@ The release pipeline extracts the relevant section from `changelog.md`
 for the release body:
 
 ```bash
+
 # Extract everything between ## v1.2.0 and the next ## heading
+
 awk '/^## v1\.2\.0/{found=1; next} /^## v/{if(found) exit} found{print}' changelog.md
 ```
 
 ### Changelog Format
 
 ```markdown
+
 ## v1.2.0 — Feature Title (2026-04-08)
 
 ### Improvements

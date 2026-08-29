@@ -5,9 +5,11 @@ subtask: 01-apperror-enhancement
 status: pending
 
 ## Goal
+
 Enhance `gitmap/apperror/apperror.go` to provide comprehensive error taxonomy, creator attribution, and metadata context.
 
 ## Specifications
+
 1. Define `ErrorType` enum:
    - `ErrorTypeValidation`
    - `ErrorTypePrecondition`
@@ -33,4 +35,5 @@ Enhance `gitmap/apperror/apperror.go` to provide comprehensive error taxonomy, c
 5. Provide backward-compatible wrappers (`New`, `NewSimple`, `Wrap`, `WrapSimple`).
 
 ## Verification
+
 - Unit tests in `gitmap/apperror/apperror_test.go` verifying formatting, unwrapping, and field access.

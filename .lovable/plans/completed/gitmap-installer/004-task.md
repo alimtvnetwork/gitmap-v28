@@ -23,44 +23,53 @@ citations:
   ambiguity: "n/a — no ambiguity filed"
   issue_rca: "n/a — not a bugfix"
 ---
+
 # Task 004 — Store GetInstallerBySlug
 
 ## 1. Learn
+
 - Read `.lovable/spec/commands/01-gitmap-installer.md` to understand the overarching requirement for GetInstallerBySlug(slug string).
 - Read `spec/02-coding-guidelines/00-canonical-size-tier.md` to ensure `gitmap/store/installer_get.go` remains concisely sized.
 - Review `spec/03-error-manage/02-error-architecture/00-overview.md` for proper `apperror` context wrapping.
 - Inspect `gitmap/store/installer_get.go` dependencies to see how GetInstallerBySlug(slug string) interacts with its callers.
 
 ## 2. Goal
+
 The objective is to implement `GetInstallerBySlug(slug string)` natively in `gitmap/store/installer_get.go`. This explicitly unblocks downstream operations dependent on `Store GetInstallerBySlug` in the Plugin domain. No other files should be manipulated.
 
 ## 3. Inputs and Contracts
+
 - Exported Symbols: `GetInstallerBySlug(slug string)`
 - Package: `store`
 - Error wrapping MUST use the `E_INSTALLER_*` code family.
 
 ## 4. Execute
+
 1. Open `gitmap/store/installer_get.go`.
 2. Implement the required structure, type, or function for `GetInstallerBySlug(slug string)`.
 3. Write unit tests for success and failure boundaries in `gitmap/store/installer_get_test.go`.
 4. Ensure no cross-domain pollution.
 
 ## 5. Constraints
+
 - Must adhere strictly to `spec/02-coding-guidelines/00-canonical-size-tier.md` (keep logic segmented under 60 lines).
 - Error wrapping must include stack traces.
 
 ## 6. Verify
+
 ```bash
 go test ./store -run TestGetInstaller
 ```
 Expected output: The test suite passes cleanly with no panics.
 
 ## 7. Done When
+
 - [ ] `GetInstallerBySlug(slug string)` is successfully mapped and tested in `gitmap/store/installer_get.go`.
 - [ ] All CI and `go test` commands exit zero.
 - [ ] No hardcoded or dummy assumptions are left in the code.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

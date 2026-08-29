@@ -23,42 +23,51 @@ citations:
   ambiguity: "n/a — spec is clear"
   issue_rca: "n/a — not a bug fix"
 ---
+
 # Task 281 — Wire and test integration for unit component 281
 
 ## 1. Learn
+
 - [Spec](spec/02-coding-guidelines/00-canonical-size-tier.md) - Why read this: ensures component 281 stays within size limits.
 - [App Spec](spec/21-app/04-json-contract/02-section-and-asset-schema.md) - Why read this: aligns data contracts.
 - [Naming](spec/02-coding-guidelines/08-file-folder-naming/golang.md) - Why read this: keeps file names compliant.
 
 ## 2. Goal
+
 This task handles the Wire and test integration for of component 281. It interacts with specific data structures bound to identifier 71a1c003a2b8. It will not mutate global state outside its sandbox.
 
 ## 3. Inputs and Contracts
+
 Input: `struct Input281 { ID string }`
 Output: `struct Output281 { Result bool }`
 Emits error codes: E_COMP_281_FAIL
 
 ## 4. Execute
+
 1. Create `gitmap/cmd/comp_281.go`.
 2. Define `func HandleComp281(in Input281) (Output281, error)`.
 3. Process data uniqueness string: 4eef24c6b824.
 4. Return success.
 
 ## 5. Constraints
+
 - [Rule 1](spec/02-coding-guidelines/00-canonical-size-tier.md) - Keep `HandleComp281` under 50 lines.
 - [Rule 2](spec/03-error-manage/02-error-architecture/00-overview.md) - Always return properly wrapped `apperror`.
 - [Rule 3](.lovable/strictly-avoid.md) - Avoid panic.
 
 ## 6. Verify
+
 Run `go test ./cmd/... -run TestComp281`.
 Expected output: `PASS` and `ok gitmap/cmd`
 
 ## 7. Done When
+
 1. `HandleComp281` is implemented according to contract.
 2. The unit test passes without errors.
 3. No global mutation occurs.
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

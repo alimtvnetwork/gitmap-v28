@@ -34,27 +34,42 @@ After `setup` (or the bootstrap installer) runs, the user MUST be able to invoke
 Every snippet MUST start and end with matching marker lines so the CLI can rewrite or remove it without disturbing surrounding content.
 
 ### PowerShell (`$PROFILE`)
+
 ```powershell
+
 # toolname shell wrapper v2 — managed by `toolname setup`. Do not edit manually.
+
 $env:TOOLNAME_WRAPPER = "1"
 function gcd { Set-Location (toolname cd @args) }
+
 # toolname shell wrapper v2 end
+
 ```
 
 ### Bash / Zsh
+
 ```bash
+
 # toolname shell wrapper v2 — managed by `toolname setup`. Do not edit manually.
+
 export TOOLNAME_WRAPPER=1
 gcd() { cd "$(toolname cd "$@")" ; }
+
 # toolname shell wrapper v2 end
+
 ```
 
 ### Fish
+
 ```fish
+
 # toolname shell wrapper v2 — managed by `toolname setup`. Do not edit manually.
+
 set -gx TOOLNAME_WRAPPER 1
 function gcd; cd (toolname cd $argv); end
+
 # toolname shell wrapper v2 end
+
 ```
 
 The detection variable name MUST follow `<TOOL>_WRAPPER` (uppercased, underscores) so multiple CLIs can coexist in one profile.

@@ -103,10 +103,12 @@ Tasks persist in `.gitmap/tasks.json`:
 ## Cross-Platform Notes
 
 ### Windows (Primary)
+
 - Paths use backslash; `filepath.Walk` handles this natively.
 - Long paths: warn if path > 260 chars (suggest `core.longpaths`).
 
 ### Linux / macOS
+
 - Forward-slash paths; same `filepath.Walk` logic.
 - File permissions preserved via `os.Stat` mode bits.
 
@@ -164,22 +166,29 @@ Last sync: 2026-04-04 10:05:32
 ## Examples
 
 ```bash
+
 # Create a task
+
 gitmap-v28 task create ui-sync --src ./frontend/src --dest ./backend/static
 
 # List all tasks
+
 gitmap-v28 task list
 
 # Run a task with default 5s interval
+
 gitmap-v28 task run ui-sync
 
 # Run with faster polling and verbose output
+
 gitmap-v28 task run ui-sync --interval 2 --verbose
 
 # Preview what would sync
+
 gitmap-v28 task run ui-sync --dry-run
 
 # Delete a task
+
 gitmap-v28 task delete ui-sync
 ```
 

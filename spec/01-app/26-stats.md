@@ -47,14 +47,18 @@ success/fail counts, overall failure rate, and average duration.
 **Examples:**
 
 ```bash
+
 # Show all command stats
+
 gitmap stats
 gitmap ss
 
 # Stats for scan command only
+
 gitmap stats --command scan
 
 # JSON output for scripting
+
 gitmap stats --json
 ```
 

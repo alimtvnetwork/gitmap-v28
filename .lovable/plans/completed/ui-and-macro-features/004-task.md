@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 004 � Implement ScanUI - Part 2
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 4
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 4
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 4
 - [Custom Link 4](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 4
 
 ## 2. Goal
+
 Isolate ScanUI logic for part 2. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes ScanUIRequest, emits ScanUIResponse.
 
 ## 4. Execute
+
 1. Define 	ype ScanUIPart2 struct { ... } in gitmap/cmd/scan_ui.go.
 2. Define unc InitScanUIPart2() error in gitmap/cmd/scan_ui.go.
 3. Define unc (x *ScanUIPart2) Process4() bool in gitmap/cmd/scan_ui.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitScanUIPart2 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype ScanUIPart2 is defined
 - [ ] unc InitScanUIPart2 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

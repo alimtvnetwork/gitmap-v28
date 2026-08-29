@@ -119,6 +119,7 @@ warn but NOT skip verification — it must exit with an error.
 Include a formatted checksum table in the release description:
 
 ```markdown
+
 ## Checksums (SHA-256)
 
 | File | Hash |

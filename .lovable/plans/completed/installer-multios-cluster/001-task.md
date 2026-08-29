@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 001 — OS Target Constants
 
 ## 1. Goal
+
 Define OS targets and execution order modes in `constants/os_targets.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `constants/os_targets.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestOSTargetConstants
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

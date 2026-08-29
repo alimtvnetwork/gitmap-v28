@@ -14,11 +14,13 @@ existing in-place / cross-dir-alias forms:
 ## Phases
 
 ### Phase 1 — Spec & memory (DONE in this session)
+
 - [x] Write `spec/01-app/111-cn-folder-arg.md`
 - [x] Write this plan file (`08-cn-folder-arg-plan.md`)
 - [x] Append memory entry to `.lovable/memory/index.md`
 
 ### Phase 2 — Dispatcher
+
 - [ ] Extend `versionPattern` in `releaserebase.go` to accept
       `v++` and `v+N` (currently only matches `v?N.N.N`).
       Verify `looksLikeVersion("v+1") == true` via existing
@@ -38,12 +40,14 @@ existing in-place / cross-dir-alias forms:
       win over the alias fallback.
 
 ### Phase 3 — Tests
+
 - [ ] `gitmap/cmd/clonenextfolderdispatch_test.go` covering the
       eight cases enumerated in the spec test matrix.
 - [ ] `gitmap/clonenext/version_test.go` extended to assert
       `looksLikeVersion("v++")` and `looksLikeVersion("v+1")`.
 
 ### Phase 4 — Help + docs
+
 - [ ] Update `gitmap/helptext/clone-next.md` to document the two
       new forms with realistic example simulations.
 - [ ] Add a "Folder-arg forms" subsection to `README.md` Command
@@ -52,6 +56,7 @@ existing in-place / cross-dir-alias forms:
       forms (label them as v3.117.0+).
 
 ### Phase 5 — QA + tag
+
 - [ ] `go test ./gitmap/...`
 - [ ] `golangci-lint run`
 - [ ] Bump `constants.Version` to `3.117.0` (done in implementation

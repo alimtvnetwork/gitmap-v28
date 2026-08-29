@@ -1,12 +1,14 @@
 # Specification 17 — Chapter 3: Move (`gitmap mv`) Command & Windows Long Paths
 
 ## 1. CLI Signature & Syntax
+
 ```bash
 gitmap mv [options] <source> <destination>
 ```
 Aliases: `gitmap move <source> <destination>`
 
 ### Arguments:
+
 - `<source>`: Repo slug, alias, relative path (`.\prompt-architect`, `./subfolder`), or absolute path.
 - `<destination>`: Target directory. Supports:
   - `..` (moves repository into the parent folder)
@@ -14,12 +16,14 @@ Aliases: `gitmap move <source> <destination>`
   - Absolute directory (`D:\work\archive\prompt-architect`)
 
 ### Options:
+
 - `-y`, `--yes`: Automatically confirm all prompts (including VS Code and GitHub Desktop updates).
 - `--dry-run`: Simulate directory relocation and database updates without moving files.
 - `--no-vscode`: Skip updating VS Code Project Manager configuration.
 - `--no-desktop`: Skip updating GitHub Desktop tracking.
 
 ## 2. Windows Long Path Handling (`\\?\`)
+
 On Windows hosts, paths exceeding `MAX_PATH` (260 characters) can cause silent filesystem failure.
 The move engine encapsulates a Windows Long Path utility:
 - Detects Windows platform (`runtime.GOOS == "windows"`).
@@ -27,6 +31,7 @@ The move engine encapsulates a Windows Long Path utility:
 - Cleans and strips prefixes before writing paths into SQLite database to preserve portable storage.
 
 ## 3. Relocation Workflow Steps
+
 1. **Resolve Source**: Run Unified Project Resolver on `<source>`.
 2. **Resolve Destination**:
    - If destination is `..`, compute `filepath.Join(filepath.Dir(srcParent), repoDirName)`.

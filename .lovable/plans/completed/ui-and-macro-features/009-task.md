@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 009 � Implement HDDownload - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 9
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 9
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 9
 - [Custom Link 9](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 9
 
 ## 2. Goal
+
 Isolate HDDownload logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes HDDownloadRequest, emits HDDownloadResponse.
 
 ## 4. Execute
+
 1. Define 	ype HDDownloadPart1 struct { ... } in gitmap/cmd/hd_download.go.
 2. Define unc InitHDDownloadPart1() error in gitmap/cmd/hd_download.go.
 3. Define unc (x *HDDownloadPart1) Process9() bool in gitmap/cmd/hd_download.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitHDDownloadPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype HDDownloadPart1 is defined
 - [ ] unc InitHDDownloadPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

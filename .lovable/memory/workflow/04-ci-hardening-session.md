@@ -24,6 +24,7 @@
 ## Key Snippets
 
 ### goimports check
+
 ```yaml
 - name: goimports check (import grouping + formatting)
   run: |
@@ -39,6 +40,7 @@
 ```
 
 ### golangci-lint strict gate
+
 ```yaml
 - name: golangci-lint (strict, fail on any error)
   if: needs.sha-check.outputs.already-built != 'true'

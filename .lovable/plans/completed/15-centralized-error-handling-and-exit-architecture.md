@@ -17,16 +17,19 @@ The user submitted three differential screenshots from GitHub Desktop documentin
 ### Why Both Approaches Are Anti-Patterns
 
 #### A. The Legacy Pattern: `panic("fatal error")`
+
 1. **Uncontrolled Crash**: Panics crash the Go runtime and dump internal thread backtraces, frame pointers, and goroutine states directly into terminal output.
 2. **Missing Domain Context**: The string `"fatal error"` conveys zero semantic meaning. It does not identify the failing operation, the entity being processed, the reason for the failure, or what the user should do to resolve it.
 3. **No Structured Diagnostic Envelope**: Panics bypass structured logging, telemetry, and error storage tables.
 
 #### B. What AI Modified: Bare `os.Exit(1)`
+
 1. **Silent / Destructive Abort**: Calling `os.Exit(1)` immediately terminates the process. Deferred functions (like closing files, flushing buffers, releasing locks, and writing error audit records) are **never executed**.
 2. **Loss of Diagnostic Context**: A bare `os.Exit(1)` produces no structured record of who created the error, what type of error occurred, or what variables led to the state.
 3. **Violation of Centralized Error Management**: Error policies (whether to log, exit, report, or notify) are hardcoded at dozens of arbitrary call sites instead of being controlled through a single, configurable error handler.
 
 #### C. The Standard / Correct Architectural Pattern
+
 Centralized error management requires two distinct, coordinated responsibilities:
 1. **Structured Domain Error Packaging**: Functions construct or wrap errors using `apperror.AppError`, attaching:
    - `Op`: The operation name (e.g. `release.pull`, `cmd.reinstall`, `add.dispatch`).

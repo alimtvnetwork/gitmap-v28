@@ -10,20 +10,25 @@ citations:
   error_architecture: "spec/03-error-manage/02-error-architecture/00-overview.md"
   strictly_avoid: ".lovable/strictly-avoid.md"
 ---
+
 # Task 006 — Manager Removal Logic
 
 ## 1. Goal
+
 Add Manager Delete and StripOS methods in `installer/delete.go`.
 
 ## 2. Inputs and Contracts
+
 - Package: derived from `installer/delete.go`
 - Strict error wrapping with `apperror`.
 
 ## 3. Verify
+
 ```bash
 go test ./... -run TestManagerRemovalLogic
 ```
 
 ## 4. Done When
+
 - [ ] Task logic implemented cleanly.
 - [ ] Unit tests pass with zero compilation errors.

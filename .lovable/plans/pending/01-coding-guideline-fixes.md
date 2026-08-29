@@ -6,9 +6,11 @@
 - created: 2026-08-29
 
 ## Context
+
 Comprehensive, deep multi-stage audit of the entire codebase for coding guideline violations, boolean anti-patterns, missing enum suffixes, cyclomatic nesting, and error-handling flaws across Go backend packages. Structured into exactly 150 granular steps.
 
 ## Fallout & Blast Radius Analysis
+
 - **Enum Suffix Renames**: Modifying type definitions requires updating all call sites across CLI commands, tests, and struct field definitions. Blast radius is contained within Go internal packages.
 - **Boolean Inversions**: Changing `!isX` to explicit `isX == false` or `isMissing` preserves runtime semantics without breaking API contracts or downstream scripts.
 - **Nested If Flattening & Function Extraction**: Uses guard clauses and single-responsibility helper extractions to strictly comply with the <= 15-line function cap.

@@ -3,10 +3,12 @@
 ## Status: implemented v4.16.0
 
 ## Goal
+
 Wire every clone variant into the existing `vscodepm.Sync` so that
 `projects.json` is updated automatically after any successful clone.
 
 ## Pieces
+
 1. **Shared helper** `cmd/clonepmsync.go`:
    - `buildClonePMPair(absPath, repoName) vscodepm.Pair` — adds auto-tags.
    - `syncClonedReposToVSCodePM(pairs []vscodepm.Pair, skip bool)` — single
@@ -44,5 +46,6 @@ Wire every clone variant into the existing `vscodepm.Sync` so that
    no breaking changes). CHANGELOG entry under "Added".
 
 ## Out of scope (followups)
+
 - `--no-auto-tags` per-clone-command flag.
 - Mirroring DB upsert (`UpsertVSCodeProject`) from clone variants.

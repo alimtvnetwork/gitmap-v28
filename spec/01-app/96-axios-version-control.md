@@ -88,7 +88,9 @@ or range specifiers:
 ### CI Pipeline Safeguard
 
 ```bash
+
 # Add to CI pipeline — fails if Axios version is not in the approved list
+
 AXIOS_VERSION=$(node -e "console.log(require('axios/package.json').version)")
 if [ "$AXIOS_VERSION" != "1.14.0" ] && [ "$AXIOS_VERSION" != "0.30.3" ]; then
   echo "ERROR: Axios version $AXIOS_VERSION is not approved. Allowed: 1.14.0, 0.30.3"

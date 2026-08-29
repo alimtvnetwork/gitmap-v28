@@ -23,39 +23,48 @@ citations:
   ambiguity: ".lovable/ambiguous-questions/01-new-ambiguity/01-spec-gaps.md"
   issue_rca: "n/a"
 ---
+
 # Task 005 � Implement PullArrayUI - Part 1
 
 ## 1. Learn
+
 - [Go Style](spec/05-coding-guidelines/02-go-code-style.md) - why: styling 5
 - [DB Patterns](spec/05-coding-guidelines/11-database-patterns.md) - why: db 5
 - [Error handling](spec/05-coding-guidelines/04-error-handling.md) - why: errors 5
 - [Custom Link 5](spec/05-coding-guidelines/03-naming-conventions.md) - why: convention 5
 
 ## 2. Goal
+
 Isolate PullArrayUI logic for part 1. This ensures modular architecture.
 
 ## 3. Inputs and Contracts
+
 Consumes PullArrayUIRequest, emits PullArrayUIResponse.
 
 ## 4. Execute
+
 1. Define 	ype PullArrayUIPart1 struct { ... } in gitmap/cmd/pull_ui.go.
 2. Define unc InitPullArrayUIPart1() error in gitmap/cmd/pull_ui.go.
 3. Define unc (x *PullArrayUIPart1) Process5() bool in gitmap/cmd/pull_ui.go.
 
 ## 5. Constraints
+
 - Code style: spec/05-coding-guidelines/02-go-code-style.md
 
 ## 6. Verify
+
 go test -run TestInitPullArrayUIPart1 ./...
 expected: ok
 
 ## 7. Done When
+
 - [ ] Code compiles
 - [ ] Tests pass
 - [ ] 	ype PullArrayUIPart1 is defined
 - [ ] unc InitPullArrayUIPart1 is implemented
 
 ## 8. Notes and Open Questions
+
 None.
 
 ---

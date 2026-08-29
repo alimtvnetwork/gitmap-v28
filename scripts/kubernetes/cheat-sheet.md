@@ -114,9 +114,12 @@ alias kns="kubectl config set-context --current --namespace"
 ## Network Plugins
 
 ```bash
+
 # Weave Net (lightweight, easy setup)
+
 kubectl apply -f https://reweave.azurewebsites.net/k8s/v1.31/net.yaml
 
 # Calico (production-grade, network policies)
+
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
 ```

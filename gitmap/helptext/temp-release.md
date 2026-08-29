@@ -34,25 +34,33 @@ Use `$` placeholders for zero-padded sequence numbers:
 ## Examples
 
 ```bash
+
 # Create 10 branches from last 10 commits, starting at sequence 5
+
 gitmap tr 10 v1.$$ -s 5
 
 # Create 1 branch, auto-increment from last temp-release
+
 gitmap tr 1 v1.$$
 
 # Preview without creating
+
 gitmap tr 5 v2.$$$ --dry-run
 
 # List all temp-release branches
+
 gitmap tr list
 
 # Remove a single branch
+
 gitmap tr remove v1.05
 
 # Remove a range
+
 gitmap tr remove v1.05 to v1.10
 
 # Remove all
+
 gitmap tr remove all
 ```
 

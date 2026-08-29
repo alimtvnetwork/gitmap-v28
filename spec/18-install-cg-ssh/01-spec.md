@@ -9,6 +9,7 @@ This specification details the implementation of several new features for the Gi
 5. **Help Dashboard (`gitmap hd`)**: Update the React-based UI to include documentation, search, and examples for all new commands.
 
 ## User Review Required
+
 > [!IMPORTANT]
 > The specification is broken down into 83 actionable steps over 8 phases to ensure nothing is missed and end-to-end testing is conducted at every phase.
 > Please review the actionable items below and approve so the implementation can begin.
@@ -16,6 +17,7 @@ This specification details the implementation of several new features for the Gi
 ## Proposed Changes
 
 ### Phase 1: Database and Data Model
+
 1. Define `SSHConnection` struct in `gitmap/data/models.go` (ID, Alias, IP, Username, EncryptedPassword, KeyPath, OS).
 2. Create SQLite migration file (`gitmap/db/migrations/005_ssh_connections.sql`) to create `ssh_connections` table.
 3. Update `gitmap/db/schema.go` to include the new table.
@@ -29,6 +31,7 @@ This specification details the implementation of several new features for the Gi
 11. Add unit tests for CG version DB operations.
 
 ### Phase 2: Crypto & Security Utilities
+
 12. Create `gitmap/crypto/encrypt.go` for symmetric encryption (AES-GCM) of SSH passwords.
 13. Implement `crypto.Encrypt(plaintext, key)` using a machine-specific key or user-provided passphrase.
 14. Implement `crypto.Decrypt(ciphertext, key)`.
@@ -40,6 +43,7 @@ This specification details the implementation of several new features for the Gi
 20. Add mock SSH server tests for `ssh_client`.
 
 ### Phase 3: `gitmap install` Extensions
+
 21. Locate `gitmap/cmd/install.go` and `gitmap/cmd/installtools.go`.
 22. Define a map/registry of custom install scripts (Scripts Fixer, Coding Guidelines, Macro AHK) with their Windows and Unix URLs.
 23. Create `gitmap/cmd/install_custom.go`.
@@ -53,6 +57,7 @@ This specification details the implementation of several new features for the Gi
 31. Add end-to-end test for installing custom tools (mocking the HTTP endpoints).
 
 ### Phase 4: `gitmap cg` (Coding Guidelines Manager)
+
 32. Create `gitmap/cmd/cg.go` and register aliases (`coding-guide`, `coding-guidelines`, `cg`).
 33. Parse subcommands: `install`, `update`.
 34. Parse flags: `--all`, `--exclude`, and variadic positional arguments (repo aliases/paths).
@@ -68,6 +73,7 @@ This specification details the implementation of several new features for the Gi
 44. Add end-to-end tests for `gitmap cg install --all` (using temporary mock repos).
 
 ### Phase 5: `gitmap sj` (SSH Joiner)
+
 45. Create `gitmap/cmd/sshjoin.go` and register aliases (`ssh-joiner`, `ssh-join`, `sj`).
 46. Parse flags: `--import`, `--export`, and positional args.
 47. Implement `runSSHJoinLs(args)` to fetch and display connections from the DB.
@@ -80,6 +86,7 @@ This specification details the implementation of several new features for the Gi
 54. Add end-to-end tests for `gitmap sj ls`, interactive join (via simulated stdin), import, and export.
 
 ### Phase 6: `gitmap se` (SSH Executor)
+
 55. Create `gitmap/cmd/sshexec.go` and register aliases (`ssh-exec`, `ssh-execute`, `se`).
 56. Parse shell type (`ps`, `sh`, `cmd`) and the command string.
 57. Parse `--exclude` flag.
@@ -93,6 +100,7 @@ This specification details the implementation of several new features for the Gi
 65. Add end-to-end tests for `gitmap se ps "echo test"` using a local mock SSH server.
 
 ### Phase 7: UI & Help Dashboard (`gitmap hd`) Updates
+
 66. Navigate to `src/data/commands.ts` (or equivalent) in the React frontend.
 67. Add metadata for `gitmap install scripts-fixer`, `coding-guidelines`, `macro-ahk`, and `install ls`.
 68. Add metadata for `gitmap cg` (all aliases, flags, examples).
@@ -108,6 +116,7 @@ This specification details the implementation of several new features for the Gi
 74. Verify that `gitmap hd` serves the updated UI with the new commands and install script examples.
 
 ### Phase 8: E2E Testing, Finalization, and Release
+
 75. Run the full Go test suite (`go test ./... -v -race`).
 76. Run Vite frontend tests (`npm run test`).
 77. Validate standard `gitmap install` (e.g., node, go) still works without regression.
@@ -119,8 +128,12 @@ This specification details the implementation of several new features for the Gi
 83. Write the final release notes in `changelog.md`.
 
 ## Verification Plan
+
 ### Automated Tests
+
 - `go test ./...`
 - `npm run test`
+
 ### Manual Verification
+
 - Manually test `gitmap cg`, `gitmap sj`, `gitmap se` on test infrastructure.

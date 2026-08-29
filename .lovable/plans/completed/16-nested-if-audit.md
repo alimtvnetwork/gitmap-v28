@@ -1,9 +1,11 @@
 # Plan 16: Nested `if` Elimination & Guard Clause Audit
 
 ## Objective
+
 Autonomously scan, plan, refactor, and fix all nested `if` statements across the codebase, directly modifying source files to flatten conditional branching with guard clauses, early returns, inverted conditions, and function decomposition (<= 8–15 lines) until 100% green without stopping.
 
 ## Background & Rationale
+
 1. **Cognitive Load Explosion:** Nested conditionals create multiple execution paths that make code harder to reason about and maintain.
 2. **Hidden Invariant Bugs:** Deeply nested branches frequently conceal edge case regressions and unhandled errors.
 3. **Canonical Size Tier Compliance:** Flattening conditionals enables functions to satisfy the mandatory <= 8-line preferred (<= 15 lines max) function limit.
@@ -29,6 +31,7 @@ Autonomously scan, plan, refactor, and fix all nested `if` statements across the
 | 15 | `scripts/audit_codebase.py` | 20, 40, 46, 48, 79 | Nested conditions in audit loop | Guard clauses / early continue | Pending |
 
 ## Subtasks
+
 - [ ] Subtask 01: Flatten Go test files (`comp_053_test.go`, `comp_102_test.go`, `comp_109_test.go`, `ip_cmd_test.go`, `ssh_client_test.go`, `progress_test.go`, `ssh_repo_test.go`).
 - [ ] Subtask 02: Flatten Go command implementations (`gitmap/cmd/fix_cmd.go`, `gitmap/cmd/rootusage.go`).
 - [ ] Subtask 03: Flatten Python scripts (`01-file-manipulator.py`, `03-cicd-local-runner.py`, `newline_fixer.py`, `scripts/audit_codebase.py`).
@@ -36,5 +39,6 @@ Autonomously scan, plan, refactor, and fix all nested `if` statements across the
 - [ ] Subtask 05: Verify 100% green CI test suite and complete plan lifecycle.
 
 ## Acceptance Criteria
+
 - [ ] `python linter-scripts/check-nested-ifs.py` reports ✅ PASS with 0 violations.
 - [ ] `python .lovable/ai-fix-scripts/03-cicd-local-runner.py` passes all quality gates with exit code 0.

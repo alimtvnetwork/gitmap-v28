@@ -86,18 +86,23 @@ Pin all CI tool installs to exact version tags — `go install tool@latest` is p
 Run dependency audits on every CI build and on a weekly schedule:
 
 ```bash
+
 # Go
+
 go list -m -json all | go-licenses check .
 govulncheck ./...
 
 # TypeScript
+
 npm audit --audit-level=high
 ```
 
 ### Automated Audit Pipeline
 
 ```yaml
+
 # .github/workflows/audit.yml
+
 name: Dependency Audit
 on:
   schedule:
@@ -162,14 +167,18 @@ Perform dependency upgrades on a regular cadence:
 ### Go
 
 ```bash
+
 # Check for available updates
+
 go list -m -u all
 
 # Update a specific dependency
+
 go get github.com/spf13/cobra@v1.9.0
 go mod tidy
 
 # Update all patch versions
+
 go get -u=patch ./...
 go mod tidy
 ```
@@ -177,13 +186,17 @@ go mod tidy
 ### TypeScript
 
 ```bash
+
 # Check for outdated packages
+
 npm outdated
 
 # Update a specific package
+
 npm install react@18.4.0
 
 # Update all within semver range
+
 npm update
 ```
 
@@ -225,10 +238,13 @@ Major versions require additional care:
 ### Automated License Checking
 
 ```bash
+
 # Go
+
 go-licenses check ./... --allowed_licenses=MIT,Apache-2.0,BSD-2-Clause,BSD-3-Clause,ISC
 
 # TypeScript
+
 npx license-checker --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC"
 ```
 

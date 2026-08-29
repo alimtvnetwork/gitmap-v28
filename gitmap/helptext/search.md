@@ -3,6 +3,7 @@
 Searches repository file contents on-the-fly. This performs an immediate filesystem walk instead of querying the cache.
 
 ## Why use this instead of shell commands?
+
 Instead of running complex pipelines like:
 `grep -rn "func run" gitmap/cmd/`
 `Get-ChildItem -Path gitmap/cmd -Filter *.go | Select-String "func dispatch[A-Z]"`
@@ -14,6 +15,7 @@ Use `gitmap` to instantly find references across your codebase:
 `gitmap search "func run"`
 
 ## Examples
+
 ```bash
 gitmap search "constants.go"
 gitmap search "func run"

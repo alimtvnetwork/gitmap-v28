@@ -1,16 +1,19 @@
 ## [v6.137.0] 2026-08-28 - commit-push and rm-git
 
 ### Install gitmap v6.137.0
+
 To pin your repository to this exact version, run the following one-liner:
 Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.sh | bash -s -- ".lovable/prompts" "v6.137.0"`
 PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.137.0"`
 
 ### Added
+
 - Added commit-push suite commands and rm-git for agile CLI workflow
 
 ## [v6.131.0] 2026-08-27 - search and llm feature spec
 
 ### Install gitmap v6.131.0
+
 To pin your repository to this exact version, run the following one-liner:
 Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.sh | bash -s -- ".lovable/prompts" "v6.131.0"`
 PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.131.0"`
@@ -22,6 +25,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.130.0] 2026-08-27 - github-desktop linux install fix
 
 ### Install gitmap v6.130.0
+
 To pin your repository to this exact version, run the following one-liner:
 Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.sh | bash -s -- ".lovable/prompts" "v6.130.0"`
 PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.130.0"`
@@ -33,6 +37,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.129.0] 2026-08-27 - ag and vscode install commands
 
 ### Install gitmap v6.129.0
+
 To pin your repository to this exact version, run the following one-liner:
 Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.sh | bash -s -- ".lovable/prompts" "v6.129.0"`
 PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.129.0"`
@@ -50,6 +55,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.128.0] 2026-08-27 - ignore and add commands
 
 ### Install gitmap v6.128.0
+
 To pin your repository to this exact version, run the following one-liner:
 Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.sh | bash -s -- ".lovable/prompts" "v6.128.0"`
 PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.128.0"`
@@ -65,6 +71,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.127.0] 2026-08-27 - git-rm and folder export features
 
 ### Install gitmap v6.127.0
+
 To pin your repository to this exact version, run the following one-liner:
 Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.sh | bash -s -- ".lovable/prompts" "v6.127.0"`
 PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.127.0"`
@@ -78,10 +85,10 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.26.0] - 2026-08-27
 
 
-
 ## [v6.126.0] - 2026-08-27
 
 ### Added
+
 - PR Engine integration for commit-transfer and commit-in.
 - Left padding and improved formatting for commit CLI output.
 - Keep URL toggle in commit replay settings.
@@ -90,6 +97,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.28.0] - 2026-08-27
 
 ### Fixed
+
 - Fixed golangci-lint drift by downgrading to go 1.24.
 - Synced generated commands.
 - Fixed changelog sync check.
@@ -98,6 +106,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.27.0] - 2026-08-27
 
 ### Added
+
 - Added implemented agy (antigravity) commands.
 - Added implemented vscode commands.
 - Fixed spacing in help menu.
@@ -257,6 +266,7 @@ PowerShell:
 
 
 ## [v6.144.0] - 2026-08-29
+
 - Fix: Reverted go.mod to 1.24.13 to maintain golangci-lint v1.64.8 compatibility
 - Fix: S1002, unparam, gocritic, and ineffectual assignment linters globally resolved.
 - Fix: Go generate drift in completion files.
@@ -264,80 +274,95 @@ PowerShell:
 
 
 ### Added
+
 - Auto-detect and execute release bumps from commit messages (`gitmap release-scan-commits`).
 - Gitmap UI terminal update output mapping capabilities.
 
 ## [v6.25.0] - 2026-08-27
 
 ### Added
+
 - Authored a comprehensive, generic AI Instruction Specification (`ssh-commands.md`) outlining the data model, terminal rendering contract, and command tree for implementing a cross-platform SSH and Profile Management system.
 
 ## [v6.24.1] - 2026-08-27
 
 ### Added
+
 - Added `gitmap workdir default` command to automatically register the current working directory as the default.
 - Added `gitmap workdir set <path>` alias to set a workspace path, ID, or label as the default (shorthand for `set-default`).
 
 ## [v6.24.0] - 2026-08-27
 
 ### Added
+
 - Integrated Antigravity Manager installation logic directly into `gitmap install ag-manager` (and `ag-m`).
 - Added smart GitHub release resolution to automatically fetch the latest `lbjlaq/Antigravity-Manager` release, detect the target OS/Architecture, download the appropriate binary (`.exe`, `.msi`, `.dmg`, `.deb`, `.AppImage`), and execute the installer seamlessly.
 
 ## [v6.23.0] - 2026-08-27
 
 ### Changed
+
 - Fixed CI/CD `Can't find action.yml` errors by injecting `actions/checkout@v6` before local `.github/actions/policy-check` calls across all jobs in `.github/workflows/ci.yml`.
 - Reimplemented `gitmap cg update` terminal UI to provide a vibrant summary of the update process, detailing previous and new versions, affected files, and individual repository status.
 
 ## [v6.121.0] - 2026-08-27 Save AI release prompt body
 
 ### Install Prompt Architect v6.121.0
+
 To pin your repository to this exact version, run the following one-liner:
 Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.121.0/install.sh | bash -s -- ".lovable/prompts" "v6.121.0"`
 PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.121.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.121.0"`
 
 ### Added
+
 - Added the MUST enforce `release` prompt definition to `.lovable/prompts/18-release.md`.
 - Bounded AI agent to automatically trigger this prompt schema.
 
 ### Issues
+
 - [01-6.121.0-stale-readme-matrix](.lovable/release/issues/01-6.121.0-stale-readme-matrix.md) Failed to update severely outdated install snippets in `readme.md` during string-replace.
 
 ## [v6.120.0] - 2026-08-27
 
 ### Fixed
+
 - Cleaned up AI agent temporary scripts from the root directory that were accidentally tracked in Git. Moved all scripts to the isolated `.lovable/temp-scripts/` directory to prevent pollution.
 
 ## [v6.119.0] - 2026-08-27
 
 ### Added
+
 - Added `gitmap agy` (Antigravity) alias `ag` and `antigravity` with complete command parity (`pap`, `open`, `rw`, `sync`, `export-projects`, etc).
 - Added `gitmap vscode` commands parity (`pap`, `plugins`, `add-project`, `rm`).
 - Added `(use --help to expand)` hint for all multi-step commands (`ag`, `vscode`, `schedule`, `macro`, `installer`, `sj`) in the main help text.
 
 ### Fixed
+
 - Fixed `gitmap help` spacing to add readable newline gaps between category headers and command lists.
 - Integrated missing Installer, Macro, VS Code, and Schedule help sections into the main CLI help menu.
 
 ## [v6.118.0] - 2026-08-27
 
 ### Fixed
+
 - Fixed GitHub Actions workflows failing to trigger due to syntax errors (`ci.yml`, `race-detector.yml`).
 
 ## [v6.117.0] - 2026-08-27
 
 ### Fixed
+
 - Fixed CI/CD failure where `TestEveryHelpFileHasExamples` failed on `clone-sync.md` due to missing fenced code blocks.
 
 ## [v6.116.0] - 2026-08-27
 
 ### Fixed
+
 - Fixed CI/CD failure where `TestTopLevelCmdRegistryMatchesAST` failed because `CmdCloneSync` and `CmdCloneSyncAlias` were not added to the `topLevelCmds()` test registry map.
 
 ## [v6.115.0] - 2026-08-26
 
 ### Added
+
 - Colorful UTF-8 tree-view output for installer profiles, macro steps, and scheduler tasks.
 - `installer ls --tree` expands full Ubuntu profile inheritance chains.
 - Macro step composition tree printed before `gitmap macro run` execution.
@@ -354,6 +379,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.114.0] - 2026-08-26
 
 ### Added
+
 - UTF-8 box-drawing tree view for installer profiles (ubuntu-basic → ubuntu+dev hierarchy).
 - `installer ls --tree` flag expands full profile inheritance chains with CYAN/WHITE/DIM coloring.
 - Macro step composition tree printed before each `gitmap macro run` execution.
@@ -363,6 +389,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.113.0] - 2026-08-26
 
 ### Added
+
 - Re-aligned CLI help output with distinct colors for flags and added missing sections (SSH, SSH Join, Coding Guideline, Installer, Macro).
 - Cross-platform Scheduler CLI (`gitmap schedule`) supporting intervals and delays, backed by SQLite.
 - OS Startup Macro Hook integration (Windows Registry and Linux Autostart).
@@ -373,6 +400,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.112.0] - 2026-08-26
 
 ### Added
+
 - UI Terminal Frontend inside `hd` with multi-OS high contrast themes and bottom padding.
 - Backend UI Terminal proxy with WebSocket and autocomplete capabilities.
 - SQLite-backed Suggestion Engine for partial-matching on `rm` and `mv` commands.
@@ -383,6 +411,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ## [v6.111.0] 2026-08-26 Global gofmt Normalization, CI Lint Gating & RCA Resolution
 
 ### Install Prompt Architect v6.111.0
+
 To pin your repository to this exact version, run the following one-liner:
 **Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.111.0/install.sh | bash -s -- ".lovable/prompts" "v6.111.0"`
 **PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.111.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.111.0"`
@@ -400,6 +429,7 @@ To pin your repository to this exact version, run the following one-liner:
 ## [v6.110.0] 2026-08-26 CI Constants Collision Fix, Generated Tab Completion Sync & Live Branch Badges
 
 ### Install Prompt Architect v6.110.0
+
 To pin your repository to this exact version, run the following one-liner:
 **Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.110.0/install.sh | bash -s -- ".lovable/prompts" "v6.110.0"`
 **PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.110.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.110.0"`
@@ -414,6 +444,7 @@ To pin your repository to this exact version, run the following one-liner:
 ## [v6.109.0] 2026-08-26 Version JSON Installer, Component Inheritance & Release Architecture Map
 
 ### Install Prompt Architect v6.109.0
+
 To pin your repository to this exact version, run the following one-liner:
 **Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.109.0/install.sh | bash -s -- ".lovable/prompts" "v6.109.0"`
 **PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.109.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.109.0"`
@@ -429,6 +460,7 @@ To pin your repository to this exact version, run the following one-liner:
 ## [v6.108.0] 2026-08-26 SSOT Versioning Directives & Test Isolation Hardening
 
 ### Install Prompt Architect v6.108.0
+
 To pin your repository to this exact version, run the following one-liner:
 **Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.108.0/install.sh | bash -s -- ".lovable/prompts" "v6.108.0"`
 **PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.108.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.108.0"`
@@ -443,6 +475,7 @@ To pin your repository to this exact version, run the following one-liner:
 ## [v6.107.0] 2026-08-26 Prompt Architect Installer, Cross-Platform POSIX Builds & WorkDir Suite
 
 ### Install Prompt Architect v6.107.0
+
 To pin your repository to this exact version, run the following one-liner:
 **Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.107.0/install.sh | bash -s -- ".lovable/prompts" "v6.107.0"`
 **PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.107.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.107.0"`
@@ -462,15 +495,18 @@ To pin your repository to this exact version, run the following one-liner:
 ## [6.104.0] - 2026-08-25
 
 ### Added
+
 - SSH login and join features plan
 
 ## [v6.103.0] 2026-08-25 CG & Macro Extensions Installer
 
 ### Added / Changed / Fixed / Removed
+
 - Added autonomous CLI logic for Coding Guidelines installation (cg install, cg update, cg help).
 - Added workspace iteration logic via --except flag for CG installation.
 - Added explicit OS-aware script execution (PowerShell/Unix) for coding guidelines.
 - Added wrapper commands for external macro-ext GitHub extension installer.
+
 ## [v6.102.0] 2026-08-22 SSH Executor OS Context & Native Delegation
 
 - Enhanced gitmap se (SSH Executor) to intelligently default to OS-appropriate shells (PowerShell for Windows, Bash for Unix).
@@ -491,6 +527,7 @@ To pin your repository to this exact version, run the following one-liner:
 ## [v6.103.0] 2026-08-25 CG & Macro Extensions Installer
 
 ### Added / Changed / Fixed / Removed
+
 - Added autonomous CLI logic for Coding Guidelines installation (cg install, cg update, cg help).
 - Added workspace iteration logic via --except flag for CG installation.
 - Added explicit OS-aware script execution (PowerShell/Unix) for coding guidelines.
@@ -500,56 +537,67 @@ To pin your repository to this exact version, run the following one-liner:
 ## [v6.100.0] 2026-08-22 Concurrency, Lock Contention, and Cross-Platform Path Fixes
 
 ### Fixed
+
 - **Windows CI Tests**: Fixed `startup` package tests failing on non-administrative accounts by deferring HKLM administrative token checks until after existence verification.
 - **Cross-platform Path Normalization**: Fixed `fsutil.NormalizeSlashes` so backslashes are substituted correctly on POSIX systems instead of being preserved by `filepath.Clean`.
 - **Concurrency Deadlocks**: Resolved recursive RLock deadlock in `maybeExitOnCmdFaithfulMismatch` and fixed `os.Exit` races in concurrent clone tests by synchronizing access to `cmdFaithfulExiter`.
 - **macOS Installer Script Syntax**: Fixed macOS `install.sh` bash execution error where `local` was incorrectly used outside a function context.
 - **Concurrent Clone Task Lock Contention**: Fixed a critical bug in `gitmap clone`'s `createPendingTask` which held an exclusive database lock for the entire duration of the clone operation, preventing parallel clones from executing.
+
 ## [v6.98.0] 2026-08-21 Cross-Platform Path Normalization in Resolver & Move Engine
 
 ### Fixed
+
 - **Cross-Platform Resolver Path Matching**: Added forward/backward slash normalization (`fsutil.NormalizeSlashes`) in `resolveByPath` and `resolveByGlob` so Windows-style relative paths (`.\prompt-architect`) and path queries resolve reliably across Linux, macOS, and Windows.
 - **Cross-Platform Destination Calculation in `gitmap mv`**: Updated `calculateDestPath` to clean paths using `filepath.FromSlash` and cross-platform separators, resolving parent directory (`..`) targets uniformly across all operating systems.
 
 ## [v6.97.0] 2026-08-21 Concurrency Safety and Test Harness Synchronization
 
 ### Fixed
+
 - **Race Detector & Concurrency Synchronization**: Synchronized standard output and error redirection across tests in `gitmap/cmd/capturestderr_testhelper_test.go`, `gitmap/cluster/preflight_test.go`, and `gitmap/release/workfloworder_test.go` with mutex guards to prevent data races during parallel test runs under `go test -race`.
 - **Test Harness Output Stream Hygiene**: Replaced global `os.Stdout` mutation in `gitmap/tests/release_test/installhint_test.go` with direct string formatting to eliminate cross-test stream interference.
 
 ## [v6.96.0] 2026-08-21 Repository Relocation (mv), Path-Aware Resolver, RM External Sync & Dashboard Recent View
 
 ### Added
+
 - **Repository Move Engine (`gitmap mv` / `gitmap move`)**: Added repository relocation command supporting moving into parent directory (`..`), relative paths, and absolute paths with Windows long-path prefix (`\\?\`) safety.
 - **External Tools Lifecycle Sync**: Integrated automated synchronization with VS Code Project Manager (`projects.json`) and GitHub Desktop during repository relocation and removal.
 - **Unified Project Resolver**: Added central path-aware lookup engine in `gitmap/cmd/resolver.go` resolving Windows relative paths (`.\prompt-architect`), POSIX trailing slashes (`./repo/`), current directory (`.`), aliases, slugs, and glob patterns.
 - **Dashboard `--recent` Flag & Visualizations**: Added `--recent` flag to filter commits from the last 7 days, ANSI colored messages for dashboard generation, and interactive "Recent Items" navigation view in `dashboard.html`.
 
 ### Fixed
+
 - **Path Reconciliation in `gitmap rm`**: Resolved issue where relative dot-slash prefixes (`.\prompt-architect`) failed to match tracked repositories.
 - **Path Normalization in `gitmap replace`**: Fixed Windows forward/backward slash normalization in `gitmap/cmd/replacewalk.go` to prevent false prefix skips during replacement runs.
 
 ## [v6.95.0] 2026-08-21 Help Text, Help UI & Terminal Color Enhancements
 
 ### Added
+
 - **Cluster & Delegation Help Text**: Added embedded Markdown help documentation for all multi-machine cluster delegation commands under `gitmap/helptext/` (`servers-clients`, `sc`, `clients`, `cluster`, `cluster nodes`, `cluster history`, `cluster export`, `cluster import`, `cluster set-password`, `cluster set-default-path`, `cluster set-path-alias`, `cluster cat`, `cluster write`, `cluster update`, `cluster update-all`, `servers ls`, `clients ls`, `servers-clients ls`).
 - **Cluster Super-Category**: Integrated a dedicated `CLUSTER & NETWORK` super-category and help group into `gitmap help`, `gitmap help --compact`, and `gitmap help --filter cluster`.
 
 ### Enhanced
+
 - **Terminal Help UI**: Enhanced terminal help output and pretty Markdown rendering with vibrant ANSI category headers, syntax-highlighted commands (green), aliases (yellow), flags (cyan), argument placeholders (green/dim), and formatted examples.
 
 ### Fixed
+
 - **Help UI Documentation**: Fixed the command registry in the React documentation site (`src/data/commands.ts`) to properly list and categorize all cluster and server-client commands in the Command Reference under Cluster & Delegation.
 
 ## [v6.34.0] 2026-08-20 Fix Scan Visualization and Emoji Stripping
 
 ### Fixed
+
 - **Terminal UI**: Fixed an issue where modern PowerShell 7 hosts were incorrectly identified as legacy Windows consoles, causing emojis (like `🧬`) to be aggressively stripped into ASCII fallbacks (`[dna]`).
 - **Scan Visualization**: Consolidated the `gitmap scan` artifact output. The clone help instructions are now displayed seamlessly with the generated artifact list, avoiding duplicated, scattered output blocks at the end of the scan.
 
 ## [v6.33.0] 2026-08-20 Update Terminal Visualization
 
 ### Added
+
 - **Update Terminal Visualization**: Enhanced `gitmap update` and `gitmap update remote` to fetch the remote `version.json` prior to execution. The terminal now prominently displays the current and target version before starting, and outputs a clear success summary detailing the version bump and source on completion.
 
 ## [v6.32.0] 2026-08-19 PowerShell PATH Snippet Fix
@@ -578,47 +626,64 @@ To pin your repository to this exact version, run the following one-liner:
 - [01-6.30.0-sync-regex](.lovable/release/issues/01-6.30.0-sync-regex.md) Version sync scripts failed due to outdated regexes for `var Version` and bracketed changelog headings. Fixed regexes to pass.
 
 ## [v6.29.0] 2026-08-19
+
 ### Fixed
+
 - **CI/CD Reliability**: Fixed a fatal memory data race (``WARNING: DATA RACE``) in the multi-node `pterm.MultiPrinter` UI loop that caused test suites to crash randomly. Properly isolated test UI via global `DisableOutput()` toggles to prevent concurrent slice mutation during `Stop()`.
 
 ## [v6.28.0] 2026-08-19
+
 ### Added
+
 - **Bulk Visibility Wildcard Commands**: Introduced 4 new CLI commands (`make-all-public`, `make-all-private`, `MAPUB`, `MAPRI`) to bulk-update GitHub/GitLab repository visibility across an entire owner or organization.
 - **Advanced Pattern Matching**: Supports wildcard filtering (`exact`, `prefix*`, `*contains*`, `prefix*suffix`) for precisely targeting subsets of repositories.
 - **Interactive TUI Flow**: Added numbered list selection and index-based exclusion (`-1,3,5`) with a `-Y` bypass for automated pipelines.
 - **Execution Auditing**: Integrated full audit logging via SQLite `GitMapRun` and `GitMapRepoResult` tables.
 
 ## [v6.27.0] 2026-08-19
+
 ### Added
+
 - **Cluster Command Delegation**: Introduced unified CLI surface (`gitmap servers-clients`, `gitmap clients`, `gitmap sc`) to broadcast shell commands, Git operations (`pull`, `push`, `status`), and package installations (`install`) across multi-machine clusters.
 - **Cluster Audit & Nodes**: Added `gitmap cluster history` for persistent execution audit trails, `gitmap cluster nodes` for checking machine statuses, and `gitmap cluster export`/`import` for managing node registries.
 - **Cluster Security**: Added `gitmap cluster set-password` for secure lifecycle operations (`restart`, `shutdown`, `logoff`) on client nodes using bcrypt.
 
 
 ## [v6.26.0] 2026-08-17
+
 ### Added
+
 - **Coding Guidelines v24 Integration**: Extended `cfr` and `cfrp` with a new order-independent pre-URL modifier `cg`. Passing `cg` automatically downloads and runs the OS-aware Coding Guidelines v24 installer (via PowerShell on Windows or bash on Unix) inside the cloned folder.
 - **Auto-Commit + Push**: The `cg` modifier automatically stages, commits (`chore: install coding guidelines (v24)`), and pushes the installer's changes. Supports opt-out via `--no-commit` and `--no-push` flags.
 
 ## [v6.25.0] 2026-08-17
+
 ### Added
+
 - **Reclone Transport Reuse**: Re-clone operations (`cfr`, `cfrp`, `clone-now`/`reclone`, direct-URL `clone`) now intelligently preserve the original transport (SSH vs HTTPS). An SSH-origin repo will never silently downgrade to HTTPS on reclone, resolving the browser-auth-free behavior loss. The used transport is logged in `gitmap history`.
 - **`gitmap code` command**: Added new command (aliases `vcode`, `vscode`) to open the current or argument folder in VS Code and append/update it in the Project Manager's `projects.json` via VS Code integration hooks.
 
 - **Files:** `gitmap/cmd/code.go` (new), `gitmap/cmd/code_test.go` (new), `gitmap/constants/constants_cli.go`, `gitmap/constants/cmd_constants_test.go`, `gitmap/cmd/rootcore.go`, `gitmap/cmd/clonefixrepo.go`, `gitmap/cmd/reporeclone.go`, `gitmap/cmd/clone.go`, `gitmap/cmd/clonemulti.go`, `gitmap/cmd/clonenow.go`, `gitmap/clonenow/clonenow.go`, `gitmap/clonenow/execute.go`, `gitmap/constants/constants.go` (`6.25.0`), `src/constants/index.ts` (`v6.25.0`), `version.json`, `README.md` (pin → v6.25.0), `changelog.md`.
 
 ## [v6.19.0] 2026-08-17
+
 ### Added
+
 - Added transport awareness to `gitmap clone` so it preserves the origin transport (SSH vs HTTPS) used during `gitmap scan` when cloning from a manifest file. This resolves fallback issues that triggered interactive browser authentication prompts.
 - Added `IdentifiedTransport` to `ScanRecord` model and database schemas.
 - Updated documentation and LLM docs for new visibility commands and transport awareness.
+
 ## [v6.92.0] 2026-08-10
+
 ### Added
+
 - Added PHP query wrapper (`query_wrapper.php`) to unify error logging in PHP environments.
 - Conducted full codebase audit confirming 0 violations for TS Enums (`Type` suffix) and `isFail` vs inverted boolean usages.
 
 ## [v6.91.0] 2026-08-09
+
 ### Changed
+
 - **Architectural Shift:** Centralized version management strictly to `version.json` at the repository root.
 - Converted `Version` from a `const` to a `var` inside `gitmap/constants/constants.go` to support dynamic compile-time overrides via `-ldflags`.
 - Refactored `release.yml` GitHub action to read exclusively from `version.json` rather than relying on Git tags for metadata extraction.
@@ -626,29 +691,40 @@ To pin your repository to this exact version, run the following one-liner:
 - Modified all `spec/` AI blueprints and `.lovable/plan.md` tasks to prohibit multi-file version sweeping in favor of the new single source of truth.
 
 ## [v6.90.0] 2026-08-09
+
 ### Added
+
 - Expanded the CI/CD Pipeline documentation into a comprehensive multi-file structure within `spec/09-pipeline-extend-v2/` mirroring the original architecture.
 - Specifically documented the `awk` changelog integrations, strict TS Enum enforcement (`*Type`), and `query_wrapper` Python/TS explicit error rules for AI ingestion.
 
 ## [v6.89.0] 2026-08-09
+
 ### Added
+
 - Created `spec/09-pipeline-extend-v2/readme.md` detailing the RCA for release skew errors and standardizing AI release workflows.
 - Linked new pipeline specs into the main `spec/readme.md` TOC.
 - Injected strict release operating procedures into `.lovable/plan.md` to permanently guide AI execution on tagging.
 
 ## [v6.88.0] 2026-08-09
+
 ### Added
+
 - Created `query_wrapper.py` in Python to uniformly catch exceptions and log explicit errors without relying on scattered try/catch blocks.
 - Applied `query_wrapper` across the lint scripts in `.github/scripts/` to enforce robust logging.
 
 ### Changed
+
 - Enforced complete eradication of string union types in TypeScript (UI components, specifications, pages). All previously lingering string unions have been strictly refactored to `EnumNameType`.
 - Unified the `is_fail` / `isFail` convention explicitly across the codebase, preventing anti-patterns like `!isSuccess`.
 
 ### Fixed
+
 - Fixed release skew bug where an un-version-bumped tag (`v6.87.1`) failed smoke tests by pushing a clean Minor version bump to align source control with Git tags.
+
 ## [v6.87.0] 2026-08-09
+
 ### Changed
+
 - Refactored TypeScript string union types to proper Enums (ending with `Type`)
 - Reverted Go `if/else` logic back to `switch` where appropriate
 - Cleaned up boolean checks, converting inverted logic (`!isSuccess`) to explicit explicit positive checks (`isFail`)
@@ -659,17 +735,20 @@ To pin your repository to this exact version, run the following one-liner:
 ## [v6.86.0] 2026-08-09 maintenance bump
 
 ### Changed
+
 - Routine version bump sequence to enforce prompt instructions and idempotency.
 
 ## [v6.85.0] 2026-08-08 release ceremony and version sync
 
 ### Changed
+
 - Standardized and synchronized release metadata across Go constants, web constants, and release artifacts.
 - Validated all lowercase markdown filename constraints and embedded helptext resolution.
 
 ## [v6.84.0] 2026-08-08 guideline refactoring and lowercase markdown enforcement
 
 ### Changed
+
 - Lowercased all markdown files repository-wide (`readme.md`, `changelog.md`, `contributing.md`, `llm.md`, helptext and spec docs) to enforce strict lowercase filename conventions.
 - Updated `gitmap/helptext/print.go` and `gitmap/helptext/coverage_test.go` to support lowercase help files.
 - Refactored `gitmap/movemerge/merge.go` and `gitmap/movemerge/finalize.go` to use `switch` statements and clean positive boolean conditionals.
@@ -679,27 +758,33 @@ To pin your repository to this exact version, run the following one-liner:
 ## v6.83.0 (2026-07-25): clone keeps the folder name you typed
 
 ### Fixed
+
 - `gitmap clone` no longer flattens `-vN` folder names. The multi-URL path called `clonenext.ParseRepoName` and dropped the version suffix, so `codex-june-6-v2` landed in `codex-june-6/` and distinct versioned repos silently collided in one folder. `resolveCloneFolder` now returns the repo name verbatim, matching the single-URL path.
 
 ### Changed
+
 - Folder naming for base `clone` is now documented as a rule in `spec/01-app/104-clone-multi.md`: repo name verbatim, explicit folder argument wins, no flattening. Version flattening and version bumping stay in `gitmap clone-next` / `cn`.
 
 ### Added
+
 - `gitmap/cmd/clonemulti_folder_test.go` pins the rule: `-v1` / `-v13` suffixes survive, explicit folder names win, `.git` and trailing slashes still normalise away.
 
 
 ## v6.82.0 (2026-07-23): CI reliability
 
 ### Fixed
+
 - committransfer: de-flaked `TestPlanIdempotenceBeyond200Commits` by removing `t.Parallel()`, giving each buried commit a unique monotonic RFC3339 timestamp, and trimming the bury count from 250 to 220 (still well above the legacy 200-commit cap this test guards). Prior runs occasionally failed with `error: bad tree object HEAD` mid-loop under parallel CI load.
 
 ### Unchanged
+
 - No production code changes. `commit-in`, `commit-left`, `commit-right`, and `commit-both` replay engines are unaffected; all `commitin/*` subpackages remained green in the failing run.
 
 
 ## v6.81.0 (2026-07-23): Minor release, rolling up fix-repo gofmt reliability work
 
 ### Added
+
 - Minor version rollup covering the fix-repo gofmt reliability work shipped in the v6.80.x line:
   - `gitmap doctor fix-repo` probe suite (gofmt-present, gofmt-runs, argv-budget, chunker-selftest) with `--json` and `--budget N`.
   - `gitmap fix-repo --dry-run` per-batch preview with NEAR-LIMIT / OVER-LIMIT tags.
@@ -708,11 +793,13 @@ To pin your repository to this exact version, run the following one-liner:
 - Golden-test parity fixes for `hd`, `list-update`, `update-all`, `update-apply` helptext so `go test ./...` stays green.
 
 ### Notes
+
 - No behavior changes vs v6.80.1; this is a minor bump that promotes the accumulated fixes into a clean release.
 
 ## v6.80.1 (2026-07-23): fix-repo gofmt: doctor, dry-run preview, verbose progress, tunable budget
 
 ### Added
+
 - **`gitmap doctor fix-repo`** subcommand: probes gofmt on PATH, gofmt executability, argv budget (measured on Windows), and a chunker invariant self-test. Supports `--json` and `--budget N`.
 - **`gitmap fix-repo --dry-run`** now prints a per-batch preview showing cmdLen and percent-of-budget; tags NEAR-LIMIT (≥90%) and OVER-LIMIT (≥100%) batches so Windows users can spot argv overflow before running the real rewrite.
 - **`gitmap fix-repo --verbose`** now prints a batch header, per-batch start/done lines with cmdLen, and a rolling ETA computed from average per-batch wall time.
@@ -720,11 +807,13 @@ To pin your repository to this exact version, run the following one-liner:
 - Spec: `spec/01-app/118-fix-repo-gofmt-tuning.md`. Helptext: `gitmap/helptext/doctor-fix-repo.md`.
 
 ### Fixed
+
 - `gitmap/cmd/fixrepo_gofmt.go` module import path (`gitmap-v28` → `gitmap-v28`) so the package compiles cleanly against the current `go.mod`.
 
 ## v6.79.0 - 2026-07-16 - Cloner LFS smudge auto-recovery
 
 ### Added
+
 - **Automatic LFS smudge-failure recovery** in `gitmap/cloner`: when a clone fails with `smudge filter lfs failed` / `external filter 'git-lfs' failed` (typically a 404 on an LFS object), the cloner now cleans the partial destination and transparently retries with `GIT_LFS_SKIP_SMUDGE=1`, preserving LFS pointers so the checkout completes.
 - `CloneResult.Notes` annotated with `lfs-skip-smudge-retry` when the fallback path fires, so downstream reporting and CSV/JSON exports surface the recovery.
 - Unit tests in `gitmap/cloner/lfs_retry_test.go` covering `isLFSSmudgeFailure` detection and the retry cleanup path.
@@ -732,28 +821,36 @@ To pin your repository to this exact version, run the following one-liner:
 ## v6.78.0 - 2026-07-16 - CG epic close: worked end-to-end example + goreleaser tag verification
 
 ### Added
+
 - **CHANGELOG worked example** (this entry) - complete copy-pasteable `cfr cg` / `cfrp cg` walkthrough covering install, invocation, modifier ordering, and opt-out flags. Closes the 10-step Coding Guidelines v24 integration epic (Steps 1-9 shipped in v6.75.0 through v6.77.0).
 
 ### Verified
+
 - **`.github/workflows/goreleaser.yml`** - tag-driven workflow (`v*.*.*`) audited against the new `gitmap/cmd/codingguidelines.go`, `codingguidelines_commit.go`, and `codingguidelines_test.go` files added across v6.75-v6.77. `main: .` in `gitmap/.goreleaser.yaml` compiles the entire `gitmap/cmd` package, so the new CG runner ships in every linux/darwin/windows (amd64+arm64) archive automatically. No config drift.
 - **`gitmap/.goreleaser.yaml`** - goreleaser v2 schema (`version: 2`, `formats: [tar.gz]`, `format_overrides` per `goos: windows` → `[zip]`) still valid. ldflags stamp `constants.Version` from the pushed tag, so `gitmap --version` on the published binary matches the release tag byte-for-byte.
 
 ### Worked example: `cfr cg` end-to-end (v6.78.0)
 
 ```bash
+
 # 1. Install v6.78.0 (Linux/macOS)
+
 curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.78.0/release-version-v6.78.0.sh | bash
 
 # 2. Clone-fix-repo with Coding Guidelines v24 installer + auto commit + auto push (default)
+
 gitmap cfr cg https://github.com/you/your-repo.git
 
 # 3. Same, but keep changes local (skip push)
+
 gitmap cfr cg --no-push https://github.com/you/your-repo.git
 
 # 4. Same, but stage only (skip commit AND push)
+
 gitmap cfr cg --no-commit https://github.com/you/your-repo.git
 
 # 5. Promote-public + Coding Guidelines (order-independent: `p cg` == `cg p`)
+
 gitmap cfrp cg https://github.com/you/your-repo.git
 gitmap cfr p cg https://github.com/you/your-repo.git   # equivalent
 ```
@@ -768,56 +865,65 @@ gitmap cfr cg https://github.com/you/your-repo.git
 **Modifier contract** (locked by `clonefixrepo_modifiers_test.go` since v6.76.0): `cg` and `p` may appear in any order before the URL; duplicates are idempotent; the first non-modifier token (flag or URL) stops modifier scanning.
 
 ### Changed
-- Pinned: README pinned-version block + version matrix moved to **v6.78.0**. Synced `gitmap/constants/constants.go` (`Version = "6.78.0"`) and `src/constants/index.ts` (`VERSION = "v6.78.0"`).
 
+- Pinned: README pinned-version block + version matrix moved to **v6.78.0**. Synced `gitmap/constants/constants.go` (`Version = "6.78.0"`) and `src/constants/index.ts` (`VERSION = "v6.78.0"`).
 
 
 ## v6.77.0 - 2026-07-16 - `cfr` / `cfrp` `cg` modifier surfaced in UI command registry
 
 ### Added
+
 - **UI registry** `src/data/commands.ts` - `clone-fix-repo` and `clone-fix-repo-pub` entries now advertise the `cg` (Coding Guidelines v24) and `p` (promote-public) pre-URL modifiers, plus the `--no-commit` / `--no-push` opt-out flags. Four new worked examples per command cover the plain, `cg`, `cg --no-commit`, `cg --no-push`, and combined `p cg` invocations. Usage lines updated to `gitmap clone-fix-repo [cg] [p] <url> [folder] [flags]` so search-by-flag surfaces the modifiers.
 
 ### Changed
+
 - Pinned: README pinned-version block + version matrix moved to **v6.77.0**. Synced `gitmap/constants/constants.go` (`Version = "6.77.0"`) and `src/constants/index.ts` (`VERSION = "v6.77.0"`).
 
 ## v6.76.0 - 2026-07-16 - `cfr cg` / `cfrp cg` unit tests + modifier parser lock-in
 
 ### Added
+
 - **Unit tests** `gitmap/cmd/clonefixrepo_modifiers_test.go` - 10-case table pinning the order-independent `cg` / `p` contract (duplicates idempotent, flags stop scan, unknown tokens stop scan, URL stops scan).
 - **Unit tests** `gitmap/cmd/codingguidelines_test.go` - success path via injected `Runner` (fake `true`), exit-code propagation via fake `false`, and `ErrCGShellNotFound` when PATH is empty. Banners `Installing coding guidelines` and `OK Coding guidelines` are asserted so the standardized stderr format cannot silently drift.
 
 ### Fixed
+
 - **Build error** `gitmap/cmd/sync.go` - renamed local `jsonEqual` helper to `syncJSONEqual` to resolve a package-level redeclaration collision with `gitmap/cmd/chromeprofile_merge.go:245`. Unblocked `go test ./cmd/...`.
 
 ### Changed
+
 - Pinned: README pinned-version block + version matrix moved to **v6.76.0**. Synced `gitmap/constants/constants.go` (`Version = "6.76.0"`) and `src/constants/index.ts` (`VERSION = "v6.76.0"`).
 
 ## v6.75.0 - 2026-07-12 - `fix-auth`: one-shot cure for the wrong-account SSH push failure
 
 ### Added
+
 - **`gitmap fix-auth`** (alias `fa`) - cross-platform Go port of the PowerShell/Bash "wrong GitHub account push failure" recipe. Generates `~/.ssh/id_ed25519_<user>`, pins the current repo via `git config core.sshCommand "ssh -i <key> -F /dev/null -o IdentitiesOnly=yes"`, and copies the public key to the OS clipboard (`clip`/`pbcopy`/`wl-copy`/`xclip`/`xsel`). New file: `gitmap/cmd/fixauth.go`. Constants: `CmdFixAuth` / `CmdFixAuthAlias` in `gitmap/constants/constants_cli.go`. Dispatch in `gitmap/cmd/rootutility.go`.
 - **Help text** `gitmap/helptext/fix-auth.md`, `whoami.md`, `ssh-bind.md` - embedded via `go:embed *.md`; discoverable through `gitmap help <topic>` and the `--json` help payload.
 - **Docs-site command entries** for `fix-auth`, `whoami`, and `ssh-bind` in `src/data/commands.ts` (`tools` category) with usage, flags, examples, and see-also links.
 
 ### Changed
-- Pinned: README pinned-version block + version matrix moved to **v6.75.0**. Synced `gitmap/constants/constants.go` (`Version = "6.75.0"`) and `src/constants/index.ts` (`VERSION = "v6.75.0"`).
 
+- Pinned: README pinned-version block + version matrix moved to **v6.75.0**. Synced `gitmap/constants/constants.go` (`Version = "6.75.0"`) and `src/constants/index.ts` (`VERSION = "v6.75.0"`).
 
 
 ## v6.74.0 - 2026-07-01 - Release bump
 
 ### Changed
+
 - Version bump to v6.74.0; pinned across README, Go/TS constants, and CHANGELOG.
 
 ## v6.73.0 - 2026-06-28 - Better `chrome export-bookmarks` errors + `--root`/`--folder` docs
 
 ### Added
+
 - **Actionable error messages** for `gitmap chrome export-bookmarks` (`gitmap/cmd/chrome_bookmarks.go`): distinguishes missing/unreadable `Bookmarks` file, unknown `--root` (lists available roots), unmatched `--folder` (lists top-level folders + syntax hint), and empty `--match`/`--title` results.
 - **Documented `--root` / `--folder` examples** for md, html, and json exports in `gitmap/helptext/chrome.md` and the README "Data, Profiles & Bookmarks" section.
 
 ## v6.72.0 - 2026-06-28 - Doctor `--json`/`--fix`, bookmark filters, chrome backup checksums
 
 ### Added
+
 - **`gitmap doctor --json` / `--fix`** (`gitmap/cmd/doctor_run.go`): machine-readable probe output and auto-creation of missing config folders with actionable next-step hints.
 - **Extended doctor network probes**: tests `api.github.com`, `github.com`, `codeload`, `uploads`, and `objects.githubusercontent.com` with consolidated "X/5 reachable" reporting (`gitmap/cmd/doctor_extra.go`).
 - **`gitmap release-notes`** flags `--since <date>`, `--since-tag <tag>`, and `--format flat|grouped|markdown|json` with conventional-commit classification (`gitmap/cmd/release_notes_opts.go`).
@@ -828,24 +934,27 @@ gitmap cfr cg https://github.com/you/your-repo.git
 ## v6.71.0 - 2026-06-28 - Parallel hygiene scans, JSON/CSV exports, integration tests
 
 ### Added
+
 - **Parallel scanning** for `gitmap stale`, `dedupe`, `size`, `orphans`: directory probes and per-repo `git` calls now fan out across up to 8 workers via shared `scanForReposParallel` / `mapReposParallel` helpers (`gitmap/cmd/hygiene_parallel.go`).
 - **`--format=table|json|csv`** flag on all four hygiene commands. JSON emits structured arrays (RFC3339 timestamps, byte counts, tree SHAs); CSV emits a header row + standard encoding/csv quoting. Table remains the default.
 - **Integration tests** (`gitmap/cmd/hygiene_integration_test.go`) spin up real git repos in `t.TempDir()` and exercise `scanForReposParallel`, `lastCommitTime`, `headTreeSHA`, `dirSize`, `originURL`, `gitURLToHTTPS`, plus the JSON/CSV emitters. Skip cleanly when `git` is absent.
 
 ### Notes
+
 - `orphans --format=json|csv` is read-only (no delete prompt) to keep machine-readable output stable for piping into other tools.
 - Version pinned to **v6.71.0** across `README.md`, `gitmap/constants/constants.go`, `src/constants/index.ts`.
-
 
 
 ## v6.70.0 - 2026-06-28 - Release tools, workflow shortcuts, safety net
 
 ### Added - Release
+
 - **`gitmap release-notes <vN..vM>`** - auto-generate changelog block from commit messages via `git log --pretty`.
 - **`gitmap release-dry [tag]`** - full rehearsal: `go build`, optional local tag, recent log; never pushes; prints undo recipe.
 - **`gitmap tag-rename <old> <new>`** - local + origin tag rename (create new, delete old, push both refs).
 
 ### Added - Workflow
+
 - **`gitmap recent` (`rct`)** - last 10 repos from the navigation helper history; `--print` for fzf piping.
 - **`gitmap todo`** - grep `TODO|FIXME|XXX` across tracked files with per-hit `git blame` author.
 - **`gitmap open` (`o`)** - open current repo's GitHub URL; `--issues`/`--prs`/`--actions` jump flags.
@@ -853,20 +962,22 @@ gitmap cfr cg https://github.com/you/your-repo.git
 - **`gitmap blame-stats [root]`** - top contributors per file via `git blame --line-porcelain`.
 
 ### Added - Safety
+
 - **`gitmap snapshot [root]`** - tar.gz snapshot of working tree to `.gitmap/snapshot/snap-<UTC-ts>.tar.gz` (includes untracked).
 - **`gitmap rollback [tarball]`** - restore latest (or named) snapshot.
 - **`gitmap guard [root]`** - install `.git/hooks/pre-commit` blocking secrets, files >10MB, `-vN` drift.
 
 ### Internal
+
 - Constants `CmdReleaseNotes` / `CmdReleaseDry` / `CmdTagRename` / `CmdRecent(+Alias)` / `CmdTodo` / `CmdOpen(+Alias)` / `CmdPR(+Alias)` / `CmdBlameStats` / `CmdSnapshot` / `CmdRollback` / `CmdGuard` added; parity test updated.
 - New files: `release_tools.go`, `workflow_recent_todo.go`, `workflow_open_pr.go`, `safety_snapshot.go`, plus 11 helptext markdown files.
 - Version pinned to **v6.70.0** across `README.md`, `gitmap/constants/constants.go`, `src/constants/index.ts`.
 
 
-
 ## v6.69.0 - 2026-06-28 - Chrome umbrella: backup / restore / diff / export-bookmarks / which
 
 ### Added
+
 - **`gitmap chrome backup`** - snapshot every Chrome profile to a tar.gz under `.gitmap/chrome/backup/` (`--out` for custom path). Skips volatile `LOCK`/`lockfile` entries.
 - **`gitmap chrome restore <tarball>`** - restore a snapshot into the User Data dir (`--into` for custom root). Path-traversal guarded.
 - **`gitmap chrome diff <A> <B>`** - extensions + bookmark-URL set diff (only-A / only-B) between two profiles.
@@ -874,16 +985,17 @@ gitmap cfr cg https://github.com/you/your-repo.git
 - **`gitmap chrome which`** - print active Chrome profile dir + display name from `Local State` (`last_used` + `last_active_profiles`).
 
 ### Internal
+
 - New umbrella dispatcher `gitmap/cmd/chrome.go` plus per-subcommand files (`chrome_backup.go`, `chrome_diff.go`, `chrome_bookmarks.go`, `chrome_which.go`).
 - Constants `CmdChrome` + `SubCmdChrome*` added to `constants_chromeprofile.go`; parity test updated.
 - Help: `gitmap/helptext/chrome.md`.
 - Version pinned to **v6.69.0** across `README.md`, `gitmap/constants/constants.go`, `src/constants/index.ts`.
 
 
-
 ## v6.68.0 - 2026-06-28 - Repo hygiene: stale, orphans, dedupe, size
 
 ### Added
+
 - **`gitmap stale` (`st`)** - `gitmap/cmd/stale.go`. Lists local repos with no commits in the last N days (default 90). With `--archive` moves them into `.gitmap/archive/<UTC-ts>/`; `--dry-run` previews the moves.
 - **`gitmap orphans`** - `gitmap/cmd/orphans.go`. Scans every local clone's `origin` URL via HTTP HEAD and flags any returning 404/410. Bulk-deletes with `-y` confirmation or `--dry-run` for preview.
 - **`gitmap dedupe`** - `gitmap/cmd/dedupe.go`. Hashes each repo's `HEAD^{tree}` and reports groups of 2+ identical clones living in different folders.
@@ -892,13 +1004,14 @@ gitmap cfr cg https://github.com/you/your-repo.git
 - Constants added to `gitmap/constants/constants_cli.go` and parity entries added to `gitmap/constants/cmd_constants_test.go`. Dispatcher wired in `gitmap/cmd/roottooling.go`.
 
 ### Changed
-- **Version pinned to v6.68.0** across `README.md`, `gitmap/constants/constants.go`, and `src/constants/index.ts`.
 
+- **Version pinned to v6.68.0** across `README.md`, `gitmap/constants/constants.go`, and `src/constants/index.ts`.
 
 
 ## v6.67.0 - 2026-06-28 - Docs ⌘K palette, runnable example UI, changelog filters, CI parity + mutation + coverage gates
 
 ### Added
+
 - **Global ⌘K command palette** (#8) - new `src/components/docs/CommandPalette.tsx` mounted in `src/App.tsx`. Fuzzy-searches every entry in `src/data/commands.ts` by name, alias, description, and example string. Toggles via ⌘K / Ctrl+K and routes to `/commands?cmd=<name>`.
 - **`ExampleCodeBlock`** (#9) - `src/components/docs/ExampleCodeBlock.tsx` adds a uniform copy-to-clipboard button and a "Run in terminal" hint to every fenced example so users always see the same affordances.
 - **Version-aware changelog filters** (#10) - `src/lib/changelogTags.ts` heuristically tags every changelog item as `breaking`, `added`, `changed`, `flag`, `fix`, or `perf`. `src/pages/Changelog.tsx` exposes a chip row; selecting a chip filters down to matching items (multi-select union). Footer counter updates to `N of M releases shown`.
@@ -907,12 +1020,14 @@ gitmap cfr cg https://github.com/you/your-repo.git
 - **Coverage floor** (#13) - `.github/workflows/coverage-floor.yml` + `.github/scripts/coverage-floor.sh` + `.github/coverage.floor` enforce a 70% per-package default with per-package overrides (visibility 75, checkpoint 80, jsonenv 90, logging 80, transport 80). Ratchet upward over time.
 
 ### Changed
+
 - **`src/App.tsx`** - mounts `<CommandPalette />` inside the `BrowserRouter` so the shortcut is available on every docs route.
 - **Version pinned to v6.67.0** across `README.md` (12 install-script + asset URLs), `gitmap/constants/constants.go`, and `src/constants/index.ts`.
 
 ## v6.66.0 - 2026-06-28 - Doctor, self-update, structured logs, range undo, checkpointed cfrp, pure-Go SQLite scaffold
 
 ### Added
+
 - **`gitmap doctor`** - single command that probes git, ssh, chrome, PATH, sqlite, and disk; prints fix recipes for each failed check and exits non-zero so CI can gate on it. Helptext in `gitmap/helptext/doctor.md`.
 - **`gitmap self-update`** - hits the GitHub release API for the newest tag, compares against `constants.Version`, and re-runs `gitmap self-install --version <tag> -y` when newer. Flags: `--dry-run`, `--force`. Helptext in `gitmap/helptext/self-update.md`.
 - **`release-undo --range vX.Y.A..vX.Y.B`** - roll back multiple contiguous patch releases in one shot. Endpoints must share major.minor to prevent accidental mass-deletion; failures stop the run with earlier successes intact (idempotent).
@@ -922,12 +1037,14 @@ gitmap cfr cg https://github.com/you/your-repo.git
 - **Pure-Go SQLite scaffold** at `gitmap/db/zombiezen` (#6) - incremental migration off mattn/go-sqlite3 behind the `purego_sqlite` build tag. Open returns `ErrNotEnabled` until step 3 of the migration plan lands.
 
 ### Changed
+
 - **`src/data/commands.ts`** - added `doctor`, `self-update`, and `release-undo --range` to the docs UI; introduced a `GlobalFlags` block documenting `--log-json`, `--quiet`, `--no-color`, and `--json`.
 - **Version pinned to v6.66.0** across `README.md` (12 install-script + asset URLs), `gitmap/constants/constants.go`, and `src/constants/index.ts`.
 
 ## v6.65.0 - 2026-06-28
 
 ### Added
+
 - **`gitmap release-undo` (alias `ru`)** - reverse a prior release in one shot. Deletes the local tag, deletes the remote tag (skip via `--keep-remote`), and removes `.gitmap/release/vX.Y.Z.json`. Defaults to the newest release when no version is given. Supports `--dry-run` and `-y`. Emits a copy-friendly green summary line for pasting into task-completion reports.
 
 ## v6.64.0 - 2026-06-28 - Routine release bump
@@ -935,23 +1052,26 @@ gitmap cfr cg https://github.com/you/your-repo.git
 ## v6.63.0 - 2026-06-28
 
 ### Restored
+
 - **`cfrp` prior-version privatize** - re-enabled the post-publish scan that walks back v(N-1)..v(N-5) on the same provider/owner and privatizes any siblings still public. Honors `-y` for auto-confirm; otherwise prompts. Lookback narrowed from 15 → 5 per request.
 
 ## v6.62.0 - 2026-06-28
 
 ### Verified
+
 - **`hd` / `help-dashboard`**: confirmed end-to-end - extracts bundled `docs-site.zip` (auto-downloads from GitHub release when missing), serves the static `dist/` over HTTP at `--port` (default), opens the user's default browser via `openURL`, and falls back to `npm run dev` or the hosted docs URL when assets are unavailable. Help file `gitmap/helptext/help-dashboard.md` present; listed in `CompactUtilities` group, `rootusage.go`, and `llmdocsgroups.go`.
 - **Help coverage**: every recent command (`rm`, `del`, `backup`, `cpc`, `cpm`, `chrome-profile-*`, `make-last-public`, `make-last-private`, `ssh status`) has a matching `gitmap/helptext/<id>.md` file - `TestEveryCmdIDHasHelpFile` passes.
 - **UI parity**: `src/constants/index.ts` `VERSION` pinned to the new tag; React docs surface mirrors the same command catalog as the CLI help groups.
 
 ### Changed
-- **File-size CI lint**: converted to non-blocking baseline warning (item #16) so the pre-existing >200-line legacy files no longer block CI while new code is still held to the 200-line ceiling.
 
+- **File-size CI lint**: converted to non-blocking baseline warning (item #16) so the pre-existing >200-line legacy files no longer block CI while new code is still held to the 200-line ceiling.
 
 
 ## v6.61.0 - 2026-06-28
 
 ### Added
+
 - **Shared transport classifier** (#15): new `gitmap/transport` package centralizes HTTPS/SSH/SCP URL classification so mapper, probe, clone-from, and reclone share one rule set.
 - **Parallel sibling probe** (#5): `probe.ProbeSiblingsParallel` fans `<base>-vN` ls-remote checks across a worker pool (default 8) - drops `clone-next` discovery from O(N) round-trips to O(N/8).
 - **Uniform `--json` envelope** (#12): new `gitmap/jsonenv` package emits `{schema, version, command, ok, data, error}` so external tooling can dispatch by command without sniffing keys. Inner per-command payloads unchanged.
@@ -960,20 +1080,22 @@ gitmap cfr cg https://github.com/you/your-repo.git
 - **Changelog regen from `.gitmap/release/`** (#18): `cmd.RegenChangelog` enumerates per-release JSONs and emits a semver-sorted skeleton - eliminates hand-edit drift between release files and `changelog.md`.
 
 ### Deferred
+
 - **#6 `zombiezen.com/go/sqlite` migration**: deferred - requires touching every store call site + revalidating the `SetMaxOpenConns(1)` rule. Tracked separately.
 - **#19 Per-command live examples on docs site**: deferred - needs docs-side route + content pipeline; the helptext examples already cover the binary-side surface.
-
 
 
 ## v6.60.0 - 2026-06-28
 
 ### Added
+
 - **Resumable `commit-in` (item #3)** - new `gitmap/cmd/commitin/checkpoint` package writes a per-input `state.json` under `<source>/.gitmap/commit-in/state/<fingerprint>.json` after every processed source commit. A re-run after Ctrl-C / crash now skips already-completed SHAs in O(1) instead of re-walking the SQLite runlog. Crash-safe via `write-tmp + rename`; corrupted state files reset cleanly without failing the run.
 
 ## v6.59.0 - 2026-06-28
 
 
 ### Added
+
 - **Global `--quiet` / `--no-color` env vars (item #13)** - new `gitmap/uipref` package centralizes `GITMAP_QUIET`, `GITMAP_NO_COLOR`, and the cross-tool `NO_COLOR` convention. Wired into the shared clone spinner first so `cfr` / `cfrp` / `clone` / `clone-next` honor it immediately; remaining decorative call sites (chrome profile copy, history, backup, ssh status) will adopt the same helper.
 - **CI `-race` enforcement (item #17)** - new `.github/workflows/race-detector.yml` runs `go test -race` on the concurrency-hot packages (`cmd/...`, `cloneconcurrency`, `visibility`, `store`, `uipref`) on every push and PR.
 - **File-size CI lint (item #16)** - new `.github/scripts/file-size-check.sh` fails CI when any tracked `*.go` / `*.ps1` source file exceeds 200 lines (test files / golden fixtures excluded). Runs as a step inside the race-detector workflow.
@@ -982,6 +1104,7 @@ gitmap cfr cg https://github.com/you/your-repo.git
 
 
 ### Added
+
 - **`cpc --register-only` (`-r`)** - refresh the destination profile's Chrome `Local State` entry without recopying files. Useful when the picker entry was lost but the on-disk profile is intact.
 - **`cpm --dry-run` diff renderer** - every setting/bookmark/extension conflict now prints a `+ add` / `~ overwrite` / `= keep` line so users see the exact plan before committing.
 
@@ -993,6 +1116,7 @@ commit-in, VSS snapshot, zombiezen migration, doctor extensions,
 JSON-everywhere) will land in subsequent minors.
 
 ### Added - bounded backup retention (suggestion #2)
+
 - **`gitmap backup ls`**: grouped per-repo summary of every snapshot
   under `.gitmap/backup/<repo>/v<N>/fix-repo/<UTC-ts>/`, with count
   and total bytes.
@@ -1006,6 +1130,7 @@ JSON-everywhere) will land in subsequent minors.
   a no-op, not a wipe.
 
 ### Added - SSH health surface (suggestion #11)
+
 - **`gitmap ssh status`** (alias `gitmap ssh st`): one-screen report
   covering `SSH_AUTH_SOCK` reachability, loaded identities from
   `ssh-add -l`, and batch-mode `ssh -T git@<host>` probes against
@@ -1016,6 +1141,7 @@ JSON-everywhere) will land in subsequent minors.
 ## v6.56.0 - 2026-06-28
 
 ### Added
+
 - **`make-last-public` / `make-last-private` (aliases `MLPUB` / `MLPRI`)**
   flip exactly one repo: the highest `-vN` sibling under `<base>` for
   the given owner. Accepts `<owner-or-url> <base>` plus `-Y/--yes`.
@@ -1032,18 +1158,22 @@ JSON-everywhere) will land in subsequent minors.
   transparently on every `make-all-*` cache refresh.
 
 ### Changed
+
 - `visibilityownerlistcache.writeOwnerRepoListCache` now writes both
   the JSON blob and the parsed name index in one logical step.
 
 ## v6.55.0 - 2026-06-25
 
 ### Added
+
 - **`gitmap chrome-profile-merge` / `cpm`** - merge selected slices of a source Chrome profile INTO a destination without clobbering destination values. `--what=all|settings|bookmarks|extensions`, interactive `[k]eep/[o]verwrite/[a]ll/[A]ll/[q]uit` prompts, `--yes` to auto-keep, `--force` to auto-overwrite, `--dry-run` to preview. Helptext: `gitmap/helptext/chrome-profile-merge.md`.
 
 ### Fixed
+
 - **`gitmap cpc` - copied profile now actually appears in Chrome's picker.** Before v6.55.0, registering the destination dir in `Local State` alone was insufficient: Chrome silently merged the new tile back into the source identity on next launch because the destination `Preferences` still carried the source GAIA / signed-in fields. New `patchCopiedChromeProfilePreferences` scrubs `account_info` / `signin` / `google` / `gaia_*` and stamps `profile.name` to the destination slug before the Local State entry is written.
 
 ### Changed
+
 - **User-facing command strings renamed `gitmap-v28 …` → `gitmap …`** in `src/data/commands.ts`, `src/data/postMortems.ts`, and `src/hooks/useTheme.ts` event names. Go import paths are unchanged; only displayed/copyable commands were touched. The two-folder mv/merge/diff examples now use `./gitmap-v28 ./gitmap-v28` so the two slots stay visibly distinct.
 
 ## v6.54.0 - (2026-06-25) - `cfr`/`cfrp` comma-URL fan-out with `--parallel=N`
@@ -1064,7 +1194,6 @@ JSON-everywhere) will land in subsequent minors.
 - **Files added.** `gitmap/cmd/visibilityexceptlatest.go`, `gitmap/cmd/visibilityparallel.go`, `gitmap/cmd/visibilityownerlistcache.go`, `gitmap/store/owner_repo_list_cache.go`, `gitmap/helptext/make-all-{public,private}-except-latest.md`, `gitmap/helptext/MAPUBXL.md`, `gitmap/helptext/MAPRIXL.md`.
 - **Files edited.** `gitmap/cmd/visibilityallbulk.go` (extended flag parser, cache wrapper, except-latest gating, parallel runner wired), `gitmap/cmd/visibilityapplyone.go` (added writer-aware `applyOneRepoTo`), `gitmap/cmd/rootcore.go` (new dispatch entries), `gitmap/constants/constants_cli.go`, `gitmap/constants/constants_visibility.go`, `gitmap/constants/constants_settings.go` (schema v28), `gitmap/store/store.go` (registered `SQLCreateOwnerRepoListCache`).
 - **VERSION pin.** Bumped `gitmap/constants/constants.go` and `src/constants/index.ts` to `v6.53.0`; refreshed all 12 README pins.
-
 
 
 ## v6.52.0 - (2026-06-24) - `chrome-profiles` alias + commit-in resume/idempotency docs
@@ -1132,7 +1261,6 @@ JSON-everywhere) will land in subsequent minors.
 - **New tests - `chromeprofile_resolve_test.go`.** Drives a fake Chrome User Data root via `GITMAP_CHROME_USER_DATA` and a synthetic `Local State` JSON to verify: resolution by directory name, case-insensitive + whitespace-trimmed display-name resolution, absolute-path passthrough (and `!ok` when the absolute path is missing), unknown identifiers return `!ok`, `resolveChromeProfileDir` thin wrapper, `chromeProfileDestination` carries the enriched `DisplayName`, `chromeProfileSummary` formatting across all four shapes (`display+dir`, dir-only, display==dir, input fallback), `availableChromeProfileNames` filters non-profile dirs and regular files, and `readChromeLocalState` returns `nil` gracefully for missing or malformed JSON instead of panicking.
 - **Edge cases hardened.** The test matrix locks in the LOCK-skip contract (open-time and mid-copy), the wrapped-error contract on the unhappy path, and the display-name enrichment contract - preventing future regressions in the resilient copy + resolution code paths exercised by `gitmap cpc`.
 - **Files:** `gitmap/cmd/chromeprofile_copy_test.go` (new), `gitmap/cmd/chromeprofile_resolve_test.go` (new), `gitmap/constants/constants.go` (`6.44.0`), `src/constants/index.ts` (`v6.44.0`), `README.md` (pin → v6.44.0), `changelog.md`.
-
 
 
 ## v6.43.0 - (2026-06-19) - `cpc` shows profile names and skips Chrome `LOCK` files
@@ -1207,14 +1335,12 @@ JSON-everywhere) will land in subsequent minors.
 - **Files:** `gitmap/cmd/chromeprofile_paths.go`, `gitmap/cmd/chromeprofile.go`, `gitmap/constants/constants.go` (`6.34.0`), `src/constants/index.ts` (`v6.34.0`), `README.md` (pin → v6.34.0), `changelog.md`.
 
 
-
 ## v6.33.0 - (2026-06-19) - CI green: top-level Cmd registry parity for chrome-profile-* + bulk-visibility skip-current semantics
 
 - **`TestTopLevelCmdRegistryMatchesAST` fixed.** Added the 10 new `CmdChromeProfile{Copy,Export,Import,List,Delete}` constants (plus their `cpc`/`cpe`/`cpi`/`cpl`/`cpd` aliases) to `topLevelCmds()` in `gitmap/constants/cmd_constants_test.go` so the AST↔registry parity gate stays green.
 - **`TestParseBulkRequest_TwoArgValid` fixed.** `parseBulkRequest` now returns `StartVer = ver - 1` in both single- and pair-arg branches: `gitmap-v28 3` flips v25, v24, v23 (skip-current). `runBulkVisibility`'s existing `ver < 1` guard keeps unversioned inputs safe.
 - **`TestApplyAllTargets_VersionScopeMatrix/v2_bare_base_rewritten` fixed.** Test had hard-coded `gitmap-v28` for a `current=2` case (violating the digit-capture derive-from-int rule); `want` now correctly reads `gitmap-v28`.
 - **Files:** `gitmap/constants/constants.go` (`6.33.0`), `gitmap/constants/cmd_constants_test.go`, `gitmap/cmd/visibilitybulk.go`, `gitmap/cmd/fixrepo_rewrite_versionscope_test.go`, `src/constants/index.ts` (`v6.33.0`), `README.md` (pin → v6.33.0), `changelog.md`.
-
 
 
 ## v6.29.0 - (2026-06-07) - `gitmap pull` always logs; bare-pull hint when no targets
@@ -1231,13 +1357,11 @@ JSON-everywhere) will land in subsequent minors.
 - **Plan 03 status:** Step 1 ✅ (v6.25.0), Step 3 `cfr`/`cfrp` half ✅ (v6.26.0). **Next: Step 2** - migration 007, `model.Repo.IdentifiedTransport`, `Select*` + `UpsertRepoByPath` extension, lazy URL-prefix backfill.
 
 
-
 ## v6.27.0 - (2026-06-07) - Planning artifact: next-task prompt 19 + plan 03 step-2 scoping
 
 - **Planning bump (no Go code changes).** Per the project rule "at the end of the task always bump the minor version", this release stamps the next-task report that scopes Plan 03 Step 2 (DB migration 007 adding `Repo.IdentifiedTransport`).
 - **Files:** `.lovable/prompts/19-next-task.md` (new), `gitmap/constants/constants.go` (`6.27.0`), `src/constants/index.ts` (`v6.27.0`), `README.md` (pin → v6.27.0), `changelog.md`.
 - **Plan 03 status:** Step 1 ✅ (v6.25.0), Step 3 `cfr`/`cfrp` half ✅ (v6.26.0). **Next: Step 2** - migration 007, `model.Repo.IdentifiedTransport`, `Select*` + `UpsertRepoByPath` extension, lazy backfill from URL prefix.
-
 
 
 ## v6.26.0 - (2026-06-07) - `cfr` / `cfrp` honor the destination folder's existing origin transport
@@ -1356,13 +1480,11 @@ JSON-everywhere) will land in subsequent minors.
 - Files: `gitmap/store/makeallvisibility_undo_test.go` (new), `gitmap/store/makeallvisibility_history_test.go` (new), `gitmap/helptext/make-all-public.md` (new), `gitmap/helptext/make-all-private.md` (new), `gitmap/helptext/visibility-undo.md` (new), `gitmap/helptext/visibility-redo.md` (new), `gitmap/helptext/visibility-history.md` (new), `gitmap/constants/constants.go` (`6.11.0`), `README.md` (pin), `.lovable/prompts/08-next-task.md` (new).
 
 
-
 ## v6.10.0 - (2026-06-06) - Centralized undo/redo strings + unit tests for `parseUndoArgs` / `bulkExitCode`
 
 - **Step 29 - Centralized 3 magic strings in `visibilityundo.go`:** `audit DB open failed`, the reverse-loop header (`reversing run #N (provider/owner) - N repo(s)`), and the `<cmd>:source-run=<id>` `PatternList` template moved to `constants_visibility.go` as `ErrUndoAuditDBOpenFmt`, `MsgUndoReverseHeaderFmt`, `UndoPatternsRawFmt`. The patternsRaw template is the audit trail's only link back to the source run - a typo would silently break `vh` filtering - so it now lives behind a single named constant.
 - **Step 30 - Unit tests for `parseUndoArgs` + `matchesFromResults` + `bulkExitCode`:** new `gitmap/cmd/visibilityundoflags_test.go` covers defaults, all flags set together (`--verbose --dry-run --force --run 42`), `--force` in isolation, unknown-token tolerance, result→match adapter preservation, and the full bulk exit-code matrix (all-ok → 0, all-failed → 5, mixed → 9). Guards against the failure mode where a future refactor silently demotes `--force` to a no-op or mis-routes `--run <id>` - both of which would destroy real user data without any visible error.
 - Files: `gitmap/constants/constants_visibility.go` (+`ErrUndoAuditDBOpenFmt`, `MsgUndoReverseHeaderFmt`, `UndoPatternsRawFmt`), `gitmap/cmd/visibilityundo.go` (3 inline strings → constants), `gitmap/cmd/visibilityundoflags_test.go` (new), `gitmap/constants/constants.go` (`6.10.0`), `README.md` (pin), `.lovable/prompts/07-next-task.md` (new).
-
 
 
 ## v6.9.0 - (2026-06-06) - Drift guard + `--force` on `vu` / `vr` + preflight `gh`/`glab auth status`
@@ -1371,7 +1493,6 @@ JSON-everywhere) will land in subsequent minors.
 - **Preflight `auth status` (step 28):** `mustEnsureProviderAuth` runs `<cli> auth status` BEFORE any provider mutation (`make-all-*`, `vu`, `vr`) and fails fast with `ExitVisAuthFailed` and a Code Red message instructing the user to `gh auth login` / `glab auth login`. Previously an unauthenticated CLI passed the `exec.LookPath` gate and failed mid-loop on the first per-repo call, leaving a half-populated audit run.
 - Internal: drift loop extracted into `reverseOneRepo` (≤15 lines) so `applyUndoLoop` stays readable; auth preflight isolated to `visibilityauthstatus.go` (one file, one responsibility).
 - Files: `gitmap/cmd/visibilityauthstatus.go` (new), `gitmap/cmd/visibilityundo.go` (`Force` field, `reverseOneRepo` drift helper, auth-status call), `gitmap/cmd/visibilityundoflags.go` (`--force` parsing), `gitmap/cmd/visibilityallbulk.go` (auth-status preflight in `runMakeAllVisibility`), `gitmap/constants/constants_visibility.go` (+`ErrVisAuthStatusFailedFmt`, `MsgUndoDriftSkipFmt`, `MsgUndoForceOverrideFmt`), `gitmap/constants/constants.go` (`6.9.0`), `README.md` (pin), `.lovable/prompts/06-next-task.md` (new).
-
 
 
 ## v6.8.0 - (2026-06-06) - `gitmap visibility-history` (`vh`) + `--dry-run` on `vu` / `vr`
@@ -1432,12 +1553,10 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Root cause: this test data was written using the repo's own base name (`gitmap`), making it self-poisoning under any future fix-repo run. Documented in mem://core under FIX-REPO DIGIT-CAPTURE GAP - extended now to cover not just sibling integer literals but any same-base versioned token in test fixtures.
 
 
-
 ## v6.2.0 - (2026-05-29) - Fix macOS/Windows CI: `TestExtractBaseAndVersionFromArg_URL` digit-capture desync
 
 - Fixed: `gitmap/cmd/visibilitybulk_test.go` - `TestExtractBaseAndVersionFromArg_URL` hard-coded the expected version (`23`) as a bare integer literal separate from the input URL `gitmap-v28`. The fix-repo rewriter only touches `{base}-vN` tokens, so when the repo bumped from v23→v25 the URL was updated but the expected int was not, producing `expected (gitmap, 23), got (gitmap, 25)` on every CI run since the bump. This was the **exact bug class** documented in mem://core (FIX-REPO DIGIT-CAPTURE GAP, closed v4.12.0): "any new fix-repo test MUST derive expected version-bearing strings from the same int it passed in - never hard-code a sibling literal." The test now formats the URL from a `const wantVer = 25` and asserts against the same constant, so the next version bump rewrites both sides atomically.
 - Root cause: a regression test for the v4.12.0 rule had itself been added in violation of the rule. CI's `macos-latest / go build + test` job (and any other matrix host) failed at `gitmap/cmd` for this single assertion.
-
 
 
 ## v6.1.0 - (2026-05-29) - `gitmap cd <repo> <inner-command>` runs subcommands inside a named repo
@@ -1477,13 +1596,11 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Verified: `TestPlanIdempotenceBeyond200Commits` continues to pass because the default (`MaxHistoryScan=0`) preserves the unbounded scan behavior added in v5.78.0.
 
 
-
 ## v5.82.0 - (2026-05-26) - `gitmap export` schema v2: per-record property pinning
 
 - Extended: `spec/08-json-schemas/export.schema.json` (now v2) - adds full `items.properties` + `items.required` declarations for all five nested arrays. Pinned record shapes: `repos` (`model.ScanRecord`, 15 keys), `groups` (`model.GroupExport` = `Group` + `repoSlugs`, 6 keys), `releases` (`model.ReleaseRecord`, 14 keys), `history` (`model.CommandHistoryRecord`, 12 keys with `alias`/`args`/`flags`/`finishedAt`/`summary`/`createdAt` flagged optional per `omitempty`), `bookmarks` (`model.BookmarkRecord`, 6 keys with `args`/`flags`/`createdAt` flagged optional per `omitempty`).
 - Added: `gitmap/cmd/export_nested_jsonschema_contract_test.go` - `TestExportJSONSchema_NestedRecordKeysSubsetOfProperties` builds a deterministic non-empty export (one record per nested array), runs the live `encodeDatabaseExportJSON`, and asserts every key emitted on each per-record object is declared in that array's `items.properties` map. Catches struct-tag drift in either the model or the schema on every CI run.
 - Updated: `spec/08-json-schemas/_TODO.md` - `export` row updated to reflect schema v2 closure of the per-record property-set gap left open in v5.81.0.
-
 
 
 ## v5.81.0 - (2026-05-26) - JSON schema contract: `gitmap export`
@@ -1498,7 +1615,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Updated: `spec/08-json-schemas/_TODO.md` - `export` marked ✅ done with the per-record-not-pinned caveat called out explicitly.
 
 
-
 ## v5.80.0 - (2026-05-26) - JSON schema contract: `llm-docs --format=json`
 
 - Added: `spec/08-json-schemas/llm-docs.schema.json` - draft-07 schema pinning the top-level object shape (8 optional sections in contractual order: `commands`, `architecture`, `flags`, `conventions`, `structure`, `database`, `installation`, `patterns`) plus the nested command-group (`title`, `commands`) and per-command (`name`, `alias`, `description`, optional `example`) structures.
@@ -1507,7 +1623,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: `gitmap/cmd/llmdocsjson_contract_test.go` - three contract tests: empty-object guarantee, top-level key-order against the schema registry, and nested command-group/per-command key-order assertion (with optional `example` only appearing as the 4th key when non-empty).
 - Added: `gitmap/cmd/llmdocs_jsonschema_contract_test.go` - schema-shape pin: verifies the JSON Schema declares all 8 top-level properties + the nested `commands.items` group + per-command properties (`name`, `alias`, `description`, `example`), and that every key the live encoder emits is declared in the schema.
 - Updated: `spec/08-json-schemas/_TODO.md` - `llm-docs` confirmed migrated (renderer landed earlier; this release closes the missing schema + contract test gap).
-
 
 
 ## v5.79.0 - (2026-05-26) - Spec 114 Gap A: hash-set idempotence for unbounded target log
@@ -1526,7 +1641,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Fixed: `TestEscapeCwdIfInside_NotInside` and `TestEscapeCwdIfInside_EscapesWhenInside` previously called `os.Chdir(t.TempDir())` without restoring the original working directory. On Windows, when the temp dir was later removed by `t.TempDir`'s cleanup, the process CWD became invalid (Windows reports it as `C:\`), cascading into ~40 unrelated failures in the same `cmd` package: every schema/golden test that walks up from CWD looking for `spec/08-json-schemas/*.json` or `testdata/*.json` aborted with `walking up from C:\` or `The system cannot find the path specified`.
 - Added: `restoreCwd(t)` helper in `gitmap/cmd/escapecwd_test.go` - snapshots `os.Getwd()` and registers a `t.Cleanup` that chdir's back. Registered BEFORE the test's chdir so it runs AFTER the chdir-out but BEFORE `t.TempDir`'s RemoveAll (Cleanup runs LIFO), eliminating both the cascade AND the Windows "file in use" RemoveAll warning seen in the same job.
 - Why this only blew up now: linux/macOS tolerate a deleted CWD by reporting the stale path string; Windows `GetCurrentDirectoryW` returns the volume root the moment the directory handle goes away. The leak existed for many releases but only became fatal once enough cmd-package tests started walking up from CWD (recent JSON-schema migration sprint).
-
 
 
 ## v5.77.0 - (2026-05-26) - `temp-releaselist --json` migrated to `stablejson` + published JSON schema
@@ -1581,7 +1695,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.73.0**.
 
 
-
 ## v5.72.0 - (2026-05-26) - `latest-branch --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap latest-branch --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/latestbranchrender.go`). Key order (`branch`, `remote`, `sha`, `commitDate`, `subject`, `ref`, `top`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `latestBranchJSON`. The nested `top` array is pre-rendered in compact mode and embedded as `json.RawMessage`.
@@ -1593,7 +1706,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.72.0**.
 
 
-
 ## v5.71.0 - (2026-05-26) - `project-repos --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap <type>-repos --json` (go/node/react/cpp/csharp) encoder onto `gitmap/stablejson` (new `gitmap/cmd/projectreposrender.go`). Key order (`id`, `repoId`, `repoName`, `projectTypeId`, `projectType`, `projectName`, `absolutePath`, `repoPath`, `relativePath`, `primaryIndicator`, `detectedAt`) is now a compile-time decision via package-level wire-key constants.
@@ -1602,7 +1714,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: `gitmap/cmd/testdata/schemas/project-repos.v1.json` - schema registry entry for key-order drift detection.
 - Updated: `spec/08-json-schemas/_TODO.md` - `project repos` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.71.0**.
-
 
 
 ## v5.70.0 - (2026-05-26) - `bookmark list --json` migrated to `stablejson` + published JSON schema
@@ -1616,7 +1727,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.70.0**.
 
 
-
 ## v5.69.0 - (2026-05-26) - `diff-profiles --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap diff-profiles --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/diffprofilesrender.go`). Key order (`profileA`, `profileB`, `onlyInA`, `onlyInB`, `different`, `same`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `map[string]any`. Nested `onlyInA`, `onlyInB`, and `different` arrays are pre-rendered in compact mode and embedded as `json.RawMessage` so key-order stability propagates through the entire document.
@@ -1626,7 +1736,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: `gitmap/cmd/testdata/schemas/diff-profiles.v1.json` - schema registry entry for key-order drift detection.
 - Updated: `spec/08-json-schemas/_TODO.md` - `diff-profiles` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.69.0**.
-
 
 
 ## v5.68.0 - (2026-05-26) - `amend audit` migrated to `stablejson` + published JSON schema
@@ -1640,7 +1749,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.68.0**.
 
 
-
 ## v5.67.0 - (2026-05-26) - `amend list --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap amend list --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/amendlistrender.go`). Key order (`ID`, `Branch`, `FromCommit`, `ToCommit`, `TotalCommits`, `PreviousName`, `PreviousEmail`, `NewName`, `NewEmail`, `Mode`, `ForcePushed`, `CreatedAt`) is now a compile-time decision via package-level wire-key constants. PascalCase keys are preserved from the legacy `json.MarshalIndent` output for backward compatibility.
@@ -1652,7 +1760,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.67.0**.
 
 
-
 ## v5.66.0 - (2026-05-26) - `probe --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap probe --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/proberender.go`). Key order (`repoId`, `slug`, `absolutePath`, `nextVersionTag`, `nextVersionNum`, `method`, `isAvailable`, `error`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `probeJSONEntry`.
@@ -1662,7 +1769,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: `gitmap/cmd/testdata/schemas/probe-report.v1.json` - schema registry entry for key-order drift detection.
 - Updated: `spec/08-json-schemas/_TODO.md` - `probe-report` flipped from `high` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.66.0**.
-
 
 
 ## v5.65.0 - (2026-05-26) - `watch --json` migrated to `stablejson` + published JSON schema
@@ -1677,7 +1783,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.65.0**.
 
 
-
 ## v5.64.0 - (2026-05-26) - `history --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap history --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/historyrender.go`). Key order (`id`, `command`, `alias`, `args`, `flags`, `startedAt`, `finishedAt`, `durationMs`, `exitCode`, `summary`, `repoCount`, `createdAt`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.CommandHistoryRecord`.
@@ -1689,7 +1794,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.64.0**.
 
 
-
 ## v5.63.0 - (2026-05-26) - `find-next --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap find-next --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/findnextrender.go`). Top-level key order (`repo`, `nextVersionTag`, `nextVersionNum`, `method`, `probedAt`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.FindNextRow`. Byte output is unchanged thanks to the stablejson byte-compat contract with `json.Encoder.SetIndent("", "  ")`.
@@ -1697,7 +1801,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: `gitmap/cmd/findnext_jsonschema_contract_test.go` - pairs the runtime encoder with the published schema so drift in either side fails the build (top-level array shape, required key set, encoder-keys ⊂ schema.properties).
 - Updated: `spec/08-json-schemas/_TODO.md` - `find-next` flipped from `med` to `done` with cross-links.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.63.0**.
-
 
 
 ## v5.62.0 - (2026-05-26) - commit-transfer idempotence beyond 200 commits (spec 114 Gap A)
@@ -1711,7 +1814,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.62.0**.
 
 
-
 ## v5.61.0 - (2026-05-26) - Auto parent-escape for clone family + bulk visibility + `cfrp` prior-version privatize
 
 - Added: `gitmap/cmd/escapecwd.go` - `escapeCwdIfInside(target)` chdirs to the parent of a target folder before `os.RemoveAll`, releasing the Windows directory handle. Wired into `cloneReplacing` (`clone` / `cfr` / `cfrp`) and `clonenext.go` (`cn v++`) so the user can run these commands from *inside* the folder they're about to replace.
@@ -1722,14 +1824,12 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.61.0**.
 
 
-
 ## v5.60.0 - (2026-05-26) - `gitmap binary` footer never falls back to current repo
 
 - Fixed: the `gitmap binary` identity block at the bottom of `gitmap` / `gitmap help` no longer shows the **current repo's** Repo/Branch/Last commit/SHA when the source-repo bake-in is missing. Root cause: `captureGit("", ...)` inherited the process CWD because `exec.Cmd.Dir = ""` defaults to it, so probing an unknown gitmap source dir silently fell through to the user's working repo - making the two footer blocks identical (see uploaded screenshot showing `macro-ahk-v39` repeated in both blocks).
 - Hardened: `captureGit` now rejects empty `dir` up front in `gitmap/cmd/rootusagefooter.go`, so the binary block prints only the rows it can prove.
 - Added: build-time identity injection (`BuildCommit` / `BuildBranch` / `BuildRepo` / `BuildDate`) is now stamped via `-ldflags` in **all three** build paths - `run.sh`, `run.ps1`, and `Makefile`. The release binary now embeds its source repo URL, branch, commit SHA, and UTC build timestamp, so the footer shows the correct gitmap provenance even when running from a completely unrelated CWD.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.60.0**.
-
 
 
 ## v5.59.0 - (2026-05-24) - `gitmap pr` never stalls on auto-commit prompt
@@ -1752,7 +1852,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: `gitmap cliexit.Exit(code)` - deterministic pipe-drain wrapper for non-error exits, complementing the existing `cliexit.Fail` path.
 - Changed: `gitmap cmd/fixrepo.go` migrated all `os.Exit(constants.FixRepo*)` call sites to `cliexit.Exit(...)` so summary lines always reach the captured stream on Windows.
 - Pinned: README pinned-version block + version matrix moved to **v5.57.0**. Synced `gitmap/constants/constants.go` (`Version = "5.57.0"`) and `src/constants/index.ts` (`VERSION = "v5.57.0"`).
-
 
 
 ## v5.54.0 - (2026-05-22) - verify-cmd-faithful: displayed branch matches argv
@@ -1826,13 +1925,9 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.46.0 - (2026-05-22) - Help UX banner in Changelog page + `--json` examples in command help
 
 
-
-
 - **Docs UI:** the in-app `/changelog` page now leads with a Help UX tip card that surfaces `gitmap help --compact`, `--groups`, `--filter <q>` / `-f`, and `--json` (v5.43.0+), with a direct link to the published JSON Schema (`spec/08-json-schemas/help-json.schema.json`).
 - **Per-command help backfilled with `--json` scripting examples** - `fix-repo`, `clone`, `push`, `pull`, `undo`, `alias`, `ssh`, `pull-release-cd`, `clone-fix-repo`, `clone-fix-repo-pub`, `setup`. Each now ends with a copy-paste `gitmap help --json --filter <cmd>` recipe so script authors can discover flags without screen-scraping.
 - Pinned: README pinned-version block + version matrix moved to **v5.46.0**. Synced `gitmap/constants/constants.go` (`Version = "5.46.0"`) and `src/constants/index.ts` (`VERSION = "v5.46.0"`).
-
-
 
 
 ## v5.45.0 - (2026-05-22) - `fix-repo` accepts bare digits + flag-list error + post-run tips
@@ -1844,7 +1939,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README pinned-version block + version matrix moved to **v5.45.0**. Synced `gitmap/constants/constants.go` (`Version = "5.45.0"`) and `src/constants/index.ts` (`VERSION = "v5.45.0"`).
 
 
-
 ## v5.44.0 - (2026-05-22) - TypeScript types for `help --json` + installer probing confirmed
 
 - **New:** `src/types/helpJson.ts` ships TypeScript types + `isHelpJsonPayload` runtime guard generated from `spec/08-json-schemas/help-json.schema.json`. Vitest suite locks the shape (4 tests).
@@ -1853,13 +1947,11 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README pinned-version block + version matrix moved to **v5.44.0**. Synced `gitmap/constants/constants.go` (`Version = "5.44.0"`) and `src/constants/index.ts` (`VERSION = "v5.44.0"`).
 
 
-
 ## v5.43.1 - (2026-05-22) - Published `help --json` JSON Schema
 
 - **New:** `spec/08-json-schemas/help-json.schema.json` formally defines the `gitmap help --json` payload (`version`, `count`, grouped `lines`). Contract test `helpjson_jsonschema_contract_test.go` validates runtime output against the schema to prevent drift.
 - Cross-linked the schema from `gitmap/helptext/help.md` so integrators can discover it from `gitmap help help`.
 - Pinned: README pinned-version block + version matrix moved to **v5.43.1**. Synced `gitmap/constants/constants.go` (`Version = "5.43.1"`) and `src/constants/index.ts` (`VERSION = "v5.43.1"`).
-
 
 
 ## v5.43.0 - (2026-05-22) - `gitmap help --json` for scripting + IDE integrations
@@ -1926,7 +2018,6 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Pinned: README pinned-version block + version matrix moved to **v5.37.0**. Synced `gitmap/constants/constants.go` (`Version = "5.37.0"`) and `src/constants/index.ts` (`VERSION = "v5.37.0"`).
 
 
-
 ## v5.36.0 - (2026-05-19) - PowerShell `gitmap cd` wrapper: bulletproof `[string]` cast against `Set-Location` Object[] binding
 
 - Fix: stale-profile users hit `Set-Location : Cannot convert 'System.Object[]' to the type 'System.String' required by parameter 'LiteralPath'` when running `gitmap cd <slug>` - even after the v5.17.0 `Out-String | Trim` fix - because PowerShell could still bind `$dest` as `Object[]` in some pipelines.
@@ -1945,64 +2036,77 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.34.0 - (2026-05-19) - `cfr` / `cfrp` help refresh + full clone-flag parity surfaced
 
 ### Added
+
 - **Colorful, emoji-rich help text** for `gitmap clone-fix-repo` (`cfr`) and `gitmap clone-fix-repo-pub` (`cfrp`). The pretty markdown renderer (`gitmap/render`) already cyans double-quoted spans, greens shell comments, magentas credential-looking tokens, and yellow-collapses fenced blocks that mirror their preceding paragraph - the help files now lean into that with status emojis (🚀 📥 📂 🔧 🌍 🔐 🌐 ✅ ❌), exit-code tables, and per-flag glyphs.
 - Help docs now explicitly document the **`--ssh` / `-ssh` / `--sh`** and **`--https` / `-https` / `--ht`** transport flags on both `cfr` and `cfrp` (the wiring shipped in v5.27.0 but was undocumented). Behavior mirrors `gitmap clone --ssh` exactly: URL is rewritten in-place before the clone step runs, `↪ --ssh rewrite: <old> → <new>` is printed to stdout, and `--ssh` wins when both flags are set.
 - Help docs surface the **`--require-version`** strict-mode flag (exit 4 when the cloned repo identity has no `-vN` suffix) that was previously only discoverable by reading `parseCloneFixRepoArgs`.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.34.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.34.0"`) and `src/constants/index.ts` (`VERSION = "v5.34.0"`).
 
 ## v5.33.0 - (2026-05-19) - Pinned-version + README sync rollup
 
 ### Notes
+
 - Routine minor bump rolling up v5.32.0 housekeeping (post-install `gitmap setup` reminder, `gitm` shell-function alias from v5.28.0 wrapper templates). No new commands or behavior changes vs v5.32.0.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.33.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.33.0"`) and `src/constants/index.ts` (`VERSION = "v5.33.0"`).
 
 ## v5.32.0 - (2026-05-19) - `gitm` shell alias + post-install setup auto-run reminder
 
 ### Notes
+
 - Rolls up `gitm` shell-function alias (wired in v5.28.0 wrapper templates for Bash/Zsh/PowerShell) and the `gitmap setup` auto-run at the end of `install.sh` / `install.ps1` (v5.18.0+). After upgrading, run `gitmap setup` and reload your shell (`. $PROFILE` on PowerShell, `source ~/.bashrc` on Bash) to pick up the `gitm` function.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.32.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.32.0"`) and `src/constants/index.ts` (`VERSION = "v5.32.0"`).
 
 ## v5.31.0 - (2026-05-19) - `gitmap pull-release-cd` / `prc` (multi-repo one-shot release)
 
 ### Added
+
 - **`gitmap pull-release-cd`** (alias **`prc`**) - multi-repo, one-shot pull-release runner. Accepts a comma-separated list of `<name-or-url> <version>` pairs (e.g. `gitm prc gitmap v5.31.0, marco v2.5.0, https://github.com/me/url-git v3.1.0`) and, for each entry, chdirs into the target repo and spawns `gitmap pull-release <version> -y` as an isolated subprocess.
 - URL tokens (containing `://` or starting with `git@`) are cloned first via a `gitmap clone <url>` subprocess; the derived slug (URL's last path segment minus `.git`) is then resolved against the gitmap DB for the subsequent pull-release.
 - `-y` is implicit and non-negotiable - `.gitmap/release/latest.json` and any other modified files are auto-committed per repo without prompts.
 - Per-entry failures never abort the batch: results are collected, streamed live, and rolled up into a stderr summary table at the end. Exit `0` if all entries succeeded, `1` if any failed, `2` on argument parse errors.
 
 ### Spec
+
 - New: `spec/01-app/112-pull-release-cd.md`.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.31.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.31.0"`) and `src/constants/index.ts` (`VERSION = "v5.31.0"`).
 
 ## v5.30.0 - (2026-05-19) - `gitmap push` auto `pull --rebase` + retry on rejection
 
 ### Added
+
 - `gitmap push` now detects git's non-fast-forward rejection, auto-runs `git pull --rebase`, and retries the push once. Stderr is tee'd so the original git rejection is still shown live.
 - On rebase conflict the original git exit code is propagated and a hint to resolve + re-run `gitmap push` is printed.
 
 ### Fixed
+
 - Registered `CmdPush` / `CmdPushAlias` in `topLevelCmds()` parity registry.
 - Added `gitmap/helptext/push.md` to satisfy `TestEveryCmdIDHasHelpFile`.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.30.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.30.0"`) and `src/constants/index.ts` (`VERSION = "v5.30.0"`).
 
 ## v5.29.0 - (2026-05-19) - `gitmap push` + `--ssh` / `--https` transport flags
 
 ### Added
+
 - **`gitmap push`** (alias `ph`) - runs `git push` in the current repo with full stdin/stdout/stderr forwarding and exit-code propagation. Mirrors the v5.28.0 `gitmap pull` cwd short-circuit.
 - **`--ssh` / `-ssh` / `--sh` and `--https` / `-https` / `--ht`** transport flags on both `gitmap push` and `gitmap pull`. They rewrite `remote.origin.url` to the requested transport and **persist** the change via `git remote set-url origin`, so subsequent plain `git push` / `git pull` invocations keep the new transport.
 - Mutual-exclusion handling: when both flags are set, `--ssh` wins with a one-line stderr warning (mirrors `gitmap clone` semantics from spec 110).
@@ -2011,10 +2115,12 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - End-to-end tests in `gitmap/cmd/pushpull_transport_e2e_test.go` cover HTTPS↔SSH conversion + persistence, idempotent no-op, `--ssh` winning conflict, and unrecognized-URL fail-open - using a real `git` binary against a temp bare repo (skipped when git is missing).
 
 ### Spec
+
 - New: `spec/01-app/111-push-pull-transport-flags.md`.
 - Memory: `.lovable/memory/features/push-pull-transport-flags.md`.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.29.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.29.0"`) and `src/constants/index.ts` (`VERSION = "v5.29.0"`).
 
@@ -2022,56 +2128,67 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.28.0 - (2026-05-19) - `gitmap pull` cwd short-circuit + `gitm` short alias
 
 ### Added
+
 - **`gitmap pull` (no args, inside a git repo)** now short-circuits to a plain `git pull` in the current directory - stdin/stdout/stderr are forwarded and the underlying exit code is propagated. Slug / `--group` / `--all` / aliased-repo modes are unchanged; the new behavior only triggers when none of those targeting modes are in effect.
 - **`gitm` shell alias** - every install of the shell wrapper (Bash / Zsh / PowerShell, installed by `gitmap setup`) now also defines `gitm` as a thin forwarder to `gitmap`, so `gitm pull`, `gitm cd <name>`, `gitm clone <url>` all behave identically. Re-run `gitmap setup` (or reinstall) to pick up the new wrapper block.
 
 ### Confirmed
+
 - `gitmap setup` auto-run after install is already shipped (since v5.18.0) - both `install.ps1` and `install.sh` call `gitmap setup` as a non-fatal final step, so the new `gitm` alias is registered automatically on fresh installs.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.28.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.28.0"`) and `src/constants/index.ts` (`VERSION = "v5.28.0"`).
 
 ## v5.27.0 - (2026-05-19) - `gitmap cfrp` / `cfr` honor `--ssh` / `--https`
 
 ### Fixed
+
 - `gitmap clone-fix-repo-pub <url> --ssh` (alias `cfrp`) and `gitmap clone-fix-repo <url> --ssh` (alias `cfr`) were ignoring the transport flag - the chained `clone` step ran the raw HTTPS URL because `parseCloneFixRepoArgs` only recognized `--no-vscode-sync` and `--require-version`. The URL is now rewritten via `ConvertURLToSSH` / `ConvertURLToHTTPS` before the in-process clone runs, mirroring `gitmap clone --ssh` exactly.
 - Accepts `--ssh`, `-ssh`, `--sh`, `-sh`, `--https`, `-https`, `--ht`, `-ht` (single- and double-dash, plus the same short aliases as `gitmap clone`). When both `--ssh` and `--https` are set, `--ssh` wins with a stderr warning.
 - Prints a `↪ --ssh rewrite: <before> → <after>` breadcrumb so the substitution is visible before `git clone` runs.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.27.0**.
 - Synced `gitmap/constants/constants.go` (`Version = "5.27.0"`) and `src/constants/index.ts` (`VERSION = "v5.27.0"`).
 
 ## v5.26.0 - (2026-05-18) - Pin bump rolling up the `clone --ssh` flag-position fix
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.26.0** (PowerShell + Bash installer URLs and all per-platform release assets).
 - Synced `gitmap/constants/constants.go` (`Version = "5.26.0"`) and `src/constants/index.ts` (`VERSION = "v5.26.0"`).
 
 ### Rolled up
+
 - `gitmap clone <url> --ssh` (and every other bool clone flag) is honored regardless of position - `parseCloneFlags` routes through `reorderFlagsBeforeArgs` so `--ssh` after the URL no longer slips past Go's `flag` package.
 - SSH-shorthand and `ssh://` URLs continue to clone natively through `git`; the `--ssh` converter only fires to coerce an HTTPS URL into shorthand.
 
 ## v5.24.0 - (2026-05-18) - `gitmap clone --ssh` actually parses when placed after the URL
 
 ### Fixed
+
 - `gitmap clone <url> --ssh` (and `--https`, `--no-replace`, every other bool flag) was silently ignored when written AFTER the positional URL. Go's `flag` package stops parsing at the first non-flag argument, so the trailing `--ssh` never reached `applyURLSchemeFlags` and the HTTPS URL was cloned as-is.
 - `parseCloneFlags` now routes through `reorderFlagsBeforeArgs` (the same helper used by `release`, `clone-next`, `clone-from`, `commit-transfer`, etc.), so flags are honored regardless of position: `gitmap clone --ssh <url>`, `gitmap clone <url> --ssh`, and `gitmap clone <url> --ssh --no-replace` all behave identically.
 - SSH-shorthand and `ssh://` URLs already work natively through `git clone` - no extra wiring required; the converter only fires when `--ssh` is supplied to coerce an HTTPS URL into shorthand before `git` runs.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.24.0**.
 
 ## v5.23.0 - (2026-05-18) - Root-level installer URLs (`/install.ps1`, `/install.sh`)
 
 ### Added
+
 - **`/install.ps1`** and **`/install.sh`** now live at the repository root. The one-liner installer URL is now:
   - Windows: `irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex`
   - macOS / Linux: `curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh`
 - Shorter, more discoverable URLs - no more `gitmap/scripts/` segment for end users.
 
 ### Kept
+
 - `gitmap/scripts/install.ps1` + `gitmap/scripts/install.sh` are unchanged - they remain the source of truth consumed by:
   - `gitmap/scripts/embed.go` (`go:embed` for `gitmap self-install`).
   - `release-version.ps1` / `release-version.sh` generators.
@@ -2080,6 +2197,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
   The root files are byte-identical copies - same checksum contract, same behavior.
 
 ### Pinned
+
 - README pinned-version block + version matrix moved to **v5.23.0**.
 - All README install URLs rewritten from `main/gitmap/scripts/install.{ps1,sh}` → `main/install.{ps1,sh}` (11 occurrences).
 - Version constants synced: `gitmap/constants/constants.go` (`Version = "5.23.0"`), `src/constants/index.ts` (`VERSION = "v5.23.0"`).
@@ -2087,6 +2205,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.22.0 - (2026-05-18) - Pin bump (rolls up v5.21.0 ssh view/copy/create)
 
 ### Pinned
+
 - README pinned-version + version-matrix moved to **v5.22.0**.
 - Version constants synced: `gitmap/constants/constants.go` (`Version = "5.22.0"`), `src/constants/index.ts` (`VERSION = "v5.22.0"`).
 - No behavior changes since v5.21.0 - this release re-pins the `gitmap ssh view` / `copy` / `create` surface (clipboard-aware, soft-fails on missing `clip`/`pbcopy`/`wl-copy`/`xclip`/`xsel`) as the new stable.
@@ -2094,11 +2213,13 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.21.0 - (2026-05-18) - `gitmap ssh` gets `view` / `copy` / `create` subcommands
 
 ### Added
+
 - **`gitmap ssh view <key>`** (aliases: `v`, existing `cat`) - prints the public key to stdout. Identical output to `ssh cat`; just a more discoverable verb.
 - **`gitmap ssh copy <key>`** (alias: `cp`) - prints the public key AND pushes it to the OS clipboard in one shot. Picks the right tool per OS: `clip` on Windows, `pbcopy` on macOS, `wl-copy` → `xclip -selection clipboard` → `xsel --clipboard --input` on Linux (first one found). If no clipboard tool is available, the key is still printed and a one-line warning is emitted to stderr - the command never fails.
 - **`gitmap ssh create <flags>`** - explicit alias for the default `gitmap ssh` (generate). Improves discoverability alongside `view` / `copy` / `delete`.
 
 ### Files
+
 - `gitmap/constants/constants_ssh.go` - new subcommand consts (`SubCmdSSHView`/`V`, `SubCmdSSHCopy`/`Cp`, `SubCmdSSHCreate`) + clipboard messages (`MsgSSHCopied`, `MsgSSHCopyFallback`, `ErrSSHClipboard`).
 - `gitmap/cmd/ssh.go` - dispatch wires the three new verbs.
 - `gitmap/cmd/sshcopy.go` - new: `runSSHCopy` + `writeClipboard` + `resolveClipboardTool` (cross-platform binary picker).
@@ -2108,19 +2229,23 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.20.0 - (2026-05-18) - `gitmap clone --ssh` / `--https` coerce every URL into the requested transport
 
 ### Added
+
 - **`gitmap clone --ssh`** rewrites every recognized Git URL into its `git@host:owner/repo.git` SSH-shorthand form before `git clone` runs. HTTPS (`https://github.com/owner/repo`) and `ssh://git@host[:port]/owner/repo` URLs are both converted; already-shorthand URLs are normalized (`.git` suffix appended). Flows through the multi-URL form too - `clone url1,url2,url3 --ssh` converts the whole batch.
 - **`gitmap clone --https`** is the symmetric counterpart - forces every URL into `https://host/owner/repo.git`. Useful in CI/headless environments where the SSH agent isn't unlocked.
 - `--ssh` and `--https` are mutually exclusive; when both are set, `--ssh` wins and a one-line stderr warning is printed.
 
 ### Behavior
+
 - Conversion happens AFTER `applySSHKey` and BEFORE the multi-URL / direct-URL routers, so the multi-URL detector sees the converted URLs.
 - Non-URL positionals (folder names, `json` / `csv` / `text` shorthands) are skipped via the existing `isDirectURL` predicate.
 - Port hints in `ssh://` URLs are dropped (SSH-shorthand has no port slot - use `~/.ssh/config` for non-default ports).
 - A `↪ --ssh rewrite: <before> → <after>` breadcrumb is printed before git runs.
 
 ### Examples
+
 ```powershell
 gitmap clone https://github.com/alimtvnetwork/wp-onboarding.git --ssh
+
 #   ↪ --ssh rewrite: https://github.com/alimtvnetwork/wp-onboarding.git → git@github.com:alimtvnetwork/wp-onboarding.git
 
 gitmap clone "https://github.com/a/x,https://github.com/a/y" --ssh
@@ -2128,11 +2253,13 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ```
 
 ### Files
+
 - `gitmap/cmd/cloneurlconvert.go` - new: `ConvertURLToSSH`, `ConvertURLToHTTPS`, plus helpers.
 - `gitmap/cmd/rootflags.go` - `UseSSH` / `UseHTTPS` on `CloneFlags`, `--ssh` / `--https` registration.
 - `gitmap/cmd/clone.go` - `applyURLSchemeFlags`, wired into `runClone`.
 
 ### Spec / Memory
+
 - Spec: `spec/01-app/110-clone-ssh-flag.md`
 - Memory: `.lovable/memory/features/clone-ssh-flag.md`
 
@@ -2140,6 +2267,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.19.0 - (2026-05-18) - `gitmap rp` (release-pending) rejects version args + canonical command banner
 
 ### Fixed
+
 - **`gitmap rp v3.1` no longer silently runs `release-pending` and releases unrelated versions** (e.g. picking up an orphaned `v2.233.0` metadata file). Users were confusing `rp` (alias for `release-pending`, which scans for ALL pending branches + orphan metadata) with `pr` (alias for `pull-release`, which pulls then releases a specific version). The old code parsed `v3.1` away into `flag.Args()` and ignored it.
 - `runReleasePending` now scans positional args for a version-shaped token (regex `^v?\d+(\.\d+){0,2}(-...)?$`) and exits 2 with a precise suggestion:
   ```
@@ -2151,6 +2279,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
   ```
 
 ### Added
+
 - **Canonical command banner** at the start of `gitmap release-pending` and `gitmap pull-release`. When the user invokes a short alias (`rp`, `pr`), the resolved canonical command name is printed to stderr first so it's immediately obvious which pipeline is running:
   ```
   → Running: gitmap release-pending  (alias: rp)
@@ -2158,6 +2287,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 - New helper `printCanonicalCmdBanner` in `gitmap/cmd/releasepending.go` is reusable for any future alias-prone command pair.
 
 ### Files
+
 - `gitmap/cmd/releasepending.go` - `runReleasePending`, `rejectVersionArgOnPending`, `printCanonicalCmdBanner`, `versionLikeArgPattern`.
 - `gitmap/cmd/releasepull.go` - `runReleasePull` now calls `printCanonicalCmdBanner`.
 
@@ -2165,16 +2295,19 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.18.0 - (2026-05-18) - Auto-run `gitmap setup` after install and on first `gitmap cd` when shell wrapper isn't loaded
 
 ### Added
+
 - **Install scripts auto-run `gitmap setup`** as a final non-fatal step. Both `gitmap/scripts/install.sh` and `gitmap/scripts/install.ps1` now invoke `<bin_path> setup` immediately after `Invoke-InstallVerification` / `verify_installation`, so a fresh `irm … | iex` or `curl … | sh` lands the user with shell wrapper (`gcd` / `gitmap` profile function) + completions installed - no second manual command required. Setup is idempotent (marker `# gitmap shell wrapper v2`), so re-runs on every install are safe. Failures print a yellow `(setup auto-run skipped …)` line and continue - the install itself already succeeded.
 - **`gitmap cd` self-heals when the shell wrapper isn't loaded.** `warnIfNoWrapper` in `gitmap/cmd/setupverify.go` now auto-runs the full `gitmap setup` (not just `InstallCDFunction`) so the very first `gitmap cd <repo>` after a fresh install installs the wrapper + completions automatically. The existing stderr reload tip (`. $PROFILE` / `source ~/.zshrc`) still prints so the user knows why the *next* `cd` will actually move the parent shell. Recover-guarded - a setup panic never breaks the cd output.
 
 ### Why
+
 - First-time users were running `gitmap install` then `gitmap cd repo` and hitting `! Shell wrapper not active - 'gitmap cd' printed the path but cannot change your directory.` because `gitmap setup` was a separate manual step. Closing the gap in both entry points (install scripts AND cd-on-no-wrapper) means the wrapper is always there after one terminal restart.
 
 
 ## v5.17.0 - (2026-05-18) - `gitmap cd` PowerShell wrapper: coerce stdout to a single string
 
 ### Fixed
+
 - **`gitmap cd <repo>` crashed in PowerShell** with `Set-Location : Cannot convert 'System.Object[]' to the type 'System.String'` when the captured stdout was parsed as a multi-element array (any extra line, CRLF artifact, or auxiliary write from the binary turned `$dest` into `System.Object[]`, which `Set-Location -LiteralPath` rejects).
 - All four PowerShell wrapper templates now collapse the captured output with `(& $real … | Out-String).Trim()` so `$dest` is always a single trimmed string before being passed to `Test-Path` / `Set-Location`:
   - `gitmap/constants/constants_cd.go` - `CDFuncPowerShell` (`gcd` + `gitmap` profile functions)
@@ -2186,38 +2319,46 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.16.0 - (2026-05-18) - `gitmap release` no longer leaks gitmap-specific content into other repos' releases
 
 ### Fixed
+
 - **Release body**: `gitmap release` no longer dumps gitmap's own `changelog.md` notes into the GitHub release body of unrelated repositories. `uploadToGitHub` in `gitmap/release/workflowgithub.go` now starts with an empty body and only calls `DetectChangelog()` + `AppendPinnedInstallSnippet` when `ShouldPrintInstallHint(getRemoteURL())` is true (i.e. the current repo is a `alimtvnetwork/gitmap-v<N>` source repo). Non-gitmap repos get a tag-only release with an empty body.
 - **`release-version-vX.Y.Z.{ps1,sh}` snapshot assets** are no longer attached to non-gitmap releases. Those snapshots hard-code `REPO="alimtvnetwork/gitmap-v28"` and `BINARY_NAME="gitmap"` - uploading them to `img-pdf-v2`, `some-tool-v3`, etc. would mislead users into downloading the gitmap binary from the wrong release page. `pushAndFinalize` in `gitmap/release/workflowfinalize.go` now wraps `buildReleaseVersionSnapshots` in the same `ShouldPrintInstallHint` gate.
 - All other assets (cross-compiled Go binaries, zip groups, ad-hoc bundles, checksums, docs-site) are unaffected - only the two gitmap-specific pieces are gated.
 
 ### Docs
+
 - New spec `spec/02-app-issues/27-release-body-and-snapshots-gitmap-only.md` documents the contract: for any repo NOT matching `alimtvnetwork/gitmap-v<N>`, release body is empty and no `release-version.{ps1,sh}` snapshots are uploaded.
 - New memory `.lovable/memory/features/release-gitmap-only-body-and-snapshots.md` captures the gate rule and lists the two call sites.
 
 ## v5.15.0 - (2026-05-18) - `gitmap install gitmap-oneliner`: print canonical Windows + macOS install one-liners in the terminal
 
 ### Added
+
 - New `gitmap install gitmap-oneliner` command prints the canonical bootstrap one-liners for Windows (PowerShell `irm … | iex`) and macOS/Linux (bash `curl -fsSL … | sh`) without leaving the terminal. URLs are fixed to the canonical `alimtvnetwork/gitmap-v28/main` branch installers; the header version is rendered dynamically from `constants.Version`.
 - `ToolGitmapOneliner = "gitmap-oneliner"` added to the Core install tool category with description "Print the Windows + macOS install-gitmap one-liners".
 
 ### Docs
+
 - New spec `spec/01-app/109-install-gitmap-oneliner.md` documents the command synopsis, output format, and implementation contract (fixed URLs, dynamic rendering, special-install dispatch).
 
 ## v5.14.0 - (2026-05-18) - Colorful help text: green comments, magenta keys, padded lists
 
 ### Added
+
 - Markdown help renderer (`gitmap/render`) now color-codes `# comments` inside code fences in green and credential-like tokens (`API_KEY`, `GITMAP_TOKEN`, etc.) and the `hd` alias in magenta.
 - List and table blocks in help output now render with vertical padding for better readability.
 
 ### Tests
+
 - New pretty-renderer test fixtures: `case-010-fence-comments-and-keys` (green comments + magenta keys) and `case-011-list-and-table` (list/table padding).
 
 ## v5.13.0 - (2026-05-16) - Re-pin root README to v5.13.0, sync version constants
 
 ### Docs
+
 - Bumped `Pinned version` section in root `README.md` from `v5.12.0` → `v5.13.0` (heading, one-line installers, version-matrix table, release page link).
 
 ### Chore
+
 - `gitmap/constants/constants.go`: `Version` constant `5.10.0` → `5.13.0`.
 - `src/constants/index.ts`: web `VERSION` `v5.10.0` → `v5.13.0` (keeps `version-sync.test.ts` in sync).
 - CI badges in `README.md` no longer pin to `branch=main`, so workflow status reflects the active branch where CI is green.
@@ -2225,6 +2366,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.12.0 - (2026-05-16) - README alias mapping for `pull-release` family
 
 ### Docs
+
 - Root `README.md` Release & Versioning table now includes a dedicated
   `pull-release` row listing the canonical short alias `pr` alongside the
   three legacy spellings (`release-pull`, `relp`, `rlp`).
@@ -2242,6 +2384,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
   passthrough.
 
 ### Notes
+
 - No code change - alias wiring already lives in
   `gitmap/constants/constants_cli.go` (`CmdReleasePullAlias..Alias4`) and
   `gitmap/constants/constants_prune.go` (`CmdPruneAlias = "prn"`) as of
@@ -2252,6 +2395,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.11.0 - (2026-05-16) - `--no-color` / `--color` flag for help output
 
 ### Added
+
 - `--no-color` and `--color[=true|false|on|off|auto|...]` are now accepted
   everywhere `--pretty` / `--no-pretty` work (notably `gitmap <cmd> --help`).
   They are pure synonyms for the existing pretty flags, since the pretty
@@ -2263,6 +2407,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
   (`--pretty --no-color` → PrettyOff; `--no-color --pretty=on` → PrettyOn).
 
 ### Tests
+
 - `prettyflag_test.go` covers every `--color` / `--no-color` form,
   cross-family last-writer-wins, and guards `--colorblind` / `--color=blue`
   from being silently swallowed by the new prefix.
@@ -2271,6 +2416,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.10.0 - (2026-05-16) - Force PowerShell wrapper to load last
 
 ### Fixed
+
 - `gitmap setup` / installer rewrites now move the managed PowerShell
   `gitmap`/`gcd` command wrapper to the end of the profile file. This prevents
   older `# gitmap shell wrapper v2` or hand-edited profile blocks that appear
@@ -2280,6 +2426,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.9.0 - (2026-05-16) - Harden PowerShell `gitmap cd` activation
 
 ### Fixed
+
 - Windows installers now write the `gitmap`/`gcd` command wrapper to all standard
   current-user PowerShell profile files, not only the one profile visible to the
   installer host. This prevents new terminals from falling back to raw
@@ -2291,6 +2438,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 ## v5.8.0 - (2026-05-16) - fix-repo bare-base rewrite for pre-versioned v1 repos
 
 ### Fixed
+
 - `gitmap fix-repo` now rewrites bare `{base}` occurrences (not just
   `{base}-v1`) when v1 is in the target span. Pre-versioned remotes
   shipped without a `-v1` suffix, so downstream references read `img-pdf`
@@ -2300,6 +2448,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
   `{base}.js`, `{base}_alt`, and `myimg-pdf` are all left untouched.
 
 ### Tests
+
 - `fixrepo_rewrite_barebase_test.go` covers the v1→current bare-base
   substitution, every word-boundary guard case, and the guarantee that
   the bare-base pass does NOT run when v1 is absent from the target set.
@@ -3686,7 +3835,6 @@ The source is correct and the new guard ships in `v3.95.0`, but **the binary on 
 - All targeted tests passed.
 
 
-
 ### Fixed
 
 - **Duplicate `fileExists` declaration** in `gitmap/cmd/` blocked every `go test ./cmd/...` run. The original lived in `updaterepo.go` (file-only check); a second copy was added later in `updatedebugwindows.go` (file-or-dir, empty-string-safe). Renamed the debug-dump version to `fileExistsLoose` and updated its two call sites in `dumpDebugWindowsHandoff`. The semantics of each helper now match what its single consumer actually wants.
@@ -3706,7 +3854,6 @@ The shortcut logic (`shouldRewriteToClone`, `looksLikeURLToken`, `splitOnComma`)
 ### Diagnostic note for users still seeing `Unknown command: https://...`
 
 The shortcut has been in source since before v3.91.0, but a **stale deployed binary on `PATH` will not have it**. Run `gitmap doctor` to confirm the active binary version, then `gitmap update` to deploy the current source. The startup version-check banner added in v3.90.0 also surfaces the gap on every invocation.
-
 
 
 ### Added
@@ -4910,6 +5057,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 If you maintain a custom `constants_*.go` file in `gitmap/constants/` that exposes command IDs for shell tab-completion, you must opt-in explicitly using marker comments.
 
 ### What changed
+
 - **Old (v2.x):** The generator (`internal/gencommands/main.go`) relied on a hard-coded `sourceFiles` list and a `skipNames` map. Adding a new command required editing the generator.
 - **New (v3.0.0):** The generator scans every `constants/*.go` file automatically. Inclusion is controlled locally via comments.
 
@@ -4936,6 +5084,7 @@ const (
 6. Verify with `git diff` - only your new command values should appear; no manual edits to the generator needed.
 
 ### Verification
+
 - CI now runs a `generate-check` job that fails if `allcommands_generated.go` drifts from the constants. If your PR fails this check, the error message prints the exact command to fix it locally.
 
 ---
@@ -5407,6 +5556,7 @@ const (
 #### [v6.103.0] 2026-08-25 CG & Macro Extensions Installer
 
 ### Added / Changed / Fixed / Removed
+
 - Added autonomous CLI logic for Coding Guidelines installation (cg install, cg update, cg help).
 - Added workspace iteration logic via --except flag for CG installation.
 - Added explicit OS-aware script execution (PowerShell/Unix) for coding guidelines.
@@ -5658,6 +5808,7 @@ const (
 - Added `batchreport.go` with `PrintFailureReport()` and `ExitCodeForBatch()` helpers.
 
 ## v2.36.6 - Wave 2 Refactoring (14 Files)
+
 - Split `assets.go` → `assets.go` + `assetsbuild.go` (build helpers: `buildSingleTarget`, `buildEnv`).
 - Split `zipgroupops.go` → `zipgroupops.go` + `zipgroupshow.go` (display: `runZipGroupList`, `expandFolder`).
 - Split `tui.go` → `tui.go` + `tuiview.go` (rendering: `View`, `renderTabs`, `renderContent`).
@@ -5676,6 +5827,7 @@ const (
 - All source files comply with the 200-line limit; no functional changes.
 
 ## v2.36.5 - Extended Refactoring
+
 - Split `ziparchive.go` (362 lines) into three files under `release/`:
   - `ziparchive.go` (~171 lines): orchestration, DB group routing, ad-hoc path resolution.
   - `zipio.go` (~152 lines): ZIP I/O with max Deflate compression, SHA-1 hashing, archive summary.
@@ -5696,6 +5848,7 @@ const (
 - All `release/` and `cmd/` files comply with the 200-line limit; no functional changes.
 
 ## v2.36.4
+
 - Split `workflowfinalize.go` (498 lines) into four domain-specific files under `release/`:
   - `workflowfinalize.go` (~190 lines): core pipeline orchestration and metadata persistence.
   - `workflowdryrun.go` (~123 lines): dry-run preview functions and `returnToBranch`.
@@ -5717,6 +5870,7 @@ const (
 - Added refactoring specs: `spec/01-app/58-refactor-workflowfinalize.md`, `spec/01-app/59-refactor-root-dispatch.md`.
 
 ## v2.36.3 (2026-03-26)
+
 - Bumped compiled version constant to v2.36.3.
 - Refactored legacy directory migration into shared `localdirs` package for reuse across CLI startup and release workflow.
 - Release workflow now re-runs migration after returning to the original branch, preventing `.release/` from persisting when older branches restore tracked legacy files.
@@ -5725,6 +5879,7 @@ const (
 - Removed unused legacy directory warning/fix constants from `constants_doctor.go`.
 
 ## v2.36.2 (2026-03-26)
+
 - Bumped compiled version constant to v2.36.2.
 - Fixed legacy directory migration to merge files when target already exists instead of skipping.
 - Legacy directories (`.release/`, `gitmap-output/`, `.deployed/`) are now fully removed after merging into `.gitmap/`.
@@ -5732,23 +5887,27 @@ const (
 - Replaced Unicode characters in migration messages with ASCII for Windows console compatibility.
 
 ## v2.36.1 (2026-03-26)
+
 - Bumped compiled version constant to v2.36.1.
 - Added automatic database migration from legacy UUID TEXT IDs to INTEGER AUTOINCREMENT IDs.
 - Migration detects TEXT-typed `Id` column in `Repos` via `PRAGMA table_info`, rebuilds the table preserving data, and drops dependent FK tables (project detection, group-repo associations) for clean repopulation.
 - Fixed FK constraint violation (`787`) during `scan` when legacy UUID IDs were present in the `Repos` table.
 
 ## v2.36.0
+
 - Bumped compiled version constant to v2.36.0.
 - Added automatic legacy directory migration: `gitmap-output/` → `.gitmap/output/`, `.release/` → `.gitmap/release/`, `.deployed/` → `.gitmap/deployed/`.
 - Migration runs at CLI startup before any command dispatch; skips if target already exists.
 - Added `DeployedDirName` subdirectory constant and legacy directory name constants.
 
 ## v2.35.1
+
 - Bumped compiled version constant to v2.35.1.
 - Added legacy UUID data detection to all remaining DB query paths: `group show`, `group list`, `stats`, `history`, `status`, and `export`.
 - All DB query errors from legacy string-based IDs now show a recovery prompt (`rescan` or `db-reset`) instead of raw SQL errors.
 
 ## v2.35.0
+
 - Bumped compiled version constant to v2.35.0.
 - Consolidated `.release/` and `gitmap-output/` under unified `.gitmap/` directory (`release/`, `output/`).
 - Centralized all path constants (`GitMapDir`, `DefaultReleaseDir`, `DefaultOutputDir`) for single-point configuration.
@@ -5758,35 +5917,42 @@ const (
 - Updated all helptext, spec documents, and docs site to reference `.gitmap/` paths.
 
 ## v2.34.0 (2026-03-26)
+
 - Bumped compiled version constant to v2.34.0.
 - Fixed `list-releases` to read `.release/v*.json` from the current repo first, falling back to the database only when no local files exist.
 - Added `SourceRepo` constant to release model for repo-sourced release records.
 
 ## v2.33.0 (2026-03-26)
+
 - Bumped compiled version constant to v2.33.0.
 - Fixed auto-commit push rejection when remote branch advances during release: added `pull --rebase` recovery with single retry.
 - Added 16-stage summary table with anchor links to verbose logging spec.
 
 ## v2.32.0
+
 - Bumped compiled version constant to v2.32.0.
 - Documented autocommit verbose logging as pipeline stage 16 in the verbose logging spec.
 
 ## v2.31.0 (2026-03-26)
+
 - Bumped compiled version constant to v2.31.0.
 - Added verbose logging to auto-commit step: logs version, file counts, staging, commit message, and push target.
 
 ## v2.30.0 (2026-03-26)
+
 - Bumped compiled version constant to v2.30.0.
 - Renamed TempReleases `Commit` column to `CommitSha` to avoid SQLite reserved keyword conflict.
 - Added automatic database migration (`ALTER TABLE RENAME COLUMN`) for existing TempReleases tables.
 - Added JSON struct tags to `model.TempRelease` for backward-compatible serialization.
 
 ## v2.29.0
+
 - Bumped compiled version constant to v2.29.0.
 - Fixed TempReleases SQL syntax error: quoted reserved keyword `Commit` in CREATE TABLE, INSERT, and SELECT statements.
 - Documented metadata persistence and rollback log points in verbose logging spec (stages 14–15 of 15).
 
 ## v2.28.0
+
 - Bumped compiled version constant to v2.28.0.
 - Added verbose logging to release pipeline: version resolution, source resolution, git operations, asset collection, staging, cross-compilation, compression, checksums, zip groups, ad-hoc zips, GitHub upload, retry, metadata persistence, and rollback.
 - Updated verbose logging spec with all 15 pipeline stages documented.
@@ -5797,6 +5963,7 @@ const (
 - Fixed hasListFlag redeclaration conflict between tempreleaseops.go and completion.go.
 
 ## v2.27.0 (2026-03-22)
+
 - Bumped compiled version constant to v2.27.0.
 - Added doctor validation checks for config.json, database migration, lock file, and network connectivity.
 - Added TUI release trigger overlay with patch/minor/major/custom version bump selection.
@@ -5806,17 +5973,20 @@ const (
 - Added alias suggestion tests covering auto-suggestion, conflict detection, and idempotent re-runs.
 
 ## v2.24.0 (2026-03-20)
+
 - Bumped compiled version constant to v2.24.0.
 - Moved release metadata writing from the release branch to the original branch, letting auto-commit handle `.release/` files after returning.
 - Removed `commitReleaseMeta` step from the release branch workflow; the release branch now only contains the branch, tag, and push.
 - Simplified `pushAndFinalize` to always complete without metadata writes (metadata is now the caller's responsibility).
 
 ## v2.23.0 (2026-03-20)
+
 - Bumped compiled version constant to v2.23.0.
 - Added `--notes` / `-N` flag to `release-branch` and `release-pending` commands, matching the `release` command.
 - Updated docs site Release page with metadata-first workflow diagram, release notes feature card, and `--notes` flag documentation.
 
 ## v2.22.0 (2026-03-19)
+
 - Bumped compiled version constant to v2.22.0.
 - Persisted zip group metadata in `.release/vX.Y.Z.json` via new `zipGroups` field on `ReleaseMeta`.
 - Documented `-A`/`--alias` flag in help text for `pull`, `exec`, `status`, and `cd` commands.
@@ -5825,6 +5995,7 @@ const (
 - Added unit tests for `collectZipGroupNames` covering persistent groups, ad-hoc bundles, and merged output.
 
 ## v2.21.0
+
 - Bumped compiled version constant to v2.21.0.
 - Refactored `assetsupload.go` into three focused files: `githubapi.go` (API types/helpers), `assetsupload.go` (upload logic), `remoteorigin.go` (git URL parsing).
 - Rebuilt Project Detection docs page with detection pipeline, tabbed type cards, metadata extraction deep-dive, DB schema, JSON output, and package layout sections.
@@ -5833,33 +6004,39 @@ const (
 - Added unit tests for `remoteorigin.go` covering HTTPS, SSH, and invalid URL parsing.
 
 ## v2.20.0
+
 - **Fixed**: `OpenDefault()` double-nesting bug where profile config resolved to `<binary>/data/data/profiles.json`.
 - Added `DefaultDBPath()` diagnostic helper to `store/location.go`.
 - `gitmap ls` now prints resolved DB path when `--verbose` is passed or when zero repos are found.
 - Created `spec/01-app/44-list-db-diagnostic.md` for path resolution contract.
 
 ## v2.19.0
+
 - Bumped compiled version constant to v2.19.0.
 
 ## v2.18.0
+
 - Added batch status terminal demo to Batch Actions page showing dirty/clean state across repos.
 - Fixed missing `os/exec` import in release asset upload.
 - Resolved `deriveSlug` redeclaration conflict in project repos output.
 - Removed unused `os` import from audit command.
 
 ## v2.17.0
+
 - Added 30-second auto-refresh timer to TUI dashboard via `tea.Tick`.
 - Dashboard refresh interval configurable via `dashboardRefresh` in `config.json`.
 - Added `--refresh` flag to `interactive` command for CLI-level override.
 - Refresh interval validates with fallback to default 30s when missing or invalid.
 
 ## v2.16.0
+
 - Wired real `gitutil.Status()` into TUI dashboard for live dirty/clean indicators.
 - Dashboard now shows ahead/behind counts and stash per repo.
 - Async background refresh on TUI startup; manual refresh via `r` key.
 - Summary bar with aggregate dirty/behind/stash counts and UTC timestamp.
 
 ## v2.15.1
+
 - **Fixed**: Database now resolves to `<binary-location>/data/gitmap.db` instead of CWD-relative `gitmap-output/data/`.
 - Added `store.OpenDefault()` and `store.OpenDefaultProfile()` for binary-relative database access.
 - Added `store/location.go` with `BinaryDataDir()` using `os.Executable()` + `filepath.EvalSymlinks()`.
@@ -5867,6 +6044,7 @@ const (
 - Removed unused `resolveAuditOutputDir()` and `resolveDefaultOutputDir()` helpers.
 
 ## v2.15.0
+
 - Added cross-platform build support: `run.sh` (Linux/macOS) with full parity to `run.ps1`.
 - Fixed Makefile flags to match `run.sh` argument format (`--no-pull`, `--no-deploy`, `--update`).
 - Added GitHub Actions CI workflow: test on push, cross-compile 6 OS/arch targets.
@@ -5880,6 +6058,7 @@ const (
 - Added spec documents: `42-cross-platform.md` and `43-interactive-tui.md`.
 
 ## v2.14.0
+
 - Added Go release assets: automatic cross-compilation for 6 OS/arch targets (windows/linux/darwin × amd64/arm64).
 - Added GitHub Releases API integration for asset upload - no `gh` CLI or external tools needed.
 - Added `--compress` flag to wrap release assets in `.zip` (Windows) or `.tar.gz` (Linux/macOS).
@@ -5891,6 +6070,7 @@ const (
 - Fixed duplicate hints appearing after `gitmap ls <type>` output.
 
 ## v2.13.0
+
 - Added group activation: `gitmap g <name>` sets a persistent active group for batch pull/status/exec.
 - Added `multi-group` (mg) command for selecting and operating on multiple groups at once.
 - Added `gitmap ls <type>` filtering: `gitmap ls go`, `gitmap ls node`, `gitmap ls groups`.
@@ -5898,26 +6078,32 @@ const (
 - Added Settings table for persistent key-value configuration in SQLite.
 
 ## v2.12.0 (2026-03-14)
+
 - Added global ⌘K command palette searching across commands, flags, and pages.
 
 ## v2.11.0
+
 - Added Changelog page with timeline view and expand/collapse controls.
 - Added Flag Reference page with sortable, searchable table of all flags.
 - Added Interactive Examples page with animated terminal demos.
 
 ## v2.10.0 (2026-03-13)
+
 - Version bump for next development cycle.
 
 ## v2.9.0 (2026-03-13)
+
 - Completed flags and examples for all 22 command entries on the documentation site.
 - Added detailed flag tables and usage examples for `seo-write`, `doctor`, `update`, `pull`, `version`, `history-reset`, and `db-reset`.
 - Filled in flags and examples for 15 commands missing both: `rescan`, `desktop-sync`, `status`, `latest-branch`, `release-branch`, `release-pending`, `changelog`, `group`, `list`, `diff-profiles`, `export`, `import`, `profile`, `bookmark`, and `stats`.
 
 ## v2.28.0
+
 - Removed unused `detector` import from `cmd/scan.go` that caused build failure.
 - Updated documentation site fonts: Ubuntu for headings, Poppins for body text, Ubuntu Mono for code blocks.
 
 ## v2.27.0 (2026-03-22)
+
 - Added `gitmap cd` (`go`) command: jump to any tracked repo by slug or partial name.
 - Subcommands: `cd repos`, `cd set-default`, `cd clear-default`; supports `--group` and `--pick` flags.
 - Added `gitmap watch` (`w`) command: live terminal dashboard monitoring repo status.
@@ -5941,10 +6127,12 @@ const (
   - Supports `--dry-run`, `--no-merge`, `--no-tidy`, `--verbose`, and `--ext` flags.
 
 ## v2.26.0 (2026-03-22)
+
 - Version bump to v2.26.0 following `gitmap profile` command addition.
 - All profile subcommands (`create`, `list`, `switch`, `delete`, `show`) fully integrated and documented.
 
 ## v2.25.0 (2026-03-22)
+
 - Added `gitmap profile` (`pf`) command: manage multiple database profiles (work, personal, etc.).
 - Subcommands: `create`, `list`, `switch`, `delete`, `show`.
 - Each profile has its own SQLite database file (`gitmap-{name}.db`).
@@ -5953,18 +6141,21 @@ const (
 - All commands automatically use the active profile's database.
 
 ## v2.24.0 (2026-03-20)
+
 - Added `gitmap import` (`im`) command: restore database from a `gitmap-export.json` backup file.
 - Merge semantics: upserts repos/releases, INSERT OR IGNORE for history/bookmarks/groups.
 - Group members re-linked by resolving `repoSlugs` against the Repos table.
 - Requires `--confirm` flag to prevent accidental data changes.
 
 ## v2.23.0 (2026-03-20)
+
 - Added `gitmap export` (`ex`) command: export the full database as a portable JSON file.
 - Exports all tables: repos, groups (with member repo slugs), releases, command history, and bookmarks.
 - Default output: `gitmap-export.json`; accepts optional custom file path.
 - Summary line shows counts for each exported section.
 
 ## v2.22.0 (2026-03-19)
+
 - Added `gitmap bookmark` (`bk`) command: save and replay frequently-used command+flag combinations.
 - Subcommands: `save`, `list`, `run`, `delete` - full CRUD for saved bookmarks.
 - `bookmark run <name>` replays the saved command through standard dispatch (appears in audit history).
@@ -5973,12 +6164,14 @@ const (
 - `db-reset --confirm` now also clears the Bookmarks table.
 
 ## v2.21.0
+
 - Added `gitmap stats` (`ss`) command: aggregated usage statistics from command history.
 - Shows most-used commands, success/fail counts, failure rates, and avg/min/max durations.
 - Supports `--command <name>` filter and `--json` output.
 - Summary row displays overall totals across all commands.
 
 ## v2.20.0
+
 - Added `gitmap history` (`hi`) command: queryable audit trail of all CLI command executions.
 - Three detail levels: `--detail basic` (command + timestamp), `--detail standard` (+ flags + duration), `--detail detailed` (+ args + repos + summary).
 - Supports `--command <name>` filter, `--limit N`, and `--json` output.
@@ -5987,6 +6180,7 @@ const (
 - `db-reset --confirm` now also clears the CommandHistory table.
 
 ## v2.19.0
+
 - Added `gitmap amend` (`am`) command: rewrite author name/email on existing commits with three modes (all, range, HEAD).
 - Supports `--branch` flag to operate on a specific branch (auto-switches back to original branch after completion).
 - SHA as first positional argument: `gitmap amend <sha> --name "Name"` rewrites from that commit to HEAD.
@@ -5999,6 +6193,7 @@ const (
 - SEO-write dry-run now displays the author that would be used when author flags are set.
 
 ## v2.18.0
+
 - Added `gitmap seo-write` (`sw`) command: automated SEO commit scheduler that stages, commits, and pushes files on a randomized interval.
 - Supports CSV input mode (`--csv`) for user-provided title/description pairs.
 - Supports template mode with placeholder substitution (`{service}`, `{area}`, `{url}`, `{company}`, `{phone}`, `{email}`, `{address}`).
@@ -6011,6 +6206,7 @@ const (
 - Graceful shutdown on Ctrl+C (finishes current commit before exiting).
 
 ## v2.17.0
+
 - Added `Source` column to the `Releases` table: tracks whether each release was created via `gitmap release` (`release`) or imported from `.release/` files (`import`).
 - Added `--source` flag to `gitmap list-releases` (`lr`): filter releases by origin (`--source release` or `--source import`).
 - Added `--source` flag to `gitmap list-versions` (`lv`): cross-references git tags with the Releases DB to filter by source and display source metadata.
@@ -6018,13 +6214,16 @@ const (
 - Terminal and JSON output for `list-releases` and `list-versions` now includes the Source field.
 
 ## v2.16.0
+
 - Added `gitmap list-releases` (`lr`) command: queries the Releases DB table and displays stored releases with `--json` and `--limit N` support.
 - Enhanced `gitmap scan` to import `.release/v*.json` metadata files into the Releases DB table automatically after each scan.
 
 ## v2.15.0
+
 - Added `--limit N` flag to `gitmap list-versions` (`lv`): show only the top N versions (0 or omitted = all).
 
 ## v2.14.0
+
 - Added `Releases` table to SQLite database: stores release metadata (version, tag, branch, commit, changelog, flags) persistently.
 - Release workflow now auto-persists metadata to the database after successful releases.
 - Converted all database table and column names from snake_case to PascalCase (`Repos`, `Groups`, `GroupRepos`, `Releases`).
@@ -6033,24 +6232,29 @@ const (
 - Note: existing databases will need `gitmap db-reset --confirm` to adopt the new schema.
 
 ## v2.13.0
+
 - Release metadata JSON (`.release/vX.Y.Z.json`) now includes a `changelog` field with notes from changelog.md (gracefully omitted if unreadable).
 - `gitmap list-versions` (`lv`) now shows changelog notes as sub-points under each version in terminal output.
 - `gitmap list-versions --json` includes changelog array per version in JSON output.
 
 ## v2.12.0 (2026-03-14)
+
 - Added `gitmap list-versions` (`lv`) command: lists all release tags sorted highest-first, with `--json` output support.
 - Added `gitmap revert <version>` command: checks out a release tag and rebuilds/deploys via handoff (same mechanism as `update`).
 
 ## v2.11.0
+
 - Added constants inventory audit section to compliance spec, documenting ~280 constants across 9 files and 17 categories.
 
 ## v2.10.0 (2026-03-13)
+
 - Full compliance audit (Wave 1 + Wave 2): all 75 source files pass code style rules.
   - Trimmed 4 oversized files: `workflow.go`, `terminal.go`, `safe_pull.go`, `setup.go` (all under 200 lines).
   - Fixed all negation and switch violations across `changelog.go`, `github.go`, `metadata.go`, `config.go`, `verbose.go`, `semver.go`.
   - Extracted missing constants to dedicated constants files.
 
 ## v2.9.0 (2026-03-13)
+
 - Full code style refactor of `latest-branch` command:
   - Split `cmd/latestbranch.go` into 3 files: handler, resolve, output (all under 200 lines).
   - Split `gitutil/latestbranch.go` into 2 files: core operations, resolve helpers.
@@ -6059,34 +6263,42 @@ const (
   - Extracted git constants and display message constants.
 
 ## v2.8.0 (2026-03-06)
+
 - Added `--filter` flag to `latest-branch`: filter branches by glob pattern (e.g. `feature/*`) or substring match.
 
 ## v2.7.0
+
 - Added `--sort` flag to `latest-branch`: supports `date` (default, descending) and `name` (alphabetical ascending).
 
 ## v2.6.0
+
 - Centralized date display formatting: all dates now convert to local timezone and display as `DD-Mon-YYYY hh:mm AM/PM`.
 - Added `gitutil/dateformat.go` with `FormatDisplayDate` and `FormatDisplayDateUTC` functions.
 - Updated `latest-branch` terminal, JSON, and CSV output to use the new date format.
 
 ## v2.5.1
+
 - Added `--no-fetch` flag to `latest-branch`: skips `git fetch --all --prune` when remote refs are already up to date.
 
 ## v2.5.0 (2026-03-06)
+
 - Added `--format` flag to `latest-branch`: supports `terminal` (default), `json`, and `csv` output formats.
   - CSV outputs a header row + data rows to stdout, suitable for piping and spreadsheets.
   - `--json` remains as shorthand for `--format json`.
 - Refactored `latest-branch` output into dedicated functions per format.
 
 ## v2.4.1
+
 - Added positional integer shorthand for `latest-branch`: `gitmap lb 3` is equivalent to `gitmap lb --top 3`.
 
 ## v2.4.0 (2026-03-06)
+
 - Added `gitmap latest-branch` (`lb`) command: finds the most recently updated remote branch by commit date and displays name, SHA, date, and subject.
   - Flags: `--remote`, `--all-remotes`, `--contains-fallback`, `--top N`, `--json`.
   - Positional integer shorthand: `gitmap lb 3` is equivalent to `gitmap lb --top 3`.
 
 ## v2.3.12 (2026-03-06)
+
 - Spec, issue post-mortems, and memory aligned to codify synchronous update handoff and rename-first PATH sync as permanent rules.
 - Rename-first PATH sync in `-Update` mode: renames active binary to `.old` before copying, eliminating lock-retry loops.
 - Parent `update` handoff uses `cmd.Start()` + `os.Exit(0)` to release file lock before worker runs.
@@ -6094,12 +6306,14 @@ const (
 - Spec consistency pass: all four update-flow specs now enforce identical rules.
 
 ## v2.3.10 (2026-03-06)
+
 - Fixed `Read-Host` error in non-interactive PowerShell sessions during update by removing trailing prompt.
 - Parent `update` process now exits immediately (handoff copy runs synchronously via `update-runner`).
 - Added diagnostic log at update start showing active exe path and handoff copy path.
 - Update script now uses unique temp file names (`gitmap-update-*.ps1`) to avoid stale script collisions.
 
 ## v2.3.9
+
 - Version bump for rebuild validation after update-runner handoff changes.
 
 - Replaced `update --from-copy` with hidden `update-runner` command for cleaner handoff separation.
@@ -6114,45 +6328,51 @@ const (
 - Doctor diagnostics now suggest `--fix-path` when version mismatches are detected.
 
 ## v2.3.6
+
 - Added stale-process fallback during PATH-binary sync (`update` + `run.ps1`): if copy+rename fail, it now stops stale `gitmap.exe` processes bound to the old path and retries once.
 - Improved failure guidance to run the deployed binary directly when active PATH binary remains locked.
 
 ## v2.3.5
+
 - Hardened `gitmap update` PATH sync with retry + rename fallback, and it now exits with failure if active PATH binary remains stale.
 - Clarified update output labels to distinguish source version (`constants.go`) vs active executable version.
 - Added same rename-fallback PATH sync behavior in `run.ps1`.
 
 ## v2.3.4
+
 - Updated PATH-binary sync in `run.ps1` and `gitmap update` to use retry-on-lock behavior (20 attempts × 500ms), matching the self-update spec.
 - Added explicit recovery guidance when active PATH binary is still locked, including an exact `Copy-Item` fix command.
 
 ## v2.3.3
+
 - Added `gitmap doctor` command: reports PATH binary, deployed binary, version mismatches, git/go availability, and recommends exact fix commands.
 
 ## v2.3.2
+
 - `gitmap update` now syncs the active PATH binary with the deployed binary, so commands like `release` are available immediately.
 - `gitmap update` now prints changelog bullet points after update (or no-op update) for quick visibility.
 - Added `gitmap changelog --open` and `gitmap changelog.md` to open `changelog.md` in the default app.
 
 ## v2.3.1
+
 - Added `gitmap changelog` command for concise, CLI-friendly release notes.
 - Improved `gitmap update` output to show deployed binary/version and warn if PATH points to another binary.
 - `gitmap update` now prints latest changelog notes after a successful update.
 
 ## v2.3.0
+
 - Added `gitmap release-pending` (`rp`) to release all `release/v*` branches missing tags.
 - `gitmap release` and `gitmap release-branch` now switch back to the previous branch after completion.
 
 ## v2.2.3
+
 - Fixed PowerShell parser-breaking characters in update/deploy output paths.
 - Improved deployment rollback messaging in `run.ps1`.
 
 ## v2.2.2
+
 - Added additional parser safety fixes for update script output.
 
 ## v2.2.1
+
 - Patched PowerShell parsing edge cases affecting update flow.
-
-
-
-

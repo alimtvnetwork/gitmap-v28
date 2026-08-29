@@ -104,6 +104,7 @@ sha-check:
   if: needs.sha-check.outputs.already-built != 'true'
 
 # ... all remaining steps guard with the same condition
+
 ```
 
 **Step 3 — Cache write is inlined** into the last validation job (not a separate job):

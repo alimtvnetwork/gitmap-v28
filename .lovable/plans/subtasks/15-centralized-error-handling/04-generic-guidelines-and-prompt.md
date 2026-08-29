@@ -5,11 +5,13 @@ subtask: 04-generic-guidelines-and-prompt
 status: pending
 
 ## Goal
+
 Author two standalone, highly reusable documents:
 1. Generic Error Handling Guidelines Document (shareable across teams/languages).
 2. AI System Prompt File with Error Handling Checklist.
 
 ## Specifications
+
 1. **File 1**: `.lovable/coding-guidelines/centralized-error-handling-architecture.md`
    - Detailed conceptual explanation of why `panic` and bare `os.Exit` are both anti-patterns.
    - Comprehensive pattern: Error Envelopes, Domain Errors, Handlers, Execution Strategies, Caller Attribution.
@@ -22,4 +24,5 @@ Author two standalone, highly reusable documents:
    - Actionable instructions preventing regressions.
 
 ## Verification
+
 - Both files formatted cleanly, strictly lowercase filenames, zero placeholders.

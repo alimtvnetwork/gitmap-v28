@@ -41,10 +41,13 @@ treated as an unknown annotation per §6.4 of the 2020-12 spec).
 ## How a downstream consumer uses these
 
 ```bash
+
 # Fetch the schema
+
 curl -O https://raw.githubusercontent.com/.../spec/08-json-schemas/startup-list.schema.json
 
 # Validate a real output (using ajv-cli as one example)
+
 gitmap-v28 startup-list --json | ajv validate -s startup-list.schema.json -d -
 ```
 

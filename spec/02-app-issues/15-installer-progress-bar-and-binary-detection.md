@@ -11,7 +11,9 @@
 **Fix**: Added `$ProgressPreference = "SilentlyContinue"` at the top of `install.ps1` to suppress progress bars entirely.
 
 ```powershell
+
 # ✅ Required at script top for irm | iex compatibility
+
 $ProgressPreference = "SilentlyContinue"
 ```
 
@@ -24,7 +26,9 @@ $ProgressPreference = "SilentlyContinue"
 **Fix**: Added regex pattern matching for versioned filenames:
 
 ```powershell
+
 # ✅ Match versioned binary names from CI
+
 $_.Name -match "^gitmap-v[\d.]+-windows-(amd64|arm64)\.exe$"
 ```
 

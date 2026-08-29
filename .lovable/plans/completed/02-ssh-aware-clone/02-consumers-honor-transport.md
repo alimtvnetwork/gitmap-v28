@@ -5,6 +5,7 @@
 **Created:** 2026-06-07
 
 ## Work
+
 - `gitmap/formatter/clonescript.go` `cloneURL`: pick URL matching `IdentifiedTransport`; fall back to the other only if empty, and log.
 - `direct-clone.ps1` / `direct-clone-ssh.ps1` generators: keep both for convenience, but the primary `clone.ps1` and the terminal "command:" line MUST use identified transport per repo.
 - `gitmap/probe/*` and any pull/safe-pull path: select URL via identified transport.

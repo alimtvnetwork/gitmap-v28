@@ -1,6 +1,7 @@
 # Canonical Repository Versioning Specification (Single Source of Truth)
 
 ## 1. Overview & Principle
+
 This repository and all managed repositories adhere to a strict **Single Source of Truth** versioning protocol:
 - The canonical version of record for this repository is located exclusively in **`version.json`** at the repository root.
 - **Never guess or infer versions** from test files, git log history, git tags, or documentation snippets.
@@ -9,6 +10,7 @@ This repository and all managed repositories adhere to a strict **Single Source 
 ---
 
 ## 2. Structure of `version.json`
+
 `version.json` serves as the self-describing manifest for repository release state and tooling extensions:
 ```json
 {
@@ -26,6 +28,7 @@ This repository and all managed repositories adhere to a strict **Single Source 
 ---
 
 ## 3. Strict Directive for AI Assistants & Automated Tools
+
 1. **Always Read `version.json` First**: Before performing any release, inspection, or status query, read `version.json`.
 2. **Never Treat Test Placeholders as Real Versions**:
    - Synthetic versions (such as `v9.9.0`, `v9.9.1`, `v9.9.2`, `v99.99.99`) used inside test files (e.g. `autocommit_test.go`, test mocks, fixture files) are **strictly for unit test experiments and output assertion testing**.
@@ -35,4 +38,5 @@ This repository and all managed repositories adhere to a strict **Single Source 
 ---
 
 ## 4. Cross-Repository Uniformity
+
 Every repository within the ecosystem follows this exact standard. Tooling wrappers such as `gitmap cg prompts-version`, `gitmap cg status`, and `gitmap release` automatically parse and validate the root `version.json` manifest.

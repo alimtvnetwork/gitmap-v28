@@ -5,6 +5,7 @@
 **Created:** 2026-06-07
 
 ## Work
+
 - Verify `src/data/commands.ts` entries for `make-all-public` / `make-all-private` are wired and surface in:
   - command list page
   - search

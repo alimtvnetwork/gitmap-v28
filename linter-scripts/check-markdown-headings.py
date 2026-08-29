@@ -20,11 +20,16 @@ import re
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 HEADING_RE = re.compile(r'^#{1,6}(\s|$)')
 
 IGNORE_DIRS = {
     '.git', 'node_modules', '.github', '.ci-out', 'dist', 'build',
-    'tmp', '.lovable/temp-scripts',
+    'tmp', '.lovable/temp-scripts', '.gitmap', '.gemini', 'brain', 'vendor', 'testdata',
 }
 
 
