@@ -167,7 +167,9 @@ func TestCtxMacExplainInjectsAnnounce(t *testing.T) {
 	leaves := collectCtxLeaves(t)
 	exe := resolveCtxExe()
 
-	withExplain(t, true, runInstallCtxMac)
+	withExplain(t, true, func() {
+		_ = runInstallCtxMac()
+	})
 
 	root := macServicesRoot(t, home)
 	for _, l := range leaves {

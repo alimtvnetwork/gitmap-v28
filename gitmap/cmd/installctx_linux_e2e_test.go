@@ -255,7 +255,9 @@ func TestCtxLinuxExplainInjectsAnnounce(t *testing.T) {
 	home := withHome(t)
 	leaves := collectCtxLeaves(t)
 
-	withExplain(t, true, runInstallCtxLinux)
+	withExplain(t, true, func() {
+		_ = runInstallCtxLinux()
+	})
 
 	dir := filepath.Join(home, constants.CtxLinuxNautilusRel)
 	exe := resolveCtxExe()
