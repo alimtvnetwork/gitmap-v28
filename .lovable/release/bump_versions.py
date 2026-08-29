@@ -11,12 +11,17 @@ import re
 import subprocess
 import sys
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 GITMAP_DIR = os.path.join(ROOT_DIR, "gitmap")
 
 
 def run_cmd(cmd, cwd=ROOT_DIR):
-    print(f"▶ {cmd}")
+    print(f"-> {cmd}")
     res = subprocess.run(cmd, cwd=cwd, shell=True, capture_output=True, text=True, encoding="utf-8")
     if res.returncode != 0:
         print(f"Error executing '{cmd}':\n{res.stderr or res.stdout}", file=sys.stderr)
@@ -151,38 +156,38 @@ def main():
     update_changelog_md(new_version)
 
     # Regenerate Go files if needed
-    print("▶ Running go generate ./... in gitmap/")
+    print("-> Running go generate ./... in gitmap/")
     run_cmd("go generate ./...", cwd=GITMAP_DIR)
 
     if args.create_release:
         branch_name = f"release/v{new_version}"
         tag_name = f"v{new_version}"
 
-        print(f"▶ Creating branch {branch_name}")
+        print(f"-> Creating branch {branch_name}")
         run_cmd(f"git checkout -b {branch_name}")
 
-        print("▶ Staging all version changes")
+        print("-> Staging all version changes")
         run_cmd("git add -A")
 
-        print(f"▶ Committing release changes for {tag_name}")
+        print(f"-> Committing release changes for {tag_name}")
         run_cmd(f'git commit -m "chore(release): bump version to {tag_name}"')
 
-        print(f"▶ Creating git tag {tag_name}")
+        print(f"-> Creating git tag {tag_name}")
         run_cmd(f'git tag -a {tag_name} -m "Release {tag_name}"')
 
-        print(f"▶ Pushing branch {branch_name} and tag {tag_name}")
+        print(f"-> Pushing branch {branch_name} and tag {tag_name}")
         run_cmd(f"git push origin {branch_name}")
         run_cmd(f"git push origin {tag_name}")
 
-        print("▶ Merging release into main and pushing main")
+        print("-> Merging release into main and pushing main")
         run_cmd("git checkout main")
         run_cmd(f"git merge {branch_name}")
         run_cmd("git push origin main")
 
-        print(f"▶ Creating GitHub release for {tag_name}")
+        print(f"-> Creating GitHub release for {tag_name}")
         release_notes = f"Release {tag_name}\n\nAutomated release cut from {branch_name}."
         run_cmd(f'gh release create {tag_name} --title "gitmap {tag_name}" --notes "{release_notes}"')
-        print(f"✅ GitHub release {tag_name} created successfully!")
+        print(f"[SUCCESS] GitHub release {tag_name} created successfully!")
 
     print(f"[SUCCESS] Released version {new_version} successfully!")
 
