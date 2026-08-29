@@ -54,7 +54,7 @@ const (
 
 // Bookmark help text.
 const (
-	HelpBookmark = "  bookmark (bk) <sub> Save and replay command+flag combinations (save, list, run, delete)"
+	HelpBookmark = "  bookmark (bk) <sub>  Save and replay command+flag combinations (save, list, run, delete)"
 )
 
 // Bookmark messages.

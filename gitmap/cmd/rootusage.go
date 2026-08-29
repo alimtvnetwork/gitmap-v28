@@ -164,71 +164,102 @@ func renderHeader(header string) {
 	fmt.Println()
 }
 
+const maxCmdColumnWidth = 38
+
+func updateMaxHelpCmdLen(cmd string) {
+	l := lipgloss.Width(cmd)
+	if l > maxCmdColumnWidth {
+		l = maxCmdColumnWidth
+	}
+	if l > maxHelpCmdLen {
+		maxHelpCmdLen = l
+	}
+}
+
+func extractCmdAndDesc(line string) (string, string) {
+	line = strings.TrimLeft(line, " ")
+	for i := 0; i < len(line)-1; i++ {
+		if line[i] == ' ' && line[i+1] == ' ' {
+			return strings.TrimRight(line[:i], " "), strings.TrimLeft(line[i:], " ")
+		}
+	}
+
+	return line, ""
+}
+
+func parseExpandableMarker(cmd, desc string) (string, string, string) {
+	if strings.Contains(desc, "(use --help to expand)") {
+		desc = strings.TrimSpace(strings.ReplaceAll(desc, "(use --help to expand)", ""))
+		firstWord := strings.Split(cmd, " ")[0]
+		return cmd, desc, fmt.Sprintf("  ▸ subcommands — see `gitmap %s --help`", firstWord)
+	}
+
+	if strings.Contains(cmd, "(use --help to expand)") {
+		cmd = strings.TrimSpace(strings.ReplaceAll(cmd, "(use --help to expand)", ""))
+		firstWord := strings.Split(cmd, " ")[0]
+		return cmd, desc, fmt.Sprintf("  ▸ subcommands — see `gitmap %s --help`", firstWord)
+	}
+
+	return cmd, desc, ""
+}
+
+func renderLongHelpRow(cmd, fullDesc string, termWidth int) {
+	fmt.Printf("  %s\n", cmd)
+	indent := strings.Repeat(" ", maxHelpCmdLen+4)
+	descWidth := termWidth - len(indent)
+	if descWidth <= 10 {
+		fmt.Printf("%s%s\n", indent, fullDesc)
+		return
+	}
+
+	printWrappedHelpLines(indent, fullDesc, descWidth)
+}
+
+func renderStandardHelpRow(cmd, fullDesc string, cmdWidth, termWidth int) {
+	pad := maxHelpCmdLen - cmdWidth
+	if pad < 0 {
+		pad = 0
+	}
+
+	prefix := fmt.Sprintf("  %s%s  ", cmd, strings.Repeat(" ", pad))
+	descWidth := termWidth - lipgloss.Width(prefix)
+	if descWidth <= 10 {
+		fmt.Printf("%s%s\n", prefix, fullDesc)
+		return
+	}
+
+	printWrappedHelpLines(prefix, fullDesc, descWidth)
+}
+
+func renderHelpRow(cmd string, fullDesc string, termWidth int) {
+	cmdWidth := lipgloss.Width(cmd)
+	if cmdWidth > maxHelpCmdLen {
+		renderLongHelpRow(cmd, fullDesc, termWidth)
+		return
+	}
+
+	renderStandardHelpRow(cmd, fullDesc, cmdWidth, termWidth)
+}
+
 func renderLine(line string) {
 	if line == "" {
 		return
 	}
-	line = strings.TrimLeft(line, " ")
-	cmd := line
-	desc := ""
 
-	for i := 0; i < len(line)-1; i++ {
-		if line[i] == ' ' && line[i+1] == ' ' {
-			cmd = strings.TrimRight(line[:i], " ")
-			desc = strings.TrimLeft(line[i:], " ")
-			break
-		}
-	}
-
-	expandable := false
-	if strings.Contains(desc, "(use --help to expand)") {
-		expandable = true
-		desc = strings.ReplaceAll(desc, "(use --help to expand)", "")
-		desc = strings.TrimSpace(desc)
-	} else if strings.Contains(cmd, "(use --help to expand)") {
-		expandable = true
-		cmd = strings.ReplaceAll(cmd, "(use --help to expand)", "")
-		cmd = strings.TrimSpace(cmd)
-	}
+	cmd, desc := extractCmdAndDesc(line)
+	cmd, desc, marker := parseExpandableMarker(cmd, desc)
 
 	if measuringHelp {
 		updateMaxHelpCmdLen(cmd)
 		return
 	}
 
-	pad := maxHelpCmdLen - lipgloss.Width(cmd)
-	if pad < 0 {
-		pad = 0
-	}
-
-	marker := ""
-	if expandable {
-		parts := strings.Split(cmd, " ")
-		firstWord := parts[0]
-		marker = fmt.Sprintf("  ▸ subcommands — see `gitmap %s --help`", firstWord)
-	}
-
-	fullDesc := desc + marker
 	termWidth := pterm.GetTerminalWidth()
 	if termWidth <= 0 {
 		termWidth = 120
 	}
 
-	prefix := fmt.Sprintf("  %s%s  ", cmd, strings.Repeat(" ", pad))
-	descWidth := termWidth - lipgloss.Width(prefix)
-
-	if descWidth <= 10 {
-		fmt.Printf("%s%s\n", prefix, fullDesc)
-		return
-	}
-	printWrappedHelpLines(prefix, fullDesc, descWidth)
-}
-
-func updateMaxHelpCmdLen(cmd string) {
-	l := lipgloss.Width(cmd)
-	if l > maxHelpCmdLen {
-		maxHelpCmdLen = l
-	}
+	renderHelpRow(cmd, desc+marker, termWidth)
 }
 
 func printWrappedHelpLines(prefix, fullDesc string, descWidth int) {

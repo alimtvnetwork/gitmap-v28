@@ -10,7 +10,7 @@ const (
 )
 
 // Has-any-updates help text.
-const HelpHasAnyUpdates = "  has-any-updates (hau/hac) Check if remote has new commits"
+const HelpHasAnyUpdates = "  has-any-updates (hau/hac)  Check if remote has new commits"
 
 // Has-any-updates messages.
 const (

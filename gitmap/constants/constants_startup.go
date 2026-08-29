@@ -27,7 +27,7 @@ const (
 const (
 	HelpStartupAdd    = "  startup-add (sa)          Create a Linux/Unix or macOS autostart entry pointing at gitmap"
 	HelpStartupList   = "  startup-list (sl)         List Linux/Unix autostart entries created by gitmap"
-	HelpStartupRemove = "  startup-remove (sr) <name> Remove a gitmap-managed autostart entry by name"
+	HelpStartupRemove = "  startup-remove (sr) <name>  Remove a gitmap-managed autostart entry by name"
 )
 
 // Startup .desktop file convention.

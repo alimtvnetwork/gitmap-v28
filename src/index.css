@@ -142,8 +142,12 @@
     @apply border-border transition-colors duration-300;
   }
 
-  body {
+  html,
+  body,
+  #root {
     @apply bg-background text-foreground font-sans transition-colors duration-300;
+    height: 100%;
+    overflow: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -15,7 +15,7 @@ const (
 	HelpFRStrict         = "  " + ColorCyan + ColorCyan + "--restrict" + ColorReset + ColorReset + " <mode>   Narrow scope: no-version (nv) avoids bare-base"
 	HelpFRRestrict       = "      example:        gitmap fix-repo -2 " + ColorCyan + ColorCyan + "--restrict" + ColorReset + ColorReset + " nv"
 	HelpFRExample1       = "      example:        gitmap fr -3 " + ColorCyan + ColorCyan + "--dry-run" + ColorReset + ColorReset
-	HelpFRExample2       = "  " + ColorCyan + ColorCyan + "--gofmt-max-cmd-len" + ColorReset + ColorReset + " Cap gofmt batch argv length (default: 30000)"
+	HelpFRExample2       = "  " + ColorCyan + ColorCyan + "--gofmt-max-cmd-len" + ColorReset + ColorReset + "  Cap gofmt batch argv length (default: 30000)"
 	HelpFRGofmtMaxCmdLen = "  exit codes:         0 ok | 2 not-repo | 4 no-vN | 6 bad-flag | 9 test-fail"
 	HelpFixRepoExitCodes = ""
 )
