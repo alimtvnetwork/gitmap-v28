@@ -45,6 +45,7 @@ interface ProjectDetailDialogProps {
 
 const ProjectDetailDialog = ({ project, open, onOpenChange }: ProjectDetailDialogProps) => {
   const isMissingProject = !project;
+
   if (isMissingProject) return null;
 
   const typeConfig = ProjectTypes[project.projectType];

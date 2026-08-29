@@ -31,9 +31,12 @@ interface FlagTableProps {
 
 function extractAllFlags(commandList: CommandDef[]): FlagRow[] {
   const rows: FlagRow[] = [];
+
   for (const commandItem of commandList) {
     const hasFlags = Boolean(commandItem.flags && commandItem.flags.length > 0);
+
     if (hasFlags === false) continue;
+
     for (const flagItem of commandItem.flags!) {
       rows.push({ flag: flagItem.flag, description: flagItem.description, command: commandItem.name, alias: commandItem.alias });
     }
@@ -74,6 +77,7 @@ function filterAndSortFlags(
 
 function getSortIndicator(currentCol: SortColType, targetCol: SortColType, isSortAsc: boolean): string {
   const isCurrent = currentCol === targetCol;
+
   if (isCurrent === false) return "";
 
   return isSortAsc ? " ↑" : " ↓";
@@ -155,6 +159,7 @@ const FlagReferencePage = () => {
 
   const handleSort = (column: SortColType) => {
     const isSameColumn = sortCol === column;
+
     if (isSameColumn) setIsSortAsc((current) => current === false);
     else { setSortCol(column); setIsSortAsc(true); }
   };

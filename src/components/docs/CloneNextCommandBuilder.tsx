@@ -79,6 +79,7 @@ function buildTargetRepoName(s: BuilderState): string {
 
 function buildOriginURL(s: BuilderState): string {
   const repo = buildCurrentRepoName(s);
+
   switch (s.protocol) {
     case ProtocolType.Https:
       return `https://github.com/${s.owner}/${repo}.git`;
@@ -103,10 +104,14 @@ function buildLocalFolder(s: BuilderState): string {
 function buildGitmapCommand(s: BuilderState): string {
   const parts = ["gitmap", "clone-next"];
   parts.push(s.versionMode === VersionModeType.VN ? `v${Math.max(1, s.explicitVersion)}` : s.versionMode);
+
   if (s.force) parts.push("-f");
+
   if (s.sshKeyName.trim().length > 0) parts.push(`--ssh-key ${s.sshKeyName.trim()}`);
+
   if (s.branch.trim().length > 0) parts.push(`--branch ${s.branch.trim()}`);
   const isNoFlatten = !s.flatten;
+
   if (isNoFlatten) parts.push("--no-flatten");
 
   return parts.join(" ");
@@ -117,6 +122,7 @@ function buildGitCloneCommand(s: BuilderState): string {
   const folder = buildLocalFolder(s);
   const branchArg = s.branch.trim().length > 0 ? `--branch ${s.branch.trim()} ` : "";
   const base = `git clone ${branchArg}${url} ${folder}`;
+
   if (s.protocol !== ProtocolType.Https && s.sshKeyName.trim().length > 0) {
     const keyName = s.sshKeyName.trim();
 
@@ -139,6 +145,7 @@ function buildResolvedSummary(s: BuilderState): string {
     `target url : ${buildTargetURL(s)}`,
     `folder     : ${buildLocalFolder(s)}${s.flatten ? "/   (flattened, base name)" : "/   (versioned, no flatten)"}`,
   ];
+
   if (s.force) {
     lines.push(`force      : -f set — chdir-to-parent if cwd == folder; aborts on lock instead of fallback`);
   }

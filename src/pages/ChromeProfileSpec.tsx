@@ -51,6 +51,7 @@ const ChromeProfileSpec = () => {
 
     return [...rows].sort((a, b) => {
       if (sortKey === SortKeyType.Name) return a.name.localeCompare(b.name);
+
       if (sortKey === SortKeyType.Exports) return b.exports - a.exports;
 
       return b.lastSeen.localeCompare(a.lastSeen);

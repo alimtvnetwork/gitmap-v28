@@ -58,6 +58,7 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
     const onSelect = React.useCallback((api: CarouselApi) => {
       const isMissingApi = !api;
+
       if (isMissingApi) {
         return;
       }
@@ -89,6 +90,7 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
     React.useEffect(() => {
       const isMissingApiOrSetter = !api || !setApi;
+
       if (isMissingApiOrSetter) {
         return;
       }
@@ -98,6 +100,7 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
     React.useEffect(() => {
       const isMissingApi = !api;
+
       if (isMissingApi) {
         return;
       }

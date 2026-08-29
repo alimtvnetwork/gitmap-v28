@@ -67,6 +67,7 @@ const ProjectsPage = () => {
 
   const filtered = SAMPLE_PROJECTS.filter((project) => {
     if (activeFilter !== FILTER_ALL && project.projectType !== activeFilter) return false;
+
     if (search.length > 0) {
       const searchLower = search.toLowerCase();
 

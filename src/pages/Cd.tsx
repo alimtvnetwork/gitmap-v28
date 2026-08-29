@@ -155,6 +155,7 @@ const CdPage = () => (
       code={`gcd() {
   local dir
   dir=$(gitmap cd "$@" 2>/dev/null)
+
   if [ -n "$dir" ] && [ -d "$dir" ]; then
     cd "$dir" || return
   else

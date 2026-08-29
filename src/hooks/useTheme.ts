@@ -34,6 +34,7 @@ interface UseThemeResult {
 
 function readSource(): ThemeSourceType {
   const res = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
+
   if (res.isFail) return ThemeSourceType.System;
   const stored = res.data;
 
@@ -48,16 +49,19 @@ export function useTheme(): UseThemeResult {
   useEffect(() => {
     const handleThemeEvent = (event: Event) => {
       const next = (event as CustomEvent<Theme>).detail;
+
       if (next === "light" || next === "dark") setThemeState(next);
     };
 
     const handleSourceEvent = (event: Event) => {
       const next = (event as CustomEvent<ThemeSourceType>).detail;
+
       if (next === "system" || next === "user") setSourceState(next);
     };
 
     const handleStorage = (event: StorageEvent) => {
       if (event.key !== THEME_STORAGE_KEY) return;
+
       if (event.newValue === "light" || event.newValue === "dark") {
         setThemeState(event.newValue as ThemeType);
         setSourceState(ThemeSourceType.User);
@@ -72,6 +76,7 @@ export function useTheme(): UseThemeResult {
       // Only follow the OS when the user hasn't explicitly chosen a theme.
       const checkRes = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
       const hasUserPreference = checkRes.isSuccess && Boolean(checkRes.data);
+
       if (hasUserPreference) {
         return;
       }

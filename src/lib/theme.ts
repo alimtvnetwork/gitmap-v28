@@ -12,10 +12,13 @@ export type Theme = ThemeType;
 /** Read the currently applied theme from the <html> element. */
 export function getCurrentTheme(): ThemeType {
   if (typeof document === "undefined") return ThemeType.Dark;
+
   if (document.documentElement.classList.contains("light")) return ThemeType.Light;
+
   if (document.documentElement.classList.contains("dark")) return ThemeType.Dark;
 
   const res = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
+
   if (!res.isFail && (res.data === "light" || res.data === "dark")) {
     return res.data as ThemeType;
   }

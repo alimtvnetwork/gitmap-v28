@@ -82,6 +82,7 @@ import "fmt"
 
 func main() {
     repos := scanAll("~/projects")
+
     for _, r := range repos {
         fmt.Printf("%-30s %s\\n", r.Name, r.Branch)
     }

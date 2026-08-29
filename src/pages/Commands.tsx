@@ -51,6 +51,7 @@ function highlightElement(element: HTMLElement, onClear: () => void): void {
 
 function filterCommands(allCommands: CommandDef[], searchQuery: string): CommandDef[] {
   const hasSearch = searchQuery.length > 0;
+
   if (hasSearch === false) return allCommands;
 
   const query = searchQuery.toLowerCase();
@@ -87,6 +88,7 @@ function useCommandNavigate(
 ) {
   return useCallback((commandName: string) => {
     const target = commands.find((cmd) => cmd.name === commandName);
+
     if (Boolean(target) === false) return;
 
     setSearch("");
@@ -94,6 +96,7 @@ function useCommandNavigate(
     setHighlightCmd(commandName);
     setTimeout(() => {
       const element = commandRefs.current[commandName];
+
       if (element) {
         highlightElement(element, () => setHighlightCmd(null));
       }
@@ -161,6 +164,7 @@ const CommandsHeader = ({ isCopied, onCopyAll, onDownload }: CommandsHeaderProps
 
 const CommandsSearchResults = ({ items, search, onNavigate, commandRefs }: CommandsSearchResultsProps) => {
   const hasMatches = items.length > 0;
+
   if (hasMatches === false) {
     return (
       <p className="text-center text-muted-foreground py-8 font-mono text-sm">
@@ -191,6 +195,7 @@ const CommandsCategoryGroups = ({
     <>
       {Categories.map((category) => {
         const categoryCommands = filteredCommands.filter((cmd) => cmd.category === category.key);
+
         if (categoryCommands.length === 0) return null;
 
         return (
