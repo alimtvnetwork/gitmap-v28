@@ -83,8 +83,8 @@ func expectDelim(dec *json.Decoder, want byte) error {
 
 		return err
 	}
-	delim, ok := tok.(json.Delim)
-	if !ok || rune(delim) != rune(want) {
+	delim, isDelim := tok.(json.Delim)
+	if !isDelim || delim != json.Delim(want) {
 
 		return fmt.Errorf("want delim %q, got %v (%T)", want, tok, tok)
 	}

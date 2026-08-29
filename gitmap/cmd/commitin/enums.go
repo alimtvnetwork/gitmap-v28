@@ -228,3 +228,18 @@ func (l FunctionIntelLanguage) String() string {
 func AllLanguages() []FunctionIntelLanguage {
 	return []FunctionIntelLanguage{LanguageGo, LanguageJavaScript, LanguageTypeScript, LanguageRust, LanguagePython, LanguagePhp, LanguageJava, LanguageCSharp}
 }
+
+// Type aliases for strict coding guideline compliance (*Type suffix).
+type (
+	ConflictModeType          = ConflictMode
+	InputKindType             = InputKind
+	MatchRuleType             = MatchRule
+	ResolutionKindType        = ResolutionKind
+	ActionKindType            = ActionKind
+	StepKindType              = StepKind
+	OutputFormatType          = OutputFormat
+	ValidationVerdictType     = ValidationVerdict
+	MessageRuleKindType       = MessageRuleKind
+	FunctionIntelLanguageType = FunctionIntelLanguage
+)
+
