@@ -10,6 +10,7 @@
 - [ ] [23-cli-commands-help-audit.md](.lovable/plans/pending/23-cli-commands-help-audit.md) — CLI commands, help text parity & help UI architecture audit.
 - [ ] [24-function-signatures-audit.md](.lovable/plans/pending/24-function-signatures-audit.md) — Function signatures, invocations & multi-line standards audit.
 - [ ] [25-typescript-types-audit.md](.lovable/plans/pending/25-typescript-types-audit.md) — TypeScript strict typing, discriminated unions & architecture audit.
+- [ ] [26-enums-and-traits-audit.md](.lovable/plans/pending/26-enums-and-traits-audit.md) — Multi-language enums, traits & pattern matching audit.
 
 ## Completed Plans
 
