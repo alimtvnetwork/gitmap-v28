@@ -144,3 +144,33 @@ func WrapWithDetails(
 		Cause:    err,
 	}
 }
+
+// HasError reports whether an error exists.
+func (e *AppError) HasError() bool {
+	return e != nil
+}
+
+// HasNoError reports whether no error exists.
+func (e *AppError) HasNoError() bool {
+	return e == nil
+}
+
+// HasValidError reports whether the AppError is non-nil and has a valid code.
+func (e *AppError) HasValidError() bool {
+	return e != nil && e.Code != ""
+}
+
+// IsValid reports whether the AppError is non-nil and has a valid code.
+func (e *AppError) IsValid() bool {
+	return e != nil && e.Code != ""
+}
+
+// IsErrorCode reports whether the AppError matches the specified error code.
+func (e *AppError) IsErrorCode(code string) bool {
+	return e != nil && e.Code == code
+}
+
+// IsCode alias for IsErrorCode.
+func (e *AppError) IsCode(code string) bool {
+	return e.IsErrorCode(code)
+}
