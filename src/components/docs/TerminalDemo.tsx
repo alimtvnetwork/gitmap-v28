@@ -16,10 +16,13 @@ interface TerminalDemoProps {
 
 function colorForLine(type?: TerminalLineType): string {
   const isInput = type === TerminalLineType.Input;
+
   if (isInput) return "text-[hsl(var(--terminal-foreground))]";
   const isHeader = type === TerminalLineType.Header;
+
   if (isHeader) return "text-primary font-bold";
   const isAccent = type === TerminalLineType.Accent;
+
   if (isAccent) return "text-primary";
 
   return "text-[hsl(var(--foreground))]/70";
@@ -44,6 +47,7 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
 
   const reset = () => {
     const hasTimeout = Boolean(timeoutRef.current);
+
     if (hasTimeout) clearTimeout(timeoutRef.current!);
     setVisibleLines(0);
     setIsPlaying(false);
@@ -51,6 +55,7 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
 
   useEffect(() => {
     const shouldAutoPlay = autoPlay === true;
+
     if (shouldAutoPlay) play();
 
     return () => {
@@ -61,6 +66,7 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
   useEffect(() => {
     if (!isPlaying) return;
     const isFinished = visibleLines >= lines.length;
+
     if (isFinished) {
       setIsPlaying(false);
       return;

@@ -4,6 +4,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
   // Path 1: modern async Clipboard API. Guard for both the property
   // existing AND the document being focused — Safari rejects writes
   // from blurred documents with a NotAllowedError.
+
   if (
     typeof navigator !== "undefined" &&
     navigator.clipboard &&
@@ -17,6 +18,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 
       return true;
     });
+
     if (!res.isFail && res.data) {
       return true;
     }
@@ -79,6 +81,7 @@ function legacyCopy(text: string): boolean {
   }
 
   document.body.removeChild(textarea);
+
   if (previousRange && previousSelection) {
     previousSelection.removeAllRanges();
     previousSelection.addRange(previousRange);

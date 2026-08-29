@@ -29,8 +29,11 @@ export interface HelpJsonPayload {
 export const isHelpJsonPayload = (value: unknown): value is HelpJsonPayload => {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
+
   if (typeof v.version !== "string") return false;
+
   if (typeof v.count !== "number") return false;
+
   if (!Array.isArray(v.groups)) return false;
 
   return v.groups.every(

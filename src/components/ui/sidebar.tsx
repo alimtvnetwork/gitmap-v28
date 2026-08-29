@@ -39,6 +39,7 @@ const SidebarContext = React.createContext<SidebarContext | null>(null);
 function useSidebar() {
   const context = React.useContext(SidebarContext);
   const isMissingContext = !context;
+
   if (isMissingContext) {
     throw new Error("useSidebar must be used within a SidebarProvider.");
   }
@@ -65,6 +66,7 @@ const SidebarProvider = React.forwardRef<
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value;
+
       if (setOpenProp) {
         setOpenProp(openState);
       } else {
@@ -484,6 +486,7 @@ const SidebarMenuButton = React.forwardRef<
   );
 
   const isMissingTooltip = !tooltip;
+
   if (isMissingTooltip) {
     return button;
   }

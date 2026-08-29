@@ -135,6 +135,7 @@ const ChartTooltipContent = React.forwardRef<
 
     const tooltipLabel = React.useMemo(() => {
       const hasPayload = Boolean(payload?.length);
+
       if (hideLabel || !hasPayload) {
         return null;
       }
@@ -152,6 +153,7 @@ const ChartTooltipContent = React.forwardRef<
       }
 
       const isMissingValue = !value;
+
       if (isMissingValue) {
         return null;
       }
@@ -161,6 +163,7 @@ const ChartTooltipContent = React.forwardRef<
 
     const isInactive = !active;
     const hasPayload = Boolean(payload?.length);
+
     if (isInactive || !hasPayload) {
       return null;
     }
@@ -300,6 +303,7 @@ ChartLegendContent.displayName = "ChartLegend";
 
 function extractConfigKey(payload: unknown, key: string): string {
   if (typeof payload !== "object" || payload === null) return key;
+
   if (key in payload && typeof (payload as Record<string, unknown>)[key] === "string") {
     return (payload as Record<string, unknown>)[key] as string;
   }
@@ -308,6 +312,7 @@ function extractConfigKey(payload: unknown, key: string): string {
     "payload" in payload && typeof (payload as Record<string, unknown>).payload === "object" && (payload as Record<string, unknown>).payload !== null
       ? ((payload as Record<string, unknown>).payload as Record<string, unknown>)
       : undefined;
+
   if (payloadPayload && key in payloadPayload && typeof payloadPayload[key] === "string") {
     return payloadPayload[key] as string;
   }

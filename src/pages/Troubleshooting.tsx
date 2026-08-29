@@ -27,6 +27,7 @@ interface TroubleshootingIssueListProps {
 
 function getInitialCategory(rawCategory: string): Category | CategoryFilterType {
   const isAllOrValid = rawCategory === CategoryFilterType.All || isValidCategoryKey(rawCategory);
+
   if (isAllOrValid) return rawCategory as Category | CategoryFilterType;
 
   return CategoryFilterType.All;
@@ -48,6 +49,7 @@ function filterIssues(
   search: string
 ): Issue[] {
   let rows = allIssues;
+
   if (activeCategory !== CategoryFilterType.All) {
     rows = rows.filter((item) => item.category === activeCategory);
   }
@@ -62,6 +64,7 @@ function filterIssues(
 
 function calculateCategoryCounts(allIssues: Issue[]): Record<string, number> {
   const counts: Record<string, number> = { [CategoryFilterType.All]: allIssues.length };
+
   for (const item of allIssues) counts[item.category] = (counts[item.category] ?? 0) + 1;
 
   return counts;
@@ -81,11 +84,14 @@ function useTroubleshootingUrlSync(
 ): void {
   useEffect(() => {
     const nextParams = new URLSearchParams(searchParams);
+
     if (search) nextParams.set("search", search);
     else nextParams.delete("search");
     nextParams.delete("q");
+
     if (activeCategory !== CategoryFilterType.All) nextParams.set("category", activeCategory);
     else nextParams.delete("category");
+
     if (nextParams.toString() !== searchParams.toString()) {
       setSearchParams(nextParams, { replace: true });
     }
@@ -104,6 +110,7 @@ function useTroubleshootingDeepLink(
   useEffect(() => {
     if (Boolean(targetId) === false) return;
     const targetIssue = issues.find((issueItem) => issueItem.id === targetId);
+
     if (Boolean(targetIssue) === false) return;
 
     if (activeCategory !== CategoryFilterType.All && activeCategory !== targetIssue!.category) {
@@ -118,6 +125,7 @@ function useTroubleshootingDeepLink(
 
     if (scrolledIdRef.current === targetId) return;
     const element = document.getElementById(targetId!);
+
     if (element) {
       scrolledIdRef.current = targetId;
       highlightIssueElement(element);
@@ -127,6 +135,7 @@ function useTroubleshootingDeepLink(
 
 const TroubleshootingIssueList = ({ items, search }: TroubleshootingIssueListProps) => {
   const hasItems = items.length > 0;
+
   if (hasItems === false) {
     return (
       <div className="rounded-lg border border-border p-8 text-center">

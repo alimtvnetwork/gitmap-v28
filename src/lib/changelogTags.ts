@@ -30,6 +30,7 @@ const RULES: Array<{ tag: ChangelogTagType; pattern: RegExp }> = [
 /** Returns the set of tags inferred from a single changelog item. */
 export function classifyChangelogItem(item: string): ChangelogTagType[] {
   const tags = new Set<ChangelogTagType>();
+
   for (const { tag, pattern } of RULES) {
     if (pattern.test(item)) tags.add(tag);
   }

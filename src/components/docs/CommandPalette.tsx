@@ -58,6 +58,7 @@ function useCommandPaletteShortcut(setOpen: Dispatch<SetStateAction<boolean>>): 
     const handleKeyDown = (event: KeyboardEvent) => {
       const isKeyK = event.key === "k" || event.key === "K";
       const hasModifier = Boolean(event.metaKey || event.ctrlKey);
+
       if (isKeyK && hasModifier) {
         event.preventDefault();
         setOpen((isOpen) => isOpen === false);

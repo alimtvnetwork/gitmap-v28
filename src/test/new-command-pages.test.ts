@@ -88,6 +88,7 @@ describe("new command pages (v4.31.0)", () => {
   it("App.tsx wildcard NotFound route stays last (so new routes are reachable)", () => {
     const wildcardIdx = appSource.lastIndexOf('path="*"');
     expect(wildcardIdx).toBeGreaterThan(-1);
+
     for (const cmd of NEW_COMMANDS) {
       const routeIdx = appSource.indexOf(`path="${cmd.route}"`);
       expect(routeIdx, `route ${cmd.route} not found`).toBeGreaterThan(-1);

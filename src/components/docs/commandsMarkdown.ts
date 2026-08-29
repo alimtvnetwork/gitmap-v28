@@ -2,6 +2,7 @@ import { CommandCategory, CommandDef, CommandExample, CommandFlag } from "@/data
 
 function formatCommandFlags(flags?: CommandFlag[]): string {
   const hasFlags = Boolean(flags && flags.length > 0);
+
   if (hasFlags === false) return "";
 
   const lines = flags!.map((item) => `- \`${item.flag}\` — ${item.description}`);
@@ -11,6 +12,7 @@ function formatCommandFlags(flags?: CommandFlag[]): string {
 
 function formatCommandExamples(examples?: CommandExample[]): string {
   const hasExamples = Boolean(examples && examples.length > 0);
+
   if (hasExamples === false) return "";
 
   const formatted = examples!.map((item) => {
@@ -33,6 +35,7 @@ function formatSingleCommand(commandItem: CommandDef): string {
 
 function formatCategoryGroup(category: CommandCategory, allCommands: CommandDef[]): string {
   const categoryCommands = allCommands.filter((cmd) => cmd.category === category.key);
+
   if (categoryCommands.length === 0) return "";
 
   const iconText = category.icon ? `${category.icon} ` : "";

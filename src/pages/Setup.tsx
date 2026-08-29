@@ -88,6 +88,7 @@ const bashWrapper = `# Installed by gitmap setup into ~/.bashrc
 gcd() {
   local dest
   dest="$(gitmap cd "$@")"
+
   if [ -n "$dest" ] && [ -d "$dest" ]; then
     cd "$dest" || return
   fi
@@ -97,6 +98,7 @@ const zshWrapper = `# Installed by gitmap setup into ~/.zshrc
 gcd() {
   local dest
   dest="$(gitmap cd "$@")"
+
   if [[ -n "$dest" ]] && [[ -d "$dest" ]]; then
     cd "$dest" || return
   fi
@@ -105,6 +107,7 @@ gcd() {
 const powershellWrapper = `# Installed by gitmap setup into $PROFILE
 function gcd {
   $dest = gitmap cd @args
+
   if ($dest -and (Test-Path $dest)) {
     Set-Location $dest
   }

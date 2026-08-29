@@ -23,7 +23,9 @@ export interface TerminalViewProps {
 function getXTermTheme(os: OsTheme) {
   const isWin = os === "win";
   const isLinux = os === "linux";
+
   if (isWin) return { background: "#012456", foreground: "#ffffff" };
+
   if (isLinux) return { background: "#000000", foreground: "#00ff00" };
 
   return { background: "#300a24", foreground: "#ffffff" };
@@ -32,7 +34,9 @@ function getXTermTheme(os: OsTheme) {
 function getThemeBgClass(os: OsTheme) {
   const isWin = os === "win";
   const isLinux = os === "linux";
+
   if (isWin) return "bg-[#012456]";
+
   if (isLinux) return "bg-black";
 
   return "bg-[#300a24]";
@@ -75,6 +79,7 @@ export function TerminalTabs({ tabs, theme }: { tabs: TerminalTab[]; theme: OsTh
 
 export function TerminalView({ theme = "ubuntu", tabs, hasSplits = false }: TerminalViewProps) {
   const isSplitEnabled = hasSplits && tabs.length > 1;
+
   if (isSplitEnabled) {
     return (
       <ResizablePanelGroup direction="horizontal" className="h-[500px] border">

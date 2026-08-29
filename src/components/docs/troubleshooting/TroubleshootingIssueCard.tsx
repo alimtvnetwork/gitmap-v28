@@ -30,6 +30,7 @@ const IssueHeader = ({ issue }: IssueProps) => {
 
 const IssueRelatedLinks = ({ related }: IssueRelatedLinksProps) => {
   const hasRelated = Boolean(related && related.length > 0);
+
   if (hasRelated === false) return null;
 
   return (

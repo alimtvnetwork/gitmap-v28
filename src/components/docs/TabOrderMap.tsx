@@ -48,11 +48,16 @@ const FOCUSABLE_SELECTOR = [
  */
 const hasHiddenAncestor = (el: HTMLElement): boolean => {
   let node: HTMLElement | null = el;
+
   while (node && node !== document.body) {
     const s = window.getComputedStyle(node);
+
     if (s.display === "none") return true;
+
     if (s.visibility === "hidden" || s.visibility === "collapse") return true;
+
     if (parseFloat(s.opacity) === 0) return true;
+
     if (s.pointerEvents === "none" && node === el) return true;
     node = node.parentElement;
   }
@@ -76,10 +81,12 @@ const getOverlaySamples = (r: DOMRect): [number, number][] => [
 
 const isCoveredByOverlay = (el: HTMLElement, rects: DOMRectList): boolean => {
   const r = rects[0];
+
   if (r.width < 1 || r.height < 1) return true;
   const samples = getOverlaySamples(r);
   const inViewport = samples.some(([x, y]) => x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight);
   const isOutsideViewport = !inViewport;
+
   if (isOutsideViewport) return false;
   const isHitOrDescendant = samples.some(([x, y]) => isPointCovered(x, y, el));
   const isCovered = !isHitOrDescendant;
@@ -89,14 +96,18 @@ const isCoveredByOverlay = (el: HTMLElement, rects: DOMRectList): boolean => {
 
 const isVisible = (el: HTMLElement): boolean => {
   if (el.hasAttribute("disabled")) return false;
+
   if (el.getAttribute("aria-hidden") === "true") return false;
+
   if (el.closest("[aria-hidden='true']")) return false;
 
   const rects = el.getClientRects();
   const hasRects = rects.length > 0;
+
   if (!hasRects) return false;
 
   if (hasHiddenAncestor(el)) return false;
+
   if (isCoveredByOverlay(el, rects)) return false;
 
   return true;
@@ -105,6 +116,7 @@ const isVisible = (el: HTMLElement): boolean => {
 /** Resolve a space-separated id-list reference (aria-labelledby / aria-describedby). */
 const resolveIdRefs = (ids: string | null): string => {
   const isMissingIds = !ids;
+
   if (isMissingIds) return "";
 
   return ids
@@ -122,11 +134,13 @@ const getFormElementLabel = (el: HTMLElement): string | null => {
     el instanceof HTMLInputElement ||
     el instanceof HTMLSelectElement ||
     el instanceof HTMLTextAreaElement;
+
   if (isFormEl && el.labels && el.labels.length > 0) {
     const text = Array.from(el.labels)
       .map((l) => l.textContent?.trim() ?? "")
       .filter(Boolean)
       .join(" ");
+
     if (text) return truncate(text.replace(/\s+/g, " "));
   }
 
@@ -139,14 +153,19 @@ const getFormElementLabel = (el: HTMLElement): string | null => {
  */
 const labelFor = (el: HTMLElement): string => {
   const aria = el.getAttribute("aria-label");
+
   if (aria) return truncate(aria.trim());
   const labelledby = resolveIdRefs(el.getAttribute("aria-labelledby"));
+
   if (labelledby) return truncate(labelledby.replace(/\s+/g, " "));
   const formLabel = getFormElementLabel(el);
+
   if (formLabel) return formLabel;
   const title = el.getAttribute("title");
+
   if (title) return truncate(title.trim());
   const text = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+
   if (text) return truncate(text);
 
   return el instanceof HTMLInputElement ? `${el.type} input` : el.tagName.toLowerCase();
@@ -159,9 +178,11 @@ const labelFor = (el: HTMLElement): string => {
  */
 const descriptionFor = (el: HTMLElement): string | undefined => {
   const direct = el.getAttribute("aria-description");
+
   if (direct?.trim()) return truncate(direct.trim(), 120);
 
   const referenced = resolveIdRefs(el.getAttribute("aria-describedby"));
+
   if (referenced) return truncate(referenced.replace(/\s+/g, " "), 120);
 
   return undefined;
@@ -171,6 +192,7 @@ const getLandmarkSection = (el: HTMLElement): string | null => {
   const landmark = el.closest<HTMLElement>(
     "header, nav, main, aside, footer, [role='banner'], [role='navigation'], [role='main'], [role='complementary'], [role='contentinfo']",
   );
+
   if (landmark) {
     const role = landmark.getAttribute("role") ?? landmark.tagName.toLowerCase();
 
@@ -183,10 +205,13 @@ const getLandmarkSection = (el: HTMLElement): string | null => {
 const getAriaSection = (el: HTMLElement): string | null => {
   const section = el.closest<HTMLElement>("section[aria-labelledby], section[aria-label]");
   const isMissingSection = !section;
+
   if (isMissingSection) return null;
   const labelId = section.getAttribute("aria-labelledby");
+
   if (labelId) {
     const ref = document.getElementById(labelId);
+
     if (ref?.textContent) return ref.textContent.trim();
   }
 
@@ -198,8 +223,10 @@ const getAriaSection = (el: HTMLElement): string | null => {
 /** Closest meaningful landmark for grouping in the list. */
 const sectionFor = (el: HTMLElement): string => {
   const landmark = getLandmarkSection(el);
+
   if (landmark) return landmark;
   const ariaSection = getAriaSection(el);
+
   if (ariaSection) return ariaSection;
 
   return "Page";
@@ -216,8 +243,11 @@ const compareTabOrder = (a: IndexedElement, b: IndexedElement): number => {
   const bPositive = b.ti > 0;
   const isANotPositive = !aPositive;
   const isBNotPositive = !bPositive;
+
   if (aPositive && isBNotPositive) return -1;
+
   if (isANotPositive && bPositive) return 1;
+
   if (aPositive && bPositive && a.ti !== b.ti) return a.ti - b.ti;
 
   return a.i - b.i;
@@ -269,8 +299,10 @@ const buildFocusEntry = (el: HTMLElement, idx: number, selfEl: HTMLElement | nul
 
 const groupEntriesBySection = (entries: FocusEntry[]): { section: string; items: FocusEntry[] }[] => {
   const groups: { section: string; items: FocusEntry[] }[] = [];
+
   for (const e of entries) {
     const last = groups[groups.length - 1];
+
     if (last && last.section === e.section) last.items.push(e);
     else groups.push({ section: e.section, items: [e] });
   }
@@ -297,6 +329,7 @@ const TabOrderMap = () => {
   // Recompute on open + on DOM mutations + on resize while open.
   useEffect(() => {
     const isClosed = !open;
+
     if (isClosed) return;
     refresh();
 
@@ -326,10 +359,12 @@ const TabOrderMap = () => {
   // (which bubble, unlike focus/blur) so we catch every change.
   useEffect(() => {
     const isClosed = !open;
+
     if (isClosed) return;
     const onFocusIn = (e: FocusEvent) => {
       const target = e.target as HTMLElement | null;
       const isMissingTarget = !target;
+
       if (isMissingTarget) {
         setFocusedStep(null);
         return;
@@ -342,6 +377,7 @@ const TabOrderMap = () => {
       requestAnimationFrame(() => {
         const active = document.activeElement as HTMLElement | null;
         const isMissingActive = !active || active === document.body;
+
         if (isMissingActive) {
           setFocusedStep(null);
         }

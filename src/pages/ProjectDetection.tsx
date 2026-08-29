@@ -260,6 +260,7 @@ const ProjectDetectionPage = () => (
             <p className="text-muted-foreground">
               Parses <code className="text-primary">CMakeLists.txt</code> <code className="text-primary">project()</code> directive
               to extract the project name. Supports <code className="text-primary">cmake-build-*</code> prefix matching
+
               for exclusion of generated build directories.
             </p>
           </CardContent>

@@ -58,6 +58,7 @@ const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 const addToRemoveQueue = (toastId: string) => {
   const isQueued = toastTimeouts.has(toastId);
+
   if (isQueued) return;
 
   const timeout = setTimeout(() => {
@@ -79,6 +80,7 @@ function dismissToasts(state: State, toastId?: string): State {
     ...state,
     toasts: state.toasts.map((t) => {
       const isTarget = t.id === toastId || toastId === undefined;
+
       if (isTarget) return { ...t, open: false };
 
       return t;
@@ -88,6 +90,7 @@ function dismissToasts(state: State, toastId?: string): State {
 
 function removeToasts(state: State, toastId?: string): State {
   const isClearAll = toastId === undefined;
+
   if (isClearAll) {
     return { ...state, toasts: [] };
   }
@@ -111,6 +114,7 @@ export const reducer = (state: State, action: Action): State => {
   }
 
   if (action.type === "DISMISS_TOAST") return dismissToasts(state, action.toastId);
+
   if (action.type === "REMOVE_TOAST") return removeToasts(state, action.toastId);
 
   return state;
@@ -136,6 +140,7 @@ function createToastItem(props: Toast, id: string, dismiss: () => void): Toaster
     open: true,
     onOpenChange: (open) => {
       const isClosed = !open;
+
       if (isClosed) dismiss();
     },
   };
@@ -160,6 +165,7 @@ function useToast() {
     return () => {
       const index = listeners.indexOf(setState);
       const isPresent = index > -1;
+
       if (isPresent) listeners.splice(index, 1);
     };
   }, [state]);

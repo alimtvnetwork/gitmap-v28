@@ -256,6 +256,7 @@ git cmd : git clone git@github.com:alimtvnetwork/macro-ahk-v12.git macro-ahk`}
             Use <code className="docs-inline-code">--ssh-key, -K &lt;name&gt;</code> to route the clone
             through a named key from <code className="docs-inline-code">gitmap ssh list</code> — gitmap sets{" "}
             <code className="docs-inline-code">GIT_SSH_COMMAND="ssh -i &lt;path&gt; -o IdentitiesOnly=yes"</code>{" "}
+
             for the duration of the clone:
           </p>
           <CodeBlock code={`gitmap cn v++ --ssh-key work`} title="Terminal" />

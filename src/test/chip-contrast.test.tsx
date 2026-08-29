@@ -58,6 +58,7 @@ function hslTokenToRgb(token: string): [number, number, number] {
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = l - c / 2;
   let r = 0, g = 0, b = 0;
+
   if (h < 60) [r, g, b] = [c, x, 0];
   else if (h < 120) [r, g, b] = [x, c, 0];
   else if (h < 180) [r, g, b] = [0, c, x];
@@ -180,6 +181,7 @@ function effectiveBg(mode: ModeType, alpha: number): [number, number, number] {
 function fgRgb(mode: ModeType, key: string): [number, number, number] {
   const tokens = mode === ModeType.Dark ? DARK_TOKENS : LIGHT_TOKENS;
   const token = (tokens as Record<string, string>)[key];
+
   if (!token) throw new Error(`Unknown token: ${key} in ${mode}`);
 
   return hslTokenToRgb(token);
@@ -241,6 +243,7 @@ describe("chip foreground-color readability (regression)", () => {
     const rules = css.match(
       /\.dark\s*\[class\*=["']bg-primary[^"']*["']\][^{]*\{[^}]*\}/g,
     ) ?? [];
+
     for (const rule of rules) {
       // Every such rule MUST require the trailing slash, otherwise it
       // would also recolor solid `bg-primary` buttons.

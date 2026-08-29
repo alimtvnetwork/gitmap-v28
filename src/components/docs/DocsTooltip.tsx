@@ -39,6 +39,7 @@ const resolveAccessibleName = (
   ariaLabel: string | undefined,
 ): string | undefined => {
   if (ariaLabel) return ariaLabel;
+
   if (typeof label === "string") return label;
 
   return undefined;
@@ -63,11 +64,15 @@ const withAccessibleName = (
   accessibleName: string | undefined,
 ): ReactNode => {
   const isMissingAccessibleName = !accessibleName;
+
   if (isMissingAccessibleName) return child;
   const isInvalid = !isValidElement(child);
+
   if (isInvalid) return child;
   const childProps = child.props as Record<string, unknown>;
+
   if (childProps[FALLBACK_WRAPPER_PROP]) return child;
+
   if (childProps["aria-label"]) return child;
 
   return cloneElement(child as ReactElement, { "aria-label": accessibleName });
@@ -83,6 +88,7 @@ const withAccessibleName = (
 // with FALLBACK_WRAPPER_PROP so withAccessibleName skips it.
 const normalizeTrigger = (child: ReactNode): ReactElement => {
   const count = Children.count(child);
+
   if (count === 1 && isValidElement(child)) return child;
 
   return (

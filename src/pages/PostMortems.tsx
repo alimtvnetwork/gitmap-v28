@@ -48,6 +48,7 @@ const PostMortemsPage = () => {
         </button>
         {allCategories.map((cat) => {
           const count = postMortems.filter((pm) => pm.category === cat).length;
+
           if (count === 0) return null;
           const config = categoryConfig[cat];
 

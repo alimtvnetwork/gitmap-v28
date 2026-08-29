@@ -27,6 +27,7 @@ const ReleaseVersionPage = () => {
   );
 
   const isInvalid = !isValid;
+
   if (isInvalid) {
     return (
       <DocsLayout>

@@ -424,6 +424,7 @@ const ReleasePage = () => {
           <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
             If a <code className="font-mono text-primary">.gitmap/release/vX.Y.Z.json</code> file exists but neither the
             Git tag nor the release branch is found, the release command detects orphaned metadata and prompts
+
             for recovery instead of failing with a duplicate error.
           </p>
 

@@ -131,7 +131,9 @@ const ScanCloneFlagsPage = () => {
 
   const filtered = useMemo(() => {
     let rows = flags;
+
     if (filter !== ScanFilterType.All) rows = rows.filter((r) => r.command === (filter as unknown as ScanCommandType));
+
     if (search) {
       const q = search.toLowerCase();
       rows = rows.filter(

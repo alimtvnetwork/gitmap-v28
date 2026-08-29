@@ -200,6 +200,7 @@ const GenericCLIPage = () => {
     fs := flag.NewFlagSet("scan", flag.ExitOnError)
     fs.StringVar(&mode, "mode", constants.ModeHTTPS, "Clone URL style")
     fs.Parse(args)
+
     if fs.NArg() > 0 {
         dir = fs.Arg(0)
     }
@@ -540,6 +541,7 @@ var global *Logger`} />
     logPath := filepath.Join(logDir, fmt.Sprintf(constants.VerboseLogFileFmt, timestamp))
 
     file, err := os.Create(logPath)
+
     if err != nil {
         return nil, err
     }
@@ -576,6 +578,7 @@ var global *Logger`} />
 
 func initVerboseLog() {
     logger, err := verbose.Init()
+
     if err != nil {
         fmt.Fprintf(os.Stderr, constants.ErrVerboseInit, err)
 
@@ -705,6 +708,7 @@ var global *Logger`} />
           <CodeBlock code={`// Begin — called before processing each item
 func (p *Progress) Begin(name string) {
     p.current++
+
     if p.quiet {
         return
     }
@@ -731,6 +735,7 @@ func (p *Progress) Done(result model.CloneResult, pulled bool) {
 // Fail — called after an item fails
 func (p *Progress) Fail(result model.CloneResult) {
     p.failed++
+
     if p.quiet {
         return
     }
@@ -784,6 +789,7 @@ Done: 24/24 (1m 12s)
         progress.Begin(repo.Name)
 
         result, err := cloneOne(repo)
+
         if err != nil {
             progress.Fail(result)
             continue
@@ -890,6 +896,7 @@ toolname exec -g backend log --oneline -5   # Group subset`} />
           <CodeBlock code={`func runExec(args []string) {
     checkHelp("exec", args)
     groupName, all, gitArgs := parseExecFlags(args)
+
     if len(gitArgs) == 0 {
         fmt.Fprintln(os.Stderr, constants.ErrExecUsage)
         os.Exit(1)
@@ -922,6 +929,7 @@ toolname exec -g backend log --oneline -5   # Group subset`} />
           <H3>Three Outcomes Per Repo</H3>
           <CodeBlock code={`func execOneRepo(rec model.ScanRecord, gitArgs []string) (int, int, int) {
     _, err := os.Stat(rec.AbsolutePath)
+
     if err == nil && execInRepo(rec, gitArgs) {
         return 1, 0, 0    // succeeded
     }
@@ -1067,6 +1075,7 @@ complete -F _toolname_completions toolname`} />
           <H3>Install Logic</H3>
           <CodeBlock code={`func Install(shell string) error {
     script, err := Generate(shell)
+
     if err != nil {
         return err
     }
@@ -1079,6 +1088,7 @@ complete -F _toolname_completions toolname`} />
 func addSourceLine(scriptPath, profilePath, shell string) error {
     sourceLine := buildSourceLine(scriptPath, shell)
     existing, _ := os.ReadFile(profilePath)
+
     if strings.Contains(string(existing), sourceLine) {
         return nil  // already installed
     }
