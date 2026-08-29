@@ -69,7 +69,10 @@ export function useTheme(): UseThemeResult {
     const handleSystemChange = (event: MediaQueryListEvent) => {
       // Only follow the OS when the user hasn't explicitly chosen a theme.
       const checkRes = queryWrapperSync(() => localStorage.getItem(THEME_STORAGE_KEY));
-      if (check!res.isFail && checkRes.data) return;
+      const hasUserPreference = checkRes.isSuccess && Boolean(checkRes.data);
+      if (hasUserPreference) {
+        return;
+      }
 
       const next: ThemeType = event.matches ? ThemeType.Light : ThemeType.Dark;
       setThemeState(next);
