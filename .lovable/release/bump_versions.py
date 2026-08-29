@@ -74,9 +74,15 @@ def update_readme_md(current: str, new_version: str):
     content = content.replace(current, new_version)
 
     # Clean any legacy pin blocks
+    repl_text = (
+        f'### 📌 Pinned version (v{new_version})\n\n'
+        f'To pin your repository to this exact version, run the following one-liner:\n'
+        f'**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.sh | bash -s -- ".lovable/prompts" "v{new_version}"`\n'
+        f'**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".lovable/prompts" -Version "v{new_version}"`'
+    )
     content = re.sub(
         r'### 📌 Pinned version \(v[^\)]+\)\s*\n\s*To pin your repository to this exact version, run the following one-liner:\s*\n\s*\*\*Unix/Bash:\*\*[^\n]+\n\s*\*\*PowerShell:\*\*[^\n]+',
-        f'### 📌 Pinned version (v{new_version})\n\nTo pin your repository to this exact version, run the following one-liner:\n**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.sh | bash -s -- ".lovable/prompts" "v{new_version}"`\n**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".lovable/prompts" -Version "v{new_version}"`',
+        lambda m: repl_text,
         content
     )
 
