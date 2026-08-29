@@ -8,7 +8,7 @@
 - [19-bump-script-unicode-and-regex-corruption.md](19-bump-script-unicode-and-regex-corruption.md): Fixed UnicodeDecodeError in python script and greedy regex corruption of readme.md.
 
 - [19-ci-gitmap-open-error-refactor.md](19-ci-gitmap-open-error-refactor.md): Fixed Python cp1252 decode errors, completed mass AST refactoring of 80+ commands to return typed errors instead of os.Exit(1), and implemented gitmap open cross-platform.
-- [20-cicd-four-headed-hydra.md](./20-cicd-four-headed-hydra.md): Fix for env platform return types, gofmt, lint script key errors, and legacy gitmap-v6 markdown references.
+- [20-cicd-four-headed-hydra.md](./20-cicd-four-headed-hydra.md): Fix for env platform return types, gofmt, lint script key errors, and legacy gitmap-v6 markdown references. <!-- gitmap-legacy-ref-allow -->
 - [21-go-generate-drift.md](./21-go-generate-drift.md): Fix generated files drift caused by modified CLI constants.
 - [22-go-mod-bump-linter-break.md](./22-go-mod-bump-linter-break.md): Fix go.mod version bump causing typecheck failures in pinned linter.
 - [23-linter-guideline-conflict.md](./23-linter-guideline-conflict.md): Linter guideline conflict resolution and explicit boolean rule protection.
@@ -16,3 +16,4 @@
 - [25-go-125-dependency-linter-break.md](./25-go-125-dependency-linter-break.md): Revert go.mod and golang.org/x/* dependencies to Go 1.24 compatibility to fix CI typecheck crash.
 - [26-go-125-gofmt-and-goimports-drift.md](./26-go-125-gofmt-and-goimports-drift.md): Fix Go 1.25 gofmt and goimports drift across all repository packages.
 - [27-installctx-e2e-with-explain-type-mismatch.md](./27-installctx-e2e-with-explain-type-mismatch.md): Fix runInstallCtxMac and runInstallCtxLinux type mismatch in withExplain cross-platform test suites.
+- [28-legacy-refs-bare-err-and-lint-keyerror.md](./28-legacy-refs-bare-err-and-lint-keyerror.md): Fix legacy refs whitelist in issue notes, bare stderr prints in cmd, and is_fail KeyError in lint scripts.

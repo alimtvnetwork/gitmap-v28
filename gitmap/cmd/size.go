@@ -10,6 +10,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 type repoSize struct {
@@ -31,8 +33,7 @@ func runSize(args []string) error {
 	}
 	fmtKind, err := parseHygieneFormat(*format)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
+		cliexit.Fail("size", "parse-format", *format, err, 2)
 	}
 	repos := scanForReposParallel(*root)
 	sizes := mapReposParallel(repos, func(r string) (repoSize, bool) {

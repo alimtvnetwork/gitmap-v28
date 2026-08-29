@@ -20,4 +20,7 @@ Strictly avoid using flash model for high concurrency batches that exceed rate l
 - NEVER add or modify CLI constants, shell commands, or help text without subsequently running go generate ./... in the gitmap directory to prevent generated file drift.
 - NEVER blindly commit a dirty working tree without verifying git status/diff, to avoid reverting previous linter fixes.
 - NEVER use British English spelling (e.g., `behaviour`, `recognise`) in the codebase; use US English to pass the misspell linter.
+- NEVER write bare `fmt.Fprintln(os.Stderr, err)` in `gitmap/cmd/`; always use `cliexit.Reportf` or `cliexit.Fail`.
+- NEVER access dictionary keys with direct index `res["is_failure"]` when consuming `query_wrapper` output; always use `res.get("is_fail")`.
+- ALWAYS annotate historical mentions of legacy version names with `<!-- gitmap-legacy-ref-allow -->` to prevent policy check scan triggers.
 
