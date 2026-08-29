@@ -25,6 +25,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 12 | Query Wrapper Property Mismatch & E2E Typos | Audit / Test Matrix | ✅ Resolved | [12-query-wrapper-isfail-typo.md](cicd-issues/12-query-wrapper-isfail-typo.md) |
 | 32 | Panic on Zero-Args & Legacy Exit Refactor | CLI Runtime / Unit Tests | ✅ Resolved | [32-root-cli-panic-on-zero-args.md](cicd-issues/32-root-cli-panic-on-zero-args.md) |
 | 33 | Gocritic appendAssign Diff Failure & Unused Helpers | CI Diff Gate / golangci-lint | ✅ Resolved | [33-gocritic-appendassign-diff.md](cicd-issues/33-gocritic-appendassign-diff.md) |
+| 34 | Gocritic ifElseChain Diff Failure & Switch Refactor | CI Diff Gate / golangci-lint | ✅ Resolved | [34-gocritic-ifelsechain-diff.md](cicd-issues/34-gocritic-ifelsechain-diff.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labelled`, `cancelled`, `behaviour`, `colour`, `occured`, `recieve`, `seperate`.

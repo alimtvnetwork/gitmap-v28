@@ -66,11 +66,12 @@ func parseExceptList(val string) []string {
 }
 
 func assignPositional(arg string, opts *lowercaseOptions, dirs *[]string) {
-	if opts.Source == "" {
+	switch {
+	case opts.Source == "":
 		opts.Source = arg
-	} else if opts.Target == "" {
+	case opts.Target == "":
 		opts.Target = arg
-	} else {
+	default:
 		*dirs = append(*dirs, arg)
 	}
 }
@@ -212,16 +213,17 @@ func parseFixSeqArgs(args []string) (fixSeqOpts, []string) {
 
 func handleFixSeqArg(args []string, i int, opts *fixSeqOpts, dirs *[]string) int {
 	arg := args[i]
-	if arg == "-orderbytime" {
+	switch {
+	case arg == "-orderbytime":
 		opts.IsOrderByTime = true
-	} else if arg == "-orderbyaz" {
+	case arg == "-orderbyaz":
 		opts.IsOrderByAZ = true
-	} else if arg == "-keep-old-order" {
+	case arg == "-keep-old-order":
 		opts.IsKeepOldOrder = true
-	} else if arg == "-pin" && i+1 < len(args) {
+	case arg == "-pin" && i+1 < len(args):
 		parsePinMap(args[i+1], opts.PinMap)
 		return i + 1
-	} else if !strings.HasPrefix(arg, "-") {
+	case !strings.HasPrefix(arg, "-"):
 		*dirs = append(*dirs, arg)
 	}
 	return i

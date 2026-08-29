@@ -68,11 +68,12 @@ func (m *releasesModel) handleNavKey(msg tea.KeyMsg, max int) {
 }
 
 func (m releasesModel) handleKey(msg tea.KeyMsg) releasesModel {
-	if msg.String() == "n" {
+	switch {
+	case msg.String() == "n":
 		m.trigger.active = true
-	} else if keys.refresh(msg) && m.db != nil {
+	case keys.refresh(msg) && m.db != nil:
 		m.releases, _ = m.db.ListReleases()
-	} else {
+	default:
 		m.handleNavKey(msg, len(m.releases)-1)
 	}
 

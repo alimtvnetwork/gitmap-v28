@@ -21,13 +21,12 @@ func executeOSCommand(op string, cmd *exec.Cmd) {
 
 // runScheduleRestart runs native OS restart.
 func runScheduleRestart() error {
-	isWindows := runtime.GOOS == "windows"
-	isMac := runtime.GOOS == "darwin"
-	if isWindows {
+	switch runtime.GOOS {
+	case "windows":
 		executeOSCommand("restart", exec.Command("shutdown", "/r", "/t", "0"))
-	} else if isMac {
+	case "darwin":
 		executeOSCommand("restart", exec.Command("sudo", "shutdown", "-r", "now"))
-	} else {
+	default:
 		executeOSCommand("restart", exec.Command("sudo", "reboot"))
 	}
 	return nil
@@ -35,13 +34,12 @@ func runScheduleRestart() error {
 
 // runScheduleShutdown runs native OS shutdown.
 func runScheduleShutdown() error {
-	isWindows := runtime.GOOS == "windows"
-	isMac := runtime.GOOS == "darwin"
-	if isWindows {
+	switch runtime.GOOS {
+	case "windows":
 		executeOSCommand("shutdown", exec.Command("shutdown", "/s", "/t", "0"))
-	} else if isMac {
+	case "darwin":
 		executeOSCommand("shutdown", exec.Command("sudo", "shutdown", "-h", "now"))
-	} else {
+	default:
 		executeOSCommand("shutdown", exec.Command("sudo", "poweroff"))
 	}
 	return nil

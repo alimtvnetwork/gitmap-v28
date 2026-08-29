@@ -21,13 +21,14 @@ func runSchedule(args []string) error {
 }
 
 func dispatchSchedule(commandName string, args []string) {
-	if commandName == "status" {
+	switch commandName {
+	case "status":
 		runScheduleStatus()
-	} else if commandName == "restart" {
+	case "restart":
 		runScheduleRestart()
-	} else if commandName == "shutdown" {
+	case "shutdown":
 		runScheduleShutdown()
-	} else {
+	default:
 		runScheduleAdd(args)
 	}
 }
@@ -50,11 +51,12 @@ func runScheduleStatus() error {
 func parseScheduleArgs(args []string) (string, string, string) {
 	var name, interval, delay string
 	for i := 0; i < len(args); i++ {
-		if args[i] == "--interval" && i+1 < len(args) {
+		switch {
+		case args[i] == "--interval" && i+1 < len(args):
 			interval, i = args[i+1], i+1
-		} else if args[i] == "--delay" && i+1 < len(args) {
+		case args[i] == "--delay" && i+1 < len(args):
 			delay, i = args[i+1], i+1
-		} else if !strings.HasPrefix(args[i], "--") && name == "" {
+		case !strings.HasPrefix(args[i], "--") && name == "":
 			name = args[i]
 		}
 	}

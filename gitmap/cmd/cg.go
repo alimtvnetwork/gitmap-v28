@@ -123,11 +123,12 @@ func runCGUpdateAction(repos []string) {
 func resolveCGRepos(opts cgOptions) []string {
 	var targetRepos []string
 
-	if opts.All {
+	switch {
+	case opts.All:
 		targetRepos = resolveAllCGRepos()
-	} else if len(opts.Repos) > 0 {
+	case len(opts.Repos) > 0:
 		targetRepos = ResolveAllCGTargets(opts.Repos)
-	} else {
+	default:
 		targetRepos = resolveCurrentDirCGRepos()
 	}
 

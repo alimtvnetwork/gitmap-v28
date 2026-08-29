@@ -18,12 +18,13 @@ func parseWorkDirFlags(args []string) workDirOptions {
 
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if (a == "--label" || a == "-l" || a == "-label") && i+1 < len(args) {
+		switch {
+		case (a == "--label" || a == "-l" || a == "-label") && i+1 < len(args):
 			opts.Label = args[i+1]
 			i++
-		} else if strings.HasPrefix(a, "--label=") {
+		case strings.HasPrefix(a, "--label="):
 			opts.Label = strings.TrimPrefix(a, "--label=")
-		} else {
+		default:
 			cleanArgs = append(cleanArgs, a)
 		}
 	}

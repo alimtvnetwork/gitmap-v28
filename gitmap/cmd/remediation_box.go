@@ -46,11 +46,12 @@ func PrintRemediationBox(repoName, repoPath string, d gitutil.DirtyDiagnosis) {
 	for i, rec := range recipes {
 		// Rewrite the output to recommend the gitmap fix command
 		alias := ""
-		if i == 0 {
+		switch i {
+		case 0:
 			alias = "stash"
-		} else if i == 1 {
+		case 1:
 			alias = "wip"
-		} else if i == 2 {
+		case 2:
 			alias = "discard"
 		}
 

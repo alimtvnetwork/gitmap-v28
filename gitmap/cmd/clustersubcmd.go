@@ -38,7 +38,8 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			return fmt.Errorf("missing proj sub-command")
 		}
 
-		if isGit {
+		switch cmdToken {
+		case "git":
 			subToken := strings.ToLower(currentTokens[1])
 			switch subToken {
 			case "pull":
@@ -53,7 +54,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 				return fmt.Errorf("unknown git sub-command: %s", subToken)
 			}
 			rawArgParts = currentTokens[2:]
-		} else if isProj {
+		case "proj":
 			subToken := strings.ToLower(currentTokens[1])
 			switch subToken {
 			case "run":
@@ -64,24 +65,26 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 				return fmt.Errorf("unknown proj sub-command: %s", subToken)
 			}
 			rawArgParts = currentTokens[2:]
-		} else {
-			switch cmdToken {
-			case "ps":
-				kind = db.CommandKindPsCommand
-			case "cmd":
-				kind = db.CommandKindCmdCommand
-			case "install":
-				kind = db.CommandKindInstall
-			case "restart":
-				kind = db.CommandKindRestart
-			case "shutdown":
-				kind = db.CommandKindShutdown
-			case "logoff":
-				kind = db.CommandKindLogoff
-			default:
-				return fmt.Errorf("unknown sub-command token: %s", cmdToken)
-			}
+		case "ps":
+			kind = db.CommandKindPsCommand
 			rawArgParts = currentTokens[1:]
+		case "cmd":
+			kind = db.CommandKindCmdCommand
+			rawArgParts = currentTokens[1:]
+		case "install":
+			kind = db.CommandKindInstall
+			rawArgParts = currentTokens[1:]
+		case "restart":
+			kind = db.CommandKindRestart
+			rawArgParts = currentTokens[1:]
+		case "shutdown":
+			kind = db.CommandKindShutdown
+			rawArgParts = currentTokens[1:]
+		case "logoff":
+			kind = db.CommandKindLogoff
+			rawArgParts = currentTokens[1:]
+		default:
+			return fmt.Errorf("unknown sub-command token: %s", cmdToken)
 		}
 
 		subCmds = append(subCmds, cluster.ClusterSubCommand{

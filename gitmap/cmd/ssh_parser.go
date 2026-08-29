@@ -31,10 +31,11 @@ func ParseSSHTarget(raw string, defaultUser string, defaultPort int) (*SSHTarget
 	parts := strings.Split(raw, "@")
 	var user, ip string
 
-	if len(parts) == 1 {
+	switch len(parts) {
+	case 1:
 		user = defaultUser
 		ip = parts[0]
-	} else if len(parts) == 2 {
+	case 2:
 		p1, p2 := parts[0], parts[1]
 		if net.ParseIP(p1) != nil && net.ParseIP(p2) == nil {
 			ip = p1
@@ -43,7 +44,7 @@ func ParseSSHTarget(raw string, defaultUser string, defaultPort int) (*SSHTarget
 			user = p1
 			ip = p2
 		}
-	} else {
+	default:
 		return nil, &apperror.AppError{
 			Op:    "ParseSSHTarget",
 			Code:  "E_INTERNAL_ERROR",
