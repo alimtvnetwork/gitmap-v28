@@ -124,23 +124,26 @@ def main():
 
     all_passed = True
     results = []
+    batch_size = 3
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = {}
-        for name, fn, cmd, cwd in checks:
-            if fn is not None:
-                futures[executor.submit(fn)] = name
-            else:
-                futures[executor.submit(run_cmd, name, cmd, cwd)] = name
+    for i in range(0, len(checks), batch_size):
+        batch = checks[i : i + batch_size]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=batch_size) as executor:
+            futures = {}
+            for name, fn, cmd, cwd in batch:
+                if fn is not None:
+                    futures[executor.submit(fn)] = name
+                else:
+                    futures[executor.submit(run_cmd, name, cmd, cwd)] = name
 
-        for future in concurrent.futures.as_completed(futures):
-            name = futures[future]
-            res = future.result()
-            passed = res[0]
-            output = res[1]
-            if not passed:
-                all_passed = False
-            results.append((name, passed, output))
+            for future in concurrent.futures.as_completed(futures):
+                name = futures[future]
+                res = future.result()
+                passed = res[0]
+                output = res[1]
+                if not passed:
+                    all_passed = False
+                results.append((name, passed, output))
 
     for name, passed, output in sorted(results, key=lambda x: x[0]):
         status = "✅ PASS" if passed else "❌ FAIL"
