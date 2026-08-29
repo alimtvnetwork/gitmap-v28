@@ -17,7 +17,7 @@ set -euo pipefail
 
 MODE="${1:-source}"
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-EXPECTED="${EXPECTED:-$(awk -F'"' '/^const Version/ {print $2}' "$REPO_ROOT/gitmap/constants/constants.go")}"
+EXPECTED="${EXPECTED:-$(grep -E '^(var|const) Version\b' "$REPO_ROOT/gitmap/constants/constants.go" | head -1 | sed -E 's/.*"([^"]+)".*/\1/')}"
 EXPECTED="${EXPECTED#v}"
 
 load_deploy_manifest() {
