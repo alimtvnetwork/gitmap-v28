@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 type staleRepo struct {
@@ -34,8 +36,7 @@ func runStale(args []string) error {
 	}
 	fmtKind, err := parseHygieneFormat(*format)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
+		cliexit.Fail("stale", "parse-format", *format, err, 2)
 	}
 	repos := scanForReposParallel(*root)
 	cutoff := time.Now().AddDate(0, 0, -*days)

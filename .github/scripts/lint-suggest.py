@@ -124,7 +124,7 @@ def load_findings(path: str) -> set[Finding]:
             return json.load(fh)
 
     res = query_wrapper(_read_json)
-    if res["is_failure"]:
+    if res.get("is_fail") or res.get("is_failure"):
         return set()
 
     data = res["data"]

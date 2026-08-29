@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -28,8 +29,7 @@ func runVisibilityHistory(args []string) error {
 	db := openDBOrExit(constants.CmdVisibilityHistory)
 	runs, err := loadHistoryRuns(db, limit, filters)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(constants.ExitVisAuthFailed)
+		cliexit.Fail(constants.CmdVisibilityHistory, "load-runs", "", err, constants.ExitVisAuthFailed)
 	}
 	runs = applyHistoryFilters(runs, filters, time.Now())
 	if len(runs) == 0 {

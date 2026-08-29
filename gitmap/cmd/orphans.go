@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 type orphanRepo struct {
@@ -32,8 +34,7 @@ func runOrphans(args []string) error {
 	}
 	fmtKind, err := parseHygieneFormat(*format)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
+		cliexit.Fail("orphans", "parse-format", *format, err, 2)
 	}
 	repos := scanForReposParallel(*root)
 	orphans := mapReposParallel(repos, func(r string) (orphanRepo, bool) {

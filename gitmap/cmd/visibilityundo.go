@@ -16,6 +16,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -58,8 +59,7 @@ func loadReversible(runID int64, kind, notFoundMsg string) (model.MakeAllVisibil
 	run := pickReversibleRun(db, runID, kind, notFoundMsg)
 	results, err := db.SelectUndoableResultsForRun(run.ID)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(constants.ExitVisAuthFailed)
+		cliexit.Fail("visibility-undo", "load-results", fmt.Sprintf("id=%d", run.ID), err, constants.ExitVisAuthFailed)
 	}
 
 	return run, results
@@ -78,8 +78,7 @@ func pickReversibleRun(db *store.DB, runID int64, kind, notFoundMsg string) mode
 func mustLoadRunByID(db *store.DB, id int64) model.MakeAllVisibilityRunRecord {
 	run, err := db.SelectMakeAllVisibilityRunByID(id)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(constants.ExitVisAuthFailed)
+		cliexit.Fail("visibility-undo", "load-run", fmt.Sprintf("id=%d", id), err, constants.ExitVisAuthFailed)
 	}
 	if run.ID == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrUndoRunNotFoundFmt, id)
@@ -101,8 +100,7 @@ func mustLoadLatestRun(db *store.DB, kind, notFoundMsg string) model.MakeAllVisi
 		run, err = db.SelectLatestMakeAllVisibilityRunByKind(kind)
 	}
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(constants.ExitVisAuthFailed)
+		cliexit.Fail("visibility-undo", "load-latest-run", kind, err, constants.ExitVisAuthFailed)
 	}
 	if run.ID == 0 {
 		fmt.Fprintln(os.Stderr, notFoundMsg)
