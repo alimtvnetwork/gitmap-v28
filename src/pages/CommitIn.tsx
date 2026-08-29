@@ -197,7 +197,6 @@ gitmap cin       <source> -5                     [flags]`} />
         </p>
       </section>
 
-
       <section>
         <h2 className="text-xl font-semibold mb-3">Exit Codes</h2>
         <div className="overflow-x-auto">

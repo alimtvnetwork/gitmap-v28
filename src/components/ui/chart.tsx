@@ -36,6 +36,7 @@ const ChartContainer = React.forwardRef<
     config: ChartConfig;
     children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
   }
+
 >(({ id, className, children, config, ...props }, ref) => {
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
@@ -69,10 +70,12 @@ ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
+
     return color ? `  --color-${key}: ${color};` : null;
   })
   .join("\n")}
 }
+
 `;
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
@@ -108,6 +111,7 @@ const ChartTooltipContent = React.forwardRef<
       nameKey?: string;
       labelKey?: string;
     }
+
 >(
   (
     {
@@ -209,6 +213,7 @@ const ChartTooltipContent = React.forwardRef<
                               "--color-border": indicatorColor,
                             } as React.CSSProperties
                           }
+
                         />
                       )
                     )}
@@ -249,6 +254,7 @@ const ChartLegendContent = React.forwardRef<
       hideIcon?: boolean;
       nameKey?: string;
     }
+
 >(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
   const { config } = useChart();
   const hasPayload = Boolean(payload?.length);
@@ -297,6 +303,7 @@ function extractConfigKey(payload: unknown, key: string): string {
   if (key in payload && typeof (payload as Record<string, unknown>)[key] === "string") {
     return (payload as Record<string, unknown>)[key] as string;
   }
+
   const payloadPayload =
     "payload" in payload && typeof (payload as Record<string, unknown>).payload === "object" && (payload as Record<string, unknown>).payload !== null
       ? ((payload as Record<string, unknown>).payload as Record<string, unknown>)
@@ -304,6 +311,7 @@ function extractConfigKey(payload: unknown, key: string): string {
   if (payloadPayload && key in payloadPayload && typeof payloadPayload[key] === "string") {
     return payloadPayload[key] as string;
   }
+
   return key;
 }
 
@@ -312,7 +320,9 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
   if (typeof payload !== "object" || payload === null) {
     return undefined;
   }
+
   const configLabelKey = extractConfigKey(payload, key);
+
   return configLabelKey in config ? config[configLabelKey] : config[key as keyof typeof config];
 }
 

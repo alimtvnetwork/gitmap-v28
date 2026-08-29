@@ -14,6 +14,7 @@ export enum StatusType {
   Shipped = "shipped",
   Planned = "planned",
 }
+
 export type Status = StatusType;
 
 interface HelpEntry {
@@ -176,6 +177,7 @@ const HelpIndexPage = () => {
       <div className="space-y-10">
         {sections.map((section) => {
           const Icon = section.icon;
+
           return (
             <section key={section.id} id={section.id}>
               <div className="flex items-center gap-3 mb-2">

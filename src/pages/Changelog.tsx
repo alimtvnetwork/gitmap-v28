@@ -45,6 +45,7 @@ const ChangelogPage = () => {
     setExpandedVersions((prev) => {
       const next = new Set(prev);
       next.has(version) ? next.delete(version) : next.add(version);
+
       return next;
     });
   };
@@ -53,6 +54,7 @@ const ChangelogPage = () => {
     setActiveTags((prev) => {
       const next = new Set(prev);
       next.has(tag) ? next.delete(tag) : next.add(tag);
+
       return next;
     });
 
@@ -61,6 +63,7 @@ const ChangelogPage = () => {
 
   const filteredChangelog = useMemo(() => {
     if (activeTags.size === 0) return changelog;
+
     return changelog
       .map((entry) => ({
         ...entry,
@@ -116,6 +119,7 @@ const ChangelogPage = () => {
         <span className="text-xs font-mono text-muted-foreground mr-1">Filter:</span>
         {TAG_ORDER.map((tag) => {
           const active = activeTags.has(tag);
+
           return (
             <button
               key={tag}

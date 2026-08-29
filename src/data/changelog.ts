@@ -19,7 +19,6 @@ export const changelog: ChangelogEntry[] = [
     ],
   },
   {
-
     version: "v6.0.0",
     date: "2026-05-26",
     subtitle: "Breaking: `commit-transfer` merge default flips to `true`",

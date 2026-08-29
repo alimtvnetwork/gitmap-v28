@@ -97,6 +97,7 @@ export enum FontSizeDirectionType {
   Up = "up",
   Down = "down",
 }
+
 export type FontSizeDirection = FontSizeDirectionType;
 
 function processHtmlLine(line: string, openSpans: string[]): string {
@@ -107,6 +108,7 @@ function processHtmlLine(line: string, openSpans: string[]): string {
   for (const o of opens) openSpans.push(o);
   for (let i = 0; i < closes.length; i++) openSpans.pop();
   const suffix = "</span>".repeat(openSpans.length);
+
   return full + suffix;
 }
 
@@ -116,6 +118,7 @@ function splitHighlightedHtml(html: string): string[] {
   for (const line of html.split("\n")) {
     result.push(processHtmlLine(line, openSpans));
   }
+
   return result;
 }
 
@@ -123,16 +126,19 @@ function getHighlightedHtml(code: string, lang: string): string | null {
   const res = queryWrapperSync(() => {
     const hasLanguage = Boolean(hljs.getLanguage(lang));
     if (!hasLanguage) return null;
+
     return hljs.highlight(code, { language: lang }).value;
   });
   const isHighlighted = Boolean(!res.isFail && res.data);
   if (!isHighlighted) return null;
+
   return res.data;
 }
 
 function addPinRange(set: Set<number>, start: number, end: number): Set<number> {
   const next = new Set(set);
   for (let i = start; i <= end; i++) next.add(i);
+
   return next;
 }
 
@@ -141,15 +147,19 @@ function togglePinItem(set: Set<number>, lineIndex: number): Set<number> {
   const isAlreadyPinned = next.has(lineIndex);
   if (isAlreadyPinned) {
     next.delete(lineIndex);
+
     return next;
   }
+
   next.add(lineIndex);
+
   return next;
 }
 
 function getPinnedOrAllText(code: string, pinnedLines: Set<number>, hasPinned: boolean): string {
   if (!hasPinned) return code;
   const allLines = code.split("\n");
+
   return Array.from(pinnedLines)
     .sort((a, b) => a - b)
     .map((i) => allLines[i])
@@ -171,6 +181,7 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
     setFontSizeIdx((prev) => {
       const isUp = direction === FontSizeDirectionType.Up;
       if (isUp) return Math.min(prev + 1, FONT_SIZES.length - 1);
+
       return Math.max(prev - 1, 0);
     });
   }, []);
@@ -185,6 +196,7 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
       if (isRangeSelect) {
         return addPinRange(prev, Math.min(lastPinned!, lineIndex), Math.max(lastPinned!, lineIndex));
       }
+
       return togglePinItem(prev, lineIndex);
     });
     setLastPinned(lineIndex);
@@ -217,6 +229,7 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
     const html = getHighlightedHtml(code, language.toLowerCase());
     const hasHtml = Boolean(html);
     if (!hasHtml) return null;
+
     return splitHighlightedHtml(html!);
   }, [code, language]);
 
@@ -379,5 +392,3 @@ const CodeBlock = ({ code, language = "bash", title }: CodeBlockProps) => {
 };
 
 export default CodeBlock;
-
-

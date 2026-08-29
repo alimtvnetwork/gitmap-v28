@@ -72,17 +72,20 @@ const ProjectsPage = () => {
 
       return project.projectName.toLowerCase().includes(searchLower) || project.repoName.toLowerCase().includes(searchLower) || project.absolutePath.toLowerCase().includes(searchLower);
     }
+
     return true;
   });
 
   const grouped = filtered.reduce<Record<string, DetectedProject[]>>((acc, p) => {
     acc[p.repoName] = acc[p.repoName] || [];
     acc[p.repoName].push(p);
+
     return acc;
   }, {});
 
   const typeCounts = SAMPLE_PROJECTS.reduce<Record<string, number>>((acc, p) => {
     acc[p.projectType] = (acc[p.projectType] || 0) + 1;
+
     return acc;
   }, {});
 

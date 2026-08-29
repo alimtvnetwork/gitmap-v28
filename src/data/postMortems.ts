@@ -6,6 +6,7 @@ export enum PostMortemCategoryType {
   Migration = "migration",
   General = "general",
 }
+
 export type PostMortemCategory = PostMortemCategoryType;
 
 export interface PostMortemEntry {

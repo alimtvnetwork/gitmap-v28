@@ -53,6 +53,7 @@ const SidebarProvider = React.forwardRef<
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
   }
+
 >(({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }, ref) => {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
@@ -91,6 +92,7 @@ const SidebarProvider = React.forwardRef<
     };
 
     window.addEventListener("keydown", handleKeyDown);
+
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleSidebar]);
 
@@ -122,6 +124,7 @@ const SidebarProvider = React.forwardRef<
               ...style,
             } as React.CSSProperties
           }
+
           className={cn("group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar", className)}
           ref={ref}
           {...props}
@@ -158,6 +161,7 @@ const Sidebar = React.forwardRef<
     variant?: SidebarVariantType | undefined;
     collapsible?: SidebarCollapsibleType | undefined;
   }
+
 >(({ side = SidebarSideType.Left, variant = SidebarVariantType.Sidebar, collapsible = SidebarCollapsibleType.Offcanvas, className, children, ...props }, ref) => {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
 
@@ -185,6 +189,7 @@ const Sidebar = React.forwardRef<
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
             } as React.CSSProperties
           }
+
           side={side}
         >
           <div className="flex h-full w-full flex-col">{children}</div>
@@ -504,6 +509,7 @@ const SidebarMenuAction = React.forwardRef<
     asChild?: boolean;
     showOnHover?: boolean;
   }
+
 >(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button";
 
@@ -554,6 +560,7 @@ const SidebarMenuSkeleton = React.forwardRef<
   React.ComponentProps<"div"> & {
     showIcon?: boolean;
   }
+
 >(({ className, showIcon = false, ...props }, ref) => {
   // Random width between 50 to 90%.
   const width = React.useMemo(() => {
@@ -576,6 +583,7 @@ const SidebarMenuSkeleton = React.forwardRef<
             "--skeleton-width": width,
           } as React.CSSProperties
         }
+
       />
     </div>
   );
@@ -615,6 +623,7 @@ const SidebarMenuSubButton = React.forwardRef<
     size?: SidebarMenuSubButtonSizeType | undefined;
     isActive?: boolean;
   }
+
 >(({ asChild = false, size = SidebarMenuSubButtonSizeType.Md, isActive, className, ...props }, ref) => {
   const Comp = asChild ? Slot : "a";
 

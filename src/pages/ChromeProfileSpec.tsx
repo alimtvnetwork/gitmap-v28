@@ -34,6 +34,7 @@ export enum SortKeyType {
   LastSeen = "lastSeen",
   Exports = "exports",
 }
+
 export type SortKey = SortKeyType;
 
 const ChromeProfileSpec = () => {
@@ -47,9 +48,11 @@ const ChromeProfileSpec = () => {
     const rows = sampleRows.filter(
       (r) => r.exports >= min && (q === "" || r.name.toLowerCase().includes(q)),
     );
+
     return [...rows].sort((a, b) => {
       if (sortKey === SortKeyType.Name) return a.name.localeCompare(b.name);
       if (sortKey === SortKeyType.Exports) return b.exports - a.exports;
+
       return b.lastSeen.localeCompare(a.lastSeen);
     });
   }, [query, sortKey, minExports]);

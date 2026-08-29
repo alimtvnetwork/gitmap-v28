@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""02-guideline-autofixer.py - Automatically formats code to comply with Return New Line (R13-R16) and styling guidelines."""
+"""02-guideline-autofixer.py - Automatically formats code to comply with Return New Line (R13-R16), Blank Line before if/control structures, and styling guidelines."""
 import os
 import re
 import sys
@@ -16,7 +16,7 @@ EXCLUDE_DIRS = {'.git', 'node_modules', 'dist', 'build', '.next', '.gitmap', 've
 
 
 def is_return_needing_newline(stripped: str, prev: str) -> bool:
-    is_return = stripped.startswith('return ') or stripped == 'return'
+    is_return = stripped.startswith('return ') or stripped == 'return' or stripped.startswith('throw ')
     if not is_return:
         return False
     if prev == '':
@@ -40,6 +40,19 @@ def is_brace_needing_newline(prev_line: str, stripped: str, out_len: int, out_li
     return True
 
 
+def is_control_needing_newline(stripped: str, prev: str) -> bool:
+    is_ctrl = stripped.startswith(('if ', 'if(', 'for ', 'for(', 'switch ', 'switch(', 'while ', 'while('))
+    if not is_ctrl:
+        return False
+    if prev == '':
+        return False
+    if prev.endswith(('{', ':', '//', '/*', '*')):
+        return False
+    if prev == '}':
+        return False
+    return True
+
+
 def autofix_newlines(content: str) -> str:
     lines = content.split('\n')
     out = []
@@ -55,13 +68,20 @@ def autofix_newlines(content: str) -> str:
         if stripped == '' and out and out[-1].strip().endswith('{'):
             continue
 
-        # Rule 3: Blank line required before return
         prev = out[-1].strip() if out else ''
+
+        # Rule 3: Blank line required before return/throw
         if is_return_needing_newline(stripped, prev):
             out.append('')
+            prev = ''
 
         # Rule 4: Blank line required after '}' if followed by more code
         if is_brace_needing_newline(prev, stripped, len(out), out):
+            out.append('')
+            prev = ''
+
+        # Rule 5: Blank line required before if / control structures
+        if is_control_needing_newline(stripped, prev):
             out.append('')
 
         out.append(line)

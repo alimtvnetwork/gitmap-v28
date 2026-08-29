@@ -21,12 +21,14 @@ function colorForLine(type?: TerminalLineType): string {
   if (isHeader) return "text-primary font-bold";
   const isAccent = type === TerminalLineType.Accent;
   if (isAccent) return "text-primary";
+
   return "text-[hsl(var(--foreground))]/70";
 }
 
 function getLineDelay(line?: TerminalLine): number {
   const isInput = line?.type === TerminalLineType.Input;
   const defaultDelay = isInput ? TERMINAL_INPUT_DELAY : TERMINAL_OUTPUT_DELAY;
+
   return line?.delay ?? defaultDelay;
 }
 
@@ -50,6 +52,7 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
   useEffect(() => {
     const shouldAutoPlay = autoPlay === true;
     if (shouldAutoPlay) play();
+
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
@@ -109,5 +112,3 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
 };
 
 export default TerminalDemo;
-
-

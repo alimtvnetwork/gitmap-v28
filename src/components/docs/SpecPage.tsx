@@ -57,6 +57,7 @@ const SpecPage = ({ title, subtitle, sourcePath, markdown, relatedLinks }: SpecP
             code: ({ className, children, ...props }) => {
               const isInline = !className;
               if (isInline) return <code className="docs-inline-code">{children}</code>;
+
               return (
                 <code className={`${className ?? ""} font-mono text-xs`} {...props}>
                   {children}
@@ -79,6 +80,7 @@ const SpecPage = ({ title, subtitle, sourcePath, markdown, relatedLinks }: SpecP
             a: ({ href, children }) => {
               const internal = href?.startsWith("/") ?? false;
               if (internal) return <Link to={href!} className="text-primary hover:underline">{children}</Link>;
+
               return (
                 <a href={href} target="_blank" rel="noreferrer" className="text-primary hover:underline">
                   {children}

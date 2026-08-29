@@ -142,6 +142,7 @@ const ScanCloneFlagsPage = () => {
           r.default.toLowerCase().includes(q)
       );
     }
+
     return rows;
   }, [search, filter]);
 

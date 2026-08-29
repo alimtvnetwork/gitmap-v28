@@ -118,6 +118,7 @@ const ReleaseVersionPage = () => {
                         ? `release-version-${version}.ps1`
                         : `release-version-${version}.sh`
                     }
+
                   />
                 )}
               </section>
@@ -216,4 +217,3 @@ const ReleaseVersionPage = () => {
 };
 
 export default ReleaseVersionPage;
-

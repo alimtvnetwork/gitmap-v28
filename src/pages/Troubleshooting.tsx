@@ -51,6 +51,7 @@ function filterIssues(
   if (activeCategory !== CategoryFilterType.All) {
     rows = rows.filter((item) => item.category === activeCategory);
   }
+
   if (search) {
     const query = search.toLowerCase();
     rows = rows.filter((item) => matchesIssueSearch(item, query));
@@ -109,10 +110,12 @@ function useTroubleshootingDeepLink(
       setActiveCategory(CategoryFilterType.All);
       return;
     }
+
     if (filteredIssues.findIndex((issueItem) => issueItem.id === targetId) === -1) {
       setSearch("");
       return;
     }
+
     if (scrolledIdRef.current === targetId) return;
     const element = document.getElementById(targetId!);
     if (element) {

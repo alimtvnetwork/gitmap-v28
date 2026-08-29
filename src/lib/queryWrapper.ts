@@ -21,6 +21,7 @@ export async function queryWrapper<T>(
 ): Promise<QueryResult<T>> {
   try {
     const data = await operation();
+
     return {
       data,
       error: null,
@@ -30,6 +31,7 @@ export async function queryWrapper<T>(
   } catch (err) {
     const error = err instanceof Error ? err : new Error(String(err));
     console.error("[QueryWrapper Error]:", error);
+
     return {
       data: null,
       error,
@@ -48,6 +50,7 @@ export function queryWrapperSync<T>(
 ): QueryResult<T> {
   try {
     const data = operation();
+
     return {
       data,
       error: null,
@@ -57,6 +60,7 @@ export function queryWrapperSync<T>(
   } catch (err) {
     const error = err instanceof Error ? err : new Error(String(err));
     console.error("[QueryWrapper Error]:", error);
+
     return {
       data: null,
       error,
@@ -67,6 +71,3 @@ export function queryWrapperSync<T>(
 }
 
 export default queryWrapper;
-
-
-

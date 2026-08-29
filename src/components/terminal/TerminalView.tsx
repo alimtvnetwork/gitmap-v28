@@ -25,6 +25,7 @@ function getXTermTheme(os: OsTheme) {
   const isLinux = os === "linux";
   if (isWin) return { background: "#012456", foreground: "#ffffff" };
   if (isLinux) return { background: "#000000", foreground: "#00ff00" };
+
   return { background: "#300a24", foreground: "#ffffff" };
 }
 
@@ -33,6 +34,7 @@ function getThemeBgClass(os: OsTheme) {
   const isLinux = os === "linux";
   if (isWin) return "bg-[#012456]";
   if (isLinux) return "bg-black";
+
   return "bg-[#300a24]";
 }
 
@@ -46,9 +48,11 @@ export function XTermRenderer({ content, theme }: { content: string; theme: OsTh
       term.open(ref.current);
       fit.fit();
       term.write(content.replace(/\n/g, "\r\n"));
+
       return () => term.dispose();
     }
   }, [content, theme]);
+
   return <div ref={ref} className="h-full w-full pl-2 pt-2" />;
 }
 
@@ -80,5 +84,6 @@ export function TerminalView({ theme = "ubuntu", tabs, hasSplits = false }: Term
       </ResizablePanelGroup>
     );
   }
+
   return <div className="h-[500px] border overflow-hidden"><TerminalTabs tabs={tabs} theme={theme} /></div>;
 }

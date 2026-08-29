@@ -46,6 +46,7 @@ const MenubarSubTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof MenubarPrimitive.SubTrigger> & {
     inset?: boolean;
   }
+
 >(({ className, inset, children, ...props }, ref) => (
   <MenubarPrimitive.SubTrigger
     ref={ref}
@@ -102,6 +103,7 @@ const MenubarItem = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Item> & {
     inset?: boolean;
   }
+
 >(({ className, inset, ...props }, ref) => (
   <MenubarPrimitive.Item
     ref={ref}
@@ -165,6 +167,7 @@ const MenubarLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Label> & {
     inset?: boolean;
   }
+
 >(({ className, inset, ...props }, ref) => (
   <MenubarPrimitive.Label
     ref={ref}

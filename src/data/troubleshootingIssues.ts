@@ -9,6 +9,7 @@ export enum CategoryType {
   Git = "git",
   Build = "build",
 }
+
 export type Category = CategoryType;
 
 export enum CategoryFilterType {

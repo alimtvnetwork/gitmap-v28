@@ -65,8 +65,10 @@ const InstallBlock = ({ command, tabs }: InstallBlockProps) => {
                       backgroundColor: "hsl(var(--primary) / 0.12)",
                       color: "hsl(var(--primary))",
                     }
+
                   : undefined
               }
+
             >
               {tab.label}
             </button>
