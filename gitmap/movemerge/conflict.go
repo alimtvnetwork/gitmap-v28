@@ -69,21 +69,22 @@ func (r *Resolver) resolveSticky() (ChoiceType, bool) {
 
 // resolveByPolicy applies non-interactive --prefer-* policies.
 func (r *Resolver) resolveByPolicy(l, rgt FileMeta) (ChoiceType, bool) {
-	if r.policy == PreferNone {
+	switch {
+	case r.policy == PreferNone:
 		return 0, false
-	} else if r.policy == PreferLeft {
+	case r.policy == PreferLeft:
 		return ChoiceLeft, true
-	} else if r.policy == PreferRight {
+	case r.policy == PreferRight:
 		return ChoiceRight, true
-	} else if r.policy == PreferSkip {
+	case r.policy == PreferSkip:
 		return ChoiceSkip, true
-	} else if r.policy == PreferNewer && l.Info.ModTime().After(rgt.Info.ModTime()) {
+	case r.policy == PreferNewer && l.Info.ModTime().After(rgt.Info.ModTime()):
 		return ChoiceLeft, true
-	} else if r.policy == PreferNewer {
+	case r.policy == PreferNewer:
 		return ChoiceRight, true
+	default:
+		return 0, false
 	}
-
-	return 0, false
 }
 
 // resolveInteractive prints the prompt and reads one keystroke.
@@ -104,21 +105,20 @@ func (r *Resolver) resolveInteractive(rel string, l, rgt FileMeta) (ChoiceType, 
 // parseKey maps a single keystroke to a ChoiceType; sets sticky when A/B.
 func (r *Resolver) parseKey(key string) ChoiceType {
 	k := strings.ToUpper(key)
-	if k == keyLeft {
+	switch k {
+	case keyLeft:
 		return ChoiceLeft
-	} else if k == keyRight {
+	case keyRight:
 		return ChoiceRight
-	} else if k == keyAllLeft {
+	case keyAllLeft:
 		r.sticky, r.hasStk = ChoiceLeft, true
-
 		return ChoiceLeft
-	} else if k == keyAllRight {
+	case keyAllRight:
 		r.sticky, r.hasStk = ChoiceRight, true
-
 		return ChoiceRight
-	} else if k == keyQuit {
+	case keyQuit:
 		return ChoiceQuit
+	default:
+		return ChoiceSkip
 	}
-
-	return ChoiceSkip
 }

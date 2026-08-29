@@ -234,14 +234,15 @@ func readIndentedCode(lines []string, start int) ([]string, int) {
 	var body []string
 	i := start
 	for i < len(lines) {
-		if isIndentedCode(lines[i]) {
+		switch {
+		case isIndentedCode(lines[i]):
 			body = append(body, strings.TrimPrefix(lines[i], indentCodePrefix))
 			i++
-		} else if isInterleavedBlank(lines, i) {
+		case isInterleavedBlank(lines, i):
 			body = append(body, "")
 			i++
-		} else {
-			break
+		default:
+			return body, i
 		}
 	}
 	return body, i

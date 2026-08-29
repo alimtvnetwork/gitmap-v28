@@ -49,16 +49,17 @@ func detectLinuxDistro() DetailedOSInfo {
 	}
 
 	content := strings.ToLower(string(data))
-	if strings.Contains(content, "arch") || strings.Contains(content, "manjaro") {
+	switch {
+	case strings.Contains(content, "arch") || strings.Contains(content, "manjaro"):
 		info.Distro = constants.OSTargetArch
 		info.PackageManager = "pacman"
-	} else if strings.Contains(content, "fedora") {
+	case strings.Contains(content, "fedora"):
 		info.Distro = constants.OSTargetFedora
 		info.PackageManager = "dnf"
-	} else if strings.Contains(content, "centos") || strings.Contains(content, "rhel") {
+	case strings.Contains(content, "centos") || strings.Contains(content, "rhel"):
 		info.Distro = constants.OSTargetCentOS
 		info.PackageManager = "yum"
-	} else if strings.Contains(content, "debian") {
+	case strings.Contains(content, "debian"):
 		info.Distro = constants.OSTargetDebian
 		info.PackageManager = "apt"
 	}

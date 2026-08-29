@@ -22,3 +22,4 @@
 - [31-docs-site-usetheme-syntax-error.md](./31-docs-site-usetheme-syntax-error.md): Fix check!res typo in src/hooks/useTheme.ts breaking docs-site Vite build.
 - [32-root-cli-panic-on-zero-args.md](./32-root-cli-panic-on-zero-args.md): Fix panic("fatal error") in gitmap/cmd/root.go and across command files, ensuring zero-args CLI exits cleanly with usage.
 - [33-gocritic-appendassign-diff.md](./33-gocritic-appendassign-diff.md): Fix gocritic appendAssign new finding in CI diff gate and eliminate unused helper warnings.
+- [34-gocritic-ifelsechain-diff.md](./34-gocritic-ifelsechain-diff.md): Fix gocritic ifElseChain findings by converting multi-branch conditionals to switch statements.

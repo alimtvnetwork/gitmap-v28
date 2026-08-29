@@ -86,11 +86,12 @@ func runCgScriptInRepo(repo string) (string, error) {
 func printCGUpdateSummary(results <-chan cgUpdateResult) {
 	fmt.Println(cgHeaderStyle.Render("\n--- Update Summary ---"))
 	for r := range results {
-		if r.isFail {
+		switch {
+		case r.isFail:
 			fmt.Printf("%s [%s] Failed: %s\n", cgErrorStyle.Render("X"), r.repo, r.errorMsg)
-		} else if !r.hasChanged {
+		case !r.hasChanged:
 			fmt.Printf("%s [%s] Up to date (%s)\n", cgSuccessStyle.Render("OK"), r.repo, cgVersionStyle.Render(r.newVersion))
-		} else {
+		default:
 			fmt.Printf("%s [%s] Updated: %s -> %s\n", cgSuccessStyle.Render("OK"), r.repo, cgErrorStyle.Render(r.oldVersion), cgSuccessStyle.Render(r.newVersion))
 			printModifiedFiles(r.stdout)
 		}
