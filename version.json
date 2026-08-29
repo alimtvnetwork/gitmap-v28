@@ -7,7 +7,7 @@
         "inheritanceRule": "When a section is set to 'inherit', all tooling and codebases resolving that sub-package must inherit the root global Version.",
         "prohibition": "Never hardcode version numbers in code, scripts, or documentation. Always read from or sync with version.json."
     },
-    "Version": "6.151.0",
+    "Version": "6.152.0",
     "Title": "Coding Guidelines",
     "RepoSlug": "coding-guidelines-v24",
     "RepoUrl": "https://github.com/alimtvnetwork/coding-guidelines-v24",
@@ -54,7 +54,7 @@
         "19-plan-spec-steps-v2.md",
         "20-audit-app-spec.md"
     ],
-    "updated": "2026-08-29T11:21:11Z",
+    "updated": "2026-08-29T11:28:22Z",
     "name": "coding-guidelines",
     "description": "Cross-language coding standards, error handling, CI/CD, and self-update specifications. Synced from package.json by scripts/sync-version.mjs.",
     "git": {
@@ -392,5 +392,5 @@
         "19-plan-spec-steps-v2.md",
         "20-audit-app-spec.md"
     ],
-    "version": "6.151.0"
+    "version": "6.152.0"
 }
