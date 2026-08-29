@@ -164,7 +164,7 @@ func renderHeader(header string) {
 	fmt.Println()
 }
 
-const maxCmdColumnWidth = 38
+const maxCmdColumnWidth = 26
 
 func updateMaxHelpCmdLen(cmd string) {
 	l := lipgloss.Width(cmd)
@@ -205,7 +205,7 @@ func parseExpandableMarker(cmd, desc string) (string, string, string) {
 
 func renderLongHelpRow(cmd, fullDesc string, termWidth int) {
 	fmt.Printf("  %s\n", cmd)
-	indent := strings.Repeat(" ", maxHelpCmdLen+4)
+	indent := "    "
 	descWidth := termWidth - len(indent)
 	if descWidth <= 10 {
 		fmt.Printf("%s%s\n", indent, fullDesc)

@@ -31,12 +31,14 @@ func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) erro
 
 	sub := args[0]
 	switch sub {
-	case "login":
+	case "login", "login-install":
 		return runSSHLogin(parent, args[1:], ctx)
-	case "login-install":
-		// Handle login-install command
-		// Implicit alias fallback will catch if sub is not known.
-		return runSSHLogin(parent, args[1:], ctx)
+	case "join", "sj":
+		return runJoin(args[1:])
+	case "alias":
+		return runSSHAlias(parent, args[1:], ctx)
+	case "exec", "se":
+		return runSSHExec(args[1:])
 	default:
 		// Fallback for $username@ip and implicit aliases
 		if sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS {
