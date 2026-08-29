@@ -122,7 +122,7 @@ def main():
         ("Boolean & Enum Linter", None, "python linter-scripts/check-enum-and-boolean.py", ROOT_DIR),
         ("Changelog Version Sync", None, "python .github/scripts/check-changelog-version-sync.py", ROOT_DIR),
         ("Generate Drift Check", run_generate_drift_check, None, None),
-        ("Installer Smoke", None, "pwsh -File .github/scripts/smoke-installer.ps1 source", ROOT_DIR),
+        ("Installer Smoke", None, "python .github/scripts/smoke-installer.py source", ROOT_DIR),
         ("Web Version Sync", None, "npx vitest run src/test/version-sync.test.ts", ROOT_DIR),
         ("Docs Site Build", None, "npm run build", ROOT_DIR),
         ("CLI Zero-Args Smoke", None, "go run .", GITMAP_DIR),

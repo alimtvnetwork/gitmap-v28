@@ -150,5 +150,14 @@ class TestChangelogVersionSync(unittest.TestCase):
         self.assertIn("changelog.md has entry for v", res.stdout)
 
 
+class TestSmokeInstaller(unittest.TestCase):
+    def test_smoke_installer_source_mode(self):
+        script = os.path.join(SCRIPTS_DIR, "smoke-installer.py")
+        res = subprocess.run([sys.executable, script, "source"], capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(res.returncode, 0)
+        self.assertIn("Installer smoke test passed", res.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
+
