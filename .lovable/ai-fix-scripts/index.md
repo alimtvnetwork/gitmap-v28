@@ -61,14 +61,13 @@ python .lovable/ai-fix-scripts/05-naming-autofixer.py gitmap/cmd
 </details>
 
 <details>
-<summary>06-file-hygiene-fixer.py</summary>
+<summary>06-cli-help-auditor.py</summary>
 
-**Purpose:** Enforces Unix LF line endings (`\n`), strict UTF-8 encoding (without BOM), and ensures exactly one terminating newline at EOF across all source code, markdown, and configuration files.
+**Purpose:** Audits CLI command and subcommand registration, flags documentation, and help text parity across the codebase, ensuring 100% of implemented primary commands and subcommands have matching help pages and docs.
 
 **Usage Examples:**
 ```bash
-python .lovable/ai-fix-scripts/06-file-hygiene-fixer.py
-python .lovable/ai-fix-scripts/06-file-hygiene-fixer.py src gitmap
+python .lovable/ai-fix-scripts/06-cli-help-auditor.py
 ```
 </details>
 
