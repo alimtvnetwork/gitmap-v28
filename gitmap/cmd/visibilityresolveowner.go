@@ -102,6 +102,31 @@ func ownerFromURL(url string) (ownerContext, error) {
 // and any leading/trailing slashes. Skips the scheme and host so
 // https://github.com/alice and https://github.com/alice/ both yield
 // "alice" (NOT "github.com").
+func parseSCPFormatOwner(trimmed string) (string, bool) {
+	idx := strings.Index(trimmed, "@")
+	if idx < 0 {
+		return "", false
+	}
+
+	hasSlashBeforeAt := strings.Contains(trimmed[:idx], "/")
+	if hasSlashBeforeAt {
+		return "", false
+	}
+
+	colon := strings.Index(trimmed[idx:], ":")
+	if colon < 0 {
+		return "", false
+	}
+
+	rest := trimmed[idx+colon+1:]
+	parts := strings.Split(strings.TrimLeft(rest, "/"), "/")
+	if len(parts) == 0 {
+		return "", false
+	}
+
+	return parts[0], true
+}
+
 func firstPathSegment(url string) string {
 	trimmed := strings.TrimSpace(url)
 	for strings.HasSuffix(trimmed, "/") {
@@ -109,20 +134,8 @@ func firstPathSegment(url string) string {
 	}
 	trimmed = strings.TrimSuffix(trimmed, ".git")
 
-	// git@host:owner/repo form — owner is the segment after ':'.
-	idx := strings.Index(trimmed, "@")
-	hasNoSlash := false
-	if idx >= 0 {
-		hasNoSlash = !strings.Contains(trimmed[:idx], "/")
-	}
-	colon := -1
-	if idx >= 0 && hasNoSlash {
-		colon = strings.Index(trimmed[idx:], ":")
-	}
-	if idx >= 0 && hasNoSlash && colon >= 0 {
-		rest := trimmed[idx+colon+1:]
-
-		return strings.Split(strings.TrimLeft(rest, "/"), "/")[0]
+	if owner, isSCP := parseSCPFormatOwner(trimmed); isSCP {
+		return owner
 	}
 
 	// Strip scheme (https://, http://, ssh://, git://).

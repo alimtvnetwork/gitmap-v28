@@ -100,6 +100,8 @@ def main():
         # Stage 4: Guidelines, Sync, and Paths (parallel)
         [
             ("Boolean & Enum Linter", None, "python linter-scripts/check-enum-and-boolean.py", ROOT_DIR),
+            ("Boolean Guidelines Linter", None, "python linter-scripts/check-boolean-guidelines.py", ROOT_DIR),
+            ("Nested If Linter", None, "python linter-scripts/check-nested-ifs.py", ROOT_DIR),
             ("Changelog Version Sync", None, "python .github/scripts/check-changelog-version-sync.py", ROOT_DIR),
             ("Relative Path Check", None, "python linter-scripts/check-relative-paths.py", ROOT_DIR),
         ],
@@ -185,28 +187,38 @@ def main():
     print(f"Total: {total_jobs} | Passed: {len(passed_jobs)} | Failed: {len(failed_jobs)} | Timeouts: {len(timeout_jobs)} | Time: {total_elapsed}s\n")
 
     if failed_jobs or timeout_jobs:
-        print("Detailed Failure Logs:")
-        print("-" * 60)
-        for name, elapsed, out, err, cmd in failed_jobs:
-            print(f"\n[FAILURE LOG] Job: {name} (Duration: {elapsed}s)")
-            print(f"Command: {cmd}")
-            if out.strip():
-                print(f"Stdout:\n{out.strip()}")
-            if err.strip():
-                print(f"Stderr:\n{err.strip()}")
-            print("-" * 60)
-
-        for name, elapsed, err, cmd in timeout_jobs:
-            print(f"\n[TIMEOUT LOG] Job: {name} (Duration: {elapsed}s)")
-            print(f"Command: {cmd}")
-            print(f"Reason: {err}")
-            print("-" * 60)
-
+        report_failures(failed_jobs, timeout_jobs)
         print(f"\n[FAILURE] CI/CD quality gates failed with {len(failed_jobs) + len(timeout_jobs)} error(s).")
         sys.exit(1)
-    else:
-        print(f"\n[SUCCESS] All {total_jobs} CI/CD quality gates passed (exit 0)!")
-        sys.exit(0)
+
+    print(f"\n[SUCCESS] All {total_jobs} CI/CD quality gates passed (exit 0)!")
+    sys.exit(0)
+
+
+def print_failure_log(name, elapsed, out, err, cmd):
+    print(f"\n[FAILURE LOG] Job: {name} (Duration: {elapsed}s)")
+    print(f"Command: {cmd}")
+    if out.strip():
+        print(f"Stdout:\n{out.strip()}")
+    if err.strip():
+        print(f"Stderr:\n{err.strip()}")
+    print("-" * 60)
+
+
+def print_timeout_log(name, elapsed, err, cmd):
+    print(f"\n[TIMEOUT LOG] Job: {name} (Duration: {elapsed}s)")
+    print(f"Command: {cmd}")
+    print(f"Reason: {err}")
+    print("-" * 60)
+
+
+def report_failures(failed_jobs, timeout_jobs):
+    print("Detailed Failure Logs:")
+    print("-" * 60)
+    for name, elapsed, out, err, cmd in failed_jobs:
+        print_failure_log(name, elapsed, out, err, cmd)
+    for name, elapsed, err, cmd in timeout_jobs:
+        print_timeout_log(name, elapsed, err, cmd)
 
 
 if __name__ == "__main__":

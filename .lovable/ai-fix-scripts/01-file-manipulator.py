@@ -86,16 +86,22 @@ def extract_sequence(filename):
 def format_sequence(seq, rest, max_digits=2):
     return f"{seq:0{max_digits}d}-{rest}"
 
+def parse_pins(pin_str):
+    pin_map = {}
+    if not pin_str:
+        return pin_map
+    for pair in pin_str.split(','):
+        if '=' not in pair:
+            continue
+        name, seq = pair.split('=', 1)
+        pin_map[name.strip().lower()] = int(seq.strip())
+    return pin_map
+
+
 def cmd_fix_seq(args):
     target = args.target_directory
     target_norm = normalize_path(target)
-    
-    pin_map = {}
-    if args.pin:
-        for pair in args.pin.split(','):
-            if '=' in pair:
-                name, seq = pair.split('=', 1)
-                pin_map[name.strip().lower()] = int(seq.strip())
+    pin_map = parse_pins(args.pin)
 
     if not os.path.isdir(target_norm):
         print(f"❌ Error: {target} is not a directory.")

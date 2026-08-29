@@ -21,11 +21,12 @@ func TestComp109(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
-	if appErr, ok := err.(*apperror.AppError); ok {
-		if appErr.Code != "E_COMP_109_FAIL" {
-			t.Errorf("expected code E_COMP_109_FAIL, got %s", appErr.Code)
-		}
-	} else {
-		t.Errorf("expected *apperror.AppError, got %T", err)
+	appErr, ok := err.(*apperror.AppError)
+	if !ok {
+		t.Fatalf("expected *apperror.AppError, got %T", err)
+	}
+
+	if appErr.Code != "E_COMP_109_FAIL" {
+		t.Errorf("expected code E_COMP_109_FAIL, got %s", appErr.Code)
 	}
 }

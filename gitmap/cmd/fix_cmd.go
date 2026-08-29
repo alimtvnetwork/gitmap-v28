@@ -12,15 +12,22 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func runFix(args []string, aliasOverride string) error {
-	var option string
+func resolveFixOption(args []string, aliasOverride string) (string, error) {
 	if aliasOverride != "" {
-		option = aliasOverride
-	} else {
-		if len(args) == 0 {
-			return apperror.New("fix", "E_USAGE", map[string]any{"msg": "Usage: gitmap fix <1|2|3|stash|wip|discard>"})
-		}
-		option = args[0]
+		return aliasOverride, nil
+	}
+
+	if len(args) == 0 {
+		return "", apperror.New("fix", "E_USAGE", map[string]any{"msg": "Usage: gitmap fix <1|2|3|stash|wip|discard>"})
+	}
+
+	return args[0], nil
+}
+
+func runFix(args []string, aliasOverride string) error {
+	option, err := resolveFixOption(args, aliasOverride)
+	if err != nil {
+		return err
 	}
 
 	stateFile := getRemediationStateFile()

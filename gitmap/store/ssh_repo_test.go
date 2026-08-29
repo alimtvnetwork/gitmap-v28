@@ -70,12 +70,13 @@ func TestInsertSSHHost(t *testing.T) {
 	}
 	tx2.Rollback()
 
-	if appErr, ok := err.(*apperror.AppError); ok {
-		if appErr.Code != "E_INTERNAL_ERROR" {
-			t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
-		}
-	} else {
-		t.Errorf("expected AppError, got %T", err)
+	appErr, ok := err.(*apperror.AppError)
+	if !ok {
+		t.Fatalf("expected AppError, got %T", err)
+	}
+
+	if appErr.Code != "E_INTERNAL_ERROR" {
+		t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
 	}
 }
 
@@ -113,15 +114,17 @@ func TestGetHostByAlias(t *testing.T) {
 		t.Fatal("expected error for non-existent alias, got nil")
 	}
 
-	if appErr, ok := err.(*apperror.AppError); ok {
-		if appErr.Code != "E_INTERNAL_ERROR" {
-			t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
-		}
-		if !errors.Is(appErr.Cause, apperror.ErrNotFound) {
-			t.Errorf("expected cause ErrNotFound, got %v", appErr.Cause)
-		}
-	} else {
-		t.Errorf("expected AppError, got %T", err)
+	appErr, ok := err.(*apperror.AppError)
+	if !ok {
+		t.Fatalf("expected AppError, got %T", err)
+	}
+
+	if appErr.Code != "E_INTERNAL_ERROR" {
+		t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
+	}
+
+	if !errors.Is(appErr.Cause, apperror.ErrNotFound) {
+		t.Errorf("expected cause ErrNotFound, got %v", appErr.Cause)
 	}
 }
 

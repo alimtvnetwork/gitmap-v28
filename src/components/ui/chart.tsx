@@ -77,9 +77,9 @@ ${colorConfig
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
-  const hasNoColors = !colorConfig.length;
+  const hasColors = colorConfig.length > 0;
 
-  if (hasNoColors) {
+  if (!hasColors) {
     return null;
   }
 
@@ -130,8 +130,8 @@ const ChartTooltipContent = React.forwardRef<
     const { config } = useChart();
 
     const tooltipLabel = React.useMemo(() => {
-      const hasNoPayload = !payload?.length;
-      if (hideLabel || hasNoPayload) {
+      const hasPayload = Boolean(payload?.length);
+      if (hideLabel || !hasPayload) {
         return null;
       }
 
@@ -156,8 +156,8 @@ const ChartTooltipContent = React.forwardRef<
     }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
 
     const isInactive = !active;
-    const hasNoPayload = !payload?.length;
-    if (isInactive || hasNoPayload) {
+    const hasPayload = Boolean(payload?.length);
+    if (isInactive || !hasPayload) {
       return null;
     }
 
@@ -251,9 +251,9 @@ const ChartLegendContent = React.forwardRef<
     }
 >(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
   const { config } = useChart();
-  const hasNoPayload = !payload?.length;
+  const hasPayload = Boolean(payload?.length);
 
-  if (hasNoPayload) {
+  if (!hasPayload) {
     return null;
   }
 

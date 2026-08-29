@@ -241,8 +241,8 @@ func TestCtxLinuxThunarIsIdempotent(t *testing.T) {
 		t.Fatalf("thunar uca.xml missing: %v", err)
 	}
 	count := strings.Count(string(body), constants.CtxThunarMarkBegin)
-	isNotSingleBlock := count != 1
-	if isNotSingleBlock {
+	isSingleBlock := count == 1
+	if !isSingleBlock {
 		t.Fatalf("thunar marker block appears %d times after double-install, want 1", count)
 	}
 }

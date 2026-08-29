@@ -57,10 +57,12 @@ func TestExecuteIPCmd(t *testing.T) {
 		t.Logf("executeIPCmd returned: %v", err)
 	}
 
-	if buffer.Len() > 0 {
-		outStr := buffer.String()
-		if len(outStr) == 0 {
-			t.Errorf("expected non-empty output")
-		}
+	if buffer.Len() == 0 {
+		return
+	}
+
+	outStr := buffer.String()
+	if len(outStr) == 0 {
+		t.Errorf("expected non-empty output")
 	}
 }

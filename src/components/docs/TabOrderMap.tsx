@@ -90,8 +90,8 @@ const isVisible = (el: HTMLElement): boolean => {
   if (el.closest("[aria-hidden='true']")) return false;
 
   const rects = el.getClientRects();
-  const hasNoRects = rects.length === 0;
-  if (hasNoRects) return false;
+  const hasRects = rects.length > 0;
+  if (!hasRects) return false;
 
   if (hasHiddenAncestor(el)) return false;
   if (isCoveredByOverlay(el, rects)) return false;

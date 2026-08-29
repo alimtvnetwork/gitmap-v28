@@ -20,13 +20,15 @@ func TestComp053(t *testing.T) {
 	_, errFail := HandleComp053(inFail)
 
 	if errFail == nil {
-		t.Errorf("expected error, got nil")
-	} else {
-		appErr, ok := errFail.(*apperror.AppError)
-		if !ok {
-			t.Errorf("expected *apperror.AppError, got %T", errFail)
-		} else if appErr.Code != "E_COMP_053_FAIL" {
-			t.Errorf("expected code E_COMP_053_FAIL, got %s", appErr.Code)
-		}
+		t.Fatalf("expected error, got nil")
+	}
+
+	appErr, ok := errFail.(*apperror.AppError)
+	if !ok {
+		t.Fatalf("expected *apperror.AppError, got %T", errFail)
+	}
+
+	if appErr.Code != "E_COMP_053_FAIL" {
+		t.Errorf("expected code E_COMP_053_FAIL, got %s", appErr.Code)
 	}
 }
