@@ -2958,3 +2958,5 @@ Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 
 - [.lovable/plans/pending/03-fix-release-tag-ordering.md](.lovable/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
 - [.lovable/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.lovable/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
+
+- [.lovable/memory/release-architecture-map.md](.lovable/memory/release-architecture-map.md) - Release architecture and versioning rules

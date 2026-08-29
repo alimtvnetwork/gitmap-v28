@@ -1,36 +1,15 @@
 # Release Architecture Map
 
-## v6.139.0
-- Rewrote gitmap open to use native OS openers (Windows undll32, macOS open, Linux xdg-open).
-- Centralized application errors to fully return *apperror.AppError and propagate correctly to inishCommandAudit.
-- Included strict LLM grouping guidelines for AI agents to prevent un-orchestrated commits.
+## Single Source of Truth
+The canonical source of truth for the repository's version is the `Version` field in `version.json` at the root of the repository.
 
+## Release Process
+1. **Version Bump**: Update the `Version` string in `version.json` to the new semantic version. Update the `updated` timestamp.
+2. **README Pinning**: Find and replace instances of the old version with the new version in the root `readme.md`.
+3. **Changelog**: Prepend the release notes to `changelog.md` under the `# Changelog` header.
+4. **Sub-components**: `version.json` supports sub-component sections (e.g., backend, frontend, cli). These are set to `"inherit"` to use the global root `Version`.
+5. **Propagation**: Running `npm run sync` (if applicable) or committing the updated `version.json` signals to the CI/CD pipeline and AI agents that a new release is cut.
+6. **Testing**: All test files (e.g., `*test*`, `*.spec.*`) are strictly excluded from automated version string scanning and replacement to prevent mock data corruption.
 
-Releases for Gitmap are triggered by bumping the version in ersion.json. 
-When the version is bumped, you must ensure the corresponding versions in 
-eadme.md and changelog.md are synchronized.
-Once the changes are committed, the CI/CD pipeline (when correctly configured) handles the build and artifact generation.
-
-- v6.127.0: git-rm and folder export commands added
-
-- v6.128.0: ignore and add commands added
-
-- v6.129.0: ag and vscode install commands added
-
-- v6.130.0: github-desktop apt install fix
-
-- v6.133.0: search and llm feature spec added
-
-- v6.134.0: Wired CLI File Search / Regex Search Commands to SplitDB Indexer Engine
-- v6.141.0: E2E tests for commit-right and comprehensive apperror integration across committransfer
-- v6.141.1: update llm.md with alternative gitmap CLI commands for AI agents
-
-## v6.142.0
-- feat: rename commit-push-pull to pull-commit-push (pcp) to fix logical ordering.
-- feat: rm-git now correctly utilizes git reset --hard <sha>^ instead of rebase --onto.
-- feat: introduced apperror.WrapSimple and eliminated 171 instances of swallowed nil contexts.
-- docs: updated llm.md with exact search alternatives to explicitly ban raw ripgrep/rg in favor of native gitmap search capabilities.
-
-## v6.143.0
-- docs(plan): Drafted generic AI instruction specifications for file manipulation (lowercase and sequencing) commands.
-- docs(plan): Drafted AI instruction specification for reusable Python file manipulator script.
+## Associated CI/CD
+When `version.json` changes, GitHub Actions (such as `release.yml` and `goreleaser.yml`) will detect the drift, compile the binaries, and cut the Git tags and GitHub Releases automatically.
