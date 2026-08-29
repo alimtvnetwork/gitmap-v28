@@ -43,9 +43,9 @@ fi
 
 echo "→ constants.Version = $VERSION"
 
-# Look for a matching heading. Accept `## vX.Y.Z` with an optional
-# suffix (date, tag, etc): "## v6.74.0 — 2026-07-01" is fine.
-HEADING_RE="^##[[:space:]]+\[?v${VERSION//./\\.}\]?([[:space:]]|$)"
+# Look for a matching heading. Accept `## vX.Y.Z` or `## [vX.Y.Z]` or `## [X.Y.Z]`
+# with an optional suffix (date, tag, etc): "## v6.74.0 — 2026-07-01" is fine.
+HEADING_RE="^##[[:space:]]+\[?v?${VERSION//./\\.}\]?([[:space:]]|$)"
 
 if ! grep -Eq "$HEADING_RE" "$CHANGELOG_FILE"; then
   echo "" >&2

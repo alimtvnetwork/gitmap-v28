@@ -17,3 +17,4 @@
 - [26-go-125-gofmt-and-goimports-drift.md](./26-go-125-gofmt-and-goimports-drift.md): Fix Go 1.25 gofmt and goimports drift across all repository packages.
 - [27-installctx-e2e-with-explain-type-mismatch.md](./27-installctx-e2e-with-explain-type-mismatch.md): Fix runInstallCtxMac and runInstallCtxLinux type mismatch in withExplain cross-platform test suites.
 - [28-legacy-refs-bare-err-and-lint-keyerror.md](./28-legacy-refs-bare-err-and-lint-keyerror.md): Fix legacy refs whitelist in issue notes, bare stderr prints in cmd, and is_fail KeyError in lint scripts.
+- [29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md](./29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md): Fix Git LFS binary zip false-positive in generate drift check, sync constants.Version with changelog.md, and sanitize jq --argjson in linter diff scripts.

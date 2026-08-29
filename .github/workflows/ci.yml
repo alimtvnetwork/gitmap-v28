@@ -33,7 +33,7 @@ on:
       lint_baseline_cache_version:
         description: "Bump to invalidate the golangci-lint baseline cache (e.g. v2)"
         required: false
-        default: "v1"
+        default: "v2"
         type: string
       lint_baseline_disable:
         description: "Skip restoring/saving the lint baseline cache for this run"
@@ -594,9 +594,9 @@ jobs:
           # operator can bump via workflow_dispatch to abandon a stale
           # baseline. The restore-keys fallback also carries the version
           # so we never accidentally restore a pre-bump baseline.
-          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v1' }}-${{ github.sha }}
+          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v2' }}-${{ github.sha }}
           restore-keys: |
-            golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v1' }}-
+            golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v2' }}-
 
       - name: Install golangci-lint (pinned)
         if: needs.sha-check.outputs.already-built != 'true'
@@ -660,7 +660,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /tmp/lint-baseline
-          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v1' }}-${{ github.sha }}
+          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v2' }}-${{ github.sha }}
 
       - name: Upload current lint report
         if: always() && needs.sha-check.outputs.already-built != 'true'
@@ -943,13 +943,13 @@ jobs:
         working-directory: gitmap
         shell: bash
         run: |
-          if git diff --exit-code; then
+          if git diff --exit-code .; then
             echo "drifted=false" >> "$GITHUB_OUTPUT"
             echo "✅ All generated files are in sync."
           else
             echo "drifted=true" >> "$GITHUB_OUTPUT"
             echo "Drifted files:"
-            git diff --name-only
+            git diff --name-only .
           fi
 
       - name: Auto-commit regenerated files
@@ -967,7 +967,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Stage everything regenerated under gitmap/ (go generate may
           # touch multiple paths beyond completion/).
-          git add -A
+          git add -A .
           git commit -m "chore(generate): auto-regenerate go generate outputs [skip ci]"
           # Push back to the branch we checked out. Use HEAD:<branch> so
           # this works regardless of detached-HEAD state.

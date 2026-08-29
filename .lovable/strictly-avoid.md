@@ -23,4 +23,7 @@ Strictly avoid using flash model for high concurrency batches that exceed rate l
 - NEVER write bare `fmt.Fprintln(os.Stderr, err)` in `gitmap/cmd/`; always use `cliexit.Reportf` or `cliexit.Fail`.
 - NEVER access dictionary keys with direct index `res["is_failure"]` when consuming `query_wrapper` output; always use `res.get("is_fail")`.
 - ALWAYS annotate historical mentions of legacy version names with `<!-- gitmap-legacy-ref-allow -->` to prevent policy check scan triggers.
+- NEVER run `git diff --exit-code` in CI code generation drift checks without scoping to the module directory (`git diff --exit-code .`), to prevent Git LFS raw file conversions on root folders from causing false drift detection.
+- NEVER bump versions across `version.json` or `readme.md` without synchronizing `var Version` in `gitmap/constants/constants.go` and adding a matching `## [vX.Y.Z]` heading in `changelog.md`.
+- NEVER pass unsanitized variables to `jq --argjson` in bash scripts without validating numeric integer format (`[[ "$LINE" =~ ^[0-9]+$ ]]`).
 
