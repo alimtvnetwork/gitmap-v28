@@ -41,7 +41,7 @@
 
 | Principle | Rule |
 |-----------|------|
-| P1 Prefix | Every boolean: `is`/`has` (99%), `should` only for recommendations |
+| P1 Prefix | is, has as prefix is only acceptable and nothing else acceptable including but not limited to can, should etc |
 | P2 No negatives | `not`/`no`/`non` banned → use positive synonyms (`isPending` not `isNotReady`) |
 | P3 Named guards | Never `!fn()` → use semantic inverse (`isInvalid()` not `!isValid()`) |
 | P4 Extract complex | 2+ operators → named boolean variable |

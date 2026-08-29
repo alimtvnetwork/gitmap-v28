@@ -98,7 +98,7 @@ Code standards must be mechanically enforced by automated linters. You MUST veri
 - [ ] **Auto-Create Linter if Missing:** If no dedicated boolean linter exists, create `linter-scripts/check-enum-and-boolean.mjs` (or python equivalent) that AST-scans for:
   1. Explicit `== true`, `=== true`, `== false`, `=== false` checks.
   2. Mixed polarity conditional joins (`&& !`, `|| !`, `and not`).
-  3. Boolean variables missing `is/has/can/should/was/will/did/must` prefixes.
+  3. Boolean variables missing `is` or `has` prefix (`is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc.).
   4. Enums missing the `Type` suffix.
 - [ ] **Local Linter Command:** Execute and verify the linter locally:
   ```bash

@@ -142,9 +142,9 @@ userMap := make(map[string]*User)
 
 ---
 
-## Rule 4: Boolean Variables — `is`, `has` Prefix (99%), `should` Rare
+## Rule 4: Boolean Variables — `is`, `has` Prefix Only
 
-Boolean variables **must** use a prefix that reads as a yes/no question. See [Boolean Principles](./02-boolean-principles/00-overview.md) for the full specification.
+`is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc. Boolean variables **must** use an approved prefix. See [Boolean Principles](./02-boolean-principles/00-overview.md) for the full specification.
 
 ```typescript
 // ❌ FORBIDDEN
@@ -196,7 +196,7 @@ const connectionManager = new ConnectionManager();
 [ ] Singular for single items, plural for collections
 [ ] Loop variable is singular of collection name
 [ ] Maps/dicts use `Map` suffix or `By[Key]` pattern
-[ ] Booleans use is/has prefix (99%), should (rare)
+[ ] Booleans: is, has as prefix is only acceptable and nothing else acceptable including but not limited to can, should etc
 [ ] No abbreviations except universally understood ones
 ```
 

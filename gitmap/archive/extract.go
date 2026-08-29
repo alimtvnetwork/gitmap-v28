@@ -49,7 +49,15 @@ func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (Extrac
 	}
 	defer os.RemoveAll(tempDir)
 
-	return completeCompactExtract(ctx, srcArchive, destBaseDir, tempDir, res)
+	params := CompactExtractParams{
+		Ctx:         ctx,
+		SrcArchive:  srcArchive,
+		DestBaseDir: destBaseDir,
+		TempDir:     tempDir,
+		Result:      res,
+	}
+
+	return completeCompactExtract(params)
 }
 
 func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Format, error) {
@@ -63,31 +71,34 @@ func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Fo
 	return format, nil
 }
 
-func completeCompactExtract(
-	ctx context.Context,
-	srcArchive,
-	destBaseDir,
-	tempDir string,
-	res ExtractResult,
-) (ExtractResult, error) {
-	written, err := extractAllIntoDir(ctx, srcArchive, tempDir)
-	if err != nil {
-		return res, apperror.WrapSimple(err, "extract")
-	}
-	res.EntriesWritten = written
+// CompactExtractParams encapsulates parameters for completing a compact extraction.
+type CompactExtractParams struct {
+	Ctx         context.Context
+	SrcArchive  string
+	DestBaseDir string
+	TempDir     string
+	Result      ExtractResult
+}
 
-	finalDir := filepath.Join(destBaseDir, archiveBaseName(srcArchive))
+func completeCompactExtract(params CompactExtractParams) (ExtractResult, error) {
+	written, err := extractAllIntoDir(params.Ctx, params.SrcArchive, params.TempDir)
+	if err != nil {
+		return params.Result, apperror.WrapSimple(err, "extract")
+	}
+	params.Result.EntriesWritten = written
+
+	finalDir := filepath.Join(params.DestBaseDir, archiveBaseName(params.SrcArchive))
 	if err := os.RemoveAll(finalDir); err != nil {
-		return res, err
+		return params.Result, err
 	}
 
-	flattened, err := promoteRealRoot(tempDir, finalDir)
+	flattened, err := promoteRealRoot(params.TempDir, finalDir)
 	if err != nil {
-		return res, err
+		return params.Result, err
 	}
-	res.FlattenedLayers = flattened
-	res.OutputDir = finalDir
-	return res, nil
+	params.Result.FlattenedLayers = flattened
+	params.Result.OutputDir = finalDir
+	return params.Result, nil
 }
 
 // extractAllIntoDir streams every entry from srcArchive into destDir
@@ -113,21 +124,31 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 		return 0, apperror.New("extract", "ERR_UNSUPPORTED_FORMAT", map[string]any{"format": format.Extension()})
 	}
 
-	return runArchiveExtraction(ctx, extractor, stream, destDir)
-}
-
-func runArchiveExtraction(
-	ctx context.Context,
-	extractor archives.Extractor,
-	stream io.Reader,
-	destDir string,
-) (int, error) {
-	written := 0
-	handler := func(_ context.Context, entry archives.FileInfo) error {
-		return extractArchiveEntry(destDir, entry, &written)
+	extractParams := ArchiveExtractParams{
+		Ctx:       ctx,
+		Extractor: extractor,
+		Stream:    stream,
+		DestDir:   destDir,
 	}
 
-	if err := extractor.Extract(ctx, stream, handler); err != nil {
+	return runArchiveExtraction(extractParams)
+}
+
+// ArchiveExtractParams encapsulates parameters for running an archive extraction.
+type ArchiveExtractParams struct {
+	Ctx       context.Context
+	Extractor archives.Extractor
+	Stream    io.Reader
+	DestDir   string
+}
+
+func runArchiveExtraction(params ArchiveExtractParams) (int, error) {
+	written := 0
+	handler := func(_ context.Context, entry archives.FileInfo) error {
+		return extractArchiveEntry(params.DestDir, entry, &written)
+	}
+
+	if err := params.Extractor.Extract(params.Ctx, params.Stream, handler); err != nil {
 		return written, err
 	}
 	return written, nil
@@ -286,26 +307,41 @@ func copyDir(src, dst string) error {
 		if err != nil {
 			return err
 		}
-		return copyDirEntry(src, dst, path, d)
+		entryParams := CopyDirEntryParams{
+			Src:   src,
+			Dst:   dst,
+			Path:  path,
+			Entry: d,
+		}
+
+		return copyDirEntry(entryParams)
 	})
 }
 
-func copyDirEntry(src, dst, path string, d fs.DirEntry) error {
-	rel, err := filepath.Rel(src, path)
+// CopyDirEntryParams encapsulates parameters for copying a single directory entry.
+type CopyDirEntryParams struct {
+	Src   string
+	Dst   string
+	Path  string
+	Entry fs.DirEntry
+}
+
+func copyDirEntry(params CopyDirEntryParams) error {
+	rel, err := filepath.Rel(params.Src, params.Path)
 	if err != nil {
 		return err
 	}
-	target := filepath.Join(dst, rel)
-	isDir := d.IsDir()
+	target := filepath.Join(params.Dst, rel)
+	isDir := params.Entry.IsDir()
 	if isDir {
 		return os.MkdirAll(target, constants.DirPermission)
 	}
-	info, err := d.Info()
+	info, err := params.Entry.Info()
 	if err != nil {
 		return err
 	}
 
-	return copyFile(path, target, info.Mode())
+	return copyFile(params.Path, target, info.Mode())
 }
 
 // copyFile streams src → dst preserving mode bits.

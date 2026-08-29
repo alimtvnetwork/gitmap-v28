@@ -16,7 +16,7 @@ Usage:
 
 Rules Enforced:
     CODE-RED-001  No nested if statements
-    CODE-RED-002  Boolean naming (is/has/can/should/was prefix)         [P1]
+    CODE-RED-002  Boolean naming (is/has prefix only)                   [P1]
     CODE-RED-003  No magic strings in comparisons
     CODE-RED-004  Max 15 lines per function
     CODE-RED-005  No fmt.Errorf() in Go (use apperror)
@@ -133,9 +133,9 @@ def check_nested_if(lines: List[str], filepath: str) -> List[Violation]:
 
 
 def check_boolean_naming(lines: List[str], filepath: str, lang: str) -> List[Violation]:
-    """CODE-RED-002: Boolean variables must use is/has/can/should/was prefix."""
+    """CODE-RED-002: is, has as prefix is only acceptable and nothing else acceptable including but not limited to can, should etc."""
     violations = []
-    prefixes = ("is", "has", "can", "should", "was", "will")
+    prefixes = ("is", "has")
     exempt = {"ok", "done", "found", "exists", "err", "error", "true", "false"}
 
     if lang == "go":
@@ -163,7 +163,7 @@ def check_boolean_naming(lines: List[str], filepath: str, lang: str) -> List[Vio
                 line=i + 1,
                 rule="CODE-RED-002",
                 severity="CODE-RED",
-                message=f'Boolean variable "${name}" must start with is/has/can/should/was/will.',
+                message=f'Boolean variable "${name}": is, has as prefix is only acceptable and nothing else acceptable including but not limited to can, should etc.',
                 code_snippet=line.strip()[:120],
             ))
 

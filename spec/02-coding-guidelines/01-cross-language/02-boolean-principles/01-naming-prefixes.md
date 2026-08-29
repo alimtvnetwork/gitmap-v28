@@ -8,7 +8,7 @@
 
 ## Principle 1: Always Use `is` or `has` Prefixes
 
-Every boolean identifier — variable, property, parameter, or method — **must** start with `is` or `has`.
+Every boolean identifier — variable, property, parameter, or method: `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc.
 
 ```php
 // ── PHP ──────────────────────────────────────────────────────

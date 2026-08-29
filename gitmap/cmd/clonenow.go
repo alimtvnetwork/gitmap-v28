@@ -220,7 +220,14 @@ func executeCloneNowPlan(plan clonenow.Plan, cfg cloneNowFlags) []clonenow.Resul
 	}
 	if cfg.maxConcurrency > 1 {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneConcurrencyEnabledFmt, cfg.maxConcurrency)
-		return clonenow.ExecuteWithHooksConcurrent(plan, cfg.cwd, progress, hook, cfg.maxConcurrency)
+		concurrentParams := clonenow.ConcurrentExecutionParams{
+			Plan:      plan,
+			Cwd:       cfg.cwd,
+			Progress:  progress,
+			BeforeRow: hook,
+			Workers:   cfg.maxConcurrency,
+		}
+		return clonenow.ExecuteWithHooksConcurrent(concurrentParams)
 	}
 	return clonenow.ExecuteWithHooks(plan, cfg.cwd, progress, hook)
 }

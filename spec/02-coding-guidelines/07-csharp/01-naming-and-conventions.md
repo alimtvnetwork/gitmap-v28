@@ -55,7 +55,7 @@ public bool IsLoaded { get; set; }
 var isReady = CheckStatus();
 ```
 
-Allowed prefixes: `Is`, `Has`, `Can`, `Should`, `Was`.
+`Is`, `Has` as prefix is only acceptable and nothing else acceptable including but not limited to `Can`, `Should`, etc.
 
 No negative names: `IsNotReady` → `IsPending`, `HasNoPermission` → `IsUnauthorized`.
 

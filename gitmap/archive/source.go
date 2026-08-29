@@ -137,7 +137,14 @@ func resolveHTTP(ctx context.Context, raw string) (ResolvedSource, error) {
 	name := filenameFromURL(raw)
 	dst := filepath.Join(dir, name)
 
-	if err := downloadWithAria2c(ctx, raw, dir, name); err == nil {
+	ariaParams := Aria2cDownloadParams{
+		Ctx:    ctx,
+		RawURL: raw,
+		Dir:    dir,
+		Name:   name,
+	}
+
+	if err := downloadWithAria2c(ariaParams); err == nil {
 		return ResolvedSource{Original: raw, Kind: SourceHTTP, LocalPath: dst, CleanupDir: dir}, nil
 	}
 
@@ -150,28 +157,36 @@ func resolveHTTP(ctx context.Context, raw string) (ResolvedSource, error) {
 	return ResolvedSource{Original: raw, Kind: SourceHTTP, LocalPath: dst, CleanupDir: dir}, nil
 }
 
+// Aria2cDownloadParams encapsulates parameters for aria2c download.
+type Aria2cDownloadParams struct {
+	Ctx    context.Context
+	RawURL string
+	Dir    string
+	Name   string
+}
+
 // downloadWithAria2c is a thin wrapper that returns nil only on a clean
 // aria2c exit AND a non-empty file. Any other outcome causes the caller
 // to fall back to net/http.
 
-func downloadWithAria2c(ctx context.Context, rawURL, dir, name string) error {
+func downloadWithAria2c(params Aria2cDownloadParams) error {
 	if _, err := exec.LookPath("aria2c"); err != nil {
 		return err
 	}
-	cmd := exec.CommandContext(ctx, "aria2c",
-		"--dir", dir,
-		"--out", name,
+	cmd := exec.CommandContext(params.Ctx, "aria2c",
+		"--dir", params.Dir,
+		"--out", params.Name,
 		"--allow-overwrite=true",
 		"--auto-file-renaming=false",
 		"--console-log-level=warn",
-		rawURL,
+		params.RawURL,
 	)
 	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return err
 	}
-	info, err := os.Stat(filepath.Join(dir, name))
+	info, err := os.Stat(filepath.Join(params.Dir, params.Name))
 	if err != nil || info.Size() == 0 {
 		return errors.New("aria2c produced empty file")
 	}

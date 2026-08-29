@@ -147,9 +147,10 @@ func runGitPull(repoDir string) (string, error) {
 	return string(out), err
 }
 
-func cleanDirIfRequested(dirExists, clean bool, dest string) error {
-	if !dirExists || !clean {
-		return nil
+func cleanDirIfRequested(isDirExists, isClean bool, dest string) error {
+	if isDirExists && isClean {
+		return os.RemoveAll(dest)
 	}
-	return os.RemoveAll(dest)
+
+	return nil
 }

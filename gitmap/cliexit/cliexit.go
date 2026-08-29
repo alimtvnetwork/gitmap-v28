@@ -97,11 +97,23 @@ func safeFlush(f func()) {
 //	// → gitmap clone-from: parse on /path/to/manifest.json failed: <err>
 //
 // `subject` may be empty; the "on <subject>" segment is then elided.
-// `err` must NOT be nil — passing nil indicates a logic bug at the
-// call site (you wouldn't be in an error path) and we surface it
-// loudly instead of silently printing a half-formed message.
+// ReportParams encapsulates parameters for generating a CLI exit report.
+type ReportParams struct {
+	Command string
+	Op      string
+	Subject string
+	Err     error
+}
+
+// Reportf formats and prints a standardized CLI failure line to os.Stderr.
 func Reportf(command, op, subject string, err error) {
-	writeReport(os.Stderr, command, op, subject, err)
+	params := ReportParams{
+		Command: command,
+		Op:      op,
+		Subject: subject,
+		Err:     err,
+	}
+	writeReport(os.Stderr, params)
 }
 
 // Fail prints the standardized failure line, flushes any registered
@@ -126,26 +138,26 @@ func Exit(code int) {
 
 // writeReport is the format core. Extracted so the test suite can
 // drive it through a bytes.Buffer without intercepting os.Stderr.
-func writeReport(w io.Writer, command, op, subject string, err error) {
-	if err == nil {
+func writeReport(w io.Writer, params ReportParams) {
+	if params.Err == nil {
 		// Logic bug at the call site — surface loudly so it gets
 		// caught in CI / dev rather than producing a confusing
 		// "<no error>" line in production stderr.
 		fmt.Fprintf(w,
 			"gitmap %s: BUG: cliexit.Reportf called with nil err (op=%s subject=%s)\n",
-			command, op, subject)
+			params.Command, params.Op, params.Subject)
 
 		return
 	}
-	fmt.Fprintln(w, formatLine(command, op, subject, err))
+	fmt.Fprintln(w, formatLine(params))
 }
 
 // formatLine assembles the canonical line. Kept side-effect-free so
 // the unit test can assert byte-exact output.
-func formatLine(command, op, subject string, err error) string {
-	if subject == "" {
-		return fmt.Sprintf("gitmap %s: %s failed: %v", command, op, err)
+func formatLine(params ReportParams) string {
+	if params.Subject == "" {
+		return fmt.Sprintf("gitmap %s: %s failed: %v", params.Command, params.Op, params.Err)
 	}
 
-	return fmt.Sprintf("gitmap %s: %s on %s failed: %v", command, op, subject, err)
+	return fmt.Sprintf("gitmap %s: %s on %s failed: %v", params.Command, params.Op, params.Subject, params.Err)
 }

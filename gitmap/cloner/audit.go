@@ -105,32 +105,40 @@ func planOne(rec model.ScanRecord, targetDir string, cache *CloneCache) AuditEnt
 		Command:      command,
 	}
 
-	return classifyDest(base, dest, rec, cache)
+	classifyParams := ClassifyDestParams{
+		Base:  base,
+		Dest:  dest,
+		Rec:   rec,
+		Cache: cache,
+	}
+
+	return classifyDest(classifyParams)
+}
+
+// ClassifyDestParams encapsulates parameters for classifying a destination.
+type ClassifyDestParams struct {
+	Base  AuditEntry
+	Dest  string
+	Rec   model.ScanRecord
+	Cache *CloneCache
 }
 
 // classifyDest decides clone/pull/cached/conflict by inspecting the
 // destination on disk. Stat-only — never opens the repo.
-func classifyDest(
-	base AuditEntry,
-	dest string,
-	rec model.ScanRecord,
-	cache *CloneCache,
-) AuditEntry {
-	if !pathExists(dest) {
+func classifyDest(params ClassifyDestParams) AuditEntry {
+	base := params.Base
+	if !pathExists(params.Dest) {
 		base.Action = AuditActionClone
-
 		return base
 	}
-	if !IsGitRepo(dest) {
+	if !IsGitRepo(params.Dest) {
 		base.Action = AuditActionConflict
 		base.Reason = "target path exists but is not a git repository"
-
 		return base
 	}
-	if cache.IsUpToDate(rec, dest) {
+	if params.Cache != nil && params.Cache.IsUpToDate(params.Rec, params.Dest) {
 		base.Action = AuditActionCached
 		base.Reason = "clone-cache fingerprint matches local HEAD"
-
 		return base
 	}
 	base.Action = AuditActionPull

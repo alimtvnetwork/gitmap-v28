@@ -86,25 +86,28 @@ func createOutputFile(path string) (*os.File, error) {
 	return os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, constants.FilePermission)
 }
 
-func writeArchive(
-	ctx context.Context,
-	path string,
-	format Format,
-	mode CompressionMode,
-	files []archives.FileInfo,
-) error {
-	out, err := createOutputFile(path)
+// ArchiveWriteParams encapsulates parameters for writing an archive.
+type ArchiveWriteParams struct {
+	Ctx    context.Context
+	Path   string
+	Format Format
+	Mode   CompressionMode
+	Files  []archives.FileInfo
+}
+
+func writeArchive(params ArchiveWriteParams) error {
+	out, err := createOutputFile(params.Path)
 	if err != nil {
 		return err
 	}
 	defer out.Close()
 
-	writer, err := buildArchiver(format, mode)
+	writer, err := buildArchiver(params.Format, params.Mode)
 	if err != nil {
 		return err
 	}
 
-	return writer.Archive(ctx, out, files)
+	return writer.Archive(params.Ctx, out, params.Files)
 }
 
 // CreateArchive walks every source, applies include/exclude filters, and
@@ -125,7 +128,15 @@ func CreateArchive(ctx context.Context, opts CreateOptions) (CreateResult, error
 	}
 	res.EntriesWritten = len(files)
 
-	if err := writeArchive(ctx, opts.OutputPath, format, opts.Mode, files); err != nil {
+	writeParams := ArchiveWriteParams{
+		Ctx:    ctx,
+		Path:   opts.OutputPath,
+		Format: format,
+		Mode:   opts.Mode,
+		Files:  files,
+	}
+
+	if err := writeArchive(writeParams); err != nil {
 		return res, err
 	}
 
@@ -163,10 +174,11 @@ func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, er
 }
 
 func isEntryIncluded(name string, includes, excludes []string) result.Result[bool] {
-	if matchAny(name, includes, !true).Data {
+	if len(includes) > 0 && !hasMatchingPattern(name, includes) {
 		return result.NewSuccess(false)
 	}
-	if matchAny(name, excludes, false).Data {
+
+	if len(excludes) > 0 && hasMatchingPattern(name, excludes) {
 		return result.NewSuccess(false)
 	}
 
@@ -199,20 +211,15 @@ func matchPattern(pattern, name string) result.Result[bool] {
 	return result.NewSuccess(false)
 }
 
-// matchAny returns true when name matches any pattern. emptyDefault is
-// what we return when patterns is empty (true for includes = "match all
-// when no filter set", false for excludes = "exclude nothing").
-func matchAny(name string, patterns []string, emptyDefault bool) result.Result[bool] {
-	if len(patterns) == 0 {
-		return result.NewSuccess(emptyDefault)
-	}
+// hasMatchingPattern returns true when name matches any pattern in patterns.
+func hasMatchingPattern(name string, patterns []string) bool {
 	for _, p := range patterns {
 		if matchPattern(p, name).Data {
-			return result.NewSuccess(true)
+			return true
 		}
 	}
 
-	return result.NewSuccess(false)
+	return false
 }
 
 func buildCompressedTarArchiver(format Format, mode CompressionMode) (archives.Archiver, error) {

@@ -11,7 +11,7 @@
 
 - **Authoritative Specifications Implemented:**
   - [`spec/02-coding-guidelines/00-canonical-size-tier.md`](spec/02-coding-guidelines/00-canonical-size-tier.md) — Enforce 8–15 line function caps and <= 100 coding lines per file.
-  - [`spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md`](spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md) — Affirmative prefixes (`is`, `has`, `can`, `should`), zero bare `ok` variables.
+  - [`spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md`](spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-naming-prefixes.md) — `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, etc., zero bare `ok` variables.
   - [`spec/02-coding-guidelines/01-cross-language/02-boolean-principles/02-implicit-evaluation.md`](spec/02-coding-guidelines/01-cross-language/02-boolean-principles/02-implicit-evaluation.md) — Implicit evaluations (banned `== true`, `== false`).
   - [`spec/02-coding-guidelines/01-cross-language/02-boolean-principles/03-positive-framing.md`](spec/02-coding-guidelines/01-cross-language/02-boolean-principles/03-positive-framing.md) — Positive framing (banned `!isSuccess`, `isNotReady`).
   - [`spec/02-coding-guidelines/01-cross-language/01-control-flow/03-nested-conditionals.md`](spec/02-coding-guidelines/01-cross-language/01-control-flow/03-nested-conditionals.md) — Flatten nested `if` statements with early guard clauses.

@@ -92,3 +92,14 @@ python .lovable/ai-fix-scripts/07-batch-ok-fixer.py
 python .lovable/ai-fix-scripts/08-multiline-formatter.py
 ```
 </details>
+
+<details>
+<summary>09-argument-scanner.py</summary>
+
+**Purpose:** Scans function signatures across Go source files for argument counts (>2-3 parameters), parameter structs, void functions, and boolean prefix compliance (`is`/`has`).
+
+**Usage Examples:**
+```bash
+python .lovable/ai-fix-scripts/09-argument-scanner.py
+```
+</details>
