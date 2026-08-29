@@ -8,6 +8,7 @@
 - [ ] [21-terminal-help-llm-and-ssh-fixes.md](.lovable/plans/pending/21-terminal-help-llm-and-ssh-fixes.md) — Terminal help layout compaction, LLM guidelines with public GitHub MD URL, and expanded SSH subcommands.
 - [ ] [22-completed-plans-consolidation.md](.lovable/plans/pending/22-completed-plans-consolidation.md) — Memory consolidation: cluster completed plans into 6 unified milestones and re-sequence monotonically.
 - [ ] [23-cli-commands-help-audit.md](.lovable/plans/pending/23-cli-commands-help-audit.md) — CLI commands, help text parity & help UI architecture audit.
+- [ ] [24-function-signatures-audit.md](.lovable/plans/pending/24-function-signatures-audit.md) — Function signatures, invocations & multi-line standards audit.
 
 ## Completed Plans
 
