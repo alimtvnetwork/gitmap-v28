@@ -18,3 +18,4 @@
 - [27-installctx-e2e-with-explain-type-mismatch.md](./27-installctx-e2e-with-explain-type-mismatch.md): Fix runInstallCtxMac and runInstallCtxLinux type mismatch in withExplain cross-platform test suites.
 - [28-legacy-refs-bare-err-and-lint-keyerror.md](./28-legacy-refs-bare-err-and-lint-keyerror.md): Fix legacy refs whitelist in issue notes, bare stderr prints in cmd, and is_fail KeyError in lint scripts.
 - [29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md](./29-lfs-zip-drift-changelog-sync-and-jq-diff-argjson.md): Fix Git LFS binary zip false-positive in generate drift check, sync constants.Version with changelog.md, and sanitize jq --argjson in linter diff scripts.
+- [30-smoke-installer-var-version.md](./30-smoke-installer-var-version.md): Fix smoke-installer.sh version extraction to support var Version alongside const Version.
