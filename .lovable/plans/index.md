@@ -11,6 +11,7 @@
 - [ ] [24-function-signatures-audit.md](.lovable/plans/pending/24-function-signatures-audit.md) — Function signatures, invocations & multi-line standards audit.
 - [ ] [25-typescript-types-audit.md](.lovable/plans/pending/25-typescript-types-audit.md) — TypeScript strict typing, discriminated unions & architecture audit.
 - [ ] [26-enums-and-traits-audit.md](.lovable/plans/pending/26-enums-and-traits-audit.md) — Multi-language enums, traits & pattern matching audit.
+- [ ] [27-terminal-ui-styling-audit.md](.lovable/plans/pending/27-terminal-ui-styling-audit.md) — Terminal UI, CLI styling, Lipgloss & animation architecture audit.
 
 ## Completed Plans
 
