@@ -135,17 +135,17 @@ def has_no_orphans(refs: dict[str, set[Path]], catalog: set[str], waivers: set[s
 
 
 def is_bijective(catalog: dict[str, int], errors: list[str]) -> bool:
-    flats = list(catalogue.values())
+    flats = list(catalog.values())
     dup_flats = sorted({f for f in flats if flats.count(f) > 1})
     for f in dup_flats:
-        owners = [c for c, v in catalogue.items() if v == f]
+        owners = [c for c, v in catalog.items() if v == f]
         errors.append(f"R3 flat {f} is shared by {owners}")
     return not dup_flats
 
 
 def is_in_range(catalog: dict[str, int], errors: list[str]) -> bool:
     bad = []
-    for code, flat in catalogue.items():
+    for code, flat in catalog.items():
         bad.extend(check_one_range(code, flat))
     for msg in bad:
         errors.append(msg)
