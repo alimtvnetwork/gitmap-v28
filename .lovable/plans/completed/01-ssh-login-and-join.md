@@ -3,8 +3,8 @@
 ## Context
 This plan addresses the implementation of advanced SSH wrappers, automated remote installation, IP utility commands, and host join/tracking functionalities.
 Inputs:
-- [01-ssh-commands.md](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md)
-- [06-ssh-troubleshooting-guide.md](file:///d:/work/gitmap/.lovable/issues/06-ssh-troubleshooting-guide.md)
+- [01-ssh-commands.md](.lovable/spec/commands/01-ssh-commands.md)
+- [06-ssh-troubleshooting-guide.md](.lovable/issues/06-ssh-troubleshooting-guide.md)
 
 **Release Policy (RULE 0F):**
 Individual task runs NEVER release. The release fires ONLY when the ENTIRE plan is finished. At that moment: bump MINOR version, add changelog, pin version in readme.

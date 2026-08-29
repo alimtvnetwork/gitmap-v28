@@ -28,6 +28,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 34 | Gocritic ifElseChain Diff Failure & Switch Refactor | CI Diff Gate / golangci-lint | ✅ Resolved | [34-gocritic-ifelsechain-diff.md](cicd-issues/34-gocritic-ifelsechain-diff.md) |
 | 35 | Exhaustive Switch Diff Failure & Complete Enum Handlers | CI Diff Gate / golangci-lint | ✅ Resolved | [35-exhaustive-switch-diff.md](cicd-issues/35-exhaustive-switch-diff.md) |
 | 36 | Misspell Changed Files & US English Standardization | Spell Check / misspell | ✅ Resolved | [36-misspell-changed-diff.md](cicd-issues/36-misspell-changed-diff.md) |
+| 37 | Installer Smoke Python Runner & Strict Relative Paths | Installer Smoke / Policy Gates | ✅ Resolved | [37-installer-smoke-release-diff.md](cicd-issues/37-installer-smoke-release-diff.md) |
 
 ## Patterns Learned
 - **US-English everywhere in Go**: `misspell` flags British spellings in comments and identifiers. Avoid `labeled`, `canceled`, `behavior`, `color`, `occurred`, `receive`, `separate`.

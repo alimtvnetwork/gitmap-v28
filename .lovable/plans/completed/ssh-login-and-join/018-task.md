@@ -27,9 +27,9 @@ citations:
 # Task 018 — Scaffold `gitmap ip` resolver struct
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
-- [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ip_resolver.go](file:///d:/work/gitmap/gitmap/cmd/ip_resolver.go) — Why: Target file.
+- [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
+- [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
+- [gitmap/cmd/ip_resolver.go](gitmap/cmd/ip_resolver.go) — Why: Target file.
 
 ## 2. Goal
 Deliver the Scaffold step for `IPResolver` to support the Scaffold `gitmap ip` resolver struct feature. This is isolated logic for the SSH/IP subdomains.

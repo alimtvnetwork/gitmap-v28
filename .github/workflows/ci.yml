@@ -881,6 +881,22 @@ jobs:
           message: boolean and naming check
           run: python linter-scripts/check-enum-and-boolean.py
 
+  relative-paths-check:
+    name: Relative Path Check
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: ./.github/actions/policy-check
+        with:
+          already-built: ${{ needs.sha-check.outputs.already-built }}
+          message: relative paths check
+          run: python linter-scripts/check-relative-paths.py
+
   constants-naming-check:
     # Guards constants/ against new constants lacking the canonical
     # Cmd*/Msg*/Err*/Flag*/Default* prefix. Grandfathered baseline at

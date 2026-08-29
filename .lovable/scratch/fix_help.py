@@ -29,7 +29,7 @@ def fix_colors(filepath):
     with open(filepath, 'w') as f:
         f.write('\n'.join(new_lines))
 
-fix_colors(r'd:\work\gitmap\gitmap\constants\constants_helpsections.go')
-fix_colors(r'd:\work\gitmap\gitmap\constants\constants_cli.go')
-fix_colors(r'd:\work\gitmap\gitmap\constants\constants_fixrepohelp.go')
-fix_colors(r'd:\work\gitmap\gitmap\constants\constants_clonefixrepo.go')
+fix_colors(r'gitmap\constants\constants_helpsections.go')
+fix_colors(r'gitmap\constants\constants_cli.go')
+fix_colors(r'gitmap\constants\constants_fixrepohelp.go')
+fix_colors(r'gitmap\constants\constants_clonefixrepo.go')

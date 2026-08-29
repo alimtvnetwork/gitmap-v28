@@ -26,9 +26,9 @@ citations:
 # Task 017 — Test SSH Client Config
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
-- [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ssh_client_test.go](file:///d:/work/gitmap/gitmap/cmd/ssh_client_test.go) — Why: Target file.
+- [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
+- [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
+- [gitmap/cmd/ssh_client_test.go](gitmap/cmd/ssh_client_test.go) — Why: Target file.
 
 ## 2. Goal
 Deliver the Wire+Test step for `TestSSHClient` to support the Test SSH Client Config feature. This is isolated logic for the SSH/IP subdomains.

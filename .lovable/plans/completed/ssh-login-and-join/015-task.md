@@ -27,9 +27,9 @@ citations:
 # Task 015 — Implement Spawn SSH
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
-- [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ssh_client.go](file:///d:/work/gitmap/gitmap/cmd/ssh_client.go) — Why: Target file.
+- [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
+- [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
+- [gitmap/cmd/ssh_client.go](gitmap/cmd/ssh_client.go) — Why: Target file.
 
 ## 2. Goal
 Deliver the Implement step for `SpawnSSH` to support the Implement Spawn SSH feature. This is isolated logic for the SSH/IP subdomains.

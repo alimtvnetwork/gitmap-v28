@@ -8,7 +8,7 @@ Created: 2026-08-20
 ## Context
 The user requested a terminal visualization enhancement for the update process. It must clearly show the current version and target version before the update begins, and output a summary detailing the previous version, the updated version, and the source of the update. Affected files include `constants_messages.go`, `constants_update.go`, `update.go`, and `updateremoteinstall.go`.
 Links:
-- Spec: [.lovable/spec/tasks/07-update-terminal-visualization.md](file:///d:/work/gitmap/.lovable/spec/tasks/07-update-terminal-visualization.md)
+- Spec: [.lovable/spec/tasks/07-update-terminal-visualization.md](.lovable/spec/tasks/07-update-terminal-visualization.md)
 - Adheres to: `.lovable/coding-guidelines.md` and `spec/12-consolidated-guidelines/02-go-code-style.md`
 
 ## Steps

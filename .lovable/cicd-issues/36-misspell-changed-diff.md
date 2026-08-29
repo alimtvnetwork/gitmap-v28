@@ -19,7 +19,7 @@ FAIL: misspellings found in repository files.
 Several documentation, script, and codebase files contained British English spellings (e.g. `behaviour`, `cancelled`, `colour`, `flavoured`, `optimise`, `organise`, `catalogue`, `labelled`), which violated the project's strict US-English spelling requirement enforced by `misspell -locale US`. In addition, `pickerModel` in `clonepick` had inconsistent field naming (`isCanceled`).
 
 ## Fix Applied
-1. Bounded the spelling fixer strictly to `d:\work\gitmap` using `git ls-files` without any external directory traversal.
+1. Bounded the spelling fixer strictly to the repository root using `git ls-files` without any external directory traversal.
 2. Ran `misspell -w -locale US` across all tracked files in the repository.
 3. Standardized `pickerModel.isCanceled` in `gitmap/clonepick/picker.go`, `picker_run.go`, and `picker_test.go`.
 4. Removed redundant `//nolint:misspell` directive in `picker.go`.

@@ -26,9 +26,9 @@ citations:
 # Task 046 — Implement OS specific IP swap (Linux)
 
 ## 1. Learn
-- [SSH Commands](file:///d:/work/gitmap/.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
-- [App Error Docs](file:///d:/work/gitmap/spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
-- [gitmap/cmd/ipchange_linux.go](file:///d:/work/gitmap/gitmap/cmd/ipchange_linux.go) — Why: Target file.
+- [SSH Commands](.lovable/spec/commands/01-ssh-commands.md) — Why: Defines required behavior.
+- [App Error Docs](spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
+- [gitmap/cmd/ipchange_linux.go](gitmap/cmd/ipchange_linux.go) — Why: Target file.
 
 ## 2. Goal
 Deliver the Implement step for `swapIPLinux` to support the Implement OS specific IP swap (Linux) feature. This is isolated logic for the SSH/IP subdomains.

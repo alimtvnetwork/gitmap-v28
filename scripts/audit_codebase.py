@@ -2,11 +2,12 @@ import os
 import re
 import json
 
-gitmap_dir = r"d:\work\gitmap\gitmap"
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+gitmap_dir = os.path.join(repo_root, "gitmap")
 violations = []
 
 def audit_file(filepath):
-    rel_path = os.path.relpath(filepath, r"d:\work\gitmap").replace("\\", "/")
+    rel_path = os.path.relpath(filepath, repo_root).replace("\\", "/")
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         lines = f.readlines()
     
