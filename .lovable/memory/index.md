@@ -110,3 +110,4 @@ commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commit
 - [ ] 06-ssh-troubleshooting-guide.md - SSH Guide
 
 - [02-gitmap-installer.md](file:///d:/work/gitmap/.lovable/memory/learned/02-gitmap-installer.md) - Learned patterns for Gitmap installer system
+- [2026-08-29-coding-guideline-violations.md](file:///d:/work/gitmap/.lovable/memory/issues/2026-08-29-coding-guideline-violations.md) - RCA on coding guideline violations and 150-step audit

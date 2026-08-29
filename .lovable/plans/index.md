@@ -1,7 +1,7 @@
 # Plans Index
 
 ## Pending Plans
-*None — All pending plans completed.*
+- [ ] [01-coding-guideline-fixes.md](file:///d:/work/gitmap/.lovable/plans/pending/01-coding-guideline-fixes.md) — 150-step audit and enforcement of coding guidelines, boolean standards, enum suffixes, and function caps.
 
 ## Completed Plans
 - [x] [00-execution-plan.md](file:///d:/work/gitmap/.lovable/plans/completed/00-execution-plan.md)
