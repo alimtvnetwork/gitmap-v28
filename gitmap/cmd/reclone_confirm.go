@@ -28,6 +28,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenow"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // confirmCloneNowExistingDestsOrExit gates the executor on a user
@@ -49,11 +51,11 @@ func confirmCloneNowExistingDestsOrExit(plan clonenow.Plan, cfg cloneNowFlags) {
 	isNonStdinInteractive := !isStdinInteractive()
 	if isNonStdinInteractive {
 		fmt.Fprint(os.Stderr, constants.MsgCloneNowConfirmNonTTY)
-		os.Exit(constants.CloneNowExitConfirmAborted)
+		cliexit.HandleError(nil, constants.CloneNowExitConfirmAborted)
 	}
 	if !readUserConfirmation() {
 		fmt.Fprint(os.Stderr, constants.MsgCloneNowConfirmAborted)
-		os.Exit(constants.CloneNowExitConfirmAborted)
+		cliexit.HandleError(nil, constants.CloneNowExitConfirmAborted)
 	}
 }
 

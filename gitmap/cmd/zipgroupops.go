@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -12,7 +14,17 @@ import (
 // runZipGroupRemove handles "zip-group remove <group> <path>".
 func runZipGroupRemove(args []string) error {
 	if len(args) < 2 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.zipgroup.remove",
+			"E1033",
+			"insufficient arguments for zip-group remove; usage: gitmap zip-group remove <group> <path>",
+			"cmd.zipgroup",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 
 	groupName := args[0]
@@ -20,7 +32,18 @@ func runZipGroupRemove(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.remove.openDB",
+			"E1034",
+			"failed to open database for zip-group remove",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 
@@ -29,7 +52,18 @@ func runZipGroupRemove(args []string) error {
 
 	err = db.RemoveZipGroupItem(groupName, fullPath)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.remove.item",
+			"E1035",
+			"failed to remove item from zip group",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"group": groupName, "path": rawPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	fmt.Printf(constants.MsgZGItemRemoved, rawPath, groupName)
@@ -40,20 +74,52 @@ func runZipGroupRemove(args []string) error {
 // runZipGroupDelete handles "zip-group delete <name>".
 func runZipGroupDelete(args []string) error {
 	if len(args) == 0 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.zipgroup.delete",
+			"E1036",
+			"missing required group name for zip-group delete",
+			"cmd.zipgroup",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 
 	name := args[0]
 
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.delete.openDB",
+			"E1037",
+			"failed to open database for zip-group delete",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 
 	err = db.DeleteZipGroup(name)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.delete.group",
+			"E1038",
+			"failed to delete zip group from database",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"name": name},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	fmt.Printf(constants.MsgZGDeleted, name)
@@ -65,10 +131,30 @@ func runZipGroupDelete(args []string) error {
 func runZipGroupRename(args []string) error {
 	name, archiveName := parseZipGroupRenameFlags(args)
 	if len(name) == 0 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.zipgroup.rename",
+			"E1039",
+			"missing required group name for zip-group rename",
+			"cmd.zipgroup",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 	if len(archiveName) == 0 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.zipgroup.rename.archive",
+			"E1040",
+			"missing required --archive flag for zip-group rename",
+			"cmd.zipgroup",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 	executeZipGroupRename(name, archiveName)
 	return nil
@@ -91,13 +177,35 @@ func parseZipGroupRenameFlags(args []string) (name, archive string) {
 func executeZipGroupRename(name, archiveName string) {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.rename.openDB",
+			"E1041",
+			"failed to open database for zip-group rename",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 	defer db.Close()
 
 	err = db.UpdateZipGroupArchive(name, archiveName)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.zipgroup.rename.update",
+			"E1042",
+			"failed to update zip group archive name",
+			"cmd.zipgroup",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"name": name, "archive": archiveName},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	fmt.Printf(constants.MsgZGArchiveSet, archiveName, name)

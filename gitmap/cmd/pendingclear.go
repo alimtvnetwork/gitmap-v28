@@ -26,6 +26,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // mustParsePendingClearArgs parses and validates arguments or exits on failure.
@@ -33,7 +36,7 @@ func mustParsePendingClearArgs(args []string) (string, bool, bool, int64) {
 	mode, dryRun, yes, idMatch, err := parsePendingClearArgs(args)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
-		panic("fatal")
+		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
 
 	return mode, dryRun, yes, idMatch
@@ -68,7 +71,7 @@ func executePendingClear(db *store.DB, candidates []pendingClearCandidate, dryRu
 	}
 	if !yes && !confirmPendingClear(len(candidates)) {
 		fmt.Print(constants.MsgPendingClearAborted)
-		panic("fatal")
+		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
 	deleted := deletePendingClearCandidates(db, candidates)
 	fmt.Printf(constants.MsgPendingClearDone, deleted, len(candidates))

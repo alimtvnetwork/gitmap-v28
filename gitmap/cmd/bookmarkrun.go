@@ -7,13 +7,15 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runBookmarkRun loads a bookmark by name and dispatches the saved command.
 func runBookmarkRun(args []string) *apperror.AppError {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkRunUsage)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	name := args[0]
@@ -25,14 +27,14 @@ func loadAndDispatchBookmark(name string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkQuery+"\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
 	bk, err := db.FindBookmarkByName(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkNotFound, name)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	fmt.Printf(constants.MsgBookmarkRunning, bk.Name, bk.Command, bk.Args, bk.Flags)

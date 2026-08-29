@@ -21,6 +21,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runHasChange handles the `has-change` command.
@@ -30,7 +32,7 @@ func runHasChange(args []string) error {
 	alias, mode, all, fetch := parseHasChangeFlags(args)
 	if len(alias) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrHCUsage)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	target := resolveReleaseAliasPath(alias)
@@ -56,7 +58,7 @@ func parseHasChangeFlags(args []string) (alias, mode string, all, fetch bool) {
 	allFlag := fs.Bool(constants.FlagHCAll, false, constants.FlagDescHCAll)
 	fetchFlag := fs.Bool(constants.FlagHCFetch, true, constants.FlagDescHCFetch)
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	rest := fs.Args()
 	if len(rest) >= 1 {
@@ -79,7 +81,7 @@ func printHasChangeOne(target, mode string) {
 		fmt.Println(boolStr(behind > 0))
 	default:
 		fmt.Fprintf(os.Stderr, constants.ErrHCBadMode, mode)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 }
 

@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -19,7 +21,18 @@ func runTempReleaseCreate(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.temprelease.create.openDB",
+			"E1119",
+			"failed to open database for temp-release create",
+			"cmd.temprelease",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
@@ -42,7 +55,18 @@ func runTempReleaseCreate(args []string) error {
 func executeTRCreate(db *store.DB, count int, prefix string, digitCount, start int, dryRun bool) {
 	commits, err := release.ListRecentCommits(count)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.temprelease.listCommits",
+			"E1120",
+			"failed to list recent commits for temp-release",
+			"cmd.temprelease",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"count": count},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	if len(commits) < count {
@@ -65,7 +89,16 @@ func executeTRCreate(db *store.DB, count int, prefix string, digitCount, start i
 func parseVersionPattern(pattern string) (string, int) {
 	idx := strings.Index(pattern, "$")
 	if idx < 0 {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.temprelease.parsePattern",
+			"E1121",
+			fmt.Sprintf("pattern '%s' must contain '$' placeholders (e.g. v1.0.$$$)", pattern),
+			"cmd.temprelease",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"pattern": pattern},
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	prefix := pattern[:idx]
@@ -94,7 +127,16 @@ func validateSequenceRange(start, count, digits int) {
 	endSeq := start + count - 1
 
 	if endSeq > maxVal {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.temprelease.validateRange",
+			"E1122",
+			fmt.Sprintf("sequence end %d exceeds maximum digit capacity %d", endSeq, maxVal),
+			"cmd.temprelease",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"start": start, "count": count, "maxVal": maxVal},
+		)
+		cliexit.HandleError(err, 1)
 	}
 }
 

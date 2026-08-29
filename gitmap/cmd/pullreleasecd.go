@@ -9,6 +9,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runPullReleaseCD implements `gitmap pull-release-cd` (alias `prc`).
@@ -24,7 +26,7 @@ func runPullReleaseCD(args []string) error {
 	entries, err := parsePRCEntries(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	self, err := os.Executable()

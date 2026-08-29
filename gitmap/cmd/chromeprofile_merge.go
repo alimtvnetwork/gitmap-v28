@@ -27,6 +27,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 type mergePolicy struct {
@@ -53,24 +55,24 @@ func runChromeProfileMerge(args []string) error {
 	pos := fs.Args()
 	if len(pos) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrChromeMergeUsage)
-		os.Exit(constants.ExitChromeProfileUsage)
+		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
 	isNonKnownMergeWhat := !isKnownMergeWhat(*what)
 	if isNonKnownMergeWhat {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeMergeUnknown, *what)
-		os.Exit(constants.ExitChromeProfileUsage)
+		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
 	src, ok := resolveChromeProfile(pos[0])
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileSrcMissing, pos[0], src.Path)
 		printAvailableChromeProfilesWithDisplay()
-		os.Exit(constants.ExitChromeProfileNotFound)
+		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
 	}
 	dst, ok := resolveChromeProfile(pos[1])
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileSrcMissing, pos[1], dst.Path)
 		printAvailableChromeProfilesWithDisplay()
-		os.Exit(constants.ExitChromeProfileNotFound)
+		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
 	}
 	executeChromeProfileMerge(src, dst, *what, mergePolicy{
 		autoKeep: *yes, autoOverwrite: *force, dryRun: *dryRun, reader: bufio.NewReader(os.Stdin),
@@ -212,7 +214,7 @@ func promptMergeDecision(key string, pol *mergePolicy) int {
 		return mergeKeep
 	case "q":
 		fmt.Fprintln(os.Stderr, "  aborted by user")
-		os.Exit(0)
+		cliexit.HandleError(nil, 0)
 	}
 	return mergeKeep
 }

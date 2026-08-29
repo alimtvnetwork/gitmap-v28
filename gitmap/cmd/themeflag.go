@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/theme"
 )
@@ -23,55 +25,40 @@ import (
 func stripThemeFlag(args []string) []string {
 	short := "-" + constants.FlagTheme
 	long := "--" + constants.FlagTheme
+	cleaned := make([]string, 0, len(args))
 
-	out := make([]string, 0, len(args))
-	chosen := ""
-	i := 0
-	for i < len(args) {
+	for i := 0; i < len(args); i++ {
 		a := args[i]
-		val, consumed, matched := matchThemeArg(a, args, i, short, long)
-		if !matched {
-			out = append(out, a)
-			i++
-
+		if val, ok := parseThemeEqual(a, short, long); ok {
+			applyThemeChoice(val)
 			continue
 		}
-		chosen = val
-		i += consumed
+		if a == short || a == long {
+			if i+1 < len(args) {
+				applyThemeChoice(args[i+1])
+				i++
+				continue
+			}
+			applyThemeChoice("") // will fail validation and print help
+			continue
+		}
+		cleaned = append(cleaned, a)
 	}
 
-	if chosen != "" {
-		applyThemeChoice(chosen)
-	}
-
-	return out
+	return cleaned
 }
 
-// matchThemeArg recognizes the four legal flag forms and returns the
-// extracted value plus how many argv slots it consumed. The split
-// `--theme <mode>` form only consumes the next slot when it looks
-// like a theme label — otherwise a bare `--theme` would silently
-// steal the subcommand name.
-func matchThemeArg(a string, args []string, i int, short, long string) (val string, consumed int, matched bool) {
-	if (a == short || a == long) && i+1 < len(args) && theme.IsValidLabel(args[i+1]) == true {
-		return args[i+1], 2, true
+// parseThemeEqual checks for `-theme=val` or `--theme=val`.
+func parseThemeEqual(a, short, long string) (string, bool) {
+	if val, ok := stripThemePrefix(a, short+"="); ok {
+		return val, true
 	}
-	if a == short || a == long {
-		return "", 1, true
-	}
-	if v, ok := stripEqPrefix(a, long+"="); ok {
-		return v, 1, true
-	}
-	if v, ok := stripEqPrefix(a, short+"="); ok {
-		return v, 1, true
-	}
-
-	return "", 0, false
+	return stripThemePrefix(a, long+"=")
 }
 
-// stripEqPrefix returns the value after prefix when a starts with it.
-func stripEqPrefix(a, prefix string) (string, bool) {
-	if len(a) <= len(prefix) || a[:len(prefix)] != prefix {
+// stripThemePrefix helper returns the remainder if a begins with prefix.
+func stripThemePrefix(a, prefix string) (string, bool) {
+	if len(a) < len(prefix) || a[:len(prefix)] != prefix {
 		return "", false
 	}
 
@@ -82,14 +69,20 @@ func stripEqPrefix(a, prefix string) (string, bool) {
 // aborts with a friendly error listing the accepted values.
 func applyThemeChoice(choice string) {
 	if !theme.IsValidLabel(choice) {
-		fmt.Fprintf(os.Stderr,
-			"gitmap: invalid --theme value %q (want: %s | %s | %s)\n",
-			choice,
-			constants.ThemeBright,
-			constants.ThemeStandard,
-			constants.ThemeMonochrome,
+		err := apperror.NewWithDetails(
+			"cmd.themeflag.apply",
+			"E1152",
+			fmt.Sprintf("invalid --theme value %q (want: %s | %s | %s)",
+				choice,
+				constants.ThemeBright,
+				constants.ThemeStandard,
+				constants.ThemeMonochrome),
+			"cmd.themeflag",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"choice": choice},
 		)
-		os.Exit(2)
+		cliexit.HandleError(err, 2)
 	}
 	os.Setenv(constants.EnvTheme, choice)
 }

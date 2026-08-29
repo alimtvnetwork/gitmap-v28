@@ -6,6 +6,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runProfile handles the "profile" subcommand routing.
@@ -52,5 +54,5 @@ func routeProfileSub(sub string, args []string) {
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
-	panic(apperror.NewSimple("fatal error", "E9000"))
+	cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 }

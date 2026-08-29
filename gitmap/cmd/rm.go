@@ -13,6 +13,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // rmUsage describes the `gitmap rm` command.
@@ -77,7 +79,7 @@ func runRm(args []string) error {
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 	if removeRmMatches(db, matches, yes, dbOnly) {
-		os.Exit(0)
+		cliexit.HandleError(nil, 0)
 	}
 	return apperror.NewSimple("fatal error", "E9000")
 	// 	return nil

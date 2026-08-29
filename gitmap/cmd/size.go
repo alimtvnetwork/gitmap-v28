@@ -29,7 +29,7 @@ func runSize(args []string) error {
 	dryRun := fs.Bool("dry-run", false, "with --prune: list gc invocations without running them")
 	format := fs.String("format", "table", "output format: table|json|csv")
 	if err := fs.Parse(args); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(err, 2)
 	}
 	fmtKind, err := parseHygieneFormat(*format)
 	if err != nil {

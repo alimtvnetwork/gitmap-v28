@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
 )
 
@@ -16,7 +17,17 @@ import (
 func runVSCode(args []string) error {
 	if len(args) == 0 {
 		printVSCodeUsage()
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.vscode",
+			"E1023",
+			"missing required vscode subcommand",
+			"cmd.vscode",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 	dispatchVSCodeAction(args)
 	return nil
@@ -36,14 +47,33 @@ func dispatchVSCodeAction(args []string) {
 		handleVSCodeRm(args)
 	default:
 		printVSCodeUsage()
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.vscode.dispatch",
+			"E1024",
+			fmt.Sprintf("unknown vscode subcommand '%s'", args[0]),
+			"cmd.vscode",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"subcommand": args[0]},
+		)
+		cliexit.HandleError(err, 1)
 	}
 }
 
 func handleVSCodeAdd(args []string) {
 	if len(args) < 2 {
-		fmt.Println("Usage: gitmap vscode add <path1,path2,...>")
-		panic("error")
+		printVSCodeUsage()
+		err := apperror.NewWithDetails(
+			"cmd.vscode.add",
+			"E1025",
+			"missing path argument for vscode add",
+			"cmd.vscode",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return
 	}
 	for _, p := range strings.Split(args[1], ",") {
 		if p = strings.TrimSpace(p); p != "" {
@@ -54,8 +84,18 @@ func handleVSCodeAdd(args []string) {
 
 func handleVSCodeRm(args []string) {
 	if len(args) < 2 {
-		fmt.Println("Usage: gitmap vscode rm <path or name,...>")
-		panic("error")
+		printVSCodeUsage()
+		err := apperror.NewWithDetails(
+			"cmd.vscode.rm",
+			"E1026",
+			"missing target argument for vscode rm",
+			"cmd.vscode",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return
 	}
 	for _, t := range strings.Split(args[1], ",") {
 		if t = strings.TrimSpace(t); t != "" {

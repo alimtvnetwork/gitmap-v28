@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
@@ -19,7 +21,18 @@ func runVersionHistory(args []string) error {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.versionhistory.getwd",
+			"E1141",
+			"failed to get current working directory",
+			"cmd.versionhistory",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	absPath := resolveVersionHistoryPath(cwd)
@@ -62,19 +75,42 @@ func resolveVersionHistoryPath(cwd string) string {
 func loadVersionHistory(absPath string, limit int) []model.RepoVersionHistoryRecord {
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.versionhistory.openDB",
+			"E1142",
+			"failed to open database for version history",
+			"cmd.versionhistory",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 
 	repoID, findErr := db.GetRepoIDByPath(absPath)
 	if findErr != nil {
 		fmt.Print(constants.MsgVersionHistoryEmpty)
-		os.Exit(0)
+		cliexit.HandleError(nil, 0)
+		return nil
 	}
 
 	records, queryErr := db.ListVersionHistory(repoID)
 	if queryErr != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			queryErr,
+			"cmd.versionhistory.list",
+			"E1143",
+			"failed to query version history from database",
+			"cmd.versionhistory",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"repoID": repoID},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	if limit > 0 && limit < len(records) {

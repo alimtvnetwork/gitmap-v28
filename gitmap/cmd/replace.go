@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runReplace is the entrypoint for `gitmap replace`. It dispatches into
@@ -16,7 +18,7 @@ func runReplace(args []string) error {
 	opts, positional, err := parseReplaceFlags(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 
 	mode := classifyReplaceMode(positional, opts)
@@ -35,7 +37,7 @@ func dispatchReplaceMode(mode replaceMode, positional []string, opts replaceOpts
 		dispatchVersionMode(mode, positional, opts)
 	default:
 		fmt.Fprint(os.Stderr, constants.ErrReplaceNeedsArgs)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 }
 
@@ -103,7 +105,7 @@ func mustParseDashN(s string) int {
 	n, ok := parseDashNDigits(s)
 	if !ok || n < 1 {
 		fmt.Fprintf(os.Stderr, constants.ErrReplaceBadN, s)
-		os.Exit(constants.ExitCodeError)
+		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
 	return n
 }

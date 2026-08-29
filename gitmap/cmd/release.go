@@ -12,6 +12,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runRelease handles the 'release' command.
@@ -93,7 +95,7 @@ func executeRelease(version, assets, commit, branch, bump, notes, targets string
 	cfg := loadReleaseConfig()
 	opts := buildReleaseOptions(version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes, cfg)
 	if err := release.Execute(opts); err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrBareFmt))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrBareFmt), 1)
 	}
 	persistReleaseToDB()
 }
@@ -102,11 +104,11 @@ func executeRelease(version, assets, commit, branch, bump, notes, targets string
 func validateReleaseFlags(version, bump, commit, branch string) {
 	if len(bump) > 0 && len(version) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrReleaseBumpConflict)
-		panic(apperror.NewSimple("fatal error", "E9000"))
+		cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 	}
 	if len(commit) > 0 && len(branch) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrReleaseCommitBranch)
-		panic(apperror.NewSimple("fatal error", "E9000"))
+		cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 	}
 }
 
@@ -207,7 +209,7 @@ func printListTargets(flagTargets string) {
 	cfg := loadReleaseConfig()
 	targets, err := release.ResolveTargets(flagTargets, cfg.Release.Targets)
 	if err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrBareFmt))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrBareFmt), 1)
 	}
 	printTargetDetails(flagTargets, cfg.Release.Targets, targets)
 }

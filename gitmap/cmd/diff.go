@@ -9,6 +9,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/diff"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runDiff implements `gitmap diff LEFT RIGHT`: a read-only preview
@@ -53,7 +55,7 @@ func parseDiffArgs(args []string) (left, right string, walk diff.WalkOptions, pr
 
 	positional := reorderFlagsBeforeArgs(args)
 	if err := fs.Parse(positional); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	left, right = extractDiffPositional(fs.Args())
 	walk = diff.WalkOptions{IncludeVCS: *includeVCS, IncludeNodeModules: *includeNM}
@@ -69,7 +71,7 @@ func parseDiffArgs(args []string) (left, right string, walk diff.WalkOptions, pr
 func extractDiffPositional(rest []string) (string, string) {
 	if len(rest) != 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrDiffUsageFmt)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	return rest[0], rest[1]

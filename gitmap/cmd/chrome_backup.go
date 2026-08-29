@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func runChromeBackup(args []string) *apperror.AppError {
@@ -50,7 +52,7 @@ func runChromeBackup(args []string) *apperror.AppError {
 func runChromeRestore(args []string) *apperror.AppError {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "chrome restore: ERROR usage: gitmap chrome restore <tarball> [--into <dir>] [--force|-f] [--yes|-y] [--dry-run] [--no-verify]")
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	src := args[0]
 	dst := ""

@@ -34,7 +34,7 @@ func maybeRunClonePickPicker(plan clonepick.Plan, ask bool) clonepick.Plan {
 		os.RemoveAll(tmp)
 		fmt.Fprintln(os.Stderr, constants.MsgClonePickMissingPaths)
 		maybeExitOnCmdFaithfulMismatch()
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	plan.Paths = picked
 	plan.UsedAsk = true
@@ -54,7 +54,7 @@ func handleClonePickPickerError(plan clonepick.Plan, err error) {
 	if errors.Is(err, clonepick.ErrPickerCancelled) {
 		fmt.Fprintln(os.Stderr, constants.MsgClonePickUserCancelled)
 		maybeExitOnCmdFaithfulMismatch()
-		os.Exit(130)
+		cliexit.HandleError(nil, 130)
 	}
 	cliexit.Fail(constants.CmdClonePick, "picker", plan.RepoUrl, err, 1)
 }

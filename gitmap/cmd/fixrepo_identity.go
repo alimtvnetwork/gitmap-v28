@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // fixRepoIdentity is the resolved repo identity used by the command.
@@ -41,12 +43,12 @@ func mustGitRoot() string {
 	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNotARepo)
-		os.Exit(constants.FixRepoExitNotARepo)
+		cliexit.HandleError(nil, constants.FixRepoExitNotARepo)
 	}
 	root := strings.TrimSpace(string(out))
 	if root == "" {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNotARepo)
-		os.Exit(constants.FixRepoExitNotARepo)
+		cliexit.HandleError(nil, constants.FixRepoExitNotARepo)
 	}
 
 	return root
@@ -57,12 +59,12 @@ func mustGitRemoteURL() string {
 	out, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNoRemote)
-		os.Exit(constants.FixRepoExitNoRemote)
+		cliexit.HandleError(nil, constants.FixRepoExitNoRemote)
 	}
 	url := strings.TrimSpace(string(out))
 	if url == "" {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNoRemote)
-		os.Exit(constants.FixRepoExitNoRemote)
+		cliexit.HandleError(nil, constants.FixRepoExitNoRemote)
 	}
 
 	return url
@@ -76,7 +78,7 @@ func mustParseRemoteURL(url string) (string, string, string) {
 	host, owner, repo, ok := parseRemoteURL(url)
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrParseURLFmt, url)
-		os.Exit(constants.FixRepoExitNoRemote)
+		cliexit.HandleError(nil, constants.FixRepoExitNoRemote)
 	}
 
 	return host, owner, repo
@@ -144,12 +146,12 @@ func mustSplitRepoVersion(repo string) (string, int) {
 	m := reRepoVersion.FindStringSubmatch(repo)
 	if len(m) != 3 {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrNoVerSuffFmt, repo)
-		os.Exit(constants.FixRepoExitNoVersionSuffix)
+		cliexit.HandleError(nil, constants.FixRepoExitNoVersionSuffix)
 	}
 	n, err := strconv.Atoi(m[2])
 	if err != nil || n < 1 {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrBadVersion)
-		os.Exit(constants.FixRepoExitBadVersion)
+		cliexit.HandleError(nil, constants.FixRepoExitBadVersion)
 	}
 
 	return m[1], n

@@ -9,13 +9,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runSf dispatches `gitmap sf <add|list|rm>`.
 func runSf(args []string) error {
 	if len(args) == 0 {
 		printSfUsage()
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	sub := args[0]
@@ -30,7 +32,7 @@ func runSf(args []string) error {
 		runSfRemove(rest)
 	default:
 		printSfUsage()
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return nil
 }
@@ -48,7 +50,7 @@ func runSfAdd(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrSFMissingArg+"\n", "<absolute-path>")
 		printSfUsage()
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	pathArg := args[0]
@@ -57,7 +59,7 @@ func runSfAdd(args []string) error {
 	absPath, err := filepath.Abs(pathArg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSFAbsResolve+"\n", pathArg, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	db := openSfDB()
@@ -67,7 +69,7 @@ func runSfAdd(args []string) error {
 	folder, err := db.EnsureScanFolder(absPath, label, notes)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	if isExistingScanFolder(existing, folder.ID) {
@@ -87,7 +89,7 @@ func runSfList(_ []string) error {
 	folders, err := db.ListScanFolders()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	if len(folders) == 0 {
@@ -108,7 +110,7 @@ func runSfRemove(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrSFMissingArg+"\n", "<absolute-path|id>")
 		printSfUsage()
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	target := args[0]
@@ -118,7 +120,7 @@ func runSfRemove(args []string) error {
 	folder, detached, err := removeSfTarget(db, target)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	fmt.Printf(constants.MsgSFRemovedFmt, folder.AbsolutePath, folder.ID, detached)
@@ -186,12 +188,12 @@ func openSfDB() *store.DB {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		db.Close()
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return db

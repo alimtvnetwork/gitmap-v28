@@ -34,10 +34,10 @@ func runVisibilityHistory(args []string) error {
 	runs = applyHistoryFilters(runs, filters, time.Now())
 	if len(runs) == 0 {
 		fmt.Fprint(os.Stderr, constants.MsgVisHistoryEmpty)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
 	}
 	printHistory(runs)
-	os.Exit(constants.ExitVisOK)
+	cliexit.HandleError(nil, constants.ExitVisOK)
 	return nil
 }
 
@@ -67,7 +67,7 @@ func parseHistoryLimit(args []string) int {
 		n, err := strconv.Atoi(args[i+1])
 		if err != nil || n <= 0 {
 			fmt.Fprintf(os.Stderr, constants.ErrUndoBadRunFlagFmt, args[i+1], err, "--limit must be positive integer")
-			os.Exit(constants.ExitVisBadFlag)
+			cliexit.HandleError(nil, constants.ExitVisBadFlag)
 		}
 
 		return n

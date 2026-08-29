@@ -9,6 +9,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 var cgCommand = "cg"
@@ -36,7 +38,7 @@ func parseCGFlags(args []string) cgOptions {
 	argsAfterParse := fs.Args()
 	if len(argsAfterParse) == 0 {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap cg [version|status|install|update|install-version-json|install-prompts|update-prompts|prompts-status|prompts-version] [repo1 repo2...] [--all]\n")
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	opts.Action = argsAfterParse[0]
@@ -100,7 +102,7 @@ func runCG(args []string) error {
 		executeCGWorkers(repos)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown action: %s\n", opts.Action)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return nil
 }

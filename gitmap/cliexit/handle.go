@@ -23,10 +23,14 @@ func SetExitFunc(fn func(int)) func(int) {
 // and process exit (or panic if debug mode is active).
 func HandleError(err error, defaultCode ...int) {
 	if err == nil {
+		if len(defaultCode) > 0 {
+			runFlushers()
+			exitFunc(defaultCode[0])
+		}
 		return
 	}
 	code := 1
-	if len(defaultCode) > 0 && defaultCode[0] > 0 {
+	if len(defaultCode) > 0 {
 		code = defaultCode[0]
 	}
 	var appErr *apperror.AppError

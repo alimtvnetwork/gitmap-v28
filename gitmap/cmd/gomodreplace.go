@@ -9,6 +9,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // readModulePath reads the module path from go.mod in the current directory.
@@ -17,7 +19,7 @@ func readModulePath() string {
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrGoModNoFile)
 		fmt.Fprintln(os.Stderr, apperror.NewSimple("fatal error", "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return parseModuleLine(string(data))
@@ -35,7 +37,7 @@ func parseModuleLine(content string) string {
 
 	fmt.Fprint(os.Stderr, constants.ErrGoModNoModule)
 	fmt.Fprintln(os.Stderr, apperror.NewSimple("fatal error", "E9000").Error())
-	os.Exit(1)
+	cliexit.HandleError(nil, 1)
 
 	return ""
 }

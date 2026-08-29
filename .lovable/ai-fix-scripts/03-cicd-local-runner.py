@@ -112,6 +112,7 @@ def main():
     checks = [
         ("Legacy Refs Check", run_legacy_refs_check, None, None),
         ("Bare Stderr Check", run_bare_stderr_check, None, None),
+        ("Error Management Linter", None, "python linter-scripts/check-error-management.py", ROOT_DIR),
         ("Changelog Version Sync", run_changelog_sync_check, None, None),
         ("Generate Drift Check", run_generate_drift_check, None, None),
         ("Installer Smoke", None, "pwsh -File .github/scripts/smoke-installer.ps1 source", ROOT_DIR),

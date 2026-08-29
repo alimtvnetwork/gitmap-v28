@@ -27,6 +27,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // addLFSInstallTag identifies the marker block written into
@@ -51,12 +53,12 @@ func runAddLFSInstall(args []string) *apperror.AppError {
 	if !insideGitRepo() {
 		fmt.Fprintln(os.Stderr, "  ✗ Not inside a Git repository.")
 		fmt.Fprintln(os.Stderr, "    Run this command from the root of a repo (where .git/ lives).")
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	if !lfsAvailable() {
 		fmt.Fprintln(os.Stderr, "  ✗ Git LFS is not installed or not on PATH.")
 		fmt.Fprintln(os.Stderr, "    Install it from https://git-lfs.com and re-run.")
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	resolved, err2 := templates.Resolve("lfs", "common")

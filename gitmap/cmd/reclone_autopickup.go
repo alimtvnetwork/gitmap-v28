@@ -27,6 +27,8 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // resolveCloneNowSource picks the input file for `gitmap reclone`
@@ -45,7 +47,7 @@ func resolveCloneNowSource(fs *flag.FlagSet, manifest, scanRoot string) string {
 	if manifest != "" && fs.NArg() >= 1 {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneNowManifestConflict,
 			fs.Arg(0), manifest)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	if manifest != "" {
 
@@ -58,7 +60,7 @@ func resolveCloneNowSource(fs *flag.FlagSet, manifest, scanRoot string) string {
 	picked, ok := autoPickupRecloneManifest(scanRoot)
 	if !ok {
 		printAutoPickupMiss(scanRoot)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	fmt.Fprintf(os.Stderr, constants.MsgCloneNowAutoPickup, picked)
 

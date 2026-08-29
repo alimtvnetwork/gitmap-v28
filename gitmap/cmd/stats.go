@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -39,8 +42,18 @@ func parseStatsFlags(args []string) (string, bool) {
 func loadStats(cmdFilter string) (model.OverallStats, []model.CommandStats) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrStatsQuery+"\n", err)
-		os.Exit(1)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.stats.openDB",
+			"E1154",
+			fmt.Sprintf(constants.ErrStatsQuery, err),
+			"cmd.stats",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return model.OverallStats{}, nil
 	}
 	defer db.Close()
 
@@ -48,7 +61,6 @@ func loadStats(cmdFilter string) (model.OverallStats, []model.CommandStats) {
 	handleStatsError(err)
 
 	commands := loadStatsCommands(db, cmdFilter)
-	overall.Commands = commands
 
 	return overall, commands
 }
@@ -92,12 +104,15 @@ func printStatsTerminal(overall model.OverallStats, commands []model.CommandStat
 	}
 }
 
-// printStatsJSON outputs stats as stable JSON (see statsrender.go).
+// printStatsJSON outputs stats as JSON.
 func printStatsJSON(overall model.OverallStats, commands []model.CommandStats) {
 	overall.Commands = commands
-	if err := encodeStatsJSON(os.Stdout, overall, commands); err != nil {
+	data, err := json.MarshalIndent(overall, "", "  ")
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to marshal stats to JSON: %v\n", err)
+		return
 	}
+	fmt.Println(string(data))
 }
 
 func handleStatsError(err error) {
@@ -105,9 +120,28 @@ func handleStatsError(err error) {
 		return
 	}
 	if isLegacyDataError(err) {
-		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		os.Exit(1)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.stats.legacyData",
+			"E1155",
+			constants.MsgLegacyProjectData,
+			"cmd.stats",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
-	fmt.Fprintf(os.Stderr, constants.ErrStatsQuery+"\n", err)
-	os.Exit(1)
+	appErr := apperror.WrapWithDetails(
+		err,
+		"cmd.stats.query",
+		"E1156",
+		fmt.Sprintf(constants.ErrStatsQuery, err),
+		"cmd.stats",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityError,
+		nil,
+	)
+	cliexit.HandleError(appErr, 1)
 }

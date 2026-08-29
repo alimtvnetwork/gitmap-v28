@@ -46,7 +46,7 @@ func runRevertRunner() error {
 func executeRevert(repoPath string) {
 	scriptPath, err := writeRevertScript(repoPath)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	defer os.Remove(scriptPath)
 
@@ -84,7 +84,7 @@ func runRevertPS(scriptPath string) error {
 
 	logRevertResult(err)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 
 	fmt.Printf(constants.MsgRevertDone)

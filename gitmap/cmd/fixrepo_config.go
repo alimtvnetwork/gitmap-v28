@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // fixRepoConfig is the on-disk JSON shape (matches fix-repo.config.json).
@@ -38,7 +40,7 @@ func loadFixRepoConfig(explicit, repoRoot string) {
 	resolved, err := resolveFixRepoConfigPath(explicit, repoRoot)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrBadConfigFmt, err.Error())
-		os.Exit(constants.FixRepoExitBadConfig)
+		cliexit.HandleError(nil, constants.FixRepoExitBadConfig)
 	}
 	fixRepoActiveIgnore = fixRepoIgnore{}
 	if resolved == "" {
@@ -47,7 +49,7 @@ func loadFixRepoConfig(explicit, repoRoot string) {
 	cfg, err := readFixRepoConfig(resolved)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrBadConfigFmt, err.Error())
-		os.Exit(constants.FixRepoExitBadConfig)
+		cliexit.HandleError(nil, constants.FixRepoExitBadConfig)
 	}
 	fixRepoActiveIgnore = compileFixRepoIgnore(cfg)
 }

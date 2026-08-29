@@ -7,6 +7,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runDBMigrate handles the "db-migrate" (alias "dbm") subcommand.
@@ -40,7 +42,7 @@ func parseDBMigrateFlags(args []string) bool {
 	v := fs.Bool(constants.FlagDBMigrateVerbose, false, constants.FlagDescDBMigrateV)
 
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	return *v

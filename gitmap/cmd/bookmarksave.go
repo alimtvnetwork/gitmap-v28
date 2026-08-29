@@ -8,13 +8,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runBookmarkSave saves a new bookmark from name + command + args/flags.
 func runBookmarkSave(args []string) *apperror.AppError {
 	if len(args) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkSaveUsage)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	name := args[0]
@@ -45,7 +47,7 @@ func saveBookmarkToDB(name, command, args, flags string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkSave, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
@@ -63,7 +65,7 @@ func saveBookmarkToDB(name, command, args, flags string) *apperror.AppError {
 	err = db.InsertBookmark(record)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkSave, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	fmt.Printf(constants.MsgBookmarkSaved, name, command, args, flags)

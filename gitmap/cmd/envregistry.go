@@ -9,6 +9,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // loadEnvRegistry reads and parses the env-registry.json file.
@@ -28,7 +30,7 @@ func loadEnvRegistry() model.EnvRegistry {
 	err = json.Unmarshal(data, &registry)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrEnvRegistryLoad, "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return registry
@@ -81,7 +83,7 @@ func findEnvVariable(registry model.EnvRegistry, name string) model.EnvVariable 
 	}
 
 	fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrEnvNotFound, "E9000").Error())
-	os.Exit(1)
+	cliexit.HandleError(nil, 1)
 
 	return model.EnvVariable{}
 }

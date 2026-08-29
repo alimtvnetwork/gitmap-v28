@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -18,16 +20,34 @@ func runSSHGenerate(args []string) error {
 	name, keyPath, email, force, host, confirm := parseSSHGenFlags(args)
 
 	if err := validateSSHKeygen(); err != nil {
-		fmt.Fprint(os.Stderr, constants.ErrSSHKeygenMissing)
-		panic("error")
+		appErr := apperror.NewWithDetails(
+			"cmd.sshgen.validate",
+			"E1076",
+			constants.ErrSSHKeygenMissing,
+			"cmd.sshgen",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	if len(email) == 0 {
 		email = resolveGitEmail()
 	}
 	if len(email) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrSSHEmailResolve)
-		panic("error")
+		appErr := apperror.NewWithDetails(
+			"cmd.sshgen.resolveEmail",
+			"E1077",
+			constants.ErrSSHEmailResolve,
+			"cmd.sshgen",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	keyPath = expandHome(keyPath)
@@ -40,7 +60,18 @@ func runSSHGenerate(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sshgen.openDB",
+			"E1078",
+			"failed to open database for ssh key generation",
+			"cmd.sshgen",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 
@@ -147,7 +178,18 @@ func handleExistingKey(db *store.DB, name string, keyPath *string) bool {
 // generateAndStore runs ssh-keygen and stores the result in the database.
 func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	if err := ensureSSHDir(filepath.Dir(keyPath)); err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sshgen.ensureDir",
+			"E1079",
+			"failed to ensure SSH directory exists",
+			"cmd.sshgen",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": keyPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	cmd := exec.Command(constants.SSHKeygenBin,
@@ -160,12 +202,34 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sshgen.runKeygen",
+			"E1080",
+			"ssh-keygen execution failed",
+			"cmd.sshgen",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"keyPath": keyPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	pubKey, err := os.ReadFile(keyPath + ".pub")
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sshgen.readPub",
+			"E1081",
+			"failed to read generated public key file",
+			"cmd.sshgen",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"pubKeyPath": keyPath + ".pub"},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	fingerprint := readFingerprint(keyPath)
@@ -203,7 +267,17 @@ func askConfirm(name, keyPath string) bool {
 
 func exitOnBackupError(err error) {
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sshgen.backupKey",
+			"E1082",
+			"failed to backup existing SSH key before regenerating",
+			"cmd.sshgen",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 }
 

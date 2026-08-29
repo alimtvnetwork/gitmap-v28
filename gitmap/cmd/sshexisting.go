@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -31,9 +33,18 @@ func keyExistsOnDisk(keyPath string) bool {
 func printExistingKeyOnDisk(db *store.DB, name, keyPath, host string) {
 	pub, err := os.ReadFile(keyPath + ".pub")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHReadPub, keyPath+".pub", err)
-		fmt.Fprint(os.Stderr, constants.MsgSSHForceHint)
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sshexisting.readPub",
+			"E1075",
+			fmt.Sprintf(constants.ErrSSHReadPub, keyPath+".pub", err),
+			"cmd.sshexisting",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"keyPath": keyPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 	fingerprint := readFingerprint(keyPath)
 

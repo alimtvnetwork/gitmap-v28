@@ -22,6 +22,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/visibility"
 )
@@ -38,8 +40,17 @@ func runMakeLastPrivate(args []string) error {
 func runMakeLast(target, cmdName string, args []string) error {
 	checkHelp(cmdName, args)
 	if len(args) < 2 {
-		fmt.Fprintf(os.Stderr, constants.ErrMakeLastMissingArg, cmdName)
-		os.Exit(constants.ExitVisBadFlag)
+		err := apperror.NewWithDetails(
+			"cmd.makelast.parseArgs",
+			"E1061",
+			fmt.Sprintf(constants.ErrMakeLastMissingArg, cmdName),
+			"cmd.makelast",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, constants.ExitVisBadFlag)
+		return nil
 	}
 	ownerArg, base, yes := parseMakeLastArgs(args)
 	ctx := resolveOwnerOrExit(ownerArg)
@@ -49,15 +60,25 @@ func runMakeLast(target, cmdName string, args []string) error {
 	repoName, ver := resolveMakeLastRepo(ctx, base)
 	if len(repoName) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrMakeLastNoBaseFmt, base, ctx.Owner, ctx.Owner, base)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
+		return nil
 	}
 	if ver >= 0 {
 		fmt.Fprintf(os.Stdout, constants.MsgMakeLastResolvedFmt, base, repoName, ver, base)
 	}
 
 	if !yes && !confirmSingle(repoName, target) {
-		fmt.Fprint(os.Stderr, constants.MsgBulkAborted)
-		os.Exit(constants.ExitVisConfirmReq)
+		err := apperror.NewWithDetails(
+			"cmd.makelast.confirm",
+			"E1062",
+			constants.MsgBulkAborted,
+			"cmd.makelast",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, constants.ExitVisConfirmReq)
+		return nil
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgBulkApplyHeaderFmt, target, 1, ctx.Owner)
@@ -65,7 +86,19 @@ func runMakeLast(target, cmdName string, args []string) error {
 	status := applyOneRepo(ctx, repoName, target, false)
 	changed, skipped, failed := tallyStatus(status)
 	fmt.Fprintf(os.Stdout, constants.MsgBulkSummaryFmt, changed, skipped, failed, 1)
-	os.Exit(bulkExitCode(changed, failed))
+	code := bulkExitCode(changed, failed)
+	if code != 0 {
+		err := apperror.NewWithDetails(
+			"cmd.makelast.bulkExit",
+			"E1063",
+			"make-last encountered failures during apply",
+			"cmd.makelast",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"changed": changed, "failed": failed},
+		)
+		cliexit.HandleError(err, code)
+	}
 	return nil
 }
 

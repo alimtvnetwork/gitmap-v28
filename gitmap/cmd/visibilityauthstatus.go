@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // mustEnsureProviderAuth runs `<cli> auth status` and exits
@@ -30,5 +32,5 @@ func mustEnsureProviderAuth(provider string, verbose bool) {
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrVisAuthStatusFailedFmt, cli, err, strings.TrimSpace(string(out)))
-	os.Exit(constants.ExitVisAuthFailed)
+	cliexit.HandleError(nil, constants.ExitVisAuthFailed)
 }

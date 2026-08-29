@@ -11,6 +11,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runCDLookup finds a repo by name and prints its path to stdout.
@@ -30,7 +32,7 @@ func runCDLookup(name string, args []string) error {
 
 	if len(records) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrCDNotFound, name)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	path := resolveCDPath(name, records, pick)
@@ -54,7 +56,7 @@ func runCDLookup(name string, args []string) error {
 func runCDInner(path string, innerArgs []string) error {
 	if err := os.Chdir(path); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCDChdirFmt, path, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	os.Args = append([]string{os.Args[0]}, innerArgs...)
@@ -77,7 +79,7 @@ func lookupCDRecords(name string) []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
@@ -130,13 +132,13 @@ func readCDSelection(records []model.ScanRecord) string {
 	scanner := bufio.NewScanner(os.Stdin)
 	if !scanner.Scan() {
 		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	idx, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
 	if err != nil || idx < 1 || idx > len(records) {
 		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return records[idx-1].AbsolutePath
@@ -148,14 +150,14 @@ func runCDRepos(args []string) error {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
 	records := loadCDReposList(db, groupFilter)
 	if len(records) == 0 {
 		fmt.Fprintln(os.Stderr, constants.MsgListEmpty)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	path := promptCDReposPick(records)

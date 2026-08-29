@@ -11,6 +11,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 type llmDocsOptions struct {
@@ -45,11 +47,11 @@ func writeLLMDocsFile(content, format string) {
 	fmt.Print(constants.MsgLLMDocsGenning)
 	wd, err := os.Getwd()
 	if err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrLLMDocsWrite))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrLLMDocsWrite), 1)
 	}
 	outPath := filepath.Join(wd, "LLM"+llmDocsExt(format))
 	if writeErr := os.WriteFile(outPath, []byte(content), constants.FilePermission); writeErr != nil {
-		panic(apperror.NewSimple(constants.ErrLLMDocsWrite, "E9000"))
+		cliexit.HandleError(apperror.NewSimple(constants.ErrLLMDocsWrite, "E9000"), 1)
 	}
 	fmt.Printf(constants.MsgLLMDocsWritten, outPath)
 }

@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
@@ -86,8 +88,17 @@ func dispatchTemplates(command string) (bool, error) {
 		return false, nil
 	}
 	if len(os.Args) < 3 {
-		fmt.Fprint(os.Stderr, usageTemplatesRoot)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.templates.dispatch",
+			"E1103",
+			usageTemplatesRoot,
+			"cmd.templates",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return true, nil
 	}
 
 	sub, rest := os.Args[2], os.Args[3:]
@@ -101,9 +112,16 @@ func dispatchTemplates(command string) (bool, error) {
 	case cmdTemplatesDiff, cmdTemplatesDiffAlias:
 		runTemplatesDiff(rest)
 	default:
-		fmt.Fprintf(os.Stderr, errUnknownTemplatesSub, sub)
-		fmt.Fprint(os.Stderr, usageTemplatesRoot)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.templates.dispatch.unknown",
+			"E1104",
+			fmt.Sprintf(errUnknownTemplatesSub, sub),
+			"cmd.templates",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"subcommand": sub},
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	return true, nil
@@ -117,12 +135,33 @@ func runTemplatesList(args []string) error {
 	kindFilter, langFilter := parseTemplatesListFlags(args)
 	isNonValidKindFilter := !isValidKindFilter(kindFilter)
 	if isNonValidKindFilter {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.templates.list.kindFilter",
+			"E1105",
+			fmt.Sprintf("unknown template kind filter '%s'", kindFilter),
+			"cmd.templates",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"kind": kindFilter},
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 
 	entries, err := templates.List()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.templates.list.load",
+			"E1106",
+			"failed to load templates list",
+			"cmd.templates",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	if len(entries) == 0 {
 		fmt.Print(msgTemplatesEmpty)
@@ -203,13 +242,33 @@ func filterTemplates(in []templates.Entry, kindFilter, langFilter string) []temp
 func runTemplatesShow(args []string) error {
 	rest, mode := parseTemplatesShowFlags(args)
 	if len(rest) < 2 {
-		fmt.Fprint(os.Stderr, errTemplatesShowArgs)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.templates.show.args",
+			"E1107",
+			errTemplatesShowArgs,
+			"cmd.templates",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
+		return nil
 	}
 	kind, lang := rest[0], rest[1]
 	r, err := templates.Resolve(kind, lang)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.templates.show.resolve",
+			"E1108",
+			"failed to resolve template",
+			"cmd.templates",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"kind": kind, "lang": lang},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	out := r.Content
@@ -218,7 +277,18 @@ func runTemplatesShow(args []string) error {
 	}
 
 	if _, err := os.Stdout.Write(out); err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.templates.show.write",
+			"E1109",
+			"failed to write template content to stdout",
+			"cmd.templates",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	return nil
 }

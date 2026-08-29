@@ -84,9 +84,9 @@ func resolveReinstallMode(override string) (string, bool) {
 		}
 		return constants.ReinstallModeSelf, true
 	default:
-		panic(constants.ErrReinstallUnknownMode)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrReinstallUnknownMode, "E9000"), 1)
+		return "", false
 	}
-
 }
 
 // announceReinstallMode prints the resolved mode (and the linked repo
@@ -129,7 +129,7 @@ func dispatchReinstall(mode string) {
 func executeReinstallRepo() {
 	scriptPath, scriptName := pickReinstallScriptPath()
 	if _, err := os.Stat(scriptPath); err != nil {
-		panic(constants.ErrReinstallScriptNotFound)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrReinstallScriptNotFound, "E9000"), 1)
 	}
 	fmt.Printf(constants.MsgReinstallRunningRepo, scriptName)
 	cmd := buildReinstallScriptCmd(scriptPath)
@@ -142,10 +142,10 @@ func executeReinstallRepo() {
 	if err != nil && errors.As(err, &exitErr) {
 		exitCode := exitErr.ExitCode()
 		fmt.Fprintf(os.Stderr, constants.ErrReinstallScriptFailed, scriptName, exitCode)
-		os.Exit(exitCode)
+		cliexit.HandleError(nil, exitCode)
 	}
 	if err != nil {
-		panic(constants.ErrReinstallScriptFailed)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrReinstallScriptFailed, "E9000"), 1)
 	}
 }
 

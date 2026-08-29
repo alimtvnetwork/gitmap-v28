@@ -13,6 +13,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // applySSHKey sets GIT_SSH_COMMAND if an SSH key name is provided.
@@ -24,14 +26,14 @@ func applySSHKey(name string) {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
 	key, err := db.FindSSHKeyByName(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, name)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	sshCmd := fmt.Sprintf("ssh -i %s -o IdentitiesOnly=yes", key.PrivatePath)
@@ -46,7 +48,7 @@ func runClone(args []string) error {
 	if len(cf.Source) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrSourceRequired)
 		fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	initCloneVerbose(cf.Verbose)
 	SetCloneDryRun(cf.DryRun)
@@ -140,7 +142,7 @@ func runCloneMulti(cf CloneFlags) error {
 
 	if len(urls) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrCloneAllInvalid)
-		os.Exit(constants.ExitCloneMultiAllInvalid)
+		cliexit.HandleError(nil, constants.ExitCloneMultiAllInvalid)
 	}
 
 	fmt.Printf(constants.MsgCloneMultiBegin, len(urls))
@@ -188,7 +190,7 @@ func runCloneMulti(cf CloneFlags) error {
 	syncClonedReposToVSCodePM(pmPairs, cf.NoVSCodeSync)
 
 	if failed > 0 {
-		os.Exit(constants.ExitCloneMultiPartialFail)
+		cliexit.HandleError(nil, constants.ExitCloneMultiPartialFail)
 	}
 	return nil
 }
@@ -267,7 +269,7 @@ func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, o
 	// possibly create, and tell the user exactly why.
 	if isDirectURL(folderName) {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneStaleBinaryFolderURL, folderName, constants.Version)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	absPath, err := filepath.Abs(folderName)
@@ -280,7 +282,7 @@ func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, o
 	_, statErr := os.Stat(absPath)
 	if noReplace && statErr == nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLExists, absPath)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	// Enqueue pending task.
@@ -310,7 +312,7 @@ func executeDirectClone(url, folderName string, ghDesktopFlag, noReplace bool, o
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
 		closeTaskDB(taskDB)
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	persistRecloneTransport(url)
 
@@ -416,7 +418,7 @@ func validateShorthandPath(resolved string) string {
 		return resolved
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrShorthandNotFound, resolved)
-	os.Exit(1)
+	cliexit.HandleError(nil, 1)
 
 	return ""
 }
@@ -439,7 +441,7 @@ func executeClone(source, targetDir string, safePull, ghDesktop bool, maxConcurr
 	workers, ok := cloneconcurrency.Resolve(maxConcurrency)
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConcurrency)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	maxConcurrency = workers
 
@@ -467,7 +469,7 @@ func executeClone(source, targetDir string, safePull, ghDesktop bool, maxConcurr
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneFailed, source, err))
 		closeTaskDB(taskDB)
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFailed, source, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	fmt.Printf(constants.MsgCloneComplete, summary.Succeeded, summary.Failed)

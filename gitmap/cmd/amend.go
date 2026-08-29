@@ -9,6 +9,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // amendFlags holds parsed flags for the amend command.
@@ -64,7 +66,7 @@ func extractAmendSHA(args []string, f *amendFlags) []string {
 func validateAmendFlags(f amendFlags) {
 	if f.name == "" && f.email == "" {
 		fmt.Fprint(os.Stderr, constants.ErrAmendNoFlags)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 }
 

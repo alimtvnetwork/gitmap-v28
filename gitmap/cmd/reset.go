@@ -19,7 +19,7 @@ func runReset(args []string) error {
 	checkHelp(constants.CmdReset, args)
 	confirm, rescan := parseResetFlags(args)
 	if !confirm {
-		panic(constants.ErrResetNoConfirm)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrResetNoConfirm, "E9000"), 1)
 	}
 
 	executeReset()
@@ -58,7 +58,7 @@ func executeReset() {
 
 	db, err := openDB()
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	defer db.Close()
 

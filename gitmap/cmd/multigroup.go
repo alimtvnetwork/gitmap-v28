@@ -7,6 +7,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runMultiGroup handles the "multi-group" subcommand.
@@ -26,7 +28,7 @@ func runMultiGroup(args []string) error {
 func showActiveMultiGroup() {
 	db, err := openDB()
 	if err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrListDBFailed))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrListDBFailed), 1)
 	}
 	defer db.Close()
 
@@ -70,14 +72,14 @@ func routeMultiGroup(sub string, args []string) {
 func setMultiGroup(groups string) {
 	db, err := openDB()
 	if err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrListDBFailed))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrListDBFailed), 1)
 	}
 	defer db.Close()
 
 	validateMultiGroupNames(db, groups)
 	err = db.SetSetting(constants.SettingActiveMultiGroup, groups)
 	if err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrGenericFmt))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrGenericFmt), 1)
 	}
 	fmt.Printf(constants.MsgMGSet, groups)
 }
@@ -91,7 +93,7 @@ func validateMultiGroupNames(db interface{ GetSetting(string) string }, groups s
 func clearMultiGroup() {
 	db, err := openDB()
 	if err != nil {
-		panic(apperror.WrapSimple(err, constants.ErrListDBFailed))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrListDBFailed), 1)
 	}
 	defer db.Close()
 

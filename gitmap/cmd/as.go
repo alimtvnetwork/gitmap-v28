@@ -13,6 +13,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/mapper"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/scanner"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runAs implements `gitmap as [alias-name] [--force]`.
@@ -62,13 +64,13 @@ func parseAsArgs(args []string) (string, bool) {
 	fs.BoolVar(force, constants.FlagAsForceS, false, "overwrite an existing alias (short)")
 
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	rest := fs.Args()
 	if len(rest) > 1 {
 		fmt.Fprintln(os.Stderr, constants.ErrAsUsage)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	if len(rest) == 1 {

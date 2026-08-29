@@ -35,6 +35,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/templates"
 )
@@ -63,17 +65,47 @@ func runTemplatesInit(args []string) error {
 
 	flags, err := parseTemplatesInitFlags(args)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.templates.init.parseFlags",
+			"E1110",
+			"failed to parse flags for templates init",
+			"cmd.templates",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	if len(flags.langs) == 0 {
-		fmt.Fprintln(os.Stderr, "  ✗ templates init requires at least one <lang>")
-		fmt.Fprintln(os.Stderr, "    Example: gitmap templates init go node --lfs")
-		panic("error")
+		appErr := apperror.NewWithDetails(
+			"cmd.templates.init.langs",
+			"E1111",
+			"templates init requires at least one <lang>\n    Example: gitmap templates init go node --lfs",
+			"cmd.templates",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.templates.init.getwd",
+			"E1112",
+			"failed to get current working directory",
+			"cmd.templates",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	printTemplatesInitBanner(flags, cwd)
@@ -173,8 +205,18 @@ func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, requ
 		}
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Required template missing: %v\n", err)
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.templates.init.resolve",
+			"E1113",
+			fmt.Sprintf("Required template missing: %v", err),
+			"cmd.templates",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"kind": step.kind, "lang": step.lang},
+		)
+		cliexit.HandleError(appErr, 1)
+		return templatesInitResult{step: step, skipped: true}
 	}
 	step.resolved = res
 
@@ -191,12 +233,32 @@ func runTemplatesInitStep(step templatesInitStep, flags templatesInitFlags, requ
 		errRm = os.Remove(step.target)
 	}
 	if errRm != nil && os.IsNotExist(errRm) == false {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			errRm,
+			"cmd.templates.init.forceRemove",
+			"E1114",
+			"failed to remove existing target file during forced template init",
+			"cmd.templates",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"target": step.target},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	merged, err := templates.Merge(step.target, step.tag, res.Content)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.templates.init.merge",
+			"E1115",
+			"failed to merge template content into target file",
+			"cmd.templates",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"target": step.target, "tag": step.tag},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	return templatesInitResult{step: step, merge: merged}

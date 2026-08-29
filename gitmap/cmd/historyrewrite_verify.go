@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // verifyHistoryRewrite runs the spec §3 / §4 verification loops. Exit
@@ -33,7 +35,7 @@ func verifyPurgePath(sandbox, path string) {
 	count := nonEmptyLineCount(string(out))
 	if count > 0 {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrVerifyPurge, path, count)
-		os.Exit(constants.HistoryExitVerifyFailed)
+		cliexit.HandleError(nil, constants.HistoryExitVerifyFailed)
 	}
 }
 
@@ -51,7 +53,7 @@ func verifyPinPath(sandbox, path string) {
 	}
 	if len(uniq) > 1 {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrVerifyPin, path, len(uniq))
-		os.Exit(constants.HistoryExitVerifyFailed)
+		cliexit.HandleError(nil, constants.HistoryExitVerifyFailed)
 	}
 }
 

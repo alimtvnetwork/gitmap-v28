@@ -18,6 +18,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/goldenguard"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // regoldensFlags captures parsed CLI inputs.
@@ -48,7 +50,7 @@ func runRegoldens(args []string) error {
 	cfg := parseRegoldensFlags(args)
 	if cfg.pattern == "" {
 		fmt.Fprintln(os.Stderr, constants.ErrRegoldensMissingPat)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	validateDiffMode(cfg.diffMode)
 	if cfg.isDryRun {
@@ -69,7 +71,7 @@ func parseRegoldensFlags(args []string) regoldensFlags {
 	bindRegoldensFlags(fs, &cfg)
 	if err := fs.Parse(args); err != nil {
 		fmt.Fprintf(os.Stderr, "regoldens: parse flags: %v\n", err)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	return cfg

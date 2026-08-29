@@ -11,6 +11,7 @@ import (
 	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/release"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
@@ -43,7 +44,18 @@ func runUpdate() error {
 
 	selfPath, err := os.Executable()
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.update.executable",
+			"E1131",
+			"failed to determine current executable path",
+			"cmd.update",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 
 	copyPath := createHandoffCopy(selfPath)
@@ -73,7 +85,8 @@ func resolveRepoPath() (string, error) {
 
 	// Try to fall back to gitmap-updater for release-based update
 	if tryUpdaterFallback() {
-		os.Exit(0)
+		cliexit.HandleError(nil, 0)
+		return "", nil
 	}
 
 	return "", apperror.NewSimple("no repo path resolved", "E9024")
@@ -95,7 +108,16 @@ func tryUpdaterFallback() bool {
 	errRun := cmd.Run()
 	var exitErr *exec.ExitError
 	if errRun != nil && errors.As(errRun, &exitErr) == true {
-		os.Exit(exitErr.ExitCode())
+		appErr := apperror.NewWithDetails(
+			"cmd.update.updaterFallback",
+			"E1132",
+			fmt.Sprintf("gitmap-updater failed with exit code %d", exitErr.ExitCode()),
+			"cmd.update",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, exitErr.ExitCode())
 	}
 	if errRun != nil {
 		return false
@@ -122,7 +144,17 @@ func createHandoffCopy(selfPath string) string {
 
 	fallbackPath := filepath.Join(os.TempDir(), name)
 	if err := copyFile(selfPath, fallbackPath); err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.update.copyFallback",
+			"E1133",
+			"failed to create fallback handoff copy",
+			"cmd.update",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"fallbackPath": fallbackPath},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	makeExecutable(fallbackPath)
@@ -176,10 +208,29 @@ func launchHandoff(copyPath, repoPath string, report reportErrorsConfig) {
 func handleHandoffError(err error) {
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
-		os.Exit(exitErr.ExitCode())
+		appErr := apperror.NewWithDetails(
+			"cmd.update.handoffExit",
+			"E1134",
+			fmt.Sprintf("handoff process exited with code %d", exitErr.ExitCode()),
+			"cmd.update",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, exitErr.ExitCode())
 	}
 
-	panic("error")
+	appErr := apperror.WrapWithDetails(
+		err,
+		"cmd.update.handoffRun",
+		"E1135",
+		"failed to run handoff update process",
+		"cmd.update",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityError,
+		nil,
+	)
+	cliexit.HandleError(appErr, 1)
 }
 
 // runUpdateRunner is a hidden command that performs the real update work.

@@ -9,6 +9,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runDiffProfiles handles the "diff-profiles" command.
@@ -41,7 +43,7 @@ func parseDPFlags(args []string) (string, string, bool, bool) {
 
 	if fs.NArg() < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrDPUsage)
-		panic("not enough return values")
+		cliexit.HandleError(apperror.NewSimple("not enough return values", "E9000"), 1)
 	}
 
 	return fs.Arg(0), fs.Arg(1), *allFlag, *jsonFlag
@@ -64,7 +66,7 @@ func loadProfileRepos(name string) []model.ScanRecord {
 	db, err := store.OpenDefaultProfile(name)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
@@ -75,7 +77,7 @@ func loadProfileRepos(name string) []model.ScanRecord {
 	repos, err := db.ListRepos()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return repos

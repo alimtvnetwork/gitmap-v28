@@ -45,7 +45,7 @@ func mustParseLastN(raw string) int {
 	n, err := strconv.Atoi(strings.TrimSpace(raw))
 	if err != nil || n <= 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrRevertLastNBadCount, constants.FlagRevertLastN, raw)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	return n
@@ -59,7 +59,7 @@ func loadLastCommittedTxns(want int) []model.TransactionRecord {
 	defer db.Close()
 	all, err := db.ListTransactions(constants.TxnRetentionCap)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	out := make([]model.TransactionRecord, 0, want)
 	for _, r := range all {

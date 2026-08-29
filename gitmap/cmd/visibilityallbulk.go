@@ -26,6 +26,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/visibility"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // bulkFlags holds the parsed CLI flags for a bulk visibility run.
@@ -67,7 +69,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	checkHelp(cmdName, args)
 	if len(args) < 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrMakeAllMissingArgFmt, cmdName)
-		os.Exit(constants.ExitVisBadFlag)
+		cliexit.HandleError(nil, constants.ExitVisBadFlag)
 	}
 
 	ownerArg, patternsRaw, flags := parseBulkArgs(args)
@@ -81,7 +83,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	patterns, err := visibility.ParsePatternList(patternsRaw)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
-		os.Exit(constants.ExitVisBadFlag)
+		cliexit.HandleError(nil, constants.ExitVisBadFlag)
 	}
 
 	matches, ownerTotal := matchOrExitEmpty(ctx, patterns, flags)
@@ -96,7 +98,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	isExceptEmpty := flags.ExceptLatest == true && isEmptyMatch == true && isEmptyInvert == true
 	if isExceptEmpty == true {
 		fmt.Fprint(os.Stderr, constants.MsgBulkNoMatches)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
 	}
 	combined := append(append([]visibility.MatchedRepo{}, matches...), latestInvert...)
 	audit := beginRunAudit(ctx, target, cmdName, patternsRaw, flags, ownerTotal, combined)
@@ -106,7 +108,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 		excluded := audit.markExcluded(combined, nil)
 		audit.finalize(excluded, 0, 0, 0, constants.ExitVisConfirmReq)
 		fmt.Fprint(os.Stderr, constants.MsgBulkAborted)
-		os.Exit(constants.ExitVisConfirmReq)
+		cliexit.HandleError(nil, constants.ExitVisConfirmReq)
 	}
 	excludedCount := audit.markExcluded(combined, final)
 	mainFinal, invertFinal := partitionByName(final, latestInvert)
@@ -125,7 +127,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	fmt.Fprintf(os.Stdout, constants.MsgBulkSummaryFmt, changed, skipped, failed, len(final))
 	exit := bulkExitCode(changed, failed)
 	audit.finalize(excludedCount, changed, skipped, failed, exit)
-	os.Exit(exit)
+	cliexit.HandleError(nil, exit)
 	return nil
 }
 
@@ -192,7 +194,7 @@ func resolveOwnerOrExit(arg string) ownerContext {
 	ctx, err := ResolveOwnerOnly(arg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrMakeAllResolveFmt, err)
-		os.Exit(constants.ExitVisBadProvider)
+		cliexit.HandleError(nil, constants.ExitVisBadProvider)
 	}
 
 	return ctx
@@ -206,7 +208,7 @@ func matchOrExitEmpty(ctx ownerContext, patterns []visibility.Pattern, flags bul
 	names, err := listOwnerReposCached(ctx.Provider, ctx.Owner, flags)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
-		os.Exit(constants.ExitVisAuthFailed)
+		cliexit.HandleError(nil, constants.ExitVisAuthFailed)
 	}
 
 	matches := visibility.MatchOwnerRepos(names, patterns)
@@ -217,7 +219,7 @@ func matchOrExitEmpty(ctx ownerContext, patterns []visibility.Pattern, flags bul
 	if len(matches) == 0 {
 		printNearMissHints(patterns, names)
 		fmt.Fprint(os.Stderr, constants.MsgBulkNoMatches)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
 	}
 
 	return matches, len(names)

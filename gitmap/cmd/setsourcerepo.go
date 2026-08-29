@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runSetSourceRepo handles the hidden "set-source-repo" command.
@@ -14,14 +16,14 @@ func runSetSourceRepo() error {
 	args := os.Args[2:]
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrSetSourceRepoNoPath)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	path := args[0]
 	normalized := normalizeRepoPath(path)
 	if len(normalized) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrSetSourceRepoInvalid, path)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	saveRepoPathToDB(normalized)

@@ -3,9 +3,10 @@ package helptext
 import (
 	"embed"
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 )
 
@@ -30,8 +31,18 @@ func Print(command string) {
 func PrintWithMode(command string, mode render.PrettyModeType) {
 	data, err := ReadRaw(command)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "No help available for '%s'\n", command)
-		os.Exit(1)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"helptext.PrintWithMode",
+			"E1071",
+			fmt.Sprintf("No help available for '%s'", command),
+			"helptext",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"command": command},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	if render.Decide(mode, render.StdoutIsTerminal(), true) {
@@ -51,8 +62,18 @@ func PrintWithMode(command string, mode render.PrettyModeType) {
 func PrintRaw(command string) {
 	data, err := ReadRaw(command)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "No help available for '%s'\n", command)
-		os.Exit(1)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"helptext.PrintRaw",
+			"E1072",
+			fmt.Sprintf("No help available for '%s'", command),
+			"helptext",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"command": command},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 	fmt.Print(string(data))
 }

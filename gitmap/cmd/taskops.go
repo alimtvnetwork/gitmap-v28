@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -39,16 +40,40 @@ func runTaskCreate(args []string) error {
 // validateTaskCreateInputs checks required fields for task creation.
 func validateTaskCreateInputs(name, src, dest string) {
 	if name == "" {
-		fmt.Fprint(os.Stderr, constants.ErrTaskNameRequired)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.task.validateName",
+			"E1092",
+			constants.ErrTaskNameRequired,
+			"cmd.task",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
 	}
 	if src == "" {
-		fmt.Fprint(os.Stderr, constants.ErrTaskSrcRequired)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.task.validateSrc",
+			"E1093",
+			constants.ErrTaskSrcRequired,
+			"cmd.task",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
 	}
 	if dest == "" {
-		fmt.Fprint(os.Stderr, constants.ErrTaskDestRequired)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.task.validateDest",
+			"E1094",
+			constants.ErrTaskDestRequired,
+			"cmd.task",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	validateTaskSrcExists(src)
@@ -58,7 +83,17 @@ func validateTaskCreateInputs(name, src, dest string) {
 func validateTaskSrcExists(src string) {
 	_, err := os.Stat(src)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.task.validateSrcExists",
+			"E1095",
+			"source directory does not exist for task creation",
+			"cmd.task",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"src": src},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 }
 
@@ -66,7 +101,16 @@ func validateTaskSrcExists(src string) {
 func checkTaskNotExists(tasks model.TaskFile, name string) {
 	for _, t := range tasks.Tasks {
 		if t.Name == name {
-			panic("error")
+			err := apperror.NewWithDetails(
+				"cmd.task.checkNotExists",
+				"E1096",
+				fmt.Sprintf("task '%s' already exists", name),
+				"cmd.task",
+				apperror.ErrorTypeValidation,
+				apperror.SeverityError,
+				map[string]any{"name": name},
+			)
+			cliexit.HandleError(err, 1)
 		}
 	}
 }
@@ -116,8 +160,16 @@ func runTaskDelete(args []string) error {
 // requireTaskName extracts and validates the task name argument.
 func requireTaskName(args []string) string {
 	if len(args) < 1 {
-		fmt.Fprint(os.Stderr, constants.ErrTaskNameRequired)
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.task.requireName",
+			"E1097",
+			constants.ErrTaskNameRequired,
+			"cmd.task",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	return args[0]
@@ -147,7 +199,16 @@ func removeTaskByName(tasks model.TaskFile, name string) model.TaskFile {
 	}
 
 	if len(filtered) == len(tasks.Tasks) {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.task.removeByName",
+			"E1098",
+			fmt.Sprintf("task '%s' not found for removal", name),
+			"cmd.task",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"name": name},
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	tasks.Tasks = filtered
@@ -168,7 +229,17 @@ func loadTaskFile() model.TaskFile {
 
 	err = json.Unmarshal(data, &tasks)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.task.loadJSON",
+			"E1099",
+			"failed to parse tasks JSON file",
+			"cmd.task",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	return tasks
@@ -180,16 +251,46 @@ func saveTaskFile(tasks model.TaskFile) {
 
 	err := os.MkdirAll(filepath.Dir(path), constants.DirPermission)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.task.saveMkdir",
+			"E1100",
+			"failed to create directory for tasks file",
+			"cmd.task",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	data, err := json.MarshalIndent(tasks, "", constants.JSONIndent)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.task.saveMarshal",
+			"E1101",
+			"failed to serialize tasks to JSON",
+			"cmd.task",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 
 	err = os.WriteFile(path, data, constants.FilePermission)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.task.saveWrite",
+			"E1102",
+			"failed to write tasks file",
+			"cmd.task",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 }

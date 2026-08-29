@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runRescanSubtree is the CLI entry point for
@@ -43,13 +45,13 @@ func runRescanSubtree(args []string) error {
 	path, rest, err := splitRescanSubtreeArgs(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	abs, err := resolveRescanSubtreePath(path)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 
 	scanArgs := buildRescanSubtreeArgs(abs, rest)

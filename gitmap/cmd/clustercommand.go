@@ -12,6 +12,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runClusterCommand is the orchestrator for delegated cluster commands.
@@ -21,19 +23,19 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 	flags, positional, err := ParseClusterFlags(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing flags: %v\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	subCmds, err := ParseSubCommands(positional)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing sub-commands: %v\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	isEmptySubCmds := len(subCmds) == 0
 	if isEmptySubCmds {
 		fmt.Fprintln(os.Stderr, "No sub-commands provided.")
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -61,13 +63,13 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 	effective, err := cluster.ResolveTargetNodes(selector, filter, allNodes)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error resolving target nodes: %v\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	isEmptyEffectiveNodes := len(effective) == 0
 	if isEmptyEffectiveNodes {
 		fmt.Fprintln(os.Stderr, constants.ErrClusterNoNodes)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	// Stub run ref generator if DB is nil
@@ -109,7 +111,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 		for _, sc := range subCmds {
 			fmt.Printf("  %s\n", sc.Kind.String())
 		}
-		os.Exit(0)
+		cliexit.HandleError(nil, 0)
 	}
 
 	verbose := flags.Verbose
@@ -158,7 +160,7 @@ func generateRunRef(dbConn *sql.DB) string {
 	runRef, err := cluster.RunRefGenerator(dbConn)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error generating run ref: %v\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return runRef
 }
@@ -186,7 +188,7 @@ func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
 	runId, err := db.InsertClusterRun(ctx, dbConn, run)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error inserting ClusterRun: %v\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return runId
 }

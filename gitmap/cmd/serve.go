@@ -13,6 +13,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runServe starts the orchestrator daemon and generates a join token.
@@ -26,7 +28,7 @@ func runServe(args []string) error {
 	token, err := generateJoinToken()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrServeTokenGenerate, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	// Bind to all network interfaces on the specified port
@@ -34,7 +36,7 @@ func runServe(args []string) error {
 	listener, err := net.Listen(constants.ServeProtocol, address)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrServeBind+"\n", err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer listener.Close()
 

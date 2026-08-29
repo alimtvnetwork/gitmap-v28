@@ -18,6 +18,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/probe"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/render"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // probeJSONEntry is a single repo-level result emitted under `--json`.
@@ -68,7 +70,7 @@ func makeProbeEntry(repo model.ScanRecord, r probe.Result) probeJSONEntry {
 func emitProbeJSON(entries []probeJSONEntry) {
 	if err := encodeProbeJSON(os.Stdout, entries); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		panic(apperror.NewSimple("fatal error", "E9000"))
+		cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 	}
 }
 

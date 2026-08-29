@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
 )
@@ -27,7 +29,18 @@ func executeUpdate(repoPath string, report reportErrorsConfig) {
 func executeUpdateWindows(repoPath string, report reportErrorsConfig) {
 	scriptPath, err := writeUpdateScript(repoPath)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.updatescript.writeWindows",
+			"E1137",
+			"failed to write Windows update script",
+			"cmd.updatescript",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"repoPath": repoPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 	defer os.Remove(scriptPath)
 
@@ -44,7 +57,18 @@ func executeUpdateUnix(repoPath string, report reportErrorsConfig) {
 	runSH := filepath.Join(repoPath, "run.sh")
 
 	if _, err := os.Stat(runSH); err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.updatescript.statUnix",
+			"E1138",
+			fmt.Sprintf("run.sh not found in repo path '%s'", repoPath),
+			"cmd.updatescript",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"repoPath": repoPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return
 	}
 
 	log := verbose.Get()
@@ -70,7 +94,17 @@ func executeUpdateUnix(repoPath string, report reportErrorsConfig) {
 	logScriptResult(err)
 
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.updatescript.runUnix",
+			"E1139",
+			"failed to execute Unix update script",
+			"cmd.updatescript",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
 	}
 }
 
@@ -197,7 +231,18 @@ func runUpdateScript(scriptPath string, report reportErrorsConfig) error {
 
 	logScriptResult(err)
 	if err != nil {
-		panic("error")
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.updatescript.runScript",
+			"E1140",
+			"failed to run update script",
+			"cmd.updatescript",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"scriptPath": scriptPath},
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	return nil
 }

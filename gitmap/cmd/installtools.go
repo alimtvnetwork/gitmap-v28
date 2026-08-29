@@ -10,6 +10,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // installTool dispatches to the platform-specific installer.
@@ -195,7 +197,7 @@ func handleInstallError(args []string, opts installOptions, output []byte, err e
 	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	logPath := writeInstallErrorLog(opts.Tool, manager, opts.Version, args, output, err)
 	printInstallFailureDetails(opts.Tool, manager, opts.Version, args, err, logPath)
-	panic(apperror.NewSimple("fatal error", "E9000"))
+	cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 }
 
 func printInstallFailureDetails(tool, manager, version string, args []string, err error, logPath string) {

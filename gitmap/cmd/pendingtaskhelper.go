@@ -105,7 +105,7 @@ func failPendingTask(db *store.DB, taskID int64, reason string) {
 
 // closeTaskDB closes a *store.DB handle returned by createPendingTask
 // when it is non-nil. Provided so call sites can release the handle
-// before invoking os.Exit (deferred Close would not run).
+// before invoking cliexit.HandleError(nil, deferred Close would not run).
 func closeTaskDB(db *store.DB) {
 	if db == nil {
 		return

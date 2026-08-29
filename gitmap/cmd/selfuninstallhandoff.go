@@ -27,11 +27,11 @@ func isWindows() bool {
 func handoffSelfUninstall(opts selfUninstallOpts, args []string) {
 	self, err := os.Executable()
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	copyPath, err := writeHandoffCopy(self)
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 	fmt.Printf(constants.MsgSelfUninstallHandoffActive, copyPath)
 	runHandoffCopy(copyPath, opts, args)
@@ -92,7 +92,7 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 	}
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
-		os.Exit(exitErr.ExitCode())
+		cliexit.HandleError(nil, exitErr.ExitCode())
 	}
 	appErr := apperror.WrapWithDetails(
 		err,

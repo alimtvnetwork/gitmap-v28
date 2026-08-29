@@ -7,6 +7,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // aliasContext holds the resolved alias information for the current command.
@@ -45,7 +47,7 @@ func extractStandaloneAliasFlag(args []string, index int) (string, []string) {
 	}
 
 	fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
-	os.Exit(1)
+	cliexit.HandleError(nil, 1)
 	return "", nil
 }
 
@@ -69,7 +71,7 @@ func resolveAliasContext(aliasName string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 

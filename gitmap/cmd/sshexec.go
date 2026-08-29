@@ -3,13 +3,14 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 
 	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/crypto/ssh"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -30,8 +31,16 @@ func parseSEFlags(args []string) seOptions {
 
 	opts.Args = fs.Args()
 	if len(opts.Args) == 0 {
-		fmt.Fprintf(os.Stderr, "Usage: gitmap se [shell] <command> [--exclude m1,m2]\n")
-		os.Exit(1)
+		err := apperror.NewWithDetails(
+			"cmd.sshexec.parseFlags",
+			"E1151",
+			"Usage: gitmap se [shell] <command> [--exclude m1,m2]",
+			"cmd.sshexec",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	return opts

@@ -18,7 +18,7 @@ func runRevert(args []string) error {
 		return nil
 	}
 	if len(args) == 0 {
-		panic(constants.ErrRevertUsage)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrRevertUsage, "E9000"), 1)
 	}
 
 	version := release.NormalizeVersion(args[0])
@@ -34,7 +34,7 @@ func validateRevertVersion(version string) {
 		return
 	}
 
-	panic(constants.ErrRevertTagNotFound)
+	cliexit.HandleError(apperror.NewSimple(constants.ErrRevertTagNotFound, "E9000"), 1)
 }
 
 // checkoutRevertTag checks out the tag in the repo directory.
@@ -60,7 +60,7 @@ func checkoutRevertTag(version string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 }
 
@@ -68,7 +68,7 @@ func checkoutRevertTag(version string) {
 func launchRevertHandoff() {
 	selfPath, err := os.Executable()
 	if err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 
 	copyPath := createHandoffCopy(selfPath)

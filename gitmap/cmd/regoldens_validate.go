@@ -8,6 +8,8 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // validateDiffMode rejects unknown --diff values up front so the
@@ -18,5 +20,5 @@ func validateDiffMode(mode string) {
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.ErrRegoldensDiffMode+"\n", mode)
-	os.Exit(2)
+	cliexit.HandleError(nil, 2)
 }

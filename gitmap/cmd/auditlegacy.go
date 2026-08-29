@@ -14,6 +14,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // auditLegacyHit is one matched line.
@@ -44,7 +46,7 @@ func runAuditLegacy(args []string) error {
 	hits, n, walkErr := scanAuditLegacy(opts)
 	if walkErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAuditLegacyWalk, opts.Root, walkErr)
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	emitAuditLegacy(opts, hits, n)
 	plans := writeAuditLegacyDiffs(opts, hits)

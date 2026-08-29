@@ -23,17 +23,19 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/downloaderconfig"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func initDownloaderConfigDB() *store.DB {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, "✗").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, "✗ Migrate:").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return db
 }
@@ -83,7 +85,7 @@ func loadDocOrPrompt(db *store.DB, args []string) (downloaderconfig.Document, st
 func loadDocFromFile(path string) (downloaderconfig.Document, string) {
 	doc, err := downloaderconfig.LoadFile(path)
 	if err != nil {
-		panic("not enough return values")
+		cliexit.HandleError(apperror.NewSimple("not enough return values", "E9000"), 1)
 	}
 	return doc, path
 }
@@ -115,7 +117,7 @@ func promptFlagConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig
 func validatePromptedDoc(doc downloaderconfig.Document) downloaderconfig.Document {
 	if err := downloaderconfig.Validate(doc); err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, "✗").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	return doc
 }

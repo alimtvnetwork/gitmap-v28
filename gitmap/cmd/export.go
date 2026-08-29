@@ -8,6 +8,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runImportExport provides a unified entry point for export and import commands.
@@ -50,7 +52,7 @@ func loadExportData() model.DatabaseExport {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgExportFailed).Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	defer db.Close()
 
@@ -58,11 +60,11 @@ func loadExportData() model.DatabaseExport {
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 		fmt.Fprintln(os.Stderr, apperror.NewSimple("fatal error", "E9000").Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgExportFailed).Error())
-		os.Exit(1)
+		cliexit.HandleError(nil, 1)
 	}
 
 	return export

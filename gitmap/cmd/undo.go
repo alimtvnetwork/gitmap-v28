@@ -23,6 +23,8 @@ import (
 	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // undoOptions captures parsed CLI flags.
@@ -45,12 +47,12 @@ func runUndo(args []string) error {
 	snapshots := listUndoSnapshots(baseDir)
 	if opts.isList {
 		printUndoSnapshotList(baseDir, snapshots)
-		os.Exit(constants.FixRepoExitOk)
+		cliexit.HandleError(nil, constants.FixRepoExitOk)
 	}
 	chosen := pickUndoSnapshot(snapshots, opts.snapshot)
 	if chosen == "" {
 		fmt.Fprintf(os.Stderr, constants.UndoErrNoSnapshotFmt, baseDir)
-		os.Exit(constants.FixRepoExitBadFlag)
+		cliexit.HandleError(nil, constants.FixRepoExitBadFlag)
 	}
 	restoreUndoSnapshot(filepath.Join(baseDir, chosen), identity.root, opts.isDryRun)
 	return nil
@@ -73,7 +75,7 @@ func parseUndoArgs(args []string) undoOptions {
 			}
 		default:
 			fmt.Fprintf(os.Stderr, constants.UndoErrBadFlagFmt, args[i])
-			os.Exit(constants.FixRepoExitBadFlag)
+			cliexit.HandleError(nil, constants.FixRepoExitBadFlag)
 		}
 	}
 
@@ -143,7 +145,7 @@ func findExplicitSnapshot(snapshots []string, explicit string) string {
 func restoreUndoSnapshot(snapDir, repoRoot string, isDryRun bool) {
 	manifest, ok := readUndoManifest(snapDir)
 	if !ok {
-		os.Exit(constants.FixRepoExitBadConfig)
+		cliexit.HandleError(nil, constants.FixRepoExitBadConfig)
 	}
 	mode := constants.FixRepoModeWrite
 	if isDryRun {
@@ -153,7 +155,7 @@ func restoreUndoSnapshot(snapDir, repoRoot string, isDryRun bool) {
 	restored, failed := walkUndoRestore(snapDir, repoRoot, manifest.Files, isDryRun)
 	fmt.Printf(constants.UndoMsgRestoreSummaryFmt, restored, failed)
 	if failed > 0 {
-		os.Exit(constants.FixRepoExitWriteFailed)
+		cliexit.HandleError(nil, constants.FixRepoExitWriteFailed)
 	}
 }
 

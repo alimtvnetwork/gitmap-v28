@@ -5,6 +5,7 @@
 
 ## Completed Plans
 - [x] [00-execution-plan.md](file:///d:/work/gitmap/.lovable/plans/completed/00-execution-plan.md)
+- [x] [16-error-management-audit.md](file:///d:/work/gitmap/.lovable/plans/completed/16-error-management-audit.md) — Autonomous repository-wide error management audit, AppError wrappers, cliexit handlers, and CI error linter.
 - [x] [15-centralized-error-handling-and-exit-architecture.md](file:///d:/work/gitmap/.lovable/plans/completed/15-centralized-error-handling-and-exit-architecture.md) — Centralized error management, AppError enrichment, and CLI exit dispatcher.
 - [x] [01-bulk-visibility-mapub-mapri.md](file:///d:/work/gitmap/.lovable/plans/completed/01-bulk-visibility-mapub-mapri.md)
 - [x] [01-coding-guideline-fixes.md](file:///d:/work/gitmap/.lovable/plans/completed/01-coding-guideline-fixes.md)

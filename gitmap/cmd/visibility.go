@@ -22,8 +22,8 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -66,7 +66,7 @@ func runVisibility(args []string, target string) error {
 	current := mustReadCurrentVisibility(ctx, opts.verbose)
 	if current == target {
 		fmt.Printf(constants.MsgVisAlreadyFmt, current, ctx.Provider)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
 	}
 
 	if target == constants.VisibilityPublic && !opts.yes {
@@ -75,7 +75,7 @@ func runVisibility(args []string, target string) error {
 
 	if opts.dryRun {
 		fmt.Printf(constants.MsgVisDryRunFmt, current, target, ctx.Slug, ctx.Provider)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
 	}
 
 	applyVisibilityOrExit(ctx, target, opts.verbose)
@@ -100,7 +100,7 @@ func parseVisibilityFlags(args []string, target string) (visibilityFlags, []stri
 	vrb := fs.Bool(constants.FlagVisVerbose, false, constants.FlagDescVisVerbose)
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(constants.ExitVisBadFlag)
+		cliexit.HandleError(nil, constants.ExitVisBadFlag)
 	}
 
 	out := visibilityFlags{yes: *yesLong || *yesShort, dryRun: *dry, verbose: *vrb}

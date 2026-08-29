@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -31,7 +33,16 @@ func resolveReportErrors() reportErrorsConfig {
 	}
 
 	if value != constants.ReportErrorsJSON {
-		panic("error")
+		err := apperror.NewWithDetails(
+			"cmd.updatereport.resolve",
+			"E1136",
+			fmt.Sprintf("unsupported report format '%s', expected '%s'", value, constants.ReportErrorsJSON),
+			"cmd.updatereport",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"format": value},
+		)
+		cliexit.HandleError(err, 1)
 	}
 
 	path := getFlagValue(constants.FlagReportErrorsFile)

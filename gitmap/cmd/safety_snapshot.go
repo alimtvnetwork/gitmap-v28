@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func runSnapshot(args []string) error {
@@ -86,7 +88,7 @@ func runRollback(args []string) error {
 	}
 	if src == "" {
 		fmt.Fprintln(os.Stderr, "rollback: ERROR no snapshot found; pass <tarball> explicitly")
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	n, err := readChromeBackup(src, ".") // tar.gz extractor reused
 	if err != nil {
@@ -123,7 +125,7 @@ func runGuard(args []string) error {
 	hooks := filepath.Join(root, ".git", "hooks")
 	if _, err := os.Stat(hooks); err != nil {
 		fmt.Fprintln(os.Stderr, "guard: ERROR not a git repo (no .git/hooks)")
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	hook := filepath.Join(hooks, "pre-commit")
 	if err := os.WriteFile(hook, []byte(guardHookBody), 0o755); err != nil {

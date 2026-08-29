@@ -32,7 +32,18 @@ func runSSHCat(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		panic(err)
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.sshcat.openDB",
+			"E1150",
+			"failed to open database for ssh-cat",
+			"cmd.sshcat",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+		return nil
 	}
 	defer db.Close()
 

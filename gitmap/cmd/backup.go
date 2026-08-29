@@ -24,6 +24,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // backupSnapshot is one `.gitmap/backup/<repo>/v<N>/fix-repo/<ts>/` entry.
@@ -49,7 +51,7 @@ func runBackup(args []string) error {
 		runBackupPrune(args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "gitmap backup: unknown subcommand %q (want: ls | prune)\n", args[0])
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	return nil
 }
@@ -80,11 +82,11 @@ func runBackupPrune(args []string) error {
 	olderDays := fs.Int("older-than", 0, "delete snapshots older than N days (0 = no age filter)")
 	dryRun := fs.Bool("dry-run", false, "print what would be deleted; do not touch disk")
 	if err := fs.Parse(args); err != nil {
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	if *keep == 0 && *olderDays == 0 {
 		fmt.Fprintln(os.Stderr, "gitmap backup prune: pass --keep=N and/or --older-than=DAYS")
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	root, err := backupRoot()
 	if err != nil {

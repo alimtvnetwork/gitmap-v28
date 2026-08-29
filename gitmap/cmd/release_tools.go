@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func runReleaseNotes(args []string) error {
@@ -50,7 +52,7 @@ func runStep(label string, name string, args ...string) error {
 func runTagRename(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, "tag-rename: ERROR usage: gitmap tag-rename <old> <new>")
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	oldTag, newTag := args[0], args[1]
 	steps := [][]string{

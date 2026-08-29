@@ -13,6 +13,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // executeRegoldens is the top-level orchestrator. Each step is a
@@ -61,7 +63,7 @@ func exitOnPass1Failure(cfg regoldensFlags, code int) {
 	if cfg.hasDiff() {
 		fmt.Fprintf(os.Stderr, constants.MsgRegoldensPass2NotRun, code)
 	}
-	panic(apperror.NewSimple("fatal error", "E9000"))
+	cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 }
 
 // handleSkipVerify emits the skip-verify success path and returns

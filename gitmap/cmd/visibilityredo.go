@@ -9,8 +9,7 @@
 package cmd
 
 import (
-	"os"
-
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -20,7 +19,8 @@ func runVisibilityRedo(args []string) error {
 	run, results := loadReversible(flags.RunID, constants.CommandKindVisibilityUndo, constants.ErrRedoNoRunFound)
 	if flags.DryRun {
 		printVisDryRun(constants.CmdVisibilityRedo, run, results)
-		os.Exit(constants.ExitVisOK)
+		cliexit.HandleError(nil, constants.ExitVisOK)
+		return nil
 	}
 	reverseRunAndExit(run, results, flags, constants.CmdVisibilityRedo)
 	return nil

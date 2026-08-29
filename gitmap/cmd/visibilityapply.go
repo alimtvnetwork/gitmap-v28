@@ -16,6 +16,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // mustReadCurrentVisibility runs the provider CLI to fetch the
@@ -26,7 +28,7 @@ func mustReadCurrentVisibility(ctx visibilityContext, verbose bool) string {
 	out, err := runProviderCLI(ctx.Provider, args, verbose)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrVisReadCurrentFmt, providerCLI(ctx.Provider), err)
-		os.Exit(constants.ExitVisAuthFailed)
+		cliexit.HandleError(nil, constants.ExitVisAuthFailed)
 	}
 
 	return parseVisibilityOutput(ctx.Provider, out)
@@ -73,7 +75,7 @@ func applyVisibilityOrExit(ctx visibilityContext, target string, verbose bool) {
 	stderr, err := runProviderCLICapturingStderr(ctx.Provider, args, verbose)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrVisApplyFailedFmt, err, stderr)
-		os.Exit(constants.ExitVisAuthFailed)
+		cliexit.HandleError(nil, constants.ExitVisAuthFailed)
 	}
 }
 
@@ -99,7 +101,7 @@ func verifyVisibilityOrExit(ctx visibilityContext, target string, verbose bool) 
 	current := mustReadCurrentVisibility(ctx, verbose)
 	if current != target {
 		fmt.Fprintf(os.Stderr, constants.ErrVisVerifyFailedFmt, current, target)
-		os.Exit(constants.ExitVisVerifyFailed)
+		cliexit.HandleError(nil, constants.ExitVisVerifyFailed)
 	}
 	fmt.Printf(constants.MsgVisVerifyOK, current)
 }

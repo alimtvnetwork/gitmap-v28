@@ -9,6 +9,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonefrom"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // applyCheckoutDefault stamps the global --checkout default onto
@@ -38,5 +40,5 @@ func validateCheckoutFlag(v string) {
 		return
 	}
 	fmt.Fprintf(os.Stderr, constants.MsgCloneFromBadCheckoutFlag+"\n", v)
-	os.Exit(2)
+	cliexit.HandleError(nil, 2)
 }

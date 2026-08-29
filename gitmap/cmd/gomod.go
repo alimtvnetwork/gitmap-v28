@@ -7,6 +7,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // goModOpts holds parsed flags for the gomod command.
@@ -88,7 +90,7 @@ func parseGoModFlags(args []string) goModOpts {
 func validateGoModPreconditions(oldPath, newPath string) {
 	if oldPath == newPath {
 		fmt.Printf(constants.MsgGoModNothingRename, oldPath)
-		os.Exit(0)
+		cliexit.HandleError(nil, 0)
 	}
 
 	requireInsideWorkTree()

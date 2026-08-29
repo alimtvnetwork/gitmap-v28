@@ -18,6 +18,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/verbose"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // pullOptions holds parsed pull flags.
@@ -282,7 +285,7 @@ func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 func executePull(records []model.ScanRecord, prog *cloner.BatchProgress, opts pullOptions) {
 	workers, ok := cloneconcurrency.Resolve(opts.parallel)
 	if !ok {
-		panic("invalid concurrency")
+		cliexit.HandleError(apperror.NewSimple("invalid concurrency", "E9000"), 1)
 	}
 	opts.parallel = workers
 

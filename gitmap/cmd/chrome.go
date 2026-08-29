@@ -8,12 +8,14 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func runChrome(args []string) error {
 	if len(args) == 0 {
 		printChromeUsage()
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	sub, tail := args[0], args[1:]
 	switch sub {
@@ -30,7 +32,7 @@ func runChrome(args []string) error {
 	default:
 		fmt.Fprintf(os.Stderr, "chrome: ERROR unknown subcommand %q\n", sub)
 		printChromeUsage()
-		os.Exit(2)
+		cliexit.HandleError(nil, 2)
 	}
 	return nil
 }

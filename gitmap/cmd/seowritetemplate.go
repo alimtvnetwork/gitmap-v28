@@ -52,12 +52,12 @@ func loadTemplatePairs(flags seoWriteFlags) ([]string, []string) {
 func loadFromJSONFile(path string) ([]string, []string) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		panic(constants.ErrSEOTemplateRead)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrSEOTemplateRead, "E9000"), 1)
 	}
 
 	var tf templateFile
 	if err := json.Unmarshal(data, &tf); err != nil {
-		panic(constants.ErrSEOTemplateRead)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrSEOTemplateRead, "E9000"), 1)
 	}
 
 	return tf.Titles, tf.Descriptions
@@ -77,11 +77,11 @@ func loadFromDatabase() ([]string, []string) {
 func openSEODatabase() *store.DB {
 	db, err := store.OpenDefault()
 	if err != nil {
-		panic("default")
+		cliexit.HandleError(apperror.NewSimple("default", "E9000"), 1)
 	}
 
 	if err := db.Migrate(); err != nil {
-		panic(err)
+		cliexit.HandleError(err, 1)
 	}
 
 	return db

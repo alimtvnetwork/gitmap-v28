@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -54,5 +58,14 @@ func dispatchZipGroup(sub string, args []string) {
 		return
 	}
 
-	panic("error")
+	err := apperror.NewWithDetails(
+		"cmd.zipgroup.dispatch",
+		"E1027",
+		fmt.Sprintf("unknown zip-group subcommand '%s'", sub),
+		"cmd.zipgroup",
+		apperror.ErrorTypeValidation,
+		apperror.SeverityError,
+		map[string]any{"subcommand": sub},
+	)
+	cliexit.HandleError(err, 1)
 }
