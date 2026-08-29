@@ -60,7 +60,14 @@ func ParsePrettyFlag(args []string) ([]string, render.PrettyModeType) {
 	return out, mode
 }
 
-func applyPrettyToken(token, value string, hasValue bool, mode render.PrettyModeType, out *[]string, arg string) render.PrettyModeType {
+func applyPrettyToken(
+	token,
+	value string,
+	hasValue bool,
+	mode render.PrettyModeType,
+	out *[]string,
+	arg string,
+) render.PrettyModeType {
 	switch token {
 	case flagPrettyPositive, flagColorPositive:
 		return resolvePositivePretty(value, hasValue, mode, out, arg)
@@ -106,7 +113,13 @@ func hasPrettyPrefix(arg string) bool {
 // resolvePositivePretty maps a "--pretty[=value]" occurrence to a
 // PrettyModeType. Falls back to keeping the original token in `out` when
 // the value is unrecognized so flag.Parse downstream can report it.
-func resolvePositivePretty(value string, hasValue bool, current render.PrettyModeType, out *[]string, original string) render.PrettyModeType {
+func resolvePositivePretty(
+	value string,
+	hasValue bool,
+	current render.PrettyModeType,
+	out *[]string,
+	original string,
+) render.PrettyModeType {
 	isMissingValue := !hasValue
 	if isMissingValue {
 		return render.PrettyOn

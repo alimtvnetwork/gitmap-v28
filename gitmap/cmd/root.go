@@ -142,7 +142,14 @@ func getRootCause(err error) error {
 	}
 }
 
-func handleDispatchResult(command string, found bool, err error, shouldAudit bool, auditID int64, auditStart time.Time) bool {
+func handleDispatchResult(
+	command string,
+	found bool,
+	err error,
+	shouldAudit bool,
+	auditID int64,
+	auditStart time.Time,
+) bool {
 	if !found {
 		return false
 	}
@@ -390,7 +397,12 @@ func routeSJSubcommand(ctx context.Context, args []string, root *cobra.Command) 
 	}
 }
 
-func dispatchExtraCommand(command string, shouldAudit bool, auditID int64, auditStart time.Time) bool {
+func dispatchExtraCommand(
+	command string,
+	shouldAudit bool,
+	auditID int64,
+	auditStart time.Time,
+) bool {
 	switch command {
 	case "ip", "ip-change":
 		executeAndAudit(dispatchIP, shouldAudit, auditID, auditStart)
@@ -406,7 +418,11 @@ func dispatchExtraCommand(command string, shouldAudit bool, auditID int64, audit
 	}
 }
 
-func executeAndAudit(fn func(context.Context, []string, *cobra.Command) error, shouldAudit bool, auditID int64, auditStart time.Time) {
+func executeAndAudit(
+	fn func(context.Context,
+	[]string,
+	*cobra.Command,
+) error, shouldAudit bool, auditID int64, auditStart time.Time) {
 	err := fn(context.Background(), os.Args[1:], nil)
 	if err != nil {
 		cliexit.HandleError(err, 1)

@@ -13,7 +13,12 @@ import (
 // "" when the feature is disabled / no detected language matches.
 // Pure I/O helper — never returns an error (best-effort per spec §6.3:
 // parser failures must NOT abort a commit).
-func renderFunctionIntel(repoDir string, c walk.SourceCommit, files []string, fi profile.FunctionIntel) string {
+func renderFunctionIntel(
+	repoDir string,
+	c walk.SourceCommit,
+	files []string,
+	fi profile.FunctionIntel,
+) string {
 	if !fi.IsEnabled || len(files) == 0 {
 		return ""
 	}
@@ -29,7 +34,12 @@ func renderFunctionIntel(repoDir string, c walk.SourceCommit, files []string, fi
 	return funcintel.Render(changes)
 }
 
-func collectChanges(repoDir, sha string, files []string, wanted map[string]struct{}) []funcintel.FileChange {
+func collectChanges(
+	repoDir,
+	sha string,
+	files []string,
+	wanted map[string]struct{},
+) []funcintel.FileChange {
 	out := make([]funcintel.FileChange, 0, len(files))
 	for _, rel := range files {
 		lang := funcintel.LanguageForPath(rel)

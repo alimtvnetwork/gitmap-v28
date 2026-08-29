@@ -42,7 +42,11 @@ func sortGroupedInstallers(latestBySlug map[string]model.InstallerScript, slugKe
 }
 
 // updateLatestSlugRecord updates the latest record map if candidate is newer.
-func updateLatestSlugRecord(latestMap map[string]model.InstallerScript, slugKeys *[]string, scriptRecord model.InstallerScript) {
+func updateLatestSlugRecord(
+	latestMap map[string]model.InstallerScript,
+	slugKeys *[]string,
+	scriptRecord model.InstallerScript,
+) {
 	slugKey := strings.ToLower(strings.TrimSpace(scriptRecord.Slug))
 	existingRecord, hasExisting := latestMap[slugKey]
 	if !hasExisting {

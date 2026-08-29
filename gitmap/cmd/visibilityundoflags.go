@@ -74,7 +74,11 @@ func mustParseRunID(args []string, i int) int64 {
 }
 
 // printVisDryRun lists the planned per-repo reversals without mutating.
-func printVisDryRun(cmdName string, run model.MakeAllVisibilityRunRecord, rs []model.MakeAllVisibilityResultRecord) {
+func printVisDryRun(
+	cmdName string,
+	run model.MakeAllVisibilityRunRecord,
+	rs []model.MakeAllVisibilityResultRecord,
+) {
 	fmt.Fprintf(os.Stdout, constants.MsgDryRunHeaderFmt, cmdName, run.ID, run.Provider, run.Owner, len(rs))
 	total := len(rs)
 	for i, r := range rs {

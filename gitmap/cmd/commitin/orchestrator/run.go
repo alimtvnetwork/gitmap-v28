@@ -75,7 +75,13 @@ func setUp(raw *commitin.RawArgs, stderr io.Writer) (*runContext, int) {
 
 // finishSetUp opens the DB, starts the run row, and resolves settings.
 // Split out so setUp stays under the 15-line cap.
-func finishSetUp(raw *commitin.RawArgs, src *workspace.SourceHandle, paths *workspace.Paths, lock *workspace.LockHandle, stderr io.Writer) (*runContext, int) {
+func finishSetUp(
+	raw *commitin.RawArgs,
+	src *workspace.SourceHandle,
+	paths *workspace.Paths,
+	lock *workspace.LockHandle,
+	stderr io.Writer,
+) (*runContext, int) {
 	db, code := openAndMigrate(paths, stderr)
 	if code != constants.CommitInExitOk {
 		lock.Release()
@@ -97,7 +103,12 @@ func finishSetUp(raw *commitin.RawArgs, src *workspace.SourceHandle, paths *work
 }
 
 // startRun inserts the CommitInRun row and returns its primary key.
-func startRun(db dbCloser, src *workspace.SourceHandle, prof *profile.Profile, stderr io.Writer) (int64, int) {
+func startRun(
+	db dbCloser,
+	src *workspace.SourceHandle,
+	prof *profile.Profile,
+	stderr io.Writer,
+) (int64, int) {
 	var url *string
 	if src.Kind == workspace.SourceKindCloned {
 		s := src.Path

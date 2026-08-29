@@ -52,7 +52,13 @@ func isMetaPending(meta ReleaseMeta, branchSet map[string]bool) bool {
 }
 
 // releasePendingFromMetadata creates branch+tag from stored commit SHA.
-func releasePendingFromMetadata(pending []ReleaseMeta, assetsPath, notes string, isDraft, dryRun bool) error {
+func releasePendingFromMetadata(
+	pending []ReleaseMeta,
+	assetsPath,
+	notes string,
+	isDraft,
+	dryRun bool,
+) error {
 	for _, meta := range pending {
 		err := releaseFromMetadata(meta, assetsPath, notes, isDraft, dryRun)
 		if err != nil {

@@ -119,7 +119,12 @@ func pickFormatterWriter(format string) func(*os.File, []model.ScanRecord) error
 // JSON to keep the parser path simple and the dest column explicit).
 // The URL column read from the records depends on `mode` — this is
 // the round-trip step the integration test exists to guard.
-func writeCloneFromManifest(t *testing.T, records []model.ScanRecord, mode, originFormat string) string {
+func writeCloneFromManifest(
+	t *testing.T,
+	records []model.ScanRecord,
+	mode,
+	originFormat string,
+) string {
 	t.Helper()
 	destRoot := t.TempDir()
 	rows := make([]map[string]any, 0, len(records))

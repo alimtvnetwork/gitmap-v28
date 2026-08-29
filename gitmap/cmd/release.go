@@ -46,7 +46,26 @@ func handleOutsideRepoRelease(args []string, version, bump, commit, branch strin
 	return true
 }
 
-func performInsideRepoRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {
+func performInsideRepoRelease(
+	version,
+	assets,
+	commit,
+	branch,
+	bump,
+	notes,
+	targets string,
+	zipGroups,
+	zipItems []string,
+	bundleName string,
+	draft,
+	dryRun,
+	verbose,
+	compress,
+	checksums,
+	bin,
+	noCommit,
+	yes bool,
+) {
 	requireOnline()
 	bump = applyBareReleaseAutoBump(version, bump, commit, branch, yes)
 	validateReleaseFlags(version, bump, commit, branch)
@@ -79,7 +98,27 @@ func loadReleaseConfig() model.Config {
 	return cfg
 }
 
-func buildReleaseOptions(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool, cfg model.Config) release.Options {
+func buildReleaseOptions(
+	version,
+	assets,
+	commit,
+	branch,
+	bump,
+	notes,
+	targets string,
+	zipGroups,
+	zipItems []string,
+	bundleName string,
+	draft,
+	dryRun,
+	verbose,
+	compress,
+	checksums,
+	bin,
+	noCommit,
+	yes bool,
+	cfg model.Config,
+) release.Options {
 	return release.Options{
 		Version: version, Assets: assets, Commit: commit, Branch: branch,
 		Bump: bump, Notes: notes, Targets: targets, ConfigTargets: cfg.Release.Targets,
@@ -91,7 +130,26 @@ func buildReleaseOptions(version, assets, commit, branch, bump, notes, targets s
 }
 
 // executeRelease builds options and runs the release workflow.
-func executeRelease(version, assets, commit, branch, bump, notes, targets string, zipGroups, zipItems []string, bundleName string, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes bool) {
+func executeRelease(
+	version,
+	assets,
+	commit,
+	branch,
+	bump,
+	notes,
+	targets string,
+	zipGroups,
+	zipItems []string,
+	bundleName string,
+	draft,
+	dryRun,
+	verbose,
+	compress,
+	checksums,
+	bin,
+	noCommit,
+	yes bool,
+) {
 	cfg := loadReleaseConfig()
 	opts := buildReleaseOptions(version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes, cfg)
 	if err := release.Execute(opts); err != nil {
@@ -214,7 +272,11 @@ func printListTargets(flagTargets string) {
 	printTargetDetails(flagTargets, cfg.Release.Targets, targets)
 }
 
-func printTargetDetails(flagTargets string, configTargets []model.ReleaseTarget, targets []release.BuildTarget) {
+func printTargetDetails(
+	flagTargets string,
+	configTargets []model.ReleaseTarget,
+	targets []release.BuildTarget,
+) {
 	source := resolveTargetSource(flagTargets, configTargets)
 	fmt.Printf(constants.MsgListTargetsHeader, len(targets))
 	fmt.Printf(constants.MsgListTargetsSource, source)

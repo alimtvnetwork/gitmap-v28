@@ -108,7 +108,11 @@ type runnerStats struct {
 // A workers value <1 returns nil so callers can treat
 // "concurrency disabled" the same as "no runner needed" with a
 // single nil-check.
-func NewBackgroundRunner(workers, expectedJobs int, urlPick func(model.ScanRecord) string, sink Sink) *BackgroundRunner {
+func NewBackgroundRunner(
+	workers,
+	expectedJobs int,
+	urlPick func(model.ScanRecord,
+) string, sink Sink) *BackgroundRunner {
 	if workers < 1 {
 		return nil
 	}

@@ -258,7 +258,13 @@ func (st *scanState) snapshot(final bool) ScanProgress {
 // from an unbounded-capacity FIFO and enqueues child directories back.
 // The queue is closed when wg drops to zero — i.e. every dispatched
 // directory has been fully processed and produced no new work.
-func walkParallel(root string, exclude map[string]bool, workers, maxDepth int, progress func(ScanProgress), onDirError func(string, error)) ([]RepoInfo, error) {
+func walkParallel(
+	root string,
+	exclude map[string]bool,
+	workers,
+	maxDepth int,
+	progress func(ScanProgress,
+), onDirError func(string, error)) ([]RepoInfo, error) {
 	st := &scanState{
 		root:       root,
 		isExcluded: exclude,

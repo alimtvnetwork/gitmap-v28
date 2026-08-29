@@ -11,7 +11,11 @@ import (
 )
 
 // dispatchLatestOutput routes to the correct output formatter.
-func dispatchLatestOutput(result latestBranchResult, items []gitutil.RemoteBranchInfo, cfg latestBranchConfig) {
+func dispatchLatestOutput(
+	result latestBranchResult,
+	items []gitutil.RemoteBranchInfo,
+	cfg latestBranchConfig,
+) {
 	if cfg.format == constants.OutputJSON {
 		printLatestJSON(result, items, cfg.top)
 

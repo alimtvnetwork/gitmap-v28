@@ -16,7 +16,15 @@ type GitHubRelease struct {
 }
 
 // CreateGitHubRelease creates a release via the GitHub API and returns the release ID.
-func CreateGitHubRelease(owner, repo, tag, name, body, token string, draft bool) (*GitHubRelease, error) {
+func CreateGitHubRelease(
+	owner,
+	repo,
+	tag,
+	name,
+	body,
+	token string,
+	draft bool,
+) (*GitHubRelease, error) {
 	u := buildGitHubReleasesURL(owner, repo)
 
 	payload := map[string]interface{}{

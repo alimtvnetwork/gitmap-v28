@@ -33,7 +33,12 @@ func (m *Manager) ExecuteOrdered(ctx context.Context, slug, osTarget string) err
 	return m.dispatchOrder(ctx, script, osTarget, order)
 }
 
-func (m *Manager) dispatchOrder(ctx context.Context, s *model.InstallerScript, osTarget, order string) error {
+func (m *Manager) dispatchOrder(
+	ctx context.Context,
+	s *model.InstallerScript,
+	osTarget,
+	order string,
+) error {
 	switch order {
 	case constants.OrderUnixFirst:
 		_ = RunLanguageScript(ctx, "echo [gitmap] running unix pre-verify", "sh")

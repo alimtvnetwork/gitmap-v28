@@ -16,7 +16,12 @@ import (
 
 // ExecRestart triggers a machine restart.
 
-func ExecRestart(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
+func ExecRestart(
+	ctx context.Context,
+	node ClusterNode,
+	forceLifecycle bool,
+	providedPassword string,
+) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
 	}
@@ -32,7 +37,12 @@ func buildRestartCmd(ctx context.Context) *exec.Cmd {
 
 // ExecShutdown triggers a machine shutdown.
 
-func ExecShutdown(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
+func ExecShutdown(
+	ctx context.Context,
+	node ClusterNode,
+	forceLifecycle bool,
+	providedPassword string,
+) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
 	}
@@ -48,7 +58,12 @@ func buildShutdownCmd(ctx context.Context) *exec.Cmd {
 
 // ExecLogoff logs off the current user.
 
-func ExecLogoff(ctx context.Context, node ClusterNode, forceLifecycle bool, providedPassword string) (string, string, int, error) {
+func ExecLogoff(
+	ctx context.Context,
+	node ClusterNode,
+	forceLifecycle bool,
+	providedPassword string,
+) (string, string, int, error) {
 	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
 	}
@@ -116,7 +131,13 @@ func PrintCountdown(ctx context.Context, nodes []string, action string, seconds 
 	return nil
 }
 
-func countdownTick(ctx context.Context, tickChan <-chan time.Time, action string, count, remaining int) error {
+func countdownTick(
+	ctx context.Context,
+	tickChan <-chan time.Time,
+	action string,
+	count,
+	remaining int,
+) error {
 	fmt.Printf(constants.MsgClusterCountdown+"\n", action, count, remaining)
 	select {
 	case <-ctx.Done():

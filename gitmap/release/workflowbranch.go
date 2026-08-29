@@ -10,7 +10,15 @@ import (
 )
 
 // ExecuteFromBranch runs the release workflow from an existing release branch.
-func ExecuteFromBranch(branchName, assetsPath, notes string, isDraft, dryRun, noCommit, yes bool) error {
+func ExecuteFromBranch(
+	branchName,
+	assetsPath,
+	notes string,
+	isDraft,
+	dryRun,
+	noCommit,
+	yes bool,
+) error {
 	version, err := extractVersionFromBranch(branchName)
 	if err != nil {
 		return err
@@ -54,7 +62,15 @@ func validateExistingBranch(branchName string, v Version) error {
 }
 
 // completeBranchRelease checks out the branch and runs tag/push/release.
-func completeBranchRelease(v Version, branchName, assetsPath, notes string, isDraft, noCommit, yes bool) error {
+func completeBranchRelease(
+	v Version,
+	branchName,
+	assetsPath,
+	notes string,
+	isDraft,
+	noCommit,
+	yes bool,
+) error {
 	originalBranch, branchErr := CurrentBranchName()
 	if branchErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not determine current branch: %v\n", branchErr)
@@ -130,7 +146,15 @@ func ExecutePending(assetsPath, notes string, isDraft, dryRun, noCommit, yes boo
 }
 
 // releasePendingBranches iterates and releases each pending branch.
-func releasePendingBranches(pending []string, assetsPath, notes string, isDraft, dryRun, noCommit, yes bool) error {
+func releasePendingBranches(
+	pending []string,
+	assetsPath,
+	notes string,
+	isDraft,
+	dryRun,
+	noCommit,
+	yes bool,
+) error {
 	for _, branchName := range pending {
 		err := ExecuteFromBranch(branchName, assetsPath, notes, isDraft, dryRun, noCommit, yes)
 		if err != nil {

@@ -9,7 +9,13 @@ import (
 )
 
 // InsertTempRelease records a new temp-release branch in the database.
-func (db *DB) InsertTempRelease(branch, versionPrefix string, seq int, commit, message string) error {
+func (db *DB) InsertTempRelease(
+	branch,
+	versionPrefix string,
+	seq int,
+	commit,
+	message string,
+) error {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertTempRelease, branch, versionPrefix, seq, commit, message).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrTRCreate, err)

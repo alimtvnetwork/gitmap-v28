@@ -57,7 +57,13 @@ func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppE
 }
 
 // createOrUpdateAliasRow handles the conflict-detection + write.
-func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.ScanRecord, force bool) *apperror.AppError {
+func createOrUpdateAliasRow(
+	db *store.DB,
+	name string,
+	repoID int64,
+	rec model.ScanRecord,
+	force bool,
+) *apperror.AppError {
 	if !db.AliasExists(name) {
 		return createAliasAndReturn(db, name, repoID, rec)
 	}
@@ -77,7 +83,12 @@ func createOrUpdateAliasRow(db *store.DB, name string, repoID int64, rec model.S
 	return nil
 }
 
-func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.ScanRecord) *apperror.AppError {
+func createAliasAndReturn(
+	db *store.DB,
+	name string,
+	repoID int64,
+	rec model.ScanRecord,
+) *apperror.AppError {
 	if _, err := db.CreateAlias(name, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 		cliexit.HandleError(nil, 1)
@@ -88,7 +99,12 @@ func createAliasAndReturn(db *store.DB, name string, repoID int64, rec model.Sca
 	return nil
 }
 
-func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force bool) *apperror.AppError {
+func checkAliasConflict(
+	db *store.DB,
+	name string,
+	rec model.ScanRecord,
+	force bool,
+) *apperror.AppError {
 	if force {
 		return nil
 	}

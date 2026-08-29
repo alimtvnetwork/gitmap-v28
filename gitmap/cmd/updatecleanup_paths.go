@@ -88,7 +88,12 @@ func collectBackupCleanupDirs(selfPath, repoPath string, config updateCleanupCon
 }
 
 // appendResolvedCleanupDirs appends derived deploy and build directories.
-func appendResolvedCleanupDirs(dirs []string, selfPath, repoPath string, config updateCleanupConfig) []string {
+func appendResolvedCleanupDirs(
+	dirs []string,
+	selfPath,
+	repoPath string,
+	config updateCleanupConfig,
+) []string {
 	dirs = appendCleanupDir(dirs, deriveDeployAppDir(selfPath))
 	dirs = appendCleanupDir(dirs, resolveConfigDeployAppDir(config.DeployPath))
 	dirs = appendCleanupDir(dirs, resolveBuildOutputDir(repoPath, config.BuildOutput))

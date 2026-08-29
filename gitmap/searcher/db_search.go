@@ -10,7 +10,13 @@ import (
 
 // SearchRepoDB searches the RepoDB for exact match, with analytical caching.
 
-func SearchRepoDB(ctx context.Context, db *sql.DB, query string, limit int, useCache bool) ([]SearchResult, error) {
+func SearchRepoDB(
+	ctx context.Context,
+	db *sql.DB,
+	query string,
+	limit int,
+	useCache bool,
+) ([]SearchResult, error) {
 	if res, ok := maybeGetCachedSearchResults(ctx, db, query, limit, useCache); ok {
 		return res, nil
 	}
@@ -45,7 +51,13 @@ func SearchRepoDB(ctx context.Context, db *sql.DB, query string, limit int, useC
 
 // SearchRepoDBRegex searches the RepoDB using a regex pattern.
 
-func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, limit int, useCache bool) ([]SearchResult, error) {
+func SearchRepoDBRegex(
+	ctx context.Context,
+	db *sql.DB,
+	expr string,
+	limit int,
+	useCache bool,
+) ([]SearchResult, error) {
 	if res, ok := maybeGetCachedSearchResults(ctx, db, "regex:"+expr, limit, useCache); ok {
 		return res, nil
 	}
@@ -93,7 +105,12 @@ func updateCache(ctx context.Context, db *sql.DB, cacheKey string, results []Sea
 	db.ExecContext(ctx, query, cacheKey, string(b))
 }
 
-func getCachedSearchResults(ctx context.Context, db *sql.DB, query string, limit int) ([]SearchResult, bool) {
+func getCachedSearchResults(
+	ctx context.Context,
+	db *sql.DB,
+	query string,
+	limit int,
+) ([]SearchResult, bool) {
 	var cachedJson string
 	err := db.QueryRowContext(ctx, "SELECT ResultJson FROM SearchCache WHERE Query = ?", query).Scan(&cachedJson)
 	if err != nil || cachedJson == "" {
@@ -110,7 +127,13 @@ func getCachedSearchResults(ctx context.Context, db *sql.DB, query string, limit
 	return res, true
 }
 
-func maybeGetCachedSearchResults(ctx context.Context, db *sql.DB, query string, limit int, useCache bool) ([]SearchResult, bool) {
+func maybeGetCachedSearchResults(
+	ctx context.Context,
+	db *sql.DB,
+	query string,
+	limit int,
+	useCache bool,
+) ([]SearchResult, bool) {
 	if !useCache {
 		return nil, false
 	}

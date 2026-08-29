@@ -49,7 +49,11 @@ type indexedBatchResult struct {
 // Concurrency contract: processOneBatchRepo owns its own per-repo
 // state (probe, version read, row construction) and shares no mutable
 // data with peers, so no extra mutex is required here.
-func processBatchReposConcurrent(repos []string, workers int, onResult func(batchRowResult)) []batchRowResult {
+func processBatchReposConcurrent(
+	repos []string,
+	workers int,
+	onResult func(batchRowResult,
+)) []batchRowResult {
 	jobs := make(chan indexedBatchJob, len(repos))
 	results := make(chan indexedBatchResult, len(repos))
 
@@ -68,7 +72,11 @@ var processOneBatchRepoFn = processOneBatchRepo
 
 // startBatchWorkers spins up the worker goroutines. Each one drains
 // the job channel until it closes.
-func startBatchWorkers(workers int, jobs <-chan indexedBatchJob, results chan<- indexedBatchResult) {
+func startBatchWorkers(
+	workers int,
+	jobs <-chan indexedBatchJob,
+	results chan<- indexedBatchResult,
+) {
 	for w := 0; w < workers; w++ {
 		go func() {
 			for j := range jobs {
@@ -92,7 +100,11 @@ func enqueueBatchJobs(repos []string, jobs chan<- indexedBatchJob) {
 // each dequeued row so the caller sees live "X done" feedback as
 // workers complete. The collector remains the single goroutine
 // touching the output slice — no locking required.
-func collectBatchResults(repos []string, results <-chan indexedBatchResult, onResult func(batchRowResult)) []batchRowResult {
+func collectBatchResults(
+	repos []string,
+	results <-chan indexedBatchResult,
+	onResult func(batchRowResult,
+)) []batchRowResult {
 	out := make([]batchRowResult, len(repos))
 	for i := 0; i < len(repos); i++ {
 		r := <-results

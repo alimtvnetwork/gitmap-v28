@@ -71,7 +71,13 @@ func runForcePush() error {
 }
 
 // printAmendHeader outputs the operation header.
-func printAmendHeader(f amendFlags, commits []model.CommitEntry, branch, prevName, prevEmail string) {
+func printAmendHeader(
+	f amendFlags,
+	commits []model.CommitEntry,
+	branch,
+	prevName,
+	prevEmail string,
+) {
 	if f.commitHash == "" {
 		fmt.Printf(constants.MsgAmendHeaderAll, len(commits), branch)
 	} else {

@@ -47,7 +47,12 @@ func CheckRemoteForUpdate(owner string, parsed ParsedRepo, ceiling int) (RemoteU
 
 // checkRemoteForUpdateWith is the test seam: identical to
 // CheckRemoteForUpdate but with an injectable probe function.
-func checkRemoteForUpdateWith(owner string, parsed ParsedRepo, ceiling int, probe repoExistsFn) (RemoteUpdateCheck, error) {
+func checkRemoteForUpdateWith(
+	owner string,
+	parsed ParsedRepo,
+	ceiling int,
+	probe repoExistsFn,
+) (RemoteUpdateCheck, error) {
 	out := RemoteUpdateCheck{
 		LocalVersion:  parsed.CurrentVersion,
 		RemoteVersion: parsed.CurrentVersion,
@@ -76,7 +81,12 @@ func checkRemoteForUpdateWith(owner string, parsed ParsedRepo, ceiling int, prob
 
 // probeHighestSibling walks -v<N+1>, -v<N+2>, ... up to ceiling and
 // returns the highest M that exists. Stops at the first 404 (fail-fast).
-func probeHighestSibling(owner string, parsed ParsedRepo, ceiling int, probe repoExistsFn) (int, error) {
+func probeHighestSibling(
+	owner string,
+	parsed ParsedRepo,
+	ceiling int,
+	probe repoExistsFn,
+) (int, error) {
 	highest := parsed.CurrentVersion
 	for m := parsed.CurrentVersion + 1; m <= ceiling; m++ {
 		exists, err := probe(owner, TargetRepoName(parsed.BaseName, m))

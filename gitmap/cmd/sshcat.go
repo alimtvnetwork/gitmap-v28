@@ -97,7 +97,11 @@ func printSSHNotFound(db *store.DB, name string) {
 	)
 	cliexit.HandleError(appErr, 1)
 }
-func fallbackToSingleKey(db *store.DB, fallbackKey *model.SSHKey, fallbackErr error) (*model.SSHKey, error) {
+func fallbackToSingleKey(
+	db *store.DB,
+	fallbackKey *model.SSHKey,
+	fallbackErr error,
+) (*model.SSHKey, error) {
 	keys, lerr := db.ListSSHKeys()
 	hasOneKey := lerr == nil && len(keys) == 1
 	if hasOneKey {

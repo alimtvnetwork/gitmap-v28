@@ -16,7 +16,14 @@ type packageJSON struct {
 }
 
 // detectNodeOrReact reads package.json and classifies as node or react.
-func detectNodeOrReact(dir, pkgPath, repoPath string, repoID int64, repoName string, results *[]DetectionResult) {
+func detectNodeOrReact(
+	dir,
+	pkgPath,
+	repoPath string,
+	repoID int64,
+	repoName string,
+	results *[]DetectionResult,
+) {
 	pkg, err := parsePackageJSON(pkgPath)
 	if err != nil {
 		return

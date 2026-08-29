@@ -49,7 +49,11 @@ func checkManagers(ctx context.Context, managers []string) (string, error) {
 
 // ExecInstall installs the specified packages using the detected package manager.
 
-func ExecInstall(ctx context.Context, node ClusterNode, packages []string) ([]PackageResult, error) {
+func ExecInstall(
+	ctx context.Context,
+	node ClusterNode,
+	packages []string,
+) ([]PackageResult, error) {
 	mgr, err := detectPackageManager(ctx)
 	hasError := err != nil
 	if hasError {

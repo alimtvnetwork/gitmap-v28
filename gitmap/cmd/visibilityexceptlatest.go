@@ -30,7 +30,11 @@ var versionSuffixRE = regexp.MustCompile(`(?i)^(.*)-v(\d+)$`)
 // the highest -vN entry per base group (groups with a single versioned
 // entry are NOT split out — there is nothing meaningful to invert).
 // Unversioned repos always land in `rest`. Each split is logged via w.
-func splitExceptLatest(in []visibility.MatchedRepo, w io.Writer, invertedTarget string) ([]visibility.MatchedRepo, []visibility.MatchedRepo) {
+func splitExceptLatest(
+	in []visibility.MatchedRepo,
+	w io.Writer,
+	invertedTarget string,
+) ([]visibility.MatchedRepo, []visibility.MatchedRepo) {
 	type peak struct {
 		idx int
 		ver int

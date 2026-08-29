@@ -41,7 +41,12 @@ func initConsole() {
 // enableVTOnHandle turns on ENABLE_VIRTUAL_TERMINAL_PROCESSING for one
 // standard handle. Errors are intentionally swallowed — the handle may
 // not be a console (e.g. piped output) and that's fine.
-func enableVTOnHandle(getStdHandle, getConsoleMode, setConsoleMode *syscall.LazyProc, stdHandleID uintptr) {
+func enableVTOnHandle(
+	getStdHandle,
+	getConsoleMode,
+	setConsoleMode *syscall.LazyProc,
+	stdHandleID uintptr,
+) {
 	handle, _, _ := getStdHandle.Call(stdHandleID)
 	if handle == 0 || handle == ^uintptr(0) {
 		return

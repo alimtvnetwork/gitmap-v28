@@ -20,7 +20,14 @@ func beginCommandAudit(command string, args []string) (int64, time.Time, bool) {
 	return recordAuditStart(command, args)
 }
 
-func finishCommandAudit(shouldAudit bool, id int64, start time.Time, exitCode int, summary string, repoCount int) {
+func finishCommandAudit(
+	shouldAudit bool,
+	id int64,
+	start time.Time,
+	exitCode int,
+	summary string,
+	repoCount int,
+) {
 	isNonAudit := !shouldAudit
 	if isNonAudit {
 		return

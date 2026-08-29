@@ -22,7 +22,13 @@ func writeChromeExportSQLite(srcProfile, name, outPath string) (int, error) {
 }
 
 // buildChromeProfileArchive builds the actual zip payload based on requested flags.
-func buildChromeProfileArchive(srcProfile, name, outPath string, includeJSON, includeSQLite bool) (int, error) {
+func buildChromeProfileArchive(
+	srcProfile,
+	name,
+	outPath string,
+	includeJSON,
+	includeSQLite bool,
+) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil {
 		return 0, fmt.Errorf("mkdir %s: %w", filepath.Dir(outPath), err)
 	}

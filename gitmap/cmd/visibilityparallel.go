@@ -23,7 +23,13 @@ import (
 // applyBulkLoopParallel fans the matched set across `flags.Parallel`
 // workers and tallies the results. When Parallel<=1 it degrades to
 // the sequential path so the per-line live output is preserved.
-func applyBulkLoopParallel(ctx ownerContext, target string, matches []visibility.MatchedRepo, flags bulkFlags, audit *runAudit) (int, int, int) {
+func applyBulkLoopParallel(
+	ctx ownerContext,
+	target string,
+	matches []visibility.MatchedRepo,
+	flags bulkFlags,
+	audit *runAudit,
+) (int, int, int) {
 	workers := flags.Parallel
 	if workers <= 1 {
 		return applyBulkLoopSeq(ctx, target, matches, flags.Verbose, audit)
@@ -77,7 +83,13 @@ func applyBulkLoopParallel(ctx ownerContext, target string, matches []visibility
 
 // applyBulkLoopSeq is the original sequential implementation kept for
 // --parallel=1 and tests that assert deterministic per-line order.
-func applyBulkLoopSeq(ctx ownerContext, target string, matches []visibility.MatchedRepo, verbose bool, audit *runAudit) (int, int, int) {
+func applyBulkLoopSeq(
+	ctx ownerContext,
+	target string,
+	matches []visibility.MatchedRepo,
+	verbose bool,
+	audit *runAudit,
+) (int, int, int) {
 	changed, skipped, failed := 0, 0, 0
 	total := len(matches)
 	for i, m := range matches {

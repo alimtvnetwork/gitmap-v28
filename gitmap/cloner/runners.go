@@ -115,7 +115,13 @@ func repoDisplayName(rec model.ScanRecord) string {
 }
 
 // trackResult updates progress based on clone/pull outcome.
-func trackResult(p *Progress, result model.CloneResult, rec model.ScanRecord, targetDir string, safePull bool) {
+func trackResult(
+	p *Progress,
+	result model.CloneResult,
+	rec model.ScanRecord,
+	targetDir string,
+	safePull bool,
+) {
 	if result.IsSuccess {
 		pulled := safePull && isGitRepo(filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath)))
 		p.Done(result, pulled)

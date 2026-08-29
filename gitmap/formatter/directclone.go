@@ -18,7 +18,12 @@ func WriteDirectCloneSSHScript(w io.Writer, records []model.ScanRecord) error {
 }
 
 // writeDirectCloneScriptTemplate renders a direct clone template.
-func writeDirectCloneScriptTemplate(w io.Writer, records []model.ScanRecord, templateName string, useSSH bool) error {
+func writeDirectCloneScriptTemplate(
+	w io.Writer,
+	records []model.ScanRecord,
+	templateName string,
+	useSSH bool,
+) error {
 	tmpl, err := loadTemplate(templateName)
 	if err != nil {
 		return err

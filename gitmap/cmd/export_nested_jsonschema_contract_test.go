@@ -55,7 +55,12 @@ func TestExportJSONSchema_NestedRecordKeysSubsetOfProperties(t *testing.T) {
 
 // assertNestedRecordKeys walks one nested array's first record and
 // verifies every emitted key is in the schema's items.properties map.
-func assertNestedRecordKeys(t *testing.T, topProps map[string]any, arrayKey string, raw json.RawMessage) {
+func assertNestedRecordKeys(
+	t *testing.T,
+	topProps map[string]any,
+	arrayKey string,
+	raw json.RawMessage,
+) {
 	t.Helper()
 	arrayProp, _ := topProps[arrayKey].(map[string]any)
 	items, _ := arrayProp["items"].(map[string]any)

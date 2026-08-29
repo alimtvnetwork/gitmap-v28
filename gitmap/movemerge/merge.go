@@ -71,7 +71,14 @@ func applyEntry(e DiffEntry, l, r Endpoint, dir DirectionType, res *Resolver, op
 
 // applyMissing copies a file present on only one side to the other.
 // fromLeft=true means LEFT has it; copy to RIGHT (when allowed).
-func applyMissing(e DiffEntry, l, r Endpoint, dir DirectionType, opts Options, isFromLeft bool) error {
+func applyMissing(
+	e DiffEntry,
+	l,
+	r Endpoint,
+	dir DirectionType,
+	opts Options,
+	isFromLeft bool,
+) error {
 	switch {
 	case isFromLeft && (dir == DirBoth || dir == DirRightOnly):
 		return copyOne(l.WorkingDir, r.WorkingDir, e.RelPath, e.Left.Info, opts)
@@ -83,7 +90,14 @@ func applyMissing(e DiffEntry, l, r Endpoint, dir DirectionType, opts Options, i
 }
 
 // applyConflict resolves and applies one conflicting path.
-func applyConflict(e DiffEntry, l, r Endpoint, dir DirectionType, res *Resolver, opts Options) error {
+func applyConflict(
+	e DiffEntry,
+	l,
+	r Endpoint,
+	dir DirectionType,
+	res *Resolver,
+	opts Options,
+) error {
 	choice, err := res.Resolve(e.RelPath, e.Left, e.Right)
 	if err != nil {
 		return err

@@ -81,3 +81,14 @@ python .lovable/ai-fix-scripts/06-cli-help-auditor.py
 python .lovable/ai-fix-scripts/07-batch-ok-fixer.py
 ```
 </details>
+
+<details>
+<summary>08-multiline-formatter.py</summary>
+
+**Purpose:** Scans and formats Go function definitions (>2 parameters) and long argument signatures onto multi-line layouts with one parameter per line and trailing commas per Rule 9a/9b.
+
+**Usage Examples:**
+```bash
+python .lovable/ai-fix-scripts/08-multiline-formatter.py
+```
+</details>

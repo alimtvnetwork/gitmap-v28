@@ -14,7 +14,12 @@ import (
 // stopOnFail is honored: once any worker reports a failure, the dispatcher
 // drains the queue without spawning more work and returning workers exit
 // after their in-flight task finishes.
-func runPushParallel(records []model.ScanRecord, prog *cloner.BatchProgress, parallel int, stopOnFail bool) error {
+func runPushParallel(
+	records []model.ScanRecord,
+	prog *cloner.BatchProgress,
+	parallel int,
+	stopOnFail bool,
+) error {
 	if parallel < 1 {
 		parallel = 1
 	}

@@ -70,7 +70,12 @@ func assembleDashboard(
 }
 
 // buildMeta constructs the metadata header for the dashboard.
-func buildMeta(opts CollectOptions, totalCommits, totalBranches, totalTags int) model.DashboardMeta {
+func buildMeta(
+	opts CollectOptions,
+	totalCommits,
+	totalBranches,
+	totalTags int,
+) model.DashboardMeta {
 	return model.DashboardMeta{
 		RepoName:      queryRepoName(opts.RepoPath),
 		GeneratedAt:   time.Now().UTC().Format(time.RFC3339),

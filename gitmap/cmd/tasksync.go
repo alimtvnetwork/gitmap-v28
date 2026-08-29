@@ -115,7 +115,14 @@ func syncOnce(entry model.TaskEntry, verbose, dryRun bool) {
 }
 
 // syncSingleFile compares timestamps and copies if source is newer.
-func syncSingleFile(srcRoot, destRoot, relPath string, srcInfo os.FileInfo, dryRun, verbose bool) bool {
+func syncSingleFile(
+	srcRoot,
+	destRoot,
+	relPath string,
+	srcInfo os.FileInfo,
+	dryRun,
+	verbose bool,
+) bool {
 	destPath := filepath.Join(destRoot, relPath)
 	destInfo, err := os.Stat(destPath)
 

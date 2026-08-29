@@ -41,7 +41,11 @@ func parseHistoryFilters(args []string, now time.Time) historyFilters {
 
 // applyHistoryFilters returns the subset of `runs` matching f. Stable,
 // preserves input order (caller pre-sorts newest-first).
-func applyHistoryFilters(runs []model.MakeAllVisibilityRunRecord, f historyFilters, now time.Time) []model.MakeAllVisibilityRunRecord {
+func applyHistoryFilters(
+	runs []model.MakeAllVisibilityRunRecord,
+	f historyFilters,
+	now time.Time,
+) []model.MakeAllVisibilityRunRecord {
 	if f.Kind == "" && f.Since == 0 {
 		return runs
 	}

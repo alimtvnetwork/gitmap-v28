@@ -19,12 +19,25 @@ import (
 // and (unless dryRun) writes the result back. Returns the total
 // replacement count across all targets, or an error on read/write
 // failure.
-func rewriteFixRepoFile(fullPath, base string, current int, targets []int, dryRun bool) (int, error) {
+func rewriteFixRepoFile(
+	fullPath,
+	base string,
+	current int,
+	targets []int,
+	dryRun bool,
+) (int, error) {
 	return rewriteFixRepoFileR(fullPath, base, current, targets, dryRun, false)
 }
 
 // rewriteFixRepoFileR is the restrict-aware variant (v5.39.0+).
-func rewriteFixRepoFileR(fullPath, base string, current int, targets []int, dryRun, restrictNoVersion bool) (int, error) {
+func rewriteFixRepoFileR(
+	fullPath,
+	base string,
+	current int,
+	targets []int,
+	dryRun,
+	restrictNoVersion bool,
+) (int, error) {
 	original, err := os.ReadFile(fullPath)
 	if err != nil {
 		return 0, err
@@ -53,7 +66,13 @@ func applyAllTargets(text, base string, current int, targets []int) (string, int
 // restrictNoVersion is true, the v1→v2 bare-base sweep is skipped so
 // ONLY `{base}-vN` tokens are rewritten — see spec
 // 27-fix-repo-command.md §"Restrict modes".
-func applyAllTargetsR(text, base string, current int, targets []int, restrictNoVersion bool) (string, int) {
+func applyAllTargetsR(
+	text,
+	base string,
+	current int,
+	targets []int,
+	restrictNoVersion bool,
+) (string, int) {
 	total := 0
 	for _, n := range targets {
 		updated, added := applyOneTarget(text, base, n, current)

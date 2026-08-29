@@ -44,7 +44,11 @@ func constantsDirForTest(t *testing.T) string {
 
 // collectTopLevelCmdConstants parses one constants file and appends every
 // qualifying Cmd* constant occurrence to byValue, keyed by string value.
-func collectTopLevelCmdConstants(t *testing.T, path string, byValue map[string][]cmdConstantOccurrence) {
+func collectTopLevelCmdConstants(
+	t *testing.T,
+	path string,
+	byValue map[string][]cmdConstantOccurrence,
+) {
 	t.Helper()
 
 	fset := token.NewFileSet()
@@ -68,7 +72,11 @@ func collectTopLevelCmdConstants(t *testing.T, path string, byValue map[string][
 
 // appendBlockOccurrences walks every spec in an opted-in const block and
 // records each Cmd* string constant that is not marked `gitmap:cmd skip`.
-func appendBlockOccurrences(fset *token.FileSet, gen *ast.GenDecl, byValue map[string][]cmdConstantOccurrence) {
+func appendBlockOccurrences(
+	fset *token.FileSet,
+	gen *ast.GenDecl,
+	byValue map[string][]cmdConstantOccurrence,
+) {
 	for _, spec := range gen.Specs {
 		vs, ok := spec.(*ast.ValueSpec)
 		if !ok {
@@ -84,7 +92,11 @@ func appendBlockOccurrences(fset *token.FileSet, gen *ast.GenDecl, byValue map[s
 
 // recordValueSpec extracts every Cmd* identifier in the spec and records its
 // declared string value plus source location.
-func recordValueSpec(fset *token.FileSet, vs *ast.ValueSpec, byValue map[string][]cmdConstantOccurrence) {
+func recordValueSpec(
+	fset *token.FileSet,
+	vs *ast.ValueSpec,
+	byValue map[string][]cmdConstantOccurrence,
+) {
 	for i, name := range vs.Names {
 		if !strings.HasPrefix(name.Name, "Cmd") || i >= len(vs.Values) {
 			continue

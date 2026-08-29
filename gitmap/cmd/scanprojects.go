@@ -49,7 +49,11 @@ func detectAllProjects(records []model.ScanRecord) []detector.DetectionResult {
 // detectionWorker pulls repos off jobs and emits results onto resultsCh.
 // Each repo's detector.DetectProjects call is independent, so the only
 // shared state is the channel buffer.
-func detectionWorker(jobs <-chan model.ScanRecord, resultsCh chan<- []detector.DetectionResult, wg *sync.WaitGroup) {
+func detectionWorker(
+	jobs <-chan model.ScanRecord,
+	resultsCh chan<- []detector.DetectionResult,
+	wg *sync.WaitGroup,
+) {
 	defer wg.Done()
 	for rec := range jobs {
 		resultsCh <- detector.DetectProjects(rec.AbsolutePath, rec.ID, rec.RepoName)
@@ -94,7 +98,11 @@ func resolveDetectionWorkers(repoCount int) int {
 }
 
 // upsertProjectsToDB persists detected projects and metadata to SQLite.
-func upsertProjectsToDB(results []detector.DetectionResult, records []model.ScanRecord, outputDir string) {
+func upsertProjectsToDB(
+	results []detector.DetectionResult,
+	records []model.ScanRecord,
+	outputDir string,
+) {
 	if len(results) == 0 {
 		return
 	}
@@ -115,7 +123,11 @@ func upsertProjectsToDB(results []detector.DetectionResult, records []model.Scan
 }
 
 // upsertProjectRecords inserts projects, metadata, and cleans stale records.
-func upsertProjectRecords(db *store.DB, results []detector.DetectionResult, records []model.ScanRecord) {
+func upsertProjectRecords(
+	db *store.DB,
+	results []detector.DetectionResult,
+	records []model.ScanRecord,
+) {
 	count := 0
 	repoIDs := collectRepoIDs(results)
 	for i := range results {

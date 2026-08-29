@@ -84,7 +84,12 @@ func needsClusterValue(token string) bool {
 	return name == constants.ClusterFlagExcept || name == constants.ClusterFlagIP || name == constants.ClusterFlagID
 }
 
-func bindClusterFlags(fs *flag.FlagSet, opts *ClusterFlags, ips *stringSliceFlag, ids *intSliceFlag) (*bool, *bool) {
+func bindClusterFlags(
+	fs *flag.FlagSet,
+	opts *ClusterFlags,
+	ips *stringSliceFlag,
+	ids *intSliceFlag,
+) (*bool, *bool) {
 	fs.StringVar(&opts.ExceptClause, constants.ClusterFlagExcept, "", "")
 	fs.Var(ips, constants.ClusterFlagIP, "")
 	fs.Var(ids, constants.ClusterFlagID, "")

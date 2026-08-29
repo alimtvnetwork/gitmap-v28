@@ -62,7 +62,11 @@ func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.Ma
 // insertPendingResultsInTx is the per-row insert loop. Extracted so the
 // outer function stays under the 15-line cap and the loop is testable
 // against an injected tx in unit tests.
-func insertPendingResultsInTx(tx txExecer, runID int64, rows []model.MakeAllVisibilityResultRecord) ([]int64, error) {
+func insertPendingResultsInTx(
+	tx txExecer,
+	runID int64,
+	rows []model.MakeAllVisibilityResultRecord,
+) ([]int64, error) {
 	ids := make([]int64, 0, len(rows))
 	for _, r := range rows {
 		res, err := tx.Exec(constants.SQLInsertMakeAllVisibilityResult,

@@ -141,7 +141,12 @@ func runListMode(ctx context.Context, path string) error {
 
 // executeCompactExtract is the success-path: open DB, persist a
 // pre-flight history row, run the extraction, finalize the row.
-func executeCompactExtract(ctx context.Context, resolved archive.ResolvedSource, originalSrc, dest string) {
+func executeCompactExtract(
+	ctx context.Context,
+	resolved archive.ResolvedSource,
+	originalSrc,
+	dest string,
+) {
 	db, dbErr := openDB()
 	var historyID int64
 	if dbErr == nil {
@@ -197,7 +202,14 @@ func startArchiveRow(db *store.DB, cmd string, inputs []string, mode string) int
 
 // finishArchiveRow updates an in-flight row with the final outcome. Safe
 // to call with id == 0 (no-op) when the start failed.
-func finishArchiveRow(db *store.DB, id int64, outputPath, format string, usedTemp bool, runErr error) {
+func finishArchiveRow(
+	db *store.DB,
+	id int64,
+	outputPath,
+	format string,
+	usedTemp bool,
+	runErr error,
+) {
 	if db == nil || id == 0 {
 		return
 	}

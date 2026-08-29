@@ -51,7 +51,14 @@ func parseClonePickFlags(args []string) clonePickParsed {
 	return buildClonePickParsed(rawURL, rawPaths, flags, output, audit, noVSCodeSync)
 }
 
-func buildClonePickParsed(rawURL, rawPaths string, flags clonepick.Flags, output *string, audit clonePickAuditFlags, noVSCodeSync *bool) clonePickParsed {
+func buildClonePickParsed(
+	rawURL,
+	rawPaths string,
+	flags clonepick.Flags,
+	output *string,
+	audit clonePickAuditFlags,
+	noVSCodeSync *bool,
+) clonePickParsed {
 	return clonePickParsed{
 		RawURL:                          rawURL,
 		RawPaths:                        rawPaths,
@@ -73,7 +80,11 @@ func bindClonePickFilterFlags(fs *flag.FlagSet, flags *clonepick.Flags, defaults
 	fs.BoolVar(&flags.Cone, constants.FlagClonePickCone, defaults.Cone, constants.FlagDescClonePickCone)
 }
 
-func bindClonePickExecutionFlags(fs *flag.FlagSet, flags *clonepick.Flags, defaults clonepick.Flags) {
+func bindClonePickExecutionFlags(
+	fs *flag.FlagSet,
+	flags *clonepick.Flags,
+	defaults clonepick.Flags,
+) {
 	fs.StringVar(&flags.Dest, constants.FlagClonePickDest, defaults.Dest, constants.FlagDescClonePickDest)
 	fs.BoolVar(&flags.KeepGit, constants.FlagClonePickKeepGit, defaults.KeepGit, constants.FlagDescClonePickKeepGit)
 	fs.BoolVar(&flags.DryRun, constants.FlagClonePickDryRun, defaults.DryRun, constants.FlagDescClonePickDryRun)

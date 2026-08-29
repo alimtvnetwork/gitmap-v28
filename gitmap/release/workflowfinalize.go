@@ -77,7 +77,14 @@ func pushAndFinalize(v Version, branchName, tag, _ string, opts Options) error {
 }
 
 // writeMetadata persists release info and updates latest.
-func writeMetadata(v Version, branchName, tag, sourceName string, assets []string, opts Options) error {
+func writeMetadata(
+	v Version,
+	branchName,
+	tag,
+	sourceName string,
+	assets []string,
+	opts Options,
+) error {
 	commit, commitErr := CurrentCommitSHA()
 	if commitErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not determine current commit SHA: %v\n", commitErr)
@@ -102,7 +109,15 @@ func writeMetadata(v Version, branchName, tag, sourceName string, assets []strin
 }
 
 // buildReleaseMeta constructs the metadata struct for a release.
-func buildReleaseMeta(v Version, branchName, tag, sourceName, commit string, assets []string, opts Options) ReleaseMeta {
+func buildReleaseMeta(
+	v Version,
+	branchName,
+	tag,
+	sourceName,
+	commit string,
+	assets []string,
+	opts Options,
+) ReleaseMeta {
 	assetPaths := make([]string, len(assets))
 	copy(assetPaths, assets)
 

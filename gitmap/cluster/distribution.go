@@ -48,7 +48,12 @@ func DistributeWorkload(clients []Client, repos []Repo) []Workload {
 
 // DistributionLoop monitors node health and redistributes workloads if a node drops.
 // It calls onUpdate whenever a new workload distribution is generated.
-func DistributionLoop(registry *Registry, repos []Repo, interval time.Duration, onUpdate func([]Workload)) {
+func DistributionLoop(
+	registry *Registry,
+	repos []Repo,
+	interval time.Duration,
+	onUpdate func([]Workload,
+)) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 

@@ -26,7 +26,12 @@ var errConflictAborted = errors.New("conflict aborted by user")
 // Errors from the clobber probe are non-fatal: we log + treat as
 // "no clobber detected" so a flaky `git rev-parse` cannot wedge the
 // pipeline (zero-swallow: error is still printed via stdout).
-func conflictCheck(ctx *runContext, plan replay.Plan, c walk.SourceCommit, stdout io.Writer) (shouldAbortRun, shouldSkipCommit bool) {
+func conflictCheck(
+	ctx *runContext,
+	plan replay.Plan,
+	c walk.SourceCommit,
+	stdout io.Writer,
+) (shouldAbortRun, shouldSkipCommit bool) {
 	clobbers, err := replay.DetectClobbers(plan)
 	if err != nil {
 		fmt.Fprintf(stdout, "commit-in: conflict probe %s: %v\n", c.Sha, err)

@@ -17,7 +17,11 @@ const (
 
 // ExecPS executes a PowerShell command on the specified node.
 
-func ExecPS(ctx context.Context, node ClusterNode, command string) (stdout, stderr string, exitCode int, err error) {
+func ExecPS(
+	ctx context.Context,
+	node ClusterNode,
+	command string,
+) (stdout, stderr string, exitCode int, err error) {
 	var cmd *exec.Cmd
 
 	isWin := runtime.GOOS == winOS

@@ -11,7 +11,13 @@ import (
 
 // PrintPreflight renders the preflight summary box using existing terminal formatting helpers.
 // It returns true if the user confirmed or if autoConfirm is true.
-func PrintPreflight(selector TargetSelectorType, effective []ClusterNode, command string, runRef string, autoConfirm bool) (bool, error) {
+func PrintPreflight(
+	selector TargetSelectorType,
+	effective []ClusterNode,
+	command string,
+	runRef string,
+	autoConfirm bool,
+) (bool, error) {
 	fmt.Print(constants.ColorCyan + "==================================================================\n" + constants.ColorReset)
 	fmt.Printf("%sCluster Command Preflight%s\n", constants.ColorYellow, constants.ColorReset)
 	fmt.Print(constants.ColorCyan + "==================================================================\n" + constants.ColorReset)

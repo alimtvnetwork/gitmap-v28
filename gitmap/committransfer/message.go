@@ -26,7 +26,13 @@ type CleanResult struct {
 // provenance → empty-guard) and returns the final commit message or a
 // skip reason. footerArgs (shortSHA + when) are only used when
 // MessagePolicy.Provenance is true.
-func CleanMessage(subject, body string, p MessagePolicy, shortSHA string, when time.Time) CleanResult {
+func CleanMessage(
+	subject,
+	body string,
+	p MessagePolicy,
+	shortSHA string,
+	when time.Time,
+) CleanResult {
 	if reason := matchDrop(subject, p.DropPatterns); reason != "" {
 		return CleanResult{Skipped: "drop-pattern " + reason}
 	}

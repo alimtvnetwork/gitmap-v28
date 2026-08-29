@@ -86,7 +86,13 @@ func createOutputFile(path string) (*os.File, error) {
 	return os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, constants.FilePermission)
 }
 
-func writeArchive(ctx context.Context, path string, format Format, mode CompressionMode, files []archives.FileInfo) error {
+func writeArchive(
+	ctx context.Context,
+	path string,
+	format Format,
+	mode CompressionMode,
+	files []archives.FileInfo,
+) error {
 	out, err := createOutputFile(path)
 	if err != nil {
 		return err

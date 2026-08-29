@@ -47,7 +47,12 @@ func isVersionHeading(line string) bool {
 }
 
 // startNewSection finalizes the previous section and opens a fresh one.
-func startNewSection(entries []ChangelogEntry, current ChangelogEntry, inSection bool, raw string) ([]ChangelogEntry, ChangelogEntry, bool) {
+func startNewSection(
+	entries []ChangelogEntry,
+	current ChangelogEntry,
+	inSection bool,
+	raw string,
+) ([]ChangelogEntry, ChangelogEntry, bool) {
 	if inSection {
 		entries = append(entries, current)
 	}

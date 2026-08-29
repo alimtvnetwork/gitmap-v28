@@ -34,7 +34,12 @@ func BuildRecords(repos []scanner.RepoInfo, mode, defaultNote string) []model.Sc
 // path. We refuse that and emit a clear stderr message naming the offending
 // repo, falling back to the scanner-computed RelativePath for THAT row so
 // one bad ancestor doesn't drop the entire record.
-func BuildRecordsWithRoot(repos []scanner.RepoInfo, mode, defaultNote, relRoot string) []model.ScanRecord {
+func BuildRecordsWithRoot(
+	repos []scanner.RepoInfo,
+	mode,
+	defaultNote,
+	relRoot string,
+) []model.ScanRecord {
 	return BuildRecordsWithOptions(repos, BuildOptions{
 		Mode: mode, DefaultNote: defaultNote, RelRoot: relRoot,
 	})

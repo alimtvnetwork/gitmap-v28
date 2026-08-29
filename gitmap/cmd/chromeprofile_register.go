@@ -60,7 +60,11 @@ func ensureChromeLocalStateInfoCache(profile map[string]any) map[string]any {
 // GAIA / signed-in account field — the destination profile must look
 // signed-out to Chrome, matching the cookies/login data we deliberately
 // excluded from the copy.
-func buildChromeDestinationInfoEntry(infoCache map[string]any, srcDir, displayName string) map[string]any {
+func buildChromeDestinationInfoEntry(
+	infoCache map[string]any,
+	srcDir,
+	displayName string,
+) map[string]any {
 	entry := map[string]any{}
 	if src, ok := infoCache[srcDir].(map[string]any); ok {
 		for k, v := range src {

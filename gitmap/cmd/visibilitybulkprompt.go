@@ -71,7 +71,11 @@ func longestRepoName(matches []visibility.MatchedRepo) int {
 // any exclusions applied) and a boolean indicating whether the run
 // should proceed. Re-prompts on a parse error rather than exiting so a
 // typo does not nuke the whole run.
-func promptConfirmOrExclude(in io.Reader, out io.Writer, matches []visibility.MatchedRepo) ([]visibility.MatchedRepo, bool) {
+func promptConfirmOrExclude(
+	in io.Reader,
+	out io.Writer,
+	matches []visibility.MatchedRepo,
+) ([]visibility.MatchedRepo, bool) {
 	reader := bufio.NewReader(in)
 	current := matches
 	for {
@@ -93,7 +97,11 @@ func promptConfirmOrExclude(in io.Reader, out io.Writer, matches []visibility.Ma
 // handlePromptLine returns (currentSet, proceed, done). When done is
 // false the outer loop re-prompts (used for the parse-error retry +
 // the exclusion-applied re-display path).
-func handlePromptLine(raw string, current []visibility.MatchedRepo, out io.Writer) ([]visibility.MatchedRepo, bool, bool) {
+func handlePromptLine(
+	raw string,
+	current []visibility.MatchedRepo,
+	out io.Writer,
+) ([]visibility.MatchedRepo, bool, bool) {
 	tok := strings.ToLower(strings.TrimSpace(raw))
 	if tok == "y" || tok == "yes" {
 		return current, true, true

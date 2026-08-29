@@ -11,7 +11,13 @@ import (
 )
 
 // buildSingleTarget compiles one GOOS/GOARCH combination.
-func buildSingleTarget(binName, version string, target BuildTarget, pkgDir, stagingDir string) CrossCompileResult {
+func buildSingleTarget(
+	binName,
+	version string,
+	target BuildTarget,
+	pkgDir,
+	stagingDir string,
+) CrossCompileResult {
 	outputName := formatOutputName(binName, version, target)
 	outputPath := filepath.Join(stagingDir, outputName)
 

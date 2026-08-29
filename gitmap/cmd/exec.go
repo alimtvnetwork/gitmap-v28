@@ -53,7 +53,11 @@ func runExec(args []string) error {
 }
 
 // execAllReposTracked runs a git command across all repos with progress.
-func execAllReposTracked(records []model.ScanRecord, gitArgs []string, prog *cloner.BatchProgress) (int, int, int) {
+func execAllReposTracked(
+	records []model.ScanRecord,
+	gitArgs []string,
+	prog *cloner.BatchProgress,
+) (int, int, int) {
 	var succeeded, failed, missing int
 	for _, rec := range records {
 		if prog.Stopped() {
@@ -70,7 +74,11 @@ func execAllReposTracked(records []model.ScanRecord, gitArgs []string, prog *clo
 }
 
 // execOneRepoTracked runs a git command in one repo with progress tracking.
-func execOneRepoTracked(rec model.ScanRecord, gitArgs []string, prog *cloner.BatchProgress) (int, int, int) {
+func execOneRepoTracked(
+	rec model.ScanRecord,
+	gitArgs []string,
+	prog *cloner.BatchProgress,
+) (int, int, int) {
 	_, err := os.Stat(rec.AbsolutePath)
 	if err != nil {
 		prog.Skip(rec.RepoName)

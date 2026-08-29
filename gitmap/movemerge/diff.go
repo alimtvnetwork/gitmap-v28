@@ -49,7 +49,13 @@ func DiffTrees(leftDir, rightDir string, opts Options) ([]DiffEntry, error) {
 }
 
 // classifyOne returns the DiffEntry for a single relative path.
-func classifyOne(rel string, li, ri map[string]FileMeta, leftDir, rightDir string) (DiffEntry, error) {
+func classifyOne(
+	rel string,
+	li,
+	ri map[string]FileMeta,
+	leftDir,
+	rightDir string,
+) (DiffEntry, error) {
 	l, lOK := li[rel]
 	r, rOK := ri[rel]
 	entry := DiffEntry{RelPath: rel, Left: l, Right: r}

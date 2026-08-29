@@ -15,7 +15,13 @@ type FileFindResult struct {
 
 // FindFile searches RepoDB for file names matching the query or pattern.
 
-func FindFile(ctx context.Context, db *sql.DB, query string, limit int, useCache bool) ([]FileFindResult, error) {
+func FindFile(
+	ctx context.Context,
+	db *sql.DB,
+	query string,
+	limit int,
+	useCache bool,
+) ([]FileFindResult, error) {
 	if res, ok := maybeGetCachedFindResults(ctx, db, "find:"+query, limit, useCache); ok {
 		return res, nil
 	}
@@ -57,7 +63,13 @@ func FindFile(ctx context.Context, db *sql.DB, query string, limit int, useCache
 
 // FindFileRegex searches RepoDB using regex on the filename.
 
-func FindFileRegex(ctx context.Context, db *sql.DB, expr string, limit int, useCache bool) ([]FileFindResult, error) {
+func FindFileRegex(
+	ctx context.Context,
+	db *sql.DB,
+	expr string,
+	limit int,
+	useCache bool,
+) ([]FileFindResult, error) {
 	if res, ok := maybeGetCachedFindResults(ctx, db, "find_regex:"+expr, limit, useCache); ok {
 		return res, nil
 	}
@@ -90,7 +102,12 @@ func FindFileRegex(ctx context.Context, db *sql.DB, expr string, limit int, useC
 	return results, nil
 }
 
-func getCachedFindResults(ctx context.Context, db *sql.DB, key string, limit int) ([]FileFindResult, bool) {
+func getCachedFindResults(
+	ctx context.Context,
+	db *sql.DB,
+	key string,
+	limit int,
+) ([]FileFindResult, bool) {
 	var cached string
 	err := db.QueryRowContext(ctx, "SELECT ResultJson FROM SearchCache WHERE Query = ?", key).Scan(&cached)
 	if err != nil || cached == "" {
@@ -127,7 +144,14 @@ type FileReadResult struct {
 
 // FindAndRead searches RepoDB for file names, and then reads their content.
 
-func FindAndRead(ctx context.Context, db *sql.DB, query string, isRegex bool, limit int, useCache bool) ([]FileReadResult, error) {
+func FindAndRead(
+	ctx context.Context,
+	db *sql.DB,
+	query string,
+	isRegex bool,
+	limit int,
+	useCache bool,
+) ([]FileReadResult, error) {
 	var files []FileFindResult
 	var err error
 
@@ -165,7 +189,13 @@ func FindAndRead(ctx context.Context, db *sql.DB, query string, isRegex bool, li
 	return results, nil
 }
 
-func maybeGetCachedFindResults(ctx context.Context, db *sql.DB, cacheKey string, limit int, useCache bool) ([]FileFindResult, bool) {
+func maybeGetCachedFindResults(
+	ctx context.Context,
+	db *sql.DB,
+	cacheKey string,
+	limit int,
+	useCache bool,
+) ([]FileFindResult, bool) {
 	if !useCache {
 		return nil, false
 	}

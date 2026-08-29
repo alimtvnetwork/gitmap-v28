@@ -110,7 +110,12 @@ func planOne(rec model.ScanRecord, targetDir string, cache *CloneCache) AuditEnt
 
 // classifyDest decides clone/pull/cached/conflict by inspecting the
 // destination on disk. Stat-only — never opens the repo.
-func classifyDest(base AuditEntry, dest string, rec model.ScanRecord, cache *CloneCache) AuditEntry {
+func classifyDest(
+	base AuditEntry,
+	dest string,
+	rec model.ScanRecord,
+	cache *CloneCache,
+) AuditEntry {
 	if !pathExists(dest) {
 		base.Action = AuditActionClone
 

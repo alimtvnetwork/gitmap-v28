@@ -82,7 +82,13 @@ func ensureProfilePath(shell, profile string) (string, error) {
 	return defaultProfilePath(shell)
 }
 
-func rewriteProfileFile(profile, existing, open, close, body string) (PathSnippetWriteResult, error) {
+func rewriteProfileFile(
+	profile,
+	existing,
+	open,
+	close,
+	body string,
+) (PathSnippetWriteResult, error) {
 	rewritten := rewriteSnippetBlock(existing, open, close, body)
 	if rewritten == existing {
 		return PathSnippetWriteResult{Profile: profile, Action: "noop", Snippet: body}, nil
@@ -113,7 +119,14 @@ type snippetScanState struct {
 	wrote    bool
 }
 
-func processSnippetLine(line, open, close, body string, state *snippetScanState, out *strings.Builder) {
+func processSnippetLine(
+	line,
+	open,
+	close,
+	body string,
+	state *snippetScanState,
+	out *strings.Builder,
+) {
 	switch {
 	case !state.skipping && line == open:
 		state.skipping = true

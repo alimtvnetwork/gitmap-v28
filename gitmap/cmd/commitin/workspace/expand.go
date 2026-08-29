@@ -27,7 +27,12 @@ type ResolvedInput struct {
 // empty, each `inputs` token is classified individually. When the
 // keyword is set, siblings of `source` are discovered and (optionally)
 // truncated to the last `tail` entries.
-func ExpandInputs(source string, inputs []string, keyword string, tail int) ([]ResolvedInput, error) {
+func ExpandInputs(
+	source string,
+	inputs []string,
+	keyword string,
+	tail int,
+) ([]ResolvedInput, error) {
 	if keyword != "" {
 		return expandKeyword(source, keyword, tail)
 	}
@@ -115,7 +120,12 @@ func discoverSiblings(source string) ([]ResolvedInput, error) {
 
 // collectMatchingSiblings filters DirEntry slice down to versioned
 // siblings, then sorts ascending. Pure — no filesystem calls.
-func collectMatchingSiblings(parent, base, sourceAbs string, entries []os.DirEntry) []ResolvedInput {
+func collectMatchingSiblings(
+	parent,
+	base,
+	sourceAbs string,
+	entries []os.DirEntry,
+) []ResolvedInput {
 	out := make([]ResolvedInput, 0, len(entries))
 	for _, e := range entries {
 		if !e.IsDir() {

@@ -9,7 +9,14 @@ import (
 
 // InsertInputRepo persists one staged input. Returns the new
 // InputRepoId so the walker can FK SourceCommit rows back to it.
-func InsertInputRepo(db *sql.DB, runID int64, orderIndex int, originalRef, resolvedPath, kind string) (int64, error) {
+func InsertInputRepo(
+	db *sql.DB,
+	runID int64,
+	orderIndex int,
+	originalRef,
+	resolvedPath,
+	kind string,
+) (int64, error) {
 	kindID, err := lookupEnumID(db, constants.TableCommitInInputKind, "InputKindId", kind)
 	if err != nil {
 		return 0, fmt.Errorf("runlog: lookup InputKind %q: %w", kind, err)

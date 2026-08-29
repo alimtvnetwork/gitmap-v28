@@ -102,7 +102,14 @@ func classifyHits(repoPath string, repoID int64, repoName string, hits repoHits)
 }
 
 // detectFile checks a single file against all detection rules.
-func detectFile(path, repoPath string, repoID int64, repoName string, slnDirs map[string]bool, results *[]DetectionResult) {
+func detectFile(
+	path,
+	repoPath string,
+	repoID int64,
+	repoName string,
+	slnDirs map[string]bool,
+	results *[]DetectionResult,
+) {
 	name := filepath.Base(path)
 	dir := filepath.Dir(path)
 

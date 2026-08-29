@@ -134,7 +134,13 @@ func (a *runAudit) markExcluded(before, after []visibility.MatchedRepo) int {
 // updateResult writes the terminal status for one repo. start is
 // captured by the caller so the persisted DurationMs reflects the
 // actual provider-CLI round-trip.
-func (a *runAudit) updateResult(repoName string, st applyStatus, prev, next string, start time.Time) {
+func (a *runAudit) updateResult(
+	repoName string,
+	st applyStatus,
+	prev,
+	next string,
+	start time.Time,
+) {
 	if a.db == nil {
 		return
 	}

@@ -60,7 +60,12 @@ func runClonePickExecute(plan clonepick.Plan, noVSCodeSync bool, replayId int64)
 // announceClonePickPersistence prints the saved/replayed line and,
 // for replays, bumps the CreatedAt column. Split out so the main
 // executor stays under the function-length cap.
-func announceClonePickPersistence(plan clonepick.Plan, result clonepick.Result, replayId int64, db *store.DB) {
+func announceClonePickPersistence(
+	plan clonepick.Plan,
+	result clonepick.Result,
+	replayId int64,
+	db *store.DB,
+) {
 	name := plan.Name
 	if len(name) == 0 {
 		name = "(unnamed)"
