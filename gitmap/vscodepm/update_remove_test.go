@@ -12,7 +12,7 @@ func TestUpdateRootPathAndRemoveEntry(t *testing.T) {
 
 	initial := []Entry{
 		{Name: "my-app", RootPath: `D:\work\my-app`, Paths: []string{}, Tags: []string{}, Enabled: true},
-		{Name: "other-app", RootPath: `D:\work\othere-app`, Paths: []string{}, Tags: []string{}, Enabled: true},
+		{Name: "second-app", RootPath: `D:\work\second-app`, Paths: []string{}, Tags: []string{}, Enabled: true},
 	}
 	if err := writeEntriesAtomic(pJson, initial); err != nil {
 		t.Fatalf("write initial failed: %v", err)
@@ -32,7 +32,7 @@ func TestUpdateRootPathAndRemoveEntry(t *testing.T) {
 	}
 
 	// Remove entry
-	if err := RemoveEntryAt(pJson, `D:/work/other-app`); err != nil {
+	if err := RemoveEntryAt(pJson, `D:/work/second-app`); err != nil {
 		t.Fatalf("RemoveEntryAt failed: %v", err)
 	}
 	entries, err = readEntries(pJson)
@@ -55,7 +55,7 @@ func TestPathsEqualCrossPlatformSlashes(t *testing.T) {
 		{`D:/work/my-app`, `d:/work/my-app`, true},
 		{`/home/user/repo`, `/home/user/repo`, true},
 		{`/home/user/repo/`, `/home/user/repo`, true},
-		{`D:\work\my-app`, `D:\work\othere-app`, false},
+		{`D:\work\my-app`, `D:\work\second-app`, false},
 	}
 	for _, tc := range cases {
 		got := pathsEqual(tc.a, tc.b)

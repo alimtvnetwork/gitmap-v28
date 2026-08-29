@@ -10,3 +10,7 @@
 - [19-ci-gitmap-open-error-refactor.md](19-ci-gitmap-open-error-refactor.md): Fixed Python cp1252 decode errors, completed mass AST refactoring of 80+ commands to return typed errors instead of os.Exit(1), and implemented gitmap open cross-platform.
 - [20-cicd-four-headed-hydra.md](./20-cicd-four-headed-hydra.md): Fix for env platform return types, gofmt, lint script key errors, and legacy gitmap-v6 markdown references.
 - [21-go-generate-drift.md](./21-go-generate-drift.md): Fix generated files drift caused by modified CLI constants.
+- [22-go-mod-bump-linter-break.md](./22-go-mod-bump-linter-break.md): Fix go.mod version bump causing typecheck failures in pinned linter.
+- [23-linter-guideline-conflict.md](./23-linter-guideline-conflict.md): Linter guideline conflict resolution and explicit boolean rule protection.
+- [24-equalfold-and-us-english-fix.md](./24-equalfold-and-us-english-fix.md): EqualFold reversion fix and US English misspell linter enforcement.
+- [25-go-125-dependency-linter-break.md](./25-go-125-dependency-linter-break.md): Revert go.mod and golang.org/x/* dependencies to Go 1.24 compatibility to fix CI typecheck crash.
