@@ -16,6 +16,39 @@ EXCLUDE_DIRS = {
     'vendor', 'coverage', '.gemini', '.system_generated', 'tests/fixtures',
     'scratch', 'temp-scripts', 'temp-agents', 'temp'
 }
+FUNC_PATTERN = re.compile(r'^(func(?:\s*\([^)]*\))?\s*[A-Za-z0-9_]+)\(([^)]+)\)(.*)$')
+
+
+def compute_line_indent(line: str) -> str:
+    indent = ""
+    for ch in line:
+        if ch not in (' ', '\t'):
+            break
+        indent += ch
+    return indent
+
+
+def reformat_func_line(line: str, stripped: str) -> tuple[str, bool]:
+    is_candidate = stripped.startswith('func ') and '(' in stripped and ')' in stripped and len(stripped) > 100
+    if not is_candidate:
+        return line, False
+
+    m = FUNC_PATTERN.match(stripped)
+    if not m:
+        return line, False
+
+    fn_head = m.group(1)
+    param_str = m.group(2)
+    fn_tail = m.group(3)
+    params = [p.strip() for p in param_str.split(',') if p.strip()]
+    if len(params) <= 2:
+        return line, False
+
+    indent = compute_line_indent(line)
+    param_indent = indent + "\t"
+    formatted_params = ",\n".join(param_indent + p for p in params) + ","
+    reformatted = f"{indent}{fn_head}(\n{formatted_params}\n{indent}){fn_tail}"
+    return reformatted, True
 
 
 def format_go_file(filepath: Path) -> int:
@@ -25,44 +58,23 @@ def format_go_file(filepath: Path) -> int:
         return 0
 
     lines = content.split('\n')
-    changed = False
+    has_changed = False
     new_lines = []
 
     for line in lines:
         stripped = line.strip()
-        # Look for func definition on a single line > 100 chars with > 2 commas in params
-        if stripped.startswith('func ') and '(' in stripped and ')' in stripped and len(stripped) > 100:
-            # Check if this is a function definition with body or interface
-            # Find the parameter list (handling receiver if present)
-            # e.g., func (db *DB) InsertSSHKey(name, privatePath, publicKey, fingerprint, email string) error {
-            m = re.match(r'^(func(?:\s*\([^)]*\))?\s*[A-Za-z0-9_]+)\(([^)]+)\)(.*)$', stripped)
-            if m:
-                fn_head = m.group(1)
-                param_str = m.group(2)
-                fn_tail = m.group(3)
-
-                params = [p.strip() for p in param_str.split(',') if p.strip()]
-                if len(params) > 2:
-                    # Format as multi-line
-                    indent = ""
-                    for ch in line:
-                        if ch in (' ', '\t'):
-                            indent += ch
-                        else:
-                            break
-                    param_indent = indent + "\t"
-                    formatted_params = ",\n".join(param_indent + p for p in params) + ","
-                    reformatted = f"{indent}{fn_head}(\n{formatted_params}\n{indent}){fn_tail}"
-                    new_lines.append(reformatted)
-                    changed = True
-                    continue
-
+        reformatted, was_reformatted = reformat_func_line(line, stripped)
+        if was_reformatted:
+            has_changed = True
+            new_lines.append(reformatted)
+            continue
         new_lines.append(line)
 
-    if changed:
-        filepath.write_text('\n'.join(new_lines), encoding='utf-8')
-        return 1
-    return 0
+    if not has_changed:
+        return 0
+
+    filepath.write_text('\n'.join(new_lines), encoding='utf-8')
+    return 1
 
 
 def main():

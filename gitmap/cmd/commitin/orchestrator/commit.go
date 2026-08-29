@@ -23,7 +23,7 @@ func processOneCommit(
 	staged workspace.StagedInput,
 	c walk.SourceCommit,
 	pick func(int,
-) int, stdout io.Writer) {
+	) int, stdout io.Writer) {
 	inputRepoID, srcID, ok := persistSource(ctx, staged, c, stdout)
 	if !ok {
 		return
@@ -107,7 +107,7 @@ func buildMessage(
 	c walk.SourceCommit,
 	intelBlock string,
 	pick func(int,
-) int) message.Result {
+	) int) message.Result {
 	return message.Build(message.Inputs{
 		OriginalMessage: c.OriginalMessage,
 		FunctionIntel:   intelBlock,

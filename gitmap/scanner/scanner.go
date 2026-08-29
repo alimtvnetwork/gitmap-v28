@@ -264,7 +264,7 @@ func walkParallel(
 	workers,
 	maxDepth int,
 	progress func(ScanProgress,
-), onDirError func(string, error)) ([]RepoInfo, error) {
+	), onDirError func(string, error)) ([]RepoInfo, error) {
 	st := &scanState{
 		root:       root,
 		isExcluded: exclude,

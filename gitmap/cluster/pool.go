@@ -252,7 +252,7 @@ func finishClusterPool(
 	multi *pterm.MultiPrinter,
 	isMultiActive bool,
 	updateCounts func(bool,
-), runId int64, totalNodes, succeeded, failed, skipped int) {
+	), runId int64, totalNodes, succeeded, failed, skipped int) {
 	updateCounts(false)
 	if isMultiActive {
 		multi.Stop()

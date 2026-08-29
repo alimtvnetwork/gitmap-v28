@@ -30,9 +30,7 @@ var installerImportCmd = &cobra.Command{
 	Short:              "Import installer scripts from a zip archive or json file",
 	Long:               "Loads installer records and versions from an exported .zip archive or .json file.",
 	DisableFlagParsing: true,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runInstallerImport(cmd, args)
-	},
+	RunE:               runInstallerImport,
 }
 
 // InstallerImportCmd is an exported alias for installerImportCmd.

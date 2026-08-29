@@ -53,7 +53,7 @@ func processBatchReposConcurrent(
 	repos []string,
 	workers int,
 	onResult func(batchRowResult,
-)) []batchRowResult {
+	)) []batchRowResult {
 	jobs := make(chan indexedBatchJob, len(repos))
 	results := make(chan indexedBatchResult, len(repos))
 
@@ -104,7 +104,7 @@ func collectBatchResults(
 	repos []string,
 	results <-chan indexedBatchResult,
 	onResult func(batchRowResult,
-)) []batchRowResult {
+	)) []batchRowResult {
 	out := make([]batchRowResult, len(repos))
 	for i := 0; i < len(repos); i++ {
 		r := <-results

@@ -40,7 +40,7 @@ func dataProfileEntries() []dispatchEntry {
 		{[]string{constants.CmdDiffProfiles, constants.CmdDiffProfilesAlias}, func() error { return runDiffProfiles(argsTail()) }},
 		{[]string{constants.CmdCD, constants.CmdCDAlias}, func() error { return runCD(argsTail()) }},
 		{[]string{constants.CmdWatch, constants.CmdWatchAlias}, func() error { return runWatch(argsTail()) }},
-		{[]string{constants.CmdInteractive, constants.CmdInteractiveAlias}, func() error { return runInteractive() }},
+		{[]string{constants.CmdInteractive, constants.CmdInteractiveAlias}, runInteractive},
 	}
 }
 

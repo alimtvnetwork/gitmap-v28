@@ -12,9 +12,7 @@ var installerCmd = &cobra.Command{
 	Use:   "installer",
 	Short: "Manage, create, export, import, and version installation scripts",
 	Long:  "A script installation creation, export, import, and versioning system.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runInstaller(cmd, args)
-	},
+	RunE:  runInstaller,
 }
 
 // runInstaller executes the root installer command logic.
