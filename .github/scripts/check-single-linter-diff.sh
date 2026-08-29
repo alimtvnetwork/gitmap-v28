@@ -104,7 +104,7 @@ normalize() {
     | map(select((.Pos.Filename // "") | length > 0))
     | map(select($filter == "" or (.Text | test($filter))))
     | .[]
-    | "\(.Pos.Filename)|\(.Pos.Line)|\(.Text)"
+    | "\(.Pos.Filename)|\(.Pos.Line // 1)|\(.Text | gsub("[\r\n]+"; " "))"
   ' "$path"
 }
 
@@ -143,14 +143,21 @@ fi
 # the exact location.
 while IFS='|' read -r FILE LINE TEXT; do
   [ -z "$FILE" ] && continue
+  if ! [[ "$LINE" =~ ^[0-9]+$ ]]; then
+    LINE=1
+  fi
   COL=$(jq -r --arg f "$FILE" --argjson l "$LINE" --arg t "$TEXT" --arg linter "$LINTER" '
     .Issues // []
     | map(select(.FromLinter == $linter
         and .Pos.Filename == $f
         and .Pos.Line == $l
-        and .Text == $t))
+        and (.Text | gsub("[\r\n]+"; " ")) == $t))
     | .[0].Pos.Column // 1
-  ' "$CURRENT_OUT")
+  ' "$CURRENT_OUT" 2>/dev/null || echo 1)
+  COL="${COL:-1}"
+  if ! [[ "$COL" =~ ^[0-9]+$ ]]; then
+    COL=1
+  fi
   if [ "$SEEDING" = "true" ]; then
     echo "::warning file=${FILE},line=${LINE},col=${COL}::[${LABEL}] ${TEXT} (seeding baseline)"
   else

@@ -72,11 +72,48 @@ def run_cmd(name, cmd, cwd):
         return False, f"--- [ERROR] {name} ({elapsed:.2f}s) ---\n{str(exc)}"
 
 
+def run_changelog_sync_check():
+    """Validates constants.Version has a matching heading in changelog.md."""
+    const_file = os.path.join(GITMAP_DIR, "constants", "constants.go")
+    changelog_file = os.path.join(ROOT_DIR, "changelog.md")
+    version = None
+    with open(const_file, "r", encoding="utf-8", errors="replace") as fh:
+        for line in fh:
+            m = re.search(r'^var Version\s*=\s*"([^"]+)"', line)
+            if m:
+                version = m.group(1)
+                break
+    if not version:
+        return False, f"Could not parse var Version from {const_file}"
+    escaped_ver = re.escape(version)
+    pattern = re.compile(rf"^##\s+\[?v?{escaped_ver}\]?(?:\s|$)", re.MULTILINE)
+    with open(changelog_file, "r", encoding="utf-8", errors="replace") as fh:
+        content = fh.read()
+    if not pattern.search(content):
+        return False, f"CHANGELOG drift: constants.Version is {version} but no matching heading exists in changelog.md"
+    return True, f"constants.Version {version} in sync with changelog.md"
+
+
+def run_generate_drift_check():
+    """Runs go generate ./... and verifies no files under gitmap/ were modified by it."""
+    before_res = subprocess.run("git status --porcelain .", cwd=GITMAP_DIR, shell=True, capture_output=True, text=True, encoding="utf-8")
+    res = subprocess.run("go generate ./...", cwd=GITMAP_DIR, shell=True, capture_output=True, text=True, encoding="utf-8")
+    if res.returncode != 0:
+        return False, f"go generate ./... failed:\n{res.stderr or res.stdout}"
+    after_res = subprocess.run("git status --porcelain .", cwd=GITMAP_DIR, shell=True, capture_output=True, text=True, encoding="utf-8")
+    if before_res.stdout != after_res.stdout:
+        diff_res = subprocess.run("git diff .", cwd=GITMAP_DIR, shell=True, capture_output=True, text=True, encoding="utf-8")
+        return False, f"go generate ./... modified files under gitmap/:\n{diff_res.stdout or diff_res.stderr}"
+    return True, "All generated files in gitmap/ are in sync."
+
+
 def main():
     print("=== CI/CD Local Runner (03-cicd-local-runner.py) ===")
     checks = [
         ("Legacy Refs Check", run_legacy_refs_check, None, None),
         ("Bare Stderr Check", run_bare_stderr_check, None, None),
+        ("Changelog Version Sync", run_changelog_sync_check, None, None),
+        ("Generate Drift Check", run_generate_drift_check, None, None),
         ("Go Vet", None, "go vet ./...", GITMAP_DIR),
         ("Compile Gate", None, "go test -run=^$ ./... -count=1", GITMAP_DIR),
         ("Full Suite Lint", None, "golangci-lint run ./...", GITMAP_DIR),

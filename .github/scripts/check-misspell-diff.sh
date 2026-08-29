@@ -79,7 +79,7 @@ normalize() {
     | map(select(.FromLinter == "misspell"))
     | map(select((.Pos.Filename // "") | length > 0))
     | .[]
-    | "\(.Pos.Filename)|\(.Pos.Line)|\(.Text)"
+    | "\(.Pos.Filename)|\(.Pos.Line // 1)|\(.Text | gsub("[\r\n]+"; " "))"
   ' "$path"
 }
 
@@ -118,14 +118,21 @@ fi
 # exact word.
 while IFS='|' read -r FILE LINE TEXT; do
   [ -z "$FILE" ] && continue
+  if ! [[ "$LINE" =~ ^[0-9]+$ ]]; then
+    LINE=1
+  fi
   COL=$(jq -r --arg f "$FILE" --argjson l "$LINE" --arg t "$TEXT" '
     .Issues // []
     | map(select(.FromLinter == "misspell"
         and .Pos.Filename == $f
         and .Pos.Line == $l
-        and .Text == $t))
+        and (.Text | gsub("[\r\n]+"; " ")) == $t))
     | .[0].Pos.Column // 1
-  ' "$CURRENT_OUT")
+  ' "$CURRENT_OUT" 2>/dev/null || echo 1)
+  COL="${COL:-1}"
+  if ! [[ "$COL" =~ ^[0-9]+$ ]]; then
+    COL=1
+  fi
   if [ "$SEEDING" = "true" ]; then
     echo "::warning file=${FILE},line=${LINE},col=${COL}::[misspell] ${TEXT} (seeding baseline)"
   else
