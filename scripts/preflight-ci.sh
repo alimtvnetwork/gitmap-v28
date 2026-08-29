@@ -49,6 +49,7 @@ run_tests() {
   return 0
 }
 
+# lint-allow: function-length reason="golangci-lint installation and version verification" framework=true
 ensure_golangci_lint() {
   hasLinter=true
   if command -v golangci-lint >/dev/null 2>&1; then
