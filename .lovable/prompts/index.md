@@ -12,3 +12,4 @@
 | `25-execute-batched-loop` | Execute Batched Loop | "go", "continue", "next" | `active` |
 | `26-plan-coding-guideline-audit` | Plan: Coding Guideline Audit & Enforcement (v4) | "Audit coding guidelines", "Plan coding guideline audit" | `active` |
 | `27-centralized-error-handling-checklist` | Centralized Error Handling & Anti-Pattern Prevention | "Check error handling", "Centralized error handling" | `active` |
+| [`cg-execute/`](./cg-execute/index.md) | Coding Guideline Execution Prompts (01-06) | `cg-style`, `cg-error`, `cg-boolean`, `cg-schema`, `cg-react`, `cg-hygiene` | `active` |
