@@ -192,4 +192,6 @@ func printGroupIntegrations() {
 	renderLine(constants.HelpVSCode)
 	renderLine(constants.HelpAgy)
 	renderLine(constants.HelpSchedule)
+	renderLine(constants.HelpPipeline)
+	renderLine(constants.HelpUI)
 }

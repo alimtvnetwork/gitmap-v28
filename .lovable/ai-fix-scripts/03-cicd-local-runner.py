@@ -117,20 +117,21 @@ def main():
         ],
         # Stage 7: Go Vet & Smoke (parallel - separate workdirs)
         [
-            ("Go Vet", None, "go vet ./...", GITMAP_DIR),
+            ("Go Vet", None, "go vet -p=2 ./...", GITMAP_DIR),
             ("Installer Smoke", None, "python .github/scripts/smoke-installer.py source", ROOT_DIR),
         ],
-        # Stage 8: CLI Zero-Args Smoke (sequential)
+        # Stage 8: CLI Zero-Args Smoke & Command Invocations (sequential)
         [
             ("CLI Zero-Args Smoke", None, "go run .", GITMAP_DIR),
+            ("Command Invocations Gate", None, 'go test -p=2 -v -run "^(TestInstallCommandInvocations|TestPipelineCommandInvocations|TestTopLevelErrorLogsAndLogs|TestHelpFlagTrigger|TestBuildErrorLogsPayloadWithFallback)$" ./cmd', GITMAP_DIR),
         ],
         # Stage 9: Compile Gate (sequential)
         [
-            ("Compile Gate", None, "go test -run=^$ -p=4 ./... -count=1", GITMAP_DIR),
+            ("Compile Gate", None, "go test -run=^$ -p=2 ./... -count=1", GITMAP_DIR),
         ],
         # Stage 10: Full Suite Linter (sequential)
         [
-            ("Full Suite Lint", None, "golangci-lint run ./...", GITMAP_DIR),
+            ("Full Suite Lint", None, "golangci-lint run --concurrency=2 ./...", GITMAP_DIR),
         ],
     ]
 

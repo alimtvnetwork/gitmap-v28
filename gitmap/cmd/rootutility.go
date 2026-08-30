@@ -57,6 +57,11 @@ func utilityDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
+		{[]string{"pipeline", "pl"}, func() error { return runPipeline(argsTail()) }},
+		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errors", "err"}, func() error { return runPipeline(append([]string{"error-logs"}, argsTail()...)) }},
+		{[]string{"logs", "log"}, func() error { return runPipeline(append([]string{"logs"}, argsTail()...)) }},
+		{[]string{"waittime", "wait-time"}, func() error { return runPipeline(append([]string{"waittime"}, argsTail()...)) }},
+		{[]string{"ui"}, func() error { return runUI(argsTail()) }},
 	}
 }
 

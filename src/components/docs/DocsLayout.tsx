@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DocsSidebar } from "@/components/docs/DocsSidebar";
 import CommandPalette from "@/components/docs/CommandPalette";
 import CopyPaletteButton from "@/components/docs/CopyPaletteButton";
+import { TerminalDrawer } from "@/components/terminal/TerminalDrawer";
 
 import { useTheme } from "@/hooks/useTheme";
 import { DocsTooltip } from "@/components/docs/DocsTooltip";
@@ -88,6 +89,7 @@ const DocsLayout = ({ children }: DocsLayoutProps) => {
             {children}
           </div>
         </main>
+        <TerminalDrawer />
       </div>
     </SidebarProvider>
   );

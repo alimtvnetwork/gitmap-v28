@@ -67,11 +67,11 @@ const (
 	CmdCommitPushRelease      = "commit-push-release"
 	CmdCommitPushReleaseAlias = "cpr"
 	// CmdRmGit removes a commit by its last 4-digit SHA prefix.
-	CmdRmGit               = "rm-git"
-	CmdRmGitAlias          = "rmg"
+	CmdRmGit      = "rm-git"
+	CmdRmGitAlias = "rmg"
 	// CmdGitReset resets the branch history to a specific SHA code.
-	CmdGitReset      = "git-reset"
-	CmdGitResetAlias = "reset-git"
+	CmdGitReset            = "git-reset"
+	CmdGitResetAlias       = "reset-git"
 	CmdAg                  = "ag"
 	CmdAntigravity         = "antigravity"
 	CmdAdd                 = "add"

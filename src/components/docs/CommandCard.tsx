@@ -30,12 +30,12 @@ const CommandCard = ({ name, alias, description, usage, flags, examples, seeAlso
           <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
         )}
         <div className="flex items-center gap-2 shrink-0">
-          <code className="font-sans font-semibold text-sm text-foreground whitespace-nowrap">{name}</code>
+          <code className="font-sans font-semibold text-sm text-foreground dark:text-white whitespace-nowrap">{name}</code>
           {alias && (
-            <span className="text-xs font-sans font-medium text-foreground bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded whitespace-nowrap dark:bg-primary/15 dark:text-primary">{alias}</span>
+            <span className="text-xs font-sans font-medium text-foreground bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded whitespace-nowrap dark:bg-primary/20 dark:text-white dark:border-primary/40">{alias}</span>
           )}
         </div>
-        <span className="text-sm text-muted-foreground truncate min-w-0 flex-1">{description}</span>
+        <span className="text-sm text-muted-foreground dark:text-slate-300 truncate min-w-0 flex-1">{description}</span>
       </button>
 
       {open && (
@@ -44,12 +44,12 @@ const CommandCard = ({ name, alias, description, usage, flags, examples, seeAlso
 
           {flags && flags.length > 0 && (
             <div>
-              <h4 className="text-xs font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-2">Flags</h4>
+              <h4 className="text-xs font-mono font-semibold text-muted-foreground dark:text-slate-300 uppercase tracking-wider mb-2">Flags</h4>
               <div className="space-y-1">
                 {flags.map((f) => (
                   <div key={f.flag} className="flex gap-4 text-sm">
-                    <code className="font-mono text-primary whitespace-nowrap">{f.flag}</code>
-                    <span className="text-muted-foreground">{f.description}</span>
+                    <code className="font-mono text-foreground font-medium dark:text-white whitespace-nowrap">{f.flag}</code>
+                    <span className="text-muted-foreground dark:text-slate-300">{f.description}</span>
                   </div>
                 ))}
               </div>

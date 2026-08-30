@@ -3,13 +3,15 @@ package apperror
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
+	"runtime"
 	"strings"
 )
 
 var ErrNotFound = errors.New("not found")
 
 // AppError is a typed, domain-rich error that captures operation labels,
-// creator attribution, contextual metadata, severity, and root cause.
+// creator attribution, contextual metadata, severity, caller site, and root cause.
 type AppError struct {
 	Op       string
 	Code     string
@@ -17,30 +19,41 @@ type AppError struct {
 	Severity SeverityType
 	Creator  string
 	Message  string
+	Caller   string
 	Ctx      map[string]any
 	Cause    error
 }
 
 // Error formats the full diagnostic description of the AppError.
 func (e *AppError) Error() string {
-	parts := make([]string, 0, 4)
+	parts := make([]string, 0, 5)
+
 	if e.Code != "" || e.Type != "" {
 		parts = append(parts, fmt.Sprintf("[%s:%s]", e.Code, e.Type))
 	}
+
 	if e.Op != "" {
 		parts = append(parts, e.Op+":")
 	}
+
 	if e.Message != "" {
 		parts = append(parts, e.Message)
 	} else if e.Cause != nil {
 		parts = append(parts, e.Cause.Error())
 	}
+
+	if e.Caller != "" {
+		parts = append(parts, fmt.Sprintf("(at=%s)", e.Caller))
+	}
+
 	if e.Creator != "" {
 		parts = append(parts, fmt.Sprintf("(creator=%s)", e.Creator))
 	}
+
 	if len(e.Ctx) > 0 {
 		parts = append(parts, fmt.Sprintf("(ctx=%v)", e.Ctx))
 	}
+
 	if e.Cause != nil && e.Message != "" {
 		parts = append(parts, fmt.Sprintf("(cause=%v)", e.Cause))
 	}
@@ -63,6 +76,23 @@ func (e *AppError) WithContext(key string, val any) *AppError {
 	return e
 }
 
+func captureCaller(skip int) string {
+	_, file, line, ok := runtime.Caller(skip)
+
+	if !ok {
+		return ""
+	}
+
+	shortFile := filepath.Base(file)
+	parentDir := filepath.Base(filepath.Dir(file))
+
+	if parentDir != "." && parentDir != "/" && parentDir != "\\" && parentDir != "" {
+		return fmt.Sprintf("%s/%s:%d", parentDir, shortFile, line)
+	}
+
+	return fmt.Sprintf("%s:%d", shortFile, line)
+}
+
 // New creates a new AppError without an underlying cause.
 func New(op string, code string, ctx map[string]any) *AppError {
 	return &AppError{
@@ -70,6 +100,7 @@ func New(op string, code string, ctx map[string]any) *AppError {
 		Code:     code,
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
+		Caller:   captureCaller(2),
 		Ctx:      ctx,
 	}
 }
@@ -81,6 +112,7 @@ func NewSimple(op string, code string) *AppError {
 		Code:     code,
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
+		Caller:   captureCaller(2),
 	}
 }
 
@@ -98,6 +130,7 @@ func NewWithDetails(
 		Severity: sev,
 		Creator:  creator,
 		Message:  msg,
+		Caller:   captureCaller(2),
 		Ctx:      ctx,
 	}
 }
@@ -109,6 +142,7 @@ func Wrap(err error, op string, ctx map[string]any) *AppError {
 		Code:     "E9000",
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
+		Caller:   captureCaller(2),
 		Ctx:      ctx,
 		Cause:    err,
 	}
@@ -121,6 +155,7 @@ func WrapSimple(err error, op string) *AppError {
 		Code:     "E9000",
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
+		Caller:   captureCaller(2),
 		Cause:    err,
 	}
 }
@@ -140,6 +175,7 @@ func WrapWithDetails(
 		Severity: sev,
 		Creator:  creator,
 		Message:  msg,
+		Caller:   captureCaller(2),
 		Ctx:      ctx,
 		Cause:    err,
 	}

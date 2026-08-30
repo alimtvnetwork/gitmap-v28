@@ -14,6 +14,8 @@ import GoMod from "./pages/GoMod";
 import Projects from "./pages/Projects";
 import GettingStarted from "./pages/GettingStarted";
 import Config from "./pages/Config";
+import SettingsPage from "./pages/Settings";
+import PipelinePage from "./pages/Pipeline";
 import Architecture from "./pages/Architecture";
 import Watch from "./pages/Watch";
 import Release from "./pages/Release";
@@ -102,6 +104,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/commands" element={<Commands />} />
+          <Route path="/pipeline" element={<PipelinePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/getting-started" element={<GettingStarted />} />
           <Route path="/config" element={<Config />} />
           <Route path="/architecture" element={<Architecture />} />

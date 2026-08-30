@@ -159,7 +159,7 @@ jobs:
         env:
           GH_EVENT_NAME: ${{ github.event_name }}
           GH_BASE_REF: ${{ github.base_ref }}
-        run: bash .github/scripts/misspell-changed.sh
+        run: python3 .github/scripts/misspell-changed.py
 
   lint:
     name: Lint
@@ -185,24 +185,20 @@ jobs:
         # Targeted pre-gate that fires BEFORE the global gofmt check.
         # Detects fix-repo-style version bumps and audits ONLY the
         # affected files so a plain refactor PR doesn't trip it. Body
-        # extracted to .github/scripts/fix-repo-gofmt-audit.sh — see
-        # that file + .lovable/memory/issues/2026-05-01-fixrepo-no-gofmt.md.
+        # extracted to .github/scripts/fix-repo-gofmt-audit.py.
         if: needs.sha-check.outputs.already-built != 'true'
         working-directory: gitmap
-        shell: bash
         env:
           GH_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: bash ../.github/scripts/fix-repo-gofmt-audit.sh
+        run: python3 ../.github/scripts/fix-repo-gofmt-audit.py
 
       - name: gofmt + goimports check (fail on unformatted .go files)
         # Hard-gate. Runs `gofmt -l` then `goimports -l` over the whole
-        # gitmap/ tree, surfacing the exact diff on failure. goimports
-        # is pinned to v0.24.0 (no @latest, per static-analysis rule).
-        # Body extracted to .github/scripts/go-format-check.sh.
+        # gitmap/ tree, surfacing the exact diff on failure. Body
+        # extracted to .github/scripts/go-format-check.py.
         if: needs.sha-check.outputs.already-built != 'true'
         working-directory: gitmap
-        shell: bash
-        run: bash ../.github/scripts/go-format-check.sh
+        run: python3 ../.github/scripts/go-format-check.py
       - name: Go vet
         if: needs.sha-check.outputs.already-built != 'true'
         working-directory: gitmap
@@ -242,10 +238,6 @@ jobs:
 
   lint-script-tests:
     # Unit tests for the lint diff/guard scripts under .github/scripts/.
-    # Locks in the "new issues only" baseline-diff contract that
-    # `check-single-linter-diff.sh` now enforces for all five guarded
-    # linters (unused, gosec G115, misspell, gocritic, exhaustive).
-    # Runs in seconds — pure bash + jq, no Go toolchain needed.
     name: Lint Script Unit Tests
     runs-on: ubuntu-latest
     needs: sha-check
@@ -259,8 +251,7 @@ jobs:
 
       - name: Run lint-script unit tests
         if: needs.sha-check.outputs.already-built != 'true'
-        shell: bash
-        run: bash .github/scripts/tests/run-tests.sh
+        run: python3 .github/scripts/tests/test_ci_scripts.py
 
   lint-baseline-guard:
     # BASELINE-DIFF job: every linter wired below uses the same contract

@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -113,23 +114,62 @@ func runDispatch(command string) {
 func handleGlobalError(command string, err error) {
 	cfg, cfgErr := config.LoadFromFile(constants.DefaultConfigPath)
 	display := "full"
+
 	if cfgErr == nil {
 		display = cfg.ErrorDisplay
 	}
 
-	os.MkdirAll(".gitmap", 0755)
-	errStr := fmt.Sprintf("%v", err)
-	os.WriteFile(".gitmap/last_error.log", []byte(errStr), 0644)
+	persistLastError(command, err)
 
 	appErr, isAppErr := err.(*apperror.AppError)
+
 	if display == "simple" && isAppErr {
 		cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
 		cliexit.HandleError(nil, 1)
+
 		return
 	}
 
 	cliexit.Reportf(command, "execute", "", err)
 	cliexit.HandleError(nil, 1)
+}
+
+func persistLastError(command string, err error) {
+	_ = os.MkdirAll(".gitmap", 0755)
+
+	report := map[string]any{
+		"command":   command,
+		"timestamp": time.Now().UTC().Format(time.RFC3339),
+		"error":     err.Error(),
+	}
+
+	appErr, isAppErr := err.(*apperror.AppError)
+
+	if isAppErr {
+		populateAppErrorReport(report, appErr)
+	}
+
+	b, marshalErr := json.MarshalIndent(report, "", "  ")
+
+	if marshalErr == nil {
+		_ = os.WriteFile(".gitmap/last_error.log", b, 0644)
+	} else {
+		_ = os.WriteFile(".gitmap/last_error.log", []byte(err.Error()), 0644)
+	}
+}
+
+func populateAppErrorReport(report map[string]any, appErr *apperror.AppError) {
+	report["code"] = appErr.Code
+	report["type"] = string(appErr.Type)
+	report["severity"] = string(appErr.Severity)
+	report["op"] = appErr.Op
+	report["caller"] = appErr.Caller
+	report["creator"] = appErr.Creator
+	report["context"] = appErr.Ctx
+
+	if appErr.Cause != nil {
+		report["cause"] = appErr.Cause.Error()
+	}
 }
 
 func getRootCause(err error) error {
