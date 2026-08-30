@@ -3,6 +3,7 @@ import {
   BookOpen,
   Rocket,
   Settings,
+  Activity,
   Boxes,
   FolderOpen,
   Monitor,
@@ -56,6 +57,8 @@ import { useTheme } from "@/hooks/useTheme";
 
 const navItems = [
   { title: "Home", url: "/", icon: Home },
+  { title: "Pipeline Monitor", url: "/pipeline", icon: Activity },
+  { title: "UI Settings", url: "/settings", icon: Settings },
   { title: "Commands", url: "/commands", icon: BookOpen },
   { title: "scan (cmd)", url: "/scan-command", icon: Search },
   { title: "Clone Overview", url: "/clone", icon: GitBranch },

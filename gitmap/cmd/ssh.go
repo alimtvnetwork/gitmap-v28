@@ -39,6 +39,8 @@ func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) erro
 		return runSSHAlias(parent, args[1:], ctx)
 	case "exec", "se":
 		return runSSHExec(args[1:])
+	case "profiles", "profile", "p":
+		return runProfile(args[1:])
 	default:
 		// Fallback for $username@ip and implicit aliases
 		if sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS {

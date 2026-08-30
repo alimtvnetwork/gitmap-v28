@@ -29,7 +29,7 @@ func checkHelp(command string, args []string) {
 // hasHelpFlag scans args for the standard help triggers.
 func hasHelpFlag(args []string) bool {
 	for _, a := range args {
-		if a == "--help" || a == "-h" {
+		if a == "--help" || a == "-h" || a == "help" {
 			return true
 		}
 	}

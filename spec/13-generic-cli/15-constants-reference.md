@@ -1,6 +1,7 @@
 # Constants Reference
 
 > **Related specs:**
+>
 > - [02-project-structure.md](02-project-structure.md) — `constants/` package placement
 > - [08-code-style.md](08-code-style.md) — naming conventions for constant identifiers
 > - [20-terminal-output-design.md](20-terminal-output-design.md) — terminal format constants used in rendering

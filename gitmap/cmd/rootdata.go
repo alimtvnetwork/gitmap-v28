@@ -35,6 +35,9 @@ func dataProfileEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdExport, constants.CmdExportAlias}, func() error { return runExport(argsTail()) }},
 		{[]string{constants.CmdImport, constants.CmdImportAlias}, func() error { return runImport(argsTail()) }},
+		{[]string{"export-all"}, func() error { return runExportAll(argsTail()) }},
+		{[]string{"import-all"}, func() error { return runImportAll(argsTail()) }},
+		{[]string{"export-only"}, func() error { return runExportOnly(argsTail()) }},
 		{[]string{"import-export", "ie"}, func() error { return runImportExport(argsTail()) }},
 		{[]string{constants.CmdProfile, constants.CmdProfileAlias}, func() error { return runProfile(argsTail()) }},
 		{[]string{constants.CmdDiffProfiles, constants.CmdDiffProfilesAlias}, func() error { return runDiffProfiles(argsTail()) }},

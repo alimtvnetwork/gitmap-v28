@@ -1,3 +1,20 @@
+## [v6.154.0] 2026-08-31 Release v6.154.0
+
+### Install gitmap v6.154.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.sh | bash -s -- ".lovable/prompts" "v6.154.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.154.0"`
+
+### Added
+
+- Added `gitmap pipeline` command suite (`status`, `status --json`, `waittime`, `logs`, `error-logs`, `error-logs --json`, `--file`, `--tempfile`, `help`) with GitHub CLI (`gh`) integration and SQLite persistence.
+- Added top-level shortcuts for `error-logs`, `logs`, `waittime`, `export-all`, `import-all`, and `export-only`.
+- Added high-contrast dark mode text styling and interactive Web Terminal drawer to `gitmap ui`.
+- Added runtime caller stack trace tracking to `AppError` and structured `.gitmap/last_error.log` for autonomous AI diagnostics.
+- Added build-time command invocation test gate to CI/CD local runner suite.
+- Converted CI formatting scripts to cross-platform Python scripts (`go-format-check.py`, `fix-repo-gofmt-audit.py`).
+
 ## [v6.137.0] 2026-08-28 - commit-push and rm-git
 
 ### Install gitmap v6.137.0

@@ -84,8 +84,8 @@
      VS Code blue    #0078D4 ≈ hsl(207 100% 42%) — kept on side accents only
   */
   .dark {
-    --background: 0 0% 7%;             /* editor — deeper than VS Code default for contrast */
-    --foreground: 0 0% 82%;            /* primary text — slightly brighter to compensate */
+    --background: 0 0% 7%;             /* editor — deep black for maximum contrast */
+    --foreground: 0 0% 82%;            /* primary text */
 
     --card: 0 0% 5%;                   /* sidebar / activity bar — near black */
     --card-foreground: 0 0% 82%;
@@ -93,14 +93,14 @@
     --popover: 0 0% 5%;
     --popover-foreground: 0 0% 82%;
 
-    --primary: 41 96% 56%;             /* amber — kept */
+    --primary: 41 96% 56%;             /* amber */
     --primary-foreground: 0 0% 8%;
 
-    --secondary: 0 0% 12%;             /* hover row — slightly lifted from bg */
-    --secondary-foreground: 0 0% 82%;
+    --secondary: 0 0% 12%;             /* hover row */
+    --secondary-foreground: 0 0% 96%;
 
-    --muted: 0 0% 9%;                  /* subtle panels */
-    --muted-foreground: 0 0% 55%;
+    --muted: 0 0% 10%;                 /* subtle panels */
+    --muted-foreground: 0 0% 72%;      /* clear high-contrast muted text */
 
     --accent: 240 5% 18%;              /* selected row */
     --accent-foreground: 0 0% 100%;
@@ -108,21 +108,21 @@
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;                /* divider — bumped for visibility on darker bg */
-    --input: 0 0% 15%;
+    --border: 0 0% 18%;                /* divider */
+    --input: 0 0% 18%;
     --ring: 41 96% 56%;
 
     --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 82%;
+    --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: 41 96% 56%;
     --sidebar-primary-foreground: 0 0% 8%;
     --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 15%;
+    --sidebar-border: 0 0% 18%;
     --sidebar-ring: 41 96% 56%;
 
-    --terminal: 0 0% 4%;               /* terminal panel — deepest */
-    --terminal-foreground: 0 0% 82%;
+    --terminal: 0 0% 4%;               /* terminal panel */
+    --terminal-foreground: 0 0% 96%;   /* terminal text — bright white */
     --code-bg: 0 0% 9%;
 
     /* Semantic success accent — brighter emerald for dark surfaces. */

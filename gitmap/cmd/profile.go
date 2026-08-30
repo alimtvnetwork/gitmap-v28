@@ -14,8 +14,9 @@ import (
 func runProfile(args []string) error {
 	checkHelp("profile", args)
 	if len(args) < 1 {
-		fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
-		return apperror.NewSimple("fatal error", "E9000")
+		runProfileList()
+
+		return nil
 	}
 
 	sub := args[0]
@@ -32,7 +33,7 @@ func routeProfileSub(sub string, args []string) {
 
 		return
 	}
-	if sub == constants.CmdProfileList {
+	if sub == constants.CmdProfileList || sub == "ls" || sub == "status" {
 		runProfileList()
 
 		return

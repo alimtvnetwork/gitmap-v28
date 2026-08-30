@@ -86,6 +86,8 @@ const (
 	HelpSchedule      = "  schedule (sc) [add|ls|rm|pause|resume]   Schedule tasks and run jobs (use --help to expand)"
 	HelpVSCode        = "  vscode (vsc) [ls|add|rm|pap|plugins]   Manage VS Code PM integrations (use --help to expand)"
 	HelpAgy           = "  antigravity (ag) [ls|add|rm|clear|open|prompt|rw|sync|pap|ep|ip|stats|plugin]   Manage workspaces (use --help to expand)"
+	HelpPipeline      = "  pipeline (pl) [status|waittime|error-logs|logs|help]   Monitor CI/CD workflows and ETA (use --help to expand)"
+	HelpUI            = "  ui [settings|pipeline|terminal]   Open interactive settings and dashboard in browser"
 )
 
 // HelpGroupKeys returns short keywords for tab-completion of group filtering.

@@ -243,7 +243,6 @@ func RunRmGit(args []string) error {
 	return runRmGit(args)
 }
 
-
 func executeDropCommit(fullSha string) error {
 	headSha, errHead := execGitOutputCP("rev-parse", "HEAD")
 	isHead := errHead == nil && strings.HasPrefix(strings.TrimSpace(headSha), fullSha)

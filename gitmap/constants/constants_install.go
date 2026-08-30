@@ -252,9 +252,9 @@ const (
 
 // Install error messages.
 const (
-	ErrInstallToolRequired    = "Tool name is required. Use --list to see available tools."
+	ErrInstallToolRequired    = "Tool name is required. Use --list to see available tools.\n"
 	ErrInstallUnknownTool     = "Unknown tool: %s. Use --list to see available tools.\n"
-	ErrInstallNoPkgMgr        = "No package manager found. Install Chocolatey or Winget first."
+	ErrInstallNoPkgMgr        = "No package manager found. Install Chocolatey or Winget first.\n"
 	ErrInstallFailed          = "\n  ✗ Installation failed for %s.\n"
 	ErrInstallFailedReason    = "  → Reason: %v\n"
 	ErrInstallFailedVersion   = "  → Attempted version: %s\n"

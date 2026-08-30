@@ -91,3 +91,24 @@ func printExportSummary(path string, e model.DatabaseExport) {
 		len(e.Repos), len(e.Groups), len(e.Releases),
 		len(e.History), len(e.Bookmarks))
 }
+
+// runExportAll handles the "export-all" command.
+func runExportAll(args []string) error {
+	checkHelp("export", args)
+
+	return runExport(args)
+}
+
+// runImportAll handles the "import-all" command.
+func runImportAll(args []string) error {
+	checkHelp("import", args)
+
+	return runImport(args)
+}
+
+// runExportOnly handles the "export-only" command.
+func runExportOnly(args []string) error {
+	checkHelp("export", args)
+
+	return runExport(args)
+}

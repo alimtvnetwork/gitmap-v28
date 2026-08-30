@@ -38,16 +38,27 @@ func parseInstallFlags(args []string) (installOptions, bool) {
 func runInstall(args []string) error {
 	checkHelp("install", args)
 	opts, list := parseInstallFlags(args)
+
 	if list || opts.Tool == "ls" || opts.Tool == "list" {
 		printInstallListGrouped()
 		return nil
 	}
+
 	if opts.Tool == "" {
-		fmt.Fprint(os.Stderr, constants.ErrInstallToolRequired)
-		return apperror.NewSimple("fatal error", "E9000")
+		return handleMissingInstallTool()
 	}
+
 	validateToolName(opts.Tool)
 	executeInstall(opts)
+	return nil
+}
+
+func handleMissingInstallTool() error {
+	fmt.Fprintf(os.Stderr, "%s\n", constants.ErrInstallToolRequired)
+	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool> [flags]\n  gitmap in <tool> [flags]\n\n")
+	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools\n  --help                 Show detailed install help and examples\n\n")
+	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install vscode\n  $ gitmap install node\n  $ gitmap install python\n  $ gitmap install --list\n\n")
+
 	return nil
 }
 
@@ -65,16 +76,20 @@ type installOptions struct {
 
 // validateToolName checks if the tool is supported.
 func validateToolName(tool string) {
-	if isCleanCodeAlias(tool) {
+	if isCleanCodeAlias(tool) || tool == "ag-m" {
 		return
 	}
-	if tool == "ag-m" {
-		return
-	}
+
 	if _, exists := constants.InstallToolDescriptions[tool]; exists {
 		return
 	}
-	cliexit.HandleError(apperror.NewSimple("unknown tool", "E9000"), 1)
+
+	fmt.Fprintf(os.Stderr, "\n  %s✗ Unknown tool: '%s'%s\n\n", constants.ColorRed, tool, constants.ColorReset)
+	fmt.Fprintf(os.Stderr, "  Use 'gitmap install --list' to see all 40+ supported tools.\n")
+	fmt.Fprintf(os.Stderr, "  Use 'gitmap install --help' for usage examples.\n\n")
+
+	errMsg := fmt.Sprintf("unknown tool '%s'. Use 'gitmap install --list' to see available tools", tool)
+	cliexit.HandleError(apperror.NewSimple(errMsg, "E9000"), 1)
 }
 
 // executeInstall runs the install flow for a tool.
