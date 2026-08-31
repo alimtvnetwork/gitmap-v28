@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -125,29 +126,71 @@ func renderCompletedStatusLine(p PipelineStatusPayload) {
 }
 
 func calculateETA(runs []ghRunItem) int {
-	if len(runs) == 0 {
+	activeRun := findActiveWorkflowRun(runs)
+	if activeRun == nil {
 		return 0
 	}
+	createdAt, parseErr := time.Parse(time.RFC3339, activeRun.CreatedAt)
+	if parseErr != nil {
+		return 30
+	}
+	avgDuration := calculateAverageDuration(runs, activeRun.Name)
+	elapsedSeconds := int(time.Since(createdAt).Seconds())
+	remainingSeconds := avgDuration - elapsedSeconds
+	if remainingSeconds < 20 {
+		return 20
+	}
+	return remainingSeconds
+}
 
-	latest := runs[0]
+func findActiveWorkflowRun(runs []ghRunItem) *ghRunItem {
+	for i := range runs {
+		status := runs[i].Status
+		if status == "in_progress" || status == "queued" || status == "waiting" {
+			return &runs[i]
+		}
+	}
+	return nil
+}
 
-	if latest.Status != "in_progress" && latest.Status != "queued" {
+func calculateAverageDuration(runs []ghRunItem, workflowName string) int {
+	totalDuration, completedCount := sumCompletedRunDurations(runs, workflowName)
+	if completedCount > 0 {
+		return totalDuration / completedCount
+	}
+	return fallbackWorkflowDuration(workflowName)
+}
+
+func sumCompletedRunDurations(runs []ghRunItem, workflowName string) (int, int) {
+	totalDuration, completedCount := 0, 0
+	for _, r := range runs {
+		if r.Status == "completed" && (r.Name == workflowName || workflowName == "") {
+			dur := computeRunDuration(r.CreatedAt, r.UpdatedAt)
+			if dur >= 10 {
+				totalDuration += dur
+				completedCount++
+			}
+		}
+	}
+	return totalDuration, completedCount
+}
+
+func computeRunDuration(createdStr, updatedStr string) int {
+	createdAt, err1 := time.Parse(time.RFC3339, createdStr)
+	updatedAt, err2 := time.Parse(time.RFC3339, updatedStr)
+	if err1 != nil || err2 != nil || updatedAt.Before(createdAt) {
 		return 0
 	}
+	return int(updatedAt.Sub(createdAt).Seconds())
+}
 
-	createdAt, err := time.Parse(time.RFC3339, latest.CreatedAt)
-
-	if err != nil {
-		return 60
+func fallbackWorkflowDuration(workflowName string) int {
+	lowerName := strings.ToLower(workflowName)
+	if strings.Contains(lowerName, "release") {
+		return 95
 	}
-
-	elapsed := int(time.Since(createdAt).Seconds())
-	typicalDuration := 85
-	remaining := typicalDuration - elapsed
-
-	if remaining < 5 {
-		return 5
+	if strings.Contains(lowerName, "ci") {
+		return 120
 	}
-
-	return remaining
+	return 75
 }

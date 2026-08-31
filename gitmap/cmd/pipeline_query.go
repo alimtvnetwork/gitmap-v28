@@ -18,8 +18,8 @@ func queryWorkflowRuns(repo string) []ghRunItem {
 		return nil
 	}
 
-	out, err := exec.Command("gh", "run", "list", "--repo", repo, "--limit", "5", "--json",
-		"databaseId,name,status,conclusion,createdAt,headBranch,headSha,url").Output()
+	out, err := exec.Command("gh", "run", "list", "--repo", repo, "--limit", "15", "--json",
+		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url").Output()
 
 	if err != nil {
 		return queryRunsFromDB(repo)
