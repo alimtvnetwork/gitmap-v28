@@ -47,3 +47,29 @@ func TestInstallerURLForVariesByPlatform(t *testing.T) {
 		t.Fatalf("URL cannot end with both installers: %q", got)
 	}
 }
+
+func TestDecodeReleaseTagName(t *testing.T) {
+	t.Parallel()
+
+	jsonInput := `{"tag_name": "v6.158.0", "name": "Release v6.158.0"}`
+	got := decodeReleaseTagName(strings.NewReader(jsonInput))
+	if got != "6.158.0" {
+		t.Errorf("expected 6.158.0, got %q", got)
+	}
+}
+
+func TestDecodeVersionFromMap(t *testing.T) {
+	t.Parallel()
+
+	// Upper case Version
+	upperJSON := `{"Version": "6.158.0"}`
+	if got := decodeVersionFromMap(strings.NewReader(upperJSON)); got != "6.158.0" {
+		t.Errorf("expected 6.158.0 for uppercase Version, got %q", got)
+	}
+
+	// Lower case version
+	lowerJSON := `{"version": "6.158.0"}`
+	if got := decodeVersionFromMap(strings.NewReader(lowerJSON)); got != "6.158.0" {
+		t.Errorf("expected 6.158.0 for lowercase version, got %q", got)
+	}
+}

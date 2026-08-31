@@ -331,14 +331,18 @@ func readTargetVersion(repoPath string) string {
 		return "unknown"
 	}
 
-	var parsed struct {
-		Version string `json:"version"`
-	}
-	if err := json.Unmarshal(data, &parsed); err != nil {
+	var rawMap map[string]interface{}
+	if err := json.Unmarshal(data, &rawMap); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateVersionRead, versionPath, err)
 		return "unknown"
 	}
-	return parsed.Version
+	if v, ok := rawMap["Version"].(string); ok && len(v) > 0 {
+		return v
+	}
+	if v, ok := rawMap["version"].(string); ok && len(v) > 0 {
+		return v
+	}
+	return "unknown"
 }
 
 // printUpdateSummary outputs the final update summary.

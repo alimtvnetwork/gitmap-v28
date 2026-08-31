@@ -1,3 +1,19 @@
+## [v6.158.1] 2026-09-01 Release v6.158.1
+
+### Install gitmap v6.158.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.sh | bash -s -- ".lovable/prompts" "v6.158.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.158.1"`
+
+### Fixed
+
+- **Fix `gitmap update` Version Detection & Display Drift**:
+  - Removed duplicate rogue lowercase `"version": "6.153.0"` key from `version.json` that was overriding the root version during JSON deserialization.
+  - Enhanced `fetchRemoteTargetVersion` in `updateremoteinstall.go` to resolve the actual published release version from GitHub Releases API with fallback to `version.json`.
+  - Updated `readTargetVersion` and `decodeVersionFromMap` to check both `"Version"` and `"version"` keys safely without stream override bugs.
+  - Synchronized pinned release documentation in `readme.md`.
+
 ## [v6.158.0] 2026-09-01 Release v6.158.0
 
 ### Install gitmap v6.158.0
