@@ -13,6 +13,7 @@ import (
 )
 
 func runSearch(args []string) error {
+	checkHelp("search", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap search <query> [--limit <n>]\n\nAlternative LLM Examples:\n  Get-ChildItem -Path . -Recurse -File | Select-String \"type SearchResult struct\"\n  Get-ChildItem -Path cmd -Filter *.go | Select-String \"func dispatch[A-Z]\"\n  cat cmd/root.go | Select-String \"func finishCommandAudit\" -Context 0,10")
@@ -43,6 +44,7 @@ func runSearch(args []string) error {
 }
 
 func runReplaceRegex(args []string) error {
+	checkHelp("replace-regex", args)
 	if len(args) < 2 {
 		fmt.Println("Usage: gitmap replace-regex <regex> <replace>")
 		return nil
@@ -52,6 +54,7 @@ func runReplaceRegex(args []string) error {
 }
 
 func runRepoSearch(args []string) error {
+	checkHelp("repo-search", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap repo-search <query> [--limit <n>]")
@@ -90,6 +93,7 @@ func runRepoSearch(args []string) error {
 }
 
 func runRepoRegex(args []string) error {
+	checkHelp("repo-regex", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap repo-regex <regex> [--limit <n>]")
@@ -128,6 +132,7 @@ func runRepoRegex(args []string) error {
 }
 
 func runRepoSearchJson(args []string) error {
+	checkHelp("repo-search-json", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("[]")
@@ -156,6 +161,7 @@ func runRepoSearchJson(args []string) error {
 }
 
 func runRepoSearchRegexJson(args []string) error {
+	checkHelp("repo-search-regex-json", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("[]")
@@ -184,6 +190,7 @@ func runRepoSearchRegexJson(args []string) error {
 }
 
 func runSearchReplaceAll(args []string) error {
+	checkHelp("search-replace-all", args)
 	if len(args) > 0 && (args[0] == "reset" || args[0] == "clear") {
 		// Clean the repo_search folder
 		os.RemoveAll(".gitmap/output/repo_search")
