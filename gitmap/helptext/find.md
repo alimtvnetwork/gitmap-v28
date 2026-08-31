@@ -1,33 +1,58 @@
 # find
 
-Finds files within the repository using exact matches or wildcards.
-Queries the local repository SplitDB for high-speed file discovery.
+Finds files within the repository using exact matches, wildcards (`*ends`, `starts*`, `*contains*`), or extension filtering.
 
-## Why use this instead of shell commands?
+## Usage
 
-Instead of running:
-`Get-ChildItem -Path gitmap/cmd -Filter *.go -Recurse`
-or
-`find . -name "*.go"`
+```bash
+gitmap find <pattern> [-ext <extensions>] [--limit <n>] [--json]
+```
 
-You should use:
-`gitmap find "*.go"`
+## Flags
+
+| Flag              | Type    | Default | Description                                                     |
+|-------------------|---------|---------|-----------------------------------------------------------------|
+| `-ext`, `--ext`   | string  | ""      | Comma-separated extension filter (e.g. `"md, go"`, `"ts, py"`) |
+| `--limit`, `-l`   | integer | 0       | Maximum number of results to return                             |
+| `--json`          | boolean | false   | Output machine-readable JSON array of matched file paths        |
+| `--dir`, `-d`     | string  | "."     | Root search directory                                           |
 
 ## Wildcard Support
 
-- Exact: `"filename.txt"`
-- Starts-with: `"*name.txt"`
-- Ends-with: `"file*"`
-- Contains: `"*name*"`
-
-## Limits
-
-Use `--limit <n>` or `-l <n>` to cap results.
+- **Ends-with:** `gitmap find "*_test.go"`
+- **Starts-with:** `gitmap find "01*"`
+- **Contains:** `gitmap find "*sequence*"`
+- **Exact:** `gitmap find "folder.go"`
 
 ## Examples
 
+### Suffix Search with Extension Filter
+
 ```bash
-gitmap find "main.go"
-gitmap find "*.go" -l 10
-gitmap find "*config*"
+gitmap find "*_test.go" -ext "go"
 ```
+
+### Prefix Search with Multiple Extensions
+
+```bash
+gitmap find "01*" -ext "md, py"
+```
+
+### Substring / Contains Search
+
+```bash
+gitmap find "*runner*" -ext "py"
+```
+
+### JSON Format for AI & Scripts
+
+```bash
+gitmap find "*.go" --limit 5 --json
+```
+
+## See Also
+
+- [find-files](find_files.md) — Dedicated exact, starts-with, and contains file search
+- [folder](folder.md) — Directory hierarchy visualization and metadata export
+- [search](search.md) — Content search across files
+

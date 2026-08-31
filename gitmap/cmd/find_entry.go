@@ -38,31 +38,7 @@ func parseLimit(args []string) (int, []string) {
 
 func runFind(args []string) error {
 	checkHelp("find", args)
-	limit, cleanArgs := parseLimit(args)
-	if len(cleanArgs) == 0 {
-		fmt.Println("Usage: gitmap find <query> [--limit <n>]")
-		return nil
-	}
-	query := cleanArgs[0]
-
-	ctx := context.Background()
-	mainDB, db, err := getRepoDB(ctx)
-	if err != nil {
-		return apperror.WrapSimple(err, "error")
-	}
-	defer mainDB.Close()
-	defer db.Close()
-
-	res, err := searcher.FindFile(ctx, db, query, limit, true)
-	if err != nil {
-		pterm.Error.Println(err)
-		return nil
-	}
-
-	for _, r := range res {
-		fmt.Println(r.RelativePath)
-	}
-	return nil
+	return executeFindFiles(args, MatchWildcard)
 }
 
 func runFindRegex(args []string) error {

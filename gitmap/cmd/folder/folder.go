@@ -1,118 +1,146 @@
 package folder
 
 import (
-	"encoding/json"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
-// Run executes the folder command logic.
-func Run(args []string) error {
-	if len(args) < 1 {
-		return apperror.NewSimple("FolderRun", "E_FOLDER_MISSING_DIR")
-	}
-	dir := args[0]
-	outFile := "files.txt"
-	if len(args) >= 2 && args[1] != "" {
-		outFile = args[1]
-	}
+// OutputFormat defines the rendering strategy for folder output.
+type OutputFormat string
 
-	excludePattern := ""
-	if len(args) >= 4 && args[2] == "-exclude" {
-		excludePattern = args[3]
-		// Ignore the 0|1 for now, pattern is sufficient.
-	}
+const (
+	FormatTree OutputFormat = "tree"
+	FormatMd   OutputFormat = "md"
+	FormatJson OutputFormat = "json"
+	FormatYaml OutputFormat = "yaml"
+	FormatFlat OutputFormat = "flat"
+)
 
-	paths, err := walkAndFilter(dir, excludePattern)
-	if err != nil {
-		return apperror.WrapSimple(err, "folder: failed to walk directory")
-	}
-
-	ext := strings.ToLower(filepath.Ext(outFile))
-	switch ext {
-	case ".json":
-		return writeJson(paths, outFile)
-	case ".yaml", ".yml":
-		return writeYaml(paths, outFile)
-	case ".md", ".txt":
-		fallthrough
-	default:
-		return writeText(paths, outFile)
-	}
+// Options holds CLI configurations and flags for folder scanning.
+type Options struct {
+	TargetDir  string
+	OutFile    string
+	Format     OutputFormat
+	IsDetailed bool
+	Filter     FilterConfig
 }
 
-func walkAndFilter(root, excludeGlob string) ([]string, error) {
-	var results []string
-	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
+// Run parses arguments, scans directory files, and renders the requested format.
+func Run(args []string) error {
+	opts, err := ParseArgs(args)
+	if err != nil {
+		return err
+	}
+
+	files, err := ScanDirectory(opts.TargetDir, opts.Filter)
+	if err != nil {
+		return apperror.Wrap(err, fmt.Sprintf("scan directory %s", opts.TargetDir), nil)
+	}
+
+	content, err := RenderOutput(opts, files)
+	if err != nil {
+		return err
+	}
+
+	return writeOrPrintOutput(content, opts.OutFile)
+}
+
+// ScanDirectory walks the filesystem hierarchy and extracts metadata for qualifying files.
+func ScanDirectory(root string, filter FilterConfig) ([]*FileMeta, error) {
+	absRoot, err := filepath.Abs(root)
+	if err != nil {
+		return nil, err
+	}
+
+	var results []*FileMeta
+	errWalk := filepath.WalkDir(absRoot, func(path string, d fs.DirEntry, errIn error) error {
+		if errIn != nil {
+			return errIn
 		}
+
+		rel, errRel := filepath.Rel(absRoot, path)
+		if errRel != nil {
+			rel = path
+		}
+
 		if d.IsDir() {
-			return handleDirWalk(d)
+			return handleDirSkip(rel, filter)
 		}
-		rel := resolveRelPath(root, path)
-		if isExcludedPath(rel, excludeGlob) {
+
+		if filter.IsPathExcluded(rel, false) {
 			return nil
 		}
-		results = append(results, rel)
+
+		meta, errMeta := ExtractMetadata(path, rel)
+		if errMeta != nil {
+			return nil
+		}
+
+		if filter.IsMetaAllowed(meta) {
+			results = append(results, meta)
+		}
 		return nil
 	})
-	return results, err
+
+	return results, errWalk
 }
 
-func handleDirWalk(d fs.DirEntry) error {
-	if d.Name() == ".git" {
+func handleDirSkip(rel string, filter FilterConfig) error {
+	if rel != "." && filter.IsPathExcluded(rel, true) {
+		return fs.SkipDir
+	}
+	if filter.MaxDepth > 0 && calculateDepth(rel) > filter.MaxDepth {
 		return fs.SkipDir
 	}
 	return nil
 }
 
-func resolveRelPath(root, path string) string {
-	rel, err := filepath.Rel(root, path)
-	if err != nil {
-		return path
+func calculateDepth(rel string) int {
+	norm := filepath.ToSlash(rel)
+	if norm == "." || norm == "" {
+		return 0
 	}
-	return rel
+	return strings.Count(norm, "/") + 1
 }
 
-func isExcludedPath(rel, excludeGlob string) bool {
-	if excludeGlob == "" {
-		return false
+// RenderOutput delegates to specific format renderers.
+func RenderOutput(opts Options, files []*FileMeta) (string, error) {
+	rootName := filepath.Base(opts.TargetDir)
+	if rootName == "." || rootName == "/" || rootName == "\\" {
+		rootName = "root"
 	}
-	matched, _ := filepath.Match(excludeGlob, rel)
-	if matched {
-		return true
+
+	switch opts.Format {
+	case FormatTree:
+		treeRoot := BuildTree(rootName, files)
+		return RenderTree(treeRoot, opts.IsDetailed), nil
+	case FormatMd:
+		treeRoot := BuildTree(rootName, files)
+		return RenderMarkdown(treeRoot, opts.IsDetailed), nil
+	case FormatJson:
+		report := BuildReport(opts.TargetDir, files)
+		return RenderJson(report)
+	case FormatYaml:
+		report := BuildReport(opts.TargetDir, files)
+		return RenderYaml(report)
+	case FormatFlat:
+		return RenderFlat(files, opts.IsDetailed), nil
+	default:
+		treeRoot := BuildTree(rootName, files)
+		return RenderTree(treeRoot, opts.IsDetailed), nil
 	}
-	baseMatched, _ := filepath.Match(excludeGlob, filepath.Base(rel))
-	return baseMatched
 }
 
-func writeJson(paths []string, out string) error {
-	b, err := json.MarshalIndent(paths, "", "  ")
-	if err != nil {
-		return err
+func writeOrPrintOutput(content, outFile string) error {
+	if outFile != "" {
+		return os.WriteFile(outFile, []byte(content), 0644)
 	}
-	return os.WriteFile(out, b, 0644)
+	fmt.Print(content)
+	return nil
 }
 
-func writeYaml(paths []string, out string) error {
-	b, err := yaml.Marshal(paths)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(out, b, 0644)
-}
-
-func writeText(paths []string, out string) error {
-	var sb strings.Builder
-	for _, p := range paths {
-		sb.WriteString(p + "\n")
-	}
-	return os.WriteFile(out, []byte(sb.String()), 0644)
-}

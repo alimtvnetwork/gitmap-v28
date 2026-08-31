@@ -14,6 +14,11 @@ func topLevelCmds() map[string]string {
 	return map[string]string{
 		"CmdLlm":                    CmdLlm,
 		"CmdFind":                   CmdFind,
+		"CmdFindFiles":              CmdFindFiles,
+		"CmdFindFilesAny":           CmdFindFilesAny,
+		"CmdFindFilesStartsWith":    CmdFindFilesStartsWith,
+		"CmdFindFilesEndsWith":      CmdFindFilesEndsWith,
+		"CmdListFiles":              CmdListFiles,
 		"CmdFindRegex":              CmdFindRegex,
 		"CmdFindRead":               CmdFindRead,
 		"CmdFindReadJson":           CmdFindReadJson,
