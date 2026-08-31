@@ -14,67 +14,82 @@ const llmMarkdownSpec = `
 
 > Public Instruction URL: ` + PublicLlmSpecURL + `
 
-Gitmap is a high-performance CLI designed for autonomous AI agents, LLMs, and developers to explore, search, refactor, and self-heal codebases with maximum efficiency.
+Gitmap is a high-performance CLI designed for autonomous AI agents, LLMs, and developers to explore, search, refactor, and self-heal codebases with maximum speed and reliability.
+
 
 ---
 
-## 1. AI Agent Standard Operating Procedure (Execution Order)
+## 1. AI Agent Standard Operating Procedure (Order of Commands)
 
-When an autonomous AI Agent is assigned a coding or debugging task, it MUST follow this structured 5-phase lifecycle:
+When an autonomous AI Agent is assigned a coding, refactoring, or debugging task, it MUST follow this structured 5-phase lifecycle in exact sequential order:
 
 ` + "```" + `
-  ┌─────────────────────────────────┐
-  │  Phase 1: Discovery & Context   │ ➔ find-files, find-files-any, search, list-files
-  └────────────────┬────────────────┘
-                   ▼
-  ┌─────────────────────────────────┐
-  │  Phase 2: Code Edit & Refactor  │ ➔ replace, replace-regex, targeted edits
-  └────────────────┬────────────────┘
-                   ▼
-  ┌─────────────────────────────────┐
-  │  Phase 3: Local Verification    │ ➔ go-format-check.py, go test, linters
-  └────────────────┬────────────────┘
-                   ▼
-  ┌─────────────────────────────────┐
-  │  Phase 4: Semantic Commit/Push  │ ➔ commit-push-feature (cpf), commit-push-bug (cpb)
-  └────────────────┬────────────────┘
-                   ▼
-  ┌─────────────────────────────────┐
-  │  Phase 5: CI Telemetry & Heal   │ ➔ pipeline status --json, eta (sleep), error-logs
-  └─────────────────────────────────┘
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Phase 1: Discovery & Context Gathering                     │
+  │  ➔ gitmap find-files, find-files-any, search, list-files   │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Phase 2: Code Modification & Refactoring                   │
+  │  ➔ gitmap replace, replace-regex, targeted code edits       │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Phase 3: Local Verification & Linting                      │
+  │  ➔ python .github/scripts/go-format-check.py, go test       │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Phase 4: Semantic Commit & Push                            │
+  │  ➔ gitmap commit-push-feature (cpf), commit-push-bug (cpb)  │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Phase 5: Non-Blocking CI Telemetry & Self-Healing Loop     │
+  │  ➔ gitmap pipeline status --json, gitmap eta, error-logs   │
+  └─────────────────────────────────────────────────────────────┘
 ` + "```" + `
+
 
 ---
 
-## 2. Core Workflows & Real-World Examples
+## 2. Step-by-Step Workflows with Real-World Examples
 
-### Workflow A: Autonomous CI/CD Self-Healing Loop
-When a remote pipeline is triggered or fails:
+
+### Workflow A: Autonomous CI/CD Self-Healing Telemetry Loop
+
+When a remote pipeline is triggered or encounters an error, the AI Agent must follow this non-blocking telemetry loop:
 
 1. **Check Live Pipeline Status & ETA**:
    ` + "```bash" + `
    gitmap pipeline status --json
-   # Returns structured JSON:
-   # {
-   #   "status": "RUNNING",
-   #   "workflow": "Release",
-   #   "etaSeconds": 75,
-   #   "pendingPipelines": 1,
-   #   "runUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/..."
-   # }
+   ` + "```" + `
+   *Output:*
+   ` + "```json" + `
+   {
+     "status": "RUNNING",
+     "workflow": "Release",
+     "etaSeconds": 75,
+     "pendingPipelines": 1,
+     "runUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/12345"
+   }
    ` + "```" + `
 
 2. **Schedule Non-Blocking Wait Timer**:
    ` + "```bash" + `
    gitmap eta
-   # Returns bare integer (e.g. 75). Use this value to schedule timers without busy polling.
    ` + "```" + `
+   *Output:*
+   ` + "```" + `
+   75
+   ` + "```" + `
+   *(Use the returned integer to schedule a non-blocking timer in your harness; NEVER busy-poll).*
 
-3. **Extract Failing CI Diagnostic Error Logs**:
+3. **Extract Failing CI Diagnostic Error Logs to File**:
    ` + "```bash" + `
    gitmap pipeline error-logs --json --tempfile "ci-failure.json"
-   # Directly dumps the exact failing step, stderr, and exit code to ci-failure.json for 4-part RCA.
    ` + "```" + `
+   *Behavior:* Dumps the exact failing step, command line, exit code, and stderr into ` + "`ci-failure.json`" + ` for instant 4-part Root Cause Analysis (RCA).
 
 4. **Verify Locally & Push Semantic Fix**:
    ` + "```bash" + `
@@ -82,12 +97,14 @@ When a remote pipeline is triggered or fails:
    gitmap commit-push-bug "fix(ci): fix gofmt formatting in cmd/root.go"
    ` + "```" + `
 
+
 ---
 
 ### Workflow B: Fast Code Search & File Discovery
-Instead of scanning entire directories or reading massive files:
 
-- **Find Exact File by Name**:
+Instead of scanning entire directory trees or reading large files into context:
+
+- **Find Exact Filename**:
   ` + "```bash" + `
   gitmap find-files "constants.go" -ext "go"
   gitmap ff "package.json"
@@ -103,19 +120,22 @@ Instead of scanning entire directories or reading massive files:
   ` + "```bash" + `
   gitmap find-files-startswith "01-" -ext "md"
   gitmap find-files-endswith "_test.go" -ext "go"
+  gitmap ffe ".spec.ts"
   ` + "```" + `
 
 - **Universal Wildcard / Glob Search**:
   ` + "```bash" + `
   gitmap find "*config*.json"
   gitmap list-files "*pipeline*"
+  gitmap f "*docker*" --limit 5
   ` + "```" + `
 
 - **Fast Indexed Global Keyword Search**:
   ` + "```bash" + `
   gitmap search "Resolve-Version"
-  gitmap repo-search-json "error-logs"   # alias: rsj (returns JSON array of match locations)
+  gitmap repo-search-json "error-logs"   # alias: rsj (returns structured JSON matches)
   ` + "```" + `
+
 
 ---
 
@@ -135,6 +155,7 @@ Instead of scanning entire directories or reading massive files:
   ` + "```bash" + `
   gitmap replace history
   ` + "```" + `
+
 
 ---
 
@@ -158,6 +179,7 @@ Instead of scanning entire directories or reading massive files:
   gitmap schedule add "nightly-sync" --interval "24h"
   gitmap schedule status
   ` + "```" + `
+
 
 ---
 
