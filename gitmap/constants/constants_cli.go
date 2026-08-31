@@ -48,6 +48,8 @@ const (
 	CmdLowercase          = "lowercase"
 	CmdFixSeqFiles        = "fix-seq-files"
 	CmdFixSeqFilesAlias   = "fsf"
+	CmdSequence           = "sequence"
+	CmdSequenceAlias      = "seq"
 	CmdGitRm              = "git-rm"
 	CmdIgnore             = "ignore"
 	CmdIgnoreRm           = "ignore-rm"

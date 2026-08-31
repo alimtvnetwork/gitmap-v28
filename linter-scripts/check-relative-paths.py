@@ -21,7 +21,7 @@ EXCLUDE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".pdf", ".zip"
 ALLOWLIST_FILES = {
     ".github/workflows/goreleaser-smoke.yml",  # contains comment explaining Windows file:/// URL format
     "linter-scripts/check-relative-paths.py",
-    ".lovable/ai-fix-scripts/04-relative-path-fixer.py",
+    ".lovable/ai-fix-scripts/07-relative-path-fixer.py",
 }
 
 
