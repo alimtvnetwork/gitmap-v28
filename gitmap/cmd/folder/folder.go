@@ -143,4 +143,3 @@ func writeOrPrintOutput(content, outFile string) error {
 	fmt.Print(content)
 	return nil
 }
-

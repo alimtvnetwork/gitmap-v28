@@ -478,4 +478,3 @@ func recordSequenceHistoryInDB(report SequenceFixReport) error {
 	_, err = repoDB.ExecContext(ctx, "INSERT INTO SequenceHistory (Directory, OperationsJson, CreatedAt) VALUES (?, ?, ?)", report.Directory, string(opsJson), now)
 	return err
 }
-
