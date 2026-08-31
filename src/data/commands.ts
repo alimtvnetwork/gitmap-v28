@@ -49,6 +49,7 @@ export const Categories: CommandCategory[] = [
   { key: "visibility-bulk", label: "Bulk Visibility", description: "Flip many repos public/private at once with audit trail", icon: "🔐" },
   { key: "maintenance", label: "Maintenance & Backups", description: "Backups, SSH health, doctor, changelog regen, and file deletion", icon: "🧹" },
   { key: "cluster", label: "Cluster & Delegation", description: "Multi-machine clustering and command delegation", icon: "🕸️" },
+  { key: "pipeline", label: "Pipeline & CI/CD", description: "Live CI/CD telemetry, ETA wait times, and failure logs", icon: "⚡" },
 ];
 
 export const commands: CommandDef[] = [
@@ -2586,6 +2587,63 @@ export const commands: CommandDef[] = [
       { command: 'gitmap folder . "structure.md" --md --details', description: "Export detailed Markdown list with metadata" },
       { command: 'gitmap folder . --tree --except "vendor/**,*.min.js"', description: "Render ASCII tree excluding vendor directories" },
       { command: 'gitmap folder . "tree.json" --json', description: "Export JSON structure" },
+    ],
+  },
+  // ═══════════════════════════════════════════
+  // Pipeline & CI/CD Telemetry
+  // ═══════════════════════════════════════════
+  {
+    name: "pipeline",
+    alias: "pl",
+    description: "Query live CI/CD pipeline runs, calculate remaining wait times (ETA), fetch step failure logs, and export telemetry",
+    usage: "gitmap pipeline [command] [flags]",
+    category: "pipeline",
+    flags: [
+      { flag: "--json", description: "Output structured JSON payload for scripting and AI agents" },
+      { flag: "--file <path>", description: "Write error logs or telemetry to the specified file path" },
+      { flag: "--tempfile <name>", description: "Write error logs to .lovable/temp/<filename> (configurable)" },
+      { flag: "--split", description: "Separate failure logs across multiple jobs into distinct files" },
+    ],
+    examples: [
+      { command: "gitmap pipeline status", description: "Check live CI/CD pipeline status and ETA" },
+      { command: "gitmap pipeline eta", description: "Output remaining wait time in seconds" },
+      { command: "gitmap pipeline waittime", description: "Alternative syntax for ETA in seconds" },
+      { command: "gitmap pipeline error-logs --json", description: "Fetch failure logs as structured JSON" },
+      { command: "gitmap pipeline logs", description: "Fetch all workflow run logs" },
+    ],
+  },
+  {
+    name: "pipeline waittime",
+    alias: "pipeline eta, waittime, eta",
+    description: "Output remaining estimated CI/CD wait time in seconds as a bare machine-friendly integer",
+    usage: "gitmap pipeline waittime (or gitmap pipeline eta / gitmap eta / gitmap waittime)",
+    category: "pipeline",
+    flags: [
+      { flag: "--json", description: "Output JSON envelope with etaSeconds" },
+    ],
+    examples: [
+      { command: "gitmap pipeline eta", description: "Get remaining ETA seconds" },
+      { command: "gitmap pipeline waittime", description: "Get remaining ETA seconds" },
+      { command: "gitmap eta", description: "Top-level shortcut" },
+      { command: "gitmap waittime", description: "Top-level shortcut" },
+    ],
+  },
+  {
+    name: "pipeline error-logs",
+    alias: "error-logs",
+    description: "Fetch failure step logs for the latest failed workflow run or return current ETA if running",
+    usage: "gitmap pipeline error-logs [--json] [--file <path>] [--tempfile <name>]",
+    category: "pipeline",
+    flags: [
+      { flag: "--json", description: "Output JSON payload with failure diagnostics" },
+      { flag: "--file <path>", description: "Write logs to destination path" },
+      { flag: "--tempfile <name>", description: "Write to workspace temp directory" },
+      { flag: "--split", description: "Split failure logs by job" },
+    ],
+    examples: [
+      { command: "gitmap pipeline error-logs", description: "Display failure logs in terminal" },
+      { command: 'gitmap pipeline error-logs --json --tempfile "ci-fail.json"', description: "Save structured failure report to temp file" },
+      { command: "gitmap error-logs", description: "Top-level shortcut" },
     ],
   },
 ];

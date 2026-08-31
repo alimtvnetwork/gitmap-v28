@@ -16,7 +16,7 @@ pl
 | Subcommand     | Description                                                          |
 |----------------|----------------------------------------------------------------------|
 | status         | Live CI/CD execution state, active workflow, ETA, and pending PRs    |
-| waittime       | Remaining estimated wait time in seconds                             |
+| waittime, eta  | Remaining estimated wait time in seconds (machine-friendly integer)  |
 | logs           | Full step logs for the latest workflow run                           |
 | error-logs     | Failure logs for the latest failed workflow step                     |
 | help           | Show this pipeline command suite documentation                       |
@@ -37,6 +37,7 @@ pl
 | gitmap error-logs  | gitmap pipeline error-logs          |
 | gitmap logs        | gitmap pipeline logs                |
 | gitmap waittime    | gitmap pipeline waittime            |
+| gitmap eta         | gitmap pipeline eta                 |
 
 ## Examples
 
