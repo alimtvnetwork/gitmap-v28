@@ -43,7 +43,7 @@ func handleUndo(m *Macro, redoStack *[]MacroStep, count int, isAutoConfirm bool,
 	}
 	count = clampCount(count, len(m.Steps))
 	if count > 1 && !isAutoConfirm && !confirmUndoPrompt(count, reader) {
-		fmt.Println("  ▲ Undo cancelled.")
+		fmt.Println("  ▲ Undo canceled.")
 		return
 	}
 	applyUndo(m, redoStack, count)
