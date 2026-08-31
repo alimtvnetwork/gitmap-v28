@@ -411,17 +411,25 @@ function Stop-Strict([string]$detail) {
 # --- Pre-flight asset existence ---
 
 # Test-AssetExists: HEAD-probe the asset URL. Returns $true on
-# HTTP 200/301/302, $false otherwise. Used to fail fast with a clear
-# error before any download/extract work.
+# HTTP 200/301/302, $false otherwise. Includes retry with backoff
+# to accommodate CDN propagation delays immediately after release.
 function Test-AssetExists([string]$url) {
-    try {
-        $resp = Invoke-WebRequest -Uri $url -Method Head -TimeoutSec 10 `
-            -UseBasicParsing -ErrorAction Stop
-        return ($resp.StatusCode -eq 200)
-    } catch {
-        Write-Warning "[Test-AssetExists] $_"
-        return $false
+    $maxAttempts = 4
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+        try {
+            $resp = Invoke-WebRequest -Uri $url -Method Head -TimeoutSec 10 `
+                -UseBasicParsing -ErrorAction Stop
+            if ($resp.StatusCode -ge 200 -and $resp.StatusCode -lt 400) {
+                return $true
+            }
+        } catch {
+            Write-Warning "[Test-AssetExists attempt $attempt/$maxAttempts] $_"
+            if ($attempt -lt $maxAttempts) {
+                Start-Sleep -Seconds ($attempt * 2)
+            }
+        }
     }
+    return $false
 }
 
 # Write-DryRunReport: emit a machine-parseable, key=value report of

@@ -90,16 +90,17 @@ public static extern bool SetConsoleCP(uint codePageID);
 '@ -ErrorAction SilentlyContinue
     [GitmapInstaller.NativeConsole]::SetConsoleOutputCP(65001) | Out-Null
     [GitmapInstaller.NativeConsole]::SetConsoleCP(65001) | Out-Null
-} catch { Write-Warning "$_" }
+} catch { Write-Warning "[SetConsoleCP] $_" }
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
     $OutputEncoding           = [System.Text.Encoding]::UTF8
     if ($PSStyle) { $PSStyle.OutputRendering = 'PlainText' }
-} catch { Write-Warning "$_" }
+} catch { Write-Warning "[SetEncoding] $_" }
 
 $Repo = "alimtvnetwork/gitmap-v28"
 $BinaryName = "gitmap.exe"
+$BinaryAlias = "gm.exe"
 $InstallerVersion = "1.0.0"
 
 class InstallerFailure : System.Exception {
@@ -127,6 +128,7 @@ function Test-RepoExists([string]$url) {
             -UseBasicParsing -ErrorAction Stop
         return ($resp.StatusCode -eq 200)
     } catch {
+        Write-Warning "[Test-RepoExists] $_"
         return $false
     }
 }
@@ -172,6 +174,7 @@ function Invoke-DelegatedFullInstaller([string]$effectiveRepo) {
     try {
         $script = (Invoke-WebRequest -Uri $delegatedUrl -UseBasicParsing -TimeoutSec 15).Content
     } catch {
+        Write-Warning "[Invoke-DelegatedFullInstaller] $_"
         Write-Host "  [discovery] [WARN] could not fetch delegated installer: $_" -ForegroundColor Yellow
         Write-Host "  [discovery] falling back to baseline installer" -ForegroundColor Yellow
         Remove-Item Env:INSTALLER_DELEGATED -ErrorAction SilentlyContinue
@@ -356,7 +359,7 @@ function Resolve-Version([string]$version) {
         return $release.tag_name
     }
     catch {
-        Write-Warning "$_"
+        Write-Warning "[Resolve-Version] $_"
         $statusCode = "unknown"
         $body = ""
 
@@ -368,7 +371,7 @@ function Resolve-Version([string]$version) {
                 $reader.Close()
             }
             catch {
-                Write-Warning "$_"
+                Write-Warning "[Resolve-Version.ReadResponseBody] $_"
                 $body = $_.Exception.Message
             }
         }
@@ -408,16 +411,25 @@ function Stop-Strict([string]$detail) {
 # --- Pre-flight asset existence ---
 
 # Test-AssetExists: HEAD-probe the asset URL. Returns $true on
-# HTTP 200/301/302, $false otherwise. Used to fail fast with a clear
-# error before any download/extract work.
+# HTTP 200/301/302, $false otherwise. Includes retry with backoff
+# to accommodate CDN propagation delays immediately after release.
 function Test-AssetExists([string]$url) {
-    try {
-        $resp = Invoke-WebRequest -Uri $url -Method Head -TimeoutSec 10 `
-            -UseBasicParsing -ErrorAction Stop
-        return ($resp.StatusCode -eq 200)
-    } catch {
-        return $false
+    $maxAttempts = 4
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+        try {
+            $resp = Invoke-WebRequest -Uri $url -Method Head -TimeoutSec 10 `
+                -UseBasicParsing -ErrorAction Stop
+            if ($resp.StatusCode -ge 200 -and $resp.StatusCode -lt 400) {
+                return $true
+            }
+        } catch {
+            Write-Warning "[Test-AssetExists attempt $attempt/$maxAttempts] $_"
+            if ($attempt -lt $maxAttempts) {
+                Start-Sleep -Seconds ($attempt * 2)
+            }
+        }
     }
+    return $false
 }
 
 # Write-DryRunReport: emit a machine-parseable, key=value report of
@@ -529,7 +541,7 @@ function Get-Asset([string]$version, [string]$arch) {
         Invoke-WebRequest -Uri $checksumUrl -OutFile $checksumPath -UseBasicParsing
     }
     catch {
-        Write-Warning "$_"
+        Write-Warning "[Get-Asset] $_"
         Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
         if ($strict) {
             Stop-Strict "download failed: $($_.Exception.Message)"
@@ -638,6 +650,22 @@ function Install-Binary([string]$zipPath, [string]$installDir) {
     }
 
     Write-OK "Installed $BinaryName to $installDir"
+
+    # Install short alias `gm.exe` alongside `gitmap.exe` so both commands
+    # resolve to the same binary on PATH. Windows symlinks require admin or
+    # Developer Mode, so a straight Copy-Item is the only reliable approach
+    # for HKCU installs. Non-fatal: the primary install already succeeded.
+    $aliasPath = Join-Path $installDir $BinaryAlias
+    try {
+        if (Test-Path $aliasPath) {
+            Remove-Item $aliasPath -Force -ErrorAction Stop
+        }
+        Copy-Item -Path $targetPath -Destination $aliasPath -Force -ErrorAction Stop
+        Write-OK "Installed alias $BinaryAlias -> $BinaryName (copy)"
+    } catch {
+        Write-Warning "[Install-Binary.Alias] $_"
+        Write-Err "  ! Could not create '$BinaryAlias' alias next to ${BinaryName}: $($_.Exception.Message); only the full '$BinaryName' command will be available."
+    }
 }
 
 # --- Download seed data files (downloader-config.json, etc.) ---
@@ -670,6 +698,7 @@ function Install-SeedData([string]$version, [string]$installDir) {
         }
         catch {
             # Best-effort: some files may not exist in older tags.
+            Write-Warning "[Install-SeedData] $_"
             Write-Host ("    skip  {0} (not in {1})" -f $name, $version) -ForegroundColor DarkGray
         }
     }
@@ -741,8 +770,8 @@ function Install-DocsSite([string]$version, [string]$installDir) {
         Invoke-WebRequest -Uri $assetUrl -OutFile $tmpZip -UseBasicParsing -ErrorAction Stop
     }
     catch {
-        Write-Warning "$_"
-        Write-Step "  docs-site.zip not available for $version - skipping (gitmap hd may not work)"
+        Write-Warning "[Install-DocsSite.Download] $_"
+        Write-Step "  docs-site.zip not available for $version - skipping (gitmap hd will fall back to hosted docs)"
         Remove-Item $tmpZip -Force -ErrorAction SilentlyContinue
         return
     }
@@ -759,6 +788,7 @@ function Install-DocsSite([string]$version, [string]$installDir) {
         Write-OK "Installed docs-site to $docsDir"
     }
     catch {
+        Write-Warning "[Install-DocsSite.Extract] $_"
         Write-Err "Failed to extract docs-site.zip: $_"
     }
     finally {
@@ -806,7 +836,7 @@ function Get-GitmapCommandWrapperBlock([string]$dir) {
     $template = @'
 # gitmap command wrapper v1
 function global:Get-GitmapCommand { $candidate = Join-Path -Path '__GITMAP_DIR__' -ChildPath 'gitmap.exe'; if (Test-Path -LiteralPath $candidate) { return $candidate }; return (Get-Command gitmap.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source }
-function global:Invoke-GitmapAndSetLocation { param([string[]]$GitMapArgs); $real = Get-GitmapCommand; if (-not $real) { Write-Error "gitmap executable not found"; return }; if ($GitMapArgs.Count -gt 0 -and ($GitMapArgs[0] -eq 'cd' -or $GitMapArgs[0] -eq 'go')) { $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"; $dest = (& $real @GitMapArgs | Out-String).Trim(); if ($LASTEXITCODE -ne 0) { return }; if ($dest -and (Test-Path -LiteralPath $dest)) { Set-Location -LiteralPath $dest }; return }; $handoff = [IO.Path]::Combine([IO.Path]::GetTempPath(), "gitmap-handoff-$([Guid]::NewGuid().ToString('N')).txt"); try { $env:GITMAP_HANDOFF_FILE = $handoff; $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"; & $real @GitMapArgs; if ((Test-Path -LiteralPath $handoff) -and ((Get-Item -LiteralPath $handoff).Length -gt 0)) { $target = (Get-Content -LiteralPath $handoff -Raw).Trim(); if ($target -and (Test-Path -LiteralPath $target)) { Set-Location -LiteralPath $target } } } finally { Remove-Item -LiteralPath $handoff -ErrorAction SilentlyContinue; Remove-Item Env:\GITMAP_HANDOFF_FILE -ErrorAction SilentlyContinue } }
+function global:Invoke-GitmapAndSetLocation { param([string[]]$GitMapArgs); $real = Get-GitmapCommand; if (-not $real) { Write-Error "gitmap executable not found"; return }; if ($GitMapArgs.Count -gt 0 -and ($GitMapArgs[0] -eq 'cd' -or $GitMapArgs[0] -eq 'go')) { $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"; $dest = [string](& $real @GitMapArgs | Out-String); if ($LASTEXITCODE -ne 0) { return }; $dest = $dest.Trim(); if ($dest -and (Test-Path -LiteralPath ([string]$dest))) { Set-Location -LiteralPath ([string]$dest) }; return }; $handoff = [IO.Path]::Combine([IO.Path]::GetTempPath(), "gitmap-handoff-$([Guid]::NewGuid().ToString('N')).txt"); try { $env:GITMAP_HANDOFF_FILE = $handoff; $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"; & $real @GitMapArgs; if ((Test-Path -LiteralPath $handoff) -and ((Get-Item -LiteralPath $handoff).Length -gt 0)) { $target = [string](Get-Content -LiteralPath $handoff -Raw); $target = $target.Trim(); if ($target -and (Test-Path -LiteralPath ([string]$target))) { Set-Location -LiteralPath ([string]$target) } } } finally { Remove-Item -LiteralPath $handoff -ErrorAction SilentlyContinue; Remove-Item Env:\GITMAP_HANDOFF_FILE -ErrorAction SilentlyContinue } }
 function global:gcd { Invoke-GitmapAndSetLocation -GitMapArgs (@('cd') + $args) }
 function global:gitmap { Invoke-GitmapAndSetLocation $args }
 # gitmap command wrapper v1 end
@@ -821,9 +851,10 @@ $real = Join-Path -Path '__GITMAP_DIR__' -ChildPath 'gitmap.exe'
 if (-not (Test-Path -LiteralPath $real)) { Write-Error "gitmap executable not found: $real"; return }
 if ($args.Count -gt 0 -and ($args[0] -eq 'cd' -or $args[0] -eq 'go')) {
   $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"
-  $dest = (& $real @args | Out-String).Trim()
+  $dest = [string](& $real @args | Out-String)
   if ($LASTEXITCODE -ne 0) { $global:LASTEXITCODE = $LASTEXITCODE; return }
-  if ($dest -and (Test-Path -LiteralPath $dest)) { Set-Location -LiteralPath $dest }
+  $dest = $dest.Trim()
+  if ($dest -and (Test-Path -LiteralPath ([string]$dest))) { Set-Location -LiteralPath ([string]$dest) }
   return
 }
 $handoff = [IO.Path]::Combine([IO.Path]::GetTempPath(), "gitmap-handoff-$([Guid]::NewGuid().ToString('N')).txt")
@@ -832,8 +863,8 @@ try {
   & $real @args
   $exitCode = $LASTEXITCODE
   if ((Test-Path -LiteralPath $handoff) -and ((Get-Item -LiteralPath $handoff).Length -gt 0)) {
-    $target = (Get-Content -LiteralPath $handoff -Raw).Trim()
-    if ($target -and (Test-Path -LiteralPath $target)) { Set-Location -LiteralPath $target }
+    $target = [string](Get-Content -LiteralPath $handoff -Raw); $target = $target.Trim()
+    if ($target -and (Test-Path -LiteralPath ([string]$target))) { Set-Location -LiteralPath ([string]$target) }
   }
   $global:LASTEXITCODE = $exitCode
   return
@@ -1147,6 +1178,7 @@ function Invoke-InstallVerification([string]$binPath, [string]$installDir, [bool
             Write-Host ("    PASS  Version: {0}" -f $verLine) -ForegroundColor Green
         }
         catch {
+            Write-Warning "[Invoke-InstallVerification.Version] $_"
             Write-Host ("    WARN  Could not run {0} version: {1}" -f $binPath, $_) -ForegroundColor Yellow
         }
     }
@@ -1176,6 +1208,7 @@ function Invoke-InstallVerification([string]$binPath, [string]$installDir, [bool
             Write-Host ("    PASS  Data folder created: {0}" -f $dataDir) -ForegroundColor Green
         }
         catch {
+            Write-Warning "[Invoke-InstallVerification.CreateDataDir] $_"
             Write-Host ("    WARN  Could not create data folder: {0}" -f $dataDir) -ForegroundColor Yellow
         }
     }
@@ -1264,7 +1297,7 @@ function Confirm-IsGitmapInstall([string]$binPath, [bool]$isForce) {
         $out = (& $binPath version 2>&1 | Out-String)
     }
     catch {
-        Write-Warning "$_"
+        Write-Warning "[Confirm-IsGitmapInstall] $_"
         $out = ""
     }
     if ($out -match '(?i)\bgitmap\b') {
@@ -1407,6 +1440,7 @@ try {
             }
         }
         catch {
+            Write-Warning "[Main.VerifyBinary] $_"
             Write-Err "Binary found but failed to run: $_"
         }
     }
@@ -1425,12 +1459,21 @@ try {
     if (Test-Path -LiteralPath $binPath) {
         Write-Host ""
         Write-Host "  -> Running 'gitmap setup' to install shell wrapper + completions..." -ForegroundColor Cyan
-        try { & $binPath setup } catch { Write-Host "  (setup auto-run skipped: $_)" -ForegroundColor Yellow }
+        try {
+            & $binPath setup
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "  (setup auto-run exited $LASTEXITCODE; install already succeeded)" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Warning "[Main.GitmapSetup] $_"
+            Write-Host "  (setup auto-run skipped: $_)" -ForegroundColor Yellow
+        }
     }
 
     Write-Host ""
     Write-OK "Done! Run 'gitmap --help' to get started."
     Write-Host ""
+    Set-InstallerExitCode 0
 }
 catch {
     Write-FatalError $_ 1
