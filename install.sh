@@ -84,6 +84,7 @@ set -euo pipefail
 
 REPO="alimtvnetwork/gitmap-v28"
 BINARY_NAME="gitmap"
+BINARY_ALIAS="gm"
 TMP_DIR=""
 APP_DIR=""
 PATH_SHELL=""
@@ -672,13 +673,73 @@ install_binary() {
 
     ok "Installed ${BINARY_NAME} to ${app_dir}"
 
+    # Install short alias `gm` alongside `gitmap` so both commands resolve to
+    # the same binary on PATH. Prefer a symlink (atomic, single source of
+    # truth); fall back to a copy when the filesystem rejects symlinks
+    # (e.g. some FAT/exFAT mounts). Non-fatal: the primary install already
+    # succeeded by this point.
+    local alias_path="${app_dir}/${BINARY_ALIAS}"
+    rm -f "${alias_path}" 2>/dev/null || true
+    if ln -s "${BINARY_NAME}" "${alias_path}" 2>/dev/null; then
+        ok "Installed alias ${BINARY_ALIAS} -> ${BINARY_NAME} (symlink)"
+    elif cp -f "${target_path}" "${alias_path}" 2>/dev/null; then
+        chmod +x "${alias_path}" 2>/dev/null || true
+        ok "Installed alias ${BINARY_ALIAS} -> ${BINARY_NAME} (copy fallback)"
+    else
+        err "  ⚠ Could not create '${BINARY_ALIAS}' alias next to ${BINARY_NAME}; only the full '${BINARY_NAME}' command will be available."
+    fi
+
     # Echo the app dir so main() can use it for PATH + summary.
+    
+    # Symlink into parent dir if possible, to allow immediate recognition 
+    # without PATH reload if the parent dir is already in PATH.
+    local parent_bin="${install_dir}/${BINARY_NAME}"
+    local parent_alias="${install_dir}/${BINARY_ALIAS}"
+    rm -f "${parent_bin}" "${parent_alias}" 2>/dev/null || true
+    if ln -s "${APP_SUBDIR}/${BINARY_NAME}" "${parent_bin}" 2>/dev/null; then
+        :
+    fi
+    if ln -s "${APP_SUBDIR}/${BINARY_ALIAS}" "${parent_alias}" 2>/dev/null; then
+        :
+    fi
+
     APP_DIR="${app_dir}"
 }
 
 # ── Download and extract docs-site.zip release asset ───────────────
 # Required for `gitmap help-dashboard` (hd). Best-effort: skip silently
 # if the release does not bundle docs-site.zip (older versions).
+
+install_seed_data() {
+    local version="$1" app_dir="$2"
+    local data_dir="${app_dir}/data"
+    
+    mkdir -p "${data_dir}" 2>/dev/null || true
+
+    local seed_files="downloader-config.json config.json git-setup.json seo-templates.json"
+    local installed=0
+    for name in $seed_files; do
+        local raw_url="https://raw.githubusercontent.com/${REPO}/${version}/gitmap/data/${name}"
+        local dest="${data_dir}/${name}"
+        if command -v curl >/dev/null 2>&1; then
+            if curl -fsSL --max-time 10 "${raw_url}" -o "${dest}" 2>/dev/null; then
+                installed=$((installed + 1))
+            fi
+        elif command -v wget >/dev/null 2>&1; then
+            if wget -qO "${dest}" "${raw_url}" 2>/dev/null; then
+                installed=$((installed + 1))
+            fi
+        fi
+    done
+
+    if [ "$installed" -gt 0 ]; then
+        ok "Installed ${installed} seed file(s) to ${data_dir}"
+    else
+        warn "No seed files downloaded; gitmap will use built-in defaults"
+    fi
+}
+
+#  Download and extract docs-site.zip release asset 
 install_docs_site() {
     local version="$1" install_dir="$2"
     local asset_name="docs-site.zip"
@@ -688,7 +749,7 @@ install_docs_site() {
     step "Downloading docs-site.zip (${version})..."
 
     if ! download "${asset_url}" "${tmp_zip}" 2>/dev/null; then
-        step "  docs-site.zip not available for ${version} - skipping (gitmap hd may not work)"
+        step "  docs-site.zip not available for ${version} - skipping (gitmap hd will fall back to hosted docs)"
         rm -f "${tmp_zip}" 2>/dev/null || true
         return 0
     fi
@@ -1538,6 +1599,25 @@ main() {
     version="$(resolve_version "${VERSION}")"
     install_dir="$(resolve_install_dir "${INSTALL_DIR}")"
 
+    local prev_version=""
+    local existing_bin="${install_dir}/${APP_SUBDIR}/${BINARY_NAME}"
+    [ ! -f "${existing_bin}" ] && existing_bin="${install_dir}/${BINARY_NAME}"
+    if [ -x "${existing_bin}" ]; then
+        prev_version="$("${existing_bin}" version 2>/dev/null | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
+        [ -n "${prev_version}" ] && [ "${prev_version#v}" = "${prev_version}" ] && prev_version="v${prev_version}"
+    fi
+
+    echo ""
+    if [ -n "${prev_version}" ] && [ "${prev_version}" != "${version}" ]; then
+        printf '  \033[1mgitmap installer:\033[0m upgrading \033[33m%s\033[0m -> \033[32m%s\033[0m\n' "${prev_version}" "${version}"
+    elif [ -n "${prev_version}" ]; then
+        printf '  \033[1mgitmap installer:\033[0m reinstalling \033[32m%s\033[0m\n' "${version}"
+    else
+        printf '  \033[1mgitmap installer:\033[0m installing \033[32m%s\033[0m (clean install)\n' "${version}"
+    fi
+    printf '  \033[90mgithub.com/%s\033[0m\n' "${REPO}"
+    echo ""
+
     # Create TMP_DIR in parent scope so install_binary and cleanup can access it.
     TMP_DIR="$(mktemp -d)"
     archive_path="$(download_asset "${version}" "${os}" "${arch}")"
@@ -1548,18 +1628,14 @@ main() {
     # Bundle the docs site so `gitmap help-dashboard` works after install.
     install_docs_site "${version}" "${APP_DIR}"
 
+    # Bundle the seed files (git-setup.json, etc.)
+    install_seed_data "${version}" "${APP_DIR}"
+
     if [ "${NO_PATH}" = false ]; then
         add_to_path "${APP_DIR}"
     fi
 
     # Verify the binary works.
-    #
-    # Discard stderr (`2>/dev/null`) and parse only stdout. First-run side
-    # effects like SeedDownloaderConfig print informational lines to stderr
-    # (e.g. "◦ Downloader config already customized …") that would otherwise
-    # be concatenated into ${installed_version} and shown to the user. We
-    # then filter to the canonical `gitmap vX.Y.Z` line via awk (no pipe to
-    # `head` to avoid SIGPIPE under `set -o pipefail`).
     local bin_path="${APP_DIR}/${BINARY_NAME}"
     local installed_version="${version}"
     if [ -f "${bin_path}" ]; then
@@ -1570,9 +1646,13 @@ main() {
             version_line="$(printf '%s\n' "${version_output}" | awk '/^gitmap v[0-9]/{print; exit}')"
             if [ -n "${version_line}" ]; then
                 installed_version="${version_line}"
-                ok "${version_line}"
             else
-                ok "gitmap ${version}"
+                installed_version="gitmap ${version}"
+            fi
+            if [ -n "${prev_version}" ] && [ "${prev_version}" != "${version}" ]; then
+                ok "Installed: ${installed_version} (upgraded from ${prev_version})"
+            else
+                ok "Installed: ${installed_version}"
             fi
         else
             err "Binary found but failed to run."

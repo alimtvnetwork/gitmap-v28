@@ -1599,6 +1599,25 @@ main() {
     version="$(resolve_version "${VERSION}")"
     install_dir="$(resolve_install_dir "${INSTALL_DIR}")"
 
+    local prev_version=""
+    local existing_bin="${install_dir}/${APP_SUBDIR}/${BINARY_NAME}"
+    [ ! -f "${existing_bin}" ] && existing_bin="${install_dir}/${BINARY_NAME}"
+    if [ -x "${existing_bin}" ]; then
+        prev_version="$("${existing_bin}" version 2>/dev/null | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
+        [ -n "${prev_version}" ] && [ "${prev_version#v}" = "${prev_version}" ] && prev_version="v${prev_version}"
+    fi
+
+    echo ""
+    if [ -n "${prev_version}" ] && [ "${prev_version}" != "${version}" ]; then
+        printf '  \033[1mgitmap installer:\033[0m upgrading \033[33m%s\033[0m -> \033[32m%s\033[0m\n' "${prev_version}" "${version}"
+    elif [ -n "${prev_version}" ]; then
+        printf '  \033[1mgitmap installer:\033[0m reinstalling \033[32m%s\033[0m\n' "${version}"
+    else
+        printf '  \033[1mgitmap installer:\033[0m installing \033[32m%s\033[0m (clean install)\n' "${version}"
+    fi
+    printf '  \033[90mgithub.com/%s\033[0m\n' "${REPO}"
+    echo ""
+
     # Create TMP_DIR in parent scope so install_binary and cleanup can access it.
     TMP_DIR="$(mktemp -d)"
     archive_path="$(download_asset "${version}" "${os}" "${arch}")"
@@ -1617,13 +1636,6 @@ main() {
     fi
 
     # Verify the binary works.
-    #
-    # Discard stderr (`2>/dev/null`) and parse only stdout. First-run side
-    # effects like SeedDownloaderConfig print informational lines to stderr
-    # (e.g. "◦ Downloader config already customized …") that would otherwise
-    # be concatenated into ${installed_version} and shown to the user. We
-    # then filter to the canonical `gitmap vX.Y.Z` line via awk (no pipe to
-    # `head` to avoid SIGPIPE under `set -o pipefail`).
     local bin_path="${APP_DIR}/${BINARY_NAME}"
     local installed_version="${version}"
     if [ -f "${bin_path}" ]; then
@@ -1634,9 +1646,13 @@ main() {
             version_line="$(printf '%s\n' "${version_output}" | awk '/^gitmap v[0-9]/{print; exit}')"
             if [ -n "${version_line}" ]; then
                 installed_version="${version_line}"
-                ok "${version_line}"
             else
-                ok "gitmap ${version}"
+                installed_version="gitmap ${version}"
+            fi
+            if [ -n "${prev_version}" ] && [ "${prev_version}" != "${version}" ]; then
+                ok "Installed: ${installed_version} (upgraded from ${prev_version})"
+            else
+                ok "Installed: ${installed_version}"
             fi
         else
             err "Binary found but failed to run."

@@ -406,13 +406,31 @@ jobs:
 
           # --- Main ---
 
-          Write-Host ""
-          Write-Host "  gitmap installer ($PinnedVersion)" -ForegroundColor White
-          Write-Host "  github.com/$Repo" -ForegroundColor DarkGray
-          Write-Host ""
-
           $resolvedArch = Resolve-Arch $Arch
           $resolvedDir = Resolve-InstallDir $InstallDir
+          $binPath = Join-Path $resolvedDir $BinaryName
+          $previousVersion = $null
+          if (Test-Path $binPath) {
+              try {
+                  $rawPrev = (& $binPath version 2>&1 | Out-String).Trim()
+                  if ($rawPrev -match 'v?(\d+\.\d+\.\d+)') {
+                      $previousVersion = "v$($Matches[1])"
+                  } elseif ($rawPrev) {
+                      $previousVersion = $rawPrev
+                  }
+              } catch {}
+          }
+
+          Write-Host ""
+          if ($previousVersion -and $previousVersion -ne $PinnedVersion) {
+              Write-Host "  gitmap installer: upgrading $previousVersion -> $PinnedVersion" -ForegroundColor White
+          } elseif ($previousVersion) {
+              Write-Host "  gitmap installer: reinstalling $PinnedVersion" -ForegroundColor White
+          } else {
+              Write-Host "  gitmap installer: installing $PinnedVersion (clean install)" -ForegroundColor White
+          }
+          Write-Host "  github.com/$Repo" -ForegroundColor DarkGray
+          Write-Host ""
 
           $result = Get-Asset $PinnedVersion $resolvedArch
           try { Install-Binary $result.ZipPath $resolvedDir }
@@ -441,19 +459,22 @@ jobs:
               Remove-Item $docsZip -Force -ErrorAction SilentlyContinue
           }
 
-          $binPath = Join-Path $resolvedDir $BinaryName
           if (Test-Path $binPath) {
               Write-Host ""
               try {
-                  $versionOutput = & $binPath version 2>&1
-                  Write-OK "  gitmap $versionOutput"
+                  $versionOutput = (& $binPath version 2>&1 | Out-String).Trim()
+                  if ($previousVersion -and $previousVersion -ne $PinnedVersion) {
+                      Write-OK "Installed: $versionOutput (upgraded from $previousVersion)"
+                  } else {
+                      Write-OK "Installed: $versionOutput"
+                  }
               } catch {
-                  Write-Err "  Binary found but failed to run: $_"
+                  Write-Err "Binary found but failed to run: $_"
               }
           }
 
           Write-Host ""
-          Write-OK "  Done! Run 'gitmap --help' to get started."
+          Write-OK "Done! Run 'gitmap --help' to get started."
           Write-Host ""
           PSEOF
 
@@ -581,9 +602,21 @@ jobs:
             arch="$(detect_arch)"
             version="$PINNED_VERSION"
             install_dir="${INSTALL_DIR:-$HOME/.local/bin}"
+            local target="$install_dir/$BINARY_NAME"
+            local prev_version=""
+            if [[ -x "$target" ]]; then
+              prev_version="$("$target" version 2>/dev/null | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
+              [[ -n "$prev_version" && "$prev_version" != v* ]] && prev_version="v$prev_version"
+            fi
 
             echo ""
-            echo "  gitmap installer ($version)"
+            if [[ -n "$prev_version" && "$prev_version" != "$version" ]]; then
+              echo "  gitmap installer: upgrading $prev_version -> $version"
+            elif [[ -n "$prev_version" ]]; then
+              echo "  gitmap installer: reinstalling $version"
+            else
+              echo "  gitmap installer: installing $version (clean install)"
+            fi
             echo "  github.com/$REPO"
             echo ""
 
@@ -611,7 +644,6 @@ jobs:
               echo "❌ Binary not found in archive" >&2; exit 1
             fi
 
-            local target="$install_dir/$BINARY_NAME"
             if [[ -f "$target" ]]; then
               mv "$target" "$target.old"
             fi
@@ -639,8 +671,14 @@ jobs:
             fi
 
             if command -v "$target" &>/dev/null; then
+              local ver_out
+              ver_out="$("$target" version 2>&1 || echo "$version")"
               echo ""
-              echo "  ✅ $("$target" version 2>&1 || echo "$version")"
+              if [[ -n "$prev_version" && "$prev_version" != "$version" ]]; then
+                echo "  ✅ Installed: $ver_out (upgraded from $prev_version)"
+              else
+                echo "  ✅ Installed: $ver_out"
+              fi
             fi
             echo ""
             echo "  Done! Run 'gitmap --help' to get started."

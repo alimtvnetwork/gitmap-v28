@@ -1124,12 +1124,16 @@ function Remove-FromPath([string]$dir) {
     return $removed
 }
 
-function Write-InstallSummary([string]$version, [string]$binPath, [string]$installDir, [hashtable]$pathResult, [bool]$isNoPath) {
+function Write-InstallSummary([string]$version, [string]$binPath, [string]$installDir, [hashtable]$pathResult, [bool]$isNoPath, [string]$prevVersion = "") {
     Write-Host ""
     Write-Host "  -----------------------------------------------" -ForegroundColor DarkGray
     Write-Host "  gitmap install summary" -ForegroundColor White
     Write-Host "  -----------------------------------------------" -ForegroundColor DarkGray
-    Write-Host "    Version    : $version"
+    if ($prevVersion -and $prevVersion -ne $version) {
+        Write-Host "    Version    : $version (upgraded from $prevVersion)"
+    } else {
+        Write-Host "    Version    : $version"
+    }
     Write-Host "    Binary     : $binPath"
     Write-Host "    Install Dir: $installDir"
 
@@ -1217,15 +1221,34 @@ function Invoke-InstallVerification([string]$binPath, [string]$installDir, [bool
 # --- Main ---
 
 function Main {
-    Write-Host ""
-    Write-Host "  gitmap installer v$InstallerVersion" -ForegroundColor White
-    Write-Host "  github.com/$Repo" -ForegroundColor DarkGray
-    Write-Host ""
-
     try {
         $resolvedArch = Resolve-Arch $Arch
         $resolvedVersion = Resolve-Version $Version
         $resolvedDir = Resolve-InstallDir $InstallDir
+        $binPath = Join-Path $resolvedDir $BinaryName
+
+        $previousVersion = $null
+        if (Test-Path $binPath) {
+            try {
+                $rawPrev = (& $binPath version 2>&1 | Out-String).Trim()
+                if ($rawPrev -match 'v?(\d+\.\d+\.\d+)') {
+                    $previousVersion = "v$($Matches[1])"
+                } elseif ($rawPrev) {
+                    $previousVersion = $rawPrev
+                }
+            } catch {}
+        }
+
+        Write-Host ""
+        if ($previousVersion -and $previousVersion -ne $resolvedVersion) {
+            Write-Host "  gitmap installer: upgrading $previousVersion -> $resolvedVersion" -ForegroundColor White
+        } elseif ($previousVersion) {
+            Write-Host "  gitmap installer: reinstalling $resolvedVersion" -ForegroundColor White
+        } else {
+            Write-Host "  gitmap installer: installing $resolvedVersion (clean install)" -ForegroundColor White
+        }
+        Write-Host "  github.com/$Repo" -ForegroundColor DarkGray
+        Write-Host ""
 
         $result = Get-Asset $resolvedVersion $resolvedArch
 
@@ -1434,9 +1457,13 @@ try {
                 Select-Object -First 1
             if ($versionLine) {
                 $installedVersion = $versionLine.Trim()
-                Write-OK $installedVersion
             } else {
-                Write-OK "gitmap $installedVersion"
+                $installedVersion = "gitmap $resolvedVersion"
+            }
+            if ($previousVersion -and $previousVersion -ne $resolvedVersion) {
+                Write-OK "Installed: $installedVersion (upgraded from $previousVersion)"
+            } else {
+                Write-OK "Installed: $installedVersion"
             }
         }
         catch {
@@ -1448,7 +1475,7 @@ try {
         Write-Err "Binary not found at $binPath"
     }
 
-    Write-InstallSummary $installedVersion $binPath $installResult.InstallDir $installResult.PathResult $NoPath.IsPresent
+    Write-InstallSummary $installedVersion $binPath $installResult.InstallDir $installResult.PathResult $NoPath.IsPresent $previousVersion
 
     Invoke-InstallVerification $binPath $installResult.InstallDir $NoPath.IsPresent
 
