@@ -1,3 +1,20 @@
+## [v6.155.7] 2026-08-31 Release v6.155.7
+
+### Install gitmap v6.155.7
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.sh | bash -s -- ".lovable/prompts" "v6.155.7"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.7"`
+
+### Fixed & Enhanced
+
+- **LLM Help & Terminal Display Spacing Overhaul**:
+  - Added clean vertical gaps and newline spacing across all sections of `gitmap llm` and `llm.md`.
+  - Added comprehensive step-by-step AI Agent Standard Operating Procedure (SOP) diagram.
+  - Added copy-pasteable real-world examples for CI/CD self-healing loop, file discovery with extension filtering, batch regex replacement, Antigravity workspaces, and background cron scheduler.
+  - Added master alternative commands & aliases cheat sheet.
+  - Fixed version formatting in CLI trailer (`v6.155.7`).
+
 ## [v6.155.6] 2026-08-31 Release v6.155.6
 
 ### Install gitmap v6.155.6
