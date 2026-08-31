@@ -1477,5 +1477,5 @@ try {
 }
 catch {
     Write-FatalError $_ 1
-    return
+    exit 1
 }
