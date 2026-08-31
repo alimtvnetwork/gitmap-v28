@@ -128,18 +128,6 @@ func finalizeSavedMacro(m *Macro) error {
 	return nil
 }
 
-func parseCdTarget(cmdText string) string {
-	trimmed := strings.TrimSpace(cmdText)
-	lower := strings.ToLower(trimmed)
-	if strings.HasPrefix(lower, "cd ") || strings.HasPrefix(lower, "cd\t") {
-		return strings.TrimSpace(trimmed[3:])
-	}
-	if strings.HasPrefix(lower, "chdir ") || strings.HasPrefix(lower, "chdir\t") {
-		return strings.TrimSpace(trimmed[6:])
-	}
-	return ""
-}
-
 func execLive(cmdText, dir string) (time.Duration, bool) {
 	start := time.Now()
 	var cmd *exec.Cmd

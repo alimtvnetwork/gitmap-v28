@@ -1,3 +1,16 @@
+## [v6.156.4] 2026-08-31 Release v6.156.4
+
+### Install gitmap v6.156.4
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.sh | bash -s -- ".lovable/prompts" "v6.156.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.4"`
+
+### Fixed & Cleaned
+
+- **Clean Unused Legacy Function**:
+  - Removed deprecated `parseCdTarget` from `gitmap/macro/record.go` which was replaced by modular directory parsing in `gitmap/macro/record_dir.go`.
+
 ## [v6.156.3] 2026-08-31 Release v6.156.3
 
 ### Install gitmap v6.156.3
