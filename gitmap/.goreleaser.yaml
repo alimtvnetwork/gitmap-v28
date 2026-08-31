@@ -57,5 +57,5 @@ changelog:
 release:
   draft: false
   prerelease: auto
-  mode: replace
+  mode: keep-existing
   name_template: "gitmap v{{ .Version }}"
