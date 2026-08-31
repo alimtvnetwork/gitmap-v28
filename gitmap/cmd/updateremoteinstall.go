@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
@@ -23,12 +24,6 @@ import (
 //     20-parallel sibling probe (spec/01-app/111-update-remote-probe.md).
 //  2. Download THAT repo's install.{ps1,sh} from raw.githubusercontent.com.
 //  3. Exec it with inherited stdio.
-//
-// Returns true if the install completed (exit 0) so the caller can
-// short-circuit any legacy source-rebuild fallback.
-//
-// Flags: --probe-only prints the resolution and exits; --no-probe skips
-// the probe and installs from the current repo only.
 func runUpdateRemoteInstall() bool {
 	slug, source, err := resolveTargetSlug()
 	if err != nil {
@@ -38,25 +33,34 @@ func runUpdateRemoteInstall() bool {
 		fmt.Printf(constants.MsgUpdateProbeOnly, slug, source)
 		return true
 	}
-
 	currentVersion := constants.Version
 	targetVersion := fetchRemoteTargetVersion(slug)
-
 	url := installerURLFor(slug)
 	fmt.Printf(constants.MsgUpdateRemoteFetch, url)
+	return executeRemoteUpdateWorkflow(url, currentVersion, targetVersion)
+}
 
+func executeRemoteUpdateWorkflow(url, currentVersion, targetVersion string) bool {
 	scriptPath, err := downloadRemoteInstaller(url)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateRemoteDownload, err)
 		return false
 	}
 	defer os.Remove(scriptPath)
-
 	fmt.Printf(constants.MsgUpdateVersionCompare, currentVersion, targetVersion)
 	fmt.Printf(constants.MsgUpdateRemoteRun, scriptPath)
 	errRun := runRemoteInstaller(scriptPath)
+	if errRun != nil {
+		handleRemoteInstallerError(errRun)
+		return false
+	}
+	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, url)
+	return true
+}
+
+func handleRemoteInstallerError(errRun error) {
 	var exitErr *exec.ExitError
-	if errRun != nil && errors.As(errRun, &exitErr) {
+	if errors.As(errRun, &exitErr) {
 		appErr := apperror.NewWithDetails(
 			"cmd.updateremoteinstall.run",
 			"E1153",
@@ -67,44 +71,85 @@ func runUpdateRemoteInstall() bool {
 			map[string]any{"exitCode": exitErr.ExitCode()},
 		)
 		cliexit.HandleError(appErr, exitErr.ExitCode())
+		return
 	}
-	if errRun != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrUpdateRemoteRun, errRun)
-		return false
-	}
-
-	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, url)
-	return true
+	fmt.Fprintf(os.Stderr, constants.ErrUpdateRemoteRun, errRun)
 }
 
-// fetchRemoteTargetVersion fetches version.json from the remote repo.
+// fetchRemoteTargetVersion fetches the latest version from GitHub releases or version.json.
 func fetchRemoteTargetVersion(slug string) string {
+	ghVer := fetchGitHubLatestReleaseVersion(slug)
+	if len(ghVer) > 0 && ghVer != "unknown" {
+		return ghVer
+	}
+	return fetchVersionJSON(slug)
+}
+
+func fetchGitHubLatestReleaseVersion(slug string) string {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", constants.UpdateRepoOwner, slug)
+	client := &http.Client{Timeout: 6 * time.Second}
+	req, reqErr := http.NewRequest(http.MethodGet, url, nil)
+	if reqErr != nil {
+		return ""
+	}
+	req.Header.Set("User-Agent", "gitmap-updater")
+	resp, err := client.Do(req)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		closeResponse(resp)
+		return ""
+	}
+	defer resp.Body.Close()
+	return decodeReleaseTagName(resp.Body)
+}
+
+func closeResponse(resp *http.Response) {
+	if resp != nil && resp.Body != nil {
+		_ = resp.Body.Close()
+	}
+}
+
+func decodeReleaseTagName(body io.Reader) string {
+	var releaseData struct {
+		TagName string `json:"tag_name"`
+		Name    string `json:"name"`
+	}
+	if err := json.NewDecoder(body).Decode(&releaseData); err != nil {
+		return ""
+	}
+	tag := strings.TrimPrefix(releaseData.TagName, "v")
+	if len(tag) > 0 {
+		return tag
+	}
+	return strings.TrimPrefix(releaseData.Name, "v")
+}
+
+func fetchVersionJSON(slug string) string {
 	url := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/main/version.json", constants.UpdateRepoOwner, slug)
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := &http.Client{Timeout: 6 * time.Second}
 	resp, err := client.Get(url)
-	if err != nil {
+	if err != nil || resp.StatusCode != http.StatusOK {
+		closeResponse(resp)
 		return "unknown"
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "unknown"
-	}
-
-	var data struct {
-		Version string `json:"version"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return "unknown"
-	}
-	if data.Version == "" {
-		return "unknown"
-	}
-	return data.Version
+	return decodeVersionFromMap(resp.Body)
 }
 
-// resolveTargetSlug returns the repo slug to install from, honoring
-// --no-probe (skip probe, use current slug).
+func decodeVersionFromMap(body io.Reader) string {
+	var rawMap map[string]interface{}
+	if err := json.NewDecoder(body).Decode(&rawMap); err != nil {
+		return "unknown"
+	}
+	if v, ok := rawMap["Version"].(string); ok && len(v) > 0 {
+		return v
+	}
+	if v, ok := rawMap["version"].(string); ok && len(v) > 0 {
+		return v
+	}
+	return "unknown"
+}
+
+// resolveTargetSlug returns the repo slug to install from.
 func resolveTargetSlug() (string, string, error) {
 	if hasFlag(constants.FlagNoProbe) {
 		fmt.Printf(constants.MsgUpdateProbeSkipped, constants.UpdateCurrentRepoSlug)
@@ -123,19 +168,20 @@ func installerURLFor(slug string) string {
 		constants.UpdateRepoOwner, slug, name)
 }
 
-// downloadRemoteInstaller fetches url into a platform-appropriate temp
-// file (.ps1 on Windows, .sh elsewhere) and returns the path.
+// downloadRemoteInstaller fetches url into a platform-appropriate temp file.
 func downloadRemoteInstaller(url string) (string, error) {
-	resp, err := http.Get(url) //nolint:gosec // URL built from constants
+	resp, err := http.Get(url) //nolint:gosec
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)
 	}
+	return writeInstallerTempFile(resp.Body)
+}
 
+func writeInstallerTempFile(body io.Reader) (string, error) {
 	ext := ".sh"
 	if runtime.GOOS == "windows" {
 		ext = ".ps1"
@@ -147,13 +193,12 @@ func downloadRemoteInstaller(url string) (string, error) {
 	if runtime.GOOS == "windows" {
 		_, _ = tmp.Write([]byte{0xEF, 0xBB, 0xBF})
 	}
-	if _, err := io.Copy(tmp, resp.Body); err != nil {
+	if _, copyErr := io.Copy(tmp, body); copyErr != nil {
 		tmp.Close()
 		os.Remove(tmp.Name())
-		return "", err
+		return "", copyErr
 	}
 	tmp.Close()
-
 	if runtime.GOOS != "windows" {
 		_ = os.Chmod(tmp.Name(), 0o755)
 	}
@@ -168,8 +213,7 @@ func runRemoteInstaller(scriptPath string) error {
 			"-ExecutionPolicy", "Bypass",
 			"-NoProfile", "-NoLogo",
 			"-File", scriptPath)
-	}
-	if runtime.GOOS != "windows" {
+	} else {
 		cmd = exec.Command(getUnixShell(), scriptPath)
 	}
 	cmd.Stdout = os.Stdout
