@@ -1,3 +1,16 @@
+## [v6.155.6] 2026-08-31 Release v6.155.6
+
+### Install gitmap v6.155.6
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.sh | bash -s -- ".lovable/prompts" "v6.155.6"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.6"`
+
+### Fixed & Enhanced
+
+- **Interactive Search & File Discovery Help**:
+  - Running search commands with no arguments (`find`, `find-files`, `find-files-any`, `find-files-startswith`, `find-files-endswith`, `search`, `find-regex`, `find-read`, `find-regex-read`, `repo-search`) now automatically outputs comprehensive usage guides, descriptions, aliases, and examples instead of executing unconstrained blank searches.
+
 ## [v6.155.5] 2026-08-31 Release v6.155.5
 
 ### Install gitmap v6.155.5

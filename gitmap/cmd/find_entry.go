@@ -10,6 +10,7 @@ import (
 	"github.com/pterm/pterm"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/searcher"
 )
 
@@ -45,7 +46,15 @@ func runFindRegex(args []string) error {
 	checkHelp("find-regex", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("Usage: gitmap find-regex <regex> [--limit <n>]")
+		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+		fmt.Println("  gitmap find-regex <regex-pattern> [--limit <n>]")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+		fmt.Println("  Search indexed repositories using regular expression patterns.")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+		fmt.Println("  gitmap find-regex \"func [A-Z][a-zA-Z0-9]+\" --limit 20")
+		fmt.Println("  gitmap find-regex \"v[0-9]+\\.[0-9]+\\.[0-9]+\"")
 		return nil
 	}
 	query := cleanArgs[0]
@@ -74,7 +83,15 @@ func runFindRead(args []string) error {
 	checkHelp("find-read", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("Usage: gitmap find-read <query> [--limit <n>]")
+		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+		fmt.Println("  gitmap find-read <query> [--limit <n>]")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+		fmt.Println("  Find indexed files and display their full file content.")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+		fmt.Println("  gitmap find-read \"constants.go\"")
+		fmt.Println("  gitmap find-read \"version.json\" --limit 1")
 		return nil
 	}
 	query := cleanArgs[0]
@@ -134,7 +151,14 @@ func runFindRegexRead(args []string) error {
 	checkHelp("find-regex-read", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("Usage: gitmap find-regex-read <regex> [--limit <n>]")
+		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+		fmt.Println("  gitmap find-regex-read <regex> [--limit <n>]")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+		fmt.Println("  Find indexed files matching regex and display their content.")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+		fmt.Println("  gitmap find-regex-read \".*constants.*\"")
 		return nil
 	}
 	query := cleanArgs[0]

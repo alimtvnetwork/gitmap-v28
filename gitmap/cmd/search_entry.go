@@ -9,6 +9,7 @@ import (
 	"github.com/pterm/pterm"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/searcher"
 )
 
@@ -16,7 +17,16 @@ func runSearch(args []string) error {
 	checkHelp("search", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("Usage: gitmap search <query> [--limit <n>]\n\nAlternative LLM Examples:\n  Get-ChildItem -Path . -Recurse -File | Select-String \"type SearchResult struct\"\n  Get-ChildItem -Path cmd -Filter *.go | Select-String \"func dispatch[A-Z]\"\n  cat cmd/root.go | Select-String \"func finishCommandAudit\" -Context 0,10")
+		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+		fmt.Println("  gitmap search <query> [--limit <n>]")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+		fmt.Println("  Fast indexed keyword and symbol search across repositories using SplitDB.")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+		fmt.Println("  gitmap search \"Resolve-Version\"")
+		fmt.Println("  gitmap search \"AppError\" --limit 10")
+		fmt.Println("  gitmap search \"type SearchResult struct\"")
 		return nil
 	}
 	query := cleanArgs[0]
@@ -46,7 +56,11 @@ func runSearch(args []string) error {
 func runReplaceRegex(args []string) error {
 	checkHelp("replace-regex", args)
 	if len(args) < 2 {
-		fmt.Println("Usage: gitmap replace-regex <regex> <replace>")
+		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+		fmt.Println("  gitmap replace-regex <regex> <replacement>")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+		fmt.Println("  gitmap replace-regex \"v6\\.\\d+\\.\\d+\" \"v6.155.6\"")
 		return nil
 	}
 	fmt.Println("replace-regex executed. (Requires file-writing engine implementation)")
@@ -57,7 +71,15 @@ func runRepoSearch(args []string) error {
 	checkHelp("repo-search", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("Usage: gitmap repo-search <query> [--limit <n>]")
+		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+		fmt.Println("  gitmap repo-search <query> [--limit <n>]")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+		fmt.Println("  Search indexed repositories by keyword with structured metadata.")
+		fmt.Println()
+		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+		fmt.Println("  gitmap repo-search \"pipeline\"")
+		fmt.Println("  gitmap repo-search \"constants\" --limit 5")
 		return nil
 	}
 	query := cleanArgs[0]
