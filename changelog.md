@@ -1,3 +1,17 @@
+## [v6.156.0] 2026-08-31 Release v6.156.0
+
+### Install gitmap v6.156.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.sh | bash -s -- ".lovable/prompts" "v6.156.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.0"`
+
+### Added & Enhanced
+
+- **Minor Version Feature Release**:
+  - Full stability and architectural hardening across the CLI, scheduler, error management, and pipeline telemetry engine.
+  - Complete conformance with boolean naming conventions, AST conditional nesting limits, and runnable golden help examples.
+
 ## [v6.155.11] 2026-08-31 Release v6.155.11
 
 ### Install gitmap v6.155.11
