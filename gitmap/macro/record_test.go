@@ -2,6 +2,7 @@ package macro
 
 import (
 	"bufio"
+	"os"
 	"strings"
 	"testing"
 )
@@ -85,28 +86,47 @@ func TestHandleSessionCommand(t *testing.T) {
 	m := &Macro{Name: "session-test"}
 	var redoStack []MacroStep
 	reader := bufio.NewReader(strings.NewReader(""))
+	currentDir, _ := os.Getwd()
 
 	// Test stop
-	isHandled, shouldExit, shouldSave := handleSessionCommand("stop", m, &redoStack, reader)
+	isHandled, shouldExit, shouldSave := handleSessionCommand("stop", m, &redoStack, reader, currentDir)
 	if !isHandled || !shouldExit || !shouldSave {
 		t.Errorf("handleSessionCommand('stop') unexpected result: (%v, %v, %v)", isHandled, shouldExit, shouldSave)
 	}
 
 	// Test cancel
-	isHandled, shouldExit, shouldSave = handleSessionCommand("cancel", m, &redoStack, reader)
+	isHandled, shouldExit, shouldSave = handleSessionCommand("cancel", m, &redoStack, reader, currentDir)
 	if !isHandled || !shouldExit || shouldSave {
 		t.Errorf("handleSessionCommand('cancel') unexpected result: (%v, %v, %v)", isHandled, shouldExit, shouldSave)
 	}
 
 	// Test help
-	isHandled, shouldExit, _ = handleSessionCommand("help", m, &redoStack, reader)
+	isHandled, shouldExit, _ = handleSessionCommand("help", m, &redoStack, reader, currentDir)
 	if !isHandled || shouldExit {
 		t.Errorf("handleSessionCommand('help') unexpected result: (%v, %v)", isHandled, shouldExit)
 	}
 
 	// Test non-command
-	isHandled, _, _ = handleSessionCommand("git status", m, &redoStack, reader)
+	isHandled, _, _ = handleSessionCommand("git status", m, &redoStack, reader, currentDir)
 	if isHandled {
 		t.Errorf("handleSessionCommand('git status') should not be handled as session command")
+	}
+}
+
+func TestDirTracker_ProcessCd(t *testing.T) {
+	tmpDir := t.TempDir()
+	dt := NewDirTracker(tmpDir)
+
+	// Valid sub directory
+	subDir := t.TempDir()
+	isChanged := dt.ProcessCd("cd " + subDir)
+	if !isChanged || dt.CurrentDir != subDir {
+		t.Fatalf("expected currentDir %s, got %s", subDir, dt.CurrentDir)
+	}
+
+	// cd - to go back
+	isSwapped := dt.ProcessCd("cd -")
+	if !isSwapped || dt.CurrentDir != tmpDir {
+		t.Fatalf("expected currentDir %s after cd -, got %s", tmpDir, dt.CurrentDir)
 	}
 }

@@ -1,3 +1,20 @@
+## [v6.156.2] 2026-08-31 Release v6.156.2
+
+### Install gitmap v6.156.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.sh | bash -s -- ".lovable/prompts" "v6.156.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.2"`
+
+### Added & Enhanced
+
+- **Top-Level Working Directory & Navigation Display**:
+  - Displays the active working directory on the top level above each prompt (`┌─ 📁 <path>`) with box-drawing styling and vivid cyan accents.
+  - Live feedback banner on directory changes (`➜ 📁 Directory: <path>`) with support for `cd -` previous directory swapping.
+- **Enhanced Terminal Coloring & Badges**:
+  - Live execution duration badge (`✔ Recorded step N (0.1s)`).
+  - Multi-colored session commands in header and help menu (`stop`, `cancel`, `undo`, `redo`, `list`, `help`).
+
 ## [v6.156.1] 2026-08-31 Release v6.156.1
 
 ### Install gitmap v6.156.1
