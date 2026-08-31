@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/downloaderconfig"
@@ -79,7 +80,7 @@ func isSeedBannerSuppressed() bool {
 		return true
 	}
 	for _, arg := range os.Args[1:] {
-		if arg == constants.FlagNoBanner {
+		if arg == constants.FlagNoBanner || arg == "--json" || strings.HasSuffix(arg, "-json") {
 			return true
 		}
 		if arg == "version" || arg == "--version" || arg == "-v" {
