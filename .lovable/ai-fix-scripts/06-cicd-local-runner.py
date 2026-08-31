@@ -84,6 +84,7 @@ def main():
             ("Legacy Refs Check", None, "python .github/scripts/check-legacy-refs.py", ROOT_DIR),
             ("Bare Stderr Check", None, "python .github/scripts/check-bare-stderr-err.py", ROOT_DIR),
             ("Cmd Naming Check", None, "python .github/scripts/check-cmd-naming.py gitmap/cmd", ROOT_DIR),
+            ("Go Format Check (gofmt)", None, "python .github/scripts/go-format-check.py", ROOT_DIR),
         ],
         # Stage 2: Constants & layout checks (parallel)
         [

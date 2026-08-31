@@ -1,3 +1,16 @@
+## [v6.155.1] 2026-08-31 Release v6.155.1
+
+### Install gitmap v6.155.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.sh | bash -s -- ".lovable/prompts" "v6.155.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.1"`
+
+### Fixed
+
+- Fixed `gofmt` compliance in `gitmap/cmd/folder/folder.go` and `gitmap/cmd/sequence_cmd.go`.
+- Added `go-format-check.py` to local CI/CD runner `06-cicd-local-runner.py` to prevent formatting drift.
+
 ## [v6.155.0] 2026-08-31 Release v6.155.0
 
 ### Install gitmap v6.155.0
