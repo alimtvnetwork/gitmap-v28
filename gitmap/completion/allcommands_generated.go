@@ -313,6 +313,8 @@ var generatedCommands = []string{
 	"self-install",
 	"self-uninstall",
 	"seo-write",
+	"seq",
+	"sequence",
 	"serve",
 	"servers ls",
 	"servers-clients",

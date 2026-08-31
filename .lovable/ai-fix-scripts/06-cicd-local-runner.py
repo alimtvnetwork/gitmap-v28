@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Auto-generated CI/CD local runner with concurrent worker pool and log aggregation.
 Do not edit manually. Re-generate by running:
-python .lovable/ai-fix-scripts/03-cicd-local-runner.py --rebuild
+python .lovable/ai-fix-scripts/06-cicd-local-runner.py --rebuild
 """
 import concurrent.futures
 import os
@@ -77,7 +77,7 @@ def run_generate_drift_check():
 
 
 def main():
-    print("=== CI/CD Local Runner (03-cicd-local-runner.py) ===")
+    print("=== CI/CD Local Runner (06-cicd-local-runner.py) ===")
     stages = [
         # Stage 1: Static policy checks (parallel)
         [
