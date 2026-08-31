@@ -1,3 +1,20 @@
+## [v6.155.3] 2026-08-31 Release v6.155.3
+
+### Install gitmap v6.155.3
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.sh | bash -s -- ".lovable/prompts" "v6.155.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.3"`
+
+### Added
+
+- Added CI/CD pipeline telemetry and file search command suite to `llm.md` and embedded `gitmap llm` instructions for autonomous AI agents.
+- Added `buildPipelineGroup` and `buildSearchFindGroup` to `gitmap llm-docs` generator.
+
+### Fixed
+
+- Fixed `gofmt` compliance in `gitmap/cmd/llmdocsgroups.go`.
+
 ## [v6.155.2] 2026-08-31 Release v6.155.2
 
 ### Install gitmap v6.155.2
