@@ -11,6 +11,8 @@ import (
 type PipelineStatusPayload struct {
 	IsRunning        bool   `json:"isRunning"`
 	EtaSeconds       int    `json:"etaSeconds"`
+	SleepSeconds     int    `json:"sleepSeconds,omitempty"`
+	NextAiCommand    string `json:"nextAiCommand,omitempty"`
 	LastTagRelease   string `json:"lastTagRelease"`
 	PendingPipelines int    `json:"pendingPipelines"`
 	PendingTasks     int    `json:"pendingTasks"`
@@ -91,25 +93,28 @@ func runPipeline(args []string) error {
 func printPipelineHelp() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline [command] [flags]")
+	fmt.Println("  gitmap pipeline-ai [status|eta] [-t <seconds>] [--json]")
 	fmt.Println("  gitmap pl [command] [flags]")
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Commands:" + constants.ColorReset)
-	fmt.Println("  status      Check live CI/CD pipeline status, ETA, and pending PRs")
-	fmt.Println("  waittime    Output remaining ETA seconds for active pipeline (alias: eta)")
-	fmt.Println("  eta         Output remaining ETA seconds for active pipeline")
-	fmt.Println("  error-logs  Display failure logs or wait time ETA")
-	fmt.Println("  logs        Display all workflow logs in terminal")
-	fmt.Println("  help        Show this help documentation")
+	fmt.Println("  status                 Check live CI/CD pipeline status, ETA, and pending PRs")
+	fmt.Println("  waittime               Output remaining ETA seconds for active pipeline (alias: eta)")
+	fmt.Println("  eta                    Output remaining ETA seconds for active pipeline")
+	fmt.Println("  error-logs             Display failure logs or wait time ETA")
+	fmt.Println("  logs                   Display all workflow logs in terminal")
+	fmt.Println("  pipeline-ai status     Auto-delay (default: 20s or -t <seconds>) then query status")
+	fmt.Println("  help                   Show this pipeline command suite documentation")
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Flags:" + constants.ColorReset)
+	fmt.Println("  -t, --time <sec>        Delay in seconds before checking pipeline (minimum: 20s)")
 	fmt.Println("  --json                  Output data in structured JSON format")
 	fmt.Println("  --file <path>           Write error logs to specified file path")
 	fmt.Println("  --tempfile <filename>   Write error logs to .lovable/temp/<filename>")
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline status")
-	fmt.Println("  gitmap pipeline status --json")
-	fmt.Println("  gitmap pipeline waittime")
+	fmt.Println("  gitmap pipeline-ai status")
+	fmt.Println("  gitmap pipeline-ai status -t 30")
+	fmt.Println("  gitmap pipeline-ai status --json")
 	fmt.Println("  gitmap pipeline error-logs --json")
-	fmt.Println("  gitmap pipeline error-logs --json --tempfile ci-failure.json")
 }

@@ -2,7 +2,9 @@
 import os, subprocess, sys, tempfile, time
 
 def run_cmd(bin_path: str, args: list, cwd: str = None):
-    res = subprocess.run([bin_path] + args, cwd=cwd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    env = os.environ.copy()
+    env['GITMAP_SKIP_DELAY'] = '1'
+    res = subprocess.run([bin_path] + args, cwd=cwd, env=env, capture_output=True, text=True, encoding='utf-8', errors='replace')
     return res.returncode, res.stdout, res.stderr
 
 def main():
@@ -56,6 +58,11 @@ def main():
         (['doctor'], [0, 1], 'gitmap doctor', 'doctor command'),
         (['pipeline', 'status', '--json'], [0], 'isRunning', 'pipeline status --json'),
         (['pipeline', 'eta'], [0], '', 'pipeline eta'),
+        (['pipeline-ai', '--help'], [0], 'Usage', 'pipeline-ai --help'),
+        (['pipeline-ai', 'status', '--json'], [0], 'isRunning', 'pipeline-ai status --json'),
+        (['pipeline-ai', 'status', '-t', '25', '--json'], [0], 'isRunning', 'pipeline-ai status with -t'),
+        (['pipeline-ai', 'eta', '--json'], [0], 'isRunning', 'pipeline-ai eta --json'),
+        (['pl-ai', 'status', '--json'], [0], 'isRunning', 'pl-ai alias'),
         (['eta'], [0], '', 'eta alias'),
         (['waittime'], [0], '', 'waittime alias'),
         (['pipeline', 'error-logs', '--help'], [0], '', 'pipeline error-logs --help'),
