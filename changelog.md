@@ -1,3 +1,15 @@
+## [v6.155.2] 2026-08-31 Release v6.155.2
+
+### Install gitmap v6.155.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.sh | bash -s -- ".lovable/prompts" "v6.155.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.2"`
+
+### Added
+
+- Added `gitmap pipeline eta` subcommand alias and `gitmap eta` top-level shortcut for CI/CD remaining wait time.
+
 ## [v6.155.1] 2026-08-31 Release v6.155.1
 
 ### Install gitmap v6.155.1
