@@ -858,10 +858,16 @@ jobs:
           $expectedUrl  = "https://github.com/alimtvnetwork/gitmap-v28/releases/download/$env:VERSION/$expectedName"
 
           $report = @{}
-          Get-Content $env:LOG | ForEach-Object {
+          $rawLog = Get-Content $env:LOG
+          $rawLog | ForEach-Object {
             if ($_ -match '^dryrun\.([^=]+)=(.*)$') {
               $report[$Matches[1]] = $Matches[2]
             }
+          }
+
+          if ($report.Count -eq 0) {
+            Write-Error "::error::No dryrun.* key-value pairs found in log:`n$($rawLog -join "`n")"
+            exit 1
           }
 
           $failed = $false

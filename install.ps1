@@ -414,10 +414,10 @@ function Stop-Strict([string]$detail) {
 # HTTP 200/301/302, $false otherwise. Includes retry with backoff
 # to accommodate CDN propagation delays immediately after release.
 function Test-AssetExists([string]$url) {
-    $maxAttempts = 4
+    $maxAttempts = 5
     for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         try {
-            $resp = Invoke-WebRequest -Uri $url -Method Head -TimeoutSec 10 `
+            $resp = Invoke-WebRequest -Uri $url -Method Head -TimeoutSec 15 `
                 -UseBasicParsing -ErrorAction Stop
             if ($resp.StatusCode -ge 200 -and $resp.StatusCode -lt 400) {
                 return $true
@@ -425,7 +425,7 @@ function Test-AssetExists([string]$url) {
         } catch {
             Write-Warning "[Test-AssetExists attempt $attempt/$maxAttempts] $_"
             if ($attempt -lt $maxAttempts) {
-                Start-Sleep -Seconds ($attempt * 2)
+                Start-Sleep -Seconds ($attempt * 3)
             }
         }
     }
