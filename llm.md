@@ -1,94 +1,150 @@
-# Gitmap LLM Specification
+# Gitmap LLM Specification & AI Agent Guidelines
 
-Gitmap is a powerful CLI designed for autonomous agents, LLMs, and developers to navigate, analyze, and modify codebases efficiently. 
+> Public Instruction URL: https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/llm.md
 
-## Capabilities
+Gitmap is a high-performance CLI designed for autonomous agents, LLMs, and developers to navigate, analyze, modify, and self-heal codebases efficiently.
 
-1. **Repository Discovery & Scanning**:
-   - `gitmap scan`: Automatically locate and index Git repositories.
-   - `gitmap rescan`: Refresh indexed local repositories.
+---
 
-2. **Repository Cloning & Synchronization**:
-   - `gitmap clone`, `gitmap clone-next`: Manage bulk cloning and directory migration.
+## 1. AI Agent Standard Operating Procedure (Execution Order)
 
-3. **Intelligent File Search & Discovery**:
-   - `gitmap find-files "<name>" -ext "<exts>"`: Find files matching exact filename.
-   - `gitmap find-files-any "<substring>" -ext "<exts>"`: Find files containing substring with extension filters.
-   - `gitmap find-files-startswith "<prefix>" -ext "<exts>"`: Find files by name prefix.
-   - `gitmap find-files-endswith "<suffix>" -ext "<exts>"`: Find files by name suffix.
-   - `gitmap find "<wildcard*>" -ext "<exts>"`: Universal glob search (`*ends`, `starts*`, `*contains*`).
-   - `gitmap list-files [pattern]`: List indexed files with optional wildcard filter.
-   - `gitmap search <query>`: Execute SplitDB indexed searches across repositories.
-   - `gitmap repo-search-json <query>` (alias `rsj`): Retrieve structured JSON search results.
+When an AI Coding Agent operates in a repository, it MUST follow this structured 5-phase lifecycle:
 
-4. **CI/CD Pipeline Telemetry & Error Recovery (For Autonomous Self-Healing)**:
-   - `gitmap pipeline status --json`: Live pipeline execution state, active workflow, ETA seconds, and pending PRs.
-   - `gitmap eta` (alias `gitmap pipeline eta`, `gitmap pipeline waittime`): Remaining wait time in seconds as an integer for timer scheduling.
-   - `gitmap pipeline error-logs --json --tempfile "ci-failure.json"` (alias `gitmap error-logs`): Directly extract failing step logs to temp file for 4-part RCA and automatic error recovery.
-   - `gitmap logs` (alias `gitmap pipeline logs`): Display full workflow run logs.
+```
+  ┌─────────────────────────┐
+  │ 1. Discovery & Context  │ ➔ find-files, find-files-any, search, list
+  └────────────┬────────────┘
+               ▼
+  ┌─────────────────────────┐
+  │ 2. Edit & Refactor      │ ➔ replace, replace-regex, code edits
+  └────────────┬────────────┘
+               ▼
+  ┌─────────────────────────┐
+  │ 3. Local Verification   │ ➔ go-format-check.py, go test, linting
+  └────────────┬────────────┘
+               ▼
+  ┌─────────────────────────┐
+  │ 4. Semantic Commit/Push │ ➔ commit-push-feature (cpf), commit-push-bug (cpb)
+  └────────────┬────────────┘
+               ▼
+  ┌─────────────────────────┐
+  │ 5. CI Telemetry & Loop  │ ➔ pipeline status --json, eta (sleep), error-logs
+  └─────────────────────────┘
+```
 
-5. **Regex & Replacement**:
-   - `gitmap replace <query> <replacement>`: Find and replace exact phrases.
-   - `gitmap replace-regex <regex> <replacement>`: Regex replacement with automatic history tracking.
-   - `gitmap replace history`: View replacement operations.
+---
 
-6. **Releases & Commits**:
-   - `gitmap release`: Automate semantic version bumping and changelog generation.
-   - `gitmap commit-in`: Perform robust, orchestrator-driven batch commits.
+## 2. Core Workflows with Concrete Examples
 
-## Instructions for LLMs & AI Agents
+### Workflow A: Autonomous CI/CD Self-Healing Loop
+When a remote pipeline fails or is running:
+1. **Check Live Status & ETA**:
+   ```bash
+   gitmap pipeline status --json
+   # Returns: {"status":"RUNNING","workflow":"Release","etaSeconds":75,"pendingPipelines":1}
+   ```
+2. **Schedule Non-Blocking Wait**:
+   ```bash
+   gitmap eta
+   # Returns bare integer (e.g. 75). Use this value to schedule timers without busy polling.
+   ```
+3. **Extract Diagnostic Failure Logs**:
+   ```bash
+   gitmap pipeline error-logs --json --tempfile "ci-failure.json"
+   # Extracts the exact failing step, stderr, and exit code directly into ci-failure.json.
+   ```
+4. **Fix Code & Push Semantic Fix**:
+   ```bash
+   python .github/scripts/go-format-check.py
+   gitmap commit-push-bug "fix(ci): fix gofmt formatting in cmd/root.go"
+   ```
 
-- Always prefer JSON output commands (`rsj`, `gitmap pipeline status --json`, `gitmap pipeline error-logs --json`) when parsing data programmatically.
-- After pushing commits or releasing tags, use `gitmap eta` or `gitmap pipeline status --json` to monitor CI/CD progress. Never poll in a busy loop; use the returned `etaSeconds` to schedule non-blocking sleep/timer intervals.
-- When CI/CD fails, use `gitmap pipeline error-logs --json --tempfile "ci-failure.json"` to dump the failed step's stdout/stderr directly into a workspace file for instant root cause analysis (RCA).
-- Avoid modifying the root SQLite DB manually; rely on the CLI commands.
-- Before running heavy regex operations across a large repo, use `gitmap search` or `gitmap find-files-any` to verify target files.
+---
 
-## Alternative Commands for AI (Instead of Raw Git)
+### Workflow B: Fast Code Search & File Discovery
+Instead of scanning entire directories or reading unnecessary files:
+- **Exact File Match**:
+  ```bash
+  gitmap find-files "constants.go" -ext "go"
+  gitmap ff "package.json"
+  ```
+- **Substring Match with Multi-Extension Filter**:
+  ```bash
+  gitmap find-files-any "runner" -ext "py, go"
+  gitmap ffa "pipeline" -ext "go, json"
+  ```
+- **Prefix and Suffix Match**:
+  ```bash
+  gitmap find-files-startswith "01-" -ext "md"
+  gitmap find-files-endswith "_test.go" -ext "go"
+  ```
+- **Glob / Wildcard Pattern Search**:
+  ```bash
+  gitmap find "*config*.json"
+  gitmap list-files "*pipeline*"
+  ```
+- **Fast Indexed Global Keyword Search**:
+  ```bash
+  gitmap search "Resolve-Version"
+  gitmap repo-search-json "error-logs"   # alias: rsj (returns structured JSON matches)
+  ```
 
-When checking repository status or logs, DO NOT use raw 'git status && git log -1'. Instead, use:
-- `gitmap status`: Checks dirty/clean status, ahead/behind, and stash for all tracked repos.
-- `gitmap history`: View a rich audit log of command executions.
-- `gitmap changelog`: See concise release notes and recent commits.
-- Or use the standard aliases configured by gitmap setup: `git st && git last`.
+---
 
-When checking CI/CD and deployment health, DO NOT guess or loop blind. Use:
-- `gitmap pipeline status`: Human-readable live workflow status and ETA.
-- `gitmap eta`: Bare integer ETA in seconds for timer scheduling.
-- `gitmap error-logs`: Diagnostic failure logs.
-- `gitmap logs`: Full workflow step trace.
+### Workflow C: Batch Refactoring with History & Rollback
+- **Exact String Replacement**:
+  ```bash
+  gitmap replace "oldEndpoint" "newEndpoint"
+  ```
+- **Regex Replacement with Audit Trail**:
+  ```bash
+  gitmap replace-regex "v6\.\d+\.\d+" "v6.155.5"
+  ```
+- **View Replacement History**:
+  ```bash
+  gitmap replace history
+  ```
 
-For committing and pushing, NEVER use raw 'git commit' and 'git push'. Use the semantic commit-push suite:
-- `gitmap commit-push-feature "<message>"` (alias `gitmap cpf`): Commit and push a feature.
-- `gitmap commit-push-bug "<message>"` (alias `gitmap cpb`): Commit and push a bug fix.
-- `gitmap commit-push-release "<message>"` (alias `gitmap cpr`): Commit and push a release chore.
-- `gitmap commit-push-pull "<message>"` (alias `gitmap pcp`): Pull latest, then commit and push.
-- `gitmap rm-git <last-4-digits>`: Drop a recent commit safely using rebase --onto.
+---
 
-## AI File Search Patterns
+### Workflow D: Workspace & Background Automation
+- **Antigravity Workspaces**:
+  ```bash
+  gitmap agy add /path/to/repo       # Add project to Antigravity workspaces
+  gitmap agy sync                     # Sync all agent configs
+  gitmap agy stats                    # View token and run stats
+  ```
+- **VS Code Project Manager**:
+  ```bash
+  gitmap vsc add /path/to/repo        # Register repository in VS Code Project Manager
+  gitmap vsc ls                       # List tracked workspaces
+  ```
+- **Background Scheduler & Daemons**:
+  ```bash
+  gitmap schedule add "nightly-sync" --interval "24h"
+  gitmap schedule status
+  ```
 
-When searching codebases, LLMs can use native gitmap commands OR standard terminal tools.
-Here are equivalent alternative command samples for LLM search operations:
+---
 
-- **Find files by name or extension**:
-  - `gitmap find-files "index.ts" -ext "ts, tsx"`
-  - `gitmap find-files-any "runner" -ext "py, go"`
-  - `gitmap find "*_test.go" -ext "go"`
-  - `gitmap list-files "*pipeline*"`
+## 3. Alternative Commands & Aliases Cheat Sheet (Instead of Raw Git)
 
-- **Find a specific struct definition**:
-  - `gitmap file-search . "type SearchResult struct"`
-  - `Get-ChildItem -Path gitmap -Recurse -File | Select-String "type SearchResult struct"`
+| Task | Standard Command | Fast Shortcut / Alias | Notes |
+| :--- | :--- | :--- | :--- |
+| **Pipeline Status** | `gitmap pipeline status --json` | `gitmap pipeline status` | Live execution state, ETA, run URL |
+| **Get Wait Time** | `gitmap pipeline waittime` | `gitmap eta` | Returns integer seconds for timer |
+| **Extract Error Logs**| `gitmap pipeline error-logs` | `gitmap error-logs` | Dumps failing CI step to file |
+| **Full CI Logs** | `gitmap pipeline logs` | `gitmap logs` | Displays complete CI run stdout/stderr |
+| **Find File (Exact)** | `gitmap find-files <name>` | `gitmap ff <name>` | Filters by name and -ext |
+| **Find File (Contains)**| `gitmap find-files-any <str>` | `gitmap ffa <str>` | Matches substring in filename |
+| **Find File (Prefix)**| `gitmap find-files-startswith` | `gitmap ffs <prefix>` | Matches prefix in filename |
+| **Find File (Suffix)**| `gitmap find-files-endswith` | `gitmap ffe <suffix>` | Matches suffix (e.g. _test.go) |
+| **Commit Feature** | `gitmap commit-push-feature` | `gitmap cpf "<msg>"` | Auto commits and pushes feature |
+| **Commit Bugfix** | `gitmap commit-push-bug` | `gitmap cpb "<msg>"` | Auto commits and pushes bug fix |
+| **Commit Release** | `gitmap commit-push-release` | `gitmap cpr "<msg>"` | Auto commits and pushes release chore |
+| **Pull & Push** | `gitmap pull-commit-push` | `gitmap pcp "<msg>"` | Pulls latest, commits, and pushes |
+| **Antigravity** | `gitmap antigravity` | `gitmap agy`, `gitmap ag` | Workspace & AI agent manager |
+| **VS Code PM** | `gitmap vscode` | `gitmap vsc` | VS Code Project Manager sync |
+| **Scheduler** | `gitmap schedule` | `gitmap sc` | Background task scheduler |
+| **Repo Status** | `gitmap status` | `gitmap st` | Shows dirty/ahead/behind across repos |
 
-- **Search functions with Regex context**:
-  - `gitmap file-search cmd/ "func dispatch[A-Z]" 0 10`
-  - `Get-ChildItem -Path gitmap/cmd -Filter *.go | Select-String "func dispatch[A-Z]"`
-
-- **Find specific function contexts**:
-  - `gitmap file-search cmd/root.go "func finishCommandAudit" 0 10`
-  - `cat gitmap/cmd/root.go | Select-String "func finishCommandAudit" -Context 0,10`
-
-- **Global Text/Keyword Search (Instead of ripgrep/rg)**:
-  - `gitmap search "CHANGELOG"`
-  - `gitmap search "CHANGELOG\.md" --case-sensitive`
-  *(Never use raw rg or grep when gitmap search utilizes the built-in Split DB index for much faster cross-repo lookups).*

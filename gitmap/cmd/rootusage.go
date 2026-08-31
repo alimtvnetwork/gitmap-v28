@@ -42,6 +42,7 @@ func printUsageHeader() {
 func printUsageCoreCategories() {
 	printSuperCategory("GET STARTED", func() {
 		printGroupScanning()
+		printGroupSearchFind()
 		printGroupNavigation()
 		printGroupEnvTools()
 		printGroupTemplates()
@@ -115,6 +116,7 @@ func printSuperCategory(title string, body func()) {
 	fmt.Println("  " + constants.ColorMagenta + "━━ " +
 		constants.ColorWhite + title + constants.ColorReset +
 		" " + constants.ColorMagenta + rule + constants.ColorReset)
+	fmt.Println()
 	body()
 }
 
@@ -160,7 +162,24 @@ func renderHeader(header string) {
 		return
 	}
 	fmt.Println()
-	fmt.Println(colorGroupHeader(header))
+	if strings.HasPrefix(header, "  ") {
+		fmt.Println(colorGroupHeader(header))
+	} else {
+		fmt.Println(colorGroupHeader("  " + header))
+	}
+	fmt.Println()
+}
+
+func renderFlagHeader(header string) {
+	if measuringHelp {
+		return
+	}
+	fmt.Println()
+	if strings.HasPrefix(header, "  ") {
+		fmt.Println(colorGroupHeader(header))
+	} else {
+		fmt.Println(colorGroupHeader("  " + header))
+	}
 	fmt.Println()
 }
 

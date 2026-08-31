@@ -66,10 +66,17 @@ func allHelpRows() []helpRow {
 		constants.HelpAddLFSInstall, constants.HelpTemplatesInit,
 		constants.HelpTemplatesList, constants.HelpTemplatesShow,
 		constants.HelpTemplatesDiff, constants.HelpSync, constants.HelpCommons)
+	addGroup(&rows, constants.HelpGroupSearchFind,
+		constants.HelpFindFiles, constants.HelpFindFilesAny, constants.HelpFindFilesStart,
+		constants.HelpFindFilesEnd, constants.HelpFind, constants.HelpListFiles)
+	addGroup(&rows, constants.HelpGroupInstallers,
+		constants.HelpInstall, constants.HelpUninstall, constants.HelpInstaller, constants.HelpMacro, constants.HelpSetup)
+	addGroup(&rows, constants.HelpGroupIntegrations,
+		constants.HelpVSCode, constants.HelpAgy, constants.HelpSchedule, constants.HelpPipeline, constants.HelpUI)
 	addGroup(&rows, constants.HelpGroupCluster,
 		constants.HelpServersClients, constants.HelpClients, constants.HelpCluster, constants.HelpServe)
 	addGroup(&rows, constants.HelpGroupUtilities,
-		constants.HelpSetup, constants.HelpDoctor, constants.HelpUpdate,
+		constants.HelpDoctor, constants.HelpUpdate,
 		constants.HelpUpdateCleanup, constants.HelpVersion, constants.HelpCompletion,
 		constants.HelpInteractive, constants.HelpDocs, constants.HelpHelpDash,
 		constants.HelpGoMod, constants.HelpSEOWrite, constants.HelpLLMDocs,
