@@ -74,6 +74,8 @@ func buildCoreCommandGroups() []llmCmdGroup {
 // buildExtendedCommandGroups returns the extended utility command groups.
 func buildExtendedCommandGroups() []llmCmdGroup {
 	return []llmCmdGroup{
+		buildSearchFindGroup(),
+		buildPipelineGroup(),
 		buildAmendGroup(),
 		buildProjectGroup(),
 		buildSSHGroup(),

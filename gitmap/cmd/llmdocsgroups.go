@@ -222,3 +222,32 @@ func buildVisibilityGroup() llmCmdGroup {
 		},
 	}
 }
+
+// buildSearchFindGroup returns search and file discovery commands.
+func buildSearchFindGroup() llmCmdGroup {
+	return llmCmdGroup{
+		title: "Search & File Discovery",
+		commands: []llmCmdEntry{
+			{"find-files", "ff", "Find files matching exact filename with optional -ext filter", "gitmap find-files \"main.go\" -ext \"go\""},
+			{"find-files-any", "ffa", "Find files containing substring with optional -ext filter", "gitmap find-files-any \"runner\" -ext \"py, go\""},
+			{"find-files-startswith", "ffs", "Find files by prefix with optional -ext filter", "gitmap find-files-startswith \"01\" -ext \"md, py\""},
+			{"find-files-endswith", "ffe", "Find files by suffix with optional -ext filter", "gitmap find-files-endswith \"_test.go\" -ext \"go\""},
+			{"find", "f", "Universal glob/wildcard search with extension filter", "gitmap find \"*_test.go\" -ext \"go\""},
+			{"list-files", "lf", "List indexed files matching optional wildcard", "gitmap list-files \"*sequence*\""},
+		},
+	}
+}
+
+// buildPipelineGroup returns the pipeline and CI/CD commands group.
+func buildPipelineGroup() llmCmdGroup {
+	return llmCmdGroup{
+		title: "CI/CD Pipeline & Diagnostics",
+		commands: []llmCmdEntry{
+			{"pipeline status", "pl status", "Check live CI/CD pipeline state, active workflow, ETA, and pending PRs", "gitmap pipeline status --json"},
+			{"pipeline eta", "pipeline waittime, eta", "Output remaining estimated CI/CD wait time in seconds", "gitmap eta"},
+			{"pipeline error-logs", "error-logs, err", "Extract failure step logs or remaining wait time into JSON/temp file", "gitmap pipeline error-logs --json --tempfile ci-err.json"},
+			{"pipeline logs", "logs, l", "Display full workflow step logs for current pipeline run", "gitmap logs"},
+		},
+	}
+}
+
