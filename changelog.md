@@ -1,3 +1,20 @@
+## [v6.155.10] 2026-08-31 Release v6.155.10
+
+### Install gitmap v6.155.10
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.sh | bash -s -- ".lovable/prompts" "v6.155.10"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.10"`
+
+### Added & Enhanced
+
+- **Autonomous Pipeline-AI Command Suite (`gitmap pipeline-ai`)**:
+  - Implemented `gitmap pipeline-ai status` (and aliases `pl-ai`, `plai`) with automatic 20s default delay and custom delay `-t <seconds>` (minimum 20s).
+  - Displays delay notifications in terminal and stderr in JSON mode.
+  - Automatically recommends the next AI execution command (`gitmap pipeline-ai status -t <etaSeconds>`) embedded directly in both the human-readable UI and structured JSON payload (`nextAiCommand`).
+  - Added dedicated documentation and help text in `gitmap/helptext/pipeline-ai.md` and updated LLM specs (`llm.md`, `gitmap/llm.md`, `gitmap/cmd/llm/llm.go`).
+  - Added full end-to-end smoke test coverage (`82/82` tests passing).
+
 ## [v6.155.9] 2026-08-31 Release v6.155.9
 
 ### Install gitmap v6.155.9

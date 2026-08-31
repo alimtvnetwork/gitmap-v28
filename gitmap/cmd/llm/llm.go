@@ -60,30 +60,28 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
 
 When a remote pipeline is triggered or encounters an error, the AI Agent must follow this non-blocking telemetry loop:
 
-1. **Check Live Pipeline Status & ETA**:
+1. **Check Live Pipeline Status & Next AI Action (with Auto-Delay)**:
    ` + "```bash" + `
-   gitmap pipeline status --json
+   gitmap pipeline-ai status --json
    ` + "```" + `
    *Output:*
    ` + "```json" + `
    {
-     "status": "RUNNING",
-     "workflow": "Release",
+     "isRunning": true,
+     "activeWorkflow": "Release",
      "etaSeconds": 75,
+     "sleepSeconds": 20,
+     "nextAiCommand": "gitmap pipeline-ai status -t 75",
      "pendingPipelines": 1,
-     "runUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/12345"
+     "lastRunUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/12345"
    }
    ` + "```" + `
 
-2. **Schedule Non-Blocking Wait Timer**:
+2. **Wait for Recommended ETA and Query Next Check**:
    ` + "```bash" + `
-   gitmap eta
+   gitmap pipeline-ai status -t 75 --json
    ` + "```" + `
-   *Output:*
-   ` + "```" + `
-   75
-   ` + "```" + `
-   *(Use the returned integer to schedule a non-blocking timer in your harness; NEVER busy-poll).*
+   *(Automatically delays for the specified duration, then queries status and returns the next suggested command).*
 
 3. **Extract Failing CI Diagnostic Error Logs to File**:
    ` + "```bash" + `
