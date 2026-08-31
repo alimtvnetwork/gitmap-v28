@@ -1,3 +1,22 @@
+## [v6.155.0] 2026-08-31 Release v6.155.0
+
+### Install gitmap v6.155.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.sh | bash -s -- ".lovable/prompts" "v6.155.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.0"`
+
+### Added
+
+- Added `gitmap find-files` exact filename search with optional `-ext` extension filtering.
+- Added `gitmap find-files-any` substring/contains filename search with optional `-ext` extension filtering.
+- Added `gitmap find-files-startswith` prefix filename search with optional `-ext` extension filtering.
+- Added `gitmap find-files-endswith` suffix filename search with optional `-ext` extension filtering.
+- Added wildcard glob matching (`*ends`, `starts*`, `*contains*`) and `-ext` filtering to `gitmap find` and `gitmap list-files`.
+- Added embedded markdown terminal help pages for `find-files`, `find-files-any`, `find-files-startswith`, `find-files-endswith`, `list-files`, and updated `find`.
+- Added Web UI command documentation registry for Search & File Discovery (`searchfind`) in `src/data/commands.ts`.
+- Added unbuffered `flush=True` output streaming to CI/CD local runner `06-cicd-local-runner.py`.
+
 ## [v6.154.0] 2026-08-31 Release v6.154.0
 
 ### Install gitmap v6.154.0
