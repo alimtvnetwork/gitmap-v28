@@ -1,3 +1,20 @@
+## [v6.155.11] 2026-08-31 Release v6.155.11
+
+### Install gitmap v6.155.11
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.sh | bash -s -- ".lovable/prompts" "v6.155.11"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.11"`
+
+### Fixed & Enhanced
+
+- **Flattened Nested Conditionals Across Core Packages**:
+  - Refactored `captureStackTrace` in `gitmap/apperror/apperror.go` to delegate stack frame appending to `appendStackFrame`, eliminating nested if blocks (depth >= 2).
+  - Flattened `parsePipelineAIDelay` in `gitmap/cmd/pipeline_ai.go` by extracting `extractDelaySeconds` helper and using guard checks.
+  - Flattened `sumCompletedRunDurations` in `gitmap/cmd/pipeline_status.go` with early continue guard clauses.
+- **Help Text Golden Assertion Compliance**:
+  - Standardized the Examples section heading across `gitmap/helptext/llm.md`, `llm.md`, `gitmap/llm.md`, and `gitmap/cmd/llm/llm.go` to `## Examples (Step-by-Step AI Workflows)` to satisfy `TestEveryHelpFileHasExamples`.
+
 ## [v6.155.10] 2026-08-31 Release v6.155.10
 
 ### Install gitmap v6.155.10
@@ -47,7 +64,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
   - Added full nil pointer safety in `(e *AppError) Unwrap()` and `(e *AppError) Error()`.
 
 - **Comprehensive End-to-End CLI Smoke Test Suite**:
-  - Implemented `.github/scripts/e2e-cli-smoke.py` covering 77+ distinct commands, aliases, subcommands, zero-argument help dialogues, and ad-hoc queries across the entire CLI surface.
+  - Implemented `.github/scripts/e2e-cli-smoke.py` covering 77+ distinct commands, aliases, subcommands, zero-argument help dialogs, and ad-hoc queries across the entire CLI surface.
   - Integrated E2E CLI testing into `smoke-installer.py` for automated validation on both Linux and Windows CI runners and release pipelines.
   - Fixed aliases and routing for `--help`, `-h`, `sc`, `replace history`, and Antigravity workspace commands (`agy`, `ag`, `antigravity`).
 

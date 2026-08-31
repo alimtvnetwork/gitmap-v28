@@ -164,12 +164,14 @@ func calculateAverageDuration(runs []ghRunItem, workflowName string) int {
 func sumCompletedRunDurations(runs []ghRunItem, workflowName string) (int, int) {
 	totalDuration, completedCount := 0, 0
 	for _, r := range runs {
-		if r.Status == "completed" && (r.Name == workflowName || workflowName == "") {
-			dur := computeRunDuration(r.CreatedAt, r.UpdatedAt)
-			if dur >= 10 {
-				totalDuration += dur
-				completedCount++
-			}
+		isMatchingCompleted := r.Status == "completed" && (r.Name == workflowName || workflowName == "")
+		if !isMatchingCompleted {
+			continue
+		}
+		dur := computeRunDuration(r.CreatedAt, r.UpdatedAt)
+		if dur >= 10 {
+			totalDuration += dur
+			completedCount++
 		}
 	}
 	return totalDuration, completedCount

@@ -34,10 +34,10 @@ func parsePipelineAIDelay(args []string) (int, []string) {
 	delaySeconds := 20
 	subArgs := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
-		if isPipelineAIDelayFlag(args[i]) && i+1 < len(args) {
-			if v, err := strconv.Atoi(args[i+1]); err == nil && v >= 0 {
-				delaySeconds = v
-			}
+		isDelayFlag := isPipelineAIDelayFlag(args[i])
+		hasNextArg := i+1 < len(args)
+		if isDelayFlag && hasNextArg {
+			delaySeconds = extractDelaySeconds(args[i+1], delaySeconds)
 			i++
 			continue
 		}
@@ -47,6 +47,14 @@ func parsePipelineAIDelay(args []string) (int, []string) {
 		delaySeconds = 20
 	}
 	return delaySeconds, subArgs
+}
+
+func extractDelaySeconds(argVal string, defaultDelay int) int {
+	v, err := strconv.Atoi(argVal)
+	if err == nil && v >= 0 {
+		return v
+	}
+	return defaultDelay
 }
 
 func isPipelineAIDelayFlag(arg string) bool {

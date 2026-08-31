@@ -26,3 +26,4 @@
 - [35-exhaustive-switch-diff.md](./35-exhaustive-switch-diff.md): Fix exhaustive switch linter findings by providing complete case coverage across all enum switches.
 - [36-misspell-changed-diff.md](./36-misspell-changed-diff.md): Fix misspell findings across repo files and standardize on US English.
 - [37-installer-smoke-release-diff.md](./37-installer-smoke-release-diff.md): Convert smoke installer to Python 3 cross-platform runner with retry propagation logic and enforce strict relative Git paths.
+- [38-nested-if-and-help-examples.md](./38-nested-if-and-help-examples.md): Flatten nested if statements in apperror.go, pipeline_ai.go, and pipeline_status.go, and standardize help Examples section heading.

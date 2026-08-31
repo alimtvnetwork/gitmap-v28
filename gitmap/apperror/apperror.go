@@ -110,21 +110,23 @@ func captureStackTrace(skip int) string {
 	var sb strings.Builder
 	for {
 		frame, more := frames.Next()
-		if strings.Contains(frame.Function, "runtime.") && !strings.Contains(frame.Function, "gitmap") {
-			if !more {
-				break
-			}
-			continue
-		}
-		shortFile := filepath.Base(frame.File)
-		parentDir := filepath.Base(filepath.Dir(frame.File))
-		fileLoc := fmt.Sprintf("%s/%s:%d", parentDir, shortFile, frame.Line)
-		sb.WriteString(fmt.Sprintf("\n    at %s (%s)", frame.Function, fileLoc))
+		appendStackFrame(&sb, frame)
 		if !more {
 			break
 		}
 	}
 	return sb.String()
+}
+
+func appendStackFrame(sb *strings.Builder, frame runtime.Frame) {
+	isRuntimeInternal := strings.Contains(frame.Function, "runtime.") && !strings.Contains(frame.Function, "gitmap")
+	if isRuntimeInternal {
+		return
+	}
+	shortFile := filepath.Base(frame.File)
+	parentDir := filepath.Base(filepath.Dir(frame.File))
+	fileLoc := fmt.Sprintf("%s/%s:%d", parentDir, shortFile, frame.Line)
+	sb.WriteString(fmt.Sprintf("\n    at %s (%s)", frame.Function, fileLoc))
 }
 
 // New creates a new AppError without an underlying cause.

@@ -25,6 +25,7 @@ GITMAP_DIR = os.path.join(ROOT_DIR, "gitmap")
 os.environ.setdefault("CI", "true")
 os.environ.setdefault("NODE_ENV", "test")
 os.environ.setdefault("GOTOOLCHAIN", "local")
+os.environ.setdefault("GITMAP_SKIP_DELAY", "1")
 
 
 def run_cmd(name, cmd_str, cwd):
