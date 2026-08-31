@@ -40,10 +40,14 @@ func TestPipelineCommandInvocations(t *testing.T) {
 		t.Errorf("expected runPipeline status --json to succeed, got %v", err)
 	}
 
-	// 3. gitmap pipeline waittime
+	// 3. gitmap pipeline waittime & eta
 	err = runPipeline([]string{"waittime"})
 	if err != nil {
 		t.Errorf("expected runPipeline waittime to succeed, got %v", err)
+	}
+	err = runPipeline([]string{"eta"})
+	if err != nil {
+		t.Errorf("expected runPipeline eta to succeed, got %v", err)
 	}
 
 	// 4. gitmap pipeline error-logs
