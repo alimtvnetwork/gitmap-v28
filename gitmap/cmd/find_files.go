@@ -59,7 +59,11 @@ func runListFiles(args []string) error {
 func executeFindFiles(args []string, defaultKind MatchKind) error {
 	opts := parseFindFilesOptions(args, defaultKind)
 	if opts.Query == "" && defaultKind != MatchWildcard {
-		fmt.Println("Usage: gitmap find-files <query> [-ext <exts>] [--limit <n>] [--json]")
+		showFindFilesHelp(defaultKind)
+		return nil
+	}
+	if opts.Query == "" && defaultKind == MatchWildcard {
+		showFindFilesHelp(defaultKind)
 		return nil
 	}
 
@@ -159,4 +163,101 @@ func outputFindResults(matches []string, isJson bool) error {
 	}
 	fmt.Println(string(b))
 	return nil
+}
+
+func showFindFilesHelp(kind MatchKind) {
+	switch kind {
+	case MatchExact:
+		printFindFilesExactHelp()
+	case MatchContains:
+		printFindFilesAnyHelp()
+	case MatchStartsWith:
+		printFindFilesStartHelp()
+	case MatchEndsWith:
+		printFindFilesEndHelp()
+	case MatchWildcard:
+		printFindWildcardHelp()
+	}
+}
+
+func printFindFilesExactHelp() {
+	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+	fmt.Println("  gitmap find-files <filename> [-ext <exts>] [--limit <n>] [--json] [--dir <path>]")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+	fmt.Println("  Find files matching exact filename with optional extension filtering.")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Aliases:" + constants.ColorReset)
+	fmt.Println("  gitmap ff <filename>")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println("  gitmap find-files \"constants.go\"")
+	fmt.Println("  gitmap find-files \"package.json\" --json")
+	fmt.Println("  gitmap find-files \"index\" -ext \"ts,tsx\" --limit 10")
+	fmt.Println("  gitmap ff \"README.md\"")
+}
+
+func printFindFilesAnyHelp() {
+	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+	fmt.Println("  gitmap find-files-any <substring> [-ext <exts>] [--limit <n>] [--json] [--dir <path>]")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+	fmt.Println("  Find files containing substring in their name with optional extension filtering.")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Aliases:" + constants.ColorReset)
+	fmt.Println("  gitmap ffa <substring>")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println("  gitmap find-files-any \"runner\" -ext \"py,go\"")
+	fmt.Println("  gitmap find-files-any \"config\" --json")
+	fmt.Println("  gitmap ffa \"pipeline\" -ext \"go\"")
+}
+
+func printFindFilesStartHelp() {
+	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+	fmt.Println("  gitmap find-files-startswith <prefix> [-ext <exts>] [--limit <n>] [--json] [--dir <path>]")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+	fmt.Println("  Find files whose name starts with the given prefix.")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Aliases:" + constants.ColorReset)
+	fmt.Println("  gitmap ffs <prefix>")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println("  gitmap find-files-startswith \"01-\" -ext \"md\"")
+	fmt.Println("  gitmap find-files-startswith \"test_\" -ext \"py\"")
+	fmt.Println("  gitmap ffs \"build\" --json")
+}
+
+func printFindFilesEndHelp() {
+	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+	fmt.Println("  gitmap find-files-endswith <suffix> [-ext <exts>] [--limit <n>] [--json] [--dir <path>]")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+	fmt.Println("  Find files whose name ends with the given suffix.")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Aliases:" + constants.ColorReset)
+	fmt.Println("  gitmap ffe <suffix>")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println("  gitmap find-files-endswith \"_test.go\" -ext \"go\"")
+	fmt.Println("  gitmap find-files-endswith \".spec.ts\"")
+	fmt.Println("  gitmap ffe \"_test\" -ext \"py,go\"")
+}
+
+func printFindWildcardHelp() {
+	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+	fmt.Println("  gitmap find <wildcard-pattern> [-ext <exts>] [--limit <n>] [--json] [--dir <path>]")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+	fmt.Println("  Universal wildcard and glob file search (*pattern, pattern*, *pattern*).")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Aliases:" + constants.ColorReset)
+	fmt.Println("  gitmap f <wildcard-pattern>")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println("  gitmap find \"*config*.json\"")
+	fmt.Println("  gitmap find \"*_test.go\" -ext \"go\"")
+	fmt.Println("  gitmap f \"*docker*\" --limit 5")
+	fmt.Println("  gitmap f \"*.yaml\" --json")
 }
