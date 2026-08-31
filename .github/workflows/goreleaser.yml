@@ -7,9 +7,6 @@ name: GoReleaser
 # Manual:  workflow_dispatch lets you dry-run against the current ref.
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
   workflow_dispatch:
     inputs:
       dry_run:
