@@ -36,7 +36,11 @@ jobs:
       - name: Resolve version
         id: version
         run: |
-          VERSION=$(jq -r .version version.json)
+          VERSION=$(jq -r 'if .Version != null then .Version elif .version != null then .version else empty end' version.json)
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::Could not resolve version from version.json"
+            exit 1
+          fi
           if [[ "$VERSION" != v* ]]; then
             VERSION="v$VERSION"
           fi
@@ -799,7 +803,7 @@ jobs:
 
       - name: Wait briefly for release assets to propagate
         shell: pwsh
-        run: Start-Sleep -Seconds 15
+        run: Start-Sleep -Seconds 25
 
       - name: Run installer smoke (release mode)
         env:
@@ -826,7 +830,7 @@ jobs:
 
       - name: Wait briefly for release assets to propagate
         shell: pwsh
-        run: Start-Sleep -Seconds 15
+        run: Start-Sleep -Seconds 25
 
       - name: Run install.ps1 -DryRun and capture report
         id: dryrun
