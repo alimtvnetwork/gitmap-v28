@@ -34,14 +34,19 @@ func parseExecOptions(flagArgs []string) macro.ExecOptions {
 			opts.FilePath = flagArgs[i+1]
 			i++
 		}
-		if strings.HasPrefix(arg, "--file=") {
-			opts.FilePath = strings.TrimPrefix(arg, "--file=")
-		}
-		if strings.HasPrefix(arg, "--out=") {
-			opts.FilePath = strings.TrimPrefix(arg, "--out=")
-		}
+		checkInlineFileArg(arg, &opts)
 	}
 	return opts
+}
+
+func checkInlineFileArg(arg string, opts *macro.ExecOptions) {
+	prefixes := []string{"--file=", "--filepath=", "--out=", "--output="}
+	for _, p := range prefixes {
+		if strings.HasPrefix(strings.ToLower(arg), p) {
+			opts.FilePath = arg[len(p):]
+			return
+		}
+	}
 }
 
 func extractMacroNameAndFlags(args []string) (string, []string) {
@@ -67,7 +72,8 @@ func extractMacroNameAndFlags(args []string) (string, []string) {
 }
 
 func isFileFlagWithArg(arg string) bool {
-	return arg == "--file" || arg == "--out" || arg == "-o" || arg == "-f"
+	lower := strings.ToLower(arg)
+	return lower == "--file" || lower == "--filepath" || lower == "--out" || lower == "--output" || lower == "-o" || lower == "-f"
 }
 
 func executeMacroByName(macroName string, opts macro.ExecOptions) {

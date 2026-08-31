@@ -1,11 +1,15 @@
 package macro
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -96,6 +100,8 @@ func executeDryRunStep(step MacroStep, idx, total int, opts ExecOptions, dt *Dir
 		Status:         "dry-run",
 		ExitCode:       0,
 		ElapsedSeconds: 0,
+		Logs:           []string{"dry-run simulation"},
+		ErrorLogs:      []string{},
 	}
 }
 
@@ -111,17 +117,22 @@ func handleDirChangeStep(step MacroStep, expandedCmd, currentDir string, start t
 		Status:         "success",
 		ExitCode:       0,
 		ElapsedSeconds: elapsed.Seconds(),
+		Logs:           []string{fmt.Sprintf("Directory changed to %s", currentDir)},
+		ErrorLogs:      []string{},
 	}
 }
 
 func runStepProcess(ctx context.Context, cmdText string, step MacroStep, opts ExecOptions, dt *DirTracker, start time.Time, idx int) (StepExecution, error) {
 	targetDir := resolveTargetDir(dt.CurrentDir, step.WorkingDir)
-	cmd := buildStepCmd(ctx, cmdText, targetDir, opts)
+	outBuf, errBuf := &bytes.Buffer{}, &bytes.Buffer{}
+	cmd := buildStepCmd(ctx, cmdText, targetDir, opts, outBuf, errBuf)
 	err := cmd.Run()
 	elapsed := time.Since(start)
 	exitCode := resolveExitCode(err)
+	logs := splitToLines(outBuf.String())
+	errLogs := splitToLines(errBuf.String())
 	if err != nil {
-		return handleStepFailure(step, cmdText, targetDir, elapsed, exitCode, err, opts, idx)
+		return handleStepFailure(step, cmdText, targetDir, elapsed, exitCode, err, opts, idx, logs, errLogs)
 	}
 	if !isStructuredOutput(opts) {
 		fmt.Printf("%s✔ ok (%.1fs)%s\n", constants.ColorGreen, elapsed.Seconds(), constants.ColorReset)
@@ -133,10 +144,12 @@ func runStepProcess(ctx context.Context, cmdText string, step MacroStep, opts Ex
 		Status:         "success",
 		ExitCode:       0,
 		ElapsedSeconds: elapsed.Seconds(),
+		Logs:           logs,
+		ErrorLogs:      errLogs,
 	}, nil
 }
 
-func handleStepFailure(step MacroStep, cmdText, targetDir string, elapsed time.Duration, exitCode int, err error, opts ExecOptions, idx int) (StepExecution, error) {
+func handleStepFailure(step MacroStep, cmdText, targetDir string, elapsed time.Duration, exitCode int, err error, opts ExecOptions, idx int, logs, errLogs []string) (StepExecution, error) {
 	if !isStructuredOutput(opts) {
 		printStepFailureMsg(step, elapsed, err, idx)
 	}
@@ -147,7 +160,9 @@ func handleStepFailure(step MacroStep, cmdText, targetDir string, elapsed time.D
 		Status:         "failed",
 		ExitCode:       exitCode,
 		ElapsedSeconds: elapsed.Seconds(),
+		Logs:           logs,
 		Error:          err.Error(),
+		ErrorLogs:      errLogs,
 	}, err
 }
 
@@ -156,6 +171,21 @@ func printStepFailureMsg(step MacroStep, elapsed time.Duration, err error, idx i
 	if !step.ContinueOnError {
 		fmt.Printf("  %s✖ Step %d failed: %v%s\n", constants.ColorRed, idx, err, constants.ColorReset)
 	}
+}
+
+func splitToLines(raw string) []string {
+	var lines []string
+	scanner := bufio.NewScanner(strings.NewReader(raw))
+	for scanner.Scan() {
+		text := strings.TrimRight(scanner.Text(), "\r\n")
+		if len(text) > 0 {
+			lines = append(lines, text)
+		}
+	}
+	if lines == nil {
+		return []string{}
+	}
+	return lines
 }
 
 func resolveTargetDir(currentDir, stepDir string) string {
@@ -175,7 +205,7 @@ func resolveExitCode(err error) int {
 	return 1
 }
 
-func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions) *exec.Cmd {
+func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, outBuf, errBuf io.Writer) *exec.Cmd {
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.OSWindows {
 		cmd = exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", cmdText)
@@ -186,8 +216,11 @@ func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions) *e
 		cmd.Dir = dir
 	}
 	if opts.Verbose {
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		cmd.Stdout = io.MultiWriter(os.Stdout, outBuf)
+		cmd.Stderr = io.MultiWriter(os.Stderr, errBuf)
+		return cmd
 	}
+	cmd.Stdout = outBuf
+	cmd.Stderr = errBuf
 	return cmd
 }

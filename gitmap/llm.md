@@ -41,7 +41,7 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
 
 ## 2. Interactive Shell Macros & Workflow Automation
 
-Gitmap provides an interactive shell macro recording and replay engine with dynamic directory tracking, environment variable expansion, and JSON/YAML structured reporting.
+Gitmap provides an interactive shell macro recording and replay engine with dynamic directory tracking, environment variable expansion, and JSON/YAML structured reporting with line-by-line step logs.
 
 ### Macro Recording:
 - **Start Interactive Recording**:
@@ -64,21 +64,48 @@ Gitmap provides an interactive shell macro recording and replay engine with dyna
   ```bash
   gitmap macro run deploy-workflow
   ```
-- **Structured JSON Output (to stdout)**:
+- **Structured JSON Output (with step logs array)**:
   ```bash
   gitmap macro run deploy-workflow --json
   ```
-- **Structured YAML Output (to stdout)**:
+- **Structured YAML Output**:
   ```bash
   gitmap macro run deploy-workflow --yaml
   ```
 - **Export Report to File (JSON or YAML with Absolute Path Confirmation)**:
   ```bash
+  # Accepts --file, --filepath, --out, --output, -o, -f
   gitmap macro run deploy-workflow --json --file "reports/deploy.json"
-  gitmap macro run deploy-workflow --yaml --file "reports/deploy.yaml"
+  gitmap macro run deploy-workflow --yaml --out "reports/deploy.yaml"
   ```
-  *Behavior:* Prints the formatted JSON/YAML in terminal AND saves to disk, displaying confirmation:
-  `✔ Macro execution report saved to: D:\work\gitmap\reports\deploy.json`
+  *Structured Payload Structure:*
+  ```json
+  {
+    "macro": "deploy-workflow",
+    "status": "success",
+    "totalSteps": 2,
+    "executedSteps": 2,
+    "failedSteps": 0,
+    "elapsedSeconds": 0.45,
+    "startedAt": "2026-09-01T01:30:00Z",
+    "completedAt": "2026-09-01T01:30:00.45Z",
+    "outputFile": "D:\\work\\gitmap\\reports\\deploy.json",
+    "steps": [
+      {
+        "stepNum": 1,
+        "commandLine": "git status",
+        "workingDir": "D:\\work\\gitmap",
+        "status": "success",
+        "exitCode": 0,
+        "elapsedSeconds": 0.15,
+        "logs": [
+          "On branch main",
+          "Your branch is up to date with 'origin/main'."
+        ]
+      }
+    ]
+  }
+  ```
 
 - **Inspect & List Macros in JSON/YAML**:
   ```bash
@@ -158,7 +185,7 @@ AI Agents should use Gitmap's dedicated search tools rather than scanning huge d
 | **Extract Error Logs** | `gitmap pipeline error-logs` | `gitmap error-logs` | Dumps failing step logs to workspace file |
 | **Full Workflow Logs** | `gitmap pipeline logs` | `gitmap logs` | Complete workflow execution trace |
 | **Record Macro** | `gitmap macro record <name>` | `gitmap m rec <name>` | Interactive live recording with undo/redo |
-| **Run Macro (JSON)** | `gitmap macro run <name> --json` | `gitmap m run <name> --json` | Structured JSON execution report |
+| **Run Macro (JSON)** | `gitmap macro run <name> --json` | `gitmap m run <name> --json` | Captures step `logs: []` line-by-line |
 | **Run Macro (YAML)** | `gitmap macro run <name> --yaml` | `gitmap m run <name> -y` | Structured YAML execution report |
 | **Export Macro File** | `gitmap macro run <name> --file <p>` | `gitmap m run <name> -o <p>` | Saves report to file & prints path |
 | **Find File (Exact)** | `gitmap find-files <name>` | `gitmap ff <name>` | Match exact filename with optional `-ext` |
@@ -179,7 +206,7 @@ AI Agents should use Gitmap's dedicated search tools rather than scanning huge d
 ## Examples
 
 ```bash
-# Workflow 1: Record and Replay Macro with JSON Output
+# Workflow 1: Record and Replay Macro with JSON Output and Logs Array
 gitmap macro record test-build
 # (In session: go test ./... -> stop)
 gitmap macro run test-build --json --file "reports/test-build.json"
