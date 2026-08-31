@@ -93,3 +93,51 @@ func TestExecute_WithGitmapCdAndRelativeCd(t *testing.T) {
 		t.Fatalf("Execute failed: %v", err)
 	}
 }
+
+func TestExecute_WithJSONAndFileReport(t *testing.T) {
+	tmpDir := t.TempDir()
+	outFile := filepath.Join(tmpDir, "report.json")
+
+	m := &Macro{
+		Name: "test-json-macro",
+		Steps: []MacroStep{
+			{StepNum: 1, CommandLine: "echo json-step"},
+		},
+	}
+
+	err := Execute(context.Background(), m, ExecOptions{
+		JSON:     true,
+		FilePath: outFile,
+	})
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+	content, readErr := os.ReadFile(outFile)
+	if readErr != nil || len(content) == 0 {
+		t.Fatalf("Report file not written: %v", readErr)
+	}
+}
+
+func TestExecute_WithYAMLAndFileReport(t *testing.T) {
+	tmpDir := t.TempDir()
+	outFile := filepath.Join(tmpDir, "report.yaml")
+
+	m := &Macro{
+		Name: "test-yaml-macro",
+		Steps: []MacroStep{
+			{StepNum: 1, CommandLine: "echo yaml-step"},
+		},
+	}
+
+	err := Execute(context.Background(), m, ExecOptions{
+		YAML:     true,
+		FilePath: outFile,
+	})
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+	content, readErr := os.ReadFile(outFile)
+	if readErr != nil || len(content) == 0 {
+		t.Fatalf("Report file not written: %v", readErr)
+	}
+}

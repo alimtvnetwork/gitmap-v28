@@ -1,3 +1,20 @@
+## [v6.157.0] 2026-09-01 Release v6.157.0
+
+### Install gitmap v6.157.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.sh | bash -s -- ".lovable/prompts" "v6.157.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.157.0"`
+
+### Added & Enhanced
+
+- **Macro Structured Reporting & File Export Engine**:
+  - Added `--json` and `--yaml` flags for `gitmap macro run`, `gitmap macro show`, and `gitmap macro list`.
+  - Added `--file <path>` / `--out <path>` / `-o <path>` to export structured reports directly to files while printing formatted reports and absolute file path confirmations in the terminal.
+  - Automatically captures step timings, command lines, exit codes, errors, and working directories into structured payloads.
+- **Comprehensive LLM Documentation**:
+  - Expanded `llm.md`, `gitmap/llm.md`, `gitmap/helptext/llm.md`, and `gitmap/helptext/macro.md` with complete workflows for macros, AI CI/CD telemetry, error log extraction, search tools, and file inspection.
+
 ## [v6.156.4] 2026-08-31 Release v6.156.4
 
 ### Install gitmap v6.156.4
