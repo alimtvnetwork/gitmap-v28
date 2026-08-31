@@ -2,6 +2,8 @@ package macro
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -49,5 +51,45 @@ func TestMacroSaveLoadListDelete(t *testing.T) {
 
 	if err := DeleteMacro("test-macro"); err != nil {
 		t.Fatalf("DeleteMacro failed: %v", err)
+	}
+}
+
+func TestExecute_WithCdAndEnvExpansion(t *testing.T) {
+	tmpDir := t.TempDir()
+	os.Setenv("TEST_EXEC_DIR", tmpDir)
+	defer os.Unsetenv("TEST_EXEC_DIR")
+
+	m := &Macro{
+		Name: "test-cd-macro",
+		Steps: []MacroStep{
+			{StepNum: 1, CommandLine: "cd %TEST_EXEC_DIR%"},
+			{StepNum: 2, CommandLine: "echo active"},
+		},
+	}
+
+	err := Execute(context.Background(), m, ExecOptions{DryRun: false})
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+}
+
+func TestExecute_WithGitmapCdAndRelativeCd(t *testing.T) {
+	tmpDir := t.TempDir()
+	subDir := filepath.Join(tmpDir, "subproject")
+	_ = os.MkdirAll(subDir, 0755)
+
+	m := &Macro{
+		Name: "test-gitmap-cd-macro",
+		Steps: []MacroStep{
+			{StepNum: 1, CommandLine: "cd " + tmpDir},
+			{StepNum: 2, CommandLine: "gitmap cd subproject"},
+			{StepNum: 3, CommandLine: "cd .."},
+			{StepNum: 4, CommandLine: "cd -"},
+		},
+	}
+
+	err := Execute(context.Background(), m, ExecOptions{DryRun: false})
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
 	}
 }
