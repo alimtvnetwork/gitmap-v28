@@ -43,6 +43,7 @@ export const Categories: CommandCategory[] = [
   { key: "detection", label: "Project Detection", description: "Query repos by detected language or framework", icon: "🔬" },
   { key: "data", label: "Data & Profiles", description: "Export, import, bookmark, and manage profiles", icon: "💾" },
   { key: "tools", label: "Tools & Setup", description: "Setup, diagnostics, updates, SSH, and shell completions", icon: "🔧" },
+  { key: "searchfind", label: "Search & File Discovery", description: "SplitDB indexed search, regex queries, and name-based file discovery", icon: "🔎" },
   { key: "movemerge", label: "Move & Merge", description: "Move folders or merge file trees across local and remote endpoints", icon: "🔀" },
   { key: "chrome", label: "Chrome Profiles", description: "Copy, merge, export, import, list, and delete Chrome browser profiles", icon: "🌐" },
   { key: "visibility-bulk", label: "Bulk Visibility", description: "Flip many repos public/private at once with audit trail", icon: "🔐" },
@@ -2471,6 +2472,120 @@ export const commands: CommandDef[] = [
       { command: 'gitmap-node-join --server 192.168.1.10:9999 --token xyz --auto-start', description: "Join cluster and register auto-startup" },
       { command: 'gitmap-node-join install-startup', description: "Install Windows Startup registry entry" },
       { command: 'gitmap-node-join uninstall-startup', description: "Remove Windows Startup registry entry" },
+    ],
+  },
+  // ═══════════════════════════════════════════
+  // Search & File Discovery (SplitDB Suite)
+  // ═══════════════════════════════════════════
+  {
+    name: "find-files",
+    description: "Search and filter exact file names with optional extension filtering",
+    usage: "gitmap find-files <exact-name> [-ext <extensions>] [--limit <n>] [--json]",
+    category: "searchfind",
+    flags: [
+      { flag: "-ext, --ext <extensions>", description: "Comma-separated extension filter (e.g. 'md, go')" },
+      { flag: "--limit, -l <n>", description: "Maximum number of results to return" },
+      { flag: "--json", description: "Output machine-readable JSON array of file paths" },
+    ],
+    examples: [
+      { command: 'gitmap find-files "01-index.md" -ext "md, go"', description: "Find exact file name in Markdown and Go files" },
+      { command: 'gitmap find-files "folder.go" -ext "go"', description: "Find exact Go file" },
+    ],
+  },
+  {
+    name: "find-files-any",
+    description: "Search file names containing substring with extension filtering",
+    usage: "gitmap find-files-any <substring> [-ext <extensions>] [--limit <n>] [--json]",
+    category: "searchfind",
+    flags: [
+      { flag: "-ext, --ext <extensions>", description: "Comma-separated extension filter (e.g. 'md, go')" },
+      { flag: "--limit, -l <n>", description: "Maximum number of results to return" },
+      { flag: "--json", description: "Output machine-readable JSON array of file paths" },
+    ],
+    examples: [
+      { command: 'gitmap find-files-any "runner" -ext "py, go"', description: "Find files containing 'runner' in Python/Go" },
+      { command: 'gitmap find-files-any "sequence" --json', description: "Output JSON list of matches" },
+    ],
+  },
+  {
+    name: "find-files-startswith",
+    description: "Search file names starting with prefix string",
+    usage: "gitmap find-files-startswith <prefix> [-ext <extensions>] [--limit <n>] [--json]",
+    category: "searchfind",
+    flags: [
+      { flag: "-ext, --ext <extensions>", description: "Comma-separated extension filter (e.g. 'md, go')" },
+      { flag: "--limit, -l <n>", description: "Maximum number of results to return" },
+      { flag: "--json", description: "Output machine-readable JSON array of file paths" },
+    ],
+    examples: [
+      { command: 'gitmap find-files-startswith "01" -ext "md, py"', description: "Find files starting with '01' in Markdown/Python" },
+      { command: 'gitmap find-files-startswith "folder" -ext "go"', description: "Find Go files starting with 'folder'" },
+    ],
+  },
+  {
+    name: "find-files-endswith",
+    description: "Search file names ending with suffix string",
+    usage: "gitmap find-files-endswith <suffix> [-ext <extensions>] [--limit <n>] [--json]",
+    category: "searchfind",
+    flags: [
+      { flag: "-ext, --ext <extensions>", description: "Comma-separated extension filter (e.g. 'md, go')" },
+      { flag: "--limit, -l <n>", description: "Maximum number of results to return" },
+      { flag: "--json", description: "Output machine-readable JSON array of file paths" },
+    ],
+    examples: [
+      { command: 'gitmap find-files-endswith "_test.go" -ext "go"', description: "Find Go unit test files" },
+      { command: 'gitmap find-files-endswith "_cmd.go" --json', description: "Output JSON list of command files" },
+    ],
+  },
+  {
+    name: "list-files",
+    description: "List every indexed file name with optional wildcard and extension filtering",
+    usage: "gitmap list-files [pattern] [-ext <extensions>] [--limit <n>] [--json]",
+    category: "searchfind",
+    flags: [
+      { flag: "-ext, --ext <extensions>", description: "Comma-separated extension filter (e.g. 'md, go')" },
+      { flag: "--limit, -l <n>", description: "Maximum number of results to return" },
+      { flag: "--json", description: "Output machine-readable JSON array of file paths" },
+    ],
+    examples: [
+      { command: 'gitmap list-files "*sequence*"', description: "List files containing 'sequence'" },
+      { command: 'gitmap list-files "*" -ext "md"', description: "List all Markdown files" },
+    ],
+  },
+  {
+    name: "find",
+    description: "Find files by exact name or wildcard with optional extension filter",
+    usage: "gitmap find <pattern> [-ext <extensions>] [--limit <n>] [--json]",
+    category: "searchfind",
+    flags: [
+      { flag: "-ext, --ext <extensions>", description: "Comma-separated extension filter (e.g. 'md, go')" },
+      { flag: "--limit, -l <n>", description: "Maximum number of results to return" },
+      { flag: "--json", description: "Output machine-readable JSON array of file paths" },
+    ],
+    examples: [
+      { command: 'gitmap find "*_test.go" -ext "go"', description: "Find all Go test files" },
+      { command: 'gitmap find "01*" -ext "md, py"', description: "Find files starting with 01" },
+      { command: 'gitmap find "*runner*" -ext "py"', description: "Find files containing runner" },
+    ],
+  },
+  {
+    name: "folder",
+    alias: "tree",
+    description: "Export hierarchical directory structure in Markdown, ASCII Tree, JSON, or YAML format with exclusions and metadata",
+    usage: "gitmap folder [path] [outfile] [--markdown|--tree|--json|--yaml] [--details] [--except <glob>]",
+    category: "searchfind",
+    flags: [
+      { flag: "--markdown, --md", description: "Format output as Markdown bullet list without backticks" },
+      { flag: "--tree", description: "Format output as ASCII tree" },
+      { flag: "--json", description: "Format output as structured JSON" },
+      { flag: "--yaml", description: "Format output as structured YAML" },
+      { flag: "--details, -l", description: "Include filename, line count, and byte size" },
+      { flag: "--except, --exclude <glob>", description: "Exclude files/folders matching comma-separated globs" },
+    ],
+    examples: [
+      { command: 'gitmap folder . "structure.md" --md --details', description: "Export detailed Markdown list with metadata" },
+      { command: 'gitmap folder . --tree --except "vendor/**,*.min.js"', description: "Render ASCII tree excluding vendor directories" },
+      { command: 'gitmap folder . "tree.json" --json', description: "Export JSON structure" },
     ],
   },
 ];

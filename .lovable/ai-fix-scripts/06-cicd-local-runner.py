@@ -156,15 +156,15 @@ def main():
                     name, cmd, code, out, err, elapsed = future.result()
                     all_results[name] = (code, out, err, elapsed, cmd)
                     if code == 0:
-                        print(f"  PASS [{name}] ({elapsed}s)")
+                        print(f"  PASS [{name}] ({elapsed}s)", flush=True)
                     elif code == "timeout":
-                        print(f"  TIMEOUT [{name}] ({elapsed}s)")
+                        print(f"  TIMEOUT [{name}] ({elapsed}s)", flush=True)
                     else:
-                        print(f"  FAIL [{name}] ({elapsed}s)")
+                        print(f"  FAIL [{name}] ({elapsed}s)", flush=True)
                 except Exception as ex:
                     job_name = futures[future]
                     all_results[job_name] = (1, "", str(ex), 0, "")
-                    print(f"  FAIL [{job_name}] (Exception: {ex})")
+                    print(f"  FAIL [{job_name}] (Exception: {ex})", flush=True)
 
     total_elapsed = round(time.monotonic() - total_start, 2)
 
