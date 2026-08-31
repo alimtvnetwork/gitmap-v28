@@ -1,3 +1,23 @@
+## [v6.156.1] 2026-08-31 Release v6.156.1
+
+### Install gitmap v6.156.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.sh | bash -s -- ".lovable/prompts" "v6.156.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.1"`
+
+### Added & Enhanced
+
+- **Interactive Macro Recorder Path & Environment Variable Expansion**:
+  - Automatically expands Windows environment variables (`%TEMP%`, `%USERPROFILE%`, `%APPDATA%`, etc.), Unix variables (`$VAR`, `${VAR}`), and tilde (`~`, `~/...`) before execution and saving.
+  - Automatically resolves and tracks working directory changes (`cd <path>` and `chdir <path>`).
+- **Interactive Macro Recorder In-Session Commands**:
+  - Added `undo` and `undo-steps <N> [-y]` to undo the last execution or last N executions with prompt confirmation.
+  - Added `redo` and `redo-steps <N>` to restore previously undone steps.
+  - Added in-session `help` and `list` / `steps` commands, with helpful next-action tips displayed upon undo/redo operations.
+- **Help Documentation**:
+  - Added comprehensive documentation and examples in `gitmap/helptext/macro.md`.
+
 ## [v6.156.0] 2026-08-31 Release v6.156.0
 
 ### Install gitmap v6.156.0

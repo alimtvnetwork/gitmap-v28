@@ -12,7 +12,6 @@ import (
 )
 
 // Execute runs all steps in a macro.
-
 func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	fmt.Printf("  %s▶ Executing Macro: %q (%d steps)%s\n\n",
 		constants.ColorCyan, m.Name, len(m.Steps), constants.ColorReset)
@@ -42,18 +41,19 @@ func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 }
 
 func executeStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions) error {
-	fmt.Printf("  [%2d/%d] ➜ %s ... ", idx, total, step.CommandLine)
+	expandedCmd := ExpandPathAndEnv(step.CommandLine)
+	fmt.Printf("  [%2d/%d] ➜ %s ... ", idx, total, expandedCmd)
 	start := time.Now()
 
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.OSWindows {
-		cmd = exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", step.CommandLine)
+		cmd = exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", expandedCmd)
 	} else {
-		cmd = exec.CommandContext(ctx, "sh", "-c", step.CommandLine)
+		cmd = exec.CommandContext(ctx, "sh", "-c", expandedCmd)
 	}
 
 	if len(step.WorkingDir) > 0 {
-		cmd.Dir = step.WorkingDir
+		cmd.Dir = ExpandPathAndEnv(step.WorkingDir)
 	}
 	if opts.Verbose {
 		cmd.Stdout = os.Stdout
