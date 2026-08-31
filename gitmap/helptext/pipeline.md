@@ -42,34 +42,40 @@ pl
 
 ### Check Live Status in Human-Readable Format
 
-    $ gitmap pipeline status
-      Repository: alimtvnetwork/gitmap-v28
-      Workflow:   GoReleaser
-      Status:     RUNNING (in_progress)
-      ETA:        84s
-      Last Tag:   v6.154.0
+```bash
+$ gitmap pipeline status
+  Repository: alimtvnetwork/gitmap-v28
+  Workflow:   GoReleaser
+  Status:     RUNNING (in_progress)
+  ETA:        84s
+  Last Tag:   v6.154.0
+```
 
 ### Machine-Readable Status for AI Agents
 
-    $ gitmap pipeline status --json
-    {
-      "isRunning": true,
-      "etaSeconds": 84,
-      "lastTagRelease": "v6.154.0",
-      "pendingPipelines": 4,
-      "pendingTasks": 0,
-      "pendingPRs": 0,
-      "repo": "alimtvnetwork/gitmap-v28",
-      "activeWorkflow": "GoReleaser",
-      "lastStatus": "in_progress",
-      "lastRunUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/33329109649",
-      "updatedAt": "2026-08-30T18:48:19Z"
-    }
+```bash
+$ gitmap pipeline status --json
+{
+  "isRunning": true,
+  "etaSeconds": 84,
+  "lastTagRelease": "v6.154.0",
+  "pendingPipelines": 4,
+  "pendingTasks": 0,
+  "pendingPRs": 0,
+  "repo": "alimtvnetwork/gitmap-v28",
+  "activeWorkflow": "GoReleaser",
+  "lastStatus": "in_progress",
+  "lastRunUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/33329109649",
+  "updatedAt": "2026-08-30T18:48:19Z"
+}
+```
 
 ### Extract Failure Logs Directly to Temp File
 
-    $ gitmap pipeline error-logs --json --tempfile "ci-failure.json"
-      ✓ Output written to .lovable\temp\ci-failure.json
+```bash
+$ gitmap pipeline error-logs --json --tempfile "ci-failure.json"
+  ✓ Output written to .lovable\temp\ci-failure.json
+```
 
 ## See Also
 
