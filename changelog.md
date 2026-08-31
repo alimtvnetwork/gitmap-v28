@@ -1,3 +1,19 @@
+## [v6.158.0] 2026-09-01 Release v6.158.0
+
+### Install gitmap v6.158.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.sh | bash -s -- ".lovable/prompts" "v6.158.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.158.0"`
+
+### Added & Enhanced
+
+- **Macro Line-by-Line Terminal Logs Array in JSON & YAML**:
+  - Captured live command output per step into `"logs": []string` array in both JSON and YAML outputs.
+  - Added structured `"errorLogs": []string` and `"error": string` capture on failed steps.
+  - Supported all file flag aliases: `--file`, `--filepath`, `--out`, `--output`, `-o`, `-f`.
+  - Expanded LLM documentation with detailed step logs schema and usage guidelines.
+
 ## [v6.157.0] 2026-09-01 Release v6.157.0
 
 ### Install gitmap v6.157.0

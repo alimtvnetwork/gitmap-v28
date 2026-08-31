@@ -29,13 +29,15 @@ type ExecutionReport struct {
 
 // StepExecution represents the execution outcome of an individual step.
 type StepExecution struct {
-	StepNum        int     `json:"stepNum" yaml:"stepNum"`
-	CommandLine    string  `json:"commandLine" yaml:"commandLine"`
-	WorkingDir     string  `json:"workingDir" yaml:"workingDir"`
-	Status         string  `json:"status" yaml:"status"`
-	ExitCode       int     `json:"exitCode" yaml:"exitCode"`
-	ElapsedSeconds float64 `json:"elapsedSeconds" yaml:"elapsedSeconds"`
-	Error          string  `json:"error,omitempty" yaml:"error,omitempty"`
+	StepNum        int      `json:"stepNum" yaml:"stepNum"`
+	CommandLine    string   `json:"commandLine" yaml:"commandLine"`
+	WorkingDir     string   `json:"workingDir" yaml:"workingDir"`
+	Status         string   `json:"status" yaml:"status"`
+	ExitCode       int      `json:"exitCode" yaml:"exitCode"`
+	ElapsedSeconds float64  `json:"elapsedSeconds" yaml:"elapsedSeconds"`
+	Logs           []string `json:"logs" yaml:"logs"`
+	Error          string   `json:"error,omitempty" yaml:"error,omitempty"`
+	ErrorLogs      []string `json:"errorLogs,omitempty" yaml:"errorLogs,omitempty"`
 }
 
 // NewExecutionReport initializes an execution report.
