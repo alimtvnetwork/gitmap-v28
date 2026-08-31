@@ -25,11 +25,15 @@ Open the local browser interface for settings management, pipeline telemetry mon
 
 ### Open Default Browser UI
 
-    $ gitmap ui
-      Starting local UI server at http://localhost:8080...
-      Opened browser at http://localhost:8080/settings
+```bash
+$ gitmap ui
+  Starting local UI server at http://localhost:8080...
+  Opened browser at http://localhost:8080/settings
+```
 
 ### Start Server on Custom Port Without Opening Browser
 
-    $ gitmap ui --port 3000 --no-open
-      Starting local UI server at http://localhost:3000...
+```bash
+$ gitmap ui --port 3000 --no-open
+  Starting local UI server at http://localhost:3000...
+```
