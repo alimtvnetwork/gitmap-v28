@@ -1,3 +1,18 @@
+## [v6.155.9] 2026-08-31 Release v6.155.9
+
+### Install gitmap v6.155.9
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.sh | bash -s -- ".lovable/prompts" "v6.155.9"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.9"`
+
+### Fixed & Enhanced
+
+- **Historical Duration-Based Pipeline ETA Calculation**:
+  - Enhanced `calculateETA` in `gitmap/cmd/pipeline_status.go` to compute dynamic ETA by averaging actual elapsed run durations from recent completed workflow runs (`updatedAt - createdAt`).
+  - Added 20-second lower bound for pipeline waiting periods so AI and automation engines avoid high-frequency status queries (< 20s).
+  - Extended GitHub Actions run query in `pipeline_query.go` to retrieve up to 15 runs including `updatedAt` timestamps.
+
 ## [v6.155.8] 2026-08-31 Release v6.155.8
 
 ### Install gitmap v6.155.8

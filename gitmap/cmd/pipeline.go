@@ -50,6 +50,7 @@ type ghRunItem struct {
 	Status     string `json:"status"`
 	Conclusion string `json:"conclusion"`
 	CreatedAt  string `json:"createdAt"`
+	UpdatedAt  string `json:"updatedAt"`
 	HeadBranch string `json:"headBranch"`
 	HeadSha    string `json:"headSha"`
 	URL        string `json:"url"`

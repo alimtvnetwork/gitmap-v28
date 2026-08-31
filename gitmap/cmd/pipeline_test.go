@@ -126,3 +126,34 @@ func TestPipelineHelp(t *testing.T) {
 		t.Fatalf("pipeline help missing usage string: %s", out)
 	}
 }
+
+func TestCalculateETA_HistoricalAverage(t *testing.T) {
+	now := "2026-08-31T09:00:00Z"
+	runs := []ghRunItem{
+		{
+			Name:      "Release",
+			Status:    "in_progress",
+			CreatedAt: now,
+		},
+		{
+			Name:       "Release",
+			Status:     "completed",
+			CreatedAt:  "2026-08-31T08:50:00Z",
+			UpdatedAt:  "2026-08-31T08:51:40Z", // 100s
+			Conclusion: "success",
+		},
+		{
+			Name:       "Release",
+			Status:     "completed",
+			CreatedAt:  "2026-08-31T08:40:00Z",
+			UpdatedAt:  "2026-08-31T08:41:20Z", // 80s
+			Conclusion: "success",
+		},
+	}
+
+	eta := calculateETA(runs)
+	// Average is (100 + 80) / 2 = 90s, minus ~0s elapsed => >= 80s
+	if eta < 20 {
+		t.Fatalf("expected ETA >= 20, got %d", eta)
+	}
+}
