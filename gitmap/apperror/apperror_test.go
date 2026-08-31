@@ -43,3 +43,13 @@ func TestAppError_WithContext(t *testing.T) {
 		t.Fatalf("expected context key to be set")
 	}
 }
+
+func TestAppError_StackTrace(t *testing.T) {
+	appErr := NewSimple("test.op", "E3001")
+	if appErr.Stack == "" {
+		t.Fatalf("expected stack trace to be non-empty")
+	}
+	if !strings.Contains(appErr.Stack, "TestAppError_StackTrace") {
+		t.Errorf("expected stack trace to contain test function name: %s", appErr.Stack)
+	}
+}

@@ -1,3 +1,24 @@
+## [v6.155.8] 2026-08-31 Release v6.155.8
+
+### Install gitmap v6.155.8
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.sh | bash -s -- ".lovable/prompts" "v6.155.8"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.8"`
+
+### Fixed & Enhanced
+
+- **Compiled Stack Trace Engine in AppError**:
+  - Enhanced `apperror.AppError` with call frame hierarchy extraction using `runtime.Callers` and `runtime.CallersFrames`.
+  - All errors created via `apperror.New`, `Wrap`, `NewSimple`, `WrapSimple` now automatically capture stack traces.
+  - Formats clean terminal stack traces to `os.Stderr` and persists `stack` in `.gitmap/last_error.log`.
+  - Added full nil pointer safety in `(e *AppError) Unwrap()` and `(e *AppError) Error()`.
+
+- **Comprehensive End-to-End CLI Smoke Test Suite**:
+  - Implemented `.github/scripts/e2e-cli-smoke.py` covering 77+ distinct commands, aliases, subcommands, zero-argument help dialogues, and ad-hoc queries across the entire CLI surface.
+  - Integrated E2E CLI testing into `smoke-installer.py` for automated validation on both Linux and Windows CI runners and release pipelines.
+  - Fixed aliases and routing for `--help`, `-h`, `sc`, `replace history`, and Antigravity workspace commands (`agy`, `ag`, `antigravity`).
+
 ## [v6.155.7] 2026-08-31 Release v6.155.7
 
 ### Install gitmap v6.155.7

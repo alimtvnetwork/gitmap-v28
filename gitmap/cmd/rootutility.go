@@ -41,7 +41,7 @@ func utilityDispatchEntries() []dispatchEntry {
 				return nil
 			},
 		},
-		{[]string{constants.CmdHelp}, runHelpDispatch},
+		{[]string{constants.CmdHelp, "--help", "-h"}, runHelpDispatch},
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return runDocs(argsTail()) }},
 		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
 		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias}, func() error { return runLLMDocs(argsTail()) }},

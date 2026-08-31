@@ -226,6 +226,14 @@ def main():
             bin_path = run_release_mode(repo_root, expected, workdir)
 
         verify_binary_version(bin_path, expected)
+
+        e2e_script = os.path.join(repo_root, ".github", "scripts", "e2e-cli-smoke.py")
+        if os.path.isfile(e2e_script):
+            print(f"▶ Running full E2E CLI command suite against: {bin_path}")
+            res = subprocess.run([sys.executable, "-u", e2e_script, bin_path], cwd=repo_root)
+            if res.returncode != 0:
+                print("::error::E2E CLI smoke tests failed!", file=sys.stderr)
+                sys.exit(5)
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
 

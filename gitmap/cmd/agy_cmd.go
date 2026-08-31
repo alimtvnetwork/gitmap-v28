@@ -52,7 +52,10 @@ var agyAddCmd = &cobra.Command{
 	Aliases: []string{"add-project"},
 	Short:   "Add a project",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyAdd(args)
+		if err := runAgyAdd(args); err != nil {
+			return err
+		}
+		return nil
 	},
 }
 
@@ -112,7 +115,10 @@ var agyRmCmd = &cobra.Command{
 	Aliases: []string{"del", "remove"},
 	Short:   "Remove a project",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyRm(args)
+		if err := runAgyRm(args); err != nil {
+			return err
+		}
+		return nil
 	},
 }
 
@@ -141,7 +147,10 @@ var agyLsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "List projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyLs()
+		if err := runAgyLs(); err != nil {
+			return err
+		}
+		return nil
 	},
 }
 
@@ -150,6 +159,7 @@ func runAgyLs() *apperror.AppError {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+	_ = os.MkdirAll(projectsPath, 0755)
 	entries, readErr := os.ReadDir(projectsPath)
 	if readErr != nil {
 		return apperror.WrapSimple(readErr, "read error")
@@ -176,7 +186,10 @@ var agyStatsCmd = &cobra.Command{
 	Aliases: []string{"stat", "status"},
 	Short:   "Project stats",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyStats()
+		if err := runAgyStats(); err != nil {
+			return err
+		}
+		return nil
 	},
 }
 
@@ -185,6 +198,7 @@ func runAgyStats() *apperror.AppError {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+	_ = os.MkdirAll(projectsPath, 0755)
 	entries, readErr := os.ReadDir(projectsPath)
 	if readErr != nil {
 		return apperror.WrapSimple(readErr, "read error")
