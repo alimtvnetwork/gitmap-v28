@@ -41,7 +41,7 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
 
 ---
 
-## 2. Step-by-Step Workflows with Real-World Examples
+## Examples (Step-by-Step AI Workflows)
 
 
 ### Workflow A: Autonomous CI/CD Self-Healing Telemetry Loop
