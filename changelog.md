@@ -1,3 +1,18 @@
+## [v6.156.3] 2026-08-31 Release v6.156.3
+
+### Install gitmap v6.156.3
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.sh | bash -s -- ".lovable/prompts" "v6.156.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.3"`
+
+### Fixed & Enhanced
+
+- **Macro Dynamic Working Directory Tracking & Navigation**:
+  - Replay execution now dynamically tracks and maintains runtime working directory across all steps (`cd <dir>`, `cd ..`, `cd -`, and `gitmap cd <repo>`).
+  - Automatically resolves `gitmap cd <repo>` to repository paths from database or filesystem and switches execution context for all subsequent macro steps.
+  - Fixes child subshell execution failure where directory changes were lost between steps.
+
 ## [v6.156.2] 2026-08-31 Release v6.156.2
 
 ### Install gitmap v6.156.2
