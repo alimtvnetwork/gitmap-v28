@@ -2,8 +2,7 @@
 
 > Public Instruction URL: https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/llm.md
 
-Gitmap is a high-performance CLI designed for autonomous AI agents, LLMs, and developers to explore, search, refactor, and self-heal codebases with maximum speed and reliability.
-
+Gitmap is a high-performance developer CLI and autonomous automation engine designed specifically for AI coding agents, LLMs, and engineers to explore, search, refactor, execute macros, and self-heal CI/CD pipelines with maximum reliability.
 
 ---
 
@@ -11,7 +10,7 @@ Gitmap is a high-performance CLI designed for autonomous AI agents, LLMs, and de
 
 When an autonomous AI Agent is assigned a coding, refactoring, or debugging task, it MUST follow this structured 5-phase lifecycle in exact sequential order:
 
-```
+```text
   ┌─────────────────────────────────────────────────────────────┐
   │  Phase 1: Discovery & Context Gathering                     │
   │  ➔ gitmap find-files, find-files-any, search, list-files   │
@@ -34,153 +33,138 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
   │  Phase 5: Non-Blocking CI Telemetry & Self-Healing Loop     │
-  │  ➔ gitmap pipeline status --json, gitmap eta, error-logs   │
+  │  ➔ gitmap pipeline-ai status --json, gitmap error-logs      │
   └─────────────────────────────────────────────────────────────┘
 ```
 
+---
+
+## 2. Interactive Shell Macros & Workflow Automation
+
+Gitmap provides an interactive shell macro recording and replay engine with dynamic directory tracking, environment variable expansion, and JSON/YAML structured reporting.
+
+### Macro Recording:
+- **Start Interactive Recording**:
+  ```bash
+  gitmap macro record "deploy-workflow"
+  ```
+- **In-Session Commands**:
+  - `stop` / `exit` / `quit`: Save macro and finish.
+  - `cancel` / `abort`: Abort recording without saving.
+  - `undo` / `undo-steps <N> [-y]`: Undo the last recorded step or last N steps.
+  - `redo` / `redo-steps <N>`: Restore previously undone step(s).
+  - `list` / `steps`: View currently recorded steps.
+  - `help` / `?`: Show in-session help.
+- **Dynamic Path Expansion & Directory Tracking**:
+  - Automatically expands `%TEMP%`, `%USERPROFILE%`, `$HOME`, `~`, and environment variables.
+  - Dynamically updates working directory when running `cd <dir>`, `cd ..`, `cd -`, or `gitmap cd <repo>`.
+
+### Macro Replay & Structured Report Exporting:
+- **Standard Replay**:
+  ```bash
+  gitmap macro run deploy-workflow
+  ```
+- **Structured JSON Output (to stdout)**:
+  ```bash
+  gitmap macro run deploy-workflow --json
+  ```
+- **Structured YAML Output (to stdout)**:
+  ```bash
+  gitmap macro run deploy-workflow --yaml
+  ```
+- **Export Report to File (JSON or YAML with Absolute Path Confirmation)**:
+  ```bash
+  gitmap macro run deploy-workflow --json --file "reports/deploy.json"
+  gitmap macro run deploy-workflow --yaml --file "reports/deploy.yaml"
+  ```
+  *Behavior:* Prints the formatted JSON/YAML in terminal AND saves to disk, displaying confirmation:
+  `✔ Macro execution report saved to: D:\work\gitmap\reports\deploy.json`
+
+- **Inspect & List Macros in JSON/YAML**:
+  ```bash
+  gitmap macro list --json
+  gitmap macro list --yaml
+  gitmap macro show deploy-workflow --json
+  gitmap macro show deploy-workflow --yaml --file "macro-spec.yaml"
+  ```
 
 ---
 
-## Examples (Step-by-Step AI Workflows)
+## 3. Autonomous CI/CD Telemetry & Self-Healing Loop
 
+AI Agents must monitor remote CI/CD workflows non-blockingly without spamming GitHub API endpoints.
 
-### Workflow A: Autonomous CI/CD Self-Healing Telemetry Loop
+### 1. Check Live Pipeline Status with Auto-Delay:
+```bash
+gitmap pipeline-ai status --json
+```
+*Output:*
+```json
+{
+  "isRunning": true,
+  "activeWorkflow": "Release",
+  "etaSeconds": 180,
+  "sleepSeconds": 20,
+  "nextAiCommand": "gitmap pipeline-ai status -t 180",
+  "pendingPipelines": 1,
+  "lastStatus": "in_progress",
+  "lastRunUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/33413393831"
+}
+```
 
-When a remote pipeline is triggered or encounters an error, the AI Agent must follow this non-blocking telemetry loop:
+### 2. Auto-Delay Protection & Dynamic Waiting:
+- **Default Delay**: `pipeline-ai status` automatically pauses for 20 seconds before checking to prevent rate-limit bans.
+- **Dynamic Wait (`-t <seconds>`)**: When `etaSeconds` is returned, the AI executes `gitmap pipeline-ai status -t <etaSeconds>`, ensuring the agent sleeps until the pipeline is likely finished.
 
-1. **Check Live Pipeline Status & Next AI Action (with Auto-Delay)**:
-   ```bash
-   gitmap pipeline-ai status --json
-   ```
-   *Output:*
-   ```json
-   {
-     "isRunning": true,
-     "activeWorkflow": "Release",
-     "etaSeconds": 75,
-     "sleepSeconds": 20,
-     "nextAiCommand": "gitmap pipeline-ai status -t 75",
-     "pendingPipelines": 1,
-     "lastRunUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/12345"
-   }
-   ```
-
-2. **Wait for Recommended ETA and Query Next Check**:
-   ```bash
-   gitmap pipeline-ai status -t 75 --json
-   ```
-   *(Automatically delays for the specified duration, then queries status and returns the next suggested command).*
-
-3. **Extract Failing CI Diagnostic Error Logs to File**:
-   ```bash
-   gitmap pipeline error-logs --json --tempfile "ci-failure.json"
-   ```
-   *Behavior:* Dumps the exact failing step, command line, exit code, and stderr into `ci-failure.json` for instant 4-part Root Cause Analysis (RCA).
-
-4. **Verify Locally & Push Semantic Fix**:
-   ```bash
-   python .github/scripts/go-format-check.py
-   gitmap commit-push-bug "fix(ci): fix gofmt formatting in cmd/root.go"
-   ```
-
+### 3. Extract Failing CI Error Logs to File for RCA:
+```bash
+gitmap pipeline error-logs --json --tempfile "ci-failure.json"
+```
+*Behavior:* Extracts the exact failing step name, exit code, and failure logs into `ci-failure.json` for 4-part Root Cause Analysis without polluting context memory.
 
 ---
 
-### Workflow B: Fast Code Search & File Discovery
+## 4. High-Performance Code Search & File Inspection Engine
 
-Instead of scanning entire directory trees or reading large files into context:
+AI Agents should use Gitmap's dedicated search tools rather than scanning huge directories or using heavy shell find loops.
 
-- **Find Exact Filename**:
+### Finding Files by Name:
+- **Exact Match**: `gitmap find-files "constants.go" -ext "go"` (alias: `gitmap ff "constants.go"`)
+- **Substring Match**: `gitmap find-files-any "record" -ext "go"` (alias: `gitmap ffa "record"`)
+- **Prefix Match**: `gitmap find-files-startswith "01-" -ext "md"` (alias: `gitmap ffs "01-"`)
+- **Suffix Match**: `gitmap find-files-endswith "_test.go"` (alias: `gitmap ffe "_test.go"`)
+- **Wildcard / Glob**: `gitmap find "*macro*.go"` (alias: `gitmap f "*macro*.go"`)
+- **List Files in Subtree**: `gitmap list-files "macro/*"`
+
+### Content Search & Targeted Reading:
+- **Indexed Keyword Search**: `gitmap search "DirTracker"`
+- **Structured JSON Multi-Repo Regex**: `gitmap repo-search-json "ProcessCd"` (alias: `gitmap rsj "ProcessCd"`)
+- **Find and Read Sections**:
   ```bash
-  gitmap find-files "constants.go" -ext "go"
-  gitmap ff "package.json"
+  gitmap find-read "record_dir.go"
+  gitmap find-regex-read "func parseDirectoryChange" -ext "go"
   ```
-
-- **Find Files Containing Substring (with Extension Filter)**:
-  ```bash
-  gitmap find-files-any "runner" -ext "py,go"
-  gitmap ffa "pipeline" -ext "go,json"
-  ```
-
-- **Find Files by Prefix or Suffix**:
-  ```bash
-  gitmap find-files-startswith "01-" -ext "md"
-  gitmap find-files-endswith "_test.go" -ext "go"
-  gitmap ffe ".spec.ts"
-  ```
-
-- **Universal Wildcard / Glob Search**:
-  ```bash
-  gitmap find "*config*.json"
-  gitmap list-files "*pipeline*"
-  gitmap f "*docker*" --limit 5
-  ```
-
-- **Fast Indexed Global Keyword Search**:
-  ```bash
-  gitmap search "Resolve-Version"
-  gitmap repo-search-json "error-logs"   # alias: rsj (returns structured JSON matches)
-  ```
-
+- **Repo Navigation**: `gitmap cd <repo_name>`
 
 ---
 
-### Workflow C: Batch Refactoring with History & Rollback
-
-- **Exact Literal String Replacement**:
-  ```bash
-  gitmap replace "oldEndpoint" "newEndpoint"
-  ```
-
-- **Regex Replacement with Audit Trail**:
-  ```bash
-  gitmap replace-regex "v6\.\d+\.\d+" "v6.155.7"
-  ```
-
-- **View Replacement History**:
-  ```bash
-  gitmap replace history
-  ```
-
-
----
-
-### Workflow D: Workspace & Background Automation
-
-- **Antigravity Workspaces**:
-  ```bash
-  gitmap agy add /path/to/repo       # Register repository in Antigravity workspaces
-  gitmap agy sync                     # Synchronize agent configs across projects
-  gitmap agy stats                    # View token and session statistics
-  ```
-
-- **VS Code Project Manager**:
-  ```bash
-  gitmap vsc add /path/to/repo        # Register workspace in VS Code Project Manager
-  gitmap vsc ls                       # List tracked workspaces
-  ```
-
-- **Background Scheduler & Daemons**:
-  ```bash
-  gitmap schedule add "nightly-sync" --interval "24h"
-  gitmap schedule status
-  ```
-
-
----
-
-## 3. Alternative Commands & Aliases Cheat Sheet (Instead of Raw Git)
+## 5. Alternative Commands & Aliases Cheat Sheet
 
 | Action / Goal | Standard CLI Command | Fast AI Shortcut / Alias | Notes |
 | :--- | :--- | :--- | :--- |
-| **Pipeline Status** | `gitmap pipeline status --json` | `gitmap pipeline status` | Live execution state, ETA seconds, run URL |
-| **Get ETA Seconds** | `gitmap pipeline waittime` | `gitmap eta` | Bare integer for non-blocking timer |
-| **Extract Error Logs**| `gitmap pipeline error-logs` | `gitmap error-logs` | Dumps failing step logs to workspace file |
-| **Full CI Run Logs**| `gitmap pipeline logs` | `gitmap logs` | Complete workflow execution trace |
-| **Find File (Exact)** | `gitmap find-files <name>` | `gitmap ff <name>` | Match exact filename with optional -ext |
+| **Pipeline Status (AI)** | `gitmap pipeline-ai status --json` | `gitmap pl-ai status --json` | Auto-delays 20s and suggests `nextAiCommand` |
+| **Dynamic Wait Time** | `gitmap pipeline-ai status -t <sec>`| `gitmap pl-ai status -t <sec>` | Sleeps `<sec>` before querying |
+| **Get Bare ETA** | `gitmap pipeline waittime` | `gitmap eta` | Returns integer seconds |
+| **Extract Error Logs** | `gitmap pipeline error-logs` | `gitmap error-logs` | Dumps failing step logs to workspace file |
+| **Full Workflow Logs** | `gitmap pipeline logs` | `gitmap logs` | Complete workflow execution trace |
+| **Record Macro** | `gitmap macro record <name>` | `gitmap m rec <name>` | Interactive live recording with undo/redo |
+| **Run Macro (JSON)** | `gitmap macro run <name> --json` | `gitmap m run <name> --json` | Structured JSON execution report |
+| **Run Macro (YAML)** | `gitmap macro run <name> --yaml` | `gitmap m run <name> -y` | Structured YAML execution report |
+| **Export Macro File** | `gitmap macro run <name> --file <p>` | `gitmap m run <name> -o <p>` | Saves report to file & prints path |
+| **Find File (Exact)** | `gitmap find-files <name>` | `gitmap ff <name>` | Match exact filename with optional `-ext` |
 | **Find File (Any)** | `gitmap find-files-any <str>` | `gitmap ffa <str>` | Match substring in filename |
-| **Find File (Prefix)**| `gitmap find-files-startswith` | `gitmap ffs <prefix>` | Match prefix in filename |
-| **Find File (Suffix)**| `gitmap find-files-endswith` | `gitmap ffe <suffix>` | Match suffix in filename (e.g. _test.go) |
+| **Find File (Prefix)** | `gitmap find-files-startswith` | `gitmap ffs <prefix>` | Match prefix in filename |
+| **Find File (Suffix)** | `gitmap find-files-endswith` | `gitmap ffe <suffix>` | Match suffix in filename (e.g. `_test.go`) |
 | **Commit Feature** | `gitmap commit-push-feature` | `gitmap cpf "<msg>"` | Stage, commit, and push feature branch |
 | **Commit Bug Fix** | `gitmap commit-push-bug` | `gitmap cpb "<msg>"` | Stage, commit, and push bugfix branch |
 | **Commit Release** | `gitmap commit-push-release` | `gitmap cpr "<msg>"` | Stage, commit, and push release chore |
@@ -190,4 +174,20 @@ Instead of scanning entire directory trees or reading large files into context:
 | **Scheduler** | `gitmap schedule` | `gitmap sc` | Background cron and interval scheduler |
 | **Repo Status** | `gitmap status` | `gitmap st` | Dirty, ahead, behind across all repos |
 
+---
 
+## Examples
+
+```bash
+# Workflow 1: Record and Replay Macro with JSON Output
+gitmap macro record test-build
+# (In session: go test ./... -> stop)
+gitmap macro run test-build --json --file "reports/test-build.json"
+
+# Workflow 2: Non-blocking CI Status Check and Auto-Delay
+gitmap pipeline-ai status --json
+
+# Workflow 3: Fast File Discovery
+gitmap find-files "record_dir.go" -ext "go"
+gitmap find-regex-read "func ProcessCd" -ext "go"
+```

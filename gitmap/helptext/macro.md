@@ -1,6 +1,6 @@
 # Macro
 
-Record, replay, and manage automated command sequences with environment variable expansion and interactive session control.
+Record, replay, and manage automated command sequences with environment variable expansion, interactive session control, and structured JSON/YAML reporting.
 
 ## Aliases
 
@@ -9,9 +9,9 @@ m, macros
 ## Usage
 
     gitmap macro record <name>
-    gitmap macro run <name> [--dry-run] [--verbose]
-    gitmap macro list
-    gitmap macro show <name>
+    gitmap macro run <name> [--json] [--yaml] [--file <path>] [--dry-run] [--verbose]
+    gitmap macro list [--json] [--yaml] [--file <path>]
+    gitmap macro show <name> [--json] [--yaml] [--file <path>]
     gitmap macro rm <name>
 
 ## Subcommands
@@ -19,10 +19,20 @@ m, macros
 | Subcommand | Description |
 |---|---|
 | record <name> | Start interactive recording session for shell commands |
-| run <name> | Replay a recorded macro sequence |
+| run <name> | Replay a recorded macro sequence with optional JSON/YAML export |
 | list | List all saved macros |
 | show <name> | View steps in a recorded macro |
 | rm <name> | Delete a saved macro |
+
+## Flags
+
+| Flag | Description |
+|---|---|
+| `--json` | Output execution report in formatted JSON |
+| `--yaml`, `-y` | Output execution report in formatted YAML |
+| `--file <path>`, `-o <path>` | Save execution report to file (also prints confirmation banner) |
+| `--dry-run` | Simulate macro execution without invoking commands |
+| `--verbose`, `-v` | Show live command stdout and stderr |
 
 ## In-Session Recorder Commands
 
@@ -62,9 +72,15 @@ gitmap macro record deploy-temp
 # Replay the recorded macro
 gitmap macro run deploy-temp
 
-# Inspect macro steps
-gitmap macro show deploy-temp
+# Replay with structured JSON output
+gitmap macro run deploy-temp --json
 
-# List all macros
-gitmap macro list
+# Replay with YAML output and save to file
+gitmap macro run deploy-temp --yaml --file "reports/deploy.yaml"
+
+# Inspect macro steps as JSON
+gitmap macro show deploy-temp --json
+
+# List all macros as YAML
+gitmap macro list --yaml
 ```

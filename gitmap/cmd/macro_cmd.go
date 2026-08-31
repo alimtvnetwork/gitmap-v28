@@ -2,108 +2,219 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
+	"gopkg.in/yaml.v3"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
 )
 
-// parseExecOptions parses runtime flags for macro execution.
 func parseExecOptions(flagArgs []string) macro.ExecOptions {
-	executionOptions := macro.ExecOptions{}
-	for _, argument := range flagArgs {
-		if argument == "--dry-run" {
-			executionOptions.DryRun = true
+	opts := macro.ExecOptions{}
+	for i := 0; i < len(flagArgs); i++ {
+		arg := flagArgs[i]
+		if arg == "--dry-run" {
+			opts.DryRun = true
 		}
-		if argument == "--verbose" || argument == "-v" {
-			executionOptions.Verbose = true
+		if arg == "--verbose" || arg == "-v" {
+			opts.Verbose = true
+		}
+		if arg == "--json" {
+			opts.JSON = true
+		}
+		if arg == "--yaml" || arg == "--yml" || arg == "-y" {
+			opts.YAML = true
+		}
+		if isFileFlagWithArg(arg) && i+1 < len(flagArgs) {
+			opts.FilePath = flagArgs[i+1]
+			i++
+		}
+		if strings.HasPrefix(arg, "--file=") {
+			opts.FilePath = strings.TrimPrefix(arg, "--file=")
+		}
+		if strings.HasPrefix(arg, "--out=") {
+			opts.FilePath = strings.TrimPrefix(arg, "--out=")
 		}
 	}
-	return executionOptions
+	return opts
 }
 
-// executeMacroByName loads and executes the named macro.
-func executeMacroByName(macroName string, executionOptions macro.ExecOptions) {
+func extractMacroNameAndFlags(args []string) (string, []string) {
+	name := ""
+	flags := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		isFlag := strings.HasPrefix(args[i], "-")
+		if !isFlag && name == "" {
+			name = args[i]
+			continue
+		}
+		if !isFlag {
+			flags = append(flags, args[i])
+			continue
+		}
+		flags = append(flags, args[i])
+		if isFileFlagWithArg(args[i]) && i+1 < len(args) {
+			flags = append(flags, args[i+1])
+			i++
+		}
+	}
+	return name, flags
+}
+
+func isFileFlagWithArg(arg string) bool {
+	return arg == "--file" || arg == "--out" || arg == "-o" || arg == "-f"
+}
+
+func executeMacroByName(macroName string, opts macro.ExecOptions) {
 	loadedMacro, loadErr := macro.LoadMacro(macroName)
 	if loadErr != nil {
 		fmt.Fprintf(os.Stderr, "%s✖ Error: %v%s\n", constants.ColorRed, loadErr, constants.ColorReset)
 		cliexit.HandleError(nil, 1)
 	}
-	if len(loadedMacro.Steps) > 0 {
+	if isStandardDisplay(opts) && len(loadedMacro.Steps) > 0 {
 		printMacroStepsTree(loadedMacro)
 	}
-	if execErr := macro.Execute(context.Background(), loadedMacro, executionOptions); execErr != nil {
+	if execErr := macro.Execute(context.Background(), loadedMacro, opts); execErr != nil {
 		cliexit.HandleError(nil, 1)
 	}
 }
 
-// runExecuteCmd executes a recorded macro by name.
+func isStandardDisplay(opts macro.ExecOptions) bool {
+	return !opts.JSON && !opts.YAML && len(opts.FilePath) == 0
+}
+
 func runExecuteCmd(args []string) error {
-	if len(args) == 0 {
-		fmt.Fprintf(os.Stderr, "Usage: gitmap execute <macro_name> [--dry-run] [--verbose]\n")
+	macroName, flagArgs := extractMacroNameAndFlags(args)
+	if macroName == "" {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap macro run <name> [--json] [--yaml] [--file <path>] [--dry-run] [--verbose]\n")
 		cliexit.HandleError(nil, 1)
 	}
-	executionOptions := parseExecOptions(args[1:])
-	executeMacroByName(args[0], executionOptions)
+	opts := parseExecOptions(flagArgs)
+	executeMacroByName(macroName, opts)
 	return nil
 }
 
-// runMacroCmd handles `gitmap macro` subcommands.
 func runMacroCmd(args []string) error {
 	if len(args) == 0 {
 		printMacroUsage()
 		return nil
 	}
-	sub := args[0]
+	return routeMacroSubcommand(args[0], args[1:])
+}
+
+func routeMacroSubcommand(sub string, rest []string) error {
 	switch sub {
 	case "run", "exec":
-		if len(args) < 2 {
-			fmt.Fprintf(os.Stderr, "Usage: gitmap macro run <name>\n")
-			cliexit.HandleError(nil, 1)
-		}
-		runExecuteCmd(args[1:])
+		return runExecuteCmd(rest)
 	case "record", "rec":
-		if len(args) < 2 {
-			fmt.Fprintf(os.Stderr, "Usage: gitmap macro record <name>\n")
-			cliexit.HandleError(nil, 1)
-		}
-		if err := macro.RecordInteractive(args[1]); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			cliexit.HandleError(nil, 1)
-		}
+		return handleMacroRecord(rest)
 	case "list", "ls":
-		listMacros()
+		return handleMacroList(rest)
 	case "show":
-		if len(args) < 2 {
-			fmt.Fprintf(os.Stderr, "Usage: gitmap macro show <name>\n")
-			cliexit.HandleError(nil, 1)
-		}
-		showMacro(args[1])
+		return handleMacroShow(rest)
 	case "rm", "delete":
-		if len(args) < 2 {
-			fmt.Fprintf(os.Stderr, "Usage: gitmap macro rm <name>\n")
-			cliexit.HandleError(nil, 1)
-		}
-		if err := macro.DeleteMacro(args[1]); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			cliexit.HandleError(nil, 1)
-		}
-		fmt.Printf("✔ Removed macro %q\n", args[1])
+		return handleMacroDelete(rest)
 	default:
 		printMacroUsage()
 	}
 	return nil
 }
 
-func listMacros() {
+func handleMacroRecord(args []string) error {
+	if len(args) < 1 {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap macro record <name>\n")
+		cliexit.HandleError(nil, 1)
+	}
+	if err := macro.RecordInteractive(args[0]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliexit.HandleError(nil, 1)
+	}
+	return nil
+}
+
+func handleMacroList(args []string) error {
+	opts := parseExecOptions(args)
 	macros, err := macro.ListMacros()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error listing macros: %v\n", err)
-		return
+		return nil
 	}
+	if opts.JSON || opts.YAML || len(opts.FilePath) > 0 {
+		return outputStructuredData(macros, opts)
+	}
+	renderMacroListTable(macros)
+	return nil
+}
+
+func handleMacroShow(args []string) error {
+	name, flagArgs := extractMacroNameAndFlags(args)
+	if name == "" {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap macro show <name> [--json] [--yaml] [--file <path>]\n")
+		cliexit.HandleError(nil, 1)
+	}
+	opts := parseExecOptions(flagArgs)
+	m, err := macro.LoadMacro(name)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		return nil
+	}
+	if opts.JSON || opts.YAML || len(opts.FilePath) > 0 {
+		return outputStructuredData(m, opts)
+	}
+	renderMacroShow(m)
+	return nil
+}
+
+func handleMacroDelete(args []string) error {
+	if len(args) < 1 {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap macro rm <name>\n")
+		cliexit.HandleError(nil, 1)
+	}
+	if err := macro.DeleteMacro(args[0]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliexit.HandleError(nil, 1)
+	}
+	fmt.Printf("✔ Removed macro %q\n", args[0])
+	return nil
+}
+
+func outputStructuredData(data interface{}, opts macro.ExecOptions) error {
+	isYAML := opts.YAML || strings.HasSuffix(strings.ToLower(opts.FilePath), ".yaml") || strings.HasSuffix(strings.ToLower(opts.FilePath), ".yml")
+	formatted := formatStructuredBytes(data, isYAML)
+	if len(opts.FilePath) == 0 {
+		fmt.Println(formatted)
+		return nil
+	}
+	return saveAndPrintStructuredOutput(opts.FilePath, formatted)
+}
+
+func formatStructuredBytes(data interface{}, isYAML bool) string {
+	if isYAML {
+		bytes, _ := yaml.Marshal(data)
+		return string(bytes)
+	}
+	bytes, _ := json.MarshalIndent(data, "", "  ")
+	return string(bytes)
+}
+
+func saveAndPrintStructuredOutput(filePath, formatted string) error {
+	savedPath, saveErr := macro.SaveReportToFile(filePath, formatted)
+	if saveErr != nil {
+		return fmt.Errorf("failed saving to %s: %w", filePath, saveErr)
+	}
+	fmt.Println(formatted)
+	fmt.Printf("\n  %s✔ Output saved to:%s %s%s%s\n\n",
+		constants.ColorGreen, constants.ColorReset,
+		constants.ColorCyan, savedPath, constants.ColorReset)
+	return nil
+}
+
+func renderMacroListTable(macros []macro.Macro) {
 	if len(macros) == 0 {
 		fmt.Println("  No saved macros found. Record one with: gitmap macro record <name>")
 		return
@@ -117,12 +228,7 @@ func listMacros() {
 	fmt.Println()
 }
 
-func showMacro(name string) {
-	m, err := macro.LoadMacro(name)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		return
-	}
+func renderMacroShow(m *macro.Macro) {
 	fmt.Printf("\n  %sMacro: %s (%d steps)%s\n", constants.ColorCyan, m.Name, len(m.Steps), constants.ColorReset)
 	for i, step := range m.Steps {
 		fmt.Printf("    %d. %s\n", i+1, step.CommandLine)
@@ -133,19 +239,9 @@ func showMacro(name string) {
 func printMacroUsage() {
 	fmt.Println("Usage: gitmap macro <command> [arguments]")
 	fmt.Println("Commands:")
-	fmt.Println("  record <name>    Record an interactive shell session as a macro")
-	fmt.Println("  run <name>       Replay a recorded macro")
-	fmt.Println("  list             List all saved macros")
-	fmt.Println("  show <name>      Inspect steps of a macro")
-	fmt.Println("  rm <name>        Delete a saved macro")
+	fmt.Println("  record <name>                  Record an interactive shell session as a macro")
+	fmt.Println("  run <name> [--json] [--yaml]   Replay a macro (optional JSON/YAML & file export)")
+	fmt.Println("  list [--json] [--yaml]         List all saved macros")
+	fmt.Println("  show <name> [--json] [--yaml]  Inspect steps of a macro")
+	fmt.Println("  rm <name>                      Delete a saved macro")
 }
-
-type TypeFuncf0956a91 struct{}
-
-func InitFuncf0956a91() error             { return nil }
-func (x *TypeFuncf0956a91) Process() bool { return true }
-
-type TypeFunc58e1479d struct{}
-
-func InitFunc58e1479d() error             { return nil }
-func (x *TypeFunc58e1479d) Process() bool { return true }
