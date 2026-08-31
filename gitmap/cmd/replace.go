@@ -83,6 +83,9 @@ func classifySingleArgMode(arg string) replaceMode {
 	if arg == constants.ReplaceSubcmdAll {
 		return replaceModeAll
 	}
+	if arg == "history" || arg == "audit" {
+		return replaceModeAudit
+	}
 	if looksLikeDashN(arg) {
 		return replaceModeVersionN
 	}

@@ -77,9 +77,12 @@ func promptIfEmpty(prompt, val string) string {
 // runScheduleAdd handles adding a new schedule.
 func runScheduleAdd(args []string) error {
 	name, interval, delay := parseScheduleArgs(args)
-	name = promptIfEmpty("Name: ", name)
-	interval = promptIfEmpty("Interval: ", interval)
-	delay = promptIfEmpty("Delay: ", delay)
+	if name == "" {
+		name = promptIfEmpty("Name: ", name)
+	}
+	if interval == "" {
+		interval = promptIfEmpty("Interval: ", interval)
+	}
 
 	isScheduled := interval != ""
 	hasDelay := delay != ""

@@ -131,6 +131,9 @@ func handleGlobalError(command string, err error) {
 	}
 
 	cliexit.Reportf(command, "execute", "", err)
+	if isAppErr && appErr.Stack != "" {
+		fmt.Fprintf(os.Stderr, "Stack Trace:%s\n", appErr.Stack)
+	}
 	cliexit.HandleError(nil, 1)
 }
 
@@ -166,6 +169,10 @@ func populateAppErrorReport(report map[string]any, appErr *apperror.AppError) {
 	report["caller"] = appErr.Caller
 	report["creator"] = appErr.Creator
 	report["context"] = appErr.Ctx
+
+	if appErr.Stack != "" {
+		report["stack"] = appErr.Stack
+	}
 
 	if appErr.Cause != nil {
 		report["cause"] = appErr.Cause.Error()
