@@ -1,3 +1,16 @@
+## [v6.155.4] 2026-08-31 Release v6.155.4
+
+### Install gitmap v6.155.4
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.sh | bash -s -- ".lovable/prompts" "v6.155.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.4"`
+
+### Fixed & Enhanced
+
+- Enhanced `install.ps1` and `install.sh` terminal output to detect and display previous installed version (e.g. `upgrading v6.155.3 -> v6.155.4` or `clean install`).
+- Fixed duplicate binary prefix in post-install verification (cleaned up `gitmap gitmap v6.155.3` to `Installed: gitmap v6.155.4 (upgraded from v6.155.3)`).
+
 ## [v6.155.3] 2026-08-31 Release v6.155.3
 
 ### Install gitmap v6.155.3
