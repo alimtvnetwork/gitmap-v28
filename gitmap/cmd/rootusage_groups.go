@@ -183,7 +183,7 @@ func printGroupInstallers() {
 	renderLine(constants.HelpInstall)
 	renderLine(constants.HelpUninstall)
 	renderLine(constants.HelpInstaller)
-	renderLine(constants.HelpMacro + " (also performs installer behavior)")
+	renderLine(constants.HelpMacro)
 	renderLine(constants.HelpSetup)
 }
 
@@ -194,4 +194,14 @@ func printGroupIntegrations() {
 	renderLine(constants.HelpSchedule)
 	renderLine(constants.HelpPipeline)
 	renderLine(constants.HelpUI)
+}
+
+func printGroupSearchFind() {
+	renderHeader(constants.HelpGroupSearchFind)
+	renderLine(constants.HelpFindFiles)
+	renderLine(constants.HelpFindFilesAny)
+	renderLine(constants.HelpFindFilesStart)
+	renderLine(constants.HelpFindFilesEnd)
+	renderLine(constants.HelpFind)
+	renderLine(constants.HelpListFiles)
 }

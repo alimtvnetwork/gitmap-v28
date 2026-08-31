@@ -25,6 +25,14 @@ const (
 	HelpGroupCluster      = "  Cluster & Delegation (multi-machine networks):"
 	HelpGroupInstallers   = "  Installers & Macros:"
 	HelpGroupIntegrations = "  Integrations (VS Code, Antigravity, Scheduler):"
+	HelpGroupSearchFind   = "  Search & File Discovery:"
+
+	HelpFindFiles      = "  find-files (ff) <name>     Find files matching exact filename (-ext filter)"
+	HelpFindFilesAny   = "  find-files-any (ffa) <str> Find files containing substring in name (-ext filter)"
+	HelpFindFilesStart = "  find-files-startswith (ffs) Find files by prefix in filename (-ext filter)"
+	HelpFindFilesEnd   = "  find-files-endswith (ffe)  Find files by suffix in filename (-ext filter)"
+	HelpFind           = "  find (f) <wildcard*>       Universal glob/wildcard search (-ext filter)"
+	HelpListFiles      = "  list-files (lf) [pattern]  List indexed repository files"
 
 	HelpAddIgnore     = "  add ignore [langs...]      Merge curated .gitignore block into ./.gitignore (idempotent, marker-block aware)"
 	HelpAddAttributes = "  add attributes [langs...]  Merge curated .gitattributes block into ./.gitattributes (idempotent, marker-block aware)"
@@ -51,7 +59,7 @@ const (
 
 	HelpAlias           = "  alias (a) <sub>     Assign short names to repos (set, remove, list, show, suggest)"
 	HelpSSH             = "  ssh <sub>           Generate, list, and manage SSH keys for Git authentication"
-	HelpSSHJoin         = "  sj (ssh-join) [ls|rm|history|auth]   Join an SSH network and manage connections (use --help to expand)"
+	HelpSSHJoin         = "  sj (ssh-join) <sub> Join an SSH network and manage connections"
 	HelpCodingGuideline = "  cg <sub>            Install Coding Guidelines (v24) into a repo"
 	HelpZipGroup        = "  zip-group (z) <sub>       Manage named file collections for release ZIP archives"
 	HelpMV              = "  mv (move) <s..> <d..>       Relocate repo directory with VSCode & GitHub Desktop sync"
@@ -61,6 +69,7 @@ const (
 
 	// Compact-mode lines: command (alias) only.
 	CompactScanning     = "  scan (s), rescan (rsc), rescan-subtree (rss), list (ls)"
+	CompactSearchFind   = "  find-files (ff), find-files-any (ffa), find-files-startswith (ffs), find-files-endswith (ffe), find (f), list-files (lf)"
 	CompactCloning      = "  clone (c), clone-next (cn), desktop-sync (ds), github-desktop (gd)"
 	CompactGitOps       = "  pull (p), exec (x), status (st), watch (w), has-any-updates, latest-branch (lb)"
 	CompactNavigation   = "  cd (go), group (g), multi-group (mg), alias (a), diff-profiles (dp)"
@@ -81,13 +90,13 @@ const (
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
-	HelpInstaller     = "  installer (in) [run|ls|rm|history|edit]   Manage installer scripts and history (use --help to expand)"
-	HelpMacro         = "  macro (m) [run|ls|rm|history|edit]   Manage and execute macros (use --help to expand)"
-	HelpSchedule      = "  schedule (sc) [add|ls|rm|pause|resume]   Schedule tasks and run jobs (use --help to expand)"
-	HelpVSCode        = "  vscode (vsc) [ls|add|rm|pap|plugins]   Manage VS Code PM integrations (use --help to expand)"
-	HelpAgy           = "  antigravity (ag) [ls|add|rm|clear|open|prompt|rw|sync|pap|ep|ip|stats|plugin]   Manage workspaces (use --help to expand)"
-	HelpPipeline      = "  pipeline (pl) [status|waittime|error-logs|logs|help]   Monitor CI/CD workflows and ETA (use --help to expand)"
-	HelpUI            = "  ui [settings|pipeline|terminal]   Open interactive settings and dashboard in browser"
+	HelpInstaller     = "  installer (in) <sub>        Manage developer tool installer scripts and history"
+	HelpMacro         = "  macro (m) <sub>             Record, manage, and replay task automation macros"
+	HelpSchedule      = "  schedule (sc) <sub>         Schedule background tasks, recurring jobs & triggers"
+	HelpVSCode        = "  vscode (vsc) <sub>          Manage VS Code Project Manager workspaces & repos"
+	HelpAgy           = "  antigravity (agy, ag) <sub> Manage Antigravity workspaces, prompts, and sync"
+	HelpPipeline      = "  pipeline (pl, eta) <sub>    Monitor CI/CD workflows, ETA, and error logs"
+	HelpUI            = "  ui <sub>                    Open interactive web settings and dashboard in browser"
 )
 
 // HelpGroupKeys returns short keywords for tab-completion of group filtering.

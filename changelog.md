@@ -1,3 +1,24 @@
+## [v6.155.5] 2026-08-31 Release v6.155.5
+
+### Install gitmap v6.155.5
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.sh | bash -s -- ".lovable/prompts" "v6.155.5"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.5"`
+
+### Fixed & Enhanced
+
+- **Terminal Help UI Overhaul**:
+  - Distinct colored headers for flag sections and category banners.
+  - Consistent blank newline gaps before and after every super-category, group header, and flag section header.
+  - Refactored Integrations section (`vscode`, `antigravity`, `schedule`, `pipeline`, `ui`) from multi-line broken brackets into clean, 2-column aligned rows with aliases.
+  - Enhanced all command aliases and alt text visibility (`pl`, `eta`, `waittime`, `ff`, `ffa`, `ffs`, `ffe`, `f`, `lf`, `agy`, `ag`, `vsc`, `sc`, `cpf`, `cpb`, `cpr`, `pcp`).
+  - Added dedicated `Search & File Discovery` help group.
+- **Comprehensive LLM Specification & AI Agent Guidelines**:
+  - Added 5-phase AI Agent Standard Operating Procedure (SOP) execution order diagram.
+  - Added rich step-by-step real-world workflows with commands and JSON outputs (CI/CD self-healing loop, file discovery, batch refactoring with rollback, workspace management).
+  - Added complete Alternative Commands & Aliases cheat sheet.
+
 ## [v6.155.4] 2026-08-31 Release v6.155.4
 
 ### Install gitmap v6.155.4
