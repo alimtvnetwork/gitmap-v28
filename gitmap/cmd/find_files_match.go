@@ -6,10 +6,12 @@ import (
 )
 
 func parseExtensionList(raw string) []string {
-	parts := strings.Split(raw, ",")
+	cleanRaw := strings.Trim(raw, "[]\"'")
+	parts := strings.Split(cleanRaw, ",")
 	var exts []string
 	for _, p := range parts {
-		clean := strings.TrimPrefix(strings.TrimSpace(strings.ToLower(p)), ".")
+		clean := strings.Trim(strings.TrimSpace(strings.ToLower(p)), "[]\"'")
+		clean = strings.TrimPrefix(clean, ".")
 		if clean != "" {
 			exts = append(exts, clean)
 		}

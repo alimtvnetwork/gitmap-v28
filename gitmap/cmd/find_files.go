@@ -84,6 +84,10 @@ func parseFindFilesOptions(args []string, defaultKind MatchKind) FindFilesOption
 		case (arg == "-ext" || arg == "--ext") && i+1 < len(args):
 			opts.Exts = parseExtensionList(args[i+1])
 			i++
+		case strings.HasPrefix(arg, "-ext="):
+			opts.Exts = parseExtensionList(strings.TrimPrefix(arg, "-ext="))
+		case strings.HasPrefix(arg, "--ext="):
+			opts.Exts = parseExtensionList(strings.TrimPrefix(arg, "--ext="))
 		case (arg == "--limit" || arg == "-l") && i+1 < len(args):
 			opts.Limit, _ = strconv.Atoi(args[i+1])
 			i++
