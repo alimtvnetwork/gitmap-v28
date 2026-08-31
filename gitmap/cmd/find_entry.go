@@ -37,6 +37,7 @@ func parseLimit(args []string) (int, []string) {
 // getRepoDB is used from cmd_db.go
 
 func runFind(args []string) error {
+	checkHelp("find", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap find <query> [--limit <n>]")
@@ -65,6 +66,7 @@ func runFind(args []string) error {
 }
 
 func runFindRegex(args []string) error {
+	checkHelp("find-regex", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap find-regex <regex> [--limit <n>]")
@@ -93,6 +95,7 @@ func runFindRegex(args []string) error {
 }
 
 func runFindRead(args []string) error {
+	checkHelp("find-read", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap find-read <query> [--limit <n>]")
@@ -123,6 +126,7 @@ func runFindRead(args []string) error {
 }
 
 func runFindReadJson(args []string) error {
+	checkHelp("find-read-json", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("[]")
@@ -151,6 +155,7 @@ func runFindReadJson(args []string) error {
 }
 
 func runFindRegexRead(args []string) error {
+	checkHelp("find-regex-read", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap find-regex-read <regex> [--limit <n>]")
@@ -181,6 +186,7 @@ func runFindRegexRead(args []string) error {
 }
 
 func runFindRegexReadJson(args []string) error {
+	checkHelp("find-regex-read-json", args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("[]")
