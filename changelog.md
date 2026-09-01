@@ -1,3 +1,13 @@
+## [v6.160.0] 2026-09-01 Release v6.160.0
+
+### Added & Enhanced
+
+- **CI/CD Reliability & E2E Testing**:
+  - Added full `docs-site` frontend Vite build verification (`npm run build`) in CI workflows.
+  - Added comprehensive `e2e-cli-smoke.py` suite covering scheduled tasks, macros, retries, and Chrome management.
+  - Fixed release workflow version resolution to dynamically bind to triggered git tags.
+  - Resolved `spec/21-app` relative import paths across documentation views.
+
 ## [v6.158.1] 2026-09-01 Release v6.158.1
 
 ### Install gitmap v6.158.1

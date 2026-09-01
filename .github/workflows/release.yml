@@ -36,9 +36,17 @@ jobs:
       - name: Resolve version
         id: version
         run: |
-          VERSION=$(jq -r 'if .Version != null then .Version elif .version != null then .version else empty end' version.json)
+          if [[ "${{ github.ref_type }}" == "tag" ]] && [[ -n "${{ github.ref_name }}" ]]; then
+            VERSION="${{ github.ref_name }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+          elif [[ "${GITHUB_REF}" == refs/heads/release/* ]]; then
+            VERSION="${GITHUB_REF#refs/heads/release/}"
+          else
+            VERSION=$(jq -r 'if .Version != null then .Version elif .version != null then .version else empty end' version.json)
+          fi
           if [[ -z "$VERSION" ]]; then
-            echo "::error::Could not resolve version from version.json"
+            echo "::error::Could not resolve version"
             exit 1
           fi
           if [[ "$VERSION" != v* ]]; then
