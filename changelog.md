@@ -1,3 +1,16 @@
+## [v6.161.0] 2026-09-02 Release v6.161.0
+
+### Added & Enhanced
+
+- **Chrome Profile Name and Email Export Progress Display**:
+  - Export operations (`json`, `yaml`, `sqlite`, `zip`) now resolve and print the human-readable profile display name and user email address from Chrome's `Local State` and `Preferences`.
+  - Intelligently avoids redundant repetition when the display name is identical to the email.
+  - Added unit tests for profile label formatting with full permutations.
+
+- **CI/CD Reliability & Go Linter Hardening**:
+  - Fixed relative output pathing in `ci.yml` for `go -C gitmap` invocations across Linux and Windows.
+  - Refactored multi-branch conditionals in `chromeprofile.go` to idiomatic Go `switch` statements to pass `gocritic` diff checks.
+
 ## [v6.160.0] 2026-09-01 Release v6.160.0
 
 ### Added & Enhanced
