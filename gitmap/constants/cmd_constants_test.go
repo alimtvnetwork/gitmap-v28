@@ -383,6 +383,8 @@ func topLevelCmds() map[string]string {
 		"CmdChromeProfileMerge":         CmdChromeProfileMerge,
 		"CmdChromeProfileMergeAlias":    CmdChromeProfileMergeAlias,
 		"CmdChrome":                     CmdChrome,
+		"CmdChromeAlias":                CmdChromeAlias,
+		"CmdChromeAlias2":               CmdChromeAlias2,
 		"CmdBackup":                     CmdBackup,
 		"CmdMakeAllPublicExceptLatest":  CmdMakeAllPublicExceptLatest,
 		"CmdMakeAllPrivateExceptLatest": CmdMakeAllPrivateExceptLatest,

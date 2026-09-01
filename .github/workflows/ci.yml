@@ -1325,13 +1325,30 @@ jobs:
         shell: bash
         run: bash .github/scripts/check-changelog-version-sync.sh
 
+      - name: Setup Node.js
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build and test docs-site
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run E2E CLI Smoke Tests
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: |
+          go -C gitmap build -ldflags="-s -w" -o ../gitmap-bin .
+          python3 .github/scripts/e2e-cli-smoke.py gitmap-bin
+
       - name: Run installer smoke (source mode)
         if: needs.sha-check.outputs.already-built != 'true'
         shell: bash
-        run: python .github/scripts/smoke-installer.py source
-
-
-
+        run: python3 .github/scripts/smoke-installer.py source
 
   installer-smoke-windows:
     # Windows companion to installer-smoke: same source-build assertion,
@@ -1353,6 +1370,13 @@ jobs:
         with:
           go-version-file: gitmap/go.mod
           cache-dependency-path: gitmap/go.sum
+
+      - name: Run E2E CLI Smoke Tests Windows
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: pwsh
+        run: |
+          go -C gitmap build -ldflags="-s -w" -o ../gitmap.exe .
+          python .github/scripts/e2e-cli-smoke.py gitmap.exe
 
       - name: Run installer smoke (source mode)
         if: needs.sha-check.outputs.already-built != 'true'

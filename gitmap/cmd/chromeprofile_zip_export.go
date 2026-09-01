@@ -16,11 +16,6 @@ func writeChromeExportZIP(srcProfile, name, outPath string) (int, error) {
 	return buildChromeProfileArchive(srcProfile, name, outPath, true, true)
 }
 
-// writeChromeExportSQLite writes a zip archive to outPath containing ONLY the curated SQLite databases.
-func writeChromeExportSQLite(srcProfile, name, outPath string) (int, error) {
-	return buildChromeProfileArchive(srcProfile, name, outPath, false, true)
-}
-
 // buildChromeProfileArchive builds the actual zip payload based on requested flags.
 func buildChromeProfileArchive(
 	srcProfile,
