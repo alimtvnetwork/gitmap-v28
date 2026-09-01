@@ -39,7 +39,7 @@ Root index for the entire specification tree. Each top-level folder contains a d
 | # | Module | Description |
 |---|--------|-------------|
 | 21 | [App](./21-app/00-overview.md) | GitMap application specifications: features, CLI surfaces, scanner, workflows, and modules |
-| 22 | [App Issues](./22-app-issues/00-overview.md) | GitMap bug analysis, root cause analyses (RCA), and fix documentation |
+| 22 | [App Issues](./22-app-issues/00-overview.md) | GitMap bug analysis, root cause analysis (RCA), and fix documentation |
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Audit Date:** 2026-09-01  
 **Status:** PASS  
-**Scope:** Application Issue Analyses & RCAs (`spec/22-app-issues/`)
+**Scope:** Application Issue Reports & RCAs (`spec/22-app-issues/`)
 
 ---
 
