@@ -47,15 +47,16 @@ func parseExtensionFilterArgs(args []string) extensionFilterOpts {
 	var opts extensionFilterOpts
 	opts.Format = constants.OutputTerminal
 	for _, a := range args {
-		if a == "--json" || a == "-json" {
+		switch {
+		case a == "--json" || a == "-json":
 			opts.Format = constants.OutputJSON
-		} else if a == "--yaml" || a == "-yaml" {
+		case a == "--yaml" || a == "-yaml":
 			opts.Format = constants.OutputYAML
-		} else if a == "--all" || a == "-a" {
+		case a == "--all" || a == "-a":
 			opts.IsAll = true
-		} else if strings.HasPrefix(a, "--profile=") {
+		case strings.HasPrefix(a, "--profile="):
 			opts.Profile = strings.TrimPrefix(a, "--profile=")
-		} else if !strings.HasPrefix(a, "-") && opts.Profile == "" {
+		case !strings.HasPrefix(a, "-") && opts.Profile == "":
 			opts.Profile = a
 		}
 	}

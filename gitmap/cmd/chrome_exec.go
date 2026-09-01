@@ -96,20 +96,21 @@ func parseChromeLaunchArgs(args []string) (chromeLaunchOptions, error) {
 
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if a == "--incognito" || a == "-incognito" {
+		switch {
+		case a == "--incognito" || a == "-incognito":
 			opts.IsIncog = true
-		} else if a == "--new-window" {
+		case a == "--new-window":
 			opts.IsNewWin = true
-		} else if strings.HasPrefix(a, "--app=") {
+		case strings.HasPrefix(a, "--app="):
 			opts.AppURL = strings.TrimPrefix(a, "--app=")
-		} else if strings.HasPrefix(a, "--profile=") {
+		case strings.HasPrefix(a, "--profile="):
 			explicitProfile = strings.TrimPrefix(a, "--profile=")
-		} else if (a == "-p" || a == "--profile") && i+1 < len(args) {
+		case (a == "-p" || a == "--profile") && i+1 < len(args):
 			i++
 			explicitProfile = args[i]
-		} else if strings.HasPrefix(a, "-") {
+		case strings.HasPrefix(a, "-"):
 			opts.ExtraFlags = append(opts.ExtraFlags, a)
-		} else {
+		default:
 			positional = append(positional, a)
 		}
 	}

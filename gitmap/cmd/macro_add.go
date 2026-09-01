@@ -35,17 +35,18 @@ func parseMacroAddFlags(args []string) (string, string, []string) {
 	var rawSteps []string
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if (a == "--desc" || a == "--description") && i+1 < len(args) {
+		switch {
+		case (a == "--desc" || a == "--description") && i+1 < len(args):
 			i++
 			desc = args[i]
-		} else if a == "--tag" && i+1 < len(args) {
+		case a == "--tag" && i+1 < len(args):
 			i++
 			tag = args[i]
-		} else if strings.HasPrefix(a, "--desc=") {
+		case strings.HasPrefix(a, "--desc="):
 			desc = strings.TrimPrefix(a, "--desc=")
-		} else if strings.HasPrefix(a, "--tag=") {
+		case strings.HasPrefix(a, "--tag="):
 			tag = strings.TrimPrefix(a, "--tag=")
-		} else if !strings.HasPrefix(a, "-") {
+		case !strings.HasPrefix(a, "-"):
 			rawSteps = append(rawSteps, a)
 		}
 	}

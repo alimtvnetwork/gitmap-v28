@@ -49,21 +49,22 @@ func parseScheduleExportOpts(args []string) scheduleExportOpts {
 	opts := scheduleExportOpts{Format: constants.OutputJSON}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if matchFlagWithVal(a, "-f", "--file", "--filepath", "-o", "--output") {
+		switch {
+		case matchFlagWithVal(a, "-f", "--file", "--filepath", "-o", "--output"):
 			opts.FilePath = extractFlagValue(&i, args)
-		} else if matchFlagWithVal(a, "-except", "--except", "--exclude") {
+		case matchFlagWithVal(a, "-except", "--except", "--exclude"):
 			opts.ExceptList = parseExceptTokens(extractFlagValue(&i, args))
-		} else if matchFlagWithVal(a, "--format") {
+		case matchFlagWithVal(a, "--format"):
 			opts.Format = strings.ToLower(extractFlagValue(&i, args))
-		} else if a == "--json" {
+		case a == "--json":
 			opts.Format = constants.OutputJSON
-		} else if a == "--yaml" || a == "--yml" || a == "-y" {
+		case a == "--yaml" || a == "--yml" || a == "-y":
 			opts.Format = constants.OutputYAML
-		} else if a == "--sqlite" || a == "--db" {
+		case a == "--sqlite" || a == "--db":
 			opts.Format = "sqlite"
-		} else if a == "--zip" {
+		case a == "--zip":
 			opts.Format = "zip"
-		} else if !strings.HasPrefix(a, "-") && opts.TargetName == "" {
+		case !strings.HasPrefix(a, "-") && opts.TargetName == "":
 			opts.TargetName = a
 		}
 	}
