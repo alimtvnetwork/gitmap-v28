@@ -10,7 +10,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -349,17 +348,4 @@ func defaultChromeExportPath(name, format string) string {
 		ext = constants.ExtYAML
 	}
 	return filepath.Join(constants.GitMapDir, "chrome", name+ext)
-}
-
-// readChromeExport loads a JSON export file from disk.
-func readChromeExport(path string) (*chromeExport, error) {
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", path, err)
-	}
-	var exp chromeExport
-	if err := json.Unmarshal(raw, &exp); err != nil {
-		return nil, fmt.Errorf("parse %s: %w", path, err)
-	}
-	return &exp, nil
 }

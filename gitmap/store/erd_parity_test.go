@@ -24,7 +24,7 @@ import (
 
 const (
 	// erdPathRel is the canonical ERD location relative to the repo root.
-	erdPathRel = "spec/01-app/gitmap-database-erd.mmd"
+	erdPathRel = "spec/21-app/gitmap-database-erd.mmd"
 	// constantsDirRel is the directory containing SQLCreate* constants.
 	constantsDirRel = "gitmap/constants"
 	// erdParityRegenHint is shown when the test fails so the fix is obvious.

@@ -9,20 +9,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
-
-// loadChromeImport dispatches to JSON or CSV based on the file
-// extension. Anything other than .csv is treated as JSON.
-func loadChromeImport(path string) (*chromeExport, error) {
-	if strings.HasSuffix(strings.ToLower(path), constants.ExtCSV) {
-		fmt.Fprint(os.Stderr, constants.MsgChromeProfileImportCSV)
-		return readChromeExportCSV(path)
-	}
-	return readChromeExport(path)
-}
 
 func parseCSVRows(path string) ([][]string, error) {
 	f, err := os.Open(path)
