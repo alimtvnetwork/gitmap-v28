@@ -15,7 +15,7 @@ def main():
 
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     bin_name = 'gitmap.exe' if os.name == 'nt' else 'gitmap'
-    bin_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(repo_root, bin_name)
+    bin_path = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(repo_root, bin_name)
 
     if not os.path.isfile(bin_path):
         print(f'Path {bin_path} does not exist', file=sys.stderr)
