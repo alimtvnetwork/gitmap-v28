@@ -1,6 +1,6 @@
 # chrome
 
-Unified CLI suite for managing Google Chrome installation, profile replication, backup, export/import, diff, and bookmark extraction.
+Unified CLI suite for managing Google Chrome installation, profile replication, URL & tab launching, extensions/plugins, experimental flags, cache reset, observation, and backup.
 
 ## Aliases
 
@@ -11,23 +11,36 @@ Unified CLI suite for managing Google Chrome installation, profile replication, 
 
 ## Subcommands
 
-### Installation & System Setup
-- `install` (`in`) — Install Google Chrome via system package manager (Winget, Chocolatey, Apt, Homebrew).
+### Launching & Tabs
+- `open` (`launch`, `tab`) `[urls...] [--profile=<name>] [--incognito] [--new-window] [--app=<url>]` — Open URL(s) in specified or active profile, or launch multiple profiles in one command (e.g. `"Profile 1=https://a.com,Profile 2=https://b.com"`).
+- `observe` (`tabs`, `status`, `ps`) `[profile] [--json|--yaml|--all]` — Inspect active Chrome processes, open tabs, page titles, and loading status.
+
+### Extensions & Plugins
+- `extensions` (`ext`, `plugins`) `[profile] [--json|--yaml|--all]` — List installed extensions, versions, IDs, and enabled/disabled state.
+- `extension-install` (`ext-in`, `plugin-install`) `<path> [--profile=<name>]` — Inject an unpacked extension directory or `.crx` file into a profile.
+- `extension-enable` (`ext-on`, `plugin-enable`) `<pattern|id> [--profile=<name>]` — Enable extension(s) matching an ID or pattern.
+- `extension-disable` (`ext-off`, `plugin-disable`) `<pattern|id> [--profile=<name>]` — Disable extension(s) matching an ID or pattern.
+- `extension-disable-all` (`ext-off-all`) `[--profile=<name>]` — Disable ALL extensions in the target profile.
+
+### Feature Flags & Profile Reset
+- `flags` (`experiments`) `[ls|enable|disable|reset] [flag-name]` — Inspect, toggle, or reset Chrome experimental feature flags in `Local State`.
+- `reset` (`clean`, `clear`) `[profile] [--cache|--cookies|--history|--extensions|--all]` — Purge caches, cookies, history, or restore clean default preferences.
 
 ### Single Profile Operations
-- `copy` (`cpc`, `profile-copy`) `<src> <dst>` — Copy a Chrome profile (bookmarks, extensions, preferences, flags) into an offline destination profile.
-- `export` (`cpe`, `profile-export`) `<name> [out]` — Export a profile snapshot (`--format=json|zip|sqlite`).
-- `import` (`cpi`, `profile-import`) `<file> [name]` — Import a profile from a JSON, ZIP, or SQLite export file.
-- `list` (`ls`, `cpl`, `profiles`) — List all Chrome profiles discovered on the local machine and tracked in GitMap database.
-- `delete` (`rm`, `del`, `cpd`) `<name> [--yes]` — Remove a profile and its stored artifacts from the database.
+- `copy` (`cpc`, `profile-copy`) `<src> <dst>` — Copy a Chrome profile into an offline destination profile.
+- `export` (`cpe`, `profile-export`) `<name> [out] [--format=json|sqlite|yaml|zip]` — Export profile snapshot (auto-infers format from extension).
+- `import` (`cpi`, `profile-import`) `<file> [name]` — Import a profile from a JSON, SQLite DB, YAML, or ZIP snapshot.
+- `list` (`ls`, `cpl`, `profiles`) — List all Chrome profiles discovered on the local machine.
+- `delete` (`rm`, `del`, `cpd`) `<name> [--yes]` — Remove a profile and its stored artifacts.
 - `merge` (`cpm`) `<src> <dst> [--what=all|settings|bookmarks|extensions]` — Merge pieces of one profile into another.
 
 ### Batch Profile Operations
-- `copy-all` (`all-profile-copy`, `cpc-all`) `[dst-dir]` — Replicate ALL discovered Chrome profiles to a destination directory.
-- `export-all` (`all-profile-export`, `cpe-all`) `[out-dir] [--format=json|zip|sqlite]` — Batch export all Chrome profiles.
+- `copy-all` (`all-profile-copy`, `cpc-all`) `[dst-dir]` — Replicate ALL discovered Chrome profiles to a directory.
+- `export-all` (`all-profile-export`, `cpe-all`) `[out-dir]` — Batch export all Chrome profiles to JSON, SQLite, YAML, or ZIP.
 - `import-all` (`all-profile-import`, `cpi-all`) `<dir>` — Batch import all profile snapshots from a directory.
 
-### Backup, Diff & Inspection
+### Backup, Diff & Maintenance
+- `install` (`in`) — Install Google Chrome via system package manager (Winget, Chocolatey, Apt, Homebrew).
 - `backup` `[--out <tarball>]` — Snapshot all Chrome profiles into a compressed `tar.gz` archive.
 - `restore` `<tarball>` — Restore all Chrome profiles from a `tar.gz` archive.
 - `diff` `<A> <B>` — Compare extensions, bookmarks, and settings between two profiles.
@@ -39,35 +52,40 @@ Unified CLI suite for managing Google Chrome installation, profile replication, 
 ## Examples
 
 ```bash
-# Install Chrome
-gitmap chrome install
+# Launch URL in default profile
+gitmap chrome open "https://github.com"
 
-# List local profiles
-gitmap chrome list
-gitmap cp ls
+# Launch in specific profile
+gitmap chrome open "https://github.com" --profile="Default"
+gitmap chrome open "Profile 1" "https://google.com"
 
-# Replicate a single profile
-gitmap chrome copy Default "Profile Work"
-gitmap cp cpc Default "Profile Work"
+# Launch multiple profiles with different URLs in one command
+gitmap chrome open "Profile 1=https://github.com,Profile 2=https://google.com"
 
-# Batch copy all profiles
-gitmap chrome copy-all ~/chrome-backups/all-profiles
+# Observe open tabs and active processes
+gitmap chrome observe
+gitmap chrome observe --json
+gitmap chrome observe --yaml
 
-# Batch export all profiles to JSON snapshots
-gitmap chrome export-all .gitmap/chrome/
+# List extensions
+gitmap chrome extensions
+gitmap chrome extensions "Default" --json
 
-# Batch import profile snapshots
-gitmap chrome import-all ~/chrome-backups/snapshots/
+# Inject / install local extension
+gitmap chrome extension-install ./my-extension --profile="Default"
 
-# Snapshot all profiles into a tarball
-gitmap chrome backup --out ~/chrome-2026.tar.gz
+# Enable / disable extensions
+gitmap chrome extension-disable "Dark Reader" --profile="Default"
+gitmap chrome extension-enable "Dark Reader" --profile="Default"
+gitmap chrome extension-disable-all --profile="Default"
 
-# Restore from tarball
-gitmap chrome restore ~/chrome-2026.tar.gz
+# Inspect and toggle experimental flags
+gitmap chrome flags
+gitmap chrome flags enable enable-gpu-rasterization
+gitmap chrome flags disable enable-gpu-rasterization
+gitmap chrome flags reset
 
-# Compare two profiles
-gitmap chrome diff Default "Profile 1"
-
-# Export bookmarks
-gitmap chrome export-bookmarks Default --format html --out bookmarks.html
+# Reset cache or full profile
+gitmap chrome reset Default --cache
+gitmap chrome reset Default --all
 ```

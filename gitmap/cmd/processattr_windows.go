@@ -11,3 +11,7 @@ import (
 func setHiddenProcessAttr(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 }
+
+func configureDetachedProcess(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x00000008}
+}
