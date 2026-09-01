@@ -260,7 +260,7 @@ func getFileSize(path string) int {
 func formatChromeProfileLabel(dirName string, prefsRaw json.RawMessage) string {
 	displayName, email := resolveProfileNameAndEmail(dirName, prefsRaw)
 	switch {
-	case displayName != "" && displayName != dirName && email != "":
+	case displayName != "" && displayName != dirName && displayName != email && email != "":
 		return fmt.Sprintf("%s • %s (%s)", dirName, displayName, email)
 	case email != "":
 		return fmt.Sprintf("%s (%s)", dirName, email)
