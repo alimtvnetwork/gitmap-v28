@@ -25,16 +25,18 @@ import (
 
 // findSchemaFile resolves a schema filename to an absolute path by
 // walking up from the test's CWD (Go sets it to the package dir,
-// i.e. gitmap/cmd) until it finds a `spec/08-json-schemas/`
-// sibling. Same idiom used by other gitmap contract tests that need
-// to read project-relative fixtures.
+// i.e. gitmap/cmd) until it finds `spec/21-app/08-json-schemas/` or `spec/08-json-schemas/`.
 func findSchemaFile(t *testing.T, filename string) string {
 	t.Helper()
 	dir := filepath.Dir(cmdPackageDir())
 	for i := 0; i < 8; i++ {
-		candidate := filepath.Join(dir, "spec", "08-json-schemas", filename)
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate
+		candidateApp := filepath.Join(dir, "spec", "21-app", "08-json-schemas", filename)
+		if _, err := os.Stat(candidateApp); err == nil {
+			return candidateApp
+		}
+		candidateRoot := filepath.Join(dir, "spec", "08-json-schemas", filename)
+		if _, err := os.Stat(candidateRoot); err == nil {
+			return candidateRoot
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
@@ -42,7 +44,7 @@ func findSchemaFile(t *testing.T, filename string) string {
 		}
 		dir = parent
 	}
-	t.Fatalf("could not locate spec/08-json-schemas/%s walking up from %s", filename, dir)
+	t.Fatalf("could not locate %s in spec/21-app/08-json-schemas or spec/08-json-schemas walking up from %s", filename, dir)
 
 	return ""
 }

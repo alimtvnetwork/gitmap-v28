@@ -54,6 +54,8 @@ const (
 	ToolAgManager        = "ag-manager"
 	ToolAgCtx            = "ag-ctx"
 	ToolAntigravity      = "antigravity"
+	ToolChrome           = "chrome"
+	ToolGoogleChrome     = "google-chrome"
 )
 
 // Supported tool names — Databases.
@@ -154,6 +156,7 @@ const (
 	ChocoPkgOBS           = "obs-studio"
 	ChocoPkgPowerShell    = "powershell-core"
 	ChocoPkgStickyNotes   = "microsoft-windows-terminal" // sticky notes is a Windows Store app
+	ChocoPkgChrome        = "googlechrome"
 )
 
 // Winget package IDs.
@@ -164,6 +167,7 @@ const (
 	WingetPkgOBS           = "OBSProject.OBSStudio"
 	WingetPkgStickyNotes   = "9NBLGGH4QGHW" // Microsoft Sticky Notes Store ID
 	WingetPkgGitHubDesktop = "GitHub.GitHubDesktop"
+	WingetPkgChrome        = "Google.Chrome"
 )
 
 // Apt package IDs.
@@ -184,6 +188,7 @@ const (
 	AptPkgRedis         = "redis-server"
 	AptPkgCassandra     = "cassandra"
 	AptPkgElasticsearch = "elasticsearch"
+	AptPkgChrome        = "google-chrome-stable"
 )
 
 // Brew package IDs.
@@ -208,6 +213,7 @@ const (
 	BrewPkgDuckDB        = "duckdb"
 	BrewPkgDbeaver       = "dbeaver-community"
 	BrewPkgOBS           = "obs"
+	BrewPkgChrome        = "google-chrome"
 )
 
 // Snap package IDs.

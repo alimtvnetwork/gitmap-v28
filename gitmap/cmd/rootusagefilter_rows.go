@@ -58,9 +58,10 @@ func allHelpRows() []helpRow {
 	addGroup(&rows, constants.HelpGroupCommitXfer,
 		constants.HelpCommitRight, constants.HelpCommitLeft, constants.HelpCommitBoth)
 	addGroup(&rows, constants.HelpGroupChromeProf,
+		constants.HelpChrome,
 		constants.HelpChromeProfileCopy, constants.HelpChromeProfileExport,
 		constants.HelpChromeProfileImport, constants.HelpChromeProfileList,
-		constants.HelpChromeProfileDelete)
+		constants.HelpChromeProfileDelete, constants.HelpChromeProfileMerge)
 	addGroup(&rows, constants.HelpGroupTemplates,
 		constants.HelpAddIgnore, constants.HelpAddAttributes,
 		constants.HelpAddLFSInstall, constants.HelpTemplatesInit,

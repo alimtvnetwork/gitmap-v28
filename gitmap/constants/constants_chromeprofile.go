@@ -22,14 +22,50 @@ const (
 )
 
 // gitmap:cmd top-level
-// Chrome umbrella command (v6.69.0) + subcommands.
+// Chrome umbrella command (v6.69.0+) + subcommands.
 const (
-	CmdChrome                 = "chrome"
-	SubCmdChromeBackup        = "backup"           // gitmap:cmd skip
-	SubCmdChromeRestore       = "restore"          // gitmap:cmd skip
-	SubCmdChromeDiff          = "diff"             // gitmap:cmd skip
-	SubCmdChromeExportBookmrk = "export-bookmarks" // gitmap:cmd skip
-	SubCmdChromeWhich         = "which"            // gitmap:cmd skip
+	CmdChrome                   = "chrome"
+	CmdChromeAlias              = "cprof"
+	CmdChromeAlias2             = "chrome-profile"
+	SubCmdChromeInstall         = "install"
+	SubCmdChromeInstallAlias    = "in"
+	SubCmdChromeCopy            = "copy"
+	SubCmdChromeCopyAlias       = "profile-copy"
+	SubCmdChromeCopyAlias2      = "cpc"
+	SubCmdChromeCopyAll         = "copy-all"
+	SubCmdChromeCopyAllAlias    = "all-profile-copy"
+	SubCmdChromeCopyAllAlias2   = "copy-all-profiles"
+	SubCmdChromeCopyAllAlias3   = "cpc-all"
+	SubCmdChromeExport          = "export"
+	SubCmdChromeExportAlias     = "profile-export"
+	SubCmdChromeExportAlias2    = "cpe"
+	SubCmdChromeExportAll       = "export-all"
+	SubCmdChromeExportAllAlias  = "all-profile-export"
+	SubCmdChromeExportAllAlias2 = "export-all-profiles"
+	SubCmdChromeExportAllAlias3 = "cpe-all"
+	SubCmdChromeImport          = "import"
+	SubCmdChromeImportAlias     = "profile-import"
+	SubCmdChromeImportAlias2    = "cpi"
+	SubCmdChromeImportAll       = "import-all"
+	SubCmdChromeImportAllAlias  = "all-profile-import"
+	SubCmdChromeImportAllAlias2 = "import-all-profiles"
+	SubCmdChromeImportAllAlias3 = "cpi-all"
+	SubCmdChromeList            = "list"
+	SubCmdChromeListAlias       = "ls"
+	SubCmdChromeListAlias2      = "cpl"
+	SubCmdChromeListAlias3      = "profiles"
+	SubCmdChromeDelete          = "delete"
+	SubCmdChromeDeleteAlias     = "rm"
+	SubCmdChromeDeleteAlias2    = "del"
+	SubCmdChromeDeleteAlias3    = "cpd"
+	SubCmdChromeMerge           = "merge"
+	SubCmdChromeMergeAlias      = "cpm"
+	SubCmdChromeBackup          = "backup"
+	SubCmdChromeRestore         = "restore"
+	SubCmdChromeDiff            = "diff"
+	SubCmdChromeExportBookmrk   = "export-bookmarks"
+	SubCmdChromeBookmarks       = "bookmarks"
+	SubCmdChromeWhich           = "which"
 )
 
 // Chrome profile merge knobs.
@@ -55,14 +91,14 @@ const (
 	MsgChromeMergeDryKeep  = "  \033[2;37m= keep\033[0m      %s\n"
 	ErrChromeMergeUsage    = "chrome-profile-merge: ERROR <src> and <dst> are required\n  usage: gitmap chrome-profile-merge <src> <dst> [--what all|settings|bookmarks|extensions] [--yes|--force] [--dry-run]\n"
 	ErrChromeMergeUnknown  = "chrome-profile-merge: ERROR --what=%q unknown (use: all|settings|bookmarks|extensions)\n"
-	HelpChromeProfileMerge = "  chrome-profile-merge (cpm) <src> <dst> [--what all|settings|bookmarks|extensions] [--yes|--force]  Merge selected pieces of one profile into another"
+	HelpChromeProfileMerge = "  chrome-profile-merge (cpm) <src> <dst>  Merge bookmarks, settings, or extensions between profiles"
 )
 
 // Chrome profile help-line entries surfaced by `gitmap help`.
 const (
-	HelpChromeProfileCopy   = "  chrome-profile-copy (cpc) <src> <dst>   Copy a Chrome profile (bookmarks, extensions, prefs, flags) into an offline profile"
-	HelpChromeProfileExport = "  chrome-profile-export (cpe) <name> [out] [--format=json|zip|sqlite]  Export profile (default: json)"
-	HelpChromeProfileImport = "  chrome-profile-import (cpi) <file> [name]  Import a Chrome profile from a JSON or ZIP export"
+	HelpChromeProfileCopy   = "  chrome-profile-copy (cpc) <src> <dst>   Copy profile into offline profile (prefs, flags, extensions)"
+	HelpChromeProfileExport = "  chrome-profile-export (cpe) <name>      Export profile snapshot (json, zip, sqlite)"
+	HelpChromeProfileImport = "  chrome-profile-import (cpi) <file>      Import profile from a JSON or ZIP export"
 	HelpChromeProfileList   = "  chrome-profile-list (cpl)               List Chrome profiles known to gitmap"
 )
 
@@ -144,7 +180,7 @@ const (
 	MsgChromeProfileRegOnly    = "\n\033[1;96m▸ chrome-profile-copy --register-only\033[0m  \033[1m%s\033[0m\n  \033[2;37m(skipping file copy; refreshing Chrome Local State entry only)\033[0m\n"
 	WarnChromeProfileRegister  = "  \033[1;93m⚠\033[0m chrome-profile-copy: could not register %q in Chrome's Local State: %v\n  \033[2;37m(profile files were copied — restart Chrome and add the profile manually if it does not appear)\033[0m\n"
 	WarnChromeProfileBakRm     = "  \033[1;93m⚠\033[0m chrome-profile-copy: could not remove Local State backup %s: %v\n"
-	HelpChromeProfileDelete    = "  chrome-profile-delete (cpd) <name> [--yes]  Remove a profile + its stored artifacts from the gitmap DB"
+	HelpChromeProfileDelete    = "  chrome-profile-delete (cpd) <name>      Remove a profile & stored artifacts from gitmap database"
 )
 
 // Chrome User Data subpaths copied by cpc. Excluded by design:

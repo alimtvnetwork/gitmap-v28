@@ -145,11 +145,13 @@ func printGroupCommitXfer() {
 
 func printGroupChromeProfile() {
 	renderHeader(constants.HelpGroupChromeProf)
+	renderLine(constants.HelpChrome)
 	renderLine(constants.HelpChromeProfileCopy)
 	renderLine(constants.HelpChromeProfileExport)
 	renderLine(constants.HelpChromeProfileImport)
 	renderLine(constants.HelpChromeProfileList)
 	renderLine(constants.HelpChromeProfileDelete)
+	renderLine(constants.HelpChromeProfileMerge)
 }
 
 func printGroupTemplates() {

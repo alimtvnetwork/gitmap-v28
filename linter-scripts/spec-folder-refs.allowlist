@@ -94,3 +94,31 @@
 # These are referenced strictly inside .lovable/prompts/ example AI workflows
 02-app
 05-failing-tests
+
+# --- Historical and sub-module folders relocated under spec/21-app/ ---
+01-vscode-project-manager-sync
+02-database
+03-commit-in
+04-database
+04-release
+06-design-system
+08-json-schemas
+09-pipeline-extend-v2
+10-powershell-integration
+13-cicd-pipeline-workflows
+13-generic-cli
+14-self-update-app-update
+15-distribution-and-runner
+15-research
+15-wp-plugin-how-to
+16-generic-release
+16-scan-clone-cluster-interactive-macros
+17-mv-rm-resolver-replace
+18-install-cg-ssh
+19-ssh-executor
+23-app-database
+23-app-db
+24-app-design-system-and-ui
+24-app-ui-design-system
+25-app-spec-audit
+26-coding-guideline-audit

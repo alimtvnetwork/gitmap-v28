@@ -318,6 +318,8 @@ var chocoPackageMap = map[string]string{
 	constants.ToolNppInstall:    constants.ChocoPkgNpp,
 	constants.ToolDbeaver:       constants.ChocoPkgDbeaver,
 	constants.ToolOBS:           constants.ChocoPkgOBS,
+	constants.ToolChrome:        constants.ChocoPkgChrome,
+	constants.ToolGoogleChrome:  constants.ChocoPkgChrome,
 }
 
 // resolveChocoPackage maps tool names to Chocolatey package IDs.
@@ -335,6 +337,8 @@ var wingetPackageMap = map[string]string{
 	constants.ToolOBS:           constants.WingetPkgOBS,
 	constants.ToolStickyNotes:   constants.WingetPkgStickyNotes,
 	constants.ToolGitHubDesktop: constants.WingetPkgGitHubDesktop,
+	constants.ToolChrome:        constants.WingetPkgChrome,
+	constants.ToolGoogleChrome:  constants.WingetPkgChrome,
 }
 
 // resolveWingetPackage maps tool names to Winget package IDs.
@@ -362,6 +366,8 @@ var aptPackageMap = map[string]string{
 	constants.ToolRedis:         constants.AptPkgRedis,
 	constants.ToolCassandra:     constants.AptPkgCassandra,
 	constants.ToolElasticsearch: constants.AptPkgElasticsearch,
+	constants.ToolChrome:        constants.AptPkgChrome,
+	constants.ToolGoogleChrome:  constants.AptPkgChrome,
 }
 
 // resolveAptPackage maps tool names to apt package IDs.
@@ -393,6 +399,8 @@ var brewPackageMap = map[string]string{
 	constants.ToolDuckDB:        constants.BrewPkgDuckDB,
 	constants.ToolDbeaver:       constants.BrewPkgDbeaver,
 	constants.ToolOBS:           constants.BrewPkgOBS,
+	constants.ToolChrome:        constants.BrewPkgChrome,
+	constants.ToolGoogleChrome:  constants.BrewPkgChrome,
 }
 
 // resolveBrewPackage maps tool names to Homebrew package IDs.
