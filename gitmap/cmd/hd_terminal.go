@@ -28,6 +28,7 @@ func mountTerminalHandlers(muxServer *http.ServeMux) {
 	muxServer.HandleFunc("/api/terminal/stream", termStreamHandler)
 	muxServer.HandleFunc("/api/terminal/input", termInputHandler)
 	muxServer.HandleFunc("/api/terminal/autocomplete", termAutocompleteHandler)
+	muxServer.HandleFunc("/api/command/exec", termCommandExecHandler)
 }
 
 func startTerminal(sessionID string) (*termSession, error) {
@@ -193,4 +194,54 @@ func termAutocompleteHandler(httpWriter http.ResponseWriter, httpRequest *http.R
 	jsonBytes, _ := json.Marshal(completions)
 	httpWriter.Header().Set("Content-Type", "application/json")
 	httpWriter.Write(jsonBytes)
+}
+
+type commandExecReq struct {
+	Command string `json:"command"`
+}
+
+type commandExecResp struct {
+	Success  bool   `json:"success"`
+	Output   string `json:"output"`
+	ExitCode int    `json:"exitCode"`
+	Error    string `json:"error,omitempty"`
+}
+
+func termCommandExecHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST required", http.StatusMethodNotAllowed)
+		return
+	}
+	var req commandExecReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	resp := executeCLIForAPI(req.Command)
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func executeCLIForAPI(cmdStr string) commandExecResp {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd.exe", "/C", cmdStr)
+	} else {
+		cmd = exec.Command("sh", "-c", cmdStr)
+	}
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		return commandExecResp{Success: true, Output: string(out), ExitCode: 0}
+	}
+	exitCode := 1
+	exitErr, ok := err.(*exec.ExitError)
+	if ok {
+		exitCode = exitErr.ExitCode()
+	}
+	return commandExecResp{
+		Success:  false,
+		Output:   string(out),
+		ExitCode: exitCode,
+		Error:    err.Error(),
+	}
 }
