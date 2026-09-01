@@ -90,7 +90,7 @@ def main():
         (['macro', 'add', 'smoke-macro', 'echo smoke-macro'], [0], '', 'macro add command'),
         (['macro', 'list', '--json'], [0], '', 'macro list --json'),
         (['macro', 'rm', 'smoke-macro'], [0], '', 'macro rm command'),
-        (['retry', '--sleep=10ms', '--max-retries=1', 'gitmap version'], [0], 'gitmap v', 'retry command'),
+        (['retry', '--sleep=10ms', '--max-retries=1', 'echo retry-smoke-test'], [0], 'retry-smoke-test', 'retry command'),
         (['chrome', '--help'], [0], '', 'chrome --help'),
         (['replace', 'history'], [0], '', 'replace history command'),
         (['go-repos', '--json'], [0], '', 'go-repos --json'),
