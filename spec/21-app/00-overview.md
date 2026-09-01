@@ -53,7 +53,7 @@ GitMap is a CLI tool that scans directory trees for Git repositories, extracts c
 ## Placement Rule
 
 All application-specific features and implementation details belong in `21-app/`.
-All bug investigations, root cause analyses, and fixes belong in `22-app-issues/`.
+All bug investigations, root cause analysis, and fixes belong in `22-app-issues/`.
 
 ---
 
