@@ -152,9 +152,10 @@ func parseChromeExportArgs(args []string) (string, []string) {
 	format := ""
 	var positional []string
 	for _, arg := range args {
-		if strings.HasPrefix(arg, "--format=") {
+		switch {
+		case strings.HasPrefix(arg, "--format="):
 			format = strings.TrimPrefix(arg, "--format=")
-		} else if !strings.HasPrefix(arg, "-") {
+		case !strings.HasPrefix(arg, "-"):
 			positional = append(positional, arg)
 		}
 	}
@@ -340,11 +341,12 @@ func runChromeProfileList(args []string) error {
 // under .gitmap/chrome/<name>.<format> (cwd-relative).
 func defaultChromeExportPath(name, format string) string {
 	ext := constants.ExtJSON
-	if format == constants.OutputZIP {
+	switch format {
+	case constants.OutputZIP:
 		ext = constants.ExtZIP
-	} else if format == constants.OutputSQLite {
+	case constants.OutputSQLite:
 		ext = constants.ExtDB
-	} else if format == constants.OutputYAML {
+	case constants.OutputYAML:
 		ext = constants.ExtYAML
 	}
 	return filepath.Join(constants.GitMapDir, "chrome", name+ext)
