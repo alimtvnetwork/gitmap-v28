@@ -1342,8 +1342,9 @@ jobs:
         if: needs.sha-check.outputs.already-built != 'true'
         shell: bash
         run: |
-          go -C gitmap build -ldflags="-s -w" -o ../gitmap-bin .
-          python3 .github/scripts/e2e-cli-smoke.py gitmap-bin
+          go -C gitmap build -ldflags="-s -w" -o ./gitmap-bin .
+          chmod +x ./gitmap-bin
+          python3 .github/scripts/e2e-cli-smoke.py ./gitmap-bin
 
       - name: Run installer smoke (source mode)
         if: needs.sha-check.outputs.already-built != 'true'
@@ -1375,8 +1376,8 @@ jobs:
         if: needs.sha-check.outputs.already-built != 'true'
         shell: pwsh
         run: |
-          go -C gitmap build -ldflags="-s -w" -o ../gitmap.exe .
-          python .github/scripts/e2e-cli-smoke.py gitmap.exe
+          go -C gitmap build -ldflags="-s -w" -o ./gitmap.exe .
+          python .github/scripts/e2e-cli-smoke.py ./gitmap.exe
 
       - name: Run installer smoke (source mode)
         if: needs.sha-check.outputs.already-built != 'true'
