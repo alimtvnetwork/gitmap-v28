@@ -145,3 +145,36 @@ func TestReadChromeLocalStateMalformedReturnsNil(t *testing.T) {
 		t.Fatalf("expected nil for malformed, got %+v", s)
 	}
 }
+
+func TestFormatChromeProfileLabel(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("GITMAP_CHROME_USER_DATA", root)
+
+	localState := `{
+		"profile": {
+			"info_cache": {
+				"Default": {"name": "Personal", "user_name": "alice@gmail.com"},
+				"Profile 1": {"name": "Work", "user_name": "alice@company.com"},
+				"Profile 2": {"name": "Profile 2", "user_name": "bob@gmail.com"},
+				"Profile 3": {"name": "Side Project", "user_name": ""}
+			}
+		}
+	}`
+	_ = os.WriteFile(filepath.Join(root, "Local State"), []byte(localState), 0o600)
+
+	if got := formatChromeProfileLabel("Default", nil); got != "Default • Personal (alice@gmail.com)" {
+		t.Errorf("Default: got %q, want 'Default • Personal (alice@gmail.com)'", got)
+	}
+	if got := formatChromeProfileLabel("Profile 1", nil); got != "Profile 1 • Work (alice@company.com)" {
+		t.Errorf("Profile 1: got %q, want 'Profile 1 • Work (alice@company.com)'", got)
+	}
+	if got := formatChromeProfileLabel("Profile 2", nil); got != "Profile 2 (bob@gmail.com)" {
+		t.Errorf("Profile 2: got %q, want 'Profile 2 (bob@gmail.com)'", got)
+	}
+	if got := formatChromeProfileLabel("Profile 3", nil); got != "Profile 3 (Side Project)" {
+		t.Errorf("Profile 3: got %q, want 'Profile 3 (Side Project)'", got)
+	}
+	if got := formatChromeProfileLabel("Profile 4", nil); got != "Profile 4" {
+		t.Errorf("Profile 4: got %q, want 'Profile 4'", got)
+	}
+}

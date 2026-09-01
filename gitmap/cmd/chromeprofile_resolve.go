@@ -21,7 +21,9 @@ import (
 type chromeLocalState struct {
 	Profile struct {
 		InfoCache map[string]struct {
-			Name string `json:"name"`
+			Name     string `json:"name"`
+			UserName string `json:"user_name"`
+			GAIAName string `json:"gaia_name"`
 		} `json:"info_cache"`
 	} `json:"profile"`
 }
