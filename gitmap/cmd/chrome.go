@@ -1,4 +1,4 @@
-// Package cmd — chrome.go: umbrella dispatcher for `gitmap chrome` (and alias `gitmap cp`).
+// Package cmd — chrome.go: umbrella dispatcher for `gitmap chrome` (and alias `gitmap cprof`).
 package cmd
 
 import (
@@ -30,16 +30,61 @@ func isHelpFlag(arg string) bool {
 }
 
 func dispatchChromeSubcommand(sub string, tail []string) bool {
-	if handleChromeInstallOps(sub, tail) {
+	if handleChromeLaunchOps(sub, tail) || handleChromeExtensionOps(sub, tail) {
 		return true
 	}
-	if handleChromeProfileOps(sub, tail) {
+	if handleChromeFlagAndResetOps(sub, tail) || handleChromeInstallOps(sub, tail) {
 		return true
 	}
-	if handleChromeBatchOps(sub, tail) {
+	if handleChromeProfileOps(sub, tail) || handleChromeBatchOps(sub, tail) {
 		return true
 	}
 	return handleChromeArchiveOps(sub, tail)
+}
+
+func handleChromeLaunchOps(sub string, tail []string) bool {
+	switch sub {
+	case constants.SubCmdChromeOpen, constants.SubCmdChromeOpenAlias, constants.SubCmdChromeOpenAlias2:
+		_ = runChromeOpen(tail)
+		return true
+	case constants.SubCmdChromeObserve, constants.SubCmdChromeObserveAlias, constants.SubCmdChromeObserveAlias2, constants.SubCmdChromeObserveAlias3:
+		_ = runChromeObserve(tail)
+		return true
+	}
+	return false
+}
+
+func handleChromeExtensionOps(sub string, tail []string) bool {
+	switch sub {
+	case constants.SubCmdChromeExtensions, constants.SubCmdChromeExtensionsAlias, constants.SubCmdChromeExtensionsAlias2:
+		_ = runChromeExtensions(tail)
+		return true
+	case constants.SubCmdChromeExtInstall, constants.SubCmdChromeExtInstallAlias, constants.SubCmdChromeExtInstallAlias2:
+		_ = runChromeExtensionInstall(tail)
+		return true
+	case constants.SubCmdChromeExtEnable, constants.SubCmdChromeExtEnableAlias, constants.SubCmdChromeExtEnableAlias2:
+		_ = runChromeExtensionEnable(tail)
+		return true
+	case constants.SubCmdChromeExtDisable, constants.SubCmdChromeExtDisableAlias, constants.SubCmdChromeExtDisableAlias2:
+		_ = runChromeExtensionDisable(tail)
+		return true
+	case constants.SubCmdChromeExtDisableAll, constants.SubCmdChromeExtDisableAllAlias:
+		_ = runChromeExtensionDisableAll(tail)
+		return true
+	}
+	return false
+}
+
+func handleChromeFlagAndResetOps(sub string, tail []string) bool {
+	switch sub {
+	case constants.SubCmdChromeFlags, constants.SubCmdChromeFlagsAlias:
+		_ = runChromeFlags(tail)
+		return true
+	case constants.SubCmdChromeReset, constants.SubCmdChromeResetAlias, constants.SubCmdChromeResetAlias2:
+		_ = runChromeReset(tail)
+		return true
+	}
+	return false
 }
 
 func handleChromeInstallOps(sub string, tail []string) bool {
@@ -120,29 +165,47 @@ func handleChromeArchiveOps(sub string, tail []string) bool {
 }
 
 func printChromeUsage() {
-	fmt.Fprintln(os.Stderr, "usage: gitmap chrome <install|copy|copy-all|export|export-all|import|import-all|list|delete|merge|backup|restore|diff|which> [args]")
+	fmt.Fprintln(os.Stderr, "usage: gitmap chrome <open|extensions|flags|reset|observe|install|copy|export|import|list|delete|diff|which> [args]")
 }
 
 func printChromeRichUsage() {
 	fmt.Printf("\n\033[1;96mGitMap Chrome Management\033[0m\n\n")
 	fmt.Printf("Usage: gitmap chrome <command> [arguments]\n")
 	fmt.Printf("Alias: gitmap cprof <command> [arguments]\n\n")
-	printChromeInstallationTable()
+	printChromeLaunchTable()
+	printChromeExtensionTable()
+	printChromeFlagsAndResetTable()
 	printChromeProfileTable()
 	printChromeBatchTable()
 	printChromeMaintenanceTable()
 	fmt.Println()
 }
 
-func printChromeInstallationTable() {
-	fmt.Printf("\033[1;94mInstallation & Setup:\033[0m\n")
-	fmt.Printf("  install (in)                        Install Chrome via system package manager\n\n")
+func printChromeLaunchTable() {
+	fmt.Printf("\033[1;94mLaunching & Tabs:\033[0m\n")
+	fmt.Printf("  open (launch, tab) [urls]           Open URL(s) in specified or active profile\n")
+	fmt.Printf("  observe (tabs, status) [profile]    Inspect running Chrome processes & open tabs (JSON/YAML)\n\n")
+}
+
+func printChromeExtensionTable() {
+	fmt.Printf("\033[1;94mExtensions & Plugins:\033[0m\n")
+	fmt.Printf("  extensions (ext, plugins) [prof]    List installed extensions across profiles\n")
+	fmt.Printf("  extension-install (ext-in) <path>   Inject unpacked extension or .crx into profile\n")
+	fmt.Printf("  extension-enable (ext-on) <pat>     Enable extension(s) matching pattern or ID\n")
+	fmt.Printf("  extension-disable (ext-off) <pat>   Disable extension(s) matching pattern or ID\n")
+	fmt.Printf("  extension-disable-all (ext-off-all) Disable ALL extensions in target profile\n\n")
+}
+
+func printChromeFlagsAndResetTable() {
+	fmt.Printf("\033[1;94mFlags & Profile Reset:\033[0m\n")
+	fmt.Printf("  flags (experiments) [ls|enable|..]  Inspect, toggle, or reset Chrome feature flags\n")
+	fmt.Printf("  reset (clean, clear) [prof] [flags] Purge caches, cookies, history, or full profile\n\n")
 }
 
 func printChromeProfileTable() {
 	fmt.Printf("\033[1;94mSingle Profile Operations:\033[0m\n")
 	fmt.Printf("  copy (cpc) <src> <dst>              Copy a Chrome profile into an offline profile\n")
-	fmt.Printf("  export (cpe) <name> [out]           Export profile snapshot (json, zip, sqlite)\n")
+	fmt.Printf("  export (cpe) <name> [out]           Export profile snapshot (json, zip, sqlite, yaml)\n")
 	fmt.Printf("  import (cpi) <file> [name]          Import profile from snapshot file\n")
 	fmt.Printf("  list (ls, cpl)                      List Chrome profiles known to gitmap\n")
 	fmt.Printf("  delete (rm, cpd) <name>             Remove a profile & stored artifacts\n")
@@ -157,7 +220,8 @@ func printChromeBatchTable() {
 }
 
 func printChromeMaintenanceTable() {
-	fmt.Printf("\033[1;94mBackup, Diff & Inspection:\033[0m\n")
+	fmt.Printf("\033[1;94mBackup, Diff & Maintenance:\033[0m\n")
+	fmt.Printf("  install (in)                        Install Chrome via system package manager\n")
 	fmt.Printf("  backup [out]                        Snapshot all Chrome profiles into a tar.gz archive\n")
 	fmt.Printf("  restore <tarball>                   Restore Chrome profiles from tar.gz archive\n")
 	fmt.Printf("  diff <prof1> <prof2>                Compare two Chrome profiles\n")
