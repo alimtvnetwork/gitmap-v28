@@ -1,6 +1,6 @@
 # schedule
 
-Manage scheduled tasks, automated macro executions, interval runners, OS startup triggers, isolated split SQLite databases, execution logs, and Web UI/API integrations.
+Manage scheduled tasks, automated macro executions, interval runners, OS startup triggers, isolated split SQLite databases, execution logs, multi-format import/export, and Web UI/API integrations.
 
 ## Aliases
 
@@ -13,10 +13,15 @@ Manage scheduled tasks, automated macro executions, interval runners, OS startup
 | Subcommand | Description |
 |---|---|
 | `add` (`create`, `new`) `<name> [cmds...]` | Create a new scheduled task (linked to a macro or on-the-fly shell commands with isolated split DB) |
-| `list` (`ls`, `status`) `[--json\|--yaml]` | List all scheduled tasks with status (enabled/disabled), interval, target, runs count, startup, and split DB slug |
+| `list` (`ls`) `[--json\|--yaml] [-f <file>]` | List all scheduled tasks with status (enabled/disabled), interval, target, runs count, startup, and split DB slug |
+| `status` `[name\|*] [--json\|--yaml] [-f <file>]` | View detailed status of a specific schedule or all schedules (when it ran, enabled status, split DB path) |
 | `enable` `<name>` | Enable a disabled scheduled task |
 | `disable` `<name>` | Disable a scheduled task (preserves configuration and logs) |
-| `logs` (`log`, `history`) `<name> [--limit <N>] [--json\|--yaml]` | Inspect execution logs and run history from the schedule's dedicated split SQLite database |
+| `logs` (`log`, `history`) `<name> [--limit <N>] [--json\|--yaml] [-f <file>]` | Inspect execution logs and run history from the schedule's dedicated split SQLite database |
+| `export` `[name\|*] [-f <file>] [--format=json\|yaml\|sqlite\|zip]` | Export single schedule or all schedules with run logs to JSON, YAML, SQLite, or ZIP |
+| `export-all` `[-f <file>] [--json\|--yaml\|--sqlite\|--zip] [-except "name1, name2"]` | Export all schedules with exclusion filters to JSON, YAML, SQLite DB, or ZIP |
+| `import` `<file> [-except "name1, name2"]` | Import single or batch schedules from JSON, YAML, SQLite DB, or ZIP into root and split DBs |
+| `import-all` `-f <file> [-except "name1, name2"]` | Batch import all schedules with exclusion filter |
 | `reset` `<name>` | Reset and clear execution run logs in the schedule's split database |
 | `reset-all` | Reset and clear execution logs across all schedule split databases |
 | `run` (`exec`) `<name>` | Execute a scheduled task immediately on demand and record execution history |
@@ -32,6 +37,9 @@ Manage scheduled tasks, automated macro executions, interval runners, OS startup
 
 | Flag | Description |
 |---|---|
+| `-f <path>`, `--file <path>`, `-o <path>` | File path for export, import, or saving status/log outputs |
+| `-except <list>`, `--except <list>` | Comma-separated list of schedule names to exclude during export-all or import-all |
+| `--format <format>` | Explicit export format: `json`, `yaml`, `sqlite` (`db`), `zip` (inferred automatically from `-f` extension) |
 | `--macro <name>`, `-m <name>` | Link scheduled execution to a saved macro |
 | `--every <interval>`, `-i <interval>` | Schedule interval (e.g. `1d`, `2h`, `30m`, `15s`, `1h30m`) |
 | `--day <N>`, `--days <N>` | Set daily schedule interval (e.g. `--day 1` for every 1 day) |
@@ -65,21 +73,36 @@ gitmap schedule add backup-job --macro backup-db --every 2h
 gitmap schedule add daily-clean "npm run clean && npm run build" --day 1 --delay 10s
 
 # 3. View execution history and logs for a schedule
-gitmap schedule logs daily-clean
-gitmap schedule logs daily-clean --limit 10 --json
-gitmap schedule logs daily-clean --yaml
+gitmap schedule log "daily-clean"
+gitmap schedule log "daily-clean" --json -f "clean_log.json"
+gitmap schedule log "daily-clean" --yaml -f "clean_log.yaml"
 
-# 4. Disable and re-enable a schedule
+# 4. View single task status
+gitmap schedule status "daily-clean"
+gitmap schedule status "daily-clean" --json
+
+# 5. Export single or all schedules (auto-infers format from file extension)
+gitmap schedule export "daily-clean" -f "daily-clean.json"
+gitmap schedule export-all -f "schedules_backup.yaml"
+gitmap schedule export-all -f "schedules_archive.zip"
+gitmap schedule export-all -f "schedules_backup.db"
+gitmap schedule export-all --json -except "backup-job, test-task" -f "all_except.json"
+
+# 6. Import schedules into root and split databases
+gitmap schedule import "daily-clean.json"
+gitmap schedule import-all -f "schedules_archive.zip" -except "deprecated-task"
+
+# 7. Disable and re-enable a schedule
 gitmap schedule disable daily-clean
 gitmap schedule enable daily-clean
 
-# 5. Reset execution logs for a schedule
+# 8. Reset execution logs for a schedule
 gitmap schedule reset daily-clean
 
-# 6. Test run a scheduled task immediately 3 times
+# 9. Test run a scheduled task immediately 3 times
 gitmap schedule test daily-clean --times 3
 
-# 7. Execute on demand
+# 10. Execute on demand
 gitmap schedule run backup-job
 ```
 
@@ -104,6 +127,3 @@ When running `gitmap ui` or `gitmap help-dashboard`, the built-in HTTP server pr
     "exitCode": 0
   }
   ```
-- `GET /api/terminal/stream?session=default` — Server-Sent Events (SSE) live stream of terminal output.
-- `POST /api/terminal/input?session=default` — Send keystrokes / stdin commands.
-- `GET /api/terminal/autocomplete?q=gitmap+sch` — Live command autocompletion suggestions.

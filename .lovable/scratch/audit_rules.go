@@ -26,12 +26,12 @@ func main() {
 		if err != nil || info.IsDir() {
 			return nil
 		}
-		
+
 		ext := filepath.Ext(path)
 		if ext != ".go" && ext != ".ts" && ext != ".tsx" {
 			return nil
 		}
-		
+
 		if strings.Contains(path, "vendor") || strings.Contains(path, "node_modules") || strings.Contains(path, ".git") || strings.Contains(path, ".lovable") {
 			return nil
 		}
@@ -78,13 +78,13 @@ func main() {
 					}
 				}
 			}
-			
+
 			if (ext == ".ts" || ext == ".tsx") && emptyCatchRe.MatchString(line) {
 				if len(swallowedMatches) < 100 {
 					swallowedMatches = append(swallowedMatches, fmt.Sprintf("- [ ] `%s:%d` - Empty catch block", relPath, lineNum))
 				}
 			}
-			
+
 			if ext == ".go" {
 				matched, _ := regexp.MatchString(`^\s*return\s+([a-zA-Z0-9_]+,\s*)*err\s*$`, line)
 				if matched && len(swallowedMatches) < 100 {
