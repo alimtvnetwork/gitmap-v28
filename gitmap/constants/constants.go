@@ -39,6 +39,7 @@ const (
 	OutputJSON     = "json"
 	OutputZIP      = "zip"
 	OutputSQLite   = "sqlite"
+	OutputYAML     = "yaml"
 )
 
 // Format constants.
@@ -47,6 +48,7 @@ const (
 	FormatCSV      = "csv"
 	FormatText     = "text"
 	FormatMarkdown = "markdown"
+	FormatYAML     = "yaml"
 )
 
 // URL prefixes.
@@ -59,11 +61,16 @@ const (
 
 // File extensions.
 const (
-	ExtCSV  = ".csv"
-	ExtJSON = ".json"
-	ExtTXT  = ".txt"
-	ExtGit  = ".git"
-	ExtMD   = ".md"
+	ExtCSV    = ".csv"
+	ExtJSON   = ".json"
+	ExtTXT    = ".txt"
+	ExtGit    = ".git"
+	ExtMD     = ".md"
+	ExtYAML   = ".yaml"
+	ExtYML    = ".yml"
+	ExtDB     = ".db"
+	ExtSQLite = ".sqlite"
+	ExtZIP    = ".zip"
 )
 
 // Root directory for all repo-local gitmap data.

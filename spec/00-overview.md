@@ -38,10 +38,8 @@ Root index for the entire specification tree. Each top-level folder contains a d
 
 | # | Module | Description |
 |---|--------|-------------|
-| 21 | [App](./21-app/00-overview.md) | App-specific specs: features, workflows, architecture |
-| 22 | [App Issues](./22-app-issues/00-overview.md) | App bug analysis, root cause analysis, fix documentation |
-| 23 | [App DB](./23-app-db/00-overview.md) | App-specific data model, table designs, migration strategies |
-| 24 | [App UI — Design System](./24-app-ui-design-system/00-overview.md) | App-specific UI, design system, theming, component patterns |
+| 21 | [App](./21-app/00-overview.md) | GitMap application specifications: features, CLI surfaces, scanner, workflows, and modules |
+| 22 | [App Issues](./22-app-issues/00-overview.md) | GitMap bug analysis, root cause analyses (RCA), and fix documentation |
 
 ---
 

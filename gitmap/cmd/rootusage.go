@@ -183,7 +183,7 @@ func renderFlagHeader(header string) {
 	fmt.Println()
 }
 
-const maxCmdColumnWidth = 26
+const maxCmdColumnWidth = 38
 
 func updateMaxHelpCmdLen(cmd string) {
 	l := lipgloss.Width(cmd)
