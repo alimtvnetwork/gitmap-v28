@@ -37,6 +37,7 @@ func buildChromeProfileArchive(
 	zw := zip.NewWriter(f)
 	defer zw.Close()
 
+	_ = addManifestToZip(zw, []string{name})
 	if err := maybeExportJSON(zw, srcProfile, name, includeJSON); err != nil {
 		return 0, err
 	}

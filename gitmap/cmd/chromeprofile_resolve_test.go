@@ -5,6 +5,7 @@
 package cmd
 
 import (
+	"archive/zip"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -176,5 +177,55 @@ func TestFormatChromeProfileLabel(t *testing.T) {
 	}
 	if got := formatChromeProfileLabel("Profile 4", nil); got != "Profile 4" {
 		t.Errorf("Profile 4: got %q, want 'Profile 4'", got)
+	}
+}
+
+func TestMergePendingExtensions(t *testing.T) {
+	dir := t.TempDir()
+	hintFile := filepath.Join(dir, "gitmap-pending-extensions.txt")
+	_ = os.WriteFile(hintFile, []byte("ext-aaa\next-bbb\n"), 0o600)
+
+	merged := mergePendingExtensions(hintFile, []string{"ext-bbb", "ext-ccc", "ext-aaa"})
+	if len(merged) != 3 {
+		t.Fatalf("expected 3 unique extensions, got %d (%v)", len(merged), merged)
+	}
+	if merged[0] != "ext-aaa" || merged[1] != "ext-bbb" || merged[2] != "ext-ccc" {
+		t.Fatalf("unexpected order or content: %v", merged)
+	}
+}
+
+func TestMaxChromeProfileLabelWidth(t *testing.T) {
+	names := []string{"Default", "Profile 1", "Profile 2"}
+	width := maxChromeProfileLabelWidth(names)
+	if width <= 0 {
+		t.Fatalf("expected positive width, got %d", width)
+	}
+}
+
+func TestZipManifestCreationAndDecoding(t *testing.T) {
+	root := setupFakeChromeRoot(t, map[string]string{"Default": "Personal"})
+	t.Setenv("GITMAP_CHROME_USER_DATA", root)
+
+	zipOut := filepath.Join(t.TempDir(), "test.zip")
+	_, err := writeAllChromeProfilesZIP([]string{"Default"}, zipOut)
+	if err != nil {
+		t.Fatalf("writeAllChromeProfilesZIP failed: %v", err)
+	}
+
+	r, err := zip.OpenReader(zipOut)
+	if err != nil {
+		t.Fatalf("open zip: %v", err)
+	}
+	defer r.Close()
+
+	manifest := readZipManifest(r)
+	if manifest == nil {
+		t.Fatal("manifest.json not found or could not be parsed in zip archive")
+	}
+	if manifest.ProfileCount != 1 || len(manifest.Profiles) != 1 {
+		t.Fatalf("manifest profile count mismatch: %+v", manifest)
+	}
+	if manifest.Profiles[0].Name != "Default" {
+		t.Fatalf("manifest profile name mismatch: %+v", manifest.Profiles[0])
 	}
 }
