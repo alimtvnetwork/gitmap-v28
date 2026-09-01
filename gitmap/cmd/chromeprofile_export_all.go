@@ -85,7 +85,8 @@ func writeAllChromeProfilesJSON(names []string, outPath string) (int, error) {
 		return 0, fmt.Errorf("write %s: %w", outPath, err)
 	}
 	for _, p := range all.Profiles {
-		fmt.Printf("  \033[1;92m✓\033[0m %s → JSON snapshot\n", p.Name)
+		label := formatChromeProfileLabel(p.Name, p.Preferences)
+		fmt.Printf("  \033[1;92m✓\033[0m %s → JSON snapshot\n", label)
 	}
 	return len(raw), nil
 }
@@ -103,7 +104,8 @@ func writeAllChromeProfilesYAML(names []string, outPath string) (int, error) {
 		return 0, fmt.Errorf("write %s: %w", outPath, err)
 	}
 	for _, p := range all.Profiles {
-		fmt.Printf("  \033[1;92m✓\033[0m %s → YAML snapshot\n", p.Name)
+		label := formatChromeProfileLabel(p.Name, p.Preferences)
+		fmt.Printf("  \033[1;92m✓\033[0m %s → YAML snapshot\n", label)
 	}
 	return len(raw), nil
 }
@@ -167,7 +169,8 @@ func populateProfilesInSQLite(db *sql.DB, names []string) error {
 		if err := insertProfileToSQLite(db, name, exp); err != nil {
 			return err
 		}
-		fmt.Printf("  \033[1;92m✓\033[0m %s → SQLite tables populated\n", name)
+		label := formatChromeProfileLabel(name, exp.Preferences)
+		fmt.Printf("  \033[1;92m✓\033[0m %s → SQLite tables populated\n", label)
 	}
 	return nil
 }
@@ -230,7 +233,8 @@ func writeAllChromeProfilesZIP(names []string, outPath string) (int, error) {
 		srcPath, hasDir := resolveChromeProfileDir(name)
 		if hasDir {
 			_ = addProfileToZip(zw, srcPath, name)
-			fmt.Printf("  \033[1;92m✓\033[0m %s → packaged in zip\n", name)
+			label := formatChromeProfileLabel(name, nil)
+			fmt.Printf("  \033[1;92m✓\033[0m %s → packaged in zip\n", label)
 		}
 	}
 	_ = zw.Close()
@@ -251,4 +255,82 @@ func getFileSize(path string) int {
 		return 0
 	}
 	return int(info.Size())
+}
+
+func formatChromeProfileLabel(dirName string, prefsRaw json.RawMessage) string {
+	displayName, email := resolveProfileNameAndEmail(dirName, prefsRaw)
+	switch {
+	case displayName != "" && displayName != dirName && email != "":
+		return fmt.Sprintf("%s • %s (%s)", dirName, displayName, email)
+	case email != "":
+		return fmt.Sprintf("%s (%s)", dirName, email)
+	case displayName != "" && displayName != dirName:
+		return fmt.Sprintf("%s (%s)", dirName, displayName)
+	default:
+		return dirName
+	}
+}
+
+func resolveProfileNameAndEmail(dirName string, prefsRaw json.RawMessage) (string, string) {
+	displayName, email := fetchLocalStateProfileInfo(dirName)
+	if email == "" && len(prefsRaw) > 0 {
+		email = extractEmailFromPreferences(prefsRaw)
+	}
+	if email == "" {
+		email = extractEmailFromProfileDisk(dirName)
+	}
+	return displayName, email
+}
+
+func fetchLocalStateProfileInfo(dirName string) (string, string) {
+	state := readChromeLocalState()
+	if state == nil {
+		return "", ""
+	}
+	info, ok := state.Profile.InfoCache[dirName]
+	if !ok {
+		return "", ""
+	}
+	return info.Name, info.UserName
+}
+
+func extractEmailFromProfileDisk(dirName string) string {
+	srcPath, hasDir := resolveChromeProfileDir(dirName)
+	if !hasDir {
+		return ""
+	}
+	prefBytes, err := os.ReadFile(filepath.Join(srcPath, "Preferences"))
+	if err != nil || len(prefBytes) == 0 {
+		return ""
+	}
+	return extractEmailFromPreferences(prefBytes)
+}
+
+func extractEmailFromPreferences(raw json.RawMessage) string {
+	if len(raw) == 0 {
+		return ""
+	}
+	var pref struct {
+		AccountInfo []struct {
+			Email string `json:"email"`
+		} `json:"account_info"`
+		Signin struct {
+			UserName string `json:"user_name"`
+		} `json:"signin"`
+		Google struct {
+			Services struct {
+				Username string `json:"username"`
+			} `json:"services"`
+		} `json:"google"`
+	}
+	if err := json.Unmarshal(raw, &pref); err != nil {
+		return ""
+	}
+	if len(pref.AccountInfo) > 0 && pref.AccountInfo[0].Email != "" {
+		return pref.AccountInfo[0].Email
+	}
+	if pref.Signin.UserName != "" {
+		return pref.Signin.UserName
+	}
+	return pref.Google.Services.Username
 }
