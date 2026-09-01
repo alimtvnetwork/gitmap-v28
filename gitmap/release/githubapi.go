@@ -27,6 +27,10 @@ func CreateGitHubRelease(
 ) (*GitHubRelease, error) {
 	u := buildGitHubReleasesURL(owner, repo)
 
+	if len(body) > 120000 {
+		body = body[:120000] + "\n\n... (truncated for GitHub release limit; see changelog.md in repository)"
+	}
+
 	payload := map[string]interface{}{
 		"tag_name": tag,
 		"name":     name,
