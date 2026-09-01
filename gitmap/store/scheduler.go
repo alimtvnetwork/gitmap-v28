@@ -9,10 +9,13 @@ const (
 CREATE TABLE IF NOT EXISTS scheduler_tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
+    slug TEXT NOT NULL DEFAULT '',
+    db_path TEXT NOT NULL DEFAULT '',
     macro_name TEXT,
     command_line TEXT,
     interval_val TEXT,
     delay_val TEXT,
+    is_enabled INTEGER DEFAULT 1,
     is_scheduled INTEGER DEFAULT 0,
     has_delay INTEGER DEFAULT 0,
     is_startup INTEGER DEFAULT 0,
@@ -22,14 +25,17 @@ CREATE TABLE IF NOT EXISTS scheduler_tasks (
 );`
 )
 
-// SchedulerTask represents a scheduled task.
+// SchedulerTask represents a scheduled task in the root index DB.
 type SchedulerTask struct {
 	ID          int    `json:"id" yaml:"id"`
 	Name        string `json:"name" yaml:"name"`
+	Slug        string `json:"slug" yaml:"slug"`
+	DBPath      string `json:"dbPath" yaml:"dbPath"`
 	MacroName   string `json:"macroName,omitempty" yaml:"macroName,omitempty"`
 	CommandLine string `json:"commandLine,omitempty" yaml:"commandLine,omitempty"`
 	IntervalVal string `json:"interval" yaml:"interval"`
 	DelayVal    string `json:"delay,omitempty" yaml:"delay,omitempty"`
+	IsEnabled   bool   `json:"isEnabled" yaml:"isEnabled"`
 	IsScheduled bool   `json:"isScheduled" yaml:"isScheduled"`
 	HasDelay    bool   `json:"hasDelay" yaml:"hasDelay"`
 	IsStartup   bool   `json:"isStartup" yaml:"isStartup"`
@@ -48,8 +54,11 @@ func (db *DB) InitSchedulerTable() error {
 }
 
 func (db *DB) migrateSchedulerColumns() {
+	_ = db.addTableColumnSafe("scheduler_tasks", "slug", "TEXT DEFAULT ''")
+	_ = db.addTableColumnSafe("scheduler_tasks", "db_path", "TEXT DEFAULT ''")
 	_ = db.addTableColumnSafe("scheduler_tasks", "macro_name", "TEXT")
 	_ = db.addTableColumnSafe("scheduler_tasks", "command_line", "TEXT")
+	_ = db.addTableColumnSafe("scheduler_tasks", "is_enabled", "INTEGER DEFAULT 1")
 	_ = db.addTableColumnSafe("scheduler_tasks", "is_startup", "INTEGER DEFAULT 0")
 	_ = db.addTableColumnSafe("scheduler_tasks", "run_count", "INTEGER DEFAULT 0")
 	_ = db.addTableColumnSafe("scheduler_tasks", "last_run_at", "TEXT")
@@ -61,31 +70,54 @@ func (db *DB) addTableColumnSafe(tableName, colName, colType string) error {
 	return err
 }
 
-// InsertSchedule adds a new schedule to the database.
+// InsertSchedule adds or updates a schedule index in the root DB.
 func (db *DB) InsertSchedule(t SchedulerTask) error {
-	q := `INSERT INTO scheduler_tasks (name, macro_name, command_line, interval_val, delay_val, is_scheduled, has_delay, is_startup) 
-	      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	if t.Slug == "" {
+		t.Slug = ScheduleSlug(t.Name)
+	}
+	if t.DBPath == "" {
+		t.DBPath = ScheduleDBPath(t.Slug)
+	}
+	q := `INSERT INTO scheduler_tasks (name, slug, db_path, macro_name, command_line, interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup) 
+	      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	      ON CONFLICT(name) DO UPDATE SET 
+	          slug=excluded.slug,
+	          db_path=excluded.db_path,
 	          macro_name=excluded.macro_name,
 	          command_line=excluded.command_line,
 	          interval_val=excluded.interval_val,
 	          delay_val=excluded.delay_val,
+	          is_enabled=excluded.is_enabled,
 	          is_scheduled=excluded.is_scheduled,
 	          has_delay=excluded.has_delay,
 	          is_startup=excluded.is_startup`
-	_, err := db.conn.Exec(q, t.Name, t.MacroName, t.CommandLine, t.IntervalVal, t.DelayVal, t.IsScheduled, t.HasDelay, t.IsStartup)
+	_, err := db.conn.Exec(q, t.Name, t.Slug, t.DBPath, t.MacroName, t.CommandLine, t.IntervalVal, t.DelayVal, t.IsEnabled, t.IsScheduled, t.HasDelay, t.IsStartup)
+	return err
+}
+
+// SetScheduleEnabled toggles the is_enabled status of a scheduled task.
+func (db *DB) SetScheduleEnabled(name string, isEnabled bool) error {
+	val := 0
+	if isEnabled {
+		val = 1
+	}
+	q := `UPDATE scheduler_tasks SET is_enabled = ? WHERE name = ?`
+	_, err := db.conn.Exec(q, val, name)
 	return err
 }
 
 // GetSchedule retrieves a scheduled task by name.
 func (db *DB) GetSchedule(name string) (*SchedulerTask, error) {
-	q := `SELECT id, name, COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at FROM scheduler_tasks WHERE name = ?`
+	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at 
+	      FROM scheduler_tasks WHERE name = ?`
 	row := db.conn.QueryRow(q, name)
 	var t SchedulerTask
-	err := row.Scan(&t.ID, &t.Name, &t.MacroName, &t.CommandLine, &t.IntervalVal, &t.DelayVal, &t.IsScheduled, &t.HasDelay, &t.IsStartup, &t.RunCount, &t.LastRunAt, &t.CreatedAt)
+	var isEnabledInt int
+	err := row.Scan(&t.ID, &t.Name, &t.Slug, &t.DBPath, &t.MacroName, &t.CommandLine, &t.IntervalVal, &t.DelayVal, &isEnabledInt, &t.IsScheduled, &t.HasDelay, &t.IsStartup, &t.RunCount, &t.LastRunAt, &t.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
+	t.IsEnabled = isEnabledInt == 1
 	return &t, nil
 }
 
@@ -105,7 +137,8 @@ func (db *DB) UpdateScheduleRun(name, timestamp string) error {
 
 // ListSchedules returns all tasks.
 func (db *DB) ListSchedules() ([]SchedulerTask, error) {
-	q := `SELECT id, name, COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at FROM scheduler_tasks ORDER BY id ASC`
+	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at 
+	      FROM scheduler_tasks ORDER BY id ASC`
 	rows, err := db.conn.Query(q)
 	if err != nil {
 		return nil, err
@@ -119,7 +152,9 @@ func parseScheduleRows(rows *sql.Rows) []SchedulerTask {
 	var tasks []SchedulerTask
 	for rows.Next() {
 		var t SchedulerTask
-		if err := rows.Scan(&t.ID, &t.Name, &t.MacroName, &t.CommandLine, &t.IntervalVal, &t.DelayVal, &t.IsScheduled, &t.HasDelay, &t.IsStartup, &t.RunCount, &t.LastRunAt, &t.CreatedAt); err == nil {
+		var isEnabledInt int
+		if err := rows.Scan(&t.ID, &t.Name, &t.Slug, &t.DBPath, &t.MacroName, &t.CommandLine, &t.IntervalVal, &t.DelayVal, &isEnabledInt, &t.IsScheduled, &t.HasDelay, &t.IsStartup, &t.RunCount, &t.LastRunAt, &t.CreatedAt); err == nil {
+			t.IsEnabled = isEnabledInt == 1
 			tasks = append(tasks, t)
 		}
 	}

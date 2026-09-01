@@ -1,5 +1,5 @@
 // Package cmd — schedule_cmd.go: manages scheduled tasks, macro schedules,
-// OS startup tasks, intervals, on-the-fly commands, testing, and execution.
+// OS startup tasks, isolated split SQLite databases, run history, and logs.
 package cmd
 
 import (
@@ -33,6 +33,16 @@ func dispatchScheduleSubcommand(sub string, rest []string) error {
 		return runScheduleAdd(rest)
 	case "list", "ls", "status":
 		return runScheduleList(rest)
+	case "enable":
+		return runScheduleSetEnabled(rest, true)
+	case "disable":
+		return runScheduleSetEnabled(rest, false)
+	case "logs", "log", "history":
+		return runScheduleLogs(rest)
+	case "reset":
+		return runScheduleReset(rest)
+	case "reset-all":
+		return runScheduleResetAll(rest)
 	case "run", "exec":
 		return runScheduleRun(rest)
 	case "test":
@@ -138,23 +148,46 @@ func runScheduleAdd(args []string) error {
 }
 
 func saveScheduleTask(db *store.DB, opts scheduleAddOpts) error {
+	slug := store.ScheduleSlug(opts.Name)
 	cmdStr := strings.Join(opts.Commands, " && ")
 	task := store.SchedulerTask{
 		Name:        opts.Name,
+		Slug:        slug,
+		DBPath:      store.ScheduleDBPath(slug),
 		MacroName:   opts.MacroName,
 		CommandLine: cmdStr,
 		IntervalVal: opts.Interval,
 		DelayVal:    opts.Delay,
+		IsEnabled:   true,
 		IsScheduled: true,
 		HasDelay:    opts.Delay != "",
 		IsStartup:   opts.IsStartup,
 	}
 	if err := db.InsertSchedule(task); err != nil {
-		return apperror.WrapSimple(err, "insert schedule")
+		return apperror.WrapSimple(err, "insert schedule in root db")
 	}
+	_ = syncScheduleSplitDBConfig(task)
 	handleStartupRegistration(opts.Name, opts.IsStartup)
 	printScheduleAddSuccess(task)
 	return nil
+}
+
+func syncScheduleSplitDBConfig(t store.SchedulerTask) error {
+	splitDB, err := store.OpenScheduleSplitDB(t.Slug)
+	if err != nil {
+		return err
+	}
+	defer splitDB.Close()
+	return splitDB.SaveConfig(store.ScheduleConfig{
+		Name:        t.Name,
+		Slug:        t.Slug,
+		MacroName:   t.MacroName,
+		CommandLine: t.CommandLine,
+		IntervalVal: t.IntervalVal,
+		DelayVal:    t.DelayVal,
+		IsEnabled:   t.IsEnabled,
+		IsStartup:   t.IsStartup,
+	})
 }
 
 func handleStartupRegistration(name string, isStartup bool) {
@@ -168,7 +201,7 @@ func handleStartupRegistration(name string, isStartup bool) {
 }
 
 func printScheduleAddSuccess(t store.SchedulerTask) {
-	steps := []string{"Schedule task: " + t.Name}
+	steps := []string{"Schedule task: " + t.Name, "Split DB: " + t.Slug + ".db"}
 	if t.MacroName != "" {
 		steps = append(steps, "Linked macro: "+t.MacroName)
 	}
@@ -182,7 +215,33 @@ func printScheduleAddSuccess(t store.SchedulerTask) {
 		steps = append(steps, "OS Startup: enabled")
 	}
 	printScheduleSummaryTree(t.Name, t.IntervalVal, "schedule", steps)
-	fmt.Printf("✔ Scheduled task \033[1m%q\033[0m successfully (interval: %s)\n\n", t.Name, t.IntervalVal)
+	fmt.Printf("✔ Scheduled task \033[1m%q\033[0m successfully (interval: %s, split db: %s)\n\n", t.Name, t.IntervalVal, t.DBPath)
+}
+
+func runScheduleSetEnabled(args []string, isEnabled bool) error {
+	if len(args) < 1 {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap schedule enable|disable <name>\n")
+		return apperror.NewSimple("schedule name required", "E6007")
+	}
+	name := args[0]
+	db, err := openSchedulerDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	t, err := db.GetSchedule(name)
+	if err != nil {
+		return apperror.WrapSimple(err, "get schedule "+name)
+	}
+	_ = db.SetScheduleEnabled(name, isEnabled)
+	t.IsEnabled = isEnabled
+	_ = syncScheduleSplitDBConfig(*t)
+	stateStr := "enabled"
+	if !isEnabled {
+		stateStr = "disabled"
+	}
+	fmt.Printf("✔ Schedule \033[1m%q\033[0m is now %s\n", name, stateStr)
+	return nil
 }
 
 func runScheduleList(args []string) error {
@@ -209,23 +268,144 @@ func renderScheduleTable(tasks []store.SchedulerTask) {
 		return
 	}
 	fmt.Println()
-	fmt.Printf("  %-20s %-12s %-24s %-10s %-8s %s\n", "NAME", "INTERVAL", "TARGET (MACRO/CMD)", "STARTUP", "RUNS", "LAST RUN")
+	fmt.Printf("  %-18s %-10s %-10s %-20s %-8s %-6s %s\n", "NAME", "STATUS", "INTERVAL", "TARGET (MACRO/CMD)", "STARTUP", "RUNS", "SPLIT DB")
 	fmt.Printf("  %s\n", strings.Repeat("─", 88))
 	for _, t := range tasks {
 		target := t.MacroName
 		if target == "" {
 			target = t.CommandLine
 		}
-		if len(target) > 22 {
-			target = target[:19] + "..."
+		if len(target) > 18 {
+			target = target[:15] + "..."
+		}
+		status := "\033[32menabled\033[0m"
+		if !t.IsEnabled {
+			status = "\033[31mdisabled\033[0m"
 		}
 		startup := "no"
 		if t.IsStartup {
 			startup = "yes"
 		}
-		fmt.Printf("  %-20s %-12s %-24s %-10s %-8d %s\n", t.Name, t.IntervalVal, target, startup, t.RunCount, t.LastRunAt)
+		fmt.Printf("  %-18s %-19s %-10s %-20s %-8s %-6d %s.db\n", t.Name, status, t.IntervalVal, target, startup, t.RunCount, t.Slug)
 	}
 	fmt.Println()
+}
+
+func runScheduleLogs(args []string) error {
+	if len(args) < 1 {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap schedule logs <name> [--limit <N>] [--json] [--yaml]\n")
+		return apperror.NewSimple("schedule name required", "E6008")
+	}
+	name := args[0]
+	opts := parseExecOptions(args[1:])
+	limit := parseLogsLimit(args[1:])
+	db, err := openSchedulerDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	t, err := db.GetSchedule(name)
+	if err != nil {
+		return apperror.WrapSimple(err, "get schedule "+name)
+	}
+	return renderScheduleLogsFromSplitDB(t, limit, opts)
+}
+
+func parseLogsLimit(args []string) int {
+	for i := 0; i < len(args); i++ {
+		if !matchFlagWithVal(args[i], "--limit", "-n") {
+			continue
+		}
+		val, _ := strconv.Atoi(extractFlagValue(&i, args))
+		if val > 0 {
+			return val
+		}
+	}
+	return 20
+}
+
+func renderScheduleLogsFromSplitDB(t *store.SchedulerTask, limit int, opts macro.ExecOptions) error {
+	splitDB, err := store.OpenScheduleSplitDB(t.Slug)
+	if err != nil {
+		return apperror.WrapSimple(err, "open schedule split db")
+	}
+	defer splitDB.Close()
+	runs, err := splitDB.GetRuns(limit)
+	if err != nil {
+		return apperror.WrapSimple(err, "fetch logs from split db")
+	}
+	if opts.JSON || opts.YAML || len(opts.FilePath) > 0 {
+		return outputStructuredData(runs, opts)
+	}
+	renderScheduleRunsTable(t.Name, runs)
+	return nil
+}
+
+func renderScheduleRunsTable(taskName string, runs []store.ScheduleRunRecord) {
+	fmt.Printf("\n  \033[1;96mExecution Logs for Schedule:\033[0m \033[1m%q\033[0m (%d record(s))\n\n", taskName, len(runs))
+	if len(runs) == 0 {
+		fmt.Println("  (no execution logs recorded yet)")
+		return
+	}
+	fmt.Printf("  %-6s %-19s %-12s %-10s %-8s %s\n", "RUN #", "STARTED AT", "USER", "DURATION", "STATUS", "EXIT")
+	fmt.Printf("  %s\n", strings.Repeat("─", 72))
+	for _, r := range runs {
+		status := "\033[32msuccess\033[0m"
+		if !r.IsSuccess {
+			status = "\033[31mfailed\033[0m"
+		}
+		user := r.RunnerUser
+		if user == "" {
+			user = "system"
+		}
+		dur := fmt.Sprintf("%dms", r.DurationMS)
+		fmt.Printf("  #%-5d %-19s %-12s %-10s %-17s %d\n", r.RunNumber, r.StartedAt, user, dur, status, r.ExitCode)
+	}
+	fmt.Println()
+}
+
+func runScheduleReset(args []string) error {
+	if len(args) < 1 {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap schedule reset <name>\n")
+		return apperror.NewSimple("schedule name required", "E6009")
+	}
+	name := args[0]
+	db, err := openSchedulerDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	t, err := db.GetSchedule(name)
+	if err != nil {
+		return apperror.WrapSimple(err, "get schedule "+name)
+	}
+	splitDB, err := store.OpenScheduleSplitDB(t.Slug)
+	if err == nil {
+		_ = splitDB.ResetLogs()
+		_ = splitDB.Close()
+	}
+	_ = db.UpdateScheduleRun(name, "")
+	fmt.Printf("✔ Reset split database logs for schedule \033[1m%q\033[0m (%s.db)\n", name, t.Slug)
+	return nil
+}
+
+func runScheduleResetAll(args []string) error {
+	db, err := openSchedulerDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	tasks, _ := db.ListSchedules()
+	for _, t := range tasks {
+		splitDB, err := store.OpenScheduleSplitDB(t.Slug)
+		if err == nil {
+			_ = splitDB.ResetLogs()
+			_ = splitDB.Close()
+		}
+		_ = db.UpdateScheduleRun(t.Name, "")
+	}
+	fmt.Printf("✔ Reset logs for all %d scheduled task split database(s)\n", len(tasks))
+	return nil
 }
 
 func runScheduleRun(args []string) error {
@@ -242,20 +422,65 @@ func runScheduleRun(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "get schedule "+args[0])
 	}
-	return executeScheduledTaskNow(db, t)
+	if !t.IsEnabled {
+		fmt.Printf("⚠ Warning: schedule %q is currently disabled. Use 'gitmap schedule enable %s' to enable.\n", t.Name, t.Name)
+	}
+	return executeAndRecordScheduledTask(db, t, "manual")
 }
 
-func executeScheduledTaskNow(db *store.DB, t *store.SchedulerTask) error {
+func executeAndRecordScheduledTask(db *store.DB, t *store.SchedulerTask, triggerType string) error {
 	fmt.Printf("\n\033[1;96m▸ Executing scheduled task:\033[0m \033[1m%q\033[0m (interval: %s)\n", t.Name, t.IntervalVal)
 	applyScheduleDelay(t.DelayVal)
-	execErr := executeTaskTarget(t)
-	_ = db.UpdateScheduleRun(t.Name, time.Now().Format("2006-01-02 15:04:05"))
+	start := time.Now()
+	startedAt := start.Format("2006-01-02 15:04:05")
+	currentUser := resolveCurrentUser()
+	execErr, outputStr, exitCode := executeTaskTargetWithOutput(t)
+	durMS := time.Since(start).Milliseconds()
+	finishedAt := time.Now().Format("2006-01-02 15:04:05")
+
+	recordTaskRunInSplitDB(t.Slug, t.RunCount+1, triggerType, currentUser, startedAt, finishedAt, durMS, execErr == nil, exitCode, outputStr, execErr)
+	_ = db.UpdateScheduleRun(t.Name, finishedAt)
 	if execErr != nil {
 		fmt.Printf("\n\033[1;91m✖ Task %q failed:\033[0m %v\n\n", t.Name, execErr)
 		return execErr
 	}
-	fmt.Printf("\n\033[1;92m✔ Task %q completed successfully\033[0m\n\n", t.Name)
+	fmt.Printf("\n\033[1;92m✔ Task %q completed successfully\033[0m (logged to %s.db)\n\n", t.Name, t.Slug)
 	return nil
+}
+
+func recordTaskRunInSplitDB(slug string, runNum int, triggerType, user, startAt, finishAt string, durMS int64, isSuccess bool, exitCode int, out string, execErr error) {
+	splitDB, err := store.OpenScheduleSplitDB(slug)
+	if err != nil {
+		return
+	}
+	defer splitDB.Close()
+	errMsg := ""
+	if execErr != nil {
+		errMsg = execErr.Error()
+	}
+	_ = splitDB.RecordRun(store.ScheduleRunRecord{
+		RunNumber:   runNum,
+		TriggerType: triggerType,
+		RunnerUser:  user,
+		StartedAt:   startAt,
+		FinishedAt:  finishAt,
+		DurationMS:  durMS,
+		IsSuccess:   isSuccess,
+		ExitCode:    exitCode,
+		Output:      out,
+		ErrorMsg:    errMsg,
+	})
+}
+
+func resolveCurrentUser() string {
+	u := os.Getenv("USERNAME")
+	if u == "" {
+		u = os.Getenv("USER")
+	}
+	if u == "" {
+		u = "runner"
+	}
+	return u
 }
 
 func applyScheduleDelay(delayVal string) {
@@ -270,34 +495,46 @@ func applyScheduleDelay(delayVal string) {
 	time.Sleep(d)
 }
 
-func executeTaskTarget(t *store.SchedulerTask) error {
+func executeTaskTargetWithOutput(t *store.SchedulerTask) (error, string, int) {
 	if t.MacroName != "" {
-		return executeMacroTarget(t.MacroName)
+		return executeMacroTargetWithOutput(t.MacroName)
 	}
 	if t.CommandLine != "" {
-		return runShellCmdDirectOnly(t.CommandLine)
+		return runShellCmdWithCapture(t.CommandLine)
 	}
-	return apperror.NewSimple("no macro or command defined for task", "E6003")
+	return apperror.NewSimple("no macro or command defined for task", "E6003"), "", 1
 }
 
-func executeMacroTarget(name string) error {
-	m, err := macro.LoadMacro(name)
+func executeMacroTargetWithOutput(macroName string) (error, string, int) {
+	m, err := macro.LoadMacro(macroName)
 	if err != nil {
-		return err
+		return err, "", 1
 	}
-	return macro.Execute(context.Background(), m, macro.ExecOptions{})
+	execErr := macro.Execute(context.Background(), m, macro.ExecOptions{})
+	if execErr != nil {
+		return execErr, "", 1
+	}
+	return nil, "macro " + macroName + " executed", 0
 }
 
-func runShellCmdDirectOnly(cmdStr string) error {
+func runShellCmdWithCapture(cmdStr string) (error, string, int) {
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
 		cmd = exec.Command("cmd.exe", "/C", cmdStr)
 	} else {
 		cmd = exec.Command("sh", "-c", cmdStr)
 	}
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		fmt.Print(string(out))
+		return nil, string(out), 0
+	}
+	exitCode := 1
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		exitCode = exitErr.ExitCode()
+	}
+	fmt.Print(string(out))
+	return err, string(out), exitCode
 }
 
 func runScheduleTest(args []string) error {
@@ -335,7 +572,7 @@ func runTestIterations(db *store.DB, t *store.SchedulerTask, times int) error {
 	fmt.Printf("\n\033[1;93m🧪 Testing schedule %q (%d iteration(s))...\033[0m\n", t.Name, times)
 	for i := 1; i <= times; i++ {
 		fmt.Printf("\n--- Test Iteration #%d/%d ---", i, times)
-		if err := executeScheduledTaskNow(db, t); err != nil {
+		if err := executeAndRecordScheduledTask(db, t, "test"); err != nil {
 			return err
 		}
 	}
@@ -348,15 +585,20 @@ func runScheduleDelete(args []string) error {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap schedule rm <name>\n")
 		return apperror.NewSimple("schedule name required", "E6005")
 	}
+	name := args[0]
 	db, err := openSchedulerDB()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	if err := db.DeleteSchedule(args[0]); err != nil {
+	t, err := db.GetSchedule(name)
+	if err == nil && t != nil {
+		_ = store.DeleteScheduleSplitDB(t.Slug)
+	}
+	if err := db.DeleteSchedule(name); err != nil {
 		return apperror.WrapSimple(err, "delete schedule")
 	}
-	fmt.Printf("✔ Removed scheduled task %q\n", args[0])
+	fmt.Printf("✔ Removed scheduled task %q and deleted split database\n", name)
 	return nil
 }
 
