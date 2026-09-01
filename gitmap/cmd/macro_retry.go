@@ -55,23 +55,24 @@ func parseMacroRetryConfig(args []string) macroRetryConfig {
 	cfg := macroRetryConfig{Delay: 5 * time.Second, Backoff: "fixed"}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if matchFlagWithVal(a, "--sleep", "--delay", "-d") {
+		switch {
+		case matchFlagWithVal(a, "--sleep", "--delay", "-d"):
 			cfg.Delay = parseDurationArg(extractFlagValue(&i, args), 5*time.Second)
-		} else if matchFlagWithVal(a, "--max-retries", "-n", "--limit") {
+		case matchFlagWithVal(a, "--max-retries", "-n", "--limit"):
 			cfg.MaxRetries, _ = strconv.Atoi(extractFlagValue(&i, args))
-		} else if matchFlagWithVal(a, "--timeout", "-t") {
+		case matchFlagWithVal(a, "--timeout", "-t"):
 			cfg.Timeout = parseDurationArg(extractFlagValue(&i, args), 0)
-		} else if matchFlagWithVal(a, "--backoff") {
+		case matchFlagWithVal(a, "--backoff"):
 			cfg.Backoff = extractFlagValue(&i, args)
-		} else if matchFlagWithVal(a, "--error-file", "--ai-file") {
+		case matchFlagWithVal(a, "--error-file", "--ai-file"):
 			cfg.AIFilePath = extractFlagValue(&i, args)
-		} else if a == "--ai" {
+		case a == "--ai":
 			cfg.IsAI = true
-		} else if a == "--json" {
+		case a == "--json":
 			cfg.IsJSON = true
-		} else if a == "--yaml" {
+		case a == "--yaml":
 			cfg.IsYAML = true
-		} else if !strings.HasPrefix(a, "-") && cfg.Target == "" {
+		case !strings.HasPrefix(a, "-") && cfg.Target == "":
 			cfg.Target = a
 		}
 	}

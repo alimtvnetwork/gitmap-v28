@@ -9,6 +9,9 @@ import (
 )
 
 func TestScheduleLifecycle(t *testing.T) {
+	// Clean up any existing fixture
+	_ = runScheduleDelete([]string{"daily-build"})
+
 	// 1. Test adding scheduled task with command and interval
 	addArgs := []string{"daily-build", "echo Build Finished", "--every=1d", "--delay=10ms"}
 	if err := runScheduleAdd(addArgs); err != nil {
@@ -20,9 +23,8 @@ func TestScheduleLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open db failed: %v", err)
 	}
-	defer db.Close()
-
 	task, err := db.GetSchedule("daily-build")
+	db.Close()
 	if err != nil {
 		t.Fatalf("get schedule failed: %v", err)
 	}
@@ -41,16 +43,26 @@ func TestScheduleLifecycle(t *testing.T) {
 	}
 
 	// Verify run count was updated
-	taskAfterRuns, _ := db.GetSchedule("daily-build")
-	if taskAfterRuns.RunCount < 3 {
-		t.Errorf("expected at least 3 runs, got %d", taskAfterRuns.RunCount)
+	dbAfter, err := openSchedulerDB()
+	if err != nil {
+		t.Fatalf("open db failed: %v", err)
+	}
+	taskAfterRuns, _ := dbAfter.GetSchedule("daily-build")
+	dbAfter.Close()
+	if taskAfterRuns == nil || taskAfterRuns.RunCount < 3 {
+		t.Errorf("expected at least 3 runs, got %+v", taskAfterRuns)
 	}
 
 	// 5. Test deleting the task
 	if err := runScheduleDelete([]string{"daily-build"}); err != nil {
 		t.Fatalf("runScheduleDelete failed: %v", err)
 	}
-	if _, err := db.GetSchedule("daily-build"); err == nil {
+	dbCheck, err := openSchedulerDB()
+	if err != nil {
+		t.Fatalf("open db failed: %v", err)
+	}
+	defer dbCheck.Close()
+	if _, err := dbCheck.GetSchedule("daily-build"); err == nil {
 		t.Errorf("expected schedule to be deleted")
 	}
 }

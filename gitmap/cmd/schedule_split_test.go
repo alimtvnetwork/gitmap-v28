@@ -10,8 +10,11 @@ import (
 )
 
 func TestScheduleSplitDBAndLogs(t *testing.T) {
-	// 1. Add a scheduled task
+	// Pre-clean task
 	taskName := "split-test-task"
+	_ = runScheduleDelete([]string{taskName})
+
+	// 1. Add a scheduled task
 	addArgs := []string{taskName, "echo Testing Split DB Execution", "--every=2h", "--delay=10ms"}
 	if err := runScheduleAdd(addArgs); err != nil {
 		t.Fatalf("runScheduleAdd failed: %v", err)

@@ -38,19 +38,20 @@ func runChromeReset(args []string) error {
 func parseChromeResetArgs(args []string) chromeResetOptions {
 	var opts chromeResetOptions
 	for _, a := range args {
-		if a == "--cache" || a == "-cache" {
+		switch {
+		case a == "--cache" || a == "-cache":
 			opts.IsCache = true
-		} else if a == "--cookies" || a == "-cookies" {
+		case a == "--cookies" || a == "-cookies":
 			opts.IsCookies = true
-		} else if a == "--history" || a == "-history" {
+		case a == "--history" || a == "-history":
 			opts.IsHistory = true
-		} else if a == "--extensions" || a == "-extensions" {
+		case a == "--extensions" || a == "-extensions":
 			opts.IsExtensions = true
-		} else if a == "--all" || a == "-a" {
+		case a == "--all" || a == "-a":
 			opts.IsAll = true
-		} else if strings.HasPrefix(a, "--profile=") {
+		case strings.HasPrefix(a, "--profile="):
 			opts.Profile = strings.TrimPrefix(a, "--profile=")
-		} else if !strings.HasPrefix(a, "-") && opts.Profile == "" {
+		case !strings.HasPrefix(a, "-") && opts.Profile == "":
 			opts.Profile = a
 		}
 	}
