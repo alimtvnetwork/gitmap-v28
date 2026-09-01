@@ -64,6 +64,7 @@ func dataExecutionEntries() []dispatchEntry {
 		{[]string{"execute", "exec"}, func() error { return runExecuteCmd(argsTail()) }},
 		{[]string{"macro", "m"}, func() error { return runMacroCmd(argsTail()) }},
 		{[]string{"record", "rec"}, func() error { return runMacroCmd(append([]string{"record"}, argsTail()...)) }},
+		{[]string{"retry", "loop", "until-success"}, func() error { return runMacroUntilSuccess(argsTail()) }},
 		{[]string{"mv", "move"}, func() error { return runMove(argsTail()) }},
 	}
 }

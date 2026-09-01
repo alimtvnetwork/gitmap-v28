@@ -115,6 +115,10 @@ func runMacroCmd(args []string) error {
 
 func routeMacroSubcommand(sub string, rest []string) error {
 	switch sub {
+	case "add", "create", "new":
+		return handleMacroAdd(rest)
+	case "run-until-succeed", "until-success", "retry", "loop-until-success", "loop", "retry-until-success":
+		return runMacroUntilSuccess(rest)
 	case "run", "exec":
 		return runExecuteCmd(rest)
 	case "record", "rec":
@@ -245,8 +249,10 @@ func renderMacroShow(m *macro.Macro) {
 func printMacroUsage() {
 	fmt.Println("Usage: gitmap macro <command> [arguments]")
 	fmt.Println("Commands:")
-	fmt.Println("  record <name>                  Record an interactive shell session as a macro")
+	fmt.Println("  add <name> <steps...>          Create/add a new macro directly from arguments")
 	fmt.Println("  run <name> [--json] [--yaml]   Replay a macro (optional JSON/YAML & file export)")
+	fmt.Println("  run-until-succeed <name|cmd>   Execute macro or command repeatedly until success (with sleep & AI diagnostics)")
+	fmt.Println("  record <name>                  Record an interactive shell session as a macro")
 	fmt.Println("  list [--json] [--yaml]         List all saved macros")
 	fmt.Println("  show <name> [--json] [--yaml]  Inspect steps of a macro")
 	fmt.Println("  rm <name>                      Delete a saved macro")

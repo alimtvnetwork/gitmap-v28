@@ -1,15 +1,17 @@
 # Macro
 
-Record, replay, and manage automated command sequences with environment variable expansion, interactive session control, and structured JSON/YAML reporting.
+Record, replay, automate, and loop command sequences with environment variable expansion, sleep timers, AI error diagnostics, and structured JSON/YAML reporting.
 
 ## Aliases
 
-m, macros
+`m`, `macros`, `retry`, `loop`
 
 ## Usage
 
-    gitmap macro record <name>
+    gitmap macro add <name> <cmd1> [cmd2...] [--desc <text>] [--tag <tag>]
     gitmap macro run <name> [--json] [--yaml] [--file <path>] [--dry-run] [--verbose]
+    gitmap macro run-until-succeed <name|"cmd"> [--sleep <sec>] [--max-retries <N>] [--backoff fixed|linear|exponential] [--ai]
+    gitmap macro record <name>
     gitmap macro list [--json] [--yaml] [--file <path>]
     gitmap macro show <name> [--json] [--yaml] [--file <path>]
     gitmap macro rm <name>
@@ -18,69 +20,48 @@ m, macros
 
 | Subcommand | Description |
 |---|---|
-| record <name> | Start interactive recording session for shell commands |
-| run <name> | Replay a recorded macro sequence with optional JSON/YAML export |
-| list | List all saved macros |
-| show <name> | View steps in a recorded macro |
-| rm <name> | Delete a saved macro |
+| `add` (`create`, `new`) `<name> <steps...>` | Create a new macro directly from command line arguments |
+| `run-until-succeed` (`retry`, `until-success`, `loop`) `<name\|"cmd">` | Execute macro or command repeatedly until success (with sleep, backoff & AI diagnostics) |
+| `record` (`rec`) `<name>` | Start interactive recording session for shell commands |
+| `run` (`exec`) `<name>` | Replay a recorded macro sequence with optional JSON/YAML export |
+| `list` (`ls`) | List all saved macros |
+| `show` `<name>` | View steps in a recorded macro |
+| `rm` (`delete`) `<name>` | Delete a saved macro |
 
 ## Flags
 
 | Flag | Description |
 |---|---|
+| `--sleep <duration>`, `--delay <duration>` | Sleep interval between retry attempts (default: `5s`) |
+| `--max-retries <N>`, `-n <N>` | Maximum number of retry attempts before stopping (default: unlimited) |
+| `--timeout <duration>` | Maximum overall timeout for retry loop (e.g. `10m`, `1h`) |
+| `--backoff <strategy>` | Backoff strategy: `fixed` (default), `linear`, or `exponential` |
+| `--ai` | Output AI-ready diagnostic report on failure |
+| `--ai-file <path>`, `--error-file <path>` | Save AI failure prompt report to specified file |
 | `--json` | Output execution report in formatted JSON |
 | `--yaml`, `-y` | Output execution report in formatted YAML |
-| `--file <path>`, `-o <path>` | Save execution report to file (also prints confirmation banner) |
+| `--file <path>`, `-o <path>` | Save execution report to file |
 | `--dry-run` | Simulate macro execution without invoking commands |
 | `--verbose`, `-v` | Show live command stdout and stderr |
-
-## In-Session Recorder Commands
-
-While recording inside `gitmap macro record <name>`:
-
-| Command | Description |
-|---|---|
-| stop / exit / quit | Save recorded macro and exit |
-| cancel / abort | Discard session without saving |
-| undo | Remove the last recorded command |
-| undo-steps <N> [-y] | Remove last N recorded commands |
-| redo | Restore previously undone command |
-| redo-steps <N> | Restore last N undone commands |
-| list / steps | Show currently recorded steps in session |
-| help / ? | Show in-session commands |
-
-## Environment & Path Expansion
-
-Paths and environment variables are automatically expanded during execution and recording:
-- Windows variables: `%TEMP%`, `%USERPROFILE%`, `%APPDATA%`, `%LOCALAPPDATA%`
-- Unix variables: `$HOME`, `$VAR`, `${VAR}`
-- Tilde expansion: `~/projects`, `~`
 
 ## Examples
 
 ```bash
-# Record a new macro session with environment variable expansion
-gitmap macro record deploy-temp
+# Add a new macro with multiple commands
+gitmap macro add build-test "go build -o gitmap.exe ." "go test ./..." --desc "Build and test"
 
-# Inside session:
-# [rec:deploy-temp 1]> cd %temp%
-# [rec:deploy-temp 2]> ls
-# [rec:deploy-temp 3]> undo-steps 1
-# [rec:deploy-temp 3]> redo
-# [rec:deploy-temp 3]> stop
+# Add a chained command macro
+gitmap macro add deploy "npm run build && npm run test && npm run deploy"
 
-# Replay the recorded macro
+# Run macro until it succeeds with 5s sleep interval
+gitmap macro run-until-succeed build-test --sleep 5s
+
+# Run arbitrary command until success with exponential backoff & AI error diagnostic report
+gitmap macro run-until-succeed "go test -v ./..." --sleep 2s --backoff exponential --ai
+
+# Run via top-level shortcut
+gitmap retry "npm run build" --sleep 3s --max-retries 5 --ai-file .lovable/temp/error.md
+
+# Replay a recorded macro
 gitmap macro run deploy-temp
-
-# Replay with structured JSON output
-gitmap macro run deploy-temp --json
-
-# Replay with YAML output and save to file
-gitmap macro run deploy-temp --yaml --file "reports/deploy.yaml"
-
-# Inspect macro steps as JSON
-gitmap macro show deploy-temp --json
-
-# List all macros as YAML
-gitmap macro list --yaml
 ```
