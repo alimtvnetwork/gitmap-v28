@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -16,12 +17,15 @@ import (
 // chromeExport is the JSON snapshot format. Keep additive — new
 // fields must default-zero so old exports remain importable.
 type chromeExport struct {
-	SchemaVersion int             `json:"schemaVersion"`
-	Name          string          `json:"name"`
-	ExportedAt    string          `json:"exportedAt"`
-	Bookmarks     json.RawMessage `json:"bookmarks,omitempty"`
-	Preferences   json.RawMessage `json:"preferences,omitempty"`
-	ExtensionIDs  []string        `json:"extensionIds,omitempty"`
+	SchemaVersion int             `json:"schemaVersion" yaml:"schemaVersion"`
+	GitMapVersion string          `json:"gitmapVersion,omitempty" yaml:"gitmapVersion,omitempty"`
+	Name          string          `json:"name" yaml:"name"`
+	DisplayName   string          `json:"displayName,omitempty" yaml:"displayName,omitempty"`
+	Email         string          `json:"email,omitempty" yaml:"email,omitempty"`
+	ExportedAt    string          `json:"exportedAt" yaml:"exportedAt"`
+	Bookmarks     json.RawMessage `json:"bookmarks,omitempty" yaml:"bookmarks,omitempty"`
+	Preferences   json.RawMessage `json:"preferences,omitempty" yaml:"preferences,omitempty"`
+	ExtensionIDs  []string        `json:"extensionIds,omitempty" yaml:"extensionIds,omitempty"`
 }
 
 const chromeExportSchemaVersion = 1
@@ -29,9 +33,13 @@ const chromeExportSchemaVersion = 1
 // writeChromeExport reads the curated files from srcProfile and
 // writes a JSON snapshot to outPath. Returns bytes written.
 func writeChromeExport(srcProfile, name, outPath string) (int, error) {
+	displayName, email := resolveProfileNameAndEmail(name, nil)
 	exp := chromeExport{
 		SchemaVersion: chromeExportSchemaVersion,
+		GitMapVersion: constants.Version,
 		Name:          name,
+		DisplayName:   displayName,
+		Email:         email,
 		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
 	}
 	exp.Bookmarks = readOptionalJSON(filepath.Join(srcProfile, "Bookmarks"))
@@ -52,9 +60,9 @@ func writeChromeExport(srcProfile, name, outPath string) (int, error) {
 }
 
 // applyChromeExport writes the export's payloads into dstProfile.
-// Existing files are overwritten. Extensions are recorded as a
-// pending-install hint file; Chrome itself must reinstall them.
+// Existing files are overwritten. Extensions are merged into pending hints.
 func applyChromeExport(exp *chromeExport, dstProfile string) error {
+	checkSnapshotVersion(exp.GitMapVersion)
 	if err := os.MkdirAll(dstProfile, constants.DirPermission); err != nil {
 		return fmt.Errorf("mkdir %s: %w", dstProfile, err)
 	}
@@ -64,14 +72,65 @@ func applyChromeExport(exp *chromeExport, dstProfile string) error {
 	if err := writeOptional(filepath.Join(dstProfile, "Preferences"), exp.Preferences); err != nil {
 		return err
 	}
-	if len(exp.ExtensionIDs) == 0 {
+	if err := writePendingExtensions(dstProfile, exp.ExtensionIDs); err != nil {
+		return err
+	}
+	registerImportedProfileLocalState(exp, dstProfile)
+	return nil
+}
+
+func writePendingExtensions(dstProfile string, ids []string) error {
+	if len(ids) == 0 {
 		return nil
 	}
 	hint := filepath.Join(dstProfile, "gitmap-pending-extensions.txt")
-	if err := os.WriteFile(hint, []byte(joinLines(exp.ExtensionIDs)), constants.FilePermission); err != nil {
-		return err
+	merged := mergePendingExtensions(hint, ids)
+	return os.WriteFile(hint, []byte(joinLines(merged)), constants.FilePermission)
+}
+
+func checkSnapshotVersion(gitmapVersion string) {
+	isMismatch := gitmapVersion != "" && gitmapVersion != constants.Version
+	if isMismatch {
+		fmt.Printf("  \033[1;93m⚠\033[0m Notice: snapshot was generated with gitmap v%s (current running version is v%s)\n", gitmapVersion, constants.Version)
 	}
-	return nil
+}
+
+func registerImportedProfileLocalState(exp *chromeExport, dstProfile string) {
+	if exp.DisplayName == "" {
+		return
+	}
+	dstDir := filepath.Base(dstProfile)
+	_ = registerChromeProfileInLocalState(exp.Name, dstDir, exp.DisplayName)
+}
+
+func mergePendingExtensions(hintPath string, newIDs []string) []string {
+	seen := make(map[string]bool)
+	var out []string
+	appendExistingExtensions(hintPath, seen, &out)
+	for _, id := range newIDs {
+		trimmed := strings.TrimSpace(id)
+		shouldAppend := trimmed != "" && !seen[trimmed]
+		if shouldAppend {
+			seen[trimmed] = true
+			out = append(out, trimmed)
+		}
+	}
+	return out
+}
+
+func appendExistingExtensions(hintPath string, seen map[string]bool, out *[]string) {
+	raw, err := os.ReadFile(hintPath)
+	if err != nil {
+		return
+	}
+	for _, line := range strings.Split(string(raw), "\n") {
+		trimmed := strings.TrimSpace(line)
+		shouldAppend := trimmed != "" && !seen[trimmed]
+		if shouldAppend {
+			seen[trimmed] = true
+			*out = append(*out, trimmed)
+		}
+	}
 }
 
 // readOptionalJSON reads path if present, else returns nil.

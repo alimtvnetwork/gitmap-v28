@@ -1,3 +1,16 @@
+## [v6.163.0] 2026-09-02 Release v6.163.0
+
+### Added & Enhanced
+
+- **Column Alignment & Padded Progress Output**:
+  - Dynamically calculates maximum profile label width across all discovered profiles to render cleanly column-aligned `→` progress lines.
+- **Default ZIP Archive Export & Archive Manifest**:
+  - Multi-profile batch export defaults to structured `.zip` packaging containing root `manifest.json` metadata (`gitmapVersion`, schema, profile inventory).
+  - SQLite exports record schema metadata in `gitmap_metadata` table.
+- **Smart Import, Extension Merging & Local State Registration**:
+  - Multi-format snapshot imports (`zip`, `json`, `yaml`, `sqlite`) detect tool versions, notify users on version deltas, merge pending extension IDs cleanly without duplicates, and register imported profile display names in Chrome's `Local State`.
+  - Added CLI completion footer note displaying `gitmap vX.Y.Z`.
+
 ## [v6.162.0] 2026-09-02 Release v6.162.0
 
 ### Added & Enhanced

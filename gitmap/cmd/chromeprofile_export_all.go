@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,13 +20,40 @@ import (
 
 type chromeAllProfilesExport struct {
 	SchemaVersion int            `json:"schemaVersion" yaml:"schemaVersion"`
+	GitMapVersion string         `json:"gitmapVersion,omitempty" yaml:"gitmapVersion,omitempty"`
 	ExportedAt    string         `json:"exportedAt" yaml:"exportedAt"`
 	ProfileCount  int            `json:"profileCount" yaml:"profileCount"`
 	Profiles      []chromeExport `json:"profiles" yaml:"profiles"`
 }
 
+type chromeProfileManifest struct {
+	GitMapVersion string                  `json:"gitmapVersion" yaml:"gitmapVersion"`
+	SchemaVersion int                     `json:"schemaVersion" yaml:"schemaVersion"`
+	ExportedAt    string                  `json:"exportedAt" yaml:"exportedAt"`
+	ProfileCount  int                     `json:"profileCount" yaml:"profileCount"`
+	Profiles      []chromeManifestProfile `json:"profiles" yaml:"profiles"`
+}
+
+type chromeManifestProfile struct {
+	Name           string `json:"name" yaml:"name"`
+	DisplayName    string `json:"displayName,omitempty" yaml:"displayName,omitempty"`
+	Email          string `json:"email,omitempty" yaml:"email,omitempty"`
+	ExtensionCount int    `json:"extensionCount" yaml:"extensionCount"`
+}
+
+func maxChromeProfileLabelWidth(names []string) int {
+	maxW := 0
+	for _, name := range names {
+		label := formatChromeProfileLabel(name, nil)
+		if len(label) > maxW {
+			maxW = len(label)
+		}
+	}
+	return maxW
+}
+
 func inferExportFormatFromPath(path, explicit string) string {
-	if explicit != "" && explicit != constants.OutputJSON {
+	if explicit != "" {
 		return explicit
 	}
 	lower := strings.ToLower(path)
@@ -38,12 +66,16 @@ func inferExportFormatFromPath(path, explicit string) string {
 	if strings.HasSuffix(lower, constants.ExtZIP) {
 		return constants.OutputZIP
 	}
-	return constants.OutputJSON
+	if strings.HasSuffix(lower, constants.ExtJSON) {
+		return constants.OutputJSON
+	}
+	return constants.OutputZIP
 }
 
 func buildAllProfilesExport(names []string) chromeAllProfilesExport {
 	all := chromeAllProfilesExport{
 		SchemaVersion: chromeExportSchemaVersion,
+		GitMapVersion: constants.Version,
 		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
 		ProfileCount:  len(names),
 		Profiles:      make([]chromeExport, 0, len(names)),
@@ -84,11 +116,20 @@ func writeAllChromeProfilesJSON(names []string, outPath string) (int, error) {
 	if err := os.WriteFile(outPath, raw, constants.FilePermission); err != nil {
 		return 0, fmt.Errorf("write %s: %w", outPath, err)
 	}
-	for _, p := range all.Profiles {
-		label := formatChromeProfileLabel(p.Name, p.Preferences)
-		fmt.Printf("  \033[1;92m✓\033[0m %s → JSON snapshot\n", label)
-	}
+	printAllProfilesExportRows(all.Profiles, names, "JSON snapshot")
 	return len(raw), nil
+}
+
+func printAllProfilesExportRows(profiles []chromeExport, names []string, destName string) {
+	maxW := maxChromeProfileLabelWidth(names)
+	for _, p := range profiles {
+		label := formatChromeProfileLabel(p.Name, p.Preferences)
+		pad := maxW - len(label)
+		if pad < 0 {
+			pad = 0
+		}
+		fmt.Printf("  \033[1;92m✓\033[0m %s%s → %s\n", label, strings.Repeat(" ", pad), destName)
+	}
 }
 
 func writeAllChromeProfilesYAML(names []string, outPath string) (int, error) {
@@ -103,10 +144,7 @@ func writeAllChromeProfilesYAML(names []string, outPath string) (int, error) {
 	if err := os.WriteFile(outPath, raw, constants.FilePermission); err != nil {
 		return 0, fmt.Errorf("write %s: %w", outPath, err)
 	}
-	for _, p := range all.Profiles {
-		label := formatChromeProfileLabel(p.Name, p.Preferences)
-		fmt.Printf("  \033[1;92m✓\033[0m %s → YAML snapshot\n", label)
-	}
+	printAllProfilesExportRows(all.Profiles, names, "YAML snapshot")
 	return len(raw), nil
 }
 
@@ -131,6 +169,10 @@ func writeAllChromeProfilesSQLite(names []string, outPath string) (int, error) {
 
 func initChromeSQLiteTables(db *sql.DB) error {
 	schema := `
+	CREATE TABLE IF NOT EXISTS gitmap_metadata (
+		key TEXT PRIMARY KEY,
+		value TEXT
+	);
 	CREATE TABLE IF NOT EXISTS chrome_profiles (
 		name TEXT PRIMARY KEY,
 		display_name TEXT,
@@ -161,6 +203,7 @@ func initChromeSQLiteTables(db *sql.DB) error {
 }
 
 func populateProfilesInSQLite(db *sql.DB, names []string) error {
+	maxW := maxChromeProfileLabelWidth(names)
 	for _, name := range names {
 		exp, hasExp := loadSingleChromeProfileExport(name)
 		if !hasExp {
@@ -170,7 +213,11 @@ func populateProfilesInSQLite(db *sql.DB, names []string) error {
 			return err
 		}
 		label := formatChromeProfileLabel(name, exp.Preferences)
-		fmt.Printf("  \033[1;92m✓\033[0m %s → SQLite tables populated\n", label)
+		pad := maxW - len(label)
+		if pad < 0 {
+			pad = 0
+		}
+		fmt.Printf("  \033[1;92m✓\033[0m %s%s → SQLite tables populated\n", label, strings.Repeat(" ", pad))
 	}
 	return nil
 }
@@ -229,24 +276,95 @@ func writeAllChromeProfilesZIP(names []string, outPath string) (int, error) {
 	zw := zip.NewWriter(f)
 	defer zw.Close()
 
+	_ = addManifestToZip(zw, names)
+	maxW := maxChromeProfileLabelWidth(names)
 	for _, name := range names {
-		srcPath, hasDir := resolveChromeProfileDir(name)
-		if hasDir {
-			_ = addProfileToZip(zw, srcPath, name)
-			label := formatChromeProfileLabel(name, nil)
-			fmt.Printf("  \033[1;92m✓\033[0m %s → packaged in zip\n", label)
-		}
+		writeProfileToZipWithProgress(zw, name, maxW)
 	}
 	_ = zw.Close()
 	return getFileSize(outPath), nil
 }
 
+func writeProfileToZipWithProgress(zw *zip.Writer, name string, maxW int) {
+	srcPath, hasDir := resolveChromeProfileDir(name)
+	if !hasDir {
+		return
+	}
+	_ = addProfileToZip(zw, srcPath, name)
+	label := formatChromeProfileLabel(name, nil)
+	pad := calculateLabelPadding(maxW, len(label))
+	fmt.Printf("  \033[1;92m✓\033[0m %s%s → packaged in zip\n", label, strings.Repeat(" ", pad))
+}
+
+func calculateLabelPadding(maxW, labelLen int) int {
+	pad := maxW - labelLen
+	if pad < 0 {
+		return 0
+	}
+	return pad
+}
+
+func addManifestToZip(zw *zip.Writer, names []string) error {
+	m := chromeProfileManifest{
+		GitMapVersion: constants.Version,
+		SchemaVersion: chromeExportSchemaVersion,
+		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
+		ProfileCount:  len(names),
+		Profiles:      make([]chromeManifestProfile, 0, len(names)),
+	}
+	for _, name := range names {
+		displayName, email := resolveProfileNameAndEmail(name, nil)
+		srcPath, _ := resolveChromeProfileDir(name)
+		extCount := len(listExtensionIDs(filepath.Join(srcPath, "Extensions")))
+		m.Profiles = append(m.Profiles, chromeManifestProfile{
+			Name:           name,
+			DisplayName:    displayName,
+			Email:          email,
+			ExtensionCount: extCount,
+		})
+	}
+	raw, err := json.MarshalIndent(m, "", constants.JSONIndent)
+	if err != nil {
+		return err
+	}
+	w, err := zw.Create("manifest.json")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(raw)
+	return err
+}
+
 func addProfileToZip(zw *zip.Writer, srcPath, name string) error {
-	_ = exportChromeProfileJSON(zw, srcPath, name)
+	tmpJSON := filepath.Join(os.TempDir(), name+"-snapshot.json")
+	if _, err := writeChromeExport(srcPath, name, tmpJSON); err == nil {
+		defer os.Remove(tmpJSON)
+		_ = copyFileToZipPath(zw, tmpJSON, filepath.ToSlash(filepath.Join(name, name+".json")))
+	}
+	_ = copyFileToZipPath(zw, filepath.Join(srcPath, "Bookmarks"), filepath.ToSlash(filepath.Join(name, "Bookmarks")))
+	_ = copyFileToZipPath(zw, filepath.Join(srcPath, "Preferences"), filepath.ToSlash(filepath.Join(name, "Preferences")))
 	for _, dbName := range constants.ChromeProfileSQLiteEntries {
-		_ = copySQLiteEntryToZip(zw, srcPath, dbName)
+		_ = copyFileToZipPath(zw, filepath.Join(srcPath, dbName), filepath.ToSlash(filepath.Join(name, dbName)))
 	}
 	return nil
+}
+
+func copyFileToZipPath(zw *zip.Writer, srcPath, zipPath string) error {
+	info, err := os.Stat(srcPath)
+	if err != nil || info.IsDir() {
+		return nil
+	}
+	f, err := os.Open(srcPath)
+	if err != nil {
+		return nil
+	}
+	defer f.Close()
+	w, err := zw.Create(zipPath)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(w, f)
+	return err
 }
 
 func getFileSize(path string) int {

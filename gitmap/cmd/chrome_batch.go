@@ -28,23 +28,27 @@ func runChromeCopyAll(args []string) error {
 }
 
 func executeCopyAllProfiles(names []string, dstRoot string) error {
+	maxW := maxChromeProfileLabelWidth(names)
 	fmt.Printf("\n\033[1;96m▸ chrome copy-all\033[0m  %d profile(s) → \033[1m%s\033[0m\n", len(names), dstRoot)
 	copiedCount := 0
 	for _, name := range names {
-		isCopied := copySingleProfileToRoot(name, dstRoot)
-		if isCopied {
+		if copySingleProfileToRoot(name, dstRoot, maxW) {
 			copiedCount++
 		}
 	}
-	fmt.Printf("\n\033[1;92m✓ copy-all complete\033[0m  %d/%d profiles copied successfully.\n", copiedCount, len(names))
+	fmt.Printf("\n\033[1;92m✓ copy-all complete\033[0m  %d/%d profiles copied successfully (gitmap v%s).\n", copiedCount, len(names), constants.Version)
 	return nil
 }
 
-func copySingleProfileToRoot(name, dstRoot string) bool {
+func copySingleProfileToRoot(name, dstRoot string, maxLabelWidth int) bool {
 	srcPath := chromeProfilePath(name)
 	dstPath := filepath.Join(dstRoot, name)
 	label := formatChromeProfileLabel(name, nil)
-	fmt.Printf("  • copying %s → %s\n", label, dstPath)
+	pad := maxLabelWidth - len(label)
+	if pad < 0 {
+		pad = 0
+	}
+	fmt.Printf("  • copying %s%s → %s\n", label, strings.Repeat(" ", pad), dstPath)
 	fileCount, copyErr := copyChromeProfile(srcPath, dstPath)
 	if copyErr != nil {
 		fmt.Fprintf(os.Stderr, "    \033[1;91m✗ error:\033[0m %v\n", copyErr)
@@ -72,9 +76,12 @@ func runExportAllProfilesToPath(outPath, format string) error {
 		return nil
 	}
 	if outPath == "" {
-		outPath = filepath.Join(constants.GitMapDir, "chrome")
+		outPath = filepath.Join(constants.GitMapDir, "chrome-profiles.zip")
 	}
 	format = inferExportFormatFromPath(outPath, format)
+	if format == constants.OutputZIP && !strings.HasSuffix(strings.ToLower(outPath), constants.ExtZIP) {
+		outPath += constants.ExtZIP
+	}
 	fmt.Printf("\n\033[1;96m▸ chrome export\033[0m  %d profile(s) (format=%s) → \033[1m%s\033[0m\n", len(names), format, outPath)
 	return dispatchAllProfilesExport(names, format, outPath)
 }
@@ -85,10 +92,10 @@ func dispatchAllProfilesExport(names []string, format, outPath string) error {
 		return handleAllProfilesSQLite(names, outPath)
 	case constants.OutputYAML:
 		return handleAllProfilesYAML(names, outPath)
-	case constants.OutputZIP:
-		return handleAllProfilesZIP(names, outPath)
-	default:
+	case constants.OutputJSON:
 		return handleAllProfilesJSON(names, outPath)
+	default:
+		return handleAllProfilesZIP(names, outPath)
 	}
 }
 
@@ -100,7 +107,7 @@ func handleAllProfilesSQLite(names []string, outPath string) error {
 	}
 	rec := chromeExportRecord{SQLitePath: outPath, SQLiteSize: size}
 	printChromeArtifacts(rec)
-	fmt.Printf("\n\033[1;92m✓ export complete\033[0m  %d profiles saved to SQLite database %s (%d bytes)\n", len(names), outPath, size)
+	fmt.Printf("\n\033[1;92m✓ export complete\033[0m  %d profiles saved to SQLite database %s (%d bytes) — gitmap v%s\n", len(names), outPath, size, constants.Version)
 	return nil
 }
 
@@ -111,7 +118,7 @@ func handleAllProfilesYAML(names []string, outPath string) error {
 		return err
 	}
 	printChromeArtifacts(chromeExportRecord{JSONPath: outPath, JSONSize: size})
-	fmt.Printf("\n\033[1;92m✓ export complete\033[0m  %d profiles saved to YAML %s (%d bytes)\n", len(names), outPath, size)
+	fmt.Printf("\n\033[1;92m✓ export complete\033[0m  %d profiles saved to YAML %s (%d bytes) — gitmap v%s\n", len(names), outPath, size, constants.Version)
 	return nil
 }
 
@@ -122,7 +129,7 @@ func handleAllProfilesZIP(names []string, outPath string) error {
 		return err
 	}
 	printChromeArtifacts(chromeExportRecord{ZIPPath: outPath, ZIPSize: size})
-	fmt.Printf("\n\033[1;92m✓ export complete\033[0m  %d profiles saved to ZIP %s (%d bytes)\n", len(names), outPath, size)
+	fmt.Printf("\n\033[1;92m✓ export complete\033[0m  %d profiles saved to ZIP %s (%d bytes) — gitmap v%s\n", len(names), outPath, size, constants.Version)
 	return nil
 }
 
@@ -140,23 +147,23 @@ func handleSingleFileJSON(names []string, outPath string) error {
 		return err
 	}
 	printChromeArtifacts(chromeExportRecord{JSONPath: outPath, JSONSize: size})
-	fmt.Printf("\n\033[1;92m✓ export complete\033[0m  %d profiles saved to JSON %s (%d bytes)\n", len(names), outPath, size)
+	fmt.Printf("\n\033[1;92m✓ export complete\033[0m  %d profiles saved to JSON %s (%d bytes) — gitmap v%s\n", len(names), outPath, size, constants.Version)
 	return nil
 }
 
 func exportProfileNameList(names []string, format, outDir string) error {
+	maxW := maxChromeProfileLabelWidth(names)
 	exportedCount := 0
 	for _, name := range names {
-		isExported := exportSingleProfileToDir(name, format, outDir)
-		if isExported {
+		if exportSingleProfileToDir(name, format, outDir, maxW) {
 			exportedCount++
 		}
 	}
-	fmt.Printf("\n\033[1;92m✓ export-all complete\033[0m  %d/%d profiles exported successfully.\n", exportedCount, len(names))
+	fmt.Printf("\n\033[1;92m✓ export-all complete\033[0m  %d/%d profiles exported successfully (gitmap v%s).\n", exportedCount, len(names), constants.Version)
 	return nil
 }
 
-func exportSingleProfileToDir(name, format, outDir string) bool {
+func exportSingleProfileToDir(name, format, outDir string, maxLabelWidth int) bool {
 	srcPath, hasDir := resolveChromeProfileDir(name)
 	if !hasDir {
 		return false
@@ -169,7 +176,11 @@ func exportSingleProfileToDir(name, format, outDir string) bool {
 	}
 	persistChromeProfileSilent(name, srcPath, rec)
 	label := formatChromeProfileLabel(name, nil)
-	fmt.Printf("  \033[1;92m✓\033[0m %s → %s\n", label, outPath)
+	pad := maxLabelWidth - len(label)
+	if pad < 0 {
+		pad = 0
+	}
+	fmt.Printf("  \033[1;92m✓\033[0m %s%s → %s\n", label, strings.Repeat(" ", pad), outPath)
 	return true
 }
 

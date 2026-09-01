@@ -47,12 +47,14 @@ func importChromeJSON(srcFile, targetName string) error {
 	}
 	var all chromeAllProfilesExport
 	if json.Unmarshal(raw, &all) == nil && len(all.Profiles) > 0 {
+		checkSnapshotVersion(all.GitMapVersion)
 		return applyAllProfilesExport(all.Profiles, srcFile)
 	}
 	var exp chromeExport
 	if err := json.Unmarshal(raw, &exp); err != nil {
 		return fmt.Errorf("parse %s: %w", srcFile, err)
 	}
+	checkSnapshotVersion(exp.GitMapVersion)
 	return applyImportedProfile(&exp, srcFile, targetName)
 }
 
@@ -63,23 +65,35 @@ func importChromeYAML(srcFile, targetName string) error {
 	}
 	var all chromeAllProfilesExport
 	if yaml.Unmarshal(raw, &all) == nil && len(all.Profiles) > 0 {
+		checkSnapshotVersion(all.GitMapVersion)
 		return applyAllProfilesExport(all.Profiles, srcFile)
 	}
 	var exp chromeExport
 	if err := yaml.Unmarshal(raw, &exp); err != nil {
 		return fmt.Errorf("parse %s: %w", srcFile, err)
 	}
+	checkSnapshotVersion(exp.GitMapVersion)
 	return applyImportedProfile(&exp, srcFile, targetName)
 }
 
 func applyAllProfilesExport(profiles []chromeExport, srcFile string) error {
+	names := make([]string, len(profiles))
+	for i, p := range profiles {
+		names[i] = p.Name
+	}
+	maxW := maxChromeProfileLabelWidth(names)
 	for _, p := range profiles {
 		dstPath := chromeProfilePath(p.Name)
 		if err := applyChromeExport(&p, dstPath); err != nil {
 			fmt.Fprintf(os.Stderr, "  \033[1;91m✗ %s:\033[0m %v\n", p.Name, err)
 			continue
 		}
-		fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, p.Name)
+		label := formatChromeProfileLabel(p.Name, p.Preferences)
+		pad := maxW - len(label)
+		if pad < 0 {
+			pad = 0
+		}
+		fmt.Printf("  \033[1;92m✓\033[0m %s%s → imported\n", label, strings.Repeat(" ", pad))
 	}
 	return nil
 }
@@ -90,6 +104,10 @@ func importChromeSQLite(dbPath, targetName string) error {
 		return fmt.Errorf("open sqlite %s: %w", dbPath, err)
 	}
 	defer db.Close()
+
+	var dbVer string
+	_ = db.QueryRow("SELECT value FROM gitmap_metadata WHERE key = 'gitmap_version'").Scan(&dbVer)
+	checkSnapshotVersion(dbVer)
 
 	rows, err := db.Query("SELECT name, display_name FROM chrome_profiles")
 	if err != nil {
