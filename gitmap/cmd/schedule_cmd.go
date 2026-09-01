@@ -31,8 +31,14 @@ func dispatchScheduleSubcommand(sub string, rest []string) error {
 	switch sub {
 	case "add", "create", "new":
 		return runScheduleAdd(rest)
-	case "list", "ls", "status":
+	case "list", "ls":
 		return runScheduleList(rest)
+	case "status":
+		return runScheduleStatus(rest)
+	case "export", "export-all":
+		return runScheduleExport(rest)
+	case "import", "import-all":
+		return runScheduleImport(rest)
 	case "enable":
 		return runScheduleSetEnabled(rest, true)
 	case "disable":
@@ -291,14 +297,62 @@ func renderScheduleTable(tasks []store.SchedulerTask) {
 	fmt.Println()
 }
 
+func runScheduleStatus(args []string) error {
+	name, flagArgs := extractMacroNameAndFlags(args)
+	if name == "" || name == "*" || name == "all" {
+		return runScheduleList(args)
+	}
+	db, err := openSchedulerDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	t, err := db.GetSchedule(name)
+	if err != nil {
+		return apperror.WrapSimple(err, "get schedule "+name)
+	}
+	opts := parseExecOptions(flagArgs)
+	if opts.JSON || opts.YAML || len(opts.FilePath) > 0 {
+		return outputStructuredData(t, opts)
+	}
+	renderSingleScheduleStatus(t)
+	return nil
+}
+
+func renderSingleScheduleStatus(t *store.SchedulerTask) {
+	fmt.Printf("\n  \033[1;96mScheduled Task Status:\033[0m \033[1m%q\033[0m\n", t.Name)
+	fmt.Printf("    • Status:      %s\n", formatTaskEnabled(t.IsEnabled))
+	fmt.Printf("    • Interval:    %s\n", t.IntervalVal)
+	if t.DelayVal != "" {
+		fmt.Printf("    • Delay:       %s\n", t.DelayVal)
+	}
+	if t.MacroName != "" {
+		fmt.Printf("    • Macro:       %s\n", t.MacroName)
+	}
+	if t.CommandLine != "" {
+		fmt.Printf("    • Command:     %s\n", t.CommandLine)
+	}
+	fmt.Printf("    • Startup:     %v\n", t.IsStartup)
+	fmt.Printf("    • Total Runs:  %d\n", t.RunCount)
+	fmt.Printf("    • Last Run:    %s\n", t.LastRunAt)
+	fmt.Printf("    • Split DB:    %s\n\n", t.DBPath)
+}
+
+func formatTaskEnabled(isEnabled bool) string {
+	if isEnabled {
+		return "\033[32menabled\033[0m"
+	}
+	return "\033[31mdisabled\033[0m"
+}
+
 func runScheduleLogs(args []string) error {
-	if len(args) < 1 {
-		fmt.Fprintf(os.Stderr, "Usage: gitmap schedule logs <name> [--limit <N>] [--json] [--yaml]\n")
+	name, flagArgs := extractMacroNameAndFlags(args)
+	if name == "" {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap schedule logs <name> [--limit <N>] [--json] [--yaml] [-f <path>]\n")
 		return apperror.NewSimple("schedule name required", "E6008")
 	}
-	name := args[0]
-	opts := parseExecOptions(args[1:])
-	limit := parseLogsLimit(args[1:])
+	opts := parseExecOptions(flagArgs)
+	limit := parseLogsLimit(flagArgs)
 	db, err := openSchedulerDB()
 	if err != nil {
 		return err

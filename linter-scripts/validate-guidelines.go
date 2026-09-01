@@ -57,12 +57,12 @@ type Violation struct {
 }
 
 type ValidationReport struct {
-	TotalFiles      int                `json:"totalFiles"`
-	TotalViolations int                `json:"totalViolations"`
-	CodeRedCount    int                `json:"codeRedCount"`
-	StyleCount      int                `json:"styleCount"`
-	ByRule          map[string]int     `json:"byRule"`
-	Violations      []Violation        `json:"violations"`
+	TotalFiles      int            `json:"totalFiles"`
+	TotalViolations int            `json:"totalViolations"`
+	CodeRedCount    int            `json:"codeRedCount"`
+	StyleCount      int            `json:"styleCount"`
+	ByRule          map[string]int `json:"byRule"`
+	Violations      []Violation    `json:"violations"`
 	byFile          map[string]int
 }
 
@@ -185,7 +185,7 @@ func checkNestedIf(lines []string, path string) []Violation {
 }
 
 var (
-	goBoolPattern = regexp.MustCompile(`(\w+)\s*:=\s*(true|false)\b`)
+	goBoolPattern  = regexp.MustCompile(`(\w+)\s*:=\s*(true|false)\b`)
 	phpBoolPattern = regexp.MustCompile(`\$(\w+)\s*=\s*(?i)(true|false)\b`)
 	tsBoolPattern  = regexp.MustCompile(`(?:const|let|var)\s+(\w+)\s*(?::\s*boolean)?\s*=\s*(true|false)\b`)
 )
@@ -370,9 +370,9 @@ func checkFunctionLength(lines []string, path string, lang string, maxLines int)
 }
 
 var (
-	goStringEnumPattern      = regexp.MustCompile(`^type\s+\w+\s+string\s*$`)
-	goTupleReturnPattern     = regexp.MustCompile(`func\s.*\)\s*\(\*?\w+,\s*error\)`)
-	goRawErrorCodePattern    = regexp.MustCompile(`apperror\.(New|Wrap|Fail\w*)\(\s*"E\d+`)
+	goStringEnumPattern   = regexp.MustCompile(`^type\s+\w+\s+string\s*$`)
+	goTupleReturnPattern  = regexp.MustCompile(`func\s.*\)\s*\(\*?\w+,\s*error\)`)
+	goRawErrorCodePattern = regexp.MustCompile(`apperror\.(New|Wrap|Fail\w*)\(\s*"E\d+`)
 )
 
 func checkGoSpecific(lines []string, path string) []Violation {
@@ -384,11 +384,11 @@ func checkGoSpecific(lines []string, path string) []Violation {
 		// CODE-RED-005: No fmt.Errorf()
 		if strings.Contains(stripped, "fmt.Errorf(") && !strings.HasPrefix(stripped, "//") {
 			violations = append(violations, Violation{
-				File:     path,
-				Line:     i + 1,
-				Rule:     "CODE-RED-005",
-				Severity: "CODE-RED",
-				Message:  "Use apperror.New()/apperror.Wrap() instead of fmt.Errorf().",
+				File:        path,
+				Line:        i + 1,
+				Rule:        "CODE-RED-005",
+				Severity:    "CODE-RED",
+				Message:     "Use apperror.New()/apperror.Wrap() instead of fmt.Errorf().",
 				CodeSnippet: truncate(stripped, 120),
 			})
 		}
@@ -396,13 +396,13 @@ func checkGoSpecific(lines []string, path string) []Violation {
 		// CODE-RED-007: No string-based enums
 		if goStringEnumPattern.MatchString(stripped) {
 			violations = append(violations, Violation{
-				File:     path,
-				Line:     i + 1,
-				Rule:     "CODE-RED-007",
-				Severity: "CODE-RED",
-				Message:  "String-based enums forbidden. Use `type Variant byte` with iota.",
+				File:        path,
+				Line:        i + 1,
+				Rule:        "CODE-RED-007",
+				Severity:    "CODE-RED",
+				Message:     "String-based enums forbidden. Use `type Variant byte` with iota.",
 				CodeSnippet: truncate(stripped, 120),
-		})
+			})
 		}
 
 		// CODE-RED-008: No raw string error codes — use apperrtype enum
@@ -424,11 +424,11 @@ func checkGoSpecific(lines []string, path string) []Violation {
 		for i, line := range lines {
 			if goTupleReturnPattern.MatchString(line) {
 				violations = append(violations, Violation{
-					File:     path,
-					Line:     i + 1,
-					Rule:     "CODE-RED-006",
-					Severity: "CODE-RED",
-					Message:  "Service functions must return Result[T], not (T, error).",
+					File:        path,
+					Line:        i + 1,
+					Rule:        "CODE-RED-006",
+					Severity:    "CODE-RED",
+					Message:     "Service functions must return Result[T], not (T, error).",
 					CodeSnippet: truncate(strings.TrimSpace(line), 120),
 				})
 			}
@@ -439,11 +439,11 @@ func checkGoSpecific(lines []string, path string) []Violation {
 }
 
 var (
-	magicNumberPattern      = regexp.MustCompile(`(?:==|!=|===|!==|>=|<=|[><]|\*|/|%)\s*(-?\d+\.?\d*)`)
-	bracketIndexPattern     = regexp.MustCompile(`\[\s*\d+\s*\]`)
-	tailwindNumberPattern   = regexp.MustCompile(`[a-z]-\d|/\d|opacity-|z-\d|gap-|p-|m-|w-|h-|text-\d|rounded-`)
-	stringContextPattern    = regexp.MustCompile(`className=|class=|["'` + "`" + `].*[-/]\d`)
-	jsxTextNumberPattern    = regexp.MustCompile(`>\s*\d+\s*</`)
+	magicNumberPattern    = regexp.MustCompile(`(?:==|!=|===|!==|>=|<=|[><]|\*|/|%)\s*(-?\d+\.?\d*)`)
+	bracketIndexPattern   = regexp.MustCompile(`\[\s*\d+\s*\]`)
+	tailwindNumberPattern = regexp.MustCompile(`[a-z]-\d|/\d|opacity-|z-\d|gap-|p-|m-|w-|h-|text-\d|rounded-`)
+	stringContextPattern  = regexp.MustCompile(`className=|class=|["'` + "`" + `].*[-/]\d`)
+	jsxTextNumberPattern  = regexp.MustCompile(`>\s*\d+\s*</`)
 )
 
 func checkMagicNumbers(lines []string, path string, lang string) []Violation {
@@ -513,9 +513,9 @@ func checkMagicNumbers(lines []string, path string, lang string) []Violation {
 }
 
 var (
-	tsLetVarPattern    = regexp.MustCompile(`^\s*(?:let|var)\s+(\w+)\s*(?::\s*\w+)?\s*=`)
-	goDeclPattern      = regexp.MustCompile(`^\s+(\w+)\s*:=\s+`)
-	goReassignPattern  = regexp.MustCompile(`^\s+(\w+)\s*=\s+`)
+	tsLetVarPattern   = regexp.MustCompile(`^\s*(?:let|var)\s+(\w+)\s*(?::\s*\w+)?\s*=`)
+	goDeclPattern     = regexp.MustCompile(`^\s+(\w+)\s*:=\s+`)
+	goReassignPattern = regexp.MustCompile(`^\s+(\w+)\s*=\s+`)
 )
 
 func checkVariableMutation(lines []string, path string, lang string) []Violation {
@@ -614,11 +614,11 @@ func checkStyleRules(lines []string, path string) []Violation {
 				prevStripped := strings.TrimSpace(lines[i-1])
 				if prevStripped != "" && prevStripped != "{" && !strings.HasPrefix(prevStripped, "//") {
 					violations = append(violations, Violation{
-						File:     path,
-						Line:     i + 1,
-						Rule:     "STYLE-001",
-						Severity: "STYLE",
-						Message:  "Add a blank line before `return` statement.",
+						File:        path,
+						Line:        i + 1,
+						Rule:        "STYLE-001",
+						Severity:    "STYLE",
+						Message:     "Add a blank line before `return` statement.",
 						CodeSnippet: truncate(stripped, 120),
 					})
 				}
@@ -633,11 +633,11 @@ func checkStyleRules(lines []string, path string) []Violation {
 					ps := strings.TrimSpace(lines[j])
 					if strings.HasPrefix(ps, "return ") || ps == "return" {
 						violations = append(violations, Violation{
-							File:     path,
-							Line:     i + 1,
-							Rule:     "STYLE-002",
-							Severity: "STYLE",
-							Message:  "No `else` after `return`. Use early return pattern.",
+							File:        path,
+							Line:        i + 1,
+							Rule:        "STYLE-002",
+							Severity:    "STYLE",
+							Message:     "No `else` after `return`. Use early return pattern.",
 							CodeSnippet: truncate(stripped, 120),
 						})
 						break
@@ -657,11 +657,11 @@ func checkStyleRules(lines []string, path string) []Violation {
 				nextStripped != ")" && !strings.HasPrefix(nextStripped, "} else") &&
 				!strings.HasPrefix(nextStripped, "case ") && nextStripped != "default:" {
 				violations = append(violations, Violation{
-					File:     path,
-					Line:     i + 1,
-					Rule:     "STYLE-003",
-					Severity: "STYLE",
-					Message:  "Add a blank line after closing `}`.",
+					File:        path,
+					Line:        i + 1,
+					Rule:        "STYLE-003",
+					Severity:    "STYLE",
+					Message:     "Add a blank line after closing `}`.",
 					CodeSnippet: truncate(stripped, 120),
 				})
 			}

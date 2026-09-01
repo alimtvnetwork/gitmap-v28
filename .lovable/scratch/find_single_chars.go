@@ -37,7 +37,7 @@ func main() {
 					// Actually, checking its Pos is tricky without context, let's just inspect ValueSpec
 				}
 			}
-			
+
 			if vspec, ok := n.(*ast.ValueSpec); ok {
 				for _, name := range vspec.Names {
 					if len(name.Name) == 1 && name.Name != "_" {
@@ -46,7 +46,7 @@ func main() {
 					}
 				}
 			}
-			
+
 			if assign, ok := n.(*ast.AssignStmt); ok && assign.Tok == token.DEFINE {
 				for _, expr := range assign.Lhs {
 					if ident, ok := expr.(*ast.Ident); ok {
@@ -57,7 +57,7 @@ func main() {
 					}
 				}
 			}
-			
+
 			if rangeStmt, ok := n.(*ast.RangeStmt); ok {
 				if ident, ok := rangeStmt.Key.(*ast.Ident); ok {
 					if len(ident.Name) == 1 && ident.Name != "_" {
