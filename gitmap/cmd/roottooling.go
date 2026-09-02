@@ -26,7 +26,7 @@ func toolingDispatchEntries() []dispatchEntry {
 func toolingWorkspaceEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdDesktopSync, constants.CmdDesktopSyncAlias}, func() error { checkHelp("desktop-sync", argsTail()); return runDesktopSync() }},
-		{[]string{constants.CmdGitHubDesktop, constants.CmdGitHubDesktopAlias}, func() error { return runGitHubDesktop(argsTail()) }},
+		{[]string{constants.CmdGitHubDesktop, constants.CmdGitHubDesktopAlias, "github", "desktop", "gh-desktop"}, func() error { return runGitHubDesktop(argsTail()) }},
 		{[]string{constants.CmdRescan, constants.CmdRescanAlias}, func() error { checkHelp("rescan", argsTail()); return runRescan() }},
 		{[]string{constants.CmdRescanSubtree, constants.CmdRescanSubtreeAlias}, func() error { return runRescanSubtree(argsTail()) }},
 		{[]string{constants.CmdSetup}, func() error { return runSetup(argsTail()) }},

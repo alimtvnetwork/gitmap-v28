@@ -112,6 +112,14 @@ func runDispatch(command string) {
 }
 
 func handleGlobalError(command string, err error) {
+	if err == nil {
+		return
+	}
+	appErr, isAppErr := err.(*apperror.AppError)
+	if isAppErr && appErr == nil {
+		return
+	}
+
 	cfg, cfgErr := config.LoadFromFile(constants.DefaultConfigPath)
 	display := "full"
 
@@ -121,9 +129,7 @@ func handleGlobalError(command string, err error) {
 
 	persistLastError(command, err)
 
-	appErr, isAppErr := err.(*apperror.AppError)
-
-	if display == "simple" && isAppErr {
+	if display == "simple" && isAppErr && appErr != nil {
 		cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
 		cliexit.HandleError(nil, 1)
 
@@ -131,13 +137,21 @@ func handleGlobalError(command string, err error) {
 	}
 
 	cliexit.Reportf(command, "execute", "", err)
-	if isAppErr && appErr.Stack != "" {
+	if isAppErr && appErr != nil && appErr.Stack != "" {
 		fmt.Fprintf(os.Stderr, "Stack Trace:%s\n", appErr.Stack)
 	}
 	cliexit.HandleError(nil, 1)
 }
 
 func persistLastError(command string, err error) {
+	if err == nil {
+		return
+	}
+	appErr, isAppErr := err.(*apperror.AppError)
+	if isAppErr && appErr == nil {
+		return
+	}
+
 	_ = os.MkdirAll(".gitmap", 0755)
 
 	report := map[string]any{
@@ -146,9 +160,7 @@ func persistLastError(command string, err error) {
 		"error":     err.Error(),
 	}
 
-	appErr, isAppErr := err.(*apperror.AppError)
-
-	if isAppErr {
+	if isAppErr && appErr != nil {
 		populateAppErrorReport(report, appErr)
 	}
 
@@ -162,6 +174,9 @@ func persistLastError(command string, err error) {
 }
 
 func populateAppErrorReport(report map[string]any, appErr *apperror.AppError) {
+	if appErr == nil {
+		return
+	}
 	report["code"] = appErr.Code
 	report["type"] = string(appErr.Type)
 	report["severity"] = string(appErr.Severity)
@@ -182,7 +197,7 @@ func populateAppErrorReport(report map[string]any, appErr *apperror.AppError) {
 func getRootCause(err error) error {
 	for {
 		appErr, isAppErr := err.(*apperror.AppError)
-		if !isAppErr || appErr.Cause == nil {
+		if !isAppErr || appErr == nil || appErr.Cause == nil {
 			return err
 		}
 		err = appErr.Cause

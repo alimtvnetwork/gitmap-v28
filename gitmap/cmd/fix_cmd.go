@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -10,62 +9,69 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 )
 
-func resolveFixOption(args []string, aliasOverride string) (string, error) {
-	if aliasOverride != "" {
-		return aliasOverride, nil
-	}
-
-	if len(args) == 0 {
-		return "", apperror.New("fix", "E_USAGE", map[string]any{"msg": "Usage: gitmap fix <1|2|3|stash|wip|discard>"})
-	}
-
-	return args[0], nil
-}
-
 func runFix(args []string, aliasOverride string) error {
-	option, err := resolveFixOption(args, aliasOverride)
+	items := LoadRemediationState()
+	if len(items) == 0 {
+		fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+		fmt.Println("  Run 'gitmap pull' to pull all tracked repositories.")
+		return nil
+	}
+	if len(args) == 0 && aliasOverride == "" {
+		PrintRemediationSummary(items)
+		return nil
+	}
+	item, action, err := resolveFixTarget(args, aliasOverride, items)
 	if err != nil {
 		return err
 	}
-
-	stateFile := getRemediationStateFile()
-	b, err := os.ReadFile(stateFile)
-	if err != nil {
-		return apperror.New("fix", "E_NO_STATE", map[string]any{"msg": "No previous failed pull remediation state found."})
+	idx := parseRecipeIndex(action, item.Recipes)
+	if idx < 0 || idx >= len(item.Recipes) {
+		return apperror.New("fix", "E_INVALID_OPTION", map[string]any{"msg": fmt.Sprintf("Invalid fix option: %s", action)})
 	}
+	return executeFixRecipe(item, item.Recipes[idx])
+}
 
-	var state RemediationState
-	if err := json.Unmarshal(b, &state); err != nil {
-		return apperror.New("fix", "E_INVALID_STATE", map[string]any{"msg": "Invalid remediation state file."})
+func resolveFixTarget(args []string, aliasOverride string, items []RemediationItem) (*RemediationItem, string, error) {
+	repoQuery, action := parseReconcileArgs(args)
+	if aliasOverride != "" {
+		action = aliasOverride
 	}
-
-	idx := -1
-	switch option {
-	case "1", "stash":
-		idx = 0
-	case "2", "wip":
-		idx = 1
-	case "3", "discard":
-		idx = 2
-	default:
-		// maybe they passed an index
-		if i, err := strconv.Atoi(option); err == nil && i > 0 && i <= len(state.Recipes) {
-			idx = i - 1
+	if repoQuery != "" {
+		matched := FindRemediationItem(items, repoQuery)
+		if matched == nil {
+			return nil, "", apperror.New("fix", "E_NOT_FOUND", map[string]any{"msg": fmt.Sprintf("Repository %q not found in pending remediation list.", repoQuery)})
 		}
+		return matched, action, nil
 	}
-
-	if idx == -1 || idx >= len(state.Recipes) {
-		return apperror.New("fix", "E_INVALID_OPTION", map[string]any{"msg": fmt.Sprintf("Invalid fix option: %s", option)})
+	if len(items) == 1 {
+		return &items[0], action, nil
 	}
+	PrintRemediationSummary(items)
+	return nil, "", apperror.New("fix", "E_AMBIGUOUS", map[string]any{"msg": "Multiple repositories need remediation. Specify repo: gitmap fix <repo> <action>"})
+}
 
-	recipe := state.Recipes[idx]
-	fmt.Printf("%s Applying Fix: %s on %s\n", constants.ColorCyan+"ℹ"+constants.ColorReset, recipe.Title, state.RepoName)
+func parseRecipeIndex(option string, recipes []gitutil.RemediationRecipe) int {
+	switch option {
+	case "1", "stash", "s":
+		return 0
+	case "2", "wip", "w":
+		return 1
+	case "3", "discard", "clean", "d":
+		return 2
+	}
+	if i, err := strconv.Atoi(option); err == nil && i > 0 && i <= len(recipes) {
+		return i - 1
+	}
+	return -1
+}
+
+func executeFixRecipe(item *RemediationItem, recipe gitutil.RemediationRecipe) error {
+	fmt.Printf("%s Applying Fix: %s on %s\n", constants.ColorCyan+"ℹ"+constants.ColorReset, recipe.Title, item.RepoName)
 	fmt.Printf("  Running: %s\n\n", recipe.Command)
 
-	// recipe.Command contains chained git commands like `git -C ... stash && git -C ... pull`
-	// We need to execute it via sh -c or cmd.exe /c
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
 		cmd = exec.Command("cmd", "/c", recipe.Command)
@@ -77,13 +83,9 @@ func runFix(args []string, aliasOverride string) error {
 
 	if err := cmd.Run(); err != nil {
 		fmt.Printf("\n%s Fix failed: %v\n", constants.ColorRed+"✗"+constants.ColorReset, err)
-		return nil // don't crash, let user see git output
+		return nil
 	}
-
-	fmt.Printf("\n%s Fix applied !successfully\n", constants.ColorGreen+"✓"+constants.ColorReset)
-
-	// Clean up state so we don't accidentally run it again blindly
-	os.Remove(stateFile)
-
+	fmt.Printf("\n%s Fix applied successfully on %s\n", constants.ColorGreen+"✓"+constants.ColorReset, item.RepoName)
+	RemoveRemediationItem(item.RepoName)
 	return nil
 }

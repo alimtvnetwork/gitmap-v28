@@ -7,12 +7,8 @@ import (
 	"strings"
 )
 
-// DetectPRStatus checks for tracking branches or remote pull references,
-// and optionally counts Open PRs using the GitHub CLI.
+// DetectPRStatus checks for tracking branches or remote pull references.
 func DetectPRStatus(repoPath string) string {
-	if ghStatus, ok := detectGitHubPRs(repoPath); ok {
-		return ghStatus
-	}
 	return detectGitBranchTracking(repoPath)
 }
 

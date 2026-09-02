@@ -9,11 +9,17 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// runChrome dispatches `gitmap chrome <subcommand>`.
 func runChrome(args []string) error {
 	if len(args) == 0 || isHelpFlag(args[0]) {
 		printChromeRichUsage()
 		return nil
+	}
+	if args[0] == "profile" || args[0] == "profiles" {
+		args = args[1:]
+		if len(args) == 0 || isHelpFlag(args[0]) {
+			printChromeRichUsage()
+			return nil
+		}
 	}
 	sub, tail := args[0], args[1:]
 	if isHandled := dispatchChromeSubcommand(sub, tail); isHandled {
@@ -80,7 +86,7 @@ func handleChromeFlagAndResetOps(sub string, tail []string) bool {
 	case constants.SubCmdChromeFlags, constants.SubCmdChromeFlagsAlias:
 		_ = runChromeFlags(tail)
 		return true
-	case constants.SubCmdChromeReset, constants.SubCmdChromeResetAlias, constants.SubCmdChromeResetAlias2:
+	case constants.SubCmdChromeReset, constants.SubCmdChromeResetAlias:
 		_ = runChromeReset(tail)
 		return true
 	}
@@ -118,8 +124,11 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 	case constants.SubCmdChromeList, constants.SubCmdChromeListAlias, constants.SubCmdChromeListAlias2, constants.SubCmdChromeListAlias3:
 		_ = runChromeProfileList(tail)
 		return true
-	case constants.SubCmdChromeDelete, constants.SubCmdChromeDeleteAlias, constants.SubCmdChromeDeleteAlias2, constants.SubCmdChromeDeleteAlias3:
-		_ = runChromeProfileDelete(tail)
+	case constants.SubCmdChromeDelete, constants.SubCmdChromeDeleteAlias, constants.SubCmdChromeDeleteAlias2, constants.SubCmdChromeDeleteAlias3, "clear":
+		_ = runChromeProfileClear(tail)
+		return true
+	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe":
+		_ = runChromeProfileOptimize(tail)
 		return true
 	case constants.SubCmdChromeMerge, constants.SubCmdChromeMergeAlias:
 		_ = runChromeProfileMerge(tail)

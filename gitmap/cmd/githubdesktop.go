@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -12,12 +13,17 @@ import (
 )
 
 // runGitHubDesktop registers the current working directory with GitHub
-// Desktop in one shot. Unlike `desktop-sync` (which walks last-scan output),
-// this command requires no prior scan — it just verifies cwd is a git repo
-// and invokes the GitHub Desktop CLI on it.
+// Desktop in one shot, or runs optimize-projects / clear.
 func runGitHubDesktop(args []string) error {
 	checkHelp(constants.CmdGitHubDesktop, args)
-
+	if len(args) > 0 {
+		switch strings.ToLower(args[0]) {
+		case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe":
+			return runGitHubDesktopOptimize(args[1:])
+		case "clear", "clean":
+			return runGitHubDesktopClear(args[1:])
+		}
+	}
 	cwd, err := os.Getwd()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrGHDesktopCwd)

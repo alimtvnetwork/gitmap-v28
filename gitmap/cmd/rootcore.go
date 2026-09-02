@@ -31,6 +31,7 @@ func coreBasicEntries() []dispatchEntry {
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},
 		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias}, func() error { return runPullAll(argsTail()) }},
 		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return runStatus(argsTail()) }},
+		{[]string{constants.CmdReconcile, constants.CmdReconcileAlias}, func() error { return runReconcileCmd(argsTail()) }},
 		{[]string{"fix"}, func() error { return runFix(argsTail(), "") }},
 		{[]string{"stash"}, func() error { return runFix(argsTail(), "stash") }},
 		{[]string{"wip"}, func() error { return runFix(argsTail(), "wip") }},

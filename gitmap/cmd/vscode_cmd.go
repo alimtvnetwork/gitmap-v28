@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
-
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
@@ -45,6 +43,10 @@ func dispatchVSCodeAction(args []string) {
 		handleVSCodeAdd(args)
 	case "rm", "remove", "delete", "del":
 		handleVSCodeRm(args)
+	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup":
+		_ = runVSCodeOptimize(args[1:])
+	case "clear", "clean":
+		_ = runVSCodeClear(args[1:])
 	default:
 		printVSCodeUsage()
 		err := apperror.NewWithDetails(
@@ -105,7 +107,7 @@ func handleVSCodeRm(args []string) {
 }
 
 func printVSCodeUsage() {
-	fmt.Println("Usage: gitmap vscode [ls|add <path>|rm <path or name>]")
+	fmt.Println("Usage: gitmap vscode [ls|add <path>|rm <path>|optimize-projects|clear] [flags]")
 }
 
 func runVSCodeLs() error {
@@ -120,16 +122,6 @@ func runVSCodeLs() error {
 	}
 	printVSCodeEntries(entries)
 	return nil
-}
-
-func printVSCodeEntries(entries []vscodepm.Entry) {
-	titleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
-	fmt.Println(titleStyle.Render("VS Code Project Manager Entries:"))
-	fmt.Printf("  %-35s  %s\n", "NAME", "ROOT PATH")
-	fmt.Println("  --------------------------------------------------------------------------------")
-	for _, e := range entries {
-		fmt.Printf("  %-35s  %s\n", e.Name, e.RootPath)
-	}
 }
 
 func runVSCodeAdd(target string) error {

@@ -109,12 +109,20 @@ func runPull(args []string) error {
 	}
 	RenderPullBatchTable(tableRows)
 
+	var remItems []RemediationItem
 	for _, rec := range records {
 		diag := gitutil.InspectDirtyState(rec.AbsolutePath)
 		if diag.IsDirty {
-			PrintRemediationBox(rec.RepoName, rec.AbsolutePath, diag)
+			recipes := gitutil.GenerateRemediationRecipes(rec.AbsolutePath, diag)
+			remItems = append(remItems, RemediationItem{
+				RepoName:      rec.RepoName,
+				RepoPath:      rec.AbsolutePath,
+				SummaryReason: diag.SummaryReason,
+				Recipes:       recipes,
+			})
 		}
 	}
+	PrintRemediationSummary(remItems)
 
 	if code := prog.ExitCodeForBatch(); code != 0 {
 		failPendingTask(taskDB, taskID, fmt.Sprintf("pull batch failed with exit code %d", code))

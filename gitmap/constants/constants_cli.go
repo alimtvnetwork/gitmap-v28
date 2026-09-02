@@ -25,6 +25,8 @@ const (
 	CmdPullAlias          = "p"
 	CmdPullAll            = "pull-all"
 	CmdPullAllAlias       = "pa"
+	CmdReconcile          = "reconcile"
+	CmdReconcileAlias     = "recon"
 	// CmdPush is the cwd-scoped `git push` wrapper added in v5.29.0.
 	// Alias is `ph` (NOT `p` — collides with CmdPullAlias). Supports
 	// shared `--ssh` / `--https` transport flags.
@@ -533,7 +535,8 @@ const (
 	HelpGitHubDesktop    = "  github-desktop (gd)      Register current repo with GitHub Desktop (no scan needed)"
 	HelpPull             = "  pull (p) <name>     Pull a specific repo by its name"
 	HelpPullAll          = "  pull-all (pa)       Pull all tracked repos (equivalent to pull " + ColorCyan + "--all" + ColorReset + ")"
-	HelpFix              = "  fix [1|2|3]         Apply a pull remediation fix (aliases: stash, wip, discard)"
+	HelpReconcile        = "  reconcile (recon)   Reconcile failed or dirty pull repositories repo-by-repo"
+	HelpFix              = "  fix [repo] [action] Apply pull remediation to a repo (aliases: stash, wip, discard)"
 	HelpRescan           = "  rescan (rsc)        Re-run last scan with cached flags"
 	HelpSetup            = "  setup               Configure Git diff/merge tool, aliases & core settings"
 	HelpStatus           = "  status (st)         Show dirty/clean, ahead/behind, stash for all repos"
