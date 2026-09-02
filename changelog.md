@@ -1,3 +1,12 @@
+## [v6.162.0] 2026-09-02 Release v6.162.0
+
+### Added & Enhanced
+
+- **Batch Profile Export Display & Universal Aliases**:
+  - Enhanced multi-profile folder exports (`export-all` / `cpe-all`) to print full profile identity labels (`Default • Person 1 (email) → outdir/Default.json`).
+  - Silenced repetitive database sync lines during batch exports for clean output.
+  - Added universal top-level and subcommand routing for `cpe-all`, `export-all`, `cpi-all`, `import-all`, `cpc-all`, `copy-all`, and `cpe <outdir>`.
+
 ## [v6.161.0] 2026-09-02 Release v6.161.0
 
 ### Added & Enhanced
