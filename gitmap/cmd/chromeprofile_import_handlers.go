@@ -89,10 +89,7 @@ func applyAllProfilesExport(profiles []chromeExport, srcFile string) error {
 			continue
 		}
 		label := formatChromeProfileLabel(p.Name, p.Preferences)
-		pad := maxW - len(label)
-		if pad < 0 {
-			pad = 0
-		}
+		pad := calculateLabelPadding(maxW, label)
 		fmt.Printf("  \033[1;92m✓\033[0m %s%s → imported\n", label, strings.Repeat(" ", pad))
 	}
 	return nil

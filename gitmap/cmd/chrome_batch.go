@@ -44,10 +44,7 @@ func copySingleProfileToRoot(name, dstRoot string, maxLabelWidth int) bool {
 	srcPath := chromeProfilePath(name)
 	dstPath := filepath.Join(dstRoot, name)
 	label := formatChromeProfileLabel(name, nil)
-	pad := maxLabelWidth - len(label)
-	if pad < 0 {
-		pad = 0
-	}
+	pad := calculateLabelPadding(maxLabelWidth, label)
 	fmt.Printf("  • copying %s%s → %s\n", label, strings.Repeat(" ", pad), dstPath)
 	fileCount, copyErr := copyChromeProfile(srcPath, dstPath)
 	if copyErr != nil {
@@ -176,10 +173,7 @@ func exportSingleProfileToDir(name, format, outDir string, maxLabelWidth int) bo
 	}
 	persistChromeProfileSilent(name, srcPath, rec)
 	label := formatChromeProfileLabel(name, nil)
-	pad := maxLabelWidth - len(label)
-	if pad < 0 {
-		pad = 0
-	}
+	pad := calculateLabelPadding(maxLabelWidth, label)
 	fmt.Printf("  \033[1;92m✓\033[0m %s%s → %s\n", label, strings.Repeat(" ", pad), outPath)
 	return true
 }
