@@ -1,0 +1,18 @@
+{
+  "version": "6.165.0",
+  "branch": "release/v6.165.0",
+  "sourceBranch": "main",
+  "commit": "cae2949299d45186947c93f72e9fba36ab698e99",
+  "tag": "v6.165.0",
+  "assets": [],
+  "changelog": [
+    "**Database Architecture Inspector \u0026 Management Suite (`gitmap db`)**:",
+    "**Cross-Platform Duplicate Detection \u0026 Immediate Remediation (`gitmap find-duplicates`)**:",
+    "**Cross-Platform Standard Python Tooling**:",
+    "**Documentation \u0026 UI Registry**:"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-09-02T16:48:31Z",
+  "isLatest": false
+}
