@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -25,8 +26,29 @@ func dispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 	if len(args) > 0 && (args[0] == "find-duplicates" || args[0] == "duplicates" || args[0] == "dups" || args[0] == "find-dups") {
 		return runFindDuplicates("agy", args[1:])
 	}
+	if isAgyLsEmptyConvsArg(args) {
+		return runAgyLsEmptyConvs(args[1:])
+	}
 	AgyCmd.SetArgs(args)
 	return AgyCmd.ExecuteContext(ctx)
+}
+
+func isAgyLsEmptyConvsArg(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	if args[0] == "show-projects-with-empty-conversations" || args[0] == "show-proects-with-empty-conversations" {
+		return true
+	}
+	if args[0] == "ls" && len(args) > 1 {
+		sub := strings.ToLower(args[1])
+		return sub == "show-projects-with-empty-conversations" ||
+			sub == "show-proects-with-empty-conversations" ||
+			sub == "empty-conversations" ||
+			sub == "--empty-conversations" ||
+			sub == "empty-convs"
+	}
+	return false
 }
 
 func init() {
@@ -47,6 +69,7 @@ func init() {
 	AgyCmd.AddCommand(agyExportCmd)
 	AgyCmd.AddCommand(agyImportCmd)
 	AgyCmd.AddCommand(agyPluginsCmd)
+	AgyCmd.AddCommand(agyRemoveEmptyConvsCmd)
 	initPlugins()
 }
 

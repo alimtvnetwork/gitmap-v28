@@ -1,3 +1,14 @@
+## [v6.166.0] 2026-09-03 Release v6.166.0
+
+### Added & Enhanced
+
+- **Antigravity Empty Conversations Auditor & Pruner**:
+  - Added `gitmap agy ls show-projects-with-empty-conversations` (and typos/aliases `show-proects-with-empty-conversations`, `--empty-conversations`) to audit and list all Antigravity projects having zero or aborted/empty conversation databases.
+  - Added `gitmap agy remove-projects-with-empty-conversations` (and aliases `rm-empty-conversations`, `clean-empty-conversations`, `prune-empty-conversations`) to prune orphaned project files from `~/.gemini/config/projects/`.
+  - Added `--except` / `-e` flag supporting comma-delimited strings or `.csv` / `.txt` file paths to preserve whitelisted project IDs, names, paths, or aliases from deletion.
+  - Added `--dry-run` / `-d` for safe previewing and `--yes` / `-y` for non-interactive automated cleanup.
+  - Registered commands in UI documentation (`src/data/commands.ts`) and created markdown help reference (`gitmap/helptext/agy-empty-conversations.md`).
+
 ## [v6.165.0] 2026-09-03 Release v6.165.0
 
 ### Added & Enhanced

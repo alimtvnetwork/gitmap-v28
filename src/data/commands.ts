@@ -1566,6 +1566,28 @@ export const commands: CommandDef[] = [
       { name: "reconcile", description: "Reconcile tracked repository states" },
     ],
   },
+  {
+    category: "maintenance",
+    name: "agy remove-projects-with-empty-conversations",
+    alias: "agy rm-empty-conversations",
+    description: "Audit and prune Antigravity projects that have no active conversations or only empty/aborted sessions",
+    usage: "gitmap agy remove-projects-with-empty-conversations [--except <spec>] [--dry-run] [--yes]",
+    flags: [
+      { flag: "--except, -e", description: "Comma-separated list or file path (.csv/.txt) of project IDs, names, paths, or aliases to preserve" },
+      { flag: "--dry-run, -d", description: "Preview projects targeted for removal without deleting files" },
+      { flag: "--yes, -y", description: "Confirm removal without interactive confirmation prompt" },
+    ],
+    examples: [
+      { command: "gitmap agy ls show-projects-with-empty-conversations", description: "List all Antigravity projects with zero or empty conversations" },
+      { command: "gitmap agy remove-projects-with-empty-conversations --dry-run", description: "Preview which empty projects would be deleted" },
+      { command: "gitmap agy remove-projects-with-empty-conversations --except \"prompts-connect-v3, extendcore\"", description: "Remove empty projects while keeping specified whitelist" },
+      { command: "gitmap agy remove-projects-with-empty-conversations --yes", description: "Non-interactive prune of all projects with empty conversations" },
+    ],
+    seeAlso: [
+      { name: "find-duplicates", description: "Scan and remediate duplicate projects across platforms" },
+      { name: "agy optimize-projects", description: "Deduplicate Antigravity projects" },
+    ],
+  },
 
   // ═══════════════════════════════════════════
   // Tools & Setup
