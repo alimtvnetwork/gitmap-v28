@@ -39,7 +39,7 @@ def probe_constants_version(constants_file: Path) -> str:
     try:
         with open(constants_file, "r", encoding="utf-8") as f:
             for line in f:
-                m = re.match(r'^const\s+Version\s*=\s*"([^"]+)"', line.strip())
+                m = re.match(r'^(?:const|var)\s+Version\s*=\s*"([^"]+)"', line.strip())
                 if m:
                     return m.group(1)
     except OSError:

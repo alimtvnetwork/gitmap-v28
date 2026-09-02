@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // Build-time identity, injected via:
@@ -58,19 +59,32 @@ func printGitmapIdentityBlock() {
 		constants.ColorCyan, constants.ColorReset,
 		constants.ColorWhite, constants.Version, constants.ColorReset)
 
-	src := gitmapSourceDir()
 	emitIdentityRows(IdentityRowParams{
-		Dir:            src,
+		Dir:            gitmapSourceDir(),
 		RepoOverride:   BuildRepo,
 		BranchOverride: BuildBranch,
 		ShaOverride:    BuildCommit,
 	})
+	printFooterBuildDate()
+	printFooterDatabase()
+	fmt.Println()
+}
+
+func printFooterBuildDate() {
 	if len(BuildDate) > 0 {
 		fmt.Printf("  %s● Built:%s       %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorDim, BuildDate, constants.ColorReset)
 	}
-	fmt.Println()
+}
+
+func printFooterDatabase() {
+	dbPath := store.DefaultDBPath()
+	if len(dbPath) > 0 {
+		fmt.Printf("  %s● Database:%s    %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorWhite, dbPath, constants.ColorReset)
+	}
 }
 
 func printCurrentRepoIdentityBlock(cwd string) {

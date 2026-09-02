@@ -192,6 +192,11 @@ const (
 	CmdGroupShow             = "show"                             // gitmap:cmd skip
 	CmdGroupDelete           = "delete"                           // gitmap:cmd skip
 	CmdDBReset               = "db-reset"
+	CmdDB                    = "db"
+	CmdStartFresh            = "start-fresh"
+	CmdFindDuplicates        = "find-duplicates"
+	CmdFindDuplicatesAlias   = "dups"
+	CmdFindDuplicatesAlias2  = "find-dups"
 	CmdReset                 = "reset"
 	CmdListVersions          = "list-versions"
 	CmdListVersionsAlias     = "lv"
@@ -555,6 +560,9 @@ const (
 	HelpSf               = "  sf <add|list|rm>    Manage scan folders (roots that gitmap scan tracks)"
 	HelpRm               = "  rm (remove, del) <name-or-path>...  Untrack repos from the database only"
 	HelpDBReset          = "  db-reset " + ColorCyan + "--confirm" + ColorReset + "  Clear all tracked repos and groups from the database"
+	HelpDB               = "  db <ls|repo-db|sizes|reset> Manage SQLite master and split databases"
+	HelpStartFresh       = "  start-fresh                 Clear all databases & reinitialize from scratch"
+	HelpFindDuplicates   = "  find-duplicates [platform]  Scan and remediate duplicate projects/repos across vscode/chrome/agy/git"
 	HelpCompletion       = "  completion (cmp)    Generate shell tab-completion scripts"
 	HelpClearReleaseJSON = "  clear-release-json (crj)  Remove a .gitmap/release/vX.Y.Z.json file"
 	HelpDocs             = "  docs (d)            Open documentation website in browser"

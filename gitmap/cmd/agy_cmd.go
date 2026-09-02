@@ -22,6 +22,9 @@ func dispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 	if len(args) > 0 && (args[0] == "--repeat-fix" || args[0] == "-r") {
 		args[0] = "optimize-projects"
 	}
+	if len(args) > 0 && (args[0] == "find-duplicates" || args[0] == "duplicates" || args[0] == "dups" || args[0] == "find-dups") {
+		return runFindDuplicates("agy", args[1:])
+	}
 	AgyCmd.SetArgs(args)
 	return AgyCmd.ExecuteContext(ctx)
 }

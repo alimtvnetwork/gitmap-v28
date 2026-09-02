@@ -1,3 +1,27 @@
+## [v6.165.0] 2026-09-03 Release v6.165.0
+
+### Added & Enhanced
+
+- **Database Architecture Inspector & Management Suite (`gitmap db`)**:
+  - `gitmap help` footer identity block now displays the active Primary Master SQLite database file path (`● Database: <path>`).
+  - Added `gitmap db ls` to display architectural breakdown of the Primary Master DB, per-repository Split DBs (`repo_search/*.db`), and architectural rationale (lock elimination, concurrency, query isolation).
+  - Added `gitmap db repo-db list` to inspect per-repository split databases, table row counts (`RepoFile`, `SearchCache`), file sizes, and tracking status.
+  - Added `gitmap db sizes list` to display consolidated disk usage tables across all database files.
+  - Added `gitmap db reset / clear` to reset repository records and clear split DBs with confirmation prompts.
+  - Added `gitmap start-fresh` with irreversible transaction warning prompt to completely purge database files/journals and recreate fresh schemas and split directories.
+
+- **Cross-Platform Duplicate Detection & Immediate Remediation (`gitmap find-duplicates`)**:
+  - Audits duplicate projects and repositories across **Antigravity (AGY)**, **VS Code**, **Chrome**, and **Git**.
+  - Displays instant copy-pasteable CLI fix commands directly beneath findings for single deletion, `--except` preservation, batch optimization (`optimize-projects` / `--repeat-fix` / `clone --fix`), and remapping.
+  - Supported as unified `gitmap find-duplicates` or platform-specific `gitmap <platform> find-duplicates`.
+
+- **Cross-Platform Standard Python Tooling**:
+  - Converted all shell (`.sh`) scripts repository-wide to pure standard-library Python scripts (`.py`) with cross-platform OS and UTF-8 console support.
+
+- **Documentation & UI Registry**:
+  - Registered `db`, `start-fresh`, and `find-duplicates` in `src/data/commands.ts` for the web UI dashboard.
+  - Added dedicated CLI help documentation: `gitmap/helptext/db.md`, `gitmap/helptext/start-fresh.md`, and `gitmap/helptext/find-duplicates.md`.
+
 ## [v6.164.0] 2026-09-02 Release v6.164.0
 
 ### Fixed & Enhanced
