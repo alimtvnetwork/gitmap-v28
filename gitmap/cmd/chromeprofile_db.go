@@ -59,6 +59,22 @@ func persistChromeProfile(name, sourcePath string, rec chromeExportRecord) {
 	fmt.Printf(constants.MsgChromeProfileDBSynced, name)
 }
 
+func persistChromeProfileSilent(name, sourcePath string, rec chromeExportRecord) {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	id, err := db.UpsertChromeProfile(name, sourcePath, true)
+	if err != nil {
+		return
+	}
+	_ = persistExportItem(db, id, constants.OutputJSON, rec.JSONPath, rec.JSONSize)
+	_ = persistExportItem(db, id, constants.OutputCSV, rec.CSVPath, rec.CSVSize)
+	_ = persistExportItem(db, id, constants.OutputZIP, rec.ZIPPath, rec.ZIPSize)
+	_ = persistExportItem(db, id, constants.OutputSQLite, rec.SQLitePath, rec.SQLiteSize)
+}
+
 func persistExportItem(db *store.DB, id int64, kind, path string, size int) error {
 	if path == "" {
 		return nil

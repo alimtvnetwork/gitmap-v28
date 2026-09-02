@@ -43,7 +43,8 @@ func executeCopyAllProfiles(names []string, dstRoot string) error {
 func copySingleProfileToRoot(name, dstRoot string) bool {
 	srcPath := chromeProfilePath(name)
 	dstPath := filepath.Join(dstRoot, name)
-	fmt.Printf("  • copying %s → %s\n", name, dstPath)
+	label := formatChromeProfileLabel(name, nil)
+	fmt.Printf("  • copying %s → %s\n", label, dstPath)
 	fileCount, copyErr := copyChromeProfile(srcPath, dstPath)
 	if copyErr != nil {
 		fmt.Fprintf(os.Stderr, "    \033[1;91m✗ error:\033[0m %v\n", copyErr)
@@ -166,8 +167,9 @@ func exportSingleProfileToDir(name, format, outDir string) bool {
 		fmt.Fprintf(os.Stderr, "  \033[1;91m✗ %s:\033[0m %v\n", name, err)
 		return false
 	}
-	persistChromeProfile(name, srcPath, rec)
-	fmt.Printf("  \033[1;92m✓\033[0m %s → %s\n", name, outPath)
+	persistChromeProfileSilent(name, srcPath, rec)
+	label := formatChromeProfileLabel(name, nil)
+	fmt.Printf("  \033[1;92m✓\033[0m %s → %s\n", label, outPath)
 	return true
 }
 
