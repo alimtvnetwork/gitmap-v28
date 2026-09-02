@@ -26,7 +26,7 @@ import (
 //
 // Run `go generate ./completion/...` after editing constants to refresh
 // allcommands_generated.go. Domain owners never need to edit the generator.
-var manualExtras = []string{}
+var manualExtras = []string{"db", "start-fresh", "find-duplicates"}
 
 // Generate returns the completion script for the given shell.
 func Generate(shell string) (string, error) {

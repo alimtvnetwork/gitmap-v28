@@ -50,6 +50,9 @@ func dataProfileEntries() []dispatchEntry {
 func dataDatabaseEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdDBReset}, func() error { return runDBReset(argsTail()) }},
+		{[]string{constants.CmdDB}, func() error { return runDB(argsTail()) }},
+		{[]string{constants.CmdStartFresh}, func() error { return runStartFresh(argsTail()) }},
+		{[]string{constants.CmdFindDuplicates, constants.CmdFindDuplicatesAlias, constants.CmdFindDuplicatesAlias2}, func() error { return runFindDuplicates("", argsTail()) }},
 		{[]string{constants.CmdReset}, func() error { return runReset(argsTail()) }},
 		{[]string{constants.CmdDBMigrate, constants.CmdDBMigrateAlias}, func() error { return runDBMigrate(argsTail()) }},
 		{[]string{constants.CmdAmend, constants.CmdAmendAlias}, func() error { return runAmend(argsTail()) }},

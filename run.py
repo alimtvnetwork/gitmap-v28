@@ -23,6 +23,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 REPO_ROOT = Path(__file__).resolve().parent
 GITMAP_DIR = REPO_ROOT / "gitmap"
 DATA_DIR = GITMAP_DIR / "data"

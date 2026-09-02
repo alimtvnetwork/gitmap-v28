@@ -47,6 +47,8 @@ func dispatchVSCodeAction(args []string) {
 		_ = runVSCodeOptimize(args[1:])
 	case "clear", "clean":
 		_ = runVSCodeClear(args[1:])
+	case "find-duplicates", "duplicates", "dups", "find-dups":
+		_ = runFindDuplicates("vscode", args[1:])
 	default:
 		printVSCodeUsage()
 		err := apperror.NewWithDetails(

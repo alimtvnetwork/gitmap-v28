@@ -130,6 +130,9 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe":
 		_ = runChromeProfileOptimize(tail)
 		return true
+	case "find-duplicates", "duplicates", "dups", "find-dups":
+		_ = runFindDuplicates("chrome", tail)
+		return true
 	case constants.SubCmdChromeMerge, constants.SubCmdChromeMergeAlias:
 		_ = runChromeProfileMerge(tail)
 		return true

@@ -72,7 +72,10 @@ func printGroupData() {
 	renderLine(constants.HelpBookmark)
 	renderLine(constants.HelpMV)
 	renderLine(constants.HelpRm)
+	renderLine(constants.HelpDB)
 	renderLine(constants.HelpDBReset)
+	renderLine(constants.HelpStartFresh)
+	renderLine(constants.HelpFindDuplicates)
 }
 
 func printGroupImportExport() {

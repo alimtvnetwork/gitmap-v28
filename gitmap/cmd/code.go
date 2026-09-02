@@ -45,7 +45,8 @@ func runCode(args []string) error {
 			fmt.Println("Feature [vscode plugins] is not yet implemented")
 			return nil
 		case "ls", "list", "add", "add-project", "ap", "rm", "remove", "delete", "del",
-			"optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup", "clear", "clean":
+			"optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup", "clear", "clean",
+			"find-duplicates", "duplicates", "dups", "find-dups":
 			return runVSCode(args)
 		}
 	}

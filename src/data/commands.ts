@@ -1499,6 +1499,73 @@ export const commands: CommandDef[] = [
       { name: "setup", description: "Re-run setup wizard" },
     ],
   },
+  {
+    category: "data",
+    name: "db",
+    alias: undefined,
+    description: "Manage, inspect, and reset Gitmap's primary SQLite database and per-repo split databases",
+    usage: "gitmap db <ls|repo-db|sizes|reset> [flags]",
+    flags: [
+      { flag: "ls, list", description: "List all databases (main and split DBs) with path, size, and architectural purpose" },
+      { flag: "repo-db list", description: "List per-repository split databases with table metrics and tracking status" },
+      { flag: "sizes list", description: "Show compact disk usage and size breakdown for all database files" },
+      { flag: "reset, clear", description: "Reset database records and remove split DBs (--yes to skip prompt)" },
+      { flag: "--yes, -y", description: "Bypass confirmation prompt for reset" },
+    ],
+    examples: [
+      { command: "gitmap db ls", description: "View architectural database overview and split DB list" },
+      { command: "gitmap db repo-db list", description: "View split DB table metrics and repository tracking status" },
+      { command: "gitmap db sizes list", description: "View database disk usage table" },
+      { command: "gitmap db reset --yes", description: "Reset main database non-interactively" },
+    ],
+    seeAlso: [
+      { name: "start-fresh", description: "Wipe all databases and rebuild clean schemas" },
+      { name: "scan", description: "Re-scan repositories after reset" },
+    ],
+  },
+  {
+    category: "data",
+    name: "start-fresh",
+    alias: undefined,
+    description: "Permanently wipe all databases, caches, and split DBs, reinitializing clean schemas from scratch",
+    usage: "gitmap start-fresh [--yes]",
+    flags: [
+      { flag: "--yes, -y", description: "Bypass interactive irreversible confirmation prompt" },
+      { flag: "--force, -f", description: "Alias for --yes" },
+    ],
+    examples: [
+      { command: "gitmap start-fresh", description: "Interactive full wipe with safety confirmation" },
+      { command: "gitmap start-fresh --yes", description: "Non-interactive complete reset for automation" },
+    ],
+    seeAlso: [
+      { name: "db", description: "Inspect database architecture and split DBs" },
+      { name: "scan", description: "Scan disk after starting fresh" },
+    ],
+  },
+  {
+    category: "maintenance",
+    name: "find-duplicates",
+    alias: "dups, find-dups",
+    description: "Scan and remediate duplicate projects and repositories across Antigravity, VS Code, Chrome, and Git",
+    usage: "gitmap find-duplicates [agy|vscode|chrome|git]",
+    flags: [
+      { flag: "agy", description: "Scan Antigravity workspace JSON projects in ~/.gemini/config/projects/" },
+      { flag: "vscode", description: "Scan VS Code project manager and workspace storage" },
+      { flag: "chrome", description: "Scan Chrome browser profiles and offline exports" },
+      { flag: "git", description: "Scan tracked Git repositories in Gitmap database" },
+    ],
+    examples: [
+      { command: "gitmap find-duplicates", description: "Scan all platforms for duplicates with instant remediation commands" },
+      { command: "gitmap agy find-duplicates", description: "Scan Antigravity duplicate projects" },
+      { command: "gitmap vscode find-duplicates", description: "Scan VS Code duplicate projects" },
+      { command: "gitmap chrome find-duplicates", description: "Scan Chrome duplicate profiles" },
+      { command: "gitmap git find-duplicates", description: "Scan Git duplicate tracked repositories" },
+    ],
+    seeAlso: [
+      { name: "clone --fix", description: "Fix repeated clone directories" },
+      { name: "reconcile", description: "Reconcile tracked repository states" },
+    ],
+  },
 
   // ═══════════════════════════════════════════
   // Tools & Setup
