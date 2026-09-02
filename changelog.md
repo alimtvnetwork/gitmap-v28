@@ -1,3 +1,11 @@
+## [v6.164.0] 2026-09-02 Release v6.164.0
+
+### Fixed & Enhanced
+
+- **Rune Display-Width Alignment**:
+  - Replaced raw byte length checks with terminal cell display width calculation via `runewidth.StringWidth`.
+  - Multibyte characters like `•` and international runes now align with pixel-perfect column precision across all multi-profile operations.
+
 ## [v6.163.0] 2026-09-02 Release v6.163.0
 
 ### Added & Enhanced
