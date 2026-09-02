@@ -175,6 +175,9 @@ func toolingChromeEntries() []dispatchEntry {
 		{[]string{constants.CmdChromeProfileList, constants.CmdChromeProfileListAlias, constants.CmdChromeProfileListAlias2}, func() error { return runChromeProfileList(argsTail()) }},
 		{[]string{constants.CmdChromeProfileDelete, constants.CmdChromeProfileDeleteAlias}, func() error { return runChromeProfileDelete(argsTail()) }},
 		{[]string{constants.CmdChromeProfileMerge, constants.CmdChromeProfileMergeAlias}, func() error { return runChromeProfileMerge(argsTail()) }},
+		{[]string{"chrome-profile-copy-all", "cpc-all", "copy-all"}, func() error { return runChromeCopyAll(argsTail()) }},
+		{[]string{"chrome-profile-export-all", "cpe-all", "export-all"}, func() error { return runChromeExportAll(argsTail()) }},
+		{[]string{"chrome-profile-import-all", "cpi-all", "import-all"}, func() error { return runChromeImportAll(argsTail()) }},
 		{[]string{constants.CmdChrome, constants.CmdChromeAlias, constants.CmdChromeAlias2}, func() error { return runChrome(argsTail()) }},
 	}
 }
