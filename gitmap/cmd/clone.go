@@ -41,10 +41,29 @@ func applySSHKey(name string) {
 	fmt.Fprintf(os.Stdout, constants.MsgSSHCloneUsing, name, key.PrivatePath)
 }
 
+func handleCloneFixFlag(cf CloneFlags) bool {
+	if !cf.Fix {
+		return false
+	}
+	runCloneFixOptimization()
+	return len(cf.Source) == 0
+}
+
+func runCloneFixOptimization() {
+	fmt.Printf("%s Running workspace project optimization and repeat removal...\n", constants.ColorCyan+"▸"+constants.ColorReset)
+	_ = runAgyOptimize()
+	summary, _ := vscodepm.OptimizeProjects(nil, false)
+	printVSCodeOptimizeResult(summary, false)
+	_ = runGitHubDesktopOptimize(nil)
+}
+
 // runClone handles the "clone" subcommand.
 func runClone(args []string) error {
 	checkHelp("clone", args)
 	cf := parseCloneFlags(args)
+	if handleCloneFixFlag(cf) {
+		return nil
+	}
 	if len(cf.Source) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrSourceRequired)
 		fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
@@ -290,6 +309,11 @@ func executeDirectClone(
 	if noReplace && statErr == nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLExists, absPath)
 		cliexit.HandleError(nil, 1)
+	}
+
+	if isGitRepo(absPath) {
+		fmt.Printf("~ %s already exists on disk (%s), skipping clone and workspace re-registration.\n", repoName, absPath)
+		return
 	}
 
 	// Enqueue pending task.

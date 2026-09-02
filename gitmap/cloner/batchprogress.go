@@ -30,9 +30,6 @@ type BatchProgress struct {
 	failures   []FailureRecord
 	stopOnFail bool
 	stopped    bool
-
-	multi    *pterm.MultiPrinter
-	spinners map[string]*pterm.SpinnerPrinter
 }
 
 func NewBatchProgress(total int, operation string, isQuiet bool) *BatchProgress {
@@ -41,7 +38,6 @@ func NewBatchProgress(total int, operation string, isQuiet bool) *BatchProgress 
 		start:     time.Now(),
 		quiet:     isQuiet,
 		operation: operation,
-		spinners:  make(map[string]*pterm.SpinnerPrinter),
 	}
 	if !isQuiet {
 		initBatchProgressUI(p, total, operation)
@@ -50,10 +46,6 @@ func NewBatchProgress(total int, operation string, isQuiet bool) *BatchProgress 
 }
 
 func initBatchProgressUI(p *BatchProgress, total int, operation string) {
-	p.multi = &pterm.DefaultMultiPrinter
-	if pterm.Output {
-		p.multi.Start()
-	}
 	pterm.Info.Printf("[gitmap] Processing %d repositories for %s...\n", total, operation)
 }
 
@@ -77,12 +69,6 @@ func (p *BatchProgress) BeginItem(name string) {
 	defer p.mu.Unlock()
 
 	p.current++
-	if p.quiet {
-		return
-	}
-
-	spinner, _ := pterm.DefaultSpinner.WithWriter(p.multi.NewWriter()).Start(fmt.Sprintf("%s %s...", p.operation, name))
-	p.spinners[name] = spinner
 }
 
 // Succeed marks an item as successful.
@@ -95,10 +81,7 @@ func (p *BatchProgress) Succeed(name string) {
 		return
 	}
 
-	if spinner, ok := p.spinners[name]; ok {
-		spinner.Success(fmt.Sprintf("%s %s in %s", name, p.operation, formatDuration(time.Since(p.start))))
-		delete(p.spinners, name)
-	}
+	pterm.Success.Println(fmt.Sprintf("%s %s in %s", name, p.operation, formatDuration(time.Since(p.start))))
 }
 
 // UpToDate marks an item as successful but up-to-date (no changes pulled).
@@ -112,17 +95,7 @@ func (p *BatchProgress) UpToDate(name string) {
 		return
 	}
 
-	if spinner, ok := p.spinners[name]; ok {
-		spinner.SuccessPrinter = &pterm.PrefixPrinter{
-			MessageStyle: &pterm.Style{pterm.FgDarkGray},
-			Prefix: pterm.Prefix{
-				Text:  "~",
-				Style: &pterm.Style{pterm.FgDarkGray},
-			},
-		}
-		spinner.Success(fmt.Sprintf("%s (up to date)", name))
-		delete(p.spinners, name)
-	}
+	pterm.Println(pterm.FgDarkGray.Sprintf(" ~  %s (up to date)", name))
 }
 
 // Fail marks an item as failed.
@@ -135,10 +108,7 @@ func (p *BatchProgress) Fail(name string) {
 		return
 	}
 
-	if spinner, ok := p.spinners[name]; ok {
-		spinner.Fail(fmt.Sprintf("%s failed", name))
-		delete(p.spinners, name)
-	}
+	pterm.Error.Println(fmt.Sprintf("%s failed", name))
 }
 
 // FailWithError marks an item as failed and records the error detail.
@@ -155,10 +125,7 @@ func (p *BatchProgress) FailWithError(name, errMsg string) {
 		return
 	}
 
-	if spinner, ok := p.spinners[name]; ok {
-		spinner.Fail(fmt.Sprintf("%s failed", name))
-		delete(p.spinners, name)
-	}
+	pterm.Error.Println(fmt.Sprintf("%s failed", name))
 }
 
 // Skip marks an item as skipped (e.g., missing directory).
@@ -171,10 +138,7 @@ func (p *BatchProgress) Skip(name string) {
 		return
 	}
 
-	if spinner, ok := p.spinners[name]; ok {
-		spinner.Warning(fmt.Sprintf("%s skipped", name))
-		delete(p.spinners, name)
-	}
+	pterm.Warning.Println(fmt.Sprintf("%s skipped", name))
 }
 
 // PrintSummary prints the final summary.
@@ -184,10 +148,6 @@ func (p *BatchProgress) PrintSummary() {
 
 	if p.quiet {
 		return
-	}
-
-	if p.multi != nil && pterm.Output {
-		p.multi.Stop()
 	}
 
 	elapsed := formatDuration(time.Since(p.start))

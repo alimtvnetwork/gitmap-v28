@@ -1,5 +1,5 @@
 {
-  "deployPath": "C:\\Users\\Administrator\\AppData\\Local",
+  "deployPath": "C:\\Users\\Alim\\AppData\\Local",
   "buildOutput": "./bin",
   "binaryName": "gitmap.exe",
   "goSource": "./gitmap",

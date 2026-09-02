@@ -1,5 +1,9 @@
-// Package gitutil — remediation_generator.go produces copy-pasteable remediation recipes.
 package gitutil
+
+import (
+	"path/filepath"
+	"strings"
+)
 
 type RemediationRecipe struct {
 	Title       string
@@ -17,4 +21,13 @@ func GenerateRemediationRecipes(repoPath string, d DirtyDiagnosis) []Remediation
 		GenerateCommitRecipe(repoPath),
 		GenerateDiscardRecipe(repoPath),
 	}
+}
+
+// CleanRepoPath normalizes slashes for cross-platform shell execution.
+func CleanRepoPath(repoPath string) string {
+	p := filepath.ToSlash(filepath.Clean(repoPath))
+	if strings.Contains(p, " ") {
+		return `"` + p + `"`
+	}
+	return p
 }

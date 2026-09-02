@@ -17,7 +17,7 @@ import (
 )
 
 // runChangelog handles the 'changelog' command.
-func runChangelog(args []string) *apperror.AppError {
+func runChangelog(args []string) error {
 	checkHelp("changelog", args)
 	cleaned, mode := ParsePrettyFlag(args)
 	version, latest, limit, openFile, source := parseChangelogFlags(cleaned)

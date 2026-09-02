@@ -35,8 +35,11 @@ func HandleError(err error, defaultCode ...int) {
 		code = defaultCode[0]
 	}
 	var appErr *apperror.AppError
-	if !errors.As(err, &appErr) {
+	if !errors.As(err, &appErr) || appErr == nil {
 		appErr = apperror.WrapSimple(err, "cli")
+	}
+	if appErr == nil {
+		return
 	}
 	WriteAppErrorReport(os.Stderr, appErr)
 	runFlushers()
@@ -53,6 +56,9 @@ func FailAppError(appErr *apperror.AppError, code int) {
 
 // WriteAppErrorReport writes formatted structured error diagnostics.
 func WriteAppErrorReport(w io.Writer, e *apperror.AppError) {
+	if e == nil {
+		return
+	}
 	fmt.Fprintf(w, "gitmap: [%s:%s] %s: %s\n", e.Code, e.Type, e.Op, e.Message)
 	if e.Creator != "" {
 		fmt.Fprintf(w, "  creator: %s\n", e.Creator)

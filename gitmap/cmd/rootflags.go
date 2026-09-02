@@ -267,6 +267,7 @@ type CloneFlags struct {
 	IsAssumeYes bool
 	Clean       bool
 	MissingOnly bool
+	Fix         bool
 }
 
 type cloneFlagPointers struct {
@@ -291,6 +292,7 @@ type cloneFlagPointers struct {
 	httpsFlag         *bool
 	dryRunFlag        *bool
 	yesFlag           *bool
+	fixFlag           *bool
 }
 
 func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -313,6 +315,8 @@ func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
 	flagPtrs.auditFlag = fs.Bool(constants.CloneFlagAudit, false, constants.FlagDescCloneAudit)
 	flagPtrs.noVSCodeSyncFlag = fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
 	flagPtrs.debugPathsFlag = fs.Bool(constants.FlagDebugPaths, false, constants.FlagDescDebugPaths)
+	flagPtrs.fixFlag = fs.Bool("fix", false, "Remove repeated projects across tools")
+	fs.BoolVar(flagPtrs.fixFlag, "repeat-fix", false, "Alias for --fix")
 }
 
 func registerCloneExecutionFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -353,6 +357,7 @@ func populateCloneToggles(cloneOpts *CloneFlags, flagPtrs *cloneFlagPointers) {
 	cloneOpts.NoVSCodeSync = *flagPtrs.noVSCodeSyncFlag
 	cloneOpts.Clean = *flagPtrs.cleanFlag
 	cloneOpts.MissingOnly = *flagPtrs.missingOnlyFlag
+	cloneOpts.Fix = *flagPtrs.fixFlag
 }
 
 func populateCloneExecutionFlags(cloneOpts *CloneFlags, flagPtrs *cloneFlagPointers) {

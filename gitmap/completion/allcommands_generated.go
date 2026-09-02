@@ -263,6 +263,8 @@ var generatedCommands = []string{
 	"rec",
 	"recent",
 	"reclone",
+	"recon",
+	"reconcile",
 	"regex-help",
 	"regoldens",
 	"reinstall",

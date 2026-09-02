@@ -44,15 +44,9 @@ func runCode(args []string) error {
 		case "plugins", "plugin":
 			fmt.Println("Feature [vscode plugins] is not yet implemented")
 			return nil
-		case "add-project", "ap":
-			fmt.Println("Feature [vscode add-project] is not yet implemented")
-			return nil
-		case "ls", "list":
-			fmt.Println("Feature [vscode ls] is not yet implemented")
-			return nil
-		case "rm", "remove", "delete", "del":
-			fmt.Println("Feature [vscode rm] is not yet implemented")
-			return nil
+		case "ls", "list", "add", "add-project", "ap", "rm", "remove", "delete", "del",
+			"optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup", "clear", "clean":
+			return runVSCode(args)
 		}
 	}
 

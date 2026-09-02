@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -79,9 +80,6 @@ func SyncAntigravity(repoPath, repoName string) bool {
 		return false
 	}
 
-	uuid := generateUUID()
-	nowStr := time.Now().UTC().Format(time.RFC3339Nano)
-
 	uriPath := filepath.ToSlash(repoPath)
 	fileURI := "file:///" + url.PathEscape(uriPath)
 	if len(uriPath) > 1 && uriPath[1] == ':' {
@@ -89,6 +87,13 @@ func SyncAntigravity(repoPath, repoName string) bool {
 	} else if len(uriPath) > 0 && uriPath[0] == '/' {
 		fileURI = "file://" + url.PathEscape(uriPath)
 	}
+
+	uuid := findExistingProjectID(configDir, fileURI)
+	if uuid != "" {
+		return true
+	}
+	uuid = generateUUID()
+	nowStr := time.Now().UTC().Format(time.RFC3339Nano)
 
 	cfg := AntigravityConfig{
 		ID:   uuid,
@@ -138,3 +143,35 @@ func generateUUID() string {
 	hex.Encode(dst[24:], b[10:])
 	return string(dst)
 }
+
+func findExistingProjectID(configDir, fileURI string) string {
+	entries, err := os.ReadDir(configDir)
+	if err != nil {
+		return ""
+	}
+	for _, entry := range entries {
+		if filepath.Ext(entry.Name()) != ".json" {
+			continue
+		}
+		if id := checkEntryURI(configDir, entry.Name(), fileURI); id != "" {
+			return id
+		}
+	}
+	return ""
+}
+
+func checkEntryURI(configDir, fileName, fileURI string) string {
+	data, readErr := os.ReadFile(filepath.Join(configDir, fileName))
+	if readErr != nil {
+		return ""
+	}
+	var cfg AntigravityConfig
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return ""
+	}
+	if len(cfg.ProjectResources.Resources) > 0 && strings.EqualFold(cfg.ProjectResources.Resources[0].GitFolder.FolderURI, fileURI) {
+		return cfg.ID
+	}
+	return ""
+}
+

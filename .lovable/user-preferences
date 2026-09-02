@@ -1,0 +1,11 @@
+# User Preferences
+
+**Updated:** 2026-09-02  
+**Status:** Active  
+
+## Release Policy
+- **WOR (Without Release) Mode Active:** Do NOT release after changes.
+- Do NOT bump `version.json` or `package.json`.
+- Do NOT add release sections to `changelog.md`.
+- Do NOT create or push git release tags.
+- Focus strictly on fixing issues without release steps.
