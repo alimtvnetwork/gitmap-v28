@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/mattn/go-runewidth"
 	"gopkg.in/yaml.v3"
 	_ "modernc.org/sqlite"
 )
@@ -41,15 +42,28 @@ type chromeManifestProfile struct {
 	ExtensionCount int    `json:"extensionCount" yaml:"extensionCount"`
 }
 
+func stringDisplayWidth(s string) int {
+	return runewidth.StringWidth(s)
+}
+
 func maxChromeProfileLabelWidth(names []string) int {
 	maxW := 0
 	for _, name := range names {
 		label := formatChromeProfileLabel(name, nil)
-		if len(label) > maxW {
-			maxW = len(label)
+		w := stringDisplayWidth(label)
+		if w > maxW {
+			maxW = w
 		}
 	}
 	return maxW
+}
+
+func calculateLabelPadding(maxW int, label string) int {
+	pad := maxW - stringDisplayWidth(label)
+	if pad < 0 {
+		return 0
+	}
+	return pad
 }
 
 func inferExportFormatFromPath(path, explicit string) string {
@@ -124,10 +138,7 @@ func printAllProfilesExportRows(profiles []chromeExport, names []string, destNam
 	maxW := maxChromeProfileLabelWidth(names)
 	for _, p := range profiles {
 		label := formatChromeProfileLabel(p.Name, p.Preferences)
-		pad := maxW - len(label)
-		if pad < 0 {
-			pad = 0
-		}
+		pad := calculateLabelPadding(maxW, label)
 		fmt.Printf("  \033[1;92m✓\033[0m %s%s → %s\n", label, strings.Repeat(" ", pad), destName)
 	}
 }
@@ -213,10 +224,7 @@ func populateProfilesInSQLite(db *sql.DB, names []string) error {
 			return err
 		}
 		label := formatChromeProfileLabel(name, exp.Preferences)
-		pad := maxW - len(label)
-		if pad < 0 {
-			pad = 0
-		}
+		pad := calculateLabelPadding(maxW, label)
 		fmt.Printf("  \033[1;92m✓\033[0m %s%s → SQLite tables populated\n", label, strings.Repeat(" ", pad))
 	}
 	return nil
@@ -292,16 +300,8 @@ func writeProfileToZipWithProgress(zw *zip.Writer, name string, maxW int) {
 	}
 	_ = addProfileToZip(zw, srcPath, name)
 	label := formatChromeProfileLabel(name, nil)
-	pad := calculateLabelPadding(maxW, len(label))
+	pad := calculateLabelPadding(maxW, label)
 	fmt.Printf("  \033[1;92m✓\033[0m %s%s → packaged in zip\n", label, strings.Repeat(" ", pad))
-}
-
-func calculateLabelPadding(maxW, labelLen int) int {
-	pad := maxW - labelLen
-	if pad < 0 {
-		return 0
-	}
-	return pad
 }
 
 func addManifestToZip(zw *zip.Writer, names []string) error {
