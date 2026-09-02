@@ -1,0 +1,15 @@
+{
+  "version": "6.166.0",
+  "branch": "release/v6.166.0",
+  "sourceBranch": "main",
+  "commit": "ea53cbe921c0383df19a4ed7f6defd2770c5459a",
+  "tag": "v6.166.0",
+  "assets": [],
+  "changelog": [
+    "**Antigravity Empty Conversations Auditor \u0026 Pruner**:"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-09-02T16:56:35Z",
+  "isLatest": false
+}
