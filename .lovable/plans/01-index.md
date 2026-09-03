@@ -21,6 +21,7 @@ Master directory of architectural and execution plans.
 - [59-typescript-types-audit.md](completed/59-typescript-types-audit.md): TypeScript Strict Typing & Discriminated Unions Audit Specification
 - [60-multi-language-enums-and-traits-audit.md](completed/60-multi-language-enums-and-traits-audit.md): Multi-Language Enums, Traits & Pattern Matching Audit Specification
 - [61-terminal-ui-and-cli-styling-audit.md](completed/61-terminal-ui-and-cli-styling-audit.md): Terminal UI, CLI Styling, Lipgloss & Animations Audit Specification
+- [62-argument-reduction-audit.md](completed/62-argument-reduction-audit.md): Argument Reduction, Parameter Structs & Return Architecture Audit Specification
 
 - [01-cicd-trigger-fix.md](completed/01-cicd-trigger-fix.md): 01-cicd-trigger-fix
 - [02-coding-guideline-fixes.md](completed/02-coding-guideline-fixes.md): 02-coding-guideline-fixes
