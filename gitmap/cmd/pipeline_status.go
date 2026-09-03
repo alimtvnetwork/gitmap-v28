@@ -83,18 +83,23 @@ func buildStatusPayload(repo, lastTag string, pendingPRs int, runs []ghRunItem) 
 	payload.IsRunning = runningCount > 0
 
 	if payload.IsRunning {
-		activeRun := findActiveWorkflowRun(runs)
-		if activeRun != nil {
-			payload.ActiveWorkflow = activeRun.Name
-			payload.LastRunID = activeRun.DatabaseID
-			payload.LastRunURL = activeRun.URL
-		} else {
-			payload.ActiveWorkflow = latest.Name
-		}
-		payload.EtaSeconds = calculateETA(runs)
+		populateActiveRunPayload(&payload, runs, latest)
 	}
 
 	return payload
+}
+
+func populateActiveRunPayload(payload *PipelineStatusPayload, runs []ghRunItem, latest ghRunItem) {
+	activeRun := findActiveWorkflowRun(runs)
+	if activeRun != nil {
+		payload.ActiveWorkflow = activeRun.Name
+		payload.LastRunID = activeRun.DatabaseID
+		payload.LastRunURL = activeRun.URL
+		payload.EtaSeconds = calculateETA(runs)
+		return
+	}
+	payload.ActiveWorkflow = latest.Name
+	payload.EtaSeconds = calculateETA(runs)
 }
 
 func renderPipelineStatusTerminal(p PipelineStatusPayload) {

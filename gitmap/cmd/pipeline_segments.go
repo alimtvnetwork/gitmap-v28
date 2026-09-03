@@ -104,12 +104,7 @@ func formatSegmentBadge(status, conclusion string) string {
 
 func computeStepDurationString(startedStr, completedStr, status string) string {
 	if status == "in_progress" {
-		t, err := time.Parse(time.RFC3339, startedStr)
-		if err == nil {
-			elapsed := int(time.Since(t).Seconds())
-			return fmt.Sprintf("(%ds elapsed)", elapsed)
-		}
-		return ""
+		return formatInProgressDuration(startedStr)
 	}
 	if startedStr == "" || completedStr == "" || startedStr == "0001-01-01T00:00:00Z" {
 		return ""
@@ -130,4 +125,12 @@ func countRunningWorkflows(runs []ghRunItem) int {
 		}
 	}
 	return runningCount
+}
+
+func formatInProgressDuration(startedStr string) string {
+	t, err := time.Parse(time.RFC3339, startedStr)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf("(%ds elapsed)", int(time.Since(t).Seconds()))
 }

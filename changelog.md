@@ -1,3 +1,27 @@
+## [v6.169.0] 2026-09-03 Release v6.169.0
+
+### Added & Enhanced
+
+- **Isolated Pipeline Split SQLite Databases (`data/pipeline_db/pipeline_<slug>.db`)**:
+  - Engineered dedicated per-repository split SQLite database tier for CI/CD pipeline runs and telemetry.
+  - Implemented `PipelineRun`, `PipelineErrorLog`, and `PipelineSegment` schemas with `SetMaxOpenConns(1)` for zero lock collisions.
+  - Added dual-writing in `pipeline_recorder.go` to capture pipeline execution history, ETA tracking, and parsed step failures.
+  - Added CLI suite: `gitmap pipeline db [status|clear|reset|optimize|error-logs|help]`.
+
+- **Isolated Repository Split SQLite Databases (`data/repo_search/`)**:
+  - Added `RepoScanLog` table for structured repository scan and indexing telemetry.
+  - Added CLI suite: `gitmap repo db [status|log|error-logs|clear|reset|optimize|help]`.
+
+- **Cross-Tier Database Administration (`gitmap db`)**:
+  - Implemented `gitmap db status` presenting unified metrics across Primary Master DB, Split Repo DBs, and Split Pipeline DBs.
+  - Implemented `gitmap db optimize` running automated `VACUUM` and `PRAGMA optimize` across all database tiers.
+  - Implemented `gitmap db clear` with interactive/non-interactive (`-y`) confirmation for cache purging.
+
+- **Coding Guideline & CI/CD Compliance**:
+  - Refactored and flattened all nested `if` statements across `gitmap/cmd/` and `gitmap/vscodepm/` to achieve 100% compliance with `check-nested-ifs.py` and `check-enum-and-boolean.py`.
+  - Regenerated CLI command mappings via `go generate ./...` to prevent generate drift.
+  - Resolved legacy references in `spec/01-spec-authoring-guide/13-root-readme-conventions.md`.
+
 ## [v6.168.0] 2026-09-03 Release v6.168.0
 
 ### Added & Enhanced

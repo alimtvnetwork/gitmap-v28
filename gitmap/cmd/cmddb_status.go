@@ -11,15 +11,15 @@ import (
 )
 
 type dbUnifiedStatus struct {
-	MasterPath       string `json:"masterPath"`
-	MasterSize       int64  `json:"masterSize"`
-	MasterRepos      int    `json:"masterRepos"`
-	SplitRepoDir     string `json:"splitRepoDir"`
-	SplitRepoCount   int    `json:"splitRepoCount"`
-	SplitRepoSize    int64  `json:"splitRepoSize"`
-	PipelineDir      string `json:"pipelineDir"`
-	PipelineCount    int    `json:"pipelineCount"`
-	PipelineSize     int64  `json:"pipelineSize"`
+	MasterPath     string `json:"masterPath"`
+	MasterSize     int64  `json:"masterSize"`
+	MasterRepos    int    `json:"masterRepos"`
+	SplitRepoDir   string `json:"splitRepoDir"`
+	SplitRepoCount int    `json:"splitRepoCount"`
+	SplitRepoSize  int64  `json:"splitRepoSize"`
+	PipelineDir    string `json:"pipelineDir"`
+	PipelineCount  int    `json:"pipelineCount"`
+	PipelineSize   int64  `json:"pipelineSize"`
 }
 
 func runDBStatus(args []string) error {
@@ -46,18 +46,18 @@ func runDBStatus(args []string) error {
 	status.PipelineDir = pipelinedb.PipelineDBDir()
 	pipeFiles, _ := os.ReadDir(status.PipelineDir)
 	for _, f := range pipeFiles {
-		if !f.IsDir() && filepath.Ext(f.Name()) == ".db" {
-			status.PipelineCount++
-			if info, err := f.Info(); err == nil {
-				status.PipelineSize += info.Size()
-			}
-		}
+		accumulatePipelineFileStats(&status, f)
 	}
 
 	if hasArgFlag(args, "--json") {
 		return printJSON(status)
 	}
 
+	printUnifiedStatus(status)
+	return nil
+}
+
+func printUnifiedStatus(status dbUnifiedStatus) {
 	fmt.Println(constants.ColorCyan + "● Gitmap SQLite Unified Database Status:" + constants.ColorReset)
 	fmt.Println()
 	fmt.Printf("  %s1. Primary Master Database (gitmap.db):%s\n", constants.ColorWhite, constants.ColorReset)
@@ -78,5 +78,15 @@ func runDBStatus(args []string) error {
 	fmt.Println()
 	fmt.Printf("  %sTip: Run 'gitmap db optimize' to vacuum and reclaim disk space across all databases.%s\n",
 		constants.ColorDim, constants.ColorReset)
-	return nil
+}
+
+func accumulatePipelineFileStats(status *dbUnifiedStatus, f os.DirEntry) {
+	if f.IsDir() || filepath.Ext(f.Name()) != ".db" {
+		return
+	}
+	status.PipelineCount++
+	info, err := f.Info()
+	if err == nil {
+		status.PipelineSize += info.Size()
+	}
 }

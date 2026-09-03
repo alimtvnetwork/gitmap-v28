@@ -16,10 +16,10 @@ func runChrome(args []string) error {
 	}
 	if args[0] == "profile" || args[0] == "profiles" {
 		args = args[1:]
-		if len(args) == 0 || isHelpFlag(args[0]) {
-			printChromeRichUsage()
-			return nil
-		}
+	}
+	if len(args) == 0 || isHelpFlag(args[0]) {
+		printChromeRichUsage()
+		return nil
 	}
 	sub, tail := args[0], args[1:]
 	if isHandled := dispatchChromeSubcommand(sub, tail); isHandled {

@@ -42,12 +42,10 @@ func runPipelineDBStatus(args []string) error {
 
 func runPipelineDBClear(args []string) error {
 	repo := resolveCurrentRepoSlug()
-	if !hasArgFlag(args, "-y") && !hasArgFlag(args, "--yes") {
-		ok, err := promptConfirm(fmt.Sprintf("Clear all pipeline runs and error logs for %s? [y/N]: ", repo))
-		if err != nil || !ok {
-			fmt.Println("Clear operation canceled.")
-			return nil
-		}
+	msg := fmt.Sprintf("Clear all pipeline runs and error logs for %s? [y/N]: ", repo)
+	if !confirmOrSkip(msg, args) {
+		fmt.Println("Clear operation canceled.")
+		return nil
 	}
 	db, err := pipelinedb.OpenPipelineSplitDB(repo)
 	if err != nil {
@@ -64,12 +62,10 @@ func runPipelineDBClear(args []string) error {
 
 func runPipelineDBReset(args []string) error {
 	repo := resolveCurrentRepoSlug()
-	if !hasArgFlag(args, "-y") && !hasArgFlag(args, "--yes") {
-		ok, err := promptConfirm(fmt.Sprintf("Reset and re-create pipeline schema for %s? [y/N]: ", repo))
-		if err != nil || !ok {
-			fmt.Println("Reset operation canceled.")
-			return nil
-		}
+	msg := fmt.Sprintf("Reset and re-create pipeline schema for %s? [y/N]: ", repo)
+	if !confirmOrSkip(msg, args) {
+		fmt.Println("Reset operation canceled.")
+		return nil
 	}
 	db, err := pipelinedb.OpenPipelineSplitDB(repo)
 	if err != nil {

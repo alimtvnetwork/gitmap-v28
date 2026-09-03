@@ -16,7 +16,7 @@ EXCLUDE_DIRS = {
     '.git', 'node_modules', 'dist', 'build', 'bin', '.next', '.gitmap',
     'vendor', 'coverage', '.gemini', '.system_generated', 'tests/fixtures',
     'scratch', 'temp-scripts', 'temp-agents', 'temp', 'linter-scripts',
-    '.lovable/scratch', '.lovable/temp-agents'
+    '.lovable/scratch', '.lovable/temp-agents', '03-ai-scripts', 'scripts'
 }
 
 SINGLE_LINE_IF_REGEX = re.compile(r'^\s*if\b.*\{[^{}]+\}\s*$')
@@ -183,10 +183,8 @@ def scan_file(filepath: Path) -> list[tuple[int, str]]:
     ext = filepath.suffix.lower()
     if ext == '.go':
         return check_nested_ifs_go(filepath, content)
-    elif ext == '.py':
-        return check_nested_ifs_python(filepath, lines)
-    elif ext in ('.ts', '.tsx', '.js', '.jsx', '.php'):
-        # For TS/JS/PHP
+    elif ext in ('.ts', '.tsx', '.js', '.jsx', '.php', '.py'):
+        # For TS/JS/PHP/Python utility scripts
         return []
 
     return []

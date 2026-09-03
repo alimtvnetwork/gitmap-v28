@@ -148,12 +148,10 @@ func handleRepoDBClear(args []string) error {
 	}
 	defer db.Close()
 
-	if !hasArgFlag(args, "-y") && !hasArgFlag(args, "--yes") {
-		ok, err := promptConfirm(fmt.Sprintf("Clear search index and cache for %s? [y/N]: ", slug))
-		if err != nil || !ok {
-			fmt.Println("Clear operation canceled.")
-			return nil
-		}
+	msg := fmt.Sprintf("Clear search index and cache for %s? [y/N]: ", slug)
+	if !confirmOrSkip(msg, args) {
+		fmt.Println("Clear operation canceled.")
+		return nil
 	}
 
 	if err := repodb.ClearRepoDB(context.Background(), db); err != nil {
@@ -170,12 +168,10 @@ func handleRepoDBReset(args []string) error {
 	}
 	defer db.Close()
 
-	if !hasArgFlag(args, "-y") && !hasArgFlag(args, "--yes") {
-		ok, err := promptConfirm(fmt.Sprintf("Reset repository schema for %s? [y/N]: ", slug))
-		if err != nil || !ok {
-			fmt.Println("Reset operation canceled.")
-			return nil
-		}
+	msg := fmt.Sprintf("Reset repository schema for %s? [y/N]: ", slug)
+	if !confirmOrSkip(msg, args) {
+		fmt.Println("Reset operation canceled.")
+		return nil
 	}
 
 	if err := repodb.ResetRepoDB(context.Background(), db); err != nil {
@@ -201,18 +197,23 @@ func handleRepoDBOptimize(args []string) error {
 	return nil
 }
 
+func lookupRepoID(cwd string) int64 {
+	mainDB, err := store.OpenDefault()
+	if err != nil {
+		return 1
+	}
+	defer mainDB.Close()
+	id, findErr := mainDB.GetRepoIDByPath(cwd)
+	if findErr != nil || id <= 0 {
+		return 1
+	}
+	return id
+}
+
 func resolveCurrentRepoSplitDB() (*sql.DB, string, int64, string, error) {
 	cwd, _ := os.Getwd()
 	slug := filepath.Base(cwd)
-	repoID := int64(1)
-
-	mainDB, err := store.OpenDefault()
-	if err == nil {
-		defer mainDB.Close()
-		if id, findErr := mainDB.GetRepoIDByPath(cwd); findErr == nil && id > 0 {
-			repoID = id
-		}
-	}
+	repoID := lookupRepoID(cwd)
 
 	rootDbDir := store.BinaryDataDir()
 	dbPath := repodb.ResolveRepoDBPath(rootDbDir, cwd, repoID)

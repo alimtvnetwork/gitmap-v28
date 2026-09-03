@@ -83,14 +83,21 @@ func formatRelativeTime(rfc3339Str string) string {
 	if rfc3339Str == "" {
 		return "—"
 	}
-	t, err := time.Parse(time.RFC3339Nano, rfc3339Str)
-	if err != nil {
-		t, err = time.Parse(time.RFC3339, rfc3339Str)
-		if err != nil {
-			return "—"
-		}
+	t, ok := parseTimestampString(rfc3339Str)
+	if !ok {
+		return "—"
 	}
 	return formatTimeDuration(time.Since(t), t)
+}
+
+func parseTimestampString(s string) (time.Time, bool) {
+	if t, err := time.Parse(time.RFC3339Nano, s); err == nil {
+		return t, true
+	}
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t, true
+	}
+	return time.Time{}, false
 }
 
 func formatTimeDuration(d time.Duration, t time.Time) string {

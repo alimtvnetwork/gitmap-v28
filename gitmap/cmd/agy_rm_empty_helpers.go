@@ -11,12 +11,21 @@ func parseAgyExceptTokens(raw string) []string {
 	if trimmed == "" {
 		return nil
 	}
-	if isFilePathToken(trimmed) {
-		if content, err := os.ReadFile(trimmed); err == nil {
-			return splitTokens(string(content))
-		}
+	if tokens, ok := tryReadTokenFile(trimmed); ok {
+		return tokens
 	}
 	return splitTokens(trimmed)
+}
+
+func tryReadTokenFile(path string) ([]string, bool) {
+	if !isFilePathToken(path) {
+		return nil, false
+	}
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return nil, false
+	}
+	return splitTokens(string(content)), true
 }
 
 func isFilePathToken(s string) bool {

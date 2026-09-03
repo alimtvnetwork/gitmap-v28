@@ -10,12 +10,9 @@ import (
 )
 
 func runDBClearAction(args []string) error {
-	if !hasArgFlag(args, "-y") && !hasArgFlag(args, "--yes") {
-		ok, err := promptConfirm("Clear all search caches across master and split databases? [y/N]: ")
-		if err != nil || !ok {
-			fmt.Println("Clear operation canceled.")
-			return nil
-		}
+	if !confirmOrSkip("Clear all search caches across master and split databases? [y/N]: ", args) {
+		fmt.Println("Clear operation canceled.")
+		return nil
 	}
 
 	splitDBs := collectSplitDBs()

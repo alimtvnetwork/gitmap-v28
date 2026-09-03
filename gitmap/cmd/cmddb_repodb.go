@@ -55,10 +55,8 @@ func buildRepoDBRows(splitDBs []DBFileInfo, repoMap map[int64]string) []repoDBRo
 	for _, s := range splitDBs {
 		fc, cc := querySplitDBCounts(s.Path)
 		status := "Orphaned"
-		if s.RepoID > 0 {
-			if _, tracked := repoMap[s.RepoID]; tracked {
-				status = "Tracked"
-			}
+		if s.RepoID > 0 && repoMap[s.RepoID] != "" {
+			status = "Tracked"
 		}
 		rows = append(rows, repoDBRow{
 			ID:        s.RepoID,

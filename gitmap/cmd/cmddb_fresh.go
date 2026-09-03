@@ -11,18 +11,20 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-func runStartFresh(args []string) error {
-	isConfirmed := hasConfirmFlag(args)
-	if !isConfirmed {
+func runDBFresh(args []string) error {
+	msg := constants.ColorYellow + "Are you sure you want to start fresh? [y/N]: " + constants.ColorReset
+	if !hasConfirmFlag(args) {
 		printFreshWarning()
-		msg := constants.ColorYellow + "Are you sure you want to start fresh? [y/N]: " + constants.ColorReset
-		ok, err := promptConfirm(msg)
-		if err != nil || !ok {
-			fmt.Println(constants.ColorDim + "Start fresh operation canceled." + constants.ColorReset)
-			return nil
-		}
+	}
+	if !confirmOrSkip(msg, args) {
+		fmt.Println(constants.ColorDim + "Start fresh operation canceled." + constants.ColorReset)
+		return nil
 	}
 	return executeStartFresh()
+}
+
+func runStartFresh(args []string) error {
+	return runDBFresh(args)
 }
 
 func printFreshWarning() {
@@ -66,15 +68,20 @@ func removeMatchingFiles(dir string) int {
 	}
 	removed := 0
 	for _, e := range entries {
-		name := e.Name()
-		if isDBRelatedFile(name) {
-			target := filepath.Join(dir, name)
-			if err := os.Remove(target); err == nil {
-				removed++
-			}
-		}
+		removed += tryRemoveDBFile(dir, e.Name())
 	}
 	return removed
+}
+
+func tryRemoveDBFile(dir, name string) int {
+	if !isDBRelatedFile(name) {
+		return 0
+	}
+	target := filepath.Join(dir, name)
+	if err := os.Remove(target); err == nil {
+		return 1
+	}
+	return 0
 }
 
 func isDBRelatedFile(name string) bool {
@@ -90,13 +97,12 @@ func recreateRepoSearchDir() {
 	_ = os.MkdirAll(searchDir, 0755)
 }
 
-func printFreshSuccess(removed int, mainPath string) {
+func printFreshSuccess(count int, dbPath string) {
 	fmt.Println()
-	fmt.Printf("  %s✓ Removed %d previous database and cache file(s).%s\n", constants.ColorGreen, removed, constants.ColorReset)
-	fmt.Printf("  %s✓ Fresh master database initialized: %s%s\n", constants.ColorGreen, mainPath, constants.ColorReset)
-	fmt.Printf("  %s✓ Rebuilt clean database schemas and migrations.%s\n", constants.ColorGreen, constants.ColorReset)
-	fmt.Printf("  %s✓ Fresh split database directory prepared.%s\n", constants.ColorGreen, constants.ColorReset)
+	fmt.Printf("  %s✓ All SQLite database files purged (%d file(s) removed)%s\n", constants.ColorGreen, count, constants.ColorReset)
+	fmt.Printf("  %s✓ Clean schema migrations re-executed%s\n", constants.ColorGreen, constants.ColorReset)
+	fmt.Printf("  %s✓ Master database ready: %s%s\n", constants.ColorGreen, dbPath, constants.ColorReset)
 	fmt.Println()
-	fmt.Println("  " + constants.ColorCyan + "★ Gitmap is ready for a fresh start! Run 'gitmap scan' to begin tracking repositories." + constants.ColorReset)
+	fmt.Println("  " + constants.ColorCyan + "Run 'gitmap add' to scan and index repositories from a fresh state." + constants.ColorReset)
 	fmt.Println()
 }
