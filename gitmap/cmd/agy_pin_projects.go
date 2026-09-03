@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	agyPinProjectsJSON   bool
-	agyPinProjectsRmAll  bool
+	agyPinProjectsJSON  bool
+	agyPinProjectsRmAll bool
 )
 
 var agyPinProjectsCmd = &cobra.Command{
