@@ -84,10 +84,11 @@ func runRevertPS(scriptPath string) error {
 
 	logRevertResult(err)
 	if err != nil {
-		cliexit.HandleError(err, 1)
+		return apperror.WrapSimple(err, "runRevertPS")
 	}
 
 	fmt.Printf(constants.MsgRevertDone)
+
 	return nil
 }
 

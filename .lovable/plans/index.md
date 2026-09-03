@@ -2,7 +2,7 @@
 
 ## Pending Plans
 
-*(No pending plans. All tasks completed.)*
+- [ ] [28-error-management-audit.md](.lovable/plans/pending/28-error-management-audit.md) — Error Return Contract, outer handling, ExitCodeType enums, and specialized exit helpers.
 
 ## Completed Plans
 

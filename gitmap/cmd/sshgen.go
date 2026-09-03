@@ -20,7 +20,7 @@ func runSSHGenerate(args []string) error {
 	name, keyPath, email, force, host, confirm := parseSSHGenFlags(args)
 
 	if err := validateSSHKeygen(); err != nil {
-		appErr := apperror.NewWithDetails(
+		return apperror.NewWithDetails(
 			"cmd.sshgen.validate",
 			"E1076",
 			constants.ErrSSHKeygenMissing,
@@ -29,15 +29,13 @@ func runSSHGenerate(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
-		return nil
 	}
 
 	if len(email) == 0 {
 		email = resolveGitEmail()
 	}
 	if len(email) == 0 {
-		appErr := apperror.NewWithDetails(
+		return apperror.NewWithDetails(
 			"cmd.sshgen.resolveEmail",
 			"E1077",
 			constants.ErrSSHEmailResolve,
@@ -46,8 +44,6 @@ func runSSHGenerate(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
-		return nil
 	}
 
 	keyPath = expandHome(keyPath)
@@ -60,7 +56,7 @@ func runSSHGenerate(args []string) error {
 
 	db, err := openDB()
 	if err != nil {
-		appErr := apperror.WrapWithDetails(
+		return apperror.WrapWithDetails(
 			err,
 			"cmd.sshgen.openDB",
 			"E1078",
@@ -70,8 +66,6 @@ func runSSHGenerate(args []string) error {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
-		return nil
 	}
 	defer db.Close()
 

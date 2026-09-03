@@ -15,7 +15,8 @@ import (
 func runVSCode(args []string) error {
 	if len(args) == 0 {
 		printVSCodeUsage()
-		err := apperror.NewWithDetails(
+
+		return apperror.NewWithDetails(
 			"cmd.vscode",
 			"E1023",
 			"missing required vscode subcommand",
@@ -24,45 +25,65 @@ func runVSCode(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
-		return nil
 	}
-	dispatchVSCodeAction(args)
-	return nil
+
+	return dispatchVSCodeAction(args)
 }
 
-func dispatchVSCodeAction(args []string) {
-	switch strings.ToLower(args[0]) {
+func dispatchVSCodeAction(args []string) error {
+	sub := strings.ToLower(args[0])
+	if isVSCodeProjectSubcommand(sub) {
+		return routeVSCodeProjectAction(sub, args)
+	}
+
+	return routeVSCodeMaintenanceAction(sub, args)
+}
+
+func isVSCodeProjectSubcommand(sub string) bool {
+	return sub == "ls" || sub == "list" || sub == "add" || sub == "add-project" || sub == "ap" || sub == "rm" || sub == "remove" || sub == "delete" || sub == "del"
+}
+
+func routeVSCodeProjectAction(sub string, args []string) error {
+	switch sub {
 	case "ls", "list":
-		_ = runVSCodeLs()
-	case "pap", "prompt-all-project":
-		fmt.Println("Feature [vscode pap] is not yet implemented")
-	case "plugins", "plugin":
-		fmt.Println("Feature [vscode plugins] is not yet implemented")
+		return runVSCodeLs()
 	case "add", "add-project", "ap":
 		handleVSCodeAdd(args)
-	case "rm", "remove", "delete", "del":
+
+		return nil
+	default:
 		handleVSCodeRm(args)
+
+		return nil
+	}
+}
+
+func routeVSCodeMaintenanceAction(sub string, args []string) error {
+	switch sub {
+	case "pap", "prompt-all-project", "plugins", "plugin":
+		fmt.Printf("Feature [vscode %s] is not yet implemented\n", sub)
+
+		return nil
 	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup":
-		_ = runVSCodeOptimize(args[1:])
+		return runVSCodeOptimize(args[1:])
 	case "clear", "clean":
-		_ = runVSCodeClear(args[1:])
+		return runVSCodeClear(args[1:])
 	case "group", "groups", "grp":
-		_ = runVSCodeGroup(args[1:])
+		return runVSCodeGroup(args[1:])
 	case "find-duplicates", "duplicates", "dups", "find-dups":
-		_ = runFindDuplicates("vscode", args[1:])
+		return runFindDuplicates("vscode", args[1:])
 	default:
 		printVSCodeUsage()
-		err := apperror.NewWithDetails(
+
+		return apperror.NewWithDetails(
 			"cmd.vscode.dispatch",
 			"E1024",
-			fmt.Sprintf("unknown vscode subcommand '%s'", args[0]),
+			fmt.Sprintf("unknown vscode subcommand '%s'", sub),
 			"cmd.vscode",
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,
-			map[string]any{"subcommand": args[0]},
+			map[string]any{"subcommand": sub},
 		)
-		cliexit.HandleError(err, 1)
 	}
 }
 

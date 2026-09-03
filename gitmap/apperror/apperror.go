@@ -174,6 +174,19 @@ func NewWithDetails(
 	}
 }
 
+// NewValidationError creates an AppError specialized for input/CLI validation failures.
+func NewValidationError(msg string) *AppError {
+	return &AppError{
+		Op:       "validation",
+		Code:     "E1000",
+		Type:     ErrorTypeValidation,
+		Severity: SeverityError,
+		Message:  msg,
+		Caller:   captureCaller(2),
+		Stack:    captureStackTrace(2),
+	}
+}
+
 // Wrap wraps an existing error with an operation label and context.
 func Wrap(err error, op string, ctx map[string]any) *AppError {
 	return &AppError{
