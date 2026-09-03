@@ -85,11 +85,14 @@ func executeRemoveMissing(dirPath string, targets []AgyProject, totalCount int) 
 func printMissingPreview(targets []AgyProject) {
 	fmt.Printf("\n  %sTargeting %d missing Antigravity project(s) for removal:%s\n\n",
 		constants.ColorYellow, len(targets), constants.ColorReset)
-	fmt.Printf("    %-38s %-24s %s\n", "PROJECT ID", "NAME", "MISSING PATH")
+	fmt.Printf("    %-12s %-22s %-20s %s\n", "ID", "NAME", "SLUG", "MISSING PATH")
 	fmt.Printf("    %s\n", strings.Repeat("─", 88))
 	for _, p := range targets {
-		fmt.Printf("    %-38s %-24s %s\n", p.ID, p.Name, p.GetPath())
+		slug := filepath.Base(p.GetPath())
+		fmt.Printf("    %-12s %-22s %-20s %s\n", shortProjectId(p.ID), p.Name, slug, p.GetPath())
 	}
+	fmt.Printf("\n    %sTip: Exclude items using: --except \"<id, name, slug, or starts-with text>\"%s\n",
+		constants.ColorDim, constants.ColorReset)
 }
 
 func askMissingConfirmation(count int) bool {

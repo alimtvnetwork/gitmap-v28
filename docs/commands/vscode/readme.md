@@ -29,9 +29,24 @@ gitmap vscode optimize-projects
 ```
 
 ### `gitmap vscode clear`
-Clears projects whose paths are no longer present on disk (`--except` supported).
+Clears projects from VS Code Project Manager. Displays a formatted table with IDs, names, and slugs, allowing exclusions by numeric ID, slug, name, or starts-with prefix.
+
+| Flag | Default | Description |
+|---|---|---|
+| `--except`, `-e` | `""` | Exclude projects by numeric ID, project name, slug, or starts-with prefix |
+| `--missing`, `-m` | `false` | Only clear projects whose target directories no longer exist on disk |
+| `--dry-run`, `-d` | `false` | Preview clearance table with IDs without writing changes |
+| `--yes`, `-y` | `false` | Skip confirmation prompt |
+
 ```bash
-gitmap vscode clear --except "my-project"
+# Preview clearance in structured table with IDs:
+gitmap vscode clear --dry-run
+
+# Clear with exclusions based on numeric ID, slug, or starts-with prefix:
+gitmap vscode clear --except "wp-, gitmap, 1" --dry-run
+
+# Clear only missing directories non-interactively:
+gitmap vscode clear --missing -y
 ```
 
 ### `gitmap vscode paths <add|rm|list>`
