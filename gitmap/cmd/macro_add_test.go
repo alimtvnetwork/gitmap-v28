@@ -47,3 +47,24 @@ func TestHandleMacroAddChainedSteps(t *testing.T) {
 		t.Fatalf("expected 3 steps, got %d", len(loaded.Steps))
 	}
 }
+
+func TestHandleMacroAddValidationErrors(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("HOME", tempDir)
+	t.Setenv("USERPROFILE", tempDir)
+
+	// Zero args
+	if err := handleMacroAdd([]string{}); err == nil {
+		t.Fatal("expected error for empty args, got nil")
+	}
+
+	// Name only in non-interactive environment (EOF immediately)
+	if err := handleMacroAdd([]string{"alim"}); err != nil {
+		t.Fatalf("expected nil when no commands entered interactively, got: %v", err)
+	}
+
+	// Verify macro was not saved
+	if _, err := macro.LoadMacro("alim"); err == nil {
+		t.Fatal("expected macro 'alim' not to be saved, but found it")
+	}
+}
