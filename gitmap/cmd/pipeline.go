@@ -69,7 +69,7 @@ func runPipeline(args []string) error {
 	switch subcmd {
 	case "status", "st", "s":
 		return handlePipelineStatus(args[1:])
-	case "waittime", "wait", "eta", "wt":
+	case "waittime", "wait", "eta", "wt", "wait-time":
 		return handlePipelineWaitTime(args[1:])
 	case "error-logs", "error-log", "errors", "err":
 		return handlePipelineErrorLogs(args[1:])
