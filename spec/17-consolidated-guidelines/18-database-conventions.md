@@ -1,6 +1,6 @@
 # Consolidated: Database Conventions — Complete Reference
 
-**Version:** 3.3.0  
+**Version:** 3.3.0
 **Updated:** 2026-04-22
 
 ---
@@ -839,7 +839,7 @@ Every table MUST be documented:
 
 ### TableName (singular)
 
-**Purpose:** [What this table stores]  
+**Purpose:** [What this table stores]
 **Expected volume:** [N rows in 10 years]
 
 | Column | Type | Constraints | Description |

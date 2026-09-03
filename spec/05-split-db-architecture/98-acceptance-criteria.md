@@ -1,8 +1,8 @@
 # Split DB Architecture: Acceptance Criteria
 
-**Version:** 3.2.0  
-**Status:** Active  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Status:** Active
+**Updated:** 2026-04-16
 **Format:** GIVEN/WHEN/THEN (E2E-test-ready)
 
 ---
@@ -11,10 +11,10 @@
 
 ### SD-01: Root DB Initialization
 
-**GIVEN** a CLI tool starts for the first time with no existing data directory  
-**WHEN** the initialization sequence runs  
-**THEN** the root database file is created at `data/{toolname}.db`  
-**AND** all required tables (apps, settings, migrations) are auto-migrated via GORM  
+**GIVEN** a CLI tool starts for the first time with no existing data directory
+**WHEN** the initialization sequence runs
+**THEN** the root database file is created at `data/{toolname}.db`
+**AND** all required tables (apps, settings, migrations) are auto-migrated via GORM
 **AND** WAL mode is enabled on the SQLite connection
 
 **Edge Cases:**
@@ -24,10 +24,10 @@
 
 ### SD-02: App DB Dynamic Creation
 
-**GIVEN** a root DB exists with the apps table  
-**WHEN** a new app/project is registered (e.g., `brun init myapp`)  
-**THEN** a new directory `data/{appName}/` is created  
-**AND** an app-specific database file is created (e.g., `search.db`)  
+**GIVEN** a root DB exists with the apps table
+**WHEN** a new app/project is registered (e.g., `brun init myapp`)
+**THEN** a new directory `data/{appName}/` is created
+**AND** an app-specific database file is created (e.g., `search.db`)
 **AND** the app is registered in the root DB's apps table with its metadata
 
 **Edge Cases:**
@@ -36,9 +36,9 @@
 
 ### SD-03: Item DB Creation
 
-**GIVEN** an app DB exists  
-**WHEN** a new item (e.g., search result set, build run) is created  
-**THEN** an item-specific DB file is created at `data/{appName}/{type}/{seq}-{slug}.db`  
+**GIVEN** an app DB exists
+**WHEN** a new item (e.g., search result set, build run) is created
+**THEN** an item-specific DB file is created at `data/{appName}/{type}/{seq}-{slug}.db`
 **AND** the item is registered in the app DB's items table
 
 **Edge Cases:**
@@ -52,9 +52,9 @@
 
 ### RA-01: Reset Request (Step 1)
 
-**GIVEN** the CLI is running and the API is accessible  
-**WHEN** a POST request is sent to `/api/v1/reset/request` with `{ "Scope": "all" }`  
-**THEN** a response is returned with `ResetId`, `Scope`, `ExpiresAt` (now + 5 minutes), and `AffectedItems` preview  
+**GIVEN** the CLI is running and the API is accessible
+**WHEN** a POST request is sent to `/api/v1/reset/request` with `{ "Scope": "all" }`
+**THEN** a response is returned with `ResetId`, `Scope`, `ExpiresAt` (now + 5 minutes), and `AffectedItems` preview
 **AND** the reset token is stored in memory with a 5-minute TTL
 
 **Edge Cases:**
@@ -63,9 +63,9 @@
 
 ### RA-02: Reset Confirmation (Step 2)
 
-**GIVEN** a valid reset token exists from Step 1  
-**WHEN** a POST request is sent to `/api/v1/reset/confirm` with the `ResetId`  
-**THEN** all data matching the scope is deleted  
+**GIVEN** a valid reset token exists from Step 1
+**WHEN** a POST request is sent to `/api/v1/reset/confirm` with the `ResetId`
+**THEN** all data matching the scope is deleted
 **AND** the response includes `Status: "completed"`, `DeletedDatabases` count, and `Duration`
 
 **Edge Cases:**
@@ -76,9 +76,9 @@
 
 ### RA-03: Per-Module Reset
 
-**GIVEN** the CLI supports multiple modules (e.g., search, cache, settings)  
-**WHEN** a reset request is sent with `{ "Scope": "cache" }`  
-**THEN** only cache-related databases and tables are included in `AffectedItems`  
+**GIVEN** the CLI supports multiple modules (e.g., search, cache, settings)
+**WHEN** a reset request is sent with `{ "Scope": "cache" }`
+**THEN** only cache-related databases and tables are included in `AffectedItems`
 **AND** confirmation only deletes cache data, leaving other modules intact
 
 ---
@@ -87,9 +87,9 @@
 
 ### RB-01: Policy Enforcement
 
-**GIVEN** RBAC is enabled with a Casbin policy model  
-**WHEN** a user with role `viewer` attempts a `DELETE` operation  
-**THEN** the request is denied with a 403 Forbidden response  
+**GIVEN** RBAC is enabled with a Casbin policy model
+**WHEN** a user with role `viewer` attempts a `DELETE` operation
+**THEN** the request is denied with a 403 Forbidden response
 **AND** the denial is logged with user, role, resource, and action
 
 **Edge Cases:**
@@ -98,9 +98,9 @@
 
 ### RB-02: Role Assignment
 
-**GIVEN** an admin user is authenticated  
-**WHEN** they assign role `editor` to another user via API  
-**THEN** the role is persisted in the database  
+**GIVEN** an admin user is authenticated
+**WHEN** they assign role `editor` to another user via API
+**THEN** the role is persisted in the database
 **AND** subsequent requests from that user are evaluated against the new role
 
 ---
@@ -109,9 +109,9 @@
 
 ### US-01: Data Isolation
 
-**GIVEN** multi-user mode is enabled  
-**WHEN** user A creates data  
-**THEN** user B cannot access user A's data through any API endpoint  
+**GIVEN** multi-user mode is enabled
+**WHEN** user A creates data
+**THEN** user B cannot access user A's data through any API endpoint
 **AND** user A's databases are stored in `data/users/{userId}/`
 
 **Edge Cases:**

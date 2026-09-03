@@ -1,7 +1,7 @@
 # AppError Package Reference — AppError struct and constructors
 
-> **Parent:** [AppError Package Reference](./00-overview.md)  
-> **Version:** 2.0.0  
+> **Parent:** [AppError Package Reference](./00-overview.md)
+> **Version:** 2.0.0
 > **Updated:** 2026-04-02
 
 ---

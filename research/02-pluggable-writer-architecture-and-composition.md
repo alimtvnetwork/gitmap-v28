@@ -1,9 +1,9 @@
 # Pluggable Logger Writer Architecture & Composition Blueprint
 
-> **Status:** Proposal & Architectural Specification  
-> **Date:** 2026-09-03  
-> **Target System:** `04-code/golang/pkg/applogger`  
-> **Topic:** Composable Writer Contracts, BaseWriter Embedding, Configurable Formatting, and Enterprise REST API Streaming  
+> **Status:** Proposal & Architectural Specification
+> **Date:** 2026-09-03
+> **Target System:** `04-code/golang/pkg/applogger`
+> **Topic:** Composable Writer Contracts, BaseWriter Embedding, Configurable Formatting, and Enterprise REST API Streaming
 
 ---
 
@@ -51,6 +51,7 @@ This document presents the complete architectural blueprint for a **composable, 
 ## 3. Core Contracts & Interfaces
 
 ### 3.1 `pkg/applogger/interfaces.go`
+
 ```go
 package applogger
 
@@ -92,6 +93,7 @@ type LogWriter interface {
 ```
 
 ### 3.2 Composable Sub-Contracts
+
 ```go
 package applogger
 
@@ -234,6 +236,7 @@ func (b *Writer) HandleError(err error, record applogger.LogRecord) {
 ## 5. Concrete Default Writers
 
 ### 5.1 `TextWriter` (`pkg/applogger/writers/text`)
+
 Configurable human-readable output. Users can change the destination (`os.Stdout`, `os.Stderr`, file buffer), toggle ANSI colors, and specify custom prefixes:
 
 ```go
@@ -349,6 +352,7 @@ func (w *Writer) Close() error {
 ---
 
 ### 5.2 `JSONWriter` (`pkg/applogger/writers/json`)
+
 Configurable structured JSON output. Users can define custom root keys, wrap output in outer metadata envelopes, and redirect output to files or network writers:
 
 ```go
@@ -477,6 +481,7 @@ func (w *Writer) Close() error { return nil }
 ---
 
 ### 5.3 `RestAPIWriter` (`pkg/applogger/writers/restapi`)
+
 Enterprise remote log shipping engine. Features:
 - **Asynchronous non-blocking queue** (`chan LogRecord`).
 - **Batch worker pool**: Groups logs into batches (`BatchSize` / `FlushInterval`).

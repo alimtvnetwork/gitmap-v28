@@ -1,7 +1,7 @@
 # Windows Firewall Configuration
 
-> **Version:** 1.1.0  
-> **Updated:** 2026-02-04  
+> **Version:** 1.1.0
+> **Updated:** 2026-02-04
 > **Status:** Active
 
 ---

@@ -1,6 +1,6 @@
 # Subtask 01: Refactor Explicit Boolean Comparisons & Inverted Success Checks
 
-> **Parent Plan:** `17-boolean-and-naming-audit.md`  
+> **Parent Plan:** `17-boolean-and-naming-audit.md`
 > **Scope:** All repository files with `== true`, `== false`, `=== true`, `=== false`, and `!isSuccess`
 
 ## Objective

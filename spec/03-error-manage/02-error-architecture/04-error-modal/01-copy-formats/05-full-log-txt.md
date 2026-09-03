@@ -1,8 +1,8 @@
 # log.txt (Backend Full Log)
 
-> **Parent:** [Copy Formats Index](./00-overview.md)  
-> **Version:** 3.2.0  
-> **Updated:** 2026-03-31  
+> **Parent:** [Copy Formats Index](./00-overview.md)
+> **Version:** 3.2.0
+> **Updated:** 2026-03-31
 > **Purpose:** Raw text file from `GET /api/v1/logs/full`. Contains ALL log entries (info, warn, error).
 
 ---

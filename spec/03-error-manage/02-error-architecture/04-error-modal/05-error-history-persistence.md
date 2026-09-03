@@ -1,8 +1,8 @@
 # Error Modal — Error History Persistence
 
-> **Version:** 1.1.0  
+> **Version:** 1.1.0
 > **Updated:** 2026-04-01
-> **Status:** Active  
+> **Status:** Active
 > **Purpose:** Specifies the error history system that persists captured errors to the backend and provides browsing, export, and multi-error queue functionality.
 
 ---
@@ -205,8 +205,8 @@ interface ErrorHistoryInput {
 
 ### 4.1 ErrorQueueBadge
 
-**File:** `src/components/errors/ErrorQueueBadge.tsx`  
-**Location:** Application header/navigation bar  
+**File:** `src/components/errors/ErrorQueueBadge.tsx`
+**Location:** Application header/navigation bar
 **Visibility:** Only shown when `displayCount > 0`
 
 ```tsx
@@ -234,7 +234,7 @@ export function ErrorQueueBadge() {
 
 ### 4.2 ErrorHistoryDrawer
 
-**File:** `src/components/errors/ErrorHistoryDrawer.tsx`  
+**File:** `src/components/errors/ErrorHistoryDrawer.tsx`
 **Component:** `Sheet` (side drawer, `sm:max-w-lg`)
 
 **Features:**
@@ -254,11 +254,11 @@ default:  "bg-card hover:bg-accent/50"
 
 ### 4.3 ErrorDetailModal
 
-**File:** `src/components/errors/ErrorDetailModal.tsx`  
-**Used on:** Errors page, E2E Tests page  
+**File:** `src/components/errors/ErrorDetailModal.tsx`
+**Used on:** Errors page, E2E Tests page
 **Receives:** `ErrorLog` (backend API type), adapts via `errorLogToCapturedError()`
 
-**Tabs:** Overview, Stack Trace, Request/Response, Suggested Fixes  
+**Tabs:** Overview, Stack Trace, Request/Response, Suggested Fixes
 **Footer:** `DownloadDropdown` + Close + Split Copy Button (compact/full)
 
 ---
@@ -287,8 +287,8 @@ default:  "bg-card hover:bg-accent/50"
 
 ## 6. AppErrorBoundary
 
-**File:** `src/components/errors/AppErrorBoundary.tsx`  
-**Type:** React class component (Error Boundary)  
+**File:** `src/components/errors/AppErrorBoundary.tsx`
+**Type:** React class component (Error Boundary)
 **Purpose:** Prevents full white-screen crashes by catching render errors
 
 ```tsx

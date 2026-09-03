@@ -1,9 +1,9 @@
 # Coding Guidelines
 
-**Version:** 3.2.0  
-**Status:** Active  
-**Updated:** 2026-04-16  
-**AI Confidence:** Production-Ready  
+**Version:** 3.2.0
+**Status:** Active
+**Updated:** 2026-04-16
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---
@@ -214,8 +214,8 @@ _Auto-generated section — see `spec/02-coding-guidelines/97-acceptance-criteri
 
 ### AC-CG-000: Coding guideline conformance: Overview
 
-**Given** Run the cross-language coding-guidelines validator against `src/` and language-specific source roots.  
-**When** Run the verification command shown below.  
+**Given** Run the cross-language coding-guidelines validator against `src/` and language-specific source roots.
+**When** Run the verification command shown below.
 **Then** Zero CODE-RED violations are reported (functions ≤ 15 lines, files ≤ 300 lines, no nested ifs, max 2 boolean operands).
 
 **Verification command:**

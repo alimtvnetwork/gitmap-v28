@@ -1,7 +1,7 @@
 # Phase 20 — End-to-End Walkthrough: Building "Task Tracker" from Scratch
 
-> **Purpose:** Walk through building a complete, minimal WordPress plugin — **Task Tracker** — from an empty folder to a deployable plugin, applying every phase of the Gold Standard specification. Each step references the authoritative phase so you can cross-check rules as you go.  
-> **Audience:** AI code generators receiving this spec for the first time and human developers seeking a concrete example.  
+> **Purpose:** Walk through building a complete, minimal WordPress plugin — **Task Tracker** — from an empty folder to a deployable plugin, applying every phase of the Gold Standard specification. Each step references the authoritative phase so you can cross-check rules as you go.
+> **Audience:** AI code generators receiving this spec for the first time and human developers seeking a concrete example.
 > **Plugin identity:** `task-tracker` / `TaskTracker` / `TASK_TRACKER`
 
 ---
@@ -374,10 +374,10 @@ Key implementation checkpoints:
 
 ## 20.7 Step 6 — Core Infrastructure Traits + Helpers
 
-> **Phase 3, §3.4** — ResponseTrait (safeExecute)  
-> **Phase 3, §3.6** — AuthTrait  
-> **Phase 3, §3.8** — TypeCheckerTrait  
-> **Phase 5, §5.3** — EnvelopeBuilder  
+> **Phase 3, §3.4** — ResponseTrait (safeExecute)
+> **Phase 3, §3.6** — AuthTrait
+> **Phase 3, §3.8** — TypeCheckerTrait
+> **Phase 5, §5.3** — EnvelopeBuilder
 > **Phase 6, §6.3** — validationError()
 
 ### 6a. ResponseTrait
@@ -696,7 +696,7 @@ trait DatabaseMigrationsTrait
 
 ## 20.11 Step 10 — Feature Handler Traits
 
-> **Phase 3, §3.3** — Trait anatomy: public handler wraps `safeExecute`, private method has logic.  
+> **Phase 3, §3.3** — Trait anatomy: public handler wraps `safeExecute`, private method has logic.
 > **Phase 6** — Validation guard clauses at top of every handler.
 
 ### 10a. TaskCreateTrait — POST /tasks
@@ -963,9 +963,9 @@ trait TaskCompleteTrait
 
 ## 20.12 Step 11 — Admin Settings Page
 
-> **Phase 8, §8.1** — Admin menu registration  
-> **Phase 11, §11.1–§11.4** — Template ≤200 lines, orchestrator pattern  
-> **Phase 15** — Settings architecture  
+> **Phase 8, §8.1** — Admin menu registration
+> **Phase 11, §11.1–§11.4** — Template ≤200 lines, orchestrator pattern
+> **Phase 15** — Settings architecture
 > **Phase 12** — Design system tokens
 
 ### 11a. Admin menu registration (in Plugin.php)

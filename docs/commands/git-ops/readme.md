@@ -11,6 +11,7 @@ Execute Git operations across individual, grouped, or all repositories.
 ## Commands & Flags
 
 ### 1. `gitmap pull [name]`
+
 * **Alias:** `p`
 * **Flags:**
   * `--all` (alias: `gitmap pull-all`): Pull all tracked repositories concurrently.
@@ -29,6 +30,7 @@ Execute Git operations across individual, grouped, or all repositories.
   ```
 
 ### 2. `gitmap fix [repo] [action]`
+
 Remediate pull collisions and untracked file conflicts.
 * **Actions:** `stash`, `wip`, `discard`.
 * **Examples:**
@@ -41,29 +43,36 @@ Remediate pull collisions and untracked file conflicts.
   ```
 
 ### `gitmap push`
+
 * **Alias:** `ph`
 * Push commits with `--ssh` / `--https` transport flags.
 
 ### `gitmap status`
+
 * **Alias:** `st`
 * Tabular overview of dirty/clean states, uncommitted files, ahead/behind counts, and stashes.
 
 ### `gitmap watch`
+
 * **Alias:** `w`
 * Live auto-refreshing terminal dashboard of tracked repository statuses.
 
 ### `gitmap exec <args...>`
+
 * **Alias:** `x`
 * Executes arbitrary Git commands across all tracked repositories simultaneously.
 
 ### `gitmap has-any-updates`
+
 * **Aliases:** `hau`, `hac`
 * Checks if remote repositories contain unpulled commits.
 
 ### `gitmap latest-branch`
+
 * **Alias:** `lb`
 * Identifies the most recently updated remote branch.
 
 ### `gitmap lfs-common`
+
 * **Alias:** `lfsc`
 * Automatically tracks common binary file types with Git LFS.

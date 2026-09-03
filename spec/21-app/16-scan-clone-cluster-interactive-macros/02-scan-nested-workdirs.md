@@ -91,9 +91,9 @@ At the conclusion of `gitmap scan` and `gitmap status`, if missing repos exist, 
 
 When run interactively in a TTY (and `--yes` is not supplied):
 ```text
-  Would you like to resolve missing repositories now? [y/N]: 
+  Would you like to resolve missing repositories now? [y/N]:
   1) Relocate paths interactively
   2) Remove missing repos from tracking (gitmap rm)
   3) Ignore and keep in database
-  Select option [1-3]: 
+  Select option [1-3]:
 ```

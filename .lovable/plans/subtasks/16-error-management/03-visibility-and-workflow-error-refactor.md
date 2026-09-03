@@ -1,6 +1,6 @@
 # Subtask 03: Visibility & Workflow Commands Error Handling Refactoring
 
-> **Parent Plan:** `16-error-management-audit.md`  
+> **Parent Plan:** `16-error-management-audit.md`
 > **Files:** `gitmap/cmd/visibilitymakelast.go`, `visibilityredo.go`, `visibilityresolve.go`, `visibilityundo.go`, `visibilityundoflags.go`, `workflow_open_pr.go`, `workflow_recent_todo.go`
 
 ## Objective

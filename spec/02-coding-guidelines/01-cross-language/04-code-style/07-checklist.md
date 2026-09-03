@@ -1,6 +1,6 @@
 # Code Style Checklist & Cross-References
 
-> **Version:** 4.0.0  
+> **Version:** 4.0.0
 > **Updated:** 2026-03-31
 
 ---

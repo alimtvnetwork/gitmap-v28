@@ -1,8 +1,8 @@
 # RAG Validation Test Coverage Matrix
 
-**Version:** 2.0.0  
-**Created:** 2026-02-02  
-**Updated:** 2026-05-07  
+**Version:** 2.0.0
+**Created:** 2026-02-02
+**Updated:** 2026-05-07
 **Status:** Active
 **Parent:** [04-rag-validation-tests.md](./03-rag-validation-tests.md)
 
@@ -29,7 +29,7 @@ Comprehensive test coverage matrix mapping each RAG validation error code to its
 | AB-9309 | Config Save | 2 | ✅ | ✅ | 100% |
 | AB-9310 | Config Corrupt | 2 | ✅ | ✅ | 100% |
 
-**Total Tests:** 54  
+**Total Tests:** 54
 **Total Coverage:** 100%
 
 ---

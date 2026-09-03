@@ -2,7 +2,7 @@
 
 > **Version:** 1.3.0
 > **Updated:** 2026-03-09
-> **Baseline:** PSR-12 / PSR-1  
+> **Baseline:** PSR-12 / PSR-1
 > **Applies to:** All PHP code unless overridden by project-specific or framework-specific conventions
 
 ---

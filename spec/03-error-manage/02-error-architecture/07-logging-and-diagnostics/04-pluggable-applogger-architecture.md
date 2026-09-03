@@ -1,8 +1,8 @@
 # Specification: `applogger` Pluggable Logger Architecture
 
-**Version:** 3.3.0  
-**Status:** Draft Specification (Pending Review)  
-**Package:** `04-code/golang/pkg/applogger`  
+**Version:** 3.3.0
+**Status:** Draft Specification (Pending Review)
+**Package:** `04-code/golang/pkg/applogger`
 **Reference Implementations:** `D:\work\03-aukgo\core\coreinterface\loggerinf\` (`Logger`, `StandardLogger`, `BasePersistentLogger`)
 
 ---
@@ -107,13 +107,16 @@ type LogSink interface {
 ```
 
 ### 4.1 ConsoleSink (Terminal / Stdout)
+
 - Prints human-readable colored output during CLI operations or structured JSON when `UseJSON = true`.
 
 ### 4.2 FileSink (Filesystem Log Files)
+
 - Writes log entries sequentially to a specified log file path (e.g. `tmp/logs/app.log`).
 - Supports automatic size-based rotation and header flushing.
 
 ### 4.3 SQLiteSink (SQLite Database Audit Trail)
+
 - Writes structured entries to a local or embedded SQLite database table (`app_logs`):
   ```sql
   CREATE TABLE IF NOT EXISTS app_logs (
@@ -128,9 +131,11 @@ type LogSink interface {
   ```
 
 ### 4.4 ZapAdapter (Uber Zap Integration)
+
 - Adapts any existing `*zap.Logger` or `*zap.SugaredLogger` instance so enterprise teams using Zap can use `applogger.Logger` without rewriting their logging pipeline.
 
 ### 4.5 CompositeSink (Multi-Destination Broadcaster)
+
 - Fan-outs every log entry to multiple configured sinks simultaneously (e.g., Console for dev output + SQLite for auditing + File for backup).
 
 ---

@@ -20,6 +20,7 @@ gitmap agy find-duplicates [flags]
 ## Examples
 
 ### 1. Find all duplicate projects (standard invocation)
+
 ```bash
 gitmap agy find-duplicate-projects
 ```
@@ -29,16 +30,19 @@ gitmap agy fdp
 ```
 
 ### 2. Exclude specific projects from duplicate scan
+
 ```bash
 gitmap agy fdp --except "gitmap, coding-guidelines, 46d0"
 ```
 
 ### 3. Exclude via CSV or text file
+
 ```bash
 gitmap agy fdp --except "./allowed-projects.csv"
 ```
 
 ### 4. Output structured JSON for automation
+
 ```bash
 gitmap agy fdp --json
 ```

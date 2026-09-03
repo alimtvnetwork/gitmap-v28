@@ -1,11 +1,11 @@
 # Error Modal — Copy & Export Formats (Index)
 
-> **Parent:** [Error Modal Spec](../00-overview.md)  
-> **Version:** 3.2.0  
-> **Updated:** 2026-03-31  
-> **Status:** Active  
-> **AI Confidence:** 95%  
-> **Ambiguity Score:** 5%  
+> **Parent:** [Error Modal Spec](../00-overview.md)
+> **Version:** 3.2.0
+> **Updated:** 2026-03-31
+> **Status:** Active
+> **AI Confidence:** 95%
+> **Ambiguity Score:** 5%
 > **Purpose:** Complete, copy-pasteable samples of every error report format produced by the Global Error Modal. Each format lives in its own file for focused AI consumption.
 
 ---

@@ -1,7 +1,7 @@
 # Command
 
 ```bash
-./02-run-cmd-v2.sh all "hostnamectl hostname && echo $(hostname -I | awk '{print $1}')" 
+./02-run-cmd-v2.sh all "hostnamectl hostname && echo $(hostname -I | awk '{print $1}')"
 ./02-run-cmd-v2.sh all "ls -la /tmp"
 ./05-run-script-nodes.sh all ./06-echo.sh
 ```

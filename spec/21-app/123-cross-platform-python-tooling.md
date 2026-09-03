@@ -2,12 +2,12 @@
 
 ## Overview
 
-**Module Number:** 123  
-**Version:** 1.0.0  
-**Updated:** 2026-09-03  
-**Status:** Production-Ready  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
+**Module Number:** 123
+**Version:** 1.0.0
+**Updated:** 2026-09-03
+**Status:** Production-Ready
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
 
 ---
 
@@ -20,6 +20,7 @@ To ensure developer automation, maintenance scripts, and CI/CD verification work
 ## Invariants & Design Principles
 
 ### 1. Pure Standard Library (Zero External Dependencies)
+
 All converted scripts must use only the Python standard library:
 - Process management: `subprocess`
 - Filesystem & paths: `os`, `sys`, `pathlib`, `glob`
@@ -28,6 +29,7 @@ All converted scripts must use only the Python standard library:
 No `pip install` or virtual environment requirements are permitted.
 
 ### 2. Windows UTF-8 Terminal Safety
+
 Windows PowerShell and command prompts frequently corrupt Unicode glyphs (checkmarks `✓`, boxes `─`, emojis `🚀`) when stdout defaults to legacy code pages (CP1252/CP437). Every script must enforce UTF-8 stream re-configuration:
 
 ```python
@@ -39,6 +41,7 @@ if hasattr(sys.stderr, "reconfigure"):
 ```
 
 ### 3. Exit Code Contract
+
 - Exit `0`: Successful execution.
 - Exit `1` or non-zero: Fatal error, with standard error output formatted cleanly.
 
@@ -57,11 +60,13 @@ All scripts under `linter-scripts/` and operational toolchains have been convert
 ## Acceptance Criteria
 
 ### Scenario 1: Windows Execution Without WSL/Bash
+
 - **Given** a pure Windows environment without Git Bash or WSL installed
 - **When** any verification or linter script is executed via `python <script>.py`
 - **Then** the script executes natively with complete UTF-8 console output and zero dependency errors.
 
 ### Scenario 2: Cross-Platform Path Handling
+
 - **Given** file paths with mixed forward and backslashes
 - **When** path operations are executed
 - **Then** `os.path.normpath` and `pathlib.Path` normalize paths consistently across all platforms.

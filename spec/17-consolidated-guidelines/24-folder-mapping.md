@@ -1,9 +1,9 @@
 # Folder-by-Folder Mapping — Source Specs ↔ Consolidated Guidelines
 
-**Version:** 1.0.0  
-**Updated:** 2026-04-22  
-**Status:** Active  
-**AI Confidence:** Production-Ready  
+**Version:** 1.0.0
+**Updated:** 2026-04-22
+**Status:** Active
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---

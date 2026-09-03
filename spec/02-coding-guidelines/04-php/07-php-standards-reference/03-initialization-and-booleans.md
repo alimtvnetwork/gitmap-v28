@@ -1,7 +1,7 @@
 # PHP Coding Standards — Constructor rules, boolean logic, isDefined guards
 
-> **Parent:** [PHP Coding Standards](./00-overview.md)  
-> **Version:** 5.1.0  
+> **Parent:** [PHP Coding Standards](./00-overview.md)
+> **Version:** 5.1.0
 > **Updated:** 2026-03-31
 
 ---
@@ -25,7 +25,7 @@ use RiseupAsia\Enums\HookType;
 
 class MyPlugin {
     private bool $isInitialized = false;
-    
+
     public function initialize() {
         if ($this->isInitialized) {
             return;

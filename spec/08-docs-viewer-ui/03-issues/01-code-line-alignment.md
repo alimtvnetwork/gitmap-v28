@@ -1,8 +1,8 @@
 # Code Line Alignment Mismatch
 
-**Created:** 2026-04-03  
-**Status:** Active  
-**Severity:** High  
+**Created:** 2026-04-03
+**Status:** Active
+**Severity:** High
 **Area:** Docs Viewer / MarkdownRenderer / Syntax Highlighting
 
 ---

@@ -1,7 +1,7 @@
 # Phase 00 — Quick Start Guide
 
-> **Purpose:** Condensed onboarding for AI models. Read this first, then dive into individual phases as needed.  
-> **Full index:** [readme.md](readme.md)  
+> **Purpose:** Condensed onboarding for AI models. Read this first, then dive into individual phases as needed.
+> **Full index:** [readme.md](readme.md)
 > **Rule:** Every decision below links to the authoritative phase. When in doubt, the phase document wins.
 
 ---
@@ -87,14 +87,14 @@ Composes all traits. No business logic here — only `use` statements and hook w
 
 Provides `safeExecute()` error boundary and standard response builders.
 
-> [Phase 3, §3.4](03-traits-and-composition.md) — safeExecute pattern  
+> [Phase 3, §3.4](03-traits-and-composition.md) — safeExecute pattern
 > [Phase 7, §7.4](07-reference-implementations.md) — Full ResponseTrait
 
 ### 5. FileLogger (`includes/Logging/FileLogger.php`)
 
 Structured file-based logging with rotation, deduplication, and stack traces.
 
-> [Phase 4, §4.3](04-logging-and-error-handling.md) — FileLogger spec  
+> [Phase 4, §4.3](04-logging-and-error-handling.md) — FileLogger spec
 > [Phase 7, §7.5](07-reference-implementations.md) — Full FileLogger
 
 ---

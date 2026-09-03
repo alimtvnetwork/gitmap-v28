@@ -1,8 +1,8 @@
 # TypeScript Coding Standards
 
-> **Version:** 3.0.0  
-> **Updated:** 2026-03-09  
-> **Applies to:** All frontend TypeScript/React code  
+> **Version:** 3.0.0
+> **Updated:** 2026-03-09
+> **Applies to:** All frontend TypeScript/React code
 > **Priority:** CRITICAL — These rules override all other conventions
 
 ---

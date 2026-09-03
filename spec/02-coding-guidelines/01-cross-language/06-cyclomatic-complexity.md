@@ -1,7 +1,7 @@
 # Cross-Language Rule: Reduce Cyclomatic Complexity to Near-Zero
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-03-09  
+> **Version:** 1.0.0
+> **Updated:** 2026-03-09
 > **Applies to:** PHP, TypeScript, Go, C#, and any delegated language
 
 ---

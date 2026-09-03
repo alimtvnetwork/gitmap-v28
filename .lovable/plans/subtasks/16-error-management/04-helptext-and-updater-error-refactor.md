@@ -1,6 +1,6 @@
 # Subtask 04: Helptext & Gitmap-Updater Error Handling Refactoring
 
-> **Parent Plan:** `16-error-management-audit.md`  
+> **Parent Plan:** `16-error-management-audit.md`
 > **Files:** `gitmap/helptext/print.go`, `gitmap-updater/cmd/*.go`
 
 ## Objective

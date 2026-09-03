@@ -1,8 +1,8 @@
 ---
 name: read-memory-enhanced
 description: >-
-  Executes the enhanced "Read Memory" protocol. Use this skill BEFORE touching the codebase to 
-  aggressively and defensively load the project's identity, CODE RED rules, specs, pending plans, 
+  Executes the enhanced "Read Memory" protocol. Use this skill BEFORE touching the codebase to
+  aggressively and defensively load the project's identity, CODE RED rules, specs, pending plans,
   and ambiguities.
 ---
 

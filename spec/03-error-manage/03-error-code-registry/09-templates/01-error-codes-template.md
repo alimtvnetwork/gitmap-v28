@@ -1,10 +1,10 @@
 # [PROJECT_NAME] - Error Codes
 
-> **Project Prefix:** `XX`  
-> **Range:** X000-X999  
+> **Project Prefix:** `XX`
+> **Range:** X000-X999
 > **Last Updated:** YYYY-MM-DD
-**Version:** 3.2.0  
-**Last Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Last Updated:** 2026-04-16
 
 ---
 

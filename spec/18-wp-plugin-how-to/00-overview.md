@@ -1,9 +1,9 @@
 # WordPress Plugin How-To — Overview
 
-**Version:** 1.0.0  
-**Updated:** 2026-04-16  
-**Status:** Active  
-**AI Confidence:** Production-Ready  
+**Version:** 1.0.0
+**Updated:** 2026-04-16
+**Status:** Active
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---
@@ -108,8 +108,8 @@ _Auto-generated section — see `spec/18-wp-plugin-how-to/97-acceptance-criteria
 
 ### AC-WP-000: WordPress plugin conformance: Overview
 
-**Given** Static-analyze the plugin source against the documented enum, trait, and REST conventions.  
-**When** Run the verification command shown below.  
+**Given** Static-analyze the plugin source against the documented enum, trait, and REST conventions.
+**When** Run the verification command shown below.
 **Then** Enums are `enum X: string` with metadata methods; REST routes use the `/wp-json/<plugin>/v1/` namespace; nonces are verified on every mutating request.
 
 **Verification command:**

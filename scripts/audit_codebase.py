@@ -27,16 +27,16 @@ def audit_file(filepath):
     rel_path = os.path.relpath(filepath, repo_root).replace("\\", "/")
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         lines = f.readlines()
-    
+
     # 1. Enum Definitions lacking Type suffix
     for idx, line in enumerate(lines):
         check_type_suffix(line.strip(), rel_path, idx, violations)
-    
+
     # 2. Function lengths (> 15 lines) in non-test files
     func_start = None
     func_name = ""
     brace_depth = 0
-    
+
     for idx, line in enumerate(lines):
         m = re.match(r"^func\s+(?:\([^)]+\)\s+)?([A-Za-z0-9_]+)\s*\(", line)
         if m and func_start is None:
@@ -46,7 +46,7 @@ def audit_file(filepath):
             is_single_line = bool("{" in line and brace_depth == 0)
             func_start = None if is_single_line else func_start
             continue
-        
+
         if func_start is None:
             continue
 

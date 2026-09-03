@@ -20,6 +20,6 @@ trigger:
   - **15-Line Function Limit**: Functions <= 8 lines preferred, <= 15 lines max.
   - **Zero Nested Ifs**: Flatten all nested conditionals with guard clauses and early returns.
   - **Return Styling**: Blank line after `}` and blank line before `return`.
-  
+
   ### 3. Automated Refactoring Warning
   - **No Blind Regex Mass Refactoring**: Never blindly regex-replace exit calls without matching function return signatures.

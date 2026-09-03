@@ -1,7 +1,7 @@
 # TypeScript HttpMethod Enum — `src/lib/enums/http-method-type.ts`
 
-> **Version**: 2.0.0  
-> **Last updated**: 2026-02-28  
+> **Version**: 2.0.0
+> **Last updated**: 2026-02-28
 > **Parity with**: [Go HttpMethod Enum](../03-golang/03-httpmethod-enum.md)
 
 ---

@@ -1,6 +1,6 @@
 # Consolidated: Code Block System — Complete Reference
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -105,12 +105,12 @@ For each line:
      - Match /^(`{3,})(\w*)$/
      - If match: record backtickCount = match[1].length, lang = match[2]
      - Enter IN_BLOCK state
-  
+
   2. If IN_BLOCK:
      - Match /^(`{N,})$/ where N = recorded backtickCount
      - If exact match: close block, build HTML, enter NOT_IN_BLOCK
      - If no match: append line to current block content
-     
+
   3. At end of input:
      - If still IN_BLOCK: treat as unclosed — append raw text back
 ```

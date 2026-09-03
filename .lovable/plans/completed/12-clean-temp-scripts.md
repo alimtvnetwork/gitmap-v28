@@ -8,7 +8,7 @@ The previous executions left temporary python scripts (`fix_*.py`) in the root d
 
 1. **Identify**: Find all `fix_*.py` scripts in the root directory (e.g., `fix_args.py`, `fix_clean.py`, `fix_workflows.py`, etc.).
 2. **Move**: Move these files into the `.lovable/temp-scripts/` directory.
-3. **Git Hygiene**: 
+3. **Git Hygiene**:
    - Remove the files from git tracking using `git rm`.
    - Verify that `.lovable/temp-scripts/` (or `.lovable/temp-scripts`) is explicitly ignored in `.gitignore`. If not, add it.
 4. **Release Bump**:

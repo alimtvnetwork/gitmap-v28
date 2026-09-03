@@ -1,9 +1,9 @@
 # Error Code Registry - Integration Guide
 
 
-**Last Updated:** 2026-04-16  
+**Last Updated:** 2026-04-16
 
-> **Version:** 1.0.0  
+> **Version:** 1.0.0
 > **Purpose:** How to integrate standardized error codes into your project
 
 ---
@@ -30,7 +30,7 @@ const (
     // SM-000: Initialization
     ErrConfigMissing = "SM-000-01"
     ErrConfigInvalid = "SM-000-02"
-    
+
     // SM-400: Business Logic
     ErrSpecParseError = "SM-400-01"
 )
@@ -42,7 +42,7 @@ export const ErrorCodes = {
   // SM-000: Initialization
   CONFIG_MISSING: "SM-000-01",
   CONFIG_INVALID: "SM-000-02",
-  
+
   // SM-400: Business Logic
   SPEC_PARSE_ERROR: "SM-400-01",
 } as const;
@@ -99,7 +99,7 @@ export class AppError extends Error {
     super(`${code}: ${message}`);
     this.name = 'AppError';
   }
-  
+
   toJson() {
     return {
       code: this.code,

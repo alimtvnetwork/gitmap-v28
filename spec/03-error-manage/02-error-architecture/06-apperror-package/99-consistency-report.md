@@ -1,7 +1,7 @@
 # Consistency Report: Apperror Package
 
-**Version:** 3.2.0  
-**Generated:** 2026-03-21  
+**Version:** 3.2.0
+**Generated:** 2026-03-21
 **Health Score:** 100/100 (A+)
 
 ---

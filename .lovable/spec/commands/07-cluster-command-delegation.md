@@ -1,9 +1,9 @@
 # Cluster Command Delegation — `servers-clients` / `clients` / `sc`
 
-**Spec Number:** 07  
-**Slug:** cluster-command-delegation  
-**Status:** pending  
-**Created:** 2026-08-17  
+**Spec Number:** 07
+**Slug:** cluster-command-delegation
+**Status:** pending
+**Created:** 2026-08-17
 **Author:** User (transcribed from voice spec)
 
 ---

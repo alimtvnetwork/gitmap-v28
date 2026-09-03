@@ -1,7 +1,7 @@
 # Error Capture Pipeline
 
-> **Parent:** [Error Modal Reference](./00-overview.md)  
-> **Version:** 2.3.0  
+> **Parent:** [Error Modal Reference](./00-overview.md)
+> **Version:** 2.3.0
 > **Updated:** 2026-04-01
 
 ---
@@ -59,19 +59,19 @@ export function parseEnvelope(response: object | null): ParsedEnvelope | null {
 // src/stores/errorStore.ts
 captureError: (apiError, meta) => {
   const captured = buildCapturedError(apiError, meta);
-  
+
   // Enrich with UI click path (last 10 clicks)
   const clickPath = getClickPathForError();
   captured.uiClickPath = clickPath.events;
   captured.uiClickPathString = clickPath.formatted;
-  
+
   // Enrich with React execution logs (if debug mode enabled)
   const execLogs = getExecutionLogsForError();
   captured.executionLogs = execLogs.entries;
   captured.executionChain = execLogs.chain;
   captured.executionLogsEnabled = execLogs.enabled;
   captured.executionLogsFormatted = execLogs.formatted;
-  
+
   // Extract envelope diagnostic fields
   if (apiError.envelope) {
     captured.requestedAt = apiError.envelope.requestedAt;
@@ -80,7 +80,7 @@ captureError: (apiError, meta) => {
     captured.envelopeErrors = apiError.envelope.errors;
     captured.envelopeMethodsStack = apiError.envelope.methodsStack;
   }
-  
+
   commitErrorToStore(captured);
 
   return captured;

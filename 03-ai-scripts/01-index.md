@@ -62,6 +62,7 @@ Follow this sequence before and during any repository modification task:
 `02-shared-engine.py` is the single source of truth for all repository automation scripts.
 
 ### Centralized Constants & Configurations
+
 ```python
 DEFAULT_ENCODING = "utf-8"
 CURRENT_DIR = "."
@@ -83,6 +84,7 @@ DEFAULT_MAX_WORKERS = 4
 ```
 
 ### Key Architectural Components
+
 1. **Lazy Regex Compilation with On-the-Fly Dynamic Registration:** Regex definitions are mapped to `None` on module load. When `RegexRegistry.get(pattern_type)` is called:
    - If present in the cache, returns the compiled regex.
    - If not yet compiled, compiles it on-demand with double-checked thread locking.

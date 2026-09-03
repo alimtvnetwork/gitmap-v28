@@ -1,7 +1,7 @@
 # Centralized Error Handling Architecture & AI Prompt for Go Applications
 
-> **Target:** Universal Go Applications (CLI, Services, Daemons, Microservices)  
-> **Status:** Production Standard / Canonical Guide  
+> **Target:** Universal Go Applications (CLI, Services, Daemons, Microservices)
+> **Status:** Production Standard / Canonical Guide
 > **Compatibility:** Go 1.20+ (Standard Library Compliant)
 
 ---

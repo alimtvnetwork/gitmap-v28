@@ -1,7 +1,7 @@
 # Golang Coding Standards — Database naming, dbutil wrapper, struct design
 
-> **Parent:** [Golang Coding Standards](./00-overview.md)  
-> **Version:** 3.7.0  
+> **Parent:** [Golang Coding Standards](./00-overview.md)
+> **Version:** 3.7.0
 > **Updated:** 2026-03-31
 
 ---

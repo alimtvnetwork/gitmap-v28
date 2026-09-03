@@ -11,6 +11,7 @@ The `gitmap db` command hierarchy provides an operational control plane over all
 ## 2. Command Specifications
 
 ### `gitmap db status`
+
 Prints a consolidated health overview across all three tiers:
 - Primary Master DB location, size, and registered repository count.
 - Split Repo DB count, total disk space consumed, and directory path.
@@ -18,6 +19,7 @@ Prints a consolidated health overview across all three tiers:
 - Supports `--json` for machine-readable status pipelines.
 
 ### `gitmap db optimize`
+
 Iteratively executes vacuum, WAL truncation, and table analysis across:
 - Primary database (`gitmap.db`)
 - Every discovered database in `repo_search/`

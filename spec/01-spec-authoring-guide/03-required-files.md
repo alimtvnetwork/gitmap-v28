@@ -1,6 +1,6 @@
 # Required Files
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -53,10 +53,10 @@ The health dashboard scores each module on four equally weighted criteria:
 
 # Module Name
 
-**Version:** 3.2.0  
-**Updated:** YYYY-MM-DD  
-**Status:** Draft | Planned | Active | Complete  
-**AI Confidence:** Low | Medium | High | Production-Ready  
+**Version:** 3.2.0
+**Updated:** YYYY-MM-DD
+**Status:** Draft | Planned | Active | Complete
+**AI Confidence:** Low | Medium | High | Production-Ready
 **Ambiguity:** None | Low | Medium | High | Critical
 
 ---
@@ -110,7 +110,7 @@ The health dashboard scores each module on four equally weighted criteria:
 
 # Acceptance Criteria — Module Name
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** YYYY-MM-DD
 
 ---
@@ -143,7 +143,7 @@ The health dashboard scores each module on four equally weighted criteria:
 
 # Changelog — Module Name
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** YYYY-MM-DD
 
 ---
@@ -161,7 +161,7 @@ The health dashboard scores each module on four equally weighted criteria:
 
 # Consistency Report — Module Name
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Last Updated:** YYYY-MM-DD
 
 ---

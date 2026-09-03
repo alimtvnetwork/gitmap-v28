@@ -1,7 +1,7 @@
 # Consolidated: Error Management — Complete Reference
 
-**Version:** 3.3.0  
-**Updated:** 2026-04-22  
+**Version:** 3.3.0
+**Updated:** 2026-04-22
 **Source Module:** [`spec/03-error-manage/`](../03-error-manage/00-overview.md)
 
 ---

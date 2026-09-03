@@ -5,13 +5,13 @@
 
 ## The Rule: Single Return Parameter
 
-In Go, we **strictly recommend returning a single parameter**. 
-If a function needs to return multiple values (e.g., a value and an error, or multiple pieces of data), they **must be bundled into a struct** or a generic wrapper. 
+In Go, we **strictly recommend returning a single parameter**.
+If a function needs to return multiple values (e.g., a value and an error, or multiple pieces of data), they **must be bundled into a struct** or a generic wrapper.
 The standard generic `Result` wrapper (described below) is the required pattern, as it bundles the `Data`, an `AppError`, and the `Status` together into a single return object.
 
 ## The Rule: No Raw Boolean Returns
 
-In Go, functions that conceptually return a boolean to indicate success, failure, or a binary state **MUST NOT** return a raw `bool`. 
+In Go, functions that conceptually return a boolean to indicate success, failure, or a binary state **MUST NOT** return a raw `bool`.
 
 Instead, they must return a generic wrapped result object that exposes a **status flag with two mutually exclusive parts**: a positive state (`IsSuccess`) and a negative state (`IsFailed`).
 

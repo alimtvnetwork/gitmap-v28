@@ -1,14 +1,14 @@
 # PHP Coding Standards — Braces, nesting, spacing, function size
 
-> **Parent:** [PHP Coding Standards](./00-overview.md)  
-> **Version:** 5.1.0  
+> **Parent:** [PHP Coding Standards](./00-overview.md)
+> **Version:** 5.1.0
 > **Updated:** 2026-03-31
 
 ---
 
 ## Code Style — Braces, Nesting, Spacing & Function Size
 
-> These rules apply across **all languages** (PHP, TypeScript, Go).  
+> These rules apply across **all languages** (PHP, TypeScript, Go).
 > **Canonical source:** [Cross-Language Code Style](../../01-cross-language/04-code-style/00-overview.md) — this section repeats key rules with PHP-specific examples.
 
 ### Rule 1: Always use braces — no single-line returns

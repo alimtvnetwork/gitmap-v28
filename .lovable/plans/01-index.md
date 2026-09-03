@@ -13,6 +13,7 @@ Master directory of architectural and execution plans.
 - [51-naming-conventions-audit.md](completed/51-naming-conventions-audit.md): Naming Conventions, Boolean Prefixes & Anti-Ok Variables Audit Specification
 - [52-constants-and-enums-audit.md](completed/52-constants-and-enums-audit.md): Constants & Enums Architecture Audit Specification
 - [53-react-frontend-audit.md](completed/53-react-frontend-audit.md): React & Frontend Architecture Audit Specification
+- [54-code-hygiene-and-file-standards-audit.md](completed/54-code-hygiene-and-file-standards-audit.md): Code Hygiene & Project Architecture Audit Specification
 
 - [01-cicd-trigger-fix.md](completed/01-cicd-trigger-fix.md): 01-cicd-trigger-fix
 - [02-coding-guideline-fixes.md](completed/02-coding-guideline-fixes.md): 02-coding-guideline-fixes

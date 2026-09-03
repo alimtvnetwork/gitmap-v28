@@ -1,7 +1,7 @@
 # Master Coding Guidelines — Boolean standards, isDefined guards, enum standards
 
-> **Parent:** [Master Coding Guidelines](./00-overview.md)  
-> **Version:** 2.1.0  
+> **Parent:** [Master Coding Guidelines](./00-overview.md)
+> **Version:** 2.1.0
 > **Updated:** 2026-03-31
 
 ---
@@ -160,9 +160,9 @@ if (isDefined(config)) {
 
 ## 4. Enum Standards
 
-> **Canonical cross-language reference:** [Enum Naming Quick Reference](../../06-ai-optimization/05-enum-naming-quick-reference.md) — declaration, naming, methods, folder structure for Go, TypeScript, and PHP  
-> **Go-specific:** [Go Enum Specification](../../03-golang/01-enum-specification/00-overview.md)  
-> **PHP-specific:** [PHP Enums](../../04-php/01-enums.md)  
+> **Canonical cross-language reference:** [Enum Naming Quick Reference](../../06-ai-optimization/05-enum-naming-quick-reference.md) — declaration, naming, methods, folder structure for Go, TypeScript, and PHP
+> **Go-specific:** [Go Enum Specification](../../03-golang/01-enum-specification/00-overview.md)
+> **PHP-specific:** [PHP Enums](../../04-php/01-enums.md)
 > **TypeScript-specific:** [TypeScript Enums](../../02-typescript/00-overview.md)
 
 **Key rules (all languages):**

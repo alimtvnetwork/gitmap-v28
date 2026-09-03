@@ -4,7 +4,7 @@
 - **Topic**: Version injection, Code quality enforcement
 
 > "Fix the git status first, then start coding. Make a big plan if required to self-loop... Look into the entire codebase and follow the code review guidelines from the aspect folder properly. All caught errors must be explicitly logged following the guidelines in the error manage folder. Create a wrapper for queries in PHP/Python/TS that automatically logs failures to reduce scattered logging code.
-> 
+>
 > Make sure the code quality is strictly maintained:
 > 1. Do not introduce any magic strings or magic numbers anywhere unless it is explicitly for the logger, and mention that in the typing.
 > 2. In TypeScript, rather than using strings as sub-items or comparing string union types (pipes) like "pass" | "fail" | "fallback", you must use Enums. Enums are the best.

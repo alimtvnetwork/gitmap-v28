@@ -5,7 +5,7 @@
 
 ## Description
 
-A top-level Go declaration syntax error occurred (cmd/macro_cmd.go:124:2: syntax error: unexpected keyword type after top level declaration) because automated code generation strictly appended strings without verifying structural newlines. A parallel issue occurred during parsing for the se command because 
+A top-level Go declaration syntax error occurred (cmd/macro_cmd.go:124:2: syntax error: unexpected keyword type after top level declaration) because automated code generation strictly appended strings without verifying structural newlines. A parallel issue occurred during parsing for the se command because
 eorderFlagsBeforeArgs was aggressively attempting to hoist flags (-p) out of nested positional command arguments (mkdir -p foo).
 Also, two help text markdown files (chrome-profile-export.md and chrome-profile-import.md) lacked the required ## Examples section containing a code block, causing gitmap/helptext integration tests to fail.
 
@@ -18,7 +18,7 @@ Also, two help text markdown files (chrome-profile-export.md and chrome-profile-
 ## Resolution
 
 1. Parsed gitmap/cmd/*.go files using Get-Content to locate and surgically correct }type  into }\n\ntype  structurally.
-2. Removed the 
+2. Removed the
 eorderFlagsBeforeArgs() wrapper from the parseSEFlags in gitmap/cmd/sshexec.go. SSH Execution arguments are explicitly allowed to have unbounded nested flags, so strict linear parsing via s.Parse(args) is the correct semantic.
 3. Appended ## Examples and fenced code blocks for chrome-profile-export and chrome-profile-import inside gitmap/helptext.
 4. Tests fully re-run.

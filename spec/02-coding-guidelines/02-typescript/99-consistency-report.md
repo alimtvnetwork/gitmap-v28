@@ -1,7 +1,7 @@
 # Consistency Report: TypeScript Standards
 
-**Version:** 3.2.0  
-**Generated:** 2026-03-31  
+**Version:** 3.2.0
+**Generated:** 2026-03-31
 **Health Score:** 100/100 (A+)
 
 ---

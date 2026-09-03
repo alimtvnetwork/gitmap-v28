@@ -1,7 +1,7 @@
 # Retrospective: Golang Integer-Backed Enums & PascalCase Serialization Standard
 
-**Date:** 2026-09-01  
-**Category:** Go Enum Guidelines & Error Management Architecture  
+**Date:** 2026-09-01
+**Category:** Go Enum Guidelines & Error Management Architecture
 **Status:** Approved & Enforced
 
 ---

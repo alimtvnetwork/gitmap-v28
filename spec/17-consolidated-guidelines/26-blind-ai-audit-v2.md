@@ -1,8 +1,8 @@
 # Blind-AI Implementability Audit — v2.0 (Post Phase 1–5)
 
-**Version:** 2.0.0  
-**Updated:** 2026-04-22  
-**Scope:** `spec/17-consolidated-guidelines/` only  
+**Version:** 2.0.0
+**Updated:** 2026-04-22
+**Scope:** `spec/17-consolidated-guidelines/` only
 **Compares against:** `25-blind-ai-implementability-audit.md` v1.0 (pre-fix baseline)
 
 ---

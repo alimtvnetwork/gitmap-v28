@@ -1,7 +1,7 @@
 # C# Method Design
 
-> **Parent:** [C# Coding Standards](./00-overview.md)  
-> **Version:** 1.0.0  
+> **Parent:** [C# Coding Standards](./00-overview.md)
+> **Version:** 1.0.0
 > **Updated:** 2026-04-02
 
 ---

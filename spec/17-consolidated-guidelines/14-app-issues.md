@@ -1,6 +1,6 @@
 # Consolidated: App Issues — Complete Reference
 
-**Version:** 3.3.0  
+**Version:** 3.3.0
 **Updated:** 2026-04-16
 
 ---
@@ -21,9 +21,9 @@ Each issue file follows this template:
 
 # Issue #NN — [Title]
 
-**Severity:** Critical | High | Medium | Low  
-**Status:** Open | Investigating | Resolved  
-**Created:** YYYY-MM-DD  
+**Severity:** Critical | High | Medium | Low
+**Status:** Open | Investigating | Resolved
+**Created:** YYYY-MM-DD
 **Resolved:** YYYY-MM-DD (if applicable)
 
 ## Symptom

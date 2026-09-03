@@ -1,8 +1,8 @@
 # Error Handling — Cross-Stack Specification
 
-> **Version:** 2.0.0  
-> **Updated:** 2026-03-09  
-> **Status:** Active  
+> **Version:** 2.0.0
+> **Updated:** 2026-03-09
+> **Status:** Active
 > **Applies to:** Go backend, React/TypeScript frontend, PHP WordPress plugin, any delegated 3rd-party server
 
 ---
@@ -227,7 +227,7 @@ func (c *Client) doRequest(
 	body any,
 ) apperror.Result[*http.Response] {
     // ... execute request ...
-    
+
     if resp.StatusCode >= 400 {
         // Build DelegatedRequestServer from the failed response
         delegated := &DelegatedRequestServer{
@@ -239,10 +239,10 @@ func (c *Client) doRequest(
             StackTrace:         extractStackTrace(respBody),  // from response if available
             AdditionalMessages: extractMessage(respBody),
         }
-        
+
         // Attach to the request context for envelope builder to pick up
         context = stdctx.WithValue(context, delegatedServerKey, delegated)
-        
+
         return resp, apperror.Wrap(err, apperror.ErrWpConnect, "delegated request failed").
             WithEndpoint(url).
             WithStatusCode(resp.StatusCode)
@@ -389,28 +389,28 @@ interface CapturedError {
   message: string;
   details?: string;
   createdAt: string;
-  
+
   // API request context
   endpoint?: string;
   method?: string;
   requestBody?: unknown;
   responseStatus?: number;
-  
+
   // Trigger context
   triggerComponent?: string;
   triggerAction?: string;
   invocationChain?: string[];
-  
+
   // Session-based logging
   sessionId?: string;
   sessionType?: string;
-  
+
   // Universal Envelope diagnostic fields
   requestedAt?: string;
   requestDelegatedAt?: string;
   envelopeErrors?: EnvelopeErrors;       // Contains DelegatedRequestServer (v2.0.0)
   envelopeMethodsStack?: EnvelopeMethodsStack;
-  
+
   // Frontend diagnostics
   parsedFrames?: StackFrame[];
   uiClickPath?: ClickEvent[];

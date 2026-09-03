@@ -1,8 +1,8 @@
 # Braces, Nesting & Exemptions
 
-> **Version:** 4.0.0  
-> **Updated:** 2026-03-31  
-> **Applies to:** PHP, TypeScript, Go  
+> **Version:** 4.0.0
+> **Updated:** 2026-03-31
+> **Applies to:** PHP, TypeScript, Go
 > **Rules covered:** 1, 2, 7
 
 ---
@@ -126,13 +126,13 @@ if hasIssue {
 
 `FromString` / `fromString` enum-parsing functions that use a `switch` statement with a `default` fallback are **exempt** from the zero-nesting rule. The `switch` is the idiomatic, most readable pattern for exhaustive enum mapping — flattening into sequential `if` blocks would reduce clarity without improving safety.
 
-> **AI Rule — No String Literals in Switch Cases:**  
-> Switch cases **must never** use raw string literals (`"production"`, `"staging"`, etc.).  
+> **AI Rule — No String Literals in Switch Cases:**
+> Switch cases **must never** use raw string literals (`"production"`, `"staging"`, etc.).
 > Instead, each enum value **must** define a corresponding string constant, and the `case` labels **must** reference those constants. This prevents typos, enables compile-time safety, and ensures the string representation is defined once alongside the enum — not scattered across parser functions.
 >
-> **For full enum patterns, folder structure, and required methods, see:**  
-> - **Go:** [Enum Specification](../../03-golang/01-enum-specification/00-overview.md) — pattern, required methods, folder layout  
-> - **TypeScript:** [TypeScript Enums](../../02-typescript/00-overview.md) — string enum definitions, usage patterns  
+> **For full enum patterns, folder structure, and required methods, see:**
+> - **Go:** [Enum Specification](../../03-golang/01-enum-specification/00-overview.md) — pattern, required methods, folder layout
+> - **TypeScript:** [TypeScript Enums](../../02-typescript/00-overview.md) — string enum definitions, usage patterns
 > - **PHP:** [PHP Enums](../../04-php/01-enums.md) — backed enum classes
 
 ```go

@@ -37,18 +37,24 @@ gitmap backup prune --keep=N                   # Prune local fix-repo snapshots
 ## Examples
 
 ```bash
+
 # Push full backup to private cloud repository
+
 gitmap backup create --note "Weekly system backup"
 
 # List available cloud backup snapshots
+
 gitmap backup ls
 
 # Restore databases from latest or numbered snapshot
+
 gitmap backup restore 1 -y
 
 # Check remote cloud backup status
+
 gitmap backup status
 
 # Prune local fix-repo snapshots keeping newest 5
+
 gitmap backup prune --keep=5 --local
 ```

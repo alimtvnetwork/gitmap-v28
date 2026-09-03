@@ -11,9 +11,9 @@ Overhaul the commit-in, commit-left, and commit-right command trio to support ad
    - Add examples showing how to rewrite commit history.
    - Add examples demonstrating how to add 20+ co-authors (e.g., using Co-authored-by: footers).
 2. **PR Integration (--pr flag)**:
-   - Add --pr flag to commit-in, commit-left, commit-right (values: ll, 	ags, 
+   - Add --pr flag to commit-in, commit-left, commit-right (values: ll, 	ags,
 elease).
-   - Implement the PR workflow: create branch, push, create PR via GitHub API (gh pr create), merge PR, and release. 
+   - Implement the PR workflow: create branch, push, create PR via GitHub API (gh pr create), merge PR, and release.
    - Integrate this flag into the command options struct.
 3. **Terminal UI Enhancement**:
    - Update the terminal output for replaying commits to include left padding and color-coding.
@@ -26,7 +26,7 @@ elease).
    - When copying commits, stop appending the original commit URL to the message body by default.
    - Add a configuration key in gitmap settings (e.g., CommitReplayKeepUrl = false) to toggle this behavior.
 6. **Release**:
-   - Final step: Bump minor version, update 
+   - Final step: Bump minor version, update
 eadme.md, update architecture map, and commit.
 
 ## Subtasks Mapping

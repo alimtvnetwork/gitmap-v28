@@ -18,20 +18,25 @@ Manage Antigravity projects, project groups, undo/redo state, plugins, and setti
 ## Examples
 
 ```bash
+
 # Manage project groups
+
 gitmap agy group add frontend repo-a repo-b
 gitmap agy group ls
 gitmap agy group prompt frontend "Review styling and line gaps"
 
 # Undo a recent clear action
+
 gitmap agy clear --all
 gitmap agy undo
 
 # Inspect and install plugins
+
 gitmap agy plugin ls
 gitmap agy plugin install firebase-agent-plugin
 
 # Export and import settings
+
 gitmap agy settings export my-settings.json
 gitmap agy settings import my-settings.json
 ```

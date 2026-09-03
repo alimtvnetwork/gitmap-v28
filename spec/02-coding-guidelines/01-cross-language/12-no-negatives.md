@@ -1,7 +1,7 @@
 # Cross-Language Rule: No Raw Negations — Use Positive Guard Functions
 
-> **Version:** 2.1.0  
-> **Updated:** 2026-03-31  
+> **Version:** 2.1.0
+> **Updated:** 2026-03-31
 > **Applies to:** PHP, TypeScript, Go
 
 ---
@@ -31,7 +31,7 @@ Raw negations are easy to miss during code review, cause cognitive overhead, and
 
 The function name must express the **positive assertion** of what is being checked:
 - "is missing" not "is not existing"
-- "is disabled" not "is not active"  
+- "is disabled" not "is not active"
 - "is empty" not "is not filled"
 - "is disconnected" not "is not connected"
 

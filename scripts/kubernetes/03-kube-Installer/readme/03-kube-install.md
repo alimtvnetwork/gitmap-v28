@@ -76,7 +76,7 @@ network:
 Now validate and apply
 
 ```bash
-sudo netplan try && sudo netplan apply 
+sudo netplan try && sudo netplan apply
 ```
 
 ## Add Repo, Kube and CRIO
@@ -108,7 +108,7 @@ sudo su
 ```bash
 apt update -y &&\
 apt-get update -y &&\
-apt upgrade -y 
+apt upgrade -y
 ```
 
 ### OS Update with Faster
@@ -128,7 +128,7 @@ First get into `sudo user` by running
 sudo su
 ```
 
-Then 
+Then
 
 
 ```bash
@@ -165,7 +165,7 @@ From SU user
 
 Comment out the swap section by `#`
 
-Then Reboot 
+Then Reboot
 
 `sudo reboot`
 

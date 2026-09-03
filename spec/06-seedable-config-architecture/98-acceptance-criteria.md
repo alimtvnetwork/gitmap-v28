@@ -1,8 +1,8 @@
 # Seedable Config Architecture: Acceptance Criteria
 
-**Version:** 3.2.0  
-**Status:** Active  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Status:** Active
+**Updated:** 2026-04-16
 **Format:** GIVEN/WHEN/THEN (E2E-test-ready)
 
 ---
@@ -11,10 +11,10 @@
 
 ### SC-01: First-Run Seeding
 
-**GIVEN** the CLI starts for the first time with no existing configuration in the database  
-**WHEN** the seed initialization runs  
-**THEN** all values from `config.seed.json` are inserted into the settings table  
-**AND** each setting has `IsUserModified: false`  
+**GIVEN** the CLI starts for the first time with no existing configuration in the database
+**WHEN** the seed initialization runs
+**THEN** all values from `config.seed.json` are inserted into the settings table
+**AND** each setting has `IsUserModified: false`
 **AND** the config version is set to "1.0.0" in the database
 
 **Edge Cases:**
@@ -23,10 +23,10 @@
 
 ### SC-02: Version-Gated Seeding (Golden Rule)
 
-**GIVEN** the database already has configuration with version "1.2.0"  
-**WHEN** the CLI starts with a `config.seed.json` at version "1.3.0"  
-**THEN** only NEW keys (not present in DB) are seeded from the new version  
-**AND** existing keys with `IsUserModified: true` are NOT overwritten  
+**GIVEN** the database already has configuration with version "1.2.0"
+**WHEN** the CLI starts with a `config.seed.json` at version "1.3.0"
+**THEN** only NEW keys (not present in DB) are seeded from the new version
+**AND** existing keys with `IsUserModified: true` are NOT overwritten
 **AND** the version is updated to "1.3.0"
 
 **Edge Cases:**
@@ -36,15 +36,15 @@
 
 ### SC-03: User Modification Tracking
 
-**GIVEN** a setting exists with `IsUserModified: false`  
-**WHEN** the user updates the setting via API or CLI  
-**THEN** the value is updated and `IsUserModified` is set to `true`  
+**GIVEN** a setting exists with `IsUserModified: false`
+**WHEN** the user updates the setting via API or CLI
+**THEN** the value is updated and `IsUserModified` is set to `true`
 **AND** subsequent seeding at a higher version will NOT overwrite this setting
 
 ### SC-04: Changelog Versioning
 
-**GIVEN** a configuration change is persisted (user or seed)  
-**WHEN** the version is incremented  
+**GIVEN** a configuration change is persisted (user or seed)
+**WHEN** the version is incremented
 **THEN** a new entry is appended to `changelog.md` with version, date, and change description
 
 **Edge Cases:**
@@ -57,8 +57,8 @@
 
 ### SC-05: In-Memory Cache
 
-**GIVEN** settings are loaded from the database  
-**WHEN** a setting is requested via `GetSetting(key)`  
+**GIVEN** settings are loaded from the database
+**WHEN** a setting is requested via `GetSetting(key)`
 **THEN** the value is returned from the `sync.Map` cache without a database query
 
 **Edge Cases:**
@@ -72,14 +72,14 @@
 
 ### RC-01: Chunk Size Validation
 
-**GIVEN** a RAG chunk size setting is being configured  
-**WHEN** the value is set to 0 or negative  
+**GIVEN** a RAG chunk size setting is being configured
+**WHEN** the value is set to 0 or negative
 **THEN** validation rejects the value with a specific error message listing the valid range (100–10000)
 
 ### RC-02: Chunk Overlap Validation
 
-**GIVEN** chunk size is set to 500  
-**WHEN** chunk overlap is set to 500 or higher  
+**GIVEN** chunk size is set to 500
+**WHEN** chunk overlap is set to 500 or higher
 **THEN** validation rejects with "Overlap must be less than ChunkSize"
 
 ---
@@ -88,9 +88,9 @@
 
 ### VD-01: Validation Arrays Loaded
 
-**GIVEN** the CLI starts with seedable config containing validation arrays  
-**WHEN** the seeding process runs  
-**THEN** validation arrays (e.g., allowed file extensions, blocked keywords) are loaded from CW Config into the root DB  
+**GIVEN** the CLI starts with seedable config containing validation arrays
+**WHEN** the seeding process runs
+**THEN** validation arrays (e.g., allowed file extensions, blocked keywords) are loaded from CW Config into the root DB
 **AND** they are accessible via the settings service for runtime validation
 
 ---

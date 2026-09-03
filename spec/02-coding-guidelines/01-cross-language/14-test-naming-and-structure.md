@@ -1,7 +1,7 @@
 # Cross-Language Rule: Test Naming & Structure
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-03-11  
+> **Version:** 1.0.0
+> **Updated:** 2026-03-11
 > **Applies to:** Go, TypeScript, PHP
 
 ---

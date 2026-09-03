@@ -1,7 +1,7 @@
 # How to Write a WordPress Plugin — Gold Standard Specification
 
-> **Updated:** 2026-04-14  
-> **Purpose:** Comprehensive, self-contained guide for building WordPress plugins following the Gold Standard architecture.  
+> **Updated:** 2026-04-14
+> **Purpose:** Comprehensive, self-contained guide for building WordPress plugins following the Gold Standard architecture.
 > **Audience:** AI code generators and human developers.
 
 ---

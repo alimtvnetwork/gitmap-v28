@@ -1,7 +1,7 @@
 # Retry, Debounce & Deduplication Fixes — Full Retrospective
 
-> **Created:** 2026-02-12  
-**Version:** 3.2.0  
+> **Created:** 2026-02-12
+**Version:** 3.2.0
 > **Purpose:** Document every retry/debounce/dedup issue that was found and fixed, with root causes, symptoms, and exact code solutions — for AI training.
 
 ---

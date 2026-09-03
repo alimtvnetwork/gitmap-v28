@@ -1,6 +1,6 @@
 # Notification & Toast Color System
 
-> **Created:** 2026-03-29  
+> **Created:** 2026-03-29
 > **Status:** ✅ Active
 
 ---

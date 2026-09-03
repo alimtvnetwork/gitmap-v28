@@ -1,7 +1,7 @@
 # Cross-Language Database Naming Convention — PascalCase
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-03-09  
+> **Version:** 1.0.0
+> **Updated:** 2026-03-09
 > **Applies to:** PHP (SQLite), Go (SQLite), TypeScript (frontend references)
 
 ---

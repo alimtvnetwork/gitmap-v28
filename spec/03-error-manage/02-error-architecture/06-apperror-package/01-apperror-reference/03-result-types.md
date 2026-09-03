@@ -1,7 +1,7 @@
 # AppError Package Reference — Result[T], ResultSlice[T], ResultMap[K,V]
 
-> **Parent:** [AppError Package Reference](./00-overview.md)  
-> **Version:** 1.3.0  
+> **Parent:** [AppError Package Reference](./00-overview.md)
+> **Version:** 1.3.0
 > **Updated:** 2026-03-31
 
 ---

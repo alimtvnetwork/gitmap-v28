@@ -1,7 +1,7 @@
 # RCA — smoke-installer wrapper script failure in CI
 
-**Date:** 2026-08-29  
-**Workflow:** .github/workflows/release.yml and .github/workflows/ci.yml  
+**Date:** 2026-08-29
+**Workflow:** .github/workflows/release.yml and .github/workflows/ci.yml
 **Symptom:**
 
 `	ext
@@ -10,7 +10,7 @@ Run bash .github/scripts/smoke-installer.sh release
   shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
 `
 
-The CI job fails when invoking the bash wrapper script smoke-installer.sh. 
+The CI job fails when invoking the bash wrapper script smoke-installer.sh.
 
 ## Root cause
 
@@ -19,10 +19,10 @@ The scripts .github/scripts/smoke-installer.sh and .github/scripts/smoke-install
 ## Fix
 
 1. **Removed Wrappers:** Deleted .github/scripts/smoke-installer.sh and .github/scripts/smoke-installer.ps1 entirely.
-2. **Direct Python Invocation:** Updated .github/workflows/ci.yml and .github/workflows/release.yml to execute the Python script natively. 
-   - Old: 
+2. **Direct Python Invocation:** Updated .github/workflows/ci.yml and .github/workflows/release.yml to execute the Python script natively.
+   - Old:
 un: bash .github/scripts/smoke-installer.sh release
-   - New: 
+   - New:
 un: python .github/scripts/smoke-installer.py release
 
 ## Permanent guarantees

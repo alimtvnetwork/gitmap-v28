@@ -6,7 +6,7 @@ When an AI Agent handles a release for this repository, it MUST synchronously up
 
 ### 1. Update Central `version.json`
 
-The absolute source of truth for the version is located at the root of the repository in `version.json`. 
+The absolute source of truth for the version is located at the root of the repository in `version.json`.
 
 You must only bump this file:
 ```json

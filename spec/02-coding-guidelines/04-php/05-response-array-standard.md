@@ -1,10 +1,10 @@
 # PHP Response Array Standard
 
 
-**Last Updated:** 2026-04-16  
+**Last Updated:** 2026-04-16
 
-> **Version:** 1.0.0  
-> **Since:** 2.2.0  
+> **Version:** 1.0.0
+> **Since:** 2.2.0
 > **Scope:** All internal service result arrays in the `RiseupAsia` namespace.
 
 ---
@@ -23,7 +23,7 @@ Internal PHP service methods return structured arrays to communicate success/fai
 
 ## 2. ResultHelper — Factory Methods
 
-**Location:** `includes/Helpers/ResultHelper.php`  
+**Location:** `includes/Helpers/ResultHelper.php`
 **Namespace:** `RiseupAsia\Helpers`
 
 ### 2.1 Available Methods
@@ -90,7 +90,7 @@ return array(ResponseKeyType::Success->value => true, ResponseKeyType::Rows->val
 
 ## 3. ResponseKeyType — Zero Magic Strings
 
-**Location:** `includes/Enums/ResponseKeyType.php`  
+**Location:** `includes/Enums/ResponseKeyType.php`
 **Namespace:** `RiseupAsia\Enums`
 
 Every key in a service result array or structured response **must** use a `ResponseKeyType` case. No bare string keys are permitted in response arrays.

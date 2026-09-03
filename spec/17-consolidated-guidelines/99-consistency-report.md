@@ -1,6 +1,6 @@
 # Consistency Report — Consolidated Guidelines
 
-**Version:** 3.4.0  
+**Version:** 3.4.0
 **Updated:** 2026-04-24
 
 ---

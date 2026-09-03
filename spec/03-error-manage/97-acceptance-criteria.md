@@ -1,15 +1,15 @@
 # Error Management — Acceptance Criteria
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
 
 ## AC-01: Structured Error Response
 
-**GIVEN** any CLI backend encounters an error during request processing  
-**WHEN** the error response is generated  
-**THEN** it contains: `Code` (numeric), `Message` (human-readable), `Details` (technical), and `Stack` (up to 40 frames)  
+**GIVEN** any CLI backend encounters an error during request processing
+**WHEN** the error response is generated
+**THEN** it contains: `Code` (numeric), `Message` (human-readable), `Details` (technical), and `Stack` (up to 40 frames)
 **AND** the error code falls within the tool's assigned range per the Error Code Registry
 
 **Edge Cases:**
@@ -21,9 +21,9 @@
 
 ## AC-02: Frontend-Backend Verification Protocol
 
-**GIVEN** the frontend receives an error response from the backend  
-**WHEN** the error is displayed in the error modal  
-**THEN** the user can see the backend error code, the frontend component that triggered the request, and the timestamp  
+**GIVEN** the frontend receives an error response from the backend
+**WHEN** the error is displayed in the error modal
+**THEN** the user can see the backend error code, the frontend component that triggered the request, and the timestamp
 **AND** "Copy All" copies both frontend and backend context
 
 **Edge Cases:**
@@ -34,33 +34,33 @@
 
 ## AC-03: Retrospective Document Structure
 
-**GIVEN** a production bug has been resolved  
-**WHEN** a retrospective document is created  
+**GIVEN** a production bug has been resolved
+**WHEN** a retrospective document is created
 **THEN** it contains: Root Cause, Timeline, Resolution Steps, Prevention Measures, and Related Error Codes
 
 ---
 
 ## AC-04: Verification Pattern Application
 
-**GIVEN** a developer implements a fix for a known error pattern  
-**WHEN** they consult the verification patterns documentation  
+**GIVEN** a developer implements a fix for a known error pattern
+**WHEN** they consult the verification patterns documentation
 **THEN** they find step-by-step verification instructions specific to the error category
 
 ---
 
 ## AC-05: Debugging Guide Coverage
 
-**GIVEN** a developer encounters a backend error  
-**WHEN** they follow the language-specific debugging guide  
+**GIVEN** a developer encounters a backend error
+**WHEN** they follow the language-specific debugging guide
 **THEN** they can identify common issues and each issue links to the relevant specification
 
 ---
 
 ## AC-06: Quick Resolution
 
-**GIVEN** a common error scenario  
-**WHEN** the developer consults the cheat sheet  
-**THEN** they find a 3-step resolution procedure: Identify → Diagnose → Fix  
+**GIVEN** a common error scenario
+**WHEN** the developer consults the cheat sheet
+**THEN** they find a 3-step resolution procedure: Identify → Diagnose → Fix
 **AND** each step includes the exact command or code to run
 
 ---

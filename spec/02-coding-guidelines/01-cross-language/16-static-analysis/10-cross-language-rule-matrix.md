@@ -1,9 +1,9 @@
 # Cross-Language Rule Matrix
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-04-01  
-> **AI Confidence:** 95%  
-> **Ambiguity:** 5%  
+> **Version:** 1.0.0
+> **Updated:** 2026-04-01
+> **AI Confidence:** 95%
+> **Ambiguity:** 5%
 > **Keywords:** rule matrix, SonarQube, linter, cross-language, comparison
 
 ---

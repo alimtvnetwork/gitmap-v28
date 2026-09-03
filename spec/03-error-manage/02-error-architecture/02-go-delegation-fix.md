@@ -1,8 +1,8 @@
 # Go Backend Fix: Missing Delegation Fields
 
 
-**Version:** 3.2.0  
-**Last Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Last Updated:** 2026-04-16
 
 > **Problem:** When the Go backend proxies a request to a downstream service (e.g., WordPress PHP plugin) and the downstream call fails, the response envelope is missing `Attributes.RequestDelegatedAt` and `Errors.DelegatedRequestServer`. This makes it impossible for the frontend error modal to show the full 3-hop request chain or the third-party's error details.
 

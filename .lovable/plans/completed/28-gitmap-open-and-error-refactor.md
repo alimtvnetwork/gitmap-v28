@@ -6,7 +6,7 @@ Implement `gitmap open <file|folder|url|mail>` for cross-platform execution and 
 
 ## Core Requirements
 
-1. **Error Management**: 
+1. **Error Management**:
    - Refactor `dispatchEntry` in `rootdispatch.go` to use `handler func() *apperror.AppError` (or `error`).
    - Refactor all `runXxx` functions across `gitmap/cmd/*.go` to return `error` or `*apperror.AppError` instead of `void`.
    - Update `runDispatchTable` to capture errors, wrap them with `apperror.Wrap`, log them using `cliexit`, and exit gracefully.

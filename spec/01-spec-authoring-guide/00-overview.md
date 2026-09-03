@@ -1,9 +1,9 @@
 # Spec Authoring Guide
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Status:** Active  
-**AI Confidence:** Production-Ready  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Status:** Active
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---
@@ -448,8 +448,8 @@ _Auto-generated section — see `spec/01-spec-authoring-guide/97-acceptance-crit
 
 ### AC-SAG-000: Conformance check for spec authoring rule: Overview
 
-**Given** Run the spec-structure linter against `spec/`.  
-**When** Run the verification command shown below.  
+**Given** Run the spec-structure linter against `spec/`.
+**When** Run the verification command shown below.
 **Then** Every folder MUST contain a valid `00-overview.md`, follow kebab-case numeric prefixes, and resolve all internal links.
 
 **Verification command:**

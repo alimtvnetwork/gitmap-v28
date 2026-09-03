@@ -1,8 +1,8 @@
 # Research
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**AI Confidence:** Production-Ready  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---
@@ -51,8 +51,8 @@ _Auto-generated section — see `spec/10-research/97-acceptance-criteria.md` for
 
 ### AC-RES-000: Research-folder conformance: Overview
 
-**Given** Validate research note structure (front-matter, dated filenames, source links).  
-**When** Run the verification command shown below.  
+**Given** Validate research note structure (front-matter, dated filenames, source links).
+**When** Run the verification command shown below.
 **Then** Every research note has a date prefix, a `Source:` line, and a `Decision:` or `Outcome:` section.
 
 **Verification command:**

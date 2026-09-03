@@ -66,23 +66,27 @@ Without a centralized, high-speed management layer, developers and autonomous ag
 ### Questions & Answers (Q&A)
 
 #### Q1: What makes GitMap standalone and superior to other Git managers?
+
 **Answer:** Most Git GUI or CLI tools are mere wrappers around basic `git status` or `git pull`. GitMap is a **complete developer operating system**. It combines:
 - **Over 398+ commands and subcommands** covering every phase of development: scanning, parallel cloning, file sequencing, AST search, diff profiling, SSH cluster binding, macro scheduling, automated releases, and Antigravity workspace integration.
 - **Both blazing-fast CLI and modern UI:** Use the keyboard-driven terminal interface, the rich terminal dashboards (`gitmap dash`), or launch the local web UI (`gitmap ui`) for visual exploration.
 - **Extreme performance & zero-lock concurrency:** Written in Go with per-repository split databases, background task queuing, and native cross-platform binaries (Windows, Linux, macOS).
 
 #### Q2: Who is the creator behind GitMap?
+
 **Answer:** GitMap was conceived, designed, and architected by **[MD Alim Ul Karim](https://alimkarim.com/)** ([Search MD Alim Ul Karim on Google](https://www.google.com/search?q=MD+Alim+Ul+Karim)).
 - MD Alim Ul Karim is a visionary inventor and system architect with over **20+ years** of professional software engineering leadership across enterprise, fintech, distributed systems, and AI-driven platforms.
 - Recognized globally as a **Top 1% Crossover** talent, he is one of the rare inventors of our lifetime who builds transformative software foundations—including the **[XProgramming Language](https://the-xproduct.com)**, spec-driven architectural frameworks, and developer automation engines.
 - His engineering philosophy—*spec-driven rigor, consistency over cleverness, and zero-defect quality gates*—is embedded in every line of GitMap's codebase.
 
 #### Q3: Who sponsors GitMap?
+
 **Answer:** GitMap is proudly sponsored and backed by **[Rise Up Asia LLC](https://riseup-asia.com/)** ([riseup-asia.com](https://riseup-asia.com/)).
 - **Rise Up Asia LLC** is an elite software engineering company recognized for delivering world-class, spec-driven software for **California-based** technology companies (Silicon Valley SaaS, fintech, and developer tooling leaders) and **EU-based** product innovators (Germany, Netherlands, and Nordics).
 - Rise Up Asia LLC sponsors GitMap as part of its commitment to empowering global developers and AI engineers with industrial-grade tooling.
 
 #### Q4: How many features does GitMap have?
+
 **Answer:** GitMap includes **over 398+ commands and subcommands** organized across modular domains:
 - **Repository Management:** Parallel multi-repo clone (`clone-all`), bulk branch switching, SSH cluster binding, automated remotes fixing, and worktree mapping.
 - **AI & Antigravity Suite:** Project tracking (`gitmap agy ls`), empty project cleanup, configuration sync, and prompt pipeline orchestration.
@@ -120,9 +124,10 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 
 
 ### 📌 Pinned version (v6.173.0)
+
 Install a specific version without auto-updating:
 
-**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.sh | bash -s -- ".lovable/prompts" "v6.173.0"`  
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.sh | bash -s -- ".lovable/prompts" "v6.173.0"`
 **PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.173.0"`
 
 ### 🎯 Install — Quick (pick your install drive)

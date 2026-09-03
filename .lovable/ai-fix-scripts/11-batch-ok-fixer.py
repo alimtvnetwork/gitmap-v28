@@ -13,7 +13,7 @@ EXCLUDE_DIRS = {'.git', 'node_modules', 'dist', 'build', '.next', '.gitmap', 've
 def choose_semantic_name(line: str, var_name: str) -> str:
     line_lower = line.lower()
     var_lower = var_name.lower()
-    
+
     if 'err' in var_lower or 'exiterr' in var_lower or 'apperr' in var_lower:
         return 'isAppErr' if 'apperr' in line_lower else 'isExitErr' if 'exiterr' in line_lower else 'isErr'
     if 'convert' in line_lower or 'url' in line_lower or 'ssh' in line_lower or 'https' in line_lower:
@@ -38,7 +38,7 @@ def choose_semantic_name(line: str, var_name: str) -> str:
         return 'isCloned' if 'run' in line_lower else 'isResolved'
     if 'tree' in line_lower or 'sha' in line_lower or 'hash' in line_lower:
         return 'hasSHA' if 'sha' in line_lower else 'hasHash' if 'hash' in line_lower else 'hasTree'
-    
+
     return 'isOk'
 
 
@@ -48,7 +48,7 @@ def refactor_line_content(content: str) -> str:
     i = 0
     while i < len(lines):
         line = lines[i]
-        
+
         # Pattern 1: if v, ok := expr; ok {
         m_if_ok = re.search(r'(\bif\s+(?:(?:\w+|_,?)\s*,\s*)*)(\w+),\s*ok\s*(:=|=)\s*(.+?);\s*ok(\s*\{.*)', line)
         if m_if_ok:

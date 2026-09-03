@@ -2,9 +2,9 @@
 
 ## 1. Context and Problem Statement
 
-The user reported that gitmap install github-desktop fails on Linux (pt) with exit status 100 during pt install github-desktop. 
+The user reported that gitmap install github-desktop fails on Linux (pt) with exit status 100 during pt install github-desktop.
 
-Root cause: 
+Root cause:
 The old Shiftkey APT repository (pt.packages.shiftkey.dev) has certificate errors or is deprecated. wget -qO - fails silently, resulting in an empty GPG key. Subsequently, pt update fails to fetch the package list, and pt install fails because the package is not found.
 
 ## 2. Proposed Changes
@@ -15,7 +15,7 @@ The old Shiftkey APT repository (pt.packages.shiftkey.dev) has certificate erro
 
 ## 3. Subtasks
 
-1. **Fix URLs in installtools.go**: Update the GPG key and repo URL in 
+1. **Fix URLs in installtools.go**: Update the GPG key and repo URL in
 unInstallGitHubDesktopLinux.
 2. **Commit and Release**: Bump version, update changelog, and push.
 

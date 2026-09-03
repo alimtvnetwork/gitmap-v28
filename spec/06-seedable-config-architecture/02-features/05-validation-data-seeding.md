@@ -1,8 +1,8 @@
 # Validation Data Seeding Pattern
 
-**Version:** 3.2.0  
-**Created:** 2026-03-09  
-**Status:** Active  
+**Version:** 3.2.0
+**Created:** 2026-03-09
+**Status:** Active
 **Purpose:** Define pattern for loading validation arrays and lookup data from CW Config → Root DB
 
 ---
@@ -343,17 +343,17 @@ func (s *ValidationDataService) GetStringArray(category ValidationCategory, key 
     if cached, ok := s.cache.Load(cacheKey); ok {
         return cached.([]string), nil
     }
-    
+
     var data ValidationData
     if err := s.db.Where("Category = ? AND Key = ?", string(category), key).First(&data).Error; err != nil {
         return nil, err
     }
-    
+
     var result []string
     if err := json.Unmarshal([]byte(data.Value), &result); err != nil {
         return nil, err
     }
-    
+
     s.cache.Store(cacheKey, result)
     return result, nil
 }
@@ -365,17 +365,17 @@ func (s *ValidationDataService) GetNumber(category ValidationCategory, key strin
     if cached, ok := s.cache.Load(cacheKey); ok {
         return cached.(float64), nil
     }
-    
+
     var data ValidationData
     if err := s.db.Where("Category = ? AND Key = ?", string(category), key).First(&data).Error; err != nil {
         return 0, err
     }
-    
+
     var result float64
     if err := json.Unmarshal([]byte(data.Value), &result); err != nil {
         return 0, err
     }
-    
+
     s.cache.Store(cacheKey, result)
     return result, nil
 }
@@ -443,31 +443,31 @@ func (v *GuidelineValidator) validateTransitionDensity(content string, _ *SeoCon
             Message: "Failed to load transition words from config",
         }
     }
-    
+
     // Load threshold using typed accessor
     threshold, err := v.validationData.GetSeoNumber(SeoKeyTransitionDensityThreshold)
     if err != nil {
         threshold = 40.0  // Fallback if not configured
     }
-    
+
     words := strings.Fields(strings.ToLower(content))
     transitionCount := 0
-    
+
     transitionSet := make(map[string]bool)
     for _, t := range transitions {
         transitionSet[strings.ToLower(t)] = true
     }
-    
+
     for _, word := range words {
         cleanWord := strings.Trim(word, ".,!?;:")
         if transitionSet[cleanWord] {
             transitionCount++
         }
     }
-    
+
     density := float64(transitionCount) / float64(len(words)) * 100
     passed := density >= threshold
-    
+
     return ValidationResult{
         Passed:  passed,
         Message: fmt.Sprintf("Transition density: %.1f%% (required: %.0f%%+)", density, threshold),

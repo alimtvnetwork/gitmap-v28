@@ -1,7 +1,7 @@
 # Enum Pattern
 
-**Version:** 3.2.0  
-**Status:** Complete  
+**Version:** 3.2.0
+**Status:** Complete
 **Updated:** 2026-04-16
 
 ---
@@ -21,13 +21,13 @@ type Variant byte
 const (
     // Invalid is the zero value (always first)
     Invalid Variant = iota
-    
+
     // SerpApi is the SerpAPI provider
     SerpApi
-    
+
     // MapsScraper is the gosom maps scraper
     MapsScraper
-    
+
     // Colly is the Colly web scraper
     Colly
 )
@@ -123,10 +123,10 @@ var variantLabels = [...]string{
 const (
     // Invalid represents an unspecified provider
     Invalid Variant = iota
-    
+
     // SerpApi uses the commercial SerpAPI service
     SerpApi
-    
+
     // MapsScraper uses gosom/google-maps-scraper
     MapsScraper
 )

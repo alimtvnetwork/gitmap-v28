@@ -10,7 +10,7 @@ install_dependencies() {
   apt install -y zsh git-lfs snapd && \
   git version && \
   git lfs --version
-  # apt install -y nfs-server && \   
+  # apt install -y nfs-server && \
 }
 
 # Call the function

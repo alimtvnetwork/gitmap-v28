@@ -1,8 +1,8 @@
 # Magic Values, Immutability & Class-First Design
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Applies to:** All languages (Go, TypeScript, PHP, Rust, C#)  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Applies to:** All languages (Go, TypeScript, PHP, Rust, C#)
 **Source:** Consolidated from coding guidelines reviews, `18-code-mutation-avoidance.md`, and real-world `riseup-asia-uploader` patterns
 
 ---

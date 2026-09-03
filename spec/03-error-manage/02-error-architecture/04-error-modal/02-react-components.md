@@ -1,7 +1,7 @@
 # ⚠️ THIS FILE HAS BEEN SPLIT INTO A SUBFOLDER
 
-> **Moved to:** [02-react-components/00-overview.md](./02-react-components/00-overview.md)  
-> **Date:** 2026-04-02  
+> **Moved to:** [02-react-components/00-overview.md](./02-react-components/00-overview.md)
+> **Date:** 2026-04-02
 > **Reason:** 751-line deprecated v3.0.0 file replaced by 9 focused v4.0.0 files.
 
 ---

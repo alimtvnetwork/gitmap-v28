@@ -1,6 +1,6 @@
 # 10 — Last-Release Detection
 
-**Version:** 1.0.0  
+**Version:** 1.0.0
 **Updated:** 2026-04-17
 
 ---

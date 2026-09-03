@@ -1,7 +1,7 @@
 # Consistency Report: Error Architecture
 
-**Version:** 3.2.0  
-**Generated:** 2026-04-01  
+**Version:** 3.2.0
+**Generated:** 2026-04-01
 **Health Score:** 98/100 (A+)
 
 ---

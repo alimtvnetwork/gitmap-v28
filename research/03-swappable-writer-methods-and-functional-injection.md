@@ -1,9 +1,9 @@
 # Swappable Writer Methods & Functional Injection Architecture
 
-> **Status:** Proposal & Architectural Exploration  
-> **Date:** 2026-09-03  
-> **Target Package:** `04-code/golang/pkg/applogger` and `pkg/writer`  
-> **Topic:** 4 Distinct Patterns for Swappable Write Methods, Functional Injection via Options, and Log-Agnostic Payloads  
+> **Status:** Proposal & Architectural Exploration
+> **Date:** 2026-09-03
+> **Target Package:** `04-code/golang/pkg/applogger` and `pkg/writer`
+> **Topic:** 4 Distinct Patterns for Swappable Write Methods, Functional Injection via Options, and Log-Agnostic Payloads
 
 ---
 
@@ -12,6 +12,7 @@
 In conventional logging frameworks, a writer's internal execution logic is fixated: the `Write` method is baked into the struct, forcing consumers to subclass or implement an entirely new struct just to tweak formatting, add prefixes, or handle non-log payloads.
 
 ### Key Goals:
+
 1. **Swappable Write Method:** The `Write` behavior itself should be swappable at runtime or injected via `Options`.
 2. **Log-Agnostic (Dual Mode):** The writer must support both structured log events (`LogRecord`) and arbitrary payloads (raw bytes, JSON objects, domain events, metrics).
 3. **Composable via Options:** Consumers can customize behavior cleanly via functional options:
@@ -27,6 +28,7 @@ In conventional logging frameworks, a writer's internal execution logic is fixat
 ## 2. Pattern 1: Functional Delegate Injection (First-Class `WriteFunc`)
 
 ### Concept
+
 The writer contains a `writeMethod` function field. The public `Write(ctx, payload)` method delegates directly to this function. Default implementations provide standard text/JSON outputs, but users can inject any custom function via Options or setters.
 
 ```
@@ -47,6 +49,7 @@ The writer contains a `writeMethod` function field. The public `Write(ctx, paylo
 ```
 
 ### Complete Implementation
+
 ```go
 package writer
 
@@ -120,6 +123,7 @@ func (w *FunctionalWriter) defaultTextWrite(ctx context.Context, payload any) er
 ```
 
 ### Usage Example
+
 ```go
 // 1. Using default write method
 w := writer.NewFunctionalWriter(writer.Options{Name: "console"})
@@ -147,6 +151,7 @@ w.SetWriteMethod(func(ctx context.Context, payload any) error {
 ## 3. Pattern 2: Composable Pipeline (Decoupled `FormatFunc` + `EmitFunc`)
 
 ### Concept
+
 Deconstructs writing into two distinct functions:
 1. **Formatter Function:** `type FormatFunc func(payload any) ([]byte, error)`
 2. **Emitter Function:** `type EmitFunc func(ctx context.Context, data []byte) error`
@@ -232,6 +237,7 @@ func (p *PipelineWriter) SetEmitter(fn EmitFunc) {
 ```
 
 ### Usage Example
+
 ```go
 // Default text pipeline
 pw := writer.NewPipelineWriter(writer.PipelineOptions{Name: "pipeline"})
@@ -253,6 +259,7 @@ pw.SetEmitter(func(ctx context.Context, data []byte) error {
 ## 4. Pattern 3: Polymorphic Contract with Method Slot Overrides (AUK Go Style)
 
 ### Concept
+
 Inspired by AUK Go's `LogDefinerWriter` and `AllLogWriter`. The writer provides multiple specialized entry points (`Write`, `WriteLog`, `WriteRaw`), but each method points to an internal function slot that users can override individually.
 
 ```go
@@ -361,6 +368,7 @@ func (s *SlotWriter) defaultWriteAny(ctx context.Context, item any) error {
 ## 5. Pattern 4: Generic Dual-Channel Streamer (`Writer[T]`)
 
 ### Concept
+
 Uses Go 1.18+ Generics to provide 100% type safety with zero interface boxing/unboxing overhead. Can be instantiated for `LogRecord` (log-based), `[]byte` (raw), or `any` (universal).
 
 ```go
@@ -401,6 +409,7 @@ func (s *Streamer[T]) SetWriteMethod(fn GenericWriteFunc[T]) {
 ```
 
 ### Usage Example
+
 ```go
 // Type-safe for structured LogRecord:
 logStreamer := writer.NewStreamer(

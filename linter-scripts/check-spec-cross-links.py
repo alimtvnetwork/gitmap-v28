@@ -106,19 +106,19 @@ def strip_spec_placeholders(text: str) -> str:
         # Preserve newlines so line numbers in surrounding prose stay
         # accurate; replace every other char with a space.
         return "".join(ch if ch == "\n" else " " for ch in body)
-    
+
     # Strip <spec-placeholder> blocks
     text = SPEC_PLACEHOLDER_RE.sub(_blank, text)
-    
+
     # Strip markdown fenced code blocks (```...```)
     text = re.sub(r"```.*?```", _blank, text, flags=re.DOTALL)
-    
+
     # Strip double backtick inline code blocks (``...``)
     text = re.sub(r"``.*?``", _blank, text, flags=re.DOTALL)
-    
+
     # Strip inline code blocks (`...`)
     text = re.sub(r"`[^`\n]+`", _blank, text)
-    
+
     return text
 
 

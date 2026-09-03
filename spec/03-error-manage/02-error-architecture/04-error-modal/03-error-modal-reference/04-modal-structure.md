@@ -1,7 +1,7 @@
 # Modal Structure & Components
 
-> **Parent:** [Error Modal Reference](./00-overview.md)  
-> **Version:** 2.3.0  
+> **Parent:** [Error Modal Reference](./00-overview.md)
+> **Version:** 2.3.0
 > **Updated:** 2026-04-09
 
 ---

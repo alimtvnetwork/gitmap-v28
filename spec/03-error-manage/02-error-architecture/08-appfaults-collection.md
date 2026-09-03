@@ -1,8 +1,8 @@
 # Specification: `appfaults` Error Collection Architecture
 
-**Version:** 3.3.1  
-**Status:** Complete & Enforced  
-**Package:** `04-code/golang/pkg/appfaults`  
+**Version:** 3.3.1
+**Status:** Complete & Enforced
+**Package:** `04-code/golang/pkg/appfaults`
 **Reference Implementations:** `https://gitlab.com/auk-go/errorwrapper` (`errwrappers.Collection`, `errwrappers.MutexCollection`)
 
 ---

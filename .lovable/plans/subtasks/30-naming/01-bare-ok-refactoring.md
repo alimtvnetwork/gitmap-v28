@@ -1,9 +1,11 @@
 # Subtask 01 - Bare `ok` Refactoring to Semantic Affirmative Booleans
 
 ## Parent Specification
+
 [30-naming-conventions-audit.md](.lovable/plans/pending/30-naming-conventions-audit.md)
 
 ## Acceptance Criteria & Requirements
+
 - Replace bare `ok` in `gitmap/cliexit/kind.go`:
   - `code, isFound := kindCodes[k]`
   - `label, isFound := kindLabels[k]`

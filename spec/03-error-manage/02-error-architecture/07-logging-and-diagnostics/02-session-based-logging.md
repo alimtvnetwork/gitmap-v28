@@ -1,8 +1,8 @@
 # Specification: Session-Based Logging System
 
-**Version:** 3.2.0  
-**Created:** 2026-02-06  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Created:** 2026-02-06
+**Updated:** 2026-04-16
 **Status:** Implemented
 
 ---
@@ -136,26 +136,26 @@ The session-based logging system provides complete request/response traceability
 type RequestSession struct {
     // Identity
     Id string // UUID v4
-    
+
     // Request Data
     Method         string
     Path           string
     QueryString    string            `json:",omitempty"`
     RequestHeaders map[string]string
     RequestBody    string            `json:",omitempty"`
-    
+
     // Response Data
     ResponseStatus int
     ResponseBody   string `json:",omitempty"`
-    
+
     // Timing
     StartTime  time.Time
     EndTime    time.Time
     DurationMs int64
-    
+
     // Error (extracted from response if status >= 400)
     Error string `json:",omitempty"`
-    
+
     // Delegated Request (v2.0.0) — captured when Go proxies to external service
     DelegatedRequest *DelegatedRequestInfo `json:",omitempty"`
 }

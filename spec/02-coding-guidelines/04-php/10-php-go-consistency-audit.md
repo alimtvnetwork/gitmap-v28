@@ -1,7 +1,7 @@
 # PHP–Go Cross-Language Consistency Audit
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-02-23  
+> **Version:** 1.0.0
+> **Updated:** 2026-02-23
 > **Status:** All phases complete
 
 ---

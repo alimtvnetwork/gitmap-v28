@@ -1,8 +1,8 @@
 # Null Pointer Safety
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Applies to:** Go (primary), general principle cross-language  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Applies to:** Go (primary), general principle cross-language
 **Source:** Consolidated from `01-pre-code-review-guides/03-golang-code-review-guides.md`
 
 ---

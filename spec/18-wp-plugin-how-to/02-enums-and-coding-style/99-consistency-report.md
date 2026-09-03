@@ -1,6 +1,6 @@
 # Consistency Report — WP Plugin Enums and Coding Style
 
-**Version:** 1.0.0  
+**Version:** 1.0.0
 **Updated:** 2026-04-16
 
 ---

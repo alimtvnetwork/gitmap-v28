@@ -29,12 +29,16 @@ pl-ai, plai, pipeline_ai
 ## Examples
 
 ```bash
+
 # Auto-delay for 20s then query pipeline status
+
 gitmap pipeline-ai status
 
 # Auto-delay for 75s (based on previous ETA) then query
+
 gitmap pipeline-ai status -t 75
 
 # Machine-readable JSON output for AI automation
+
 gitmap pipeline-ai status -t 30 --json
 ```

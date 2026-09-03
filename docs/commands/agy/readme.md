@@ -24,4 +24,5 @@ Manage Google Antigravity workspaces, prompts, deduplication, and conversation h
 | [`sync-and-backup.md`](./sync-and-backup.md) | `gitmap agy sync`, `export`, `import` | Sync repos to workspaces and backup configurations |
 
 ## Overview
+
 Antigravity workspaces are stored as JSON files under `~/.gemini/config/projects/*.json` and conversation histories are recorded in SQLite databases under `~/.gemini/antigravity/conversations/*.db`.

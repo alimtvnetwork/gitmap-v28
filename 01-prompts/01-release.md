@@ -209,6 +209,7 @@ Ambiguity is not a license to guess. It is a file to write.
 New question file shape:
 
 ```markdown
+
 # <one-line question>
 
 Slug: <slug>
@@ -224,6 +225,7 @@ Blocking: release {{version}}
 ## Options considered
 
 ## Impact if guessed wrong
+
 ```
 
 When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `Status: resolved`, and append a `## Resolution` block (`Answered:`, `Answer:`, `Applied solution:`). Never leave a copy behind. Do NOT confuse ambiguities with release issues: unknown version source, unclear bump policy, or missing changelog target = ambiguity; a failed step during the release run = `.lovable/release/issues/`.

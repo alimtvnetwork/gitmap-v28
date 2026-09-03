@@ -1,14 +1,14 @@
 # Centralized Error Handling Architecture & Anti-Pattern Elimination
 
-> **Version:** 1.0.0  
-> **Status:** Mandatory / Canonical  
+> **Version:** 1.0.0
+> **Status:** Mandatory / Canonical
 > **Target:** Cross-Stack (Go, TypeScript, Python, C#, Rust)
 
 ---
 
 ## 1. Executive Summary & The Problem
 
-In modern software systems, improper error handling is one of the leading causes of production outages, un-debuggable incidents, and degraded user experience. 
+In modern software systems, improper error handling is one of the leading causes of production outages, un-debuggable incidents, and degraded user experience.
 
 When encountering abnormal conditions, poorly designed code typically falls into one of two destructive extremes:
 1. **The Chaotic Crash Anti-Pattern** (e.g. `panic("fatal error")`, `throw "error"`): Dumps raw runtime internals, frame pointers, or meaningless strings directly to the user, bypassing structured telemetry and resource cleanup.
@@ -188,8 +188,8 @@ export class AppError extends Error {
 }
 
 export function handleError(error: unknown): void {
-  const appError = error instanceof AppError 
-    ? error 
+  const appError = error instanceof AppError
+    ? error
     : new AppError({
         op: "unknown",
         code: "E9000",

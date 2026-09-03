@@ -1,6 +1,6 @@
 # Consolidated: Docs Viewer UI — Complete Reference
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -109,7 +109,7 @@ All colors stored as HSL channels in CSS custom properties. Components reference
 ```typescript
 const isInputFocused = () => {
   const el = document.activeElement;
-  return el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || 
+  return el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' ||
          el?.getAttribute('contenteditable') === 'true';
 };
 ```

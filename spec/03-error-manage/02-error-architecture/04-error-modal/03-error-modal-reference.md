@@ -1,9 +1,9 @@
 # Error Modal — Frontend Specification
 
-> **Version:** 2.1.0  
-> **Updated:** 2026-03-09  
-> **Status:** Active  
-> **Location:** `src/components/errors/`  
+> **Version:** 2.1.0
+> **Updated:** 2026-03-09
+> **Status:** Active
+> **Location:** `src/components/errors/`
 > **Purpose:** Comprehensive specification for the Global Error Modal — how errors are captured, enriched, displayed, and exported across the React → Go → Delegated Server request chain.
 
 ---
@@ -223,7 +223,7 @@ When an API call fails, the client extracts envelope data:
 export function parseEnvelope(response: unknown): ParsedEnvelope | null {
   if (!response || typeof response !== 'object') return null;
   const r = response as Record<string, unknown>;
-  
+
   // Detect Universal Response Envelope (PascalCase)
   if (r.Status && r.Attributes && r.Results) {
     const status = r.Status as { IsSuccess: boolean; Code: number; Message: string };
@@ -233,7 +233,7 @@ export function parseEnvelope(response: unknown): ParsedEnvelope | null {
       SessionId?: string;
       HasAnyErrors?: boolean;
     };
-    
+
     return {
       isSuccess: status.IsSuccess,
       code: status.Code,
@@ -258,19 +258,19 @@ export function parseEnvelope(response: unknown): ParsedEnvelope | null {
 // src/stores/errorStore.ts
 captureError: (apiError, meta) => {
   const captured = buildCapturedError(apiError, meta);
-  
+
   // Enrich with UI click path (last 10 clicks)
   const clickPath = getClickPathForError();
   captured.uiClickPath = clickPath.events;
   captured.uiClickPathString = clickPath.formatted;
-  
+
   // Enrich with React execution logs (if debug mode enabled)
   const execLogs = getExecutionLogsForError();
   captured.executionLogs = execLogs.entries;
   captured.executionChain = execLogs.chain;
   captured.executionLogsEnabled = execLogs.enabled;
   captured.executionLogsFormatted = execLogs.formatted;
-  
+
   // Extract envelope diagnostic fields
   if (apiError.envelope) {
     captured.requestedAt = apiError.envelope.requestedAt;
@@ -279,7 +279,7 @@ captureError: (apiError, meta) => {
     captured.envelopeErrors = apiError.envelope.errors;
     captured.envelopeMethodsStack = apiError.envelope.methodsStack;
   }
-  
+
   commitErrorToStore(captured);
 
   return captured;
@@ -929,7 +929,7 @@ const hasDelegatedServer = error.delegatedRequestServer || error.envelopeErrors?
           <div className="w-2 h-2 rounded-full bg-purple-500" />
           Delegated Server Details
         </h4>
-        <Button variant="ghost" size="sm" onClick={() => copySection("Delegated Server", 
+        <Button variant="ghost" size="sm" onClick={() => copySection("Delegated Server",
           `Endpoint: ${ds.DelegatedEndpoint}\nMethod: ${ds.Method}\nStatus: ${ds.StatusCode}\n` +
           (ds.StackTrace?.join('\n') || '') + '\n' + (ds.AdditionalMessages || '')
         )}>
@@ -1136,7 +1136,7 @@ async function enablePlugin(slug: string, siteId: number) {
       slug,
       siteId,
     });
-    
+
     if (!response.success) {
       useErrorStore.getState().captureError(response.error!, {
         endpoint: '/api/v1/plugins/enable',
@@ -1174,7 +1174,7 @@ import { useErrorStore } from '@/stores/errorStore';
 
 function MyComponent() {
   const { openErrorModal, captureException } = useErrorStore();
-  
+
   const handleDangerousAction = async () => {
     try {
       await riskyOperation();
@@ -1189,7 +1189,7 @@ function MyComponent() {
     }
 
   };
-  
+
   return <Button onClick={handleDangerousAction}>Do Something</Button>;
 }
 ```

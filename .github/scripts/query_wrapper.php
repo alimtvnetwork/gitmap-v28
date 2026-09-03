@@ -19,7 +19,7 @@ class QueryResult {
 
 /**
  * Wraps an operation (API, database, or command logic), catching exceptions,
- * logging errors explicitly to stderr without scattered try/catch, 
+ * logging errors explicitly to stderr without scattered try/catch,
  * and returning a structured result with explicit `isSuccess` and `isFail` properties.
  */
 function query_wrapper(callable $operation, ...$args): QueryResult {
@@ -29,8 +29,7 @@ function query_wrapper(callable $operation, ...$args): QueryResult {
     } catch (Exception $e) {
         // Explicitly log the caught error to stderr
         file_put_contents('php://stderr', "[QueryWrapper Error]: " . $e->getMessage() . PHP_EOL);
-        
+
         return new QueryResult(null, $e, false, true);
     }
 }
-

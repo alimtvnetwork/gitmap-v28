@@ -1,7 +1,7 @@
 # ⚠️ THIS FILE HAS BEEN SPLIT INTO A SUBFOLDER
 
-> **Moved to:** [01-copy-formats/00-overview.md](./01-copy-formats/00-overview.md)  
-> **Date:** 2026-03-31  
+> **Moved to:** [01-copy-formats/00-overview.md](./01-copy-formats/00-overview.md)
+> **Date:** 2026-03-31
 > **Reason:** 871-line file split into 10 focused files for easier AI consumption.
 
 ---

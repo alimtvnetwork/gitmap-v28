@@ -53,6 +53,7 @@ The `.lovable/` directory functions as the cognitive workspace for autonomous AI
 ## 3. Detailed Mapping: Code, Specs, Docs to `.lovable/`
 
 ### A. CLI Commands: Source $\leftrightarrow$ Docs $\leftrightarrow$ `.lovable`
+
 - **Implementation:** `gitmap/cmd/<command>.go`
 - **Terminal Help:** `gitmap/helptext/<command>.md`
 - **User Documentation:** `docs/commands/<category>/<subcommand>.md`
@@ -60,12 +61,14 @@ The `.lovable/` directory functions as the cognitive workspace for autonomous AI
 - **AI Agent Tracking:** `.lovable/memory/features/cli-commands.md`
 
 ### B. Architectural Decisions & Database
+
 - **Master & Split DB Engine:** `gitmap/db/` & `gitmap/cmd/cmddb_*.go`
 - **Formal Spec:** `spec/21-app/120-database-suite-and-start-fresh.md`
 - **User Guide:** `docs/commands/db/readme.md` & `docs/commands/db/start-fresh.md`
 - **Agent Guidelines:** `.lovable/coding-guidelines/` & `.lovable/memory/constraints/`
 
 ### C. Antigravity (AGY) Integration
+
 - **Implementation:** `gitmap/cmd/agy_*.go`
 - **Formal Spec:** `spec/21-app/122-antigravity-empty-conversations-pruner.md`
 - **User Guide:** `docs/commands/agy/readme.md` & `docs/commands/agy/ls.md`

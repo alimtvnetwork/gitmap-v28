@@ -1,7 +1,7 @@
 # Consolidated Code Review Guide
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
 **Scope:** All Languages (Go, TypeScript, PHP, C#, Rust)
 
 ---

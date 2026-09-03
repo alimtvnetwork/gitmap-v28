@@ -15,6 +15,7 @@ Pipeline split databases are isolated per repository slug to ensure zero lock co
 All schemas adhere strictly to `spec/04-database-conventions/` and `spec/05-split-db-architecture/`:
 
 ### Table: `PipelineRun`
+
 Tracks historical workflow runs and completion duration baselines.
 
 ```sql
@@ -39,6 +40,7 @@ CREATE TABLE IF NOT EXISTS PipelineRun (
 ```
 
 ### Table: `PipelineErrorLog`
+
 Isolates and records targeted CI/CD failure errors, stack traces, and failing steps.
 
 ```sql
@@ -57,6 +59,7 @@ CREATE TABLE IF NOT EXISTS PipelineErrorLog (
 ```
 
 ### Table: `PipelineSegment`
+
 Tracks individual step and job execution runtimes to power segment-level ETA estimations.
 
 ```sql

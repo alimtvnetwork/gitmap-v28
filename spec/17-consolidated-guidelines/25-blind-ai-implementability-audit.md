@@ -1,8 +1,8 @@
 # Blind-AI Implementability Audit — Critical Gap Analysis
 
-**Version:** 1.0.0  
-**Updated:** 2026-04-22  
-**Scope:** `spec/17-consolidated-guidelines/` + `03-error-management.md` only  
+**Version:** 1.0.0
+**Updated:** 2026-04-22
+**Scope:** `spec/17-consolidated-guidelines/` + `03-error-management.md` only
 **Question:** _If a "blind AI" — one with zero access to source specs, source code, or prior conversations — receives only the consolidated folder, how far can it go before failing?_
 
 ---

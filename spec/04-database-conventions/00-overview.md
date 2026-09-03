@@ -1,9 +1,9 @@
 # Database Conventions
 
-**Version:** 3.2.0  
-**Status:** Active  
-**Updated:** 2026-04-16  
-**AI Confidence:** Production-Ready  
+**Version:** 3.2.0
+**Status:** Active
+**Updated:** 2026-04-16
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---
@@ -127,8 +127,8 @@ _Auto-generated section — see `spec/04-database-conventions/97-acceptance-crit
 
 ### AC-DB-000: Database convention conformance: Overview
 
-**Given** Run the SQL schema linter against your DDL files.  
-**When** Run the verification command shown below.  
+**Given** Run the SQL schema linter against your DDL files.
+**When** Run the verification command shown below.
 **Then** Every table is PascalCase singular; PK is `<TableName>Id INTEGER PRIMARY KEY AUTOINCREMENT`; columns are `NOT NULL` unless waived; no `createdAt`, `created_at`, `UUID` tokens.
 
 **Verification command:**

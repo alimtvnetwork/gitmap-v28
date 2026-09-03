@@ -35,15 +35,20 @@ gitmap create [repo] <name> [flags]
 ## Examples
 
 ```bash
+
 # Create private repository using default Git profile
+
 gitmap create my-api
 
 # Create repository explicitly under an organization
+
 gitmap create web-client --org riseup-asia --public
 
 # Create local-only repository without pushing to remote
+
 gitmap create scratch-tool --no-remote
 
 # Structured JSON output for CI/CD automation
+
 gitmap create pipeline-tester --json
 ```

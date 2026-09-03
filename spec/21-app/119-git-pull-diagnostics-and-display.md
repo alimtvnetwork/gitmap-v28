@@ -2,12 +2,12 @@
 
 ## Overview
 
-**Module Number:** 119  
-**Version:** 1.0.0  
-**Updated:** 2026-09-03  
-**Status:** Production-Ready  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
+**Module Number:** 119
+**Version:** 1.0.0
+**Updated:** 2026-09-03
+**Status:** Production-Ready
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
 
 ---
 
@@ -65,11 +65,13 @@ Diagnosis: non-unlink git pull failure (check auth/merge or run pull manually fo
 ## Acceptance Criteria
 
 ### Scenario 1: Clean Fast-Forward Pull
+
 - **Given** a workspace with 10 repositories all cleanly tracking remotes
 - **When** `gitmap pull` is executed
 - **Then** each repository is pulled concurrently, and the terminal renders the table with green `UP_TO_DATE` or cyan `UPDATED` status with duration timers.
 
 ### Scenario 2: Non-Unlink Collision Diagnosis
+
 - **Given** local untracked files that conflict with incoming remote commits
 - **When** `gitmap pull` encounters `error: Your local changes to the following files would be overwritten by merge`
 - **Then** the diagnostic engine flags a `non-unlink git pull failure`, highlights the colliding files, and outputs the exact cleanup command:

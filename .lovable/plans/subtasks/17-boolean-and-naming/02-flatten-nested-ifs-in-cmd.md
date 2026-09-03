@@ -1,6 +1,6 @@
 # Subtask 02: Flatten Nested If Statements in `gitmap/cmd`
 
-> **Parent Plan:** `17-boolean-and-naming-audit.md`  
+> **Parent Plan:** `17-boolean-and-naming-audit.md`
 > **Scope:** `gitmap/cmd/*.go`
 
 ## Objective

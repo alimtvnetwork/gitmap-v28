@@ -11,7 +11,7 @@ A full codebase audit was performed to locate and fix violations of the strict c
 
 1. **Inverted Booleans (`!isSuccess`)**: 0 violations found.
 2. **TS String Union Types**: 0 violations found.
-3. **Query Wrappers**: 
+3. **Query Wrappers**:
    - TS Wrapper exists (`src/lib/queryWrapper.ts`).
    - Python Wrapper exists (`.github/scripts/query_wrapper.py`).
    - PHP Wrapper created (`.github/scripts/query_wrapper.php`).

@@ -1,7 +1,7 @@
 # 🔴 CODE RED: No Generated Code, Artifacts, or Test Results
 
-**Status:** Active  
-**AI Confidence:** Production-Ready  
+**Status:** Active
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---
@@ -31,9 +31,9 @@ Under no circumstances should any generated code (e.g., ORM models, gRPC stubs, 
 > 🛑 **MANDATORY INSTRUCTION FOR AI:**
 >
 > If you are instructed to run a test suite, compile a binary, or execute a script that produces an output file, you MUST NOT commit those outputs to the Git repository.
-> 
+>
 > If you notice that an action you performed has generated a new test report or binary, you must ensure that it is either ignored via `.gitignore` or deleted before you stage files using `git add`.
-> 
+>
 > **Never blindly run `git add .` without verifying that generated artifacts are safely ignored.**
 
 ## Enforcement

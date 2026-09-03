@@ -13,7 +13,7 @@
 combine_path() {
     local path1="$1"
     local path2="$2"
-    
+
     # Remove trailing slash from path1 if it exists
     if [[ "$path1" == */ ]]; then
         path1="${path1%/}"

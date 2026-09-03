@@ -1,12 +1,12 @@
 # Error Modal — Frontend Specification (Index)
 
-> **Parent:** [Error Modal Spec](../00-overview.md)  
-> **Version:** 2.2.0  
-> **Updated:** 2026-03-31  
-> **Status:** Active  
-> **Location:** `src/components/errors/`  
-> **AI Confidence:** 95%  
-> **Ambiguity Score:** 5%  
+> **Parent:** [Error Modal Spec](../00-overview.md)
+> **Version:** 2.2.0
+> **Updated:** 2026-03-31
+> **Status:** Active
+> **Location:** `src/components/errors/`
+> **AI Confidence:** 95%
+> **Ambiguity Score:** 5%
 > **Purpose:** Comprehensive specification for the Global Error Modal — how errors are captured, enriched, displayed, and exported across the React → Go → Delegated Server request chain.
 
 ---

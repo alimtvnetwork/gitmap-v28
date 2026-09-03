@@ -1,7 +1,7 @@
 # Traversal Details
 
-> **Parent:** [Error Modal Reference](./00-overview.md)  
-> **Version:** 2.2.0  
+> **Parent:** [Error Modal Reference](./00-overview.md)
+> **Version:** 2.2.0
 > **Updated:** 2026-03-31
 
 ---
@@ -48,7 +48,7 @@ const hasDelegatedServer = error.delegatedRequestServer || error.envelopeErrors?
           <div className="w-2 h-2 rounded-full bg-purple-500" />
           Delegated Server Details
         </h4>
-        <Button variant="ghost" size="sm" onClick={() => copySection("Delegated Server", 
+        <Button variant="ghost" size="sm" onClick={() => copySection("Delegated Server",
           `Endpoint: ${ds.DelegatedEndpoint}\nMethod: ${ds.Method}\nStatus: ${ds.StatusCode}\n` +
           (ds.StackTrace?.join('\n') || '') + '\n' + (ds.AdditionalMessages || '')
         )}>

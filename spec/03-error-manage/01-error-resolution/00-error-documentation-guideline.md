@@ -1,8 +1,8 @@
 # Error Documentation Guideline
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**AI Confidence:** Production-Ready  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---
@@ -27,8 +27,8 @@ File naming: `YYYY-MM-DD-short-description.md` (e.g., `2026-04-02-cors-header-mi
 
 # Issue: [Short Title]
 
-**Date:** YYYY-MM-DD  
-**Severity:** Critical | High | Medium | Low  
+**Date:** YYYY-MM-DD
+**Severity:** Critical | High | Medium | Low
 **Status:** Resolved
 
 ---

@@ -1,8 +1,8 @@
 # Go Utility Packages: `pathutil` and `fileutil`
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-03-31  
-> **Applies to:** All Go backend code  
+> **Version:** 1.0.0
+> **Updated:** 2026-03-31
+> **Applies to:** All Go backend code
 > **Cross-refs:** [no-negatives](../01-cross-language/12-no-negatives.md), [golang-standards-reference](./04-golang-standards-reference/00-overview.md), [error-code-registry](../../03-error-manage/03-error-code-registry/01-registry.md#gen-700-file-system)
 
 ---

@@ -61,7 +61,7 @@ if is_package_installed helm; then
 else
     # Call the function to download and install the specified or default version of Helm
     download_helm "${1:-3.16.2}"
-    
+
     # Verify the installation
     log_msg_ip "Helm version:"
     helm version

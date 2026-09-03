@@ -6,6 +6,7 @@ Repository split databases store file sequence maps, full-text indexes, and sear
 - **Location:** `<BinaryDataDir>/repo_search/<slug>-<id>.db`
 
 ### Table: `RepoScanLog`
+
 Tracks repository synchronization events, indexing runs, and errors.
 
 ```sql

@@ -1,6 +1,6 @@
 # 08 — Code Block System
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -91,8 +91,8 @@ _Auto-generated section — see `spec/09-code-block-system/97-acceptance-criteri
 
 ### AC-CB-000: Code-block system conformance: Overview
 
-**Given** Render fenced code blocks (incl. nested 4-backtick fences) and checklist blocks from the spec tree.  
-**When** Run the verification command shown below.  
+**Given** Render fenced code blocks (incl. nested 4-backtick fences) and checklist blocks from the spec tree.
+**When** Run the verification command shown below.
 **Then** Nested fences preserve backtick counts; clipboard copy returns exact source; tree rendering matches the constants map.
 
 **Verification command:**

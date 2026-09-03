@@ -1,7 +1,7 @@
 # Collision Resolution Summary Report
 
 > Generated: 2026-02-28 | Source: `spec/03-error-manage/03-error-code-registry/01-registry.md`
-**Version:** 3.2.0  
+**Version:** 3.2.0
 
 ## Overview
 

@@ -1,7 +1,7 @@
 # Design System Tokens & Error Level Colors
 
-> **Parent:** [Color Themes Index](./00-overview.md)  
-> **Version:** 2.1.0  
+> **Parent:** [Color Themes Index](./00-overview.md)
+> **Version:** 2.1.0
 > **Updated:** 2026-03-31
 
 ---

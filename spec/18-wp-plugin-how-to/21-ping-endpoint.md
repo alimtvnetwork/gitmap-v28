@@ -1,9 +1,9 @@
 # Phase 21 — Ping Endpoint
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-04-16  
-> **AI Confidence:** Production-Ready  
-> **Ambiguity:** None  
+> **Version:** 1.0.0
+> **Updated:** 2026-04-16
+> **AI Confidence:** Production-Ready
+> **Ambiguity:** None
 > **Purpose:** Define the standard ping endpoint that every WordPress plugin must implement. The ping endpoint returns author, company, and version information. It supports both authorized and non-authorized modes, configurable per plugin.
 
 ---

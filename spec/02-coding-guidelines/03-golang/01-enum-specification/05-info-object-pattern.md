@@ -1,7 +1,7 @@
 # Info-Object Pattern for Go Enums
 
-**Version:** 3.2.0  
-**Status:** Complete  
+**Version:** 3.2.0
+**Status:** Complete
 **Updated:** 2026-04-16
 
 ---

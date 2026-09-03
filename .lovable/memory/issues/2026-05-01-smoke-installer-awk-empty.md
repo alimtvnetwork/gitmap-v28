@@ -1,7 +1,7 @@
 # RCA — installer-smoke (release) failed with "Binary not found at $DEST/gitmap"
 
-**Date:** 2026-05-01  
-**Workflow:** `.github/workflows/release.yml` → job `installer-smoke` → `.github/scripts/smoke-installer.sh release`  
+**Date:** 2026-05-01
+**Workflow:** `.github/workflows/release.yml` → job `installer-smoke` → `.github/scripts/smoke-installer.sh release`
 **Symptom:**
 
 ```

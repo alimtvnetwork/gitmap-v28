@@ -66,22 +66,28 @@ To prevent large output logs from bloating the main database, GitMap uses a **Sp
 ## Examples
 
 ```bash
+
 # 1. Schedule a saved macro to run every 2 hours
+
 gitmap schedule add backup-job --macro backup-db --every 2h
 
 # 2. Schedule on-the-fly commands to run daily with a 10-second initial sleep
+
 gitmap schedule add daily-clean "npm run clean && npm run build" --day 1 --delay 10s
 
 # 3. View execution history and logs for a schedule
+
 gitmap schedule log "daily-clean"
 gitmap schedule log "daily-clean" --json -f "clean_log.json"
 gitmap schedule log "daily-clean" --yaml -f "clean_log.yaml"
 
 # 4. View single task status
+
 gitmap schedule status "daily-clean"
 gitmap schedule status "daily-clean" --json
 
 # 5. Export single or all schedules (auto-infers format from file extension)
+
 gitmap schedule export "daily-clean" -f "daily-clean.json"
 gitmap schedule export-all -f "schedules_backup.yaml"
 gitmap schedule export-all -f "schedules_archive.zip"
@@ -89,20 +95,25 @@ gitmap schedule export-all -f "schedules_backup.db"
 gitmap schedule export-all --json -except "backup-job, test-task" -f "all_except.json"
 
 # 6. Import schedules into root and split databases
+
 gitmap schedule import "daily-clean.json"
 gitmap schedule import-all -f "schedules_archive.zip" -except "deprecated-task"
 
 # 7. Disable and re-enable a schedule
+
 gitmap schedule disable daily-clean
 gitmap schedule enable daily-clean
 
 # 8. Reset execution logs for a schedule
+
 gitmap schedule reset daily-clean
 
 # 9. Test run a scheduled task immediately 3 times
+
 gitmap schedule test daily-clean --times 3
 
 # 10. Execute on demand
+
 gitmap schedule run backup-job
 ```
 

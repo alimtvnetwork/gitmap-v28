@@ -1,7 +1,7 @@
 # Validation Checklist
 
-**Version:** 3.2.0  
-**Status:** Complete  
+**Version:** 3.2.0
+**Status:** Complete
 **Updated:** 2026-04-16
 
 ---
@@ -106,8 +106,8 @@ grep -rn 'Provider.*=' --include="*.go" .
 
 # Enum Compliance Audit: {CLI Name}
 
-**Date:** YYYY-MM-DD  
-**Auditor:** AI/Human  
+**Date:** YYYY-MM-DD
+**Auditor:** AI/Human
 **Version:** X.X.X
 
 ## Summary

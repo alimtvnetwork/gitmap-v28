@@ -1,6 +1,6 @@
 # Consolidated: App Specifications
 
-**Version:** 3.3.0  
+**Version:** 3.3.0
 **Updated:** 2026-04-16
 
 ---
@@ -33,8 +33,8 @@ An AI reading only this file must be able to create, organize, and review app-sp
 
 # App Spec: [Feature/Topic Title]
 
-**Version:** 1.0.0  
-**Status:** Draft | Review | Approved | Implemented  
+**Version:** 1.0.0
+**Status:** Draft | Review | Approved | Implemented
 **Created:** YYYY-MM-DD
 
 ---

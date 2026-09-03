@@ -30,7 +30,7 @@ update_permissions() {
     sudo git pull --ff-only
     sudo chown -R "$user:$user" "$repoRoot"
     echo ""
-    
+
     ls -la
 
     sudo chown -R "$user:$user" "$curDir"

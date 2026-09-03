@@ -1,7 +1,7 @@
 # Consistency Report: Copy Formats
 
-**Version:** 3.2.0  
-**Generated:** 2026-04-02  
+**Version:** 3.2.0
+**Generated:** 2026-04-02
 **Health Score:** 100/100 (A+)
 
 ---

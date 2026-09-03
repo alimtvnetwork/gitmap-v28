@@ -1,9 +1,9 @@
 # Codebase Type Safety Remediation Plan
 
-> **Created:** 2026-02-12  
-**Version:** 3.2.0  
-> **Priority:** CRITICAL  
-> **Spec Reference:** `spec/02-coding-guidelines/02-typescript/08-typescript-standards-reference.md` v2.0.0  
+> **Created:** 2026-02-12
+**Version:** 3.2.0
+> **Priority:** CRITICAL
+> **Spec Reference:** `spec/02-coding-guidelines/02-typescript/08-typescript-standards-reference.md` v2.0.0
 > **Goal:** Eliminate all `any`, `unknown`, `Record<string, unknown>`, string union types, and magic strings/numbers — use proper enums with PascalCase values and typed generics
 
 ---

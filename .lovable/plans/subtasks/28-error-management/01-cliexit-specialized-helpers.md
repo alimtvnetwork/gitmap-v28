@@ -1,9 +1,11 @@
 # Subtask 01 - Cliexit Specialized Helpers & ExitCodeType Enum
 
 ## Parent Specification
+
 [28-error-management-audit.md](.lovable/plans/pending/28-error-management-audit.md)
 
 ## Acceptance Criteria & Requirements
+
 - Define `ExitCodeType` enum in `gitmap/cliexit/handle.go`:
   - `ExitCodeSuccess ExitCodeType = 0`
   - `ExitCodeGeneralError ExitCodeType = 1`

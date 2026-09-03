@@ -1,8 +1,8 @@
 # Condensed Master Coding Guidelines — AI Context Reference
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Last synced with master:** 2026-03-31  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Last synced with master:** 2026-03-31
 **Purpose:** Sub-200-line distillation of [15-master-coding-guidelines.md](../01-cross-language/15-master-coding-guidelines/00-overview.md) for AI context windows. See also: [05-enum-naming-quick-reference.md](./05-enum-naming-quick-reference.md) for detailed enum rules.
 
 ---

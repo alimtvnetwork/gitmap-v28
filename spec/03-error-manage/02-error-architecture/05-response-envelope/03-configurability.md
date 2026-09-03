@@ -1,8 +1,8 @@
 # Envelope Configurability
 
 
-**Version:** 3.2.0  
-**Last Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Last Updated:** 2026-04-16
 
 This document describes which envelope sections are conditionally included and what backend settings control them.
 
@@ -54,16 +54,16 @@ All conditional sections use pointer types with `json:",omitempty"`. Redundant `
 
 ```go
 type Response struct {
-    Status       Status           
-    Attributes   Attributes       
-    Results      json.RawMessage  
+    Status       Status
+    Attributes   Attributes
+    Results      json.RawMessage
     Navigation   *Navigation      `json:",omitempty"`
     Errors       *Errors          `json:",omitempty"`
     MethodsStack *MethodsStack    `json:",omitempty"`
 }
 
 type Errors struct {
-    BackendMessage             string                  
+    BackendMessage             string
     DelegatedServiceErrorStack []string                `json:",omitempty"`
     Backend                    []string                `json:",omitempty"`
     Frontend                   []string                `json:",omitempty"`
@@ -71,9 +71,9 @@ type Errors struct {
 }
 
 type DelegatedRequestServer struct {
-    DelegatedEndpoint  string          
-    Method             string          
-    StatusCode         int             
+    DelegatedEndpoint  string
+    Method             string
+    StatusCode         int
     RequestBody        json.RawMessage `json:",omitempty"`
     Response           json.RawMessage `json:",omitempty"`
     StackTrace         []string        `json:",omitempty"`

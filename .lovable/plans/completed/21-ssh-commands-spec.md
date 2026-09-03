@@ -1,6 +1,6 @@
 # Goal
 
-Generate a generic, tool-agnostic AI Instruction Specification (`ssh-commands.md`) at the root of the repository to guide any AI agent in implementing a comprehensive SSH and SSH Profile management system for a CLI tool (referred to as `<cli>`). 
+Generate a generic, tool-agnostic AI Instruction Specification (`ssh-commands.md`) at the root of the repository to guide any AI agent in implementing a comprehensive SSH and SSH Profile management system for a CLI tool (referred to as `<cli>`).
 
 ## 50/50 Strategy Allocation
 

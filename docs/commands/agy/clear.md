@@ -35,22 +35,28 @@ When `gitmap agy clear` is run, it displays a structured preview table with IDs 
 ## Flag Examples
 
 ### 1. Preview Clearance with Table (`--dry-run`, `-d`)
+
 ```bash
 gitmap agy clear --dry-run
 ```
 
 ### 2. Exclude Based on ID, Slug, or Starts-With Text (`--except`, `-e`)
+
 ```bash
+
 # Exclude by ID prefix, directory slug, or name starts-with prefix:
+
 gitmap agy clear --except "1a9408cc, repo, wp-"
 ```
 
 ### 3. Clear Using Whitelist CSV File
+
 ```bash
 gitmap agy clear --except "my-whitelist.csv"
 ```
 
 ### 4. Non-Interactive Headless Mode (`--yes`, `-y`)
+
 ```bash
 gitmap agy clear --yes
 ```

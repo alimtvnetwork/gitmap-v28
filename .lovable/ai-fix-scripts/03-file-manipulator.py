@@ -42,7 +42,7 @@ def rename_file(src_path, dst_path):
     if run_git_mv(src_name, dst_name, cwd=parent_dir):
         print(f"✅ git mv: {src_path} -> {dst_path}")
         return
-    
+
     # Fallback to os.rename
     try:
         os.rename(src_norm, dst_norm)
@@ -66,12 +66,12 @@ def cmd_lowercase(args):
     for root, dirs, files in os.walk(target_norm):
         # Filter dirs in place to respect ignores
         dirs[:] = [d for d in dirs if not should_ignore(os.path.join(root, d), ignores)]
-        
+
         for f in files:
             file_path = os.path.join(root, f)
             if should_ignore(file_path, ignores):
                 continue
-            
+
             lower_f = f.lower()
             if f != lower_f:
                 dst_path = os.path.join(root, lower_f)
@@ -108,7 +108,7 @@ def cmd_fix_seq(args):
         return
 
     files = [f for f in os.listdir(target_norm) if os.path.isfile(os.path.join(target_norm, f))]
-    
+
     # Parse files
     parsed_files = []
     for f in files:
@@ -127,7 +127,7 @@ def cmd_fix_seq(args):
         parsed_files.sort(key=lambda x: x['time'])
     elif args.order_by_az:
         parsed_files.sort(key=lambda x: x['rest_lower'])
-    
+
     # Apply pins
     pinned = []
     unpinned = []
@@ -144,7 +144,7 @@ def cmd_fix_seq(args):
         unpinned.sort(key=lambda x: (x['seq'] if x['seq'] is not None else float('inf')))
 
     used_seqs = {pf['new_seq'] for pf in pinned}
-    
+
     current_seq = 0
     for pf in unpinned:
         while current_seq in used_seqs:
@@ -174,7 +174,7 @@ def main():
     lowercase_p = subparsers.add_parser('lowercase', help="Convert files to lowercase recursively")
     lowercase_p.add_argument('target_directory', help="Directory to process")
     lowercase_p.add_argument('--except', dest='except_list', help="Comma-separated list of patterns to ignore (e.g., 'docs/*, temp.md')")
-    
+
     # Fix sequence command
     fixseq_p = subparsers.add_parser('fix-seq-files', help="Re-sequence files in a directory")
     fixseq_p.add_argument('target_directory', help="Directory to process")

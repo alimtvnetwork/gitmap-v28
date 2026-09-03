@@ -142,4 +142,3 @@ python .lovable/ai-fix-scripts/12-multiline-formatter.py
 python .lovable/ai-fix-scripts/13-argument-scanner.py
 ```
 </details>
-

@@ -1,7 +1,7 @@
 # Common AI Mistakes
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
 **Purpose:** Real examples of mistakes AI commonly makes when generating code for this project
 
 ---
@@ -12,7 +12,7 @@
 
 ### Mistake #1: camelCase JSON Keys
 
-**Frequency:** Very High  
+**Frequency:** Very High
 **Rule:** AH-N3
 
 ```json
@@ -27,7 +27,7 @@
 
 ### Mistake #2: Uppercase Abbreviations
 
-**Frequency:** Very High  
+**Frequency:** Very High
 **Rule:** AH-N1
 
 ```go
@@ -48,7 +48,7 @@ type ApiResponse struct {
 
 ### Mistake #3: Multi-Return Go Functions
 
-**Frequency:** High  
+**Frequency:** High
 **Rule:** AH-T3
 
 ```go
@@ -69,7 +69,7 @@ func GetUser(id string) apperror.Result[User] {
 
 ### Mistake #4: `fmt.Errorf` Instead of `apperror`
 
-**Frequency:** High  
+**Frequency:** High
 **Rule:** AH-T2
 
 ```go
@@ -84,7 +84,7 @@ return apperror.Wrap(err, apperror.ErrProcessFailed, "failed to process")
 
 ### Mistake #5: Nested `if` Statements
 
-**Frequency:** High  
+**Frequency:** High
 **Rule:** AH-S1
 
 ```go
@@ -111,7 +111,7 @@ process(request)
 
 ### Mistake #6: Boolean Without Prefix
 
-**Frequency:** High  
+**Frequency:** High
 **Rule:** AH-N6
 
 ```typescript
@@ -130,7 +130,7 @@ const isValid = checkForm();
 
 ### Mistake #7: Explicit Go JSON Tags
 
-**Frequency:** Medium-High  
+**Frequency:** Medium-High
 **Rule:** AH-T5
 
 ```go
@@ -153,7 +153,7 @@ type Config struct {
 
 ### Mistake #8: Using `any` / `interface{}`
 
-**Frequency:** Medium  
+**Frequency:** Medium
 **Rule:** AH-T1
 
 ```go
@@ -172,7 +172,7 @@ func ProcessData(data ProcessInput) apperror.Result[ProcessOutput] {
 
 ### Mistake #9: Raw Negation on Function Calls
 
-**Frequency:** Medium  
+**Frequency:** Medium
 **Rule:** AH-B1
 
 ```php
@@ -191,7 +191,7 @@ if ($order->isInvalid()) {
 
 ### Mistake #10: Missing Blank Line Before Return
 
-**Frequency:** Medium  
+**Frequency:** Medium
 **Rule:** AH-S4
 
 ```go
@@ -214,7 +214,7 @@ func Process(data Input) Result {
 
 ### Mistake #11: `\Throwable` in PHP
 
-**Frequency:** Medium  
+**Frequency:** Medium
 **Rule:** AH-E4
 
 ```php
@@ -239,7 +239,7 @@ try {
 
 ### Mistake #12: Magic String Status Comparisons
 
-**Frequency:** Medium  
+**Frequency:** Medium
 **Rule:** AH-EN3
 
 ```typescript
@@ -256,7 +256,7 @@ if (connection.status === ConnectionStatus.Connected) { ... }
 
 ### Mistake #13: String-Based Go Enums
 
-**Frequency:** Low-Medium  
+**Frequency:** Low-Medium
 **Rule:** AH-EN1
 
 ```go
@@ -282,7 +282,7 @@ const (
 
 ### Mistake #14: Value Access Without Error Guard
 
-**Frequency:** Low-Medium  
+**Frequency:** Low-Medium
 **Rule:** AH-E1
 
 ```go
@@ -303,7 +303,7 @@ user := result.Value()
 
 ### Mistake #15: Functions with 4+ Parameters
 
-**Frequency:** Low  
+**Frequency:** Low
 **Rule:** AH-S3
 
 ```typescript
@@ -329,7 +329,7 @@ function createUser(params: CreateUserParams): User { ... }
 
 ### Mistake #16: Caching Errors as Success
 
-**Frequency:** High  
+**Frequency:** High
 **Rule:** AH-CA1
 
 ```typescript
@@ -356,7 +356,7 @@ try {
 
 ### Mistake #17: Cache Without TTL
 
-**Frequency:** High  
+**Frequency:** High
 **Rule:** AH-CA2
 
 ```typescript
@@ -371,7 +371,7 @@ cache.set("config", configData, { ttl: 300_000 });
 
 ### Mistake #18: Missing Cache Invalidation After Mutation
 
-**Frequency:** High  
+**Frequency:** High
 **Rule:** AH-CA3
 
 ```typescript
@@ -397,7 +397,7 @@ const mutation = useMutation({
 
 ### Mistake #19: Non-Deterministic Cache Keys
 
-**Frequency:** Medium  
+**Frequency:** Medium
 **Rule:** AH-CA4
 
 ```typescript
@@ -412,7 +412,7 @@ cache.set(`users-${userId}-${role}`, data);
 
 ### Mistake #20: React Query Without Explicit staleTime
 
-**Frequency:** High  
+**Frequency:** High
 **Rule:** AH-CA6
 
 ```typescript

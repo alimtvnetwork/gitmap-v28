@@ -22,6 +22,7 @@ gitmap agy clean-missing [flags]
 ## Examples
 
 ### 1. Preview missing projects (dry run)
+
 ```bash
 gitmap agy remove-missing-projects --dry-run
 ```
@@ -31,21 +32,25 @@ gitmap agy rm-missing -d
 ```
 
 ### 2. Remove missing projects with confirmation prompt
+
 ```bash
 gitmap agy remove-missing-projects
 ```
 
 ### 3. Non-interactive automatic cleanup
+
 ```bash
 gitmap agy remove-missing-projects -y
 ```
 
 ### 4. Remove missing while exempting specific projects by prefix or name
+
 ```bash
 gitmap agy remove-missing-projects --except "1a9408cc, repo, temp-work"
 ```
 
 ### 5. Typo-tolerant usage
+
 ```bash
 gitmap agy remove-misisng-projects -y
 ```

@@ -11,6 +11,7 @@ Package releases, install developer tools, and replay terminal automation macros
 ## Commands
 
 ### Developer Tool Installers (`gitmap installer`)
+
 * **Aliases:** `installer`, `in`
 * Subcommands:
   * `gitmap installer ls`: Lists available developer tool install recipes.
@@ -24,6 +25,7 @@ Package releases, install developer tools, and replay terminal automation macros
   * `gitmap uninstall <tool>`: Direct shortcut to uninstall a tool.
 
 ### Task Automation Macros (`gitmap macro`)
+
 * **Alias:** `m`
 * Subcommands:
   * `gitmap macro record <name>` (alias: `rec`): Interactively records terminal commands.
@@ -34,6 +36,7 @@ Package releases, install developer tools, and replay terminal automation macros
   * `gitmap macro rm <name>`: Deletes a recorded macro.
 
 ### Release ZIP Archives (`gitmap zip-group`)
+
 * **Alias:** `z`
 * Subcommands:
   * `gitmap zip-group create <name> [paths...] [--archive <name>]`: Creates file collection for ZIP.

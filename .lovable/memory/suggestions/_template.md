@@ -16,6 +16,6 @@ status: open
 
 ## Acceptance criteria
 
-- 
+-
 
 ## Completion notes

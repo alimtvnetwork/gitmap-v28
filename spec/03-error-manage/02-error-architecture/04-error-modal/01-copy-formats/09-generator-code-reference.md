@@ -1,8 +1,8 @@
 # Generator Code Reference
 
-> **Parent:** [Copy Formats Index](./00-overview.md)  
-> **Version:** 3.2.0  
-> **Updated:** 2026-03-31  
+> **Parent:** [Copy Formats Index](./00-overview.md)
+> **Version:** 3.2.0
+> **Updated:** 2026-03-31
 > **Purpose:** Source files, function signatures, and replication guide for the error report generation system.
 
 ---

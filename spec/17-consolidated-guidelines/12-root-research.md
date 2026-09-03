@@ -1,6 +1,6 @@
 # Consolidated: Root-Level Research
 
-**Version:** 3.3.0  
+**Version:** 3.3.0
 **Updated:** 2026-04-16
 
 ---
@@ -56,9 +56,9 @@ For architecture-specific research, use this extended template:
 
 # ADR: [Decision Title]
 
-**Status:** Proposed | Accepted | Deprecated | Superseded  
-**Created:** YYYY-MM-DD  
-**Author:** [name]  
+**Status:** Proposed | Accepted | Deprecated | Superseded
+**Created:** YYYY-MM-DD
+**Author:** [name]
 **Supersedes:** [ADR number, if applicable]
 
 ---

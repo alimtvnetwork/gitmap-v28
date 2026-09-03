@@ -1,7 +1,7 @@
 # Frontend-Backend Sync Verification Pattern
 
-> **Version:** 1.0.0  
-> **Created:** 2026-02-04  
+> **Version:** 1.0.0
+> **Created:** 2026-02-04
 > **Status:** MANDATORY
 
 ---
@@ -255,13 +255,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Start backend
         run: |
           cd backend
           go run . daemon &
           sleep 5
-          
+
       - name: Verify endpoints
         run: |
           ./linter-scripts/verify-api.sh

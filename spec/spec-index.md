@@ -1,7 +1,7 @@
 # Spec File Index — Searchable Reference
 
-**Generated:** 2026-04-10  
-**Total Files:** 411  
+**Generated:** 2026-04-10
+**Total Files:** 411
 **Categories:** 13
 
 > **How to search:** Use `Ctrl+F` / `Cmd+F` to search by keyword, file name, or category.

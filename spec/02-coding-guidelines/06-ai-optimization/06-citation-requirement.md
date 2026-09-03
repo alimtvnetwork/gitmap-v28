@@ -26,6 +26,7 @@ Whenever an AI agent generates code, creates plans (`.lovable/plans/pending/`), 
 - [App Error Docs](02-spec/05-coding-guidelines/04-error-handling.md) — Why: Standards for returning results.
 - [cmd/main.go](cmd/main.go) — Why: Target file.
 ```
+
 ### Why This is Required
 
 - It prevents agents from blending external training data with this repository's strict conventions.

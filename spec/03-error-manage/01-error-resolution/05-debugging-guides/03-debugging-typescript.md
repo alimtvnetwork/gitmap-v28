@@ -1,7 +1,7 @@
 # TypeScript/React Debugging Guide
 
-> **Version:** 1.0.0  
-> **Created:** 2026-02-04  
+> **Version:** 1.0.0
+> **Created:** 2026-02-04
 > **Applies To:** All React Frontend Applications, Shared CLI Frontend
 
 ---
@@ -45,7 +45,7 @@ interface ApiResponse<T> {
 // Correct detection logic
 async function fetchWithValidation<T>(url: string): Promise<T> {
   const response = await fetch(url);
-  
+
   // Primary indicator: HTTP status code (not response body!)
   if (!response.ok) {
     const body = await response.json() as ApiResponse<never>;
@@ -55,9 +55,9 @@ async function fetchWithValidation<T>(url: string): Promise<T> {
       body.error?.message ?? `HTTP ${response.status}`
     );
   }
-  
+
   const body = await response.json() as ApiResponse<T>;
-  
+
   // Secondary check: success field
   if (!body.success) {
     throw new ApiError(
@@ -65,7 +65,7 @@ async function fetchWithValidation<T>(url: string): Promise<T> {
       body.error?.message ?? 'Unknown error'
     );
   }
-  
+
   return body.data!;
 }
 ```
@@ -83,14 +83,14 @@ interface HealthStatus {
 
 async function checkHealth(baseUrl: string): Promise<HealthStatus> {
   const start = Date.now();
-  
+
   try {
     const response = await fetch(`${baseUrl}/api/v1/health`, {
       method: HttpMethod.Get,
       headers: { 'Content-Type': 'application/json' },
       signal: AbortSignal.timeout(5000), // 5s timeout
     });
-    
+
     // Use HTTP status as PRIMARY indicator
     if (!response.ok) {
       return {
@@ -98,9 +98,9 @@ async function checkHealth(baseUrl: string): Promise<HealthStatus> {
         error: `HTTP ${response.status}`,
       };
     }
-    
+
     const data = await response.json();
-    
+
     return {
       connected: true,
       version: data.data?.version,
@@ -159,7 +159,7 @@ function ErrorModal({ error, diagnostics }: ErrorModalProps) {
           <Alert variant="destructive">
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
-          
+
           <Collapsible>
             <CollapsibleTrigger>Show Diagnostics</CollapsibleTrigger>
             <CollapsibleContent>
@@ -211,7 +211,7 @@ function ErrorModal({ error, diagnostics }: ErrorModalProps) {
    ```typescript
    // ❌ Wrong: Checking body field for connection status
    const connected = data.status === 'ok';
-   
+
    // ✅ Correct: Use HTTP status as primary indicator
    const connected = response.ok; // status 200-299
    ```
@@ -237,7 +237,7 @@ function ErrorModal({ error, diagnostics }: ErrorModalProps) {
    ```typescript
    // ❌ May break in production
    fetch('http://localhost:8080/api/v1/health');
-   
+
    // ✅ Better: Use relative URL or env var
    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/health`);
    ```
@@ -260,7 +260,7 @@ function ErrorModal({ error, diagnostics }: ErrorModalProps) {
    ```typescript
    // Use React Query for automatic cache invalidation
    const queryClient = useQueryClient();
-   
+
    const mutation = useMutation({
      mutationFn: updateData,
      onSuccess: () => {
@@ -305,7 +305,7 @@ function parseHealthResponse(data: unknown): HealthResponse {
   ) {
     throw new Error('Invalid health response format');
   }
-  
+
   return data as HealthResponse;
 }
 
@@ -375,18 +375,18 @@ console.log('Query state:', {
 function useWebSocket(url: string) {
   const [state, setState] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
   const wsRef = useRef<WebSocket | null>(null);
-  
+
   useEffect(() => {
     console.log(`WebSocket connecting to: ${url}`);
-    
+
     const ws = new WebSocket(url);
     wsRef.current = ws;
-    
+
     ws.onopen = () => {
       console.log('WebSocket connected');
       setState('connected');
     };
-    
+
     ws.onclose = (event) => {
       console.log('WebSocket closed:', {
         code: event.code,
@@ -395,20 +395,20 @@ function useWebSocket(url: string) {
       });
       setState('disconnected');
     };
-    
+
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
     };
-    
+
     ws.onmessage = (event) => {
       console.log('WebSocket message:', event.data);
     };
-    
+
     return () => {
       ws.close();
     };
   }, [url]);
-  
+
   return { state, ws: wsRef.current };
 }
 ```
@@ -428,19 +428,19 @@ const logger = {
     }
 
   },
-  
+
   info: (message: string, data?: unknown) => {
     console.log(`[INFO] ${message}`, data ?? '');
   },
-  
+
   warn: (message: string, data?: unknown) => {
     console.warn(`[WARN] ${message}`, data ?? '');
   },
-  
+
   error: (message: string, error?: unknown) => {
     console.error(`[ERROR] ${message}`, error ?? '');
   },
-  
+
   api: (method: string, url: string, status: number, duration: number) => {
     const emoji = status >= 400 ? '❌' : '✅';
     console.log(`${emoji} [API] ${method} ${url} → ${status} (${duration}ms)`);
@@ -462,26 +462,26 @@ async function apiRequest<T>(
   body?: unknown
 ): Promise<T> {
   const start = Date.now();
-  
+
   logger.debug(`Request: ${method} ${url}`, body);
-  
+
   try {
     const response = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined,
     });
-    
+
     const data = await response.json();
     const duration = Date.now() - start;
-    
+
     logger.api(method, url, response.status, duration);
     logger.debug(`Response:`, data);
-    
+
     if (!response.ok) {
       throw new ApiError(data.error?.code ?? response.status, data.error?.message);
     }
-    
+
     return data.data;
   } catch (error) {
     const duration = Date.now() - start;
@@ -567,7 +567,7 @@ class ErrorBoundary extends Component<Props, State> {
       stack: error.stack,
       componentStack: errorInfo.componentStack,
     });
-    
+
     // Report to error tracking service
     // reportError(error, errorInfo);
   }
