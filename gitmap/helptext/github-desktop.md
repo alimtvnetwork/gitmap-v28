@@ -15,6 +15,9 @@ gd (also: ds, desktop-sync)
     gitmap ds                       # same thing
     gitmap gd D:\path\to\repo       # register an explicit folder
     gitmap gd --all                 # register every repo in the gitmap DB
+    gitmap gd group ls              # list all GitHub Desktop repository groups
+    gitmap gd group add <name> <p...> # add repositories to a group
+    gitmap gd group rm <name> [p]   # remove a repository or delete a group
 
 ## Flags
 

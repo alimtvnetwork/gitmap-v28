@@ -14,9 +14,10 @@ import (
 
 // installerUndoCmd represents the 'gitmap installer undo-version' subcommand.
 var installerUndoCmd = &cobra.Command{
-	Use:   "undo-version <slug>",
-	Short: "Revert installer to its previous version",
-	Long:  "Rolls back an installer script definition to its immediately preceding version.",
+	Use:     "undo-version <slug>",
+	Aliases: []string{"undo"},
+	Short:   "Revert installer to its previous version",
+	Long:    "Rolls back an installer script definition to its immediately preceding version.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerRevertAction(cmd, args, "undo")
 	},
@@ -24,9 +25,10 @@ var installerUndoCmd = &cobra.Command{
 
 // installerRedoCmd represents the 'gitmap installer redo-version' subcommand.
 var installerRedoCmd = &cobra.Command{
-	Use:   "redo-version <slug>",
-	Short: "Advance installer to a newer reverted version",
-	Long:  "Restores a previously undone version of an installer script definition.",
+	Use:     "redo-version <slug>",
+	Aliases: []string{"redo"},
+	Short:   "Advance installer to a newer reverted version",
+	Long:    "Restores a previously undone version of an installer script definition.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerRevertAction(cmd, args, "redo")
 	},
@@ -34,9 +36,10 @@ var installerRedoCmd = &cobra.Command{
 
 // installerRevertCmd represents the 'gitmap installer revert-version' subcommand.
 var installerRevertCmd = &cobra.Command{
-	Use:   "revert-version <slug> <version>",
-	Short: "Revert installer to an exact semantic version",
-	Long:  "Restores an installer script definition to an exact historical version tag.",
+	Use:     "revert-version <slug> <version>",
+	Aliases: []string{"revert"},
+	Short:   "Revert installer to an exact semantic version",
+	Long:    "Restores an installer script definition to an exact historical version tag.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInstallerRevertAction(cmd, args, "revert")
 	},

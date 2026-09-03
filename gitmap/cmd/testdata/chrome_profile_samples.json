@@ -1,0 +1,67 @@
+{
+  "version": "6.173.0",
+  "generatedAt": "2026-09-03T21:50:00Z",
+  "profiles": [
+    {
+      "name": "Default",
+      "displayName": "Personal",
+      "email": "user.personal@gmail.com",
+      "avatarIcon": "chrome://theme/IDR_PROFILE_AVATAR_26",
+      "preferences": {
+        "browser": {
+          "show_home_button": true,
+          "has_custom_theme": false
+        },
+        "extensions": {
+          "theme": {
+            "id": ""
+          }
+        }
+      },
+      "bookmarksCount": 124,
+      "historyCount": 1580,
+      "extensions": [
+        {
+          "id": "cjpalhdlnbpafiamejdnhcphjbkeiagm",
+          "name": "uBlock Origin",
+          "version": "1.58.0",
+          "enabled": true
+        },
+        {
+          "id": "ghbmnnjooekpmoecnnnilnnbdlolhkhi",
+          "name": "Google Docs Offline",
+          "version": "1.80.0",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "Profile 1",
+      "displayName": "Work & Dev",
+      "email": "dev@company.internal",
+      "avatarIcon": "chrome://theme/IDR_PROFILE_AVATAR_15",
+      "preferences": {
+        "browser": {
+          "show_home_button": false,
+          "has_custom_theme": true
+        }
+      },
+      "bookmarksCount": 350,
+      "historyCount": 4200,
+      "extensions": [
+        {
+          "id": "fmkadmapgofadopljbjfkapdkoienihi",
+          "name": "React Developer Tools",
+          "version": "5.3.1",
+          "enabled": true
+        },
+        {
+          "id": "lmhkpmbekcpmknklioeibfkpmmfibljd",
+          "name": "Redux DevTools",
+          "version": "3.1.6",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

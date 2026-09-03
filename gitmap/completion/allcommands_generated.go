@@ -252,6 +252,8 @@ var generatedCommands = []string{
 	"profile",
 	"profiles",
 	"profs",
+	"prompt",
+	"prompts",
 	"prs",
 	"prune",
 	"pull",

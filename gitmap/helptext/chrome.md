@@ -30,6 +30,9 @@ Unified CLI suite for managing Google Chrome installation, profile replication, 
 - `copy` (`cpc`, `profile-copy`) `<src> <dst>` — Copy a Chrome profile into an offline destination profile.
 - `export` (`cpe`, `profile-export`) `<name> [out] [--format=json|sqlite|yaml|zip]` — Export profile snapshot (auto-infers format from extension).
 - `import` (`cpi`, `profile-import`) `<file> [name]` — Import a profile from a JSON, SQLite DB, YAML, or ZIP snapshot.
+- `undo` `[profile]` — Revert the last profile import or restore from an automatic snapshot.
+- `redo` `[profile]` — Reapply the undone Chrome profile mutation.
+- `group` `[ls|add <group> <profiles...>|rm <group> [profile]]` — Manage named groups of Chrome profiles.
 - `list` (`ls`, `cpl`, `profiles`) — List all Chrome profiles discovered on the local machine.
 - `delete` (`rm`, `del`, `cpd`) `<name> [--yes]` — Remove a profile and its stored artifacts.
 - `merge` (`cpm`) `<src> <dst> [--what=all|settings|bookmarks|extensions]` — Merge pieces of one profile into another.

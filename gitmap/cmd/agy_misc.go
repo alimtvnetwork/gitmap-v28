@@ -166,8 +166,7 @@ var agyPluginLsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "List installed and installable plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Installed plugins: None")
-		return nil
+		return runAgyPluginList()
 	},
 }
 
@@ -178,8 +177,8 @@ var agyPluginInstallCmd = &cobra.Command{
 		if len(args) < 1 {
 			return fmt.Errorf("requires plugin slug")
 		}
-		fmt.Printf("Installing plugin %s\n", args[0])
-		return nil
+
+		return runAgyPluginInstall(args[0])
 	},
 }
 

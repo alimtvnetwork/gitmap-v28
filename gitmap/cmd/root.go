@@ -475,6 +475,9 @@ func dispatchExtraCommand(
 	case "sj", "ssh-join", "ssh-joined", "ssh-joiner":
 		executeAndAudit(dispatchSJ, shouldAudit, auditID, auditStart)
 		return true
+	case "prompt", "prompts", "pmt":
+		executeAndAudit(dispatchPrompt, shouldAudit, auditID, auditStart)
+		return true
 	default:
 		return false
 	}

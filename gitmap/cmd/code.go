@@ -46,7 +46,7 @@ func runCode(args []string) error {
 			return nil
 		case "ls", "list", "add", "add-project", "ap", "rm", "remove", "delete", "del",
 			"optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup", "clear", "clean",
-			"find-duplicates", "duplicates", "dups", "find-dups":
+			"find-duplicates", "duplicates", "dups", "find-dups", "group", "groups", "grp":
 			return runVSCode(args)
 		}
 	}

@@ -136,6 +136,23 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 	case constants.SubCmdChromeMerge, constants.SubCmdChromeMergeAlias:
 		_ = runChromeProfileMerge(tail)
 		return true
+	case "undo":
+		profile := "Default"
+		if len(tail) > 0 {
+			profile = tail[0]
+		}
+		_ = runChromeProfileUndo(profile)
+		return true
+	case "redo":
+		profile := "Default"
+		if len(tail) > 0 {
+			profile = tail[0]
+		}
+		_ = runChromeProfileRedo(profile)
+		return true
+	case "group", "grp", "groups":
+		_ = runChromeGroupDispatch(tail)
+		return true
 	}
 	return false
 }
