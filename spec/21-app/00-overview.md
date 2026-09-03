@@ -17,7 +17,7 @@ GitMap is a CLI tool that scans directory trees for Git repositories, extracts c
 
 ## High-Level Components
 
-1. **Core CLI & Scanner Specs (`01-overview.md` – `118-*.md`)**:
+1. **Core CLI & Scanner Specs (`01-overview.md` – `123-*.md`)**:
    - `01-overview.md`: Architecture overview and purpose
    - `02-cli-interface.md`: Complete command-line grammar, arguments, and aliases
    - `03-scanner.md`: Directory tree traversal and `.git` repository identification
@@ -28,6 +28,11 @@ GitMap is a CLI tool that scans directory trees for Git repositories, extracts c
    - `12-release-command.md`: Release pipeline, semver bumping, and release ceremony
    - `50-ssh-keys.md` & `110-clone-ssh-flag.md`: SSH cluster synchronizer and remote execution
    - `110-update-remote-installer.md` & `111-update-remote-probe.md`: Sibling repository discovery and dynamic remote installer
+   - `119-git-pull-diagnostics-and-display.md`: Smart pull diagnostics and multi-repo tabular display
+   - `120-database-suite-and-start-fresh.md`: Master/Split DB architecture, `db` commands, and `start-fresh`
+   - `121-cross-platform-duplicate-audit-and-remediation.md`: Multi-platform duplicate detection and remediation recipes
+   - `122-antigravity-empty-conversations-pruner.md`: Antigravity empty conversation detection and `--except` pruning
+   - `123-cross-platform-python-tooling.md`: Cross-platform Python automation standards and Windows UTF-8 safety
 
 2. **Feature Modules & Sub-systems**:
    - [`01-vscode-project-manager-sync/`](./01-vscode-project-manager-sync/): VS Code Project Manager synchronization

@@ -21,6 +21,8 @@ export interface CommandDef {
   usage?: string;
   flags?: CommandFlag[];
   examples?: CommandExample[];
+  howToProceed?: { step: number; title: string; action: string }[];
+  notes?: string[];
   category: string;
   seeAlso?: CommandSeeAlso[];
 }
@@ -249,18 +251,28 @@ export const commands: CommandDef[] = [
   },
   {
     category: "cloning",
-    name: "pull", alias: "p", description: "Pull latest changes for specific repos, groups, or all tracked repos",
-    usage: "gitmap pull <repo-name> [--group <name>] [--all] [--verbose]",
+    name: "pull", alias: "p", description: "Pull latest changes with smart non-unlink failure diagnostics and tabular multi-repo status display",
+    usage: "gitmap pull [repo-name] [--group <name>] [--all] [--verbose]",
     flags: [
-      { flag: "--group <name>", description: "Pull all repos in a group" },
-      { flag: "--all", description: "Pull all tracked repos" },
-      { flag: "--verbose", description: "Enable verbose logging" },
+      { flag: "--group <name>", description: "Pull all repositories assigned to a specific group" },
+      { flag: "--all", description: "Pull all tracked repositories in parallel" },
+      { flag: "--verbose", description: "Enable verbose diagnostics and full git stderr output" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Run Batch Pull", action: "gitmap pull --all" },
+      { step: 2, title: "Review Failure Diagnosis", action: "gitmap pull <failed-repo> --verbose" },
+      { step: 3, title: "Resolve Non-Unlink File Conflicts", action: "git stash push -u && gitmap pull && git stash pop" },
+    ],
+    notes: [
+      "The diagnostic classifier detects non-unlink git merge aborts (untracked local files preventing pull).",
+      "Status output displays a synchronized table with current branch, latest remote branch, PR tracking, commit SHA, and duration.",
+      "See spec/21-app/119-git-pull-diagnostics-and-display.md for the full diagnostic grammar.",
     ],
     examples: [
       { command: "gitmap pull my-api-service", description: "Pull a single repo by exact name" },
       { command: "gitmap p my-api", description: "Partial match — finds my-api-service" },
       { command: "gitmap pull --group backend", description: "Pull all repos in the backend group" },
-      { command: "gitmap pull --all", description: "Pull every tracked repo" },
+      { command: "gitmap pull --all", description: "Pull every tracked repo with status table" },
       { command: "gitmap p --all --verbose", description: "Pull all with detailed logging" },
     ],
     seeAlso: [
@@ -1512,6 +1524,17 @@ export const commands: CommandDef[] = [
       { flag: "reset, clear", description: "Reset database records and remove split DBs (--yes to skip prompt)" },
       { flag: "--yes, -y", description: "Bypass confirmation prompt for reset" },
     ],
+    howToProceed: [
+      { step: 1, title: "Inspect Database Architecture", action: "gitmap db ls" },
+      { step: 2, title: "Analyze Per-Repo Split DBs", action: "gitmap db repo-db list" },
+      { step: 3, title: "Check Storage Utilization", action: "gitmap db sizes list" },
+      { step: 4, title: "Perform Cache Reset", action: "gitmap db reset" },
+    ],
+    notes: [
+      "Master Database stores global repositories, bookmarks, scans, and profiles.",
+      "Split DBs (bin/data/repo_search/*.db) store file indices and search caches per repository to eliminate SQLite WAL write locks during parallel scans.",
+      "See spec/21-app/120-database-suite-and-start-fresh.md for full architecture specifications.",
+    ],
     examples: [
       { command: "gitmap db ls", description: "View architectural database overview and split DB list" },
       { command: "gitmap db repo-db list", description: "View split DB table metrics and repository tracking status" },
@@ -1533,6 +1556,16 @@ export const commands: CommandDef[] = [
       { flag: "--yes, -y", description: "Bypass interactive irreversible confirmation prompt" },
       { flag: "--force, -f", description: "Alias for --yes" },
     ],
+    howToProceed: [
+      { step: 1, title: "Backup Current State (Optional)", action: "gitmap export --all" },
+      { step: 2, title: "Initiate Complete System Purge", action: "gitmap start-fresh" },
+      { step: 3, title: "Re-scan Workspaces", action: "gitmap scan all" },
+    ],
+    notes: [
+      "⚠️ IRREVERSIBLE TRANSACTION: Deletes gitmap.db, WAL/SHM journals, and purges repo_search/ completely.",
+      "Automatically executes fresh schema rebuild migrations immediately after wiping.",
+      "Prompts for explicit [y/N] confirmation unless --yes or --force is supplied.",
+    ],
     examples: [
       { command: "gitmap start-fresh", description: "Interactive full wipe with safety confirmation" },
       { command: "gitmap start-fresh --yes", description: "Non-interactive complete reset for automation" },
@@ -1553,6 +1586,18 @@ export const commands: CommandDef[] = [
       { flag: "vscode", description: "Scan VS Code project manager and workspace storage" },
       { flag: "chrome", description: "Scan Chrome browser profiles and offline exports" },
       { flag: "git", description: "Scan tracked Git repositories in Gitmap database" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Run Cross-Platform Audit", action: "gitmap find-duplicates" },
+      { step: 2, title: "Inspect Platform Specifics", action: "gitmap agy find-duplicates" },
+      { step: 3, title: "Execute Immediate Remediation", action: "gitmap agy optimize-projects" },
+      { step: 4, title: "Fix Repeated Clone Paths", action: "gitmap clone --fix" },
+    ],
+    notes: [
+      "Outputs exact, copy-pasteable remediation commands directly below the duplicate findings table.",
+      "Supports batch deduplication via 'optimize-projects' and '--repeat-fix'.",
+      "Prevents duplicate paths from being registered during future 'scan' or 'clone' operations.",
+      "See spec/21-app/121-cross-platform-duplicate-audit-and-remediation.md for detection algorithms.",
     ],
     examples: [
       { command: "gitmap find-duplicates", description: "Scan all platforms for duplicates with instant remediation commands" },
@@ -1577,6 +1622,18 @@ export const commands: CommandDef[] = [
       { flag: "--dry-run, -d", description: "Preview projects targeted for removal without deleting files" },
       { flag: "--yes, -y", description: "Confirm removal without interactive confirmation prompt" },
     ],
+    howToProceed: [
+      { step: 1, title: "Inspect Empty Conversation Projects", action: "gitmap agy ls show-projects-with-empty-conversations" },
+      { step: 2, title: "Dry-Run Removal with Whitelist", action: "gitmap agy remove-projects-with-empty-conversations --except \"preserved-slug, /path/to/keep\" --dry-run" },
+      { step: 3, title: "Execute Pruning", action: "gitmap agy remove-projects-with-empty-conversations --yes" },
+    ],
+    notes: [
+      "Inspects conversation databases in ~/.gemini/antigravity/conversations/*.db for steps > 2 and user prompts.",
+      "Matches project workspace paths from ~/.gemini/config/projects/*.json.",
+      "Projects with active user conversations are never touched.",
+      "Supports importing whitelists from CSV files: --except preserved.csv.",
+      "See spec/21-app/122-antigravity-empty-conversations-pruner.md for full specification.",
+    ],
     examples: [
       { command: "gitmap agy ls show-projects-with-empty-conversations", description: "List all Antigravity projects with zero or empty conversations" },
       { command: "gitmap agy remove-projects-with-empty-conversations --dry-run", description: "Preview which empty projects would be deleted" },
@@ -1584,8 +1641,34 @@ export const commands: CommandDef[] = [
       { command: "gitmap agy remove-projects-with-empty-conversations --yes", description: "Non-interactive prune of all projects with empty conversations" },
     ],
     seeAlso: [
+      { name: "agy ls show-projects-with-empty-conversations", description: "List empty conversation projects" },
       { name: "find-duplicates", description: "Scan and remediate duplicate projects across platforms" },
       { name: "agy optimize-projects", description: "Deduplicate Antigravity projects" },
+    ],
+  },
+  {
+    category: "maintenance",
+    name: "agy ls show-projects-with-empty-conversations",
+    alias: "agy ls empty-convs",
+    description: "Audit and list all Antigravity projects having zero conversations or only aborted/empty sessions",
+    usage: "gitmap agy ls show-projects-with-empty-conversations",
+    flags: [],
+    howToProceed: [
+      { step: 1, title: "Audit Empty Projects", action: "gitmap agy ls show-projects-with-empty-conversations" },
+      { step: 2, title: "Copy Remediation Command", action: "gitmap agy remove-projects-with-empty-conversations --dry-run" },
+    ],
+    notes: [
+      "Cross-references ~/.gemini/config/projects/ with ~/.gemini/antigravity/conversations/*.db.",
+      "Renders a formatted table with Project ID, Name, Workspace Path, Conversation Count, and Status.",
+      "Also accepts alias spellings: show-proects-with-empty-conversations, empty-conversations, --empty-conversations.",
+    ],
+    examples: [
+      { command: "gitmap agy ls show-projects-with-empty-conversations", description: "List all empty Antigravity projects" },
+      { command: "gitmap agy ls show-proects-with-empty-conversations", description: "Accepts common typo alias" },
+    ],
+    seeAlso: [
+      { name: "agy remove-projects-with-empty-conversations", description: "Prune projects identified by this audit" },
+      { name: "agy ls", description: "Standard status table of all Antigravity projects" },
     ],
   },
 
