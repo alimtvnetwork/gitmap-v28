@@ -174,4 +174,3 @@ func checkEntryURI(configDir, fileName, fileURI string) string {
 	}
 	return ""
 }
-
