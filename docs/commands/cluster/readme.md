@@ -2,6 +2,12 @@
 
 Coordinate operations across multiple machines in a distributed network.
 
+<div align="center">
+
+<img src="../../assets/cluster.svg" alt="GitMap Cluster Terminal Demo" width="850">
+
+</div>
+
 ## Commands
 
 ### `gitmap cluster <subcommand>`

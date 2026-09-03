@@ -2,6 +2,12 @@
 
 Manage Google Antigravity workspaces, prompts, deduplication, and conversation health.
 
+<div align="center">
+
+<img src="../../assets/agy.svg" alt="GitMap AGY Terminal Demo" width="850">
+
+</div>
+
 ## Command Files in this Folder
 
 | File | Subcommand | Description |

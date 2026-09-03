@@ -2,6 +2,12 @@
 
 Automate background jobs, triggers, and recurring routines.
 
+<div align="center">
+
+<img src="../../assets/schedule.svg" alt="GitMap Scheduler Terminal Demo" width="850">
+
+</div>
+
 ## Commands
 
 ### `gitmap schedule <subcommand>`
