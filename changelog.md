@@ -1,3 +1,20 @@
+## [v6.167.0] 2026-09-03 Release v6.167.0
+
+### Added & Enhanced
+
+- **Modular Lowercase Documentation Architecture (`docs/commands/`)**:
+  - Reorganized the entire command catalog from monolithic files into 15 domain-specific subdirectories (`agy/`, `db/`, `find-duplicates/`, `vscode/`, `chrome/`, `cloning/`, `git-ops/`, `release/`, `navigation/`, `schedule/`, `cluster/`, `templates/`, `data/`, `automation/`, `utilities/`).
+  - Standardized all documentation markdown paths and file names to lowercase (`readme.md`, `ls.md`, `remove-projects-with-empty-conversations.md`, etc.).
+  - Embedded high-resolution animated vector SVG terminal recordings in `docs/assets/` showcasing realistic terminal interactions, typing, and colored tabular outputs.
+  - Linked the subcommands hub prominently from root `readme.md`.
+
+- **Comprehensive Flag Tables & Real-World Examples**:
+  - Enriched all command reference documentation with detailed flag tables (Flag, Shorthand, Default, Description).
+  - Authored actionable, copy-pasteable runnable command examples covering every single flag (e.g. `--missing`, `--active`, `--sort`, `--filter`, `--json`, `--except`, `--dry-run`, `--yes`, `--safe-pull`, `--fix`, `--delete`, `--create-remote`).
+
+- **`.lovable` AI Agent System Architecture Mapping**:
+  - Created `.lovable/folder-structure.md` formalizing the relationship between the codebase, canonical specifications (`spec/`), user documentation (`docs/commands/`), and `.lovable/` AI cognitive workspaces (`plans/`, `memory/`, `coding-guidelines/`, `prompts/`).
+
 ## [v6.166.0] 2026-09-03 Release v6.166.0
 
 ### Added & Enhanced
