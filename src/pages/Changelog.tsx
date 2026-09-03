@@ -44,7 +44,12 @@ const ChangelogPage = () => {
   const toggle = (version: string) => {
     setExpandedVersions((prev) => {
       const next = new Set(prev);
-      next.has(version) ? next.delete(version) : next.add(version);
+
+      if (next.has(version)) {
+        next.delete(version);
+      } else {
+        next.add(version);
+      }
 
       return next;
     });
@@ -53,7 +58,12 @@ const ChangelogPage = () => {
   const toggleTag = (tag: ChangelogTag) =>
     setActiveTags((prev) => {
       const next = new Set(prev);
-      next.has(tag) ? next.delete(tag) : next.add(tag);
+
+      if (next.has(tag)) {
+        next.delete(tag);
+      } else {
+        next.add(tag);
+      }
 
       return next;
     });
