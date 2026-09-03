@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/update-apply.schema.json",
+  "title": "gitmap update apply / update all result",
+  "description": "Per-repo result object emitted by `gitmap update apply --json`. `gitmap update all --json` wraps an array of these in a summary envelope (see `envelope`).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["repo", "status"],
+  "properties": {
+    "repo": { "type": "string" },
+    "from": { "type": ["string", "null"] },
+    "to":   { "type": "string" },
+    "strategy": {
+      "type": "string",
+      "enum": ["fetch-checkout", "source-release"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ok", "failed", "skipped", "dry-run"]
+    },
+    "error":         { "type": ["string", "null"] },
+    "pendingTaskId": { "type": ["integer", "null"], "minimum": 1 },
+    "durationMs":    { "type": "integer", "minimum": 0 }
+  },
+  "definitions": {
+    "envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "ok", "failed", "skipped"],
+      "properties": {
+        "total":   { "type": "integer", "minimum": 0 },
+        "ok":      { "type": "integer", "minimum": 0 },
+        "failed":  { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 },
+        "pending": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "results": {
+          "type": "array",
+          "items": { "$ref": "#" }
+        }
+      }
+    }
+  }
+}

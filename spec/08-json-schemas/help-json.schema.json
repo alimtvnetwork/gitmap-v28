@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/help-json.schema.json",
+  "title": "gitmap help --json",
+  "description": "Machine-readable shape emitted by `gitmap help --json`. Composes with `--filter <q>` (adds `query`).",
+  "type": "object",
+  "required": ["version", "count", "groups"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Value of constants.Version at emission time (e.g. \"5.43.0\")."
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of help rows emitted (sum of `groups[].lines.length`)."
+    },
+    "query": {
+      "type": "string",
+      "description": "Present only when `--filter <q>` was supplied. Verbatim user query."
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["group", "lines"],
+        "additionalProperties": false,
+        "properties": {
+          "group": {
+            "type": "string",
+            "description": "Intent-based super-group label (ANSI stripped)."
+          },
+          "lines": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "One entry per command row in this group (ANSI stripped, trailing whitespace trimmed)."
+          }
+        }
+      }
+    }
+  }
+}

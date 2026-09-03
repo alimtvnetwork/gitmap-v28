@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/history.schema.json",
+  "title": "gitmap history --json",
+  "description": "Machine-readable shape emitted by `gitmap history --json`. Top-level is an array of per-command audit records. Empty result encodes as `[]`.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "command", "alias", "args", "flags", "startedAt", "finishedAt", "durationMs", "exitCode", "summary", "repoCount", "createdAt"],
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "type": "integer",
+        "description": "SQLite row ID of the history record.",
+        "minimum": 1
+      },
+      "command": {
+        "type": "string",
+        "description": "The gitmap subcommand that was executed (e.g. 'scan', 'clone')."
+      },
+      "alias": {
+        "type": "string",
+        "description": "Command alias used, if any. Empty string when no alias was involved."
+      },
+      "args": {
+        "type": "string",
+        "description": "Space-joined positional arguments passed to the command. Empty when none."
+      },
+      "flags": {
+        "type": "string",
+        "description": "Space-joined flags passed to the command. Empty when none."
+      },
+      "startedAt": {
+        "type": "string",
+        "description": "RFC3339 UTC timestamp when the command started."
+      },
+      "finishedAt": {
+        "type": "string",
+        "description": "RFC3339 UTC timestamp when the command finished. Empty if the command is still running or tracking was interrupted."
+      },
+      "durationMs": {
+        "type": "integer",
+        "description": "Wall-clock duration in milliseconds. Zero when not recorded.",
+        "minimum": 0
+      },
+      "exitCode": {
+        "type": "integer",
+        "description": "Process exit code. Zero means success.",
+        "minimum": 0
+      },
+      "summary": {
+        "type": "string",
+        "description": "Human-readable one-line summary of the outcome. Empty when not generated."
+      },
+      "repoCount": {
+        "type": "integer",
+        "description": "Number of repositories the command touched. Zero for global commands.",
+        "minimum": 0
+      },
+      "createdAt": {
+        "type": "string",
+        "description": "RFC3339 UTC timestamp when the record was first persisted. Empty for records created before schema v23."
+      }
+    }
+  }
+}

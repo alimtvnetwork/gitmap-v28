@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/watch.schema.json",
+  "title": "gitmap watch --json",
+  "description": "Machine-readable shape emitted by `gitmap watch --json`. Top-level is a single snapshot object containing a repo array and an aggregate summary.",
+  "type": "object",
+  "required": ["timestamp", "repos", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "description": "RFC3339 UTC timestamp when the snapshot was taken."
+    },
+    "repos": {
+      "type": "array",
+      "description": "Per-repository status snapshots.",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "branch", "status", "ahead", "behind", "stash"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Repository name (e.g. 'widget')."
+          },
+          "path": {
+            "type": "string",
+            "description": "Absolute filesystem path to the repository."
+          },
+          "branch": {
+            "type": "string",
+            "description": "Current checked-out branch. Empty when the repo is missing or unreachable."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["clean", "dirty", "error"],
+            "description": "Working-tree status. 'error' means the path no longer exists."
+          },
+          "ahead": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of local commits not yet pushed to the tracked remote branch."
+          },
+          "behind": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of remote commits not yet pulled."
+          },
+          "stash": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of stashed changes."
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total", "dirty", "behind", "stash"],
+      "additionalProperties": false,
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of repositories in the snapshot."
+        },
+        "dirty": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of repos with a non-clean working tree."
+        },
+        "behind": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of repos behind their tracked remote."
+        },
+        "stash": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of repos with at least one stash."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DiffProfilesResult",
+  "description": "Comparison result between two gitmap profiles emitted by `gitmap diff-profiles --json`",
+  "type": "object",
+  "required": [
+    "profileA",
+    "profileB",
+    "onlyInA",
+    "onlyInB",
+    "different",
+    "same"
+  ],
+  "properties": {
+    "profileA": {
+      "type": "string",
+      "description": "Name of the first profile being compared"
+    },
+    "profileB": {
+      "type": "string",
+      "description": "Name of the second profile being compared"
+    },
+    "onlyInA": {
+      "type": "array",
+      "description": "Repositories present only in profileA",
+      "items": {
+        "type": "object",
+        "required": ["name", "path"],
+        "properties": {
+          "name": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "onlyInB": {
+      "type": "array",
+      "description": "Repositories present only in profileB",
+      "items": {
+        "type": "object",
+        "required": ["name", "path"],
+        "properties": {
+          "name": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "different": {
+      "type": "array",
+      "description": "Repositories that exist in both profiles but differ in path or clone mode",
+      "items": {
+        "type": "object",
+        "required": ["name", "pathA", "pathB", "modeA", "modeB"],
+        "properties": {
+          "name": { "type": "string" },
+          "pathA": { "type": "string", "description": "Absolute path in profileA" },
+          "pathB": { "type": "string", "description": "Absolute path in profileB" },
+          "modeA": { "type": "string", "description": "Clone mode in profileA: https or ssh" },
+          "modeB": { "type": "string", "description": "Clone mode in profileB: https or ssh" }
+        }
+      }
+    },
+    "same": {
+      "type": "integer",
+      "description": "Count of repositories that are identical in both profiles"
+    }
+  }
+}

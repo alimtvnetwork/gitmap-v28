@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/hd.schema.json",
+  "title": "gitmap hd (help-dashboard) payload",
+  "description": "JSON payload emitted by `gitmap hd --json` (v6.80.0+).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "repos", "pending"],
+  "properties": {
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["installed"],
+      "properties": {
+        "installed": { "type": "string" },
+        "latest":    { "type": ["string", "null"] },
+        "behind":    { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "repos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scanned", "upgradable"],
+      "properties": {
+        "scanned":    { "type": "integer", "minimum": 0 },
+        "upgradable": { "type": "integer", "minimum": 0 },
+        "unknown":    { "type": "integer", "minimum": 0 }
+      }
+    },
+    "pending": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queued"],
+      "properties": {
+        "queued": { "type": "integer", "minimum": 0 },
+        "oldest": {
+          "type": ["object", "null"],
+          "required": ["id", "type", "target"],
+          "properties": {
+            "id":         { "type": "integer" },
+            "type":       { "type": "string" },
+            "target":     { "type": "string" },
+            "ageSeconds": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "lastScanAt": { "type": ["string", "null"], "format": "date-time" },
+    "recent": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "target", "completedAt"],
+        "properties": {
+          "id":          { "type": "integer" },
+          "type":        { "type": "string" },
+          "target":      { "type": "string" },
+          "completedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}
