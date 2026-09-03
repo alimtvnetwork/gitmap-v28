@@ -132,6 +132,8 @@ jobs:
       # Checkout first so the local action can be found
       - if: needs.sha-check.outputs.already-built != 'true'
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
 
       # Composite: setup-go + warm GOCACHE in one step.
       # See .github/actions/setup-go-cached/action.yml.

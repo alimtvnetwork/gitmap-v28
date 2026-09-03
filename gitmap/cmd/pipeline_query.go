@@ -121,7 +121,6 @@ func queryAllRunLogs(repo string, runID int64) string {
 	return ""
 }
 
-
 func queryRunsFromDB(repo string) []ghRunItem {
 	db, err := openDB()
 

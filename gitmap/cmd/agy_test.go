@@ -177,5 +177,3 @@ func TestIsAgyProjectExcepted(t *testing.T) {
 		t.Errorf("expected no match on other-service")
 	}
 }
-
-
