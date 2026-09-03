@@ -15,7 +15,7 @@ func runDBResetAction(args []string) error {
 		msg := constants.ColorYellow + "Are you sure you want to reset the database? All tracked repository records and split databases will be cleared. [y/N]: " + constants.ColorReset
 		ok, err := promptConfirm(msg)
 		if err != nil || !ok {
-			fmt.Println(constants.ColorDim + "Database reset cancelled." + constants.ColorReset)
+			fmt.Println(constants.ColorDim + "Database reset canceled." + constants.ColorReset)
 			return nil
 		}
 	}

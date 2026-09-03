@@ -106,7 +106,7 @@ func runVSCodeClear(args []string) error {
 		return nil
 	}
 	if !opts.Yes && !askVSCodeClearConfirmation(len(targets)) {
-		fmt.Println("Clearance cancelled. No changes made.")
+		fmt.Println("Clearance canceled. No changes made.")
 		return nil
 	}
 	finalSummary, _, writeErr := vscodepm.ClearProjectsWithTargets(opts.Except, opts.OnlyMissing, false)

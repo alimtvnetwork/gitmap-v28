@@ -122,7 +122,7 @@ func runChromeProfileClear(args []string) error {
 		return nil
 	}
 	if !opts.Yes && !askChromeClearConfirmation(len(targets)) {
-		fmt.Println("Clearance cancelled. No changes made.")
+		fmt.Println("Clearance canceled. No changes made.")
 		return nil
 	}
 	deleted := executeDeleteChromeSnapshots(dir, targets)

@@ -80,7 +80,7 @@ func executeAgyEmptyRemoval(dirPath string, targets []AgyProjectConvs, remaining
 		return nil
 	}
 	if !agyRmEmptyYes && !confirmEmptyRemoval(len(targets)) {
-		fmt.Println("Removal cancelled. No changes made.")
+		fmt.Println("Removal canceled. No changes made.")
 		return nil
 	}
 	return deleteTargetProjectFiles(dirPath, targets, remaining)

@@ -4,11 +4,11 @@ package constants
 // Dashboard CLI commands.
 const (
 	CmdDashboard      = "dashboard"
-	CmdDashboardAlias = "db"
+	CmdDashboardAlias = "dash"
 )
 
 // Dashboard help text.
-const HelpDashboard = "  dashboard (db)      Generate an interactive HTML dashboard for a repo"
+const HelpDashboard = "  dashboard (dash)    Generate an interactive HTML dashboard for a repo"
 
 // Dashboard flag descriptions.
 const (

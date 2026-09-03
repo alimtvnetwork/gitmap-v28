@@ -100,7 +100,7 @@ func executeAgyOptimize(dirPath string, duplicates []AgyProject, remainingCount 
 		return nil
 	}
 	if !agyOptYes && !askClearConfirmation(len(duplicates)) {
-		fmt.Println("Optimization cancelled. No changes made.")
+		fmt.Println("Optimization canceled. No changes made.")
 		return nil
 	}
 	return deleteAgyDuplicates(dirPath, duplicates, remainingCount)

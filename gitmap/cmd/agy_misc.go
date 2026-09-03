@@ -50,7 +50,7 @@ func runAgyStats() error {
 			missingCount++
 		}
 	}
-	fmt.Printf("Account:        Default\n")
+	fmt.Printf("Account: Default\n")
 	fmt.Printf("Total projects: %d\n", len(projects))
 	fmt.Printf("Active on disk: %d\n", activeCount)
 	fmt.Printf("Missing paths:  %d\n", missingCount)
