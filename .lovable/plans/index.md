@@ -17,6 +17,8 @@
 - [x] [57-cli-help-parity-audit.md](.lovable/plans/completed/57-cli-help-parity-audit.md) — CLI commands, help text parity, subcommand registration, and AST consistency.
 - [x] [58-function-signatures-audit.md](.lovable/plans/completed/58-function-signatures-audit.md) — Function signatures, Rule 9a/9b multi-line formatting, and Result[T] envelope architecture.
 - [x] [59-typescript-types-audit.md](.lovable/plans/completed/59-typescript-types-audit.md) — TypeScript strict typing, zero any types, discriminated unions, and Result envelopes.
+- [x] [60-multi-language-enums-and-traits-audit.md](.lovable/plans/completed/60-multi-language-enums-and-traits-audit.md) — Multi-language enums, traits, string-backed enums, and *Type suffixes.
+- [x] [61-terminal-ui-and-cli-styling-audit.md](.lovable/plans/completed/61-terminal-ui-and-cli-styling-audit.md) — Terminal UI, bright bold ANSI palettes, Catppuccin pastel cycling, and Lipgloss banners.
 
 - [x] [01-coding-guidelines-and-boolean-refactoring.md](.lovable/plans/completed/01-coding-guidelines-and-boolean-refactoring.md) — Repository-wide coding standards, affirmative boolean prefixes, conditional flattening, and universal file hygiene.
 - [x] [02-error-management-and-exit-architecture.md](.lovable/plans/completed/02-error-management-and-exit-architecture.md) — Centralized application error handling, AppError wrappers, cliexit handlers, and CI error linter.

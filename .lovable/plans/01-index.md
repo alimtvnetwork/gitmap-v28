@@ -19,6 +19,8 @@ Master directory of architectural and execution plans.
 - [57-cli-help-parity-audit.md](completed/57-cli-help-parity-audit.md): CLI Commands, Help Text Parity & Help UI Audit Specification
 - [58-function-signatures-audit.md](completed/58-function-signatures-audit.md): Function Signatures, Invocations & Result Envelopes Audit Specification
 - [59-typescript-types-audit.md](completed/59-typescript-types-audit.md): TypeScript Strict Typing & Discriminated Unions Audit Specification
+- [60-multi-language-enums-and-traits-audit.md](completed/60-multi-language-enums-and-traits-audit.md): Multi-Language Enums, Traits & Pattern Matching Audit Specification
+- [61-terminal-ui-and-cli-styling-audit.md](completed/61-terminal-ui-and-cli-styling-audit.md): Terminal UI, CLI Styling, Lipgloss & Animations Audit Specification
 
 - [01-cicd-trigger-fix.md](completed/01-cicd-trigger-fix.md): 01-cicd-trigger-fix
 - [02-coding-guideline-fixes.md](completed/02-coding-guideline-fixes.md): 02-coding-guideline-fixes
