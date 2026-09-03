@@ -1,3 +1,19 @@
+## [v6.171.0] 2026-09-03 Release v6.171.0
+
+### Added & Enhanced
+
+- **E2E Smoke Test Suite Concurrency & 10x Acceleration (`.github/scripts/e2e-cli-smoke.py`)**:
+  - Re-architected CLI smoke testing suite to execute independent commands in parallel via a worker thread pool (`ThreadPoolExecutor`).
+  - Reduced test suite duration from ~60s down to ~4.8s across all 97 core commands and aliases.
+  - Implemented isolated sequential execution chains for stateful SQLite subcommands (`schedule` and `macro`) to eliminate lock contention.
+  - Added non-interactive execution guards (`GITMAP_NON_INTERACTIVE=1`), `CI=1`, and per-command timeouts (15s).
+  - Updated expected exit codes `[0, 1]` for language repository listing commands in unindexed / fresh workspaces.
+
+- **Non-Interactive Stdin Guarding & Database Lock Prevention**:
+  - Implemented `isInteractiveStdin()` terminal detection across database operations, preventing hanging `fmt.Scanln` prompts in subshells and automated runners.
+  - Added explicit `--help` / `-h` interceptors across `gitmap pipeline logs` and `gitmap pipeline error-logs`.
+  - Added `checkHelp` guard to `gitmap visibility-history` so help inspection renders immediately without acquiring database file locks (`data/gitmap.lock`).
+
 ## [v6.170.0] 2026-09-03 Release v6.170.0
 
 ### Added & Enhanced
