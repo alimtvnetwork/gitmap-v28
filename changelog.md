@@ -1,3 +1,25 @@
+## [v6.172.0] 2026-09-03 Release v6.172.0
+
+### Install GitMap v6.172.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.sh | bash -s -- ".lovable/prompts" "v6.172.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.172.0"`
+
+### Added & Enhanced
+
+- **TypeScript Strict Typing & ESLint Zero Errors**:
+  - Refactored empty interfaces (`CommandDialogProps`, `TextareaProps`) into explicit type aliases compliant with `@typescript-eslint/no-empty-object-type`.
+  - Converted ternary expression statements with side-effects in `Changelog.tsx` to clean, structured `if/else` control flow blocks with vertical line gaps.
+  - Modernized `tailwind.config.ts` by replacing CommonJS `require("tailwindcss-animate")` with ES Module `import tailwindcssAnimate from "tailwindcss-animate"`.
+
+- **Local CI/CD Runner Sequential Batching (`03-ai-scripts/06-cicd-local-runner.py`)**:
+  - Partitioned quality gates into 3 sequential batches (Linters/AST checks, Compiles/Builds, E2E Smoke Suite) to eliminate Windows file-locking race conditions on `bin/gitmap.exe`.
+  - Integrated `shutil.which` cross-platform binary path resolution across Windows and POSIX environments.
+
+- **Vertical Line-Gaps & Hygiene Compliance**:
+  - Applied vertical newline formatting (blank line after `}` and blank line before `return`) across core packages.
+  - Formatted multi-parameter function signatures to Rule 9a standards (one parameter per line with trailing commas).
+
 ## [v6.171.0] 2026-09-03 Release v6.171.0
 
 ### Added & Enhanced
