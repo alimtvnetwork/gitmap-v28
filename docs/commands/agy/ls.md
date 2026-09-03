@@ -24,9 +24,39 @@ gitmap agy ls show-projects-with-empty-conversations
 | `--filter`, `-f` | `""` | Filter projects by name or path |
 | `--json` | `false` | Emit results as structured JSON |
 
-## Examples
+## Examples for All Flags
 
+### 1. Default Listing
 ```bash
 gitmap agy ls
+```
+
+### 2. Detect Missing / Stale Workspaces (`--missing`, `-m`)
+```bash
+gitmap agy ls --missing
+```
+
+### 3. Filter by Name or Slug (`--filter`, `-f`)
+```bash
+gitmap agy ls -f "riseup"
+```
+
+### 4. Sort by Modification Timestamp (`--sort`, `-s`)
+```bash
+gitmap agy ls --sort time
+```
+
+### 5. Show Only Active Projects (`--active`, `-a`)
+```bash
+gitmap agy ls --active
+```
+
+### 6. Emit Machine-Readable JSON (`--json`)
+```bash
+gitmap agy ls --json
+```
+
+### 7. Audit Empty / Aborted Conversation Projects
+```bash
 gitmap agy ls show-projects-with-empty-conversations
 ```

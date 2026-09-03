@@ -2,6 +2,12 @@
 
 System diagnostics, self-updating, interactive TUI, and repository utilities.
 
+<div align="center">
+
+<img src="../../assets/utilities.svg" alt="GitMap Utilities Terminal Demo" width="850">
+
+</div>
+
 ## Commands
 
 | Command | Alias | Description |

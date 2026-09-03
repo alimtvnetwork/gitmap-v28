@@ -1,5 +1,11 @@
 # Database Architecture & Management (`gitmap db`)
 
+<div align="center">
+
+<img src="../../assets/db.svg" alt="GitMap Database Management Terminal Demo" width="850">
+
+</div>
+
 GitMap employs a hybrid database architecture:
 1. **Primary Master Database (`bin/data/gitmap.db`)**: Central repository, bookmark, tag, and profile store.
 2. **Split Search Databases (`bin/data/repo_search/*.db`)**: Dedicated per-repository databases for file lists and search caches to eliminate SQLite WAL write lock contention during parallel multi-goroutine scans.

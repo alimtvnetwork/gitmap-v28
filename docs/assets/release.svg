@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" width="900" height="480">
+  <defs>
+    <linearGradient id="winGrad_release" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e1e2e"/>
+      <stop offset="100%" stop-color="#11111b"/>
+    </linearGradient>
+    <linearGradient id="barGrad_release" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#313244"/>
+      <stop offset="100%" stop-color="#181825"/>
+    </linearGradient>
+    <filter id="shadow_release" x="-5%" y="-5%" width="115%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="480" fill="#0b0b14"/>
+
+  <!-- Grid lines -->
+  <g opacity="0.04">
+    <line x1="0" y1="60" x2="900" y2="60" stroke="#cdd6f4" stroke-width="1"/>
+    <line x1="0" y1="120" x2="900" y2="120" stroke="#cdd6f4" stroke-width="1"/>
+    <line x1="0" y1="180" x2="900" y2="180" stroke="#cdd6f4" stroke-width="1"/>
+    <line x1="0" y1="240" x2="900" y2="240" stroke="#cdd6f4" stroke-width="1"/>
+    <line x1="0" y1="300" x2="900" y2="300" stroke="#cdd6f4" stroke-width="1"/>
+    <line x1="0" y1="360" x2="900" y2="360" stroke="#cdd6f4" stroke-width="1"/>
+    <line x1="0" y1="420" x2="900" y2="420" stroke="#cdd6f4" stroke-width="1"/>
+  </g>
+
+  <!-- Window Frame -->
+  <g filter="url(#shadow_release)">
+    <rect x="25" y="20" width="850" height="440" rx="10" ry="10" fill="url(#winGrad_release)" stroke="#45475a" stroke-width="1"/>
+    <rect x="25" y="20" width="850" height="36" rx="10" ry="10" fill="url(#barGrad_release)"/>
+    <rect x="25" y="44" width="850" height="12" fill="url(#barGrad_release)"/>
+    <circle cx="50" cy="38" r="6" fill="#f38ba8"/>
+    <circle cx="70" cy="38" r="6" fill="#f9e2af"/>
+    <circle cx="90" cy="38" r="6" fill="#a6e3a1"/>
+    <text x="450" y="42" text-anchor="middle" fill="#a6adc8" font-size="12" font-weight="600" font-family="Menlo, Monaco, Consolas, monospace">gitmap release — terminal session</text>
+  </g>
+
+  <!-- Output Lines -->
+  <g font-family="Menlo, Monaco, Consolas, monospace" font-size="12">
+    <!-- Prompt Line 1 -->
+    <text x="48" y="86" fill="#a6e3a1">❯</text>
+    <text x="64" y="86" fill="#89dceb">~/gitmap</text>
+    <text x="130" y="86" fill="#f5c2e7">$</text>
+    <text x="145" y="86" fill="#cdd6f4" font-weight="bold">gitmap release --bump minor --draft --compress</text>
+
+    <text x="48" y="112" fill="#89b4fa"><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.1;1" dur="10s" repeatCount="indefinite"/>Executing GitMap Release Protocol [minor bump: v6.165.0 -> v6.166.0]...</text>
+    <text x="48" y="134" fill="#a6e3a1"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.12;0.15;1" dur="10s" repeatCount="indefinite"/>  ✓ Generated changelog between tags</text>
+    <text x="48" y="154" fill="#a6e3a1"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.15;0.18;1" dur="10s" repeatCount="indefinite"/>  ✓ Cross-compiled binaries & compressed zip archives</text>
+    <text x="48" y="174" fill="#a6e3a1"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.18;0.22;1" dur="10s" repeatCount="indefinite"/>✓ Draft release v6.166.0 published to GitHub successfully.</text>
+
+    <!-- Prompt Line 2 -->
+    <text x="48" y="220" fill="#a6e3a1"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.45;0.48;1" dur="10s" repeatCount="indefinite"/>❯</text>
+    <text x="64" y="220" fill="#89dceb"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.45;0.48;1" dur="10s" repeatCount="indefinite"/>~/gitmap</text>
+    <text x="130" y="220" fill="#f5c2e7"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.45;0.48;1" dur="10s" repeatCount="indefinite"/>$</text>
+    <text x="145" y="220" fill="#cdd6f4" font-weight="bold"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.45;0.48;1" dur="10s" repeatCount="indefinite"/>gitmap list-versions --limit 2</text>
+
+    <text x="48" y="246" fill="#bac2de"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.52;0.55;1" dur="10s" repeatCount="indefinite"/>TAG         COMMIT    DATE        NOTES</text>
+    <line x1="48" y1="254" x2="830" y2="254" stroke="#45475a" stroke-width="1"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.52;0.55;1" dur="10s" repeatCount="indefinite"/></line>
+    <text x="48" y="274" fill="#a6e3a1"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.55;0.58;1" dur="10s" repeatCount="indefinite"/>v6.166.0    3c365d7   2026-09-03  Antigravity empty conversation pruner</text>
+    <text x="48" y="294" fill="#cdd6f4"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.58;0.62;1" dur="10s" repeatCount="indefinite"/>v6.165.0    8ab12e4   2026-09-02  Database suite & cross-platform deduplication</text>
+  </g>
+</svg>

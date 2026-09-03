@@ -2,6 +2,12 @@
 
 Package releases, install developer tools, and replay terminal automation macros.
 
+<div align="center">
+
+<img src="../../assets/automation.svg" alt="GitMap Automation Terminal Demo" width="850">
+
+</div>
+
 ## Commands
 
 ### Developer Tool Installers (`gitmap installer`)

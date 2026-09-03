@@ -2,6 +2,12 @@
 
 Scan and remediate duplicate projects, profiles, and repositories across developer tooling with copy-pasteable remediation CLI commands printed immediately beneath findings.
 
+<div align="center">
+
+<img src="../../assets/find-duplicates.svg" alt="GitMap Deduplication Terminal Demo" width="850">
+
+</div>
+
 ## Subcommand Scopes
 
 | File | Subcommand | Target Platform |

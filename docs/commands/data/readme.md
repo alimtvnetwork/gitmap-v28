@@ -2,6 +2,12 @@
 
 Isolate configurations, bookmark command flows, and relocate repository folders safely.
 
+<div align="center">
+
+<img src="../../assets/data.svg" alt="GitMap Data Management Terminal Demo" width="850">
+
+</div>
+
 ## Commands
 
 ### `gitmap profile <subcommand>`

@@ -1,5 +1,11 @@
 # VS Code Project Manager Integration (`gitmap vscode`)
 
+<div align="center">
+
+<img src="../../assets/vscode.svg" alt="GitMap VS Code Terminal Demo" width="850">
+
+</div>
+
 Synchronize GitMap repositories into the VS Code Project Manager extension (`projects.json`).
 
 ## Commands

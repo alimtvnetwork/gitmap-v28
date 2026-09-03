@@ -2,6 +2,12 @@
 
 Scaffold standardized configuration files with idempotent marker-block preservation.
 
+<div align="center">
+
+<img src="../../assets/templates.svg" alt="GitMap Templates Terminal Demo" width="850">
+
+</div>
+
 ## Commands
 
 ### `gitmap add <target>`

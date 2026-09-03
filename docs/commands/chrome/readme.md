@@ -1,5 +1,11 @@
 # Chrome Browser Profile Suite (`gitmap chrome`)
 
+<div align="center">
+
+<img src="../../assets/chrome.svg" alt="GitMap Chrome Profile Terminal Demo" width="850">
+
+</div>
+
 Manage, backup, clone, and merge Chrome browser profiles.
 
 ## Commands

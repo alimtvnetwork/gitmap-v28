@@ -2,6 +2,12 @@
 
 Fast repository jumping, grouping for batch commands, and navigation aliases.
 
+<div align="center">
+
+<img src="../../assets/navigation.svg" alt="GitMap Navigation Terminal Demo" width="850">
+
+</div>
+
 ## Commands
 
 ### `gitmap cd <name>`

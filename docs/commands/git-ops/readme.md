@@ -2,15 +2,43 @@
 
 Execute Git operations across individual, grouped, or all repositories.
 
-## Commands
+<div align="center">
 
-### `gitmap pull [name]`
+<img src="../../assets/git-ops.svg" alt="GitMap Git Operations Terminal Demo" width="850">
+
+</div>
+
+## Commands & Flags
+
+### 1. `gitmap pull [name]`
 * **Alias:** `p`
-* Pulls changes with non-unlink failure diagnostics and multi-repo tabular status display.
-* Flags: `--all` (alias: `gitmap pull-all`), `--group <name>`, `--verbose`.
+* **Flags:**
+  * `--all` (alias: `gitmap pull-all`): Pull all tracked repositories concurrently.
+  * `--group <name>`: Pull only repositories within a specified group.
+  * `--verbose`: Show detailed git output during pulls.
+* **Examples:**
+  ```bash
+  # Pull single repo with failure diagnostics
+  gitmap pull my-repo
 
-### `gitmap fix [repo] [action]`
-* Remediates pull conflicts and dirty working tree collisions (`stash`, `wip`, `discard`).
+  # Pull all tracked repos in parallel
+  gitmap pull --all
+
+  # Pull all repos in the 'backend' group
+  gitmap pull --group backend
+  ```
+
+### 2. `gitmap fix [repo] [action]`
+Remediate pull collisions and untracked file conflicts.
+* **Actions:** `stash`, `wip`, `discard`.
+* **Examples:**
+  ```bash
+  # Stash changes, pull, and pop stash
+  gitmap fix my-repo stash
+
+  # Discard untracked collision files
+  gitmap fix my-repo discard
+  ```
 
 ### `gitmap push`
 * **Alias:** `ph`

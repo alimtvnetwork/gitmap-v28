@@ -2,12 +2,37 @@
 
 Automate release ceremonies, Git tagging, changelog generation, and asset distribution.
 
-## Commands
+<div align="center">
 
-### `gitmap release [ver]`
+<img src="../../assets/release.svg" alt="GitMap Release Terminal Demo" width="850">
+
+</div>
+
+## Commands & Flags
+
+### 1. `gitmap release [ver]`
 * **Alias:** `r`
-* Validates working tree, bumps version, generates changelog, builds cross-compiled binaries, creates Git tag, pushes release branch, and publishes to GitHub.
-* Flags: `--bump major|minor|patch`, `--draft`, `--dry-run`, `--assets <path>`, `--bin` (`-b`), `--targets <list>`, `--compress`, `--checksums`, `--yes` (`-y`).
+* **Flags:**
+  * `--bump major|minor|patch`: Auto-increments version number.
+  * `--draft`: Creates an unpublished draft release on GitHub.
+  * `--dry-run`: Previews release actions without executing git tag or push.
+  * `--bin` (`-b`): Cross-compiles Go binaries and includes in release assets.
+  * `--targets <list>`: Cross-compile targets (e.g. `windows/amd64,linux/arm64`).
+  * `--compress`: Compresses binaries into `.zip` (Windows) or `.tar.gz`.
+  * `--checksums`: Generates `SHA256` checksums file.
+  * `--yes` (`-y`): Auto-confirms prompts.
+
+#### Flag Examples:
+```bash
+# Minor bump with cross-compiled binaries and compression
+gitmap release --bump minor --bin --compress --yes
+
+# Create draft patch release
+gitmap release --bump patch --draft
+
+# Preview release steps safely
+gitmap release --dry-run
+```
 
 ### `gitmap pull-release [ver]`
 * **Alias:** `pr`
