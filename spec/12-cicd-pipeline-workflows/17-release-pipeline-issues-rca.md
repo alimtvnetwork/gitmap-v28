@@ -21,7 +21,7 @@
 | 6 | Job-level `if` blocks required status checks | CI: SHA dedup | 🟠 High | sibling-ref |
 | 7 | `cancel-in-progress` cancels marker job | CI: cache write | 🟠 High | sibling-ref |
 | 8 | `@latest` tool/action installs non-reproducible | CI: setup | 🟡 Medium | sibling-ref |
-| 9 | Release branch run cancelled by follow-up commit | release: concurrency | 🔴 Blocker | sibling-ref |
+| 9 | Release branch run canceled by follow-up commit | release: concurrency | 🔴 Blocker | sibling-ref |
 | 10 | Install-script placeholder unreplaced | release: script gen | 🟠 High | sibling-ref |
 | 11 | Missing `GITHUB_TOKEN` silently skips upload | release: asset upload | 🟡 Medium | sibling-ref |
 | 12 | Asset name mismatch between checksum and upload | release: packaging | 🟠 High | sibling-ref |
@@ -229,7 +229,7 @@ Error: Process completed with exit code 1.
 
 ### Issue #7 — `cancel-in-progress` Cancels the Marker Job
 
-**Symptom:** A trailing `mark-success` job that writes the `ci-passed-<SHA>` cache entry was intermittently cancelled by `cancel-in-progress: true`, leaving the SHA uncached and forcing full re-runs on the next push.
+**Symptom:** A trailing `mark-success` job that writes the `ci-passed-<SHA>` cache entry was intermittently canceled by `cancel-in-progress: true`, leaving the SHA uncached and forcing full re-runs on the next push.
 
 **Root cause:** When all validation jobs finish and `mark-success` is queued, a new push to the same ref cancels the entire workflow run — including the still-pending marker job.
 
@@ -262,9 +262,9 @@ Error: Process completed with exit code 1.
 
 ---
 
-### Issue #9 — Release Branch Run Cancelled by Follow-Up Commit
+### Issue #9 — Release Branch Run Canceled by Follow-Up Commit
 
-**Symptom:** A push to `release/vX.Y.Z` started the release workflow. A follow-up commit (changelog typo fix) on the same branch cancelled the in-progress run, leaving artifacts half-built and the GitHub Release inconsistent.
+**Symptom:** A push to `release/vX.Y.Z` started the release workflow. A follow-up commit (changelog typo fix) on the same branch canceled the in-progress run, leaving artifacts half-built and the GitHub Release inconsistent.
 
 **Root cause:** `concurrency.cancel-in-progress: true` is appropriate for PRs but catastrophic for release branches where every commit must produce complete artifacts.
 
