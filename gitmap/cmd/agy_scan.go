@@ -46,10 +46,16 @@ func runAgyScan(args []string) error {
 
 func resolveAgyScanRoot(args []string) string {
 	if len(args) > 0 && args[0] != "" {
-		abs, err := filepath.Abs(args[0])
-		if err == nil {
-			return abs
-		}
+		return resolveTargetAbs(args[0])
+	}
+	cwd, _ := os.Getwd()
+	return cwd
+}
+
+func resolveTargetAbs(raw string) string {
+	abs, err := filepath.Abs(raw)
+	if err == nil {
+		return abs
 	}
 	cwd, _ := os.Getwd()
 	return cwd

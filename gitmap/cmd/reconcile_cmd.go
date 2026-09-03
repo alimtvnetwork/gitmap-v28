@@ -44,10 +44,10 @@ func parseReconcileArgs(args []string) (string, string) {
 	if len(args) == 0 {
 		return "", "stash"
 	}
+	if len(args) == 1 && isNamedAction(args[0]) {
+		return "", args[0]
+	}
 	if len(args) == 1 {
-		if isNamedAction(args[0]) {
-			return "", args[0]
-		}
 		return args[0], "stash"
 	}
 	if isNamedAction(args[0]) {

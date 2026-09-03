@@ -10,14 +10,10 @@ import (
 )
 
 func runDBResetAction(args []string) error {
-	isConfirmed := hasConfirmFlag(args)
-	if !isConfirmed {
-		msg := constants.ColorYellow + "Are you sure you want to reset the database? All tracked repository records and split databases will be cleared. [y/N]: " + constants.ColorReset
-		ok, err := promptConfirm(msg)
-		if err != nil || !ok {
-			fmt.Println(constants.ColorDim + "Database reset canceled." + constants.ColorReset)
-			return nil
-		}
+	msg := constants.ColorYellow + "Are you sure you want to reset the database? All tracked repository records and split databases will be cleared. [y/N]: " + constants.ColorReset
+	if !confirmOrSkip(msg, args) {
+		fmt.Println(constants.ColorDim + "Database reset canceled." + constants.ColorReset)
+		return nil
 	}
 	return performDBReset()
 }
@@ -49,13 +45,19 @@ func clearSplitDBFiles() int {
 			continue
 		}
 		for _, e := range entries {
-			if !e.IsDir() {
-				target := dir + string(os.PathSeparator) + e.Name()
-				if rmErr := os.Remove(target); rmErr == nil {
-					count++
-				}
-			}
+			count += removeSingleSplitEntry(dir, e)
 		}
 	}
 	return count
+}
+
+func removeSingleSplitEntry(dir string, e os.DirEntry) int {
+	if e.IsDir() {
+		return 0
+	}
+	target := dir + string(os.PathSeparator) + e.Name()
+	if rmErr := os.Remove(target); rmErr == nil {
+		return 1
+	}
+	return 0
 }

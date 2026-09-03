@@ -107,15 +107,17 @@ func matchesAgyFilter(p AgyProject) bool {
 	if agyLsOnlyActive && isMissing {
 		return false
 	}
-	if agyLsFilter != "" {
-		term := strings.ToLower(agyLsFilter)
-		matchesName := strings.Contains(strings.ToLower(p.Name), term)
-		matchesPath := strings.Contains(strings.ToLower(path), term)
-		if !matchesName && !matchesPath {
-			return false
-		}
+	if agyLsFilter != "" && !matchesFilter(p.Name, path, agyLsFilter) {
+		return false
 	}
 	return true
+}
+
+func matchesFilter(name, path, filter string) bool {
+	term := strings.ToLower(filter)
+	matchesName := strings.Contains(strings.ToLower(name), term)
+	matchesPath := strings.Contains(strings.ToLower(path), term)
+	return matchesName || matchesPath
 }
 
 func sortAgyProjects(projects []AgyProject, sortBy string) {

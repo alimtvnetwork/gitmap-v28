@@ -1,4 +1,3 @@
-// Package vscodepm — optimize.go implements project deduplication and clearance.
 package vscodepm
 
 import (
@@ -7,13 +6,13 @@ import (
 	"strings"
 )
 
-// OptimizeSummary holds metrics from an optimize run.
+// OptimizeSummary contains counts of removed and remaining entries.
 type OptimizeSummary struct {
 	Removed   int
 	Remaining int
 }
 
-// OptimizeProjects removes duplicate entries sharing the same RootPath.
+// OptimizeProjects cleans up duplicate entries in projects.json.
 func OptimizeProjects(exceptList []string, dryRun bool) (OptimizeSummary, error) {
 	path, err := ProjectsJSONPath()
 	if err != nil {
@@ -29,10 +28,19 @@ func OptimizeProjectsAt(filePath string, exceptList []string, dryRun bool) (Opti
 		return OptimizeSummary{}, err
 	}
 	deduped, removed := deduplicateEntries(entries, exceptList)
-	if !dryRun && removed > 0 {
-		if err := writeEntriesAtomic(filePath, deduped); err != nil {
-			return OptimizeSummary{}, err
-		}
+	if shouldWrite(dryRun, removed) {
+		return commitOptimizedEntries(filePath, deduped, removed)
+	}
+	return OptimizeSummary{Removed: removed, Remaining: len(deduped)}, nil
+}
+
+func shouldWrite(dryRun bool, count int) bool {
+	return !dryRun && count > 0
+}
+
+func commitOptimizedEntries(filePath string, deduped []Entry, removed int) (OptimizeSummary, error) {
+	if err := writeEntriesAtomic(filePath, deduped); err != nil {
+		return OptimizeSummary{}, err
 	}
 	return OptimizeSummary{Removed: removed, Remaining: len(deduped)}, nil
 }
@@ -89,12 +97,17 @@ func ClearProjectsWithTargetsAt(filePath string, exceptList []string, onlyMissin
 		return OptimizeSummary{}, nil, err
 	}
 	targets, remaining := GetClearTargets(entries, exceptList, onlyMissing)
-	if !dryRun && len(targets) > 0 {
-		if err := writeEntriesAtomic(filePath, remaining); err != nil {
-			return OptimizeSummary{}, nil, err
-		}
+	if err := maybeWriteRemaining(filePath, remaining, len(targets), dryRun); err != nil {
+		return OptimizeSummary{}, nil, err
 	}
 	return OptimizeSummary{Removed: len(targets), Remaining: len(remaining)}, targets, nil
+}
+
+func maybeWriteRemaining(filePath string, remaining []Entry, targetCount int, dryRun bool) error {
+	if dryRun || targetCount == 0 {
+		return nil
+	}
+	return writeEntriesAtomic(filePath, remaining)
 }
 
 // GetClearTargets partitions entries into targets to clear and remaining entries.
@@ -134,12 +147,17 @@ func isEntryExcepted(e Entry, exceptList []string, index int) bool {
 		if strings.HasPrefix(lowName, ex) || strings.HasPrefix(lowSlug, ex) {
 			return true
 		}
-		if strings.Contains(ex, "/") || strings.Contains(ex, "\\") {
-			cleanEx := strings.ToLower(filepath.Clean(ex))
-			if lowPath == cleanEx || strings.HasSuffix(lowPath, cleanEx) {
-				return true
-			}
+		if matchesPathException(lowPath, ex) {
+			return true
 		}
 	}
 	return false
+}
+
+func matchesPathException(lowPath, ex string) bool {
+	if !strings.Contains(ex, "/") && !strings.Contains(ex, "\\") {
+		return false
+	}
+	cleanEx := strings.ToLower(filepath.Clean(ex))
+	return lowPath == cleanEx || strings.HasSuffix(lowPath, cleanEx)
 }

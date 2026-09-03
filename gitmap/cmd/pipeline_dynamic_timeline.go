@@ -28,10 +28,10 @@ func watchDynamicTimeline(repo, workflowName string, isJSON bool) error {
 	for {
 		runs := queryWorkflowRuns(repo)
 		active := findActiveWorkflowRun(runs)
+		if active == nil && len(runs) > 0 {
+			return reportCompletedTimeline(runs[0], repo, isJSON)
+		}
 		if active == nil {
-			if len(runs) > 0 {
-				return reportCompletedTimeline(runs[0], repo, isJSON)
-			}
 			break
 		}
 		eta := calculateETA(runs)
@@ -68,15 +68,18 @@ func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 	return nil
 }
 
+func locateFailedRunID(runs []ghRunItem) int64 {
+	for _, r := range runs {
+		if r.Conclusion == "failure" {
+			return r.DatabaseID
+		}
+	}
+	return 0
+}
+
 func renderFailureErrorSummary(repo string, runID int64) {
 	if runID <= 0 {
-		runs := queryWorkflowRuns(repo)
-		for _, r := range runs {
-			if r.Conclusion == "failure" {
-				runID = r.DatabaseID
-				break
-			}
-		}
+		runID = locateFailedRunID(queryWorkflowRuns(repo))
 	}
 	if runID <= 0 {
 		return

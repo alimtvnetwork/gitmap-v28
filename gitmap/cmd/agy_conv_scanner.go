@@ -43,14 +43,20 @@ func scanAllConversations() ([]AgyConvInfo, error) {
 	}
 	var out []AgyConvInfo
 	for _, e := range entries {
-		if !e.IsDir() && strings.HasSuffix(e.Name(), ".db") {
-			full := filepath.Join(dir, e.Name())
-			if info, ok := readSingleConvDB(full, e.Name()); ok {
-				out = append(out, info)
-			}
+		info, ok := tryReadConvEntry(dir, e)
+		if ok {
+			out = append(out, info)
 		}
 	}
 	return out, nil
+}
+
+func tryReadConvEntry(dir string, e os.DirEntry) (AgyConvInfo, bool) {
+	if e.IsDir() || !strings.HasSuffix(e.Name(), ".db") {
+		return AgyConvInfo{}, false
+	}
+	full := filepath.Join(dir, e.Name())
+	return readSingleConvDB(full, e.Name())
 }
 
 func readSingleConvDB(dbPath, fileName string) (AgyConvInfo, bool) {
@@ -124,11 +130,12 @@ func findMatchingConvs(pClean string, convs []AgyConvInfo) ([]AgyConvInfo, bool)
 	var matched []AgyConvInfo
 	hasActive := false
 	for _, c := range convs {
-		if isConvPathMatch(pClean, c.CleanPath) {
-			matched = append(matched, c)
-			if isConvActive(c) {
-				hasActive = true
-			}
+		if !isConvPathMatch(pClean, c.CleanPath) {
+			continue
+		}
+		matched = append(matched, c)
+		if isConvActive(c) {
+			hasActive = true
 		}
 	}
 	return matched, hasActive

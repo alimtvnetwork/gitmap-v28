@@ -60,10 +60,7 @@ func executeAgyReconcile(dirPath string, missing []AgyProject) error {
 	for _, p := range missing {
 		candidate := findCandidateRepoPath(p.Name, filepath.Base(p.GetPath()))
 		if candidate != "" {
-			printReconcileMatch(p.Name, p.GetPath(), candidate)
-			if !agyReconcileDryRun {
-				_ = saveReconciledProject(dirPath, p, candidate)
-			}
+			reconcileSingleProject(dirPath, p, candidate)
 			reconciled++
 			continue
 		}
@@ -71,6 +68,13 @@ func executeAgyReconcile(dirPath string, missing []AgyProject) error {
 	}
 	printReconcileSummary(reconciled, len(unresolved), len(missing))
 	return nil
+}
+
+func reconcileSingleProject(dirPath string, p AgyProject, candidate string) {
+	printReconcileMatch(p.Name, p.GetPath(), candidate)
+	if !agyReconcileDryRun {
+		_ = saveReconciledProject(dirPath, p, candidate)
+	}
 }
 
 func findCandidateRepoPath(name, baseName string) string {
@@ -81,10 +85,9 @@ func findCandidateRepoPath(name, baseName string) string {
 	}
 	for _, r := range records {
 		rBase := filepath.Base(r.AbsolutePath)
-		if strings.EqualFold(rBase, baseName) || strings.EqualFold(r.RepoName, name) {
-			if checkDirExists(r.AbsolutePath) {
-				return r.AbsolutePath
-			}
+		matches := strings.EqualFold(rBase, baseName) || strings.EqualFold(r.RepoName, name)
+		if matches && checkDirExists(r.AbsolutePath) {
+			return r.AbsolutePath
 		}
 	}
 	return ""
@@ -117,12 +120,7 @@ func saveReconciledProject(dirPath string, p AgyProject, newPath string) error {
 func printReconcileSummary(reconciled, unresolvedCount, totalMissing int) {
 	fmt.Printf("  %s\n", strings.Repeat("─", 68))
 	if reconciled > 0 {
-		action := "Re-linked"
-		if agyReconcileDryRun {
-			action = "Identified for re-linking (dry-run)"
-		}
-		fmt.Printf("  %s %s %d project(s) successfully.\n",
-			constants.ColorGreen+"✓"+constants.ColorReset, action, reconciled)
+		printReconciledStatus(reconciled)
 	}
 	if unresolvedCount > 0 {
 		fmt.Printf("  %s %d project(s) remain unresolved (path not found in tracked repositories).\n",
@@ -131,4 +129,13 @@ func printReconcileSummary(reconciled, unresolvedCount, totalMissing int) {
 		fmt.Println("    To re-scan: gitmap agy scan [path]")
 	}
 	fmt.Println()
+}
+
+func printReconciledStatus(reconciled int) {
+	action := "Re-linked"
+	if agyReconcileDryRun {
+		action = "Identified for re-linking (dry-run)"
+	}
+	fmt.Printf("  %s %s %d project(s) successfully.\n",
+		constants.ColorGreen+"✓"+constants.ColorReset, action, reconciled)
 }

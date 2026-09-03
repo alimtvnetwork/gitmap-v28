@@ -31,21 +31,27 @@ func recordInPipelineSplitDB(p PipelineStatusPayload, runs []ghRunItem) {
 			CreatedAt:    r.CreatedAt,
 			UpdatedAt:    r.UpdatedAt,
 		})
-		if r.Conclusion == "failure" {
-			raw := queryFailedRunLogs(p.Repo, r.DatabaseID)
-			clean := extractCleanErrorLines(raw)
-			if clean != "" {
-				_ = pipeDB.RecordErrorLog(pipelinedb.PipelineErrorRecord{
-					RunID:        r.DatabaseID,
-					RepoSlug:     p.Repo,
-					WorkflowName: r.Name,
-					StepName:     "Failed Step",
-					ErrorText:    clean,
-					RawLogs:      raw,
-				})
-			}
-		}
+		recordSingleFailedRun(pipeDB, p.Repo, r)
 	}
+}
+
+func recordSingleFailedRun(pipeDB *pipelinedb.PipelineSplitDB, repo string, r ghRunItem) {
+	if r.Conclusion != "failure" {
+		return
+	}
+	raw := queryFailedRunLogs(repo, r.DatabaseID)
+	clean := extractCleanErrorLines(raw)
+	if clean == "" {
+		return
+	}
+	_ = pipeDB.RecordErrorLog(pipelinedb.PipelineErrorRecord{
+		RunID:        r.DatabaseID,
+		RepoSlug:     repo,
+		WorkflowName: r.Name,
+		StepName:     "Failed Step",
+		ErrorText:    clean,
+		RawLogs:      raw,
+	})
 }
 
 func recordInMasterDB(p PipelineStatusPayload, runs []ghRunItem) {

@@ -39,14 +39,20 @@ func dedupeDirs(raw []string) []string {
 	var out []string
 	for _, d := range raw {
 		clean := filepath.Clean(d)
-		if !seen[clean] {
-			seen[clean] = true
-			if info, err := os.Stat(clean); err == nil && info.IsDir() {
-				out = append(out, clean)
-			}
+		if seen[clean] {
+			continue
+		}
+		seen[clean] = true
+		if isExistingDir(clean) {
+			out = append(out, clean)
 		}
 	}
 	return out
+}
+
+func isExistingDir(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
 }
 
 func formatBytes(bytes int64) string {
@@ -72,6 +78,14 @@ func promptConfirm(msg string) (bool, error) {
 	ans := strings.ToLower(strings.TrimSpace(line))
 	hasConfirmed := ans == "y" || ans == "yes"
 	return hasConfirmed, nil
+}
+
+func confirmOrSkip(msg string, args []string) bool {
+	if hasConfirmFlag(args) {
+		return true
+	}
+	hasConfirmed, err := promptConfirm(msg)
+	return err == nil && hasConfirmed
 }
 
 func hasConfirmFlag(args []string) bool {

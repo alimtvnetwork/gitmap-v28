@@ -40,11 +40,7 @@ func resolveFixTarget(args []string, aliasOverride string, items []RemediationIt
 		action = aliasOverride
 	}
 	if repoQuery != "" {
-		matched := FindRemediationItem(items, repoQuery)
-		if matched == nil {
-			return nil, "", apperror.New("fix", "E_NOT_FOUND", map[string]any{"msg": fmt.Sprintf("Repository %q not found in pending remediation list.", repoQuery)})
-		}
-		return matched, action, nil
+		return findItemOrError(items, repoQuery, action)
 	}
 	if len(items) == 1 {
 		return &items[0], action, nil
@@ -88,4 +84,12 @@ func executeFixRecipe(item *RemediationItem, recipe gitutil.RemediationRecipe) e
 	fmt.Printf("\n%s Fix applied successfully on %s\n", constants.ColorGreen+"✓"+constants.ColorReset, item.RepoName)
 	RemoveRemediationItem(item.RepoName)
 	return nil
+}
+
+func findItemOrError(items []RemediationItem, repoQuery, action string) (*RemediationItem, string, error) {
+	matched := FindRemediationItem(items, repoQuery)
+	if matched == nil {
+		return nil, "", apperror.New("fix", "E_NOT_FOUND", map[string]any{"msg": fmt.Sprintf("Repository %q not found in pending remediation list.", repoQuery)})
+	}
+	return matched, action, nil
 }
