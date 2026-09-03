@@ -8,17 +8,18 @@ trigger:
 
   When working on the Gitmap repository, you MUST adhere to the following rules at all times. Failure to follow these rules will break the DB audit logging and violate the project's standards.
 
-  ### 1. Error Management (CRITICAL)
-  - **Always Return `*apperror.AppError`**: Command handlers and core application code must return `*apperror.AppError` (or `error`), never a generic string or direct terminal print.
-  - **No `os.Exit(1)`**: Never use `os.Exit(1)` or `pterm.Error.Println` inside helper functions or command handlers. If a function encounters a fatal error, it MUST return an error up the call stack.
-  - **Database Audit Capture**: Errors must bubble up to the `dispatch` handler in `root.go` so they can be captured by `finishCommandAudit`. The exit code and error string are logged into the SQLite database.
-  - **Full Text Compilation**: Ensure errors that are meant to be shown in the terminal are compiled to a full text combination (e.g., via `err.Error()`) before they are emitted or logged.
+  ### 1. Error Management & Architecture (CRITICAL)
+  - **Error Return Sovereignty**: Leaf functions that declare an `error` return type MUST return the error directly (`return err` or `return apperror.Wrap(...)`). Leaf functions MUST NEVER call exit handlers (`cliexit.HandleError`) or `os.Exit` and then return `nil`.
+  - **Outer Caller Handles Exits**: Only the top-level orchestrator or root command dispatcher receives the error and decides how to terminate or report.
+  - **No Magic Integer Exit Codes**: Never pass raw integers (`1`, `2`) to exit handlers. Always use strongly-typed enums ending in `Type` (`ExitCodeType`, `constants.ExitGeneralError`, `constants.ExitUsageError`).
+  - **Parameter Reduction via Specialized Helpers**: Repeated handler calls with constant codes should use specialized helpers (`cliexit.HandleValidationError`, `cliexit.HandleUsageError`).
+  - **Database Audit Capture**: Errors bubble up to `dispatch` handlers in `root.go` so they are captured by `finishCommandAudit`.
 
   ### 2. Coding Style & Naming Rules
-  - **Boolean Naming**: All booleans MUST begin with `is`, `has`, `can`, or `should`. NO negative booleans (e.g., use `isValid`, not `isInvalid`).
-  - **15-Line Function Limit**: Strictly adhere to the 15-line maximum size for functions. Break down larger functions into smaller helpers.
-  - **No Magic Strings**: Extract all magic strings to constants.
-  - **Return Styling**: Before any `return` statement, there MUST be an empty newline, following the project's style guidelines.
+  - **Boolean Naming**: All booleans MUST begin with `is` or `has` ONLY (`can`, `should`, `was`, `will` are banned). NO negative booleans.
+  - **15-Line Function Limit**: Functions <= 8 lines preferred, <= 15 lines max.
+  - **Zero Nested Ifs**: Flatten all nested conditionals with guard clauses and early returns.
+  - **Return Styling**: Blank line after `}` and blank line before `return`.
   
   ### 3. Automated Refactoring Warning
-  - **No Blind Regex Mass Refactoring**: Never run automated scripts (like Python regex or PowerShell replace) that blindly replace `os.Exit(1)` with `return apperror` across the codebase without properly matching and fixing the helper function's return signature. This will break hundreds of files. If you must mass-refactor, use proper Go AST tools.
+  - **No Blind Regex Mass Refactoring**: Never blindly regex-replace exit calls without matching function return signatures.

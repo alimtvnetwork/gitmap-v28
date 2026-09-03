@@ -9,7 +9,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
 )
@@ -76,18 +76,23 @@ func isFileFlagWithArg(arg string) bool {
 	return lower == "--file" || lower == "--filepath" || lower == "--out" || lower == "--output" || lower == "-o" || lower == "-f"
 }
 
-func executeMacroByName(macroName string, opts macro.ExecOptions) {
+func executeMacroByName(macroName string, opts macro.ExecOptions) error {
 	loadedMacro, loadErr := macro.LoadMacro(macroName)
 	if loadErr != nil {
 		fmt.Fprintf(os.Stderr, "%s✖ Error: %v%s\n", constants.ColorRed, loadErr, constants.ColorReset)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(loadErr, "macro.LoadMacro")
 	}
+
 	if isStandardDisplay(opts) && len(loadedMacro.Steps) > 0 {
 		printMacroStepsTree(loadedMacro)
 	}
+
 	if execErr := macro.Execute(context.Background(), loadedMacro, opts); execErr != nil {
-		cliexit.HandleError(nil, 1)
+		return apperror.WrapSimple(execErr, "macro.Execute")
 	}
+
+	return nil
 }
 
 func isStandardDisplay(opts macro.ExecOptions) bool {
@@ -98,18 +103,22 @@ func runExecuteCmd(args []string) error {
 	macroName, flagArgs := extractMacroNameAndFlags(args)
 	if macroName == "" {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap macro run <name> [--json] [--yaml] [--file <path>] [--dry-run] [--verbose]\n")
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewValidationError("missing required macro name")
 	}
+
 	opts := parseExecOptions(flagArgs)
-	executeMacroByName(macroName, opts)
-	return nil
+
+	return executeMacroByName(macroName, opts)
 }
 
 func runMacroCmd(args []string) error {
 	if len(args) == 0 {
 		printMacroUsage()
+
 		return nil
 	}
+
 	return routeMacroSubcommand(args[0], args[1:])
 }
 
@@ -132,18 +141,23 @@ func routeMacroSubcommand(sub string, rest []string) error {
 	default:
 		printMacroUsage()
 	}
+
 	return nil
 }
 
 func handleMacroRecord(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap macro record <name>\n")
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewValidationError("missing required macro name")
 	}
+
 	if err := macro.RecordInteractive(args[0]); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, "macro.RecordInteractive")
 	}
+
 	return nil
 }
 
@@ -152,12 +166,16 @@ func handleMacroList(args []string) error {
 	macros, err := macro.ListMacros()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error listing macros: %v\n", err)
-		return nil
+
+		return apperror.WrapSimple(err, "macro.ListMacros")
 	}
+
 	if opts.JSON || opts.YAML || len(opts.FilePath) > 0 {
 		return outputStructuredData(macros, opts)
 	}
+
 	renderMacroListTable(macros)
+
 	return nil
 }
 
@@ -165,31 +183,42 @@ func handleMacroShow(args []string) error {
 	name, flagArgs := extractMacroNameAndFlags(args)
 	if name == "" {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap macro show <name> [--json] [--yaml] [--file <path>]\n")
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewValidationError("missing required macro name")
 	}
+
 	opts := parseExecOptions(flagArgs)
 	m, err := macro.LoadMacro(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		return nil
+
+		return apperror.WrapSimple(err, "macro.LoadMacro")
 	}
+
 	if opts.JSON || opts.YAML || len(opts.FilePath) > 0 {
 		return outputStructuredData(m, opts)
 	}
+
 	renderMacroShow(m)
+
 	return nil
 }
 
 func handleMacroDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap macro rm <name>\n")
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewValidationError("missing required macro name")
 	}
+
 	if err := macro.DeleteMacro(args[0]); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, "macro.DeleteMacro")
 	}
+
 	fmt.Printf("✔ Removed macro %q\n", args[0])
+
 	return nil
 }
 

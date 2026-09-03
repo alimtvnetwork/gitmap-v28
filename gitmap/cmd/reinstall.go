@@ -30,7 +30,7 @@ func runReinstall(args []string) error {
 	mode, detected := resolveReinstallMode(opts.Mode)
 	announceReinstallMode(opts.Mode, mode, detected)
 	if !opts.Yes && !confirmReinstall() {
-		err := apperror.NewWithDetails(
+		return apperror.NewWithDetails(
 			"cmd.reinstall",
 			"E2002",
 			constants.ErrReinstallAborted,
@@ -39,10 +39,11 @@ func runReinstall(args []string) error {
 			apperror.SeverityWarn,
 			map[string]any{"mode": mode},
 		)
-		cliexit.HandleError(err, 1)
 	}
+
 	dispatchReinstall(mode)
 	fmt.Print(constants.MsgReinstallDone)
+
 	return nil
 }
 
