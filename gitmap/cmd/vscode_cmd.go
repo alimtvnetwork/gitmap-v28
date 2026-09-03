@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -137,16 +138,36 @@ func printVSCodeUsage() {
 
 func runVSCodeLs() error {
 	entries, err := vscodepm.ListEntries()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading projects.json: %v\n", err)
-		return err
-	}
-	if len(entries) == 0 {
+
+	if isMissingUserData(err) {
 		fmt.Println("No VS Code projects registered.")
+
 		return nil
 	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading projects.json: %v\n", err)
+
+		return err
+	}
+
+	if len(entries) == 0 {
+		fmt.Println("No VS Code projects registered.")
+
+		return nil
+	}
+
 	printVSCodeEntries(entries)
+
 	return nil
+}
+
+func isMissingUserData(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	return errors.Is(err, vscodepm.ErrUserDataMissing) || errors.Is(err, vscodepm.ErrExtensionMissing) || os.IsNotExist(err)
 }
 
 func runVSCodeAdd(target string) error {
