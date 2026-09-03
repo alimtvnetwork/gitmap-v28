@@ -11,13 +11,13 @@ description: Autonomous execution engine for `.lovable/plans/pending/` tasks.
 
 - Read the `.lovable/plans/pending/` directory and `.lovable/plans/index.md`.
 - Count exactly how many pending tasks exist.
-- **Naming Correction**: Check if the pending task files are correctly sequenced with a 2-digit numerical prefix (e.g., `01-<slug>.md`, `02-<slug>.md`). 
+- **Naming Correction**: Check if the pending task files are correctly sequenced with a 2-digit numerical prefix (e.g., `01-<slug>.md`, `02-<slug>.md`).
 - If the naming is incorrect or missing prefixes, **fix it immediately**. Rename the files to follow the sequential `01-`, `02-`, `03-` format and update `.lovable/plans/index.md` to match the new filenames in the same operation.
 
 ## 2. Uninterrupted Autonomous Execution (Self-Looping)
 
-- **Make a Great Plan**: Analyze all pending tasks and devise a comprehensive execution plan. 
-- **Do NOT Ask Questions**: Do not stop to ask the user for permission. Do not stop to ask clarifying questions. 
+- **Make a Great Plan**: Analyze all pending tasks and devise a comprehensive execution plan.
+- **Do NOT Ask Questions**: Do not stop to ask the user for permission. Do not stop to ask clarifying questions.
 - **Self-Loop**: You must self-loop continuously until every single pending task in the queue is verifiably completed.
 - Ensure everything gets done properly and deeply. If you are not going deep, you are not doing the job.
 

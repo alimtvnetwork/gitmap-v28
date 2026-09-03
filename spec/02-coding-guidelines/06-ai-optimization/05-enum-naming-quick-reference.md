@@ -1,7 +1,7 @@
 # Enum Naming Quick Reference — All Languages
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
 **Purpose:** Single-page AI reference for enum declaration, naming, and usage rules across Go, TypeScript, PHP, and Rust
 
 ---

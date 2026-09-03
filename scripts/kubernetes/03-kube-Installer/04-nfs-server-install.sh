@@ -11,9 +11,9 @@ main() {
 
     install_apt_no_msg nfs-server
 
-    mkdir -p /nfsexport 
+    mkdir -p /nfsexport
     sudo sh -c 'echo "/nfsexport *(rw,no_root_squash)" >> /etc/exports'
-    sudo systemctl restart nfs-server 
+    sudo systemctl restart nfs-server
     echo
     showmount -e $controlPlane
 }

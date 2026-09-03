@@ -63,7 +63,7 @@ If a step needs more than ~3 lines, touches multiple files, has non-obvious sequ
 
 ## Sub-Agent Orchestration & The "Look Ahead" Planner
 
-When you (the planner agent) are creating this plan, you must have the bigger "look ahead" picture. Your plan must be highly detailed and granular so that downstream sub-agents can execute easily and faster without having to make architectural decisions themselves. 
+When you (the planner agent) are creating this plan, you must have the bigger "look ahead" picture. Your plan must be highly detailed and granular so that downstream sub-agents can execute easily and faster without having to make architectural decisions themselves.
 When your plan dictates that a sub-agent should be spawned, you must enforce the following:
 1. **Specific Titling:** The sub-agent must be spawned with a highly specific title reflecting its exact task (e.g., Refactoring Auth or Fixing DB Connection). Do not use generic names like Frontend Agent. If an agent switches tasks, its title/reference must be updated to reflect the new task.
 2. **Micro-Tasking:** Sub-agents must only be assigned simple, small micro-tasks rather than larger monolithic ones.

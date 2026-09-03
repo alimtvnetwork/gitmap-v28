@@ -1,6 +1,6 @@
 # Consolidated: Spec Authoring Guide — Complete Reference
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -92,7 +92,7 @@ Every `.md` file **must** begin with:
 
 # Title of the Document
 
-**Version:** X.Y.Z  
+**Version:** X.Y.Z
 **Updated:** YYYY-MM-DD
 
 ---

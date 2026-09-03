@@ -25,7 +25,7 @@ def fix_colors(filepath):
             # fix potential double quotes
             line = line.replace('"" + ', '').replace(' + ""', '')
         new_lines.append(line)
-        
+
     with open(filepath, 'w') as f:
         f.write('\n'.join(new_lines))
 

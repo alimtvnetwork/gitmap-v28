@@ -1,8 +1,8 @@
 # Project-Wide Spec Health Dashboard
 
-**Generated:** 2026-04-16  
-**Total Files Scanned:** 560  
-**Total Folders:** 75  
+**Generated:** 2026-04-16
+**Total Files Scanned:** 560
+**Total Folders:** 75
 **Overall Health:** 80/100 (B)
 
 > All in-repo broken links fixed. Missing 00-overview.md (×2) and 99-consistency-report.md (×4) created — structural deductions cleared. Remaining broken links are intentional gitmap-v3 sibling references covered by the folder-ref allowlist.

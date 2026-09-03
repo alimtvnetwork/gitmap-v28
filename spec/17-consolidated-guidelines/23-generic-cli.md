@@ -1,9 +1,9 @@
 # Generic CLI Creation Guidelines
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Source Module:** `13-generic-cli/`  
-**AI Confidence:** Production-Ready  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Source Module:** `13-generic-cli/`
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---

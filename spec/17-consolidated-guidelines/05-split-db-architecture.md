@@ -1,6 +1,6 @@
 # Consolidated: Split Database Architecture — Complete Reference
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---

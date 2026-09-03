@@ -78,10 +78,13 @@ gitmap profiles ls --json
 Switch the default account used for all repository creation and backup operations:
 
 ```bash
+
 # Set default by sequence number
+
 gitmap profiles set-default 2
 
 # Set default by name
+
 gitmap profiles set-default alimtvnetwork
 ```
 
@@ -90,10 +93,13 @@ gitmap profiles set-default alimtvnetwork
 Register a new account or organization:
 
 ```bash
+
 # Add a GitHub organization
+
 gitmap profiles add riseup-asia --org
 
 # Add a GitLab user account with email
+
 gitmap profiles add dev-lead --gitlab --email dev@example.com
 ```
 
@@ -102,10 +108,13 @@ gitmap profiles add dev-lead --gitlab --email dev@example.com
 Remove an existing profile:
 
 ```bash
+
 # Remove profile with confirmation
+
 gitmap profiles rm 2
 
 # Remove without prompt in scripts
+
 gitmap profiles rm 2 -y
 ```
 

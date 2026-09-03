@@ -1,8 +1,8 @@
 # 04-error-manage — Structure Summary
 
-**Version:** 3.2.0  
-**Generated:** 2026-03-31  
-**Total Files:** 71 (62 Markdown + 9 JSON)  
+**Version:** 3.2.0
+**Generated:** 2026-03-31
+**Total Files:** 71 (62 Markdown + 9 JSON)
 **Health Score:** 100/100 (A+)
 
 ---

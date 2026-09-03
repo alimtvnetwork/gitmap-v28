@@ -1,8 +1,8 @@
 # Error Modal — Color Theme & Design Token Reference
 
-> **Version:** 2.1.0  
+> **Version:** 2.1.0
 > **Updated:** 2026-04-01
-> **Status:** Active  
+> **Status:** Active
 > **Purpose:** Definitive color mapping for every error-related UI element, verified against the actual React components. Any AI or developer must use this document to replicate the exact visual appearance.
 
 ---

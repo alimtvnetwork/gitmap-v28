@@ -1,7 +1,7 @@
 # Hooks
 
-> **Parent:** [React Components Index](./00-overview.md)  
-> **Version:** 4.0.0  
+> **Parent:** [React Components Index](./00-overview.md)
+> **Version:** 4.0.0
 > **Updated:** 2026-04-01
 
 ---

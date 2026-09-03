@@ -1,8 +1,8 @@
 # Casting Elimination Patterns
 
-> **Version:** 2.0.0  
-> **Updated:** 2026-03-09  
-> **Status:** Complete  
+> **Version:** 2.0.0
+> **Updated:** 2026-03-09
+> **Status:** Complete
 > **Priority:** Critical
 
 ---

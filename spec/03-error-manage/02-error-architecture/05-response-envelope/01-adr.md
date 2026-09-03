@@ -1,11 +1,11 @@
 # ADR: Universal Response Envelope — Architecture Decision Record
 
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 
-> **Status:** Accepted  
-> **Date:** 2026-01-20  
-> **Authors:** Platform Engineering Team  
+> **Status:** Accepted
+> **Date:** 2026-01-20
+> **Authors:** Platform Engineering Team
 > **Supersedes:** Legacy flat-object API responses
 
 ---
@@ -119,8 +119,8 @@ A unified response contract was needed to eliminate these problems without break
 - *TypeScript as source, generate others* — would privilege one stack and require build-time codegen for Go/PHP.
 - *No formal schema, rely on spec README* — prose specifications cannot be machine-validated and are prone to interpretation drift.
 
-**Schema location:** `spec/03-error-manage/02-error-architecture/05-response-envelope/envelope.schema.json`  
-**Version:** v2.0.0  
+**Schema location:** `spec/03-error-manage/02-error-architecture/05-response-envelope/envelope.schema.json`
+**Version:** v2.0.0
 **Referenced by:**
 - Go: `backend/internal/wordpress/envelope.go`
 - TypeScript: `src/lib/api/types.ts`

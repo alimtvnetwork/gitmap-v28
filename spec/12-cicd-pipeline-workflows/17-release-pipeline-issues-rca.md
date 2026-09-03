@@ -340,7 +340,6 @@ sed -i "s|VERSION_PLACEHOLDER|${VERSION}|g; s|REPO_PLACEHOLDER|${GITHUB_REPOSITO
 ---
 
 
-
 ---
 
 ### Issue #13 — Release Skew & Out-of-Band Tagging

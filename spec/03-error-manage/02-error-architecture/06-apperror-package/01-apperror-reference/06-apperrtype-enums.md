@@ -633,24 +633,28 @@ The ecosystem uses **two complementary error code systems**:
 To ensure AI agents properly construct the `errtype` structure without hallucination, you MUST use the following files from `auk-go/errorwrapper` as your canonical reference. **Do not just copy URLs; you must read them and strictly implement the following non-negotiable checklist for each file.**
 
 ### 1. The Core Enum & Bounds
+
 *   **`consts.go`** ([View](https://gitlab.com/auk-go/errorwrapper/-/blob/develop/errtype/consts.go?ref_type=heads) | [Raw](https://gitlab.com/auk-go/errorwrapper/-/raw/develop/errtype/consts.go?ref_type=heads))
     *   [ ] **Non-negotiable:** Must define the numerical bounds for the domain (e.g., Min, Max ranges). No hardcoded magic numbers outside of the `iota` block.
 *   **`vars.go`** ([View](https://gitlab.com/auk-go/errorwrapper/-/blob/develop/errtype/vars.go?ref_type=heads) | [Raw](https://gitlab.com/auk-go/errorwrapper/-/raw/develop/errtype/vars.go?ref_type=heads))
     *   [ ] **Non-negotiable:** Declare global variables or defaults cleanly.
 
 ### 2. The Data Structures
+
 *   **`VariantStructure.go`** ([View](https://gitlab.com/auk-go/errorwrapper/-/blob/develop/errtype/VariantStructure.go?ref_type=heads) | [Raw](https://gitlab.com/auk-go/errorwrapper/-/raw/develop/errtype/VariantStructure.go?ref_type=heads))
     *   [ ] **Non-negotiable:** Must define the rich metadata struct (`Name`, `Code`, `Message`, `Contact`). This struct must exactly match the JSON properties required by the API.
 *   **`JsonModel.go`** ([View](https://gitlab.com/auk-go/errorwrapper/-/blob/develop/errtype/JsonModel.go?ref_type=heads) | [Raw](https://gitlab.com/auk-go/errorwrapper/-/raw/develop/errtype/JsonModel.go?ref_type=heads))
     *   [ ] **Non-negotiable:** Must implement strict JSON marshaling/unmarshaling without leaking internal stack traces to the public UI.
 
 ### 3. The Registries & Lookups
+
 *   **`errTypesMap.go`** ([View](https://gitlab.com/auk-go/errorwrapper/-/blob/develop/errtype/errTypesMap.go?ref_type=heads) | [Raw](https://gitlab.com/auk-go/errorwrapper/-/raw/develop/errtype/errTypesMap.go?ref_type=heads))
     *   [ ] **Non-negotiable:** Every single enum variant MUST be registered here with its corresponding `VariantStructure`. Missing registrations are a CODE-RED violation.
 *   **`StringToVariantMap.go`** ([View](https://gitlab.com/auk-go/errorwrapper/-/blob/develop/errtype/StringToVariantMap.go?ref_type=heads) | [Raw](https://gitlab.com/auk-go/errorwrapper/-/raw/develop/errtype/StringToVariantMap.go?ref_type=heads))
     *   [ ] **Non-negotiable:** Must provide a flawless reverse-lookup (`map[string]Variation`) to allow parsing from external systems.
 
 ### 4. The Methods & APIs
+
 *   **`variation-functions.go`** ([View](https://gitlab.com/auk-go/errorwrapper/-/blob/develop/errtype/variation-functions.go?ref_type=heads) | [Raw](https://gitlab.com/auk-go/errorwrapper/-/raw/develop/errtype/variation-functions.go?ref_type=heads))
     *   [ ] **Non-negotiable:** Must implement `String()`, `Code()`, and `Message()` on the enum directly, pulling data from the `errTypesMap` registry.
 *   **`istype.go`** ([View](https://gitlab.com/auk-go/errorwrapper/-/blob/develop/errtype/istype.go?ref_type=heads) | [Raw](https://gitlab.com/auk-go/errorwrapper/-/raw/develop/errtype/istype.go?ref_type=heads))

@@ -11,6 +11,7 @@ Automate background jobs, triggers, and recurring routines.
 ## Commands
 
 ### `gitmap schedule <subcommand>`
+
 * **Alias:** `sc`
 * Subcommands:
   * `add <name> <command> [cron]`: Enqueues a scheduled background task.

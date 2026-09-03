@@ -6,6 +6,7 @@
 - Status: resolved
 
 ## Error
+
 ```
   ❌ FAILED: Found 3 violation(s):
     - gitmap/apperror/apperror.go:114: Nested 'if' detected (depth 2): 'if !more {'
@@ -18,10 +19,12 @@
 ```
 
 ## Root Cause
+
 - Nested conditionals (depth >= 2) in apperror.go, pipeline_ai.go, and pipeline_status.go during new feature additions.
 - llm.md used `## 2. Step-by-Step Workflows with Real-World Examples` which did not start with `## Examples` as required by golden tests.
 
 ## Fix Applied
+
 - Flattened all nested if blocks using guard clauses and extracted helper functions.
 - Updated helptext/llm.md, llm.md, gitmap/llm.md, and gitmap/cmd/llm/llm.go to use `## Examples (Step-by-Step AI Workflows)`.
 - Verified all linters and golden tests pass 100%.

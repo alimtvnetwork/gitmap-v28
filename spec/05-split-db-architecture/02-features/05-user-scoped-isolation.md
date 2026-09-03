@@ -1,8 +1,8 @@
 # Split DB Architecture: User-Scoped Isolation
 
-**Version:** 3.2.0  
-**Created:** 2026-03-09  
-**Status:** Active  
+**Version:** 3.2.0
+**Created:** 2026-03-09
+**Status:** Active
 **Parent:** [00-overview.md](../00-overview.md)
 
 ---
@@ -349,7 +349,7 @@ func (m *UserDbManager) configureDb(db *sql.DB) {
 
 func (m *UserDbManager) registerUserDb(userId, category, entityId, path string) error {
     _, err := m.rootDb.Exec(`
-        INSERT OR REPLACE INTO UserDbRegistry 
+        INSERT OR REPLACE INTO UserDbRegistry
         (UserId, Category, EntityId, Path, SequenceNum, UpdatedAt)
         VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
     `, userId, category, entityId, path)
@@ -560,8 +560,8 @@ CREATE INDEX IdxSessionActivityTimestamp ON SessionActivity(Timestamp DESC);
 func (m *UserDbManager) CleanupExpiredSessions() error {
     rows, err := m.rootDb.Query(`
         SELECT Path FROM UserDbRegistry
-        WHERE Category = 'sessions' 
-        AND ExpiresAt < CURRENT_TIMESTAMP 
+        WHERE Category = 'sessions'
+        AND ExpiresAt < CURRENT_TIMESTAMP
         AND Status = 'active'
     `)
     if err != nil {
@@ -572,7 +572,7 @@ func (m *UserDbManager) CleanupExpiredSessions() error {
     for rows.Next() {
         var path string
         rows.Scan(&path)
-        
+
         // Close if open
         m.mu.Lock()
         if db, ok := m.openDbs[path]; ok {
@@ -580,17 +580,17 @@ func (m *UserDbManager) CleanupExpiredSessions() error {
             delete(m.openDbs, path)
         }
         m.mu.Unlock()
-        
+
         // Delete file
         pathutil.Remove(filepath.Join(m.dataDir, path))
     }
 
     // Update registry
     _, err = m.rootDb.Exec(`
-        UPDATE UserDbRegistry 
+        UPDATE UserDbRegistry
         SET Status = 'expired', UpdatedAt = CURRENT_TIMESTAMP
-        WHERE Category = 'sessions' 
-        AND ExpiresAt < CURRENT_TIMESTAMP 
+        WHERE Category = 'sessions'
+        AND ExpiresAt < CURRENT_TIMESTAMP
         AND Status = 'active'
     `)
     return err

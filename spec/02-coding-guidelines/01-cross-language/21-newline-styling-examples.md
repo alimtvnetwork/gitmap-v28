@@ -1,9 +1,9 @@
 # Newline Styling Examples
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Applies to:** All languages (Go examples)  
-**Source:** Consolidated from `01-pre-code-review-guides/03-golang-code-review-guides.md`  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Applies to:** All languages (Go examples)
+**Source:** Consolidated from `01-pre-code-review-guides/03-golang-code-review-guides.md`
 **Supplements:** [Code Style](./04-code-style/00-overview.md) rules R4, R5, R10, R12, R13
 
 ---

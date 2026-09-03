@@ -78,13 +78,13 @@ def strip_code_fences(text: str) -> str:
             out.append("")
             continue
         out.append("" if in_fence else line)
-        
+
     text = "\n".join(out)
-    
+
     def _blank(match: re.Match[str]) -> str:
         body = match.group(0)
         return "".join(ch if ch == "\n" else " " for ch in body)
-        
+
     text = re.sub(r"``.*?``", _blank, text, flags=re.DOTALL)
     text = re.sub(r"`[^`\n]+`", _blank, text)
     return text

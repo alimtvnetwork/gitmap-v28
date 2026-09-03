@@ -2,12 +2,12 @@
 
 ## Overview
 
-**Module Number:** 121  
-**Version:** 1.0.0  
-**Updated:** 2026-09-03  
-**Status:** Production-Ready  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
+**Module Number:** 121
+**Version:** 1.0.0
+**Updated:** 2026-09-03
+**Status:** Production-Ready
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
 
 ---
 
@@ -20,6 +20,7 @@ During repository scanning, cloning, or tool synchronization, identical reposito
 ## Detection Scope & Subcommands
 
 ### 1. Unified Dispatch: `gitmap find-duplicates [platform] [flags]`
+
 When executed with no platform argument, runs a full multi-platform audit across:
 - **Antigravity Workspaces (AGY)**: `~/.gemini/config/projects/*.json`
 - **VS Code Project Manager**: `%APPDATA%/Code/User/globalStorage/alefragnani.project-manager/projects.json`
@@ -27,6 +28,7 @@ When executed with no platform argument, runs a full multi-platform audit across
 - **Git Repositories**: Internal GitMap database `Repo` records
 
 ### 2. Platform-Specific Subcommands
+
 - `gitmap agy find-duplicates`
 - `gitmap vscode find-duplicates`
 - `gitmap chrome find-duplicates`
@@ -39,6 +41,7 @@ When executed with no platform argument, runs a full multi-platform audit across
 The terminal output renders two distinct blocks:
 
 ### 1. Duplicate Findings Grouping
+
 ```text
 ── Duplicate Antigravity Projects Found: 2 Group(s) ──
 
@@ -48,6 +51,7 @@ The terminal output renders two distinct blocks:
 ```
 
 ### 2. Immediate Remediation Recipes
+
 Directly beneath the table, the CLI outputs ready-to-run copy-pasteable commands:
 
 ```text
@@ -78,11 +82,13 @@ Remediation Commands:
 ## Acceptance Criteria
 
 ### Scenario 1: Duplicate Audit
+
 - **Given** multiple project configurations pointing to `D:\wp-work\riseup-asia\macro-ahk`
 - **When** `gitmap agy find-duplicates` is executed
 - **Then** the terminal renders the duplicate cluster and lists the exact `optimize-projects` and single `rm <id>` remediation commands.
 
 ### Scenario 2: Batch Optimization
+
 - **Given** detected duplicates across Antigravity projects
 - **When** `gitmap agy optimize-projects` is executed
 - **Then** duplicate entries are pruned while preserving the newest configuration file, leaving zero duplicates.

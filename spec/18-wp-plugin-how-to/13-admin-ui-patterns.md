@@ -193,7 +193,7 @@ The actions bar provides primary page-level operations:
 <div class="riseup-filters">
     <form method="get">
         <input type="hidden" name="page" value="<?php echo esc_attr(AdminPageType::Logs->value); ?>">
-        
+
         <div class="filter-row">
             <label>
                 <span><?php esc_html_e('Action:', $pluginSlug); ?></span>
@@ -208,7 +208,7 @@ The actions bar provides primary page-level operations:
             </label>
             <!-- More filters... -->
         </div>
-        
+
         <div class="filter-row filter-row-secondary">
             <label>
                 <span><?php esc_html_e('From:', $pluginSlug); ?></span>
@@ -280,7 +280,7 @@ Tables with chronological data MUST insert date group separator rows when the da
 $currentDateGroup = '';
 foreach ($logs as $log):
     $logDate = DateHelper::formatDateOnly($logTimestamp);
-    
+
     if ($logDate !== $currentDateGroup):
         $currentDateGroup = $logDate;
         $relativeDayKey = DateHelper::relativeDayKey($logTimestamp);
@@ -441,8 +441,8 @@ include __DIR__ . '/partials/shared/modal-wrapper.php';
 The partial MUST `unset()` all modal variables after rendering to prevent bleed into subsequent includes:
 
 ```php
-unset($modalId, $modalTitle, $modalIcon, $modalIconColor, 
-      $modalMaxWidth, $modalCloseButton, $modalHeaderExtra, 
+unset($modalId, $modalTitle, $modalIcon, $modalIconColor,
+      $modalMaxWidth, $modalCloseButton, $modalHeaderExtra,
       $modalBody, $modalFooter);
 ```
 
@@ -692,7 +692,7 @@ Simple stats shown between filter bar and table:
         <?php esc_html_e('total records', $pluginSlug); ?>
     </span>
     <span class="stat-item">
-        <?php esc_html_e('Page', $pluginSlug); ?> <?php echo esc_html($page); ?> 
+        <?php esc_html_e('Page', $pluginSlug); ?> <?php echo esc_html($page); ?>
         <?php esc_html_e('of', $pluginSlug); ?> <?php echo esc_html($totalPages); ?>
     </span>
 </div>

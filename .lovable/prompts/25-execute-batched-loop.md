@@ -14,21 +14,21 @@ Your objective is to execute pending tasks from `.lovable/plans/pending/` using 
 
 ## Phase 1: Pre-Flight & Gitignore Enforcement (Non-Negotiable)
 
-1. **Check Git Status:** The working tree must be clean. 
+1. **Check Git Status:** The working tree must be clean.
 2. **Enforce Gitignore:** You MUST verify that `.lovable/temp/` is explicitly added to `.gitignore`. If it is not, update `.gitignore` immediately. This folder is for crash identification and must never be committed. This is non-negotiable.
 3. **Garbage Collection:** Wipe any orphaned state files in `.lovable/temp/` from previous runs.
 
 ## Phase 2: Allocation & Execution (Strict 3x3 Rule)
 
 1. **Strict Limits:** You must spawn exactly 3 sub-agents to run in parallel. Never more, never less (unless fewer than 3 task chunks remain).
-2. **Chunking Micro-Tasks:** Each agent must be assigned exactly a chunk of 3 *simple, small* micro-tasks to complete sequentially in their own context. Do not assign monolithic tasks. 
+2. **Chunking Micro-Tasks:** Each agent must be assigned exactly a chunk of 3 *simple, small* micro-tasks to complete sequentially in their own context. Do not assign monolithic tasks.
 3. **Disjoint Assignment:** Ensure that the tasks assigned to the 3 parallel agents touch different files or components to prevent Git merge conflicts.
 4. **Temp Folder Logging & Specific Titling (Mandatory):** Before an agent starts, you must:
    - Spawn the sub-agent with a highly specific title reflecting its exact task (e.g., `Refactoring Auth` or `Fixing DB Connection`). Do not use generic names like `Frontend Agent`. If an agent switches chunks, its title must change.
    - Log its assigned chunk of tasks to `.lovable/temp/XX-agent-state.md`.
-5. **Crash Identification & Recovery:** 
-   - Every crash needs to be identified using the `.lovable/temp/` folder. 
-   - If an agent fails or crashes, read its state from the temp folder to know exactly what chunk it was doing and how it crashed. 
+5. **Crash Identification & Recovery:**
+   - Every crash needs to be identified using the `.lovable/temp/` folder.
+   - If an agent fails or crashes, read its state from the temp folder to know exactly what chunk it was doing and how it crashed.
    - Reason about the crash, log the failure to `.lovable/memory/last-failure.md` if it cannot be recovered, and restart a new agent to pick up the dropped chunk.
 
 ## Phase 3: Code Quality (Non-Negotiable)

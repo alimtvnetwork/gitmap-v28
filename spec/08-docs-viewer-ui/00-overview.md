@@ -1,8 +1,8 @@
 # Docs Viewer UI — Overview
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**AI Confidence:** 90%  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**AI Confidence:** 90%
 **Ambiguity:** 10%
 
 ---
@@ -68,8 +68,8 @@ _Auto-generated section — see `spec/08-docs-viewer-ui/97-acceptance-criteria.m
 
 ### AC-UI-000: Docs viewer UI conformance: Overview
 
-**Given** Render the docs viewer against the spec tree fixture.  
-**When** Run the verification command shown below.  
+**Given** Render the docs viewer against the spec tree fixture.
+**When** Run the verification command shown below.
 **Then** Keyboard navigation, syntax highlighting, fullscreen toggle, and copy-markdown all function without console errors.
 
 **Verification command:**

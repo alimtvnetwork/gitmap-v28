@@ -37,11 +37,11 @@ The user requested:
   - Add them to InstallToolDescriptions and InstallToolCategories.
 - **Location**: gitmap/cmd/install.go
 - **Logic**:
-  - Map ToolAntigravity to a package manager install (e.g. winget or npm? Actually we can just print a message or use generic package install if available). Since AG is mostly an npm package or python package, maybe we just print instructions or run 
+  - Map ToolAntigravity to a package manager install (e.g. winget or npm? Actually we can just print a message or use generic package install if available). Since AG is mostly an npm package or python package, maybe we just print instructions or run
 pm i -g @google/antigravity if applicable. We will use xecuteGenericInstall.
-  - Map ToolAgCtx to a new 
-unAgContextMenu() in gitmap/cmd/installtools.go which runs 
-unInstallCtx for just the AG key. Or since gitmap install ctx installs everything, g-ctx could just be a targeted installer. Wait, 
+  - Map ToolAgCtx to a new
+unAgContextMenu() in gitmap/cmd/installtools.go which runs
+unInstallCtx for just the AG key. Or since gitmap install ctx installs everything, g-ctx could just be a targeted installer. Wait,
 unInstallCtx generates the whole registry script. We can just add it to ctxMenu() so gitmap install ctx picks it up.
 
 ## 3. Subtasks

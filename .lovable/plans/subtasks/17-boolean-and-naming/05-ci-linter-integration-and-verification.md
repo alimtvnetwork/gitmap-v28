@@ -1,6 +1,6 @@
 # Subtask 05: CI Linter Integration & End-to-End Verification
 
-> **Parent Plan:** `17-boolean-and-naming-audit.md`  
+> **Parent Plan:** `17-boolean-and-naming-audit.md`
 > **Scope:** `linter-scripts/check-enum-and-boolean.py`, `.lovable/ai-fix-scripts/03-cicd-local-runner.py`, `.github/workflows/ci.yml`
 
 ## Objective

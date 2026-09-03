@@ -1,6 +1,6 @@
 # Consolidated: PowerShell Integration — Complete Reference
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -254,7 +254,7 @@ Auto-install via npm or winget with PATH refresh:
 ```powershell
 function Install-Pnpm {
     npm install -g pnpm
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + 
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
                 [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 

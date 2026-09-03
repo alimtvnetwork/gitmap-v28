@@ -13,6 +13,7 @@ gitmap create [repo] <name> [flags]
 Aliases: `gitmap cr <name>`, `gitmap create repo <name>`
 
 ### Key Features
+
 1. **Zero-Configuration Defaults**: Automatically detects and uses the active default Git profile or organization configured in GitMap.
 2. **End-to-End Automation**: Creates the local workspace folder, runs `git init -b main`, writes an initial `README.md` and `.gitignore`, creates the initial commit, and provisions the remote repository via `gh` CLI in a single step.
 3. **Multi-Account & Organization Support**: Target specific GitHub users or organization accounts with `--profile <name|index>` or `--org <name>`.
@@ -63,7 +64,9 @@ gitmap create react-dashboard --org auktvgo --public -d "Next.js UI dashboard"
 ### 3. Select Account by Numeric Sequence Number
 
 ```bash
+
 # Target sequence #2 from `gitmap profiles ls`
+
 gitmap create worker-daemon --profile 2
 ```
 

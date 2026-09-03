@@ -1,8 +1,8 @@
 # Mandatory Linter Infrastructure
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Type:** AI Instruction — Infrastructure Requirement  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Type:** AI Instruction — Infrastructure Requirement
 **Priority:** Critical — Enforce Before Any Code Review or Validation
 
 ---

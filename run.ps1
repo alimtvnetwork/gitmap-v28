@@ -850,7 +850,7 @@ function Invoke-AutoBuildDocs {
     try {
         $nodeModules = Join-Path $RepoRoot "node_modules"
         $viteBin = Join-Path $nodeModules ".bin\vite.cmd"
-        
+
         $needsInstall = -not (Test-Path $nodeModules) -or -not (Test-Path $viteBin)
         if ($needsInstall) {
             Write-Info "Installing docs dependencies (npm install) at repo root..."
@@ -1114,7 +1114,7 @@ function Deploy-Binary {
 
     $destFile = Join-Path $appDir $Config.binaryName
     $backupFile = "$destFile.old"
-    
+
     $hasBackup = Backup-ExistingBinary -DestFile $destFile -BackupFile $backupFile -BinaryName $Config.binaryName
     $deploySuccess = Copy-WithRetry -Source $BinaryPath -Dest $destFile -BackupFile $backupFile -HasBackup $hasBackup
 
@@ -1169,7 +1169,7 @@ function Repair-LegacySubdir {
         }
         return
     }
-    
+
     if ((Test-Path $LegacySubdir) -and (Test-Path $NewBinary)) {
         try {
             $remaining = Get-ChildItem -Path $LegacySubdir -Force -ErrorAction SilentlyContinue
@@ -1813,7 +1813,7 @@ function Invoke-Changelog {
 
     $changelogBinaryPath = $BinaryPath
     $activeCmdForChangelog = Get-Command gitmap -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-    
+
     if ($activeCmdForChangelog -and -not [string]::IsNullOrWhiteSpace($activeCmdForChangelog.Source) -and (Test-Path $activeCmdForChangelog.Source)) {
         $changelogBinaryPath = $activeCmdForChangelog.Source
     } elseif ($DeployedBinaryPath -and (Test-Path $DeployedBinaryPath)) {

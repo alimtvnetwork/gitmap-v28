@@ -1,14 +1,14 @@
 # Golang Coding Standards — Typed constants, enums, DRY enforcement
 
-> **Parent:** [Golang Coding Standards](./00-overview.md)  
-> **Version:** 3.7.0  
+> **Parent:** [Golang Coding Standards](./00-overview.md)
+> **Version:** 3.7.0
 > **Updated:** 2026-03-31
 
 ---
 
 ## Typed Constants & Enums
 
-> **Canonical source:** [Go Enum Specification](../01-enum-specification/00-overview.md) — core pattern, required methods, folder structure  
+> **Canonical source:** [Go Enum Specification](../01-enum-specification/00-overview.md) — core pattern, required methods, folder structure
 > **Cross-language reference:** [Enum Naming Quick Reference](../../06-ai-optimization/05-enum-naming-quick-reference.md) — Go, TypeScript, PHP comparison
 
 All Go enum rules (byte type, `Invalid` zero value, `iota`, `variantLabels`, required methods, folder structure) are defined in the [Go Enum Specification](../01-enum-specification/00-overview.md). Do not duplicate here.

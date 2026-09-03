@@ -1,7 +1,7 @@
 # Seedable Config Architecture — Fundamentals
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
 **Parent:** [00-overview.md](./00-overview.md)
 
 ---
@@ -297,7 +297,7 @@ import (
     "fmt"
     "os"
     "time"
-    
+
     "github.com/Masterminds/semver/v3"
     "gorm.io/gorm"
 )
@@ -343,27 +343,27 @@ func (s *ConfigService) SeedWithVersionCheck() error {
             "load seed file",
         )
     }
-    
+
     meta, err := s.getMeta()
     if err != nil {
         // First time - full seed
         return s.fullSeed(seed)
     }
-    
+
     // Compare versions
     currentVer, _ := semver.NewVersion(meta.SeedVersion)
     seedVer, _ := semver.NewVersion(seed.Version)
-    
+
     if !seedVer.GreaterThan(currentVer) {
         // No version change, skip seed
         return nil
     }
-    
+
     // Version increased - merge new settings
     if err := s.mergeSeed(seed, meta.SeedVersion); err != nil {
         return err
     }
-    
+
     // Update changelog
     return s.updateChangelog(seed)
 }
@@ -383,7 +383,7 @@ func (s *ConfigService) mergeSeed(seed SeedConfig, previousVersion string) error
             // Check if setting exists
             var existing Setting
             err := s.db.Where("category = ? AND key = ?", catKey, settingKey).First(&existing).Error
-            
+
             if err == gorm.ErrRecordNotFound {
                 // New setting - insert with default
                 valueJson, _ := json.Marshal(setting.Default)
@@ -400,7 +400,7 @@ func (s *ConfigService) mergeSeed(seed SeedConfig, previousVersion string) error
             // Existing settings are preserved
         }
     }
-    
+
     // Update meta using typed struct
     s.db.Model(&ConfigMeta{}).Where("ConfigMetaId = 1").Updates(ConfigMetaUpdate{
         SeedVersion:    seed.Version,
@@ -408,7 +408,7 @@ func (s *ConfigService) mergeSeed(seed SeedConfig, previousVersion string) error
         LastSeededAt:   time.Now(),
         UpdatedAt:      time.Now(),
     })
-    
+
     return nil
 }
 
@@ -417,35 +417,35 @@ func (s *ConfigService) updateChangelog(seed SeedConfig) error {
     if seed.Changelog == "" {
         return nil
     }
-    
+
     entry := fmt.Sprintf("\n## [%s] - %s\n\n%s\n",
         seed.Version,
         time.Now().Format("2006-01-02"),
         seed.Changelog,
     )
-    
+
     // Read existing changelog
     contentResult := pathutil.ReadFileIfExists(s.changelogPath)
     if contentResult.IsErr() {
         return contentResult.Err()
     }
     content := contentResult.Value()
-    
+
     // Insert after header
     header := "# Changelog\n\nAll notable configuration changes are documented here.\n"
-    
+
     if len(content) == 0 {
         content = []byte(header)
     }
-    
+
     // Find insert position (after header)
     insertPos := len(header)
     if len(content) >= len(header) {
         insertPos = len(header)
     }
-    
+
     newContent := string(content[:insertPos]) + entry + string(content[insertPos:])
-    
+
     return pathutil.WriteFile(s.changelogPath, []byte(newContent))
 }
 ```
@@ -475,9 +475,9 @@ import { useConfig } from '@/hooks/useConfig';
 
 export function VersionBadge() {
   const { meta } = useConfig();
-  
+
   const isNew = meta.SeedVersion !== meta.CurrentVersion;
-  
+
   return (
     <Badge variant={isNew ? "default" : "secondary"}>
       v{meta.CurrentVersion}
@@ -493,7 +493,7 @@ export function VersionBadge() {
 // Highlight settings added in current version
 function SettingItem({ setting, currentVersion }: Props) {
   const isNew = setting.AddedInVersion === currentVersion;
-  
+
   return (
     <div className={cn(
       "p-4 rounded-lg",
@@ -677,20 +677,20 @@ import { useSettings } from './useSettings';
 
 export function useTheme() {
   const { settings, updateSetting } = useSettings();
-  
+
   const theme = settings?.Appearance?.Theme ?? 'system';
   const accentColor = settings?.Appearance?.AccentColor ?? 'blue';
-  
+
   const setTheme = (newTheme: string) => {
     updateSetting('Appearance', 'Theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
   };
-  
+
   const setAccentColor = (color: string) => {
     updateSetting('Appearance', 'AccentColor', color);
     document.documentElement.setAttribute('data-accent', color);
   };
-  
+
   return { theme, accentColor, setTheme, setAccentColor };
 }
 ```

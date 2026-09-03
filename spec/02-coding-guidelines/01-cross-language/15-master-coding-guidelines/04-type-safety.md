@@ -1,7 +1,7 @@
 # Master Coding Guidelines — Type safety, single return value, no casting
 
-> **Parent:** [Master Coding Guidelines](./00-overview.md)  
-> **Version:** 2.1.0  
+> **Parent:** [Master Coding Guidelines](./00-overview.md)
+> **Version:** 2.1.0
 > **Updated:** 2026-03-31
 
 ---

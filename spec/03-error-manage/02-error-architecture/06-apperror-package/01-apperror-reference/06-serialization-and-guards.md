@@ -1,7 +1,7 @@
 # AppError Package Reference — JSON serialization, Result guard rule
 
-> **Parent:** [AppError Package Reference](./00-overview.md)  
-> **Version:** 1.3.0  
+> **Parent:** [AppError Package Reference](./00-overview.md)
+> **Version:** 1.3.0
 > **Updated:** 2026-03-31
 
 ---

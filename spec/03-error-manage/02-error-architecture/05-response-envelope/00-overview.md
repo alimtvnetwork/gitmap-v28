@@ -1,9 +1,9 @@
 # Response Envelope
 
-**Version:** 3.2.0  
-**Status:** Active  
-**Updated:** 2026-04-16  
-**AI Confidence:** High  
+**Version:** 3.2.0
+**Status:** Active
+**Updated:** 2026-04-16
+**AI Confidence:** High
 **Ambiguity:** None
 
 ---

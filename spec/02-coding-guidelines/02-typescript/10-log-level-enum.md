@@ -1,7 +1,7 @@
 # TypeScript LogLevel Enum — `src/lib/enums/log-level.ts`
 
-> **Version**: 1.0.0  
-> **Last updated**: 2026-03-31  
+> **Version**: 1.0.0
+> **Last updated**: 2026-03-31
 > **Tracks**: Magic string elimination in error modal color-themes spec
 
 ---

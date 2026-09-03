@@ -1,6 +1,6 @@
 # Pipeline Extend V2
 
-This folder contains the complete V2 specification for extending the CI/CD pipeline and guiding AI Agents on proper release procedures, error handling, and coding standards. 
+This folder contains the complete V2 specification for extending the CI/CD pipeline and guiding AI Agents on proper release procedures, error handling, and coding standards.
 
 If this folder is provided to an AI Agent context, it must implement these exact standards without deviation.
 

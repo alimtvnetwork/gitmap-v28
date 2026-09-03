@@ -1,8 +1,8 @@
 # Nesting Resolution Patterns
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Applies to:** All languages  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Applies to:** All languages
 **Source:** Consolidated from `01-pre-code-review-guides/03-golang-code-review-guides.md`
 
 ---

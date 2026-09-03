@@ -1,8 +1,8 @@
 # Update.* Configuration Keys
 
-**Version:** 1.0.0  
-**Created:** 2026-04-20  
-**Status:** Active  
+**Version:** 1.0.0
+**Created:** 2026-04-20
+**Status:** Active
 **Purpose:** Register the `Update.*` and `Storage.Backend` keys consumed by the update-check subsystem ([spec/14-update/24-update-check-mechanism](../../14-update/24-update-check-mechanism/00-overview.md))
 
 ---

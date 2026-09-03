@@ -167,6 +167,7 @@ When you need the opposite of a boolean, **do not negate** — use the inverse n
 To ensure these rules are not violated, the project's custom linter (e.g., `validate-guidelines.go`) MUST actively disable and flag the following patterns:
 
 #### 1. No Explicit True Checks
+
 Evaluating a boolean against `true` is completely forbidden. Booleans must be evaluated implicitly.
 ```go
 // ❌ LINTER MUST REJECT: Explicit == true
@@ -177,6 +178,7 @@ if isReady { ... }
 ```
 
 #### 2. No Mixed Polarity in Conditionals
+
 Combining positive and negative conditions in the same `if/else` block is strictly forbidden. It must be extracted into a clearly named variable.
 ```go
 // ❌ LINTER MUST REJECT: Mixed polarity

@@ -1,6 +1,6 @@
 # Naming Conventions
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -117,7 +117,7 @@ Every `.md` file MUST begin with a standardized metadata header:
 
 # Title of the Document
 
-**Version:** X.Y.Z  
+**Version:** X.Y.Z
 **Updated:** YYYY-MM-DD
 
 ---
@@ -133,8 +133,8 @@ Every `.md` file MUST begin with a standardized metadata header:
 ### Optional Metadata Fields
 
 ```markdown
-**Status:** Draft | Active | Deprecated  
-**Language:** Go | Rust | TypeScript | PHP  
+**Status:** Draft | Active | Deprecated
+**Language:** Go | Rust | TypeScript | PHP
 **Priority:** Critical | High | Medium | Low
 ```
 

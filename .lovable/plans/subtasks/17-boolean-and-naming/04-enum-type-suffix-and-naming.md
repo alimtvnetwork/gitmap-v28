@@ -1,6 +1,6 @@
 # Subtask 04: Enum Type Suffix & Semantic Naming Compliance
 
-> **Parent Plan:** `17-boolean-and-naming-audit.md`  
+> **Parent Plan:** `17-boolean-and-naming-audit.md`
 > **Scope:** TypeScript, PHP, and Go enum and type declarations
 
 ## Objective

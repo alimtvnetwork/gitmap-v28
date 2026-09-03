@@ -1,7 +1,7 @@
 # Master Coding Guidelines — Naming conventions, database naming, file naming
 
-> **Parent:** [Master Coding Guidelines](./00-overview.md)  
-> **Version:** 2.1.0  
+> **Parent:** [Master Coding Guidelines](./00-overview.md)
+> **Version:** 2.1.0
 > **Updated:** 2026-03-31
 
 ---

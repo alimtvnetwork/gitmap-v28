@@ -86,7 +86,7 @@ for fname, start_idx, end_idx, title in subtasks_def:
     ]
     for idx, item in enumerate(chunk, start_idx + 1):
         st_lines.append(f"{idx}. **{item['category']}**: `{item['file']}:{item['line']}` - {item['desc']}\n   - **Action**: {item['fix']}")
-    
+
     with open(f".lovable/plans/subtasks/01-coding-guideline-fixes/{fname}", "w", encoding="utf-8") as f:
         f.write("\n".join(st_lines) + "\n")
 

@@ -1,7 +1,7 @@
 # PHP Forbidden Patterns — Quick Reference Checklist
 
-> **Version:** 4.0.0  
-> **Updated:** 2026-03-09  
+> **Version:** 4.0.0
+> **Updated:** 2026-03-09
 > **Consolidates:** [readme.md](./07-php-standards-reference/00-overview.md), [enums.md](./01-enums.md), WP Error Handling <!-- external: spec/28-wp-plugin-development/07-error-handling.md -->
 
 ---

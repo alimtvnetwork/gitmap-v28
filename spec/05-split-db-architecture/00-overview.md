@@ -1,11 +1,11 @@
 # Split Database Architecture
 
-> **Version:** 3.0.0  
-> **Created:** 2026-02-01  
-> **Updated:** 2026-04-03  
-> **Status:** Active  
-> **AI Confidence:** Production-Ready  
-> **Ambiguity:** Low  
+> **Version:** 3.0.0
+> **Created:** 2026-02-01
+> **Updated:** 2026-04-03
+> **Status:** Active
+> **AI Confidence:** Production-Ready
+> **Ambiguity:** Low
 > **Purpose:** Reusable pattern for hierarchical SQLite database organization across all projects
 
 ---
@@ -106,8 +106,8 @@ _Auto-generated section — see `spec/05-split-db-architecture/97-acceptance-cri
 
 ### AC-SDB-000: Split-DB architecture conformance: Overview
 
-**Given** Inspect Root/App/Session DB lifecycle wiring and Casbin RBAC enforcement points.  
-**When** Run the verification command shown below.  
+**Given** Inspect Root/App/Session DB lifecycle wiring and Casbin RBAC enforcement points.
+**When** Run the verification command shown below.
 **Then** Each tier opens its own SQLite handle (WAL mode), policy reload happens on Casbin policy change, and user-scope isolation is enforced by row filters.
 
 **Verification command:**

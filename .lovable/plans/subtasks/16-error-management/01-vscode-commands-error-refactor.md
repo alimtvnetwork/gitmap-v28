@@ -1,6 +1,6 @@
 # Subtask 01: VSCode Commands Error Handling Refactoring
 
-> **Parent Plan:** `16-error-management-audit.md`  
+> **Parent Plan:** `16-error-management-audit.md`
 > **Files:** `gitmap/cmd/vscodeworkspace.go`, `gitmap/cmd/vscode_cmd.go`
 
 ## Objective

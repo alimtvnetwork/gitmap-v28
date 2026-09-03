@@ -1,7 +1,7 @@
 # PHP Coding Standards — Constants, enums, dependency checks, file paths
 
-> **Parent:** [PHP Coding Standards](./00-overview.md)  
-> **Version:** 5.1.0  
+> **Parent:** [PHP Coding Standards](./00-overview.md)
+> **Version:** 5.1.0
 > **Updated:** 2026-03-31
 
 ---

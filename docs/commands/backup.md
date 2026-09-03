@@ -77,10 +77,13 @@ gitmap backup ls --json
 ### 3. Restore Databases from Snapshot
 
 ```bash
+
 # Restore by sequence number
+
 gitmap backup restore 1 -y
 
 # Or interactive selection:
+
 gitmap backup restore
 ```
 

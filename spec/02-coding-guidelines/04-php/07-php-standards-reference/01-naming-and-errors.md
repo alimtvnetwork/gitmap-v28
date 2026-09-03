@@ -1,14 +1,14 @@
 # PHP Coding Standards — Naming conventions, error handling, structured responses
 
-> **Parent:** [PHP Coding Standards](./00-overview.md)  
-> **Version:** 5.1.0  
+> **Parent:** [PHP Coding Standards](./00-overview.md)
+> **Version:** 5.1.0
 > **Updated:** 2026-03-31
 
 ---
 
 ## Naming Conventions
 
-> **Baseline:** [PSR-12 PHP Naming Conventions](../03-naming-conventions.md)  
+> **Baseline:** [PSR-12 PHP Naming Conventions](../03-naming-conventions.md)
 > The table below lists **project-specific overrides** that take precedence over PSR-12 defaults.
 
 | Element | Convention | Example | Override reason |
@@ -146,7 +146,7 @@ The logger captures two outputs for every error:
 public function logException(Throwable $e, string $context = '') {
     // Structured frames for JSON responses
     $frames = $this->formatStackFrames($e);
-    
+
     // Raw backtrace to file (unlimited depth)
     $backtrace = debug_backtrace(0, 0);
     file_put_contents($this->stacktraceFile, $this->formatBacktrace($backtrace), FILE_APPEND);

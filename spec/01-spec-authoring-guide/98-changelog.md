@@ -1,14 +1,14 @@
 # Spec Authoring Guide — Changelog
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Last Updated:** 2026-04-16
 
 ---
 
 ## [2026-03-30] v2.0.0 Compliance Rollout
 
-**Scope:** Project-wide sub-folder `00-overview.md` upgrade  
-**Total files upgraded:** 139 sub-folder overviews + 2 new files created  
+**Scope:** Project-wide sub-folder `00-overview.md` upgrade
+**Total files upgraded:** 139 sub-folder overviews + 2 new files created
 **Health impact:** 100% compliance with Spec Authoring Guide v2.0.0
 
 ### Summary

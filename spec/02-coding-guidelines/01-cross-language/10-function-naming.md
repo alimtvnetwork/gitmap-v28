@@ -1,7 +1,7 @@
 # Function Naming — No Boolean Flag Parameters
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-03-09  
+> **Version:** 1.0.0
+> **Updated:** 2026-03-09
 > **Applies to:** PHP, TypeScript, Go
 
 ---

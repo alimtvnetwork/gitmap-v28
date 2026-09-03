@@ -13,6 +13,6 @@ During the `v6.87.1` deployment cycle, the CI/CD pipeline correctly triggered bu
 
 ## Resolution & Prevention
 
-To resolve this, an orchestrating AI agent explicitly executed the **PowerShell Version Sweep** across all canonical files, pushed a `main` commit, and then issued a `v6.88.0` tag in series. 
+To resolve this, an orchestrating AI agent explicitly executed the **PowerShell Version Sweep** across all canonical files, pushed a `main` commit, and then issued a `v6.88.0` tag in series.
 
 **Prevention Rule**: All future automated releases must adhere strictly to the procedures documented in `01-ai-release-synchronization.md`. Source control dictates the tag; tags never dictate the source control.

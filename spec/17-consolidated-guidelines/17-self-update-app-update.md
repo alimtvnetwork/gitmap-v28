@@ -1,7 +1,7 @@
 # Consolidated: Self-Update & App Update — Complete Reference
 
-**Version:** 3.3.0  
-**Updated:** 2026-04-22  
+**Version:** 3.3.0
+**Updated:** 2026-04-22
 **Source Module:** [`spec/14-update/`](../14-update/00-overview.md)
 
 ---

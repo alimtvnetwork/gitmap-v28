@@ -19,7 +19,7 @@ Three CI/CD checks failed:
 
 1. Downgraded `gitmap/go.mod` back to `go 1.24.0` (and ran `go mod tidy`) to safely pass the pinned `golangci-lint` check without violating the `mem://core` pin policy.
 2. Ran `go generate ./...` in the `gitmap` directory to regenerate `allcommands_generated.go`.
-3. Updated `.github/scripts/check-changelog-version-sync.sh` to target `changelog.md` instead of `changelog.md`. 
+3. Updated `.github/scripts/check-changelog-version-sync.sh` to target `changelog.md` instead of `changelog.md`.
 4. Synced `gitmap/constants/constants.go` to match `version.json`'s version (`6.27.0`) and ensured the changelog heading uses `v` prefix (`## [v6.27.0]`).
 5. Updated `gitmap/cmd/install_profile_tree_test.go` to expect `vscode-settings` when the `vscode` slug is used.
 

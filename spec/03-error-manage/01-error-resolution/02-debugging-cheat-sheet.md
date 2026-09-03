@@ -1,7 +1,7 @@
 # Debugging Cheat Sheet
 
-> **Version:** 1.0.0  
-> **Created:** 2026-02-04  
+> **Version:** 1.0.0
+> **Created:** 2026-02-04
 > **Quick Reference for:** PHP, Go, TypeScript
 
 ---
@@ -218,10 +218,10 @@ console.log({ status, fetchStatus, isLoading, isFetching });
 ### WebSocket Debugging
 
 ```typescript
-ws.onclose = (event) => console.log({ 
-  code: event.code, 
-  reason: event.reason, 
-  wasClean: event.wasClean 
+ws.onclose = (event) => console.log({
+  code: event.code,
+  reason: event.reason,
+  wasClean: event.wasClean
 });
 ```
 

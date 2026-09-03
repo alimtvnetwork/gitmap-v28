@@ -1,7 +1,7 @@
 # TypeScript ExecutionStatus Enum — `src/lib/enums/execution-status.ts`
 
-> **Version**: 1.0.0  
-> **Last updated**: 2026-02-27  
+> **Version**: 1.0.0
+> **Last updated**: 2026-02-27
 > **Tracks**: Issue #10 (`spec/23-how-app-issues-track/10-domain-status-magic-strings.md`)
 
 ---

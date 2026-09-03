@@ -8,11 +8,11 @@ get_current_ip() {
 }
 
 echo "Getting the host name and ip"
-echo 
+echo
 echo "Hostname:"
 get_current_host_name
 
-echo 
+echo
 echo "Current Ip:"
 get_current_ip
 echo

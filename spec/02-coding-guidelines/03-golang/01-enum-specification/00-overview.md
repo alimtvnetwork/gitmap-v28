@@ -1,9 +1,9 @@
 # Enum Specification
 
-**Version:** 3.2.0  
-**Status:** Complete  
-**Updated:** 2026-04-16    
-**AI Confidence:** High  
+**Version:** 3.2.0
+**Status:** Complete
+**Updated:** 2026-04-16
+**AI Confidence:** High
 **Ambiguity:** None
 **Error Range:** N/A (Cross-cutting standard)
 
@@ -118,7 +118,7 @@ internal/enums/
 | Spec Management | ✅ Compliant | 50/50 | `.lovable/audits/spec-management-enum-compliance-audit-2026-02-06.md` |
 | **WP Plugin Publish** | 🔄 Migration In Progress | — | 11/12 migrated, 1 int-based exempt |
 
-> **Note:** All 9 CLIs have been migrated to `Invalid` as zero value per spec v2.0.0 (completed 2026-02-11).  
+> **Note:** All 9 CLIs have been migrated to `Invalid` as zero value per spec v2.0.0 (completed 2026-02-11).
 > **Note:** WP Plugin Publish backend — 11 of 12 string-based enums migrated to byte-based `internal/enums/` pattern (2026-02-21). `HttpStatusType` remains `int`-based (exempt).
 
 ### WP Plugin Publish — Enum Migration Tracker

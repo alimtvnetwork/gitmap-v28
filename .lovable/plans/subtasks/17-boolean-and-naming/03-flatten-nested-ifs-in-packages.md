@@ -1,6 +1,6 @@
 # Subtask 03: Flatten Nested If Statements in `gitmap` Sub-Packages
 
-> **Parent Plan:** `17-boolean-and-naming-audit.md`  
+> **Parent Plan:** `17-boolean-and-naming-audit.md`
 > **Scope:** `gitmap/archive`, `gitmap/clonenow`, `gitmap/cluster`, `gitmap/db`, etc.
 
 ## Objective

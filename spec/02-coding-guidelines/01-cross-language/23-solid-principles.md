@@ -1,7 +1,7 @@
 # SOLID Principles Reference
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-03-31  
+> **Version:** 1.0.0
+> **Updated:** 2026-03-31
 > **Applies to:** All languages
 
 ---

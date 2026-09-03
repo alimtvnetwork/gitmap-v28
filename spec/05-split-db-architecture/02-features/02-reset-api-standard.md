@@ -1,8 +1,8 @@
 # Split DB Architecture: Reset API Standard
 
-**Version:** 3.2.0  
-**Status:** Active  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Status:** Active
+**Updated:** 2026-04-16
 **Parent:** [00-overview.md](../00-overview.md)
 
 ---
@@ -118,7 +118,7 @@ Response (Expired):
 
 Response (Invalid):
 {
-  "Status": "invalid", 
+  "Status": "invalid",
   "Error": "Invalid or already used reset ID"
 }
 ```
@@ -249,11 +249,11 @@ func calculateExpiration(settings *Settings) time.Time {
 func validateResetRequest(db *sql.DB, resetId string) apperror.Result[*ResetRequest] {
     var req ResetRequest
     err := db.QueryRow(`
-        SELECT ResetRequestId, ResetToken, Scope, ExpiresAt, Status 
-        FROM ResetRequest 
+        SELECT ResetRequestId, ResetToken, Scope, ExpiresAt, Status
+        FROM ResetRequest
         WHERE ResetToken = ?
     `, resetId).Scan(&req.ResetRequestId, &req.ResetToken, &req.Scope, &req.ExpiresAt, &req.Status)
-    
+
     if err == sql.ErrNoRows {
         return nil, ErrInvalidResetId
     }
@@ -265,7 +265,7 @@ func validateResetRequest(db *sql.DB, resetId string) apperror.Result[*ResetRequ
         db.Exec("UPDATE ResetRequest SET Status = 'expired' WHERE ResetToken = ?", resetId)
         return nil, ErrResetExpired
     }
-    
+
     return &req, nil
 }
 ```
@@ -277,23 +277,23 @@ func executeReset(db *sql.DB, req *ResetRequest) apperror.Result[*ResetResult] {
     // Start transaction
     tx, _ := db.Begin()
     defer tx.Rollback()
-    
+
     // Delete databases based on scope
     deleted, freed := deleteByScope(req.Scope)
-    
+
     // Update reset request
     tx.Exec(`
-        UPDATE ResetRequest 
-        SET Status = 'completed', 
+        UPDATE ResetRequest
+        SET Status = 'completed',
             ConfirmedAt = ?,
             CompletedAt = ?,
             DeletedCount = ?,
             FreedBytes = ?
         WHERE Id = ?
     `, time.Now(), time.Now(), deleted, freed, req.Id)
-    
+
     tx.Commit()
-    
+
     return &ResetResult{
         Status: "completed",
         DeletedDatabases: deleted,

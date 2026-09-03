@@ -1,6 +1,6 @@
 # Subtask 02: Zip & ZipGroup Commands Error Handling Refactoring
 
-> **Parent Plan:** `16-error-management-audit.md`  
+> **Parent Plan:** `16-error-management-audit.md`
 > **Files:** `gitmap/cmd/zipgroup.go`, `gitmap/cmd/zipgroupcreate.go`, `gitmap/cmd/zipgroupops.go`, `gitmap/cmd/zipgroupshow.go`, `gitmap/cmd/zip.go`
 
 ## Objective

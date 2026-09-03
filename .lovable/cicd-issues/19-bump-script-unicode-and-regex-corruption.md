@@ -2,7 +2,7 @@
 
 ## Error Summary
 
-The `bump_versions.py` release script failed with a `UnicodeDecodeError: 'charmap' codec can't decode byte 0x90 in position 2851: character maps to <undefined>` on Windows runners. 
+The `bump_versions.py` release script failed with a `UnicodeDecodeError: 'charmap' codec can't decode byte 0x90 in position 2851: character maps to <undefined>` on Windows runners.
 Additionally, a logic bug in the script caused it to greedily overwrite *every* historical version string in `readme.md`, causing massive documentation corruption.
 
 ## Root Cause Analysis (RCA)

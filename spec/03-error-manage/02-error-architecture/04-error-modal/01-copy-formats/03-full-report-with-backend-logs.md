@@ -1,8 +1,8 @@
 # Full Report with Backend Logs
 
-> **Parent:** [Copy Formats Index](./00-overview.md)  
-> **Version:** 3.2.0  
-> **Updated:** 2026-03-31  
+> **Parent:** [Copy Formats Index](./00-overview.md)
+> **Version:** 3.2.0
+> **Updated:** 2026-03-31
 > **Purpose:** Full Report (all sections from [02-full-report.md](./02-full-report.md)) with error.log.txt content appended at the bottom.
 
 ---

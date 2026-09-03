@@ -26,6 +26,7 @@ gitmap agy read-memory-all [flags]
 ## Examples
 
 ### 1. Preview targeting across all active projects (dry run)
+
 ```bash
 gitmap agy all-projects-read-memory-prompt --dry-run
 ```
@@ -35,6 +36,7 @@ gitmap agy aprmp -d
 ```
 
 ### 2. Exclude projects using short prefix starts with, name, or slug
+
 ```bash
 gitmap agy aprmp --except "wp-, prompts, 46d0" --dry-run
 ```
@@ -44,6 +46,7 @@ gitmap agy aprmp --except "wp-, prompts, 46d0" --dry-run
 - `46d0`: Excludes projects whose ID starts with `46d0` (e.g. `gitmap-v28` with ID `46d05021...`).
 
 ### 3. Broadcast to all active projects with confirmation prompt
+
 ```bash
 gitmap agy all-projects-read-memory-prompt
 ```
@@ -53,11 +56,13 @@ gitmap agy aprmp
 ```
 
 ### 4. Non-interactive immediate broadcast with custom prompt
+
 ```bash
 gitmap agy aprmp -p "Load pending plans in .lovable/plans/pending/ and execute self-loop." -y
 ```
 
 ### 5. Exclude using an external CSV or text list
+
 ```bash
 gitmap agy aprmp --except "./exceptions.csv" -y
 ```

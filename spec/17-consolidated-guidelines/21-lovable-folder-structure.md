@@ -1,7 +1,7 @@
 # Consolidated: `.lovable/` Folder Structure
 
-**Version:** 3.3.0  
-**Updated:** 2026-04-16  
+**Version:** 3.3.0
+**Updated:** 2026-04-16
 **Source:** [`spec/01-spec-authoring-guide/07-memory-folder-guide.md`](../01-spec-authoring-guide/07-memory-folder-guide.md)
 
 ---
@@ -88,8 +88,8 @@ Every memory file follows this template:
 
 # Memory: [descriptive-title]
 
-**Category:** architecture | constraints | features | issues | patterns | processes | project | standards | style | workflow  
-**Created:** YYYY-MM-DD  
+**Category:** architecture | constraints | features | issues | patterns | processes | project | standards | style | workflow
+**Created:** YYYY-MM-DD
 **Updated:** YYYY-MM-DD
 
 ---
@@ -184,8 +184,8 @@ The `memory/index.md` has two sections:
 
 # Pending Task: [Title]
 
-**Priority:** High | Medium | Low  
-**Status:** Not Started | In Progress | Complete ✅  
+**Priority:** High | Medium | Low
+**Status:** Not Started | In Progress | Complete ✅
 **Created:** YYYY-MM-DD
 
 ---
@@ -222,8 +222,8 @@ What needs to be done.
 
 # Issue: [Title]
 
-**Severity:** Critical | High | Medium | Low  
-**Status:** Open | Investigating | Resolved  
+**Severity:** Critical | High | Medium | Low
+**Status:** Open | Investigating | Resolved
 **Created:** YYYY-MM-DD
 
 ---

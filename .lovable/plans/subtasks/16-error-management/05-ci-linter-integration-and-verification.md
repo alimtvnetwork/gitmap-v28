@@ -1,6 +1,6 @@
 # Subtask 05: CI Linter Integration & End-to-End Quality Verification
 
-> **Parent Plan:** `16-error-management-audit.md`  
+> **Parent Plan:** `16-error-management-audit.md`
 > **Files:** `linter-scripts/check-error-management.py`, `.lovable/ai-fix-scripts/03-cicd-local-runner.py`
 
 ## Objective

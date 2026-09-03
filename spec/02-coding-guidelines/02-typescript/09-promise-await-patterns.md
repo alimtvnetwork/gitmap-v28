@@ -1,8 +1,8 @@
 # Promise & Await Patterns
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Applies to:** TypeScript / JavaScript  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Applies to:** TypeScript / JavaScript
 **Source:** Consolidated from `01-pre-code-review-guides/02-fe-guidelines.md`
 
 ---

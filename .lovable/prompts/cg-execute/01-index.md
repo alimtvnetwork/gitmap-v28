@@ -1,6 +1,6 @@
 # Coding Guideline Execution Prompts Registry (`cg-execute`)
 
-> **Location:** `.lovable/prompts/cg-execute/`  
+> **Location:** `.lovable/prompts/cg-execute/`
 > **Purpose:** Standardized, sequenced N-step autonomous prompts for auditing, refactoring, creating linters, and enforcing every section of the coding guidelines across any repository.
 
 ---

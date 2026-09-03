@@ -1,7 +1,7 @@
 # Update Command — Step-by-Step Workflow
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
 **Source:** sibling reference implementation `cmd/update.go` and `cmd/updatecleanup.go`
 
 ---

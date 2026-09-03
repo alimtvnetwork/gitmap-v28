@@ -1,7 +1,7 @@
 # Project Architecture, Memory, and Skills Synthesis
 
-**Updated:** 2026-09-02  
-**Status:** Active  
+**Updated:** 2026-09-02
+**Status:** Active
 **Scope:** Full-repository memory load, codebase architecture, and skill extraction
 
 ---
@@ -25,12 +25,14 @@ A comprehensive, deep-dive read of all institutional memory files (132 files), c
 ## 3. Core Architectural Pillars
 
 ### 3.1 Go CLI Toolchain (`gitmap/`)
+
 - Go 1.24.13 with strict linting (`golangci-lint` v1.64.8, `govulncheck` v1.1.4).
 - Over 60 subcommands organized in `gitmap/cmd/` with AST parity enforced via `TestTopLevelCmdRegistryMatchesAST` against `gitmap/constants/constants_cli.go`.
 - Maximum 120 lines for command help markdown files (`gitmap/helptext/`) with 3–8 line realistic simulations and mandatory fenced code blocks.
 - Centralized error and exit handling via `apperror` and `cliexit.Reportf` / `cliexit.Fail`. Bare `fmt.Fprintln(os.Stderr, err)` is strictly prohibited.
 
 ### 3.2 Database Conventions (`store/`, SQLite)
+
 - CGo-free SQLite engine via `modernc.org/sqlite`.
 - Singular PascalCase table names, `{TableName}Id INTEGER PRIMARY KEY AUTOINCREMENT`.
 - Strict connection limit: `db.SetMaxOpenConns(1)` preventing database locks and concurrency races.
@@ -38,6 +40,7 @@ A comprehensive, deep-dive read of all institutional memory files (132 files), c
 - Mandatory context columns: `Description TEXT NULL` for entity tables, `Notes TEXT NULL` / `Comments TEXT NULL` for transaction tables.
 
 ### 3.3 Versioning & Release (SSoT)
+
 - Single source of truth is `version.json` at repository root.
 - Go binaries receive version via `-ldflags` string injection.
 - Release pipeline workflows (`.github/workflows/release.yml`) are strictly untouchable; missing release assets are always investigated as upstream test/build gate failures.

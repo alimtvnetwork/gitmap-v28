@@ -1,6 +1,6 @@
 # Database Schema Design
 
-**Version:** 3.3.0  
+**Version:** 3.3.0
 **Updated:** 2026-04-19
 
 ---
@@ -206,7 +206,7 @@ Every database schema MUST be documented with:
 
 ### TableName
 
-**Purpose:** [What this table stores]  
+**Purpose:** [What this table stores]
 **Expected volume:** [N rows in 10 years]
 
 | Column | Type | Constraints | Description |

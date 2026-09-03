@@ -1,7 +1,7 @@
 # Consistency Report: App Issues
 
-**Version:** 3.2.0  
-**Generated:** 2026-04-07  
+**Version:** 3.2.0
+**Generated:** 2026-04-07
 **Health Score:** 100/100 (A+)
 
 ---

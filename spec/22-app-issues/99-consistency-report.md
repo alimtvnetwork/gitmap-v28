@@ -1,7 +1,7 @@
 # Consistency Report: 22-app-issues
 
-**Audit Date:** 2026-09-01  
-**Status:** PASS  
+**Audit Date:** 2026-09-01
+**Status:** PASS
 **Scope:** Application Issue Reports & RCAs (`spec/22-app-issues/`)
 
 ---

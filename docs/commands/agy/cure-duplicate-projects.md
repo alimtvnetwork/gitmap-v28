@@ -22,6 +22,7 @@ gitmap agy --repeat-fix [flags]
 ## Examples
 
 ### 1. Preview deduplication safely (dry run)
+
 ```bash
 gitmap agy cure-duplicate-projects --dry-run
 ```
@@ -31,6 +32,7 @@ gitmap agy cdp -d
 ```
 
 ### 2. Cure all duplicates with interactive prompt
+
 ```bash
 gitmap agy cure-duplicate-projects
 ```
@@ -40,11 +42,13 @@ gitmap agy cdp
 ```
 
 ### 3. Non-interactive automatic cure
+
 ```bash
 gitmap agy cdp -y
 ```
 
 ### 4. Cure duplicates while preserving specific projects
+
 ```bash
 gitmap agy cdp --except "gitmap, prompts, f618"
 ```

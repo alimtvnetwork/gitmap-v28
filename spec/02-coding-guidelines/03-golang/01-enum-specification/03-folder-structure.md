@@ -1,7 +1,7 @@
 # Folder Structure
 
-**Version:** 3.2.0  
-**Status:** Complete  
+**Version:** 3.2.0
+**Status:** Complete
 **Updated:** 2026-04-16
 
 ---
@@ -104,7 +104,7 @@ func main() {
     if p.IsSerpApi() {
         // ...
     }
-    
+
     platforms := []platformtype.Variant{
         platformtype.YouTube,
         platformtype.Reddit,
@@ -219,10 +219,10 @@ const (
     ProviderSerpApi     = providertype.SerpApi
     ProviderMapsScraper = providertype.MapsScraper
     ProviderColly       = providertype.Colly
-    
+
     PlatformYouTube     = platformtype.YouTube
     PlatformReddit      = platformtype.Reddit
-    
+
     EngineGoogle        = enginetype.Google
     EngineBing          = enginetype.Bing
 )
@@ -255,7 +255,7 @@ type Variant byte
 const (
     // Invalid is the zero value
     Invalid Variant = iota
-    
+
     // Add variants here...
 )
 

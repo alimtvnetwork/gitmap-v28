@@ -1,7 +1,7 @@
 # Discriminated Union & Action Type Patterns
 
-> **Parent:** [TypeScript Standards](./00-overview.md)  
-> **Version:** 1.0.0  
+> **Parent:** [TypeScript Standards](./00-overview.md)
+> **Version:** 1.0.0
 > **Updated:** 2026-04-05
 
 ---

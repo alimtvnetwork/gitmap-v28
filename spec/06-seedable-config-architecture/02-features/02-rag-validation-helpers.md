@@ -1,9 +1,9 @@
 # RAG Configuration Validation Helpers
 
-**Version:** 3.2.0  
-**Created:** 2026-02-02  
-**Updated:** 2026-04-16  
-**Status:** Active  
+**Version:** 3.2.0
+**Created:** 2026-02-02
+**Updated:** 2026-04-16
+**Status:** Active
 **Parent:** [02-rag-chunk-settings.md](./01-rag-chunk-settings.md)
 
 ---
@@ -75,37 +75,37 @@ type DefaultValidator struct{}
 
 func (v *DefaultValidator) Validate(config *RagConfig) []*apperror.AppError {
     var errors []*apperror.AppError
-    
+
     // ChunkSize validation
     if err := v.validateChunkSize(config.ChunkSize); err != nil {
         errors = append(errors, *err)
     }
-    
+
     // ChunkOverlap validation (depends on ChunkSize)
     if err := v.validateChunkOverlap(config.ChunkOverlap, config.ChunkSize); err != nil {
         errors = append(errors, *err)
     }
-    
+
     // ContextTokenBudget validation
     if err := v.validateContextBudget(config.ContextTokenBudget); err != nil {
         errors = append(errors, *err)
     }
-    
+
     // EmbeddingModel validation
     if err := v.validateEmbeddingModel(config.EmbeddingModel); err != nil {
         errors = append(errors, *err)
     }
-    
+
     // SimilarityThreshold validation
     if err := v.validateSimilarityThreshold(config.SimilarityThreshold); err != nil {
         errors = append(errors, *err)
     }
-    
+
     // TopK validation
     if err := v.validateTopK(config.TopK); err != nil {
         errors = append(errors, *err)
     }
-    
+
     return errors
 }
 ```
@@ -294,13 +294,13 @@ type RagConfigUpdate struct {
 // ValidatePartial validates only provided fields
 func (s *RagConfigService) ValidatePartial(updates *RagConfigUpdate) []*apperror.AppError {
     var errors []*apperror.AppError
-    
+
     if updates.ChunkSize != nil {
         if err := (&DefaultValidator{}).validateChunkSize(*updates.ChunkSize); err != nil {
             errors = append(errors, *err)
         }
     }
-    
+
     // Check overlap with size if both provided
     if updates.ChunkOverlap != nil {
         chunkSize := 2048 // default
@@ -311,7 +311,7 @@ func (s *RagConfigService) ValidatePartial(updates *RagConfigUpdate) []*apperror
             errors = append(errors, *err)
         }
     }
-    
+
     // Continue for other fields...
     return errors
 }
@@ -355,7 +355,7 @@ func ValidationMiddleware(next http.Handler) http.Handler {
                 http.Error(w, "Invalid JSON", http.StatusBadRequest)
                 return
             }
-            
+
             validator := &DefaultValidator{}
             if errors := validator.Validate(&config); len(errors) > 0 {
                 w.Header().Set("Content-Type", "application/json")
@@ -365,7 +365,7 @@ func ValidationMiddleware(next http.Handler) http.Handler {
                 })
                 return
             }
-            
+
             // Re-encode for next handler
             encoded, _ := json.Marshal(config)
             r.Body = io.NopCloser(bytes.NewReader(encoded))
@@ -385,7 +385,7 @@ func (h *SettingsHandler) UpdateRagSettings(w http.ResponseWriter, r *http.Reque
         h.respondError(w, 9308, "Invalid request body", http.StatusBadRequest)
         return
     }
-    
+
     // Validate partial updates
     if errors := h.configService.ValidatePartial(&updates); len(errors) > 0 {
         w.Header().Set("Content-Type", "application/json")
@@ -396,7 +396,7 @@ func (h *SettingsHandler) UpdateRagSettings(w http.ResponseWriter, r *http.Reque
         })
         return
     }
-    
+
     // Load current config
     appName := r.URL.Query().Get("app")
     config, err := h.configService.Load(appName)
@@ -404,7 +404,7 @@ func (h *SettingsHandler) UpdateRagSettings(w http.ResponseWriter, r *http.Reque
         h.respondError(w, 9308, "Failed to load config", http.StatusInternalServerError)
         return
     }
-    
+
     // Apply typed updates
     if updates.ChunkSize != nil {
         config.ChunkSize = *updates.ChunkSize
@@ -424,7 +424,7 @@ func (h *SettingsHandler) UpdateRagSettings(w http.ResponseWriter, r *http.Reque
     if updates.TopK != nil {
         config.TopK = *updates.TopK
     }
-    
+
     // Save updated config
     if err := h.configService.Save(appName, config); err != nil {
         var valErr *apperror.AppError
@@ -437,7 +437,7 @@ func (h *SettingsHandler) UpdateRagSettings(w http.ResponseWriter, r *http.Reque
         h.respondError(w, 9309, "Failed to save config", http.StatusInternalServerError)
         return
     }
-    
+
     // Return updated config
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(RagConfigUpdateResponse{
@@ -524,7 +524,7 @@ func (h *SettingsHandler) UpdateRagSettings(w http.ResponseWriter, r *http.Reque
 ```go
 func TestChunkSizeValidation(t *testing.T) {
     v := &DefaultValidator{}
-    
+
     tests := []struct {
         name     string
         size     int
@@ -537,7 +537,7 @@ func TestChunkSizeValidation(t *testing.T) {
         {"too_large", 10000, 9301},
         {"not_multiple", 1000, 9302},
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := v.validateChunkSize(tt.size)
@@ -558,7 +558,7 @@ func TestChunkSizeValidation(t *testing.T) {
 
 func TestOverlapPercentageValidation(t *testing.T) {
     v := &DefaultValidator{}
-    
+
     tests := []struct {
         name      string
         chunkSize int
@@ -570,7 +570,7 @@ func TestOverlapPercentageValidation(t *testing.T) {
         {"26_percent_fail", 2048, 600, true},
         {"50_percent_fail", 2048, 1024, true},
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := v.validateChunkOverlap(tt.overlap, tt.chunkSize)

@@ -1,7 +1,7 @@
 # DRY Principles — Coding Guidelines
 
-> **Version:** 1.0.0  
-> **Updated:** 2026-03-09  
+> **Version:** 1.0.0
+> **Updated:** 2026-03-09
 > **Applies to:** All code (Go, TypeScript, PHP, PowerShell)
 
 ---

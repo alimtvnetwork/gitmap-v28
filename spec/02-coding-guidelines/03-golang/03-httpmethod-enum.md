@@ -1,7 +1,7 @@
 # HttpMethod Enum — `pkg/enums/httpmethodtype/variant.go`
 
-> **Version**: 3.0.0  
-> **Last updated**: 2026-02-28  
+> **Version**: 3.0.0
+> **Last updated**: 2026-02-28
 > **Shared package**: All CLIs import from `pkg/enums/httpmethodtype`
 
 ---

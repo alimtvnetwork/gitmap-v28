@@ -1,8 +1,8 @@
 # AppError Package Reference — Domain Error Type Enums (`apperrtype`)
 
-> **Parent:** [AppError Package Reference](./00-overview.md)  
-> **Version:** 2.0.0  
-> **Updated:** 2026-04-02  
+> **Parent:** [AppError Package Reference](./00-overview.md)
+> **Version:** 2.0.0
+> **Updated:** 2026-04-02
 > **Breaking:** Migrated from per-domain `byte` enums to single `uint16` Variation enum (inspired by [evatix-go/errorwrapper/errtype](https://gitlab.com/auk-go/errorwrapper/-/tree/develop/errtype))
 
 ---

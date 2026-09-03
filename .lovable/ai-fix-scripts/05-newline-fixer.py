@@ -5,27 +5,27 @@ def fix_trailing_newline(filepath):
     try:
         with open(filepath, 'rb') as f:
             raw = f.read()
-            
+
         if not raw:
             return False
-            
+
         has_bom = raw.startswith(codecs.BOM_UTF8)
         if has_bom:
             raw = raw[len(codecs.BOM_UTF8):]
-            
+
         try:
             text = raw.decode('utf-8')
         except UnicodeDecodeError:
             text = raw.decode('latin-1')
-            
+
         # Ensure CRLF is stripped
         text = text.replace('\r\n', '\n').replace('\r', '\n')
-        
+
         modified = False
         # Strip all trailing whitespace and newlines, then add exactly one
         original_text = text
         text = text.rstrip(' \t\n\r') + '\n'
-        
+
         if original_text != text or has_bom:
             with open(filepath, 'w', encoding='utf-8', newline='\n') as f:
                 f.write(text)

@@ -1,9 +1,9 @@
 # Transaction Log: Locked & Lockless Streamers and Self-Binding Interfacer Research
 
-> **Directory:** `05-changes-history/04-locked-and-lockless-streamers-research/`  
-> **Date:** 2026-09-03  
-> **Topic:** 2 Types of Streamers (Locked vs Lockless), Swappable StreamFunc, and Self-Binding `AsInterfacer()`  
-> **Status:** Completed  
+> **Directory:** `05-changes-history/04-locked-and-lockless-streamers-research/`
+> **Date:** 2026-09-03
+> **Topic:** 2 Types of Streamers (Locked vs Lockless), Swappable StreamFunc, and Self-Binding `AsInterfacer()`
+> **Status:** Completed
 
 ---
 
@@ -21,10 +21,12 @@
 ## 2. Files Created & Modified
 
 ### Research Documents
+
 - `research/01-index.md`: Registered research topic 04.
 - `research/04-locked-and-lockless-streamers-with-self-binding-interfacer.md`: Complete specification with `LockedStreamer`, `LocklessStreamer`, `streamcontract`, and `AsInterfacer()` implementation.
 
 ### Transaction History Updates
+
 - `05-changes-history/01-index.md`: Registered Task 04.
 - `05-changes-history/04-locked-and-lockless-streamers-research/01-transaction-log.md`: This file.
 

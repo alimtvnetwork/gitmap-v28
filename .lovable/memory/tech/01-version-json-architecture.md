@@ -5,7 +5,7 @@
 
 ## The Problem
 
-Previously, AI agents were instructed to run massive PowerShell array string replacements across multiple files (like `constants.go`, `latest.json`, `index.ts`, `plan.md`) to bump the version. This was incredibly brittle and caused the `v6.87.1` regression where the source code `constants.go` failed to sync with the Git tag, leading to broken CI smoke tests. 
+Previously, AI agents were instructed to run massive PowerShell array string replacements across multiple files (like `constants.go`, `latest.json`, `index.ts`, `plan.md`) to bump the version. This was incredibly brittle and caused the `v6.87.1` regression where the source code `constants.go` failed to sync with the Git tag, leading to broken CI smoke tests.
 The AI agents should never touch core Golang source files during a standard release bump.
 
 ## The Solution

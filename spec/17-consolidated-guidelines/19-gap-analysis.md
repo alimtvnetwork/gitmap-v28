@@ -1,8 +1,8 @@
 # Consolidated Guidelines — Gap Analysis Report
 
-**Version:** 13.1.0  
-**Updated:** 2026-05-07  
-**Scope:** All 23 consolidated guideline files vs source spec folders + spec/19 readiness sweep at v5.41.0  
+**Version:** 13.1.0
+**Updated:** 2026-05-07
+**Scope:** All 23 consolidated guideline files vs source spec folders + spec/19 readiness sweep at v5.41.0
 **Previous:** v13.0.0 (2026-04-22) — source-folder coverage map sweep
 
 ---

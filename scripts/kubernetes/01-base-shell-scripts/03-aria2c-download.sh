@@ -9,7 +9,7 @@ CONNECTIONS=16
 
 # Function to install aria2c if not installed
 install_aria2c() {
-    # install_apt 
+    # install_apt
     install_apt_no_msg
 }
 
@@ -28,7 +28,7 @@ aria2c_download() {
     local output_path="${2:-.}"
     local split="${3:-$SPLIT}"
     local connections="${4:-$CONNECTIONS}"
-    
+
     install_aria2c
 
     echo

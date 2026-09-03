@@ -27,7 +27,9 @@ Instead of purely sequential or completely unconstrained parallel execution, div
 2. **Stateful / Mutating Chains**: Sequenced in strict FIFO order inside dedicated worker functions so they never touch the database at the same time.
 
 ```python
+
 # Example from .github/scripts/e2e-cli-smoke.py
+
 import concurrent.futures
 import os
 import subprocess
@@ -150,7 +152,9 @@ When verifying CI/CD workflows:
 In automated test suites, distinguish between a true system failure (e.g. panic, syntax error, crash) and valid expected states in clean environments (e.g., querying database rows in a fresh test container where `gitmap scan` has not yet populated any rows):
 
 ```python
+
 # Accept both 0 (database has records) and 1 (clean environment, zero records found)
+
 (['react-repos', '--json'], [0, 1], '', 'react-repos --json'),
 (['csharp-repos', '--json'], [0, 1], '', 'csharp-repos --json'),
 (['search', 'Version'], [0, 1], '', 'search query'),

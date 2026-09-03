@@ -105,8 +105,8 @@ _Auto-generated section — see `spec/15-distribution-and-runner/97-acceptance-c
 
 ### AC-DIST-000: Distribution & runner conformance: Overview
 
-**Given** Validate the install contract and runner contract against a clean machine fixture.  
-**When** Run the verification command shown below.  
+**Given** Validate the install contract and runner contract against a clean machine fixture.
+**When** Run the verification command shown below.
 **Then** Install script is idempotent; runner detects missing deps and exits with a stable error code; PATH entries are deduped.
 
 **Verification command:**

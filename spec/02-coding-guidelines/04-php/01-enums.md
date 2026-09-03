@@ -1,7 +1,7 @@
 # PHP Enums — Complete Reference
 
-> **Version:** 7.1.0  
-> **Updated:** 2026-03-09  
+> **Version:** 7.1.0
+> **Updated:** 2026-03-09
 > **Applies to:** WordPress companion plugins (PHP 8.1+)
 
 ---
@@ -732,7 +732,7 @@ final class ErrorType
 
 ### Decision Rule
 
-> If the type answers **"which one of these?"** with a single value → `enum` with `Type` suffix + `isEqual()`.  
+> If the type answers **"which one of these?"** with a single value → `enum` with `Type` suffix + `isEqual()`.
 > If it holds **arrays, maps, or composable fragments** → `final class` with `public const`.
 
 ---

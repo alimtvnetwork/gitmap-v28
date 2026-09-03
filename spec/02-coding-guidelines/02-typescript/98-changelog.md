@@ -1,8 +1,8 @@
 # TypeScript Standards — Changelog
 
 
-**Version:** 3.2.0  
-**Last Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Last Updated:** 2026-04-16
 
 All notable changes to the TypeScript Standards specification are documented here.
 

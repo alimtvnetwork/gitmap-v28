@@ -1,7 +1,7 @@
 # Consolidated: CI/CD Pipeline Workflows — Complete Reference
 
-**Version:** 3.3.0  
-**Updated:** 2026-04-22  
+**Version:** 3.3.0
+**Updated:** 2026-04-22
 **Source Module:** [`spec/12-cicd-pipeline-workflows/`](../12-cicd-pipeline-workflows/00-overview.md)
 
 ---

@@ -1,7 +1,7 @@
 # PowerShell Runner Configuration Schema
 
-> **Version:** 2.1.0  
-> **Updated:** 2026-02-04  
+> **Version:** 2.1.0
+> **Updated:** 2026-02-04
 > **Status:** Active
 
 ---

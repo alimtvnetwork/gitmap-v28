@@ -1,7 +1,7 @@
 # 13. Enum Checking and Validation Guidelines
 
-> **Version:** 2.0.0 (V2)  
-> **Applies to:** TypeScript Codebase  
+> **Version:** 2.0.0 (V2)
+> **Applies to:** TypeScript Codebase
 > **Priority:** CRITICAL
 
 This document details the **zero-tolerance policy for magic strings** and provides explicit examples for defining, checking, and validating Enums.
@@ -76,7 +76,7 @@ export function isValidStatus(value: unknown): value is StatusType {
 // Usage Example
 if (isValidStatus(response.status)) {
   // TypeScript now strictly understands response.status is StatusType
-  handleStatus(response.status); 
+  handleStatus(response.status);
 } else {
   // Fallback or error logging
   Logger.error(LogLevel.Error, `Invalid status received: ${response.status}`);

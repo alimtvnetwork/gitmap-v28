@@ -1,11 +1,11 @@
 # ResponseKeyType — Case Inventory & Usage Map
 
-> **Enum**: `RiseupAsia\Enums\ResponseKeyType`  
-> **File**: `includes/Enums/ResponseKeyType.php`  
-> **Go Mirror**: `backend/internal/enums/response_key/variant.go`  
-> **TS Mirror**: `src/lib/constants.ts` → `ResponseKeyType`  
-> **As of**: v2.1.0 (2026-02-26)  
-> **Total cases**: 176  
+> **Enum**: `RiseupAsia\Enums\ResponseKeyType`
+> **File**: `includes/Enums/ResponseKeyType.php`
+> **Go Mirror**: `backend/internal/enums/response_key/variant.go`
+> **TS Mirror**: `src/lib/constants.ts` → `ResponseKeyType`
+> **As of**: v2.1.0 (2026-02-26)
+> **Total cases**: 176
 > **Total usages**: ~3,500+ across 100+ files
 
 ---

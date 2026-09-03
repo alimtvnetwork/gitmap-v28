@@ -1,7 +1,7 @@
 # Specification: React Execution Logger
 
-**Version:** 3.2.0  
-**Created:** 2026-03-09  
+**Version:** 3.2.0
+**Created:** 2026-03-09
 **Status:** Implemented
 
 ---
@@ -136,17 +136,17 @@ interface ExecutionLogEntry {
   // Identity
   id: string;           // Unique ID (nanoid)
   parentId?: string;    // Parent entry for call chain
-  
+
   // Classification
   type: 'function' | 'component' | 'effect' | 'handler' | 'api';
   name: string;         // Function/component name
   context?: string;     // Additional context (e.g., component for handler)
-  
+
   // Data
   args?: unknown[];     // Function arguments (optional)
   result?: unknown;     // Return value (optional)
   error?: string;       // Error if threw
-  
+
   // Timing
   timestamp: number;    // Date.now() at entry
   duration?: number;    // Execution time in ms
@@ -161,7 +161,7 @@ interface ExecutionLoggerState {
   enabled: boolean;
   callStack: string[];  // Stack of entry IDs
   maxEntries: number;   // Rolling buffer limit
-  
+
   // Actions
   logFunction: (name: string, args?: unknown[]) => string;
   logComponent: (name: string, props?: object) => void;
@@ -169,7 +169,7 @@ interface ExecutionLoggerState {
   logHandler: (name: string, context?: string) => void;
   logApiCall: (method: string, endpoint: string) => void;
   endFunction: (id: string, result?: unknown, error?: string) => void;
-  
+
   // Getters
   getFormattedChain: () => string;
   getRecentEntries: (count: number) => ExecutionLogEntry[];
@@ -274,16 +274,16 @@ console.log(chain);
 // In errorStore.ts
 captureError: (input) => {
   const logger = useExecutionLogger.getState();
-  const executionChain = logger.enabled 
-    ? logger.getFormattedChain() 
+  const executionChain = logger.enabled
+    ? logger.getFormattedChain()
     : undefined;
-  
+
   const error: CapturedError = {
     ...input,
     executionChain,
     executionEntries: logger.getRecentEntries(20),
   };
-  
+
   // Store error...
 }
 ```

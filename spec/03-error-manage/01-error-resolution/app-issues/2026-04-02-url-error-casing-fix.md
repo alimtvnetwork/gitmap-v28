@@ -1,7 +1,7 @@
 # Issue: URLError Renamed to UrlError — Inconsistent Casing
 
-**Date:** 2026-04-02  
-**Severity:** Low  
+**Date:** 2026-04-02
+**Severity:** Low
 **Status:** Resolved
 
 ---

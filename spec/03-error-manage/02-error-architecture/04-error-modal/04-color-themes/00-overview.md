@@ -1,8 +1,8 @@
 # Color Theme & Design Token Reference (Index)
 
-> **Parent:** [Error Modal Spec](../00-overview.md)  
-> **Version:** 2.1.0  
-> **Updated:** 2026-03-31  
+> **Parent:** [Error Modal Spec](../00-overview.md)
+> **Version:** 2.1.0
+> **Updated:** 2026-03-31
 > **Purpose:** Definitive color mapping for every error-related UI element.
 
 ---

@@ -52,7 +52,7 @@ print_logs() {
     log_message "JSON file: $json_file"
     log_message "Username: $username"
     log_message "Control Node: $control_node"
-    
+
     log_message "Worker Nodes Found:"
     for worker in "${worker_nodes[@]}"; do
         local worker_name=$(jq -r --arg worker "$worker" '.nodes | to_entries | map(select(.value == $worker))[0].key' "$json_file")

@@ -1,8 +1,8 @@
 # Split DB Architecture: Role-Based Access Control (RBAC) with Casbin
 
-**Version:** 3.2.0  
-**Created:** 2026-03-09  
-**Status:** Active  
+**Version:** 3.2.0
+**Created:** 2026-03-09
+**Status:** Active
 **Parent:** [00-overview.md](../00-overview.md)
 
 ---
@@ -218,7 +218,7 @@ type RbacConfig struct {
 func NewRbacManager(cfg RbacConfig) apperror.Result[*RbacManager] {
     // Determine database path based on level
     dbPath := buildRbacDbPath(cfg)
-    
+
     // Open SQLite with GORM
     db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
         Logger: logger.Default.LogMode(logger.Silent),
@@ -230,7 +230,7 @@ func NewRbacManager(cfg RbacConfig) apperror.Result[*RbacManager] {
             "open rbac database",
         ).WithPath(dbPath)
     }
-    
+
     // Create GORM adapter
     adapter, err := gormadapter.NewAdapterByDb(db)
     if err != nil {
@@ -240,13 +240,13 @@ func NewRbacManager(cfg RbacConfig) apperror.Result[*RbacManager] {
             "create GORM adapter for RBAC",
         )
     }
-    
+
     // Determine model path
     modelPath := cfg.ModelPath
     if modelPath == "" {
         modelPath = filepath.Join(cfg.DataDir, "rbac_model.conf")
     }
-    
+
     // Create enforcer
     enforcer, err := casbin.NewEnforcer(modelPath, adapter)
     if err != nil {
@@ -256,10 +256,10 @@ func NewRbacManager(cfg RbacConfig) apperror.Result[*RbacManager] {
             "create casbin enforcer",
         ).WithPath(modelPath)
     }
-    
+
     // Enable auto-save for policy changes
     enforcer.EnableAutoSave(true)
-    
+
     // Load policies from database
     if err := enforcer.LoadPolicy(); err != nil {
         return nil, apperror.Wrap(
@@ -268,7 +268,7 @@ func NewRbacManager(cfg RbacConfig) apperror.Result[*RbacManager] {
             "load RBAC policies",
         )
     }
-    
+
     return &RbacManager{
         enforcer: enforcer,
         adapter:  adapter,
@@ -419,23 +419,23 @@ func RbacMiddleware(manager *rbac.RbacManager) func(http.Handler) http.Handler {
                 http.Error(w, "Unauthorized", http.StatusUnauthorized)
                 return
             }
-            
+
             // Get resource and action
             resource := r.URL.Path
             action := methodToAction(r.Method)
-            
+
             // Check permission
             allowed, err := manager.Enforce(user, resource, action)
             if err != nil {
                 http.Error(w, "Authorization error", http.StatusInternalServerError)
                 return
             }
-            
+
             if !allowed {
                 http.Error(w, "Forbidden", http.StatusForbidden)
                 return
             }
-            
+
             next.ServeHTTP(w, r)
         })
     }

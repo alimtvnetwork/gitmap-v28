@@ -1,7 +1,7 @@
 # Consistency Report: 21-app
 
-**Audit Date:** 2026-09-01  
-**Status:** PASS  
+**Audit Date:** 2026-09-01
+**Status:** PASS
 **Scope:** Application Specifications (`spec/21-app/`)
 
 ---

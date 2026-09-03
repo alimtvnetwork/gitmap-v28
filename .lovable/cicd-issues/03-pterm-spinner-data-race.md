@@ -15,7 +15,7 @@ Previous write at 0x00c0003fc098 by goroutine 348:
 
 ## Root Cause
 
-The `github.com/pterm/pterm@v0.12.83` package has a known internal data race inside the `SpinnerPrinter`. When `Start()` is called, it unconditionally spawns a goroutine that continuously reads the `IsActive` boolean field. When the main goroutine calls `Stop()`, `Success()`, or `Fail()`, it writes `IsActive = false` without a mutex. 
+The `github.com/pterm/pterm@v0.12.83` package has a known internal data race inside the `SpinnerPrinter`. When `Start()` is called, it unconditionally spawns a goroutine that continuously reads the `IsActive` boolean field. When the main goroutine calls `Stop()`, `Success()`, or `Fail()`, it writes `IsActive = false` without a mutex.
 
 In `gitmap/cluster/pool.go`, the `pterm.DefaultSpinner` was unconditionally initialized and started regardless of whether the output was active (`pterm.Output`), meaning even during `go test -race` runs (which disable output via `pterm.DisableOutput()`), the background goroutine was spawned and the data race was triggered when `spinner.Success()` was called.
 

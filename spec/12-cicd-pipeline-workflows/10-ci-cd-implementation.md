@@ -1,6 +1,6 @@
 # CI/CD Implementation Guide for AI Agents
 
-When instructing an AI to implement a robust, exactly similar CI/CD architecture for another repository (whether it is Golang, React, TypeScript, Rust, etc.), you must feed the AI the following core reference files from this repository. 
+When instructing an AI to implement a robust, exactly similar CI/CD architecture for another repository (whether it is Golang, React, TypeScript, Rust, etc.), you must feed the AI the following core reference files from this repository.
 
 These files demonstrate the "decoupled versioning" and automated release pipeline patterns used here.
 
@@ -33,8 +33,8 @@ These files demonstrate the "decoupled versioning" and automated release pipelin
 
 When providing the above files to the AI in the new repository, accompany them with this instruction:
 
-> *"Attached are the core CI/CD pipeline files and architecture documents from our reference repository. I want you to implement the exact same CI/CD architecture for this [Insert Language] project.* 
-> 
+> *"Attached are the core CI/CD pipeline files and architecture documents from our reference repository. I want you to implement the exact same CI/CD architecture for this [Insert Language] project.*
+>
 > *Key requirements:*
 > *1. Establish a `version.json` at the root as the sole source of truth.*
 > *2. Modify the build scripts/pipeline to inject this version dynamically at build time (do not hardcode it in the source files).*

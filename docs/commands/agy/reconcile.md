@@ -20,6 +20,7 @@ gitmap agy reconcile-projects [flags]
 ## Examples
 
 ### 1. Reconcile missing projects (standard execution)
+
 ```bash
 gitmap agy reconcile
 ```
@@ -29,11 +30,13 @@ gitmap agy recon
 ```
 
 ### 2. Preview path reconciliations safely (dry run)
+
 ```bash
 gitmap agy recon --dry-run
 ```
 
 ### 3. Non-interactive automatic reconciliation
+
 ```bash
 gitmap agy recon -y
 ```

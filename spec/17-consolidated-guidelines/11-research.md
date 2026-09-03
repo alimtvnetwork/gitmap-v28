@@ -1,6 +1,6 @@
 # Consolidated: Coding Guidelines Research
 
-**Version:** 3.3.0  
+**Version:** 3.3.0
 **Updated:** 2026-04-16
 
 ---
@@ -49,8 +49,8 @@ All research content scoped to coding guidelines MUST be placed in `spec/02-codi
 
 # Research: [Topic Title]
 
-**Status:** Proposed | In Progress | Complete | Archived  
-**Created:** YYYY-MM-DD  
+**Status:** Proposed | In Progress | Complete | Archived
+**Created:** YYYY-MM-DD
 **Author:** [name]
 
 ---

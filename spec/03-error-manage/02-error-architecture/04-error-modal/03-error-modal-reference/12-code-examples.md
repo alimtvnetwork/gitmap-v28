@@ -1,7 +1,7 @@
 # React Code Examples
 
-> **Parent:** [Error Modal Reference](./00-overview.md)  
-> **Version:** 2.2.0  
+> **Parent:** [Error Modal Reference](./00-overview.md)
+> **Version:** 2.2.0
 > **Updated:** 2026-03-31
 
 ---
@@ -18,7 +18,7 @@ async function enablePlugin(slug: string, siteId: number) {
       slug,
       siteId,
     });
-    
+
     if (!response.success) {
       useErrorStore.getState().captureError(response.error!, {
         endpoint: '/api/v1/plugins/enable',
@@ -58,7 +58,7 @@ import { useErrorStore } from '@/stores/errorStore';
 
 function MyComponent() {
   const { openErrorModal, captureException } = useErrorStore();
-  
+
   const handleDangerousAction = async () => {
     try {
       await riskyOperation();
@@ -73,7 +73,7 @@ function MyComponent() {
     }
 
   };
-  
+
   return <Button onClick={handleDangerousAction}>Do Something</Button>;
 }
 ```

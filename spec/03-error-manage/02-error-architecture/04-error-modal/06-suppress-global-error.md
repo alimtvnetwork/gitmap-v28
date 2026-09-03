@@ -1,8 +1,8 @@
 # Error Modal — suppressGlobalError Meta Pattern
 
-> **Version:** 1.2.0  
+> **Version:** 1.2.0
 > **Updated:** 2026-04-01
-> **Status:** Active  
+> **Status:** Active
 > **Purpose:** Defines the `suppressGlobalError` React Query meta pattern that prevents duplicate error displays when queries/mutations handle errors locally.
 
 ---

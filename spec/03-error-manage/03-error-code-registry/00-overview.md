@@ -1,9 +1,9 @@
 # Error Code Registry
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**AI Confidence:** Production-Ready  
-**Ambiguity:** None  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**AI Confidence:** Production-Ready
+**Ambiguity:** None
 **Scope:** Cross-project utility
 
 ---

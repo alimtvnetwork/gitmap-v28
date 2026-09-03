@@ -246,7 +246,7 @@ Semantics:
 | `Notes` | optional | Free-text. Nullable. |
 | `Description` | optional | Free-text. Nullable. |
 
-Response: `200 OK` with the resolved row (post-write) including `EndpointAuthSettingId`, `UpdatedByUserDirectoryId`, `UpdatedByUserEmail`, `UpdatedAt` (server-stamped, epoch seconds UTC). 
+Response: `200 OK` with the resolved row (post-write) including `EndpointAuthSettingId`, `UpdatedByUserDirectoryId`, `UpdatedByUserEmail`, `UpdatedAt` (server-stamped, epoch seconds UTC).
 
 **Idempotency:** mandatory `X-Idempotency-Key` per §1. Two PATCHes with the same key + identical body within the TTL window (`MainWorker.Idempotency.KeyTtlSeconds`, see `15-tunable-constants.md`) return the original response without re-writing.
 

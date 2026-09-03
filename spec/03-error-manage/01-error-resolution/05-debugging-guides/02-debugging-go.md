@@ -1,7 +1,7 @@
 # Go Debugging Guide
 
-> **Version:** 1.0.0  
-> **Created:** 2026-02-04  
+> **Version:** 1.0.0
+> **Created:** 2026-02-04
 > **Applies To:** GSearch CLI, BRun CLI, AI Bridge CLI, Nexus Flow CLI, AI Transcribe CLI
 
 ---
@@ -30,12 +30,12 @@ func main() {
     if err != nil {
         log.Fatal().Err(err).Msg("Failed to load configuration")
     }
-    
+
     // Step 2: Directories
     if err := ensureDirectories(cfg); err != nil {
         log.Fatal().Err(err).Msg("Failed to ensure directories")
     }
-    
+
     // Step 3: Database
     db, err := database.Connect(cfg.DatabasePath)
 
@@ -44,10 +44,10 @@ func main() {
     }
 
     defer db.Close()
-    
+
     // Step 4: Services
     svc := services.New(db, cfg)
-    
+
     // Step 5: HTTP Server
     server := api.NewServer(svc)
     log.Info().Int("port", cfg.Port).Msg("Starting server")
@@ -67,7 +67,7 @@ package logger
 import (
     "os"
     "time"
-    
+
     "github.com/rs/zerolog"
     "github.com/rs/zerolog/log"
 )
@@ -83,7 +83,7 @@ func Init(debug bool) {
 
         return
     }
-    
+
     // JSON output for production
     zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
     zerolog.SetGlobalLevel(zerolog.InfoLevel)
@@ -166,7 +166,7 @@ func respondError(w http.ResponseWriter, code int, errCode int, message string, 
             Str("message", message).
             Msg("API error response")
     }
-    
+
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(code)
     json.NewEncoder(w).Encode(Response{
@@ -203,7 +203,7 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 
         return
     }
-    
+
     // HealthStatus is a typed response for the health endpoint.
     type HealthStatus struct {
         Status    string `json:"status"`
@@ -247,23 +247,23 @@ curl -s http://localhost:8080/api/v1/health | jq .
 func LoggingMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         start := time.Now()
-        
+
         // Generate request ID
         requestId := r.Header.Get("X-Request-ID")
 
         if requestId == "" {
             requestId = uuid.New().String()
         }
-        
+
         // Wrap response writer to capture status
         wrapped := &statusResponseWriter{ResponseWriter: w}
-        
+
         // Add request ID to context
         ctx := context.WithValue(r.Context(), "request_id", requestId)
-        
+
         // Set response header
         w.Header().Set("X-Request-ID", requestId)
-        
+
         // Log request start
         log.Debug().
             Str("request_id", requestId).
@@ -271,10 +271,10 @@ func LoggingMiddleware(next http.Handler) http.Handler {
             Str("path", r.URL.Path).
             Str("remote_addr", r.RemoteAddr).
             Msg("Request started")
-        
+
         // Call next handler
         next.ServeHTTP(wrapped, r.WithContext(ctx))
-        
+
         // Log request completion
         log.Info().
             Str("request_id", requestId).
@@ -312,7 +312,7 @@ func (w *statusResponseWriter) WriteHeader(status int) {
    ```go
    // ❌ Wrong - only localhost
    server.Addr = "localhost:8080"
-   
+
    // ✅ Correct - all interfaces
    server.Addr = ":8080"
    ```
@@ -357,7 +357,7 @@ func (w *statusResponseWriter) WriteHeader(status int) {
    ```go
    // ❌ Wrong
    json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
-   
+
    // ✅ Correct
    respondSuccess(w, map[string]string{"status": "ok"})
    ```
@@ -377,18 +377,18 @@ func (w *statusResponseWriter) WriteHeader(status int) {
 func CORSMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         origin := r.Header.Get("Origin")
-        
+
         w.Header().Set("Access-Control-Allow-Origin", origin)
         w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-ID")
         w.Header().Set("Access-Control-Allow-Credentials", "true")
-        
+
         if r.Method == http.MethodOptions {
             w.WriteHeader(http.StatusOK)
 
             return
         }
-        
+
         next.ServeHTTP(w, r)
     })
 }
@@ -492,7 +492,7 @@ func main() {
         log.Info().Msg("pprof available at http://localhost:6060/debug/pprof/")
         http.ListenAndServe("localhost:6060", nil)
     }()
-    
+
     // ... rest of server setup
 }
 ```
@@ -526,14 +526,14 @@ func (h *Handler) ProcessRequest(w http.ResponseWriter, r *http.Request) {
     if traceId == "" {
         traceId = uuid.New().String()
     }
-    
+
     logger := log.With().
         Str("trace_id", traceId).
         Str("operation", "process_request").
         Logger()
-    
+
     logger.Info().Msg("Starting request processing")
-    
+
     // Step 1
     logger.Debug().Msg("Step 1: Validating input")
 
@@ -543,7 +543,7 @@ func (h *Handler) ProcessRequest(w http.ResponseWriter, r *http.Request) {
 
         return
     }
-    
+
     // Step 2
     logger.Debug().Msg("Step 2: Processing data")
     result, err := h.processData(r.Context())
@@ -554,7 +554,7 @@ func (h *Handler) ProcessRequest(w http.ResponseWriter, r *http.Request) {
 
         return
     }
-    
+
     logger.Info().Msg("Request completed successfully")
     respondSuccess(w, result)
 }

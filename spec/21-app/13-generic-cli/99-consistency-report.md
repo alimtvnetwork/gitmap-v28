@@ -1,6 +1,6 @@
 # Consistency Report — Generic CLI
 
-**Version:** 1.0.0  
+**Version:** 1.0.0
 **Updated:** 2026-04-24
 
 ---

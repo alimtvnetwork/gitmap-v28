@@ -38,18 +38,24 @@ gitmap profiles status                         # Show current active default
 ## Examples
 
 ```bash
+
 # List all configured profiles
+
 gitmap profiles ls
 
 # Set default profile using numeric sequence picker
+
 gitmap profiles set-default 2
 
 # Add a company GitHub organization
+
 gitmap profiles add my-company --org
 
 # Switch active profile by name
+
 gitmap profiles switch alimtvnetwork
 
 # Check current active profile status
+
 gitmap profiles status
 ```

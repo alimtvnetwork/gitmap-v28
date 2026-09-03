@@ -7,8 +7,8 @@ The build failed when reading `.lovable/cicd-issues/index.md` or `readme.md` dur
 
 ## Massive Error Refactoring
 
-The codebase heavily relied on `os.Exit(1)` inside command handlers (`run[A-Z]`), making error tracking, testing, and unified database logging impossible. 
-**Resolution**: 
+The codebase heavily relied on `os.Exit(1)` inside command handlers (`run[A-Z]`), making error tracking, testing, and unified database logging impossible.
+**Resolution**:
 - A custom Go AST rewriting script was created and run across the entire `gitmap/cmd` package (80+ commands).
 - Refactored `dispatchEntry` to use `handler func() error`.
 - Refactored all `dispatchXxx` mappings to return `(bool, error)`.

@@ -1,6 +1,6 @@
 # Exceptions & Special Cases
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -13,7 +13,7 @@ While the spec tree enforces strict conventions, there are documented exceptions
 
 ## Exception 1: Non-Contiguous Module Numbers
 
-**Rule:** Module numbers should be sequential.  
+**Rule:** Module numbers should be sequential.
 **Exception:** Several number gaps exist in the spec tree.
 
 | Gap | Reason |
@@ -36,7 +36,7 @@ spec/
 
 ## Exception 2: readme.md Files
 
-**Rule:** All files must use `{NN}-{name}.md` format with numeric prefixes.  
+**Rule:** All files must use `{NN}-{name}.md` format with numeric prefixes.
 **Exception:** `readme.md` files are allowed WITHOUT numeric prefixes.
 
 **Where:**
@@ -49,7 +49,7 @@ spec/
 
 ## Exception 3: Non-Markdown Files
 
-**Rule:** All spec files use `.md` extension.  
+**Rule:** All spec files use `.md` extension.
 **Exception:** Data files may use other extensions.
 
 | File | Location | Reason |
@@ -70,7 +70,7 @@ spec/
 
 ## Exception 4: Legacy Suggestion File Naming
 
-**Rule:** Files in `.lovable/memories/` use kebab-case.  
+**Rule:** Files in `.lovable/memories/` use kebab-case.
 **Exception:** Completed suggestion files in `.lovable/memories/suggestions/completed/` use legacy `C-XXX` prefixes.
 
 **Example:**
@@ -88,7 +88,7 @@ spec/
 
 ## Exception 5: Dual-Purpose Prefix 02
 
-**Rule:** Each numeric prefix maps to exactly one module.  
+**Rule:** Each numeric prefix maps to exactly one module.
 **Exception:** Prefix `02` is used by both `02-spec-management-software/` (the folder) and the root file `02-prefix-disambiguation.md`.
 
 **Resolution:** The file `spec/02-prefix-disambiguation.md` documents this overlap. Both are retained for backward compatibility.
@@ -97,7 +97,7 @@ spec/
 
 ## Exception 6: Memory Folders Without Numeric Prefixes
 
-**Rule:** Spec folders require numeric prefixes (`{NN}-{name}/`).  
+**Rule:** Spec folders require numeric prefixes (`{NN}-{name}/`).
 **Exception:** Memory folders (`/.lovable/memories/`) use plain kebab-case without numeric prefixes.
 
 **Example:**
@@ -114,7 +114,7 @@ spec/
 
 ## Exception 7: CLI Module Without Frontend Folder
 
-**Rule:** CLI modules MUST have `01-backend/`, `02-frontend/`, `03-deploy/`.  
+**Rule:** CLI modules MUST have `01-backend/`, `02-frontend/`, `03-deploy/`.
 **Exception:** Headless CLIs may omit `02-frontend/` when the UI is a separate module.
 
 **Example:**
@@ -137,7 +137,7 @@ spec/
 
 ## Exception 8: Extensions Folder in CLI Modules
 
-**Rule:** CLI modules have exactly 3 subfolders (backend, frontend, deploy).  
+**Rule:** CLI modules have exactly 3 subfolders (backend, frontend, deploy).
 **Exception:** Some CLI modules have additional subfolders for extensions or configs.
 
 **Example:**
@@ -157,7 +157,7 @@ spec/
 
 ## Exception 9: The `suggestions.md` Legacy Tracker
 
-**Rule:** All files in `.lovable/memories/` use kebab-case with optional numeric prefix.  
+**Rule:** All files in `.lovable/memories/` use kebab-case with optional numeric prefix.
 **Exception:** `suggestions.md` at the memory root is a legacy file without a numeric prefix.
 
 **Reason:** Created before the convention was established. Maintained for backward compatibility.
@@ -166,7 +166,7 @@ spec/
 
 ## Exception 10: Coding Guidelines Nested Sub-Module
 
-**Rule:** Maximum folder depth is 3 levels.  
+**Rule:** Maximum folder depth is 3 levels.
 **Exception:** `03-coding-guidelines/03-golang/01-enum-specification/` reaches the maximum depth with its own internal files.
 
 ```

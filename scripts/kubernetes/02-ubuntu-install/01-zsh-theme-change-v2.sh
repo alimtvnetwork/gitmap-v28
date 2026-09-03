@@ -78,7 +78,7 @@ prompt_for_theme() {
 change_zsh_theme() {
     themeName="$1"
     local destZshrcFilePath="$HOME/.zshrc"
-    
+
     echo "Applying the theme: $themeName"
 
     # Check if theme name is provided as an argument
@@ -117,9 +117,9 @@ install_omyzsh() {
         git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
         echo "Oh My Zsh is installed 👍 ."
-        echo ""        
+        echo ""
         echo "📁 Expanding dir: $zshRoot"
-        
+
         ls -la "$zshRoot"
 
         apply_chmod
@@ -150,7 +150,7 @@ apply_chmod() {
 remove_text_from_zshrc() {
     local textToRemove="plugins=(git)"
     local destZshrcFilePath="$HOME/.zshrc"
-    
+
     # echo "disabling default ($textToRemove) and removing it"
 
     sed -i "/$textToRemove/d" "$destZshrcFilePath"
@@ -246,7 +246,7 @@ main() {
     local is_append_zshrc="${2:-true}"
 
     install_omyzsh
-    
+
     echo "Appending ~/.zshrc flag ❓: $is_append_zshrc"
 
     if [[ $is_append_zshrc = "true" || $is_append_zshrc = true || $is_append_zshrc = yes || $is_append_zshrc = y ]]; then
@@ -256,8 +256,8 @@ main() {
 
     print_zshrc_file_presence
     change_zsh_theme "$theme"
-    remove_text_from_zshrc 
-  
+    remove_text_from_zshrc
+
     source_zshrc
 
     echo "ZSH theme changed to $theme and .zshrc content updated ✅ ."

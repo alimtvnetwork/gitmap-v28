@@ -14,7 +14,7 @@ The `github.com/alimtvnetwork/gitmap-v28/gitmap/helptext` test suite failed due 
 
 ## Solution Applied
 
-Modified `gitmap/helptext/clone-sync.md` to use markdown fenced code blocks (````bash ... ````) instead of 4-space indentations for the commands in the `## Examples` section. 
+Modified `gitmap/helptext/clone-sync.md` to use markdown fenced code blocks (````bash ... ````) instead of 4-space indentations for the commands in the `## Examples` section.
 
 ## What NOT to Repeat
 

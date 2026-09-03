@@ -47,21 +47,28 @@ Record, replay, automate, and loop command sequences with environment variable e
 ## Examples
 
 ```bash
+
 # Add a new macro with multiple commands
+
 gitmap macro add build-test "go build -o gitmap.exe ." "go test ./..." --desc "Build and test"
 
 # Add a chained command macro
+
 gitmap macro add deploy "npm run build && npm run test && npm run deploy"
 
 # Run macro until it succeeds with 5s sleep interval
+
 gitmap macro run-until-succeed build-test --sleep 5s
 
 # Run arbitrary command until success with exponential backoff & AI error diagnostic report
+
 gitmap macro run-until-succeed "go test -v ./..." --sleep 2s --backoff exponential --ai
 
 # Run via top-level shortcut
+
 gitmap retry "npm run build" --sleep 3s --max-retries 5 --ai-file .lovable/temp/error.md
 
 # Replay a recorded macro
+
 gitmap macro run deploy-temp
 ```

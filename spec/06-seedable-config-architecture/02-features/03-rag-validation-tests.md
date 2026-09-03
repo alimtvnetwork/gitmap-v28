@@ -1,9 +1,9 @@
 # RAG Validation Helpers: Unit Test Specification
 
-**Version:** 3.2.0  
-**Created:** 2026-02-02  
-**Updated:** 2026-04-16  
-**Status:** Active  
+**Version:** 3.2.0
+**Created:** 2026-02-02
+**Updated:** 2026-04-16
+**Status:** Active
 **Parent:** [03-rag-validation-helpers.md](./02-rag-validation-helpers.md)
 
 ---
@@ -38,16 +38,16 @@ package rag_test
 
 import (
     "testing"
-    
+
     "github.com/stretchr/testify/assert"
     "github.com/stretchr/testify/require"
-    
+
     "aibridge/internal/rag"
 )
 
 func TestChunkSizeValidation(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     tests := []struct {
         name         string
         size         int
@@ -92,7 +92,7 @@ func TestChunkSizeValidation(t *testing.T) {
             expectError: false,
             description: "Large valid chunk size",
         },
-        
+
         // Invalid range cases (AB-9301)
         {
             name:         "TooSmallZero",
@@ -136,7 +136,7 @@ func TestChunkSizeValidation(t *testing.T) {
             expectedCode: 9301,
             description:  "Negative values invalid",
         },
-        
+
         // Invalid multiple cases (AB-9302)
         {
             name:         "NotMultiple257",
@@ -167,11 +167,11 @@ func TestChunkSizeValidation(t *testing.T) {
             description:  "Close to 2048 but not multiple",
         },
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := v.ValidateChunkSize(tt.size)
-            
+
             if tt.expectError {
                 require.NotNil(t, err, "expected error for %s", tt.description)
                 assert.Equal(t, tt.expectedCode, err.Code, "wrong error code")
@@ -186,11 +186,11 @@ func TestChunkSizeValidation(t *testing.T) {
 
 func TestChunkSizeBoundaryConditions(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     // Test exact boundaries
     assert.Nil(t, v.ValidateChunkSize(256), "minimum boundary should pass")
     assert.Nil(t, v.ValidateChunkSize(8192), "maximum boundary should pass")
-    
+
     // Test just outside boundaries
     assert.NotNil(t, v.ValidateChunkSize(255), "just below minimum should fail")
     assert.NotNil(t, v.ValidateChunkSize(8448), "just above maximum should fail")
@@ -206,7 +206,7 @@ func TestChunkSizeBoundaryConditions(t *testing.T) {
 ```go
 func TestChunkOverlapValidation(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     tests := []struct {
         name         string
         overlap      int
@@ -258,7 +258,7 @@ func TestChunkOverlapValidation(t *testing.T) {
             expectError: false,
             description: "25% of minimum chunk size",
         },
-        
+
         // Invalid absolute range cases
         {
             name:         "NegativeOverlap",
@@ -276,7 +276,7 @@ func TestChunkOverlapValidation(t *testing.T) {
             expectedCode: 9303,
             description:  "Just above 512 absolute max",
         },
-        
+
         // Invalid percentage cases (>25%)
         {
             name:         "Exceeds25Percent2048",
@@ -319,11 +319,11 @@ func TestChunkOverlapValidation(t *testing.T) {
             description:  "50% overlap is invalid",
         },
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := v.ValidateChunkOverlap(tt.overlap, tt.chunkSize)
-            
+
             if tt.expectError {
                 require.NotNil(t, err, "expected error for %s", tt.description)
                 assert.Equal(t, tt.expectedCode, err.Code)
@@ -337,7 +337,7 @@ func TestChunkOverlapValidation(t *testing.T) {
 
 func TestChunkOverlapPercentageEdgeCases(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     // Test exact 25% boundaries for various chunk sizes
     testCases := []struct {
         chunkSize  int
@@ -350,13 +350,13 @@ func TestChunkOverlapPercentageEdgeCases(t *testing.T) {
         {4096, 512}, // Capped at 512 max
         {8192, 512}, // Capped at 512 max
     }
-    
+
     for _, tc := range testCases {
         t.Run(fmt.Sprintf("chunk_%d", tc.chunkSize), func(t *testing.T) {
             // Exact boundary should pass
             err := v.ValidateChunkOverlap(tc.maxOverlap, tc.chunkSize)
             assert.Nil(t, err, "exact 25%% boundary should pass for chunk %d", tc.chunkSize)
-            
+
             // One above should fail (unless at absolute max)
             if tc.maxOverlap < 512 {
                 err = v.ValidateChunkOverlap(tc.maxOverlap+1, tc.chunkSize)
@@ -374,7 +374,7 @@ func TestChunkOverlapPercentageEdgeCases(t *testing.T) {
 ```go
 func TestContextBudgetValidation(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     tests := []struct {
         name         string
         budget       int
@@ -387,7 +387,7 @@ func TestContextBudgetValidation(t *testing.T) {
         {"ValidMaximum", 16384, false, 0},
         {"ValidMidRange", 8192, false, 0},
         {"Valid1024", 1024, false, 0},
-        
+
         // Invalid cases
         {"TooSmallZero", 0, true, 9304},
         {"TooSmall511", 511, true, 9304},
@@ -396,11 +396,11 @@ func TestContextBudgetValidation(t *testing.T) {
         {"TooLarge32768", 32768, true, 9304},
         {"negative", -1, true, 9304},
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := v.ValidateContextBudget(tt.budget)
-            
+
             if tt.expectError {
                 require.NotNil(t, err)
                 assert.Equal(t, tt.expectedCode, err.Code)
@@ -420,7 +420,7 @@ func TestContextBudgetValidation(t *testing.T) {
 ```go
 func TestEmbeddingModelValidation(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     tests := []struct {
         name         string
         model        string
@@ -432,7 +432,7 @@ func TestEmbeddingModelValidation(t *testing.T) {
         {"ValidSmall", "TextEmbedding3Small", false, 0},
         {"ValidLarge", "TextEmbedding3Large", false, 0},
         {"ValidMinilm", "AllMiniLmL6V2", false, 0},
-        
+
         // Invalid models
         {"EmptyString", "", true, 9305},
         {"UnknownModel", "unknown-model", true, 9305},
@@ -441,11 +441,11 @@ func TestEmbeddingModelValidation(t *testing.T) {
         {"spaces", "nomic embed text", true, 9305},
         {"PartialMatch", "text-embedding", true, 9305},
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := v.ValidateEmbeddingModel(tt.model)
-            
+
             if tt.expectError {
                 require.NotNil(t, err)
                 assert.Equal(t, tt.expectedCode, err.Code)
@@ -466,7 +466,7 @@ func TestEmbeddingModelValidation(t *testing.T) {
 ```go
 func TestSimilarityThresholdValidation(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     tests := []struct {
         name         string
         threshold    float64
@@ -482,18 +482,18 @@ func TestSimilarityThresholdValidation(t *testing.T) {
         {"ValidHigh", 0.9, false, 0},
         {"ValidSmall", 0.001, false, 0},
         {"ValidNearOne", 0.999, false, 0},
-        
+
         // Invalid cases
         {"NegativeSmall", -0.001, true, 9306},
         {"NegativeLarge", -1.0, true, 9306},
         {"AboveOne", 1.001, true, 9306},
         {"WayAbove", 2.0, true, 9306},
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := v.ValidateSimilarityThreshold(tt.threshold)
-            
+
             if tt.expectError {
                 require.NotNil(t, err)
                 assert.Equal(t, tt.expectedCode, err.Code)
@@ -507,7 +507,7 @@ func TestSimilarityThresholdValidation(t *testing.T) {
 
 func TestSimilarityThresholdFloatPrecision(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     // Test float precision edge cases
     edgeCases := []float64{
         0.0000001,           // Very small positive
@@ -515,7 +515,7 @@ func TestSimilarityThresholdFloatPrecision(t *testing.T) {
         1.0 - 1e-10,         // Float precision near 1
         0.0 + 1e-10,         // Float precision near 0
     }
-    
+
     for _, threshold := range edgeCases {
         err := v.ValidateSimilarityThreshold(threshold)
         assert.Nil(t, err, "threshold %v should be valid", threshold)
@@ -530,7 +530,7 @@ func TestSimilarityThresholdFloatPrecision(t *testing.T) {
 ```go
 func TestTopKValidation(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     tests := []struct {
         name         string
         topK         int
@@ -542,18 +542,18 @@ func TestTopKValidation(t *testing.T) {
         {"ValidDefault", 10, false, 0},
         {"ValidMaximum", 50, false, 0},
         {"ValidMid", 25, false, 0},
-        
+
         // Invalid cases
         {"zero", 0, true, 9307},
         {"negative", -1, true, 9307},
         {"AboveMax", 51, true, 9307},
         {"WayAbove", 100, true, 9307},
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := v.ValidateTopK(tt.topK)
-            
+
             if tt.expectError {
                 require.NotNil(t, err)
                 assert.Equal(t, tt.expectedCode, err.Code)
@@ -573,7 +573,7 @@ func TestTopKValidation(t *testing.T) {
 ```go
 func TestFullConfigValidation(t *testing.T) {
     v := &rag.DefaultValidator{}
-    
+
     tests := []struct {
         name        string
         config      rag.RagConfig
@@ -632,13 +632,13 @@ func TestFullConfigValidation(t *testing.T) {
             errorCodes: []int{9303},
         },
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             errors := v.Validate(&tt.config)
-            
+
             assert.Len(t, errors, tt.errorCount, "wrong number of errors")
-            
+
             if len(tt.errorCodes) > 0 {
                 for i, expectedCode := range tt.errorCodes {
                     if i < len(errors) {
@@ -660,29 +660,29 @@ func TestConfigLoad(t *testing.T) {
     t.Run("LoadSuccessFromSeed", func(t *testing.T) {
         service := rag.NewRagConfigService("testdata/config.seed.json", ":memory:")
         config, err := service.Load("")
-        
+
         require.NoError(t, err)
         assert.Equal(t, 2048, config.ChunkSize)
         assert.Equal(t, "seed", config.Source)
     })
-    
+
     t.Run("LoadFailureMissingSeed", func(t *testing.T) {
         service := rag.NewRagConfigService("nonexistent.json", ":memory:")
         _, err := service.Load("")
-        
+
         require.Error(t, err)
         ragErr, ok := err.(*apperror.AppError)
         require.True(t, ok)
         assert.Equal(t, 9308, ragErr.Code)
     })
-    
+
     t.Run("LoadAppOverride", func(t *testing.T) {
         service := setupTestService(t)
-        
+
         // Set app-level override
         err := service.SaveAppSetting("testapp", "ChunkSize", 4096)
         require.NoError(t, err)
-        
+
         config, err := service.Load("testapp")
         require.NoError(t, err)
         assert.Equal(t, 4096, config.ChunkSize)
@@ -693,7 +693,7 @@ func TestConfigLoad(t *testing.T) {
 func TestConfigSave(t *testing.T) {
     t.Run("SaveSuccess", func(t *testing.T) {
         service := setupTestService(t)
-        
+
         config := &rag.RagConfig{
             ChunkSize:           4096,
             ChunkOverlap:        200,
@@ -702,29 +702,29 @@ func TestConfigSave(t *testing.T) {
             SimilarityThreshold: 0.8,
             TopK:                20,
         }
-        
+
         err := service.Save("testapp", config)
         assert.NoError(t, err)
     })
-    
+
     t.Run("SaveFailureValidation", func(t *testing.T) {
         service := setupTestService(t)
-        
+
         config := &rag.RagConfig{
             ChunkSize: 100, // Invalid
         }
-        
+
         err := service.Save("testapp", config)
         require.Error(t, err)
-        
+
         ragErr, ok := err.(*apperror.AppError)
         require.True(t, ok)
         assert.Equal(t, 9301, ragErr.Code)
     })
-    
+
     t.Run("SaveFailureDbError", func(t *testing.T) {
         service := rag.NewRagConfigService("testdata/config.seed.json", "/invalid/path/db.sqlite")
-        
+
         config := &rag.RagConfig{
             ChunkSize:           2048,
             ChunkOverlap:        100,
@@ -733,10 +733,10 @@ func TestConfigSave(t *testing.T) {
             SimilarityThreshold: 0.7,
             TopK:                10,
         }
-        
+
         err := service.Save("", config)
         require.Error(t, err)
-        
+
         ragErr, ok := err.(*apperror.AppError)
         require.True(t, ok)
         assert.Equal(t, 9309, ragErr.Code)
@@ -747,12 +747,12 @@ func TestConfigSourceConflict(t *testing.T) {
     t.Run("ConflictDetection", func(t *testing.T) {
         // Test when same setting has conflicting values from different sources
         service := setupTestService(t)
-        
+
         // Set conflicting values
         service.SetRootSetting("ChunkSize", 2048)
         service.SetAppSetting("testapp", "ChunkSize", 4096)
         service.SetSeedDefault("ChunkSize", 1024)
-        
+
         // Should resolve by priority (app > root > seed)
         config, err := service.Load("testapp")
         require.NoError(t, err)
@@ -811,7 +811,7 @@ func BenchmarkValidateFullConfig(b *testing.B) {
         SimilarityThreshold: 0.7,
         TopK:                10,
     }
-    
+
     b.ResetTimer()
     for i := 0; i < b.N; i++ {
         v.Validate(config)
@@ -820,7 +820,7 @@ func BenchmarkValidateFullConfig(b *testing.B) {
 
 func BenchmarkValidateChunkSize(b *testing.B) {
     v := &rag.DefaultValidator{}
-    
+
     b.ResetTimer()
     for i := 0; i < b.N; i++ {
         v.ValidateChunkSize(2048)

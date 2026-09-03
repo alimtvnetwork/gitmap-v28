@@ -1,15 +1,15 @@
 # GitMap Application Issues & Root Cause Analysis (RCA)
 
-**Version:** 3.2.0  
-**Updated:** 2026-09-01  
-**AI Confidence:** Production-Ready  
+**Version:** 3.2.0
+**Updated:** 2026-09-01
+**AI Confidence:** Production-Ready
 **Ambiguity:** None
 
 ---
 
 ## Overview
 
-The `spec/22-app-issues/` directory is the canonical repository home for all **GitMap Issue Reports, Root Cause Analysis (RCA), and Fix Specifications**. 
+The `spec/22-app-issues/` directory is the canonical repository home for all **GitMap Issue Reports, Root Cause Analysis (RCA), and Fix Specifications**.
 
 This folder tracks production-grade post-mortems, reproduction steps, underlying causes, architectural fixes, and regression prevention rules for the GitMap CLI ecosystem.
 

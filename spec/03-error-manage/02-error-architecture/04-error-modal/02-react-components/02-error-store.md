@@ -1,7 +1,7 @@
 # Error Store (Zustand)
 
-> **Parent:** [React Components Index](./00-overview.md)  
-> **Version:** 4.0.0  
+> **Parent:** [React Components Index](./00-overview.md)
+> **Version:** 4.0.0
 > **Updated:** 2026-04-01
 
 ---
@@ -82,11 +82,11 @@ export function parseFullStackTrace(stack: string): {
   // "at file:line:col" (anonymous)
   // "at async functionName (file:line:col)"
   // Webpack/Vite URLs: "at fn (http://localhost:5173/src/file.tsx:123:45)"
-  
+
   // Internal frame detection:
   // - node_modules, chrome-extension://, @tanstack, react-dom, react., scheduler.
   // - Object.*, Module, <anonymous>
-  
+
   // Returns first non-internal frame as primaryFrame
   // Limits invocation chain to 8 levels
 }

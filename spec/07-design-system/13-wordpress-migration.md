@@ -1,7 +1,7 @@
 # WordPress Migration Compatibility
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
 **Ambiguity:** Medium — WordPress implementation approach not yet decided
 
 ---

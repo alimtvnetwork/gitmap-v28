@@ -1,10 +1,10 @@
 # Transaction Log: Gitmap AI Scripts & Spec Synchronization
 
-> **Directory:** `05-changes-history/01-gitmap-ai-scripts-and-spec-sync/`  
-> **Date:** 2026-09-03  
-> **Source Repo:** `d:\wp-work\riseup-asia\coding-guidelines` (`coding-guidelines-v24`)  
-> **External Target:** `D:\wp-work\riseup-asia\gitmap` (`gitmap`)  
-> **Status:** Completed  
+> **Directory:** `05-changes-history/01-gitmap-ai-scripts-and-spec-sync/`
+> **Date:** 2026-09-03
+> **Source Repo:** `d:\wp-work\riseup-asia\coding-guidelines` (`coding-guidelines-v24`)
+> **External Target:** `D:\wp-work\riseup-asia\gitmap` (`gitmap`)
+> **Status:** Completed
 
 ---
 
@@ -24,6 +24,7 @@
 ## 2. Ingestion Findings from Gitmap (`D:\wp-work\riseup-asia\gitmap`)
 
 ### 2.1 Gitmap Scripts Analysis
+
 - `scripts/format_go.py`: Uses `gofmt` to format Go files under `gitmap/`. Supports `--staged` and individual file lists.
 - `scripts/misspell_local.py`: Uses `misspell` to verify American English spelling across staged files and git diffs.
 - `scripts/preflight_ci.py`: Runs `go test ./...` and `golangci-lint run`.
@@ -31,6 +32,7 @@
 - `scripts/build_stamp.py`: Injects git commit hash, branch, and build timestamp into binary metadata.
 
 ### 2.2 Spec Folder Analysis
+
 - Gitmap previously had misplaced subdirectories dumped inside `spec/21-app/` (`08-json-schemas`, `13-generic-cli`, `15-distribution-and-runner`, `16-generic-release`, `23-app-db`, `24-app-ui-design-system`).
 - Canonical guidelines from `02-spec/` were synced directly to `gitmap/spec/` restoring a complete top-level sequence (`01-spec-authoring-guide` through `24-app-ui-design-system`).
 
@@ -54,6 +56,7 @@
 ## 4. Itemized File Changes
 
 ### In `coding-guidelines-v24`
+
 - `05-changes-history/01-index.md` (Created)
 - `05-changes-history/01-gitmap-ai-scripts-and-spec-sync/01-transaction-log.md` (Created)
 - `03-ai-scripts/01-index.md` (Updated with scripts 21-28)
@@ -67,6 +70,7 @@
 - `01-prompts/03-read-write/03-write-memory.md` (Added `05-changes-history/` to audit read list)
 
 ### In `gitmap` (`D:\wp-work\riseup-asia\gitmap`)
+
 - `03-ai-scripts/` (Created and populated with all 28 scripts + `01-index.md`)
 - `.agents/scripts/` (Created and populated with all 28 scripts)
 - `spec/` (Synced canonical guideline folders from `02-spec/`, elevated `08-json-schemas`, `13-generic-cli`, `15-distribution-and-runner`, `16-generic-release`, `23-app-db`, `24-app-ui-design-system`)

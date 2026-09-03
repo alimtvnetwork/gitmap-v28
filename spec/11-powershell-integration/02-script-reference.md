@@ -1,8 +1,8 @@
 # PowerShell Script Reference
 
-> **Spec Version:** 2.4.0  
-> **Script Version:** run.ps1 2.1.0, upload-plugin-v2.ps1 2.1.0, upload-plugin-U-Q.ps1 1.1.0  
-> **Updated:** 2026-03-11  
+> **Spec Version:** 2.4.0
+> **Script Version:** run.ps1 2.1.0, upload-plugin-v2.ps1 2.1.0, upload-plugin-U-Q.ps1 1.1.0
+> **Updated:** 2026-03-11
 > **Status:** Active
 
 ---
@@ -173,8 +173,8 @@ Checks if a command exists in PATH.
 
 ```powershell
 function Test-Command($Command) {
-    try { 
-        if (Get-Command $Command) { return $true } 
+    try {
+        if (Get-Command $Command) { return $true }
     }
     catch { return $false }
 }
@@ -212,11 +212,11 @@ function Install-Pnpm {
     Write-Host "  Installing pnpm globally..." -ForegroundColor Yellow
     npm install -g pnpm
     if ($LASTEXITCODE -ne 0) { throw "Failed to install pnpm" }
-    
+
     # Refresh PATH
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + 
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
                 [System.Environment]::GetEnvironmentVariable("Path","User")
-    
+
     Write-Host "  ✓ pnpm installed successfully" -ForegroundColor Green
 }
 ```
@@ -231,7 +231,7 @@ Installs Node.js LTS via winget.
 function Install-NodeJS {
     winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements
     # Refresh PATH
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + 
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
                 [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 ```
@@ -246,7 +246,7 @@ Installs Go via winget.
 function Install-Go {
     winget install GoLang.Go --accept-package-agreements --accept-source-agreements
     # Refresh PATH
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + 
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
                 [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 ```
@@ -260,11 +260,11 @@ Creates Windows Firewall inbound rules.
 ```powershell
 function Ensure-FirewallRules {
     param([int[]]$Ports = @(8080))
-    
+
     foreach ($p in $Ports) {
         $ruleName = "$ProjectName (Go Backend) TCP $p"
         $existing = Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue
-        
+
         if ($null -eq $existing) {
             New-NetFirewallRule `
                 -DisplayName $ruleName `

@@ -1,6 +1,6 @@
 # CI/CD Pipeline Monitoring & Autonomous Remediation Guideline
 
-> **Rule ID:** `CG-PIPELINE-01`  
+> **Rule ID:** `CG-PIPELINE-01`
 > **Applicability:** All Repositories & Autonomous AI Agents
 
 ---
@@ -14,6 +14,7 @@ Autonomous AI coding agents must verify remote CI/CD pipelines following code pu
 ## 2. CLI Command Specification
 
 ### 2.1. Check Pipeline Status
+
 ```bash
 gitmap pipeline status --json
 ```
@@ -37,12 +38,14 @@ gitmap pipeline status --json
 ```
 
 ### 2.2. Query Wait Time (ETA Seconds)
+
 ```bash
 gitmap pipeline waittime
 ```
 Outputs the remaining wait time in seconds (e.g. `45` or `0` when idle).
 
 ### 2.3. Export Failure Logs for AI Remediation
+
 ```bash
 gitmap pipeline error-logs --json --tempfile ci-failure.json
 ```

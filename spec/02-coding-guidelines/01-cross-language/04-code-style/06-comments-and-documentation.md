@@ -1,8 +1,8 @@
 # Comments, Documentation & Dead Code
 
-> **Version:** 4.0.0  
-> **Updated:** 2026-03-31  
-> **Applies to:** PHP, TypeScript, Go  
+> **Version:** 4.0.0
+> **Updated:** 2026-03-31
+> **Applies to:** PHP, TypeScript, Go
 > **Rules covered:** 8, 14, 15, 16
 
 ---

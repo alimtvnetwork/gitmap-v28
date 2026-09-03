@@ -1,7 +1,7 @@
 # Consistency Report — spec/18-wp-plugin-how-to/
 
-**Version:** 1.1.0  
-**Generated:** 2026-04-24  
+**Version:** 1.1.0
+**Generated:** 2026-04-24
 **Status:** ✅ All issues resolved (v1.1.0) — 8 fixes applied to 5 files
 
 ---

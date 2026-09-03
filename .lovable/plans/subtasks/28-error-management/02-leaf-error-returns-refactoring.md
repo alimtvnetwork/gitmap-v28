@@ -1,9 +1,11 @@
 # Subtask 02 - Leaf Error Returns Refactoring (Zero Dual-Handling)
 
 ## Parent Specification
+
 [28-error-management-audit.md](.lovable/plans/pending/28-error-management-audit.md)
 
 ## Acceptance Criteria & Requirements
+
 - Refactor target command leaf functions to return `error` or `*apperror.AppError` directly rather than calling `cliexit.HandleError` internally and returning `nil`.
 - Files to refactor:
   - `gitmap/cmd/vscode_cmd.go`: `runVSCode` and `dispatchVSCodeAction` returns error to caller.

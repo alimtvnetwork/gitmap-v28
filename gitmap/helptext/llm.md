@@ -44,6 +44,7 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
 Gitmap provides an interactive shell macro recording and replay engine with dynamic directory tracking, environment variable expansion, and JSON/YAML structured reporting with line-by-line step logs.
 
 ### Macro Recording:
+
 - **Start Interactive Recording**:
   ```bash
   gitmap macro record "deploy-workflow"
@@ -60,6 +61,7 @@ Gitmap provides an interactive shell macro recording and replay engine with dyna
   - Dynamically updates working directory when running `cd <dir>`, `cd ..`, `cd -`, or `gitmap cd <repo>`.
 
 ### Macro Replay & Structured Report Exporting:
+
 - **Standard Replay**:
   ```bash
   gitmap macro run deploy-workflow
@@ -122,6 +124,7 @@ Gitmap provides an interactive shell macro recording and replay engine with dyna
 AI Agents must monitor remote CI/CD workflows non-blockingly without spamming GitHub API endpoints.
 
 ### 1. Check Live Pipeline Status with Auto-Delay:
+
 ```bash
 gitmap pipeline-ai status --json
 ```
@@ -140,10 +143,12 @@ gitmap pipeline-ai status --json
 ```
 
 ### 2. Auto-Delay Protection & Dynamic Waiting:
+
 - **Default Delay**: `pipeline-ai status` automatically pauses for 20 seconds before checking to prevent rate-limit bans.
 - **Dynamic Wait (`-t <seconds>`)**: When `etaSeconds` is returned, the AI executes `gitmap pipeline-ai status -t <etaSeconds>`, ensuring the agent sleeps until the pipeline is likely finished.
 
 ### 3. Extract Failing CI Error Logs to File for RCA:
+
 ```bash
 gitmap pipeline error-logs --json --tempfile "ci-failure.json"
 ```
@@ -156,6 +161,7 @@ gitmap pipeline error-logs --json --tempfile "ci-failure.json"
 AI Agents should use Gitmap's dedicated search tools rather than scanning huge directories or using heavy shell find loops.
 
 ### Finding Files by Name:
+
 - **Exact Match**: `gitmap find-files "constants.go" -ext "go"` (alias: `gitmap ff "constants.go"`)
 - **Substring Match**: `gitmap find-files-any "record" -ext "go"` (alias: `gitmap ffa "record"`)
 - **Prefix Match**: `gitmap find-files-startswith "01-" -ext "md"` (alias: `gitmap ffs "01-"`)
@@ -164,6 +170,7 @@ AI Agents should use Gitmap's dedicated search tools rather than scanning huge d
 - **List Files in Subtree**: `gitmap list-files "macro/*"`
 
 ### Content Search & Targeted Reading:
+
 - **Indexed Keyword Search**: `gitmap search "DirTracker"`
 - **Structured JSON Multi-Repo Regex**: `gitmap repo-search-json "ProcessCd"` (alias: `gitmap rsj "ProcessCd"`)
 - **Find and Read Sections**:
@@ -206,15 +213,21 @@ AI Agents should use Gitmap's dedicated search tools rather than scanning huge d
 ## Examples
 
 ```bash
+
 # Workflow 1: Record and Replay Macro with JSON Output and Logs Array
+
 gitmap macro record test-build
+
 # (In session: go test ./... -> stop)
+
 gitmap macro run test-build --json --file "reports/test-build.json"
 
 # Workflow 2: Non-blocking CI Status Check and Auto-Delay
+
 gitmap pipeline-ai status --json
 
 # Workflow 3: Fast File Discovery
+
 gitmap find-files "record_dir.go" -ext "go"
 gitmap find-regex-read "func ProcessCd" -ext "go"
 ```

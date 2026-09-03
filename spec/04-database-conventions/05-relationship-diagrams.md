@@ -1,6 +1,6 @@
 # Database Relationship Diagrams
 
-**Version:** 3.2.0  
+**Version:** 3.2.0
 **Updated:** 2026-04-16
 
 ---
@@ -98,10 +98,10 @@ The junction table holds FKs to both sides. FK columns use the **exact PK names*
 │ IsActive   BOOLEAN  │    ├──────────────────┤  │ 1 = Admin           │
 │ IsVerified BOOLEAN  │    │ UserRoleId (PK)  │  │ 2 = Editor          │
 │ HasLicense BOOLEAN  │    │ UserId     (FK)──│──│ 3 = Viewer          │
-└─────────────────────┘    │ RoleId     (FK)──│──┘                     
-         │                 │ UNIQUE(UserId,   │                        
-         └────────────────>│        RoleId)   │                        
-            UserId FK      └──────────────────┘                        
+└─────────────────────┘    │ RoleId     (FK)──│──┘
+         │                 │ UNIQUE(UserId,   │
+         └────────────────>│        RoleId)   │
+            UserId FK      └──────────────────┘
 ```
 
 **Junction table rules:**
@@ -124,13 +124,13 @@ Transactions.PluginSlug    ──────────────→ PluginS
 Transactions.Amount        ──────────────→ Amount
 Transactions.IsActive      ──────────────→ IsActive
 Transactions.CreatedAt     ──────────────→ CreatedAt
-                                           
+
 StatusTypes.Name           ─── JOIN on ──→ StatusName
-                           StatusTypeId    
-                                           
+                           StatusTypeId
+
 FileTypes.Name             ─── JOIN on ──→ FileTypeName
-                           FileTypeId      
-                                           
+                           FileTypeId
+
 AgentSite.SiteName        ─── JOIN on ──→ AgentSiteName
 AgentSite.SiteUrl         AgentSiteId  ─→ AgentSiteUrl
 

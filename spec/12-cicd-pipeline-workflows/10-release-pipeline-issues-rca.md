@@ -1,10 +1,10 @@
 # 10 — Release Pipeline Issues: Root Cause Analysis & Prevention
 
-**Version:** 2.0.0  
-**Created:** 2026-04-16  
-**Updated:** 2026-04-16  
-**Status:** Active reference  
-**Audience:** Any AI model or engineer maintaining the CI/CD pipeline  
+**Version:** 2.0.0
+**Created:** 2026-04-16
+**Updated:** 2026-04-16
+**Status:** Active reference
+**Audience:** Any AI model or engineer maintaining the CI/CD pipeline
 **Goal:** Document every release/CI failure encountered (this repo + sibling reference implementation lessons), with root cause and durable fix, so the same mistakes never recur.
 
 ---
@@ -55,8 +55,8 @@ Read this file **before** modifying `.github/workflows/*.yml`, `release.sh`, `in
 
 ### Issue #1 — `npm ci` fails: lockfile out of sync
 
-**Date observed:** 2026-04-16  
-**Workflow:** Release (`release.yml`)  
+**Date observed:** 2026-04-16
+**Workflow:** Release (`release.yml`)
 **Tag:** `v1.4.0`
 
 **Symptom:**
@@ -69,10 +69,10 @@ npm error Missing: monaco-editor@0.55.1 from lock file
 Error: Process completed with exit code 1.
 ```
 
-**Trigger:**  
+**Trigger:**
 The release workflow ran `npm ci` to bootstrap a Node environment so it could call `node -p "require('./package.json').version"` to read the version string.
 
-**Root cause:**  
+**Root cause:**
 1. `package.json` is updated by Lovable's preview environment whenever new deps are added.
 2. `package-lock.json` is **read-only** in this project and is *not* regenerated on every dep change.
 3. Therefore `package.json` and `package-lock.json` drift out of sync continuously.
@@ -86,14 +86,14 @@ The release workflow ran `npm ci` to bootstrap a Node environment so it could ca
   2. Falls back to `sed`-based extraction from `package.json`.
 - Workflow now passes `RELEASE_VERSION: ${{ steps.version.outputs.version }}` into `release.sh`.
 
-**Prevention rule:**  
+**Prevention rule:**
 🔴 **NEVER add `npm ci`, `npm install`, or `actions/setup-node` to any CI/CD workflow in this repo.** The lockfile is not maintained. If a workflow needs a value from `package.json`, extract it with `sed`/`grep`/`jq` (jq is preinstalled on `ubuntu-latest`). If a workflow genuinely needs Node tooling, it must first regenerate the lockfile with `npm install --package-lock-only` and accept the resulting drift — but this is **discouraged**.
 
 ---
 
 ### Issue #2 — `setup-python` cache fails: no `requirements.txt`
 
-**Date observed:** 2026-04-16  
+**Date observed:** 2026-04-16
 **Workflow:** CI (`ci.yml`)
 
 **Symptom:**
@@ -103,10 +103,10 @@ matched to [**/requirements.txt or **/pyproject.toml], make sure you have
 checked out the target repository
 ```
 
-**Trigger:**  
+**Trigger:**
 `actions/setup-python@v5` was configured with `cache: 'pip'`. The built-in pip cache requires a dependency manifest (`requirements.txt` or `pyproject.toml`) to compute its cache key. The repo has neither — the Python validator (`linter-scripts/validate-guidelines.py`) uses only the standard library.
 
-**Root cause:**  
+**Root cause:**
 Built-in caching in `setup-python` and `setup-go` assumes the project has a canonical dependency manifest at a discoverable path. This repo is *not* a Python or Go project — it merely *contains* validator scripts in those languages with zero external deps. Built-in caching is the wrong tool.
 
 **Fix applied:**
@@ -114,23 +114,23 @@ Built-in caching in `setup-python` and `setup-go` assumes the project has a cano
 - Added explicit `actions/cache@v4` steps with cache keys derived from `hashFiles('linter-scripts/**/*.go')` and `hashFiles('linter-scripts/**/*.py')`.
 - Cache paths: `~/.cache/go-build`, `~/go/pkg/mod` for Go; `~/.cache/pip` for pip.
 
-**Prevention rule:**  
+**Prevention rule:**
 🔴 **Do not enable built-in `cache:` on `setup-python` or `setup-go` in this repo.** Always use explicit `actions/cache@v4` with `hashFiles()` keyed on the script files themselves. If a future contributor adds a real `requirements.txt` or `go.mod`, only then may built-in caching be reconsidered.
 
 ---
 
 ### Issue #3 — Release script depended on Node at runtime
 
-**Date observed:** 2026-04-16 (same incident as Issue #1)  
+**Date observed:** 2026-04-16 (same incident as Issue #1)
 **Workflow:** Release (`release.sh`)
 
-**Symptom:**  
+**Symptom:**
 `release.sh` invoked `node -p "require('./package.json').version"`, which forced the workflow to install Node and run `npm ci`, cascading into Issue #1.
 
-**Root cause:**  
+**Root cause:**
 The release script was written assuming a JS-tooled environment. A version-bump workflow does not need a JS runtime to read a JSON field.
 
-**Fix applied:**  
+**Fix applied:**
 `resolve_version()` shell function in `release.sh`:
 ```bash
 resolve_version() {
@@ -142,7 +142,7 @@ resolve_version() {
 }
 ```
 
-**Prevention rule:**  
+**Prevention rule:**
 🔴 **`release.sh` and any future CI shell scripts must remain language-agnostic.** Never invoke `node`, `npm`, `python`, or `go` from `release.sh` unless the script's *purpose* is to build that language's artifacts. Use POSIX shell utilities (`sed`, `awk`, `grep`, `jq`, `cut`) for parsing.
 
 ---
@@ -172,7 +172,7 @@ Error: Process completed with exit code 1.
 - Updated `winres/winres.json` to reference the smaller file.
 - Kept the original 512×512 `icon.png` for web/docs.
 
-**Prevention rule:**  
+**Prevention rule:**
 🔴 **Any PNG referenced from `winres.json` MUST be ≤ 256×256.** Maintain two separate files (`icon.png` for docs, `icon-256.png` for `.exe` embedding). Add a CI pre-check:
 ```bash
 python3 -c "from PIL import Image; img=Image.open('assets/icon-256.png'); assert max(img.size)<=256, img.size"
@@ -201,7 +201,7 @@ Error: Process completed with exit code 1.
     for f in <binary>-*; do ...; done
 ```
 
-**Prevention rule:**  
+**Prevention rule:**
 🔴 **NEVER use `cd` inside CI `run:` blocks.** Always use the YAML `working-directory:` field. Guard every output directory with `test -d` before operating on it.
 
 ---
@@ -214,7 +214,7 @@ Error: Process completed with exit code 1.
 
 **Fix applied (in sibling reference implementation):** **Passthrough gate pattern** — jobs always run; step-level `if:` skips the actual work; an unconditional first step echoes "✅ Already validated (SHA cached)" so the job always concludes `success`.
 
-**Prevention rule:**  
+**Prevention rule:**
 🟠 **Never use job-level `if` for cache/dedup gating** when the job is a required status check. Use **step-level** conditionals and always include at least one unconditional step.
 
 ---
@@ -227,7 +227,7 @@ Error: Process completed with exit code 1.
 
 **Fix applied (in sibling reference implementation):** Inline the cache write as the **final step of the last validation job** (`test-summary`). Guard with `if: success()`.
 
-**Prevention rule:**  
+**Prevention rule:**
 🟠 **Side-effects that must persist after success (cache writes, telemetry, deployment markers) belong in the LAST validation job, not in a separate trailing job** when `cancel-in-progress: true` is set.
 
 ---
@@ -249,7 +249,7 @@ Error: Process completed with exit code 1.
 | `actions/cache` | `@v4` |
 | `softprops/action-gh-release` | `@v2` |
 
-**Prevention rule:**  
+**Prevention rule:**
 🟡 **`@latest` and `@main` are PROHIBITED in any workflow or `setup.sh`.** Pin every action and CLI tool to an exact tag. Use Dependabot/Renovate to propose pinned bumps.
 
 ---
@@ -274,7 +274,7 @@ For shared CI workflows that also run on release branches:
 cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
 ```
 
-**Prevention rule:**  
+**Prevention rule:**
 🔴 **Release workflow `cancel-in-progress` MUST be `false`.** Shared workflows must use a conditional that exempts release branches.
 
 ---
@@ -293,7 +293,7 @@ sed -i "s|VERSION_PLACEHOLDER|${VERSION}|g; s|REPO_PLACEHOLDER|${GITHUB_REPOSITO
   || { echo "::error::Unreplaced placeholder"; exit 1; }
 ```
 
-**Prevention rule:**  
+**Prevention rule:**
 🟠 **Always validate generated scripts for residual placeholders before upload.** Use `:?` parameter expansion for required env vars. Test install scripts end-to-end on a `release/test-*` branch.
 
 ---
@@ -306,7 +306,7 @@ sed -i "s|VERSION_PLACEHOLDER|${VERSION}|g; s|REPO_PLACEHOLDER|${GITHUB_REPOSITO
 
 **Fix applied (in sibling reference implementation):** Print an explicit warning to stderr when assets exist but the token is missing. In CI, treat a missing `GITHUB_TOKEN` as a **hard failure**, not a skip.
 
-**Prevention rule:**  
+**Prevention rule:**
 🟡 **Silent skips are a bug.** Always log to stderr when skipping an expected operation. In CI, missing required secrets MUST fail the job, not warn.
 
 ---
@@ -325,7 +325,7 @@ sed -i "s|VERSION_PLACEHOLDER|${VERSION}|g; s|REPO_PLACEHOLDER|${GITHUB_REPOSITO
 2. Generate checksums in the **same `working-directory`** as the artifacts.
 3. Round-trip test: extract `checksums.txt`, verify each listed file exists in `dist/`.
 
-**Prevention rule:**  
+**Prevention rule:**
 🟠 **Asset naming must be defined once and reused.** Checksum generation MUST run in the artifact directory. Add a pre-publish round-trip test that validates checksums against actual files.
 
 ---

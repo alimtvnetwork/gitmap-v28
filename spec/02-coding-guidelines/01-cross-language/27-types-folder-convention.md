@@ -1,8 +1,8 @@
 # Types Folder Convention & Common Type Aliases
 
-**Version:** 3.2.0  
-**Updated:** 2026-04-16  
-**Applies to:** All languages (Go, TypeScript, PHP, Rust, C#)  
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Applies to:** All languages (Go, TypeScript, PHP, Rust, C#)
 **Source:** Derived from `apperror` package patterns, content type conventions, and real-world `riseup-asia-uploader` codebase
 
 ---

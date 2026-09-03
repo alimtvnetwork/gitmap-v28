@@ -1,7 +1,7 @@
 # Master Coding Guidelines — Lint, enum sync, tests, lazy eval, regex, mutation, null safety, nesting, newlines, defer
 
-> **Parent:** [Master Coding Guidelines](./00-overview.md)  
-> **Version:** 2.1.0  
+> **Parent:** [Master Coding Guidelines](./00-overview.md)
+> **Version:** 2.1.0
 > **Updated:** 2026-03-31
 
 ---

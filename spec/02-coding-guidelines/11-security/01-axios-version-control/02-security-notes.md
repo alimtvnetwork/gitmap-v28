@@ -1,7 +1,7 @@
 # Security Notes — Axios Version Advisory
 
-> **Parent:** [Axios Version Control Policy](./00-overview.md)  
-> **Version:** 1.1.0  
+> **Parent:** [Axios Version Control Policy](./00-overview.md)
+> **Version:** 1.1.0
 > **Updated:** 2026-04-02
 
 ---

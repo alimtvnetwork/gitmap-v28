@@ -15,21 +15,28 @@ Manage, create, export, import, and inject structured AI prompt templates for An
 ## Examples
 
 ```bash
+
 # List all prompt templates
+
 gitmap prompt ls
 
 # View prompt template
+
 gitmap prompt show code-review
 
 # Add a new custom prompt template
+
 gitmap prompt add security-audit ./prompts/security-audit.md
 
 # Export all templates to a zip archive
+
 gitmap prompt export ./backup/prompts.zip
 
 # Import templates from a zip bundle
+
 gitmap prompt import ./backup/prompts.zip
 
 # Inject a prompt into an AGY project or group
+
 gitmap prompt inject code-review my-project
 ```

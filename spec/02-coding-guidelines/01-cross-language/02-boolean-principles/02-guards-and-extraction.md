@@ -1,7 +1,7 @@
 # Boolean Principles — P3: named guards, P4: extract complex expressions
 
-> **Parent:** [Boolean Principles](./00-overview.md)  
-> **Version:** 2.6.0  
+> **Parent:** [Boolean Principles](./00-overview.md)
+> **Version:** 2.6.0
 > **Updated:** 2026-03-31
 
 ---

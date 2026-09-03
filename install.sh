@@ -690,8 +690,8 @@ install_binary() {
     fi
 
     # Echo the app dir so main() can use it for PATH + summary.
-    
-    # Symlink into parent dir if possible, to allow immediate recognition 
+
+    # Symlink into parent dir if possible, to allow immediate recognition
     # without PATH reload if the parent dir is already in PATH.
     local parent_bin="${install_dir}/${BINARY_NAME}"
     local parent_alias="${install_dir}/${BINARY_ALIAS}"
@@ -713,7 +713,7 @@ install_binary() {
 install_seed_data() {
     local version="$1" app_dir="$2"
     local data_dir="${app_dir}/data"
-    
+
     mkdir -p "${data_dir}" 2>/dev/null || true
 
     local seed_files="downloader-config.json config.json git-setup.json seo-templates.json"
@@ -739,7 +739,7 @@ install_seed_data() {
     fi
 }
 
-#  Download and extract docs-site.zip release asset 
+#  Download and extract docs-site.zip release asset
 install_docs_site() {
     local version="$1" install_dir="$2"
     local asset_name="docs-site.zip"

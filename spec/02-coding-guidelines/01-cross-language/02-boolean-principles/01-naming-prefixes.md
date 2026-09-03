@@ -1,7 +1,7 @@
 # Boolean Principles — P1: is/has prefixes, P2: no negative words
 
-> **Parent:** [Boolean Principles](./00-overview.md)  
-> **Version:** 2.6.0  
+> **Parent:** [Boolean Principles](./00-overview.md)
+> **Version:** 2.6.0
 > **Updated:** 2026-03-31
 
 ---

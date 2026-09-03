@@ -30,7 +30,7 @@ sudo ./01-set-ip.sh 192.168.0.68
 
 ```bash
  chmod +x ./05-remove-used-ports.sh && \
- sudo ./05-remove-used-ports.sh 
+ sudo ./05-remove-used-ports.sh
  ```
 
 ## To run `04-kill-user-processes.sh`

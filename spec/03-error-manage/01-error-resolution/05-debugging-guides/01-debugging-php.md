@@ -1,7 +1,7 @@
 # PHP Debugging Guide
 
-> **Version:** 1.0.0  
-> **Created:** 2026-02-04  
+> **Version:** 1.0.0
+> **Created:** 2026-02-04
 > **Applies To:** WordPress Plugins, PHP Backends
 
 ---
@@ -225,10 +225,10 @@ class Logger
         if (!defined('PLUGIN_DEBUG_LOGGING') || !PLUGIN_DEBUG_LOGGING) {
             return;
         }
-        
+
         self::write('DEBUG', $message, $context);
     }
-    
+
     /**
      * Log error with stack trace
      *
@@ -242,7 +242,7 @@ class Logger
         if (!defined('PLUGIN_ERROR_LOGGING') || !PLUGIN_ERROR_LOGGING) {
             return;
         }
-        
+
         $context['exception'] = [
             'message' => $exception->getMessage(),
             'code' => $exception->getCode(),
@@ -250,28 +250,28 @@ class Logger
             'line' => $exception->getLine(),
             'trace' => $exception->getTraceAsString(),
         ];
-        
+
         self::write('ERROR', $exception->getMessage(), $context, 'error.log');
     }
-    
+
     /**
      * Write to log file
      */
     private static function write(
-        string $level, 
-        string $message, 
-        array $context = [], 
+        string $level,
+        string $message,
+        array $context = [],
         string $file = 'debug.log'
     ): void {
         $logDir = WP_CONTENT_DIR . '/uploads/' . PLUGIN_SLUG . '/logs/';
-        
+
         if (!is_dir($logDir)) {
             wp_mkdir_p($logDir);
         }
-        
+
         $memory = round(memory_get_usage() / 1024 / 1024, 2);
         $timestamp = date('Y-m-d H:i:s');
-        
+
         $entry = sprintf(
             "[%s] [%s] [Memory: %s MB] %s\n",
             $timestamp,
@@ -279,13 +279,13 @@ class Logger
             $memory,
             $message
         );
-        
+
         if (!empty($context)) {
             $entry .= "Context: " . print_r($context, true) . "\n";
         }
-        
+
         $entry .= str_repeat('-', 80) . "\n";
-        
+
         file_put_contents($logDir . $file, $entry, FILE_APPEND | LOCK_EX);
     }
 }
