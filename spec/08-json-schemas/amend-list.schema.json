@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/amend-list.schema.json",
+  "title": "gitmap amend list --json",
+  "description": "Machine-readable shape emitted by `gitmap amend list --json`. Top-level is an array of per-amendment records. Empty result encodes as `[]`.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["ID", "Branch", "FromCommit", "ToCommit", "TotalCommits", "PreviousName", "PreviousEmail", "NewName", "NewEmail", "Mode", "ForcePushed", "CreatedAt"],
+    "additionalProperties": false,
+    "properties": {
+      "ID": {
+        "type": "integer",
+        "description": "SQLite row ID of the amendment record.",
+        "minimum": 1
+      },
+      "Branch": {
+        "type": "string",
+        "description": "Branch on which the amendment was applied."
+      },
+      "FromCommit": {
+        "type": "string",
+        "description": "First commit SHA in the amended range."
+      },
+      "ToCommit": {
+        "type": "string",
+        "description": "Last commit SHA in the amended range."
+      },
+      "TotalCommits": {
+        "type": "integer",
+        "description": "Number of commits rewritten.",
+        "minimum": 0
+      },
+      "PreviousName": {
+        "type": "string",
+        "description": "Author name before the amendment."
+      },
+      "PreviousEmail": {
+        "type": "string",
+        "description": "Author email before the amendment."
+      },
+      "NewName": {
+        "type": "string",
+        "description": "Author name after the amendment."
+      },
+      "NewEmail": {
+        "type": "string",
+        "description": "Author email after the amendment."
+      },
+      "Mode": {
+        "type": "string",
+        "description": "Amendment strategy used (e.g. 'rewrite', 'co-author')."
+      },
+      "ForcePushed": {
+        "type": "integer",
+        "description": "1 if the amended branch was force-pushed; 0 otherwise.",
+        "enum": [0, 1]
+      },
+      "CreatedAt": {
+        "type": "string",
+        "description": "RFC3339 UTC timestamp when the record was created."
+      }
+    }
+  }
+}

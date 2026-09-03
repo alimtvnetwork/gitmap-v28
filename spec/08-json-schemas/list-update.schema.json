@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/list-update.schema.json",
+  "title": "gitmap list --update output",
+  "description": "JSON payload emitted by `gitmap list --update --json` and `gitmap update list --json` (v6.80.0+).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["repo", "latest", "source", "path"],
+    "properties": {
+      "repo": {
+        "type": "string",
+        "description": "Repo slug (owner/name) or configured nickname."
+      },
+      "current": {
+        "type": ["string", "null"],
+        "description": "Currently checked-out tag; null when detached or untagged."
+      },
+      "latest": {
+        "type": "string",
+        "description": "Latest known remote release tag (v-prefixed)."
+      },
+      "behind": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Number of release tags between current and latest; null when current is unknown."
+      },
+      "source": {
+        "type": "string",
+        "enum": ["release", "import", "git-tag"],
+        "description": "Origin of the `latest` value."
+      },
+      "path": {
+        "type": "string",
+        "description": "Absolute path of the repo on disk."
+      },
+      "lastProbeAt": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Timestamp of the most recent VersionProbe row for this repo."
+      }
+    }
+  }
+}

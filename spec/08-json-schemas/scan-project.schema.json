@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://gitmap.dev/schemas/scan-project.schema.json",
+  "title": "gitmap scan-project per-type JSON files",
+  "description": "Machine-readable shape for the per-type JSON files emitted by `gitmap scan-project` (go-projects.json, node-projects.json, react-projects.json, cpp-projects.json, csharp-projects.json). Each file is a JSON array of detection records. NOTE: top-level record keys are PascalCase (`Project`, `GoMeta`, `Csharp`) because `detector.DetectionResult` carries no `json:` tags — this is the contractual on-the-wire shape since v1 and is preserved verbatim by `gitmap/cmd/scanprojectoutput.go`. Nested objects under `Project`, `GoMeta`, and `Csharp` DO have `json:` tags and use lowerCamel keys.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["Project"],
+    "additionalProperties": false,
+    "properties": {
+      "Project": {
+        "type": "object",
+        "description": "Core detected-project record (`model.DetectedProject`). All keys are always present.",
+        "required": ["id", "repoId", "repoName", "projectTypeId", "projectType", "projectName", "absolutePath", "repoPath", "relativePath", "primaryIndicator", "detectedAt"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "integer"},
+          "repoId": {"type": "integer"},
+          "repoName": {"type": "string"},
+          "projectTypeId": {"type": "integer"},
+          "projectType": {"type": "string"},
+          "projectName": {"type": "string"},
+          "absolutePath": {"type": "string"},
+          "repoPath": {"type": "string"},
+          "relativePath": {"type": "string"},
+          "primaryIndicator": {"type": "string"},
+          "detectedAt": {"type": "string"}
+        }
+      },
+      "GoMeta": {
+        "description": "Go-specific metadata (`model.GoProjectMetadata`). `null` for non-Go records.",
+        "oneOf": [
+          {"type": "null"},
+          {
+            "type": "object",
+            "required": ["id", "detectedProjectId", "goModPath", "goSumPath", "moduleName", "goVersion", "runnables"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"type": "integer"},
+              "detectedProjectId": {"type": "integer"},
+              "goModPath": {"type": "string"},
+              "goSumPath": {"type": "string"},
+              "moduleName": {"type": "string"},
+              "goVersion": {"type": "string"},
+              "runnables": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "goMetadataId", "runnableName", "filePath", "relativePath"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {"type": "integer"},
+                    "goMetadataId": {"type": "integer"},
+                    "runnableName": {"type": "string"},
+                    "filePath": {"type": "string"},
+                    "relativePath": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Csharp": {
+        "description": "C#-specific metadata (`model.CsharpProjectMetadata`). `null` for non-C# records.",
+        "oneOf": [
+          {"type": "null"},
+          {
+            "type": "object",
+            "required": ["id", "detectedProjectId", "slnPath", "slnName", "globalJsonPath", "sdkVersion", "projectFiles", "keyFiles"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"type": "integer"},
+              "detectedProjectId": {"type": "integer"},
+              "slnPath": {"type": "string"},
+              "slnName": {"type": "string"},
+              "globalJsonPath": {"type": "string"},
+              "sdkVersion": {"type": "string"},
+              "projectFiles": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "csharpMetadataId", "filePath", "relativePath", "fileName", "projectName", "targetFramework", "outputType", "sdk"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {"type": "integer"},
+                    "csharpMetadataId": {"type": "integer"},
+                    "filePath": {"type": "string"},
+                    "relativePath": {"type": "string"},
+                    "fileName": {"type": "string"},
+                    "projectName": {"type": "string"},
+                    "targetFramework": {"type": "string"},
+                    "outputType": {"type": "string"},
+                    "sdk": {"type": "string"}
+                  }
+                }
+              },
+              "keyFiles": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "csharpMetadataId", "fileType", "filePath", "relativePath"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {"type": "integer"},
+                    "csharpMetadataId": {"type": "integer"},
+                    "fileType": {"type": "string"},
+                    "filePath": {"type": "string"},
+                    "relativePath": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
