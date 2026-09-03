@@ -72,28 +72,8 @@ func selectClearTargets(projects []AgyProject) []AgyProject {
 }
 
 func isAgyProjectExcepted(p AgyProject, exceptStr string) bool {
-	if exceptStr == "" {
-		return false
-	}
-	for _, ex := range strings.Split(exceptStr, ",") {
-		ex = strings.TrimSpace(ex)
-		if isMatchExcept(p, ex) {
-			return true
-		}
-	}
-	return false
-}
-
-func isMatchExcept(p AgyProject, ex string) bool {
-	if ex == "" {
-		return false
-	}
-	normPath := filepath.ToSlash(filepath.Clean(p.GetPath()))
-	normEx := filepath.ToSlash(filepath.Clean(ex))
-	if strings.EqualFold(p.ID, ex) || strings.HasPrefix(strings.ToLower(p.ID), strings.ToLower(ex)) || strings.EqualFold(p.Name, ex) || strings.EqualFold(normPath, normEx) {
-		return true
-	}
-	return strings.Contains(strings.ToLower(normPath), strings.ToLower(normEx)) || strings.Contains(strings.ToLower(p.Name), strings.ToLower(ex))
+	tokens := parseAgyExceptTokens(exceptStr)
+	return isAgyProjectExceptedWithTokens(p, tokens)
 }
 
 func executeClearTargets(dirPath string, targets []AgyProject) error {
@@ -112,14 +92,20 @@ func executeClearTargets(dirPath string, targets []AgyProject) error {
 }
 
 func printClearPreview(targets []AgyProject) {
-	fmt.Printf("\nFound %d project(s) to remove:\n", len(targets))
-	for i, p := range targets {
+	fmt.Printf("\n  %sTargeting %d project(s) to clear:%s\n\n", constants.ColorYellow, len(targets), constants.ColorReset)
+	fmt.Printf("    %-12s %-24s %-20s %s\n", "ID", "NAME", "SLUG", "PATH")
+	fmt.Printf("    %s\n", strings.Repeat("─", 88))
+	for _, p := range targets {
 		path := p.GetPath()
+		slug := filepath.Base(path)
 		if path == "" {
 			path = "(no path)"
+			slug = "—"
 		}
-		fmt.Printf("  %2d. %-20s (%s) -> %s\n", i+1, p.Name, shortProjectId(p.ID), path)
+		fmt.Printf("    %-12s %-24s %-20s %s\n", shortProjectId(p.ID), p.Name, slug, path)
 	}
+	fmt.Printf("\n    %sTip: Exclude items using: --except \"<id, name, slug, or starts-with text>\"%s\n",
+		constants.ColorDim, constants.ColorReset)
 }
 
 func askClearConfirmation(count int) bool {

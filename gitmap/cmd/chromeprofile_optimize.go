@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -63,9 +64,9 @@ func findChromeProfileDuplicates(exceptList []string) []string {
 	}
 	seen := make(map[string]bool)
 	var dups []string
-	for _, entry := range entries {
+	for i, entry := range entries {
 		name := strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))
-		if isProfileExcepted(name, exceptList) {
+		if isProfileExcepted(name, exceptList, i+1) {
 			continue
 		}
 		if seen[name] {
@@ -77,13 +78,24 @@ func findChromeProfileDuplicates(exceptList []string) []string {
 	return dups
 }
 
-func isProfileExcepted(name string, exceptList []string) bool {
-	for _, ex := range exceptList {
-		ex = strings.TrimSpace(ex)
+func isProfileExcepted(name string, exceptList []string, index int) bool {
+	idStr := fmt.Sprintf("%d", index)
+	idPad := fmt.Sprintf("%02d", index)
+	lowName := strings.ToLower(name)
+	slug := strings.ReplaceAll(lowName, " ", "-")
+
+	for _, rawEx := range exceptList {
+		ex := strings.ToLower(strings.TrimSpace(rawEx))
 		if ex == "" {
 			continue
 		}
-		if strings.EqualFold(name, ex) || strings.Contains(strings.ToLower(name), strings.ToLower(ex)) {
+		if ex == idStr || ex == idPad || ex == lowName || ex == slug {
+			return true
+		}
+		if strings.HasPrefix(lowName, ex) || strings.HasPrefix(slug, ex) {
+			return true
+		}
+		if strings.Contains(lowName, ex) {
 			return true
 		}
 	}
@@ -98,28 +110,68 @@ func runChromeProfileClear(args []string) error {
 		fmt.Printf("%s No tracked Chrome profile snapshots to clear.\n", constants.ColorGreen+"✓"+constants.ColorReset)
 		return nil
 	}
-	cleared := clearChromeSnapshots(dir, entries, opts)
-	if opts.DryRun {
-		fmt.Printf("%s [dry-run] %d Chrome profile snapshot(s) would be cleared.\n",
-			constants.ColorYellow+"ℹ"+constants.ColorReset, cleared)
+	targets := filterChromeClearTargets(entries, opts.Except)
+	if len(targets) == 0 {
+		fmt.Printf("%s No matching Chrome profile snapshots to clear.\n", constants.ColorGreen+"✓"+constants.ColorReset)
 		return nil
 	}
-	fmt.Printf("%s Successfully cleared %d Chrome profile snapshot(s).\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, cleared)
+	printChromeClearPreview(targets)
+	if opts.DryRun {
+		fmt.Printf("\n%s [dry-run] %d Chrome profile snapshot(s) would be cleared. Remaining: %d\n",
+			constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets), len(entries)-len(targets))
+		return nil
+	}
+	if !opts.Yes && !askChromeClearConfirmation(len(targets)) {
+		fmt.Println("Clearance cancelled. No changes made.")
+		return nil
+	}
+	deleted := executeDeleteChromeSnapshots(dir, targets)
+	fmt.Printf("\n%s Successfully cleared %d Chrome profile snapshot(s). Remaining: %d\n",
+		constants.ColorGreen+"✓"+constants.ColorReset, deleted, len(entries)-deleted)
 	return nil
 }
 
-func clearChromeSnapshots(dir string, entries []os.DirEntry, opts chromeOptFlags) int {
-	count := 0
-	for _, e := range entries {
+func filterChromeClearTargets(entries []os.DirEntry, exceptList []string) []os.DirEntry {
+	targets := make([]os.DirEntry, 0)
+	for i, e := range entries {
 		name := strings.TrimSuffix(e.Name(), filepath.Ext(e.Name()))
-		if isProfileExcepted(name, opts.Except) {
+		if isProfileExcepted(name, exceptList, i+1) {
 			continue
 		}
-		count++
-		if !opts.DryRun {
-			_ = os.Remove(filepath.Join(dir, e.Name()))
+		targets = append(targets, e)
+	}
+	return targets
+}
+
+func printChromeClearPreview(targets []os.DirEntry) {
+	fmt.Printf("\n  %sTargeting %d Chrome profile snapshot(s) to clear:%s\n\n",
+		constants.ColorYellow, len(targets), constants.ColorReset)
+	fmt.Printf("    %-6s %-26s %-20s %s\n", "ID", "PROFILE NAME", "SLUG", "FILE")
+	fmt.Printf("    %s\n", strings.Repeat("─", 88))
+	for i, e := range targets {
+		name := strings.TrimSuffix(e.Name(), filepath.Ext(e.Name()))
+		slug := strings.ReplaceAll(strings.ToLower(name), " ", "-")
+		fmt.Printf("    %-6d %-26s %-20s %s\n", i+1, name, slug, e.Name())
+	}
+	fmt.Printf("\n    %sTip: Exclude items using: --except \"<id, name, slug, or starts-with text>\"%s\n",
+		constants.ColorDim, constants.ColorReset)
+}
+
+func askChromeClearConfirmation(count int) bool {
+	fmt.Printf("\n  %sAre you sure you want to remove these %d Chrome profile snapshot(s)? [y/N]: %s",
+		constants.ColorYellow, count, constants.ColorReset)
+	reader := bufio.NewReader(os.Stdin)
+	ans, _ := reader.ReadString('\n')
+	ans = strings.TrimSpace(strings.ToLower(ans))
+	return ans == "y" || ans == "yes"
+}
+
+func executeDeleteChromeSnapshots(dir string, targets []os.DirEntry) int {
+	deleted := 0
+	for _, e := range targets {
+		if rmErr := os.Remove(filepath.Join(dir, e.Name())); rmErr == nil {
+			deleted++
 		}
 	}
-	return count
+	return deleted
 }

@@ -2,9 +2,11 @@
 package cmd
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -88,33 +90,55 @@ func parseVSCodeClearFlags(args []string) vscodeClearFlags {
 
 func runVSCodeClear(args []string) error {
 	opts := parseVSCodeClearFlags(args)
-	summary, err := vscodepm.ClearProjects(opts.Except, opts.OnlyMissing, opts.DryRun)
+	summary, targets, err := vscodepm.ClearProjectsWithTargets(opts.Except, opts.OnlyMissing, true)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error clearing VS Code projects: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error inspecting VS Code projects: %v\n", err)
 		return err
 	}
-	printVSCodeClearResult(summary, opts.DryRun, opts.OnlyMissing)
+	if len(targets) == 0 {
+		fmt.Println("No projects to clear in VS Code Project Manager.")
+		return nil
+	}
+	printVSCodeClearPreview(targets)
+	if opts.DryRun {
+		fmt.Printf("\n%s [dry-run] %d VS Code project(s) would be cleared. Remaining: %d\n",
+			constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets), summary.Remaining)
+		return nil
+	}
+	if !opts.Yes && !askVSCodeClearConfirmation(len(targets)) {
+		fmt.Println("Clearance cancelled. No changes made.")
+		return nil
+	}
+	finalSummary, _, writeErr := vscodepm.ClearProjectsWithTargets(opts.Except, opts.OnlyMissing, false)
+	if writeErr != nil {
+		fmt.Fprintf(os.Stderr, "Error clearing VS Code projects: %v\n", writeErr)
+		return writeErr
+	}
+	fmt.Printf("\n%s Successfully removed %d VS Code project(s). Remaining: %d\n",
+		constants.ColorGreen+"✓"+constants.ColorReset, finalSummary.Removed, finalSummary.Remaining)
 	return nil
 }
 
-func printVSCodeClearResult(s vscodepm.OptimizeSummary, isDryRun, isOnlyMissing bool) {
-	action := "cleared"
-	if isOnlyMissing {
-		action = "missing project(s) cleared"
+func printVSCodeClearPreview(targets []vscodepm.Entry) {
+	fmt.Printf("\n  %sTargeting %d VS Code project(s) to clear:%s\n\n",
+		constants.ColorYellow, len(targets), constants.ColorReset)
+	fmt.Printf("    %-6s %-26s %-20s %s\n", "ID", "NAME", "SLUG", "ROOT PATH")
+	fmt.Printf("    %s\n", strings.Repeat("─", 88))
+	for i, e := range targets {
+		slug := filepath.Base(e.RootPath)
+		fmt.Printf("    %-6d %-26s %-20s %s\n", i+1, e.Name, slug, e.RootPath)
 	}
-	if isDryRun {
-		fmt.Printf("%s [dry-run] %d VS Code project(s) would be %s. Remaining: %d\n",
-			constants.ColorYellow+"ℹ"+constants.ColorReset, s.Removed, action, s.Remaining)
-		return
-	}
-	if s.Removed == 0 {
-		fmt.Printf("%s No projects to clear in VS Code Project Manager.\n",
-			constants.ColorGreen+"✓"+constants.ColorReset,
-		)
-		return
-	}
-	fmt.Printf("%s Successfully removed %d VS Code project(s). Remaining: %d\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, s.Removed, s.Remaining)
+	fmt.Printf("\n    %sTip: Exclude items using: --except \"<id, name, slug, or starts-with text>\"%s\n",
+		constants.ColorDim, constants.ColorReset)
+}
+
+func askVSCodeClearConfirmation(count int) bool {
+	fmt.Printf("\n  %sAre you sure you want to remove these %d project(s)? [y/N]: %s",
+		constants.ColorYellow, count, constants.ColorReset)
+	reader := bufio.NewReader(os.Stdin)
+	ans, _ := reader.ReadString('\n')
+	ans = strings.TrimSpace(strings.ToLower(ans))
+	return ans == "y" || ans == "yes"
 }
 
 func printVSCodeEntries(entries []vscodepm.Entry) {
