@@ -1671,6 +1671,169 @@ export const commands: CommandDef[] = [
       { name: "agy ls", description: "Standard status table of all Antigravity projects" },
     ],
   },
+  {
+    category: "maintenance",
+    name: "agy find-duplicate-projects",
+    alias: "agy fdp",
+    description: "Find duplicate Antigravity projects pointing to the same folder or duplicate names and display instant cure commands",
+    usage: "gitmap agy find-duplicate-projects [--except <spec>] [--json]",
+    flags: [
+      { flag: "--except, -e", description: "Exclude project IDs, names, slugs, or paths from duplicate search" },
+      { flag: "--json", description: "Emit structured JSON output for automation" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Scan for Duplicates", action: "gitmap agy find-duplicate-projects" },
+      { step: 2, title: "Review Duplicate Groups", action: "Inspect keeping the newest project per path" },
+      { step: 3, title: "Execute Cure", action: "gitmap agy cure-duplicate-projects" },
+    ],
+    notes: [
+      "Groups all duplicate projects by clean filesystem path.",
+      "Identifies the newest project to keep and older redundant duplicate files to cure.",
+      "Supports aliases: fdp, find-duplicates, find-dups.",
+    ],
+    examples: [
+      { command: "gitmap agy find-duplicate-projects", description: "Scan all Antigravity projects for duplicates" },
+      { command: "gitmap agy fdp", description: "Shorthand alias for quick scanning" },
+      { command: "gitmap agy fdp --except \"gitmap, coding-guidelines, 46d0\"", description: "Exclude projects matching id prefix or slug" },
+      { command: "gitmap agy fdp --json", description: "Output findings as machine-readable JSON" },
+    ],
+    seeAlso: [
+      { name: "agy cure-duplicate-projects", description: "Deduplicate and clean up redundant project files" },
+      { name: "agy ls", description: "List all Antigravity projects" },
+      { name: "find-duplicates", description: "Cross-platform duplicate project scanner" },
+    ],
+  },
+  {
+    category: "maintenance",
+    name: "agy cure-duplicate-projects",
+    alias: "agy cdp",
+    description: "Cure duplicate Antigravity projects by retaining the newest project per path and removing redundant duplicate JSON files",
+    usage: "gitmap agy cure-duplicate-projects [--except <spec>] [--dry-run] [--yes]",
+    flags: [
+      { flag: "--except, -e", description: "Exclude project IDs, names, slugs, or paths from deletion" },
+      { flag: "--dry-run, -d", description: "Preview duplicate removals without deleting files" },
+      { flag: "--yes, -y", description: "Confirm removal without interactive confirmation prompt" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Preview Cure (Dry-Run)", action: "gitmap agy cure-duplicate-projects --dry-run" },
+      { step: 2, title: "Execute Cure", action: "gitmap agy cure-duplicate-projects -y" },
+    ],
+    notes: [
+      "Retains the newest project per path based on updatedAt timestamp.",
+      "Safely removes redundant older JSON files from ~/.gemini/config/projects/.",
+      "Supports aliases: cdp, optimize-projects, --repeat-fix.",
+    ],
+    examples: [
+      { command: "gitmap agy cure-duplicate-projects --dry-run", description: "Preview duplicate files targeted for removal" },
+      { command: "gitmap agy cdp", description: "Execute deduplication with interactive prompt" },
+      { command: "gitmap agy cdp -y", description: "Non-interactive deduplication" },
+      { command: "gitmap agy cdp --except \"gitmap, prompts, f618\"", description: "Cure while preserving whitelisted projects" },
+    ],
+    seeAlso: [
+      { name: "agy find-duplicate-projects", description: "Find and list duplicate projects" },
+      { name: "agy optimize-projects", description: "Original deduplication command alias" },
+    ],
+  },
+  {
+    category: "maintenance",
+    name: "agy remove-missing-projects",
+    alias: "agy rm-missing",
+    description: "Remove Antigravity projects whose target workspace directories no longer exist on disk",
+    usage: "gitmap agy remove-missing-projects [--except <spec>] [--dry-run] [--yes]",
+    flags: [
+      { flag: "--except, -e", description: "Exclude project IDs, names, slugs, or short prefix starts with" },
+      { flag: "--dry-run, -d", description: "Preview missing projects targeted for deletion without deleting" },
+      { flag: "--yes, -y", description: "Confirm removal without interactive confirmation prompt" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Audit Missing Projects", action: "gitmap agy ls" },
+      { step: 2, title: "Preview Removal (Dry-Run)", action: "gitmap agy remove-missing-projects --dry-run" },
+      { step: 3, title: "Execute Removal", action: "gitmap agy remove-missing-projects -y" },
+    ],
+    notes: [
+      "Prunes stale project configuration files left over from deleted temp folders or uninstalled clones.",
+      "Accepts common typo alias: gitmap agy remove-misisng-projects.",
+      "Supports prefix/starts-with matching in --except (e.g. --except \"wp-, 1a94\").",
+    ],
+    examples: [
+      { command: "gitmap agy remove-missing-projects --dry-run", description: "Preview missing projects targeted for deletion" },
+      { command: "gitmap agy remove-missing-projects", description: "Remove missing projects with confirmation prompt" },
+      { command: "gitmap agy rm-missing -y", description: "Non-interactive automatic removal" },
+      { command: "gitmap agy remove-missing-projects --except \"1a9408cc, repo\"", description: "Exclude specific missing items by ID prefix or name" },
+      { command: "gitmap agy remove-misisng-projects -y", description: "Typo-tolerant execution" },
+    ],
+    seeAlso: [
+      { name: "agy reconcile", description: "Reconcile moved project directories before deleting" },
+      { name: "agy clear", description: "General workspace record cleanup" },
+      { name: "agy ls", description: "Inspect project status table" },
+    ],
+  },
+  {
+    category: "maintenance",
+    name: "agy reconcile",
+    alias: "agy recon",
+    description: "Reconcile and re-link missing Antigravity project paths with tracked repositories in GitMap",
+    usage: "gitmap agy reconcile [--dry-run] [--yes]",
+    flags: [
+      { flag: "--dry-run, -d", description: "Preview path reconciliations without saving" },
+      { flag: "--yes, -y", description: "Apply re-linked paths without interactive prompt" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Run Reconcile (Dry-Run)", action: "gitmap agy reconcile --dry-run" },
+      { step: 2, title: "Apply Reconciliations", action: "gitmap agy reconcile -y" },
+      { step: 3, title: "Prune Unresolved Missing", action: "gitmap agy remove-missing-projects -y" },
+    ],
+    notes: [
+      "Searches tracked GitMap repositories for matching directory slugs or repository names.",
+      "Automatically updates FolderURI in ~/.gemini/config/projects/<id>.json when moved repos are located.",
+      "Reports any unresolved projects for removal via remove-missing-projects.",
+    ],
+    examples: [
+      { command: "gitmap agy reconcile", description: "Scan and reconcile moved repository paths" },
+      { command: "gitmap agy recon", description: "Shorthand alias for quick reconciliation" },
+      { command: "gitmap agy recon --dry-run", description: "Preview path re-links without saving" },
+      { command: "gitmap agy recon -y", description: "Apply all discovered reconciliations automatically" },
+    ],
+    seeAlso: [
+      { name: "agy remove-missing-projects", description: "Remove projects that cannot be reconciled" },
+      { name: "agy scan", description: "Recursively scan directories for Git repositories" },
+    ],
+  },
+  {
+    category: "maintenance",
+    name: "agy all-projects-read-memory-prompt",
+    alias: "agy aprmp",
+    description: "Broadcast the Read Memory protocol prompt to all active Antigravity projects with prefix/slug exceptions",
+    usage: "gitmap agy all-projects-read-memory-prompt [--except <spec>] [--prompt <text>] [--dry-run] [--yes]",
+    flags: [
+      { flag: "--except, -e", description: "Exclude projects matching projectid, name, slug, or short prefix starts with" },
+      { flag: "--prompt, -p", description: "Custom prompt text to broadcast (defaults to Read Memory protocol instruction)" },
+      { flag: "--dry-run, -d", description: "Preview which projects will receive the prompt without sending" },
+      { flag: "--yes, -y", description: "Send prompt without interactive confirmation prompt" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Preview Targeting", action: "gitmap agy all-projects-read-memory-prompt --dry-run" },
+      { step: 2, title: "Refine Exclusions", action: "gitmap agy aprmp --except \"wp-, prompts, 46d0\" --dry-run" },
+      { step: 3, title: "Broadcast Prompt", action: "gitmap agy aprmp -y" },
+    ],
+    notes: [
+      "Automatically skips missing projects and global non-project sessions.",
+      "Supports flexible exclusions: exact IDs, names, base folder slugs, or short prefix starts with (e.g. wp-, 46d0).",
+      "Also accepts comma-separated lists or .csv/.txt exception files.",
+    ],
+    examples: [
+      { command: "gitmap agy all-projects-read-memory-prompt --dry-run", description: "Preview target project plan across all active projects" },
+      { command: "gitmap agy aprmp", description: "Shorthand alias with interactive prompt" },
+      { command: "gitmap agy aprmp --except \"wp-, prompts, 46d0\" --dry-run", description: "Exclude projects by prefix starts with, name, or slug" },
+      { command: "gitmap agy aprmp -p \"Review latest architectural changes\" -y", description: "Broadcast custom prompt non-interactively" },
+      { command: "gitmap agy aprmp --except \"./exceptions.csv\" -y", description: "Exclude projects listed in CSV file" },
+    ],
+    seeAlso: [
+      { name: "agy prompt", description: "Send prompt to a single project session" },
+      { name: "agy ls", description: "List all active Antigravity projects" },
+    ],
+  },
+
 
   // ═══════════════════════════════════════════
   // Tools & Setup

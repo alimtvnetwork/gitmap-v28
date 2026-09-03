@@ -20,10 +20,10 @@ func dispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 	if len(args) > 0 && (args[0] == "agy" || args[0] == "ag" || args[0] == "antigravity") {
 		args = args[1:]
 	}
-	if len(args) > 0 && (args[0] == "--repeat-fix" || args[0] == "-r") {
-		args[0] = "optimize-projects"
+	if len(args) > 0 {
+		args[0] = normalizeAgySubcommand(args[0])
 	}
-	if len(args) > 0 && (args[0] == "find-duplicates" || args[0] == "duplicates" || args[0] == "dups" || args[0] == "find-dups") {
+	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
 		return runFindDuplicates("agy", args[1:])
 	}
 	if isAgyLsEmptyConvsArg(args) {
@@ -31,6 +31,47 @@ func dispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 	}
 	AgyCmd.SetArgs(args)
 	return AgyCmd.ExecuteContext(ctx)
+}
+
+func normalizeAgySubcommand(sub string) string {
+	low := strings.ToLower(sub)
+	if isCureDupsAlias(low) {
+		return "optimize-projects"
+	}
+	if isRemoveMissingAlias(low) {
+		return "remove-missing-projects"
+	}
+	if isReadMemoryAlias(low) {
+		return "all-projects-read-memory-prompt"
+	}
+	if low == "reconcile" || low == "recon" || low == "reconcile-projects" {
+		return "reconcile"
+	}
+	if low == "find-duplicate-projects" || low == "fdp" {
+		return "find-duplicate-projects"
+	}
+	return sub
+}
+
+func isCureDupsAlias(low string) bool {
+	return low == "--repeat-fix" || low == "-r" ||
+		low == "cure-duplicate-projects" || low == "cdp" ||
+		low == "cure-duplicates" || low == "cure-duplicate"
+}
+
+func isRemoveMissingAlias(low string) bool {
+	return low == "remove-misisng-projects" || low == "remove-missing-projects" ||
+		low == "rm-missing-projects" || low == "rm-missing" || low == "clean-missing"
+}
+
+func isReadMemoryAlias(low string) bool {
+	return low == "all-projects-read-memory-prompt" || low == "aprmp" ||
+		low == "read-memory-all" || low == "rm-all-prompt"
+}
+
+func isAgyFindDuplicatesArg(sub string) bool {
+	low := strings.ToLower(sub)
+	return low == "find-duplicates" || low == "duplicates" || low == "dups" || low == "find-dups"
 }
 
 func isAgyLsEmptyConvsArg(args []string) bool {
@@ -70,6 +111,10 @@ func init() {
 	AgyCmd.AddCommand(agyImportCmd)
 	AgyCmd.AddCommand(agyPluginsCmd)
 	AgyCmd.AddCommand(agyRemoveEmptyConvsCmd)
+	AgyCmd.AddCommand(agyFindDupsCmd)
+	AgyCmd.AddCommand(agyRemoveMissingCmd)
+	AgyCmd.AddCommand(agyReconcileCmd)
+	AgyCmd.AddCommand(agyAllProjectsReadMemoryCmd)
 	initPlugins()
 }
 
