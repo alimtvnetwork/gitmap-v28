@@ -115,7 +115,13 @@ func init() {
 	AgyCmd.AddCommand(agyRemoveMissingCmd)
 	AgyCmd.AddCommand(agyReconcileCmd)
 	AgyCmd.AddCommand(agyAllProjectsReadMemoryCmd)
+	AgyCmd.AddCommand(agyGroupCmd)
+	AgyCmd.AddCommand(agyUndoCmd)
+	AgyCmd.AddCommand(agyRedoCmd)
+	AgyCmd.AddCommand(agySettingsCmd)
 	initPlugins()
+	initAgyGroup()
+	initAgySettings()
 }
 
 func getProjectsDirPath() (string, error) {

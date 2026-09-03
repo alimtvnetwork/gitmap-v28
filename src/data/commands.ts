@@ -1833,6 +1833,157 @@ export const commands: CommandDef[] = [
       { name: "agy ls", description: "List all active Antigravity projects" },
     ],
   },
+  {
+    category: "navigation",
+    name: "agy group",
+    alias: "ag group",
+    description: "Manage and prompt named groups of Antigravity workspace projects",
+    usage: "gitmap agy group [ls|add|rm|show|export|import|prompt] [args]",
+    flags: [
+      { flag: "add <group> <targets...>", description: "Add projects to a named group" },
+      { flag: "rm <group> [target]", description: "Remove a target from a group or delete the group" },
+      { flag: "ls", description: "List all configured Antigravity project groups" },
+      { flag: "show <group>", description: "Show detailed target members of a group" },
+      { flag: "export <group> <file.json>", description: "Export group definition to a portable JSON file" },
+      { flag: "import <file.json>", description: "Import group definition from a JSON file" },
+      { flag: "prompt <group> <prompt>", description: "Broadcast prompt to all project workspaces in group" },
+    ],
+    examples: [
+      { command: "gitmap agy group ls", description: "List all project groups" },
+      { command: "gitmap agy group add frontend repo-1 repo-2", description: "Create or append projects to a group" },
+      { command: "gitmap agy group show frontend", description: "Inspect projects in frontend group" },
+      { command: "gitmap agy group prompt frontend \"Audit coding style\"", description: "Dispatch prompt to all projects in group" },
+      { command: "gitmap agy group export frontend ./frontend.json", description: "Export group to JSON" },
+    ],
+    seeAlso: [
+      { name: "agy ls", description: "List all Antigravity projects" },
+      { name: "prompt inject", description: "Inject prompt templates" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "agy undo",
+    alias: "ag undo",
+    description: "Revert the last Antigravity project clear or removal mutation from an automated snapshot",
+    usage: "gitmap agy undo",
+    examples: [
+      { command: "gitmap agy undo", description: "Restore projects cleared or removed during the previous action" },
+    ],
+    seeAlso: [
+      { name: "agy redo", description: "Reapply the undone workspace action" },
+      { name: "agy clear", description: "Clear stale or missing Antigravity projects" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "agy redo",
+    alias: "ag redo",
+    description: "Reapply the undone Antigravity project workspace state",
+    usage: "gitmap agy redo",
+    examples: [
+      { command: "gitmap agy redo", description: "Reapply undone Antigravity workspace action" },
+    ],
+    seeAlso: [
+      { name: "agy undo", description: "Revert Antigravity project action" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "agy plugin",
+    alias: "agy plugins",
+    description: "Inspect installed Antigravity plugins and install new plugins from catalog",
+    usage: "gitmap agy plugin [ls|install <slug>]",
+    examples: [
+      { command: "gitmap agy plugin ls", description: "List installed and available Antigravity plugins" },
+      { command: "gitmap agy plugin install firebase-agent-plugin", description: "Install a plugin by slug" },
+    ],
+    seeAlso: [
+      { name: "agy ls", description: "List active Antigravity projects" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "agy settings",
+    alias: "agy config",
+    description: "Export and import Antigravity configuration settings in JSON format",
+    usage: "gitmap agy settings [export|import <file.json>]",
+    examples: [
+      { command: "gitmap agy settings export ./agy_backup.json", description: "Export current settings to JSON" },
+      { command: "gitmap agy settings import ./agy_backup.json", description: "Import settings from JSON" },
+    ],
+    seeAlso: [
+      { name: "agy group", description: "Antigravity project groups" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "prompt",
+    alias: "prompts",
+    description: "Manage, export, import, and inject AI prompt templates formatted with markdown frontmatter",
+    usage: "gitmap prompt [ls|show|add|rm|export|import|inject] [args]",
+    flags: [
+      { flag: "ls", description: "List all available prompt templates" },
+      { flag: "show <slug>", description: "View prompt template content and frontmatter" },
+      { flag: "add <slug> <file.md>", description: "Add a prompt template from a markdown file" },
+      { flag: "rm <slug>", description: "Remove an installed prompt template" },
+      { flag: "export [file.zip]", description: "Export all templates into a portable zip bundle" },
+      { flag: "import <file.zip|file.md>", description: "Import prompt templates from zip or markdown" },
+      { flag: "inject <slug> <target>", description: "Inject prompt template into project or group" },
+    ],
+    examples: [
+      { command: "gitmap prompt ls", description: "List prompt templates" },
+      { command: "gitmap prompt show code-review", description: "Inspect code-review template" },
+      { command: "gitmap prompt export ./prompts.zip", description: "Export templates to zip" },
+      { command: "gitmap prompt import ./prompts.zip", description: "Import templates from zip" },
+      { command: "gitmap prompt inject code-review my-group", description: "Inject template into project or group" },
+    ],
+    seeAlso: [
+      { name: "agy group prompt", description: "Prompt an entire project group" },
+    ],
+  },
+  {
+    category: "chrome",
+    name: "chrome undo",
+    alias: "cprof undo",
+    description: "Revert the last Chrome profile import or restore mutation from an automatic snapshot",
+    usage: "gitmap chrome undo [profile-name]",
+    examples: [
+      { command: "gitmap chrome undo Default", description: "Roll back Default profile to its pre-import state" },
+    ],
+    seeAlso: [
+      { name: "chrome redo", description: "Reapply undone profile mutation" },
+      { name: "chrome import", description: "Import Chrome profile" },
+    ],
+  },
+  {
+    category: "chrome",
+    name: "chrome group",
+    alias: "cprof group",
+    description: "Manage named groups of Chrome browser profiles",
+    usage: "gitmap chrome group [ls|add <group> <profiles...>|rm <group> [profile]]",
+    examples: [
+      { command: "gitmap chrome group ls", description: "List all Chrome profile groups" },
+      { command: "gitmap chrome group add work Default \"Profile 1\"", description: "Group profiles together" },
+    ],
+    seeAlso: [
+      { name: "chrome list", description: "List all local profiles" },
+    ],
+  },
+  {
+    category: "navigation",
+    name: "vscode group",
+    alias: "vsc group",
+    description: "Manage named groups of VS Code projects and workspaces",
+    usage: "gitmap vscode group [ls|add <group> <targets...>|rm <group> [target]]",
+    examples: [
+      { command: "gitmap vscode group ls", description: "List all VS Code groups" },
+      { command: "gitmap vscode group add frontend D:\\projects\\ui D:\\projects\\web", description: "Add workspaces to a group" },
+    ],
+    seeAlso: [
+      { name: "vscode ls", description: "List registered VS Code projects" },
+      { name: "github-desktop group", description: "Manage GitHub Desktop groups" },
+    ],
+  },
 
   // ═══════════════════════════════════════════
   // Tools & Setup

@@ -1,3 +1,36 @@
+## [v6.173.0] 2026-09-03 Release v6.173.0
+
+### Install GitMap v6.173.0
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.sh | bash -s -- ".lovable/prompts" "v6.173.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.173.0"`
+
+### Added & Enhanced
+
+- **Cross-Ecosystem Workspace Groups (`gitmap agy group`, `gitmap vscode group`, `gitmap gd group`, `gitmap chrome group`)**:
+  - Implemented unified group storage engine (`~/.gemini/config/groups/<ecosystem>_groups.json`) enabling named multi-project grouping across Antigravity, VS Code, GitHub Desktop, and Chrome profiles.
+  - Added subcommands for creating, listing, inspecting, deleting, exporting, importing, and broadcasting prompts across entire groups (`gitmap agy group prompt <group> <prompt>`).
+  - Added cross-ecosystem CLI parity across all workspace types.
+
+- **Automated Snapshot & Undo/Redo Engine (`gitmap agy undo`, `gitmap chrome undo`, `gitmap installer undo`)**:
+  - Implemented automatic pre-mutation state snapshots for Antigravity (`~/.gemini/config/backup/agy/`) and Chrome profiles (`~/.gemini/config/backup/chrome/`) before any clear, deletion, import, or restore operation.
+  - Added seamless `undo` and `redo` recovery commands to restore workspaces and profiles to exact pre-operation states.
+  - Added `undo`, `redo`, and `revert` aliases to script installer version management (`gitmap installer undo <slug>`).
+
+- **AI Prompt Template Management System (`gitmap prompt`)**:
+  - Engineered markdown-based AI prompt template storage engine (`~/.gemini/config/prompts/`) with YAML frontmatter parsing (`title`, `slug`, `version`, `description`, `tags`, `variables`).
+  - Pre-seeded built-in prompt templates (`code-review.md` and `ci-cd-fix.md`).
+  - Added subcommands `ls`, `show`, `add`, `rm`, `export` (portable `.zip` bundle), `import`, and `inject` (broadcast directly into AGY workspaces or groups).
+
+- **Antigravity Plugins Catalog & Settings Management (`gitmap agy plugin`, `gitmap agy settings`)**:
+  - Built real-time plugin inspection engine scanning `~/.gemini/config/plugins/` to list installed plugins and install new plugins from catalog.
+  - Built JSON settings export and import engine (`gitmap agy settings export` / `import`) for rapid workspace synchronization.
+
+- **Help UI & Terminal Help Parity**:
+  - Synchronized terminal `--help` markdown files (`prompt.md`, `antigravity.md`, `chrome.md`, `github-desktop.md`, `vscode-group.md`) with comprehensive flags, descriptions, and real-world examples.
+  - Added rich interactive command documentation to React Help UI (`src/data/commands.ts`).
+  - Added 12 new automated test cases to E2E smoke suite (`.github/scripts/e2e-cli-smoke.py`) verifying all new commands pass with zero errors.
+
 ## [v6.172.0] 2026-09-03 Release v6.172.0
 
 ### Install GitMap v6.172.0

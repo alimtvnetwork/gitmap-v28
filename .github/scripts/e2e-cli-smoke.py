@@ -161,10 +161,21 @@ def main():
         (['profiles', '--help'], [0], '', 'profiles --help'),
         (['profiles', 'ls', '--json'], [0], '', 'profiles ls --json'),
         (['profiles', 'status'], [0], '', 'profiles status'),
-        (['create', '--help'], [0], '', 'create --help'),
         (['backup', '--help'], [0], '', 'backup --help'),
         (['backup', 'status'], [0], '', 'backup status'),
         (['backup', 'ls'], [0], '', 'backup ls'),
+        (['agy', 'group', '--help'], [0], '', 'agy group --help'),
+        (['agy', 'group', 'ls'], [0], '', 'agy group ls'),
+        (['agy', 'undo', '--help'], [0], '', 'agy undo --help'),
+        (['agy', 'redo', '--help'], [0], '', 'agy redo --help'),
+        (['agy', 'plugin', 'ls'], [0], '', 'agy plugin ls'),
+        (['agy', 'settings', '--help'], [0], '', 'agy settings --help'),
+        (['prompt', '--help'], [0], '', 'prompt --help'),
+        (['prompt', 'ls'], [0], '', 'prompt ls'),
+        (['chrome', 'undo', '--help'], [0], '', 'chrome undo --help'),
+        (['vscode', 'group', 'ls'], [0], '', 'vscode group ls'),
+        (['gd', 'group', 'ls'], [0], '', 'gd group ls'),
+        (['installer', 'undo', '--help'], [0], '', 'installer undo --help'),
     ]
 
     # Stateful indices that must run in strict sequence to avoid SQLite locking

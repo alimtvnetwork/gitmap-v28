@@ -22,6 +22,8 @@ func runGitHubDesktop(args []string) error {
 			return runGitHubDesktopOptimize(args[1:])
 		case "clear", "clean":
 			return runGitHubDesktopClear(args[1:])
+		case "group", "groups", "grp":
+			return runGitHubDesktopGroup(args[1:])
 		}
 	}
 	cwd, err := os.Getwd()

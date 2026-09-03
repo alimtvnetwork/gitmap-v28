@@ -81,6 +81,8 @@ const (
 	CmdGitResetAlias       = "reset-git"
 	CmdAg                  = "ag"
 	CmdAntigravity         = "antigravity"
+	CmdPrompt              = "prompt"
+	CmdPromptAlias         = "prompts"
 	CmdAdd                 = "add"
 	CmdAppend              = "append"
 	CmdWrite               = "write"

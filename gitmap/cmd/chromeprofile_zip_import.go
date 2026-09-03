@@ -20,6 +20,9 @@ func applyChromeExportZIP(zipPath, dstProfile string) error {
 	}
 	defer r.Close()
 
+	targetDir := filepath.Join(chromeUserDataDir(), dstProfile)
+	_, _ = snapshotChromeProfile(targetDir, "pre-import")
+
 	m := readZipManifest(r)
 	if isMultiProfileArchive(m, r) {
 		return extractMultiProfileZip(r)

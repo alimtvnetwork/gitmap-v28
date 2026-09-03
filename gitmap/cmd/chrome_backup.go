@@ -128,11 +128,13 @@ func runChromeRestore(args []string) *apperror.AppError {
 	if dryRun {
 		return doDryRun(src, dst)
 	}
+	_, _ = snapshotChromeProfile(dst, "pre-restore")
 	n, err := readChromeBackup(src, dst)
 	if err != nil {
 		return apperror.WrapSimple(err, "chrome restore: ERROR")
 	}
 	fmt.Printf("\033[1;92m✓ chrome restore\033[0m  %d files → \033[1;96m%s\033[0m\n", n, dst)
+	fmt.Printf("  Tip: You can undo this restore anytime using: gitmap chrome undo\n")
 	return nil
 }
 

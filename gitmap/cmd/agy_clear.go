@@ -86,8 +86,11 @@ func executeClearTargets(dirPath string, targets []AgyProject) error {
 		fmt.Println("Aborted. No projects were removed.")
 		return nil
 	}
+
+	_, _ = snapshotAgyProjects("pre-clear")
 	deletedCount := deleteTargetProjects(dirPath, targets)
 	fmt.Printf("\n%s Successfully removed %d stale project(s).\n", constants.ColorGreen+"✓"+constants.ColorReset, deletedCount)
+	fmt.Printf("  %sTip: You can undo this clear action anytime using: gitmap agy undo%s\n", constants.ColorDim, constants.ColorReset)
 	return nil
 }
 
