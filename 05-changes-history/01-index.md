@@ -45,5 +45,5 @@ Each task transaction log must contain:
 ## 3. Transaction Log Register
 
 | # | Task Directory | Summary of Changes | Status | Date |
-|---|---|---|---|---|
-| 01 | [`01-gitmap-ai-scripts-and-spec-sync`](01-gitmap-ai-scripts-and-spec-sync/01-transaction-log.md) | Sync AI scripts with Gitmap, add Go formatter and linters, align spec architecture | In Progress | 2026-09-03 |
+| 01 | [`01-gitmap-ai-scripts-and-spec-sync`](01-gitmap-ai-scripts-and-spec-sync/01-transaction-log.md) | Sync AI scripts with Gitmap, add Go formatter and linters, align spec architecture | Completed | 2026-09-03 |
+| 02 | [`02-pluggable-writer-architecture-research`](02-pluggable-writer-architecture-research/01-transaction-log.md) | Research and specification of composable writer contracts, BaseWriter, RestAPIWriter, and package decomposition | Completed | 2026-09-03 |
