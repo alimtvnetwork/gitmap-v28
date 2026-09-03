@@ -79,7 +79,11 @@ func copyFolderIfExists(srcDir, dstDir string) error {
 	return nil
 }
 
-func writeSnapshotManifest(destDir, snapID, note string) error {
+func writeSnapshotManifest(
+	destDir string,
+	snapID string,
+	note string,
+) error {
 	m := SnapshotManifest{
 		ID:        snapID,
 		CreatedAt: time.Now(),
@@ -87,12 +91,15 @@ func writeSnapshotManifest(destDir, snapID, note string) error {
 		Files:     []string{"gitmap.db", "git_profiles.json", "pipeline_db", "repo_search"},
 	}
 	data, err := json.MarshalIndent(m, "", "  ")
+
 	if err != nil {
 		return apperror.WrapSimple(err, "marshal manifest:")
 	}
+
 	if writeErr := os.WriteFile(filepath.Join(destDir, "manifest.json"), data, 0644); writeErr != nil {
 		return apperror.WrapSimple(writeErr, "write manifest:")
 	}
+
 	return nil
 }
 
