@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Defines the pattern for integrating code signing into the release pipeline. Windows binaries SHOULD be signed to avoid SmartScreen warnings and to establish publisher trust. SHOULD (not MUST) is intentional: code signing requires a paid certificate that may be unavailable in early-stage or fork builds. When the certificate is unavailable, the release pipeline MUST (a) skip signing without failing the build, and (b) emit a clearly-labelled `signing-skipped` banner in the GitHub Step Summary so reviewers see the unsigned status. This spec covers SignPath integration as the primary signing provider, with a feature-flag gating pattern for gradual rollout.
+Defines the pattern for integrating code signing into the release pipeline. Windows binaries SHOULD be signed to avoid SmartScreen warnings and to establish publisher trust. SHOULD (not MUST) is intentional: code signing requires a paid certificate that may be unavailable in early-stage or fork builds. When the certificate is unavailable, the release pipeline MUST (a) skip signing without failing the build, and (b) emit a clearly-labeled `signing-skipped` banner in the GitHub Step Summary so reviewers see the unsigned status. This spec covers SignPath integration as the primary signing provider, with a feature-flag gating pattern for gradual rollout.
 
 ---
 

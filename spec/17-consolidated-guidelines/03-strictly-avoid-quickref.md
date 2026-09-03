@@ -22,7 +22,7 @@
 
 | Seq | Prohibition | Source |
 |-----|-------------|--------|
-| 01 | **`readme.txt` time suggestions.** Never suggest/recommend/hint/auto-add timestamps, "git update time", last-modified metadata, scheduled regeneration, cron, or any time-flavoured workflow in or about `readme.txt`. Only modify `readme.txt` when the user explicitly asks in that exact turn, in the format they dictate. No follow-up time offers. | `.lovable/memory/avoid/02-no-time-suggestions-in-readme-txt.md`, `02-spec/01-spec-authoring-guide/11-exceptions.md` § Strictly Prohibited |
+| 01 | **`readme.txt` time suggestions.** Never suggest/recommend/hint/auto-add timestamps, "git update time", last-modified metadata, scheduled regeneration, cron, or any time-flavored workflow in or about `readme.txt`. Only modify `readme.txt` when the user explicitly asks in that exact turn, in the format they dictate. No follow-up time offers. | `.lovable/memory/avoid/02-no-time-suggestions-in-readme-txt.md`, `02-spec/01-spec-authoring-guide/11-exceptions.md` § Strictly Prohibited |
 
 Sequence numbers are stable — never renumber, only append.
 

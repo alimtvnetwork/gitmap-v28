@@ -216,7 +216,7 @@ tokio::select! {
 ### Unsafe Patterns to Avoid
 
 ```rust
-// ❌ Dangerous — partial write may be lost if cancelled
+// ❌ Dangerous — partial write may be lost if canceled
 tokio::select! {
     result = write_batch_to_database(&events) => { /* ... */ }
     _ = shutdown.changed() => { break; }  // Batch partially written!

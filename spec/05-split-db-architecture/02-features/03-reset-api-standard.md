@@ -135,7 +135,7 @@ Request:
 
 Response:
 {
-  "Status": "cancelled"
+  "Status": "canceled"
 }
 ```
 
@@ -157,7 +157,7 @@ CREATE TABLE ResetRequest (
     ConfirmedAt DATETIME,
     CancelledAt DATETIME,
     CompletedAt DATETIME,
-    Status TEXT DEFAULT 'pending',                 -- pending, confirmed, expired, cancelled, completed
+    Status TEXT DEFAULT 'pending',                 -- pending, confirmed, expired, canceled, completed
     DeletedCount INTEGER,
     FreedBytes INTEGER,
     ErrorMessage TEXT
@@ -320,7 +320,7 @@ Common errors:
 - `x401`: Reset expired
 - `x402`: Invalid reset ID
 - `x403`: Reset already confirmed
-- `x404`: Reset cancelled
+- `x404`: Reset canceled
 
 ---
 

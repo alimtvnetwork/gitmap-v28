@@ -111,7 +111,7 @@ Guidelines for placeholders (both formats):
 - Replace `NN-module-name` and `01-file-name.md` with real paths before removing the comment markers.
 - Remove the `<spec-placeholder>` / `</spec-placeholder>` wrappers (or `<!--`/`-->` for the legacy form) once the target exists.
 - If the anchor (`#section-anchor`) is unknown, omit it and add it later.
-- Prefer `<spec-placeholder>` for new authoring — only it is recognised by the cross-link checker's selective ignore.
+- Prefer `<spec-placeholder>` for new authoring — only it is recognized by the cross-link checker's selective ignore.
 - Don't reserve the same target file in more than one placeholder — the linter's P-007 rule flags duplicates within a file *and* across files (anchor differences are collapsed). If two specs really need to link to the same future doc, activate the placeholder once it lands and let the live link be referenced from both places.
 - The wording after `TODO:` (or inside `reason="…"`) must start with an imperative verb from the P-001 allowlist (`activate`, `add`, `link`, `replace`, `wire`, `update`, `write`, `create`, `document`, `cross-reference`) and end with a period. Extend the list with `--allow-verb <verb>` when invoking the linter if you need a different verb.
 

@@ -128,7 +128,7 @@ interface WsState { status: 'connected' | 'disconnected'; }
 |------|------|--------|
 | `ConnectionStatus` | `01-connection-status-enum.md` | Connected, Disconnected, Connecting, Reconnecting, Error |
 | `EntityStatus` | `02-entity-status-enum.md` | Active, Inactive, Pending, Archived |
-| `ExecutionStatus` | `03-execution-status-enum.md` | Pending, Running, Completed, Failed, Cancelled |
+| `ExecutionStatus` | `03-execution-status-enum.md` | Pending, Running, Completed, Failed, Canceled |
 | `ExportStatus` | `04-export-status-enum.md` | Pending, Processing, Completed, Failed |
 | `HttpMethod` | `05-http-method-enum.md` | Get, Post, Put, Patch, Delete |
 | `MessageStatus` | `06-message-status-enum.md` | Pending, Streaming, Completed, Error |

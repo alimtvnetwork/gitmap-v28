@@ -774,7 +774,7 @@ trait TaskCreateTrait
             }
         }
 
-        // ── Sanitise ──
+        // ── Sanitize ──
         $sanitisedTitle = sanitize_text_field($title);
         $resolvedPriority = $hasPriority ? absint($priority) : 0;
 
@@ -1251,7 +1251,7 @@ Run through this checklist before shipping:
 - [ ] Every catch block catches `Throwable` with stack trace logged
 - [ ] No forbidden error patterns (Phase 4, §4.8)
 - [ ] All validation uses `$this->validationError()` with guard clauses
-- [ ] All strings sanitised after validation, not instead of
+- [ ] All strings sanitized after validation, not instead of
 - [ ] FileLogger with rotation and dedup configured
 - [ ] Version in `PluginConfigType::Version` only
 - [ ] Template files ≤200 lines

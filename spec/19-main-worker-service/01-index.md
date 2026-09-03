@@ -25,7 +25,7 @@
 
 Treat this topology as a **lightweight Kubernetes analogy**:
 
-| Kubernetes concept | This spec's analogue |
+| Kubernetes concept | This spec's analog |
 |---|---|
 | Control plane (api-server + scheduler) | **Main Server** — catalog, routing, admission, push-update fan-out |
 | Worker node (kubelet) | **Worker Server** — runs all business logic under its own split-DB |
@@ -124,7 +124,7 @@ A literal AI MUST read every numbered file 00→24 before scoping work. The map 
 | `02-architecture.md` | Topology, request flow, boundaries |
 | `03-glossary.md` | Canonical terms |
 | `04-main-db-schema.md` | Main-server SQLite schema (single source of truth for `WorkerNode`, `Company`, `UserDirectory`, audit tables) |
-| `05-worker-routing.md` | Selection strategies, caching, failover (no endpoint catalogue — see `06-`) |
+| `05-worker-routing.md` | Selection strategies, caching, failover (no endpoint catalog — see `06-`) |
 | `06-auth-and-2fa.md` | Auth flows, 2FA, JWT/cookie, main↔worker handshake |
 | `07-core-api-endpoints.md` | **Single source of truth** for the REST surface (paths, payloads, auth) |
 | `08-role-based-dashboards.md` | Roles + `User has access to {EnumPage}` pattern |
@@ -133,7 +133,7 @@ A literal AI MUST read every numbered file 00→24 before scoping work. The map 
 | `11-worker-bootstrap-protocol.md` | Worker first-boot registration + heartbeat (defers WorkerNode schema to `03-`) |
 | `12-split-db-tier-reconciliation.md` | Authoritative Main↔spec/05 tier mapping (applied stub) |
 | `13-jwt-delivery-contract.md` | JWT issuance, claims, verification, rotation |
-| `14-error-codes.md` | Error code catalogue (codes only — envelope owned by `08-`) |
+| `14-error-codes.md` | Error code catalog (codes only — envelope owned by `08-`) |
 | `15-rbac-and-status-seed.md` | RBAC + status enum seed values |
 | `16-tunable-constants.md` | **Single source of truth** for every numeric tunable + cache TTL |
 | `17-update-channels.md` | Three update channels: pull-from-main, pull-from-url, dev-only push |
@@ -141,7 +141,7 @@ A literal AI MUST read every numbered file 00→24 before scoping work. The map 
 | `19-backup-nodes.md` | Backup-node registration, propagation, lifecycle |
 | `20-incremental-backup-sync.md` | Incremental CDC backup sync (Shape A inline column) |
 | `21-backup-encryption-and-keys.md` | Pair-RSA encryption + key rotation |
-| `22-backup-endpoints.md` | Backup-tier S2S endpoint catalogue (BE-1..BE-6) |
+| `22-backup-endpoints.md` | Backup-tier S2S endpoint catalog (BE-1..BE-6) |
 | `23-backup-apply-logic.md` | Backup apply pipeline (stages, transactions, DLQ) |
 | `24-snapshot-storage-and-restore.md` | Snapshot build + restore flow |
 | `25-threat-model.md` | Threat-model pointer (no implementation) |

@@ -7,7 +7,7 @@
 
 ## Purpose
 
-The current root README is comprehensive but has grown to **1354 lines**. New visitors — both humans and AI agents — need 3–5 seconds to understand what the repo does, who it's for, and how to install the piece they want. This file lists concrete, prioritised improvements I can apply on request.
+The current root README is comprehensive but has grown to **1354 lines**. New visitors — both humans and AI agents — need 3–5 seconds to understand what the repo does, who it's for, and how to install the piece they want. This file lists concrete, prioritized improvements I can apply on request.
 
 The two new GIFs (`coding-guidelines-walkthrough.gif`, `install-flow.gif`) and the **Bundle Installers** matrix were already added in v3.55.0. Everything below is what comes next.
 

@@ -13,7 +13,7 @@
 
 This specification defines the architecture, data structures, and operational contracts for GitMap's enhanced CI/CD pipeline model. Key features include:
 
-1. **Historical Success Baseline Algorithm**: Derives ETA approximations strictly from past successful workflow executions (`conclusion == "success"`), computing average run durations per pipeline segment while discarding distorted cancelled or fast-failing runs.
+1. **Historical Success Baseline Algorithm**: Derives ETA approximations strictly from past successful workflow executions (`conclusion == "success"`), computing average run durations per pipeline segment while discarding distorted canceled or fast-failing runs.
 2. **Dynamic Timeline & Timeout (`-t` / `--timeout` / `--timeline`)**: Eliminates manual interval guessing by automatically computing adaptive retry cadences and deadline budgets from the historical ETA.
 3. **Targeted CI/CD Error Extraction**: Automatically extracts and displays only relevant error lines and failure diagnostics during pipeline status inspection and wait-time tracking, stripping away passing step noise.
 
