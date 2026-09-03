@@ -137,10 +137,20 @@ func handleGlobalError(command string, err error) {
 	}
 
 	cliexit.Reportf(command, "execute", "", err)
-	if isAppErr && appErr != nil && appErr.Stack != "" {
+
+	if isAppErr && isPrintableStackTrace(appErr) {
 		fmt.Fprintf(os.Stderr, "Stack Trace:%s\n", appErr.Stack)
 	}
+
 	cliexit.HandleError(nil, 1)
+}
+
+func isPrintableStackTrace(appErr *apperror.AppError) bool {
+	if appErr == nil || appErr.Stack == "" {
+		return false
+	}
+
+	return appErr.Type != apperror.ErrorTypeValidation
 }
 
 func persistLastError(command string, err error) {

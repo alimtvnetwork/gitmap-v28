@@ -3,7 +3,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -12,22 +11,42 @@ import (
 )
 
 func handleMacroAdd(args []string) error {
-	if len(args) < 2 {
-		fmt.Fprintf(os.Stderr, "Usage: gitmap macro add <name> <command1> [command2...] [--desc <text>] [--tag <tag>]\n")
-		return apperror.NewSimple("macro name and at least one command required", "E5001")
+	if len(args) == 0 {
+		printMacroAddUsage()
+
+		return apperror.NewValidationError("macro name required")
 	}
+
 	name := args[0]
 	desc, tag, rawSteps := parseMacroAddFlags(args[1:])
 	steps := parseMacroStepsList(rawSteps)
-	if len(steps) == 0 {
-		return apperror.NewSimple("no executable steps provided for macro", "E5002")
+
+	steps, resolveErr := ensureMacroSteps(name, steps)
+	if resolveErr != nil {
+		return resolveErr
 	}
+
+	if len(steps) == 0 {
+		return nil
+	}
+
 	m := buildNewMacro(name, desc, tag, steps)
+
 	if err := macro.SaveMacro(&m); err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf("save macro %s", name))
 	}
+
 	printMacroCreatedSuccess(m)
+
 	return nil
+}
+
+func ensureMacroSteps(name string, steps []macro.MacroStep) ([]macro.MacroStep, error) {
+	if len(steps) > 0 {
+		return steps, nil
+	}
+
+	return resolveStepsInteractively(name)
 }
 
 func parseMacroAddFlags(args []string) (string, string, []string) {
@@ -109,5 +128,6 @@ func printMacroCreatedSuccess(m macro.Macro) {
 	for _, step := range m.Steps {
 		fmt.Printf("  %2d. %s\n", step.StepNum, step.CommandLine)
 	}
-	fmt.Printf("\nRun with: \033[1;96mgitmap macro run %s\033[0m\n\n", m.Name)
+
+	fmt.Printf("\nRun with: \033[1;96mgitmap macro run %s\033[0m (or \033[1;96mgitmap %s\033[0m)\n\n", m.Name, m.Name)
 }
