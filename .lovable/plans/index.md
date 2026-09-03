@@ -2,9 +2,13 @@
 
 ## Pending Plans
 
-- [ ] [28-error-management-audit.md](.lovable/plans/pending/28-error-management-audit.md) — Error Return Contract, outer handling, ExitCodeType enums, and specialized exit helpers.
+*(No pending plans. All tasks completed.)*
 
 ## Completed Plans
+
+- [x] [28-error-management-audit.md](.lovable/plans/completed/28-error-management-audit.md) — Error Return Contract, outer handling, ExitCodeType enums, and specialized exit helpers.
+- [x] [29-booleans-and-complex-conditions-audit.md](.lovable/plans/completed/29-booleans-and-complex-conditions-audit.md) — Boolean principles, affirmative naming, implicit evaluation, and mixed polarity elimination.
+- [x] [30-naming-conventions-audit.md](.lovable/plans/completed/30-naming-conventions-audit.md) — Variable & boolean naming conventions, anti-ok refactoring, and positive framing guard clauses.
 
 - [x] [01-coding-guidelines-and-boolean-refactoring.md](.lovable/plans/completed/01-coding-guidelines-and-boolean-refactoring.md) — Repository-wide coding standards, affirmative boolean prefixes, conditional flattening, and universal file hygiene.
 - [x] [02-error-management-and-exit-architecture.md](.lovable/plans/completed/02-error-management-and-exit-architecture.md) — Centralized application error handling, AppError wrappers, cliexit handlers, and CI error linter.

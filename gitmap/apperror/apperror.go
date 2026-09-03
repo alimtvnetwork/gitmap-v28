@@ -84,9 +84,9 @@ func (e *AppError) WithContext(key string, val any) *AppError {
 }
 
 func captureCaller(skip int) string {
-	_, file, line, ok := runtime.Caller(skip)
+	_, file, line, isCallerAvailable := runtime.Caller(skip)
 
-	if !ok {
+	if !isCallerAvailable {
 		return ""
 	}
 

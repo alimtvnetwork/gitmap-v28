@@ -15,7 +15,6 @@ type IPResolver struct {
 }
 
 func (r *IPResolver) FetchLocalIP(ctx context.Context) (string, error) {
-	// Prepare cross-platform implementation structure
 	return "", &apperror.AppError{
 		Op:    "IPResolver.FetchLocalIP",
 		Code:  "E_INTERNAL_ERROR",
@@ -24,61 +23,92 @@ func (r *IPResolver) FetchLocalIP(ctx context.Context) (string, error) {
 	}
 }
 
-func GetLocalIP(ctx context.Context, skipLoopback bool, ifaceName string) (string, error) {
+func GetLocalIP(ctx context.Context, isSkipLoopback bool, ifaceName string) (string, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		return "", &apperror.AppError{
-			Op:    "GetLocalIP",
-			Code:  "E_INTERNAL_ERROR",
-			Cause: err,
-			Ctx:   map[string]any{"ifaceName": ifaceName},
-		}
+		return "", newLocalIPError("GetLocalIP", err, ifaceName)
 	}
 
-	for _, iface := range ifaces {
-		if ifaceName != "" && iface.Name != ifaceName {
-			continue
-		}
-
-		if skipLoopback && (iface.Flags&net.FlagLoopback != 0) {
-			continue
-		}
-
-		if iface.Flags&net.FlagUp == 0 {
-			continue
-		}
-
-		addrs, err := iface.Addrs()
-		if err != nil {
-			continue
-		}
-
-		for _, addr := range addrs {
-			var ip net.IP
-			switch v := addr.(type) {
-			case *net.IPNet:
-				ip = v.IP
-			case *net.IPAddr:
-				ip = v.IP
-			}
-
-			if ip == nil || (ip.IsLoopback() && skipLoopback) {
-				continue
-			}
-
-			ip = ip.To4()
-			if ip == nil {
-				continue
-			}
-
-			return ip.String(), nil
-		}
+	ipStr := findMatchingInterfaceIP(ifaces, ifaceName, isSkipLoopback)
+	if ipStr != "" {
+		return ipStr, nil
 	}
 
-	return "", &apperror.AppError{
-		Op:    "GetLocalIP",
+	return "", newLocalIPError("GetLocalIP", fmt.Errorf("no suitable IP found"), ifaceName)
+}
+
+func newLocalIPError(op string, cause error, ifaceName string) *apperror.AppError {
+	return &apperror.AppError{
+		Op:    op,
 		Code:  "E_INTERNAL_ERROR",
-		Cause: fmt.Errorf("no suitable IP found"),
+		Cause: cause,
 		Ctx:   map[string]any{"ifaceName": ifaceName},
+	}
+}
+
+func findMatchingInterfaceIP(ifaces []net.Interface, ifaceName string, isSkipLoopback bool) string {
+	for _, iface := range ifaces {
+		if !isInterfaceEligible(iface, ifaceName, isSkipLoopback) {
+			continue
+		}
+
+		ipStr := extractIPFromInterface(iface, isSkipLoopback)
+		if ipStr != "" {
+			return ipStr
+		}
+	}
+
+	return ""
+}
+
+func isInterfaceEligible(iface net.Interface, ifaceName string, isSkipLoopback bool) bool {
+	if ifaceName != "" && iface.Name != ifaceName {
+		return false
+	}
+
+	if isSkipLoopback && (iface.Flags&net.FlagLoopback != 0) {
+		return false
+	}
+
+	return iface.Flags&net.FlagUp != 0
+}
+
+func extractIPFromInterface(iface net.Interface, isSkipLoopback bool) string {
+	addrs, err := iface.Addrs()
+	if err != nil {
+		return ""
+	}
+
+	for _, addr := range addrs {
+		ip := resolveIPv4FromAddr(addr, isSkipLoopback)
+		if ip != nil {
+			return ip.String()
+		}
+	}
+
+	return ""
+}
+
+func resolveIPv4FromAddr(addr net.Addr, isSkipLoopback bool) net.IP {
+	ip := extractRawIP(addr)
+	if ip == nil {
+		return nil
+	}
+
+	if isSkipLoopback && ip.IsLoopback() {
+		return nil
+	}
+
+	return ip.To4()
+}
+
+func extractRawIP(addr net.Addr) net.IP {
+	switch v := addr.(type) {
+	case *net.IPNet:
+		return v.IP
+	case *net.IPAddr:
+		return v.IP
+	default:
+		return nil
 	}
 }

@@ -83,10 +83,12 @@ func formatRelativeTime(rfc3339Str string) string {
 	if rfc3339Str == "" {
 		return "—"
 	}
-	t, ok := parseTimestampString(rfc3339Str)
-	if !ok {
+
+	t, isTimestampValid := parseTimestampString(rfc3339Str)
+	if !isTimestampValid {
 		return "—"
 	}
+
 	return formatTimeDuration(time.Since(t), t)
 }
 

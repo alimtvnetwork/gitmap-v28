@@ -28,6 +28,7 @@ JOB_BATCHES: list[dict[str, list[str]]] = [
         "Spell Check (misspell)": [sys.executable, ".github/scripts/misspell-changed.py"],
         "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
         "Boolean & Enum Linter": [sys.executable, "linter-scripts/check-enum-and-boolean.py"],
+        "Boolean Guidelines Linter": [sys.executable, "linter-scripts/check-boolean-guidelines.py"],
         "Error Management Check": [sys.executable, "linter-scripts/check-error-management.py"],
         "Relative Path Check": [sys.executable, "linter-scripts/check-relative-paths.py"],
         "Newline Styling Check": [sys.executable, "linter-scripts/check-newline-styling.py"],
