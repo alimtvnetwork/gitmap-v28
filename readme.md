@@ -28,7 +28,7 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 <div align="center">
 
-📖 **[Full Command & Subcommand Reference Guide (COMMANDS.md)](./COMMANDS.md)** · 📚 **[Command Reference](#command-reference)** · 🚀 **[Install](#-install)**
+📖 **[Full Command & Subcommand Directory (docs/commands/)](./docs/commands/readme.md)** · 📚 **[Command Reference](#command-reference)** · 🚀 **[Install](#-install)**
 
 </div>
 
@@ -606,7 +606,7 @@ gitmap help --json --filter ssh   # compose: scope JSON to matching rows
 
 ## Command Reference
 
-> 📖 **Exhaustive Subcommand Manual:** For a complete, dedicated breakdown of all 100+ commands, subcommands, flags, and operational workflows, see the dedicated [**Command & Subcommand Guide (COMMANDS.md)**](./COMMANDS.md).
+> 📖 **Exhaustive Subcommand Manual:** For a complete, dedicated breakdown of all commands, subcommands, flags, and operational workflows categorized by area, see the dedicated [**Command & Subcommand Directory (docs/commands/)**](./docs/commands/readme.md).
 
 <div align="center">
 
