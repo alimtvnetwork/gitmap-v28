@@ -12,6 +12,7 @@ func (m *Manager) resolveImportConflict(slug string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("resolveImportConflict", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(slug) == "" {
 		return apperror.New("resolveImportConflict", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug cannot be empty"})
 	}
@@ -22,5 +23,6 @@ func (m *Manager) resolveImportConflict(slug string) error {
 	}
 
 	_ = existing
+
 	return nil
 }

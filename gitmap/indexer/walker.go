@@ -94,6 +94,7 @@ func (w *Walker) Walk(ctx context.Context, workers int) error {
 	})
 
 	close(fileChan)
+
 	return err
 }
 
@@ -102,9 +103,11 @@ func (w *Walker) handleDirSkip(d fs.DirEntry, path string) error {
 	if name == ".git" || name == "node_modules" {
 		return filepath.SkipDir
 	}
+
 	if !w.ForceDot && strings.HasPrefix(name, ".") && path != w.RepoPath {
 		return filepath.SkipDir
 	}
+
 	return nil
 }
 
@@ -137,5 +140,6 @@ func readFileContentString(path string) string {
 	if err != nil {
 		return ""
 	}
+
 	return string(b)
 }

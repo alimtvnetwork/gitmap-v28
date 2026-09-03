@@ -16,7 +16,9 @@ func RunIgnore(args []string) error {
 	if len(args) < 1 {
 		return apperror.NewSimple("RunIgnore", "E_IGNORE_MISSING_PATTERN")
 	}
+
 	pattern := args[0]
+
 	return addToGitignore(pattern)
 }
 
@@ -25,6 +27,7 @@ func RunIgnoreRm(args []string) error {
 	if len(args) < 1 {
 		return apperror.NewSimple("RunIgnoreRm", "E_IGNORERM_MISSING_PATTERN")
 	}
+
 	pattern := args[0]
 
 	pterm.Info.Printf("Removing '%s' from git history...\n", pattern)
@@ -53,6 +56,7 @@ func addToGitignore(pattern string) error {
 	b, err := os.ReadFile(".gitignore")
 	if err == nil && containsGitignorePattern(string(b), pattern) {
 		pterm.Info.Printf("Pattern '%s' already in .gitignore\n", pattern)
+
 		return nil
 	}
 
@@ -60,7 +64,9 @@ func addToGitignore(pattern string) error {
 	if err := os.WriteFile(".gitignore", []byte(content), 0644); err != nil {
 		return apperror.WrapSimple(err, "addToGitignore: failed to write file")
 	}
+
 	pterm.Success.Printf("Added '%s' to .gitignore\n", pattern)
+
 	return nil
 }
 
@@ -71,6 +77,7 @@ func containsGitignorePattern(content, pattern string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -78,5 +85,6 @@ func formatGitignoreContent(content, pattern string) string {
 	if len(content) > 0 && !strings.HasSuffix(content, "\n") {
 		content += "\n"
 	}
+
 	return content + pattern + "\n"
 }

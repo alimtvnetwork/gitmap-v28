@@ -44,6 +44,7 @@ func FindFile(
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var results []FileFindResult
@@ -79,6 +80,7 @@ func FindFileRegex(
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var results []FileFindResult
@@ -86,10 +88,12 @@ func FindFileRegex(
 		if limit > 0 && len(results) >= limit {
 			break
 		}
+
 		var r FileFindResult
 		if err := rows.Scan(&r.RelativePath, &r.AbsolutePath); err != nil {
 			continue
 		}
+
 		if lz.Re().MatchString(r.RelativePath) {
 			results = append(results, r)
 		}
@@ -113,14 +117,17 @@ func getCachedFindResults(
 	if err != nil || cached == "" {
 		return nil, false
 	}
+
 	var res []FileFindResult
 	if err := json.Unmarshal([]byte(cached), &res); err != nil {
 		return nil, false
 	}
+
 	db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", key)
 	if limit > 0 && len(res) > limit {
 		res = res[:limit]
 	}
+
 	return res, true
 }
 
@@ -133,6 +140,7 @@ func castFileFindResults(in []FileFindResult) []SearchResult {
 			FilePath:     i.AbsolutePath,
 		})
 	}
+
 	return out
 }
 
@@ -199,5 +207,6 @@ func maybeGetCachedFindResults(
 	if !useCache {
 		return nil, false
 	}
+
 	return getCachedFindResults(ctx, db, cacheKey, limit)
 }

@@ -12,6 +12,7 @@ func (m *Manager) Execute(slug, osTarget string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("Execute", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(slug) == "" {
 		return apperror.New("Execute", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug cannot be empty"})
 	}
@@ -31,5 +32,6 @@ func (m *Manager) Execute(slug, osTarget string) error {
 
 	instructions := ParseInstructions(script.Instructions)
 	_ = instructions
+
 	return nil
 }

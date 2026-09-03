@@ -18,5 +18,6 @@ func NewManager(db *store.DB) (*Manager, error) {
 			"error": "db cannot be nil",
 		})
 	}
+
 	return &Manager{db: db}, nil
 }

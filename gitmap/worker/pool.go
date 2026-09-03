@@ -25,6 +25,7 @@ func NewPool[T any, R any](workerCount int, taskFunc TaskFunc[T, R]) *Pool[T, R]
 	if workerCount <= 0 {
 		workerCount = 1
 	}
+
 	return &Pool[T, R]{
 		workerCount: workerCount,
 		taskFunc:    taskFunc,
@@ -50,6 +51,7 @@ func (p *Pool[T, R]) Run(ctx context.Context, inputs <-chan T) <-chan Result[R] 
 					if !ok {
 						return
 					}
+
 					res, err := p.taskFunc(ctx, input)
 					select {
 					case <-ctx.Done():

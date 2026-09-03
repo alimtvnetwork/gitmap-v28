@@ -13,6 +13,7 @@ func ParseArgs(args []string) (Options, error) {
 		Format:    FormatTree,
 		Filter:    FilterConfig{},
 	}
+
 	var nonFlags []string
 
 	for i := 0; i < len(args); i++ {
@@ -44,6 +45,7 @@ func ParseArgs(args []string) (Options, error) {
 			if val, errParse := strconv.Atoi(args[i+1]); errParse == nil {
 				opts.Filter.MaxDepth = val
 			}
+
 			i++
 		case (arg == "-o" || arg == "--out") && i+1 < len(args):
 			opts.OutFile = args[i+1]
@@ -60,10 +62,12 @@ func resolveNonFlags(opts Options, nonFlags []string) (Options, error) {
 	if len(nonFlags) > 0 {
 		opts.TargetDir = nonFlags[0]
 	}
+
 	if len(nonFlags) > 1 {
 		opts.OutFile = nonFlags[1]
 		opts.Format = deduceFormatFromExt(opts.OutFile, opts.Format)
 	}
+
 	return opts, nil
 }
 

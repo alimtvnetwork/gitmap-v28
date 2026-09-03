@@ -20,6 +20,7 @@ func TestManagerStruct(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open store: %v", err)
 	}
+
 	defer db.Close()
 
 	mgr, errNew := NewManager(db)

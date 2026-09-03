@@ -17,6 +17,7 @@ func TestFormatTable(t *testing.T) {
 	items := []model.InstallerScript{
 		{Name: "Tool A", Slug: "tool-a", TargetOS: "all", Version: "v1.0.0", Description: "Desc A"},
 	}
+
 	table := FormatInstallerTable(items)
 	if !strings.Contains(table, "Tool A") || !strings.Contains(table, "tool-a") {
 		t.Errorf("table missing items: %s", table)

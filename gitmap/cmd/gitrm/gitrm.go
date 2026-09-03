@@ -19,11 +19,13 @@ func Run(args []string) error {
 	if len(args) < 1 {
 		return apperror.NewSimple("GitRmRun", "E_GITRM_MISSING_INPUT")
 	}
+
 	input := args[0]
 	paths, err := parseInput(input)
 	if err != nil {
 		return apperror.WrapSimple(err, "git-rm: failed to parse input")
 	}
+
 	if len(paths) == 0 {
 		return apperror.NewSimple("GitRmRun", "E_GITRM_NO_PATHS")
 	}
@@ -33,6 +35,7 @@ func Run(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "git-rm: failed to create backup directory")
 	}
+
 	for _, p := range paths {
 		backupFile(p, backupDir)
 	}
@@ -45,14 +48,17 @@ func parseInput(input string) ([]string, error) {
 	if isExistingFile(input) {
 		return parseFileInput(input)
 	}
+
 	if strings.Contains(input, ",") {
 		return strings.Split(input, ","), nil
 	}
+
 	return []string{input}, nil
 }
 
 func isExistingFile(path string) bool {
 	st, err := os.Stat(path)
+
 	return err == nil && !st.IsDir()
 }
 
@@ -66,9 +72,11 @@ func parseFileInput(input string) ([]string, error) {
 	if ext == ".json" {
 		return parseJSONPaths(b)
 	}
+
 	if ext == ".csv" {
 		return parseCSVPaths(b)
 	}
+
 	return parseTextLines(b), nil
 }
 
@@ -77,6 +85,7 @@ func parseJSONPaths(b []byte) ([]string, error) {
 	if err := json.Unmarshal(b, &paths); err != nil {
 		return nil, err
 	}
+
 	return paths, nil
 }
 
@@ -86,10 +95,12 @@ func parseCSVPaths(b []byte) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var paths []string
 	for _, rec := range records {
 		paths = append(paths, rec...)
 	}
+
 	return paths, nil
 }
 
@@ -102,6 +113,7 @@ func parseTextLines(b []byte) []string {
 			paths = append(paths, trimmed)
 		}
 	}
+
 	return paths
 }
 
@@ -110,10 +122,12 @@ func createBackupDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	cwd, _ := os.Getwd()
 	repoName := filepath.Base(cwd)
 	bd := filepath.Join(home, ".gitmap", "backups", "git-rm", repoName)
 	err = os.MkdirAll(bd, 0755)
+
 	return bd, err
 }
 
@@ -122,6 +136,7 @@ func backupFile(path, backupRoot string) {
 	if err != nil {
 		return // Ignore missing files in working tree
 	}
+
 	dest := filepath.Join(backupRoot, path)
 	os.MkdirAll(filepath.Dir(dest), 0755)
 	os.WriteFile(dest, b, 0644)
@@ -133,6 +148,7 @@ func rewriteHistory(paths []string) error {
 	for _, p := range paths {
 		quoted = append(quoted, fmt.Sprintf("'%s'", p))
 	}
+
 	filesStr := strings.Join(quoted, " ")
 	filterCmd := fmt.Sprintf("git rm --cached --ignore-unmatch %s", filesStr)
 
@@ -150,5 +166,6 @@ func rewriteHistory(paths []string) error {
 	exec.Command("git", "gc", "--prune=now", "--aggressive").Run()
 
 	pterm.Success.Println("Git history successfully rewritten.")
+
 	return nil
 }

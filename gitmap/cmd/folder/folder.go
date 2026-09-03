@@ -84,6 +84,7 @@ func ScanDirectory(root string, filter FilterConfig) ([]*FileMeta, error) {
 		if filter.IsMetaAllowed(meta) {
 			results = append(results, meta)
 		}
+
 		return nil
 	})
 
@@ -94,9 +95,11 @@ func handleDirSkip(rel string, filter FilterConfig) error {
 	if rel != "." && filter.IsPathExcluded(rel, true) {
 		return fs.SkipDir
 	}
+
 	if filter.MaxDepth > 0 && calculateDepth(rel) > filter.MaxDepth {
 		return fs.SkipDir
 	}
+
 	return nil
 }
 
@@ -105,6 +108,7 @@ func calculateDepth(rel string) int {
 	if norm == "." || norm == "" {
 		return 0
 	}
+
 	return strings.Count(norm, "/") + 1
 }
 
@@ -118,20 +122,25 @@ func RenderOutput(opts Options, files []*FileMeta) (string, error) {
 	switch opts.Format {
 	case FormatTree:
 		treeRoot := BuildTree(rootName, files)
+
 		return RenderTree(treeRoot, opts.IsDetailed), nil
 	case FormatMd:
 		treeRoot := BuildTree(rootName, files)
+
 		return RenderMarkdown(treeRoot, opts.IsDetailed), nil
 	case FormatJson:
 		report := BuildReport(opts.TargetDir, files)
+
 		return RenderJson(report)
 	case FormatYaml:
 		report := BuildReport(opts.TargetDir, files)
+
 		return RenderYaml(report)
 	case FormatFlat:
 		return RenderFlat(files, opts.IsDetailed), nil
 	default:
 		treeRoot := BuildTree(rootName, files)
+
 		return RenderTree(treeRoot, opts.IsDetailed), nil
 	}
 }
@@ -140,6 +149,8 @@ func writeOrPrintOutput(content, outFile string) error {
 	if outFile != "" {
 		return os.WriteFile(outFile, []byte(content), 0644)
 	}
+
 	fmt.Print(content)
+
 	return nil
 }

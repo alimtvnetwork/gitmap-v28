@@ -61,7 +61,9 @@ func extractSequence(fname string) int {
 	if len(matches) < 2 {
 		return 0
 	}
+
 	seq, _ := strconv.Atoi(matches[1])
+
 	return seq
 }
 
@@ -69,10 +71,12 @@ func inspectContent(absPath string, size int64) (bool, int) {
 	if size == 0 {
 		return false, 0
 	}
+
 	f, err := os.Open(absPath)
 	if err != nil {
 		return false, 0
 	}
+
 	defer f.Close()
 
 	buf := make([]byte, 512)
@@ -83,6 +87,7 @@ func inspectContent(absPath string, size int64) (bool, int) {
 
 	_, _ = f.Seek(0, 0)
 	loc := countLines(f)
+
 	return false, loc
 }
 
@@ -97,6 +102,7 @@ func countLines(r io.Reader) int {
 			break
 		}
 	}
+
 	return count
 }
 
@@ -105,10 +111,12 @@ func formatBytes(b int64) string {
 	if b < unit {
 		return fmt.Sprintf("%d B", b)
 	}
+
 	div, exp := int64(unit), 0
 	for n := b / unit; n >= unit; n /= unit {
 		div *= unit
 		exp++
 	}
+
 	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
 }

@@ -24,5 +24,6 @@ func RunWindowsPromptInstaller(targetDir string, timeout time.Duration) error {
 	cmd.Dir = targetDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
 	return cmd.Run()
 }

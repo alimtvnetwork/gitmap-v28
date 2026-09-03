@@ -29,6 +29,7 @@ func BuildTree(rootName string, files []*FileMeta) *TreeNode {
 	for _, f := range files {
 		insertNode(root, f)
 	}
+
 	return root
 }
 
@@ -43,6 +44,7 @@ func insertNode(root *TreeNode, meta *FileMeta) {
 		if _, exists := curr.Children[p]; !exists {
 			curr.Children[p] = NewTreeNode(p, true)
 		}
+
 		curr = curr.Children[p]
 	}
 
@@ -57,6 +59,7 @@ func RenderTree(root *TreeNode, isDetailed bool) string {
 	var sb strings.Builder
 	sb.WriteString(root.Name + "/\n")
 	renderTreeLevel(root, "", &sb, isDetailed)
+
 	return sb.String()
 }
 
@@ -87,19 +90,24 @@ func formatMetaSuffix(meta *FileMeta, isDetailed bool) string {
 	if !isDetailed || meta == nil {
 		return ""
 	}
+
 	var parts []string
 	if meta.Sequence > 0 {
 		parts = append(parts, fmt.Sprintf("seq: %02d", meta.Sequence))
 	}
+
 	if !meta.IsBinary && meta.LinesOfCode > 0 {
 		parts = append(parts, fmt.Sprintf("%d lines", meta.LinesOfCode))
 	}
+
 	if meta.SizeFormatted != "" {
 		parts = append(parts, meta.SizeFormatted)
 	}
+
 	if len(parts) == 0 {
 		return ""
 	}
+
 	return " (" + strings.Join(parts, ", ") + ")"
 }
 

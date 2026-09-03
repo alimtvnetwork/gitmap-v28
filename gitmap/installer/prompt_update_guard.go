@@ -13,10 +13,12 @@ func HasExistingPrompts(targetDir string) bool {
 		filepath.Join(targetDir, "prompts"),
 		filepath.Join(targetDir, ".prompt-architect"),
 	}
+
 	for _, c := range candidates {
 		if info, err := os.Stat(c); err == nil && info.IsDir() {
 			return true
 		}
 	}
+
 	return false
 }

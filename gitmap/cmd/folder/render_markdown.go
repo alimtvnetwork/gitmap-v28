@@ -10,6 +10,7 @@ func RenderMarkdown(root *TreeNode, isDetailed bool) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("- %s/\n", root.Name))
 	renderMarkdownLevel(root, "  ", &sb, isDetailed)
+
 	return sb.String()
 }
 
@@ -30,18 +31,23 @@ func formatMarkdownMeta(meta *FileMeta, isDetailed bool) string {
 	if !isDetailed || meta == nil {
 		return ""
 	}
+
 	var parts []string
 	if meta.Sequence > 0 {
 		parts = append(parts, fmt.Sprintf("seq: %02d", meta.Sequence))
 	}
+
 	if !meta.IsBinary && meta.LinesOfCode > 0 {
 		parts = append(parts, fmt.Sprintf("%d lines", meta.LinesOfCode))
 	}
+
 	if meta.SizeFormatted != "" {
 		parts = append(parts, meta.SizeFormatted)
 	}
+
 	if len(parts) == 0 {
 		return ""
 	}
+
 	return " (" + strings.Join(parts, ", ") + ")"
 }

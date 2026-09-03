@@ -26,6 +26,7 @@ func SearchRepoDB(
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var allResults []SearchResult
@@ -34,6 +35,7 @@ func SearchRepoDB(
 		if err := rows.Scan(&rel, &abs, &content); err != nil {
 			continue
 		}
+
 		fileResults := SearchExact(content, query, abs, rel)
 		allResults = append(allResults, fileResults...)
 	}
@@ -46,6 +48,7 @@ func SearchRepoDB(
 	if limit > 0 && len(allResults) > limit {
 		allResults = allResults[:limit]
 	}
+
 	return allResults, nil
 }
 
@@ -68,6 +71,7 @@ func SearchRepoDBRegex(
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var allResults []SearchResult
@@ -76,6 +80,7 @@ func SearchRepoDBRegex(
 		if err := rows.Scan(&rel, &abs, &content); err != nil {
 			continue
 		}
+
 		fileResults := SearchRegex(content, lz, abs, rel)
 		allResults = append(allResults, fileResults...)
 	}
@@ -87,6 +92,7 @@ func SearchRepoDBRegex(
 	if limit > 0 && len(allResults) > limit {
 		allResults = allResults[:limit]
 	}
+
 	return allResults, nil
 }
 
@@ -116,14 +122,17 @@ func getCachedSearchResults(
 	if err != nil || cachedJson == "" {
 		return nil, false
 	}
+
 	var res []SearchResult
 	if err := json.Unmarshal([]byte(cachedJson), &res); err != nil {
 		return nil, false
 	}
+
 	db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", query)
 	if limit > 0 && len(res) > limit {
 		res = res[:limit]
 	}
+
 	return res, true
 }
 
@@ -137,5 +146,6 @@ func maybeGetCachedSearchResults(
 	if !useCache {
 		return nil, false
 	}
+
 	return getCachedSearchResults(ctx, db, query, limit)
 }

@@ -30,6 +30,7 @@ func addWindowsUser(username, password string) error {
 	if err != nil {
 		return fmt.Errorf("windows user add failed: %w\nOutput: %s", err, out)
 	}
+
 	return nil
 }
 
@@ -39,9 +40,11 @@ func addLinuxUser(username, password string) error {
 	if err != nil {
 		return fmt.Errorf("linux useradd failed: %w\nOutput: %s", err, out)
 	}
+
 	if password != "" {
 		return setLinuxUserPassword(username, password)
 	}
+
 	return nil
 }
 
@@ -51,16 +54,20 @@ func setLinuxUserPassword(username, password string) error {
 	if err != nil {
 		return fmt.Errorf("failed to pipe chpasswd: %w", err)
 	}
+
 	if err := chCmd.Start(); err != nil {
 		return fmt.Errorf("failed to start chpasswd: %w", err)
 	}
+
 	if _, err := fmt.Fprintf(stdin, "%s:%s", username, password); err != nil {
 		return fmt.Errorf("failed to write to chpasswd: %w", err)
 	}
+
 	stdin.Close()
 	if err := chCmd.Wait(); err != nil {
 		return fmt.Errorf("chpasswd failed: %w", err)
 	}
+
 	return nil
 }
 

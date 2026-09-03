@@ -20,6 +20,7 @@ func TestAppendSSHHelp(t *testing.T) {
 	if !strings.Contains(output, "gitmap ssh m1") {
 		t.Errorf("expected output to contain 'gitmap ssh m1', got %s", output)
 	}
+
 	if !strings.Contains(output, "Alias Resolution") {
 		t.Errorf("expected output to contain 'Alias Resolution', got %s", output)
 	}

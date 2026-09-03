@@ -25,5 +25,6 @@ If an alias is registered (e.g. via 'gitmap ssh <ip> as <alias>'), it will resol
 	if err != nil {
 		return apperror.NewSimple("appendSSHHelp", "E_INTERNAL_ERROR")
 	}
+
 	return nil
 }

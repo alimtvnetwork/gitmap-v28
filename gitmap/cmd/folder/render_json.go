@@ -26,6 +26,7 @@ func BuildReport(root string, files []*FileMeta) *FolderReport {
 		totalLines += f.LinesOfCode
 		totalBytes += f.SizeBytes
 	}
+
 	return &FolderReport{
 		Root:               root,
 		TotalFiles:         len(files),
@@ -42,6 +43,7 @@ func RenderJson(report *FolderReport) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(b), nil
 }
 
@@ -51,6 +53,7 @@ func RenderYaml(report *FolderReport) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(b), nil
 }
 
@@ -65,5 +68,6 @@ func RenderFlat(files []*FileMeta, isDetailed bool) string {
 			sb.WriteString(f.Path + "\n")
 		}
 	}
+
 	return sb.String()
 }

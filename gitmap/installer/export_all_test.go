@@ -18,12 +18,14 @@ func TestExportAllToZip(t *testing.T) {
 		TargetOS: "all",
 		Version:  "v1.0.0",
 	}
+
 	script2 := &model.InstallerScript{
 		Name:     "App 2",
 		Slug:     "app-2",
 		TargetOS: "win",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script1)
 	db.CreateInstaller(script2)
 

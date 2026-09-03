@@ -17,12 +17,14 @@ func TestManagerUpdate(t *testing.T) {
 		TargetOS: "win",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	updated, errUpdate := mgr.Update("update-test", "ubuntu")
 	if errUpdate != nil {
 		t.Fatalf("Update failed: %v", errUpdate)
 	}
+
 	if updated.Version != "v1.0.1" || updated.TargetOS != "ubuntu" {
 		t.Errorf("unexpected updated version: %+v", updated)
 	}

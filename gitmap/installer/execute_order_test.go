@@ -19,6 +19,7 @@ func TestExecuteOrder(t *testing.T) {
 		OrderMode: constants.OrderUnixFirst,
 		Version:   "v1.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	ctx := context.Background()

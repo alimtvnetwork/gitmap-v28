@@ -18,6 +18,7 @@ func slugify(name string) string {
 			b.WriteRune('-')
 		}
 	}
+
 	return strings.Trim(b.String(), "-")
 }
 
@@ -26,6 +27,7 @@ func (m *Manager) Create(name, desc string) (*model.InstallerScript, error) {
 	if m == nil || m.db == nil {
 		return nil, apperror.New("Create", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(name) == "" {
 		return nil, apperror.New("Create", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "name cannot be empty"})
 	}
@@ -42,5 +44,6 @@ func (m *Manager) Create(name, desc string) (*model.InstallerScript, error) {
 	if err := m.db.CreateInstaller(script); err != nil {
 		return nil, err
 	}
+
 	return script, nil
 }

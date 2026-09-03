@@ -16,6 +16,7 @@ func TestManagerDelete(t *testing.T) {
 		TargetOS: "all",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	if err := mgr.Delete("delete-app"); err != nil {

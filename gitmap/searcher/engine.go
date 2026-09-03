@@ -33,6 +33,7 @@ func SearchExact(content, query, absPath, relPath string) []SearchResult {
 
 		offset = end
 	}
+
 	return results
 }
 
@@ -54,5 +55,6 @@ func SearchRegex(content string, lz *lazyregex.LazyRegexp, absPath, relPath stri
 			})
 		}
 	}
+
 	return results
 }

@@ -18,6 +18,7 @@ func (m *Manager) ExportToGitFolder(slug, folderPath, filename, commitMsg string
 	if m == nil || m.db == nil {
 		return apperror.New("ExportToGitFolder", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(folderPath) == "" {
 		return apperror.New("ExportToGitFolder", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "folderPath is required"})
 	}
@@ -62,10 +63,12 @@ func (m *Manager) resolveExportScripts(slug string) ([]model.InstallerScript, er
 	if slug == "" {
 		return m.db.ListInstallers()
 	}
+
 	s, err := m.db.GetInstallerBySlug(slug)
 	if err != nil {
 		return nil, err
 	}
+
 	return []model.InstallerScript{*s}, nil
 }
 
@@ -73,8 +76,10 @@ func resolveExportTargetFilename(filename, slug string) string {
 	if filename != "" {
 		return filename
 	}
+
 	if slug != "" {
 		return fmt.Sprintf("%s.json", slug)
 	}
+
 	return "gitmap-installers.json"
 }

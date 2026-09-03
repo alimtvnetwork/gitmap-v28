@@ -30,6 +30,7 @@ func (m *Manager) ExportGlobalState(targetPath string) error {
 	if errCreate != nil {
 		return errCreate
 	}
+
 	defer f.Close()
 
 	zw := zip.NewWriter(f)
@@ -45,10 +46,12 @@ func (m *Manager) ExportGlobalState(targetPath string) error {
 		if errMarshal != nil {
 			return errMarshal
 		}
+
 		w, errZip := zw.Create(fmt.Sprintf("installers/%s.json", s.Slug))
 		if errZip != nil {
 			return errZip
 		}
+
 		if _, errWrite := w.Write(data); errWrite != nil {
 			return errWrite
 		}

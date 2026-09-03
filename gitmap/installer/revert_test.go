@@ -17,6 +17,7 @@ func TestManagerUndo(t *testing.T) {
 		TargetOS: "win",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	if errUndo := mgr.Undo("undo-test"); errUndo != nil {

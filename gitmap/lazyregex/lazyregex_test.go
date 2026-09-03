@@ -65,6 +65,7 @@ func TestLazyRegexp_Wrappers(t *testing.T) {
 	if !lr.MatchString("Hello World") {
 		t.Errorf("expected MatchString to return true")
 	}
+
 	if lr.MatchString("Goodbye") {
 		t.Errorf("expected MatchString to return false")
 	}

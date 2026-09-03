@@ -32,6 +32,7 @@ func DetectHostOS() DetailedOSInfo {
 			PackageManager: "brew",
 		}
 	default: // linux / unix
+
 		return detectLinuxDistro()
 	}
 }

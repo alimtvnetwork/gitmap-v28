@@ -16,5 +16,6 @@ func PrintComposerExample() string {
 	b.WriteString("  \"version\": \"v2.7.0\",\n")
 	b.WriteString("  \"instructions\": \"php -r \\\"copy('https://getcomposer.org/installer', 'composer-setup.php');\\\"\"\n")
 	b.WriteString("}\n")
+
 	return b.String()
 }

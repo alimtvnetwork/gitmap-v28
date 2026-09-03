@@ -1,80 +1,148 @@
 #!/usr/bin/env python3
+"""Auto-generated CI/CD local runner with concurrent worker pool and log aggregation.
+Do not edit manually. Re-generate by running:
+python 03-ai-scripts/06-cicd-local-runner.py --rebuild
 """
-Fast Multi-Threaded Local CI/CD Runner
-Executes repository quality gates in parallel using ThreadPoolExecutor and enforces zero-failure tolerance.
-
-All Enums, Constants, and Utility Functions are imported directly from 02-shared-engine.py.
-"""
-
-from concurrent.futures import ThreadPoolExecutor
-from importlib import import_module
-from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
+import shutil
 import subprocess
 import sys
+import time
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-sys.path.insert(0, str(Path(__file__).parent))
-engine = import_module("02-shared-engine")
+# ── Configurable Variables ──────────────────────────────────────────────────
+BATCH_SIZE      = 3    # Number of jobs to run concurrently (round-robin worker pool)
+JOB_TIMEOUT_SEC = 300  # Maximum seconds before a single job is timed out
 
-ExitCodeType = engine.ExitCodeType
-DEFAULT_ENCODING = engine.DEFAULT_ENCODING
-LINE_SEPARATOR = engine.LINE_SEPARATOR
-DEFAULT_MAX_WORKERS = engine.DEFAULT_MAX_WORKERS
-CI_JOBS_MATRIX = engine.CI_JOBS_MATRIX
-format_keys = engine.format_keys
+# ── Environment Configuration ───────────────────────────────────────────────
+os.environ.setdefault("CI", "true")
+os.environ.setdefault("NODE_ENV", "test")
 
-def execute_ci_job(job_name: str, command: list[str]) -> tuple[str, bool, str]:
-    """Executes a single validation check asynchronously."""
+# ── Job Definitions (extracted from CI/CD workflow steps) ───────────────────
+JOBS = {
+    "Spell Check (misspell)": [sys.executable, ".github/scripts/misspell-changed.py"],
+    "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
+    "Boolean & Enum Linter": [sys.executable, "linter-scripts/check-enum-and-boolean.py"],
+    "Error Management Check": [sys.executable, "linter-scripts/check-error-management.py"],
+    "Relative Path Check": [sys.executable, "linter-scripts/check-relative-paths.py"],
+    "Newline Styling Check": [sys.executable, "linter-scripts/check-newline-styling.py"],
+    "CLI Help Parity Check": [sys.executable, "03-ai-scripts/09-cli-help-auditor.py"],
+    "Constants Registry AST Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdRegistryMatchesAST", "-count=1"],
+    "Constants Collision Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdConstantsAreUnique", "-count=1"],
+    "Helptext Parity Check": ["go", "test", "-C", "gitmap", "./helptext/...", "-count=1"],
+    "Go Compile Gate": ["go", "build", "-C", "gitmap", "-o", "../bin/gitmap.exe", "."],
+    "E2E Smoke Suite": [sys.executable, ".github/scripts/e2e-cli-smoke.py", "bin/gitmap.exe"],
+    "Web App Build": ["npm", "run", "build"],
+}
+
+def run_job(name: str, cmd: list[str]) -> tuple[str, list[str], int | str, str, str, float]:
+    start = time.monotonic()
+    resolved_cmd = list(cmd)
+    binary_path = shutil.which(cmd[0])
+
+    if binary_path is not None:
+        resolved_cmd[0] = binary_path
+
     try:
-        res = subprocess.run(command, capture_output=True, text=True, encoding=DEFAULT_ENCODING, errors="replace")
-        is_success = (res.returncode == 0)
-        if is_success:
-            return (job_name, True, res.stdout)
+        result = subprocess.run(
+            resolved_cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=JOB_TIMEOUT_SEC,
+        )
+        elapsed = round(time.monotonic() - start, 2)
 
-        return (job_name, False, res.stdout + LINE_SEPARATOR + res.stderr)
+        return name, cmd, result.returncode, result.stdout, result.stderr, elapsed
+    except subprocess.TimeoutExpired as e:
+        elapsed = round(time.monotonic() - start, 2)
+
+        return name, cmd, "timeout", e.stdout or "", f"Job timed out after {JOB_TIMEOUT_SEC}s", elapsed
     except Exception as e:
-        return (job_name, False, str(e))
+        elapsed = round(time.monotonic() - start, 2)
 
-def run_pipeline(
-    jobs: dict[str, list[str]] | None = None,
-    max_workers: int = DEFAULT_MAX_WORKERS
-) -> int:
-    """Dispatches all jobs concurrently and prints clean summary report."""
-    target_jobs = jobs or CI_JOBS_MATRIX
-    enqueued_names = format_keys(target_jobs)
+        return name, cmd, 1, "", str(e), elapsed
 
-    print("🚀 Running Local CI/CD Pipeline via ThreadPoolExecutor...")
-    print(f"📋 Enqueued Jobs: {enqueued_names}{LINE_SEPARATOR}")
+def main() -> None:
+    job_items = list(JOBS.items())
+    total_jobs = len(job_items)
+    print(f"[INFO] Enqueued {total_jobs} quality gates across {BATCH_SIZE} concurrent workers...\n")
 
-    results = []
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(execute_ci_job, name, cmd) for name, cmd in target_jobs.items()]
-        for f in futures:
-            results.append(f.result())
+    all_results = {}
+    total_start = time.monotonic()
 
-    has_failures = False
-    print(f"{LINE_SEPARATOR}================ FINAL SUMMARY ================")
-    for name, is_success, log in results:
-        if is_success:
-            print(f"✅ {name}: PASSED")
+    # Execute jobs using concurrent worker pool
+    with ThreadPoolExecutor(max_workers=BATCH_SIZE) as executor:
+        futures = {executor.submit(run_job, name, cmd): name for name, cmd in job_items}
+
+        for future in as_completed(futures):
+            try:
+                name, cmd, code, out, err, elapsed = future.result()
+                all_results[name] = (code, out, err, elapsed, cmd)
+
+                if code == 0:
+                    print(f"  PASS [{name}] ({elapsed}s)")
+                elif code == "timeout":
+                    print(f"  TIMEOUT [{name}] ({elapsed}s)")
+                else:
+                    print(f"  FAIL [{name}] ({elapsed}s)")
+            except Exception as ex:
+                job_name = futures[future]
+                all_results[job_name] = (1, "", str(ex), 0, JOBS.get(job_name, []))
+                print(f"  FAIL [{job_name}] (Exception: {ex})")
+
+    total_elapsed = round(time.monotonic() - total_start, 2)
+
+    # ── Final Consolidated Summary Report ──────────────────────────────────
+    print("\n" + "=" * 60)
+    print("           CI/CD EXECUTION SUMMARY REPORT")
+    print("=" * 60)
+
+    passed_jobs = []
+    failed_jobs = []
+    timeout_jobs = []
+
+    for name, (code, out, err, elapsed, cmd) in all_results.items():
+        if code == 0:
+            passed_jobs.append((name, elapsed))
+        elif code == "timeout":
+            timeout_jobs.append((name, elapsed, err, cmd))
         else:
-            print(f"❌ {name}: FAILED")
-            has_failures = True
-            print(f"--- {name} LOG ---")
-            print(log.strip())
-            print(f"--------------------{LINE_SEPARATOR}")
+            failed_jobs.append((name, elapsed, out, err, cmd))
 
-    if has_failures:
-        print(f"{LINE_SEPARATOR}❌ Pipeline failed.")
-        return ExitCodeType.VIOLATIONS_FOUND.value
+    print(f"Total: {total_jobs} | Passed: {len(passed_jobs)} | Failed: {len(failed_jobs)} | Timeouts: {len(timeout_jobs)} | Time: {total_elapsed}s\n")
 
-    print("🎉 All jobs passed successfully!")
-    return ExitCodeType.SUCCESS.value
+    if failed_jobs or timeout_jobs:
+        print("Detailed Failure Logs:")
+        print("-" * 60)
 
-def main():
-    sys.exit(run_pipeline())
+        for name, elapsed, out, err, cmd in failed_jobs:
+            print(f"\n[FAILURE LOG] Job: {name} (Duration: {elapsed}s)")
+            print(f"Command: {' '.join(cmd)}")
+
+            if out.strip():
+                print(f"Stdout:\n{out.strip()}")
+
+            if err.strip():
+                print(f"Stderr:\n{err.strip()}")
+
+            print("-" * 60)
+
+        for name, elapsed, err, cmd in timeout_jobs:
+            print(f"\n[TIMEOUT LOG] Job: {name} (Duration: {elapsed}s)")
+            print(f"Command: {' '.join(cmd)}")
+            print(f"Reason: {err}")
+            print("-" * 60)
+
+        print(f"\n[FAILURE] CI/CD quality gates failed with {len(failed_jobs) + len(timeout_jobs)} error(s).")
+        sys.exit(1)
+    else:
+        print(f"\n[SUCCESS] All {total_jobs} CI/CD quality gates passed (exit 0)!")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

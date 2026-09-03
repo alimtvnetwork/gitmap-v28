@@ -22,12 +22,14 @@ func NextSemanticVersion(current string) string {
 	if err != nil {
 		patch = 0
 	}
+
 	patch++
 
 	next := fmt.Sprintf("%s.%s.%d", parts[0], parts[1], patch)
 	if hasPrefix {
 		return "v" + next
 	}
+
 	return next
 }
 
@@ -35,5 +37,6 @@ func defaultFallbackVersion(hasPrefix bool) string {
 	if hasPrefix {
 		return "v1.0.1"
 	}
+
 	return "1.0.1"
 }

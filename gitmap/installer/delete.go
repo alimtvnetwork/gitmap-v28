@@ -12,6 +12,7 @@ func (m *Manager) Delete(slug string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("Delete", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(slug) == "" {
 		return apperror.New("Delete", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug cannot be empty"})
 	}
@@ -24,6 +25,7 @@ func (m *Manager) DeleteVersion(slug, version string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("DeleteVersion", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(slug) == "" || strings.TrimSpace(version) == "" {
 		return apperror.New("DeleteVersion", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug and version are required"})
 	}
