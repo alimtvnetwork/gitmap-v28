@@ -11,11 +11,13 @@ interface CommandCardProps {
   usage?: string;
   flags?: { flag: string; description: string }[];
   examples?: { command: string; description?: string }[];
+  howToProceed?: { step: number; title: string; action: string }[];
+  notes?: string[];
   seeAlso?: CommandSeeAlso[];
   onNavigate?: (commandName: string) => void;
 }
 
-const CommandCard = ({ name, alias, description, usage, flags, examples, seeAlso, onNavigate }: CommandCardProps) => {
+const CommandCard = ({ name, alias, description, usage, flags, examples, howToProceed, notes, seeAlso, onNavigate }: CommandCardProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -53,6 +55,44 @@ const CommandCard = ({ name, alias, description, usage, flags, examples, seeAlso
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {howToProceed && howToProceed.length > 0 && (
+            <div className="rounded-md border border-primary/25 bg-primary/5 p-3.5 space-y-2.5">
+              <h4 className="text-xs font-mono font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                <span>🚀 How to Proceed</span>
+              </h4>
+              <div className="space-y-3">
+                {howToProceed.map((step) => (
+                  <div key={step.step} className="text-sm">
+                    <div className="flex items-center gap-2 font-medium text-foreground dark:text-white">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                        {step.step}
+                      </span>
+                      <span>{step.title}</span>
+                    </div>
+                    {step.action && (
+                      <div className="ml-7 mt-1.5">
+                        <CodeBlock code={step.action} />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {notes && notes.length > 0 && (
+            <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3.5 space-y-1.5">
+              <h4 className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>⚠️ Important Notes & Safety</span>
+              </h4>
+              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground dark:text-slate-300">
+                {notes.map((note, idx) => (
+                  <li key={idx}>{note}</li>
+                ))}
+              </ul>
             </div>
           )}
 

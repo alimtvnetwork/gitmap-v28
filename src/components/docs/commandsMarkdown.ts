@@ -24,13 +24,27 @@ function formatCommandExamples(examples?: CommandExample[]): string {
   return `**Examples:**\n${formatted.join("\n\n")}\n\n`;
 }
 
+function formatHowToProceed(steps?: { step: number; title: string; action: string }[]): string {
+  if (!steps || steps.length === 0) return "";
+  const lines = steps.map((s) => `${s.step}. **${s.title}**\n   \`\`\`bash\n   ${s.action}\n   \`\`\``);
+  return `**How to Proceed:**\n\n${lines.join("\n\n")}\n\n`;
+}
+
+function formatNotes(notes?: string[]): string {
+  if (!notes || notes.length === 0) return "";
+  const lines = notes.map((n) => `- ⚠️ ${n}`);
+  return `**Important Notes & Safety:**\n${lines.join("\n")}\n\n`;
+}
+
 function formatSingleCommand(commandItem: CommandDef): string {
   const aliasText = commandItem.alias ? ` (alias: \`${commandItem.alias}\`)` : "";
   const usageText = commandItem.usage ? `**Usage:**\n\`\`\`\n${commandItem.usage}\n\`\`\`\n\n` : "";
   const flagsText = formatCommandFlags(commandItem.flags);
+  const howToText = formatHowToProceed(commandItem.howToProceed);
+  const notesText = formatNotes(commandItem.notes);
   const examplesText = formatCommandExamples(commandItem.examples);
 
-  return `### \`${commandItem.name}\`${aliasText}\n\n${commandItem.description}\n\n${usageText}${flagsText}${examplesText}`;
+  return `### \`${commandItem.name}\`${aliasText}\n\n${commandItem.description}\n\n${usageText}${flagsText}${howToText}${notesText}${examplesText}`;
 }
 
 function formatCategoryGroup(category: CommandCategory, allCommands: CommandDef[]): string {
