@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 func queryWorkflowRuns(repo string) []ghRunItem {
@@ -122,29 +121,6 @@ func queryAllRunLogs(repo string, runID int64) string {
 	return ""
 }
 
-func recordPipelineInDB(p PipelineStatusPayload, runs []ghRunItem) {
-	db, err := openDB()
-
-	if err != nil {
-		return
-	}
-
-	defer db.Close()
-
-	for _, r := range runs {
-		_ = db.InsertOrUpdatePipelineRun(store.PipelineRun{
-			RunID:        r.DatabaseID,
-			Repo:         p.Repo,
-			WorkflowName: r.Name,
-			Status:       r.Status,
-			Conclusion:   r.Conclusion,
-			Branch:       r.HeadBranch,
-			Sha:          r.HeadSha,
-			EtaSeconds:   p.EtaSeconds,
-			URL:          r.URL,
-		})
-	}
-}
 
 func queryRunsFromDB(repo string) []ghRunItem {
 	db, err := openDB()

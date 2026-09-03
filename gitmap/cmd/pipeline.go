@@ -76,6 +76,8 @@ func runPipeline(args []string) error {
 		return handlePipelineErrorLogs(args[1:])
 	case "logs", "log", "l":
 		return handlePipelineLogs(args[1:])
+	case "db":
+		return handlePipelineDB(args[1:])
 	case "help", "-h", "--help":
 		printPipelineHelp()
 
