@@ -26,6 +26,12 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 </div>
 
+<div align="center">
+
+📖 **[Full Command & Subcommand Reference Guide (COMMANDS.md)](./COMMANDS.md)** · 📚 **[Command Reference](#command-reference)** · 🚀 **[Install](#-install)**
+
+</div>
+
 ---
 
 ## Why GitMap?
@@ -600,6 +606,7 @@ gitmap help --json --filter ssh   # compose: scope JSON to matching rows
 
 ## Command Reference
 
+> 📖 **Exhaustive Subcommand Manual:** For a complete, dedicated breakdown of all 100+ commands, subcommands, flags, and operational workflows, see the dedicated [**Command & Subcommand Guide (COMMANDS.md)**](./COMMANDS.md).
 
 <div align="center">
 
