@@ -9,6 +9,9 @@ import (
 
 // DetectPRStatus checks for tracking branches or remote pull references.
 func DetectPRStatus(repoPath string) string {
+	if prs, ok := detectGitHubPRs(repoPath); ok && prs != "0 PRs" {
+		return prs
+	}
 	return detectGitBranchTracking(repoPath)
 }
 

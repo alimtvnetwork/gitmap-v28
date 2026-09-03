@@ -26,7 +26,7 @@ func TestParseFolderUri(t *testing.T) {
 	}
 	for _, tc := range cases {
 		got := parseFolderUri(tc.input)
-		if strings.ToLower(got) != strings.ToLower(tc.want) {
+		if !strings.EqualFold(got, tc.want) {
 			t.Errorf("parseFolderUri(%q) = %q, want %q", tc.input, got, tc.want)
 		}
 	}
@@ -106,7 +106,7 @@ func TestClearTargetsSelection(t *testing.T) {
 			Name: "Missing",
 			ProjectResources: &AgyProjectResources{
 				Resources: []AgyResource{
-					{GitFolder: &AgyGitFolder{FolderURI: "file:///D:/nonexistent/path"}},
+					{GitFolder: &AgyGitFolder{FolderURI: "file:///mock/nonexistent/path"}},
 				},
 			},
 		},
@@ -126,7 +126,7 @@ func TestFindAgyDuplicates(t *testing.T) {
 			UpdatedAt: "2026-09-01T12:00:00Z",
 			ProjectResources: &AgyProjectResources{
 				Resources: []AgyResource{
-					{GitFolder: &AgyGitFolder{FolderURI: "file:///D:/work/repo-a"}},
+					{GitFolder: &AgyGitFolder{FolderURI: "file:///mock/repos/repo-a"}},
 				},
 			},
 		},
@@ -136,7 +136,7 @@ func TestFindAgyDuplicates(t *testing.T) {
 			UpdatedAt: "2026-08-01T12:00:00Z",
 			ProjectResources: &AgyProjectResources{
 				Resources: []AgyResource{
-					{GitFolder: &AgyGitFolder{FolderURI: "file:///d:/work/repo-a"}},
+					{GitFolder: &AgyGitFolder{FolderURI: "file:///mock/repos/repo-a"}},
 				},
 			},
 		},
@@ -159,7 +159,7 @@ func TestIsAgyProjectExcepted(t *testing.T) {
 		Name: "my-service",
 		ProjectResources: &AgyProjectResources{
 			Resources: []AgyResource{
-				{GitFolder: &AgyGitFolder{FolderURI: "file:///D:/repos/my-service"}},
+				{GitFolder: &AgyGitFolder{FolderURI: "file:///mock/repos/my-service"}},
 			},
 		},
 	}

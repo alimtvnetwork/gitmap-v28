@@ -115,11 +115,6 @@ func GetClearTargets(entries []Entry, exceptList []string, onlyMissing bool) ([]
 	return targets, remaining
 }
 
-func filterClearEntries(entries []Entry, exceptList []string, onlyMissing bool) ([]Entry, int) {
-	targets, remaining := GetClearTargets(entries, exceptList, onlyMissing)
-	return remaining, len(targets)
-}
-
 func isEntryExcepted(e Entry, exceptList []string, index int) bool {
 	idStr := fmt.Sprintf("%d", index)
 	idPad := fmt.Sprintf("%02d", index)

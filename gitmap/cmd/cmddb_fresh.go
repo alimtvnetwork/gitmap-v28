@@ -18,7 +18,7 @@ func runStartFresh(args []string) error {
 		msg := constants.ColorYellow + "Are you sure you want to start fresh? [y/N]: " + constants.ColorReset
 		ok, err := promptConfirm(msg)
 		if err != nil || !ok {
-			fmt.Println(constants.ColorDim + "Start fresh operation cancelled." + constants.ColorReset)
+			fmt.Println(constants.ColorDim + "Start fresh operation canceled." + constants.ColorReset)
 			return nil
 		}
 	}

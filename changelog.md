@@ -1,3 +1,24 @@
+## [v6.168.0] 2026-09-03 Release v6.168.0
+
+### Added & Enhanced
+
+- **Historical Success Baseline Pipeline ETA Model**:
+  - Refined pipeline duration baseline heuristics to filter strictly on `conclusion == "success"` (`status == "completed"`), discarding skewed canceled or fast-failing runs.
+  - Computes remaining ETA dynamically as `avgSuccessDuration - elapsed` with an adaptive countdown grace floor.
+
+- **Dynamic Timeline & Timeout (`-t` / `--timeout` / `--timeline`)**:
+  - Added `-t` flag across `gitmap pipeline status`, `gitmap pipeline wait-time`, and `gitmap pipeline-ai`.
+  - Automatically orchestrates dynamic polling timelines and timeout budgets derived from the calculated ETA, eliminating the need for manual retry seconds.
+
+- **Direct CI/CD Error Extraction in Status & ETA**:
+  - When a pipeline run completes with a failure conclusion, GitMap now automatically extracts and displays clean, actionable error lines (`##[error]`, `❌ FAIL:`, `--- FAIL:`, `exit code 1`, stack traces) directly beneath the status card, suppressing passing step noise.
+
+- **Linter & CI/CD Pipeline Hardening**:
+  - Eliminated hardcoded drive-letter URIs in test suites to ensure 100% compliance with `linter-scripts/check-relative-paths.py`.
+  - Resolved `CmdDashboardAlias` collision with `CmdDB` by assigning `dash` as the dashboard alias.
+  - Standardized all CLI confirmation messages to American English `canceled` for strict `misspell` compliance.
+  - Updated `agy stats` format to satisfy E2E smoke test contracts (97/97 passing).
+
 ## [v6.167.0] 2026-09-03 Release v6.167.0
 
 ### Added & Enhanced

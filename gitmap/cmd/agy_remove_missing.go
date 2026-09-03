@@ -76,7 +76,7 @@ func executeRemoveMissing(dirPath string, targets []AgyProject, totalCount int) 
 		return nil
 	}
 	if !agyRmMissingYes && !askMissingConfirmation(len(targets)) {
-		fmt.Println("Removal cancelled. No changes made.")
+		fmt.Println("Removal canceled. No changes made.")
 		return nil
 	}
 	return deleteMissingFiles(dirPath, targets, totalCount-len(targets))

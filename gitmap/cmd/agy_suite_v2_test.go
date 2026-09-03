@@ -52,7 +52,7 @@ func TestMatchPrefixOrSlugExcept(t *testing.T) {
 		Name: "gitmap-v28",
 		ProjectResources: &AgyProjectResources{
 			Resources: []AgyResource{
-				{GitFolder: &AgyGitFolder{FolderURI: "file:///D:/wp-work/riseup-asia/gitmap"}},
+				{GitFolder: &AgyGitFolder{FolderURI: "file:///mock/repos/gitmap"}},
 			},
 		},
 	}

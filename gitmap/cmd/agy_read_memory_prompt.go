@@ -105,7 +105,7 @@ func executePromptBroadcast(targets, excluded []AgyProject) error {
 		return nil
 	}
 	if !agyAprmpYes && !askPromptConfirmation(len(targets)) {
-		fmt.Println("Broadcast cancelled. No prompts sent.")
+		fmt.Println("Broadcast canceled. No prompts sent.")
 		return nil
 	}
 	return dispatchPrompts(targets)

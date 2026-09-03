@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -10,7 +9,13 @@ import (
 
 func handlePipelineStatus(args []string) error {
 	isJSON := hasArgFlag(args, "--json")
+	hasTimeout := hasArgFlag(args, "-t") || hasArgFlag(args, "--timeout") || hasArgFlag(args, "--timeline")
 	repo := resolveCurrentRepoSlug()
+
+	if hasTimeout {
+		return runPipelineDynamicTimeline(repo, isJSON)
+	}
+
 	runs := queryWorkflowRuns(repo)
 	pendingPRs := queryPendingPRs(repo)
 	lastTag := queryLatestTagRelease(repo)
@@ -29,10 +34,15 @@ func handlePipelineStatus(args []string) error {
 
 func handlePipelineWaitTime(args []string) error {
 	repo := resolveCurrentRepoSlug()
+	hasTimeout := hasArgFlag(args, "-t") || hasArgFlag(args, "--timeout") || hasArgFlag(args, "--timeline")
+	isJSON := hasArgFlag(args, "--json")
+
+	if hasTimeout {
+		return runPipelineDynamicTimeline(repo, isJSON)
+	}
+
 	runs := queryWorkflowRuns(repo)
 	etaSeconds := calculateETA(runs)
-
-	isJSON := hasArgFlag(args, "--json")
 
 	if isJSON {
 		out := map[string]any{"etaSeconds": etaSeconds, "repo": repo}
@@ -123,6 +133,10 @@ func renderCompletedStatusLine(p PipelineStatusPayload) {
 		constants.ColorCyan, constants.ColorReset,
 		statusColor, p.LastStatus, constants.ColorReset,
 		p.LastConclusion)
+
+	if p.LastConclusion == "failure" && p.Repo != "" {
+		renderFailureErrorSummary(p.Repo, 0)
+	}
 }
 
 func calculateETA(runs []ghRunItem) int {
@@ -137,8 +151,8 @@ func calculateETA(runs []ghRunItem) int {
 	avgDuration := calculateAverageDuration(runs, activeRun.Name)
 	elapsedSeconds := int(time.Since(createdAt).Seconds())
 	remainingSeconds := avgDuration - elapsedSeconds
-	if remainingSeconds < 20 {
-		return 20
+	if remainingSeconds < 15 {
+		return 15
 	}
 	return remainingSeconds
 }
@@ -162,37 +176,17 @@ func calculateAverageDuration(runs []ghRunItem, workflowName string) int {
 }
 
 func sumCompletedRunDurations(runs []ghRunItem, workflowName string) (int, int) {
-	totalDuration, completedCount := 0, 0
+	totalDuration, successCount := 0, 0
 	for _, r := range runs {
-		isMatchingCompleted := r.Status == "completed" && (r.Name == workflowName || workflowName == "")
-		if !isMatchingCompleted {
+		isMatchingSuccess := r.Status == "completed" && r.Conclusion == "success" && (r.Name == workflowName || workflowName == "")
+		if !isMatchingSuccess {
 			continue
 		}
 		dur := computeRunDuration(r.CreatedAt, r.UpdatedAt)
 		if dur >= 10 {
 			totalDuration += dur
-			completedCount++
+			successCount++
 		}
 	}
-	return totalDuration, completedCount
-}
-
-func computeRunDuration(createdStr, updatedStr string) int {
-	createdAt, err1 := time.Parse(time.RFC3339, createdStr)
-	updatedAt, err2 := time.Parse(time.RFC3339, updatedStr)
-	if err1 != nil || err2 != nil || updatedAt.Before(createdAt) {
-		return 0
-	}
-	return int(updatedAt.Sub(createdAt).Seconds())
-}
-
-func fallbackWorkflowDuration(workflowName string) int {
-	lowerName := strings.ToLower(workflowName)
-	if strings.Contains(lowerName, "release") {
-		return 95
-	}
-	if strings.Contains(lowerName, "ci") {
-		return 120
-	}
-	return 75
+	return totalDuration, successCount
 }
