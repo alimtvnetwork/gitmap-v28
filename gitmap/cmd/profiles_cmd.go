@@ -21,25 +21,22 @@ func runProfiles(args []string) error {
 }
 
 func routeProfilesSub(sub string, args []string) error {
-	if sub == "ls" || sub == "list" {
+	switch sub {
+	case "ls", "list":
 		return runProfilesList(args)
-	}
-	if sub == "set-default" || sub == "default" {
+	case "set-default", "default":
 		return runProfilesSetDefault(args)
-	}
-	if sub == "switch" || sub == "use" {
+	case "switch", "use":
 		return runProfilesSwitch(args)
-	}
-	if sub == "add" || sub == "create" {
+	case "add", "create":
 		return runProfilesAdd(args)
-	}
-	if sub == "rm" || sub == "remove" || sub == "delete" {
+	case "rm", "remove", "delete":
 		return runProfilesRemove(args)
-	}
-	if sub == "status" {
+	case "status":
 		return runProfilesStatus(args)
+	default:
+		return runProfilesList(append([]string{sub}, args...))
 	}
-	return runProfilesList(append([]string{sub}, args...))
 }
 
 func runProfilesList(args []string) error {
