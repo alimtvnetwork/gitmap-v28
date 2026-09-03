@@ -1,0 +1,18 @@
+{
+  "version": "6.168.0",
+  "branch": "release/v6.168.0",
+  "sourceBranch": "main",
+  "commit": "4e85a61d032b679cc90d60744014bba282558da5",
+  "tag": "v6.168.0",
+  "assets": [],
+  "changelog": [
+    "**Historical Success Baseline Pipeline ETA Model**:",
+    "**Dynamic Timeline \u0026 Timeout (`-t` / `--timeout` / `--timeline`)**:",
+    "**Direct CI/CD Error Extraction in Status \u0026 ETA**:",
+    "**Linter \u0026 CI/CD Pipeline Hardening**:"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-09-03T07:03:04Z",
+  "isLatest": false
+}
