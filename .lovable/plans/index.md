@@ -13,6 +13,7 @@
 - [x] [53-react-frontend-audit.md](.lovable/plans/completed/53-react-frontend-audit.md) — React & frontend architecture, custom hook named object returns, and component modularity.
 - [x] [54-code-hygiene-and-file-standards-audit.md](.lovable/plans/completed/54-code-hygiene-and-file-standards-audit.md) — Code hygiene, Unix LF, UTF-8 (no BOM), single EOF newline, and markdown heading spacing.
 - [x] [55-style-guidelines-audit.md](.lovable/plans/completed/55-style-guidelines-audit.md) — Style guidelines, vertical newline spacing (R13-R16), and guard clause separation.
+- [x] [56-relative-paths-audit.md](.lovable/plans/completed/56-relative-paths-audit.md) — Strict relative Git repository paths, absolute filesystem path elimination, and zero file:/// URIs.
 
 - [x] [01-coding-guidelines-and-boolean-refactoring.md](.lovable/plans/completed/01-coding-guidelines-and-boolean-refactoring.md) — Repository-wide coding standards, affirmative boolean prefixes, conditional flattening, and universal file hygiene.
 - [x] [02-error-management-and-exit-architecture.md](.lovable/plans/completed/02-error-management-and-exit-architecture.md) — Centralized application error handling, AppError wrappers, cliexit handlers, and CI error linter.

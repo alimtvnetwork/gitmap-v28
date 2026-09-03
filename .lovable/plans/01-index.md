@@ -15,6 +15,7 @@ Master directory of architectural and execution plans.
 - [53-react-frontend-audit.md](completed/53-react-frontend-audit.md): React & Frontend Architecture Audit Specification
 - [54-code-hygiene-and-file-standards-audit.md](completed/54-code-hygiene-and-file-standards-audit.md): Code Hygiene & Project Architecture Audit Specification
 - [55-style-guidelines-audit.md](completed/55-style-guidelines-audit.md): Style Guidelines, Formatting & Line-Gaps Audit Specification
+- [56-relative-paths-audit.md](completed/56-relative-paths-audit.md): Relative Git Paths & Absolute Path Elimination Audit Specification
 
 - [01-cicd-trigger-fix.md](completed/01-cicd-trigger-fix.md): 01-cicd-trigger-fix
 - [02-coding-guideline-fixes.md](completed/02-coding-guideline-fixes.md): 02-coding-guideline-fixes
