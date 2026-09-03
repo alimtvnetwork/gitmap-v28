@@ -1,3 +1,31 @@
+## [v6.170.0] 2026-09-03 Release v6.170.0
+
+### Added & Enhanced
+
+- **Pipeline Errorlogs Dynamic Timeline (`gitmap pipeline errorlogs -t`)**:
+  - Added `-t` / `--timeline` / `--timeout` / `-w` / `--watch` support across `gitmap pipeline errorlogs` and top-level `gitmap errorlogs`.
+  - Continuously tracks active workflow executions with dynamic ETA countdowns and adaptive intervals (15s, 10s, 5s) until terminal completion.
+  - Automatically isolates and renders high-precision failure step error logs upon completion, omitting passing noise.
+
+- **Historical Success Baseline Rerun ETA (`rerunEtaSeconds`)**:
+  - Dynamically calculates the estimated pipeline duration required to rerun the workflow, derived strictly from past successful runs.
+  - Emitted across terminal error cards and structured `--json` payloads.
+
+- **Internal CI/CD Diagnostic & Auto-Repair Engine (`pipeline_cicd_checker.go`)**:
+  - Integrated full local validation suite executing:
+    - `gofmt` code formatting check and automatic batch repair (`gofmt -w .`).
+    - Nested `if` linter (`check-nested-ifs.py`).
+    - Boolean and enum naming convention linters (`check-enum-and-boolean.py`).
+    - Relative paths and drive-letter URI enforcement (`check-relative-paths.py`).
+    - Error management and AppError compliance (`check-error-management.py`).
+    - Legacy repository reference scanner (`check-legacy-refs.py`).
+    - US English spell check (`misspell-changed.py`).
+    - Go test compile and typecheck gate (`go test -run=^$ ./... -count=1`).
+  - Supports `--fix` (`-f`) for automated repair without prompts, `--check` (`-c`) for read-only audits, and interactive confirmation in terminal mode.
+
+- **Specification Module Added (`spec/21-app/11-pipeline-errorlogs-timeline-and-fix/`)**:
+  - Authored complete specification module with overview, dynamic timeline contracts, CI/CD diagnostic engine specifications, acceptance criteria, and consistency reports.
+
 ## [v6.169.0] 2026-09-03 Release v6.169.0
 
 ### Added & Enhanced

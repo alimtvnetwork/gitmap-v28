@@ -84,8 +84,22 @@ func confirmOrSkip(msg string, args []string) bool {
 	if hasConfirmFlag(args) {
 		return true
 	}
+	if !isInteractiveStdin() {
+		return false
+	}
 	hasConfirmed, err := promptConfirm(msg)
 	return err == nil && hasConfirmed
+}
+
+func isInteractiveStdin() bool {
+	if os.Getenv("CI") != "" || os.Getenv("GITMAP_NON_INTERACTIVE") == "1" {
+		return false
+	}
+	fi, err := os.Stdin.Stat()
+	if err != nil {
+		return false
+	}
+	return (fi.Mode() & os.ModeCharDevice) != 0
 }
 
 func hasConfirmFlag(args []string) bool {

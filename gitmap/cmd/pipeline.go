@@ -28,15 +28,17 @@ type PipelineStatusPayload struct {
 
 // PipelineErrorLogsPayload represents error log outputs.
 type PipelineErrorLogsPayload struct {
-	Repo         string `json:"repo"`
-	WorkflowName string `json:"workflowName"`
-	RunID        int64  `json:"runId"`
-	Status       string `json:"status"`
-	Conclusion   string `json:"conclusion"`
-	EtaSeconds   int    `json:"etaSeconds,omitempty"`
-	IsRunning    bool   `json:"isRunning"`
-	ErrorLogs    string `json:"errorLogs"`
-	URL          string `json:"url,omitempty"`
+	Repo            string            `json:"repo"`
+	WorkflowName    string            `json:"workflowName"`
+	RunID           int64             `json:"runId"`
+	Status          string            `json:"status"`
+	Conclusion      string            `json:"conclusion"`
+	EtaSeconds      int               `json:"etaSeconds,omitempty"`
+	RerunEtaSeconds int               `json:"rerunEtaSeconds,omitempty"`
+	IsRunning       bool              `json:"isRunning"`
+	ErrorLogs       string            `json:"errorLogs"`
+	URL             string            `json:"url,omitempty"`
+	CICDChecks      []CICDCheckResult `json:"cicdChecks,omitempty"`
 }
 
 // ErrorLogOutputParams encapsulates parameters for outputting error logs.
@@ -72,7 +74,7 @@ func runPipeline(args []string) error {
 		return handlePipelineStatus(args[1:])
 	case "waittime", "wait", "eta", "wt", "wait-time":
 		return handlePipelineWaitTime(args[1:])
-	case "error-logs", "error-log", "errors", "err":
+	case "error-logs", "errorlogs", "error-log", "errorlog", "errors", "err":
 		return handlePipelineErrorLogs(args[1:])
 	case "logs", "log", "l":
 		return handlePipelineLogs(args[1:])
@@ -103,21 +105,26 @@ func printPipelineHelp() {
 	fmt.Println("  status                 Check live CI/CD pipeline status, ETA, and pending PRs")
 	fmt.Println("  waittime               Output remaining ETA seconds for active pipeline (alias: eta)")
 	fmt.Println("  eta                    Output remaining ETA seconds for active pipeline")
-	fmt.Println("  error-logs             Display failure logs or wait time ETA")
+	fmt.Println("  error-logs             Display failure logs, rerun ETA, and internal CI/CD fix suite (alias: errorlogs)")
 	fmt.Println("  logs                   Display all workflow logs in terminal")
 	fmt.Println("  pipeline-ai status     Auto-delay (default: 20s or -t <seconds>) then query status")
+	fmt.Println("  db                     Inspect or manage isolated pipeline split SQLite database")
 	fmt.Println("  help                   Show this pipeline command suite documentation")
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Flags:" + constants.ColorReset)
-	fmt.Println("  -t, --time <sec>        Delay in seconds before checking pipeline (minimum: 20s)")
+	fmt.Println("  -t, --timeline          Watch pipeline run until completion with dynamic ETA timeline")
+	fmt.Println("  -f, --fix               Run internal CI/CD issue diagnostic and auto-repair scripts")
+	fmt.Println("  -c, --check             Run internal CI/CD issue diagnostic checks without modifying files")
+	fmt.Println("  -y, --yes               Auto-confirm prompts non-interactively")
 	fmt.Println("  --json                  Output data in structured JSON format")
 	fmt.Println("  --file <path>           Write error logs to specified file path")
 	fmt.Println("  --tempfile <filename>   Write error logs to .lovable/temp/<filename>")
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline status")
-	fmt.Println("  gitmap pipeline-ai status")
-	fmt.Println("  gitmap pipeline-ai status -t 30")
-	fmt.Println("  gitmap pipeline-ai status --json")
+	fmt.Println("  gitmap pipeline status -t")
+	fmt.Println("  gitmap pipeline errorlogs -t")
+	fmt.Println("  gitmap pipeline error-logs -t --fix")
+	fmt.Println("  gitmap pipeline errorlogs --check")
 	fmt.Println("  gitmap pipeline error-logs --json")
 }

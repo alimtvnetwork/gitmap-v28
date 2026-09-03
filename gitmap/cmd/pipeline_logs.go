@@ -11,23 +11,76 @@ import (
 )
 
 func handlePipelineErrorLogs(args []string) error {
+	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") {
+		printPipelineErrorLogsHelp()
+		return nil
+	}
+
 	isJSON := hasArgFlag(args, "--json")
+	hasTimeout := hasArgFlag(args, "-t") || hasArgFlag(args, "--timeout") || hasArgFlag(args, "--timeline") || hasArgFlag(args, "-w") || hasArgFlag(args, "--watch")
+	wantFix := hasArgFlag(args, "--fix") || hasArgFlag(args, "-f")
+	wantCheck := hasArgFlag(args, "--check") || hasArgFlag(args, "-c")
 	filePath := extractFlagVal(args, "--file")
 	tempFileName := extractFlagVal(args, "--tempfile")
 
 	repo := resolveCurrentRepoSlug()
+
+	if hasTimeout {
+		return runPipelineErrorLogsDynamicTimeline(ErrorLogsTimelineParams{
+			Repo:         repo,
+			IsJSON:       isJSON,
+			WantFix:      wantFix,
+			WantCheck:    wantCheck,
+			FilePath:     filePath,
+			TempFileName: tempFileName,
+			Args:         args,
+		})
+	}
+
 	runs := queryWorkflowRuns(repo)
 	payload := buildErrorLogsPayload(repo, runs)
+	if len(runs) > 0 {
+		payload.RerunEtaSeconds = calculateAverageDuration(runs, payload.WorkflowName)
+	}
 
-	return writeOrRenderErrorLogs(ErrorLogOutputParams{
+	if wantFix || wantCheck {
+		payload.CICDChecks = runInternalCICDChecks(wantFix)
+	}
+
+	err := writeOrRenderErrorLogs(ErrorLogOutputParams{
 		Payload:  payload,
 		IsJSON:   isJSON,
 		FilePath: filePath,
 		TempFile: tempFileName,
 	})
+	if err != nil {
+		return err
+	}
+
+	maybeOfferAutoFix(payload, isJSON, wantFix, wantCheck, filePath, tempFileName, args)
+
+	return nil
+}
+
+func maybeOfferAutoFix(p PipelineErrorLogsPayload, isJSON, wantFix, wantCheck bool, file, temp string, args []string) {
+	isTargetingFile := len(file) > 0 || len(temp) > 0
+	if isJSON || wantFix || wantCheck || isTargetingFile {
+		return
+	}
+	if p.Conclusion != "failure" {
+		return
+	}
+	if confirmOrSkip("Would you like to run internal CI/CD diagnostic & auto-repair scripts?", args) {
+		runInternalCICDChecks(true)
+	}
 }
 
 func handlePipelineLogs(args []string) error {
+	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") {
+		printPipelineLogsHelp()
+		return nil
+	}
+
 	repo := resolveCurrentRepoSlug()
 	runs := queryWorkflowRuns(repo)
 
@@ -188,10 +241,41 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 		fmt.Printf("  %s● Latest Pipeline Failure [%s #%d]:%s\n\n",
 			constants.ColorRed, p.WorkflowName, p.RunID, constants.ColorReset)
 		fmt.Println(p.ErrorLogs)
+		printRerunETA(p.RerunEtaSeconds)
 
 		return
 	}
 
 	fmt.Printf("  %s● No error logs found.%s Status: %s (conclusion: %s)\n",
 		constants.ColorGreen, constants.ColorReset, p.Status, p.Conclusion)
+	printRerunETA(p.RerunEtaSeconds)
+}
+
+func printRerunETA(eta int) {
+	if eta <= 0 {
+		return
+	}
+	fmt.Printf("\n  %s● Estimated pipeline rerun duration (ETA): ~%ds%s\n",
+		constants.ColorYellow, eta, constants.ColorReset)
+	fmt.Println("    (Based on historical successful pipeline runs baseline)")
+}
+
+func printPipelineErrorLogsHelp() {
+	fmt.Println("Usage: gitmap pipeline error-logs [flags]")
+	fmt.Println()
+	fmt.Println("Flags:")
+	fmt.Println("  -t, --timeline          Watch pipeline dynamic timeline until completion")
+	fmt.Println("  -f, --fix               Execute internal CI/CD diagnostic & auto-repair suite")
+	fmt.Println("  -c, --check             Run internal CI/CD checks without modifying files")
+	fmt.Println("  -y, --yes               Auto-confirm prompts non-interactively")
+	fmt.Println("  --json                  Output data in structured JSON format")
+	fmt.Println("  --file <path>           Write error logs to specified file path")
+	fmt.Println("  --tempfile <filename>   Write error logs to .lovable/temp/<filename>")
+}
+
+func printPipelineLogsHelp() {
+	fmt.Println("Usage: gitmap pipeline logs [flags]")
+	fmt.Println()
+	fmt.Println("Flags:")
+	fmt.Println("  --json                  Output workflow status and URL in JSON format")
 }
