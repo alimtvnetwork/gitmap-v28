@@ -1,0 +1,17 @@
+{
+  "version": "6.167.0",
+  "branch": "release/v6.167.0",
+  "sourceBranch": "main",
+  "commit": "150135b640a038639b3a27f694d8c5c99f50c989",
+  "tag": "v6.167.0",
+  "assets": [],
+  "changelog": [
+    "**Modular Lowercase Documentation Architecture (`docs/commands/`)**:",
+    "**Comprehensive Flag Tables \u0026 Real-World Examples**:",
+    "**`.lovable` AI Agent System Architecture Mapping**:"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-09-03T04:06:54Z",
+  "isLatest": false
+}
