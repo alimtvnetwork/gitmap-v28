@@ -20,6 +20,9 @@ Welcome to the structured command reference directory for **GitMap** (`v6.166.0`
 | **Background Scheduler** | [📂 `schedule/`](./schedule/readme.md) | `add`, `list`, `status`, `run`, `logs`, `startup`, `restart`, `shutdown` |
 | **Cluster & Delegation** | [📂 `cluster/`](./cluster/readme.md) | `status`, `nodes`, `serve`, `servers-clients`, `clients`, `set-password` |
 | **Templates & Scaffolding** | [📂 `templates/`](./templates/readme.md) | `add ignore`, `add attributes`, `templates init`, `sync`, `commons` |
+| **Repository Creation** | [📄 `create.md`](./create.md) | `create`, `create repo`, `--profile`, `--org`, `--private`, `--public`, `--json` |
+| **Git Accounts & Profiles** | [📄 `profiles.md`](./profiles.md) | `profiles ls`, `set-default`, `switch`, `add`, `rm`, `status` |
+| **Cloud Backup & Recovery** | [📄 `backup.md`](./backup.md) | `backup create`, `backup ls`, `backup restore`, `backup rm`, `backup status`, `prune` |
 | **Data, Profiles & Bookmarks** | [📂 `data/`](./data/readme.md) | `profile`, `bookmark`, `export`, `import`, `mv`, `rm` |
 | **Installers & Macros** | [📂 `automation/`](./automation/readme.md) | `installer`, `install`, `macro`, `task`, `zip-group` |
 | **Utilities & Diagnostics** | [📂 `utilities/`](./utilities/readme.md) | `doctor`, `update`, `interactive`, `fix-repo`, `seo-write`, `gomod` |

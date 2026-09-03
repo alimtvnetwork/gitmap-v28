@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -74,7 +73,8 @@ func printProfilesTable(cfg model.GitProfileConfig) {
 		printProfileRow(i+1, p, cfg.Default)
 	}
 	fmt.Println("  --------------------------------------------------------------------------------")
-	fmt.Println("  Tip: Switch default with 'gitmap profiles set-default <1-N|name>'\n")
+	fmt.Println("  Tip: Switch default with 'gitmap profiles set-default <1-N|name>'")
+	fmt.Println()
 }
 
 func printProfileRow(seq int, p model.GitProfile, defaultName string) {

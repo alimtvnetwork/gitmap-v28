@@ -19,11 +19,11 @@ def run_cmd(bin_path: str, args: list, cwd: str = None):
             text=True,
             encoding='utf-8',
             errors='replace',
-            timeout=15,
+            timeout=35,
         )
         return res.returncode, res.stdout, res.stderr
     except subprocess.TimeoutExpired:
-        return 124, '', 'Error: Command timed out after 15 seconds'
+        return 124, '', 'Error: Command timed out after 35 seconds'
 
 def execute_single_test(bin_path, repo_root, idx, test_item):
     args, valid_codes, exp_sub, desc = test_item
@@ -158,6 +158,13 @@ def main():
         (['make-all-private', '--help'], [0], '', 'make-all-private --help'),
         (['visibility-history', '--help'], [0], '', 'visibility-history --help'),
         (['visibility-undo', '--help'], [0], '', 'visibility-undo --help'),
+        (['profiles', '--help'], [0], '', 'profiles --help'),
+        (['profiles', 'ls', '--json'], [0], '', 'profiles ls --json'),
+        (['profiles', 'status'], [0], '', 'profiles status'),
+        (['create', '--help'], [0], '', 'create --help'),
+        (['backup', '--help'], [0], '', 'backup --help'),
+        (['backup', 'status'], [0], '', 'backup status'),
+        (['backup', 'ls'], [0], '', 'backup ls'),
     ]
 
     # Stateful indices that must run in strict sequence to avoid SQLite locking

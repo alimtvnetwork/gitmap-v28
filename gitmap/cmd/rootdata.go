@@ -40,6 +40,7 @@ func dataProfileEntries() []dispatchEntry {
 		{[]string{"export-only"}, func() error { return runExportOnly(argsTail()) }},
 		{[]string{"import-export", "ie"}, func() error { return runImportExport(argsTail()) }},
 		{[]string{constants.CmdProfile, constants.CmdProfileAlias}, func() error { return runProfile(argsTail()) }},
+		{[]string{constants.CmdProfiles, constants.CmdProfilesAlias, "git-profiles"}, func() error { return runProfiles(argsTail()) }},
 		{[]string{constants.CmdDiffProfiles, constants.CmdDiffProfilesAlias}, func() error { return runDiffProfiles(argsTail()) }},
 		{[]string{constants.CmdCD, constants.CmdCDAlias}, func() error { return runCD(argsTail()) }},
 		{[]string{constants.CmdWatch, constants.CmdWatchAlias}, func() error { return runWatch(argsTail()) }},
