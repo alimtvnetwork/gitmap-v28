@@ -1,11 +1,47 @@
 #!/usr/bin/env python3
-import os, subprocess, sys, tempfile, time
+import concurrent.futures
+import os
+import subprocess
+import sys
+import time
 
 def run_cmd(bin_path: str, args: list, cwd: str = None):
     env = os.environ.copy()
     env['GITMAP_SKIP_DELAY'] = '1'
-    res = subprocess.run([bin_path] + args, cwd=cwd, env=env, capture_output=True, text=True, encoding='utf-8', errors='replace')
-    return res.returncode, res.stdout, res.stderr
+    env['GITMAP_NON_INTERACTIVE'] = '1'
+    env['CI'] = '1'
+    try:
+        res = subprocess.run(
+            [bin_path] + args,
+            cwd=cwd,
+            env=env,
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='replace',
+            timeout=15,
+        )
+        return res.returncode, res.stdout, res.stderr
+    except subprocess.TimeoutExpired:
+        return 124, '', 'Error: Command timed out after 15 seconds'
+
+def execute_single_test(bin_path, repo_root, idx, test_item):
+    args, valid_codes, exp_sub, desc = test_item
+    code, stdout, stderr = run_cmd(bin_path, args, cwd=repo_root)
+    out = stdout + stderr
+    if code not in valid_codes:
+        msg = f'❌ FAIL: {desc} (gitmap {" ".join(args)}) exited with {code}, expected {valid_codes}. Output:\n{out.strip()}'
+        return idx, False, msg
+    if exp_sub and exp_sub not in out:
+        msg = f'❌ FAIL: {desc} (missing substring {exp_sub}). Output:\n{out.strip()}'
+        return idx, False, msg
+    return idx, True, f'  ✓ PASS: {desc}'
+
+def execute_sequential_chain(bin_path, repo_root, items_with_indices):
+    results = []
+    for idx, test_item in items_with_indices:
+        results.append(execute_single_test(bin_path, repo_root, idx, test_item))
+    return results
 
 def main():
     if hasattr(sys.stdout, 'reconfigure'):
@@ -22,6 +58,7 @@ def main():
         sys.exit(1)
 
     print(f'Running E2E CLI smoke tests against: {bin_path}')
+    start_time = time.time()
 
     tests_List = [
         (['version'], [0], 'gitmap v', 'Version command'),
@@ -123,22 +160,48 @@ def main():
         (['visibility-undo', '--help'], [0], '', 'visibility-undo --help'),
     ]
 
-    failed = 0
-    passed = 0
-    for args, valid_codes, exp_sub, desc in tests_List:
-        code, stdout, stderr = run_cmd(bin_path, args, cwd=repo_root)
-        out = stdout + stderr
-        if code not in valid_codes:
-            print(f'❌ FAIL: {desc} (gitmap {" ".join(args)}) exited with {code}, expected {valid_codes}. Output:\n{out.strip()}', file=sys.stderr)
-            failed += 1
-        elif exp_sub and exp_sub not in out:
-            print(f'❌ FAIL: {desc} (missing substring {exp_sub}). Output:\n{out.strip()}', file=sys.stderr)
-            failed += 1
-        else:
-            print(f'  ✓ PASS: {desc}')
-            passed += 1
+    # Stateful indices that must run in strict sequence to avoid SQLite locking
+    schedule_indices = set(range(51, 62))  # schedule --help -> schedule rm
+    macro_indices = set(range(62, 66))     # macro --help -> macro rm
 
-    print(f'\n=========================================\nE2E Smoke Summary: {passed} passed, {failed} failed (Total: {len(tests_List)})\n=========================================')
+    schedule_chain = [(i, tests_List[i]) for i in range(51, 62)]
+    macro_chain = [(i, tests_List[i]) for i in range(62, 66)]
+
+    results_map = {}
+    futures = []
+
+    # Parallel execution with thread pool
+    max_workers = min(12, os.cpu_count() * 2 if os.cpu_count() else 8)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all independent tests in parallel
+        for i, item in enumerate(tests_List):
+            if i in schedule_indices or i in macro_indices:
+                continue
+            futures.append(executor.submit(execute_single_test, bin_path, repo_root, i, item))
+
+        for f in concurrent.futures.as_completed(futures):
+            res = f.result()
+            results_map[res[0]] = (res[1], res[2])
+
+    # Run stateful chains in sequential isolation
+    for r in execute_sequential_chain(bin_path, repo_root, schedule_chain):
+        results_map[r[0]] = (r[1], r[2])
+    for r in execute_sequential_chain(bin_path, repo_root, macro_chain):
+        results_map[r[0]] = (r[1], r[2])
+
+    passed = 0
+    failed = 0
+    for i in range(len(tests_List)):
+        ok, msg = results_map[i]
+        if ok:
+            print(msg, flush=True)
+            passed += 1
+        else:
+            print(msg, file=sys.stderr, flush=True)
+            failed += 1
+
+    elapsed = time.time() - start_time
+    print(f'\n=========================================\nE2E Smoke Summary: {passed} passed, {failed} failed (Total: {len(tests_List)}) in {elapsed:.2f}s\n=========================================')
     if failed > 0:
         sys.exit(1)
     sys.exit(0)

@@ -58,6 +58,50 @@ func printTimelineProgress(name string, eta, elapsed int) {
 		constants.ColorYellow, name, constants.ColorReset, eta, elapsed)
 }
 
+// ErrorLogsTimelineParams specifies parameters for running errorlogs with dynamic timeline watching.
+type ErrorLogsTimelineParams struct {
+	Repo         string
+	IsJSON       bool
+	WantFix      bool
+	WantCheck    bool
+	FilePath     string
+	TempFileName string
+	Args         []string
+}
+
+// runPipelineErrorLogsDynamicTimeline watches the pipeline dynamic timeline and surfaces error logs upon completion.
+func runPipelineErrorLogsDynamicTimeline(params ErrorLogsTimelineParams) error {
+	runs := queryWorkflowRuns(params.Repo)
+	active := findActiveWorkflowRun(runs)
+	if active != nil {
+		watchDynamicTimeline(params.Repo, active.Name, params.IsJSON)
+		runs = queryWorkflowRuns(params.Repo)
+	}
+
+	payload := buildErrorLogsPayload(params.Repo, runs)
+	if len(runs) > 0 {
+		payload.RerunEtaSeconds = calculateAverageDuration(runs, payload.WorkflowName)
+	}
+
+	if params.WantFix || params.WantCheck {
+		payload.CICDChecks = runInternalCICDChecks(params.WantFix)
+	}
+
+	err := writeOrRenderErrorLogs(ErrorLogOutputParams{
+		Payload:  payload,
+		IsJSON:   params.IsJSON,
+		FilePath: params.FilePath,
+		TempFile: params.TempFileName,
+	})
+	if err != nil {
+		return err
+	}
+
+	maybeOfferAutoFix(payload, params.IsJSON, params.WantFix, params.WantCheck, params.FilePath, params.TempFileName, params.Args)
+
+	return nil
+}
+
 func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 	if latest.Conclusion == "success" {
 		fmt.Printf("\n%s✓ Pipeline [%s] completed successfully!%s\n", constants.ColorGreen, latest.Name, constants.ColorReset)
@@ -65,6 +109,11 @@ func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 	}
 	fmt.Printf("\n%s✖ Pipeline [%s] finished with conclusion: %s%s\n", constants.ColorRed, latest.Name, latest.Conclusion, constants.ColorReset)
 	renderFailureErrorSummary(repo, latest.DatabaseID)
+	runs := queryWorkflowRuns(repo)
+	if len(runs) > 0 {
+		rerunETA := calculateAverageDuration(runs, latest.Name)
+		printRerunETA(rerunETA)
+	}
 	return nil
 }
 
