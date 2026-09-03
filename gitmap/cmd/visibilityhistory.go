@@ -24,6 +24,7 @@ import (
 // defense-in-depth second pass that also drops malformed StartedAt
 // rows the SQL `>=` comparison would let through as text-compare.
 func runVisibilityHistory(args []string) error {
+	checkHelp(constants.CmdVisibilityHistory, args)
 	limit := parseHistoryLimit(args)
 	filters := parseHistoryFilters(args, time.Now())
 	db := openDBOrExit(constants.CmdVisibilityHistory)
