@@ -170,7 +170,7 @@ func TestIsAgyProjectExcepted(t *testing.T) {
 	if !isAgyProjectExcepted(proj, "my-service") {
 		t.Errorf("expected match on Name")
 	}
-	if !isAgyProjectExcepted(proj, "D:/repos/my-service") {
+	if !isAgyProjectExcepted(proj, "/mock/repos/my-service") {
 		t.Errorf("expected match on Path")
 	}
 	if isAgyProjectExcepted(proj, "other-service") {

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestParseSlugFromGitURL(t *testing.T) {
@@ -128,7 +129,7 @@ func TestPipelineHelp(t *testing.T) {
 }
 
 func TestCalculateETA_HistoricalAverage(t *testing.T) {
-	now := "2026-08-31T09:00:00Z"
+	now := time.Now().UTC().Format(time.RFC3339)
 	runs := []ghRunItem{
 		{
 			Name:      "Release",

@@ -21,6 +21,7 @@ type PipelineStatusPayload struct {
 	ActiveWorkflow   string `json:"activeWorkflow,omitempty"`
 	LastStatus       string `json:"lastStatus,omitempty"`
 	LastConclusion   string `json:"lastConclusion,omitempty"`
+	LastRunID        int64  `json:"lastRunId,omitempty"`
 	LastRunURL       string `json:"lastRunUrl,omitempty"`
 	UpdatedAt        string `json:"updatedAt"`
 }

@@ -51,17 +51,18 @@ func isAgyProjectExceptedWithTokens(p AgyProject, tokens []string) bool {
 	}
 	pID := strings.ToLower(p.ID)
 	pName := strings.ToLower(p.Name)
-	pPath := strings.ToLower(filepath.Clean(p.GetPath()))
+	pPath := strings.ToLower(filepath.ToSlash(filepath.Clean(p.GetPath())))
 	pBase := strings.ToLower(filepath.Base(p.GetPath()))
 
 	for _, t := range tokens {
-		if t == pID || t == pName || t == pBase {
+		tNorm := strings.ToLower(filepath.ToSlash(filepath.Clean(t)))
+		if t == pID || t == pName || t == pBase || tNorm == pBase {
 			return true
 		}
 		if strings.HasPrefix(pID, t) || strings.HasPrefix(pName, t) || strings.HasPrefix(pBase, t) {
 			return true
 		}
-		if pPath != "" && (t == pPath || strings.Contains(pPath, t)) {
+		if pPath != "" && (tNorm == pPath || strings.Contains(pPath, tNorm) || strings.Contains(pPath, t)) {
 			return true
 		}
 	}

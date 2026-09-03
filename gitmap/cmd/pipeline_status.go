@@ -73,6 +73,7 @@ func buildStatusPayload(repo, lastTag string, pendingPRs int, runs []ghRunItem) 
 	}
 
 	latest := runs[0]
+	payload.LastRunID = latest.DatabaseID
 	payload.LastStatus = latest.Status
 	payload.LastConclusion = latest.Conclusion
 	payload.LastRunURL = latest.URL
@@ -82,23 +83,18 @@ func buildStatusPayload(repo, lastTag string, pendingPRs int, runs []ghRunItem) 
 	payload.IsRunning = runningCount > 0
 
 	if payload.IsRunning {
-		payload.ActiveWorkflow = latest.Name
+		activeRun := findActiveWorkflowRun(runs)
+		if activeRun != nil {
+			payload.ActiveWorkflow = activeRun.Name
+			payload.LastRunID = activeRun.DatabaseID
+			payload.LastRunURL = activeRun.URL
+		} else {
+			payload.ActiveWorkflow = latest.Name
+		}
 		payload.EtaSeconds = calculateETA(runs)
 	}
 
 	return payload
-}
-
-func countRunningWorkflows(runs []ghRunItem) int {
-	runningCount := 0
-
-	for _, r := range runs {
-		if r.Status == "in_progress" || r.Status == "queued" || r.Status == "waiting" {
-			runningCount++
-		}
-	}
-
-	return runningCount
 }
 
 func renderPipelineStatusTerminal(p PipelineStatusPayload) {
@@ -119,6 +115,10 @@ func renderPipelineStatusTerminal(p PipelineStatusPayload) {
 
 	if len(p.LastRunURL) > 0 {
 		fmt.Printf("  %s● Run URL:%s           %s\n", constants.ColorCyan, constants.ColorReset, p.LastRunURL)
+	}
+
+	if p.IsRunning && p.LastRunID > 0 {
+		renderSegmentBreakdown(p.Repo, p.LastRunID)
 	}
 }
 
