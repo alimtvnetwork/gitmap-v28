@@ -62,6 +62,7 @@ func utilityDispatchEntries() []dispatchEntry {
 		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errors", "err"}, func() error { return runPipeline(append([]string{"error-logs"}, argsTail()...)) }},
 		{[]string{"logs", "log"}, func() error { return runPipeline(append([]string{"logs"}, argsTail()...)) }},
 		{[]string{"waittime", "wait-time", "eta"}, func() error { return runPipeline(append([]string{"waittime"}, argsTail()...)) }},
+		{[]string{"repo"}, func() error { return runRepoCommand(argsTail()) }},
 		{[]string{"ui"}, func() error { return runUI(argsTail()) }},
 	}
 }

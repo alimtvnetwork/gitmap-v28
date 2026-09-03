@@ -19,6 +19,10 @@ func runDB(args []string) error {
 
 func routeDBSubcommand(sub string, tail []string) error {
 	switch sub {
+	case "status", "st", "info":
+		return runDBStatus(tail)
+	case "optimize", "opt":
+		return runDBOptimize(tail)
 	case "ls", "list":
 		return runDBLs(tail)
 	case "help", "-h", "--help":
@@ -27,8 +31,10 @@ func routeDBSubcommand(sub string, tail []string) error {
 		return runDBRepoDB(tail)
 	case "sizes", "size":
 		return runDBSizes(tail)
-	case "reset", "clear":
+	case "reset":
 		return runDBResetAction(tail)
+	case "clear":
+		return runDBClearAction(tail)
 	default:
 		return handleUnknownDBSub(sub)
 	}

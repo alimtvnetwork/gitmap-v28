@@ -28,10 +28,13 @@ func printDBHelpHeader() {
 
 func printDBHelpSubcommands() {
 	fmt.Println("  " + constants.ColorCyan + "Subcommands:" + constants.ColorReset)
+	fmt.Printf("    %-24s %s\n", "status", "Show consolidated SQLite location, path, size, and split database counts")
+	fmt.Printf("    %-24s %s\n", "optimize", "Execute VACUUM and optimize across Master, Repo, and Pipeline split databases")
 	fmt.Printf("    %-24s %s\n", "ls, list", "List all databases (main and split DBs) with paths, sizes, and architectural purpose")
 	fmt.Printf("    %-24s %s\n", "repo-db list", "List per-repository split databases with table metrics and tracking status")
 	fmt.Printf("    %-24s %s\n", "sizes list", "Show compact disk usage and size breakdown for all database files")
-	fmt.Printf("    %-24s %s\n", "reset, clear", "Reset database records and remove split DBs (--yes to skip prompt)")
+	fmt.Printf("    %-24s %s\n", "clear", "Clear search caches across split databases (--yes to skip prompt)")
+	fmt.Printf("    %-24s %s\n", "reset", "Reset database records and remove split DBs (--yes to skip prompt)")
 	fmt.Printf("    %-24s %s\n", "help", "Show this help message")
 	fmt.Println()
 }
