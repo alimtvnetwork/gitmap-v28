@@ -262,7 +262,7 @@ The server MUST reject the PATCH with `400 ValidationFailed` envelope (per `09-e
 | R-2 | `HttpMethodMask` MUST be `*` OR a CSV subset of `{GET,POST,PATCH,PUT,DELETE}` with no duplicates. | `HttpMethodMask` |
 | R-3 | `AcceptedMechanisms` MUST be non-empty when `IsEnabled=true`. (Empty + enabled would lock the endpoint out entirely — refused.) | `AcceptedMechanisms` |
 | R-4 | Every `AcceptedMechanisms` entry MUST resolve to a row in `AuthMechanism`. | `AcceptedMechanisms` |
-| R-5 | Patterns matching `/API/V1/Workers/*` or `/API/V1/SelfUpdate` are LOCKED — PATCH returns `403 EndpointAuthLocked` (`MAIN-400-10` / flat `21170`, catalogued in `14-error-codes.md` §3.4 — FU-18 RESOLVED 2026-05-05). These endpoints are always-protected per §8. | `EndpointPathPattern` |
+| R-5 | Patterns matching `/API/V1/Workers/*` or `/API/V1/SelfUpdate` are LOCKED — PATCH returns `403 EndpointAuthLocked` (`MAIN-400-10` / flat `21170`, cataloged in `14-error-codes.md` §3.4 — FU-18 RESOLVED 2026-05-05). These endpoints are always-protected per §8. | `EndpointPathPattern` |
 | R-6 | Combining `None` with any other mechanism in the same `AcceptedMechanisms` set is forbidden — `None` is mutually exclusive (otherwise it silently bypasses the others). | `AcceptedMechanisms` |
 | R-7 | Caller MUST hold `EnumPage.PowerAdminPage` access; otherwise `403 AccessDenied`. | session |
 
@@ -345,13 +345,13 @@ Implementer uses framework-native middleware (e.g. Laravel `throttle`). On limit
 
 ---
 
-## §6 — Backup-Tier Endpoint Catalogue (Phase 12 stub)
+## §6 — Backup-Tier Endpoint Catalog (Phase 12 stub)
 
 **Added:** Phase 12 (Backup-tier consolidation). **Authority for full contract:** `22-backup-endpoints.md`. This section is a **directory pointer** — request/response shapes, error codes, and idempotency rules live in the authoritative file.
 
 All Backup-tier endpoints are **S2S only** (`aud="Backup"`, mandatory `PairingId` claim per `13-jwt-delivery-contract.md` §13). They MUST NOT be exposed via the public proxy chain that serves `/API/V1/Auth/*` and `/API/V1/Company/*`.
 
-### 6.1 Catalogue
+### 6.1 Catalog
 
 | ID | Method | Path | Direction | Scope | Auth | Purpose |
 |----|--------|------|-----------|-------|------|---------|
@@ -368,10 +368,10 @@ All Backup-tier endpoints are **S2S only** (`aud="Backup"`, mandatory `PairingId
 2. **Misroute detection:** All BE-* endpoints reject with **HTTP 421 Misdirected Request** + `MAIN-800-04` when `PairingId` does not match the receiving node's `BackupPairing` table. This is a **CODE RED** path — never silently 404 or 401.
 3. **Rate limits:** BE-1 and BE-2 are exempted from §5.4 user/IP throttles and instead governed by `MainWorker.Backup.PerPairingEnvelopesPerMinute` (per `16-tunable-constants.md` §2.15).
 4. **Audit trail:** BE-3 and BE-6 MUST write to `EndpointAuthAuditEvent` (per §5.6) with `ChangeKind=BackupRestore`.
-5. **Endpoint not yet enumerated in §2:** Intentional. The §2.x catalogue is for UI/orchestration surfaces; the BE-* surface is segregated to make audience-isolation review trivial.
+5. **Endpoint not yet enumerated in §2:** Intentional. The §2.x catalog is for UI/orchestration surfaces; the BE-* surface is segregated to make audience-isolation review trivial.
 
 *See `22-backup-endpoints.md` for full payloads, error envelopes, and idempotency contracts.*
 
 ---
 
-*Core API endpoints v1.3.0 — 2026-05-06 (Phase 12: §6 Backup-tier endpoint catalogue stub added)*
+*Core API endpoints v1.3.0 — 2026-05-06 (Phase 12: §6 Backup-tier endpoint catalog stub added)*

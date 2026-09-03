@@ -9,13 +9,13 @@
 **Resolves:** audit findings F-X-08, F-A-21, F-B-08 (top-10 fix #4). Unblocks AC-6, AC-1.
 **Registered in:** `02-spec/03-error-manage/03-error-code-registry/01-registry.md` (line 61–62 entries).
 
-> **Envelope authority (Phase 13.2 — closes audit C-5):** the JSON error envelope shape is owned exclusively by **`09-error-contract.md` §2**. This file (`13-`) is a **code catalogue only** — its rows define `ErrorCode`, `Flat`, `Name`, `Message`, `HTTP`, and `Source` for use *inside* the envelope, not envelope fields themselves. Implementations MUST emit the envelope from `08-` §2 verbatim and populate `Error.ErrorCode` with the prefixed string (e.g. `WORKER-100-01`) from §2/§3 below. The **flat integer is for Go internals and DB columns only** and MUST NOT appear as a JSON envelope field. There is no `ErrorCodeFlat` or `ErrorName` JSON field on the wire; if older drafts mention them, ignore.
+> **Envelope authority (Phase 13.2 — closes audit C-5):** the JSON error envelope shape is owned exclusively by **`09-error-contract.md` §2**. This file (`13-`) is a **code catalog only** — its rows define `ErrorCode`, `Flat`, `Name`, `Message`, `HTTP`, and `Source` for use *inside* the envelope, not envelope fields themselves. Implementations MUST emit the envelope from `08-` §2 verbatim and populate `Error.ErrorCode` with the prefixed string (e.g. `WORKER-100-01`) from §2/§3 below. The **flat integer is for Go internals and DB columns only** and MUST NOT appear as a JSON envelope field. There is no `ErrorCodeFlat` or `ErrorName` JSON field on the wire; if older drafts mention them, ignore.
 
 ---
 
 ## 1. Overview
 
-Catalogues every error code referenced by `02-spec/19-main-worker-service/` and by `02-spec/14-update/28-worker-push-instruction.md`. Codes are split into two sub-ranges by issuing tier so dumb-AI implementers can tell at a glance which side throws what.
+Catalogs every error code referenced by `02-spec/19-main-worker-service/` and by `02-spec/14-update/28-worker-push-instruction.md`. Codes are split into two sub-ranges by issuing tier so dumb-AI implementers can tell at a glance which side throws what.
 
 Both formats are valid (per `02-spec/03-error-manage/03-error-code-registry/01-registry.md` §Format):
 
@@ -74,7 +74,7 @@ The mapping is mechanical: `WORKER-{XYY}-{ZZ}` ↔ `21{XYY}` for worker, `MAIN-{
 | `WORKER-400-04` | `21043` | `InstructionKindUnsupported` | "PayloadKind not implemented in this worker version." | 409 | `02-spec/14-update/28` §4 |
 | `WORKER-401-01` | `21046` | `InvalidPeerCert` | "Invalid peer certificate." | 401 | `27-trust-boundaries-and-isolation.md` |
 | `WORKER-403-01` | `21044` | `PushDisabledInProduction` | "Push endpoints REFUSE with 403 when `Env=Production` at Main." | 403 | `17-update-channels.md` §A (Push) |
-| `WORKER-403-02` | `21045` | `PayloadHostNotAllowed` | "`PayloadUrl` host not on `AllowedHostsAllowlist` (Channel C defence-in-depth)." | 403 | `17-update-channels.md` §C |
+| `WORKER-403-02` | `21045` | `PayloadHostNotAllowed` | "`PayloadUrl` host not on `AllowedHostsAllowlist` (Channel C defense-in-depth)." | 403 | `17-update-channels.md` §C |
 
 ### 2.6 Database / Persistence (500-599 → 21050-21059)
 
@@ -316,7 +316,7 @@ All three formats route to the same JSON error envelope per `09-error-contract.m
 Implemented 2026-05-04 (FU-9 closed). Rules enforced:
 
 1. **R1 Presence** — every `WORKER-XYY-ZZ` / `MAIN-XYY-ZZ` literal in `02-spec/19/`, `02-spec/14-update/`, `src/`, and `linter-scripts/tests/` MUST appear in this file's tables.
-2. **R2 No orphans** — every code catalogued here MUST be referenced from ≥1 source location outside the catalogue files (`14-error-codes.md`, `error-codes.json`, `error-codes-master.json`). Codes documented only by range-notation cross-reference (e.g. "`WORKER-100-01..05`") may be waived in §7.1.
+2. **R2 No orphans** — every code cataloged here MUST be referenced from ≥1 source location outside the catalog files (`14-error-codes.md`, `error-codes.json`, `error-codes-master.json`). Codes documented only by range-notation cross-reference (e.g. "`WORKER-100-01..05`") may be waived in §7.1.
 3. **R3 Bijection** — prefixed ↔ flat mapping MUST be one-to-one.
 4. **R4 Range** — `WORKER-*` flats in 21000-21099, `MAIN-*` flats in 21100-21199.
 
@@ -334,10 +334,10 @@ Codes referenced only via prose range-notation. Each waiver names the file + ran
 | `WORKER-600-04` | `02-spec/14-update/28` §3 | "PayloadDownloadFail" referenced as table heading only |
 | `WORKER-700-03` | `02-spec/14-update/28` §6 | "Disk-IO failure" |
 | `WORKER-800-02` | `05-worker-routing.md` §3.1 | "WorkerUnreachable" referenced by name |
-| `MAIN-100-01..04` | `06-auth-and-2fa.md` | catalogue-only sub-range |
-| `MAIN-200-01`, `MAIN-200-02` | `07-core-api-endpoints.md` §2.5/§2.7, `08-role-based-dashboards.md` | catalogue-only |
+| `MAIN-100-01..04` | `06-auth-and-2fa.md` | catalog-only sub-range |
+| `MAIN-200-01`, `MAIN-200-02` | `07-core-api-endpoints.md` §2.5/§2.7, `08-role-based-dashboards.md` | catalog-only |
 | `MAIN-400-02`, `MAIN-400-03` | `05-worker-routing.md` §3.1 | range "WorkerUnreachable / quarantine" |
-| `MAIN-500-01` | `04-main-db-schema.md` | catalogue-only |
+| `MAIN-500-01` | `04-main-db-schema.md` | catalog-only |
 | `MAIN-600-02` | `11-worker-bootstrap-protocol.md` §7 | "missed ≥3 heartbeats" |
 
 Waivers are loaded from `linter-scripts/check-mws-error-codes.waivers.txt` (one prefixed code per line, `#` for comments). Adding a waiver requires a row in the table above + a same-PR change to the waiver file. Removing a waiver after its referencing code is added to source MUST be done in the same PR that adds the reference.

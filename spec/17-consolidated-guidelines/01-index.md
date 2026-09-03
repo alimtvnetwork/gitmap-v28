@@ -85,7 +85,7 @@ This folder provides standalone, self-contained AI-readable references for every
 | 27 | [30-linter-authoring-guide.md](./30-linter-authoring-guide.md) | **Authoring** — How to add a new linter to `linter-scripts/`: file layout, exit-code contract (0/1/2), output format, allowlist registration, test fixtures, §8 checklist. Closes the final 🟡 from the v2 audit |
 | 28 | [31-distribution-and-runner.md](./31-distribution-and-runner.md) | **Module** — Standalone distribution + runner spec: `install.sh`/`.ps1`, root `run.sh`/`.ps1` dispatcher, GitHub Release pipeline, `install-config.json` schema. Phase 6B promotion of `15-distribution-and-runner/` |
 | 29 | [32-blind-ai-audit-v3.md](./32-blind-ai-audit-v3.md) | **Meta** — Post Phase 6A/6B/6D audit: 8/8 stress tests pass, score 99.4 → 99.8/100 (handoff-weighted 99.9). Terminal AI-blind-readiness reached |
-| 30 | [33-readme-improvement-suggestions.md](./33-readme-improvement-suggestions.md) | **Meta** — Prioritised README rewrite plan (22 suggestions in 5 phases). Awaiting approval. Created alongside the v3.55.0 GIFs + Bundle Installers section |
+| 30 | [33-readme-improvement-suggestions.md](./33-readme-improvement-suggestions.md) | **Meta** — Prioritized README rewrite plan (22 suggestions in 5 phases). Awaiting approval. Created alongside the v3.55.0 GIFs + Bundle Installers section |
 
 ---
 

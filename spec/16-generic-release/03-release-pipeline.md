@@ -192,7 +192,7 @@ concurrency:
   cancel-in-progress: false   # Never cancel release jobs
 ```
 
-Release branches must NOT use `cancel-in-progress: true` — a cancelled
+Release branches must NOT use `cancel-in-progress: true` — a canceled
 release leaves orphaned tags and partial assets.
 
 ---

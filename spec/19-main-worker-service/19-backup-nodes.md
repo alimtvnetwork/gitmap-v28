@@ -222,7 +222,7 @@ Phase 7 will add `MainWorker.Backup.SyncIntervalSeconds`; Phase 8 adds key-rotat
 
 ## 8. The "Never Serve Traffic" Invariant (D9)
 
-Three independent enforcement points, defence in depth:
+Three independent enforcement points, defense in depth:
 
 | Layer | Enforcement |
 |---|---|

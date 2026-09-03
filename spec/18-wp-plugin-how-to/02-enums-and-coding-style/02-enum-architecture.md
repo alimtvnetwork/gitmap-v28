@@ -21,7 +21,7 @@ Every plugin should define at minimum these enum types:
 | `HttpStatusType` | `int` | HTTP status codes (200, 400, 401, 403, 404, 500) |
 | `HookType` | `string` | WordPress hook names (`rest_api_init`, `admin_menu`, etc.) |
 | `LogLevelType` | `string` | Log severity levels (Debug, Info, Warn, Error) |
-| `ResponseKeyType` | `string` | Standardised keys in API response envelopes (PascalCase) |
+| `ResponseKeyType` | `string` | Standardized keys in API response envelopes (PascalCase) |
 | `CapabilityType` | `string` | WordPress capabilities (`activate_plugins`, `manage_options`) |
 | `WpErrorCodeType` | `string` | WP_Error code constants |
 | `PathLogFileType` | `string` | Log file name fragments (`/info.log`, `/error.log`) |
@@ -90,7 +90,7 @@ When multiple cases share a domain concept, add a group helper:
 
 ## 2.2 PluginConfigType — The Identity Enum
 
-This is the most important enum. It centralises every identity value the plugin uses:
+This is the most important enum. It centralizes every identity value the plugin uses:
 
 | Case | Example value | Used for |
 |------|--------------|----------|

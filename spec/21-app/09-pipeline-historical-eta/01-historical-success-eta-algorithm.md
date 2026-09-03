@@ -6,7 +6,7 @@ The historical baseline ETA algorithm calculates the estimated remaining complet
 
 ## Problem Statement
 
-Previous ETA heuristics computed an average runtime across all completed workflow runs, regardless of conclusion. When a workflow was cancelled early (e.g. after 5 seconds) or failed fast due to a syntax error (e.g. after 12 seconds), these runs severely skewed the average downward. Consequently, a pipeline that normally requires 4 to 6 minutes was estimated to complete in 35 seconds, leading to premature timeouts and confusing status readouts.
+Previous ETA heuristics computed an average runtime across all completed workflow runs, regardless of conclusion. When a workflow was canceled early (e.g. after 5 seconds) or failed fast due to a syntax error (e.g. after 12 seconds), these runs severely skewed the average downward. Consequently, a pipeline that normally requires 4 to 6 minutes was estimated to complete in 35 seconds, leading to premature timeouts and confusing status readouts.
 
 ## Core Invariants & Algorithm
 

@@ -4,7 +4,7 @@
 
 Verification contracts and automated acceptance tests for the Historical Success Baseline ETA model, dynamic `-t` flag, and diagnostic error extraction.
 
-## Scenario 1: ETA Excludes Failed and Cancelled Runs
+## Scenario 1: ETA Excludes Failed and Canceled Runs
 
 ```gherkin
 Given a set of past workflow runs containing 3 successful runs (averaging 120s) and 2 failed runs (failing at 10s)

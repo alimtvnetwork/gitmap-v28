@@ -1,6 +1,6 @@
 # Phase 14 — REST API Conventions
 
-> **Purpose:** Define the complete REST API design standard — route naming, namespace, HTTP method selection, pagination, filtering, category grouping, `endpoints.json` registry, and controller organisation — so any AI can design and implement plugin REST APIs consistently.
+> **Purpose:** Define the complete REST API design standard — route naming, namespace, HTTP method selection, pagination, filtering, category grouping, `endpoints.json` registry, and controller organization — so any AI can design and implement plugin REST APIs consistently.
 > **Audience:** AI code generators and human developers.
 > **Prerequisite:** Phases 1–5 must be read first (Foundation, Enums, Traits, Logging, Envelope).
 
@@ -483,7 +483,7 @@ Include pagination metadata in the `Attributes` section of the envelope:
 
 ### FilterKeyType enum
 
-Standardise all filter parameter names via an enum:
+Standardize all filter parameter names via an enum:
 
 ```php
 enum FilterKeyType: string
@@ -531,7 +531,7 @@ private function extractFilters(WP_REST_Request $request): array
 | camelCase for filter keys | `triggeredBy`, not `triggered_by` |
 | Match FilterKeyType enum values | No ad-hoc filter parameter names |
 | Date filters use ISO 8601 format | `from=2026-01-01`, `to=2026-12-31` |
-| String filters are sanitised | Always `sanitize_text_field()` |
+| String filters are sanitized | Always `sanitize_text_field()` |
 | Empty string means "no filter" | Never treat `""` as a valid filter value |
 
 ---
@@ -604,7 +604,7 @@ enum ResponseKeyType: string
 
 ---
 
-## 14.10 Controller Organisation
+## 14.10 Controller Organization
 
 ### One handler trait per endpoint (preferred)
 
@@ -673,7 +673,7 @@ Every plugin maintains an `endpoints.json` file in `data/` that documents all re
 
 1. **Human-readable documentation** — developers can scan all endpoints in one place
 2. **Machine-consumable** — admin UI can render endpoint tables from this data
-3. **Synchronised with `EndpointType`** — every enum case should have a matching entry
+3. **Synchronized with `EndpointType`** — every enum case should have a matching entry
 
 ### File location
 
@@ -749,7 +749,7 @@ plugin-slug/
 | Rule | Detail |
 |------|--------|
 | Every `EndpointType` case must have a matching entry | Except internal-only cases like `WpJson` |
-| Update `endpoints.json` when adding/removing endpoints | Keep synchronised with code |
+| Update `endpoints.json` when adding/removing endpoints | Keep synchronized with code |
 | `version` field matches the file's revision | Bump when endpoints change |
 | Categories match the grouping in §14.2 | Consistent across code and documentation |
 
@@ -983,7 +983,7 @@ private function executeOpenapi(WP_REST_Request $request): WP_REST_Response
 | Request body fields | `RequestFieldType` enum; snake_case | §14.8 |
 | Response keys | `ResponseKeyType` enum; PascalCase | §14.9 |
 | Controller org | One handler trait per endpoint; group by domain subfolder | §14.10 |
-| Endpoint registry | `data/endpoints.json` file; synchronised with `EndpointType` | §14.11 |
+| Endpoint registry | `data/endpoints.json` file; synchronized with `EndpointType` | §14.11 |
 | Standard endpoints | Status (required), List+paginate, Action+validate, Two-phase confirm | §14.12 |
 | Dynamic segments | WordPress regex capture groups in `EndpointType` values | §14.13 |
 
@@ -999,4 +999,4 @@ private function executeOpenapi(WP_REST_Request $request): WP_REST_Response
 
 ---
 
-*Phase 14 completes the REST API design standard: from namespace to route naming, HTTP method selection, pagination, filtering, data files, and controller organisation.*
+*Phase 14 completes the REST API design standard: from namespace to route naming, HTTP method selection, pagination, filtering, data files, and controller organization.*

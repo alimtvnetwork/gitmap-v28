@@ -234,7 +234,7 @@ Single source of truth for which HTTP status code Main returns to React (and whi
 Rules:
 
 - Main MUST set `Retry-After` (seconds) whenever it returns 429/503/504 and the envelope's `RetryAfterSeconds` is set.
-- Main MUST NOT return 500 for any catalogued ErrorCode. 500 is reserved for un-categorised exceptions (which themselves MUST be wrapped in a `WorkerVersionMismatch`-equivalent envelope before the next deploy).
+- Main MUST NOT return 500 for any cataloged ErrorCode. 500 is reserved for un-categorized exceptions (which themselves MUST be wrapped in a `WorkerVersionMismatch`-equivalent envelope before the next deploy).
 
 ---
 

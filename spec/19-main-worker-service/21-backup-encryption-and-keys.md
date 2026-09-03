@@ -30,7 +30,7 @@ In-scope:
 - Confidentiality of envelope contents in transit and at rest on the backup node.
 - Authenticity — a backup MUST reject any envelope not signed by the paired primary.
 - Forward secrecy across rotation — a leaked retired key MUST NOT decrypt envelopes minted under the new active key.
-- Defence against operator-side mistakes (wrong primary uploading to wrong backup).
+- Defense against operator-side mistakes (wrong primary uploading to wrong backup).
 
 Out-of-scope (explicitly):
 
@@ -42,9 +42,9 @@ Out-of-scope (explicitly):
 
 ## 3. Key material inventory
 
-Three distinct artefacts. Do **not** conflate.
+Three distinct artifacts. Do **not** conflate.
 
-| # | Artefact | Lifetime | Storage location | Holder |
+| # | Artifact | Lifetime | Storage location | Holder |
 |---|---|---|---|---|
 | K1 | **Pair-RSA** — RSA-4096 key pair, one pair per `(PrimaryWorkerNodeId, BackupWorkerNodeId)` couple. | One **KeyEpoch**. Rotated on Main instruction. | Private half on primary + backup; public half mirrored to Main. | Primary, Backup, Main (public only). |
 | K2 | **Envelope-AES** — AES-256-GCM session key, freshly generated per envelope. | One envelope. Discarded after sealing. | In-memory only. | Primary (write), Backup (read). |
@@ -85,7 +85,7 @@ Per envelope produced by Phase 7 (`20-incremental-backup-sync.md` §6):
 9. OUTPUT       = AES-256-ZIP(INNER_BLOB, ZIP_PASSWORD)              // standard zipcrypto NOT permitted
 ```
 
-Steps 4–6 use widely-available primitives in every default-stack target (`openssl_*` in PHP, `crypto.subtle` in TS, `crypto/rsa` in Go, `RSACryptoServiceProvider` in C#, `ring` / `RustCrypto` in Rust). The outer zip is **only** there to give operators a familiar artefact they can move around with normal tooling — its password is not a security boundary on its own; the inner GCM + RSA sign/wrap layer is the real crypto.
+Steps 4–6 use widely-available primitives in every default-stack target (`openssl_*` in PHP, `crypto.subtle` in TS, `crypto/rsa` in Go, `RSACryptoServiceProvider` in C#, `ring` / `RustCrypto` in Rust). The outer zip is **only** there to give operators a familiar artifact they can move around with normal tooling — its password is not a security boundary on its own; the inner GCM + RSA sign/wrap layer is the real crypto.
 
 ---
 
@@ -287,7 +287,7 @@ Main tier (rotation orchestration, range `MAIN-820-*` / 21186-21188):
 |---|---|
 | `BACKUP-KEY-001` | Every `BackupKeyEpoch` row with `State='Discarded'` MUST have `PrivateKeyPem IS NULL` and `DiscardedAt IS NOT NULL`. |
 | `BACKUP-KEY-002` | Per `(PrimaryWorkerNodeId, BackupWorkerNodeId)`: at most one row each in `Pending` / `Active`. |
-| `BACKUP-ZIP-001` | Any zip artefact under `var/backup-outbox/` MUST be AES-256 (`unzip -lv` parse). |
+| `BACKUP-ZIP-001` | Any zip artifact under `var/backup-outbox/` MUST be AES-256 (`unzip -lv` parse). |
 
 ---
 

@@ -959,7 +959,7 @@ jobs:
           php-version: '8.2'
       - run: composer install
       - run: vendor/bin/phpunit
-      - run: vendor/bin/phpstan analyse
+      - run: vendor/bin/phpstan analyze
 
   package:
     needs: test

@@ -17,8 +17,8 @@ underpin the v2.0 reopen of two formally-deferred open questions:
 
 | Origin OQ | Source disposition | What the threat model must cover |
 |---|---|---|
-| **OQ-12-1** — Separate `RefreshToken` cookie + rotation | [`13-jwt-delivery-contract.md` §11.3](./13-jwt-delivery-contract.md) — *Future-work catalogue* | Token-theft window, sign-out-everywhere, refresh-replay attack tree, cross-origin isolation assumptions. |
-| **OQ-23-1** / **OQ-23-2** — Snapshot dedup pyramid + partial-tenant restore | [`24-snapshot-storage-and-restore.md` §14.4](./24-snapshot-storage-and-restore.md) — *Future-work catalogue* | Snapshot-chain integrity, per-tenant blast radius, re-seal/key-rotation interaction, audit-bypass risk of partial restore. |
+| **OQ-12-1** — Separate `RefreshToken` cookie + rotation | [`13-jwt-delivery-contract.md` §11.3](./13-jwt-delivery-contract.md) — *Future-work catalog* | Token-theft window, sign-out-everywhere, refresh-replay attack tree, cross-origin isolation assumptions. |
+| **OQ-23-1** / **OQ-23-2** — Snapshot dedup pyramid + partial-tenant restore | [`24-snapshot-storage-and-restore.md` §14.4](./24-snapshot-storage-and-restore.md) — *Future-work catalog* | Snapshot-chain integrity, per-tenant blast radius, re-seal/key-rotation interaction, audit-bypass risk of partial restore. |
 
 Both deferred OQs declared `25-threat-model.md` as a **shared prerequisite**
 for any v2.0 reopen. Until this file becomes a real spec, neither OQ may be
@@ -28,7 +28,7 @@ reopened.
 
 ## 2. What is **not** in this file (CODE RED)
 
-Per the formalised dispositions in §11.3 / §14.4, this stub MUST NOT contain
+Per the formalized dispositions in §11.3 / §14.4, this stub MUST NOT contain
 any of the following — adding them here is itself a CODE RED violation:
 
 - ❌ Any STRIDE / attack-tree content (premature without the v2.0 trigger).
