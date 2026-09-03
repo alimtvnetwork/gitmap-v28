@@ -23,49 +23,77 @@ type SnapshotManifest struct {
 	Files     []string  `json:"files"`
 }
 
-func copyBackupArtifacts(destDir string) {
+func copyBackupArtifacts(destDir string) error {
 	dataDir := store.BinaryDataDir()
 	masterDB := filepath.Join(dataDir, "gitmap.db")
-	copyFileIfExists(masterDB, filepath.Join(destDir, "gitmap.db"))
+	if err := copyFileIfExists(masterDB, filepath.Join(destDir, "gitmap.db")); err != nil {
+		return err
+	}
 
 	profFile := store.GitProfilesPath()
-	copyFileIfExists(profFile, filepath.Join(destDir, "git_profiles.json"))
+	if err := copyFileIfExists(profFile, filepath.Join(destDir, "git_profiles.json")); err != nil {
+		return err
+	}
 
-	copyFolderIfExists(filepath.Join(dataDir, "pipeline_db"), filepath.Join(destDir, "pipeline_db"))
-	copyFolderIfExists(filepath.Join(dataDir, "repo_search"), filepath.Join(destDir, "repo_search"))
+	if err := copyFolderIfExists(filepath.Join(dataDir, "pipeline_db"), filepath.Join(destDir, "pipeline_db")); err != nil {
+		return err
+	}
+	return copyFolderIfExists(filepath.Join(dataDir, "repo_search"), filepath.Join(destDir, "repo_search"))
 }
 
-func copyFileIfExists(src, dst string) {
+func copyFileIfExists(src, dst string) error {
 	data, err := os.ReadFile(src)
-	if err == nil {
-		_ = os.WriteFile(dst, data, 0644)
+	if os.IsNotExist(err) {
+		return nil
 	}
+	if err != nil {
+		return apperror.WrapSimple(err, "read file:")
+	}
+	if writeErr := os.WriteFile(dst, data, 0644); writeErr != nil {
+		return apperror.WrapSimple(writeErr, "write file:")
+	}
+	return nil
 }
 
-func copyFolderIfExists(srcDir, dstDir string) {
+func copyFolderIfExists(srcDir, dstDir string) error {
 	entries, err := os.ReadDir(srcDir)
-	if err != nil {
-		return
+	if os.IsNotExist(err) {
+		return nil
 	}
-	_ = os.MkdirAll(dstDir, 0755)
+	if err != nil {
+		return apperror.WrapSimple(err, "read dir:")
+	}
+	if mkErr := os.MkdirAll(dstDir, 0755); mkErr != nil {
+		return apperror.WrapSimple(mkErr, "create dir:")
+	}
 	for _, e := range entries {
-		if !e.IsDir() {
-			s := filepath.Join(srcDir, e.Name())
-			d := filepath.Join(dstDir, e.Name())
-			copyFileIfExists(s, d)
+		if e.IsDir() {
+			continue
+		}
+		s := filepath.Join(srcDir, e.Name())
+		d := filepath.Join(dstDir, e.Name())
+		if copyErr := copyFileIfExists(s, d); copyErr != nil {
+			return copyErr
 		}
 	}
+	return nil
 }
 
-func writeSnapshotManifest(destDir, snapID, note string) {
+func writeSnapshotManifest(destDir, snapID, note string) error {
 	m := SnapshotManifest{
 		ID:        snapID,
 		CreatedAt: time.Now(),
 		Note:      note,
 		Files:     []string{"gitmap.db", "git_profiles.json", "pipeline_db", "repo_search"},
 	}
-	data, _ := json.MarshalIndent(m, "", "  ")
-	_ = os.WriteFile(filepath.Join(destDir, "manifest.json"), data, 0644)
+	data, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		return apperror.WrapSimple(err, "marshal manifest:")
+	}
+	if writeErr := os.WriteFile(filepath.Join(destDir, "manifest.json"), data, 0644); writeErr != nil {
+		return apperror.WrapSimple(writeErr, "write manifest:")
+	}
+	return nil
 }
 
 func runBackupCloudList(args []string) error {
@@ -145,7 +173,9 @@ func runBackupCloudRestore(args []string) error {
 	}
 	src := filepath.Join(snapsDir, target)
 	dst := store.BinaryDataDir()
-	copyBackupArtifactsToDir(src, dst)
+	if restoreErr := copyBackupArtifactsToDir(src, dst); restoreErr != nil {
+		return restoreErr
+	}
 	fmt.Printf("  %s✓ Restored databases and profiles from: %s%s\n",
 		constants.ColorGreen, target, constants.ColorReset)
 	return nil
@@ -192,15 +222,21 @@ func promptSnapshotSelection(entries []os.DirEntry) (string, error) {
 	return pickSnapshotByNameOrIndex(entries, strings.TrimSpace(line))
 }
 
-func copyBackupArtifactsToDir(srcDir, dstDir string) {
+func copyBackupArtifactsToDir(srcDir, dstDir string) error {
 	masterDB := filepath.Join(srcDir, "gitmap.db")
-	copyFileIfExists(masterDB, filepath.Join(dstDir, "gitmap.db"))
+	if err := copyFileIfExists(masterDB, filepath.Join(dstDir, "gitmap.db")); err != nil {
+		return err
+	}
 
 	profFile := filepath.Join(srcDir, "git_profiles.json")
-	copyFileIfExists(profFile, filepath.Join(dstDir, "git_profiles.json"))
+	if err := copyFileIfExists(profFile, filepath.Join(dstDir, "git_profiles.json")); err != nil {
+		return err
+	}
 
-	copyFolderIfExists(filepath.Join(srcDir, "pipeline_db"), filepath.Join(dstDir, "pipeline_db"))
-	copyFolderIfExists(filepath.Join(srcDir, "repo_search"), filepath.Join(dstDir, "repo_search"))
+	if err := copyFolderIfExists(filepath.Join(srcDir, "pipeline_db"), filepath.Join(dstDir, "pipeline_db")); err != nil {
+		return err
+	}
+	return copyFolderIfExists(filepath.Join(srcDir, "repo_search"), filepath.Join(dstDir, "repo_search"))
 }
 
 func runBackupCloudRemove(args []string) error {
@@ -217,7 +253,9 @@ func runBackupCloudRemove(args []string) error {
 		fmt.Println("  Aborted.")
 		return nil
 	}
-	_ = os.RemoveAll(filepath.Join(snapsDir, target))
+	if rmErr := os.RemoveAll(filepath.Join(snapsDir, target)); rmErr != nil {
+		return apperror.WrapSimple(rmErr, "remove snapshot:")
+	}
 	cmdCommit := exec.Command("git", "commit", "-am", "backup: remove "+target)
 	cmdCommit.Dir = cloudDir
 	_ = cmdCommit.Run()

@@ -120,16 +120,22 @@ func createSnapshotFolder(cloudDir string, args []string) (string, error) {
 	if mkErr := os.MkdirAll(destDir, 0755); mkErr != nil {
 		return "", apperror.WrapSimple(mkErr, "create snapshot dir:")
 	}
-	copyBackupArtifacts(destDir)
+	if copyErr := copyBackupArtifacts(destDir); copyErr != nil {
+		return "", copyErr
+	}
 	note := extractFlagVal(args, "--note")
-	writeSnapshotManifest(destDir, snapID, note)
+	if manifestErr := writeSnapshotManifest(destDir, snapID, note); manifestErr != nil {
+		return "", manifestErr
+	}
 	return snapID, nil
 }
 
 func commitAndPushSnapshot(cloudDir, snapID string) error {
 	cmdAdd := exec.Command("git", "add", ".")
 	cmdAdd.Dir = cloudDir
-	_ = cmdAdd.Run()
+	if addErr := cmdAdd.Run(); addErr != nil {
+		return apperror.WrapSimple(addErr, "git add backup:")
+	}
 
 	commitMsg := fmt.Sprintf("backup: capture %s", snapID)
 	cmdCommit := exec.Command("git", "commit", "-m", commitMsg)
