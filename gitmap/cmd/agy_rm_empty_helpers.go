@@ -58,6 +58,9 @@ func isAgyProjectExceptedWithTokens(p AgyProject, tokens []string) bool {
 		if t == pID || t == pName || t == pBase {
 			return true
 		}
+		if strings.HasPrefix(pID, t) || strings.HasPrefix(pName, t) || strings.HasPrefix(pBase, t) {
+			return true
+		}
 		if pPath != "" && (t == pPath || strings.Contains(pPath, t)) {
 			return true
 		}

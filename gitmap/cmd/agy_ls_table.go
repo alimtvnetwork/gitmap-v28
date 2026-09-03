@@ -32,7 +32,7 @@ func newAgyTableContext() *agyTableContext {
 		MaxProject: 18,
 		MaxID:      10,
 		MaxBranch:  8,
-		MaxStatus:  10,
+		MaxStatus:  14,
 		MaxUpdated: 9,
 	}
 }
@@ -103,12 +103,12 @@ func printAgyTableRow(c *agyTableContext, r agyTableRow, index int) {
 
 func formatAgyStatus(status string, isMissing bool, width int) string {
 	if isMissing {
-		return fmt.Sprintf("%s%-*s%s", constants.ColorRed, width, "✖ missing", constants.ColorReset)
+		return fmt.Sprintf("%s%-*s%s", constants.ColorRed, width, "✖   missing", constants.ColorReset)
 	}
 	if status == "global" {
-		return fmt.Sprintf("%s%-*s%s", constants.ColorDim, width, "— global", constants.ColorReset)
+		return fmt.Sprintf("%s%-*s%s", constants.ColorDim, width, "—   global", constants.ColorReset)
 	}
-	return fmt.Sprintf("%s%-*s%s", constants.ColorGreen, width, "✔ active", constants.ColorReset)
+	return fmt.Sprintf("%s%-*s%s", constants.ColorGreen, width, "✔   active", constants.ColorReset)
 }
 
 func printAgySummary(total, active, missing int) {
@@ -119,8 +119,17 @@ func printAgySummary(total, active, missing int) {
 		constants.ColorGreen, active, constants.ColorReset,
 		constants.ColorRed, missing, constants.ColorReset)
 	if missing > 0 {
-		fmt.Printf("  %sTip: Run 'gitmap agy clear --missing' to remove stale projects.%s\n",
-			constants.ColorDim, constants.ColorReset)
+		printAgyMissingTips()
 	}
 	fmt.Println()
+}
+
+func printAgyMissingTips() {
+	fmt.Printf("  %sReconciliation & Cleanup for Missing Projects:%s\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("    %s●%s Reconcile & re-link: %sgitmap agy reconcile%s (alias: recon)\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    %s●%s Scan & discover:    %sgitmap agy scan [path]%s\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    %s●%s Remove missing:     %sgitmap agy remove-missing-projects%s (alias: rm-missing)\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
 }
