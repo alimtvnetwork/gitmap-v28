@@ -47,12 +47,14 @@ import (
 // OutputMode selects the rendering for Report / FailWith. Zero value
 // (OutputHuman) keeps the existing terminal-friendly shape so callers
 // that don't care about JSON pay no migration cost.
-type OutputMode int
+type OutputModeType int
+
+type OutputMode = OutputModeType
 
 const (
 	// OutputHuman renders the canonical text line + indented
 	// context fields. This is the default.
-	OutputHuman OutputMode = iota
+	OutputHuman OutputModeType = iota
 	// OutputJSON renders one single-line JSON object per failure.
 	OutputJSON
 )

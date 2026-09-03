@@ -12,10 +12,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-type MatchKind int
+type MatchKindType int
+
+type MatchKind = MatchKindType
 
 const (
-	MatchExact MatchKind = iota
+	MatchExact MatchKindType = iota
 	MatchContains
 	MatchStartsWith
 	MatchEndsWith

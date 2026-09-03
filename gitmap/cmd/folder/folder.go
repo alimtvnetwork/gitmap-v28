@@ -11,14 +11,16 @@ import (
 )
 
 // OutputFormat defines the rendering strategy for folder output.
-type OutputFormat string
+type OutputFormatType string
+
+type OutputFormat = OutputFormatType
 
 const (
-	FormatTree OutputFormat = "tree"
-	FormatMd   OutputFormat = "md"
-	FormatJson OutputFormat = "json"
-	FormatYaml OutputFormat = "yaml"
-	FormatFlat OutputFormat = "flat"
+	FormatTree OutputFormatType = "tree"
+	FormatMd   OutputFormatType = "md"
+	FormatJson OutputFormatType = "json"
+	FormatYaml OutputFormatType = "yaml"
+	FormatFlat OutputFormatType = "flat"
 )
 
 // Options holds CLI configurations and flags for folder scanning.
