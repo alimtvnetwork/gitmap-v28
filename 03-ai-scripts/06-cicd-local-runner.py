@@ -21,22 +21,31 @@ JOB_TIMEOUT_SEC = 300  # Maximum seconds before a single job is timed out
 os.environ.setdefault("CI", "true")
 os.environ.setdefault("NODE_ENV", "test")
 
-# ── Job Definitions (extracted from CI/CD workflow steps) ───────────────────
-JOBS = {
-    "Spell Check (misspell)": [sys.executable, ".github/scripts/misspell-changed.py"],
-    "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
-    "Boolean & Enum Linter": [sys.executable, "linter-scripts/check-enum-and-boolean.py"],
-    "Error Management Check": [sys.executable, "linter-scripts/check-error-management.py"],
-    "Relative Path Check": [sys.executable, "linter-scripts/check-relative-paths.py"],
-    "Newline Styling Check": [sys.executable, "linter-scripts/check-newline-styling.py"],
-    "CLI Help Parity Check": [sys.executable, "03-ai-scripts/09-cli-help-auditor.py"],
-    "Constants Registry AST Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdRegistryMatchesAST", "-count=1"],
-    "Constants Collision Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdConstantsAreUnique", "-count=1"],
-    "Helptext Parity Check": ["go", "test", "-C", "gitmap", "./helptext/...", "-count=1"],
-    "Go Compile Gate": ["go", "build", "-C", "gitmap", "-o", "../bin/gitmap.exe", "."],
-    "E2E Smoke Suite": [sys.executable, ".github/scripts/e2e-cli-smoke.py", "bin/gitmap.exe"],
-    "Web App Build": ["npm", "run", "build"],
-}
+# ── Job Definitions (Partitioned into Order-Dependent Sequential Batches) ───
+JOB_BATCHES: list[dict[str, list[str]]] = [
+    # Batch 1: Linters & AST Checks (order-independent, run concurrently)
+    {
+        "Spell Check (misspell)": [sys.executable, ".github/scripts/misspell-changed.py"],
+        "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
+        "Boolean & Enum Linter": [sys.executable, "linter-scripts/check-enum-and-boolean.py"],
+        "Error Management Check": [sys.executable, "linter-scripts/check-error-management.py"],
+        "Relative Path Check": [sys.executable, "linter-scripts/check-relative-paths.py"],
+        "Newline Styling Check": [sys.executable, "linter-scripts/check-newline-styling.py"],
+        "CLI Help Parity Check": [sys.executable, "03-ai-scripts/09-cli-help-auditor.py"],
+        "Constants Registry AST Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdRegistryMatchesAST", "-count=1"],
+        "Constants Collision Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdConstantsAreUnique", "-count=1"],
+        "Helptext Parity Check": ["go", "test", "-C", "gitmap", "./helptext/...", "-count=1"],
+    },
+    # Batch 2: Compile & Packaging Gates
+    {
+        "Go Compile Gate": ["go", "build", "-C", "gitmap", "-o", "../bin/gitmap.exe", "."],
+        "Web App Build": ["npm", "run", "build"],
+    },
+    # Batch 3: E2E Smoke Tests (depends on Go Compile Gate binary)
+    {
+        "E2E Smoke Suite": [sys.executable, ".github/scripts/e2e-cli-smoke.py", "bin/gitmap.exe"],
+    },
+]
 
 def run_job(name: str, cmd: list[str]) -> tuple[str, list[str], int | str, str, str, float]:
     start = time.monotonic()
@@ -68,32 +77,34 @@ def run_job(name: str, cmd: list[str]) -> tuple[str, list[str], int | str, str, 
         return name, cmd, 1, "", str(e), elapsed
 
 def main() -> None:
-    job_items = list(JOBS.items())
-    total_jobs = len(job_items)
-    print(f"[INFO] Enqueued {total_jobs} quality gates across {BATCH_SIZE} concurrent workers...\n")
+    total_jobs = sum(len(b) for b in JOB_BATCHES)
+    print(f"[INFO] Enqueued {total_jobs} quality gates across {BATCH_SIZE} concurrent workers ({len(JOB_BATCHES)} sequential batches)...\n")
 
     all_results = {}
     total_start = time.monotonic()
 
-    # Execute jobs using concurrent worker pool
-    with ThreadPoolExecutor(max_workers=BATCH_SIZE) as executor:
-        futures = {executor.submit(run_job, name, cmd): name for name, cmd in job_items}
+    # Execute each batch sequentially; jobs within a batch execute concurrently
+    for batch_idx, batch_jobs in enumerate(JOB_BATCHES, start=1):
+        job_items = list(batch_jobs.items())
 
-        for future in as_completed(futures):
-            try:
-                name, cmd, code, out, err, elapsed = future.result()
-                all_results[name] = (code, out, err, elapsed, cmd)
+        with ThreadPoolExecutor(max_workers=BATCH_SIZE) as executor:
+            futures = {executor.submit(run_job, name, cmd): name for name, cmd in job_items}
 
-                if code == 0:
-                    print(f"  PASS [{name}] ({elapsed}s)")
-                elif code == "timeout":
-                    print(f"  TIMEOUT [{name}] ({elapsed}s)")
-                else:
-                    print(f"  FAIL [{name}] ({elapsed}s)")
-            except Exception as ex:
-                job_name = futures[future]
-                all_results[job_name] = (1, "", str(ex), 0, JOBS.get(job_name, []))
-                print(f"  FAIL [{job_name}] (Exception: {ex})")
+            for future in as_completed(futures):
+                try:
+                    name, cmd, code, out, err, elapsed = future.result()
+                    all_results[name] = (code, out, err, elapsed, cmd)
+
+                    if code == 0:
+                        print(f"  PASS [{name}] ({elapsed}s)")
+                    elif code == "timeout":
+                        print(f"  TIMEOUT [{name}] ({elapsed}s)")
+                    else:
+                        print(f"  FAIL [{name}] ({elapsed}s)")
+                except Exception as ex:
+                    job_name = futures[future]
+                    all_results[job_name] = (1, "", str(ex), 0, batch_jobs.get(job_name, []))
+                    print(f"  FAIL [{job_name}] (Exception: {ex})")
 
     total_elapsed = round(time.monotonic() - total_start, 2)
 
