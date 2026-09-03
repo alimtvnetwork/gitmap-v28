@@ -25,14 +25,22 @@ function formatCommandExamples(examples?: CommandExample[]): string {
 }
 
 function formatHowToProceed(steps?: { step: number; title: string; action: string }[]): string {
-  if (!steps || steps.length === 0) return "";
+  if (!steps || steps.length === 0) {
+    return "";
+  }
+
   const lines = steps.map((s) => `${s.step}. **${s.title}**\n   \`\`\`bash\n   ${s.action}\n   \`\`\``);
+
   return `**How to Proceed:**\n\n${lines.join("\n\n")}\n\n`;
 }
 
 function formatNotes(notes?: string[]): string {
-  if (!notes || notes.length === 0) return "";
+  if (!notes || notes.length === 0) {
+    return "";
+  }
+
   const lines = notes.map((n) => `- ⚠️ ${n}`);
+
   return `**Important Notes & Safety:**\n${lines.join("\n")}\n\n`;
 }
 

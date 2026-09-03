@@ -44,6 +44,7 @@ gitmap create [repo] <name> [flags]
 ```
 
 ### Safety & Invariants
+
 - **Private By Default**: Unless `--public` is explicitly provided, all created repositories are created with `--private` visibility.
 - **Local-Only Isolation**: Supplying `--no-remote` skips all network provisioning, ensuring offline safety.
 - **AST Compliance**: Command constant `CmdCreate = "create"` registered under `constants_cli.go` and verified by `cmd_constants_test.go`.
