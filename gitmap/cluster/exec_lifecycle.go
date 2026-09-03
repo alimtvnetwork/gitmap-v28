@@ -113,9 +113,12 @@ func extractExitCode(err error) int {
 	if err == nil {
 		return constants.ExitCodeSuccess
 	}
-	if exitErr, ok := err.(*exec.ExitError); ok {
+
+	exitErr, isExitErr := err.(*exec.ExitError)
+	if isExitErr {
 		return exitErr.ExitCode()
 	}
+
 	return constants.ExitCodeError
 }
 

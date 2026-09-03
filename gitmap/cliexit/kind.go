@@ -93,7 +93,8 @@ var kindLabels = map[KindType]string{
 // update the table still produces a "something went wrong" exit
 // rather than a misleading 0.
 func KindCode(k KindType) int {
-	if code, ok := kindCodes[k]; ok {
+	code, isFound := kindCodes[k]
+	if isFound {
 		return code
 	}
 
@@ -104,7 +105,8 @@ func KindCode(k KindType) int {
 // FailKind to tag the stderr context with the failure class so a
 // reader doesn't have to memorize the code table.
 func KindLabel(k KindType) string {
-	if label, ok := kindLabels[k]; ok {
+	label, isFound := kindLabels[k]
+	if isFound {
 		return label
 	}
 

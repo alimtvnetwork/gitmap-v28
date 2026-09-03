@@ -53,7 +53,9 @@ func ExecCmd(
 	if err != nil {
 		exitCode = constants.ExitCodeError
 	}
-	if exitErr, ok := err.(*exec.ExitError); ok {
+
+	exitErr, isExitErr := err.(*exec.ExitError)
+	if isExitErr {
 		exitCode = exitErr.ExitCode()
 	}
 
