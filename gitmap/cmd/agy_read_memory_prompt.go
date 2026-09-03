@@ -15,10 +15,10 @@ import (
 )
 
 var (
-	agyAprmpExcept  string
-	agyAprmpPrompt  string
-	agyAprmpDryRun  bool
-	agyAprmpYes     bool
+	agyAprmpExcept string
+	agyAprmpPrompt string
+	agyAprmpDryRun bool
+	agyAprmpYes    bool
 )
 
 const defaultReadMemoryPrompt = "Execute enhanced Read Memory protocol. Defensively load memory, specs, constraints, and pending plans before taking action."

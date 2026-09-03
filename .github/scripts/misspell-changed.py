@@ -34,6 +34,14 @@ def get_changed_files(repo_root):
     base_ref = os.environ.get("GH_BASE_REF", "")
     base = f"origin/{base_ref}" if event_name == "pull_request" and base_ref else "HEAD~1"
 
+    if event_name != "pull_request" or not base_ref:
+        try:
+            chk = subprocess.run(["git", "rev-parse", "--verify", "HEAD~1"], cwd=repo_root, capture_output=True)
+            if chk.returncode != 0:
+                subprocess.run(["git", "fetch", "--depth=2"], cwd=repo_root, capture_output=True)
+        except Exception:
+            pass
+
     try:
         res = subprocess.run(
             ["git", "diff", "--name-only", "--diff-filter=AM", f"{base}...HEAD"],
