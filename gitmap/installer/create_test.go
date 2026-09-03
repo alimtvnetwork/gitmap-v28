@@ -15,11 +15,13 @@ func setupInstallerTestDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("failed to open store: %v", err)
 	}
+
 	t.Cleanup(func() { db.Close() })
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		t.Fatalf("failed to migrate: %v", errMigrate)
 	}
+
 	return db
 }
 
@@ -31,6 +33,7 @@ func TestManagerCreate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Create failed: %v", err)
 	}
+
 	if script.Slug != "docker-suite" || script.Version != "v1.0.0" {
 		t.Errorf("unexpected script created: %+v", script)
 	}

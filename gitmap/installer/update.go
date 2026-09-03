@@ -13,6 +13,7 @@ func (m *Manager) Update(slug, osTarget string) (*model.InstallerScript, error) 
 	if m == nil || m.db == nil {
 		return nil, apperror.New("Update", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(slug) == "" {
 		return nil, apperror.New("Update", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug cannot be empty"})
 	}
@@ -29,6 +30,7 @@ func (m *Manager) Update(slug, osTarget string) (*model.InstallerScript, error) 
 		TargetOS:     existing.TargetOS,
 		Instructions: existing.Instructions,
 	}
+
 	if errSave := m.db.SaveVersion(oldVersion); errSave != nil {
 		return nil, errSave
 	}
@@ -36,6 +38,7 @@ func (m *Manager) Update(slug, osTarget string) (*model.InstallerScript, error) 
 	if osTarget != "" {
 		existing.TargetOS = osTarget
 	}
+
 	existing.Version = NextSemanticVersion(existing.Version)
 
 	return existing, nil

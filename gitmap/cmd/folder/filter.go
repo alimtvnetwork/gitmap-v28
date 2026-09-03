@@ -19,6 +19,7 @@ func ParseExceptGlobs(raw string) []string {
 	if raw == "" {
 		return nil
 	}
+
 	parts := strings.Split(raw, ",")
 	var globs []string
 	for _, p := range parts {
@@ -27,6 +28,7 @@ func ParseExceptGlobs(raw string) []string {
 			globs = append(globs, strings.ReplaceAll(trimmed, "\\", "/"))
 		}
 	}
+
 	return globs
 }
 
@@ -44,6 +46,7 @@ func (fc *FilterConfig) IsPathExcluded(relPath string, isDir bool) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -63,6 +66,7 @@ func matchGlob(pattern, normPath, base string, isDir bool) bool {
 	if matched, _ := filepath.Match(pattern, base); matched {
 		return true
 	}
+
 	if matched, _ := filepath.Match(pattern, normPath); matched {
 		return true
 	}
@@ -81,12 +85,15 @@ func (fc *FilterConfig) IsMetaAllowed(meta *FileMeta) bool {
 	if fc.OnlyText && meta.IsBinary {
 		return false
 	}
+
 	if fc.OnlyBinary && !meta.IsBinary {
 		return false
 	}
+
 	if len(fc.Extensions) > 0 {
 		return hasMatchingExtension(meta.Extension, fc.Extensions)
 	}
+
 	return true
 }
 
@@ -97,5 +104,6 @@ func hasMatchingExtension(ext string, allowed []string) bool {
 			return true
 		}
 	}
+
 	return false
 }

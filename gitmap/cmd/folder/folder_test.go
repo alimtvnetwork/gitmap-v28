@@ -43,6 +43,7 @@ func TestScanDirectoryWithMultiGlobExcept(t *testing.T) {
 		if strings.HasPrefix(f.Path, "vendor") {
 			t.Errorf("vendor file not excluded: %s", f.Path)
 		}
+
 		if f.Extension == ".png" {
 			t.Errorf("png file not excluded: %s", f.Path)
 		}
@@ -62,6 +63,7 @@ func TestRenderTreeDetailed(t *testing.T) {
 	if !strings.Contains(rendered, "01-app.ts (seq: 01, 3 lines") {
 		t.Errorf("expected detailed metadata for 01-app.ts, got:\n%s", rendered)
 	}
+
 	if !strings.Contains(rendered, "my-project/") {
 		t.Errorf("expected root header in tree, got:\n%s", rendered)
 	}
@@ -80,6 +82,7 @@ func TestRenderMarkdownNestedList(t *testing.T) {
 	if !strings.Contains(md, "- src/") {
 		t.Errorf("expected markdown folder bullet, got:\n%s", md)
 	}
+
 	if !strings.Contains(md, "01-app.ts (seq: 01, 3 lines") {
 		t.Errorf("expected markdown file bullet with details, got:\n%s", md)
 	}
@@ -101,6 +104,7 @@ func TestRenderJson(t *testing.T) {
 	if !strings.Contains(jsonStr, `"totalFiles": 4`) {
 		t.Errorf("expected totalFiles 4 in JSON, got:\n%s", jsonStr)
 	}
+
 	if !strings.Contains(jsonStr, `"isBinary": true`) {
 		t.Errorf("expected isBinary true for png in JSON, got:\n%s", jsonStr)
 	}

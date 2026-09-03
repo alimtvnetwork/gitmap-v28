@@ -17,6 +17,7 @@ func TestManagerRedo(t *testing.T) {
 		TargetOS: "win",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	if errRedo := mgr.Redo("redo-test"); errRedo != nil {

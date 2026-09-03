@@ -17,6 +17,7 @@ func TestConflictResolver(t *testing.T) {
 		TargetOS: "all",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	if errConflict := mgr.resolveImportConflict("conflict-app"); errConflict != nil {

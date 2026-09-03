@@ -23,6 +23,7 @@ func InitRepoSchema(ctx context.Context, db *sql.DB) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -31,6 +32,7 @@ func ResolveRepoDBPath(rootDbDir, absolutePath string, repoId int64) string {
 	slug := GenerateSlug(absolutePath)
 	repoSearchDir := filepath.Join(rootDbDir, "repo_search")
 	_ = os.MkdirAll(repoSearchDir, 0755)
+
 	return filepath.Join(repoSearchDir, fmt.Sprintf("%s-%d.db", slug, repoId))
 }
 
@@ -41,12 +43,15 @@ func OpenRepoDB(ctx context.Context, rootDbDir, absolutePath string, repoId int6
 	if err != nil {
 		return nil, err
 	}
+
 	db.SetMaxOpenConns(1)
 
 	if err := InitRepoSchema(ctx, db); err != nil {
 		_ = db.Close()
+
 		return nil, err
 	}
+
 	return db, nil
 }
 
@@ -57,11 +62,13 @@ func ClearRepoDB(ctx context.Context, db *sql.DB) error {
 		"DELETE FROM RepoFile;",
 		"DELETE FROM FileSequence;",
 	}
+
 	for _, q := range queries {
 		if _, err := db.ExecContext(ctx, q); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -74,11 +81,13 @@ func ResetRepoDB(ctx context.Context, db *sql.DB) error {
 		"DROP TABLE IF EXISTS SequenceHistory;",
 		"DROP TABLE IF EXISTS RepoScanLog;",
 	}
+
 	for _, q := range queries {
 		if _, err := db.ExecContext(ctx, q); err != nil {
 			return err
 		}
 	}
+
 	return InitRepoSchema(ctx, db)
 }
 
@@ -88,18 +97,22 @@ func OptimizeRepoDB(ctx context.Context, db *sql.DB, path string) (int64, error)
 	if info, err := os.Stat(path); err == nil {
 		sizeBefore = info.Size()
 	}
+
 	_, _ = db.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE);")
 	if _, err := db.ExecContext(ctx, "VACUUM;"); err != nil {
 		return 0, err
 	}
+
 	_, _ = db.ExecContext(ctx, "PRAGMA optimize;")
 	var sizeAfter int64
 	if info, err := os.Stat(path); err == nil {
 		sizeAfter = info.Size()
 	}
+
 	reclaimed := sizeBefore - sizeAfter
 	if reclaimed < 0 {
 		reclaimed = 0
 	}
+
 	return reclaimed, nil
 }

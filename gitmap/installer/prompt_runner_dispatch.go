@@ -14,5 +14,6 @@ func RunPromptInstallerForHost(targetDir string, timeout time.Duration) error {
 	if runtime.GOOS == "windows" {
 		return RunWindowsPromptInstaller(targetDir, timeout)
 	}
+
 	return RunUnixPromptInstaller(targetDir, timeout)
 }

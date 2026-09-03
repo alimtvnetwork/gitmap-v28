@@ -16,6 +16,7 @@ func TestExportGitRemote(t *testing.T) {
 		TargetOS: "all",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	// Simulated remote repo export

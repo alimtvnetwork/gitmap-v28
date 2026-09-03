@@ -7,8 +7,10 @@ func HasPowerShell() bool {
 	if _, err := exec.LookPath("pwsh"); err == nil {
 		return true
 	}
+
 	if _, err := exec.LookPath("powershell"); err == nil {
 		return true
 	}
+
 	return false
 }

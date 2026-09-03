@@ -18,9 +18,11 @@ func AddToStartup(binPath string) error {
 	if isWindows {
 		return addWindowsStartup(binPath)
 	}
+
 	if isLinux {
 		return addLinuxStartup(binPath)
 	}
+
 	return apperror.NewSimple("AddToStartup", "UNSUPPORTED_OS")
 }
 
@@ -30,6 +32,7 @@ func addWindowsStartup(binPath string) error {
 	if err := cmd.Run(); err != nil {
 		return apperror.WrapSimple(err, "addWindowsStartup")
 	}
+
 	return nil
 }
 
@@ -39,6 +42,7 @@ func addLinuxStartup(binPath string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "addLinuxStartup")
 	}
+
 	return writeDesktopFile(homeDir, binPath)
 }
 
@@ -55,5 +59,6 @@ func writeDesktopFile(homeDir, binPath string) error {
 	if err := os.WriteFile(desktopFile, []byte(content), 0644); err != nil {
 		return apperror.WrapSimple(err, "writeDesktopFile")
 	}
+
 	return nil
 }

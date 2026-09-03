@@ -92,6 +92,7 @@ func SyncAntigravity(repoPath, repoName string) bool {
 	if uuid != "" {
 		return true
 	}
+
 	uuid = generateUUID()
 	nowStr := time.Now().UTC().Format(time.RFC3339Nano)
 
@@ -141,6 +142,7 @@ func generateUUID() string {
 	hex.Encode(dst[19:23], b[8:10])
 	dst[23] = '-'
 	hex.Encode(dst[24:], b[10:])
+
 	return string(dst)
 }
 
@@ -149,14 +151,17 @@ func findExistingProjectID(configDir, fileURI string) string {
 	if err != nil {
 		return ""
 	}
+
 	for _, entry := range entries {
 		if filepath.Ext(entry.Name()) != ".json" {
 			continue
 		}
+
 		if id := checkEntryURI(configDir, entry.Name(), fileURI); id != "" {
 			return id
 		}
 	}
+
 	return ""
 }
 
@@ -165,12 +170,15 @@ func checkEntryURI(configDir, fileName, fileURI string) string {
 	if readErr != nil {
 		return ""
 	}
+
 	var cfg AntigravityConfig
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return ""
 	}
+
 	if len(cfg.ProjectResources.Resources) > 0 && strings.EqualFold(cfg.ProjectResources.Resources[0].GitFolder.FolderURI, fileURI) {
 		return cfg.ID
 	}
+
 	return ""
 }

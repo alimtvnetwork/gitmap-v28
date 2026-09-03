@@ -23,6 +23,7 @@ func (r *LazyRegexp) Re() *regexp.Regexp {
 	r.once.Do(func() {
 		r.re = regexp.MustCompile(r.expr)
 	})
+
 	return r.re
 }
 

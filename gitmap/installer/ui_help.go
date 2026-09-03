@@ -21,5 +21,6 @@ func PrintDetailedHelp() string {
 	b.WriteString("  gitmap installer redo-version <slug>      Advance to redone version\n")
 	b.WriteString("  gitmap installer revert-version <s <v>    Revert to exact version\n")
 	b.WriteString("  gitmap installer ls [os]                  List all scripts in table\n")
+
 	return b.String()
 }

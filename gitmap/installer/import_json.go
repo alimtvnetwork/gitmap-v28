@@ -14,6 +14,7 @@ func (m *Manager) ImportFromJson(jsonStr string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("ImportFromJson", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(jsonStr) == "" {
 		return apperror.New("ImportFromJson", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "jsonStr cannot be empty"})
 	}

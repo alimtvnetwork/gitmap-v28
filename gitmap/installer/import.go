@@ -15,6 +15,7 @@ func (m *Manager) ImportFromZip(zipPath string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("ImportFromZip", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(zipPath) == "" {
 		return apperror.New("ImportFromZip", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "zipPath cannot be empty"})
 	}
@@ -27,6 +28,7 @@ func (m *Manager) ImportFromZip(zipPath string) error {
 	if errZip != nil {
 		return errZip
 	}
+
 	defer zr.Close()
 
 	for _, f := range zr.File {
@@ -40,10 +42,12 @@ func (m *Manager) importZipFileEntry(f *zip.File) {
 	if !strings.HasSuffix(strings.ToLower(f.Name), ".json") {
 		return
 	}
+
 	rc, errOpen := f.Open()
 	if errOpen != nil {
 		return
 	}
+
 	defer rc.Close()
 
 	data, errRead := io.ReadAll(rc)

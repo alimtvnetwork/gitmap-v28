@@ -16,6 +16,7 @@ func (m *Manager) ExecuteOrdered(ctx context.Context, slug, osTarget string) err
 	if m == nil || m.db == nil {
 		return apperror.New("ExecuteOrdered", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(slug) == "" {
 		return apperror.New("ExecuteOrdered", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug cannot be empty"})
 	}
@@ -42,13 +43,16 @@ func (m *Manager) dispatchOrder(
 	switch order {
 	case constants.OrderUnixFirst:
 		_ = RunLanguageScript(ctx, "echo [gitmap] running unix pre-verify", "sh")
+
 		return RunInstallerCommand("echo [gitmap] installing for " + osTarget)
 	case constants.OrderOSFirst:
 		_ = RunInstallerCommand("echo [gitmap] installing for " + osTarget)
+
 		return RunLanguageScript(ctx, "echo [gitmap] running unix post-verify", "sh")
 	case constants.OrderOSOnly:
 		return RunInstallerCommand("echo [gitmap] installing for " + osTarget)
 	default: // fallback
+
 		return RunInstallerCommand("echo [gitmap] executing fallback for " + osTarget)
 	}
 }

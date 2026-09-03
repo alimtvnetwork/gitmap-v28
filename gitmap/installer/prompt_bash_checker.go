@@ -6,5 +6,6 @@ import "os/exec"
 func HasBashAndCurl() bool {
 	_, errBash := exec.LookPath("bash")
 	_, errCurl := exec.LookPath("curl")
+
 	return errBash == nil && errCurl == nil
 }

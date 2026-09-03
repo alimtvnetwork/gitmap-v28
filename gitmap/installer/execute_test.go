@@ -17,6 +17,7 @@ func TestExecuteDispatch(t *testing.T) {
 		TargetOS: "win",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	if errExec := mgr.Execute("exec-app", "win"); errExec != nil {

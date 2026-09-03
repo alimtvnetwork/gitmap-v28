@@ -21,6 +21,7 @@ func (m *Manager) ExportToRemoteGitRepo(
 	if m == nil || m.db == nil {
 		return apperror.New("ExportToRemoteGitRepo", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(repoURL) == "" {
 		return apperror.New("ExportToRemoteGitRepo", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "repoURL is required"})
 	}
@@ -29,12 +30,14 @@ func (m *Manager) ExportToRemoteGitRepo(
 	if errTemp != nil {
 		return errTemp
 	}
+
 	defer os.RemoveAll(sandboxDir)
 
 	cloneArgs := []string{"clone"}
 	if branch != "" {
 		cloneArgs = append(cloneArgs, "-b", branch)
 	}
+
 	cloneArgs = append(cloneArgs, repoURL, sandboxDir)
 
 	cmdClone := exec.Command("git", cloneArgs...)

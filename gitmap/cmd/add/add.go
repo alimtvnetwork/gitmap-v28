@@ -13,6 +13,7 @@ func Run(args []string) error {
 	if len(args) < 1 {
 		return apperror.NewSimple("AddRun", "E_ADD_MISSING_ARG")
 	}
+
 	target := args[0]
 	switch target {
 	case "common-attr":
@@ -29,7 +30,9 @@ func writeCommonAttr() error {
 	if err := os.WriteFile(".gitattributes", []byte(content), 0644); err != nil {
 		return apperror.WrapSimple(err, "writeCommonAttr: failed to write")
 	}
+
 	pterm.Success.Println("Created .gitattributes")
+
 	return nil
 }
 
@@ -38,6 +41,8 @@ func writeCommonIgnore() error {
 	if err := os.WriteFile(".gitignore", []byte(content), 0644); err != nil {
 		return apperror.WrapSimple(err, "writeCommonIgnore: failed to write")
 	}
+
 	pterm.Success.Println("Created .gitignore")
+
 	return nil
 }

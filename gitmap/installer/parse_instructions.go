@@ -31,5 +31,6 @@ func ParseInstructions(raw string) []Instruction {
 			parsed = append(parsed, Instruction{Command: cmd})
 		}
 	}
+
 	return parsed
 }

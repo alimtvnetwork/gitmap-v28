@@ -16,7 +16,6 @@ const llmMarkdownSpec = `
 
 Gitmap is a high-performance CLI designed for autonomous AI agents, LLMs, and developers to explore, search, refactor, and self-heal codebases with maximum speed and reliability.
 
-
 ---
 
 ## 1. AI Agent Standard Operating Procedure (Order of Commands)
@@ -50,11 +49,9 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
   └─────────────────────────────────────────────────────────────┘
 ` + "```" + `
 
-
 ---
 
 ## Examples (Step-by-Step AI Workflows)
-
 
 ### Workflow A: Autonomous CI/CD Self-Healing Telemetry Loop
 
@@ -75,6 +72,7 @@ When a remote pipeline is triggered or encounters an error, the AI Agent must fo
      "pendingPipelines": 1,
      "lastRunUrl": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/12345"
    }
+
    ` + "```" + `
 
 2. **Wait for Recommended ETA and Query Next Check**:
@@ -94,7 +92,6 @@ When a remote pipeline is triggered or encounters an error, the AI Agent must fo
    python .github/scripts/go-format-check.py
    gitmap commit-push-bug "fix(ci): fix gofmt formatting in cmd/root.go"
    ` + "```" + `
-
 
 ---
 
@@ -134,7 +131,6 @@ Instead of scanning entire directory trees or reading large files into context:
   gitmap repo-search-json "error-logs"   # alias: rsj (returns structured JSON matches)
   ` + "```" + `
 
-
 ---
 
 ### Workflow C: Batch Refactoring with History & Rollback
@@ -153,7 +149,6 @@ Instead of scanning entire directory trees or reading large files into context:
   ` + "```bash" + `
   gitmap replace history
   ` + "```" + `
-
 
 ---
 
@@ -177,7 +172,6 @@ Instead of scanning entire directory trees or reading large files into context:
   gitmap schedule add "nightly-sync" --interval "24h"
   gitmap schedule status
   ` + "```" + `
-
 
 ---
 
@@ -215,14 +209,17 @@ func Run(args []string) *apperror.AppError {
 
 	if *isUrl {
 		fmt.Println(PublicLlmSpecURL)
+
 		return nil
 	}
 
 	if *isInstruction {
 		fmt.Print(llmMarkdownSpec)
+
 		return nil
 	}
 
 	fmt.Print(llmMarkdownSpec)
+
 	return nil
 }

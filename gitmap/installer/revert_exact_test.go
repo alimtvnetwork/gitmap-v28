@@ -17,6 +17,7 @@ func TestManagerRevertExact(t *testing.T) {
 		TargetOS: "win",
 		Version:  "v2.0.0",
 	}
+
 	db.CreateInstaller(script)
 
 	if errRevert := mgr.RevertTo("revert-exact-test", "v1.0.0"); errRevert != nil {

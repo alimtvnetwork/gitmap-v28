@@ -17,6 +17,7 @@ func (m *Manager) ExportToZip(slug, targetPath string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("ExportToZip", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(slug) == "" {
 		return apperror.New("ExportToZip", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug cannot be empty"})
 	}
@@ -39,6 +40,7 @@ func (m *Manager) ExportToZip(slug, targetPath string) error {
 	if errCreate != nil {
 		return errCreate
 	}
+
 	defer f.Close()
 
 	zw := zip.NewWriter(f)
@@ -53,6 +55,8 @@ func (m *Manager) ExportToZip(slug, targetPath string) error {
 	if errZip != nil {
 		return errZip
 	}
+
 	_, errWrite := w.Write(data)
+
 	return errWrite
 }
