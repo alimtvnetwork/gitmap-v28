@@ -50,6 +50,9 @@ func normalizeAgySubcommand(sub string) string {
 	if low == "find-duplicate-projects" || low == "fdp" {
 		return "find-duplicate-projects"
 	}
+	if low == "pin-projects" || low == "pin-project" || low == "pinned-projects" || low == "pinned" || low == "pins" {
+		return "pin-projects"
+	}
 	return sub
 }
 
@@ -119,9 +122,11 @@ func init() {
 	AgyCmd.AddCommand(agyUndoCmd)
 	AgyCmd.AddCommand(agyRedoCmd)
 	AgyCmd.AddCommand(agySettingsCmd)
+	AgyCmd.AddCommand(agyPinProjectsCmd)
 	initPlugins()
 	initAgyGroup()
 	initAgySettings()
+	initAgyPinProjects()
 }
 
 func getProjectsDirPath() (string, error) {

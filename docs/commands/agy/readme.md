@@ -21,6 +21,7 @@ Manage Google Antigravity workspaces, prompts, deduplication, and conversation h
 | [`all-projects-read-memory-prompt.md`](./all-projects-read-memory-prompt.md) | `gitmap agy all-projects-read-memory-prompt` | Broadcast Read Memory prompt across projects with prefix/slug exceptions (`aprmp`) |
 | [`clear.md`](./clear.md) | `gitmap agy clear` | Remove missing or stale workspace records (`--except`) |
 | [`prompt.md`](./prompt.md) | `gitmap agy prompt` | Send prompts to single or all project sessions |
+| [`pin-projects.md`](./pin-projects.md) | `gitmap agy pin-projects` | Manage pinned / starred projects (`ls`, `add`, `rm`) |
 | [`sync-and-backup.md`](./sync-and-backup.md) | `gitmap agy sync`, `export`, `import` | Sync repos to workspaces and backup configurations |
 
 ## Overview

@@ -300,6 +300,10 @@ func dispatch(command string) {
 		return
 	}
 
+	if dispatchMacroDynamic(command, shouldAudit, auditID, auditStart) {
+		return
+	}
+
 	msg := fmt.Sprintf(constants.ErrUnknownCommand, command)
 	if looksLikeURLToken(command) {
 		msg = fmt.Sprintf(constants.ErrUnknownCommandURLHint, command)

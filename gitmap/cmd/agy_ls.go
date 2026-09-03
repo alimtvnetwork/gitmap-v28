@@ -17,6 +17,7 @@ import (
 var (
 	agyLsOnlyMissing bool
 	agyLsOnlyActive  bool
+	agyLsOnlyPinned  bool
 	agyLsJSON        bool
 	agyLsSortBy      string
 	agyLsFilter      string
@@ -33,6 +34,7 @@ var agyLsCmd = &cobra.Command{
 func init() {
 	agyLsCmd.Flags().BoolVarP(&agyLsOnlyMissing, "missing", "m", false, "Show only missing projects")
 	agyLsCmd.Flags().BoolVarP(&agyLsOnlyActive, "active", "a", false, "Show only active projects")
+	agyLsCmd.Flags().BoolVarP(&agyLsOnlyPinned, "pinned", "p", false, "Show only pinned projects")
 	agyLsCmd.Flags().BoolVar(&agyLsJSON, "json", false, "Output results as JSON")
 	agyLsCmd.Flags().StringVarP(&agyLsSortBy, "sort", "s", "name", "Sort by 'name' or 'time'")
 	agyLsCmd.Flags().StringVarP(&agyLsFilter, "filter", "f", "", "Filter projects by name or path")
@@ -87,14 +89,43 @@ func readAgyProject(filePath string) (AgyProject, error) {
 }
 
 func filterAgyProjects(projects []AgyProject) []AgyProject {
+	pinnedMap := getPinnedMapIfRequested()
 	out := make([]AgyProject, 0, len(projects))
+
 	for _, p := range projects {
+		if agyLsOnlyPinned && !pinnedMap[p.ID] && !pinnedMap[filepath.Clean(p.GetPath())] {
+			continue
+		}
+
 		if !matchesAgyFilter(p) {
 			continue
 		}
+
 		out = append(out, p)
 	}
+
 	return out
+}
+
+func getPinnedMapIfRequested() map[string]bool {
+	pinnedMap := make(map[string]bool)
+
+	if !agyLsOnlyPinned {
+		return pinnedMap
+	}
+
+	store, loadErr := loadPinnedProjectsStore()
+
+	if loadErr != nil {
+		return pinnedMap
+	}
+
+	for _, p := range store.Projects {
+		pinnedMap[p.ID] = true
+		pinnedMap[filepath.Clean(p.Path)] = true
+	}
+
+	return pinnedMap
 }
 
 func matchesAgyFilter(p AgyProject) bool {
