@@ -47,7 +47,7 @@ const (
 	CmdExecAlias          = "x"
 	CmdRelease            = "release"
 	CmdCreate             = "create"
-	CmdCreateAlias        = "cr"
+	CmdCreateAlias        = "crt"
 	SubCmdRepo            = "repo" // gitmap:cmd skip
 	CmdFolder             = "folder"
 	CmdLowercase          = "lowercase"

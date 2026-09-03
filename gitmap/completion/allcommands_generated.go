@@ -106,6 +106,7 @@ var generatedCommands = []string{
 	"cr",
 	"create",
 	"crj",
+	"crt",
 	"cs",
 	"csharp-repos",
 	"csr",
