@@ -29,6 +29,7 @@ JOB_BATCHES: list[dict[str, list[str]]] = [
         "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
         "Boolean & Enum Linter": [sys.executable, "linter-scripts/check-enum-and-boolean.py"],
         "Boolean Guidelines Linter": [sys.executable, "linter-scripts/check-boolean-guidelines.py"],
+        "Enum Guidelines Linter": [sys.executable, "linter-scripts/check-enum-guidelines.py"],
         "Error Management Check": [sys.executable, "linter-scripts/check-error-management.py"],
         "Relative Path Check": [sys.executable, "linter-scripts/check-relative-paths.py"],
         "Newline Styling Check": [sys.executable, "linter-scripts/check-newline-styling.py"],

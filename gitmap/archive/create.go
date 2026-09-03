@@ -33,12 +33,14 @@ import (
 
 // CompressionMode is the user-facing knob persisted in
 // ArchiveHistory.CompressionMode.
-type CompressionMode string
+type CompressionModeType string
+
+type CompressionMode = CompressionModeType
 
 const (
-	ModeStandard CompressionMode = constants.CompressionStandard
-	ModeBest     CompressionMode = constants.CompressionBest
-	ModeFast     CompressionMode = constants.CompressionFast
+	ModeStandard CompressionModeType = constants.CompressionStandard
+	ModeBest     CompressionModeType = constants.CompressionBest
+	ModeFast     CompressionModeType = constants.CompressionFast
 )
 
 // CreateOptions bundles every knob `gitmap zip` exposes.
