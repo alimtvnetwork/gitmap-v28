@@ -26,6 +26,7 @@ func coreBasicEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdScan, constants.CmdScanAlias}, func() error { return runScan(argsTail()) }},
 		{[]string{constants.CmdClone, constants.CmdCloneAlias}, func() error { return runClone(argsTail()) }},
+		{[]string{constants.CmdCreate, constants.CmdCreateAlias}, func() error { return runCreate(argsTail()) }},
 		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, runCloneSync},
 		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() error { return runPull(argsTail()) }},
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},

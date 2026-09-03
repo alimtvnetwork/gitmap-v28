@@ -1,39 +1,54 @@
 # `gitmap backup`
 
-List or prune the on-disk backup tree maintained by `fix-repo`
-(`undo` reads from the same tree).
+Create, list, restore, and prune Git-backed cloud backups and local on-disk snapshots.
 
-Tree layout:
+## Simulation
 
 ```
-<cwd>/.gitmap/backup/<repo>/v<N>/fix-repo/<UTC-timestamp>/
+$ gitmap backup create --note "Pre-migration backup"
+  ✓ Cloud backup snapshot created and pushed successfully!
+  ● Snapshot ID: snapshot-2026-09-03-184512
+  ● Remote Repo: https://github.com/alimtvnetwork/gitmap-cloud-backup
+  ● Timestamp:   2026-09-03 18:45:12
 ```
 
 ## Subcommands
 
 ```
-gitmap backup ls                              # group by repo, count + size
-gitmap backup prune --keep=N                  # keep newest N snapshots per repo
-gitmap backup prune --older-than=DAYS         # drop snapshots older than DAYS
-gitmap backup prune --keep=5 --older-than=30  # combine — both rules apply
-gitmap backup prune --dry-run ...             # print only, no disk changes
+gitmap backup create [--note <text>]           # Push cloud backup snapshot
+gitmap backup ls [--json] [--local]            # List cloud snapshots or local tree
+gitmap backup restore [1-N|snapshot-id]        # Restore databases & profiles
+gitmap backup rm <1-N|snapshot-id>             # Delete remote cloud snapshot
+gitmap backup status                           # Check cloud repo connection & stats
+gitmap backup prune --keep=N                   # Prune local fix-repo snapshots
 ```
 
-`prune` refuses to run without at least one of `--keep` or
-`--older-than` so an accidental `gitmap backup prune` is a no-op.
+## Flags
+
+| Flag | Description |
+|------|-------------|
+| `--note <text>` | Optional annotation recorded in snapshot manifest |
+| `--repo <name>` | Custom remote backup repository slug |
+| `--local` | List local fix-repo backup directories instead of cloud |
+| `--keep=N` | Retain newest N snapshots per repo during prune |
+| `--older-than=DAYS` | Drop snapshots older than specified days |
+| `-y`, `--yes` | Confirm snapshot restoration or deletion non-interactively |
 
 ## Examples
 
-```
+```bash
+# Push full backup to private cloud repository
+gitmap backup create --note "Weekly system backup"
+
+# List available cloud backup snapshots
 gitmap backup ls
-gitmap backup prune --keep=10 --dry-run
-gitmap backup prune --older-than=60
+
+# Restore databases from latest or numbered snapshot
+gitmap backup restore 1 -y
+
+# Check remote cloud backup status
+gitmap backup status
+
+# Prune local fix-repo snapshots keeping newest 5
+gitmap backup prune --keep=5 --local
 ```
-
-## Exit codes
-
-| Code | Meaning |
-|------|---------|
-| 0    | OK (including "nothing to prune") |
-| 1    | Walk failed (permission / IO) |
-| 2    | Bad flags or unknown subcommand |

@@ -46,6 +46,9 @@ const (
 	CmdExec               = "exec"
 	CmdExecAlias          = "x"
 	CmdRelease            = "release"
+	CmdCreate             = "create"
+	CmdCreateAlias        = "cr"
+	SubCmdRepo            = "repo" // gitmap:cmd skip
 	CmdFolder             = "folder"
 	CmdLowercase          = "lowercase"
 	CmdFixSeqFiles        = "fix-seq-files"

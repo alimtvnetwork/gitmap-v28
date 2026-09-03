@@ -28,6 +28,10 @@ func runProfile(args []string) error {
 
 // routeProfileSub routes to the appropriate profile subcommand.
 func routeProfileSub(sub string, args []string) {
+	if sub == "git" || sub == "accounts" || sub == "set-default" {
+		_ = runProfiles(append([]string{sub}, args...))
+		return
+	}
 	if sub == constants.CmdProfileCreate {
 		runProfileCreate(args)
 

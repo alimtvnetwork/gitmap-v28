@@ -40,20 +40,27 @@ type backupSnapshot struct {
 func runBackup(args []string) error {
 	checkHelp("backup", args)
 	if len(args) == 0 {
-		runBackupLs(nil)
-
-		return nil
+		return runBackupCloudList(nil)
 	}
 	switch args[0] {
 	case constants.SubCmdBackupLs, constants.SubCmdBackupList:
-		runBackupLs(args[1:])
+		if hasArgFlag(args, "--local") {
+			return runBackupLs(args[1:])
+		}
+		return runBackupCloudList(args[1:])
+	case "create", "push", "now", "run":
+		return runBackupCloudPush(args[1:])
+	case "restore":
+		return runBackupCloudRestore(args[1:])
+	case "rm", "remove", "delete":
+		return runBackupCloudRemove(args[1:])
+	case "status":
+		return runBackupCloudStatus(args[1:])
 	case constants.SubCmdBackupPrune:
-		runBackupPrune(args[1:])
+		return runBackupPrune(args[1:])
 	default:
-		fmt.Fprintf(os.Stderr, "gitmap backup: unknown subcommand %q (want: ls | prune)\n", args[0])
-		cliexit.HandleError(nil, 2)
+		return runBackupCloudPush(args)
 	}
-	return nil
 }
 
 // runBackupLs prints a per-repo summary of backup snapshots.

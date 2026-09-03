@@ -3,8 +3,10 @@ package constants
 // gitmap:cmd top-level
 // Profile CLI commands.
 const (
-	CmdProfile      = "profile"
-	CmdProfileAlias = "pf"
+	CmdProfile       = "profile"
+	CmdProfileAlias  = "pf"
+	CmdProfiles      = "profiles"
+	CmdProfilesAlias = "profs"
 )
 
 // gitmap:cmd top-level

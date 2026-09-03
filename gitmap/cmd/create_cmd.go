@@ -15,15 +15,23 @@ func runCreate(args []string) error {
 	if len(args) == 0 && !isInteractiveStdin() {
 		return apperror.NewSimple("usage: gitmap create [repo] <name> [flags]", "E1076")
 	}
-	subArgs := normalizeCreateArgs(args)
-	if len(subArgs) == 0 {
-		name, promptErr := promptRepoName()
-		if promptErr != nil {
-			return promptErr
-		}
-		subArgs = []string{name}
+	subArgs, resolveErr := resolveCreateArgs(args)
+	if resolveErr != nil {
+		return resolveErr
 	}
 	return executeCreateRepo(subArgs)
+}
+
+func resolveCreateArgs(args []string) ([]string, error) {
+	subArgs := normalizeCreateArgs(args)
+	if len(subArgs) > 0 {
+		return subArgs, nil
+	}
+	name, promptErr := promptRepoName()
+	if promptErr != nil {
+		return nil, promptErr
+	}
+	return []string{name}, nil
 }
 
 func normalizeCreateArgs(args []string) []string {
