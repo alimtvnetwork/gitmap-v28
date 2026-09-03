@@ -133,43 +133,64 @@ func runProfilesStatus(_ []string) error {
 	return nil
 }
 
-func resolveTargetProfileArg(profiles []model.GitProfile, args []string, promptTitle string) (model.GitProfile, error) {
+func resolveTargetProfileArg(
+	profiles []model.GitProfile,
+	args []string,
+	promptTitle string,
+) (model.GitProfile, error) {
 	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
 		_, prof, err := pickProfileBySequenceOrName(profiles, args[0])
+
 		return prof, err
 	}
+
 	if !isInteractiveStdin() {
 		return model.GitProfile{}, apperror.NewSimple("missing profile argument in non-interactive mode", "E1074")
 	}
+
 	return promptSequenceSelection(profiles, promptTitle)
 }
 
-func promptSequenceSelection(profiles []model.GitProfile, promptTitle string) (model.GitProfile, error) {
+func promptSequenceSelection(
+	profiles []model.GitProfile,
+	promptTitle string,
+) (model.GitProfile, error) {
 	fmt.Printf("\n%s (Enter number 1-%d):\n", promptTitle, len(profiles))
 	for i, p := range profiles {
 		fmt.Printf("  [%d] %s (%s, %s)\n", i+1, p.Name, p.Provider, p.Type)
 	}
+
 	fmt.Print("Choice: ")
 	reader := bufio.NewReader(os.Stdin)
 	line, err := reader.ReadString('\n')
+
 	if err != nil {
 		return model.GitProfile{}, apperror.WrapSimple(err, "read choice:")
 	}
+
 	val := strings.TrimSpace(line)
 	_, prof, pickErr := pickProfileBySequenceOrName(profiles, val)
+
 	return prof, pickErr
 }
 
-func pickProfileBySequenceOrName(profiles []model.GitProfile, val string) (int, model.GitProfile, error) {
+func pickProfileBySequenceOrName(
+	profiles []model.GitProfile,
+	val string,
+) (int, model.GitProfile, error) {
 	num, err := strconv.Atoi(val)
+
 	if err == nil && num >= 1 && num <= len(profiles) {
 		return num - 1, profiles[num-1], nil
 	}
+
 	lower := strings.ToLower(val)
+
 	for i, p := range profiles {
 		if strings.ToLower(p.Name) == lower || strings.ToLower(p.ID) == lower {
 			return i, p, nil
 		}
 	}
+
 	return -1, model.GitProfile{}, apperror.NewSimple(fmt.Sprintf("profile not found: %s", val), "E1075")
 }
