@@ -237,27 +237,109 @@ func TestSelfBinding_GenericContracts(t *testing.T) {
 	lockless := streamwriter.NewLocklessStreamer[any](streamwriter.LocklessOptions[any]{Name: "test-lockless"})
 	writer := streamwriter.NewPluggableWriter[any](streamwriter.WriterOptions[any]{Name: "test-writer", Streamer: locked})
 
-	// Verify LockedStreamer self-binding
+	// Verify LockedStreamer self-binding and Locker
 	var s1 streamwriter.Streamer[any] = locked.AsStreamer()
 	var w1 streamwriter.Writer[any] = locked.AsWriter()
-	var i1 streamwriter.Interfacer = locked.AsInterfacer()
-	if s1 == nil || w1 == nil || i1 == nil {
+	var l1 sync.Locker = locked
+	if s1 == nil || w1 == nil || l1 == nil {
 		t.Fatal("locked streamer self-binding failed")
 	}
 
-	// Verify LocklessStreamer self-binding
+	// Verify LocklessStreamer self-binding and Locker
 	var s2 streamwriter.Streamer[any] = lockless.AsStreamer()
 	var w2 streamwriter.Writer[any] = lockless.AsWriter()
-	var i2 streamwriter.Interfacer = lockless.AsInterfacer()
-	if s2 == nil || w2 == nil || i2 == nil {
+	var l2 sync.Locker = lockless
+	if s2 == nil || w2 == nil || l2 == nil {
 		t.Fatal("lockless streamer self-binding failed")
 	}
 
-	// Verify PluggableWriter self-binding
+	// Verify PluggableWriter self-binding and Locker
 	var w3 streamwriter.Writer[any] = writer.AsWriter()
-	var i3 streamwriter.Interfacer = writer.AsInterfacer()
-	if w3 == nil || i3 == nil {
+	var l3 sync.Locker = writer
+	if w3 == nil || l3 == nil {
 		t.Fatal("pluggable writer self-binding failed")
+	}
+}
+
+func TestWriter_LockerSynchronization(t *testing.T) {
+	buf := &SafeBuffer{}
+	lockedStreamer := streamwriter.NewLockedStreamer[string](streamwriter.LockedOptions[string]{
+		Name:        "locker-test",
+		Destination: buf,
+	})
+	writer := streamwriter.NewPluggableWriter[string](streamwriter.WriterOptions[string]{
+		Name:     "pluggable-locker",
+		Streamer: lockedStreamer,
+	})
+
+	// Verify Writer satisfies sync.Locker
+	var locker sync.Locker = writer
+	locker.Lock()
+	ctx := context.Background()
+	_ = writer.Write(ctx, "atomic-line-1")
+	_ = writer.Write(ctx, "atomic-line-2")
+	locker.Unlock()
+
+	out := buf.String()
+	if !strings.Contains(out, "atomic-line-1") || !strings.Contains(out, "atomic-line-2") {
+		t.Fatalf("expected atomic writes in buffer, got: %s", out)
+	}
+
+	// Verify Lockless streamer satisfies sync.Locker no-op
+	lockless := streamwriter.NewLocklessStreamer[string](streamwriter.LocklessOptions[string]{
+		Name:        "lockless-locker",
+		Destination: buf,
+	})
+	var locklessLocker sync.Locker = lockless
+	locklessLocker.Lock()
+	_ = lockless.Stream(ctx, "lockless-atomic")
+	locklessLocker.Unlock()
+
+	if !strings.Contains(buf.String(), "lockless-atomic") {
+		t.Fatalf("expected lockless atomic write in buffer")
+	}
+}
+
+func TestWriter_ConcurrentCompoundBatches(t *testing.T) {
+	buf := &SafeBuffer{}
+	streamer := streamwriter.NewLockedStreamer[string](streamwriter.LockedOptions[string]{
+		Name:        "batch-test",
+		Destination: buf,
+	})
+	writer := streamwriter.NewPluggableWriter[string](streamwriter.WriterOptions[string]{
+		Name:     "batch-writer",
+		Streamer: streamer,
+	})
+
+	ctx := context.Background()
+	concurrency := 10
+	var wg sync.WaitGroup
+
+	for i := 0; i < concurrency; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			writer.Lock()
+			_ = writer.Write(ctx, fmt.Sprintf("START-%d", id))
+			_ = writer.Write(ctx, fmt.Sprintf("END-%d", id))
+			writer.Unlock()
+		}(i)
+	}
+	wg.Wait()
+
+	out := buf.String()
+	for i := 0; i < concurrency; i++ {
+		startTag := fmt.Sprintf("START-%d", i)
+		endTag := fmt.Sprintf("END-%d", i)
+		startIdx := strings.Index(out, startTag)
+		endIdx := strings.Index(out, endTag)
+		if startIdx == -1 || endIdx == -1 {
+			t.Fatalf("missing tags for id %d", i)
+		}
+		sub := out[startIdx : endIdx+len(endTag)]
+		if strings.Count(sub, "START-") != 1 {
+			t.Fatalf("batch %d was interleaved by another goroutine:\n%s", i, sub)
+		}
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 
 	"coding-guidelines/common/pkg/appfault"
 	"coding-guidelines/common/pkg/errtype"
@@ -97,10 +98,11 @@ func (s *LocklessStreamer[T]) AsWriter() Writer[T] {
 	return s
 }
 
-// AsInterfacer returns the self-binding Interfacer.
-func (s *LocklessStreamer[T]) AsInterfacer() Interfacer {
-	return s
-}
+// Lock is a no-op for LocklessStreamer, satisfying sync.Locker with zero overhead.
+func (s *LocklessStreamer[T]) Lock() {}
+
+// Unlock is a no-op for LocklessStreamer, satisfying sync.Locker with zero overhead.
+func (s *LocklessStreamer[T]) Unlock() {}
 
 // Sync flushes the underlying destination if supported.
 func (s *LocklessStreamer[T]) Sync() *appfault.AppError {
@@ -134,3 +136,4 @@ func (s *LocklessStreamer[T]) defaultStream(ctx context.Context, payload T, dest
 
 var _ Streamer[any] = (*LocklessStreamer[any])(nil)
 var _ Writer[any] = (*LocklessStreamer[any])(nil)
+var _ sync.Locker = (*LocklessStreamer[any])(nil)

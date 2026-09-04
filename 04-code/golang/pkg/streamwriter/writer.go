@@ -15,9 +15,10 @@ type WriterOptions[T any] struct {
 	WriteMethod  WriteFunc[T]
 }
 
-// PluggableWriter provides a composable write engine over type T with AppError returns.
+// PluggableWriter provides a composable write engine over type T with AppError returns and Locker synchronization.
 type PluggableWriter[T any] struct {
-	mu           sync.RWMutex
+	mu           ReentrantMutex
+	configMu     sync.RWMutex
 	name         string
 	streamer     Streamer[T]
 	formatMethod FormatFunc[T]
@@ -50,11 +51,14 @@ func (w *PluggableWriter[T]) Name() string {
 	return w.name
 }
 
-// Write delegates to the active writeMethod function under read-lock, returning *appfault.AppError.
+// Write delegates to the active writeMethod function under lock, returning *appfault.AppError.
 func (w *PluggableWriter[T]) Write(ctx context.Context, payload T) *appfault.AppError {
-	w.mu.RLock()
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	w.configMu.RLock()
 	fn := w.writeMethod
-	w.mu.RUnlock()
+	w.configMu.RUnlock()
 
 	return fn(ctx, payload)
 }
@@ -64,8 +68,8 @@ func (w *PluggableWriter[T]) SetWriteMethod(fn WriteFunc[T]) {
 	if fn == nil {
 		return
 	}
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.configMu.Lock()
+	defer w.configMu.Unlock()
 	w.writeMethod = fn
 }
 
@@ -74,22 +78,22 @@ func (w *PluggableWriter[T]) SetFormatMethod(fn FormatFunc[T]) {
 	if fn == nil {
 		return
 	}
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.configMu.Lock()
+	defer w.configMu.Unlock()
 	w.formatMethod = fn
 }
 
 // SetStreamer hot-swaps the underlying streamer at runtime.
 func (w *PluggableWriter[T]) SetStreamer(s Streamer[T]) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.configMu.Lock()
+	defer w.configMu.Unlock()
 	w.streamer = s
 }
 
 // Streamer returns the attached streamer under read-lock.
 func (w *PluggableWriter[T]) Streamer() Streamer[T] {
-	w.mu.RLock()
-	defer w.mu.RUnlock()
+	w.configMu.RLock()
+	defer w.configMu.RUnlock()
 	return w.streamer
 }
 
@@ -98,16 +102,21 @@ func (w *PluggableWriter[T]) AsWriter() Writer[T] {
 	return w
 }
 
-// AsInterfacer returns the self-binding Interfacer.
-func (w *PluggableWriter[T]) AsInterfacer() Interfacer {
-	return w
+// Lock locks the writer for exclusive access, satisfying sync.Locker.
+func (w *PluggableWriter[T]) Lock() {
+	w.mu.Lock()
+}
+
+// Unlock unlocks the writer, satisfying sync.Locker.
+func (w *PluggableWriter[T]) Unlock() {
+	w.mu.Unlock()
 }
 
 // Sync flushes the underlying streamer if attached.
 func (w *PluggableWriter[T]) Sync() *appfault.AppError {
-	w.mu.RLock()
+	w.configMu.RLock()
 	s := w.streamer
-	w.mu.RUnlock()
+	w.configMu.RUnlock()
 
 	if s != nil {
 		return s.Sync()
@@ -117,9 +126,9 @@ func (w *PluggableWriter[T]) Sync() *appfault.AppError {
 
 // Close closes the underlying streamer if attached.
 func (w *PluggableWriter[T]) Close() *appfault.AppError {
-	w.mu.Lock()
+	w.configMu.Lock()
 	s := w.streamer
-	w.mu.Unlock()
+	w.configMu.Unlock()
 
 	if s != nil {
 		return s.Close()
@@ -128,10 +137,10 @@ func (w *PluggableWriter[T]) Close() *appfault.AppError {
 }
 
 func (w *PluggableWriter[T]) defaultWrite(ctx context.Context, payload T) *appfault.AppError {
-	w.mu.RLock()
+	w.configMu.RLock()
 	s := w.streamer
 	formatter := w.formatMethod
-	w.mu.RUnlock()
+	w.configMu.RUnlock()
 
 	if formatter != nil {
 		bytesResult := formatter(payload)
@@ -148,3 +157,4 @@ func (w *PluggableWriter[T]) defaultWrite(ctx context.Context, payload T) *appfa
 }
 
 var _ Writer[any] = (*PluggableWriter[any])(nil)
+var _ sync.Locker = (*PluggableWriter[any])(nil)
