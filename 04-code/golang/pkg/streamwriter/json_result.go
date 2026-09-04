@@ -128,19 +128,27 @@ func (jsonSourceSingleton) FromBytesEnvelope(wb any) JsonResult {
 			appError: appfault.New(errtype.Validation, "wrapped bytes envelope cannot be nil"),
 		}
 	}
-	if rawProvider, ok := wb.(interface{ Raw() []byte }); ok {
-		raw := rawProvider.Raw()
-		if errProvider, ok := wb.(interface{ AppError() *appfault.AppError }); ok {
-			if appErr := errProvider.AppError(); appErr != nil {
-				return JsonResult{
-					data:     raw,
-					appError: appErr,
-				}
-			}
-		}
-		return NewJsonResultWithBytes(raw)
+	rawProvider, ok := wb.(interface{ Raw() []byte })
+	if !ok {
+		return FromAny(wb)
 	}
-	return FromAny(wb)
+	raw := rawProvider.Raw()
+	appErr := extractAppErrorFromProvider(wb)
+	if appErr != nil {
+		return JsonResult{
+			data:     raw,
+			appError: appErr,
+		}
+	}
+	return NewJsonResultWithBytes(raw)
+}
+
+func extractAppErrorFromProvider(wb any) *appfault.AppError {
+	errProvider, ok := wb.(interface{ AppError() *appfault.AppError })
+	if !ok {
+		return nil
+	}
+	return errProvider.AppError()
 }
 
 // FromError creates a failed JsonResult containing an AppError.
@@ -497,26 +505,26 @@ func (j JsonResult) Status() bool {
 
 // StatusCode returns the numeric status code derived from appError or 200.
 func (j JsonResult) StatusCode() int {
-	if j.appError != nil {
-		if j.appError.StatusCode() != 0 {
-			return j.appError.StatusCode()
-		}
-		switch j.appError.GetType() {
-		case errtype.Validation, errtype.Precondition:
-			return 400
-		case errtype.Unauthorized:
-			return 401
-		case errtype.Forbidden:
-			return 403
-		case errtype.NotFound:
-			return 404
-		case errtype.Timeout:
-			return 408
-		default:
-			return 500
-		}
+	if j.appError == nil {
+		return 200
 	}
-	return 200
+	if j.appError.StatusCode() != 0 {
+		return j.appError.StatusCode()
+	}
+	switch j.appError.GetType() {
+	case errtype.Validation, errtype.Precondition:
+		return 400
+	case errtype.Unauthorized:
+		return 401
+	case errtype.Forbidden:
+		return 403
+	case errtype.NotFound:
+		return 404
+	case errtype.Timeout:
+		return 408
+	default:
+		return 500
+	}
 }
 
 // Unwrap returns both the JSON byte slice and the AppError.

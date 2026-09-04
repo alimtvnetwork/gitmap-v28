@@ -165,14 +165,14 @@ func (l *Logger[T]) dispatchRecord(ctx context.Context, lvl LogLevel, msg string
 	}
 	l.mu.RUnlock()
 
-	traceID := ""
-	userID := ""
+	traceId := ""
+	userId := ""
 	if ctx != nil {
 		if tid, isOk := ctx.Value("traceId").(string); isOk {
-			traceID = tid
+			traceId = tid
 		}
 		if uid, isOk := ctx.Value("userId").(string); isOk {
-			userID = uid
+			userId = uid
 		}
 	}
 
@@ -189,8 +189,8 @@ func (l *Logger[T]) dispatchRecord(ctx context.Context, lvl LogLevel, msg string
 		Message:   msg,
 		Context:   ctx,
 		Fields:    merged,
-		TraceID:   traceID,
-		UserID:    userID,
+		TraceId:   traceId,
+		UserId:    userId,
 	}
 
 	// Case 1: T is any or LogRecord

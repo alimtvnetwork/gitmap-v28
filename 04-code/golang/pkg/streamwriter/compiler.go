@@ -47,15 +47,8 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 	}
 
 	// 2. Check if the value or pointer to value implements Compilable interface
-	if v.CanInterface() {
-		if compilable, isComp := v.Interface().(Compilable); isComp {
-			return compilable.Compile()
-		}
-	}
-	if v.Kind() != reflect.Ptr && v.CanAddr() {
-		if compilable, isComp := v.Addr().Interface().(Compilable); isComp {
-			return compilable.Compile()
-		}
+	if res, ok := checkCompilable(v); ok {
+		return res
 	}
 
 	// 3. Type-specific ordered transpilation
@@ -148,17 +141,9 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 				continue
 			}
 
-			fieldName := fieldType.Name
-			// Check json tag for custom naming
-			tag := fieldType.Tag.Get("json")
-			if tag != "" {
-				parts := strings.Split(tag, ",")
-				if parts[0] == "-" {
-					continue
-				}
-				if parts[0] != "" {
-					fieldName = parts[0]
-				}
+			fieldName, skip := resolveJSONFieldName(fieldType)
+			if skip {
+				continue
 			}
 
 			fieldVal := v.Field(i)
@@ -171,4 +156,52 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 	default:
 		return fmt.Sprintf("%v", v.Interface())
 	}
+}
+
+func checkCompilable(v reflect.Value) (string, bool) {
+	if res, ok := checkDirectCompilable(v); ok {
+		return res, true
+	}
+	if res, ok := checkAddrCompilable(v); ok {
+		return res, true
+	}
+	return "", false
+}
+
+func checkDirectCompilable(v reflect.Value) (string, bool) {
+	if !v.CanInterface() {
+		return "", false
+	}
+	compilable, isComp := v.Interface().(Compilable)
+	if !isComp {
+		return "", false
+	}
+	return compilable.Compile(), true
+}
+
+func checkAddrCompilable(v reflect.Value) (string, bool) {
+	if v.Kind() == reflect.Ptr || !v.CanAddr() {
+		return "", false
+	}
+	compilable, isComp := v.Addr().Interface().(Compilable)
+	if !isComp {
+		return "", false
+	}
+	return compilable.Compile(), true
+}
+
+func resolveJSONFieldName(fieldType reflect.StructField) (string, bool) {
+	fieldName := fieldType.Name
+	tag := fieldType.Tag.Get("json")
+	if tag == "" {
+		return fieldName, false
+	}
+	parts := strings.Split(tag, ",")
+	if parts[0] == "-" {
+		return "", true
+	}
+	if parts[0] != "" {
+		return parts[0], false
+	}
+	return fieldName, false
 }

@@ -17,7 +17,7 @@ type ReentrantMutex struct {
 
 // Lock acquires the mutex or increments the recursion count if already owned by current goroutine.
 func (m *ReentrantMutex) Lock() {
-	gid := getGoroutineID()
+	gid := getGoroutineId()
 	if m.owner.Load() == gid {
 		m.recursion++
 		return
@@ -29,7 +29,7 @@ func (m *ReentrantMutex) Lock() {
 
 // Unlock decrements the recursion count or releases the mutex when count reaches zero.
 func (m *ReentrantMutex) Unlock() {
-	gid := getGoroutineID()
+	gid := getGoroutineId()
 	if m.owner.Load() != gid {
 		return
 	}
@@ -41,7 +41,7 @@ func (m *ReentrantMutex) Unlock() {
 	}
 }
 
-func getGoroutineID() int64 {
+func getGoroutineId() int64 {
 	var buf [64]byte
 	n := runtime.Stack(buf[:], false)
 	b := buf[:n]

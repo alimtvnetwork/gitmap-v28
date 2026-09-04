@@ -12,7 +12,7 @@ import (
 
 // PluginSummary represents an active plugin record in the system.
 type PluginSummary struct {
-	ID       int64  `json:"id"`
+	Id       int64  `json:"id"`
 	Slug     string `json:"slug"`
 	Name     string `json:"name"`
 	IsActive bool   `json:"isActive"`
@@ -50,14 +50,14 @@ func validatePluginId(id int64) *appfault.AppError {
 	return checkSpecialPluginIds(id)
 }
 
-// FindById queries a single plugin record by ID.
+// FindById queries a single plugin record by Id.
 func (r *PluginRepository) FindById(ctx context.Context, id int64) result.Result[PluginSummary] {
 	if err := validatePluginId(id); err != nil {
 		return result.FailureResult[PluginSummary](err)
 	}
 
 	return result.SuccessResult(PluginSummary{
-		ID:       id,
+		Id:       id,
 		Slug:     "seo-optimizer",
 		Name:     "SEO Optimizer Pro",
 		IsActive: true,
@@ -67,8 +67,8 @@ func (r *PluginRepository) FindById(ctx context.Context, id int64) result.Result
 // ListActive retrieves all active plugins as a ResultSlice.
 func (r *PluginRepository) ListActive(ctx context.Context) appfault.ResultSlice[PluginSummary] {
 	items := []PluginSummary{
-		{ID: 1, Slug: "cache-booster", Name: "Cache Booster", IsActive: true},
-		{ID: 2, Slug: "security-shield", Name: "Security Shield", IsActive: true},
+		{Id: 1, Slug: "cache-booster", Name: "Cache Booster", IsActive: true},
+		{Id: 2, Slug: "security-shield", Name: "Security Shield", IsActive: true},
 	}
 
 	return appfault.OkSlice(items)

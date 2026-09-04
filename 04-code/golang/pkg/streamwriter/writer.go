@@ -2,14 +2,18 @@ package streamwriter
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"sync"
 
 	"coding-guidelines/common/pkg/appfault"
+	"coding-guidelines/common/pkg/errtype"
 )
 
 // WriterOptions configures the pluggable writer for payload type T.
 type WriterOptions[T any] struct {
 	Name         string
+	Destination  io.Writer
 	Streamer     Streamer[T]
 	FormatMethod FormatFunc[T]
 	WriteMethod  WriteFunc[T]
@@ -20,6 +24,7 @@ type PluggableWriter[T any] struct {
 	mu           ReentrantMutex
 	configMu     sync.RWMutex
 	name         string
+	destination  io.Writer
 	streamer     Streamer[T]
 	formatMethod FormatFunc[T]
 	writeMethod  WriteFunc[T]
@@ -34,6 +39,7 @@ func NewPluggableWriter[T any](opts WriterOptions[T]) *PluggableWriter[T] {
 
 	w := &PluggableWriter[T]{
 		name:         name,
+		destination:  opts.Destination,
 		streamer:     opts.Streamer,
 		formatMethod: opts.FormatMethod,
 	}
@@ -51,7 +57,35 @@ func (w *PluggableWriter[T]) Name() string {
 	return w.name
 }
 
+// Destination returns the destination io.Writer under read-lock, falling back to attached streamer if present.
+func (w *PluggableWriter[T]) Destination() io.Writer {
+	w.configMu.RLock()
+	defer w.configMu.RUnlock()
+	if w.destination != nil {
+		return w.destination
+	}
+	if w.streamer != nil {
+		return w.streamer.Destination()
+	}
+	return nil
+}
+
+// SetDestination hot-swaps the destination at runtime.
+func (w *PluggableWriter[T]) SetDestination(dest io.Writer) {
+	w.configMu.Lock()
+	defer w.configMu.Unlock()
+	w.destination = dest
+}
+
+// FormatMethod returns the attached formatter function under read-lock.
+func (w *PluggableWriter[T]) FormatMethod() FormatFunc[T] {
+	w.configMu.RLock()
+	defer w.configMu.RUnlock()
+	return w.formatMethod
+}
+
 // Write delegates to the active writeMethod function under lock, returning *appfault.AppError.
+// It passes the current writer object (w) into writeMethod to grant access to properties.
 func (w *PluggableWriter[T]) Write(ctx context.Context, payload T) *appfault.AppError {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -60,7 +94,7 @@ func (w *PluggableWriter[T]) Write(ctx context.Context, payload T) *appfault.App
 	fn := w.writeMethod
 	w.configMu.RUnlock()
 
-	return fn(ctx, payload)
+	return fn(ctx, w, payload)
 }
 
 // SetWriteMethod hot-swaps the write method at runtime.
@@ -136,10 +170,11 @@ func (w *PluggableWriter[T]) Close() *appfault.AppError {
 	return nil
 }
 
-func (w *PluggableWriter[T]) defaultWrite(ctx context.Context, payload T) *appfault.AppError {
+func (w *PluggableWriter[T]) defaultWrite(ctx context.Context, writer *PluggableWriter[T], payload T) *appfault.AppError {
 	w.configMu.RLock()
 	s := w.streamer
 	formatter := w.formatMethod
+	dest := w.destination
 	w.configMu.RUnlock()
 
 	if formatter != nil {
@@ -151,6 +186,13 @@ func (w *PluggableWriter[T]) defaultWrite(ctx context.Context, payload T) *appfa
 
 	if s != nil {
 		return s.Stream(ctx, payload)
+	}
+
+	if dest != nil {
+		line := fmt.Sprintf("[%s] %s\n", w.name, Compile(payload))
+		if _, err := dest.Write([]byte(line)); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("writer %s write failed", w.name))
+		}
 	}
 
 	return nil

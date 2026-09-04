@@ -28,7 +28,7 @@ func TestStreamwriterLoggerExample(t *testing.T) {
 	if !strings.Contains(out, "req-tx-8891") {
 		t.Errorf("expected traceId in log output")
 	}
-	if !strings.Contains(out, "[AUDIT]") {
+	if !strings.Contains(out, "[audit-api-writer]") {
 		t.Errorf("expected audit writer output")
 	}
 }
@@ -81,7 +81,7 @@ func TestStreamwriterStreamerExample(t *testing.T) {
 	if !strings.Contains(out, "=== COMMIT BATCH TRANSACTION ===") {
 		t.Errorf("expected atomic batch end")
 	}
-	if !strings.Contains(out, "[HOT-SWAPPED-WRITE] Message sent via runtime swapped method") {
+	if !strings.Contains(out, "[batch-writer][swapped] Message sent via runtime swapped method") {
 		t.Errorf("expected hot-swapped write output")
 	}
 }
