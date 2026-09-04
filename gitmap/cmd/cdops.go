@@ -31,8 +31,7 @@ func runCDLookup(name string, args []string) error {
 	records := lookupCDRecords(name)
 
 	if len(records) == 0 {
-		fmt.Fprintf(os.Stderr, constants.ErrCDNotFound, name)
-		cliexit.HandleError(nil, 1)
+		return handleWorkDirOrNotFound(name, rest)
 	}
 
 	path := resolveCDPath(name, records, pick)

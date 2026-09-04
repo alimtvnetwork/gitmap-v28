@@ -129,6 +129,14 @@ func handleGlobalError(command string, err error) {
 
 	persistLastError(command, err)
 
+	if isAppErr && appErr != nil && appErr.Type == apperror.ErrorTypeValidation {
+		msg := getValidationErrorMessage(appErr)
+		cliexit.Reportf(command, "validation", "", fmt.Errorf("%s", msg))
+		cliexit.HandleError(nil, 1)
+
+		return
+	}
+
 	if display == "simple" && isAppErr && appErr != nil {
 		cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
 		cliexit.HandleError(nil, 1)
@@ -151,6 +159,18 @@ func isPrintableStackTrace(appErr *apperror.AppError) bool {
 	}
 
 	return appErr.Type != apperror.ErrorTypeValidation
+}
+
+func getValidationErrorMessage(appErr *apperror.AppError) string {
+	if appErr == nil {
+		return ""
+	}
+
+	if appErr.Message != "" {
+		return appErr.Message
+	}
+
+	return appErr.Op
 }
 
 func persistLastError(command string, err error) {

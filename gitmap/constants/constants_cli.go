@@ -287,6 +287,9 @@ const (
 	// codes and config schema. Spec: spec/04-generic-cli/27-fix-repo-command.md.
 	CmdFixRepo      = "fix-repo"
 	CmdFixRepoAlias = "fr"
+	// CmdFixGit diagnoses and repairs Git commit, permission, lock, and index corruption issues.
+	CmdFixGit      = "fix-git"
+	CmdFixGitAlias = "fg"
 	// CmdUndo restores the latest `gitmap fix-repo` backup snapshot
 	// for the current repo + current version (v5.40.0+). Backups live
 	// at `<repoRoot>/.gitmap/backup/<repo>/v<N>/fix-repo/<UTC-ts>/`.

@@ -11,6 +11,8 @@ import (
 )
 
 func handleMacroAdd(args []string) error {
+	checkHelp("macro", args)
+
 	if len(args) == 0 {
 		printMacroAddUsage()
 
@@ -18,6 +20,12 @@ func handleMacroAdd(args []string) error {
 	}
 
 	name := args[0]
+	if isMacroHelpArg(name) {
+		printMacroAddUsage()
+
+		return nil
+	}
+
 	desc, tag, rawSteps := parseMacroAddFlags(args[1:])
 	steps := parseMacroStepsList(rawSteps)
 
@@ -130,4 +138,8 @@ func printMacroCreatedSuccess(m macro.Macro) {
 	}
 
 	fmt.Printf("\nRun with: \033[1;96mgitmap macro run %s\033[0m (or \033[1;96mgitmap %s\033[0m)\n\n", m.Name, m.Name)
+}
+
+func isMacroHelpArg(name string) bool {
+	return name == "help" || name == "--help" || name == "-h"
 }

@@ -11,16 +11,31 @@ import (
 // runCD handles the "cd" subcommand routing.
 func runCD(args []string) error {
 	checkHelp("cd", args)
-	if len(args) < 1 {
-		fmt.Fprint(os.Stderr, constants.ErrCDUsage)
-		return apperror.NewSimple("fatal error", "E9000")
+	if len(args) == 0 {
+		return handleBareCD()
 	}
 
 	sub := args[0]
 	rest := args[1:]
 
 	routeCDSub(sub, rest)
+
 	return nil
+}
+
+func handleBareCD() error {
+	workPath, hasDefault := resolveDefaultWorkDirPath()
+	if hasDefault {
+		fmt.Print(workPath)
+		WriteShellHandoff(workPath)
+		warnIfNoWrapper()
+
+		return nil
+	}
+
+	fmt.Fprint(os.Stderr, constants.ErrCDUsage)
+
+	return apperror.NewValidationError("repo name or work directory required")
 }
 
 // routeCDSub routes to the appropriate cd handler.

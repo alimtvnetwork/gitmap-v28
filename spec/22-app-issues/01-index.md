@@ -37,7 +37,10 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 
 ## Contents
 
-_No app issue analyzes added yet. Add issue files as numbered entries within this folder._
+| Number | Spec File | Summary | Status |
+|---|---|---|---|
+| 34 | [34-hd-hosted-docs-fallback.md](34-hd-hosted-docs-fallback.md) | Hosted-Docs Fallback (No More Hard-Exit on Missing docs-site) | Fixed |
+| 35 | [35-reconcile-prompt-nested-if-ci-failure.md](35-reconcile-prompt-nested-if-ci-failure.md) | Reconcile Prompt Nested If CI Failure: Root Cause Analysis & Prevention | Resolved |
 
 ---
 
