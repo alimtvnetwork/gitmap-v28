@@ -16,59 +16,109 @@ type DirtyDiagnosis struct {
 	SummaryReason  string
 	ModifiedFiles  []string
 	UntrackedFiles []string
+	DeletedFiles   []string
+	StagedFiles    []string
+	AllFiles       []string
+}
+
+func recordUntracked(diagnosis *DirtyDiagnosis, filePath string) {
+	diagnosis.UntrackedCount++
+	diagnosis.UntrackedFiles = append(diagnosis.UntrackedFiles, filePath)
+	diagnosis.AllFiles = append(diagnosis.AllFiles, "untracked: "+filePath)
+}
+
+func recordModified(diagnosis *DirtyDiagnosis, filePath string) {
+	diagnosis.ModifiedCount++
+	diagnosis.ModifiedFiles = append(diagnosis.ModifiedFiles, filePath)
+	diagnosis.AllFiles = append(diagnosis.AllFiles, "modified: "+filePath)
+}
+
+func recordDeleted(diagnosis *DirtyDiagnosis, filePath string) {
+	diagnosis.DeletedCount++
+	diagnosis.DeletedFiles = append(diagnosis.DeletedFiles, filePath)
+	diagnosis.AllFiles = append(diagnosis.AllFiles, "deleted: "+filePath)
+}
+
+func recordStaged(diagnosis *DirtyDiagnosis, filePath string) {
+	diagnosis.StagedCount++
+	diagnosis.StagedFiles = append(diagnosis.StagedFiles, filePath)
+	diagnosis.AllFiles = append(diagnosis.AllFiles, "staged: "+filePath)
+}
+
+func classifyDirtyFile(prefix, filePath string, diagnosis *DirtyDiagnosis) {
+	if strings.HasPrefix(prefix, "??") {
+		recordUntracked(diagnosis, filePath)
+
+		return
+	}
+	if strings.Contains(prefix, "M") {
+		recordModified(diagnosis, filePath)
+
+		return
+	}
+	if strings.Contains(prefix, "D") {
+		recordDeleted(diagnosis, filePath)
+
+		return
+	}
+	recordStaged(diagnosis, filePath)
+}
+
+func parseDirtyLine(line string, diagnosis *DirtyDiagnosis) {
+	if len(line) < 3 {
+		return
+	}
+	prefix := line[:2]
+	filePath := strings.TrimSpace(line[3:])
+	classifyDirtyFile(prefix, filePath, diagnosis)
+}
+
+func collectReasonParts(diagnosis *DirtyDiagnosis) []string {
+	var parts []string
+	if diagnosis.ModifiedCount > 0 {
+		parts = append(parts, "+"+strconv.Itoa(diagnosis.ModifiedCount)+" modified")
+	}
+	if diagnosis.UntrackedCount > 0 {
+		parts = append(parts, "+"+strconv.Itoa(diagnosis.UntrackedCount)+" untracked")
+	}
+	if diagnosis.DeletedCount > 0 {
+		parts = append(parts, "-"+strconv.Itoa(diagnosis.DeletedCount)+" deleted")
+	}
+
+	return parts
+}
+
+func buildSummaryReason(diagnosis *DirtyDiagnosis) string {
+	parts := collectReasonParts(diagnosis)
+	if len(parts) <= 0 {
+		return "uncommitted changes"
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+func populateDirtyDiagnosis(output string) DirtyDiagnosis {
+	diagnosis := DirtyDiagnosis{IsDirty: true}
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		parseDirtyLine(line, &diagnosis)
+	}
+	diagnosis.SummaryReason = buildSummaryReason(&diagnosis)
+
+	return diagnosis
 }
 
 // InspectDirtyState analyzes the working directory to diagnose why a repo is dirty.
 func InspectDirtyState(repoPath string) DirtyDiagnosis {
 	cmd := exec.Command("git", "-C", repoPath, "status", "--porcelain")
-	out, err := cmd.Output()
+	outputBytes, err := cmd.Output()
 	if err != nil {
 		return DirtyDiagnosis{IsDirty: false}
 	}
-
-	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-	if len(lines) == 1 && lines[0] == "" {
+	trimmedOutput := strings.TrimSpace(string(outputBytes))
+	if len(trimmedOutput) <= 0 {
 		return DirtyDiagnosis{IsDirty: false}
 	}
 
-	d := DirtyDiagnosis{IsDirty: true}
-
-	for _, l := range lines {
-		if len(l) < 3 {
-			continue
-		}
-		prefix := l[:2]
-		file := strings.TrimSpace(l[3:])
-
-		switch {
-		case strings.HasPrefix(prefix, "??"):
-			d.UntrackedCount++
-			d.UntrackedFiles = append(d.UntrackedFiles, file)
-		case strings.Contains(prefix, "M"):
-			d.ModifiedCount++
-			d.ModifiedFiles = append(d.ModifiedFiles, file)
-		case strings.Contains(prefix, "D"):
-			d.DeletedCount++
-		case prefix[0] != ' ' && prefix[0] != '?':
-			d.StagedCount++
-		}
-	}
-
-	var parts []string
-	if d.ModifiedCount > 0 {
-		parts = append(parts, "+"+strconv.Itoa(d.ModifiedCount)+" modified")
-	}
-	if d.UntrackedCount > 0 {
-		parts = append(parts, "+"+strconv.Itoa(d.UntrackedCount)+" untracked")
-	}
-	if d.DeletedCount > 0 {
-		parts = append(parts, "-"+strconv.Itoa(d.DeletedCount)+" deleted")
-	}
-	if len(parts) == 0 {
-		d.SummaryReason = "uncommitted changes"
-	} else {
-		d.SummaryReason = strings.Join(parts, ", ")
-	}
-
-	return d
+	return populateDirtyDiagnosis(trimmedOutput)
 }

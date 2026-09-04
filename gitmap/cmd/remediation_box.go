@@ -20,6 +20,7 @@ type RemediationItem struct {
 	RepoName      string                      `json:"repoName"`
 	SummaryReason string                      `json:"summaryReason"`
 	Recipes       []gitutil.RemediationRecipe `json:"recipes"`
+	Files         []string                    `json:"files,omitempty"`
 }
 
 type RemediationBatchState struct {
