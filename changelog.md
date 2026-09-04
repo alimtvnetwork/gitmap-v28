@@ -1,4 +1,23 @@
+## [v6.178.0] 2026-09-04 Release v6.178.0
+
+### Install GitMap v6.178.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.sh | bash -s -- ".lovable/prompts" "v6.178.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.178.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Displayed dirty and modified files list during interactive reconciliation (gitmap reconcile and interactive prompt in gitmap pull)
+- Added comprehensive file status categories (modified:, untracked:, deleted:, staged:) with 10-file display cap and overflow summary
+- Refactored porcelain dirty state inspection in gitutil/dirty_inspect.go to strictly adhere to coding guidelines (<=15 lines per function)
+- Flattened nested conditionals in cmd/reconcile_prompt.go using early return guard clauses to achieve 0 nested if violations
+- Fixed Windows cmd.exe escape character issue in .lovable/ai-fix-scripts/06-cicd-local-runner.py by quoting -run="^$" regex in Compile Gate
+- Added unit test suites in gitutil/dirty_inspect_test.go and cmd/reconcile_cmd_test.go
+- Validated all 25 CI/CD quality gates with 100% green pass (exit code 0)
+
 ## [v6.177.0] 2026-09-04 Release v6.177.0
+
 
 ### Install GitMap v6.177.0
 
