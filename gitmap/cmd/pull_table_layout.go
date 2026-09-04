@@ -6,6 +6,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
+const (
+	defaultPullTableMaxRepo     = 20
+	defaultPullTableMaxBranch   = 16
+	defaultPullTableMaxLatestBr = 18
+	defaultPullTableMaxPR       = 10
+	defaultPullTableMaxStatus   = 10
+	defaultPullTableMaxSHA      = 7
+)
+
 type PullTableLayout struct {
 	MaxRepo     int
 	MaxBranch   int
@@ -18,35 +27,15 @@ type PullTableLayout struct {
 
 func NewPullTableLayout(rows []model.PullTableRow) *PullTableLayout {
 	layout := &PullTableLayout{
-		MaxRepo:     10,
-		MaxBranch:   8,
-		MaxLatestBr: 13,
-		MaxSHA:      7,
-		MaxPR:       10,
-		MaxStatus:   8,
+		MaxRepo:     defaultPullTableMaxRepo,
+		MaxBranch:   defaultPullTableMaxBranch,
+		MaxLatestBr: defaultPullTableMaxLatestBr,
+		MaxSHA:      defaultPullTableMaxSHA,
+		MaxPR:       defaultPullTableMaxPR,
+		MaxStatus:   defaultPullTableMaxStatus,
 		Rows:        rows,
 	}
 
-	for _, r := range rows {
-		if len(r.RepoName) > layout.MaxRepo {
-			layout.MaxRepo = len(r.RepoName)
-		}
-		if len(r.Branch) > layout.MaxBranch {
-			layout.MaxBranch = len(r.Branch)
-		}
-		if len(r.LatestBranch) > layout.MaxLatestBr {
-			layout.MaxLatestBr = len(r.LatestBranch)
-		}
-		if len(r.LastSHA) > layout.MaxSHA {
-			layout.MaxSHA = len(r.LastSHA)
-		}
-		if len(r.PRStatus) > layout.MaxPR {
-			layout.MaxPR = len(r.PRStatus)
-		}
-		if len(r.PullStatus) > layout.MaxStatus {
-			layout.MaxStatus = len(r.PullStatus)
-		}
-	}
 	return layout
 }
 
@@ -61,5 +50,5 @@ func (l *PullTableLayout) PrintHeader() {
 		l.MaxSHA, "SHA",
 		"TIME",
 	)
-	fmt.Println("  ---------------------------------------------------------------------------------------------------------")
+	fmt.Println("  -------------------------------------------------------------------------------------------------------")
 }

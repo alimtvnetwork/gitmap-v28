@@ -8,23 +8,49 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
-func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
-	statusStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
-	if r.PullStatus != "UP_TO_DATE" && r.PullStatus != "synced" {
-		statusStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffb86c")).Bold(true)
-	}
+func resolvePullStatusStyle(pullStatus string) lipgloss.Style {
+	isDefaultStatus := pullStatus == "UP_TO_DATE" || pullStatus == "synced"
+	if isDefaultStatus {
+		statusStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
 
-	repoStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
-	if r.IsDirty {
-		repoStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffb86c"))
+		return statusStyle
 	}
+	alertStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#ffb86c")).Bold(true)
+
+	return alertStyle
+}
+
+func resolveRepoStatusStyle(isDirty bool) lipgloss.Style {
+	if isDirty {
+		dirtyStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#ffb86c"))
+
+		return dirtyStyle
+	}
+	cleanStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
+
+	return cleanStyle
+}
+
+func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
+	statusStyle := resolvePullStatusStyle(r.PullStatus)
+	repoStyle := resolveRepoStatusStyle(r.IsDirty)
+
+	formattedRepo := formatRepoName(r.RepoName, l.MaxRepo)
+	renderedRepo := repoStyle.Render(formattedRepo)
+	padRepo := calcAnsiPadding(renderedRepo, l.MaxRepo)
+
+	formattedBranch := formatBranchName(r.Branch, l.MaxBranch)
+	formattedLatestBr := formatBranchName(r.LatestBranch, l.MaxLatestBr)
+
+	renderedStatus := statusStyle.Render(r.PullStatus)
+	padStatus := calcAnsiPadding(renderedStatus, l.MaxStatus)
 
 	fmt.Printf("  %-*s   %-*s   %-*s   %-*s   %-*s   %-*s   %s\n",
-		l.MaxRepo, repoStyle.Render(r.RepoName),
-		l.MaxBranch, r.Branch,
-		l.MaxLatestBr, r.LatestBranch,
+		padRepo, renderedRepo,
+		l.MaxBranch, formattedBranch,
+		l.MaxLatestBr, formattedLatestBr,
 		l.MaxPR, r.PRStatus,
-		l.MaxStatus, statusStyle.Render(r.PullStatus),
+		padStatus, renderedStatus,
 		l.MaxSHA, r.LastSHA,
 		r.Duration,
 	)
