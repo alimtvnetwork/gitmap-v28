@@ -273,19 +273,7 @@ func resolveChromeCSVPath(outPath string) string {
 func runChromeProfileImport(args []string) error {
 	checkHelp(constants.CmdChromeProfileImport, args)
 	opts := parseChromeTransferOptions(args)
-	if len(opts.Positional) < 1 {
-		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageImport)
-		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
-		return nil
-	}
-	srcFile := opts.Positional[0]
-	targetName := resolveImportTargetName(opts)
-	if err := importChromeSnapshotWithOptions(srcFile, targetName, opts.Limit); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
-		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
-		return err
-	}
-	return nil
+	return runSmartChromeImport(opts)
 }
 
 func resolveImportTargetName(opts chromeTransferOptions) string {
@@ -337,18 +325,30 @@ func runChromeProfileList(args []string) error {
 	if len(entries) == 0 {
 		fmt.Printf(constants.MsgChromeProfileListEmpty, root)
 		listChromeProfilesFromDB()
+		listDiscoveredSnapshotsInDir(".")
 		return nil
 	}
 	fmt.Printf(constants.MsgChromeProfileListHdr, root)
 	for _, e := range entries {
+		email := fetchEntryEmail(e.Dir)
+		if email != "" && e.DisplayName != "" {
+			fmt.Printf("  - %-12s (display: %q, email: %s)\n", e.Dir, e.DisplayName, email)
+			continue
+		}
 		if e.DisplayName != "" {
-			fmt.Printf("  - %s  (display: %q)\n", e.Dir, e.DisplayName)
+			fmt.Printf("  - %-12s (display: %q)\n", e.Dir, e.DisplayName)
 			continue
 		}
 		fmt.Printf("  - %s\n", e.Dir)
 	}
 	listChromeProfilesFromDB()
+	listDiscoveredSnapshotsInDir(".")
 	return nil
+}
+
+func fetchEntryEmail(dir string) string {
+	_, email := resolveProfileNameAndEmail(dir, nil)
+	return email
 }
 
 // defaultChromeExportPath builds the default output location

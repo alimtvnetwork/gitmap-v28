@@ -8,7 +8,9 @@ import (
 type chromeTransferOptions struct {
 	Format     string
 	Profile    string
+	Email      string
 	Limit      int
+	Except     []string
 	Positional []string
 }
 
@@ -25,11 +27,35 @@ func parseChromeTransferOptions(args []string) chromeTransferOptions {
 		if parseOptionProfile(arg, args, &i, &opts) {
 			continue
 		}
+		if parseOptionEmail(arg, args, &i, &opts) {
+			continue
+		}
+		if parseOptionExcept(arg, args, &i, &opts) {
+			continue
+		}
 		if !strings.HasPrefix(arg, "-") {
+			checkAndAssignPositionalEmail(arg, &opts)
 			opts.Positional = append(opts.Positional, arg)
 		}
 	}
 	return opts
+}
+
+func checkAndAssignPositionalEmail(arg string, opts *chromeTransferOptions) {
+	if opts.Email == "" && strings.Contains(arg, "@") && !isSnapshotFileExtension(arg) {
+		opts.Email = arg
+	}
+}
+
+func isSnapshotFileExtension(path string) bool {
+	lower := strings.ToLower(path)
+	return strings.HasSuffix(lower, ".json") ||
+		strings.HasSuffix(lower, ".zip") ||
+		strings.HasSuffix(lower, ".sqlite") ||
+		strings.HasSuffix(lower, ".db") ||
+		strings.HasSuffix(lower, ".yaml") ||
+		strings.HasSuffix(lower, ".yml") ||
+		strings.HasSuffix(lower, ".csv")
 }
 
 func parseOptionFormat(arg string, args []string, i *int, opts *chromeTransferOptions) bool {
@@ -54,7 +80,11 @@ func parseOptionLimit(arg string, args []string, i *int, opts *chromeTransferOpt
 		opts.Limit, _ = strconv.Atoi(strings.TrimPrefix(arg, "-n="))
 		return true
 	}
-	isLimitFlag := arg == "--limit" || arg == "-n" || arg == "-limit"
+	if strings.HasPrefix(arg, "-l=") {
+		opts.Limit, _ = strconv.Atoi(strings.TrimPrefix(arg, "-l="))
+		return true
+	}
+	isLimitFlag := arg == "--limit" || arg == "-n" || arg == "-l" || arg == "-limit"
 	if isLimitFlag && *i+1 < len(args) {
 		*i++
 		opts.Limit, _ = strconv.Atoi(args[*i])
@@ -79,4 +109,58 @@ func parseOptionProfile(arg string, args []string, i *int, opts *chromeTransferO
 		return true
 	}
 	return false
+}
+
+func parseOptionEmail(arg string, args []string, i *int, opts *chromeTransferOptions) bool {
+	if strings.HasPrefix(arg, "--email=") {
+		opts.Email = strings.TrimPrefix(arg, "--email=")
+		return true
+	}
+	if strings.HasPrefix(arg, "-email=") {
+		opts.Email = strings.TrimPrefix(arg, "-email=")
+		return true
+	}
+	isFlag := arg == "--email" || arg == "-email"
+	if isFlag && *i+1 < len(args) {
+		*i++
+		opts.Email = args[*i]
+		return true
+	}
+	return false
+}
+
+func parseOptionExcept(arg string, args []string, i *int, opts *chromeTransferOptions) bool {
+	if strings.HasPrefix(arg, "--except=") {
+		appendExceptValues(opts, strings.TrimPrefix(arg, "--except="))
+		return true
+	}
+	if strings.HasPrefix(arg, "--exclude=") {
+		appendExceptValues(opts, strings.TrimPrefix(arg, "--exclude="))
+		return true
+	}
+	if strings.HasPrefix(arg, "--skip=") {
+		appendExceptValues(opts, strings.TrimPrefix(arg, "--skip="))
+		return true
+	}
+	if strings.HasPrefix(arg, "-e=") {
+		appendExceptValues(opts, strings.TrimPrefix(arg, "-e="))
+		return true
+	}
+	isFlag := arg == "--except" || arg == "--exclude" || arg == "--skip" || arg == "-e"
+	if isFlag && *i+1 < len(args) {
+		*i++
+		appendExceptValues(opts, args[*i])
+		return true
+	}
+	return false
+}
+
+func appendExceptValues(opts *chromeTransferOptions, val string) {
+	parts := strings.Split(val, ",")
+	for _, p := range parts {
+		trimmed := strings.TrimSpace(p)
+		if trimmed != "" {
+			opts.Except = append(opts.Except, trimmed)
+		}
+	}
 }

@@ -177,24 +177,30 @@ func (w *PluggableWriter[T]) defaultWrite(ctx context.Context, writer *Pluggable
 	dest := w.destination
 	w.configMu.RUnlock()
 
-	if formatter != nil {
-		bytesResult := formatter(payload)
-		if bytesResult.HasError() {
-			return bytesResult.AppError()
-		}
+	if appErr := validateFormatterPayload(formatter, payload); appErr != nil {
+		return appErr
 	}
 
 	if s != nil {
 		return s.Stream(ctx, payload)
 	}
 
-	if dest != nil {
-		line := fmt.Sprintf("[%s] %s\n", w.name, Compile(payload))
-		if _, err := dest.Write([]byte(line)); err != nil {
-			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("writer %s write failed", w.name))
-		}
+	if appErr := writeToDestination(dest, w.name, payload); appErr != nil {
+		return appErr
 	}
 
+	return nil
+}
+
+func writeToDestination[T any](dest io.Writer, name string, payload T) *appfault.AppError {
+	if dest == nil {
+		return nil
+	}
+	line := fmt.Sprintf("[%s] %s\n", name, Compile(payload))
+	_, err := dest.Write([]byte(line))
+	if err != nil {
+		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("writer %s write failed", name))
+	}
 	return nil
 }
 

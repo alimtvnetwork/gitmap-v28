@@ -165,16 +165,8 @@ func (l *Logger[T]) dispatchRecord(ctx context.Context, lvl LogLevel, msg string
 	}
 	l.mu.RUnlock()
 
-	traceId := ""
-	userId := ""
-	if ctx != nil {
-		if tid, isOk := ctx.Value("traceId").(string); isOk {
-			traceId = tid
-		}
-		if uid, isOk := ctx.Value("userId").(string); isOk {
-			userId = uid
-		}
-	}
+	traceId := extractContextString(ctx, "traceId")
+	userId := extractContextString(ctx, "userId")
 
 	merged := make(map[string]any)
 	for _, f := range fields {
