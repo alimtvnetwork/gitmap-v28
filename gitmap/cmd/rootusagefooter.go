@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
@@ -67,10 +69,6 @@ func printUsageFooterLong() {
 
 	cwd, err := os.Getwd()
 	if err != nil || !isFooterGitRepo(cwd) {
-		return
-	}
-
-	if sameRepo(cwd, gitmapSourceDir()) {
 		return
 	}
 

@@ -58,31 +58,45 @@ Methods are cleanly segregated by error semantics:
 
 While `corejson` relies on Go 1.18 reflection and standard library `error`, our `streamwriter` modernization introduces three major enhancements:
 
-1. **Generic Type Safety `[T any]`:** Eliminates runtime type erasure. The payload `T` is preserved alongside serialized bytes, avoiding reflection where types are known at compile-time.
+1. **Non-Generic `JsonResult` Envelope (Without `T`):** Eliminates unnecessary generic type parameter pollution across call sites. Ingestion envelopes should represent dynamic JSON payloads without forcing callers to specify type parameters (`JsonResult[any]`). Callers can extract types safely via `.Unmarshal(&dest)` or `UnmarshalAs[Target](res)`.
 2. **Universal Error Wrapper `*appfault.AppError`:** Total elimination of untyped Go `error`. All failures carry classification (`errtype.Variation`), stack traces, and status codes.
-3. **`sync.Locker` & Status Flag Integration:** Every `JsonResult[T]` carries an explicit `status bool` and `statusCode int`, conforming to the unified `WrappedBytes[T]` interface.
+3. **`sync.Locker` & Status Flag Integration:** Every `JsonResult` carries an explicit `status bool` and `statusCode int`, conforming directly to `WrappedBytes[any]` and `WrappedJson`.
 
 ---
 
-## 4. Multi-Source Factory Design: Why `JsonSource` Takes `any`
+## 4. Multi-Source Factory Design: Why `JsonResult` is Without `T`
 
-### 4.1 Rationale for `any`-Based `JsonSource`
-In production workflows, callers ingesting raw JSON from external sources (`[]byte`, `string`, `io.Reader`) do not yet know or have an instance of the structured type before parsing and validation. Forcing a generic signature like `FromBytes[T](data []byte, payload T)` requires the caller to pass an artificial dummy/zero value (e.g. `Account{}`).
+### 4.1 Rationale for Eliminating `T` from `JsonResult`
 
-Moreover, in Go, **methods on a struct cannot declare type parameters** (e.g. `func (s S) M[T any]()` is a syntax error). Therefore:
-1. The global namespace singleton `JsonSource` operates on `any`:
-   - `JsonSource.FromBytes(data []byte) JsonResult[any]`
-   - `JsonSource.FromString(str string) JsonResult[any]`
-   - `JsonSource.FromReader(r io.Reader) JsonResult[any]`
-   - `JsonSource.FromPayload(payload any) JsonResult[any]`
-   - `JsonSource.FromSerializer(fn) JsonResult[any]`
-   - `JsonSource.FromBytesEnvelope(wb any) JsonResult[any]`
-   - `JsonSource.FromError(appErr *appfault.AppError) JsonResult[any]`
-   - `JsonSource.FromAny(source any) JsonResult[any]`
+In production workflows, callers ingesting raw JSON from external sources (`[]byte`, `string`, `io.Reader`) do not yet know or have an instance of the structured type before parsing and validation. Forcing a generic signature like `JsonResult[T]` requires every consumer to either propagate `T` everywhere or deal with clumsy `JsonResult[any]` declarations.
+
+By making `JsonResult` a non-generic struct (`type JsonResult struct` with `payload any`), the design achieves maximum ergonomics:
+
+```go
+type JsonResult struct {
+    data       []byte
+    payload    any
+    status     bool
+    statusCode int
+    appError   *appfault.AppError
+}
+```
+
+1. The global namespace singleton `JsonSource` returns clean `JsonResult`:
+   - `JsonSource.FromBytes(data []byte, payload ...any) JsonResult`
+   - `JsonSource.FromString(str string, payload ...any) JsonResult`
+   - `JsonSource.FromReader(r io.Reader, payload ...any) JsonResult`
+   - `JsonSource.FromPayload(payload any) JsonResult`
+   - `JsonSource.FromSerializer(fn, payload ...any) JsonResult`
+   - `JsonSource.FromBytesEnvelope(wb any) JsonResult`
+   - `JsonSource.FromError(appErr *appfault.AppError) JsonResult`
+   - `JsonSource.FromAny(source any) JsonResult`
    - `JsonSource.Cast(source any, targetPtr any) *appfault.AppError`
-2. Strongly-typed creation is provided through two complementary patterns:
-   - **Scoped Factory:** `JsonSourceOf[T]()` returns `typedJsonSource[T]` where the type parameter is bound to the receiver struct.
-   - **Top-Level Generic Functions:** `FromBytes[T](data, payload)`, `FromString[T](str, payload)`, `Cast[Target, Source](source)`, `CastTo[Target](source)`.
+2. Strongly-typed extraction is provided cleanly through:
+   - **Method Unmarshal:** `res.Unmarshal(&dest)` returning `*appfault.AppError`.
+   - **Generic Helper Unmarshal:** `dest, err := streamwriter.UnmarshalAs[Target](res)`.
+   - **Type-Casting Helpers:** `streamwriter.Cast[Target](source)` returning `JsonResult`.
+   - **Scoped Factory:** `JsonSourceOf[T]()` for workflows that want to attach typed payload `T` to the resulting `JsonResult`.
 
 ```go
 // 1. Untyped / Dynamic Ingestion
@@ -92,10 +106,10 @@ res := streamwriter.JsonSource.FromBytes(rawBytes)
 var dest Account
 err := streamwriter.JsonSource.Cast(rawBytes, &dest)
 
-// 3. Scoped Strongly-Typed Factory
-resTyped := streamwriter.JsonSourceOf[Account]().FromPayload(myAccount)
+// 3. Typed Extraction
+account, appErr := streamwriter.UnmarshalAs[Account](res)
 
-// 4. Standalone Generic Helpers
+// 4. Standalone Helpers
 resFromPayload := streamwriter.FromPayload(myAccount)
 resCast := streamwriter.CastTo[Account](rawBytes)
 ```
@@ -106,9 +120,10 @@ resCast := streamwriter.CastTo[Account](rawBytes)
 
 When any AI agent implements or extends JSON result containers across this meta-repository, they MUST adhere to these architectural standards:
 
-1. **Use `Json` Naming Convention:** All types and identifiers MUST use camel/pascal casing `Json` (e.g. `JsonResult`, `WrappedJson`, `JsonSource`) rather than all-caps `JSON`. Backwards-compatible aliases (`JSONResult`, `WrappedJSON`, `JSONSource`) may be maintained for transition periods.
-2. **Never Panic in Constructors:** If input bytes or strings are malformed JSON, return a valid `JsonResult[T]` with `status: false`, `statusCode: 400`, and an attached `*appfault.AppError`.
-3. **Preserve Payload Along with Bytes:** Always maintain the typed `payload T` inside the result container so callers can inspect structured fields without redundant unmarshaling.
-4. **Unified Interface Conformance:** Every result container MUST satisfy `WrappedBytes[T]`, exposing `Raw()`, `String()`, `Len()`, `Value()`, `Error()`, `Status()`, `StatusCode()`, `IsSuccess()`, and `Unwrap()`.
-5. **Deterministic Formatting:** Indented formatting (`Pretty()`) and minification (`Compact()`) must produce stable outputs.
-6. **No Mixed Polarity:** Boolean evaluation methods (`IsSuccess()`, `HasError()`, `IsValid()`) must never evaluate `isA && !isB` in the same condition.
+1. **Non-Generic Container:** `JsonResult` and `WrappedJson` MUST be non-generic (without `T`). Internal payload is stored as `any` and satisfies `WrappedBytes[any]`.
+2. **Use `Json` Naming Convention:** All types and identifiers MUST use camel/pascal casing `Json` (e.g. `JsonResult`, `WrappedJson`, `JsonSource`) rather than all-caps `JSON`. Backwards-compatible aliases (`JSONResult`, `WrappedJSON`, `JSONSource`) may be maintained for transition periods.
+3. **Never Panic in Constructors:** If input bytes or strings are malformed JSON, return a valid `JsonResult` with `status: false`, `statusCode: 400`, and an attached `*appfault.AppError`.
+4. **Preserve Payload Along with Bytes:** Maintain the `payload any` inside the result container so callers can inspect structured fields without redundant unmarshaling.
+5. **Unified Interface Conformance:** Every result container MUST satisfy `WrappedBytes[any]` and `WrappedJson`, exposing `Raw()`, `String()`, `Len()`, `Value()`, `Error()`, `Status()`, `StatusCode()`, `IsSuccess()`, and `Unwrap()`.
+6. **Deterministic Formatting:** Indented formatting (`Pretty()`) and minification (`Compact()`) must produce stable outputs.
+7. **No Mixed Polarity:** Boolean evaluation methods (`IsSuccess()`, `HasError()`, `IsValid()`) must never evaluate `isA && !isB` in the same condition.
