@@ -26,3 +26,44 @@ func TestEmitIdentityRowsUsesBuildOverridesWithoutDir(t *testing.T) {
 		}
 	}
 }
+
+func TestLongFooterBlockHasRequiredFields(t *testing.T) {
+	out := captureStdoutForTest(t, func() {
+		printGitmapIdentityBlockLong()
+	})
+
+	required := []string{
+		"gitmap binary",
+		"● Name:",
+		"gitmap",
+		"● Git URL:",
+		"● Version:",
+		"● Commit SHA:",
+		"● Database:",
+		"● Installed path:",
+	}
+
+	for _, want := range required {
+		if !strings.Contains(out, want) {
+			t.Errorf("long footer missing field %q in output:\n%s", want, out)
+		}
+	}
+}
+
+func TestShortFooterBlockHasRequiredFields(t *testing.T) {
+	out := captureStdoutForTest(t, func() {
+		printGitmapIdentityBlockShort()
+	})
+
+	if !strings.Contains(out, "● Version:") {
+		t.Errorf("short footer missing Version in output:\n%s", out)
+	}
+
+	if !strings.Contains(out, "● Commit SHA:") {
+		t.Errorf("short footer missing Commit SHA in output:\n%s", out)
+	}
+
+	if strings.Contains(out, "● Installed path:") {
+		t.Errorf("short footer should not contain Installed path:\n%s", out)
+	}
+}

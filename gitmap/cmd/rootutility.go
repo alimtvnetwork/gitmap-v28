@@ -100,11 +100,13 @@ func dispatchHelpTopic(rawTopic string) {
 	_, err := helptext.ReadRaw(topic)
 	if err != nil {
 		printUsageFiltered(topic)
+
 		return
 	}
 
 	_, mode := ParsePrettyFlag(os.Args[3:])
 	helptext.PrintWithMode(topic, mode)
+	printUsageFooterShort()
 }
 
 func normalizeHelpTopic(topic string) string {

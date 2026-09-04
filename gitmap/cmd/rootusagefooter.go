@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -38,50 +39,314 @@ const footerRule = "────────────────────
 // Blocks are separated by a blank line + thin rule so users can never
 // confuse "what gitmap am I running" with "what repo am I sitting in".
 func printUsageFooter() {
-	printGitmapIdentityBlock()
+	if isShortFooterRequested() {
+		printUsageFooterShort()
+
+		return
+	}
+
+	printUsageFooterLong()
+}
+
+func isShortFooterRequested() bool {
+	for _, arg := range os.Args {
+		if arg == "--short-footer" || arg == "--short" {
+			return true
+		}
+	}
+
+	if os.Getenv("GITMAP_FOOTER") == "short" {
+		return true
+	}
+
+	return false
+}
+
+func printUsageFooterLong() {
+	printGitmapIdentityBlockLong()
 
 	cwd, err := os.Getwd()
 	if err != nil || !isFooterGitRepo(cwd) {
 		return
 	}
+
 	if sameRepo(cwd, gitmapSourceDir()) {
-		return // avoid duplicate block when cwd IS the gitmap source repo
+		return
 	}
+
 	printCurrentRepoIdentityBlock(cwd)
 }
 
+func printUsageFooterShort() {
+	printGitmapIdentityBlockShort()
+}
+
 func printGitmapIdentityBlock() {
+	if isShortFooterRequested() {
+		printGitmapIdentityBlockShort()
+
+		return
+	}
+
+	printGitmapIdentityBlockLong()
+}
+
+func printGitmapIdentityBlockLong() {
 	fmt.Println()
 	fmt.Println("  " + constants.ColorMagenta + footerRule + constants.ColorReset)
 	fmt.Println("  " + constants.ColorMagenta + "gitmap binary" + constants.ColorReset)
 
-	fmt.Printf("  %s● Version:%s     %sv%s%s\n",
-		constants.ColorCyan, constants.ColorReset,
-		constants.ColorWhite, constants.Version, constants.ColorReset)
+	name := "gitmap"
+	gitURL := resolveGitmapRepoURL()
+	version := resolveGitmapVersion()
+	sha := resolveGitmapCommitSHA()
+	dbPath := resolveDatabasePath()
+	installedPath := resolveInstalledBinaryPath()
 
-	emitIdentityRows(IdentityRowParams{
-		Dir:            gitmapSourceDir(),
-		RepoOverride:   BuildRepo,
-		BranchOverride: BuildBranch,
-		ShaOverride:    BuildCommit,
-	})
+	fmt.Printf("  %s● Name:%s           %s%s%s\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorWhite, name, constants.ColorReset)
+
+	if len(gitURL) > 0 {
+		fmt.Printf("  %s● Git URL:%s        %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorCyan, gitURL, constants.ColorReset)
+	}
+
+	fmt.Printf("  %s● Version:%s        %s%s%s\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorWhite, version, constants.ColorReset)
+
+	if len(sha) > 0 {
+		fmt.Printf("  %s● Commit SHA:%s     %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorYellow, sha, constants.ColorReset)
+	}
+
+	if len(dbPath) > 0 {
+		fmt.Printf("  %s● Database:%s       %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorWhite, dbPath, constants.ColorReset)
+	}
+
+	if len(installedPath) > 0 {
+		fmt.Printf("  %s● Installed path:%s %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorWhite, installedPath, constants.ColorReset)
+	}
+
 	printFooterBuildDate()
-	printFooterDatabase()
 	fmt.Println()
+}
+
+func printGitmapIdentityBlockShort() {
+	fmt.Println()
+	fmt.Println("  " + constants.ColorMagenta + footerRule + constants.ColorReset)
+	fmt.Println("  " + constants.ColorMagenta + "gitmap binary" + constants.ColorReset)
+
+	version := resolveGitmapVersion()
+	sha := resolveGitmapCommitSHA()
+
+	fmt.Printf("  %s● Version:%s        %s%s%s\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorWhite, version, constants.ColorReset)
+
+	if len(sha) > 0 {
+		fmt.Printf("  %s● Commit SHA:%s     %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorYellow, sha, constants.ColorReset)
+	}
+
+	fmt.Println()
+}
+
+func resolveGitmapRepoURL() string {
+	if len(BuildRepo) > 0 {
+		return BuildRepo
+	}
+
+	srcURL := resolveRepoURLFromDir(gitmapSourceDir())
+	if len(srcURL) > 0 {
+		return srcURL
+	}
+
+	cwdURL := resolveRepoURLFromCWD()
+	if len(cwdURL) > 0 {
+		return cwdURL
+	}
+
+	return fmt.Sprintf("https://github.com/%s/%s", constants.UpdateRepoOwner, constants.UpdateCurrentRepoSlug)
+}
+
+func resolveRepoURLFromDir(dir string) string {
+	if len(dir) == 0 {
+		return ""
+	}
+
+	return captureGit(dir, "config", "--get", "remote.origin.url")
+}
+
+func resolveRepoURLFromCWD() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	u := captureGit(cwd, "config", "--get", "remote.origin.url")
+	if len(u) > 0 && strings.Contains(u, "gitmap") {
+		return u
+	}
+
+	return ""
+}
+
+func resolveGitmapCommitSHA() string {
+	if len(BuildCommit) > 0 {
+		return BuildCommit
+	}
+
+	srcSHA := resolveCommitSHAFromDir(gitmapSourceDir())
+	if len(srcSHA) > 0 {
+		return srcSHA
+	}
+
+	cwdSHA := resolveCommitSHAFromCWD()
+	if len(cwdSHA) > 0 {
+		return cwdSHA
+	}
+
+	return readVersionJSONCommitSHA()
+}
+
+func resolveCommitSHAFromDir(dir string) string {
+	if len(dir) == 0 {
+		return ""
+	}
+
+	return captureGit(dir, "rev-parse", "HEAD")
+}
+
+func resolveCommitSHAFromCWD() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	if !isFooterGitRepo(cwd) {
+		return ""
+	}
+
+	u := captureGit(cwd, "config", "--get", "remote.origin.url")
+	if !strings.Contains(u, "gitmap") {
+		return ""
+	}
+
+	return captureGit(cwd, "rev-parse", "HEAD")
+}
+
+func readVersionJSONCommitSHA() string {
+	candidatePaths := collectVersionJSONCandidatePaths()
+	for _, p := range candidatePaths {
+		sha := extractSHAFromVersionJSON(p)
+		if len(sha) > 0 {
+			return sha
+		}
+	}
+
+	return ""
+}
+
+func collectVersionJSONCandidatePaths() []string {
+	paths := []string{
+		"version.json",
+		filepath.Join(gitmapSourceDir(), "version.json"),
+	}
+
+	binPath := resolveInstalledBinaryPath()
+	if len(binPath) == 0 {
+		return paths
+	}
+
+	binDir := filepath.Dir(binPath)
+
+	return append(paths,
+		filepath.Join(binDir, "version.json"),
+		filepath.Join(binDir, "..", "version.json"),
+	)
+}
+
+func extractSHAFromVersionJSON(path string) string {
+	if len(path) == 0 {
+		return ""
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+
+	var parsed struct {
+		LastCommitSha string `json:"LastCommitSha"`
+		Git           struct {
+			Sha string `json:"sha"`
+		} `json:"git"`
+	}
+
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		return ""
+	}
+
+	if len(parsed.Git.Sha) > 0 {
+		return parsed.Git.Sha
+	}
+
+	return parsed.LastCommitSha
+}
+
+func resolveInstalledBinaryPath() string {
+	selfPath, err := os.Executable()
+	if err != nil {
+		return ""
+	}
+
+	resolved, err := filepath.EvalSymlinks(selfPath)
+	if err != nil {
+		resolved = selfPath
+	}
+
+	absPath, err := filepath.Abs(resolved)
+	if err != nil {
+		absPath = resolved
+	}
+
+	return absPath
+}
+
+func resolveDatabasePath() string {
+	return store.DefaultDBPath()
+}
+
+func resolveGitmapVersion() string {
+	v := constants.Version
+	if !strings.HasPrefix(v, "v") {
+		return "v" + v
+	}
+
+	return v
 }
 
 func printFooterBuildDate() {
 	if len(BuildDate) > 0 {
-		fmt.Printf("  %s● Built:%s       %s%s%s\n",
+		fmt.Printf("  %s● Built:%s          %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorDim, BuildDate, constants.ColorReset)
 	}
 }
 
 func printFooterDatabase() {
-	dbPath := store.DefaultDBPath()
+	dbPath := resolveDatabasePath()
 	if len(dbPath) > 0 {
-		fmt.Printf("  %s● Database:%s    %s%s%s\n",
+		fmt.Printf("  %s● Database:%s       %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorWhite, dbPath, constants.ColorReset)
 	}

@@ -59,28 +59,45 @@ func TestBytesWrapper(t *testing.T) {
 	raw := []byte("hello bytes")
 	payload := "original-payload"
 
-	// 1. Successful Bytes
+	// 1. Successful Bytes satisfying WrappedBytes
 	b := streamwriter.NewBytes(raw, payload)
-	if !b.IsValid() {
+	var wb streamwriter.WrappedBytes[string] = b
+
+	if !wb.IsValid() {
 		t.Errorf("expected IsValid() to be true")
 	}
-	if b.HasError() {
+	if !wb.IsSuccess() {
+		t.Errorf("expected IsSuccess() to be true")
+	}
+	if !wb.Status() {
+		t.Errorf("expected Status() flag to be true")
+	}
+	if wb.StatusCode() != 200 {
+		t.Errorf("expected StatusCode() to be 200, got: %d", wb.StatusCode())
+	}
+	if wb.HasError() {
 		t.Errorf("expected HasError() to be false")
 	}
-	if b.String() != "hello bytes" {
-		t.Errorf("unexpected string: %s", b.String())
+	if wb.String() != "hello bytes" {
+		t.Errorf("unexpected string: %s", wb.String())
 	}
-	if b.Len() != len(raw) {
-		t.Errorf("unexpected len: %d", b.Len())
+	if wb.Len() != len(raw) {
+		t.Errorf("unexpected len: %d", wb.Len())
 	}
-	if b.Payload() != payload {
-		t.Errorf("unexpected payload: %v", b.Payload())
+	if wb.Payload() != payload {
+		t.Errorf("unexpected payload: %v", wb.Payload())
 	}
-	if b.AppError() != nil {
+	if wb.Value() != payload {
+		t.Errorf("unexpected value: %v", wb.Value())
+	}
+	if wb.AppError() != nil {
 		t.Errorf("expected nil AppError")
 	}
+	if wb.Error() != nil {
+		t.Errorf("expected nil Error()")
+	}
 
-	unwrappedData, unwrappedErr := b.Unwrap()
+	unwrappedData, unwrappedErr := wb.Unwrap()
 	if string(unwrappedData) != "hello bytes" || unwrappedErr != nil {
 		t.Errorf("unwrap failed")
 	}
@@ -91,11 +108,88 @@ func TestBytesWrapper(t *testing.T) {
 	if errBytes.IsValid() {
 		t.Errorf("expected IsValid() to be false on error")
 	}
+	if errBytes.IsSuccess() {
+		t.Errorf("expected IsSuccess() to be false on error")
+	}
+	if errBytes.Status() {
+		t.Errorf("expected Status() flag to be false on error")
+	}
 	if !errBytes.HasError() {
 		t.Errorf("expected HasError() to be true on error")
 	}
 	if errBytes.AppError() == nil {
 		t.Errorf("expected non-nil AppError")
+	}
+	if errBytes.Error() == nil {
+		t.Errorf("expected non-nil Error()")
+	}
+}
+
+func TestJSONResult_WrappedBytesFlow(t *testing.T) {
+	type UserPayload struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+	user := UserPayload{Name: "Alice", Age: 30}
+
+	// 1. Successful JSONResult satisfying WrappedBytes and WrappedJSON
+	res := streamwriter.NewJSONResult(user)
+	var wb streamwriter.WrappedBytes[UserPayload] = res
+	var wj streamwriter.WrappedJSON[UserPayload] = res
+
+	if !wb.IsValid() {
+		t.Fatalf("expected IsValid() to be true")
+	}
+	if !wb.IsSuccess() {
+		t.Fatalf("expected IsSuccess() to be true")
+	}
+	if !wb.Status() {
+		t.Fatalf("expected Status() flag to be true")
+	}
+	if wb.StatusCode() != 200 {
+		t.Fatalf("expected status code 200, got: %d", wb.StatusCode())
+	}
+	if wb.Value().Name != "Alice" || wb.Payload().Age != 30 {
+		t.Fatalf("expected payload value match")
+	}
+	if wb.Error() != nil {
+		t.Fatalf("expected nil Error()")
+	}
+
+	// Test Pretty and Compact
+	pretty := wj.Pretty()
+	if !strings.Contains(pretty, "\n") || !strings.Contains(pretty, `"name": "Alice"`) {
+		t.Fatalf("unexpected pretty JSON: %s", pretty)
+	}
+	compact := wj.Compact()
+	if strings.Contains(compact, " ") || !strings.Contains(compact, `{"name":"Alice","age":30}`) {
+		t.Fatalf("unexpected compact JSON: %s", compact)
+	}
+
+	// Test Unmarshal
+	var decoded UserPayload
+	if err := wj.Unmarshal(&decoded); err != nil {
+		t.Fatalf("unmarshal failed: %v", err)
+	}
+	if decoded.Name != "Alice" || decoded.Age != 30 {
+		t.Fatalf("unmarshaled data mismatch: %+v", decoded)
+	}
+
+	// 2. Pre-marshaled bytes constructor
+	validJSON := []byte(`{"name":"Bob","age":25}`)
+	byteRes := streamwriter.NewJSONResultWithBytes(validJSON, UserPayload{Name: "Bob", Age: 25})
+	if !byteRes.IsValid() || byteRes.StatusCode() != 200 {
+		t.Fatalf("expected valid JSONResult from bytes")
+	}
+
+	// 3. Failed JSONResult with AppError
+	appErr := appfault.New(errtype.Validation, "invalid json schema")
+	errRes := streamwriter.NewJSONResultError[UserPayload](appErr)
+	if errRes.IsValid() || errRes.IsSuccess() || errRes.Status() {
+		t.Fatalf("expected error result to be invalid")
+	}
+	if errRes.Error() == nil || errRes.AppError() == nil {
+		t.Fatalf("expected non-nil Error() and AppError()")
 	}
 }
 

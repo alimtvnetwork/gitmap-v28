@@ -21,8 +21,10 @@ func checkHelp(command string, args []string) {
 	if lacksHelpFlag {
 		return
 	}
+
 	_, mode := ParsePrettyFlag(args)
 	helptext.PrintWithMode(command, mode)
+	printUsageFooterShort()
 	cliexit.Exit(0)
 }
 

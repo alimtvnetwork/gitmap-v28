@@ -18,3 +18,4 @@
 | 07 | [`07-bytes-wrapper-and-apperror-standard.md`](07-bytes-wrapper-and-apperror-standard.md) | Bytes[T] monadic wrapper replacing ([]byte, error), and mandatory *appfault.AppError return standard | Implemented | 2026-09-04 |
 | 08 | [`08-idiomatic-er-interface-naming.md`](08-idiomatic-er-interface-naming.md) | Idiomatic -er interface naming convention, generic contracts, Bytes[T] wrapper, and *appfault.AppError standard | Implemented | 2026-09-04 |
 | 09 | [`09-writer-locker-and-avoiding-interfacer.md`](09-writer-locker-and-avoiding-interfacer.md) | Writer sync.Locker integration (Lock/Unlock), ReentrantMutex deadlock prevention, and removal of redundant Interfacer | Implemented | 2026-09-04 |
+| 10 | [`10-wrapped-bytes-interface-and-json-result.md`](10-wrapped-bytes-interface-and-json-result.md) | WrappedBytes interface contract, status flags, Value()/Error() accessors, and JSONResult container | Implemented | 2026-09-04 |
