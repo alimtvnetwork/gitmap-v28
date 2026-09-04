@@ -9,29 +9,26 @@ import (
 	"coding-guidelines/common/pkg/appfault"
 )
 
-// Interfacer represents the self-binding contract returning its own interface.
-type Interfacer interface {
-	AsInterfacer() Interfacer
-}
-
-// Writer defines universal write operations over generic type T with AppError.
+// Writer defines universal write operations over generic type T with AppError and Locker synchronization.
 type Writer[T any] interface {
-	Interfacer
 	Name() string
 	Write(ctx context.Context, payload T) *appfault.AppError
 	AsWriter() Writer[T]
+	Lock()
+	Unlock()
 	Sync() *appfault.AppError
 	Close() *appfault.AppError
 }
 
-// Streamer defines streaming operations over generic type T with AppError.
+// Streamer defines streaming operations over generic type T with AppError and Locker synchronization.
 type Streamer[T any] interface {
-	Interfacer
 	Name() string
 	Stream(ctx context.Context, payload T) *appfault.AppError
 	AsStreamer() Streamer[T]
 	AsWriter() Writer[T]
 	IsLocked() bool
+	Lock()
+	Unlock()
 	Destination() io.Writer
 	Sync() *appfault.AppError
 	Close() *appfault.AppError
