@@ -53,33 +53,31 @@ func NewBytesWithStatus[T any](data []byte, payload T, status bool, code int) By
 	}
 }
 
+func resolveAppErrorCode(appErr *appfault.AppError) int {
+	if appErr == nil {
+		return 500
+	}
+	if appErr.StatusCode() != 0 {
+		return appErr.StatusCode()
+	}
+	return 500
+}
+
 // NewBytesError creates a failed Bytes envelope with an AppError and status flag set to false.
 func NewBytesError[T any](appErr *appfault.AppError) Bytes[T] {
-	code := 500
-	if appErr != nil {
-		if appErr.StatusCode() != 0 {
-			code = appErr.StatusCode()
-		}
-	}
 	return Bytes[T]{
 		status:     false,
-		statusCode: code,
+		statusCode: resolveAppErrorCode(appErr),
 		appError:   appErr,
 	}
 }
 
 // NewBytesErrorWithPayload creates a failed Bytes envelope preserving the original payload.
 func NewBytesErrorWithPayload[T any](appErr *appfault.AppError, payload T) Bytes[T] {
-	code := 500
-	if appErr != nil {
-		if appErr.StatusCode() != 0 {
-			code = appErr.StatusCode()
-		}
-	}
 	return Bytes[T]{
 		payload:    payload,
 		status:     false,
-		statusCode: code,
+		statusCode: resolveAppErrorCode(appErr),
 		appError:   appErr,
 	}
 }

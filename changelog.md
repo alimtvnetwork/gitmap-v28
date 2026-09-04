@@ -1,3 +1,18 @@
+## [v6.184.0] 2026-09-04 Release v6.184.0
+
+### Install GitMap v6.184.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.sh | bash -s -- ".lovable/prompts" "v6.184.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.184.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Enhanced GitMap CLI footer when inside a git repository to display repo name, remote Git URL, active branch, latest branch, open PR count, and comprehensive branch status
+- Resolved real-time git branch tracking and upstream sync counters (ahead/behind/up to date)
+- Automated SSoT version bumping pipeline via 03-ai-scripts/29-release-bumper.py
+- Bumped version to v6.184.0 across all Single Source of Truth manifests
+
 ## [v6.183.0] 2026-09-04 Release v6.183.0
 
 ### Install GitMap v6.183.0

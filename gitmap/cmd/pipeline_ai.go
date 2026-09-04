@@ -61,8 +61,21 @@ func isPipelineAIDelayFlag(arg string) bool {
 	return arg == "-t" || arg == "--time" || arg == "-d" || arg == "--delay"
 }
 
+func isSkipDelayRequested() bool {
+	if os.Getenv("GITMAP_SKIP_DELAY") == "1" {
+		return true
+	}
+	if len(os.Getenv("CI")) > 0 {
+		return true
+	}
+	if len(os.Getenv("GITHUB_ACTIONS")) > 0 {
+		return true
+	}
+	return false
+}
+
 func executePipelineAIDelay(delaySeconds int, subArgs []string) {
-	if delaySeconds <= 0 {
+	if delaySeconds <= 0 || isSkipDelayRequested() {
 		return
 	}
 	isJSON := hasArgFlag(subArgs, "--json")
@@ -72,15 +85,7 @@ func executePipelineAIDelay(delaySeconds int, subArgs []string) {
 	} else {
 		fmt.Print(msg)
 	}
-	_ = checkSkipDelayEnv(delaySeconds)
-}
-
-func checkSkipDelayEnv(delaySeconds int) bool {
-	if os.Getenv("GITMAP_SKIP_DELAY") == "1" {
-		return true
-	}
 	time.Sleep(time.Duration(delaySeconds) * time.Second)
-	return false
 }
 
 func outputPipelineAIResult(payload PipelineStatusPayload, subArgs []string) error {
