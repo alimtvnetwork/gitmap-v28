@@ -1,3 +1,21 @@
+## [v6.183.0] 2026-09-04 Release v6.183.0
+
+### Install GitMap v6.183.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.sh | bash -s -- ".lovable/prompts" "v6.183.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.183.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Overhauled GitMap CLI footer metadata output with dedicated Short and Long variants
+- Implemented short footer displaying Version and Git Commit SHA, integrated across all help invocations (`--help`, `-h`, `gitmap help <topic>`)
+- Implemented long footer displaying complete binary identity block: Name, Git URL (`https://github.com/alimtvnetwork/gitmap-v28`), Version, Commit SHA, Database path, and Installed binary path
+- Added dynamic binary and repository metadata resolution with cascading fallbacks (ldflags -> git config -> origin URL -> `version.json`), guaranteeing zero empty fields
+- Flattened nested conditionals across `04-code/` streamwriter reference implementation, achieving 0 nested `if` violations across 3,089 repository files
+- Bumped version to `v6.183.0` across all Single Source of Truth manifests (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`)
+- Verified 100% green pass across all 16 CI/CD quality gates locally and synchronized release assets
+
 ## [v6.182.0] 2026-09-04 Release v6.182.0
 
 ### Install GitMap v6.182.0

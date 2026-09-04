@@ -47,15 +47,9 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 	}
 
 	// 2. Check if the value or pointer to value implements Compilable interface
-	if v.CanInterface() {
-		if compilable, isComp := v.Interface().(Compilable); isComp {
-			return compilable.Compile()
-		}
-	}
-	if v.Kind() != reflect.Ptr && v.CanAddr() {
-		if compilable, isComp := v.Addr().Interface().(Compilable); isComp {
-			return compilable.Compile()
-		}
+	compilable, isComp := extractCompilable(v)
+	if isComp {
+		return compilable.Compile()
 	}
 
 	// 3. Type-specific ordered transpilation
@@ -148,17 +142,9 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 				continue
 			}
 
-			fieldName := fieldType.Name
-			// Check json tag for custom naming
-			tag := fieldType.Tag.Get("json")
-			if tag != "" {
-				parts := strings.Split(tag, ",")
-				if parts[0] == "-" {
-					continue
-				}
-				if parts[0] != "" {
-					fieldName = parts[0]
-				}
+			fieldName, shouldSkip := resolveJSONFieldName(fieldType)
+			if shouldSkip {
+				continue
 			}
 
 			fieldVal := v.Field(i)
@@ -171,4 +157,51 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 	default:
 		return fmt.Sprintf("%v", v.Interface())
 	}
+}
+
+func extractCompilable(v reflect.Value) (Compilable, bool) {
+	comp, ok := extractFromInterface(v)
+	if ok {
+		return comp, true
+	}
+
+	return extractFromAddr(v)
+}
+
+func extractFromInterface(v reflect.Value) (Compilable, bool) {
+	if !v.CanInterface() {
+		return nil, false
+	}
+
+	comp, ok := v.Interface().(Compilable)
+
+	return comp, ok
+}
+
+func extractFromAddr(v reflect.Value) (Compilable, bool) {
+	if v.Kind() == reflect.Ptr || !v.CanAddr() {
+		return nil, false
+	}
+
+	comp, ok := v.Addr().Interface().(Compilable)
+
+	return comp, ok
+}
+
+func resolveJSONFieldName(fieldType reflect.StructField) (string, bool) {
+	tag := fieldType.Tag.Get("json")
+	if tag == "" {
+		return fieldType.Name, false
+	}
+
+	parts := strings.Split(tag, ",")
+	if parts[0] == "-" {
+		return "", true
+	}
+
+	if parts[0] != "" {
+		return parts[0], false
+	}
+
+	return fieldType.Name, false
 }
