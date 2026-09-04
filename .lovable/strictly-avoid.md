@@ -252,3 +252,17 @@ Allowed work:
 - ✅ Populate all 13 Chromium attributes (`name`, `shortcut_name`, `user_name`, `avatar_icon`, `default_avatar_fill_color`, `default_avatar_stroke_color`, `profile_highlight_color`, `profile_color_seed`, `active_time`, `is_using_default_avatar`, `is_using_default_name`, `is_ephemeral`, `is_consented_primary_account`, `signin.with_credential_provider`).
 - ✅ Maintain `profile.profiles_order` synchronicity and provide `gitmap chrome profile reconcile` for automated orphan profile restoration.
 
+---
+
+## Bare Platform-Specific `open` in Macro Steps Without Cross-Platform Shims — TOTAL BAN
+
+🔴 **NEVER execute raw platform-specific commands like `open` in macro runners without cross-platform shimming or OS-aware dispatching.**
+
+Forbidden:
+- ❌ Assuming `open` is a universal shell executable across Windows and Linux.
+- ❌ Spawning unshimmed `open <target>` on Windows where `open` does not exist, causing exit status 1 failures (`E9000:EXECUTION`).
+
+Allowed work:
+- ✅ Provide internal shimming in the macro execution engine: translate `open` on Windows to `explorer.exe`, `cmd.exe /c start ""`, or `rundll32 url.dll,FileProtocolHandler`, and on Linux to `xdg-open`.
+- ✅ Delegate URL/browser operations to GitMap's built-in commands (`gitmap open`, `gitmap chrome open`).
+
