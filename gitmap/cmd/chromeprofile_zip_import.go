@@ -14,6 +14,10 @@ import (
 
 // applyChromeExportZIP extracts a ZIP archive into target profile directories.
 func applyChromeExportZIP(zipPath, dstProfile string) error {
+	return applyChromeExportZIPWithOptions(zipPath, dstProfile, 0)
+}
+
+func applyChromeExportZIPWithOptions(zipPath, dstProfile string, limit int) error {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
 		return fmt.Errorf("open zip %s: %w", zipPath, err)
@@ -25,7 +29,7 @@ func applyChromeExportZIP(zipPath, dstProfile string) error {
 
 	m := readZipManifest(r)
 	if isMultiProfileArchive(m, r) {
-		return extractMultiProfileZip(r)
+		return extractMultiProfileZipWithOptions(r, dstProfile, limit)
 	}
 	return extractSingleProfileZip(r, dstProfile)
 }
@@ -70,15 +74,52 @@ func isMultiProfileZip(r *zip.ReadCloser) bool {
 }
 
 func extractMultiProfileZip(r *zip.ReadCloser) error {
+	return extractMultiProfileZipWithOptions(r, "", 0)
+}
+
+func extractMultiProfileZipWithOptions(r *zip.ReadCloser, targetProfile string, limit int) error {
 	importedProfiles := make(map[string]bool)
+	allowedProfiles := make(map[string]bool)
 	for _, f := range r.File {
-		processMultiProfileZipEntry(f, importedProfiles)
+		processFilteredZipEntry(f, targetProfile, limit, importedProfiles, allowedProfiles)
 	}
 	for profName := range importedProfiles {
 		label := formatChromeProfileLabel(profName, nil)
 		fmt.Printf("  \033[1;92m✓\033[0m %s → imported from zip\n", label)
 	}
 	return nil
+}
+
+func isProfileAllowedByLimit(profName string, limit int, allowed map[string]bool) bool {
+	if limit <= 0 || allowed[profName] {
+		return true
+	}
+
+	if len(allowed) >= limit {
+		return false
+	}
+
+	allowed[profName] = true
+
+	return true
+}
+
+func processFilteredZipEntry(f *zip.File, targetProfile string, limit int, imported, allowed map[string]bool) {
+	parts := strings.Split(filepath.ToSlash(f.Name), "/")
+	if len(parts) < 2 {
+		return
+	}
+
+	profName := parts[0]
+	if targetProfile != "" && profName != targetProfile {
+		return
+	}
+
+	if !isProfileAllowedByLimit(profName, limit, allowed) {
+		return
+	}
+
+	processMultiProfileZipEntry(f, imported)
 }
 
 func processMultiProfileZipEntry(f *zip.File, imported map[string]bool) {

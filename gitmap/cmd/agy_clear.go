@@ -57,8 +57,13 @@ func runAgyClear() error {
 
 func selectClearTargets(projects []AgyProject) []AgyProject {
 	targets := make([]AgyProject, 0)
+	pinnedMap := getPinnedProjectsMap()
+
 	for _, p := range projects {
 		if p.ID == "outside-of-project" || isAgyProjectExcepted(p, agyClearExcept) {
+			continue
+		}
+		if isAgyProjectPinned(p, pinnedMap) {
 			continue
 		}
 		path := p.GetPath()
@@ -69,6 +74,16 @@ func selectClearTargets(projects []AgyProject) []AgyProject {
 		}
 	}
 	return targets
+}
+
+func isAgyProjectPinned(p AgyProject, pinnedMap map[string]bool) bool {
+	if len(pinnedMap) == 0 {
+		return false
+	}
+	if pinnedMap[p.ID] {
+		return true
+	}
+	return pinnedMap[filepath.Clean(p.GetPath())]
 }
 
 func isAgyProjectExcepted(p AgyProject, exceptStr string) bool {

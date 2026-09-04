@@ -114,3 +114,19 @@ func findPinnedIndex(store *PinnedProjectsStore, target string) (int, *PinnedPro
 
 	return -1, nil
 }
+
+func getPinnedProjectsMap() map[string]bool {
+	pinnedMap := make(map[string]bool)
+	store, loadErr := loadPinnedProjectsStore()
+
+	if loadErr != nil {
+		return pinnedMap
+	}
+
+	for _, p := range store.Projects {
+		pinnedMap[p.ID] = true
+		pinnedMap[filepath.Clean(p.Path)] = true
+	}
+
+	return pinnedMap
+}
