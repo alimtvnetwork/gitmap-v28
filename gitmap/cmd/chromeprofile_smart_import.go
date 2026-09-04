@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -266,6 +267,10 @@ func isExcepted(exceptRules []string, fileName, profileName, displayName, email 
 		if matchExceptRule(r, fileName) {
 			return true, r
 		}
+		baseName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
+		if matchExceptRule(r, baseName) {
+			return true, r
+		}
 		if matchExceptRule(r, profileName) {
 			return true, r
 		}
@@ -315,7 +320,11 @@ func readJSONSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	if err := json.Unmarshal(raw, &exp); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", srcFile, err)
 	}
-	extractEmailIfMissing(&exp)
+	if exp.Name == "" {
+		base := filepath.Base(srcFile)
+		exp.Name = strings.TrimSuffix(base, filepath.Ext(base))
+	}
+	extractEmailIfMissing(&exp, raw)
 	info, _ := os.Stat(srcFile)
 	var size int64
 	if info != nil {
@@ -340,10 +349,26 @@ func readJSONSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	}, nil
 }
 
-func extractEmailIfMissing(exp *chromeExport) {
+func extractEmailIfMissing(exp *chromeExport, raw []byte) {
 	if exp.Email == "" && len(exp.Preferences) > 0 {
 		exp.Email = extractEmailFromPreferences(exp.Preferences)
 	}
+	if exp.Email == "" && len(raw) > 0 {
+		exp.Email = extractEmailFromPreferences(json.RawMessage(raw))
+	}
+	if exp.Email == "" && len(raw) > 0 {
+		exp.Email = extractEmailFromRawString(raw)
+	}
+}
+
+var rawEmailRegex = regexp.MustCompile(`"(?:email|user_name|username)"\s*:\s*"([^"\\]+@[^"\\]+\.[a-zA-Z]{2,})"`)
+
+func extractEmailFromRawString(raw []byte) string {
+	matches := rawEmailRegex.FindSubmatch(raw)
+	if len(matches) > 1 {
+		return string(matches[1])
+	}
+	return ""
 }
 
 func readYAMLSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
@@ -355,7 +380,7 @@ func readYAMLSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	if err := yaml.Unmarshal(raw, &exp); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", srcFile, err)
 	}
-	extractEmailIfMissing(&exp)
+	extractEmailIfMissing(&exp, raw)
 	info, _ := os.Stat(srcFile)
 	var size int64
 	if info != nil {
@@ -441,6 +466,10 @@ func isValidChromeSnapshotFile(path string) bool {
 }
 
 func isChromeSnapshotJSON(path string) bool {
+	base := strings.ToLower(filepath.Base(path))
+	if isExcludedSystemJSON(base) {
+		return false
+	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return false
@@ -453,12 +482,33 @@ func isChromeSnapshotJSON(path string) bool {
 	if err := json.Unmarshal(raw, &all); err == nil && len(all.Profiles) > 0 {
 		return true
 	}
+	if isChromeProfileNamedJSON(base) {
+		var obj map[string]any
+		return json.Unmarshal(raw, &obj) == nil && len(obj) > 0
+	}
 	return false
+}
+
+func isExcludedSystemJSON(base string) bool {
+	switch base {
+	case "package.json", "package-lock.json", "tsconfig.json", "version.json", "composer.json":
+		return true
+	}
+	return false
+}
+
+func isChromeProfileNamedJSON(base string) bool {
+	if base == "default.json" {
+		return true
+	}
+	return strings.HasPrefix(base, "profile") && strings.HasSuffix(base, ".json")
 }
 
 func isExportPopulated(exp *chromeExport) bool {
 	return exp.SchemaVersion > 0 ||
 		exp.ExportedAt != "" ||
+		exp.Email != "" ||
+		exp.DisplayName != "" ||
 		len(exp.Bookmarks) > 0 ||
 		len(exp.Preferences) > 0 ||
 		len(exp.ExtensionIDs) > 0
@@ -557,10 +607,7 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 }
 
 func runChromeProfileImportCheck(args []string) error {
-	target := "."
-	if len(args) > 0 && args[0] != "ls" && args[0] != "--help" && args[0] != "-h" {
-		target = args[0]
-	}
+	target := resolveCheckTarget(args)
 	checkHelp("import-check", args)
 
 	files, err := resolveSnapshotCheckFiles(target)
@@ -589,6 +636,19 @@ func runChromeProfileImportCheck(args []string) error {
 	fmt.Printf("  Import with limit:     gitmap chrome profile import *.json --limit 1\n")
 	fmt.Printf("  Import with exclusion: gitmap chrome profile import *.json --except <id|name>\n\n")
 	return nil
+}
+
+func resolveCheckTarget(args []string) string {
+	if len(args) == 0 {
+		return "."
+	}
+	if args[0] == "ls" && len(args) > 1 {
+		return args[1]
+	}
+	if args[0] != "ls" && !isHelpFlag(args[0]) {
+		return args[0]
+	}
+	return "."
 }
 
 func resolveSnapshotCheckFiles(target string) ([]string, error) {
@@ -678,10 +738,13 @@ func resolveFallbackSnapshots(files []string, dir string) ([]string, string) {
 func runSmartChromeImport(opts chromeTransferOptions) error {
 	candidates, explicitTarget, err := collectImportCandidates(opts)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "chrome-profile-import: ERROR %v\n", err)
+		printChromeProfileImportUsage()
 		return err
 	}
 	if len(candidates) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageImport)
+		fmt.Fprintf(os.Stderr, "chrome-profile-import: ERROR no matching profile snapshot files found\n")
+		printChromeProfileImportUsage()
 		return fmt.Errorf("no matching snapshot files found to import")
 	}
 
@@ -710,9 +773,15 @@ func runSmartChromeImport(opts chromeTransferOptions) error {
 	return nil
 }
 
+func printChromeProfileImportUsage() {
+	fmt.Fprintln(os.Stderr, "  usage: gitmap chrome profile import [file.json|glob|dir|email] [flags]")
+	fmt.Fprintln(os.Stderr, "  flags: --except <rule> | --limit <n> | --email <email>")
+}
+
 func collectImportCandidates(opts chromeTransferOptions) ([]string, string, error) {
+	targetDir := resolveTargetDirFromOpts(opts)
 	if opts.Email != "" {
-		return findCandidatesByEmail(opts.Email)
+		return findCandidatesByEmail(opts.Email, targetDir)
 	}
 	if len(opts.Positional) == 0 {
 		return findCandidatesInDir(".")
@@ -723,21 +792,31 @@ func collectImportCandidates(opts chromeTransferOptions) ([]string, string, erro
 	return resolveMultiplePositionalCandidates(opts.Positional)
 }
 
-func findCandidatesByEmail(email string) ([]string, string, error) {
-	files := collectSearchSnapshotFiles(".")
+func resolveTargetDirFromOpts(opts chromeTransferOptions) string {
+	if len(opts.Positional) > 0 && isDirectoryPath(opts.Positional[0]) {
+		return opts.Positional[0]
+	}
+	return "."
+}
+
+func findCandidatesByEmail(email, targetDir string) ([]string, string, error) {
+	files := collectSearchSnapshotFiles(targetDir)
 	for _, f := range files {
 		meta, err := readSnapshotMetadata(f)
 		if err == nil && meta.Email != "" && strings.EqualFold(meta.Email, email) {
 			return []string{f}, "", nil
 		}
 	}
-	return nil, "", fmt.Errorf("no snapshot file found containing email %q (searched %d files in current directory)", email, len(files))
+	return nil, "", fmt.Errorf("no snapshot file found containing email %q (searched %d files in %s)", email, len(files), targetDir)
 }
 
 func collectSearchSnapshotFiles(dir string) []string {
+	if dir == "" {
+		dir = "."
+	}
 	files := scanSnapshotFiles(dir)
 	gitmapChromeDir := filepath.Join(constants.GitMapDir, "chrome")
-	if chromeProfilePathExists(gitmapChromeDir) {
+	if dir != gitmapChromeDir && chromeProfilePathExists(gitmapChromeDir) {
 		files = append(files, scanSnapshotFiles(gitmapChromeDir)...)
 	}
 	return files
@@ -746,6 +825,9 @@ func collectSearchSnapshotFiles(dir string) []string {
 func findCandidatesInDir(dir string) ([]string, string, error) {
 	files := scanSnapshotFiles(dir)
 	files = fallbackCheckFiles(files, dir)
+	if len(files) == 0 {
+		return nil, "", fmt.Errorf("no profile snapshot files (.json, .zip, .sqlite) found in %q", dir)
+	}
 	return files, "", nil
 }
 
@@ -757,7 +839,7 @@ func resolveSinglePositionalCandidate(pos0 string) ([]string, string, error) {
 		return resolveGlobCandidate(pos0)
 	}
 	if strings.Contains(pos0, "@") && !isSnapshotFileExtension(pos0) {
-		return findCandidatesByEmail(pos0)
+		return findCandidatesByEmail(pos0, ".")
 	}
 	if chromeProfilePathExists(pos0) {
 		return []string{pos0}, "", nil
@@ -773,6 +855,9 @@ func resolveGlobCandidate(pattern string) ([]string, string, error) {
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
 		return nil, "", err
+	}
+	if len(matches) == 0 {
+		return nil, "", fmt.Errorf("no files matching pattern %q found", pattern)
 	}
 	return matches, "", nil
 }
