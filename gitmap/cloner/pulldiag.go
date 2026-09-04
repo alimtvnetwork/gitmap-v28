@@ -51,9 +51,15 @@ func buildPullDiagnosis(repoDir, output string) string {
 }
 
 func collectDiagnosisHints(repoDir, output string) []string {
-	hints := make([]string, 0, 3)
+	hints := make([]string, 0, 5)
 	if hasUnlinkFailure(output) {
 		hints = append(hints, "file lock/read-only attribute blocked replacing old files")
+	}
+	if hasUnmergedFailure(output) {
+		hints = append(hints, "unresolved merge conflict detected; run 'gitmap fix-git' or 'git merge --abort'")
+	}
+	if hasUntrackedOverwriteFailure(output) {
+		hints = append(hints, "untracked files conflict with incoming commits; run 'gitmap fix-git' to backup & pull")
 	}
 	if hasPathLengthRisk(repoDir, output) {
 		hints = append(hints, "Windows path length risk detected; use a shorter base path like C:\\src")
@@ -63,6 +69,18 @@ func collectDiagnosisHints(repoDir, output string) []string {
 	}
 
 	return hints
+}
+
+func hasUnmergedFailure(output string) bool {
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "you have unmerged files") || strings.Contains(lower, "unresolved conflict")
+}
+
+func hasUntrackedOverwriteFailure(output string) bool {
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "untracked working tree files would be overwritten")
 }
 
 func hasUnlinkFailure(output string) bool {

@@ -161,6 +161,7 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdRegoldens, constants.CmdRegoldensAlias}, func() error { return runRegoldens(argsTail()) }},
 		{[]string{constants.CmdAuditLegacy, constants.CmdAuditLegacyAlias, constants.CmdAuditLegacyAlias2}, func() error { return runAuditLegacy(argsTail()) }},
 		{[]string{constants.CmdFixRepo, constants.CmdFixRepoAlias}, func() error { return runFixRepo(argsTail()) }},
+		{[]string{constants.CmdFixGit, constants.CmdFixGitAlias, "--fix-git", "fixgit"}, func() error { return runFixGit(argsTail()) }},
 		{[]string{constants.CmdUndo, constants.CmdUndoAlias}, func() error { return runUndo(argsTail()) }},
 		{[]string{constants.CmdHistoryPurge, constants.CmdHistoryPurgeAlias}, func() error { return runHistoryPurge(argsTail()) }},
 		{[]string{constants.CmdHistoryPin, constants.CmdHistoryPinAlias}, func() error { return runHistoryPin(argsTail()) }},

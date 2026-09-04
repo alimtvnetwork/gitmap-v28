@@ -42,6 +42,10 @@ func readPipedMacroSteps() ([]macro.MacroStep, error) {
 			continue
 		}
 
+		if isDoneStep(line) || isAbortStep(line) {
+			break
+		}
+
 		if strings.Contains(line, "&&") {
 			stepNum = appendChainedSteps(&steps, line, stepNum)
 			continue
