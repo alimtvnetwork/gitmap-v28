@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.176.0**
+**Pinned version: v6.177.0**
 
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
 [![Vulnerability Scan](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
@@ -123,12 +123,12 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 ```
 
 
-### 📌 Pinned version (v6.176.0)
+### 📌 Pinned version (v6.177.0)
 
 Install a specific version without auto-updating:
 
-**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.sh | bash -s -- ".lovable/prompts" "v6.176.0"`
-**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.176.0"`
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.sh | bash -s -- ".lovable/prompts" "v6.177.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.177.0"`
 
 ### 🎯 Install — Quick (pick your install drive)
 

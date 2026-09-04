@@ -1,3 +1,20 @@
+## [v6.177.0] 2026-09-04 Release v6.177.0
+
+### Install GitMap v6.177.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.sh | bash -s -- ".lovable/prompts" "v6.177.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.177.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed pull and status table line wrapping and column misalignment in terminal output
+- Implemented smart branch prefix omission for common branch prefixes (feature/, feat/, release/, bugfix/, hotfix/, fix/, dependabot/)
+- Added middle-truncation engine with ellipsis (...) preserving starting characters and ending 5 characters
+- Enforced fixed column caps across repository name, branch, latest branch, PR status, pull status, and SHA
+- Corrected ANSI escape sequence padding calculation for styled Lipgloss elements to ensure exact column alignment
+- Added comprehensive unit tests in cmd/pull_table_test.go covering prefix omission, middle-truncation, and ANSI padding
+
 ## [v6.176.0] 2026-09-04 Release v6.176.0
 
 ### Install GitMap v6.176.0

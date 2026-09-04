@@ -8,7 +8,7 @@ import (
 )
 
 func RenderPullBatchTable(rows []model.PullTableRow) {
-	if len(rows) == 0 {
+	if len(rows) <= 0 {
 		return
 	}
 
@@ -18,5 +18,5 @@ func RenderPullBatchTable(rows []model.PullTableRow) {
 	for _, r := range rows {
 		layout.PrintRow(r)
 	}
-	fmt.Println("  --------------------------------------------------------------------------------")
+	fmt.Println("  -------------------------------------------------------------------------------------------------------")
 }
