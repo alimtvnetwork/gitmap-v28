@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -203,14 +202,9 @@ func runChromeImportAll(args []string) error {
 	checkHelp(constants.SubCmdChromeImportAll, args)
 	opts := parseChromeTransferOptions(args)
 	if len(opts.Positional) == 0 {
-		return apperror.NewSimple("chrome import-all: source directory path required", "E4001")
+		opts.Positional = []string{"."}
 	}
-	srcDir := opts.Positional[0]
-	entries, readErr := os.ReadDir(srcDir)
-	if readErr != nil {
-		return apperror.WrapSimple(readErr, "chrome import-all: cannot read directory")
-	}
-	return processImportEntriesWithLimit(entries, srcDir, opts.Limit, opts.Profile)
+	return runSmartChromeImport(opts)
 }
 
 func processImportEntries(entries []os.DirEntry, srcDir string) error {

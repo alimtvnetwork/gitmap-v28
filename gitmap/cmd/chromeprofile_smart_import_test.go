@@ -183,3 +183,55 @@ func TestChromeProfileListDiscoveredSnapshots(t *testing.T) {
 		t.Fatalf("runChromeProfileList failed: %v", err)
 	}
 }
+
+func TestChromeImportAllSmartDelegation(t *testing.T) {
+	tempUserData := t.TempDir()
+	t.Setenv("GITMAP_CHROME_USER_DATA", tempUserData)
+
+	// Pre-populate existing Default profile
+	defaultProfileDir := filepath.Join(tempUserData, "Default")
+	_ = os.MkdirAll(defaultProfileDir, 0755)
+	_ = os.WriteFile(filepath.Join(defaultProfileDir, "Bookmarks"), []byte(`dummy-bookmarks-content-over-50-bytes-1234567890-abcdefghij-klmnopqrst`), 0644)
+
+	workDir := t.TempDir()
+	createTestSnapshotJSON(t, workDir, "Default.json", "Default", "Exported Default", "newaccount@corp.com")
+
+	if err := runChromeImportAll([]string{workDir}); err != nil {
+		t.Fatalf("runChromeImportAll failed: %v", err)
+	}
+
+	// Default bookmarks must not be overwritten
+	defaultBM, _ := os.ReadFile(filepath.Join(defaultProfileDir, "Bookmarks"))
+	if !strings.Contains(string(defaultBM), "dummy-bookmarks-content") {
+		t.Errorf("expected existing Default profile bookmarks to be preserved")
+	}
+
+	// Profile 1 must be created
+	profile1Dir := filepath.Join(tempUserData, "Profile 1")
+	if !chromeProfilePathExists(profile1Dir) {
+		t.Fatalf("expected new profile directory Profile 1 to be created by import-all")
+	}
+}
+
+func TestChromeImportCurrentDirectoryDot(t *testing.T) {
+	tempUserData := t.TempDir()
+	t.Setenv("GITMAP_CHROME_USER_DATA", tempUserData)
+
+	workDir := t.TempDir()
+	oldWd, _ := os.Getwd()
+	_ = os.Chdir(workDir)
+	defer func() { _ = os.Chdir(oldWd) }()
+
+	createTestSnapshotJSON(t, workDir, "Default.json", "Default", "My Profile", "dotuser@example.com")
+
+	// Test importing "."
+	if err := runChromeProfileImport([]string{"."}); err != nil {
+		t.Fatalf("runChromeProfileImport with . failed: %v", err)
+	}
+
+	// Test import-check "ls"
+	if err := runChromeProfileImportCheck([]string{"ls"}); err != nil {
+		t.Fatalf("runChromeProfileImportCheck with ls failed: %v", err)
+	}
+}
+

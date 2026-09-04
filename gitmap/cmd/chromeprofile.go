@@ -305,15 +305,13 @@ func importChromeArchiveWithOptions(srcFile, name string, limit int) error {
 }
 
 func applyImportedProfile(exp *chromeExport, srcFile, name string) error {
-	if name == "" {
-		name = exp.Name
-	}
-	dstPath := chromeProfilePath(name)
-	if err := applyChromeExport(exp, dstPath); err != nil {
+	dest := resolveImportDestination(exp, name, true)
+	if err := applyChromeExport(exp, dest.Path); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
 		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 	}
-	fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, name)
+	_ = registerImportedProfileToLocalState(dest.Dir, dest.DisplayName, dest.Email)
+	fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, dest.Dir)
 	return nil
 }
 
@@ -322,10 +320,11 @@ func runChromeProfileList(args []string) error {
 	checkHelp(constants.CmdChromeProfileList, args)
 	root := chromeUserDataDir()
 	entries := chromeProfileEntries()
+	targetDir := resolveListTargetDir(args)
 	if len(entries) == 0 {
 		fmt.Printf(constants.MsgChromeProfileListEmpty, root)
 		listChromeProfilesFromDB()
-		listDiscoveredSnapshotsInDir(".")
+		listDiscoveredSnapshotsInDir(targetDir)
 		return nil
 	}
 	fmt.Printf(constants.MsgChromeProfileListHdr, root)
@@ -342,8 +341,15 @@ func runChromeProfileList(args []string) error {
 		fmt.Printf("  - %s\n", e.Dir)
 	}
 	listChromeProfilesFromDB()
-	listDiscoveredSnapshotsInDir(".")
+	listDiscoveredSnapshotsInDir(targetDir)
 	return nil
+}
+
+func resolveListTargetDir(args []string) string {
+	if len(args) > 0 && args[0] != "" {
+		return args[0]
+	}
+	return "."
 }
 
 func fetchEntryEmail(dir string) string {

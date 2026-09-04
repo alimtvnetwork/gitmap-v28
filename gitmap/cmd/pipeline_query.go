@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -8,17 +9,24 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
+
+func runGHCommandWithTimeout(args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	return exec.CommandContext(ctx, "gh", args...).Output()
+}
 
 func queryWorkflowRuns(repo string) []ghRunItem {
 	if len(repo) == 0 {
 		return nil
 	}
 
-	out, err := exec.Command("gh", "run", "list", "--repo", repo, "--limit", "15", "--json",
-		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url").Output()
+	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--limit", "15", "--json",
+		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url")
 
 	if err != nil {
 		return queryRunsFromDB(repo)
@@ -38,7 +46,7 @@ func queryPendingPRs(repo string) int {
 		return 0
 	}
 
-	out, err := exec.Command("gh", "pr", "list", "--repo", repo, "--state", "open", "--json", "number").Output()
+	out, err := runGHCommandWithTimeout("pr", "list", "--repo", repo, "--state", "open", "--json", "number")
 
 	if err != nil {
 		return 0
@@ -74,7 +82,7 @@ func queryGHLatestTag(repo string) string {
 		return ""
 	}
 
-	out, err := exec.Command("gh", "release", "list", "--repo", repo, "--limit", "1", "--json", "tagName").Output()
+	out, err := runGHCommandWithTimeout("release", "list", "--repo", repo, "--limit", "1", "--json", "tagName")
 
 	if err != nil || len(out) == 0 {
 		return ""
