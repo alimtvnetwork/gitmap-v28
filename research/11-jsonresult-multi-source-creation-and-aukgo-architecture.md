@@ -1,0 +1,116 @@
+# `JSONResult` Multi-Source Creation & AUK Go CoreJSON Architecture
+
+> **Document:** `research/11-jsonresult-multi-source-creation-and-aukgo-architecture.md`  
+> **Status:** Implemented & Verified  
+> **Package Reference:** `04-code/golang/pkg/streamwriter` & `03-aukgo/core/coredata/corejson`  
+> **Date:** 2026-09-04  
+
+---
+
+## 1. Executive Summary & Research Context
+
+Analysis of the reference codebase `03-aukgo/core/coredata/corejson` demonstrates a comprehensive, industrial-grade JSON data manipulation pipeline. In `corejson`, a JSON result is not merely a static serialized byte slice; it is an active monadic container capable of originating from diverse sources (memory, streams, interfaces, strings, errors, or generic reflection) and navigating round-trip casting.
+
+This document abstracts the architectural principles of `corejson` into a generic blueprint designed for AI agents and Go engineers implementing high-performance, type-safe streaming systems.
+
+---
+
+## 2. Deep Dive: Key Patterns Discovered in `corejson`
+
+### 2.1 The Struct-As-Namespace Pattern
+Rather than exposing dozens of unorganized top-level package functions, `corejson` organizes capabilities under package-level singleton structs acting as namespaces:
+- `corejson.Serialize.*`: High-level serialization engines (`ToString`, `Raw`, `UsingAny`, `Apply`).
+- `corejson.Deserialize.*`: High-level deserialization engines (`UsingBytes`, `UsingString`, `Apply`, `FromTo`).
+- `corejson.NewResult.*`: Specialized factory methods for building `Result` objects.
+- `corejson.AnyTo.*`: Polymorphic type converters.
+- `corejson.CastAny.*`: Arbitrary type casting via JSON round-trip serialization.
+
+### 2.2 Multi-Source Ingestion Hierarchy
+In `newResultCreator.go` and `serializerLogic.go`, a `Result` can be created from at least 10 distinct sources:
+1. **Raw Byte Slices (`[]byte`):** From existing buffers or I/O reads (`UsingBytes`).
+2. **Raw Strings (`string`):** From API payloads, logs, or CLI arguments (`UsingString`, `UsingTypePlusString`).
+3. **Structured Objects (`any` / `T`):** Structs, maps, slices marshaled via standard encoder (`Any`, `Serialize`).
+4. **Custom Serializer Interfaces (`bytesSerializer`):** Any object implementing `Serialize() ([]byte, error)`.
+5. **Dynamic Serializer Closures (`func() ([]byte, error)`):** On-demand lazy execution (`UsingSerializerFunc`).
+6. **Domain Model Interfaces (`Jsoner`):** Objects providing `Json() Result` or `JsonPtr() *Result`.
+7. **Explicit Error Envelopes (`error` / `*appfault.AppError`):** Creating failed results where the error is preserved (`Error`, `ErrorPtr`).
+8. **Pre-existing Result Envelopes:** Copying or re-wrapping results (`DeserializeUsingResult`).
+9. **Polymorphic Universal Casting (`AnyTo`):** Dynamic runtime type switches inspecting `fromAny` and delegating to the appropriate constructor.
+10. **I/O Streams (`io.Reader`):** Streaming incoming network/file data into a validated JSON envelope.
+
+### 2.3 Safe Accessors vs. Error Handling
+`corejson.Result` maintains three core fields:
+```go
+type Result struct {
+    Bytes    []byte
+    Error    error
+    TypeName string
+}
+```
+Methods are cleanly segregated by error semantics:
+- **Non-panicking safe accessors:** `SafeBytes()`, `JsonString()`, `PrettyJsonString()`, `HasError()`, `HasIssuesOrEmpty()`.
+- **Structured Error extraction:** `MeaningfulError()`, `ErrorString()`.
+- **Enforced safety variants:** `MustBeSafe()`, `RawMust()`, `RawStringMust()`.
+
+---
+
+## 3. Modern Generic Architecture: Upgrades for `streamwriter`
+
+While `corejson` relies on Go 1.18 reflection and standard library `error`, our `streamwriter` modernization introduces three major enhancements:
+
+1. **Generic Type Safety `[T any]`:** Eliminates runtime type erasure. The payload `T` is preserved alongside serialized bytes, avoiding reflection where types are known at compile-time.
+2. **Universal Error Wrapper `*appfault.AppError`:** Total elimination of untyped Go `error`. All failures carry classification (`errtype.Variation`), stack traces, and status codes.
+3. **`sync.Locker` & Status Flag Integration:** Every `JSONResult[T]` carries an explicit `status bool` and `statusCode int`, conforming to the unified `WrappedBytes[T]` interface.
+
+---
+
+## 4. Multi-Source Factory Design (`JSONSource`)
+
+To emulate the clean namespacing of `corejson`, `streamwriter` exposes a dedicated `JSONSource` namespace alongside standard constructors:
+
+```go
+type jsonSourceFactory struct{}
+var JSONSource = jsonSourceFactory{}
+
+// 1. From raw byte slice with validation
+func (jsonSourceFactory) FromBytes[T any](data []byte, payload T) JSONResult[T]
+
+// 2. From raw JSON string with validation
+func (jsonSourceFactory) FromString[T any](jsonStr string, payload T) JSONResult[T]
+
+// 3. From arbitrary typed payload via json.Marshal
+func (jsonSourceFactory) FromPayload[T any](payload T) JSONResult[T]
+
+// 4. From streaming io.Reader
+func (jsonSourceFactory) FromReader[T any](r io.Reader, payload T) JSONResult[T]
+
+// 5. From custom serializer closure
+func (jsonSourceFactory) FromSerializer[T any](serializer func() ([]byte, *appfault.AppError), payload T) JSONResult[T]
+
+// 6. From existing WrappedBytes / Bytes envelope
+func (jsonSourceFactory) FromBytesEnvelope[T any](wb WrappedBytes[T]) JSONResult[T]
+
+// 7. From structured error state
+func (jsonSourceFactory) FromError[T any](appErr *appfault.AppError) JSONResult[T]
+
+// 8. From structured error preserving payload
+func (jsonSourceFactory) FromErrorWithPayload[T any](appErr *appfault.AppError, payload T) JSONResult[T]
+
+// 9. Universal polymorphic constructor (AnyTo pattern)
+func (jsonSourceFactory) FromAny(source any) JSONResult[any]
+
+// 10. Type-to-type round-trip casting (CastAny pattern)
+func (jsonSourceFactory) Cast[Target any, Source any](source Source) JSONResult[Target]
+```
+
+---
+
+## 5. Standard AI Guidelines for Implementing Multi-Source Results
+
+When any AI agent implements or extends JSON result containers across this meta-repository, they MUST adhere to these architectural standards:
+
+1. **Never Panic in Constructors:** If input bytes or strings are malformed JSON, return a valid `JSONResult[T]` with `status: false`, `statusCode: 400`, and an attached `*appfault.AppError`.
+2. **Preserve Payload Along with Bytes:** Always maintain the typed `payload T` inside the result container so callers can inspect structured fields without redundant unmarshaling.
+3. **Unified Interface Conformance:** Every result container MUST satisfy `WrappedBytes[T]`, exposing `Raw()`, `String()`, `Len()`, `Value()`, `Error()`, `Status()`, `StatusCode()`, `IsSuccess()`, and `Unwrap()`.
+4. **Deterministic Formatting:** Indented formatting (`Pretty()`) and minification (`Compact()`) must produce stable outputs.
+5. **No Mixed Polarity:** Boolean evaluation methods (`IsSuccess()`, `HasError()`, `IsValid()`) must never evaluate `isA && !isB` in the same condition.

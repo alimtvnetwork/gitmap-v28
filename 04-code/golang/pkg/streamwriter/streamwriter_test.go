@@ -193,6 +193,97 @@ func TestJSONResult_WrappedBytesFlow(t *testing.T) {
 	}
 }
 
+func TestJSONSource_MultiSourceCreation(t *testing.T) {
+	type Account struct {
+		ID      string  `json:"id"`
+		Balance float64 `json:"balance"`
+	}
+	acc := Account{ID: "acc-101", Balance: 500.50}
+
+	// 1. FromPayload (top-level and scoped namespace)
+	resPayload := streamwriter.FromPayload(acc)
+	if !resPayload.IsSuccess() || resPayload.Value().ID != "acc-101" {
+		t.Fatalf("FromPayload failed")
+	}
+	resScoped := streamwriter.JSONSourceOf[Account]().FromPayload(acc)
+	if !resScoped.IsSuccess() || resScoped.Value().ID != "acc-101" {
+		t.Fatalf("JSONSourceOf FromPayload failed")
+	}
+
+	// 2. FromBytes
+	rawBytes := []byte(`{"id":"acc-102","balance":750.0}`)
+	resBytes := streamwriter.FromBytes(rawBytes, Account{ID: "acc-102", Balance: 750.0})
+	if !resBytes.IsSuccess() || resBytes.StatusCode() != 200 {
+		t.Fatalf("FromBytes failed")
+	}
+
+	// 3. FromString
+	jsonString := `{"id":"acc-103","balance":1200.0}`
+	resString := streamwriter.FromString(jsonString, Account{ID: "acc-103", Balance: 1200.0})
+	if !resString.IsSuccess() || resString.String() != jsonString {
+		t.Fatalf("FromString failed")
+	}
+
+	// 4. FromReader
+	reader := strings.NewReader(`{"id":"acc-104","balance":90.0}`)
+	resReader := streamwriter.FromReader(reader, Account{ID: "acc-104", Balance: 90.0})
+	if !resReader.IsSuccess() || resReader.Value().Balance != 90.0 {
+		t.Fatalf("FromReader failed")
+	}
+
+	// 5. FromSerializer closure
+	resSerializer := streamwriter.FromSerializer(func() ([]byte, *appfault.AppError) {
+		return []byte(`{"id":"acc-105","balance":300.0}`), nil
+	}, Account{ID: "acc-105", Balance: 300.0})
+	if !resSerializer.IsSuccess() {
+		t.Fatalf("FromSerializer failed")
+	}
+
+	// 6. FromBytesEnvelope
+	wrappedBytes := streamwriter.NewBytes([]byte(`{"id":"acc-106","balance":450.0}`), Account{ID: "acc-106", Balance: 450.0})
+	resEnv := streamwriter.FromBytesEnvelope(wrappedBytes)
+	if !resEnv.IsSuccess() || resEnv.Value().ID != "acc-106" {
+		t.Fatalf("FromBytesEnvelope failed")
+	}
+
+	// 7. FromError
+	errRes := streamwriter.FromError[Account](appfault.New(errtype.NotFound, "account not found").WithStatusCode(404))
+	if errRes.IsSuccess() || errRes.StatusCode() != 404 {
+		t.Fatalf("FromError failed")
+	}
+
+	// 8. FromAny polymorphic
+	anyMap := streamwriter.FromAny(map[string]string{"env": "prod"})
+	if !anyMap.IsSuccess() || !strings.Contains(anyMap.String(), `"env":"prod"`) {
+		t.Fatalf("FromAny failed")
+	}
+
+	// 9. Cast (round-trip type cast)
+	type SimpleAccount struct {
+		ID string `json:"id"`
+	}
+	casted := streamwriter.Cast[SimpleAccount](acc)
+	if !casted.IsSuccess() || casted.Value().ID != "acc-101" {
+		t.Fatalf("Cast failed: %+v", casted.Value())
+	}
+
+	// 10. ToBytes conversion
+	bytesConv := resPayload.ToBytes()
+	if !bytesConv.IsSuccess() || bytesConv.String() != resPayload.String() {
+		t.Fatalf("ToBytes conversion failed")
+	}
+
+	// 11. PrettyOrError and CompactOrError
+	pStr, pErr := resPayload.PrettyOrError()
+	if pErr != nil || !strings.Contains(pStr, "\n") {
+		t.Fatalf("PrettyOrError failed")
+	}
+	cStr, cErr := resPayload.CompactOrError()
+	if cErr != nil || strings.Contains(cStr, " ") {
+		t.Fatalf("CompactOrError failed")
+	}
+}
+
 func TestCompiler_Primitives(t *testing.T) {
 	// String
 	if streamwriter.Compile("hello world") != "hello world" {

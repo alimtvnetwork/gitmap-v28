@@ -126,16 +126,11 @@ func (s *LockedStreamer[T]) Sync() *appfault.AppError {
 	dest := s.destination
 	s.mu.Unlock()
 
-	syncer, isOk := dest.(interface{ Sync() error })
-	if !isOk {
-		return nil
+	if syncer, isOk := dest.(interface{ Sync() error }); isOk {
+		if err := syncer.Sync(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
+		}
 	}
-
-	err := syncer.Sync()
-	if err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
-	}
-
 	return nil
 }
 
@@ -145,16 +140,11 @@ func (s *LockedStreamer[T]) Close() *appfault.AppError {
 	dest := s.destination
 	s.mu.Unlock()
 
-	closer, isOk := dest.(io.Closer)
-	if !isOk {
-		return nil
+	if closer, isOk := dest.(io.Closer); isOk {
+		if err := closer.Close(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
+		}
 	}
-
-	err := closer.Close()
-	if err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
-	}
-
 	return nil
 }
 

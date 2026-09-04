@@ -104,36 +104,24 @@ func (s *LocklessStreamer[T]) Lock() {}
 // Unlock is a no-op for LocklessStreamer, satisfying sync.Locker with zero overhead.
 func (s *LocklessStreamer[T]) Unlock() {}
 
-func syncDestination(destination any, name string) *appfault.AppError {
-	syncer, isOk := destination.(interface{ Sync() error })
-	if !isOk {
-		return nil
-	}
-	if err := syncer.Sync(); err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", name))
-	}
-	return nil
-}
-
-func closeDestination(destination any, name string) *appfault.AppError {
-	closer, isOk := destination.(io.Closer)
-	if !isOk {
-		return nil
-	}
-	if err := closer.Close(); err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", name))
-	}
-	return nil
-}
-
 // Sync flushes the underlying destination if supported.
 func (s *LocklessStreamer[T]) Sync() *appfault.AppError {
-	return syncDestination(s.destination, s.name)
+	if syncer, isOk := s.destination.(interface{ Sync() error }); isOk {
+		if err := syncer.Sync(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
+		}
+	}
+	return nil
 }
 
 // Close closes the underlying destination if it implements io.Closer.
 func (s *LocklessStreamer[T]) Close() *appfault.AppError {
-	return closeDestination(s.destination, s.name)
+	if closer, isOk := s.destination.(io.Closer); isOk {
+		if err := closer.Close(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
+		}
+	}
+	return nil
 }
 
 func (s *LocklessStreamer[T]) defaultStream(ctx context.Context, payload T, dest io.Writer) *appfault.AppError {
