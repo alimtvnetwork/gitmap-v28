@@ -67,3 +67,31 @@ func TestShortFooterBlockHasRequiredFields(t *testing.T) {
 		t.Errorf("short footer should not contain Installed path:\n%s", out)
 	}
 }
+
+func TestCurrentRepoBlockHasRequiredFields(t *testing.T) {
+	out := captureStdoutForTest(t, func() {
+		emitIdentityRows(IdentityRowParams{
+			Dir:            ".",
+			RepoOverride:   "https://github.com/alimtvnetwork/gitmap-v28",
+			BranchOverride: "main",
+			ShaOverride:    "5e1e62b937ad79aeed5cf6e2961b2a037e5a1728",
+		})
+	})
+
+	required := []string{
+		"● Repo:",
+		"● Git URL:",
+		"● Branch:",
+		"● Latest branch:",
+		"● PR count (open):",
+		"● Current branch info:",
+		"● Last commit:",
+		"● Commit SHA:",
+	}
+
+	for _, want := range required {
+		if !strings.Contains(out, want) {
+			t.Errorf("current repo block missing field %q in output:\n%s", want, out)
+		}
+	}
+}

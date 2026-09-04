@@ -54,6 +54,7 @@ Follow this sequence before and during any repository modification task:
 | **26** | `26-go-code-formatter.py` | Cross-platform Go code formatter via gofmt with staged support | ~20ms | `go`, `gofmt`, `formatter`, `staged` |
 | **27** | `27-misspell-auditor.py` | Audits and auto-fixes British to American English spelling | ~15ms | `spelling`, `misspell`, `us-english`, `autofix` |
 | **28** | `28-go-preflight-ci.py` | Runs local Go test and golangci-lint preflight verification | ~35ms | `go`, `test`, `lint`, `preflight`, `ci-cd` |
+| **29** | `29-release-bumper.py` | Canonical SSoT version bumper and release notes generator | ~10ms | `release`, `bump`, `version`, `ssot`, `changelog` |
 
 ---
 

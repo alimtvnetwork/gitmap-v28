@@ -115,6 +115,40 @@ func (jsonSourceSingleton) FromSerializerWithPayload(serializer func() ([]byte, 
 	return JsonSource.FromSerializer(serializer, payload)
 }
 
+func extractEnvelopeError(wb any) *appfault.AppError {
+	errProvider, isOk := wb.(interface{ AppError() *appfault.AppError })
+	if !isOk {
+		return nil
+	}
+	return errProvider.AppError()
+}
+
+func extractMethodInterface(val reflect.Value, name string) (any, bool) {
+	if !val.IsValid() {
+		return nil, false
+	}
+	method := val.MethodByName(name)
+	if !method.IsValid() || method.Type().NumIn() != 0 || method.Type().NumOut() != 1 {
+		return nil, false
+	}
+	out := method.Call(nil)
+	if len(out) == 0 {
+		return nil, false
+	}
+	return out[0].Interface(), true
+}
+
+func extractEnvelopePayload(wb any, fallback any) any {
+	val := reflect.ValueOf(wb)
+	if p, isOk := extractMethodInterface(val, "Payload"); isOk {
+		return p
+	}
+	if v, isOk := extractMethodInterface(val, "Value"); isOk {
+		return v
+	}
+	return fallback
+}
+
 // FromBytesEnvelope converts an existing WrappedBytes envelope into a JsonResult.
 func (jsonSourceSingleton) FromBytesEnvelope(wb any) JsonResult {
 	if wb == nil {
@@ -125,49 +159,24 @@ func (jsonSourceSingleton) FromBytesEnvelope(wb any) JsonResult {
 			appError:   appErr,
 		}
 	}
-	if rawProvider, ok := wb.(interface{ Raw() []byte }); ok {
-		raw := rawProvider.Raw()
-		if errProvider, ok := wb.(interface{ AppError() *appfault.AppError }); ok {
-			if appErr := errProvider.AppError(); appErr != nil {
-				return JsonResult{
-					data:       raw,
-					payload:    wb,
-					status:     false,
-					statusCode: appErr.StatusCode(),
-					appError:   appErr,
-				}
-			}
-		}
-		var payload any = raw
-		val := reflect.ValueOf(wb)
-		if val.IsValid() {
-			method := val.MethodByName("Payload")
-			if method.IsValid() {
-				if method.Type().NumIn() == 0 {
-					if method.Type().NumOut() == 1 {
-						out := method.Call(nil)
-						if len(out) > 0 {
-							payload = out[0].Interface()
-						}
-					}
-				}
-			} else {
-				vMethod := val.MethodByName("Value")
-				if vMethod.IsValid() {
-					if vMethod.Type().NumIn() == 0 {
-						if vMethod.Type().NumOut() == 1 {
-							out := vMethod.Call(nil)
-							if len(out) > 0 {
-								payload = out[0].Interface()
-							}
-						}
-					}
-				}
-			}
-		}
-		return NewJsonResultWithBytes(raw, payload)
+	rawProvider, isOk := wb.(interface{ Raw() []byte })
+	if !isOk {
+		return FromAny(wb)
 	}
-	return FromAny(wb)
+
+	raw := rawProvider.Raw()
+	if appErr := extractEnvelopeError(wb); appErr != nil {
+		return JsonResult{
+			data:       raw,
+			payload:    wb,
+			status:     false,
+			statusCode: appErr.StatusCode(),
+			appError:   appErr,
+		}
+	}
+
+	payload := extractEnvelopePayload(wb, raw)
+	return NewJsonResultWithBytes(raw, payload)
 }
 
 // FromError creates a failed JsonResult containing an AppError.
@@ -470,33 +479,31 @@ func NewJsonResultWithStatus(data []byte, payload any, status bool, code int) Js
 	}
 }
 
+func resolveJsonResultErrorCode(appErr *appfault.AppError) int {
+	if appErr == nil {
+		return 500
+	}
+	if appErr.StatusCode() != 0 {
+		return appErr.StatusCode()
+	}
+	return 500
+}
+
 // NewJsonResultError creates a failed JsonResult with an AppError.
 func NewJsonResultError(appErr *appfault.AppError) JsonResult {
-	code := 500
-	if appErr != nil {
-		if appErr.StatusCode() != 0 {
-			code = appErr.StatusCode()
-		}
-	}
 	return JsonResult{
 		status:     false,
-		statusCode: code,
+		statusCode: resolveJsonResultErrorCode(appErr),
 		appError:   appErr,
 	}
 }
 
 // NewJsonResultErrorWithPayload creates a failed JsonResult preserving the payload.
 func NewJsonResultErrorWithPayload(appErr *appfault.AppError, payload any) JsonResult {
-	code := 500
-	if appErr != nil {
-		if appErr.StatusCode() != 0 {
-			code = appErr.StatusCode()
-		}
-	}
 	return JsonResult{
 		payload:    payload,
 		status:     false,
-		statusCode: code,
+		statusCode: resolveJsonResultErrorCode(appErr),
 		appError:   appErr,
 	}
 }

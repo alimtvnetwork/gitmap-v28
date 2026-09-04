@@ -367,32 +367,141 @@ type IdentityRowParams struct {
 	ShaOverride    string
 }
 
-// emitIdentityRows prints Repo/Branch/Last commit/Commit SHA rows for dir,
-// preferring the supplied build-time overrides when non-empty.
+func resolveLocalRepoName(dir string) string {
+	top := captureGit(dir, "rev-parse", "--show-toplevel")
+	if len(top) > 0 {
+		return filepath.Base(top)
+	}
+
+	return filepath.Base(dir)
+}
+
+func resolveLatestBranch(dir string) string {
+	latest := captureGit(dir, "for-each-ref", "--sort=-committerdate", "refs/heads/", "--format=%(refname:short) (%(committerdate:relative))", "--count=1")
+	if len(latest) > 0 {
+		return latest
+	}
+
+	return captureGit(dir, "rev-parse", "--abbrev-ref", "HEAD")
+}
+
+func resolveOpenPRCount(dir string) string {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "gh", "pr", "list", "--state", "open", "--limit", "100", "--json", "number", "--jq", "length")
+	cmd.Dir = dir
+	out, err := cmd.Output()
+	if err != nil {
+		return "0"
+	}
+
+	count := strings.TrimSpace(string(out))
+	if len(count) == 0 {
+		return "0"
+	}
+
+	return count
+}
+
+func resolveBranchDirtyStatus(dir string) string {
+	out := captureGit(dir, "status", "--porcelain")
+	if len(out) == 0 {
+		return "clean"
+	}
+
+	lines := strings.Split(strings.TrimSpace(out), "\n")
+	return fmt.Sprintf("dirty (%d changed)", len(lines))
+}
+
+func formatSyncCounts(ahead, behind string) string {
+	if ahead == "0" && behind == "0" {
+		return "up to date"
+	}
+	if ahead != "0" && behind == "0" {
+		return fmt.Sprintf("ahead %s", ahead)
+	}
+	if ahead == "0" && behind != "0" {
+		return fmt.Sprintf("behind %s", behind)
+	}
+	return fmt.Sprintf("ahead %s, behind %s", ahead, behind)
+}
+
+func resolveBranchSyncStatus(dir string) string {
+	counts := captureGit(dir, "rev-list", "--left-right", "--count", "HEAD...@{upstream}")
+	if len(counts) == 0 {
+		return ""
+	}
+
+	parts := strings.Fields(counts)
+	if len(parts) != 2 {
+		return ""
+	}
+
+	return formatSyncCounts(parts[0], parts[1])
+}
+
+func resolveCurrentBranchInfo(dir string) string {
+	dirtyStatus := resolveBranchDirtyStatus(dir)
+	syncStatus := resolveBranchSyncStatus(dir)
+	if len(syncStatus) > 0 {
+		return dirtyStatus + " · " + syncStatus
+	}
+
+	return dirtyStatus
+}
+
+// emitIdentityRows prints Repo/Git URL/Branch/Latest branch/PR count/Current branch info/Last commit/Commit SHA rows for dir.
 func emitIdentityRows(params IdentityRowParams) {
-	repo := firstNonEmptyVar(params.RepoOverride, captureGit(params.Dir, "config", "--get", "remote.origin.url"))
-	if len(repo) > 0 {
-		fmt.Printf("  %s● Repo:%s        %s%s%s\n",
+	repoName := resolveLocalRepoName(params.Dir)
+	if len(repoName) > 0 {
+		fmt.Printf("  %s● Repo:%s                %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
-			constants.ColorCyan, repo, constants.ColorReset)
+			constants.ColorWhite, repoName, constants.ColorReset)
+	}
+
+	gitURL := firstNonEmptyVar(params.RepoOverride, captureGit(params.Dir, "config", "--get", "remote.origin.url"))
+	if len(gitURL) > 0 {
+		fmt.Printf("  %s● Git URL:%s             %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorCyan, gitURL, constants.ColorReset)
 	}
 
 	branch := firstNonEmptyVar(params.BranchOverride, captureGit(params.Dir, "rev-parse", "--abbrev-ref", "HEAD"))
 	if len(branch) > 0 {
-		fmt.Printf("  %s● Branch:%s      %s%s%s\n",
+		fmt.Printf("  %s● Branch:%s              %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorGreen, branch, constants.ColorReset)
 	}
 
+	latestBranch := resolveLatestBranch(params.Dir)
+	if len(latestBranch) > 0 {
+		fmt.Printf("  %s● Latest branch:%s       %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorWhite, latestBranch, constants.ColorReset)
+	}
+
+	prCount := resolveOpenPRCount(params.Dir)
+	fmt.Printf("  %s● PR count (open):%s     %s%s%s\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorYellow, prCount, constants.ColorReset)
+
+	branchInfo := resolveCurrentBranchInfo(params.Dir)
+	if len(branchInfo) > 0 {
+		fmt.Printf("  %s● Current branch info:%s %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorWhite, branchInfo, constants.ColorReset)
+	}
+
 	if commit := captureGit(params.Dir, "log", "-1", "--format=%h · %s · %cr"); len(commit) > 0 {
-		fmt.Printf("  %s● Last commit:%s %s%s%s\n",
+		fmt.Printf("  %s● Last commit:%s         %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorYellow, commit, constants.ColorReset)
 	}
 
 	sha := firstNonEmptyVar(params.ShaOverride, captureGit(params.Dir, "rev-parse", "HEAD"))
 	if len(sha) > 0 {
-		fmt.Printf("  %s● Commit SHA:%s  %s%s%s\n",
+		fmt.Printf("  %s● Commit SHA:%s          %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorYellow, sha, constants.ColorReset)
 	}
