@@ -132,14 +132,14 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 	}
 	user := UserPayload{Name: "Alice", Age: 30}
 
-	// 1. Successful JsonResult satisfying WrappedBytes and WrappedJson
+	// 1. Successful JsonResult satisfying WrappedBytes[any] and WrappedJson
 	res := streamwriter.NewJsonResult(user)
-	var wb streamwriter.WrappedBytes[UserPayload] = res
-	var wj streamwriter.WrappedJson[UserPayload] = res
+	var wb streamwriter.WrappedBytes[any] = res
+	var wj streamwriter.WrappedJson = res
 
 	// Backwards-compatible aliases check
-	var _ streamwriter.WrappedJSON[UserPayload] = res
-	var _ streamwriter.JSONResult[UserPayload] = res
+	var _ streamwriter.WrappedJSON = res
+	var _ streamwriter.JSONResult = res
 	aliasRes := streamwriter.NewJSONResult(user)
 	if !aliasRes.IsValid() {
 		t.Fatalf("expected NewJSONResult alias to produce valid result")
@@ -157,7 +157,8 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 	if wb.StatusCode() != 200 {
 		t.Fatalf("expected status code 200, got: %d", wb.StatusCode())
 	}
-	if wb.Value().Name != "Alice" || wb.Payload().Age != 30 {
+	valUser := wb.Value().(UserPayload)
+	if valUser.Name != "Alice" || wb.Payload().(UserPayload).Age != 30 {
 		t.Fatalf("expected payload value match")
 	}
 	if wb.Error() != nil {
@@ -183,6 +184,12 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 		t.Fatalf("unmarshaled data mismatch: %+v", decoded)
 	}
 
+	// Test UnmarshalAs helper
+	unmarshaled, uErr := streamwriter.UnmarshalAs[UserPayload](res)
+	if uErr != nil || unmarshaled.Name != "Alice" || unmarshaled.Age != 30 {
+		t.Fatalf("UnmarshalAs failed: %v", uErr)
+	}
+
 	// 2. Pre-marshaled bytes constructor
 	validJson := []byte(`{"name":"Bob","age":25}`)
 	byteRes := streamwriter.NewJsonResultWithBytes(validJson, UserPayload{Name: "Bob", Age: 25})
@@ -190,9 +197,15 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 		t.Fatalf("expected valid JsonResult from bytes")
 	}
 
+	// Also test without explicit payload (payload defaults to data)
+	byteResDefault := streamwriter.NewJsonResultWithBytes(validJson)
+	if !byteResDefault.IsValid() || byteResDefault.StatusCode() != 200 {
+		t.Fatalf("expected valid JsonResult from bytes with default payload")
+	}
+
 	// 3. Failed JsonResult with AppError
 	appErr := appfault.New(errtype.Validation, "invalid json schema")
-	errRes := streamwriter.NewJsonResultError[UserPayload](appErr)
+	errRes := streamwriter.NewJsonResultError(appErr)
 	if errRes.IsValid() || errRes.IsSuccess() || errRes.Status() {
 		t.Fatalf("expected error result to be invalid")
 	}
@@ -270,48 +283,48 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 		t.Fatalf("JsonSource.Cast direct pointer unmarshal failed: %v", castErr)
 	}
 
-	// 3. Top-level Generic Cast and CastTo
+	// 3. Top-level Generic Cast and CastTo returning non-generic JsonResult
 	casted := streamwriter.Cast[SimpleAccount](acc)
-	if !casted.IsSuccess() || casted.Value().ID != "acc-101" {
+	if !casted.IsSuccess() || casted.Value().(SimpleAccount).ID != "acc-101" {
 		t.Fatalf("Cast failed: %+v", casted.Value())
 	}
 	castToRes := streamwriter.CastTo[SimpleAccount](acc)
-	if !castToRes.IsSuccess() || castToRes.Value().ID != "acc-101" {
+	if !castToRes.IsSuccess() || castToRes.Value().(SimpleAccount).ID != "acc-101" {
 		t.Fatalf("CastTo failed")
 	}
 
-	// 4. Scoped Typed Factory: JsonSourceOf[T]
+	// 4. Scoped Typed Factory: JsonSourceOf[T] returning non-generic JsonResult
 	scopedFactory := streamwriter.JsonSourceOf[Account]()
 	resScopedPayload := scopedFactory.FromPayload(acc)
-	if !resScopedPayload.IsSuccess() || resScopedPayload.Value().ID != "acc-101" {
+	if !resScopedPayload.IsSuccess() || resScopedPayload.Value().(Account).ID != "acc-101" {
 		t.Fatalf("JsonSourceOf FromPayload failed")
 	}
 
 	resScopedBytes := scopedFactory.FromBytes(rawBytes, Account{ID: "acc-102", Balance: 750.0})
-	if !resScopedBytes.IsSuccess() || resScopedBytes.Value().ID != "acc-102" {
+	if !resScopedBytes.IsSuccess() || resScopedBytes.Value().(Account).ID != "acc-102" {
 		t.Fatalf("JsonSourceOf FromBytes failed")
 	}
 
 	resScopedString := scopedFactory.FromString(jsonString, Account{ID: "acc-103", Balance: 1200.0})
-	if !resScopedString.IsSuccess() || resScopedString.Value().Balance != 1200.0 {
+	if !resScopedString.IsSuccess() || resScopedString.Value().(Account).Balance != 1200.0 {
 		t.Fatalf("JsonSourceOf FromString failed")
 	}
 
 	reader2 := strings.NewReader(`{"id":"acc-104","balance":90.0}`)
 	resScopedReader := scopedFactory.FromReader(reader2, Account{ID: "acc-104", Balance: 90.0})
-	if !resScopedReader.IsSuccess() || resScopedReader.Value().Balance != 90.0 {
+	if !resScopedReader.IsSuccess() || resScopedReader.Value().(Account).Balance != 90.0 {
 		t.Fatalf("JsonSourceOf FromReader failed")
 	}
 
 	resScopedSerializer := scopedFactory.FromSerializer(func() ([]byte, *appfault.AppError) {
 		return []byte(`{"id":"acc-105","balance":300.0}`), nil
 	}, Account{ID: "acc-105", Balance: 300.0})
-	if !resScopedSerializer.IsSuccess() || resScopedSerializer.Value().Balance != 300.0 {
+	if !resScopedSerializer.IsSuccess() || resScopedSerializer.Value().(Account).Balance != 300.0 {
 		t.Fatalf("JsonSourceOf FromSerializer failed")
 	}
 
 	resScopedEnv := scopedFactory.FromBytesEnvelope(wrappedBytes)
-	if !resScopedEnv.IsSuccess() || resScopedEnv.Value().ID != "acc-101" {
+	if !resScopedEnv.IsSuccess() || resScopedEnv.Value().(Account).ID != "acc-101" {
 		t.Fatalf("JsonSourceOf FromBytesEnvelope failed")
 	}
 
@@ -321,7 +334,7 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	}
 
 	resScopedErrPayload := scopedFactory.FromErrorWithPayload(appfault.New(errtype.NotFound, "err").WithStatusCode(404), acc)
-	if resScopedErrPayload.IsSuccess() || resScopedErrPayload.Value().ID != "acc-101" {
+	if resScopedErrPayload.IsSuccess() || resScopedErrPayload.Value().(Account).ID != "acc-101" {
 		t.Fatalf("JsonSourceOf FromErrorWithPayload failed")
 	}
 
@@ -333,9 +346,9 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 		t.Fatalf("JSONSourceOf alias failed")
 	}
 
-	// 6. Top-level Generic Functions
+	// 6. Top-level Functions
 	resTopPayload := streamwriter.FromPayload(acc)
-	if !resTopPayload.IsSuccess() || resTopPayload.Value().ID != "acc-101" {
+	if !resTopPayload.IsSuccess() || resTopPayload.Value().(Account).ID != "acc-101" {
 		t.Fatalf("FromPayload top-level failed")
 	}
 
@@ -350,7 +363,7 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	}
 
 	resTopReader := streamwriter.FromReader(strings.NewReader(`{"id":"acc-104","balance":90.0}`), Account{ID: "acc-104", Balance: 90.0})
-	if !resTopReader.IsSuccess() || resTopReader.Value().Balance != 90.0 {
+	if !resTopReader.IsSuccess() || resTopReader.Value().(Account).Balance != 90.0 {
 		t.Fatalf("FromReader top-level failed")
 	}
 
@@ -362,11 +375,11 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	}
 
 	resTopEnv := streamwriter.FromBytesEnvelope(wrappedBytes)
-	if !resTopEnv.IsSuccess() || resTopEnv.Value().ID != "acc-101" {
+	if !resTopEnv.IsSuccess() || resTopEnv.Value().(Account).ID != "acc-101" {
 		t.Fatalf("FromBytesEnvelope top-level failed")
 	}
 
-	resTopErr := streamwriter.FromError[Account](appfault.New(errtype.NotFound, "not found").WithStatusCode(404))
+	resTopErr := streamwriter.FromError(appfault.New(errtype.NotFound, "not found").WithStatusCode(404))
 	if resTopErr.IsSuccess() || resTopErr.StatusCode() != 404 {
 		t.Fatalf("FromError top-level failed")
 	}

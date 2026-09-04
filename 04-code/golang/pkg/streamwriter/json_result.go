@@ -4,38 +4,39 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"reflect"
 
 	"coding-guidelines/common/pkg/appfault"
 	"coding-guidelines/common/pkg/errtype"
 )
 
 // WrappedJson defines the contract for JSON result envelopes with formatting, unmarshaling, and conversion.
-type WrappedJson[T any] interface {
-	WrappedBytes[T]
+type WrappedJson interface {
+	WrappedBytes[any]
 	Pretty() string
 	PrettyOrError() (string, *appfault.AppError)
 	Compact() string
 	CompactOrError() (string, *appfault.AppError)
 	Unmarshal(dest any) *appfault.AppError
-	ToBytes() Bytes[T]
+	ToBytes() Bytes[any]
 }
 
 // WrappedJSON is an alias for WrappedJson for backwards compatibility.
-type WrappedJSON[T any] = WrappedJson[T]
+type WrappedJSON = WrappedJson
 
-// JsonResult encapsulates JSON serialized data, generic payload, status flag, and AppError state.
-type JsonResult[T any] struct {
+// JsonResult encapsulates JSON serialized data, optional payload, status flag, and AppError state without type parameter T.
+type JsonResult struct {
 	data       []byte
-	payload    T
+	payload    any
 	status     bool
 	statusCode int
 	appError   *appfault.AppError
 }
 
 // JSONResult is an alias for JsonResult for backwards compatibility.
-type JSONResult[T any] = JsonResult[T]
+type JSONResult = JsonResult
 
-// jsonSourceSingleton acts as the struct-as-namespace factory taking `any` for high ergonomics.
+// jsonSourceSingleton acts as the struct-as-namespace factory for multi-source JsonResult construction.
 type jsonSourceSingleton struct{}
 
 // JsonSource is the global factory instance for dynamic and untyped sources.
@@ -44,36 +45,51 @@ var JsonSource = jsonSourceSingleton{}
 // JSONSource is an alias for JsonSource for backwards compatibility.
 var JSONSource = JsonSource
 
-// FromPayload serializes any value into a JsonResult[any].
-func (jsonSourceSingleton) FromPayload(payload any) JsonResult[any] {
+// FromPayload serializes any value into a JsonResult.
+func (jsonSourceSingleton) FromPayload(payload any) JsonResult {
 	return NewJsonResult(payload)
 }
 
-// FromBytes validates and wraps raw JSON bytes directly into a JsonResult[any] without needing a dummy payload.
-func (jsonSourceSingleton) FromBytes(data []byte) JsonResult[any] {
-	return NewJsonResultWithBytes(data, any(data))
+// FromBytes validates and wraps raw JSON bytes directly into a JsonResult.
+func (jsonSourceSingleton) FromBytes(data []byte, payload ...any) JsonResult {
+	return NewJsonResultWithBytes(data, payload...)
 }
 
 // FromBytesWithPayload validates JSON bytes and attaches an explicit payload.
-func (jsonSourceSingleton) FromBytesWithPayload(data []byte, payload any) JsonResult[any] {
+func (jsonSourceSingleton) FromBytesWithPayload(data []byte, payload any) JsonResult {
 	return NewJsonResultWithBytes(data, payload)
 }
 
-// FromString validates and wraps a JSON string directly into a JsonResult[any].
-func (jsonSourceSingleton) FromString(jsonStr string) JsonResult[any] {
-	return NewJsonResultFromString(jsonStr, any(jsonStr))
+// FromString validates and wraps a JSON string into a JsonResult.
+func (jsonSourceSingleton) FromString(jsonStr string, payload ...any) JsonResult {
+	return NewJsonResultFromString(jsonStr, payload...)
 }
 
-// FromReader streams and validates data from an io.Reader directly into a JsonResult[any].
-func (jsonSourceSingleton) FromReader(r io.Reader) JsonResult[any] {
-	return NewJsonResultFromReader(r, any(nil))
+// FromStringWithPayload validates a JSON string and attaches an explicit payload.
+func (jsonSourceSingleton) FromStringWithPayload(jsonStr string, payload any) JsonResult {
+	return NewJsonResultFromString(jsonStr, payload)
 }
 
-// FromSerializer executes a lazy closure and wraps the resulting JSON bytes into a JsonResult[any].
-func (jsonSourceSingleton) FromSerializer(serializer func() ([]byte, *appfault.AppError)) JsonResult[any] {
+// FromReader streams and validates data from an io.Reader into a JsonResult.
+func (jsonSourceSingleton) FromReader(r io.Reader, payload ...any) JsonResult {
+	return NewJsonResultFromReader(r, payload...)
+}
+
+// FromReaderWithPayload streams data from an io.Reader and attaches an explicit payload.
+func (jsonSourceSingleton) FromReaderWithPayload(r io.Reader, payload any) JsonResult {
+	return NewJsonResultFromReader(r, payload)
+}
+
+// FromSerializer executes a lazy closure and wraps the resulting JSON bytes into a JsonResult.
+func (jsonSourceSingleton) FromSerializer(serializer func() ([]byte, *appfault.AppError), payload ...any) JsonResult {
+	var p any
+	if len(payload) > 0 {
+		p = payload[0]
+	}
 	if serializer == nil {
 		appErr := appfault.New(errtype.Validation, "serializer closure cannot be nil")
-		return JsonResult[any]{
+		return JsonResult{
+			payload:    p,
 			status:     false,
 			statusCode: 400,
 			appError:   appErr,
@@ -81,20 +97,29 @@ func (jsonSourceSingleton) FromSerializer(serializer func() ([]byte, *appfault.A
 	}
 	data, appErr := serializer()
 	if appErr != nil {
-		return JsonResult[any]{
+		return JsonResult{
+			payload:    p,
 			status:     false,
 			statusCode: appErr.StatusCode(),
 			appError:   appErr,
 		}
 	}
-	return NewJsonResultWithBytes(data, any(data))
+	if len(payload) == 0 {
+		p = data
+	}
+	return NewJsonResultWithBytes(data, p)
 }
 
-// FromBytesEnvelope converts an existing WrappedBytes envelope into a JsonResult[any].
-func (jsonSourceSingleton) FromBytesEnvelope(wb any) JsonResult[any] {
+// FromSerializerWithPayload executes a lazy closure and attaches an explicit payload.
+func (jsonSourceSingleton) FromSerializerWithPayload(serializer func() ([]byte, *appfault.AppError), payload any) JsonResult {
+	return JsonSource.FromSerializer(serializer, payload)
+}
+
+// FromBytesEnvelope converts an existing WrappedBytes envelope into a JsonResult.
+func (jsonSourceSingleton) FromBytesEnvelope(wb any) JsonResult {
 	if wb == nil {
 		appErr := appfault.New(errtype.Validation, "wrapped bytes envelope cannot be nil")
-		return JsonResult[any]{
+		return JsonResult{
 			status:     false,
 			statusCode: 400,
 			appError:   appErr,
@@ -104,7 +129,7 @@ func (jsonSourceSingleton) FromBytesEnvelope(wb any) JsonResult[any] {
 		raw := rawProvider.Raw()
 		if errProvider, ok := wb.(interface{ AppError() *appfault.AppError }); ok {
 			if appErr := errProvider.AppError(); appErr != nil {
-				return JsonResult[any]{
+				return JsonResult{
 					data:       raw,
 					payload:    wb,
 					status:     false,
@@ -113,23 +138,50 @@ func (jsonSourceSingleton) FromBytesEnvelope(wb any) JsonResult[any] {
 				}
 			}
 		}
-		return NewJsonResultWithBytes(raw, any(raw))
+		var payload any = raw
+		val := reflect.ValueOf(wb)
+		if val.IsValid() {
+			method := val.MethodByName("Payload")
+			if method.IsValid() {
+				if method.Type().NumIn() == 0 {
+					if method.Type().NumOut() == 1 {
+						out := method.Call(nil)
+						if len(out) > 0 {
+							payload = out[0].Interface()
+						}
+					}
+				}
+			} else {
+				vMethod := val.MethodByName("Value")
+				if vMethod.IsValid() {
+					if vMethod.Type().NumIn() == 0 {
+						if vMethod.Type().NumOut() == 1 {
+							out := vMethod.Call(nil)
+							if len(out) > 0 {
+								payload = out[0].Interface()
+							}
+						}
+					}
+				}
+			}
+		}
+		return NewJsonResultWithBytes(raw, payload)
 	}
 	return FromAny(wb)
 }
 
 // FromError creates a failed JsonResult containing an AppError.
-func (jsonSourceSingleton) FromError(appErr *appfault.AppError) JsonResult[any] {
-	return NewJsonResultError[any](appErr)
+func (jsonSourceSingleton) FromError(appErr *appfault.AppError) JsonResult {
+	return NewJsonResultError(appErr)
 }
 
 // FromErrorWithPayload creates a failed JsonResult preserving the payload.
-func (jsonSourceSingleton) FromErrorWithPayload(appErr *appfault.AppError, payload any) JsonResult[any] {
+func (jsonSourceSingleton) FromErrorWithPayload(appErr *appfault.AppError, payload any) JsonResult {
 	return NewJsonResultErrorWithPayload(appErr, payload)
 }
 
-// FromAny polymorphically converts any supported source into a generic JsonResult[any].
-func (jsonSourceSingleton) FromAny(source any) JsonResult[any] {
+// FromAny polymorphically converts any supported source into a JsonResult.
+func (jsonSourceSingleton) FromAny(source any) JsonResult {
 	return FromAny(source)
 }
 
@@ -149,7 +201,7 @@ func (jsonSourceSingleton) Cast(source any, targetPtr any) *appfault.AppError {
 // typedJsonSource provides typed factory methods bound to type parameter T.
 type typedJsonSource[T any] struct{}
 
-// JsonSourceOf creates a scoped factory for producing JsonResult[T] instances.
+// JsonSourceOf creates a scoped factory for producing JsonResult instances with payload T.
 func JsonSourceOf[T any]() typedJsonSource[T] {
 	return typedJsonSource[T]{}
 }
@@ -159,130 +211,90 @@ func JSONSourceOf[T any]() typedJsonSource[T] {
 	return JsonSourceOf[T]()
 }
 
-// FromPayload serializes payload T into a JsonResult[T].
-func (typedJsonSource[T]) FromPayload(payload T) JsonResult[T] {
+// FromPayload serializes payload T into a JsonResult.
+func (typedJsonSource[T]) FromPayload(payload T) JsonResult {
 	return FromPayload(payload)
 }
 
-// FromBytes validates and creates a JsonResult[T] from a byte slice and payload T.
-func (typedJsonSource[T]) FromBytes(data []byte, payload T) JsonResult[T] {
+// FromBytes validates and creates a JsonResult from a byte slice and payload T.
+func (typedJsonSource[T]) FromBytes(data []byte, payload T) JsonResult {
 	return FromBytes(data, payload)
 }
 
-// FromString validates and creates a JsonResult[T] from a string and payload T.
-func (typedJsonSource[T]) FromString(jsonStr string, payload T) JsonResult[T] {
+// FromString validates and creates a JsonResult from a string and payload T.
+func (typedJsonSource[T]) FromString(jsonStr string, payload T) JsonResult {
 	return FromString(jsonStr, payload)
 }
 
-// FromReader streams and validates data from an io.Reader into a JsonResult[T].
-func (typedJsonSource[T]) FromReader(r io.Reader, payload T) JsonResult[T] {
+// FromReader streams and validates data from an io.Reader into a JsonResult.
+func (typedJsonSource[T]) FromReader(r io.Reader, payload T) JsonResult {
 	return FromReader(r, payload)
 }
 
-// FromSerializer creates a JsonResult[T] from a serializer closure and payload T.
-func (typedJsonSource[T]) FromSerializer(serializer func() ([]byte, *appfault.AppError), payload T) JsonResult[T] {
+// FromSerializer creates a JsonResult from a serializer closure and payload T.
+func (typedJsonSource[T]) FromSerializer(serializer func() ([]byte, *appfault.AppError), payload T) JsonResult {
 	return FromSerializer(serializer, payload)
 }
 
-// FromBytesEnvelope converts an existing WrappedBytes[T] envelope into a JsonResult[T].
-func (typedJsonSource[T]) FromBytesEnvelope(wb WrappedBytes[T]) JsonResult[T] {
+// FromBytesEnvelope converts an existing WrappedBytes envelope into a JsonResult.
+func (typedJsonSource[T]) FromBytesEnvelope(wb any) JsonResult {
 	return FromBytesEnvelope(wb)
 }
 
-// FromError creates a failed JsonResult[T] with an AppError.
-func (typedJsonSource[T]) FromError(appErr *appfault.AppError) JsonResult[T] {
-	return FromError[T](appErr)
+// FromError creates a failed JsonResult with an AppError.
+func (typedJsonSource[T]) FromError(appErr *appfault.AppError) JsonResult {
+	return FromError(appErr)
 }
 
-// FromErrorWithPayload creates a failed JsonResult[T] preserving payload T.
-func (typedJsonSource[T]) FromErrorWithPayload(appErr *appfault.AppError, payload T) JsonResult[T] {
+// FromErrorWithPayload creates a failed JsonResult preserving payload T.
+func (typedJsonSource[T]) FromErrorWithPayload(appErr *appfault.AppError, payload T) JsonResult {
 	return FromErrorWithPayload(appErr, payload)
 }
 
-// CastTo executes a type-safe JSON round-trip cast from Source to Target.
-func CastTo[Target any](source any) JsonResult[Target] {
-	return Cast[Target](source)
-}
-
-// FromPayload serializes any typed payload into a JsonResult[T].
-func FromPayload[T any](payload T) JsonResult[T] {
+// FromPayload serializes any typed payload into a JsonResult.
+func FromPayload(payload any) JsonResult {
 	return NewJsonResult(payload)
 }
 
-// FromBytes validates and creates a JsonResult from a pre-existing byte slice and payload.
-func FromBytes[T any](data []byte, payload T) JsonResult[T] {
-	return NewJsonResultWithBytes(data, payload)
+// FromBytes validates and creates a JsonResult from a pre-existing byte slice and optional payload.
+func FromBytes(data []byte, payload ...any) JsonResult {
+	return NewJsonResultWithBytes(data, payload...)
 }
 
-// FromString validates and creates a JsonResult from a JSON string and payload.
-func FromString[T any](jsonStr string, payload T) JsonResult[T] {
-	return NewJsonResultFromString(jsonStr, payload)
+// FromString validates and creates a JsonResult from a JSON string and optional payload.
+func FromString(jsonStr string, payload ...any) JsonResult {
+	return NewJsonResultFromString(jsonStr, payload...)
 }
 
 // FromReader streams and validates data from an io.Reader into a JsonResult.
-func FromReader[T any](r io.Reader, payload T) JsonResult[T] {
-	return NewJsonResultFromReader(r, payload)
+func FromReader(r io.Reader, payload ...any) JsonResult {
+	return NewJsonResultFromReader(r, payload...)
 }
 
 // FromSerializer creates a JsonResult from an on-demand serializer closure.
-func FromSerializer[T any](serializer func() ([]byte, *appfault.AppError), payload T) JsonResult[T] {
-	if serializer == nil {
-		appErr := appfault.New(errtype.Validation, "serializer closure cannot be nil")
-		return JsonResult[T]{
-			payload:    payload,
-			status:     false,
-			statusCode: 400,
-			appError:   appErr,
-		}
-	}
-	data, appErr := serializer()
-	if appErr != nil {
-		return JsonResult[T]{
-			payload:    payload,
-			status:     false,
-			statusCode: appErr.StatusCode(),
-			appError:   appErr,
-		}
-	}
-	return NewJsonResultWithBytes(data, payload)
+func FromSerializer(serializer func() ([]byte, *appfault.AppError), payload ...any) JsonResult {
+	return JsonSource.FromSerializer(serializer, payload...)
 }
 
-// FromBytesEnvelope converts an existing WrappedBytes envelope into a JsonResult[T].
-func FromBytesEnvelope[T any](wb WrappedBytes[T]) JsonResult[T] {
-	if wb == nil {
-		appErr := appfault.New(errtype.Validation, "wrapped bytes envelope cannot be nil")
-		return JsonResult[T]{
-			status:     false,
-			statusCode: 400,
-			appError:   appErr,
-		}
-	}
-	if wb.HasError() {
-		return JsonResult[T]{
-			data:       wb.Raw(),
-			payload:    wb.Payload(),
-			status:     false,
-			statusCode: wb.StatusCode(),
-			appError:   wb.AppError(),
-		}
-	}
-	return NewJsonResultWithBytes(wb.Raw(), wb.Payload())
+// FromBytesEnvelope converts an existing WrappedBytes envelope into a JsonResult.
+func FromBytesEnvelope(wb any) JsonResult {
+	return JsonSource.FromBytesEnvelope(wb)
 }
 
 // FromError creates a failed JsonResult containing an AppError.
-func FromError[T any](appErr *appfault.AppError) JsonResult[T] {
-	return NewJsonResultError[T](appErr)
+func FromError(appErr *appfault.AppError) JsonResult {
+	return NewJsonResultError(appErr)
 }
 
 // FromErrorWithPayload creates a failed JsonResult preserving the payload.
-func FromErrorWithPayload[T any](appErr *appfault.AppError, payload T) JsonResult[T] {
+func FromErrorWithPayload(appErr *appfault.AppError, payload any) JsonResult {
 	return NewJsonResultErrorWithPayload(appErr, payload)
 }
 
-// FromAny polymorphically converts any supported source into a generic JsonResult[any].
-func FromAny(source any) JsonResult[any] {
+// FromAny polymorphically converts any supported source into a JsonResult.
+func FromAny(source any) JsonResult {
 	if source == nil {
-		return JsonResult[any]{
+		return JsonResult{
 			data:       []byte("null"),
 			payload:    nil,
 			status:     true,
@@ -290,11 +302,11 @@ func FromAny(source any) JsonResult[any] {
 		}
 	}
 	switch v := source.(type) {
-	case JsonResult[any]:
+	case JsonResult:
 		return v
-	case *JsonResult[any]:
+	case *JsonResult:
 		if v == nil {
-			return JsonResult[any]{
+			return JsonResult{
 				status:     false,
 				statusCode: 400,
 				appError:   appfault.New(errtype.Validation, "nil JsonResult pointer provided"),
@@ -314,14 +326,13 @@ func FromAny(source any) JsonResult[any] {
 	}
 }
 
-// Cast executes a type-safe JSON round-trip cast from Source to Target.
-func Cast[Target any, Source any](source Source) JsonResult[Target] {
+// Cast executes a type-safe JSON round-trip cast from Source to Target type, returning a JsonResult with Target payload.
+func Cast[Target any](source any) JsonResult {
 	data, err := json.Marshal(source)
 	if err != nil {
 		appErr := appfault.Wrap(errtype.Validation, err, "failed to marshal source for type cast")
-		var zero Target
-		return JsonResult[Target]{
-			payload:    zero,
+		return JsonResult{
+			payload:    nil,
 			status:     false,
 			statusCode: 500,
 			appError:   appErr,
@@ -331,15 +342,15 @@ func Cast[Target any, Source any](source Source) JsonResult[Target] {
 	err = json.Unmarshal(data, &target)
 	if err != nil {
 		appErr := appfault.Wrap(errtype.Validation, err, "failed to unmarshal into target type during cast")
-		return JsonResult[Target]{
+		return JsonResult{
 			data:       data,
-			payload:    target,
+			payload:    nil,
 			status:     false,
 			statusCode: 400,
 			appError:   appErr,
 		}
 	}
-	return JsonResult[Target]{
+	return JsonResult{
 		data:       data,
 		payload:    target,
 		status:     true,
@@ -347,19 +358,40 @@ func Cast[Target any, Source any](source Source) JsonResult[Target] {
 	}
 }
 
-// NewJsonResult serializes payload T into JSON and initializes a JsonResult envelope.
-func NewJsonResult[T any](payload T) JsonResult[T] {
+// CastTo executes a type-safe JSON round-trip cast from Source to Target.
+func CastTo[Target any](source any) JsonResult {
+	return Cast[Target](source)
+}
+
+// UnmarshalAs parses the JsonResult data directly into a Target type.
+func UnmarshalAs[Target any](j JsonResult) (Target, *appfault.AppError) {
+	var target Target
+	if j.appError != nil {
+		return target, j.appError
+	}
+	if len(j.data) == 0 {
+		return target, appfault.New(errtype.Validation, "cannot unmarshal empty JSON result")
+	}
+	err := json.Unmarshal(j.data, &target)
+	if err != nil {
+		return target, appfault.Wrap(errtype.Validation, err, "failed to unmarshal JSON into target")
+	}
+	return target, nil
+}
+
+// NewJsonResult serializes payload into JSON and initializes a JsonResult envelope.
+func NewJsonResult(payload any) JsonResult {
 	data, err := json.Marshal(payload)
 	if err != nil {
 		appErr := appfault.Wrap(errtype.Validation, err, "failed to marshal payload into JSON")
-		return JsonResult[T]{
+		return JsonResult{
 			payload:    payload,
 			status:     false,
 			statusCode: 500,
 			appError:   appErr,
 		}
 	}
-	return JsonResult[T]{
+	return JsonResult{
 		data:       data,
 		payload:    payload,
 		status:     true,
@@ -367,37 +399,49 @@ func NewJsonResult[T any](payload T) JsonResult[T] {
 	}
 }
 
-// NewJsonResultWithBytes creates a JsonResult from pre-marshaled JSON bytes and payload.
-func NewJsonResultWithBytes[T any](data []byte, payload T) JsonResult[T] {
+// NewJsonResultWithBytes creates a JsonResult from pre-marshaled JSON bytes and optional payload.
+func NewJsonResultWithBytes(data []byte, payload ...any) JsonResult {
+	var p any = data
+	if len(payload) > 0 {
+		p = payload[0]
+	}
 	if !json.Valid(data) {
 		appErr := appfault.New(errtype.Validation, "invalid JSON byte sequence provided")
-		return JsonResult[T]{
+		return JsonResult{
 			data:       data,
-			payload:    payload,
+			payload:    p,
 			status:     false,
 			statusCode: 400,
 			appError:   appErr,
 		}
 	}
-	return JsonResult[T]{
+	return JsonResult{
 		data:       data,
-		payload:    payload,
+		payload:    p,
 		status:     true,
 		statusCode: 200,
 	}
 }
 
 // NewJsonResultFromString creates a JsonResult from a JSON string.
-func NewJsonResultFromString[T any](jsonStr string, payload T) JsonResult[T] {
-	return NewJsonResultWithBytes([]byte(jsonStr), payload)
+func NewJsonResultFromString(jsonStr string, payload ...any) JsonResult {
+	var p any = jsonStr
+	if len(payload) > 0 {
+		p = payload[0]
+	}
+	return NewJsonResultWithBytes([]byte(jsonStr), p)
 }
 
 // NewJsonResultFromReader streams JSON bytes from an io.Reader.
-func NewJsonResultFromReader[T any](r io.Reader, payload T) JsonResult[T] {
+func NewJsonResultFromReader(r io.Reader, payload ...any) JsonResult {
+	var p any
+	if len(payload) > 0 {
+		p = payload[0]
+	}
 	if r == nil {
 		appErr := appfault.New(errtype.Validation, "reader cannot be nil")
-		return JsonResult[T]{
-			payload:    payload,
+		return JsonResult{
+			payload:    p,
 			status:     false,
 			statusCode: 400,
 			appError:   appErr,
@@ -406,19 +450,19 @@ func NewJsonResultFromReader[T any](r io.Reader, payload T) JsonResult[T] {
 	data, err := io.ReadAll(r)
 	if err != nil {
 		appErr := appfault.Wrap(errtype.IO, err, "failed to read stream data")
-		return JsonResult[T]{
-			payload:    payload,
+		return JsonResult{
+			payload:    p,
 			status:     false,
 			statusCode: 500,
 			appError:   appErr,
 		}
 	}
-	return NewJsonResultWithBytes(data, payload)
+	return NewJsonResultWithBytes(data, p)
 }
 
 // NewJsonResultWithStatus creates a JsonResult with explicit status flag and code.
-func NewJsonResultWithStatus[T any](data []byte, payload T, status bool, code int) JsonResult[T] {
-	return JsonResult[T]{
+func NewJsonResultWithStatus(data []byte, payload any, status bool, code int) JsonResult {
+	return JsonResult{
 		data:       data,
 		payload:    payload,
 		status:     status,
@@ -427,14 +471,14 @@ func NewJsonResultWithStatus[T any](data []byte, payload T, status bool, code in
 }
 
 // NewJsonResultError creates a failed JsonResult with an AppError.
-func NewJsonResultError[T any](appErr *appfault.AppError) JsonResult[T] {
+func NewJsonResultError(appErr *appfault.AppError) JsonResult {
 	code := 500
 	if appErr != nil {
 		if appErr.StatusCode() != 0 {
 			code = appErr.StatusCode()
 		}
 	}
-	return JsonResult[T]{
+	return JsonResult{
 		status:     false,
 		statusCode: code,
 		appError:   appErr,
@@ -442,14 +486,14 @@ func NewJsonResultError[T any](appErr *appfault.AppError) JsonResult[T] {
 }
 
 // NewJsonResultErrorWithPayload creates a failed JsonResult preserving the payload.
-func NewJsonResultErrorWithPayload[T any](appErr *appfault.AppError, payload T) JsonResult[T] {
+func NewJsonResultErrorWithPayload(appErr *appfault.AppError, payload any) JsonResult {
 	code := 500
 	if appErr != nil {
 		if appErr.StatusCode() != 0 {
 			code = appErr.StatusCode()
 		}
 	}
-	return JsonResult[T]{
+	return JsonResult{
 		payload:    payload,
 		status:     false,
 		statusCode: code,
@@ -458,90 +502,90 @@ func NewJsonResultErrorWithPayload[T any](appErr *appfault.AppError, payload T) 
 }
 
 // Backwards-compatible aliases for PascalCase JSON
-func NewJSONResult[T any](payload T) JsonResult[T] {
+func NewJSONResult(payload any) JsonResult {
 	return NewJsonResult(payload)
 }
-func NewJSONResultWithBytes[T any](data []byte, payload T) JsonResult[T] {
-	return NewJsonResultWithBytes(data, payload)
+func NewJSONResultWithBytes(data []byte, payload ...any) JsonResult {
+	return NewJsonResultWithBytes(data, payload...)
 }
-func NewJSONResultFromString[T any](jsonStr string, payload T) JsonResult[T] {
-	return NewJsonResultFromString(jsonStr, payload)
+func NewJSONResultFromString(jsonStr string, payload ...any) JsonResult {
+	return NewJsonResultFromString(jsonStr, payload...)
 }
-func NewJSONResultFromReader[T any](r io.Reader, payload T) JsonResult[T] {
-	return NewJsonResultFromReader(r, payload)
+func NewJSONResultFromReader(r io.Reader, payload ...any) JsonResult {
+	return NewJsonResultFromReader(r, payload...)
 }
-func NewJSONResultError[T any](appErr *appfault.AppError) JsonResult[T] {
-	return NewJsonResultError[T](appErr)
+func NewJSONResultError(appErr *appfault.AppError) JsonResult {
+	return NewJsonResultError(appErr)
 }
-func NewJSONResultErrorWithPayload[T any](appErr *appfault.AppError, payload T) JsonResult[T] {
+func NewJSONResultErrorWithPayload(appErr *appfault.AppError, payload any) JsonResult {
 	return NewJsonResultErrorWithPayload(appErr, payload)
 }
-func NewJSONResultWithStatus[T any](data []byte, payload T, status bool, code int) JsonResult[T] {
+func NewJSONResultWithStatus(data []byte, payload any, status bool, code int) JsonResult {
 	return NewJsonResultWithStatus(data, payload, status, code)
 }
 
 // Raw returns the underlying JSON byte slice.
-func (j JsonResult[T]) Raw() []byte {
+func (j JsonResult) Raw() []byte {
 	return j.data
 }
 
 // Bytes returns the underlying JSON byte slice (alias to Raw).
-func (j JsonResult[T]) Bytes() []byte {
+func (j JsonResult) Bytes() []byte {
 	return j.data
 }
 
 // String returns the JSON string representation.
-func (j JsonResult[T]) String() string {
+func (j JsonResult) String() string {
 	return string(j.data)
 }
 
 // Len returns the byte length of the JSON.
-func (j JsonResult[T]) Len() int {
+func (j JsonResult) Len() int {
 	return len(j.data)
 }
 
 // IsEmpty returns true if the JSON bytes are empty.
-func (j JsonResult[T]) IsEmpty() bool {
+func (j JsonResult) IsEmpty() bool {
 	return len(j.data) == 0
 }
 
-// Payload returns the original generic payload T.
-func (j JsonResult[T]) Payload() T {
+// Payload returns the underlying payload.
+func (j JsonResult) Payload() any {
 	return j.payload
 }
 
-// Value returns the original generic payload T (alias to Payload).
-func (j JsonResult[T]) Value() T {
+// Value returns the underlying payload (alias to Payload).
+func (j JsonResult) Value() any {
 	return j.payload
 }
 
 // AppError returns the underlying *appfault.AppError.
-func (j JsonResult[T]) AppError() *appfault.AppError {
+func (j JsonResult) AppError() *appfault.AppError {
 	return j.appError
 }
 
 // Fault returns the underlying *appfault.AppError (alias to AppError).
-func (j JsonResult[T]) Fault() *appfault.AppError {
+func (j JsonResult) Fault() *appfault.AppError {
 	return j.appError
 }
 
 // Error returns the underlying *appfault.AppError (alias to AppError).
-func (j JsonResult[T]) Error() *appfault.AppError {
+func (j JsonResult) Error() *appfault.AppError {
 	return j.appError
 }
 
 // HasError returns true if an AppError is present.
-func (j JsonResult[T]) HasError() bool {
+func (j JsonResult) HasError() bool {
 	return j.appError != nil
 }
 
 // IsValid returns true if no AppError is present.
-func (j JsonResult[T]) IsValid() bool {
+func (j JsonResult) IsValid() bool {
 	return j.appError == nil
 }
 
 // IsSuccess returns true if status flag is true and no AppError is present.
-func (j JsonResult[T]) IsSuccess() bool {
+func (j JsonResult) IsSuccess() bool {
 	if j.appError != nil {
 		return false
 	}
@@ -549,28 +593,28 @@ func (j JsonResult[T]) IsSuccess() bool {
 }
 
 // Status returns the boolean status flag.
-func (j JsonResult[T]) Status() bool {
+func (j JsonResult) Status() bool {
 	return j.status
 }
 
 // StatusCode returns the numeric status code.
-func (j JsonResult[T]) StatusCode() int {
+func (j JsonResult) StatusCode() int {
 	return j.statusCode
 }
 
 // Unwrap returns both the JSON byte slice and the AppError.
-func (j JsonResult[T]) Unwrap() ([]byte, *appfault.AppError) {
+func (j JsonResult) Unwrap() ([]byte, *appfault.AppError) {
 	return j.data, j.appError
 }
 
 // Pretty returns formatted and indented JSON.
-func (j JsonResult[T]) Pretty() string {
+func (j JsonResult) Pretty() string {
 	str, _ := j.PrettyOrError()
 	return str
 }
 
 // PrettyOrError returns formatted JSON or an AppError if indentation fails.
-func (j JsonResult[T]) PrettyOrError() (string, *appfault.AppError) {
+func (j JsonResult) PrettyOrError() (string, *appfault.AppError) {
 	if len(j.data) == 0 {
 		return "{}", nil
 	}
@@ -583,13 +627,13 @@ func (j JsonResult[T]) PrettyOrError() (string, *appfault.AppError) {
 }
 
 // Compact returns minified JSON without whitespace.
-func (j JsonResult[T]) Compact() string {
+func (j JsonResult) Compact() string {
 	str, _ := j.CompactOrError()
 	return str
 }
 
 // CompactOrError returns minified JSON or an AppError if compaction fails.
-func (j JsonResult[T]) CompactOrError() (string, *appfault.AppError) {
+func (j JsonResult) CompactOrError() (string, *appfault.AppError) {
 	if len(j.data) == 0 {
 		return "{}", nil
 	}
@@ -602,7 +646,7 @@ func (j JsonResult[T]) CompactOrError() (string, *appfault.AppError) {
 }
 
 // Unmarshal parses the JSON bytes into the destination pointer.
-func (j JsonResult[T]) Unmarshal(dest any) *appfault.AppError {
+func (j JsonResult) Unmarshal(dest any) *appfault.AppError {
 	if j.appError != nil {
 		return j.appError
 	}
@@ -616,9 +660,9 @@ func (j JsonResult[T]) Unmarshal(dest any) *appfault.AppError {
 	return nil
 }
 
-// ToBytes converts the JsonResult to a standard Bytes[T] envelope.
-func (j JsonResult[T]) ToBytes() Bytes[T] {
-	return Bytes[T]{
+// ToBytes converts the JsonResult to a standard Bytes[any] envelope.
+func (j JsonResult) ToBytes() Bytes[any] {
+	return Bytes[any]{
 		data:       j.data,
 		payload:    j.payload,
 		status:     j.status,
@@ -627,5 +671,5 @@ func (j JsonResult[T]) ToBytes() Bytes[T] {
 	}
 }
 
-var _ WrappedBytes[any] = JsonResult[any]{}
-var _ WrappedJson[any] = JsonResult[any]{}
+var _ WrappedBytes[any] = JsonResult{}
+var _ WrappedJson = JsonResult{}
