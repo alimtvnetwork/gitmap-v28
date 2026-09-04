@@ -177,3 +177,51 @@ func runCmdIn(dir, name string, args ...string) {
 	cmd.Dir = dir
 	_ = cmd.Run()
 }
+
+func TestResolvePromptChoice(t *testing.T) {
+	cases := []struct {
+		input      string
+		wantAction string
+		wantQuit   bool
+	}{
+		{"1", "stash", false},
+		{"stash", "stash", false},
+		{"2", "wip", false},
+		{"wip", "wip", false},
+		{"3", "discard", false},
+		{"discard", "discard", false},
+		{"s", "skip", false},
+		{"skip", "skip", false},
+		{"a", "all-stash", false},
+		{"all", "all-stash", false},
+		{"q", "", true},
+		{"quit", "", true},
+		{"exit", "", true},
+		{"unknown", "stash", false},
+	}
+	for _, tc := range cases {
+		act, quit := resolvePromptChoice(tc.input)
+		if act != tc.wantAction || quit != tc.wantQuit {
+			t.Errorf("resolvePromptChoice(%q) = (%q, %v), want (%q, %v)",
+				tc.input, act, quit, tc.wantAction, tc.wantQuit)
+		}
+	}
+}
+
+func TestResolveDirtyFiles(t *testing.T) {
+	itemWithFiles := &RemediationItem{
+		Files: []string{"modified: main.go", "untracked: temp.txt"},
+	}
+	files := resolveDirtyFiles(itemWithFiles)
+	if len(files) != 2 || files[0] != "modified: main.go" {
+		t.Fatalf("expected 2 files preserved, got %v", files)
+	}
+
+	itemEmpty := &RemediationItem{
+		Files: []string{},
+	}
+	emptyFiles := resolveDirtyFiles(itemEmpty)
+	if len(emptyFiles) != 0 {
+		t.Fatalf("expected 0 files for empty item, got %v", emptyFiles)
+	}
+}

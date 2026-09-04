@@ -119,6 +119,7 @@ func runPull(args []string) error {
 				RepoPath:      rec.AbsolutePath,
 				SummaryReason: diag.SummaryReason,
 				Recipes:       recipes,
+				Files:         diag.AllFiles,
 			})
 		}
 	}
