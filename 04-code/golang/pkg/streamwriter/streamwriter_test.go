@@ -51,7 +51,7 @@ func (c CustomReport) Compile() string {
 
 // Nested struct containing custom compilable
 type OuterContainer struct {
-	ID     string       `json:"id"`
+	Id     string       `json:"id"`
 	Report CustomReport `json:"report"`
 }
 
@@ -216,10 +216,10 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 
 func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	type Account struct {
-		ID      string  `json:"id"`
+		Id      string  `json:"id"`
 		Balance float64 `json:"balance"`
 	}
-	acc := Account{ID: "acc-101", Balance: 500.50}
+	acc := Account{Id: "acc-101", Balance: 500.50}
 
 	// 1. JsonSource singleton taking `any` directly (no status/statusCode/payload fields)
 	resAnyPayload := streamwriter.JsonSource.FromPayload(acc)
@@ -265,11 +265,11 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 
 	// 2. Direct pointer unmarshal cast via JsonSource.Cast
 	type SimpleAccount struct {
-		ID string `json:"id"`
+		Id string `json:"id"`
 	}
 	var directTarget SimpleAccount
 	castErr := streamwriter.JsonSource.Cast(acc, &directTarget)
-	if castErr != nil || directTarget.ID != "acc-101" {
+	if castErr != nil || directTarget.Id != "acc-101" {
 		t.Fatalf("JsonSource.Cast direct pointer unmarshal failed: %v", castErr)
 	}
 
@@ -279,7 +279,7 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 		t.Fatalf("Cast failed")
 	}
 	castedWithPayload := streamwriter.CastWithPayload[SimpleAccount](acc)
-	if !castedWithPayload.IsSuccess() || castedWithPayload.Payload().ID != "acc-101" {
+	if !castedWithPayload.IsSuccess() || castedWithPayload.Payload().Id != "acc-101" {
 		t.Fatalf("CastWithPayload failed: %+v", castedWithPayload.Payload())
 	}
 	castToRes := streamwriter.CastTo[SimpleAccount](acc)
@@ -290,35 +290,35 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	// 4. Scoped Typed Factory: JsonSourceOf[T] returning extended JsonPayloadResult[T]
 	scopedFactory := streamwriter.JsonSourceOf[Account]()
 	resScopedPayload := scopedFactory.FromPayload(acc)
-	if !resScopedPayload.IsSuccess() || resScopedPayload.Payload().ID != "acc-101" {
+	if !resScopedPayload.IsSuccess() || resScopedPayload.Payload().Id != "acc-101" {
 		t.Fatalf("JsonSourceOf FromPayload failed")
 	}
 
-	resScopedBytes := scopedFactory.FromBytes(rawBytes, Account{ID: "acc-102", Balance: 750.0})
-	if !resScopedBytes.IsSuccess() || resScopedBytes.Payload().ID != "acc-102" {
+	resScopedBytes := scopedFactory.FromBytes(rawBytes, Account{Id: "acc-102", Balance: 750.0})
+	if !resScopedBytes.IsSuccess() || resScopedBytes.Payload().Id != "acc-102" {
 		t.Fatalf("JsonSourceOf FromBytes failed")
 	}
 
-	resScopedString := scopedFactory.FromString(jsonString, Account{ID: "acc-103", Balance: 1200.0})
+	resScopedString := scopedFactory.FromString(jsonString, Account{Id: "acc-103", Balance: 1200.0})
 	if !resScopedString.IsSuccess() || resScopedString.Payload().Balance != 1200.0 {
 		t.Fatalf("JsonSourceOf FromString failed")
 	}
 
 	reader2 := strings.NewReader(`{"id":"acc-104","balance":90.0}`)
-	resScopedReader := scopedFactory.FromReader(reader2, Account{ID: "acc-104", Balance: 90.0})
+	resScopedReader := scopedFactory.FromReader(reader2, Account{Id: "acc-104", Balance: 90.0})
 	if !resScopedReader.IsSuccess() || resScopedReader.Payload().Balance != 90.0 {
 		t.Fatalf("JsonSourceOf FromReader failed")
 	}
 
 	resScopedSerializer := scopedFactory.FromSerializer(func() ([]byte, *appfault.AppError) {
 		return []byte(`{"id":"acc-105","balance":300.0}`), nil
-	}, Account{ID: "acc-105", Balance: 300.0})
+	}, Account{Id: "acc-105", Balance: 300.0})
 	if !resScopedSerializer.IsSuccess() || resScopedSerializer.Payload().Balance != 300.0 {
 		t.Fatalf("JsonSourceOf FromSerializer failed")
 	}
 
 	resScopedEnv := scopedFactory.FromBytesEnvelope(wrappedBytes, acc)
-	if !resScopedEnv.IsSuccess() || resScopedEnv.Payload().ID != "acc-101" {
+	if !resScopedEnv.IsSuccess() || resScopedEnv.Payload().Id != "acc-101" {
 		t.Fatalf("JsonSourceOf FromBytesEnvelope failed")
 	}
 
@@ -451,7 +451,7 @@ func TestCompiler_Slices_OrderWise(t *testing.T) {
 
 func TestCompiler_ObjectAndRecursiveCompilable(t *testing.T) {
 	container := OuterContainer{
-		ID: "box-1",
+		Id: "box-1",
 		Report: CustomReport{
 			Title: "Audit",
 			Score: 98,
@@ -681,9 +681,10 @@ func TestCompositeLogger_FluentChaining(t *testing.T) {
 	w2 := streamwriter.NewLocklessStreamer[any](streamwriter.LocklessOptions[any]{Name: "w2", Destination: buf2})
 
 	customWriter := streamwriter.NewPluggableWriter[any](streamwriter.WriterOptions[any]{
-		Name: "custom-api",
-		WriteMethod: func(ctx context.Context, payload any) *appfault.AppError {
-			_, err := fmt.Fprintf(buf3, "CUSTOM-API: %s\n", streamwriter.Compile(payload))
+		Name:        "custom-api",
+		Destination: buf3,
+		WriteMethod: func(ctx context.Context, w *streamwriter.PluggableWriter[any], payload any) *appfault.AppError {
+			_, err := fmt.Fprintf(w.Destination(), "CUSTOM-API: %s\n", streamwriter.Compile(payload))
 			if err != nil {
 				return appfault.Wrap(errtype.IO, err, "custom api write failed")
 			}
@@ -741,12 +742,65 @@ func TestLogRecord_Compile(t *testing.T) {
 		Timestamp: time.Unix(0, 0).UTC(),
 		Level:     streamwriter.LevelInfo,
 		Message:   "hello log",
-		TraceID:   "tx-1",
+		TraceId:   "tx-1",
 		Fields:    map[string]any{"z": 1, "a": 2},
 	}
 
 	compiled := streamwriter.Compile(rec)
 	if !strings.Contains(compiled, "[trace=tx-1]") || !strings.Contains(compiled, "fields={a: 2, z: 1}") {
 		t.Fatalf("unexpected LogRecord compile: %s", compiled)
+	}
+}
+
+func TestPluggableWriterWithCurrentObject(t *testing.T) {
+	buf := &bytes.Buffer{}
+	writer := streamwriter.NewPluggableWriter[string](streamwriter.WriterOptions[string]{
+		Name:        "custom-worker",
+		Destination: buf,
+		WriteMethod: func(ctx context.Context, w *streamwriter.PluggableWriter[string], payload string) *appfault.AppError {
+			dest := w.Destination()
+			if dest == nil {
+				t.Fatalf("expected writer destination to be non-nil")
+			}
+			_, err := fmt.Fprintf(dest, "[%s] received: %s\n", w.Name(), payload)
+			if err != nil {
+				return appfault.Wrap(errtype.IO, err, "write failed")
+			}
+			return nil
+		},
+	})
+
+	if writer.Name() != "custom-worker" {
+		t.Fatalf("unexpected writer name: %s", writer.Name())
+	}
+	if writer.Destination() != buf {
+		t.Fatalf("expected writer destination to match buf")
+	}
+
+	appErr := writer.Write(context.Background(), "first task")
+	if appErr != nil {
+		t.Fatalf("write failed: %v", appErr)
+	}
+
+	if !strings.Contains(buf.String(), "[custom-worker] received: first task") {
+		t.Fatalf("unexpected buffer output: %s", buf.String())
+	}
+
+	// Runtime swap
+	writer.SetWriteMethod(func(ctx context.Context, w *streamwriter.PluggableWriter[string], payload string) *appfault.AppError {
+		_, err := fmt.Fprintf(w.Destination(), "[swapped-%s] -> %s\n", w.Name(), payload)
+		if err != nil {
+			return appfault.Wrap(errtype.IO, err, "swapped write failed")
+		}
+		return nil
+	})
+
+	appErr = writer.Write(context.Background(), "second task")
+	if appErr != nil {
+		t.Fatalf("swapped write failed: %v", appErr)
+	}
+
+	if !strings.Contains(buf.String(), "[swapped-custom-worker] -> second task") {
+		t.Fatalf("unexpected buffer output after swap: %s", buf.String())
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"sync"
 
@@ -15,17 +16,17 @@ import (
 
 // UserAccount represents a domain model used across example demonstrations.
 type UserAccount struct {
-	ID       string `json:"id"`
+	Id       string `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Role     string `json:"role"`
-	Active   bool   `json:"active"`
+	IsActive bool   `json:"isActive"`
 }
 
 // OrderEvent represents a business event payload for streaming.
 type OrderEvent struct {
-	OrderID   string  `json:"orderId"`
-	AccountID string  `json:"accountId"`
+	OrderId   string  `json:"orderId"`
+	AccountId string  `json:"accountId"`
 	Amount    float64 `json:"amount"`
 	ItemCount int     `json:"itemCount"`
 }
@@ -50,13 +51,18 @@ func RunLoggerExample(dest io.Writer) *appfault.AppError {
 
 	// 4. Attach a custom pluggable writer (e.g. HTTP webhook / auditing service)
 	auditWriter := streamwriter.NewPluggableWriter[any](streamwriter.WriterOptions[any]{
-		Name: "audit-api-writer",
-		WriteMethod: func(ctx context.Context, payload any) *appfault.AppError {
+		Name:        "audit-api-writer",
+		Destination: dest,
+		WriteMethod: func(ctx context.Context, w *streamwriter.PluggableWriter[any], payload any) *appfault.AppError {
 			trace := ""
 			if traceVal := ctx.Value("traceId"); traceVal != nil {
 				trace = fmt.Sprintf("[%v] ", traceVal)
 			}
-			_, err := fmt.Fprintf(dest, "[AUDIT] %s%s\n", trace, streamwriter.Compile(payload))
+			outDest := w.Destination()
+			if outDest == nil {
+				outDest = os.Stdout
+			}
+			_, err := fmt.Fprintf(outDest, "[%s] %s%s\n", w.Name(), trace, streamwriter.Compile(payload))
 			if err != nil {
 				return appfault.Wrap(errtype.IO, err, "audit write failed")
 			}
@@ -100,11 +106,11 @@ func RunLoggerExample(dest io.Writer) *appfault.AppError {
 // RunJsonExample demonstrates multi-source JsonResult creation, dynamic validity, unmarshaling, and payload extension.
 func RunJsonExample(dest io.Writer) *appfault.AppError {
 	account := UserAccount{
-		ID:       "acc-901",
+		Id:       "acc-901",
 		Username: "alim.karim",
 		Email:    "alim@riseup.asia",
 		Role:     "lead-architect",
-		Active:   true,
+		IsActive: true,
 	}
 
 	// 1. Multi-source ingestion: From structured Go object
@@ -114,7 +120,7 @@ func RunJsonExample(dest io.Writer) *appfault.AppError {
 	}
 
 	// 2. Ingestion from raw bytes
-	rawJSON := []byte(`{"id":"acc-902","username":"sarah.connor","email":"sarah@riseup.asia","role":"devops","active":true}`)
+	rawJSON := []byte(`{"id":"acc-902","username":"sarah.connor","email":"sarah@riseup.asia","role":"devops","isActive":true}`)
 	resFromBytes := streamwriter.JsonSource.FromBytes(rawJSON)
 	if !resFromBytes.IsValid() {
 		return resFromBytes.AppError()
@@ -162,7 +168,7 @@ func RunJsonExample(dest io.Writer) *appfault.AppError {
 
 	// 8. Type-Casting: Convert between matching structures without manual mappings
 	type PublicProfile struct {
-		ID       string `json:"id"`
+		Id       string `json:"id"`
 		Username string `json:"username"`
 	}
 	profileRes := streamwriter.Cast[PublicProfile](account)
@@ -175,7 +181,7 @@ func RunJsonExample(dest io.Writer) *appfault.AppError {
 	if appErr != nil {
 		return appErr
 	}
-	fmt.Fprintf(dest, "--- Casted Public Profile: %s [%s] ---\n", directTarget.Username, directTarget.ID)
+	fmt.Fprintf(dest, "--- Casted Public Profile: %s [%s] ---\n", directTarget.Username, directTarget.Id)
 
 	// 9. Extended JsonPayloadResult: Embedding JsonResult with strongly-typed payload T
 	payloadResult := streamwriter.WithPayload(resFromPayload, account)
@@ -202,8 +208,8 @@ func RunStreamerExample(dest io.Writer) *appfault.AppError {
 
 	// Stream individual event
 	appErr := lockedStreamer.Stream(ctx, OrderEvent{
-		OrderID:   "ord-1001",
-		AccountID: "acc-901",
+		OrderId:   "ord-1001",
+		AccountId: "acc-901",
 		Amount:    159.99,
 		ItemCount: 3,
 	})
@@ -219,8 +225,8 @@ func RunStreamerExample(dest io.Writer) *appfault.AppError {
 		go func(idx int) {
 			defer wg.Done()
 			_ = lockedStreamer.Stream(ctx, OrderEvent{
-				OrderID:   fmt.Sprintf("ord-concurrent-%d", idx),
-				AccountID: "acc-901",
+				OrderId:   fmt.Sprintf("ord-concurrent-%d", idx),
+				AccountId: "acc-901",
 				Amount:    float64(idx * 25),
 				ItemCount: idx + 1,
 			})
@@ -235,8 +241,8 @@ func RunStreamerExample(dest io.Writer) *appfault.AppError {
 		Destination: memBuf,
 	})
 	appErr = locklessStreamer.Stream(ctx, OrderEvent{
-		OrderID:   "ord-fast-001",
-		AccountID: "acc-902",
+		OrderId:   "ord-fast-001",
+		AccountId: "acc-902",
 		Amount:    999.00,
 		ItemCount: 1,
 	})
@@ -260,8 +266,12 @@ func RunStreamerExample(dest io.Writer) *appfault.AppError {
 	batchWriter.Unlock()
 
 	// 5. Runtime Method Swapping: Hot-swap write behavior dynamically
-	batchWriter.SetWriteMethod(func(ctx context.Context, payload string) *appfault.AppError {
-		_, err := fmt.Fprintf(dest, "[HOT-SWAPPED-WRITE] %s\n", payload)
+	batchWriter.SetWriteMethod(func(ctx context.Context, w *streamwriter.PluggableWriter[string], payload string) *appfault.AppError {
+		outDest := w.Destination()
+		if outDest == nil {
+			outDest = os.Stdout
+		}
+		_, err := fmt.Fprintf(outDest, "[%s][swapped] %s\n", w.Name(), payload)
 		if err != nil {
 			return appfault.Wrap(errtype.IO, err, "swapped write failed")
 		}

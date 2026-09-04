@@ -13,9 +13,9 @@ import (
 
 // RemoteActivationResponse contains response data from downstream WordPress REST API.
 type RemoteActivationResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	Version string `json:"version"`
+	IsSuccess bool   `json:"isSuccess"`
+	Message   string `json:"message"`
+	Version   string `json:"version"`
 }
 
 // WordPressClient handles proxy communication with remote WordPress instances.
@@ -58,8 +58,8 @@ func (c *WordPressClient) ActivateRemotePlugin(
 	}
 
 	return result.SuccessResult(RemoteActivationResponse{
-		Success: true,
-		Message: "Plugin activated successfully",
-		Version: "2.4.0",
+		IsSuccess: true,
+		Message:   "Plugin activated successfully",
+		Version:   "2.4.0",
 	})
 }

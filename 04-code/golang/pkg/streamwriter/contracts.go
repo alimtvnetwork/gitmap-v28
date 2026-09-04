@@ -38,7 +38,8 @@ type Streamer[T any] interface {
 type StreamFunc[T any] func(ctx context.Context, payload T, dest io.Writer) *appfault.AppError
 
 // WriteFunc defines the swappable function signature returning *appfault.AppError.
-type WriteFunc[T any] func(ctx context.Context, payload T) *appfault.AppError
+// It receives the active context, the current writer object, and the generic payload.
+type WriteFunc[T any] func(ctx context.Context, writer *PluggableWriter[T], payload T) *appfault.AppError
 
 // FormatFunc defines the serialization transformation returning Bytes[T].
 type FormatFunc[T any] func(payload T) Bytes[T]
@@ -78,18 +79,18 @@ type LogRecord struct {
 	Message   string          `json:"message"`
 	Context   context.Context `json:"-"`
 	Fields    map[string]any  `json:"fields,omitempty"`
-	TraceID   string          `json:"traceId,omitempty"`
-	UserID    string          `json:"userId,omitempty"`
+	TraceId   string          `json:"traceId,omitempty"`
+	UserId    string          `json:"userId,omitempty"`
 }
 
 // Compile satisfies the Compilable interface for LogRecord with deterministic ordering.
 func (r LogRecord) Compile() string {
 	res := fmt.Sprintf("[%s] %-5s: %s", r.Timestamp.Format("15:04:05.000"), r.Level.String(), r.Message)
-	if r.TraceID != "" {
-		res += fmt.Sprintf(" [trace=%s]", r.TraceID)
+	if r.TraceId != "" {
+		res += fmt.Sprintf(" [trace=%s]", r.TraceId)
 	}
-	if r.UserID != "" {
-		res += fmt.Sprintf(" [user=%s]", r.UserID)
+	if r.UserId != "" {
+		res += fmt.Sprintf(" [user=%s]", r.UserId)
 	}
 	if len(r.Fields) > 0 {
 		res += fmt.Sprintf(" fields=%s", Compile(r.Fields))

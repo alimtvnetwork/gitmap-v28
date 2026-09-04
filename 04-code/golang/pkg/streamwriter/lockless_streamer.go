@@ -106,20 +106,26 @@ func (s *LocklessStreamer[T]) Unlock() {}
 
 // Sync flushes the underlying destination if supported.
 func (s *LocklessStreamer[T]) Sync() *appfault.AppError {
-	if syncer, isOk := s.destination.(interface{ Sync() error }); isOk {
-		if err := syncer.Sync(); err != nil {
-			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
-		}
+	syncer, isOk := s.destination.(interface{ Sync() error })
+	if !isOk {
+		return nil
+	}
+	err := syncer.Sync()
+	if err != nil {
+		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
 	}
 	return nil
 }
 
 // Close closes the underlying destination if it implements io.Closer.
 func (s *LocklessStreamer[T]) Close() *appfault.AppError {
-	if closer, isOk := s.destination.(io.Closer); isOk {
-		if err := closer.Close(); err != nil {
-			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
-		}
+	closer, isOk := s.destination.(io.Closer)
+	if !isOk {
+		return nil
+	}
+	err := closer.Close()
+	if err != nil {
+		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
 	}
 	return nil
 }
