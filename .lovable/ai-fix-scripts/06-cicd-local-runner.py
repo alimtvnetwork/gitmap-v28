@@ -129,7 +129,7 @@ def main():
         ],
         # Stage 9: Compile Gate (sequential)
         [
-            ("Compile Gate", None, "go test -run=^$ -p=2 ./... -count=1", GITMAP_DIR),
+            ("Compile Gate", None, 'go test -run="^$" -p=2 ./... -count=1', GITMAP_DIR),
         ],
         # Stage 10: Full Suite Linter (sequential)
         [

@@ -27,11 +27,13 @@ var promptChoiceMap = map[string]string{
 
 func executeAllAction(item *RemediationItem, action string) {
 	idx := parseRecipeIndex(action, item.Recipes)
-	if idx >= 0 && idx < len(item.Recipes) {
-		err := executeFixRecipe(item, item.Recipes[idx])
-		if err != nil {
-			fmt.Printf("Warning: fix action failed on %s: %v\n", item.RepoName, err)
-		}
+	isInvalidIndex := idx < 0 || idx >= len(item.Recipes)
+	if isInvalidIndex {
+		return
+	}
+	err := executeFixRecipe(item, item.Recipes[idx])
+	if err != nil {
+		fmt.Printf("Warning: fix action failed on %s: %v\n", item.RepoName, err)
 	}
 }
 
