@@ -56,10 +56,47 @@ func scrubChromePreferencesIdentity(root map[string]any, displayName string) {
 		prof = map[string]any{}
 		root["profile"] = prof
 	}
-	prof["name"] = displayName
+	if displayName != "" {
+		prof["name"] = displayName
+	}
 	prof["using_default_name"] = false
 	delete(prof, "gaia_info_picture_url")
 	delete(prof, "gaia_given_name")
 	delete(prof, "gaia_name")
 	delete(prof, "last_used")
+	delete(prof, "managed")
+	delete(prof, "managed_user_id")
+}
+
+// patchImportedChromeProfilePreferences stamps the profile display name
+// into <dst>/Preferences while preserving account_info email records.
+func patchImportedChromeProfilePreferences(dstPath, displayName string) error {
+	prefPath := filepath.Join(dstPath, constants.ChromePreferencesFile)
+	raw, err := os.ReadFile(prefPath)
+	if err != nil && os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("read %s: %w", prefPath, err)
+	}
+	var root map[string]any
+	if err := json.Unmarshal(raw, &root); err != nil {
+		return fmt.Errorf("parse %s: %w", prefPath, err)
+	}
+	prof, ok := root["profile"].(map[string]any)
+	if !ok {
+		prof = map[string]any{}
+		root["profile"] = prof
+	}
+	if displayName != "" {
+		prof["name"] = displayName
+	}
+	prof["using_default_name"] = false
+	delete(prof, "managed")
+	delete(prof, "managed_user_id")
+	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
+	if err != nil {
+		return fmt.Errorf("encode Preferences: %w", err)
+	}
+	return os.WriteFile(prefPath, out, constants.FilePermission)
 }

@@ -236,3 +236,19 @@ Allowed work:
 - ✅ Selective log suppression: print stdout/stderr ONLY for gates that exit with a non-zero status code or timeout.
 - ✅ Full verbose logs emitted ONLY when the user explicitly passes the `--all` (`-a`) flag.
 
+---
+
+## Modifying Chrome Local State Without Running Process Guards & Incomplete Attribute Schemas — TOTAL BAN
+
+🔴 **NEVER modify Chrome's `Local State` without detecting active Chrome processes or write incomplete Chromium profile schemas.**
+
+Forbidden:
+- ❌ Mutating `%LOCALAPPDATA%\Google\Chrome\User Data\Local State` without checking `isChromeRunning()`. Active Chrome processes overwrite in-memory cache to disk, destroying external changes.
+- ❌ Registering profiles in `profile.info_cache` with partial schemas (only `name` and `user_name`), which causes Chrome's profile picker UI to discard the tile during startup validation.
+- ❌ Wiping `account_info` from profile `Preferences` during snapshot imports, destroying user email bindings.
+
+Allowed work:
+- ✅ Check `isChromeRunning()` before modifying browser state, issuing clear user notices.
+- ✅ Populate all 13 Chromium attributes (`name`, `shortcut_name`, `user_name`, `avatar_icon`, `default_avatar_fill_color`, `default_avatar_stroke_color`, `profile_highlight_color`, `profile_color_seed`, `active_time`, `is_using_default_avatar`, `is_using_default_name`, `is_ephemeral`, `is_consented_primary_account`, `signin.with_credential_provider`).
+- ✅ Maintain `profile.profiles_order` synchronicity and provide `gitmap chrome profile reconcile` for automated orphan profile restoration.
+

@@ -4,10 +4,11 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-*(No pending plans. All tasks completed.)*
+- [01-macro-step-open-chrome-failure.md](pending/01-macro-step-open-chrome-failure.md): Macro Step Execution Failure: `open chrome` (E9000:EXECUTION)
 
 ## Completed Plans
 
+- [63-chrome-profile-picker-visibility.md](completed/63-chrome-profile-picker-visibility.md): Chrome Profile Picker Recognition & Local State Registration
 - [49-error-management-audit.md](completed/49-error-management-audit.md): Error Management & Architecture Audit Specification
 - [50-booleans-and-complex-conditions-audit.md](completed/50-booleans-and-complex-conditions-audit.md): Boolean Principles, Negatives & Complex Conditions Audit Specification
 - [51-naming-conventions-audit.md](completed/51-naming-conventions-audit.md): Naming Conventions, Boolean Prefixes & Anti-Ok Variables Audit Specification

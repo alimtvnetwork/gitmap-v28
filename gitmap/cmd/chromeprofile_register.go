@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -22,19 +23,54 @@ import (
 // returned so the caller can warn without aborting the whole copy.
 func registerChromeProfileInLocalState(srcDir, dstDir, displayName string) error {
 	path := filepath.Join(chromeUserDataDir(), constants.ChromeLocalStateFile)
-	raw, err := os.ReadFile(path)
+	root, err := readOrCreateLocalStateRoot(path)
 	if err != nil {
-		return fmt.Errorf("read %s: %w", path, err)
-	}
-	var root map[string]any
-	if err := json.Unmarshal(raw, &root); err != nil {
-		return fmt.Errorf("parse %s: %w", path, err)
+		return err
 	}
 	profile := ensureChromeLocalStateProfile(root)
 	infoCache := ensureChromeLocalStateInfoCache(profile)
 	infoCache[dstDir] = buildChromeDestinationInfoEntry(infoCache, srcDir, displayName)
 	appendChromeProfileToOrder(profile, dstDir)
 	return writeChromeLocalState(path, root)
+}
+
+// registerChromeProfileWithFullSchema registers a profile in Local State
+// ensuring all 13 Chromium UI attributes are populated so Chrome's
+// profile picker UI displays the profile tile without dropping it.
+func registerChromeProfileWithFullSchema(dstDir, displayName, email string) error {
+	path := filepath.Join(chromeUserDataDir(), constants.ChromeLocalStateFile)
+	root, err := readOrCreateLocalStateRoot(path)
+	if err != nil {
+		return err
+	}
+	profile := ensureChromeLocalStateProfile(root)
+	infoCache := ensureChromeLocalStateInfoCache(profile)
+	entry, ok := infoCache[dstDir].(map[string]any)
+	if !ok {
+		entry = map[string]any{}
+	}
+	for _, k := range chromeInfoCacheGAIAFields {
+		delete(entry, k)
+	}
+	applyChromeInfoEntryDefaults(entry, displayName, email)
+	infoCache[dstDir] = entry
+	appendChromeProfileToOrder(profile, dstDir)
+	return writeChromeLocalState(path, root)
+}
+
+func readOrCreateLocalStateRoot(path string) (map[string]any, error) {
+	raw, err := os.ReadFile(path)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, fmt.Errorf("read %s: %w", path, err)
+	}
+	if len(raw) == 0 {
+		return map[string]any{}, nil
+	}
+	var root map[string]any
+	if err := json.Unmarshal(raw, &root); err != nil {
+		return nil, fmt.Errorf("parse %s: %w", path, err)
+	}
+	return root, nil
 }
 
 func ensureChromeLocalStateProfile(root map[string]any) map[string]any {
@@ -74,10 +110,41 @@ func buildChromeDestinationInfoEntry(
 	for _, k := range chromeInfoCacheGAIAFields {
 		delete(entry, k)
 	}
-	entry["name"] = displayName
+	applyChromeInfoEntryDefaults(entry, displayName, "")
+	return entry
+}
+
+func applyChromeInfoEntryDefaults(entry map[string]any, displayName, email string) {
+	if displayName != "" {
+		entry["name"] = displayName
+		entry["shortcut_name"] = displayName
+	}
 	entry["is_using_default_name"] = false
 	entry["is_ephemeral"] = false
-	return entry
+	entry["is_consented_primary_account"] = false
+	entry["signin.with_credential_provider"] = false
+	if email != "" {
+		entry["user_name"] = email
+	}
+	if entry["avatar_icon"] == nil || entry["avatar_icon"] == "" {
+		entry["avatar_icon"] = "chrome://theme/IDR_PROFILE_AVATAR_26"
+		entry["is_using_default_avatar"] = true
+	}
+	if entry["default_avatar_fill_color"] == nil {
+		entry["default_avatar_fill_color"] = -13625057
+	}
+	if entry["default_avatar_stroke_color"] == nil {
+		entry["default_avatar_stroke_color"] = -1786428
+	}
+	if entry["profile_highlight_color"] == nil {
+		entry["profile_highlight_color"] = -13625057
+	}
+	if entry["profile_color_seed"] == nil {
+		entry["profile_color_seed"] = -4385188
+	}
+	if entry["active_time"] == nil {
+		entry["active_time"] = float64(time.Now().Unix())
+	}
 }
 
 // chromeInfoCacheGAIAFields are the signed-in identity keys we strip
@@ -120,6 +187,9 @@ func writeChromeLocalState(path string, root map[string]any) error {
 }
 
 func replaceChromeLocalState(path, tmp string) error {
+	if !chromeProfilePathExists(path) {
+		return os.Rename(tmp, path)
+	}
 	bak := path + constants.ChromeLocalStateBakSuffix
 	if err := os.Remove(bak); err != nil && !os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, constants.WarnChromeProfileBakRm, bak, err)
