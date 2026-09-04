@@ -61,3 +61,5 @@ Each task transaction log must contain:
 | 14 | [`14-jsonresult-pure-bytes-and-payload-extension`](14-jsonresult-pure-bytes-and-payload-extension/01-transaction-log.md) | Minimalist JsonResult (no status/code/payload fields) and JsonPayloadResult extension | Completed | 2026-09-04 |
 | 15 | [`15-full-examples-logger-json-streamer`](15-full-examples-logger-json-streamer/01-transaction-log.md) | Full runnable code examples for Logger, Json, and Streamer with automated tests and CLI demo | Completed | 2026-09-05 |
 | 16 | [`16-boolean-prefixes-id-standard-and-writer-context`](16-boolean-prefixes-id-standard-and-writer-context/01-transaction-log.md) | Enforce boolean prefixes, Id naming standard, and writer self-context passing to WriteMethod | Completed | 2026-09-05 |
+| 17 | [`17-parallel-cicd-local-runner-and-log-filtering`](17-parallel-cicd-local-runner-and-log-filtering/01-transaction-log.md) | Parallel worker group execution, duration metrics, and selective log filtering in 06-cicd-local-runner.py | Completed | 2026-09-05 |
+
