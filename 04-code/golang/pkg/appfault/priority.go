@@ -60,12 +60,12 @@ func (p *PriorityType) unmarshalByte(data []byte) error {
 // UnmarshalJSON parses a PascalCase string or integer into PriorityType.
 func (p *PriorityType) UnmarshalJSON(data []byte) error {
 	var str string
-	err := json.Unmarshal(data, &str)
-	val, ok := parsePriorityName(str)
-	if err == nil && ok {
-		*p = val
+	if err := json.Unmarshal(data, &str); err == nil {
+		if val, ok := parsePriorityName(str); ok {
+			*p = val
 
-		return nil
+			return nil
+		}
 	}
 
 	return p.unmarshalByte(data)

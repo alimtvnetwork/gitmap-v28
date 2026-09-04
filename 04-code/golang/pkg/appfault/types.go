@@ -61,12 +61,12 @@ func (s *SeverityType) unmarshalByte(data []byte) error {
 // UnmarshalJSON parses a PascalCase string or integer into SeverityType.
 func (s *SeverityType) UnmarshalJSON(data []byte) error {
 	var str string
-	err := json.Unmarshal(data, &str)
-	val, ok := parseSeverityName(str)
-	if err == nil && ok {
-		*s = val
+	if err := json.Unmarshal(data, &str); err == nil {
+		if val, ok := parseSeverityName(str); ok {
+			*s = val
 
-		return nil
+			return nil
+		}
 	}
 
 	return s.unmarshalByte(data)
