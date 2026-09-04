@@ -139,6 +139,9 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 	case constants.SubCmdChromeMerge, constants.SubCmdChromeMergeAlias:
 		_ = runChromeProfileMerge(tail)
 		return true
+	case constants.SubCmdChromeReconcile, constants.SubCmdChromeReconcileAlias, constants.SubCmdChromeReconcileAlias2, constants.SubCmdChromeReconcileAlias3:
+		_ = runChromeProfileReconcile(tail)
+		return true
 	case "undo":
 		profile := "Default"
 		if len(tail) > 0 {
@@ -241,6 +244,7 @@ func printChromeProfileTable() {
 	fmt.Printf("  import (cpi) [file|dir|glob]        Import profile snapshot(s) safely with email mapping\n")
 	fmt.Printf("  import-check (inspect) [dir|ls]     Preview snapshot metadata & actions before importing\n")
 	fmt.Printf("  list (ls, cpl)                      List Chrome profiles known to gitmap\n")
+	fmt.Printf("  reconcile (repair, sync-state)      Synchronize on-disk profile directories with Local State\n")
 	fmt.Printf("  delete (rm, cpd) <name>             Remove a profile & stored artifacts\n")
 	fmt.Printf("  merge (cpm) <src> <dst>             Merge selected pieces of one profile into another\n\n")
 }

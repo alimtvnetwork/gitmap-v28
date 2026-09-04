@@ -36,6 +36,7 @@ Updated: 2026-04-27
 - [Pluggable Logger & Uber Zap Architecture](learned/02-logger-swapping-and-uber-zap-architecture.md) — Architecture and code samples for dynamic Log Changer, Formatter/Writer pipeline, context.Context tracing, and Uber Zap integration.
 - [Parallel CI/CD Runner & Selective Log Filtering](learned/03-parallel-cicd-runner-and-log-filtering.md) — Concurrency workgroups via ThreadPoolExecutor, duration metrics, and clean log suppression.
 - [StreamWriter Contracts & Naming Standards](learned/04-streamwriter-contracts-and-naming-standards.md) — Idiomatic -er interfaces, ReentrantMutex, Bytes[T], JsonResult multi-source ingestion, boolean prefixes, and Id naming standard.
+- [Chrome Profile Picker Registration & Concurrency](learned/05-chrome-profile-picker-registration-and-concurrency.md) — Chromium Local State 13-attribute schema, process concurrency guards, Preferences sanitization, and orphan reconciliation engine.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

@@ -328,21 +328,63 @@ func runChromeProfileList(args []string) error {
 		return nil
 	}
 	fmt.Printf(constants.MsgChromeProfileListHdr, root)
+	state := readChromeLocalState()
+	unlinkedCount := 0
 	for _, e := range entries {
+		registered := isProfileRegisteredInLocalState(state, e.Dir)
+		if !registered {
+			unlinkedCount++
+		}
 		email := fetchEntryEmail(e.Dir)
-		if email != "" && e.DisplayName != "" {
-			fmt.Printf("  - %-12s (display: %q, email: %s)\n", e.Dir, e.DisplayName, email)
-			continue
-		}
-		if e.DisplayName != "" {
-			fmt.Printf("  - %-12s (display: %q)\n", e.Dir, e.DisplayName)
-			continue
-		}
-		fmt.Printf("  - %s\n", e.Dir)
+		printProfileListEntry(e, registered, email)
 	}
+	printUnlinkedReconcileHint(unlinkedCount)
 	listChromeProfilesFromDB()
 	listDiscoveredSnapshotsInDir(targetDir)
 	return nil
+}
+
+func isProfileRegisteredInLocalState(state *chromeLocalState, dir string) bool {
+	if state == nil {
+		return false
+	}
+	_, ok := state.Profile.InfoCache[dir]
+	return ok
+}
+
+func printProfileListEntry(e chromeProfileEntry, registered bool, email string) {
+	if !registered {
+		printUnregisteredProfileEntry(e.Dir, email)
+		return
+	}
+	printRegisteredProfileEntry(e.Dir, e.DisplayName, email)
+}
+
+func printUnregisteredProfileEntry(dir, email string) {
+	if email != "" {
+		fmt.Printf("  - %-12s \033[1;93m(unlinked on disk; email: %s)\033[0m\n", dir, email)
+		return
+	}
+	fmt.Printf("  - %-12s \033[1;93m(unlinked on disk; run reconcile)\033[0m\n", dir)
+}
+
+func printRegisteredProfileEntry(dir, displayName, email string) {
+	if email != "" && displayName != "" {
+		fmt.Printf("  - %-12s (display: %q, email: %s)\n", dir, displayName, email)
+		return
+	}
+	if displayName != "" {
+		fmt.Printf("  - %-12s (display: %q)\n", dir, displayName)
+		return
+	}
+	fmt.Printf("  - %s\n", dir)
+}
+
+func printUnlinkedReconcileHint(unlinkedCount int) {
+	if unlinkedCount == 0 {
+		return
+	}
+	fmt.Printf("\n  \033[1;93m⚠ %d unlinked profile(s) found on disk. Run 'gitmap chrome profile reconcile' to sync with Chrome UI.\033[0m\n\n", unlinkedCount)
 }
 
 func resolveListTargetDir(args []string) string {

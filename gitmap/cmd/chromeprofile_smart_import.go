@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -527,46 +528,7 @@ func isChromeSnapshotYAML(path string) bool {
 }
 
 func registerImportedProfileToLocalState(dstDir, displayName, email string) error {
-	path := filepath.Join(chromeUserDataDir(), constants.ChromeLocalStateFile)
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return fmt.Errorf("read %s: %w", path, err)
-	}
-	var root map[string]any
-	if err := json.Unmarshal(raw, &root); err != nil {
-		return fmt.Errorf("parse %s: %w", path, err)
-	}
-	profile := ensureChromeLocalStateProfile(root)
-	infoCache := ensureChromeLocalStateInfoCache(profile)
-
-	entry, ok := infoCache[dstDir].(map[string]any)
-	if !ok {
-		entry = map[string]any{}
-	}
-	assignEntryDisplayName(entry, dstDir, displayName)
-	assignEntryEmail(entry, email)
-	entry["is_using_default_name"] = false
-	entry["is_ephemeral"] = false
-	infoCache[dstDir] = entry
-
-	appendChromeProfileToOrder(profile, dstDir)
-	return writeChromeLocalState(path, root)
-}
-
-func assignEntryDisplayName(entry map[string]any, dstDir, displayName string) {
-	if displayName != "" {
-		entry["name"] = displayName
-		return
-	}
-	if entry["name"] == nil || entry["name"] == "" {
-		entry["name"] = dstDir
-	}
-}
-
-func assignEntryEmail(entry map[string]any, email string) {
-	if email != "" {
-		entry["user_name"] = email
-	}
+	return registerChromeProfileWithFullSchema(dstDir, displayName, email)
 }
 
 func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
@@ -591,6 +553,9 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 	if err := writeOptional(filepath.Join(dest.Path, "Preferences"), exp.Preferences); err != nil {
 		return err
 	}
+	if err := patchImportedChromeProfilePreferences(dest.Path, dest.DisplayName); err != nil {
+		fmt.Fprintf(os.Stderr, "        \033[1;93m⚠\033[0m Preferences patch notice: %v\n", err)
+	}
 
 	fmt.Printf("  \033[1;94m[Step 4/5]\033[0m Staging extensions (%d pending hints)...\n", meta.ExtensionsCount)
 	if err := writePendingExtensions(dest.Path, exp.ExtensionIDs); err != nil {
@@ -601,9 +566,24 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 	if err := registerImportedProfileToLocalState(dest.Dir, dest.DisplayName, dest.Email); err != nil {
 		fmt.Fprintf(os.Stderr, "        \033[1;93m⚠\033[0m Warning: Local State registration notice: %v\n", err)
 	}
+	checkChromeRunningAdvisory()
 
 	fmt.Printf("  \033[1;92m✓ Successfully imported\033[0m %s → %s (%q)\n\n", srcFile, dest.Dir, dest.DisplayName)
 	return nil
+}
+
+func checkChromeRunningAdvisory() {
+	isRunning, err := isChromeRunning(runtime.GOOS)
+	if err != nil || !isRunning {
+		return
+	}
+	fmt.Println()
+	fmt.Println("        \033[1;93m⚠ Warning: Google Chrome is currently running!\033[0m")
+	fmt.Println("          Chrome caches Local State in memory and will overwrite disk changes on exit.")
+	fmt.Println("          To display this new profile in Chrome's Profile Picker:")
+	fmt.Println("          1. Close Google Chrome completely.")
+	fmt.Println("          2. Run: gitmap chrome profile reconcile")
+	fmt.Println()
 }
 
 func runChromeProfileImportCheck(args []string) error {

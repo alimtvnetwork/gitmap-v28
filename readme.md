@@ -28,7 +28,7 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 <div align="center">
 
-📖 **[Full Command & Subcommand Directory (docs/commands/)](./docs/commands/readme.md)** · 📚 **[Command Reference](#command-reference)** · 🚀 **[Install](#-install)**
+📖 **[Full Command & Subcommand Directory (docs/commands/)](./docs/commands/readme.md)** · 📚 **[Command Reference](#command-reference)** · 🧭 **[What to Read](.lovable/what-to-read.md)** · 🚀 **[Install](#-install)**
 
 </div>
 
