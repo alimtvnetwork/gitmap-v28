@@ -136,25 +136,17 @@ func (w *PluggableWriter[T]) Close() *appfault.AppError {
 	return nil
 }
 
-func validateFormatPayload[T any](formatter FormatMethod[T], payload T) *appfault.AppError {
-	if formatter == nil {
-		return nil
-	}
-	bytesResult := formatter(payload)
-	if bytesResult.HasError() {
-		return bytesResult.AppError()
-	}
-	return nil
-}
-
 func (w *PluggableWriter[T]) defaultWrite(ctx context.Context, payload T) *appfault.AppError {
 	w.configMu.RLock()
 	s := w.streamer
 	formatter := w.formatMethod
 	w.configMu.RUnlock()
 
-	if formatErr := validateFormatPayload(formatter, payload); formatErr != nil {
-		return formatErr
+	if formatter != nil {
+		bytesResult := formatter(payload)
+		if bytesResult.HasError() {
+			return bytesResult.AppError()
+		}
 	}
 
 	if s != nil {
