@@ -58,3 +58,4 @@ Each task transaction log must contain:
 | 11 | [`11-jsonresult-multi-source-creation`](11-jsonresult-multi-source-creation/01-transaction-log.md) | Multi-source JSONResult creation from bytes, strings, streams, payloads, and round-trip casting | Completed | 2026-09-04 |
 | 12 | [`12-json-naming-and-any-based-jsonsource`](12-json-naming-and-any-based-jsonsource/01-transaction-log.md) | Universal Json naming refactor and any-based JsonSource ingestion architecture | Completed | 2026-09-04 |
 | 13 | [`13-non-generic-jsonresult`](13-non-generic-jsonresult/01-transaction-log.md) | Transition JsonResult and WrappedJson to non-generic containers without T | Completed | 2026-09-04 |
+| 14 | [`14-jsonresult-pure-bytes-and-payload-extension`](14-jsonresult-pure-bytes-and-payload-extension/01-transaction-log.md) | Minimalist JsonResult (no status/code/payload fields) and JsonPayloadResult extension | Completed | 2026-09-04 |

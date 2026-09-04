@@ -157,17 +157,6 @@ func (l *Logger[T]) Close() *appfault.AppError {
 	return firstErr
 }
 
-func extractContextValue(ctx context.Context, key string) string {
-	if ctx == nil {
-		return ""
-	}
-	val, isOk := ctx.Value(key).(string)
-	if !isOk {
-		return ""
-	}
-	return val
-}
-
 func (l *Logger[T]) dispatchRecord(ctx context.Context, lvl LogLevel, msg string, fields ...map[string]any) *appfault.AppError {
 	l.mu.RLock()
 	if len(l.writers) == 0 {
@@ -176,8 +165,16 @@ func (l *Logger[T]) dispatchRecord(ctx context.Context, lvl LogLevel, msg string
 	}
 	l.mu.RUnlock()
 
-	traceID := extractContextValue(ctx, "traceId")
-	userID := extractContextValue(ctx, "userId")
+	traceID := ""
+	userID := ""
+	if ctx != nil {
+		if tid, isOk := ctx.Value("traceId").(string); isOk {
+			traceID = tid
+		}
+		if uid, isOk := ctx.Value("userId").(string); isOk {
+			userID = uid
+		}
+	}
 
 	merged := make(map[string]any)
 	for _, f := range fields {

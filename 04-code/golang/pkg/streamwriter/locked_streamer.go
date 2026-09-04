@@ -120,35 +120,18 @@ func (s *LockedStreamer[T]) Unlock() {
 	s.mu.Unlock()
 }
 
-func syncDestination(dest any, name string) *appfault.AppError {
-	syncer, isOk := dest.(interface{ Sync() error })
-	if !isOk {
-		return nil
-	}
-	if err := syncer.Sync(); err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", name))
-	}
-	return nil
-}
-
-func closeDestination(dest any, name string) *appfault.AppError {
-	closer, isOk := dest.(io.Closer)
-	if !isOk {
-		return nil
-	}
-	if err := closer.Close(); err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", name))
-	}
-	return nil
-}
-
 // Sync flushes the underlying destination if supported.
 func (s *LockedStreamer[T]) Sync() *appfault.AppError {
 	s.mu.Lock()
 	dest := s.destination
 	s.mu.Unlock()
 
-	return syncDestination(dest, s.name)
+	if syncer, isOk := dest.(interface{ Sync() error }); isOk {
+		if err := syncer.Sync(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
+		}
+	}
+	return nil
 }
 
 // Close closes the underlying destination if it implements io.Closer.
@@ -157,7 +140,12 @@ func (s *LockedStreamer[T]) Close() *appfault.AppError {
 	dest := s.destination
 	s.mu.Unlock()
 
-	return closeDestination(dest, s.name)
+	if closer, isOk := dest.(io.Closer); isOk {
+		if err := closer.Close(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
+		}
+	}
+	return nil
 }
 
 func (s *LockedStreamer[T]) defaultStream(ctx context.Context, payload T, dest io.Writer) *appfault.AppError {
