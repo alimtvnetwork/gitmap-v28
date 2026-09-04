@@ -121,6 +121,9 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 	case constants.SubCmdChromeImport, constants.SubCmdChromeImportAlias, constants.SubCmdChromeImportAlias2:
 		_ = runChromeProfileImport(tail)
 		return true
+	case constants.SubCmdChromeImportCheck, constants.SubCmdChromeImportCheckAlias, constants.SubCmdChromeImportCheckAlias2:
+		_ = runChromeProfileImportCheck(tail)
+		return true
 	case constants.SubCmdChromeList, constants.SubCmdChromeListAlias, constants.SubCmdChromeListAlias2, constants.SubCmdChromeListAlias3:
 		_ = runChromeProfileList(tail)
 		return true
@@ -235,7 +238,8 @@ func printChromeProfileTable() {
 	fmt.Printf("\033[1;94mSingle Profile Operations:\033[0m\n")
 	fmt.Printf("  copy (cpc) <src> <dst>              Copy a Chrome profile into an offline profile\n")
 	fmt.Printf("  export (cpe) <name> [out]           Export profile snapshot (json, zip, sqlite, yaml)\n")
-	fmt.Printf("  import (cpi) <file> [name]          Import profile from snapshot file\n")
+	fmt.Printf("  import (cpi) [file|dir|glob]        Import profile snapshot(s) safely with email mapping\n")
+	fmt.Printf("  import-check (inspect) [dir|ls]     Preview snapshot metadata & actions before importing\n")
 	fmt.Printf("  list (ls, cpl)                      List Chrome profiles known to gitmap\n")
 	fmt.Printf("  delete (rm, cpd) <name>             Remove a profile & stored artifacts\n")
 	fmt.Printf("  merge (cpm) <src> <dst>             Merge selected pieces of one profile into another\n\n")
