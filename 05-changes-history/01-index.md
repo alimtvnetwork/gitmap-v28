@@ -1,7 +1,7 @@
 # Transaction History & Task Log Index
 
-> **Location:** `05-changes-history/`
-> **Purpose:** Canonical persistent audit trail of all repository modifications, architectural tasks, cross-repo synchronizations, and system changes.
+> **Location:** `05-changes-history/`  
+> **Purpose:** Canonical persistent audit trail of all repository modifications, architectural tasks, cross-repo synchronizations, and system changes.  
 > **Rule:** Every AI work session must record its operations in a dedicated, numbered subfolder so that subsequent AI agents can immediately understand the project trajectory, decisions made, and pending steps.
 
 ---
@@ -22,7 +22,6 @@ All entries under `05-changes-history/` must follow strict sequential naming:
 ```
 
 ### Folder & File Rules
-
 1. **Strict Lowercase:** Every folder and file inside `05-changes-history/` must be strictly lowercase (e.g., `01-transaction-log.md`, `01-gitmap-sync-and-ai-scripts/`).
 2. **Sequential Numbering:** Two-digit zero-padded sequence prefix (`01-`, `02-`, etc.) based on execution order.
 3. **Relative Paths Only:** Never include absolute filesystem paths (`C:\...` or `file:///...`) inside log files. All paths must be relative to git root.
@@ -50,3 +49,4 @@ Each task transaction log must contain:
 | 02 | [`02-pluggable-writer-architecture-research`](02-pluggable-writer-architecture-research/01-transaction-log.md) | Research and specification of composable writer contracts, BaseWriter, RestAPIWriter, and package decomposition | Completed | 2026-09-03 |
 | 03 | [`03-swappable-writer-methods-research`](03-swappable-writer-methods-research/01-transaction-log.md) | Exploration of 4 patterns for swappable write methods, functional options injection, and AUK Go design | Completed | 2026-09-03 |
 | 04 | [`04-locked-and-lockless-streamers-research`](04-locked-and-lockless-streamers-research/01-transaction-log.md) | Architecture of 2 Streamer types (Locked vs Lockless) and self-binding AsInterfacer/AsWriter contracts | Completed | 2026-09-03 |
+| 05 | [`05-streamer-and-writer-full-flow`](05-streamer-and-writer-full-flow/01-transaction-log.md) | Implementation of streamwriter package with Locked/Lockless streamers, PluggableWriter, and unit tests | Completed | 2026-09-04 |
