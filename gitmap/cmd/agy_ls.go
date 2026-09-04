@@ -108,24 +108,11 @@ func filterAgyProjects(projects []AgyProject) []AgyProject {
 }
 
 func getPinnedMapIfRequested() map[string]bool {
-	pinnedMap := make(map[string]bool)
-
 	if !agyLsOnlyPinned {
-		return pinnedMap
+		return make(map[string]bool)
 	}
 
-	store, loadErr := loadPinnedProjectsStore()
-
-	if loadErr != nil {
-		return pinnedMap
-	}
-
-	for _, p := range store.Projects {
-		pinnedMap[p.ID] = true
-		pinnedMap[filepath.Clean(p.Path)] = true
-	}
-
-	return pinnedMap
+	return getPinnedProjectsMap()
 }
 
 func matchesAgyFilter(p AgyProject) bool {

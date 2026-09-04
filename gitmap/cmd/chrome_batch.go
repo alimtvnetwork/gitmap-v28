@@ -58,19 +58,26 @@ func copySingleProfileToRoot(name, dstRoot string, maxLabelWidth int) bool {
 // runChromeExportAll exports all discovered Chrome profiles.
 func runChromeExportAll(args []string) error {
 	checkHelp(constants.SubCmdChromeExportAll, args)
-	format, positional := parseChromeExportArgs(args)
+	opts := parseChromeTransferOptions(args)
 	outDir := ""
-	if len(positional) > 0 {
-		outDir = positional[0]
+	if len(opts.Positional) > 0 {
+		outDir = opts.Positional[0]
 	}
-	return runExportAllProfilesToPath(outDir, format)
+	return runExportProfilesWithLimit(outDir, opts.Format, opts.Limit)
 }
 
 func runExportAllProfilesToPath(outPath, format string) error {
+	return runExportProfilesWithLimit(outPath, format, 0)
+}
+
+func runExportProfilesWithLimit(outPath, format string, limit int) error {
 	names := availableChromeProfileNames()
 	if len(names) == 0 {
 		fmt.Println("chrome export: no Chrome profiles found.")
 		return nil
+	}
+	if limit > 0 && limit < len(names) {
+		names = names[:limit]
 	}
 	if outPath == "" {
 		outPath = filepath.Join(constants.GitMapDir, "chrome-profiles.zip")
@@ -194,30 +201,43 @@ func formatExt(format string) string {
 // runChromeImportAll imports all profile snapshots from a directory.
 func runChromeImportAll(args []string) error {
 	checkHelp(constants.SubCmdChromeImportAll, args)
-	if len(args) == 0 {
+	opts := parseChromeTransferOptions(args)
+	if len(opts.Positional) == 0 {
 		return apperror.NewSimple("chrome import-all: source directory path required", "E4001")
 	}
-	srcDir := args[0]
+	srcDir := opts.Positional[0]
 	entries, readErr := os.ReadDir(srcDir)
 	if readErr != nil {
 		return apperror.WrapSimple(readErr, "chrome import-all: cannot read directory")
 	}
-	return processImportEntries(entries, srcDir)
+	return processImportEntriesWithLimit(entries, srcDir, opts.Limit, opts.Profile)
 }
 
 func processImportEntries(entries []os.DirEntry, srcDir string) error {
+	return processImportEntriesWithLimit(entries, srcDir, 0, "")
+}
+
+func processImportEntriesWithLimit(entries []os.DirEntry, srcDir string, limit int, profile string) error {
 	importCount := 0
 	for _, e := range entries {
 		if e.IsDir() {
 			continue
 		}
+
 		path := filepath.Join(srcDir, e.Name())
-		if isImportableSnapshot(path) {
-			_ = runChromeProfileImport([]string{path})
-			importCount++
+		if !isImportableSnapshot(path) {
+			continue
+		}
+
+		_ = importChromeSnapshotWithOptions(path, profile, limit)
+		importCount++
+		if limit > 0 && importCount >= limit {
+			break
 		}
 	}
+
 	fmt.Printf("\n\033[1;92m✓ import-all complete\033[0m  %d file(s) imported from %s\n", importCount, srcDir)
+
 	return nil
 }
 
