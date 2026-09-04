@@ -16,3 +16,4 @@
 | 05 | [`05-streamer-and-writer-full-flow.md`](05-streamer-and-writer-full-flow.md) | Full flow implementation & verification of Locked/Lockless streamers, PluggableWriter, and CompositeLogger | Implemented | 2026-09-04 |
 | 06 | [`06-generic-payload-and-ordered-compilation.md`](06-generic-payload-and-ordered-compilation.md) | Generic payload T, Compilable interface, and recursive order-wise transpilation for primitives, maps, slices, and structs | Implemented | 2026-09-04 |
 | 07 | [`07-bytes-wrapper-and-apperror-standard.md`](07-bytes-wrapper-and-apperror-standard.md) | Bytes[T] monadic wrapper replacing ([]byte, error), and mandatory *appfault.AppError return standard | Implemented | 2026-09-04 |
+| 08 | [`08-idiomatic-er-interface-naming.md`](08-idiomatic-er-interface-naming.md) | Idiomatic -er interface naming convention, generic contracts, Bytes[T] wrapper, and *appfault.AppError standard | Implemented | 2026-09-04 |

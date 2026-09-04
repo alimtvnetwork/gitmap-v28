@@ -1,9 +1,9 @@
 # Locked & Lockless Streamers with Self-Binding Interfacer Architecture
 
-> **Status:** Proposal & Architectural Specification
-> **Date:** 2026-09-03
-> **Topic:** 2 Types of Streamers (Locked vs Lockless), Swappable Stream Methods, and Self-Binding `AsInterfacer()` Contracts
-> **Reference:** AUK Go `core/coreinterface/loggerinf`
+> **Status:** Proposal & Architectural Specification  
+> **Date:** 2026-09-03  
+> **Topic:** 2 Types of Streamers (Locked vs Lockless), Swappable Stream Methods, and Self-Binding `AsInterfacer()` Contracts  
+> **Reference:** AUK Go `core/coreinterface/loggerinf`  
 
 ---
 
