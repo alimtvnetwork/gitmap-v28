@@ -78,33 +78,31 @@ func NewJSONResultWithStatus[T any](data []byte, payload T, status bool, code in
 	}
 }
 
+func resolveJSONResultErrorCode(appErr *appfault.AppError) int {
+	if appErr == nil {
+		return 500
+	}
+	if appErr.StatusCode() != 0 {
+		return appErr.StatusCode()
+	}
+	return 500
+}
+
 // NewJSONResultError creates a failed JSONResult with an AppError.
 func NewJSONResultError[T any](appErr *appfault.AppError) JSONResult[T] {
-	code := 500
-	if appErr != nil {
-		if appErr.StatusCode() != 0 {
-			code = appErr.StatusCode()
-		}
-	}
 	return JSONResult[T]{
 		status:     false,
-		statusCode: code,
+		statusCode: resolveJSONResultErrorCode(appErr),
 		appError:   appErr,
 	}
 }
 
 // NewJSONResultErrorWithPayload creates a failed JSONResult preserving the payload.
 func NewJSONResultErrorWithPayload[T any](appErr *appfault.AppError, payload T) JSONResult[T] {
-	code := 500
-	if appErr != nil {
-		if appErr.StatusCode() != 0 {
-			code = appErr.StatusCode()
-		}
-	}
 	return JSONResult[T]{
 		payload:    payload,
 		status:     false,
-		statusCode: code,
+		statusCode: resolveJSONResultErrorCode(appErr),
 		appError:   appErr,
 	}
 }

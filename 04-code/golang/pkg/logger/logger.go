@@ -92,5 +92,5 @@ func (l *Logger) LogError(err *appfault.AppError) {
 // Fatal logs a fatal error and terminates execution.
 func (l *Logger) Fatal(msg string) {
 	l.write(LevelFatal, msg, "", nil, "")
-	os.Exit(1)
+	os.Exit(1) // lint-allow: os.Exit
 }

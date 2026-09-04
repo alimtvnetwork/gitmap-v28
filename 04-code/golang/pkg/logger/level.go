@@ -61,12 +61,12 @@ func (l *LogLevel) unmarshalByte(data []byte) error {
 // UnmarshalJSON parses a PascalCase string or byte into LogLevel.
 func (l *LogLevel) UnmarshalJSON(data []byte) error {
 	var str string
-	if err := json.Unmarshal(data, &str); err == nil {
-		if val, ok := parseLevelName(str); ok {
-			*l = val
+	err := json.Unmarshal(data, &str)
+	val, ok := parseLevelName(str)
+	if err == nil && ok {
+		*l = val
 
-			return nil
-		}
+		return nil
 	}
 
 	return l.unmarshalByte(data)
