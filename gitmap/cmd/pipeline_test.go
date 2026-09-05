@@ -32,7 +32,7 @@ func TestParseSlugFromGitURL(t *testing.T) {
 func TestBuildStatusPayload(t *testing.T) {
 	runs := []ghRunItem{
 		{
-			DatabaseID: 101,
+			DatabaseId: 101,
 			Name:       "CI",
 			Status:     "in_progress",
 			Conclusion: "",
@@ -60,7 +60,7 @@ func TestBuildStatusPayload(t *testing.T) {
 func TestBuildErrorLogsPayload(t *testing.T) {
 	runs := []ghRunItem{
 		{
-			DatabaseID: 202,
+			DatabaseId: 202,
 			Name:       "Build",
 			Status:     "completed",
 			Conclusion: "failure",

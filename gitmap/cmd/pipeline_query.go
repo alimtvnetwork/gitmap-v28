@@ -146,7 +146,7 @@ func queryRunsFromDB(repo string) []ghRunItem {
 
 	for _, r := range dbRuns {
 		runs = append(runs, ghRunItem{
-			DatabaseID: r.RunID,
+			DatabaseId: r.RunID,
 			Name:       r.WorkflowName,
 			Status:     r.Status,
 			Conclusion: r.Conclusion,

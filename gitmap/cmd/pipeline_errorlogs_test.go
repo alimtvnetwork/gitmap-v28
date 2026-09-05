@@ -28,7 +28,7 @@ func TestPipelineErrorLogsPayloadRerunETA(t *testing.T) {
 	now := time.Now().UTC()
 	runs := []ghRunItem{
 		{
-			DatabaseID: 201,
+			DatabaseId: 201,
 			Name:       "CI",
 			Status:     "completed",
 			Conclusion: "failure",
@@ -36,7 +36,7 @@ func TestPipelineErrorLogsPayloadRerunETA(t *testing.T) {
 			UpdatedAt:  now.Add(-30 * time.Second).Format(time.RFC3339),
 		},
 		{
-			DatabaseID: 202,
+			DatabaseId: 202,
 			Name:       "CI",
 			Status:     "completed",
 			Conclusion: "success",

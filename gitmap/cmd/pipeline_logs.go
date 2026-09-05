@@ -98,7 +98,7 @@ func handlePipelineLogs(args []string) error {
 		fmt.Printf("● Pipeline [%s] is currently RUNNING (ETA: %ds)\n", latestRun.Name, eta)
 	}
 
-	rawLogs := queryAllRunLogs(repo, latestRun.DatabaseID)
+	rawLogs := queryAllRunLogs(repo, latestRun.DatabaseId)
 
 	if len(rawLogs) > 0 {
 		fmt.Println(rawLogs)
@@ -120,7 +120,7 @@ func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPaylo
 
 	latest := runs[0]
 	payload.WorkflowName = latest.Name
-	payload.RunID = latest.DatabaseID
+	payload.RunID = latest.DatabaseId
 	payload.Status = latest.Status
 	payload.Conclusion = latest.Conclusion
 	payload.URL = latest.URL
@@ -176,11 +176,11 @@ func findFailedRunID(runs []ghRunItem, p *PipelineErrorLogsPayload) int64 {
 	for _, r := range runs {
 		if r.Conclusion == "failure" {
 			p.WorkflowName = r.Name
-			p.RunID = r.DatabaseID
+			p.RunID = r.DatabaseId
 			p.Conclusion = r.Conclusion
 			p.URL = r.URL
 
-			return r.DatabaseID
+			return r.DatabaseId
 		}
 	}
 
