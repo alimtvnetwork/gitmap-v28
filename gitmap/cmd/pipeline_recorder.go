@@ -6,12 +6,12 @@ import (
 )
 
 func recordPipelineInDB(p PipelineStatusPayload, runs []ghRunItem) {
-	recordInPipelineSplitDB(p, runs)
+	recordInPipelineSplitDb(p, runs)
 	recordInMasterDB(p, runs)
 }
 
-func recordInPipelineSplitDB(p PipelineStatusPayload, runs []ghRunItem) {
-	pipeDb, err := pipelinedb.OpenPipelineSplitDB(p.Repo)
+func recordInPipelineSplitDb(p PipelineStatusPayload, runs []ghRunItem) {
+	pipeDb, err := pipelinedb.OpenPipelineSplitDb(p.Repo)
 	if err != nil {
 		return
 	}
@@ -19,7 +19,7 @@ func recordInPipelineSplitDB(p PipelineStatusPayload, runs []ghRunItem) {
 
 	for _, r := range runs {
 		_ = pipeDb.RecordRun(pipelinedb.PipelineRunRecord{
-			RunID:        r.DatabaseId,
+			RunId:        r.DatabaseId,
 			RepoSlug:     p.Repo,
 			WorkflowName: r.Name,
 			Status:       r.Status,
@@ -27,7 +27,7 @@ func recordInPipelineSplitDB(p PipelineStatusPayload, runs []ghRunItem) {
 			Branch:       r.HeadBranch,
 			Sha:          r.HeadSha,
 			EtaSeconds:   p.EtaSeconds,
-			RunURL:       r.URL,
+			RunUrl:       r.Url,
 			CreatedAt:    r.CreatedAt,
 			UpdatedAt:    r.UpdatedAt,
 		})
@@ -35,7 +35,7 @@ func recordInPipelineSplitDB(p PipelineStatusPayload, runs []ghRunItem) {
 	}
 }
 
-func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDB, repo string, r ghRunItem) {
+func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDb, repo string, r ghRunItem) {
 	if r.Conclusion != "failure" {
 		return
 	}
@@ -51,7 +51,7 @@ func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDB, repo string, r gh
 		return
 	}
 	_ = pipeDb.RecordErrorLog(pipelinedb.PipelineErrorRecord{
-		RunID:        r.DatabaseId,
+		RunId:        r.DatabaseId,
 		RepoSlug:     repo,
 		WorkflowName: r.Name,
 		StepName:     "Failed Step",
@@ -69,7 +69,7 @@ func recordInMasterDB(p PipelineStatusPayload, runs []ghRunItem) {
 
 	for _, r := range runs {
 		_ = db.InsertOrUpdatePipelineRun(store.PipelineRun{
-			RunID:        r.DatabaseId,
+			RunID:        int64(r.DatabaseId),
 			Repo:         p.Repo,
 			WorkflowName: r.Name,
 			Status:       r.Status,
@@ -77,7 +77,7 @@ func recordInMasterDB(p PipelineStatusPayload, runs []ghRunItem) {
 			Branch:       r.HeadBranch,
 			Sha:          r.HeadSha,
 			EtaSeconds:   p.EtaSeconds,
-			URL:          r.URL,
+			URL:          r.Url,
 		})
 	}
 }

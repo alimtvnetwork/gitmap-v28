@@ -73,10 +73,10 @@ func buildStatusPayload(repo, lastTag string, pendingPRs int, runs []ghRunItem) 
 	}
 
 	latest := runs[0]
-	payload.LastRunID = latest.DatabaseId
+	payload.LastRunId = latest.DatabaseId
 	payload.LastStatus = latest.Status
 	payload.LastConclusion = latest.Conclusion
-	payload.LastRunURL = latest.URL
+	payload.LastRunUrl = latest.Url
 
 	runningCount := countRunningWorkflows(runs)
 	payload.PendingPipelines = runningCount
@@ -93,8 +93,8 @@ func populateActiveRunPayload(payload *PipelineStatusPayload, runs []ghRunItem, 
 	activeRun := findActiveWorkflowRun(runs)
 	if activeRun != nil {
 		payload.ActiveWorkflow = activeRun.Name
-		payload.LastRunID = activeRun.DatabaseId
-		payload.LastRunURL = activeRun.URL
+		payload.LastRunId = activeRun.DatabaseId
+		payload.LastRunUrl = activeRun.Url
 		payload.EtaSeconds = calculateETA(runs)
 		return
 	}
@@ -118,12 +118,12 @@ func renderPipelineStatusTerminal(p PipelineStatusPayload) {
 	fmt.Printf("  %s● Pending Pipelines:%s %d\n", constants.ColorCyan, constants.ColorReset, p.PendingPipelines)
 	fmt.Printf("  %s● Pending PRs:%s       %d\n", constants.ColorCyan, constants.ColorReset, p.PendingPRs)
 
-	if len(p.LastRunURL) > 0 {
-		fmt.Printf("  %s● Run URL:%s           %s\n", constants.ColorCyan, constants.ColorReset, p.LastRunURL)
+	if len(p.LastRunUrl) > 0 {
+		fmt.Printf("  %s● Run URL:%s           %s\n", constants.ColorCyan, constants.ColorReset, p.LastRunUrl)
 	}
 
-	if p.IsRunning && p.LastRunID > 0 {
-		renderSegmentBreakdown(p.Repo, p.LastRunID)
+	if p.IsRunning && p.LastRunId > 0 {
+		renderSegmentBreakdown(p.Repo, p.LastRunId)
 	}
 }
 

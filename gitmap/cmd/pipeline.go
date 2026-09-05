@@ -21,8 +21,8 @@ type PipelineStatusPayload struct {
 	ActiveWorkflow   string `json:"activeWorkflow,omitempty"`
 	LastStatus       string `json:"lastStatus,omitempty"`
 	LastConclusion   string `json:"lastConclusion,omitempty"`
-	LastRunID        int64  `json:"lastRunId,omitempty"`
-	LastRunURL       string `json:"lastRunUrl,omitempty"`
+	LastRunId        uint64 `json:"lastRunId,omitempty"`
+	LastRunUrl       string `json:"lastRunUrl,omitempty"`
 	UpdatedAt        string `json:"updatedAt"`
 }
 
@@ -30,14 +30,14 @@ type PipelineStatusPayload struct {
 type PipelineErrorLogsPayload struct {
 	Repo            string            `json:"repo"`
 	WorkflowName    string            `json:"workflowName"`
-	RunID           int64             `json:"runId"`
+	RunId           uint64            `json:"runId"`
 	Status          string            `json:"status"`
 	Conclusion      string            `json:"conclusion"`
 	EtaSeconds      int               `json:"etaSeconds,omitempty"`
 	RerunEtaSeconds int               `json:"rerunEtaSeconds,omitempty"`
 	IsRunning       bool              `json:"isRunning"`
 	ErrorLogs       string            `json:"errorLogs"`
-	URL             string            `json:"url,omitempty"`
+	Url             string            `json:"url,omitempty"`
 	CICDChecks      []CICDCheckResult `json:"cicdChecks,omitempty"`
 }
 
@@ -50,7 +50,7 @@ type ErrorLogOutputParams struct {
 }
 
 type ghRunItem struct {
-	DatabaseId int64  `json:"databaseId"`
+	DatabaseId uint64 `json:"databaseId"`
 	Name       string `json:"name"`
 	Status     string `json:"status"`
 	Conclusion string `json:"conclusion"`
@@ -58,7 +58,7 @@ type ghRunItem struct {
 	UpdatedAt  string `json:"updatedAt"`
 	HeadBranch string `json:"headBranch"`
 	HeadSha    string `json:"headSha"`
-	URL        string `json:"url"`
+	Url        string `json:"url"`
 }
 
 // runPipeline is the entry point for the gitmap pipeline command group.

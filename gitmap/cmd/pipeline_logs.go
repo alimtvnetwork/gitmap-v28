@@ -120,10 +120,10 @@ func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPaylo
 
 	latest := runs[0]
 	payload.WorkflowName = latest.Name
-	payload.RunID = latest.DatabaseId
+	payload.RunId = latest.DatabaseId
 	payload.Status = latest.Status
 	payload.Conclusion = latest.Conclusion
-	payload.URL = latest.URL
+	payload.Url = latest.Url
 
 	isRunning := latest.Status == "in_progress" || latest.Status == "queued"
 
@@ -135,10 +135,10 @@ func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPaylo
 		return payload
 	}
 
-	targetRunID := findFailedRunID(runs, &payload)
+	targetRunId := findFailedRunId(runs, &payload)
 
-	if targetRunID > 0 {
-		payload.ErrorLogs = queryFailedRunLogs(repo, targetRunID)
+	if targetRunId > 0 {
+		payload.ErrorLogs = queryFailedRunLogs(repo, targetRunId)
 
 		return payload
 	}
@@ -172,13 +172,13 @@ func readLocalLastErrorLog() string {
 	return ""
 }
 
-func findFailedRunID(runs []ghRunItem, p *PipelineErrorLogsPayload) int64 {
+func findFailedRunId(runs []ghRunItem, p *PipelineErrorLogsPayload) uint64 {
 	for _, r := range runs {
 		if r.Conclusion == "failure" {
 			p.WorkflowName = r.Name
-			p.RunID = r.DatabaseId
+			p.RunId = r.DatabaseId
 			p.Conclusion = r.Conclusion
-			p.URL = r.URL
+			p.Url = r.Url
 
 			return r.DatabaseId
 		}
@@ -239,7 +239,7 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 
 	if p.Conclusion == "failure" {
 		fmt.Printf("  %s● Latest Pipeline Failure [%s #%d]:%s\n\n",
-			constants.ColorRed, p.WorkflowName, p.RunID, constants.ColorReset)
+			constants.ColorRed, p.WorkflowName, p.RunId, constants.ColorReset)
 		fmt.Println(p.ErrorLogs)
 		printRerunETA(p.RerunEtaSeconds)
 

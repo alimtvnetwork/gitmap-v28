@@ -12,16 +12,19 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// PipelineSplitDB encapsulates an isolated SQLite database connection for a single repository's pipeline data.
-type PipelineSplitDB struct {
+// PipelineSplitDb encapsulates an isolated SQLite database connection for a single repository's pipeline data.
+type PipelineSplitDb struct {
 	conn     *sql.DB
 	RepoSlug string
 	Path     string
 }
 
+// PipelineSplitDB is an alias to PipelineSplitDb for backward compatibility.
+type PipelineSplitDB = PipelineSplitDb
+
 // PipelineRunRecord represents a recorded workflow run in the pipeline database.
 type PipelineRunRecord struct {
-	RunID           int64  `json:"runId"`
+	RunId           uint64 `json:"runId"`
 	RepoSlug        string `json:"repoSlug"`
 	WorkflowName    string `json:"workflowName"`
 	Status          string `json:"status"`
@@ -30,7 +33,7 @@ type PipelineRunRecord struct {
 	Sha             string `json:"sha"`
 	EtaSeconds      int    `json:"etaSeconds"`
 	DurationSeconds int    `json:"durationSeconds"`
-	RunURL          string `json:"runUrl"`
+	RunUrl          string `json:"runUrl"`
 	IsSuccess       bool   `json:"isSuccess"`
 	Notes           string `json:"notes,omitempty"`
 	Comments        string `json:"comments,omitempty"`
@@ -40,7 +43,7 @@ type PipelineRunRecord struct {
 
 // PipelineErrorRecord represents an isolated error diagnostic record.
 type PipelineErrorRecord struct {
-	RunID        int64  `json:"runId"`
+	RunId        uint64 `json:"runId"`
 	RepoSlug     string `json:"repoSlug"`
 	WorkflowName string `json:"workflowName"`
 	StepName     string `json:"stepName"`
@@ -51,10 +54,10 @@ type PipelineErrorRecord struct {
 	CreatedAt    string `json:"createdAt"`
 }
 
-// PipelineDBStats encapsulates health and sizing metrics for the pipeline split database.
-type PipelineDBStats struct {
+// PipelineDbStats encapsulates health and sizing metrics for the pipeline split database.
+type PipelineDbStats struct {
 	Path          string `json:"path"`
-	Size          int64  `json:"size"`
+	Size          uint64 `json:"size"`
 	TotalRuns     int    `json:"totalRuns"`
 	SuccessRuns   int    `json:"successRuns"`
 	FailedRuns    int    `json:"failedRuns"`
@@ -62,6 +65,9 @@ type PipelineDBStats struct {
 	SegmentCount  int    `json:"segmentCount"`
 	LastUpdated   string `json:"lastUpdated"`
 }
+
+// PipelineDBStats is an alias to PipelineDbStats for backward compatibility.
+type PipelineDBStats = PipelineDbStats
 
 // SanitizeRepoSlug converts a repository slug into a valid safe filesystem name.
 func SanitizeRepoSlug(repo string) string {
@@ -75,28 +81,34 @@ func SanitizeRepoSlug(repo string) string {
 	return slug
 }
 
-// PipelineDBDir returns the dedicated directory where pipeline split DBs live.
-func PipelineDBDir() string {
+// PipelineDbDir returns the dedicated directory where pipeline split DBs live.
+func PipelineDbDir() string {
 	dir := filepath.Join(store.BinaryDataDir(), "pipeline_db")
 	_ = os.MkdirAll(dir, 0755)
 	return dir
 }
 
-// PipelineDBPath returns the full SQLite database file path for a repository.
-func PipelineDBPath(repoSlug string) string {
+// PipelineDBDir is an alias to PipelineDbDir.
+var PipelineDBDir = PipelineDbDir
+
+// PipelineDbPath returns the full SQLite database file path for a repository.
+func PipelineDbPath(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)
-	return filepath.Join(PipelineDBDir(), "pipeline_"+slug+".db")
+	return filepath.Join(PipelineDbDir(), "pipeline_"+slug+".db")
 }
 
-// OpenPipelineSplitDB opens or initializes the split SQLite database for a repo.
-func OpenPipelineSplitDB(repoSlug string) (*PipelineSplitDB, error) {
-	dbPath := PipelineDBPath(repoSlug)
+// PipelineDBPath is an alias to PipelineDbPath.
+var PipelineDBPath = PipelineDbPath
+
+// OpenPipelineSplitDb opens or initializes the split SQLite database for a repo.
+func OpenPipelineSplitDb(repoSlug string) (*PipelineSplitDb, error) {
+	dbPath := PipelineDbPath(repoSlug)
 	conn, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open pipeline split db "+repoSlug)
 	}
 	conn.SetMaxOpenConns(1)
-	p := &PipelineSplitDB{conn: conn, RepoSlug: repoSlug, Path: dbPath}
+	p := &PipelineSplitDb{conn: conn, RepoSlug: repoSlug, Path: dbPath}
 	if err := p.InitSchema(); err != nil {
 		_ = conn.Close()
 		return nil, err
@@ -104,8 +116,11 @@ func OpenPipelineSplitDB(repoSlug string) (*PipelineSplitDB, error) {
 	return p, nil
 }
 
+// OpenPipelineSplitDB is an alias to OpenPipelineSplitDb.
+var OpenPipelineSplitDB = OpenPipelineSplitDb
+
 // InitSchema ensures all pipeline tables exist.
-func (p *PipelineSplitDB) InitSchema() error {
+func (p *PipelineSplitDb) InitSchema() error {
 	queries := []string{
 		sqlCreatePipelineRun,
 		sqlCreatePipelineErrorLog,
@@ -120,7 +135,7 @@ func (p *PipelineSplitDB) InitSchema() error {
 }
 
 // Close closes the underlying SQLite connection.
-func (p *PipelineSplitDB) Close() error {
+func (p *PipelineSplitDb) Close() error {
 	if p.conn != nil {
 		return p.conn.Close()
 	}

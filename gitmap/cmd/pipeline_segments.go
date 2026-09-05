@@ -15,7 +15,7 @@ type ghJobsResponse struct {
 }
 
 type ghJobItem struct {
-	DatabaseId  int64        `json:"databaseId"`
+	DatabaseId  uint64       `json:"databaseId"`
 	Name        string       `json:"name"`
 	Status      string       `json:"status"`
 	Conclusion  string       `json:"conclusion"`
@@ -34,11 +34,11 @@ type ghStepItem struct {
 }
 
 // queryRunJobs fetches job and segment/step details for a GitHub Actions run.
-func queryRunJobs(repo string, runID int64) []ghJobItem {
-	if runID <= 0 {
+func queryRunJobs(repo string, runId uint64) []ghJobItem {
+	if runId == 0 {
 		return nil
 	}
-	args := []string{"run", "view", fmt.Sprintf("%d", runID), "--json", "jobs"}
+	args := []string{"run", "view", fmt.Sprintf("%d", runId), "--json", "jobs"}
 	if repo != "" {
 		args = append(args, "--repo", repo)
 	}
@@ -55,8 +55,8 @@ func queryRunJobs(repo string, runID int64) []ghJobItem {
 }
 
 // renderSegmentBreakdown renders the progress of segments/steps for active runs.
-func renderSegmentBreakdown(repo string, runID int64) {
-	jobs := queryRunJobs(repo, runID)
+func renderSegmentBreakdown(repo string, runId uint64) {
+	jobs := queryRunJobs(repo, runId)
 	if len(jobs) == 0 {
 		return
 	}

@@ -26,25 +26,65 @@ In accordance with repository-wide naming conventions:
 
 ## 2. Multi-Dialect Engine & Compilation
 
-### 2.1 Database Dialect Enum
+### 2.1 Database Type Enum (`DbType`)
+The `DbType` enum is the canonical database engine selector and includes gold-standard receiver methods (`Name()`, `String()`, `Value()`, `IsCompare()`):
 ```go
-type DatabaseDialectType string
+type DbType string
 
 const (
-    DatabaseDialectSQLite     DatabaseDialectType = "sqlite"
-    DatabaseDialectPostgreSQL DatabaseDialectType = "postgres"
-    DatabaseDialectMySQL      DatabaseDialectType = "mysql"
-    DatabaseDialectMariaDB    DatabaseDialectType = "mariadb"
-    DatabaseDialectMSSQL      DatabaseDialectType = "mssql"
-    DatabaseDialectOracle     DatabaseDialectType = "oracle"
-    DatabaseDialectMongoDB    DatabaseDialectType = "mongodb"
+    DbSQLite     DbType = "sqlite"
+    DbPostgreSQL DbType = "postgres"
+    DbMySQL      DbType = "mysql"
+    DbMariaDB    DbType = "mariadb"
+    DbMSSQL      DbType = "mssql"
+    DbOracle     DbType = "oracle"
+    DbMongoDB    DbType = "mongodb"
 )
+
+func (d DbType) Name() string { return string(d) }
+func (d DbType) String() string { return string(d) }
+func (d DbType) Value() string { return string(d) }
+func (d DbType) IsCompare(target any) bool {
+    switch v := target.(type) {
+    case DbType:
+        return d == v
+    case string:
+        return string(d) == v
+    case fmt.Stringer:
+        return string(d) == v.String()
+    default:
+        return false
+    }
+}
+
+// Scoped registry for zero-magic strings
+var DbTypes = struct {
+    SQLite     DbType
+    PostgreSQL DbType
+    Postgres   DbType
+    MySQL      DbType
+    MariaDB    DbType
+    MSSQL      DbType
+    Oracle     DbType
+    MongoDB    DbType
+}{
+    SQLite:     DbSQLite,
+    PostgreSQL: DbPostgreSQL,
+    Postgres:   DbPostgreSQL,
+    MySQL:      DbMySQL,
+    MariaDB:    DbMariaDB,
+    MSSQL:      DbMSSQL,
+    Oracle:     DbOracle,
+    MongoDB:    DbMongoDB,
+}
+
+type DatabaseDialectType = DbType
 ```
 
 ### 2.2 Dialect Compiler Contract
 ```go
 type DialectCompiler interface {
-    Dialect() DatabaseDialectType
+    Dialect() DbType
     Placeholder(paramIndex int) string
     QuoteIdentifier(name string) string
     CompilePagination(query string, limit, offset int) string
@@ -69,7 +109,7 @@ type DialectCompiler interface {
 ```go
 type DbWrapper struct {
     conn     *sql.DB
-    dialect  DatabaseDialectType
+    dialect  DbType
     compiler DialectCompiler
 }
 
@@ -84,11 +124,11 @@ func (w *DbWrapper) WithTransaction(ctx context.Context, fn func(tx *TxWrapper) 
 ## 4. Struct-to-Table Model & CLI Enum Generator
 
 ### 4.1 Model Struct Standard
-Model structs represent database tables and use tags for column metadata:
+Model structs represent database tables and use tags for column metadata. Non-negative database IDs use `uint64`:
 ```go
 type PipelineErrorLog struct {
-    PipelineErrorLogId int64  `db:"PipelineErrorLogId" dbtype:"INTEGER PRIMARY KEY AUTOINCREMENT"`
-    RunId              int64  `db:"RunId" dbtype:"INTEGER NOT NULL"`
+    PipelineErrorLogId uint64 `db:"PipelineErrorLogId" dbtype:"INTEGER PRIMARY KEY AUTOINCREMENT"`
+    RunId              uint64 `db:"RunId" dbtype:"INTEGER NOT NULL"`
     RepoSlug           string `db:"RepoSlug" dbtype:"TEXT NOT NULL"`
     WorkflowName       string `db:"WorkflowName" dbtype:"TEXT NOT NULL"`
     StepName           string `db:"StepName" dbtype:"TEXT NOT NULL"`
@@ -100,23 +140,57 @@ type PipelineErrorLog struct {
 }
 ```
 
-### 4.2 Auto-Generated Field Enums
-The code generator produces typed string enums eliminating all magic strings:
+### 4.2 Auto-Generated Field Enums & Scoped Registries
+To avoid repeating prefixes across flat constants (e.g. avoiding repetitive `PipelineErrorLogFieldPipelineErrorLogId`), field enums are grouped into scoped registries. Developers access fields via `PipelineErrorLogField.RunId` or `PipelineErrorLogDb.RunId`:
 ```go
 type PipelineErrorLogFieldType string
 
-const (
-    PipelineErrorLogFieldPipelineErrorLogId PipelineErrorLogFieldType = "PipelineErrorLogId"
-    PipelineErrorLogFieldRunId              PipelineErrorLogFieldType = "RunId"
-    PipelineErrorLogFieldRepoSlug           PipelineErrorLogFieldType = "RepoSlug"
-    PipelineErrorLogFieldWorkflowName       PipelineErrorLogFieldType = "WorkflowName"
-    PipelineErrorLogFieldStepName           PipelineErrorLogFieldType = "StepName"
-    PipelineErrorLogFieldErrorText          PipelineErrorLogFieldType = "ErrorText"
-    PipelineErrorLogFieldRawLogs            PipelineErrorLogFieldType = "RawLogs"
-    PipelineErrorLogFieldNotes              PipelineErrorLogFieldType = "Notes"
-    PipelineErrorLogFieldComments           PipelineErrorLogFieldType = "Comments"
-    PipelineErrorLogFieldCreatedAt          PipelineErrorLogFieldType = "CreatedAt"
-)
+func (e PipelineErrorLogFieldType) Name() string { return string(e) }
+func (e PipelineErrorLogFieldType) String() string { return string(e) }
+func (e PipelineErrorLogFieldType) Value() string { return string(e) }
+func (e PipelineErrorLogFieldType) IsCompare(target any) bool {
+    switch v := target.(type) {
+    case PipelineErrorLogFieldType:
+        return e == v
+    case string:
+        return string(e) == v
+    case fmt.Stringer:
+        return string(e) == v.String()
+    default:
+        return false
+    }
+}
+
+type pipelineErrorLogFieldRegistry struct {
+    PipelineErrorLogId PipelineErrorLogFieldType
+    RunId              PipelineErrorLogFieldType
+    RepoSlug           PipelineErrorLogFieldType
+    WorkflowName       PipelineErrorLogFieldType
+    StepName           PipelineErrorLogFieldType
+    ErrorText          PipelineErrorLogFieldType
+    RawLogs            PipelineErrorLogFieldType
+    Notes              PipelineErrorLogFieldType
+    Comments           PipelineErrorLogFieldType
+    CreatedAt          PipelineErrorLogFieldType
+}
+
+// Scoped access: PipelineErrorLogField.RunId
+var PipelineErrorLogField = pipelineErrorLogFieldRegistry{
+    PipelineErrorLogId: "PipelineErrorLogId",
+    RunId:              "RunId",
+    RepoSlug:           "RepoSlug",
+    WorkflowName:       "WorkflowName",
+    StepName:           "StepName",
+    ErrorText:          "ErrorText",
+    RawLogs:            "RawLogs",
+    Notes:              "Notes",
+    Comments:           "Comments",
+    CreatedAt:          "CreatedAt",
+}
+
+var PipelineErrorLogDb = PipelineErrorLogField
+
+const PipelineErrorLogTable = "PipelineErrorLog"
 ```
 
 ---

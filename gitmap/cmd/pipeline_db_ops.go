@@ -10,7 +10,7 @@ import (
 
 func runPipelineDBStatus(args []string) error {
 	repo := resolveCurrentRepoSlug()
-	db, err := pipelinedb.OpenPipelineSplitDB(repo)
+	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func runPipelineDBStatus(args []string) error {
 	fmt.Println(constants.ColorCyan + "● Pipeline Split Database Summary:" + constants.ColorReset)
 	fmt.Printf("  • %-20s %s\n", "Repository:", repo)
 	fmt.Printf("  • %-20s %s\n", "Database File:", stats.Path)
-	fmt.Printf("  • %-20s %s\n", "File Size:", formatBytes(stats.Size))
+	fmt.Printf("  • %-20s %s\n", "File Size:", formatBytes(int64(stats.Size)))
 	fmt.Printf("  • %-20s %d\n", "Total Runs:", stats.TotalRuns)
 	fmt.Printf("  • %-20s %s%d%s\n", "Success Runs:", constants.ColorGreen, stats.SuccessRuns, constants.ColorReset)
 	fmt.Printf("  • %-20s %s%d%s\n", "Failed Runs:", constants.ColorRed, stats.FailedRuns, constants.ColorReset)
@@ -47,7 +47,7 @@ func runPipelineDBClear(args []string) error {
 		fmt.Println("Clear operation canceled.")
 		return nil
 	}
-	db, err := pipelinedb.OpenPipelineSplitDB(repo)
+	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func runPipelineDBReset(args []string) error {
 		fmt.Println("Reset operation canceled.")
 		return nil
 	}
-	db, err := pipelinedb.OpenPipelineSplitDB(repo)
+	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func runPipelineDBReset(args []string) error {
 
 func runPipelineDBOptimize(args []string) error {
 	repo := resolveCurrentRepoSlug()
-	db, err := pipelinedb.OpenPipelineSplitDB(repo)
+	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func runPipelineDBOptimize(args []string) error {
 
 func runPipelineDBErrorLogs(args []string) error {
 	repo := resolveCurrentRepoSlug()
-	db, err := pipelinedb.OpenPipelineSplitDB(repo)
+	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func runPipelineDBErrorLogs(args []string) error {
 		constants.ColorRed, repo, len(logs), constants.ColorReset)
 	fmt.Printf("    %s\n", strings.Repeat("─", 78))
 	for _, l := range logs {
-		fmt.Printf("    [%s] Run #%d (%s - %s)\n", l.CreatedAt, l.RunID, l.WorkflowName, l.StepName)
+		fmt.Printf("    [%s] Run #%d (%s - %s)\n", l.CreatedAt, l.RunId, l.WorkflowName, l.StepName)
 		for _, line := range strings.Split(l.ErrorText, "\n") {
 			fmt.Printf("      %s\n", line)
 		}
