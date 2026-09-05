@@ -3,14 +3,11 @@ package pipelinedb
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/generated/db/pipelinedb/enums"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
