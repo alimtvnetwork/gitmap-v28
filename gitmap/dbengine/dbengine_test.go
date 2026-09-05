@@ -32,21 +32,21 @@ func (e TestItemFieldType) IsCompare(target any) bool {
 	}
 }
 
-type testItemFieldRegistry struct {
+type testItemDbRegistry struct {
 	ItemId   TestItemFieldType
 	ItemName TestItemFieldType
 	Category TestItemFieldType
 	IsActive TestItemFieldType
 }
 
-var TestItemField = testItemFieldRegistry{
+var TestItemDb = testItemDbRegistry{
 	ItemId:   "ItemId",
 	ItemName: "ItemName",
 	Category: "Category",
 	IsActive: "IsActive",
 }
 
-var TestItemDb = TestItemField
+var TestItemField = TestItemDb
 
 func scanTestItem(s RowScanner) (*TestItem, error) {
 	var item TestItem
@@ -155,7 +155,7 @@ func TestRepository_Queries(t *testing.T) {
 	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
 
 	// First: limit 1
-	item, appErr := repo.First(ctx, TestItemField.ItemName, "Alpha")
+	item, appErr := repo.First(ctx, TestItemDb.ItemName, "Alpha")
 	if appErr != nil {
 		t.Fatalf("First failed: %v", appErr)
 	}
@@ -164,7 +164,7 @@ func TestRepository_Queries(t *testing.T) {
 	}
 
 	// FindBy: 1-parameter
-	tools, appErr := repo.FindBy(ctx, TestItemField.Category, "Tool", 10)
+	tools, appErr := repo.FindBy(ctx, TestItemDb.Category, "Tool", 10)
 	if appErr != nil {
 		t.Fatalf("FindBy failed: %v", appErr)
 	}
@@ -173,7 +173,7 @@ func TestRepository_Queries(t *testing.T) {
 	}
 
 	// FindBy2: 2-parameters
-	activeTools, appErr := repo.FindBy2(ctx, TestItemField.Category, "Tool", TestItemField.IsActive, 1, 10)
+	activeTools, appErr := repo.FindBy2(ctx, TestItemDb.Category, "Tool", TestItemDb.IsActive, 1, 10)
 	if appErr != nil {
 		t.Fatalf("FindBy2 failed: %v", appErr)
 	}
@@ -243,7 +243,7 @@ func TestDbType_Methods(t *testing.T) {
 }
 
 func TestFieldType_Methods(t *testing.T) {
-	field := TestItemField.ItemId
+	field := TestItemDb.ItemId
 	if field.Name() != "ItemId" {
 		t.Errorf("expected ItemId, got %s", field.Name())
 	}

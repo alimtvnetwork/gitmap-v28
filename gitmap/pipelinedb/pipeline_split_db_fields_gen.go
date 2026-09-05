@@ -36,19 +36,19 @@ func (e PipelineSplitDbFieldType) IsCompare(target any) bool {
 	}
 }
 
-type pipelineSplitDbFieldRegistry struct {
+type pipelineSplitDbDbRegistry struct {
 	RepoSlug PipelineSplitDbFieldType
-	Path     PipelineSplitDbFieldType
+	Path PipelineSplitDbFieldType
 }
 
-// PipelineSplitDbField provides scoped access to field enums without repeating prefixes.
-var PipelineSplitDbField = pipelineSplitDbFieldRegistry{
+// PipelineSplitDbDb provides scoped access to field enums: PipelineSplitDbDb.<Field>.
+var PipelineSplitDbDb = pipelineSplitDbDbRegistry{
 	RepoSlug: "RepoSlug",
-	Path:     "Path",
+	Path: "Path",
 }
 
-// PipelineSplitDbDb provides alias access to the field registry.
-var PipelineSplitDbDb = PipelineSplitDbField
+// PipelineSplitDbField is an alias to PipelineSplitDbDb.
+var PipelineSplitDbField = PipelineSplitDbDb
 
 // PipelineSplitDbTable represents the canonical table name.
 const PipelineSplitDbTable = "PipelineSplitDb"
@@ -85,45 +85,45 @@ func (e PipelineRunRecordFieldType) IsCompare(target any) bool {
 	}
 }
 
-type pipelineRunRecordFieldRegistry struct {
-	RunId           PipelineRunRecordFieldType
-	RepoSlug        PipelineRunRecordFieldType
-	WorkflowName    PipelineRunRecordFieldType
-	Status          PipelineRunRecordFieldType
-	Conclusion      PipelineRunRecordFieldType
-	Branch          PipelineRunRecordFieldType
-	Sha             PipelineRunRecordFieldType
-	EtaSeconds      PipelineRunRecordFieldType
+type pipelineRunRecordDbRegistry struct {
+	RunId PipelineRunRecordFieldType
+	RepoSlug PipelineRunRecordFieldType
+	WorkflowName PipelineRunRecordFieldType
+	Status PipelineRunRecordFieldType
+	Conclusion PipelineRunRecordFieldType
+	Branch PipelineRunRecordFieldType
+	Sha PipelineRunRecordFieldType
+	EtaSeconds PipelineRunRecordFieldType
 	DurationSeconds PipelineRunRecordFieldType
-	RunUrl          PipelineRunRecordFieldType
-	IsSuccess       PipelineRunRecordFieldType
-	Notes           PipelineRunRecordFieldType
-	Comments        PipelineRunRecordFieldType
-	CreatedAt       PipelineRunRecordFieldType
-	UpdatedAt       PipelineRunRecordFieldType
+	RunUrl PipelineRunRecordFieldType
+	IsSuccess PipelineRunRecordFieldType
+	Notes PipelineRunRecordFieldType
+	Comments PipelineRunRecordFieldType
+	CreatedAt PipelineRunRecordFieldType
+	UpdatedAt PipelineRunRecordFieldType
 }
 
-// PipelineRunRecordField provides scoped access to field enums without repeating prefixes.
-var PipelineRunRecordField = pipelineRunRecordFieldRegistry{
-	RunId:           "RunId",
-	RepoSlug:        "RepoSlug",
-	WorkflowName:    "WorkflowName",
-	Status:          "Status",
-	Conclusion:      "Conclusion",
-	Branch:          "Branch",
-	Sha:             "Sha",
-	EtaSeconds:      "EtaSeconds",
+// PipelineRunRecordDb provides scoped access to field enums: PipelineRunRecordDb.<Field>.
+var PipelineRunRecordDb = pipelineRunRecordDbRegistry{
+	RunId: "RunId",
+	RepoSlug: "RepoSlug",
+	WorkflowName: "WorkflowName",
+	Status: "Status",
+	Conclusion: "Conclusion",
+	Branch: "Branch",
+	Sha: "Sha",
+	EtaSeconds: "EtaSeconds",
 	DurationSeconds: "DurationSeconds",
-	RunUrl:          "RunUrl",
-	IsSuccess:       "IsSuccess",
-	Notes:           "Notes",
-	Comments:        "Comments",
-	CreatedAt:       "CreatedAt",
-	UpdatedAt:       "UpdatedAt",
+	RunUrl: "RunUrl",
+	IsSuccess: "IsSuccess",
+	Notes: "Notes",
+	Comments: "Comments",
+	CreatedAt: "CreatedAt",
+	UpdatedAt: "UpdatedAt",
 }
 
-// PipelineRunRecordDb provides alias access to the field registry.
-var PipelineRunRecordDb = PipelineRunRecordField
+// PipelineRunRecordField is an alias to PipelineRunRecordDb.
+var PipelineRunRecordField = PipelineRunRecordDb
 
 // PipelineRunRecordTable represents the canonical table name.
 const PipelineRunRecordTable = "PipelineRunRecord"
@@ -160,33 +160,33 @@ func (e PipelineErrorRecordFieldType) IsCompare(target any) bool {
 	}
 }
 
-type pipelineErrorRecordFieldRegistry struct {
-	RunId        PipelineErrorRecordFieldType
-	RepoSlug     PipelineErrorRecordFieldType
+type pipelineErrorRecordDbRegistry struct {
+	RunId PipelineErrorRecordFieldType
+	RepoSlug PipelineErrorRecordFieldType
 	WorkflowName PipelineErrorRecordFieldType
-	StepName     PipelineErrorRecordFieldType
-	ErrorText    PipelineErrorRecordFieldType
-	RawLogs      PipelineErrorRecordFieldType
-	Notes        PipelineErrorRecordFieldType
-	Comments     PipelineErrorRecordFieldType
-	CreatedAt    PipelineErrorRecordFieldType
+	StepName PipelineErrorRecordFieldType
+	ErrorText PipelineErrorRecordFieldType
+	RawLogs PipelineErrorRecordFieldType
+	Notes PipelineErrorRecordFieldType
+	Comments PipelineErrorRecordFieldType
+	CreatedAt PipelineErrorRecordFieldType
 }
 
-// PipelineErrorRecordField provides scoped access to field enums without repeating prefixes.
-var PipelineErrorRecordField = pipelineErrorRecordFieldRegistry{
-	RunId:        "RunId",
-	RepoSlug:     "RepoSlug",
+// PipelineErrorRecordDb provides scoped access to field enums: PipelineErrorRecordDb.<Field>.
+var PipelineErrorRecordDb = pipelineErrorRecordDbRegistry{
+	RunId: "RunId",
+	RepoSlug: "RepoSlug",
 	WorkflowName: "WorkflowName",
-	StepName:     "StepName",
-	ErrorText:    "ErrorText",
-	RawLogs:      "RawLogs",
-	Notes:        "Notes",
-	Comments:     "Comments",
-	CreatedAt:    "CreatedAt",
+	StepName: "StepName",
+	ErrorText: "ErrorText",
+	RawLogs: "RawLogs",
+	Notes: "Notes",
+	Comments: "Comments",
+	CreatedAt: "CreatedAt",
 }
 
-// PipelineErrorRecordDb provides alias access to the field registry.
-var PipelineErrorRecordDb = PipelineErrorRecordField
+// PipelineErrorRecordField is an alias to PipelineErrorRecordDb.
+var PipelineErrorRecordField = PipelineErrorRecordDb
 
 // PipelineErrorRecordTable represents the canonical table name.
 const PipelineErrorRecordTable = "PipelineErrorRecord"
@@ -223,31 +223,31 @@ func (e PipelineDbStatsFieldType) IsCompare(target any) bool {
 	}
 }
 
-type pipelineDbStatsFieldRegistry struct {
-	Path          PipelineDbStatsFieldType
-	Size          PipelineDbStatsFieldType
-	TotalRuns     PipelineDbStatsFieldType
-	SuccessRuns   PipelineDbStatsFieldType
-	FailedRuns    PipelineDbStatsFieldType
+type pipelineDbStatsDbRegistry struct {
+	Path PipelineDbStatsFieldType
+	Size PipelineDbStatsFieldType
+	TotalRuns PipelineDbStatsFieldType
+	SuccessRuns PipelineDbStatsFieldType
+	FailedRuns PipelineDbStatsFieldType
 	ErrorLogCount PipelineDbStatsFieldType
-	SegmentCount  PipelineDbStatsFieldType
-	LastUpdated   PipelineDbStatsFieldType
+	SegmentCount PipelineDbStatsFieldType
+	LastUpdated PipelineDbStatsFieldType
 }
 
-// PipelineDbStatsField provides scoped access to field enums without repeating prefixes.
-var PipelineDbStatsField = pipelineDbStatsFieldRegistry{
-	Path:          "Path",
-	Size:          "Size",
-	TotalRuns:     "TotalRuns",
-	SuccessRuns:   "SuccessRuns",
-	FailedRuns:    "FailedRuns",
+// PipelineDbStatsDb provides scoped access to field enums: PipelineDbStatsDb.<Field>.
+var PipelineDbStatsDb = pipelineDbStatsDbRegistry{
+	Path: "Path",
+	Size: "Size",
+	TotalRuns: "TotalRuns",
+	SuccessRuns: "SuccessRuns",
+	FailedRuns: "FailedRuns",
 	ErrorLogCount: "ErrorLogCount",
-	SegmentCount:  "SegmentCount",
-	LastUpdated:   "LastUpdated",
+	SegmentCount: "SegmentCount",
+	LastUpdated: "LastUpdated",
 }
 
-// PipelineDbStatsDb provides alias access to the field registry.
-var PipelineDbStatsDb = PipelineDbStatsField
+// PipelineDbStatsField is an alias to PipelineDbStatsDb.
+var PipelineDbStatsField = PipelineDbStatsDb
 
 // PipelineDbStatsTable represents the canonical table name.
 const PipelineDbStatsTable = "PipelineDbStats"
