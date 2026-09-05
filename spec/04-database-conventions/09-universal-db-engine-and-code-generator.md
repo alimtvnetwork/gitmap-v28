@@ -332,32 +332,47 @@ var SqlOperators = sqlOperatorRegistry{
 }
 ```
 
-### 5.3 Fluent QueryBuilder, Joins & Views
-The `QueryBuilder[T, F]` provides fluent query construction with substring locating, table joining, ad-hoc CTE views, sorting, pagination, and view auto-management:
+### 5.3 Fluent QueryBuilder, Joins, Error Guards & View Evolution
+The `QueryBuilder[T, F]` provides fluent, type-safe query construction with scoped join sub-structs, error tracking, substring locating, ad-hoc CTE views, sorting, pagination, and automated database-backed view evolution:
 ```go
-qb := repo.Query().
-    Select(PipelineErrorLogDb.PipelineErrorLogId, PipelineErrorLogDb.ErrorText).
-    InnerJoin("PipelineRunRecord", "\"PipelineRunRecord\".\"RunId\" = \"PipelineErrorLog\".\"RunId\"", "RepoSlug").
-    InnerWhere(PipelineErrorLogDb.RunId, SqlOperators.Equal, "PipelineRunRecord.RunId").
-    Where(PipelineErrorLogDb.WorkflowName, "=", "ci").
-    Locate(PipelineErrorLogDb.ErrorText, "timeout").
-    OrderByDesc(PipelineErrorLogDb.PipelineErrorLogId)
+// 1. Scoped JoinBuilder with zero magic strings and error tracking
+recordsRes := repo.Query().
+    Select(PipelineRunRecordDb.RunId, PipelineRunRecordDb.WorkflowName).
+    InnerJoin(PipelineErrorRecordTable).
+        Select(PipelineErrorRecordDb.ErrorText, PipelineErrorRecordDb.StepName).
+        OnField(PipelineRunRecordDb.RunId, SqlOperators.Equal, PipelineErrorRecordDb.RunId).
+    WhereOp(PipelineRunRecordDb.Status, SqlOperators.Equal, "failed").
+    GroupBy(PipelineRunRecordDb.WorkflowName).
+    HavingCount(SqlOperators.GreaterThan, 3).
+    OrderByDesc(PipelineRunRecordDb.WorkflowName).
+    Limit(10).
+    FindAll(ctx) // ListResult[T]
 
-// Terminal executions returning wrapped results
-firstRes := qb.First(ctx)       // EntityResult[T]
-listRes  := qb.FindAll(ctx)     // ListResult[T]
-countRes := qb.Count(ctx)       // Int64Result
-delRes   := qb.Delete(ctx)      // RowsAffectedResult
+// 2. SQL compilation with thread-safe cache & QueryHash
+compRes := repo.Query().
+    InnerJoin(PipelineErrorRecordTable).
+        OnField(PipelineRunRecordDb.RunId, SqlOperators.Equal, PipelineErrorRecordDb.RunId).
+    Compile() // CompiledQueryResult (result.Result[CompiledQuery])
 
-// SQL compilation with thread-safe in-memory caching
-sqlStr, args := qb.Compile()
+if compRes.IsSuccess() {
+    cq := compRes.Value
+    fmt.Printf("SQL: %s\nHash: %s\n", cq.SQL, cq.QueryHash)
+}
 
-// Schema-detecting idempotent view lifecycle
-viewRes := qb.CreateViewOrUseView(ctx, "ActiveCiErrors", "PipelineErrorLogId", "ErrorText", "RepoSlug")
+// 3. Automated database-backed view evolution via QueryHash (__gitmap_view_meta)
+// Zero manual column parameters required; 0 DDL on identical hash; pre-validates via EXPLAIN
+viewRes := repo.Query().
+    Select(PipelineRunRecordDb.WorkflowName).
+    InnerJoin(PipelineErrorRecordTable).
+        Select(PipelineErrorRecordDb.ErrorText).
+        OnField(PipelineRunRecordDb.RunId, SqlOperators.Equal, PipelineErrorRecordDb.RunId).
+    CreateViewOrUseView(ctx, "ActiveErrorsView") // BoolResult
 
-// Dynamic table-first builder
-dynQb := SelectTable(db, "PipelineErrorLog", "RunId", "ErrorText").
-    Where("WorkflowName", "=", "ci")
+// 4. Domain business repository pattern
+pipelineRepo := pipelinedb.NewPipelineRepository(db)
+runRes := pipelineRepo.GetRunById(ctx, 101)                 // EntityResult[PipelineRunRecord]
+recentRuns := pipelineRepo.GetRecentRuns(ctx, "owner/repo", 20) // ListResult[PipelineRunRecord]
+activeView := pipelineRepo.EnsureActiveErrorsView(ctx)      // BoolResult
 ```
 
 ---

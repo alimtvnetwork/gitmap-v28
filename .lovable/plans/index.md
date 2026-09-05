@@ -6,6 +6,7 @@
 
 ## Completed Plans
 
+- [x] [65-universal-dbengine-joins-and-view-evolution.md](.lovable/plans/completed/65-universal-dbengine-joins-and-view-evolution.md) — Universal DBEngine Joins, Error-Guarded Query Builder, Zero Magic Strings & Automated View Evolution.
 - [x] [28-error-management-audit.md](.lovable/plans/completed/28-error-management-audit.md) — Error Return Contract, outer handling, ExitCodeType enums, and specialized exit helpers.
 - [x] [29-booleans-and-complex-conditions-audit.md](.lovable/plans/completed/29-booleans-and-complex-conditions-audit.md) — Boolean principles, affirmative naming, implicit evaluation, and mixed polarity elimination.
 - [x] [30-naming-conventions-audit.md](.lovable/plans/completed/30-naming-conventions-audit.md) — Variable & boolean naming conventions, anti-ok refactoring, and positive framing guard clauses.
