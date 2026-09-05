@@ -13,6 +13,7 @@ type whereType int
 const (
 	whereOp whereType = iota
 	whereLocate
+	whereColumnOp
 )
 
 type whereClause struct {
@@ -20,25 +21,28 @@ type whereClause struct {
 	field      string
 	op         string
 	val        any
+	targetCol  string
 }
 
 type joinClause struct {
-	joinType string
-	table    string
-	on       string
+	joinType        string
+	table           string
+	on              string
+	projectedFields []string
 }
 
 // QueryBuilder provides a fluent, type-safe SQL query interface.
 type QueryBuilder[T any, F ~string] struct {
-	repo         *Repository[T, F]
-	wheres       []whereClause
-	joins        []joinClause
-	cteName      string
-	cteSql       string
-	orderByField string
-	orderDir     string
-	limit        int
-	offset       int
+	repo           *Repository[T, F]
+	selectedFields []string
+	wheres         []whereClause
+	joins          []joinClause
+	cteName        string
+	cteSql         string
+	orderByField   string
+	orderDir       string
+	limit          int
+	offset         int
 }
 
 // NewQueryBuilder initializes a fluent QueryBuilder for a repository.
@@ -50,7 +54,21 @@ func NewQueryBuilder[T any, F ~string](repo *Repository[T, F]) *QueryBuilder[T, 
 	}
 }
 
-// Where adds a comparison condition (e.g. op "=", ">", "<", "LIKE").
+// Select specifies the projected fields for the root table.
+func (b *QueryBuilder[T, F]) Select(fields ...F) *QueryBuilder[T, F] {
+	for _, f := range fields {
+		b.selectedFields = append(b.selectedFields, string(f))
+	}
+	return b
+}
+
+// SelectRaw specifies raw or cross-table projected fields.
+func (b *QueryBuilder[T, F]) SelectRaw(fields ...string) *QueryBuilder[T, F] {
+	b.selectedFields = append(b.selectedFields, fields...)
+	return b
+}
+
+// Where adds a comparison condition with an operator string.
 func (b *QueryBuilder[T, F]) Where(field F, op string, val any) *QueryBuilder[T, F] {
 	b.wheres = append(b.wheres, whereClause{
 		clauseType: whereOp,
@@ -59,6 +77,11 @@ func (b *QueryBuilder[T, F]) Where(field F, op string, val any) *QueryBuilder[T,
 		val:        val,
 	})
 	return b
+}
+
+// WhereOp adds a comparison condition using the strongly typed SqlOperator enum.
+func (b *QueryBuilder[T, F]) WhereOp(field F, op SqlOperator, val any) *QueryBuilder[T, F] {
+	return b.Where(field, op.String(), val)
 }
 
 // WhereEq adds an equality condition (field = val).
@@ -76,15 +99,41 @@ func (b *QueryBuilder[T, F]) Locate(field F, substring string) *QueryBuilder[T, 
 	return b
 }
 
-// Join adds an INNER JOIN clause.
-func (b *QueryBuilder[T, F]) Join(table string, on string) *QueryBuilder[T, F] {
-	b.joins = append(b.joins, joinClause{joinType: "INNER JOIN", table: table, on: on})
+// Join adds an INNER JOIN clause with optional projected fields.
+func (b *QueryBuilder[T, F]) Join(table string, on string, projectedFields ...string) *QueryBuilder[T, F] {
+	b.joins = append(b.joins, joinClause{
+		joinType:        "INNER JOIN",
+		table:           table,
+		on:              on,
+		projectedFields: projectedFields,
+	})
 	return b
 }
 
-// LeftJoin adds a LEFT JOIN clause.
-func (b *QueryBuilder[T, F]) LeftJoin(table string, on string) *QueryBuilder[T, F] {
-	b.joins = append(b.joins, joinClause{joinType: "LEFT JOIN", table: table, on: on})
+// InnerJoin is an alias to Join.
+func (b *QueryBuilder[T, F]) InnerJoin(table string, on string, projectedFields ...string) *QueryBuilder[T, F] {
+	return b.Join(table, on, projectedFields...)
+}
+
+// LeftJoin adds a LEFT JOIN clause with optional projected fields.
+func (b *QueryBuilder[T, F]) LeftJoin(table string, on string, projectedFields ...string) *QueryBuilder[T, F] {
+	b.joins = append(b.joins, joinClause{
+		joinType:        "LEFT JOIN",
+		table:           table,
+		on:              on,
+		projectedFields: projectedFields,
+	})
+	return b
+}
+
+// InnerWhere adds a column-to-column condition (e.g. Table1.Field1 = Table2.Field2).
+func (b *QueryBuilder[T, F]) InnerWhere(firstTableField F, op SqlOperator, secondTableField string) *QueryBuilder[T, F] {
+	b.wheres = append(b.wheres, whereClause{
+		clauseType: whereColumnOp,
+		field:      string(firstTableField),
+		op:         op.String(),
+		targetCol:  secondTableField,
+	})
 	return b
 }
 
@@ -119,6 +168,90 @@ func (b *QueryBuilder[T, F]) Offset(offset int) *QueryBuilder[T, F] {
 	return b
 }
 
+// Signature computes a deterministic cache key for the query structure.
+func (b *QueryBuilder[T, F]) Signature() string {
+	var sb strings.Builder
+	sb.WriteString(b.repo.tableName)
+	sb.WriteString("|sel:")
+	sb.WriteString(strings.Join(b.selectedFields, ","))
+	sb.WriteString("|cte:")
+	sb.WriteString(b.cteName)
+	sb.WriteString(":")
+	sb.WriteString(b.cteSql)
+	for _, j := range b.joins {
+		sb.WriteString("|join:")
+		sb.WriteString(j.joinType)
+		sb.WriteString(":")
+		sb.WriteString(j.table)
+		sb.WriteString(":")
+		sb.WriteString(j.on)
+		sb.WriteString(":")
+		sb.WriteString(strings.Join(j.projectedFields, ","))
+	}
+	for _, w := range b.wheres {
+		sb.WriteString("|w:")
+		sb.WriteString(fmt.Sprintf("%d:%s:%s:%s", w.clauseType, w.field, w.op, w.targetCol))
+	}
+	sb.WriteString("|ord:")
+	sb.WriteString(b.orderByField)
+	sb.WriteString(":")
+	sb.WriteString(b.orderDir)
+	sb.WriteString("|lim:")
+	sb.WriteString(fmt.Sprintf("%d:%d", b.limit, b.offset))
+	return sb.String()
+}
+
+// Compile compiles the query into SQL and extracts arguments.
+// Resulting SQL is cached in GlobalQueryCache for instant reuse on subsequent executions.
+func (b *QueryBuilder[T, F]) Compile() (string, []any) {
+	cacheKey := b.Signature()
+	if cachedSql, found := GlobalQueryCache.Get(cacheKey); found {
+		_, args := b.BuildSelect()
+		return cachedSql, args
+	}
+
+	sqlStr, args := b.BuildSelect()
+	GlobalQueryCache.Put(cacheKey, sqlStr)
+	return sqlStr, args
+}
+
+// CreateViewOrUseView checks if a view exists and contains the required columns.
+// If valid, it reuses the view. If missing or schema differs, it compiles the query and creates/updates the view.
+func (b *QueryBuilder[T, F]) CreateViewOrUseView(ctx context.Context, viewName string, requiredColumns ...string) BoolResult {
+	viewSql := b.BuildSelectForView()
+	return b.repo.db.CreateViewOrUseView(ctx, viewName, viewSql, requiredColumns...)
+}
+
+// BuildSelectForView compiles the query into a static SELECT SQL statement suitable for a CREATE VIEW statement.
+func (b *QueryBuilder[T, F]) BuildSelectForView() string {
+	compiler := b.repo.db.Compiler()
+	quotedTable := compiler.QuoteIdentifier(b.repo.tableName)
+
+	var sqlParts []string
+
+	ctePrefix := b.buildCtePrefix(compiler)
+	projectionList := b.buildProjectionList(compiler)
+	sqlParts = append(sqlParts, fmt.Sprintf("%sSELECT %s FROM %s", ctePrefix, projectionList, quotedTable))
+
+	joinSql := b.buildJoins(compiler)
+	if len(joinSql) > 0 {
+		sqlParts = append(sqlParts, joinSql)
+	}
+
+	whereSql := b.buildWheresForView(compiler)
+	if len(whereSql) > 0 {
+		sqlParts = append(sqlParts, "WHERE "+whereSql)
+	}
+
+	orderSql := b.buildOrderBy(compiler)
+	if len(orderSql) > 0 {
+		sqlParts = append(sqlParts, orderSql)
+	}
+
+	return strings.Join(sqlParts, " ")
+}
+
+
 // BuildSelect compiles the current query builder state into a SQL string and arguments slice.
 func (b *QueryBuilder[T, F]) BuildSelect() (string, []any) {
 	compiler := b.repo.db.Compiler()
@@ -128,7 +261,8 @@ func (b *QueryBuilder[T, F]) BuildSelect() (string, []any) {
 	var args []any
 
 	ctePrefix := b.buildCtePrefix(compiler)
-	sqlParts = append(sqlParts, fmt.Sprintf("%sSELECT * FROM %s", ctePrefix, quotedTable))
+	projectionList := b.buildProjectionList(compiler)
+	sqlParts = append(sqlParts, fmt.Sprintf("%sSELECT %s FROM %s", ctePrefix, projectionList, quotedTable))
 
 	joinSql := b.buildJoins(compiler)
 	if len(joinSql) > 0 {
@@ -209,6 +343,41 @@ func (b *QueryBuilder[T, F]) buildCtePrefix(compiler DialectCompiler) string {
 	return fmt.Sprintf("WITH %s AS (%s) ", compiler.QuoteIdentifier(b.cteName), cleanSub)
 }
 
+func (b *QueryBuilder[T, F]) buildProjectionList(compiler DialectCompiler) string {
+	var cols []string
+	quotedMain := compiler.QuoteIdentifier(b.repo.tableName)
+
+	for _, f := range b.selectedFields {
+		if strings.Contains(f, ".") {
+			parts := strings.SplitN(f, ".", 2)
+			cols = append(cols, compiler.QuoteIdentifier(parts[0])+"."+compiler.QuoteIdentifier(parts[1]))
+			continue
+		}
+		if len(b.joins) > 0 {
+			cols = append(cols, quotedMain+"."+compiler.QuoteIdentifier(f))
+			continue
+		}
+		cols = append(cols, compiler.QuoteIdentifier(f))
+	}
+
+	for _, j := range b.joins {
+		quotedJoin := compiler.QuoteIdentifier(j.table)
+		for _, pf := range j.projectedFields {
+			if strings.Contains(pf, ".") {
+				parts := strings.SplitN(pf, ".", 2)
+				cols = append(cols, compiler.QuoteIdentifier(parts[0])+"."+compiler.QuoteIdentifier(parts[1]))
+				continue
+			}
+			cols = append(cols, quotedJoin+"."+compiler.QuoteIdentifier(pf))
+		}
+	}
+
+	if len(cols) == 0 {
+		return "*"
+	}
+	return strings.Join(cols, ", ")
+}
+
 func (b *QueryBuilder[T, F]) buildJoins(compiler DialectCompiler) string {
 	if len(b.joins) == 0 {
 		return ""
@@ -221,6 +390,17 @@ func (b *QueryBuilder[T, F]) buildJoins(compiler DialectCompiler) string {
 	return strings.Join(parts, " ")
 }
 
+func (b *QueryBuilder[T, F]) qualifyColumn(compiler DialectCompiler, defaultTable, col string) string {
+	if strings.Contains(col, ".") {
+		parts := strings.SplitN(col, ".", 2)
+		return compiler.QuoteIdentifier(parts[0]) + "." + compiler.QuoteIdentifier(parts[1])
+	}
+	if len(defaultTable) > 0 && len(b.joins) > 0 {
+		return compiler.QuoteIdentifier(defaultTable) + "." + compiler.QuoteIdentifier(col)
+	}
+	return compiler.QuoteIdentifier(col)
+}
+
 func (b *QueryBuilder[T, F]) buildWheres(compiler DialectCompiler) (string, []any) {
 	if len(b.wheres) == 0 {
 		return "", nil
@@ -228,10 +408,19 @@ func (b *QueryBuilder[T, F]) buildWheres(compiler DialectCompiler) (string, []an
 
 	clauses := make([]string, 0, len(b.wheres))
 	args := make([]any, 0, len(b.wheres))
+	paramIdx := 1
 
-	for i, w := range b.wheres {
-		quotedField := compiler.QuoteIdentifier(w.field)
-		placeholder := compiler.Placeholder(i + 1)
+	for _, w := range b.wheres {
+		if w.clauseType == whereColumnOp {
+			quotedFirst := b.qualifyColumn(compiler, b.repo.tableName, w.field)
+			quotedSecond := b.qualifyColumn(compiler, "", w.targetCol)
+			clauses = append(clauses, fmt.Sprintf("%s %s %s", quotedFirst, w.op, quotedSecond))
+			continue
+		}
+
+		quotedField := b.qualifyColumn(compiler, b.repo.tableName, w.field)
+		placeholder := compiler.Placeholder(paramIdx)
+		paramIdx++
 
 		if w.clauseType == whereLocate {
 			clauses = append(clauses, fmt.Sprintf("INSTR(%s, %s) > 0", quotedField, placeholder))
@@ -246,11 +435,61 @@ func (b *QueryBuilder[T, F]) buildWheres(compiler DialectCompiler) (string, []an
 	return strings.Join(clauses, " AND "), args
 }
 
+func (b *QueryBuilder[T, F]) buildWheresForView(compiler DialectCompiler) string {
+	if len(b.wheres) == 0 {
+		return ""
+	}
+
+	clauses := make([]string, 0, len(b.wheres))
+	for _, w := range b.wheres {
+		if w.clauseType == whereColumnOp {
+			quotedFirst := b.qualifyColumn(compiler, b.repo.tableName, w.field)
+			quotedSecond := b.qualifyColumn(compiler, "", w.targetCol)
+			clauses = append(clauses, fmt.Sprintf("%s %s %s", quotedFirst, w.op, quotedSecond))
+			continue
+		}
+
+		quotedField := b.qualifyColumn(compiler, b.repo.tableName, w.field)
+		if w.clauseType == whereLocate {
+			literalStr := formatSqlLiteral(w.val)
+			clauses = append(clauses, fmt.Sprintf("INSTR(%s, %s) > 0", quotedField, literalStr))
+			continue
+		}
+
+		literalVal := formatSqlLiteral(w.val)
+		clauses = append(clauses, fmt.Sprintf("%s %s %s", quotedField, w.op, literalVal))
+	}
+
+	return strings.Join(clauses, " AND ")
+}
+
+func formatSqlLiteral(val any) string {
+	if val == nil {
+		return "NULL"
+	}
+	switch v := val.(type) {
+	case string:
+		return "'" + strings.ReplaceAll(v, "'", "''") + "'"
+	case bool:
+		if v {
+			return "1"
+		}
+		return "0"
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
+		return fmt.Sprintf("%v", v)
+	case fmt.Stringer:
+		return "'" + strings.ReplaceAll(v.String(), "'", "''") + "'"
+	default:
+		return "'" + strings.ReplaceAll(fmt.Sprintf("%v", v), "'", "''") + "'"
+	}
+}
+
+
 func (b *QueryBuilder[T, F]) buildOrderBy(compiler DialectCompiler) string {
 	if len(b.orderByField) == 0 {
 		return ""
 	}
-	quotedField := compiler.QuoteIdentifier(b.orderByField)
+	quotedField := b.qualifyColumn(compiler, b.repo.tableName, b.orderByField)
 	dir := b.orderDir
 	if dir != "DESC" {
 		dir = "ASC"
@@ -330,4 +569,15 @@ func (b *QueryBuilder[T, F]) Delete(ctx context.Context) RowsAffectedResult {
 	}
 
 	return SuccessRowsAffected(affected)
+}
+
+// SelectTable creates a dynamic QueryBuilder starting with a table name and projected fields.
+func SelectTable(db *DbWrapper, tableName string, fields ...string) *QueryBuilder[map[string]any, string] {
+	repo := NewRepository[map[string]any, string](db, tableName, func(row RowScanner) (*map[string]any, error) {
+		res := make(map[string]any)
+		return &res, nil
+	})
+	qb := NewQueryBuilder(repo)
+	qb.SelectRaw(fields...)
+	return qb
 }
