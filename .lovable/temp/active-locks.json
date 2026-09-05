@@ -1,11 +1,4 @@
 {
-  "agent3": [
-    "gitmap/cmd/comp_258.go"
-  ],
-  "agent1": [
-    "gitmap/cmd/comp_256.go"
-  ],
-  "agent2": [
-    "gitmap/cmd/comp_257.go"
-  ]
+  "active_locks": [],
+  "updated_at": "2026-09-05T11:41:00+08:00"
 }

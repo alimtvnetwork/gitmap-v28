@@ -1,6 +1,6 @@
-# 01 — Macro Step Execution Failure: `open chrome` (E9000:EXECUTION)
+# 64 — Macro Step Execution Failure: `open chrome` (E9000:EXECUTION)
 
-**Status:** PENDING
+**Status:** COMPLETED
 **Priority:** Normal
 **Category:** CLI / Macro Execution Engine
 **Reported:** 2026-09-05
@@ -86,9 +86,24 @@ PS M:\Work-files\export\export\chrome-ext>
 
 ---
 
-## 3. Pending Implementation Roadmap
-
+## 3. Implementation Roadmap
+ 
 1. Audit `macro.Execute` command dispatching logic in `gitmap/cmd/` (check how steps are tokenized and executed).
 2. Add cross-platform `open` built-in handler or alias expansion inside the macro runner.
 3. Test macro execution on Windows with `open chrome` and `open "url"`.
 4. Verify error management and exit code reporting.
+
+---
+
+## 4. Resolution & Verification
+
+1. Implemented `ParseOpenCommand` and `executeOpenStep` in `gitmap/macro/open.go`.
+2. Created cross-platform launchers with zero nested ifs for:
+   - Chrome browser (`launchChromeWindows`, `launchChromeLinux`, Darwin `open -a`).
+   - URLs / web domains (`launchURLWindows`, Darwin, Linux) with auto-prefixing `https://` for bare domains like `linkedin.com`.
+   - File and directory paths (`launchPath` via `explorer.exe` on Windows, `open` on Darwin, `xdg-open` on Linux).
+   - Generic applications and targets.
+3. Integrated `ParseOpenCommand` into `executeSingleStep` in `gitmap/macro/execute.go`.
+4. Authored unit test suite in `gitmap/macro/open_test.go` covering command parsing, URL normalizations, mock execution, and failure propagation.
+5. Successfully verified all 16 CI/CD quality gates pass 100% green.
+

@@ -1,10 +1,9 @@
 # 06 — Macro Step Execution Engine & Cross-Platform Shell Open Behavior
 
-**Status:** Documented / Awaiting User Clarification  
+**Status:** Resolved & Implemented  
 **Date:** 2026-09-05  
 **Category:** CLI / Macro Execution Engine / Cross-Platform Shims  
-**Related Plan:** [`.lovable/plans/pending/01-macro-step-open-chrome-failure.md`](../../plans/pending/01-macro-step-open-chrome-failure.md)  
-**Related Ambiguity:** [`.lovable/ambiguous-questions/01-new-ambiguity/02-macro-step-open-command-behavior.md`](../../ambiguous-questions/01-new-ambiguity/02-macro-step-open-command-behavior.md)  
+**Related Plan:** [`.lovable/plans/completed/64-macro-step-open-chrome-failure.md`](../../plans/completed/64-macro-step-open-chrome-failure.md)  
 
 ---
 
@@ -131,3 +130,21 @@ Prior to the macro session, the Chrome profile picker visibility desynchronizati
    - Added `gitmap chrome profile reconcile` (`gitmap/cmd/chromeprofile_reconcile.go`) to scan disk and re-register unlinked profiles.
 6. **Commit & Push:**
    - Committed as `9f7f24ce` (`feat(chrome): add profile picker registration schema and reconcile engine`) and pushed to `main`.
+
+---
+
+## 4. Resolution & Implementation
+
+1. **Root Cause:**
+   On Windows, PowerShell commands invoked via `powershell -NoProfile -Command "open ..."` fail because `open` is not a native Windows binary or PowerShell cmdlet.
+2. **Implementation:**
+   - Authored `gitmap/macro/open.go` with `ParseOpenCommand` and `executeOpenStep`.
+   - Built platform openers without nested ifs:
+     - Windows: `launchChromeWindows` (checks App Paths / Program Files or `Start-Process chrome`), `launchURLWindows` (`rundll32 url.dll,FileProtocolHandler` with `Start-Process` fallback), `explorer.exe` for local paths.
+     - macOS: `/usr/bin/open`.
+     - Linux: `xdg-open` or `google-chrome`.
+   - Intercepted `open` in `gitmap/macro/execute.go` within `executeSingleStep` (adjacent to `DirTracker.ProcessCd`).
+3. **Verification:**
+   - Comprehensive unit test suite in `gitmap/macro/open_test.go` verifying parsing, target normalization, and mock command dispatch.
+   - All 16 CI/CD quality gates pass 100% green.
+

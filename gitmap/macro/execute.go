@@ -86,6 +86,9 @@ func executeSingleStep(ctx context.Context, step MacroStep, idx, total int, opts
 	if isDirChange := dt.ProcessCd(expandedCmd); isDirChange {
 		return handleDirChangeStep(step, expandedCmd, dt.CurrentDir, start, opts), nil
 	}
+	if isOpen, target := ParseOpenCommand(expandedCmd); isOpen {
+		return executeOpenStep(ctx, step, expandedCmd, target, dt.CurrentDir, start, opts, idx)
+	}
 	return runStepProcess(ctx, expandedCmd, step, opts, dt, start, idx)
 }
 

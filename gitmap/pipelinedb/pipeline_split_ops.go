@@ -56,6 +56,13 @@ INSERT INTO PipelineErrorLog (
 	return nil
 }
 
+// HasErrorLog checks if an error diagnostic entry for a run has already been recorded.
+func (p *PipelineSplitDB) HasErrorLog(runID int64) bool {
+	var exists int
+	err := p.conn.QueryRow("SELECT 1 FROM PipelineErrorLog WHERE RunId = ? LIMIT 1;", runID).Scan(&exists)
+	return err == nil && exists == 1
+}
+
 // QueryRecentRuns retrieves recent pipeline executions.
 func (p *PipelineSplitDB) QueryRecentRuns(limit int) ([]PipelineRunRecord, error) {
 	if limit <= 0 {
