@@ -82,3 +82,83 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 		t.Fatalf("failed to reset: %v", err)
 	}
 }
+
+func TestPipelineDbGeneratedFields(t *testing.T) {
+	// 1. Registry field checks
+	if !PipelineRunRecordDb.IsRunId("RunId") {
+		t.Errorf("expected PipelineRunRecordDb.IsRunId('RunId') to be true")
+	}
+	if !PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RunId) {
+		t.Errorf("expected PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RunId) to be true")
+	}
+	if PipelineRunRecordDb.IsRunId("RepoSlug") {
+		t.Errorf("expected PipelineRunRecordDb.IsRunId('RepoSlug') to be false")
+	}
+
+	// 2. Registry IsEnum
+	if !PipelineRunRecordDb.IsEnum("RunId") {
+		t.Errorf("expected PipelineRunRecordDb.IsEnum('RunId') to be true")
+	}
+	if !PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.Sha) {
+		t.Errorf("expected PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.Sha) to be true")
+	}
+	if PipelineRunRecordDb.IsEnum("NonExistentColumn") {
+		t.Errorf("expected PipelineRunRecordDb.IsEnum('NonExistentColumn') to be false")
+	}
+
+	// 3. Registry All and Names
+	allFields := PipelineRunRecordDb.All()
+	if len(allFields) != 15 {
+		t.Errorf("expected 15 fields, got %d", len(allFields))
+	}
+	names := PipelineRunRecordDb.Names()
+	if len(names) != 15 || names[0] != "RunId" {
+		t.Errorf("unexpected names: %v", names)
+	}
+
+	// 4. Registry JSON serialization
+	regJson, err := PipelineRunRecordDb.ToJSON()
+	if err != nil || len(regJson) == 0 {
+		t.Errorf("failed serializing registry to JSON: %v", err)
+	}
+
+	// 5. FieldType enum methods
+	field := PipelineRunRecordDb.RunId
+	if field.Name() != "RunId" || field.String() != "RunId" || field.Value() != "RunId" {
+		t.Errorf("unexpected field values: %s, %s, %s", field.Name(), field.String(), field.Value())
+	}
+	if !field.IsCompare("RunId") || !field.IsEnum("RunId") {
+		t.Errorf("expected IsCompare and IsEnum to be true for 'RunId'")
+	}
+	if field.IsCompare("RepoSlug") || field.IsEnum("RepoSlug") {
+		t.Errorf("expected IsCompare and IsEnum to be false for 'RepoSlug'")
+	}
+	if !field.IsRunId() || !field.IsRunId("RunId") {
+		t.Errorf("expected field.IsRunId to be true")
+	}
+	if field.IsRunId("RepoSlug") {
+		t.Errorf("expected field.IsRunId('RepoSlug') to be false")
+	}
+
+	// 6. FieldType JSON serialization and deserialization
+	jsonStr, err := field.ToJSON()
+	if err != nil || jsonStr != `"RunId"` {
+		t.Errorf("expected `\"RunId\"`, got %s (err: %v)", jsonStr, err)
+	}
+
+	var parsedField PipelineRunRecordFieldType
+	if err := parsedField.FromJSON(`"WorkflowName"`); err != nil || parsedField != PipelineRunRecordDb.WorkflowName {
+		t.Errorf("expected parsed WorkflowName, got %v (err: %v)", parsedField, err)
+	}
+
+	// 7. ErrorRecord field checks
+	if !PipelineErrorRecordDb.IsRunId("RunId") {
+		t.Errorf("expected PipelineErrorRecordDb.IsRunId('RunId') to be true")
+	}
+	if !PipelineErrorRecordDb.IsStepName("StepName") {
+		t.Errorf("expected PipelineErrorRecordDb.IsStepName('StepName') to be true")
+	}
+	if PipelineErrorRecordDb.IsRunId("StepName") {
+		t.Errorf("expected PipelineErrorRecordDb.IsRunId('StepName') to be false")
+	}
+}

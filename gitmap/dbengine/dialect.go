@@ -1,10 +1,14 @@
 package dbengine
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
+
+// Variant represents any dynamic value acceptable for enum comparisons.
+type Variant = any
 
 // DbType identifies supported database engines.
 type DbType string
@@ -48,6 +52,40 @@ func (d DbType) IsCompare(target any) bool {
 	}
 }
 
+// IsEnum checks equality against another DbType, string, or fmt.Stringer (alias for IsCompare).
+func (d DbType) IsEnum(target any) bool {
+	return d.IsCompare(target)
+}
+
+// MarshalJSON implements json.Marshaler.
+func (d DbType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(d))
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (d *DbType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*d = DbType(s)
+	return nil
+}
+
+// ToJSON converts the database type to a JSON string representation.
+func (d DbType) ToJSON() (string, error) {
+	b, err := json.Marshal(string(d))
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// FromJSON parses a database type from a JSON string.
+func (d *DbType) FromJSON(s string) error {
+	return json.Unmarshal([]byte(s), d)
+}
+
 // dbTypeRegistry provides scoped access to supported database types.
 type dbTypeRegistry struct {
 	SQLite     DbType
@@ -58,6 +96,91 @@ type dbTypeRegistry struct {
 	MSSQL      DbType
 	Oracle     DbType
 	MongoDB    DbType
+}
+
+// All returns a slice of all supported database types.
+func (r dbTypeRegistry) All() []DbType {
+	return []DbType{
+		r.SQLite,
+		r.PostgreSQL,
+		r.MySQL,
+		r.MariaDB,
+		r.MSSQL,
+		r.Oracle,
+		r.MongoDB,
+	}
+}
+
+// Names returns a slice of string names for all supported database types.
+func (r dbTypeRegistry) Names() []string {
+	return []string{
+		"sqlite",
+		"postgres",
+		"mysql",
+		"mariadb",
+		"mssql",
+		"oracle",
+		"mongodb",
+	}
+}
+
+// IsEnum checks whether the given variant matches any registered database type.
+func (r dbTypeRegistry) IsEnum(variant Variant) bool {
+	for _, d := range r.All() {
+		if d.IsCompare(variant) {
+			return true
+		}
+	}
+	return false
+}
+
+// IsSQLite checks whether the variant represents SQLite.
+func (r dbTypeRegistry) IsSQLite(variant Variant) bool {
+	return r.SQLite.IsCompare(variant)
+}
+
+// IsPostgreSQL checks whether the variant represents PostgreSQL.
+func (r dbTypeRegistry) IsPostgreSQL(variant Variant) bool {
+	return r.PostgreSQL.IsCompare(variant)
+}
+
+// IsPostgres checks whether the variant represents PostgreSQL.
+func (r dbTypeRegistry) IsPostgres(variant Variant) bool {
+	return r.PostgreSQL.IsCompare(variant)
+}
+
+// IsMySQL checks whether the variant represents MySQL.
+func (r dbTypeRegistry) IsMySQL(variant Variant) bool {
+	return r.MySQL.IsCompare(variant)
+}
+
+// IsMariaDB checks whether the variant represents MariaDB.
+func (r dbTypeRegistry) IsMariaDB(variant Variant) bool {
+	return r.MariaDB.IsCompare(variant)
+}
+
+// IsMSSQL checks whether the variant represents MSSQL.
+func (r dbTypeRegistry) IsMSSQL(variant Variant) bool {
+	return r.MSSQL.IsCompare(variant)
+}
+
+// IsOracle checks whether the variant represents Oracle.
+func (r dbTypeRegistry) IsOracle(variant Variant) bool {
+	return r.Oracle.IsCompare(variant)
+}
+
+// IsMongoDB checks whether the variant represents MongoDB.
+func (r dbTypeRegistry) IsMongoDB(variant Variant) bool {
+	return r.MongoDB.IsCompare(variant)
+}
+
+// ToJSON converts the database type registry to a JSON string representation.
+func (r dbTypeRegistry) ToJSON() (string, error) {
+	b, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 // DbTypes provides scoped access to database type enums without repeating prefixes.

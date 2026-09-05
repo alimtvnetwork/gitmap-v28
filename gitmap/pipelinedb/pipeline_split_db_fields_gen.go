@@ -2,7 +2,13 @@
 
 package pipelinedb
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
+
+// Variant represents any dynamic value acceptable for enum comparisons.
+type Variant = any
 
 // PipelineSplitDbFieldType represents column name enums for PipelineSplitDb.
 type PipelineSplitDbFieldType string
@@ -36,9 +42,104 @@ func (e PipelineSplitDbFieldType) IsCompare(target any) bool {
 	}
 }
 
+// IsEnum checks equality against another field enum, string, or fmt.Stringer.
+func (e PipelineSplitDbFieldType) IsEnum(target any) bool {
+	return e.IsCompare(target)
+}
+
+// MarshalJSON implements json.Marshaler.
+func (e PipelineSplitDbFieldType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(e))
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (e *PipelineSplitDbFieldType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*e = PipelineSplitDbFieldType(s)
+	return nil
+}
+
+// ToJSON converts the field enum to a JSON string representation.
+func (e PipelineSplitDbFieldType) ToJSON() (string, error) {
+	b, err := json.Marshal(string(e))
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// FromJSON parses a field enum from a JSON string representation.
+func (e *PipelineSplitDbFieldType) FromJSON(s string) error {
+	return json.Unmarshal([]byte(s), e)
+}
+
+// IsRepoSlug checks whether this field enum represents RepoSlug.
+func (e PipelineSplitDbFieldType) IsRepoSlug(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("RepoSlug") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("RepoSlug")
+}
+
+// IsPath checks whether this field enum represents Path.
+func (e PipelineSplitDbFieldType) IsPath(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Path") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Path")
+}
+
 type pipelineSplitDbDbRegistry struct {
 	RepoSlug PipelineSplitDbFieldType
 	Path PipelineSplitDbFieldType
+}
+
+// All returns a slice of all field enums in PipelineSplitDb.
+func (r pipelineSplitDbDbRegistry) All() []PipelineSplitDbFieldType {
+	return []PipelineSplitDbFieldType{
+		r.RepoSlug,
+		r.Path,
+	}
+}
+
+// Names returns a slice of string names for all fields in PipelineSplitDb.
+func (r pipelineSplitDbDbRegistry) Names() []string {
+	return []string{
+		"RepoSlug",
+		"Path",
+	}
+}
+
+// IsEnum checks whether the given variant matches any registered field enum in PipelineSplitDb.
+func (r pipelineSplitDbDbRegistry) IsEnum(variant Variant) bool {
+	for _, f := range r.All() {
+		if f.IsCompare(variant) {
+			return true
+		}
+	}
+	return false
+}
+
+// IsRepoSlug checks whether the variant matches RepoSlug.
+func (r pipelineSplitDbDbRegistry) IsRepoSlug(variant Variant) bool {
+	return r.RepoSlug.IsCompare(variant)
+}
+
+// IsPath checks whether the variant matches Path.
+func (r pipelineSplitDbDbRegistry) IsPath(variant Variant) bool {
+	return r.Path.IsCompare(variant)
+}
+
+// ToJSON converts the field registry to a JSON string representation.
+func (r pipelineSplitDbDbRegistry) ToJSON() (string, error) {
+	b, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 // PipelineSplitDbDb provides scoped access to field enums: PipelineSplitDbDb.<Field>.
@@ -85,6 +186,160 @@ func (e PipelineRunRecordFieldType) IsCompare(target any) bool {
 	}
 }
 
+// IsEnum checks equality against another field enum, string, or fmt.Stringer.
+func (e PipelineRunRecordFieldType) IsEnum(target any) bool {
+	return e.IsCompare(target)
+}
+
+// MarshalJSON implements json.Marshaler.
+func (e PipelineRunRecordFieldType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(e))
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (e *PipelineRunRecordFieldType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*e = PipelineRunRecordFieldType(s)
+	return nil
+}
+
+// ToJSON converts the field enum to a JSON string representation.
+func (e PipelineRunRecordFieldType) ToJSON() (string, error) {
+	b, err := json.Marshal(string(e))
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// FromJSON parses a field enum from a JSON string representation.
+func (e *PipelineRunRecordFieldType) FromJSON(s string) error {
+	return json.Unmarshal([]byte(s), e)
+}
+
+// IsRunId checks whether this field enum represents RunId.
+func (e PipelineRunRecordFieldType) IsRunId(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("RunId") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("RunId")
+}
+
+// IsRepoSlug checks whether this field enum represents RepoSlug.
+func (e PipelineRunRecordFieldType) IsRepoSlug(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("RepoSlug") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("RepoSlug")
+}
+
+// IsWorkflowName checks whether this field enum represents WorkflowName.
+func (e PipelineRunRecordFieldType) IsWorkflowName(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("WorkflowName") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("WorkflowName")
+}
+
+// IsStatus checks whether this field enum represents Status.
+func (e PipelineRunRecordFieldType) IsStatus(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Status") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Status")
+}
+
+// IsConclusion checks whether this field enum represents Conclusion.
+func (e PipelineRunRecordFieldType) IsConclusion(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Conclusion") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Conclusion")
+}
+
+// IsBranch checks whether this field enum represents Branch.
+func (e PipelineRunRecordFieldType) IsBranch(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Branch") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Branch")
+}
+
+// IsSha checks whether this field enum represents Sha.
+func (e PipelineRunRecordFieldType) IsSha(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Sha") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Sha")
+}
+
+// IsEtaSeconds checks whether this field enum represents EtaSeconds.
+func (e PipelineRunRecordFieldType) IsEtaSeconds(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("EtaSeconds") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("EtaSeconds")
+}
+
+// IsDurationSeconds checks whether this field enum represents DurationSeconds.
+func (e PipelineRunRecordFieldType) IsDurationSeconds(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("DurationSeconds") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("DurationSeconds")
+}
+
+// IsRunUrl checks whether this field enum represents RunUrl.
+func (e PipelineRunRecordFieldType) IsRunUrl(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("RunUrl") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("RunUrl")
+}
+
+// IsIsSuccess checks whether this field enum represents IsSuccess.
+func (e PipelineRunRecordFieldType) IsIsSuccess(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("IsSuccess") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("IsSuccess")
+}
+
+// IsNotes checks whether this field enum represents Notes.
+func (e PipelineRunRecordFieldType) IsNotes(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Notes") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Notes")
+}
+
+// IsComments checks whether this field enum represents Comments.
+func (e PipelineRunRecordFieldType) IsComments(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Comments") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Comments")
+}
+
+// IsCreatedAt checks whether this field enum represents CreatedAt.
+func (e PipelineRunRecordFieldType) IsCreatedAt(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("CreatedAt") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("CreatedAt")
+}
+
+// IsUpdatedAt checks whether this field enum represents UpdatedAt.
+func (e PipelineRunRecordFieldType) IsUpdatedAt(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("UpdatedAt") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("UpdatedAt")
+}
+
 type pipelineRunRecordDbRegistry struct {
 	RunId PipelineRunRecordFieldType
 	RepoSlug PipelineRunRecordFieldType
@@ -101,6 +356,142 @@ type pipelineRunRecordDbRegistry struct {
 	Comments PipelineRunRecordFieldType
 	CreatedAt PipelineRunRecordFieldType
 	UpdatedAt PipelineRunRecordFieldType
+}
+
+// All returns a slice of all field enums in PipelineRunRecord.
+func (r pipelineRunRecordDbRegistry) All() []PipelineRunRecordFieldType {
+	return []PipelineRunRecordFieldType{
+		r.RunId,
+		r.RepoSlug,
+		r.WorkflowName,
+		r.Status,
+		r.Conclusion,
+		r.Branch,
+		r.Sha,
+		r.EtaSeconds,
+		r.DurationSeconds,
+		r.RunUrl,
+		r.IsSuccess,
+		r.Notes,
+		r.Comments,
+		r.CreatedAt,
+		r.UpdatedAt,
+	}
+}
+
+// Names returns a slice of string names for all fields in PipelineRunRecord.
+func (r pipelineRunRecordDbRegistry) Names() []string {
+	return []string{
+		"RunId",
+		"RepoSlug",
+		"WorkflowName",
+		"Status",
+		"Conclusion",
+		"Branch",
+		"Sha",
+		"EtaSeconds",
+		"DurationSeconds",
+		"RunUrl",
+		"IsSuccess",
+		"Notes",
+		"Comments",
+		"CreatedAt",
+		"UpdatedAt",
+	}
+}
+
+// IsEnum checks whether the given variant matches any registered field enum in PipelineRunRecord.
+func (r pipelineRunRecordDbRegistry) IsEnum(variant Variant) bool {
+	for _, f := range r.All() {
+		if f.IsCompare(variant) {
+			return true
+		}
+	}
+	return false
+}
+
+// IsRunId checks whether the variant matches RunId.
+func (r pipelineRunRecordDbRegistry) IsRunId(variant Variant) bool {
+	return r.RunId.IsCompare(variant)
+}
+
+// IsRepoSlug checks whether the variant matches RepoSlug.
+func (r pipelineRunRecordDbRegistry) IsRepoSlug(variant Variant) bool {
+	return r.RepoSlug.IsCompare(variant)
+}
+
+// IsWorkflowName checks whether the variant matches WorkflowName.
+func (r pipelineRunRecordDbRegistry) IsWorkflowName(variant Variant) bool {
+	return r.WorkflowName.IsCompare(variant)
+}
+
+// IsStatus checks whether the variant matches Status.
+func (r pipelineRunRecordDbRegistry) IsStatus(variant Variant) bool {
+	return r.Status.IsCompare(variant)
+}
+
+// IsConclusion checks whether the variant matches Conclusion.
+func (r pipelineRunRecordDbRegistry) IsConclusion(variant Variant) bool {
+	return r.Conclusion.IsCompare(variant)
+}
+
+// IsBranch checks whether the variant matches Branch.
+func (r pipelineRunRecordDbRegistry) IsBranch(variant Variant) bool {
+	return r.Branch.IsCompare(variant)
+}
+
+// IsSha checks whether the variant matches Sha.
+func (r pipelineRunRecordDbRegistry) IsSha(variant Variant) bool {
+	return r.Sha.IsCompare(variant)
+}
+
+// IsEtaSeconds checks whether the variant matches EtaSeconds.
+func (r pipelineRunRecordDbRegistry) IsEtaSeconds(variant Variant) bool {
+	return r.EtaSeconds.IsCompare(variant)
+}
+
+// IsDurationSeconds checks whether the variant matches DurationSeconds.
+func (r pipelineRunRecordDbRegistry) IsDurationSeconds(variant Variant) bool {
+	return r.DurationSeconds.IsCompare(variant)
+}
+
+// IsRunUrl checks whether the variant matches RunUrl.
+func (r pipelineRunRecordDbRegistry) IsRunUrl(variant Variant) bool {
+	return r.RunUrl.IsCompare(variant)
+}
+
+// IsIsSuccess checks whether the variant matches IsSuccess.
+func (r pipelineRunRecordDbRegistry) IsIsSuccess(variant Variant) bool {
+	return r.IsSuccess.IsCompare(variant)
+}
+
+// IsNotes checks whether the variant matches Notes.
+func (r pipelineRunRecordDbRegistry) IsNotes(variant Variant) bool {
+	return r.Notes.IsCompare(variant)
+}
+
+// IsComments checks whether the variant matches Comments.
+func (r pipelineRunRecordDbRegistry) IsComments(variant Variant) bool {
+	return r.Comments.IsCompare(variant)
+}
+
+// IsCreatedAt checks whether the variant matches CreatedAt.
+func (r pipelineRunRecordDbRegistry) IsCreatedAt(variant Variant) bool {
+	return r.CreatedAt.IsCompare(variant)
+}
+
+// IsUpdatedAt checks whether the variant matches UpdatedAt.
+func (r pipelineRunRecordDbRegistry) IsUpdatedAt(variant Variant) bool {
+	return r.UpdatedAt.IsCompare(variant)
+}
+
+// ToJSON converts the field registry to a JSON string representation.
+func (r pipelineRunRecordDbRegistry) ToJSON() (string, error) {
+	b, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 // PipelineRunRecordDb provides scoped access to field enums: PipelineRunRecordDb.<Field>.
@@ -160,6 +551,112 @@ func (e PipelineErrorRecordFieldType) IsCompare(target any) bool {
 	}
 }
 
+// IsEnum checks equality against another field enum, string, or fmt.Stringer.
+func (e PipelineErrorRecordFieldType) IsEnum(target any) bool {
+	return e.IsCompare(target)
+}
+
+// MarshalJSON implements json.Marshaler.
+func (e PipelineErrorRecordFieldType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(e))
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (e *PipelineErrorRecordFieldType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*e = PipelineErrorRecordFieldType(s)
+	return nil
+}
+
+// ToJSON converts the field enum to a JSON string representation.
+func (e PipelineErrorRecordFieldType) ToJSON() (string, error) {
+	b, err := json.Marshal(string(e))
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// FromJSON parses a field enum from a JSON string representation.
+func (e *PipelineErrorRecordFieldType) FromJSON(s string) error {
+	return json.Unmarshal([]byte(s), e)
+}
+
+// IsRunId checks whether this field enum represents RunId.
+func (e PipelineErrorRecordFieldType) IsRunId(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("RunId") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("RunId")
+}
+
+// IsRepoSlug checks whether this field enum represents RepoSlug.
+func (e PipelineErrorRecordFieldType) IsRepoSlug(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("RepoSlug") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("RepoSlug")
+}
+
+// IsWorkflowName checks whether this field enum represents WorkflowName.
+func (e PipelineErrorRecordFieldType) IsWorkflowName(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("WorkflowName") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("WorkflowName")
+}
+
+// IsStepName checks whether this field enum represents StepName.
+func (e PipelineErrorRecordFieldType) IsStepName(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("StepName") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("StepName")
+}
+
+// IsErrorText checks whether this field enum represents ErrorText.
+func (e PipelineErrorRecordFieldType) IsErrorText(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("ErrorText") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("ErrorText")
+}
+
+// IsRawLogs checks whether this field enum represents RawLogs.
+func (e PipelineErrorRecordFieldType) IsRawLogs(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("RawLogs") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("RawLogs")
+}
+
+// IsNotes checks whether this field enum represents Notes.
+func (e PipelineErrorRecordFieldType) IsNotes(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Notes") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Notes")
+}
+
+// IsComments checks whether this field enum represents Comments.
+func (e PipelineErrorRecordFieldType) IsComments(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Comments") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Comments")
+}
+
+// IsCreatedAt checks whether this field enum represents CreatedAt.
+func (e PipelineErrorRecordFieldType) IsCreatedAt(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("CreatedAt") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("CreatedAt")
+}
+
 type pipelineErrorRecordDbRegistry struct {
 	RunId PipelineErrorRecordFieldType
 	RepoSlug PipelineErrorRecordFieldType
@@ -170,6 +667,100 @@ type pipelineErrorRecordDbRegistry struct {
 	Notes PipelineErrorRecordFieldType
 	Comments PipelineErrorRecordFieldType
 	CreatedAt PipelineErrorRecordFieldType
+}
+
+// All returns a slice of all field enums in PipelineErrorRecord.
+func (r pipelineErrorRecordDbRegistry) All() []PipelineErrorRecordFieldType {
+	return []PipelineErrorRecordFieldType{
+		r.RunId,
+		r.RepoSlug,
+		r.WorkflowName,
+		r.StepName,
+		r.ErrorText,
+		r.RawLogs,
+		r.Notes,
+		r.Comments,
+		r.CreatedAt,
+	}
+}
+
+// Names returns a slice of string names for all fields in PipelineErrorRecord.
+func (r pipelineErrorRecordDbRegistry) Names() []string {
+	return []string{
+		"RunId",
+		"RepoSlug",
+		"WorkflowName",
+		"StepName",
+		"ErrorText",
+		"RawLogs",
+		"Notes",
+		"Comments",
+		"CreatedAt",
+	}
+}
+
+// IsEnum checks whether the given variant matches any registered field enum in PipelineErrorRecord.
+func (r pipelineErrorRecordDbRegistry) IsEnum(variant Variant) bool {
+	for _, f := range r.All() {
+		if f.IsCompare(variant) {
+			return true
+		}
+	}
+	return false
+}
+
+// IsRunId checks whether the variant matches RunId.
+func (r pipelineErrorRecordDbRegistry) IsRunId(variant Variant) bool {
+	return r.RunId.IsCompare(variant)
+}
+
+// IsRepoSlug checks whether the variant matches RepoSlug.
+func (r pipelineErrorRecordDbRegistry) IsRepoSlug(variant Variant) bool {
+	return r.RepoSlug.IsCompare(variant)
+}
+
+// IsWorkflowName checks whether the variant matches WorkflowName.
+func (r pipelineErrorRecordDbRegistry) IsWorkflowName(variant Variant) bool {
+	return r.WorkflowName.IsCompare(variant)
+}
+
+// IsStepName checks whether the variant matches StepName.
+func (r pipelineErrorRecordDbRegistry) IsStepName(variant Variant) bool {
+	return r.StepName.IsCompare(variant)
+}
+
+// IsErrorText checks whether the variant matches ErrorText.
+func (r pipelineErrorRecordDbRegistry) IsErrorText(variant Variant) bool {
+	return r.ErrorText.IsCompare(variant)
+}
+
+// IsRawLogs checks whether the variant matches RawLogs.
+func (r pipelineErrorRecordDbRegistry) IsRawLogs(variant Variant) bool {
+	return r.RawLogs.IsCompare(variant)
+}
+
+// IsNotes checks whether the variant matches Notes.
+func (r pipelineErrorRecordDbRegistry) IsNotes(variant Variant) bool {
+	return r.Notes.IsCompare(variant)
+}
+
+// IsComments checks whether the variant matches Comments.
+func (r pipelineErrorRecordDbRegistry) IsComments(variant Variant) bool {
+	return r.Comments.IsCompare(variant)
+}
+
+// IsCreatedAt checks whether the variant matches CreatedAt.
+func (r pipelineErrorRecordDbRegistry) IsCreatedAt(variant Variant) bool {
+	return r.CreatedAt.IsCompare(variant)
+}
+
+// ToJSON converts the field registry to a JSON string representation.
+func (r pipelineErrorRecordDbRegistry) ToJSON() (string, error) {
+	b, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 // PipelineErrorRecordDb provides scoped access to field enums: PipelineErrorRecordDb.<Field>.
@@ -223,6 +814,104 @@ func (e PipelineDbStatsFieldType) IsCompare(target any) bool {
 	}
 }
 
+// IsEnum checks equality against another field enum, string, or fmt.Stringer.
+func (e PipelineDbStatsFieldType) IsEnum(target any) bool {
+	return e.IsCompare(target)
+}
+
+// MarshalJSON implements json.Marshaler.
+func (e PipelineDbStatsFieldType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(e))
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (e *PipelineDbStatsFieldType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*e = PipelineDbStatsFieldType(s)
+	return nil
+}
+
+// ToJSON converts the field enum to a JSON string representation.
+func (e PipelineDbStatsFieldType) ToJSON() (string, error) {
+	b, err := json.Marshal(string(e))
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// FromJSON parses a field enum from a JSON string representation.
+func (e *PipelineDbStatsFieldType) FromJSON(s string) error {
+	return json.Unmarshal([]byte(s), e)
+}
+
+// IsPath checks whether this field enum represents Path.
+func (e PipelineDbStatsFieldType) IsPath(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Path") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Path")
+}
+
+// IsSize checks whether this field enum represents Size.
+func (e PipelineDbStatsFieldType) IsSize(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("Size") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("Size")
+}
+
+// IsTotalRuns checks whether this field enum represents TotalRuns.
+func (e PipelineDbStatsFieldType) IsTotalRuns(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("TotalRuns") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("TotalRuns")
+}
+
+// IsSuccessRuns checks whether this field enum represents SuccessRuns.
+func (e PipelineDbStatsFieldType) IsSuccessRuns(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("SuccessRuns") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("SuccessRuns")
+}
+
+// IsFailedRuns checks whether this field enum represents FailedRuns.
+func (e PipelineDbStatsFieldType) IsFailedRuns(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("FailedRuns") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("FailedRuns")
+}
+
+// IsErrorLogCount checks whether this field enum represents ErrorLogCount.
+func (e PipelineDbStatsFieldType) IsErrorLogCount(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("ErrorLogCount") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("ErrorLogCount")
+}
+
+// IsSegmentCount checks whether this field enum represents SegmentCount.
+func (e PipelineDbStatsFieldType) IsSegmentCount(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("SegmentCount") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("SegmentCount")
+}
+
+// IsLastUpdated checks whether this field enum represents LastUpdated.
+func (e PipelineDbStatsFieldType) IsLastUpdated(variant ...Variant) bool {
+	if len(variant) > 0 {
+		return e.IsCompare("LastUpdated") && e.IsCompare(variant[0])
+	}
+	return e.IsCompare("LastUpdated")
+}
+
 type pipelineDbStatsDbRegistry struct {
 	Path PipelineDbStatsFieldType
 	Size PipelineDbStatsFieldType
@@ -232,6 +921,93 @@ type pipelineDbStatsDbRegistry struct {
 	ErrorLogCount PipelineDbStatsFieldType
 	SegmentCount PipelineDbStatsFieldType
 	LastUpdated PipelineDbStatsFieldType
+}
+
+// All returns a slice of all field enums in PipelineDbStats.
+func (r pipelineDbStatsDbRegistry) All() []PipelineDbStatsFieldType {
+	return []PipelineDbStatsFieldType{
+		r.Path,
+		r.Size,
+		r.TotalRuns,
+		r.SuccessRuns,
+		r.FailedRuns,
+		r.ErrorLogCount,
+		r.SegmentCount,
+		r.LastUpdated,
+	}
+}
+
+// Names returns a slice of string names for all fields in PipelineDbStats.
+func (r pipelineDbStatsDbRegistry) Names() []string {
+	return []string{
+		"Path",
+		"Size",
+		"TotalRuns",
+		"SuccessRuns",
+		"FailedRuns",
+		"ErrorLogCount",
+		"SegmentCount",
+		"LastUpdated",
+	}
+}
+
+// IsEnum checks whether the given variant matches any registered field enum in PipelineDbStats.
+func (r pipelineDbStatsDbRegistry) IsEnum(variant Variant) bool {
+	for _, f := range r.All() {
+		if f.IsCompare(variant) {
+			return true
+		}
+	}
+	return false
+}
+
+// IsPath checks whether the variant matches Path.
+func (r pipelineDbStatsDbRegistry) IsPath(variant Variant) bool {
+	return r.Path.IsCompare(variant)
+}
+
+// IsSize checks whether the variant matches Size.
+func (r pipelineDbStatsDbRegistry) IsSize(variant Variant) bool {
+	return r.Size.IsCompare(variant)
+}
+
+// IsTotalRuns checks whether the variant matches TotalRuns.
+func (r pipelineDbStatsDbRegistry) IsTotalRuns(variant Variant) bool {
+	return r.TotalRuns.IsCompare(variant)
+}
+
+// IsSuccessRuns checks whether the variant matches SuccessRuns.
+func (r pipelineDbStatsDbRegistry) IsSuccessRuns(variant Variant) bool {
+	return r.SuccessRuns.IsCompare(variant)
+}
+
+// IsFailedRuns checks whether the variant matches FailedRuns.
+func (r pipelineDbStatsDbRegistry) IsFailedRuns(variant Variant) bool {
+	return r.FailedRuns.IsCompare(variant)
+}
+
+// IsErrorLogCount checks whether the variant matches ErrorLogCount.
+func (r pipelineDbStatsDbRegistry) IsErrorLogCount(variant Variant) bool {
+	return r.ErrorLogCount.IsCompare(variant)
+}
+
+// IsSegmentCount checks whether the variant matches SegmentCount.
+func (r pipelineDbStatsDbRegistry) IsSegmentCount(variant Variant) bool {
+	return r.SegmentCount.IsCompare(variant)
+}
+
+// IsLastUpdated checks whether the variant matches LastUpdated.
+func (r pipelineDbStatsDbRegistry) IsLastUpdated(variant Variant) bool {
+	return r.LastUpdated.IsCompare(variant)
+}
+
+// ToJSON converts the field registry to a JSON string representation.
+func (r pipelineDbStatsDbRegistry) ToJSON() (string, error) {
+	b, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 // PipelineDbStatsDb provides scoped access to field enums: PipelineDbStatsDb.<Field>.

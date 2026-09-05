@@ -57,8 +57,22 @@ func (d DbType) IsCompare(target any) bool {
     }
 }
 
+// IsEnum checks equality against another DbType, string, or fmt.Stringer.
+func (d DbType) IsEnum(target any) bool {
+    return d.IsCompare(target)
+}
+
+// JSON conversion methods
+func (d DbType) MarshalJSON() ([]byte, error) { return json.Marshal(string(d)) }
+func (d *DbType) UnmarshalJSON(data []byte) error { ... }
+func (d DbType) ToJSON() (string, error) { ... }
+func (d *DbType) FromJSON(s string) error { ... }
+
+// Variant represents any dynamic value acceptable for enum comparisons.
+type Variant = any
+
 // Scoped registry for zero-magic strings
-var DbTypes = struct {
+type dbTypeRegistry struct {
     SQLite     DbType
     PostgreSQL DbType
     Postgres   DbType
@@ -67,7 +81,16 @@ var DbTypes = struct {
     MSSQL      DbType
     Oracle     DbType
     MongoDB    DbType
-}{
+}
+
+func (r dbTypeRegistry) All() []DbType { ... }
+func (r dbTypeRegistry) Names() []string { ... }
+func (r dbTypeRegistry) IsEnum(variant Variant) bool { ... }
+func (r dbTypeRegistry) IsSQLite(variant Variant) bool { return r.SQLite.IsCompare(variant) }
+func (r dbTypeRegistry) IsPostgreSQL(variant Variant) bool { return r.PostgreSQL.IsCompare(variant) }
+func (r dbTypeRegistry) ToJSON() (string, error) { return json.Marshal(r) }
+
+var DbTypes = dbTypeRegistry{
     SQLite:     DbSQLite,
     PostgreSQL: DbPostgreSQL,
     Postgres:   DbPostgreSQL,
@@ -145,9 +168,9 @@ To avoid repeating prefixes across flat constants (e.g. avoiding repetitive `Pip
 ```go
 type PipelineErrorLogFieldType string
 
-func (e PipelineErrorLogFieldType) Name() string { return string(e) }
+func (e PipelineErrorLogFieldType) Name() string   { return string(e) }
 func (e PipelineErrorLogFieldType) String() string { return string(e) }
-func (e PipelineErrorLogFieldType) Value() string { return string(e) }
+func (e PipelineErrorLogFieldType) Value() string  { return string(e) }
 func (e PipelineErrorLogFieldType) IsCompare(target any) bool {
     switch v := target.(type) {
     case PipelineErrorLogFieldType:
@@ -159,6 +182,17 @@ func (e PipelineErrorLogFieldType) IsCompare(target any) bool {
     default:
         return false
     }
+}
+func (e PipelineErrorLogFieldType) IsEnum(target any) bool { return e.IsCompare(target) }
+func (e PipelineErrorLogFieldType) MarshalJSON() ([]byte, error) { return json.Marshal(string(e)) }
+func (e *PipelineErrorLogFieldType) UnmarshalJSON(data []byte) error { ... }
+func (e PipelineErrorLogFieldType) ToJSON() (string, error) { ... }
+func (e *PipelineErrorLogFieldType) FromJSON(s string) error { ... }
+func (e PipelineErrorLogFieldType) IsRunId(variant ...Variant) bool {
+    if len(variant) > 0 {
+        return e.IsCompare("RunId") && e.IsCompare(variant[0])
+    }
+    return e.IsCompare("RunId")
 }
 
 type pipelineErrorLogDbRegistry struct {
@@ -173,6 +207,12 @@ type pipelineErrorLogDbRegistry struct {
     Comments           PipelineErrorLogFieldType
     CreatedAt          PipelineErrorLogFieldType
 }
+
+func (r pipelineErrorLogDbRegistry) All() []PipelineErrorLogFieldType { ... }
+func (r pipelineErrorLogDbRegistry) Names() []string { ... }
+func (r pipelineErrorLogDbRegistry) IsEnum(variant Variant) bool { ... }
+func (r pipelineErrorLogDbRegistry) IsRunId(variant Variant) bool { return r.RunId.IsCompare(variant) }
+func (r pipelineErrorLogDbRegistry) ToJSON() (string, error) { return json.Marshal(r) }
 
 // Canonical scoped access: PipelineErrorLogDb.RunId
 var PipelineErrorLogDb = pipelineErrorLogDbRegistry{
