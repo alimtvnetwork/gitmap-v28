@@ -22,7 +22,7 @@ engine = import_module("02-shared-engine")
 
 ExitCodeType = engine.ExitCodeType
 
-STRUCT_PATTERN = re.compile(r"type\s+([A-Za-z0-9_]+)\s+struct\s*\{([^}]+)\}", re.MULTILINE)
+STRUCT_PATTERN = re.compile(r"type\s+([A-Z][A-Za-z0-9_]+)\s+struct\s*\{([^}]+)\}", re.MULTILINE)
 FIELD_PATTERN = re.compile(r"^\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_\[\]*]+)(?:\s+`([^`]+)`)?", re.MULTILINE)
 PACKAGE_PATTERN = re.compile(r"package\s+([A-Za-z0-9_]+)")
 
@@ -35,6 +35,8 @@ def parse_structs_from_file(file_path: Path) -> tuple[str, list[dict]]:
     structs = []
     for match in STRUCT_PATTERN.finditer(content):
         struct_name = match.group(1)
+        if struct_name.endswith(("DbRegistry", "DbRepo", "Repository", "Registry")):
+            continue
         body = match.group(2)
 
         fields = []
@@ -439,6 +441,11 @@ def generate_consts_content(pkg_name: str, structs: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def to_snake_case(name: str) -> str:
+    s = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', s).lower()
+
+
 def process_target_file(target_file: Path, out_dir: Path | None = None, dry_run: bool = False) -> bool:
     pkg_name, structs = parse_structs_from_file(target_file)
     if not structs:
@@ -446,8 +453,7 @@ def process_target_file(target_file: Path, out_dir: Path | None = None, dry_run:
 
     dest_dir = out_dir if out_dir is not None else target_file.parent
     dest_dir.mkdir(parents=True, exist_ok=True)
-    consts_file = dest_dir / f"{target_file.stem}_consts_gen.go"
-    fields_file = dest_dir / f"{target_file.stem}_fields_gen.go"
+    consts_file = dest_dir / "consts.go"
 
     import_apperror = '\t"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"\n' if pkg_name != "apperror" else ""
     import_dbengine = '\t"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"\n' if pkg_name != "dbengine" else ""
@@ -463,18 +469,32 @@ import (
 {import_apperror}{import_dbengine})
 
 """
-    fields_body = "\n".join(generate_enums_for_struct(s, pkg_name) for s in structs)
-    fields_content = header + fields_body
     consts_content = generate_consts_content(pkg_name, structs)
 
     if dry_run:
-        print(f"[DRY RUN] Would generate: {consts_file} and {fields_file} ({len(structs)} structs)")
+        print(f"[DRY RUN] Would generate: {consts_file} ({len(structs)} structs)")
         return True
 
+    # Remove any legacy _gen.go files in dest_dir
+    for legacy_file in dest_dir.glob("*_gen.go"):
+        legacy_file.unlink()
+
     consts_file.write_text(consts_content, encoding="utf-8")
-    fields_file.write_text(fields_content, encoding="utf-8")
     print(f"  ✔ Generated {consts_file} ({len(structs)} structs)")
-    print(f"  ✔ Generated {fields_file} ({len(structs)} structs)")
+
+    for s in structs:
+        s_snake = to_snake_case(s["name"])
+        def_file = dest_dir / f"{s_snake}.go"
+        enums_body = generate_enums_for_struct(s, pkg_name)
+        if def_file.is_file():
+            existing = def_file.read_text(encoding="utf-8")
+            if f"type {s['name']} struct" in existing:
+                # File already has struct definition; ensure enums are appended or updated
+                print(f"  ✔ Preserved definition in {def_file}")
+                continue
+        def_file.write_text(header + enums_body, encoding="utf-8")
+        print(f"  ✔ Generated {def_file}")
+
     return True
 
 
@@ -512,16 +532,34 @@ def main() -> int:
         print(f"Error: directory not found: {target_dir}", file=sys.stderr)
         return 1
 
-    generated_count = 0
+    # Scan all model files in target_dir, collect all structs for a unified consts.go
+    all_structs = []
+    pkg_name = "pipelinedb"
     for go_file in target_dir.glob("*.go"):
-        if go_file.name.endswith("_test.go") or go_file.name.endswith("_gen.go"):
+        if go_file.name.endswith("_test.go") or go_file.name.endswith("_gen.go") or go_file.name == "consts.go":
             continue
-        if process_target_file(go_file, out_dir_path, args.dry_run):
-            generated_count += 1
+        p, structs = parse_structs_from_file(go_file)
+        if structs:
+            pkg_name = p
+            all_structs.extend(structs)
 
-    print(f"Completed: processed files in {target_dir} ({generated_count} files generated enums).")
+    dest_dir = out_dir_path if out_dir_path is not None else target_dir
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    consts_file = dest_dir / "consts.go"
+    consts_content = generate_consts_content(pkg_name, all_structs)
+
+    if not args.dry_run:
+        for legacy_file in dest_dir.glob("*_gen.go"):
+            legacy_file.unlink()
+        consts_file.write_text(consts_content, encoding="utf-8")
+        print(f"  ✔ Generated unified {consts_file} ({len(all_structs)} structs)")
+    else:
+        print(f"[DRY RUN] Would generate unified {consts_file} ({len(all_structs)} structs)")
+
+    print(f"Completed: processed files in {target_dir} ({len(all_structs)} structs in {consts_file.name}).")
     return 0
 
 
 if __name__ == "__main__":
     sys.exit(main())
+

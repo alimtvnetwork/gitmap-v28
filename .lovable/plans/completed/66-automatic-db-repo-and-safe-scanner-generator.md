@@ -41,13 +41,15 @@ func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error)
 - Scans row safely.
 - Maps raw values into struct fields via `dbengine.Scan*` helpers.
 
-### 2.3 Dedicated Consts File Separation & Single Data Type QueryBuilders
-The generator automatically extracts constants and type aliases into `{model}_consts_gen.go`:
-- Canonical table constants: `const ( PipelineSplitDbTable = "PipelineSplitDb", PipelineRunRecordTable = "PipelineRunRecord", PipelineRunTable = PipelineRunRecordTable, ... )`
-- Concrete QueryBuilder aliases: `type PipelineSplitDbQueryBuilder = dbengine.QueryBuilder[...]`, `type PipelineRunQueryBuilder = PipelineRunRecordQueryBuilder`
-- Concrete generic Repository aliases: `type PipelineSplitDbRepository = dbengine.Repository[...]`, `type PipelineRunRepository = PipelineRunRecordRepository`
-- Concrete DbRepo aliases: `type PipelineRunDbRepo = PipelineRunRecordDbRepo`, `type PipelineErrorDbRepo = PipelineErrorRecordDbRepo`
-This completely isolates all similar kind definitions in a dedicated consts file, leaving `{model}_fields_gen.go` focused purely on field enums, scanners, and repository methods.
+### 2.3 Dedicated Definition Files & `consts.go` Architecture
+The architecture separates each model definition into its own named file, with all constants and type aliases coexisting in `consts.go`:
+- **`consts.go`**:
+  - Canonical table constants: `const ( PipelineSplitDbTable = "PipelineSplitDb", PipelineRunRecordTable = "PipelineRunRecord", PipelineRunTable = PipelineRunRecordTable, ... )`
+  - Concrete QueryBuilder aliases: `type PipelineSplitDbQueryBuilder = dbengine.QueryBuilder[...]`, `type PipelineRunQueryBuilder = PipelineRunRecordQueryBuilder`
+  - Concrete generic Repository aliases: `type PipelineSplitDbRepository = dbengine.Repository[...]`, `type PipelineRunRepository = PipelineRunRecordRepository`
+  - Concrete DbRepo aliases: `type PipelineRunDbRepo = PipelineRunRecordDbRepo`, `type PipelineErrorDbRepo = PipelineErrorRecordDbRepo`
+- **Dedicated Definition Files (`pipeline_run_record.go`, `pipeline_error_record.go`, `pipeline_db_stats.go`, `pipeline_split_db.go`)**:
+  - Contains struct model definition, type-safe column enums, O(1) map validation, null-safe row scanners, and typed `*DbRepo` accessors.
 
 ### 2.4 Typed Repository Pointer Receivers & Constructors
 - Repository structs (`{StructName}DbRepo`) are typed accessors wrapping generic repositories.

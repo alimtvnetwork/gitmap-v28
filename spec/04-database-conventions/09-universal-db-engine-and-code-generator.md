@@ -375,11 +375,11 @@ recentRuns := pipelineRepo.GetRecentRuns(ctx, "owner/repo", 20) // ListResult[Pi
 activeView := pipelineRepo.EnsureActiveErrorsView(ctx)      // BoolResult
 ```
 
-### 5.4 Automatic Typed DbRepo, Dedicated Consts File & Single Data Type QueryBuilders
-The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) automatically generates typed repository structs, dedicated single data type query builders, and null-safe row scanners for any Go model struct, cleanly separated into two generated files:
+### 5.4 Automatic Typed DbRepo, `consts.go` & Dedicated Definition File Architecture
+The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) automatically generates typed repository structs, dedicated single data type query builders, and null-safe row scanners for any Go model struct, adhering to clean file naming where each definition has its own file and constants reside in `consts.go`:
 
-1. **Dedicated Consts File (`{model}_consts_gen.go`)**:
-   - Aggregates all table constants, dedicated QueryBuilder aliases, generic Repository aliases, and DbRepo aliases in one central file:
+1. **Central Constants File (`consts.go`)**:
+   - Aggregates all table constants, dedicated QueryBuilder aliases, generic Repository aliases, and DbRepo aliases in one central `consts.go` file:
      ```go
      // Canonical table name constants.
      const (
@@ -414,21 +414,23 @@ The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) aut
      )
      ```
 
-2. **Safe Row Scanners & Typed Repositories (`{model}_fields_gen.go`)**:
-   - Uses `dbengine.Scan*` helpers (`ScanString`, `ScanInt`, `ScanInt64`, `ScanUint64`, `ScanUint`, `ScanBool`, `ScanFloat64`).
-   - Completely null-safe: handles SQLite `nil` / NULL values without panics or driver conversion errors.
-   - Converts integer column types (`int64`, `int`) into struct field types (such as `uint64` or `bool`).
-   - Repositories provide typed operations returning dedicated single data types:
-     - Constructors: `func NewPipelineRunDbRepo(db *dbengine.DbWrapper) *PipelineRunDbRepo`
-     - Methods: `func (r *PipelineRunDbRepo) Query() *PipelineRunQueryBuilder`
-   - Exposes standard typed methods returning Result envelopes:
-     - `FindAll(ctx context.Context) dbengine.ListResult[T]`
-     - `First(ctx context.Context) dbengine.EntityResult[T]`
-     - `Count(ctx context.Context) dbengine.Int64Result`
-     - `Query() *{s_name}QueryBuilder`
-     - `QueryBare() *{s_name}QueryBuilder`
-     - `Db() *dbengine.DbWrapper`
-     - `Repo() *{s_name}Repository`
+2. **Dedicated Definition Files (`{definition_snake_case}.go`)**:
+   - Each model definition has its own named file (e.g., `pipeline_run_record.go`, `pipeline_error_record.go`, `pipeline_db_stats.go`, `pipeline_split_db.go`).
+   - Contains the struct model definition, type-safe column enums, O(1) map validation, null-safe row scanners, and typed `*DbRepo` accessors:
+     - Uses `dbengine.Scan*` helpers (`ScanString`, `ScanInt`, `ScanInt64`, `ScanUint64`, `ScanUint`, `ScanBool`, `ScanFloat64`).
+     - Completely null-safe: handles SQLite `nil` / NULL values without panics or driver conversion errors.
+     - Converts integer column types (`int64`, `int`) into struct field types (such as `uint64` or `bool`).
+     - Repositories provide typed operations returning dedicated single data types:
+       - Constructors: `func NewPipelineRunDbRepo(db *dbengine.DbWrapper) *PipelineRunDbRepo`
+       - Methods: `func (r *PipelineRunDbRepo) Query() *PipelineRunQueryBuilder`
+     - Exposes standard typed methods returning Result envelopes:
+       - `FindAll(ctx context.Context) dbengine.ListResult[T]`
+       - `First(ctx context.Context) dbengine.EntityResult[T]`
+       - `Count(ctx context.Context) dbengine.Int64Result`
+       - `Query() *{s_name}QueryBuilder`
+       - `QueryBare() *{s_name}QueryBuilder`
+       - `Db() *dbengine.DbWrapper`
+       - `Repo() *{s_name}Repository`
 
 3. **Domain Business Repository Integration**:
    - Domain repositories (e.g. `PipelineRepository`) embed repository structs directly:
