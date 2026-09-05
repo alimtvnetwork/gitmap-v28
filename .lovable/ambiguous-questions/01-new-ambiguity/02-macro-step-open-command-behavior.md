@@ -1,9 +1,10 @@
 # Macro Step Execution Behavior for `open <target>`
 
 Slug: macro-step-open-command-behavior
-Status: open
+Status: resolved
 Raised: 2026-09-05
-Blocking: .lovable/plans/pending/01-macro-step-open-chrome-failure.md
+ResolvedIn: .lovable/plans/completed/64-macro-step-open-chrome-failure.md
+Blocking: none
 
 ## Question
 
