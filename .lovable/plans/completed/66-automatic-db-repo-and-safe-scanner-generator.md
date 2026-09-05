@@ -41,34 +41,41 @@ func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error)
 - Scans row safely.
 - Maps raw values into struct fields via `dbengine.Scan*` helpers.
 
-### 2.3 Automated Typed DbRepo (`{StructName}DbRepo` & `{ShortName}DbRepo`)
-The generator automatically outputs:
-- Typed struct: `type PipelineRunRecordDbRepo struct { ... }`
-- Concise alias: `type PipelineRunDbRepo = PipelineRunRecordDbRepo`
-- Constructor: `NewPipelineRunDbRepo(db *dbengine.DbWrapper) *PipelineRunDbRepo`
+### 2.3 Dedicated Single Data Type QueryBuilders & Generic Repositories
+The generator automatically outputs concrete type aliases for each struct:
+- `type {s_name}QueryBuilder = dbengine.QueryBuilder[{s_name}, {enum_type}]`
+- `type {short_name}QueryBuilder = {s_name}QueryBuilder`
+- `type {s_name}Repository = dbengine.Repository[{s_name}, {enum_type}]`
+- `type {short_name}Repository = {s_name}Repository`
+This completely converts verbose generic signatures (`*dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType]`) into concise, single named types (`*PipelineSplitDbQueryBuilder`, `*PipelineRunQueryBuilder`).
+
+### 2.4 Value Semantics & Pointer Reduction
+- Repository structs (`{StructName}DbRepo`) are lightweight wrappers around immutable handles (`*DbWrapper`, `*Repository`).
+- Constructors return values: `NewPipelineRunDbRepo(db) PipelineRunDbRepo` (0 heap allocations).
+- Methods use value receivers: `func (r PipelineRunDbRepo) Query() *PipelineRunQueryBuilder`.
 - Standard query methods:
   - `FindAll(ctx context.Context) dbengine.ListResult[PipelineRunRecord]`
   - `First(ctx context.Context) dbengine.EntityResult[PipelineRunRecord]`
   - `Count(ctx context.Context) dbengine.Int64Result`
-  - `Query() *dbengine.QueryBuilder[...]`
-  - `QueryBare() *dbengine.QueryBuilder[...]`
+  - `Query() *PipelineRunRecordQueryBuilder`
+  - `QueryBare() *PipelineRunRecordQueryBuilder`
   - `Db() *dbengine.DbWrapper`
-  - `Repo() *dbengine.Repository[...]`
+  - `Repo() *PipelineRunRecordRepository`
 
-### 2.4 Domain Repository Embedding Pattern
-Domain repositories (such as `pipelinedb.PipelineRepository`) embed `*PipelineRunRecordDbRepo`:
+### 2.5 Domain Repository Embedding Pattern
+Domain repositories (such as `pipelinedb.PipelineRepository`) embed `PipelineRunRecordDbRepo` by value:
 ```go
 type PipelineRepository struct {
-    *PipelineRunRecordDbRepo
+    PipelineRunRecordDbRepo
 }
 
-func NewPipelineRepository(db *dbengine.DbWrapper) *PipelineRepository {
-    return &PipelineRepository{
+func NewPipelineRepository(db *dbengine.DbWrapper) PipelineRepository {
+    return PipelineRepository{
         PipelineRunRecordDbRepo: NewPipelineRunRecordDbRepo(db),
     }
 }
 ```
-Eliminates all boilerplate scanner and generic repository delegations while allowing domain repositories to cleanly define domain-specific queries (`GetRunById`, `GetRecentRuns`, `EnsureActiveErrorsView`).
+Eliminates all boilerplate scanner and generic repository delegations while allowing domain repositories to cleanly define domain-specific queries (`GetRunById`, `GetRecentRuns`, `EnsureActiveErrorsView`) using value semantics.
 
 ---
 

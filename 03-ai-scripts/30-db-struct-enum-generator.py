@@ -233,8 +233,33 @@ def generate_enums_for_struct(struct_info: dict, pkg_name: str = "") -> str:
     pkg_qual = "" if pkg_name == "dbengine" else "dbengine."
     scan_func = f"Scan{s_name}"
     repo_type = f"{s_name}DbRepo"
+    qb_type = f"{s_name}QueryBuilder"
+    generic_repo_type = f"{s_name}Repository"
     short_name = s_name[:-6] if s_name.endswith("Record") else s_name
     has_alias = short_name != s_name
+    short_qb_type = f"{short_name}QueryBuilder"
+    short_generic_repo_type = f"{short_name}Repository"
+    short_repo_type = f"{short_name}DbRepo"
+
+    # Dedicated QueryBuilder and Generic Repository type aliases
+    lines.extend([
+        f"// {qb_type} is the dedicated query builder for {s_name}.",
+        f"type {qb_type} = {pkg_qual}QueryBuilder[{s_name}, {enum_type}]",
+        "",
+        f"// {generic_repo_type} is the dedicated generic repository for {s_name}.",
+        f"type {generic_repo_type} = {pkg_qual}Repository[{s_name}, {enum_type}]",
+        "",
+    ])
+
+    if has_alias:
+        lines.extend([
+            f"// {short_qb_type} is an alias to {qb_type} for concise business usage.",
+            f"type {short_qb_type} = {qb_type}",
+            "",
+            f"// {short_generic_repo_type} is an alias to {generic_repo_type} for concise business usage.",
+            f"type {short_generic_repo_type} = {generic_repo_type}",
+            "",
+        ])
 
     # Scanner function
     lines.append(f"// {scan_func} maps a database row scanner to a {s_name} entity.")
@@ -264,27 +289,27 @@ def generate_enums_for_struct(struct_info: dict, pkg_name: str = "") -> str:
         f"// {repo_type} provides typed database repository access for {s_name}.",
         f"type {repo_type} struct {{",
         f"\tdb   *{pkg_qual}DbWrapper",
-        f"\trepo *{pkg_qual}Repository[{s_name}, {enum_type}]",
+        f"\trepo *{generic_repo_type}",
         "}",
         "",
     ])
 
     if has_alias:
         lines.extend([
-            f"// {short_name}DbRepo is an alias to {repo_type} for concise business usage.",
-            f"type {short_name}DbRepo = {repo_type}",
+            f"// {short_repo_type} is an alias to {repo_type} for concise business usage.",
+            f"type {short_repo_type} = {repo_type}",
             "",
         ])
 
     lines.extend([
         f"// New{repo_type} initializes a typed repository for {s_name}.",
-        f"func New{repo_type}(db *{pkg_qual}DbWrapper) *{repo_type} {{",
+        f"func New{repo_type}(db *{pkg_qual}DbWrapper) {repo_type} {{",
         f"\trepo := {pkg_qual}NewRepository[{s_name}, {enum_type}](",
         "\t\tdb,",
         f"\t\t{s_name}Table,",
         f"\t\t{scan_func},",
         "\t)",
-        f"\treturn &{repo_type}{{",
+        f"\treturn {repo_type}{{",
         "\t\tdb:   db,",
         "\t\trepo: repo,",
         "\t}",
@@ -294,8 +319,8 @@ def generate_enums_for_struct(struct_info: dict, pkg_name: str = "") -> str:
 
     if has_alias:
         lines.extend([
-            f"// New{short_name}DbRepo is an alias constructor for {repo_type}.",
-            f"func New{short_name}DbRepo(db *{pkg_qual}DbWrapper) *{short_name}DbRepo {{",
+            f"// New{short_repo_type} is an alias constructor for {repo_type}.",
+            f"func New{short_repo_type}(db *{pkg_qual}DbWrapper) {short_repo_type} {{",
             f"\treturn New{repo_type}(db)",
             "}",
             "",
@@ -303,37 +328,37 @@ def generate_enums_for_struct(struct_info: dict, pkg_name: str = "") -> str:
 
     lines.extend([
         f"// Db returns the underlying DbWrapper.",
-        f"func (r *{repo_type}) Db() *{pkg_qual}DbWrapper {{",
+        f"func (r {repo_type}) Db() *{pkg_qual}DbWrapper {{",
         "\treturn r.db",
         "}",
         "",
         f"// Repo returns the underlying generic Repository.",
-        f"func (r *{repo_type}) Repo() *{pkg_qual}Repository[{s_name}, {enum_type}] {{",
+        f"func (r {repo_type}) Repo() *{generic_repo_type} {{",
         "\treturn r.repo",
         "}",
         "",
         f"// Query returns a fluent QueryBuilder initialized with all standard fields projected.",
-        f"func (r *{repo_type}) Query() *{pkg_qual}QueryBuilder[{s_name}, {enum_type}] {{",
+        f"func (r {repo_type}) Query() *{qb_type} {{",
         f"\treturn r.repo.Query().Select({db_var}.All()...)",
         "}",
         "",
         f"// QueryBare returns a fluent QueryBuilder without any pre-selected fields.",
-        f"func (r *{repo_type}) QueryBare() *{pkg_qual}QueryBuilder[{s_name}, {enum_type}] {{",
+        f"func (r {repo_type}) QueryBare() *{qb_type} {{",
         "\treturn r.repo.Query()",
         "}",
         "",
         f"// FindAll executes the query selecting all fields and returns a ListResult envelope.",
-        f"func (r *{repo_type}) FindAll(ctx context.Context) {pkg_qual}ListResult[{s_name}] {{",
+        f"func (r {repo_type}) FindAll(ctx context.Context) {pkg_qual}ListResult[{s_name}] {{",
         "\treturn r.Query().FindAll(ctx)",
         "}",
         "",
         f"// First executes the query selecting all fields and returns the first record in an EntityResult envelope.",
-        f"func (r *{repo_type}) First(ctx context.Context) {pkg_qual}EntityResult[{s_name}] {{",
+        f"func (r {repo_type}) First(ctx context.Context) {pkg_qual}EntityResult[{s_name}] {{",
         "\treturn r.Query().First(ctx)",
         "}",
         "",
         f"// Count returns the total number of records matching the query.",
-        f"func (r *{repo_type}) Count(ctx context.Context) {pkg_qual}Int64Result {{",
+        f"func (r {repo_type}) Count(ctx context.Context) {pkg_qual}Int64Result {{",
         "\treturn r.Query().Count(ctx)",
         "}",
         "",
