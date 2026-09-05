@@ -375,29 +375,42 @@ recentRuns := pipelineRepo.GetRecentRuns(ctx, "owner/repo", 20) // ListResult[Pi
 activeView := pipelineRepo.EnsureActiveErrorsView(ctx)      // BoolResult
 ```
 
-### 5.4 Automatic Typed DbRepo & Safe Row Scanners Generation Pattern
-The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) automatically generates typed repository structs and null-safe row scanners for any Go model struct:
+### 5.4 Automatic Typed DbRepo, Single Data Type QueryBuilders & Value Semantics
+The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) automatically generates typed repository structs, dedicated single data type query builders, and null-safe row scanners for any Go model struct:
 1. **Safe Row Scanners (`Scan{StructName}`)**:
    - Uses `dbengine.Scan*` helpers (`ScanString`, `ScanInt`, `ScanInt64`, `ScanUint64`, `ScanUint`, `ScanBool`, `ScanFloat64`).
    - Completely null-safe: handles SQLite `nil` / NULL values without panics or driver conversion errors.
    - Converts integer column types (`int64`, `int`) into struct field types (such as `uint64` or `bool`).
-2. **Typed Repository Struct (`{StructName}DbRepo` & alias `{ShortName}DbRepo`)**:
-   - Generates typed repository struct wrapping generic `Repository[T, F]`.
-   - Provides alias for concise business usage (e.g., `PipelineRunDbRepo = PipelineRunRecordDbRepo`).
-   - Generates constructor `New{ShortName}DbRepo(db *dbengine.DbWrapper)`.
+2. **Dedicated Single Data Type QueryBuilder & Repository Aliases**:
+   - Replaces verbose generic signatures with clean, dedicated single data types:
+     ```go
+     type PipelineSplitDbQueryBuilder = dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType]
+     type PipelineSplitDbRepository   = dbengine.Repository[PipelineSplitDb, PipelineSplitDbFieldType]
+     ```
+   - For structs with `Record` suffix:
+     ```go
+     type PipelineRunRecordQueryBuilder = dbengine.QueryBuilder[PipelineRunRecord, PipelineRunRecordFieldType]
+     type PipelineRunQueryBuilder       = PipelineRunRecordQueryBuilder
+     type PipelineRunRecordRepository   = dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType]
+     type PipelineRunRepository         = PipelineRunRecordRepository
+     ```
+3. **Value Semantics & Pointer Elimination on Repositories**:
+   - Repositories hold immutable handles (`*dbengine.DbWrapper`, `*Repository`) and use value semantics to eliminate heap allocations:
+     - Constructors return values: `func NewPipelineRunDbRepo(db *dbengine.DbWrapper) PipelineRunDbRepo`
+     - Methods use value receivers: `func (r PipelineRunDbRepo) Query() *PipelineRunQueryBuilder`
    - Exposes standard typed methods returning Result envelopes:
      - `FindAll(ctx context.Context) dbengine.ListResult[T]`
      - `First(ctx context.Context) dbengine.EntityResult[T]`
      - `Count(ctx context.Context) dbengine.Int64Result`
-     - `Query() *dbengine.QueryBuilder[T, F]`
-     - `QueryBare() *dbengine.QueryBuilder[T, F]`
+     - `Query() *{s_name}QueryBuilder`
+     - `QueryBare() *{s_name}QueryBuilder`
      - `Db() *dbengine.DbWrapper`
-     - `Repo() *dbengine.Repository[T, F]`
-3. **Domain Business Repository Integration**:
-   - Domain repositories (e.g. `PipelineRepository`) embed `*{StructName}DbRepo` directly:
+     - `Repo() *{s_name}Repository`
+4. **Domain Business Repository Integration**:
+   - Domain repositories (e.g. `PipelineRepository`) embed repository structs by value:
      ```go
      type PipelineRepository struct {
-         *PipelineRunRecordDbRepo
+         PipelineRunRecordDbRepo
      }
      ```
    - Automatically inherits all standard CRUD operations while cleanly adding domain business methods (`GetRecentRuns`, `EnsureActiveErrorsView`).
