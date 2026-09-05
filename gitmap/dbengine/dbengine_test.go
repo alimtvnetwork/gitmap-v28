@@ -197,7 +197,7 @@ func TestCompilerSyntaxes(t *testing.T) {
 		t.Errorf("mssql placeholder mismatch: %s", mssqlComp.Placeholder(1))
 	}
 	searchMssql := mssqlComp.CompileSearch("User", []string{"UserId"}, 1)
-	expectedMssql := `SELECT * FROM [User] WHERE [UserId] = @p1 OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY;`
+	expectedMssql := `SELECT * FROM [User] WHERE [UserId] = @p1 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY;`
 	if searchMssql != expectedMssql {
 		t.Errorf("mssql search mismatch:\ngot:  %s\nwant: %s", searchMssql, expectedMssql)
 	}
@@ -240,39 +240,130 @@ func TestRepository_Queries(t *testing.T) {
 	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
 
 	// First: limit 1
-	item, appErr := repo.First(ctx, TestItemDb.ItemName, "Alpha")
-	if appErr != nil {
-		t.Fatalf("First failed: %v", appErr)
+	firstRes := repo.First(ctx, TestItemDb.ItemName, "Alpha")
+	if firstRes.IsFailed() {
+		t.Fatalf("First failed: %v", firstRes.Err)
 	}
+	item := firstRes.Value
 	if item.ItemName != "Alpha" || item.ItemId != 1 {
 		t.Errorf("unexpected item: %+v", item)
 	}
 
-	// FindBy: 1-parameter
-	tools, appErr := repo.FindBy(ctx, TestItemDb.Category, "Tool", 10)
-	if appErr != nil {
-		t.Fatalf("FindBy failed: %v", appErr)
+	// FindById: primary key lookup
+	idRes := repo.FindById(ctx, TestItemDb.ItemId, 1)
+	if idRes.IsFailed() || idRes.Value.ItemName != "Alpha" {
+		t.Errorf("FindById failed: %+v (err: %v)", idRes.Value, idRes.Err)
 	}
-	if len(tools) != 2 {
-		t.Errorf("expected 2 tools, got %d", len(tools))
+
+	// FindBy: 1-parameter
+	toolsRes := repo.FindBy(ctx, TestItemDb.Category, "Tool", 10)
+	if toolsRes.IsFailed() {
+		t.Fatalf("FindBy failed: %v", toolsRes.Err)
+	}
+	if len(toolsRes.Value) != 2 {
+		t.Errorf("expected 2 tools, got %d", len(toolsRes.Value))
 	}
 
 	// FindBy2: 2-parameters
-	activeTools, appErr := repo.FindBy2(ctx, TestItemDb.Category, "Tool", TestItemDb.IsActive, 1, 10)
-	if appErr != nil {
-		t.Fatalf("FindBy2 failed: %v", appErr)
+	activeRes := repo.FindBy2(ctx, TestItemDb.Category, "Tool", TestItemDb.IsActive, 1, 10)
+	if activeRes.IsFailed() {
+		t.Fatalf("FindBy2 failed: %v", activeRes.Err)
 	}
-	if len(activeTools) != 2 {
-		t.Errorf("expected 2 active tools, got %d", len(activeTools))
+	if len(activeRes.Value) != 2 {
+		t.Errorf("expected 2 active tools, got %d", len(activeRes.Value))
 	}
 
 	// FindAll
-	allItems, appErr := repo.FindAll(ctx, 10)
-	if appErr != nil {
-		t.Fatalf("FindAll failed: %v", appErr)
+	allRes := repo.FindAll(ctx, 10)
+	if allRes.IsFailed() {
+		t.Fatalf("FindAll failed: %v", allRes.Err)
 	}
-	if len(allItems) != 3 {
-		t.Errorf("expected 3 total items, got %d", len(allItems))
+	if len(allRes.Value) != 3 {
+		t.Errorf("expected 3 total items, got %d", len(allRes.Value))
+	}
+
+	// Count & CountAll
+	countRes := repo.Count(ctx, TestItemDb.Category, "Tool")
+	if countRes.IsFailed() || countRes.Value != 2 {
+		t.Errorf("expected 2 tools count, got %d (err: %v)", countRes.Value, countRes.Err)
+	}
+	totalCountRes := repo.CountAll(ctx)
+	if totalCountRes.IsFailed() || totalCountRes.Value != 3 {
+		t.Errorf("expected 3 total count, got %d (err: %v)", totalCountRes.Value, totalCountRes.Err)
+	}
+}
+
+func TestFluentQueryBuilder(t *testing.T) {
+	ctx := context.Background()
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
+
+	// 1. WhereEq and OrderByDesc
+	queryRes := repo.Query().
+		WhereEq(TestItemDb.Category, "Tool").
+		OrderByDesc(TestItemDb.ItemId).
+		FindAll(ctx)
+
+	if queryRes.IsFailed() {
+		t.Fatalf("Fluent query failed: %v", queryRes.Err)
+	}
+	if len(queryRes.Value) != 2 {
+		t.Fatalf("expected 2 tools, got %d", len(queryRes.Value))
+	}
+	if queryRes.Value[0].ItemId != 2 || queryRes.Value[1].ItemId != 1 {
+		t.Errorf("expected descending order (2, 1), got (%d, %d)", queryRes.Value[0].ItemId, queryRes.Value[1].ItemId)
+	}
+
+	// 2. Locate substring test (INSTR in SQLite)
+	locateRes := repo.Query().
+		Locate(TestItemDb.ItemName, "lph").
+		First(ctx)
+
+	if locateRes.IsFailed() || locateRes.Value.ItemName != "Alpha" {
+		t.Errorf("Locate failed: %+v (err: %v)", locateRes.Value, locateRes.Err)
+	}
+
+	// 3. Ad-hoc CTE view (WithView)
+	cteRes := repo.Query().
+		WithView("ActiveTools", "SELECT * FROM TestItem WHERE Category = 'Tool' AND IsActive = 1").
+		WhereEq(TestItemDb.ItemName, "Beta").
+		First(ctx)
+
+	if cteRes.IsFailed() || cteRes.Value.ItemName != "Beta" {
+		t.Errorf("CTE query failed: %+v (err: %v)", cteRes.Value, cteRes.Err)
+	}
+}
+
+func TestDatabaseViewsAndFunctions(t *testing.T) {
+	ctx := context.Background()
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	// 1. Create View
+	createRes := wrapper.CreateView(ctx, "ActiveToolsView", "SELECT * FROM TestItem WHERE Category = 'Tool' AND IsActive = 1")
+	if createRes.IsFailed() {
+		t.Fatalf("CreateView failed: %v", createRes.Err)
+	}
+
+	// 2. Query the created view using Repository
+	viewRepo := NewRepository[TestItem, TestItemFieldType](wrapper, "ActiveToolsView", scanTestItem)
+	viewItemsRes := viewRepo.FindAll(ctx, 10)
+	if viewItemsRes.IsFailed() || len(viewItemsRes.Value) != 2 {
+		t.Errorf("expected 2 items from view, got %d (err: %v)", len(viewItemsRes.Value), viewItemsRes.Err)
+	}
+
+	// 3. Call database function
+	funcRes := wrapper.CallFunction(ctx, "UPPER", "test string")
+	if funcRes.IsFailed() || funcRes.Value != "TEST STRING" {
+		t.Errorf("expected 'TEST STRING', got %s (err: %v)", funcRes.Value, funcRes.Err)
+	}
+
+	// 4. Drop View
+	dropRes := wrapper.DropView(ctx, "ActiveToolsView")
+	if dropRes.IsFailed() {
+		t.Errorf("DropView failed: %v", dropRes.Err)
 	}
 }
 
@@ -300,9 +391,12 @@ func TestTransaction_CommitAndRollback(t *testing.T) {
 	})
 
 	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
-	items, _ := repo.FindAll(ctx, 10)
-	if len(items) != 4 {
-		t.Errorf("expected 4 items (Delta committed, Echo rolled back), got %d", len(items))
+	itemsRes := repo.FindAll(ctx, 10)
+	if itemsRes.IsFailed() {
+		t.Fatalf("FindAll failed: %v", itemsRes.Err)
+	}
+	if len(itemsRes.Value) != 4 {
+		t.Errorf("expected 4 items (Delta committed, Echo rolled back), got %d", len(itemsRes.Value))
 	}
 }
 

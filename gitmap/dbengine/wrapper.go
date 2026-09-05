@@ -117,3 +117,52 @@ func (w *DbWrapper) Dialect() DatabaseDialectType {
 func (w *DbWrapper) Conn() *sql.DB {
 	return w.conn
 }
+
+// CreateView creates a database view with the specified SELECT statement.
+func (w *DbWrapper) CreateView(ctx context.Context, name string, selectSql string) BoolResult {
+	query := w.compiler.CompileCreateView(name, selectSql)
+	_, err := w.Exec(ctx, query)
+	if err != nil {
+		return FailureBool(err)
+	}
+	return SuccessBool(true)
+}
+
+// DropView drops a database view.
+func (w *DbWrapper) DropView(ctx context.Context, name string) BoolResult {
+	query := w.compiler.CompileDropView(name)
+	_, err := w.Exec(ctx, query)
+	if err != nil {
+		return FailureBool(err)
+	}
+	return SuccessBool(true)
+}
+
+// CallFunction executes a database function and returns the scalar string result.
+func (w *DbWrapper) CallFunction(ctx context.Context, name string, args ...any) StringResult {
+	query := w.compiler.CompileFunctionCall(name, len(args))
+	row, appErr := w.QueryRow(ctx, query, args...)
+	if appErr != nil {
+		return FailureString(appErr)
+	}
+
+	var res string
+	if err := row.Scan(&res); err != nil {
+		return FailureString(apperror.WrapSimple(err, "scan result of function "+name))
+	}
+	return SuccessString(res)
+}
+
+// ExecRowsAffected executes a statement and returns the number of rows affected wrapped in RowsAffectedResult.
+func (w *DbWrapper) ExecRowsAffected(ctx context.Context, query string, args ...any) RowsAffectedResult {
+	res, appErr := w.Exec(ctx, query, args...)
+	if appErr != nil {
+		return FailureRowsAffected(appErr)
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return FailureRowsAffected(apperror.WrapSimple(err, "get rows affected"))
+	}
+	return SuccessRowsAffected(affected)
+}

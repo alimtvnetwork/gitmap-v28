@@ -5,6 +5,7 @@
 Usage:
   python 03-ai-scripts/30-db-struct-enum-generator.py --dir gitmap/store
   python 03-ai-scripts/30-db-struct-enum-generator.py --file gitmap/pipelinedb/pipeline_split_db.go
+  python 03-ai-scripts/30-db-struct-enum-generator.py --file gitmap/pipelinedb/pipeline_split_db.go --out-dir gitmap/generated/db/pipelinedb
   python 03-ai-scripts/30-db-struct-enum-generator.py --dry-run
 """
 
@@ -232,12 +233,14 @@ def generate_enums_for_struct(struct_info: dict) -> str:
     return "\n".join(lines)
 
 
-def process_target_file(target_file: Path, dry_run: bool = False) -> bool:
+def process_target_file(target_file: Path, out_dir: Path | None = None, dry_run: bool = False) -> bool:
     pkg_name, structs = parse_structs_from_file(target_file)
     if not structs:
         return False
 
-    out_file = target_file.parent / f"{target_file.stem}_fields_gen.go"
+    dest_dir = out_dir if out_dir is not None else target_file.parent
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    out_file = dest_dir / f"{target_file.stem}_fields_gen.go"
 
     import_apperror = '\t"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"\n' if pkg_name != "apperror" else ""
 
@@ -259,7 +262,7 @@ import (
         return True
 
     out_file.write_text(full_content, encoding="utf-8")
-    print(f"  ✔ Generated {out_file.name} ({len(structs)} structs)")
+    print(f"  ✔ Generated {out_file} ({len(structs)} structs)")
     return True
 
 
@@ -267,10 +270,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Generate type-safe column name enums from Go model structs")
     parser.add_argument("--dir", help="Directory containing Go model files", default="")
     parser.add_argument("--file", help="Specific Go model file to parse", default="")
+    parser.add_argument("--out-dir", help="Explicit output directory for generated files", default="")
     parser.add_argument("--dry-run", action="store_true", help="Preview output without writing files")
 
     args = parser.parse_args()
     repo_root = Path(__file__).resolve().parent.parent
+
+    out_dir_path: Path | None = None
+    if args.out_dir:
+        out_dir_path = Path(args.out_dir)
+        if not out_dir_path.is_absolute():
+            out_dir_path = repo_root / out_dir_path
 
     if args.file:
         file_path = Path(args.file)
@@ -279,7 +289,7 @@ def main() -> int:
         if not file_path.is_file():
             print(f"Error: file not found: {file_path}", file=sys.stderr)
             return 1
-        process_target_file(file_path, args.dry_run)
+        process_target_file(file_path, out_dir_path, args.dry_run)
         return 0
 
     target_dir = Path(args.dir) if args.dir else repo_root / "gitmap" / "pipelinedb"
@@ -294,7 +304,7 @@ def main() -> int:
     for go_file in target_dir.glob("*.go"):
         if go_file.name.endswith("_test.go") or go_file.name.endswith("_gen.go"):
             continue
-        if process_target_file(go_file, args.dry_run):
+        if process_target_file(go_file, out_dir_path, args.dry_run):
             generated_count += 1
 
     print(f"Completed: processed files in {target_dir} ({generated_count} files generated enums).")
