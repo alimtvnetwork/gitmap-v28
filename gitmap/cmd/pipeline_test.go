@@ -39,7 +39,7 @@ func TestBuildStatusPayload(t *testing.T) {
 			CreatedAt:  "2026-08-30T16:00:00Z",
 			HeadBranch: "main",
 			HeadSha:    "123456",
-			URL:        "https://example.com",
+			Url:        "https://example.com",
 		},
 	}
 
@@ -64,7 +64,7 @@ func TestBuildErrorLogsPayload(t *testing.T) {
 			Name:       "Build",
 			Status:     "completed",
 			Conclusion: "failure",
-			URL:        "https://example.com/202",
+			Url:        "https://example.com/202",
 		},
 	}
 
@@ -72,8 +72,8 @@ func TestBuildErrorLogsPayload(t *testing.T) {
 	if p.Conclusion != "failure" {
 		t.Errorf("expected failure conclusion, got %s", p.Conclusion)
 	}
-	if p.RunID != 202 {
-		t.Errorf("expected RunID 202, got %d", p.RunID)
+	if p.RunId != 202 {
+		t.Errorf("expected RunId 202, got %d", p.RunId)
 	}
 }
 

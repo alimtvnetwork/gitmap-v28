@@ -13,7 +13,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 
 	// 1. Record Run
 	run := PipelineRunRecord{
-		RunID:        12345,
+		RunId:        12345,
 		RepoSlug:     "test-owner/test-repo",
 		WorkflowName: "CI",
 		Status:       "completed",
@@ -21,7 +21,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 		Branch:       "main",
 		Sha:          "abc1234",
 		EtaSeconds:   60,
-		RunURL:       "https://github.com/test-owner/test-repo/actions/runs/12345",
+		RunUrl:       "https://github.com/test-owner/test-repo/actions/runs/12345",
 		CreatedAt:    "2026-09-03T10:00:00Z",
 		UpdatedAt:    "2026-09-03T10:02:00Z",
 	}
@@ -31,7 +31,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 
 	// 2. Record Error Log
 	errLog := PipelineErrorRecord{
-		RunID:        12345,
+		RunId:        12345,
 		RepoSlug:     "test-owner/test-repo",
 		WorkflowName: "CI",
 		StepName:     "Test Step",

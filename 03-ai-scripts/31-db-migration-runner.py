@@ -108,6 +108,7 @@ def run_migration_script(db_path: Path, sql_script: str, dry_run: bool = False) 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Standalone external SQLite migration runner")
     parser.add_argument("--db", required=True, help="Path to SQLite database file")
+    parser.add_argument("--db-type", default="sqlite", choices=["sqlite", "postgres", "mysql", "mariadb", "mssql", "oracle", "mongodb"], help="Target database type (defaults to sqlite)")
     parser.add_argument("--status", action="store_true", help="Inspect and display database status")
     parser.add_argument("--dry-run", action="store_true", help="Preview migrations without writing")
     parser.add_argument("--generate-enums", action="store_true", help="Trigger enum generator after migration")
@@ -121,6 +122,7 @@ def main() -> int:
         db_path = repo_root / db_path
 
     if args.status:
+        print(f"Engine Dialect: {args.db_type}")
         print_db_status(db_path)
         return 0
 

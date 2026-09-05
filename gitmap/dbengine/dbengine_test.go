@@ -10,7 +10,7 @@ import (
 )
 
 type TestItem struct {
-	ItemId   int64
+	ItemId   uint64
 	ItemName string
 	Category string
 	IsActive bool
@@ -18,12 +18,35 @@ type TestItem struct {
 
 type TestItemFieldType string
 
-const (
-	TestItemFieldItemId   TestItemFieldType = "ItemId"
-	TestItemFieldItemName TestItemFieldType = "ItemName"
-	TestItemFieldCategory TestItemFieldType = "Category"
-	TestItemFieldIsActive TestItemFieldType = "IsActive"
-)
+func (e TestItemFieldType) Name() string   { return string(e) }
+func (e TestItemFieldType) String() string { return string(e) }
+func (e TestItemFieldType) Value() string  { return string(e) }
+func (e TestItemFieldType) IsCompare(target any) bool {
+	switch v := target.(type) {
+	case TestItemFieldType:
+		return e == v
+	case string:
+		return string(e) == v
+	default:
+		return false
+	}
+}
+
+type testItemFieldRegistry struct {
+	ItemId   TestItemFieldType
+	ItemName TestItemFieldType
+	Category TestItemFieldType
+	IsActive TestItemFieldType
+}
+
+var TestItemField = testItemFieldRegistry{
+	ItemId:   "ItemId",
+	ItemName: "ItemName",
+	Category: "Category",
+	IsActive: "IsActive",
+}
+
+var TestItemDb = TestItemField
 
 func scanTestItem(s RowScanner) (*TestItem, error) {
 	var item TestItem
@@ -132,7 +155,7 @@ func TestRepository_Queries(t *testing.T) {
 	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
 
 	// First: limit 1
-	item, appErr := repo.First(ctx, TestItemFieldItemName, "Alpha")
+	item, appErr := repo.First(ctx, TestItemField.ItemName, "Alpha")
 	if appErr != nil {
 		t.Fatalf("First failed: %v", appErr)
 	}
@@ -141,7 +164,7 @@ func TestRepository_Queries(t *testing.T) {
 	}
 
 	// FindBy: 1-parameter
-	tools, appErr := repo.FindBy(ctx, TestItemFieldCategory, "Tool", 10)
+	tools, appErr := repo.FindBy(ctx, TestItemField.Category, "Tool", 10)
 	if appErr != nil {
 		t.Fatalf("FindBy failed: %v", appErr)
 	}
@@ -150,7 +173,7 @@ func TestRepository_Queries(t *testing.T) {
 	}
 
 	// FindBy2: 2-parameters
-	activeTools, appErr := repo.FindBy2(ctx, TestItemFieldCategory, "Tool", TestItemFieldIsActive, 1, 10)
+	activeTools, appErr := repo.FindBy2(ctx, TestItemField.Category, "Tool", TestItemField.IsActive, 1, 10)
 	if appErr != nil {
 		t.Fatalf("FindBy2 failed: %v", appErr)
 	}
@@ -195,5 +218,48 @@ func TestTransaction_CommitAndRollback(t *testing.T) {
 	items, _ := repo.FindAll(ctx, 10)
 	if len(items) != 4 {
 		t.Errorf("expected 4 items (Delta committed, Echo rolled back), got %d", len(items))
+	}
+}
+
+func TestDbType_Methods(t *testing.T) {
+	if DbTypes.SQLite.Name() != "sqlite" {
+		t.Errorf("expected sqlite, got %s", DbTypes.SQLite.Name())
+	}
+	if DbTypes.SQLite.String() != "sqlite" {
+		t.Errorf("expected sqlite, got %s", DbTypes.SQLite.String())
+	}
+	if DbTypes.SQLite.Value() != "sqlite" {
+		t.Errorf("expected sqlite, got %s", DbTypes.SQLite.Value())
+	}
+	if !DbTypes.SQLite.IsCompare("sqlite") {
+		t.Errorf("expected IsCompare('sqlite') to be true")
+	}
+	if !DbTypes.SQLite.IsCompare(DbSQLite) {
+		t.Errorf("expected IsCompare(DbSQLite) to be true")
+	}
+	if DbTypes.SQLite.IsCompare("postgres") {
+		t.Errorf("expected IsCompare('postgres') to be false")
+	}
+}
+
+func TestFieldType_Methods(t *testing.T) {
+	field := TestItemField.ItemId
+	if field.Name() != "ItemId" {
+		t.Errorf("expected ItemId, got %s", field.Name())
+	}
+	if field.String() != "ItemId" {
+		t.Errorf("expected ItemId, got %s", field.String())
+	}
+	if field.Value() != "ItemId" {
+		t.Errorf("expected ItemId, got %s", field.Value())
+	}
+	if !field.IsCompare("ItemId") {
+		t.Errorf("expected IsCompare('ItemId') to be true")
+	}
+	if !field.IsCompare(TestItemDb.ItemId) {
+		t.Errorf("expected IsCompare(TestItemDb.ItemId) to be true")
+	}
+	if field.IsCompare("ItemName") {
+		t.Errorf("expected IsCompare('ItemName') to be false")
 	}
 }

@@ -117,7 +117,7 @@ func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 	return nil
 }
 
-func locateFailedRunID(runs []ghRunItem) int64 {
+func locateFailedRunId(runs []ghRunItem) uint64 {
 	for _, r := range runs {
 		if r.Conclusion == "failure" {
 			return r.DatabaseId
@@ -126,14 +126,14 @@ func locateFailedRunID(runs []ghRunItem) int64 {
 	return 0
 }
 
-func renderFailureErrorSummary(repo string, runID int64) {
-	if runID <= 0 {
-		runID = locateFailedRunID(queryWorkflowRuns(repo))
+func renderFailureErrorSummary(repo string, runId uint64) {
+	if runId == 0 {
+		runId = locateFailedRunId(queryWorkflowRuns(repo))
 	}
-	if runID <= 0 {
+	if runId == 0 {
 		return
 	}
-	rawLogs := queryFailedRunLogs(repo, runID)
+	rawLogs := queryFailedRunLogs(repo, runId)
 	cleanErrors := extractCleanErrorLines(rawLogs)
 	if cleanErrors == "" {
 		return

@@ -99,12 +99,12 @@ func queryGHLatestTag(repo string) string {
 	return ""
 }
 
-func queryFailedRunLogs(repo string, runID int64) string {
-	if runID <= 0 || len(repo) == 0 {
+func queryFailedRunLogs(repo string, runId uint64) string {
+	if runId == 0 || len(repo) == 0 {
 		return ""
 	}
 
-	idStr := strconv.FormatInt(runID, 10)
+	idStr := strconv.FormatUint(runId, 10)
 	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo, "--log-failed")
 	if err == nil && len(out) > 0 {
 		return string(out)
@@ -113,12 +113,12 @@ func queryFailedRunLogs(repo string, runID int64) string {
 	return "Unable to fetch failed logs via gh CLI."
 }
 
-func queryAllRunLogs(repo string, runID int64) string {
-	if runID <= 0 || len(repo) == 0 {
+func queryAllRunLogs(repo string, runId uint64) string {
+	if runId == 0 || len(repo) == 0 {
 		return ""
 	}
 
-	idStr := strconv.FormatInt(runID, 10)
+	idStr := strconv.FormatUint(runId, 10)
 	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo, "--log")
 	if err == nil && len(out) > 0 {
 		return string(out)
@@ -146,13 +146,13 @@ func queryRunsFromDB(repo string) []ghRunItem {
 
 	for _, r := range dbRuns {
 		runs = append(runs, ghRunItem{
-			DatabaseId: r.RunID,
+			DatabaseId: uint64(r.RunID),
 			Name:       r.WorkflowName,
 			Status:     r.Status,
 			Conclusion: r.Conclusion,
 			HeadBranch: r.Branch,
 			HeadSha:    r.Sha,
-			URL:        r.URL,
+			Url:        r.URL,
 		})
 	}
 
