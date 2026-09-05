@@ -216,3 +216,92 @@ func TestPipelineRepository_FluentQueryWithEnums(t *testing.T) {
 		t.Errorf("expected non-empty QueryHash")
 	}
 }
+
+func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
+	ctx := context.Background()
+	domainRepo, cleanup := setupTestPipelineRepo(t)
+	defer cleanup()
+
+	// Insert test runs via domain repo
+	run := PipelineRunRecord{
+		RunId:           301,
+		RepoSlug:        "owner/auto-repo",
+		WorkflowName:    "ci-cd",
+		Status:          "completed",
+		Conclusion:      "success",
+		Branch:          "main",
+		Sha:             "sha-301",
+		EtaSeconds:      60,
+		DurationSeconds: 55,
+		RunUrl:          "https://ci.example.com/runs/301",
+		IsSuccess:       true,
+		CreatedAt:       "2026-09-05T14:00:00Z",
+		UpdatedAt:       "2026-09-05T14:01:00Z",
+	}
+	insRes := domainRepo.InsertRun(ctx, run)
+	if insRes.IsFailed() {
+		t.Fatalf("failed inserting run 301: %v", insRes.Err)
+	}
+
+	// 1. Direct usage of auto-generated PipelineRunDbRepo alias constructor
+	runDbRepo := NewPipelineRunDbRepo(domainRepo.Db())
+	if runDbRepo == nil {
+		t.Fatalf("expected non-nil PipelineRunDbRepo")
+	}
+
+	// 2. FindAll returns dbengine.ListResult[PipelineRunRecord]
+	listRes := runDbRepo.FindAll(ctx)
+	if listRes.IsFailed() {
+		t.Fatalf("FindAll failed: %v", listRes.Err)
+	}
+	if len(listRes.Value) != 1 {
+		t.Fatalf("expected 1 record from FindAll, got %d", len(listRes.Value))
+	}
+	firstFound := listRes.Value[0]
+	if firstFound.RunId != 301 {
+		t.Errorf("expected RunId 301, got %d", firstFound.RunId)
+	}
+
+	// 3. First returns dbengine.EntityResult[PipelineRunRecord]
+	entRes := runDbRepo.First(ctx)
+	if entRes.IsFailed() {
+		t.Fatalf("First failed: %v", entRes.Err)
+	}
+	if entRes.Value.WorkflowName != "ci-cd" {
+		t.Errorf("expected workflow 'ci-cd', got '%s'", entRes.Value.WorkflowName)
+	}
+
+	// 4. Count returns dbengine.Int64Result
+	countRes := runDbRepo.Count(ctx)
+	if countRes.IsFailed() {
+		t.Fatalf("Count failed: %v", countRes.Err)
+	}
+	if countRes.Value != 1 {
+		t.Errorf("expected count 1, got %d", countRes.Value)
+	}
+
+	// 5. Query() fluent filtering with generated enums
+	filteredRes := runDbRepo.Query().
+		WhereOp(PipelineRunRecordDb.RunId, dbengine.SqlOperators.Equal, 301).
+		FindAll(ctx)
+	if filteredRes.IsFailed() {
+		t.Fatalf("Query().WhereOp() failed: %v", filteredRes.Err)
+	}
+	if len(filteredRes.Value) != 1 {
+		t.Errorf("expected 1 filtered record, got %d", len(filteredRes.Value))
+	}
+
+	// 6. Direct usage of auto-generated PipelineErrorDbRepo
+	errDbRepo := NewPipelineErrorDbRepo(domainRepo.Db())
+	if errDbRepo == nil {
+		t.Fatalf("expected non-nil PipelineErrorDbRepo")
+	}
+	errCountRes := errDbRepo.Count(ctx)
+	if errCountRes.IsFailed() {
+		t.Fatalf("errDbRepo.Count failed: %v", errCountRes.Err)
+	}
+	if errCountRes.Value != 0 {
+		t.Errorf("expected error count 0, got %d", errCountRes.Value)
+	}
+}
+

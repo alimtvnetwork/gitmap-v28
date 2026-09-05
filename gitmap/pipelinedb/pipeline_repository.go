@@ -2,7 +2,6 @@ package pipelinedb
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
@@ -10,106 +9,14 @@ import (
 
 // PipelineRepository provides domain business logic methods for pipeline runs and error diagnostics.
 type PipelineRepository struct {
-	db   *dbengine.DbWrapper
-	repo *dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType]
+	*PipelineRunRecordDbRepo
 }
 
 // NewPipelineRepository creates a new domain repository wrapping a DbWrapper.
 func NewPipelineRepository(db *dbengine.DbWrapper) *PipelineRepository {
-	repo := dbengine.NewRepository[PipelineRunRecord, PipelineRunRecordFieldType](
-		db,
-		PipelineRunRecordTable,
-		ScanPipelineRunRecord,
-	)
 	return &PipelineRepository{
-		db:   db,
-		repo: repo,
+		PipelineRunRecordDbRepo: NewPipelineRunRecordDbRepo(db),
 	}
-}
-
-// Db returns the underlying DbWrapper.
-func (r *PipelineRepository) Db() *dbengine.DbWrapper {
-	return r.db
-}
-
-// Repo returns the underlying generic Repository.
-func (r *PipelineRepository) Repo() *dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType] {
-	return r.repo
-}
-
-// Query returns a fluent QueryBuilder initialized with all standard fields projected.
-func (r *PipelineRepository) Query() *dbengine.QueryBuilder[PipelineRunRecord, PipelineRunRecordFieldType] {
-	return r.repo.Query().Select(PipelineRunRecordDb.All()...)
-}
-
-// QueryBare returns a fluent QueryBuilder without any pre-selected fields.
-func (r *PipelineRepository) QueryBare() *dbengine.QueryBuilder[PipelineRunRecord, PipelineRunRecordFieldType] {
-	return r.repo.Query()
-}
-
-// ScanPipelineRunRecord maps a database row scanner to a PipelineRunRecord entity.
-func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error) {
-	var r PipelineRunRecord
-	var isSuccessInt int
-	var notes, comments sql.NullString
-	err := row.Scan(
-		&r.RunId,
-		&r.RepoSlug,
-		&r.WorkflowName,
-		&r.Status,
-		&r.Conclusion,
-		&r.Branch,
-		&r.Sha,
-		&r.EtaSeconds,
-		&r.DurationSeconds,
-		&r.RunUrl,
-		&isSuccessInt,
-		&notes,
-		&comments,
-		&r.CreatedAt,
-		&r.UpdatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-	r.IsSuccess = isSuccessInt == 1
-	if notes.Valid {
-		r.Notes = notes.String
-	}
-	if comments.Valid {
-		r.Comments = comments.String
-	}
-	return &r, nil
-}
-
-// ScanPipelineErrorRecord maps a database row scanner to a PipelineErrorRecord entity.
-func ScanPipelineErrorRecord(row dbengine.RowScanner) (*PipelineErrorRecord, error) {
-	var e PipelineErrorRecord
-	var rawLogs, notes, comments sql.NullString
-	err := row.Scan(
-		&e.RunId,
-		&e.RepoSlug,
-		&e.WorkflowName,
-		&e.StepName,
-		&e.ErrorText,
-		&rawLogs,
-		&notes,
-		&comments,
-		&e.CreatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-	if rawLogs.Valid {
-		e.RawLogs = rawLogs.String
-	}
-	if notes.Valid {
-		e.Notes = notes.String
-	}
-	if comments.Valid {
-		e.Comments = comments.String
-	}
-	return &e, nil
 }
 
 // InitSchema ensures the PipelineRunRecord and PipelineErrorRecord tables exist.

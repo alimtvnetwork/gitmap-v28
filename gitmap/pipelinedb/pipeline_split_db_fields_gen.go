@@ -3,9 +3,11 @@
 package pipelinedb
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 )
 
 // PipelineSplitDbFieldType represents column name enums for PipelineSplitDb.
@@ -90,7 +92,7 @@ func (e PipelineSplitDbFieldType) IsPath() bool {
 
 type pipelineSplitDbDbRegistry struct {
 	RepoSlug PipelineSplitDbFieldType
-	Path     PipelineSplitDbFieldType
+	Path PipelineSplitDbFieldType
 }
 
 // All returns a slice of all field enums in PipelineSplitDb.
@@ -136,13 +138,13 @@ func (r pipelineSplitDbDbRegistry) ToJSON() (string, *apperror.AppError) {
 // PipelineSplitDbDb provides scoped access to field enums: PipelineSplitDbDb.<Field>.
 var PipelineSplitDbDb = pipelineSplitDbDbRegistry{
 	RepoSlug: "RepoSlug",
-	Path:     "Path",
+	Path: "Path",
 }
 
 // pipelineSplitDbValidMap provides O(1) map validation for field enums.
 var pipelineSplitDbValidMap = map[PipelineSplitDbFieldType]bool{
 	PipelineSplitDbDb.RepoSlug: true,
-	PipelineSplitDbDb.Path:     true,
+	PipelineSplitDbDb.Path: true,
 }
 
 // PipelineSplitDbField is an alias to PipelineSplitDbDb.
@@ -150,6 +152,80 @@ var PipelineSplitDbField = PipelineSplitDbDb
 
 // PipelineSplitDbTable represents the canonical table name.
 const PipelineSplitDbTable = "PipelineSplitDb"
+
+// ScanPipelineSplitDb maps a database row scanner to a PipelineSplitDb entity.
+func ScanPipelineSplitDb(row dbengine.RowScanner) (*PipelineSplitDb, error) {
+	var item PipelineSplitDb
+	var (
+		raw_RepoSlug any
+		raw_Path any
+	)
+	err := row.Scan(
+		&raw_RepoSlug,
+		&raw_Path,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	item.RepoSlug = dbengine.ScanString(raw_RepoSlug)
+	item.Path = dbengine.ScanString(raw_Path)
+	return &item, nil
+}
+
+// PipelineSplitDbDbRepo provides typed database repository access for PipelineSplitDb.
+type PipelineSplitDbDbRepo struct {
+	db   *dbengine.DbWrapper
+	repo *dbengine.Repository[PipelineSplitDb, PipelineSplitDbFieldType]
+}
+
+// NewPipelineSplitDbDbRepo initializes a typed repository for PipelineSplitDb.
+func NewPipelineSplitDbDbRepo(db *dbengine.DbWrapper) *PipelineSplitDbDbRepo {
+	repo := dbengine.NewRepository[PipelineSplitDb, PipelineSplitDbFieldType](
+		db,
+		PipelineSplitDbTable,
+		ScanPipelineSplitDb,
+	)
+	return &PipelineSplitDbDbRepo{
+		db:   db,
+		repo: repo,
+	}
+}
+
+// Db returns the underlying DbWrapper.
+func (r *PipelineSplitDbDbRepo) Db() *dbengine.DbWrapper {
+	return r.db
+}
+
+// Repo returns the underlying generic Repository.
+func (r *PipelineSplitDbDbRepo) Repo() *dbengine.Repository[PipelineSplitDb, PipelineSplitDbFieldType] {
+	return r.repo
+}
+
+// Query returns a fluent QueryBuilder initialized with all standard fields projected.
+func (r *PipelineSplitDbDbRepo) Query() *dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType] {
+	return r.repo.Query().Select(PipelineSplitDbDb.All()...)
+}
+
+// QueryBare returns a fluent QueryBuilder without any pre-selected fields.
+func (r *PipelineSplitDbDbRepo) QueryBare() *dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType] {
+	return r.repo.Query()
+}
+
+// FindAll executes the query selecting all fields and returns a ListResult envelope.
+func (r *PipelineSplitDbDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineSplitDb] {
+	return r.Query().FindAll(ctx)
+}
+
+// First executes the query selecting all fields and returns the first record in an EntityResult envelope.
+func (r *PipelineSplitDbDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineSplitDb] {
+	return r.Query().First(ctx)
+}
+
+// Count returns the total number of records matching the query.
+func (r *PipelineSplitDbDbRepo) Count(ctx context.Context) dbengine.Int64Result {
+	return r.Query().Count(ctx)
+}
 
 // PipelineRunRecordFieldType represents column name enums for PipelineRunRecord.
 type PipelineRunRecordFieldType string
@@ -297,21 +373,21 @@ func (e PipelineRunRecordFieldType) IsUpdatedAt() bool {
 }
 
 type pipelineRunRecordDbRegistry struct {
-	RunId           PipelineRunRecordFieldType
-	RepoSlug        PipelineRunRecordFieldType
-	WorkflowName    PipelineRunRecordFieldType
-	Status          PipelineRunRecordFieldType
-	Conclusion      PipelineRunRecordFieldType
-	Branch          PipelineRunRecordFieldType
-	Sha             PipelineRunRecordFieldType
-	EtaSeconds      PipelineRunRecordFieldType
+	RunId PipelineRunRecordFieldType
+	RepoSlug PipelineRunRecordFieldType
+	WorkflowName PipelineRunRecordFieldType
+	Status PipelineRunRecordFieldType
+	Conclusion PipelineRunRecordFieldType
+	Branch PipelineRunRecordFieldType
+	Sha PipelineRunRecordFieldType
+	EtaSeconds PipelineRunRecordFieldType
 	DurationSeconds PipelineRunRecordFieldType
-	RunUrl          PipelineRunRecordFieldType
-	IsSuccess       PipelineRunRecordFieldType
-	Notes           PipelineRunRecordFieldType
-	Comments        PipelineRunRecordFieldType
-	CreatedAt       PipelineRunRecordFieldType
-	UpdatedAt       PipelineRunRecordFieldType
+	RunUrl PipelineRunRecordFieldType
+	IsSuccess PipelineRunRecordFieldType
+	Notes PipelineRunRecordFieldType
+	Comments PipelineRunRecordFieldType
+	CreatedAt PipelineRunRecordFieldType
+	UpdatedAt PipelineRunRecordFieldType
 }
 
 // All returns a slice of all field enums in PipelineRunRecord.
@@ -447,40 +523,40 @@ func (r pipelineRunRecordDbRegistry) ToJSON() (string, *apperror.AppError) {
 
 // PipelineRunRecordDb provides scoped access to field enums: PipelineRunRecordDb.<Field>.
 var PipelineRunRecordDb = pipelineRunRecordDbRegistry{
-	RunId:           "RunId",
-	RepoSlug:        "RepoSlug",
-	WorkflowName:    "WorkflowName",
-	Status:          "Status",
-	Conclusion:      "Conclusion",
-	Branch:          "Branch",
-	Sha:             "Sha",
-	EtaSeconds:      "EtaSeconds",
+	RunId: "RunId",
+	RepoSlug: "RepoSlug",
+	WorkflowName: "WorkflowName",
+	Status: "Status",
+	Conclusion: "Conclusion",
+	Branch: "Branch",
+	Sha: "Sha",
+	EtaSeconds: "EtaSeconds",
 	DurationSeconds: "DurationSeconds",
-	RunUrl:          "RunUrl",
-	IsSuccess:       "IsSuccess",
-	Notes:           "Notes",
-	Comments:        "Comments",
-	CreatedAt:       "CreatedAt",
-	UpdatedAt:       "UpdatedAt",
+	RunUrl: "RunUrl",
+	IsSuccess: "IsSuccess",
+	Notes: "Notes",
+	Comments: "Comments",
+	CreatedAt: "CreatedAt",
+	UpdatedAt: "UpdatedAt",
 }
 
 // pipelineRunRecordValidMap provides O(1) map validation for field enums.
 var pipelineRunRecordValidMap = map[PipelineRunRecordFieldType]bool{
-	PipelineRunRecordDb.RunId:           true,
-	PipelineRunRecordDb.RepoSlug:        true,
-	PipelineRunRecordDb.WorkflowName:    true,
-	PipelineRunRecordDb.Status:          true,
-	PipelineRunRecordDb.Conclusion:      true,
-	PipelineRunRecordDb.Branch:          true,
-	PipelineRunRecordDb.Sha:             true,
-	PipelineRunRecordDb.EtaSeconds:      true,
+	PipelineRunRecordDb.RunId: true,
+	PipelineRunRecordDb.RepoSlug: true,
+	PipelineRunRecordDb.WorkflowName: true,
+	PipelineRunRecordDb.Status: true,
+	PipelineRunRecordDb.Conclusion: true,
+	PipelineRunRecordDb.Branch: true,
+	PipelineRunRecordDb.Sha: true,
+	PipelineRunRecordDb.EtaSeconds: true,
 	PipelineRunRecordDb.DurationSeconds: true,
-	PipelineRunRecordDb.RunUrl:          true,
-	PipelineRunRecordDb.IsSuccess:       true,
-	PipelineRunRecordDb.Notes:           true,
-	PipelineRunRecordDb.Comments:        true,
-	PipelineRunRecordDb.CreatedAt:       true,
-	PipelineRunRecordDb.UpdatedAt:       true,
+	PipelineRunRecordDb.RunUrl: true,
+	PipelineRunRecordDb.IsSuccess: true,
+	PipelineRunRecordDb.Notes: true,
+	PipelineRunRecordDb.Comments: true,
+	PipelineRunRecordDb.CreatedAt: true,
+	PipelineRunRecordDb.UpdatedAt: true,
 }
 
 // PipelineRunRecordField is an alias to PipelineRunRecordDb.
@@ -488,6 +564,127 @@ var PipelineRunRecordField = PipelineRunRecordDb
 
 // PipelineRunRecordTable represents the canonical table name.
 const PipelineRunRecordTable = "PipelineRunRecord"
+
+// ScanPipelineRunRecord maps a database row scanner to a PipelineRunRecord entity.
+func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error) {
+	var item PipelineRunRecord
+	var (
+		raw_RunId any
+		raw_RepoSlug any
+		raw_WorkflowName any
+		raw_Status any
+		raw_Conclusion any
+		raw_Branch any
+		raw_Sha any
+		raw_EtaSeconds any
+		raw_DurationSeconds any
+		raw_RunUrl any
+		raw_IsSuccess any
+		raw_Notes any
+		raw_Comments any
+		raw_CreatedAt any
+		raw_UpdatedAt any
+	)
+	err := row.Scan(
+		&raw_RunId,
+		&raw_RepoSlug,
+		&raw_WorkflowName,
+		&raw_Status,
+		&raw_Conclusion,
+		&raw_Branch,
+		&raw_Sha,
+		&raw_EtaSeconds,
+		&raw_DurationSeconds,
+		&raw_RunUrl,
+		&raw_IsSuccess,
+		&raw_Notes,
+		&raw_Comments,
+		&raw_CreatedAt,
+		&raw_UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	item.RunId = dbengine.ScanUint64(raw_RunId)
+	item.RepoSlug = dbengine.ScanString(raw_RepoSlug)
+	item.WorkflowName = dbengine.ScanString(raw_WorkflowName)
+	item.Status = dbengine.ScanString(raw_Status)
+	item.Conclusion = dbengine.ScanString(raw_Conclusion)
+	item.Branch = dbengine.ScanString(raw_Branch)
+	item.Sha = dbengine.ScanString(raw_Sha)
+	item.EtaSeconds = dbengine.ScanInt(raw_EtaSeconds)
+	item.DurationSeconds = dbengine.ScanInt(raw_DurationSeconds)
+	item.RunUrl = dbengine.ScanString(raw_RunUrl)
+	item.IsSuccess = dbengine.ScanBool(raw_IsSuccess)
+	item.Notes = dbengine.ScanString(raw_Notes)
+	item.Comments = dbengine.ScanString(raw_Comments)
+	item.CreatedAt = dbengine.ScanString(raw_CreatedAt)
+	item.UpdatedAt = dbengine.ScanString(raw_UpdatedAt)
+	return &item, nil
+}
+
+// PipelineRunRecordDbRepo provides typed database repository access for PipelineRunRecord.
+type PipelineRunRecordDbRepo struct {
+	db   *dbengine.DbWrapper
+	repo *dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType]
+}
+
+// PipelineRunDbRepo is an alias to PipelineRunRecordDbRepo for concise business usage.
+type PipelineRunDbRepo = PipelineRunRecordDbRepo
+
+// NewPipelineRunRecordDbRepo initializes a typed repository for PipelineRunRecord.
+func NewPipelineRunRecordDbRepo(db *dbengine.DbWrapper) *PipelineRunRecordDbRepo {
+	repo := dbengine.NewRepository[PipelineRunRecord, PipelineRunRecordFieldType](
+		db,
+		PipelineRunRecordTable,
+		ScanPipelineRunRecord,
+	)
+	return &PipelineRunRecordDbRepo{
+		db:   db,
+		repo: repo,
+	}
+}
+
+// NewPipelineRunDbRepo is an alias constructor for PipelineRunRecordDbRepo.
+func NewPipelineRunDbRepo(db *dbengine.DbWrapper) *PipelineRunDbRepo {
+	return NewPipelineRunRecordDbRepo(db)
+}
+
+// Db returns the underlying DbWrapper.
+func (r *PipelineRunRecordDbRepo) Db() *dbengine.DbWrapper {
+	return r.db
+}
+
+// Repo returns the underlying generic Repository.
+func (r *PipelineRunRecordDbRepo) Repo() *dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType] {
+	return r.repo
+}
+
+// Query returns a fluent QueryBuilder initialized with all standard fields projected.
+func (r *PipelineRunRecordDbRepo) Query() *dbengine.QueryBuilder[PipelineRunRecord, PipelineRunRecordFieldType] {
+	return r.repo.Query().Select(PipelineRunRecordDb.All()...)
+}
+
+// QueryBare returns a fluent QueryBuilder without any pre-selected fields.
+func (r *PipelineRunRecordDbRepo) QueryBare() *dbengine.QueryBuilder[PipelineRunRecord, PipelineRunRecordFieldType] {
+	return r.repo.Query()
+}
+
+// FindAll executes the query selecting all fields and returns a ListResult envelope.
+func (r *PipelineRunRecordDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineRunRecord] {
+	return r.Query().FindAll(ctx)
+}
+
+// First executes the query selecting all fields and returns the first record in an EntityResult envelope.
+func (r *PipelineRunRecordDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineRunRecord] {
+	return r.Query().First(ctx)
+}
+
+// Count returns the total number of records matching the query.
+func (r *PipelineRunRecordDbRepo) Count(ctx context.Context) dbengine.Int64Result {
+	return r.Query().Count(ctx)
+}
 
 // PipelineErrorRecordFieldType represents column name enums for PipelineErrorRecord.
 type PipelineErrorRecordFieldType string
@@ -605,15 +802,15 @@ func (e PipelineErrorRecordFieldType) IsCreatedAt() bool {
 }
 
 type pipelineErrorRecordDbRegistry struct {
-	RunId        PipelineErrorRecordFieldType
-	RepoSlug     PipelineErrorRecordFieldType
+	RunId PipelineErrorRecordFieldType
+	RepoSlug PipelineErrorRecordFieldType
 	WorkflowName PipelineErrorRecordFieldType
-	StepName     PipelineErrorRecordFieldType
-	ErrorText    PipelineErrorRecordFieldType
-	RawLogs      PipelineErrorRecordFieldType
-	Notes        PipelineErrorRecordFieldType
-	Comments     PipelineErrorRecordFieldType
-	CreatedAt    PipelineErrorRecordFieldType
+	StepName PipelineErrorRecordFieldType
+	ErrorText PipelineErrorRecordFieldType
+	RawLogs PipelineErrorRecordFieldType
+	Notes PipelineErrorRecordFieldType
+	Comments PipelineErrorRecordFieldType
+	CreatedAt PipelineErrorRecordFieldType
 }
 
 // All returns a slice of all field enums in PipelineErrorRecord.
@@ -707,28 +904,28 @@ func (r pipelineErrorRecordDbRegistry) ToJSON() (string, *apperror.AppError) {
 
 // PipelineErrorRecordDb provides scoped access to field enums: PipelineErrorRecordDb.<Field>.
 var PipelineErrorRecordDb = pipelineErrorRecordDbRegistry{
-	RunId:        "RunId",
-	RepoSlug:     "RepoSlug",
+	RunId: "RunId",
+	RepoSlug: "RepoSlug",
 	WorkflowName: "WorkflowName",
-	StepName:     "StepName",
-	ErrorText:    "ErrorText",
-	RawLogs:      "RawLogs",
-	Notes:        "Notes",
-	Comments:     "Comments",
-	CreatedAt:    "CreatedAt",
+	StepName: "StepName",
+	ErrorText: "ErrorText",
+	RawLogs: "RawLogs",
+	Notes: "Notes",
+	Comments: "Comments",
+	CreatedAt: "CreatedAt",
 }
 
 // pipelineErrorRecordValidMap provides O(1) map validation for field enums.
 var pipelineErrorRecordValidMap = map[PipelineErrorRecordFieldType]bool{
-	PipelineErrorRecordDb.RunId:        true,
-	PipelineErrorRecordDb.RepoSlug:     true,
+	PipelineErrorRecordDb.RunId: true,
+	PipelineErrorRecordDb.RepoSlug: true,
 	PipelineErrorRecordDb.WorkflowName: true,
-	PipelineErrorRecordDb.StepName:     true,
-	PipelineErrorRecordDb.ErrorText:    true,
-	PipelineErrorRecordDb.RawLogs:      true,
-	PipelineErrorRecordDb.Notes:        true,
-	PipelineErrorRecordDb.Comments:     true,
-	PipelineErrorRecordDb.CreatedAt:    true,
+	PipelineErrorRecordDb.StepName: true,
+	PipelineErrorRecordDb.ErrorText: true,
+	PipelineErrorRecordDb.RawLogs: true,
+	PipelineErrorRecordDb.Notes: true,
+	PipelineErrorRecordDb.Comments: true,
+	PipelineErrorRecordDb.CreatedAt: true,
 }
 
 // PipelineErrorRecordField is an alias to PipelineErrorRecordDb.
@@ -736,6 +933,109 @@ var PipelineErrorRecordField = PipelineErrorRecordDb
 
 // PipelineErrorRecordTable represents the canonical table name.
 const PipelineErrorRecordTable = "PipelineErrorRecord"
+
+// ScanPipelineErrorRecord maps a database row scanner to a PipelineErrorRecord entity.
+func ScanPipelineErrorRecord(row dbengine.RowScanner) (*PipelineErrorRecord, error) {
+	var item PipelineErrorRecord
+	var (
+		raw_RunId any
+		raw_RepoSlug any
+		raw_WorkflowName any
+		raw_StepName any
+		raw_ErrorText any
+		raw_RawLogs any
+		raw_Notes any
+		raw_Comments any
+		raw_CreatedAt any
+	)
+	err := row.Scan(
+		&raw_RunId,
+		&raw_RepoSlug,
+		&raw_WorkflowName,
+		&raw_StepName,
+		&raw_ErrorText,
+		&raw_RawLogs,
+		&raw_Notes,
+		&raw_Comments,
+		&raw_CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	item.RunId = dbengine.ScanUint64(raw_RunId)
+	item.RepoSlug = dbengine.ScanString(raw_RepoSlug)
+	item.WorkflowName = dbengine.ScanString(raw_WorkflowName)
+	item.StepName = dbengine.ScanString(raw_StepName)
+	item.ErrorText = dbengine.ScanString(raw_ErrorText)
+	item.RawLogs = dbengine.ScanString(raw_RawLogs)
+	item.Notes = dbengine.ScanString(raw_Notes)
+	item.Comments = dbengine.ScanString(raw_Comments)
+	item.CreatedAt = dbengine.ScanString(raw_CreatedAt)
+	return &item, nil
+}
+
+// PipelineErrorRecordDbRepo provides typed database repository access for PipelineErrorRecord.
+type PipelineErrorRecordDbRepo struct {
+	db   *dbengine.DbWrapper
+	repo *dbengine.Repository[PipelineErrorRecord, PipelineErrorRecordFieldType]
+}
+
+// PipelineErrorDbRepo is an alias to PipelineErrorRecordDbRepo for concise business usage.
+type PipelineErrorDbRepo = PipelineErrorRecordDbRepo
+
+// NewPipelineErrorRecordDbRepo initializes a typed repository for PipelineErrorRecord.
+func NewPipelineErrorRecordDbRepo(db *dbengine.DbWrapper) *PipelineErrorRecordDbRepo {
+	repo := dbengine.NewRepository[PipelineErrorRecord, PipelineErrorRecordFieldType](
+		db,
+		PipelineErrorRecordTable,
+		ScanPipelineErrorRecord,
+	)
+	return &PipelineErrorRecordDbRepo{
+		db:   db,
+		repo: repo,
+	}
+}
+
+// NewPipelineErrorDbRepo is an alias constructor for PipelineErrorRecordDbRepo.
+func NewPipelineErrorDbRepo(db *dbengine.DbWrapper) *PipelineErrorDbRepo {
+	return NewPipelineErrorRecordDbRepo(db)
+}
+
+// Db returns the underlying DbWrapper.
+func (r *PipelineErrorRecordDbRepo) Db() *dbengine.DbWrapper {
+	return r.db
+}
+
+// Repo returns the underlying generic Repository.
+func (r *PipelineErrorRecordDbRepo) Repo() *dbengine.Repository[PipelineErrorRecord, PipelineErrorRecordFieldType] {
+	return r.repo
+}
+
+// Query returns a fluent QueryBuilder initialized with all standard fields projected.
+func (r *PipelineErrorRecordDbRepo) Query() *dbengine.QueryBuilder[PipelineErrorRecord, PipelineErrorRecordFieldType] {
+	return r.repo.Query().Select(PipelineErrorRecordDb.All()...)
+}
+
+// QueryBare returns a fluent QueryBuilder without any pre-selected fields.
+func (r *PipelineErrorRecordDbRepo) QueryBare() *dbengine.QueryBuilder[PipelineErrorRecord, PipelineErrorRecordFieldType] {
+	return r.repo.Query()
+}
+
+// FindAll executes the query selecting all fields and returns a ListResult envelope.
+func (r *PipelineErrorRecordDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineErrorRecord] {
+	return r.Query().FindAll(ctx)
+}
+
+// First executes the query selecting all fields and returns the first record in an EntityResult envelope.
+func (r *PipelineErrorRecordDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineErrorRecord] {
+	return r.Query().First(ctx)
+}
+
+// Count returns the total number of records matching the query.
+func (r *PipelineErrorRecordDbRepo) Count(ctx context.Context) dbengine.Int64Result {
+	return r.Query().Count(ctx)
+}
 
 // PipelineDbStatsFieldType represents column name enums for PipelineDbStats.
 type PipelineDbStatsFieldType string
@@ -848,14 +1148,14 @@ func (e PipelineDbStatsFieldType) IsLastUpdated() bool {
 }
 
 type pipelineDbStatsDbRegistry struct {
-	Path          PipelineDbStatsFieldType
-	Size          PipelineDbStatsFieldType
-	TotalRuns     PipelineDbStatsFieldType
-	SuccessRuns   PipelineDbStatsFieldType
-	FailedRuns    PipelineDbStatsFieldType
+	Path PipelineDbStatsFieldType
+	Size PipelineDbStatsFieldType
+	TotalRuns PipelineDbStatsFieldType
+	SuccessRuns PipelineDbStatsFieldType
+	FailedRuns PipelineDbStatsFieldType
 	ErrorLogCount PipelineDbStatsFieldType
-	SegmentCount  PipelineDbStatsFieldType
-	LastUpdated   PipelineDbStatsFieldType
+	SegmentCount PipelineDbStatsFieldType
+	LastUpdated PipelineDbStatsFieldType
 }
 
 // All returns a slice of all field enums in PipelineDbStats.
@@ -942,26 +1242,26 @@ func (r pipelineDbStatsDbRegistry) ToJSON() (string, *apperror.AppError) {
 
 // PipelineDbStatsDb provides scoped access to field enums: PipelineDbStatsDb.<Field>.
 var PipelineDbStatsDb = pipelineDbStatsDbRegistry{
-	Path:          "Path",
-	Size:          "Size",
-	TotalRuns:     "TotalRuns",
-	SuccessRuns:   "SuccessRuns",
-	FailedRuns:    "FailedRuns",
+	Path: "Path",
+	Size: "Size",
+	TotalRuns: "TotalRuns",
+	SuccessRuns: "SuccessRuns",
+	FailedRuns: "FailedRuns",
 	ErrorLogCount: "ErrorLogCount",
-	SegmentCount:  "SegmentCount",
-	LastUpdated:   "LastUpdated",
+	SegmentCount: "SegmentCount",
+	LastUpdated: "LastUpdated",
 }
 
 // pipelineDbStatsValidMap provides O(1) map validation for field enums.
 var pipelineDbStatsValidMap = map[PipelineDbStatsFieldType]bool{
-	PipelineDbStatsDb.Path:          true,
-	PipelineDbStatsDb.Size:          true,
-	PipelineDbStatsDb.TotalRuns:     true,
-	PipelineDbStatsDb.SuccessRuns:   true,
-	PipelineDbStatsDb.FailedRuns:    true,
+	PipelineDbStatsDb.Path: true,
+	PipelineDbStatsDb.Size: true,
+	PipelineDbStatsDb.TotalRuns: true,
+	PipelineDbStatsDb.SuccessRuns: true,
+	PipelineDbStatsDb.FailedRuns: true,
 	PipelineDbStatsDb.ErrorLogCount: true,
-	PipelineDbStatsDb.SegmentCount:  true,
-	PipelineDbStatsDb.LastUpdated:   true,
+	PipelineDbStatsDb.SegmentCount: true,
+	PipelineDbStatsDb.LastUpdated: true,
 }
 
 // PipelineDbStatsField is an alias to PipelineDbStatsDb.
@@ -969,3 +1269,95 @@ var PipelineDbStatsField = PipelineDbStatsDb
 
 // PipelineDbStatsTable represents the canonical table name.
 const PipelineDbStatsTable = "PipelineDbStats"
+
+// ScanPipelineDbStats maps a database row scanner to a PipelineDbStats entity.
+func ScanPipelineDbStats(row dbengine.RowScanner) (*PipelineDbStats, error) {
+	var item PipelineDbStats
+	var (
+		raw_Path any
+		raw_Size any
+		raw_TotalRuns any
+		raw_SuccessRuns any
+		raw_FailedRuns any
+		raw_ErrorLogCount any
+		raw_SegmentCount any
+		raw_LastUpdated any
+	)
+	err := row.Scan(
+		&raw_Path,
+		&raw_Size,
+		&raw_TotalRuns,
+		&raw_SuccessRuns,
+		&raw_FailedRuns,
+		&raw_ErrorLogCount,
+		&raw_SegmentCount,
+		&raw_LastUpdated,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	item.Path = dbengine.ScanString(raw_Path)
+	item.Size = dbengine.ScanUint64(raw_Size)
+	item.TotalRuns = dbengine.ScanInt(raw_TotalRuns)
+	item.SuccessRuns = dbengine.ScanInt(raw_SuccessRuns)
+	item.FailedRuns = dbengine.ScanInt(raw_FailedRuns)
+	item.ErrorLogCount = dbengine.ScanInt(raw_ErrorLogCount)
+	item.SegmentCount = dbengine.ScanInt(raw_SegmentCount)
+	item.LastUpdated = dbengine.ScanString(raw_LastUpdated)
+	return &item, nil
+}
+
+// PipelineDbStatsDbRepo provides typed database repository access for PipelineDbStats.
+type PipelineDbStatsDbRepo struct {
+	db   *dbengine.DbWrapper
+	repo *dbengine.Repository[PipelineDbStats, PipelineDbStatsFieldType]
+}
+
+// NewPipelineDbStatsDbRepo initializes a typed repository for PipelineDbStats.
+func NewPipelineDbStatsDbRepo(db *dbengine.DbWrapper) *PipelineDbStatsDbRepo {
+	repo := dbengine.NewRepository[PipelineDbStats, PipelineDbStatsFieldType](
+		db,
+		PipelineDbStatsTable,
+		ScanPipelineDbStats,
+	)
+	return &PipelineDbStatsDbRepo{
+		db:   db,
+		repo: repo,
+	}
+}
+
+// Db returns the underlying DbWrapper.
+func (r *PipelineDbStatsDbRepo) Db() *dbengine.DbWrapper {
+	return r.db
+}
+
+// Repo returns the underlying generic Repository.
+func (r *PipelineDbStatsDbRepo) Repo() *dbengine.Repository[PipelineDbStats, PipelineDbStatsFieldType] {
+	return r.repo
+}
+
+// Query returns a fluent QueryBuilder initialized with all standard fields projected.
+func (r *PipelineDbStatsDbRepo) Query() *dbengine.QueryBuilder[PipelineDbStats, PipelineDbStatsFieldType] {
+	return r.repo.Query().Select(PipelineDbStatsDb.All()...)
+}
+
+// QueryBare returns a fluent QueryBuilder without any pre-selected fields.
+func (r *PipelineDbStatsDbRepo) QueryBare() *dbengine.QueryBuilder[PipelineDbStats, PipelineDbStatsFieldType] {
+	return r.repo.Query()
+}
+
+// FindAll executes the query selecting all fields and returns a ListResult envelope.
+func (r *PipelineDbStatsDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineDbStats] {
+	return r.Query().FindAll(ctx)
+}
+
+// First executes the query selecting all fields and returns the first record in an EntityResult envelope.
+func (r *PipelineDbStatsDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineDbStats] {
+	return r.Query().First(ctx)
+}
+
+// Count returns the total number of records matching the query.
+func (r *PipelineDbStatsDbRepo) Count(ctx context.Context) dbengine.Int64Result {
+	return r.Query().Count(ctx)
+}

@@ -60,7 +60,7 @@ def parse_structs_from_file(file_path: Path) -> tuple[str, list[dict]]:
     return pkg_name, structs
 
 
-def generate_enums_for_struct(struct_info: dict) -> str:
+def generate_enums_for_struct(struct_info: dict, pkg_name: str = "") -> str:
     s_name = struct_info["name"]
     enum_type = f"{s_name}FieldType"
     reg_type = f"{s_name[0].lower() + s_name[1:]}DbRegistry"
@@ -230,7 +230,135 @@ def generate_enums_for_struct(struct_info: dict) -> str:
     lines.append(f'const {s_name}Table = "{s_name}"')
     lines.append("")
 
+    pkg_qual = "" if pkg_name == "dbengine" else "dbengine."
+    scan_func = f"Scan{s_name}"
+    repo_type = f"{s_name}DbRepo"
+    short_name = s_name[:-6] if s_name.endswith("Record") else s_name
+    has_alias = short_name != s_name
+
+    # Scanner function
+    lines.append(f"// {scan_func} maps a database row scanner to a {s_name} entity.")
+    lines.append(f"func {scan_func}(row {pkg_qual}RowScanner) (*{s_name}, error) {{")
+    lines.append(f"\tvar item {s_name}")
+    lines.append("\tvar (")
+    for f in struct_info["fields"]:
+        lines.append(f"\t\traw_{f['name']} any")
+    lines.append("\t)")
+    lines.append("\terr := row.Scan(")
+    for f in struct_info["fields"]:
+        lines.append(f"\t\t&raw_{f['name']},")
+    lines.append("\t)")
+    lines.append("\tif err != nil {")
+    lines.append("\t\treturn nil, err")
+    lines.append("\t}")
+    lines.append("")
+    for f in struct_info["fields"]:
+        helper = get_scan_helper(f["type"], pkg_qual)
+        lines.append(f"\titem.{f['name']} = {helper}(raw_{f['name']})")
+    lines.append("\treturn &item, nil")
+    lines.append("}")
+    lines.append("")
+
+    # Repository struct & methods
+    lines.extend([
+        f"// {repo_type} provides typed database repository access for {s_name}.",
+        f"type {repo_type} struct {{",
+        f"\tdb   *{pkg_qual}DbWrapper",
+        f"\trepo *{pkg_qual}Repository[{s_name}, {enum_type}]",
+        "}",
+        "",
+    ])
+
+    if has_alias:
+        lines.extend([
+            f"// {short_name}DbRepo is an alias to {repo_type} for concise business usage.",
+            f"type {short_name}DbRepo = {repo_type}",
+            "",
+        ])
+
+    lines.extend([
+        f"// New{repo_type} initializes a typed repository for {s_name}.",
+        f"func New{repo_type}(db *{pkg_qual}DbWrapper) *{repo_type} {{",
+        f"\trepo := {pkg_qual}NewRepository[{s_name}, {enum_type}](",
+        "\t\tdb,",
+        f"\t\t{s_name}Table,",
+        f"\t\t{scan_func},",
+        "\t)",
+        f"\treturn &{repo_type}{{",
+        "\t\tdb:   db,",
+        "\t\trepo: repo,",
+        "\t}",
+        "}",
+        "",
+    ])
+
+    if has_alias:
+        lines.extend([
+            f"// New{short_name}DbRepo is an alias constructor for {repo_type}.",
+            f"func New{short_name}DbRepo(db *{pkg_qual}DbWrapper) *{short_name}DbRepo {{",
+            f"\treturn New{repo_type}(db)",
+            "}",
+            "",
+        ])
+
+    lines.extend([
+        f"// Db returns the underlying DbWrapper.",
+        f"func (r *{repo_type}) Db() *{pkg_qual}DbWrapper {{",
+        "\treturn r.db",
+        "}",
+        "",
+        f"// Repo returns the underlying generic Repository.",
+        f"func (r *{repo_type}) Repo() *{pkg_qual}Repository[{s_name}, {enum_type}] {{",
+        "\treturn r.repo",
+        "}",
+        "",
+        f"// Query returns a fluent QueryBuilder initialized with all standard fields projected.",
+        f"func (r *{repo_type}) Query() *{pkg_qual}QueryBuilder[{s_name}, {enum_type}] {{",
+        f"\treturn r.repo.Query().Select({db_var}.All()...)",
+        "}",
+        "",
+        f"// QueryBare returns a fluent QueryBuilder without any pre-selected fields.",
+        f"func (r *{repo_type}) QueryBare() *{pkg_qual}QueryBuilder[{s_name}, {enum_type}] {{",
+        "\treturn r.repo.Query()",
+        "}",
+        "",
+        f"// FindAll executes the query selecting all fields and returns a ListResult envelope.",
+        f"func (r *{repo_type}) FindAll(ctx context.Context) {pkg_qual}ListResult[{s_name}] {{",
+        "\treturn r.Query().FindAll(ctx)",
+        "}",
+        "",
+        f"// First executes the query selecting all fields and returns the first record in an EntityResult envelope.",
+        f"func (r *{repo_type}) First(ctx context.Context) {pkg_qual}EntityResult[{s_name}] {{",
+        "\treturn r.Query().First(ctx)",
+        "}",
+        "",
+        f"// Count returns the total number of records matching the query.",
+        f"func (r *{repo_type}) Count(ctx context.Context) {pkg_qual}Int64Result {{",
+        "\treturn r.Query().Count(ctx)",
+        "}",
+        "",
+    ])
+
     return "\n".join(lines)
+
+
+def get_scan_helper(field_type: str, pkg_qual: str) -> str:
+    ft = field_type.strip("*")
+    if ft == "string":
+        return f"{pkg_qual}ScanString"
+    if ft in ("int", "int32"):
+        return f"{pkg_qual}ScanInt"
+    if ft == "int64":
+        return f"{pkg_qual}ScanInt64"
+    if ft in ("uint64", "uint"):
+        return f"{pkg_qual}ScanUint64"
+    if ft in ("uint32", "uint16", "uint8"):
+        return f"{pkg_qual}ScanUint"
+    if ft == "bool":
+        return f"{pkg_qual}ScanBool"
+    if ft in ("float64", "float32"):
+        return f"{pkg_qual}ScanFloat64"
+    return f"{pkg_qual}ScanString"
 
 
 def process_target_file(target_file: Path, out_dir: Path | None = None, dry_run: bool = False) -> bool:
@@ -243,18 +371,20 @@ def process_target_file(target_file: Path, out_dir: Path | None = None, dry_run:
     out_file = dest_dir / f"{target_file.stem}_fields_gen.go"
 
     import_apperror = '\t"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"\n' if pkg_name != "apperror" else ""
+    import_dbengine = '\t"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"\n' if pkg_name != "dbengine" else ""
 
     header = f"""// Code generated by gitmap db generate. DO NOT EDIT.
 
 package {pkg_name}
 
 import (
+\t"context"
 \t"encoding/json"
 \t"fmt"
-{import_apperror})
+{import_apperror}{import_dbengine})
 
 """
-    body = "\n".join(generate_enums_for_struct(s) for s in structs)
+    body = "\n".join(generate_enums_for_struct(s, pkg_name) for s in structs)
     full_content = header + body
 
     if dry_run:

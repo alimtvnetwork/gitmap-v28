@@ -375,6 +375,33 @@ recentRuns := pipelineRepo.GetRecentRuns(ctx, "owner/repo", 20) // ListResult[Pi
 activeView := pipelineRepo.EnsureActiveErrorsView(ctx)      // BoolResult
 ```
 
+### 5.4 Automatic Typed DbRepo & Safe Row Scanners Generation Pattern
+The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) automatically generates typed repository structs and null-safe row scanners for any Go model struct:
+1. **Safe Row Scanners (`Scan{StructName}`)**:
+   - Uses `dbengine.Scan*` helpers (`ScanString`, `ScanInt`, `ScanInt64`, `ScanUint64`, `ScanUint`, `ScanBool`, `ScanFloat64`).
+   - Completely null-safe: handles SQLite `nil` / NULL values without panics or driver conversion errors.
+   - Converts integer column types (`int64`, `int`) into struct field types (such as `uint64` or `bool`).
+2. **Typed Repository Struct (`{StructName}DbRepo` & alias `{ShortName}DbRepo`)**:
+   - Generates typed repository struct wrapping generic `Repository[T, F]`.
+   - Provides alias for concise business usage (e.g., `PipelineRunDbRepo = PipelineRunRecordDbRepo`).
+   - Generates constructor `New{ShortName}DbRepo(db *dbengine.DbWrapper)`.
+   - Exposes standard typed methods returning Result envelopes:
+     - `FindAll(ctx context.Context) dbengine.ListResult[T]`
+     - `First(ctx context.Context) dbengine.EntityResult[T]`
+     - `Count(ctx context.Context) dbengine.Int64Result`
+     - `Query() *dbengine.QueryBuilder[T, F]`
+     - `QueryBare() *dbengine.QueryBuilder[T, F]`
+     - `Db() *dbengine.DbWrapper`
+     - `Repo() *dbengine.Repository[T, F]`
+3. **Domain Business Repository Integration**:
+   - Domain repositories (e.g. `PipelineRepository`) embed `*{StructName}DbRepo` directly:
+     ```go
+     type PipelineRepository struct {
+         *PipelineRunRecordDbRepo
+     }
+     ```
+   - Automatically inherits all standard CRUD operations while cleanly adding domain business methods (`GetRecentRuns`, `EnsureActiveErrorsView`).
+
 ---
 
 ## 6. External Migration Runner Workflow
