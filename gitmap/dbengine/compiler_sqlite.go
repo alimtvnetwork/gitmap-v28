@@ -76,7 +76,6 @@ func (c *SQLiteCompiler) CompileInspectViewExists(viewName string) string {
 	return c.getImpl().CompileInspectViewExists(viewName)
 }
 
-
 func buildSelectWithoutWhere(quotedTable, pagination string) string {
 	if len(pagination) == 0 {
 		return "SELECT * FROM " + quotedTable + ";"

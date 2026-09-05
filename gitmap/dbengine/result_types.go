@@ -83,3 +83,23 @@ func SuccessList[T any](val []T) ListResult[T] {
 func FailureList[T any](err *apperror.AppError) ListResult[T] {
 	return result.FailureResult[[]T](err)
 }
+
+// CompiledQuery encapsulates compiled SQL text, bound parameters, and deterministic hash.
+type CompiledQuery struct {
+	SQL       string
+	Args      []any
+	QueryHash string
+}
+
+// CompiledQueryResult wraps a CompiledQuery in a result envelope.
+type CompiledQueryResult = result.Result[CompiledQuery]
+
+// SuccessCompiledQuery wraps a CompiledQuery in a successful result envelope.
+func SuccessCompiledQuery(val CompiledQuery) CompiledQueryResult {
+	return result.SuccessResult(val)
+}
+
+// FailureCompiledQuery wraps an AppError in a failed CompiledQueryResult envelope.
+func FailureCompiledQuery(err *apperror.AppError) CompiledQueryResult {
+	return result.FailureResult[CompiledQuery](err)
+}

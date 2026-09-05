@@ -628,8 +628,8 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	qb := repo.Query().
 		Select(TestItemDb.ItemId, TestItemDb.ItemName).
 		InnerJoin("TestDetail").
-			Select("DetailText").
-			OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
+		Select("DetailText").
+		OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
 		Where(TestItemDb.ItemName, "=", "Alpha")
 
 	sqlStr, args := qb.BuildSelect()
@@ -659,7 +659,7 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	firstRes := repo.Query().
 		Select(TestItemDb.ItemId, TestItemDb.ItemName, TestItemDb.Category, TestItemDb.IsActive).
 		InnerJoin("TestDetail").
-			OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
+		OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
 		Where(TestItemDb.ItemName, "=", "Alpha").
 		First(ctx)
 	if firstRes.IsFailed() {
@@ -674,13 +674,20 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 		Where("Category", "=", "Tool").
 		OrderBy("ItemId", "ASC")
 
-	dynSql, dynArgs := dynQb.Compile()
-	// Verify dynSql contains expected tables and clauses
-	if !strings.Contains(dynSql, "SELECT \"ItemId\", \"ItemName\" FROM \"TestItem\"") {
-		t.Errorf("dynamic query missing projected columns: %s", dynSql)
+	dynRes := dynQb.Compile()
+	if dynRes.IsFailed() {
+		t.Fatalf("dynamic query compile failed: %v", dynRes.Err)
 	}
-	if len(dynArgs) == 0 {
+	dynCq := dynRes.Value
+	// Verify dynSql contains expected tables and clauses
+	if !strings.Contains(dynCq.SQL, "SELECT \"ItemId\", \"ItemName\" FROM \"TestItem\"") {
+		t.Errorf("dynamic query missing projected columns: %s", dynCq.SQL)
+	}
+	if len(dynCq.Args) == 0 {
 		t.Errorf("expected dynamic query args")
+	}
+	if len(dynCq.QueryHash) == 0 {
+		t.Errorf("expected non-empty QueryHash")
 	}
 }
 
@@ -695,17 +702,28 @@ func TestQueryBuilder_CompileAndCache(t *testing.T) {
 		Select(TestItemDb.ItemName).
 		Where(TestItemDb.Category, "=", "Tool")
 
-	sql1, args1 := qb.Compile()
+	res1 := qb.Compile()
+	if res1.IsFailed() {
+		t.Fatalf("first compile failed: %v", res1.Err)
+	}
+	cq1 := res1.Value
 	if GlobalQueryCache.Size() != 1 {
 		t.Errorf("expected cache size 1 after compile, got %d", GlobalQueryCache.Size())
 	}
 
-	sql2, args2 := qb.Compile()
-	if sql1 != sql2 {
-		t.Errorf("expected cached SQL to match: %s vs %s", sql1, sql2)
+	res2 := qb.Compile()
+	if res2.IsFailed() {
+		t.Fatalf("second compile failed: %v", res2.Err)
 	}
-	if len(args1) != len(args2) {
+	cq2 := res2.Value
+	if cq1.SQL != cq2.SQL {
+		t.Errorf("expected cached SQL to match: %s vs %s", cq1.SQL, cq2.SQL)
+	}
+	if len(cq1.Args) != len(cq2.Args) {
 		t.Errorf("expected args count to match")
+	}
+	if cq1.QueryHash != cq2.QueryHash {
+		t.Errorf("expected query hashes to match: %s vs %s", cq1.QueryHash, cq2.QueryHash)
 	}
 }
 
@@ -791,9 +809,9 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	leftQb := repo.Query().
 		Select(TestItemDb.ItemName).
 		LeftJoin("TestDetail").
-			Select("DetailText").
-			And("DetailText", SqlOperators.Like, "%Alpha%").
-			OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
+		Select("DetailText").
+		And("DetailText", SqlOperators.Like, "%Alpha%").
+		OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
 		Where(TestItemDb.Category, "=", "Tool")
 
 	leftSql, leftArgs := leftQb.BuildSelect()
@@ -833,4 +851,187 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	}
 }
 
+func TestDbWrapper_ValidateSql(t *testing.T) {
+	ctx := context.Background()
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
 
+	// Valid SQL should pass validation
+	valErr := wrapper.ValidateSql(ctx, "SELECT ItemId, ItemName FROM TestItem WHERE IsActive = 1")
+	if valErr != nil {
+		t.Fatalf("expected valid SQL to pass validation, got: %v", valErr)
+	}
+
+	// Invalid SQL syntax should fail validation
+	invalidErr := wrapper.ValidateSql(ctx, "SELECT FROM WHERE INVALID SYNTAX")
+	if invalidErr == nil {
+		t.Fatalf("expected invalid SQL syntax to fail validation, but it passed")
+	}
+
+	// Non-existent table should fail validation
+	noTableErr := wrapper.ValidateSql(ctx, "SELECT * FROM NonExistentTableXYZ")
+	if noTableErr == nil {
+		t.Fatalf("expected non-existent table to fail validation, but it passed")
+	}
+}
+
+func TestDbWrapper_ViewHashMetaAndEvolution(t *testing.T) {
+	ctx := context.Background()
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
+
+	viewName := "DynamicActiveView"
+
+	// 1. Initial creation via QueryBuilder with 0 manual column parameters
+	qb1 := repo.Query().
+		Select(TestItemDb.ItemId, TestItemDb.ItemName).
+		Where(TestItemDb.IsActive, "=", true)
+
+	res1 := qb1.CreateViewOrUseView(ctx, viewName)
+	if res1.IsFailed() {
+		t.Fatalf("initial CreateViewOrUseView failed: %v", res1.Err)
+	}
+
+	hash1, hashErr1 := wrapper.GetViewHash(ctx, viewName)
+	if hashErr1 != nil {
+		t.Fatalf("failed retrieving view hash: %v", hashErr1)
+	}
+	if len(hash1) == 0 {
+		t.Fatalf("expected recorded query hash in __gitmap_view_meta")
+	}
+
+	// 2. Reuse view when query hash is identical
+	res2 := qb1.CreateViewOrUseView(ctx, viewName)
+	if res2.IsFailed() {
+		t.Fatalf("subsequent CreateViewOrUseView failed: %v", res2.Err)
+	}
+
+	hash2, _ := wrapper.GetViewHash(ctx, viewName)
+	if hash1 != hash2 {
+		t.Errorf("expected view hash to remain identical on reuse: %s vs %s", hash1, hash2)
+	}
+
+	// 3. Automated evolution when query changes (new column added)
+	qb2 := repo.Query().
+		Select(TestItemDb.ItemId, TestItemDb.ItemName, TestItemDb.Category).
+		Where(TestItemDb.IsActive, "=", true)
+
+	res3 := qb2.CreateViewOrUseView(ctx, viewName)
+	if res3.IsFailed() {
+		t.Fatalf("evolved CreateViewOrUseView failed: %v", res3.Err)
+	}
+
+	hash3, _ := wrapper.GetViewHash(ctx, viewName)
+	if hash1 == hash3 {
+		t.Errorf("expected view hash to update after query change, but was identical: %s", hash3)
+	}
+
+	// 4. Verify columns in evolved view
+	cols, colErr := wrapper.GetTableColumns(ctx, viewName)
+	if colErr != nil {
+		t.Fatalf("failed getting columns of evolved view: %v", colErr)
+	}
+	if len(cols) != 3 {
+		t.Fatalf("expected 3 columns in evolved view, got %d: %v", len(cols), cols)
+	}
+}
+
+func TestQueryBuilder_ErrorGuards(t *testing.T) {
+	ctx := context.Background()
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
+	qb := repo.Query()
+
+	simulatedErr := apperror.NewWithDetails(
+		"TestQueryBuilder_ErrorGuards",
+		"ERR_SIMULATED",
+		"Simulated builder error",
+		"system",
+		apperror.ErrorTypeValidation,
+		apperror.SeverityError,
+		nil,
+	)
+
+	qb.SetError(simulatedErr)
+
+	// Chaining methods should preserve error and not panic
+	qb.Select(TestItemDb.ItemId).
+		Where(TestItemDb.IsActive, "=", true).
+		OrderBy(TestItemDb.ItemId, "ASC").
+		Limit(5)
+
+	if qb.Err() != simulatedErr {
+		t.Errorf("expected builder to retain error")
+	}
+
+	// Terminal methods must return failure results wrapping simulatedErr
+	compileRes := qb.Compile()
+	if compileRes.IsSuccess() {
+		t.Errorf("expected Compile to fail when builder has error")
+	}
+	if compileRes.Err != simulatedErr {
+		t.Errorf("expected exact simulatedErr in compile result")
+	}
+
+	firstRes := qb.First(ctx)
+	if firstRes.IsSuccess() {
+		t.Errorf("expected First to fail when builder has error")
+	}
+
+	findRes := qb.FindAll(ctx)
+	if findRes.IsSuccess() {
+		t.Errorf("expected FindAll to fail when builder has error")
+	}
+
+	countRes := qb.Count(ctx)
+	if countRes.IsSuccess() {
+		t.Errorf("expected Count to fail when builder has error")
+	}
+
+	delRes := qb.Delete(ctx)
+	if delRes.IsSuccess() {
+		t.Errorf("expected Delete to fail when builder has error")
+	}
+
+	viewRes := qb.CreateViewOrUseView(ctx, "ErrorView")
+	if viewRes.IsSuccess() {
+		t.Errorf("expected CreateViewOrUseView to fail when builder has error")
+	}
+}
+
+func TestQueryBuilder_TypedJoinsWithoutMagicStrings(t *testing.T) {
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	const TestDetailTable = "TestDetail"
+	type TestDetailFieldType string
+	const (
+		DetailItemId TestDetailFieldType = "ItemId"
+		DetailText   TestDetailFieldType = "DetailText"
+	)
+
+	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
+
+	// Zero string literals: pass table constant and typed field enums to JoinBuilder
+	qb := repo.Query().
+		Select(TestItemDb.ItemId, TestItemDb.ItemName).
+		InnerJoin(TestDetailTable).
+		Select(DetailText).
+		OnField(TestItemDb.ItemId, SqlOperators.Equal, DetailItemId).
+		InnerWhere(TestItemDb.ItemId, SqlOperators.Equal, DetailItemId)
+
+	compRes := qb.Compile()
+	if compRes.IsFailed() {
+		t.Fatalf("compile failed: %v", compRes.Err)
+	}
+
+	cq := compRes.Value
+	expectedSub := "INNER JOIN \"TestDetail\" ON \"TestItem\".\"ItemId\" = \"TestDetail\".\"ItemId\""
+	if !strings.Contains(cq.SQL, expectedSub) {
+		t.Errorf("expected SQL to contain '%s', got: %s", expectedSub, cq.SQL)
+	}
+}
