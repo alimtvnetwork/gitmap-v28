@@ -624,15 +624,16 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 
 	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
 
-	// Test QueryBuilder with Select, InnerJoin, and InnerWhere
+	// Test QueryBuilder with Select, scoped InnerJoin, and OnField
 	qb := repo.Query().
 		Select(TestItemDb.ItemId, TestItemDb.ItemName).
-		InnerJoin("TestDetail", "\"TestDetail\".\"ItemId\" = \"TestItem\".\"ItemId\"", "DetailText").
-		InnerWhere(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
+		InnerJoin("TestDetail").
+			Select("DetailText").
+			OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
 		Where(TestItemDb.ItemName, "=", "Alpha")
 
 	sqlStr, args := qb.BuildSelect()
-	expectedSql := `SELECT "TestItem"."ItemId", "TestItem"."ItemName", "TestDetail"."DetailText" FROM "TestItem" INNER JOIN "TestDetail" ON "TestDetail"."ItemId" = "TestItem"."ItemId" WHERE "TestItem"."ItemId" = "TestDetail"."ItemId" AND "TestItem"."ItemName" = ?;`
+	expectedSql := `SELECT "TestItem"."ItemId", "TestItem"."ItemName", "TestDetail"."DetailText" FROM "TestItem" INNER JOIN "TestDetail" ON "TestItem"."ItemId" = "TestDetail"."ItemId" WHERE "TestItem"."ItemName" = ?;`
 	if sqlStr != expectedSql {
 		t.Errorf("BuildSelect mismatch:\ngot:  %s\nwant: %s", sqlStr, expectedSql)
 	}
@@ -657,8 +658,8 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	// Test typed entity execution returning full model via repo.Query()
 	firstRes := repo.Query().
 		Select(TestItemDb.ItemId, TestItemDb.ItemName, TestItemDb.Category, TestItemDb.IsActive).
-		InnerJoin("TestDetail", "\"TestDetail\".\"ItemId\" = \"TestItem\".\"ItemId\"").
-		InnerWhere(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
+		InnerJoin("TestDetail").
+			OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
 		Where(TestItemDb.ItemName, "=", "Alpha").
 		First(ctx)
 	if firstRes.IsFailed() {
@@ -764,4 +765,72 @@ func TestDbWrapper_CreateViewOrUseView(t *testing.T) {
 		t.Errorf("expected 4 columns after view recreation, got %v", updatedCols)
 	}
 }
+
+func TestQueryBuilder_JoinsAndGroupBy(t *testing.T) {
+	ctx := context.Background()
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	_, execErr := wrapper.Exec(ctx, `
+CREATE TABLE TestDetail (
+    DetailId INTEGER PRIMARY KEY AUTOINCREMENT,
+    ItemId INTEGER NOT NULL,
+    DetailText TEXT NOT NULL
+);
+INSERT INTO TestDetail (ItemId, DetailText) VALUES (1, 'Detail for Alpha');
+INSERT INTO TestDetail (ItemId, DetailText) VALUES (1, 'Second detail for Alpha');
+INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
+`)
+	if execErr != nil {
+		t.Fatalf("failed creating TestDetail: %v", execErr)
+	}
+
+	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
+
+	// Test LeftJoin with And filter on JoinBuilder
+	leftQb := repo.Query().
+		Select(TestItemDb.ItemName).
+		LeftJoin("TestDetail").
+			Select("DetailText").
+			And("DetailText", SqlOperators.Like, "%Alpha%").
+			OnField(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
+		Where(TestItemDb.Category, "=", "Tool")
+
+	leftSql, leftArgs := leftQb.BuildSelect()
+	if !strings.Contains(leftSql, "LEFT JOIN \"TestDetail\" ON \"TestItem\".\"ItemId\" = \"TestDetail\".\"ItemId\" AND \"TestDetail\".\"DetailText\" LIKE ?") {
+		t.Errorf("LeftJoin SQL mismatch: %s", leftSql)
+	}
+	if len(leftArgs) != 2 {
+		t.Errorf("expected 2 args for left join query, got %d", len(leftArgs))
+	}
+
+	// Test GroupBy and HavingCount
+	groupQb := repo.Query().
+		Select(TestItemDb.Category).
+		GroupBy(TestItemDb.Category).
+		HavingCount(SqlOperators.GreaterThan, 1)
+
+	groupSql, groupArgs := groupQb.BuildSelect()
+	expectedGroup := `SELECT "Category" FROM "TestItem" GROUP BY "TestItem"."Category" HAVING COUNT(*) > ?;`
+	if groupSql != expectedGroup {
+		t.Errorf("GroupBy SQL mismatch:\ngot:  %s\nwant: %s", groupSql, expectedGroup)
+	}
+	if len(groupArgs) != 1 || groupArgs[0] != int64(1) {
+		t.Errorf("expected having count arg 1, got %v", groupArgs)
+	}
+
+	// Test RightJoin and OuterJoin constructors
+	rightQb := repo.Query().RightJoin("TestDetail").On("1=1")
+	rightSql, _ := rightQb.BuildSelect()
+	if !strings.Contains(rightSql, "RIGHT JOIN \"TestDetail\" ON 1=1") {
+		t.Errorf("RightJoin SQL mismatch: %s", rightSql)
+	}
+
+	outerQb := repo.Query().OuterJoin("TestDetail").On("1=1")
+	outerSql, _ := outerQb.BuildSelect()
+	if !strings.Contains(outerSql, "FULL OUTER JOIN \"TestDetail\" ON 1=1") {
+		t.Errorf("OuterJoin SQL mismatch: %s", outerSql)
+	}
+}
+
 
