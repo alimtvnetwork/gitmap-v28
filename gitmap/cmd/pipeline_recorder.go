@@ -11,15 +11,15 @@ func recordPipelineInDB(p PipelineStatusPayload, runs []ghRunItem) {
 }
 
 func recordInPipelineSplitDB(p PipelineStatusPayload, runs []ghRunItem) {
-	pipeDB, err := pipelinedb.OpenPipelineSplitDB(p.Repo)
+	pipeDb, err := pipelinedb.OpenPipelineSplitDB(p.Repo)
 	if err != nil {
 		return
 	}
-	defer pipeDB.Close()
+	defer pipeDb.Close()
 
 	for _, r := range runs {
-		_ = pipeDB.RecordRun(pipelinedb.PipelineRunRecord{
-			RunID:        r.DatabaseID,
+		_ = pipeDb.RecordRun(pipelinedb.PipelineRunRecord{
+			RunID:        r.DatabaseId,
 			RepoSlug:     p.Repo,
 			WorkflowName: r.Name,
 			Status:       r.Status,
@@ -31,27 +31,27 @@ func recordInPipelineSplitDB(p PipelineStatusPayload, runs []ghRunItem) {
 			CreatedAt:    r.CreatedAt,
 			UpdatedAt:    r.UpdatedAt,
 		})
-		recordSingleFailedRun(pipeDB, p.Repo, r)
+		recordSingleFailedRun(pipeDb, p.Repo, r)
 	}
 }
 
-func recordSingleFailedRun(pipeDB *pipelinedb.PipelineSplitDB, repo string, r ghRunItem) {
+func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDB, repo string, r ghRunItem) {
 	if r.Conclusion != "failure" {
 		return
 	}
-	if pipeDB.HasErrorLog(r.DatabaseID) {
+	if pipeDb.HasErrorLog(r.DatabaseId) {
 		return
 	}
 	if isSkipDelayRequested() {
 		return
 	}
-	raw := queryFailedRunLogs(repo, r.DatabaseID)
+	raw := queryFailedRunLogs(repo, r.DatabaseId)
 	clean := extractCleanErrorLines(raw)
 	if clean == "" {
 		return
 	}
-	_ = pipeDB.RecordErrorLog(pipelinedb.PipelineErrorRecord{
-		RunID:        r.DatabaseID,
+	_ = pipeDb.RecordErrorLog(pipelinedb.PipelineErrorRecord{
+		RunID:        r.DatabaseId,
 		RepoSlug:     repo,
 		WorkflowName: r.Name,
 		StepName:     "Failed Step",
@@ -69,7 +69,7 @@ func recordInMasterDB(p PipelineStatusPayload, runs []ghRunItem) {
 
 	for _, r := range runs {
 		_ = db.InsertOrUpdatePipelineRun(store.PipelineRun{
-			RunID:        r.DatabaseID,
+			RunID:        r.DatabaseId,
 			Repo:         p.Repo,
 			WorkflowName: r.Name,
 			Status:       r.Status,

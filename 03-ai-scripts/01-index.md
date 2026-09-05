@@ -55,6 +55,8 @@ Follow this sequence before and during any repository modification task:
 | **27** | `27-misspell-auditor.py` | Audits and auto-fixes British to American English spelling | ~15ms | `spelling`, `misspell`, `us-english`, `autofix` |
 | **28** | `28-go-preflight-ci.py` | Runs local Go test and golangci-lint preflight verification | ~35ms | `go`, `test`, `lint`, `preflight`, `ci-cd` |
 | **29** | `29-release-bumper.py` | Canonical SSoT version bumper and release notes generator | ~10ms | `release`, `bump`, `version`, `ssot`, `changelog` |
+| **30** | `30-db-struct-enum-generator.py` | Auto-generates type-safe column name enums from Go model structs | ~12ms | `db`, `models`, `enums`, `generator`, `codegen`, `columns` |
+| **31** | `31-db-migration-runner.py` | Standalone external SQLite and schema migration runner with introspection | ~15ms | `db`, `migrations`, `sqlite`, `runner`, `schema` |
 
 ---
 

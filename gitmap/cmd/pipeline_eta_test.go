@@ -13,7 +13,7 @@ func TestHistoricalSuccessETAExcludesFailedRuns(t *testing.T) {
 	runs := []ghRunItem{
 		// Active running workflow
 		{
-			DatabaseID: 100,
+			DatabaseId: 100,
 			Name:       "CI",
 			Status:     "in_progress",
 			Conclusion: "",
@@ -22,7 +22,7 @@ func TestHistoricalSuccessETAExcludesFailedRuns(t *testing.T) {
 		},
 		// Past successful run 1: 120s duration
 		{
-			DatabaseID: 101,
+			DatabaseId: 101,
 			Name:       "CI",
 			Status:     "completed",
 			Conclusion: "success",
@@ -31,7 +31,7 @@ func TestHistoricalSuccessETAExcludesFailedRuns(t *testing.T) {
 		},
 		// Past successful run 2: 120s duration
 		{
-			DatabaseID: 102,
+			DatabaseId: 102,
 			Name:       "CI",
 			Status:     "completed",
 			Conclusion: "success",
@@ -40,7 +40,7 @@ func TestHistoricalSuccessETAExcludesFailedRuns(t *testing.T) {
 		},
 		// Past failed run: should be IGNORED (failed after 10s)
 		{
-			DatabaseID: 103,
+			DatabaseId: 103,
 			Name:       "CI",
 			Status:     "completed",
 			Conclusion: "failure",
@@ -49,7 +49,7 @@ func TestHistoricalSuccessETAExcludesFailedRuns(t *testing.T) {
 		},
 		// Past canceled run: should be IGNORED (canceled after 15s)
 		{
-			DatabaseID: 104,
+			DatabaseId: 104,
 			Name:       "CI",
 			Status:     "completed",
 			Conclusion: "canceled",

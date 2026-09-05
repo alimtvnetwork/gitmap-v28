@@ -108,7 +108,7 @@ func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 		return nil
 	}
 	fmt.Printf("\n%s✖ Pipeline [%s] finished with conclusion: %s%s\n", constants.ColorRed, latest.Name, latest.Conclusion, constants.ColorReset)
-	renderFailureErrorSummary(repo, latest.DatabaseID)
+	renderFailureErrorSummary(repo, latest.DatabaseId)
 	runs := queryWorkflowRuns(repo)
 	if len(runs) > 0 {
 		rerunETA := calculateAverageDuration(runs, latest.Name)
@@ -120,7 +120,7 @@ func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 func locateFailedRunID(runs []ghRunItem) int64 {
 	for _, r := range runs {
 		if r.Conclusion == "failure" {
-			return r.DatabaseID
+			return r.DatabaseId
 		}
 	}
 	return 0

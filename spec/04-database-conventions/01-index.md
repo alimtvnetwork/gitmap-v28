@@ -84,6 +84,7 @@ Comprehensive database design and implementation conventions covering naming, sc
 | 05 | [06-relationship-diagrams.md](./06-relationship-diagrams.md) | Visual relationship patterns and AI-readable schema diagrams |
 | 06 | [07-rest-api-format.md](./07-rest-api-format.md) | PascalCase REST API response format, full CRUD sample, response envelope |
 | 07 | [08-split-db-pattern.md](./08-split-db-pattern.md) | Split DB pattern — one SQLite file per bounded context |
+| 09 | [09-universal-db-engine-and-code-generator.md](./09-universal-db-engine-and-code-generator.md) | Universal Database Engine, Dialect Compiler, Field Enum Code Generator & Generic Search |
 | 99 | [99-consistency-report.md](./99-consistency-report.md) | Module health and validation |
 
 ---

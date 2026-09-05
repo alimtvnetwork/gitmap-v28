@@ -15,7 +15,7 @@ type ghJobsResponse struct {
 }
 
 type ghJobItem struct {
-	DatabaseID  int64        `json:"databaseId"`
+	DatabaseId  int64        `json:"databaseId"`
 	Name        string       `json:"name"`
 	Status      string       `json:"status"`
 	Conclusion  string       `json:"conclusion"`

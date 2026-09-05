@@ -234,4 +234,3 @@ func TestChromeImportCurrentDirectoryDot(t *testing.T) {
 		t.Fatalf("runChromeProfileImportCheck with ls failed: %v", err)
 	}
 }
-
