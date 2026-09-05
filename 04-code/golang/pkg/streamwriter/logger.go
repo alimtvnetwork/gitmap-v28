@@ -197,3 +197,14 @@ func (l *Logger[T]) dispatchRecord(ctx context.Context, lvl LogLevel, msg string
 
 	return nil
 }
+
+func extractContextString(ctx context.Context, key string) string {
+	if ctx == nil {
+		return ""
+	}
+	if val, isOk := ctx.Value(key).(string); isOk {
+		return val
+	}
+
+	return ""
+}

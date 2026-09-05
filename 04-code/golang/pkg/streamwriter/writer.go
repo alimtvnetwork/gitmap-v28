@@ -201,6 +201,19 @@ func writeToDestination[T any](dest io.Writer, name string, payload T) *appfault
 	if err != nil {
 		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("writer %s write failed", name))
 	}
+
+	return nil
+}
+
+func validateFormatterPayload[T any](formatter FormatFunc[T], payload T) *appfault.AppError {
+	if formatter == nil {
+		return nil
+	}
+	bytesResult := formatter(payload)
+	if bytesResult.HasError() {
+		return bytesResult.AppError()
+	}
+
 	return nil
 }
 

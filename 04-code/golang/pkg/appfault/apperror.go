@@ -5,6 +5,7 @@ import "coding-guidelines/common/pkg/errtype"
 // AppError is the universal structured error type carrying full diagnostics.
 // All internal fields are unexported for strict encapsulation.
 type AppError struct {
+	errorId    string
 	errType    errtype.Variation
 	message    string
 	caller     CallerInfo

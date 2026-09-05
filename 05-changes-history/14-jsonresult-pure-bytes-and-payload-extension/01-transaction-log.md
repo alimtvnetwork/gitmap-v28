@@ -20,7 +20,7 @@ type JsonResult struct {
     appError   *appfault.AppError
 }
 
-should be isValid but that will be calculated from the error recieved or not so please , i don't think we need payload but we can have another version which extends JsonResult
+should be isValid but that will be calculated from the error received or not so please , i don't think we need payload but we can have another version which extends JsonResult
 
 so no need for any status , status code, payload, clear?? Fix all
 ```
