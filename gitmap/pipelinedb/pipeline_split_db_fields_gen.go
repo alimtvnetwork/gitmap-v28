@@ -150,15 +150,6 @@ var pipelineSplitDbValidMap = map[PipelineSplitDbFieldType]bool{
 // PipelineSplitDbField is an alias to PipelineSplitDbDb.
 var PipelineSplitDbField = PipelineSplitDbDb
 
-// PipelineSplitDbTable represents the canonical table name.
-const PipelineSplitDbTable = "PipelineSplitDb"
-
-// PipelineSplitDbQueryBuilder is the dedicated query builder for PipelineSplitDb.
-type PipelineSplitDbQueryBuilder = dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType]
-
-// PipelineSplitDbRepository is the dedicated generic repository for PipelineSplitDb.
-type PipelineSplitDbRepository = dbengine.Repository[PipelineSplitDb, PipelineSplitDbFieldType]
-
 // ScanPipelineSplitDb maps a database row scanner to a PipelineSplitDb entity.
 func ScanPipelineSplitDb(row dbengine.RowScanner) (*PipelineSplitDb, error) {
 	var item PipelineSplitDb
@@ -568,21 +559,6 @@ var pipelineRunRecordValidMap = map[PipelineRunRecordFieldType]bool{
 // PipelineRunRecordField is an alias to PipelineRunRecordDb.
 var PipelineRunRecordField = PipelineRunRecordDb
 
-// PipelineRunRecordTable represents the canonical table name.
-const PipelineRunRecordTable = "PipelineRunRecord"
-
-// PipelineRunRecordQueryBuilder is the dedicated query builder for PipelineRunRecord.
-type PipelineRunRecordQueryBuilder = dbengine.QueryBuilder[PipelineRunRecord, PipelineRunRecordFieldType]
-
-// PipelineRunRecordRepository is the dedicated generic repository for PipelineRunRecord.
-type PipelineRunRecordRepository = dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType]
-
-// PipelineRunQueryBuilder is an alias to PipelineRunRecordQueryBuilder for concise business usage.
-type PipelineRunQueryBuilder = PipelineRunRecordQueryBuilder
-
-// PipelineRunRepository is an alias to PipelineRunRecordRepository for concise business usage.
-type PipelineRunRepository = PipelineRunRecordRepository
-
 // ScanPipelineRunRecord maps a database row scanner to a PipelineRunRecord entity.
 func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error) {
 	var item PipelineRunRecord
@@ -647,9 +623,6 @@ type PipelineRunRecordDbRepo struct {
 	db   *dbengine.DbWrapper
 	repo *PipelineRunRecordRepository
 }
-
-// PipelineRunDbRepo is an alias to PipelineRunRecordDbRepo for concise business usage.
-type PipelineRunDbRepo = PipelineRunRecordDbRepo
 
 // NewPipelineRunRecordDbRepo initializes a typed repository for PipelineRunRecord.
 func NewPipelineRunRecordDbRepo(db *dbengine.DbWrapper) *PipelineRunRecordDbRepo {
@@ -949,21 +922,6 @@ var pipelineErrorRecordValidMap = map[PipelineErrorRecordFieldType]bool{
 // PipelineErrorRecordField is an alias to PipelineErrorRecordDb.
 var PipelineErrorRecordField = PipelineErrorRecordDb
 
-// PipelineErrorRecordTable represents the canonical table name.
-const PipelineErrorRecordTable = "PipelineErrorRecord"
-
-// PipelineErrorRecordQueryBuilder is the dedicated query builder for PipelineErrorRecord.
-type PipelineErrorRecordQueryBuilder = dbengine.QueryBuilder[PipelineErrorRecord, PipelineErrorRecordFieldType]
-
-// PipelineErrorRecordRepository is the dedicated generic repository for PipelineErrorRecord.
-type PipelineErrorRecordRepository = dbengine.Repository[PipelineErrorRecord, PipelineErrorRecordFieldType]
-
-// PipelineErrorQueryBuilder is an alias to PipelineErrorRecordQueryBuilder for concise business usage.
-type PipelineErrorQueryBuilder = PipelineErrorRecordQueryBuilder
-
-// PipelineErrorRepository is an alias to PipelineErrorRecordRepository for concise business usage.
-type PipelineErrorRepository = PipelineErrorRecordRepository
-
 // ScanPipelineErrorRecord maps a database row scanner to a PipelineErrorRecord entity.
 func ScanPipelineErrorRecord(row dbengine.RowScanner) (*PipelineErrorRecord, error) {
 	var item PipelineErrorRecord
@@ -1010,9 +968,6 @@ type PipelineErrorRecordDbRepo struct {
 	db   *dbengine.DbWrapper
 	repo *PipelineErrorRecordRepository
 }
-
-// PipelineErrorDbRepo is an alias to PipelineErrorRecordDbRepo for concise business usage.
-type PipelineErrorDbRepo = PipelineErrorRecordDbRepo
 
 // NewPipelineErrorRecordDbRepo initializes a typed repository for PipelineErrorRecord.
 func NewPipelineErrorRecordDbRepo(db *dbengine.DbWrapper) *PipelineErrorRecordDbRepo {
@@ -1296,15 +1251,6 @@ var pipelineDbStatsValidMap = map[PipelineDbStatsFieldType]bool{
 
 // PipelineDbStatsField is an alias to PipelineDbStatsDb.
 var PipelineDbStatsField = PipelineDbStatsDb
-
-// PipelineDbStatsTable represents the canonical table name.
-const PipelineDbStatsTable = "PipelineDbStats"
-
-// PipelineDbStatsQueryBuilder is the dedicated query builder for PipelineDbStats.
-type PipelineDbStatsQueryBuilder = dbengine.QueryBuilder[PipelineDbStats, PipelineDbStatsFieldType]
-
-// PipelineDbStatsRepository is the dedicated generic repository for PipelineDbStats.
-type PipelineDbStatsRepository = dbengine.Repository[PipelineDbStats, PipelineDbStatsFieldType]
 
 // ScanPipelineDbStats maps a database row scanner to a PipelineDbStats entity.
 func ScanPipelineDbStats(row dbengine.RowScanner) (*PipelineDbStats, error) {

@@ -315,3 +315,43 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 	}
 }
 
+func TestPipelineDbGeneratedConsts(t *testing.T) {
+	// Canonical table name constants
+	if PipelineSplitDbTable != "PipelineSplitDb" {
+		t.Errorf("expected PipelineSplitDb, got %s", PipelineSplitDbTable)
+	}
+	if PipelineRunRecordTable != "PipelineRunRecord" {
+		t.Errorf("expected PipelineRunRecord, got %s", PipelineRunRecordTable)
+	}
+	if PipelineRunTable != PipelineRunRecordTable {
+		t.Errorf("expected PipelineRunTable == PipelineRunRecordTable")
+	}
+	if PipelineErrorRecordTable != "PipelineErrorRecord" {
+		t.Errorf("expected PipelineErrorRecord, got %s", PipelineErrorRecordTable)
+	}
+	if PipelineErrorTable != PipelineErrorRecordTable {
+		t.Errorf("expected PipelineErrorTable == PipelineErrorRecordTable")
+	}
+	if PipelineDbStatsTable != "PipelineDbStats" {
+		t.Errorf("expected PipelineDbStats, got %s", PipelineDbStatsTable)
+	}
+
+	// Type aliases compile-time checks
+	var _ *PipelineSplitDbQueryBuilder = nil
+	var _ *PipelineRunRecordQueryBuilder = nil
+	var _ *PipelineRunQueryBuilder = nil
+	var _ *PipelineErrorRecordQueryBuilder = nil
+	var _ *PipelineErrorQueryBuilder = nil
+	var _ *PipelineDbStatsQueryBuilder = nil
+
+	var _ *PipelineSplitDbRepository = nil
+	var _ *PipelineRunRecordRepository = nil
+	var _ *PipelineRunRepository = nil
+	var _ *PipelineErrorRecordRepository = nil
+	var _ *PipelineErrorRepository = nil
+	var _ *PipelineDbStatsRepository = nil
+
+	var _ *PipelineRunDbRepo = nil
+	var _ *PipelineErrorDbRepo = nil
+}
+
