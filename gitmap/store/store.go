@@ -470,9 +470,9 @@ func ensureDir(dir string) error {
 // connections a 5s grace window instead of immediate SQLITE_BUSY.
 func enableFK(conn *sql.DB) error {
 	for _, pragma := range []string{
+		constants.SQLPragmaBusyTimeout5s,
 		constants.SQLPragmaJournalWAL,
 		constants.SQLPragmaSynchronousNor,
-		constants.SQLPragmaBusyTimeout5s,
 		constants.SQLEnableFK,
 	} {
 		if _, err := conn.Exec(pragma); err != nil {

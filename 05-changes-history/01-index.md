@@ -63,4 +63,5 @@ Each task transaction log must contain:
 | 16 | [`16-boolean-prefixes-id-standard-and-writer-context`](16-boolean-prefixes-id-standard-and-writer-context/01-transaction-log.md) | Enforce boolean prefixes, Id naming standard, and writer self-context passing to WriteMethod | Completed | 2026-09-05 |
 | 17 | [`17-parallel-cicd-local-runner-and-log-filtering`](17-parallel-cicd-local-runner-and-log-filtering/01-transaction-log.md) | Parallel worker group execution, duration metrics, and selective log filtering in 06-cicd-local-runner.py | Completed | 2026-09-05 |
 | 18 | [`18-fileutil-wrapper-enums-and-error-object`](18-fileutil-wrapper-enums-and-error-object/01-transaction-log.md) | FileWrapper utility, FileMode and FileAction enums, and AppError object wrap failure constructors with errorId | Completed | 2026-09-05 |
+| 19 | [`19-enhanced-cicd-local-runner-cli`](19-enhanced-cicd-local-runner-cli/01-transaction-log.md) | Enhanced multi-worker CI/CD local runner CLI with IO throttling, all-pass flag, sync mode, and file export | Completed | 2026-09-05 |
 
