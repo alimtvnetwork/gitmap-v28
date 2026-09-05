@@ -69,4 +69,5 @@ Each task transaction log must contain:
 | 22 | [`22-modernize-ai-scripts-worker-pool-engine`](22-modernize-ai-scripts-worker-pool-engine/01-transaction-log.md) | Modernize 03-ai-scripts runner and auditor files with shared worker pool engine, quiet tick, and CLI | Completed | 2026-09-05 |
 | 23 | [`23-release-v6-188-0`](23-release-v6-188-0/01-transaction-log.md) | Release v6.188.0 minor version bump across all SSoT manifests, changelog, and release notes | Completed | 2026-09-05 |
 | 24 | [`24-release-v6-189-0`](24-release-v6-189-0/01-transaction-log.md) | Release v6.189.0 minor version bump across all SSoT manifests, changelog, and release notes | Completed | 2026-09-06 |
+| 25 | [`25-lazy-regex-compile-locking-result-wrap-and-group-data-types`](25-lazy-regex-compile-locking-result-wrap-and-group-data-types/01-transaction-log.md) | Lazy regex compile locking, CompileResult wrapper, and GroupMap/GroupList fluent data types | Completed | 2026-09-06 |
 

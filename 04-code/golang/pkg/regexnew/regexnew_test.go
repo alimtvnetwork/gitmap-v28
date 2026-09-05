@@ -310,35 +310,152 @@ func TestLazyRegex_CountAndGroups(t *testing.T) {
 	}
 
 	group := lr.GroupBy("alpha beta")
-	if group["word"] != "alpha" {
-		t.Errorf("expected group word 'alpha', got '%s'", group["word"])
+	if !group.Has("word") {
+		t.Fatalf("expected group to have key 'word'")
+	}
+	if group.Get("word") != "alpha" {
+		t.Errorf("expected group word 'alpha', got '%s'", group.Get("word"))
+	}
+	if group.GetOrDefault("missing", "fallback") != "fallback" {
+		t.Errorf("expected fallback value for missing key")
 	}
 
 	all := lr.FindAllGroups("alpha beta gamma")
-	if len(all) != 3 {
-		t.Fatalf("expected 3 group maps, got %d", len(all))
+	if all.Len() != 3 {
+		t.Fatalf("expected 3 group maps, got %d", all.Len())
 	}
-	if all[0]["word"] != "alpha" || all[1]["word"] != "beta" || all[2]["word"] != "gamma" {
-		t.Errorf("unexpected group maps: %v", all)
+	if all.First().Get("word") != "alpha" {
+		t.Errorf("expected first group word 'alpha', got '%s'", all.First().Get("word"))
+	}
+	if all.At(1).Get("word") != "beta" {
+		t.Errorf("expected second group word 'beta', got '%s'", all.At(1).Get("word"))
+	}
+	if all.Last().Get("word") != "gamma" {
+		t.Errorf("expected last group word 'gamma', got '%s'", all.Last().Get("word"))
+	}
+
+	words := all.ValuesOf("word")
+	if len(words) != 3 || words[0] != "alpha" || words[1] != "beta" || words[2] != "gamma" {
+		t.Errorf("unexpected ValuesOf result: %v", words)
+	}
+
+	keys := all.AllKeys()
+	if len(keys) != 1 || keys[0] != "word" {
+		t.Errorf("unexpected AllKeys: %v", keys)
 	}
 }
 
 func TestLazyRegex_CompileBuilder(t *testing.T) {
 	invalid := New.LazyLock(`[invalid regex`)
 
-	re, builder := invalid.CompileBuilder()
-	if re != nil {
-		t.Errorf("expected re to be nil on invalid pattern")
+	res := invalid.CompileBuilder()
+	if res.IsSuccess() {
+		t.Errorf("expected compilation to fail on invalid pattern")
 	}
-	if builder == nil {
+	if !res.IsFailed() {
+		t.Errorf("expected IsFailed to be true")
+	}
+	if !res.HasError() {
+		t.Errorf("expected HasError to be true")
+	}
+	if res.Regexp() != nil {
+		t.Errorf("expected nil Regexp on failure")
+	}
+	if res.Builder() == nil {
 		t.Fatalf("expected non-nil AppBuilder on invalid pattern")
 	}
-
-	appErr := builder.Build()
-	if appErr == nil {
-		t.Fatalf("expected non-nil AppError from builder")
+	if res.AppError() == nil {
+		t.Fatalf("expected non-nil AppError on invalid pattern")
 	}
-	if appErr.Message() != "lazy regex compilation failed" {
-		t.Errorf("unexpected message: %s", appErr.Message())
+	if res.AppError().Message() != "lazy regex compilation failed" {
+		t.Errorf("unexpected message: %s", res.AppError().Message())
+	}
+
+	valid := New.LazyLock(`^\w+$`)
+	validRes := valid.CompileBuilder()
+	if !validRes.IsSuccess() {
+		t.Errorf("expected valid regex to succeed")
+	}
+	if validRes.HasError() {
+		t.Errorf("expected no error on valid regex")
+	}
+	if validRes.Regexp() == nil {
+		t.Errorf("expected non-nil Regexp on success")
+	}
+}
+
+func TestGroupMap_Operations(t *testing.T) {
+	gm := NewGroupMap()
+	if !gm.IsEmpty() || gm.HasItems() {
+		t.Errorf("expected new GroupMap to be empty")
+	}
+
+	gm.Set("key1", "val1").Add("key2", "val2")
+	if gm.Len() != 2 {
+		t.Errorf("expected len 2, got %d", gm.Len())
+	}
+	if !gm.Has("key1") || !gm.HasKey("key2") {
+		t.Errorf("expected keys to exist")
+	}
+	if gm.Get("key1") != "val1" {
+		t.Errorf("expected val1, got %s", gm.Get("key1"))
+	}
+
+	clone := gm.Clone()
+	clone.Remove("key1")
+	if !gm.Has("key1") {
+		t.Errorf("original map should retain key1 after clone removal")
+	}
+	if clone.Has("key1") {
+		t.Errorf("clone should not have key1")
+	}
+
+	raw := gm.ToMap()
+	if raw["key1"] != "val1" || raw["key2"] != "val2" {
+		t.Errorf("unexpected raw map: %v", raw)
+	}
+
+	var nilMap *GroupMap
+	if nilMap.Has("foo") || nilMap.Get("foo") != "" || nilMap.Len() != 0 || !nilMap.IsEmpty() {
+		t.Errorf("nil GroupMap should be safe")
+	}
+}
+
+func TestGroupList_Operations(t *testing.T) {
+	gl := NewGroupList()
+	if !gl.IsEmpty() || gl.HasItems() {
+		t.Errorf("expected empty GroupList")
+	}
+
+	g1 := NewGroupMap().Set("name", "alice").Set("role", "admin")
+	g2 := NewGroupMap().Set("name", "bob").Set("role", "user")
+	gl.Add(g1).Add(g2)
+
+	if gl.Len() != 2 {
+		t.Errorf("expected 2 items, got %d", gl.Len())
+	}
+
+	found := gl.Find(func(g *GroupMap) bool {
+		return g.Get("role") == "admin"
+	})
+	if found.Get("name") != "alice" {
+		t.Errorf("expected alice for admin, got %s", found.Get("name"))
+	}
+
+	filtered := gl.Filter(func(g *GroupMap) bool {
+		return g.Get("role") == "user"
+	})
+	if filtered.Len() != 1 || filtered.First().Get("name") != "bob" {
+		t.Errorf("unexpected filtered list")
+	}
+
+	outOfBounds := gl.At(999)
+	if outOfBounds == nil || outOfBounds.HasItems() {
+		t.Errorf("out of bounds At() should return empty non-nil GroupMap")
+	}
+
+	var nilList *GroupList
+	if nilList.Len() != 0 || !nilList.IsEmpty() || nilList.First() == nil {
+		t.Errorf("nil GroupList should be safe")
 	}
 }
