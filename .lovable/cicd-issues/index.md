@@ -27,3 +27,4 @@
 - [36-misspell-changed-diff.md](./36-misspell-changed-diff.md): Fix misspell findings across repo files and standardize on US English.
 - [37-installer-smoke-release-diff.md](./37-installer-smoke-release-diff.md): Convert smoke installer to Python 3 cross-platform runner with retry propagation logic and enforce strict relative Git paths.
 - [38-nested-if-and-help-examples.md](./38-nested-if-and-help-examples.md): Flatten nested if statements in apperror.go, pipeline_ai.go, and pipeline_status.go, and standardize help Examples section heading.
+- [39-pull-scan-agy-decouple-and-mutation-rca.md](./39-pull-scan-agy-decouple-and-mutation-rca.md): Decouple pull and scan from agy commands and eliminate unintended agy project mutations.

@@ -118,8 +118,8 @@ func executeScan(
 	})
 	fmt.Print(constants.MsgSectionDatabase)
 	if fix {
-		bench.Phase("scan.reconcileDB", func() {
-			runReconcile(absDir, records)
+		bench.Phase("scan.pruneStaleDB", func() {
+			runPruneStaleDB(absDir, records)
 		})
 	}
 	bench.Phase("scan.dbUpsertRepos", func() {

@@ -22,7 +22,6 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/vscodepm"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/workspacesync"
 )
 
 // canonicalizePMPath returns the canonical Windows-friendly form of an
@@ -126,28 +125,24 @@ func syncClonedReposToVSCodePM(pairs []vscodepm.Pair, skip bool) {
 
 		return
 	}
-
 	if isVSCodeSyncDisabled() {
 		fmt.Print(constants.MsgVSCodePMSyncDisabled)
 
 		return
 	}
+	executeVSCodePMSync(pairs)
+}
 
+func executeVSCodePMSync(pairs []vscodepm.Pair) {
 	if len(pairs) == 0 {
 		return
 	}
-
 	summary, err := vscodepm.Sync(pairs)
 	if err != nil {
 		reportVSCodePMSoftError(err)
 
 		return
 	}
-
-	for _, pair := range pairs {
-		workspacesync.SyncAntigravity(pair.RootPath, pair.Name)
-	}
-
 	fmt.Printf(constants.MsgVSCodePMSyncSummary,
 		summary.Added, summary.Updated, summary.Unchanged, summary.Total)
 }
