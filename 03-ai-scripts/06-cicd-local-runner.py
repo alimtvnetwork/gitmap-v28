@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Auto-generated CI/CD local runner with concurrent worker pool, IO mitigation, and selective log aggregation.
+"""Fast Parallel Multi-Worker Local CI/CD Runner with IO Throttling and Flexible CLI Reporting.
 
 Usage:
-  python 03-ai-scripts/06-cicd-local-runner.py                 # Run parallel (default), only log failures (if any) or print "All passed"
-  python 03-ai-scripts/06-cicd-local-runner.py --all-pass      # Run parallel, show full logs for ALL passed & failed jobs
-  python 03-ai-scripts/06-cicd-local-runner.py --all           # Alias for --all-pass
-  python 03-ai-scripts/06-cicd-local-runner.py --failed        # Explicitly only show logs for failed jobs (default)
-  python 03-ai-scripts/06-cicd-local-runner.py --sync          # Run synchronously / sequentially (1 worker)
-  python 03-ai-scripts/06-cicd-local-runner.py -w 8            # Run with 8 concurrent workers
-  python 03-ai-scripts/06-cicd-local-runner.py -o report.txt   # Write human-readable test report to file
-  python 03-ai-scripts/06-cicd-local-runner.py --json out.json # Write JSON test results to file
+  python 03-ai-scripts/06-cicd-local-runner.py                    # Default: quiet on success (tick "✔ All passed."), detailed logs on failure
+  python 03-ai-scripts/06-cicd-local-runner.py --all-paths       # Show all information: ticker, summary table, full logs for all gates
+  python 03-ai-scripts/06-cicd-local-runner.py --all-passed      # Alias for --all-paths
+  python 03-ai-scripts/06-cicd-local-runner.py --all             # Alias for --all-paths
+  python 03-ai-scripts/06-cicd-local-runner.py --sync            # Run sequentially (synchronous mode, 1 worker)
+  python 03-ai-scripts/06-cicd-local-runner.py -w 4              # Custom worker concurrency
+  python 03-ai-scripts/06-cicd-local-runner.py -o report.txt     # Save execution report to file
+  python 03-ai-scripts/06-cicd-local-runner.py --json            # Output machine-readable JSON
+  python 03-ai-scripts/06-cicd-local-runner.py --json -o out.json# Save JSON results to file
 """
 from __future__ import annotations
 
@@ -162,31 +163,36 @@ def parse_args() -> argparse.Namespace:
     """Constructs CLI argument parser with comprehensive help and alias support."""
     parser = argparse.ArgumentParser(
         prog="python 03-ai-scripts/06-cicd-local-runner.py",
-        description="Concurrent CI/CD local quality gate runner with parallel worker groups, IO protection, and selective log display.",
+        description="Fast Multi-Worker Local CI/CD Runner with parallel worker pool, IO throttling, and flexible reporting.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # 1. Default parallel execution (quiet ticker; only outputs failure logs or "All passed"):
+  # 1. Default: run all gates in parallel; quiet on success (tick "✔ All passed."), detailed logs on failure:
   python 03-ai-scripts/06-cicd-local-runner.py
 
-  # 2. Show detailed logs for all gates (passed and failed):
-  python 03-ai-scripts/06-cicd-local-runner.py --all-pass
+  # 2. Show all information (ticker, summary table, full logs for all gates):
+  python 03-ai-scripts/06-cicd-local-runner.py --all-paths
+  python 03-ai-scripts/06-cicd-local-runner.py --all-passed
   python 03-ai-scripts/06-cicd-local-runner.py --all
 
   # 3. Explicitly only show logs for failed gates:
   python 03-ai-scripts/06-cicd-local-runner.py --failed
 
-  # 4. Run synchronously / sequentially (1 worker):
+  # 4. Run sequentially (synchronous mode, 1 worker):
   python 03-ai-scripts/06-cicd-local-runner.py --sync
 
-  # 5. Tune worker group concurrency and IO throttling:
-  python 03-ai-scripts/06-cicd-local-runner.py --workers 8 --io-workers 2
+  # 5. Custom worker concurrency and IO throttling:
+  python 03-ai-scripts/06-cicd-local-runner.py --workers 4 --io-workers 2
 
-  # 6. Filter by gate name substring:
-  python 03-ai-scripts/06-cicd-local-runner.py -k "Linter"
+  # 6. Save report to a file:
+  python 03-ai-scripts/06-cicd-local-runner.py --output tmp/cicd-report.txt
 
-  # 7. Output results to a human-readable text file and JSON file:
-  python 03-ai-scripts/06-cicd-local-runner.py -o ci-report.txt --json ci-report.json
+  # 7. Output machine-readable JSON (to stdout, or to file with -o):
+  python 03-ai-scripts/06-cicd-local-runner.py --json
+  python 03-ai-scripts/06-cicd-local-runner.py --json -o tmp/cicd-report.json
+
+  # 8. Filter by gate name substring:
+  python 03-ai-scripts/06-cicd-local-runner.py --filter "Linter"
 
 Environment Variables:
   CI_MAX_WORKERS      Default max workers for thread pool (default: min(8, cpu_count))
@@ -195,66 +201,65 @@ Environment Variables:
         """,
     )
     parser.add_argument(
-        "--all-pass", "--all-passed", "--all-paths", "--all", "-a",
+        "--all-paths", "--all-passed", "--all-pass", "--all", "-a",
         action="store_true",
         dest="show_all",
-        help="Show full stdout and stderr logs for all quality gates (both passed and failed).",
+        help="Show detailed information and full logs for all quality gates (both passed and failed).",
     )
     parser.add_argument(
         "--failed", "-f",
         action="store_true",
         dest="show_failed",
-        help="Only display logs for failed quality gates (default behavior).",
+        help="Show logs only for failed quality gates (default behavior).",
     )
     parser.add_argument(
         "--sync", "--sequential", "-s",
         action="store_true",
         dest="sync_mode",
-        help="Run quality gates sequentially (1 worker) instead of in parallel.",
+        help="Execute quality gates sequentially (1 worker) instead of in parallel.",
     )
     parser.add_argument(
-        "--workers", "-w",
+        "--workers", "-w", "--concurrency",
         type=int,
         default=DEFAULT_WORKERS,
-        help=f"Number of concurrent workers in thread pool (default: {DEFAULT_WORKERS}).",
+        dest="workers",
+        help=f"Number of concurrent worker threads (default: {DEFAULT_WORKERS}).",
     )
     parser.add_argument(
         "--io-workers",
         type=int,
         default=DEFAULT_IO_WORKERS,
+        dest="io_workers",
         help=f"Max workers for heavy IO gates like builds (default: {DEFAULT_IO_WORKERS}).",
     )
     parser.add_argument(
         "--timeout", "-t",
         type=int,
         default=DEFAULT_TIMEOUT_SEC,
+        dest="timeout",
         help=f"Per-gate timeout in seconds (default: {DEFAULT_TIMEOUT_SEC}s).",
     )
     parser.add_argument(
         "--filter", "-k",
         type=str,
         default="",
+        dest="filter",
         help="Filter quality gates by case-insensitive name substring.",
     )
     parser.add_argument(
-        "--output", "-o", "--output-file",
+        "--output", "-o", "--file", "--output-file",
         type=str,
         default="",
         dest="output_file",
-        help="Path to write human-readable test report.",
+        help="Save execution results and report to the specified file path.",
     )
     parser.add_argument(
         "--json", "--json-output",
-        type=str,
-        default="",
-        dest="json_file",
-        help="Path to write machine-readable JSON results report.",
-    )
-    parser.add_argument(
-        "--quiet", "-q",
-        action="store_true",
-        dest="quiet",
-        help="Suppress real-time progress ticker; print only summary or failures.",
+        nargs="?",
+        const=True,
+        default=False,
+        dest="json_mode",
+        help="Output results as machine-readable JSON (to stdout, or to file if specified).",
     )
     return parser.parse_args()
 
@@ -278,12 +283,37 @@ def filter_job_batches(batches: list[dict[str, Any]], filter_str: str) -> list[d
     return filtered
 
 
-def format_detailed_logs(results: list[JobResult], show_all: bool) -> str:
-    """Formats detailed logs for display or file output."""
-    lines: list[str] = []
+def format_full_report(
+    results: list[JobResult],
+    total_jobs: int,
+    passed_count: int,
+    failed_count: int,
+    timeout_count: int,
+    total_elapsed: float,
+    show_all: bool,
+) -> str:
+    """Formats full human-readable summary and logs."""
+    lines: list[str] = [
+        "=" * 60,
+        "           CI/CD EXECUTION SUMMARY REPORT",
+        "=" * 60,
+    ]
+    for r in results:
+        status_icon = "✅" if r.is_success else ("⏳" if r.is_timeout else "❌")
+        status_word = "PASSED" if r.is_success else ("TIMEOUT" if r.is_timeout else "FAILED")
+        lines.append(f"{status_icon} [{status_word}] {r.name:<40} ({r.elapsed:.2f}s)")
+
+    lines.append("-" * 60)
+    lines.append(f"Total Duration : {total_elapsed:.2f}s")
+    lines.append(f"Gates Passed   : {passed_count}/{total_jobs}")
+    lines.append(f"Gates Failed   : {failed_count}/{total_jobs}")
+    if timeout_count > 0:
+        lines.append(f"Gates Timed Out: {timeout_count}/{total_jobs}")
+    lines.append("-" * 60)
+
     if show_all:
-        lines.append("=" * 60)
-        lines.append("                 DETAILED LOGS (--all-pass)")
+        lines.append("\n" + "=" * 60)
+        lines.append("                 ALL QUALITY GATE LOGS")
         lines.append("=" * 60)
         for r in results:
             status_str = "PASS" if r.is_success else ("TIMEOUT" if r.is_timeout else "FAIL")
@@ -294,72 +324,23 @@ def format_detailed_logs(results: list[JobResult], show_all: bool) -> str:
             if r.err.strip():
                 lines.append(f"Stderr:\n{r.err.strip()}")
             lines.append("-" * 60)
-        return "\n".join(lines)
-
-    # Default / --failed mode: only format failed or timed-out logs
-    failures = [r for r in results if not r.is_success]
-    if not failures:
-        return ""
-
-    lines.append("=" * 60)
-    lines.append("               DETAILED FAILURE LOGS")
-    lines.append("=" * 60)
-    for r in failures:
-        status_str = "TIMEOUT" if r.is_timeout else "FAIL"
-        lines.append(f"\n[{status_str} LOG] Gate: {r.name} (Duration: {r.elapsed}s) | Exit Code: {r.code}")
-        lines.append(f"Command: {' '.join(r.cmd)}")
-        if r.out.strip():
-            lines.append(f"Stdout:\n{r.out.strip()}")
-        if r.err.strip():
-            lines.append(f"Stderr:\n{r.err.strip()}")
-        lines.append("-" * 60)
+    else:
+        failures = [r for r in results if not r.is_success]
+        if failures:
+            lines.append("\n" + "=" * 60)
+            lines.append("               FAILED QUALITY GATE LOGS")
+            lines.append("=" * 60)
+            for r in failures:
+                status_str = "TIMEOUT" if r.is_timeout else "FAIL"
+                lines.append(f"\n❌ FAILED: {r.name} (exit code: {r.code}, duration: {r.elapsed}s)")
+                lines.append(f"Command: {' '.join(r.cmd)}")
+                if r.out.strip():
+                    lines.append(f"Stdout:\n{r.out.strip()}")
+                if r.err.strip():
+                    lines.append(f"Stderr:\n{r.err.strip()}")
+                lines.append("-" * 60)
 
     return "\n".join(lines)
-
-
-def write_file_reports(
-    output_file: str,
-    json_file: str,
-    summary_text: str,
-    detailed_logs: str,
-    results: list[JobResult],
-    total_elapsed: float,
-) -> None:
-    """Writes human-readable and JSON reports to disk if requested."""
-    if output_file:
-        out_path = Path(output_file)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        content = strip_ansi(summary_text)
-        if detailed_logs:
-            content += "\n\n" + strip_ansi(detailed_logs)
-        out_path.write_text(content, encoding=DEFAULT_ENCODING)
-        print(f"[INFO] Saved test report to: {output_file}")
-
-    if json_file:
-        j_path = Path(json_file)
-        j_path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {
-            "total": len(results),
-            "passed": sum(1 for r in results if r.is_success),
-            "failed": sum(1 for r in results if not r.is_success and not r.is_timeout),
-            "timeouts": sum(1 for r in results if r.is_timeout),
-            "duration_sec": total_elapsed,
-            "results": [
-                {
-                    "name": r.name,
-                    "code": r.code,
-                    "is_success": r.is_success,
-                    "is_timeout": r.is_timeout,
-                    "elapsed": r.elapsed,
-                    "cmd": r.cmd,
-                    "out": r.out,
-                    "err": r.err,
-                }
-                for r in results
-            ],
-        }
-        j_path.write_text(json.dumps(payload, indent=2), encoding=DEFAULT_ENCODING)
-        print(f"[INFO] Saved JSON report to: {json_file}")
 
 
 def main() -> None:
@@ -375,14 +356,19 @@ def main() -> None:
     is_sync = args.sync_mode
     workers = 1 if is_sync else max(1, args.workers)
     io_workers = 1 if is_sync else max(1, args.io_workers)
+    is_json = bool(args.json_mode)
 
-    mode_label = "Synchronous (Sequential)" if is_sync else f"Parallel ({workers} workers, {io_workers} IO workers)"
-    log_mode_label = "All logs (--all-pass)" if args.show_all else "Failed logs only (default)"
+    concurrency_label = "Sequential (1 worker)" if is_sync else f"Parallel ({workers} workers, {io_workers} IO workers)"
 
-    if not args.quiet:
-        print(f"[INFO] Enqueued {total_jobs} quality gate(s) across {len(active_batches)} batch(es)")
-        print(f"[INFO] Execution Mode : {mode_label}")
-        print(f"[INFO] Log Filtering  : {log_mode_label}\n")
+    # In --all-paths / --all-passed mode, show banner upfront
+    if args.show_all and not is_json:
+        print("================================================================")
+        print("           PARALLEL LOCAL CI/CD QUALITY GATE RUNNER             ")
+        print("================================================================")
+        print(f"🚀 Execution Mode          : {concurrency_label}")
+        print(f"📋 Total Enqueued Gates    : {total_jobs}")
+        print("🔍 Display Mode            : SHOW ALL INFORMATION (--all-paths)")
+        print("----------------------------------------------------------------\n")
 
     results: list[JobResult] = []
     total_start = time.monotonic()
@@ -390,7 +376,6 @@ def main() -> None:
 
     # Execute batches sequentially to preserve dependencies & prevent IO lockups
     for batch in active_batches:
-        batch_name = batch["name"]
         batch_jobs = batch["jobs"]
         job_items = list(batch_jobs.items())
 
@@ -414,7 +399,7 @@ def main() -> None:
                 try:
                     res = future.result()
                     results.append(res)
-                    if not args.quiet:
+                    if args.show_all and not is_json:
                         if res.is_success:
                             print(f"  [{job_counter:2d}/{total_jobs}] \033[1;92m✓ PASS\033[0m [{res.name}] ({res.elapsed}s)", flush=True)
                         elif res.is_timeout:
@@ -432,7 +417,7 @@ def main() -> None:
                         elapsed=0.0,
                     )
                     results.append(failed_res)
-                    if not args.quiet:
+                    if args.show_all and not is_json:
                         print(f"  [{job_counter:2d}/{total_jobs}] \033[1;91m✗ FAIL\033[0m [{name}] (Exception: {ex})", flush=True)
 
     total_elapsed = round(time.monotonic() - total_start, 2)
@@ -442,36 +427,61 @@ def main() -> None:
     timeout_count = sum(1 for r in results if r.is_timeout)
     has_failures = (failed_count > 0 or timeout_count > 0)
 
-    # ── Final Consolidated Summary Report ──────────────────────────────────
-    summary_lines: list[str] = [
-        "=" * 60,
-        "           CI/CD EXECUTION SUMMARY REPORT",
-        "=" * 60,
-        f"Total: {total_jobs} | Passed: {passed_count} | Failed: {failed_count} | Timeouts: {timeout_count} | Time: {total_elapsed}s\n",
-    ]
-    summary_text = "\n".join(summary_lines)
-    print("\n" + summary_text)
+    # ── Handle JSON Output Mode ────────────────────────────────────────────
+    if is_json:
+        payload = {
+            "total_jobs": total_jobs,
+            "passed_count": passed_count,
+            "failed_count": failed_count,
+            "timeout_count": timeout_count,
+            "wall_duration_sec": total_elapsed,
+            "has_failures": has_failures,
+            "exit_code": 1 if has_failures else 0,
+            "gates": [asdict(r) for r in results],
+        }
+        json_content = json.dumps(payload, indent=2, ensure_ascii=False)
+        target_json_path = args.json_mode if isinstance(args.json_mode, str) else args.output_file
 
-    detailed_logs = format_detailed_logs(results, show_all=args.show_all)
-    if detailed_logs:
-        print(detailed_logs)
+        if target_json_path:
+            p = Path(target_json_path)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json_content, encoding=DEFAULT_ENCODING)
+            print(f"📄 JSON results saved to: {target_json_path}")
+        else:
+            print(json_content)
 
-    # Write file reports if requested
-    write_file_reports(
-        args.output_file,
-        args.json_file,
-        summary_text,
-        detailed_logs,
-        results,
-        total_elapsed,
-    )
+        sys.exit(1 if has_failures else 0)
 
+    # ── Handle File Output (Human-readable text) ───────────────────────────
+    if args.output_file:
+        full_file_report = format_full_report(
+            results, total_jobs, passed_count, failed_count, timeout_count, total_elapsed, show_all=True
+        )
+        p = Path(args.output_file)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(strip_ansi(full_file_report), encoding=DEFAULT_ENCODING)
+        print(f"📄 Execution report saved to: {args.output_file}")
+
+    # ── Terminal Output Presentation ───────────────────────────────────────
     if has_failures:
+        failure_text = format_full_report(
+            results, total_jobs, passed_count, failed_count, timeout_count, total_elapsed, show_all=False
+        )
+        print(failure_text)
         print(f"\n\033[1;91m[FAILURE]\033[0m CI/CD quality gates failed with {failed_count + timeout_count} error(s).")
         sys.exit(1)
+
+    if args.show_all:
+        all_text = format_full_report(
+            results, total_jobs, passed_count, failed_count, timeout_count, total_elapsed, show_all=True
+        )
+        print("\n" + all_text)
+        print(f"\n\033[1;92m🎉 All quality gates passed successfully! Codebase is 100% green.\033[0m")
     else:
-        print(f"\033[1;92m✓ [SUCCESS] All passed.\033[0m All {total_jobs} quality gates passed successfully! All OK.")
-        sys.exit(0)
+        # Default mode: clean tick and "All passed."
+        print(f"✔ All passed. ({passed_count} gates in {total_elapsed:.2f}s)")
+
+    sys.exit(0)
 
 
 if __name__ == "__main__":
