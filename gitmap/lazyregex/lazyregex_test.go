@@ -156,19 +156,35 @@ func TestLazyRegexp_GroupBy(t *testing.T) {
 	emailRegex := New(`(?P<user>[a-zA-Z0-9._%+-]+)@(?P<domain>[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})`)
 
 	groups := emailRegex.GroupBy("Contact us at support@example.com for help")
-	if groups["user"] != "support" {
-		t.Errorf("expected user 'support', got '%s'", groups["user"])
+	if !groups.Has("user") || !groups.HasKey("domain") {
+		t.Fatalf("expected keys 'user' and 'domain' to exist in GroupMap")
 	}
-	if groups["domain"] != "example.com" {
-		t.Errorf("expected domain 'example.com', got '%s'", groups["domain"])
+	if groups.Get("user") != "support" {
+		t.Errorf("expected user 'support', got '%s'", groups.Get("user"))
+	}
+	if groups.Get("domain") != "example.com" {
+		t.Errorf("expected domain 'example.com', got '%s'", groups.Get("domain"))
+	}
+	if groups.GetOrDefault("missing", "default") != "default" {
+		t.Errorf("expected default value for missing key")
 	}
 
 	allGroups := emailRegex.FindAllGroups("first@a.com and second@b.org")
-	if len(allGroups) != 2 {
-		t.Fatalf("expected 2 matches, got %d", len(allGroups))
+	if allGroups.Len() != 2 {
+		t.Fatalf("expected 2 matches, got %d", allGroups.Len())
 	}
-	if allGroups[0]["user"] != "first" || allGroups[1]["user"] != "second" {
-		t.Errorf("unexpected allGroups user values: %v", allGroups)
+	if allGroups.First().Get("user") != "first" || allGroups.Last().Get("user") != "second" {
+		t.Errorf("unexpected allGroups user values: %v", allGroups.ToMaps())
+	}
+
+	users := allGroups.ValuesOf("user")
+	if len(users) != 2 || users[0] != "first" || users[1] != "second" {
+		t.Errorf("unexpected users list: %v", users)
+	}
+
+	allKeys := allGroups.AllKeys()
+	if len(allKeys) != 2 || allKeys[0] != "domain" || allKeys[1] != "user" {
+		t.Errorf("unexpected allKeys list: %v", allKeys)
 	}
 }
 
@@ -177,11 +193,22 @@ func TestLazyRegexp_CompileAppError(t *testing.T) {
 	defer ClearCache()
 
 	invalid := New(`[unclosed bracket`)
-	re, appErr := invalid.CompileAppError()
+	res := invalid.CompileAppError()
 
-	if re != nil {
+	if res.IsSuccess() {
+		t.Errorf("expected compilation to fail on invalid pattern")
+	}
+	if !res.IsFailed() {
+		t.Errorf("expected IsFailed to be true")
+	}
+	if !res.HasError() {
+		t.Errorf("expected HasError to be true")
+	}
+	if res.Regexp() != nil {
 		t.Errorf("expected re to be nil for invalid pattern")
 	}
+
+	appErr := res.AppError()
 	if appErr == nil {
 		t.Fatalf("expected appErr to be non-nil for invalid pattern")
 	}
@@ -190,5 +217,93 @@ func TestLazyRegexp_CompileAppError(t *testing.T) {
 	}
 	if appErr.Cause == nil {
 		t.Errorf("expected non-nil Cause on wrapped AppError")
+	}
+
+	valid := New(`^[a-z]+$`)
+	validRes := valid.CompileAppError()
+	if !validRes.IsSuccess() {
+		t.Errorf("expected valid pattern to succeed")
+	}
+	if validRes.HasError() {
+		t.Errorf("expected no error on valid pattern")
+	}
+	if validRes.Regexp() == nil {
+		t.Errorf("expected non-nil Regexp on success")
+	}
+}
+
+func TestGroupMap_Operations(t *testing.T) {
+	gm := NewGroupMap()
+	if !gm.IsEmpty() || gm.HasItems() {
+		t.Errorf("expected empty GroupMap")
+	}
+
+	gm.Set("a", "1").Add("b", "2")
+	if gm.Len() != 2 {
+		t.Errorf("expected len 2, got %d", gm.Len())
+	}
+	if !gm.Has("a") || !gm.HasKey("b") {
+		t.Errorf("expected keys to exist")
+	}
+	if gm.Get("a") != "1" {
+		t.Errorf("expected 1, got %s", gm.Get("a"))
+	}
+
+	clone := gm.Clone()
+	clone.Remove("a")
+	if !gm.Has("a") {
+		t.Errorf("original should keep key 'a'")
+	}
+	if clone.Has("a") {
+		t.Errorf("clone should not have key 'a'")
+	}
+
+	raw := gm.ToMap()
+	if raw["a"] != "1" || raw["b"] != "2" {
+		t.Errorf("unexpected raw map: %v", raw)
+	}
+
+	var nilMap *GroupMap
+	if nilMap.Has("foo") || nilMap.Get("foo") != "" || nilMap.Len() != 0 || !nilMap.IsEmpty() {
+		t.Errorf("nil GroupMap should be safe")
+	}
+}
+
+func TestGroupList_Operations(t *testing.T) {
+	gl := NewGroupList()
+	if !gl.IsEmpty() || gl.HasItems() {
+		t.Errorf("expected empty GroupList")
+	}
+
+	g1 := NewGroupMap().Set("id", "101").Set("type", "cmd")
+	g2 := NewGroupMap().Set("id", "102").Set("type", "query")
+	gl.Add(g1).Add(g2)
+
+	if gl.Len() != 2 {
+		t.Errorf("expected 2 items, got %d", gl.Len())
+	}
+
+	found := gl.Find(func(g *GroupMap) bool {
+		return g.Get("type") == "query"
+	})
+	if found.Get("id") != "102" {
+		t.Errorf("expected id 102 for query, got %s", found.Get("id"))
+	}
+
+	filtered := gl.Filter(func(g *GroupMap) bool {
+		return g.Get("type") == "cmd"
+	})
+	if filtered.Len() != 1 || filtered.First().Get("id") != "101" {
+		t.Errorf("unexpected filtered list")
+	}
+
+	outOfBounds := gl.At(999)
+	if outOfBounds == nil || outOfBounds.HasItems() {
+		t.Errorf("out of bounds At() should return empty non-nil GroupMap")
+	}
+
+	var nilList *GroupList
+	if nilList.Len() != 0 || !nilList.IsEmpty() || nilList.First() == nil {
+		t.Errorf("nil GroupList should be safe")
 	}
 }
