@@ -61,3 +61,26 @@ func (e *AppError) StackTrace() StackTrace {
 
 	return e.stack
 }
+
+// GetErrorId returns the unique error ID or identifier.
+func (e *AppError) GetErrorId() string {
+	if e == nil {
+		return ""
+	}
+
+	return e.errorId
+}
+
+// ErrorId is an alias for GetErrorId.
+func (e *AppError) ErrorId() string {
+	return e.GetErrorId()
+}
+
+// WithErrorId sets the errorId and returns e for chaining.
+func (e *AppError) WithErrorId(id string) *AppError {
+	if e != nil {
+		e.errorId = id
+	}
+
+	return e
+}
