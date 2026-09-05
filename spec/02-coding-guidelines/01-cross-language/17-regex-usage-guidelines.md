@@ -74,6 +74,21 @@ If regex must run in a loop or high-frequency function, verify with your mentor 
 
 Moving regex from inside a function to a package-level `var` can yield significant performance improvements. See [Go Tooling in Action — Benchmark Improvement](https://youtu.be/uBjoTxosSys?t=1451).
 
+### Rule 5: Lazy Regex & Global Map Deduplication (`regexnew`)
+
+When regular expressions are conditionally or dynamically needed, use the **lazy-compiled global map caching architecture** (`04-code/golang/pkg/regexnew` / `aukgo/core/regexnew`).
+
+1. **Global Singleton Maps:**
+   All patterns are registered and deduplicated in global thread-safe caches (`regexMaps map[string]*regexp.Regexp` and `lazyRegexOnceMap map[string]*LazyRegex`).
+2. **New Creator Pattern:**
+   - `regexnew.New.Lazy(pattern)`: Use for package-level `var` declarations (lockless, safe during Go init).
+   - `regexnew.New.LazyLock(pattern)`: Use inside functions or methods where concurrent goroutines may invoke pattern compilation dynamically.
+   - `regexnew.New.LazyRegex.TwoLock(p1, p2)` / `ManyUsingLock(...)`: Batch pattern registration under a single mutex lock.
+3. **Nil Safety:**
+   All methods on `*LazyRegex` (`IsNull()`, `IsDefined()`, `IsApplicable()`, `IsMatch()`, `IsFailedMatch()`, `Compile()`) handle `nil` receivers gracefully without panicking.
+4. **Zero Duplicate Compilation:**
+   Once compiled, the underlying `*regexp.Regexp` is cached globally and shared across all consumers requesting the same pattern string.
+
 ---
 
 ## 5. Cross-Language Applicability
