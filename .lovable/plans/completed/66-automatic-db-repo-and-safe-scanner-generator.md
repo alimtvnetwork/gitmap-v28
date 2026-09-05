@@ -41,13 +41,13 @@ func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error)
 - Scans row safely.
 - Maps raw values into struct fields via `dbengine.Scan*` helpers.
 
-### 2.3 Dedicated Single Data Type QueryBuilders & Generic Repositories
-The generator automatically outputs concrete type aliases for each struct:
-- `type {s_name}QueryBuilder = dbengine.QueryBuilder[{s_name}, {enum_type}]`
-- `type {short_name}QueryBuilder = {s_name}QueryBuilder`
-- `type {s_name}Repository = dbengine.Repository[{s_name}, {enum_type}]`
-- `type {short_name}Repository = {s_name}Repository`
-This completely converts verbose generic signatures (`*dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType]`) into concise, single named types (`*PipelineSplitDbQueryBuilder`, `*PipelineRunQueryBuilder`).
+### 2.3 Dedicated Consts File Separation & Single Data Type QueryBuilders
+The generator automatically extracts constants and type aliases into `{model}_consts_gen.go`:
+- Canonical table constants: `const ( PipelineSplitDbTable = "PipelineSplitDb", PipelineRunRecordTable = "PipelineRunRecord", PipelineRunTable = PipelineRunRecordTable, ... )`
+- Concrete QueryBuilder aliases: `type PipelineSplitDbQueryBuilder = dbengine.QueryBuilder[...]`, `type PipelineRunQueryBuilder = PipelineRunRecordQueryBuilder`
+- Concrete generic Repository aliases: `type PipelineSplitDbRepository = dbengine.Repository[...]`, `type PipelineRunRepository = PipelineRunRecordRepository`
+- Concrete DbRepo aliases: `type PipelineRunDbRepo = PipelineRunRecordDbRepo`, `type PipelineErrorDbRepo = PipelineErrorRecordDbRepo`
+This completely isolates all similar kind definitions in a dedicated consts file, leaving `{model}_fields_gen.go` focused purely on field enums, scanners, and repository methods.
 
 ### 2.4 Typed Repository Pointer Receivers & Constructors
 - Repository structs (`{StructName}DbRepo`) are typed accessors wrapping generic repositories.
@@ -85,7 +85,8 @@ Eliminates all boilerplate scanner and generic repository delegations while allo
 | :--- | :--- | :--- |
 | `TestScanString`, `TestScanInt`, `TestScanInt64`, `TestScanUint64`, `TestScanUint`, `TestScanBool`, `TestScanFloat64` | PASS | Full coverage of null safety and type coercions |
 | `TestPipelineRunDbRepo_GeneratedRepo` | PASS | Verified `NewPipelineRunDbRepo`, `FindAll`, `First`, `Count`, and fluent queries |
-| All PipelineDB Tests | PASS | 6 test functions green |
+| `TestPipelineDbGeneratedConsts` | PASS | Verified canonical table constants and QueryBuilder/Repository type aliases |
+| All PipelineDB Tests | PASS | 7 test functions green |
 | All DBEngine Tests | PASS | 21 test functions green |
 | Nested If Linter (`check-nested-ifs.py`) | PASS | 3,122 files scanned, 0 violations |
 | Boolean & Enum Linter (`check-enum-and-boolean.py`) | PASS | 2,308 files scanned, 0 violations |
