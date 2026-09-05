@@ -137,7 +137,7 @@ func processPromptStep(reader *bufio.Reader, idx, total int, item *RemediationIt
 	return handlePromptAction(item, action), false
 }
 
-func runInteractiveReconciliation(items []RemediationItem) error {
+func runInteractiveRemediation(items []RemediationItem) error {
 	reader := bufio.NewReader(os.Stdin)
 	var applyAllAction string
 	for i := 0; i < len(items); i++ {
@@ -149,4 +149,8 @@ func runInteractiveReconciliation(items []RemediationItem) error {
 	}
 
 	return nil
+}
+
+func runInteractiveReconciliation(items []RemediationItem) error {
+	return runInteractiveRemediation(items)
 }

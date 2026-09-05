@@ -136,10 +136,24 @@ func printPendingReposList(items []RemediationItem) {
 
 func printRemediationCLIHelp() {
 	cmdStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd"))
-	fmt.Println("  To reconcile later:")
-	fmt.Printf("    %s\n", cmdStyle.Render("gitmap reconcile               (interactive walkthrough)"))
-	fmt.Printf("    %s\n", cmdStyle.Render("gitmap reconcile <repo> [1|2|3] (target specific repo)"))
-	fmt.Printf("    %s\n\n", cmdStyle.Render("gitmap reconcile --all stash    (apply stash to all)"))
+	fmt.Println("  To fix later:")
+	fmt.Printf("    %s\n", cmdStyle.Render("gitmap fix               (interactive walkthrough)"))
+	fmt.Printf("    %s\n", cmdStyle.Render("gitmap fix <repo> [1|2|3] (target specific repo)"))
+	fmt.Printf("    %s\n\n", cmdStyle.Render("gitmap fix --all stash    (apply stash to all)"))
+}
+
+func promptForRemediation(items []RemediationItem) {
+	promptStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ffb86c"))
+	fmt.Printf("  %s ", promptStyle.Render("Remediate these repositories now? [Y/n]:"))
+	reader := bufio.NewReader(os.Stdin)
+	ans, _ := reader.ReadString('\n')
+	ans = strings.TrimSpace(strings.ToLower(ans))
+	if ans == "" || ans == "y" || ans == "yes" {
+		_ = runInteractiveRemediation(items)
+
+		return
+	}
+	printRemediationCLIHelp()
 }
 
 func PrintRemediationSummary(items []RemediationItem) {
@@ -151,16 +165,8 @@ func PrintRemediationSummary(items []RemediationItem) {
 	printPendingReposList(items)
 	if !render.StdoutIsTerminal() {
 		printRemediationCLIHelp()
+
 		return
 	}
-	promptStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ffb86c"))
-	fmt.Printf("  %s ", promptStyle.Render("Reconcile these repositories now? [Y/n]:"))
-	reader := bufio.NewReader(os.Stdin)
-	ans, _ := reader.ReadString('\n')
-	ans = strings.TrimSpace(strings.ToLower(ans))
-	if ans == "" || ans == "y" || ans == "yes" {
-		_ = runInteractiveReconciliation(items)
-		return
-	}
-	printRemediationCLIHelp()
+	promptForRemediation(items)
 }
