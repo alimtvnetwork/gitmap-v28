@@ -3,6 +3,7 @@ package dbengine
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
@@ -32,11 +33,81 @@ func (e TestItemFieldType) IsCompare(target any) bool {
 	}
 }
 
+func (e TestItemFieldType) IsEnum(target any) bool {
+	return e.IsCompare(target)
+}
+
+func (e TestItemFieldType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(e))
+}
+
+func (e *TestItemFieldType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*e = TestItemFieldType(s)
+	return nil
+}
+
+func (e TestItemFieldType) ToJSON() (string, error) {
+	b, err := json.Marshal(string(e))
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+func (e *TestItemFieldType) FromJSON(s string) error {
+	return json.Unmarshal([]byte(s), e)
+}
+
 type testItemDbRegistry struct {
 	ItemId   TestItemFieldType
 	ItemName TestItemFieldType
 	Category TestItemFieldType
 	IsActive TestItemFieldType
+}
+
+func (r testItemDbRegistry) All() []TestItemFieldType {
+	return []TestItemFieldType{r.ItemId, r.ItemName, r.Category, r.IsActive}
+}
+
+func (r testItemDbRegistry) Names() []string {
+	return []string{"ItemId", "ItemName", "Category", "IsActive"}
+}
+
+func (r testItemDbRegistry) IsEnum(variant Variant) bool {
+	for _, f := range r.All() {
+		if f.IsCompare(variant) {
+			return true
+		}
+	}
+	return false
+}
+
+func (r testItemDbRegistry) IsItemId(variant Variant) bool {
+	return r.ItemId.IsCompare(variant)
+}
+
+func (r testItemDbRegistry) IsItemName(variant Variant) bool {
+	return r.ItemName.IsCompare(variant)
+}
+
+func (r testItemDbRegistry) IsCategory(variant Variant) bool {
+	return r.Category.IsCompare(variant)
+}
+
+func (r testItemDbRegistry) IsIsActive(variant Variant) bool {
+	return r.IsActive.IsCompare(variant)
+}
+
+func (r testItemDbRegistry) ToJSON() (string, error) {
+	b, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 var TestItemDb = testItemDbRegistry{
@@ -240,6 +311,34 @@ func TestDbType_Methods(t *testing.T) {
 	if DbTypes.SQLite.IsCompare("postgres") {
 		t.Errorf("expected IsCompare('postgres') to be false")
 	}
+
+	// Test IsEnum and Is<Dialect> on registry
+	if !DbTypes.IsEnum("sqlite") {
+		t.Errorf("expected DbTypes.IsEnum('sqlite') to be true")
+	}
+	if !DbTypes.IsEnum(DbPostgreSQL) {
+		t.Errorf("expected DbTypes.IsEnum(DbPostgreSQL) to be true")
+	}
+	if DbTypes.IsEnum("invalid_db") {
+		t.Errorf("expected DbTypes.IsEnum('invalid_db') to be false")
+	}
+	if !DbTypes.IsSQLite("sqlite") {
+		t.Errorf("expected DbTypes.IsSQLite('sqlite') to be true")
+	}
+	if DbTypes.IsSQLite("postgres") {
+		t.Errorf("expected DbTypes.IsSQLite('postgres') to be false")
+	}
+
+	// Test JSON methods
+	jsonStr, err := DbTypes.SQLite.ToJSON()
+	if err != nil || jsonStr != `"sqlite"` {
+		t.Errorf("expected JSON `\"sqlite\"`, got %s (err: %v)", jsonStr, err)
+	}
+
+	var parsed DbType
+	if err := parsed.FromJSON(`"postgres"`); err != nil || parsed != DbPostgreSQL {
+		t.Errorf("expected parsed DbPostgreSQL, got %v (err: %v)", parsed, err)
+	}
 }
 
 func TestFieldType_Methods(t *testing.T) {
@@ -261,5 +360,40 @@ func TestFieldType_Methods(t *testing.T) {
 	}
 	if field.IsCompare("ItemName") {
 		t.Errorf("expected IsCompare('ItemName') to be false")
+	}
+
+	// Test IsEnum on field
+	if !field.IsEnum("ItemId") {
+		t.Errorf("expected IsEnum('ItemId') to be true")
+	}
+
+	// Test Is<Field>(variant) on registry
+	if !TestItemDb.IsItemId("ItemId") {
+		t.Errorf("expected TestItemDb.IsItemId('ItemId') to be true")
+	}
+	if !TestItemDb.IsItemId(TestItemDb.ItemId) {
+		t.Errorf("expected TestItemDb.IsItemId(TestItemDb.ItemId) to be true")
+	}
+	if TestItemDb.IsItemId("Category") {
+		t.Errorf("expected TestItemDb.IsItemId('Category') to be false")
+	}
+
+	// Test IsEnum on registry
+	if !TestItemDb.IsEnum("Category") {
+		t.Errorf("expected TestItemDb.IsEnum('Category') to be true")
+	}
+	if TestItemDb.IsEnum("NonExistentColumn") {
+		t.Errorf("expected TestItemDb.IsEnum('NonExistentColumn') to be false")
+	}
+
+	// Test JSON methods
+	jsonStr, err := field.ToJSON()
+	if err != nil || jsonStr != `"ItemId"` {
+		t.Errorf("expected JSON `\"ItemId\"`, got %s (err: %v)", jsonStr, err)
+	}
+
+	var parsedField TestItemFieldType
+	if err := parsedField.FromJSON(`"ItemName"`); err != nil || parsedField != TestItemDb.ItemName {
+		t.Errorf("expected parsed ItemName, got %v (err: %v)", parsedField, err)
 	}
 }
