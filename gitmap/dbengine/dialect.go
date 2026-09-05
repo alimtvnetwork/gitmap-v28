@@ -38,23 +38,65 @@ func (d DbType) Value() string {
 	return string(d)
 }
 
-// IsCompare checks equality against another DbType, string, or fmt.Stringer.
-func (d DbType) IsCompare(target any) bool {
-	switch v := target.(type) {
-	case DbType:
-		return d == v
-	case string:
-		return string(d) == v
-	case fmt.Stringer:
-		return string(d) == v.String()
-	default:
-		return false
-	}
+// dbTypeValidMap provides O(1) map validation for database types.
+var dbTypeValidMap = map[DbType]bool{
+	DbSQLite:     true,
+	DbPostgreSQL: true,
+	DbMySQL:      true,
+	DbMariaDB:    true,
+	DbMSSQL:      true,
+	DbOracle:     true,
+	DbMongoDB:    true,
 }
 
-// IsEnum checks equality against another DbType, string, or fmt.Stringer (alias for IsCompare).
-func (d DbType) IsEnum(target any) bool {
-	return d.IsCompare(target)
+// IsCompare checks equality against another DbType object.
+func (d DbType) IsCompare(target DbType) bool {
+	return d == target
+}
+
+// IsEnum checks whether this database type exists in the valid map.
+func (d DbType) IsEnum() bool {
+	return dbTypeValidMap[d]
+}
+
+// IsSQLite checks whether this database type is SQLite.
+func (d DbType) IsSQLite() bool {
+	return d == DbSQLite
+}
+
+// IsPostgreSQL checks whether this database type is PostgreSQL.
+func (d DbType) IsPostgreSQL() bool {
+	return d == DbPostgreSQL
+}
+
+// IsPostgres checks whether this database type is PostgreSQL.
+func (d DbType) IsPostgres() bool {
+	return d == DbPostgreSQL
+}
+
+// IsMySQL checks whether this database type is MySQL.
+func (d DbType) IsMySQL() bool {
+	return d == DbMySQL
+}
+
+// IsMariaDB checks whether this database type is MariaDB.
+func (d DbType) IsMariaDB() bool {
+	return d == DbMariaDB
+}
+
+// IsMSSQL checks whether this database type is MSSQL.
+func (d DbType) IsMSSQL() bool {
+	return d == DbMSSQL
+}
+
+// IsOracle checks whether this database type is Oracle.
+func (d DbType) IsOracle() bool {
+	return d == DbOracle
+}
+
+// IsMongoDB checks whether this database type is MongoDB.
+func (d DbType) IsMongoDB() bool {
+	return d == DbMongoDB
 }
 
 // MarshalJSON implements json.Marshaler.
@@ -62,28 +104,41 @@ func (d DbType) MarshalJSON() ([]byte, error) {
 	return json.Marshal(string(d))
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
+// UnmarshalJSON implements json.Unmarshaler with strict map validation.
 func (d *DbType) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
-	*d = DbType(s)
+	target := DbType(s)
+	if !dbTypeValidMap[target] {
+		return fmt.Errorf("invalid db type: %s", s)
+	}
+	*d = target
 	return nil
 }
 
-// ToJSON converts the database type to a JSON string representation.
-func (d DbType) ToJSON() (string, error) {
+// ToJSON converts the database type to a JSON string representation, returning an AppError on failure.
+func (d DbType) ToJSON() (string, *apperror.AppError) {
 	b, err := json.Marshal(string(d))
 	if err != nil {
-		return "", err
+		return "", apperror.WrapSimple(err, "serialize db type to json")
 	}
 	return string(b), nil
 }
 
-// FromJSON parses a database type from a JSON string.
-func (d *DbType) FromJSON(s string) error {
-	return json.Unmarshal([]byte(s), d)
+// FromJSON parses a database type from a JSON string, returning an AppError on failure.
+func (d *DbType) FromJSON(s string) *apperror.AppError {
+	var str string
+	if err := json.Unmarshal([]byte(s), &str); err != nil {
+		return apperror.WrapSimple(err, "deserialize db type from json")
+	}
+	target := DbType(str)
+	if !dbTypeValidMap[target] {
+		return apperror.WrapSimple(fmt.Errorf("invalid db type: %s", str), "validate db type from json")
+	}
+	*d = target
+	return nil
 }
 
 // dbTypeRegistry provides scoped access to supported database types.
@@ -124,61 +179,56 @@ func (r dbTypeRegistry) Names() []string {
 	}
 }
 
-// IsEnum checks whether the given variant matches any registered database type.
-func (r dbTypeRegistry) IsEnum(variant Variant) bool {
-	for _, d := range r.All() {
-		if d.IsCompare(variant) {
-			return true
-		}
-	}
-	return false
+// IsEnum checks whether the target object matches any registered database type.
+func (r dbTypeRegistry) IsEnum(target DbType) bool {
+	return dbTypeValidMap[target]
 }
 
-// IsSQLite checks whether the variant represents SQLite.
-func (r dbTypeRegistry) IsSQLite(variant Variant) bool {
-	return r.SQLite.IsCompare(variant)
+// IsSQLite checks whether the target matches SQLite.
+func (r dbTypeRegistry) IsSQLite(target DbType) bool {
+	return target == r.SQLite
 }
 
-// IsPostgreSQL checks whether the variant represents PostgreSQL.
-func (r dbTypeRegistry) IsPostgreSQL(variant Variant) bool {
-	return r.PostgreSQL.IsCompare(variant)
+// IsPostgreSQL checks whether the target matches PostgreSQL.
+func (r dbTypeRegistry) IsPostgreSQL(target DbType) bool {
+	return target == r.PostgreSQL
 }
 
-// IsPostgres checks whether the variant represents PostgreSQL.
-func (r dbTypeRegistry) IsPostgres(variant Variant) bool {
-	return r.PostgreSQL.IsCompare(variant)
+// IsPostgres checks whether the target matches PostgreSQL.
+func (r dbTypeRegistry) IsPostgres(target DbType) bool {
+	return target == r.Postgres
 }
 
-// IsMySQL checks whether the variant represents MySQL.
-func (r dbTypeRegistry) IsMySQL(variant Variant) bool {
-	return r.MySQL.IsCompare(variant)
+// IsMySQL checks whether the target matches MySQL.
+func (r dbTypeRegistry) IsMySQL(target DbType) bool {
+	return target == r.MySQL
 }
 
-// IsMariaDB checks whether the variant represents MariaDB.
-func (r dbTypeRegistry) IsMariaDB(variant Variant) bool {
-	return r.MariaDB.IsCompare(variant)
+// IsMariaDB checks whether the target matches MariaDB.
+func (r dbTypeRegistry) IsMariaDB(target DbType) bool {
+	return target == r.MariaDB
 }
 
-// IsMSSQL checks whether the variant represents MSSQL.
-func (r dbTypeRegistry) IsMSSQL(variant Variant) bool {
-	return r.MSSQL.IsCompare(variant)
+// IsMSSQL checks whether the target matches MSSQL.
+func (r dbTypeRegistry) IsMSSQL(target DbType) bool {
+	return target == r.MSSQL
 }
 
-// IsOracle checks whether the variant represents Oracle.
-func (r dbTypeRegistry) IsOracle(variant Variant) bool {
-	return r.Oracle.IsCompare(variant)
+// IsOracle checks whether the target matches Oracle.
+func (r dbTypeRegistry) IsOracle(target DbType) bool {
+	return target == r.Oracle
 }
 
-// IsMongoDB checks whether the variant represents MongoDB.
-func (r dbTypeRegistry) IsMongoDB(variant Variant) bool {
-	return r.MongoDB.IsCompare(variant)
+// IsMongoDB checks whether the target matches MongoDB.
+func (r dbTypeRegistry) IsMongoDB(target DbType) bool {
+	return target == r.MongoDB
 }
 
-// ToJSON converts the database type registry to a JSON string representation.
-func (r dbTypeRegistry) ToJSON() (string, error) {
+// ToJSON converts the database type registry to a JSON string representation, returning an AppError on failure.
+func (r dbTypeRegistry) ToJSON() (string, *apperror.AppError) {
 	b, err := json.Marshal(r)
 	if err != nil {
-		return "", err
+		return "", apperror.WrapSimple(err, "serialize db type registry to json")
 	}
 	return string(b), nil
 }

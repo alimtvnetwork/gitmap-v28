@@ -57,19 +57,27 @@ func (d DbType) IsCompare(target any) bool {
     }
 }
 
-// IsEnum checks equality against another DbType, string, or fmt.Stringer.
-func (d DbType) IsEnum(target any) bool {
-    return d.IsCompare(target)
+// dbTypeValidMap provides O(1) map validation for database types.
+var dbTypeValidMap = map[DbType]bool{
+    DbSQLite:     true,
+    DbPostgreSQL: true,
+    DbMySQL:      true,
+    DbMariaDB:    true,
+    DbMSSQL:      true,
+    DbOracle:     true,
+    DbMongoDB:    true,
 }
 
-// JSON conversion methods
+func (d DbType) IsCompare(target DbType) bool { return d == target }
+func (d DbType) IsEnum() bool                 { return dbTypeValidMap[d] }
+func (d DbType) IsSQLite() bool               { return d == DbSQLite }
+func (d DbType) IsPostgreSQL() bool           { return d == DbPostgreSQL }
+
+// JSON conversion methods with AppError
 func (d DbType) MarshalJSON() ([]byte, error) { return json.Marshal(string(d)) }
 func (d *DbType) UnmarshalJSON(data []byte) error { ... }
-func (d DbType) ToJSON() (string, error) { ... }
-func (d *DbType) FromJSON(s string) error { ... }
-
-// Variant represents any dynamic value acceptable for enum comparisons.
-type Variant = any
+func (d DbType) ToJSON() (string, *apperror.AppError) { ... }
+func (d *DbType) FromJSON(s string) *apperror.AppError { ... }
 
 // Scoped registry for zero-magic strings
 type dbTypeRegistry struct {
@@ -85,10 +93,10 @@ type dbTypeRegistry struct {
 
 func (r dbTypeRegistry) All() []DbType { ... }
 func (r dbTypeRegistry) Names() []string { ... }
-func (r dbTypeRegistry) IsEnum(variant Variant) bool { ... }
-func (r dbTypeRegistry) IsSQLite(variant Variant) bool { return r.SQLite.IsCompare(variant) }
-func (r dbTypeRegistry) IsPostgreSQL(variant Variant) bool { return r.PostgreSQL.IsCompare(variant) }
-func (r dbTypeRegistry) ToJSON() (string, error) { return json.Marshal(r) }
+func (r dbTypeRegistry) IsEnum(target DbType) bool { return dbTypeValidMap[target] }
+func (r dbTypeRegistry) IsSQLite(target DbType) bool { return target == r.SQLite }
+func (r dbTypeRegistry) IsPostgreSQL(target DbType) bool { return target == r.PostgreSQL }
+func (r dbTypeRegistry) ToJSON() (string, *apperror.AppError) { ... }
 
 var DbTypes = dbTypeRegistry{
     SQLite:     DbSQLite,
@@ -171,29 +179,18 @@ type PipelineErrorLogFieldType string
 func (e PipelineErrorLogFieldType) Name() string   { return string(e) }
 func (e PipelineErrorLogFieldType) String() string { return string(e) }
 func (e PipelineErrorLogFieldType) Value() string  { return string(e) }
-func (e PipelineErrorLogFieldType) IsCompare(target any) bool {
-    switch v := target.(type) {
-    case PipelineErrorLogFieldType:
-        return e == v
-    case string:
-        return string(e) == v
-    case fmt.Stringer:
-        return string(e) == v.String()
-    default:
-        return false
-    }
+func (e PipelineErrorLogFieldType) IsCompare(target PipelineErrorLogFieldType) bool {
+    return e == target
 }
-func (e PipelineErrorLogFieldType) IsEnum(target any) bool { return e.IsCompare(target) }
+func (e PipelineErrorLogFieldType) IsEnum() bool { return pipelineErrorLogValidMap[e] }
+func (e PipelineErrorLogFieldType) IsRunId() bool { return e == PipelineErrorLogDb.RunId }
+func (e PipelineErrorLogFieldType) IsRepoSlug() bool { return e == PipelineErrorLogDb.RepoSlug }
+
+// JSON conversion methods with AppError
 func (e PipelineErrorLogFieldType) MarshalJSON() ([]byte, error) { return json.Marshal(string(e)) }
 func (e *PipelineErrorLogFieldType) UnmarshalJSON(data []byte) error { ... }
-func (e PipelineErrorLogFieldType) ToJSON() (string, error) { ... }
-func (e *PipelineErrorLogFieldType) FromJSON(s string) error { ... }
-func (e PipelineErrorLogFieldType) IsRunId(variant ...Variant) bool {
-    if len(variant) > 0 {
-        return e.IsCompare("RunId") && e.IsCompare(variant[0])
-    }
-    return e.IsCompare("RunId")
-}
+func (e PipelineErrorLogFieldType) ToJSON() (string, *apperror.AppError) { ... }
+func (e *PipelineErrorLogFieldType) FromJSON(s string) *apperror.AppError { ... }
 
 type pipelineErrorLogDbRegistry struct {
     PipelineErrorLogId PipelineErrorLogFieldType
@@ -210,9 +207,9 @@ type pipelineErrorLogDbRegistry struct {
 
 func (r pipelineErrorLogDbRegistry) All() []PipelineErrorLogFieldType { ... }
 func (r pipelineErrorLogDbRegistry) Names() []string { ... }
-func (r pipelineErrorLogDbRegistry) IsEnum(variant Variant) bool { ... }
-func (r pipelineErrorLogDbRegistry) IsRunId(variant Variant) bool { return r.RunId.IsCompare(variant) }
-func (r pipelineErrorLogDbRegistry) ToJSON() (string, error) { return json.Marshal(r) }
+func (r pipelineErrorLogDbRegistry) IsEnum(target PipelineErrorLogFieldType) bool { return pipelineErrorLogValidMap[target] }
+func (r pipelineErrorLogDbRegistry) IsRunId(target PipelineErrorLogFieldType) bool { return target == r.RunId }
+func (r pipelineErrorLogDbRegistry) ToJSON() (string, *apperror.AppError) { ... }
 
 // Canonical scoped access: PipelineErrorLogDb.RunId
 var PipelineErrorLogDb = pipelineErrorLogDbRegistry{
@@ -226,6 +223,14 @@ var PipelineErrorLogDb = pipelineErrorLogDbRegistry{
     Notes:              "Notes",
     Comments:           "Comments",
     CreatedAt:          "CreatedAt",
+}
+
+// O(1) valid enum map
+var pipelineErrorLogValidMap = map[PipelineErrorLogFieldType]bool{
+    PipelineErrorLogDb.PipelineErrorLogId: true,
+    PipelineErrorLogDb.RunId:              true,
+    PipelineErrorLogDb.RepoSlug:           true,
+    // ...
 }
 
 // PipelineErrorLogField is an alias to PipelineErrorLogDb

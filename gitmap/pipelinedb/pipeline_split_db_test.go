@@ -84,20 +84,17 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 }
 
 func TestPipelineDbGeneratedFields(t *testing.T) {
-	// 1. Registry field checks
-	if !PipelineRunRecordDb.IsRunId("RunId") {
-		t.Errorf("expected PipelineRunRecordDb.IsRunId('RunId') to be true")
-	}
+	// 1. Registry field checks (object-based)
 	if !PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RunId) {
 		t.Errorf("expected PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RunId) to be true")
 	}
-	if PipelineRunRecordDb.IsRunId("RepoSlug") {
-		t.Errorf("expected PipelineRunRecordDb.IsRunId('RepoSlug') to be false")
+	if PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RepoSlug) {
+		t.Errorf("expected PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RepoSlug) to be false")
 	}
 
-	// 2. Registry IsEnum
-	if !PipelineRunRecordDb.IsEnum("RunId") {
-		t.Errorf("expected PipelineRunRecordDb.IsEnum('RunId') to be true")
+	// 2. Registry IsEnum (map-based object lookup)
+	if !PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.RunId) {
+		t.Errorf("expected PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.RunId) to be true")
 	}
 	if !PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.Sha) {
 		t.Errorf("expected PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.Sha) to be true")
@@ -116,10 +113,10 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 		t.Errorf("unexpected names: %v", names)
 	}
 
-	// 4. Registry JSON serialization
-	regJson, err := PipelineRunRecordDb.ToJSON()
-	if err != nil || len(regJson) == 0 {
-		t.Errorf("failed serializing registry to JSON: %v", err)
+	// 4. Registry JSON serialization with AppError
+	regJson, appErr := PipelineRunRecordDb.ToJSON()
+	if appErr != nil || len(regJson) == 0 {
+		t.Errorf("failed serializing registry to JSON: %v", appErr)
 	}
 
 	// 5. FieldType enum methods
@@ -127,23 +124,26 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 	if field.Name() != "RunId" || field.String() != "RunId" || field.Value() != "RunId" {
 		t.Errorf("unexpected field values: %s, %s, %s", field.Name(), field.String(), field.Value())
 	}
-	if !field.IsCompare("RunId") || !field.IsEnum("RunId") {
-		t.Errorf("expected IsCompare and IsEnum to be true for 'RunId'")
+	if !field.IsCompare(PipelineRunRecordDb.RunId) {
+		t.Errorf("expected IsCompare to be true for RunId")
 	}
-	if field.IsCompare("RepoSlug") || field.IsEnum("RepoSlug") {
-		t.Errorf("expected IsCompare and IsEnum to be false for 'RepoSlug'")
+	if field.IsCompare(PipelineRunRecordDb.RepoSlug) {
+		t.Errorf("expected IsCompare to be false for RepoSlug")
 	}
-	if !field.IsRunId() || !field.IsRunId("RunId") {
-		t.Errorf("expected field.IsRunId to be true")
+	if !field.IsEnum() {
+		t.Errorf("expected field.IsEnum() to be true")
 	}
-	if field.IsRunId("RepoSlug") {
-		t.Errorf("expected field.IsRunId('RepoSlug') to be false")
+	if !field.IsRunId() {
+		t.Errorf("expected field.IsRunId() to be true")
+	}
+	if field.IsRepoSlug() {
+		t.Errorf("expected field.IsRepoSlug() to be false")
 	}
 
-	// 6. FieldType JSON serialization and deserialization
-	jsonStr, err := field.ToJSON()
-	if err != nil || jsonStr != `"RunId"` {
-		t.Errorf("expected `\"RunId\"`, got %s (err: %v)", jsonStr, err)
+	// 6. FieldType JSON serialization and deserialization with AppError
+	jsonStr, jsonErr := field.ToJSON()
+	if jsonErr != nil || jsonStr != `"RunId"` {
+		t.Errorf("expected `\"RunId\"`, got %s (err: %v)", jsonStr, jsonErr)
 	}
 
 	var parsedField PipelineRunRecordFieldType
@@ -152,13 +152,13 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 	}
 
 	// 7. ErrorRecord field checks
-	if !PipelineErrorRecordDb.IsRunId("RunId") {
-		t.Errorf("expected PipelineErrorRecordDb.IsRunId('RunId') to be true")
+	if !PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.RunId) {
+		t.Errorf("expected PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.RunId) to be true")
 	}
-	if !PipelineErrorRecordDb.IsStepName("StepName") {
-		t.Errorf("expected PipelineErrorRecordDb.IsStepName('StepName') to be true")
+	if !PipelineErrorRecordDb.IsStepName(PipelineErrorRecordDb.StepName) {
+		t.Errorf("expected PipelineErrorRecordDb.IsStepName(PipelineErrorRecordDb.StepName) to be true")
 	}
-	if PipelineErrorRecordDb.IsRunId("StepName") {
-		t.Errorf("expected PipelineErrorRecordDb.IsRunId('StepName') to be false")
+	if PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.StepName) {
+		t.Errorf("expected PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.StepName) to be false")
 	}
 }
