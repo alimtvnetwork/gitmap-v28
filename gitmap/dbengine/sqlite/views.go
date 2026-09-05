@@ -32,4 +32,3 @@ func (c *Compiler) CompileInspectColumns(tableOrView string) string {
 func (c *Compiler) CompileInspectViewExists(viewName string) string {
 	return "SELECT 1 FROM sqlite_master WHERE type = 'view' AND name = ?;"
 }
-

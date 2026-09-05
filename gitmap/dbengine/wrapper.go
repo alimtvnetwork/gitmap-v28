@@ -2,9 +2,13 @@ package dbengine
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
@@ -267,36 +271,184 @@ func (w *DbWrapper) verifyViewColumns(ctx context.Context, name string, required
 	return true, nil
 }
 
-// CreateViewOrUseView inspects if a view exists and contains the required columns.
-// If valid, it reuses the view. If missing or columns differ, it creates or recreates the view.
-func (w *DbWrapper) CreateViewOrUseView(ctx context.Context, name string, selectSql string, requiredColumns ...string) BoolResult {
+const viewMetaTable = "__gitmap_view_meta"
+
+const sqlCreateViewMeta = `
+CREATE TABLE IF NOT EXISTS __gitmap_view_meta (
+    ViewName TEXT PRIMARY KEY,
+    QueryHash TEXT NOT NULL,
+    ViewSql TEXT NOT NULL,
+    UpdatedAt TEXT NOT NULL
+);`
+
+// ComputeSqlHash computes a deterministic SHA-256 hex string for a given SQL statement.
+func ComputeSqlHash(sqlStr string) string {
+	sum := sha256.Sum256([]byte(strings.TrimSpace(sqlStr)))
+	return hex.EncodeToString(sum[:])
+}
+
+// ValidateSql performs a dry-run syntax and reference check using EXPLAIN on the database connection.
+func (w *DbWrapper) ValidateSql(ctx context.Context, sqlStr string) *apperror.AppError {
+	cleanSql := strings.TrimRight(strings.TrimSpace(sqlStr), ";")
+	explainQuery := fmt.Sprintf("EXPLAIN %s", cleanSql)
+	rows, err := w.conn.QueryContext(ctx, explainQuery)
+	if err != nil {
+		return apperror.WrapSimple(err, "validate sql query syntax")
+	}
+	defer rows.Close()
+	return nil
+}
+
+// EnsureViewMetaTable initializes the view metadata table if it does not already exist.
+func (w *DbWrapper) EnsureViewMetaTable(ctx context.Context) *apperror.AppError {
+	_, err := w.Exec(ctx, sqlCreateViewMeta)
+	if err != nil {
+		return apperror.WrapSimple(err, "ensure view metadata table")
+	}
+	return nil
+}
+
+// GetViewHash retrieves the recorded query hash for a view from __gitmap_view_meta.
+func (w *DbWrapper) GetViewHash(ctx context.Context, name string) (string, *apperror.AppError) {
+	query := "SELECT QueryHash FROM __gitmap_view_meta WHERE ViewName = ?"
+	row, appErr := w.QueryRow(ctx, query, name)
+	if appErr != nil {
+		return "", appErr
+	}
+	var hash string
+	err := row.Scan(&hash)
+	if err == nil {
+		return hash, nil
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", nil
+	}
+	return "", apperror.WrapSimple(err, "scan view hash for "+name)
+}
+
+// SaveViewMeta records or updates the view hash and SQL in __gitmap_view_meta.
+func (w *DbWrapper) SaveViewMeta(ctx context.Context, name, queryHash, viewSql string) *apperror.AppError {
+	now := time.Now().UTC().Format(time.RFC3339)
+	query := `
+INSERT OR REPLACE INTO __gitmap_view_meta (ViewName, QueryHash, ViewSql, UpdatedAt)
+VALUES (?, ?, ?, ?);`
+	_, appErr := w.Exec(ctx, query, name, queryHash, viewSql, now)
+	if appErr != nil {
+		return apperror.WrapSimple(appErr, "save view metadata for "+name)
+	}
+	return nil
+}
+
+func (w *DbWrapper) isViewCurrent(ctx context.Context, name, queryHash string) (bool, *apperror.AppError) {
+	existingHash, appErr := w.GetViewHash(ctx, name)
+	if appErr != nil {
+		return false, appErr
+	}
+	if len(existingHash) == 0 {
+		return false, nil
+	}
+	return existingHash == queryHash, nil
+}
+
+func (w *DbWrapper) recordViewMetaIfPresent(ctx context.Context, name, queryHash, selectSql string) BoolResult {
+	if len(queryHash) == 0 {
+		return SuccessBool(true)
+	}
+	saveErr := w.SaveViewMeta(ctx, name, queryHash, selectSql)
+	if saveErr != nil {
+		return FailureBool(saveErr)
+	}
+	return SuccessBool(true)
+}
+
+func (w *DbWrapper) createAndRegisterView(ctx context.Context, name, selectSql, queryHash string) BoolResult {
+	createRes := w.CreateView(ctx, name, selectSql)
+	if createRes.IsFailed() {
+		return createRes
+	}
+	return w.recordViewMetaIfPresent(ctx, name, queryHash, selectSql)
+}
+
+func (w *DbWrapper) dropAndRecreateView(ctx context.Context, name, selectSql, queryHash string) BoolResult {
+	dropRes := w.DropView(ctx, name)
+	if dropRes.IsFailed() {
+		return dropRes
+	}
+	return w.createAndRegisterView(ctx, name, selectSql, queryHash)
+}
+
+func (w *DbWrapper) recreateAndRegisterView(ctx context.Context, name string, selectSql string, queryHash string) BoolResult {
+	valErr := w.ValidateSql(ctx, selectSql)
+	if valErr != nil {
+		return FailureBool(valErr)
+	}
+
 	exists, appErr := w.ViewExists(ctx, name)
 	if appErr != nil {
 		return FailureBool(appErr)
 	}
+	if exists {
+		return w.dropAndRecreateView(ctx, name, selectSql, queryHash)
+	}
+	return w.createAndRegisterView(ctx, name, selectSql, queryHash)
+}
 
-	if !exists {
-		return w.CreateView(ctx, name, selectSql)
+// CreateViewOrUseViewWithHash checks if a view exists and matches queryHash in __gitmap_view_meta.
+// If valid, it reuses the view (0 DDL). If missing or query hash changed, it validates SQL, drops old view, creates updated view, and saves metadata.
+func (w *DbWrapper) CreateViewOrUseViewWithHash(ctx context.Context, name string, selectSql string, queryHash string) BoolResult {
+	metaErr := w.EnsureViewMetaTable(ctx)
+	if metaErr != nil {
+		return FailureBool(metaErr)
 	}
 
-	if len(requiredColumns) == 0 {
+	exists, appErr := w.ViewExists(ctx, name)
+	if appErr != nil {
+		return FailureBool(appErr)
+	}
+	if !exists {
+		return w.recreateAndRegisterView(ctx, name, selectSql, queryHash)
+	}
+
+	current, currentErr := w.isViewCurrent(ctx, name, queryHash)
+	if currentErr != nil {
+		return FailureBool(currentErr)
+	}
+	if current {
 		return SuccessBool(true)
+	}
+
+	return w.recreateAndRegisterView(ctx, name, selectSql, queryHash)
+}
+
+// CreateViewOrUseView inspects if a view exists and contains the required columns or matches query hash.
+// If valid, it reuses the view. If missing or schema differs, it validates SQL, drops old view, creates updated view, and saves metadata.
+func (w *DbWrapper) CreateViewOrUseView(ctx context.Context, name string, selectSql string, requiredColumns ...string) BoolResult {
+	hash := ComputeSqlHash(selectSql)
+	if len(requiredColumns) == 0 {
+		return w.CreateViewOrUseViewWithHash(ctx, name, selectSql, hash)
+	}
+
+	metaErr := w.EnsureViewMetaTable(ctx)
+	if metaErr != nil {
+		return FailureBool(metaErr)
+	}
+
+	exists, appErr := w.ViewExists(ctx, name)
+	if appErr != nil {
+		return FailureBool(appErr)
+	}
+	if !exists {
+		return w.recreateAndRegisterView(ctx, name, selectSql, hash)
 	}
 
 	hasAll, verifyErr := w.verifyViewColumns(ctx, name, requiredColumns)
 	if verifyErr != nil {
 		return FailureBool(verifyErr)
 	}
-
 	if hasAll {
+		_ = w.recordViewMetaIfPresent(ctx, name, hash, selectSql)
 		return SuccessBool(true)
 	}
 
-	dropRes := w.DropView(ctx, name)
-	if dropRes.IsFailed() {
-		return dropRes
-	}
-
-	return w.CreateView(ctx, name, selectSql)
+	return w.recreateAndRegisterView(ctx, name, selectSql, hash)
 }
-

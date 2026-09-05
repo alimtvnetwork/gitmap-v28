@@ -42,6 +42,16 @@ type havingClause struct {
 	rawCond string
 }
 
+func toColumnName(col any) string {
+	if s, ok := col.(string); ok {
+		return s
+	}
+	if str, ok := col.(fmt.Stringer); ok {
+		return str.String()
+	}
+	return fmt.Sprintf("%v", col)
+}
+
 // JoinBuilder provides scoped methods for configuring a table join before returning to QueryBuilder.
 type JoinBuilder[T any, F ~string] struct {
 	parent          *QueryBuilder[T, F]
@@ -50,26 +60,40 @@ type JoinBuilder[T any, F ~string] struct {
 	projectedFields []string
 	extraConditions []string
 	extraArgs       []any
+	err             *apperror.AppError
 }
 
 func newJoinBuilder[T any, F ~string](parent *QueryBuilder[T, F], joinType, table string) *JoinBuilder[T, F] {
-	return &JoinBuilder[T, F]{
+	jb := &JoinBuilder[T, F]{
 		parent:      parent,
 		joinType:    joinType,
 		targetTable: table,
 	}
+	if parent.err != nil {
+		jb.err = parent.err
+	}
+	return jb
 }
 
-// Select specifies projected fields from the joined table.
-func (j *JoinBuilder[T, F]) Select(fields ...string) *JoinBuilder[T, F] {
-	j.projectedFields = append(j.projectedFields, fields...)
+// Select specifies projected fields from the joined table. Accepts strings or typed field enums.
+func (j *JoinBuilder[T, F]) Select(fields ...any) *JoinBuilder[T, F] {
+	if j.err != nil {
+		return j
+	}
+	for _, f := range fields {
+		j.projectedFields = append(j.projectedFields, toColumnName(f))
+	}
 	return j
 }
 
-// And adds an extra filter condition to the ON clause.
-func (j *JoinBuilder[T, F]) And(column string, op SqlOperator, val any) *JoinBuilder[T, F] {
+// And adds an extra filter condition to the ON clause. Accepts strings or typed field enums.
+func (j *JoinBuilder[T, F]) And(column any, op SqlOperator, val any) *JoinBuilder[T, F] {
+	if j.err != nil {
+		return j
+	}
+	colName := toColumnName(column)
 	compiler := j.parent.repo.db.Compiler()
-	quotedCol := j.parent.qualifyColumn(compiler, j.targetTable, column)
+	quotedCol := j.parent.qualifyColumn(compiler, j.targetTable, colName)
 	j.extraConditions = append(j.extraConditions, fmt.Sprintf("%s %s ?", quotedCol, op.String()))
 	j.extraArgs = append(j.extraArgs, val)
 	return j
@@ -77,12 +101,19 @@ func (j *JoinBuilder[T, F]) And(column string, op SqlOperator, val any) *JoinBui
 
 // AndRaw adds a raw SQL condition to the ON clause.
 func (j *JoinBuilder[T, F]) AndRaw(condition string) *JoinBuilder[T, F] {
+	if j.err != nil {
+		return j
+	}
 	j.extraConditions = append(j.extraConditions, condition)
 	return j
 }
 
 // On specifies the raw ON condition and transitions back to QueryBuilder.
 func (j *JoinBuilder[T, F]) On(condition string) *QueryBuilder[T, F] {
+	if j.err != nil {
+		j.parent.err = j.err
+		return j.parent
+	}
 	j.parent.joins = append(j.parent.joins, joinClause{
 		joinType:        j.joinType,
 		table:           j.targetTable,
@@ -95,10 +126,17 @@ func (j *JoinBuilder[T, F]) On(condition string) *QueryBuilder[T, F] {
 }
 
 // OnField specifies a type-safe column-to-column condition and transitions back to QueryBuilder.
-func (j *JoinBuilder[T, F]) OnField(mainCol F, op SqlOperator, joinCol string) *QueryBuilder[T, F] {
+// Accepts field enums or strings for both root table column and joined table column.
+func (j *JoinBuilder[T, F]) OnField(mainCol any, op SqlOperator, joinCol any) *QueryBuilder[T, F] {
+	if j.err != nil {
+		j.parent.err = j.err
+		return j.parent
+	}
+	firstCol := toColumnName(mainCol)
+	secondCol := toColumnName(joinCol)
 	compiler := j.parent.repo.db.Compiler()
-	quotedFirst := j.parent.qualifyColumn(compiler, j.parent.repo.tableName, string(mainCol))
-	quotedSecond := j.parent.qualifyColumn(compiler, j.targetTable, joinCol)
+	quotedFirst := j.parent.qualifyColumn(compiler, j.parent.repo.tableName, firstCol)
+	quotedSecond := j.parent.qualifyColumn(compiler, j.targetTable, secondCol)
 	baseOn := fmt.Sprintf("%s %s %s", quotedFirst, op.String(), quotedSecond)
 	return j.On(baseOn)
 }
@@ -117,6 +155,7 @@ type QueryBuilder[T any, F ~string] struct {
 	orderDir       string
 	limit          int
 	offset         int
+	err            *apperror.AppError
 }
 
 // NewQueryBuilder initializes a fluent QueryBuilder for a repository.
@@ -128,8 +167,24 @@ func NewQueryBuilder[T any, F ~string](repo *Repository[T, F]) *QueryBuilder[T, 
 	}
 }
 
+// SetError records an error on the builder, causing terminal methods to return this error.
+func (b *QueryBuilder[T, F]) SetError(err *apperror.AppError) *QueryBuilder[T, F] {
+	if b.err == nil {
+		b.err = err
+	}
+	return b
+}
+
+// Err returns any error accumulated on the builder.
+func (b *QueryBuilder[T, F]) Err() *apperror.AppError {
+	return b.err
+}
+
 // Select specifies the projected fields for the root table.
 func (b *QueryBuilder[T, F]) Select(fields ...F) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	for _, f := range fields {
 		b.selectedFields = append(b.selectedFields, string(f))
 	}
@@ -138,69 +193,89 @@ func (b *QueryBuilder[T, F]) Select(fields ...F) *QueryBuilder[T, F] {
 
 // SelectRaw specifies raw or cross-table projected fields.
 func (b *QueryBuilder[T, F]) SelectRaw(fields ...string) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.selectedFields = append(b.selectedFields, fields...)
 	return b
 }
 
-// Join starts an INNER JOIN clause returning a scoped JoinBuilder.
-func (b *QueryBuilder[T, F]) Join(table string) *JoinBuilder[T, F] {
-	return newJoinBuilder(b, "INNER JOIN", table)
+// Join starts an INNER JOIN clause returning a scoped JoinBuilder. Accepts strings or table constants.
+func (b *QueryBuilder[T, F]) Join(table any) *JoinBuilder[T, F] {
+	return newJoinBuilder(b, "INNER JOIN", toColumnName(table))
 }
 
-// InnerJoin starts an INNER JOIN clause returning a scoped JoinBuilder.
-func (b *QueryBuilder[T, F]) InnerJoin(table string) *JoinBuilder[T, F] {
-	return newJoinBuilder(b, "INNER JOIN", table)
+// InnerJoin starts an INNER JOIN clause returning a scoped JoinBuilder. Accepts strings or table constants.
+func (b *QueryBuilder[T, F]) InnerJoin(table any) *JoinBuilder[T, F] {
+	return newJoinBuilder(b, "INNER JOIN", toColumnName(table))
 }
 
-// LeftJoin starts a LEFT OUTER JOIN clause returning a scoped JoinBuilder.
-func (b *QueryBuilder[T, F]) LeftJoin(table string) *JoinBuilder[T, F] {
-	return newJoinBuilder(b, "LEFT JOIN", table)
+// LeftJoin starts a LEFT OUTER JOIN clause returning a scoped JoinBuilder. Accepts strings or table constants.
+func (b *QueryBuilder[T, F]) LeftJoin(table any) *JoinBuilder[T, F] {
+	return newJoinBuilder(b, "LEFT JOIN", toColumnName(table))
 }
 
-// RightJoin starts a RIGHT OUTER JOIN clause returning a scoped JoinBuilder.
-func (b *QueryBuilder[T, F]) RightJoin(table string) *JoinBuilder[T, F] {
-	return newJoinBuilder(b, "RIGHT JOIN", table)
+// RightJoin starts a RIGHT OUTER JOIN clause returning a scoped JoinBuilder. Accepts strings or table constants.
+func (b *QueryBuilder[T, F]) RightJoin(table any) *JoinBuilder[T, F] {
+	return newJoinBuilder(b, "RIGHT JOIN", toColumnName(table))
 }
 
-// FullOuterJoin starts a FULL OUTER JOIN clause returning a scoped JoinBuilder.
-func (b *QueryBuilder[T, F]) FullOuterJoin(table string) *JoinBuilder[T, F] {
-	return newJoinBuilder(b, "FULL OUTER JOIN", table)
+// FullOuterJoin starts a FULL OUTER JOIN clause returning a scoped JoinBuilder. Accepts strings or table constants.
+func (b *QueryBuilder[T, F]) FullOuterJoin(table any) *JoinBuilder[T, F] {
+	return newJoinBuilder(b, "FULL OUTER JOIN", toColumnName(table))
 }
 
-// OuterJoin starts a FULL OUTER JOIN clause returning a scoped JoinBuilder.
-func (b *QueryBuilder[T, F]) OuterJoin(table string) *JoinBuilder[T, F] {
-	return newJoinBuilder(b, "FULL OUTER JOIN", table)
+// OuterJoin starts a FULL OUTER JOIN clause returning a scoped JoinBuilder. Accepts strings or table constants.
+func (b *QueryBuilder[T, F]) OuterJoin(table any) *JoinBuilder[T, F] {
+	return newJoinBuilder(b, "FULL OUTER JOIN", toColumnName(table))
 }
 
 // JoinOn adds an INNER JOIN directly with an ON condition without transitioning to JoinBuilder.
-func (b *QueryBuilder[T, F]) JoinOn(table string, on string, projectedFields ...string) *QueryBuilder[T, F] {
+func (b *QueryBuilder[T, F]) JoinOn(table any, on string, projectedFields ...any) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
+	proj := make([]string, 0, len(projectedFields))
+	for _, pf := range projectedFields {
+		proj = append(proj, toColumnName(pf))
+	}
 	b.joins = append(b.joins, joinClause{
 		joinType:        "INNER JOIN",
-		table:           table,
+		table:           toColumnName(table),
 		on:              on,
-		projectedFields: projectedFields,
+		projectedFields: proj,
 	})
 	return b
 }
 
 // InnerJoinOn adds an INNER JOIN directly with an ON condition without transitioning to JoinBuilder.
-func (b *QueryBuilder[T, F]) InnerJoinOn(table string, on string, projectedFields ...string) *QueryBuilder[T, F] {
+func (b *QueryBuilder[T, F]) InnerJoinOn(table any, on string, projectedFields ...any) *QueryBuilder[T, F] {
 	return b.JoinOn(table, on, projectedFields...)
 }
 
 // LeftJoinOn adds a LEFT JOIN directly with an ON condition without transitioning to JoinBuilder.
-func (b *QueryBuilder[T, F]) LeftJoinOn(table string, on string, projectedFields ...string) *QueryBuilder[T, F] {
+func (b *QueryBuilder[T, F]) LeftJoinOn(table any, on string, projectedFields ...any) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
+	proj := make([]string, 0, len(projectedFields))
+	for _, pf := range projectedFields {
+		proj = append(proj, toColumnName(pf))
+	}
 	b.joins = append(b.joins, joinClause{
 		joinType:        "LEFT JOIN",
-		table:           table,
+		table:           toColumnName(table),
 		on:              on,
-		projectedFields: projectedFields,
+		projectedFields: proj,
 	})
 	return b
 }
 
 // Where adds a comparison condition with an operator string.
 func (b *QueryBuilder[T, F]) Where(field F, op string, val any) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.wheres = append(b.wheres, whereClause{
 		clauseType: whereOp,
 		field:      string(field),
@@ -231,18 +306,25 @@ func (b *QueryBuilder[T, F]) Locate(field F, substring string) *QueryBuilder[T, 
 }
 
 // InnerWhere adds a column-to-column condition (e.g. Table1.Field1 = Table2.Field2).
-func (b *QueryBuilder[T, F]) InnerWhere(firstTableField F, op SqlOperator, secondTableField string) *QueryBuilder[T, F] {
+// Accepts field enums or strings for secondTableField.
+func (b *QueryBuilder[T, F]) InnerWhere(firstTableField F, op SqlOperator, secondTableField any) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.wheres = append(b.wheres, whereClause{
 		clauseType: whereColumnOp,
 		field:      string(firstTableField),
 		op:         op.String(),
-		targetCol:  secondTableField,
+		targetCol:  toColumnName(secondTableField),
 	})
 	return b
 }
 
 // GroupBy adds fields to the GROUP BY clause.
 func (b *QueryBuilder[T, F]) GroupBy(fields ...F) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	for _, f := range fields {
 		b.groupByFields = append(b.groupByFields, string(f))
 	}
@@ -251,12 +333,18 @@ func (b *QueryBuilder[T, F]) GroupBy(fields ...F) *QueryBuilder[T, F] {
 
 // GroupByRaw adds raw or cross-table column expressions to the GROUP BY clause.
 func (b *QueryBuilder[T, F]) GroupByRaw(fields ...string) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.groupByFields = append(b.groupByFields, fields...)
 	return b
 }
 
 // Having adds a condition to the HAVING clause.
 func (b *QueryBuilder[T, F]) Having(field F, op SqlOperator, val any) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.havings = append(b.havings, havingClause{
 		field: string(field),
 		op:    op,
@@ -267,6 +355,9 @@ func (b *QueryBuilder[T, F]) Having(field F, op SqlOperator, val any) *QueryBuil
 
 // HavingRaw adds a raw SQL condition to the HAVING clause.
 func (b *QueryBuilder[T, F]) HavingRaw(condition string) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.havings = append(b.havings, havingClause{
 		isRaw:   true,
 		rawCond: condition,
@@ -276,6 +367,9 @@ func (b *QueryBuilder[T, F]) HavingRaw(condition string) *QueryBuilder[T, F] {
 
 // HavingCount adds a COUNT(*) condition to the HAVING clause.
 func (b *QueryBuilder[T, F]) HavingCount(op SqlOperator, count int64) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.havings = append(b.havings, havingClause{
 		isCount: true,
 		op:      op,
@@ -286,6 +380,9 @@ func (b *QueryBuilder[T, F]) HavingCount(op SqlOperator, count int64) *QueryBuil
 
 // WithView defines an ad-hoc Common Table Expression (CTE) view: WITH viewName AS (subQuery).
 func (b *QueryBuilder[T, F]) WithView(viewName string, subQuery string) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.cteName = viewName
 	b.cteSql = subQuery
 	return b
@@ -293,6 +390,9 @@ func (b *QueryBuilder[T, F]) WithView(viewName string, subQuery string) *QueryBu
 
 // OrderBy sets ascending or descending order for a field.
 func (b *QueryBuilder[T, F]) OrderBy(field F, dir string) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.orderByField = string(field)
 	b.orderDir = strings.ToUpper(strings.TrimSpace(dir))
 	return b
@@ -305,12 +405,18 @@ func (b *QueryBuilder[T, F]) OrderByDesc(field F) *QueryBuilder[T, F] {
 
 // Limit sets the maximum number of records to return.
 func (b *QueryBuilder[T, F]) Limit(limit int) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.limit = limit
 	return b
 }
 
 // Offset sets the record offset for pagination.
 func (b *QueryBuilder[T, F]) Offset(offset int) *QueryBuilder[T, F] {
+	if b.err != nil {
+		return b
+	}
 	b.offset = offset
 	return b
 }
@@ -356,24 +462,61 @@ func (b *QueryBuilder[T, F]) Signature() string {
 	return sb.String()
 }
 
-// Compile compiles the query into SQL and extracts arguments.
+// QueryHash computes a deterministic SHA-256 hex string for the query structure.
+func (b *QueryBuilder[T, F]) QueryHash() string {
+	viewSql := b.BuildSelectForView()
+	return ComputeSqlHash(viewSql)
+}
+
+// Compile compiles the query into SQL and arguments, wrapped in a CompiledQueryResult.
 // Resulting SQL is cached in GlobalQueryCache for instant reuse on subsequent executions.
-func (b *QueryBuilder[T, F]) Compile() (string, []any) {
+func (b *QueryBuilder[T, F]) Compile() CompiledQueryResult {
+	if b.err != nil {
+		return FailureCompiledQuery(b.err)
+	}
+
 	cacheKey := b.Signature()
 	if cachedSql, found := GlobalQueryCache.Get(cacheKey); found {
 		_, args := b.BuildSelect()
-		return cachedSql, args
+		hash := ComputeSqlHash(cachedSql)
+		return SuccessCompiledQuery(CompiledQuery{
+			SQL:       cachedSql,
+			Args:      args,
+			QueryHash: hash,
+		})
 	}
 
 	sqlStr, args := b.BuildSelect()
 	GlobalQueryCache.Put(cacheKey, sqlStr)
-	return sqlStr, args
+	hash := ComputeSqlHash(sqlStr)
+	return SuccessCompiledQuery(CompiledQuery{
+		SQL:       sqlStr,
+		Args:      args,
+		QueryHash: hash,
+	})
 }
 
-// CreateViewOrUseView checks if a view exists and contains the required columns.
-// If valid, it reuses the view. If missing or schema differs, it compiles the query and creates/updates the view.
+// CompileRaw returns raw SQL string and arguments without result wrapper.
+func (b *QueryBuilder[T, F]) CompileRaw() (string, []any) {
+	res := b.Compile()
+	if res.IsFailed() {
+		return "", nil
+	}
+	cq := res.Value
+	return cq.SQL, cq.Args
+}
+
+// CreateViewOrUseView checks if a view exists and contains the required columns (or matches query hash if omitted).
+// If valid, it reuses the view. If missing or schema differs, it validates SQL, drops old view, creates updated view, and saves metadata.
 func (b *QueryBuilder[T, F]) CreateViewOrUseView(ctx context.Context, viewName string, requiredColumns ...string) BoolResult {
+	if b.err != nil {
+		return FailureBool(b.err)
+	}
 	viewSql := b.BuildSelectForView()
+	if len(requiredColumns) == 0 {
+		hash := b.QueryHash()
+		return b.repo.db.CreateViewOrUseViewWithHash(ctx, viewName, viewSql, hash)
+	}
 	return b.repo.db.CreateViewOrUseView(ctx, viewName, viewSql, requiredColumns...)
 }
 
@@ -801,6 +944,9 @@ func (b *QueryBuilder[T, F]) buildOrderBy(compiler DialectCompiler) string {
 
 // First executes the query and returns the first matching record in an EntityResult envelope.
 func (b *QueryBuilder[T, F]) First(ctx context.Context) EntityResult[T] {
+	if b.err != nil {
+		return FailureEntity[T](b.err)
+	}
 	b.limit = 1
 	sqlStr, args := b.BuildSelect()
 
@@ -819,6 +965,9 @@ func (b *QueryBuilder[T, F]) First(ctx context.Context) EntityResult[T] {
 
 // FindAll executes the query and returns all matching records in a ListResult envelope.
 func (b *QueryBuilder[T, F]) FindAll(ctx context.Context) ListResult[T] {
+	if b.err != nil {
+		return FailureList[T](b.err)
+	}
 	sqlStr, args := b.BuildSelect()
 
 	rows, appErr := b.repo.db.Query(ctx, sqlStr, args...)
@@ -841,6 +990,9 @@ func (b *QueryBuilder[T, F]) FindAll(ctx context.Context) ListResult[T] {
 
 // Count executes the query as a count aggregation and returns an Int64Result envelope.
 func (b *QueryBuilder[T, F]) Count(ctx context.Context) Int64Result {
+	if b.err != nil {
+		return FailureInt64(b.err)
+	}
 	sqlStr, args := b.BuildCount()
 
 	row, appErr := b.repo.db.QueryRow(ctx, sqlStr, args...)
@@ -859,6 +1011,9 @@ func (b *QueryBuilder[T, F]) Count(ctx context.Context) Int64Result {
 
 // Delete executes a DELETE query matching the builder conditions and returns a RowsAffectedResult.
 func (b *QueryBuilder[T, F]) Delete(ctx context.Context) RowsAffectedResult {
+	if b.err != nil {
+		return FailureRowsAffected(b.err)
+	}
 	sqlStr, args := b.BuildDelete()
 	res, appErr := b.repo.db.Exec(ctx, sqlStr, args...)
 	if appErr != nil {

@@ -87,7 +87,6 @@ func (c *PostgresCompiler) CompileInspectViewExists(viewName string) string {
 	return "SELECT 1 FROM information_schema.views WHERE table_name = $1;"
 }
 
-
 // MySQLCompiler compiles queries for MySQL and MariaDB databases.
 type MySQLCompiler struct {
 	dialect DatabaseDialectType
@@ -171,7 +170,6 @@ func (c *MySQLCompiler) CompileInspectColumns(tableOrView string) string {
 func (c *MySQLCompiler) CompileInspectViewExists(viewName string) string {
 	return "SELECT 1 FROM information_schema.views WHERE table_name = ?;"
 }
-
 
 // MSSQLCompiler compiles queries for Microsoft SQL Server databases.
 type MSSQLCompiler struct{}
@@ -270,7 +268,6 @@ func (c *MSSQLCompiler) CompileInspectColumns(tableOrView string) string {
 func (c *MSSQLCompiler) CompileInspectViewExists(viewName string) string {
 	return "SELECT 1 FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = @p1;"
 }
-
 
 // OracleCompiler compiles queries for Oracle databases.
 type OracleCompiler struct{}
@@ -417,4 +414,3 @@ func (c *MongoDBCompiler) CompileInspectColumns(tableOrView string) string {
 func (c *MongoDBCompiler) CompileInspectViewExists(viewName string) string {
 	return ""
 }
-
