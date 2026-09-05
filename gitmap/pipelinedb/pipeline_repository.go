@@ -120,4 +120,3 @@ func (r *PipelineRepository) EnsureActiveErrorsView(ctx context.Context) dbengin
 		WhereOp(PipelineRunRecordDb.Status, dbengine.SqlOperators.Equal, "completed").
 		CreateViewOrUseView(ctx, "ActiveCiErrors")
 }
-

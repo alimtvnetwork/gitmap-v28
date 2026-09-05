@@ -12,6 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/generated/db/pipelinedb/enums"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	_ "modernc.org/sqlite"
 )
@@ -57,152 +58,12 @@ func PipelineDbPath(repoSlug string) string {
 // PipelineDBPath is an alias to PipelineDbPath.
 var PipelineDBPath = PipelineDbPath
 
-// PipelineSplitDbFieldType represents column name enums for PipelineSplitDb.
-type PipelineSplitDbFieldType string
-
-// Name returns the identifier name of the field enum.
-func (e PipelineSplitDbFieldType) Name() string {
-	return string(e)
-}
-
-// String returns the string representation of the field enum.
-func (e PipelineSplitDbFieldType) String() string {
-	return string(e)
-}
-
-// Value returns the raw string value of the field enum.
-func (e PipelineSplitDbFieldType) Value() string {
-	return string(e)
-}
-
-// IsCompare checks equality against another field enum object.
-func (e PipelineSplitDbFieldType) IsCompare(target PipelineSplitDbFieldType) bool {
-	return e == target
-}
-
-// IsEnum checks whether this field enum exists in the valid enum map.
-func (e PipelineSplitDbFieldType) IsEnum() bool {
-	return pipelineSplitDbValidMap[e]
-}
-
-// MarshalJSON implements json.Marshaler.
-func (e PipelineSplitDbFieldType) MarshalJSON() ([]byte, error) {
-	return json.Marshal(string(e))
-}
-
-// UnmarshalJSON implements json.Unmarshaler with strict map validation.
-func (e *PipelineSplitDbFieldType) UnmarshalJSON(data []byte) error {
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return err
-	}
-	target := PipelineSplitDbFieldType(s)
-	if !pipelineSplitDbValidMap[target] {
-		return fmt.Errorf("invalid %s enum: %s", "PipelineSplitDbFieldType", s)
-	}
-	*e = target
-	return nil
-}
-
-// ToJSON converts the field enum to a JSON string representation, returning an AppError on failure.
-func (e PipelineSplitDbFieldType) ToJSON() (string, *apperror.AppError) {
-	b, err := json.Marshal(string(e))
-	if err != nil {
-		return "", apperror.WrapSimple(err, "serialize field to json")
-	}
-	return string(b), nil
-}
-
-// FromJSON parses a field enum from a JSON string representation, returning an AppError on failure.
-func (e *PipelineSplitDbFieldType) FromJSON(s string) *apperror.AppError {
-	var str string
-	if err := json.Unmarshal([]byte(s), &str); err != nil {
-		return apperror.WrapSimple(err, "deserialize field from json")
-	}
-	target := PipelineSplitDbFieldType(str)
-	if !pipelineSplitDbValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "PipelineSplitDbFieldType", str), "validate field enum from json")
-	}
-	*e = target
-	return nil
-}
-
-// IsRepoSlug checks whether this field enum instance is RepoSlug.
-func (e PipelineSplitDbFieldType) IsRepoSlug() bool {
-	return e == PipelineSplitDbDb.RepoSlug
-}
-
-// IsPath checks whether this field enum instance is Path.
-func (e PipelineSplitDbFieldType) IsPath() bool {
-	return e == PipelineSplitDbDb.Path
-}
-
-type pipelineSplitDbDbRegistry struct {
-	RepoSlug PipelineSplitDbFieldType
-	Path PipelineSplitDbFieldType
-}
-
-// All returns a slice of all field enums in PipelineSplitDb.
-func (r pipelineSplitDbDbRegistry) All() []PipelineSplitDbFieldType {
-	return []PipelineSplitDbFieldType{
-		r.RepoSlug,
-		r.Path,
-	}
-}
-
-// Names returns a slice of string names for all fields in PipelineSplitDb.
-func (r pipelineSplitDbDbRegistry) Names() []string {
-	return []string{
-		"RepoSlug",
-		"Path",
-	}
-}
-
-// IsEnum checks whether the target object matches any registered field enum in PipelineSplitDb.
-func (r pipelineSplitDbDbRegistry) IsEnum(target PipelineSplitDbFieldType) bool {
-	return pipelineSplitDbValidMap[target]
-}
-
-// IsRepoSlug checks whether the target object is RepoSlug.
-func (r pipelineSplitDbDbRegistry) IsRepoSlug(target PipelineSplitDbFieldType) bool {
-	return target == r.RepoSlug
-}
-
-// IsPath checks whether the target object is Path.
-func (r pipelineSplitDbDbRegistry) IsPath(target PipelineSplitDbFieldType) bool {
-	return target == r.Path
-}
-
-// ToJSON converts the field registry to a JSON string representation, returning an AppError on failure.
-func (r pipelineSplitDbDbRegistry) ToJSON() (string, *apperror.AppError) {
-	b, err := json.Marshal(r)
-	if err != nil {
-		return "", apperror.WrapSimple(err, "serialize registry to json")
-	}
-	return string(b), nil
-}
-
-// PipelineSplitDbDb provides scoped access to field enums: PipelineSplitDbDb.<Field>.
-var PipelineSplitDbDb = pipelineSplitDbDbRegistry{
-	RepoSlug: "RepoSlug",
-	Path: "Path",
-}
-
-// pipelineSplitDbValidMap provides O(1) map validation for field enums.
-var pipelineSplitDbValidMap = map[PipelineSplitDbFieldType]bool{
-	PipelineSplitDbDb.RepoSlug: true,
-	PipelineSplitDbDb.Path: true,
-}
-
-// PipelineSplitDbField is an alias to PipelineSplitDbDb.
-var PipelineSplitDbField = PipelineSplitDbDb
-
 // ScanPipelineSplitDb maps a database row scanner to a PipelineSplitDb entity.
 func ScanPipelineSplitDb(row dbengine.RowScanner) (*PipelineSplitDb, error) {
 	var item PipelineSplitDb
 	var (
 		raw_RepoSlug any
-		raw_Path any
+		raw_Path     any
 	)
 	err := row.Scan(
 		&raw_RepoSlug,
@@ -225,9 +86,9 @@ type PipelineSplitDbDbRepo struct {
 
 // NewPipelineSplitDbDbRepo initializes a typed repository for PipelineSplitDb.
 func NewPipelineSplitDbDbRepo(db *dbengine.DbWrapper) *PipelineSplitDbDbRepo {
-	repo := dbengine.NewRepository[PipelineSplitDb, PipelineSplitDbFieldType](
+	repo := dbengine.NewRepository[PipelineSplitDb, enums.PipelineSplitDbFieldType](
 		db,
-		PipelineSplitDbTable,
+		enums.PipelineSplitDbTable,
 		ScanPipelineSplitDb,
 	)
 	return &PipelineSplitDbDbRepo{
@@ -248,7 +109,7 @@ func (r *PipelineSplitDbDbRepo) Repo() *PipelineSplitDbRepository {
 
 // Query returns a fluent QueryBuilder initialized with all standard fields projected.
 func (r *PipelineSplitDbDbRepo) Query() *PipelineSplitDbQueryBuilder {
-	return r.repo.Query().Select(PipelineSplitDbDb.All()...)
+	return r.repo.Query().Select(enums.PipelineSplitDbDb.All()...)
 }
 
 // QueryBare returns a fluent QueryBuilder without any pre-selected fields.
