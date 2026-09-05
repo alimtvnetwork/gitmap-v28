@@ -1,11 +1,12 @@
 # Release Deployment & Version Bump — Release Management (must follow)
 
+
 > **Prompt Version:** 2.1.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
 Trigger phrases: `release`, `bump version`, `bump version + add changelog + pin to root readme`, `abump version ...` (typo variants count).
 
-If I say bump, or release use this prompt and save this prompt if not saved properly into the `01-prompts\\xx-release.md` or `01-prompts\\18-release.md` (update the prompt if there is a unsync)
+If I say bump, or release use this prompt and save this prompt if not saved properly into the `01-prompts\xx-release.md` or `01-prompts\18-release.md` (update the prompt if there is a unsync)
 
 ---
 
@@ -31,6 +32,7 @@ Deviations (only when the trigger explicitly says so):
 When in doubt: MINOR.
 
 ## Hard rules (MUST)
+
 
 - [ ] Changelog Formatting (version.json): You MUST read the `"changelog"` configuration from `version.json` (e.g., `file_path` and `format`). If it exists, you MUST follow its exact instructions for where to write the changelog and how to format the header. If it does not exist, fallback to the hardcoded format below.
 - [ ] Root README Pinning (Fatal if missed): You MUST pin the latest release version into the root `readme.md` file. It is a fatal failure if you skip updating the badges or version pins in the root README file!
@@ -60,7 +62,7 @@ When in doubt: MINOR.
 >    - RCA & Issue Logs: `.lovable/memory/issues/`, `.lovable/cicd-issues/`, and `.lovable/release/issues/`.
 >    - Execution Plans & Subtasks: `.lovable/plans/pending/`, `.lovable/plans/subtasks/`.
 >    - Coding Guidelines Mirror: `.lovable/coding-guidelines.md`.
-> 3. **Worker Pool & Log Aggregation Architecture:** All pre-release verification gates, tests, and build orchestrators must run tasks concurrently using a worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs.
+> 3. **Worker Pool & Log Aggregation Architecture:** All pre-release verification gates, tests, and build orchestrators must run tasks concurrently using a worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without cancelling sibling workers, and print a consolidated final summary with full stdout/stderr error logs.
 > 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python release scripts (`bump_versions.py`, `06-cicd-local-runner.py`) from scratch**, regardless of whether the file already exists on disk.
 > 5. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.lovable/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `02-spec/03-error-manage/01-index.md`, `.lovable/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
 >    - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...)`
@@ -116,6 +118,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
    PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/<owner>/<repo>/vX.Y.Z/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "vX.Y.Z"`
 
    *(Note: You MUST dynamically discover the `<owner>/<repo>` by running `git config --get remote.origin.url`. Do not hardcode Prompt Architect URLs unless you are actually in the Prompt Architect repository.)*
+
 
    ### Added / Changed / Fixed / Removed
 
@@ -208,7 +211,7 @@ Ambiguity is not a license to guess. It is a file to write.
 
 New question file shape:
 
-```markdown
+```
 
 # <one-line question>
 
@@ -239,6 +242,9 @@ When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `
 - [ ] Group all completed work into a single logical commit.
 - [ ] Push the commit to the remote repository.
 - [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
+
+#
+
 
 ## STRICT AVOIDANCE: Never Disable CI/CD
 
