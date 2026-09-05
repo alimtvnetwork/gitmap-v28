@@ -22,7 +22,9 @@ Features:
 """
 
 from collections.abc import Generator, Iterable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 import json
 import os
@@ -892,3 +894,288 @@ def process_repository_files(
         "results": results,
         "elapsed_ms": elapsed_ms,
     }
+
+
+# ── Generic Parallel Worker Engine & Reusable CLI Support ──────────────────
+
+DEFAULT_CONCURRENCY_WORKERS = int(os.environ.get("CI_MAX_WORKERS", min(8, os.cpu_count() or 4)))
+DEFAULT_MAX_WORKERS = DEFAULT_CONCURRENCY_WORKERS
+DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", 2))
+
+ANSI_ESCAPE_REGEX = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+
+def strip_ansi(text: str) -> str:
+    """Removes terminal ANSI color escape codes from text."""
+    return ANSI_ESCAPE_REGEX.sub("", text)
+
+
+@dataclass
+class WorkerResult:
+    """Encapsulates the execution outcome of an individual worker task."""
+    name: str
+    is_success: bool
+    output: str = ""
+    error: str = ""
+    elapsed_sec: float = 0.0
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class WorkerPoolSummary:
+    """Encapsulates aggregated results and metrics of a worker pool run."""
+    total_count: int
+    passed_count: int
+    failed_count: int
+    wall_duration_sec: float
+    has_failures: bool
+    results: list[WorkerResult]
+    exit_code: int
+
+
+def format_worker_report(
+    summary: WorkerPoolSummary,
+    title: str = "EXECUTION SUMMARY REPORT",
+    show_all: bool = False,
+) -> str:
+    """Formats a clean human-readable execution report."""
+    lines: list[str] = [
+        "=" * 60,
+        f"           {title}",
+        "=" * 60,
+    ]
+    for r in summary.results:
+        icon = "✅" if r.is_success else "❌"
+        status_label = "PASSED" if r.is_success else "FAILED"
+        lines.append(f"{icon} [{status_label}] {r.name:<40} ({r.elapsed_sec:.2f}s)")
+
+    lines.append("-" * 60)
+    lines.append(f"Total Duration : {summary.wall_duration_sec:.2f}s")
+    lines.append(f"Items Passed   : {summary.passed_count}/{summary.total_count}")
+    lines.append(f"Items Failed   : {summary.failed_count}/{summary.total_count}")
+    lines.append("-" * 60)
+
+    if show_all:
+        lines.append("\n" + "=" * 60)
+        lines.append("                 DETAILED LOGS (--all-paths)")
+        lines.append("=" * 60)
+        for r in summary.results:
+            status_label = "PASS" if r.is_success else "FAIL"
+            lines.append(f"\n[{status_label} LOG] Item: {r.name} ({r.elapsed_sec:.2f}s)")
+            if r.output.strip():
+                lines.append(f"Output:\n{r.output.strip()}")
+            if r.error.strip():
+                lines.append(f"Errors / Stderr:\n{r.error.strip()}")
+            lines.append("-" * 60)
+    elif summary.has_failures:
+        lines.append("\n" + "=" * 60)
+        lines.append("               FAILED ITEM LOGS")
+        lines.append("=" * 60)
+        for r in summary.results:
+            if not r.is_success:
+                lines.append(f"\n❌ FAILED: {r.name} ({r.elapsed_sec:.2f}s)")
+                if r.output.strip():
+                    lines.append(f"Output:\n{r.output.strip()}")
+                if r.error.strip():
+                    lines.append(f"Error / Stderr:\n{r.error.strip()}")
+                lines.append("-" * 60)
+
+    return LINE_SEPARATOR.join(lines)
+
+
+def add_worker_cli_arguments(
+    parser: Any,
+    default_workers: int = DEFAULT_CONCURRENCY_WORKERS,
+) -> None:
+    """Registers standard parallel worker CLI arguments into an ArgumentParser."""
+    parser.add_argument(
+        "--all-paths", "--all-passed", "--all-pass", "--all", "-a",
+        action="store_true",
+        dest="show_all",
+        help="Show detailed information and full logs for all items (both passed and failed).",
+    )
+    parser.add_argument(
+        "--failed", "-f",
+        action="store_true",
+        dest="show_failed",
+        help="Show logs only for failed items (default behavior).",
+    )
+    parser.add_argument(
+        "--sync", "--sequential", "-s",
+        action="store_true",
+        dest="is_sync",
+        help="Execute items sequentially (1 worker) instead of in parallel.",
+    )
+    parser.add_argument(
+        "--workers", "-w", "--concurrency",
+        type=int,
+        default=default_workers,
+        dest="workers",
+        help=f"Number of concurrent worker threads (default: {default_workers}).",
+    )
+    parser.add_argument(
+        "--output", "-o", "--file", "--output-file",
+        type=str,
+        default=None,
+        dest="output_file",
+        help="Save execution results and report to the specified file path.",
+    )
+    parser.add_argument(
+        "--json", "--json-output",
+        nargs="?",
+        const=True,
+        default=False,
+        dest="as_json",
+        help="Output results as machine-readable JSON (to stdout, or to file if specified).",
+    )
+    parser.add_argument(
+        "--filter", "-k",
+        type=str,
+        default=None,
+        dest="filter",
+        help="Filter items matching substring (case-insensitive).",
+    )
+
+
+def run_worker_pool(
+    items: list[Any],
+    worker_fn: Callable[[Any], WorkerResult],
+    max_workers: int | None = None,
+    is_sync: bool = False,
+    show_all: bool = False,
+    output_file: str | None = None,
+    as_json: bool | str = False,
+    title: str = "WORKER POOL EXECUTION",
+    item_noun: str = "items",
+    on_item_complete: Callable[[WorkerResult, int, int], None] | None = None,
+) -> int:
+    """
+    Executes a list of items concurrently across a ThreadPoolExecutor worker group.
+
+    Guarantees:
+    - Default mode: quiet on success (tick "✔ All passed."), detailed error logs on failure.
+    - Verbose mode (--all-paths / --all): shows header banner, ticker, and detailed output.
+    - Sync mode (--sync): runs serially (1 worker).
+    - File export (--output / --json): outputs text or machine-readable JSON reports.
+    """
+    total_count = len(items)
+    is_json = bool(as_json)
+
+    if total_count == 0:
+        if not is_json:
+            print(f"✔ No {item_noun} found to process.")
+        return ExitCodeType.SUCCESS.value
+
+    worker_count = 1 if is_sync else (max_workers or min(total_count, DEFAULT_CONCURRENCY_WORKERS))
+    concurrency_label = "Sequential (1 worker)" if is_sync else f"Parallel ({worker_count} workers)"
+
+    if show_all and not is_json:
+        print("=" * 60)
+        print(f"           {title}")
+        print("=" * 60)
+        print(f"🚀 Execution Mode          : {concurrency_label}")
+        print(f"📋 Total Enqueued Items    : {total_count}")
+        print("🔍 Display Mode            : SHOW ALL INFORMATION (--all-paths)")
+        print("-" * 60 + "\n")
+
+    start_wall_time = time.perf_counter()
+    results: list[WorkerResult] = []
+
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        future_map = {
+            executor.submit(worker_fn, item): item
+            for item in items
+        }
+        for future in as_completed(future_map):
+            try:
+                res = future.result()
+            except Exception as exc:
+                item = future_map[future]
+                res = WorkerResult(
+                    name=str(item),
+                    is_success=False,
+                    error=f"Unhandled worker exception: {exc}",
+                )
+            results.append(res)
+            idx = len(results)
+
+            if on_item_complete:
+                on_item_complete(res, idx, total_count)
+
+            if show_all and not is_json:
+                icon = "✓" if res.is_success else "✗"
+                status_label = "PASS" if res.is_success else "FAIL"
+                print(f"  [{idx:2d}/{total_count:2d}] {icon} {status_label} [{res.name}] ({res.elapsed_sec:.2f}s)")
+            elif not res.is_success and not is_json:
+                print(f"  ✗ FAIL [{res.name}] ({res.elapsed_sec:.2f}s)")
+
+    wall_duration_sec = time.perf_counter() - start_wall_time
+
+    # Sort results to match original item order
+    item_order = [str(x) for x in items]
+    results.sort(key=lambda r: item_order.index(r.name) if r.name in item_order else 999)
+
+    passed_count = sum(1 for r in results if r.is_success)
+    failed_count = sum(1 for r in results if not r.is_success)
+    has_failures = (failed_count > 0)
+    exit_code = ExitCodeType.VIOLATIONS_FOUND.value if has_failures else ExitCodeType.SUCCESS.value
+
+    summary = WorkerPoolSummary(
+        total_count=total_count,
+        passed_count=passed_count,
+        failed_count=failed_count,
+        wall_duration_sec=wall_duration_sec,
+        has_failures=has_failures,
+        results=results,
+        exit_code=exit_code,
+    )
+
+    # ── Handle JSON Output ─────────────────────────────────────────────────
+    if is_json:
+        payload = {
+            "total": total_count,
+            "passed": passed_count,
+            "failed": failed_count,
+            "wall_duration_sec": round(wall_duration_sec, 3),
+            "has_failures": has_failures,
+            "exit_code": exit_code,
+            "results": [asdict(r) for r in results],
+        }
+        json_content = json.dumps(payload, indent=2, ensure_ascii=False)
+        target_json_path = as_json if isinstance(as_json, str) else output_file
+
+        if target_json_path:
+            p = Path(target_json_path)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json_content, encoding=DEFAULT_ENCODING)
+            print(f"📄 JSON results saved to: {target_json_path}")
+        else:
+            print(json_content)
+
+        return exit_code
+
+    # ── Handle Output File (Text) ──────────────────────────────────────────
+    if output_file:
+        full_text = format_worker_report(summary, title=title, show_all=True)
+        p = Path(output_file)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(strip_ansi(full_text), encoding=DEFAULT_ENCODING)
+        print(f"📄 Execution report saved to: {output_file}")
+
+    # ── Terminal Output Presentation ───────────────────────────────────────
+    if has_failures:
+        failure_text = format_worker_report(summary, title=title, show_all=False)
+        print("\n" + failure_text)
+        print(f"\n\033[1;91m[FAILURE]\033[0m Execution failed with {failed_count} error(s).")
+        return ExitCodeType.VIOLATIONS_FOUND.value
+
+    if show_all:
+        all_text = format_worker_report(summary, title=title, show_all=True)
+        print("\n" + all_text)
+        print(f"\n\033[1;92m🎉 All {item_noun} passed successfully! Codebase is 100% green.\033[0m")
+    else:
+        # Default: clean tick and "All passed."
+        print(f"✔ All passed. ({passed_count} {item_noun} in {wall_duration_sec:.2f}s)")
+
+    return ExitCodeType.SUCCESS.value
+
