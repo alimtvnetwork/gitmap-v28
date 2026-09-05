@@ -39,6 +39,12 @@ func recordSingleFailedRun(pipeDB *pipelinedb.PipelineSplitDB, repo string, r gh
 	if r.Conclusion != "failure" {
 		return
 	}
+	if pipeDB.HasErrorLog(r.DatabaseID) {
+		return
+	}
+	if isSkipDelayRequested() {
+		return
+	}
 	raw := queryFailedRunLogs(repo, r.DatabaseID)
 	clean := extractCleanErrorLines(raw)
 	if clean == "" {

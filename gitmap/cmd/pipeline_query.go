@@ -105,8 +105,7 @@ func queryFailedRunLogs(repo string, runID int64) string {
 	}
 
 	idStr := strconv.FormatInt(runID, 10)
-	out, err := exec.Command("gh", "run", "view", idStr, "--repo", repo, "--log-failed").Output()
-
+	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo, "--log-failed")
 	if err == nil && len(out) > 0 {
 		return string(out)
 	}
@@ -120,8 +119,7 @@ func queryAllRunLogs(repo string, runID int64) string {
 	}
 
 	idStr := strconv.FormatInt(runID, 10)
-	out, err := exec.Command("gh", "run", "view", idStr, "--repo", repo, "--log").Output()
-
+	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo, "--log")
 	if err == nil && len(out) > 0 {
 		return string(out)
 	}
