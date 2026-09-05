@@ -9,7 +9,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func setupTestPipelineRepo(t *testing.T) (PipelineRepository, func()) {
+func setupTestPipelineRepo(t *testing.T) (*PipelineRepository, func()) {
 	t.Helper()
 	ctx := context.Background()
 	wrapper, appErr := dbengine.OpenDb(dbengine.DbSQLite, ":memory:")
@@ -243,10 +243,10 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 		t.Fatalf("failed inserting run 301: %v", insRes.Err)
 	}
 
-	// 1. Direct usage of auto-generated PipelineRunDbRepo alias constructor (value-based)
+	// 1. Direct usage of auto-generated PipelineRunDbRepo alias constructor
 	runDbRepo := NewPipelineRunDbRepo(domainRepo.Db())
-	if runDbRepo.Db() == nil {
-		t.Fatalf("expected initialized PipelineRunDbRepo")
+	if runDbRepo == nil {
+		t.Fatalf("expected non-nil PipelineRunDbRepo")
 	}
 
 	// Verify dedicated single data type query builder
@@ -301,10 +301,10 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 		t.Errorf("expected 1 filtered record, got %d", len(filteredRes.Value))
 	}
 
-	// 6. Direct usage of auto-generated PipelineErrorDbRepo (value-based)
+	// 6. Direct usage of auto-generated PipelineErrorDbRepo
 	errDbRepo := NewPipelineErrorDbRepo(domainRepo.Db())
-	if errDbRepo.Db() == nil {
-		t.Fatalf("expected initialized PipelineErrorDbRepo")
+	if errDbRepo == nil {
+		t.Fatalf("expected non-nil PipelineErrorDbRepo")
 	}
 	errCountRes := errDbRepo.Count(ctx)
 	if errCountRes.IsFailed() {

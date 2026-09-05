@@ -186,50 +186,50 @@ type PipelineSplitDbDbRepo struct {
 }
 
 // NewPipelineSplitDbDbRepo initializes a typed repository for PipelineSplitDb.
-func NewPipelineSplitDbDbRepo(db *dbengine.DbWrapper) PipelineSplitDbDbRepo {
+func NewPipelineSplitDbDbRepo(db *dbengine.DbWrapper) *PipelineSplitDbDbRepo {
 	repo := dbengine.NewRepository[PipelineSplitDb, PipelineSplitDbFieldType](
 		db,
 		PipelineSplitDbTable,
 		ScanPipelineSplitDb,
 	)
-	return PipelineSplitDbDbRepo{
+	return &PipelineSplitDbDbRepo{
 		db:   db,
 		repo: repo,
 	}
 }
 
 // Db returns the underlying DbWrapper.
-func (r PipelineSplitDbDbRepo) Db() *dbengine.DbWrapper {
+func (r *PipelineSplitDbDbRepo) Db() *dbengine.DbWrapper {
 	return r.db
 }
 
 // Repo returns the underlying generic Repository.
-func (r PipelineSplitDbDbRepo) Repo() *PipelineSplitDbRepository {
+func (r *PipelineSplitDbDbRepo) Repo() *PipelineSplitDbRepository {
 	return r.repo
 }
 
 // Query returns a fluent QueryBuilder initialized with all standard fields projected.
-func (r PipelineSplitDbDbRepo) Query() *PipelineSplitDbQueryBuilder {
+func (r *PipelineSplitDbDbRepo) Query() *PipelineSplitDbQueryBuilder {
 	return r.repo.Query().Select(PipelineSplitDbDb.All()...)
 }
 
 // QueryBare returns a fluent QueryBuilder without any pre-selected fields.
-func (r PipelineSplitDbDbRepo) QueryBare() *PipelineSplitDbQueryBuilder {
+func (r *PipelineSplitDbDbRepo) QueryBare() *PipelineSplitDbQueryBuilder {
 	return r.repo.Query()
 }
 
 // FindAll executes the query selecting all fields and returns a ListResult envelope.
-func (r PipelineSplitDbDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineSplitDb] {
+func (r *PipelineSplitDbDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineSplitDb] {
 	return r.Query().FindAll(ctx)
 }
 
 // First executes the query selecting all fields and returns the first record in an EntityResult envelope.
-func (r PipelineSplitDbDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineSplitDb] {
+func (r *PipelineSplitDbDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineSplitDb] {
 	return r.Query().First(ctx)
 }
 
 // Count returns the total number of records matching the query.
-func (r PipelineSplitDbDbRepo) Count(ctx context.Context) dbengine.Int64Result {
+func (r *PipelineSplitDbDbRepo) Count(ctx context.Context) dbengine.Int64Result {
 	return r.Query().Count(ctx)
 }
 
@@ -652,55 +652,55 @@ type PipelineRunRecordDbRepo struct {
 type PipelineRunDbRepo = PipelineRunRecordDbRepo
 
 // NewPipelineRunRecordDbRepo initializes a typed repository for PipelineRunRecord.
-func NewPipelineRunRecordDbRepo(db *dbengine.DbWrapper) PipelineRunRecordDbRepo {
+func NewPipelineRunRecordDbRepo(db *dbengine.DbWrapper) *PipelineRunRecordDbRepo {
 	repo := dbengine.NewRepository[PipelineRunRecord, PipelineRunRecordFieldType](
 		db,
 		PipelineRunRecordTable,
 		ScanPipelineRunRecord,
 	)
-	return PipelineRunRecordDbRepo{
+	return &PipelineRunRecordDbRepo{
 		db:   db,
 		repo: repo,
 	}
 }
 
 // NewPipelineRunDbRepo is an alias constructor for PipelineRunRecordDbRepo.
-func NewPipelineRunDbRepo(db *dbengine.DbWrapper) PipelineRunDbRepo {
+func NewPipelineRunDbRepo(db *dbengine.DbWrapper) *PipelineRunDbRepo {
 	return NewPipelineRunRecordDbRepo(db)
 }
 
 // Db returns the underlying DbWrapper.
-func (r PipelineRunRecordDbRepo) Db() *dbengine.DbWrapper {
+func (r *PipelineRunRecordDbRepo) Db() *dbengine.DbWrapper {
 	return r.db
 }
 
 // Repo returns the underlying generic Repository.
-func (r PipelineRunRecordDbRepo) Repo() *PipelineRunRecordRepository {
+func (r *PipelineRunRecordDbRepo) Repo() *PipelineRunRecordRepository {
 	return r.repo
 }
 
 // Query returns a fluent QueryBuilder initialized with all standard fields projected.
-func (r PipelineRunRecordDbRepo) Query() *PipelineRunRecordQueryBuilder {
+func (r *PipelineRunRecordDbRepo) Query() *PipelineRunRecordQueryBuilder {
 	return r.repo.Query().Select(PipelineRunRecordDb.All()...)
 }
 
 // QueryBare returns a fluent QueryBuilder without any pre-selected fields.
-func (r PipelineRunRecordDbRepo) QueryBare() *PipelineRunRecordQueryBuilder {
+func (r *PipelineRunRecordDbRepo) QueryBare() *PipelineRunRecordQueryBuilder {
 	return r.repo.Query()
 }
 
 // FindAll executes the query selecting all fields and returns a ListResult envelope.
-func (r PipelineRunRecordDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineRunRecord] {
+func (r *PipelineRunRecordDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineRunRecord] {
 	return r.Query().FindAll(ctx)
 }
 
 // First executes the query selecting all fields and returns the first record in an EntityResult envelope.
-func (r PipelineRunRecordDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineRunRecord] {
+func (r *PipelineRunRecordDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineRunRecord] {
 	return r.Query().First(ctx)
 }
 
 // Count returns the total number of records matching the query.
-func (r PipelineRunRecordDbRepo) Count(ctx context.Context) dbengine.Int64Result {
+func (r *PipelineRunRecordDbRepo) Count(ctx context.Context) dbengine.Int64Result {
 	return r.Query().Count(ctx)
 }
 
@@ -1015,55 +1015,55 @@ type PipelineErrorRecordDbRepo struct {
 type PipelineErrorDbRepo = PipelineErrorRecordDbRepo
 
 // NewPipelineErrorRecordDbRepo initializes a typed repository for PipelineErrorRecord.
-func NewPipelineErrorRecordDbRepo(db *dbengine.DbWrapper) PipelineErrorRecordDbRepo {
+func NewPipelineErrorRecordDbRepo(db *dbengine.DbWrapper) *PipelineErrorRecordDbRepo {
 	repo := dbengine.NewRepository[PipelineErrorRecord, PipelineErrorRecordFieldType](
 		db,
 		PipelineErrorRecordTable,
 		ScanPipelineErrorRecord,
 	)
-	return PipelineErrorRecordDbRepo{
+	return &PipelineErrorRecordDbRepo{
 		db:   db,
 		repo: repo,
 	}
 }
 
 // NewPipelineErrorDbRepo is an alias constructor for PipelineErrorRecordDbRepo.
-func NewPipelineErrorDbRepo(db *dbengine.DbWrapper) PipelineErrorDbRepo {
+func NewPipelineErrorDbRepo(db *dbengine.DbWrapper) *PipelineErrorDbRepo {
 	return NewPipelineErrorRecordDbRepo(db)
 }
 
 // Db returns the underlying DbWrapper.
-func (r PipelineErrorRecordDbRepo) Db() *dbengine.DbWrapper {
+func (r *PipelineErrorRecordDbRepo) Db() *dbengine.DbWrapper {
 	return r.db
 }
 
 // Repo returns the underlying generic Repository.
-func (r PipelineErrorRecordDbRepo) Repo() *PipelineErrorRecordRepository {
+func (r *PipelineErrorRecordDbRepo) Repo() *PipelineErrorRecordRepository {
 	return r.repo
 }
 
 // Query returns a fluent QueryBuilder initialized with all standard fields projected.
-func (r PipelineErrorRecordDbRepo) Query() *PipelineErrorRecordQueryBuilder {
+func (r *PipelineErrorRecordDbRepo) Query() *PipelineErrorRecordQueryBuilder {
 	return r.repo.Query().Select(PipelineErrorRecordDb.All()...)
 }
 
 // QueryBare returns a fluent QueryBuilder without any pre-selected fields.
-func (r PipelineErrorRecordDbRepo) QueryBare() *PipelineErrorRecordQueryBuilder {
+func (r *PipelineErrorRecordDbRepo) QueryBare() *PipelineErrorRecordQueryBuilder {
 	return r.repo.Query()
 }
 
 // FindAll executes the query selecting all fields and returns a ListResult envelope.
-func (r PipelineErrorRecordDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineErrorRecord] {
+func (r *PipelineErrorRecordDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineErrorRecord] {
 	return r.Query().FindAll(ctx)
 }
 
 // First executes the query selecting all fields and returns the first record in an EntityResult envelope.
-func (r PipelineErrorRecordDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineErrorRecord] {
+func (r *PipelineErrorRecordDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineErrorRecord] {
 	return r.Query().First(ctx)
 }
 
 // Count returns the total number of records matching the query.
-func (r PipelineErrorRecordDbRepo) Count(ctx context.Context) dbengine.Int64Result {
+func (r *PipelineErrorRecordDbRepo) Count(ctx context.Context) dbengine.Int64Result {
 	return r.Query().Count(ctx)
 }
 
@@ -1351,49 +1351,49 @@ type PipelineDbStatsDbRepo struct {
 }
 
 // NewPipelineDbStatsDbRepo initializes a typed repository for PipelineDbStats.
-func NewPipelineDbStatsDbRepo(db *dbengine.DbWrapper) PipelineDbStatsDbRepo {
+func NewPipelineDbStatsDbRepo(db *dbengine.DbWrapper) *PipelineDbStatsDbRepo {
 	repo := dbengine.NewRepository[PipelineDbStats, PipelineDbStatsFieldType](
 		db,
 		PipelineDbStatsTable,
 		ScanPipelineDbStats,
 	)
-	return PipelineDbStatsDbRepo{
+	return &PipelineDbStatsDbRepo{
 		db:   db,
 		repo: repo,
 	}
 }
 
 // Db returns the underlying DbWrapper.
-func (r PipelineDbStatsDbRepo) Db() *dbengine.DbWrapper {
+func (r *PipelineDbStatsDbRepo) Db() *dbengine.DbWrapper {
 	return r.db
 }
 
 // Repo returns the underlying generic Repository.
-func (r PipelineDbStatsDbRepo) Repo() *PipelineDbStatsRepository {
+func (r *PipelineDbStatsDbRepo) Repo() *PipelineDbStatsRepository {
 	return r.repo
 }
 
 // Query returns a fluent QueryBuilder initialized with all standard fields projected.
-func (r PipelineDbStatsDbRepo) Query() *PipelineDbStatsQueryBuilder {
+func (r *PipelineDbStatsDbRepo) Query() *PipelineDbStatsQueryBuilder {
 	return r.repo.Query().Select(PipelineDbStatsDb.All()...)
 }
 
 // QueryBare returns a fluent QueryBuilder without any pre-selected fields.
-func (r PipelineDbStatsDbRepo) QueryBare() *PipelineDbStatsQueryBuilder {
+func (r *PipelineDbStatsDbRepo) QueryBare() *PipelineDbStatsQueryBuilder {
 	return r.repo.Query()
 }
 
 // FindAll executes the query selecting all fields and returns a ListResult envelope.
-func (r PipelineDbStatsDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineDbStats] {
+func (r *PipelineDbStatsDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineDbStats] {
 	return r.Query().FindAll(ctx)
 }
 
 // First executes the query selecting all fields and returns the first record in an EntityResult envelope.
-func (r PipelineDbStatsDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineDbStats] {
+func (r *PipelineDbStatsDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineDbStats] {
 	return r.Query().First(ctx)
 }
 
 // Count returns the total number of records matching the query.
-func (r PipelineDbStatsDbRepo) Count(ctx context.Context) dbengine.Int64Result {
+func (r *PipelineDbStatsDbRepo) Count(ctx context.Context) dbengine.Int64Result {
 	return r.Query().Count(ctx)
 }
