@@ -57,48 +57,6 @@ func PipelineDbPath(repoSlug string) string {
 // PipelineDBPath is an alias to PipelineDbPath.
 var PipelineDBPath = PipelineDbPath
 
-// OpenPipelineSplitDb opens or initializes the split SQLite database for a repo.
-func OpenPipelineSplitDb(repoSlug string) (*PipelineSplitDb, error) {
-	dbPath := PipelineDbPath(repoSlug)
-	conn, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "open pipeline split db "+repoSlug)
-	}
-	conn.SetMaxOpenConns(1)
-	p := &PipelineSplitDb{conn: conn, RepoSlug: repoSlug, Path: dbPath}
-	if err := p.InitSchema(); err != nil {
-		_ = conn.Close()
-		return nil, err
-	}
-	return p, nil
-}
-
-// OpenPipelineSplitDB is an alias to OpenPipelineSplitDb.
-var OpenPipelineSplitDB = OpenPipelineSplitDb
-
-// InitSchema ensures all pipeline tables exist.
-func (p *PipelineSplitDb) InitSchema() error {
-	queries := []string{
-		sqlCreatePipelineRun,
-		sqlCreatePipelineErrorLog,
-		sqlCreatePipelineSegment,
-	}
-	for _, q := range queries {
-		if _, err := p.conn.Exec(q); err != nil {
-			return apperror.WrapSimple(err, "init pipeline db schema")
-		}
-	}
-	return nil
-}
-
-// Close closes the underlying SQLite connection.
-func (p *PipelineSplitDb) Close() error {
-	if p.conn != nil {
-		return p.conn.Close()
-	}
-	return nil
-}
-
 // PipelineSplitDbFieldType represents column name enums for PipelineSplitDb.
 type PipelineSplitDbFieldType string
 
