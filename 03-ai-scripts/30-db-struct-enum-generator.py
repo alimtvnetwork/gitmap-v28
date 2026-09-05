@@ -26,20 +26,6 @@ FIELD_PATTERN = re.compile(r"^\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_\[\]*]+)(?:\s+`([
 PACKAGE_PATTERN = re.compile(r"package\s+([A-Za-z0-9_]+)")
 
 
-def package_has_variant(target_dir: Path, exclude_file: Path | None = None) -> bool:
-    """Checks whether the package directory already declares `type Variant`."""
-    for go_file in target_dir.glob("*.go"):
-        if exclude_file is not None and go_file.resolve() == exclude_file.resolve():
-            continue
-        try:
-            content = go_file.read_text(encoding="utf-8", errors="replace")
-            if re.search(r"\btype\s+Variant\b", content):
-                return True
-        except Exception:
-            continue
-    return False
-
-
 def parse_structs_from_file(file_path: Path) -> tuple[str, list[dict]]:
     content = file_path.read_text(encoding="utf-8", errors="replace")
     pkg_match = PACKAGE_PATTERN.search(content)
@@ -77,6 +63,7 @@ def generate_enums_for_struct(struct_info: dict) -> str:
     s_name = struct_info["name"]
     enum_type = f"{s_name}FieldType"
     reg_type = f"{s_name[0].lower() + s_name[1:]}DbRegistry"
+    valid_map = f"{s_name[0].lower() + s_name[1:]}ValidMap"
     db_var = f"{s_name}Db"
     field_var = f"{s_name}Field"
 
@@ -99,23 +86,14 @@ def generate_enums_for_struct(struct_info: dict) -> str:
         "\treturn string(e)",
         "}",
         "",
-        f"// IsCompare checks equality against another field enum, string, or fmt.Stringer.",
-        f"func (e {enum_type}) IsCompare(target any) bool {{",
-        "\tswitch v := target.(type) {",
-        f"\tcase {enum_type}:",
-        "\t\treturn e == v",
-        "\tcase string:",
-        "\t\treturn string(e) == v",
-        "\tcase fmt.Stringer:",
-        "\t\treturn string(e) == v.String()",
-        "\tdefault:",
-        "\t\treturn false",
-        "\t}",
+        f"// IsCompare checks equality against another field enum object.",
+        f"func (e {enum_type}) IsCompare(target {enum_type}) bool {{",
+        "\treturn e == target",
         "}",
         "",
-        f"// IsEnum checks equality against another field enum, string, or fmt.Stringer.",
-        f"func (e {enum_type}) IsEnum(target any) bool {{",
-        "\treturn e.IsCompare(target)",
+        f"// IsEnum checks whether this field enum exists in the valid enum map.",
+        f"func (e {enum_type}) IsEnum() bool {{",
+        f"\treturn {valid_map}[e]",
         "}",
         "",
         f"// MarshalJSON implements json.Marshaler.",
@@ -123,28 +101,41 @@ def generate_enums_for_struct(struct_info: dict) -> str:
         "\treturn json.Marshal(string(e))",
         "}",
         "",
-        f"// UnmarshalJSON implements json.Unmarshaler.",
+        f"// UnmarshalJSON implements json.Unmarshaler with strict map validation.",
         f"func (e *{enum_type}) UnmarshalJSON(data []byte) error {{",
         "\tvar s string",
         "\tif err := json.Unmarshal(data, &s); err != nil {",
         "\t\treturn err",
         "\t}",
-        f"\t*e = {enum_type}(s)",
+        f"\ttarget := {enum_type}(s)",
+        f"\tif !{valid_map}[target] {{",
+        f'\t\treturn fmt.Errorf("invalid %s enum: %s", "{enum_type}", s)',
+        "\t}",
+        "\t*e = target",
         "\treturn nil",
         "}",
         "",
-        f"// ToJSON converts the field enum to a JSON string representation.",
-        f"func (e {enum_type}) ToJSON() (string, error) {{",
+        f"// ToJSON converts the field enum to a JSON string representation, returning an AppError on failure.",
+        f"func (e {enum_type}) ToJSON() (string, *apperror.AppError) {{",
         "\tb, err := json.Marshal(string(e))",
         "\tif err != nil {",
-        '\t\treturn "", err',
+        '\t\treturn "", apperror.WrapSimple(err, "serialize field to json")',
         "\t}",
         "\treturn string(b), nil",
         "}",
         "",
-        f"// FromJSON parses a field enum from a JSON string representation.",
-        f"func (e *{enum_type}) FromJSON(s string) error {{",
-        "\treturn json.Unmarshal([]byte(s), e)",
+        f"// FromJSON parses a field enum from a JSON string representation, returning an AppError on failure.",
+        f"func (e *{enum_type}) FromJSON(s string) *apperror.AppError {{",
+        "\tvar str string",
+        "\tif err := json.Unmarshal([]byte(s), &str); err != nil {",
+        '\t\treturn apperror.WrapSimple(err, "deserialize field from json")',
+        "\t}",
+        f"\ttarget := {enum_type}(str)",
+        f"\tif !{valid_map}[target] {{",
+        f'\t\treturn apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "{enum_type}", str), "validate field enum from json")',
+        "\t}",
+        "\t*e = target",
+        "\treturn nil",
         "}",
         "",
     ]
@@ -152,12 +143,9 @@ def generate_enums_for_struct(struct_info: dict) -> str:
     for f in struct_info["fields"]:
         f_name = f["name"]
         lines.extend([
-            f"// Is{f_name} checks whether this field enum represents {f_name}.",
-            f"func (e {enum_type}) Is{f_name}(variant ...Variant) bool {{",
-            "\tif len(variant) > 0 {",
-            f'\t\treturn e.IsCompare("{f_name}") && e.IsCompare(variant[0])',
-            "\t}",
-            f'\treturn e.IsCompare("{f_name}")',
+            f"// Is{f_name} checks whether this field enum instance is {f_name}.",
+            f"func (e {enum_type}) Is{f_name}() bool {{",
+            f"\treturn e == {db_var}.{f_name}",
             "}",
             "",
         ])
@@ -189,14 +177,9 @@ def generate_enums_for_struct(struct_info: dict) -> str:
         "\t}",
         "}",
         "",
-        f"// IsEnum checks whether the given variant matches any registered field enum in {s_name}.",
-        f"func (r {reg_type}) IsEnum(variant Variant) bool {{",
-        "\tfor _, f := range r.All() {",
-        "\t\tif f.IsCompare(variant) {",
-        "\t\t\treturn true",
-        "\t\t}",
-        "\t}",
-        "\treturn false",
+        f"// IsEnum checks whether the target object matches any registered field enum in {s_name}.",
+        f"func (r {reg_type}) IsEnum(target {enum_type}) bool {{",
+        f"\treturn {valid_map}[target]",
         "}",
         "",
     ])
@@ -204,19 +187,19 @@ def generate_enums_for_struct(struct_info: dict) -> str:
     for f in struct_info["fields"]:
         f_name = f["name"]
         lines.extend([
-            f"// Is{f_name} checks whether the variant matches {f_name}.",
-            f"func (r {reg_type}) Is{f_name}(variant Variant) bool {{",
-            f"\treturn r.{f_name}.IsCompare(variant)",
+            f"// Is{f_name} checks whether the target object is {f_name}.",
+            f"func (r {reg_type}) Is{f_name}(target {enum_type}) bool {{",
+            f"\treturn target == r.{f_name}",
             "}",
             "",
         ])
 
     lines.extend([
-        f"// ToJSON converts the field registry to a JSON string representation.",
-        f"func (r {reg_type}) ToJSON() (string, error) {{",
+        f"// ToJSON converts the field registry to a JSON string representation, returning an AppError on failure.",
+        f"func (r {reg_type}) ToJSON() (string, *apperror.AppError) {{",
         "\tb, err := json.Marshal(r)",
         "\tif err != nil {",
-        '\t\treturn "", err',
+        '\t\treturn "", apperror.WrapSimple(err, "serialize registry to json")',
         "\t}",
         "\treturn string(b), nil",
         "}",
@@ -230,6 +213,15 @@ def generate_enums_for_struct(struct_info: dict) -> str:
         lines.append(f'\t{f_name}: "{f_name}",')
     lines.append("}")
     lines.append("")
+
+    lines.append(f"// {valid_map} provides O(1) map validation for field enums.")
+    lines.append(f"var {valid_map} = map[{enum_type}]bool{{")
+    for f in struct_info["fields"]:
+        f_name = f["name"]
+        lines.append(f"\t{db_var}.{f_name}: true,")
+    lines.append("}")
+    lines.append("")
+
     lines.append(f"// {field_var} is an alias to {db_var}.")
     lines.append(f"var {field_var} = {db_var}")
     lines.append("")
@@ -247,10 +239,7 @@ def process_target_file(target_file: Path, dry_run: bool = False) -> bool:
 
     out_file = target_file.parent / f"{target_file.stem}_fields_gen.go"
 
-    has_variant = package_has_variant(target_file.parent, exclude_file=out_file)
-    variant_def = ""
-    if not has_variant:
-        variant_def = "// Variant represents any dynamic value acceptable for enum comparisons.\ntype Variant = any\n\n"
+    import_apperror = '\t"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"\n' if pkg_name != "apperror" else ""
 
     header = f"""// Code generated by gitmap db generate. DO NOT EDIT.
 
@@ -259,9 +248,9 @@ package {pkg_name}
 import (
 \t"encoding/json"
 \t"fmt"
-)
+{import_apperror})
 
-{variant_def}"""
+"""
     body = "\n".join(generate_enums_for_struct(s) for s in structs)
     full_content = header + body
 
