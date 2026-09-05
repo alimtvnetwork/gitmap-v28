@@ -270,6 +270,8 @@ type DialectCompiler interface {
 	CompileFunctionCall(name string, argCount int) string
 	CompileCount(table string, field string) string
 	CompileDelete(table string, field string) string
+	CompileInspectColumns(tableOrView string) string
+	CompileInspectViewExists(viewName string) string
 }
 
 // ResolveCompiler returns the appropriate DialectCompiler for a dialect enum.

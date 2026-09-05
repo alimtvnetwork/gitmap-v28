@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
@@ -515,3 +516,252 @@ func TestFieldType_Methods(t *testing.T) {
 		t.Errorf("expected parsed ItemName, got %v (err: %v)", parsedField, err)
 	}
 }
+
+func TestSqlOperator_Methods(t *testing.T) {
+	op := SqlOperators.Equal
+	if op.Name() != "=" || op.String() != "=" || op.Value() != "=" {
+		t.Errorf("unexpected op string: %s", op.String())
+	}
+	if !op.IsCompare(SqlOpEqual) {
+		t.Errorf("expected IsCompare true for Equal")
+	}
+	if !op.IsEnum() {
+		t.Errorf("expected IsEnum true for Equal")
+	}
+	if !op.IsEqual() {
+		t.Errorf("expected IsEqual true for Equal")
+	}
+	if op.IsNotEqual() {
+		t.Errorf("expected IsNotEqual false for Equal")
+	}
+	if !SqlOperators.NotEqual.IsNotEqual() {
+		t.Errorf("expected IsNotEqual true for NotEqual")
+	}
+	if !SqlOperators.LessThan.IsLessThan() {
+		t.Errorf("expected IsLessThan true for LessThan")
+	}
+	if !SqlOperators.GreaterThan.IsGreaterThan() {
+		t.Errorf("expected IsGreaterThan true for GreaterThan")
+	}
+	if !SqlOperators.Like.IsLike() {
+		t.Errorf("expected IsLike true for Like")
+	}
+	if !SqlOperators.In.IsIn() {
+		t.Errorf("expected IsIn true for In")
+	}
+
+	invalidOp := SqlOperator("INVALID_OP")
+	if invalidOp.IsEnum() {
+		t.Errorf("expected invalidOp to not be enum")
+	}
+
+	jsonStr, appErr := op.ToJSON()
+	if appErr != nil || jsonStr != `"="` {
+		t.Errorf("unexpected json: %s (err: %v)", jsonStr, appErr)
+	}
+
+	var parsedOp SqlOperator
+	if err := parsedOp.FromJSON(`"!="`); err != nil || parsedOp != SqlOperators.NotEqual {
+		t.Errorf("unexpected parsed op: %v (err: %v)", parsedOp, err)
+	}
+
+	// Registry methods
+	if len(SqlOperators.All()) != 13 {
+		t.Errorf("expected 13 operators, got %d", len(SqlOperators.All()))
+	}
+	if len(SqlOperators.Names()) != 13 {
+		t.Errorf("expected 13 operator names, got %d", len(SqlOperators.Names()))
+	}
+	if !SqlOperators.IsEnum(SqlOpLike) {
+		t.Errorf("expected registry IsEnum true for Like")
+	}
+	if !SqlOperators.IsEqual(SqlOpEqual) {
+		t.Errorf("expected registry IsEqual true for Equal")
+	}
+}
+
+func TestCompiledQueryCache(t *testing.T) {
+	cache := NewCompiledQueryCache()
+	if cache.Size() != 0 {
+		t.Errorf("expected initial size 0, got %d", cache.Size())
+	}
+
+	cache.Put("key1", "SELECT 1;")
+	val, found := cache.Get("key1")
+	if !found || val != "SELECT 1;" {
+		t.Errorf("expected cache hit with SELECT 1;, got %s (found: %v)", val, found)
+	}
+
+	_, found2 := cache.Get("nonexistent")
+	if found2 {
+		t.Errorf("expected cache miss for nonexistent key")
+	}
+
+	cache.Clear()
+	if cache.Size() != 0 {
+		t.Errorf("expected size 0 after clear, got %d", cache.Size())
+	}
+}
+
+func TestQueryBuilder_InnerJoinAndInnerWhere(t *testing.T) {
+	ctx := context.Background()
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	// Create secondary table for join tests
+	_, execErr := wrapper.Exec(ctx, `
+CREATE TABLE TestDetail (
+    DetailId INTEGER PRIMARY KEY AUTOINCREMENT,
+    ItemId INTEGER NOT NULL,
+    DetailText TEXT NOT NULL
+);
+INSERT INTO TestDetail (ItemId, DetailText) VALUES (1, 'Detail for Alpha');
+INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
+`)
+	if execErr != nil {
+		t.Fatalf("failed creating TestDetail: %v", execErr)
+	}
+
+	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
+
+	// Test QueryBuilder with Select, InnerJoin, and InnerWhere
+	qb := repo.Query().
+		Select(TestItemDb.ItemId, TestItemDb.ItemName).
+		InnerJoin("TestDetail", "\"TestDetail\".\"ItemId\" = \"TestItem\".\"ItemId\"", "DetailText").
+		InnerWhere(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
+		Where(TestItemDb.ItemName, "=", "Alpha")
+
+	sqlStr, args := qb.BuildSelect()
+	expectedSql := `SELECT "TestItem"."ItemId", "TestItem"."ItemName", "TestDetail"."DetailText" FROM "TestItem" INNER JOIN "TestDetail" ON "TestDetail"."ItemId" = "TestItem"."ItemId" WHERE "TestItem"."ItemId" = "TestDetail"."ItemId" AND "TestItem"."ItemName" = ?;`
+	if sqlStr != expectedSql {
+		t.Errorf("BuildSelect mismatch:\ngot:  %s\nwant: %s", sqlStr, expectedSql)
+	}
+	if len(args) != 1 || args[0] != "Alpha" {
+		t.Errorf("expected 1 arg ('Alpha'), got %v", args)
+	}
+
+	// Test joined query execution scanning projected columns
+	row, queryErr := wrapper.QueryRow(ctx, sqlStr, args...)
+	if queryErr != nil {
+		t.Fatalf("joined query failed: %v", queryErr)
+	}
+	var id uint64
+	var name, detail string
+	if err := row.Scan(&id, &name, &detail); err != nil {
+		t.Fatalf("joined scan failed: %v", err)
+	}
+	if name != "Alpha" || detail != "Detail for Alpha" {
+		t.Errorf("unexpected scan result: %s / %s", name, detail)
+	}
+
+	// Test typed entity execution returning full model via repo.Query()
+	firstRes := repo.Query().
+		Select(TestItemDb.ItemId, TestItemDb.ItemName, TestItemDb.Category, TestItemDb.IsActive).
+		InnerJoin("TestDetail", "\"TestDetail\".\"ItemId\" = \"TestItem\".\"ItemId\"").
+		InnerWhere(TestItemDb.ItemId, SqlOperators.Equal, "TestDetail.ItemId").
+		Where(TestItemDb.ItemName, "=", "Alpha").
+		First(ctx)
+	if firstRes.IsFailed() {
+		t.Fatalf("first execution failed: %v", firstRes.Err)
+	}
+	if firstRes.Value.ItemName != "Alpha" {
+		t.Errorf("expected Alpha, got %s", firstRes.Value.ItemName)
+	}
+
+	// Test Dynamic Query Builder via SelectTable
+	dynQb := SelectTable(wrapper, "TestItem", "ItemId", "ItemName").
+		Where("Category", "=", "Tool").
+		OrderBy("ItemId", "ASC")
+
+	dynSql, dynArgs := dynQb.Compile()
+	// Verify dynSql contains expected tables and clauses
+	if !strings.Contains(dynSql, "SELECT \"ItemId\", \"ItemName\" FROM \"TestItem\"") {
+		t.Errorf("dynamic query missing projected columns: %s", dynSql)
+	}
+	if len(dynArgs) == 0 {
+		t.Errorf("expected dynamic query args")
+	}
+}
+
+func TestQueryBuilder_CompileAndCache(t *testing.T) {
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	GlobalQueryCache.Clear()
+
+	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
+	qb := repo.Query().
+		Select(TestItemDb.ItemName).
+		Where(TestItemDb.Category, "=", "Tool")
+
+	sql1, args1 := qb.Compile()
+	if GlobalQueryCache.Size() != 1 {
+		t.Errorf("expected cache size 1 after compile, got %d", GlobalQueryCache.Size())
+	}
+
+	sql2, args2 := qb.Compile()
+	if sql1 != sql2 {
+		t.Errorf("expected cached SQL to match: %s vs %s", sql1, sql2)
+	}
+	if len(args1) != len(args2) {
+		t.Errorf("expected args count to match")
+	}
+}
+
+func TestDbWrapper_CreateViewOrUseView(t *testing.T) {
+	ctx := context.Background()
+	wrapper := setupInMemoryDb(t)
+	defer wrapper.Close()
+
+	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
+
+	viewName := "ActiveToolsView"
+	// Initial creation: view does not exist yet
+	res1 := repo.Query().
+		Select(TestItemDb.ItemId, TestItemDb.ItemName, TestItemDb.Category).
+		Where(TestItemDb.Category, "=", "Tool").
+		CreateViewOrUseView(ctx, viewName, "ItemId", "ItemName", "Category")
+
+	if res1.IsFailed() {
+		t.Fatalf("first CreateViewOrUseView failed: %v", res1.Err)
+	}
+
+	// Verify view exists in SQLite
+	exists, appErr := wrapper.ViewExists(ctx, viewName)
+	if appErr != nil || !exists {
+		t.Fatalf("expected view to exist: %v (err: %v)", exists, appErr)
+	}
+
+	// Verify columns exist
+	cols, colErr := wrapper.GetTableColumns(ctx, viewName)
+	if colErr != nil || len(cols) != 3 {
+		t.Fatalf("expected 3 columns in view, got %v (err: %v)", cols, colErr)
+	}
+
+	// Second run: view exists with matching columns -> reuses existing view
+	res2 := repo.Query().
+		Select(TestItemDb.ItemId, TestItemDb.ItemName, TestItemDb.Category).
+		Where(TestItemDb.Category, "=", "Tool").
+		CreateViewOrUseView(ctx, viewName, "ItemId", "ItemName", "Category")
+
+	if res2.IsFailed() {
+		t.Fatalf("second CreateViewOrUseView (reuse) failed: %v", res2.Err)
+	}
+
+	// Third run: new required column requested (e.g. IsActive) that does not exist in old view
+	// Should drop old view and recreate with the new column definition
+	res3 := repo.Query().
+		Select(TestItemDb.ItemId, TestItemDb.ItemName, TestItemDb.Category, TestItemDb.IsActive).
+		Where(TestItemDb.Category, "=", "Tool").
+		CreateViewOrUseView(ctx, viewName, "ItemId", "ItemName", "Category", "IsActive")
+
+	if res3.IsFailed() {
+		t.Fatalf("third CreateViewOrUseView (recreate with new column) failed: %v", res3.Err)
+	}
+
+	updatedCols, _ := wrapper.GetTableColumns(ctx, viewName)
+	if len(updatedCols) != 4 {
+		t.Errorf("expected 4 columns after view recreation, got %v", updatedCols)
+	}
+}
+

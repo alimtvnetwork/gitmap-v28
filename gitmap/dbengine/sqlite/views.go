@@ -22,3 +22,14 @@ func (c *Compiler) CompileAdHocCTE(viewName string, subQuery string, mainQuery s
 	cleanMain := strings.TrimRight(strings.TrimSpace(mainQuery), ";")
 	return fmt.Sprintf("WITH %s AS (%s) %s;", c.QuoteIdentifier(viewName), cleanSub, cleanMain)
 }
+
+// CompileInspectColumns returns the PRAGMA query to inspect columns of a table or view.
+func (c *Compiler) CompileInspectColumns(tableOrView string) string {
+	return fmt.Sprintf("PRAGMA table_info(%s);", c.QuoteIdentifier(tableOrView))
+}
+
+// CompileInspectViewExists returns a query to check if a view exists in sqlite_master.
+func (c *Compiler) CompileInspectViewExists(viewName string) string {
+	return "SELECT 1 FROM sqlite_master WHERE type = 'view' AND name = ?;"
+}
+

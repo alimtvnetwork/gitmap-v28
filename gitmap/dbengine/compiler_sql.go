@@ -79,6 +79,15 @@ func (c *PostgresCompiler) CompileDelete(table string, field string) string {
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = $1;", quotedTable, c.QuoteIdentifier(field))
 }
 
+func (c *PostgresCompiler) CompileInspectColumns(tableOrView string) string {
+	return "SELECT column_name FROM information_schema.columns WHERE table_name = $1;"
+}
+
+func (c *PostgresCompiler) CompileInspectViewExists(viewName string) string {
+	return "SELECT 1 FROM information_schema.views WHERE table_name = $1;"
+}
+
+
 // MySQLCompiler compiles queries for MySQL and MariaDB databases.
 type MySQLCompiler struct {
 	dialect DatabaseDialectType
@@ -154,6 +163,15 @@ func (c *MySQLCompiler) CompileDelete(table string, field string) string {
 	quotedTable := c.QuoteIdentifier(table)
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = ?;", quotedTable, c.QuoteIdentifier(field))
 }
+
+func (c *MySQLCompiler) CompileInspectColumns(tableOrView string) string {
+	return "SELECT column_name FROM information_schema.columns WHERE table_name = ?;"
+}
+
+func (c *MySQLCompiler) CompileInspectViewExists(viewName string) string {
+	return "SELECT 1 FROM information_schema.views WHERE table_name = ?;"
+}
+
 
 // MSSQLCompiler compiles queries for Microsoft SQL Server databases.
 type MSSQLCompiler struct{}
@@ -245,6 +263,15 @@ func (c *MSSQLCompiler) CompileDelete(table string, field string) string {
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = @p1;", quotedTable, c.QuoteIdentifier(field))
 }
 
+func (c *MSSQLCompiler) CompileInspectColumns(tableOrView string) string {
+	return "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @p1;"
+}
+
+func (c *MSSQLCompiler) CompileInspectViewExists(viewName string) string {
+	return "SELECT 1 FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = @p1;"
+}
+
+
 // OracleCompiler compiles queries for Oracle databases.
 type OracleCompiler struct{}
 
@@ -324,6 +351,14 @@ func (c *OracleCompiler) CompileDelete(table string, field string) string {
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = :1;", quotedTable, c.QuoteIdentifier(field))
 }
 
+func (c *OracleCompiler) CompileInspectColumns(tableOrView string) string {
+	return "SELECT COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE TABLE_NAME = :1;"
+}
+
+func (c *OracleCompiler) CompileInspectViewExists(viewName string) string {
+	return "SELECT 1 FROM ALL_VIEWS WHERE VIEW_NAME = :1;"
+}
+
 // MongoDBCompiler compiles queries into MongoDB representation.
 type MongoDBCompiler struct{}
 
@@ -374,3 +409,12 @@ func (c *MongoDBCompiler) CompileCount(table string, field string) string {
 func (c *MongoDBCompiler) CompileDelete(table string, field string) string {
 	return fmt.Sprintf("db.%s.deleteMany({})", table)
 }
+
+func (c *MongoDBCompiler) CompileInspectColumns(tableOrView string) string {
+	return ""
+}
+
+func (c *MongoDBCompiler) CompileInspectViewExists(viewName string) string {
+	return ""
+}
+

@@ -66,6 +66,17 @@ func (c *SQLiteCompiler) CompileDelete(table string, field string) string {
 	return c.getImpl().CompileDelete(table, field)
 }
 
+// CompileInspectColumns returns the PRAGMA query to inspect columns of a table or view.
+func (c *SQLiteCompiler) CompileInspectColumns(tableOrView string) string {
+	return c.getImpl().CompileInspectColumns(tableOrView)
+}
+
+// CompileInspectViewExists returns a query to check if a view exists in sqlite_master.
+func (c *SQLiteCompiler) CompileInspectViewExists(viewName string) string {
+	return c.getImpl().CompileInspectViewExists(viewName)
+}
+
+
 func buildSelectWithoutWhere(quotedTable, pagination string) string {
 	if len(pagination) == 0 {
 		return "SELECT * FROM " + quotedTable + ";"

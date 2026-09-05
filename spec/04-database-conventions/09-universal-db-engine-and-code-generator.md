@@ -305,15 +305,43 @@ func (r *Repository[T, F]) CountAll(ctx context.Context) Int64Result
 func (r *Repository[T, F]) DeleteBy(ctx context.Context, field F, value any) RowsAffectedResult
 ```
 
-### 5.2 Fluent QueryBuilder
-The `QueryBuilder[T, F]` provides fluent query construction with substring locating, table joining, ad-hoc CTE views, sorting, and pagination:
+### 5.2 SQL Operator Enum (`SqlOperator`)
+The `SqlOperator` enum governs comparison operators across queries with gold-standard receiver methods:
+```go
+type SqlOperator string
+
+const (
+    SqlOpEqual              SqlOperator = "="
+    SqlOpNotEqual           SqlOperator = "!="
+    SqlOpLessThan           SqlOperator = "<"
+    SqlOpLessThanOrEqual    SqlOperator = "<="
+    SqlOpGreaterThan        SqlOperator = ">"
+    SqlOpGreaterThanOrEqual SqlOperator = ">="
+    SqlOpLike               SqlOperator = "LIKE"
+    SqlOpIn                 SqlOperator = "IN"
+)
+
+// Scoped registry
+var SqlOperators = sqlOperatorRegistry{
+    Equal:       SqlOpEqual,
+    NotEqual:    SqlOpNotEqual,
+    LessThan:    SqlOpLessThan,
+    GreaterThan: SqlOpGreaterThan,
+    Like:        SqlOpLike,
+    In:          SqlOpIn,
+}
+```
+
+### 5.3 Fluent QueryBuilder, Joins & Views
+The `QueryBuilder[T, F]` provides fluent query construction with substring locating, table joining, ad-hoc CTE views, sorting, pagination, and view auto-management:
 ```go
 qb := repo.Query().
-    Where(PipelineErrorLogDb.WorkflowName, "ci").
+    Select(PipelineErrorLogDb.PipelineErrorLogId, PipelineErrorLogDb.ErrorText).
+    InnerJoin("PipelineRunRecord", "\"PipelineRunRecord\".\"RunId\" = \"PipelineErrorLog\".\"RunId\"", "RepoSlug").
+    InnerWhere(PipelineErrorLogDb.RunId, SqlOperators.Equal, "PipelineRunRecord.RunId").
+    Where(PipelineErrorLogDb.WorkflowName, "=", "ci").
     Locate(PipelineErrorLogDb.ErrorText, "timeout").
-    OrderByDesc(PipelineErrorLogDb.PipelineErrorLogId).
-    Limit(10).
-    Offset(0)
+    OrderByDesc(PipelineErrorLogDb.PipelineErrorLogId)
 
 // Terminal executions returning wrapped results
 firstRes := qb.First(ctx)       // EntityResult[T]
@@ -321,10 +349,15 @@ listRes  := qb.FindAll(ctx)     // ListResult[T]
 countRes := qb.Count(ctx)       // Int64Result
 delRes   := qb.Delete(ctx)      // RowsAffectedResult
 
-// Joining and Ad-Hoc CTE Views
-qb.Join("OtherTable", "OtherTable.RunId = PipelineErrorLog.RunId")
-qb.LeftJoin("AuditLog", "AuditLog.RunId = PipelineErrorLog.RunId")
-qb.WithView("ActiveErrors", "SELECT * FROM PipelineErrorLog WHERE ErrorText != ''")
+// SQL compilation with thread-safe in-memory caching
+sqlStr, args := qb.Compile()
+
+// Schema-detecting idempotent view lifecycle
+viewRes := qb.CreateViewOrUseView(ctx, "ActiveCiErrors", "PipelineErrorLogId", "ErrorText", "RepoSlug")
+
+// Dynamic table-first builder
+dynQb := SelectTable(db, "PipelineErrorLog", "RunId", "ErrorText").
+    Where("WorkflowName", "=", "ci")
 ```
 
 ---
