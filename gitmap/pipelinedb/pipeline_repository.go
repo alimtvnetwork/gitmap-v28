@@ -9,18 +9,18 @@ import (
 
 // PipelineRepository provides domain business logic methods for pipeline runs and error diagnostics.
 type PipelineRepository struct {
-	PipelineRunRecordDbRepo
+	*PipelineRunRecordDbRepo
 }
 
 // NewPipelineRepository creates a new domain repository wrapping a DbWrapper.
-func NewPipelineRepository(db *dbengine.DbWrapper) PipelineRepository {
-	return PipelineRepository{
+func NewPipelineRepository(db *dbengine.DbWrapper) *PipelineRepository {
+	return &PipelineRepository{
 		PipelineRunRecordDbRepo: NewPipelineRunRecordDbRepo(db),
 	}
 }
 
 // InitSchema ensures the PipelineRunRecord and PipelineErrorRecord tables exist.
-func (r PipelineRepository) InitSchema(ctx context.Context) *apperror.AppError {
+func (r *PipelineRepository) InitSchema(ctx context.Context) *apperror.AppError {
 	createRunQuery := `
 CREATE TABLE IF NOT EXISTS PipelineRunRecord (
     RunId INTEGER NOT NULL UNIQUE,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS PipelineErrorRecord (
 }
 
 // InsertRun inserts a new PipelineRunRecord into the database.
-func (r PipelineRepository) InsertRun(ctx context.Context, run PipelineRunRecord) dbengine.RowsAffectedResult {
+func (r *PipelineRepository) InsertRun(ctx context.Context, run PipelineRunRecord) dbengine.RowsAffectedResult {
 	query := `
 INSERT INTO PipelineRunRecord (
     RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
@@ -83,7 +83,7 @@ INSERT INTO PipelineRunRecord (
 }
 
 // InsertErrorRecord inserts an isolated diagnostic record into PipelineErrorRecord.
-func (r PipelineRepository) InsertErrorRecord(ctx context.Context, errLog PipelineErrorRecord) dbengine.RowsAffectedResult {
+func (r *PipelineRepository) InsertErrorRecord(ctx context.Context, errLog PipelineErrorRecord) dbengine.RowsAffectedResult {
 	query := `
 INSERT INTO PipelineErrorRecord (
     RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt
@@ -95,14 +95,14 @@ INSERT INTO PipelineErrorRecord (
 }
 
 // GetRunById retrieves a run record by its unique RunId.
-func (r PipelineRepository) GetRunById(ctx context.Context, runId uint64) dbengine.EntityResult[PipelineRunRecord] {
+func (r *PipelineRepository) GetRunById(ctx context.Context, runId uint64) dbengine.EntityResult[PipelineRunRecord] {
 	return r.Query().
 		WhereOp(PipelineRunRecordDb.RunId, dbengine.SqlOperators.Equal, runId).
 		First(ctx)
 }
 
 // GetRecentRuns retrieves recent runs for a repository slug ordered descending by RunId.
-func (r PipelineRepository) GetRecentRuns(ctx context.Context, repoSlug string, limit int) dbengine.ListResult[PipelineRunRecord] {
+func (r *PipelineRepository) GetRecentRuns(ctx context.Context, repoSlug string, limit int) dbengine.ListResult[PipelineRunRecord] {
 	return r.Query().
 		WhereOp(PipelineRunRecordDb.RepoSlug, dbengine.SqlOperators.Equal, repoSlug).
 		OrderByDesc(PipelineRunRecordDb.RunId).
@@ -111,7 +111,7 @@ func (r PipelineRepository) GetRecentRuns(ctx context.Context, repoSlug string, 
 }
 
 // EnsureActiveErrorsView creates or reuses the ActiveCiErrors database view using type-safe joins and automated query hashing.
-func (r PipelineRepository) EnsureActiveErrorsView(ctx context.Context) dbengine.BoolResult {
+func (r *PipelineRepository) EnsureActiveErrorsView(ctx context.Context) dbengine.BoolResult {
 	return r.repo.Query().
 		Select(PipelineRunRecordDb.RunId, PipelineRunRecordDb.RepoSlug, PipelineRunRecordDb.WorkflowName).
 		InnerJoin(PipelineErrorRecordTable).

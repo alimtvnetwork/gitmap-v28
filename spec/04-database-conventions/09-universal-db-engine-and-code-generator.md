@@ -394,10 +394,10 @@ The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) aut
      type PipelineRunRecordRepository   = dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType]
      type PipelineRunRepository         = PipelineRunRecordRepository
      ```
-3. **Value Semantics & Pointer Elimination on Repositories**:
-   - Repositories hold immutable handles (`*dbengine.DbWrapper`, `*Repository`) and use value semantics to eliminate heap allocations:
-     - Constructors return values: `func NewPipelineRunDbRepo(db *dbengine.DbWrapper) PipelineRunDbRepo`
-     - Methods use value receivers: `func (r PipelineRunDbRepo) Query() *PipelineRunQueryBuilder`
+3. **Typed Repository Pointer Methods & Dedicated QueryBuilders**:
+   - Repositories provide typed operations returning dedicated single data types:
+     - Constructors: `func NewPipelineRunDbRepo(db *dbengine.DbWrapper) *PipelineRunDbRepo`
+     - Methods: `func (r *PipelineRunDbRepo) Query() *PipelineRunQueryBuilder`
    - Exposes standard typed methods returning Result envelopes:
      - `FindAll(ctx context.Context) dbengine.ListResult[T]`
      - `First(ctx context.Context) dbengine.EntityResult[T]`
@@ -407,10 +407,10 @@ The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) aut
      - `Db() *dbengine.DbWrapper`
      - `Repo() *{s_name}Repository`
 4. **Domain Business Repository Integration**:
-   - Domain repositories (e.g. `PipelineRepository`) embed repository structs by value:
+   - Domain repositories (e.g. `PipelineRepository`) embed repository structs directly:
      ```go
      type PipelineRepository struct {
-         PipelineRunRecordDbRepo
+         *PipelineRunRecordDbRepo
      }
      ```
    - Automatically inherits all standard CRUD operations while cleanly adding domain business methods (`GetRecentRuns`, `EnsureActiveErrorsView`).

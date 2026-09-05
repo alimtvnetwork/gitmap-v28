@@ -49,10 +49,10 @@ The generator automatically outputs concrete type aliases for each struct:
 - `type {short_name}Repository = {s_name}Repository`
 This completely converts verbose generic signatures (`*dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType]`) into concise, single named types (`*PipelineSplitDbQueryBuilder`, `*PipelineRunQueryBuilder`).
 
-### 2.4 Value Semantics & Pointer Reduction
-- Repository structs (`{StructName}DbRepo`) are lightweight wrappers around immutable handles (`*DbWrapper`, `*Repository`).
-- Constructors return values: `NewPipelineRunDbRepo(db) PipelineRunDbRepo` (0 heap allocations).
-- Methods use value receivers: `func (r PipelineRunDbRepo) Query() *PipelineRunQueryBuilder`.
+### 2.4 Typed Repository Pointer Receivers & Constructors
+- Repository structs (`{StructName}DbRepo`) are typed accessors wrapping generic repositories.
+- Constructors: `NewPipelineRunDbRepo(db) *PipelineRunDbRepo`.
+- Methods use pointer receivers: `func (r *PipelineRunDbRepo) Query() *PipelineRunQueryBuilder`.
 - Standard query methods:
   - `FindAll(ctx context.Context) dbengine.ListResult[PipelineRunRecord]`
   - `First(ctx context.Context) dbengine.EntityResult[PipelineRunRecord]`
@@ -63,19 +63,19 @@ This completely converts verbose generic signatures (`*dbengine.QueryBuilder[Pip
   - `Repo() *PipelineRunRecordRepository`
 
 ### 2.5 Domain Repository Embedding Pattern
-Domain repositories (such as `pipelinedb.PipelineRepository`) embed `PipelineRunRecordDbRepo` by value:
+Domain repositories (such as `pipelinedb.PipelineRepository`) embed `*PipelineRunRecordDbRepo`:
 ```go
 type PipelineRepository struct {
-    PipelineRunRecordDbRepo
+    *PipelineRunRecordDbRepo
 }
 
-func NewPipelineRepository(db *dbengine.DbWrapper) PipelineRepository {
-    return PipelineRepository{
+func NewPipelineRepository(db *dbengine.DbWrapper) *PipelineRepository {
+    return &PipelineRepository{
         PipelineRunRecordDbRepo: NewPipelineRunRecordDbRepo(db),
     }
 }
 ```
-Eliminates all boilerplate scanner and generic repository delegations while allowing domain repositories to cleanly define domain-specific queries (`GetRunById`, `GetRecentRuns`, `EnsureActiveErrorsView`) using value semantics.
+Eliminates all boilerplate scanner and generic repository delegations while allowing domain repositories to cleanly define domain-specific queries (`GetRunById`, `GetRecentRuns`, `EnsureActiveErrorsView`).
 
 ---
 
