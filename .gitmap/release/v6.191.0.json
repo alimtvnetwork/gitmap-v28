@@ -1,0 +1,19 @@
+{
+  "version": "6.191.0",
+  "branch": "release/v6.191.0",
+  "sourceBranch": "main",
+  "commit": "6f99833a55aa7182583bd8f927db1fd3da3e92cd",
+  "tag": "v6.191.0",
+  "assets": [],
+  "changelog": [
+    "Synchronized release deployment and version bump prompt in 01-prompts/01-release.md to Prompt Version 2.1.0",
+    "Aligned SSoT manifests and verified version propagation across version.json, package.json, constants.go, and readme.md",
+    "Enforced strict zero-tag policy delegating git tags to automated CI release orchestrators",
+    "Passed 100% test verification across lazyregex, regexnew, pipelinedb, and constants packages",
+    "Pinned active repository version to v6.191.0 in root readme.md and .lovable/user-preferences"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-09-05T16:32:12Z",
+  "isLatest": false
+}
