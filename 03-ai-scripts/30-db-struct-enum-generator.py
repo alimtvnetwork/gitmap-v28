@@ -62,9 +62,9 @@ def parse_structs_from_file(file_path: Path) -> tuple[str, list[dict]]:
 def generate_enums_for_struct(struct_info: dict) -> str:
     s_name = struct_info["name"]
     enum_type = f"{s_name}FieldType"
-    reg_type = f"{s_name[0].lower() + s_name[1:]}FieldRegistry"
-    field_var = f"{s_name}Field"
+    reg_type = f"{s_name[0].lower() + s_name[1:]}DbRegistry"
     db_var = f"{s_name}Db"
+    field_var = f"{s_name}Field"
 
     lines = [
         f"// {enum_type} represents column name enums for {s_name}.",
@@ -105,15 +105,15 @@ def generate_enums_for_struct(struct_info: dict) -> str:
         lines.append(f"\t{f['name']} {enum_type}")
     lines.append("}")
     lines.append("")
-    lines.append(f"// {field_var} provides scoped access to field enums without repeating prefixes.")
-    lines.append(f"var {field_var} = {reg_type}{{")
+    lines.append(f"// {db_var} provides scoped access to field enums: {db_var}.<Field>.")
+    lines.append(f"var {db_var} = {reg_type}{{")
     for f in struct_info["fields"]:
         f_name = f["name"]
         lines.append(f'\t{f_name}: "{f_name}",')
     lines.append("}")
     lines.append("")
-    lines.append(f"// {db_var} provides alias access to the field registry.")
-    lines.append(f"var {db_var} = {field_var}")
+    lines.append(f"// {field_var} is an alias to {db_var}.")
+    lines.append(f"var {field_var} = {db_var}")
     lines.append("")
     lines.append(f"// {s_name}Table represents the canonical table name.")
     lines.append(f'const {s_name}Table = "{s_name}"')

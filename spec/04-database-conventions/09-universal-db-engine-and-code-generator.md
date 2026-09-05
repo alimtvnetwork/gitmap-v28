@@ -141,7 +141,7 @@ type PipelineErrorLog struct {
 ```
 
 ### 4.2 Auto-Generated Field Enums & Scoped Registries
-To avoid repeating prefixes across flat constants (e.g. avoiding repetitive `PipelineErrorLogFieldPipelineErrorLogId`), field enums are grouped into scoped registries. Developers access fields via `PipelineErrorLogField.RunId` or `PipelineErrorLogDb.RunId`:
+To avoid repeating prefixes across flat constants (e.g. avoiding repetitive `PipelineErrorLogFieldPipelineErrorLogId`), field enums are grouped into scoped database registries. Developers access fields via the canonical `<Model>Db.<FieldName>` pattern (e.g. `PipelineErrorLogDb.RunId`, `PipelineRunRecordDb.RunId`):
 ```go
 type PipelineErrorLogFieldType string
 
@@ -161,7 +161,7 @@ func (e PipelineErrorLogFieldType) IsCompare(target any) bool {
     }
 }
 
-type pipelineErrorLogFieldRegistry struct {
+type pipelineErrorLogDbRegistry struct {
     PipelineErrorLogId PipelineErrorLogFieldType
     RunId              PipelineErrorLogFieldType
     RepoSlug           PipelineErrorLogFieldType
@@ -174,8 +174,8 @@ type pipelineErrorLogFieldRegistry struct {
     CreatedAt          PipelineErrorLogFieldType
 }
 
-// Scoped access: PipelineErrorLogField.RunId
-var PipelineErrorLogField = pipelineErrorLogFieldRegistry{
+// Canonical scoped access: PipelineErrorLogDb.RunId
+var PipelineErrorLogDb = pipelineErrorLogDbRegistry{
     PipelineErrorLogId: "PipelineErrorLogId",
     RunId:              "RunId",
     RepoSlug:           "RepoSlug",
@@ -188,7 +188,8 @@ var PipelineErrorLogField = pipelineErrorLogFieldRegistry{
     CreatedAt:          "CreatedAt",
 }
 
-var PipelineErrorLogDb = PipelineErrorLogField
+// PipelineErrorLogField is an alias to PipelineErrorLogDb
+var PipelineErrorLogField = PipelineErrorLogDb
 
 const PipelineErrorLogTable = "PipelineErrorLog"
 ```
