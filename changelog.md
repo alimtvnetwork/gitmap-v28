@@ -1,3 +1,19 @@
+## [v6.189.0] 2026-09-05 Release v6.189.0
+
+### Install GitMap v6.189.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.sh | bash -s -- ".lovable/prompts" "v6.189.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.189.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Eliminated redundant secondary regexMap lookups in gitmap/lazyregex and pkg/regexnew, transitioning to single-map pattern deduplication
+- Added isCompiled boolean flag, self-contained compiled *regexp.Regexp state, and mutex synchronization to LazyRegexp and LazyRegex
+- Introduced Count, IsFound, GroupBy (named capture group extraction), and FindAllGroups methods to LazyRegexp and LazyRegex
+- Implemented CompileAppError and CompileBuilder methods returning structured diagnostic AppErrors and AppBuilders on compilation failure
+- Updated root readme.md pinned version to v6.189.0 and synchronized all SSoT manifests
+
 ## [v6.188.0] 2026-09-05 Release v6.188.0
 
 ### Install GitMap v6.188.0
