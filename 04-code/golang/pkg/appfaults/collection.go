@@ -44,3 +44,19 @@ func NewFromErrors(errType errtype.Variation, errs ...error) *Collection {
 
 	return c
 }
+
+// Clone creates a deep copy of the Collection. If receiver is nil, it safely returns an empty Collection.
+func (c *Collection) Clone() *Collection {
+	if c == nil {
+		return New()
+	}
+
+	cloned := NewWithCapacity(len(c.items))
+	for _, item := range c.items {
+		if item != nil {
+			cloned.Add(item.Clone())
+		}
+	}
+
+	return cloned
+}

@@ -24,12 +24,14 @@ type SafeBuffer struct {
 func (s *SafeBuffer) Write(p []byte) (n int, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	return s.buf.Write(p)
 }
 
 func (s *SafeBuffer) String() string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	return s.buf.String()
 }
 
@@ -66,33 +68,43 @@ func TestBytesWrapper(t *testing.T) {
 	if !wb.IsValid() {
 		t.Errorf("expected IsValid() to be true")
 	}
+
 	if !wb.IsSuccess() {
 		t.Errorf("expected IsSuccess() to be true")
 	}
+
 	if !wb.Status() {
 		t.Errorf("expected Status() flag to be true")
 	}
+
 	if wb.StatusCode() != 200 {
 		t.Errorf("expected StatusCode() to be 200, got: %d", wb.StatusCode())
 	}
+
 	if wb.HasError() {
 		t.Errorf("expected HasError() to be false")
 	}
+
 	if wb.String() != "hello bytes" {
 		t.Errorf("unexpected string: %s", wb.String())
 	}
+
 	if wb.Len() != len(raw) {
 		t.Errorf("unexpected len: %d", wb.Len())
 	}
+
 	if wb.Payload() != payload {
 		t.Errorf("unexpected payload: %v", wb.Payload())
 	}
+
 	if wb.Value() != payload {
 		t.Errorf("unexpected value: %v", wb.Value())
 	}
+
 	if wb.AppError() != nil {
 		t.Errorf("expected nil AppError")
 	}
+
 	if wb.Error() != nil {
 		t.Errorf("expected nil Error()")
 	}
@@ -108,18 +120,23 @@ func TestBytesWrapper(t *testing.T) {
 	if errBytes.IsValid() {
 		t.Errorf("expected IsValid() to be false on error")
 	}
+
 	if errBytes.IsSuccess() {
 		t.Errorf("expected IsSuccess() to be false on error")
 	}
+
 	if errBytes.Status() {
 		t.Errorf("expected Status() flag to be false on error")
 	}
+
 	if !errBytes.HasError() {
 		t.Errorf("expected HasError() to be true on error")
 	}
+
 	if errBytes.AppError() == nil {
 		t.Errorf("expected non-nil AppError")
 	}
+
 	if errBytes.Error() == nil {
 		t.Errorf("expected non-nil Error()")
 	}
@@ -130,6 +147,7 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 		Name string `json:"name"`
 		Age  int    `json:"age"`
 	}
+
 	user := UserPayload{Name: "Alice", Age: 30}
 
 	// 1. Successful JsonResult satisfying WrappedBytes[any] and WrappedJson
@@ -149,15 +167,19 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 	if !wb.IsValid() {
 		t.Fatalf("expected IsValid() to be true")
 	}
+
 	if !wb.IsSuccess() {
 		t.Fatalf("expected IsSuccess() to be true")
 	}
+
 	if !wb.Status() {
 		t.Fatalf("expected Status() flag to be true")
 	}
+
 	if wb.StatusCode() != 200 {
 		t.Fatalf("expected status code 200, got: %d", wb.StatusCode())
 	}
+
 	if wb.Error() != nil {
 		t.Fatalf("expected nil Error()")
 	}
@@ -167,6 +189,7 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 	if !strings.Contains(pretty, "\n") || !strings.Contains(pretty, `"name": "Alice"`) {
 		t.Fatalf("unexpected pretty JSON: %s", pretty)
 	}
+
 	compact := wj.Compact()
 	if strings.Contains(compact, " ") || !strings.Contains(compact, `{"name":"Alice","age":30}`) {
 		t.Fatalf("unexpected compact JSON: %s", compact)
@@ -177,6 +200,7 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 	if err := wj.Unmarshal(&decoded); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
 	}
+
 	if decoded.Name != "Alice" || decoded.Age != 30 {
 		t.Fatalf("unmarshaled data mismatch: %+v", decoded)
 	}
@@ -206,9 +230,11 @@ func TestJsonResult_WrappedBytesFlow(t *testing.T) {
 	if errRes.IsValid() || errRes.IsSuccess() || errRes.Status() {
 		t.Fatalf("expected error result to be invalid")
 	}
+
 	if errRes.Error() == nil || errRes.AppError() == nil {
 		t.Fatalf("expected non-nil Error() and AppError()")
 	}
+
 	if errRes.StatusCode() != 400 {
 		t.Fatalf("expected error status code 400, got: %d", errRes.StatusCode())
 	}
@@ -219,6 +245,7 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 		Id      string  `json:"id"`
 		Balance float64 `json:"balance"`
 	}
+
 	acc := Account{Id: "acc-101", Balance: 500.50}
 
 	// 1. JsonSource singleton taking `any` directly (no status/statusCode/payload fields)
@@ -267,6 +294,7 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	type SimpleAccount struct {
 		Id string `json:"id"`
 	}
+
 	var directTarget SimpleAccount
 	castErr := streamwriter.JsonSource.Cast(acc, &directTarget)
 	if castErr != nil || directTarget.Id != "acc-101" {
@@ -278,10 +306,12 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	if !casted.IsSuccess() {
 		t.Fatalf("Cast failed")
 	}
+
 	castedWithPayload := streamwriter.CastWithPayload[SimpleAccount](acc)
 	if !castedWithPayload.IsSuccess() || castedWithPayload.Payload().Id != "acc-101" {
 		t.Fatalf("CastWithPayload failed: %+v", castedWithPayload.Payload())
 	}
+
 	castToRes := streamwriter.CastTo[SimpleAccount](acc)
 	if !castToRes.IsSuccess() {
 		t.Fatalf("CastTo failed")
@@ -331,6 +361,7 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	if streamwriter.JSONSource.FromString(`{"test":true}`).IsEmpty() {
 		t.Fatalf("JSONSource alias failed")
 	}
+
 	if !streamwriter.JSONSourceOf[Account]().FromPayload(acc).IsSuccess() {
 		t.Fatalf("JSONSourceOf alias failed")
 	}
@@ -390,6 +421,7 @@ func TestJsonSource_MultiSourceCreation(t *testing.T) {
 	if pErr != nil || !strings.Contains(pStr, "\n") {
 		t.Fatalf("PrettyOrError failed")
 	}
+
 	cStr, cErr := resTopPayload.CompactOrError()
 	if cErr != nil || strings.Contains(cStr, " ") {
 		t.Fatalf("CompactOrError failed")
@@ -406,6 +438,7 @@ func TestCompiler_Primitives(t *testing.T) {
 	if streamwriter.Compile(42) != "42" {
 		t.Errorf("int compile failed")
 	}
+
 	if streamwriter.Compile(3.14) != "3.14" {
 		t.Errorf("float compile failed")
 	}
@@ -414,6 +447,7 @@ func TestCompiler_Primitives(t *testing.T) {
 	if streamwriter.Compile(true) != "true" {
 		t.Errorf("bool compile failed")
 	}
+
 	if streamwriter.Compile(false) != "false" {
 		t.Errorf("bool compile failed")
 	}
@@ -490,6 +524,7 @@ func TestLockedStreamer_Generic_ConcurrentSafe(t *testing.T) {
 			}
 		}(i)
 	}
+
 	wg.Wait()
 
 	out := buf.String()
@@ -534,26 +569,28 @@ func TestSelfBinding_GenericContracts(t *testing.T) {
 	lockless := streamwriter.NewLocklessStreamer[any](streamwriter.LocklessOptions[any]{Name: "test-lockless"})
 	writer := streamwriter.NewPluggableWriter[any](streamwriter.WriterOptions[any]{Name: "test-writer", Streamer: locked})
 
-	// Verify LockedStreamer self-binding and Locker
-	var s1 streamwriter.Streamer[any] = locked.AsStreamer()
-	var w1 streamwriter.Writer[any] = locked.AsWriter()
-	var l1 sync.Locker = locked
-	if s1 == nil || w1 == nil || l1 == nil {
+	// Static check of sync.Locker compliance
+	var _ sync.Locker = locked
+	var _ sync.Locker = lockless
+	var _ sync.Locker = writer
+
+	// Verify LockedStreamer self-binding
+	s1 := locked.AsStreamer()
+	w1 := locked.AsWriter()
+	if s1 == nil || w1 == nil {
 		t.Fatal("locked streamer self-binding failed")
 	}
 
-	// Verify LocklessStreamer self-binding and Locker
-	var s2 streamwriter.Streamer[any] = lockless.AsStreamer()
-	var w2 streamwriter.Writer[any] = lockless.AsWriter()
-	var l2 sync.Locker = lockless
-	if s2 == nil || w2 == nil || l2 == nil {
+	// Verify LocklessStreamer self-binding
+	s2 := lockless.AsStreamer()
+	w2 := lockless.AsWriter()
+	if s2 == nil || w2 == nil {
 		t.Fatal("lockless streamer self-binding failed")
 	}
 
-	// Verify PluggableWriter self-binding and Locker
-	var w3 streamwriter.Writer[any] = writer.AsWriter()
-	var l3 sync.Locker = writer
-	if w3 == nil || l3 == nil {
+	// Verify PluggableWriter self-binding
+	w3 := writer.AsWriter()
+	if w3 == nil {
 		t.Fatal("pluggable writer self-binding failed")
 	}
 }
@@ -622,6 +659,7 @@ func TestWriter_ConcurrentCompoundBatches(t *testing.T) {
 			writer.Unlock()
 		}(i)
 	}
+
 	wg.Wait()
 
 	out := buf.String()
@@ -633,6 +671,7 @@ func TestWriter_ConcurrentCompoundBatches(t *testing.T) {
 		if startIdx == -1 || endIdx == -1 {
 			t.Fatalf("missing tags for id %d", i)
 		}
+
 		sub := out[startIdx : endIdx+len(endTag)]
 		if strings.Count(sub, "START-") != 1 {
 			t.Fatalf("batch %d was interleaved by another goroutine:\n%s", i, sub)
@@ -663,6 +702,7 @@ func TestSwappableMethods_GenericRuntime(t *testing.T) {
 		if err != nil {
 			return appfault.Wrap(errtype.IO, err, "failed swap write")
 		}
+
 		return nil
 	})
 
@@ -683,11 +723,12 @@ func TestCompositeLogger_FluentChaining(t *testing.T) {
 	customWriter := streamwriter.NewPluggableWriter[any](streamwriter.WriterOptions[any]{
 		Name:        "custom-api",
 		Destination: buf3,
-		WriteMethod: func(ctx context.Context, w *streamwriter.PluggableWriter[any], payload any) *appfault.AppError {
+		WriteMethod: func(s streamwriter.Streamer[any], ctx context.Context, w *streamwriter.PluggableWriter[any], payload any) *appfault.AppError {
 			_, err := fmt.Fprintf(w.Destination(), "CUSTOM-API: %s\n", streamwriter.Compile(payload))
 			if err != nil {
 				return appfault.Wrap(errtype.IO, err, "custom api write failed")
 			}
+
 			return nil
 		},
 	})
@@ -701,7 +742,10 @@ func TestCompositeLogger_FluentChaining(t *testing.T) {
 		t.Fatalf("expected 3 writers, got %d", log.WriterCount())
 	}
 
-	ctx := context.WithValue(context.Background(), "traceId", "trace-999")
+	type traceKeyType string
+	const traceKey traceKeyType = "traceId"
+
+	ctx := context.WithValue(context.Background(), traceKey, "trace-999")
 	appErr := log.Info(ctx, "Order placed successfully", map[string]any{"orderId": "ord-77"})
 	if appErr != nil {
 		t.Fatalf("log.Info failed: %v", appErr)
@@ -711,9 +755,11 @@ func TestCompositeLogger_FluentChaining(t *testing.T) {
 	if !strings.Contains(buf1.String(), "Order placed successfully") {
 		t.Errorf("w1 did not receive log")
 	}
+
 	if !strings.Contains(buf2.String(), "Order placed successfully") {
 		t.Errorf("w2 did not receive log")
 	}
+
 	if !strings.Contains(buf3.String(), "CUSTOM-API: ") {
 		t.Errorf("customWriter did not receive log")
 	}
@@ -757,15 +803,17 @@ func TestPluggableWriterWithCurrentObject(t *testing.T) {
 	writer := streamwriter.NewPluggableWriter[string](streamwriter.WriterOptions[string]{
 		Name:        "custom-worker",
 		Destination: buf,
-		WriteMethod: func(ctx context.Context, w *streamwriter.PluggableWriter[string], payload string) *appfault.AppError {
+		WriteMethod: func(s streamwriter.Streamer[string], ctx context.Context, w *streamwriter.PluggableWriter[string], payload string) *appfault.AppError {
 			dest := w.Destination()
 			if dest == nil {
 				t.Fatalf("expected writer destination to be non-nil")
 			}
+
 			_, err := fmt.Fprintf(dest, "[%s] received: %s\n", w.Name(), payload)
 			if err != nil {
 				return appfault.Wrap(errtype.IO, err, "write failed")
 			}
+
 			return nil
 		},
 	})
@@ -773,6 +821,7 @@ func TestPluggableWriterWithCurrentObject(t *testing.T) {
 	if writer.Name() != "custom-worker" {
 		t.Fatalf("unexpected writer name: %s", writer.Name())
 	}
+
 	if writer.Destination() != buf {
 		t.Fatalf("expected writer destination to match buf")
 	}
@@ -787,11 +836,12 @@ func TestPluggableWriterWithCurrentObject(t *testing.T) {
 	}
 
 	// Runtime swap
-	writer.SetWriteMethod(func(ctx context.Context, w *streamwriter.PluggableWriter[string], payload string) *appfault.AppError {
+	writer.SetWriteMethod(func(s streamwriter.Streamer[string], ctx context.Context, w *streamwriter.PluggableWriter[string], payload string) *appfault.AppError {
 		_, err := fmt.Fprintf(w.Destination(), "[swapped-%s] -> %s\n", w.Name(), payload)
 		if err != nil {
 			return appfault.Wrap(errtype.IO, err, "swapped write failed")
 		}
+
 		return nil
 	})
 
@@ -802,5 +852,103 @@ func TestPluggableWriterWithCurrentObject(t *testing.T) {
 
 	if !strings.Contains(buf.String(), "[swapped-custom-worker] -> second task") {
 		t.Fatalf("unexpected buffer output after swap: %s", buf.String())
+	}
+}
+
+func TestBytesAndJsonResult_NullSafety(t *testing.T) {
+	// 1. Zero-value Bytes[string]
+	var zeroBytes streamwriter.Bytes[string]
+
+	if !zeroBytes.IsNull() {
+		t.Fatal("expected zeroBytes.IsNull() to be true")
+	}
+
+	if !zeroBytes.IsEmpty() {
+		t.Fatal("expected zeroBytes.IsEmpty() to be true")
+	}
+
+	if !zeroBytes.HasZero() {
+		t.Fatal("expected zeroBytes.HasZero() to be true")
+	}
+
+	if !zeroBytes.IsZero() {
+		t.Fatal("expected zeroBytes.IsZero() to be true")
+	}
+
+	if !zeroBytes.HasNull() {
+		t.Fatal("expected zeroBytes.HasNull() to be true")
+	}
+
+	clonedBytes := zeroBytes.Clone()
+	if !clonedBytes.IsNull() {
+		t.Fatal("expected clonedBytes.IsNull() to be true")
+	}
+
+	popBytes := streamwriter.NewBytes([]byte("hello"), "world")
+	concatBytes := zeroBytes.Concat(popBytes)
+	if string(concatBytes.Bytes()) != "hello" {
+		t.Fatalf("expected concatenated bytes 'hello', got %q", string(concatBytes.Bytes()))
+	}
+
+	// 2. Zero-value JsonResult
+	var zeroJson streamwriter.JsonResult
+
+	if !zeroJson.IsNull() {
+		t.Fatal("expected zeroJson.IsNull() to be true")
+	}
+
+	if !zeroJson.IsEmpty() {
+		t.Fatal("expected zeroJson.IsEmpty() to be true")
+	}
+
+	if !zeroJson.HasZero() {
+		t.Fatal("expected zeroJson.HasZero() to be true")
+	}
+
+	if !zeroJson.IsZero() {
+		t.Fatal("expected zeroJson.IsZero() to be true")
+	}
+
+	if !zeroJson.HasNull() {
+		t.Fatal("expected zeroJson.HasNull() to be true")
+	}
+
+	clonedJson := zeroJson.Clone()
+	if !clonedJson.IsNull() {
+		t.Fatal("expected clonedJson.IsNull() to be true")
+	}
+
+	popJson := streamwriter.JsonSource.FromBytes([]byte(`{"k":"v"}`))
+	concatJson := zeroJson.Concat(popJson)
+	if string(concatJson.Bytes()) != `{"k":"v"}` {
+		t.Fatalf("expected concatenated json '{\"k\":\"v\"}', got %q", string(concatJson.Bytes()))
+	}
+
+	// 3. Zero-value JsonPayloadResult
+	var zeroPayloadJson streamwriter.JsonPayloadResult[string]
+
+	if !zeroPayloadJson.IsNull() {
+		t.Fatal("expected zeroPayloadJson.IsNull() to be true")
+	}
+
+	if !zeroPayloadJson.IsEmpty() {
+		t.Fatal("expected zeroPayloadJson.IsEmpty() to be true")
+	}
+
+	if !zeroPayloadJson.HasZero() {
+		t.Fatal("expected zeroPayloadJson.HasZero() to be true")
+	}
+
+	if !zeroPayloadJson.IsZero() {
+		t.Fatal("expected zeroPayloadJson.IsZero() to be true")
+	}
+
+	if !zeroPayloadJson.HasNull() {
+		t.Fatal("expected zeroPayloadJson.HasNull() to be true")
+	}
+
+	clonedPayloadJson := zeroPayloadJson.Clone()
+	if !clonedPayloadJson.IsNull() {
+		t.Fatal("expected clonedPayloadJson.IsNull() to be true")
 	}
 }

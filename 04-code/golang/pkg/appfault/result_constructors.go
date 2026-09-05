@@ -55,3 +55,28 @@ func FailWrap[T any](errType errtype.Variation, cause error, msg string) Result[
 func FailNew[T any](errType errtype.Variation, msg string) Result[T] {
 	return FailureResult[T](New(errType, msg))
 }
+
+// NewFailureWithId creates a failed Result with an error ID (errtype.Variation) and message.
+func NewFailureWithId[T any](errType errtype.Variation, msg string) Result[T] {
+	return FailureResult[T](New(errType, msg))
+}
+
+// NewFailureFromError creates a failed Result from an AppError object.
+func NewFailureFromError[T any](err *AppError) Result[T] {
+	return FailureResult[T](err)
+}
+
+// FailureWithId creates a failed Result with an error ID (errtype.Variation) and message.
+func FailureWithId[T any](errType errtype.Variation, msg string) Result[T] {
+	return NewFailureWithId[T](errType, msg)
+}
+
+// NewFailureWithCause creates a failed Result with an error ID, cause error, and message.
+func NewFailureWithCause[T any](errType errtype.Variation, cause error, msg string) Result[T] {
+	return FailureResult[T](Wrap(errType, cause, msg))
+}
+
+// FailureFromWrap creates a failed Result propagating the AppError from another Result.
+func FailureFromWrap[T any, U any](failed Result[U]) Result[T] {
+	return FailureResult[T](failed.AppError)
+}

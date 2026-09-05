@@ -23,14 +23,19 @@ func (e *AppError) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// ToJSON exports the AppError as formatted JSON bytes.
-func (e *AppError) ToJSON() ([]byte, error) {
+// ToJson exports the AppError as formatted JSON bytes.
+func (e *AppError) ToJson() ([]byte, error) {
 	return json.MarshalIndent(e, "", "  ")
 }
 
-// ToJSONString exports the AppError as a JSON string.
-func (e *AppError) ToJSONString() string {
-	b, err := e.ToJSON()
+// ToJSON is an alias for ToJson.
+func (e *AppError) ToJSON() ([]byte, error) {
+	return e.ToJson()
+}
+
+// ToJsonString exports the AppError as a JSON string.
+func (e *AppError) ToJsonString() string {
+	b, err := e.ToJson()
 	if err != nil {
 		return "{}"
 	}
@@ -38,12 +43,22 @@ func (e *AppError) ToJSONString() string {
 	return string(b)
 }
 
-// FromJSON parses an AppError from JSON byte slice.
-func FromJSON(data []byte) (*AppError, error) {
+// ToJSONString is an alias for ToJsonString.
+func (e *AppError) ToJSONString() string {
+	return e.ToJsonString()
+}
+
+// FromJson parses an AppError from JSON byte slice.
+func FromJson(data []byte) (*AppError, error) {
 	var appErr AppError
 	if err := json.Unmarshal(data, &appErr); err != nil {
 		return nil, err
 	}
 
 	return &appErr, nil
+}
+
+// FromJSON is an alias for FromJson.
+func FromJSON(data []byte) (*AppError, error) {
+	return FromJson(data)
 }

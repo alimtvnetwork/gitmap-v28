@@ -49,7 +49,13 @@ func NewPluggableWriter[T any](opts WriterOptions[T]) *PluggableWriter[T] {
 	} else {
 		w.writeMethod = w.defaultWrite
 	}
+
 	return w
+}
+
+// NewAnyWriter constructs a non-generic AnyWriter (*PluggableWriter[any]) with smart payload dispatch.
+func NewAnyWriter(opts WriterOptions[any]) *AnyWriter {
+	return NewPluggableWriter[any](opts)
 }
 
 // Name returns the writer identifier.
@@ -64,9 +70,11 @@ func (w *PluggableWriter[T]) Destination() io.Writer {
 	if w.destination != nil {
 		return w.destination
 	}
+
 	if w.streamer != nil {
 		return w.streamer.Destination()
 	}
+
 	return nil
 }
 
@@ -81,6 +89,7 @@ func (w *PluggableWriter[T]) SetDestination(dest io.Writer) {
 func (w *PluggableWriter[T]) FormatMethod() FormatFunc[T] {
 	w.configMu.RLock()
 	defer w.configMu.RUnlock()
+
 	return w.formatMethod
 }
 
@@ -92,9 +101,10 @@ func (w *PluggableWriter[T]) Write(ctx context.Context, payload T) *appfault.App
 
 	w.configMu.RLock()
 	fn := w.writeMethod
+	s := w.streamer
 	w.configMu.RUnlock()
 
-	return fn(ctx, w, payload)
+	return fn(s, ctx, w, payload)
 }
 
 // SetWriteMethod hot-swaps the write method at runtime.
@@ -102,6 +112,7 @@ func (w *PluggableWriter[T]) SetWriteMethod(fn WriteFunc[T]) {
 	if fn == nil {
 		return
 	}
+
 	w.configMu.Lock()
 	defer w.configMu.Unlock()
 	w.writeMethod = fn
@@ -112,6 +123,7 @@ func (w *PluggableWriter[T]) SetFormatMethod(fn FormatFunc[T]) {
 	if fn == nil {
 		return
 	}
+
 	w.configMu.Lock()
 	defer w.configMu.Unlock()
 	w.formatMethod = fn
@@ -128,6 +140,7 @@ func (w *PluggableWriter[T]) SetStreamer(s Streamer[T]) {
 func (w *PluggableWriter[T]) Streamer() Streamer[T] {
 	w.configMu.RLock()
 	defer w.configMu.RUnlock()
+
 	return w.streamer
 }
 
@@ -155,6 +168,7 @@ func (w *PluggableWriter[T]) Sync() *appfault.AppError {
 	if s != nil {
 		return s.Sync()
 	}
+
 	return nil
 }
 
@@ -167,51 +181,32 @@ func (w *PluggableWriter[T]) Close() *appfault.AppError {
 	if s != nil {
 		return s.Close()
 	}
+
 	return nil
 }
 
-func (w *PluggableWriter[T]) defaultWrite(ctx context.Context, writer *PluggableWriter[T], payload T) *appfault.AppError {
+func (w *PluggableWriter[T]) defaultWrite(streamer Streamer[T], ctx context.Context, writer *PluggableWriter[T], payload T) *appfault.AppError {
 	w.configMu.RLock()
-	s := w.streamer
 	formatter := w.formatMethod
 	dest := w.destination
 	w.configMu.RUnlock()
 
-	if appErr := validateFormatterPayload(formatter, payload); appErr != nil {
-		return appErr
+	if formatter != nil {
+		bytesResult := formatter(payload)
+		if bytesResult.HasError() {
+			return bytesResult.AppError()
+		}
 	}
 
-	if s != nil {
-		return s.Stream(ctx, payload)
+	if streamer != nil {
+		return streamer.Stream(ctx, payload)
 	}
 
-	if appErr := writeToDestination(dest, w.name, payload); appErr != nil {
-		return appErr
-	}
-
-	return nil
-}
-
-func writeToDestination[T any](dest io.Writer, name string, payload T) *appfault.AppError {
-	if dest == nil {
-		return nil
-	}
-	line := fmt.Sprintf("[%s] %s\n", name, Compile(payload))
-	_, err := dest.Write([]byte(line))
-	if err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("writer %s write failed", name))
-	}
-
-	return nil
-}
-
-func validateFormatterPayload[T any](formatter FormatFunc[T], payload T) *appfault.AppError {
-	if formatter == nil {
-		return nil
-	}
-	bytesResult := formatter(payload)
-	if bytesResult.HasError() {
-		return bytesResult.AppError()
+	if dest != nil {
+		line := fmt.Sprintf("[%s] %s\n", w.name, Compile(payload))
+		if _, err := dest.Write([]byte(line)); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("writer %s write failed", w.name))
+		}
 	}
 
 	return nil

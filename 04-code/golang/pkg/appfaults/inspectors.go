@@ -32,6 +32,21 @@ func (c *Collection) IsEmpty() bool {
 	return c.HasNoError()
 }
 
+// HasZero returns true if collection is nil or contains zero errors.
+func (c *Collection) HasZero() bool {
+	return c.HasNoError()
+}
+
+// IsZero returns true if collection is nil or contains zero errors.
+func (c *Collection) IsZero() bool {
+	return c.HasNoError()
+}
+
+// HasNull returns true if collection is nil or contains zero errors.
+func (c *Collection) HasNull() bool {
+	return c.HasNoError()
+}
+
 // IsValid returns true if collection is in a healthy valid state (no errors).
 func (c *Collection) IsValid() bool {
 	return c.HasNoError()

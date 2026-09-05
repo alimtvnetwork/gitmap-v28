@@ -46,3 +46,31 @@ func TestLogErrorAndLogFaults(t *testing.T) {
 		t.Fatalf("expected error message in log output, got %s", buf.String())
 	}
 }
+
+func TestLoggerChaining(t *testing.T) {
+	buf := &bytes.Buffer{}
+	l := newTestConsoleLogger(buf, false)
+	err := appfault.New(errtype.Database, "connection reset")
+
+	ret := l.Debug("chain debug").
+		Info("chain info").
+		Warn("chain warn").
+		Error("chain error").
+		Debugf("chain debugf %d", 1).
+		Infof("chain infof %d", 2).
+		Warnf("chain warnf %d", 3).
+		Errorf("chain errorf %d", 4).
+		WithContext("key", "val").
+		WithFields(map[string]any{"env": "test"}).
+		LogError(err).
+		LogFaults(appfaults.New().Add(err))
+
+	if ret == nil {
+		t.Fatalf("expected non-nil logger from chain")
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, "chain info") || !strings.Contains(out, "chain errorf 4") {
+		t.Fatalf("expected chained log output, got %s", out)
+	}
+}

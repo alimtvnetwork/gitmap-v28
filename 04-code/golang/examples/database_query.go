@@ -50,13 +50,13 @@ func validatePluginId(id int64) *appfault.AppError {
 	return checkSpecialPluginIds(id)
 }
 
-// FindById queries a single plugin record by Id.
-func (r *PluginRepository) FindById(ctx context.Context, id int64) result.Result[PluginSummary] {
+// FindById queries a single plugin record by Id using result.Wrap.
+func (r *PluginRepository) FindById(ctx context.Context, id int64) result.Wrap[PluginSummary] {
 	if err := validatePluginId(id); err != nil {
-		return result.FailureResult[PluginSummary](err)
+		return result.WrapFailure[PluginSummary](err)
 	}
 
-	return result.SuccessResult(PluginSummary{
+	return result.WrapSuccess(PluginSummary{
 		Id:       id,
 		Slug:     "seo-optimizer",
 		Name:     "SEO Optimizer Pro",

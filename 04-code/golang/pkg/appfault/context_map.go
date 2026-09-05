@@ -1,6 +1,9 @@
 package appfault
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 // ContextMap provides a rich, typed wrapper around diagnostic metadata.
 type ContextMap map[string]any
@@ -61,4 +64,29 @@ func (cm ContextMap) Remove(key string) ContextMap {
 // Count returns the number of key-value entries.
 func (cm ContextMap) Count() int {
 	return len(cm)
+}
+
+// ToJson exports the ContextMap as indented JSON bytes.
+func (cm ContextMap) ToJson() ([]byte, error) {
+	return json.MarshalIndent(cm, "", "  ")
+}
+
+// ToJsonString exports the ContextMap as a JSON string.
+func (cm ContextMap) ToJsonString() string {
+	b, err := cm.ToJson()
+	if err != nil {
+		return "{}"
+	}
+
+	return string(b)
+}
+
+// ContextMapFromJson parses ContextMap from JSON bytes.
+func ContextMapFromJson(data []byte) (ContextMap, error) {
+	var cm ContextMap
+	if err := json.Unmarshal(data, &cm); err != nil {
+		return nil, err
+	}
+
+	return cm, nil
 }

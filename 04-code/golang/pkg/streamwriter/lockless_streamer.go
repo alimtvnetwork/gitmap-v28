@@ -31,6 +31,7 @@ func NewLocklessStreamer[T any](opts LocklessOptions[T]) *LocklessStreamer[T] {
 	if name == "" {
 		name = "lockless-streamer"
 	}
+
 	dest := opts.Destination
 	if dest == nil {
 		dest = os.Stdout
@@ -46,6 +47,7 @@ func NewLocklessStreamer[T any](opts LocklessOptions[T]) *LocklessStreamer[T] {
 	} else {
 		s.streamMethod = s.defaultStream
 	}
+
 	return s
 }
 
@@ -106,27 +108,23 @@ func (s *LocklessStreamer[T]) Unlock() {}
 
 // Sync flushes the underlying destination if supported.
 func (s *LocklessStreamer[T]) Sync() *appfault.AppError {
-	syncer, isOk := s.destination.(interface{ Sync() error })
-	if !isOk {
-		return nil
+	if syncer, isOk := s.destination.(interface{ Sync() error }); isOk {
+		if err := syncer.Sync(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
+		}
 	}
-	err := syncer.Sync()
-	if err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
-	}
+
 	return nil
 }
 
 // Close closes the underlying destination if it implements io.Closer.
 func (s *LocklessStreamer[T]) Close() *appfault.AppError {
-	closer, isOk := s.destination.(io.Closer)
-	if !isOk {
-		return nil
+	if closer, isOk := s.destination.(io.Closer); isOk {
+		if err := closer.Close(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
+		}
 	}
-	err := closer.Close()
-	if err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
-	}
+
 	return nil
 }
 
@@ -137,6 +135,7 @@ func (s *LocklessStreamer[T]) defaultStream(ctx context.Context, payload T, dest
 	if err != nil {
 		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s write failed", s.name))
 	}
+
 	return nil
 }
 

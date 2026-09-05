@@ -21,14 +21,21 @@ func NewLogger[T any]() *Logger[T] {
 	}
 }
 
+// NewAnyLogger creates a universal AnyLogger (*Logger[any]) in silent mode.
+func NewAnyLogger() *AnyLogger {
+	return NewLogger[any]()
+}
+
 // AddWriter fluently registers a single writer.
 func (l *Logger[T]) AddWriter(w Writer[T]) *Logger[T] {
 	if w == nil {
 		return l
 	}
+
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.writers = append(l.writers, w.AsWriter())
+
 	return l
 }
 
@@ -41,6 +48,7 @@ func (l *Logger[T]) AddWriters(ws ...Writer[T]) *Logger[T] {
 			l.writers = append(l.writers, w.AsWriter())
 		}
 	}
+
 	return l
 }
 
@@ -49,9 +57,11 @@ func (l *Logger[T]) AddStreamer(s Streamer[T]) *Logger[T] {
 	if s == nil {
 		return l
 	}
+
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.writers = append(l.writers, s.AsWriter())
+
 	return l
 }
 
@@ -60,6 +70,7 @@ func (l *Logger[T]) ClearWriters() *Logger[T] {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.writers = l.writers[:0]
+
 	return l
 }
 
@@ -73,7 +84,9 @@ func (l *Logger[T]) RemoveWriter(name string) *Logger[T] {
 			filtered = append(filtered, w)
 		}
 	}
+
 	l.writers = filtered
+
 	return l
 }
 
@@ -81,6 +94,7 @@ func (l *Logger[T]) RemoveWriter(name string) *Logger[T] {
 func (l *Logger[T]) WriterCount() int {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
+
 	return len(l.writers)
 }
 
@@ -90,8 +104,10 @@ func (l *Logger[T]) Emit(ctx context.Context, payload T) *appfault.AppError {
 	// Zero-allocation silent guard
 	if len(l.writers) == 0 {
 		l.mu.RUnlock()
+
 		return nil
 	}
+
 	active := make([]Writer[T], len(l.writers))
 	copy(active, l.writers)
 	l.mu.RUnlock()
@@ -103,6 +119,7 @@ func (l *Logger[T]) Emit(ctx context.Context, payload T) *appfault.AppError {
 			firstErr = err
 		}
 	}
+
 	return firstErr
 }
 
@@ -139,6 +156,7 @@ func (l *Logger[T]) Sync() *appfault.AppError {
 			firstErr = err
 		}
 	}
+
 	return firstErr
 }
 
@@ -153,7 +171,9 @@ func (l *Logger[T]) Close() *appfault.AppError {
 			firstErr = err
 		}
 	}
+
 	l.writers = l.writers[:0]
+
 	return firstErr
 }
 
@@ -161,12 +181,23 @@ func (l *Logger[T]) dispatchRecord(ctx context.Context, lvl LogLevel, msg string
 	l.mu.RLock()
 	if len(l.writers) == 0 {
 		l.mu.RUnlock()
+
 		return nil
 	}
+
 	l.mu.RUnlock()
 
-	traceId := extractContextString(ctx, "traceId")
-	userId := extractContextString(ctx, "userId")
+	traceId := ""
+	userId := ""
+	if ctx != nil {
+		if tid, isOk := ctx.Value("traceId").(string); isOk {
+			traceId = tid
+		}
+
+		if uid, isOk := ctx.Value("userId").(string); isOk {
+			userId = uid
+		}
+	}
 
 	merged := make(map[string]any)
 	for _, f := range fields {
@@ -196,15 +227,4 @@ func (l *Logger[T]) dispatchRecord(ctx context.Context, lvl LogLevel, msg string
 	}
 
 	return nil
-}
-
-func extractContextString(ctx context.Context, key string) string {
-	if ctx == nil {
-		return ""
-	}
-	if val, isOk := ctx.Value(key).(string); isOk {
-		return val
-	}
-
-	return ""
 }

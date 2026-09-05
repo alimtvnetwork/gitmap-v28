@@ -1,0 +1,11 @@
+{
+  "repo": "alimtvnetwork/gitmap-v28",
+  "workflowName": "CI",
+  "runId": 33974963864,
+  "status": "completed",
+  "conclusion": "failure",
+  "rerunEtaSeconds": 180,
+  "isRunning": false,
+  "errorLogs": "Unable to fetch failed logs via gh CLI.",
+  "url": "https://github.com/alimtvnetwork/gitmap-v28/actions/runs/33974963864"
+}

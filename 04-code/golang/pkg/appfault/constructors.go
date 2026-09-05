@@ -70,38 +70,6 @@ func WrapType(errType errtype.Variation, cause error) *AppError {
 	return Wrap(errType, cause, cause.Error())
 }
 
-// WrapFailure creates a failed AppError with an explicit errorId.
-func WrapFailure(errType errtype.Variation, errorId string, cause error, message string) *AppError {
-	e := Wrap(errType, cause, message)
-	if e == nil {
-		return nil
-	}
-	e.errorId = errorId
-
-	return e
-}
-
-// WrapWriterFailure creates a failed AppError for writer failures with errtype.IO and errorId.
-func WrapWriterFailure(errorId string, cause error, message string) *AppError {
-	return WrapFailure(errtype.IO, errorId, cause, message)
-}
-
-// WrapReaderFailure creates a failed AppError for reader failures with errtype.IO and errorId.
-func WrapReaderFailure(errorId string, cause error, message string) *AppError {
-	return WrapFailure(errtype.IO, errorId, cause, message)
-}
-
-// NewWithId creates an AppError with an explicit errorId.
-func NewWithId(errType errtype.Variation, errorId string, message string) *AppError {
-	e := New(errType, message)
-	if e == nil {
-		return nil
-	}
-	e.errorId = errorId
-
-	return e
-}
-
 // ensureContextMap safely converts a map[string]any to ContextMap.
 func ensureContextMap(ctx map[string]any) ContextMap {
 	if ctx == nil {

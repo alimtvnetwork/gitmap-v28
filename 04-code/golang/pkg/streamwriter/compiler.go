@@ -47,8 +47,16 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 	}
 
 	// 2. Check if the value or pointer to value implements Compilable interface
-	if res, ok := checkCompilable(v); ok {
-		return res
+	if v.CanInterface() {
+		if compilable, isComp := v.Interface().(Compilable); isComp {
+			return compilable.Compile()
+		}
+	}
+
+	if v.Kind() != reflect.Ptr && v.CanAddr() {
+		if compilable, isComp := v.Addr().Interface().(Compilable); isComp {
+			return compilable.Compile()
+		}
 	}
 
 	// 3. Type-specific ordered transpilation
@@ -57,6 +65,7 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 		if isNested {
 			return strconv.Quote(v.String())
 		}
+
 		return v.String()
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -75,24 +84,36 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 		if v.Bool() {
 			return "true"
 		}
+
 		return "false"
 
 	case reflect.Ptr, reflect.Interface:
 		if v.IsNil() {
 			return "nil"
 		}
+
 		return c.compileRecursive(v.Elem(), depth+1, isNested)
 
 	case reflect.Slice, reflect.Array:
+		if v.Type().Elem().Kind() == reflect.Uint8 {
+			if v.CanInterface() {
+				if b, ok := v.Interface().([]byte); ok {
+					return string(b)
+				}
+			}
+		}
+
 		length := v.Len()
 		if length == 0 {
 			return "[]"
 		}
+
 		var elements []string
 		for i := 0; i < length; i++ {
 			elemStr := c.compileRecursive(v.Index(i), depth+1, true)
 			elements = append(elements, elemStr)
 		}
+
 		return "[" + strings.Join(elements, ", ") + "]"
 
 	case reflect.Map:
@@ -123,6 +144,7 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 			valStr := c.compileRecursive(v.MapIndex(entry.keyVal), depth+1, true)
 			pairs = append(pairs, entry.keyStr+": "+valStr)
 		}
+
 		return "{" + strings.Join(pairs, ", ") + "}"
 
 	case reflect.Struct:
@@ -141,9 +163,18 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 				continue
 			}
 
-			fieldName, skip := resolveJSONFieldName(fieldType)
-			if skip {
-				continue
+			fieldName := fieldType.Name
+			// Check json tag for custom naming
+			tag := fieldType.Tag.Get("json")
+			if tag != "" {
+				parts := strings.Split(tag, ",")
+				if parts[0] == "-" {
+					continue
+				}
+
+				if parts[0] != "" {
+					fieldName = parts[0]
+				}
 			}
 
 			fieldVal := v.Field(i)
@@ -156,52 +187,4 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 	default:
 		return fmt.Sprintf("%v", v.Interface())
 	}
-}
-
-func checkCompilable(v reflect.Value) (string, bool) {
-	if res, ok := checkDirectCompilable(v); ok {
-		return res, true
-	}
-	if res, ok := checkAddrCompilable(v); ok {
-		return res, true
-	}
-	return "", false
-}
-
-func checkDirectCompilable(v reflect.Value) (string, bool) {
-	if !v.CanInterface() {
-		return "", false
-	}
-	compilable, isComp := v.Interface().(Compilable)
-	if !isComp {
-		return "", false
-	}
-	return compilable.Compile(), true
-}
-
-func checkAddrCompilable(v reflect.Value) (string, bool) {
-	if v.Kind() == reflect.Ptr || !v.CanAddr() {
-		return "", false
-	}
-	compilable, isComp := v.Addr().Interface().(Compilable)
-	if !isComp {
-		return "", false
-	}
-	return compilable.Compile(), true
-}
-
-func resolveJSONFieldName(fieldType reflect.StructField) (string, bool) {
-	fieldName := fieldType.Name
-	tag := fieldType.Tag.Get("json")
-	if tag == "" {
-		return fieldName, false
-	}
-	parts := strings.Split(tag, ",")
-	if parts[0] == "-" {
-		return "", true
-	}
-	if parts[0] != "" {
-		return parts[0], false
-	}
-	return fieldName, false
 }

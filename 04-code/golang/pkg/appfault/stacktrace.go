@@ -1,6 +1,7 @@
 package appfault
 
 import (
+	"encoding/json"
 	"fmt"
 	"runtime"
 	"strings"
@@ -96,4 +97,44 @@ func (st StackTrace) String() string {
 	}
 
 	return builder.String()
+}
+
+// ToJson exports StackTrace as indented JSON bytes.
+func (st StackTrace) ToJson() ([]byte, error) {
+	return json.MarshalIndent(st, "", "  ")
+}
+
+// ToJsonString exports StackTrace as a JSON string.
+func (st StackTrace) ToJsonString() string {
+	b, err := st.ToJson()
+	if err != nil {
+		return "[]"
+	}
+
+	return string(b)
+}
+
+// StackTraceFromJson parses StackTrace from JSON bytes.
+func StackTraceFromJson(data []byte) (StackTrace, error) {
+	var st StackTrace
+	if err := json.Unmarshal(data, &st); err != nil {
+		return nil, err
+	}
+
+	return st, nil
+}
+
+// ToJson exports StackFrame as indented JSON bytes.
+func (sf StackFrame) ToJson() ([]byte, error) {
+	return json.MarshalIndent(sf, "", "  ")
+}
+
+// ToJsonString exports StackFrame as a JSON string.
+func (sf StackFrame) ToJsonString() string {
+	b, err := sf.ToJson()
+	if err != nil {
+		return "{}"
+	}
+
+	return string(b)
 }

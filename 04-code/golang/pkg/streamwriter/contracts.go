@@ -34,26 +34,17 @@ type Streamer[T any] interface {
 	Close() *appfault.AppError
 }
 
-// StreamFunc defines the swappable function signature returning *appfault.AppError.
-type StreamFunc[T any] func(ctx context.Context, payload T, dest io.Writer) *appfault.AppError
+// AnyWriter is the first-class non-generic alias for PluggableWriter[any].
+type AnyWriter = PluggableWriter[any]
 
-// WriteFunc defines the swappable function signature returning *appfault.AppError.
-// It receives the active context, the current writer object, and the generic payload.
-type WriteFunc[T any] func(ctx context.Context, writer *PluggableWriter[T], payload T) *appfault.AppError
+// AnyStreamer is the first-class non-generic alias for Streamer[any].
+type AnyStreamer = Streamer[any]
 
-// FormatFunc defines the serialization transformation returning Bytes[T].
-type FormatFunc[T any] func(payload T) Bytes[T]
+// AnyLogger is the first-class non-generic alias for Logger[any].
+type AnyLogger = Logger[any]
 
 // LogLevel defines standardized severity tiers.
 type LogLevel int
-
-const (
-	LevelDebug LogLevel = iota
-	LevelInfo
-	LevelWarn
-	LevelError
-	LevelFatal
-)
 
 func (l LogLevel) String() string {
 	switch l {
@@ -89,12 +80,15 @@ func (r LogRecord) Compile() string {
 	if r.TraceId != "" {
 		res += fmt.Sprintf(" [trace=%s]", r.TraceId)
 	}
+
 	if r.UserId != "" {
 		res += fmt.Sprintf(" [user=%s]", r.UserId)
 	}
+
 	if len(r.Fields) > 0 {
 		res += fmt.Sprintf(" fields=%s", Compile(r.Fields))
 	}
+
 	return res
 }
 

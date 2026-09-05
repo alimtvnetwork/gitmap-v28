@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"sync"
+
+	"coding-guidelines/common/pkg/fileutil"
 )
 
 // FileSink writes log entries to a file path.
@@ -15,13 +16,14 @@ type FileSink struct {
 	file     *os.File
 }
 
-// openLogFile creates directories and opens file.
+// openLogFile opens file using enum-driven fileutil utility wrapper.
 func openLogFile(filePath string) (*os.File, error) {
-	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
-		return nil, err
+	wrap := fileutil.OpenFile(filePath, fileutil.FileOpenCreateAppend, fileutil.FilePermStandard)
+	if wrap.IsFailed() {
+		return nil, wrap.Fault()
 	}
 
-	return os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	return wrap.Data(), nil
 }
 
 // NewFileSink creates and opens a log file sink.

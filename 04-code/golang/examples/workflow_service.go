@@ -38,14 +38,14 @@ func (s *PluginWorkflowService) ActivateWorkflow(
 	ctx context.Context,
 	siteId int64,
 	pluginId int64,
-) result.Result[WorkflowResult] {
+) result.Wrap[WorkflowResult] {
 	// Step 1: Query Database
 	pluginRes := s.repo.FindById(ctx, pluginId)
 	if pluginRes.IsFailed() {
 		// Zero re-wrapping: propagate the existing Fault directly
 		s.log.LogError(pluginRes.Fault())
 
-		return result.FailureResult[WorkflowResult](pluginRes.Fault())
+		return result.WrapFailureFromWrap[WorkflowResult](pluginRes)
 	}
 
 	plugin := pluginRes.Value
@@ -56,13 +56,13 @@ func (s *PluginWorkflowService) ActivateWorkflow(
 		// Propagate existing Fault enriched with site context
 		s.log.LogError(remoteRes.Fault())
 
-		return result.FailureResult[WorkflowResult](remoteRes.Fault().WithSiteId(siteId))
+		return result.WrapFailure[WorkflowResult](remoteRes.Fault().WithSiteId(siteId))
 	}
 
 	// Step 3: Return Combined Success
 	s.log.Info("Workflow completed successfully for plugin: " + plugin.Slug)
 
-	return result.SuccessResult(WorkflowResult{
+	return result.WrapSuccess(WorkflowResult{
 		PluginSummary: plugin,
 		RemoteData:    remoteRes.Value,
 	})

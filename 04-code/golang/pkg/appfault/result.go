@@ -1,5 +1,7 @@
 package appfault
 
+import "encoding/json"
+
 // Result wraps a typed value bundled with monadic error state.
 type Result[T any] struct {
 	Value    T         `json:"Value,omitempty" yaml:"Value,omitempty"`
@@ -28,4 +30,19 @@ func (r Result[T]) AppErrorOrNil() *AppError {
 	}
 
 	return nil
+}
+
+// ToJson exports Result as indented JSON bytes.
+func (r Result[T]) ToJson() ([]byte, error) {
+	return json.MarshalIndent(r, "", "  ")
+}
+
+// ToJsonString exports Result as a JSON string.
+func (r Result[T]) ToJsonString() string {
+	b, err := r.ToJson()
+	if err != nil {
+		return "{}"
+	}
+
+	return string(b)
 }

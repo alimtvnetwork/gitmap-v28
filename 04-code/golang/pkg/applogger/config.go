@@ -2,17 +2,6 @@ package applogger
 
 import "os"
 
-// DriverType selects the backend implementation.
-type DriverType byte
-
-const (
-	DriverConsole DriverType = iota
-	DriverFile
-	DriverSQLite
-	DriverZap
-	DriverComposite
-)
-
 // Config configures the logger instance.
 type Config struct {
 	MinLevel     LogLevel

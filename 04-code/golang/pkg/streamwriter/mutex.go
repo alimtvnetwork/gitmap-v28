@@ -20,8 +20,10 @@ func (m *ReentrantMutex) Lock() {
 	gid := getGoroutineId()
 	if m.owner.Load() == gid {
 		m.recursion++
+
 		return
 	}
+
 	m.mu.Lock()
 	m.owner.Store(gid)
 	m.recursion = 1
@@ -33,6 +35,7 @@ func (m *ReentrantMutex) Unlock() {
 	if m.owner.Load() != gid {
 		return
 	}
+
 	m.recursion--
 	if m.recursion <= 0 {
 		m.recursion = 0
@@ -49,14 +52,17 @@ func getGoroutineId() int64 {
 	if !bytes.HasPrefix(b, prefix) {
 		return 0
 	}
+
 	b = b[len(prefix):]
 	i := bytes.IndexByte(b, ' ')
 	if i < 0 {
 		return 0
 	}
+
 	id, err := strconv.ParseInt(string(b[:i]), 10, 64)
 	if err != nil {
 		return 0
 	}
+
 	return id
 }
