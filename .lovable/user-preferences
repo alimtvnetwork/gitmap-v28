@@ -4,6 +4,6 @@
 **Status:** Active  
 
 ## Release Policy
-- **Release Mode Active (v6.190.0):** User explicitly requested release and commit.
+- **Release Mode Active (v6.191.0):** User explicitly requested release and commit.
 - Version bumped across version.json, constants.go, changelog.md, and readme.md.
 
