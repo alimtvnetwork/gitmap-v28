@@ -317,6 +317,8 @@ ALLOWED_LARGE_FILES = {
     "src\\data\\specTree.json",
     "slides-app/dist.zip",
     "slides-app\\dist.zip",
+    "docs/demo.gif",
+    "docs\\demo.gif",
 }
 
 # Language Extension Mapping
@@ -565,7 +567,16 @@ def is_binary_file(file_path: Path) -> bool:
 def is_allowed_large_file(file_path: str | Path) -> bool:
     """Checks if file is on the explicit waiver list for large generated assets."""
     norm = normalize_rel_path(file_path).lstrip(f"{CURRENT_DIR}{PATH_SEPARATOR}")
-    return norm in {normalize_rel_path(f).lstrip(f"{CURRENT_DIR}{PATH_SEPARATOR}") for f in ALLOWED_LARGE_FILES}
+    allowed_set = {normalize_rel_path(f).lstrip(f"{CURRENT_DIR}{PATH_SEPARATOR}") for f in ALLOWED_LARGE_FILES}
+    if norm in allowed_set:
+        return True
+    try:
+        rel = normalize_rel_path(Path(file_path).resolve().relative_to(Path.cwd().resolve()))
+        if rel in allowed_set:
+            return True
+    except Exception:
+        pass
+    return any(norm.endswith(f"/{allowed}") or norm.endswith(f"\\{allowed}") for allowed in allowed_set)
 
 def normalize_rel_path(path: str | Path) -> str:
     """Converts a path into a canonical relative POSIX path using PATH_SEPARATOR."""

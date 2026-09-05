@@ -66,4 +66,5 @@ Each task transaction log must contain:
 | 19 | [`19-enhanced-cicd-local-runner-cli`](19-enhanced-cicd-local-runner-cli/01-transaction-log.md) | Enhanced multi-worker CI/CD local runner CLI with IO throttling, all-pass flag, sync mode, and file export | Completed | 2026-09-05 |
 | 20 | [`20-generic-worker-pool-and-installer-smoke-tester`](20-generic-worker-pool-and-installer-smoke-tester/01-transaction-log.md) | Generic worker pool engine in shared engine, installer smoke tester modernization, and flexible CLI reporting | Completed | 2026-09-05 |
 | 21 | [`21-release-v6-187-0`](21-release-v6-187-0/01-transaction-log.md) | Release v6.187.0 minor version bump across all SSoT manifests, changelog, and release notes | Completed | 2026-09-05 |
+| 22 | [`22-modernize-ai-scripts-worker-pool-engine`](22-modernize-ai-scripts-worker-pool-engine/01-transaction-log.md) | Modernize 03-ai-scripts runner and auditor files with shared worker pool engine, quiet tick, and CLI | Completed | 2026-09-05 |
 
