@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb/enums"
 	_ "modernc.org/sqlite"
 )
 
@@ -355,3 +356,39 @@ func TestPipelineDbGeneratedConsts(t *testing.T) {
 	var _ *PipelineErrorDbRepo = nil
 }
 
+func TestPipelineDbEnumsPackageDirectUsage(t *testing.T) {
+	// 1. Verify direct enums package table constants
+	if enums.PipelineSplitDbTable != "PipelineSplitDb" {
+		t.Errorf("expected enums.PipelineSplitDbTable == PipelineSplitDb")
+	}
+	if enums.PipelineRunRecordTable != "PipelineRunRecord" {
+		t.Errorf("expected enums.PipelineRunRecordTable == PipelineRunRecord")
+	}
+	if enums.PipelineRunTable != "PipelineRunRecord" {
+		t.Errorf("expected enums.PipelineRunTable == PipelineRunRecord")
+	}
+
+	// 2. Verify direct enums package registry fields
+	if enums.PipelineRunRecordDb.RunId != "RunId" {
+		t.Errorf("expected enums.PipelineRunRecordDb.RunId == RunId")
+	}
+	if enums.PipelineRunDb.RunId != "RunId" {
+		t.Errorf("expected enums.PipelineRunDb.RunId == RunId")
+	}
+	if enums.PipelineErrorRecordDb.ErrorText != "ErrorText" {
+		t.Errorf("expected enums.PipelineErrorRecordDb.ErrorText == ErrorText")
+	}
+	if enums.PipelineErrorDb.ErrorText != "ErrorText" {
+		t.Errorf("expected enums.PipelineErrorDb.ErrorText == ErrorText")
+	}
+	if enums.PipelineSplitDbDb.RepoSlug != "RepoSlug" {
+		t.Errorf("expected enums.PipelineSplitDbDb.RepoSlug == RepoSlug")
+	}
+	if enums.PipelineDbStatsDb.TotalRuns != "TotalRuns" {
+		t.Errorf("expected enums.PipelineDbStatsDb.TotalRuns == TotalRuns")
+	}
+
+	// 3. Compile-time check: enums types match re-exported types
+	var _ enums.PipelineRunRecordFieldType = PipelineRunRecordDb.RunId
+	var _ PipelineRunRecordFieldType = enums.PipelineRunRecordDb.RunId
+}

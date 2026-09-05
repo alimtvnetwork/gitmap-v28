@@ -375,35 +375,56 @@ recentRuns := pipelineRepo.GetRecentRuns(ctx, "owner/repo", 20) // ListResult[Pi
 activeView := pipelineRepo.EnsureActiveErrorsView(ctx)      // BoolResult
 ```
 
-### 5.4 Automatic Typed DbRepo, `consts.go` & Dedicated Definition File Architecture
-The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) automatically generates typed repository structs, dedicated single data type query builders, and null-safe row scanners for any Go model struct, adhering to clean file naming where each definition has its own file and constants reside in `consts.go`:
+### 5.4 Automatic Typed DbRepo, Dedicated `enums/` Package, `consts.go` & `gofmt` Architecture
+The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) automatically generates typed repository structs, dedicated single data type query builders, null-safe row scanners, and places all enums in their own dedicated package with standard `gofmt` tab-aligned formatting:
 
-1. **Central Constants File (`consts.go`)**:
-   - Aggregates all table constants, dedicated QueryBuilder aliases, generic Repository aliases, and DbRepo aliases in one central `consts.go` file:
+1. **Dedicated Enums Package (`enums/`)**:
+   - All column field enums, receiver methods, O(1) validation maps, registry singletons (`PipelineRunRecordDb`), and canonical table constants live in a dedicated subpackage `package enums` under `<db_package>/enums/` (e.g., `gitmap/pipelinedb/enums`):
+     - `enums/consts.go`: Canonical table name constants (`PipelineSplitDbTable`, `PipelineRunRecordTable`, etc.).
+     - `enums/{model_snake_case}.go`: Dedicated field enums (`PipelineRunRecordFieldType`), registry structs, and scoped variables (`PipelineRunRecordDb`, `PipelineRunDb`).
+   - Callers can import directly: `import "github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb/enums"` and reference `enums.PipelineRunRecordDb.RunId`.
+
+2. **Standard Go Formatting (`gofmt`) Enforcement**:
+   - The generator automatically executes `gofmt -w` on all generated output files and directories.
+   - Eliminates raw string unaligned output: all `const (...)`, `type (...)`, and `var (...)` blocks are strictly tab-aligned per canonical Go standards.
+
+3. **Central Constants & Re-Export File (`consts.go`)**:
+   - Aggregates all table constants, dedicated QueryBuilder aliases, generic Repository aliases, DbRepo aliases, and re-exported enums in one central `consts.go` file for 100% backward compatibility:
      ```go
-     // Canonical table name constants.
+     // Canonical table name constants re-exported from enums package.
      const (
-         PipelineSplitDbTable     = "PipelineSplitDb"
-         PipelineRunRecordTable   = "PipelineRunRecord"
-         PipelineRunTable         = PipelineRunRecordTable
-         PipelineErrorRecordTable = "PipelineErrorRecord"
-         PipelineErrorTable       = PipelineErrorRecordTable
-         PipelineDbStatsTable     = "PipelineDbStats"
+         PipelineSplitDbTable     = enums.PipelineSplitDbTable
+         PipelineRunRecordTable   = enums.PipelineRunRecordTable
+         PipelineRunTable         = enums.PipelineRunTable
+         PipelineErrorRecordTable = enums.PipelineErrorRecordTable
+         PipelineErrorTable       = enums.PipelineErrorTable
+         PipelineDbStatsTable     = enums.PipelineDbStatsTable
      )
 
      // Dedicated QueryBuilder type aliases.
      type (
-         PipelineSplitDbQueryBuilder   = dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType]
-         PipelineRunRecordQueryBuilder = dbengine.QueryBuilder[PipelineRunRecord, PipelineRunRecordFieldType]
+         PipelineSplitDbQueryBuilder   = dbengine.QueryBuilder[PipelineSplitDb, enums.PipelineSplitDbFieldType]
+         PipelineRunRecordQueryBuilder = dbengine.QueryBuilder[PipelineRunRecord, enums.PipelineRunRecordFieldType]
          PipelineRunQueryBuilder       = PipelineRunRecordQueryBuilder
          ...
      )
 
      // Dedicated generic Repository type aliases.
      type (
-         PipelineSplitDbRepository   = dbengine.Repository[PipelineSplitDb, PipelineSplitDbFieldType]
-         PipelineRunRecordRepository = dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType]
+         PipelineSplitDbRepository   = dbengine.Repository[PipelineSplitDb, enums.PipelineSplitDbFieldType]
+         PipelineRunRecordRepository = dbengine.Repository[PipelineRunRecord, enums.PipelineRunRecordFieldType]
          PipelineRunRepository       = PipelineRunRecordRepository
+         ...
+     )
+
+     // Re-exported field enums and registries for backward compatibility.
+     type (
+         PipelineRunRecordFieldType = enums.PipelineRunRecordFieldType
+         ...
+     )
+     var (
+         PipelineRunRecordDb = enums.PipelineRunRecordDb
+         PipelineRunDb       = enums.PipelineRunDb
          ...
      )
 
@@ -414,9 +435,9 @@ The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) aut
      )
      ```
 
-2. **Dedicated Definition Files (`{definition_snake_case}.go`)**:
+4. **Dedicated Definition Files (`{definition_snake_case}.go`)**:
    - Each model definition has its own named file (e.g., `pipeline_run_record.go`, `pipeline_error_record.go`, `pipeline_db_stats.go`, `pipeline_split_db.go`).
-   - Contains the struct model definition, type-safe column enums, O(1) map validation, null-safe row scanners, and typed `*DbRepo` accessors:
+   - Contains the struct model definition, null-safe row scanners, and typed `*DbRepo` accessors:
      - Uses `dbengine.Scan*` helpers (`ScanString`, `ScanInt`, `ScanInt64`, `ScanUint64`, `ScanUint`, `ScanBool`, `ScanFloat64`).
      - Completely null-safe: handles SQLite `nil` / NULL values without panics or driver conversion errors.
      - Converts integer column types (`int64`, `int`) into struct field types (such as `uint64` or `bool`).
@@ -432,7 +453,7 @@ The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) aut
        - `Db() *dbengine.DbWrapper`
        - `Repo() *{s_name}Repository`
 
-3. **Domain Business Repository Integration**:
+5. **Domain Business Repository Integration**:
    - Domain repositories (e.g. `PipelineRepository`) embed repository structs directly:
      ```go
      type PipelineRepository struct {

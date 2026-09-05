@@ -4,48 +4,88 @@ package pipelinedb
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb/enums"
 )
 
-// Canonical table name constants.
+// Canonical table name constants re-exported from enums package.
 const (
-	PipelineDbStatsTable = "PipelineDbStats"
-	PipelineErrorRecordTable = "PipelineErrorRecord"
-	PipelineErrorTable = PipelineErrorRecordTable
-	PipelineRunRecordTable = "PipelineRunRecord"
-	PipelineRunTable = PipelineRunRecordTable
-	PipelineSplitDbTable = "PipelineSplitDb"
+	PipelineDbStatsTable     = enums.PipelineDbStatsTable
+	PipelineErrorRecordTable = enums.PipelineErrorRecordTable
+	PipelineErrorTable       = enums.PipelineErrorTable
+	PipelineRunRecordTable   = enums.PipelineRunRecordTable
+	PipelineRunTable         = enums.PipelineRunTable
+	PipelineSplitDbTable     = enums.PipelineSplitDbTable
 )
 
 // Dedicated QueryBuilder type aliases.
 type (
 	// PipelineDbStatsQueryBuilder is the dedicated query builder for PipelineDbStats.
-	PipelineDbStatsQueryBuilder = dbengine.QueryBuilder[PipelineDbStats, PipelineDbStatsFieldType]
+	PipelineDbStatsQueryBuilder = dbengine.QueryBuilder[PipelineDbStats, enums.PipelineDbStatsFieldType]
 	// PipelineErrorRecordQueryBuilder is the dedicated query builder for PipelineErrorRecord.
-	PipelineErrorRecordQueryBuilder = dbengine.QueryBuilder[PipelineErrorRecord, PipelineErrorRecordFieldType]
+	PipelineErrorRecordQueryBuilder = dbengine.QueryBuilder[PipelineErrorRecord, enums.PipelineErrorRecordFieldType]
 	// PipelineErrorQueryBuilder is an alias to PipelineErrorRecordQueryBuilder for concise business usage.
 	PipelineErrorQueryBuilder = PipelineErrorRecordQueryBuilder
 	// PipelineRunRecordQueryBuilder is the dedicated query builder for PipelineRunRecord.
-	PipelineRunRecordQueryBuilder = dbengine.QueryBuilder[PipelineRunRecord, PipelineRunRecordFieldType]
+	PipelineRunRecordQueryBuilder = dbengine.QueryBuilder[PipelineRunRecord, enums.PipelineRunRecordFieldType]
 	// PipelineRunQueryBuilder is an alias to PipelineRunRecordQueryBuilder for concise business usage.
 	PipelineRunQueryBuilder = PipelineRunRecordQueryBuilder
 	// PipelineSplitDbQueryBuilder is the dedicated query builder for PipelineSplitDb.
-	PipelineSplitDbQueryBuilder = dbengine.QueryBuilder[PipelineSplitDb, PipelineSplitDbFieldType]
+	PipelineSplitDbQueryBuilder = dbengine.QueryBuilder[PipelineSplitDb, enums.PipelineSplitDbFieldType]
 )
 
 // Dedicated generic Repository type aliases.
 type (
 	// PipelineDbStatsRepository is the dedicated generic repository for PipelineDbStats.
-	PipelineDbStatsRepository = dbengine.Repository[PipelineDbStats, PipelineDbStatsFieldType]
+	PipelineDbStatsRepository = dbengine.Repository[PipelineDbStats, enums.PipelineDbStatsFieldType]
 	// PipelineErrorRecordRepository is the dedicated generic repository for PipelineErrorRecord.
-	PipelineErrorRecordRepository = dbengine.Repository[PipelineErrorRecord, PipelineErrorRecordFieldType]
+	PipelineErrorRecordRepository = dbengine.Repository[PipelineErrorRecord, enums.PipelineErrorRecordFieldType]
 	// PipelineErrorRepository is an alias to PipelineErrorRecordRepository for concise business usage.
 	PipelineErrorRepository = PipelineErrorRecordRepository
 	// PipelineRunRecordRepository is the dedicated generic repository for PipelineRunRecord.
-	PipelineRunRecordRepository = dbengine.Repository[PipelineRunRecord, PipelineRunRecordFieldType]
+	PipelineRunRecordRepository = dbengine.Repository[PipelineRunRecord, enums.PipelineRunRecordFieldType]
 	// PipelineRunRepository is an alias to PipelineRunRecordRepository for concise business usage.
 	PipelineRunRepository = PipelineRunRecordRepository
 	// PipelineSplitDbRepository is the dedicated generic repository for PipelineSplitDb.
-	PipelineSplitDbRepository = dbengine.Repository[PipelineSplitDb, PipelineSplitDbFieldType]
+	PipelineSplitDbRepository = dbengine.Repository[PipelineSplitDb, enums.PipelineSplitDbFieldType]
+)
+
+// Re-exported field enums and registries for backward compatibility.
+type (
+	// PipelineDbStatsFieldType aliases enums.PipelineDbStatsFieldType for direct package access.
+	PipelineDbStatsFieldType = enums.PipelineDbStatsFieldType
+	// PipelineErrorRecordFieldType aliases enums.PipelineErrorRecordFieldType for direct package access.
+	PipelineErrorRecordFieldType = enums.PipelineErrorRecordFieldType
+	// PipelineRunRecordFieldType aliases enums.PipelineRunRecordFieldType for direct package access.
+	PipelineRunRecordFieldType = enums.PipelineRunRecordFieldType
+	// PipelineSplitDbFieldType aliases enums.PipelineSplitDbFieldType for direct package access.
+	PipelineSplitDbFieldType = enums.PipelineSplitDbFieldType
+)
+
+var (
+	// PipelineDbStatsDb aliases enums.PipelineDbStatsDb.
+	PipelineDbStatsDb = enums.PipelineDbStatsDb
+	// PipelineDbStatsField aliases enums.PipelineDbStatsField.
+	PipelineDbStatsField = enums.PipelineDbStatsField
+	// PipelineErrorRecordDb aliases enums.PipelineErrorRecordDb.
+	PipelineErrorRecordDb = enums.PipelineErrorRecordDb
+	// PipelineErrorRecordField aliases enums.PipelineErrorRecordField.
+	PipelineErrorRecordField = enums.PipelineErrorRecordField
+	// PipelineErrorDb aliases enums.PipelineErrorDb.
+	PipelineErrorDb = enums.PipelineErrorDb
+	// PipelineErrorField aliases enums.PipelineErrorField.
+	PipelineErrorField = enums.PipelineErrorField
+	// PipelineRunRecordDb aliases enums.PipelineRunRecordDb.
+	PipelineRunRecordDb = enums.PipelineRunRecordDb
+	// PipelineRunRecordField aliases enums.PipelineRunRecordField.
+	PipelineRunRecordField = enums.PipelineRunRecordField
+	// PipelineRunDb aliases enums.PipelineRunDb.
+	PipelineRunDb = enums.PipelineRunDb
+	// PipelineRunField aliases enums.PipelineRunField.
+	PipelineRunField = enums.PipelineRunField
+	// PipelineSplitDbDb aliases enums.PipelineSplitDbDb.
+	PipelineSplitDbDb = enums.PipelineSplitDbDb
+	// PipelineSplitDbField aliases enums.PipelineSplitDbField.
+	PipelineSplitDbField = enums.PipelineSplitDbField
 )
 
 // Typed DbRepo aliases for concise business usage.
