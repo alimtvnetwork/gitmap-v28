@@ -1,3 +1,19 @@
+## [v6.190.0] 2026-09-05 Release v6.190.0
+
+### Install GitMap v6.190.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.sh | bash -s -- ".lovable/prompts" "v6.190.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.190.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Refactored lazy regex engine with strict thread-safe compile locking across gitmap/lazyregex and pkg/regexnew
+- Introduced CompileResult envelope wrapping compiled regexp, structured AppError, and fluent AppBuilder diagnostics
+- Added dedicated GroupMap data type with rich query, mutation, cloning, and serialization methods
+- Added dedicated GroupList data type with bounds-safe indexing, key deduplication, and predicate filtering
+- Updated root readme.md pinned version to v6.190.0 and synchronized all SSoT manifests
+
 ## [v6.189.0] 2026-09-05 Release v6.189.0
 
 ### Install GitMap v6.189.0
