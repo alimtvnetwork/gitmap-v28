@@ -37,9 +37,9 @@ func (c *WordPressClient) ActivateRemotePlugin(
 	ctx context.Context,
 	siteId int64,
 	slug string,
-) result.Result[RemoteActivationResponse] {
+) result.Wrap[RemoteActivationResponse] {
 	if len(slug) == 0 {
-		return result.NewFailureWithType[RemoteActivationResponse](errtype.Validation, "slug cannot be empty", "wp.client")
+		return result.WrapFailureWithId[RemoteActivationResponse](errtype.Validation, "slug cannot be empty")
 	}
 
 	url := fmt.Sprintf("%s/wp-json/riseup/v1/plugins/%s/activate", c.baseUrl, slug)
@@ -54,10 +54,10 @@ func (c *WordPressClient) ActivateRemotePlugin(
 			WithSiteId(siteId).
 			WithSlug(slug)
 
-		return result.FailureResult[RemoteActivationResponse](appErr)
+		return result.WrapFailure[RemoteActivationResponse](appErr)
 	}
 
-	return result.SuccessResult(RemoteActivationResponse{
+	return result.WrapSuccess(RemoteActivationResponse{
 		IsSuccess: true,
 		Message:   "Plugin activated successfully",
 		Version:   "2.4.0",

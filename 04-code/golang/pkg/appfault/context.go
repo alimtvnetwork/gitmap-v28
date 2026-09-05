@@ -1,72 +1,86 @@
 package appfault
 
-// WithContext attaches a generic key-value pair to the AppError context.
+// WithContext returns a new immutable AppError with the attached key-value context.
+// The receiver is never mutated in-place, guaranteeing strict immutability.
 func (e *AppError) WithContext(key string, value any) *AppError {
 	if e == nil {
 		return nil
 	}
 
-	if e.ctx == nil {
-		e.ctx = NewContextMap()
-	}
+	cloned := e.clone()
+	cloned.ctx.Set(key, value)
 
-	e.ctx.Set(key, value)
-
-	return e
+	return cloned
 }
 
-// WithOp attaches an operation name to the diagnostic context.
+// WithOp returns a new immutable AppError with the operation context.
 func (e *AppError) WithOp(op string) *AppError {
 	return e.WithContext("Op", op)
 }
 
-// WithSeverity attaches a typed severity level to the diagnostic context.
+// WithSeverity returns a new immutable AppError with the severity level.
 func (e *AppError) WithSeverity(severity SeverityType) *AppError {
 	return e.WithContext("Severity", severity.Name())
 }
 
-// WithPriority attaches a typed priority level to the context.
+// WithPriority returns a new immutable AppError with the priority level.
 func (e *AppError) WithPriority(priority PriorityType) *AppError {
 	return e.WithContext("Priority", priority.Name())
 }
 
-// WithUrl attaches a request URL to the diagnostic context.
+// WithUrl returns a new immutable AppError with the request URL context.
 func (e *AppError) WithUrl(url string) *AppError {
 	return e.WithContext("Url", url)
 }
 
-// WithStatusCode attaches an HTTP status code to the error.
+// WithStatusCode returns a new immutable AppError with the specified HTTP status code.
 func (e *AppError) WithStatusCode(statusCode int) *AppError {
-	if e != nil {
-		e.statusCode = statusCode
+	if e == nil {
+		return nil
 	}
 
-	return e.WithContext("StatusCode", statusCode)
+	cloned := e.clone()
+	cloned.statusCode = statusCode
+	cloned.ctx.Set("StatusCode", statusCode)
+
+	return cloned
 }
 
-// WithEndpoint attaches an API endpoint path to the context.
+// WithEndpoint returns a new immutable AppError with the API endpoint context.
 func (e *AppError) WithEndpoint(endpoint string) *AppError {
 	return e.WithContext("Endpoint", endpoint)
 }
 
-// WithSiteId attaches a target Site ID to the context.
+// WithSiteId returns a new immutable AppError with the target Site ID context.
 func (e *AppError) WithSiteId(siteId int64) *AppError {
 	return e.WithContext("SiteId", siteId)
 }
 
-// WithSnapshotId attaches a snapshot identifier to the context.
+// WithSnapshotId returns a new immutable AppError with the snapshot identifier.
 func (e *AppError) WithSnapshotId(snapshotId string) *AppError {
 	return e.WithContext("SnapshotId", snapshotId)
 }
 
-// WithSlug attaches a plugin or entity slug to the context.
+// WithSlug returns a new immutable AppError with the entity slug.
 func (e *AppError) WithSlug(slug string) *AppError {
 	return e.WithContext("Slug", slug)
 }
 
-// WithPluginContext attaches both plugin ID and slug simultaneously.
+// WithPluginContext returns a new immutable AppError with plugin ID and slug.
 func (e *AppError) WithPluginContext(pluginId int64, slug string) *AppError {
 	return e.WithContext("PluginId", pluginId).WithSlug(slug)
+}
+
+// WithCaller returns a new immutable AppError with the specified caller site metadata.
+func (e *AppError) WithCaller(caller CallerInfo) *AppError {
+	if e == nil {
+		return nil
+	}
+
+	cloned := e.clone()
+	cloned.caller = caller
+
+	return cloned
 }
 
 // Context returns a copy of the underlying diagnostic metadata ContextMap.

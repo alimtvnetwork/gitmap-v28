@@ -11,6 +11,10 @@ type WrappedBytes[T any] interface {
 	String() string
 	Len() int
 	IsEmpty() bool
+	IsNull() bool
+	HasZero() bool
+	IsZero() bool
+	HasNull() bool
 	Payload() T
 	Value() T
 	AppError() *appfault.AppError
@@ -56,9 +60,12 @@ func NewBytesWithStatus[T any](data []byte, payload T, status bool, code int) By
 // NewBytesError creates a failed Bytes envelope with an AppError and status flag set to false.
 func NewBytesError[T any](appErr *appfault.AppError) Bytes[T] {
 	code := 500
-	if appErr != nil && appErr.StatusCode() != 0 {
-		code = appErr.StatusCode()
+	if appErr != nil {
+		if appErr.StatusCode() != 0 {
+			code = appErr.StatusCode()
+		}
 	}
+
 	return Bytes[T]{
 		status:     false,
 		statusCode: code,
@@ -69,9 +76,12 @@ func NewBytesError[T any](appErr *appfault.AppError) Bytes[T] {
 // NewBytesErrorWithPayload creates a failed Bytes envelope preserving the original payload.
 func NewBytesErrorWithPayload[T any](appErr *appfault.AppError, payload T) Bytes[T] {
 	code := 500
-	if appErr != nil && appErr.StatusCode() != 0 {
-		code = appErr.StatusCode()
+	if appErr != nil {
+		if appErr.StatusCode() != 0 {
+			code = appErr.StatusCode()
+		}
 	}
+
 	return Bytes[T]{
 		payload:    payload,
 		status:     false,
@@ -103,6 +113,78 @@ func (b Bytes[T]) Len() int {
 // IsEmpty returns true if the byte slice is empty.
 func (b Bytes[T]) IsEmpty() bool {
 	return len(b.data) == 0
+}
+
+// IsNull returns true if data is empty and no AppError is present.
+func (b Bytes[T]) IsNull() bool {
+	return len(b.data) == 0 && b.appError == nil
+}
+
+// HasZero returns true if data is empty and no AppError is present.
+func (b Bytes[T]) HasZero() bool {
+	return b.IsEmpty()
+}
+
+// IsZero returns true if data is empty and no AppError is present.
+func (b Bytes[T]) IsZero() bool {
+	return b.IsEmpty()
+}
+
+// HasNull returns true if appError is nil or represents no error.
+func (b Bytes[T]) HasNull() bool {
+	if b.appError == nil {
+		return true
+	}
+
+	return b.appError.HasNullError()
+}
+
+// Clone creates a deep copy of the Bytes envelope, cloning data and AppError.
+func (b Bytes[T]) Clone() Bytes[T] {
+	var copiedData []byte
+	if b.data != nil {
+		copiedData = make([]byte, len(b.data))
+		copy(copiedData, b.data)
+	}
+
+	return Bytes[T]{
+		data:       copiedData,
+		payload:    b.payload,
+		status:     b.status,
+		statusCode: b.statusCode,
+		appError:   b.appError.Clone(),
+	}
+}
+
+// Concat safely merges two Bytes envelopes without panic.
+// If the receiver is empty or null, it returns other.Clone().
+// If other is empty or null, it returns b.Clone().
+func (b Bytes[T]) Concat(other Bytes[T]) Bytes[T] {
+	if b.IsNull() || b.IsEmpty() {
+		return other.Clone()
+	}
+
+	if other.IsNull() || other.IsEmpty() {
+		return b.Clone()
+	}
+
+	mergedData := make([]byte, len(b.data)+len(other.data))
+	copy(mergedData, b.data)
+	copy(mergedData[len(b.data):], other.data)
+
+	mergedErr := appfault.Merge(b.appError, other.appError)
+	statusCode := b.statusCode
+	if other.statusCode != 0 {
+		statusCode = other.statusCode
+	}
+
+	return Bytes[T]{
+		data:       mergedData,
+		payload:    other.payload,
+		status:     b.status && other.status,
+		statusCode: statusCode,
+		appError:   mergedErr,
+	}
 }
 
 // Payload returns the original generic payload T.
@@ -145,6 +227,7 @@ func (b Bytes[T]) IsSuccess() bool {
 	if b.appError != nil {
 		return false
 	}
+
 	return b.status
 }
 

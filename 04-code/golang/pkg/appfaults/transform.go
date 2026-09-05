@@ -9,7 +9,7 @@ import (
 )
 
 // Filter returns a new Collection containing only matching items.
-func (c *Collection) Filter(predicate func(*appfault.AppError) bool) *Collection {
+func (c *Collection) Filter(predicate FaultPredicate) *Collection {
 	filtered := New()
 	if c == nil || predicate == nil {
 		return filtered

@@ -8,15 +8,6 @@ import (
 // SeverityType represents an integer-backed severity level (byte).
 type SeverityType byte
 
-const (
-	SeverityUnknown SeverityType = iota
-	SeverityInfo
-	SeverityWarn
-	SeverityError
-	SeverityCritical
-	SeverityFatal
-)
-
 var severityNames = [...]string{"Unknown", "Info", "Warn", "Error", "Critical", "Fatal"}
 
 // Name returns the PascalCase string representation.
@@ -58,23 +49,15 @@ func (s *SeverityType) unmarshalByte(data []byte) error {
 	return err
 }
 
-func parseSeverityJSONString(data []byte, s *SeverityType) bool {
-	var str string
-	if err := json.Unmarshal(data, &str); err != nil {
-		return false
-	}
-	val, ok := parseSeverityName(str)
-	if !ok {
-		return false
-	}
-	*s = val
-	return true
-}
-
 // UnmarshalJSON parses a PascalCase string or integer into SeverityType.
 func (s *SeverityType) UnmarshalJSON(data []byte) error {
-	if parseSeverityJSONString(data, s) {
-		return nil
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		if val, ok := parseSeverityName(str); ok {
+			*s = val
+
+			return nil
+		}
 	}
 
 	return s.unmarshalByte(data)

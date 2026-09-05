@@ -32,6 +32,7 @@ func NewLockedStreamer[T any](opts LockedOptions[T]) *LockedStreamer[T] {
 	if name == "" {
 		name = "locked-streamer"
 	}
+
 	dest := opts.Destination
 	if dest == nil {
 		dest = os.Stdout
@@ -47,6 +48,7 @@ func NewLockedStreamer[T any](opts LockedOptions[T]) *LockedStreamer[T] {
 	} else {
 		s.streamMethod = s.defaultStream
 	}
+
 	return s
 }
 
@@ -73,6 +75,7 @@ func (s *LockedStreamer[T]) SetStreamMethod(fn StreamFunc[T]) {
 	if fn == nil {
 		return
 	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.streamMethod = fn
@@ -83,6 +86,7 @@ func (s *LockedStreamer[T]) SetDestination(dest io.Writer) {
 	if dest == nil {
 		return
 	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.destination = dest
@@ -97,6 +101,7 @@ func (s *LockedStreamer[T]) IsLocked() bool {
 func (s *LockedStreamer[T]) Destination() io.Writer {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	return s.destination
 }
 
@@ -126,14 +131,12 @@ func (s *LockedStreamer[T]) Sync() *appfault.AppError {
 	dest := s.destination
 	s.mu.Unlock()
 
-	syncer, isOk := dest.(interface{ Sync() error })
-	if !isOk {
-		return nil
+	if syncer, isOk := dest.(interface{ Sync() error }); isOk {
+		if err := syncer.Sync(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
+		}
 	}
-	err := syncer.Sync()
-	if err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s sync failed", s.name))
-	}
+
 	return nil
 }
 
@@ -143,14 +146,12 @@ func (s *LockedStreamer[T]) Close() *appfault.AppError {
 	dest := s.destination
 	s.mu.Unlock()
 
-	closer, isOk := dest.(io.Closer)
-	if !isOk {
-		return nil
+	if closer, isOk := dest.(io.Closer); isOk {
+		if err := closer.Close(); err != nil {
+			return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
+		}
 	}
-	err := closer.Close()
-	if err != nil {
-		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s close failed", s.name))
-	}
+
 	return nil
 }
 
@@ -161,6 +162,7 @@ func (s *LockedStreamer[T]) defaultStream(ctx context.Context, payload T, dest i
 	if err != nil {
 		return appfault.Wrap(errtype.IO, err, fmt.Sprintf("streamer %s write failed", s.name))
 	}
+
 	return nil
 }
 

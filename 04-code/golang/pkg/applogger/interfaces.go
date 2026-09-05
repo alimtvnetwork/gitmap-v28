@@ -3,22 +3,11 @@ package applogger
 import (
 	"coding-guidelines/common/pkg/appfault"
 	"coding-guidelines/common/pkg/appfaults"
-	"coding-guidelines/common/pkg/logger"
+	"coding-guidelines/common/pkg/enum/logleveltype"
 )
 
-// LogLevel aliases logger.LogLevel.
-type LogLevel = logger.LogLevel
+type LogLevel = logleveltype.Variant
 
-const (
-	LevelUnknown = logger.LevelUnknown
-	LevelDebug   = logger.LevelDebug
-	LevelInfo    = logger.LevelInfo
-	LevelWarn    = logger.LevelWarn
-	LevelError   = logger.LevelError
-	LevelFatal   = logger.LevelFatal
-)
-
-// LogEntry represents a structured log event payload.
 type LogEntry struct {
 	Timestamp string              `json:"Timestamp" yaml:"Timestamp"`
 	Level     LogLevel            `json:"Level" yaml:"Level"`
@@ -28,27 +17,25 @@ type LogEntry struct {
 	Stack     string              `json:"Stack,omitempty" yaml:"Stack,omitempty"`
 }
 
-// LogSink defines the driver interface for persistent destinations.
 type LogSink interface {
 	WriteEntry(entry LogEntry) error
 	Sync() error
 	Close() error
 }
 
-// Logger is the unified logging interface.
 type Logger interface {
-	Debug(args ...any)
-	Info(args ...any)
-	Warn(args ...any)
-	Error(args ...any)
-	Fatal(args ...any)
-	Debugf(format string, args ...any)
-	Infof(format string, args ...any)
-	Warnf(format string, args ...any)
-	Errorf(format string, args ...any)
-	Fatalf(format string, args ...any)
-	LogError(err *appfault.AppError)
-	LogFaults(faults *appfaults.Collection)
+	Debug(args ...any) Logger
+	Info(args ...any) Logger
+	Warn(args ...any) Logger
+	Error(args ...any) Logger
+	Fatal(args ...any) Logger
+	Debugf(format string, args ...any) Logger
+	Infof(format string, args ...any) Logger
+	Warnf(format string, args ...any) Logger
+	Errorf(format string, args ...any) Logger
+	Fatalf(format string, args ...any) Logger
+	LogError(err *appfault.AppError) Logger
+	LogFaults(faults *appfaults.Collection) Logger
 	WithContext(key string, val any) Logger
 	WithFields(fields map[string]any) Logger
 	Sync() error

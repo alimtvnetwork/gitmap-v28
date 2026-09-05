@@ -8,14 +8,6 @@ import (
 // PriorityType represents an integer-backed priority level (byte).
 type PriorityType byte
 
-const (
-	PriorityUnknown PriorityType = iota
-	PriorityLow
-	PriorityNormal
-	PriorityHigh
-	PriorityCritical
-)
-
 var priorityNames = [...]string{"Unknown", "Low", "Normal", "High", "Critical"}
 
 // Name returns the PascalCase string representation.
@@ -57,23 +49,15 @@ func (p *PriorityType) unmarshalByte(data []byte) error {
 	return err
 }
 
-func parsePriorityJSONString(data []byte, p *PriorityType) bool {
-	var str string
-	if err := json.Unmarshal(data, &str); err != nil {
-		return false
-	}
-	val, ok := parsePriorityName(str)
-	if !ok {
-		return false
-	}
-	*p = val
-	return true
-}
-
 // UnmarshalJSON parses a PascalCase string or integer into PriorityType.
 func (p *PriorityType) UnmarshalJSON(data []byte) error {
-	if parsePriorityJSONString(data, p) {
-		return nil
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		if val, ok := parsePriorityName(str); ok {
+			*p = val
+
+			return nil
+		}
 	}
 
 	return p.unmarshalByte(data)

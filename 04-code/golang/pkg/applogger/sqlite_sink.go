@@ -6,16 +6,6 @@ import (
 	"sync"
 )
 
-const createLogsTableSQL = `CREATE TABLE IF NOT EXISTS app_logs (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	timestamp TEXT NOT NULL,
-	level TEXT NOT NULL,
-	message TEXT NOT NULL,
-	caller TEXT,
-	fields_json TEXT,
-	stack_trace TEXT
-);`
-
 // SQLiteSink writes structured log entries to an SQLite table.
 type SQLiteSink struct {
 	mu sync.Mutex

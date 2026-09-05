@@ -123,4 +123,3 @@ flowchart TD
 | `result` | `pkg/result` | Monadic result container (`result.Wrap[T]`) eliminating `(T, error)` tuples with full null safety. |
 | `fileutil` | `pkg/fileutil` | Safe filesystem I/O, enum permissions, atomic swapping (`WriteAtomic`), and chunked streaming (`ReadChunked`). |
 | `streamwriter` | `pkg/streamwriter` | Pluggable write engine, thread-safe streamers (`sync.Locker`), payload intelligence without Base64 mangling, async non-blocking writer (`AsyncWriter[T]`), and composite logger. |
-| `regexnew` | `pkg/regexnew` | Lazy-compiled, thread-safe regular expression caching engine with global singleton maps (`regexMaps`, `lazyRegexOnceMap`), `New` creator pattern, and nil-safe predicates. |
