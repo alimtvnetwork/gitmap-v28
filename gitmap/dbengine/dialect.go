@@ -265,6 +265,11 @@ type DialectCompiler interface {
 	QuoteIdentifier(name string) string
 	CompilePagination(limit, offset int) string
 	CompileSearch(table string, fields []string, limit int) string
+	CompileCreateView(name string, selectSql string) string
+	CompileDropView(name string) string
+	CompileFunctionCall(name string, argCount int) string
+	CompileCount(table string, field string) string
+	CompileDelete(table string, field string) string
 }
 
 // ResolveCompiler returns the appropriate DialectCompiler for a dialect enum.

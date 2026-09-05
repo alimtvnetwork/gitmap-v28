@@ -2,9 +2,6 @@ package dbengine
 
 import (
 	"context"
-	"fmt"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // RowScanner abstracts single-row and multi-row scanners.
@@ -31,77 +28,47 @@ func NewRepository[T any, F ~string](db *DbWrapper, tableName string, scanner Mo
 	}
 }
 
-// First queries a single record matching one field value.
-func (r *Repository[T, F]) First(ctx context.Context, field F, value any) (*T, *apperror.AppError) {
-	query := r.db.compiler.CompileSearch(r.tableName, []string{string(field)}, 1)
-	row, appErr := r.db.QueryRow(ctx, query, value)
-	if appErr != nil {
-		return nil, appErr
-	}
-
-	item, scanErr := r.scanner(row)
-	if scanErr != nil {
-		return nil, apperror.WrapSimple(scanErr, fmt.Sprintf("scan single %s", r.tableName))
-	}
-	return item, nil
+// Query returns a new fluent QueryBuilder for this repository.
+func (r *Repository[T, F]) Query() *QueryBuilder[T, F] {
+	return NewQueryBuilder(r)
 }
 
-// FindBy queries up to limit records matching one field value.
-func (r *Repository[T, F]) FindBy(ctx context.Context, field F, value any, limit int) ([]T, *apperror.AppError) {
-	query := r.db.compiler.CompileSearch(r.tableName, []string{string(field)}, limit)
-	rows, appErr := r.db.Query(ctx, query, value)
-	if appErr != nil {
-		return nil, appErr
-	}
-	defer rows.Close()
-
-	var items []T
-	for rows.Next() {
-		item, scanErr := r.scanner(rows)
-		if scanErr != nil {
-			return nil, apperror.WrapSimple(scanErr, fmt.Sprintf("scan %s row", r.tableName))
-		}
-		items = append(items, *item)
-	}
-	return items, nil
+// First queries a single record matching one field value, returning an EntityResult envelope.
+func (r *Repository[T, F]) First(ctx context.Context, field F, value any) EntityResult[T] {
+	return r.Query().WhereEq(field, value).First(ctx)
 }
 
-// FindBy2 queries up to limit records matching two field values.
-func (r *Repository[T, F]) FindBy2(ctx context.Context, field1 F, val1 any, field2 F, val2 any, limit int) ([]T, *apperror.AppError) {
-	query := r.db.compiler.CompileSearch(r.tableName, []string{string(field1), string(field2)}, limit)
-	rows, appErr := r.db.Query(ctx, query, val1, val2)
-	if appErr != nil {
-		return nil, appErr
-	}
-	defer rows.Close()
-
-	var items []T
-	for rows.Next() {
-		item, scanErr := r.scanner(rows)
-		if scanErr != nil {
-			return nil, apperror.WrapSimple(scanErr, fmt.Sprintf("scan %s row with 2 params", r.tableName))
-		}
-		items = append(items, *item)
-	}
-	return items, nil
+// FindById queries a single record by its uint64 primary key.
+func (r *Repository[T, F]) FindById(ctx context.Context, idField F, id uint64) EntityResult[T] {
+	return r.First(ctx, idField, id)
 }
 
-// FindAll queries up to limit records from the table without filters.
-func (r *Repository[T, F]) FindAll(ctx context.Context, limit int) ([]T, *apperror.AppError) {
-	query := r.db.compiler.CompileSearch(r.tableName, []string{}, limit)
-	rows, appErr := r.db.Query(ctx, query)
-	if appErr != nil {
-		return nil, appErr
-	}
-	defer rows.Close()
+// FindBy queries up to limit records matching one field value, returning a ListResult envelope.
+func (r *Repository[T, F]) FindBy(ctx context.Context, field F, value any, limit int) ListResult[T] {
+	return r.Query().WhereEq(field, value).Limit(limit).FindAll(ctx)
+}
 
-	var items []T
-	for rows.Next() {
-		item, scanErr := r.scanner(rows)
-		if scanErr != nil {
-			return nil, apperror.WrapSimple(scanErr, fmt.Sprintf("scan all %s", r.tableName))
-		}
-		items = append(items, *item)
-	}
-	return items, nil
+// FindBy2 queries up to limit records matching two field values, returning a ListResult envelope.
+func (r *Repository[T, F]) FindBy2(ctx context.Context, field1 F, val1 any, field2 F, val2 any, limit int) ListResult[T] {
+	return r.Query().WhereEq(field1, val1).WhereEq(field2, val2).Limit(limit).FindAll(ctx)
+}
+
+// FindAll queries up to limit records from the table, returning a ListResult envelope.
+func (r *Repository[T, F]) FindAll(ctx context.Context, limit int) ListResult[T] {
+	return r.Query().Limit(limit).FindAll(ctx)
+}
+
+// Count queries the count of records matching a field value, returning an Int64Result envelope.
+func (r *Repository[T, F]) Count(ctx context.Context, field F, value any) Int64Result {
+	return r.Query().WhereEq(field, value).Count(ctx)
+}
+
+// CountAll queries the total count of records in the table, returning an Int64Result envelope.
+func (r *Repository[T, F]) CountAll(ctx context.Context) Int64Result {
+	return r.Query().Count(ctx)
+}
+
+// DeleteBy deletes records matching a field value, returning a RowsAffectedResult envelope.
+func (r *Repository[T, F]) DeleteBy(ctx context.Context, field F, value any) RowsAffectedResult {
+	return r.Query().WhereEq(field, value).Delete(ctx)
 }

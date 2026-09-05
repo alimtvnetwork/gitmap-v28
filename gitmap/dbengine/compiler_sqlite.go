@@ -1,12 +1,20 @@
 package dbengine
 
 import (
-	"fmt"
-	"strings"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine/sqlite"
 )
 
 // SQLiteCompiler compiles queries for SQLite databases.
-type SQLiteCompiler struct{}
+type SQLiteCompiler struct {
+	impl *sqlite.Compiler
+}
+
+func (c *SQLiteCompiler) getImpl() *sqlite.Compiler {
+	if c.impl == nil {
+		c.impl = sqlite.NewCompiler()
+	}
+	return c.impl
+}
 
 // Dialect returns DatabaseDialectSQLite.
 func (c *SQLiteCompiler) Dialect() DatabaseDialectType {
@@ -15,52 +23,59 @@ func (c *SQLiteCompiler) Dialect() DatabaseDialectType {
 
 // Placeholder returns ? for SQLite parameters.
 func (c *SQLiteCompiler) Placeholder(paramIndex int) string {
-	return "?"
+	return c.getImpl().Placeholder(paramIndex)
 }
 
 // QuoteIdentifier wraps column/table names in double quotes.
 func (c *SQLiteCompiler) QuoteIdentifier(name string) string {
-	return "\"" + name + "\""
+	return c.getImpl().QuoteIdentifier(name)
 }
 
 // CompilePagination produces LIMIT/OFFSET syntax.
 func (c *SQLiteCompiler) CompilePagination(limit, offset int) string {
-	if limit <= 0 && offset <= 0 {
-		return ""
-	}
-	if offset <= 0 {
-		return fmt.Sprintf("LIMIT %d", limit)
-	}
-	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset)
+	return c.getImpl().CompilePagination(limit, offset)
 }
 
 // CompileSearch builds a parameterized SELECT query.
 func (c *SQLiteCompiler) CompileSearch(table string, fields []string, limit int) string {
-	quotedTable := c.QuoteIdentifier(table)
-	if len(fields) == 0 {
-		return buildSelectWithoutWhere(quotedTable, c.CompilePagination(limit, 0))
-	}
+	return c.getImpl().CompileSearch(table, fields, limit)
+}
 
-	whereClauses := make([]string, 0, len(fields))
-	for _, f := range fields {
-		whereClauses = append(whereClauses, fmt.Sprintf("%s = ?", c.QuoteIdentifier(f)))
-	}
+// CompileCreateView builds a CREATE VIEW IF NOT EXISTS statement.
+func (c *SQLiteCompiler) CompileCreateView(name string, selectSql string) string {
+	return c.getImpl().CompileCreateView(name, selectSql)
+}
 
-	whereSql := strings.Join(whereClauses, " AND ")
-	pagination := c.CompilePagination(limit, 0)
-	return buildSelectWithWhere(quotedTable, whereSql, pagination)
+// CompileDropView builds a DROP VIEW IF EXISTS statement.
+func (c *SQLiteCompiler) CompileDropView(name string) string {
+	return c.getImpl().CompileDropView(name)
+}
+
+// CompileFunctionCall builds a SELECT <func>(args...) query.
+func (c *SQLiteCompiler) CompileFunctionCall(name string, argCount int) string {
+	return c.getImpl().CompileFunctionCall(name, argCount)
+}
+
+// CompileCount builds a SELECT COUNT(*) query.
+func (c *SQLiteCompiler) CompileCount(table string, field string) string {
+	return c.getImpl().CompileCount(table, field)
+}
+
+// CompileDelete builds a DELETE query.
+func (c *SQLiteCompiler) CompileDelete(table string, field string) string {
+	return c.getImpl().CompileDelete(table, field)
 }
 
 func buildSelectWithoutWhere(quotedTable, pagination string) string {
 	if len(pagination) == 0 {
-		return fmt.Sprintf("SELECT * FROM %s;", quotedTable)
+		return "SELECT * FROM " + quotedTable + ";"
 	}
-	return fmt.Sprintf("SELECT * FROM %s %s;", quotedTable, pagination)
+	return "SELECT * FROM " + quotedTable + " " + pagination + ";"
 }
 
 func buildSelectWithWhere(quotedTable, whereSql, pagination string) string {
 	if len(pagination) == 0 {
-		return fmt.Sprintf("SELECT * FROM %s WHERE %s;", quotedTable, whereSql)
+		return "SELECT * FROM " + quotedTable + " WHERE " + whereSql + ";"
 	}
-	return fmt.Sprintf("SELECT * FROM %s WHERE %s %s;", quotedTable, whereSql, pagination)
+	return "SELECT * FROM " + quotedTable + " WHERE " + whereSql + " " + pagination + ";"
 }

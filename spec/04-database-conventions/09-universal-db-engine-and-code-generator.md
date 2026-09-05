@@ -118,8 +118,13 @@ type DialectCompiler interface {
     Dialect() DbType
     Placeholder(paramIndex int) string
     QuoteIdentifier(name string) string
-    CompilePagination(query string, limit, offset int) string
-    CompileSearch(table string, fields []string, limit int) (string, []string)
+    CompilePagination(limit, offset int) string
+    CompileSearch(table string, fields []string, limit int) string
+    CompileCreateView(name string, selectSql string) string
+    CompileDropView(name string) string
+    CompileFunctionCall(name string, argCount int) string
+    CompileCount(table string, field string) string
+    CompileDelete(table string, field string) string
 }
 ```
 
@@ -133,10 +138,33 @@ type DialectCompiler interface {
 | **Oracle** | `:1, :2, ...` | `"ColumnName"` | `OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY` |
 | **MongoDB** | BSON Filter | Document Key | `{"$limit": N, "$skip": M}` |
 
+### 2.4 Dedicated SQLite Engine Section (`gitmap/dbengine/sqlite/`)
+Each database dialect implementation resides in its own package section under `gitmap/dbengine/<dialect>/`:
+- `compiler.go`: SQLite-specific query compilation (`INSTR(field, ?) > 0` for `CompileLocate`, `LIMIT/OFFSET`, parameterized search, counts, deletes).
+- `views.go`: View lifecycle (`CREATE VIEW IF NOT EXISTS`, `DROP VIEW IF EXISTS`, and ad-hoc CTE `CompileAdHocCTE` via `WITH "ViewName" AS (...)`).
+- `functions.go`: Scalar function invocation and execution (`CompileFunctionCall`, `CompileScalarFunctionExpression`).
+
 ---
 
-## 3. Unified DbWrapper & AppError Return Contract
+## 3. Unified DbWrapper & Result Envelope Contract
 
+To ensure zero raw unwrapped tuples and preserve `*apperror.AppError` context without swallowing, data-layer query and execution methods return strongly typed Result envelopes:
+```go
+type Result[T any] struct {
+    Value T
+    Err   *apperror.AppError
+}
+
+type EntityResult[T any] = result.Result[*T]
+type ListResult[T any]   = result.Result[[]T]
+type Uint64Result        = result.Result[uint64]
+type Int64Result         = result.Result[int64]
+type StringResult        = result.Result[string]
+type BoolResult          = result.Result[bool]
+type RowsAffectedResult  = result.Result[int64]
+```
+
+### DbWrapper Operations
 ```go
 type DbWrapper struct {
     conn     *sql.DB
@@ -147,7 +175,13 @@ type DbWrapper struct {
 func (w *DbWrapper) QueryRow(ctx context.Context, query string, args ...any) (*sql.Row, *apperror.AppError)
 func (w *DbWrapper) Query(ctx context.Context, query string, args ...any) (*sql.Rows, *apperror.AppError)
 func (w *DbWrapper) Exec(ctx context.Context, query string, args ...any) (sql.Result, *apperror.AppError)
+func (w *DbWrapper) ExecRowsAffected(ctx context.Context, query string, args ...any) RowsAffectedResult
 func (w *DbWrapper) WithTransaction(ctx context.Context, fn func(tx *TxWrapper) *apperror.AppError) *apperror.AppError
+
+// View & Function Management
+func (w *DbWrapper) CreateView(ctx context.Context, name string, selectSql string) BoolResult
+func (w *DbWrapper) DropView(ctx context.Context, name string) BoolResult
+func (w *DbWrapper) CallFunction(ctx context.Context, name string, args ...any) StringResult
 ```
 
 ---
@@ -241,8 +275,11 @@ const PipelineErrorLogTable = "PipelineErrorLog"
 
 ---
 
-## 5. Generic Query Builder & Search API
+## 5. Generic Repository & Fluent Query Builder
 
+All repository and query builder methods return wrapped `result.Result[T]` types to eliminate raw unhandled tuples:
+
+### 5.1 Repository API
 ```go
 type Repository[T any, F ~string] struct {
     db        *DbWrapper
@@ -250,14 +287,44 @@ type Repository[T any, F ~string] struct {
     scanner   ModelScanner[T]
 }
 
+// Fluent Query Builder entry point
+func (r *Repository[T, F]) Query() *QueryBuilder[T, F]
+
 // 1-parameter search returning limit 1
-func (r *Repository[T, F]) First(ctx context.Context, field F, value any) (*T, *apperror.AppError)
+func (r *Repository[T, F]) First(ctx context.Context, field F, value any) EntityResult[T]
+func (r *Repository[T, F]) FindById(ctx context.Context, idField F, idValue any) EntityResult[T]
 
-// 1-parameter search returning up to limit N
-func (r *Repository[T, F]) FindBy(ctx context.Context, field F, value any, limit int) ([]T, *apperror.AppError)
+// Multi-parameter searches
+func (r *Repository[T, F]) FindBy(ctx context.Context, field F, value any, limit int) ListResult[T]
+func (r *Repository[T, F]) FindBy2(ctx context.Context, field1 F, val1 any, field2 F, val2 any, limit int) ListResult[T]
+func (r *Repository[T, F]) FindAll(ctx context.Context, limit int) ListResult[T]
 
-// 2-parameter search returning up to limit N
-func (r *Repository[T, F]) FindBy2(ctx context.Context, field1 F, val1 any, field2 F, val2 any, limit int) ([]T, *apperror.AppError)
+// Aggregate and mutation
+func (r *Repository[T, F]) Count(ctx context.Context, field F, value any) Int64Result
+func (r *Repository[T, F]) CountAll(ctx context.Context) Int64Result
+func (r *Repository[T, F]) DeleteBy(ctx context.Context, field F, value any) RowsAffectedResult
+```
+
+### 5.2 Fluent QueryBuilder
+The `QueryBuilder[T, F]` provides fluent query construction with substring locating, table joining, ad-hoc CTE views, sorting, and pagination:
+```go
+qb := repo.Query().
+    Where(PipelineErrorLogDb.WorkflowName, "ci").
+    Locate(PipelineErrorLogDb.ErrorText, "timeout").
+    OrderByDesc(PipelineErrorLogDb.PipelineErrorLogId).
+    Limit(10).
+    Offset(0)
+
+// Terminal executions returning wrapped results
+firstRes := qb.First(ctx)       // EntityResult[T]
+listRes  := qb.FindAll(ctx)     // ListResult[T]
+countRes := qb.Count(ctx)       // Int64Result
+delRes   := qb.Delete(ctx)      // RowsAffectedResult
+
+// Joining and Ad-Hoc CTE Views
+qb.Join("OtherTable", "OtherTable.RunId = PipelineErrorLog.RunId")
+qb.LeftJoin("AuditLog", "AuditLog.RunId = PipelineErrorLog.RunId")
+qb.WithView("ActiveErrors", "SELECT * FROM PipelineErrorLog WHERE ErrorText != ''")
 ```
 
 ---
