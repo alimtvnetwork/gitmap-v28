@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [66-automatic-db-repo-and-safe-scanner-generator.md](completed/66-automatic-db-repo-and-safe-scanner-generator.md): Automatic Typed DbRepo & Safe Row Scanners Generator for Model Entities
 - [65-universal-dbengine-joins-and-view-evolution.md](completed/65-universal-dbengine-joins-and-view-evolution.md): Universal DBEngine Joins, Error-Guarded Query Builder & Automated View Evolution
 - [64-macro-step-open-chrome-failure.md](completed/64-macro-step-open-chrome-failure.md): Macro Step Execution Failure: `open chrome` (E9000:EXECUTION)
 - [63-chrome-profile-picker-visibility.md](completed/63-chrome-profile-picker-visibility.md): Chrome Profile Picker Recognition & Local State Registration

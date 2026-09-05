@@ -6,6 +6,7 @@
 
 ## Completed Plans
 
+- [x] [66-automatic-db-repo-and-safe-scanner-generator.md](.lovable/plans/completed/66-automatic-db-repo-and-safe-scanner-generator.md) — Automatic Typed DbRepo & Safe Row Scanners Generator for Model Entities.
 - [x] [65-universal-dbengine-joins-and-view-evolution.md](.lovable/plans/completed/65-universal-dbengine-joins-and-view-evolution.md) — Universal DBEngine Joins, Error-Guarded Query Builder, Zero Magic Strings & Automated View Evolution.
 - [x] [28-error-management-audit.md](.lovable/plans/completed/28-error-management-audit.md) — Error Return Contract, outer handling, ExitCodeType enums, and specialized exit helpers.
 - [x] [29-booleans-and-complex-conditions-audit.md](.lovable/plans/completed/29-booleans-and-complex-conditions-audit.md) — Boolean principles, affirmative naming, implicit evaluation, and mixed polarity elimination.
