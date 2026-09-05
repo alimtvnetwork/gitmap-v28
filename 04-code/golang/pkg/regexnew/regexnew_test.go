@@ -296,3 +296,49 @@ func TestMatchHelpers(t *testing.T) {
 		t.Errorf("unexpected error from MatchUsingFuncErrorLock: %v", err)
 	}
 }
+
+func TestLazyRegex_CountAndGroups(t *testing.T) {
+	lr := New.LazyLock(`(?P<word>\w+)`)
+
+	count := lr.Count("alpha beta gamma delta")
+	if count != 4 {
+		t.Errorf("expected Count to be 4, got %d", count)
+	}
+
+	if !lr.IsFound("sample") {
+		t.Errorf("expected IsFound to be true")
+	}
+
+	group := lr.GroupBy("alpha beta")
+	if group["word"] != "alpha" {
+		t.Errorf("expected group word 'alpha', got '%s'", group["word"])
+	}
+
+	all := lr.FindAllGroups("alpha beta gamma")
+	if len(all) != 3 {
+		t.Fatalf("expected 3 group maps, got %d", len(all))
+	}
+	if all[0]["word"] != "alpha" || all[1]["word"] != "beta" || all[2]["word"] != "gamma" {
+		t.Errorf("unexpected group maps: %v", all)
+	}
+}
+
+func TestLazyRegex_CompileBuilder(t *testing.T) {
+	invalid := New.LazyLock(`[invalid regex`)
+
+	re, builder := invalid.CompileBuilder()
+	if re != nil {
+		t.Errorf("expected re to be nil on invalid pattern")
+	}
+	if builder == nil {
+		t.Fatalf("expected non-nil AppBuilder on invalid pattern")
+	}
+
+	appErr := builder.Build()
+	if appErr == nil {
+		t.Fatalf("expected non-nil AppError from builder")
+	}
+	if appErr.Message() != "lazy regex compilation failed" {
+		t.Errorf("unexpected message: %s", appErr.Message())
+	}
+}

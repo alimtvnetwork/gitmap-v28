@@ -2,35 +2,22 @@ package regexnew
 
 import "regexp"
 
-// Create creates regex if not already present in the global regexMaps cache.
-// If compilation returns an error, it is returned and not stored in the cache.
+// Create compiles or retrieves a cached regex using the single global pattern cache.
 func Create(regularExpressionPattern string) (*regexp.Regexp, error) {
-	regex, has := regexMaps[regularExpressionPattern]
-	if has {
-		return regex, nil
-	}
-
-	newRegex, err := regexp.Compile(regularExpressionPattern)
-	if err == nil {
-		regexMaps[regularExpressionPattern] = newRegex
-	}
-
-	return newRegex, err
+	lz := New.Lazy(regularExpressionPattern)
+	return lz.Compile()
 }
 
 // CreateLock calls Create protected by regexMutex.
 func CreateLock(regularExpressionPattern string) (*regexp.Regexp, error) {
-	regexMutex.Lock()
-	defer regexMutex.Unlock()
-
-	return Create(regularExpressionPattern)
+	lz := New.LazyLock(regularExpressionPattern)
+	return lz.Compile()
 }
 
 // CreateLockIf calls Create with mutex locking if isLock is true.
 func CreateLockIf(isLock bool, regularExpressionSyntax string) (*regexp.Regexp, error) {
 	if isLock {
-		regexMutex.Lock()
-		defer regexMutex.Unlock()
+		return CreateLock(regularExpressionSyntax)
 	}
 
 	return Create(regularExpressionSyntax)
@@ -45,30 +32,23 @@ func CreateApplicableLock(regularExpressionPattern string) (
 	regexMutex.Lock()
 	defer regexMutex.Unlock()
 
-	regex, err := Create(regularExpressionPattern)
-	applicable := err == nil && regex != nil
+	lz := New.LazyLock(regularExpressionPattern)
+	regEx, err = lz.Compile()
+	isApplicable = err == nil && regEx != nil
 
-	return regex, err, applicable
+	return regEx, err, isApplicable
 }
 
 // CreateMust compiles the regex or panics if invalid, caching on success.
 func CreateMust(regularExpressionSyntax string) *regexp.Regexp {
-	regex, has := regexMaps[regularExpressionSyntax]
-	if has {
-		return regex
-	}
-
-	newRegex := regexp.MustCompile(regularExpressionSyntax)
-	regexMaps[regularExpressionSyntax] = newRegex
-
-	return newRegex
+	lz := New.Lazy(regularExpressionSyntax)
+	return lz.CompileMust()
 }
 
 // CreateMustLockIf calls CreateMust with conditional mutex locking.
 func CreateMustLockIf(isLock bool, regularExpressionSyntax string) *regexp.Regexp {
 	if isLock {
-		regexMutex.Lock()
-		defer regexMutex.Unlock()
+		return NewMustLock(regularExpressionSyntax)
 	}
 
 	return CreateMust(regularExpressionSyntax)
@@ -76,8 +56,6 @@ func CreateMustLockIf(isLock bool, regularExpressionSyntax string) *regexp.Regex
 
 // NewMustLock compiles or retrieves a cached regex under regexMutex, panicking on error.
 func NewMustLock(regularExpressionSyntax string) *regexp.Regexp {
-	regexMutex.Lock()
-	defer regexMutex.Unlock()
-
-	return CreateMust(regularExpressionSyntax)
+	lz := New.LazyLock(regularExpressionSyntax)
+	return lz.CompileMust()
 }

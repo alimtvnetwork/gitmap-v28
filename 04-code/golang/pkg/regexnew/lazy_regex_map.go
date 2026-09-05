@@ -98,8 +98,7 @@ func (it *lazyRegexMap) createDefaultLazyRegex(
 	patternName string,
 ) *LazyRegex {
 	return &LazyRegex{
-		pattern:  patternName,
-		compiler: CreateLock,
+		pattern: patternName,
 	}
 }
 

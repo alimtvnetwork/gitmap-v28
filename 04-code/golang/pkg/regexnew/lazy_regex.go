@@ -4,6 +4,9 @@ import (
 	"errors"
 	"regexp"
 	"sync"
+
+	"coding-guidelines/common/pkg/appfault"
+	"coding-guidelines/common/pkg/errtype"
 )
 
 // LazyRegex provides a lazy-compiled, thread-safe regular expression wrapper.
@@ -23,14 +26,14 @@ func (it *LazyRegex) IsNull() bool {
 	return it == nil
 }
 
-// IsDefined returns true if the receiver is non-nil with pattern and compiler set.
+// IsDefined returns true if the receiver is non-nil with pattern set.
 func (it *LazyRegex) IsDefined() bool {
-	return it != nil && it.pattern != "" && it.compiler != nil
+	return it != nil && it.pattern != ""
 }
 
-// IsUndefined returns true if the receiver is nil or missing pattern/compiler.
+// IsUndefined returns true if the receiver is nil or missing pattern.
 func (it *LazyRegex) IsUndefined() bool {
-	return it == nil || it.pattern == "" || it.compiler == nil
+	return it == nil || it.pattern == ""
 }
 
 // IsApplicable compiles the regex if needed and returns true if compilation succeeded.
@@ -57,7 +60,7 @@ func (it *LazyRegex) IsApplicable() bool {
 	return it.isApplicable
 }
 
-// Compile compiles the regular expression using the assigned compiler function.
+// Compile compiles the regular expression using the assigned compiler function or standard regexp.Compile.
 func (it *LazyRegex) Compile() (*regexp.Regexp, error) {
 	if it == nil {
 		return nil, errors.New("nil LazyRegex cannot compile")
@@ -70,11 +73,20 @@ func (it *LazyRegex) Compile() (*regexp.Regexp, error) {
 		return it.regex, it.compiledErr
 	}
 
-	if it.pattern == "" || it.compiler == nil {
-		return nil, errors.New("lazy regex is undefined or nil compiler")
+	if it.pattern == "" {
+		return nil, errors.New("lazy regex has empty pattern")
 	}
 
-	compiledRegex, regExErr := it.compiler(it.pattern)
+	var (
+		compiledRegex *regexp.Regexp
+		regExErr      error
+	)
+	if it.compiler != nil {
+		compiledRegex, regExErr = it.compiler(it.pattern)
+	} else {
+		compiledRegex, regExErr = regexp.Compile(it.pattern)
+	}
+
 	it.isApplicable = compiledRegex != nil && regExErr == nil
 	it.regex = compiledRegex
 	it.compiledErr = regExErr
@@ -347,4 +359,115 @@ func (it *LazyRegex) ReplaceAllString(src, repl string) string {
 
 	re := it.CompileMust()
 	return re.ReplaceAllString(src, repl)
+}
+
+// FindAllString returns a slice of all successive matches of the expression.
+func (it *LazyRegex) FindAllString(s string, n int) []string {
+	if it == nil {
+		return nil
+	}
+
+	re, err := it.Compile()
+	if err != nil || re == nil {
+		return nil
+	}
+
+	return re.FindAllString(s, n)
+}
+
+// IsFound is a semantic alias for IsMatch.
+func (it *LazyRegex) IsFound(comparing string) bool {
+	return it.IsMatch(comparing)
+}
+
+// Count returns the number of non-overlapping matches of the expression in comparing.
+func (it *LazyRegex) Count(comparing string) int {
+	if it == nil {
+		return 0
+	}
+
+	re, err := it.Compile()
+	if err != nil || re == nil {
+		return 0
+	}
+
+	matches := re.FindAllString(comparing, -1)
+	return len(matches)
+}
+
+// GroupBy extracts named capture groups (?P<name>...) from the first match into a map.
+func (it *LazyRegex) GroupBy(comparing string) map[string]string {
+	result := make(map[string]string)
+	if it == nil {
+		return result
+	}
+
+	re, err := it.Compile()
+	if err != nil || re == nil {
+		return result
+	}
+
+	match := re.FindStringSubmatch(comparing)
+	if len(match) == 0 {
+		return result
+	}
+
+	names := re.SubexpNames()
+	for i, name := range names {
+		if name != "" && i < len(match) {
+			result[name] = match[i]
+		}
+	}
+
+	return result
+}
+
+// FindAllGroups extracts named capture groups across all non-overlapping matches in comparing.
+func (it *LazyRegex) FindAllGroups(comparing string) []map[string]string {
+	if it == nil {
+		return nil
+	}
+
+	re, err := it.Compile()
+	if err != nil || re == nil {
+		return nil
+	}
+
+	matches := re.FindAllStringSubmatch(comparing, -1)
+	if len(matches) == 0 {
+		return nil
+	}
+
+	names := re.SubexpNames()
+	results := make([]map[string]string, 0, len(matches))
+
+	for _, match := range matches {
+		groupMap := make(map[string]string)
+		for i, name := range names {
+			if name != "" && i < len(match) {
+				groupMap[name] = match[i]
+			}
+		}
+		results = append(results, groupMap)
+	}
+
+	return results
+}
+
+// CompileBuilder compiles the regex, returning a structured AppBuilder on error.
+func (it *LazyRegex) CompileBuilder() (*regexp.Regexp, *appfault.AppBuilder) {
+	if it == nil {
+		builder := appfault.NewAppBuilder(errtype.Execution, "nil LazyRegex cannot compile")
+		return nil, builder
+	}
+
+	regEx, err := it.Compile()
+	if err != nil {
+		builder := appfault.NewAppBuilder(errtype.Execution, "lazy regex compilation failed")
+		builder.SetCause(err)
+		builder.SetContext("pattern", it.pattern)
+		return nil, builder
+	}
+
+	return regEx, nil
 }
