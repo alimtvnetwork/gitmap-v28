@@ -96,3 +96,28 @@ func TestLazyRegexp_MustCompilePanic(t *testing.T) {
 
 	lr.Re()
 }
+
+func TestLazyRegexp_GlobalMapCaching(t *testing.T) {
+	ClearCache()
+	defer ClearCache()
+
+	expr := `^test-cache-pattern-\d+$`
+
+	first := New(expr)
+	second := New(expr)
+
+	if first != second {
+		t.Errorf("expected New to return identical instance for same pattern")
+	}
+
+	re1 := first.Re()
+	re2 := second.Re()
+
+	if re1 != re2 {
+		t.Errorf("expected Re() to return identical compiled *regexp.Regexp instance")
+	}
+
+	if CacheLen() != 1 {
+		t.Errorf("expected CacheLen to be 1, got %d", CacheLen())
+	}
+}
