@@ -19,7 +19,9 @@ func runReset(args []string) error {
 	checkHelp(constants.CmdReset, args)
 	confirm, rescan := parseResetFlags(args)
 	if !confirm {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrResetNoConfirm, "E9000"), 1)
+		printResetNoConfirm(rescan)
+		cliexit.Exit(1)
+		return nil
 	}
 
 	executeReset()
@@ -29,14 +31,27 @@ func runReset(args []string) error {
 	return nil
 }
 
+func printResetNoConfirm(rescan bool) {
+	cmd := "gitmap reset --confirm"
+	if rescan {
+		cmd += " --rescan"
+	}
+	fmt.Println()
+	fmt.Printf("  %s⚠ Warning:%s This will permanently delete the database file and rebuild it from scratch.\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("  Run with %s--confirm%s to proceed:\n\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    %s%s%s\n\n", constants.ColorGreen, cmd, constants.ColorReset)
+}
+
 // parseResetFlags parses the --confirm flag for the reset command.
 func parseResetFlags(args []string) (bool, bool) {
 	fs := flag.NewFlagSet(constants.CmdReset, flag.ExitOnError)
-	confirmFlag := fs.Bool("confirm", false, constants.FlagDescConfirm)
-	rescanFlag := fs.Bool("rescan", false, "Trigger a rescan immediately after reset")
-	fs.Parse(args)
+	var isConfirm bool
+	var isRescan bool
+	fs.BoolVar(&isConfirm, constants.FlagConfirm, false, constants.FlagDescConfirm)
+	fs.BoolVar(&isRescan, "rescan", false, "Trigger a rescan immediately after reset")
+	_ = fs.Parse(args)
 
-	return *confirmFlag, *rescanFlag
+	return isConfirm || hasConfirmFlag(args), isRescan
 }
 
 // executeReset removes the active DB file, reopens to rebuild schema, then

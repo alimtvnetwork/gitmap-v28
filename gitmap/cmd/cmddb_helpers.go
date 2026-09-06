@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,8 +12,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-// DBFileInfo holds descriptive metadata for any discovered SQLite database.
-type DBFileInfo struct {
+// DbFileInfo holds descriptive metadata for any discovered SQLite database.
+type DbFileInfo struct {
 	Name     string
 	Path     string
 	Size     int64
@@ -22,7 +23,20 @@ type DBFileInfo struct {
 	RepoSlug string
 }
 
-func findSplitDBDirs() []string {
+// DBFileInfo is a backwards-compatible alias for DbFileInfo.
+type DBFileInfo = DbFileInfo
+
+// parseConfirmFlag parses the --confirm flag for a command, returning the boolean value directly without pointer dereference.
+func parseConfirmFlag(cmdName string, args []string) bool {
+	fs := flag.NewFlagSet(cmdName, flag.ExitOnError)
+	var isConfirm bool
+	fs.BoolVar(&isConfirm, constants.FlagConfirm, false, constants.FlagDescConfirm)
+	_ = fs.Parse(args)
+
+	return isConfirm || hasConfirmFlag(args)
+}
+
+func findSplitDbDirs() []string {
 	binDataDir := store.BinaryDataDir()
 	binRoot := filepath.Dir(binDataDir)
 	raw := []string{
@@ -31,8 +45,12 @@ func findSplitDBDirs() []string {
 		filepath.Join(".", "data", "repo_search"),
 		filepath.Join(".", constants.DefaultOutputDir, "repo_search"),
 	}
+
 	return dedupeDirs(raw)
 }
+
+// findSplitDBDirs is a backwards-compatible alias for findSplitDbDirs.
+var findSplitDBDirs = findSplitDbDirs
 
 func dedupeDirs(raw []string) []string {
 	seen := make(map[string]bool)
@@ -47,11 +65,13 @@ func dedupeDirs(raw []string) []string {
 			out = append(out, clean)
 		}
 	}
+
 	return out
 }
 
 func isExistingDir(path string) bool {
 	info, err := os.Stat(path)
+
 	return err == nil && info.IsDir()
 }
 
@@ -65,6 +85,7 @@ func formatBytes(bytes int64) string {
 	if bytes < 1024*1024*1024 {
 		return fmt.Sprintf("%.2f MB", float64(bytes)/(1024.0*1024.0))
 	}
+
 	return fmt.Sprintf("%.2f GB", float64(bytes)/(1024.0*1024.0*1024.0))
 }
 
@@ -77,6 +98,7 @@ func promptConfirm(msg string) (bool, error) {
 	}
 	ans := strings.ToLower(strings.TrimSpace(line))
 	hasConfirmed := ans == "y" || ans == "yes"
+
 	return hasConfirmed, nil
 }
 
@@ -88,6 +110,7 @@ func confirmOrSkip(msg string, args []string) bool {
 		return false
 	}
 	hasConfirmed, err := promptConfirm(msg)
+
 	return err == nil && hasConfirmed
 }
 
@@ -99,6 +122,7 @@ func isInteractiveStdin() bool {
 	if err != nil {
 		return false
 	}
+
 	return (fi.Mode() & os.ModeCharDevice) != 0
 }
 
@@ -109,21 +133,23 @@ func hasConfirmFlag(args []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
-func collectMainDBInfo() (DBFileInfo, bool) {
+func collectMainDbInfo() (DbFileInfo, bool) {
 	mainPath := store.DefaultDBPath()
 	info, err := os.Stat(mainPath)
 	if err != nil {
-		return DBFileInfo{
+		return DbFileInfo{
 			Name:     filepath.Base(mainPath),
 			Path:     mainPath,
 			Category: "Primary Master DB",
 			Purpose:  "Central SQLite database storing global tracked repositories, scan history, configurations, and profiles.",
 		}, false
 	}
-	return DBFileInfo{
+
+	return DbFileInfo{
 		Name:     filepath.Base(mainPath),
 		Path:     mainPath,
 		Size:     info.Size(),
@@ -131,3 +157,6 @@ func collectMainDBInfo() (DBFileInfo, bool) {
 		Purpose:  "Central SQLite database storing global tracked repositories, scan history, configurations, and profiles.",
 	}, true
 }
+
+// collectMainDBInfo is a backwards-compatible alias for collectMainDbInfo.
+var collectMainDBInfo = collectMainDbInfo

@@ -83,7 +83,7 @@ func isSeedBannerSuppressed() bool {
 		if arg == constants.FlagNoBanner || arg == "--json" || strings.HasSuffix(arg, "-json") {
 			return true
 		}
-		if arg == "version" || arg == "--version" || arg == "-v" {
+		if arg == "version" || arg == "--version" || arg == "-v" || arg == "reset" || arg == "db-reset" {
 			return true
 		}
 	}
