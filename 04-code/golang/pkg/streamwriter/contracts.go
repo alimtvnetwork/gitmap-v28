@@ -87,5 +87,7 @@ func (r LogRecord) Compile() string {
 	return res
 }
 
-// Ensure LogRecord implements Compilable at compile-time.
+// Ensure LogRecord implements StringCompiler at compile-time.
+var _ StringCompiler = LogRecord{}
+var _ StreamCompiler = LogRecord{}
 var _ Compilable = LogRecord{}

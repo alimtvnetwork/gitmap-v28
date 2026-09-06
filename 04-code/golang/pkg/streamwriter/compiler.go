@@ -9,9 +9,12 @@ import (
 )
 
 type (
-	Compilable interface {
+	StringCompiler interface {
 		Compile() string
 	}
+
+	StreamCompiler = StringCompiler
+	Compilable     = StringCompiler
 
 	Compiler struct {
 		maxDepth int
@@ -46,15 +49,15 @@ func (c *Compiler) compileRecursive(v reflect.Value, depth int, isNested bool) s
 		return "nil"
 	}
 
-	// 2. Check if the value or pointer to value implements Compilable interface
+	// 2. Check if the value or pointer to value implements StringCompiler interface
 	if v.CanInterface() {
-		if compilable, isComp := v.Interface().(Compilable); isComp {
+		if compilable, isComp := v.Interface().(StringCompiler); isComp {
 			return compilable.Compile()
 		}
 	}
 
 	if v.Kind() != reflect.Ptr && v.CanAddr() {
-		if compilable, isComp := v.Addr().Interface().(Compilable); isComp {
+		if compilable, isComp := v.Addr().Interface().(StringCompiler); isComp {
 			return compilable.Compile()
 		}
 	}

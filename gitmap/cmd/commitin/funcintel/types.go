@@ -1,11 +1,15 @@
 package funcintel
 
-// Detector returns names of top-level declarations present in newSrc
+// Detecter returns names of top-level declarations present in newSrc
 // but not in prevSrc, sorted ascending and deduped. The detection is
 // best-effort line-level regex matching per spec §6.4.
-type Detector interface {
-	Detect(prevSrc, newSrc string) []string
-}
+type (
+	Detecter interface {
+		Detect(prevSrc, newSrc string) []string
+	}
+
+	Detector = Detecter
+)
 
 // FileChange is the per-file input the renderer takes after walking
 // the commit's file list. NewlyAddedFile means the whole file was

@@ -10,7 +10,7 @@ import (
 )
 
 type (
-	WrappedJson interface {
+	WrappedJsoner interface {
 		Raw() []byte
 		Bytes() []byte
 		String() string
@@ -39,7 +39,8 @@ type (
 		ToBytes() Bytes[any]
 	}
 
-	WrappedJSON = WrappedJson
+	WrappedJson = WrappedJsoner
+	WrappedJSON = WrappedJsoner
 
 	JsonResult struct {
 		data     []byte
@@ -708,6 +709,9 @@ func (j JsonResult) ToBytes() Bytes[any] {
 	return NewBytes(j.data, any(j.data))
 }
 
+var _ WrappedByter[any] = JsonResult{}
+var _ WrappedJsoner = JsonResult{}
+var _ WrappedByter[any] = JsonPayloadResult[any]{}
 var _ WrappedBytes[any] = JsonResult{}
 var _ WrappedJson = JsonResult{}
 var _ WrappedBytes[any] = JsonPayloadResult[any]{}

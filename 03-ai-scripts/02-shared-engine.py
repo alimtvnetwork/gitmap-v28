@@ -260,6 +260,7 @@ CI_JOBS_MATRIX: dict[str, list[str]] = {
     "Sequence Integrity Check": [sys.executable, "linter-scripts/check-sequence-integrity.py"],
     "Prompt & Spec Path Integrity Check": [sys.executable, "linter-scripts/check-prompt-and-spec-paths.py"],
     "Linters CI/CD Test Suite": [sys.executable, "linters-cicd/tests/run.py"],
+    "Interface Naming Check": [sys.executable, "linter-scripts/check-interface-naming.py"],
     "Go Base Test Suite": ["go", "test", "-C", "04-code/golang", "./..."],
 }
 

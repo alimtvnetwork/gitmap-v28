@@ -58,6 +58,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "Relative Path Check": [sys.executable, "linter-scripts/check-relative-paths.py"],
             "Newline Styling Check": [sys.executable, "linter-scripts/check-newline-styling.py"],
             "MWS Error Codes Check": [sys.executable, "linter-scripts/check-mws-error-codes.py"],
+            "Interface Naming Check": [sys.executable, "linter-scripts/check-interface-naming.py"],
             "CLI Help Parity Check": [sys.executable, "03-ai-scripts/09-cli-help-auditor.py"],
             "Constants Registry AST Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdRegistryMatchesAST", "-count=1"],
             "Constants Collision Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdConstantsAreUnique", "-count=1"],

@@ -14,13 +14,17 @@ type Event struct {
 	Payload []byte
 }
 
-// ClientConnection abstracts the communication layer with a single client.
-type ClientConnection interface {
-	SendEvent(event Event) error
-}
+// ClientConnectioner abstracts the communication layer with a single client.
+type (
+	ClientConnectioner interface {
+		SendEvent(event Event) error
+	}
+
+	ClientConnection = ClientConnectioner
+)
 
 // BroadcastEvent sends an event to all connected clients.
-func BroadcastEvent(clients []ClientConnection, event Event) []error {
+func BroadcastEvent(clients []ClientConnectioner, event Event) []error {
 	var errors []error
 
 	for _, client := range clients {
