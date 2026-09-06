@@ -21,7 +21,7 @@ type FileWriterOptions struct {
 // NewFileWriter creates a file writer using fileutil enums and wrap constructors.
 func NewFileWriter(opts FileWriterOptions) BaseWriterWrap {
 	if len(opts.FilePath) == 0 {
-		return WrapWriterFailureWithId(errtype.Validation, "file path cannot be empty")
+		return WrapWriter.FailureWithId(errtype.Validation, "file path cannot be empty")
 	}
 
 	openMode := opts.OpenMode
@@ -36,7 +36,7 @@ func NewFileWriter(opts FileWriterOptions) BaseWriterWrap {
 
 	fileWrap := fileutil.OpenFile(opts.FilePath, openMode, permMode)
 	if fileWrap.IsFailed() {
-		return WrapWriterFailureFromWrap(fileWrap)
+		return WrapWriter.FailureFromWrap(fileWrap)
 	}
 
 	name := opts.Name
@@ -46,7 +46,7 @@ func NewFileWriter(opts FileWriterOptions) BaseWriterWrap {
 
 	writer := NewBaseWriter(name, fileWrap.Data(), opts.IsLocked, fileWriteFunc)
 
-	return WrapWriterSuccess(writer)
+	return WrapWriter.Success(writer)
 }
 
 // fileWriteFunc writes payload bytes or formatted string directly to destination.

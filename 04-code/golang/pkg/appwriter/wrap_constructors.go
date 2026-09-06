@@ -6,32 +6,66 @@ import (
 	"coding-guidelines/common/pkg/result"
 )
 
-// WrapWriterSuccess wraps an initialized BaseWriter in a successful BaseWriterWrap.
-func WrapWriterSuccess(w *BaseWriter) BaseWriterWrap {
+type writerWrapConstructor struct{}
+
+var (
+	WrapWriter = writerWrapConstructor{}
+	WriterWrap = WrapWriter
+	Wrap       = WrapWriter
+)
+
+func (writerWrapConstructor) Success(w *BaseWriter) BaseWriterWrap {
 	return result.WrapSuccess(w)
 }
 
-// WrapWriterFailure wraps an existing AppError object into a failed BaseWriterWrap.
-func WrapWriterFailure(err *appfault.AppError) BaseWriterWrap {
+func (writerWrapConstructor) Failure(err *appfault.AppError) BaseWriterWrap {
 	return result.WrapFailure[*BaseWriter](err)
 }
 
-// WrapWriterFailureFromError creates a failed BaseWriterWrap directly from an AppError object.
-func WrapWriterFailureFromError(err *appfault.AppError) BaseWriterWrap {
-	return WrapWriterFailure(err)
+func (writerWrapConstructor) FailureFromError(err *appfault.AppError) BaseWriterWrap {
+	return result.WrapFailure[*BaseWriter](err)
 }
 
-// WrapWriterFailureWithId creates a failed BaseWriterWrap using an error ID and message.
-func WrapWriterFailureWithId(errType errtype.Variation, msg string) BaseWriterWrap {
+func (writerWrapConstructor) FailureWithId(errType errtype.Variation, msg string) BaseWriterWrap {
 	return result.WrapFailureWithId[*BaseWriter](errType, msg)
 }
 
-// WrapWriterFailureWithCause creates a failed BaseWriterWrap using an error ID, cause, and message.
-func WrapWriterFailureWithCause(errType errtype.Variation, cause error, msg string) BaseWriterWrap {
+func (writerWrapConstructor) FailureWithCause(errType errtype.Variation, cause error, msg string) BaseWriterWrap {
 	return result.WrapFailureWithCause[*BaseWriter](errType, cause, msg)
 }
 
-// WrapWriterFailureFromWrap propagates failure from another Wrap into BaseWriterWrap.
+func (writerWrapConstructor) FailureFromWrap(failed any) BaseWriterWrap {
+	if f, ok := failed.(interface{ Fault() *appfault.AppError }); ok {
+		return result.WrapFailure[*BaseWriter](f.Fault())
+	}
+
+	if a, ok := failed.(interface{ AppError() *appfault.AppError }); ok {
+		return result.WrapFailure[*BaseWriter](a.AppError())
+	}
+
+	return result.WrapFailure[*BaseWriter](appfault.New(errtype.Generic, "unknown wrap failure"))
+}
+
+func WrapWriterSuccess(w *BaseWriter) BaseWriterWrap {
+	return WrapWriter.Success(w)
+}
+
+func WrapWriterFailure(err *appfault.AppError) BaseWriterWrap {
+	return WrapWriter.Failure(err)
+}
+
+func WrapWriterFailureFromError(err *appfault.AppError) BaseWriterWrap {
+	return WrapWriter.FailureFromError(err)
+}
+
+func WrapWriterFailureWithId(errType errtype.Variation, msg string) BaseWriterWrap {
+	return WrapWriter.FailureWithId(errType, msg)
+}
+
+func WrapWriterFailureWithCause(errType errtype.Variation, cause error, msg string) BaseWriterWrap {
+	return WrapWriter.FailureWithCause(errType, cause, msg)
+}
+
 func WrapWriterFailureFromWrap[U any](failed result.Wrap[U]) BaseWriterWrap {
-	return result.WrapFailureFromWrap[*BaseWriter](failed)
+	return WrapWriter.Failure(failed.Fault())
 }
