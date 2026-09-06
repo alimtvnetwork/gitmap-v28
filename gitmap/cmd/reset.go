@@ -17,23 +17,25 @@ import (
 // SQLite database file from disk, recreates the schema, and reseeds it.
 func runReset(args []string) error {
 	checkHelp(constants.CmdReset, args)
-	confirm, rescan := parseResetFlags(args)
-	if !confirm {
-		printResetNoConfirm(rescan)
+	isConfirm, isRescan := parseResetFlags(args)
+	if !isConfirm {
+		printResetNoConfirm(isRescan)
 		cliexit.Exit(1)
+
 		return nil
 	}
 
 	executeReset()
-	if rescan {
+	if isRescan {
 		runRescan()
 	}
+
 	return nil
 }
 
-func printResetNoConfirm(rescan bool) {
+func printResetNoConfirm(isRescan bool) {
 	cmd := "gitmap reset --confirm"
-	if rescan {
+	if isRescan {
 		cmd += " --rescan"
 	}
 	fmt.Println()
@@ -48,7 +50,7 @@ func parseResetFlags(args []string) (bool, bool) {
 	var isConfirm bool
 	var isRescan bool
 	fs.BoolVar(&isConfirm, constants.FlagConfirm, false, constants.FlagDescConfirm)
-	fs.BoolVar(&isRescan, "rescan", false, "Trigger a rescan immediately after reset")
+	fs.BoolVar(&isRescan, constants.FlagRescan, false, constants.FlagDescRescan)
 	_ = fs.Parse(args)
 
 	return isConfirm || hasConfirmFlag(args), isRescan
@@ -57,21 +59,21 @@ func parseResetFlags(args []string) (bool, bool) {
 // executeReset removes the active DB file, reopens to rebuild schema, then
 // reapplies any JSON-based seeds.
 func executeReset() {
-	if err := removeActiveDBFile(); err != nil {
+	if err := removeActiveDbFile(); err != nil {
 		appErr := apperror.WrapWithDetails(
 			err,
 			"db.reset",
 			"E2011",
-			fmt.Sprintf(constants.ErrResetRemoveFile, activeDBPath(), err),
+			fmt.Sprintf(constants.ErrResetRemoveFile, activeDbPath(), err),
 			"cmd.reset",
 			apperror.ErrorTypeExecution,
 			apperror.SeverityError,
-			map[string]any{"path": activeDBPath()},
+			map[string]any{"path": activeDbPath()},
 		)
 		cliexit.HandleError(appErr, 1)
 	}
 
-	db, err := openDB()
+	db, err := openDb()
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
@@ -82,10 +84,10 @@ func executeReset() {
 	fmt.Print(constants.MsgResetDone)
 }
 
-// removeActiveDBFile deletes the SQLite file for the active profile.
+// removeActiveDbFile deletes the SQLite file for the active profile.
 // Missing file is treated as success (already reset).
-func removeActiveDBFile() error {
-	path := activeDBPath()
+func removeActiveDbFile() error {
+	path := activeDbPath()
 	err := os.Remove(path)
 	if err == nil {
 		fmt.Printf(constants.MsgResetFileRemoved, path)
@@ -99,16 +101,22 @@ func removeActiveDBFile() error {
 	return err
 }
 
-// activeDBPath returns the absolute path to the active profile's DB file.
-func activeDBPath() string {
+// activeDbPath returns the absolute path to the active profile's DB file.
+func activeDbPath() string {
 	dbFile := store.ActiveProfileDBFile(constants.DefaultOutputFolder)
 
 	return filepath.Join(constants.DefaultOutputFolder, constants.DBDir, dbFile)
 }
 
+// Backwards-compatible aliases
+var (
+	removeActiveDBFile = removeActiveDbFile
+	activeDBPath       = activeDbPath
+)
+
 // reseedFromJSON reapplies optional JSON-backed seeds. The schema-level
 // seeds (ProjectTypes, TaskTypes) are reapplied automatically by Migrate()
-// when openDB is called — this only handles file-based seed sources.
+// when openDb is called — this only handles file-based seed sources.
 func reseedFromJSON(db *store.DB) {
 	if _, err := os.Stat(constants.SEOSeedFile); err != nil {
 		return

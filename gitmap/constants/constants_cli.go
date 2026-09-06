@@ -704,6 +704,8 @@ const (
 	FlagDescGroupColor    = "Terminal color for group display"
 	FlagConfirm           = "confirm"
 	FlagDescConfirm       = "Confirm destructive operation"
+	FlagRescan            = "rescan"
+	FlagDescRescan        = "Trigger a rescan immediately after reset"
 	FlagDescSource        = "Filter by source: release or import"
 )
 
