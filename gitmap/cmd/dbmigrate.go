@@ -11,18 +11,18 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
-// runDBMigrate handles the "db-migrate" (alias "dbm") subcommand.
+// runDbMigrate handles the "db-migrate" (alias "dbm") subcommand.
 //
 // It opens the active-profile database, runs Migrate() (which is idempotent
 // and safe to invoke repeatedly), and prints a single-line summary. The
 // --verbose flag prints every migration step that ran.
-func runDBMigrate(args []string) error {
+func runDbMigrate(args []string) error {
 	checkHelp(constants.CmdDBMigrate, args)
-	verbose := parseDBMigrateFlags(args)
+	isVerbose := parseDbMigrateFlags(args)
 
 	fmt.Print(constants.MsgDBMigrateRunning)
 
-	db, err := openDB()
+	db, err := openDb()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrDBMigrateFailFmt)
 	}
@@ -32,35 +32,46 @@ func runDBMigrate(args []string) error {
 		return apperror.WrapSimple(err, constants.ErrDBMigrateFailFmt)
 	}
 
-	printDBMigrateSummary(verbose)
+	printDbMigrateSummary(isVerbose)
+
 	return nil
 }
 
-// parseDBMigrateFlags extracts the --verbose flag.
-func parseDBMigrateFlags(args []string) bool {
+// Backwards-compatible alias for runDbMigrate
+var runDBMigrate = runDbMigrate
+
+// parseDbMigrateFlags extracts the --verbose flag.
+func parseDbMigrateFlags(args []string) bool {
 	fs := flag.NewFlagSet(constants.CmdDBMigrate, flag.ExitOnError)
-	v := fs.Bool(constants.FlagDBMigrateVerbose, false, constants.FlagDescDBMigrateV)
+	var isVerbose bool
+	fs.BoolVar(&isVerbose, constants.FlagDBMigrateVerbose, false, constants.FlagDescDBMigrateV)
 
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
 		cliexit.HandleError(nil, 2)
 	}
 
-	return *v
+	return isVerbose
 }
 
-// printDBMigrateSummary writes the post-run summary line.
+// Backwards-compatible alias for parseDbMigrateFlags
+var parseDBMigrateFlags = parseDbMigrateFlags
+
+// printDbMigrateSummary writes the post-run summary line.
 //
 // Migrate() streams every per-step warning to os.Stderr already (with the
 // table + column + action context). If any warning was printed, the user
 // has already seen it; here we just confirm the run reached the end.
-func printDBMigrateSummary(verbose bool) {
+func printDbMigrateSummary(isVerbose bool) {
 	fmt.Print(constants.MsgDBMigrateNoWork)
 
-	if verbose {
+	if isVerbose {
 		fmt.Println("    (verbose: every CREATE/ALTER is idempotent — re-running has no effect)")
 		fmt.Println("    (any per-step warnings above include the offending table + column)")
 	}
 }
+
+// Backwards-compatible alias for printDbMigrateSummary
+var printDBMigrateSummary = printDbMigrateSummary
 
 // runPostUpdateMigrate is invoked from the update flow after the binary is
 // replaced. It is best-effort: any failure is warned, never fatal, since the
@@ -68,7 +79,7 @@ func printDBMigrateSummary(verbose bool) {
 func runPostUpdateMigrate() error {
 	fmt.Print(constants.MsgDBMigratePostUpdate)
 
-	db, err := openDB()
+	db, err := openDb()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnDBMigratePostFail, err)
 
@@ -83,5 +94,6 @@ func runPostUpdateMigrate() error {
 	}
 
 	fmt.Println("  ✓ Schema migrations complete.")
+
 	return nil
 }
