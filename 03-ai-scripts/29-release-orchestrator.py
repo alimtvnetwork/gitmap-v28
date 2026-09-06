@@ -34,17 +34,19 @@ def update_json_file(filepath, keys_to_update):
         elif k.lower() in data:
             data[k.lower()] = v
             modified = True
+        else:
+            # If not found at all, just set the exact key
+            data[k] = v
+            modified = True
 
     if modified:
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4)
-            f.write("\n") # standard ending
+            f.write("\n")
 
 def bump_version_string(version, tier):
-    # expect format like X.Y.Z
     parts = version.split('.')
     if len(parts) != 3:
-        # fallback
         parts = [parts[0] if len(parts)>0 else "0", "0", "0"]
     major, minor, patch = int(parts[0]), int(parts[1]), int(parts[2])
     
@@ -66,7 +68,6 @@ def update_readme(filepath, old_version, new_version):
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Simple replacement for badges and headers
     content = content.replace(old_version, new_version)
     
     with open(filepath, 'w', encoding='utf-8') as f:
@@ -81,35 +82,31 @@ def update_changelog(filepath, new_version, scope):
     today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
     new_entry = f"## [{new_version}] - {today}\n\n### Changed\n- {scope}\n\n"
     
-    # Try to find # Changelog or similar header
     if "# Changelog" in content:
         content = content.replace("# Changelog\n", f"# Changelog\n\n{new_entry}")
     elif "# CHANGELOG" in content:
         content = content.replace("# CHANGELOG\n", f"# CHANGELOG\n\n{new_entry}")
     else:
-        # Just prepend if no header
         content = new_entry + content
         
     with open(filepath, 'w', encoding='utf-8') as f:
         f.write(content)
 
 def main():
-    parser = argparse.ArgumentParser(description="Release Orchestrator")
+    parser = argparse.ArgumentParser()
     parser.add_argument("--tier", choices=['major', 'minor', 'patch'], default='minor')
-    parser.add_argument("--scope", default="Automated release")
+    parser.add_argument("--scope", default="Automated release orchestration")
     args = parser.parse_args()
 
-    # 1. Identify starting branch
     original_branch = get_current_branch()
     print(f"Original Branch: {original_branch}")
 
     try:
-        # 2. Bump SemVer
-        # Find current version
         current_version = "1.0.0"
         if os.path.exists("version.json"):
             with open("version.json", "r", encoding="utf-8") as f:
                 d = json.load(f)
+                # Ensure we read the primary Version if it exists
                 current_version = d.get("Version", d.get("version", "1.0.0"))
         
         new_version = bump_version_string(current_version, args.tier)
@@ -123,34 +120,36 @@ def main():
         update_readme("readme.md", current_version, new_version)
         update_changelog("changelog.md", new_version, args.scope)
         
-        # 3. Stage & Commit
         run_cmd("git add version.json package.json readme.md changelog.md")
-        # Check if there is anything to commit
+        
         status = run_cmd("git status --porcelain")
         if status:
             run_cmd(f'git commit -m "release: v{new_version} {args.scope}"')
         
-        # 4. Create Release Branch
         release_branch = f"release/v{new_version}"
-        run_cmd(f"git checkout -b {release_branch}")
         
-        # 5. Create Annotated Tag
+        # Check if branch exists
+        branches = run_cmd("git branch")
+        if release_branch in branches:
+            print(f"Branch {release_branch} already exists. Attempting checkout.")
+            run_cmd(f"git checkout {release_branch}")
+        else:
+            run_cmd(f"git checkout -b {release_branch}")
+            
         tag_name = f"v{new_version}"
-        run_cmd(f'git tag -a {tag_name} -m "Release {tag_name}"')
         
-        # 6. Push
-        # Check if remote exists before pushing
+        tags = run_cmd("git tag")
+        if tag_name not in tags:
+            run_cmd(f'git tag -a {tag_name} -m "Release {tag_name}"')
+        
         remotes = run_cmd("git remote")
         if remotes:
             run_cmd(f"git push origin {release_branch}")
             run_cmd(f"git push origin {tag_name}")
-        else:
-            print("No remote 'origin' found. Skipping push.")
-
+            
         print(f"Success! Released {tag_name} on branch {release_branch}.")
         
     finally:
-        # 7. MANDATORY REVERT
         run_cmd(f"git checkout {original_branch}")
         print(f"Reverted to original branch: {original_branch}")
 
