@@ -10,7 +10,7 @@ type ContextMap map[string]any
 
 // NewContextMap creates an empty ContextMap.
 func NewContextMap() ContextMap {
-	return make(ContextMap)
+	return make(ContextMap, 0)
 }
 
 // NewContextMapWithCapacity creates a ContextMap with preallocated capacity.
@@ -20,6 +20,9 @@ func NewContextMapWithCapacity(capacity int) ContextMap {
 
 // Set inserts or updates a key-value pair.
 func (cm ContextMap) Set(key string, val any) ContextMap {
+	if cm == nil {
+		cm = make(ContextMap, 0)
+	}
 	cm[key] = val
 
 	return cm

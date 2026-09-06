@@ -16,14 +16,10 @@ func (e *AppError) Message() string {
 	return e.GetMessage()
 }
 
-// GetStatusCode returns the attached HTTP status code or falls back to errType.HttpStatus().
+// GetStatusCode returns the HTTP status code from errType.HttpStatus().
 func (e *AppError) GetStatusCode() int {
 	if e == nil {
 		return 0
-	}
-
-	if e.statusCode != 0 {
-		return e.statusCode
 	}
 
 	return e.errType.HttpStatus()
@@ -57,14 +53,7 @@ func (e *AppError) Code() uint16 {
 	return e.errType.Code()
 }
 
-// Caller returns the structured CallerInfo object by value.
-func (e *AppError) Caller() CallerInfo {
-	if e == nil {
-		return CallerInfo{}
-	}
 
-	return e.caller
-}
 
 // StackTrace returns the structured call stack frames.
 func (e *AppError) StackTrace() StackTrace {

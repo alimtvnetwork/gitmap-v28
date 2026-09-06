@@ -46,10 +46,6 @@ func TestStackFrameAndCaller(t *testing.T) {
 
 func TestCallerAndStackTraceObjects(t *testing.T) {
 	appErr := appfault.New(errtype.Database, "db err")
-	caller := appErr.Caller()
-	if caller.IsEmpty() || caller.Line == 0 {
-		t.Fatalf("expected caller info to have line and file: %+v", caller)
-	}
 
 	stack := appErr.StackTrace()
 	if len(stack) == 0 {

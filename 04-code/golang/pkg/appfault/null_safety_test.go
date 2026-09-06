@@ -72,9 +72,6 @@ func TestAppError_NilReceiverSafety(t *testing.T) {
 		t.Fatalf("expected StatusCode() == 0 on nil, got %d", nilErr.StatusCode())
 	}
 
-	if !nilErr.Caller().IsEmpty() {
-		t.Fatal("expected Caller().IsEmpty() to be true on nil")
-	}
 
 	if nilErr.StackTrace() != nil {
 		t.Fatal("expected StackTrace() == nil on nil")

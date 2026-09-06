@@ -19,13 +19,12 @@ func appendBasicYamlFields(b *strings.Builder, m AppErrorDataModel) {
 	appendYamlLine(b, "Message", m.Message)
 }
 
-// appendDetailYamlFields appends caller, stack, cause, and status to YAML.
+// appendDetailYamlFields appends stack, cause to YAML.
 func appendDetailYamlFields(b *strings.Builder, m AppErrorDataModel) {
-	appendYamlLine(b, "Caller", m.Caller.String())
-	appendYamlLine(b, "Cause", m.Cause)
-	if m.StatusCode > 0 {
-		b.WriteString(fmt.Sprintf("StatusCode: %d\n", m.StatusCode))
+	if len(m.Stack) > 0 {
+		appendYamlLine(b, "Caller", m.Stack.CallerLine())
 	}
+	appendYamlLine(b, "Cause", m.Cause)
 }
 
 // appendCtxYamlFields appends Ctx entries to YAML builder.

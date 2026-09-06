@@ -45,7 +45,7 @@ func Merge(prev *AppError, next *AppError) *AppError {
 	}
 
 	prevStack := prev.StackTrace().String()
-	prevCaller := prev.Caller().String()
+	prevCaller := prev.StackTrace().CallerLine()
 
 	// Determine loop iteration count
 	loopCount := 2
@@ -90,7 +90,7 @@ func Merge(prev *AppError, next *AppError) *AppError {
 
 	currentStack := next.StackTrace().String()
 	history = append(history, fmt.Sprintf("[Attempt #%d] [%s:%d] %s at %s\n%s",
-		loopCount, next.Type().Name(), next.Type().Code(), next.Message(), next.Caller().String(), currentStack))
+		loopCount, next.Type().Name(), next.Type().Code(), next.Message(), next.StackTrace().CallerLine(), currentStack))
 	merged.ctx.Set("StackTraceHistory", history)
 
 	// Copy custom domain keys from previous error if not already present in next

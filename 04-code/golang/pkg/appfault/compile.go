@@ -9,8 +9,8 @@ import (
 // writeCompileDetails writes message, caller and context to builder.
 func (e *AppError) writeCompileDetails(b *strings.Builder) {
 	b.WriteString(fmt.Sprintf("%sMessage: %s%s", IndentTab, e.message, Newline))
-	if !e.caller.IsEmpty() {
-		b.WriteString(fmt.Sprintf("%sCaller:  %s%s", IndentTab, e.caller.String(), Newline))
+	if len(e.stack) > 0 {
+		b.WriteString(fmt.Sprintf("%sCaller:  %s%s", IndentTab, e.stack.CallerLine(), Newline))
 	}
 
 	if len(e.ctx) > 0 {
