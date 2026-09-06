@@ -15,31 +15,34 @@ import (
 
 // runImport handles the "import" subcommand.
 func runImport(args []string) error {
-	checkHelp("import", args)
-	inFile, confirm := parseImportFlags(args)
-	if !confirm {
+	checkHelp(constants.CmdImport, args)
+	inFile, isConfirm := parseImportFlags(args)
+	if !isConfirm {
 		fmt.Fprint(os.Stderr, constants.ErrImportNoConfirm)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	data := readImportFile(inFile)
 	executeImport(data)
 	printImportSummary(inFile, data)
+
 	return nil
 }
 
 // parseImportFlags parses the optional file arg and --confirm flag.
 func parseImportFlags(args []string) (string, bool) {
 	fs := flag.NewFlagSet(constants.CmdImport, flag.ExitOnError)
-	confirmFlag := fs.Bool("confirm", false, constants.FlagDescConfirm)
-	fs.Parse(args)
+	var isConfirm bool
+	fs.BoolVar(&isConfirm, constants.FlagConfirm, false, constants.FlagDescConfirm)
+	_ = fs.Parse(args)
 
 	file := constants.DefaultExportFile
 	if fs.NArg() > 0 {
 		file = fs.Arg(0)
 	}
 
-	return file, *confirmFlag
+	return file, isConfirm || hasConfirmFlag(args)
 }
 
 // readImportFile reads and parses the export JSON file.
@@ -63,9 +66,10 @@ func readImportFile(path string) model.DatabaseExport {
 
 // executeImport restores all data into the database.
 func executeImport(data model.DatabaseExport) {
-	db, err := openDB()
+	db, err := openDb()
 	if err != nil {
 		apperror.WrapSimple(err, constants.MsgImportFailed)
+
 		return
 	}
 	defer db.Close()
