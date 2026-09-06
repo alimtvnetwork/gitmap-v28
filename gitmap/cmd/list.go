@@ -128,8 +128,8 @@ func printListRow(r model.ScanRecord, verbose bool) {
 	fmt.Printf(constants.MsgListRowFmt, r.Slug, r.RepoName)
 }
 
-// openDB opens the gitmap database from the binary's data directory.
-func openDB() (*store.DB, error) {
+// openDb opens the gitmap database from the binary's data directory.
+func openDb() (*store.DB, error) {
 	db, err := store.OpenDefault()
 	if err != nil {
 		return nil, err
@@ -141,3 +141,6 @@ func openDB() (*store.DB, error) {
 
 	return db, nil
 }
+
+// openDB is a backwards-compatible alias for openDb.
+var openDB = openDb

@@ -37,7 +37,14 @@ func finishCommandAudit(
 }
 
 func shouldAuditCommand(command string) bool {
-	return command != constants.CmdVersion && command != constants.CmdVersionAlias
+	if command == constants.CmdVersion || command == constants.CmdVersionAlias {
+		return false
+	}
+	if command == constants.CmdReset || command == constants.CmdDBReset || command == "db-reset" {
+		return false
+	}
+
+	return true
 }
 
 // recordAuditStart inserts a new history record at command start.
@@ -94,6 +101,10 @@ func recordAuditEnd(id int64, start time.Time, exitCode int, summary string, rep
 
 // openAuditDB opens the database silently (no error output).
 func openAuditDB() (*store.DB, error) {
+	prevQuiet := os.Getenv(constants.EnvGitMapQuiet)
+	os.Setenv(constants.EnvGitMapQuiet, constants.EnvGitMapQuietTrue)
+	defer os.Setenv(constants.EnvGitMapQuiet, prevQuiet)
+
 	db, err := store.OpenDefault()
 	if err != nil {
 		return nil, err

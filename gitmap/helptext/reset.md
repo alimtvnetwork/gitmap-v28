@@ -53,8 +53,10 @@ None
 
 **Output:**
 
-    Error: this will permanently delete the database file and rebuild it from scratch.
-    Run with --confirm to proceed: gitmap reset --confirm
+    ⚠ Warning: This will permanently delete the database file and rebuild it from scratch.
+    Run with --confirm to proceed:
+
+      gitmap reset --confirm
 
 ### Example 3: Reset when no DB file exists
 

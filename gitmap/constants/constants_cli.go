@@ -197,7 +197,9 @@ const (
 	CmdGroupShow             = "show"                             // gitmap:cmd skip
 	CmdGroupDelete           = "delete"                           // gitmap:cmd skip
 	CmdDBReset               = "db-reset"
+	CmdDbReset               = CmdDBReset // gitmap:cmd skip
 	CmdDB                    = "db"
+	CmdDb                    = CmdDB // gitmap:cmd skip
 	CmdStartFresh            = "start-fresh"
 	CmdFindDuplicates        = "find-duplicates"
 	CmdFindDuplicatesAlias   = "dups"
@@ -700,6 +702,7 @@ const (
 	FlagDescListVerbose   = "Show full paths and URLs"
 	FlagDescGroupDesc     = "Optional group description"
 	FlagDescGroupColor    = "Terminal color for group display"
+	FlagConfirm           = "confirm"
 	FlagDescConfirm       = "Confirm destructive operation"
 	FlagDescSource        = "Filter by source: release or import"
 )

@@ -59,7 +59,11 @@ func WriteAppErrorReport(w io.Writer, e *apperror.AppError) {
 	if e == nil {
 		return
 	}
-	fmt.Fprintf(w, "gitmap: [%s:%s] %s: %s\n", e.Code, e.Type, e.Op, e.Message)
+	if e.Message != "" {
+		fmt.Fprintf(w, "gitmap: [%s:%s] %s: %s\n", e.Code, e.Type, e.Op, e.Message)
+	} else {
+		fmt.Fprintf(w, "gitmap: [%s:%s] %s\n", e.Code, e.Type, e.Op)
+	}
 	if e.Creator != "" {
 		fmt.Fprintf(w, "  creator: %s\n", e.Creator)
 	}
