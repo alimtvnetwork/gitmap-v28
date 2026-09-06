@@ -2,20 +2,20 @@ package applogger
 
 import "fmt"
 
-// ZapLoggerInterface matches the standard Uber Zap SugaredLogger methods.
-type ZapLoggerInterface interface {
-	Debug(args ...any)
-	Info(args ...any)
-	Warn(args ...any)
-	Error(args ...any)
-	Fatal(args ...any)
-	Sync() error
-}
+type (
+	ZapLoggerInterface interface {
+		Debug(args ...any)
+		Info(args ...any)
+		Warn(args ...any)
+		Error(args ...any)
+		Fatal(args ...any)
+		Sync() error
+	}
 
-// ZapAdapter adapts any Uber Zap logger to LogSink.
-type ZapAdapter struct {
-	zapLogger ZapLoggerInterface
-}
+	ZapAdapter struct {
+		zapLogger ZapLoggerInterface
+	}
+)
 
 // NewZapAdapter wraps a Zap logger instance into a LogSink.
 func NewZapAdapter(zapLogger ZapLoggerInterface) *ZapAdapter {

@@ -11,20 +11,20 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-// LockedOptions configures the thread-safe locked streamer for payload type T.
-type LockedOptions[T any] struct {
-	Name         string
-	Destination  io.Writer
-	StreamMethod StreamFunc[T]
-}
+type (
+	LockedOptions[T any] struct {
+		Name         string
+		Destination  io.Writer
+		StreamMethod StreamFunc[T]
+	}
 
-// LockedStreamer implements Streamer[T] with reentrant mutex synchronization and AppError.
-type LockedStreamer[T any] struct {
-	mu           ReentrantMutex
-	name         string
-	destination  io.Writer
-	streamMethod StreamFunc[T]
-}
+	LockedStreamer[T any] struct {
+		mu           ReentrantMutex
+		name         string
+		destination  io.Writer
+		streamMethod StreamFunc[T]
+	}
+)
 
 // NewLockedStreamer constructs a thread-safe streamer over generic type T.
 func NewLockedStreamer[T any](opts LockedOptions[T]) *LockedStreamer[T] {

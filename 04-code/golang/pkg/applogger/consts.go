@@ -34,6 +34,8 @@ const createLogsTableSQL = `CREATE TABLE IF NOT EXISTS app_logs (
 	stack_trace TEXT
 );`
 
-type EntryFormatter func(entry LogEntry) string
+type (
+	EntryFormatter func(entry LogEntry) string
 
-type EntryFilterFunc func(entry LogEntry) bool
+	EntryFilterFunc func(entry LogEntry) bool
+)

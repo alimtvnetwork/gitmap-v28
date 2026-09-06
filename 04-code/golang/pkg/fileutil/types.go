@@ -6,9 +6,11 @@ import (
 	"coding-guidelines/common/pkg/enum/openfiletype"
 )
 
-type FileOpenModeType = openfiletype.Variant
+type (
+	FileOpenModeType = openfiletype.Variant
 
-type FileOpType byte
+	FileOpType byte
+)
 
 var fileOpNames = [...]string{
 	"ReadOnly",

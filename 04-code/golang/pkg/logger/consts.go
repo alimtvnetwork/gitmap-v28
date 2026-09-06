@@ -14,6 +14,8 @@ const (
 	LevelFatal   LogLevel = logleveltype.Fatal
 )
 
-type LogFormatterFunc func(entry LogEntry) string
+type (
+	LogFormatterFunc func(entry LogEntry) string
 
-type LogFilterFunc func(entry LogEntry) bool
+	LogFilterFunc func(entry LogEntry) bool
+)

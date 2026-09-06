@@ -11,19 +11,19 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-// LocklessOptions configures the zero-overhead lockless streamer for payload type T.
-type LocklessOptions[T any] struct {
-	Name         string
-	Destination  io.Writer
-	StreamMethod StreamFunc[T]
-}
+type (
+	LocklessOptions[T any] struct {
+		Name         string
+		Destination  io.Writer
+		StreamMethod StreamFunc[T]
+	}
 
-// LocklessStreamer implements Streamer[T] with zero lock overhead and AppError.
-type LocklessStreamer[T any] struct {
-	name         string
-	destination  io.Writer
-	streamMethod StreamFunc[T]
-}
+	LocklessStreamer[T any] struct {
+		name         string
+		destination  io.Writer
+		streamMethod StreamFunc[T]
+	}
+)
 
 // NewLocklessStreamer constructs a zero-lock streamer over generic type T.
 func NewLocklessStreamer[T any](opts LocklessOptions[T]) *LocklessStreamer[T] {

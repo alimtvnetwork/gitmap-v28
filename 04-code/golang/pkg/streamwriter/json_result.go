@@ -9,57 +9,52 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-// WrappedJson defines the contract for JSON result envelopes with formatting, unmarshaling, and conversion.
-type WrappedJson interface {
-	Raw() []byte
-	Bytes() []byte
-	String() string
-	Len() int
-	IsEmpty() bool
-	IsNull() bool
-	HasZero() bool
-	IsZero() bool
-	HasNull() bool
-	Payload() any
-	Value() any
-	AppError() *appfault.AppError
-	Fault() *appfault.AppError
-	Error() *appfault.AppError
-	HasError() bool
-	IsValid() bool
-	IsSuccess() bool
-	Status() bool
-	StatusCode() int
-	Unwrap() ([]byte, *appfault.AppError)
-	Pretty() string
-	PrettyOrError() (string, *appfault.AppError)
-	Compact() string
-	CompactOrError() (string, *appfault.AppError)
-	Unmarshal(dest any) *appfault.AppError
-	ToBytes() Bytes[any]
-}
+type (
+	WrappedJson interface {
+		Raw() []byte
+		Bytes() []byte
+		String() string
+		Len() int
+		IsEmpty() bool
+		IsNull() bool
+		HasZero() bool
+		IsZero() bool
+		HasNull() bool
+		Payload() any
+		Value() any
+		AppError() *appfault.AppError
+		Fault() *appfault.AppError
+		Error() *appfault.AppError
+		HasError() bool
+		IsValid() bool
+		IsSuccess() bool
+		Status() bool
+		StatusCode() int
+		Unwrap() ([]byte, *appfault.AppError)
+		Pretty() string
+		PrettyOrError() (string, *appfault.AppError)
+		Compact() string
+		CompactOrError() (string, *appfault.AppError)
+		Unmarshal(dest any) *appfault.AppError
+		ToBytes() Bytes[any]
+	}
 
-// WrappedJSON is an alias for WrappedJson for backwards compatibility.
-type WrappedJSON = WrappedJson
+	WrappedJSON = WrappedJson
 
-// JsonResult encapsulates JSON serialized data and AppError state.
-// Status and validity are dynamically computed from appError without redundant fields.
-type JsonResult struct {
-	data     []byte
-	appError *appfault.AppError
-}
+	JsonResult struct {
+		data     []byte
+		appError *appfault.AppError
+	}
 
-// JSONResult is an alias for JsonResult for backwards compatibility.
-type JSONResult = JsonResult
+	JSONResult = JsonResult
 
-// JsonPayloadResult extends JsonResult by embedding it and attaching a strongly-typed payload T.
-type JsonPayloadResult[T any] struct {
-	JsonResult
-	payload T
-}
+	JsonPayloadResult[T any] struct {
+		JsonResult
+		payload T
+	}
 
-// JsonResultWithPayload is an alias for JsonPayloadResult.
-type JsonResultWithPayload[T any] = JsonPayloadResult[T]
+	JsonResultWithPayload[T any] = JsonPayloadResult[T]
+)
 
 // Payload returns the strongly-typed payload.
 func (p JsonPayloadResult[T]) Payload() T {

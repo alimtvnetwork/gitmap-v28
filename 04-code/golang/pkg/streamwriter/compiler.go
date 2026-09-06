@@ -8,15 +8,15 @@ import (
 	"strings"
 )
 
-// Compilable represents any object or struct that knows how to compile itself.
-type Compilable interface {
-	Compile() string
-}
+type (
+	Compilable interface {
+		Compile() string
+	}
 
-// Compiler transpiles generic payloads into strictly ordered, deterministic string outputs.
-type Compiler struct {
-	maxDepth int
-}
+	Compiler struct {
+		maxDepth int
+	}
+)
 
 // NewCompiler creates a new Compiler with configurable max depth.
 func NewCompiler() *Compiler {

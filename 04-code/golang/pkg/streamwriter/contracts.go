@@ -9,42 +9,48 @@ import (
 	"coding-guidelines/common/pkg/appfault"
 )
 
-// Writer defines universal write operations over generic type T with AppError and Locker synchronization.
-type Writer[T any] interface {
-	Name() string
-	Write(ctx context.Context, payload T) *appfault.AppError
-	AsWriter() Writer[T]
-	Lock()
-	Unlock()
-	Sync() *appfault.AppError
-	Close() *appfault.AppError
-}
+type (
+	Writer[T any] interface {
+		Name() string
+		Write(ctx context.Context, payload T) *appfault.AppError
+		AsWriter() Writer[T]
+		Lock()
+		Unlock()
+		Sync() *appfault.AppError
+		Close() *appfault.AppError
+	}
 
-// Streamer defines streaming operations over generic type T with AppError and Locker synchronization.
-type Streamer[T any] interface {
-	Name() string
-	Stream(ctx context.Context, payload T) *appfault.AppError
-	AsStreamer() Streamer[T]
-	AsWriter() Writer[T]
-	IsLocked() bool
-	Lock()
-	Unlock()
-	Destination() io.Writer
-	Sync() *appfault.AppError
-	Close() *appfault.AppError
-}
+	Streamer[T any] interface {
+		Name() string
+		Stream(ctx context.Context, payload T) *appfault.AppError
+		AsStreamer() Streamer[T]
+		AsWriter() Writer[T]
+		IsLocked() bool
+		Lock()
+		Unlock()
+		Destination() io.Writer
+		Sync() *appfault.AppError
+		Close() *appfault.AppError
+	}
 
-// AnyWriter is the first-class non-generic alias for PluggableWriter[any].
-type AnyWriter = PluggableWriter[any]
+	AnyWriter = PluggableWriter[any]
 
-// AnyStreamer is the first-class non-generic alias for Streamer[any].
-type AnyStreamer = Streamer[any]
+	AnyStreamer = Streamer[any]
 
-// AnyLogger is the first-class non-generic alias for Logger[any].
-type AnyLogger = Logger[any]
+	AnyLogger = Logger[any]
 
-// LogLevel defines standardized severity tiers.
-type LogLevel int
+	LogLevel int
+
+	LogRecord struct {
+		Timestamp time.Time       `json:"timestamp"`
+		Level     LogLevel        `json:"level"`
+		Message   string          `json:"message"`
+		Context   context.Context `json:"-"`
+		Fields    map[string]any  `json:"fields,omitempty"`
+		TraceId   string          `json:"traceId,omitempty"`
+		UserId    string          `json:"userId,omitempty"`
+	}
+)
 
 func (l LogLevel) String() string {
 	switch l {
@@ -61,17 +67,6 @@ func (l LogLevel) String() string {
 	default:
 		return "UNKNOWN"
 	}
-}
-
-// LogRecord carries normalized event data for log-based flows.
-type LogRecord struct {
-	Timestamp time.Time       `json:"timestamp"`
-	Level     LogLevel        `json:"level"`
-	Message   string          `json:"message"`
-	Context   context.Context `json:"-"`
-	Fields    map[string]any  `json:"fields,omitempty"`
-	TraceId   string          `json:"traceId,omitempty"`
-	UserId    string          `json:"userId,omitempty"`
 }
 
 // Compile satisfies the Compilable interface for LogRecord with deterministic ordering.

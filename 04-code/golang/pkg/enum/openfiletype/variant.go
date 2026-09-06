@@ -6,7 +6,11 @@ import (
 	"os"
 )
 
-type Variant byte
+type (
+	Variant byte
+
+	VariantPredicate func(v Variant) bool
+)
 
 const (
 	Invalid Variant = iota
@@ -21,8 +25,6 @@ const (
 	WriteOrCreateOnly
 	ReadWriteOrCreateOnly
 )
-
-type VariantPredicate func(v Variant) bool
 
 func (v Variant) Flags() int {
 	if int(v) < len(openFlags) {

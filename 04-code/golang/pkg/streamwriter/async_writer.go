@@ -10,31 +10,30 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-// AsyncWriterOptions configures the asynchronous writer buffer and background worker.
-type AsyncWriterOptions struct {
-	Name          string
-	BufferSize    int           // Channel buffer size (default: 256)
-	FlushInterval time.Duration // Maximum interval between flushes (default: 50ms)
-	DropOnFull    bool          // If true, drops items when buffer is full; if false, blocks until space is available
-	OnError       ErrorHandlerFunc
-}
+type (
+	AsyncWriterOptions struct {
+		Name          string
+		BufferSize    int           // Channel buffer size (default: 256)
+		FlushInterval time.Duration // Maximum interval between flushes (default: 50ms)
+		DropOnFull    bool          // If true, drops items when buffer is full; if false, blocks until space is available
+		OnError       ErrorHandlerFunc
+	}
 
-// AsyncWriter wraps any Writer[T] with a non-blocking buffered ring channel and worker goroutine.
-type AsyncWriter[T any] struct {
-	name      string
-	target    Writer[T]
-	opts      AsyncWriterOptions
-	queue     chan T
-	closed    atomic.Bool
-	dropped   atomic.Int64
-	closeOnce sync.Once
-	doneChan  chan struct{}
-	wg        sync.WaitGroup
-	mu        ReentrantMutex
-}
+	AsyncWriter[T any] struct {
+		name      string
+		target    Writer[T]
+		opts      AsyncWriterOptions
+		queue     chan T
+		closed    atomic.Bool
+		dropped   atomic.Int64
+		closeOnce sync.Once
+		doneChan  chan struct{}
+		wg        sync.WaitGroup
+		mu        ReentrantMutex
+	}
 
-// AnyAsyncWriter is the first-class non-generic alias for AsyncWriter[any].
-type AnyAsyncWriter = AsyncWriter[any]
+	AnyAsyncWriter = AsyncWriter[any]
+)
 
 // NewAsyncWriter constructs an asynchronous non-blocking writer around target.
 func NewAsyncWriter[T any](target Writer[T], opts AsyncWriterOptions) *AsyncWriter[T] {

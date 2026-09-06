@@ -9,21 +9,20 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-// ReflectTypeInfo describes structural metadata inspected from any runtime value.
-type ReflectTypeInfo struct {
-	Name       string
-	PkgPath    string
-	Kind       reflect.Kind
-	IsPointer  bool
-	IsSlice    bool
-	IsStruct   bool
-	IsNil      bool
-	FieldCount int
-}
+type (
+	ReflectTypeInfo struct {
+		Name       string
+		PkgPath    string
+		Kind       reflect.Kind
+		IsPointer  bool
+		IsSlice    bool
+		IsStruct   bool
+		IsNil      bool
+		FieldCount int
+	}
 
-// reflectConverterSingleton provides reflection, dynamic unmarshaling, pointer reduction,
-// and interface slice transformation utilities.
-type reflectConverterSingleton struct{}
+	reflectConverterSingleton struct{}
+)
 
 // Reflect is the global singleton instance for reflection and dynamic conversion.
 var Reflect = reflectConverterSingleton{}

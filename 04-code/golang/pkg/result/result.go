@@ -5,8 +5,11 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-type Wrap[T any] = appfault.Result[T]
-type Result[T any] = Wrap[T]
+type (
+	Wrap[T any] = appfault.Result[T]
+
+	Result[T any] = Wrap[T]
+)
 
 func WrapSuccess[T any](data T) Wrap[T] {
 	return appfault.NewSuccess(data)
