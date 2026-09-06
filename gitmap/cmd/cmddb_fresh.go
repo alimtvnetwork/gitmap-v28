@@ -11,20 +11,25 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-func runDBFresh(args []string) error {
+func runDbFresh(args []string) error {
 	msg := constants.ColorYellow + "Are you sure you want to start fresh? [y/N]: " + constants.ColorReset
 	if !hasConfirmFlag(args) {
 		printFreshWarning()
 	}
 	if !confirmOrSkip(msg, args) {
 		fmt.Println(constants.ColorDim + "Start fresh operation canceled." + constants.ColorReset)
+
 		return nil
 	}
+
 	return executeStartFresh()
 }
 
+// Backwards-compatible alias for runDbFresh
+var runDBFresh = runDbFresh
+
 func runStartFresh(args []string) error {
-	return runDBFresh(args)
+	return runDbFresh(args)
 }
 
 func printFreshWarning() {
@@ -36,30 +41,35 @@ func printFreshWarning() {
 }
 
 func executeStartFresh() error {
-	removedCount := wipeAllDBFiles()
+	removedCount := wipeAllDbFiles()
 	recreateRepoSearchDir()
 
-	freshDB, err := store.OpenDefault()
+	freshDb, err := store.OpenDefault()
 	if err != nil {
 		return apperror.WrapSimple(err, "E9003")
 	}
-	defer freshDB.Close()
+	defer freshDb.Close()
 
-	if migrateErr := freshDB.Migrate(); migrateErr != nil {
+	if migrateErr := freshDb.Migrate(); migrateErr != nil {
 		return apperror.WrapSimple(migrateErr, "E9004")
 	}
 	printFreshSuccess(removedCount, store.DefaultDBPath())
+
 	return nil
 }
 
-func wipeAllDBFiles() int {
+func wipeAllDbFiles() int {
 	binDir := store.BinaryDataDir()
 	count := removeMatchingFiles(binDir)
-	for _, splitDir := range findSplitDBDirs() {
+	for _, splitDir := range findSplitDbDirs() {
 		count += removeMatchingFiles(splitDir)
 	}
+
 	return count
 }
+
+// Backwards-compatible alias for wipeAllDbFiles
+var wipeAllDBFiles = wipeAllDbFiles
 
 func removeMatchingFiles(dir string) int {
 	entries, err := os.ReadDir(dir)
@@ -68,28 +78,36 @@ func removeMatchingFiles(dir string) int {
 	}
 	removed := 0
 	for _, e := range entries {
-		removed += tryRemoveDBFile(dir, e.Name())
+		removed += tryRemoveDbFile(dir, e.Name())
 	}
+
 	return removed
 }
 
-func tryRemoveDBFile(dir, name string) int {
-	if !isDBRelatedFile(name) {
+func tryRemoveDbFile(dir, name string) int {
+	if !isDbRelatedFile(name) {
 		return 0
 	}
 	target := filepath.Join(dir, name)
 	if err := os.Remove(target); err == nil {
 		return 1
 	}
+
 	return 0
 }
 
-func isDBRelatedFile(name string) bool {
+// Backwards-compatible alias for tryRemoveDbFile
+var tryRemoveDBFile = tryRemoveDbFile
+
+func isDbRelatedFile(name string) bool {
 	return strings.HasSuffix(name, ".db") ||
 		strings.HasSuffix(name, ".db-wal") ||
 		strings.HasSuffix(name, ".db-shm") ||
 		strings.HasSuffix(name, ".db-journal")
 }
+
+// Backwards-compatible alias for isDbRelatedFile
+var isDBRelatedFile = isDbRelatedFile
 
 func recreateRepoSearchDir() {
 	binDir := store.BinaryDataDir()

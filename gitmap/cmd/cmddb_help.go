@@ -6,13 +6,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func runDBHelp() error {
+func runDbHelp() error {
 	printDBHelpHeader()
 	printDBHelpSubcommands()
 	printDBHelpFlags()
 	printDBHelpExamples()
+
 	return nil
 }
+
+var runDBHelp = runDbHelp
 
 func printDBHelpHeader() {
 	fmt.Println()

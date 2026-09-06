@@ -8,16 +8,20 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// runDB routes the gitmap db command to appropriate sub-handlers.
-func runDB(args []string) error {
+// runDb routes the gitmap db command to appropriate sub-handlers.
+func runDb(args []string) error {
 	if len(args) == 0 {
 		return runDBLs(nil)
 	}
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
-	return routeDBSubcommand(sub, args[1:])
+
+	return routeDbSubcommand(sub, args[1:])
 }
 
-func routeDBSubcommand(sub string, tail []string) error {
+// Backwards-compatible alias for runDb
+var runDB = runDb
+
+func routeDbSubcommand(sub string, tail []string) error {
 	switch sub {
 	case "status", "st", "info":
 		return runDBStatus(tail)
@@ -26,23 +30,27 @@ func routeDBSubcommand(sub string, tail []string) error {
 	case "ls", "list":
 		return runDBLs(tail)
 	case "help", "-h", "--help":
-		return runDBHelp()
+		return runDbHelp()
 	case "repo-db", "repodb":
 		return runDBRepoDB(tail)
 	case "sizes", "size":
 		return runDBSizes(tail)
 	case "reset":
-		return runDBResetAction(tail)
+		return runDbResetAction(tail)
 	case "clear":
 		return runDBClearAction(tail)
 	default:
-		return handleUnknownDBSub(sub)
+		return handleUnknownDbSub(sub)
 	}
 }
 
-func handleUnknownDBSub(sub string) error {
+// Backwards-compatible alias for routeDbSubcommand
+var routeDBSubcommand = routeDbSubcommand
+
+func handleUnknownDbSub(sub string) error {
 	fmt.Printf(constants.ColorRed+"Unknown db subcommand '%s'"+constants.ColorReset+"\n\n", sub)
-	_ = runDBHelp()
+	_ = runDbHelp()
+
 	return apperror.NewWithDetails(
 		"cmd.db.dispatch",
 		"E1050",
@@ -53,3 +61,7 @@ func handleUnknownDBSub(sub string) error {
 		map[string]any{"subcommand": sub},
 	)
 }
+
+// Backwards-compatible alias for handleUnknownDbSub
+var handleUnknownDBSub = handleUnknownDbSub
+
