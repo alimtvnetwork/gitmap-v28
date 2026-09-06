@@ -72,6 +72,7 @@ Updated: 2026-04-27
 - [Install Command Formatting](mem://constraints/install-command-formatting) — README top install area must mirror UI order; one-line commands only; bundles before ToC.
 - [Standalone Script Standards](mem://constraints/standalone-script-standards) — Hard rules for browser/userscript files: no !important, no as-unknown, no error swallowing, class+DI, enums in types.ts, styles.ts, hide via class+transition.
 - [Payment Banner Hider RCA](mem://issues/payment-banner-hider-rca) — Root cause for the macro-ahk-v23 regression and the mandatory pre-write checklist that prevents repeats.
+- [Synthetic Comp Junk Files RCA](mem://issues/2026-09-06-synthetic-comp-junk-files-audit-rca) — Root cause analysis and audit for synthetic comp_*.go junk files, prevention rules, and cleanup.
 - [No-Questions Mode](mem://workflow/no-questions-mode) — 40-task no-questions run; ambiguity logging template, sequencing, and resume trigger.
 - [Avoid Time Suggestions in readme.txt](mem://avoid/02-no-time-suggestions-in-readme-txt) — Strictly Prohibited #01: zero time-related chatter, suggestions, or auto-updates around readme.txt; persist across sessions.
 - [2026-04-27 Docs Viewer Quick-Jump + Sync Banner](mem://sessions/2026-04-27-docs-viewer-quick-jump-and-sync-banner) — Cmd/Ctrl+J command palette with Open-Spec-Overview pinned, GithubSyncBanner reading version.json, .gitmap/ removed, spec/ visibility incident diagnosed.

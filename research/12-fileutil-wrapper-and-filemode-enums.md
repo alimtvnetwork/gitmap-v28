@@ -1,15 +1,15 @@
 # `FileWrapper` Architecture, `FileModeType` Enums, and Error Object Integration
 
-> **Document:** `research/12-fileutil-wrapper-and-filemode-enums.md`  
-> **Status:** Implemented & Verified  
-> **Package Reference:** `04-code/golang/pkg/fileutil` & `04-code/golang/pkg/appfault`  
-> **Date:** 2026-09-05  
+> **Document:** `research/12-fileutil-wrapper-and-filemode-enums.md`
+> **Status:** Implemented & Verified
+> **Package Reference:** `04-code/golang/pkg/fileutil` & `04-code/golang/pkg/appfault`
+> **Date:** 2026-09-05
 
 ---
 
 ## 1. Executive Summary & Context
 
-File I/O operations in high-reliability Go applications frequently suffer from string-based error handling, loose integer mode constants (e.g., `0644`), and unstructured error wrapping. 
+File I/O operations in high-reliability Go applications frequently suffer from string-based error handling, loose integer mode constants (e.g., `0644`), and unstructured error wrapping.
 
 Drawing inspiration from `03-aukgo/core/filemode` and `03-aukgo/core/chmodhelper`, this architecture formalizes:
 1. **Type-Safe Enum Architecture**:

@@ -6,7 +6,7 @@ working repository is never rewritten in place.
 
 **Alias:** `hp`
 
-Spec: `spec/04-generic-cli/16-history-rewrite.md`.
+Spec: `02-spec/04-generic-cli/16-history-rewrite.md`.
 
 ## Synopsis
 
@@ -74,7 +74,7 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter history-purge
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
 
 ## Examples
 

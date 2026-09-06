@@ -1,7 +1,7 @@
 package constants
 
 // Unix (macOS + Linux) install paths and labels for `gitmap install ctx`.
-// Spec: spec/04-generic-cli/30-install-ctx.md §7.
+// Spec: 02-spec/04-generic-cli/30-install-ctx.md §7.
 
 // Path fragments under $HOME — joined at runtime so unit tests stay
 // hermetic (no hard-coded absolute paths).

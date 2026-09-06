@@ -1,7 +1,7 @@
 # Architectural Research & Explorations
 
-> **Location:** `research/`  
-> **Purpose:** In-depth architectural research, design explorations, contract proposals, and review blueprints prior to production implementation.  
+> **Location:** `research/`
+> **Purpose:** In-depth architectural research, design explorations, contract proposals, and review blueprints prior to production implementation.
 > **Rule:** All research documents must be strictly lowercase, self-contained, provide full working code samples, and define clear extension points for external developers.
 
 ---

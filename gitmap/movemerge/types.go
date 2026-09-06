@@ -5,7 +5,7 @@
 // working folders, performs the requested file operation, and (for
 // URL endpoints) commits + pushes the result.
 //
-// Spec: spec/01-app/97-move-and-merge.md
+// Spec: 02-spec/01-app/97-move-and-merge.md
 package movemerge
 
 // EndpointKindType classifies a positional argument once at command start.

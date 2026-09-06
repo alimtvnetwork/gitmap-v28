@@ -11,7 +11,7 @@ package constants
 //
 // Final path = <userDataRoot>/User/globalStorage/alefragnani.project-manager/projects.json
 //
-// See: spec/01-vscode-project-manager-sync/README.md
+// See: 02-spec/01-vscode-project-manager-sync/README.md
 
 // User-data root segments per OS.
 const (

@@ -38,7 +38,7 @@ type PathSnippetWriteResult struct {
 //
 //	shell.
 //
-// Spec: spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
+// Spec: 02-spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
 func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResult, error) {
 	body, profile, err := resolveSnippetTarget(shell, dir, manager, profile)
 	if err != nil {

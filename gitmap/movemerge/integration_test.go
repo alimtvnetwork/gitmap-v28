@@ -15,7 +15,7 @@ import (
 // runs RunMerge with DirBoth + PreferNewer, then asserts both sides
 // converged byte-for-byte to the expected union tree.
 //
-// Spec: spec/01-app/97-move-and-merge.md (acceptance items
+// Spec: 02-spec/01-app/97-move-and-merge.md (acceptance items
 // "merge-both copies missing files both ways" + "--prefer-newer
 // override the bypass default").
 func TestRunMerge_PreferNewer_BothSidesByteEqual(t *testing.T) {

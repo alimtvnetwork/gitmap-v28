@@ -77,7 +77,7 @@ entirely during a bulk scan, use `gitmap scan --no-auto-tags`.
 
 - `gitmap as` — register a short alias (mirrors to projects.json).
 - `gitmap scan` — bulk-syncs every discovered repo into projects.json.
-- Spec: `spec/01-vscode-project-manager-sync/README.md`
+- Spec: `02-spec/01-vscode-project-manager-sync/README.md`
 
 ## Scripting (JSON)
 
@@ -87,4 +87,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter code
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

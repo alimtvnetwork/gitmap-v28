@@ -13,7 +13,7 @@ package constants
 // the same selection can be replayed later via --replay <id|name>.
 //
 // Naming note: the short alias is `cpk`, NOT `ci` (which collides with
-// CI/CD muscle memory). See spec/01-app/100-clone-pick.md §3.
+// CI/CD muscle memory). See 02-spec/01-app/100-clone-pick.md §3.
 
 // gitmap:cmd top-level
 // CLI surface. Both names are referenced by rootcore.go's dispatcher

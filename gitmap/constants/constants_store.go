@@ -54,7 +54,7 @@ const SQLCreateRepo = `CREATE TABLE IF NOT EXISTS Repo (
 // migrateRepoIdentifiedTransport. Empty string is the sentinel for
 // "unknown — backfill from origin URL on next scan" so we can ship
 // the column without forcing a one-shot scan on upgrade.
-// See spec/04-generic-cli/04-reclone-honors-stored-transport.md.
+// See 02-spec/04-generic-cli/04-reclone-honors-stored-transport.md.
 const SQLAddRepoIdentifiedTransport = `ALTER TABLE Repo ADD COLUMN IdentifiedTransport TEXT NOT NULL DEFAULT ''`
 
 // SQL: create Group table (v15 singular). "Group" is a SQL reserved word so
@@ -75,7 +75,7 @@ const SQLCreateGroupRepo = `CREATE TABLE IF NOT EXISTS GroupRepo (
 )`
 
 // SQL: create Release table (v17: + RepoId FK to Repo, composite UNIQUE(RepoId, Tag)).
-// See spec/04-generic-cli/24-release-repo-relationship.md for the rationale.
+// See 02-spec/04-generic-cli/24-release-repo-relationship.md for the rationale.
 const SQLCreateRelease = `CREATE TABLE IF NOT EXISTS Release (
 	ReleaseId    INTEGER PRIMARY KEY AUTOINCREMENT,
 	RepoId       INTEGER NOT NULL REFERENCES Repo(RepoId) ON DELETE CASCADE,

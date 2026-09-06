@@ -46,7 +46,7 @@ const (
 // Clone SSH host-key setup diagnostics.
 const ErrCloneSSHEnvFmt = "clone: failed to configure SSH host-key acceptance: %v\n"
 
-// Multi-URL clone messages (spec/01-app/104-clone-multi.md).
+// Multi-URL clone messages (02-spec/01-app/104-clone-multi.md).
 const (
 	MsgCloneInvalidURLFmt    = "  ⚠ Skipping invalid URL: %s\n"
 	MsgCloneSummaryMultiFmt  = "\n  Multi-clone summary: %d succeeded, %d failed (of %d URLs)\n"

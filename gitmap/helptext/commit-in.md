@@ -164,7 +164,7 @@ path, NOT by remote URL.
 
 `gitmap clone-pick` (sparse-checkout single-repo clone),
 `gitmap clone-from` (one-shot mirror from a manifest),
-spec/03-commit-in/ for the full normative contract.
+02-spec/03-commit-in/ for the full normative contract.
 
 ## Scripting (JSON)
 
@@ -174,7 +174,7 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter commit-in
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
 
 ## Advanced Usage
 

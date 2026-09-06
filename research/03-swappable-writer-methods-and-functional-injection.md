@@ -1,9 +1,9 @@
 # Swappable Writer Methods & Functional Injection Architecture
 
-> **Status:** Proposal & Architectural Exploration  
-> **Date:** 2026-09-03  
-> **Target Package:** `04-code/golang/pkg/applogger` and `pkg/writer`  
-> **Topic:** 4 Distinct Patterns for Swappable Write Methods, Functional Injection via Options, and Log-Agnostic Payloads  
+> **Status:** Proposal & Architectural Exploration
+> **Date:** 2026-09-03
+> **Target Package:** `04-code/golang/pkg/applogger` and `pkg/writer`
+> **Topic:** 4 Distinct Patterns for Swappable Write Methods, Functional Injection via Options, and Log-Agnostic Payloads
 
 ---
 

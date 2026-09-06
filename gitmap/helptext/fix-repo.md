@@ -102,7 +102,7 @@ the rewriter leaves it alone.
 `5` bad-version / `6` bad-flag / `7` write-failed / `8` bad-config /
 `9` tests-failed (`--strict` only).
 
-See `spec/04-generic-cli/27-fix-repo-command.md` for the full spec.
+See `02-spec/04-generic-cli/27-fix-repo-command.md` for the full spec.
 
 ## Scripting (JSON)
 
@@ -112,7 +112,7 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter fix-repo
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
 
 ## Examples
 

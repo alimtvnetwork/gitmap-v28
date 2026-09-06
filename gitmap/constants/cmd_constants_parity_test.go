@@ -1,7 +1,7 @@
 package constants
 
 // TestTopLevelCmdRegistryMatchesAST is the §5 future-hardening guard from
-// spec/01-app/99-cli-cmd-uniqueness-ci-guard.md. It walks every
+// 02-spec/01-app/99-cli-cmd-uniqueness-ci-guard.md. It walks every
 // `constants_*.go` file with go/parser, collects every Cmd* string constant
 // declared inside a const block marked `// gitmap:cmd top-level` (minus
 // per-spec `// gitmap:cmd skip` lines), and asserts the resulting set is

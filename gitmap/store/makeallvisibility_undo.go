@@ -1,7 +1,7 @@
 // Package store — makeallvisibility_undo.go: read-side helpers for
 // `gitmap visibility-undo`. Pure SELECTs — no mutations live here.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
 package store
 
 import (

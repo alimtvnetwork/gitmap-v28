@@ -5,7 +5,7 @@ package constants
 // flows through one of the format strings below so users can grep and
 // downstream tools can parse stable text.
 //
-// See: spec/01-app/05-cloner.md, gitmap/cloner/audit.go.
+// See: 02-spec/01-app/05-cloner.md, gitmap/cloner/audit.go.
 
 // CloneFlagAudit is the long-form flag name (`--audit`) that switches
 // `gitmap clone` into the read-only planner.

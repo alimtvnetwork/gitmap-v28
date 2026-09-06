@@ -1,7 +1,7 @@
 // Package store — ERD parity test.
 //
 // Source of truth: every SQLCreate* constant in gitmap/constants/constants_*.go
-// MUST be represented as a table block in spec/01-app/gitmap-database-erd.mmd.
+// MUST be represented as a table block in 02-spec/01-app/gitmap-database-erd.mmd.
 //
 // Why name-only (not column-level): the test is intentionally a name-set
 // equality check. Column tweaks happen frequently and would churn the ERD on
@@ -9,7 +9,7 @@
 // (the v3.5.0 ERD was missing 11 tables and nobody noticed for ~6 months —
 // see .lovable/memory/03-v3.12.1-session.md).
 //
-// Spec follow-up: spec/01-app/gitmap-database-erd.mmd.
+// Spec follow-up: 02-spec/01-app/gitmap-database-erd.mmd.
 package store
 
 import (
@@ -24,7 +24,7 @@ import (
 
 const (
 	// erdPathRel is the canonical ERD location relative to the repo root.
-	erdPathRel = "spec/21-app/gitmap-database-erd.mmd"
+	erdPathRel = "02-spec/21-app/gitmap-database-erd.mmd"
 	// constantsDirRel is the directory containing SQLCreate* constants.
 	constantsDirRel = "gitmap/constants"
 	// erdParityRegenHint is shown when the test fails so the fix is obvious.

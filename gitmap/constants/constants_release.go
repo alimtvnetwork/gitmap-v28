@@ -122,7 +122,7 @@ const (
 // body so anyone copying from the release page installs EXACTLY that
 // tag — no "latest" lookup, no -v<N> sibling-repo discovery.
 //
-// Spec: spec/07-generic-release/08-pinned-version-install-snippet.md
+// Spec: 02-spec/07-generic-release/08-pinned-version-install-snippet.md
 const (
 	ReleaseSnippetMarker   = "<!-- gitmap-pinned-install-snippet:%s -->"
 	ReleaseSnippetTemplate = "<!-- gitmap-pinned-install-snippet:%s -->\n" +

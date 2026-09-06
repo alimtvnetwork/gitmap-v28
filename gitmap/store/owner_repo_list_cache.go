@@ -4,7 +4,7 @@
 // the TTL policy; this file only persists / fetches the raw JSON blob
 // and its FetchedAt timestamp.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §parallel.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §parallel.
 package store
 
 import (

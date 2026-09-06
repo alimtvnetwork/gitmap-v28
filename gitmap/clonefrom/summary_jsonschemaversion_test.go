@@ -15,7 +15,7 @@ package clonefrom
 // When you bump the constant, this test fails until you update the
 // expected literal below, forcing a conscious decision.
 //
-// See also: spec/05-coding-guidelines/ on stable on-disk schemas.
+// See also: 02-spec/05-coding-guidelines/ on stable on-disk schemas.
 
 import (
 	"bytes"

@@ -1,7 +1,7 @@
 package constants
 
 // gitmap install ctx — Windows right-click context menu (v1).
-// Spec: spec/04-generic-cli/30-install-ctx.md.
+// Spec: 02-spec/04-generic-cli/30-install-ctx.md.
 
 // Tool name for the install dispatcher.
 const (

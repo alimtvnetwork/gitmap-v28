@@ -2,7 +2,7 @@
 // of release-version.ps1 / release-version.sh and writes them into the
 // staging directory so they ship as per-release snapshot install assets.
 //
-// Spec: spec/01-app/105-release-version-script.md
+// Spec: 02-spec/01-app/105-release-version-script.md
 package release
 
 import (

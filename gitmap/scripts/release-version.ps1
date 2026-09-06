@@ -8,7 +8,7 @@
     for use from /release/<version> pages where the URL itself is the
     contract.
 
-    Spec: spec/01-app/105-release-version-script.md
+    Spec: 02-spec/01-app/105-release-version-script.md
 
 .PARAMETER Version
     Required. Tag of the release to install (e.g. v3.36.0).

@@ -14,7 +14,9 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 EXCLUDE_DIRS = {
     '.git', 'node_modules', 'dist', 'build', 'bin', '.next', '.gitmap',
     'vendor', 'coverage', '.gemini', '.system_generated', 'tests/fixtures',
-    'scratch', 'temp-scripts', 'temp-agents', 'temp'
+    'scratch', 'temp-scripts', 'temp-agents', 'temp', 'linter-scripts',
+    '.lovable/scratch', '.lovable/temp-agents', '03-ai-scripts', 'scripts',
+    '04-code'
 }
 
 # Regex rules

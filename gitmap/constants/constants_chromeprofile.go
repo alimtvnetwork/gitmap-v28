@@ -1,6 +1,6 @@
 // Package constants — Chrome profile copy/export/import command IDs,
 // help text, messages, and exit codes for `gitmap chrome-profile-copy`
-// and friends. Spec: spec/04-generic-cli/40-chrome-profile-copy.md.
+// and friends. Spec: 02-spec/04-generic-cli/40-chrome-profile-copy.md.
 package constants
 
 // gitmap:cmd top-level

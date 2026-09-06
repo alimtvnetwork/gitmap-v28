@@ -1,7 +1,7 @@
 // Package visibility — wildcard pattern engine for the bulk visibility
 // commands (make-all-public, make-all-private, MAPUB, MAPRI).
 //
-// Pattern grammar (per spec/01-app/116-bulk-visibility-mapub-mapri.md §3):
+// Pattern grammar (per 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §3):
 //
 //	macro       → exact match
 //	macro*      → prefix

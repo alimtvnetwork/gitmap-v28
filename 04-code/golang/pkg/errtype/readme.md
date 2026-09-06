@@ -31,13 +31,13 @@ The `errtype` package provides strongly-typed enumerations, standardized error c
 flowchart TD
     BaseInterface["BaseEnumer Interface\n(Name, String, ValueString, IsValid, IsEnum, IsCompare, JSON)"]
     NumberInterface["NumberEnumer Interface\n(Code, Int, HttpStatus)"]
-    
+
     BaseInterface --> NumberInterface
-    
+
     BaseInterface --> ProcessState["ProcessStateType (string-backed)\nPending, Running, Completed, Failed"]
     NumberInterface --> ErrorVariation["Variation (uint16-backed)\nValidation, NotFound, Precondition, IO, Timeout"]
     NumberInterface --> LogLevel["LogLevelType (uint16-backed)\nTrace, Debug, Info, Warn, Error, Fatal"]
-    
+
     GenericHelper["ToEnum[T BaseEnumer](val, all)"] -.-> BaseInterface
 ```
 

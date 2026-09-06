@@ -11,7 +11,7 @@
 //  4. UpdateMakeAllVisibilityResult(id, status, ...)    × N
 //  5. FinalizeMakeAllVisibilityRun(runID, counts, exitCode)
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §plan steps 17-18.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §plan steps 17-18.
 package store
 
 import (

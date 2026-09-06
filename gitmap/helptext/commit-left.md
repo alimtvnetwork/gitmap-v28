@@ -34,7 +34,7 @@ footer's `gitmap-replay-source:` line records `./repo-B` (the source).
 - [commit-right](commit-right.md) — opposite direction (full flag table)
 - [commit-both](commit-both.md) — bidirectional (sequential)
 - [merge-left](merge-left.md) — file-state mirror (no commit replay)
-- spec/01-app/106-commit-left-right-both.md — full design
+- 02-spec/01-app/106-commit-left-right-both.md — full design
 
 ## Scripting (JSON)
 
@@ -44,7 +44,7 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter commit-left
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
 
 ## Advanced Usage
 

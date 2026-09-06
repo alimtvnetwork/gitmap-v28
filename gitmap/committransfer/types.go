@@ -4,7 +4,7 @@
 // timeline onto the other as a sequence of fresh, cleaned commits via
 // the manual-reconstruct mechanism (checkout + file-snapshot + commit).
 //
-// Spec: spec/01-app/106-commit-left-right-both.md
+// Spec: 02-spec/01-app/106-commit-left-right-both.md
 //
 // **Status (v3.102.0):** all three directions live —
 // `commit-right` (Phase 1, v3.76.0), `commit-left` (Phase 2), and

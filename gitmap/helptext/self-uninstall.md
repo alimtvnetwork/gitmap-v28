@@ -78,7 +78,7 @@ gitmap self-uninstall --confirm --shell-mode pwsh
 ## See also
 
 - `gitmap self-install` — install or re-install the gitmap binary
-- `spec/04-generic-cli/21-post-install-shell-activation/04-idempotency.md` —
+- `02-spec/04-generic-cli/21-post-install-shell-activation/04-idempotency.md` —
   marker block conventions used to locate and strip the PATH snippet
 
 ## Scripting (JSON)
@@ -89,4 +89,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter self-uninstall
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

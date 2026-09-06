@@ -57,7 +57,7 @@ const (
 )
 
 // Folder-arg clone-next (`cn vX <folder>` and `cn <folder>`) — v3.117.0.
-// See spec/01-app/111-cn-folder-arg.md for the full classification table.
+// See 02-spec/01-app/111-cn-folder-arg.md for the full classification table.
 const (
 	// CloneNextDefaultVersionArg is what the single-positional folder
 	// form defaults to when the user omits a version. v++ is the

@@ -5,7 +5,7 @@
 # Installs EXACTLY the version requested via --version. Never resolves
 # "latest", never auto-upgrades, never silently substitutes.
 #
-# Spec: spec/01-app/105-release-version-script.md
+# Spec: 02-spec/01-app/105-release-version-script.md
 #
 # Usage:
 #   curl -fsSL https://gitmap.dev/scripts/release-version.sh \

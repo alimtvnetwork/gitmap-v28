@@ -20,7 +20,7 @@ package clonefrom
 // Tooling that wants machine-readable dry-run output can pass
 // --format=json to the CLI; that path renders a JSON array of the
 // same Plan.Rows and is covered by a separate JSON Schema (see
-// spec/08-json-schemas/_TODO.md entry for clone-from).
+// 02-spec/08-json-schemas/_TODO.md entry for clone-from).
 
 import (
 	"fmt"

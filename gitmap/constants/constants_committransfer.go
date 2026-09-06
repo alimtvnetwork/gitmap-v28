@@ -2,7 +2,7 @@
 // This file owns the `commit-left` / `commit-right` / `commit-both`
 // command surface (commit-transfer family).
 //
-// Spec: spec/01-app/106-commit-left-right-both.md
+// Spec: 02-spec/01-app/106-commit-left-right-both.md
 //
 // **Status:** LIVE (v3.76.0+). All three directions run through the
 // replay engine in `gitmap/committransfer/`.

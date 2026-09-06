@@ -146,7 +146,7 @@ const (
 	DoctorSignOKFmt      = "Signed: %s (%s)"
 	DoctorSignUnsigned   = "Binary is not digitally signed"
 	DoctorSignUnsignDet  = "Users will see SmartScreen warnings on Windows."
-	DoctorSignUnsignFix  = "See spec/03-general/05-code-signing.md for SignPath.io setup"
+	DoctorSignUnsignFix  = "See 02-spec/03-general/05-code-signing.md for SignPath.io setup"
 	DoctorSignSkipUnix   = "Signature check: skipped (not Windows)"
 	DoctorSignNoPath     = "Signature check: skipped (binary not on PATH)"
 	DoctorSignCheckFail  = "Signature check: could not verify (PowerShell unavailable)"

@@ -2,7 +2,7 @@
 // snippet to the GitHub release body so users who copy the snippet from
 // the release page install EXACTLY that tag, never auto-resolving "latest".
 //
-// Spec: spec/04-release/08-pinned-version-install-snippet.md
+// Spec: 02-spec/04-release/08-pinned-version-install-snippet.md
 package release
 
 import (

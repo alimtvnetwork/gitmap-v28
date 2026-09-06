@@ -1,4 +1,4 @@
-// Package txn — typed Reversible-Action layer (spec/04-generic-cli/29).
+// Package txn — typed Reversible-Action layer (02-spec/04-generic-cli/29).
 //
 // This sits ON TOP of the existing TransactionFile byte-snapshot journal:
 //

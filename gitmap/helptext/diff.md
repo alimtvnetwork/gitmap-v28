@@ -5,7 +5,7 @@ merge-right` would change between two folders. Lists files
 present on only one side and files whose content differs on both
 sides. Writes nothing, commits nothing, pushes nothing.
 
-Spec: companion to `spec/01-app/97-move-and-merge.md`
+Spec: companion to `02-spec/01-app/97-move-and-merge.md`
 
 ## Alias
 
@@ -122,4 +122,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter diff
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

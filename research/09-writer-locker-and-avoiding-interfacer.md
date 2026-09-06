@@ -1,9 +1,9 @@
 # Writer `sync.Locker` Integration & Deprecation of `Interfacer`
 
-> **Document:** `research/09-writer-locker-and-avoiding-interfacer.md`  
-> **Status:** Implemented & Verified  
-> **Package:** `04-code/golang/pkg/streamwriter`  
-> **Date:** 2026-09-04  
+> **Document:** `research/09-writer-locker-and-avoiding-interfacer.md`
+> **Status:** Implemented & Verified
+> **Package:** `04-code/golang/pkg/streamwriter`
+> **Date:** 2026-09-04
 
 ---
 

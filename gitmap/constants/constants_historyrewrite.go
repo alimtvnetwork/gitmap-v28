@@ -1,7 +1,7 @@
 package constants
 
 // History-rewrite (`history-purge` / `history-pin`) flag names. See
-// spec/04-generic-cli/16-history-rewrite.md.
+// 02-spec/04-generic-cli/16-history-rewrite.md.
 const (
 	HistoryFlagYes         = "yes"
 	HistoryFlagYesShort    = "y"

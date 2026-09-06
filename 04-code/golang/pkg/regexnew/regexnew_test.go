@@ -401,6 +401,11 @@ func TestGroupMap_Operations(t *testing.T) {
 		t.Errorf("expected val1, got %s", gm.Get("key1"))
 	}
 
+	// Verify native map access directly
+	if gm["key1"] != "val1" || gm["key2"] != "val2" {
+		t.Errorf("expected native map access gm[\"key1\"] == val1, got %s", gm["key1"])
+	}
+
 	clone := gm.Clone()
 	clone.Remove("key1")
 	if !gm.Has("key1") {
@@ -415,7 +420,7 @@ func TestGroupMap_Operations(t *testing.T) {
 		t.Errorf("unexpected raw map: %v", raw)
 	}
 
-	var nilMap *GroupMap
+	var nilMap GroupMap
 	if nilMap.Has("foo") || nilMap.Get("foo") != "" || nilMap.Len() != 0 || !nilMap.IsEmpty() {
 		t.Errorf("nil GroupMap should be safe")
 	}
@@ -435,14 +440,19 @@ func TestGroupList_Operations(t *testing.T) {
 		t.Errorf("expected 2 items, got %d", gl.Len())
 	}
 
-	found := gl.Find(func(g *GroupMap) bool {
+	// Verify native slice indexing directly
+	if gl[0]["name"] != "alice" || gl[1]["role"] != "user" {
+		t.Errorf("unexpected native slice indexing on GroupList")
+	}
+
+	found := gl.Find(func(g GroupMap) bool {
 		return g.Get("role") == "admin"
 	})
 	if found.Get("name") != "alice" {
 		t.Errorf("expected alice for admin, got %s", found.Get("name"))
 	}
 
-	filtered := gl.Filter(func(g *GroupMap) bool {
+	filtered := gl.Filter(func(g GroupMap) bool {
 		return g.Get("role") == "user"
 	})
 	if filtered.Len() != 1 || filtered.First().Get("name") != "bob" {
@@ -454,8 +464,80 @@ func TestGroupList_Operations(t *testing.T) {
 		t.Errorf("out of bounds At() should return empty non-nil GroupMap")
 	}
 
-	var nilList *GroupList
+	var nilList GroupList
 	if nilList.Len() != 0 || !nilList.IsEmpty() || nilList.First() == nil {
 		t.Errorf("nil GroupList should be safe")
+	}
+
+	// Test new aliases
+	if len(gl.KeyList()) == 0 {
+		t.Errorf("expected non-empty KeyList")
+	}
+	if gl.Size() != 2 || !gl.HasAnyItem() {
+		t.Errorf("expected Size 2 and HasAnyItem true")
+	}
+	if len(gl.AllItems()) != 2 {
+		t.Errorf("expected AllItems to return 2 items")
+	}
+
+	gl.Append(NewGroupMap().Set("name", "charlie"))
+	if gl.Len() != 3 {
+		t.Errorf("expected 3 items after Append")
+	}
+	gl.RemoveAt(1)
+	if gl.Len() != 2 {
+		t.Errorf("expected 2 items after RemoveAt")
+	}
+}
+
+func TestLazyRegex_CheckExistingCompiledFirst(t *testing.T) {
+	lr := New.Lazy(`^task_(?P<id>\d+)$`)
+	if lr.IsCompiled() {
+		t.Errorf("expected not compiled initially")
+	}
+
+	// Compile once
+	re1 := lr.CompileMust()
+	if !lr.IsCompiled() {
+		t.Errorf("expected compiled after CompileMust")
+	}
+
+	// Compile again should return existing compiled directly
+	re2 := lr.CompileMust()
+	if re1 != re2 {
+		t.Errorf("expected exact same instance returned")
+	}
+
+	re3, err := lr.Compile()
+	if err != nil || re3 != re1 {
+		t.Errorf("expected Compile to return existing compiled instance")
+	}
+
+	if lr.Regex() != re1 || lr.Compiled() != re1 {
+		t.Errorf("expected Regex() and Compiled() to return existing instance")
+	}
+
+	res := lr.CompileBuilder()
+	if !res.IsSuccess() || res.Regexp() != re1 {
+		t.Errorf("expected CompileBuilder to return existing compiled regex")
+	}
+
+	gm := lr.GroupBy("task_99")
+	if !gm.ContainsKey("id") || gm.Get("id") != "99" {
+		t.Errorf("expected GroupBy to extract id: 99")
+	}
+	if len(gm.KeyList()) != 1 || len(gm.ValueList()) != 1 {
+		t.Errorf("expected KeyList and ValueList to have length 1")
+	}
+	if gm.Size() != 1 || !gm.HasAnyItem() {
+		t.Errorf("expected Size 1 and HasAnyItem")
+	}
+	if len(gm.Items()) != 1 {
+		t.Errorf("expected Items() to return map of length 1")
+	}
+
+	gm.Put("state", "done")
+	if gm.Get("state") != "done" {
+		t.Errorf("expected state: done after Put")
 	}
 }

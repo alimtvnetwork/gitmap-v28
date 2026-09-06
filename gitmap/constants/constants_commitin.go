@@ -1,6 +1,6 @@
 package constants
 
-// commit-in (`commit-in` / `cin`) constants. See spec/03-commit-in/.
+// commit-in (`commit-in` / `cin`) constants. See 02-spec/03-commit-in/.
 // Per Core memory rules: no magic strings, PascalCase, all CLI IDs in
 // constants_cli.go (the command tokens themselves live there; this
 // file owns flags, exit codes, enum names, messages, and paths).

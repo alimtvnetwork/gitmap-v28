@@ -121,5 +121,5 @@ pattern.
 ## Related
 
 - CI guard: [`.github/workflows/startup-build-tags.yml`](../../.github/workflows/startup-build-tags.yml)
-- Cross-platform spec: [`spec/01-app/42-cross-platform.md`](../../spec/01-app/42-cross-platform.md)
-- Constants strategy: [`spec/04-generic-cli/02-project-structure.md`](../../spec/04-generic-cli/02-project-structure.md)
+- Cross-platform spec: [`02-spec/01-app/42-cross-platform.md`](../../02-spec/01-app/42-cross-platform.md)
+- Constants strategy: [`02-spec/04-generic-cli/02-project-structure.md`](../../02-spec/04-generic-cli/02-project-structure.md)

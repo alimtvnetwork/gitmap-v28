@@ -6,7 +6,7 @@
 //	ChromeProfile        — one row per (Name) seen by cpc/cpe
 //	ChromeProfileExport  — one row per snapshot (json or csv)
 //
-// Spec: spec/04-generic-cli/40-chrome-profile-copy.md §6 (Persistence).
+// Spec: 02-spec/04-generic-cli/40-chrome-profile-copy.md §6 (Persistence).
 package store
 
 import (

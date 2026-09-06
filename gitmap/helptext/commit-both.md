@@ -101,7 +101,7 @@ Interleave output skeleton:
 
 - [commit-left](commit-left.md), [commit-right](commit-right.md) — single-direction siblings
 - [merge-both](merge-both.md) — file-state mirror (no commit replay)
-- spec/01-app/106-commit-left-right-both.md — full design
+- 02-spec/01-app/106-commit-left-right-both.md — full design
 
 ## Scripting (JSON)
 
@@ -111,4 +111,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter commit-both
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

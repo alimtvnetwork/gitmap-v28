@@ -198,7 +198,7 @@ const (
 	ErrUpdateRemoteRun      = "  ✗ Installer failed: %v\n"
 )
 
-// Native sibling-repo probe (v5.52.0+). Spec: spec/01-app/111-update-remote-probe.md.
+// Native sibling-repo probe (v5.52.0+). Spec: 02-spec/01-app/111-update-remote-probe.md.
 //
 // `gitmap update` resolves the winning gitmap-vN repo slug in Go using a
 // 20-parallel HEAD probe, then downloads THAT repo's installer. The
@@ -470,7 +470,7 @@ if ($activeBinary -and (Test-Path $activeBinary)) {
 # launches "<deployed> update-cleanup" directly in a hidden process with a
 # short delay. That avoids brittle cmd.exe quoting AND avoids stale PATH
 # binaries hijacking cleanup on machines with duplicate installs. See
-# spec/08-generic-update/06-cleanup.md.
+# 02-spec/08-generic-update/06-cleanup.md.
 
 Write-Host ""
 exit 0
@@ -503,7 +503,7 @@ if ($cmdAfter -and (Test-Path $cmdAfter.Source)) {
 # in runRevertRunner) handles cleanup after this PowerShell script and
 # the surrounding handoff process exit, so the deployed binary can
 # safely remove the still-locked handoff exe + .old backup. See
-# spec/08-generic-update/06-cleanup.md.
+# 02-spec/08-generic-update/06-cleanup.md.
 
 Write-Host ""
 exit 0

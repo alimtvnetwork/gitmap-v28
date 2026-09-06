@@ -1,7 +1,7 @@
 package constants
 
 // commit-in tag-replay SQL DDL (migration 007). See
-// spec/03-commit-in/09-commit-in-replay-map.md.
+// 02-spec/03-commit-in/09-commit-in-replay-map.md.
 //
 // Idempotent per Core memory: every statement uses CREATE / INDEX
 // IF NOT EXISTS, and the enum-mirror seed uses INSERT OR IGNORE.

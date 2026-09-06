@@ -111,4 +111,4 @@ $ gitmap list --update
 
     gitmap help --json --filter list-update
 
-Schema: `spec/08-json-schemas/list-update.schema.json` (v6.80.0+).
+Schema: `02-spec/08-json-schemas/list-update.schema.json` (v6.80.0+).

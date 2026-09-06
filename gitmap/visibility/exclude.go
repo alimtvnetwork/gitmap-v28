@@ -1,7 +1,7 @@
 // Package visibility — exclude.go: parser for the per-index exclusion
 // string the user types at the bulk-visibility confirm prompt.
 //
-// Grammar (per spec/01-app/116 §4):
+// Grammar (per 02-spec/01-app/116 §4):
 //
 //	""        → no exclusions (equivalent to "none")
 //	"none"    → no exclusions

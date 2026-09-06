@@ -216,7 +216,7 @@ func (db *DB) Migrate() error {
 		return err
 	}
 
-	// commit-in (spec/03-commit-in/) — adds 18 tables + seeds. Keep
+	// commit-in (02-spec/03-commit-in/) — adds 18 tables + seeds. Keep
 	// AFTER the v15 / standard CREATE pass so commit-in DDL never
 	// races with the legacy rebuilds; keep BEFORE the schema-version
 	// stamp so a failure forces the next run to retry.

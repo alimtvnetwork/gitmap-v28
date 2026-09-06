@@ -76,4 +76,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter import
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

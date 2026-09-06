@@ -41,7 +41,7 @@ grouped help screen. With a topic, prints per-command help.
 
 ## JSON schema
 
-The `--json` payload conforms to [`spec/08-json-schemas/help-json.schema.json`](../../spec/08-json-schemas/help-json.schema.json)
+The `--json` payload conforms to [`02-spec/08-json-schemas/help-json.schema.json`](../../02-spec/08-json-schemas/help-json.schema.json)
 (JSON Schema draft 2020-12). Contract test `helpjson_jsonschema_contract_test.go`
 validates runtime output against the schema on every build to prevent drift.
 
@@ -59,4 +59,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter help
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
