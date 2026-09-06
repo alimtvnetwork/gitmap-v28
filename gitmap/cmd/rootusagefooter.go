@@ -284,7 +284,7 @@ func extractSHAFromVersionJSON(path string) string {
 	}
 
 	var parsed struct {
-		LastCommitSha string `json:"LastCommitSha"`
+		LastCommitSha string `json:",omitempty"`
 		Git           struct {
 			Sha string `json:"sha"`
 		} `json:"git"`

@@ -10,12 +10,12 @@ type (
 	LogLevel = logleveltype.Variant
 
 	LogEntry struct {
-		Timestamp string              `json:"Timestamp" yaml:"Timestamp"`
-		Level     LogLevel            `json:"Level" yaml:"Level"`
-		Message   string              `json:"Message" yaml:"Message"`
-		Fields    appfault.ContextMap `json:"Fields,omitempty" yaml:"Fields,omitempty"`
-		Caller    string              `json:"Caller,omitempty" yaml:"Caller,omitempty"`
-		Stack     string              `json:"Stack,omitempty" yaml:"Stack,omitempty"`
+		Timestamp string              `json:",omitempty" yaml:",omitempty"`
+		Level     LogLevel            `json:",omitempty" yaml:",omitempty"`
+		Message   string              `json:",omitempty" yaml:",omitempty"`
+		Fields    appfault.ContextMap `json:",omitempty" yaml:",omitempty"`
+		Caller    string              `json:",omitempty" yaml:",omitempty"`
+		Stack     string              `json:",omitempty" yaml:",omitempty"`
 	}
 
 	LogSinker interface {

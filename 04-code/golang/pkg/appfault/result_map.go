@@ -2,8 +2,8 @@ package appfault
 
 // ResultMap wraps a generic key-value map with monadic error state.
 type ResultMap[K comparable, V any] struct {
-	Data     map[K]V   `json:"Data,omitempty" yaml:"Data,omitempty"`
-	AppError *AppError `json:"AppError,omitempty" yaml:"AppError,omitempty"`
+	Data     map[K]V   `json:",omitempty" yaml:",omitempty"`
+	AppError *AppError `json:",omitempty" yaml:",omitempty"`
 }
 
 // OkMap creates a successful ResultMap.

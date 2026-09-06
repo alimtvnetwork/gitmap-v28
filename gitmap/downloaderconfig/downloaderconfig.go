@@ -27,32 +27,32 @@ import (
 // PascalCase to match the spec and the JSON file shipped under
 // gitmap/data/downloader-config.json.
 type Document struct {
-	DownloaderConfig DownloaderConfig `json:"DownloaderConfig"`
-	DatabaseVersion  DatabaseVersion  `json:"DatabaseVersion"`
+	DownloaderConfig DownloaderConfig `json:",omitempty"`
+	DatabaseVersion  DatabaseVersion  `json:",omitempty"`
 }
 
 // DownloaderConfig is the per-downloader runtime config consumed by
 // Slice 2 (aria2c installer + engine).
 type DownloaderConfig struct {
-	PreferredDownloader string `json:"PreferredDownloader"`
-	FallbackDownloader  string `json:"FallbackDownloader"`
-	ParallelDownloads   int    `json:"ParallelDownloads"`
-	SplitConnections    int    `json:"SplitConnections"`
-	DefaultSplitSize    string `json:"DefaultSplitSize"`
-	LargeFileSplitSize  string `json:"LargeFileSplitSize"`
-	LargeFileThreshold  string `json:"LargeFileThreshold"`
-	TinyFileThreshold   string `json:"TinyFileThreshold"`
-	TinyFileSplitSize   string `json:"TinyFileSplitSize"`
-	TinyFileSplits      int    `json:"TinyFileSplits"`
-	AllowFallback       bool   `json:"AllowFallback"`
-	OverwriteUserConfig bool   `json:"OverwriteUserConfig"`
+	PreferredDownloader string `json:",omitempty"`
+	FallbackDownloader  string `json:",omitempty"`
+	ParallelDownloads   int    `json:",omitempty"`
+	SplitConnections    int    `json:",omitempty"`
+	DefaultSplitSize    string `json:",omitempty"`
+	LargeFileSplitSize  string `json:",omitempty"`
+	LargeFileThreshold  string `json:",omitempty"`
+	TinyFileThreshold   string `json:",omitempty"`
+	TinyFileSplitSize   string `json:",omitempty"`
+	TinyFileSplits      int    `json:",omitempty"`
+	AllowFallback       bool   `json:",omitempty"`
+	OverwriteUserConfig bool   `json:",omitempty"`
 }
 
 // DatabaseVersion records the last gitmap version that touched the DB.
 // Stored as a string so we can keep the literal "auto" sentinel in the
 // shipped seed file and resolve it at apply-time to constants.Version.
 type DatabaseVersion struct {
-	LastKnownVersion string `json:"LastKnownVersion"`
+	LastKnownVersion string `json:",omitempty"`
 }
 
 // Defaults returns a Document populated from the hard-coded constants.
