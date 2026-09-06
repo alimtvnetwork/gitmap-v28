@@ -10,9 +10,9 @@ import (
 
 // CallerInfo encapsulates caller site metadata as a value object.
 type CallerInfo struct {
-	Function string `json:"Function,omitempty" yaml:"Function,omitempty"`
-	File     string `json:"File,omitempty" yaml:"File,omitempty"`
-	Line     int    `json:"Line,omitempty" yaml:"Line,omitempty"`
+	Function string `json:",omitempty" yaml:",omitempty"`
+	File     string `json:",omitempty" yaml:",omitempty"`
+	Line     int    `json:",omitempty" yaml:",omitempty"`
 }
 
 // String returns formatted "file:line (function)" or "file:line".

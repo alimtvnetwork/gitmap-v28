@@ -8,13 +8,13 @@ import (
 
 // AppErrorDataModel is the serializable DTO for AppError with PascalCase properties.
 type AppErrorDataModel struct {
-	Type       errtype.Variation `json:"Type,omitempty" yaml:"Type,omitempty"`
-	Message    string            `json:"Message,omitempty" yaml:"Message,omitempty"`
-	Caller     CallerInfo        `json:"Caller,omitempty" yaml:"Caller,omitempty"`
-	Stack      StackTrace        `json:"Stack,omitempty" yaml:"Stack,omitempty"`
-	Ctx        ContextMap        `json:"Ctx,omitempty" yaml:"Ctx,omitempty"`
-	Cause      string            `json:"Cause,omitempty" yaml:"Cause,omitempty"`
-	StatusCode int               `json:"StatusCode,omitempty" yaml:"StatusCode,omitempty"`
+	Type       errtype.Variation `json:",omitempty" yaml:",omitempty"`
+	Message    string            `json:",omitempty" yaml:",omitempty"`
+	Caller     CallerInfo        `json:",omitempty" yaml:",omitempty"`
+	Stack      StackTrace        `json:",omitempty" yaml:",omitempty"`
+	Ctx        ContextMap        `json:",omitempty" yaml:",omitempty"`
+	Cause      string            `json:",omitempty" yaml:",omitempty"`
+	StatusCode int               `json:",omitempty" yaml:",omitempty"`
 }
 
 // extractCauseString safely extracts the cause error message string.

@@ -9,37 +9,37 @@ import (
 // jsonShape mirrors spec §5.2 key order exactly. Field tags drive both
 // strict decode (DisallowUnknownFields) and stable encode order.
 type jsonShape struct {
-	Name             string        `json:"Name"`
-	SchemaVersion    int           `json:"SchemaVersion"`
-	SourceRepoPath   string        `json:"SourceRepoPath"`
-	IsDefault        bool          `json:"IsDefault"`
-	ConflictMode     string        `json:"ConflictMode"`
-	Author           *jsonAuthor   `json:"Author,omitempty"`
-	Exclusions       []jsonKV      `json:"Exclusions"`
-	MessageRules     []jsonKV      `json:"MessageRules"`
-	MessagePrefix    []string      `json:"MessagePrefix"`
-	MessageSuffix    []string      `json:"MessageSuffix"`
-	TitlePrefix      string        `json:"TitlePrefix"`
-	TitleSuffix      string        `json:"TitleSuffix"`
-	OverrideMessages []string      `json:"OverrideMessages"`
-	OverrideOnlyWeak bool          `json:"OverrideOnlyWeak"`
-	WeakWords        []string      `json:"WeakWords"`
-	FunctionIntel    jsonFuncIntel `json:"FunctionIntel"`
+	Name             string        `json:",omitempty"`
+	SchemaVersion    int           `json:",omitempty"`
+	SourceRepoPath   string        `json:",omitempty"`
+	IsDefault        bool          `json:",omitempty"`
+	ConflictMode     string        `json:",omitempty"`
+	Author           *jsonAuthor   `json:",omitempty"`
+	Exclusions       []jsonKV      `json:",omitempty"`
+	MessageRules     []jsonKV      `json:",omitempty"`
+	MessagePrefix    []string      `json:",omitempty"`
+	MessageSuffix    []string      `json:",omitempty"`
+	TitlePrefix      string        `json:",omitempty"`
+	TitleSuffix      string        `json:",omitempty"`
+	OverrideMessages []string      `json:",omitempty"`
+	OverrideOnlyWeak bool          `json:",omitempty"`
+	WeakWords        []string      `json:",omitempty"`
+	FunctionIntel    jsonFuncIntel `json:",omitempty"`
 }
 
 type jsonAuthor struct {
-	Name  string `json:"Name"`
-	Email string `json:"Email"`
+	Name  string `json:",omitempty"`
+	Email string `json:",omitempty"`
 }
 
 type jsonKV struct {
-	Kind  string `json:"Kind"`
-	Value string `json:"Value"`
+	Kind  string `json:",omitempty"`
+	Value string `json:",omitempty"`
 }
 
 type jsonFuncIntel struct {
-	IsEnabled bool     `json:"IsEnabled"`
-	Languages []string `json:"Languages"`
+	IsEnabled bool     `json:",omitempty"`
+	Languages []string `json:",omitempty"`
 }
 
 // Decode parses a profile JSON byte slice into a Profile (strict).

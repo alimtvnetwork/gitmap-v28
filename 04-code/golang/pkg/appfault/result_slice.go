@@ -2,8 +2,8 @@ package appfault
 
 // ResultSlice wraps a generic slice collection with monadic error state.
 type ResultSlice[T any] struct {
-	Items    []T       `json:"Items,omitempty" yaml:"Items,omitempty"`
-	AppError *AppError `json:"AppError,omitempty" yaml:"AppError,omitempty"`
+	Items    []T       `json:",omitempty" yaml:",omitempty"`
+	AppError *AppError `json:",omitempty" yaml:",omitempty"`
 }
 
 // OkSlice creates a successful ResultSlice.
