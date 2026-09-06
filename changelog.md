@@ -1002,6 +1002,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [6.192.0] - 2026-09-06
+
+### Changed
+- refactor: apply result wrappers and replace panics with HandleError
+
+
 ## [v6.153.0] 2026-08-29 Release v6.153.0
 
 ### Install gitmap v6.153.0
