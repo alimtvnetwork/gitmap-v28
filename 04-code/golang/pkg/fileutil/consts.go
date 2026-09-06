@@ -72,12 +72,14 @@ const (
 	FileWriteModeTruncate FileWriteModeType = 3
 )
 
-type ChunkHandlerFunc func(chunk []byte) error
+type (
+	ChunkHandlerFunc func(chunk []byte) error
 
-type ChunkCallbackFunc func(chunk []byte) *appfault.AppError
+	ChunkCallbackFunc func(chunk []byte) *appfault.AppError
 
-type BoundFileActionFunc func(w *BoundFileWriter) *appfault.AppError
+	BoundFileActionFunc func(w *BoundFileWriter) *appfault.AppError
 
-type WithLockFunc = BoundFileActionFunc
+	WithLockFunc = BoundFileActionFunc
 
-type FileFilterFunc func(path string, info os.FileInfo) bool
+	FileFilterFunc func(path string, info os.FileInfo) bool
+)

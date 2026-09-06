@@ -14,26 +14,28 @@ import (
 	"coding-guidelines/common/pkg/streamwriter"
 )
 
-type BoundFileWriterOptions struct {
-	Path        string
-	Mode        FileWriteModeType
-	Perm        FilePermType
-	SyncOnWrite bool
-	AutoClose   bool
-}
+type (
+	BoundFileWriterOptions struct {
+		Path        string
+		Mode        FileWriteModeType
+		Perm        FilePermType
+		SyncOnWrite bool
+		AutoClose   bool
+	}
 
-type BoundFileWriter struct {
-	mu            sync.Mutex
-	path          string
-	mode          FileWriteModeType
-	perm          FilePermType
-	syncOnWrite   bool
-	autoClose     bool
-	file          *os.File
-	bytesWritten  atomic.Int64
-	bytesAppended atomic.Int64
-	writeCount    atomic.Int64
-}
+	BoundFileWriter struct {
+		mu            sync.Mutex
+		path          string
+		mode          FileWriteModeType
+		perm          FilePermType
+		syncOnWrite   bool
+		autoClose     bool
+		file          *os.File
+		bytesWritten  atomic.Int64
+		bytesAppended atomic.Int64
+		writeCount    atomic.Int64
+	}
+)
 
 func NewBoundFileWriter(path string) *BoundFileWriter {
 	return &BoundFileWriter{

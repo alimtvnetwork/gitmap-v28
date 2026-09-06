@@ -7,14 +7,16 @@ import (
 	"strings"
 )
 
-// StackFrame holds metadata for a single caller frame.
-type StackFrame struct {
-	Function string `json:"Function,omitempty" yaml:"Function,omitempty"`
-	File     string `json:"File,omitempty" yaml:"File,omitempty"`
-	Line     int    `json:"Line,omitempty" yaml:"Line,omitempty"`
-}
+type (
+	StackFrame struct {
+		Function string `json:"Function,omitempty" yaml:"Function,omitempty"`
+		File     string `json:"File,omitempty" yaml:"File,omitempty"`
+		Line     int    `json:"Line,omitempty" yaml:"Line,omitempty"`
+	}
 
-// NewStackFrame constructs a StackFrame with line-by-line assignment.
+	StackTrace []StackFrame
+)
+
 func NewStackFrame(function string, file string, line int) StackFrame {
 	frame := StackFrame{}
 	frame.Function = function
@@ -24,10 +26,6 @@ func NewStackFrame(function string, file string, line int) StackFrame {
 	return frame
 }
 
-// StackTrace is a collection of structured call frames.
-type StackTrace []StackFrame
-
-// NewStackTrace creates a StackTrace from a slice of StackFrames.
 func NewStackTrace(frames ...StackFrame) StackTrace {
 	return StackTrace(frames)
 }

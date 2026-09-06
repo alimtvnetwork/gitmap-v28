@@ -6,21 +6,21 @@ import (
 	"strings"
 )
 
-// BaseEnum defines the universal contract for all enums in the ecosystem.
-type BaseEnum interface {
-	Name() string
-	String() string
-	ValueString() string
-	IsValid() bool
-	IsEnum() bool
-}
+type (
+	BaseEnum interface {
+		Name() string
+		String() string
+		ValueString() string
+		IsValid() bool
+		IsEnum() bool
+	}
 
-// NumberEnum extends BaseEnum for integer-backed enums.
-type NumberEnum interface {
-	BaseEnum
-	Int() int
-	Code() uint16
-}
+	NumberEnum interface {
+		BaseEnum
+		Int() int
+		Code() uint16
+	}
+)
 
 // ValueString returns the string representation of the variation code.
 func (v Variation) ValueString() string {

@@ -10,25 +10,25 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-// WriterOptions configures the pluggable writer for payload type T.
-type WriterOptions[T any] struct {
-	Name         string
-	Destination  io.Writer
-	Streamer     Streamer[T]
-	FormatMethod FormatFunc[T]
-	WriteMethod  WriteFunc[T]
-}
+type (
+	WriterOptions[T any] struct {
+		Name         string
+		Destination  io.Writer
+		Streamer     Streamer[T]
+		FormatMethod FormatFunc[T]
+		WriteMethod  WriteFunc[T]
+	}
 
-// PluggableWriter provides a composable write engine over type T with AppError returns and Locker synchronization.
-type PluggableWriter[T any] struct {
-	mu           ReentrantMutex
-	configMu     sync.RWMutex
-	name         string
-	destination  io.Writer
-	streamer     Streamer[T]
-	formatMethod FormatFunc[T]
-	writeMethod  WriteFunc[T]
-}
+	PluggableWriter[T any] struct {
+		mu           ReentrantMutex
+		configMu     sync.RWMutex
+		name         string
+		destination  io.Writer
+		streamer     Streamer[T]
+		formatMethod FormatFunc[T]
+		writeMethod  WriteFunc[T]
+	}
+)
 
 // NewPluggableWriter constructs a pluggable writer over generic type T.
 func NewPluggableWriter[T any](opts WriterOptions[T]) *PluggableWriter[T] {

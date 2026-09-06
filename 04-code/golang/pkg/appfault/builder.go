@@ -7,20 +7,19 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-// AppErrorBuilder provides mutable accumulation of diagnostic metadata
-// before freezing into a strictly immutable *AppError via Build().
-type AppErrorBuilder struct {
-	errType    errtype.Variation
-	message    string
-	caller     CallerInfo
-	stack      StackTrace
-	ctx        map[string]any
-	cause      error
-	statusCode int
-}
+type (
+	AppErrorBuilder struct {
+		errType    errtype.Variation
+		message    string
+		caller     CallerInfo
+		stack      StackTrace
+		ctx        map[string]any
+		cause      error
+		statusCode int
+	}
 
-// AppBuilder is an alias for AppErrorBuilder.
-type AppBuilder = AppErrorBuilder
+	AppBuilder = AppErrorBuilder
+)
 
 // NewBuilder initializes a new mutable AppErrorBuilder.
 func NewBuilder(errType errtype.Variation, message string) *AppErrorBuilder {

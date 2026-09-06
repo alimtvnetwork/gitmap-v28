@@ -2,20 +2,19 @@ package appfault
 
 import "coding-guidelines/common/pkg/errtype"
 
-// AppError is the universal structured error type carrying full diagnostics.
-// All internal fields are unexported for strict encapsulation.
-type AppError struct {
-	errType    errtype.Variation
-	message    string
-	caller     CallerInfo
-	stack      StackTrace
-	ctx        ContextMap
-	cause      error
-	statusCode int
-}
+type (
+	AppError struct {
+		errType    errtype.Variation
+		message    string
+		caller     CallerInfo
+		stack      StackTrace
+		ctx        ContextMap
+		cause      error
+		statusCode int
+	}
 
-// Fault is retained as a type alias for AppError for backward compatibility.
-type Fault = AppError
+	Fault = AppError
+)
 
 // HasError returns true if the AppError exists and is not errtype.None.
 func (e *AppError) HasError() bool {

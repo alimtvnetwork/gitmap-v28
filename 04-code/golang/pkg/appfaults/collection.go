@@ -5,13 +5,13 @@ import (
 	"coding-guidelines/common/pkg/errtype"
 )
 
-// Collection holds an ordered slice of AppError pointers.
-type Collection struct {
-	items []*appfault.AppError
-}
+type (
+	Collection struct {
+		items []*appfault.AppError
+	}
 
-// AppFaults is an alias for Collection for domain consistency.
-type AppFaults = Collection
+	AppFaults = Collection
+)
 
 // New creates an empty, non-nil error collection.
 func New() *Collection {

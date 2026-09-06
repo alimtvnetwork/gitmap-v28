@@ -70,8 +70,8 @@ const (
 	LogLevelFatal LogLevelType = 5
 )
 
-// VariationPredicate tests a Variation code against a condition.
-type VariationPredicate func(v Variation) bool
+type (
+	VariationPredicate func(v Variation) bool
 
-// EnumPredicate tests a BaseEnum against a condition.
-type EnumPredicate func(e BaseEnum) bool
+	EnumPredicate func(e BaseEnum) bool
+)

@@ -5,8 +5,10 @@ const (
 	DefaultFailureBanner = "❌ [FAIL]"
 )
 
-type ResultFormatter[T any] func(r Wrap[T]) string
+type (
+	ResultFormatter[T any] func(r Wrap[T]) string
 
-type ResultPredicate[T any] func(r Wrap[T]) bool
+	ResultPredicate[T any] func(r Wrap[T]) bool
 
-type ResultMapper[T any, U any] func(val T) U
+	ResultMapper[T any, U any] func(val T) U
+)

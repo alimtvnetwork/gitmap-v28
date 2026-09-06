@@ -40,21 +40,23 @@ func (m FileWriteModeType) IsValid() bool {
 	return ok
 }
 
-type FileWriterOptions struct {
-	Path        string
-	Mode        FileWriteModeType
-	Perm        FilePermType
-	SyncOnWrite bool
-}
+type (
+	FileWriterOptions struct {
+		Path        string
+		Mode        FileWriteModeType
+		Perm        FilePermType
+		SyncOnWrite bool
+	}
 
-type FileWriter struct {
-	mu          sync.RWMutex
-	path        string
-	mode        FileWriteModeType
-	perm        FilePermType
-	syncOnWrite bool
-	file        *os.File
-}
+	FileWriter struct {
+		mu          sync.RWMutex
+		path        string
+		mode        FileWriteModeType
+		perm        FilePermType
+		syncOnWrite bool
+		file        *os.File
+	}
+)
 
 func NewFileWriterEngine(path string) *FileWriter {
 	return &FileWriter{

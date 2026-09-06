@@ -5,7 +5,11 @@ import (
 	"fmt"
 )
 
-type Variant byte
+type (
+	Variant byte
+
+	VariantPredicate func(v Variant) bool
+)
 
 const (
 	Invalid Variant = iota
@@ -17,8 +21,6 @@ const (
 )
 
 const Unknown = Invalid
-
-type VariantPredicate func(v Variant) bool
 
 func (v Variant) Name() string {
 	if int(v) < len(variantLabels) {

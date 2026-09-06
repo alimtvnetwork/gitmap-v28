@@ -4,38 +4,38 @@ import (
 	"coding-guidelines/common/pkg/appfault"
 )
 
-// WrappedBytes defines the contract for byte envelopes with status flag and AppError state.
-type WrappedBytes[T any] interface {
-	Raw() []byte
-	Bytes() []byte
-	String() string
-	Len() int
-	IsEmpty() bool
-	IsNull() bool
-	HasZero() bool
-	IsZero() bool
-	HasNull() bool
-	Payload() T
-	Value() T
-	AppError() *appfault.AppError
-	Fault() *appfault.AppError
-	Error() *appfault.AppError
-	HasError() bool
-	IsValid() bool
-	IsSuccess() bool
-	Status() bool
-	StatusCode() int
-	Unwrap() ([]byte, *appfault.AppError)
-}
+type (
+	WrappedBytes[T any] interface {
+		Raw() []byte
+		Bytes() []byte
+		String() string
+		Len() int
+		IsEmpty() bool
+		IsNull() bool
+		HasZero() bool
+		IsZero() bool
+		HasNull() bool
+		Payload() T
+		Value() T
+		AppError() *appfault.AppError
+		Fault() *appfault.AppError
+		Error() *appfault.AppError
+		HasError() bool
+		IsValid() bool
+		IsSuccess() bool
+		Status() bool
+		StatusCode() int
+		Unwrap() ([]byte, *appfault.AppError)
+	}
 
-// Bytes wraps a formatted byte slice bundled with its generic payload T, status flag, and AppError state.
-type Bytes[T any] struct {
-	data       []byte
-	payload    T
-	status     bool
-	statusCode int
-	appError   *appfault.AppError
-}
+	Bytes[T any] struct {
+		data       []byte
+		payload    T
+		status     bool
+		statusCode int
+		appError   *appfault.AppError
+	}
+)
 
 // NewBytes creates a successful Bytes envelope with status flag set to true and code 200.
 func NewBytes[T any](data []byte, payload T) Bytes[T] {
