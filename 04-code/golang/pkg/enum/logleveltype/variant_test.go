@@ -160,3 +160,35 @@ func TestJSONRoundtrip(t *testing.T) {
 		t.Fatalf("expected Warn, got %v", parsed)
 	}
 }
+
+func TestUnmarshalJSON_InvalidCases(t *testing.T) {
+	var v logleveltype.Variant
+
+	// Invalid string must return error
+	if err := json.Unmarshal([]byte(`"NonExistentLevel"`), &v); err == nil {
+		t.Fatalf("expected error unmarshaling invalid string, got nil")
+	}
+
+	// Invalid numeric byte must return error
+	if err := json.Unmarshal([]byte(`99`), &v); err == nil {
+		t.Fatalf("expected error unmarshaling invalid numeric byte 99, got nil")
+	}
+
+	// Null should unmarshal to Invalid without error
+	if err := json.Unmarshal([]byte(`null`), &v); err != nil {
+		t.Fatalf("expected nil error on null, got %v", err)
+	}
+
+	if v != logleveltype.Invalid {
+		t.Fatalf("expected Invalid on null, got %v", v)
+	}
+
+	// Valid numeric byte
+	if err := json.Unmarshal([]byte(`1`), &v); err != nil {
+		t.Fatalf("expected nil error on numeric 1, got %v", err)
+	}
+
+	if v != logleveltype.Debug {
+		t.Fatalf("expected Debug on numeric 1, got %v", v)
+	}
+}

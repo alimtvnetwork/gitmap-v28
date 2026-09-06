@@ -3,25 +3,43 @@ package errtype
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strconv"
 	"strings"
 )
 
-var variationNames = map[Variation]string{
-	None:          "None",
-	Generic:       "Generic",
-	Validation:    "Validation",
-	NotFound:      "NotFound",
-	Precondition:  "Precondition",
-	Execution:     "Execution",
-	Database:      "Database",
-	Network:       "Network",
-	Timeout:       "Timeout",
-	IO:            "IO",
-	Unauthorized:  "Unauthorized",
-	Forbidden:     "Forbidden",
-	Internal:      "Internal",
-	Unknown:       "Unknown",
-	Serialization: "Serialization",
+var (
+	variationNames = map[Variation]string{
+		None:          "None",
+		Generic:       "Generic",
+		Validation:    "Validation",
+		NotFound:      "NotFound",
+		Precondition:  "Precondition",
+		Execution:     "Execution",
+		Database:      "Database",
+		Network:       "Network",
+		Timeout:       "Timeout",
+		IO:            "IO",
+		Unauthorized:  "Unauthorized",
+		Forbidden:     "Forbidden",
+		Internal:      "Internal",
+		Unknown:       "Unknown",
+		Serialization: "Serialization",
+	}
+
+	variationMap = compileVariationMap()
+)
+
+func compileVariationMap() map[string]Variation {
+	m := make(map[string]Variation, len(variationNames)*4)
+	for varEnum, varName := range variationNames {
+		m[varName] = varEnum
+		m[strings.ToLower(varName)] = varEnum
+		m[strings.ToUpper(varName)] = varEnum
+		m[fmt.Sprintf("%d", uint16(varEnum))] = varEnum
+	}
+
+	return m
 }
 
 // Name returns the string representation of standard Variations.
@@ -139,15 +157,28 @@ func (v *Variation) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	for varEnum, varName := range variationNames {
-		if strings.EqualFold(varName, name) {
-			*v = varEnum
+	cleaned := strings.ToLower(strings.TrimSpace(name))
+	if val, ok := variationMap[cleaned]; ok {
+		*v = val
+
+		return nil
+	}
+
+	if strings.HasPrefix(cleaned, "custom(") && strings.HasSuffix(cleaned, ")") {
+		inner := strings.TrimSuffix(strings.TrimPrefix(cleaned, "custom("), ")")
+		if code, err := strconv.ParseUint(inner, 10, 16); err == nil {
+			*v = Variation(uint16(code))
 
 			return nil
 		}
 	}
 
-	*v = Generic
+	names := make([]string, 0, len(variationNames))
+	for _, n := range variationNames {
+		names = append(names, n)
+	}
 
-	return nil
+	sort.Strings(names)
+
+	return fmt.Errorf("unknown Variation %q, supported: [%s]", name, strings.Join(names, ", "))
 }

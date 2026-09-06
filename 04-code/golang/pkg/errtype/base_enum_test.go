@@ -120,3 +120,43 @@ func TestToEnum_GenericHelper(t *testing.T) {
 		t.Fatal("expected non-existent enum to return ok=false")
 	}
 }
+
+func TestProcessStateType_UnmarshalJSON_Invalid(t *testing.T) {
+	var s errtype.ProcessStateType
+
+	if err := json.Unmarshal([]byte(`"invalid_state"`), &s); err == nil {
+		t.Fatalf("expected error unmarshaling invalid process state, got nil")
+	}
+
+	if err := json.Unmarshal([]byte(`null`), &s); err != nil {
+		t.Fatalf("expected nil error on null, got %v", err)
+	}
+
+	if s != errtype.ProcessStateUnknown {
+		t.Fatalf("expected ProcessStateUnknown on null, got %v", s)
+	}
+}
+
+func TestLogLevelType_UnmarshalJSON_Invalid(t *testing.T) {
+	var l errtype.LogLevelType
+
+	if err := json.Unmarshal([]byte(`"invalid_level"`), &l); err == nil {
+		t.Fatalf("expected error unmarshaling invalid log level, got nil")
+	}
+
+	if err := json.Unmarshal([]byte(`999`), &l); err == nil {
+		t.Fatalf("expected error unmarshaling out-of-range numeric code 999, got nil")
+	}
+
+	if err := json.Unmarshal([]byte(`null`), &l); err != nil {
+		t.Fatalf("expected nil error on null, got %v", err)
+	}
+
+	if err := json.Unmarshal([]byte(`2`), &l); err != nil {
+		t.Fatalf("expected nil error on numeric 2, got %v", err)
+	}
+
+	if l != errtype.LogLevelInfo {
+		t.Fatalf("expected LogLevelInfo on numeric 2, got %v", l)
+	}
+}

@@ -1,19 +1,43 @@
 package logleveltype
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
 	"coding-guidelines/common/pkg/errtype"
 	"coding-guidelines/common/pkg/result"
 )
 
-var variantLabels = [...]string{
-	Invalid: "Unknown",
-	Debug:   "Debug",
-	Info:    "Info",
-	Warn:    "Warn",
-	Error:   "Error",
-	Fatal:   "Fatal",
+var (
+	variantLabels = [...]string{
+		Invalid: "Unknown",
+		Debug:   "Debug",
+		Info:    "Info",
+		Warn:    "Warn",
+		Error:   "Error",
+		Fatal:   "Fatal",
+	}
+
+	variantMap = compileVariantMap()
+)
+
+func compileVariantMap() map[string]Variant {
+	m := make(map[string]Variant, (len(variantLabels)*4)+4)
+	for i, label := range variantLabels {
+		v := Variant(i)
+		m[label] = v
+		m[strings.ToLower(label)] = v
+		m[strings.ToUpper(label)] = v
+		m[strconv.Itoa(i)] = v
+	}
+
+	m["unknown"] = Invalid
+	m["invalid"] = Invalid
+	m["UNKNOWN"] = Invalid
+	m["INVALID"] = Invalid
+
+	return m
 }
 
 func All() []Variant {
@@ -40,15 +64,12 @@ func Parse(s string) result.Wrap[Variant] {
 		return result.WrapFailureWithId[Variant](errtype.Validation, "cannot parse empty string as logleveltype")
 	}
 
-	if strings.EqualFold(trimmed, "unknown") || strings.EqualFold(trimmed, "invalid") {
-		return result.WrapSuccess(Invalid)
+	if v, ok := variantMap[strings.ToLower(trimmed)]; ok {
+		return result.WrapSuccess(v)
 	}
 
-	for idx, label := range variantLabels {
-		if strings.EqualFold(label, trimmed) {
-			return result.WrapSuccess(Variant(idx))
-		}
-	}
-
-	return result.WrapFailureWithId[Variant](errtype.NotFound, "unknown logleveltype variant: "+s)
+	return result.WrapFailureWithId[Variant](
+		errtype.NotFound,
+		fmt.Sprintf("unknown logleveltype variant %q, supported variants: [%s]", s, strings.Join(Values(), ", ")),
+	)
 }
