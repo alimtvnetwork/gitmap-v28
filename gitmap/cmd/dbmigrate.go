@@ -54,7 +54,6 @@ func parseDbMigrateFlags(args []string) bool {
 }
 
 // Backwards-compatible alias for parseDbMigrateFlags
-var parseDBMigrateFlags = parseDbMigrateFlags
 
 // printDbMigrateSummary writes the post-run summary line.
 //
@@ -71,7 +70,6 @@ func printDbMigrateSummary(isVerbose bool) {
 }
 
 // Backwards-compatible alias for printDbMigrateSummary
-var printDBMigrateSummary = printDbMigrateSummary
 
 // runPostUpdateMigrate is invoked from the update flow after the binary is
 // replaced. It is best-effort: any failure is warned, never fatal, since the

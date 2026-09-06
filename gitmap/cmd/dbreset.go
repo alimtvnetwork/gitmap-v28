@@ -57,6 +57,9 @@ func executeDbReset() {
 }
 
 // Backwards-compatible aliases for PascalCase callers
+//
+//nolint:unused
+//nolint:unused
 var (
 	runDBReset            = runDbReset
 	parseDBResetFlags     = parseDbResetFlags

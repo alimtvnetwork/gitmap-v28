@@ -4,11 +4,12 @@ import "coding-guidelines/common/pkg/errtype"
 
 type (
 	AppError struct {
-		errType errtype.Variation
-		message string
-		stack   StackTrace
-		ctx     ContextMap
-		cause   error
+		errType    errtype.Variation
+		statusCode int
+		message    string
+		stack      StackTrace
+		ctx        ContextMap
+		cause      error
 	}
 
 	Fault = AppError

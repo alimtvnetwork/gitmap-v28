@@ -15,8 +15,6 @@ func runDbHelp() error {
 	return nil
 }
 
-var runDBHelp = runDbHelp
-
 func printDBHelpHeader() {
 	fmt.Println()
 	fmt.Println("  " + constants.ColorMagenta + "Gitmap Database Management (gitmap db)" + constants.ColorReset)

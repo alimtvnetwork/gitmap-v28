@@ -109,6 +109,9 @@ func activeDbPath() string {
 }
 
 // Backwards-compatible aliases
+//
+//nolint:unused
+//nolint:unused
 var (
 	removeActiveDBFile = removeActiveDbFile
 	activeDBPath       = activeDbPath

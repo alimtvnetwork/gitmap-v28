@@ -271,8 +271,6 @@ func (w *DbWrapper) verifyViewColumns(ctx context.Context, name string, required
 	return true, nil
 }
 
-const viewMetaTable = "__gitmap_view_meta"
-
 const sqlCreateViewMeta = `
 CREATE TABLE IF NOT EXISTS __gitmap_view_meta (
     ViewName TEXT PRIMARY KEY,
