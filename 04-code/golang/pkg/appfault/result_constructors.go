@@ -34,8 +34,12 @@ func NewFailure[T any](errType errtype.Variation, cause error) Result[T] {
 // NewFailureWithType creates a failed Result with explicit type and caller.
 func NewFailureWithType[T any](errType errtype.Variation, msg string, caller string) Result[T] {
 	e := New(errType, msg)
-	if len(caller) > 0 {
-		e.caller.Function = caller
+	if len(caller) > 0 && e != nil {
+		if len(e.stack) > 0 {
+			e.stack[0].Function = caller
+		} else {
+			e.stack = NewStackTrace(NewStackFrame(caller, "", 0))
+		}
 	}
 
 	return FailureResult[T](e)

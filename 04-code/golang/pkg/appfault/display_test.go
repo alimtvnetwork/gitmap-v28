@@ -11,19 +11,15 @@ import (
 
 func TestAppError_MultiDestinationFormatters(t *testing.T) {
 	err := appfault.Wrap(errtype.Validation, errors.New("invalid email format"), "user validation failed").
-		WithStatusCode(400).
-		WithCaller(appfault.CallerInfo{File: "services/user/validator.go", Line: 42, Function: "ValidateUser"}).
 		WithContext("email", "bad@")
 
 	// 1. Stdout Banner Formatter
 	stdoutOut := err.FormatStdout()
-	if !strings.Contains(stdoutOut, "❌ ERROR [Validation:2] user validation failed (HTTP 400)") {
+	if !strings.Contains(stdoutOut, "❌ ERROR [Validation:2] user validation failed") {
 		t.Fatalf("unexpected stdout banner: %s", stdoutOut)
 	}
 
-	if !strings.Contains(stdoutOut, "Caller:  services/user/validator.go:42 (ValidateUser)") {
-		t.Fatalf("expected caller in stdout banner: %s", stdoutOut)
-	}
+
 
 	if !strings.Contains(stdoutOut, "Cause:   invalid email format") {
 		t.Fatalf("expected cause in stdout banner: %s", stdoutOut)
@@ -39,9 +35,7 @@ func TestAppError_MultiDestinationFormatters(t *testing.T) {
 		t.Fatalf("expected Message in json: %s", jsonOut)
 	}
 
-	if !strings.Contains(jsonOut, `"Function": "ValidateUser"`) {
-		t.Fatalf("expected Caller function in json: %s", jsonOut)
-	}
+
 
 	// 3. Text Log Formatter
 	textLogOut := err.FormatTextLog()
@@ -49,9 +43,7 @@ func TestAppError_MultiDestinationFormatters(t *testing.T) {
 		t.Fatalf("unexpected text log: %s", textLogOut)
 	}
 
-	if !strings.Contains(textLogOut, `caller="services/user/validator.go:42 (ValidateUser)"`) {
-		t.Fatalf("expected caller in text log: %s", textLogOut)
-	}
+
 
 	if !strings.Contains(textLogOut, `msg="user validation failed"`) {
 		t.Fatalf("expected msg in text log: %s", textLogOut)

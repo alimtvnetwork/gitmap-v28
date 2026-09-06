@@ -9,32 +9,34 @@ import (
 
 type (
 	AppErrorBuilder struct {
-		errType    errtype.Variation
-		message    string
-		caller     CallerInfo
-		stack      StackTrace
-		ctx        map[string]any
-		cause      error
-		statusCode int
+		errType errtype.Variation
+		message string
+		stack   StackTrace
+		ctx     map[string]any
+		cause   error
 	}
 
 	AppBuilder = AppErrorBuilder
 )
 
 // NewBuilder initializes a new mutable AppErrorBuilder.
-func NewBuilder(errType errtype.Variation, message string) *AppErrorBuilder {
+func NewBuilder(errType errtype.Variation, message string, skipFrames ...int) *AppErrorBuilder {
+	skip := 2
+	if len(skipFrames) > 0 {
+		skip += skipFrames[0]
+	}
+
 	return &AppErrorBuilder{
 		errType: errType,
 		message: message,
-		ctx:     make(map[string]any),
-		caller:  CaptureCallerInfo(2),
-		stack:   CaptureStackTrace(2),
+		ctx:     make(map[string]any, 0),
+		stack:   CaptureStackTrace(skip),
 	}
 }
 
 // NewAppBuilder initializes a new mutable AppBuilder.
-func NewAppBuilder(errType errtype.Variation, message string) *AppBuilder {
-	return NewBuilder(errType, message)
+func NewAppBuilder(errType errtype.Variation, message string, skipFrames ...int) *AppBuilder {
+	return NewBuilder(errType, message, skipFrames...)
 }
 
 // SetType updates the error type on the builder.
@@ -51,19 +53,7 @@ func (b *AppErrorBuilder) SetMessage(message string) *AppErrorBuilder {
 	return b
 }
 
-// SetStatusCode sets the HTTP status code on the builder.
-func (b *AppErrorBuilder) SetStatusCode(code int) *AppErrorBuilder {
-	b.statusCode = code
 
-	return b
-}
-
-// SetCaller sets the caller info on the builder.
-func (b *AppErrorBuilder) SetCaller(caller CallerInfo) *AppErrorBuilder {
-	b.caller = caller
-
-	return b
-}
 
 // SetContext sets a context key-value pair on the builder.
 func (b *AppErrorBuilder) SetContext(key string, value any) *AppErrorBuilder {
@@ -79,15 +69,7 @@ func (b *AppErrorBuilder) SetCause(cause error) *AppErrorBuilder {
 	return b
 }
 
-// WithStatusCode is a fluent alias for SetStatusCode.
-func (b *AppErrorBuilder) WithStatusCode(code int) *AppErrorBuilder {
-	return b.SetStatusCode(code)
-}
 
-// WithCaller is a fluent alias for SetCaller.
-func (b *AppErrorBuilder) WithCaller(caller CallerInfo) *AppErrorBuilder {
-	return b.SetCaller(caller)
-}
 
 // WithContext is a fluent alias for SetContext.
 func (b *AppErrorBuilder) WithContext(key string, value any) *AppErrorBuilder {
@@ -106,22 +88,20 @@ func (b *AppErrorBuilder) Build() *AppError {
 	}
 
 	ctxMap := NewContextMap()
-	for k, v := range b.ctx {
-		ctxMap.Set(k, v)
-	}
-
-	if b.statusCode > 0 {
-		ctxMap.Set("StatusCode", b.statusCode)
+	if len(b.ctx) > 0 {
+		for k, v := range b.ctx {
+			ctxMap = ctxMap.Set(k, v)
+		}
+	} else {
+		ctxMap = nil
 	}
 
 	return &AppError{
-		errType:    b.errType,
-		message:    b.message,
-		caller:     b.caller,
-		stack:      b.stack,
-		ctx:        ctxMap,
-		cause:      b.cause,
-		statusCode: b.statusCode,
+		errType: b.errType,
+		message: b.message,
+		stack:   b.stack,
+		ctx:     ctxMap,
+		cause:   b.cause,
 	}
 }
 
@@ -133,18 +113,20 @@ func (b *AppErrorBuilder) ToDataModel() AppErrorDataModel {
 	}
 
 	ctxMap := NewContextMap()
-	for k, v := range b.ctx {
-		ctxMap.Set(k, v)
+	if len(b.ctx) > 0 {
+		for k, v := range b.ctx {
+			ctxMap = ctxMap.Set(k, v)
+		}
+	} else {
+		ctxMap = nil
 	}
 
 	return AppErrorDataModel{
-		Type:       b.errType,
-		Message:    b.message,
-		Caller:     b.caller,
-		Stack:      b.stack,
-		Ctx:        ctxMap,
-		Cause:      causeStr,
-		StatusCode: b.statusCode,
+		Type:    b.errType,
+		Message: b.message,
+		Stack:   b.stack,
+		Ctx:     ctxMap,
+		Cause:   causeStr,
 	}
 }
 
@@ -152,11 +134,9 @@ func (b *AppErrorBuilder) ToDataModel() AppErrorDataModel {
 func (b *AppErrorBuilder) FromDataModel(model AppErrorDataModel) *AppErrorBuilder {
 	b.errType = model.Type
 	b.message = model.Message
-	b.caller = model.Caller
 	b.stack = model.Stack
-	b.statusCode = model.StatusCode
 
-	b.ctx = make(map[string]any)
+	b.ctx = make(map[string]any, 0)
 	for k, v := range model.Ctx {
 		b.ctx[k] = v
 	}
@@ -225,12 +205,10 @@ func (e *AppError) ToBuilder() *AppErrorBuilder {
 	}
 
 	return &AppErrorBuilder{
-		errType:    e.errType,
-		message:    e.message,
-		caller:     e.caller,
-		stack:      e.stack,
-		ctx:        ctxCopy,
-		cause:      e.cause,
-		statusCode: e.statusCode,
+		errType: e.errType,
+		message: e.message,
+		stack:   e.stack,
+		ctx:     ctxCopy,
+		cause:   e.cause,
 	}
 }

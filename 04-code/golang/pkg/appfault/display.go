@@ -29,14 +29,14 @@ func (e *AppError) Error() string {
 		return ""
 	}
 
-	return appendCallerAndCause(formatBasicError(e), e.caller.String(), e.cause)
+	return appendCallerAndCause(formatBasicError(e), e.stack.CallerLine(), e.cause)
 }
 
 // appendHeader writes diagnostic header info.
 func appendHeader(b *strings.Builder, e *AppError) {
 	b.WriteString(fmt.Sprintf("ERROR: [%s:%d] %s\n", e.errType.Name(), e.errType.Code(), e.message))
-	if !e.caller.IsEmpty() {
-		b.WriteString(fmt.Sprintf("CALLER: %s\n", e.caller.String()))
+	if len(e.stack) > 0 {
+		b.WriteString(fmt.Sprintf("CALLER: %s\n", e.stack.CallerLine()))
 	}
 
 	if e.cause != nil {
@@ -95,7 +95,7 @@ func (e *AppError) ToClipboard() string {
 // DisplayError prints a terminal banner representation.
 func (e *AppError) DisplayError() {
 	if e != nil {
-		fmt.Printf("❌ [%s:%d] %s (at %s)\n", e.errType.Name(), e.errType.Code(), e.message, e.caller.String())
+		fmt.Printf("❌ [%s:%d] %s (at %s)\n", e.errType.Name(), e.errType.Code(), e.message, e.stack.CallerLine())
 	}
 }
 
@@ -106,8 +106,8 @@ func DefaultFaultFormatter(e *AppError) string {
 	}
 
 	callerInfo := ""
-	if !e.caller.IsEmpty() {
-		callerInfo = fmt.Sprintf(" (at %s)", e.caller.String())
+	if len(e.stack) > 0 {
+		callerInfo = fmt.Sprintf(" (at %s)", e.stack.CallerLine())
 	}
 
 	return fmt.Sprintf("❌ [%s:%d] %s%s", e.errType.Name(), e.errType.Code(), e.message, callerInfo)
@@ -141,8 +141,8 @@ func FormatStdout(e *AppError) string {
 
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("❌ ERROR [%s:%d] %s (HTTP %d)", e.errType.Name(), e.errType.Code(), e.message, e.StatusCode()))
-	if !e.caller.IsEmpty() {
-		b.WriteString(fmt.Sprintf("\n   Caller:  %s", e.caller.String()))
+	if len(e.stack) > 0 {
+		b.WriteString(fmt.Sprintf("\n   Caller:  %s", e.stack.CallerLine()))
 	}
 
 	if e.cause != nil {
@@ -177,8 +177,8 @@ func FormatTextLog(e *AppError) string {
 	}
 
 	callerStr := "unknown"
-	if !e.caller.IsEmpty() {
-		callerStr = e.caller.String()
+	if len(e.stack) > 0 {
+		callerStr = e.stack.CallerLine()
 	}
 
 	logLine := fmt.Sprintf("[ERROR] [%s:%d] status=%d caller=%q msg=%q",

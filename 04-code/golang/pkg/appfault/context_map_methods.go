@@ -9,7 +9,7 @@ import (
 // Clone creates a shallow copy of the ContextMap.
 func (cm ContextMap) Clone() ContextMap {
 	if cm == nil {
-		return make(ContextMap)
+		return nil
 	}
 
 	cloned := make(ContextMap, len(cm))

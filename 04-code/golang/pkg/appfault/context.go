@@ -8,7 +8,7 @@ func (e *AppError) WithContext(key string, value any) *AppError {
 	}
 
 	cloned := e.clone()
-	cloned.ctx.Set(key, value)
+	cloned.ctx = cloned.ctx.Set(key, value)
 
 	return cloned
 }
@@ -40,8 +40,7 @@ func (e *AppError) WithStatusCode(statusCode int) *AppError {
 	}
 
 	cloned := e.clone()
-	cloned.statusCode = statusCode
-	cloned.ctx.Set("StatusCode", statusCode)
+	cloned.ctx = cloned.ctx.Set("StatusCode", statusCode)
 
 	return cloned
 }
@@ -69,18 +68,6 @@ func (e *AppError) WithSlug(slug string) *AppError {
 // WithPluginContext returns a new immutable AppError with plugin ID and slug.
 func (e *AppError) WithPluginContext(pluginId int64, slug string) *AppError {
 	return e.WithContext("PluginId", pluginId).WithSlug(slug)
-}
-
-// WithCaller returns a new immutable AppError with the specified caller site metadata.
-func (e *AppError) WithCaller(caller CallerInfo) *AppError {
-	if e == nil {
-		return nil
-	}
-
-	cloned := e.clone()
-	cloned.caller = caller
-
-	return cloned
 }
 
 // Context returns a copy of the underlying diagnostic metadata ContextMap.

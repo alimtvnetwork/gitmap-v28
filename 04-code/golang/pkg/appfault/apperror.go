@@ -4,13 +4,11 @@ import "coding-guidelines/common/pkg/errtype"
 
 type (
 	AppError struct {
-		errType    errtype.Variation
-		message    string
-		caller     CallerInfo
-		stack      StackTrace
-		ctx        ContextMap
-		cause      error
-		statusCode int
+		errType errtype.Variation
+		message string
+		stack   StackTrace
+		ctx     ContextMap
+		cause   error
 	}
 
 	Fault = AppError
@@ -83,20 +81,16 @@ func (e *AppError) clone() *AppError {
 	}
 
 	var clonedCtx ContextMap
-	if e.ctx != nil {
+	if len(e.ctx) > 0 {
 		clonedCtx = e.ctx.Clone()
-	} else {
-		clonedCtx = NewContextMap()
 	}
 
 	return &AppError{
-		errType:    e.errType,
-		message:    e.message,
-		caller:     e.caller,
-		stack:      e.stack,
-		ctx:        clonedCtx,
-		cause:      e.cause,
-		statusCode: e.statusCode,
+		errType: e.errType,
+		message: e.message,
+		stack:   e.stack,
+		ctx:     clonedCtx,
+		cause:   e.cause,
 	}
 }
 

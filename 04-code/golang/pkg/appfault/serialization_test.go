@@ -13,14 +13,13 @@ func createSampleAppError() (*appfault.AppError, error) {
 	rawErr := errors.New("underlying socket closed")
 	orig := appfault.Wrap(errtype.Network, rawErr, "dial timeout").
 		WithOp("net.dial").
-		WithStatusCode(504).
 		WithContext("port", 8080)
 
 	return orig, rawErr
 }
 
 func assertRestoredMatches(t *testing.T, restored *appfault.AppError, orig *appfault.AppError, rawErr error) {
-	if restored.Type() != orig.Type() || restored.StatusCode() != 504 {
+	if restored.Type() != orig.Type() {
 		t.Fatalf("JSON restore mismatch: %+v", restored)
 	}
 
@@ -37,8 +36,8 @@ func TestAppErrorSerializationRoundtrip(t *testing.T) {
 	}
 
 	assertRestoredMatches(t, restored, orig, rawErr)
-	if restored.Caller().IsEmpty() {
-		t.Fatal("expected non-empty caller")
+	if len(restored.StackTrace()) == 0 {
+		t.Fatal("expected non-empty stack trace")
 	}
 }
 

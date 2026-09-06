@@ -8,13 +8,11 @@ import (
 
 // AppErrorDataModel is the serializable DTO for AppError with PascalCase properties.
 type AppErrorDataModel struct {
-	Type       errtype.Variation `json:",omitempty" yaml:",omitempty"`
-	Message    string            `json:",omitempty" yaml:",omitempty"`
-	Caller     CallerInfo        `json:",omitempty" yaml:",omitempty"`
-	Stack      StackTrace        `json:",omitempty" yaml:",omitempty"`
-	Ctx        ContextMap        `json:",omitempty" yaml:",omitempty"`
-	Cause      string            `json:",omitempty" yaml:",omitempty"`
-	StatusCode int               `json:",omitempty" yaml:",omitempty"`
+	Type    errtype.Variation `json:",omitempty" yaml:",omitempty"`
+	Message string            `json:",omitempty" yaml:",omitempty"`
+	Stack   StackTrace        `json:",omitempty" yaml:",omitempty"`
+	Ctx     ContextMap        `json:",omitempty" yaml:",omitempty"`
+	Cause   string            `json:",omitempty" yaml:",omitempty"`
 }
 
 // extractCauseString safely extracts the cause error message string.
@@ -29,9 +27,8 @@ func extractCauseString(err error) string {
 // populateDataModel populates DTO fields from non-nil AppError.
 func (e *AppError) populateDataModel() AppErrorDataModel {
 	return AppErrorDataModel{
-		Type: e.errType, Message: e.message, Caller: e.caller,
+		Type: e.errType, Message: e.message,
 		Stack: e.stack, Ctx: e.ctx.Clone(), Cause: extractCauseString(e.cause),
-		StatusCode: e.statusCode,
 	}
 }
 
@@ -56,12 +53,10 @@ func buildCauseError(cause string) error {
 // ToAppError reconstructs an AppError from the data model.
 func (m AppErrorDataModel) ToAppError() *AppError {
 	return &AppError{
-		errType:    m.Type,
-		message:    m.Message,
-		caller:     m.Caller,
-		stack:      m.Stack,
-		ctx:        m.Ctx.Clone(),
-		cause:      buildCauseError(m.Cause),
-		statusCode: m.StatusCode,
+		errType: m.Type,
+		message: m.Message,
+		stack:   m.Stack,
+		ctx:     m.Ctx.Clone(),
+		cause:   buildCauseError(m.Cause),
 	}
 }
