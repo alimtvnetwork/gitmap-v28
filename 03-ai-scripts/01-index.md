@@ -107,3 +107,5 @@ DEFAULT_MAX_WORKERS = 4
 4. **Prefix Boolean Variables & Functions:** Use `is_` or `has_` prefix for all boolean variables and return functions (`is_ready`, `has_match`, `is_success`, `has_failures`).
 5. **Enums Format:** Python enums MUST use `PascalCase` class name ending in `Type`, `UPPER_CASE` members, and string values mirroring the member names.
 6. **Quality Gates:** Before completing any work session, execute `python 03-ai-scripts/06-cicd-local-runner.py` and verify all 18 checks pass.
+
+- [29-release-orchestrator.py](29-release-orchestrator.py): Orchestrates git release, bump version, branches, tags, and commits.
