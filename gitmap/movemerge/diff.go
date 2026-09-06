@@ -1,9 +1,9 @@
 package movemerge
 
 import (
-	"path/filepath"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
+	"path/filepath"
 )
 
 // DiffKindType classifies a path across LEFT and RIGHT.

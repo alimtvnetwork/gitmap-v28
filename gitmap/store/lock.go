@@ -7,19 +7,28 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// acquireLock creates an advisory lock file in the given directory.
+// acquireLock creates an advisory lock file in the given directory with a retry backoff.
 func acquireLock(dbDir string) error {
 	lockPath := filepath.Join(dbDir, constants.LockFileName)
 
-	if lockExists(lockPath) {
-		return handleExistingLock(lockPath)
+	var lastErr error
+	for i := 0; i < 50; i++ {
+		if lockExists(lockPath) {
+			lastErr = handleExistingLock(lockPath)
+		} else {
+			lastErr = writeLock(lockPath)
+		}
+		if lastErr == nil {
+			return nil
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
-
-	return writeLock(lockPath)
+	return lastErr
 }
 
 // releaseLock removes the lock file from the given directory.

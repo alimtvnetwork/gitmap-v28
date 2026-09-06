@@ -45,7 +45,6 @@ func routeDbSubcommand(sub string, tail []string) error {
 }
 
 // Backwards-compatible alias for routeDbSubcommand
-var routeDBSubcommand = routeDbSubcommand
 
 func handleUnknownDbSub(sub string) error {
 	fmt.Printf(constants.ColorRed+"Unknown db subcommand '%s'"+constants.ColorReset+"\n\n", sub)
@@ -63,4 +62,3 @@ func handleUnknownDbSub(sub string) error {
 }
 
 // Backwards-compatible alias for handleUnknownDbSub
-var handleUnknownDBSub = handleUnknownDbSub

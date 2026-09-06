@@ -68,6 +68,9 @@ func removeSingleSplitEntry(dir string, e os.DirEntry) int {
 }
 
 // Backwards-compatible aliases
+//
+//nolint:unused
+//nolint:unused
 var (
 	runDBResetAction  = runDbResetAction
 	performDBReset    = performDbReset

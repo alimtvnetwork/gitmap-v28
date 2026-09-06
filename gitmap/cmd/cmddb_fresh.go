@@ -26,7 +26,6 @@ func runDbFresh(args []string) error {
 }
 
 // Backwards-compatible alias for runDbFresh
-var runDBFresh = runDbFresh
 
 func runStartFresh(args []string) error {
 	return runDbFresh(args)
@@ -69,7 +68,6 @@ func wipeAllDbFiles() int {
 }
 
 // Backwards-compatible alias for wipeAllDbFiles
-var wipeAllDBFiles = wipeAllDbFiles
 
 func removeMatchingFiles(dir string) int {
 	entries, err := os.ReadDir(dir)
@@ -97,7 +95,6 @@ func tryRemoveDbFile(dir, name string) int {
 }
 
 // Backwards-compatible alias for tryRemoveDbFile
-var tryRemoveDBFile = tryRemoveDbFile
 
 func isDbRelatedFile(name string) bool {
 	return strings.HasSuffix(name, ".db") ||
@@ -107,7 +104,6 @@ func isDbRelatedFile(name string) bool {
 }
 
 // Backwards-compatible alias for isDbRelatedFile
-var isDBRelatedFile = isDbRelatedFile
 
 func recreateRepoSearchDir() {
 	binDir := store.BinaryDataDir()

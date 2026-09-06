@@ -151,6 +151,7 @@ func runInteractiveRemediation(items []RemediationItem) error {
 	return nil
 }
 
+//nolint:unused
 func runInteractiveReconciliation(items []RemediationItem) error {
 	return runInteractiveRemediation(items)
 }

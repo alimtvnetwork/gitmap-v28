@@ -24,7 +24,17 @@ var (
 		Forbidden:     "Forbidden",
 		Internal:      "Internal",
 		Unknown:       "Unknown",
-		Serialization: "Serialization",
+		Serialization:        "Serialization",
+		FileNotFound:         "FileNotFound",
+		DictionaryNotFound:   "DictionaryNotFound",
+		UserNotFound:         "UserNotFound",
+		DatabaseNotFound:     "DatabaseNotFound",
+		FolderNotFound:       "FolderNotFound",
+		Mismatch:             "Mismatch",
+		DatabaseMismatch:     "DatabaseMismatch",
+		DataMismatch:         "DataMismatch",
+		RecordMismatch:       "RecordMismatch",
+		VerificationMismatch: "VerificationMismatch",
 	}
 
 	variationMap = compileVariationMap()
@@ -107,7 +117,7 @@ func (v Variation) HttpStatus() int {
 	case None:
 		return 200
 
-	case Validation, Precondition, Serialization:
+	case Validation, Precondition, Serialization, Mismatch, DatabaseMismatch, DataMismatch, RecordMismatch, VerificationMismatch:
 		return 400
 
 	case Unauthorized:
@@ -116,7 +126,7 @@ func (v Variation) HttpStatus() int {
 	case Forbidden:
 		return 403
 
-	case NotFound:
+	case NotFound, FileNotFound, DictionaryNotFound, UserNotFound, DatabaseNotFound, FolderNotFound:
 		return 404
 
 	case Timeout:

@@ -52,6 +52,7 @@ func deleteStaleEntries(db *store.DB, dir string, allRepos []model.ScanRecord, v
 	return removed
 }
 
+//nolint:unused
 func runReconcile(dir string, currentRecords []model.ScanRecord) error {
 	return runPruneStaleDB(dir, currentRecords)
 }

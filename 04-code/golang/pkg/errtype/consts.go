@@ -49,6 +49,17 @@ const (
 
 	// Serialization represents data serialization, deserialization, or encoding failures.
 	Serialization Variation = 14
+
+	FileNotFound         Variation = 15
+	DictionaryNotFound   Variation = 16
+	UserNotFound         Variation = 17
+	DatabaseNotFound     Variation = 18
+	FolderNotFound       Variation = 19
+	Mismatch             Variation = 20
+	DatabaseMismatch     Variation = 21
+	DataMismatch         Variation = 22
+	RecordMismatch       Variation = 23
+	VerificationMismatch Variation = 24
 )
 
 // ProcessStateType constants conforming to BaseEnum.

@@ -85,18 +85,6 @@ func TestLazyRegexp_Wrappers(t *testing.T) {
 	}
 }
 
-func _TestLazyRegexp_MustCompilePanic(t *testing.T) {
-	lr := New("[invalid regex")
-
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("expected Re() to panic with invalid regex")
-		}
-	}()
-
-	lr.Re()
-}
-
 func TestLazyRegexp_GlobalMapCaching(t *testing.T) {
 	ClearCache()
 	defer ClearCache()

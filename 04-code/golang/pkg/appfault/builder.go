@@ -9,11 +9,12 @@ import (
 
 type (
 	AppErrorBuilder struct {
-		errType errtype.Variation
-		message string
-		stack   StackTrace
-		ctx     map[string]any
-		cause   error
+		errType    errtype.Variation
+		statusCode int
+		message    string
+		stack      StackTrace
+		ctx        map[string]any
+		cause      error
 	}
 
 	AppBuilder = AppErrorBuilder
@@ -81,6 +82,17 @@ func (b *AppErrorBuilder) WithCause(cause error) *AppErrorBuilder {
 	return b.SetCause(cause)
 }
 
+// SetStatusCode updates the status code on the builder.
+func (b *AppErrorBuilder) SetStatusCode(code int) *AppErrorBuilder {
+	b.statusCode = code
+	return b
+}
+
+// WithStatusCode is a fluent alias for SetStatusCode.
+func (b *AppErrorBuilder) WithStatusCode(code int) *AppErrorBuilder {
+	return b.SetStatusCode(code)
+}
+
 // Build freezes the builder state into a strictly immutable *AppError.
 func (b *AppErrorBuilder) Build() *AppError {
 	if b.errType == errtype.None {
@@ -97,11 +109,12 @@ func (b *AppErrorBuilder) Build() *AppError {
 	}
 
 	return &AppError{
-		errType: b.errType,
-		message: b.message,
-		stack:   b.stack,
-		ctx:     ctxMap,
-		cause:   b.cause,
+		errType:    b.errType,
+		statusCode: b.statusCode,
+		message:    b.message,
+		stack:      b.stack,
+		ctx:        ctxMap,
+		cause:      b.cause,
 	}
 }
 

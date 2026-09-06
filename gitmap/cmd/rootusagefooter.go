@@ -79,6 +79,7 @@ func printUsageFooterShort() {
 	printGitmapIdentityBlockShort()
 }
 
+//nolint:unused
 func printGitmapIdentityBlock() {
 	if isShortFooterRequested() {
 		printGitmapIdentityBlockShort()
@@ -341,6 +342,7 @@ func printFooterBuildDate() {
 	}
 }
 
+//nolint:unused
 func printFooterDatabase() {
 	dbPath := resolveDatabasePath()
 	if len(dbPath) > 0 {
@@ -527,6 +529,8 @@ func isFooterGitRepo(dir string) bool {
 }
 
 // sameRepo reports whether a and b resolve to the same git toplevel.
+//
+//nolint:unused
 func sameRepo(a, b string) bool {
 	if len(a) == 0 || len(b) == 0 {
 		return false
