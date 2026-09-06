@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type (
@@ -103,6 +104,13 @@ func (v Variant) MarshalJSON() ([]byte, error) {
 }
 
 func (v *Variant) UnmarshalJSON(data []byte) error {
+	trimmed := strings.TrimSpace(string(data))
+	if len(trimmed) == 0 || trimmed == "null" {
+		*v = Invalid
+
+		return nil
+	}
+
 	var str string
 	if err := json.Unmarshal(data, &str); err == nil {
 		res := Parse(str)
@@ -111,11 +119,17 @@ func (v *Variant) UnmarshalJSON(data []byte) error {
 
 			return nil
 		}
+
+		return res.Fault()
 	}
 
 	var raw byte
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
+	}
+
+	if int(raw) >= len(variantLabels) {
+		return fmt.Errorf("invalid openfiletype numeric value %d, supported range: 0..%d", raw, len(variantLabels)-1)
 	}
 
 	*v = Variant(raw)

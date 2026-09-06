@@ -3,12 +3,30 @@ package appfault
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 // SeverityType represents an integer-backed severity level (byte).
 type SeverityType byte
 
-var severityNames = [...]string{"Unknown", "Info", "Warn", "Error", "Critical", "Fatal"}
+var (
+	severityNames = [...]string{"Unknown", "Info", "Warn", "Error", "Critical", "Fatal"}
+	severityMap   = compileSeverityMap()
+)
+
+func compileSeverityMap() map[string]SeverityType {
+	m := make(map[string]SeverityType, len(severityNames)*4)
+	for idx, name := range severityNames {
+		s := SeverityType(idx)
+		m[name] = s
+		m[strings.ToLower(name)] = s
+		m[strings.ToUpper(name)] = s
+		m[strconv.Itoa(idx)] = s
+	}
+
+	return m
+}
 
 // Name returns the PascalCase string representation.
 func (s SeverityType) Name() string {
@@ -31,26 +49,20 @@ func (s SeverityType) MarshalJSON() ([]byte, error) {
 
 // parseSeverityName looks up a SeverityType by name.
 func parseSeverityName(str string) (SeverityType, bool) {
-	for idx, name := range severityNames {
-		if name == str {
-			return SeverityType(idx), true
-		}
-	}
+	val, ok := severityMap[strings.ToLower(strings.TrimSpace(str))]
 
-	return SeverityUnknown, false
-}
-
-// unmarshalByte unmarshals raw byte into SeverityType.
-func (s *SeverityType) unmarshalByte(data []byte) error {
-	var raw byte
-	err := json.Unmarshal(data, &raw)
-	*s = SeverityType(raw)
-
-	return err
+	return val, ok
 }
 
 // UnmarshalJSON parses a PascalCase string or integer into SeverityType.
 func (s *SeverityType) UnmarshalJSON(data []byte) error {
+	trimmed := strings.TrimSpace(string(data))
+	if len(trimmed) == 0 || trimmed == "null" {
+		*s = SeverityUnknown
+
+		return nil
+	}
+
 	var str string
 	if err := json.Unmarshal(data, &str); err == nil {
 		if val, ok := parseSeverityName(str); ok {
@@ -58,7 +70,20 @@ func (s *SeverityType) UnmarshalJSON(data []byte) error {
 
 			return nil
 		}
+
+		return fmt.Errorf("unknown SeverityType %q, supported: [%s]", str, strings.Join(severityNames[:], ", "))
 	}
 
-	return s.unmarshalByte(data)
+	var raw byte
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	if int(raw) >= len(severityNames) {
+		return fmt.Errorf("invalid SeverityType numeric value %d, supported range: 0..%d", raw, len(severityNames)-1)
+	}
+
+	*s = SeverityType(raw)
+
+	return nil
 }

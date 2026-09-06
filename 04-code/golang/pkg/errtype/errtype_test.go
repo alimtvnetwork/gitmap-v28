@@ -65,3 +65,30 @@ func TestVariation_JSONRoundtrip(t *testing.T) {
 		t.Fatalf("expected Unauthorized, got %v", fromString)
 	}
 }
+
+func TestVariation_UnmarshalJSON_Invalid(t *testing.T) {
+	var v errtype.Variation
+
+	// Invalid string must return error
+	if err := json.Unmarshal([]byte(`"NonExistentVariation"`), &v); err == nil {
+		t.Fatalf("expected error unmarshaling invalid variation string, got nil")
+	}
+
+	// Null should unmarshal to None without error
+	if err := json.Unmarshal([]byte(`null`), &v); err != nil {
+		t.Fatalf("expected nil error on null, got %v", err)
+	}
+
+	if v != errtype.None {
+		t.Fatalf("expected None on null, got %v", v)
+	}
+
+	// Custom variation string
+	if err := json.Unmarshal([]byte(`"Custom(1001)"`), &v); err != nil {
+		t.Fatalf("expected nil error on Custom(1001), got %v", err)
+	}
+
+	if v.Code() != 1001 {
+		t.Fatalf("expected code 1001, got %d", v.Code())
+	}
+}

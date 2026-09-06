@@ -3,12 +3,30 @@ package appfault
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 // PriorityType represents an integer-backed priority level (byte).
 type PriorityType byte
 
-var priorityNames = [...]string{"Unknown", "Low", "Normal", "High", "Critical"}
+var (
+	priorityNames = [...]string{"Unknown", "Low", "Normal", "High", "Critical"}
+	priorityMap   = compilePriorityMap()
+)
+
+func compilePriorityMap() map[string]PriorityType {
+	m := make(map[string]PriorityType, len(priorityNames)*4)
+	for idx, name := range priorityNames {
+		p := PriorityType(idx)
+		m[name] = p
+		m[strings.ToLower(name)] = p
+		m[strings.ToUpper(name)] = p
+		m[strconv.Itoa(idx)] = p
+	}
+
+	return m
+}
 
 // Name returns the PascalCase string representation.
 func (p PriorityType) Name() string {
@@ -31,26 +49,20 @@ func (p PriorityType) MarshalJSON() ([]byte, error) {
 
 // parsePriorityName looks up a PriorityType by name.
 func parsePriorityName(str string) (PriorityType, bool) {
-	for idx, name := range priorityNames {
-		if name == str {
-			return PriorityType(idx), true
-		}
-	}
+	val, ok := priorityMap[strings.ToLower(strings.TrimSpace(str))]
 
-	return PriorityUnknown, false
-}
-
-// unmarshalByte unmarshals raw byte into PriorityType.
-func (p *PriorityType) unmarshalByte(data []byte) error {
-	var raw byte
-	err := json.Unmarshal(data, &raw)
-	*p = PriorityType(raw)
-
-	return err
+	return val, ok
 }
 
 // UnmarshalJSON parses a PascalCase string or integer into PriorityType.
 func (p *PriorityType) UnmarshalJSON(data []byte) error {
+	trimmed := strings.TrimSpace(string(data))
+	if len(trimmed) == 0 || trimmed == "null" {
+		*p = PriorityUnknown
+
+		return nil
+	}
+
 	var str string
 	if err := json.Unmarshal(data, &str); err == nil {
 		if val, ok := parsePriorityName(str); ok {
@@ -58,7 +70,20 @@ func (p *PriorityType) UnmarshalJSON(data []byte) error {
 
 			return nil
 		}
+
+		return fmt.Errorf("unknown PriorityType %q, supported: [%s]", str, strings.Join(priorityNames[:], ", "))
 	}
 
-	return p.unmarshalByte(data)
+	var raw byte
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	if int(raw) >= len(priorityNames) {
+		return fmt.Errorf("invalid PriorityType numeric value %d, supported range: 0..%d", raw, len(priorityNames)-1)
+	}
+
+	*p = PriorityType(raw)
+
+	return nil
 }

@@ -3,6 +3,7 @@ package errtype
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -37,12 +38,29 @@ func (v Variation) IsEnum() bool {
 // ProcessStateType represents a string-backed enum conforming to BaseEnum.
 type ProcessStateType string
 
-var processStateRegistry = map[ProcessStateType]bool{
-	ProcessStatePending:   true,
-	ProcessStateRunning:   true,
-	ProcessStateCompleted: true,
-	ProcessStateFailed:    true,
-	ProcessStateCancelled: true,
+var (
+	processStateRegistry = map[ProcessStateType]bool{
+		ProcessStatePending:   true,
+		ProcessStateRunning:   true,
+		ProcessStateCompleted: true,
+		ProcessStateFailed:    true,
+		ProcessStateCancelled: true,
+	}
+
+	processStateMap = compileProcessStateMap()
+)
+
+func compileProcessStateMap() map[string]ProcessStateType {
+	states := AllProcessStates()
+	m := make(map[string]ProcessStateType, len(states)*3)
+	for _, state := range states {
+		str := string(state)
+		m[str] = state
+		m[strings.ToLower(str)] = state
+		m[strings.ToUpper(str)] = state
+	}
+
+	return m
 }
 
 // Name returns the identifier name.
@@ -87,12 +105,29 @@ func (s ProcessStateType) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (s *ProcessStateType) UnmarshalJSON(data []byte) error {
+	trimmed := strings.TrimSpace(string(data))
+	if len(trimmed) == 0 || trimmed == "null" {
+		*s = ProcessStateUnknown
+
+		return nil
+	}
+
 	var raw string
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
 
-	*s = ParseProcessState(raw)
+	parsed := ParseProcessState(raw)
+	if !parsed.IsValid() {
+		names := make([]string, 0, len(AllProcessStates()))
+		for _, st := range AllProcessStates() {
+			names = append(names, string(st))
+		}
+
+		return fmt.Errorf("unknown ProcessStateType %q, supported: [%s]", raw, strings.Join(names, ", "))
+	}
+
+	*s = parsed
 
 	return nil
 }
@@ -110,10 +145,8 @@ func AllProcessStates() []ProcessStateType {
 
 // ParseProcessState parses a string into ProcessStateType case-insensitively.
 func ParseProcessState(val string) ProcessStateType {
-	for _, candidate := range AllProcessStates() {
-		if strings.EqualFold(string(candidate), strings.TrimSpace(val)) {
-			return candidate
-		}
+	if s, ok := processStateMap[strings.ToLower(strings.TrimSpace(val))]; ok {
+		return s
 	}
 
 	return ProcessStateUnknown
@@ -122,12 +155,28 @@ func ParseProcessState(val string) ProcessStateType {
 // LogLevelType represents an integer-backed enum conforming to NumberEnum and BaseEnum.
 type LogLevelType uint16
 
-var logLevelNames = map[LogLevelType]string{
-	LogLevelDebug: "Debug",
-	LogLevelInfo:  "Info",
-	LogLevelWarn:  "Warn",
-	LogLevelError: "Error",
-	LogLevelFatal: "Fatal",
+var (
+	logLevelNames = map[LogLevelType]string{
+		LogLevelDebug: "Debug",
+		LogLevelInfo:  "Info",
+		LogLevelWarn:  "Warn",
+		LogLevelError: "Error",
+		LogLevelFatal: "Fatal",
+	}
+
+	errtypeLogLevelMap = compileErrtypeLogLevelMap()
+)
+
+func compileErrtypeLogLevelMap() map[string]LogLevelType {
+	m := make(map[string]LogLevelType, len(logLevelNames)*4)
+	for lvl, name := range logLevelNames {
+		m[name] = lvl
+		m[strings.ToLower(name)] = lvl
+		m[strings.ToUpper(name)] = lvl
+		m[fmt.Sprintf("%d", uint16(lvl))] = lvl
+	}
+
+	return m
 }
 
 // Name returns the uppercase identifier.
@@ -185,9 +234,28 @@ func (l LogLevelType) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (l *LogLevelType) UnmarshalJSON(data []byte) error {
+	trimmed := strings.TrimSpace(string(data))
+	if len(trimmed) == 0 || trimmed == "null" {
+		*l = LogLevelType(0)
+
+		return nil
+	}
+
 	var raw string
 	if err := json.Unmarshal(data, &raw); err == nil {
-		*l = ParseLogLevel(raw)
+		parsed := ParseLogLevel(raw)
+		if !parsed.IsValid() {
+			names := make([]string, 0, len(logLevelNames))
+			for _, name := range logLevelNames {
+				names = append(names, name)
+			}
+
+			sort.Strings(names)
+
+			return fmt.Errorf("unknown LogLevelType %q, supported: [%s]", raw, strings.Join(names, ", "))
+		}
+
+		*l = parsed
 
 		return nil
 	}
@@ -197,7 +265,12 @@ func (l *LogLevelType) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*l = LogLevelType(code)
+	candidate := LogLevelType(code)
+	if !candidate.IsValid() {
+		return fmt.Errorf("invalid LogLevelType numeric code %d", code)
+	}
+
+	*l = candidate
 
 	return nil
 }
@@ -215,11 +288,9 @@ func AllLogLevels() []LogLevelType {
 
 // ParseLogLevel parses a string into LogLevelType case-insensitively.
 func ParseLogLevel(val string) LogLevelType {
-	cleaned := strings.TrimSpace(val)
-	for lvl, name := range logLevelNames {
-		if strings.EqualFold(name, cleaned) {
-			return lvl
-		}
+	cleaned := strings.ToLower(strings.TrimSpace(val))
+	if lvl, ok := errtypeLogLevelMap[cleaned]; ok {
+		return lvl
 	}
 
 	return 0
