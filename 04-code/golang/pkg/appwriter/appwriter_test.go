@@ -2,9 +2,11 @@ package appwriter_test
 
 import (
 	"context"
+	"errors"
 	"path/filepath"
 	"testing"
 
+	"coding-guidelines/common/pkg/appfault"
 	"coding-guidelines/common/pkg/appwriter"
 	"coding-guidelines/common/pkg/errtype"
 	"coding-guidelines/common/pkg/fileutil"
@@ -115,4 +117,47 @@ func TestBaseWriter_SharedLocker(t *testing.T) {
 
 	w.RLock()
 	w.RUnlock()
+}
+
+func TestWriterWrapConstructor(t *testing.T) {
+	succ := appwriter.WrapWriter.Success(nil)
+	if succ.IsFailed() {
+		t.Fatalf("expected success")
+	}
+
+	appErr := appfault.New(errtype.Validation, "validation error")
+	fail1 := appwriter.WrapWriter.Failure(appErr)
+	if fail1.IsSuccess() {
+		t.Fatalf("expected failure")
+	}
+
+	fail2 := appwriter.WrapWriter.FailureFromError(appErr)
+	if fail2.IsSuccess() {
+		t.Fatalf("expected failure")
+	}
+
+	fail3 := appwriter.WrapWriter.FailureWithId(errtype.IO, "io error")
+	if fail3.IsSuccess() {
+		t.Fatalf("expected failure")
+	}
+
+	fail4 := appwriter.WrapWriter.FailureWithCause(errtype.IO, errors.New("underlying"), "cause error")
+	if fail4.IsSuccess() {
+		t.Fatalf("expected failure")
+	}
+
+	fail5 := appwriter.WrapWriter.FailureFromWrap(fail3)
+	if fail5.IsSuccess() {
+		t.Fatalf("expected failure")
+	}
+
+	fail6 := appwriter.WriterWrap.Failure(appErr)
+	if fail6.IsSuccess() {
+		t.Fatalf("expected failure")
+	}
+
+	fail7 := appwriter.Wrap.Failure(appErr)
+	if fail7.IsSuccess() {
+		t.Fatalf("expected failure")
+	}
 }
