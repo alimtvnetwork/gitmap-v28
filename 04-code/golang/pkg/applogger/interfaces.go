@@ -18,11 +18,13 @@ type (
 		Stack     string              `json:"Stack,omitempty" yaml:"Stack,omitempty"`
 	}
 
-	LogSink interface {
+	LogSinker interface {
 		WriteEntry(entry LogEntry) error
 		Sync() error
 		Close() error
 	}
+
+	LogSink = LogSinker
 
 	Logger interface {
 		Debug(args ...any) Logger

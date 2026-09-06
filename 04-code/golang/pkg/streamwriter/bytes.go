@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	WrappedBytes[T any] interface {
+	WrappedByter[T any] interface {
 		Raw() []byte
 		Bytes() []byte
 		String() string
@@ -27,6 +27,8 @@ type (
 		StatusCode() int
 		Unwrap() ([]byte, *appfault.AppError)
 	}
+
+	WrappedBytes[T any] = WrappedByter[T]
 
 	Bytes[T any] struct {
 		data       []byte
@@ -246,4 +248,4 @@ func (b Bytes[T]) Unwrap() ([]byte, *appfault.AppError) {
 	return b.data, b.appError
 }
 
-var _ WrappedBytes[any] = Bytes[any]{}
+var _ WrappedByter[any] = Bytes[any]{}

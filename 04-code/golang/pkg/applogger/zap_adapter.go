@@ -3,7 +3,7 @@ package applogger
 import "fmt"
 
 type (
-	ZapLoggerInterface interface {
+	ZapLogger interface {
 		Debug(args ...any)
 		Info(args ...any)
 		Warn(args ...any)
@@ -12,13 +12,15 @@ type (
 		Sync() error
 	}
 
+	ZapLoggerInterface = ZapLogger
+
 	ZapAdapter struct {
-		zapLogger ZapLoggerInterface
+		zapLogger ZapLogger
 	}
 )
 
 // NewZapAdapter wraps a Zap logger instance into a LogSink.
-func NewZapAdapter(zapLogger ZapLoggerInterface) *ZapAdapter {
+func NewZapAdapter(zapLogger ZapLogger) *ZapAdapter {
 	return &ZapAdapter{zapLogger: zapLogger}
 }
 

@@ -2,21 +2,21 @@
 
 ## Overview
 
-The `errtype` package provides strongly-typed enumerations, standardized error classification codes, and universal enum interfaces (`BaseEnum`, `NumberEnum`) across the repository. It includes automated Python tooling (`03-ai-scripts/30-enum-generator.py`) to generate robust, JSON-compatible Go enums.
+The `errtype` package provides strongly-typed enumerations, standardized error classification codes, and universal enum interfaces (`BaseEnumer`, `NumberEnumer` with backward-compatible aliases `BaseEnum`, `NumberEnum`) across the repository. It includes automated Python tooling (`03-ai-scripts/30-enum-generator.py`) to generate robust, JSON-compatible Go enums.
 
 ---
 
 ## Architectural Principles
 
-1. **`BaseEnum` & `NumberEnum` Universal Contracts:**
-   All enum types adhere to standard Go interfaces:
-   - `BaseEnum`: `Name() string`, `String() string`, `ValueString() string`, `IsValid() bool`, `IsEnum() bool`, `IsCompare() bool`, `MarshalJSON()`, `UnmarshalJSON()`.
-   - `NumberEnum`: Extends `BaseEnum` with numeric accessors: `Code() uint16`, `Int() int`, and `HttpStatus() int`.
+1. **`BaseEnumer` & `NumberEnumer` Universal Contracts:**
+   All enum types adhere to standard Go interfaces conforming to the idiomatic `er` suffix convention:
+   - `BaseEnumer` (alias `BaseEnum`): `Name() string`, `String() string`, `ValueString() string`, `IsValid() bool`, `IsEnum() bool`, `IsCompare() bool`, `MarshalJSON()`, `UnmarshalJSON()`.
+   - `NumberEnumer` (alias `NumberEnum`): Extends `BaseEnumer` with numeric accessors: `Code() uint16`, `Int() int`, and `HttpStatus() int`.
 2. **String & Numeric Implementations:**
    - **String-backed enums** (e.g. `ProcessStateType`): Backed by `string`, providing zero-allocation human-readable string values (`Pending`, `Running`, `Completed`, `Failed`, `Cancelled`).
    - **Number-backed enums** (e.g. `Variation`, `LogLevelType`): Backed by `uint16`, providing efficient integer serialization and HTTP status mapping.
 3. **Generic Lookup Helper (`ToEnum`):**
-   A type-safe generic helper allows looking up any `BaseEnum` from a string case-insensitively:
+   A type-safe generic helper allows looking up any `BaseEnumer` from a string case-insensitively:
    ```go
    found, ok := errtype.ToEnum("running", errtype.AllProcessStates())
    ```
@@ -29,8 +29,8 @@ The `errtype` package provides strongly-typed enumerations, standardized error c
 
 ```mermaid
 flowchart TD
-    BaseInterface["BaseEnum Interface\n(Name, String, ValueString, IsValid, IsEnum, IsCompare, JSON)"]
-    NumberInterface["NumberEnum Interface\n(Code, Int, HttpStatus)"]
+    BaseInterface["BaseEnumer Interface\n(Name, String, ValueString, IsValid, IsEnum, IsCompare, JSON)"]
+    NumberInterface["NumberEnumer Interface\n(Code, Int, HttpStatus)"]
     
     BaseInterface --> NumberInterface
     
@@ -38,7 +38,7 @@ flowchart TD
     NumberInterface --> ErrorVariation["Variation (uint16-backed)\nValidation, NotFound, Precondition, IO, Timeout"]
     NumberInterface --> LogLevel["LogLevelType (uint16-backed)\nTrace, Debug, Info, Warn, Error, Fatal"]
     
-    GenericHelper["ToEnum[T BaseEnum](val, all)"] -.-> BaseInterface
+    GenericHelper["ToEnum[T BaseEnumer](val, all)"] -.-> BaseInterface
 ```
 
 ---

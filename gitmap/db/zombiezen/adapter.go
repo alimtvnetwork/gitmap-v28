@@ -21,12 +21,16 @@ import (
 	"fmt"
 )
 
-// Conn is the abstract handle returned by Open. Mirrors the subset
+// Conner is the abstract handle returned by Open. Mirrors the subset
 // of database/sql.DB the rest of gitmap needs (Exec, Query, Close).
-type Conn interface {
-	Exec(ctx context.Context, query string, args ...any) error
-	Close() error
-}
+type (
+	Conner interface {
+		Exec(ctx context.Context, query string, args ...any) error
+		Close() error
+	}
+
+	Conn = Conner
+)
 
 // Open returns a pure-Go SQLite connection.
 //
@@ -35,7 +39,7 @@ type Conn interface {
 // scaffold compiles without pulling the dependency until the
 // migration is unblocked. Until then, Open returns ErrNotEnabled
 // and existing mattn-backed code paths remain authoritative.
-func Open(_ context.Context, _ string) (Conn, error) {
+func Open(_ context.Context, _ string) (Conner, error) {
 	return nil, fmt.Errorf("zombiezen sqlite adapter: %w", ErrNotEnabled)
 }
 

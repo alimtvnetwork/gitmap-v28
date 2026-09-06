@@ -8,7 +8,7 @@ import (
 )
 
 func TestBaseEnum_VariationConforms(t *testing.T) {
-	var e errtype.BaseEnum = errtype.Validation
+	var e errtype.BaseEnumer = errtype.Validation
 	if e.Name() != "Validation" {
 		t.Fatalf("expected Name() == 'Validation', got %s", e.Name())
 	}
@@ -21,9 +21,19 @@ func TestBaseEnum_VariationConforms(t *testing.T) {
 		t.Fatal("expected Validation to be registered enum")
 	}
 
-	var ne errtype.NumberEnum = errtype.NotFound
+	var aliasE errtype.BaseEnum = e
+	if aliasE.Name() != "Validation" {
+		t.Fatalf("expected alias Name() == 'Validation', got %s", aliasE.Name())
+	}
+
+	var ne errtype.NumberEnumer = errtype.NotFound
 	if ne.Int() != 3 || ne.Code() != 3 {
 		t.Fatalf("unexpected number enum values: int=%d code=%d", ne.Int(), ne.Code())
+	}
+
+	var aliasNE errtype.NumberEnum = ne
+	if aliasNE.Int() != 3 || aliasNE.Code() != 3 {
+		t.Fatalf("unexpected alias number enum values: int=%d code=%d", aliasNE.Int(), aliasNE.Code())
 	}
 }
 

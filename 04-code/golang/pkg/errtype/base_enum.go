@@ -8,7 +8,7 @@ import (
 )
 
 type (
-	BaseEnum interface {
+	BaseEnumer interface {
 		Name() string
 		String() string
 		ValueString() string
@@ -16,11 +16,14 @@ type (
 		IsEnum() bool
 	}
 
-	NumberEnum interface {
-		BaseEnum
+	NumberEnumer interface {
+		BaseEnumer
 		Int() int
 		Code() uint16
 	}
+
+	BaseEnum   = BaseEnumer
+	NumberEnum = NumberEnumer
 )
 
 // ValueString returns the string representation of the variation code.
@@ -296,8 +299,8 @@ func ParseLogLevel(val string) LogLevelType {
 	return 0
 }
 
-// ToEnum finds an enum by name in any slice of BaseEnum.
-func ToEnum[T BaseEnum](val string, all []T) (T, bool) {
+// ToEnum finds an enum by name in any slice of BaseEnumer.
+func ToEnum[T BaseEnumer](val string, all []T) (T, bool) {
 	cleaned := strings.TrimSpace(val)
 	for _, item := range all {
 		if strings.EqualFold(item.Name(), cleaned) || strings.EqualFold(item.ValueString(), cleaned) {
@@ -310,8 +313,8 @@ func ToEnum[T BaseEnum](val string, all []T) (T, bool) {
 	return zero, false
 }
 
-var _ BaseEnum = Variation(0)
-var _ NumberEnum = Variation(0)
-var _ BaseEnum = ProcessStateType("")
-var _ BaseEnum = LogLevelType(0)
-var _ NumberEnum = LogLevelType(0)
+var _ BaseEnumer = Variation(0)
+var _ NumberEnumer = Variation(0)
+var _ BaseEnumer = ProcessStateType("")
+var _ BaseEnumer = LogLevelType(0)
+var _ NumberEnumer = LogLevelType(0)
