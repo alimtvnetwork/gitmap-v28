@@ -17,6 +17,10 @@ type (
 		IsLocked() bool
 		Lock()
 		Unlock()
+		// SharedLockerLock acquires a shared read lock (RLock), allowing multiple
+		// concurrent readers to inspect state or metrics without blocking each other.
+		SharedLockerLock()
+		SharedLockerUnlock()
 		RLock()
 		RUnlock()
 		Sync() *appfault.AppError
@@ -31,6 +35,10 @@ type (
 		IsLocked() bool
 		Lock()
 		Unlock()
+		// SharedLockerLock acquires a shared read lock (RLock), allowing multiple
+		// concurrent readers to inspect state or metrics without blocking each other.
+		SharedLockerLock()
+		SharedLockerUnlock()
 		RLock()
 		RUnlock()
 		Sync() *appfault.AppError

@@ -90,3 +90,29 @@ func TestWrapWriterFailureFromWrap(t *testing.T) {
 		t.Fatalf("expected validation error type in propagated fault")
 	}
 }
+
+func TestBaseWriter_SharedLocker(t *testing.T) {
+	tmpDir := t.TempDir()
+	logPath := filepath.Join(tmpDir, "shared_locker.log")
+
+	wrap := appwriter.NewFileWriter(appwriter.FileWriterOptions{
+		Name:     "shared-locker-test",
+		FilePath: logPath,
+		OpenMode: fileutil.FileOpenCreateAppend,
+		PermMode: fileutil.FilePermStandard,
+		IsLocked: true,
+	})
+
+	if wrap.IsFailed() {
+		t.Fatalf("expected success, got: %v", wrap.Fault())
+	}
+
+	w := wrap.Data()
+	defer w.Close()
+
+	w.SharedLockerLock()
+	w.SharedLockerUnlock()
+
+	w.RLock()
+	w.RUnlock()
+}
