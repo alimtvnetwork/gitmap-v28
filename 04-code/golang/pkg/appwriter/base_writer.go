@@ -64,18 +64,30 @@ func (w *BaseWriter) Unlock() {
 	}
 }
 
-// RLock acquires the shared read lock if lock mode is enabled.
-func (w *BaseWriter) RLock() {
+// SharedLockerLock acquires the shared read lock (RLock) if lock mode is enabled.
+// Unlike exclusive Lock(), multiple readers can hold SharedLockerLock simultaneously
+// to safely inspect writer status, metrics, or telemetry without blocking each other.
+func (w *BaseWriter) SharedLockerLock() {
 	if w.isLocked {
 		w.mu.RLock()
 	}
 }
 
-// RUnlock releases the shared read lock if lock mode is enabled.
-func (w *BaseWriter) RUnlock() {
+// SharedLockerUnlock releases the shared read lock (RUnlock) if lock mode is enabled.
+func (w *BaseWriter) SharedLockerUnlock() {
 	if w.isLocked {
 		w.mu.RUnlock()
 	}
+}
+
+// RLock is a backward-compatible alias for SharedLockerLock.
+func (w *BaseWriter) RLock() {
+	w.SharedLockerLock()
+}
+
+// RUnlock is a backward-compatible alias for SharedLockerUnlock.
+func (w *BaseWriter) RUnlock() {
+	w.SharedLockerUnlock()
 }
 
 // AsWriter returns the Writer interface representation.
