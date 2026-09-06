@@ -36,12 +36,12 @@ func (db *DB) GetDownloaderConfig() (downloaderconfig.Document, bool) {
 // records the LastKnownVersion under SettingDatabaseVersion so future
 // runs can see which gitmap build last touched the DB.
 func (db *DB) SetDownloaderConfig(doc downloaderconfig.Document) error {
-	raw, err := downloaderconfig.Marshal(doc)
-	if err != nil {
-		return err
+	res := downloaderconfig.Marshal(doc)
+	if res.IsFailure() {
+		return res.Err
 	}
 
-	if err := db.SetSetting(constants.SettingDownloaderConfig, string(raw)); err != nil {
+	if err := db.SetSetting(constants.SettingDownloaderConfig, string(res.Value)); err != nil {
 		return err
 	}
 

@@ -20,7 +20,19 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
+)
+
+type ConfigKey string
+
+const (
+	KeyDefaultSplitSize   ConfigKey = "DownloaderConfig.DefaultSplitSize"
+	KeyLargeFileSplitSize ConfigKey = "DownloaderConfig.LargeFileSplitSize"
+	KeyLargeFileThreshold ConfigKey = "DownloaderConfig.LargeFileThreshold"
+	KeyTinyFileThreshold  ConfigKey = "DownloaderConfig.TinyFileThreshold"
+	KeyTinyFileSplitSize  ConfigKey = "DownloaderConfig.TinyFileSplitSize"
 )
 
 // Document is the top-level Seedable-Config envelope. Field names are
@@ -80,7 +92,7 @@ func Defaults() Document {
 
 // LoadFile reads + validates a Seedable-Config JSON file from disk.
 // Used by `gitmap downloader-config <path>` and by the seeder.
-func LoadFile(path string) (Document, error) {
+func LoadFile(path string) result.Result[Document] {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		// Preserve the underlying error (in particular fs.ErrNotExist) so
@@ -88,21 +100,24 @@ func LoadFile(path string) (Document, error) {
 		// optional seed" from a real I/O failure. Without %w the seeder
 		// printed a spurious "Could not read downloader seed" warning on
 		// every fresh install where the seed file does not yet exist.
-		return Document{}, fmt.Errorf(constants.ErrDownloaderConfigPathRequired+": %w", path, err)
+		appErr := apperror.WrapSimple(err, constants.ErrDownloaderConfigPathRequired).
+			WithContext("path", path)
+		return result.FailureResult[Document](appErr)
 	}
 
 	return Parse(raw)
 }
 
 // Parse validates a raw JSON byte slice and returns the typed Document.
-func Parse(raw []byte) (Document, error) {
+func Parse(raw []byte) result.Result[Document] {
 	var doc Document
 	if err := json.Unmarshal(raw, &doc); err != nil {
-		return Document{}, fmt.Errorf(constants.ErrDownloaderConfigInvalidJSON, err)
+		appErr := apperror.WrapSimple(err, constants.ErrDownloaderConfigInvalidJSON)
+		return result.FailureResult[Document](appErr)
 	}
 
 	if err := Validate(doc); err != nil {
-		return Document{}, err
+		return result.FailureResult[Document](err)
 	}
 
 	// "auto" is a documented sentinel in the shipped seed: resolve to the
@@ -112,35 +127,40 @@ func Parse(raw []byte) (Document, error) {
 		doc.DatabaseVersion.LastKnownVersion = constants.Version
 	}
 
-	return doc, nil
+	return result.SuccessResult(doc)
 }
 
 // Validate enforces the PascalCase + range rules. Required keys are
 // checked first so error messages surface a missing key before a
 // numeric range violation that may be a side effect.
-func Validate(doc Document) error {
+func Validate(doc Document) *apperror.AppError {
 	dc := doc.DownloaderConfig
 	if dc.PreferredDownloader == "" {
-		return fmt.Errorf(constants.ErrDownloaderConfigMissingKey, "DownloaderConfig.PreferredDownloader")
+		return apperror.NewSimple("downloader-config", "E1000").
+			WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigMissingKey, "DownloaderConfig.PreferredDownloader"))
 	}
 	if dc.FallbackDownloader == "" {
-		return fmt.Errorf(constants.ErrDownloaderConfigMissingKey, "DownloaderConfig.FallbackDownloader")
+		return apperror.NewSimple("downloader-config", "E1000").
+			WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigMissingKey, "DownloaderConfig.FallbackDownloader"))
 	}
 	if dc.ParallelDownloads < 1 || dc.ParallelDownloads > 64 {
-		return fmt.Errorf(constants.ErrDownloaderConfigBadParallel, dc.ParallelDownloads)
+		return apperror.NewSimple("downloader-config", "E1000").
+			WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigBadParallel, dc.ParallelDownloads))
 	}
 	if dc.SplitConnections < 1 || dc.SplitConnections > 64 {
-		return fmt.Errorf(constants.ErrDownloaderConfigBadSplits, dc.SplitConnections)
+		return apperror.NewSimple("downloader-config", "E1000").
+			WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigBadSplits, dc.SplitConnections))
 	}
-	for k, v := range map[string]string{
-		"DownloaderConfig.DefaultSplitSize":   dc.DefaultSplitSize,
-		"DownloaderConfig.LargeFileSplitSize": dc.LargeFileSplitSize,
-		"DownloaderConfig.LargeFileThreshold": dc.LargeFileThreshold,
-		"DownloaderConfig.TinyFileThreshold":  dc.TinyFileThreshold,
-		"DownloaderConfig.TinyFileSplitSize":  dc.TinyFileSplitSize,
+	for k, v := range map[ConfigKey]string{
+		KeyDefaultSplitSize:   dc.DefaultSplitSize,
+		KeyLargeFileSplitSize: dc.LargeFileSplitSize,
+		KeyLargeFileThreshold: dc.LargeFileThreshold,
+		KeyTinyFileThreshold:  dc.TinyFileThreshold,
+		KeyTinyFileSplitSize:  dc.TinyFileSplitSize,
 	} {
 		if v == "" {
-			return fmt.Errorf(constants.ErrDownloaderConfigMissingKey, k)
+			return apperror.NewSimple("downloader-config", "E1000").
+				WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigMissingKey, string(k)))
 		}
 	}
 
@@ -150,18 +170,24 @@ func Validate(doc Document) error {
 // Marshal serializes a Document with deterministic 2-space indent, matching
 // the project's JSONIndent convention so files written back round-trip
 // cleanly with the seed.
-func Marshal(doc Document) ([]byte, error) {
-	return json.MarshalIndent(doc, "", constants.JSONIndent)
+func Marshal(doc Document) result.Result[[]byte] {
+	b, err := json.MarshalIndent(doc, "", constants.JSONIndent)
+	if err != nil {
+		appErr := apperror.WrapSimple(err, "downloaderconfig.Marshal")
+		return result.FailureResult[[]byte](appErr)
+	}
+	return result.SuccessResult(b)
 }
 
 // SeedHash returns the SHA-256 of the canonical (re-marshaled) document.
 // Hashing the re-marshaled form (not the raw bytes) means whitespace-only
 // edits to the seed file do not falsely trigger a re-seed.
 func SeedHash(doc Document) string {
-	canon, err := Marshal(doc)
-	if err != nil {
+	res := Marshal(doc)
+	if res.IsFailure() {
 		return ""
 	}
+	canon, _ := res.Unwrap()
 	sum := sha256.Sum256(canon)
 
 	return hex.EncodeToString(sum[:])

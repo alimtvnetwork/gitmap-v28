@@ -15,10 +15,11 @@ func TestDefaults_ValidationAndMarshal(t *testing.T) {
 		t.Fatalf("expected Defaults() to pass validation, got: %v", err)
 	}
 
-	raw, err := Marshal(doc)
-	if err != nil {
-		t.Fatalf("expected Marshal to succeed, got: %v", err)
+	res := Marshal(doc)
+	if res.IsFailure() {
+		t.Fatalf("expected Marshal to succeed, got: %v", res.Err)
 	}
+	raw := res.Value
 
 	str := string(raw)
 	if !strings.Contains(str, `"PreferredDownloader":`) {
@@ -41,10 +42,11 @@ func TestParse_SeedFileRoundTrip(t *testing.T) {
 		t.Skipf("seed file not found at %s: %v", seedPath, err)
 	}
 
-	doc, err := Parse(data)
-	if err != nil {
-		t.Fatalf("expected Parse to succeed on seed file, got: %v", err)
+	res2 := Parse(data)
+	if res2.IsFailure() {
+		t.Fatalf("expected Parse to succeed on seed file, got: %v", res2.Err)
 	}
+	doc := res2.Value
 
 	if doc.DownloaderConfig.PreferredDownloader != "Aria2C" {
 		t.Errorf("expected PreferredDownloader Aria2C, got: %s", doc.DownloaderConfig.PreferredDownloader)

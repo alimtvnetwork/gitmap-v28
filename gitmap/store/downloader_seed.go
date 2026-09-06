@@ -97,16 +97,16 @@ func isSeedBannerSuppressed() bool {
 // on first run.
 func loadSeedOrDefaults(seedPath string) (downloaderconfig.Document, string) {
 	resolved := resolveSeedPath(seedPath)
-	doc, err := downloaderconfig.LoadFile(resolved)
-	if err != nil && !errors.Is(err, fs.ErrNotExist) {
-		fmt.Fprintf(os.Stderr, constants.WarnDownloaderSeedRead+"\n", resolved, err)
+	res := downloaderconfig.LoadFile(resolved)
+	if res.IsFailure() && !errors.Is(res.Err, fs.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, constants.WarnDownloaderSeedRead+"\n", resolved, res.Err)
 	}
-	if err != nil {
+	if res.IsFailure() {
 		fallback := downloaderconfig.Defaults()
 		return fallback, downloaderconfig.SeedHash(fallback)
 	}
 
-	return doc, downloaderconfig.SeedHash(doc)
+	return res.Value, downloaderconfig.SeedHash(res.Value)
 }
 
 // resolveSeedPath turns a relative seed path into an absolute path

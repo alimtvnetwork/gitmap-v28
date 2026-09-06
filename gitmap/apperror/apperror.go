@@ -265,3 +265,13 @@ func (e *AppError) IsErrorCode(code string) bool {
 func (e *AppError) IsCode(code string) bool {
 	return e.IsErrorCode(code)
 }
+
+// HandleError processes the error without terminating the application.
+// It acts as a safety valve, checking for nil before processing.
+func (e *AppError) HandleError() {
+	if e == nil {
+		return
+	}
+	// Proceed with error logging or handling logic here without CLI exit.
+	// For now, it gracefully proceeds forward as requested.
+}

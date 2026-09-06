@@ -1,6 +1,9 @@
 package regexnew
 
-import "regexp"
+import (
+	"regexp"
+	"coding-guidelines/common/pkg/appfault"
+)
 
 type newCreator struct {
 	LazyRegex newLazyRegexCreator
@@ -19,12 +22,12 @@ func (it newCreator) LazyLock(pattern string) *LazyRegex {
 }
 
 // Default compiles or retrieves a pre-compiled *regexp.Regexp without locking.
-func (it newCreator) Default(pattern string) (*regexp.Regexp, error) {
+func (it newCreator) Default(pattern string) appfault.Result[*regexp.Regexp] {
 	return Create(pattern)
 }
 
 // DefaultLock compiles or retrieves a pre-compiled *regexp.Regexp with mutex locking.
-func (it newCreator) DefaultLock(pattern string) (*regexp.Regexp, error) {
+func (it newCreator) DefaultLock(pattern string) appfault.Result[*regexp.Regexp] {
 	return CreateLock(pattern)
 }
 
@@ -32,15 +35,11 @@ func (it newCreator) DefaultLock(pattern string) (*regexp.Regexp, error) {
 func (it newCreator) DefaultLockIf(
 	isLock bool,
 	pattern string,
-) (*regexp.Regexp, error) {
+) appfault.Result[*regexp.Regexp] {
 	return CreateLockIf(isLock, pattern)
 }
 
 // DefaultApplicableLock compiles under lock and returns regex, error, and whether applicable.
-func (it newCreator) DefaultApplicableLock(pattern string) (
-	regEx *regexp.Regexp,
-	err error,
-	isApplicable bool,
-) {
+func (it newCreator) DefaultApplicableLock(pattern string) (appfault.Result[*regexp.Regexp], bool) {
 	return CreateApplicableLock(pattern)
 }

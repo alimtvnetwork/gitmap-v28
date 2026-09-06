@@ -46,3 +46,11 @@ func (r Result[T]) ToJsonString() string {
 
 	return string(b)
 }
+
+// HandleError processes the underlying AppError if it exists.
+// It defers to the AppError's internal null-check to proceed safely.
+func (r Result[T]) HandleError() {
+	if r.AppError != nil {
+		r.AppError.HandleError()
+	}
+}
