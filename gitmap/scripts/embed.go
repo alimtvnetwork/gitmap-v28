@@ -1,7 +1,7 @@
 // Package scripts embeds the canonical install / uninstall shell scripts
 // so that subcommands like `gitmap self-install` can run them offline.
 //
-// Spec: spec/01-app/90-self-install-uninstall.md
+// Spec: 02-spec/01-app/90-self-install-uninstall.md
 package scripts
 
 import (

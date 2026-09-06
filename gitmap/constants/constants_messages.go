@@ -361,7 +361,7 @@ const (
 	ErrCloneURLExists     = "Error: target folder already exists: %s\n"
 )
 
-// Clone replace-existing-folder flow (spec/01-app/96-clone-replace-existing-folder.md).
+// Clone replace-existing-folder flow (02-spec/01-app/96-clone-replace-existing-folder.md).
 const (
 	MsgCloneReplaceFree       = "  [clone] target free, cloning directly into %s\n"
 	MsgCloneReplaceExists     = "  [clone] target exists: %s\n"

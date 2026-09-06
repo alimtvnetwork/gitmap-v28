@@ -2,7 +2,7 @@
 // already-fetched list of repo names. Pure function, zero I/O — the
 // provider CLI call lives in gitmap/cmd/visibilityownerlist.go.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §3.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §3.
 package visibility
 
 // MatchedRepo records which pattern first matched a repo. The "first

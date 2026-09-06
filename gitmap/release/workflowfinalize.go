@@ -49,7 +49,7 @@ func pushAndFinalize(v Version, branchName, tag, _ string, opts Options) error {
 	// gitmap source repo. For any other repo, attaching them would mislead
 	// users into downloading gitmap binaries when they wanted the host
 	// project. Gate by the same ShouldPrintInstallHint check used for the
-	// release-body install snippet (spec/02-app-issues/27).
+	// release-body install snippet (02-spec/02-app-issues/27).
 	stagingDir, stagingErr := EnsureStagingDir()
 	if stagingErr == nil {
 		assets = appendStagingAssets(assets, v, stagingDir)

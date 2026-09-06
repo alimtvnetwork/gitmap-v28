@@ -3,7 +3,7 @@ package constants
 // gitmap:cmd top-level
 // Diff command identifiers and flag names.
 //
-// Spec: companion to spec/01-app/97-move-and-merge.md
+// Spec: companion to 02-spec/01-app/97-move-and-merge.md
 const (
 	CmdDiff      = "diff"
 	CmdDiffAlias = "df"

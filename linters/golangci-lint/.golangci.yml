@@ -1,5 +1,5 @@
 # golangci-lint configuration
-# Enforces CODE RED coding guidelines from spec/02-coding-guidelines/
+# Enforces CODE RED coding guidelines from 02-spec/02-coding-guidelines/
 #
 # Usage: golangci-lint run
 # Docs:  https://golangci-lint.run/usage/configuration/

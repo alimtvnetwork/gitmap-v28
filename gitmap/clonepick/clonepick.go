@@ -17,7 +17,7 @@
 // CloneInteractiveSelection table so the same selection can be
 // re-applied later via --replay <id|name>.
 //
-// See spec/01-app/100-clone-pick.md.
+// See 02-spec/01-app/100-clone-pick.md.
 package clonepick
 
 // Plan is the validated, in-memory representation of one clone-pick

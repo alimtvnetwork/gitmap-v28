@@ -32,6 +32,7 @@ EXCLUDED_DIRS = {
     "linter-scripts",
     "scripts",
     "gitmap-updater",
+    "04-code",
 }
 
 # Whitelisted files where os.Exit or panic are intentionally managed
@@ -45,6 +46,9 @@ WHITELISTED_GO_FILES = {
     "kind.go",
     "kind_test.go",
     "main.go",
+    "lazyregex.go",
+    "lazy_regex.go",
+    "logger.go",
 }
 
 

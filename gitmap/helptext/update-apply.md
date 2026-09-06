@@ -96,4 +96,4 @@ $ gitmap update apply acme/api
 
     gitmap help --json --filter update-apply
 
-Schema: `spec/08-json-schemas/update-apply.schema.json` (v6.80.0+).
+Schema: `02-spec/08-json-schemas/update-apply.schema.json` (v6.80.0+).

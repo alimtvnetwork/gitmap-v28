@@ -1,6 +1,6 @@
 package constants
 
-// Transaction journal & revert (spec/04-generic-cli/28-transaction-revert.md).
+// Transaction journal & revert (02-spec/04-generic-cli/28-transaction-revert.md).
 //
 // Two SQLite tables track every FS-mutating op + the per-file backups
 // captured before the mutation. Backup directory layout (mirrored on

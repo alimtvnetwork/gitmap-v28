@@ -3,7 +3,7 @@ package constants
 // gitmap:cmd top-level
 // Move/merge command IDs and aliases.
 //
-// Spec: spec/01-app/97-move-and-merge.md
+// Spec: 02-spec/01-app/97-move-and-merge.md
 const (
 	CmdMv         = "mv"
 	CmdMove       = "move"

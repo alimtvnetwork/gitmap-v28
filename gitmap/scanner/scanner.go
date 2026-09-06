@@ -10,7 +10,7 @@
 //   - Bounded by ScanWorkers (default = runtime.NumCPU(), capped by
 //     scanWorkersMax to avoid pathological fd exhaustion on huge trees).
 //   - Symlinks are NOT followed (consistent with the previous serial
-//     implementation; see spec/01-app/03-scanner.md).
+//     implementation; see 02-spec/01-app/03-scanner.md).
 //   - When a `.git` directory is found the parent is recorded as a repo
 //     and the subtree is NOT descended further (same rule as before).
 //   - The first I/O error from any worker wins and is returned; remaining

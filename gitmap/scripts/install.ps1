@@ -59,7 +59,7 @@ param(
     # report, and exit 0 — without downloading, extracting, or
     # touching the install dir / PATH. Used by CI to validate that
     # the install.ps1 + release-pipeline asset-naming contract is
-    # honored before users hit it. Spec: spec/07-generic-release/
+    # honored before users hit it. Spec: 02-spec/07-generic-release/
     # 09-generic-install-script-behavior.md §6.
     [switch]$DryRun
 )
@@ -112,7 +112,7 @@ class InstallerFailure : System.Exception {
 }
 
 # ---------------------------------------------------------------------------
-# Versioned repo discovery (spec/01-app/95-installer-script-find-latest-repo.md)
+# Versioned repo discovery (02-spec/01-app/95-installer-script-find-latest-repo.md)
 # ---------------------------------------------------------------------------
 
 function Split-RepoSuffix([string]$repo) {
@@ -206,7 +206,7 @@ if ($env:INSTALLER_DELEGATED -eq "1") {
 } elseif ($NoDiscovery) {
     Write-Host "  [discovery] -NoDiscovery set; skipping probe"
 } elseif (-not [string]::IsNullOrWhiteSpace($Version)) {
-    # Pinned-version contract (spec/07-generic-release/08-pinned-version-install-snippet.md):
+    # Pinned-version contract (02-spec/07-generic-release/08-pinned-version-install-snippet.md):
     # When -Version is supplied, install EXACTLY that version from the embedded $Repo.
     # Skip versioned-repo discovery so a snippet copied from a v3.x release page
     # never silently jumps to the v4 repo's latest tag.
@@ -395,7 +395,7 @@ function Resolve-Version([string]$version) {
     }
 }
 
-# --- Strict-tag failure (spec/07-generic-release/09 section 3) ---
+# --- Strict-tag failure (02-spec/07-generic-release/09 section 3) ---
 # Print the canonical no-fallback message and exit 1. Called from
 # Get-Asset whenever -Version was supplied explicitly and the
 # requested release asset cannot be downloaded or verified.
@@ -403,7 +403,7 @@ function Stop-Strict([string]$detail) {
     Write-Err ""
     Write-Err "Error: requested release $Version not found in $Repo;"
     Write-Err "       refusing to fall back per strict-tag contract."
-    Write-Err "       See spec/07-generic-release/09-generic-install-script-behavior.md `$3."
+    Write-Err "       See 02-spec/07-generic-release/09-generic-install-script-behavior.md `$3."
     if ($detail) { Write-Err "       Detail: $detail" }
     throw [InstallerFailure]::new("Strict version install failed", 1)
 }

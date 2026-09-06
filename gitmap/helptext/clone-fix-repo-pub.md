@@ -122,4 +122,4 @@ gitmap cfrp cg https://github.com/acme/myrepo-v13.git --no-push
 ## Scripting (JSON)
 
 `gitmap help --json --filter clone-fix-repo-pub` — schema at
-`spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+`02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

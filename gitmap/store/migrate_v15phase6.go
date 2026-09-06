@@ -1,6 +1,6 @@
 // Package store — migrate_v15phase6.go performs the v17 release-repo FK migration.
 //
-// Spec: spec/04-generic-cli/24-release-repo-relationship.md
+// Spec: 02-spec/04-generic-cli/24-release-repo-relationship.md
 //
 // Until v3.16.x the Release table was orphaned (no FK to Repo). v3.17.0
 // adds:

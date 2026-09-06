@@ -7,7 +7,7 @@
 // The pure query builder is exported so cmd-side tests can lock the
 // WHERE composition without spinning up SQLite.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §history.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §history.
 package store
 
 import (

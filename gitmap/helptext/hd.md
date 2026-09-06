@@ -122,4 +122,4 @@ $ gitmap dashboard --recent
 
     gitmap help --json --filter hd
 
-Schema: `spec/08-json-schemas/hd.schema.json` (v6.80.0+).
+Schema: `02-spec/08-json-schemas/hd.schema.json` (v6.80.0+).

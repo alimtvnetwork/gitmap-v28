@@ -39,15 +39,15 @@ flowchart TD
     Origin["Operation Origin"] --> Create["appfault.New() / Wrap()"]
     Create --> Capture["Value-Based CallerInfo Captured"]
     Capture --> Stack["Stack Frame Extracted"]
-    
+
     Stack --> Propagation["Function Returns *appfault.AppError"]
-    
+
     Propagation --> Loop{"Retry Loop or Batch Processing"}
     Loop -->|"New Failure"| Merge["appfault.Merge(err1, err2)"]
-    
+
     Merge --> Preserve["Track Previous Stack Trace in Dictionary"]
     Preserve --> IncrDepth["Increment error_loop_depth & merged_count"]
-    
+
     IncrDepth --> FinalOutput["Final *appfault.AppError Envelope"]
     FinalOutput --> Response["HTTP JSON Response / Audit Log"]
 ```

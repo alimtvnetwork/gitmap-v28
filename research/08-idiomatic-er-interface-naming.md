@@ -1,9 +1,9 @@
 # Idiomatic `-er` Interface Naming & Generic Contracts Architecture
 
-> **Document:** `research/08-idiomatic-er-interface-naming.md`  
-> **Status:** Implemented & Verified  
-> **Package:** `04-code/golang/pkg/streamwriter`  
-> **Date:** 2026-09-04  
+> **Document:** `research/08-idiomatic-er-interface-naming.md`
+> **Status:** Implemented & Verified
+> **Package:** `04-code/golang/pkg/streamwriter`
+> **Date:** 2026-09-04
 
 ---
 

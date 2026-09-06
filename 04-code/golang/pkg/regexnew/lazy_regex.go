@@ -66,6 +66,10 @@ func (it *LazyRegex) Compile() (*regexp.Regexp, error) {
 		return nil, errors.New("nil LazyRegex cannot compile")
 	}
 
+	if it.isCompiled && it.regex != nil {
+		return it.regex, nil
+	}
+
 	it.mu.Lock()
 	defer it.mu.Unlock()
 
@@ -96,7 +100,16 @@ func (it *LazyRegex) Compile() (*regexp.Regexp, error) {
 }
 
 // CompileMust compiles the regular expression and panics on compilation error.
+// It checks first if an existing compiled regexp already exists and returns it immediately.
 func (it *LazyRegex) CompileMust() *regexp.Regexp {
+	if it == nil {
+		return nil
+	}
+
+	if it.isCompiled && it.regex != nil {
+		return it.regex
+	}
+
 	regexCompiled, err := it.Compile()
 	if err != nil {
 		panic(err)
@@ -331,6 +344,28 @@ func (it *LazyRegex) Re() *regexp.Regexp {
 	return it.CompileMust()
 }
 
+// Regex returns the underlying compiled *regexp.Regexp.
+func (it *LazyRegex) Regex() *regexp.Regexp {
+	return it.CompileMust()
+}
+
+// Compiled returns the underlying compiled *regexp.Regexp.
+func (it *LazyRegex) Compiled() *regexp.Regexp {
+	return it.CompileMust()
+}
+
+func (it *LazyRegex) compiledRegex() (*regexp.Regexp, error) {
+	if it == nil {
+		return nil, errors.New("nil LazyRegex")
+	}
+
+	if it.isCompiled && it.regex != nil {
+		return it.regex, nil
+	}
+
+	return it.Compile()
+}
+
 // FindString returns the leftmost match in s.
 func (it *LazyRegex) FindString(s string) string {
 	if it == nil {
@@ -367,7 +402,7 @@ func (it *LazyRegex) FindAllString(s string, n int) []string {
 		return nil
 	}
 
-	re, err := it.Compile()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return nil
 	}
@@ -386,7 +421,7 @@ func (it *LazyRegex) Count(comparing string) int {
 		return 0
 	}
 
-	re, err := it.Compile()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return 0
 	}
@@ -396,13 +431,13 @@ func (it *LazyRegex) Count(comparing string) int {
 }
 
 // GroupBy extracts named capture groups (?P<name>...) from the first match into a GroupMap.
-func (it *LazyRegex) GroupBy(comparing string) *GroupMap {
+func (it *LazyRegex) GroupBy(comparing string) GroupMap {
 	result := NewGroupMap()
 	if it == nil {
 		return result
 	}
 
-	re, err := it.Compile()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return result
 	}
@@ -417,25 +452,25 @@ func (it *LazyRegex) GroupBy(comparing string) *GroupMap {
 		if name == "" || i >= len(match) {
 			continue
 		}
-		result.Set(name, match[i])
+		result[name] = match[i]
 	}
 
 	return result
 }
 
 // FindGroups is an alias for GroupBy.
-func (it *LazyRegex) FindGroups(comparing string) *GroupMap {
+func (it *LazyRegex) FindGroups(comparing string) GroupMap {
 	return it.GroupBy(comparing)
 }
 
 // FindAllGroups extracts named capture groups across all non-overlapping matches in comparing into a GroupList.
-func (it *LazyRegex) FindAllGroups(comparing string) *GroupList {
+func (it *LazyRegex) FindAllGroups(comparing string) GroupList {
 	results := NewGroupList()
 	if it == nil {
 		return results
 	}
 
-	re, err := it.Compile()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return results
 	}
@@ -452,20 +487,25 @@ func (it *LazyRegex) FindAllGroups(comparing string) *GroupList {
 			if name == "" || i >= len(match) {
 				continue
 			}
-			groupMap.Set(name, match[i])
+			groupMap[name] = match[i]
 		}
-		results.Add(groupMap)
+		results = append(results, groupMap)
 	}
 
 	return results
 }
 
 // CompileBuilder compiles the regex, returning a structured CompileResult wrapper.
+// It checks first if an existing compiled regex already exists.
 func (it *LazyRegex) CompileBuilder() *CompileResult {
 	if it == nil {
 		builder := appfault.NewAppBuilder(errtype.Execution, "nil LazyRegex cannot compile")
 		appErr := builder.Build()
 		return NewCompileFailure(appErr, builder)
+	}
+
+	if it.isCompiled && it.regex != nil {
+		return NewCompileSuccess(it.regex)
 	}
 
 	regEx, err := it.Compile()

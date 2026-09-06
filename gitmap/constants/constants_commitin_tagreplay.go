@@ -1,7 +1,7 @@
 package constants
 
-// commit-in tag-replay constants. See spec/03-commit-in/09-commit-in-replay-map.md
-// and spec/03-commit-in/08-tag-mirroring-and-release-branches.md.
+// commit-in tag-replay constants. See 02-spec/03-commit-in/09-commit-in-replay-map.md
+// and 02-spec/03-commit-in/08-tag-mirroring-and-release-branches.md.
 //
 // Per Core memory: no magic strings. The five `TagReplayOutcome`
 // member names are centralized here and referenced from SQL seeds,

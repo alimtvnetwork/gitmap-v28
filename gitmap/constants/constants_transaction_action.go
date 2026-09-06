@@ -1,6 +1,6 @@
 // Package constants — TransactionAction schema (v23+).
 //
-// Spec: spec/04-generic-cli/29-reversible-actions-schema.md
+// Spec: 02-spec/04-generic-cli/29-reversible-actions-schema.md
 //
 // TransactionAction is the typed-action layer that sits ON TOP of the
 // existing TransactionFile byte-snapshot journal. Each row is a single

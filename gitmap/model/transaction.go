@@ -1,6 +1,6 @@
 // Package model — transaction.go defines the SQLite-backed transaction
 // journal records used by the revert/undo subsystem. See
-// spec/04-generic-cli/28-transaction-revert.md for the wire contract.
+// 02-spec/04-generic-cli/28-transaction-revert.md for the wire contract.
 package model
 
 // TransactionRecord is one row of the "Transaction" master journal.

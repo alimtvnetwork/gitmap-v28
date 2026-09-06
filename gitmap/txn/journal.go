@@ -1,7 +1,7 @@
 // Package txn is the SQLite-backed transaction journal that gives every
 // state-mutating gitmap command a recorded, revertable trail.
 //
-// Spec: spec/04-generic-cli/28-transaction-revert.md
+// Spec: 02-spec/04-generic-cli/28-transaction-revert.md
 //
 // Lifecycle:
 //

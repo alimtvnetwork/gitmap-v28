@@ -2,7 +2,7 @@
 // preview of what `gitmap merge-both / merge-left / merge-right`
 // would change. No files are written, no commits, no pushes.
 //
-// Spec: companion to spec/01-app/97-move-and-merge.md
+// Spec: companion to 02-spec/01-app/97-move-and-merge.md
 package diff
 
 import (

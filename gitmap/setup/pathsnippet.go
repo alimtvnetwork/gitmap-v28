@@ -14,7 +14,7 @@ import (
 // would produce — those scripts shell out to `gitmap setup
 // print-path-snippet` and pipe the bytes into the user's rc file.
 //
-// Spec: spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
+// Spec: 02-spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
 func RenderPathSnippet(shell, dir, manager string) (string, error) {
 	if len(dir) == 0 {
 		return "", fmt.Errorf(constants.ErrPathSnippetDirRequired)

@@ -1,9 +1,9 @@
 # WrappedBytes Interface & JSONResult Architecture
 
-> **Document:** `research/10-wrapped-bytes-interface-and-json-result.md`  
-> **Status:** Implemented & Verified  
-> **Package:** `04-code/golang/pkg/streamwriter`  
-> **Date:** 2026-09-04  
+> **Document:** `research/10-wrapped-bytes-interface-and-json-result.md`
+> **Status:** Implemented & Verified
+> **Package:** `04-code/golang/pkg/streamwriter`
+> **Date:** 2026-09-04
 
 ---
 

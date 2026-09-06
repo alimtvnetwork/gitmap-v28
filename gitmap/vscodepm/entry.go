@@ -3,7 +3,7 @@ package vscodepm
 // Entry mirrors one object in projects.json. Field order and JSON tags
 // match the alefragnani.project-manager schema exactly so encoded files
 // stay diff-friendly with manual edits and the sample fixture
-// (spec/01-vscode-project-manager-sync/sample-projects.json).
+// (02-spec/01-vscode-project-manager-sync/sample-projects.json).
 type Entry struct {
 	Name     string   `json:"name"`
 	RootPath string   `json:"rootPath"`

@@ -157,7 +157,7 @@ load_deploy_manifest() {
 }
 
 # ── Versioned repo discovery ────────────────────────────────────────
-# spec/01-app/95-installer-script-find-latest-repo.md
+# 02-spec/01-app/95-installer-script-find-latest-repo.md
 
 # Parses "<owner>/<stem>-v<N>". Sets SUFFIX_OWNER, SUFFIX_STEM, SUFFIX_N.
 parse_repo_suffix() {
@@ -315,7 +315,7 @@ download() {
     fi
 }
 
-# ── Strict-tag failure (spec/07-generic-release/09 §3) ─────────────
+# ── Strict-tag failure (02-spec/07-generic-release/09 §3) ─────────────
 # Print the canonical no-fallback message and exit 1. Called from
 # download_asset whenever VERSION was supplied explicitly and the
 # requested release asset cannot be downloaded or verified.
@@ -324,7 +324,7 @@ strict_fail() {
     err ""
     err "Error: requested release ${VERSION} not found in ${REPO};"
     err "       refusing to fall back per strict-tag contract."
-    err "       See spec/07-generic-release/09-generic-install-script-behavior.md §3."
+    err "       See 02-spec/07-generic-release/09-generic-install-script-behavior.md §3."
     if [ -n "${detail}" ]; then
         err "       Detail: ${detail}"
     fi
@@ -779,7 +779,7 @@ install_docs_site() {
 # from inside a PowerShell (pwsh) session. Checks multiple env signals
 # because some shells / sudo wrappers strip PSModulePath but leave
 # other pwsh-specific variables intact.
-# Spec: spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
+# Spec: 02-spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
 detect_active_pwsh() {
     # PSModulePath: classic pwsh marker, always set in interactive sessions.
     if [ -n "${PSModulePath:-}" ]; then
@@ -810,7 +810,7 @@ pwsh_profile_path() {
 }
 
 # add_path_to_profile writes a marker-block snippet (per
-# spec/04-generic-cli/21-post-install-shell-activation) to a single
+# 02-spec/04-generic-cli/21-post-install-shell-activation) to a single
 # profile file. Idempotent across all three outcomes: appends when
 # absent, rewrites in place when present-but-different, no-ops when
 # present-and-identical. Third arg is the snippet shell flavor:
@@ -1026,7 +1026,7 @@ add_to_path() {
     # inside a pwsh session (PSModulePath is set), or when pwsh is on PATH.
     # The --shell-mode both / pwsh-containing combo (DUAL_SHELL=true)
     # forces this branch even when neither detection signal fires.
-    # Issue: spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
+    # Issue: 02-spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
     local pwsh_active=false
     if detect_active_pwsh; then
         pwsh_active=true
@@ -1330,7 +1330,7 @@ parse_args() {
     # Combos are STRICT — ~/.profile and undeclared families are skipped.
     # The Go caller (gitmap self-install --shell-mode <mode>) already
     # validated this; we re-validate below for direct (curl|bash) users.
-    # See spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
+    # See 02-spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
     # for the original motivating use case (pwsh user on macOS).
     PROFILE_MODE="auto"
 
@@ -1579,7 +1579,7 @@ main() {
     elif [ "${NO_DISCOVERY}" = "true" ]; then
         printf '  [discovery] --no-discovery set; skipping probe\n' >&2
     elif [ -n "${VERSION}" ]; then
-        # Pinned-version contract (spec/07-generic-release/08-pinned-version-install-snippet.md):
+        # Pinned-version contract (02-spec/07-generic-release/08-pinned-version-install-snippet.md):
         # When --version is supplied, install EXACTLY that version from the embedded REPO.
         # Skip versioned-repo discovery so a snippet copied from a v3.x release page
         # never silently jumps to the v4 repo's latest tag.

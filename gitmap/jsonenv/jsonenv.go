@@ -12,7 +12,7 @@
 //	  "error":   "..."   // present only when ok=false
 //	}
 //
-// Existing per-command JSON schemas under spec/08-json-schemas/ are
+// Existing per-command JSON schemas under 02-spec/08-json-schemas/ are
 // embedded as the `data` payload — no breaking change to the inner
 // shape, only an outer wrapper so tooling can detect schema version
 // + dispatch by command without sniffing keys.

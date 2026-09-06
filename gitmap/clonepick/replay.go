@@ -4,7 +4,7 @@ package clonepick
 // its CreatedAt timestamp so most-recently-replayed selections sort to
 // the top of `gitmap clone-pick --list` (planned).
 //
-// Replay rules (spec/01-app/100-clone-pick.md §"Replay rules"):
+// Replay rules (02-spec/01-app/100-clone-pick.md §"Replay rules"):
 //   - Numeric ref  -> SELECT by SelectionId
 //   - Non-numeric  -> SELECT by Name (case-sensitive, newest match wins)
 //   - Replay does NOT insert a duplicate row; it bumps CreatedAt instead.

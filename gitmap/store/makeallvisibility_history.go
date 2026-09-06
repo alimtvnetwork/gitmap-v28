@@ -1,7 +1,7 @@
 // Package store — makeallvisibility_history.go: SELECT helper for
 // `gitmap visibility-history`. Pure read path — no mutations.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §history.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §history.
 package store
 
 import (

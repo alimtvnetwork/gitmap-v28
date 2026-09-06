@@ -6,7 +6,7 @@ package constants
 // commands, which manage the gitmap binary itself (as opposed to the
 // `install`/`uninstall` commands that manage third-party tools).
 //
-// Spec: spec/01-app/90-self-install-uninstall.md
+// Spec: 02-spec/01-app/90-self-install-uninstall.md
 
 // Default install directories per platform.
 const (

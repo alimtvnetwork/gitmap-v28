@@ -6,7 +6,7 @@
 // has a portable VS Code install or non-standard APPDATA the resolver picks
 // it up automatically.
 //
-// See spec/01-vscode-project-manager-sync/README.md
+// See 02-spec/01-vscode-project-manager-sync/README.md
 package vscodepm
 
 import (

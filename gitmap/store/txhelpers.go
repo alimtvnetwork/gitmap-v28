@@ -3,7 +3,7 @@
 // row loops accept either *sql.Tx or a mock in unit tests without
 // dragging the database/sql dependency into the test surface.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §plan step 18.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §plan step 18.
 package store
 
 import (

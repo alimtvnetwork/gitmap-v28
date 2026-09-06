@@ -11,7 +11,7 @@ import (
 // directional mirror of RunRight: same plan/replay primitives, with
 // source/target swapped. The CLI passes leftDir as the destination
 // because `commit-left` writes to LEFT (mirrors `merge-left` semantics
-// in spec/01-app/97-move-and-merge.md).
+// in 02-spec/01-app/97-move-and-merge.md).
 //
 // Phase 2 (v3.102.0): wired in by gitmap/cmd/committransfer.go.
 func RunLeft(leftDir, rightDir string, opts Options) error {

@@ -88,6 +88,6 @@ $ gitmap update all
 
     gitmap help --json --filter update-all
 
-Schema: `spec/08-json-schemas/update-apply.schema.json` (shared with
+Schema: `02-spec/08-json-schemas/update-apply.schema.json` (shared with
 `update apply`; `update all` wraps the same result object in a summary
 envelope).

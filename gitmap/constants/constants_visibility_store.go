@@ -1,5 +1,5 @@
 // Package constants — constants_visibility_store.go: SQLite schema for
-// the bulk wildcard visibility audit trail (spec/01-app/116, plan
+// the bulk wildcard visibility audit trail (02-spec/01-app/116, plan
 // steps 15-16). Two tables:
 //
 //	MakeAllVisibilityRun     — one row per `make-all-*` invocation.

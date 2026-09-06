@@ -28,16 +28,16 @@ The `streamwriter` package provides a unified, high-performance streaming, loggi
 flowchart TD
     App["Application Producer"] --> Logger["Logger[any]"]
     App --> DirectStreamer["Streamer[T]"]
-    
+
     Logger --> FanOut{"Fan-Out Dispatcher"}
     FanOut --> S1["LockedStreamer[any]"]
     FanOut --> S2["LocklessStreamer[any]"]
     FanOut --> S3["AsyncWriter[any]"]
-    
+
     DirectStreamer --> Pluggable["PluggableWriter[T]"]
     Pluggable --> Check{"CurrentObject() Self-Binding"}
     Check --> Action["WriteMethod(s, ctx, w, payload)"]
-    
+
     S3 --> Channel["Buffered Channel"]
     Channel --> WorkerPool["Background Workers"]
     WorkerPool --> Dest["Underlying io.Writer / File / Network"]

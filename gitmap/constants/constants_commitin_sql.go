@@ -1,6 +1,6 @@
 package constants
 
-// commit-in SQL DDL — see spec/03-commit-in/04-database-schema.md.
+// commit-in SQL DDL — see 02-spec/03-commit-in/04-database-schema.md.
 //
 // Table-name conventions (Core memory rules):
 //   - PascalCase, singular.

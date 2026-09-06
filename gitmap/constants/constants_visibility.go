@@ -126,7 +126,7 @@ const CFRPPriorMaxLookback = 5
 // interactive prompt strings.
 const (
 	ProviderUnknownReason   = "unknown"
-	MsgMakeAllNotImpl       = "make-all-*: handler not yet wired (spec/01-app/116)\n"
+	MsgMakeAllNotImpl       = "make-all-*: handler not yet wired (02-spec/01-app/116)\n"
 	ErrMakeAllResolveFmt    = "make-all-*: cannot resolve owner: %v\n"
 	ErrMakeAllMissingArgFmt = "make-all-*: usage: %s <target> <patterns> [-Y|--yes]\n"
 

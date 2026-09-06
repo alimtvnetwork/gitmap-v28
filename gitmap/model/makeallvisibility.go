@@ -3,7 +3,7 @@
 // MakeAllVisibilityResult). Mirrors the schema in
 // constants/constants_visibility_store.go.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §plan steps 17-18.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §plan steps 17-18.
 package model
 
 // MakeAllVisibilityRunRecord is one row of MakeAllVisibilityRun.

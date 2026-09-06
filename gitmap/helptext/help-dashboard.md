@@ -54,14 +54,14 @@ linked from older bookmarks:
 
 | Page | Command | Spec |
 |------|---------|------|
-| `/diff` | `gitmap diff LEFT RIGHT` (alias `df`) | spec/01-app/97-move-and-merge.md (companion) |
-| `/mv` | `gitmap mv LEFT RIGHT` (alias `move`) | spec/01-app/97-move-and-merge.md |
-| `/merge-both` | `gitmap merge-both LEFT RIGHT` (alias `mb`) | spec/01-app/97-move-and-merge.md |
-| `/merge-left` | `gitmap merge-left LEFT RIGHT` (alias `ml`) | spec/01-app/97-move-and-merge.md |
-| `/merge-right` | `gitmap merge-right LEFT RIGHT` (alias `mr`) | spec/01-app/97-move-and-merge.md |
-| `/commit-right` | `gitmap commit-right LEFT RIGHT` (alias `cmr`) **LIVE** | spec/01-app/106-commit-left-right-both.md |
-| `/commit-left` | `gitmap commit-left LEFT RIGHT` (alias `cml`) *(scaffold)* | spec/01-app/106-commit-left-right-both.md |
-| `/commit-both` | `gitmap commit-both LEFT RIGHT` (alias `cmb`) *(scaffold)* | spec/01-app/106-commit-left-right-both.md |
+| `/diff` | `gitmap diff LEFT RIGHT` (alias `df`) | 02-spec/01-app/97-move-and-merge.md (companion) |
+| `/mv` | `gitmap mv LEFT RIGHT` (alias `move`) | 02-spec/01-app/97-move-and-merge.md |
+| `/merge-both` | `gitmap merge-both LEFT RIGHT` (alias `mb`) | 02-spec/01-app/97-move-and-merge.md |
+| `/merge-left` | `gitmap merge-left LEFT RIGHT` (alias `ml`) | 02-spec/01-app/97-move-and-merge.md |
+| `/merge-right` | `gitmap merge-right LEFT RIGHT` (alias `mr`) | 02-spec/01-app/97-move-and-merge.md |
+| `/commit-right` | `gitmap commit-right LEFT RIGHT` (alias `cmr`) **LIVE** | 02-spec/01-app/106-commit-left-right-both.md |
+| `/commit-left` | `gitmap commit-left LEFT RIGHT` (alias `cml`) *(scaffold)* | 02-spec/01-app/106-commit-left-right-both.md |
+| `/commit-both` | `gitmap commit-both LEFT RIGHT` (alias `cmb`) *(scaffold)* | 02-spec/01-app/106-commit-left-right-both.md |
 | `/as` | `gitmap as [name]` (alias `s-alias`) | helptext/as.md |
 | `/release-alias` | `gitmap release-alias <name> <ver>` (alias `ra`) | helptext/release-alias.md |
 | `/release-alias-pull` | `gitmap release-alias-pull <name> <ver>` (alias `rap`) | helptext/release-alias-pull.md |
@@ -87,4 +87,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter help-dashboard
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

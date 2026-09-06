@@ -87,7 +87,7 @@ resolved directory when they differ.
 - [chrome-profile-import](chrome-profile-import.md) — restore a snapshot
 - [chrome-profile-list](chrome-profile-list.md) — list known profiles
 - [chrome-profile-delete](chrome-profile-delete.md) — drop a tracked profile
-- Spec: `spec/04-generic-cli/40-chrome-profile-copy.md`
+- Spec: `02-spec/04-generic-cli/40-chrome-profile-copy.md`
 
 ## Examples
 

@@ -1,6 +1,6 @@
 # gitmap commit-right
 
-> **Status (v3.76.0):** **LIVE.** Phase 1 of spec/01-app/106 has shipped.
+> **Status (v3.76.0):** **LIVE.** Phase 1 of 02-spec/01-app/106 has shipped.
 > `commit-left` and `commit-both` are still scaffolds.
 
 Replay LEFT's commits onto RIGHT as a fresh, cleaned commit sequence.
@@ -74,7 +74,7 @@ Output:
 - [commit-left](commit-left.md) — opposite direction
 - [commit-both](commit-both.md) — bidirectional
 - [merge-right](merge-right.md) — file-state mirror (no commit replay)
-- spec/01-app/106-commit-left-right-both.md — full design
+- 02-spec/01-app/106-commit-left-right-both.md — full design
 
 ## Scripting (JSON)
 
@@ -84,7 +84,7 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter commit-right
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
 
 ## Advanced Usage
 

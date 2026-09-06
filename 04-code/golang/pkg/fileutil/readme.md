@@ -43,7 +43,7 @@ The `fileutil` package provides enterprise-grade filesystem utilities, behavior-
 ```mermaid
 flowchart TD
     Client["Client Caller"] --> Call{"Operation Call"}
-    
+
     Call -->|"Write() / Append()"| AutoLock["1. Automatically Acquire Lock (mu.Lock)"]
     AutoLock --> EnsureDir["2. Ensure Parent Directories (os.MkdirAll)"]
     EnsureDir --> FileOp["3. Open File / Use Open Descriptor"]
@@ -52,13 +52,13 @@ flowchart TD
     Fsync -->|"Yes"| DoSync["5. f.Sync()"]
     Fsync -->|"No"| CheckClose
     DoSync --> CheckClose{"AutoClose Active?"}
-    
+
     CheckClose -->|"Yes (or WriteAndClose)"| CloseHandle["6. Close File Descriptor (f.Close)"]
     CheckClose -->|"No (Persistent)"| KeepHandle["6. Retain Descriptor for Reuse"]
-    
+
     CloseHandle --> ReleaseLock["7. Automatically Release Lock (mu.Unlock)"]
     KeepHandle --> ReleaseLock
-    
+
     ReleaseLock --> Done["Return *appfault.AppError"]
 ```
 

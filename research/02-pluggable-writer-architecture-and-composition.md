@@ -1,9 +1,9 @@
 # Pluggable Logger Writer Architecture & Composition Blueprint
 
-> **Status:** Proposal & Architectural Specification  
-> **Date:** 2026-09-03  
-> **Target System:** `04-code/golang/pkg/applogger`  
-> **Topic:** Composable Writer Contracts, BaseWriter Embedding, Configurable Formatting, and Enterprise REST API Streaming  
+> **Status:** Proposal & Architectural Specification
+> **Date:** 2026-09-03
+> **Target System:** `04-code/golang/pkg/applogger`
+> **Topic:** Composable Writer Contracts, BaseWriter Embedding, Configurable Formatting, and Enterprise REST API Streaming
 
 ---
 

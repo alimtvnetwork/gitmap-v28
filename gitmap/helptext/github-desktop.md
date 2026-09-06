@@ -75,7 +75,7 @@ gd (also: ds, desktop-sync)
 - [desktop-sync](desktop-sync.md) — same command, different name
 - [scan](scan.md) — `--github-desktop` registers during scan
 - [clone](clone.md) — `--github-desktop` registers during clone
-- [scan-gd (spec 102)](../spec/01-app/102-scan-gd.md) — design doc for bulk mode
+- [scan-gd (spec 102)](../02-spec/01-app/102-scan-gd.md) — design doc for bulk mode
 
 ## Scripting (JSON)
 
@@ -85,4 +85,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter github-desktop
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

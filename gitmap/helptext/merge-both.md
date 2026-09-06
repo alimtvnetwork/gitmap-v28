@@ -5,7 +5,7 @@ only one side are copied to the other; files present on both with
 different content trigger an interactive conflict prompt. Each side
 that originated from a URL is committed + pushed independently.
 
-Spec: `spec/01-app/97-move-and-merge.md`
+Spec: `02-spec/01-app/97-move-and-merge.md`
 
 ## Alias
 
@@ -120,4 +120,4 @@ Discover this command from a script using the machine-readable help payload:
 gitmap help --json --filter merge-both
 ```
 
-The JSON schema is published at `spec/08-json-schemas/help-json.schema.json` (v5.43.0+).
+The JSON schema is published at `02-spec/08-json-schemas/help-json.schema.json` (v5.43.0+).

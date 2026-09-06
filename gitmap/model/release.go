@@ -2,7 +2,7 @@
 package model
 
 // ReleaseRecord holds release metadata stored in the database.
-// v17: RepoId FK to Repo.RepoId (see spec/04-generic-cli/24-release-repo-relationship.md).
+// v17: RepoId FK to Repo.RepoId (see 02-spec/04-generic-cli/24-release-repo-relationship.md).
 type ReleaseRecord struct {
 	ID           int64  `json:"id"`
 	RepoID       int64  `json:"repoId"`

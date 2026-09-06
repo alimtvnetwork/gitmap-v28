@@ -69,7 +69,7 @@ const (
 // writable temp file path; commands like clone-next, as, cd write the
 // destination directory to that file, and the wrapper cds to it.
 //
-// Spec: spec/04-generic-cli/21-post-install-shell-activation/01-contract.md
+// Spec: 02-spec/04-generic-cli/21-post-install-shell-activation/01-contract.md
 const EnvGitmapHandoffFile = "GITMAP_HANDOFF_FILE"
 
 // Shell-handoff error format.

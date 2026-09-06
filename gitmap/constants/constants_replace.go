@@ -1,6 +1,6 @@
 package constants
 
-// Replace command flag names (see spec/04-generic-cli/15-replace-command.md).
+// Replace command flag names (see 02-spec/04-generic-cli/15-replace-command.md).
 const (
 	ReplaceFlagYes     = "yes"
 	ReplaceFlagYesS    = "y"

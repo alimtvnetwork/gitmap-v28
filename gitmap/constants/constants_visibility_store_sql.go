@@ -3,7 +3,7 @@
 // Kept in a separate file from the CREATE TABLE schema to honor the
 // ≤200-line per-file rule.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §plan steps 17-18.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §plan steps 17-18.
 package constants
 
 // SQLInsertMakeAllVisibilityRun — pre-prompt INSERT capturing the

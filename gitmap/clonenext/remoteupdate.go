@@ -7,7 +7,7 @@ package clonenext
 // best target. The probe is fail-fast: as soon as -v<N+k> returns 404,
 // we stop walking upward (matches install.sh's resolve_effective_repo).
 //
-// Spec reference: spec/01-app/95-installer-script-find-latest-repo.md
+// Spec reference: 02-spec/01-app/95-installer-script-find-latest-repo.md
 // Issue context: cn batch update detection (v3.43.3).
 
 import (
