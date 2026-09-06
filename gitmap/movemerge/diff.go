@@ -1,6 +1,10 @@
 package movemerge
 
-import "path/filepath"
+import (
+	"path/filepath"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
+)
 
 // DiffKindType classifies a path across LEFT and RIGHT.
 type DiffKindType int
@@ -38,10 +42,11 @@ func DiffTrees(leftDir, rightDir string, opts Options) ([]DiffEntry, error) {
 	keys := SortedKeys(li, ri)
 	out := make([]DiffEntry, 0, len(keys))
 	for _, rel := range keys {
-		entry, derr := classifyOne(rel, li, ri, leftDir, rightDir)
-		if derr != nil {
-			return nil, derr
+		res := classifyOne(rel, li, ri, leftDir, rightDir)
+		if res.IsFailure() {
+			return nil, res.Err
 		}
+		entry := res.Value
 		out = append(out, entry)
 	}
 
@@ -55,42 +60,42 @@ func classifyOne(
 	ri map[string]FileMeta,
 	leftDir,
 	rightDir string,
-) (DiffEntry, error) {
+) result.Result[DiffEntry] {
 	l, lOK := li[rel]
 	r, rOK := ri[rel]
 	entry := DiffEntry{RelPath: rel, Left: l, Right: r}
 	if lOK && !rOK {
 		entry.Kind = DiffMissingRight
 
-		return entry, nil
+		return result.SuccessResult(entry)
 	}
 	if !lOK && rOK {
 		entry.Kind = DiffMissingLeft
 
-		return entry, nil
+		return result.SuccessResult(entry)
 	}
 
 	return classifyBoth(entry, leftDir, rightDir)
 }
 
 // classifyBoth resolves Identical vs Conflict via SHA-256.
-func classifyBoth(entry DiffEntry, leftDir, rightDir string) (DiffEntry, error) {
+func classifyBoth(entry DiffEntry, leftDir, rightDir string) result.Result[DiffEntry] {
 	lPath := filepath.Join(leftDir, filepath.FromSlash(entry.RelPath))
 	rPath := filepath.Join(rightDir, filepath.FromSlash(entry.RelPath))
 	lh, err := HashFile(lPath)
 	if err != nil {
-		return entry, err
+		return result.FailureResult[DiffEntry](apperror.WrapSimple(err, "movemerge"))
 	}
 	rh, err := HashFile(rPath)
 	if err != nil {
-		return entry, err
+		return result.FailureResult[DiffEntry](apperror.WrapSimple(err, "movemerge"))
 	}
 	if lh == rh {
 		entry.Kind = DiffIdentical
 
-		return entry, nil
+		return result.SuccessResult(entry)
 	}
 	entry.Kind = DiffConflict
 
-	return entry, nil
+	return result.SuccessResult(entry)
 }

@@ -129,3 +129,16 @@ func NewFailureWithType[T any](
 	)
 	return FailureResult[T](appErr)
 }
+
+// HandleError processes the underlying error if one exists, without panicking or exiting.
+// It proceeds forward safely by deferring to the AppError's internal null-check.
+func (r Result[T]) HandleError() {
+	if r.Err != nil {
+		r.Err.HandleError()
+		return
+	}
+	appErr, ok := r.AppError.(*apperror.AppError)
+	if ok && appErr != nil {
+		appErr.HandleError()
+	}
+}

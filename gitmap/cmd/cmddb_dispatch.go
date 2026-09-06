@@ -64,4 +64,3 @@ func handleUnknownDbSub(sub string) error {
 
 // Backwards-compatible alias for handleUnknownDbSub
 var handleUnknownDBSub = handleUnknownDbSub
-

@@ -83,11 +83,11 @@ func loadDocOrPrompt(db *store.DB, args []string) (downloaderconfig.Document, st
 }
 
 func loadDocFromFile(path string) (downloaderconfig.Document, string) {
-	doc, err := downloaderconfig.LoadFile(path)
-	if err != nil {
-		cliexit.HandleError(apperror.NewSimple("not enough return values", "E9000"), 1)
+	res := downloaderconfig.LoadFile(path)
+	if res.IsFailure() {
+		cliexit.HandleError(res.Err, 1)
 	}
-	return doc, path
+	return res.Value, path
 }
 
 func promptCoreConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig) downloaderconfig.DownloaderConfig {
@@ -116,7 +116,7 @@ func promptFlagConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig
 
 func validatePromptedDoc(doc downloaderconfig.Document) downloaderconfig.Document {
 	if err := downloaderconfig.Validate(doc); err != nil {
-		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, "✗").Error())
+		fmt.Fprintln(os.Stderr, err.Error())
 		cliexit.HandleError(nil, 1)
 	}
 	return doc

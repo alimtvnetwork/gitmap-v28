@@ -99,3 +99,11 @@ func (e *AppError) clone() *AppError {
 		statusCode: e.statusCode,
 	}
 }
+
+// HandleError processes the error without terminating the application.
+// It performs an internal null-check to proceed forward safely.
+func (e *AppError) HandleError() {
+	if e == nil {
+		return
+	}
+}

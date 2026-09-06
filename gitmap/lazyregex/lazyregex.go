@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
 )
 
 var (
@@ -16,174 +17,161 @@ var (
 // LazyRegexp provides a thread-safe, lazily compiled regular expression
 // that caches its compiled state within the instance itself.
 type LazyRegexp struct {
-	expr       string
-	re         *regexp.Regexp
+	expression string
+	regex      *regexp.Regexp
 	compileErr error
 	isCompiled bool
-	mu         sync.Mutex
+	locker     sync.Mutex
 }
 
 // New creates or retrieves a globally cached LazyRegexp for the given expression.
 // Each expression maps to exactly one instance; compilation is lazy and stored in the instance.
-func New(expr string) *LazyRegexp {
+func New(expression string) *LazyRegexp {
 	globalLock.Lock()
 	defer globalLock.Unlock()
 
-	item, exists := globalMap[expr]
+	item, exists := globalMap[expression]
 	if exists {
 		return item
 	}
 
-	item = &LazyRegexp{expr: expr}
-	globalMap[expr] = item
+	item = &LazyRegexp{expression: expression}
+	globalMap[expression] = item
 
 	return item
 }
 
 // NewLock creates or retrieves a cached LazyRegexp with mutex locking (alias for New).
-func NewLock(expr string) *LazyRegexp {
-	return New(expr)
+func NewLock(expression string) *LazyRegexp {
+	return New(expression)
 }
 
 // Compile compiles the regular expression on demand, setting the isCompiled flag.
 // Subsequent calls return the cached *regexp.Regexp without recompilation.
 // It checks first if an existing compiled regexp already exists and returns it immediately.
-func (r *LazyRegexp) Compile() (*regexp.Regexp, error) {
-	if r == nil {
-		return nil, errors.New("nil LazyRegexp cannot compile")
+func (it *LazyRegexp) Compile() result.Result[*regexp.Regexp] {
+	if it == nil {
+		return result.FailureResult[*regexp.Regexp](apperror.NewSimple("nil LazyRegexp cannot compile", "E9000"))
 	}
 
-	if r.isCompiled && r.re != nil {
-		return r.re, nil
+	if it.isCompiled && it.regex != nil {
+		return result.SuccessResult(it.regex)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	it.locker.Lock()
+	defer it.locker.Unlock()
 
-	if r.isCompiled {
-		return r.re, r.compileErr
+	if it.isCompiled && it.compileErr != nil {
+		return result.FailureResult[*regexp.Regexp](apperror.WrapSimple(it.compileErr, "lazyregex.Compile"))
 	}
 
-	compiled, err := regexp.Compile(r.expr)
-	r.re = compiled
-	r.compileErr = err
-	r.isCompiled = true
+	if it.isCompiled {
+		return result.SuccessResult(it.regex)
+	}
 
-	return compiled, err
+	compiled, err := regexp.Compile(it.expression)
+	it.regex = compiled
+	it.compileErr = err
+	it.isCompiled = true
+
+	if err != nil {
+		appErr := apperror.WrapSimple(err, "lazyregex.Compile").
+			WithContext("pattern", it.expression)
+		return result.FailureResult[*regexp.Regexp](appErr)
+	}
+
+	return result.SuccessResult(compiled)
 }
 
 // CompileMust compiles the regular expression and panics on compilation error.
 // It checks first if an existing compiled regexp already exists and returns it immediately.
-func (r *LazyRegexp) CompileMust() *regexp.Regexp {
-	if r == nil {
+func (it *LazyRegexp) CompileMust() *regexp.Regexp {
+	if it == nil {
 		return nil
 	}
 
-	if r.isCompiled && r.re != nil {
-		return r.re
+	if it.isCompiled && it.regex != nil {
+		return it.regex
 	}
 
-	compiled, err := r.Compile()
-	if err != nil {
-		panic(err)
-	}
+	res := it.Compile()
+	res.HandleError()
 
-	return compiled
-}
-
-// CompileAppError compiles the regex and returns a wrapped CompileResult with typed AppError on failure.
-func (r *LazyRegexp) CompileAppError() *CompileResult {
-	return r.CompileResult()
+	return res.Value
 }
 
 // CompileResult compiles the regex and returns a wrapped CompileResult.
 // It checks first if an existing compiled regexp already exists and returns it immediately.
-func (r *LazyRegexp) CompileResult() *CompileResult {
-	if r == nil {
-		appErr := apperror.NewWithDetails("lazyregex.Compile", "NIL_RECEIVER", "nil LazyRegexp cannot compile", "lazyregex", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
-		return NewCompileFailure(appErr)
-	}
-
-	if r.isCompiled && r.re != nil {
-		return NewCompileSuccess(r.re)
-	}
-
-	compiled, err := r.Compile()
-	if err != nil {
-		appErr := apperror.Wrap(err, "lazyregex.Compile", map[string]any{
-			"pattern": r.expr,
-		})
-		return NewCompileFailure(appErr)
-	}
-
-	return NewCompileSuccess(compiled)
+func (it *LazyRegexp) CompileResult() result.Result[*regexp.Regexp] {
+	return it.Compile()
 }
 
 // Re returns the underlying compiled *regexp.Regexp, panicking on compilation error.
 // Kept for backward compatibility with existing callers.
-func (r *LazyRegexp) Re() *regexp.Regexp {
-	return r.CompileMust()
+func (it *LazyRegexp) Re() *regexp.Regexp {
+	return it.CompileMust()
 }
 
 // Regex returns the underlying compiled *regexp.Regexp.
-func (r *LazyRegexp) Regex() *regexp.Regexp {
-	return r.CompileMust()
+func (it *LazyRegexp) Regex() *regexp.Regexp {
+	return it.CompileMust()
 }
 
 // Compiled returns the underlying compiled *regexp.Regexp.
-func (r *LazyRegexp) Compiled() *regexp.Regexp {
-	return r.CompileMust()
+func (it *LazyRegexp) Compiled() *regexp.Regexp {
+	return it.CompileMust()
 }
 
-func (r *LazyRegexp) compiledRegex() (*regexp.Regexp, error) {
-	if r == nil {
+func (it *LazyRegexp) compiledRegex() (*regexp.Regexp, error) {
+	if it == nil {
 		return nil, errors.New("nil LazyRegexp")
 	}
 
-	if r.isCompiled && r.re != nil {
-		return r.re, nil
+	if it.isCompiled && it.regex != nil {
+		return it.regex, nil
 	}
 
-	return r.Compile()
+	res := it.Compile()
+	return res.Value, res.AppError
 }
 
 // IsCompiled reports whether compilation has already been executed.
-func (r *LazyRegexp) IsCompiled() bool {
-	if r == nil {
+func (it *LazyRegexp) IsCompiled() bool {
+	if it == nil {
 		return false
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	it.locker.Lock()
+	defer it.locker.Unlock()
 
-	return r.isCompiled
+	return it.isCompiled
 }
 
 // String returns the raw regular expression pattern string.
-func (r *LazyRegexp) String() string {
-	if r == nil {
+func (it *LazyRegexp) String() string {
+	if it == nil {
 		return ""
 	}
 
-	return r.expr
+	return it.expression
 }
 
 // Pattern returns the raw regular expression pattern string.
-func (r *LazyRegexp) Pattern() string {
-	if r == nil {
+func (it *LazyRegexp) Pattern() string {
+	if it == nil {
 		return ""
 	}
 
-	return r.expr
+	return it.expression
 }
 
 // IsMatch reports whether the string s matches the regular expression without panicking.
-func (r *LazyRegexp) IsMatch(s string) bool {
-	if r == nil {
+func (it *LazyRegexp) IsMatch(s string) bool {
+	if it == nil {
 		return false
 	}
 
-	re, err := r.compiledRegex()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return false
 	}
@@ -192,22 +180,22 @@ func (r *LazyRegexp) IsMatch(s string) bool {
 }
 
 // IsFound is a semantic alias for IsMatch.
-func (r *LazyRegexp) IsFound(s string) bool {
-	return r.IsMatch(s)
+func (it *LazyRegexp) IsFound(s string) bool {
+	return it.IsMatch(s)
 }
 
 // MatchString reports whether the string s contains any match of the regular expression.
-func (r *LazyRegexp) MatchString(s string) bool {
-	return r.IsMatch(s)
+func (it *LazyRegexp) MatchString(s string) bool {
+	return it.IsMatch(s)
 }
 
 // Count returns the number of non-overlapping matches of the regular expression in s.
-func (r *LazyRegexp) Count(s string) int {
-	if r == nil {
+func (it *LazyRegexp) Count(s string) int {
+	if it == nil {
 		return 0
 	}
 
-	re, err := r.compiledRegex()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return 0
 	}
@@ -217,20 +205,20 @@ func (r *LazyRegexp) Count(s string) int {
 }
 
 // GroupBy extracts named capture groups (?P<name>...) from the first match into a GroupMap.
-func (r *LazyRegexp) GroupBy(s string) GroupMap {
-	result := NewGroupMap()
-	if r == nil {
-		return result
+func (it *LazyRegexp) GroupBy(s string) GroupMap {
+	res := NewGroupMap()
+	if it == nil {
+		return res
 	}
 
-	re, err := r.compiledRegex()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
-		return result
+		return res
 	}
 
 	match := re.FindStringSubmatch(s)
 	if len(match) == 0 {
-		return result
+		return res
 	}
 
 	names := re.SubexpNames()
@@ -238,25 +226,25 @@ func (r *LazyRegexp) GroupBy(s string) GroupMap {
 		if name == "" || i >= len(match) {
 			continue
 		}
-		result[name] = match[i]
+		res[name] = match[i]
 	}
 
-	return result
+	return res
 }
 
 // FindGroups is an alias for GroupBy.
-func (r *LazyRegexp) FindGroups(s string) GroupMap {
-	return r.GroupBy(s)
+func (it *LazyRegexp) FindGroups(s string) GroupMap {
+	return it.GroupBy(s)
 }
 
 // FindAllGroups extracts named capture groups across all non-overlapping matches in s into a GroupList.
-func (r *LazyRegexp) FindAllGroups(s string) GroupList {
+func (it *LazyRegexp) FindAllGroups(s string) GroupList {
 	results := NewGroupList()
-	if r == nil {
+	if it == nil {
 		return results
 	}
 
-	re, err := r.compiledRegex()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return results
 	}
@@ -282,12 +270,12 @@ func (r *LazyRegexp) FindAllGroups(s string) GroupList {
 }
 
 // FindString returns the leftmost match in s of the regular expression.
-func (r *LazyRegexp) FindString(s string) string {
-	if r == nil {
+func (it *LazyRegexp) FindString(s string) string {
+	if it == nil {
 		return ""
 	}
 
-	re, err := r.compiledRegex()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return ""
 	}
@@ -296,12 +284,12 @@ func (r *LazyRegexp) FindString(s string) string {
 }
 
 // FindStringSubmatch returns a slice of strings holding the leftmost submatches in s.
-func (r *LazyRegexp) FindStringSubmatch(s string) []string {
-	if r == nil {
+func (it *LazyRegexp) FindStringSubmatch(s string) []string {
+	if it == nil {
 		return nil
 	}
 
-	re, err := r.compiledRegex()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return nil
 	}
@@ -310,12 +298,12 @@ func (r *LazyRegexp) FindStringSubmatch(s string) []string {
 }
 
 // FindAllString returns a slice of all successive matches of the expression.
-func (r *LazyRegexp) FindAllString(s string, n int) []string {
-	if r == nil {
+func (it *LazyRegexp) FindAllString(s string, n int) []string {
+	if it == nil {
 		return nil
 	}
 
-	re, err := r.compiledRegex()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return nil
 	}
@@ -324,12 +312,12 @@ func (r *LazyRegexp) FindAllString(s string, n int) []string {
 }
 
 // ReplaceAllString returns a copy of src with all matches replaced by repl.
-func (r *LazyRegexp) ReplaceAllString(src, repl string) string {
-	if r == nil {
+func (it *LazyRegexp) ReplaceAllString(src, repl string) string {
+	if it == nil {
 		return src
 	}
 
-	re, err := r.compiledRegex()
+	re, err := it.compiledRegex()
 	if err != nil || re == nil {
 		return src
 	}

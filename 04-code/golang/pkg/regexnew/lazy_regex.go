@@ -12,10 +12,10 @@ import (
 // LazyRegex provides a lazy-compiled, thread-safe regular expression wrapper.
 // Patterns are compiled at most once and cached globally.
 type LazyRegex struct {
-	mu           sync.Mutex
+	locker       sync.Mutex
 	isCompiled   bool
 	isApplicable bool
-	pattern      string
+	expression   string
 	regex        *regexp.Regexp
 	compiledErr  error
 	compiler     func(pattern string) (*regexp.Regexp, error)
@@ -26,14 +26,14 @@ func (it *LazyRegex) IsNull() bool {
 	return it == nil
 }
 
-// IsDefined returns true if the receiver is non-nil with pattern set.
+// IsDefined returns true if the receiver is non-nil with expression set.
 func (it *LazyRegex) IsDefined() bool {
-	return it != nil && it.pattern != ""
+	return it != nil && it.expression != ""
 }
 
-// IsUndefined returns true if the receiver is nil or missing pattern.
+// IsUndefined returns true if the receiver is nil or missing expression.
 func (it *LazyRegex) IsUndefined() bool {
-	return it == nil || it.pattern == ""
+	return it == nil || it.expression == ""
 }
 
 // IsApplicable compiles the regex if needed and returns true if compilation succeeded.
@@ -42,43 +42,46 @@ func (it *LazyRegex) IsApplicable() bool {
 		return false
 	}
 
-	it.mu.Lock()
+	it.locker.Lock()
 	if it.isApplicable {
-		it.mu.Unlock()
+		it.locker.Unlock()
 		return true
 	}
-	it.mu.Unlock()
+	it.locker.Unlock()
 
 	if it.IsUndefined() {
 		return false
 	}
 
-	_, _ = it.Compile()
+	_ = it.Compile()
 
-	it.mu.Lock()
-	defer it.mu.Unlock()
+	it.locker.Lock()
+	defer it.locker.Unlock()
 	return it.isApplicable
 }
 
 // Compile compiles the regular expression using the assigned compiler function or standard regexp.Compile.
-func (it *LazyRegex) Compile() (*regexp.Regexp, error) {
+func (it *LazyRegex) Compile() appfault.Result[*regexp.Regexp] {
 	if it == nil {
-		return nil, errors.New("nil LazyRegex cannot compile")
+		return appfault.Fail[*regexp.Regexp](appfault.NewAppBuilder(errtype.Execution, "nil LazyRegex cannot compile").Build())
 	}
 
 	if it.isCompiled && it.regex != nil {
-		return it.regex, nil
+		return appfault.NewSuccess(it.regex)
 	}
 
-	it.mu.Lock()
-	defer it.mu.Unlock()
+	it.locker.Lock()
+	defer it.locker.Unlock()
 
 	if it.isCompiled {
-		return it.regex, it.compiledErr
+		if it.compiledErr != nil {
+			return appfault.Fail[*regexp.Regexp](appfault.NewAppBuilder(errtype.Execution, "lazy regex compilation failed").SetCause(it.compiledErr).Build())
+		}
+		return appfault.NewSuccess(it.regex)
 	}
 
-	if it.pattern == "" {
-		return nil, errors.New("lazy regex has empty pattern")
+	if it.expression == "" {
+		return appfault.Fail[*regexp.Regexp](appfault.NewAppBuilder(errtype.Execution, "lazy regex has empty expression").Build())
 	}
 
 	var (
@@ -86,9 +89,9 @@ func (it *LazyRegex) Compile() (*regexp.Regexp, error) {
 		regExErr      error
 	)
 	if it.compiler != nil {
-		compiledRegex, regExErr = it.compiler(it.pattern)
+		compiledRegex, regExErr = it.compiler(it.expression)
 	} else {
-		compiledRegex, regExErr = regexp.Compile(it.pattern)
+		compiledRegex, regExErr = regexp.Compile(it.expression)
 	}
 
 	it.isApplicable = compiledRegex != nil && regExErr == nil
@@ -96,7 +99,14 @@ func (it *LazyRegex) Compile() (*regexp.Regexp, error) {
 	it.compiledErr = regExErr
 	it.isCompiled = true
 
-	return compiledRegex, regExErr
+	if regExErr != nil {
+		builder := appfault.NewAppBuilder(errtype.Execution, "lazy regex compilation failed")
+		builder.SetCause(regExErr)
+		builder.SetContext("expression", it.expression)
+		return appfault.Fail[*regexp.Regexp](builder.Build())
+	}
+
+	return appfault.NewSuccess(compiledRegex)
 }
 
 // CompileMust compiles the regular expression and panics on compilation error.
@@ -110,12 +120,12 @@ func (it *LazyRegex) CompileMust() *regexp.Regexp {
 		return it.regex
 	}
 
-	regexCompiled, err := it.Compile()
-	if err != nil {
-		panic(err)
+	res := it.Compile()
+	if res.IsFailure() {
+		res.HandleError()
 	}
 
-	return regexCompiled
+	return res.Value
 }
 
 // IsCompiled reports whether compilation has already occurred.
@@ -124,8 +134,8 @@ func (it *LazyRegex) IsCompiled() bool {
 		return false
 	}
 
-	it.mu.Lock()
-	defer it.mu.Unlock()
+	it.locker.Lock()
+	defer it.locker.Unlock()
 
 	return it.isCompiled
 }
@@ -140,7 +150,7 @@ func (it *LazyRegex) OnRequiredCompiled() error {
 		return it.compiledErr
 	}
 
-	_, err := it.Compile()
+	err := it.Compile().Error()
 	return err
 }
 
@@ -148,7 +158,9 @@ func (it *LazyRegex) OnRequiredCompiled() error {
 func (it *LazyRegex) OnRequiredCompiledMust() {
 	err := it.OnRequiredCompiled()
 	if err != nil {
-		panic(err)
+		if appErr, ok := err.(*appfault.AppError); ok {
+			appErr.HandleError()
+		}
 	}
 }
 
@@ -194,7 +206,9 @@ func (it *LazyRegex) Error() error {
 func (it *LazyRegex) MustBeSafe() {
 	compiledErr := it.CompiledError()
 	if compiledErr != nil {
-		panic(compiledErr)
+		if appErr, ok := compiledErr.(*appfault.AppError); ok {
+			appErr.HandleError()
+		}
 	}
 }
 
@@ -204,7 +218,7 @@ func (it *LazyRegex) String() string {
 		return ""
 	}
 
-	return it.pattern
+	return it.expression
 }
 
 // FullString returns a formatted JSON representation of the LazyRegex state.
@@ -238,7 +252,7 @@ func (it *LazyRegex) Pattern() string {
 		return ""
 	}
 
-	return it.pattern
+	return it.expression
 }
 
 // MatchError returns nil on successful match, or a descriptive validation error.
@@ -247,13 +261,15 @@ func (it *LazyRegex) MatchError(matchingPattern string) error {
 		return errors.New("nil LazyRegex cannot match")
 	}
 
-	regEx, compiledErr := it.Compile()
+	res := it.Compile()
+	regEx := res.Value
+	compiledErr := res.Error()
 	if regEx != nil && regEx.MatchString(matchingPattern) {
 		return nil
 	}
 
 	return regExMatchValidationError(
-		it.pattern,
+		it.expression,
 		matchingPattern,
 		compiledErr,
 		regEx)
@@ -268,13 +284,15 @@ func (it *LazyRegex) MatchUsingFuncError(
 		return errors.New("nil LazyRegex cannot match")
 	}
 
-	regEx, compiledErr := it.Compile()
+	res := it.Compile()
+	regEx := res.Value
+	compiledErr := res.Error()
 	if regEx != nil && matchFunc != nil && matchFunc(regEx, comparing) {
 		return nil
 	}
 
 	return regExMatchValidationError(
-		it.pattern,
+		it.expression,
 		comparing,
 		compiledErr,
 		regEx)
@@ -286,7 +304,9 @@ func (it *LazyRegex) IsMatch(comparing string) bool {
 		return false
 	}
 
-	regEx, compiledErr := it.Compile()
+	res := it.Compile()
+	regEx := res.Value
+	compiledErr := res.Error()
 	if regEx == nil || compiledErr != nil {
 		return false
 	}
@@ -300,7 +320,9 @@ func (it *LazyRegex) IsMatchBytes(comparingBytes []byte) bool {
 		return false
 	}
 
-	regEx, compiledErr := it.Compile()
+	res := it.Compile()
+	regEx := res.Value
+	compiledErr := res.Error()
 	if regEx == nil || compiledErr != nil {
 		return false
 	}
@@ -326,7 +348,9 @@ func (it *LazyRegex) FirstMatchLine(
 		return "", true
 	}
 
-	regEx, compiledErr := it.Compile()
+	res := it.Compile()
+	regEx := res.Value
+	compiledErr := res.Error()
 	if regEx == nil || compiledErr != nil {
 		return "", true
 	}
@@ -363,7 +387,11 @@ func (it *LazyRegex) compiledRegex() (*regexp.Regexp, error) {
 		return it.regex, nil
 	}
 
-	return it.Compile()
+		res := it.Compile()
+	if res.AppError != nil {
+		return res.Value, res.AppError
+	}
+	return res.Value, nil
 }
 
 // FindString returns the leftmost match in s.
@@ -495,32 +523,13 @@ func (it *LazyRegex) FindAllGroups(comparing string) GroupList {
 	return results
 }
 
-// CompileBuilder compiles the regex, returning a structured CompileResult wrapper.
+// CompileBuilder compiles the regex, returning a structured Result wrapper.
 // It checks first if an existing compiled regex already exists.
-func (it *LazyRegex) CompileBuilder() *CompileResult {
-	if it == nil {
-		builder := appfault.NewAppBuilder(errtype.Execution, "nil LazyRegex cannot compile")
-		appErr := builder.Build()
-		return NewCompileFailure(appErr, builder)
-	}
-
-	if it.isCompiled && it.regex != nil {
-		return NewCompileSuccess(it.regex)
-	}
-
-	regEx, err := it.Compile()
-	if err != nil {
-		builder := appfault.NewAppBuilder(errtype.Execution, "lazy regex compilation failed")
-		builder.SetCause(err)
-		builder.SetContext("pattern", it.pattern)
-		appErr := builder.Build()
-		return NewCompileFailure(appErr, builder)
-	}
-
-	return NewCompileSuccess(regEx)
+func (it *LazyRegex) CompileBuilder() appfault.Result[*regexp.Regexp] {
+	return it.Compile()
 }
 
-// CompileResult compiles the regex, returning a structured CompileResult wrapper.
-func (it *LazyRegex) CompileResult() *CompileResult {
-	return it.CompileBuilder()
+// CompileResult compiles the regex, returning a structured Result wrapper.
+func (it *LazyRegex) CompileResult() appfault.Result[*regexp.Regexp] {
+	return it.Compile()
 }
