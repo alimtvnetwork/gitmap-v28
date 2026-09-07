@@ -3,7 +3,9 @@ package cmd
 import (
 	"bytes"
 	"errors"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -139,4 +141,27 @@ func TestCommitCodingGuidelinesNoCommitNoPushPrintsBothNotes(t *testing.T) {
 		t.Fatalf("expected success, got %v", err)
 	}
 	assertCGNotes(t, stderr.String())
+}
+
+func TestPatchCGWindowsScriptFile(t *testing.T) {
+	t.Parallel()
+
+	tmp := t.TempDir()
+	path := filepath.Join(tmp, "test.ps1")
+	sample := "Write-Warning \"failed: $oldFile: msg\"\nWrite-Warning \"failed: $destPath: msg\"\nWrite-Warning \"failed: $targetVersionFile: msg\"\n"
+	_ = os.WriteFile(path, []byte(sample), 0644)
+
+	err := patchCGWindowsScriptFile(path)
+	if err != nil {
+		t.Fatalf("patchCGWindowsScriptFile failed: %v", err)
+	}
+
+	data, _ := os.ReadFile(path)
+	out := string(data)
+	if strings.Contains(out, "$oldFile:") || strings.Contains(out, "$destPath:") || strings.Contains(out, "$targetVersionFile:") {
+		t.Fatalf("unpatched syntax remains: %s", out)
+	}
+	if !strings.Contains(out, "${oldFile}:") || !strings.Contains(out, "${destPath}:") || !strings.Contains(out, "${targetVersionFile}:") {
+		t.Fatalf("expected patched variables with braces, got: %s", out)
+	}
 }

@@ -97,8 +97,6 @@ func runPipelineErrorLogsDynamicTimeline(params ErrorLogsTimelineParams) error {
 		return err
 	}
 
-	maybeOfferAutoFix(payload, params.IsJSON, params.WantFix, params.WantCheck, params.FilePath, params.TempFileName, params.Args)
-
 	return nil
 }
 

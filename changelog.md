@@ -9,6 +9,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Added / Changed / Fixed / Removed
 
 - Real-Time Streaming Telemetry, Unbuffered Event Pipeline & AI Parallel Orchestration
+- Added cross-platform OS power and screen timeout management framework (`gitmap power`) supporting Windows (`powercfg.exe`) and Linux/Ubuntu (GNOME `gsettings`, X11 `xset`, `systemd-logind`) with SQLite state tracking and restore profiles (`status`, `never-sleep`, `set`, `reset`, `history`)
+- Isolated tool installation tracking and telemetry into dedicated split SQLite database (`installation.db`) adhering to split DB architectural standards and preserving zero-swallow error policies
+- Added VMware tools detection and shared folder management suite (`gitmap vmware shared enable`, `status`) with automatic `/mnt/hgfs` mount, desktop symlink, and `@reboot` crontab persistence
+- Added Ubuntu `build-essential` compiler toolchain and common developer profiles (`gitmap install build-essential`) strictly excluding legacy/deprecated packages
+- Added remote cluster server command and script delegation suite (`gitmap server-cmd`, `server-cmds`, `scmd`) supporting node filtering and sudo escalation
+- Added Ubuntu OS symlink diagnostic and repair command suite (`gitmap os fix-link`, `gitmap fix-link`) with target override, dry-run simulation, and recursive scanning
+- Fixed CI/CD pipeline error log fetching timeout and added disk persistence at `.gitmap/pipeline/` with reentrant process lock tracking
 
 ## [v6.193.0] 2026-09-06 Release v6.193.0
 

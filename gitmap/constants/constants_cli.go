@@ -296,8 +296,33 @@ const (
 	// for the current repo + current version (v5.40.0+). Backups live
 	// at `<repoRoot>/.gitmap/backup/<repo>/v<N>/fix-repo/<UTC-ts>/`.
 	// Spec: 02-spec/04-generic-cli/27-fix-repo-command.md §"Backup & undo".
-	CmdUndo      = "undo"
-	CmdUndoAlias = "ud"
+	CmdUndo             = "undo"
+	CmdUndoAlias        = "ud"
+	CmdVmware           = "vmware"
+	CmdVmwareAlias      = "vm"
+	SubCmdVmwareShared  = "shared" // gitmap:cmd skip
+	SubCmdSharedEnable  = "enable" // gitmap:cmd skip
+	SubCmdSharedStatus  = "status" // gitmap:cmd skip
+	CmdServerCmd        = "server-cmd"
+	CmdServerCmds       = "server-cmds"
+	CmdServerCmdAlias   = "scmd"
+	CmdPower            = "power"
+	CmdPowerAlias       = "pw"
+	CmdPowerAlias2      = "pwr"
+	SubCmdPowerStatus   = "status"      // gitmap:cmd skip
+	SubCmdPowerNever    = "never-sleep" // gitmap:cmd skip
+	SubCmdPowerSet      = "set"         // gitmap:cmd skip
+	SubCmdPowerReset    = "reset"       // gitmap:cmd skip
+	SubCmdPowerHistory  = "history"     // gitmap:cmd skip
+	CmdOS               = "os"
+	CmdFixLink          = "fix-link"
+	CmdFixLinkAlias     = "fixlink"
+	CmdFixLinkAlias2    = "fl"
+	SubCmdFixLink       = "fix-link" // gitmap:cmd skip
+	SubCmdFixLinkAlias  = "fixlink"  // gitmap:cmd skip
+	SubCmdFixLinkAlias2 = "fl"       // gitmap:cmd skip
+	SubCmdOSStatus      = "status"   // gitmap:cmd skip
+	SubCmdOSHelp        = "help"     // gitmap:cmd skip
 	// CmdReleasePull is sugar for `release` that first runs
 	// `git pull --ff-only` in the current repo, then delegates to
 	// the regular release pipeline. Hard-fails on non-fast-forward
@@ -584,6 +609,9 @@ const (
 	HelpListReleases     = "  list-releases (lr)  Show releases from .gitmap/release/ files or database (" + ColorCyan + "--limit" + ColorReset + " N, " + ColorCyan + "--json" + ColorReset + ", " + ColorCyan + "--source" + ColorReset + ")"
 	HelpRevert           = "  revert <version>    Revert to a specific release version"
 	MsgHelpLFSCommon     = "  lfs-common (lfsc)   Track common binary file types with Git LFS in current repo"
+	HelpPower            = "  power (pw, pwr)     Inspect, set, and reset OS display and sleep timeouts"
+	HelpOS               = "  os                  Manage OS configurations and diagnostics (" + ColorCyan + "fix-link" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
+	HelpFixLink          = "  fix-link (fixlink)  Inspect and repair broken symlinks and shared directories (" + ColorCyan + "--target" + ColorReset + ", " + ColorCyan + "--recursive" + ColorReset + ", " + ColorCyan + "--force" + ColorReset + ", " + ColorCyan + "--dry-run" + ColorReset + ", " + ColorCyan + "--json" + ColorReset + ")"
 )
 
 // Help section headers and flag-line strings (HelpScanFlags, HelpCloneFlags,

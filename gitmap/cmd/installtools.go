@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
@@ -428,14 +429,21 @@ func resolveSnapPackage(tool string) string {
 // recordInstallation saves the install record to the database.
 func recordInstallation(tool, manager string) {
 	version := detectInstalledVersion(tool)
-	db, err := openDB()
+	splitDB, err := store.OpenInstallationSplitDB()
 	if err != nil {
 		return
 	}
-	defer db.Close()
-	if err := db.SaveInstalledTool(tool, version, manager); err == nil && version != "" {
+	defer splitDB.Close()
+	if err := splitDB.SaveInstalledTool(tool, version, manager); err == nil && version != "" {
 		fmt.Printf(constants.MsgInstallRecorded, tool, version)
 	}
+	_ = splitDB.RecordLog(store.InstallationLogRecord{
+		Tool:           tool,
+		Action:         "install",
+		Version:        version,
+		PackageManager: manager,
+		IsSuccess:      true,
+	})
 }
 
 func runInstallGitHubDesktopLinux(opts installOptions) error {

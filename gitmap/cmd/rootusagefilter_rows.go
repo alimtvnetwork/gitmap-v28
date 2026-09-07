@@ -50,7 +50,8 @@ func allHelpRows() []helpRow {
 	addGroup(&rows, constants.HelpGroupSSH, constants.HelpSSH)
 	addGroup(&rows, constants.HelpGroupZip, constants.HelpZipGroup)
 	addGroup(&rows, constants.HelpGroupEnvTools,
-		constants.HelpEnv, constants.HelpInstall, constants.HelpUninstall)
+		constants.HelpEnv, constants.HelpInstall, constants.HelpUninstall,
+		constants.HelpOS, constants.HelpFixLink)
 	addGroup(&rows, constants.HelpGroupTasks,
 		constants.HelpTask, constants.HelpPending, constants.HelpDoPending,
 		constants.HelpMacro, constants.HelpExecute)

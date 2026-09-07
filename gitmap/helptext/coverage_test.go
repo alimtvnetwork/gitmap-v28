@@ -167,4 +167,6 @@ var helptextExemptConstants = []string{
 	"CmdReleases",
 	// `default` is a `gitmap branch` subcommand verb — covered by branch.md.
 	"CmdBranchSubDefault",
+	// `server-cmds` is plural alias of `server-cmd` — covered by server-cmd.md.
+	"CmdServerCmds",
 }

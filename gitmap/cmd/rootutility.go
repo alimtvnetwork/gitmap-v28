@@ -54,6 +54,9 @@ func utilityDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() error { return runVSCodeWorkspace(argsTail()) }},
 		{[]string{constants.CmdLFSCommon, constants.CmdLFSCommonAlias}, func() error { return runLFSCommon(argsTail()) }},
 		{[]string{constants.CmdReinstall}, func() error { return runReinstall(argsTail()) }},
+		{[]string{constants.CmdPower, constants.CmdPowerAlias, constants.CmdPowerAlias2}, func() error { return runPower(argsTail()) }},
+		{[]string{constants.CmdOS}, func() error { return runOS(argsTail()) }},
+		{[]string{constants.CmdFixLink, constants.CmdFixLinkAlias, constants.CmdFixLinkAlias2}, func() error { return runOSFixLink(argsTail()) }},
 		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
@@ -121,6 +124,8 @@ func normalizeHelpTopic(topic string) string {
 		return constants.CmdPR
 	case constants.CmdClusterAlias:
 		return constants.CmdCluster
+	case constants.CmdPowerAlias, constants.CmdPowerAlias2:
+		return constants.CmdPower
 	}
 	return topic
 }

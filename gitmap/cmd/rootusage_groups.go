@@ -123,6 +123,8 @@ func printGroupEnvTools() {
 	renderHeader(constants.HelpGroupEnvTools)
 	renderLine(constants.HelpEnv)
 	renderLine(constants.HelpCodingGuideline)
+	renderLine(constants.HelpOS)
+	renderLine(constants.HelpFixLink)
 }
 
 func printGroupTasks() {
@@ -188,6 +190,7 @@ func printGroupInstallers() {
 	renderLine(constants.HelpInstall)
 	renderLine(constants.HelpUninstall)
 	renderLine(constants.HelpInstaller)
+	renderLine(constants.HelpPower)
 	renderLine(constants.HelpMacro)
 	renderLine(constants.HelpSetup)
 }
