@@ -1,3 +1,15 @@
+## [v6.194.0] 2026-09-07 Release v6.194.0
+
+### Install GitMap v6.194.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.sh | bash -s -- ".lovable/prompts" "v6.194.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.194.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Real-Time Streaming Telemetry, Unbuffered Event Pipeline & AI Parallel Orchestration
+
 ## [v6.193.0] 2026-09-06 Release v6.193.0
 
 ### Install GitMap v6.193.0
