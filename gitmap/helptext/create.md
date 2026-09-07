@@ -42,7 +42,7 @@ gitmap create my-api
 
 # Create repository explicitly under an organization
 
-gitmap create web-client --org riseup-asia --public
+gitmap create web-client --org my-org --public
 
 # Create local-only repository without pushing to remote
 

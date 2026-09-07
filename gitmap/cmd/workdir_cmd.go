@@ -63,13 +63,35 @@ func isDirectoryPath(path string) bool {
 }
 
 func printWorkDirUsage() {
-	fmt.Println("Usage: gitmap workdir [ls|add <path>|rm <path|id>|set <path|id>|default [path]|path]")
+	fmt.Println("Usage: gitmap workdir [ls|add [path]|rm <path|id>|set <path|id>|default [path]|path]")
 	fmt.Println()
 	fmt.Println("Commands:")
 	fmt.Println("  ls                         List all registered work directories")
-	fmt.Println("  add <path> [--label <l>]   Register a work directory")
+	fmt.Println("  add [path] [--label <l>]   Register a work directory (defaults to current directory)")
 	fmt.Println("  rm <path|id>               Remove a registered work directory")
 	fmt.Println("  set <path|id>              Set active default work directory")
 	fmt.Println("  default [path]             Display or set default work directory")
 	fmt.Println("  path                       Print absolute path of active default work directory")
+	fmt.Println()
+	printActiveDefaultWorkDirNotice()
+}
+
+func printActiveDefaultWorkDirNotice() {
+	ensureWorkDirsTableExists()
+	db, errDB := store.OpenDefault()
+	if errDB != nil {
+		fmt.Println("Active Default Work Directory: (unable to open database)")
+
+		return
+	}
+	defer db.Close()
+
+	wd, err := db.GetDefaultWorkDir()
+	if err != nil || wd == nil {
+		fmt.Println("Active Default Work Directory: (none configured — run `gitmap workdir add <path>` or `gitmap scan`)")
+
+		return
+	}
+
+	fmt.Printf("Active Default Work Directory: %s (ID: %d, Label: %s)\n", wd.AbsolutePath, wd.ID, wd.Label)
 }

@@ -41,7 +41,7 @@ gd (also: ds, desktop-sync)
 
 ### Example 1: Register the current repo
 
-    cd D:\wp-work\riseup-asia\macro-ahk
+    cd D:\work\macro-ahk
     gitmap gd
 
 **Output:**

@@ -38,7 +38,7 @@ ds (also: gd, github-desktop)
 
 ### Example 1: Register the current folder (single repo)
 
-    cd D:\wp-work\riseup-asia\macro-ahk
+    cd D:\work\macro-ahk
     gitmap ds
 
 **Output:**

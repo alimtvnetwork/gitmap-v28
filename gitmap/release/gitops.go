@@ -126,10 +126,9 @@ func logDetachedHead() {
 	}
 }
 
-// runGitCmd executes a git command, forwards stdout, and pipes stderr
-// through filteredStderrWriter so cosmetic git warnings (see
-// constants.GitStderrNoisePatterns) never reach the user's terminal.
-func runGitCmd(args ...string) error {
+var gitCmdRunner = defaultGitCmdRunner
+
+func defaultGitCmdRunner(args ...string) error {
 	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Stdout = os.Stdout
 	stderr := newFilteredStderr(os.Stderr)
@@ -141,4 +140,8 @@ func runGitCmd(args ...string) error {
 	}
 
 	return runErr
+}
+
+func runGitCmd(args ...string) error {
+	return gitCmdRunner(args...)
 }

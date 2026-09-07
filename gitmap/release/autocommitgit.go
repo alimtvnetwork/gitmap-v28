@@ -139,11 +139,17 @@ func syncBranchAndRetryPush(branch, pushOutput string) error {
 	return nil
 }
 
-func runGitCmdCombined(args ...string) (string, error) {
+var gitCombinedRunner = defaultGitCombinedRunner
+
+func defaultGitCombinedRunner(args ...string) (string, error) {
 	cmd := exec.Command(constants.GitBin, args...)
 	out, err := cmd.CombinedOutput()
 
 	return string(out), err
+}
+
+func runGitCmdCombined(args ...string) (string, error) {
+	return gitCombinedRunner(args...)
 }
 
 func isNonFastForwardPushError(output string) bool {

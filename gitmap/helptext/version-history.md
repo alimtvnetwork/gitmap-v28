@@ -30,7 +30,7 @@ vh
 
 **Output:**
 
-    Version history for D:\wp-work\riseup-asia\macro-ahk:
+    Version history for D:\work\macro-ahk:
 
     FROM        TO          FOLDER                    TIMESTAMP
     v11         v12         macro-ahk                 2026-04-16T10:30:00Z

@@ -41,7 +41,7 @@ gitmap git find-duplicates
   ── Antigravity (AGY) Duplicate Projects ──
   Found 1 duplicate project group(s) (2 duplicate entries total):
 
-  Group 1: Path: D:\wp-work\riseup-asia\gitmap (3 entries)
+  Group 1: Path: D:\work\sample-repo (3 entries)
     PROJECT ID                             NAME                   UPDATED
     ──────────────────────────────────────────────────────────────────────────
     0349c4d0-5a91-4f3e-800f-81fd53fc724f   gitmap-v28             2026-09-02T...

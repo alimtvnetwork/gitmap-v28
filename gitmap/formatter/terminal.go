@@ -68,7 +68,7 @@ func printRepoList(w io.Writer, records []model.ScanRecord) {
 // printOneRepo writes a single repo entry with index.
 func printOneRepo(w io.Writer, r model.ScanRecord, idx, total int) {
 	fmt.Fprintf(w, constants.ColorDim+"  %d/%d "+constants.ColorReset, idx, total)
-	fmt.Fprintf(w, constants.ColorGreen+"📦 %s"+constants.ColorReset, r.RepoName)
+	fmt.Fprintf(w, constants.ColorGreen+"■ %s"+constants.ColorReset, r.RepoName)
 	fmt.Fprintf(w, constants.ColorDim+" (%s)"+constants.ColorReset+"\n", r.Branch)
 	fmt.Fprintf(w, constants.ColorDim+"       └─ "+constants.ColorReset)
 	fmt.Fprintf(w, constants.ColorWhite+"%s"+constants.ColorReset+"\n", r.CloneInstruction)
@@ -88,7 +88,7 @@ func printFolderTree(w io.Writer, records []model.ScanRecord) {
 func printOutputFiles(w io.Writer, outputDir string) {
 	fmt.Fprintf(w, constants.ColorYellow+"  ■ Output Files"+constants.ColorReset+"\n")
 	fmt.Fprintf(w, constants.ColorDim+constants.TermSeparator+constants.ColorReset+"\n")
-	fmt.Fprintf(w, constants.ColorDim+"  📁 %s/"+constants.ColorReset+"\n", outputDir)
+	fmt.Fprintf(w, constants.ColorDim+"  ■ %s/"+constants.ColorReset+"\n", outputDir)
 	printOutputFile(w, outputDir, constants.DefaultCSVFile, "Repo data in CSV")
 	printOutputFile(w, outputDir, constants.DefaultJSONFile, "Repo data in JSON")
 	printOutputFile(w, outputDir, constants.DefaultStructureFile, "Folder tree")
@@ -103,7 +103,7 @@ func printOutputFiles(w io.Writer, outputDir string) {
 func printOutputFile(w io.Writer, dir, name, desc string) {
 	fullPath := filepath.Join(dir, name)
 	fmt.Fprintf(w, constants.ColorDim+"  ├── "+constants.ColorReset)
-	fmt.Fprintf(w, constants.ColorCyan+"📄 %s"+constants.ColorReset, name)
+	fmt.Fprintf(w, constants.ColorCyan+"• %s"+constants.ColorReset, name)
 	fmt.Fprintf(w, constants.ColorDim+"  %s"+constants.ColorReset+"\n", desc)
 	_ = fullPath
 }
