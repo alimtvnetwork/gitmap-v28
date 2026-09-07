@@ -76,7 +76,7 @@ type installOptions struct {
 
 // validateToolName checks if the tool is supported.
 func validateToolName(tool string) {
-	if isCleanCodeAlias(tool) || tool == "ag-m" {
+	if isCleanCodeAlias(tool) || tool == "ag-m" || isBuildEssentialAlias(tool) {
 		return
 	}
 
@@ -133,6 +133,9 @@ func specialToolHandler(tool string) func(installOptions) {
 func specialInstallHandler(tool string) func(installOptions) {
 	if isCleanCodeAlias(tool) {
 		return func(installOptions) { runInstallCleanCode() }
+	}
+	if isBuildEssentialAlias(tool) {
+		return func(opts installOptions) { _ = runInstallBuildEssential(opts) }
 	}
 	if tool == constants.ToolGitHubDesktop && runtime.GOOS == "linux" {
 		return func(opts installOptions) { runInstallGitHubDesktopLinux(opts) }

@@ -57,22 +57,7 @@ func handlePipelineErrorLogs(args []string) error {
 		return err
 	}
 
-	maybeOfferAutoFix(payload, isJSON, wantFix, wantCheck, filePath, tempFileName, args)
-
 	return nil
-}
-
-func maybeOfferAutoFix(p PipelineErrorLogsPayload, isJSON, wantFix, wantCheck bool, file, temp string, args []string) {
-	isTargetingFile := len(file) > 0 || len(temp) > 0
-	if isJSON || wantFix || wantCheck || isTargetingFile {
-		return
-	}
-	if p.Conclusion != "failure" {
-		return
-	}
-	if confirmOrSkip("Would you like to run internal CI/CD diagnostic & auto-repair scripts?", args) {
-		runInternalCICDChecks(true)
-	}
 }
 
 func handlePipelineLogs(args []string) error {
@@ -238,10 +223,7 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 	}
 
 	if p.Conclusion == "failure" {
-		fmt.Printf("  %s● Latest Pipeline Failure [%s #%d]:%s\n\n",
-			constants.ColorRed, p.WorkflowName, p.RunId, constants.ColorReset)
-		fmt.Println(p.ErrorLogs)
-		printRerunETA(p.RerunEtaSeconds)
+		renderFailureTerminal(p)
 
 		return
 	}
@@ -249,6 +231,24 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 	fmt.Printf("  %s● No error logs found.%s Status: %s (conclusion: %s)\n",
 		constants.ColorGreen, constants.ColorReset, p.Status, p.Conclusion)
 	printRerunETA(p.RerunEtaSeconds)
+}
+
+func renderFailureTerminal(p PipelineErrorLogsPayload) {
+	fmt.Printf("  %s● Latest Pipeline Failure [%s #%d]:%s\n\n",
+		constants.ColorRed, p.WorkflowName, p.RunId, constants.ColorReset)
+	clean := extractCleanErrorLines(p.ErrorLogs)
+	printLogsContent(clean, p.ErrorLogs)
+	printRerunETA(p.RerunEtaSeconds)
+}
+
+func printLogsContent(clean, raw string) {
+	if len(clean) > 0 {
+		fmt.Println(clean)
+
+		return
+	}
+
+	fmt.Println(raw)
 }
 
 func printRerunETA(eta int) {

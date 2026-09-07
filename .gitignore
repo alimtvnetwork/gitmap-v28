@@ -45,6 +45,7 @@ obj/
 release-assets
 reports/runner-guard-report.md
 .gitmap/release-assets
+.gitmap/pipeline/
 .cache/diagrams-hashes.json
 
 # Repo-size diet (v5.49.0): historical release bundles + gitmap backup snapshots

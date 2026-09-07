@@ -93,6 +93,7 @@ func coreClusterEntries() []dispatchEntry {
 		{[]string{constants.CmdClients}, func() error { dispatchClients(argsTail()); return nil }},
 		{[]string{"servers"}, func() error { dispatchServers(argsTail()); return nil }},
 		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() error { return runCluster(argsTail()) }},
+		{[]string{constants.CmdServerCmd, constants.CmdServerCmds, constants.CmdServerCmdAlias}, func() error { return runServerCmd(argsTail()) }},
 	}
 }
 

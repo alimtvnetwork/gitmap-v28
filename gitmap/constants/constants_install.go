@@ -56,6 +56,8 @@ const (
 	ToolAntigravity      = "antigravity"
 	ToolChrome           = "chrome"
 	ToolGoogleChrome     = "google-chrome"
+	ToolBuildEssential   = "build-essential"
+	ToolUbuntuCommon     = "ubuntu-common"
 )
 
 // Supported tool names — Databases.
@@ -383,6 +385,8 @@ var InstallToolDescriptions = map[string]string{
 	ToolAgManager:        "Install Antigravity Manager GUI",
 	ToolAgCtx:            "Add Antigravity to Windows right-click context menu",
 	ToolAntigravity:      "Antigravity",
+	ToolBuildEssential:   "Ubuntu build-essential compiler toolchain and common dev packages",
+	ToolUbuntuCommon:     "Ubuntu common developer profile (compiler toolchain, editors, utilities)",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -397,6 +401,7 @@ var InstallToolCategories = map[string][]string{
 		ToolVSCodeSync, ToolOBSSync, ToolWTSync,
 		ToolScripts, ToolGitmapOneliner, ToolAllDevTools,
 		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk, ToolAgManager, ToolAgCtx, ToolAntigravity,
+		ToolBuildEssential, ToolUbuntuCommon,
 	},
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,

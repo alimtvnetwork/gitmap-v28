@@ -600,7 +600,7 @@ jobs:
           $log = Join-Path $scratch 'cfrp-cg.log'
 
           function Invoke-CfrCg {
-            & $bin cfr cg $repoUrl --no-commit --no-push *>&1 | Tee-Object -FilePath $log
+            & $bin cfr cg $repoUrl --no-commit --no-push *>&1 | Tee-Object -FilePath $log | Out-Null
             return $LASTEXITCODE
           }
 

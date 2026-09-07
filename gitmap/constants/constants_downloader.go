@@ -20,6 +20,15 @@ const (
 	CmdDownloadUnzipAlias = "du"             // gitmap:cmd skip
 )
 
+// Staging and persistent keep directory constants.
+const (
+	DirInFlightStagePrefix = "gitmap-stage-"
+	DirPersistentKeep      = ".gitmap-installation"
+	DirKeepDownloads       = "downloads"
+	DirKeepScripts         = "scripts"
+	DirKeepLogs            = "logs"
+)
+
 // SettingType enum (stored as a TEXT discriminator on each Setting key).
 //
 // The current Setting table is keyed by Key (TEXT PK) and stores values as

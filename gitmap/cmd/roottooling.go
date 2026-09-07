@@ -101,6 +101,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdSelfUninstallRunner}, runSelfUninstallRunner},
 		{[]string{constants.CmdPending}, runPending},
 		{[]string{constants.CmdDoPending, constants.CmdDoPendingAlias}, func() error { return runDoPending(argsTail()) }},
+		{[]string{constants.CmdVmware, constants.CmdVmwareAlias}, func() error { return runVmware(argsTail()) }},
 	}
 }
 

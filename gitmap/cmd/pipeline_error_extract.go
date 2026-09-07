@@ -9,6 +9,7 @@ var failureMarkers = []string{
 	"##[error]",
 	"❌ FAIL",
 	"--- FAIL:",
+	"FAIL\t",
 	"FAIL:",
 	"FAILED",
 	"fatal error:",

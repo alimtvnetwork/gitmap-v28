@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -14,10 +12,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func runGHCommandWithTimeout(args ...string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+func runGHCommandWithCustomTimeout(timeout time.Duration, args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	return exec.CommandContext(ctx, "gh", args...).Output()
+
+	return exec.CommandContext(ctx, "gh", args...).CombinedOutput()
+}
+
+func runGHCommandWithTimeout(args ...string) ([]byte, error) {
+	return runGHCommandWithCustomTimeout(10*time.Second, args...)
 }
 
 func queryWorkflowRuns(repo string) []ghRunItem {
@@ -27,13 +30,11 @@ func queryWorkflowRuns(repo string) []ghRunItem {
 
 	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--limit", "15", "--json",
 		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url")
-
 	if err != nil {
 		return queryRunsFromDB(repo)
 	}
 
 	var runs []ghRunItem
-
 	if err := json.Unmarshal(out, &runs); err != nil {
 		return queryRunsFromDB(repo)
 	}
@@ -47,13 +48,11 @@ func queryPendingPRs(repo string) int {
 	}
 
 	out, err := runGHCommandWithTimeout("pr", "list", "--repo", repo, "--state", "open", "--json", "number")
-
 	if err != nil {
 		return 0
 	}
 
 	var prs []map[string]any
-
 	if err := json.Unmarshal(out, &prs); err != nil {
 		return 0
 	}
@@ -63,13 +62,11 @@ func queryPendingPRs(repo string) int {
 
 func queryLatestTagRelease(repo string) string {
 	tag := queryGHLatestTag(repo)
-
 	if len(tag) > 0 {
 		return tag
 	}
 
 	tagOut, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
-
 	if err == nil && len(tagOut) > 0 {
 		return strings.TrimSpace(string(tagOut))
 	}
@@ -83,7 +80,6 @@ func queryGHLatestTag(repo string) string {
 	}
 
 	out, err := runGHCommandWithTimeout("release", "list", "--repo", repo, "--limit", "1", "--json", "tagName")
-
 	if err != nil || len(out) == 0 {
 		return ""
 	}
@@ -91,7 +87,6 @@ func queryGHLatestTag(repo string) string {
 	var releases []struct {
 		TagName string `json:"tagName"`
 	}
-
 	if err := json.Unmarshal(out, &releases); err == nil && len(releases) > 0 {
 		return releases[0].TagName
 	}
@@ -104,13 +99,33 @@ func queryFailedRunLogs(repo string, runId uint64) string {
 		return ""
 	}
 
+	if cached, ok := readCachedPipelineLog(runId); ok {
+		return cached
+	}
+
 	idStr := strconv.FormatUint(runId, 10)
-	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo, "--log-failed")
+	out, err := runGHCommandWithCustomTimeout(60*time.Second, "run", "view", idStr, "--repo", repo, "--log-failed")
 	if err == nil && len(out) > 0 {
-		return string(out)
+		logStr := string(out)
+		_ = writeCachedPipelineLog(runId, logStr, repo)
+
+		return logStr
+	}
+
+	if err != nil {
+		return formatGHFailedError(err, out)
 	}
 
 	return "Unable to fetch failed logs via gh CLI."
+}
+
+func formatGHFailedError(err error, out []byte) string {
+	msg := strings.TrimSpace(string(out))
+	if len(msg) > 0 {
+		return fmt.Sprintf("gh command failed (%v):\n%s", err, msg)
+	}
+
+	return fmt.Sprintf("gh command failed: %v", err)
 }
 
 func queryAllRunLogs(repo string, runId uint64) string {
@@ -119,7 +134,7 @@ func queryAllRunLogs(repo string, runId uint64) string {
 	}
 
 	idStr := strconv.FormatUint(runId, 10)
-	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo, "--log")
+	out, err := runGHCommandWithCustomTimeout(60*time.Second, "run", "view", idStr, "--repo", repo, "--log")
 	if err == nil && len(out) > 0 {
 		return string(out)
 	}
@@ -129,21 +144,17 @@ func queryAllRunLogs(repo string, runId uint64) string {
 
 func queryRunsFromDB(repo string) []ghRunItem {
 	db, err := openDB()
-
 	if err != nil {
 		return nil
 	}
-
 	defer db.Close()
 
 	dbRuns, err := db.ListRecentPipelineRuns(repo, 5)
-
 	if err != nil {
 		return nil
 	}
 
 	var runs []ghRunItem
-
 	for _, r := range dbRuns {
 		runs = append(runs, ghRunItem{
 			DatabaseId: uint64(r.RunID),
@@ -161,7 +172,6 @@ func queryRunsFromDB(repo string) []ghRunItem {
 
 func resolveCurrentRepoSlug() string {
 	out, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
-
 	if err == nil && len(out) > 0 {
 		return parseSlugFromGitURL(strings.TrimSpace(string(out)))
 	}
@@ -171,7 +181,6 @@ func resolveCurrentRepoSlug() string {
 
 func parseSlugFromGitURL(raw string) string {
 	clean := strings.TrimSuffix(raw, ".git")
-
 	if strings.Contains(clean, "github.com/") {
 		return extractSlugAfterToken(clean, "github.com/")
 	}
@@ -185,81 +194,9 @@ func parseSlugFromGitURL(raw string) string {
 
 func extractSlugAfterToken(clean, token string) string {
 	parts := strings.Split(clean, token)
-
 	if len(parts) > 1 {
 		return parts[1]
 	}
 
 	return clean
-}
-
-func resolveTempDir() string {
-	db, err := openDB()
-
-	if err != nil {
-		return filepath.Join(".", ".lovable", "temp")
-	}
-
-	defer db.Close()
-	val := db.GetSetting("temp_dir")
-
-	if len(val) > 0 {
-		return val
-	}
-
-	return filepath.Join(".", ".lovable", "temp")
-}
-
-func writeContentToFile(targetPath, content string) error {
-	dir := filepath.Dir(targetPath)
-
-	if len(dir) > 0 {
-		_ = os.MkdirAll(dir, 0755)
-	}
-
-	err := os.WriteFile(targetPath, []byte(content), 0644)
-
-	if err != nil {
-		return fmt.Errorf("failed writing to %s: %w", targetPath, err)
-	}
-
-	fmt.Printf("  %s✓%s Output written to %s\n", constants.ColorGreen, constants.ColorReset, targetPath)
-
-	return nil
-}
-
-func hasArgFlag(args []string, flagName string) bool {
-	for _, a := range args {
-		if a == flagName || strings.HasPrefix(a, flagName+"=") {
-			return true
-		}
-	}
-
-	return false
-}
-
-func extractFlagVal(args []string, flagName string) string {
-	for i, arg := range args {
-		if arg == flagName && i+1 < len(args) {
-			return args[i+1]
-		}
-
-		if strings.HasPrefix(arg, flagName+"=") {
-			return strings.TrimPrefix(arg, flagName+"=")
-		}
-	}
-
-	return ""
-}
-
-func printJSON(v any) error {
-	b, err := json.MarshalIndent(v, "", "  ")
-
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(string(b))
-
-	return nil
 }

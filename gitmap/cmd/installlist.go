@@ -93,13 +93,13 @@ func printInstallListFlat() {
 
 func loadInstalledLookup() map[string]string {
 	out := make(map[string]string)
-	db, err := store.OpenDefault()
+	splitDB, err := store.OpenInstallationSplitDB()
 	if err != nil {
 		return out
 	}
-	defer db.Close()
+	defer splitDB.Close()
 
-	tools, err := db.ListInstalledTools()
+	tools, err := splitDB.ListInstalledTools()
 	if err != nil {
 		return out
 	}

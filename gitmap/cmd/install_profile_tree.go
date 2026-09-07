@@ -104,6 +104,31 @@ func buildVscodeSettingsProfile() ProfileComposition {
 	}
 }
 
+func buildUbuntuBuildEssentialProfile() ProfileComposition {
+	return ProfileComposition{
+		Name:        "build-essential",
+		Alias:       "ubuntu-common",
+		Description: "Ubuntu build-essential compiler toolchain & common utilities",
+		Base:        nil,
+		Tools: []ToolEntry{
+			{Slug: "build-essential", Description: "Meta-package for compiling software (gcc, g++, make)"},
+			{Slug: "gcc", Description: "GNU C compiler"},
+			{Slug: "g++", Description: "GNU C++ compiler"},
+			{Slug: "make", Description: "GNU make utility"},
+			{Slug: "git", Description: "Git distributed version control"},
+			{Slug: "git-lfs", Description: "Git Large File Storage"},
+			{Slug: "curl", Description: "Command line data transfer utility"},
+			{Slug: "wget", Description: "Non-interactive network downloader"},
+			{Slug: "vim", Description: "Vi IMproved text editor"},
+			{Slug: "nano", Description: "Terminal text editor"},
+			{Slug: "zsh", Description: "Z shell command environment"},
+			{Slug: "file", Description: "File type identification utility"},
+			{Slug: "sshpass", Description: "Non-interactive ssh password provider"},
+			{Slug: "snapd", Description: "Snap package management daemon"},
+		},
+	}
+}
+
 func resolveProfileTree(slug string) (ProfileComposition, bool) {
 	normalizedSlug := strings.ToLower(strings.TrimSpace(slug))
 	switch normalizedSlug {
@@ -119,6 +144,8 @@ func resolveProfileTree(slug string) (ProfileComposition, bool) {
 		return buildAntigravityProfile(), true
 	case "vscode+settings", "vscode-settings", "vscode":
 		return buildVscodeSettingsProfile(), true
+	case "build-essential", "buildessential", "be", "ubuntu-common", "ub-common":
+		return buildUbuntuBuildEssentialProfile(), true
 	default:
 		return ProfileComposition{}, false
 	}

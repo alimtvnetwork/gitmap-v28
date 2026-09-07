@@ -11,9 +11,13 @@ func GetTopicDetailedSummary(topic string) string {
 	case "commit-in", "commitin", "commit-write":
 		return "Comprehensive commit automation engine with JSON author rotation, SEO templates, deduplication heuristics, and AST function intelligence."
 	case "os", "os-update", "fix-mirrors":
-		return "Cross-platform OS update, full release upgrades, and regional mirror auto-repair."
+		return "Cross-platform OS configuration, updates, mirror auto-repair, and symlink diagnostic utilities."
+	case "fix-link", "fixlink", "fl":
+		return "Inspect, validate, and repair broken symlinks, VMware shared directories, and workstation desktop links."
 	case "installer", "in":
 		return "Multi-OS installer management, universal Unix execution ordering, Git-direct auto-committing exports, and versioning."
+	case "power", "pw", "pwr":
+		return "Cross-platform OS screen timeout and sleep management framework with SQLite state tracking and restore profiles."
 	default:
 		return "Gitmap command line utilities."
 	}
