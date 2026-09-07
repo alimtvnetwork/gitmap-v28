@@ -68,25 +68,29 @@ INDEPENDENT_TESTS_PART1 = [
     (["vsc", "ls"], [0], "", "vsc ls alias"),
 ]
 
+PID = os.getpid()
+SMOKE_JOB_NAME = f"smoke-job-{PID}"
+SMOKE_MACRO_NAME = f"smoke-macro-{PID}"
+
 SCHEDULE_CHAIN = [
     (["schedule", "--help"], [0], "", "schedule --help"),
     (["schedule", "list", "--json"], [0], "", "schedule list --json"),
-    (["schedule", "add", "smoke-job", "echo smoke", "--every", "1h"], [0], "", "schedule add command"),
-    (["schedule", "status", "smoke-job", "--json"], [0], "smoke-job", "schedule status --json"),
-    (["schedule", "run", "smoke-job"], [0], "", "schedule run command"),
-    (["schedule", "log", "smoke-job", "--json"], [0], "runnerUser", "schedule log --json"),
+    (["schedule", "add", SMOKE_JOB_NAME, "echo smoke", "--every", "1h"], [0], "", "schedule add command"),
+    (["schedule", "status", SMOKE_JOB_NAME, "--json"], [0], SMOKE_JOB_NAME, "schedule status --json"),
+    (["schedule", "run", SMOKE_JOB_NAME], [0], "", "schedule run command"),
+    (["schedule", "log", SMOKE_JOB_NAME, "--json"], [0], "runnerUser", "schedule log --json"),
     (["schedule", "export-all", "--json"], [0], "", "schedule export-all --json"),
-    (["schedule", "disable", "smoke-job"], [0], "", "schedule disable command"),
-    (["schedule", "enable", "smoke-job"], [0], "", "schedule enable command"),
-    (["schedule", "reset", "smoke-job"], [0], "", "schedule reset command"),
-    (["schedule", "rm", "smoke-job"], [0], "", "schedule rm command"),
+    (["schedule", "disable", SMOKE_JOB_NAME], [0], "", "schedule disable command"),
+    (["schedule", "enable", SMOKE_JOB_NAME], [0], "", "schedule enable command"),
+    (["schedule", "reset", SMOKE_JOB_NAME], [0], "", "schedule reset command"),
+    (["schedule", "rm", SMOKE_JOB_NAME], [0], "", "schedule rm command"),
 ]
 
 MACRO_CHAIN = [
     (["macro", "--help"], [0], "", "macro --help"),
-    (["macro", "add", "smoke-macro", "echo smoke-macro"], [0], "", "macro add command"),
+    (["macro", "add", SMOKE_MACRO_NAME, f"echo {SMOKE_MACRO_NAME}"], [0], "", "macro add command"),
     (["macro", "list", "--json"], [0], "", "macro list --json"),
-    (["macro", "rm", "smoke-macro"], [0], "", "macro rm command"),
+    (["macro", "rm", SMOKE_MACRO_NAME], [0], "", "macro rm command"),
 ]
 
 INDEPENDENT_TESTS_PART2 = [
