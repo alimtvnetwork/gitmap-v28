@@ -461,12 +461,11 @@ jobs:
 
       - name: Build snapshot via goreleaser
         uses: goreleaser/goreleaser-action@9c156ee8a17a598857849441385a2041ef570552 # v6.1.0
-
         with:
           distribution: goreleaser
           version: "~> v2"
           workdir: gitmap
-          args: release --clean --snapshot --skip=publish
+          args: release --clean --snapshot --skip=publish --parallelism=1
 
       - name: Locate + extract host archive (windows amd64)
         id: extract

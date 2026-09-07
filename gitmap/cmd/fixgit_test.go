@@ -98,6 +98,9 @@ func TestFixGit_CorruptZeroByteIndex(t *testing.T) {
 		t.Skipf("git not installed or init failed: %v", err)
 	}
 
+	_ = exec.Command("git", "-C", tempDir, "config", "user.email", "test@example.com").Run()
+	_ = exec.Command("git", "-C", tempDir, "config", "user.name", "Test").Run()
+
 	testFile := filepath.Join(tempDir, "sample.txt")
 	_ = os.WriteFile(testFile, []byte("hello gitmap"), 0644)
 
