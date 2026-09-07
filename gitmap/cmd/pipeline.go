@@ -38,7 +38,26 @@ type PipelineErrorLogsPayload struct {
 	IsRunning       bool              `json:"isRunning"`
 	ErrorLogs       string            `json:"errorLogs"`
 	Url             string            `json:"url,omitempty"`
+	FailedRuns      []FailedRunItem   `json:"failedRuns,omitempty"`
 	CICDChecks      []CICDCheckResult `json:"cicdChecks,omitempty"`
+}
+
+// FailedRunItem represents an individual failed workflow run.
+type FailedRunItem struct {
+	WorkflowName string          `json:"workflowName"`
+	RunId        uint64          `json:"runId"`
+	Conclusion   string          `json:"conclusion"`
+	Url          string          `json:"url"`
+	FailedJobs   []FailedJobItem `json:"failedJobs"`
+	RawErrors    string          `json:"rawErrors,omitempty"`
+}
+
+// FailedJobItem represents a failed job and step within a workflow run.
+type FailedJobItem struct {
+	JobName        string   `json:"jobName"`
+	StepName       string   `json:"stepName"`
+	FailureSummary string   `json:"failureSummary"`
+	ErrorLines     []string `json:"errorLines"`
 }
 
 // ErrorLogOutputParams encapsulates parameters for outputting error logs.

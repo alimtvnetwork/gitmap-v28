@@ -249,6 +249,11 @@ jobs:
 
           if [ $rc -ne 0 ]; then
             echo "::error::cfr cg exited $rc"
+            if [ -f "$log" ]; then
+              echo "--- BEGIN $log ---"
+              cat "$log"
+              echo "--- END $log ---"
+            fi
             ls -la
             exit $rc
           fi
@@ -631,6 +636,11 @@ jobs:
 
           if ($rc -ne 0) {
             Write-Host "::error::cfr cg exited $rc"
+            if (Test-Path -LiteralPath $log) {
+              Write-Host "--- BEGIN $log ---"
+              Get-Content -LiteralPath $log
+              Write-Host "--- END $log ---"
+            }
             Get-ChildItem | Format-Table -AutoSize
             exit $rc
           }

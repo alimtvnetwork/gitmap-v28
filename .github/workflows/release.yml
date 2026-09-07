@@ -2,13 +2,12 @@ name: Release
 
 on:
   push:
-    branches:
-      - "release/**"
     tags:
       - "v*"
+  workflow_dispatch:
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-workflow
   cancel-in-progress: false
 
 permissions:
