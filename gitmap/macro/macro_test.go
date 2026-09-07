@@ -52,6 +52,14 @@ func TestMacroSaveLoadListDelete(t *testing.T) {
 	if err := DeleteMacro("test-macro"); err != nil {
 		t.Fatalf("DeleteMacro failed: %v", err)
 	}
+
+	if err := DeleteMacro("test-macro"); err != nil {
+		t.Fatalf("DeleteMacro should be idempotent when macro is already deleted, got: %v", err)
+	}
+
+	if err := DeleteMacro("non-existent-macro-xyz"); err != nil {
+		t.Fatalf("DeleteMacro should succeed for non-existent macro, got: %v", err)
+	}
 }
 
 func TestExecute_WithCdAndEnvExpansion(t *testing.T) {

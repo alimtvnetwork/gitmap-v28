@@ -87,6 +87,12 @@ func DeleteMacro(name string) error {
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(dir, strings.TrimSuffix(name, ".json")+".json")
-	return os.Remove(path)
+
+	cleanName := strings.TrimSpace(strings.TrimSuffix(name, ".json"))
+	path := filepath.Join(dir, cleanName+".json")
+	if removeErr := os.Remove(path); removeErr != nil && !os.IsNotExist(removeErr) {
+		return removeErr
+	}
+
+	return nil
 }
