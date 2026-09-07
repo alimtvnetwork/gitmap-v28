@@ -48,4 +48,3 @@ func (d *darwinDriver) ApplySettings(s Settings) error {
 
 	return d.SetTimeouts(s.DisplayTimeoutMinutes, s.SleepTimeoutMinutes)
 }
-

@@ -71,16 +71,17 @@ func ParseFailedLogLines(rawLogs string) []FailedJobItem {
 	var lastKey string
 
 	for scanner.Scan() {
-		job, step, text := parseLogLine(scanner.Text())
+		raw := scanner.Text()
+		job, step, text, isError := parseLogLine(raw)
 		if text == "" || isIgnoredLogLine(text) {
 			continue
 		}
 		key := job + "|||" + step
-		if hasFailureMarker(text) {
+		if isError {
 			item := getOrCreateJobItem(jobMap, &order, key, job, step)
 			item.ErrorLines = append(item.ErrorLines, text)
 			updateJobSummary(item, text)
-			contextRemaining = 2
+			contextRemaining = 5
 			lastKey = key
 			continue
 		}
@@ -94,20 +95,22 @@ func ParseFailedLogLines(rawLogs string) []FailedJobItem {
 	return assembleJobItems(jobMap, order, rawLogs)
 }
 
-func parseLogLine(raw string) (string, string, string) {
+func parseLogLine(raw string) (string, string, string, bool) {
 	clean := ansiRegex.ReplaceAllString(raw, "")
 	parts := strings.Split(clean, "\t")
+	isError := strings.Contains(raw, "##[error]") || hasFailureMarker(raw)
+
 	if len(parts) >= 3 {
 		job := strings.TrimSpace(parts[0])
 		step := strings.TrimSpace(parts[1])
 		text := stripTimestamp(strings.Join(parts[2:], "\t"))
-		return job, step, cleanLogText(text)
+		return job, step, cleanLogText(text), isError || hasFailureMarker(text)
 	}
 	if len(parts) == 2 {
-		return strings.TrimSpace(parts[0]), "", cleanLogText(parts[1])
+		return strings.TrimSpace(parts[0]), "", cleanLogText(parts[1]), isError
 	}
 
-	return "", "", cleanLogText(clean)
+	return "", "", cleanLogText(clean), isError
 }
 
 func stripTimestamp(text string) string {
@@ -178,17 +181,27 @@ func updateJobSummary(item *FailedJobItem, text string) {
 }
 
 func isStrongerSummary(candidate, current string) bool {
+	if len(current) == 0 {
+		return true
+	}
+	if isGenericExitCode(candidate) && !isGenericExitCode(current) {
+		return false
+	}
 	if strings.Contains(candidate, "Expected ") {
 		return true
 	}
-	if strings.Contains(candidate, "exited ") {
+	if strings.Contains(candidate, "gofmt") {
 		return true
 	}
 	if strings.Contains(candidate, "fatal error:") {
 		return true
 	}
 
-	return strings.Contains(candidate, "Not Found")
+	return isGenericExitCode(current)
+}
+
+func isGenericExitCode(s string) bool {
+	return strings.Contains(s, "Process completed with exit code") || strings.Contains(s, "exit status 1")
 }
 
 func assembleJobItems(jobMap map[string]*FailedJobItem, order []string, rawLogs string) []FailedJobItem {
