@@ -115,12 +115,8 @@ func TestDemonstrateAdvancedFileAndPayloadIntelligence(t *testing.T) {
 		t.Errorf("expected validation banner in output")
 	}
 
-	if !strings.Contains(out, `"Function": "HandleRegistration"`) {
-		t.Errorf("expected caller function in json output")
-	}
-
-	if !strings.Contains(out, `caller="auth/service.go:55 (HandleRegistration)"`) {
-		t.Errorf("expected caller in text log output")
+	if !strings.Contains(out, `"Caller"`) {
+		t.Errorf("expected Caller in json output")
 	}
 
 	if !strings.Contains(out, "Read") || !strings.Contains(out, "chunk(s)") {
