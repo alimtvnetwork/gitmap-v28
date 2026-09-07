@@ -29,7 +29,9 @@ from enum import Enum
 import json
 import os
 from pathlib import Path
+import platform
 import re
+import shutil
 import sys
 import threading
 import time
@@ -190,6 +192,39 @@ DEFAULT_MAX_WORKERS = 4
 INSTALLER_BASH_NAME = "install.sh"
 INSTALLER_PWSH_NAME = "install.ps1"
 INSTALLER_EXCLUDE_PARTS = ("node_modules", ".git", "dist", "build")
+
+# Cross-Platform Shell Execution Constants & Dynamic OS Detection
+DEFAULT_BASH_EXECUTABLE = "bash"
+WINDOWS_BASH_CANDIDATES: tuple[str, ...] = (
+    "C:/Program Files/Git/bin/bash.exe",
+    "C:/msys64/usr/bin/bash.exe",
+    "bash.exe",
+)
+
+
+def detect_current_os() -> str:
+    """Dynamically retrieves the current host operating system name."""
+    return platform.system()
+
+
+# Dynamically initialized to the running host OS name each time it runs
+CURRENT_OS_NAME: str = detect_current_os()
+
+
+def update_current_os() -> str:
+    """Updates and returns the running OS name variable dynamically."""
+    global CURRENT_OS_NAME
+    CURRENT_OS_NAME = detect_current_os()
+
+    return CURRENT_OS_NAME
+
+
+def is_windows_os() -> bool:
+    """Dynamically checks whether the host operating system is Windows."""
+    current_os = detect_current_os().lower()
+    is_win = bool(current_os.startswith("win") or os.name == "nt")
+
+    return is_win
 
 # Standard Git Command String Constants
 GIT_EXECUTABLE = "git"
@@ -1190,4 +1225,25 @@ def run_worker_pool(
         print(f"✔ All passed. ({passed_count} {item_noun} in {wall_duration_sec:.2f}s)")
 
     return ExitCodeType.SUCCESS.value
+
+
+def is_valid_executable(path_str: str) -> bool:
+    """Checks if a binary path exists or is discoverable in PATH."""
+    is_found = bool(shutil.which(path_str) or os.path.exists(path_str))
+
+    return is_found
+
+
+def get_bash_path() -> str:
+    """Detects host operating system and returns absolute or PATH-resolved bash executable."""
+    is_windows = is_windows_os()
+    if not is_windows:
+        return DEFAULT_BASH_EXECUTABLE
+
+    for candidate in WINDOWS_BASH_CANDIDATES:
+        if is_valid_executable(candidate):
+            return candidate
+
+    return DEFAULT_BASH_EXECUTABLE
+
 

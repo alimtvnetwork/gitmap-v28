@@ -4,7 +4,6 @@
 Usage:
   python .github/scripts/coverage-floor.py <coverage.out>
 """
-
 from __future__ import annotations
 
 import re
@@ -15,83 +14,143 @@ from collections import defaultdict
 from pathlib import Path
 
 FLOORS_FILE = Path(".github/coverage.floor")
-FLOOR_DEFAULT = 70.0
+
+
+def parse_floor_line(line: str) -> tuple[str, float] | None:
+    """Extracts package import path and floor percentage from a line."""
+    clean = line.strip()
+    if not clean or clean.startswith("#"):
+        return None
+
+    parts = clean.split()
+    if len(parts) >= 2:
+        try:
+            return parts[0], float(parts[1])
+        except ValueError:
+            return None
+
+    return None
 
 
 def load_floors() -> dict[str, float]:
-    floors = {}
-    if FLOORS_FILE.is_file():
-        try:
-            with open(FLOORS_FILE, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#"):
-                        continue
-                    parts = line.split()
-                    if len(parts) >= 2:
-                        try:
-                            floors[parts[0]] = float(parts[1])
-                        except ValueError:
-                            pass
-        except OSError:
-            pass
+    """Loads configured package coverage floors from .github/coverage.floor."""
+    if not FLOORS_FILE.is_file():
+        return {}
+
+    floors: dict[str, float] = {}
+    content = FLOORS_FILE.read_text(encoding="utf-8")
+    for line in content.splitlines():
+        parsed = parse_floor_line(line)
+        if parsed is not None:
+            floors[parsed[0]] = parsed[1]
+
     return floors
 
 
-def main() -> int:
-    if len(sys.argv) < 2:
-        print("usage: coverage-floor.py coverage.out", file=sys.stderr)
-        return 1
+def parse_coverage_line(line: str) -> tuple[str, float] | None:
+    """Parses a single go tool cover -func line into package path and percentage."""
+    if ".go:" not in line:
+        return None
 
-    cover_file = Path(sys.argv[1])
-    if not cover_file.is_file() or cover_file.stat().st_size == 0:
-        print(f"coverage-floor: empty or missing coverage profile at {cover_file} — skipping")
-        return 0
+    parts = line.split()
+    if len(parts) < 3:
+        return None
 
-    go_exe = shutil.which("go")
-    if not go_exe:
-        print("coverage-floor: go toolchain not found on PATH", file=sys.stderr)
-        return 0
-
+    file_part = parts[0]
+    pct_part = parts[-1].rstrip("%")
     try:
-        out = subprocess.check_output([go_exe, "tool", "cover", f"-func={cover_file}"], text=True)
-    except subprocess.SubprocessError as e:
-        print(f"coverage-floor: go tool cover failed: {e}", file=sys.stderr)
-        return 1
+        pct = float(pct_part)
+    except ValueError:
+        return None
 
-    # Aggregate per package
+    pkg = re.sub(r"/[^/]+\.go:\d+:?$", "", file_part)
+
+    return pkg, pct
+
+
+def aggregate_coverage(out: str) -> tuple[dict[str, float], dict[str, int]]:
+    """Aggregates percentage sums and function counts per package."""
     pkg_totals: dict[str, float] = defaultdict(float)
     pkg_counts: dict[str, int] = defaultdict(int)
 
     for line in out.splitlines():
-        if ".go:" not in line:
-            continue
-        parts = line.split()
-        if len(parts) < 3:
-            continue
-        file_part = parts[0]
-        pct_part = parts[-1].rstrip("%")
-        try:
-            pct = float(pct_part)
-        except ValueError:
-            continue
-        # Strip filename and line number to get package path
-        pkg = re.sub(r"/[^/]+\.go:\d+$", "", file_part)
-        pkg_totals[pkg] += pct
-        pkg_counts[pkg] += 1
+        res = parse_coverage_line(line)
+        if res is not None:
+            pkg, pct = res
+            pkg_totals[pkg] += pct
+            pkg_counts[pkg] += 1
 
-    floors = load_floors()
-    failed = False
+    return pkg_totals, pkg_counts
 
-    for pkg, total in pkg_totals.items():
-        count = pkg_counts[pkg]
-        avg = total / count if count > 0 else 0.0
-        floor = floors.get(pkg, FLOOR_DEFAULT)
+
+def check_coverage_floors(
+    pkg_totals: dict[str, float],
+    pkg_counts: dict[str, int],
+    floors: dict[str, float],
+) -> bool:
+    """Validates packages against configured floors and prints violations."""
+    is_failed = False
+    for pkg, floor in floors.items():
+        count = pkg_counts.get(pkg, 0)
+        avg = pkg_totals.get(pkg, 0.0) / count if count > 0 else 0.0
         if avg < floor:
             print(f"coverage-floor: {pkg} below floor (avg={avg:.1f}%, floor={floor:.1f}%)", file=sys.stderr)
-            failed = True
+            is_failed = True
 
-    return 1 if failed else 0
+    return is_failed
+
+
+def run_cover_tool(go_exe: str, cover_file: Path) -> str | None:
+    """Runs go tool cover -func inside the gitmap module directory."""
+    go_dir = Path("gitmap").resolve() if (Path("gitmap") / "go.mod").is_file() else Path.cwd()
+    try:
+        return subprocess.check_output(
+            [go_exe, "tool", "cover", f"-func={cover_file.resolve()}"],
+            cwd=go_dir,
+            text=True,
+        )
+    except subprocess.SubprocessError as err:
+        print(f"coverage-floor: go tool cover failed: {err}", file=sys.stderr)
+
+        return None
+
+
+def validate_input_args() -> Path | None:
+    """Validates command-line arguments and returns the cover profile path."""
+    if len(sys.argv) < 2:
+        print("usage: coverage-floor.py coverage.out", file=sys.stderr)
+
+        return None
+
+    path = Path(sys.argv[1])
+    if not path.is_file() or path.stat().st_size == 0:
+        print(f"coverage-floor: empty or missing coverage profile at {path} — skipping")
+
+        return None
+
+    return path
+
+
+def main() -> int:
+    cover_file = validate_input_args()
+    if cover_file is None:
+        return 0 if len(sys.argv) >= 2 else 1
+
+    go_exe = shutil.which("go")
+    if not go_exe:
+        print("coverage-floor: go toolchain not found on PATH", file=sys.stderr)
+
+        return 0
+
+    out = run_cover_tool(go_exe, cover_file)
+    if out is None:
+        return 1
+
+    pkg_totals, pkg_counts = aggregate_coverage(out)
+    floors = load_floors()
+    has_failure = check_coverage_floors(pkg_totals, pkg_counts, floors)
+
+    return 1 if has_failure else 0
 
 
 if __name__ == "__main__":

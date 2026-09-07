@@ -92,7 +92,7 @@ MACRO_CHAIN = [
 INDEPENDENT_TESTS_PART2 = [
     (["retry", "--sleep=10ms", "--max-retries=1", "echo retry-smoke-test"], [0], "retry-smoke-test", "retry command"),
     (["chrome", "--help"], [0], "", "chrome --help"),
-    (["replace", "history"], [0], "", "replace history command"),
+    (["replace", "history", "--ext=go"], [0], "", "replace history command"),
     (["go-repos", "--json"], [0, 1], "", "go-repos --json"),
     (["gr", "--json"], [0, 1], "", "gr --json alias"),
     (["node-repos", "--json"], [0, 1], "", "node-repos --json"),
@@ -248,8 +248,11 @@ def resolve_binary_path(raw_path: str | None, repo_root: str) -> str:
 def get_worker_count(requested: int | None) -> int:
     if requested is not None and requested > 0:
         return requested
+    if os.name == "nt":
+        return 1
+
     cpu = os.cpu_count() or 4
-    return min(24, max(8, cpu * 2))
+    return min(16, max(4, cpu * 2))
 
 
 def print_all_results(

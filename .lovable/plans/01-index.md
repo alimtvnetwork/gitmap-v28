@@ -4,7 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-*(None. All pending plans completed.)*
+- [67-cicd-quality-gate-finalization-and-streaming.md](pending/67-cicd-quality-gate-finalization-and-streaming.md): CI/CD Quality Gate Finalization, Real-Time Streaming & AI Telemetry
 
 ## Completed Plans
 

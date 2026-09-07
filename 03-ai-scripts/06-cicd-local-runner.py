@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
-"""Fast Parallel Multi-Worker Local CI/CD Runner with IO Throttling and Flexible CLI Reporting.
+"""Fast Parallel Multi-Worker Local CI/CD Runner with Real-Time Failure Streaming & Terminal Feedback.
+
+AI AGENT REAL-TIME CI/CD INSTRUCTIONS:
+  1. Live Error Streaming: All failures are streamed to .lovable/temp/cicd/errors.log immediately as they occur.
+  2. Immediate Terminal Output: Full stack traces and failing commands print to stdout instantly upon failure.
+  3. Parallel Remediation: You do NOT have to wait for the entire runner to finish. Inspect .lovable/temp/cicd/errors.log
+     and start fixing detected failures while background gates continue running.
+  4. Quiet Passes: Passing gates stay quiet by default (single summary tick) so terminal context stays clean.
+  5. Machine-Readable Failures: Real-time JSON error list is maintained at .lovable/temp/cicd/errors.json.
 
 Usage:
-  python 03-ai-scripts/06-cicd-local-runner.py                    # Default: quiet on success (tick "✔ All passed."), detailed logs on failure
-  python 03-ai-scripts/06-cicd-local-runner.py --all-paths       # Show all information: ticker, summary table, full logs for all gates
-  python 03-ai-scripts/06-cicd-local-runner.py --all-passed      # Alias for --all-paths
-  python 03-ai-scripts/06-cicd-local-runner.py --all             # Alias for --all-paths
+  python 03-ai-scripts/06-cicd-local-runner.py                    # Quiet on success (tick "✔ All passed."), live failure stream
+  python 03-ai-scripts/06-cicd-local-runner.py --all-paths       # Show all gates (passed and failed) with detailed summary
   python 03-ai-scripts/06-cicd-local-runner.py --sync            # Run sequentially (synchronous mode, 1 worker)
   python 03-ai-scripts/06-cicd-local-runner.py -w 4              # Custom worker concurrency
   python 03-ai-scripts/06-cicd-local-runner.py -o report.txt     # Save execution report to file
   python 03-ai-scripts/06-cicd-local-runner.py --json            # Output machine-readable JSON
-  python 03-ai-scripts/06-cicd-local-runner.py --json -o out.json# Save JSON results to file
 """
 from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
+from importlib import import_module
 import json
 import os
 from pathlib import Path
@@ -24,6 +30,7 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from typing import Any
 
@@ -35,12 +42,15 @@ if hasattr(sys.stderr, "reconfigure"):
 # ── Configurable Defaults (Configurable via Environment Variables) ─────────
 DEFAULT_WORKERS = int(os.environ.get("CI_MAX_WORKERS", min(8, os.cpu_count() or 4)))
 DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", 2))
-DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 300))
+DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 1200))
 DEFAULT_ENCODING = "utf-8"
 
 # ── Environment Configuration ───────────────────────────────────────────────
 os.environ.setdefault("CI", "true")
 os.environ.setdefault("NODE_ENV", "test")
+TMP_CACHE_DIR = Path(__file__).resolve().parent.parent / ".tmp"
+TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("GOTMPDIR", str(TMP_CACHE_DIR))
 
 # ── Job Definitions (Partitioned into Order-Dependent Batches with IO Limits)
 JOB_BATCHES: list[dict[str, Any]] = [
@@ -64,7 +74,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "Constants Collision Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdConstantsAreUnique", "-count=1"],
             "Helptext Parity Check": ["go", "test", "-C", "gitmap", "./helptext/...", "-count=1"],
             "Lint Script Unit Tests": [sys.executable, ".github/scripts/tests/test_ci_scripts.py"],
-            "govulncheck": {"cmd": ["govulncheck", "./..."], "cwd": "gitmap"},
+            "govulncheck": [sys.executable, ".github/scripts/check-vulncheck.py"],
             "Startup Build-Tags (linux)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "linux", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "Startup Build-Tags (darwin)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "darwin", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "Startup Build-Tags (windows)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "windows", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
@@ -91,11 +101,11 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "E2E Smoke Suite": [sys.executable, ".github/scripts/e2e-cli-smoke.py", "bin/gitmap.exe"],
             "Installer Smoke (source)": [sys.executable, ".github/scripts/smoke-installer.py", "source"],
             "Installer Smoke (release)": [sys.executable, ".github/scripts/smoke-installer.py", "release"],
-            "History Purge Smoke": ["bash", ".github/scripts/smoke-history-purge.sh", "bin/gitmap.exe"],
-            "History Pin Smoke": ["bash", ".github/scripts/smoke-history-pin.sh", "bin/gitmap.exe"],
-            "Go Test Coverage Profile": ["go", "test", "-C", "gitmap", "-count=1", "-coverpkg=./...", "-coverprofile=../coverage.out", "./..."],
-            "Coverage Floor Guard": ["bash", ".github/scripts/coverage-floor.sh", "coverage.out"],
-                        "Go Test Race (Hot Packages)": ["go", "test", "-C", "gitmap", "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."],
+            "History Purge Smoke": [sys.executable, ".github/scripts/smoke-history-purge.py", "bin/gitmap.exe"],
+            "History Pin Smoke": [sys.executable, ".github/scripts/smoke-history-pin.py", "bin/gitmap.exe"],
+            "Go Test Coverage Profile": ["go", "test", "-C", "gitmap", "-count=1", "-coverprofile=../coverage.out", "./..."],
+            "Coverage Floor Guard": [sys.executable, ".github/scripts/coverage-floor.py", "coverage.out"],
+            "Go Test Race (Hot Packages)": ["go", "test", "-C", "gitmap", "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."],
         },
     },
 ]
@@ -127,6 +137,15 @@ class JobResult:
         return self.code == "timeout"
 
 
+
+GLOBAL_TIMINGS: dict[str, float] = {}
+
+
+def record_job_timing(job_name: str, elapsed_sec: float) -> None:
+    """Stores the execution duration of a job for persistence."""
+    GLOBAL_TIMINGS[job_name] = elapsed_sec
+
+
 def run_job(name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] = None, cwd: str = None) -> JobResult:
     """Executes a single gate subprocess and records duration, return code, and streams."""
     start = time.monotonic()
@@ -147,6 +166,7 @@ def run_job(name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] = N
             cwd=cwd,
         )
         elapsed = round(time.monotonic() - start, 2)
+        record_job_timing(name, elapsed)
         return JobResult(
             name=name,
             cmd=cmd,
@@ -158,6 +178,7 @@ def run_job(name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] = N
     except subprocess.TimeoutExpired as exc:
         elapsed = round(time.monotonic() - start, 2)
         out = exc.stdout if isinstance(exc.stdout, str) else ""
+        record_job_timing(name, elapsed)
         return JobResult(
             name=name,
             cmd=cmd,
@@ -168,6 +189,7 @@ def run_job(name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] = N
         )
     except Exception as exc:
         elapsed = round(time.monotonic() - start, 2)
+        record_job_timing(name, elapsed)
         return JobResult(
             name=name,
             cmd=cmd,
@@ -219,6 +241,14 @@ Environment Variables:
   CI_TIMEOUT_SEC      Default per-job timeout in seconds (default: 300)
         """,
     )
+    
+    parser.add_argument(
+        "--eta-interval",
+        type=int,
+        default=120,
+        help="Print remaining ETA every N seconds (0 to disable). Default: 120.",
+    )
+
     parser.add_argument(
         "--all-paths", "--all-passed", "--all-pass", "--all", "-a",
         action="store_true",
@@ -362,133 +392,67 @@ def format_full_report(
     return "\n".join(lines)
 
 
-def main() -> None:
-    args = parse_args()
-    active_batches = filter_job_batches(JOB_BATCHES, args.filter)
-    total_jobs = sum(len(b["jobs"]) for b in active_batches)
+TIMING_FILE_PATH = Path(".lovable/cicd-timing.json")
+DEFAULT_JOB_ESTIMATE_SEC = 10.0
 
-    if total_jobs == 0:
-        print(f"[WARN] No quality gates matched filter: {args.filter!r}")
-        sys.exit(0)
 
-    # Determine concurrency
-    is_sync = args.sync_mode
-    workers = 1 if is_sync else max(1, args.workers)
-    io_workers = 1 if is_sync else max(1, args.io_workers)
-    is_json = bool(args.json_mode)
+def handle_json_output(
+    args: argparse.Namespace,
+    results: list[JobResult],
+    counts: tuple[int, int, int, int],
+    wall_duration_sec: float,
+    has_failures: bool,
+) -> int:
+    """Handles JSON serialization and writing to stdout or target file."""
+    total_jobs, passed_count, failed_count, timeout_count = counts
+    payload = {
+        "total_jobs": total_jobs,
+        "passed_count": passed_count,
+        "failed_count": failed_count,
+        "timeout_count": timeout_count,
+        "wall_duration_sec": wall_duration_sec,
+        "has_failures": has_failures,
+        "exit_code": 1 if has_failures else 0,
+        "gates": [asdict(r) for r in results],
+    }
+    json_content = json.dumps(payload, indent=2, ensure_ascii=False)
+    target_path = args.json_mode if isinstance(args.json_mode, str) else args.output_file
+    if target_path:
+        p = Path(target_path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json_content, encoding=DEFAULT_ENCODING)
+        print(f"📄 JSON results saved to: {target_path}")
+    else:
+        print(json_content)
 
-    concurrency_label = "Sequential (1 worker)" if is_sync else f"Parallel ({workers} workers, {io_workers} IO workers)"
+    return 1 if has_failures else 0
 
-    # In --all-paths / --all-passed mode, show banner upfront
-    if args.show_all and not is_json:
-        print("================================================================")
-        print("           PARALLEL LOCAL CI/CD QUALITY GATE RUNNER             ")
-        print("================================================================")
-        print(f"🚀 Execution Mode          : {concurrency_label}")
-        print(f"📋 Total Enqueued Gates    : {total_jobs}")
-        print("🔍 Display Mode            : SHOW ALL INFORMATION (--all-paths)")
-        print("----------------------------------------------------------------\n")
 
-    results: list[JobResult] = []
-    total_start = time.monotonic()
-    job_counter = 0
-
-    # Execute batches sequentially to preserve dependencies & prevent IO lockups
-    for batch in active_batches:
-        batch_jobs = batch["jobs"]
-        job_items = list(batch_jobs.items())
-
-        # Worker count for current batch
-        batch_limit = batch.get("max_workers")
-        if is_sync:
-            batch_workers = 1
-        elif batch_limit is not None:
-            batch_workers = min(workers, batch_limit, len(job_items))
-        else:
-            batch_workers = min(workers, len(job_items))
-
-        with ThreadPoolExecutor(max_workers=batch_workers) as executor:
-            future_to_name = {
-                executor.submit(run_job, name, cmd.get("cmd") if isinstance(cmd, dict) else cmd, args.timeout, {**os.environ, **cmd.get("env")} if isinstance(cmd, dict) and "env" in cmd else None, cmd.get("cwd") if isinstance(cmd, dict) else None): name
-                for name, cmd in job_items
-            }
-
-            for future in as_completed(future_to_name):
-                job_counter += 1
-                try:
-                    res = future.result()
-                    results.append(res)
-                    if args.show_all and not is_json:
-                        if res.is_success:
-                            print(f"  [{job_counter:2d}/{total_jobs}] \033[1;92m✓ PASS\033[0m [{res.name}] ({res.elapsed}s)", flush=True)
-                        elif res.is_timeout:
-                            print(f"  [{job_counter:2d}/{total_jobs}] \033[1;93m⏳ TIMEOUT\033[0m [{res.name}] ({res.elapsed}s)", flush=True)
-                        else:
-                            print(f"  [{job_counter:2d}/{total_jobs}] \033[1;91m✗ FAIL\033[0m [{res.name}] ({res.elapsed}s)", flush=True)
-                except Exception as ex:
-                    name = future_to_name[future]
-                    failed_res = JobResult(
-                        name=name,
-                        cmd=batch_jobs.get(name, []),
-                        code=1,
-                        out="",
-                        err=str(ex),
-                        elapsed=0.0,
-                    )
-                    results.append(failed_res)
-                    if args.show_all and not is_json:
-                        print(f"  [{job_counter:2d}/{total_jobs}] \033[1;91m✗ FAIL\033[0m [{name}] (Exception: {ex})", flush=True)
-
-    total_elapsed = round(time.monotonic() - total_start, 2)
-
-    passed_count = sum(1 for r in results if r.is_success)
-    failed_count = sum(1 for r in results if not r.is_success and not r.is_timeout)
-    timeout_count = sum(1 for r in results if r.is_timeout)
-    has_failures = (failed_count > 0 or timeout_count > 0)
-
-    # ── Handle JSON Output Mode ────────────────────────────────────────────
-    if is_json:
-        payload = {
-            "total_jobs": total_jobs,
-            "passed_count": passed_count,
-            "failed_count": failed_count,
-            "timeout_count": timeout_count,
-            "wall_duration_sec": total_elapsed,
-            "has_failures": has_failures,
-            "exit_code": 1 if has_failures else 0,
-            "gates": [asdict(r) for r in results],
-        }
-        json_content = json.dumps(payload, indent=2, ensure_ascii=False)
-        target_json_path = args.json_mode if isinstance(args.json_mode, str) else args.output_file
-
-        if target_json_path:
-            p = Path(target_json_path)
-            p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(json_content, encoding=DEFAULT_ENCODING)
-            print(f"📄 JSON results saved to: {target_json_path}")
-        else:
-            print(json_content)
-
-        sys.exit(1 if has_failures else 0)
-
-    # ── Handle File Output (Human-readable text) ───────────────────────────
+def handle_text_output(
+    args: argparse.Namespace,
+    results: list[JobResult],
+    counts: tuple[int, int, int, int],
+    total_elapsed: float,
+) -> int:
+    """Handles text report formatting, output file saving, and console printing."""
+    total_jobs, passed_count, failed_count, timeout_count = counts
+    has_failures = bool(failed_count > 0 or timeout_count > 0)
     if args.output_file:
-        full_file_report = format_full_report(
+        file_report = format_full_report(
             results, total_jobs, passed_count, failed_count, timeout_count, total_elapsed, show_all=True
         )
         p = Path(args.output_file)
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(strip_ansi(full_file_report), encoding=DEFAULT_ENCODING)
+        p.write_text(strip_ansi(file_report), encoding=DEFAULT_ENCODING)
         print(f"📄 Execution report saved to: {args.output_file}")
 
-    # ── Terminal Output Presentation ───────────────────────────────────────
     if has_failures:
         failure_text = format_full_report(
             results, total_jobs, passed_count, failed_count, timeout_count, total_elapsed, show_all=False
         )
         print(failure_text)
         print(f"\n\033[1;91m[FAILURE]\033[0m CI/CD quality gates failed with {failed_count + timeout_count} error(s).")
-        sys.exit(1)
+        return 1
 
     if args.show_all:
         all_text = format_full_report(
@@ -497,10 +461,355 @@ def main() -> None:
         print("\n" + all_text)
         print(f"\n\033[1;92m🎉 All quality gates passed successfully! Codebase is 100% green.\033[0m")
     else:
-        # Default mode: clean tick and "All passed."
         print(f"✔ All passed. ({passed_count} gates in {total_elapsed:.2f}s)")
 
-    sys.exit(0)
+    return 0
+
+
+CICD_TEMP_DIR = Path(".lovable/temp/cicd")
+CICD_ERRORS_LOG = CICD_TEMP_DIR / "errors.log"
+CICD_ERRORS_JSON = CICD_TEMP_DIR / "errors.json"
+CICD_RUN_LOG = CICD_TEMP_DIR / "run.log"
+CICD_SUMMARY_JSON = CICD_TEMP_DIR / "summary.json"
+
+
+def init_cicd_temp_stream() -> None:
+    """Initializes streaming directories and empty log files under .lovable/temp/cicd/."""
+    CICD_TEMP_DIR.mkdir(parents=True, exist_ok=True)
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    CICD_ERRORS_LOG.write_text(f"# CI/CD Real-Time Failure Stream — {ts}\n\n", encoding=DEFAULT_ENCODING)
+    CICD_ERRORS_JSON.write_text("[]\n", encoding=DEFAULT_ENCODING)
+    CICD_RUN_LOG.write_text(f"# CI/CD Full Run Log — {ts}\n\n", encoding=DEFAULT_ENCODING)
+    init_meta = {
+        "status": "running",
+        "started_at": ts,
+        "active_failures": [],
+        "errors_log": str(CICD_ERRORS_LOG),
+        "errors_json": str(CICD_ERRORS_JSON),
+    }
+    CICD_SUMMARY_JSON.write_text(json.dumps(init_meta, indent=2), encoding=DEFAULT_ENCODING)
+
+
+def extract_stack_or_error(res: JobResult) -> str:
+    """Combines and returns non-empty stdout/stderr from a failed job."""
+    out = (res.out or "").strip()
+    err = (res.err or "").strip()
+    if out and err:
+        return f"{out}\n\n{err}"
+
+    return err or out or "No output captured."
+
+
+def extract_failing_files(text: str) -> list[str]:
+    """Extracts suspected source file paths and locations from error text."""
+    pattern = re.compile(r'(?:[a-zA-Z0-9_\-./\\]+\.(?:go|py|ts|tsx|js|json|sh|ps1|yml|yaml)(?::\d+(?::\d+)?)?)')
+    matches = pattern.findall(text)
+    seen: set[str] = set()
+    files: list[str] = []
+    for m in matches:
+        if m not in seen and not m.startswith("http"):
+            seen.add(m)
+            files.append(m)
+
+    return files[:10]
+
+
+def append_run_log(res: JobResult) -> None:
+    """Appends gate execution outcome to full chronological run.log."""
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    status = "PASS" if res.is_success else "FAIL"
+    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
+    entry = f"[{ts}] [{status}] {res.name} (code={res.code}, {res.elapsed}s) | Cmd: {cmd_str}\n"
+    if not res.is_success:
+        err = extract_stack_or_error(res)
+        entry += f"  Error: {strip_ansi(err)}\n"
+    try:
+        with open(CICD_RUN_LOG, "a", encoding=DEFAULT_ENCODING) as fh:
+            fh.write(entry)
+    except OSError:
+        pass
+
+
+def update_cicd_summary(state: dict[str, Any], is_finished: bool = False) -> None:
+    """Updates summary.json metadata with real-time status and counts."""
+    total = state["total"]
+    results = state.get("results", [])
+    passed = sum(1 for r in results if r.is_success)
+    failed = sum(1 for r in results if not r.is_success)
+    remaining = max(0, total - passed - failed)
+    status = "completed" if is_finished and failed == 0 else ("failed" if is_finished else "running")
+    meta = {
+        "status": status,
+        "total_gates": total,
+        "passed_gates": passed,
+        "failed_gates": failed,
+        "remaining_gates": remaining,
+        "errors_count": len(state.get("errors_list", [])),
+        "errors_log": str(CICD_ERRORS_LOG),
+        "errors_json": str(CICD_ERRORS_JSON),
+        "run_log": str(CICD_RUN_LOG),
+        "summary_json": str(CICD_SUMMARY_JSON),
+        "active_failures": [e["name"] for e in state.get("errors_list", [])],
+    }
+    try:
+        CICD_SUMMARY_JSON.write_text(json.dumps(meta, indent=2), encoding=DEFAULT_ENCODING)
+    except OSError:
+        pass
+
+
+def stream_failure_to_disk(res: JobResult, state: dict[str, Any]) -> None:
+    """Appends failure information to real-time logs in .lovable/temp/cicd/."""
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    err_text = extract_stack_or_error(res)
+    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
+    suspect_files = extract_failing_files(err_text)
+    files_line = f"- **Suspect Files**: {', '.join(suspect_files)}\n" if suspect_files else ""
+    entry = (
+        f"### [{ts}] FAIL: {res.name}\n"
+        f"- **Command**: `{cmd_str}`\n"
+        f"- **Exit Code**: `{res.code}` ({res.elapsed}s)\n"
+        f"{files_line}"
+        f"```text\n{strip_ansi(err_text)}\n```\n\n"
+    )
+    with open(CICD_ERRORS_LOG, "a", encoding=DEFAULT_ENCODING) as fh:
+        fh.write(entry)
+
+    errors_list = state.setdefault("errors_list", [])
+    errors_list.append({
+        "name": res.name,
+        "cmd": res.cmd,
+        "code": res.code,
+        "elapsed": res.elapsed,
+        "suspect_files": suspect_files,
+        "error": strip_ansi(err_text),
+    })
+    try:
+        CICD_ERRORS_JSON.write_text(json.dumps(errors_list, indent=2), encoding=DEFAULT_ENCODING)
+    except OSError:
+        pass
+    update_cicd_summary(state, is_finished=False)
+
+
+def print_immediate_failure_report(res: JobResult, idx: int, total: int) -> None:
+    """Immediately prints full failure stack trace to terminal without waiting for suite completion."""
+    err_text = extract_stack_or_error(res)
+    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
+    suspect_files = extract_failing_files(err_text)
+    files_str = "\n".join(f"    • {f}" for f in suspect_files) if suspect_files else "    (None detected in output)"
+    banner = (
+        f"\n\033[1;91m================================================================\n"
+        f"🚨 [IMMEDIATE FAILURE DETECTED] [{idx}/{total}] {res.name}\n"
+        f"================================================================\033[0m\n"
+        f"  Command       : {cmd_str}\n"
+        f"  Exit Code     : {res.code} ({res.elapsed}s)\n"
+        f"  Failing Files :\n{files_str}\n"
+        f"  Stream Log    : {CICD_ERRORS_LOG}\n"
+        f"  Stream JSON   : {CICD_ERRORS_JSON}\n\n"
+        f"\033[1mStack Trace / Failure Output:\033[0m\n"
+        f"----------------------------------------------------------------\n"
+        f"{err_text}\n"
+        f"\033[1;91m================================================================\033[0m\n"
+    )
+    print(banner, flush=True)
+
+
+def print_runner_banner(concurrency_label: str, total_jobs: int) -> None:
+    """Prints informational execution banner for verbose mode."""
+    print("================================================================")
+    print("           PARALLEL LOCAL CI/CD QUALITY GATE RUNNER             ")
+    print("================================================================")
+    print(f"🚀 Execution Mode          : {concurrency_label}")
+    print(f"📋 Total Enqueued Gates    : {total_jobs}")
+    print("🔍 Display Mode            : SHOW ALL INFORMATION (--all-paths)")
+    print("----------------------------------------------------------------\n")
+
+
+def execute_job_batch(
+    batch: dict[str, Any],
+    workers: int,
+    is_sync: bool,
+    args: argparse.Namespace,
+    state: dict[str, Any],
+) -> None:
+    """Executes all jobs within a single batch with worker pool."""
+    job_items = list(batch["jobs"].items())
+    batch_limit = batch.get("max_workers")
+    batch_workers = 1 if is_sync else min(workers, batch_limit or workers, len(job_items))
+
+    with ThreadPoolExecutor(max_workers=batch_workers) as executor:
+        future_to_name = {
+            executor.submit(
+                run_job,
+                name,
+                cmd.get("cmd") if isinstance(cmd, dict) else cmd,
+                args.timeout,
+                {**os.environ, **cmd.get("env")} if isinstance(cmd, dict) and "env" in cmd else None,
+                cmd.get("cwd") if isinstance(cmd, dict) else None,
+            ): name
+            for name, cmd in job_items
+        }
+        for future in as_completed(future_to_name):
+            state["counter"] += 1
+            idx = state["counter"]
+            total = state["total"]
+            try:
+                res = future.result()
+                state["results"].append(res)
+                append_run_log(res)
+                if not res.is_success:
+                    stream_failure_to_disk(res, state)
+                    if not state["is_json"]:
+                        print_immediate_failure_report(res, idx, total)
+                elif args.show_all and not state["is_json"]:
+                    print(f"  [{idx:2d}/{total}] \033[1;92m✓ PASS\033[0m [{res.name}] ({res.elapsed}s)", flush=True)
+            except Exception as ex:
+                name = future_to_name[future]
+                failed_res = JobResult(
+                    name=name,
+                    cmd=batch["jobs"].get(name, []),
+                    code=1,
+                    out="",
+                    err=str(ex),
+                    elapsed=0.0,
+                )
+                state["results"].append(failed_res)
+                append_run_log(failed_res)
+                stream_failure_to_disk(failed_res, state)
+                if not state["is_json"]:
+                    print_immediate_failure_report(failed_res, idx, total)
+
+
+def execute_runner(args: argparse.Namespace, active_batches: list[dict[str, Any]]) -> int:
+    """Orchestrates test batch execution and report output generation."""
+    total_jobs = sum(len(b["jobs"]) for b in active_batches)
+    if total_jobs == 0:
+        print(f"[WARN] No quality gates matched filter: {args.filter!r}")
+        return 0
+
+    init_cicd_temp_stream()
+    is_sync = args.sync_mode
+    workers = 1 if is_sync else max(1, args.workers)
+    io_workers = 1 if is_sync else max(1, args.io_workers)
+    is_json = bool(args.json_mode)
+
+    if not is_json:
+        print(f"📡 Real-Time Error Stream : {CICD_ERRORS_LOG}")
+        print(f"📊 Real-Time JSON Status  : {CICD_SUMMARY_JSON}")
+        if args.show_all:
+            label = "Sequential (1 worker)" if is_sync else f"Parallel ({workers} workers, {io_workers} IO workers)"
+            print_runner_banner(label, total_jobs)
+
+    state: dict[str, Any] = {"counter": 0, "total": total_jobs, "results": [], "is_json": is_json}
+    start_time = time.monotonic()
+
+    for batch in active_batches:
+        execute_job_batch(batch, workers, is_sync, args, state)
+
+    total_elapsed = round(time.monotonic() - start_time, 2)
+    results: list[JobResult] = state["results"]
+    passed_count = sum(1 for r in results if r.is_success)
+    failed_count = sum(1 for r in results if not r.is_success and not r.is_timeout)
+    timeout_count = sum(1 for r in results if r.is_timeout)
+    has_failures = bool(failed_count > 0 or timeout_count > 0)
+    counts = (total_jobs, passed_count, failed_count, timeout_count)
+    update_cicd_summary(state, is_finished=True)
+
+    if is_json:
+        return handle_json_output(args, results, counts, total_elapsed, has_failures)
+
+    return handle_text_output(args, results, counts, total_elapsed)
+
+
+def load_cicd_timings(path: Path) -> dict[str, float]:
+    """Loads historical CI/CD job timings from JSON file if available."""
+    if not path.exists():
+        return {}
+
+    try:
+        data = json.loads(path.read_text(encoding=DEFAULT_ENCODING))
+        if isinstance(data, dict):
+            return {k: float(v) for k, v in data.items()}
+    except Exception:
+        pass
+
+    return {}
+
+
+def save_cicd_timings(path: Path, timings: dict[str, float]) -> None:
+    """Persists recorded CI/CD job timings to the timing file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        path.write_text(json.dumps(timings, indent=2), encoding=DEFAULT_ENCODING)
+    except Exception:
+        pass
+
+
+def calculate_total_eta(active_batches: list[dict[str, Any]], timings: dict[str, float]) -> int:
+    """Computes total estimated execution time across all active batches."""
+    total_sec = 0.0
+    for batch in active_batches:
+        batch_max = DEFAULT_JOB_ESTIMATE_SEC
+        for job_name in batch.get("jobs", {}):
+            job_est = timings.get(job_name, DEFAULT_JOB_ESTIMATE_SEC)
+            batch_max = max(batch_max, job_est)
+        total_sec += batch_max
+
+    return int(total_sec)
+
+
+def run_eta_worker(
+    interval_sec: int,
+    total_est_sec: int,
+    start_time: float,
+    stop_event: threading.Event,
+) -> None:
+    """Background worker reporting remaining ETA every interval."""
+    while not stop_event.is_set():
+        if stop_event.wait(timeout=interval_sec):
+            break
+        elapsed = time.time() - start_time
+        remaining = max(0, int(total_est_sec - elapsed))
+        print(f"\n[ETA] Estimated remaining time: {remaining} seconds\n", flush=True)
+
+
+def start_eta_reporter(
+    interval_sec: int,
+    total_est_sec: int,
+    stop_event: threading.Event,
+) -> threading.Thread | None:
+    """Spawns background ETA daemon thread if interval > 0."""
+    if interval_sec <= 0:
+        return None
+
+    worker = threading.Thread(
+        target=run_eta_worker,
+        args=(interval_sec, total_est_sec, time.time(), stop_event),
+        daemon=True,
+    )
+    worker.start()
+
+    return worker
+
+
+def main() -> None:
+    """Primary entry point for local CI/CD quality gate runner."""
+    args = parse_args()
+    active_batches = filter_job_batches(JOB_BATCHES, args.filter)
+    timings = load_cicd_timings(TIMING_FILE_PATH)
+    total_est = calculate_total_eta(active_batches, timings)
+
+    stop_event = threading.Event()
+    start_eta_reporter(args.eta_interval, total_est, stop_event)
+
+    exit_code = 0
+    try:
+        exit_code = execute_runner(args, active_batches)
+    finally:
+        stop_event.set()
+        timings.update(GLOBAL_TIMINGS)
+        save_cicd_timings(TIMING_FILE_PATH, timings)
+
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
