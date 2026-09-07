@@ -311,7 +311,6 @@ func DemonstrateAdvancedFileAndPayloadIntelligence(dest io.Writer) *appfault.App
 	// 2. Multi-Destination Error Formatting
 	errObj := appfault.New(errtype.Validation, "Invalid email address entered").
 		WithStatusCode(400).
-		WithCaller(appfault.CallerInfo{File: "auth/service.go", Line: 55, Function: "HandleRegistration"}).
 		WithContext("email", "bad-format")
 
 	_, _ = fmt.Fprintln(dest, "\n--- Stdout Banner Format ---")

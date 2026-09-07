@@ -122,10 +122,10 @@ func (it *LazyRegex) CompileMust() *regexp.Regexp {
 
 	res := it.Compile()
 	if res.IsFailure() {
-		res.HandleError()
+		panic(res.Fault().Error()) // Panic with the formatted error message
 	}
 
-	return res.Value
+	return res.Data()
 }
 
 // IsCompiled reports whether compilation has already occurred.
