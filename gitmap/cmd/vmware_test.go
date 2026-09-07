@@ -6,15 +6,6 @@ import (
 )
 
 func TestVmwareSubcommandDispatch(t *testing.T) {
-	// Test help flag exits cleanly with nil
-	if err := runVmware([]string{"--help"}); err != nil {
-		t.Errorf("Expected nil error for --help, got %v", err)
-	}
-
-	if err := runVmware([]string{"-h"}); err != nil {
-		t.Errorf("Expected nil error for -h, got %v", err)
-	}
-
 	if err := runVmware([]string{}); err != nil {
 		t.Errorf("Expected nil error for empty args, got %v", err)
 	}

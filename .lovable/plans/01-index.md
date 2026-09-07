@@ -10,6 +10,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [73-chrome-profile-import-export-ubuntu-install-and-error-trace.md](completed/73-chrome-profile-import-export-ubuntu-install-and-error-trace.md): Chrome Profile Multi-Directory/ZIP Discovery, Ubuntu Chrome Installer & Rich Error Diagnostics
 - [69-realtime-streaming-and-ai-orchestration-runner.md](completed/69-realtime-streaming-and-ai-orchestration-runner.md): Real-Time Streaming Telemetry, Unbuffered Event Pipeline & AI Parallel Orchestration
 - [68-smart-incremental-cicd-runner.md](completed/68-smart-incremental-cicd-runner.md): Smart Incremental CI/CD Runner with Resumption, In-Flight Telemetry & Gate Skipping
 - [67-cicd-quality-gate-finalization-and-streaming.md](completed/67-cicd-quality-gate-finalization-and-streaming.md): CI/CD Quality Gate Finalization, Real-Time Streaming & AI Telemetry
@@ -80,3 +81,4 @@ Master directory of architectural and execution plans.
 - [46-terminal-ui-and-cli-styling.md](completed/46-terminal-ui-and-cli-styling.md): 46-terminal-ui-and-cli-styling
 - [47-style-guidelines-and-formatting.md](completed/47-style-guidelines-and-formatting.md): 47-style-guidelines-and-formatting
 - [48-style-guidelines-and-line-gaps.md](completed/48-style-guidelines-and-line-gaps.md): 48-style-guidelines-and-line-gaps
+

@@ -143,6 +143,9 @@ func specialInstallHandler(tool string) func(installOptions) {
 	if tool == constants.ToolVSCode && runtime.GOOS == "linux" {
 		return func(opts installOptions) { runInstallVSCodeLinux(opts) }
 	}
+	if (tool == constants.ToolChrome || tool == constants.ToolGoogleChrome) && runtime.GOOS == "linux" {
+		return func(opts installOptions) { _ = runInstallChromeLinux(opts) }
+	}
 	if h := specialSyncHandler(tool); h != nil {
 		return h
 	}

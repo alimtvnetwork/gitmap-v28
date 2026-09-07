@@ -197,13 +197,38 @@ func formatExt(format string) string {
 	return "json"
 }
 
+func isProfileSubcommandArg(arg string) bool {
+	clean := strings.ToLower(strings.TrimSpace(arg))
+
+	return clean == "profile" || clean == "profiles" || clean == "chrome"
+}
+
+func resolveProfileImportArgs(args []string) ([]string, bool) {
+	if len(args) == 0 || !isProfileSubcommandArg(args[0]) {
+		return args, false
+	}
+	if len(args) == 1 {
+		return []string{"."}, true
+	}
+
+	return args[1:], false
+}
+
 // runChromeImportAll imports all profile snapshots from a directory.
 func runChromeImportAll(args []string) error {
 	checkHelp(constants.SubCmdChromeImportAll, args)
-	opts := parseChromeTransferOptions(args)
-	if len(opts.Positional) == 0 {
+	cleanArgs, isCheck := resolveProfileImportArgs(args)
+	if isCheck {
+		return runChromeProfileImportCheck(cleanArgs)
+	}
+	if len(cleanArgs) > 0 && isPreflightInspectArg(cleanArgs[0]) {
+		return runChromeProfileImportCheck(cleanArgs[1:])
+	}
+	opts := parseChromeTransferOptions(cleanArgs)
+	if len(opts.Positional) == 0 || opts.Positional[0] == "*.*" || opts.Positional[0] == "*" {
 		opts.Positional = []string{"."}
 	}
+
 	return runSmartChromeImport(opts)
 }
 

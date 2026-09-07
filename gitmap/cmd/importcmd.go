@@ -18,9 +18,7 @@ func runImport(args []string) error {
 	checkHelp(constants.CmdImport, args)
 	inFile, isConfirm := parseImportFlags(args)
 	if !isConfirm {
-		fmt.Fprint(os.Stderr, constants.ErrImportNoConfirm)
-
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.NewSimple(constants.ErrImportNoConfirm, "E9000")
 	}
 
 	data := readImportFile(inFile)

@@ -68,7 +68,7 @@ const (
 	ProcessStateRunning   ProcessStateType = "Running"
 	ProcessStateCompleted ProcessStateType = "Completed"
 	ProcessStateFailed    ProcessStateType = "Failed"
-	ProcessStateCancelled ProcessStateType = "Cancelled"
+	ProcessStateCanceled  ProcessStateType = "Canceled"
 	ProcessStateUnknown   ProcessStateType = "Unknown"
 )
 

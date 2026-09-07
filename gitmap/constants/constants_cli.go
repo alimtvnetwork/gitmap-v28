@@ -612,6 +612,7 @@ const (
 	HelpPower            = "  power (pw, pwr)     Inspect, set, and reset OS display and sleep timeouts"
 	HelpOS               = "  os                  Manage OS configurations and diagnostics (" + ColorCyan + "fix-link" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
 	HelpFixLink          = "  fix-link (fixlink)  Inspect and repair broken symlinks and shared directories (" + ColorCyan + "--target" + ColorReset + ", " + ColorCyan + "--recursive" + ColorReset + ", " + ColorCyan + "--force" + ColorReset + ", " + ColorCyan + "--dry-run" + ColorReset + ", " + ColorCyan + "--json" + ColorReset + ")"
+	HelpVmware           = "  vmware (vm)         Manage VMware shared folders and guest services (" + ColorCyan + "shared" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
 )
 
 // Help section headers and flag-line strings (HelpScanFlags, HelpCloneFlags,

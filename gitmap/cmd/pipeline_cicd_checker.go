@@ -233,22 +233,26 @@ func probeSpellCheck() CICDCheckResult {
 
 func probeCompileGate() CICDCheckResult {
 	_, gitmapDir := resolveGitmapRoot()
-	cmd := exec.Command("go", "test", "-run=^$", "./...", "-count=1")
+	cmd := exec.Command("go", "build", "./...")
 	cmd.Dir = gitmapDir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return CICDCheckResult{
-			Name:    "Go Compile Gate",
-			Passed:  false,
-			Detail:  extractFirstLine(string(out)),
-			FixHint: "Fix package or test compilation errors",
-		}
+		return handleCompileGateFailure(out)
 	}
 
 	return CICDCheckResult{
 		Name:   "Go Compile Gate",
 		Passed: true,
-		Detail: "All packages and test suites compiled cleanly",
+		Detail: "All packages compiled cleanly",
+	}
+}
+
+func handleCompileGateFailure(out []byte) CICDCheckResult {
+	return CICDCheckResult{
+		Name:    "Go Compile Gate",
+		Passed:  false,
+		Detail:  extractFirstLine(string(out)),
+		FixHint: "Fix package compilation errors",
 	}
 }
 

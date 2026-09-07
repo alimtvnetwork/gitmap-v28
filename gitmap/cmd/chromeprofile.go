@@ -272,6 +272,9 @@ func resolveChromeCSVPath(outPath string) string {
 // runChromeProfileImport implements `gitmap chrome-profile-import` / `gitmap cpi`.
 func runChromeProfileImport(args []string) error {
 	checkHelp(constants.CmdChromeProfileImport, args)
+	if len(args) > 0 && isPreflightInspectArg(args[0]) {
+		return runChromeProfileImportCheck(args[1:])
+	}
 	opts := parseChromeTransferOptions(args)
 	return runSmartChromeImport(opts)
 }
