@@ -12,15 +12,23 @@ const (
 // gitmap:cmd top-level
 // Profile subcommands.
 const (
-	CmdProfileCreate = "create" // gitmap:cmd skip
-	CmdProfileList   = "list"   // gitmap:cmd skip
-	CmdProfileSwitch = "switch" // gitmap:cmd skip
-	CmdProfileDelete = "delete" // gitmap:cmd skip
-	CmdProfileShow   = "show"   // gitmap:cmd skip
+	CmdProfileCreate      = "create"       // gitmap:cmd skip
+	CmdProfileList        = "list"         // gitmap:cmd skip
+	CmdProfileSwitch      = "switch"       // gitmap:cmd skip
+	CmdProfileDelete      = "delete"       // gitmap:cmd skip
+	CmdProfileShow        = "show"         // gitmap:cmd skip
+	CmdProfileImport      = "import"       // gitmap:cmd skip
+	CmdProfileImportAll   = "import-all"   // gitmap:cmd skip
+	CmdProfileExport      = "export"       // gitmap:cmd skip
+	CmdProfileExportAll   = "export-all"   // gitmap:cmd skip
+	CmdProfileInspect     = "inspect"      // gitmap:cmd skip
+	CmdProfilePreview     = "preview"      // gitmap:cmd skip
+	CmdProfileCheck       = "check"        // gitmap:cmd skip
+	CmdProfileImportCheck = "import-check" // gitmap:cmd skip
 )
 
 // Profile help text.
-const HelpProfile = "  profile (pf) <sub>  Manage database profiles (create, list, switch, delete, show)"
+const HelpProfile = "  profile (pf) <sub>  Manage profiles (create, list, switch, delete, show, import, export, inspect)"
 
 // Profile file and defaults.
 const (
@@ -39,7 +47,7 @@ const (
 	MsgProfileRowFmt        = "%-20s %s\n"
 	MsgProfileActiveTag     = "(active)"
 	MsgProfileEmpty         = "No profiles found.\n"
-	ErrProfileUsage         = "usage: gitmap profile <create|list|switch|delete|show> [name]\n"
+	ErrProfileUsage         = "usage: gitmap profile <create|list|switch|delete|show|import|export|inspect> [args]\n"
 	ErrProfileCreateUsage   = "usage: gitmap profile create <name>\n"
 	ErrProfileSwitchUsage   = "usage: gitmap profile switch <name>\n"
 	ErrProfileDeleteUsage   = "usage: gitmap profile delete <name>\n"

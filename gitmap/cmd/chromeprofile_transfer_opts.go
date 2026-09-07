@@ -12,6 +12,10 @@ type chromeTransferOptions struct {
 	Limit      int
 	Except     []string
 	Positional []string
+	IsJSON     bool
+	FilePath   string
+	TempFile   string
+	Fnf        bool
 }
 
 func parseChromeTransferOptions(args []string) chromeTransferOptions {
@@ -31,6 +35,9 @@ func parseChromeTransferOptions(args []string) chromeTransferOptions {
 			continue
 		}
 		if parseOptionExcept(arg, args, &i, &opts) {
+			continue
+		}
+		if parseOptionExport(arg, args, &i, &opts) {
 			continue
 		}
 		if !strings.HasPrefix(arg, "-") {

@@ -723,28 +723,45 @@ func collectSnapshotFileCandidates(target string) []DiscoveredProfileCandidate {
 
 func runChromeProfileImportCheck(args []string) error {
 	checkHelp("import-check", args)
+	opts := parseChromeTransferOptions(args)
 	target := resolveCheckTarget(args)
 
 	candidates, err := DiscoverProfileCandidates(target)
 	if err != nil || len(candidates) == 0 {
 		candidates = collectSnapshotFileCandidates(target)
 	}
+	if len(candidates) == 0 && opts.Fnf {
+		return fmt.Errorf("no profile snapshot files found to check in %q (--fnf asserted)", target)
+	}
 	if len(candidates) == 0 {
 		fmt.Printf("No snapshot files found to check in %q\n", target)
+
 		return nil
 	}
 
-	if hasJSONFlag(args) {
-		return renderProfileCandidatesJSON(candidates)
+	params := ChromePreviewOutputParams{
+		Candidates: candidates,
+		Target:     target,
+		IsJSON:     opts.IsJSON || hasJSONFlag(args),
+		FilePath:   opts.FilePath,
+		TempFile:   opts.TempFile,
+		Fnf:        opts.Fnf,
 	}
 
-	renderProfileCandidatesTable(target, candidates)
-	return nil
+	return dispatchPreviewOutput(params)
 }
 
 func resolveCheckTarget(args []string) string {
-	for _, a := range args {
-		if a == "--json" || isHelpFlag(a) || isPreflightInspectArg(a) {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		if a == "--json" || a == "-j" || a == "--fnf" || isHelpFlag(a) || isPreflightInspectArg(a) {
+			continue
+		}
+		if isValuedFlag(a) && !strings.Contains(a, "=") {
+			i++
+			continue
+		}
+		if isValuedFlag(a) {
 			continue
 		}
 		if a == "*.*" || a == "*" {

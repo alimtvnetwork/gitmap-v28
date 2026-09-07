@@ -14,11 +14,19 @@ func renderProfileCandidatesTable(target string, candidates []DiscoveredProfileC
 	}
 
 	fmt.Printf("Total profiles inspected: %d\n\n", len(candidates))
+	printPreviewUsageHints()
+}
+
+func printPreviewUsageHints() {
 	fmt.Println("Usage hints:")
 	fmt.Println("  Import all:            gitmap chrome import-all <path>")
 	fmt.Println("  Import single email:   gitmap chrome profile import <email>")
+	fmt.Println("  Export preview JSON:   gitmap chrome import-check <path> --json")
+	fmt.Println("  Save preview to file:  gitmap chrome import-check <path> --json --file <path>")
+	fmt.Println("  Save with FNF flag:    gitmap chrome import-check <path> --json --fnf <filename>")
 	fmt.Println("  Import with limit:     gitmap chrome import-all <path> --limit 1")
 	fmt.Println("  Import with exclusion: gitmap chrome import-all <path> --except <pattern>")
+	fmt.Println("  Direct profile import: gitmap profile import [email|path]")
 	fmt.Println()
 }
 

@@ -6,58 +6,108 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runProfile handles the "profile" subcommand routing.
 func runProfile(args []string) error {
-	checkHelp("profile", args)
 	if len(args) < 1 {
-		runProfileList()
+		checkHelp("profile", args)
+
+		return runProfileList()
+	}
+	if isHelpFlag(args[0]) {
+		checkHelp("profile", args)
 
 		return nil
 	}
 
-	sub := args[0]
-	rest := args[1:]
+	subCmd := args[0]
+	tailArgs := args[1:]
 
-	routeProfileSub(sub, rest)
-	return nil
+	return routeProfileSub(subCmd, tailArgs)
 }
 
 // routeProfileSub routes to the appropriate profile subcommand.
-func routeProfileSub(sub string, args []string) {
-	if sub == "git" || sub == "accounts" || sub == "set-default" {
-		_ = runProfiles(append([]string{sub}, args...))
-		return
+func routeProfileSub(subCmd string, tailArgs []string) error {
+	if err, isHandled := routeGitProfileSub(subCmd, tailArgs); isHandled {
+		return err
 	}
-	if sub == constants.CmdProfileCreate {
-		runProfileCreate(args)
-
-		return
+	if err, isHandled := routeDBProfileSub(subCmd, tailArgs); isHandled {
+		return err
 	}
-	if sub == constants.CmdProfileList || sub == "ls" || sub == "status" {
-		runProfileList()
-
-		return
-	}
-	if sub == constants.CmdProfileSwitch {
-		runProfileSwitch(args)
-
-		return
-	}
-	if sub == constants.CmdProfileDelete {
-		runProfileDelete(args)
-
-		return
-	}
-	if sub == constants.CmdProfileShow {
-		runProfileShow()
-
-		return
+	if err, isHandled := routeChromeProfileSub(subCmd, tailArgs); isHandled {
+		return err
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
-	cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
+
+	return apperror.NewSimple("fatal error", "E9000")
+}
+
+func routeGitProfileSub(subCmd string, tailArgs []string) (error, bool) {
+	if subCmd == "git" || subCmd == "accounts" || subCmd == "set-default" {
+		return runProfiles(append([]string{subCmd}, tailArgs...)), true
+	}
+
+	return nil, false
+}
+
+func routeDBProfileSub(subCmd string, tailArgs []string) (error, bool) {
+	switch subCmd {
+	case constants.CmdProfileCreate:
+		return runProfileCreate(tailArgs), true
+	case constants.CmdProfileList, "ls", "status":
+		return runProfileList(), true
+	case constants.CmdProfileSwitch:
+		return runProfileSwitch(tailArgs), true
+	default:
+		return routeDBProfileExtra(subCmd, tailArgs)
+	}
+}
+
+func routeDBProfileExtra(subCmd string, tailArgs []string) (error, bool) {
+	if subCmd == constants.CmdProfileDelete {
+		return runProfileDelete(tailArgs), true
+	}
+	if subCmd == constants.CmdProfileShow {
+		return runProfileShow(), true
+	}
+
+	return nil, false
+}
+
+func routeChromeProfileSub(subCmd string, tailArgs []string) (error, bool) {
+	if err, isHandled := routeChromeImportSub(subCmd, tailArgs); isHandled {
+		return err, true
+	}
+	if err, isHandled := routeChromeExportSub(subCmd, tailArgs); isHandled {
+		return err, true
+	}
+
+	return nil, false
+}
+
+func routeChromeImportSub(subCmd string, tailArgs []string) (error, bool) {
+	switch subCmd {
+	case constants.CmdProfileImport, "cpi", "profile-import":
+		return runChromeProfileImport(tailArgs), true
+	case constants.CmdProfileImportAll, "cpi-all", "all-profile-import", "import-all-profiles":
+		return runChromeImportAll(tailArgs), true
+	case constants.CmdProfileInspect, constants.CmdProfilePreview, constants.CmdProfileCheck,
+		constants.CmdProfileImportCheck, "check-import":
+		return runChromeProfileImportCheck(tailArgs), true
+	}
+
+	return nil, false
+}
+
+func routeChromeExportSub(subCmd string, tailArgs []string) (error, bool) {
+	switch subCmd {
+	case constants.CmdProfileExport, "cpe", "profile-export":
+		return runChromeProfileExport(tailArgs), true
+	case constants.CmdProfileExportAll, "cpe-all", "all-profile-export", "export-all-profiles":
+		return runChromeExportAll(tailArgs), true
+	}
+
+	return nil, false
 }

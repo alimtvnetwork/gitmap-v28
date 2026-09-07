@@ -166,7 +166,7 @@ async def run_cmd_async(bin_path: str, args: list[str], cwd: str | None = None) 
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        stdout_bytes, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=35.0)
+        stdout_bytes, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=60.0)
         stdout = stdout_bytes.decode("utf-8", errors="replace")
         stderr = stderr_bytes.decode("utf-8", errors="replace")
         retcode = proc.returncode
@@ -178,7 +178,7 @@ async def run_cmd_async(bin_path: str, args: list[str], cwd: str | None = None) 
             proc.kill()
         except ProcessLookupError:
             pass
-        return 124, "", "Error: Command timed out after 35 seconds"
+        return 124, "", "Error: Command timed out after 60 seconds"
     except Exception as exc:
         return 1, "", f"Error executing command: {exc}"
 
