@@ -4,10 +4,13 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [67-cicd-quality-gate-finalization-and-streaming.md](pending/67-cicd-quality-gate-finalization-and-streaming.md): CI/CD Quality Gate Finalization, Real-Time Streaming & AI Telemetry
+None.
 
 ## Completed Plans
 
+- [69-realtime-streaming-and-ai-orchestration-runner.md](completed/69-realtime-streaming-and-ai-orchestration-runner.md): Real-Time Streaming Telemetry, Unbuffered Event Pipeline & AI Parallel Orchestration
+- [68-smart-incremental-cicd-runner.md](completed/68-smart-incremental-cicd-runner.md): Smart Incremental CI/CD Runner with Resumption, In-Flight Telemetry & Gate Skipping
+- [67-cicd-quality-gate-finalization-and-streaming.md](completed/67-cicd-quality-gate-finalization-and-streaming.md): CI/CD Quality Gate Finalization, Real-Time Streaming & AI Telemetry
 - [66-automatic-db-repo-and-safe-scanner-generator.md](completed/66-automatic-db-repo-and-safe-scanner-generator.md): Automatic Typed DbRepo & Safe Row Scanners Generator for Model Entities
 - [65-universal-dbengine-joins-and-view-evolution.md](completed/65-universal-dbengine-joins-and-view-evolution.md): Universal DBEngine Joins, Error-Guarded Query Builder & Automated View Evolution
 - [64-macro-step-open-chrome-failure.md](completed/64-macro-step-open-chrome-failure.md): Macro Step Execution Failure: `open chrome` (E9000:EXECUTION)
