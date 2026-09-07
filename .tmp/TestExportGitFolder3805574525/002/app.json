@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "name": "Git Export App",
+    "slug": "git-export-app",
+    "description": "",
+    "targetOs": "all",
+    "version": "v1.0.0",
+    "instructions": "",
+    "createdAt": "2026-09-07 06:08:37",
+    "updatedAt": "2026-09-07 06:08:37"
+  }
+]
