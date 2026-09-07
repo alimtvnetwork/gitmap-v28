@@ -4,6 +4,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -94,11 +95,20 @@ func handleChromeFlagAndResetOps(sub string, tail []string) bool {
 }
 
 func handleChromeInstallOps(sub string, tail []string) bool {
-	if sub == constants.SubCmdChromeInstall || sub == constants.SubCmdChromeInstallAlias {
-		installTool(installOptions{Tool: constants.ToolChrome, Manager: "", DryRun: hasDryRunFlag(tail)})
+	if sub != constants.SubCmdChromeInstall && sub != constants.SubCmdChromeInstallAlias {
+		return false
+	}
+
+	opts := installOptions{Tool: constants.ToolChrome, Manager: "", DryRun: hasDryRunFlag(tail)}
+	if runtime.GOOS == "linux" {
+		_ = runInstallChromeLinux(opts)
+
 		return true
 	}
-	return false
+
+	installTool(opts)
+
+	return true
 }
 
 func hasDryRunFlag(args []string) bool {

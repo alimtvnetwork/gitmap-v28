@@ -47,7 +47,7 @@ var (
 		ProcessStateRunning:   true,
 		ProcessStateCompleted: true,
 		ProcessStateFailed:    true,
-		ProcessStateCancelled: true,
+		ProcessStateCanceled:  true,
 	}
 
 	processStateMap = compileProcessStateMap()
@@ -142,7 +142,7 @@ func AllProcessStates() []ProcessStateType {
 		ProcessStateRunning,
 		ProcessStateCompleted,
 		ProcessStateFailed,
-		ProcessStateCancelled,
+		ProcessStateCanceled,
 	}
 }
 

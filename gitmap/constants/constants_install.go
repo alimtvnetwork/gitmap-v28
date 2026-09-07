@@ -387,6 +387,8 @@ var InstallToolDescriptions = map[string]string{
 	ToolAntigravity:      "Antigravity",
 	ToolBuildEssential:   "Ubuntu build-essential compiler toolchain and common dev packages",
 	ToolUbuntuCommon:     "Ubuntu common developer profile (compiler toolchain, editors, utilities)",
+	ToolChrome:           "Google Chrome web browser",
+	ToolGoogleChrome:     "Google Chrome web browser",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -401,7 +403,7 @@ var InstallToolCategories = map[string][]string{
 		ToolVSCodeSync, ToolOBSSync, ToolWTSync,
 		ToolScripts, ToolGitmapOneliner, ToolAllDevTools,
 		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk, ToolAgManager, ToolAgCtx, ToolAntigravity,
-		ToolBuildEssential, ToolUbuntuCommon,
+		ToolBuildEssential, ToolUbuntuCommon, ToolChrome, ToolGoogleChrome,
 	},
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,

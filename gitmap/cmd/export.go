@@ -94,16 +94,16 @@ func printExportSummary(path string, e model.DatabaseExport) {
 
 // runExportAll handles the "export-all" command.
 func runExportAll(args []string) error {
-	checkHelp("export", args)
+	checkHelp("export-all", args)
 
-	return runExport(args)
+	return runChromeExportAll(args)
 }
 
 // runImportAll handles the "import-all" command.
 func runImportAll(args []string) error {
-	checkHelp("import", args)
+	checkHelp("import-all", args)
 
-	return runImport(args)
+	return runChromeImportAll(args)
 }
 
 // runExportOnly handles the "export-only" command.

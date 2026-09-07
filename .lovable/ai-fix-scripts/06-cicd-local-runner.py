@@ -6,16 +6,28 @@
 ====================================================================================================
 
 1. PARALLEL EXECUTION MODEL & BATCH BARRIER PIPELINE:
-   The runner organizes all 33 quality gates into 3 sequential batch barriers:
+   The runner organizes all 33 quality gates into 7 sequential batch barriers:
    • Batch 1 — Linters, AST Checks & Static Analyzers (Gates 1-22):
      - Parallelism: CPU-bound, executes across min(8, CPU count) worker threads.
      - Scope: Spell check, nested if, boolean/enum conventions, error codes, AST helptext, govulncheck.
-   • Batch 2 — Compile & Packaging Gates (Gates 23-25):
+   • Batch 2 — Compile Gates (Gates 23-24):
      - Parallelism: I/O-bound, restricted to max 2 workers to prevent disk lock contention.
-     - Scope: Go Compile Gate (bin/gitmap.exe), Web App Build (dist/), GoReleaser Snapshot.
-   • Batch 3 — E2E Smoke & Integration Suites (Gates 26-33):
-     - Parallelism: Strictly sequential (1 worker) to prevent cross-test filesystem collisions.
-     - Scope: E2E Smoke Suite, Installer Smoke (source & release), History Purge/Pin, Race Tests.
+     - Scope: Go Compile Gate (bin/gitmap.exe), Web App Build.
+   • Batch 3 — Packaging Gates (Gate 25):
+     - Parallelism: Single dedicated worker to isolate GoReleaser snapshot release and avoid dist/ collisions.
+     - Scope: GoReleaser Snapshot Build.
+   • Batch 4 — E2E Smoke & Integration Suites (Gates 26-30):
+     - Parallelism: High concurrency parallel worker pool across isolated temporary environments.
+     - Scope: E2E Smoke Suite, Installer Smoke (source & release), History Purge/Pin.
+   • Batch 5 — Coverage Generation (Gate 31):
+     - Parallelism: Dedicated worker with 20m timeout for deep codebase coverage generation.
+     - Scope: Go Test Coverage Profile (coverage.out).
+   • Batch 6 — Coverage Verification (Gate 32):
+     - Parallelism: Fast assertion runner.
+     - Scope: Coverage Floor Guard.
+   • Batch 7 — Race Detection (Gate 33):
+     - Parallelism: Dedicated worker for race condition detection across hot packages.
+     - Scope: Go Test Race (Hot Packages).
 
 2. REAL-TIME TELEMETRY & ARTIFACT STREAMING (.lovable/temp/cicd/):
    All telemetry is written immediately to disk with unbuffered os.fsync flushing:
@@ -149,26 +161,50 @@ JOB_BATCHES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "Compile & Packaging Gates",
+        "name": "Compile Gates",
         "max_workers": DEFAULT_IO_WORKERS,
         "jobs": {
             "Go Compile Gate": ["go", "build", "-C", "gitmap", "-o", "../bin/gitmap.exe", "."],
             "Web App Build": ["npm", "run", "build"],
+        },
+    },
+    {
+        "name": "Packaging Gates",
+        "max_workers": 1,
+        "jobs": {
             "GoReleaser Snapshot Build": {"cmd": ["go", "run", "github.com/goreleaser/goreleaser/v2@latest", "release", "--snapshot", "--clean", "--parallelism=1"], "cwd": "gitmap"},
         },
     },
     {
         "name": "E2E Smoke Tests",
-        "max_workers": 1,
+        "max_workers": None,
         "jobs": {
             "E2E Smoke Suite": [sys.executable, ".github/scripts/e2e-cli-smoke.py", "bin/gitmap.exe"],
             "Installer Smoke (source)": [sys.executable, ".github/scripts/smoke-installer.py", "source"],
             "Installer Smoke (release)": [sys.executable, ".github/scripts/smoke-installer.py", "release"],
             "History Purge Smoke": [sys.executable, ".github/scripts/smoke-history-purge.py", "bin/gitmap.exe"],
             "History Pin Smoke": [sys.executable, ".github/scripts/smoke-history-pin.py", "bin/gitmap.exe"],
-            "Go Test Coverage Profile": ["go", "test", "-C", "gitmap", "-count=1", "-coverprofile=../coverage.out", "./..."],
+        },
+    },
+    {
+        "name": "Coverage Generation",
+        "max_workers": 1,
+        "jobs": {
+            "Go Test Coverage Profile": {"cmd": ["go", "test", "-count=1", "-timeout=20m", "-coverprofile=../coverage.out", "./..."], "cwd": "gitmap"},
+        },
+    },
+    {
+        "name": "Coverage Verification",
+        "max_workers": 1,
+        "jobs": {
             "Coverage Floor Guard": [sys.executable, ".github/scripts/coverage-floor.py", "coverage.out"],
-            "Go Test Race (Hot Packages)": ["go", "test", "-C", "gitmap", "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."],
+        },
+    },
+    {
+        "name": "Race Detection",
+        "max_workers": 1,
+        "jobs": {
+            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap"},
         },
     },
 ]
@@ -1312,15 +1348,36 @@ def execute_job_batch(
         wait_and_handle_batch_futures(fut_map, state, sdir, tel, root)
 
 
-def print_runner_banner(concurrency_label: str, total_jobs: int) -> None:
-    """Prints informational execution banner for verbose mode."""
+def format_segment_gate_bullet(idx: int, gate_name: str) -> str:
+    """Formats an individual gate bullet for upfront listing."""
+    return f"    [{idx:2d}] • {gate_name}"
+
+
+def print_segment_summary(s_idx: int, batch: dict[str, Any]) -> None:
+    """Prints single segment header and its list of queued gates."""
+    b_name = batch.get("name", f"Segment {s_idx}")
+    jobs = batch.get("jobs", {})
+    limit = batch.get("max_workers")
+    worker_desc = f"max {limit} workers" if limit else "parallel worker pool"
+    print(f"\n  Segment {s_idx}: \033[1m{b_name}\033[0m ({len(jobs)} gates, {worker_desc})")
+    for g_idx, gate_name in enumerate(jobs.keys(), 1):
+        print(format_segment_gate_bullet(g_idx, gate_name))
+
+
+def print_queued_segments_and_gates(batches: list[dict[str, Any]], workers_label: str) -> None:
+    """Prints informational execution banner and all queued test segments and gates upfront."""
+    total_jobs = sum(len(b["jobs"]) for b in batches)
     print("================================================================")
     print("           PARALLEL LOCAL CI/CD QUALITY GATE RUNNER             ")
     print("================================================================")
-    print(f"🚀 Execution Mode          : {concurrency_label}")
+    print(f"🚀 Execution Mode          : {workers_label}")
+    print(f"📋 Total Enqueued Segments : {len(batches)}")
     print(f"📋 Total Enqueued Gates    : {total_jobs}")
-    print("🔍 Display Mode            : SHOW ALL INFORMATION (--all-paths)")
-    print("----------------------------------------------------------------\n")
+    print("----------------------------------------------------------------")
+    print("📋 QUEUED TEST SEGMENTS & GATES:")
+    for s_idx, batch in enumerate(batches, 1):
+        print_segment_summary(s_idx, batch)
+    print("\n================================================================\n", flush=True)
 
 
 def build_json_payload(results: list[JobResult], counts: tuple[int, int, int, int], total_elapsed: float) -> dict[str, Any]:
@@ -1456,6 +1513,44 @@ def format_agent_next_steps_section() -> list[str]:
     return lines
 
 
+def format_single_trace_metadata(idx: int, total: int, err: dict[str, Any]) -> list[str]:
+    """Formats metadata lines for a failed gate in final summary."""
+    cmd = err.get("cmd", "")
+    cmd_str = " ".join(cmd) if isinstance(cmd, list) else str(cmd)
+    suspects = ", ".join(err.get("suspect_files", [])) or "(None detected)"
+
+    return [
+        f"\033[1;91m[{idx}/{total}] FAIL: {err.get('name', '')}\033[0m",
+        f"  Command      : {cmd_str}",
+        f"  Exit Code    : {err.get('code', '')} ({err.get('elapsed', 0.0)}s)",
+        f"  Suspect Files: {suspects}",
+        "  --- Stack Trace & Error Output ---",
+    ]
+
+
+def format_single_trace_summary(idx: int, total: int, err: dict[str, Any]) -> list[str]:
+    """Formats metadata and full stack trace for a single failed gate."""
+    meta = format_single_trace_metadata(idx, total, err)
+    trace = err.get("error", "No output captured.")
+
+    return [*meta, trace, "----------------------------------------------------------------"]
+
+
+def format_failing_traces_summary_section(errors_list: list[dict[str, Any]]) -> list[str]:
+    """Summarizes each failing test along with its full stack trace and output."""
+    if not errors_list:
+        return []
+    total = len(errors_list)
+    lines = [
+        "💥 \033[1;91mFAILING TESTS & FULL STACK TRACES SUMMARY\033[0m:",
+        "================================================================",
+    ]
+    for i, err in enumerate(errors_list, 1):
+        lines.extend(format_single_trace_summary(i, total, err))
+
+    return lines
+
+
 def format_ai_remediation_banner(state: dict[str, Any], session_dir: Path | None) -> str:
     """Assembles the full post-execution remediation banner for terminal output."""
     errs = state.get("errors_list", [])
@@ -1463,6 +1558,7 @@ def format_ai_remediation_banner(state: dict[str, Any], session_dir: Path | None
         *format_remediation_banner_header(len(errs)), "",
         *format_log_locations_section(session_dir), "",
         *format_suspect_files_summary(errs), "",
+        *format_failing_traces_summary_section(errs), "",
         *format_retest_commands_section(errs), "",
         *format_agent_next_steps_section(),
     ]
@@ -1561,21 +1657,37 @@ def extract_runner_counts(total: int, results: list[JobResult]) -> tuple[int, in
     return total, pass_cnt, fail_cnt, time_cnt
 
 
+def show_upfront_plan_if_text(args: argparse.Namespace, batches: list[dict[str, Any]]) -> None:
+    """Displays queued segments and gates banner when running in text mode."""
+    if not args.json_mode:
+        label = "Synchronous (1 worker)" if args.sync_mode else f"Parallel ({args.workers} workers)"
+        print_queued_segments_and_gates(batches, label)
+
+
+def emit_runner_report(args: argparse.Namespace, st: dict, counts: tuple, elapsed: float, sdir: Path) -> int:
+    """Emits final runner report in either JSON or human-readable format."""
+    if args.json_mode:
+        has_failed = bool(counts[2] > 0 or counts[3] > 0)
+
+        return handle_json_output(args, st["results"], counts, elapsed, has_failed)
+
+    return handle_text_output(args, st["results"], counts, elapsed, st, sdir)
+
+
 def execute_runner(args: argparse.Namespace, active_batches: list[dict[str, Any]], repo_root: Path) -> int:
     """Orchestrates test batch execution and report output generation."""
     total_jobs = sum(len(b["jobs"]) for b in active_batches)
     if total_jobs == 0:
         return 0
+    show_upfront_plan_if_text(args, active_batches)
     sdir, prev, delta, tel, st = prepare_runner_context(args, repo_root, total_jobs)
     start = time.monotonic()
     run_batch_sequence(active_batches, args, st, prev, delta, repo_root, sdir, tel)
     elapsed = round(time.monotonic() - start, 2)
     update_cicd_summary(st, sdir, is_finished=True)
     counts = extract_runner_counts(total_jobs, st["results"])
-    if args.json_mode:
-        return handle_json_output(args, st["results"], counts, elapsed, bool(counts[2] > 0 or counts[3] > 0))
 
-    return handle_text_output(args, st["results"], counts, elapsed, st, sdir)
+    return emit_runner_report(args, st, counts, elapsed, sdir)
 
 
 def load_cicd_timings(path: Path) -> dict[str, float]:

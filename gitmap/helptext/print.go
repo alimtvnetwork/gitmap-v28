@@ -78,12 +78,30 @@ func PrintRaw(command string) {
 	fmt.Print(string(data))
 }
 
+func resolveHelpAlias(cmd string) string {
+	switch strings.ToLower(cmd) {
+	case "cpi-all", "all-profile-import", "import-all-profiles":
+		return "import-all"
+	case "cpe-all", "all-profile-export", "export-all-profiles":
+		return "export-all"
+	case "cpc-all", "all-profile-copy", "copy-all-profiles":
+		return "copy-all"
+	case "inspect", "import-ls", "check":
+		return "import-check"
+	case "vm":
+		return "vmware"
+	}
+
+	return cmd
+}
+
 // ReadRaw returns the embedded help markdown for the given command
 // without exiting the process on miss. Test-friendly counterpart to
 // PrintRaw — callers that want to assert on help contents (alias
 // coverage, link integrity, etc.) should use this so the test binary
 // is not torn down by os.Exit when a lookup fails.
 func ReadRaw(command string) ([]byte, error) {
+	command = resolveHelpAlias(command)
 	data, err := files.ReadFile(command + ".md")
 	if err == nil {
 		return data, nil

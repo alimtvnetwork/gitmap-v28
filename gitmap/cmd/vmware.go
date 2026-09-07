@@ -10,7 +10,8 @@ import (
 
 // runVmware dispatches gitmap vmware CLI commands.
 func runVmware(args []string) error {
-	if len(args) == 0 || isHelpArg(args[0]) {
+	checkHelp(constants.CmdVmware, args)
+	if len(args) == 0 {
 		printVmwareUsage()
 
 		return nil

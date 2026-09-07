@@ -205,7 +205,25 @@ func handleInstallError(args []string, opts installOptions, output []byte, err e
 	manager := resolvePackageManager(opts.Manager, opts.Tool)
 	logPath := writeInstallErrorLog(opts.Tool, manager, opts.Version, args, output, err)
 	printInstallFailureDetails(opts.Tool, manager, opts.Version, args, err, logPath)
-	cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
+	appErr := apperror.WrapWithDetails(
+		err,
+		"cmd.installTool",
+		"E9000",
+		fmt.Sprintf("tool installation failed for %q via %s", opts.Tool, manager),
+		"cmd/installtools",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityError,
+		map[string]any{
+			"tool":     opts.Tool,
+			"manager":  manager,
+			"command":  strings.Join(args, " "),
+			"log_path": logPath,
+		},
+	)
+	if len(output) > 0 {
+		appErr.WithContext("output", strings.TrimSpace(string(output)))
+	}
+	cliexit.HandleError(appErr, 1)
 }
 
 func printInstallFailureDetails(

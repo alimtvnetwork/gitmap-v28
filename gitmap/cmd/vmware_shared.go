@@ -64,7 +64,22 @@ func checkVMwarePrerequisites() error {
 		fmt.Println("  ⚠ Warning: VMware hypervisor not detected; continuing per user request...")
 	}
 
+	ensureVMwareToolsInstalled()
+
 	return nil
+}
+
+func ensureVMwareToolsInstalled() {
+	if _, err := exec.LookPath("vmhgfs-fuse"); err == nil {
+		return
+	}
+	fmt.Println("  ⚠ vmhgfs-fuse not found. Attempting to install open-vm-tools via apt...")
+	if _, err := exec.LookPath("apt-get"); err == nil {
+		cmd := exec.Command("sudo", "apt-get", "install", "-y", "open-vm-tools")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		_ = cmd.Run()
+	}
 }
 
 func resolveUserDesktopDir() string {
@@ -138,11 +153,22 @@ func ensureCrontabPersistence() error {
 }
 
 func runVmwareSharedEnable(args []string) error {
+	checkHelp(constants.CmdVmware, args)
+	isDryRun := hasDryRunFlag(args) || hasShortDryRunFlag(args)
 	if err := checkVMwarePrerequisites(); err != nil {
 		return err
 	}
 
 	fmt.Println("▶ gitmap vmware shared enable")
+	if isDryRun {
+		fmt.Printf("  [dry-run] Would verify mount point %s\n", defaultMountPoint)
+		fmt.Printf("  [dry-run] Would mount .host:/ at %s (vmhgfs-fuse)\n", defaultMountPoint)
+		fmt.Printf("  [dry-run] Would create Desktop/SharedDirectories symlink -> %s\n", defaultMountPoint)
+		fmt.Printf("  [dry-run] Would register @reboot crontab persistence\n")
+
+		return nil
+	}
+
 	if err := ensureMountDirectory(defaultMountPoint); err != nil {
 		return err
 	}
@@ -166,34 +192,12 @@ func runVmwareSharedEnable(args []string) error {
 	return nil
 }
 
-func runVmwareSharedStatus() error {
-	fmt.Println("▶ gitmap vmware shared status")
-	active := isMountActive(defaultMountPoint)
-	fmt.Printf("  Mount (%s): active=%t\n", defaultMountPoint, active)
-
-	desktopDir := resolveUserDesktopDir()
-	link := filepath.Join(desktopDir, "SharedDirectories")
-	target, err := os.Readlink(link)
-	hasLink := err == nil
-	fmt.Printf("  Desktop Symlink: present=%t (target=%s)\n", hasLink, target)
-
-	return nil
-}
-
-func isMountActive(mountPoint string) bool {
-	data, err := os.ReadFile("/proc/mounts")
-	if err != nil {
-		return false
+func hasShortDryRunFlag(args []string) bool {
+	for _, a := range args {
+		if a == "-n" {
+			return true
+		}
 	}
 
-	return strings.Contains(string(data), mountPoint)
-}
-
-func runVmwareStatus(args []string) error {
-	fmt.Println("▶ gitmap vmware status")
-	fmt.Printf("  Linux Guest: %t\n", isLinuxOS())
-	fmt.Printf("  VMware Hypervisor: %t\n", isVMwareHypervisor())
-	fmt.Printf("  Mount Point: %s (active=%t)\n", defaultMountPoint, isMountActive(defaultMountPoint))
-
-	return nil
+	return false
 }
