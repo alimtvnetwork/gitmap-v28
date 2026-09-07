@@ -157,7 +157,7 @@ load_deploy_manifest() {
 }
 
 # ── Versioned repo discovery ────────────────────────────────────────
-# 02-spec/01-app/95-installer-script-find-latest-repo.md
+# spec/01-app/95-installer-script-find-latest-repo.md
 
 # Parses "<owner>/<stem>-v<N>". Sets SUFFIX_OWNER, SUFFIX_STEM, SUFFIX_N.
 parse_repo_suffix() {
@@ -315,7 +315,7 @@ download() {
     fi
 }
 
-# ── Strict-tag failure (02-spec/07-generic-release/09 §3) ─────────────
+# ── Strict-tag failure (spec/07-generic-release/09 §3) ─────────────
 # Print the canonical no-fallback message and exit 1. Called from
 # download_asset whenever VERSION was supplied explicitly and the
 # requested release asset cannot be downloaded or verified.
@@ -324,7 +324,7 @@ strict_fail() {
     err ""
     err "Error: requested release ${VERSION} not found in ${REPO};"
     err "       refusing to fall back per strict-tag contract."
-    err "       See 02-spec/07-generic-release/09-generic-install-script-behavior.md §3."
+    err "       See spec/07-generic-release/09-generic-install-script-behavior.md §3."
     if [ -n "${detail}" ]; then
         err "       Detail: ${detail}"
     fi
@@ -589,6 +589,7 @@ cleanup_prior_artifacts() {
     else
         step "[cleanup] nothing to clean"
     fi
+    cleanup_corrupted_install_dirs
 }
 
 # ── Extract and install binary ─────────────────────────────────────
@@ -690,8 +691,8 @@ install_binary() {
     fi
 
     # Echo the app dir so main() can use it for PATH + summary.
-    
-    # Symlink into parent dir if possible, to allow immediate recognition 
+
+    # Symlink into parent dir if possible, to allow immediate recognition
     # without PATH reload if the parent dir is already in PATH.
     local parent_bin="${install_dir}/${BINARY_NAME}"
     local parent_alias="${install_dir}/${BINARY_ALIAS}"
@@ -713,7 +714,7 @@ install_binary() {
 install_seed_data() {
     local version="$1" app_dir="$2"
     local data_dir="${app_dir}/data"
-    
+
     mkdir -p "${data_dir}" 2>/dev/null || true
 
     local seed_files="downloader-config.json config.json git-setup.json seo-templates.json"
@@ -739,7 +740,7 @@ install_seed_data() {
     fi
 }
 
-#  Download and extract docs-site.zip release asset 
+#  Download and extract docs-site.zip release asset
 install_docs_site() {
     local version="$1" install_dir="$2"
     local asset_name="docs-site.zip"
@@ -779,7 +780,7 @@ install_docs_site() {
 # from inside a PowerShell (pwsh) session. Checks multiple env signals
 # because some shells / sudo wrappers strip PSModulePath but leave
 # other pwsh-specific variables intact.
-# Spec: 02-spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
+# Spec: spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
 detect_active_pwsh() {
     # PSModulePath: classic pwsh marker, always set in interactive sessions.
     if [ -n "${PSModulePath:-}" ]; then
@@ -810,7 +811,7 @@ pwsh_profile_path() {
 }
 
 # add_path_to_profile writes a marker-block snippet (per
-# 02-spec/04-generic-cli/21-post-install-shell-activation) to a single
+# spec/04-generic-cli/21-post-install-shell-activation) to a single
 # profile file. Idempotent across all three outcomes: appends when
 # absent, rewrites in place when present-but-different, no-ops when
 # present-and-identical. Third arg is the snippet shell flavor:
@@ -1026,7 +1027,7 @@ add_to_path() {
     # inside a pwsh session (PSModulePath is set), or when pwsh is on PATH.
     # The --shell-mode both / pwsh-containing combo (DUAL_SHELL=true)
     # forces this branch even when neither detection signal fires.
-    # Issue: 02-spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
+    # Issue: spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
     local pwsh_active=false
     if detect_active_pwsh; then
         pwsh_active=true
@@ -1291,13 +1292,77 @@ print_audit_list() {
     fi
 }
 
+# ── Clean up corrupted installation directories ────────────────────────
+cleanup_corrupted_install_dirs() {
+    # 1. Check for literal '~' directory in current working directory or $HOME.
+    # CRITICAL: strictly verify basename is literally '~' to NEVER touch $HOME or /
+    if [ -d "./~" ] && [ "$(basename "./~" 2>/dev/null)" = "~" ]; then
+        rm -rf "./~" 2>/dev/null || true
+    fi
+    if [ -n "${HOME:-}" ] && [ -d "${HOME}/~" ] && [ "$(basename "${HOME}/~" 2>/dev/null)" = "~" ]; then
+        rm -rf "${HOME}/~" 2>/dev/null || true
+    fi
+
+    # 2. Corrupted folders containing "gitmap quick installer" or ANSI escape sequences
+    local bad_dir
+    for bad_dir in ./*"gitmap quick installer"* "${HOME:-/tmp}"/*"gitmap quick installer"*; do
+        if [ -d "${bad_dir}" ] && [ "${bad_dir}" != "/" ] && [ "${bad_dir}" != "${HOME:-}" ]; then
+            rm -rf "${bad_dir}" 2>/dev/null || true
+        fi
+    done
+}
+
+# ── Path sanitizer & tilde expansion ────────────────────────────────────
+sanitize_install_dir() {
+    local raw="$1"
+    if [ -z "${raw}" ]; then
+        echo ""
+        return 0
+    fi
+
+    local cleaned
+    cleaned="$(printf '%s' "${raw}" | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g')"
+    cleaned="$(printf '%s' "${cleaned}" | tr -d '\r')"
+    cleaned="$(printf '%s' "${cleaned}" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+
+    case "${cleaned}" in
+        *$'\n'*|*$'\r'*|*"gitmap quick installer"*|*"Install path"*|*"Default:"*)
+            echo ""
+            return 0
+            ;;
+    esac
+
+    if [ "${cleaned}" = "~" ]; then
+        cleaned="${HOME:-~}"
+    elif [[ "${cleaned}" == "~/"* ]]; then
+        cleaned="${HOME:-~}/${cleaned#\~/}"
+    fi
+
+    if [ "${cleaned}" != "/" ]; then
+        cleaned="${cleaned%/}"
+    fi
+
+    echo "${cleaned}"
+}
+
 # ── Resolve install directory ──────────────────────────────────────
 
 resolve_install_dir() {
     local dir="$1"
     if [ -n "${dir}" ]; then
-        echo "${dir}"
-        return
+        dir="$(sanitize_install_dir "${dir}")"
+        if [ -n "${dir}" ]; then
+            echo "${dir}"
+            return
+        fi
+    fi
+
+    # For root user on Linux/macOS, default to /usr/local/bin if accessible
+    if [ "$(id -u 2>/dev/null || echo 1)" -eq 0 ]; then
+        if [ -d "/usr/local/bin" ] || [ -w "/usr/local" ] || [ -w "/" ]; then
+            echo "/usr/local/bin"
+            return
+        fi
     fi
 
     # Use ~/.local/bin if it exists or is standard; fallback to /usr/local/bin
@@ -1330,7 +1395,7 @@ parse_args() {
     # Combos are STRICT — ~/.profile and undeclared families are skipped.
     # The Go caller (gitmap self-install --shell-mode <mode>) already
     # validated this; we re-validate below for direct (curl|bash) users.
-    # See 02-spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
+    # See spec/02-app-issues/29-macos-pwsh-shell-not-activated-after-install.md
     # for the original motivating use case (pwsh user on macOS).
     PROFILE_MODE="auto"
 
@@ -1571,6 +1636,7 @@ main() {
     echo ""
 
     parse_args "$@"
+    cleanup_corrupted_install_dirs
     load_deploy_manifest
 
     # Versioned repo discovery: re-exec from the latest -v<M> sibling repo.
@@ -1579,7 +1645,7 @@ main() {
     elif [ "${NO_DISCOVERY}" = "true" ]; then
         printf '  [discovery] --no-discovery set; skipping probe\n' >&2
     elif [ -n "${VERSION}" ]; then
-        # Pinned-version contract (02-spec/07-generic-release/08-pinned-version-install-snippet.md):
+        # Pinned-version contract (spec/07-generic-release/08-pinned-version-install-snippet.md):
         # When --version is supplied, install EXACTLY that version from the embedded REPO.
         # Skip versioned-repo discovery so a snippet copied from a v3.x release page
         # never silently jumps to the v4 repo's latest tag.

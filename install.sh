@@ -589,6 +589,7 @@ cleanup_prior_artifacts() {
     else
         step "[cleanup] nothing to clean"
     fi
+    cleanup_corrupted_install_dirs
 }
 
 # ── Extract and install binary ─────────────────────────────────────
@@ -1291,13 +1292,77 @@ print_audit_list() {
     fi
 }
 
+# ── Clean up corrupted installation directories ────────────────────────
+cleanup_corrupted_install_dirs() {
+    # 1. Check for literal '~' directory in current working directory or $HOME.
+    # CRITICAL: strictly verify basename is literally '~' to NEVER touch $HOME or /
+    if [ -d "./~" ] && [ "$(basename "./~" 2>/dev/null)" = "~" ]; then
+        rm -rf "./~" 2>/dev/null || true
+    fi
+    if [ -n "${HOME:-}" ] && [ -d "${HOME}/~" ] && [ "$(basename "${HOME}/~" 2>/dev/null)" = "~" ]; then
+        rm -rf "${HOME}/~" 2>/dev/null || true
+    fi
+
+    # 2. Corrupted folders containing "gitmap quick installer" or ANSI escape sequences
+    local bad_dir
+    for bad_dir in ./*"gitmap quick installer"* "${HOME:-/tmp}"/*"gitmap quick installer"*; do
+        if [ -d "${bad_dir}" ] && [ "${bad_dir}" != "/" ] && [ "${bad_dir}" != "${HOME:-}" ]; then
+            rm -rf "${bad_dir}" 2>/dev/null || true
+        fi
+    done
+}
+
+# ── Path sanitizer & tilde expansion ────────────────────────────────────
+sanitize_install_dir() {
+    local raw="$1"
+    if [ -z "${raw}" ]; then
+        echo ""
+        return 0
+    fi
+
+    local cleaned
+    cleaned="$(printf '%s' "${raw}" | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g')"
+    cleaned="$(printf '%s' "${cleaned}" | tr -d '\r')"
+    cleaned="$(printf '%s' "${cleaned}" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+
+    case "${cleaned}" in
+        *$'\n'*|*$'\r'*|*"gitmap quick installer"*|*"Install path"*|*"Default:"*)
+            echo ""
+            return 0
+            ;;
+    esac
+
+    if [ "${cleaned}" = "~" ]; then
+        cleaned="${HOME:-~}"
+    elif [[ "${cleaned}" == "~/"* ]]; then
+        cleaned="${HOME:-~}/${cleaned#\~/}"
+    fi
+
+    if [ "${cleaned}" != "/" ]; then
+        cleaned="${cleaned%/}"
+    fi
+
+    echo "${cleaned}"
+}
+
 # ── Resolve install directory ──────────────────────────────────────
 
 resolve_install_dir() {
     local dir="$1"
     if [ -n "${dir}" ]; then
-        echo "${dir}"
-        return
+        dir="$(sanitize_install_dir "${dir}")"
+        if [ -n "${dir}" ]; then
+            echo "${dir}"
+            return
+        fi
+    fi
+
+    # For root user on Linux/macOS, default to /usr/local/bin if accessible
+    if [ "$(id -u 2>/dev/null || echo 1)" -eq 0 ]; then
+        if [ -d "/usr/local/bin" ] || [ -w "/usr/local" ] || [ -w "/" ]; then
+            echo "/usr/local/bin"
+            return
+        fi
     fi
 
     # Use ~/.local/bin if it exists or is standard; fallback to /usr/local/bin
@@ -1571,6 +1636,7 @@ main() {
     echo ""
 
     parse_args "$@"
+    cleanup_corrupted_install_dirs
     load_deploy_manifest
 
     # Versioned repo discovery: re-exec from the latest -v<M> sibling repo.

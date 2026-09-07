@@ -19,6 +19,7 @@
 #
 #   3. Local-file mode:
 #        ./install-quick.sh
+#        ./install-quick.sh --interactive
 #        ./install-quick.sh --dir /opt/gitmap
 #        ./install-quick.sh --no-discovery
 #        ./install-quick.sh --probe-ceiling 50
@@ -36,7 +37,74 @@
 
 REPO="alimtvnetwork/gitmap-v28"
 INSTALLER_URL="https://raw.githubusercontent.com/${REPO}/main/gitmap/scripts/install.sh"
-DEFAULT_DIR="${HOME}/.local/bin"
+if [ "$(id -u 2>/dev/null || echo 1)" -eq 0 ]; then
+    DEFAULT_DIR="/usr/local/bin"
+else
+    DEFAULT_DIR="${HOME:-~}/.local/bin"
+fi
+
+# ── Clean up corrupted installation directories ────────────────────────
+# Removes accidental literal `~` directories and folders created by
+# bash stdout-pollution bugs (e.g. named after ANSI escape banners).
+cleanup_corrupted_install_dirs() {
+    # 1. Check for literal '~' directory in current working directory or $HOME.
+    # CRITICAL: strictly verify basename is literally '~' to NEVER touch $HOME or /
+    if [ -d "./~" ] && [ "$(basename "./~" 2>/dev/null)" = "~" ]; then
+        rm -rf "./~" 2>/dev/null || true
+    fi
+    if [ -n "${HOME:-}" ] && [ -d "${HOME}/~" ] && [ "$(basename "${HOME}/~" 2>/dev/null)" = "~" ]; then
+        rm -rf "${HOME}/~" 2>/dev/null || true
+    fi
+
+    # 2. Corrupted folders containing "gitmap quick installer" or ANSI escape sequences
+    local bad_dir
+    for bad_dir in ./*"gitmap quick installer"* "${HOME:-/tmp}"/*"gitmap quick installer"*; do
+        if [ -d "${bad_dir}" ] && [ "${bad_dir}" != "/" ] && [ "${bad_dir}" != "${HOME:-}" ]; then
+            rm -rf "${bad_dir}" 2>/dev/null || true
+        fi
+    done
+}
+
+# ── Path sanitizer & tilde expansion ────────────────────────────────────
+sanitize_install_dir() {
+    local raw="$1"
+    if [ -z "${raw}" ]; then
+        echo ""
+        return 0
+    fi
+
+    # Strip ANSI escape sequences: \033[...m or \x1b[...]
+    local cleaned
+    cleaned="$(printf '%s' "${raw}" | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g')"
+
+    # Strip carriage returns (\r)
+    cleaned="$(printf '%s' "${cleaned}" | tr -d '\r')"
+
+    # Strip leading/trailing whitespace and surrounding quotes
+    cleaned="$(printf '%s' "${cleaned}" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+
+    # If cleaned contains newlines or prompt text, it is corrupted output -> reject
+    case "${cleaned}" in
+        *$'\n'*|*$'\r'*|*"gitmap quick installer"*|*"Install path"*|*"Default:"*)
+            echo ""
+            return 0
+            ;;
+    esac
+
+    # Tilde expansion (bash inside double-quotes does not expand ~)
+    if [ "${cleaned}" = "~" ]; then
+        cleaned="${HOME:-~}"
+    elif [[ "${cleaned}" == "~/"* ]]; then
+        cleaned="${HOME:-~}/${cleaned#\~/}"
+    fi
+
+    # Strip trailing slash (unless root /)
+    if [ "${cleaned}" != "/" ]; then
+        cleaned="${cleaned%/}"
+    fi
+
+    echo "${cleaned}"
+}
 
 # Detect execution mode. EVAL_MODE=1 means the script is running in the
 # user's interactive shell (via `eval` or `source`), so we CAN source the
@@ -76,6 +144,7 @@ __gitmap_quick_install_main() {
         local INSTALL_DIR=""
         local VERSION=""
         local NO_DISCOVERY=0
+        local INTERACTIVE=0
         # PROBE_CEILING retained for backward compat (legacy fail-fast upper
         # bound). The canonical knob per spec/07-generic-release/09 §6 is
         # --discovery-window <K> (default 20, cap 20, or 50 if GITHUB_TOKEN
@@ -85,13 +154,14 @@ __gitmap_quick_install_main() {
 
         while [ $# -gt 0 ]; do
             case "$1" in
+                -i|--interactive)    INTERACTIVE=1;    shift ;;
                 --dir)               INSTALL_DIR="$2"; shift 2 ;;
                 --version)           VERSION="$2";     shift 2 ;;
                 --no-discovery)      NO_DISCOVERY=1;   shift ;;
                 --probe-ceiling)     PROBE_CEILING="$2"; shift 2 ;;
                 --discovery-window)  DISCOVERY_WINDOW="$2"; shift 2 ;;
                 -h|--help)
-                    sed -n '2,40p' "${BASH_SOURCE[0]:-$0}" 2>/dev/null || \
+                    sed -n '2,31p' "${BASH_SOURCE[0]:-$0}" 2>/dev/null || \
                         printf '  See https://github.com/%s for usage.\n' "${REPO}"
                     return 0
                     ;;
@@ -200,8 +270,9 @@ __gitmap_quick_install_main() {
             printf '  [discovery] delegating to %s\n' "$delegated_url" >&2
 
             local pass_args=()
-            [ -n "$INSTALL_DIR" ]   && pass_args+=(--dir "$INSTALL_DIR")
-            [ -n "$VERSION" ]       && pass_args+=(--version "$VERSION")
+            [ "$INTERACTIVE" = "1" ] && pass_args+=(--interactive)
+            [ -n "$INSTALL_DIR" ]    && pass_args+=(--dir "$INSTALL_DIR")
+            [ -n "$VERSION" ]        && pass_args+=(--version "$VERSION")
             pass_args+=(--probe-ceiling "$PROBE_CEILING")
             pass_args+=(--discovery-window "$DISCOVERY_WINDOW")
 
@@ -242,19 +313,21 @@ __gitmap_quick_install_main() {
         # ── Baseline install flow ────────────────────────────────────
 
         prompt_dir() {
-            printf '\n'
-            printf '  \033[36mgitmap quick installer\033[0m\n'
-            printf '  \033[90m---------------------\033[0m\n'
-            printf '  Choose install folder. Press Enter to accept the default.\n'
-            printf '  \033[90mDefault: %s\033[0m\n' "${DEFAULT_DIR}"
-            printf '  Install path: '
+            printf '\n' >&2
+            printf '  \033[36mgitmap quick installer\033[0m\n' >&2
+            printf '  \033[90m---------------------\033[0m\n' >&2
+            printf '  Choose install folder. Press Enter to accept the default.\n' >&2
+            printf '  \033[90mDefault: %s\033[0m\n' "${DEFAULT_DIR}" >&2
+            printf '  Install path: ' >&2
 
+            local answer=""
             if [ -r /dev/tty ]; then
                 IFS= read -r answer < /dev/tty || answer=""
-            else
+            elif [ -t 0 ]; then
                 IFS= read -r answer || answer=""
             fi
 
+            answer="$(sanitize_install_dir "${answer}")"
             if [ -z "${answer}" ]; then
                 echo "${DEFAULT_DIR}"
             else
@@ -262,14 +335,29 @@ __gitmap_quick_install_main() {
             fi
         }
 
-        if [ -z "${INSTALL_DIR}" ]; then
-            INSTALL_DIR="$(prompt_dir)"
+        # Clean up any legacy corrupted folders right at the start
+        cleanup_corrupted_install_dirs
+
+        if [ -n "${INSTALL_DIR}" ]; then
+            INSTALL_DIR="$(sanitize_install_dir "${INSTALL_DIR}")"
         fi
+
+        if [ -z "${INSTALL_DIR}" ]; then
+            if [ "${INTERACTIVE}" = "1" ] && { [ -t 0 ] || [ -r /dev/tty ]; }; then
+                INSTALL_DIR="$(prompt_dir)"
+            else
+                INSTALL_DIR="${DEFAULT_DIR}"
+                printf '  \033[90m[info] Using default install dir: %s (pass -i/--interactive to choose)\033[0m\n' "${INSTALL_DIR}" >&2
+            fi
+        fi
+
+        [ -z "${INSTALL_DIR}" ] && INSTALL_DIR="${DEFAULT_DIR}"
 
         printf '\n  \033[32mInstalling gitmap to: %s\033[0m\n\n' "${INSTALL_DIR}"
 
         save_deploy_path() {
             local dir="$1"
+            [ -z "${dir}" ] && return 1
             mkdir -p "${dir}" 2>/dev/null || true
             local cfg="${dir}/powershell.json"
             cat > "${cfg}" <<EOF
@@ -284,24 +372,39 @@ EOF
             printf '  \033[90mSaved deployPath -> %s\033[0m\n' "${cfg}"
         }
 
-        save_deploy_path "${INSTALL_DIR}" || printf '  \033[33m[WARN] Could not save powershell.json\033[0m\n'
+        # Dedicated temporary staging directory for quick installer
+        local stage_dir
+        stage_dir="$(mktemp -d 2>/dev/null || mktemp -d -t gmquick)"
+        # shellcheck disable=SC2064
+        trap "rm -rf '${stage_dir}' 2>/dev/null || true" EXIT RETURN INT TERM
+
+        local staged_installer="${stage_dir}/install.sh"
+        local installer_log="${stage_dir}/install.log"
+
+        if ! curl -fsSL "${INSTALLER_URL}" -o "${staged_installer}"; then
+            printf '  \033[31m[ERROR] Failed to download installer from %s\033[0m\n' "${INSTALLER_URL}" >&2
+            rm -rf "${stage_dir}" 2>/dev/null || true
+            return 1
+        fi
+        chmod +x "${staged_installer}" 2>/dev/null || true
 
         ARGS=(--dir "${INSTALL_DIR}")
         if [ -n "${VERSION}" ]; then
             ARGS+=(--version "${VERSION}")
         fi
 
-        # Run the canonical installer in a child bash. We CAPTURE its stderr
-        # so we can extract the PATH_RELOAD hint and re-run the source
-        # ourselves in eval-mode — install.sh prints something like:
-        #     source ~/.zshrc   # in zsh
-        local installer_log
-        installer_log="$(mktemp)"
-        if curl -fsSL "${INSTALLER_URL}" | bash -s -- "${ARGS[@]}" 2> >(tee "${installer_log}" >&2); then
+        # Run the staged canonical installer in child bash
+        if bash "${staged_installer}" "${ARGS[@]}" 2> >(tee "${installer_log}" >&2); then
             local hint profile
             hint="$(grep -oE '(source |\. )[^ ]+' "${installer_log}" | head -n1 || true)"
             profile="$(printf '%s' "${hint}" | awk '{print $NF}')"
-            rm -f "${installer_log}"
+
+            # Clean up temporary staging directory immediately
+            rm -rf "${stage_dir}" 2>/dev/null || true
+
+            # Save deployPath config in target directory
+            save_deploy_path "${INSTALL_DIR}" || printf '  \033[33m[WARN] Could not save powershell.json\033[0m\n'
+
             # Persist for the outer driver (subshell can't export upward).
             mkdir -p "${INSTALL_DIR}" 2>/dev/null || true
             printf '%s\n' "${profile:-}" > "${INSTALL_DIR}/.gitmap-last-profile" 2>/dev/null || true
@@ -309,7 +412,7 @@ EOF
             return 0
         else
             local rc=$?
-            rm -f "${installer_log}"
+            rm -rf "${stage_dir}" 2>/dev/null || true
             return $rc
         fi
     )
@@ -320,16 +423,23 @@ EOF
 __gitmap_quick_install_main "$@"
 __gitmap_rc=$?
 
+for __gm_arg in "$@"; do
+    if [ "${__gm_arg}" = "-h" ] || [ "${__gm_arg}" = "--help" ]; then
+        return 0 2>/dev/null || exit 0
+    fi
+done
+
 if [ "${__gitmap_rc}" -ne 0 ]; then
     printf '\n  \033[31m[ERROR]\033[0m install failed (exit %d)\n' "${__gitmap_rc}" >&2
     return "${__gitmap_rc}" 2>/dev/null || exit "${__gitmap_rc}"
 fi
 
 # Recover the install dir + reload-target written by the subshell.
-__gitmap_install_dir="${HOME}/.local/bin"
+__gitmap_install_dir="${DEFAULT_DIR}"
 if [ -r "${HOME}/.gitmap-last-install-dir" ]; then
     __gitmap_install_dir="$(cat "${HOME}/.gitmap-last-install-dir" 2>/dev/null || true)"
-    [ -z "${__gitmap_install_dir}" ] && __gitmap_install_dir="${HOME}/.local/bin"
+    __gitmap_install_dir="$(sanitize_install_dir "${__gitmap_install_dir}")"
+    [ -z "${__gitmap_install_dir}" ] && __gitmap_install_dir="${DEFAULT_DIR}"
 fi
 
 __gitmap_profile=""
@@ -370,5 +480,8 @@ else
     printf '      \033[36meval "$(curl -fsSL https://raw.githubusercontent.com/%s/main/install-quick.sh)"\033[0m\n' "${REPO}"
 fi
 
+cleanup_corrupted_install_dirs
+
 unset __gitmap_quick_install_main __gitmap_detect_eval_mode \
-      __gitmap_rc __gitmap_install_dir __gitmap_profile __GITMAP_EVAL_MODE 2>/dev/null || true
+      __gitmap_rc __gitmap_install_dir __gitmap_profile __GITMAP_EVAL_MODE \
+      DEFAULT_DIR sanitize_install_dir cleanup_corrupted_install_dirs 2>/dev/null || true
