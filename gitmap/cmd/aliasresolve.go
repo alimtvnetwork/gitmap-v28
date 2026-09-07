@@ -86,7 +86,7 @@ func resolveAliasContext(aliasName string) *apperror.AppError {
 		Slug:         resolved.Slug,
 	}
 
-	fmt.Fprintf(os.Stderr, constants.MsgAliasResolved, resolved.Alias, resolved.AbsolutePath, resolved.Slug)
+	fmt.Fprintf(os.Stderr, constants.MsgAliasResolved, resolved.Alias.Alias, resolved.AbsolutePath, resolved.Slug)
 	return nil
 }
 

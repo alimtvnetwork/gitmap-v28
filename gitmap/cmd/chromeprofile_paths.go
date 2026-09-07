@@ -102,7 +102,6 @@ func isChromeProfileDirectoryName(name string, stateDirs map[string]bool) bool {
 // printAvailableChromeProfiles writes a "did you mean…" stderr block
 // listing every profile we can see under the User Data root. Called
 // after a not-found error so the user can pick a real name.
-//nolint:unused // Planned for use in error reporting.
 func printAvailableChromeProfiles() {
 	root := chromeUserDataDir()
 	names := availableChromeProfileNames()

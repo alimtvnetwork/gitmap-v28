@@ -171,7 +171,7 @@ func runAliasShow(args []string) error {
 		exitWith(1)
 	}
 
-	fmt.Printf(constants.MsgAliasResolved, resolved.Alias, resolved.AbsolutePath, resolved.Slug)
+	fmt.Printf(constants.MsgAliasResolved, resolved.Alias.Alias, resolved.AbsolutePath, resolved.Slug)
 	return nil
 }
 
