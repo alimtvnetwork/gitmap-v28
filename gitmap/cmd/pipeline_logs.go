@@ -111,24 +111,78 @@ func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPaylo
 	payload.Url = latest.Url
 
 	isRunning := latest.Status == "in_progress" || latest.Status == "queued"
-
 	if isRunning {
 		payload.IsRunning = true
 		payload.EtaSeconds = calculateETA(runs)
 		payload.ErrorLogs = fmt.Sprintf("Pipeline is currently running. Estimated completion in %d seconds.", payload.EtaSeconds)
+	}
+
+	failedRuns := collectFailedRuns(runs)
+	if len(failedRuns) > 0 {
+		populateFailedRunsPayload(repo, failedRuns, &payload)
 
 		return payload
 	}
 
-	targetRunId := findFailedRunId(runs, &payload)
-
-	if targetRunId > 0 {
-		payload.ErrorLogs = queryFailedRunLogs(repo, targetRunId)
-
+	if isRunning {
 		return payload
 	}
 
 	return buildLocalOrEmptyErrorPayload(payload)
+}
+
+func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineErrorLogsPayload) {
+	p.Conclusion = "failure"
+	p.WorkflowName = failedRuns[0].Name
+	p.RunId = failedRuns[0].DatabaseId
+	p.Url = failedRuns[0].Url
+
+	for _, fr := range failedRuns {
+		p.FailedRuns = append(p.FailedRuns, fetchAndBuildFailedRunItem(repo, fr))
+	}
+
+	p.ErrorLogs = formatAggregatedErrorLogs(p.FailedRuns)
+}
+
+func fetchAndBuildFailedRunItem(repo string, fr ghRunItem) FailedRunItem {
+	rawLogs := queryFailedRunLogs(repo, fr.DatabaseId)
+	jobs := ParseFailedLogLines(rawLogs)
+
+	return FailedRunItem{
+		WorkflowName: fr.Name,
+		RunId:        fr.DatabaseId,
+		Conclusion:   fr.Conclusion,
+		Url:          fr.Url,
+		FailedJobs:   jobs,
+		RawErrors:    rawLogs,
+	}
+}
+
+func collectFailedRuns(runs []ghRunItem) []ghRunItem {
+	var targetSha string
+	var failed []ghRunItem
+
+	for _, r := range runs {
+		if r.Conclusion != "failure" {
+			continue
+		}
+		if len(targetSha) == 0 && len(r.HeadSha) > 0 {
+			targetSha = r.HeadSha
+		}
+		if len(targetSha) > 0 && r.HeadSha == targetSha {
+			failed = append(failed, r)
+			continue
+		}
+		if len(targetSha) == 0 {
+			failed = append(failed, r)
+		}
+	}
+
+	if len(failed) > 5 {
+		return failed[:5]
+	}
+
+	return failed
 }
 
 func buildLocalOrEmptyErrorPayload(payload PipelineErrorLogsPayload) PipelineErrorLogsPayload {
@@ -155,21 +209,6 @@ func readLocalLastErrorLog() string {
 	}
 
 	return ""
-}
-
-func findFailedRunId(runs []ghRunItem, p *PipelineErrorLogsPayload) uint64 {
-	for _, r := range runs {
-		if r.Conclusion == "failure" {
-			p.WorkflowName = r.Name
-			p.RunId = r.DatabaseId
-			p.Conclusion = r.Conclusion
-			p.Url = r.Url
-
-			return r.DatabaseId
-		}
-	}
-
-	return 0
 }
 
 func writeOrRenderErrorLogs(params ErrorLogOutputParams) error {
@@ -234,11 +273,53 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 }
 
 func renderFailureTerminal(p PipelineErrorLogsPayload) {
+	if len(p.FailedRuns) == 0 {
+		renderSingleFailureTerminal(p)
+
+		return
+	}
+
+	total := len(p.FailedRuns)
+	fmt.Printf("  %s● Pipeline Failures [%d failed workflow run(s)]:%s\n\n",
+		constants.ColorRed, total, constants.ColorReset)
+
+	for i, fr := range p.FailedRuns {
+		renderFailedRunCard(fr, i+1, total)
+	}
+
+	printRerunETA(p.RerunEtaSeconds)
+}
+
+func renderSingleFailureTerminal(p PipelineErrorLogsPayload) {
 	fmt.Printf("  %s● Latest Pipeline Failure [%s #%d]:%s\n\n",
 		constants.ColorRed, p.WorkflowName, p.RunId, constants.ColorReset)
 	clean := extractCleanErrorLines(p.ErrorLogs)
 	printLogsContent(clean, p.ErrorLogs)
 	printRerunETA(p.RerunEtaSeconds)
+}
+
+func renderFailedRunCard(fr FailedRunItem, idx, total int) {
+	fmt.Printf("  %s┌─ [%d/%d] %s #%d ──────────────────────────%s\n",
+		constants.ColorRed, idx, total, fr.WorkflowName, fr.RunId, constants.ColorReset)
+	for _, job := range fr.FailedJobs {
+		renderFailedJobSection(job)
+	}
+	if len(fr.Url) > 0 {
+		fmt.Printf("  │ URL:   %s\n", fr.Url)
+	}
+	fmt.Printf("  %s└──────────────────────────────────────────────────────────%s\n\n",
+		constants.ColorRed, constants.ColorReset)
+}
+
+func renderFailedJobSection(job FailedJobItem) {
+	fmt.Printf("  │ Job:   %s\n", job.JobName)
+	fmt.Printf("  │ Step:  %s\n", job.StepName)
+	if len(job.FailureSummary) > 0 {
+		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, job.FailureSummary, constants.ColorReset)
+	}
+	for _, line := range job.ErrorLines {
+		fmt.Printf("  │   %s\n", line)
+	}
 }
 
 func printLogsContent(clean, raw string) {

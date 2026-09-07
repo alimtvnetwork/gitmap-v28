@@ -2,6 +2,8 @@
 
 package power
 
+import "strconv"
+
 type darwinDriver struct {
 	run CmdRunner
 }
@@ -17,13 +19,12 @@ func (d *darwinDriver) Platform() string {
 }
 
 func (d *darwinDriver) GetStatus() (Settings, error) {
-	return Settings{
-		Platform:              "darwin",
-		DisplayTimeoutMinutes: 0,
-		SleepTimeoutMinutes:   0,
-		IsNeverSleep:          false,
-		Source:                "pmset",
-	}, nil
+	out, err := d.run("pmset", "-g")
+	if err != nil {
+		return Settings{Platform: "darwin", Source: "pmset"}, err
+	}
+
+	return ParsePmsetSettings(string(out)), nil
 }
 
 func (d *darwinDriver) SetNeverSleep() error {
@@ -33,7 +34,9 @@ func (d *darwinDriver) SetNeverSleep() error {
 }
 
 func (d *darwinDriver) SetTimeouts(displayMinutes, sleepMinutes int) error {
-	_, err := d.run("pmset", "-a", "displaysleep", string(rune(displayMinutes)), "sleep", string(rune(sleepMinutes)))
+	dStr := strconv.Itoa(displayMinutes)
+	sStr := strconv.Itoa(sleepMinutes)
+	_, err := d.run("pmset", "-a", "displaysleep", dStr, "sleep", sStr)
 
 	return err
 }
@@ -45,3 +48,4 @@ func (d *darwinDriver) ApplySettings(s Settings) error {
 
 	return d.SetTimeouts(s.DisplayTimeoutMinutes, s.SleepTimeoutMinutes)
 }
+

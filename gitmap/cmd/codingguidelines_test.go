@@ -157,6 +157,9 @@ func TestPatchCGWindowsScriptFile(t *testing.T) {
 	}
 
 	data, _ := os.ReadFile(path)
+	if !bytes.HasPrefix(data, []byte{0xef, 0xbb, 0xbf}) {
+		t.Fatalf("expected UTF-8 BOM prefix, got: %x", data[:min(len(data), 3)])
+	}
 	out := string(data)
 	if strings.Contains(out, "$oldFile:") || strings.Contains(out, "$destPath:") || strings.Contains(out, "$targetVersionFile:") {
 		t.Fatalf("unpatched syntax remains: %s", out)

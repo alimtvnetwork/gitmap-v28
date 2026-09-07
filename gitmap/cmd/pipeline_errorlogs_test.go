@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
@@ -83,5 +84,75 @@ func TestPipelineDispatcherErrorlogsAlias(t *testing.T) {
 	errTimeline := runPipeline([]string{"errorlogs", "-t", "--json"})
 	if errTimeline != nil {
 		t.Errorf("expected runPipeline errorlogs -t --json to succeed, got %v", errTimeline)
+	}
+}
+
+func TestParseFailedLogLines(t *testing.T) {
+	raw := "macos-latest / test\trun tests\t2026-09-07T17:07:10.7297330Z --- FAIL: TestSample (0.00s)\n" +
+		"macos-latest / test\trun tests\t2026-09-07T17:07:10.7299850Z     sample_test.go:12: Expected true to be false\n" +
+		"macos-latest / test\trun tests\t2026-09-07T17:07:10.7300340Z FAIL\n" +
+		"macos-latest / test\trun tests\t2026-09-07T17:07:10.7300760Z FAIL\tgithub.com/alimtvnetwork/gitmap-v28/gitmap/power\t0.020s\n" +
+		"windows-latest / smoke\tcfr cg\t2026-09-07T17:12:01.2500124Z ##[error]cfr cg exited 10\n"
+
+	jobs := ParseFailedLogLines(raw)
+	if len(jobs) != 2 {
+		t.Fatalf("expected 2 failed jobs, got %d", len(jobs))
+	}
+
+	if jobs[0].JobName != "macos-latest / test" || jobs[0].StepName != "run tests" {
+		t.Errorf("unexpected job 0: %+v", jobs[0])
+	}
+	if jobs[0].FailureSummary != "sample_test.go:12: Expected true to be false" {
+		t.Errorf("unexpected summary 0: %s", jobs[0].FailureSummary)
+	}
+
+	if jobs[1].JobName != "windows-latest / smoke" || jobs[1].StepName != "cfr cg" {
+		t.Errorf("unexpected job 1: %+v", jobs[1])
+	}
+	if jobs[1].FailureSummary != "cfr cg exited 10" {
+		t.Errorf("unexpected summary 1: %s", jobs[1].FailureSummary)
+	}
+}
+
+func TestCollectFailedRuns(t *testing.T) {
+	runs := []ghRunItem{
+		{DatabaseId: 1, HeadSha: "abc", Conclusion: "failure"},
+		{DatabaseId: 2, HeadSha: "abc", Conclusion: "failure"},
+		{DatabaseId: 3, HeadSha: "abc", Conclusion: "success"},
+		{DatabaseId: 4, HeadSha: "def", Conclusion: "failure"},
+	}
+
+	collected := collectFailedRuns(runs)
+	if len(collected) != 2 {
+		t.Fatalf("expected 2 collected runs matching first failure sha abc, got %d", len(collected))
+	}
+	if collected[0].DatabaseId != 1 || collected[1].DatabaseId != 2 {
+		t.Errorf("unexpected collected runs: %+v", collected)
+	}
+}
+
+func TestFormatAggregatedErrorLogs(t *testing.T) {
+	failedRuns := []FailedRunItem{
+		{
+			WorkflowName: "Cross-Platform Build",
+			RunId:        123,
+			Url:          "https://github.com/example/123",
+			FailedJobs: []FailedJobItem{
+				{
+					JobName:        "macos-latest",
+					StepName:       "test",
+					FailureSummary: "panic: nil pointer",
+					ErrorLines:     []string{"panic: nil pointer", "exit status 2"},
+				},
+			},
+		},
+	}
+
+	formatted := formatAggregatedErrorLogs(failedRuns)
+	if !strings.Contains(formatted, "==> Failed Run: Cross-Platform Build (#123)") {
+		t.Errorf("missing header in formatted logs: %s", formatted)
+	}
+	if !strings.Contains(formatted, "Summary: panic: nil pointer") {
+		t.Errorf("missing summary in formatted logs: %s", formatted)
 	}
 }

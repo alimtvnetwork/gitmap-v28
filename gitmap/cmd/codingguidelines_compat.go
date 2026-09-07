@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"os"
@@ -92,7 +93,17 @@ func patchCGWindowsScriptFile(path string) error {
 	patched = strings.ReplaceAll(patched, "$destPath:", "${destPath}:")
 	patched = strings.ReplaceAll(patched, "$targetVersionFile:", "${targetVersionFile}:")
 
-	return os.WriteFile(path, []byte(patched), 0644)
+	data := addUTF8BOM([]byte(patched))
+
+	return os.WriteFile(path, data, 0644)
+}
+
+func addUTF8BOM(data []byte) []byte {
+	if !bytes.HasPrefix(data, []byte{0xef, 0xbb, 0xbf}) {
+		return append([]byte{0xef, 0xbb, 0xbf}, data...)
+	}
+
+	return data
 }
 
 func patchCGArithmeticIncrements(script string) string {

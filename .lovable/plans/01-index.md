@@ -4,6 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
+- [74-pipeline-errorlogs-details-and-cross-platform-ci-fixes.md](pending/74-pipeline-errorlogs-details-and-cross-platform-ci-fixes.md): Pipeline Error Logs Multi-Run Aggregation, Parsed Error Details & Cross-Platform CI Fixes
 - [72-pipeline-error-logs-caching-and-cicd-fixes.md](pending/72-pipeline-error-logs-caching-and-cicd-fixes.md): CI/CD Pipeline Remote Log Fetching, Caching & Failure Remediation
 - [71-os-power-management-and-installation-split-db.md](pending/71-os-power-management-and-installation-split-db.md): OS Screen Timeout & Sleep Management Framework & Installation Split DB
 - [70-vmware-shared-folders-and-ubuntu-profiles.md](pending/70-vmware-shared-folders-and-ubuntu-profiles.md): VMware Shared Folder Integration, Ubuntu Build-Essential Profiles & Server-Cmd Cluster Remote Execution

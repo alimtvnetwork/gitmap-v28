@@ -98,6 +98,23 @@ func TestParseGnomeHelpers(t *testing.T) {
 	}
 }
 
+func TestParsePmsetHelpers(t *testing.T) {
+	sample := " displaysleep 15\n sleep 30\n"
+	if mins := ParsePmsetValue(sample, "displaysleep"); mins != 15 {
+		t.Errorf("Expected 15 minutes, got %d", mins)
+	}
+
+	settings := ParsePmsetSettings(sample)
+	if settings.DisplayTimeoutMinutes != 15 || settings.SleepTimeoutMinutes != 30 {
+		t.Errorf("Unexpected pmset settings: %+v", settings)
+	}
+
+	neverSettings := ParsePmsetSettings("displaysleep 0\nsleep 0\n")
+	if !neverSettings.IsNeverSleep {
+		t.Errorf("Expected IsNeverSleep to be true for 0/0")
+	}
+}
+
 func TestMockRunner_DriverInteraction(t *testing.T) {
 	var executedCmds []string
 	restore := SetRunnerForTesting(func(name string, args ...string) ([]byte, error) {
@@ -109,6 +126,12 @@ func TestMockRunner_DriverInteraction(t *testing.T) {
 		}
 		if strings.Contains(cmdLine, "SUB_SLEEP") {
 			return []byte("GUID Alias: STANDBYIDLE\nCurrent AC Power Setting Index: 0x00000000\n"), nil
+		}
+		if strings.Contains(cmdLine, "pmset") {
+			return []byte("displaysleep 0\nsleep 0\n"), nil
+		}
+		if strings.Contains(cmdLine, "gsettings") {
+			return []byte("uint32 0\n"), nil
 		}
 
 		return []byte("OK"), nil
