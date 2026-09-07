@@ -4,6 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
+- [75-chrome-profile-import-routing-and-json-fnf-export.md](pending/75-chrome-profile-import-routing-and-json-fnf-export.md): Chrome Profile Import Routing, JSON & FNF Export, and End-to-End Test Suite
 - [72-pipeline-error-logs-caching-and-cicd-fixes.md](pending/72-pipeline-error-logs-caching-and-cicd-fixes.md): CI/CD Pipeline Remote Log Fetching, Caching & Failure Remediation
 - [71-os-power-management-and-installation-split-db.md](pending/71-os-power-management-and-installation-split-db.md): OS Screen Timeout & Sleep Management Framework & Installation Split DB
 - [70-vmware-shared-folders-and-ubuntu-profiles.md](pending/70-vmware-shared-folders-and-ubuntu-profiles.md): VMware Shared Folder Integration, Ubuntu Build-Essential Profiles & Server-Cmd Cluster Remote Execution

@@ -8,7 +8,7 @@ pf
 
 ## Usage
 
-    gitmap profile <create|list|switch|delete|show> [name]
+    gitmap profile <create|list|switch|delete|show|import|export|inspect> [args]
 
 ## Flags
 
@@ -66,6 +66,12 @@ None.
 
     Delete profile 'old-project' and all its data? [y/N]: y
     ✓ Profile 'old-project' deleted (12 repos, 1 group removed)
+
+### Example 5: Import and inspect Chrome profiles
+
+    gitmap profile import
+    gitmap profile import erfan.office.n@gmail.com
+    gitmap profile inspect ./chrome-ext --json
 
 ## See Also
 

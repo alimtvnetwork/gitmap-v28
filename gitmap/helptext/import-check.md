@@ -6,8 +6,8 @@ Inspect snapshot files, directories, or archives and preview profile metadata be
 
 ```bash
 gitmap chrome import-check [path|ls] [flags]
-gitmap chrome import ls [path]
-gitmap chrome import-all ls [path]
+gitmap chrome import ls [path] [flags]
+gitmap chrome import-all ls [path] [flags]
 ```
 
 ## Description
@@ -17,6 +17,9 @@ Discovers all Chrome profiles contained in a folder, ZIP archive, or snapshot fi
 ## Flags
 
 - `--json`: Output discovered profile candidates as formatted JSON.
+- `--file <path>`: Write inspection report or JSON output to specified file path.
+- `--fnf <path>`: Save to file or fail if no candidates match.
+- `--tempfile <filename>`: Write inspection report to `.lovable/temp/<filename>`.
 
 ## Examples
 
@@ -27,11 +30,14 @@ gitmap chrome import-check
 # Inspect a folder of profiles
 gitmap chrome import ls ./chrome-ext
 
-# Inspect a multi-profile ZIP archive
-gitmap chrome import-check backup.zip
-
 # Inspect with JSON output for automation
 gitmap chrome import-check ./chrome-ext --json
+
+# Export inspection to JSON file on file system
+gitmap chrome import-check ./chrome-ext --json --file preview.json
+
+# Save inspection report with --fnf flag
+gitmap chrome import-check ./chrome-ext --json --fnf candidates.json
 ```
 
 ## See Also
