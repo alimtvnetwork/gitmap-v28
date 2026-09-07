@@ -7,6 +7,7 @@ import (
 // ReadTextLocked acquires a read lock for the file before executing ReadText.
 func ReadTextLocked(path string) result.Wrap[string] {
 	mu := GetFileLock(path)
+	defer ReleaseFileLock(path)
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -16,6 +17,7 @@ func ReadTextLocked(path string) result.Wrap[string] {
 // ReadLinesLocked acquires a read lock for the file before executing ReadLines.
 func ReadLinesLocked(path string) result.Wrap[[]string] {
 	mu := GetFileLock(path)
+	defer ReleaseFileLock(path)
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -25,6 +27,7 @@ func ReadLinesLocked(path string) result.Wrap[[]string] {
 // ReadJSONLocked acquires a read lock for the file before executing ReadJSON.
 func ReadJSONLocked[T any](path string) result.Wrap[T] {
 	mu := GetFileLock(path)
+	defer ReleaseFileLock(path)
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -34,6 +37,7 @@ func ReadJSONLocked[T any](path string) result.Wrap[T] {
 // ReadYAMLLocked acquires a read lock for the file before executing ReadYAML.
 func ReadYAMLLocked[T any](path string) result.Wrap[T] {
 	mu := GetFileLock(path)
+	defer ReleaseFileLock(path)
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -43,6 +47,7 @@ func ReadYAMLLocked[T any](path string) result.Wrap[T] {
 // ExportTextLocked acquires an exclusive write lock for the file before executing ExportText.
 func ExportTextLocked(path string, content string, perm FilePermType) result.Wrap[bool] {
 	mu := GetFileLock(path)
+	defer ReleaseFileLock(path)
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -52,6 +57,7 @@ func ExportTextLocked(path string, content string, perm FilePermType) result.Wra
 // ExportLinesLocked acquires an exclusive write lock for the file before executing ExportLines.
 func ExportLinesLocked(path string, lines []string, perm FilePermType) result.Wrap[bool] {
 	mu := GetFileLock(path)
+	defer ReleaseFileLock(path)
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -61,6 +67,7 @@ func ExportLinesLocked(path string, lines []string, perm FilePermType) result.Wr
 // ExportJSONLocked acquires an exclusive write lock for the file before executing ExportJSON.
 func ExportJSONLocked(path string, data any, perm FilePermType) result.Wrap[bool] {
 	mu := GetFileLock(path)
+	defer ReleaseFileLock(path)
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -70,6 +77,7 @@ func ExportJSONLocked(path string, data any, perm FilePermType) result.Wrap[bool
 // ExportYAMLLocked acquires an exclusive write lock for the file before executing ExportYAML.
 func ExportYAMLLocked(path string, data any, perm FilePermType) result.Wrap[bool] {
 	mu := GetFileLock(path)
+	defer ReleaseFileLock(path)
 	mu.Lock()
 	defer mu.Unlock()
 
