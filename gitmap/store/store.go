@@ -191,6 +191,7 @@ func (db *DB) Migrate() error {
 		constants.SQLCreateClusterNode,
 		constants.SQLCreateClusterRun,
 		constants.SQLCreateClusterExecResult,
+		SQLCreateWorkDirsTable,
 	}
 
 	for _, stmt := range statements {

@@ -49,7 +49,7 @@ Output (with linked repo):
       ╚══════════════════════════════════════╝
 
       → Mode: auto (detected: repo)
-      → Source repo: D:\wp-work\riseup-asia\gitmap
+      → Source repo: D:\repos\gitmap-source
       → Proceed with reinstall? (yes/N): yes
       → Running run.ps1 -reinstall ...
     ...

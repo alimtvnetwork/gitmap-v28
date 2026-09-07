@@ -74,11 +74,30 @@ func TestTrimGitOutputFallback(t *testing.T) {
 // exclusively in `version.json`. Refer to `docs/versioning.md` for full documentation.
 // =========================================================================================
 
+func mockGitForTest() func() {
+	origGitCmd := gitCmdRunner
+	origGitCombined := gitCombinedRunner
+	gitCmdRunner = func(args ...string) error {
+		return errors.New("mock git execution disabled in tests")
+	}
+	gitCombinedRunner = func(args ...string) (string, error) {
+		return "", errors.New("mock git execution disabled in tests")
+	}
+
+	return func() {
+		gitCmdRunner = origGitCmd
+		gitCombinedRunner = origGitCombined
+	}
+}
+
 // TestPromptAndCommit_YesFlagSkipsStdin verifies that when yes=true,
 // promptAndCommit prints the auto-confirm message and does NOT print
 // the interactive prompt asking the user for input.
 // NOTE: "v9.9.0" is a synthetic dummy version for this test only. Always refer to version.json for the true version.
 func TestPromptAndCommit_YesFlagSkipsStdin(t *testing.T) {
+	cleanup := mockGitForTest()
+	defer cleanup()
+
 	tempDir := t.TempDir()
 	origWd, _ := os.Getwd()
 	_ = os.Chdir(tempDir)
@@ -90,8 +109,6 @@ func TestPromptAndCommit_YesFlagSkipsStdin(t *testing.T) {
 	msg := "Release v9.9.0"
 
 	// With yes=true: should print auto-confirm, not the interactive ask.
-	// commitAll will fail (no git repo in tempDir), but we only care about the output
-	// before it attempts the commit.
 	output := captureStdout(t, func() {
 		promptAndCommit(releaseFiles, otherFiles, msg, true)
 	})
@@ -110,6 +127,9 @@ func TestPromptAndCommit_YesFlagSkipsStdin(t *testing.T) {
 // release-only commit when stdin is empty/EOF).
 // NOTE: "v9.9.1" is a synthetic dummy version for this test only. Always refer to version.json for the true version.
 func TestPromptAndCommit_NoYesFlagShowsPrompt(t *testing.T) {
+	cleanup := mockGitForTest()
+	defer cleanup()
+
 	tempDir := t.TempDir()
 	origWd, _ := os.Getwd()
 	_ = os.Chdir(tempDir)
@@ -139,6 +159,9 @@ func TestPromptAndCommit_NoYesFlagShowsPrompt(t *testing.T) {
 // outside .gitmap/release/ are still listed before auto-confirming.
 // NOTE: "v9.9.2" is a synthetic dummy version for this test only. Always refer to version.json for the true version.
 func TestPromptAndCommit_YesFlagListsFiles(t *testing.T) {
+	cleanup := mockGitForTest()
+	defer cleanup()
+
 	tempDir := t.TempDir()
 	origWd, _ := os.Getwd()
 	_ = os.Chdir(tempDir)

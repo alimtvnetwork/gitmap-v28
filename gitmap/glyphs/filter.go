@@ -20,32 +20,47 @@ var table = buildTable()
 // buildTable returns the canonical glyph → ASCII mapping. The fallback
 // strings stay short so terminal layouts stay aligned.
 func buildTable() []pair {
-	raw := [...][2]string{
-		// Variation selector — strip silently so "⚠️" → "!" not "!?"
-		{"\uFE0F", ""},
-		// Status / arrows.
-		{"✅", "[OK]"}, {"❌", "[X]"}, {"✔", "✔"},
-		{"✓", "✔"}, {"✗", "✖"}, {"→", "->"},
-		{"⚠", "▲"}, {"ℹ", "i"}, {"⚡", "⚡"},
-		// Object emoji.
-		{"📦", "📦"}, {"📄", "📄"}, {"📁", "📁"},
-		{"📂", "📂"}, {"📝", "📝"}, {"🔍", "🔍"},
-		{"🎉", "[done]"}, {"📊", "📊"}, {"💾", "💾"},
-		{"🏷", "🏷"}, {"🚀", "🚀"}, {"🔑", "🔑"},
-		{"🗺", "🗺"}, {"🧬", "🧬"}, {"🌳", "🌳"},
-		{"🪄", "🪄"}, {"🔐", "🔐"}, {"🖥", "🖥"},
-		{"🗄", "🗄"}, {"🧭", "🧭"}, {"📤", "[out]"},
-		{"📰", "📰"}, {"📖", "📖"}, {"🪟", "🪟"},
-		{"🐧", "🐧"}, {"📋", "📋"}, {"📡", "📡"},
-		{"🔁", "[loop]"}, {"💡", "💡"}, {"📎", "[ref]"},
-	}
-
+	raw := append(statusPairs(), objectPairs()...)
 	out := make([]pair, 0, len(raw))
 	for _, r := range raw {
 		out = append(out, pair{from: []byte(r[0]), to: []byte(r[1])})
 	}
 
 	return out
+}
+
+func statusPairs() [][2]string {
+	return [][2]string{
+		{"\uFE0F", ""},
+		{"✅", "[OK]"}, {"❌", "[X]"}, {"✔", "✔"},
+		{"✓", "✔"}, {"✗", "✖"}, {"→", "->"},
+		{"⚠", "▲"}, {"ℹ", "i"}, {"⚡", "⚡"},
+	}
+}
+
+func objectPairs() [][2]string {
+	return append(objectPairsA(), objectPairsB()...)
+}
+
+func objectPairsA() [][2]string {
+	return [][2]string{
+		{"📦", "[repo]"}, {"📄", "-"}, {"📁", "[dir]"},
+		{"📂", "[dir]"}, {"📝", "*"}, {"🔍", "[search]"},
+		{"🎉", "[done]"}, {"📊", "[stats]"}, {"💾", "[cache]"},
+		{"🏷", "[tag]"}, {"🚀", ">"}, {"🔑", "*"},
+	}
+}
+
+func objectPairsB() [][2]string {
+	return [][2]string{
+		{"🗺", "[map]"}, {"🧬", "[vcs]"}, {"🌳", "[tree]"},
+		{"🪄", "*"}, {"🔐", "[auth]"}, {"🖥", "[host]"},
+		{"🗄", "[db]"}, {"🧭", "[nav]"}, {"📤", "[out]"},
+		{"📰", "[news]"}, {"📖", "[doc]"}, {"🪟", "[win]"},
+		{"🐧", "[linux]"}, {"📋", "[clip]"}, {"📡", "[net]"},
+		{"🔁", "[loop]"}, {"💡", "[tip]"}, {"📎", "[ref]"},
+		{"⏳", "[wait]"},
+	}
 }
 
 // Filter returns p with every glyph rewritten per table when mode is

@@ -57,14 +57,15 @@ func IsValidLabel(label string) bool {
 // ModeSafe on legacy Windows ConsoleHost (powershell.exe 5.1, cmd.exe)
 // where the host font typically lacks the required glyphs.
 func autoDetect() ModeType {
-	if isLegacyWindowsHost() {
+	if isLegacyWindowsHost() || isLegacyUnixHost() {
 		return ModeSafe
 	}
 
 	return ModeRich
 }
 
-// isLegacyWindowsHost is set by the per-OS file (autodetect_windows.go
-// vs autodetect_other.go). Stub here keeps the symbol resolvable for
-// callers that import glyphs from non-Windows builds.
+// isLegacyWindowsHost is set by autodetect_windows.go on Windows.
 var isLegacyWindowsHost = func() bool { return false }
+
+// isLegacyUnixHost is set by autodetect_other.go on non-Windows platforms.
+var isLegacyUnixHost = func() bool { return false }

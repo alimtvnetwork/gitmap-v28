@@ -11,7 +11,7 @@ $ gitmap profiles ls
   #    Name                 Provider   Type           Default  Usage  Last Used
   --------------------------------------------------------------------------------
   [1]  alimtvnetwork        github     user           * (def)  14     2026-09-03
-  [2]  riseup-asia          github     organization   -        8      2026-09-02
+  [2]  company-org          github     organization   -        8      2026-09-02
 ```
 
 ## Subcommands

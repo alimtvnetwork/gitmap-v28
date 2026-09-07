@@ -62,7 +62,7 @@ gitmap reconcile codelane stash
 
 ```
 ℹ Applying Fix: Option 1 (Stash & Re-apply) on codelane
-  Running: git -C "D:\wp-work\riseup-asia\codelane" stash -u && git -C "D:\wp-work\riseup-asia\codelane" pull && git -C "D:\wp-work\riseup-asia\codelane" stash pop
+  Running: git -C "D:\work\codelane" stash -u && git -C "D:\work\codelane" pull && git -C "D:\work\codelane" stash pop
 
 Saved working directory and index state WIP on main: cbf8072
 Updating cbf8072..1ccac7c

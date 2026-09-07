@@ -128,6 +128,10 @@ func executeScan(
 	bench.Phase("scan.tagScanFolder", func() {
 		tagReposWithScanFolder(absDir, records, quiet)
 	})
+	var wasFirstWorkDirRegistered bool
+	bench.Phase("scan.autoRegisterWorkDir", func() {
+		wasFirstWorkDirRegistered = autoRegisterFirstWorkDir(absDir, quiet)
+	})
 	bench.Phase("scan.alignDBIDs", func() {
 		records = alignRecordsWithDB(records, outputDir)
 	})
@@ -165,9 +169,36 @@ func executeScan(
 	})
 	finalizeErrorReport(errCollector, quiet)
 	fmt.Print(constants.MsgSectionDone)
+	if wasFirstWorkDirRegistered && !quiet {
+		fmt.Printf("  ✓ First work directory registered and marked as default: %s\n", absDir)
+	}
 
 	// Mark scan task as completed after all steps succeed.
 	completePendingTask(taskDB, taskID)
+}
+
+// autoRegisterFirstWorkDir checks if any work directories are registered.
+// If none exist, it registers absDir as the first work directory and marks it as default.
+func autoRegisterFirstWorkDir(absDir string, quiet bool) bool {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return false
+	}
+	defer db.Close()
+
+	dirs, errList := db.ListWorkDirs()
+	if errList != nil || len(dirs) > 0 {
+		return false
+	}
+
+	label := filepath.Base(absDir)
+	if _, errEnsure := db.EnsureWorkDir(absDir, label, true); errEnsure != nil {
+		return false
+	}
+
+	_ = db.SetDefaultWorkDir(absDir)
+
+	return true
 }
 
 // tagReposWithScanFolder registers absDir as a ScanFolder and tags every

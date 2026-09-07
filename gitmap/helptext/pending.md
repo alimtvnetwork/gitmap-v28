@@ -28,7 +28,7 @@ last known failure reason (if any).
 
     $ gitmap pending
       Pending Tasks:
-        #1      Delete   D:\wp-work\riseup-asia\scripts-fixer-v5   retry removal failed: access denied
+        #1      Delete   D:\work\scripts-fixer-v5                  retry removal failed: access denied
         #2      Clone    D:\projects\my-repo                        command replay failed: network timeout
 
 ### No pending tasks

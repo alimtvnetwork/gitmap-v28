@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 func TestWorkDirCLIParse(t *testing.T) {
@@ -10,9 +12,9 @@ func TestWorkDirCLIParse(t *testing.T) {
 		t.Fatalf("unexpected parsed options: %+v", opts)
 	}
 
-	optsLs := parseWorkDirFlags([]string{})
-	if optsLs.Action != "ls" {
-		t.Fatalf("expected default action ls, got %s", optsLs.Action)
+	optsEmpty := parseWorkDirFlags([]string{})
+	if optsEmpty.Action != "help" {
+		t.Fatalf("expected default action help, got %s", optsEmpty.Action)
 	}
 
 	optsHelp := parseWorkDirFlags([]string{"help"})
@@ -55,5 +57,62 @@ func TestCDWorkDirKeyword(t *testing.T) {
 
 	if isWorkDirKeyword("unknown-repo") {
 		t.Error("did not expect 'unknown-repo' to be a workdir keyword")
+	}
+}
+
+func TestAutoRegisterFirstWorkDir(t *testing.T) {
+	tempDir := t.TempDir()
+	db, errDB := store.OpenDefault()
+	if errDB != nil {
+		t.Skip("sqlite unavailable")
+	}
+	defer db.Close()
+	ensureWorkDirsTableExists()
+
+	_, _ = db.SQL().Exec("DELETE FROM work_directories")
+
+	isRegistered := autoRegisterFirstWorkDir(tempDir, true)
+	if !isRegistered {
+		t.Fatalf("expected autoRegisterFirstWorkDir to return true on empty store")
+	}
+
+	def, errDef := db.GetDefaultWorkDir()
+	if errDef != nil || def == nil {
+		t.Fatalf("expected default workdir to be set, got err: %v", errDef)
+	}
+	if def.AbsolutePath != tempDir {
+		t.Fatalf("expected default workdir %s, got %s", tempDir, def.AbsolutePath)
+	}
+
+	isSecondRegistered := autoRegisterFirstWorkDir(tempDir, true)
+	if isSecondRegistered {
+		t.Fatalf("expected second autoRegisterFirstWorkDir to return false")
+	}
+}
+
+func TestWorkDirAddDefaultsAndDuplicates(t *testing.T) {
+	tempDir := t.TempDir()
+	db, errDB := store.OpenDefault()
+	if errDB != nil {
+		t.Skip("sqlite unavailable")
+	}
+	defer db.Close()
+	ensureWorkDirsTableExists()
+
+	_, _ = db.SQL().Exec("DELETE FROM work_directories")
+
+	errAdd := runWorkDirAdd(tempDir, "temp-label")
+	if errAdd != nil {
+		t.Fatalf("runWorkDirAdd failed: %v", errAdd)
+	}
+
+	errDuplicate := runWorkDirAdd(tempDir, "temp-label")
+	if errDuplicate != nil {
+		t.Fatalf("expected duplicate runWorkDirAdd to succeed with notice, got: %v", errDuplicate)
+	}
+
+	errEmpty := runWorkDirAdd("", "empty-target")
+	if errEmpty != nil {
+		t.Fatalf("expected empty target to succeed, got: %v", errEmpty)
 	}
 }

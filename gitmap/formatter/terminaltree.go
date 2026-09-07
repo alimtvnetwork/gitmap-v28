@@ -99,14 +99,14 @@ func renderTermTree(w io.Writer, node *termNode, prefix string) {
 // renderTermNode writes a single colored tree node.
 func renderTermNode(w io.Writer, node *termNode, prefix, connector string) {
 	if node.IsRepo {
-		fmt.Fprintf(w, "%s%s%s 📦 %s%s%s %s(%s)%s\n",
+		fmt.Fprintf(w, "%s%s%s ■ %s%s%s %s(%s)%s\n",
 			constants.ColorDim, prefix, connector,
 			constants.ColorGreen, node.Name, constants.ColorReset,
 			constants.ColorDim, node.Branch, constants.ColorReset)
 
 		return
 	}
-	fmt.Fprintf(w, "%s%s%s 📁 %s%s%s\n",
+	fmt.Fprintf(w, "%s%s%s ■ %s%s%s\n",
 		constants.ColorDim, prefix, connector,
 		constants.ColorYellow, node.Name, constants.ColorReset)
 }

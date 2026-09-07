@@ -40,7 +40,7 @@ gitmap agy ls show-projects-with-empty-conversations
 
   PROJECT ID                             NAME                     WORKSPACE PATH                             CONVS  STATUS
   ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  098304c1-b79b-4c7e-a223-b4b318b8a6cd   prompts-connect-v3       D:\wp-work\riseup-asia\02-prompts\prom...  0      No Convs
+  098304c1-b79b-4c7e-a223-b4b318b8a6cd   prompts-connect-v3       D:\work\02-prompts\prom...                 0      No Convs
 ```
 
 ### Dry-Run Removal with Exceptions
@@ -53,7 +53,7 @@ gitmap agy remove-projects-with-empty-conversations --except "prompts-connect-v3
 
 ```text
   Targeting 48 project(s) with empty conversations for removal:
-    • 1f908b80-7c2c-479a-86d7-021f568fa58a letsmarknow-ui-v2      D:\wp-work\riseup-asia\letsmarkn...
+    • 1f908b80-7c2c-479a-86d7-021f568fa58a letsmarknow-ui-v2      D:\work\letsmarkn...
 
 ℹ [dry-run] 48 project(s) would be removed. Remaining: 12
 ```

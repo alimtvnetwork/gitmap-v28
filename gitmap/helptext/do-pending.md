@@ -33,7 +33,7 @@ Failed tasks remain pending with an updated failure reason.
 
     $ gitmap do-pending
       Retrying 2 pending task(s)...
-      Task #1 completed: D:\wp-work\riseup-asia\scripts-fixer-v5
+      Task #1 completed: D:\work\scripts-fixer-v5
       Task #2 failed: command replay failed: network timeout
 
 ### Retry using alias

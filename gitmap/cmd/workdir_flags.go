@@ -30,7 +30,8 @@ func parseWorkDirFlags(args []string) workDirOptions {
 	}
 
 	if len(cleanArgs) == 0 {
-		opts.Action = "ls"
+		opts.Action = "help"
+
 		return opts
 	}
 
@@ -39,5 +40,6 @@ func parseWorkDirFlags(args []string) workDirOptions {
 		opts.Target = cleanArgs[1]
 		opts.Args = cleanArgs[1:]
 	}
+
 	return opts
 }
