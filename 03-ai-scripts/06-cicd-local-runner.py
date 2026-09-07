@@ -1,28 +1,81 @@
 #!/usr/bin/env python3
-"""Fast Parallel Multi-Worker Local CI/CD Runner with Real-Time Failure Streaming & Terminal Feedback.
+"""Fast Parallel Multi-Worker Local CI/CD Runner with Incremental Caching & Real-Time Telemetry.
 
-AI AGENT REAL-TIME CI/CD INSTRUCTIONS:
-  1. Live Error Streaming: All failures are streamed to .lovable/temp/cicd/errors.log immediately as they occur.
-  2. Immediate Terminal Output: Full stack traces and failing commands print to stdout instantly upon failure.
-  3. Parallel Remediation: You do NOT have to wait for the entire runner to finish. Inspect .lovable/temp/cicd/errors.log
-     and start fixing detected failures while background gates continue running.
-  4. Quiet Passes: Passing gates stay quiet by default (single summary tick) so terminal context stays clean.
-  5. Machine-Readable Failures: Real-time JSON error list is maintained at .lovable/temp/cicd/errors.json.
+====================================================================================================
+                        AI AGENT OPERATIONAL INSTRUCTION MANUAL
+====================================================================================================
 
-Usage:
-  python 03-ai-scripts/06-cicd-local-runner.py                    # Quiet on success (tick "✔ All passed."), live failure stream
-  python 03-ai-scripts/06-cicd-local-runner.py --all-paths       # Show all gates (passed and failed) with detailed summary
-  python 03-ai-scripts/06-cicd-local-runner.py --sync            # Run sequentially (synchronous mode, 1 worker)
-  python 03-ai-scripts/06-cicd-local-runner.py -w 4              # Custom worker concurrency
-  python 03-ai-scripts/06-cicd-local-runner.py -o report.txt     # Save execution report to file
-  python 03-ai-scripts/06-cicd-local-runner.py --json            # Output machine-readable JSON
+1. PARALLEL EXECUTION MODEL & BATCH BARRIER PIPELINE:
+   The runner organizes all 33 quality gates into 3 sequential batch barriers:
+   • Batch 1 — Linters, AST Checks & Static Analyzers (Gates 1-22):
+     - Parallelism: CPU-bound, executes across min(8, CPU count) worker threads.
+     - Scope: Spell check, nested if, boolean/enum conventions, error codes, AST helptext, govulncheck.
+   • Batch 2 — Compile & Packaging Gates (Gates 23-25):
+     - Parallelism: I/O-bound, restricted to max 2 workers to prevent disk lock contention.
+     - Scope: Go Compile Gate (bin/gitmap.exe), Web App Build (dist/), GoReleaser Snapshot.
+   • Batch 3 — E2E Smoke & Integration Suites (Gates 26-33):
+     - Parallelism: Strictly sequential (1 worker) to prevent cross-test filesystem collisions.
+     - Scope: E2E Smoke Suite, Installer Smoke (source & release), History Purge/Pin, Race Tests.
+
+2. REAL-TIME TELEMETRY & ARTIFACT STREAMING (.lovable/temp/cicd/):
+   All telemetry is written immediately to disk with unbuffered os.fsync flushing:
+   • .lovable/temp/cicd/errors.log      : Real-time append-only Markdown failure stream containing
+                                         failing commands, cwd, env, suspect files, and stack traces.
+   • .lovable/temp/cicd/errors.json     : Structured JSON array of all active failures:
+                                         [{"name": ..., "cmd": ..., "code": ..., "suspect_files": [...]}]
+   • .lovable/temp/cicd/events.jsonl    : Real-time append-only NDJSON event stream:
+                                         {"timestamp": ..., "event": "gate_started"|"gate_failed"|...}
+   • .lovable/temp/cicd/changelog.log   : Chronological human-readable summary of pipeline events.
+   • .lovable/temp/cicd/summary.json    : Live status metadata ("status": "running"|"completed"|"failed",
+                                         total, passed, failed, remaining, cached counts, active_failures).
+   • .lovable/temp/cicd/state.json      : Persistent incremental cache fingerprinting Git HEAD SHA,
+                                         uncommitted dirty file hashes, tool script mtimes, and gate status.
+   • .lovable/temp/cicd/run.log         : Chronological record of all executed, cached, and failed gates.
+   • .lovable/temp/cicd/latest/         : Symlink / junction pointing directly to current session folder
+                                         under .lovable/temp/cicd/runs/<timestamp>/.
+
+3. AI AGENT PARALLEL REMEDIATION PLAYBOOK:
+   When executing tasks or autonomous repair loops, follow this protocol:
+   • Step 1 (Early Interception): Do NOT wait for the entire 33-gate suite to finish. As soon as an
+     immediate failure banner appears or .lovable/temp/cicd/errors.json contains an entry, begin remediation.
+   • Step 2 (Inspect Suspect Files): View .lovable/temp/cicd/errors.log using view_file to examine
+     extracted suspect files and the root-cause stack trace.
+   • Step 3 (Surgical Code Fix): Edit offending files following spec/02-coding-guidelines/ (functions <= 15
+     lines, blank line before returns, affirmative booleans, zero swallowed exceptions).
+   • Step 4 (Targeted Verification): Validate the fix in isolation before running the full suite:
+     python 03-ai-scripts/06-cicd-local-runner.py --filter "<Gate Name>"
+     Or execute the underlying direct tool command as indicated in errors.log.
+   • Step 5 (Fast Incremental Pass): Re-run the runner:
+     python 03-ai-scripts/06-cicd-local-runner.py
+     The incremental cache will instantly skip passing gates (~0.5ms each), validating only your fix.
+
+4. INCREMENTAL CACHING MECHANICS & SKIP RULES:
+   • Two-Tier Fingerprinting:
+     - Tier 1: Computes repo delta Δ_repo from git rev-parse HEAD and git status --porcelain=v1 -uall.
+     - Tier 2: Evaluates GateSpec matching rules against modified file paths, tool scripts, and configs.
+   • Skip Evaluation (O(1) in-memory, ~0.5ms per gate):
+     - Unchanged gates that passed in the previous run are skipped with label "[cached]".
+     - Previously failed gates are NEVER skipped and always re-execute until green.
+     - Upstream Invalidation: If "Go Compile Gate" rebuilds bin/gitmap.exe, downstream gates
+       ("E2E Smoke Suite", "Installer Smoke", "History Pin/Purge") are automatically invalidated.
+   • Cache Bypass:
+     - Use --force (or --fresh / --clean) to clear cache and force all 33 gates to run from scratch.
+
+5. USAGE & CLI CHEAT SHEET:
+   python 03-ai-scripts/06-cicd-local-runner.py                    # Fast incremental run (quiet on pass)
+   python 03-ai-scripts/06-cicd-local-runner.py --filter "<name>"  # Test specific gate (e.g. --filter "Nested")
+   python 03-ai-scripts/06-cicd-local-runner.py --all-paths       # Show all 33 gates (passed and cached)
+   python 03-ai-scripts/06-cicd-local-runner.py --force           # Purge cache and re-execute all gates
+   python 03-ai-scripts/06-cicd-local-runner.py --json            # Emit machine-readable execution JSON
+   python 03-ai-scripts/06-cicd-local-runner.py --sync            # Run sequentially (1 worker thread)
 """
 from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
-from importlib import import_module
+import fnmatch
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -39,25 +92,37 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
-# ── Configurable Defaults (Configurable via Environment Variables) ─────────
 DEFAULT_WORKERS = int(os.environ.get("CI_MAX_WORKERS", min(8, os.cpu_count() or 4)))
 DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", 2))
 DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 1200))
 DEFAULT_ENCODING = "utf-8"
+DEFAULT_JOB_ESTIMATE_SEC = 5.0
+TIMING_FILE_PATH = Path(".lovable/temp/cicd/timings.json")
 
-# ── Environment Configuration ───────────────────────────────────────────────
 os.environ.setdefault("CI", "true")
 os.environ.setdefault("NODE_ENV", "test")
 TMP_CACHE_DIR = Path(__file__).resolve().parent.parent / ".tmp"
 TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("GOTMPDIR", str(TMP_CACHE_DIR))
 
-# ── Job Definitions (Partitioned into Order-Dependent Batches with IO Limits)
+CICD_TEMP_DIR = Path(".lovable/temp/cicd")
+CICD_RUNS_DIR = CICD_TEMP_DIR / "runs"
+CICD_LATEST_DIR = CICD_TEMP_DIR / "latest"
+CICD_ERRORS_LOG = CICD_TEMP_DIR / "errors.log"
+CICD_ERRORS_JSON = CICD_TEMP_DIR / "errors.json"
+CICD_RUN_LOG = CICD_TEMP_DIR / "run.log"
+CICD_EVENTS_JSONL = CICD_TEMP_DIR / "events.jsonl"
+CICD_CHANGELOG_LOG = CICD_TEMP_DIR / "changelog.log"
+CICD_SUMMARY_JSON = CICD_TEMP_DIR / "summary.json"
+CICD_STATE_JSON = CICD_TEMP_DIR / "state.json"
+CICD_POINTER_FILE = CICD_TEMP_DIR / "latest_run.txt"
+
+DISK_WRITE_LOCK = threading.Lock()
+
 JOB_BATCHES: list[dict[str, Any]] = [
-    # Batch 1: Linters & AST Checks (Light IO, CPU/AST bound, run highly concurrent)
     {
         "name": "Linters & AST Checks",
-        "max_workers": None,  # Inherits global worker limit
+        "max_workers": None,
         "jobs": {
             "Spell Check (misspell)": [sys.executable, ".github/scripts/misspell-changed.py"],
             "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
@@ -78,12 +143,11 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "Startup Build-Tags (linux)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "linux", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "Startup Build-Tags (darwin)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "darwin", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "Startup Build-Tags (windows)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "windows", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
-                                    "golangci-lint (strict)": {"cmd": ["golangci-lint", "run", "--issues-exit-code=1", "--timeout=10m", "-c", ".golangci.yml", "--path-prefix", "gitmap", "./..."], "cwd": "gitmap"},
+            "golangci-lint (strict)": {"cmd": ["golangci-lint", "run", "--issues-exit-code=1", "--timeout=10m", "-c", ".golangci.yml", "--path-prefix", "gitmap", "./..."], "cwd": "gitmap"},
             "Cross-OS Vet (Windows)": {"cmd": ["go", "vet", "-C", "gitmap", "./..."], "env": {"GOOS": "windows", "GOARCH": "amd64"}},
             "Cross-OS Vet (Darwin)": {"cmd": ["go", "vet", "-C", "gitmap", "./..."], "env": {"GOOS": "darwin", "GOARCH": "amd64"}},
         },
     },
-    # Batch 2: Compile & Packaging Gates (Heavy disk IO & RAM, throttled to prevent IO starvation)
     {
         "name": "Compile & Packaging Gates",
         "max_workers": DEFAULT_IO_WORKERS,
@@ -93,7 +157,6 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "GoReleaser Snapshot Build": {"cmd": ["go", "run", "github.com/goreleaser/goreleaser/v2@latest", "release", "--snapshot", "--clean", "--parallelism=1"], "cwd": "gitmap"},
         },
     },
-    # Batch 3: E2E Smoke Tests (Requires built binary, SQLite single-writer safety)
     {
         "name": "E2E Smoke Tests",
         "max_workers": 1,
@@ -110,35 +173,55 @@ JOB_BATCHES: list[dict[str, Any]] = [
     },
 ]
 
-ANSI_ESCAPE_REGEX = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+ANSI_ESCAPE_REGEX = re.compile(r"\x1B(?:\[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+GLOBAL_TIMINGS: dict[str, float] = {}
+EXCLUDE_DEFAULTS = [
+    ".git/**", "node_modules/**", "dist/**", "bin/**", "vendor/**", ".lovable/**", ".tmp/**",
+]
+
+CLUSTER_GO_ALL = ["gitmap/**/*.go", "gitmap/go.mod", "gitmap/go.sum"]
+CLUSTER_GO_CMD = ["gitmap/cmd/**/*.go", "gitmap/constants/**/*.go", "gitmap/go.mod", "gitmap/go.sum"]
+CLUSTER_GO_CONSTANTS = ["gitmap/constants/**/*.go", "gitmap/go.mod"]
+CLUSTER_GO_HELPTEXT = ["gitmap/helptext/**/*.go", "gitmap/cmd/**/*.go", "gitmap/constants/**/*.go", "gitmap/go.mod"]
+CLUSTER_GO_STARTUP = ["gitmap/startup/**/*.go", "gitmap/go.mod"]
+CLUSTER_GO_RACE = ["gitmap/cmd/**/*.go", "gitmap/cloneconcurrency/**/*.go", "gitmap/visibility/**/*.go", "gitmap/store/**/*.go", "gitmap/uipref/**/*.go", "gitmap/go.mod"]
+CLUSTER_WEB_APP = ["src/**/*", "public/**/*", "index.html", "package.json", "package-lock.json", "vite.config.ts", "tsconfig*.json", "tailwind.config.ts", "postcss.config.js"]
+CLUSTER_LINTER_SCRIPTS = ["linter-scripts/**/*.py", ".github/scripts/**/*.py"]
+CLUSTER_REPO_TEXT = ["gitmap/**", "src/**", "spec/**", "docs/**", "03-ai-scripts/**", "linter-scripts/**", ".github/**", "*.md", "*.json", "*.yml", "*.yaml"]
+CLUSTER_MWS = ["spec/19-main-worker-service/**", "spec/14-update/**", "spec/03-error-manage/03-error-code-registry/**", "src/**/*.{ts,tsx}", "linter-scripts/check-mws-error-codes.*"]
 
 
 def strip_ansi(text: str) -> str:
     """Removes terminal ANSI color escape codes from text."""
-    return ANSI_ESCAPE_REGEX.sub("", text)
+    clean_text = ANSI_ESCAPE_REGEX.sub("", text)
+
+    return clean_text
 
 
 @dataclass
 class JobResult:
     """Encapsulates the execution outcome of an individual quality gate."""
     name: str
-    cmd: list[str]
+    cmd: list[str] | dict[str, Any]
     code: int | str
     out: str
     err: str
     elapsed: float
+    cwd: str | None = None
+    env_overrides: dict[str, str] | None = None
+    is_cached: bool = False
 
     @property
     def is_success(self) -> bool:
-        return self.code == 0
+        has_passed = (self.code == 0)
+
+        return has_passed
 
     @property
     def is_timeout(self) -> bool:
-        return self.code == "timeout"
+        has_timed_out = (self.code == "timeout")
 
-
-
-GLOBAL_TIMINGS: dict[str, float] = {}
+        return has_timed_out
 
 
 def record_job_timing(job_name: str, elapsed_sec: float) -> None:
@@ -146,348 +229,444 @@ def record_job_timing(job_name: str, elapsed_sec: float) -> None:
     GLOBAL_TIMINGS[job_name] = elapsed_sec
 
 
-def run_job(name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] = None, cwd: str = None) -> JobResult:
-    """Executes a single gate subprocess and records duration, return code, and streams."""
-    start = time.monotonic()
-    resolved_cmd = list(cmd)
+def normalize_repo_rel(path_str: str) -> str:
+    """Normalizes path string to forward-slash relative path."""
+    norm = path_str.replace("\\", "/").strip()
+    if norm.startswith("./"):
+        norm = norm[2:]
+
+    return norm
+
+
+def expand_brace_patterns(pattern: str) -> list[str]:
+    """Expands comma-separated brace sets into multiple patterns."""
+    match = re.search(r"\{([^{}]+)\}", pattern)
+    if not match:
+        return [pattern]
+    prefix = pattern[:match.start()]
+    suffix = pattern[match.end():]
+    expanded: list[str] = []
+    for opt in match.group(1).split(","):
+        expanded.extend(expand_brace_patterns(f"{prefix}{opt.strip()}{suffix}"))
+
+    return expanded
+
+
+def glob_to_regex(pattern: str) -> re.Pattern:
+    """Translates standard recursive glob patterns into regex."""
+    norm = normalize_repo_rel(pattern)
+    escaped = re.escape(norm)
+    res = escaped.replace(r"\*\*/", r"(?:.*/)?")
+    res = res.replace(r"\*\*", r".*")
+    res = res.replace(r"\*", r"[^/]*")
+    res = res.replace(r"\?", r"[^/]")
+
+    return re.compile(f"^{res}$", re.IGNORECASE)
+
+
+class GateSpec:
+    """Declarative specification of gate inputs, tool scripts, and artifact dependencies."""
+
+    def __init__(
+        self, name: str, tool_scripts: list[str] | None = None, configs: list[str] | None = None,
+        relevant_patterns: list[str] | None = None, exclude_patterns: list[str] | None = None,
+        artifact_inputs: list[str] | None = None, artifact_outputs: list[str] | None = None, upstream_gates: list[str] | None = None,
+    ):
+        self.name = name
+        self._init_paths(tool_scripts, configs, artifact_inputs, artifact_outputs, upstream_gates)
+        self._rel_res = self._compile_patterns(relevant_patterns or [])
+        self._exc_res = self._compile_patterns((exclude_patterns or []) + EXCLUDE_DEFAULTS)
+
+    def _init_paths(self, tools: list[str] | None, cfgs: list[str] | None, in_arts: list[str] | None, out_arts: list[str] | None, ups: list[str] | None) -> None:
+        self.tool_scripts = [normalize_repo_rel(p) for p in (tools or [])]
+        self.configs = [normalize_repo_rel(p) for p in (cfgs or [])]
+        self.artifact_inputs = [normalize_repo_rel(p) for p in (in_arts or [])]
+        self.artifact_outputs = [normalize_repo_rel(p) for p in (out_arts or [])]
+        self.upstream_gates = ups or []
+
+    def _compile_patterns(self, raw_patterns: list[str]) -> list[re.Pattern]:
+        compiled: list[re.Pattern] = []
+        for p in raw_patterns:
+            for exp in expand_brace_patterns(p):
+                compiled.append(glob_to_regex(exp))
+
+        return compiled
+
+    def matches_path(self, path: str) -> bool:
+        """Determines whether a repository file change triggers this gate."""
+        norm_path = normalize_repo_rel(path)
+        if norm_path in self.tool_scripts or norm_path in self.configs:
+            return True
+        if any(rx.match(norm_path) for rx in self._exc_res):
+            return False
+        has_match = any(rx.match(norm_path) for rx in self._rel_res)
+
+        return has_match
+
+
+GATE_SPECS: dict[str, GateSpec] = {
+    "Spell Check (misspell)": GateSpec("Spell Check (misspell)", tool_scripts=[".github/scripts/misspell-changed.py"], configs=[".misspell-ignore"], relevant_patterns=CLUSTER_REPO_TEXT, exclude_patterns=["gitmap/completion/allcommands_generated.go"]),
+    "Nested If Linter": GateSpec("Nested If Linter", tool_scripts=["linter-scripts/check-nested-ifs.py"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
+    "Boolean & Enum Linter": GateSpec("Boolean & Enum Linter", tool_scripts=["linter-scripts/check-enum-and-boolean.py"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
+    "Boolean Guidelines Linter": GateSpec("Boolean Guidelines Linter", tool_scripts=["linter-scripts/check-boolean-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
+    "Enum Guidelines Linter": GateSpec("Enum Guidelines Linter", tool_scripts=["linter-scripts/check-enum-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
+    "Error Management Check": GateSpec("Error Management Check", tool_scripts=["linter-scripts/check-error-management.py"], configs=["spec/03-error-manage/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
+    "Relative Path Check": GateSpec("Relative Path Check", tool_scripts=["linter-scripts/check-relative-paths.py"], relevant_patterns=CLUSTER_REPO_TEXT, exclude_patterns=["*.png", "*.jpg", "*.exe", "*.zip", "*.sqlite"]),
+    "Newline Styling Check": GateSpec("Newline Styling Check", tool_scripts=["linter-scripts/check-newline-styling.py"], relevant_patterns=["src/**/*.{ts,tsx,js}", "gitmap/**/*.go"]),
+    "MWS Error Codes Check": GateSpec("MWS Error Codes Check", tool_scripts=["linter-scripts/check-mws-error-codes.py"], configs=["spec/19-main-worker-service/13-error-codes.md", "spec/19-main-worker-service/error-codes.json", "spec/03-error-manage/03-error-code-registry/error-codes-master.json", "linter-scripts/check-mws-error-codes.waivers.txt", "linter-scripts/check-mws-error-codes.unallocated.txt"], relevant_patterns=CLUSTER_MWS),
+    "Interface Naming Check": GateSpec("Interface Naming Check", tool_scripts=["linter-scripts/check-interface-naming.py"], relevant_patterns=["gitmap/**/*.go"]),
+    "CLI Help Parity Check": GateSpec("CLI Help Parity Check", tool_scripts=["03-ai-scripts/09-cli-help-auditor.py"], configs=["03-ai-scripts/02-shared-engine.py"], relevant_patterns=["gitmap/cmd/**/*.go", "gitmap/helptext/**/*.go", "03-ai-scripts/**/*.py"]),
+    "Constants Registry AST Check": GateSpec("Constants Registry AST Check", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_CMD),
+    "Constants Collision Check": GateSpec("Constants Collision Check", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_CONSTANTS),
+    "Helptext Parity Check": GateSpec("Helptext Parity Check", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_HELPTEXT),
+    "Lint Script Unit Tests": GateSpec("Lint Script Unit Tests", tool_scripts=[".github/scripts/tests/test_ci_scripts.py"], relevant_patterns=CLUSTER_LINTER_SCRIPTS + [".github/scripts/tests/**"], exclude_patterns=["__pycache__/**"]),
+    "govulncheck": GateSpec("govulncheck", tool_scripts=[".github/scripts/check-vulncheck.py"], configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Startup Build-Tags (linux)": GateSpec("Startup Build-Tags (linux)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
+    "Startup Build-Tags (darwin)": GateSpec("Startup Build-Tags (darwin)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
+    "Startup Build-Tags (windows)": GateSpec("Startup Build-Tags (windows)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
+    "golangci-lint (strict)": GateSpec("golangci-lint (strict)", configs=[".golangci.yml", "gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Cross-OS Vet (Windows)": GateSpec("Cross-OS Vet (Windows)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Cross-OS Vet (Darwin)": GateSpec("Cross-OS Vet (Darwin)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Go Compile Gate": GateSpec("Go Compile Gate", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["bin/gitmap.exe"]),
+    "Web App Build": GateSpec("Web App Build", configs=["package.json", "package-lock.json", "vite.config.ts", "tsconfig*.json"], relevant_patterns=CLUSTER_WEB_APP, artifact_outputs=["dist/**"]),
+    "GoReleaser Snapshot Build": GateSpec("GoReleaser Snapshot Build", configs=[".goreleaser.yaml", ".goreleaser.yml", "gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["dist/**"]),
+    "E2E Smoke Suite": GateSpec("E2E Smoke Suite", tool_scripts=[".github/scripts/e2e-cli-smoke.py"], relevant_patterns=CLUSTER_GO_ALL + [".github/scripts/e2e-cli-smoke.py"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
+    "Installer Smoke (source)": GateSpec("Installer Smoke (source)", tool_scripts=[".github/scripts/smoke-installer.py"], configs=["install.sh", "install.ps1", "linter-scripts/installer-templates/**"], relevant_patterns=CLUSTER_GO_ALL + [".github/scripts/smoke-installer.py"], upstream_gates=["Go Compile Gate"]),
+    "Installer Smoke (release)": GateSpec("Installer Smoke (release)", tool_scripts=[".github/scripts/smoke-installer.py"], configs=[".goreleaser.yaml", "install.sh", "install.ps1"], relevant_patterns=[".github/scripts/smoke-installer.py", "dist/**"], upstream_gates=["GoReleaser Snapshot Build"]),
+    "History Purge Smoke": GateSpec("History Purge Smoke", tool_scripts=[".github/scripts/smoke-history-purge.py"], relevant_patterns=[".github/scripts/smoke-history-purge.py", "gitmap/cmd/**/*.go", "gitmap/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
+    "History Pin Smoke": GateSpec("History Pin Smoke", tool_scripts=[".github/scripts/smoke-history-pin.py"], relevant_patterns=[".github/scripts/smoke-history-pin.py", "gitmap/cmd/**/*.go", "gitmap/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
+    "Go Test Coverage Profile": GateSpec("Go Test Coverage Profile", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["coverage.out"]),
+    "Coverage Floor Guard": GateSpec("Coverage Floor Guard", tool_scripts=[".github/scripts/coverage-floor.py"], artifact_inputs=["coverage.out"], upstream_gates=["Go Test Coverage Profile"]),
+    "Go Test Race (Hot Packages)": GateSpec("Go Test Race (Hot Packages)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_RACE),
+}
+
+
+def get_head_commit(repo_root: Path) -> str:
+    """Retrieves current git HEAD commit SHA."""
+    cmd = ["git", "rev-parse", "HEAD"]
+    res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=False)
+    if res.returncode == 0:
+        return res.stdout.strip()
+
+    return ""
+
+
+def parse_porcelain_line(line: str, repo_root: Path) -> tuple[str, dict[str, Any]] | None:
+    """Parses a single porcelain line into path and file stat metadata."""
+    if len(line) < 4:
+        return None
+    raw_path = line[3:].strip().strip('"')
+    if " -> " in raw_path:
+        _, raw_path = raw_path.split(" -> ", 1)
+    rel_path = normalize_repo_rel(raw_path)
+    full_path = repo_root / rel_path
+    mtime, size = 0.0, 0
+    if full_path.is_file():
+        stat = full_path.stat()
+        mtime, size = stat.st_mtime, stat.st_size
+
+    return rel_path, {"status": line[:2], "mtime": mtime, "size": size}
+
+
+def get_dirty_files_map(repo_root: Path) -> dict[str, dict[str, Any]]:
+    """Queries git status --porcelain=v1 -uall to get all dirty files."""
+    cmd = ["git", "status", "--porcelain=v1", "-uall"]
+    res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=False)
+    if res.returncode != 0:
+        return {}
+    dirty_map: dict[str, dict[str, Any]] = {}
+    for line in res.stdout.splitlines():
+        parsed = parse_porcelain_line(line, repo_root)
+        if parsed is not None:
+            dirty_map[parsed[0]] = parsed[1]
+
+    return dirty_map
+
+
+def get_commit_diff_files(repo_root: Path, old_head: str, new_head: str) -> set[str]:
+    """Gets committed file path differences between two commits."""
+    if not old_head or not new_head or old_head == new_head:
+        return set()
+    cmd = ["git", "diff", "--name-only", f"{old_head}..{new_head}"]
+    res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=False)
+    if res.returncode == 0:
+        return {normalize_repo_rel(p) for p in res.stdout.splitlines() if p.strip()}
+
+    return set()
+
+
+def is_ignored_repo_path(path_str: str) -> bool:
+    """Checks if path falls inside internal directories to ignore."""
+    ignored = (".git/", ".lovable/", ".tmp/", "node_modules/", "dist/", "bin/", "vendor/")
+    has_match = any(path_str.startswith(prefix) for prefix in ignored)
+
+    return has_match
+
+
+def collect_dirty_delta(last_dirty: dict[str, Any], current_dirty: dict[str, Any]) -> set[str]:
+    """Finds paths modified, added, or deleted between dirty snapshots."""
+    delta: set[str] = set()
+    for p, stat in current_dirty.items():
+        if not is_ignored_repo_path(p):
+            old = last_dirty.get(p)
+            if not old or old.get("mtime") != stat["mtime"] or old.get("size") != stat["size"]:
+                delta.add(p)
+    for p in last_dirty:
+        if not is_ignored_repo_path(p) and p not in current_dirty:
+            delta.add(p)
+
+    return delta
+
+
+def compute_repo_delta(
+    repo_root: Path, last_head: str, curr_head: str, last_dirty: dict, curr_dirty: dict
+) -> set[str]:
+    """Computes the set of changed repository files since the last recorded run."""
+    delta = collect_dirty_delta(last_dirty, curr_dirty)
+    committed = get_commit_diff_files(repo_root, last_head, curr_head)
+    for p in committed:
+        if not is_ignored_repo_path(p):
+            delta.add(p)
+
+    return delta
+
+
+def compute_cmd_hash(raw_cmd: Any, env: dict[str, str] | None, cwd: str | None) -> str:
+    """Generates MD5 hash for command invocation arguments and environment."""
+    data = {"cmd": raw_cmd, "env": env or {}, "cwd": cwd or ""}
+    serialized = json.dumps(data, sort_keys=True)
+
+    return hashlib.md5(serialized.encode("utf-8")).hexdigest()
+
+
+def check_file_stat(repo_root: Path, rel_path: str) -> tuple[float, int] | None:
+    """Returns current mtime and size for file or None if missing."""
+    target = repo_root / rel_path
+    if not target.is_file():
+        return None
+    st = target.stat()
+
+    return st.st_mtime, st.st_size
+
+
+def check_scripts_modified(repo_root: Path, scripts: list[str], recorded: dict[str, Any]) -> str | None:
+    """Checks if any tool script was modified since last run."""
+    for script in scripts:
+        current = check_file_stat(repo_root, script)
+        prev = recorded.get(script)
+        if current is None or prev != list(current):
+            return f"Tool script modified: {script}"
+
+    return None
+
+
+def check_artifacts_valid(repo_root: Path, inputs: list[str], recorded: dict[str, Any]) -> str | None:
+    """Verifies that all required upstream input artifacts exist and match stats."""
+    for art in inputs:
+        current = check_file_stat(repo_root, art)
+        prev = recorded.get(art)
+        if current is None or prev != list(current):
+            return f"Required artifact missing or modified: {art}"
+
+    return None
+
+
+def check_prev_gate_status(record: dict[str, Any] | None, cmd_hash: str) -> str | None:
+    """Checks previous pass status and command signature."""
+    if not record or record.get("status") != "PASSED":
+        return "Previous run did not pass"
+    if record.get("cmd_hash") != cmd_hash:
+        return "Command arguments or environment changed"
+
+    return None
+
+
+def check_upstream_and_scripts(spec: GateSpec, record: dict[str, Any], executed: set[str], root: Path) -> str | None:
+    """Verifies upstream execution status and script timestamps."""
+    for up in spec.upstream_gates:
+        if up in executed:
+            return f"Upstream gate {up!r} was re-executed"
+    err = check_scripts_modified(root, spec.tool_scripts, record.get("tool_stats", {}))
+    if err is not None:
+        return err
+
+    return check_artifacts_valid(root, spec.artifact_inputs, record.get("artifact_stats", {}))
+
+
+def check_delta_match(spec: GateSpec, repo_delta: set[str]) -> str | None:
+    """Checks if any changed file in repo delta matches gate spec patterns."""
+    for changed in repo_delta:
+        if spec.matches_path(changed):
+            return f"File changed: {changed}"
+
+    return None
+
+
+def evaluate_gate_skip(
+    spec: GateSpec, record: dict[str, Any] | None, cmd_hash: str, repo_delta: set[str], root: Path, executed: set[str]
+) -> tuple[bool, str]:
+    """Determines whether a gate can be skipped based on inputs and delta."""
+    status_err = check_prev_gate_status(record, cmd_hash)
+    if status_err is not None:
+        return False, status_err
+    dep_err = check_upstream_and_scripts(spec, record or {}, executed, root)
+    if dep_err is not None:
+        return False, dep_err
+    delta_err = check_delta_match(spec, repo_delta)
+    if delta_err is not None:
+        return False, delta_err
+
+    return True, "No input changes detected"
+
+
+def clean_temp_file(tmp_path: Path) -> None:
+    """Safely unlinks temporary file if it exists."""
+    if tmp_path.exists():
+        try:
+            tmp_path.unlink()
+        except OSError as err:
+            sys.stderr.write(f"[WARN] Failed to unlink temp file {tmp_path}: {err}\n")
+
+
+def retry_replace_or_overwrite(tmp_path: Path, file_path: Path, text: str) -> None:
+    """Attempts atomic replace with retry, falling back to direct write."""
+    for attempt in range(5):
+        try:
+            os.replace(tmp_path, file_path)
+
+            return
+        except PermissionError:
+            time.sleep(0.01 * (2 ** attempt))
+    with open(file_path, "w", encoding=DEFAULT_ENCODING) as fh:
+        fh.write(text)
+        fh.flush()
+        os.fsync(fh.fileno())
+
+
+def atomic_write_text(file_path: Path, text: str) -> None:
+    """Atomically writes text using tmp file with retry backoff for Windows file locks."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = file_path.with_suffix(f".tmp.{os.getpid()}.{threading.get_ident()}")
+    try:
+        with open(tmp_path, "w", encoding=DEFAULT_ENCODING) as fh:
+            fh.write(text)
+            fh.flush()
+            os.fsync(fh.fileno())
+        retry_replace_or_overwrite(tmp_path, file_path, text)
+    except OSError as err:
+        sys.stderr.write(f"[WARN] Failed atomic write: {err}\n")
+    finally:
+        clean_temp_file(tmp_path)
+
+
+def atomic_write_json(file_path: Path, data: Any) -> None:
+    """Atomically writes JSON structure to file."""
+    payload = json.dumps(data, indent=2)
+    atomic_write_text(file_path, payload)
+
+
+def clear_existing_link(latest_dir: Path) -> None:
+    """Removes existing junction or directory link cleanly."""
+    if latest_dir.exists():
+        try:
+            os.rmdir(str(latest_dir))
+        except OSError:
+            shutil.rmtree(latest_dir, ignore_errors=True)
+
+
+def create_os_junction_or_symlink(target_dir: Path, latest_dir: Path) -> None:
+    """Creates NTFS junction on Windows or symlink on POSIX."""
+    try:
+        if os.name == "nt":
+            import _winapi
+            _winapi.CreateJunction(str(target_dir), str(latest_dir))
+        else:
+            latest_dir.symlink_to(target_dir, target_is_directory=True)
+    except OSError as err:
+        sys.stderr.write(f"[WARN] Failed to create junction or symlink: {err}\n")
+
+
+def link_latest_session(target_dir: Path, latest_dir: Path) -> None:
+    """Links or writes pointer for latest session directory."""
+    pointer_file = target_dir.parent.parent / "latest_run.txt"
+    try:
+        pointer_file.write_text(str(target_dir), encoding=DEFAULT_ENCODING)
+        clear_existing_link(latest_dir)
+        create_os_junction_or_symlink(target_dir, latest_dir)
+    except OSError as err:
+        sys.stderr.write(f"[WARN] Failed to link latest session: {err}\n")
+
+
+def resolve_command_binary(cmd: list[str]) -> list[str]:
+    """Resolves executable path using shutil.which if needed."""
+    resolved = list(cmd)
     binary_path = shutil.which(cmd[0])
     if binary_path is not None:
-        resolved_cmd[0] = binary_path
+        resolved[0] = binary_path
 
+    return resolved
+
+
+def build_timeout_result(
+    name: str, cmd: list[str], exc: subprocess.TimeoutExpired, elapsed: float, cwd: str | None, env: dict | None
+) -> JobResult:
+    """Creates JobResult representing a timeout failure."""
+    out = exc.stdout if isinstance(exc.stdout, str) else ""
+    record_job_timing(name, elapsed)
+
+    return JobResult(
+        name=name, cmd=cmd, code="timeout", out=out, err=f"Job timed out after {exc.timeout}s",
+        elapsed=elapsed, cwd=cwd, env_overrides=env,
+    )
+
+
+def build_error_result(
+    name: str, cmd: list[str], exc: Exception, elapsed: float, cwd: str | None, env: dict | None
+) -> JobResult:
+    """Creates JobResult representing a subprocess error failure."""
+    record_job_timing(name, elapsed)
+
+    return JobResult(name=name, cmd=cmd, code=1, out="", err=str(exc), elapsed=elapsed, cwd=cwd, env_overrides=env)
+
+
+def execute_subprocess(
+    cmd: list[str], timeout_sec: int, env: dict[str, str] | None, cwd: str | None
+) -> subprocess.CompletedProcess:
+    """Executes subprocess synchronously with standard options."""
+    resolved = resolve_command_binary(cmd)
+    res = subprocess.run(
+        resolved, capture_output=True, text=True, encoding=DEFAULT_ENCODING,
+        errors="replace", timeout=timeout_sec, env=env, cwd=cwd,
+    )
+
+    return res
+
+
+def build_success_result(
+    name: str, cmd: list[str], res: subprocess.CompletedProcess, elapsed: float, cwd: str | None, env: dict | None
+) -> JobResult:
+    """Creates JobResult representing a completed subprocess."""
+    record_job_timing(name, elapsed)
+
+    return JobResult(
+        name=name, cmd=cmd, code=res.returncode, out=res.stdout, err=res.stderr,
+        elapsed=elapsed, cwd=cwd, env_overrides=env,
+    )
+
+
+def run_job(
+    name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] | None = None, cwd: str | None = None
+) -> JobResult:
+    """Executes a single gate subprocess and records duration, return code, and streams."""
+    start = time.monotonic()
     try:
-        result = subprocess.run(
-            resolved_cmd,
-            capture_output=True,
-            text=True,
-            encoding=DEFAULT_ENCODING,
-            errors="replace",
-            timeout=timeout_sec,
-            env=env,
-            cwd=cwd,
-        )
-        elapsed = round(time.monotonic() - start, 2)
-        record_job_timing(name, elapsed)
-        return JobResult(
-            name=name,
-            cmd=cmd,
-            code=result.returncode,
-            out=result.stdout,
-            err=result.stderr,
-            elapsed=elapsed,
-        )
+        res = execute_subprocess(cmd, timeout_sec, env, cwd)
+
+        return build_success_result(name, cmd, res, round(time.monotonic() - start, 2), cwd, env)
     except subprocess.TimeoutExpired as exc:
-        elapsed = round(time.monotonic() - start, 2)
-        out = exc.stdout if isinstance(exc.stdout, str) else ""
-        record_job_timing(name, elapsed)
-        return JobResult(
-            name=name,
-            cmd=cmd,
-            code="timeout",
-            out=out,
-            err=f"Job timed out after {timeout_sec}s",
-            elapsed=elapsed,
-        )
+        return build_timeout_result(name, cmd, exc, round(time.monotonic() - start, 2), cwd, env)
     except Exception as exc:
-        elapsed = round(time.monotonic() - start, 2)
-        record_job_timing(name, elapsed)
-        return JobResult(
-            name=name,
-            cmd=cmd,
-            code=1,
-            out="",
-            err=str(exc),
-            elapsed=elapsed,
-        )
-
-
-def parse_args() -> argparse.Namespace:
-    """Constructs CLI argument parser with comprehensive help and alias support."""
-    parser = argparse.ArgumentParser(
-        prog="python 03-ai-scripts/06-cicd-local-runner.py",
-        description="Fast Multi-Worker Local CI/CD Runner with parallel worker pool, IO throttling, and flexible reporting.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # 1. Default: run all gates in parallel; quiet on success (tick "✔ All passed."), detailed logs on failure:
-  python 03-ai-scripts/06-cicd-local-runner.py
-
-  # 2. Show all information (ticker, summary table, full logs for all gates):
-  python 03-ai-scripts/06-cicd-local-runner.py --all-paths
-  python 03-ai-scripts/06-cicd-local-runner.py --all-passed
-  python 03-ai-scripts/06-cicd-local-runner.py --all
-
-  # 3. Explicitly only show logs for failed gates:
-  python 03-ai-scripts/06-cicd-local-runner.py --failed
-
-  # 4. Run sequentially (synchronous mode, 1 worker):
-  python 03-ai-scripts/06-cicd-local-runner.py --sync
-
-  # 5. Custom worker concurrency and IO throttling:
-  python 03-ai-scripts/06-cicd-local-runner.py --workers 4 --io-workers 2
-
-  # 6. Save report to a file:
-  python 03-ai-scripts/06-cicd-local-runner.py --output tmp/cicd-report.txt
-
-  # 7. Output machine-readable JSON (to stdout, or to file with -o):
-  python 03-ai-scripts/06-cicd-local-runner.py --json
-  python 03-ai-scripts/06-cicd-local-runner.py --json -o tmp/cicd-report.json
-
-  # 8. Filter by gate name substring:
-  python 03-ai-scripts/06-cicd-local-runner.py --filter "Linter"
-
-Environment Variables:
-  CI_MAX_WORKERS      Default max workers for thread pool (default: min(8, cpu_count))
-  CI_MAX_IO_WORKERS   Default max workers for heavy IO batch (default: 2)
-  CI_TIMEOUT_SEC      Default per-job timeout in seconds (default: 300)
-        """,
-    )
-    
-    parser.add_argument(
-        "--eta-interval",
-        type=int,
-        default=120,
-        help="Print remaining ETA every N seconds (0 to disable). Default: 120.",
-    )
-
-    parser.add_argument(
-        "--all-paths", "--all-passed", "--all-pass", "--all", "-a",
-        action="store_true",
-        dest="show_all",
-        help="Show detailed information and full logs for all quality gates (both passed and failed).",
-    )
-    parser.add_argument(
-        "--failed", "-f",
-        action="store_true",
-        dest="show_failed",
-        help="Show logs only for failed quality gates (default behavior).",
-    )
-    parser.add_argument(
-        "--sync", "--sequential", "-s",
-        action="store_true",
-        dest="sync_mode",
-        help="Execute quality gates sequentially (1 worker) instead of in parallel.",
-    )
-    parser.add_argument(
-        "--workers", "-w", "--concurrency",
-        type=int,
-        default=DEFAULT_WORKERS,
-        dest="workers",
-        help=f"Number of concurrent worker threads (default: {DEFAULT_WORKERS}).",
-    )
-    parser.add_argument(
-        "--io-workers",
-        type=int,
-        default=DEFAULT_IO_WORKERS,
-        dest="io_workers",
-        help=f"Max workers for heavy IO gates like builds (default: {DEFAULT_IO_WORKERS}).",
-    )
-    parser.add_argument(
-        "--timeout", "-t",
-        type=int,
-        default=DEFAULT_TIMEOUT_SEC,
-        dest="timeout",
-        help=f"Per-gate timeout in seconds (default: {DEFAULT_TIMEOUT_SEC}s).",
-    )
-    parser.add_argument(
-        "--filter", "-k",
-        type=str,
-        default="",
-        dest="filter",
-        help="Filter quality gates by case-insensitive name substring.",
-    )
-    parser.add_argument(
-        "--output", "-o", "--file", "--output-file",
-        type=str,
-        default="",
-        dest="output_file",
-        help="Save execution results and report to the specified file path.",
-    )
-    parser.add_argument(
-        "--json", "--json-output",
-        nargs="?",
-        const=True,
-        default=False,
-        dest="json_mode",
-        help="Output results as machine-readable JSON (to stdout, or to file if specified).",
-    )
-    return parser.parse_args()
-
-
-def filter_job_batches(batches: list[dict[str, Any]], filter_str: str) -> list[dict[str, Any]]:
-    """Filters batches to only include gates matching the query substring."""
-    if not filter_str:
-        return batches
-    low_filter = filter_str.lower()
-    filtered: list[dict[str, Any]] = []
-    for batch in batches:
-        matched_jobs = {
-            name: cmd
-            for name, cmd in batch["jobs"].items()
-            if low_filter in name.lower()
-        }
-        if matched_jobs:
-            batch_copy = dict(batch)
-            batch_copy["jobs"] = matched_jobs
-            filtered.append(batch_copy)
-    return filtered
-
-
-def format_full_report(
-    results: list[JobResult],
-    total_jobs: int,
-    passed_count: int,
-    failed_count: int,
-    timeout_count: int,
-    total_elapsed: float,
-    show_all: bool,
-) -> str:
-    """Formats full human-readable summary and logs."""
-    lines: list[str] = [
-        "=" * 60,
-        "           CI/CD EXECUTION SUMMARY REPORT",
-        "=" * 60,
-    ]
-    for r in results:
-        status_icon = "✅" if r.is_success else ("⏳" if r.is_timeout else "❌")
-        status_word = "PASSED" if r.is_success else ("TIMEOUT" if r.is_timeout else "FAILED")
-        lines.append(f"{status_icon} [{status_word}] {r.name:<40} ({r.elapsed:.2f}s)")
-
-    lines.append("-" * 60)
-    lines.append(f"Total Duration : {total_elapsed:.2f}s")
-    lines.append(f"Gates Passed   : {passed_count}/{total_jobs}")
-    lines.append(f"Gates Failed   : {failed_count}/{total_jobs}")
-    if timeout_count > 0:
-        lines.append(f"Gates Timed Out: {timeout_count}/{total_jobs}")
-    lines.append("-" * 60)
-
-    if show_all:
-        lines.append("\n" + "=" * 60)
-        lines.append("                 ALL QUALITY GATE LOGS")
-        lines.append("=" * 60)
-        for r in results:
-            status_str = "PASS" if r.is_success else ("TIMEOUT" if r.is_timeout else "FAIL")
-            lines.append(f"\n[{status_str} LOG] Gate: {r.name} (Duration: {r.elapsed}s) | Exit Code: {r.code}")
-            lines.append(f"Command: {' '.join(r.cmd)}")
-            if r.out.strip():
-                lines.append(f"Stdout:\n{r.out.strip()}")
-            if r.err.strip():
-                lines.append(f"Stderr:\n{r.err.strip()}")
-            lines.append("-" * 60)
-    else:
-        failures = [r for r in results if not r.is_success]
-        if failures:
-            lines.append("\n" + "=" * 60)
-            lines.append("               FAILED QUALITY GATE LOGS")
-            lines.append("=" * 60)
-            for r in failures:
-                status_str = "TIMEOUT" if r.is_timeout else "FAIL"
-                lines.append(f"\n❌ FAILED: {r.name} (exit code: {r.code}, duration: {r.elapsed}s)")
-                lines.append(f"Command: {' '.join(r.cmd)}")
-                if r.out.strip():
-                    lines.append(f"Stdout:\n{r.out.strip()}")
-                if r.err.strip():
-                    lines.append(f"Stderr:\n{r.err.strip()}")
-                lines.append("-" * 60)
-
-    return "\n".join(lines)
-
-
-TIMING_FILE_PATH = Path(".lovable/cicd-timing.json")
-DEFAULT_JOB_ESTIMATE_SEC = 10.0
-
-
-def handle_json_output(
-    args: argparse.Namespace,
-    results: list[JobResult],
-    counts: tuple[int, int, int, int],
-    wall_duration_sec: float,
-    has_failures: bool,
-) -> int:
-    """Handles JSON serialization and writing to stdout or target file."""
-    total_jobs, passed_count, failed_count, timeout_count = counts
-    payload = {
-        "total_jobs": total_jobs,
-        "passed_count": passed_count,
-        "failed_count": failed_count,
-        "timeout_count": timeout_count,
-        "wall_duration_sec": wall_duration_sec,
-        "has_failures": has_failures,
-        "exit_code": 1 if has_failures else 0,
-        "gates": [asdict(r) for r in results],
-    }
-    json_content = json.dumps(payload, indent=2, ensure_ascii=False)
-    target_path = args.json_mode if isinstance(args.json_mode, str) else args.output_file
-    if target_path:
-        p = Path(target_path)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json_content, encoding=DEFAULT_ENCODING)
-        print(f"📄 JSON results saved to: {target_path}")
-    else:
-        print(json_content)
-
-    return 1 if has_failures else 0
-
-
-def handle_text_output(
-    args: argparse.Namespace,
-    results: list[JobResult],
-    counts: tuple[int, int, int, int],
-    total_elapsed: float,
-) -> int:
-    """Handles text report formatting, output file saving, and console printing."""
-    total_jobs, passed_count, failed_count, timeout_count = counts
-    has_failures = bool(failed_count > 0 or timeout_count > 0)
-    if args.output_file:
-        file_report = format_full_report(
-            results, total_jobs, passed_count, failed_count, timeout_count, total_elapsed, show_all=True
-        )
-        p = Path(args.output_file)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(strip_ansi(file_report), encoding=DEFAULT_ENCODING)
-        print(f"📄 Execution report saved to: {args.output_file}")
-
-    if has_failures:
-        failure_text = format_full_report(
-            results, total_jobs, passed_count, failed_count, timeout_count, total_elapsed, show_all=False
-        )
-        print(failure_text)
-        print(f"\n\033[1;91m[FAILURE]\033[0m CI/CD quality gates failed with {failed_count + timeout_count} error(s).")
-        return 1
-
-    if args.show_all:
-        all_text = format_full_report(
-            results, total_jobs, passed_count, failed_count, timeout_count, total_elapsed, show_all=True
-        )
-        print("\n" + all_text)
-        print(f"\n\033[1;92m🎉 All quality gates passed successfully! Codebase is 100% green.\033[0m")
-    else:
-        print(f"✔ All passed. ({passed_count} gates in {total_elapsed:.2f}s)")
-
-    return 0
-
-
-CICD_TEMP_DIR = Path(".lovable/temp/cicd")
-CICD_ERRORS_LOG = CICD_TEMP_DIR / "errors.log"
-CICD_ERRORS_JSON = CICD_TEMP_DIR / "errors.json"
-CICD_RUN_LOG = CICD_TEMP_DIR / "run.log"
-CICD_SUMMARY_JSON = CICD_TEMP_DIR / "summary.json"
-
-
-def init_cicd_temp_stream() -> None:
-    """Initializes streaming directories and empty log files under .lovable/temp/cicd/."""
-    CICD_TEMP_DIR.mkdir(parents=True, exist_ok=True)
-    ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    CICD_ERRORS_LOG.write_text(f"# CI/CD Real-Time Failure Stream — {ts}\n\n", encoding=DEFAULT_ENCODING)
-    CICD_ERRORS_JSON.write_text("[]\n", encoding=DEFAULT_ENCODING)
-    CICD_RUN_LOG.write_text(f"# CI/CD Full Run Log — {ts}\n\n", encoding=DEFAULT_ENCODING)
-    init_meta = {
-        "status": "running",
-        "started_at": ts,
-        "active_failures": [],
-        "errors_log": str(CICD_ERRORS_LOG),
-        "errors_json": str(CICD_ERRORS_JSON),
-    }
-    CICD_SUMMARY_JSON.write_text(json.dumps(init_meta, indent=2), encoding=DEFAULT_ENCODING)
+        return build_error_result(name, cmd, exc, round(time.monotonic() - start, 2), cwd, env)
 
 
 def extract_stack_or_error(res: JobResult) -> str:
@@ -500,117 +679,637 @@ def extract_stack_or_error(res: JobResult) -> str:
     return err or out or "No output captured."
 
 
-def extract_failing_files(text: str) -> list[str]:
-    """Extracts suspected source file paths and locations from error text."""
-    pattern = re.compile(r'(?:[a-zA-Z0-9_\-./\\]+\.(?:go|py|ts|tsx|js|json|sh|ps1|yml|yaml)(?::\d+(?::\d+)?)?)')
-    matches = pattern.findall(text)
+PATH_EXTS = "go|py|ts|tsx|js|jsx|json|sh|ps1|yml|yaml|md|sql|toml|mod|sum"
+PATH_PATTERNS = [
+    re.compile(r'(?:[a-zA-Z]:[\\/])?[a-zA-Z0-9_\-./\\]+\.(?:' + PATH_EXTS + r')(?::\d+(?::\d+)?)?'),
+    re.compile(r'[a-zA-Z0-9_\-./\\]+\.(?:ts|tsx|js|jsx)\s*\(\d+(?:,\d+)?\)'),
+    re.compile(r'File\s+"([^"]+\.(?:py|sh|ps1))",\s+line\s+(\d+)'),
+]
+IGNORED_PREFIXES = ("http://", "https://", "node_modules/", "vendor/", ".git/", ".tmp/", "go/pkg/mod/", "AppData/", "site-packages/")
+
+
+def normalize_suspect_coord(raw: str) -> str:
+    """Converts parens syntax to standard colon syntax."""
+    clean = raw.strip().strip('"').strip("'").replace("\\", "/")
+    paren_match = re.match(r'^(.*?)\s*\((\d+)(?:,(\d+))?\)$', clean)
+    if paren_match:
+        base, line, col = paren_match.groups()
+        coord = f":{col}" if col else ""
+
+        return f"{base}:{line}{coord}"
+
+    return clean
+
+
+def resolve_suspect_path(clean: str, cwd: str | None, root: Path) -> str:
+    """Resolves suspect path against cwd and repo root."""
+    path_no_coord = re.sub(r':\d+(?::\d+)?$', '', clean)
+    root_str = str(root).replace("\\", "/") + "/"
+    if clean.startswith(root_str):
+        clean = clean[len(root_str):]
+        path_no_coord = path_no_coord[len(root_str):]
+    if cwd and not clean.startswith(f"{cwd}/"):
+        if (root / cwd / path_no_coord).is_file():
+            return f"{cwd}/{clean}"
+    if (root / path_no_coord).is_file():
+        return clean
+
+    return clean if "." in clean else ""
+
+
+def extract_regex_suspect_files(text: str, cwd: str | None, root: Path) -> list[str]:
+    """Extracts raw candidate paths using regex patterns."""
     seen: set[str] = set()
     files: list[str] = []
-    for m in matches:
-        if m not in seen and not m.startswith("http"):
-            seen.add(m)
-            files.append(m)
+    for pat in PATH_PATTERNS:
+        for match in pat.findall(text):
+            raw = match if isinstance(match, str) else f"{match[0]}:{match[1]}"
+            if any(raw.startswith(p) or f"/{p}" in raw for p in IGNORED_PREFIXES):
+                continue
+            resolved = resolve_suspect_path(normalize_suspect_coord(raw), cwd, root)
+            if resolved and resolved not in seen:
+                seen.add(resolved)
+                files.append(resolved)
 
     return files[:10]
 
 
-def append_run_log(res: JobResult) -> None:
-    """Appends gate execution outcome to full chronological run.log."""
-    ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    status = "PASS" if res.is_success else "FAIL"
-    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
-    entry = f"[{ts}] [{status}] {res.name} (code={res.code}, {res.elapsed}s) | Cmd: {cmd_str}\n"
-    if not res.is_success:
-        err = extract_stack_or_error(res)
-        entry += f"  Error: {strip_ansi(err)}\n"
-    try:
-        with open(CICD_RUN_LOG, "a", encoding=DEFAULT_ENCODING) as fh:
-            fh.write(entry)
-    except OSError:
-        pass
+def extract_suspect_fallback(gate_name: str, delta: set[str]) -> list[str]:
+    """Fallback to gate relevant delta or tool scripts when error output has no files."""
+    spec = GATE_SPECS.get(gate_name)
+    if not spec:
+        return []
+    rel_delta = [p for p in delta if spec.matches_path(p)]
+    if rel_delta:
+        return rel_delta[:5]
+
+    return (spec.tool_scripts + spec.configs)[:5]
 
 
-def update_cicd_summary(state: dict[str, Any], is_finished: bool = False) -> None:
-    """Updates summary.json metadata with real-time status and counts."""
-    total = state["total"]
-    results = state.get("results", [])
-    passed = sum(1 for r in results if r.is_success)
-    failed = sum(1 for r in results if not r.is_success)
-    remaining = max(0, total - passed - failed)
-    status = "completed" if is_finished and failed == 0 else ("failed" if is_finished else "running")
-    meta = {
-        "status": status,
-        "total_gates": total,
-        "passed_gates": passed,
-        "failed_gates": failed,
-        "remaining_gates": remaining,
-        "errors_count": len(state.get("errors_list", [])),
-        "errors_log": str(CICD_ERRORS_LOG),
-        "errors_json": str(CICD_ERRORS_JSON),
-        "run_log": str(CICD_RUN_LOG),
-        "summary_json": str(CICD_SUMMARY_JSON),
-        "active_failures": [e["name"] for e in state.get("errors_list", [])],
-    }
-    try:
-        CICD_SUMMARY_JSON.write_text(json.dumps(meta, indent=2), encoding=DEFAULT_ENCODING)
-    except OSError:
-        pass
+def extract_failing_files(text: str, gate_name: str = "", cwd: str | None = None, root: Path | None = None, delta: set[str] | None = None) -> list[str]:
+    """Multi-tiered suspect file extractor with semantic fallback."""
+    actual_root = root or Path.cwd()
+    found = extract_regex_suspect_files(text, cwd, actual_root)
+    if not found and gate_name:
+        return extract_suspect_fallback(gate_name, delta or set())
+
+    return found
 
 
-def stream_failure_to_disk(res: JobResult, state: dict[str, Any]) -> None:
-    """Appends failure information to real-time logs in .lovable/temp/cicd/."""
-    ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    err_text = extract_stack_or_error(res)
-    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
-    suspect_files = extract_failing_files(err_text)
-    files_line = f"- **Suspect Files**: {', '.join(suspect_files)}\n" if suspect_files else ""
-    entry = (
-        f"### [{ts}] FAIL: {res.name}\n"
-        f"- **Command**: `{cmd_str}`\n"
-        f"- **Exit Code**: `{res.code}` ({res.elapsed}s)\n"
-        f"{files_line}"
-        f"```text\n{strip_ansi(err_text)}\n```\n\n"
+def format_suspect_files_bullet(files: list[str]) -> str:
+    """Formats list of suspect files into formatted bullet string."""
+    if not files:
+        return "    (None detected in output)"
+
+    return "\n".join(f"    • {f}" for f in files)
+
+
+def format_banner_header(name: str, idx: int, total: int) -> str:
+    """Formats ANSI failure banner top border and title."""
+    header = (
+        f"\n\033[1;91m================================================================\n"
+        f"🚨 [IMMEDIATE FAILURE DETECTED] [{idx}/{total}] {name}\n"
+        f"================================================================\033[0m\n"
     )
-    with open(CICD_ERRORS_LOG, "a", encoding=DEFAULT_ENCODING) as fh:
-        fh.write(entry)
 
-    errors_list = state.setdefault("errors_list", [])
-    errors_list.append({
-        "name": res.name,
-        "cmd": res.cmd,
-        "code": res.code,
-        "elapsed": res.elapsed,
-        "suspect_files": suspect_files,
-        "error": strip_ansi(err_text),
-    })
-    try:
-        CICD_ERRORS_JSON.write_text(json.dumps(errors_list, indent=2), encoding=DEFAULT_ENCODING)
-    except OSError:
-        pass
-    update_cicd_summary(state, is_finished=False)
+    return header
+
+
+def format_banner_metadata(res: JobResult, files: list[str]) -> str:
+    """Formats metadata lines for failure banner."""
+    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
+    cwd_str = res.cwd or "."
+    env_str = " ".join(f"{k}={v}" for k, v in res.env_overrides.items()) if res.env_overrides else "(default)"
+    files_str = format_suspect_files_bullet(files)
+
+    return (
+        f"  Command       : {cmd_str}\n  Working Dir   : {cwd_str}\n  Env Overrides : {env_str}\n"
+        f"  Exit Code     : {res.code} ({res.elapsed}s)\n  Failing Files :\n{files_str}\n"
+        f"  Stream Log    : {CICD_ERRORS_LOG}\n  Stream JSON   : {CICD_ERRORS_JSON}\n"
+        f"  Stream Events : {CICD_EVENTS_JSONL}\n\n"
+    )
+
+
+def format_failure_banner(res: JobResult, idx: int, total: int, files: list[str], err_text: str) -> str:
+    """Formats full immediate ANSI failure banner for terminal stdout."""
+    header = format_banner_header(res.name, idx, total)
+    meta = format_banner_metadata(res, files)
+    body = (
+        f"{meta}\033[1mStack Trace / Failure Output:\033[0m\n"
+        f"----------------------------------------------------------------\n{err_text}\n"
+        f"\033[1;91m================================================================\033[0m\n"
+    )
+
+    return header + body
 
 
 def print_immediate_failure_report(res: JobResult, idx: int, total: int) -> None:
     """Immediately prints full failure stack trace to terminal without waiting for suite completion."""
     err_text = extract_stack_or_error(res)
-    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
-    suspect_files = extract_failing_files(err_text)
-    files_str = "\n".join(f"    • {f}" for f in suspect_files) if suspect_files else "    (None detected in output)"
-    banner = (
-        f"\n\033[1;91m================================================================\n"
-        f"🚨 [IMMEDIATE FAILURE DETECTED] [{idx}/{total}] {res.name}\n"
-        f"================================================================\033[0m\n"
-        f"  Command       : {cmd_str}\n"
-        f"  Exit Code     : {res.code} ({res.elapsed}s)\n"
-        f"  Failing Files :\n{files_str}\n"
-        f"  Stream Log    : {CICD_ERRORS_LOG}\n"
-        f"  Stream JSON   : {CICD_ERRORS_JSON}\n\n"
-        f"\033[1mStack Trace / Failure Output:\033[0m\n"
-        f"----------------------------------------------------------------\n"
-        f"{err_text}\n"
-        f"\033[1;91m================================================================\033[0m\n"
-    )
+    suspect_files = extract_failing_files(err_text, res.name, res.cwd)
+    banner = format_failure_banner(res, idx, total, suspect_files, err_text)
     print(banner, flush=True)
+
+
+def format_error_log_entry(res: JobResult, suspect_files: list[str], ts: str, err_text: str) -> str:
+    """Builds markdown entry for appending to errors.log."""
+    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
+    files_line = f"- **Suspect Files**: {', '.join(suspect_files)}\n" if suspect_files else ""
+    entry = (
+        f"### [{ts}] FAIL: {res.name}\n- **Command**: `{cmd_str}`\n"
+        f"- **Exit Code**: `{res.code}` ({res.elapsed}s)\n{files_line}"
+        f"```text\n{strip_ansi(err_text)}\n```\n\n"
+    )
+
+    return entry
+
+
+def format_run_log_line(res: JobResult) -> str:
+    """Formats single line for appending to chronological run.log."""
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    status = "PASS" if res.is_success else "FAIL"
+    cached_tag = " [CACHED]" if res.is_cached else ""
+    cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
+    line = f"[{ts}] [{status}{cached_tag}] {res.name} (code={res.code}, {res.elapsed}s) | Cmd: {cmd_str}\n"
+    if not res.is_success:
+        err = extract_stack_or_error(res)
+        line += f"  Error: {strip_ansi(err)}\n"
+
+    return line
+
+
+def direct_append_sync(file_path: Path, content: str) -> None:
+    """Appends content to file and immediately flushes and syncs to disk."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with DISK_WRITE_LOCK:
+        try:
+            with open(file_path, "a", encoding=DEFAULT_ENCODING) as fh:
+                fh.write(content)
+                fh.flush()
+                os.fsync(fh.fileno())
+        except OSError as err:
+            sys.stderr.write(f"[WARN] Failed writing to {file_path}: {err}\n")
+
+
+def emit_telemetry_event(event_type: str, session_dir: Path | None, payload: dict[str, Any]) -> None:
+    """Emits append-only real-time event to events.jsonl and changelog.log with immediate fsync."""
+    ts = time.strftime("%Y-%m-%dT%H:%M:%S")
+    event_obj = {"timestamp": ts, "event": event_type, **payload}
+    json_line = json.dumps(event_obj, separators=(",", ":")) + "\n"
+    summary_msg = payload.get("message") or f"[{event_type.upper()}] {payload.get('name', '')}"
+    changelog_line = f"[{ts}] {summary_msg}\n"
+    targets = [(CICD_EVENTS_JSONL, json_line), (CICD_CHANGELOG_LOG, changelog_line)]
+    if session_dir is not None:
+        targets.extend([(session_dir / "events.jsonl", json_line), (session_dir / "changelog.log", changelog_line)])
+    for path, text in targets:
+        direct_append_sync(path, text)
+
+
+def append_run_log_entry(res: JobResult, session_dir: Path | None) -> None:
+    """Appends gate execution outcome to chronological run.log."""
+    entry = format_run_log_line(res)
+    targets = [CICD_RUN_LOG]
+    if session_dir is not None:
+        targets.append(session_dir / "run.log")
+    for t in targets:
+        direct_append_sync(t, entry)
+
+
+def write_failure_markdown(entry: str, session_dir: Path | None) -> None:
+    """Appends markdown failure entry to active errors.log files."""
+    targets = [CICD_ERRORS_LOG]
+    if session_dir is not None:
+        targets.append(session_dir / "errors.log")
+    for t in targets:
+        direct_append_sync(t, entry)
+
+
+def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: Path | None) -> None:
+    """Appends failure information to real-time logs in session and root temp."""
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    err_text = extract_stack_or_error(res)
+    suspect_files = extract_failing_files(err_text)
+    write_failure_markdown(format_error_log_entry(res, suspect_files, ts, err_text), session_dir)
+    errors_list = state.setdefault("errors_list", [])
+    errors_list.append({"name": res.name, "cmd": res.cmd, "code": res.code, "elapsed": res.elapsed, "suspect_files": suspect_files, "error": strip_ansi(err_text)})
+    atomic_write_json(CICD_ERRORS_JSON, errors_list)
+    if session_dir is not None:
+        atomic_write_json(session_dir / "errors.json", errors_list)
+
+
+class TelemetryTracker:
+    """Thread-safe multi-slot in-flight progress tracker and reporter."""
+
+    def __init__(self, total_jobs: int, is_tty: bool, is_json: bool, show_all: bool):
+        self.total_jobs = total_jobs
+        self.is_tty = is_tty
+        self.is_json = is_json
+        self.show_all = show_all
+        self.active_jobs: dict[str, float] = {}
+        self.completed_count = 0
+        self.cached_count = 0
+        self.lock = threading.Lock()
+        self.last_print = 0.0
+        self.start_heartbeat()
+
+    def start_heartbeat(self) -> None:
+        """Spawns background heartbeat daemon."""
+        self._stop_event = threading.Event()
+        self._thread = threading.Thread(target=self._run_heartbeat, daemon=True)
+        self._thread.start()
+
+    def _run_heartbeat(self) -> None:
+        interval = 0.5 if self.is_tty else 4.0
+        while not self._stop_event.is_set():
+            if self._stop_event.wait(timeout=interval):
+                break
+            with self.lock:
+                act = len(self.active_jobs)
+            if act > 0:
+                self.tick(force=True)
+
+    def stop_heartbeat(self) -> None:
+        """Stops background heartbeat daemon."""
+        if hasattr(self, "_stop_event"):
+            self._stop_event.set()
+
+    def start_job(self, name: str) -> None:
+        """Registers a newly launched job in active tracking."""
+        with self.lock:
+            self.active_jobs[name] = time.monotonic()
+        self.tick(force=False)
+
+    def finish_job(self, name: str, is_cached: bool = False) -> None:
+        """Removes job from active tracking and increments counter."""
+        with self.lock:
+            if name in self.active_jobs:
+                del self.active_jobs[name]
+            self.completed_count += 1
+            if is_cached:
+                self.cached_count += 1
+        self.tick(force=False)
+
+    def _format_active_summary(self, now: float) -> tuple[int, list[str]]:
+        with self.lock:
+            items = [f"{n} ({now - st:.1f}s)" for n, st in list(self.active_jobs.items())[:4]]
+            count = len(self.active_jobs)
+
+        return count, items
+
+    def tick(self, force: bool = False) -> None:
+        """Emits progress heartbeat if interval has elapsed."""
+        if self.is_json:
+            return
+        now = time.monotonic()
+        if not force and now - self.last_print < (0.8 if self.is_tty else 8.0):
+            return
+        self.last_print = now
+        act_count, items = self._format_active_summary(now)
+        if act_count == 0 and self.completed_count == self.total_jobs:
+            return
+        pct = int(100.0 * self.completed_count / max(1, self.total_jobs))
+        msg = f"[IN-FLIGHT] {act_count} active: [{', '.join(items)}] | {self.completed_count}/{self.total_jobs} done ({pct}%)"
+        self._write_heartbeat(msg)
+
+    def _write_heartbeat(self, msg: str) -> None:
+        if self.is_tty:
+            sys.stdout.write(f"\r{msg}\033[K")
+            sys.stdout.flush()
+        else:
+            print(msg, flush=True)
+
+    def clear_line(self) -> None:
+        """Clears terminal line if in TTY mode."""
+        if self.is_tty and not self.is_json:
+            sys.stdout.write("\r\033[K")
+            sys.stdout.flush()
+
+
+def load_previous_state(force: bool) -> dict[str, Any]:
+    """Loads previous state.json if present and not bypassed by force flag."""
+    if not force and CICD_STATE_JSON.is_file():
+        try:
+            return json.loads(CICD_STATE_JSON.read_text(encoding=DEFAULT_ENCODING))
+        except Exception as err:
+            return {}
+
+    return {}
+
+
+def init_session_scaffolding(force: bool, resume: bool) -> tuple[Path, dict[str, Any]]:
+    """Initializes session folder, latest pointer, and loads previous state."""
+    CICD_RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    ts = time.strftime("%Y%m%d_%H%M%S")
+    session_dir = CICD_RUNS_DIR / ts
+    session_dir.mkdir(parents=True, exist_ok=True)
+    link_latest_session(session_dir, CICD_LATEST_DIR)
+    prev_state = load_previous_state(force)
+    init_files(session_dir, ts)
+
+    return session_dir, prev_state
+
+
+def init_empty_files(session_dir: Path, ts: str) -> None:
+    """Writes empty headers to errors and run logs."""
+    run_header = f"# CI/CD Run Log — {ts}\n\n"
+    CICD_ERRORS_LOG.write_text(f"# CI/CD Failure Log — {ts}\n\n", encoding=DEFAULT_ENCODING)
+    (session_dir / "errors.log").write_text(f"# CI/CD Failure Log — {ts}\n\n", encoding=DEFAULT_ENCODING)
+    atomic_write_json(CICD_ERRORS_JSON, [])
+    atomic_write_json(session_dir / "errors.json", [])
+    CICD_RUN_LOG.write_text(run_header, encoding=DEFAULT_ENCODING)
+    (session_dir / "run.log").write_text(run_header, encoding=DEFAULT_ENCODING)
+
+
+def init_files(session_dir: Path, ts: str) -> None:
+    """Initializes log files with session header in root and session dir."""
+    init_empty_files(session_dir, ts)
+    CICD_EVENTS_JSONL.write_text("", encoding=DEFAULT_ENCODING)
+    (session_dir / "events.jsonl").write_text("", encoding=DEFAULT_ENCODING)
+    CICD_CHANGELOG_LOG.write_text(f"# CI/CD Changelog — {ts}\n\n", encoding=DEFAULT_ENCODING)
+    (session_dir / "changelog.log").write_text(f"# CI/CD Changelog — {ts}\n\n", encoding=DEFAULT_ENCODING)
+
+
+def serialize_state(state: dict[str, Any]) -> dict[str, Any]:
+    """Prepares serializable state dictionary without non-primitive objects."""
+    clean = {k: list(v) if isinstance(v, (set, frozenset)) else v for k, v in state.items() if k != "results"}
+    clean["results"] = [asdict(r) for r in state.get("results", [])]
+
+    return clean
+
+
+def persist_state(session_dir: Path, state: dict[str, Any]) -> None:
+    """Atomically writes state.json to session dir and root."""
+    state["updated_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    payload = serialize_state(state)
+    atomic_write_json(session_dir / "state.json", payload)
+    atomic_write_json(CICD_STATE_JSON, payload)
+
+
+def update_summary_file(session_dir: Path, meta: dict[str, Any]) -> None:
+    """Atomically writes summary.json to session dir and root."""
+    atomic_write_json(session_dir / "summary.json", meta)
+    atomic_write_json(CICD_SUMMARY_JSON, meta)
+
+
+def compute_summary_meta(total: int, results: list, errors_list: list, is_finished: bool) -> dict[str, Any]:
+    """Builds summary statistics dictionary for summary.json."""
+    passed = sum(1 for r in results if r.is_success)
+    failed = sum(1 for r in results if not r.is_success)
+    status = "completed" if is_finished and failed == 0 else ("failed" if is_finished else "running")
+
+    return {
+        "status": status, "total_gates": total, "passed_gates": passed, "failed_gates": failed,
+        "remaining_gates": max(0, total - passed - failed), "cached_gates": sum(1 for r in results if r.is_cached),
+        "errors_count": len(errors_list), "active_failures": [e["name"] for e in errors_list],
+    }
+
+
+def update_cicd_summary(state: dict[str, Any], session_dir: Path, is_finished: bool = False) -> None:
+    """Updates summary.json metadata with real-time status and counts."""
+    meta = compute_summary_meta(state["total"], state.get("results", []), state.get("errors_list", []), is_finished)
+    update_summary_file(session_dir, meta)
+
+
+def filter_batch_jobs(jobs: dict[str, Any], query: str) -> dict[str, Any]:
+    """Filters dictionary of jobs by name substring query."""
+    q = query.lower()
+    matched = {k: v for k, v in jobs.items() if q in k.lower()}
+
+    return matched
+
+
+def filter_job_batches(batches: list[dict[str, Any]], query: str | None) -> list[dict[str, Any]]:
+    """Returns filtered copy of batches matching user search query."""
+    if not query:
+        return batches
+    filtered = []
+    for b in batches:
+        matched = filter_batch_jobs(b.get("jobs", {}), query)
+        if matched:
+            copy_b = dict(b)
+            copy_b["jobs"] = matched
+            filtered.append(copy_b)
+
+    return filtered
+
+
+def create_base_arg_parser() -> argparse.ArgumentParser:
+    """Initializes ArgumentParser with basic description and epilog."""
+    parser = argparse.ArgumentParser(
+        prog="python 03-ai-scripts/06-cicd-local-runner.py",
+        description="Fast Multi-Worker Local CI/CD Runner with Incremental Caching & Telemetry.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    return parser
+
+
+def add_execution_mode_arguments(parser: argparse.ArgumentParser) -> None:
+    """Adds execution mode CLI arguments."""
+    parser.add_argument("--sync", dest="sync_mode", action="store_true", help="Run sequentially.")
+    parser.add_argument("-w", "--workers", type=int, default=DEFAULT_WORKERS, help="Worker threads.")
+    parser.add_argument("--io-workers", type=int, default=DEFAULT_IO_WORKERS, help="IO worker limit.")
+    parser.add_argument("-t", "--timeout", type=int, default=DEFAULT_TIMEOUT_SEC, help="Job timeout.")
+    parser.add_argument("--filter", type=str, default=None, help="Filter jobs by substring.")
+
+
+def add_reporting_arguments(parser: argparse.ArgumentParser) -> None:
+    """Adds reporting and visibility CLI arguments."""
+    parser.add_argument("--all-paths", "--all-passed", "--all", dest="show_all", action="store_true", help="Show all.")
+    parser.add_argument("--failed", dest="failed_only", action="store_true", help="Show failed only.")
+    parser.add_argument("-o", "--output", dest="output_file", type=str, default=None, help="Output file.")
+    parser.add_argument("--json", dest="json_mode", action="store_true", help="Output machine-readable JSON.")
+    parser.add_argument("--eta-interval", type=int, default=120, help="Print ETA interval in seconds.")
+
+
+def add_caching_and_resume_arguments(parser: argparse.ArgumentParser) -> None:
+    """Adds incremental caching and crash resumption arguments."""
+    parser.add_argument("--force", "--fresh", "--clean", "--no-cache", dest="force_run", action="store_true", help="Run all.")
+    parser.add_argument("--resume", dest="resume_mode", action="store_true", help="Resume interrupted session.")
+
+
+def parse_args() -> argparse.Namespace:
+    """Constructs CLI argument parser with comprehensive argument support."""
+    parser = create_base_arg_parser()
+    add_execution_mode_arguments(parser)
+    add_reporting_arguments(parser)
+    add_caching_and_resume_arguments(parser)
+
+    return parser.parse_args()
+
+
+def collect_tool_stats(repo_root: Path, scripts: list[str]) -> dict[str, list]:
+    """Collects current file stats for tool scripts."""
+    stats = {}
+    for s in scripts:
+        st = check_file_stat(repo_root, s)
+        if st is not None:
+            stats[s] = list(st)
+
+    return stats
+
+
+def collect_artifact_stats(repo_root: Path, artifacts: list[str]) -> dict[str, list]:
+    """Collects current file stats for artifacts."""
+    stats = {}
+    for a in artifacts:
+        st = check_file_stat(repo_root, a)
+        if st is not None:
+            stats[a] = list(st)
+
+    return stats
+
+
+def record_gate_success(state: dict[str, Any], name: str, res: JobResult, cmd_hash: str, spec: GateSpec, root: Path) -> None:
+    """Records passing gate execution outcome in persistent state."""
+    state.setdefault("gates", {})[name] = {
+        "status": "PASSED", "code": 0, "cmd_hash": cmd_hash, "elapsed": res.elapsed,
+        "is_cached": res.is_cached, "tool_stats": collect_tool_stats(root, spec.tool_scripts),
+        "artifact_stats": collect_artifact_stats(root, spec.artifact_outputs + spec.artifact_inputs),
+    }
+
+
+def record_gate_failure(state: dict[str, Any], name: str, res: JobResult, cmd_hash: str) -> None:
+    """Records failing gate execution outcome in persistent state."""
+    err_text = extract_stack_or_error(res)
+    state.setdefault("gates", {})[name] = {
+        "status": "FAILED", "code": res.code, "cmd_hash": cmd_hash, "elapsed": res.elapsed,
+        "error": strip_ansi(err_text),
+    }
+
+
+def handle_success_result(res: JobResult, cmd_hash: str, spec: GateSpec, state: dict, sdir: Path, tel: TelemetryTracker, root: Path) -> None:
+    """Handles reporting and state update for a passed quality gate."""
+    record_gate_success(state, res.name, res, cmd_hash, spec, root)
+    evt = "gate_cached" if res.is_cached else "gate_passed"
+    emit_telemetry_event(evt, sdir, {"name": res.name, "elapsed": res.elapsed})
+    if tel.show_all and not state["is_json"]:
+        tel.clear_line()
+        tag = " [cached]" if res.is_cached else ""
+        idx, total = state["counter"], state["total"]
+        print(f"  [{idx:2d}/{total}] \033[1;92m✓ PASS\033[0m [{res.name}] ({res.elapsed}s){tag}", flush=True)
+
+
+def handle_failure_result(res: JobResult, cmd_hash: str, state: dict, sdir: Path, tel: TelemetryTracker) -> None:
+    """Handles reporting and state update for a failed quality gate."""
+    record_gate_failure(state, res.name, res, cmd_hash)
+    append_failure_to_disk(res, state, sdir)
+    emit_telemetry_event("gate_failed", sdir, {"name": res.name, "code": res.code, "elapsed": res.elapsed})
+    if not state["is_json"]:
+        tel.clear_line()
+        print_immediate_failure_report(res, state["counter"], state["total"])
+
+
+def track_executed_gate(res: JobResult, state: dict[str, Any]) -> None:
+    """Tracks non-cached executed gate in state."""
+    if not res.is_cached:
+        state.setdefault("freshly_executed", set()).add(res.name)
+
+
+def dispatch_result_outcome(
+    res: JobResult, cmd_hash: str, spec: GateSpec, state: dict, sdir: Path, tel: TelemetryTracker, root: Path
+) -> None:
+    """Dispatches result to either success or failure handler."""
+    if res.is_success:
+        handle_success_result(res, cmd_hash, spec, state, sdir, tel, root)
+    else:
+        handle_failure_result(res, cmd_hash, state, sdir, tel)
+
+
+def handle_completed_result(
+    res: JobResult, cmd_hash: str, spec: GateSpec, state: dict[str, Any], sdir: Path, tel: TelemetryTracker, root: Path
+) -> None:
+    """Processes completed JobResult, updates state, logs, and telemetry."""
+    state["counter"] += 1
+    state["results"].append(res)
+    track_executed_gate(res, state)
+    append_run_log_entry(res, sdir)
+    dispatch_result_outcome(res, cmd_hash, spec, state, sdir, tel, root)
+    persist_state(sdir, state)
+    update_cicd_summary(state, sdir, is_finished=False)
+    tel.finish_job(res.name, is_cached=res.is_cached)
+
+
+def check_single_gate_skip(name: str, cmd: Any, prev: dict, delta: set, root: Path, executed: set) -> tuple[bool, str, str, GateSpec, Any]:
+    """Evaluates whether an individual gate meets caching conditions."""
+    raw_cmd = cmd.get("cmd") if isinstance(cmd, dict) else cmd
+    env = cmd.get("env") if isinstance(cmd, dict) else None
+    cwd = cmd.get("cwd") if isinstance(cmd, dict) else None
+    cmd_hash = compute_cmd_hash(raw_cmd, env, cwd)
+    spec = GATE_SPECS.get(name, GateSpec(name))
+    can_skip, reason = evaluate_gate_skip(spec, prev.get("gates", {}).get(name), cmd_hash, delta, root, executed)
+
+    return can_skip, reason, cmd_hash, spec, raw_cmd
+
+
+def build_cached_job_result(name: str, raw_cmd: Any, cmd: Any, reason: str) -> JobResult:
+    """Creates JobResult for a skipped cached gate."""
+    cwd = cmd.get("cwd") if isinstance(cmd, dict) else None
+    env = cmd.get("env") if isinstance(cmd, dict) else None
+
+    return JobResult(
+        name=name, cmd=raw_cmd, code=0, out=f"[CACHED] {reason}", err="",
+        elapsed=0.0, cwd=cwd, env_overrides=env, is_cached=True,
+    )
+
+
+def evaluate_batch_skips(
+    items: list[tuple[str, Any]], state: dict, prev: dict, delta: set, root: Path, sdir: Path, tel: TelemetryTracker
+) -> list[tuple[str, Any, str, GateSpec]]:
+    """Evaluates gates for skipping; records skipped gates and returns list of jobs to run."""
+    to_run = []
+    executed = state.get("freshly_executed", set())
+    for name, cmd in items:
+        can_skip, reason, cmd_hash, spec, raw_cmd = check_single_gate_skip(name, cmd, prev, delta, root, executed)
+        if can_skip:
+            res = build_cached_job_result(name, raw_cmd, cmd, reason)
+            handle_completed_result(res, cmd_hash, spec, state, sdir, tel, root)
+        else:
+            to_run.append((name, cmd, cmd_hash, spec))
+
+    return to_run
+
+
+def submit_job_futures(executor: ThreadPoolExecutor, to_run: list, args: argparse.Namespace, telemetry: TelemetryTracker) -> dict:
+    """Submits active jobs to ThreadPoolExecutor and registers telemetry."""
+    future_map = {}
+    for name, cmd, cmd_hash, spec in to_run:
+        telemetry.start_job(name)
+        raw_cmd = cmd.get("cmd") if isinstance(cmd, dict) else cmd
+        env = {**os.environ, **cmd.get("env")} if isinstance(cmd, dict) and "env" in cmd else None
+        cwd = cmd.get("cwd") if isinstance(cmd, dict) else None
+        fut = executor.submit(run_job, name, raw_cmd, args.timeout, env, cwd)
+        future_map[fut] = (name, cmd_hash, spec, cmd)
+
+    return future_map
+
+
+def wait_and_handle_batch_futures(fut_map: dict, state: dict, sdir: Path, tel: TelemetryTracker, root: Path) -> None:
+    """Collects completed batch futures from executor and handles outcomes."""
+    for fut in as_completed(fut_map):
+        name, cmd_hash, spec, cmd = fut_map[fut]
+        try:
+            res = fut.result()
+        except Exception as ex:
+            raw = cmd.get("cmd") if isinstance(cmd, dict) else cmd
+            res = JobResult(name=name, cmd=raw, code=1, out="", err=str(ex), elapsed=0.0)
+        handle_completed_result(res, cmd_hash, spec, state, sdir, tel, root)
+
+
+def execute_job_batch(
+    batch: dict[str, Any], workers: int, is_sync: bool, args: argparse.Namespace, state: dict[str, Any],
+    prev_state: dict[str, Any], repo_delta: set[str], root: Path, sdir: Path, tel: TelemetryTracker
+) -> None:
+    """Executes all jobs within a single batch with worker pool."""
+    items = list(batch["jobs"].items())
+    to_run = evaluate_batch_skips(items, state, prev_state, repo_delta, root, sdir, tel)
+    if not to_run:
+        return
+    limit = batch.get("max_workers")
+    batch_workers = 1 if is_sync else min(workers, limit or workers, len(to_run))
+    with ThreadPoolExecutor(max_workers=batch_workers) as executor:
+        fut_map = submit_job_futures(executor, to_run, args, tel)
+        wait_and_handle_batch_futures(fut_map, state, sdir, tel, root)
 
 
 def print_runner_banner(concurrency_label: str, total_jobs: int) -> None:
@@ -624,113 +1323,271 @@ def print_runner_banner(concurrency_label: str, total_jobs: int) -> None:
     print("----------------------------------------------------------------\n")
 
 
-def execute_job_batch(
-    batch: dict[str, Any],
-    workers: int,
-    is_sync: bool,
-    args: argparse.Namespace,
-    state: dict[str, Any],
-) -> None:
-    """Executes all jobs within a single batch with worker pool."""
-    job_items = list(batch["jobs"].items())
-    batch_limit = batch.get("max_workers")
-    batch_workers = 1 if is_sync else min(workers, batch_limit or workers, len(job_items))
+def build_json_payload(results: list[JobResult], counts: tuple[int, int, int, int], total_elapsed: float) -> dict[str, Any]:
+    """Constructs dictionary structure for machine-readable JSON output."""
+    total, passed, failed, timeout = counts
+    payload = {
+        "status": "passed" if failed == 0 and timeout == 0 else "failed",
+        "total_elapsed_sec": total_elapsed,
+        "summary": {"total": total, "passed": passed, "failed": failed, "timeout": timeout, "cached": sum(1 for r in results if r.is_cached)},
+        "results": [asdict(r) for r in results],
+    }
 
-    with ThreadPoolExecutor(max_workers=batch_workers) as executor:
-        future_to_name = {
-            executor.submit(
-                run_job,
-                name,
-                cmd.get("cmd") if isinstance(cmd, dict) else cmd,
-                args.timeout,
-                {**os.environ, **cmd.get("env")} if isinstance(cmd, dict) and "env" in cmd else None,
-                cmd.get("cwd") if isinstance(cmd, dict) else None,
-            ): name
-            for name, cmd in job_items
-        }
-        for future in as_completed(future_to_name):
-            state["counter"] += 1
-            idx = state["counter"]
-            total = state["total"]
-            try:
-                res = future.result()
-                state["results"].append(res)
-                append_run_log(res)
-                if not res.is_success:
-                    stream_failure_to_disk(res, state)
-                    if not state["is_json"]:
-                        print_immediate_failure_report(res, idx, total)
-                elif args.show_all and not state["is_json"]:
-                    print(f"  [{idx:2d}/{total}] \033[1;92m✓ PASS\033[0m [{res.name}] ({res.elapsed}s)", flush=True)
-            except Exception as ex:
-                name = future_to_name[future]
-                failed_res = JobResult(
-                    name=name,
-                    cmd=batch["jobs"].get(name, []),
-                    code=1,
-                    out="",
-                    err=str(ex),
-                    elapsed=0.0,
-                )
-                state["results"].append(failed_res)
-                append_run_log(failed_res)
-                stream_failure_to_disk(failed_res, state)
-                if not state["is_json"]:
-                    print_immediate_failure_report(failed_res, idx, total)
+    return payload
 
 
-def execute_runner(args: argparse.Namespace, active_batches: list[dict[str, Any]]) -> int:
+def handle_json_output(args: argparse.Namespace, results: list[JobResult], counts: tuple[int, int, int, int], total_elapsed: float, has_failures: bool) -> int:
+    """Emits JSON formatted output to stdout or specified file."""
+    payload = build_json_payload(results, counts, total_elapsed)
+    out_str = json.dumps(payload, indent=2)
+    if args.output_file:
+        Path(args.output_file).write_text(out_str, encoding=DEFAULT_ENCODING)
+    else:
+        print(out_str)
+    exit_code = 1 if has_failures else 0
+
+    return exit_code
+
+
+def format_report_row(res: JobResult) -> str:
+    """Formats single job result into summary table row."""
+    status_str = "\033[1;92mPASS\033[0m" if res.is_success else "\033[1;91mFAIL\033[0m"
+    cached_flag = " [cached]" if res.is_cached else ""
+
+    return f"  [{status_str}] {res.name:<32} ({res.elapsed:6.2f}s) exit={res.code}{cached_flag}"
+
+
+def format_report_header(total: int, passed: int, failed: int, timeout: int, elapsed: float, cached: int) -> list[str]:
+    """Builds top section lines for summary report."""
+    return [
+        "================================================================",
+        "                     CI/CD EXECUTION REPORT                     ",
+        "================================================================",
+        f"  Total Gates   : {total}",
+        f"  Passed        : {passed} ({cached} cached)",
+        f"  Failed        : {failed}",
+        f"  Timeouts      : {timeout}",
+        f"  Total Duration: {elapsed:.2f}s",
+        "----------------------------------------------------------------",
+    ]
+
+
+def format_full_report(results: list[JobResult], total: int, passed: int, failed: int, timeout: int, elapsed: float, show_all: bool) -> str:
+    """Renders formatted execution table of quality gate outcomes."""
+    cached = sum(1 for r in results if r.is_cached)
+    lines = format_report_header(total, passed, failed, timeout, elapsed, cached)
+    for r in results:
+        if show_all or not r.is_success:
+            lines.append(format_report_row(r))
+    lines.append("================================================================")
+
+    return "\n".join(lines)
+
+
+def format_remediation_banner_header(failed_count: int) -> list[str]:
+    """Generates the header section for the AI remediation summary banner."""
+    plural_suffix = "S" if failed_count != 1 else ""
+    lines = [
+        "\n\033[1;91m" + "=" * 70,
+        f"🚨 AI AGENT REMEDIATION SUMMARY & LOG LOCATIONS ({failed_count} GATE FAILURE{plural_suffix})",
+        "=" * 70 + "\033[0m",
+    ]
+
+    return lines
+
+
+def format_log_locations_section(session_dir: Path | None) -> list[str]:
+    """Formats exact relative log file locations for AI agent inspection."""
+    sdir_rel = normalize_repo_rel(str(session_dir)) if session_dir else ".lovable/temp/cicd/latest"
+    lines = [
+        "📂 \033[1mLog Files & Artifact Locations\033[0m:",
+        f"  • Live Markdown Stream  : {normalize_repo_rel(str(CICD_ERRORS_LOG))}",
+        f"  • Structured JSON Errors: {normalize_repo_rel(str(CICD_ERRORS_JSON))}",
+        f"  • Live Event Stream     : {normalize_repo_rel(str(CICD_EVENTS_JSONL))}",
+        f"  • Real-time Telemetry   : {normalize_repo_rel(str(CICD_SUMMARY_JSON))}",
+        f"  • Incremental Cache     : {normalize_repo_rel(str(CICD_STATE_JSON))}",
+        f"  • Full Chronological Log: {normalize_repo_rel(str(CICD_RUN_LOG))}",
+        f"  • Session Run Directory : {sdir_rel}/",
+    ]
+
+    return lines
+
+
+def format_suspect_files_summary(errors_list: list[dict[str, Any]]) -> list[str]:
+    """Aggregates and formats deduplicated suspect files across failing gates."""
+    seen: set[str] = set()
+    for err in errors_list:
+        for f in err.get("suspect_files", []):
+            seen.add(normalize_repo_rel(f))
+    if not seen:
+        return ["🔍 \033[1mSuspect Files to Inspect\033[0m: (None detected in error output)"]
+    lines = ["🔍 \033[1mSuspect Files to Inspect\033[0m (deduplicated):"]
+    for f in sorted(seen)[:12]:
+        lines.append(f"  • {f}")
+
+    return lines
+
+
+def format_retest_commands_section(errors_list: list[dict[str, Any]]) -> list[str]:
+    """Generates copy-pasteable targeted re-test commands for failed gates."""
+    lines = ["🎯 \033[1mTargeted Single-Gate Re-Test Commands\033[0m:"]
+    for err in errors_list:
+        name = err.get("name", "")
+        raw_cmd = err.get("cmd", "")
+        cmd_str = " ".join(raw_cmd) if isinstance(raw_cmd, list) else str(raw_cmd)
+        lines.append(f"  • Gate: \"{name}\"")
+        lines.append(f"    Runner Filter: python 03-ai-scripts/06-cicd-local-runner.py --filter \"{name}\"")
+        lines.append(f"    Direct Exec  : {cmd_str}")
+
+    return lines
+
+
+def format_agent_next_steps_section() -> list[str]:
+    """Formats actionable step-by-step guidance for autonomous AI agents."""
+    lines = [
+        "🛠️  \033[1mAI Agent Remediation Protocol\033[0m:",
+        "  1. Inspect Errors : Call view_file on .lovable/temp/cicd/errors.log (or read errors.json)",
+        "  2. Surgical Fix   : Edit suspect files complying with spec/02-coding-guidelines/",
+        "  3. Single Re-Test : Run targeted filter command above to confirm local fix",
+        "  4. Suite Green    : Run python 03-ai-scripts/06-cicd-local-runner.py (unchanged gates skip in ~0.5ms)",
+        "\033[1;91m" + "=" * 70 + "\033[0m",
+    ]
+
+    return lines
+
+
+def format_ai_remediation_banner(state: dict[str, Any], session_dir: Path | None) -> str:
+    """Assembles the full post-execution remediation banner for terminal output."""
+    errs = state.get("errors_list", [])
+    parts = [
+        *format_remediation_banner_header(len(errs)), "",
+        *format_log_locations_section(session_dir), "",
+        *format_suspect_files_summary(errs), "",
+        *format_retest_commands_section(errs), "",
+        *format_agent_next_steps_section(),
+    ]
+
+    return "\n".join(parts)
+
+
+def print_failure_report(report: str, failed_count: int, state: dict[str, Any], session_dir: Path | None) -> int:
+    """Prints execution table, failure summary, and AI remediation banner."""
+    print(report)
+    banner = format_ai_remediation_banner(state, session_dir)
+    print(banner)
+    print(f"\033[1;91m[FAILURE]\033[0m CI/CD quality gates failed with {failed_count} error(s).\n")
+
+    return 1
+
+
+def print_success_report(report: str, show_all: bool, total: int, cached: int, elapsed: float) -> int:
+    """Prints success confirmation and returns exit code 0."""
+    if show_all:
+        print("\n" + report)
+        print("\n\033[1;92m🎉 All quality gates passed successfully! Codebase is 100% green.\033[0m")
+    else:
+        executed = total - cached
+        print(f"✔ All passed. ({total} gates [{cached} cached, {executed} executed] in {elapsed:.2f}s)")
+
+    return 0
+
+
+def handle_text_output(
+    args: argparse.Namespace, results: list[JobResult], counts: tuple[int, int, int, int],
+    total_elapsed: float, state: dict[str, Any], session_dir: Path | None
+) -> int:
+    """Renders text terminal report and writes to output file if requested."""
+    total, passed, failed, timeout = counts
+    cached = sum(1 for r in results if r.is_cached)
+    if failed > 0 or timeout > 0:
+        rep = format_full_report(results, total, passed, failed, timeout, total_elapsed, show_all=False)
+
+        return print_failure_report(rep, failed + timeout, state, session_dir)
+    rep = format_full_report(results, total, passed, failed, timeout, total_elapsed, show_all=True)
+
+    return print_success_report(rep, args.show_all, total, cached, total_elapsed)
+
+
+def setup_runner_state(total_jobs: int, is_json: bool, curr_head: str, curr_dirty: dict) -> dict[str, Any]:
+    """Builds the initial state dictionary for runner execution."""
+    state = {
+        "counter": 0,
+        "total": total_jobs,
+        "results": [],
+        "is_json": is_json,
+        "head": curr_head,
+        "dirty": curr_dirty,
+        "gates": {},
+        "freshly_executed": set(),
+        "errors_list": [],
+    }
+
+    return state
+
+
+def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int) -> tuple[Path, dict, set, TelemetryTracker, dict]:
+    """Prepares directories, git delta, and initial state machine."""
+    session_dir, prev_state = init_session_scaffolding(args.force_run, args.resume_mode)
+    curr_head = get_head_commit(root)
+    curr_dirty = get_dirty_files_map(root)
+    last_head = prev_state.get("head", "")
+    last_dirty = prev_state.get("dirty", {})
+    delta = compute_repo_delta(root, last_head, curr_head, last_dirty, curr_dirty)
+    telemetry = TelemetryTracker(total_jobs, sys.stdout.isatty(), bool(args.json_mode), args.show_all)
+    state = setup_runner_state(total_jobs, bool(args.json_mode), curr_head, curr_dirty)
+    update_cicd_summary(state, session_dir, is_finished=False)
+    emit_telemetry_event("run_started", session_dir, {"total_gates": total_jobs, "session": session_dir.name})
+
+    return session_dir, prev_state, delta, telemetry, state
+
+
+def run_batch_sequence(batches: list[dict], args: argparse.Namespace, st: dict, prev: dict, delta: set, root: Path, sdir: Path, tel: TelemetryTracker) -> None:
+    """Executes all enqueued job batches sequentially."""
+    workers = 1 if args.sync_mode else max(1, args.workers)
+    try:
+        for b in batches:
+            execute_job_batch(b, workers, args.sync_mode, args, st, prev, delta, root, sdir, tel)
+    finally:
+        tel.stop_heartbeat()
+        tel.clear_line()
+
+
+def extract_runner_counts(total: int, results: list[JobResult]) -> tuple[int, int, int, int]:
+    """Computes tuple of total passed failed and timeout counts."""
+    pass_cnt = sum(1 for r in results if r.is_success)
+    fail_cnt = sum(1 for r in results if not r.is_success and not r.is_timeout)
+    time_cnt = sum(1 for r in results if r.is_timeout)
+
+    return total, pass_cnt, fail_cnt, time_cnt
+
+
+def execute_runner(args: argparse.Namespace, active_batches: list[dict[str, Any]], repo_root: Path) -> int:
     """Orchestrates test batch execution and report output generation."""
     total_jobs = sum(len(b["jobs"]) for b in active_batches)
     if total_jobs == 0:
-        print(f"[WARN] No quality gates matched filter: {args.filter!r}")
         return 0
+    sdir, prev, delta, tel, st = prepare_runner_context(args, repo_root, total_jobs)
+    start = time.monotonic()
+    run_batch_sequence(active_batches, args, st, prev, delta, repo_root, sdir, tel)
+    elapsed = round(time.monotonic() - start, 2)
+    update_cicd_summary(st, sdir, is_finished=True)
+    counts = extract_runner_counts(total_jobs, st["results"])
+    if args.json_mode:
+        return handle_json_output(args, st["results"], counts, elapsed, bool(counts[2] > 0 or counts[3] > 0))
 
-    init_cicd_temp_stream()
-    is_sync = args.sync_mode
-    workers = 1 if is_sync else max(1, args.workers)
-    io_workers = 1 if is_sync else max(1, args.io_workers)
-    is_json = bool(args.json_mode)
-
-    if not is_json:
-        print(f"📡 Real-Time Error Stream : {CICD_ERRORS_LOG}")
-        print(f"📊 Real-Time JSON Status  : {CICD_SUMMARY_JSON}")
-        if args.show_all:
-            label = "Sequential (1 worker)" if is_sync else f"Parallel ({workers} workers, {io_workers} IO workers)"
-            print_runner_banner(label, total_jobs)
-
-    state: dict[str, Any] = {"counter": 0, "total": total_jobs, "results": [], "is_json": is_json}
-    start_time = time.monotonic()
-
-    for batch in active_batches:
-        execute_job_batch(batch, workers, is_sync, args, state)
-
-    total_elapsed = round(time.monotonic() - start_time, 2)
-    results: list[JobResult] = state["results"]
-    passed_count = sum(1 for r in results if r.is_success)
-    failed_count = sum(1 for r in results if not r.is_success and not r.is_timeout)
-    timeout_count = sum(1 for r in results if r.is_timeout)
-    has_failures = bool(failed_count > 0 or timeout_count > 0)
-    counts = (total_jobs, passed_count, failed_count, timeout_count)
-    update_cicd_summary(state, is_finished=True)
-
-    if is_json:
-        return handle_json_output(args, results, counts, total_elapsed, has_failures)
-
-    return handle_text_output(args, results, counts, total_elapsed)
+    return handle_text_output(args, st["results"], counts, elapsed, st, sdir)
 
 
 def load_cicd_timings(path: Path) -> dict[str, float]:
     """Loads historical CI/CD job timings from JSON file if available."""
     if not path.exists():
         return {}
-
     try:
         data = json.loads(path.read_text(encoding=DEFAULT_ENCODING))
         if isinstance(data, dict):
             return {k: float(v) for k, v in data.items()}
-    except Exception:
-        pass
+    except (json.JSONDecodeError, OSError) as err:
+        sys.stderr.write(f"[WARN] Failed to load timings: {err}\n")
 
     return {}
 
@@ -740,8 +1597,8 @@ def save_cicd_timings(path: Path, timings: dict[str, float]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
         path.write_text(json.dumps(timings, indent=2), encoding=DEFAULT_ENCODING)
-    except Exception:
-        pass
+    except OSError as err:
+        sys.stderr.write(f"[WARN] Failed to save timings: {err}\n")
 
 
 def calculate_total_eta(active_batches: list[dict[str, Any]], timings: dict[str, float]) -> int:
@@ -757,12 +1614,7 @@ def calculate_total_eta(active_batches: list[dict[str, Any]], timings: dict[str,
     return int(total_sec)
 
 
-def run_eta_worker(
-    interval_sec: int,
-    total_est_sec: int,
-    start_time: float,
-    stop_event: threading.Event,
-) -> None:
+def run_eta_worker(interval_sec: int, total_est_sec: int, start_time: float, stop_event: threading.Event) -> None:
     """Background worker reporting remaining ETA every interval."""
     while not stop_event.is_set():
         if stop_event.wait(timeout=interval_sec):
@@ -772,44 +1624,37 @@ def run_eta_worker(
         print(f"\n[ETA] Estimated remaining time: {remaining} seconds\n", flush=True)
 
 
-def start_eta_reporter(
-    interval_sec: int,
-    total_est_sec: int,
-    stop_event: threading.Event,
-) -> threading.Thread | None:
+def start_eta_reporter(interval_sec: int, total_est_sec: int, stop_event: threading.Event) -> threading.Thread | None:
     """Spawns background ETA daemon thread if interval > 0."""
     if interval_sec <= 0:
         return None
-
-    worker = threading.Thread(
-        target=run_eta_worker,
-        args=(interval_sec, total_est_sec, time.time(), stop_event),
-        daemon=True,
-    )
+    worker = threading.Thread(target=run_eta_worker, args=(interval_sec, total_est_sec, time.time(), stop_event), daemon=True)
     worker.start()
 
     return worker
 
 
-def main() -> None:
-    """Primary entry point for local CI/CD quality gate runner."""
-    args = parse_args()
-    active_batches = filter_job_batches(JOB_BATCHES, args.filter)
-    timings = load_cicd_timings(TIMING_FILE_PATH)
-    total_est = calculate_total_eta(active_batches, timings)
-
+def run_pipeline_with_eta(args: argparse.Namespace, batches: list, root: Path, timings: dict, total_est: int) -> int:
+    """Runs test execution pipeline with background ETA reporter."""
     stop_event = threading.Event()
     start_eta_reporter(args.eta_interval, total_est, stop_event)
-
-    exit_code = 0
     try:
-        exit_code = execute_runner(args, active_batches)
+        return execute_runner(args, batches, root)
     finally:
         stop_event.set()
         timings.update(GLOBAL_TIMINGS)
         save_cicd_timings(TIMING_FILE_PATH, timings)
 
-    sys.exit(exit_code)
+
+def main() -> None:
+    """Primary entry point for local CI/CD quality gate runner."""
+    args = parse_args()
+    repo_root = Path(__file__).resolve().parent.parent
+    batches = filter_job_batches(JOB_BATCHES, args.filter)
+    timings = load_cicd_timings(TIMING_FILE_PATH)
+    total_est = calculate_total_eta(batches, timings)
+    code = run_pipeline_with_eta(args, batches, repo_root, timings, total_est)
+    sys.exit(code)
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ EXCLUDE_DIRS = {
     'vendor', 'coverage', '.gemini', '.system_generated', 'tests/fixtures',
     'scratch', 'temp-scripts', 'temp-agents', 'temp', 'linter-scripts',
     '.lovable/scratch', '.lovable/temp-agents', '03-ai-scripts', 'scripts',
-    '04-code'
+    '04-code', '.tmp'
 }
 
 SINGLE_LINE_IF_REGEX = re.compile(r'^\s*if\b.*\{[^{}]+\}\s*$')
