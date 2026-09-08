@@ -1,3 +1,20 @@
+## [v6.199.0] 2026-09-08 Release v6.199.0
+
+### Install GitMap v6.199.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.sh | bash -s -- ".lovable/prompts" "v6.199.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.199.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added gitmap os display command family (display, disp, screen) for desktop session, display server detection (Wayland, X11, DWM, Quartz), screen idle timeout, and never-sleep blanking inhibition
+- Implemented SQLite site registry in sites.db with gitmap nginx add <domain> (auto-detecting WordPress and Laravel roots), gitmap nginx rm <domain>, and gitmap nginx list
+- Added gitmap nginx ini and showcase displaying recommended production directives for WordPress and Laravel with idempotent marker blocks
+- Enhanced VMware shared folder mount resilience with open-vm-tools integration, desktop symlink repair, and reboot crontab persistence
+- Integrated Nginx, WordPress, and Laravel setup engines with dynamic PHP-FPM socket discovery
+- Added Chrome token vault with reversible ciphers and enhanced Windows command remediation execution
+
 ## [v6.198.0] 2026-09-08 Release v6.198.0
 
 ### Install GitMap v6.198.0
