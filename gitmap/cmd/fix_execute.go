@@ -16,10 +16,29 @@ func executeFixRecipe(item *RemediationItem, recipe gitutil.RemediationRecipe) e
 	fmt.Printf("%s Applying Fix: %s on %s\n", constants.ColorCyan+"ℹ"+constants.ColorReset, recipe.Title, item.RepoName)
 	fmt.Printf("  Plan:    %s\n\n", recipe.Command)
 
+	if len(recipe.Steps) == 0 && item.RepoPath != "" {
+		recipe.Steps = synthesizeRecipeSteps(recipe, item.RepoPath)
+	}
+
 	if len(recipe.Steps) > 0 {
 		return executeStructuredRecipe(item, recipe)
 	}
 	return executeShellFallback(item, recipe)
+}
+
+func synthesizeRecipeSteps(recipe gitutil.RemediationRecipe, repoPath string) []gitutil.RemediationStep {
+	titleLower := strings.ToLower(recipe.Title)
+	cmdLower := strings.ToLower(recipe.Command)
+	if strings.Contains(titleLower, "wip") || strings.Contains(titleLower, "commit") || strings.Contains(cmdLower, "commit") {
+		return gitutil.GenerateCommitRecipe(repoPath).Steps
+	}
+	if strings.Contains(titleLower, "discard") || strings.Contains(titleLower, "clean") || strings.Contains(cmdLower, "reset --hard") {
+		return gitutil.GenerateDiscardRecipe(repoPath).Steps
+	}
+	if strings.Contains(titleLower, "stash") || strings.Contains(cmdLower, "stash") {
+		return gitutil.GenerateStashRecipe(repoPath).Steps
+	}
+	return nil
 }
 
 func executeStructuredRecipe(item *RemediationItem, recipe gitutil.RemediationRecipe) error {
