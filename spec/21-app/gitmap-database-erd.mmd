@@ -500,3 +500,28 @@ erDiagram
     ClusterExecResult {
         INTEGER ClusterExecResultId PK
     }
+
+    %% ============================================================
+    %% SPLIT DATABASE REGISTRY (spec/04-database-conventions/07)
+    %% ============================================================
+
+    SplitDatabaseRegistry {
+        INTEGER SplitDatabaseRegistryId PK
+        TEXT DatabaseType
+        TEXT DatabaseKey
+        TEXT DatabasePath
+        INTEGER SizeBytes
+        INTEGER TableCount
+        INTEGER RecordCount
+        INTEGER SchemaVersion
+        TEXT Status
+        INTEGER IsActive
+        INTEGER IsAttached
+        TEXT Description
+        TEXT Notes
+        TEXT Comments
+        INTEGER LastAccessedAt
+        INTEGER LastSyncedAt
+        INTEGER CreatedAt
+        INTEGER UpdatedAt
+    }
