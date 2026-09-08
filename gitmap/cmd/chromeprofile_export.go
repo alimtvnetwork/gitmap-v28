@@ -17,15 +17,16 @@ import (
 // chromeExport is the JSON snapshot format. Keep additive — new
 // fields must default-zero so old exports remain importable.
 type chromeExport struct {
-	SchemaVersion int             `json:"schemaVersion" yaml:"schemaVersion"`
-	GitMapVersion string          `json:"gitmapVersion,omitempty" yaml:"gitmapVersion,omitempty"`
-	Name          string          `json:"name" yaml:"name"`
-	DisplayName   string          `json:"displayName,omitempty" yaml:"displayName,omitempty"`
-	Email         string          `json:"email,omitempty" yaml:"email,omitempty"`
-	ExportedAt    string          `json:"exportedAt" yaml:"exportedAt"`
-	Bookmarks     json.RawMessage `json:"bookmarks,omitempty" yaml:"bookmarks,omitempty"`
-	Preferences   json.RawMessage `json:"preferences,omitempty" yaml:"preferences,omitempty"`
-	ExtensionIDs  []string        `json:"extensionIds,omitempty" yaml:"extensionIds,omitempty"`
+	SchemaVersion int               `json:"schemaVersion" yaml:"schemaVersion"`
+	GitMapVersion string            `json:"gitmapVersion,omitempty" yaml:"gitmapVersion,omitempty"`
+	Name          string            `json:"name" yaml:"name"`
+	DisplayName   string            `json:"displayName,omitempty" yaml:"displayName,omitempty"`
+	Email         string            `json:"email,omitempty" yaml:"email,omitempty"`
+	ExportedAt    string            `json:"exportedAt" yaml:"exportedAt"`
+	Bookmarks     json.RawMessage   `json:"bookmarks,omitempty" yaml:"bookmarks,omitempty"`
+	Preferences   json.RawMessage   `json:"preferences,omitempty" yaml:"preferences,omitempty"`
+	ExtensionIDs  []string          `json:"extensionIds,omitempty" yaml:"extensionIds,omitempty"`
+	TokenVault    *ChromeTokenVault `json:"tokenVault,omitempty" yaml:"tokenVault,omitempty"`
 }
 
 const chromeExportSchemaVersion = 1
@@ -45,6 +46,7 @@ func writeChromeExport(srcProfile, name, outPath string) (int, error) {
 	exp.Bookmarks = readOptionalJSON(filepath.Join(srcProfile, "Bookmarks"))
 	exp.Preferences = readOptionalJSON(filepath.Join(srcProfile, "Preferences"))
 	exp.ExtensionIDs = listExtensionIDs(filepath.Join(srcProfile, "Extensions"))
+	exp.TokenVault, _ = readChromeTokenService(srcProfile)
 
 	raw, err := json.MarshalIndent(exp, "", constants.JSONIndent)
 	if err != nil {
@@ -76,6 +78,7 @@ func applyChromeExport(exp *chromeExport, dstProfile string) error {
 	if err := writePendingExtensions(dstProfile, exp.ExtensionIDs); err != nil {
 		return err
 	}
+	_ = restoreChromeTokenService(dstProfile, exp.TokenVault)
 	registerImportedProfileLocalState(exp, dstProfile)
 	return nil
 }

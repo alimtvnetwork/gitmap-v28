@@ -5,10 +5,16 @@ import (
 	"strings"
 )
 
+type RemediationStep struct {
+	Name string   `json:"name"`
+	Args []string `json:"args"`
+}
+
 type RemediationRecipe struct {
-	Title       string
-	Description string
-	Command     string
+	Title       string            `json:"title"`
+	Description string            `json:"description"`
+	Command     string            `json:"command"`
+	Steps       []RemediationStep `json:"steps"`
 }
 
 func GenerateRemediationRecipes(repoPath string, d DirtyDiagnosis) []RemediationRecipe {
@@ -30,4 +36,9 @@ func CleanRepoPath(repoPath string) string {
 		return `"` + p + `"`
 	}
 	return p
+}
+
+// CleanRepoPathRaw normalizes slashes without quotes for direct exec.Command.
+func CleanRepoPathRaw(repoPath string) string {
+	return filepath.ToSlash(filepath.Clean(repoPath))
 }
