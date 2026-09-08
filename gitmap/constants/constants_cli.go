@@ -327,6 +327,9 @@ const (
 	SubCmdFixLink       = "fix-link" // gitmap:cmd skip
 	SubCmdFixLinkAlias  = "fixlink"  // gitmap:cmd skip
 	SubCmdFixLinkAlias2 = "fl"       // gitmap:cmd skip
+	SubCmdOSDisplay     = "display"  // gitmap:cmd skip
+	SubCmdOSDisplayAlias  = "disp"   // gitmap:cmd skip
+	SubCmdOSDisplayAlias2 = "screen" // gitmap:cmd skip
 	SubCmdOSStatus      = "status"   // gitmap:cmd skip
 	SubCmdOSHelp        = "help"     // gitmap:cmd skip
 	// CmdReleasePull is sugar for `release` that first runs
@@ -616,7 +619,7 @@ const (
 	HelpRevert           = "  revert <version>    Revert to a specific release version"
 	MsgHelpLFSCommon     = "  lfs-common (lfsc)   Track common binary file types with Git LFS in current repo"
 	HelpPower            = "  power (pw, pwr)     Inspect, set, and reset OS display and sleep timeouts"
-	HelpOS               = "  os                  Manage OS configurations and diagnostics (" + ColorCyan + "fix-link" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
+	HelpOS               = "  os                  Manage OS configurations and diagnostics (" + ColorCyan + "display" + ColorReset + ", " + ColorCyan + "fix-link" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
 	HelpFixLink          = "  fix-link (fixlink)  Inspect and repair broken symlinks and shared directories (" + ColorCyan + "--target" + ColorReset + ", " + ColorCyan + "--recursive" + ColorReset + ", " + ColorCyan + "--force" + ColorReset + ", " + ColorCyan + "--dry-run" + ColorReset + ", " + ColorCyan + "--json" + ColorReset + ")"
 	HelpVmware           = "  vmware (vm)         Manage VMware shared folders, tools, and services (" + ColorCyan + "install" + ColorReset + ", " + ColorCyan + "shared" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
 	HelpNginx            = "  nginx (ngx)         Manage Nginx HTTP server, virtual hosts, syntax test & reload"

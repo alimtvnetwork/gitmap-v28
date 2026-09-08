@@ -12,6 +12,7 @@ gitmap os [subcommand] [flags]
 
 | Subcommand | Description |
 |------------|-------------|
+| display [subcommand] | Inspect and configure OS display settings, desktop session & timeouts |
 | fix-link [path] | Inspect and repair broken symlinks and shared directories |
 | status | Display operating system summary, platform details, and link health |
 | help | Show usage information for OS commands |
@@ -27,6 +28,48 @@ gitmap os [subcommand] [flags]
 | --json | false | Output status and link results as structured JSON |
 
 ## Examples
+
+### Inspect Display Server and Screen Blanking Settings
+
+```bash
+gitmap os display
+```
+
+Output:
+
+```text
+▶ OS Display & Screen Status (linux)
+  • Operating System: linux (amd64)
+  • Display Server:   wayland
+  • Desktop Session:  ubuntu:GNOME
+  • Display Timeout:  Never (inhibited)
+  • Sleep Timeout:    Never (inhibited)
+  • Mode:             Never-Sleep (inhibited)
+```
+
+### Disable Display Sleep and Blanking Timeouts
+
+```bash
+gitmap os display never-sleep
+```
+
+Output:
+
+```text
+✓ Power setting updated: Never-Sleep mode enabled (display & standby timeouts disabled).
+```
+
+### Set Screen Timeout to 15 Minutes
+
+```bash
+gitmap os display set 15
+```
+
+Output:
+
+```text
+✓ Power setting updated: Display timeout=15m, Sleep timeout=15m.
+```
 
 ### Check OS and Symlink Status
 

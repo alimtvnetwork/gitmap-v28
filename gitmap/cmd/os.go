@@ -11,9 +11,8 @@ import (
 
 // runOS dispatches gitmap os subcommands.
 func runOS(args []string) error {
-	checkHelp("os", args)
-
 	if len(args) == 0 || isOSHelpArg(args[0]) {
+		checkHelp("os", args)
 		printOSUsage()
 
 		return nil
@@ -30,17 +29,23 @@ func isOSHelpArg(arg string) bool {
 
 func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 	switch subCmd {
+	case constants.SubCmdOSDisplay, constants.SubCmdOSDisplayAlias, constants.SubCmdOSDisplayAlias2:
+		return runOSDisplay(subArgs)
 	case constants.SubCmdFixLink, constants.SubCmdFixLinkAlias, constants.SubCmdFixLinkAlias2:
 		return runOSFixLink(subArgs)
 	case constants.SubCmdOSStatus, "st", "info":
 		return runOSStatus(subArgs)
 	case constants.SubCmdOSHelp:
-		printOSUsage()
-
-		return nil
+		return handleOSHelp()
 	default:
 		return unknownOSSubcommandError(subCmd)
 	}
+}
+
+func handleOSHelp() error {
+	printOSUsage()
+
+	return nil
 }
 
 func unknownOSSubcommandError(subCmd string) error {
@@ -61,18 +66,22 @@ func runOSStatus(args []string) error {
 	return inspectStandardLinksStatus(desktopDir)
 }
 
+const osUsageText = `Usage: gitmap os [subcommand] [flags]
+
+Commands:
+  display (disp)      Inspect and configure OS display settings, resolution & timeouts
+  fix-link (fixlink)  Inspect and repair broken symlinks and shared directories
+  status (st)         Display operating system environment and link diagnostics
+  help                Show this help message
+
+Flags:
+  --target <path>     Explicit target for symlink repair
+  --force (-f)        Recreate symlinks even if target missing
+  --recursive (-r)    Recursively inspect directories
+  --dry-run (-n)      Inspect without modifying disk
+  --json              Output as JSON`
+
 func printOSUsage() {
-	fmt.Println("Usage: gitmap os [subcommand] [flags]")
-	fmt.Println()
-	fmt.Println("Commands:")
-	fmt.Println("  fix-link (fixlink)  Inspect and repair broken symlinks and shared directories")
-	fmt.Println("  status (st)         Display operating system environment and link diagnostics")
-	fmt.Println("  help                Show this help message")
-	fmt.Println()
-	fmt.Println("Flags:")
-	fmt.Println("  --target <path>     Explicit target for symlink repair")
-	fmt.Println("  --force (-f)        Recreate symlinks even if target missing")
-	fmt.Println("  --recursive (-r)    Recursively inspect directories")
-	fmt.Println("  --dry-run (-n)      Inspect without modifying disk")
-	fmt.Println("  --json              Output as JSON")
+	fmt.Println(osUsageText)
 }
+
