@@ -1,3 +1,15 @@
+## [v6.198.0] 2026-09-08 Release v6.198.0
+
+### Install GitMap v6.198.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.sh | bash -s -- ".lovable/prompts" "v6.198.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.198.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Terminal-adaptive responsive pull table layout and chrome profile sign-in scrubbing
+
 ## [v6.197.0] 2026-09-08 Release v6.197.0
 
 ### Install GitMap v6.197.0
