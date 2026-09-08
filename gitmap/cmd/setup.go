@@ -23,6 +23,11 @@ func runSetup(args []string) error {
 		return nil
 	}
 
+	hasSub, subErr := dispatchSetupSubcommand(args)
+	if hasSub {
+		return subErr
+	}
+
 	checkHelp("setup", args)
 	configPath, dryRun, hasConfig := parseSetupFlags(args)
 	configPath = resolveSetupConfigPath(configPath, hasConfig)
@@ -198,4 +203,30 @@ func printSetupErrors(r setup.SetupResult) {
 	for _, e := range r.Errors {
 		fmt.Printf("    %s"+constants.SetupErrorEntryFmt+"%s\n", constants.ColorYellow, e, constants.ColorReset)
 	}
+}
+
+func resolveSetupTarget(sub string, tail []string) (bool, error) {
+	switch sub {
+	case "wordpress", "wp":
+
+		return true, runSetupWordpress(tail)
+	case "laravel", "art", "artisan":
+
+		return true, runSetupLaravel(tail)
+	case "perms", "permissions":
+
+		return true, runSetupPerms(tail)
+	default:
+
+		return false, nil
+	}
+}
+
+func dispatchSetupSubcommand(args []string) (bool, error) {
+	isEmpty := len(args) == 0
+	if isEmpty {
+		return false, nil
+	}
+
+	return resolveSetupTarget(args[0], args[1:])
 }

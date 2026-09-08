@@ -58,6 +58,7 @@ const (
 	ToolGoogleChrome     = "google-chrome"
 	ToolBuildEssential   = "build-essential"
 	ToolUbuntuCommon     = "ubuntu-common"
+	ToolWordPress        = "wordpress"
 )
 
 // Supported tool names — Databases.
@@ -81,6 +82,7 @@ const (
 	ToolDotnet  = "dotnet"
 	ToolJava    = "java"
 	ToolFlutter = "flutter"
+	ToolLaravel = "laravel"
 )
 
 // Supported tool names — Local AI.
@@ -95,6 +97,7 @@ const (
 	ToolDocker     = "docker"
 	ToolKubernetes = "kubernetes"
 	ToolJenkins    = "jenkins"
+	ToolNginx      = "nginx"
 )
 
 // Supported tool names — Terminal & Utilities.
@@ -203,6 +206,9 @@ const (
 	ChocoPkgFlameshot     = "flameshot"
 	ChocoPkgConemu        = "conemu"
 	ChocoPkgVLC           = "vlc"
+	ChocoPkgNginx         = "nginx"
+	ChocoPkgWordPress     = "wordpress"
+	ChocoPkgLaravel       = "laravel"
 )
 
 // Winget package IDs.
@@ -228,6 +234,9 @@ const (
 	WingetPkgFlameshot     = "Flameshot.Flameshot"
 	WingetPkgConemu        = "Maximus5.ConEmu"
 	WingetPkgVLC           = "VideoLAN.VLC"
+	WingetPkgNginx         = "nginxinc.nginx"
+	WingetPkgWordPress     = "Automattic.Wordpress"
+	WingetPkgLaravel       = "Laravel.Laravel"
 )
 
 // Apt package IDs.
@@ -263,6 +272,9 @@ const (
 	AptPkgFlameshot     = "flameshot"
 	AptPkgConemu        = "conemu"
 	AptPkgVLC           = "vlc"
+	AptPkgNginx         = "nginx"
+	AptPkgWordPress     = "wordpress"
+	AptPkgLaravel       = "laravel"
 )
 
 // Brew package IDs.
@@ -302,6 +314,9 @@ const (
 	BrewPkgFlameshot     = "flameshot"
 	BrewPkgConemu        = "conemu"
 	BrewPkgVLC           = "vlc"
+	BrewPkgNginx         = "nginx"
+	BrewPkgWordPress     = "wp-cli"
+	BrewPkgLaravel       = "laravel"
 )
 
 // Snap package IDs.
@@ -498,6 +513,9 @@ var InstallToolDescriptions = map[string]string{
 	ToolFlameshot:        "Flameshot screenshot capture and annotation tool",
 	ToolConemu:           "ConEmu Windows console emulator with tabs and splits",
 	ToolVLC:              "VLC media player cross-platform multimedia player",
+	ToolNginx:            "Nginx high-performance HTTP server and reverse proxy",
+	ToolWordPress:        "WordPress web publishing platform and CMS / WP-CLI",
+	ToolLaravel:          "Laravel PHP web application framework and installer CLI",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -513,6 +531,7 @@ var InstallToolCategories = map[string][]string{
 		ToolScripts, ToolGitmapOneliner, ToolAllDevTools,
 		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk, ToolAgManager, ToolAgCtx, ToolAntigravity,
 		ToolBuildEssential, ToolUbuntuCommon, ToolChrome, ToolGoogleChrome,
+		ToolWordPress,
 	},
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,
@@ -520,13 +539,13 @@ var InstallToolCategories = map[string][]string{
 		ToolNeo4j, ToolElasticsearch, ToolDuckDB, ToolLiteDB,
 	},
 	ToolCategoryLanguages: {
-		ToolRust, ToolDotnet, ToolJava, ToolFlutter,
+		ToolRust, ToolDotnet, ToolJava, ToolFlutter, ToolLaravel,
 	},
 	ToolCategoryAI: {
 		ToolOllama, ToolLlamaCpp, ToolPythonLibs,
 	},
 	ToolCategoryDevOps: {
-		ToolDocker, ToolKubernetes, ToolJenkins,
+		ToolDocker, ToolKubernetes, ToolJenkins, ToolNginx,
 	},
 	ToolCategoryUtilities: {
 		ToolZsh, ToolFlameshot, ToolConemu, ToolVLC,

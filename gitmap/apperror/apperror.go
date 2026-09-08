@@ -187,6 +187,19 @@ func NewValidationError(msg string) *AppError {
 	}
 }
 
+// NewExecutionError creates an AppError specialized for execution failures.
+func NewExecutionError(msg string) *AppError {
+	return &AppError{
+		Op:       "execution",
+		Code:     "E9000",
+		Type:     ErrorTypeExecution,
+		Severity: SeverityError,
+		Message:  msg,
+		Caller:   captureCaller(2),
+		Stack:    captureStackTrace(2),
+	}
+}
+
 // Wrap wraps an existing error with an operation label and context.
 func Wrap(err error, op string, ctx map[string]any) *AppError {
 	return &AppError{

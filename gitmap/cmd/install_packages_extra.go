@@ -37,11 +37,14 @@ var aptPackageMap = map[string]string{
 	constants.ToolFlameshot:     constants.AptPkgFlameshot,
 	constants.ToolConemu:        constants.AptPkgConemu,
 	constants.ToolVLC:           constants.AptPkgVLC,
+	constants.ToolNginx:         constants.AptPkgNginx,
+	constants.ToolWordPress:     constants.AptPkgWordPress,
+	constants.ToolLaravel:       constants.AptPkgLaravel,
 }
 
 // resolveAptPackage maps tool names to apt package IDs.
 func resolveAptPackage(tool string) string {
-	if pkg, exists := aptPackageMap[tool]; exists {
+	if pkg, isFound := aptPackageMap[tool]; isFound {
 
 		return pkg
 	}
@@ -86,11 +89,14 @@ var brewPackageMap = map[string]string{
 	constants.ToolFlameshot:     constants.BrewPkgFlameshot,
 	constants.ToolConemu:        constants.BrewPkgConemu,
 	constants.ToolVLC:           constants.BrewPkgVLC,
+	constants.ToolNginx:         constants.BrewPkgNginx,
+	constants.ToolWordPress:     constants.BrewPkgWordPress,
+	constants.ToolLaravel:       constants.BrewPkgLaravel,
 }
 
 // resolveBrewPackage maps tool names to Homebrew package IDs.
 func resolveBrewPackage(tool string) string {
-	if pkg, exists := brewPackageMap[tool]; exists {
+	if pkg, isFound := brewPackageMap[tool]; isFound {
 
 		return pkg
 	}
@@ -111,7 +117,7 @@ var snapPackageMap = map[string]string{
 
 // resolveSnapPackage maps tool names to Snap package IDs.
 func resolveSnapPackage(tool string) string {
-	if pkg, exists := snapPackageMap[tool]; exists {
+	if pkg, isFound := snapPackageMap[tool]; isFound {
 
 		return pkg
 	}
