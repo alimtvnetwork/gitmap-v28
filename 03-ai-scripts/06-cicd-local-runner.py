@@ -104,12 +104,15 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
-DEFAULT_WORKERS = int(os.environ.get("CI_MAX_WORKERS", min(8, os.cpu_count() or 4)))
-DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", 2))
+CPU_CORES = os.cpu_count() or 16
+DEFAULT_WORKERS = int(os.environ.get("CI_MAX_WORKERS", CPU_CORES))
+DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", min(8, CPU_CORES)))
 DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 1200))
 DEFAULT_ENCODING = "utf-8"
 DEFAULT_JOB_ESTIMATE_SEC = 5.0
 TIMING_FILE_PATH = Path(".lovable/temp/cicd/timings.json")
+TEST_INVENTORY_PATH = Path(".lovable/test-inventory.json")
+TEST_INVENTORY_CACHE_PATH = Path(".lovable/temp/cicd/test-inventory.json")
 
 os.environ.setdefault("CI", "true")
 os.environ.setdefault("NODE_ENV", "test")
@@ -172,7 +175,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Packaging Gates",
         "max_workers": 1,
         "jobs": {
-            "GoReleaser Snapshot Build": {"cmd": ["go", "run", "github.com/goreleaser/goreleaser/v2@latest", "release", "--snapshot", "--clean", "--parallelism=1"], "cwd": "gitmap"},
+            "GoReleaser Snapshot Build": {"cmd": ["goreleaser", "build", "--snapshot", "--clean", "--single-target"], "cwd": "gitmap"},
         },
     },
     {
@@ -187,10 +190,11 @@ JOB_BATCHES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "Coverage Generation",
-        "max_workers": 1,
+        "name": "Smart Unit Tests & Coverage",
+        "max_workers": DEFAULT_WORKERS,
         "jobs": {
-            "Go Test Coverage Profile": {"cmd": ["go", "test", "-count=1", "-timeout=20m", "-coverprofile=../coverage.out", "./..."], "cwd": "gitmap"},
+            "Go Smart Incremental Tests": {"type": "smart_go_tests", "cmd": ["go", "test", "smart-incremental"], "cwd": "gitmap"},
+            "Go Test Coverage Profile": {"cmd": ["go", "test", "-p", str(DEFAULT_WORKERS), "-parallel", str(DEFAULT_WORKERS), "-count=1", "-timeout=20m", "-coverprofile=../coverage.out", "./..."], "cwd": "gitmap"},
         },
     },
     {
@@ -204,7 +208,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Race Detection",
         "max_workers": 1,
         "jobs": {
-            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap"},
+            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(DEFAULT_WORKERS), "-parallel", str(DEFAULT_WORKERS), "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap"},
         },
     },
 ]
@@ -371,6 +375,7 @@ GATE_SPECS: dict[str, GateSpec] = {
     "Installer Smoke (release)": GateSpec("Installer Smoke (release)", tool_scripts=[".github/scripts/smoke-installer.py"], configs=[".goreleaser.yaml", "install.sh", "install.ps1"], relevant_patterns=[".github/scripts/smoke-installer.py", "dist/**"], upstream_gates=["GoReleaser Snapshot Build"]),
     "History Purge Smoke": GateSpec("History Purge Smoke", tool_scripts=[".github/scripts/smoke-history-purge.py"], relevant_patterns=[".github/scripts/smoke-history-purge.py", "gitmap/cmd/**/*.go", "gitmap/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
     "History Pin Smoke": GateSpec("History Pin Smoke", tool_scripts=[".github/scripts/smoke-history-pin.py"], relevant_patterns=[".github/scripts/smoke-history-pin.py", "gitmap/cmd/**/*.go", "gitmap/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
+    "Go Smart Incremental Tests": GateSpec("Go Smart Incremental Tests", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
     "Go Test Coverage Profile": GateSpec("Go Test Coverage Profile", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["coverage.out"]),
     "Coverage Floor Guard": GateSpec("Coverage Floor Guard", tool_scripts=[".github/scripts/coverage-floor.py"], artifact_inputs=["coverage.out"], upstream_gates=["Go Test Coverage Profile"]),
     "Go Test Race (Hot Packages)": GateSpec("Go Test Race (Hot Packages)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_RACE),
@@ -633,12 +638,428 @@ def link_latest_session(target_dir: Path, latest_dir: Path) -> None:
         sys.stderr.write(f"[WARN] Failed to link latest session: {err}\n")
 
 
+# ====================================================================================================
+#              SMART INCREMENTAL GO TEST ENGINE & CODE-TO-TEST INVENTORY GENERATOR
+# ====================================================================================================
+
+FUNC_START_RE = re.compile(r"^func\s+(?:\([^)]+\)\s+)?([A-Za-z0-9_]+)\s*\(")
+TEST_START_RE = re.compile(r"^func\s+(Test[A-Za-z0-9_]+)\s*\(")
+
+
+def extract_go_function_hashes(filepath: Path) -> dict[str, str]:
+    """Extracts function declarations and computes SHA256 body hashes from a Go source file."""
+    funcs: dict[str, str] = {}
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as fp:
+            lines = fp.readlines()
+    except OSError:
+        return funcs
+
+    curr_name: str | None = None
+    curr_lines: list[str] = []
+    brace_depth = 0
+    in_func = False
+
+    for line in lines:
+        if not in_func:
+            m = FUNC_START_RE.match(line)
+            if m and "{" in line:
+                curr_name = m.group(1)
+                curr_lines = [line]
+                brace_depth = line.count("{") - line.count("}")
+                if brace_depth > 0:
+                    in_func = True
+                else:
+                    body = "".join(curr_lines)
+                    funcs[curr_name] = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+        else:
+            curr_lines.append(line)
+            brace_depth += line.count("{") - line.count("}")
+            if brace_depth <= 0:
+                in_func = False
+                if curr_name:
+                    body = "".join(curr_lines)
+                    funcs[curr_name] = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+
+    return funcs
+
+
+def extract_go_test_functions(filepath: Path) -> dict[str, str]:
+    """Extracts Test* functions and computes SHA256 body hashes from a Go test file."""
+    tests: dict[str, str] = {}
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as fp:
+            lines = fp.readlines()
+    except OSError:
+        return tests
+
+    curr_name: str | None = None
+    curr_lines: list[str] = []
+    brace_depth = 0
+    in_func = False
+
+    for line in lines:
+        if not in_func:
+            m = TEST_START_RE.match(line)
+            if m and "{" in line:
+                curr_name = m.group(1)
+                curr_lines = [line]
+                brace_depth = line.count("{") - line.count("}")
+                if brace_depth > 0:
+                    in_func = True
+                else:
+                    body = "".join(curr_lines)
+                    tests[curr_name] = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+        else:
+            curr_lines.append(line)
+            brace_depth += line.count("{") - line.count("}")
+            if brace_depth <= 0:
+                in_func = False
+                if curr_name:
+                    body = "".join(curr_lines)
+                    tests[curr_name] = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+
+    return tests
+
+
+def compute_file_hash(filepath: Path) -> str:
+    """Computes short SHA256 hex digest for an entire file."""
+    try:
+        return hashlib.sha256(filepath.read_bytes()).hexdigest()[:16]
+    except OSError:
+        return ""
+
+
+def load_raw_test_inventory(path: Path) -> dict[str, Any]:
+    """Loads existing test inventory JSON from disk if present."""
+    if path.is_file():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                return data
+        except Exception:
+            pass
+    return {}
+
+
+def build_or_update_test_inventory(repo_root: Path, force: bool = False) -> dict[str, Any]:
+    """Discovers all Go unit tests, indexes source code functions, maps code-to-test, and caches hashes & timings."""
+    gitmap_dir = repo_root / "gitmap"
+    existing_inv = load_raw_test_inventory(TEST_INVENTORY_PATH)
+    cached_tests = existing_inv.get("tests", {}) if isinstance(existing_inv, dict) else {}
+
+    # Step 1: Index non-test Go source files and extract function hashes
+    source_funcs: dict[str, dict[str, str]] = {}
+    source_file_hashes: dict[str, str] = {}
+    pkg_to_files: dict[str, list[str]] = {}
+
+    for root, _, files in os.walk(gitmap_dir):
+        rel_pkg = os.path.relpath(root, repo_root).replace("\\", "/")
+        pkg_files: list[str] = []
+        for f in files:
+            if f.endswith(".go") and not f.endswith("_test.go"):
+                p = Path(root) / f
+                rel_path = os.path.relpath(p, repo_root).replace("\\", "/")
+                source_funcs[rel_path] = extract_go_function_hashes(p)
+                source_file_hashes[rel_path] = compute_file_hash(p)
+                pkg_files.append(rel_path)
+        if pkg_files:
+            pkg_to_files[rel_pkg] = pkg_files
+
+    # Step 2: Discover all tests across *_test.go and map to target functions
+    inventory_tests: dict[str, Any] = {}
+    dirty_count = 0
+    passed_count = 0
+
+    for root, _, files in os.walk(gitmap_dir):
+        rel_pkg = os.path.relpath(root, repo_root).replace("\\", "/")
+        for f in files:
+            if f.endswith("_test.go"):
+                p = Path(root) / f
+                rel_test_file = os.path.relpath(p, repo_root).replace("\\", "/")
+                tests = extract_go_test_functions(p)
+                candidates = pkg_to_files.get(rel_pkg, [])
+                if not candidates and rel_pkg.startswith("gitmap/tests/"):
+                    target_name = rel_pkg[len("gitmap/tests/"):].replace("_test", "")
+                    candidates = pkg_to_files.get(f"gitmap/{target_name}", []) or pkg_to_files.get("gitmap/cmd", [])
+
+                base_stem = f.replace("_test.go", "").replace("_unit", "")
+                primary_candidate = ""
+                for c in candidates:
+                    if Path(c).stem == base_stem or Path(c).stem.startswith(base_stem):
+                        primary_candidate = c
+                        break
+                if not primary_candidate and candidates:
+                    primary_candidate = candidates[0]
+
+                for test_func, test_hash in tests.items():
+                    test_id = f"{rel_pkg}.{test_func}"
+                    func_suffix = test_func[4:]  # strip 'Test'
+                    matched_func = ""
+                    matched_file = primary_candidate
+                    matched_hash = ""
+
+                    for c in candidates:
+                        funcs = source_funcs.get(c, {})
+                        for fn, fhash in funcs.items():
+                            if fn.lower() == func_suffix.lower() or func_suffix.lower().startswith(fn.lower()):
+                                matched_func = fn
+                                matched_file = c
+                                matched_hash = fhash
+                                break
+                        if matched_func:
+                            break
+
+                    if not matched_hash and matched_file:
+                        matched_hash = source_file_hashes.get(matched_file, "")
+                    if not matched_hash:
+                        matched_hash = test_hash
+
+                    cached = cached_tests.get(test_id, {})
+                    prev_status = cached.get("last_status", "never_run")
+                    prev_duration = cached.get("duration_sec", 0.0)
+                    prev_run_at = cached.get("last_run_at", "")
+                    prev_code_hash = cached.get("code_hash", "")
+                    prev_test_hash = cached.get("test_hash", "")
+
+                    is_unchanged = (
+                        not force
+                        and prev_status == "passed"
+                        and prev_code_hash == matched_hash
+                        and prev_test_hash == test_hash
+                        and matched_hash != ""
+                    )
+
+                    needs_run = not is_unchanged
+                    if needs_run:
+                        dirty_count += 1
+                    else:
+                        passed_count += 1
+
+                    inventory_tests[test_id] = {
+                        "id": test_id,
+                        "package": rel_pkg,
+                        "test_file": rel_test_file,
+                        "test_func": test_func,
+                        "test_hash": test_hash,
+                        "target_file": matched_file,
+                        "target_func": matched_func,
+                        "code_hash": matched_hash,
+                        "duration_sec": prev_duration,
+                        "last_status": prev_status if is_unchanged else ("dirty" if prev_status == "passed" else prev_status),
+                        "last_run_at": prev_run_at,
+                        "needs_run": needs_run,
+                    }
+
+    inventory = {
+        "version": 1,
+        "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "total_tests": len(inventory_tests),
+        "summary": {
+            "total": len(inventory_tests),
+            "cached": passed_count,
+            "dirty": dirty_count,
+            "packages": len(set(t["package"] for t in inventory_tests.values())),
+        },
+        "tests": inventory_tests,
+    }
+
+    atomic_write_json(TEST_INVENTORY_PATH, inventory)
+    atomic_write_json(TEST_INVENTORY_CACHE_PATH, inventory)
+
+    return inventory
+
+
+def print_inventory_summary(inventory: dict[str, Any]) -> None:
+    """Displays formatted terminal summary of the test inventory manifest."""
+    summ = inventory.get("summary", {})
+    total = summ.get("total", len(inventory.get("tests", {})))
+    cached = summ.get("cached", 0)
+    dirty = summ.get("dirty", 0)
+    pkgs = summ.get("packages", 0)
+    total_time = sum(t.get("duration_sec", 0.0) for t in inventory.get("tests", {}).values())
+
+    print("================================================================")
+    print("           GITMAP CI/CD TEST INVENTORY & TIMINGS MANIFEST       ")
+    print("================================================================")
+    print(f"📁 Test Inventory File     : {TEST_INVENTORY_PATH}")
+    print(f"📋 Total Tests Cataloged   : {total}")
+    print(f"📦 Unique Test Packages    : {pkgs}")
+    print(f"⏱️  Historical Total Time   : {total_time:.2f}s")
+    print(f"✅ Cached (Unchanged Code) : {cached}")
+    print(f"🔄 Dirty (Needs Execution) : {dirty}")
+    print("================================================================", flush=True)
+
+
+def run_package_tests_worker(
+    pkg: str, pkg_tests: list[dict[str, Any]], repo_root: Path, timeout_sec: int
+) -> tuple[int, int, str, dict[str, dict[str, Any]]]:
+    """Worker function executing a batch of tests within a package using go test -json."""
+    rel_in_gitmap = pkg
+    if rel_in_gitmap.startswith("gitmap/"):
+        rel_in_gitmap = "./" + rel_in_gitmap[len("gitmap/"):]
+    elif rel_in_gitmap == "gitmap":
+        rel_in_gitmap = "."
+    else:
+        rel_in_gitmap = f"./{rel_in_gitmap}"
+
+    cmd = ["go", "test", "-json", rel_in_gitmap, "-count=1"]
+    test_funcs = [t["test_func"] for t in pkg_tests]
+    if len(test_funcs) <= 25:
+        run_regex = "^(" + "|".join(test_funcs) + ")$"
+        cmd.extend(["-run", run_regex])
+
+    cwd = repo_root / "gitmap"
+
+    try:
+        proc = subprocess.run(
+            cmd, cwd=cwd, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=timeout_sec
+        )
+    except subprocess.TimeoutExpired:
+        return 0, len(pkg_tests), f"Timeout expired after {timeout_sec}s", {}
+    except Exception as exc:
+        return 0, len(pkg_tests), str(exc), {}
+
+    test_results: dict[str, dict[str, Any]] = {}
+    passed = 0
+    failed = 0
+    output_lines: list[str] = []
+    raw_stdout = proc.stdout or ""
+
+    for line in raw_stdout.splitlines():
+        line_str = line.strip()
+        if not line_str:
+            continue
+        try:
+            data = json.loads(line_str)
+            action = data.get("Action")
+            tname = data.get("Test")
+            if tname:
+                tid = f"{pkg}.{tname}"
+                if action == "pass":
+                    passed += 1
+                    test_results[tid] = {"status": "passed", "elapsed": float(data.get("Elapsed", 0.0))}
+                elif action == "fail":
+                    failed += 1
+                    test_results[tid] = {"status": "failed", "elapsed": float(data.get("Elapsed", 0.0))}
+                elif action == "output":
+                    output_lines.append(data.get("Output", ""))
+        except Exception:
+            pass
+
+    for t in pkg_tests:
+        tid = t["id"]
+        if tid not in test_results:
+            if proc.returncode == 0:
+                passed += 1
+                test_results[tid] = {"status": "passed", "elapsed": 0.0}
+            else:
+                failed += 1
+                test_results[tid] = {"status": "failed", "elapsed": 0.0}
+
+    out_summary = "".join(output_lines) if failed > 0 else ""
+    return passed, failed, out_summary, test_results
+
+
+def run_smart_go_tests(
+    name: str, timeout_sec: int, max_workers: int, force: bool, repo_root: Path, tel: TelemetryTracker | None = None
+) -> JobResult:
+    """Executes only changed or failing Go unit tests in parallel worker groups, caching results."""
+    start_time = time.monotonic()
+    inventory = build_or_update_test_inventory(repo_root, force=force)
+    tests = inventory.get("tests", {})
+    dirty_tests = [t for t in tests.values() if t.get("needs_run", True) or force]
+
+    if not dirty_tests:
+        elapsed = round(time.monotonic() - start_time, 2)
+        total_tests = len(tests)
+        out_msg = f"[CACHED] All {total_tests} Go unit tests skipped (0 target functions or tests modified)"
+        return JobResult(
+            name=name, cmd=["go", "test", "smart-incremental"], code=0,
+            out=out_msg, err="", elapsed=elapsed, is_cached=True
+        )
+
+    # Group dirty tests by package
+    pkg_map: dict[str, list[dict[str, Any]]] = {}
+    for t in dirty_tests:
+        pkg = t["package"]
+        pkg_map.setdefault(pkg, []).append(t)
+
+    total_dirty = len(dirty_tests)
+    passed_count = 0
+    failed_count = 0
+    error_outputs: list[str] = []
+
+    worker_count = min(max(1, max_workers), len(pkg_map))
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        futures = {}
+        for pkg, pkg_tests in pkg_map.items():
+            fut = executor.submit(run_package_tests_worker, pkg, pkg_tests, repo_root, timeout_sec)
+            futures[fut] = (pkg, pkg_tests)
+
+        for fut in as_completed(futures):
+            pkg, pkg_tests = futures[fut]
+            try:
+                pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
+                passed_count += pkg_passed
+                failed_count += pkg_failed
+                if pkg_failed > 0:
+                    error_outputs.append(f"[{pkg}] {pkg_out}")
+                for tid, res_info in test_results.items():
+                    if tid in tests:
+                        tests[tid]["duration_sec"] = res_info["elapsed"]
+                        tests[tid]["last_status"] = res_info["status"]
+                        tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+                        tests[tid]["needs_run"] = (res_info["status"] != "passed")
+                        record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
+            except Exception as ex:
+                failed_count += len(pkg_tests)
+                error_outputs.append(f"[{pkg}] Worker exception: {ex}")
+
+    elapsed = round(time.monotonic() - start_time, 2)
+    inventory["summary"]["dirty"] = failed_count
+    inventory["summary"]["cached"] = len(tests) - failed_count
+    atomic_write_json(TEST_INVENTORY_PATH, inventory)
+    atomic_write_json(TEST_INVENTORY_CACHE_PATH, inventory)
+
+    if failed_count > 0:
+        err_text = "\n".join(error_outputs)
+        return JobResult(
+            name=name, cmd=["go", "test", "smart-incremental"], code=1,
+            out="", err=err_text, elapsed=elapsed
+        )
+
+    out_msg = f"Passed {passed_count} tests across {len(pkg_map)} packages in {elapsed}s ({len(tests) - total_dirty} tests cached)"
+    return JobResult(
+        name=name, cmd=["go", "test", "smart-incremental"], code=0,
+        out=out_msg, err="", elapsed=elapsed
+    )
+
+
 def resolve_command_binary(cmd: list[str]) -> list[str]:
-    """Resolves executable path using shutil.which if needed."""
+    """Resolves executable path using shutil.which if needed, with GOPATH/bin and goreleaser fallbacks."""
     resolved = list(cmd)
-    binary_path = shutil.which(cmd[0])
+    if not resolved:
+        return resolved
+
+    binary_name = cmd[0]
+    binary_path = shutil.which(binary_name)
     if binary_path is not None:
         resolved[0] = binary_path
+        return resolved
+
+    # Fallback to GOPATH/bin for Go tools like goreleaser
+    gopath = os.environ.get("GOPATH", "d:/go-path")
+    ext = ".exe" if os.name == "nt" else ""
+    candidate = Path(gopath) / "bin" / f"{binary_name}{ext}"
+    if candidate.is_file():
+        resolved[0] = str(candidate)
+        return resolved
+
+    # Fallback for goreleaser if not installed locally
+    if binary_name == "goreleaser":
+        return ["go", "run", "github.com/goreleaser/goreleaser/v2@latest"] + resolved[1:]
 
     return resolved
 
@@ -1156,6 +1577,7 @@ def add_reporting_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("-o", "--output", dest="output_file", type=str, default=None, help="Output file.")
     parser.add_argument("--json", dest="json_mode", action="store_true", help="Output machine-readable JSON.")
     parser.add_argument("--eta-interval", type=int, default=120, help="Print ETA interval in seconds.")
+    parser.add_argument("--inventory-only", dest="inventory_only", action="store_true", help="Discover and catalog all tests into JSON manifest and exit.")
 
 
 def add_caching_and_resume_arguments(parser: argparse.ArgumentParser) -> None:
@@ -1255,15 +1677,16 @@ def dispatch_result_outcome(
 def handle_completed_result(
     res: JobResult, cmd_hash: str, spec: GateSpec, state: dict[str, Any], sdir: Path, tel: TelemetryTracker, root: Path
 ) -> None:
-    """Processes completed JobResult, updates state, logs, and telemetry."""
-    state["counter"] += 1
-    state["results"].append(res)
-    track_executed_gate(res, state)
-    append_run_log_entry(res, sdir)
-    dispatch_result_outcome(res, cmd_hash, spec, state, sdir, tel, root)
-    persist_state(sdir, state)
-    update_cicd_summary(state, sdir, is_finished=False)
-    tel.finish_job(res.name, is_cached=res.is_cached)
+    """Processes completed JobResult, updates state, logs, and telemetry with thread synchronization."""
+    with DISK_WRITE_LOCK:
+        state["counter"] += 1
+        state["results"].append(res)
+        track_executed_gate(res, state)
+        append_run_log_entry(res, sdir)
+        dispatch_result_outcome(res, cmd_hash, spec, state, sdir, tel, root)
+        persist_state(sdir, state)
+        update_cicd_summary(state, sdir, is_finished=False)
+        tel.finish_job(res.name, is_cached=res.is_cached)
 
 
 def check_single_gate_skip(name: str, cmd: Any, prev: dict, delta: set, root: Path, executed: set) -> tuple[bool, str, str, GateSpec, Any]:
@@ -1306,11 +1729,15 @@ def evaluate_batch_skips(
     return to_run
 
 
-def submit_job_futures(executor: ThreadPoolExecutor, to_run: list, args: argparse.Namespace, telemetry: TelemetryTracker) -> dict:
+def submit_job_futures(executor: ThreadPoolExecutor, to_run: list, args: argparse.Namespace, telemetry: TelemetryTracker, root: Path) -> dict:
     """Submits active jobs to ThreadPoolExecutor and registers telemetry."""
     future_map = {}
     for name, cmd, cmd_hash, spec in to_run:
         telemetry.start_job(name)
+        if (isinstance(cmd, dict) and cmd.get("type") == "smart_go_tests") or name == "Go Smart Incremental Tests":
+            fut = executor.submit(run_smart_go_tests, name, args.timeout, args.workers, bool(args.force_run), root, telemetry)
+            future_map[fut] = (name, cmd_hash, spec, cmd)
+            continue
         raw_cmd = cmd.get("cmd") if isinstance(cmd, dict) else cmd
         env = {**os.environ, **cmd.get("env")} if isinstance(cmd, dict) and "env" in cmd else None
         cwd = cmd.get("cwd") if isinstance(cmd, dict) else None
@@ -1344,7 +1771,7 @@ def execute_job_batch(
     limit = batch.get("max_workers")
     batch_workers = 1 if is_sync else min(workers, limit or workers, len(to_run))
     with ThreadPoolExecutor(max_workers=batch_workers) as executor:
-        fut_map = submit_job_futures(executor, to_run, args, tel)
+        fut_map = submit_job_futures(executor, to_run, args, tel, root)
         wait_and_handle_batch_futures(fut_map, state, sdir, tel, root)
 
 
@@ -1637,12 +2064,111 @@ def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int
     return session_dir, prev_state, delta, telemetry, state
 
 
-def run_batch_sequence(batches: list[dict], args: argparse.Namespace, st: dict, prev: dict, delta: set, root: Path, sdir: Path, tel: TelemetryTracker) -> None:
-    """Executes all enqueued job batches sequentially."""
+def execute_agent_group(
+    agent_name: str,
+    group_batches: list[dict[str, Any]],
+    workers: int,
+    is_sync: bool,
+    args: argparse.Namespace,
+    st: dict[str, Any],
+    prev: dict[str, Any],
+    delta: set[str],
+    root: Path,
+    sdir: Path,
+    tel: TelemetryTracker,
+) -> None:
+    """Runs an ordered sequence of batches assigned to an autonomous pipeline section agent."""
+    for b in group_batches:
+        execute_job_batch(b, workers, is_sync, args, st, prev, delta, root, sdir, tel)
+
+
+def run_parallel_agent_pipeline(
+    batches: list[dict],
+    workers: int,
+    args: argparse.Namespace,
+    st: dict,
+    prev: dict,
+    delta: set,
+    root: Path,
+    sdir: Path,
+    tel: TelemetryTracker,
+) -> None:
+    """Runs autonomous pipeline section agents concurrently across logical CPU cores."""
+    batch_map = {b["name"]: b for b in batches}
+
+    agent1_batches = [b for b in [batch_map.get("Linters & AST Checks")] if b]
+    agent2_batches = [
+        b
+        for b in [
+            batch_map.get("Compile Gates"),
+            batch_map.get("Packaging Gates"),
+            batch_map.get("E2E Smoke Tests"),
+        ]
+        if b
+    ]
+    agent3_batches = [
+        b
+        for b in [
+            batch_map.get("Smart Unit Tests & Coverage"),
+            batch_map.get("Coverage Verification"),
+            batch_map.get("Race Detection"),
+        ]
+        if b
+    ]
+
+    handled = {
+        "Linters & AST Checks",
+        "Compile Gates",
+        "Packaging Gates",
+        "E2E Smoke Tests",
+        "Smart Unit Tests & Coverage",
+        "Coverage Verification",
+        "Race Detection",
+    }
+    other_batches = [b for b in batches if b["name"] not in handled]
+
+    agent_groups = [
+        ("Agent 1 (Linters & AST Checks)", agent1_batches),
+        ("Agent 2 (Build & Packaging & Smoke Suite)", agent2_batches),
+        ("Agent 3 (Unit Tests & Coverage & Race)", agent3_batches),
+    ]
+    if other_batches:
+        agent_groups.append(("Agent 4 (Other Gates)", other_batches))
+
+    active_groups = [(name, grp) for name, grp in agent_groups if grp]
+    if len(active_groups) <= 1:
+        for _, grp in active_groups:
+            execute_agent_group("Sequential", grp, workers, False, args, st, prev, delta, root, sdir, tel)
+
+        return
+
+    with ThreadPoolExecutor(max_workers=len(active_groups)) as agent_pool:
+        futures = [
+            agent_pool.submit(execute_agent_group, name, grp, workers, False, args, st, prev, delta, root, sdir, tel)
+            for name, grp in active_groups
+        ]
+        for fut in as_completed(futures):
+            fut.result()
+
+
+def run_batch_sequence(
+    batches: list[dict],
+    args: argparse.Namespace,
+    st: dict,
+    prev: dict,
+    delta: set,
+    root: Path,
+    sdir: Path,
+    tel: TelemetryTracker,
+) -> None:
+    """Executes all enqueued job batches with autonomous pipeline section agents."""
     workers = 1 if args.sync_mode else max(1, args.workers)
     try:
-        for b in batches:
-            execute_job_batch(b, workers, args.sync_mode, args, st, prev, delta, root, sdir, tel)
+        if args.sync_mode or len(batches) <= 1:
+            for b in batches:
+                execute_job_batch(b, workers, args.sync_mode, args, st, prev, delta, root, sdir, tel)
+        else:
+            run_parallel_agent_pipeline(batches, workers, args, st, prev, delta, root, sdir, tel)
     finally:
         tel.stop_heartbeat()
         tel.clear_line()
@@ -1660,7 +2186,7 @@ def extract_runner_counts(total: int, results: list[JobResult]) -> tuple[int, in
 def show_upfront_plan_if_text(args: argparse.Namespace, batches: list[dict[str, Any]]) -> None:
     """Displays queued segments and gates banner when running in text mode."""
     if not args.json_mode:
-        label = "Synchronous (1 worker)" if args.sync_mode else f"Parallel ({args.workers} workers)"
+        label = "Synchronous (1 worker)" if args.sync_mode else f"Parallel ({args.workers} workers, 3 Autonomous Section Agents)"
         print_queued_segments_and_gates(batches, label)
 
 
@@ -1762,6 +2288,13 @@ def main() -> None:
     """Primary entry point for local CI/CD quality gate runner."""
     args = parse_args()
     repo_root = Path(__file__).resolve().parent.parent
+
+    # Step 1: Discover all existing tests, build/update test inventory JSON with code-to-test mapping & timings
+    inventory = build_or_update_test_inventory(repo_root, force=bool(args.force_run))
+    if getattr(args, "inventory_only", False):
+        print_inventory_summary(inventory)
+        sys.exit(0)
+
     batches = filter_job_batches(JOB_BATCHES, args.filter)
     timings = load_cicd_timings(TIMING_FILE_PATH)
     total_est = calculate_total_eta(batches, timings)

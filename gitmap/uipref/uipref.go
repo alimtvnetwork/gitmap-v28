@@ -14,7 +14,11 @@
 // IsQuiet() / IsNoColor() before emitting decorative output.
 package uipref
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+	"strings"
+)
 
 // Env var names — kept here (not constants/) because this package
 // is the only legitimate reader.
@@ -22,7 +26,84 @@ const (
 	EnvQuiet      = "GITMAP_QUIET"
 	EnvNoColor    = "GITMAP_NO_COLOR"
 	EnvNoColorStd = "NO_COLOR"
+	EnvMacroPwd   = "GITMAP_MACRO_PWD"
 )
+
+var macroPwdOverride *bool
+
+// IsMacroPwdVisible reports whether the current working directory banner
+// should be displayed above each step prompt in the interactive macro builder.
+func IsMacroPwdVisible() bool {
+	if macroPwdOverride != nil {
+		return *macroPwdOverride
+	}
+
+	if val, hasEnv := os.LookupEnv(EnvMacroPwd); hasEnv {
+		return isTruthyMacroVal(val)
+	}
+
+	return isStoredMacroPwdEnabled()
+}
+
+// SetMacroPwdOverride sets a runtime override for Macro PWD visibility.
+func SetMacroPwdOverride(isVisible bool) {
+	val := isVisible
+	macroPwdOverride = &val
+}
+
+// ResetMacroPwdOverride clears any runtime override for Macro PWD visibility.
+func ResetMacroPwdOverride() {
+	macroPwdOverride = nil
+}
+
+func isTruthyMacroVal(val string) bool {
+	return val != "0" && val != "false" && val != "FALSE" && val != "off"
+}
+
+func getMacroPrefPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(home, ".gitmap", "macro_pwd.pref"), nil
+}
+
+func isStoredMacroPwdEnabled() bool {
+	path, err := getMacroPrefPath()
+	if err != nil {
+		return true
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return true
+	}
+
+	return isTruthyMacroVal(strings.TrimSpace(string(data)))
+}
+
+// SetMacroShowPwd persists the user preference for displaying PWD in macro builder.
+func SetMacroShowPwd(isVisible bool) error {
+	SetMacroPwdOverride(isVisible)
+
+	path, err := getMacroPrefPath()
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return err
+	}
+
+	content := "1"
+	if !isVisible {
+		content = "0"
+	}
+
+	return os.WriteFile(path, []byte(content), 0644)
+}
+
 
 // IsQuiet reports whether decorative / progress output should be
 // suppressed. Treats any non-empty value (other than "0"/"false")

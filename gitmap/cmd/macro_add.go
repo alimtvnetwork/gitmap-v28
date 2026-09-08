@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/uipref"
 )
 
 func handleMacroAdd(args []string) error {
@@ -62,23 +63,38 @@ func parseMacroAddFlags(args []string) (string, string, []string) {
 	var rawSteps []string
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		switch {
-		case (a == "--desc" || a == "--description") && i+1 < len(args):
-			i++
-			desc = args[i]
-		case a == "--tag" && i+1 < len(args):
-			i++
-			tag = args[i]
-		case strings.HasPrefix(a, "--desc="):
-			desc = strings.TrimPrefix(a, "--desc=")
-		case strings.HasPrefix(a, "--tag="):
-			tag = strings.TrimPrefix(a, "--tag=")
-		case !strings.HasPrefix(a, "-"):
-			rawSteps = append(rawSteps, a)
+		if a == "--pwd" {
+			uipref.SetMacroPwdOverride(true)
+			continue
 		}
+		if a == "--no-pwd" {
+			uipref.SetMacroPwdOverride(false)
+			continue
+		}
+		i, desc, tag, rawSteps = parseSingleMacroFlag(args, i, desc, tag, rawSteps)
 	}
+
 	return desc, tag, rawSteps
 }
+
+func parseSingleMacroFlag(args []string, i int, desc, tag string, rawSteps []string) (int, string, string, []string) {
+	a := args[i]
+	switch {
+	case (a == "--desc" || a == "--description") && i+1 < len(args):
+		return i + 1, args[i+1], tag, rawSteps
+	case a == "--tag" && i+1 < len(args):
+		return i + 1, desc, args[i+1], rawSteps
+	case strings.HasPrefix(a, "--desc="):
+		return i, strings.TrimPrefix(a, "--desc="), tag, rawSteps
+	case strings.HasPrefix(a, "--tag="):
+		return i, desc, strings.TrimPrefix(a, "--tag="), rawSteps
+	case !strings.HasPrefix(a, "-"):
+		return i, desc, tag, append(rawSteps, a)
+	default:
+		return i, desc, tag, rawSteps
+	}
+}
+
 
 func parseMacroStepsList(rawSteps []string) []macro.MacroStep {
 	var steps []macro.MacroStep

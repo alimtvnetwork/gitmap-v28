@@ -59,6 +59,9 @@ const (
 	ToolBuildEssential   = "build-essential"
 	ToolUbuntuCommon     = "ubuntu-common"
 	ToolWordPress        = "wordpress"
+	ToolGitmap           = "gitmap"
+	ToolWpCli            = "wp-cli"
+	ToolComposer         = "composer"
 )
 
 // Supported tool names — Databases.
@@ -94,11 +97,12 @@ const (
 
 // Supported tool names — DevOps & Containers.
 const (
-	ToolDocker     = "docker"
-	ToolKubernetes = "kubernetes"
-	ToolJenkins    = "jenkins"
-	ToolNginx      = "nginx"
-	ToolVMware     = "vmware"
+	ToolDocker      = "docker"
+	ToolKubernetes  = "kubernetes"
+	ToolJenkins     = "jenkins"
+	ToolNginx       = "nginx"
+	ToolVMware      = "vmware"
+	ToolOpenVmTools = "open-vm-tools"
 )
 
 // Supported tool names — Terminal & Utilities.
@@ -522,12 +526,16 @@ var InstallToolDescriptions = map[string]string{
 	ToolWordPress:        "WordPress web publishing platform and CMS / WP-CLI",
 	ToolLaravel:          "Laravel PHP web application framework and installer CLI",
 	ToolVMware:           "VMware guest tools and virtualization utilities",
+	ToolGitmap:           "Gitmap CLI repository orchestration and dev tools manager",
+	ToolComposer:         "Composer dependency manager for PHP",
+	ToolWpCli:            "WP-CLI command-line interface for WordPress management",
+	ToolOpenVmTools:      "Open Virtual Machine Tools for VMware guest optimization",
 }
 
 // InstallToolCategories groups tools by category for display.
 var InstallToolCategories = map[string][]string{
 	ToolCategoryCore: {
-		ToolVSCode, ToolNodeJS, ToolYarn, ToolBun, ToolPnpm,
+		ToolGitmap, ToolVSCode, ToolNodeJS, ToolYarn, ToolBun, ToolPnpm,
 		ToolPython, ToolGo, ToolGit, ToolGitLFS, ToolGHCLI,
 		ToolGitHubDesktop, ToolCPP, ToolPHP, ToolPowerShell,
 		ToolChocolatey, ToolWinget, ToolDbeaver, ToolOBS,
@@ -537,7 +545,7 @@ var InstallToolCategories = map[string][]string{
 		ToolScripts, ToolGitmapOneliner, ToolAllDevTools,
 		ToolScriptsFixer, ToolCodingGuidelines, ToolMacroAhk, ToolAgManager, ToolAgCtx, ToolAntigravity,
 		ToolBuildEssential, ToolUbuntuCommon, ToolChrome, ToolGoogleChrome,
-		ToolWordPress,
+		ToolWordPress, ToolWpCli,
 	},
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,
@@ -545,13 +553,13 @@ var InstallToolCategories = map[string][]string{
 		ToolNeo4j, ToolElasticsearch, ToolDuckDB, ToolLiteDB,
 	},
 	ToolCategoryLanguages: {
-		ToolRust, ToolDotnet, ToolJava, ToolFlutter, ToolLaravel,
+		ToolRust, ToolDotnet, ToolJava, ToolFlutter, ToolLaravel, ToolComposer,
 	},
 	ToolCategoryAI: {
 		ToolOllama, ToolLlamaCpp, ToolPythonLibs,
 	},
 	ToolCategoryDevOps: {
-		ToolDocker, ToolKubernetes, ToolJenkins, ToolNginx, ToolVMware,
+		ToolDocker, ToolKubernetes, ToolJenkins, ToolNginx, ToolVMware, ToolOpenVmTools,
 	},
 	ToolCategoryUtilities: {
 		ToolZsh, ToolFlameshot, ToolConemu, ToolVLC,

@@ -495,7 +495,11 @@ function Write-MissingAssetError([string]$version, [string]$arch,
 
 function Get-Asset([string]$version, [string]$arch) {
     $assetName = "gitmap-${version}-windows-${arch}.zip"
-    $baseUrl = "https://github.com/$Repo/releases/download/$version"
+    $baseUrl = if ($env:GITMAP_DOWNLOAD_URL) {
+        $env:GITMAP_DOWNLOAD_URL.TrimEnd('/')
+    } else {
+        "https://github.com/$Repo/releases/download/$version"
+    }
     $assetUrl = "$baseUrl/$assetName"
     $checksumUrl = "$baseUrl/checksums.txt"
 
@@ -761,7 +765,12 @@ function Assert-InstallSelfCheck([string]$installDir) {
 # if the release does not bundle docs-site.zip (older versions).
 function Install-DocsSite([string]$version, [string]$installDir) {
     $assetName = "docs-site.zip"
-    $assetUrl = "https://github.com/$Repo/releases/download/$version/$assetName"
+    $baseUrl = if ($env:GITMAP_DOWNLOAD_URL) {
+        $env:GITMAP_DOWNLOAD_URL.TrimEnd('/')
+    } else {
+        "https://github.com/$Repo/releases/download/$version"
+    }
+    $assetUrl = "$baseUrl/$assetName"
     $tmpZip = Join-Path $env:TEMP "gitmap-docs-site-$(Get-Random).zip"
 
     Write-Step "Downloading docs-site.zip ($version)..."

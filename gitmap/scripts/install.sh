@@ -388,7 +388,7 @@ emit_missing_asset_error() {
 download_asset() {
     local version="$1" os="$2" arch="$3"
     local asset_name="${BINARY_NAME}-${version}-${os}-${arch}.tar.gz"
-    local base_url="https://github.com/${REPO}/releases/download/${version}"
+    local base_url="${GITMAP_DOWNLOAD_URL:-https://github.com/${REPO}/releases/download/${version}}"
     local asset_url="${base_url}/${asset_name}"
     local checksum_url="${base_url}/checksums.txt"
 
@@ -744,7 +744,8 @@ install_seed_data() {
 install_docs_site() {
     local version="$1" install_dir="$2"
     local asset_name="docs-site.zip"
-    local asset_url="https://github.com/${REPO}/releases/download/${version}/${asset_name}"
+    local base_url="${GITMAP_DOWNLOAD_URL:-https://github.com/${REPO}/releases/download/${version}}"
+    local asset_url="${base_url}/${asset_name}"
     local tmp_zip="${TMP_DIR}/${asset_name}"
 
     step "Downloading docs-site.zip (${version})..."

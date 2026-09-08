@@ -300,4 +300,33 @@ Allowed work:
 - ✅ Check `vmware-hgfsclient` and provide clear, actionable VM Settings -> Options -> Shared Folders remediation instructions when Error -107 occurs.
 - ✅ Always install `open-vm-tools` and `open-vm-tools-desktop` together.
 
+---
+
+## Unshimmed Interactive Prompts Lacking PWD Awareness & Local File Inspection — TOTAL BAN
+
+🔴 **NEVER force users into blind interactive CLI step prompts without displaying the current working directory (`PWD`) or allowing directory file inspection (`ls`/`dir`).**
+
+Forbidden:
+- ❌ Displaying a bare `Step N> ` prompt without showing where in the filesystem the command will run.
+- ❌ Registering file inspection commands (`ls`, `dir`) as permanent macro steps when the user is trying to inspect their workspace.
+
+Allowed work:
+- ✅ Render a clean `[PWD: ...]` banner above prompt lines, with user toggles (`pwd on`/`pwd off`).
+- ✅ Provide in-builder `ls`, `dir`, `find`, `search`, and `replace` commands to assist recipe construction.
+
+---
+
+## Strict Network Release Dependencies in Local CI/CD Smoke Tests — TOTAL BAN
+
+🔴 **NEVER force local CI/CD runners to query remote GitHub release downloads for unreleased local tags without local mock server fallback.**
+
+Forbidden:
+- ❌ Looping 5 times with 10-second sleeps against GitHub for unpublished tags, stalling local test execution for 176+ seconds before hard failing.
+- ❌ Bypassing or disabling installer tests in CI/CD instead of implementing local mock release packaging.
+
+Allowed work:
+- ✅ Automatically probe if the release asset exists on GitHub.
+- ✅ When absent, spin up an offline Python HTTP server serving local snapshot binaries packaged into the expected `.zip` / `.tar.gz` and `checksums.txt` format via `GITMAP_DOWNLOAD_URL`.
+
+
 
