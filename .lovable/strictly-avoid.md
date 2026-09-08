@@ -266,3 +266,19 @@ Allowed work:
 - ✅ Provide internal shimming in the macro execution engine: translate `open` on Windows to `explorer.exe`, `cmd.exe /c start ""`, or `rundll32 url.dll,FileProtocolHandler`, and on Linux to `xdg-open`.
 - ✅ Delegate URL/browser operations to GitMap's built-in commands (`gitmap open`, `gitmap chrome open`).
 
+---
+
+## Executing Git Command Chains via Shell String Concatenation (`cmd /c`) on Windows — TOTAL BAN
+
+🔴 **NEVER execute composite Git command chains using shell string concatenation (`cmd /c`, `sh -c`) without structured argument isolation.**
+
+Forbidden:
+- ❌ Running `exec.Command("cmd", "/c", "git -C <path> commit -m \"...\"")`. Windows `cmd.exe` strips or mishandles double quotes around commit messages, causing Git to mistake message words for file pathspecs (`error: pathspec '<word>' did not match any file(s) known to git`).
+- ❌ Relying on shell quote-escaping for compound operations (`&&`, `;`) containing dynamic commit messages or file paths with spaces.
+- ❌ Compiling only `bin/gitmap.exe` while neglecting `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe` and root `gitmap.exe`, causing user terminals to invoke stale binaries through PowerShell wrappers.
+
+Allowed work:
+- ✅ Execute discrete command steps natively via `RemediationStep{Name: "git", Args: []string{"-C", repoPath, "commit", "-m", msg}}` with `exec.Command(step.Name, step.Args...)`.
+- ✅ Synthesize structured steps dynamically when recipes are loaded from legacy serializations missing `steps`.
+- ✅ Synchronize all 4 Gitmap execution paths upon compilation (`bin/gitmap.exe`, root `gitmap.exe`, `AppData\Local\gitmap-cli\gitmap.exe`, and `AppData\Local\gitmap\gitmap.exe`).
+
