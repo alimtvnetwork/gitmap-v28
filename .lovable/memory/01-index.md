@@ -39,6 +39,9 @@ Updated: 2026-04-27
 - [StreamWriter Contracts & Naming Standards](learned/04-streamwriter-contracts-and-naming-standards.md) — Idiomatic -er interfaces, ReentrantMutex, Bytes[T], JsonResult multi-source ingestion, boolean prefixes, and Id naming standard.
 - [Chrome Profile Picker Registration & Concurrency](learned/05-chrome-profile-picker-registration-and-concurrency.md) — Chromium Local State 13-attribute schema, process concurrency guards, Preferences sanitization, and orphan reconciliation engine.
 - [Macro Step Execution & Shell Open Behavior](learned/06-macro-step-execution-and-shell-open.md) — Cross-platform macro command shimming, Windows 'open' failure analysis, and pending task roadmap.
+- [Remediation Windows Pathspec & Chrome Token Vault](learned/07-remediation-windows-pathspec-and-chrome-token-vault.md) — Structured discrete arguments in exec.Command, Windows cmd /c quote stripping prevention, and Chrome profile OAuth refresh token vault.
+- [Nginx, WordPress, and Laravel Setup, VHost & Perms Engine](learned/08-nginx-wordpress-laravel-setup-and-vhost-engine.md) — Universal package installation, vhost configuration/reloading, wp-config salts generation, .env synthesis, and cross-platform permissions engine.
+- [VMware Mount Resilience, Install Command & Root Help](learned/09-vmware-mount-resilience-install-and-root-help.md) — Pre-mount FUSE cleanup, open-vm-tools-desktop requirement, fallback mounting, Error -107 diagnostic guidance, and root CLI help integration.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

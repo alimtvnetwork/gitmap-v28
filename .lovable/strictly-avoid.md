@@ -282,3 +282,22 @@ Allowed work:
 - ✅ Synthesize structured steps dynamically when recipes are loaded from legacy serializations missing `steps`.
 - ✅ Synchronize all 4 Gitmap execution paths upon compilation (`bin/gitmap.exe`, root `gitmap.exe`, `AppData\Local\gitmap-cli\gitmap.exe`, and `AppData\Local\gitmap\gitmap.exe`).
 
+---
+
+## Unverified VMware Mount Invocations Without Pre-Mount Cleanup or Diagnostics — TOTAL BAN
+
+🔴 **NEVER execute `vmhgfs-fuse` or VMware mount commands without pre-mount stale cleanup, service readiness checks, fallback mounting, and Error -107 diagnostics.**
+
+Forbidden:
+- ❌ Running `vmhgfs-fuse` on a mount point without unmounting stale or broken FUSE endpoints first (`fusermount -u` / `umount -l`).
+- ❌ Failing silently or returning raw `Error -107 cannot open connection!` without explaining that VMware host Shared Folders is disabled in VM settings.
+- ❌ Installing only `open-vm-tools` on Linux guests while omitting `open-vm-tools-desktop`.
+
+Allowed work:
+- ✅ Always unmount stale FUSE mount points before mounting.
+- ✅ Ensure `open-vm-tools` service is running via `systemctl start open-vm-tools`.
+- ✅ Attempt fallback mount `mount -t fuse.vmhgfs-fuse .host:/ <mountPoint> -o allow_other` if primary `vmhgfs-fuse` fails.
+- ✅ Check `vmware-hgfsclient` and provide clear, actionable VM Settings -> Options -> Shared Folders remediation instructions when Error -107 occurs.
+- ✅ Always install `open-vm-tools` and `open-vm-tools-desktop` together.
+
+
