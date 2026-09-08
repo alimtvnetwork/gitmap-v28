@@ -33,11 +33,22 @@ func parseInstallFlags(args []string) (installOptions, bool) {
 	return opts, list
 }
 
-// runInstall handles the "install" command.
 func runInstall(args []string) error {
 	if isInstallLogsCommand(args) {
 
 		return runInstallLogs(extractInstallLogsArgs(args))
+	}
+	if isInstallAddCommand(args) {
+
+		return runInstallAdd(args[1:])
+	}
+	if isInstallExportCommand(args) {
+
+		return runInstallExport(args[1:])
+	}
+	if isInstallImportCommand(args) {
+
+		return runInstallImport(args[1:])
 	}
 	checkHelp("install", args)
 	opts, list := parseInstallFlags(args)
@@ -60,8 +71,8 @@ func runInstall(args []string) error {
 func handleMissingInstallTool() error {
 	fmt.Fprintf(os.Stderr, "%s\n", constants.ErrInstallToolRequired)
 	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool> [flags]\n  gitmap in <tool> [flags]\n\n")
-	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
-	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install vscode\n  $ gitmap install node\n  $ gitmap install logs\n  $ gitmap install --logs --failed\n  $ gitmap install --list\n\n")
+	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools\n  add, create            Create or update custom installer interactively\n  export                 Export installer(s) to JSON or ZIP\n  import                 Import installer(s) from JSON or ZIP\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
+	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install vscode\n  $ gitmap install node\n  $ gitmap install add \"my-tool\" v1.0\n  $ gitmap install export my-tool -o my-tool.json\n  $ gitmap install import my-tool.json\n  $ gitmap install logs\n  $ gitmap install --logs --failed\n  $ gitmap install --list\n\n")
 
 	return nil
 }

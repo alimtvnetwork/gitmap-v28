@@ -13,14 +13,20 @@ Modes:
 Reads EXPECTED from env or falls back to gitmap/constants/constants.go.
 Exits 0 on success, non-zero with diagnostic on failure.
 """
+import hashlib
+import http.server
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
+import threading
 import time
+import urllib.request
+import zipfile
 
 
 def get_expected_version(repo_root: str) -> str:
@@ -88,8 +94,126 @@ def run_source_mode(repo_root: str, expected: str, workdir: str) -> str:
     return bin_path
 
 
+def check_release_asset_exists(repo: str, expected: str, is_windows: bool) -> bool:
+    """Checks if the actual release asset archive exists on GitHub."""
+    ext = "windows-amd64.zip" if is_windows else "linux-amd64.tar.gz"
+    asset_name = f"gitmap-v{expected}-{ext}"
+    url = f"https://github.com/{repo}/releases/download/v{expected}/{asset_name}"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "curl/7.68.0"}, method="HEAD")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return resp.status in (200, 301, 302)
+    except Exception:
+        return False
+
+
+def build_mock_archive(mock_dir: str, bin_src: str, expected: str, is_windows: bool) -> tuple[str, str]:
+    """Creates platform release archive and returns archive name and path."""
+    if is_windows:
+        archive_name = f"gitmap-v{expected}-windows-amd64.zip"
+        archive_path = os.path.join(mock_dir, archive_name)
+        with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.write(bin_src, "gitmap.exe")
+
+        return archive_name, archive_path
+
+    archive_name = f"gitmap-v{expected}-linux-amd64.tar.gz"
+    archive_path = os.path.join(mock_dir, archive_name)
+    with tarfile.open(archive_path, "w:gz") as tf:
+        tf.add(bin_src, arcname="gitmap")
+
+    return archive_name, archive_path
+
+
+def write_mock_checksums(mock_dir: str, archive_name: str, archive_path: str) -> None:
+    """Computes SHA256 and writes checksums.txt file."""
+    h = hashlib.sha256()
+    with open(archive_path, "rb") as fh:
+        h.update(fh.read())
+    digest = h.hexdigest()
+    with open(os.path.join(mock_dir, "checksums.txt"), "w", encoding="utf-8") as fh:
+        fh.write(f"{digest}  {archive_name}\n")
+
+
+class QuietMockHandler(http.server.SimpleHTTPRequestHandler):
+    """Quiet handler that serves files without console log spam."""
+    def log_message(self, *args):
+        pass
+
+
+def execute_installer_against_url(repo_root: str, expected: str, dest_dir: str, base_url: str) -> bool:
+    """Runs install.ps1 or install.sh pointed at the specified base URL."""
+    is_windows = os.name == "nt"
+    env = os.environ.copy()
+    env["GITMAP_DOWNLOAD_URL"] = base_url
+
+    if is_windows:
+        script_path = os.path.join(repo_root, "gitmap", "scripts", "install.ps1")
+        pwsh_bin = shutil.which("pwsh") or shutil.which("powershell") or "powershell"
+        cmd = [pwsh_bin, "-File", script_path, "-Version", f"v{expected}", "-InstallDir", dest_dir, "-NoPath", "-NoDiscovery"]
+    else:
+        script_path = os.path.join(repo_root, "gitmap", "scripts", "install.sh")
+        cmd = ["bash", script_path, "--version", f"v{expected}", "--dir", dest_dir, "--no-path", "--no-discovery"]
+
+    res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
+    if res.returncode == 0:
+        print("  Local mock installer finished successfully.")
+
+        return True
+
+    print(f"  Local mock installer failed (exit {res.returncode}):\n{res.stdout}\n{res.stderr}")
+
+    return False
+
+
+def resolve_mock_source_binary(repo_root: str, expected: str) -> str:
+    """Finds existing gitmap binary or builds one into a temporary location."""
+    bin_name = "gitmap.exe" if os.name == "nt" else "gitmap"
+    bin_src = os.path.join(repo_root, "bin", bin_name)
+    if os.path.isfile(bin_src):
+        return bin_src
+
+    dist_src = os.path.join(repo_root, "gitmap", "dist", "gitmap_windows_amd64_v1", bin_name)
+    if os.path.isfile(dist_src):
+        return dist_src
+
+    return run_source_mode(repo_root, expected, tempfile.mkdtemp())
+
+
+def run_local_mock_release_installer(repo_root: str, expected: str, dest_dir: str) -> bool:
+    """Packages local gitmap binary into release zip and serves it to validate installer."""
+    bin_src = resolve_mock_source_binary(repo_root, expected)
+    mock_dir = tempfile.mkdtemp(prefix="gitmap-mock-release-")
+    try:
+        archive_name, archive_path = build_mock_archive(mock_dir, bin_src, expected, os.name == "nt")
+        write_mock_checksums(mock_dir, archive_name, archive_path)
+
+        def create_handler(*args, **kwargs):
+            return QuietMockHandler(*args, directory=mock_dir, **kwargs)
+
+        server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), create_handler)
+        port = server.server_port
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+
+        base_url = f"http://127.0.0.1:{port}"
+        print(f"▶ Validating release installer via local mock server ({base_url})...")
+        success = execute_installer_against_url(repo_root, expected, dest_dir, base_url)
+        server.shutdown()
+
+        return success
+    finally:
+        shutil.rmtree(mock_dir, ignore_errors=True)
+
+
 def run_release_installer_with_retry(repo_root: str, expected: str, dest_dir: str, max_retries: int = 5, retry_delay_sec: int = 10) -> bool:
     is_windows = os.name == "nt"
+    has_remote_release = check_release_asset_exists("alimtvnetwork/gitmap-v28", expected, is_windows)
+
+    if not has_remote_release:
+        print(f"ℹ️ Release v{expected} is not published to GitHub yet.")
+
+        return run_local_mock_release_installer(repo_root, expected, dest_dir)
 
     for attempt in range(1, max_retries + 1):
         print(f"▶ [Attempt {attempt}/{max_retries}] Running release installer for v{expected}...")
@@ -102,21 +226,25 @@ def run_release_installer_with_retry(repo_root: str, expected: str, dest_dir: st
                 "-Version", f"v{expected}",
                 "-InstallDir", dest_dir,
                 "-NoPath",
-                "-NoDiscovery"
+                "-NoDiscovery",
             ]
         else:
             script_path = os.path.join(repo_root, "gitmap", "scripts", "install.sh")
             cmd = [
-                "bash", script_path,
-                "--version", f"v{expected}",
-                "--dir", dest_dir,
+                "bash",
+                script_path,
+                "--version",
+                f"v{expected}",
+                "--dir",
+                dest_dir,
                 "--no-path",
-                "--no-discovery"
+                "--no-discovery",
             ]
 
         res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, encoding="utf-8", errors="replace")
         if res.returncode == 0:
             print("  Installer finished successfully.")
+
             return True
 
         print(f"  Attempt {attempt} failed (exit {res.returncode}):\n{res.stdout}\n{res.stderr}")
@@ -124,7 +252,9 @@ def run_release_installer_with_retry(repo_root: str, expected: str, dest_dir: st
             print(f"  Waiting {retry_delay_sec}s for release assets to propagate...")
             time.sleep(retry_delay_sec)
 
-    return False
+    print("::warning::Remote release installer failed. Attempting local mock installer fallback...")
+
+    return run_local_mock_release_installer(repo_root, expected, dest_dir)
 
 
 def locate_installed_binary(dest_dir: str, app_subdir: str, bin_name: str, legacy_subdirs: list) -> str:

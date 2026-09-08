@@ -21,6 +21,30 @@ func TestResolveToolStatusFromDB(t *testing.T) {
 	}
 }
 
+func TestResolveToolStatusGitmap(t *testing.T) {
+	status, version := resolveToolStatus(constants.ToolGitmap, map[string]string{})
+	if status != constants.StatusInstalled {
+		t.Fatalf("expected installed status for gitmap, got %q", status)
+	}
+	if version != constants.Version {
+		t.Fatalf("expected constants.Version %q, got %q", constants.Version, version)
+	}
+}
+
+func TestParseVersionFromOutput(t *testing.T) {
+	cases := map[string]string{
+		"go version go1.24.1 windows/amd64": "1.24.1",
+		"v22.14.0\n":                        "v22.14.0",
+		"git version 2.47.0.windows.1":      "2.47.0",
+	}
+	for input, expected := range cases {
+		got := parseVersionFromOutput(input)
+		if got != expected {
+			t.Fatalf("input %q: expected %q, got %q", input, expected, got)
+		}
+	}
+}
+
 func TestResolveToolStatusUnknownTool(t *testing.T) {
 	status, version := resolveToolStatus("definitely-not-a-real-binary-xyz", map[string]string{})
 	if status != constants.StatusNotInstalled {

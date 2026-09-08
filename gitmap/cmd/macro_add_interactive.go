@@ -10,6 +10,14 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/uipref"
+)
+
+type interactiveLoopAction int
+
+const (
+	loopActionContinue interactiveLoopAction = iota
+	loopActionBreak
 )
 
 func resolveStepsInteractively(name string) ([]macro.MacroStep, error) {
@@ -70,51 +78,107 @@ func isTerminalInput() bool {
 func promptInteractiveMacroSteps(name string) ([]macro.MacroStep, error) {
 	printInteractiveMacroHeader(name)
 
-	scanner := bufio.NewScanner(os.Stdin)
-	var steps []macro.MacroStep
-	stepNum := 1
-
-	for {
-		fmt.Printf("  Step %d> ", stepNum)
-		if !scanner.Scan() {
-			break
-		}
-
-		line := strings.TrimSpace(scanner.Text())
-		if isDoneStep(line) {
-			break
-		}
-
-		if isAbortStep(line) {
-			fmt.Printf("  %s▲ Macro %q creation aborted.%s\n\n", constants.ColorYellow, name, constants.ColorReset)
-
-			return nil, nil
-		}
-
-		if isRecordStep(line) {
-			return nil, macro.RecordInteractive(name)
-		}
-
-		if strings.Contains(line, "&&") {
-			stepNum = appendChainedSteps(&steps, line, stepNum)
-			continue
-		}
-
-		steps = append(steps, makeMacroStep(stepNum, line))
-		stepNum++
-	}
-
-	if err := scanner.Err(); err != nil {
+	steps, err := collectInteractiveMacroSteps(name)
+	if err != nil {
 		return nil, apperror.WrapSimple(err, "read interactive macro input")
 	}
 
 	if len(steps) == 0 {
-		fmt.Printf("  %s▲ No commands entered. Macro %q was not saved.%s\n\n", constants.ColorYellow, name, constants.ColorReset)
+		printNoCommandsEntered(name)
 
 		return nil, nil
 	}
 
 	return steps, nil
+}
+
+func collectInteractiveMacroSteps(name string) ([]macro.MacroStep, error) {
+	scanner := bufio.NewScanner(os.Stdin)
+	var steps []macro.MacroStep
+	stepNum := 1
+	state := newInteractiveState()
+
+	for {
+		printMacroPromptPwd()
+		fmt.Printf("  Step %d> ", stepNum)
+		if !scanner.Scan() {
+			break
+		}
+
+		if processInteractiveStepLine(scanner.Text(), name, state, &steps, &stepNum) == loopActionBreak {
+			break
+		}
+	}
+
+	return steps, scanner.Err()
+}
+
+func printMacroPromptPwd() {
+	if !uipref.IsMacroPwdVisible() {
+		return
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return
+	}
+
+	fmt.Printf("  %s[PWD: %s]%s\n", constants.ColorCyan, cwd, constants.ColorReset)
+}
+
+func processInteractiveStepLine(rawLine, name string, state *interactiveSessionState, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
+	line := strings.TrimSpace(rawLine)
+	if processInBuilderCommand(line, state, steps, stepNum) {
+		return loopActionContinue
+	}
+
+	if isDoneStep(line) {
+		return loopActionBreak
+	}
+
+	if isAbortStep(line) {
+		printMacroAbortedMessage(name)
+		*steps = nil
+
+		return loopActionBreak
+	}
+
+	return recordStepLine(line, name, steps, stepNum)
+}
+
+func processInBuilderCommand(line string, state *interactiveSessionState, steps *[]macro.MacroStep, stepNum *int) bool {
+	if !isInteractiveHelper(line) {
+		return false
+	}
+
+	return handleInteractiveHelper(line, state, steps, stepNum)
+}
+
+func recordStepLine(line, name string, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
+	if isRecordStep(line) {
+		_ = macro.RecordInteractive(name)
+
+		return loopActionBreak
+	}
+
+	if strings.Contains(line, "&&") {
+		*stepNum = appendChainedSteps(steps, line, *stepNum)
+
+		return loopActionContinue
+	}
+
+	*steps = append(*steps, makeMacroStep(*stepNum, line))
+	*stepNum++
+
+	return loopActionContinue
+}
+
+func printNoCommandsEntered(name string) {
+	fmt.Printf("  %s▲ No commands entered. Macro %q was not saved.%s\n\n", constants.ColorYellow, name, constants.ColorReset)
+}
+
+func printMacroAbortedMessage(name string) {
+	fmt.Printf("  %s▲ Macro %q creation aborted.%s\n\n", constants.ColorYellow, name, constants.ColorReset)
 }
 
 func isDoneStep(line string) bool {
@@ -133,11 +197,11 @@ func printInteractiveMacroHeader(name string) {
 	fmt.Println()
 	fmt.Printf("  %s● Interactive Macro Builder: %s%q%s\n", constants.ColorCyan, constants.ColorWhite, name, constants.ColorReset)
 	fmt.Println("  Enter commands one per line (empty line or 'done' to save, 'cancel' to abort):")
-	fmt.Printf("  %s(Tip: type 'rec' or 'record' to launch live command recording session)%s\n\n", constants.ColorDim, constants.ColorReset)
+	fmt.Printf("  %s(Commands: 'ls', 'pwd on/off', 'find', 'search', 'replace', 'help', 'rec')%s\n\n", constants.ColorDim, constants.ColorReset)
 }
 
 func printMacroAddUsage() {
-	fmt.Println("Usage: gitmap macro add <name> <command1> [command2...] [--desc <text>] [--tag <tag>]")
+	fmt.Println("Usage: gitmap macro add <name> <command1> [command2...] [--desc <text>] [--tag <tag>] [--pwd|--no-pwd]")
 	fmt.Println()
 	fmt.Println("Examples:")
 	fmt.Println("  gitmap macro add build \"go build -o app.exe .\" \"go test ./...\"")

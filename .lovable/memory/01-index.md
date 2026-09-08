@@ -42,6 +42,7 @@ Updated: 2026-04-27
 - [Remediation Windows Pathspec & Chrome Token Vault](learned/07-remediation-windows-pathspec-and-chrome-token-vault.md) — Structured discrete arguments in exec.Command, Windows cmd /c quote stripping prevention, and Chrome profile OAuth refresh token vault.
 - [Nginx, WordPress, and Laravel Setup, VHost & Perms Engine](learned/08-nginx-wordpress-laravel-setup-and-vhost-engine.md) — Universal package installation, vhost configuration/reloading, wp-config salts generation, .env synthesis, and cross-platform permissions engine.
 - [VMware Mount Resilience, Install Command & Root Help](learned/09-vmware-mount-resilience-install-and-root-help.md) — Pre-mount FUSE cleanup, open-vm-tools-desktop requirement, fallback mounting, Error -107 diagnostic guidance, and root CLI help integration.
+- [Interactive Macro Builder PWD Header & In-Builder Commands](learned/10-interactive-macro-builder-pwd-ls-commands.md) — Dynamic PWD header display, in-builder ls/find/search/replace helpers, and offline mock release testing architecture.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

@@ -44,3 +44,36 @@ func (db *DB) CreateInstaller(script *model.InstallerScript) error {
 
 	return nil
 }
+
+// SQLUpdateInstallerScript updates an existing installer script record in SQLite.
+const SQLUpdateInstallerScript = `UPDATE installer_scripts
+SET name = ?, description = ?, target_os = ?, version = ?, instructions = ?, updated_at = CURRENT_TIMESTAMP
+WHERE slug = ?;`
+
+// UpdateInstaller updates an existing installer script record in the database.
+func (db *DB) UpdateInstaller(script *model.InstallerScript) error {
+	if script == nil {
+		appErr := apperror.New("UpdateInstaller", "E_INSTALLER_INVALID_INPUT", map[string]any{
+			"error": "script cannot be nil",
+		})
+
+		return appErr
+	}
+
+	return db.execUpdateInstaller(script)
+}
+
+func (db *DB) execUpdateInstaller(script *model.InstallerScript) error {
+	_, errExec := ExecWrapper(db.conn, SQLUpdateInstallerScript,
+		script.Name, script.Description, script.TargetOS,
+		script.Version, script.Instructions, script.Slug,
+	).Destruct()
+	if errExec != nil {
+		appErr := apperror.Wrap(errExec, "UpdateInstaller", map[string]any{"slug": script.Slug})
+		appErr.Code = "E_INSTALLER_UPDATE_FAILED"
+
+		return appErr
+	}
+
+	return nil
+}

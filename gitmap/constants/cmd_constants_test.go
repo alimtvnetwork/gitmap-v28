@@ -230,6 +230,8 @@ func topLevelCmds() map[string]string {
 		"CmdUndoAlias":              CmdUndoAlias,
 		"CmdVmware":                 CmdVmware,
 		"CmdVmwareAlias":            CmdVmwareAlias,
+		"CmdNginx":                  CmdNginx,
+		"CmdNginxAlias":             CmdNginxAlias,
 		"CmdServerCmd":              CmdServerCmd,
 		"CmdServerCmds":             CmdServerCmds,
 		"CmdServerCmdAlias":         CmdServerCmdAlias,

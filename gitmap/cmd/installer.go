@@ -32,6 +32,21 @@ func runInstaller(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+var installerAddCmd = &cobra.Command{
+	Use:                "add <name> [version]",
+	Short:              "Create or update custom installer interactively",
+	DisableFlagParsing: true,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runInstallAdd(args)
+	},
+}
+
+func init() {
+	if installerCmd != nil {
+		installerCmd.AddCommand(installerAddCmd)
+	}
+}
+
 // RunInstallerCLI routes CLI arguments to the Cobra installer command tree.
 func RunInstallerCLI(args []string) error {
 	installerCmd.SetArgs(args)
