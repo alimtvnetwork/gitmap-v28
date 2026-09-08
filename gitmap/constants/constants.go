@@ -24,6 +24,8 @@ const (
 	PlatformWindows = "windows"
 	PlatformLinux   = "linux"
 	PlatformDarwin  = "darwin"
+	NewLineUnix     = "\n"
+	NewLineWindows  = "\r\n"
 )
 
 // Clone modes.

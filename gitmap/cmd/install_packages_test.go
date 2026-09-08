@@ -1,17 +1,20 @@
 package cmd
 
 import (
+	"runtime"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func TestNewToolsPackageResolution(t *testing.T) {
-	cases := []struct {
-		manager string
-		tool    string
-		want    string
-	}{
+type pkgTestCase struct {
+	manager string
+	tool    string
+	want    string
+}
+
+func getChocoTestCases() []pkgTestCase {
+	return []pkgTestCase{
 		{constants.PkgMgrChocolatey, constants.ToolRust, constants.ChocoPkgRust},
 		{constants.PkgMgrChocolatey, constants.ToolDotnet, constants.ChocoPkgDotnet},
 		{constants.PkgMgrChocolatey, constants.ToolJava, constants.ChocoPkgJava},
@@ -26,6 +29,14 @@ func TestNewToolsPackageResolution(t *testing.T) {
 		{constants.PkgMgrChocolatey, constants.ToolFlameshot, constants.ChocoPkgFlameshot},
 		{constants.PkgMgrChocolatey, constants.ToolConemu, constants.ChocoPkgConemu},
 		{constants.PkgMgrChocolatey, constants.ToolVLC, constants.ChocoPkgVLC},
+		{constants.PkgMgrChocolatey, constants.ToolNginx, constants.ChocoPkgNginx},
+		{constants.PkgMgrChocolatey, constants.ToolWordPress, constants.ChocoPkgWordPress},
+		{constants.PkgMgrChocolatey, constants.ToolLaravel, constants.ChocoPkgLaravel},
+	}
+}
+
+func getWingetTestCases() []pkgTestCase {
+	return []pkgTestCase{
 		{constants.PkgMgrWinget, constants.ToolRust, constants.WingetPkgRust},
 		{constants.PkgMgrWinget, constants.ToolDotnet, constants.WingetPkgDotnet},
 		{constants.PkgMgrWinget, constants.ToolJava, constants.WingetPkgJava},
@@ -40,6 +51,14 @@ func TestNewToolsPackageResolution(t *testing.T) {
 		{constants.PkgMgrWinget, constants.ToolFlameshot, constants.WingetPkgFlameshot},
 		{constants.PkgMgrWinget, constants.ToolConemu, constants.WingetPkgConemu},
 		{constants.PkgMgrWinget, constants.ToolVLC, constants.WingetPkgVLC},
+		{constants.PkgMgrWinget, constants.ToolNginx, constants.WingetPkgNginx},
+		{constants.PkgMgrWinget, constants.ToolWordPress, constants.WingetPkgWordPress},
+		{constants.PkgMgrWinget, constants.ToolLaravel, constants.WingetPkgLaravel},
+	}
+}
+
+func getAptTestCases() []pkgTestCase {
+	return []pkgTestCase{
 		{constants.PkgMgrApt, constants.ToolRust, constants.AptPkgRust},
 		{constants.PkgMgrApt, constants.ToolDotnet, constants.AptPkgDotnet},
 		{constants.PkgMgrApt, constants.ToolJava, constants.AptPkgJava},
@@ -54,6 +73,14 @@ func TestNewToolsPackageResolution(t *testing.T) {
 		{constants.PkgMgrApt, constants.ToolFlameshot, constants.AptPkgFlameshot},
 		{constants.PkgMgrApt, constants.ToolConemu, constants.AptPkgConemu},
 		{constants.PkgMgrApt, constants.ToolVLC, constants.AptPkgVLC},
+		{constants.PkgMgrApt, constants.ToolNginx, constants.AptPkgNginx},
+		{constants.PkgMgrApt, constants.ToolWordPress, constants.AptPkgWordPress},
+		{constants.PkgMgrApt, constants.ToolLaravel, constants.AptPkgLaravel},
+	}
+}
+
+func getBrewTestCases() []pkgTestCase {
+	return []pkgTestCase{
 		{constants.PkgMgrBrew, constants.ToolRust, constants.BrewPkgRust},
 		{constants.PkgMgrBrew, constants.ToolDotnet, constants.BrewPkgDotnet},
 		{constants.PkgMgrBrew, constants.ToolJava, constants.BrewPkgJava},
@@ -68,66 +95,153 @@ func TestNewToolsPackageResolution(t *testing.T) {
 		{constants.PkgMgrBrew, constants.ToolFlameshot, constants.BrewPkgFlameshot},
 		{constants.PkgMgrBrew, constants.ToolConemu, constants.BrewPkgConemu},
 		{constants.PkgMgrBrew, constants.ToolVLC, constants.BrewPkgVLC},
+		{constants.PkgMgrBrew, constants.ToolNginx, constants.BrewPkgNginx},
+		{constants.PkgMgrBrew, constants.ToolWordPress, constants.BrewPkgWordPress},
+		{constants.PkgMgrBrew, constants.ToolLaravel, constants.BrewPkgLaravel},
 	}
+}
 
+func checkPkgCases(t *testing.T, cases []pkgTestCase) {
 	for _, tc := range cases {
 		got := resolvePackageName(tc.manager, tc.tool)
-		if got != tc.want {
+		isMismatch := (got != tc.want)
+		if isMismatch {
 			t.Errorf("resolvePackageName(%q, %q) = %q; want %q", tc.manager, tc.tool, got, tc.want)
 		}
 	}
 }
 
-func TestResolveToolAlias(t *testing.T) {
-	aliasCases := []struct {
-		input string
-		want  string
-	}{
-		{"k8s", constants.ToolKubernetes},
-		{"kubectl", constants.ToolKubernetes},
-		{"dotnet-sdk", constants.ToolDotnet},
-		{"jdk", constants.ToolJava},
-		{"openjdk", constants.ToolJava},
-		{"cargo", constants.ToolRust},
-		{"rustup", constants.ToolRust},
-		{"llamacpp", constants.ToolLlamaCpp},
-		{"unknown-tool-xyz", "unknown-tool-xyz"},
-	}
+func TestNewToolsPackageResolution(t *testing.T) {
+	checkPkgCases(t, getChocoTestCases())
+	checkPkgCases(t, getWingetTestCases())
+	checkPkgCases(t, getAptTestCases())
+	checkPkgCases(t, getBrewTestCases())
+}
 
-	for _, tc := range aliasCases {
+var aliasTestCases = []struct {
+	input string
+	want  string
+}{
+	{"k8s", constants.ToolKubernetes},
+	{"kubectl", constants.ToolKubernetes},
+	{"dotnet-sdk", constants.ToolDotnet},
+	{"jdk", constants.ToolJava},
+	{"openjdk", constants.ToolJava},
+	{"cargo", constants.ToolRust},
+	{"rustup", constants.ToolRust},
+	{"llamacpp", constants.ToolLlamaCpp},
+	{"ngx", constants.ToolNginx},
+	{"engine-x", constants.ToolNginx},
+	{"wp", constants.ToolWordPress},
+	{"wp-cli", constants.ToolWordPress},
+	{"wpcli", constants.ToolWordPress},
+	{"artisan", constants.ToolLaravel},
+	{"laravel-installer", constants.ToolLaravel},
+	{"unknown-tool-xyz", "unknown-tool-xyz"},
+}
+
+func TestResolveToolAlias(t *testing.T) {
+	for _, tc := range aliasTestCases {
 		got := resolveToolAlias(tc.input)
-		if got != tc.want {
+		isMismatch := (got != tc.want)
+		if isMismatch {
 			t.Errorf("resolveToolAlias(%q) = %q; want %q", tc.input, got, tc.want)
 		}
 	}
 }
 
-func TestNewToolsCategoriesAndDescriptions(t *testing.T) {
-	tools := []string{
-		constants.ToolRust, constants.ToolDotnet, constants.ToolJava, constants.ToolFlutter,
-		constants.ToolOllama, constants.ToolLlamaCpp, constants.ToolPythonLibs,
-		constants.ToolDocker, constants.ToolKubernetes, constants.ToolJenkins,
-		constants.ToolZsh, constants.ToolFlameshot, constants.ToolConemu, constants.ToolVLC,
-	}
+var newToolList = []string{
+	constants.ToolRust, constants.ToolDotnet, constants.ToolJava, constants.ToolFlutter,
+	constants.ToolOllama, constants.ToolLlamaCpp, constants.ToolPythonLibs,
+	constants.ToolDocker, constants.ToolKubernetes, constants.ToolJenkins,
+	constants.ToolZsh, constants.ToolFlameshot, constants.ToolConemu, constants.ToolVLC,
+	constants.ToolNginx, constants.ToolWordPress, constants.ToolLaravel,
+}
 
+var expectedCategoryList = []string{
+	constants.ToolCategoryCore,
+	constants.ToolCategoryLanguages,
+	constants.ToolCategoryAI,
+	constants.ToolCategoryDevOps,
+	constants.ToolCategoryUtilities,
+}
+
+func TestNewToolsCategoriesAndDescriptions(t *testing.T) {
+	checkToolDescriptions(t, newToolList)
+	checkCategories(t, expectedCategoryList)
+}
+
+func checkToolDescriptions(t *testing.T, tools []string) {
 	for _, tool := range tools {
-		desc, exists := constants.InstallToolDescriptions[tool]
-		if !exists || desc == "" {
+		desc, isFound := constants.InstallToolDescriptions[tool]
+		hasMissingDesc := (len(desc) == 0)
+		isMissing := (!isFound || hasMissingDesc)
+		if isMissing {
 			t.Errorf("missing description for tool %q", tool)
 		}
 	}
+}
 
-	expectedCategories := []string{
-		constants.ToolCategoryLanguages,
-		constants.ToolCategoryAI,
-		constants.ToolCategoryDevOps,
-		constants.ToolCategoryUtilities,
-	}
-
-	for _, cat := range expectedCategories {
-		toolsInCat, exists := constants.InstallToolCategories[cat]
-		if !exists || len(toolsInCat) == 0 {
+func checkCategories(t *testing.T, categories []string) {
+	for _, cat := range categories {
+		toolsInCat, isFound := constants.InstallToolCategories[cat]
+		hasEmptyTools := (len(toolsInCat) == 0)
+		isMissing := (!isFound || hasEmptyTools)
+		if isMissing {
 			t.Errorf("category %q is missing or empty in InstallToolCategories", cat)
 		}
+	}
+}
+
+func TestInstallVerifyToolBinaryMapping(t *testing.T) {
+	binaryCases := []struct {
+		tool string
+		want string
+	}{
+		{constants.ToolNginx, "nginx"},
+		{constants.ToolWordPress, "wp"},
+		{constants.ToolLaravel, "laravel"},
+	}
+
+	for _, tc := range binaryCases {
+		got := toolBinaryName(tc.tool)
+		isMismatch := (got != tc.want)
+		if isMismatch {
+			t.Errorf("toolBinaryName(%q) = %q; want %q", tc.tool, got, tc.want)
+		}
+	}
+}
+
+func TestInstallVerifyVersionFlag(t *testing.T) {
+	flagCases := []struct {
+		binary string
+		want   string
+	}{
+		{"nginx", "-v"},
+		{"wp", "--version"},
+		{"laravel", "--version"},
+		{"node", "--version"},
+	}
+
+	for _, tc := range flagCases {
+		got := versionFlag(tc.binary)
+		isMismatch := (got != tc.want)
+		if isMismatch {
+			t.Errorf("versionFlag(%q) = %q; want %q", tc.binary, got, tc.want)
+		}
+	}
+}
+
+func TestInstallVerifyExpectedExePathNginx(t *testing.T) {
+	isNonWindows := (runtime.GOOS != "windows")
+	if isNonWindows {
+		t.Skip("skipping Windows expectedExePath test on non-windows platform")
+	}
+
+	got := expectedExePath(constants.ToolNginx)
+	want := `C:\tools\nginx\nginx.exe`
+	isMismatch := (got != want)
+	if isMismatch {
+		t.Errorf("expectedExePath(%q) = %q; want %q", constants.ToolNginx, got, want)
 	}
 }

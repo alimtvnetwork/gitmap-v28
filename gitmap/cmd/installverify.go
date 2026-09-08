@@ -10,77 +10,87 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
+var guiTools = map[string]bool{
+	constants.ToolNpp:           true,
+	constants.ToolNppInstall:    true,
+	constants.ToolGitHubDesktop: true,
+	constants.ToolDbeaver:       true,
+	constants.ToolOBS:           true,
+	constants.ToolStickyNotes:   true,
+}
+
 // isGUITool returns true for tools that open a GUI window on --version.
 func isGUITool(tool string) bool {
-	if tool == constants.ToolNpp {
-		return true
-	}
-	if tool == constants.ToolNppInstall {
-		return true
-	}
-	if tool == constants.ToolGitHubDesktop {
-		return true
-	}
-	if tool == constants.ToolDbeaver {
-		return true
-	}
-	if tool == constants.ToolOBS {
-		return true
-	}
-	if tool == constants.ToolStickyNotes {
+	if isGUI := guiTools[tool]; isGUI {
+
 		return true
 	}
 
 	return false
 }
 
-// verifyInstallation confirms a tool is accessible after install.
-func verifyInstallation(tool string) {
-	fmt.Printf(constants.MsgInstallVerifying, tool)
+func verifyExeDirect(tool, exePath string) bool {
+	if exePath == "" {
 
-	exePath := expectedExePath(tool)
-	_, err := os.Stat(exePath)
-	if exePath != "" && err == nil {
+		return false
+	}
+	if _, err := os.Stat(exePath); err == nil {
 		fmt.Printf(constants.MsgInstallSuccess, tool)
 		fmt.Printf(constants.MsgInstallExeFound, exePath)
-		runPostInstall(tool)
+		_ = runPostInstall(tool)
 
-		return
+		return true
 	}
 
-	// GUI tools must not run --version (it opens the window and blocks).
+	return false
+}
+
+func reportVerifiedTool(tool, version string) {
+	fmt.Printf(constants.MsgInstallSuccess, tool)
+	fmt.Printf("  → Detected version: %s\n", version)
+	verifyExePath(tool)
+	_ = runPostInstall(tool)
+}
+
+func verifyByVersion(tool string) {
 	if isGUITool(tool) {
 		fmt.Fprintf(os.Stderr, constants.ErrInstallVerifyFailed, tool)
 
 		return
 	}
 
-	binary := toolBinaryName(tool)
-	version := getInstalledVersion(binary)
-
+	version := getInstalledVersion(toolBinaryName(tool))
 	if version == "" {
 		fmt.Fprintf(os.Stderr, constants.ErrInstallVerifyFailed, tool)
 
 		return
 	}
 
-	fmt.Printf(constants.MsgInstallSuccess, tool)
-	fmt.Printf("  → Detected version: %s\n", version)
-	verifyExePath(tool)
-	runPostInstall(tool)
+	reportVerifiedTool(tool, version)
+}
+
+// verifyInstallation confirms a tool is accessible after install.
+func verifyInstallation(tool string) {
+	fmt.Printf(constants.MsgInstallVerifying, tool)
+
+	if isVerified := verifyExeDirect(tool, expectedExePath(tool)); isVerified {
+
+		return
+	}
+
+	verifyByVersion(tool)
 }
 
 // verifyExePath checks the expected exe path exists after install.
 func verifyExePath(tool string) {
 	exePath := expectedExePath(tool)
 	if exePath == "" {
+
 		return
 	}
 
 	fmt.Printf(constants.MsgInstallExeVerify, tool, exePath)
-
-	_, err := os.Stat(exePath)
-	if err != nil {
+	if _, err := os.Stat(exePath); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrInstallExeNotFound, exePath)
 
 		return
@@ -89,22 +99,37 @@ func verifyExePath(tool string) {
 	fmt.Printf(constants.MsgInstallExeFound, exePath)
 }
 
+var windowsExeMap = map[string]string{
+	constants.ToolNpp:     `C:\Program Files\Notepad++\notepad++.exe`,
+	constants.ToolVSCode:  `C:\Program Files\Microsoft VS Code\Code.exe`,
+	constants.ToolDbeaver: `C:\Program Files\DBeaver\dbeaver.exe`,
+	constants.ToolOBS:     `C:\Program Files\obs-studio\bin\64bit\obs64.exe`,
+	constants.ToolNginx:   `C:\tools\nginx\nginx.exe`,
+}
+
 // expectedExePath returns the expected binary path for a tool.
 func expectedExePath(tool string) string {
 	if runtime.GOOS != "windows" {
+
 		return ""
 	}
+	if path, isFound := windowsExeMap[tool]; isFound {
 
-	exeMap := map[string]string{
-		constants.ToolNpp:     `C:\Program Files\Notepad++\notepad++.exe`,
-		constants.ToolVSCode:  `C:\Program Files\Microsoft VS Code\Code.exe`,
-		constants.ToolDbeaver: `C:\Program Files\DBeaver\dbeaver.exe`,
-		constants.ToolOBS:     `C:\Program Files\obs-studio\bin\64bit\obs64.exe`,
+		return path
 	}
 
-	path, exists := exeMap[tool]
-	if exists {
-		return path
+	return ""
+}
+
+func detectDirectExe(tool string) string {
+	exePath := expectedExePath(tool)
+	if exePath == "" {
+
+		return ""
+	}
+	if _, err := os.Stat(exePath); err == nil {
+
+		return "installed (at " + exePath + ")"
 	}
 
 	return ""
@@ -112,61 +137,74 @@ func expectedExePath(tool string) string {
 
 // detectInstalledVersion checks if a tool is already installed.
 func detectInstalledVersion(tool string) string {
-	// For tools with known exe paths, check the path directly.
-	exePath := expectedExePath(tool)
-	_, err := os.Stat(exePath)
-	if exePath != "" && err == nil {
-		return "installed (at " + exePath + ")"
-	}
+	if directPath := detectDirectExe(tool); directPath != "" {
 
-	// GUI tools must not run --version.
+		return directPath
+	}
 	if isGUITool(tool) {
+
 		return ""
 	}
 
-	binary := toolBinaryName(tool)
-
-	return getInstalledVersion(binary)
+	return getInstalledVersion(toolBinaryName(tool))
 }
 
-// getInstalledVersion runs --version and returns the output.
-func getInstalledVersion(binary string) string {
-	path, err := exec.LookPath(binary)
-	if err != nil {
-		return ""
+func versionFlag(binary string) string {
+	if binary == "nginx" {
+
+		return "-v"
 	}
 
-	out, err := exec.Command(path, "--version").Output()
+	return "--version"
+}
+
+func execVersion(path, flag string) string {
+	out, err := exec.Command(path, flag).CombinedOutput()
 	if err != nil {
+
 		return ""
 	}
 
 	return strings.TrimSpace(string(out))
 }
 
-// toolBinaryName maps tool names to their binary/executable names.
-func toolBinaryName(tool string) string {
-	binaryMap := map[string]string{
-		constants.ToolVSCode:        "code",
-		constants.ToolNodeJS:        "node",
-		constants.ToolYarn:          "yarn",
-		constants.ToolBun:           "bun",
-		constants.ToolPnpm:          "pnpm",
-		constants.ToolPython:        "python3",
-		constants.ToolGo:            "go",
-		constants.ToolGit:           "git",
-		constants.ToolGitLFS:        "git-lfs",
-		constants.ToolGHCLI:         "gh",
-		constants.ToolGitHubDesktop: "github-desktop",
-		constants.ToolCPP:           "g++",
-		constants.ToolPHP:           "php",
-		constants.ToolPowerShell:    "pwsh",
-		constants.ToolNpp:           "notepad++",
-		constants.ToolNppInstall:    "notepad++",
+// getInstalledVersion runs --version or -v and returns the output.
+func getInstalledVersion(binary string) string {
+	path, err := exec.LookPath(binary)
+	if err != nil {
+
+		return ""
 	}
 
-	binary, exists := binaryMap[tool]
-	if exists {
+	return execVersion(path, versionFlag(binary))
+}
+
+var toolBinaryMap = map[string]string{
+	constants.ToolVSCode:        "code",
+	constants.ToolNodeJS:        "node",
+	constants.ToolYarn:          "yarn",
+	constants.ToolBun:           "bun",
+	constants.ToolPnpm:          "pnpm",
+	constants.ToolPython:        "python3",
+	constants.ToolGo:            "go",
+	constants.ToolGit:           "git",
+	constants.ToolGitLFS:        "git-lfs",
+	constants.ToolGHCLI:         "gh",
+	constants.ToolGitHubDesktop: "github-desktop",
+	constants.ToolCPP:           "g++",
+	constants.ToolPHP:           "php",
+	constants.ToolPowerShell:    "pwsh",
+	constants.ToolNpp:           "notepad++",
+	constants.ToolNppInstall:    "notepad++",
+	constants.ToolNginx:         "nginx",
+	constants.ToolWordPress:     "wp",
+	constants.ToolLaravel:       "laravel",
+}
+
+// toolBinaryName maps tool names to their binary/executable names.
+func toolBinaryName(tool string) string {
+	if binary, isFound := toolBinaryMap[tool]; isFound {
+
 		return binary
 	}
 
@@ -176,28 +214,27 @@ func toolBinaryName(tool string) string {
 // runPostInstall executes post-install actions for specific tools.
 func runPostInstall(tool string) error {
 	if tool == constants.ToolGitLFS {
-		runPostInstallGitLFS()
 
-		return nil
+		return runPostInstallGitLFS()
 	}
 	if tool == constants.ToolGit {
-		runPostInstallGit()
 
-		return nil
+		return runPostInstallGit()
 	}
+
 	return nil
 }
 
 // runPostInstallGitLFS runs git lfs install.
 func runPostInstallGitLFS() error {
 	cmd := exec.Command("git", "lfs", "install")
-	_ = cmd.Run()
-	return nil
+
+	return cmd.Run()
 }
 
 // runPostInstallGit configures git longpaths.
 func runPostInstallGit() error {
 	cmd := exec.Command("git", "config", "--global", "core.longpaths", "true")
-	_ = cmd.Run()
-	return nil
+
+	return cmd.Run()
 }

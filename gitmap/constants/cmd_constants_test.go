@@ -438,6 +438,7 @@ func topLevelCmds() map[string]string {
 		"CmdSnapshot":                   CmdSnapshot,
 		"CmdRollback":                   CmdRollback,
 		"CmdGuard":                      CmdGuard,
+		"CmdVHost":                      CmdVHost,
 	}
 }
 

@@ -4,49 +4,51 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
+type packageResolver func(string) string
+
+var managerResolvers = map[string]packageResolver{
+	constants.PkgMgrWinget: resolveWingetPackage,
+	constants.PkgMgrApt:    resolveAptPackage,
+	constants.PkgMgrBrew:   resolveBrewPackage,
+	constants.PkgMgrSnap:   resolveSnapPackage,
+}
+
 // resolvePackageName maps tool name to package ID for a manager.
 func resolvePackageName(manager, tool string) string {
-	switch manager {
-	case constants.PkgMgrWinget:
+	if resolver, isFound := managerResolvers[manager]; isFound {
 
-		return resolveWingetPackage(tool)
-	case constants.PkgMgrApt:
-
-		return resolveAptPackage(tool)
-	case constants.PkgMgrBrew:
-
-		return resolveBrewPackage(tool)
-	case constants.PkgMgrSnap:
-
-		return resolveSnapPackage(tool)
-	default:
-
-		return resolveChocoPackage(tool)
+		return resolver(tool)
 	}
+
+	return resolveChocoPackage(tool)
+}
+
+var toolAliasMap = map[string]string{
+	"k8s":               constants.ToolKubernetes,
+	"kubectl":           constants.ToolKubernetes,
+	"dotnet-sdk":        constants.ToolDotnet,
+	"jdk":               constants.ToolJava,
+	"openjdk":           constants.ToolJava,
+	"rustup":            constants.ToolRust,
+	"cargo":             constants.ToolRust,
+	"llamacpp":          constants.ToolLlamaCpp,
+	"ngx":               constants.ToolNginx,
+	"engine-x":          constants.ToolNginx,
+	"wp":                constants.ToolWordPress,
+	"wp-cli":            constants.ToolWordPress,
+	"wpcli":             constants.ToolWordPress,
+	"artisan":           constants.ToolLaravel,
+	"laravel-installer": constants.ToolLaravel,
 }
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.
 func resolveToolAlias(tool string) string {
-	switch tool {
-	case "k8s", "kubectl":
+	if canonical, isFound := toolAliasMap[tool]; isFound {
 
-		return constants.ToolKubernetes
-	case "dotnet-sdk":
-
-		return constants.ToolDotnet
-	case "jdk", "openjdk":
-
-		return constants.ToolJava
-	case "rustup", "cargo":
-
-		return constants.ToolRust
-	case "llamacpp":
-
-		return constants.ToolLlamaCpp
-	default:
-
-		return tool
+		return canonical
 	}
+
+	return tool
 }
 
 var chocoPackageMap = map[string]string{
@@ -94,11 +96,14 @@ var chocoPackageMap = map[string]string{
 	constants.ToolFlameshot:     constants.ChocoPkgFlameshot,
 	constants.ToolConemu:        constants.ChocoPkgConemu,
 	constants.ToolVLC:           constants.ChocoPkgVLC,
+	constants.ToolNginx:         constants.ChocoPkgNginx,
+	constants.ToolWordPress:     constants.ChocoPkgWordPress,
+	constants.ToolLaravel:       constants.ChocoPkgLaravel,
 }
 
 // resolveChocoPackage maps tool names to Chocolatey package IDs.
 func resolveChocoPackage(tool string) string {
-	if pkg, exists := chocoPackageMap[tool]; exists {
+	if pkg, isFound := chocoPackageMap[tool]; isFound {
 
 		return pkg
 	}
@@ -129,11 +134,14 @@ var wingetPackageMap = map[string]string{
 	constants.ToolFlameshot:     constants.WingetPkgFlameshot,
 	constants.ToolConemu:        constants.WingetPkgConemu,
 	constants.ToolVLC:           constants.WingetPkgVLC,
+	constants.ToolNginx:         constants.WingetPkgNginx,
+	constants.ToolWordPress:     constants.WingetPkgWordPress,
+	constants.ToolLaravel:       constants.WingetPkgLaravel,
 }
 
 // resolveWingetPackage maps tool names to Winget package IDs.
 func resolveWingetPackage(tool string) string {
-	if pkg, exists := wingetPackageMap[tool]; exists {
+	if pkg, isFound := wingetPackageMap[tool]; isFound {
 
 		return pkg
 	}

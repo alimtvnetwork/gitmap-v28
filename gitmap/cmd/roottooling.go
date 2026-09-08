@@ -102,6 +102,8 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdPending}, runPending},
 		{[]string{constants.CmdDoPending, constants.CmdDoPendingAlias}, func() error { return runDoPending(argsTail()) }},
 		{[]string{constants.CmdVmware, constants.CmdVmwareAlias}, func() error { return runVmware(argsTail()) }},
+		{[]string{"perms", "permissions"}, func() error { return runSetupPerms(argsTail()) }},
+		{[]string{constants.CmdVHost}, func() error { return runVHost(argsTail()) }},
 	}
 }
 
