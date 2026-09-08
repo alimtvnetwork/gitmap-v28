@@ -11,6 +11,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [64-remediation-fix-and-chrome-token-export.md](completed/64-remediation-fix-and-chrome-token-export.md): Remediation Command Execution Fix & Chrome Profile Refresh Token Vault
 - [77-scripts-fixer-installation-split-db-and-tooling-engine.md](completed/77-scripts-fixer-installation-split-db-and-tooling-engine.md): Scripts-Fixer Tooling Engine, Installation Split DB Audit Telemetry & Ubuntu Chrome Fix
 
 - [76-responsive-pull-batch-table-terminal-adaptive-layout.md](completed/76-responsive-pull-batch-table-terminal-adaptive-layout.md): Responsive Terminal-Adaptive Gitmap Pull Batch Table Layout & Chrome Profile Sign-In Scrubbing
