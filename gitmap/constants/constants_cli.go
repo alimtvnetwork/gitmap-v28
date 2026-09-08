@@ -303,6 +303,12 @@ const (
 	SubCmdVmwareShared  = "shared" // gitmap:cmd skip
 	SubCmdSharedEnable  = "enable" // gitmap:cmd skip
 	SubCmdSharedStatus  = "status" // gitmap:cmd skip
+	CmdNginx            = "nginx"
+	CmdNginxAlias       = "ngx"
+	SubCmdNginxStatus   = "status"  // gitmap:cmd skip
+	SubCmdNginxTest     = "test"    // gitmap:cmd skip
+	SubCmdNginxReload   = "reload"  // gitmap:cmd skip
+	SubCmdNginxInstall  = "install" // gitmap:cmd skip
 	CmdServerCmd        = "server-cmd"
 	CmdServerCmds       = "server-cmds"
 	CmdServerCmdAlias   = "scmd"
@@ -613,6 +619,7 @@ const (
 	HelpOS               = "  os                  Manage OS configurations and diagnostics (" + ColorCyan + "fix-link" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
 	HelpFixLink          = "  fix-link (fixlink)  Inspect and repair broken symlinks and shared directories (" + ColorCyan + "--target" + ColorReset + ", " + ColorCyan + "--recursive" + ColorReset + ", " + ColorCyan + "--force" + ColorReset + ", " + ColorCyan + "--dry-run" + ColorReset + ", " + ColorCyan + "--json" + ColorReset + ")"
 	HelpVmware           = "  vmware (vm)         Manage VMware shared folders, tools, and services (" + ColorCyan + "install" + ColorReset + ", " + ColorCyan + "shared" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
+	HelpNginx            = "  nginx (ngx)         Manage Nginx HTTP server, virtual hosts, syntax test & reload"
 )
 
 // Help section headers and flag-line strings (HelpScanFlags, HelpCloneFlags,

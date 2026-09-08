@@ -42,13 +42,19 @@ None
 
 ### Example 1: Create WordPress virtual host
 
-    gitmap vhost create --type=wordpress mysite.local /var/www/mysite
+```bash
+gitmap vhost create --type=wordpress mysite.local /var/www/mysite
+```
 
 ### Example 2: Create Laravel virtual host
 
-    gitmap vhost create --type=laravel api.local /var/www/api/public --enable
+```bash
+gitmap vhost create --type=laravel api.local /var/www/api/public --enable
+```
 
 ### Example 3: Test and reload Nginx
 
-    gitmap vhost test
-    gitmap vhost reload
+```bash
+gitmap vhost test
+gitmap vhost reload
+```

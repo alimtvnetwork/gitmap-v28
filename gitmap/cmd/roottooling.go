@@ -104,6 +104,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdVmware, constants.CmdVmwareAlias}, func() error { return runVmware(argsTail()) }},
 		{[]string{"perms", "permissions"}, func() error { return runSetupPerms(argsTail()) }},
 		{[]string{constants.CmdVHost}, func() error { return runVHost(argsTail()) }},
+		{[]string{constants.CmdNginx, constants.CmdNginxAlias}, func() error { return runNginx(argsTail()) }},
 	}
 }
 

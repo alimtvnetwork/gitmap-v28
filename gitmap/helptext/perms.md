@@ -36,8 +36,12 @@ Audit and fix web application file and directory permissions cross-platform.
 
 ### Example 1: Audit WordPress permissions (read-only)
 
-    gitmap perms --app=wordpress /var/www/html
+```bash
+gitmap perms --app=wordpress /var/www/html
+```
 
 ### Example 2: Fix Laravel permissions
 
-    gitmap perms --app=laravel --fix /var/www/my-laravel-app
+```bash
+gitmap perms --app=laravel --fix /var/www/my-laravel-app
+```
