@@ -68,9 +68,37 @@ func populateCreatePositional(fs *flag.FlagSet, h *createFlagsHolder) {
 	posArgs := fs.Args()
 	h.domain = resolvePositionalDomain(posArgs, h.domain)
 	h.root = resolvePositionalRoot(posArgs, h.root)
+	if h.root == "" && h.domain != "" {
+		h.root = detectDefaultDocumentRoot(h.domain)
+	}
+	h.rawType = detectDefaultSiteType(h.rawType)
 }
 
-func buildCreateConfig(h createFlagsHolder) (VHostConfig, VHostOptions, *apperror.AppError) {
+func validateDomainRequired(domain string) error {
+	if domain == "" {
+		return apperror.NewValidationError("domain name required: gitmap nginx add <domain>")
+	}
+
+	return nil
+}
+
+func parseVHostCreateFlags(args []string, h *createFlagsHolder) error {
+	reordered := reorderFlagsBeforeArgs(args)
+	fs := flag.NewFlagSet("vhost create", flag.ContinueOnError)
+	setupCreateFlagSet(fs, h)
+	err := fs.Parse(reordered)
+	if err == flag.ErrHelp {
+		cliexit.Exit(0)
+	}
+	if err != nil {
+		return apperror.WrapSimple(err, "flag.Parse")
+	}
+	populateCreatePositional(fs, h)
+
+	return validateDomainRequired(h.domain)
+}
+
+func buildCreateConfig(h createFlagsHolder) (VHostConfig, VHostOptions, error) {
 	st, parseErr := ParseVHostSiteType(h.rawType)
 	if parseErr != nil {
 		return VHostConfig{}, VHostOptions{}, parseErr
@@ -94,19 +122,8 @@ func buildCreateConfig(h createFlagsHolder) (VHostConfig, VHostOptions, *apperro
 	return cfg, opts, nil
 }
 
-func runVHostCreate(args []string) error {
-	var holder createFlagsHolder
-	fs := flag.NewFlagSet("vhost create", flag.ContinueOnError)
-	setupCreateFlagSet(fs, &holder)
-	err := fs.Parse(args)
-	if err == flag.ErrHelp {
-		cliexit.Exit(0)
-	}
-	if err != nil {
-		return apperror.WrapSimple(err, "flag.Parse")
-	}
-	populateCreatePositional(fs, &holder)
-	cfg, opts, buildErr := buildCreateConfig(holder)
+func executeVHostCreate(h createFlagsHolder) error {
+	cfg, opts, buildErr := buildCreateConfig(h)
 	if buildErr != nil {
 		return buildErr
 	}
@@ -114,7 +131,17 @@ func runVHostCreate(args []string) error {
 	if createErr != nil {
 		return createErr
 	}
+	_ = persistSiteRecord(cfg, targetPath, opts.IsDryRun)
 	fmt.Printf("%sVirtual host created for %s at %s%s\n", constants.ColorGreen, cfg.Domain, targetPath, constants.ColorReset)
 
 	return nil
+}
+
+func runVHostCreate(args []string) error {
+	var holder createFlagsHolder
+	if err := parseVHostCreateFlags(args, &holder); err != nil {
+		return err
+	}
+
+	return executeVHostCreate(holder)
 }

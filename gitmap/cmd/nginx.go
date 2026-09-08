@@ -25,6 +25,8 @@ func dispatchNginxVHostManage(sub string, rest []string) (bool, error) {
 	switch sub {
 	case "create", "add", "new":
 		return true, runVHostCreate(rest)
+	case "rm", "remove", "delete", "del":
+		return true, runNginxRm(rest)
 	case "enable", "en":
 		return true, runVHostEnable(rest)
 	case "disable", "dis":
@@ -39,7 +41,9 @@ func dispatchNginxVHostSubcommand(sub string, rest []string) (bool, error) {
 	case "vhost", "vh":
 		return true, runVHost(rest)
 	case "list", "ls":
-		return true, runVHostList(rest)
+		return true, runNginxList(rest)
+	case "ini", "inishowcase", "showcase":
+		return true, runNginxIni(rest)
 	default:
 		return dispatchNginxVHostManage(sub, rest)
 	}
