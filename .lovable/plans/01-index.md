@@ -4,13 +4,13 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [75-chrome-profile-import-routing-and-json-fnf-export.md](pending/75-chrome-profile-import-routing-and-json-fnf-export.md): Chrome Profile Import Routing, JSON & FNF Export, and End-to-End Test Suite
 - [72-pipeline-error-logs-caching-and-cicd-fixes.md](pending/72-pipeline-error-logs-caching-and-cicd-fixes.md): CI/CD Pipeline Remote Log Fetching, Caching & Failure Remediation
 - [71-os-power-management-and-installation-split-db.md](pending/71-os-power-management-and-installation-split-db.md): OS Screen Timeout & Sleep Management Framework & Installation Split DB
 - [70-vmware-shared-folders-and-ubuntu-profiles.md](pending/70-vmware-shared-folders-and-ubuntu-profiles.md): VMware Shared Folder Integration, Ubuntu Build-Essential Profiles & Server-Cmd Cluster Remote Execution
 
 ## Completed Plans
 
+- [75-chrome-profile-import-routing-and-json-fnf-export.md](completed/75-chrome-profile-import-routing-and-json-fnf-export.md): Chrome Profile Import Routing, JSON & FNF Export, and End-to-End Test Suite
 - [74-pipeline-errorlogs-details-and-cross-platform-ci-fixes.md](completed/74-pipeline-errorlogs-details-and-cross-platform-ci-fixes.md): Pipeline Error Logs Multi-Run Aggregation, Parsed Error Details & Cross-Platform CI Fixes
 - [73-chrome-profile-import-export-ubuntu-install-and-error-trace.md](completed/73-chrome-profile-import-export-ubuntu-install-and-error-trace.md): Chrome Profile Multi-Directory/ZIP Discovery, Ubuntu Chrome Installer & Rich Error Diagnostics
 - [69-realtime-streaming-and-ai-orchestration-runner.md](completed/69-realtime-streaming-and-ai-orchestration-runner.md): Real-Time Streaming Telemetry, Unbuffered Event Pipeline & AI Parallel Orchestration
