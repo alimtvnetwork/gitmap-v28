@@ -10,6 +10,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [76-responsive-pull-batch-table-terminal-adaptive-layout.md](completed/76-responsive-pull-batch-table-terminal-adaptive-layout.md): Responsive Terminal-Adaptive Gitmap Pull Batch Table Layout & Chrome Profile Sign-In Scrubbing
 - [75-chrome-profile-import-routing-and-json-fnf-export.md](completed/75-chrome-profile-import-routing-and-json-fnf-export.md): Chrome Profile Import Routing, JSON & FNF Export, and End-to-End Test Suite
 - [74-pipeline-errorlogs-details-and-cross-platform-ci-fixes.md](completed/74-pipeline-errorlogs-details-and-cross-platform-ci-fixes.md): Pipeline Error Logs Multi-Run Aggregation, Parsed Error Details & Cross-Platform CI Fixes
 - [73-chrome-profile-import-export-ubuntu-install-and-error-trace.md](completed/73-chrome-profile-import-export-ubuntu-install-and-error-trace.md): Chrome Profile Multi-Directory/ZIP Discovery, Ubuntu Chrome Installer & Rich Error Diagnostics

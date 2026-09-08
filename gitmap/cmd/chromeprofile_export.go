@@ -72,6 +72,7 @@ func applyChromeExport(exp *chromeExport, dstProfile string) error {
 	if err := writeOptional(filepath.Join(dstProfile, "Preferences"), exp.Preferences); err != nil {
 		return err
 	}
+	_ = patchImportedChromeProfilePreferences(dstProfile, exp.DisplayName)
 	if err := writePendingExtensions(dstProfile, exp.ExtensionIDs); err != nil {
 		return err
 	}

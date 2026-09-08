@@ -69,8 +69,14 @@ func scrubChromePreferencesIdentity(root map[string]any, displayName string) {
 }
 
 // patchImportedChromeProfilePreferences stamps the profile display name
-// into <dst>/Preferences while preserving account_info email records.
+// into <dst>/Preferences and scrubs stale auth/sync tokens by default.
 func patchImportedChromeProfilePreferences(dstPath, displayName string) error {
+	return patchImportedChromeProfilePreferencesWithOptions(dstPath, displayName, false)
+}
+
+// patchImportedChromeProfilePreferencesWithOptions stamps the profile display name
+// and optionally preserves or scrubs stale signin/sync identity fields.
+func patchImportedChromeProfilePreferencesWithOptions(dstPath, displayName string, keepSignin bool) error {
 	prefPath := filepath.Join(dstPath, constants.ChromePreferencesFile)
 	raw, err := os.ReadFile(prefPath)
 	if err != nil && os.IsNotExist(err) {
@@ -83,6 +89,18 @@ func patchImportedChromeProfilePreferences(dstPath, displayName string) error {
 	if err := json.Unmarshal(raw, &root); err != nil {
 		return fmt.Errorf("parse %s: %w", prefPath, err)
 	}
+	if !keepSignin {
+		scrubImportedPreferencesAuth(root)
+	}
+	applyPreferencesProfileName(root, displayName)
+	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
+	if err != nil {
+		return fmt.Errorf("encode Preferences: %w", err)
+	}
+	return os.WriteFile(prefPath, out, constants.FilePermission)
+}
+
+func applyPreferencesProfileName(root map[string]any, displayName string) {
 	prof, ok := root["profile"].(map[string]any)
 	if !ok {
 		prof = map[string]any{}
@@ -94,9 +112,27 @@ func patchImportedChromeProfilePreferences(dstPath, displayName string) error {
 	prof["using_default_name"] = false
 	delete(prof, "managed")
 	delete(prof, "managed_user_id")
-	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
-	if err != nil {
-		return fmt.Errorf("encode Preferences: %w", err)
+}
+
+func scrubImportedPreferencesAuth(root map[string]any) {
+	delete(root, "account_info")
+	delete(root, "google")
+	delete(root, "gaia_cookie")
+	delete(root, "sync")
+	root["signin"] = map[string]any{
+		"allowed": false,
 	}
-	return os.WriteFile(prefPath, out, constants.FilePermission)
+	browser, ok := root["browser"].(map[string]any)
+	if !ok {
+		browser = map[string]any{}
+		root["browser"] = browser
+	}
+	browser["has_seen_welcome_page"] = true
+
+	prof, ok := root["profile"].(map[string]any)
+	if ok {
+		delete(prof, "gaia_info_picture_url")
+		delete(prof, "gaia_given_name")
+		delete(prof, "gaia_name")
+	}
 }

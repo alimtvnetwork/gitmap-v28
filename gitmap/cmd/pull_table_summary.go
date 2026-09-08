@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
@@ -18,5 +19,5 @@ func RenderPullBatchTable(rows []model.PullTableRow) {
 	for _, r := range rows {
 		layout.PrintRow(r)
 	}
-	fmt.Println("  -------------------------------------------------------------------------------------------------------")
+	fmt.Printf("  %s\n", strings.Repeat("-", layout.DividerLen))
 }

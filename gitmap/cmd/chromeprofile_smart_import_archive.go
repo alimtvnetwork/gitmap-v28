@@ -160,6 +160,7 @@ func importDirectorySnapshotWithStepLogging(dirPath, explicitTarget string) erro
 
 	copyProfileDirectoryDiskFiles(dirPath, destPath)
 	disp, email := resolveProfileNameAndEmail(target, nil)
+	_ = patchImportedChromeProfilePreferences(destPath, disp)
 	_ = registerImportedProfileToLocalState(target, disp, email)
 	fmt.Printf("  \033[1;92m✓\033[0m %s → imported from directory\n", target)
 
@@ -176,7 +177,8 @@ func copySingleProfileFile(src, dst string) {
 		return
 	}
 
-	_ = os.WriteFile(dst, data, 0644)
+	_ = os.MkdirAll(filepath.Dir(dst), constants.DirPermission)
+	_ = os.WriteFile(dst, data, constants.FilePermission)
 }
 
 func copyProfileDirectoryDiskFiles(srcDir, destDir string) {
@@ -186,4 +188,6 @@ func copyProfileDirectoryDiskFiles(srcDir, destDir string) {
 	for _, dbName := range constants.ChromeProfileSQLiteEntries {
 		copySingleProfileFile(filepath.Join(srcDir, dbName), filepath.Join(destDir, dbName))
 	}
+	copySingleProfileFile(filepath.Join(srcDir, "Cookies"), filepath.Join(destDir, "Cookies"))
+	copySingleProfileFile(filepath.Join(srcDir, "Network", "Cookies"), filepath.Join(destDir, "Network", "Cookies"))
 }

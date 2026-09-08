@@ -53,6 +53,22 @@ func formatBranchName(branch string, maxLength int) string {
 	return formattedBranch
 }
 
+func formatCombinedBranch(branch, latest string, maxLength int) string {
+	if len(branch) <= 0 {
+		return ""
+	}
+	cleanedBranch := stripBranchPrefix(branch)
+	cleanedLatest := stripBranchPrefix(latest)
+
+	isSame := cleanedLatest == "" || strings.EqualFold(cleanedBranch, cleanedLatest)
+	if isSame {
+		return middleTruncate(cleanedBranch, maxLength, 4)
+	}
+
+	combined := cleanedBranch + "→" + cleanedLatest
+	return middleTruncate(combined, maxLength, 4)
+}
+
 func formatRepoName(repo string, maxLength int) string {
 	if len(repo) <= 0 {
 		return ""

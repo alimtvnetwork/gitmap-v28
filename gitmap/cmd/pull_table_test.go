@@ -153,3 +153,82 @@ func TestPullTableUserScreenshotSimulation(t *testing.T) {
 
 	RenderPullBatchTable(screenshotRows)
 }
+
+func TestPullTableNarrowWidth72(t *testing.T) {
+	rows := []model.PullTableRow{
+		{
+			RepoName:     "ai-empathy-prompt-tuner",
+			Branch:       "main",
+			LatestBranch: "main",
+			PRStatus:     "0 PRs",
+			PullStatus:   "UP_TO_DATE",
+			LastSHA:      "f1d94df",
+			Duration:     "1.0s",
+		},
+	}
+	layout := NewPullTableLayoutWithWidth(rows, 72)
+	if layout.IsWide {
+		t.Errorf("expected compact layout for width 72, got wide")
+	}
+	if layout.DividerLen+2 > 72 {
+		t.Errorf("expected total row width <= 72, got %d", layout.DividerLen+2)
+	}
+}
+
+func TestPullTableStandardWidth80(t *testing.T) {
+	rows := []model.PullTableRow{
+		{
+			RepoName:     "prompt-architect",
+			Branch:       "main",
+			LatestBranch: "release/v1.35.0",
+			PRStatus:     "0 PRs",
+			PullStatus:   "UP_TO_DATE",
+			LastSHA:      "03be798",
+			Duration:     "1.0s",
+		},
+	}
+	layout := NewPullTableLayoutWithWidth(rows, 80)
+	if layout.IsWide {
+		t.Errorf("expected compact layout for width 80, got wide")
+	}
+	if layout.DividerLen+2 > 80 {
+		t.Errorf("expected total row width <= 80, got %d", layout.DividerLen+2)
+	}
+}
+
+func TestPullTableWideWidth120(t *testing.T) {
+	rows := []model.PullTableRow{
+		{
+			RepoName:     "core",
+			Branch:       "main",
+			LatestBranch: "release/v1.5.7",
+			PRStatus:     "0 PRs",
+			PullStatus:   "DIRTY",
+			LastSHA:      "77c6edf",
+			Duration:     "1.0s",
+			IsDirty:      true,
+		},
+	}
+	layout := NewPullTableLayoutWithWidth(rows, 120)
+	if !layout.IsWide {
+		t.Errorf("expected wide layout for width 120, got compact")
+	}
+	if layout.DividerLen+2 > 120 {
+		t.Errorf("expected total row width <= 120, got %d", layout.DividerLen+2)
+	}
+	if layout.MaxLatestBr <= 0 {
+		t.Errorf("expected positive MaxLatestBr in wide layout, got %d", layout.MaxLatestBr)
+	}
+}
+
+func TestFormatCombinedBranch(t *testing.T) {
+	same := formatCombinedBranch("main", "main", 20)
+	if same != "main" {
+		t.Errorf("expected 'main', got %q", same)
+	}
+
+	diff := formatCombinedBranch("main", "release/v1.35.0", 20)
+	if diff != "main→v1.35.0" {
+		t.Errorf("expected 'main→v1.35.0', got %q", diff)
+	}
+}
