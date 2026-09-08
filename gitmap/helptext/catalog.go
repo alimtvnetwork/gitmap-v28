@@ -22,6 +22,8 @@ var topicSummaries = map[string]string{
 	"pwr":          "Cross-platform OS screen timeout and sleep management framework with SQLite state tracking and restore profiles.",
 	"vmware":       "VMware guest shared folder mounting, open-vm-tools management, desktop symlinks, and crontab persistence.",
 	"vm":           "VMware guest shared folder mounting, open-vm-tools management, desktop symlinks, and crontab persistence.",
+	"nginx":        "High-performance HTTP server, reverse proxy, virtual host management, configuration testing, and reload operations.",
+	"ngx":          "High-performance HTTP server, reverse proxy, virtual host management, configuration testing, and reload operations.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

@@ -116,8 +116,22 @@ func runVHostDisable(args []string) error {
 	return nil
 }
 
+func isDryRunArg(arg string) bool {
+	return arg == "--dry-run" || arg == "-n"
+}
+
+func parseDryRunOption(args []string) bool {
+	for _, a := range args {
+		if isDryRunArg(a) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func runVHostTest(args []string) error {
-	opts := VHostOptions{}
+	opts := VHostOptions{IsDryRun: parseDryRunOption(args)}
 	out, err := TestNginxConfig(opts)
 	if err != nil {
 		return err
@@ -128,7 +142,7 @@ func runVHostTest(args []string) error {
 }
 
 func runVHostReload(args []string) error {
-	opts := VHostOptions{}
+	opts := VHostOptions{IsDryRun: parseDryRunOption(args)}
 	err := ReloadNginx(opts)
 	if err != nil {
 		return err

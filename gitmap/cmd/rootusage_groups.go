@@ -126,6 +126,8 @@ func printGroupEnvTools() {
 	renderLine(constants.HelpOS)
 	renderLine(constants.HelpFixLink)
 	renderLine(constants.HelpVmware)
+	renderLine(constants.HelpNginx)
+	renderLine(constants.HelpVHost)
 }
 
 func printGroupTasks() {

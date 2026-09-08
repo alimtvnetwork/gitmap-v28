@@ -82,7 +82,7 @@ const (
 	CompactProject      = "  go-repos (gr), node-repos (nr), react-repos (rr), cpp-repos (cr), csharp-repos (csr)"
 	CompactSSH          = "  ssh, sj (ssh-join)"
 	CompactZip          = "  zip-group (z)"
-	CompactEnvTools     = "  env, install (in), uninstall (un), installer, cg"
+	CompactEnvTools     = "  env, install (in), uninstall (un), installer, cg, nginx (ngx), vhost"
 	CompactTasks        = "  task, macro"
 	CompactVisualize    = "  dashboard (db)"
 	CompactCommitXfer   = "  commit-right (cmr) — LIVE,  commit-left (cml), commit-both (cmb) — scaffolds"

@@ -90,6 +90,8 @@ func resolveHelpAlias(cmd string) string {
 		return "import-check"
 	case "vm":
 		return "vmware"
+	case "ngx":
+		return "nginx"
 	}
 
 	return cmd
