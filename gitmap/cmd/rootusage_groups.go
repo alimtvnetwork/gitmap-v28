@@ -203,6 +203,7 @@ func printGroupIntegrations() {
 	renderLine(constants.HelpSchedule)
 	renderLine(constants.HelpPipeline)
 	renderLine(constants.HelpUI)
+	renderLine(constants.HelpVmware)
 }
 
 func printGroupSearchFind() {

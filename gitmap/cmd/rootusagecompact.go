@@ -39,6 +39,7 @@ func compactGroups() []compactGroup {
 		{constants.HelpGroupVisualize, constants.CompactVisualize},
 		{constants.HelpGroupCommitXfer, constants.CompactCommitXfer},
 		{constants.HelpGroupCluster, constants.CompactCluster},
+		{constants.HelpGroupIntegrations, constants.CompactIntegrations},
 		{constants.HelpGroupUtilities, constants.CompactUtilities},
 	}
 }

@@ -32,6 +32,7 @@ func getChocoTestCases() []pkgTestCase {
 		{constants.PkgMgrChocolatey, constants.ToolNginx, constants.ChocoPkgNginx},
 		{constants.PkgMgrChocolatey, constants.ToolWordPress, constants.ChocoPkgWordPress},
 		{constants.PkgMgrChocolatey, constants.ToolLaravel, constants.ChocoPkgLaravel},
+		{constants.PkgMgrChocolatey, constants.ToolVMware, constants.ChocoPkgVMware},
 	}
 }
 
@@ -54,6 +55,7 @@ func getWingetTestCases() []pkgTestCase {
 		{constants.PkgMgrWinget, constants.ToolNginx, constants.WingetPkgNginx},
 		{constants.PkgMgrWinget, constants.ToolWordPress, constants.WingetPkgWordPress},
 		{constants.PkgMgrWinget, constants.ToolLaravel, constants.WingetPkgLaravel},
+		{constants.PkgMgrWinget, constants.ToolVMware, constants.WingetPkgVMware},
 	}
 }
 
@@ -76,6 +78,7 @@ func getAptTestCases() []pkgTestCase {
 		{constants.PkgMgrApt, constants.ToolNginx, constants.AptPkgNginx},
 		{constants.PkgMgrApt, constants.ToolWordPress, constants.AptPkgWordPress},
 		{constants.PkgMgrApt, constants.ToolLaravel, constants.AptPkgLaravel},
+		{constants.PkgMgrApt, constants.ToolVMware, constants.AptPkgVMware},
 	}
 }
 
@@ -98,6 +101,7 @@ func getBrewTestCases() []pkgTestCase {
 		{constants.PkgMgrBrew, constants.ToolNginx, constants.BrewPkgNginx},
 		{constants.PkgMgrBrew, constants.ToolWordPress, constants.BrewPkgWordPress},
 		{constants.PkgMgrBrew, constants.ToolLaravel, constants.BrewPkgLaravel},
+		{constants.PkgMgrBrew, constants.ToolVMware, constants.BrewPkgVMware},
 	}
 }
 
@@ -137,6 +141,10 @@ var aliasTestCases = []struct {
 	{"wpcli", constants.ToolWordPress},
 	{"artisan", constants.ToolLaravel},
 	{"laravel-installer", constants.ToolLaravel},
+	{"open-vm-tools", constants.ToolVMware},
+	{"vmtools", constants.ToolVMware},
+	{"vmware-tools", constants.ToolVMware},
+	{"vm", constants.ToolVMware},
 	{"unknown-tool-xyz", "unknown-tool-xyz"},
 }
 
@@ -156,6 +164,7 @@ var newToolList = []string{
 	constants.ToolDocker, constants.ToolKubernetes, constants.ToolJenkins,
 	constants.ToolZsh, constants.ToolFlameshot, constants.ToolConemu, constants.ToolVLC,
 	constants.ToolNginx, constants.ToolWordPress, constants.ToolLaravel,
+	constants.ToolVMware,
 }
 
 var expectedCategoryList = []string{

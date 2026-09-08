@@ -199,6 +199,7 @@ var toolBinaryMap = map[string]string{
 	constants.ToolNginx:         "nginx",
 	constants.ToolWordPress:     "wp",
 	constants.ToolLaravel:       "laravel",
+	constants.ToolVMware:        "vmhgfs-fuse",
 }
 
 // toolBinaryName maps tool names to their binary/executable names.
