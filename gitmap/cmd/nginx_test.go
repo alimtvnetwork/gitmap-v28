@@ -79,3 +79,39 @@ func TestNginxDispatchTestAndReloadDryRun(t *testing.T) {
 		t.Errorf("expected reload --dry-run to succeed, got %v", errReload)
 	}
 }
+
+func TestNginxAddDomainDryRun(t *testing.T) {
+	err := runNginx([]string{"add", "domain.com", "--dry-run"})
+	if err != nil {
+		t.Errorf("expected add domain.com --dry-run to succeed, got %v", err)
+	}
+
+	errSub := runNginx([]string{"add", "sub.domain.com", "--dry-run"})
+	if errSub != nil {
+		t.Errorf("expected add sub.domain.com --dry-run to succeed, got %v", errSub)
+	}
+}
+
+func TestNginxRmDomainDryRun(t *testing.T) {
+	err := runNginx([]string{"rm", "domain.com", "--dry-run"})
+	if err != nil {
+		t.Errorf("expected rm domain.com --dry-run to succeed, got %v", err)
+	}
+
+	errMissing := runNginx([]string{"rm"})
+	if errMissing == nil {
+		t.Errorf("expected error when domain is missing from rm, got nil")
+	}
+}
+
+func TestNginxIniShowcase(t *testing.T) {
+	err := runNginx([]string{"ini"})
+	if err != nil {
+		t.Errorf("expected runNginx ini to succeed, got %v", err)
+	}
+
+	errShowcase := runNginx([]string{"showcase"})
+	if errShowcase != nil {
+		t.Errorf("expected runNginx showcase to succeed, got %v", errShowcase)
+	}
+}

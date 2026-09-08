@@ -30,11 +30,12 @@ var knownValueFlags = map[string]bool{
 	// Same reordering hazard as --manifest — without this entry
 	// the directory would land in the positional slot.
 	"--scan-root": true,
-	// templates list filter flags: without these, `--kind ignore`
-	// would split into `--kind` (parsed as a bare bool-style flag,
-	// value left empty) and `ignore` (re-classified as positional),
-	// which is why TestParseTemplatesListFlagsLowersValues failed.
+	// templates list filter flags
 	"--kind": true, "--lang": true, "--exclude": true, "--except": true,
+	// vhost value-taking flags
+	"--type": true, "--domain": true, "--root": true,
+	"--port": true, "--fastcgi": true, "--php-sock": true,
+	"--aliases": true, "--sites-available": true, "--sites-enabled": true,
 }
 
 // isKnownValueFlag reports whether the specified flag expects a value argument.

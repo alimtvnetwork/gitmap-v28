@@ -115,6 +115,15 @@ func maybeEnableVHost(domain string, opts VHostOptions) *apperror.AppError {
 	return nil
 }
 
+func writeAndEnableVHost(domain, targetPath, rendered string, opts VHostOptions) *apperror.AppError {
+	writeErr := writeVHostFile(targetPath, rendered)
+	if writeErr != nil {
+		return writeErr
+	}
+
+	return maybeEnableVHost(domain, opts)
+}
+
 // CreateVHost renders and writes an Nginx virtual host configuration.
 func CreateVHost(cfg VHostConfig, opts VHostOptions) (string, *apperror.AppError) {
 	applied := ApplyVHostOptionDefaults(opts)
@@ -124,16 +133,39 @@ func CreateVHost(cfg VHostConfig, opts VHostOptions) (string, *apperror.AppError
 		return "", renderErr
 	}
 	targetPath := resolveVHostTargetPath(applied, prepCfg.Domain)
-	writeErr := writeVHostFile(targetPath, rendered)
-	if writeErr != nil {
-		return "", writeErr
+	if applied.IsDryRun {
+		return targetPath, nil
 	}
-	enableErr := maybeEnableVHost(prepCfg.Domain, applied)
-	if enableErr != nil {
-		return "", enableErr
-	}
+	err := writeAndEnableVHost(prepCfg.Domain, targetPath, rendered, applied)
 
-	return targetPath, nil
+	return targetPath, err
+}
+
+func removeVHostFiles(domain string, opts VHostOptions) {
+	_ = DisableVHost(domain, opts)
+	availTarget := filepath.Join(opts.SitesAvailableDir, domain)
+	_ = os.Remove(availTarget)
+	availConfTarget := filepath.Join(opts.SitesAvailableDir, domain+".conf")
+	_ = os.Remove(availConfTarget)
+	confDTarget := filepath.Join(opts.ConfDDir, domain+".conf")
+	_ = os.Remove(confDTarget)
+}
+
+// RemoveVHost disables and removes an Nginx virtual host configuration.
+func RemoveVHost(domain string, opts VHostOptions) *apperror.AppError {
+	applied := ApplyVHostOptionDefaults(opts)
+	if applied.IsDryRun {
+		return nil
+	}
+	removeVHostFiles(domain, applied)
+
+	return nil
+}
+
+func isNginxInstalled(bin string) bool {
+	_, err := exec.LookPath(bin)
+
+	return err == nil
 }
 
 // TestNginxConfig executes 'nginx -t' to validate configuration syntax.
@@ -142,10 +174,12 @@ func TestNginxConfig(opts VHostOptions) (string, *apperror.AppError) {
 	if applied.IsDryRun {
 		return "nginx: configuration file test is successful (dry-run)", nil
 	}
+	if !isNginxInstalled(applied.NginxBin) {
+		return "nginx: binary not in PATH (syntax test skipped)", nil
+	}
 	cmd := exec.Command(applied.NginxBin, "-t")
 	out, err := cmd.CombinedOutput()
-	hasError := err != nil
-	if hasError {
+	if err != nil {
 		return string(out), apperror.NewExecutionError("nginx test failed: " + string(out))
 	}
 
@@ -155,7 +189,7 @@ func TestNginxConfig(opts VHostOptions) (string, *apperror.AppError) {
 // ReloadNginx tests and triggers 'nginx -s reload'.
 func ReloadNginx(opts VHostOptions) *apperror.AppError {
 	applied := ApplyVHostOptionDefaults(opts)
-	if applied.IsDryRun {
+	if applied.IsDryRun || !isNginxInstalled(applied.NginxBin) {
 		return nil
 	}
 	_, testErr := TestNginxConfig(applied)
@@ -164,8 +198,7 @@ func ReloadNginx(opts VHostOptions) *apperror.AppError {
 	}
 	cmd := exec.Command(applied.NginxBin, "-s", "reload")
 	out, err := cmd.CombinedOutput()
-	hasError := err != nil
-	if hasError {
+	if err != nil {
 		return apperror.NewExecutionError("nginx reload failed: " + string(out))
 	}
 

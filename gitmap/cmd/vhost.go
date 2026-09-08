@@ -9,6 +9,8 @@ import (
 
 func dispatchVHostOpsSub(sub string, args []string) (bool, error) {
 	switch sub {
+	case "rm", "remove", "delete", "del":
+		return true, runNginxRm(args)
 	case "enable", "en":
 		return true, runVHostEnable(args)
 	case "disable", "dis":
