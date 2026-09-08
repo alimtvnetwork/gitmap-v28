@@ -32,6 +32,14 @@ func resolveRepoStatusStyle(isDirty bool) lipgloss.Style {
 }
 
 func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
+	if l.IsWide {
+		l.printWideRow(r)
+		return
+	}
+	l.printCompactRow(r)
+}
+
+func (l *PullTableLayout) printWideRow(r model.PullTableRow) {
 	statusStyle := resolvePullStatusStyle(r.PullStatus)
 	repoStyle := resolveRepoStatusStyle(r.IsDirty)
 
@@ -44,12 +52,37 @@ func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
 
 	renderedStatus := statusStyle.Render(r.PullStatus)
 	padStatus := calcAnsiPadding(renderedStatus, l.MaxStatus)
+	formattedPR := middleTruncate(r.PRStatus, l.MaxPR, 3)
 
 	fmt.Printf("  %-*s   %-*s   %-*s   %-*s   %-*s   %-*s   %s\n",
 		padRepo, renderedRepo,
 		l.MaxBranch, formattedBranch,
 		l.MaxLatestBr, formattedLatestBr,
-		l.MaxPR, r.PRStatus,
+		l.MaxPR, formattedPR,
+		padStatus, renderedStatus,
+		l.MaxSHA, r.LastSHA,
+		r.Duration,
+	)
+}
+
+func (l *PullTableLayout) printCompactRow(r model.PullTableRow) {
+	statusStyle := resolvePullStatusStyle(r.PullStatus)
+	repoStyle := resolveRepoStatusStyle(r.IsDirty)
+
+	formattedRepo := formatRepoName(r.RepoName, l.MaxRepo)
+	renderedRepo := repoStyle.Render(formattedRepo)
+	padRepo := calcAnsiPadding(renderedRepo, l.MaxRepo)
+
+	formattedBranch := formatCombinedBranch(r.Branch, r.LatestBranch, l.MaxBranch)
+
+	renderedStatus := statusStyle.Render(r.PullStatus)
+	padStatus := calcAnsiPadding(renderedStatus, l.MaxStatus)
+	formattedPR := middleTruncate(r.PRStatus, l.MaxPR, 3)
+
+	fmt.Printf("  %-*s  %-*s  %-*s  %-*s  %-*s  %s\n",
+		padRepo, renderedRepo,
+		l.MaxBranch, formattedBranch,
+		l.MaxPR, formattedPR,
 		padStatus, renderedStatus,
 		l.MaxSHA, r.LastSHA,
 		r.Duration,
