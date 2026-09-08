@@ -39,6 +39,10 @@ var toolAliasMap = map[string]string{
 	"wpcli":             constants.ToolWordPress,
 	"artisan":           constants.ToolLaravel,
 	"laravel-installer": constants.ToolLaravel,
+	"open-vm-tools":     constants.ToolVMware,
+	"vmtools":           constants.ToolVMware,
+	"vmware-tools":      constants.ToolVMware,
+	"vm":                constants.ToolVMware,
 }
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.
@@ -99,6 +103,7 @@ var chocoPackageMap = map[string]string{
 	constants.ToolNginx:         constants.ChocoPkgNginx,
 	constants.ToolWordPress:     constants.ChocoPkgWordPress,
 	constants.ToolLaravel:       constants.ChocoPkgLaravel,
+	constants.ToolVMware:        constants.ChocoPkgVMware,
 }
 
 // resolveChocoPackage maps tool names to Chocolatey package IDs.
@@ -137,6 +142,7 @@ var wingetPackageMap = map[string]string{
 	constants.ToolNginx:         constants.WingetPkgNginx,
 	constants.ToolWordPress:     constants.WingetPkgWordPress,
 	constants.ToolLaravel:       constants.WingetPkgLaravel,
+	constants.ToolVMware:        constants.WingetPkgVMware,
 }
 
 // resolveWingetPackage maps tool names to Winget package IDs.

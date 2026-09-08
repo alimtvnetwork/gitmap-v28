@@ -88,6 +88,7 @@ const (
 	CompactCommitXfer   = "  commit-right (cmr) — LIVE,  commit-left (cml), commit-both (cmb) — scaffolds"
 	CompactCluster      = "  servers-clients (sc), clients, cluster"
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
+	CompactIntegrations = "  vscode (vsc), antigravity (agy/ag), schedule (sc), pipeline (pl/eta), ui, vmware (vm)"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
 	HelpInstaller     = "  installer (in) <sub>        Manage developer tool installer scripts and history"
@@ -121,4 +122,6 @@ var HelpGroupKeys = []string{
 	"commit-transfer",
 	"cluster",
 	"utilities",
+	"integrations",
+	"vmware",
 }

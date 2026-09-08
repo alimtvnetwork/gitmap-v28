@@ -40,6 +40,7 @@ var aptPackageMap = map[string]string{
 	constants.ToolNginx:         constants.AptPkgNginx,
 	constants.ToolWordPress:     constants.AptPkgWordPress,
 	constants.ToolLaravel:       constants.AptPkgLaravel,
+	constants.ToolVMware:        constants.AptPkgVMware,
 }
 
 // resolveAptPackage maps tool names to apt package IDs.
@@ -92,6 +93,7 @@ var brewPackageMap = map[string]string{
 	constants.ToolNginx:         constants.BrewPkgNginx,
 	constants.ToolWordPress:     constants.BrewPkgWordPress,
 	constants.ToolLaravel:       constants.BrewPkgLaravel,
+	constants.ToolVMware:        constants.BrewPkgVMware,
 }
 
 // resolveBrewPackage maps tool names to Homebrew package IDs.

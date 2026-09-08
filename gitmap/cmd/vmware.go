@@ -34,6 +34,8 @@ func dispatchVmwareSubcommand(subCmd string, rest []string) error {
 		return runVmwareSharedEnable(rest)
 	case constants.SubCmdSharedStatus:
 		return runVmwareStatus(rest)
+	case constants.CmdInstall, constants.CmdInstallAlias:
+		return runVmwareInstall(rest)
 	default:
 		return unknownVmwareSubcommandError(subCmd)
 	}
@@ -57,6 +59,7 @@ func printVmwareUsage() {
 	fmt.Println("Usage: gitmap vmware [subcommand] [flags]")
 	fmt.Println()
 	fmt.Println("Commands:")
+	fmt.Println("  install (in)           Install open-vm-tools & desktop packages via apt")
 	fmt.Println("  shared enable (mount)  Install open-vm-tools, mount /mnt/hgfs & persist in crontab")
 	fmt.Println("  shared status          Check /mnt/hgfs mount, desktop symlink & crontab persistence")
 	fmt.Println("  status                 Display VMware guest environment detection status")

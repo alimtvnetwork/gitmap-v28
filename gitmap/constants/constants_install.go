@@ -98,6 +98,7 @@ const (
 	ToolKubernetes = "kubernetes"
 	ToolJenkins    = "jenkins"
 	ToolNginx      = "nginx"
+	ToolVMware     = "vmware"
 )
 
 // Supported tool names — Terminal & Utilities.
@@ -209,6 +210,7 @@ const (
 	ChocoPkgNginx         = "nginx"
 	ChocoPkgWordPress     = "wordpress"
 	ChocoPkgLaravel       = "laravel"
+	ChocoPkgVMware        = "vmware-workstation-player"
 )
 
 // Winget package IDs.
@@ -237,6 +239,7 @@ const (
 	WingetPkgNginx         = "nginxinc.nginx"
 	WingetPkgWordPress     = "Automattic.Wordpress"
 	WingetPkgLaravel       = "Laravel.Laravel"
+	WingetPkgVMware        = "VMware.WorkstationPlayer"
 )
 
 // Apt package IDs.
@@ -275,6 +278,7 @@ const (
 	AptPkgNginx         = "nginx"
 	AptPkgWordPress     = "wordpress"
 	AptPkgLaravel       = "laravel"
+	AptPkgVMware        = "open-vm-tools open-vm-tools-desktop"
 )
 
 // Brew package IDs.
@@ -317,6 +321,7 @@ const (
 	BrewPkgNginx         = "nginx"
 	BrewPkgWordPress     = "wp-cli"
 	BrewPkgLaravel       = "laravel"
+	BrewPkgVMware        = "vmware-fusion"
 )
 
 // Snap package IDs.
@@ -516,6 +521,7 @@ var InstallToolDescriptions = map[string]string{
 	ToolNginx:            "Nginx high-performance HTTP server and reverse proxy",
 	ToolWordPress:        "WordPress web publishing platform and CMS / WP-CLI",
 	ToolLaravel:          "Laravel PHP web application framework and installer CLI",
+	ToolVMware:           "VMware guest tools and virtualization utilities",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -545,7 +551,7 @@ var InstallToolCategories = map[string][]string{
 		ToolOllama, ToolLlamaCpp, ToolPythonLibs,
 	},
 	ToolCategoryDevOps: {
-		ToolDocker, ToolKubernetes, ToolJenkins, ToolNginx,
+		ToolDocker, ToolKubernetes, ToolJenkins, ToolNginx, ToolVMware,
 	},
 	ToolCategoryUtilities: {
 		ToolZsh, ToolFlameshot, ToolConemu, ToolVLC,

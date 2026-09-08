@@ -74,12 +74,13 @@ func ensureVMwareToolsInstalled() {
 		return
 	}
 	fmt.Println("  ⚠ vmhgfs-fuse not found. Attempting to install open-vm-tools via apt...")
-	if _, err := exec.LookPath("apt-get"); err == nil {
-		cmd := exec.Command("sudo", "apt-get", "install", "-y", "open-vm-tools")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		_ = cmd.Run()
+	if _, err := exec.LookPath("apt-get"); err != nil {
+		return
 	}
+	cmd := exec.Command("sudo", "apt-get", "install", "-y", "open-vm-tools", "open-vm-tools-desktop")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	_ = cmd.Run()
 }
 
 func resolveUserDesktopDir() string {
@@ -109,13 +110,102 @@ func ensureMountDirectory(dir string) error {
 	return nil
 }
 
-func mountHostShare(mountPoint string) error {
+func unmountIfMounted(mountPoint string) {
+	if !isMountActive(mountPoint) {
+		return
+	}
+	_ = exec.Command("fusermount", "-u", mountPoint).Run()
+	_ = exec.Command("sudo", "umount", "-l", mountPoint).Run()
+}
+
+func ensureVMwareServiceRunning() {
+	if _, err := exec.LookPath("systemctl"); err != nil {
+		return
+	}
+	_ = exec.Command("sudo", "systemctl", "start", "open-vm-tools").Run()
+}
+
+func executePrimaryMount(mountPoint string) ([]byte, error) {
 	cmd := exec.Command("sudo", "vmhgfs-fuse", "-o", "allow_other", "-o", "auto_unmount", ".host:/", mountPoint)
-	if out, err := cmd.CombinedOutput(); err != nil {
-		return apperror.NewWithDetails("cmd.vmware.mountHostShare", "E4003", fmt.Sprintf("mount failed: %s (%v)", string(out), err), "cmd.vmware", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
+
+	return cmd.CombinedOutput()
+}
+
+func tryFallbackMount(mountPoint string) ([]byte, error) {
+	cmd := exec.Command("sudo", "mount", "-t", "fuse.vmhgfs-fuse", ".host:/", mountPoint, "-o", "allow_other")
+
+	return cmd.CombinedOutput()
+}
+
+func isFallbackMountSuccess(mountPoint string) bool {
+	_, fbErr := tryFallbackMount(mountPoint)
+
+	return fbErr == nil
+}
+
+func getHostShares() []string {
+	out, err := exec.Command("vmware-hgfsclient").CombinedOutput()
+	if err != nil || len(out) == 0 {
+		return nil
+	}
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	var shares []string
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if trimmed != "" {
+			shares = append(shares, trimmed)
+		}
 	}
 
-	return nil
+	return shares
+}
+
+func buildMountDiagnosticHelp(errText string, runErr error) string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("mount failed: %s (%v)\n", errText, runErr))
+	sb.WriteString("\n  [Diagnostic & Remediation]\n")
+	sb.WriteString("  → Host has not enabled Shared Folders or no shares are configured in VMware.\n")
+	sb.WriteString("  → To fix in VMware Workstation / Player / Fusion:\n")
+	sb.WriteString("    1. Open VM -> Settings -> Options -> Shared Folders\n")
+	sb.WriteString("    2. Change setting to 'Always enabled'\n")
+	sb.WriteString("    3. Click 'Add...' and configure at least one folder path from the host\n")
+	sb.WriteString("    4. Click OK / Save, then re-run: gitmap vmware shared enable\n")
+
+	return sb.String()
+}
+
+func formatVmwareMountError(out []byte, runErr error) string {
+	errText := strings.TrimSpace(string(out))
+	if errText == "" && runErr != nil {
+		errText = runErr.Error()
+	}
+	hasConnErr := strings.Contains(errText, "-107") || strings.Contains(errText, "cannot open connection")
+	hasShares := len(getHostShares()) > 0
+	if hasConnErr || !hasShares {
+		return buildMountDiagnosticHelp(errText, runErr)
+	}
+
+	return fmt.Sprintf("mount failed: %s (%v)", errText, runErr)
+}
+
+func newMountHostError(out []byte, err error) error {
+	msg := formatVmwareMountError(out, err)
+
+	return apperror.NewWithDetails("cmd.vmware.mountHostShare", "E4003", msg, "cmd.vmware", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
+}
+
+func mountHostShare(mountPoint string) error {
+	unmountIfMounted(mountPoint)
+	ensureVMwareServiceRunning()
+	out, err := executePrimaryMount(mountPoint)
+	if err == nil {
+		return nil
+	}
+	if isFallbackMountSuccess(mountPoint) {
+		return nil
+	}
+
+	return newMountHostError(out, err)
 }
 
 func createDesktopSymlink(mountPoint string) error {
