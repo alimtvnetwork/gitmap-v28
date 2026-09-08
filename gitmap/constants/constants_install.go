@@ -75,6 +75,36 @@ const (
 	ToolDuckDB        = "duckdb"
 )
 
+// Supported tool names — Languages & Runtimes.
+const (
+	ToolRust    = "rust"
+	ToolDotnet  = "dotnet"
+	ToolJava    = "java"
+	ToolFlutter = "flutter"
+)
+
+// Supported tool names — Local AI.
+const (
+	ToolOllama     = "ollama"
+	ToolLlamaCpp   = "llama-cpp"
+	ToolPythonLibs = "python-libs"
+)
+
+// Supported tool names — DevOps & Containers.
+const (
+	ToolDocker     = "docker"
+	ToolKubernetes = "kubernetes"
+	ToolJenkins    = "jenkins"
+)
+
+// Supported tool names — Terminal & Utilities.
+const (
+	ToolZsh       = "zsh"
+	ToolFlameshot = "flameshot"
+	ToolConemu    = "conemu"
+	ToolVLC       = "vlc"
+)
+
 // Package manager names.
 const (
 	PkgMgrChocolatey = "choco"
@@ -159,6 +189,20 @@ const (
 	ChocoPkgPowerShell    = "powershell-core"
 	ChocoPkgStickyNotes   = "microsoft-windows-terminal" // sticky notes is a Windows Store app
 	ChocoPkgChrome        = "googlechrome"
+	ChocoPkgRust          = "rust"
+	ChocoPkgDotnet        = "dotnet-sdk"
+	ChocoPkgJava          = "openjdk"
+	ChocoPkgFlutter       = "flutter"
+	ChocoPkgOllama        = "ollama"
+	ChocoPkgLlamaCpp      = "llama.cpp"
+	ChocoPkgPythonLibs    = "python-libs"
+	ChocoPkgDocker        = "docker-desktop"
+	ChocoPkgKubernetes    = "kubernetes-cli"
+	ChocoPkgJenkins       = "jenkins"
+	ChocoPkgZsh           = "zsh"
+	ChocoPkgFlameshot     = "flameshot"
+	ChocoPkgConemu        = "conemu"
+	ChocoPkgVLC           = "vlc"
 )
 
 // Winget package IDs.
@@ -170,6 +214,20 @@ const (
 	WingetPkgStickyNotes   = "9NBLGGH4QGHW" // Microsoft Sticky Notes Store ID
 	WingetPkgGitHubDesktop = "GitHub.GitHubDesktop"
 	WingetPkgChrome        = "Google.Chrome"
+	WingetPkgRust          = "Rustlang.Rustup"
+	WingetPkgDotnet        = "Microsoft.DotNet.SDK.8"
+	WingetPkgJava          = "Oracle.JDK.21"
+	WingetPkgFlutter       = "Google.Flutter"
+	WingetPkgOllama        = "Ollama.Ollama"
+	WingetPkgLlamaCpp      = "ggml.llamacpp"
+	WingetPkgPythonLibs    = "python-libs"
+	WingetPkgDocker        = "Docker.DockerDesktop"
+	WingetPkgKubernetes    = "Kubernetes.kubectl"
+	WingetPkgJenkins       = "Jenkins.Jenkins"
+	WingetPkgZsh           = "zsh"
+	WingetPkgFlameshot     = "Flameshot.Flameshot"
+	WingetPkgConemu        = "Maximus5.ConEmu"
+	WingetPkgVLC           = "VideoLAN.VLC"
 )
 
 // Apt package IDs.
@@ -191,6 +249,20 @@ const (
 	AptPkgCassandra     = "cassandra"
 	AptPkgElasticsearch = "elasticsearch"
 	AptPkgChrome        = "google-chrome-stable"
+	AptPkgRust          = "rustc"
+	AptPkgDotnet        = "dotnet-sdk-8.0"
+	AptPkgJava          = "openjdk-21-jdk"
+	AptPkgFlutter       = "flutter"
+	AptPkgOllama        = "ollama"
+	AptPkgLlamaCpp      = "llama.cpp"
+	AptPkgPythonLibs    = "python3-pip"
+	AptPkgDocker        = "docker.io"
+	AptPkgKubernetes    = "kubectl"
+	AptPkgJenkins       = "jenkins"
+	AptPkgZsh           = "zsh"
+	AptPkgFlameshot     = "flameshot"
+	AptPkgConemu        = "conemu"
+	AptPkgVLC           = "vlc"
 )
 
 // Brew package IDs.
@@ -216,12 +288,31 @@ const (
 	BrewPkgDbeaver       = "dbeaver-community"
 	BrewPkgOBS           = "obs"
 	BrewPkgChrome        = "google-chrome"
+	BrewPkgRust          = "rust"
+	BrewPkgDotnet        = "dotnet-sdk"
+	BrewPkgJava          = "openjdk"
+	BrewPkgFlutter       = "flutter"
+	BrewPkgOllama        = "ollama"
+	BrewPkgLlamaCpp      = "llama.cpp"
+	BrewPkgPythonLibs    = "pipx"
+	BrewPkgDocker        = "docker"
+	BrewPkgKubernetes    = "kubernetes-cli"
+	BrewPkgJenkins       = "jenkins"
+	BrewPkgZsh           = "zsh"
+	BrewPkgFlameshot     = "flameshot"
+	BrewPkgConemu        = "conemu"
+	BrewPkgVLC           = "vlc"
 )
 
 // Snap package IDs.
 const (
-	SnapPkgCouchDB = "couchdb"
-	SnapPkgRedis   = "redis"
+	SnapPkgCouchDB    = "couchdb"
+	SnapPkgRedis      = "redis"
+	SnapPkgFlutter    = "flutter"
+	SnapPkgKubernetes = "kubectl"
+	SnapPkgVLC        = "vlc"
+	SnapPkgDotnet     = "dotnet-sdk"
+	SnapPkgRust       = "rustup"
 )
 
 // Install terminal messages.
@@ -330,8 +421,12 @@ const (
 
 // Tool categories.
 const (
-	ToolCategoryCore     = "Core Tools"
-	ToolCategoryDatabase = "Databases"
+	ToolCategoryCore      = "Core Tools"
+	ToolCategoryDatabase  = "Databases"
+	ToolCategoryLanguages = "Languages & Runtimes"
+	ToolCategoryAI        = "Local AI"
+	ToolCategoryDevOps    = "DevOps & Containers"
+	ToolCategoryUtilities = "Terminal & Utilities"
 )
 
 // Tool display names for --list output.
@@ -389,6 +484,20 @@ var InstallToolDescriptions = map[string]string{
 	ToolUbuntuCommon:     "Ubuntu common developer profile (compiler toolchain, editors, utilities)",
 	ToolChrome:           "Google Chrome web browser",
 	ToolGoogleChrome:     "Google Chrome web browser",
+	ToolRust:             "Rust programming language and Cargo toolchain",
+	ToolDotnet:           ".NET SDK and developer platform",
+	ToolJava:             "Java OpenJDK development kit and runtime",
+	ToolFlutter:          "Flutter cross-platform application SDK",
+	ToolOllama:           "Ollama local large language model runner",
+	ToolLlamaCpp:         "llama.cpp LLM inference engine in C/C++",
+	ToolPythonLibs:       "Python AI, ML, data science, and web libraries",
+	ToolDocker:           "Docker container platform and runtime",
+	ToolKubernetes:       "Kubernetes container orchestration CLI (kubectl)",
+	ToolJenkins:          "Jenkins automation and CI/CD server",
+	ToolZsh:              "Zsh interactive shell and command interpreter",
+	ToolFlameshot:        "Flameshot screenshot capture and annotation tool",
+	ToolConemu:           "ConEmu Windows console emulator with tabs and splits",
+	ToolVLC:              "VLC media player cross-platform multimedia player",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -409,5 +518,17 @@ var InstallToolCategories = map[string][]string{
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,
 		ToolMongoDB, ToolCouchDB, ToolRedis, ToolCassandra,
 		ToolNeo4j, ToolElasticsearch, ToolDuckDB, ToolLiteDB,
+	},
+	ToolCategoryLanguages: {
+		ToolRust, ToolDotnet, ToolJava, ToolFlutter,
+	},
+	ToolCategoryAI: {
+		ToolOllama, ToolLlamaCpp, ToolPythonLibs,
+	},
+	ToolCategoryDevOps: {
+		ToolDocker, ToolKubernetes, ToolJenkins,
+	},
+	ToolCategoryUtilities: {
+		ToolZsh, ToolFlameshot, ToolConemu, ToolVLC,
 	},
 }

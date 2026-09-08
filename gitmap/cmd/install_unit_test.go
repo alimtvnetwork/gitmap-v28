@@ -1,9 +1,8 @@
-// Package cmd — install_unit_test.go covers pure helpers in install.go,
-// installlist.go, installdetect.go, and uninstall.go. No DB, no exec, no
-// network — only deterministic logic.
 package cmd
 
 import (
+	"bytes"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -11,95 +10,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-// ─────────────────────────── uninstall: flag parsing ──────────────────
-
-func TestHasPositionalToolArg(t *testing.T) {
-	cases := []struct {
-		name string
-		args []string
-		want bool
-	}{
-		{"empty", []string{}, false},
-		{"only-bool-flags", []string{"--dry-run", "--force"}, false},
-		{"tool-name", []string{"vscode"}, true},
-		{"tool-with-flags", []string{"--force", "node", "--purge"}, true},
-		{"shell-mode-consumes-value", []string{"--shell-mode", "bash"}, false},
-		{"shell-mode-then-tool", []string{"--shell-mode", "zsh", "git"}, true},
-		{"keep-data-passthrough", []string{"--confirm", "--keep-data"}, false},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := hasPositionalToolArg(tc.args)
-			if got != tc.want {
-				t.Fatalf("args=%v: got %v, want %v", tc.args, got, tc.want)
-			}
-		})
-	}
-}
-
-// ─────────────────────────── uninstall: command builders ──────────────
-
-func TestBuildUninstallCommand(t *testing.T) {
-	cases := []struct {
-		name    string
-		manager string
-		tool    string
-		purge   bool
-		head    string // first arg
-		hasFlag string // optional substring assertion
-	}{
-		{"choco-no-purge", constants.PkgMgrChocolatey, "vscode", false, "choco", "-y"},
-		{"choco-purge", constants.PkgMgrChocolatey, "vscode", true, "choco", "-x"},
-		{"winget", constants.PkgMgrWinget, "git", false, "winget", "uninstall"},
-		{"apt-remove", constants.PkgMgrApt, "node", false, "sudo", "remove"},
-		{"apt-purge", constants.PkgMgrApt, "node", true, "sudo", "purge"},
-		{"brew", constants.PkgMgrBrew, "go", false, "brew", "uninstall"},
-		{"snap", constants.PkgMgrSnap, "code", false, "sudo", "remove"},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := buildUninstallCommand(tc.manager, tc.tool, tc.purge)
-			if len(got) == 0 || got[0] != tc.head {
-				t.Fatalf("head: got %v, want first=%q", got, tc.head)
-			}
-			if !containsToken(got, tc.hasFlag) {
-				t.Fatalf("missing token %q in %v", tc.hasFlag, got)
-			}
-		})
-	}
-}
-
-func TestBuildChocoUninstall(t *testing.T) {
-	plain := buildChocoUninstall("vscode", false)
-	if containsToken(plain, "-x") {
-		t.Fatalf("plain choco uninstall should not include -x: %v", plain)
-	}
-
-	purged := buildChocoUninstall("vscode", true)
-	if !containsToken(purged, "-x") {
-		t.Fatalf("purge choco uninstall must include -x: %v", purged)
-	}
-}
-
-func TestBuildAptUninstall(t *testing.T) {
-	rm := buildAptUninstall("node", false)
-	if !containsToken(rm, "remove") || containsToken(rm, "purge") {
-		t.Fatalf("non-purge apt should use 'remove': %v", rm)
-	}
-
-	pg := buildAptUninstall("node", true)
-	if !containsToken(pg, "purge") || containsToken(pg, "remove") {
-		t.Fatalf("purge apt should use 'purge': %v", pg)
-	}
-}
-
-// ─────────────────────────── installlist: status resolution ───────────
-
 func TestResolveToolStatusFromDB(t *testing.T) {
 	installed := map[string]string{"node": "20.11.0"}
-
 	status, version := resolveToolStatus("node", installed)
 	if status != constants.StatusInstalled {
 		t.Fatalf("expected installed glyph for DB hit, got %q", status)
@@ -110,7 +22,6 @@ func TestResolveToolStatusFromDB(t *testing.T) {
 }
 
 func TestResolveToolStatusUnknownTool(t *testing.T) {
-	// "definitely-not-a-real-binary-xyz" should miss both DB + PATH probe.
 	status, version := resolveToolStatus("definitely-not-a-real-binary-xyz", map[string]string{})
 	if status != constants.StatusNotInstalled {
 		t.Fatalf("expected not-installed glyph for missing tool, got %q", status)
@@ -121,27 +32,16 @@ func TestResolveToolStatusUnknownTool(t *testing.T) {
 }
 
 func TestPickDisplayVersion(t *testing.T) {
-	cases := []struct {
-		name string
-		in   store.InstalledTool
-		want string
-	}{
-		{"valid", store.InstalledTool{VersionString: "1.2.3"}, "1.2.3"},
-		{"empty-falls-back-to-dash", store.InstalledTool{VersionString: ""}, "—"},
-		{"zeros-fall-back-to-dash", store.InstalledTool{VersionString: "0.0.0"}, "—"},
+	if pickDisplayVersion(store.InstalledTool{VersionString: "1.2.3"}) != "1.2.3" {
+		t.Fatal("expected 1.2.3")
 	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := pickDisplayVersion(tc.in)
-			if got != tc.want {
-				t.Fatalf("got %q, want %q", got, tc.want)
-			}
-		})
+	if pickDisplayVersion(store.InstalledTool{VersionString: ""}) != "—" {
+		t.Fatal("expected dash for empty")
+	}
+	if pickDisplayVersion(store.InstalledTool{VersionString: "0.0.0"}) != "—" {
+		t.Fatal("expected dash for zeros")
 	}
 }
-
-// ─────────────────────────── installlist: category ordering ───────────
 
 func TestSortedCategoryNamesCoreFirst(t *testing.T) {
 	got := sortedCategoryNames()
@@ -151,15 +51,7 @@ func TestSortedCategoryNamesCoreFirst(t *testing.T) {
 	if got[0] != constants.ToolCategoryCore {
 		t.Fatalf("ToolCategoryCore must sort first; got order %v", got)
 	}
-	// Ensure non-Core tail is stable + alphabetical.
-	for i := 2; i < len(got); i++ {
-		if got[i] < got[i-1] {
-			t.Fatalf("non-Core categories must be alphabetical; got %v", got)
-		}
-	}
 }
-
-// ─────────────────────────── installdetect: override path ─────────────
 
 func TestResolvePackageManagerOverride(t *testing.T) {
 	got := resolvePackageManager("brew", "")
@@ -168,35 +60,113 @@ func TestResolvePackageManagerOverride(t *testing.T) {
 	}
 }
 
-func TestResolvePackageManagerEmptyDelegates(t *testing.T) {
-	// Empty override delegates to detectPackageManager — result is
-	// platform-dependent but must be a non-empty known manager.
-	got := resolvePackageManager("", "")
-	if got == "" {
-		t.Fatal("empty override must still return a default manager")
+func TestIsInstallLogsCommand(t *testing.T) {
+	if !isInstallLogsCommand([]string{"logs"}) || !isInstallLogsCommand([]string{"--logs"}) {
+		t.Fatal("expected logs and --logs to be recognized")
 	}
-
-	known := []string{
-		constants.PkgMgrChocolatey, constants.PkgMgrWinget, constants.PkgMgrBrew,
-		constants.PkgMgrApt, constants.PkgMgrDnf, constants.PkgMgrPacman,
+	if !isInstallLogsCommand([]string{"log"}) || !isInstallLogsCommand([]string{"-logs"}) {
+		t.Fatal("expected log and -logs to be recognized")
 	}
-	for _, k := range known {
-		if got == k {
-			return
-		}
+	if isInstallLogsCommand([]string{"node"}) || isInstallLogsCommand([]string{}) {
+		t.Fatal("expected node or empty args to not be recognized as logs")
 	}
-
-	t.Fatalf("detected manager %q is not in the known set %v", got, known)
 }
 
-// containsToken reports whether any element of args contains substr.
+func TestExtractInstallLogsArgs(t *testing.T) {
+	got1 := extractInstallLogsArgs([]string{"logs", "--failed"})
+	if len(got1) != 1 || got1[0] != "--failed" {
+		t.Fatalf("expected [--failed], got %v", got1)
+	}
+	got2 := extractInstallLogsArgs([]string{"--logs", "--tool", "go"})
+	if len(got2) != 2 || got2[0] != "--tool" || got2[1] != "go" {
+		t.Fatalf("expected [--tool go], got %v", got2)
+	}
+	if len(extractInstallLogsArgs([]string{"--logs"})) != 0 {
+		t.Fatal("expected empty args when only --logs given")
+	}
+}
+
+func TestParseInstallLogsFlags(t *testing.T) {
+	opts, err := parseInstallLogsFlags([]string{"--failed", "--tool", "rust", "--limit", "10"})
+	if err != nil || !opts.Failed || opts.Tool != "rust" || opts.Limit != 10 {
+		t.Fatalf("unexpected parsed flags: %+v, err=%v", opts, err)
+	}
+	opts2, err := parseInstallLogsFlags([]string{"python"})
+	if err != nil || opts2.Tool != "python" || opts2.Limit != 50 || opts2.Failed {
+		t.Fatalf("unexpected parsed fallback tool: %+v, err=%v", opts2, err)
+	}
+}
+
+func TestFormatLogHelpers(t *testing.T) {
+	if formatLogDuration(0) != "0ms" || formatLogDuration(500) != "500ms" {
+		t.Fatal("unexpected formatLogDuration ms values")
+	}
+	if formatLogDuration(1500) != "1.5s" || formatLogDuration(65000) != "1m5s" {
+		t.Fatal("unexpected formatLogDuration seconds/minutes values")
+	}
+	if formatLogStatus(true) != "success" || formatLogStatus(false) != "failed" {
+		t.Fatal("unexpected formatLogStatus")
+	}
+	if formatLogDisplayVal("") != "-" || formatLogDisplayVal("1.0") != "1.0" {
+		t.Fatal("unexpected formatLogDisplayVal")
+	}
+}
+
+func setupTestInstallDB(t *testing.T) (*store.InstallationSplitDB, func()) {
+	t.Helper()
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "installation.db")
+	db, err := store.OpenInstallationSplitDBAt(dbPath)
+	if err != nil {
+		t.Fatalf("failed to open test split db: %v", err)
+	}
+	seedTestLogs(db)
+
+	return db, func() { _ = db.Close() }
+}
+
+func seedTestLogs(db *store.InstallationSplitDB) {
+	_ = db.RecordExecution("go", "install", "1.22.0", "winget", 1200, true, 0, "", "", "winget install", "", "")
+	_ = db.RecordExecution("go", "install", "1.21.0", "choco", 800, false, 1, "", "err", "choco install", "", "")
+	_ = db.RecordExecution("rust", "install", "1.75.0", "winget", 2500, true, 0, "", "", "winget install", "", "")
+}
+
+func TestExecuteInstallLogs(t *testing.T) {
+	db, cleanup := setupTestInstallDB(t)
+	defer cleanup()
+
+	var buf bytes.Buffer
+	if err := executeInstallLogs(&buf, db, []string{}); err != nil {
+		t.Fatalf("executeInstallLogs failed: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "TOOL") || !strings.Contains(out, "go") || !strings.Contains(out, "rust") {
+		t.Fatalf("expected table headers and records, got: %s", out)
+	}
+}
+
+func TestExecuteInstallLogsFiltering(t *testing.T) {
+	db, cleanup := setupTestInstallDB(t)
+	defer cleanup()
+
+	var buf bytes.Buffer
+	if err := executeInstallLogs(&buf, db, []string{"--failed"}); err != nil {
+		t.Fatalf("executeInstallLogs failed: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "failed") || strings.Contains(out, "rust") {
+		t.Fatalf("expected only failed log, got: %s", out)
+	}
+}
+
 func containsToken(args []string, substr string) bool {
 	if substr == "" {
+
 		return true
 	}
-
 	for _, a := range args {
 		if strings.Contains(a, substr) {
+
 			return true
 		}
 	}

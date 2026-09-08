@@ -192,6 +192,10 @@ func (db *DB) Migrate() error {
 		constants.SQLCreateClusterRun,
 		constants.SQLCreateClusterExecResult,
 		SQLCreateWorkDirsTable,
+		constants.SQLCreateSplitDatabaseRegistry,
+		constants.SQLCreateSplitDatabaseRegistryTypeIndex,
+		constants.SQLCreateSplitDatabaseRegistryStatusIndex,
+		constants.SQLCreateSplitDatabaseRegistryUpdatedAtIndex,
 	}
 
 	for _, stmt := range statements {
@@ -222,6 +226,10 @@ func (db *DB) Migrate() error {
 	// races with the legacy rebuilds; keep BEFORE the schema-version
 	// stamp so a failure forces the next run to retry.
 	if err := db.migrateCommitIn(); err != nil {
+		return err
+	}
+
+	if err := db.SyncKnownSplitDatabases(); err != nil {
 		return err
 	}
 
