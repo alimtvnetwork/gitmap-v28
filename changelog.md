@@ -1,3 +1,15 @@
+## [v6.197.0] 2026-09-08 Release v6.197.0
+
+### Install GitMap v6.197.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.sh | bash -s -- ".lovable/prompts" "v6.197.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.197.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Chrome profile import routing, JSON and FNF export options, and macro delete idempotency
+
 ## [v6.196.1] 2026-09-07 Release v6.196.1
 
 ### Install GitMap v6.196.1
