@@ -85,46 +85,62 @@ def update_readme(filepath: str, old_version: str, new_version: str) -> None:
         f.write(content)
 
 
-def generate_changelog_entry(new_version: str, today: str, scope: str) -> str:
+def generate_changelog_entry(new_version: str, today: str, bullets: list[str]) -> str:
     header = f"## [v{new_version}] {today} Release v{new_version}\n\n"
     install_hdr = f"### Install GitMap v{new_version}\n\n"
     pin_text = "To pin your repository to this exact version, run the following one-liner:\n"
     unix_cmd = f'Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.sh | bash -s -- ".lovable/prompts" "v{new_version}"`\n'
     ps_cmd = f'PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".lovable/prompts" -Version "v{new_version}"`\n\n'
     changes_hdr = "### Added / Changed / Fixed / Removed\n\n"
-    item = f"- {scope}\n\n"
+    items = "\n".join(f"- {b}" for b in bullets) + "\n\n"
 
-    return header + install_hdr + pin_text + unix_cmd + ps_cmd + changes_hdr + item
+    return header + install_hdr + pin_text + unix_cmd + ps_cmd + changes_hdr + items
 
 
-def update_changelog(filepath: str, new_version: str, scope: str) -> None:
+def update_changelog(filepath: str, new_version: str, bullets: list[str]) -> None:
     if not os.path.exists(filepath):
         return
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    entry = generate_changelog_entry(new_version, today, scope)
+    entry = generate_changelog_entry(new_version, today, bullets)
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(entry + content)
 
 
-def update_release_notes(new_version: str, scope: str) -> str:
+def update_release_notes(new_version: str, bullets: list[str]) -> str:
     release_dir = Path(".lovable") / "release"
     release_dir.mkdir(parents=True, exist_ok=True)
     rn_path = release_dir / f"release-notes-v{new_version}.md"
+    bullet_lines = "\n".join(f"- {b}" for b in bullets)
     body = (
         f"## Quick Install v{new_version}\n\n"
         f"### Windows (PowerShell 5.1+)\n```powershell\n"
         f"irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_version}/install.ps1 | iex\n```\n\n"
         f"### Linux / macOS (Bash)\n```bash\n"
         f"curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_version}/install.sh | bash\n```\n\n"
-        f"## Changelog v{new_version}\n\n- {scope}\n"
+        f"## Changelog v{new_version}\n\n{bullet_lines}\n"
     )
     with open(rn_path, "w", encoding="utf-8") as f:
         f.write(body)
 
     return str(rn_path).replace("\\", "/")
+
+
+def update_user_preferences(filepath: str, new_version: str) -> None:
+    if not os.path.exists(filepath):
+        return
+    with open(filepath, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    content = re.sub(
+        r'Release Mode Active \(v[0-9.]+\)',
+        f"Release Mode Active (v{new_version})",
+        content,
+    )
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(content)
 
 
 def read_canonical_version() -> str:
@@ -137,11 +153,14 @@ def read_canonical_version() -> str:
 
 
 def stage_and_commit_release(new_version: str, scope: str, rn_path: str) -> None:
-    manifests = (
-        f"version.json package.json readme.md changelog.md "
-        f"gitmap/constants/constants.go {rn_path}"
-    )
-    run_cmd(f"git add {manifests}")
+    manifests = [
+        "version.json", "package.json", "readme.md", "changelog.md",
+        "gitmap/constants/constants.go", rn_path
+    ]
+    if os.path.exists(".lovable/user-preferences"):
+        manifests.append(".lovable/user-preferences")
+    manifests_str = " ".join(manifests)
+    run_cmd(f"git add {manifests_str}")
     status = run_cmd("git status --porcelain")
     if status:
         run_cmd(f'git commit -m "release: v{new_version} {scope}"')
@@ -175,14 +194,17 @@ def parse_cli_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Release Orchestrator")
     parser.add_argument("--tier", choices=["major", "minor", "patch"], default="minor")
     parser.add_argument("--scope", default="Automated release orchestration")
+    parser.add_argument("--bullet", dest="bullets", action="append", default=[])
 
     return parser.parse_args()
 
 
-def execute_release(tier: str, scope: str, original_branch: str) -> None:
+def execute_release(tier: str, scope: str, bullets: list[str], original_branch: str) -> None:
     cur_ver = read_canonical_version()
     new_ver = bump_version_string(cur_ver, tier)
     print(f"Bumping version from {cur_ver} to {new_ver}")
+
+    actual_bullets = bullets if bullets else [scope]
 
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     keys_to_update = {"version": new_ver, "releaseDate": today_str}
@@ -190,8 +212,9 @@ def execute_release(tier: str, scope: str, original_branch: str) -> None:
     update_json_file("package.json", keys_to_update)
     update_constants_go("gitmap/constants/constants.go", new_ver)
     update_readme("readme.md", cur_ver, new_ver)
-    update_changelog("changelog.md", new_ver, scope)
-    rn_path = update_release_notes(new_ver, scope)
+    update_user_preferences(".lovable/user-preferences", new_ver)
+    update_changelog("changelog.md", new_ver, actual_bullets)
+    rn_path = update_release_notes(new_ver, actual_bullets)
 
     stage_and_commit_release(new_ver, scope, rn_path)
     rel_branch, tag_name = create_release_branch_and_tag(new_ver)
@@ -204,7 +227,7 @@ def main() -> None:
     orig_branch = get_current_branch()
     print(f"Original Branch: {orig_branch}")
     try:
-        execute_release(args.tier, args.scope, orig_branch)
+        execute_release(args.tier, args.scope, args.bullets, orig_branch)
     finally:
         run_cmd(f"git checkout {orig_branch}")
         print(f"Reverted to original branch: {orig_branch}")
@@ -212,4 +235,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 

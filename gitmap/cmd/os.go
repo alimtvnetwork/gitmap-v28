@@ -84,4 +84,3 @@ Flags:
 func printOSUsage() {
 	fmt.Println(osUsageText)
 }
-
