@@ -9,6 +9,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [90-vmware-shared-crontab-persistence-fix.md](completed/90-vmware-shared-crontab-persistence-fix.md): VMware Shared Folders Crontab Persistence Bad Minute Error Fix & Ubuntu E2E Tests
 - [80-ubuntu-zsh-update-prompt-and-reinstall-root-cause-fix.md](completed/80-ubuntu-zsh-update-prompt-and-reinstall-root-cause-fix.md): Ubuntu ZSH Update Prompt & Reinstall Root Cause Fix
 - [89-qtorrent-utorrent-installers-and-config-options.md](completed/89-qtorrent-utorrent-installers-and-config-options.md): qBittorrent & uTorrent Installers and JSON Config Export/Import Engine
 - [87-parallel-cpu-chunking-and-git-history-filter.md](completed/87-parallel-cpu-chunking-and-git-history-filter.md): Parallel CPU Chunking, 5-Second Heartbeat Telemetry & Git History Window Filter

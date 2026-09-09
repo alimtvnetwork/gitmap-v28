@@ -18,6 +18,9 @@ func runVmwareSharedStatus() error {
 	hasLink := err == nil
 	fmt.Printf("  Desktop Symlink: present=%t (target=%s)\n", hasLink, target)
 
+	persisted := isCrontabPersisted()
+	fmt.Printf("  Crontab Persistence: registered=%t\n", persisted)
+
 	return nil
 }
 

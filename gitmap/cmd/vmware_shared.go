@@ -224,24 +224,6 @@ func createDesktopSymlink(mountPoint string) error {
 	return nil
 }
 
-func ensureCrontabPersistence() error {
-	out, _ := exec.Command("crontab", "-l").CombinedOutput()
-	current := string(out)
-	if strings.Contains(current, "vmhgfs-fuse") && strings.Contains(current, defaultMountPoint) {
-		return nil
-	}
-
-	newLine := crontabRebootLine + "\n"
-	updated := current + newLine
-	cmd := exec.Command("crontab", "-")
-	cmd.Stdin = strings.NewReader(updated)
-	if out, err := cmd.CombinedOutput(); err != nil {
-		return apperror.NewWithDetails("cmd.vmware.crontab", "E4004", fmt.Sprintf("failed updating crontab: %s (%v)", string(out), err), "cmd.vmware", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
-	}
-
-	return nil
-}
-
 func runVmwareSharedEnable(args []string) error {
 	checkHelp(constants.CmdVmware, args)
 	isDryRun := hasDryRunFlag(args) || hasShortDryRunFlag(args)
