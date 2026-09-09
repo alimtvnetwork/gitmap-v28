@@ -1,3 +1,18 @@
+## [v6.205.0] 2026-09-09 Release v6.205.0
+
+### Install GitMap v6.205.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.sh | bash -s -- ".lovable/prompts" "v6.205.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.205.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Resolve VMware shared folders crontab persistence bad minute error on fresh Ubuntu systems
+- Implement dedicated crontab reader/writer with clean empty crontab detection and trailing newline enforcement
+- Add subprocess-level Ubuntu E2E crontab lifecycle tests simulating Vixie cron execution
+- Pass full golangci-lint suite and multi-core repository quality gates
+
 ## [v6.204.9] 2026-09-09 Release v6.204.9
 
 ### Install GitMap v6.204.9
