@@ -1,3 +1,17 @@
+## [v6.204.5] 2026-09-09 Release v6.204.5
+
+### Install GitMap v6.204.5
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.sh | bash -s -- ".lovable/prompts" "v6.204.5"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.5"`
+
+### Added / Changed / Fixed / Removed
+
+- Replace unsupported ⊘ glyph with green checkmark in setup configuration steps
+- Add ⊘ to glyphs Filter table for safe terminal fallback
+- Fix setup unchanged summary counter glyph
+
 ## [v6.204.4] 2026-09-09 Release v6.204.4
 
 ### Install GitMap v6.204.4
