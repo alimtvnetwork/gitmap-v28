@@ -11,10 +11,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-func runInstallAntigravity() error {
-
-	return runInstallAntigravityWithOpts(installOptions{})
-}
 
 func runInstallAntigravityWithOpts(opts installOptions) error {
 	if opts.DryRun {

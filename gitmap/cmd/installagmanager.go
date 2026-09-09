@@ -14,10 +14,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-func runInstallAgManager() error {
-
-	return runInstallAgManagerWithOpts(installOptions{})
-}
 
 func runInstallAgManagerWithOpts(opts installOptions) error {
 	fmt.Println("Fetching release for Antigravity-Manager...")
