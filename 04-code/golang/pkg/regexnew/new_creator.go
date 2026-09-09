@@ -1,8 +1,8 @@
 package regexnew
 
 import (
-	"regexp"
 	"coding-guidelines/common/pkg/appfault"
+	"regexp"
 )
 
 type newCreator struct {

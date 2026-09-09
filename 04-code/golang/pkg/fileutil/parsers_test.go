@@ -16,7 +16,7 @@ func TestParsersAndExporters(t *testing.T) {
 	t.Run("Text and Lines", func(t *testing.T) {
 		path := filepath.Join(tmp, "lines.txt")
 		lines := []string{"hello", "world"}
-		
+
 		expRes := ExportLines(path, lines, FilePermStandard)
 		if expRes.HasError() {
 			t.Fatalf("Failed to export lines: %v", expRes.Fault().Error())

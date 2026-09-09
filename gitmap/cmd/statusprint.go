@@ -159,7 +159,17 @@ func printStatusSummary(s statusSummary) {
 	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
 	parts := buildSummaryParts(s)
 	line := strings.Join(parts, constants.SummaryJoinSep)
-	fmt.Printf("  %s\n\n", line)
+	fmt.Printf("  %s\n", line)
+	printDirtySummaryTip(s.Dirty)
+	fmt.Println()
+}
+
+func printDirtySummaryTip(dirtyCount int) {
+	if dirtyCount <= 0 {
+		return
+	}
+	fmt.Printf("  %sTip: %d repository(ies) dirty. Run 'gitmap fix' or 'gitmap pull --fix' to remediate.%s\n",
+		constants.ColorDim, dirtyCount, constants.ColorReset)
 }
 
 // buildSummaryParts assembles summary line segments.

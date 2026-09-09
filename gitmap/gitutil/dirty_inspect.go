@@ -51,17 +51,32 @@ func classifyDirtyFile(prefix, filePath string, diagnosis *DirtyDiagnosis) {
 
 		return
 	}
-	if strings.Contains(prefix, "M") {
-		recordModified(diagnosis, filePath)
+	classifyIndexFile(prefix, filePath, diagnosis)
+	classifyWorktreeFile(prefix, filePath, diagnosis)
+}
 
+func classifyIndexFile(prefix, filePath string, diagnosis *DirtyDiagnosis) {
+	if len(prefix) == 0 || prefix[0] == ' ' || prefix[0] == '?' {
 		return
 	}
-	if strings.Contains(prefix, "D") {
+	if prefix[0] == 'D' {
 		recordDeleted(diagnosis, filePath)
 
 		return
 	}
 	recordStaged(diagnosis, filePath)
+}
+
+func classifyWorktreeFile(prefix, filePath string, diagnosis *DirtyDiagnosis) {
+	if len(prefix) < 2 || prefix[1] == ' ' || prefix[1] == '?' {
+		return
+	}
+	if prefix[1] == 'D' {
+		recordDeleted(diagnosis, filePath)
+
+		return
+	}
+	recordModified(diagnosis, filePath)
 }
 
 func parseDirtyLine(line string, diagnosis *DirtyDiagnosis) {
@@ -75,6 +90,9 @@ func parseDirtyLine(line string, diagnosis *DirtyDiagnosis) {
 
 func collectReasonParts(diagnosis *DirtyDiagnosis) []string {
 	var parts []string
+	if diagnosis.StagedCount > 0 {
+		parts = append(parts, "+"+strconv.Itoa(diagnosis.StagedCount)+" staged")
+	}
 	if diagnosis.ModifiedCount > 0 {
 		parts = append(parts, "+"+strconv.Itoa(diagnosis.ModifiedCount)+" modified")
 	}

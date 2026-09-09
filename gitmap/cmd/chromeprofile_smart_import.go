@@ -581,6 +581,26 @@ func isValidChromeSnapshotFile(path string) bool {
 	return false
 }
 
+func isImportableSnapshot(path string) bool {
+	lower := strings.ToLower(path)
+	if strings.HasSuffix(lower, constants.ExtJSON) || strings.HasSuffix(lower, constants.ExtZIP) {
+		return true
+	}
+	if strings.HasSuffix(lower, constants.ExtYAML) || strings.HasSuffix(lower, constants.ExtYML) {
+		return true
+	}
+
+	return isSQLiteSnapshot(lower)
+}
+
+func isSQLiteSnapshot(lower string) bool {
+	if strings.HasSuffix(lower, constants.ExtDB) || strings.HasSuffix(lower, constants.ExtSQLite) {
+		return true
+	}
+
+	return strings.HasSuffix(lower, ".sqlite3")
+}
+
 func isChromeSnapshotJSON(path string) bool {
 	base := strings.ToLower(filepath.Base(path))
 	if isExcludedSystemJSON(base) {
@@ -793,34 +813,6 @@ func fallbackCheckFiles(files []string, target string) []string {
 		return files
 	}
 	return scanSnapshotFiles(gitmapChromeDir)
-}
-
-func printSnapshotCheckItem(idx int, meta *snapshotMetadata) {
-	fmt.Printf("  [%d] \033[1;97m%s\033[0m (%.1f KB)\n", idx, meta.FileName, float64(meta.FileSize)/1024.0)
-	emailStr := meta.Email
-	if emailStr == "" {
-		emailStr = "(none)"
-	}
-	dispStr := meta.DisplayName
-	if dispStr == "" {
-		dispStr = "(none)"
-	}
-	fmt.Printf("      • Profile: %-12s | Display: %-14s | Email: %s\n", meta.ProfileName, dispStr, emailStr)
-	fmt.Printf("      • Bookmarks: %-10d | Extensions: %-11d | Exported: %s\n",
-		meta.BookmarksCount, meta.ExtensionsCount, meta.ExportedAt)
-
-	printSnapshotAction(meta)
-	fmt.Println()
-}
-
-func printSnapshotAction(meta *snapshotMetadata) {
-	if meta.TargetDestination.IsNew {
-		fmt.Printf("      \033[1;92m+ Action: Will CREATE NEW profile %q\033[0m (%s)\n",
-			meta.TargetDestination.Dir, meta.TargetDestination.Action)
-		return
-	}
-	fmt.Printf("      \033[1;93m↷ Action: Will UPDATE profile %q\033[0m (%s)\n",
-		meta.TargetDestination.Dir, meta.TargetDestination.Action)
 }
 
 func listDiscoveredSnapshotsInDir(dir string) {

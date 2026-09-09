@@ -32,7 +32,7 @@ func ToBytes(payload any) result.Wrap[[]byte] {
 			// Fallback to Sprint if it cannot be marshaled
 			return result.Success([]byte(fmt.Sprint(v)))
 		}
-		
+
 		// Append trailing newline for better file readability
 		b = append(b, '\n')
 		return result.Success(b)

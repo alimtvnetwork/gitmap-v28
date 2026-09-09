@@ -232,3 +232,20 @@ func TestFormatCombinedBranch(t *testing.T) {
 		t.Errorf("expected 'main→v1.35.0', got %q", diff)
 	}
 }
+
+func TestFormatPullStatusCheckmarks(t *testing.T) {
+	activeStatus := formatPullStatus("active", false)
+	if !strings.Contains(activeStatus, "✔ active") {
+		t.Errorf("expected '✔ active', got %q", activeStatus)
+	}
+
+	upToDateStatus := formatPullStatus("UP_TO_DATE", false)
+	if !strings.Contains(upToDateStatus, "✔ active") {
+		t.Errorf("expected '✔ active', got %q", upToDateStatus)
+	}
+
+	dirtyStatus := formatPullStatus("DIRTY", true)
+	if !strings.Contains(dirtyStatus, "● dirty") {
+		t.Errorf("expected '● dirty', got %q", dirtyStatus)
+	}
+}

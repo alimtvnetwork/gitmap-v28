@@ -12,11 +12,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// applyChromeExportZIP extracts a ZIP archive into target profile directories.
-func applyChromeExportZIP(zipPath, dstProfile string) error {
-	return applyChromeExportZIPWithOptions(zipPath, dstProfile, 0)
-}
-
 func applyChromeExportZIPWithOptions(zipPath, dstProfile string, limit int) error {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
@@ -71,10 +66,6 @@ func isMultiProfileZip(r *zip.ReadCloser) bool {
 		}
 	}
 	return false
-}
-
-func extractMultiProfileZip(r *zip.ReadCloser) error {
-	return extractMultiProfileZipWithOptions(r, "", 0)
 }
 
 func extractMultiProfileZipWithOptions(r *zip.ReadCloser, targetProfile string, limit int) error {

@@ -31,7 +31,7 @@ func (e *AppError) populateDataModel() AppErrorDataModel {
 	return AppErrorDataModel{
 		Type: e.errType, StatusCode: e.statusCode, Message: e.message,
 		Caller: e.stack.CallerLine(),
-		Stack: e.stack, Ctx: e.ctx.Clone(), Cause: extractCauseString(e.cause),
+		Stack:  e.stack, Ctx: e.ctx.Clone(), Cause: extractCauseString(e.cause),
 	}
 }
 

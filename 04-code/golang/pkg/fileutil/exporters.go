@@ -68,7 +68,7 @@ func ExportYAML(path string, data any, perm FilePermType) result.Wrap[bool] {
 
 	encoder := yaml.NewEncoder(f)
 	defer encoder.Close()
-	
+
 	encoder.SetIndent(2)
 	err := encoder.Encode(data)
 	if err != nil {

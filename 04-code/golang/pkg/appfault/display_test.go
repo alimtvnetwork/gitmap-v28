@@ -19,8 +19,6 @@ func TestAppError_MultiDestinationFormatters(t *testing.T) {
 		t.Fatalf("unexpected stdout banner: %s", stdoutOut)
 	}
 
-
-
 	if !strings.Contains(stdoutOut, "Cause:   invalid email format") {
 		t.Fatalf("expected cause in stdout banner: %s", stdoutOut)
 	}
@@ -35,15 +33,11 @@ func TestAppError_MultiDestinationFormatters(t *testing.T) {
 		t.Fatalf("expected Message in json: %s", jsonOut)
 	}
 
-
-
 	// 3. Text Log Formatter
 	textLogOut := err.FormatTextLog()
 	if !strings.Contains(textLogOut, "[ERROR] [Validation:2] status=400") {
 		t.Fatalf("unexpected text log: %s", textLogOut)
 	}
-
-
 
 	if !strings.Contains(textLogOut, `msg="user validation failed"`) {
 		t.Fatalf("expected msg in text log: %s", textLogOut)

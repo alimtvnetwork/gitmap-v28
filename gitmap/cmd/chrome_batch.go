@@ -65,10 +65,6 @@ func runChromeExportAll(args []string) error {
 	return runExportProfilesWithLimit(outDir, opts.Format, opts.Limit)
 }
 
-func runExportAllProfilesToPath(outPath, format string) error {
-	return runExportProfilesWithLimit(outPath, format, 0)
-}
-
 func runExportProfilesWithLimit(outPath, format string, limit int) error {
 	names := availableChromeProfileNames()
 	if len(names) == 0 {
@@ -230,36 +226,4 @@ func runChromeImportAll(args []string) error {
 	}
 
 	return runSmartChromeImport(opts)
-}
-
-func processImportEntries(entries []os.DirEntry, srcDir string) error {
-	return processImportEntriesWithLimit(entries, srcDir, 0, "")
-}
-
-func processImportEntriesWithLimit(entries []os.DirEntry, srcDir string, limit int, profile string) error {
-	importCount := 0
-	for _, e := range entries {
-		if e.IsDir() {
-			continue
-		}
-
-		path := filepath.Join(srcDir, e.Name())
-		if !isImportableSnapshot(path) {
-			continue
-		}
-
-		_ = importChromeSnapshotWithOptions(path, profile, limit)
-		importCount++
-		if limit > 0 && importCount >= limit {
-			break
-		}
-	}
-
-	fmt.Printf("\n\033[1;92m✓ import-all complete\033[0m  %d file(s) imported from %s\n", importCount, srcDir)
-
-	return nil
-}
-
-func isImportableSnapshot(path string) bool {
-	return strings.HasSuffix(path, ".json") || strings.HasSuffix(path, ".zip") || strings.HasSuffix(path, ".sqlite")
 }

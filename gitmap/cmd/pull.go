@@ -32,6 +32,9 @@ type pullOptions struct {
 	stopOnFail    bool
 	parallel      int
 	onlyAvailable bool
+	autoFix       bool
+	yes           bool
+	noFix         bool
 }
 
 // runPull handles the "pull" subcommand.
@@ -90,7 +93,7 @@ func runPull(args []string) error {
 		branch := gitutil.GetActiveBranch(rec.AbsolutePath)
 		pr := gitutil.DetectPRStatus(rec.AbsolutePath)
 		diag := gitutil.InspectDirtyState(rec.AbsolutePath)
-		status := "UP_TO_DATE"
+		status := "active"
 		if diag.IsDirty {
 			status = "DIRTY"
 		}
@@ -123,7 +126,7 @@ func runPull(args []string) error {
 			})
 		}
 	}
-	PrintRemediationSummary(remItems)
+	handlePullRemediation(remItems, opts)
 
 	if code := prog.ExitCodeForBatch(); code != 0 {
 		failPendingTask(taskDB, taskID, fmt.Sprintf("pull batch failed with exit code %d", code))
@@ -286,23 +289,67 @@ func executePull(records []model.ScanRecord, prog *cloner.BatchProgress, opts pu
 	}
 }
 
-// parsePullFlags parses flags for the pull command.
-
-func parsePullFlags(args []string) pullOptions {
-	fs := flag.NewFlagSet(constants.CmdPull, flag.ExitOnError)
-	vFlag := fs.Bool("verbose", false, constants.FlagDescVerbose)
-	gFlag := fs.String("group", "", constants.FlagDescGroup)
-	fs.StringVar(gFlag, "g", "", constants.FlagDescGroup)
-	aFlag := fs.Bool("all", false, constants.FlagDescAll)
-	sFlag := fs.Bool(constants.FlagStopOnFail, false, constants.FlagDescStopOnFail)
-	pFlag := fs.Int("parallel", 0, constants.FlagDescPullParallel)
-	oFlag := fs.Bool("only-available", false, constants.FlagDescPullOnlyAvailable)
-	fs.Parse(args)
-
-	opts := pullOptions{
-		group: *gFlag, all: *aFlag, verbose: *vFlag, stopOnFail: *sFlag,
-		parallel: *pFlag, onlyAvailable: *oFlag,
+func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
+	if len(remItems) == 0 {
+		return
 	}
+	if opts.noFix {
+		PrintRemediationSummaryNoPrompt(remItems)
+
+		return
+	}
+	if opts.yes || opts.autoFix {
+		PrintRemediationSummaryAutoFix(remItems)
+
+		return
+	}
+	PrintRemediationSummary(remItems)
+}
+
+type pullFlagHolders struct {
+	vFlag, aFlag, sFlag, oFlag, fixFlag, yFlag, noFixFlag *bool
+	gFlag                                                 *string
+	pFlag                                                 *int
+}
+
+func initPullFlagSet() (*flag.FlagSet, *pullFlagHolders) {
+	fs := flag.NewFlagSet(constants.CmdPull, flag.ExitOnError)
+	h := &pullFlagHolders{
+		vFlag:     fs.Bool("verbose", false, constants.FlagDescVerbose),
+		gFlag:     fs.String("group", "", constants.FlagDescGroup),
+		aFlag:     fs.Bool("all", false, constants.FlagDescAll),
+		sFlag:     fs.Bool(constants.FlagStopOnFail, false, constants.FlagDescStopOnFail),
+		pFlag:     fs.Int("parallel", 0, constants.FlagDescPullParallel),
+		oFlag:     fs.Bool("only-available", false, constants.FlagDescPullOnlyAvailable),
+		fixFlag:   fs.Bool("fix", false, "Auto-remediate dirty repos"),
+		yFlag:     fs.Bool("yes", false, "Remediate without prompt"),
+		noFixFlag: fs.Bool("no-fix", false, "Skip remediation prompt"),
+	}
+	fs.StringVar(h.gFlag, "g", "", constants.FlagDescGroup)
+	fs.BoolVar(h.yFlag, "y", false, "Remediate without prompt")
+
+	return fs, h
+}
+
+func buildPullOptions(h *pullFlagHolders) pullOptions {
+	return pullOptions{
+		group:         *h.gFlag,
+		all:           *h.aFlag,
+		verbose:       *h.vFlag,
+		stopOnFail:    *h.sFlag,
+		parallel:      *h.pFlag,
+		onlyAvailable: *h.oFlag,
+		autoFix:       *h.fixFlag,
+		yes:           *h.yFlag,
+		noFix:         *h.noFixFlag,
+	}
+}
+
+// parsePullFlags parses flags for the pull command.
+func parsePullFlags(args []string) pullOptions {
+	fs, h := initPullFlagSet()
+	fs.Parse(args)
+	opts := buildPullOptions(h)
 	if fs.NArg() > 0 {
 		opts.slug = fs.Arg(0)
 	}

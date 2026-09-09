@@ -26,9 +26,9 @@ func specialToolHandler(tool string) func(installOptions) {
 		constants.ToolScriptsFixer:     func(installOptions) { runInstallCustomTool("scripts-fixer") },
 		constants.ToolCodingGuidelines: func(installOptions) { runInstallCustomTool("coding-guidelines") },
 		constants.ToolMacroAhk:         func(installOptions) { runInstallCustomTool("macro-ahk") },
-		constants.ToolAgManager:        func(installOptions) { runInstallAgManager() },
+		constants.ToolAgManager:        func(opts installOptions) { _ = runInstallAgManagerWithOpts(opts) },
 		constants.ToolAgCtx:            func(opts installOptions) { runInstallCtx(opts.Explain) },
-		constants.ToolAntigravity:      func(opts installOptions) { runInstallAntigravity() },
+		constants.ToolAntigravity:      func(opts installOptions) { _ = runInstallAntigravityWithOpts(opts) },
 	}[tool]
 }
 

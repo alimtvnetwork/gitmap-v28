@@ -53,6 +53,9 @@ func normalizeAgySubcommand(sub string) string {
 	if low == "pin-projects" || low == "pin-project" || low == "pinned-projects" || low == "pinned" || low == "pins" {
 		return "pin-projects"
 	}
+	if low == "install" || low == "in" || low == "i" {
+		return "install"
+	}
 	return sub
 }
 
@@ -123,6 +126,7 @@ func init() {
 	AgyCmd.AddCommand(agyRedoCmd)
 	AgyCmd.AddCommand(agySettingsCmd)
 	AgyCmd.AddCommand(agyPinProjectsCmd)
+	AgyCmd.AddCommand(agyInstallCmd)
 	initPlugins()
 	initAgyGroup()
 	initAgySettings()

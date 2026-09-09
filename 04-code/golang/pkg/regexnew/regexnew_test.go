@@ -98,9 +98,9 @@ func TestLazyRegex_LifecycleAndCompilation(t *testing.T) {
 		t.Errorf("unexpected pattern: %s", lz.Pattern())
 	}
 
-res_comp := lz.Compile()
-			compiled := res_comp.Value
-		err := res_comp.AppError
+	res_comp := lz.Compile()
+	compiled := res_comp.Value
+	err := res_comp.AppError
 	if err != nil {
 		t.Fatalf("unexpected compilation error: %v", err)
 	}
@@ -121,9 +121,9 @@ res_comp := lz.Compile()
 		t.Errorf("expected HasError to be false")
 	}
 
-res_comp2 := lz.Compile()
-			secondCompiled := res_comp2.Value
-		err = res_comp2.AppError
+	res_comp2 := lz.Compile()
+	secondCompiled := res_comp2.Value
+	err = res_comp2.AppError
 	if err != nil {
 		t.Fatalf("second compile error: %v", err)
 	}
@@ -189,9 +189,9 @@ func TestLazyRegex_InvalidPattern(t *testing.T) {
 		t.Errorf("expected IsApplicable to be false for invalid regex")
 	}
 
-res_comp2 := lz.Compile()
-			_ = res_comp2.Value
-		err := res_comp2.AppError
+	res_comp2 := lz.Compile()
+	_ = res_comp2.Value
+	err := res_comp2.AppError
 	if err == nil {
 		t.Errorf("expected Compile to return error for invalid pattern")
 	}

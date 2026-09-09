@@ -1,8 +1,8 @@
 package regexnew
 
 import (
-	"regexp"
 	"coding-guidelines/common/pkg/appfault"
+	"regexp"
 )
 
 // Create compiles or retrieves a cached regex using the single global pattern cache.

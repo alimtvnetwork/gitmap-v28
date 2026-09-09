@@ -15,12 +15,10 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
-
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 // runChromeProfileCopy implements `gitmap chrome-profile-copy`.
@@ -148,11 +146,6 @@ func artifactValue(path string) string {
 	return path
 }
 
-func parseChromeExportArgs(args []string) (string, []string) {
-	opts := parseChromeTransferOptions(args)
-	return opts.Format, opts.Positional
-}
-
 // runChromeProfileExport implements `gitmap chrome-profile-export` / `gitmap cpe`.
 func runChromeProfileExport(args []string) error {
 	checkHelp(constants.CmdChromeProfileExport, args)
@@ -277,45 +270,6 @@ func runChromeProfileImport(args []string) error {
 	}
 	opts := parseChromeTransferOptions(args)
 	return runSmartChromeImport(opts)
-}
-
-func resolveImportTargetName(opts chromeTransferOptions) string {
-	if opts.Profile != "" {
-		return opts.Profile
-	}
-	if len(opts.Positional) >= 2 {
-		return opts.Positional[1]
-	}
-	return ""
-}
-
-func importChromeArchive(srcFile, name string) error {
-	return importChromeArchiveWithOptions(srcFile, name, 0)
-}
-
-func importChromeArchiveWithOptions(srcFile, name string, limit int) error {
-	if name == "" {
-		base := filepath.Base(srcFile)
-		name = strings.TrimSuffix(base, filepath.Ext(base))
-	}
-	dstPath := chromeProfilePath(name)
-	if err := applyChromeExportZIPWithOptions(srcFile, dstPath, limit); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
-		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
-	}
-	fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, name)
-	return nil
-}
-
-func applyImportedProfile(exp *chromeExport, srcFile, name string) error {
-	dest := resolveImportDestination(exp, name, true)
-	if err := applyChromeExport(exp, dest.Path); err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileImportFail, err)
-		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
-	}
-	_ = registerImportedProfileToLocalState(dest.Dir, dest.DisplayName, dest.Email)
-	fmt.Printf(constants.MsgChromeProfileImportOk, srcFile, dest.Dir)
-	return nil
 }
 
 // runChromeProfileList implements `gitmap chrome-profile-list`.

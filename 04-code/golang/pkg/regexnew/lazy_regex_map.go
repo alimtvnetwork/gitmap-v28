@@ -1,7 +1,5 @@
 package regexnew
 
-import "regexp"
-
 type lazyRegexMap struct {
 	items map[string]*LazyRegex
 }
@@ -99,15 +97,5 @@ func (it *lazyRegexMap) createDefaultLazyRegex(
 ) *LazyRegex {
 	return &LazyRegex{
 		expression: patternName,
-	}
-}
-
-func (it *lazyRegexMap) createLazyRegex(
-	patternName string,
-	creatorFunc func(pattern string) (*regexp.Regexp, error),
-) *LazyRegex {
-	return &LazyRegex{
-		expression:  patternName,
-		compiler: creatorFunc,
 	}
 }

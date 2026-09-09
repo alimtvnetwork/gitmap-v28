@@ -55,7 +55,7 @@ func TestRecover(t *testing.T) {
 	if recoveredErr.Unwrap() == nil || recoveredErr.Unwrap().Error() != "critical failure" {
 		t.Errorf("Expected cause to be 'critical failure'")
 	}
-	
+
 	if !strings.Contains(recoveredErr.GetMessage(), "unhandled panic recovered") {
 		t.Errorf("Expected panic message, got %s", recoveredErr.GetMessage())
 	}

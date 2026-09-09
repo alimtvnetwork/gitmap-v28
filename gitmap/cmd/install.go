@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
@@ -38,6 +39,10 @@ func runInstall(args []string) error {
 
 		return runInstallLogs(extractInstallLogsArgs(args))
 	}
+	if isInstallProfileCommand(args) {
+
+		return runInstallProfileCommand(args)
+	}
 	if isInstallAddCommand(args) {
 
 		return runInstallAdd(args[1:])
@@ -60,6 +65,10 @@ func runInstall(args []string) error {
 	if opts.Tool == "" {
 
 		return handleMissingInstallTool()
+	}
+	if IsInstallProfile(opts.Tool) {
+
+		return runInstallProfile(opts.Tool, opts)
 	}
 	opts.Tool = resolveToolAlias(opts.Tool)
 	validateToolName(opts.Tool)
@@ -90,13 +99,34 @@ type installOptions struct {
 }
 
 func isKnownInstallTool(tool string) bool {
-	if isCleanCodeAlias(tool) || tool == "ag-m" || isBuildEssentialAlias(tool) {
+	if isCleanCodeAlias(tool) || tool == "ag-m" || isBuildEssentialAlias(tool) || IsInstallProfile(tool) {
 
 		return true
 	}
 	_, exists := constants.InstallToolDescriptions[tool]
 
 	return exists
+}
+
+func isInstallProfileCommand(args []string) bool {
+	if len(args) == 0 {
+
+		return false
+	}
+	low := strings.ToLower(args[0])
+
+	return low == "profile" || low == "profiles"
+}
+
+func runInstallProfileCommand(args []string) error {
+	if len(args) <= 1 {
+		printInstallProfilesOnly()
+
+		return nil
+	}
+	opts, _ := parseInstallFlags(args[1:])
+
+	return runInstallProfile(opts.Tool, opts)
 }
 
 // validateToolName checks if the tool is supported.

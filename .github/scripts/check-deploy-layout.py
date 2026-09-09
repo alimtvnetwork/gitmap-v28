@@ -7,7 +7,7 @@ import sys
 
 EXCLUDE_DIRS = {
     ".git", "node_modules", "dist", "build", "bin", ".next",
-    ".gitmap", "vendor", "coverage", ".lovable", "spec"
+    ".gitmap", "vendor", "coverage", ".lovable", "spec", ".tmp", "tmp", "temp"
 }
 
 EXCLUDE_EXTS = {

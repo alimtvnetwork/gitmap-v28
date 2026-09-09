@@ -32,6 +32,7 @@ from pathlib import Path
 import platform
 import re
 import shutil
+import subprocess
 import sys
 import threading
 import time
@@ -1245,5 +1246,313 @@ def get_bash_path() -> str:
             return candidate
 
     return DEFAULT_BASH_EXECUTABLE
+
+
+def chunk_items(items: list[Any], chunk_size: int = 8) -> list[list[Any]]:
+    """Splits a flat list into chunks of chunk_size items."""
+    effective_size = max(1, chunk_size)
+    chunks = [items[i:i + effective_size] for i in range(0, len(items), effective_size)]
+
+    return chunks
+
+
+class WorkerHeartbeatMonitor:
+    """Daemon thread emitting snapshot progress every snapshot_interval_sec."""
+
+    def __init__(
+        self,
+        total_items: int,
+        item_noun: str = "files",
+        snapshot_interval_sec: float = 5.0,
+        worker_count: int = 10,
+    ) -> None:
+        self.total_items = total_items
+        self.item_noun = item_noun
+        self.snapshot_interval_sec = snapshot_interval_sec
+        self.worker_count = worker_count
+        self.processed_count = 0
+        self.active_workers: dict[str, str] = {}
+        self.lock = threading.Lock()
+        self.is_running = True
+        self.start_time = time.time()
+        self.thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        """Starts the daemon snapshot heartbeat thread."""
+        self.thread = threading.Thread(target=self._run_loop, daemon=True)
+        self.thread.start()
+
+    def stop(self) -> None:
+        """Signals the snapshot loop to stop."""
+        with self.lock:
+            self.is_running = False
+
+    def update_worker(self, worker_id: str, status_msg: str) -> None:
+        """Updates current activity description of a worker."""
+        with self.lock:
+            self.active_workers[worker_id] = status_msg
+
+    def increment_processed(self, count: int = 1) -> None:
+        """Increments total processed items count."""
+        with self.lock:
+            self.processed_count += count
+
+    def _run_loop(self) -> None:
+        """Periodic background loop triggering snapshots."""
+        while True:
+            time.sleep(self.snapshot_interval_sec)
+            with self.lock:
+                if not self.is_running:
+                    break
+                self._print_snapshot()
+
+    def _print_snapshot(self) -> None:
+        """Formats and outputs a snapshot line to stdout."""
+        elapsed = max(0.001, time.time() - self.start_time)
+        fps = self.processed_count / elapsed
+        pct = (self.processed_count / self.total_items * 100.0) if self.total_items > 0 else 100.0
+        msg = f"[Snapshot {elapsed:4.1f}s] Processed {self.processed_count}/{self.total_items} ({pct:5.1f}%) | {self.worker_count} workers | {fps:5.1f} {self.item_noun}/sec"
+        print(msg)
+
+
+def log_chunk_pickup(worker_id: str, chunk_idx: int, count: int, item_noun: str) -> None:
+    """Logs worker chunk pickup event."""
+    print(f"[{worker_id}] Picked chunk {chunk_idx + 1} ({count} {item_noun})...")
+
+
+def process_single_item(
+    item: Any,
+    worker_id: str,
+    worker_fn: Callable[[Any], WorkerResult],
+    monitor: WorkerHeartbeatMonitor | None,
+) -> WorkerResult:
+    """Processes single item updating monitor status."""
+    if monitor:
+        monitor.update_worker(worker_id, f"Processing {Path(str(item)).name}")
+    res = worker_fn(item)
+    if monitor:
+        monitor.increment_processed(1)
+
+    return res
+
+
+def process_chunk_wrapper(
+    worker_id: str,
+    chunk_idx: int,
+    chunk: list[Any],
+    worker_fn: Callable[[Any], WorkerResult],
+    monitor: WorkerHeartbeatMonitor | None,
+    item_noun: str,
+    log_picks: bool,
+) -> list[WorkerResult]:
+    """Processes a chunk of items sequentially within a single worker thread."""
+    if log_picks:
+        log_chunk_pickup(worker_id, chunk_idx, len(chunk), item_noun)
+    results = [process_single_item(item, worker_id, worker_fn, monitor) for item in chunk]
+    if monitor:
+        monitor.update_worker(worker_id, "Idle")
+
+    return results
+
+
+def execute_pool_chunks(
+    chunks: list[list[Any]],
+    workers: int,
+    worker_fn: Callable[[Any], WorkerResult],
+    monitor: WorkerHeartbeatMonitor,
+    item_noun: str,
+    log_picks: bool,
+) -> list[WorkerResult]:
+    """Executes submitted chunks on thread pool executor."""
+    all_results: list[WorkerResult] = []
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {
+            pool.submit(process_chunk_wrapper, f"Worker-{idx % workers + 1}", idx, chunk, worker_fn, monitor, item_noun, log_picks): chunk
+            for idx, chunk in enumerate(chunks)
+        }
+        for fut in as_completed(futures):
+            chunk_results = fut.result()
+            all_results.extend(chunk_results)
+
+    return all_results
+
+
+def build_pool_summary(results: list[WorkerResult], total_count: int, wall_sec: float) -> WorkerPoolSummary:
+    """Builds WorkerPoolSummary from results."""
+    passed = sum(1 for r in results if r.is_success)
+    failed = sum(1 for r in results if not r.is_success)
+    has_failures = bool(failed > 0)
+    exit_code = ExitCodeType.VIOLATIONS_FOUND.value if has_failures else ExitCodeType.SUCCESS.value
+    summary = WorkerPoolSummary(total_count, passed, failed, wall_sec, has_failures, results, exit_code)
+
+    return summary
+
+
+def run_chunked_worker_pool(
+    items: list[Any],
+    worker_fn: Callable[[Any], WorkerResult],
+    chunk_size: int = 8,
+    max_workers: int = 10,
+    item_noun: str = "files",
+    log_picks: bool = True,
+    snapshot_interval_sec: float = 5.0,
+    title: str = "CHUNKED PARALLEL EXECUTION",
+) -> WorkerPoolSummary:
+    """Executes items in parallel chunks with 5-second snapshot heartbeats."""
+    total_count = len(items)
+    start_time = time.perf_counter()
+    chunks = chunk_items(items, chunk_size)
+    workers = min(max_workers, len(chunks)) if chunks else 1
+    monitor = WorkerHeartbeatMonitor(total_count, item_noun, snapshot_interval_sec, workers)
+    monitor.start()
+    results = execute_pool_chunks(chunks, workers, worker_fn, monitor, item_noun, log_picks)
+    monitor.stop()
+    wall_duration = time.perf_counter() - start_time
+    summary = build_pool_summary(results, total_count, wall_duration)
+
+    return summary
+
+
+def run_git_command(args: list[str], repo_root: Path | str) -> list[str]:
+    """Executes git command returning trimmed non-empty stdout lines."""
+    git_exe = shutil.which("git") or "git"
+    res = subprocess.run([git_exe] + args, cwd=str(repo_root), capture_output=True, text=True)
+    if res.returncode != 0:
+        return []
+    lines = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+
+    return lines
+
+
+def parse_porcelain_line(line: str) -> tuple[str, str]:
+    """Extracts status code and relative path from git porcelain output."""
+    status = line[:2].strip()
+    path_part = line[2:].strip().strip('"')
+    if " -> " in path_part:
+        path_part = path_part.split(" -> ")[-1].strip()
+
+    return status, path_part
+
+
+def deduplicate_git_changes(commit_lines: list[str], status_lines: list[str]) -> dict[str, dict[str, Any]]:
+    """Deduplicates commit diffs and working tree porcelain changes into dictionary."""
+    seen: dict[str, dict[str, Any]] = {}
+    for path in commit_lines:
+        norm = path.replace("\\", "/").strip()
+        ext = os.path.splitext(norm)[1].lower()
+        seen[norm] = {"path": norm, "status": "committed", "extension": ext}
+    for line in status_lines:
+        status, path = parse_porcelain_line(line)
+        norm = path.replace("\\", "/").strip()
+        ext = os.path.splitext(norm)[1].lower()
+        seen[norm] = {"path": norm, "status": f"working-tree ({status})", "extension": ext}
+
+    return seen
+
+
+def get_git_head_commit_hash(repo_root: Path | str) -> str:
+    """Returns the current 40-character git HEAD commit hash."""
+    lines = run_git_command(["rev-parse", "HEAD"], repo_root)
+    head_sha = lines[0].strip() if lines else ""
+
+    return head_sha
+
+
+def is_git_commit_ancestor(ancestor_sha: str, descendant_sha: str, repo_root: Path | str) -> bool:
+    """Verifies whether ancestor_sha is a direct ancestor of descendant_sha."""
+    git_exe = shutil.which("git") or "git"
+    cmd = [git_exe, "merge-base", "--is-ancestor", ancestor_sha, descendant_sha]
+    res = subprocess.run(cmd, cwd=str(repo_root), capture_output=True)
+    is_ancestor = bool(res.returncode == 0)
+
+    return is_ancestor
+
+
+def load_checkpoint_commit_hash(checkpoint_path: Path | str) -> str | None:
+    """Safely extracts last processed commit hash from existing JSON manifest."""
+    p = Path(checkpoint_path)
+    if not p.is_file():
+        return None
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        val = data.get("last_commit_hash") or data.get("commit_hash")
+        return str(val).strip() if val else None
+    except Exception:
+        return None
+
+
+def calculate_ancestor_diff(
+    repo_root: Path | str,
+    prev_hash: str,
+    current_head: str,
+) -> tuple[list[str], str, bool]:
+    """Calculates commit diff lines when previous hash is a validated ancestor."""
+    if prev_hash == current_head:
+        return [], f"{prev_hash[:8]}..HEAD (same commit, zero new commits)", True
+    diff_lines = run_git_command(["diff", "--name-only", f"{prev_hash}..HEAD"], repo_root)
+    commit_range = f"{prev_hash[:8]}..{current_head[:8]}"
+
+    return diff_lines, commit_range, True
+
+
+def resolve_incremental_commit_range(
+    repo_root: Path | str,
+    commit_count: int,
+    prev_hash: str | None,
+    current_head: str,
+    force_full: bool,
+) -> tuple[list[str], str, bool]:
+    """Computes git diff lines and range description using commit ancestry."""
+    has_valid_ancestor = bool(prev_hash and is_git_commit_ancestor(prev_hash, current_head, repo_root))
+    if has_valid_ancestor and not force_full:
+        return calculate_ancestor_diff(repo_root, prev_hash, current_head)
+    diff_lines = run_git_command(["diff", "--name-only", f"HEAD~{commit_count}..HEAD"], repo_root)
+    commit_range = f"HEAD~{commit_count}..HEAD"
+
+    return diff_lines, commit_range, False
+
+
+def build_checkpoint_metadata(
+    current_head: str,
+    prev_hash: str | None,
+    commit_range: str,
+    is_incremental: bool,
+    commit_count: int,
+    total_files: int,
+) -> dict[str, Any]:
+    """Builds metadata dictionary for checkpoint persistence."""
+    metadata = {
+        "last_commit_hash": current_head,
+        "previous_checkpoint_hash": prev_hash,
+        "commit_range": commit_range,
+        "is_incremental": is_incremental,
+        "commit_window": commit_count,
+        "generated_at": time.time(),
+        "total_files": total_files,
+    }
+
+    return metadata
+
+
+def extract_git_changed_files(
+    repo_root: Path | str,
+    commit_count: int = 20,
+    checkpoint_file: Path | str | None = None,
+    force_full: bool = False,
+    since_commit: str | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Collects changed files in incremental window or last N commits with deduplication."""
+    current_head = get_git_head_commit_hash(repo_root)
+    prev_hash = since_commit or (load_checkpoint_commit_hash(checkpoint_file) if checkpoint_file else None)
+    diff_lines, commit_range, is_inc = resolve_incremental_commit_range(
+        repo_root, commit_count, prev_hash, current_head, force_full
+    )
+    status_lines = run_git_command(["status", "--porcelain"], repo_root)
+    file_dict = deduplicate_git_changes(diff_lines, status_lines)
+    result = sorted(file_dict.values(), key=lambda item: item["path"])
+    metadata = build_checkpoint_metadata(current_head, prev_hash, commit_range, is_inc, commit_count, len(result))
+
+    return result, metadata
+
 
 

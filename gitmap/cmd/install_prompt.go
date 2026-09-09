@@ -97,9 +97,3 @@ func confirmInstall(tool, version, manager string) bool {
 
 	return answer == "y" || answer == "Y"
 }
-
-func runInstallAntigravity() error {
-	fmt.Println("To install Antigravity, please follow the official setup guide or run: npm install -g @google/antigravity")
-
-	return nil
-}

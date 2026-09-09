@@ -8,18 +8,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
-func resolvePullStatusStyle(pullStatus string) lipgloss.Style {
-	isDefaultStatus := pullStatus == "UP_TO_DATE" || pullStatus == "synced"
-	if isDefaultStatus {
-		statusStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
-
-		return statusStyle
-	}
-	alertStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#ffb86c")).Bold(true)
-
-	return alertStyle
-}
-
 func resolveRepoStatusStyle(isDirty bool) lipgloss.Style {
 	if isDirty {
 		dirtyStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#ffb86c"))
@@ -40,18 +28,10 @@ func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
 }
 
 func (l *PullTableLayout) printWideRow(r model.PullTableRow) {
-	statusStyle := resolvePullStatusStyle(r.PullStatus)
-	repoStyle := resolveRepoStatusStyle(r.IsDirty)
-
-	formattedRepo := formatRepoName(r.RepoName, l.MaxRepo)
-	renderedRepo := repoStyle.Render(formattedRepo)
-	padRepo := calcAnsiPadding(renderedRepo, l.MaxRepo)
-
+	renderedRepo, padRepo := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatBranchName(r.Branch, l.MaxBranch)
 	formattedLatestBr := formatBranchName(r.LatestBranch, l.MaxLatestBr)
-
-	renderedStatus := statusStyle.Render(r.PullStatus)
-	padStatus := calcAnsiPadding(renderedStatus, l.MaxStatus)
+	renderedStatus, padStatus := l.renderStatusCol(r.PullStatus, r.IsDirty)
 	formattedPR := middleTruncate(r.PRStatus, l.MaxPR, 3)
 
 	fmt.Printf("  %-*s   %-*s   %-*s   %-*s   %-*s   %-*s   %s\n",
@@ -66,17 +46,9 @@ func (l *PullTableLayout) printWideRow(r model.PullTableRow) {
 }
 
 func (l *PullTableLayout) printCompactRow(r model.PullTableRow) {
-	statusStyle := resolvePullStatusStyle(r.PullStatus)
-	repoStyle := resolveRepoStatusStyle(r.IsDirty)
-
-	formattedRepo := formatRepoName(r.RepoName, l.MaxRepo)
-	renderedRepo := repoStyle.Render(formattedRepo)
-	padRepo := calcAnsiPadding(renderedRepo, l.MaxRepo)
-
+	renderedRepo, padRepo := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatCombinedBranch(r.Branch, r.LatestBranch, l.MaxBranch)
-
-	renderedStatus := statusStyle.Render(r.PullStatus)
-	padStatus := calcAnsiPadding(renderedStatus, l.MaxStatus)
+	renderedStatus, padStatus := l.renderStatusCol(r.PullStatus, r.IsDirty)
 	formattedPR := middleTruncate(r.PRStatus, l.MaxPR, 3)
 
 	fmt.Printf("  %-*s  %-*s  %-*s  %-*s  %-*s  %s\n",
@@ -87,4 +59,20 @@ func (l *PullTableLayout) printCompactRow(r model.PullTableRow) {
 		l.MaxSHA, r.LastSHA,
 		r.Duration,
 	)
+}
+
+func (l *PullTableLayout) renderRepoCol(name string, isDirty bool) (string, int) {
+	repoStyle := resolveRepoStatusStyle(isDirty)
+	formattedRepo := formatRepoName(name, l.MaxRepo)
+	renderedRepo := repoStyle.Render(formattedRepo)
+	padRepo := calcAnsiPadding(renderedRepo, l.MaxRepo)
+
+	return renderedRepo, padRepo
+}
+
+func (l *PullTableLayout) renderStatusCol(status string, isDirty bool) (string, int) {
+	renderedStatus := formatPullStatus(status, isDirty)
+	padStatus := calcAnsiPadding(renderedStatus, l.MaxStatus)
+
+	return renderedStatus, padStatus
 }

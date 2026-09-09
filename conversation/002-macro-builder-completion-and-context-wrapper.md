@@ -11,7 +11,7 @@ Topic: Interactive macro builder commands implementation, test verification, and
 
 ### 1.
 
-> the ls should show the dir files and everythng and also the PWD is missing everything where we are and that needs to be display above the line and cna be enable and disbaled, and laso fix the other running stuff like add new commands in it, like replace, find, search, etc, clear???
+> the ls should show the dir files and everythng and also the PWD is missing everything where we are and that needs to be display above the line and cna be enable and disabled, and laso fix the other running stuff like add new commands in it, like replace, find, search, etc, clear???
 
 ### 2.
 

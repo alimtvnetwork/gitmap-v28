@@ -15,6 +15,7 @@ func TestParseDirtyLineClassifications(t *testing.T) {
 	}{
 		{"?? new_file.txt", 1, 0, 0, 0, "untracked: "},
 		{" M modified.txt", 0, 1, 0, 0, "modified: "},
+		{"M  staged_mod.txt", 0, 0, 0, 1, "staged: "},
 		{" D deleted.txt", 0, 0, 1, 0, "deleted: "},
 		{"A  staged.txt", 0, 0, 0, 1, "staged: "},
 	}
@@ -42,12 +43,13 @@ func TestParseDirtyLineClassifications(t *testing.T) {
 
 func TestBuildSummaryReason(t *testing.T) {
 	diag := DirtyDiagnosis{
+		StagedCount:    1,
 		ModifiedCount:  2,
 		UntrackedCount: 1,
 		DeletedCount:   1,
 	}
 	reason := buildSummaryReason(&diag)
-	expected := "+2 modified, +1 untracked, -1 deleted"
+	expected := "+1 staged, +2 modified, +1 untracked, -1 deleted"
 	if reason != expected {
 		t.Errorf("buildSummaryReason = %q, want %q", reason, expected)
 	}

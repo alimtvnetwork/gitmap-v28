@@ -4,19 +4,24 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
+- [88-incremental-git-commit-checkpointing-and-delta-extraction.md](pending/88-incremental-git-commit-checkpointing-and-delta-extraction.md): Incremental Git Commit Checkpointing & Delta Extraction Engine
 - [79-completed-plans-consolidation.md](pending/79-completed-plans-consolidation.md): Memory Consolidation, Safety Backup & Milestone Resequencing
-- [71-os-power-management-and-installation-split-db.md](pending/71-os-power-management-and-installation-split-db.md): OS Screen Timeout & Sleep Management Framework & Installation Split DB
-- [70-vmware-shared-folders-and-ubuntu-profiles.md](pending/70-vmware-shared-folders-and-ubuntu-profiles.md): VMware Shared Folder Integration, Ubuntu Build-Essential Profiles & Server-Cmd Cluster Remote Execution
 
 ## Completed Plans
 
+- [87-parallel-cpu-chunking-and-git-history-filter.md](completed/87-parallel-cpu-chunking-and-git-history-filter.md): Parallel CPU Chunking, 5-Second Heartbeat Telemetry & Git History Window Filter
+- [86-antigravity-manager-release-installer-and-profiles-engine.md](completed/86-antigravity-manager-release-installer-and-profiles-engine.md): Antigravity Manager Release Installer, Dynamic Version Discovery & Installation Profiles Engine
+- [85-parallel-cpu-checkers-and-live-progress-engine.md](completed/85-parallel-cpu-checkers-and-live-progress-engine.md): Parallel Multi-Core Quality Checkers & Real-Time Progress Engine
+- [84-profile-refresh-token-pull-status-checkmarks-and-dirty-remediation.md](completed/84-profile-refresh-token-pull-status-checkmarks-and-dirty-remediation.md): Google Profile Refresh Token Export, Pull/Status Table Check Marks, Accurate Dirty Numbers & Direct Remediation Commands
 - [83-interactive-macro-builder-pwd-ls-search.md](completed/83-interactive-macro-builder-pwd-ls-search.md): Interactive Macro Builder PWD Header, In-Builder LS Listing & Helper Commands
 - [82-custom-installer-registry-and-export-import.md](completed/82-custom-installer-registry-and-export-import.md): Custom Installer Interactive Registry, Dual CLI Parity, JSON/ZIP Export & Import, and Dynamic Install LS
 - [81-cicd-smart-worker-groups-and-install-ls.md](completed/81-cicd-smart-worker-groups-and-install-ls.md): Smart Incremental CI/CD Worker Groups, Code-to-Test Mapping & Install LS Enhancements
 - [80-vmware-shared-mount-fix-install-and-root-help.md](completed/80-vmware-shared-mount-fix-install-and-root-help.md): VMware Shared Folders Mount Resilience, Install Subcommand & Root Help Integration
 - [78-nginx-wordpress-laravel-installation-and-configuration.md](completed/78-nginx-wordpress-laravel-installation-and-configuration.md): Nginx, WordPress, and Laravel Installation, Setup, and Configuration Engine
-- [64-remediation-fix-and-chrome-token-export.md](completed/64-remediation-fix-and-chrome-token-export.md): Remediation Command Execution Fix & Chrome Profile Refresh Token Vault
 - [77-scripts-fixer-installation-split-db-and-tooling-engine.md](completed/77-scripts-fixer-installation-split-db-and-tooling-engine.md): Scripts-Fixer Tooling Engine, Installation Split DB Audit Telemetry & Ubuntu Chrome Fix
+- [71-os-power-management-and-installation-split-db.md](completed/71-os-power-management-and-installation-split-db.md): OS Screen Timeout & Sleep Management Framework & Installation Split DB
+- [70-vmware-shared-folders-and-ubuntu-profiles.md](completed/70-vmware-shared-folders-and-ubuntu-profiles.md): VMware Shared Folder Integration, Ubuntu Build-Essential Profiles & Server-Cmd Cluster Remote Execution
+- [64-remediation-fix-and-chrome-token-export.md](completed/64-remediation-fix-and-chrome-token-export.md): Remediation Command Execution Fix & Chrome Profile Refresh Token Vault
 
 - [76-responsive-pull-batch-table-terminal-adaptive-layout.md](completed/76-responsive-pull-batch-table-terminal-adaptive-layout.md): Responsive Terminal-Adaptive Gitmap Pull Batch Table Layout & Chrome Profile Sign-In Scrubbing
 - [75-chrome-profile-import-routing-and-json-fnf-export.md](completed/75-chrome-profile-import-routing-and-json-fnf-export.md): Chrome Profile Import Routing, JSON & FNF Export, and End-to-End Test Suite
@@ -92,4 +97,6 @@ Master directory of architectural and execution plans.
 - [46-terminal-ui-and-cli-styling.md](completed/46-terminal-ui-and-cli-styling.md): 46-terminal-ui-and-cli-styling
 - [47-style-guidelines-and-formatting.md](completed/47-style-guidelines-and-formatting.md): 47-style-guidelines-and-formatting
 - [48-style-guidelines-and-line-gaps.md](completed/48-style-guidelines-and-line-gaps.md): 48-style-guidelines-and-line-gaps
-
+- [86-antigravity-manager-release-installer-and-profiles-engine.md](completed/86-antigravity-manager-release-installer-and-profiles-engine.md): 86-antigravity-manager-release-installer-and-profiles-engine
+- [87-parallel-cpu-chunking-and-git-history-filter.md](completed/87-parallel-cpu-chunking-and-git-history-filter.md): 87-parallel-cpu-chunking-and-git-history-filter
+- [88-incremental-git-commit-checkpointing-and-delta-extraction.md](completed/88-incremental-git-commit-checkpointing-and-delta-extraction.md): 88-incremental-git-commit-checkpointing-and-delta-extraction

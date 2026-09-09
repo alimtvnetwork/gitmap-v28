@@ -54,8 +54,6 @@ func (b *AppErrorBuilder) SetMessage(message string) *AppErrorBuilder {
 	return b
 }
 
-
-
 // SetContext sets a context key-value pair on the builder.
 func (b *AppErrorBuilder) SetContext(key string, value any) *AppErrorBuilder {
 	b.ctx[key] = value
@@ -69,8 +67,6 @@ func (b *AppErrorBuilder) SetCause(cause error) *AppErrorBuilder {
 
 	return b
 }
-
-
 
 // WithContext is a fluent alias for SetContext.
 func (b *AppErrorBuilder) WithContext(key string, value any) *AppErrorBuilder {

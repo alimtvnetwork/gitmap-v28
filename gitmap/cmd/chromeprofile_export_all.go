@@ -107,15 +107,28 @@ func loadSingleChromeProfileExport(name string) (chromeExport, bool) {
 	if !hasDir {
 		return chromeExport{}, false
 	}
+	exp := buildExportFromDisk(name, srcPath)
+
+	return exp, true
+}
+
+func buildExportFromDisk(name, srcPath string) chromeExport {
+	prefs := readOptionalJSON(filepath.Join(srcPath, "Preferences"))
+	dispName, email := resolveProfileNameAndEmail(name, prefs)
+	vault, _ := readChromeTokenService(srcPath)
 	exp := chromeExport{
 		SchemaVersion: chromeExportSchemaVersion,
 		Name:          name,
+		DisplayName:   dispName,
+		Email:         email,
 		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
 		Bookmarks:     readOptionalJSON(filepath.Join(srcPath, "Bookmarks")),
-		Preferences:   readOptionalJSON(filepath.Join(srcPath, "Preferences")),
+		Preferences:   prefs,
 		ExtensionIDs:  listExtensionIDs(filepath.Join(srcPath, "Extensions")),
+		TokenVault:    vault,
 	}
-	return exp, true
+
+	return exp
 }
 
 func writeAllChromeProfilesJSON(names []string, outPath string) (int, error) {
@@ -208,6 +221,14 @@ func initChromeSQLiteTables(db *sql.DB) error {
 		file_name TEXT,
 		payload BLOB,
 		PRIMARY KEY (profile_name, file_name)
+	);
+	CREATE TABLE IF NOT EXISTS chrome_tokens (
+		profile_name TEXT,
+		service TEXT,
+		account_id TEXT,
+		raw_base64 TEXT,
+		double_base64 TEXT,
+		PRIMARY KEY (profile_name, service)
 	);`
 	_, err := db.Exec(schema)
 	return err
@@ -231,6 +252,15 @@ func populateProfilesInSQLite(db *sql.DB, names []string) error {
 }
 
 func insertProfileToSQLite(db *sql.DB, name string, exp chromeExport) error {
+	if err := insertProfileMetaToSQLite(db, name, exp); err != nil {
+		return err
+	}
+	insertTokensToSQLite(db, name, exp.TokenVault)
+
+	return insertExtensionsAndBlobsToSQLite(db, name, exp.ExtensionIDs)
+}
+
+func insertProfileMetaToSQLite(db *sql.DB, name string, exp chromeExport) error {
 	displayName := chromeProfileDisplayName(name)
 	_, err := db.Exec(
 		"INSERT OR REPLACE INTO chrome_profiles (name, display_name, exported_at, extension_count) VALUES (?, ?, ?, ?)",
@@ -239,13 +269,22 @@ func insertProfileToSQLite(db *sql.DB, name string, exp chromeExport) error {
 	if err != nil {
 		return err
 	}
-	if err := insertOptionalJSONToSQLite(db, "chrome_preferences", "preferences_json", name, exp.Preferences); err != nil {
-		return err
+	_ = insertOptionalJSONToSQLite(db, "chrome_preferences", "preferences_json", name, exp.Preferences)
+	_ = insertOptionalJSONToSQLite(db, "chrome_bookmarks", "bookmarks_json", name, exp.Bookmarks)
+
+	return nil
+}
+
+func insertTokensToSQLite(db *sql.DB, name string, vault *ChromeTokenVault) {
+	if vault == nil || len(vault.Tokens) == 0 {
+		return
 	}
-	if err := insertOptionalJSONToSQLite(db, "chrome_bookmarks", "bookmarks_json", name, exp.Bookmarks); err != nil {
-		return err
+	for _, t := range vault.Tokens {
+		_, _ = db.Exec(
+			"INSERT OR REPLACE INTO chrome_tokens (profile_name, service, account_id, raw_base64, double_base64) VALUES (?, ?, ?, ?, ?)",
+			name, t.Service, t.AccountID, t.RawBase64, t.DoubleBase64,
+		)
 	}
-	return insertExtensionsAndBlobsToSQLite(db, name, exp.ExtensionIDs)
 }
 
 func insertOptionalJSONToSQLite(db *sql.DB, table, col, name string, raw json.RawMessage) error {

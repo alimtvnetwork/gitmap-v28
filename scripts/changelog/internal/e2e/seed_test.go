@@ -1,16 +1,10 @@
 package e2e
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 )
-
-// formatUnix renders a unix timestamp the way `git --date` accepts.
-func formatUnix(unix int64) string {
-	return fmt.Sprintf("%d +0000", unix)
-}
 
 // seedFiles writes the on-disk changelog.md / changelog.ts skeletons the
 // writer expects to find before it splices a new entry. Returns the two

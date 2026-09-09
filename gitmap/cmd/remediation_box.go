@@ -120,18 +120,27 @@ func printRemediationStrategyBox() {
 }
 
 func printPendingReposList(items []RemediationItem) {
-	titleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
-	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
 	fmt.Println()
 	fmt.Printf("  Pending Repositories (%d):\n", len(items))
 	for i, item := range items {
-		reason := item.SummaryReason
-		if reason == "" {
-			reason = "uncommitted changes"
-		}
-		fmt.Printf("    %2d. %s %s\n", i+1, titleStyle.Render(item.RepoName), dimStyle.Render("("+reason+")"))
+		printPendingRepoEntry(i+1, item)
 	}
 	fmt.Println()
+}
+
+func printPendingRepoEntry(idx int, item RemediationItem) {
+	titleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
+	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	cmdStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd"))
+	reason := item.SummaryReason
+	if reason == "" {
+		reason = "uncommitted changes"
+	}
+	fmt.Printf("    %2d. %s %s\n", idx, titleStyle.Render(item.RepoName), dimStyle.Render("("+reason+")"))
+	cleanPath := gitutil.CleanRepoPath(item.RepoPath)
+	stashCmd := fmt.Sprintf("git -C %s stash -u && git -C %s pull && git -C %s stash pop", cleanPath, cleanPath, cleanPath)
+	fmt.Printf("        ↳ Direct Git:    %s\n", cmdStyle.Render(stashCmd))
+	fmt.Printf("        ↳ Gitmap Fix:    %s\n", cmdStyle.Render(fmt.Sprintf("gitmap fix %s 1", item.RepoName)))
 }
 
 func printRemediationCLIHelp() {
@@ -144,16 +153,36 @@ func printRemediationCLIHelp() {
 
 func promptForRemediation(items []RemediationItem) {
 	promptStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ffb86c"))
-	fmt.Printf("  %s ", promptStyle.Render("Remediate these repositories now? [Y/n]:"))
+	fmt.Printf("  %s ", promptStyle.Render("Remediate dirty repository(ies) now? [y/N]:"))
 	reader := bufio.NewReader(os.Stdin)
 	ans, _ := reader.ReadString('\n')
 	ans = strings.TrimSpace(strings.ToLower(ans))
-	if ans == "" || ans == "y" || ans == "yes" {
+	if ans == "y" || ans == "yes" {
 		_ = runInteractiveRemediation(items)
 
 		return
 	}
 	printRemediationCLIHelp()
+}
+
+func PrintRemediationSummaryNoPrompt(items []RemediationItem) {
+	if len(items) == 0 {
+		return
+	}
+	_ = SaveRemediationState(items)
+	printRemediationStrategyBox()
+	printPendingReposList(items)
+	printRemediationCLIHelp()
+}
+
+func PrintRemediationSummaryAutoFix(items []RemediationItem) {
+	if len(items) == 0 {
+		return
+	}
+	_ = SaveRemediationState(items)
+	printRemediationStrategyBox()
+	printPendingReposList(items)
+	_ = runInteractiveRemediation(items)
 }
 
 func PrintRemediationSummary(items []RemediationItem) {

@@ -132,3 +132,26 @@ func TestChromeTokenVaultSQLiteRoundtrip(t *testing.T) {
 		t.Errorf("restored token mismatch: expected %q, got %q", tokenData, restoredBytes)
 	}
 }
+
+func TestBuildExportFromDiskIncludesTokenVault(t *testing.T) {
+	tmpDir := t.TempDir()
+	initDummyTokenWebData(t, tmpDir)
+	exp := buildExportFromDisk("Profile 1", tmpDir)
+	if exp.TokenVault == nil {
+		t.Fatalf("expected TokenVault to be populated")
+	}
+	if exp.TokenVault.Count != 1 {
+		t.Errorf("expected 1 token in vault, got %d", exp.TokenVault.Count)
+	}
+}
+
+func initDummyTokenWebData(t *testing.T, dir string) {
+	dbPath := filepath.Join(dir, "Web Data")
+	db, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	defer db.Close()
+	_, _ = db.Exec("CREATE TABLE token_service (service VARCHAR PRIMARY KEY NOT NULL, encrypted_token BLOB NOT NULL)")
+	_, _ = db.Exec("INSERT INTO token_service (service, encrypted_token) VALUES (?, ?)", "service-1", []byte("secret-token"))
+}

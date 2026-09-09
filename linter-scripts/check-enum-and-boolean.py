@@ -10,15 +10,28 @@ Checks:
 5. No nested if statements (nesting depth > 1 inside an if/else body in Go source code).
 """
 
+import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from importlib import import_module
+import json
 import os
-import re
-import sys
 from pathlib import Path
+import re
+import subprocess
+import sys
+import threading
+import time
+from typing import Any
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "03-ai-scripts"))
+engine = import_module("02-shared-engine")
+chunk_items = engine.chunk_items
+WorkerHeartbeatMonitor = engine.WorkerHeartbeatMonitor
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 TARGET_EXTS = {'.go', '.ts', '.tsx', '.php', '.py'}
@@ -210,31 +223,135 @@ def check_file(filepath: Path) -> list[str]:
 
     return violations
 
-def main():
-    scanned_count = 0
-    all_violations = []
-
+def collect_target_files() -> list[Path]:
+    """Pre-gathers all eligible target files across repository root."""
+    target_files: list[Path] = []
     for root, dirs, files in os.walk(ROOT_DIR):
         dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS and not any(ex in d for ex in EXCLUDE_DIRS)]
         for file in files:
             p = Path(root) / file
             if p.suffix in TARGET_EXTS and not p.name.endswith('_test.go'):
-                scanned_count += 1
-                v = check_file(p)
-                all_violations.extend(v)
+                target_files.append(p)
+    return target_files
 
-    print(f"Scanned {scanned_count} source files for boolean, enum, and conditional compliance.\n")
 
+def print_scan_progress(completed: int, total: int, workers: int, start_time: float) -> None:
+    """Emits live scan percentage and throughput."""
+    pct = (completed / total * 100.0) if total > 0 else 100.0
+    elapsed = max(0.001, time.time() - start_time)
+    fps = completed / elapsed
+    msg = f"\rChecking boolean & enum compliance: [ {completed:4d}/{total:4d} ] {pct:5.1f}% | {workers} workers | {fps:5.1f} files/sec"
+    sys.stdout.write(msg)
+    sys.stdout.flush()
+
+
+def parse_cli_args() -> argparse.Namespace:
+    """Parses command line arguments for boolean and enum linter."""
+    parser = argparse.ArgumentParser(description="Check boolean and enum conventions.")
+    parser.add_argument("--changed-only", "-c", action="store_true", help="Check only changed files")
+    parser.add_argument("--commits", "-n", type=int, default=20, help="Commit window (default: 20)")
+    parser.add_argument("--chunk-size", type=int, default=8, help="Files per chunk (default: 8)")
+    parser.add_argument("--workers", "-w", type=int, default=10, help="Concurrency (default: 10)")
+
+    return parser.parse_args()
+
+
+def load_changed_targets(commits: int) -> list[Path]:
+    """Loads target files from git-changed-files.json."""
+    manifest = ROOT_DIR / ".lovable/temp/git-changed-files.json"
+    is_fresh = manifest.is_file() and (time.time() - manifest.stat().st_mtime < 120.0)
+    if not is_fresh:
+        extractor = ROOT_DIR / "03-ai-scripts/27-git-changed-files.py"
+        subprocess.run([sys.executable, str(extractor), "--commits", str(commits), "--quiet"], cwd=str(ROOT_DIR), check=True)
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    targets: list[Path] = []
+    for item in data.get("files", []):
+        path_str = item["path"] if isinstance(item, dict) else str(item)
+        p = ROOT_DIR / path_str
+        if p.is_file() and p.suffix.lower() in TARGET_EXTS and not p.name.endswith('_test.go'):
+            rel = p.relative_to(ROOT_DIR).as_posix()
+            if not any(ex in rel.split("/") for ex in EXCLUDE_DIRS):
+                targets.append(p)
+
+    return targets
+
+
+def resolve_candidate_files(args: argparse.Namespace) -> list[Path]:
+    """Resolves eligible files according to changed-only flag."""
+    if args.changed_only:
+        return load_changed_targets(args.commits)
+
+    return collect_target_files()
+
+
+def check_file_chunk(chunk: list[Path]) -> list[str]:
+    """Checks a chunk of files for compliance."""
+    chunk_violations: list[str] = []
+    for p in chunk:
+        v = check_file(p)
+        if v:
+            chunk_violations.extend(v)
+
+    return chunk_violations
+
+
+def execute_chunked_checks(
+    chunks: list[list[Path]],
+    total_files: int,
+    cpu_cores: int,
+    monitor: Any,
+) -> list[str]:
+    """Executes parallel chunked check using ThreadPoolExecutor."""
+    all_violations: list[str] = []
+    completed_count = 0
+    start_time = time.time()
+    with ThreadPoolExecutor(max_workers=cpu_cores) as pool:
+        futures = {pool.submit(check_file_chunk, chunk): len(chunk) for chunk in chunks}
+        for fut in as_completed(futures):
+            chunk_len = futures[fut]
+            chunk_violations = fut.result()
+            all_violations.extend(chunk_violations)
+            completed_count += chunk_len
+            monitor.increment_processed(chunk_len)
+            print_scan_progress(completed_count, total_files, cpu_cores, start_time)
+
+    return all_violations
+
+
+def report_violations_and_exit(all_violations: list[str], total_files: int, elapsed: float) -> int:
+    """Formats violations report and returns exit code."""
+    sys.stdout.write("\n")
+    print(f"Scanned {total_files} source files for boolean, enum, and conditional compliance in {elapsed:.2f}s.\n")
     if all_violations:
         print(f"❌ FAILED: Found {len(all_violations)} violation(s):")
         for v in all_violations[:50]:
             print(f"  - {v}")
-        if len(all_violations) > 50:
-            print(f"  ... and {len(all_violations) - 50} more.")
-        sys.exit(1)
-    else:
-        print("✅ PASS: All boolean, naming, enum, and conditional checks passed (zero explicit booleans, inverted success, or nested ifs).")
-        sys.exit(0)
+        return 1
+    print("✅ PASS: All boolean, naming, enum, and conditional checks passed (zero explicit booleans, inverted success, or nested ifs).")
+
+    return 0
+
+
+def main() -> int:
+    """Main execution entrypoint."""
+    args = parse_cli_args()
+    mode_label = f" (changed only, last {args.commits} commits)" if args.changed_only else ""
+    print(f"=== Running Boolean & Enum Linter (check-enum-and-boolean.py){mode_label} ===")
+    target_files = resolve_candidate_files(args)
+    total_files = len(target_files)
+    chunks = chunk_items(target_files, args.chunk_size)
+    cpu_cores = min(args.workers, max(1, len(chunks)))
+    print(f"▸ Discovered {total_files} source file(s). Checking compliance with {cpu_cores} worker threads...")
+    monitor = WorkerHeartbeatMonitor(total_files, "files", 5.0, cpu_cores)
+    monitor.start()
+    start_time = time.time()
+    all_violations = execute_chunked_checks(chunks, total_files, cpu_cores, monitor)
+    monitor.stop()
+    elapsed = time.time() - start_time
+    exit_code = report_violations_and_exit(all_violations, total_files, elapsed)
+
+    return exit_code
+
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

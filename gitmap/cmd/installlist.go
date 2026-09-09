@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -24,7 +23,6 @@ var (
 	toolStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#f8f8f2")).Width(22)
 	versionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd")).Width(14)
 	descStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
-	versionRegex = regexp.MustCompile(`v?(\d+\.\d+(?:\.\d+)?)`)
 )
 
 func printInstallListGrouped() {
@@ -39,6 +37,7 @@ func printInstallListGrouped() {
 		printCategoryBlock(cat, constants.InstallToolCategories[cat], installed)
 	}
 	printCustomInstallersSection(installed)
+	printInstallProfilesSection(installed)
 	printInstallListLegend()
 }
 
@@ -169,73 +168,20 @@ func resolveToolStatus(tool string, installed map[string]string) (string, string
 
 		return constants.StatusInstalled, constants.Version
 	}
-	if ver, ok := installed[tool]; ok && ver != "" && ver != "0.0.0" {
+	if ver, ok := installed[tool]; ok && ver != "" && ver != "0.0.0" && ver != "found" && ver != "installed" {
 
 		return constants.StatusInstalled, ver
 	}
-	bin, args := resolveToolProbeCommand(tool)
-	if isBinaryInPath(bin) {
-		ver := detectToolVersion(bin, args)
+	bin, ver := resolveToolProbeCommand(tool)
+	if bin == "" {
 
-		return constants.StatusInstalled, ver
+		return constants.StatusNotInstalled, "—"
+	}
+	if ver == "" {
+		ver = "installed"
 	}
 
-	return constants.StatusNotInstalled, "—"
-}
-
-func resolveToolProbeCommand(tool string) (string, []string) {
-	switch tool {
-	case constants.ToolGo:
-		return "go", []string{"version"}
-	case constants.ToolNodeJS, constants.ToolBun, constants.ToolPnpm, constants.ToolYarn, constants.ToolPHP:
-		return tool, []string{"-v"}
-	case constants.ToolWpCli, constants.ToolWordPress:
-		return "wp", []string{"--version"}
-	case constants.ToolOpenVmTools:
-		return "vmtoolsd", []string{"-v"}
-	case constants.ToolNginx:
-		return "nginx", []string{"-v"}
-	default:
-		return tool, []string{"--version"}
-	}
-}
-
-func detectToolVersion(bin string, args []string) string {
-	ctx, cancel := context.WithTimeout(context.Background(), 400*time.Millisecond)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, bin, args...)
-	out, err := cmd.CombinedOutput()
-	if err != nil && len(out) == 0 {
-
-		return "installed"
-	}
-	parsed := parseVersionFromOutput(string(out))
-	if parsed == "" {
-
-		return "installed"
-	}
-
-	return parsed
-}
-
-func parseVersionFromOutput(output string) string {
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
-		m := versionRegex.FindString(line)
-		if m != "" {
-
-			return m
-		}
-	}
-
-	return ""
-}
-
-func isBinaryInPath(tool string) bool {
-	_, err := exec.LookPath(tool)
-
-	return err == nil
+	return constants.StatusInstalled, ver
 }
 
 func pickDisplayVersion(t store.InstalledTool) string {

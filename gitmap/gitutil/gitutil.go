@@ -244,29 +244,9 @@ func Status(repoPath string) RepoStatus {
 
 // parsePortcelainStatus runs git status --porcelain and counts file states.
 func parsePortcelainStatus(repoPath string) (dirty bool, untracked, modified, staged int) {
-	out, err := runGit(repoPath, "status", "--porcelain")
-	if err != nil {
-		return false, 0, 0, 0
-	}
-	lines := strings.Split(strings.TrimSpace(out), "\n")
-	for _, line := range lines {
-		if len(line) < 2 {
-			continue
-		}
-		x := line[0]
-		y := line[1]
-		if x == '?' && y == '?' {
-			untracked++
-		} else if x != ' ' && x != '?' {
-			staged++
-		}
-		if y != ' ' && y != '?' {
-			modified++
-		}
-	}
-	dirty = (untracked + modified + staged) > 0
+	diag := InspectDirtyState(repoPath)
 
-	return dirty, untracked, modified, staged
+	return diag.IsDirty, diag.UntrackedCount, diag.ModifiedCount, diag.StagedCount
 }
 
 // parseAheadBehind extracts ahead/behind counts from rev-list.

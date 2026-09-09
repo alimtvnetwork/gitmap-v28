@@ -3,7 +3,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -97,20 +96,4 @@ func isChromeProfileDirectoryName(name string, stateDirs map[string]bool) bool {
 		return true
 	}
 	return strings.HasPrefix(name, constants.ChromeProfileDirPrefix)
-}
-
-// printAvailableChromeProfiles writes a "did you mean…" stderr block
-// listing every profile we can see under the User Data root. Called
-// after a not-found error so the user can pick a real name.
-func printAvailableChromeProfiles() {
-	root := chromeUserDataDir()
-	names := availableChromeProfileNames()
-	if len(names) == 0 {
-		fmt.Fprintf(os.Stderr, "  available profiles under %s: (none found)\n", root)
-		return
-	}
-	fmt.Fprintf(os.Stderr, "  available profiles under %s:\n", root)
-	for _, n := range names {
-		fmt.Fprintf(os.Stderr, "    - %s\n", n)
-	}
 }

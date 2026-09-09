@@ -56,8 +56,6 @@ func (e *AppError) Code() uint16 {
 	return e.errType.Code()
 }
 
-
-
 // StackTrace returns the structured call stack frames.
 func (e *AppError) StackTrace() StackTrace {
 	if e == nil {

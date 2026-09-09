@@ -2,7 +2,6 @@ package pipelinedb
 
 import (
 	"context"
-	"database/sql"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -16,7 +15,6 @@ import (
 
 // PipelineSplitDb encapsulates an isolated SQLite database connection for a single repository's pipeline data.
 type PipelineSplitDb struct {
-	conn     *sql.DB
 	RepoSlug string
 	Path     string
 }

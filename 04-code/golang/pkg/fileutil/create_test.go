@@ -8,13 +8,13 @@ import (
 
 func TestCreateDirAndFile(t *testing.T) {
 	tmp := t.TempDir()
-	
+
 	dirPath := filepath.Join(tmp, "sub")
 	resDir := CreateDir(dirPath, FilePermStandard)
 	if resDir.HasError() {
 		t.Fatalf("Expected CreateDir to succeed, got %v", resDir.Fault().Error())
 	}
-	
+
 	stat, err := os.Stat(dirPath)
 	if err != nil || !stat.IsDir() {
 		t.Fatalf("Directory was not created")

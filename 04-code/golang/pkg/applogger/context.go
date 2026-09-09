@@ -24,11 +24,11 @@ func ExtractContextFields(ctx context.Context) map[string]any {
 	if reqID, ok := ctx.Value(RequestIDKey).(string); ok && reqID != "" {
 		fields[string(RequestIDKey)] = reqID
 	}
-	
+
 	if traceID, ok := ctx.Value(TraceIDKey).(string); ok && traceID != "" {
 		fields[string(TraceIDKey)] = traceID
 	}
-	
+
 	if userID, ok := ctx.Value(UserIDKey).(string); ok && userID != "" {
 		fields[string(UserIDKey)] = userID
 	}

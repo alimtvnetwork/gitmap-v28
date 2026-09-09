@@ -13,7 +13,7 @@ func TestFromContext(t *testing.T) {
 
 	childLogger := FromContext(ctx, logger)
 
-	// In testing we can't easily introspect the unexported fields of appLogger, 
+	// In testing we can't easily introspect the unexported fields of appLogger,
 	// but we can ensure the interface contract is upheld and it doesn't panic.
 	if childLogger == nil {
 		t.Fatalf("Expected non-nil child logger")
