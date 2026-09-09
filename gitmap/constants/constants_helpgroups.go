@@ -66,6 +66,8 @@ const (
 	HelpImportExport    = "  import-export (ie)  Export or import gitmap tracked repos, aliases, and groups"
 	HelpExportSummary   = "  export              Export tracked repos and settings to a JSON snapshot"
 	HelpImportSummary   = "  import              Import a JSON snapshot to restore tracking state"
+	HelpExportConfig    = "  export-config       Export app config (vscode, qtorrent, utorrent) to JSON"
+	HelpImportConfig    = "  import-config       Import app config (vscode, qtorrent, utorrent) from JSON"
 
 	// Compact-mode lines: command (alias) only.
 	CompactScanning     = "  scan (s), rescan (rsc), rescan-subtree (rss), list (ls)"
@@ -76,7 +78,7 @@ const (
 	CompactRelease      = "  release (r), pull-release (pr), release-self (rs), release-branch (rb), temp-release"
 	CompactRelInfo      = "  changelog (cl), changelog-generate, list-versions (lv), list-releases (lr), release-pending (rp), revert, clear-release-json (crj), prune"
 	CompactData         = "  export (ex), import (im), profile (pf), bookmark (bk), mv (move), rm (remove/del), db-reset"
-	CompactImportExport = "  import-export (ie), export, import"
+	CompactImportExport = "  import-export (ie), export, import, export-config, import-config"
 	CompactHistory      = "  history (hi), history-reset (hr), stats (ss)"
 	CompactAmend        = "  amend (am), amend-list (al)"
 	CompactProject      = "  go-repos (gr), node-repos (nr), react-repos (rr), cpp-repos (cr), csharp-repos (csr)"

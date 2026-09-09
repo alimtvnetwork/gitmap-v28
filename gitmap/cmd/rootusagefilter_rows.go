@@ -38,7 +38,8 @@ func allHelpRows() []helpRow {
 		constants.HelpExport, constants.HelpImport, constants.HelpProfile,
 		constants.HelpBookmark, constants.HelpMV, constants.HelpRm, constants.HelpDBReset)
 	addGroup(&rows, constants.HelpGroupImportExport,
-		constants.HelpImportExport, constants.HelpExportSummary, constants.HelpImportSummary)
+		constants.HelpImportExport, constants.HelpExportSummary, constants.HelpImportSummary,
+		constants.HelpExportConfig, constants.HelpImportConfig)
 	addGroup(&rows, constants.HelpGroupHistory,
 		constants.HelpHistory, constants.HelpHistoryReset,
 		constants.HelpVersionHistory, constants.HelpStats)

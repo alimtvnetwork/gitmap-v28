@@ -94,7 +94,7 @@ func handleMissingInstallTool() error {
 func printInstallUsageHints() {
 	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool|profile> [flags]\n  gitmap in <tool|profile> [flags]\n\n")
 	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal)\n  --tree, -t             Preview full tool tree of a profile before installing\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
-	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install profile dev\n  $ gitmap install profile dev --tree\n  $ gitmap in dev --tree\n  $ gitmap install dev\n  $ gitmap in ubuntu\n  $ gitmap install antigravity\n  $ gitmap install ag-manager\n  $ gitmap in logs\n\n")
+	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install qtorrent\n  $ gitmap install utorrent\n  $ gitmap export-config qtorrent\n  $ gitmap import-config uttorrent\n  $ gitmap install profile dev --tree\n  $ gitmap in dev\n  $ gitmap in logs\n\n")
 }
 
 // installOptions holds parsed install flags.

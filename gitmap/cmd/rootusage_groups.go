@@ -83,6 +83,8 @@ func printGroupImportExport() {
 	renderLine(constants.HelpImportExport)
 	renderLine(constants.HelpExportSummary)
 	renderLine(constants.HelpImportSummary)
+	renderLine(constants.HelpExportConfig)
+	renderLine(constants.HelpImportConfig)
 }
 
 func printGroupHistory() {
