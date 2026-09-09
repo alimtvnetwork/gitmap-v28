@@ -1,3 +1,17 @@
+## [v6.204.8] 2026-09-09 Release v6.204.8
+
+### Install GitMap v6.204.8
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.sh | bash -s -- ".lovable/prompts" "v6.204.8"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.8"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix VMware shared crontab bad minute error when no existing crontab exists on Ubuntu/Debian
+- Add modular crontab reader/writer with clean empty detection and robust newline termination
+- Add comprehensive unit tests and Ubuntu crontab lifecycle E2E test suite
+
 ## [v6.204.7] 2026-09-09 Release v6.204.7
 
 ### Install GitMap v6.204.7
