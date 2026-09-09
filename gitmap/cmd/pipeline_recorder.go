@@ -1,9 +1,19 @@
 package cmd
 
 import (
+	"math"
+
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
+
+func safeUint64ToInt64(val uint64) int64 {
+	if val > math.MaxInt64 {
+		return math.MaxInt64
+	}
+
+	return int64(val)
+}
 
 func recordPipelineInDB(p PipelineStatusPayload, runs []ghRunItem) {
 	recordInPipelineSplitDb(p, runs)
@@ -69,7 +79,7 @@ func recordInMasterDB(p PipelineStatusPayload, runs []ghRunItem) {
 
 	for _, r := range runs {
 		_ = db.InsertOrUpdatePipelineRun(store.PipelineRun{
-			RunID:        int64(r.DatabaseId),
+			RunID:        safeUint64ToInt64(r.DatabaseId),
 			Repo:         p.Repo,
 			WorkflowName: r.Name,
 			Status:       r.Status,

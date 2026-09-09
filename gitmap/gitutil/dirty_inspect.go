@@ -108,7 +108,7 @@ func collectReasonParts(diagnosis *DirtyDiagnosis) []string {
 
 func buildSummaryReason(diagnosis *DirtyDiagnosis) string {
 	parts := collectReasonParts(diagnosis)
-	if len(parts) <= 0 {
+	if len(parts) == 0 {
 		return "uncommitted changes"
 	}
 
@@ -134,7 +134,7 @@ func InspectDirtyState(repoPath string) DirtyDiagnosis {
 		return DirtyDiagnosis{IsDirty: false}
 	}
 	trimmedOutput := strings.TrimSpace(string(outputBytes))
-	if len(trimmedOutput) <= 0 {
+	if len(trimmedOutput) == 0 {
 		return DirtyDiagnosis{IsDirty: false}
 	}
 

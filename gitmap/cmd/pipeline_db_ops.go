@@ -2,11 +2,20 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb"
 )
+
+func safeUint64ToInt64(val uint64) int64 {
+	if val > math.MaxInt64 {
+		return math.MaxInt64
+	}
+
+	return int64(val)
+}
 
 func runPipelineDBStatus(args []string) error {
 	repo := resolveCurrentRepoSlug()
@@ -28,7 +37,7 @@ func runPipelineDBStatus(args []string) error {
 	fmt.Println(constants.ColorCyan + "● Pipeline Split Database Summary:" + constants.ColorReset)
 	fmt.Printf("  • %-20s %s\n", "Repository:", repo)
 	fmt.Printf("  • %-20s %s\n", "Database File:", stats.Path)
-	fmt.Printf("  • %-20s %s\n", "File Size:", formatBytes(int64(stats.Size)))
+	fmt.Printf("  • %-20s %s\n", "File Size:", formatBytes(safeUint64ToInt64(stats.Size)))
 	fmt.Printf("  • %-20s %d\n", "Total Runs:", stats.TotalRuns)
 	fmt.Printf("  • %-20s %s%d%s\n", "Success Runs:", constants.ColorGreen, stats.SuccessRuns, constants.ColorReset)
 	fmt.Printf("  • %-20s %s%d%s\n", "Failed Runs:", constants.ColorRed, stats.FailedRuns, constants.ColorReset)

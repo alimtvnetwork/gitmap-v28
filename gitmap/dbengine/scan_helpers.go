@@ -2,6 +2,7 @@ package dbengine
 
 import (
 	"fmt"
+	"math"
 )
 
 // ScanString safely converts an arbitrary scanned interface value into a string.
@@ -30,14 +31,30 @@ func ScanInt(v any) int {
 	case int:
 		return val
 	case int64:
-		return int(val)
+		return clampInt64ToInt(val)
 	case int32:
 		return int(val)
 	case uint64:
-		return int(val)
+		return clampUint64ToInt(val)
 	default:
 		return 0
 	}
+}
+
+func clampInt64ToInt(val int64) int {
+	if val > math.MaxInt || val < math.MinInt {
+		return 0
+	}
+
+	return int(val)
+}
+
+func clampUint64ToInt(val uint64) int {
+	if val > math.MaxInt {
+		return 0
+	}
+
+	return int(val)
 }
 
 // ScanInt64 safely converts an arbitrary scanned interface value into an int64.
@@ -54,10 +71,18 @@ func ScanInt64(v any) int64 {
 	case int32:
 		return int64(val)
 	case uint64:
-		return int64(val)
+		return clampUint64ToInt64(val)
 	default:
 		return 0
 	}
+}
+
+func clampUint64ToInt64(val uint64) int64 {
+	if val > math.MaxInt64 {
+		return math.MaxInt64
+	}
+
+	return int64(val)
 }
 
 // ScanUint64 safely converts an arbitrary scanned interface value into a uint64.
@@ -70,14 +95,30 @@ func ScanUint64(v any) uint64 {
 	case uint64:
 		return val
 	case int64:
-		return uint64(val)
+		return clampInt64ToUint64(val)
 	case int:
-		return uint64(val)
+		return clampIntToUint64(val)
 	case uint:
 		return uint64(val)
 	default:
 		return 0
 	}
+}
+
+func clampInt64ToUint64(val int64) uint64 {
+	if val < 0 {
+		return 0
+	}
+
+	return uint64(val)
+}
+
+func clampIntToUint64(val int) uint64 {
+	if val < 0 {
+		return 0
+	}
+
+	return uint64(val)
 }
 
 // ScanUint safely converts an arbitrary scanned interface value into a uint.

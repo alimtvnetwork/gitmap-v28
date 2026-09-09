@@ -169,12 +169,20 @@ func (p *PipelineSplitDb) Optimize() (int64, error) {
 	return reclaimed, nil
 }
 
+func safeInt64ToUint64(val int64) uint64 {
+	if val < 0 {
+		return 0
+	}
+
+	return uint64(val)
+}
+
 // GetStats returns telemetry metrics for the split database.
 func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 	var stats PipelineDbStats
 	stats.Path = p.Path
-	if info, err := os.Stat(p.Path); err == nil && info.Size() > 0 {
-		stats.Size = uint64(info.Size())
+	if info, err := os.Stat(p.Path); err == nil {
+		stats.Size = safeInt64ToUint64(info.Size())
 	}
 	_ = p.conn.QueryRow("SELECT COUNT(*) FROM PipelineRun;").Scan(&stats.TotalRuns)
 	_ = p.conn.QueryRow("SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 1;").Scan(&stats.SuccessRuns)

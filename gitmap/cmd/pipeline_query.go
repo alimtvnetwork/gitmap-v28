@@ -157,7 +157,7 @@ func queryRunsFromDB(repo string) []ghRunItem {
 	var runs []ghRunItem
 	for _, r := range dbRuns {
 		runs = append(runs, ghRunItem{
-			DatabaseId: uint64(r.RunID),
+			DatabaseId: safeInt64ToUint64(r.RunID),
 			Name:       r.WorkflowName,
 			Status:     r.Status,
 			Conclusion: r.Conclusion,
@@ -168,6 +168,14 @@ func queryRunsFromDB(repo string) []ghRunItem {
 	}
 
 	return runs
+}
+
+func safeInt64ToUint64(val int64) uint64 {
+	if val < 0 {
+		return 0
+	}
+
+	return uint64(val)
 }
 
 func resolveCurrentRepoSlug() string {
