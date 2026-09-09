@@ -1,3 +1,18 @@
+## [v6.203.0] 2026-09-09 Release v6.203.0
+
+### Install GitMap v6.203.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.sh | bash -s -- ".lovable/prompts" "v6.203.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.203.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add qBittorrent and uTorrent cross-platform installers across Windows (choco, winget), Ubuntu/Debian (apt), and macOS (brew)
+- Implement portable JSON configuration export/import engine (export-config, import-config, improt-config) for VS Code, qBittorrent, and uTorrent
+- Support batch export and import across folders with automatic OS path and file format translation (.ini <-> .conf)
+- Add dedicated help documentation (export-config.md, import-config.md) and commands.ts UI metadata
+
 ## [v6.202.0] 2026-09-09 Release v6.202.0
 
 ### Install GitMap v6.202.0
