@@ -1,3 +1,19 @@
+## [v6.201.0] 2026-09-09 Release v6.201.0
+
+### Install GitMap v6.201.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.sh | bash -s -- ".lovable/prompts" "v6.201.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.201.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add automatic Git remote tag release discovery (https://github.com/lbjlaq/Antigravity-Manager.git) for Antigravity Manager GUI with semver sorting and multi-OS asset matching
+- Add specific version targeting --version <ver> to gitmap install ag-manager and gitmap agy install manager
+- Enable full CLI flag parity (--dry-run, --yes/-y, --verbose/-v, --version) in gitmap agy install [manager|cli|all]
+- Fix gitmap in alias routing and display grouped tool catalog, descriptions, and profiles when run without arguments
+- Add and document antigravity, ag-manager, ag-ctx, build-essential, and installation profiles (dev, ubuntu, ubuntu-dev-ai, ai, backend, fullstack, minimal)
+
 ## [v6.200.0] 2026-09-09 Release v6.200.0
 
 ### Install GitMap v6.200.0
