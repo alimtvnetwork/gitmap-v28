@@ -95,7 +95,6 @@ func parseSingleMacroFlag(args []string, i int, desc, tag string, rawSteps []str
 	}
 }
 
-
 func parseMacroStepsList(rawSteps []string) []macro.MacroStep {
 	var steps []macro.MacroStep
 	stepNum := 1

@@ -104,7 +104,6 @@ func SetMacroShowPwd(isVisible bool) error {
 	return os.WriteFile(path, []byte(content), 0644)
 }
 
-
 // IsQuiet reports whether decorative / progress output should be
 // suppressed. Treats any non-empty value (other than "0"/"false")
 // as enabled.

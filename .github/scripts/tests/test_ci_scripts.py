@@ -158,5 +158,39 @@ class TestSmokeInstaller(unittest.TestCase):
         self.assertIn("Installer smoke test passed", res.stdout)
 
 
+class TestGoFormatCheck(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.script = os.path.join(SCRIPTS_DIR, "go-format-check.py")
+
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_gofmt_check_clean_repo(self):
+        res = subprocess.run([sys.executable, self.script, "--check-only"], capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(res.returncode, 0)
+        self.assertIn("All .go files are gofmt-clean", res.stdout)
+
+    def test_gofmt_check_detects_unformatted(self):
+        dummy_file = os.path.join(self.temp_dir, "unformatted.go")
+        with open(dummy_file, "w", encoding="utf-8") as f:
+            f.write("package main\n\n\n\nfunc main() {\n}\n")
+        res = subprocess.run([sys.executable, self.script, self.temp_dir, "--check-only"], capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("Dry run detected unformatted .go file(s)", res.stderr)
+
+    def test_gofmt_auto_format_fixes_file(self):
+        dummy_file = os.path.join(self.temp_dir, "unformatted.go")
+        with open(dummy_file, "w", encoding="utf-8") as f:
+            f.write("package main\n\n\n\nfunc main() {\n}\n")
+        res_fix = subprocess.run([sys.executable, self.script, self.temp_dir, "--no-commit"], capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(res_fix.returncode, 0)
+        self.assertIn("Formatted 1 .go file(s)", res_fix.stdout)
+        res_check = subprocess.run([sys.executable, self.script, self.temp_dir, "--check-only"], capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(res_check.returncode, 0)
+        self.assertIn("All .go files are gofmt-clean", res_check.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
+

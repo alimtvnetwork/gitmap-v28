@@ -139,8 +139,10 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Linters & AST Checks",
         "max_workers": None,
         "jobs": {
+            "Go Format Check": [sys.executable, ".github/scripts/go-format-check.py", "--no-commit"],
             "Spell Check (misspell)": [sys.executable, ".github/scripts/misspell-changed.py"],
             "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
+
             "Boolean & Enum Linter": [sys.executable, "linter-scripts/check-enum-and-boolean.py"],
             "Boolean Guidelines Linter": [sys.executable, "linter-scripts/check-boolean-guidelines.py"],
             "Enum Guidelines Linter": [sys.executable, "linter-scripts/check-enum-guidelines.py"],
@@ -345,8 +347,10 @@ class GateSpec:
 
 
 GATE_SPECS: dict[str, GateSpec] = {
+    "Go Format Check": GateSpec("Go Format Check", tool_scripts=[".github/scripts/go-format-check.py"], relevant_patterns=["gitmap/**/*.go"]),
     "Spell Check (misspell)": GateSpec("Spell Check (misspell)", tool_scripts=[".github/scripts/misspell-changed.py"], configs=[".misspell-ignore"], relevant_patterns=CLUSTER_REPO_TEXT, exclude_patterns=["gitmap/completion/allcommands_generated.go"]),
     "Nested If Linter": GateSpec("Nested If Linter", tool_scripts=["linter-scripts/check-nested-ifs.py"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
+
     "Boolean & Enum Linter": GateSpec("Boolean & Enum Linter", tool_scripts=["linter-scripts/check-enum-and-boolean.py"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
     "Boolean Guidelines Linter": GateSpec("Boolean Guidelines Linter", tool_scripts=["linter-scripts/check-boolean-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
     "Enum Guidelines Linter": GateSpec("Enum Guidelines Linter", tool_scripts=["linter-scripts/check-enum-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),

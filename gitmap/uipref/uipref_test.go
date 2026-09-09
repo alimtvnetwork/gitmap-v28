@@ -77,4 +77,3 @@ func TestSetMacroShowPwdPersists(t *testing.T) {
 		t.Fatal("expected IsMacroPwdVisible=false after persisting false")
 	}
 }
-
