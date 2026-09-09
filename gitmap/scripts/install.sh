@@ -1761,7 +1761,7 @@ main() {
     if [ -x "${bin_path}" ]; then
         echo ""
         printf '  \033[36m→ Running '\''gitmap setup'\'' to install shell wrapper + completions...\033[0m\n' >&2
-        "${bin_path}" setup || printf '  \033[33m(setup auto-run skipped — run '\''gitmap setup'\'' manually)\033[0m\n' >&2
+        GITMAP_SKIP_ZSH=1 "${bin_path}" setup --skip-zsh || printf '  \033[33m(setup auto-run skipped — run '\''gitmap setup'\'' manually)\033[0m\n' >&2
     fi
 
     echo ""

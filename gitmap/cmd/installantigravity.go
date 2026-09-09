@@ -11,7 +11,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-
 func runInstallAntigravityWithOpts(opts installOptions) error {
 	if opts.DryRun {
 		fmt.Println("  [dry-run] Would run: curl -fsSL https://get.antigravity.dev | bash (or powershell irm)")

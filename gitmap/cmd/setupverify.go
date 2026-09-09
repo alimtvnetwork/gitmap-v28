@@ -73,7 +73,8 @@ func autoRunSetupForCD() {
 		}
 	}()
 	fmt.Fprintln(os.Stderr, "  → Shell wrapper not detected — auto-running 'gitmap setup' to install it...")
-	runSetup(nil)
+	setupArgs := []string{"--skip-zsh"}
+	runSetup(setupArgs)
 }
 
 //nolint:unused

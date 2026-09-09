@@ -77,7 +77,8 @@ func autoRunSetupAfterInstall() {
 		}
 	}()
 	fmt.Print(constants.MsgSelfInstallRunningSetup)
-	runSetup(nil)
+	setupArgs := []string{"--skip-zsh"}
+	runSetup(setupArgs)
 }
 
 // acquireSelfInstallLock takes the duplicate-install guard.

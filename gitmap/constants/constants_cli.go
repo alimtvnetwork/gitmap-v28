@@ -753,6 +753,9 @@ const (
 	FlagRescan            = "rescan"
 	FlagDescRescan        = "Trigger a rescan immediately after reset"
 	FlagDescSource        = "Filter by source: release or import"
+	FlagSkipZsh           = "skip-zsh"
+	FlagDescSkipZsh       = "Skip ZSH and Oh-My-Zsh setup on Ubuntu"
+	EnvGitmapSkipZsh      = "GITMAP_SKIP_ZSH"
 )
 
 // FlagDebugPaths exposes the canonicalize-path tracer used by the

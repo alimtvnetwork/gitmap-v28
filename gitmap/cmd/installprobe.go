@@ -49,6 +49,7 @@ var toolProbeMap = map[string]toolProbeConfig{
 	constants.ToolBuildEssential: {bins: []string{"gcc", "make", "g++"}, args: []string{"--version"}},
 	constants.ToolQBittorrent:    {bins: []string{"qbittorrent", "qbittorrent-nox"}, args: []string{"--version"}},
 	constants.ToolUTorrent:       {bins: []string{"utorrent", "uTorrent", "utserver"}, args: []string{"--version"}},
+	constants.ToolZsh:            {bins: []string{"zsh"}, args: []string{"--version"}},
 }
 
 func resolveToolCandidates(tool string) ([]string, []string) {

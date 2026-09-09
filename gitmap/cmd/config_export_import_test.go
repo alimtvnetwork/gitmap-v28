@@ -125,4 +125,3 @@ func TestImportAllToolConfigs(t *testing.T) {
 		t.Fatalf("importAllToolConfigs failed: %v", err)
 	}
 }
-

@@ -29,7 +29,7 @@ func runSetup(args []string) error {
 	}
 
 	checkHelp("setup", args)
-	configPath, dryRun, hasConfig := parseSetupFlags(args)
+	configPath, dryRun, hasConfig, isSkipZsh := parseSetupFlags(args)
 	configPath = resolveSetupConfigPath(configPath, hasConfig)
 	cfg := mustLoadSetupConfig(configPath)
 	printSetupBanner(dryRun)
@@ -38,9 +38,10 @@ func runSetup(args []string) error {
 	installCDFunction(dryRun)
 	installPathSnippet(dryRun)
 	ensureGitignoreStep(dryRun)
-	ensureZshUbuntuStep(dryRun)
+	ensureZshUbuntuStep(dryRun, isSkipZsh)
 	verifyShellWrapper(dryRun)
 	printSetupSummary(result)
+
 	return nil
 }
 
@@ -149,16 +150,17 @@ func ensureGitignoreStep(dryRun bool) {
 }
 
 // parseSetupFlags parses flags for the setup command.
-func parseSetupFlags(args []string) (configPath string, dryRun, hasConfig bool) {
+func parseSetupFlags(args []string) (configPath string, dryRun, hasConfig, isSkipZsh bool) {
 	fs := flag.NewFlagSet(constants.CmdSetup, flag.ExitOnError)
 	cfgFlag := fs.String("config", constants.DefaultSetupConfigPath, constants.FlagDescSetupConfig)
 	dryRunFlag := fs.Bool("dry-run", false, constants.FlagDescDryRun)
+	skipZshFlag := fs.Bool(constants.FlagSkipZsh, false, constants.FlagDescSkipZsh)
 	fs.Parse(args)
 	fs.Visit(func(f *flag.Flag) {
 		hasConfig = hasConfig || f.Name == "config"
 	})
 
-	return *cfgFlag, *dryRunFlag, hasConfig
+	return *cfgFlag, *dryRunFlag, hasConfig, *skipZshFlag
 }
 
 // printSetupBanner shows the setup header.

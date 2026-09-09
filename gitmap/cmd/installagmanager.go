@@ -14,7 +14,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-
 func runInstallAgManagerWithOpts(opts installOptions) error {
 	fmt.Println("Fetching release for Antigravity-Manager...")
 	assetURL, ver, err := resolveAgManagerAssetURL(opts.Version)

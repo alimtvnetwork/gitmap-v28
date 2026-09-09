@@ -8,7 +8,7 @@ None
 
 ## Usage
 
-    gitmap setup [--config <path>] [--dry-run]
+    gitmap setup [--config <path>] [--dry-run] [--skip-zsh]
     gitmap setup print-path-snippet --shell <bash|zsh|fish|pwsh> --dir <path> [--manager <label>]
 
 ## Flags
@@ -17,6 +17,7 @@ None
 |------|---------|-------------|
 | --config \<path\> | data/git-setup.json beside gitmap | Path to git-setup.json config file |
 | --dry-run | false | Preview changes without applying them |
+| --skip-zsh | false | Skip ZSH and Oh-My-Zsh setup on Ubuntu |
 
 ## Subcommand: `print-path-snippet`
 
