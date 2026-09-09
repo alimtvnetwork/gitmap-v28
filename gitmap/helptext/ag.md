@@ -10,6 +10,7 @@ Alias for `gitmap antigravity` / `gitmap agy`.
 - `gitmap ag plugin`: List and install Antigravity plugins.
 - `gitmap ag settings`: Export and import configuration settings.
 - `gitmap ag ls`: List Antigravity projects.
+- `gitmap ag install`: Install Antigravity Manager GUI or CLI.
 
 ## Examples
 

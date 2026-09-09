@@ -25,6 +25,11 @@ in
 
 | Tool            | Binary         | Description                      |
 |-----------------|----------------|----------------------------------|
+| antigravity     | agy            | Antigravity CLI autonomous coding assistant |
+| ag-manager      | —              | Antigravity Manager GUI desktop application |
+| ag-ctx          | —              | Add Antigravity to right-click context menu |
+| build-essential | gcc, g++       | Ubuntu compiler toolchain & dev libraries   |
+| chrome          | google-chrome  | Google Chrome web browser        |
 | vscode          | code           | Visual Studio Code editor        |
 | node            | node           | Node.js JavaScript runtime       |
 | yarn            | yarn           | Yarn package manager             |
@@ -39,6 +44,8 @@ in
 | cpp             | g++            | C++ compiler (MinGW/g++)         |
 | php             | php            | PHP programming language         |
 | powershell      | pwsh           | PowerShell shell                 |
+| rust            | rustc, cargo   | Rust programming language & Cargo |
+| docker          | docker         | Docker container platform        |
 
 ## Notepad++ Variants
 
@@ -79,6 +86,60 @@ Each runs:
     irm https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v15/main/install.ps1 | iex
 
 Requires PowerShell on PATH (Windows: `powershell` ships by default; Linux/macOS: install `pwsh` 7+).
+ 
+## Antigravity AI Suite
+
+Install the Antigravity autonomous coding assistant and Antigravity Manager GUI desktop application:
+
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| antigravity | agy, antigravity-cli | Autonomous coding assistant CLI (`https://get.antigravity.dev`) |
+| ag-manager | manager, agy-manager, ag-m | Antigravity Manager GUI (latest GitHub release via git tags) |
+| ag-ctx | — | Add Antigravity right-click context menu integration |
+
+### Antigravity Manager Git Tag Discovery
+`ag-manager` automatically queries GitHub releases and remote git tags (`https://github.com/lbjlaq/Antigravity-Manager.git`) using semantic version comparison to select and download the newest release matching your operating system (`.exe`/`.msi` on Windows, `.deb`/`.AppImage` on Linux, `.dmg` on macOS).
+
+```bash
+$ gitmap install antigravity
+$ gitmap install ag-manager
+$ gitmap install ag-manager --version 4.6.9
+$ gitmap in agy
+```
+
+### AGY Subcommand Invocation
+Antigravity tools can also be installed directly via `gitmap agy install`:
+
+```bash
+$ gitmap agy install              # Installs Antigravity Manager GUI (default)
+$ gitmap agy install manager      # Installs Antigravity Manager GUI
+$ gitmap agy install cli          # Installs Antigravity CLI (agy)
+$ gitmap agy install all          # Installs both Manager and CLI
+$ gitmap agy in manager --dry-run # Preview installation plan
+```
+
+## Installation Profiles
+
+Installation profiles install a curated bundle of developer tools in a single command. Profiles verify already installed tools and only download missing components.
+
+| Profile | Aliases | Description | Key Tools Included |
+|---------|---------|-------------|-------------------|
+| `dev` | developer, dev-stack | Standard developer workstation with AI | VS Code, Git, Python, Node, pnpm, Go, Rust, PHP, Antigravity, AG-Manager |
+| `ubuntu` | ubuntu-dev, linux-dev | Ubuntu developer workstation | build-essential, Git, Zsh, VS Code, Chrome, Node, Python, Go, Antigravity, AG-Manager |
+| `ubuntu-dev-ai` | ubuntu-ai, linux-ai | Full Ubuntu AI / ML developer workstation | Ubuntu workstation + Ollama, llama-cpp, Python ML libs, Antigravity AI suite |
+| `ai` | ai-dev, ml, llm | AI / ML workstation | Python, Ollama, llama-cpp, Python ML libs, Antigravity, AG-Manager |
+| `minimal` | min, basic | Essential minimal developer workstation | VS Code, Git, Node.js, Python |
+| `backend` | back, server | Backend developer workstation | Minimal stack + Docker, MySQL, PostgreSQL, Redis, Go, .NET, Java |
+| `fullstack` | full, web | Full-stack web developer workstation | Backend stack + pnpm, PHP, Composer, MongoDB, Jenkins CI/CD |
+
+### Profile Usage
+
+```bash
+$ gitmap install dev
+$ gitmap in ubuntu
+$ gitmap install ai --dry-run
+$ gitmap install profile          # List all profiles and progress
+```
 
 ## Prerequisites
 

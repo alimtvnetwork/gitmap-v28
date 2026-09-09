@@ -78,12 +78,16 @@ func runInstall(args []string) error {
 }
 
 func handleMissingInstallTool() error {
-	fmt.Fprintf(os.Stderr, "%s\n", constants.ErrInstallToolRequired)
-	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool> [flags]\n  gitmap in <tool> [flags]\n\n")
-	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools\n  add, create            Create or update custom installer interactively\n  export                 Export installer(s) to JSON or ZIP\n  import                 Import installer(s) from JSON or ZIP\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
-	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install vscode\n  $ gitmap install node\n  $ gitmap install add \"my-tool\" v1.0\n  $ gitmap install export my-tool -o my-tool.json\n  $ gitmap install import my-tool.json\n  $ gitmap install logs\n  $ gitmap install --logs --failed\n  $ gitmap install --list\n\n")
+	printInstallListGrouped()
+	printInstallUsageHints()
 
 	return nil
+}
+
+func printInstallUsageHints() {
+	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool|profile> [flags]\n  gitmap in <tool|profile> [flags]\n\n")
+	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal)\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
+	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install antigravity\n  $ gitmap install ag-manager\n  $ gitmap install dev\n  $ gitmap install ubuntu\n  $ gitmap install vscode\n  $ gitmap in logs\n\n")
 }
 
 // installOptions holds parsed install flags.
@@ -99,11 +103,12 @@ type installOptions struct {
 }
 
 func isKnownInstallTool(tool string) bool {
-	if isCleanCodeAlias(tool) || tool == "ag-m" || isBuildEssentialAlias(tool) || IsInstallProfile(tool) {
+	canonical := resolveToolAlias(tool)
+	if isCleanCodeAlias(canonical) || isBuildEssentialAlias(canonical) || IsInstallProfile(canonical) {
 
 		return true
 	}
-	_, exists := constants.InstallToolDescriptions[tool]
+	_, exists := constants.InstallToolDescriptions[canonical]
 
 	return exists
 }

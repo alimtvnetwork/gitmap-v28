@@ -25,8 +25,13 @@ func getAgManagerAssetURL() (string, string, error) {
 
 		return url, ver, nil
 	}
+	url, ver, err = fetchAgManagerFromRedirect()
+	if err == nil && url != "" {
 
-	return fetchAgManagerFromRedirect()
+		return url, ver, nil
+	}
+
+	return fetchAgManagerFromGitTags()
 }
 
 func fetchAgManagerFromAPI() (string, string, error) {

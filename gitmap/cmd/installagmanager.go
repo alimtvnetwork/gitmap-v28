@@ -20,8 +20,8 @@ func runInstallAgManager() error {
 }
 
 func runInstallAgManagerWithOpts(opts installOptions) error {
-	fmt.Println("Fetching latest release for Antigravity-Manager...")
-	assetURL, ver, err := getAgManagerAssetURL()
+	fmt.Println("Fetching release for Antigravity-Manager...")
+	assetURL, ver, err := resolveAgManagerAssetURL(opts.Version)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error fetching release: %v\n", err)
 

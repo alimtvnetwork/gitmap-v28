@@ -39,10 +39,17 @@ var toolAliasMap = map[string]string{
 	"wpcli":             constants.ToolWordPress,
 	"artisan":           constants.ToolLaravel,
 	"laravel-installer": constants.ToolLaravel,
-	"open-vm-tools":     constants.ToolVMware,
-	"vmtools":           constants.ToolVMware,
-	"vmware-tools":      constants.ToolVMware,
-	"vm":                constants.ToolVMware,
+	"open-vm-tools":       constants.ToolVMware,
+	"vmtools":             constants.ToolVMware,
+	"vmware-tools":        constants.ToolVMware,
+	"vm":                  constants.ToolVMware,
+	"agy":                 constants.ToolAntigravity,
+	"antigravity-cli":     constants.ToolAntigravity,
+	"ag-m":                constants.ToolAgManager,
+	"ag-manager":          constants.ToolAgManager,
+	"antigravity-manager": constants.ToolAgManager,
+	"manager":             constants.ToolAgManager,
+	"agy-manager":         constants.ToolAgManager,
 }
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.

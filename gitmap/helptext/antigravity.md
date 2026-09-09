@@ -14,6 +14,7 @@ Manage Antigravity projects, project groups, undo/redo state, plugins, and setti
 - `gitmap agy optimize-projects`: Deduplicate and optimize registered project entries.
 - `gitmap agy export-projects <file.zip>`: Create a zip archive backup of all projects.
 - `gitmap agy import-projects <file.zip>`: Restore projects from a zip archive backup.
+- `gitmap agy install [manager|cli|all]`: Install Antigravity Manager GUI or Antigravity CLI.
 
 ## Examples
 
