@@ -49,8 +49,8 @@ func printDryRunSetting(s gitSetting, r *SetupResult) {
 
 // printSkippedSetting logs an already-set setting.
 func printSkippedSetting(s gitSetting, r *SetupResult) {
-	fmt.Printf("  %s⊘ %s%s = %s (already set)\n",
-		constants.ColorDim, s.Key, constants.ColorReset, s.Value)
+	fmt.Printf("  %s✓ %s%s = %s (already set)\n",
+		constants.ColorGreen, s.Key, constants.ColorReset, s.Value)
 	r.Skipped++
 }
 

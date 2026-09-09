@@ -13,6 +13,7 @@ func TestFilterSafeRewritesEmoji(t *testing.T) {
 		"→ next":  "-> next",
 		"⚠️ warn": "▲ warn",
 		"📦 build": "[repo] build",
+		"⊘ skip":  "✔ skip",
 		"plain":   "plain",
 	}
 	for in, want := range cases {

@@ -59,7 +59,7 @@ func emitDryRunRows(repos []string) int {
 	for _, repoPath := range repos {
 		url, dest, ok := resolveDryRunTarget(repoPath)
 		if !ok {
-			fmt.Printf("  ⊘ %s — cannot resolve next version, would skip\n",
+			fmt.Printf("  - %s — cannot resolve next version, would skip\n",
 				filepath.Base(repoPath))
 			continue
 		}

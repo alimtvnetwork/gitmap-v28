@@ -89,7 +89,7 @@ const (
 	SetupBannerBottom  = "╚══════════════════════════════════════╝"
 	SetupDryRunFmt     = "[DRY RUN] No changes will be made"
 	SetupAppliedFmt    = "✓ %d settings applied"
-	SetupSkippedFmt    = "⊘ %d settings unchanged"
+	SetupSkippedFmt    = "✓ %d settings unchanged"
 	SetupFailedFmt     = "✗ %d settings failed"
 	SetupErrorEntryFmt = "- %s"
 )
@@ -133,7 +133,7 @@ const (
 	ExecRepoCountFmt  = "%d repos from .gitmap/output/gitmap.json"
 	ExecSuccessFmt    = "  %s✓ %-22s%s\n"
 	ExecFailFmt       = "  %s✗ %-22s%s\n"
-	ExecMissingFmt    = "  %s⊘ %-22s %snot found%s\n"
+	ExecMissingFmt    = "  %s✗ %-22s %snot found%s\n"
 	ExecOutputLineFmt = "    %s%s%s\n"
 	ExecSummaryRule   = "──────────────────────────────────────────────────"
 )
