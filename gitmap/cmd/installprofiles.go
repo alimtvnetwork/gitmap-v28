@@ -33,7 +33,7 @@ func buildMinimalProfile() InstallProfile {
 	return InstallProfile{
 		Name:        "minimal",
 		Title:       "Minimal dev workstation",
-		Description: "Essential developer workstation (editor + git + node + python)",
+		Description: "Editor, Git, Node.js, and Python",
 		Tools:       []string{constants.ToolVSCode, constants.ToolGit, constants.ToolNodeJS, constants.ToolPython},
 		Aliases:     []string{"min", "basic"},
 	}
@@ -44,7 +44,7 @@ func buildDevProfile() InstallProfile {
 	return InstallProfile{
 		Name:        "dev",
 		Title:       "Dev workstation with AI",
-		Description: "Standard dev workstation + runtimes + Antigravity AI suite",
+		Description: "Standard dev workstation + runtimes + AI suite",
 		Tools: []string{
 			constants.ToolVSCode, constants.ToolGit, constants.ToolPython,
 			constants.ToolNodeJS, constants.ToolPnpm, constants.ToolGo,
@@ -60,7 +60,7 @@ func buildUbuntuProfile() InstallProfile {
 	return InstallProfile{
 		Name:        "ubuntu",
 		Title:       "Ubuntu developer workstation",
-		Description: "Compiler toolchain, shell, browsers, dev runtimes & Antigravity",
+		Description: "Compiler toolchain, shell, browsers, runtimes",
 		Tools: []string{
 			constants.ToolBuildEssential, constants.ToolGit, constants.ToolZsh,
 			constants.ToolVSCode, constants.ToolChrome, constants.ToolNodeJS,
@@ -76,7 +76,7 @@ func buildAIProfile() InstallProfile {
 	return InstallProfile{
 		Name:        "ai",
 		Title:       "AI / ML workstation",
-		Description: "Local LLM runners, Python ML libs, Antigravity & AG-Manager",
+		Description: "Local LLM runners, Python ML libs & Antigravity",
 		Tools: []string{
 			constants.ToolPython, constants.ToolOllama, constants.ToolLlamaCpp,
 			constants.ToolPythonLibs, constants.ToolAntigravity, constants.ToolAgManager,
@@ -90,7 +90,7 @@ func buildBackendProfile() InstallProfile {
 	return InstallProfile{
 		Name:        "backend",
 		Title:       "Backend developer workstation",
-		Description: "Minimal stack + databases + docker + backend languages",
+		Description: "Minimal stack + databases, Docker & languages",
 		Tools: []string{
 			constants.ToolVSCode, constants.ToolGit, constants.ToolNodeJS,
 			constants.ToolPython, constants.ToolDocker, constants.ToolMySQL,
@@ -106,7 +106,7 @@ func buildFullstackProfile() InstallProfile {
 	return InstallProfile{
 		Name:        "fullstack",
 		Title:       "Full-stack web workstation",
-		Description: "Backend + pnpm, php, composer, mongodb & CI/CD",
+		Description: "Backend + pnpm, PHP, Composer, MongoDB & CI/CD",
 		Tools: []string{
 			constants.ToolVSCode, constants.ToolGit, constants.ToolNodeJS,
 			constants.ToolPython, constants.ToolPnpm, constants.ToolPHP,

@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	profileBadgeStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd")).Width(14)
+	profileNameStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#f8f8f2")).Width(12)
+	profileBadgeStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd")).Width(13)
 )
 
 // printInstallProfilesSection renders the Installation Profiles table.
@@ -38,7 +39,7 @@ func printSingleProfileRow(p InstallProfile, installed map[string]string) {
 	dot := formatProfileDot(count, total)
 	badge := formatProfileProgress(count, total)
 	desc := p.Description
-	row := fmt.Sprintf("  %s %s %s %s", dot, toolStyle.Render(p.Name), profileBadgeStyle.Render(badge), descStyle.Render(desc))
+	row := fmt.Sprintf("  %s %s %s %s", dot, profileNameStyle.Render(p.Name), profileBadgeStyle.Render(badge), descStyle.Render(desc))
 	fmt.Println(row)
 }
 

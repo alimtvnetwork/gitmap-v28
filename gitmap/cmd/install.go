@@ -64,6 +64,11 @@ func runInstall(args []string) error {
 
 		return nil
 	}
+	if opts.Tree && opts.Tool == "" {
+		renderAllProfilesTree(loadInstalledLookup())
+
+		return nil
+	}
 	if opts.Tool == "" {
 
 		return handleMissingInstallTool()
