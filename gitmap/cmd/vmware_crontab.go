@@ -10,17 +10,10 @@ import (
 )
 
 var (
-	crontabLookPathFunc = exec.LookPath
-	crontabCommandFunc  = exec.Command
-	readCrontabFunc     = readCurrentCrontab
-	writeCrontabFunc    = writeCrontab
+	crontabCommandFunc = exec.Command
+	readCrontabFunc    = readCurrentCrontab
+	writeCrontabFunc   = writeCrontab
 )
-
-func isCrontabAvailable() bool {
-	_, err := crontabLookPathFunc("crontab")
-
-	return err == nil
-}
 
 func readCurrentCrontab() string {
 	cmd := crontabCommandFunc("crontab", "-l")
