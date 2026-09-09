@@ -31,7 +31,7 @@ func isInteractiveHelper(line string) bool {
 
 func isExactHelper(line string) bool {
 	switch strings.ToLower(line) {
-	case "ls", "dir", ":ls", ":dir", "pwd", ":pwd", "help", ":help", "?", "+add":
+	case "ls", "dir", ":ls", ":dir", "pwd", ":pwd", "help", ":help", "?", "+add", "mkdir", ":mkdir", "gitmap mkdir":
 		return true
 	default:
 		return false
@@ -42,7 +42,7 @@ func hasPrefixHelper(line string) bool {
 	prefixes := []string{
 		"find ", ":find ", "search ", ":search ", "grep ", ":grep ",
 		"replace ", ":replace ", "cd ", ":cd ", "pwd ", ":pwd ", "add ",
-		"ls ", "dir ", ":ls ", ":dir ",
+		"ls ", "dir ", ":ls ", ":dir ", "mkdir ", ":mkdir ", "gitmap mkdir ",
 	}
 	for _, p := range prefixes {
 		if strings.HasPrefix(strings.ToLower(line), p) {
@@ -77,6 +77,10 @@ func handleNavigationOrInspection(line string, state *interactiveSessionState) b
 
 	if isCdCmd(line) {
 		return handleCdCmd(line)
+	}
+
+	if isMkdirCmd(line) {
+		return handleMkdirHelper(line, state)
 	}
 
 	if isHelpCmd(line) {
@@ -183,7 +187,8 @@ func handleCdCmd(line string) bool {
 		return true
 	}
 
-	_ = executeInteractiveCd(parts[1])
+	target := expandTilde(parts[1])
+	_ = executeInteractiveCd(target)
 
 	return true
 }
@@ -582,6 +587,7 @@ func printInteractiveHelp() {
 	fmt.Printf("  %s● Interactive Macro Builder Helper Commands:%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("  %s------------------------------------------------------------------------%s\n", constants.ColorDim, constants.ColorReset)
 	fmt.Println("    ls [dir] / dir [dir]       - Inspect directory contents (files & folders)")
+	fmt.Println("    mkdir <dir> / :mkdir <dir> - Create directory live during session")
 	fmt.Println("    +add                       - Record the last inspected command as a step")
 	fmt.Println("    add <command>              - Directly record a command without executing")
 	fmt.Println("    pwd                        - Show current working directory path")

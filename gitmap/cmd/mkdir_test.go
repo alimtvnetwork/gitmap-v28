@@ -3,32 +3,38 @@ package cmd
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
-func TestMkdirAndCat(t *testing.T) {
-	tempDir := t.TempDir()
-
-	// Test mkdir
-	testDir := filepath.Join(tempDir, "test1", "test2")
-	runMkdir([]string{"-p", testDir})
-
-	if _, err := os.Stat(testDir); os.IsNotExist(err) {
-		t.Errorf("Mkdir -p failed to create directory: %s", testDir)
-	}
-
-	// Create a dummy file
-	testFile := filepath.Join(testDir, "test.txt")
-	err := os.WriteFile(testFile, []byte("hello world"), 0644)
+func TestResolveMkdirAbsPath(t *testing.T) {
+	home, err := os.UserHomeDir()
 	if err != nil {
-		t.Fatalf("Failed to write test file: %v", err)
+		t.Skip("cannot determine user home dir")
 	}
 
-	// Test cat - we capture stdout in real usage, but here just ensure it doesn't panic
-	// Note: runCat writes to stdout directly.
-	// Since runCat exits on failure, we can't easily test the failure case without mocking os.Exit.
-	// But we can test positive case.
-	// We'd have to intercept stdout to verify, but just calling it is enough for basic coverage.
-	// We skip calling runCat here to avoid polluting test output, or just do it:
-	// runCat([]string{testFile})
+	res, err := resolveMkdirAbsPath("~/test_mkdir_subfolder")
+	if err != nil {
+		t.Fatalf("resolveMkdirAbsPath failed: %v", err)
+	}
+
+	expectedPrefix := filepath.Clean(home)
+	if !strings.HasPrefix(filepath.Clean(res), expectedPrefix) {
+		t.Errorf("expected path starting with %s, got %s", expectedPrefix, res)
+	}
+}
+
+func TestRunMkdir(t *testing.T) {
+	tempDir := t.TempDir()
+	testPath := filepath.Join(tempDir, "sample_dir")
+
+	err := runMkdir([]string{testPath})
+	if err != nil {
+		t.Fatalf("runMkdir failed: %v", err)
+	}
+
+	info, err := os.Stat(testPath)
+	if err != nil || !info.IsDir() {
+		t.Errorf("expected directory to exist: %s", testPath)
+	}
 }

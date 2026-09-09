@@ -93,24 +93,25 @@ func promptInteractiveMacroSteps(name string) ([]macro.MacroStep, error) {
 }
 
 func collectInteractiveMacroSteps(name string) ([]macro.MacroStep, error) {
-	scanner := bufio.NewScanner(os.Stdin)
 	var steps []macro.MacroStep
 	stepNum := 1
 	state := newInteractiveState()
+	reader := newInteractiveLineReader()
 
 	for {
 		printMacroPromptPwd()
-		fmt.Printf("  Step %d> ", stepNum)
-		if !scanner.Scan() {
+		prompt := fmt.Sprintf("  Step %d> ", stepNum)
+		line, isEof, err := reader.readLine(prompt)
+		if err != nil || isEof {
 			break
 		}
 
-		if processInteractiveStepLine(scanner.Text(), name, state, &steps, &stepNum) == loopActionBreak {
+		if processInteractiveStepLine(line, name, state, &steps, &stepNum) == loopActionBreak {
 			break
 		}
 	}
 
-	return steps, scanner.Err()
+	return steps, nil
 }
 
 func printMacroPromptPwd() {
@@ -168,6 +169,8 @@ func recordStepLine(line, name string, steps *[]macro.MacroStep, stepNum *int) i
 	}
 
 	*steps = append(*steps, makeMacroStep(*stepNum, line))
+	fmt.Printf("  %s✓ Recorded Step %d: %s%s (will run when macro is executed)\n\n",
+		constants.ColorGreen, *stepNum, line, constants.ColorReset)
 	*stepNum++
 
 	return loopActionContinue
@@ -197,7 +200,7 @@ func printInteractiveMacroHeader(name string) {
 	fmt.Println()
 	fmt.Printf("  %s● Interactive Macro Builder: %s%q%s\n", constants.ColorCyan, constants.ColorWhite, name, constants.ColorReset)
 	fmt.Println("  Enter commands one per line (empty line or 'done' to save, 'cancel' to abort):")
-	fmt.Printf("  %s(Commands: 'ls', 'pwd on/off', 'find', 'search', 'replace', 'help', 'rec')%s\n\n", constants.ColorDim, constants.ColorReset)
+	fmt.Printf("  %s(Commands: 'ls', 'mkdir', 'cd', 'pwd on/off', 'find', 'search', 'replace', 'help', 'rec')%s\n\n", constants.ColorDim, constants.ColorReset)
 }
 
 func printMacroAddUsage() {

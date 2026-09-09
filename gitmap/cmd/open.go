@@ -3,9 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -15,30 +13,22 @@ import (
 func runOpen(args []string) error {
 	checkHelp(constants.CmdOpen, args)
 
+	if len(args) > 0 && isEditorTarget(args[0]) {
+		return launchEditor(args)
+	}
+
+	if len(args) > 0 && isWebTarget(args[0]) {
+		return launchNativeOpener(normalizeWebUrl(args[0]))
+	}
+
 	target, err := resolveOpenTarget(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrOpenResolveCwd, err)
+
 		return err
 	}
 
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", target)
-	case "darwin":
-		cmd = exec.Command("open", target)
-	default:
-		cmd = exec.Command("xdg-open", target)
-	}
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("failed to open target %q: %w", target, err)
-	}
-
-	return cmd.Wait()
+	return launchNativeOpener(target)
 }
 
 // resolveOpenTarget picks the directory to open. Prefers args[0] if provided,
@@ -46,7 +36,9 @@ func runOpen(args []string) error {
 // root), and falls back to plain cwd when git isn't available or the folder isn't a repo.
 func resolveOpenTarget(args []string) (string, error) {
 	if len(args) > 0 && args[0] != "" {
-		resolved := resolveEndpointString(args[0])
+		expanded := expandTilde(args[0])
+		resolved := resolveEndpointString(expanded)
+
 		return filepath.Abs(resolved)
 	}
 
