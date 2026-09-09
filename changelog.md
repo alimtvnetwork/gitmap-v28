@@ -1,3 +1,15 @@
+## [v6.204.6] 2026-09-09 Release v6.204.6
+
+### Install GitMap v6.204.6
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.sh | bash -s -- ".lovable/prompts" "v6.204.6"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.6"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix dev profile tools installation and add diagnostic stack trace logging
+
 ## [v6.204.5] 2026-09-09 Release v6.204.5
 
 ### Install GitMap v6.204.5
