@@ -1,3 +1,15 @@
+## [v6.204.7] 2026-09-09 Release v6.204.7
+
+### Install GitMap v6.204.7
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.sh | bash -s -- ".lovable/prompts" "v6.204.7"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.7"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix macro add arrow history, mkdir tilde expansion and in-builder feedback, and open code/url support
+
 ## [v6.204.6] 2026-09-09 Release v6.204.6
 
 ### Install GitMap v6.204.6
