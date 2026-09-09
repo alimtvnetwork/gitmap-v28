@@ -161,10 +161,26 @@ func createWindowsStorageJunction(linkPath, targetPath string) {
 	_ = cmd.Run()
 }
 
+func ensureStorageParentDirs(linkPath, targetPath string) *apperror.AppError {
+	_ = os.MkdirAll(filepath.Dir(linkPath), 0755)
+
+	return ensurePublicStorageTarget(targetPath)
+}
+
+func handleWindowsStorageFallback(linkPath, targetPath string, err error) *apperror.AppError {
+	if currentOS == "windows" {
+		createWindowsStorageJunction(linkPath, targetPath)
+
+		return nil
+	}
+
+	return apperror.WrapSimple(err, "os.Symlink")
+}
+
 func createStorageSymlink(targetDir string) *apperror.AppError {
 	linkPath := filepath.Join(targetDir, "public", "storage")
 	targetPath := filepath.Join(targetDir, "storage", "app", "public")
-	ensureErr := ensurePublicStorageTarget(targetPath)
+	ensureErr := ensureStorageParentDirs(linkPath, targetPath)
 	if ensureErr != nil {
 		return ensureErr
 	}
@@ -173,12 +189,8 @@ func createStorageSymlink(targetDir string) *apperror.AppError {
 	if isSafeErr {
 		return nil
 	}
-	if currentOS == "windows" {
-		createWindowsStorageJunction(linkPath, targetPath)
-		return nil
-	}
 
-	return apperror.WrapSimple(err, "os.Symlink")
+	return handleWindowsStorageFallback(linkPath, targetPath, err)
 }
 
 func runArtisanStorageLink(targetDir string) *apperror.AppError {

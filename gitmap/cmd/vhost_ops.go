@@ -83,7 +83,14 @@ func prepareVHostConfig(cfg VHostConfig) VHostConfig {
 	return out
 }
 
+func isExplicitSitesAvail(opts VHostOptions) bool {
+	return opts.SitesAvailableDir != "" && opts.SitesAvailableDir != defaultSitesAvailableDir
+}
+
 func resolveVHostTargetPath(opts VHostOptions, domain string) string {
+	if isExplicitSitesAvail(opts) {
+		return filepath.Join(opts.SitesAvailableDir, domain)
+	}
 	_, err := os.Stat(opts.SitesAvailableDir)
 	hasAvail := err == nil
 	if hasAvail {

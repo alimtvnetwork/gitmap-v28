@@ -124,8 +124,7 @@ func applyOwnership(targetDir, owner string) *apperror.AppError {
 	if lookErr != nil {
 		return nil
 	}
-	cmd := exec.Command("chown", "-R", owner, targetDir)
-	runErr := cmd.Run()
+	runErr := commandRunner("chown", "-R", owner, targetDir)
 	if runErr != nil {
 		return apperror.WrapSimple(runErr, "chown")
 	}

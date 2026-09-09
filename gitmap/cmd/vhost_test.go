@@ -45,14 +45,24 @@ func TestDiscoverFastCGIPassFallback(t *testing.T) {
 	}
 }
 
-func TestCreateVHostWordPress(t *testing.T) {
-	dir := t.TempDir()
+func createTestVHostOptions(dir string) VHostOptions {
 	availDir := filepath.Join(dir, "sites-available")
 	enabDir := filepath.Join(dir, "sites-enabled")
-	opts := VHostOptions{
+	confDDir := filepath.Join(dir, "conf.d")
+	_ = os.MkdirAll(availDir, 0755)
+	_ = os.MkdirAll(enabDir, 0755)
+	_ = os.MkdirAll(confDDir, 0755)
+
+	return VHostOptions{
 		SitesAvailableDir: availDir,
 		SitesEnabledDir:   enabDir,
+		ConfDDir:          confDDir,
 	}
+}
+
+func TestCreateVHostWordPress(t *testing.T) {
+	dir := t.TempDir()
+	opts := createTestVHostOptions(dir)
 	cfg := VHostConfig{
 		SiteType:     VHostSiteTypeWordpress,
 		Domain:       "wp.test",
@@ -74,12 +84,7 @@ func TestCreateVHostWordPress(t *testing.T) {
 
 func TestEnableAndDisableVHost(t *testing.T) {
 	dir := t.TempDir()
-	availDir := filepath.Join(dir, "sites-available")
-	enabDir := filepath.Join(dir, "sites-enabled")
-	opts := VHostOptions{
-		SitesAvailableDir: availDir,
-		SitesEnabledDir:   enabDir,
-	}
+	opts := createTestVHostOptions(dir)
 	cfg := VHostConfig{
 		SiteType:     VHostSiteTypeLaravel,
 		Domain:       "laravel.test",
@@ -116,10 +121,7 @@ func TestEnableAndDisableVHost(t *testing.T) {
 
 func TestEnableVHostMissing(t *testing.T) {
 	dir := t.TempDir()
-	opts := VHostOptions{
-		SitesAvailableDir: filepath.Join(dir, "sites-available"),
-		SitesEnabledDir:   filepath.Join(dir, "sites-enabled"),
-	}
+	opts := createTestVHostOptions(dir)
 	err := EnableVHost("notfound.test", opts)
 	if err == nil {
 		t.Fatal("expected error enabling non-existent vhost")
