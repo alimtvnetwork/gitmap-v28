@@ -33,6 +33,8 @@ func getChocoTestCases() []pkgTestCase {
 		{constants.PkgMgrChocolatey, constants.ToolWordPress, constants.ChocoPkgWordPress},
 		{constants.PkgMgrChocolatey, constants.ToolLaravel, constants.ChocoPkgLaravel},
 		{constants.PkgMgrChocolatey, constants.ToolVMware, constants.ChocoPkgVMware},
+		{constants.PkgMgrChocolatey, constants.ToolQBittorrent, constants.ChocoPkgQBittorrent},
+		{constants.PkgMgrChocolatey, constants.ToolUTorrent, constants.ChocoPkgUTorrent},
 	}
 }
 
@@ -56,6 +58,8 @@ func getWingetTestCases() []pkgTestCase {
 		{constants.PkgMgrWinget, constants.ToolWordPress, constants.WingetPkgWordPress},
 		{constants.PkgMgrWinget, constants.ToolLaravel, constants.WingetPkgLaravel},
 		{constants.PkgMgrWinget, constants.ToolVMware, constants.WingetPkgVMware},
+		{constants.PkgMgrWinget, constants.ToolQBittorrent, constants.WingetPkgQBittorrent},
+		{constants.PkgMgrWinget, constants.ToolUTorrent, constants.WingetPkgUTorrent},
 	}
 }
 
@@ -79,6 +83,8 @@ func getAptTestCases() []pkgTestCase {
 		{constants.PkgMgrApt, constants.ToolWordPress, constants.AptPkgWordPress},
 		{constants.PkgMgrApt, constants.ToolLaravel, constants.AptPkgLaravel},
 		{constants.PkgMgrApt, constants.ToolVMware, constants.AptPkgVMware},
+		{constants.PkgMgrApt, constants.ToolQBittorrent, constants.AptPkgQBittorrent},
+		{constants.PkgMgrApt, constants.ToolUTorrent, constants.AptPkgUTorrent},
 	}
 }
 
@@ -102,6 +108,8 @@ func getBrewTestCases() []pkgTestCase {
 		{constants.PkgMgrBrew, constants.ToolWordPress, constants.BrewPkgWordPress},
 		{constants.PkgMgrBrew, constants.ToolLaravel, constants.BrewPkgLaravel},
 		{constants.PkgMgrBrew, constants.ToolVMware, constants.BrewPkgVMware},
+		{constants.PkgMgrBrew, constants.ToolQBittorrent, constants.BrewPkgQBittorrent},
+		{constants.PkgMgrBrew, constants.ToolUTorrent, constants.BrewPkgUTorrent},
 	}
 }
 
@@ -145,6 +153,12 @@ var aliasTestCases = []struct {
 	{"vmtools", constants.ToolVMware},
 	{"vmware-tools", constants.ToolVMware},
 	{"vm", constants.ToolVMware},
+	{"qtorrent", constants.ToolQBittorrent},
+	{"qbittorrent", constants.ToolQBittorrent},
+	{"qbit", constants.ToolQBittorrent},
+	{"utorrent", constants.ToolUTorrent},
+	{"u-torrent", constants.ToolUTorrent},
+	{"uttorrent", constants.ToolUTorrent},
 	{"unknown-tool-xyz", "unknown-tool-xyz"},
 }
 
@@ -164,7 +178,7 @@ var newToolList = []string{
 	constants.ToolDocker, constants.ToolKubernetes, constants.ToolJenkins,
 	constants.ToolZsh, constants.ToolFlameshot, constants.ToolConemu, constants.ToolVLC,
 	constants.ToolNginx, constants.ToolWordPress, constants.ToolLaravel,
-	constants.ToolVMware,
+	constants.ToolVMware, constants.ToolQBittorrent, constants.ToolUTorrent,
 }
 
 var expectedCategoryList = []string{

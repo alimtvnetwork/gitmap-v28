@@ -46,6 +46,8 @@ in
 | powershell      | pwsh           | PowerShell shell                 |
 | rust            | rustc, cargo   | Rust programming language & Cargo |
 | docker          | docker         | Docker container platform        |
+| qtorrent        | qbittorrent    | qBittorrent BitTorrent client    |
+| utorrent        | utorrent       | uTorrent BitTorrent client       |
 
 ## Notepad++ Variants
 

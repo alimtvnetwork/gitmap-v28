@@ -107,10 +107,12 @@ const (
 
 // Supported tool names — Terminal & Utilities.
 const (
-	ToolZsh       = "zsh"
-	ToolFlameshot = "flameshot"
-	ToolConemu    = "conemu"
-	ToolVLC       = "vlc"
+	ToolZsh         = "zsh"
+	ToolFlameshot   = "flameshot"
+	ToolConemu      = "conemu"
+	ToolVLC         = "vlc"
+	ToolQBittorrent = "qbittorrent"
+	ToolUTorrent    = "utorrent"
 )
 
 // Package manager names.
@@ -215,6 +217,8 @@ const (
 	ChocoPkgWordPress     = "wordpress"
 	ChocoPkgLaravel       = "laravel"
 	ChocoPkgVMware        = "vmware-workstation-player"
+	ChocoPkgQBittorrent   = "qbittorrent"
+	ChocoPkgUTorrent      = "utorrent"
 )
 
 // Winget package IDs.
@@ -244,6 +248,8 @@ const (
 	WingetPkgWordPress     = "Automattic.Wordpress"
 	WingetPkgLaravel       = "Laravel.Laravel"
 	WingetPkgVMware        = "VMware.WorkstationPlayer"
+	WingetPkgQBittorrent   = "qBittorrent.qBittorrent"
+	WingetPkgUTorrent      = "BitTorrent.uTorrent"
 )
 
 // Apt package IDs.
@@ -283,6 +289,8 @@ const (
 	AptPkgWordPress     = "wordpress"
 	AptPkgLaravel       = "laravel"
 	AptPkgVMware        = "open-vm-tools open-vm-tools-desktop"
+	AptPkgQBittorrent   = "qbittorrent"
+	AptPkgUTorrent      = "utorrent"
 )
 
 // Brew package IDs.
@@ -326,6 +334,8 @@ const (
 	BrewPkgWordPress     = "wp-cli"
 	BrewPkgLaravel       = "laravel"
 	BrewPkgVMware        = "vmware-fusion"
+	BrewPkgQBittorrent   = "qbittorrent"
+	BrewPkgUTorrent      = "utorrent"
 )
 
 // Snap package IDs.
@@ -530,6 +540,8 @@ var InstallToolDescriptions = map[string]string{
 	ToolComposer:         "Composer dependency manager for PHP",
 	ToolWpCli:            "WP-CLI command-line interface for WordPress management",
 	ToolOpenVmTools:      "Open Virtual Machine Tools for VMware guest optimization",
+	ToolQBittorrent:      "qBittorrent free and open-source BitTorrent client",
+	ToolUTorrent:         "uTorrent lightweight BitTorrent client",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -562,6 +574,6 @@ var InstallToolCategories = map[string][]string{
 		ToolDocker, ToolKubernetes, ToolJenkins, ToolNginx, ToolVMware, ToolOpenVmTools,
 	},
 	ToolCategoryUtilities: {
-		ToolZsh, ToolFlameshot, ToolConemu, ToolVLC,
+		ToolZsh, ToolFlameshot, ToolConemu, ToolVLC, ToolQBittorrent, ToolUTorrent,
 	},
 }

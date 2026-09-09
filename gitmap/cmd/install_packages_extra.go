@@ -41,6 +41,8 @@ var aptPackageMap = map[string]string{
 	constants.ToolWordPress:     constants.AptPkgWordPress,
 	constants.ToolLaravel:       constants.AptPkgLaravel,
 	constants.ToolVMware:        constants.AptPkgVMware,
+	constants.ToolQBittorrent:   constants.AptPkgQBittorrent,
+	constants.ToolUTorrent:      constants.AptPkgUTorrent,
 }
 
 // resolveAptPackage maps tool names to apt package IDs.
@@ -94,6 +96,8 @@ var brewPackageMap = map[string]string{
 	constants.ToolWordPress:     constants.BrewPkgWordPress,
 	constants.ToolLaravel:       constants.BrewPkgLaravel,
 	constants.ToolVMware:        constants.BrewPkgVMware,
+	constants.ToolQBittorrent:   constants.BrewPkgQBittorrent,
+	constants.ToolUTorrent:      constants.BrewPkgUTorrent,
 }
 
 // resolveBrewPackage maps tool names to Homebrew package IDs.

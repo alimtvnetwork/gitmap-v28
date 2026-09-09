@@ -47,6 +47,8 @@ var toolProbeMap = map[string]toolProbeConfig{
 	constants.ToolRedis:          {bins: []string{"redis-server", "redis-cli"}, args: []string{"--version"}},
 	constants.ToolMongoDB:        {bins: []string{"mongod", "mongosh"}, args: []string{"--version"}},
 	constants.ToolBuildEssential: {bins: []string{"gcc", "make", "g++"}, args: []string{"--version"}},
+	constants.ToolQBittorrent:    {bins: []string{"qbittorrent", "qbittorrent-nox"}, args: []string{"--version"}},
+	constants.ToolUTorrent:       {bins: []string{"utorrent", "uTorrent", "utserver"}, args: []string{"--version"}},
 }
 
 func resolveToolCandidates(tool string) ([]string, []string) {

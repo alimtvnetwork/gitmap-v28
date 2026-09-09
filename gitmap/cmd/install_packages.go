@@ -50,6 +50,12 @@ var toolAliasMap = map[string]string{
 	"antigravity-manager": constants.ToolAgManager,
 	"manager":             constants.ToolAgManager,
 	"agy-manager":         constants.ToolAgManager,
+	"qtorrent":            constants.ToolQBittorrent,
+	"qbittorrent":         constants.ToolQBittorrent,
+	"qbit":                constants.ToolQBittorrent,
+	"utorrent":            constants.ToolUTorrent,
+	"u-torrent":           constants.ToolUTorrent,
+	"uttorrent":           constants.ToolUTorrent,
 }
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.
@@ -111,6 +117,8 @@ var chocoPackageMap = map[string]string{
 	constants.ToolWordPress:     constants.ChocoPkgWordPress,
 	constants.ToolLaravel:       constants.ChocoPkgLaravel,
 	constants.ToolVMware:        constants.ChocoPkgVMware,
+	constants.ToolQBittorrent:   constants.ChocoPkgQBittorrent,
+	constants.ToolUTorrent:      constants.ChocoPkgUTorrent,
 }
 
 // resolveChocoPackage maps tool names to Chocolatey package IDs.
@@ -150,6 +158,8 @@ var wingetPackageMap = map[string]string{
 	constants.ToolWordPress:     constants.WingetPkgWordPress,
 	constants.ToolLaravel:       constants.WingetPkgLaravel,
 	constants.ToolVMware:        constants.WingetPkgVMware,
+	constants.ToolQBittorrent:   constants.WingetPkgQBittorrent,
+	constants.ToolUTorrent:      constants.WingetPkgUTorrent,
 }
 
 // resolveWingetPackage maps tool names to Winget package IDs.

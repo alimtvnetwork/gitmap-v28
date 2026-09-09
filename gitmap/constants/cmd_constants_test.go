@@ -441,6 +441,10 @@ func topLevelCmds() map[string]string {
 		"CmdRollback":                   CmdRollback,
 		"CmdGuard":                      CmdGuard,
 		"CmdVHost":                      CmdVHost,
+		"CmdExportConfig":               CmdExportConfig,
+		"CmdExportConfigAlias":          CmdExportConfigAlias,
+		"CmdImportConfig":               CmdImportConfig,
+		"CmdImportConfigAlias":          CmdImportConfigAlias,
 	}
 }
 

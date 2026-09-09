@@ -433,6 +433,12 @@ const (
 	// 02-spec/01-app/112-pull-release-cd.md.
 	CmdPullReleaseCD      = "pull-release-cd"
 	CmdPullReleaseCDAlias = "prc"
+	// CmdExportConfig exports application and developer tool configurations to JSON.
+	CmdExportConfig      = "export-config"
+	CmdExportConfigAlias = "config-export"
+	// CmdImportConfig imports application and developer tool configurations from JSON.
+	CmdImportConfig      = "import-config"
+	CmdImportConfigAlias = "config-import"
 )
 
 // vscode-pm-sync flag names + descriptions.

@@ -1576,6 +1576,48 @@ export const commands: CommandDef[] = [
     ],
   },
   {
+    category: "data",
+    name: "export-config",
+    alias: "config-export",
+    description: "Export developer tool and application configurations (VS Code, qBittorrent, uTorrent, all) to portable JSON",
+    usage: "gitmap export-config <tool|all> [path]",
+    flags: [
+      { flag: "<tool>", description: "Target tool: vscode, qtorrent (qbittorrent), utorrent (uttorrent), or all" },
+      { flag: "[path]", description: "Destination file path or directory (defaults to <tool>.json in current directory)" },
+    ],
+    examples: [
+      { command: "gitmap export-config qtorrent", description: "Export qBittorrent config to ./qtorrent.json" },
+      { command: "gitmap export-config vscode", description: "Export VS Code settings to ./vscode.json" },
+      { command: "gitmap export-config uttorrent", description: "Export uTorrent settings to ./uttorrent.json" },
+      { command: "gitmap export-config all ./configs", description: "Export all tool configurations into folder" },
+    ],
+    seeAlso: [
+      { name: "import-config", description: "Import tool configurations from JSON bundle" },
+      { name: "install", description: "Install developer tools and torrent clients" },
+    ],
+  },
+  {
+    category: "data",
+    name: "import-config",
+    alias: "config-import, improt-config",
+    description: "Import developer tool and application configurations (VS Code, qBittorrent, uTorrent, all) from JSON into native platform directories",
+    usage: "gitmap import-config <tool|all> [path]",
+    flags: [
+      { flag: "<tool>", description: "Target tool: vscode, qtorrent (qbittorrent), utorrent (uttorrent), or all" },
+      { flag: "[path]", description: "Source JSON file path or directory containing bundles" },
+    ],
+    examples: [
+      { command: "gitmap import-config uttorrent", description: "Import uTorrent settings from ./uttorrent.json" },
+      { command: "gitmap import-config qtorrent", description: "Import qBittorrent settings from ./qtorrent.json" },
+      { command: "gitmap import-config vscode", description: "Import VS Code settings and extensions from ./vscode.json" },
+      { command: "gitmap import-config all ./configs", description: "Batch import all discovered configurations from folder" },
+    ],
+    seeAlso: [
+      { name: "export-config", description: "Export tool configurations to JSON bundle" },
+      { name: "install", description: "Install developer tools and torrent clients" },
+    ],
+  },
+  {
     category: "maintenance",
     name: "find-duplicates",
     alias: "dups, find-dups",
