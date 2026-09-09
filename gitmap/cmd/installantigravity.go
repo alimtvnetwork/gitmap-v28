@@ -8,15 +8,25 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 func runInstallAntigravityWithOpts(opts installOptions) error {
-	if opts.DryRun {
-		fmt.Println("  [dry-run] Would run: curl -fsSL https://get.antigravity.dev | bash (or powershell irm)")
+	ver, isFound := verifyAndRecordAntigravity()
+	if isFound {
+		fmt.Printf("  ✓ Antigravity is already installed (%s)\n", ver)
 
 		return nil
 	}
+	if opts.DryRun {
+		fmt.Println("  [dry-run] Would download and install Antigravity CLI (agy)")
+
+		return nil
+	}
+
+	return performAntigravityInstall()
+}
+
+func performAntigravityInstall() error {
 	fmt.Println("Installing Antigravity (agy) CLI...")
 	if err := executeAntigravityInstaller(); err != nil {
 		fmt.Fprintf(os.Stderr, "Installer failed: %v, trying npm fallback...\n", err)
@@ -28,13 +38,18 @@ func runInstallAntigravityWithOpts(opts installOptions) error {
 
 		return nil
 	}
-	fmt.Fprintf(os.Stderr, "Notice: Antigravity installed. Restart shell or run: agy --version\n")
+	reportVerificationFailure(constants.ToolAntigravity, "agy")
 
-	return nil
+	return fmt.Errorf("antigravity installation verification failed")
 }
 
 func executeAntigravityInstaller() error {
-	cmd := buildAgyPlatformCmd()
+	scriptPath, err := downloadAndValidateAgyScript()
+	if err != nil {
+
+		return err
+	}
+	cmd := buildScriptExecutionCmd(scriptPath)
 	if cmd == nil {
 
 		return fmt.Errorf("unsupported platform: %s", runtime.GOOS)
@@ -44,40 +59,34 @@ func executeAntigravityInstaller() error {
 	return cmd.Run()
 }
 
-func buildAgyPlatformCmd() *exec.Cmd {
+func buildScriptExecutionCmd(scriptPath string) *exec.Cmd {
 	if runtime.GOOS == "windows" {
 
-		return exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-Command", "irm https://get.antigravity.dev | iex")
+		return exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", scriptPath)
 	}
 
-	return exec.Command("bash", "-c", "curl -fsSL https://get.antigravity.dev | bash")
-}
-
-func runAgyNpmFallback() error {
-	cmd := exec.Command("npm", "install", "-g", "@google/antigravity")
-	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
-
-	return cmd.Run()
+	return exec.Command("bash", scriptPath)
 }
 
 func verifyAndRecordAntigravity() (string, bool) {
-	out, err := exec.Command("agy", "--version").Output()
+	bin := resolveToolBinaryPath("agy")
+	if bin == "" {
+		bin = resolveToolBinaryPath("antigravity")
+	}
+	if bin == "" {
+
+		return "", false
+	}
+	out, err := exec.Command(bin, "--version").Output()
 	if err != nil {
 
 		return "", false
 	}
-	ver := strings.TrimSpace(string(out))
+	ver := parseVersionFromOutput(string(out))
+	if ver == "" {
+		ver = strings.TrimSpace(string(out))
+	}
 	recordAgyInstalled(ver)
 
 	return ver, true
-}
-
-func recordAgyInstalled(ver string) {
-	splitDB, err := store.OpenInstallationSplitDB()
-	if err != nil {
-
-		return
-	}
-	defer splitDB.Close()
-	_ = splitDB.SaveInstalledTool("antigravity", ver, "installer")
 }

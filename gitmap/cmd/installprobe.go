@@ -50,6 +50,8 @@ var toolProbeMap = map[string]toolProbeConfig{
 	constants.ToolQBittorrent:    {bins: []string{"qbittorrent", "qbittorrent-nox"}, args: []string{"--version"}},
 	constants.ToolUTorrent:       {bins: []string{"utorrent", "uTorrent", "utserver"}, args: []string{"--version"}},
 	constants.ToolZsh:            {bins: []string{"zsh"}, args: []string{"--version"}},
+	constants.ToolAntigravity:    {bins: []string{"agy", "antigravity"}, args: []string{"--version"}},
+	constants.ToolAgManager:      {bins: []string{"ag-manager", "Antigravity.Tools", "Antigravity-Manager"}, args: []string{"--version"}},
 }
 
 func resolveToolCandidates(tool string) ([]string, []string) {
@@ -74,7 +76,11 @@ func probeCandidate(bin string, args []string) string {
 	ctx, cancel := context.WithTimeout(context.Background(), 2500*time.Millisecond)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, bin, args...)
+	target := resolveToolBinaryPath(bin)
+	if target == "" {
+		target = bin
+	}
+	cmd := exec.CommandContext(ctx, target, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil && len(out) == 0 {
 
@@ -152,7 +158,7 @@ func parseVersionFromOutput(output string) string {
 }
 
 func isBinaryInPath(tool string) bool {
-	_, err := exec.LookPath(tool)
+	path := resolveToolBinaryPath(tool)
 
-	return err == nil
+	return path != ""
 }

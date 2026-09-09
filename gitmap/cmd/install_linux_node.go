@@ -70,6 +70,7 @@ func executePnpmLinuxInstall(opts installOptions) error {
 
 		return err
 	}
+	postPnpmLinuxSetup()
 	verifyInstallation(opts.Tool)
 	recordInstallation(opts.Tool, "npm")
 

@@ -5,9 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -15,34 +13,40 @@ import (
 )
 
 func runInstallAgManagerWithOpts(opts installOptions) error {
+	ver, isFound := isAgManagerInstalled()
+	if isFound {
+		fmt.Printf("  ✓ Antigravity Manager is already installed (%s)\n", ver)
+
+		return nil
+	}
 	fmt.Println("Fetching release for Antigravity-Manager...")
-	assetURL, ver, err := resolveAgManagerAssetURL(opts.Version)
+	assetURL, relVer, err := resolveAgManagerAssetURL(opts.Version)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error fetching release: %v\n", err)
+		reportVerificationFailure(constants.ToolAgManager, "ag-manager")
 
 		return nil
 	}
 	if opts.DryRun {
-		fmt.Printf("  [dry-run] Would download %s (version: %s) and execute installer\n", assetURL, ver)
+		fmt.Printf("  [dry-run] Would download %s (version: %s) and execute installer\n", assetURL, relVer)
 
 		return nil
 	}
-	fmt.Printf("Downloading %s (version: %s)...\n", assetURL, ver)
-	performAgManagerDownloadAndInstall(assetURL, ver)
+	performAgManagerDownloadAndInstall(assetURL, relVer)
 
 	return nil
 }
 
 func performAgManagerDownloadAndInstall(assetURL, ver string) {
+	fmt.Printf("Downloading %s (version: %s)...\n", assetURL, ver)
 	tmpPath, err := downloadAgManagerFile(assetURL)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error downloading file: %v\n", err)
+		reportVerificationFailure(constants.ToolAgManager, "ag-manager")
 
 		return
 	}
 	fmt.Printf("Installing %s...\n", filepath.Base(tmpPath))
 	if err := executeAgManagerInstaller(tmpPath); err != nil {
-		fmt.Fprintf(os.Stderr, "Error installing: %v\n", err)
+		reportVerificationFailure(constants.ToolAgManager, "ag-manager")
 
 		return
 	}
@@ -79,47 +83,4 @@ func downloadAgManagerFile(url string) (string, error) {
 	_, err = io.Copy(out, resp.Body)
 
 	return tmpPath, err
-}
-
-func executeAgManagerInstaller(path string) error {
-	cmd := buildInstallerCommand(path)
-	if cmd != nil {
-		cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
-
-		return cmd.Run()
-	}
-
-	return nil
-}
-
-func buildInstallerCommand(path string) *exec.Cmd {
-	switch runtime.GOOS {
-	case "windows":
-		return buildWindowsInstallerCmd(path)
-	case "darwin":
-		return exec.Command("open", path)
-	case "linux":
-		return buildLinuxInstallerCmd(path)
-	}
-
-	return nil
-}
-
-func buildWindowsInstallerCmd(path string) *exec.Cmd {
-	if strings.HasSuffix(strings.ToLower(path), ".msi") {
-
-		return exec.Command("msiexec", "/i", path, "/qn")
-	}
-
-	return exec.Command(path, "/S")
-}
-
-func buildLinuxInstallerCmd(path string) *exec.Cmd {
-	if strings.HasSuffix(strings.ToLower(path), ".deb") {
-
-		return exec.Command("sudo", "dpkg", "-i", path)
-	}
-	os.Chmod(path, 0755)
-
-	return exec.Command(path)
 }

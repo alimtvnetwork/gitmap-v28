@@ -56,14 +56,14 @@ func reportVerifiedTool(tool, version string) {
 
 func verifyByVersion(tool string) {
 	if isGUITool(tool) {
-		fmt.Fprintf(os.Stderr, constants.ErrInstallVerifyFailed, tool)
+		reportVerificationFailure(tool, toolBinaryName(tool))
 
 		return
 	}
-
-	version := getInstalledVersion(toolBinaryName(tool))
+	bin := toolBinaryName(tool)
+	version := getInstalledVersion(bin)
 	if version == "" {
-		fmt.Fprintf(os.Stderr, constants.ErrInstallVerifyFailed, tool)
+		reportVerificationFailure(tool, bin)
 
 		return
 	}
@@ -174,8 +174,8 @@ func execVersion(path, flag string) string {
 
 // getInstalledVersion runs --version or -v and returns the output.
 func getInstalledVersion(binary string) string {
-	path, err := exec.LookPath(binary)
-	if err != nil {
+	path := resolveToolBinaryPath(binary)
+	if path == "" {
 
 		return ""
 	}
@@ -204,6 +204,11 @@ var toolBinaryMap = map[string]string{
 	constants.ToolWordPress:     "wp",
 	constants.ToolLaravel:       "laravel",
 	constants.ToolVMware:        "vmhgfs-fuse",
+	constants.ToolAntigravity:   "agy",
+	constants.ToolAgManager:     "ag-manager",
+	constants.ToolQBittorrent:   "qbittorrent",
+	constants.ToolUTorrent:      "utorrent",
+	constants.ToolZsh:           "zsh",
 }
 
 // toolBinaryName maps tool names to their binary/executable names.
