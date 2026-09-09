@@ -54,7 +54,7 @@ func handlePromptAction(item *RemediationItem, action string) string {
 
 func resolveDirtyFiles(item *RemediationItem) []string {
 	files := item.Files
-	isMissingFiles := len(files) <= 0
+	isMissingFiles := len(files) == 0
 	hasRepoPath := len(item.RepoPath) > 0
 	if isMissingFiles && hasRepoPath {
 		diag := gitutil.InspectDirtyState(item.RepoPath)
@@ -89,7 +89,7 @@ func renderDirtyFileList(files []string) {
 
 func printRepoDirtyFiles(item *RemediationItem) {
 	files := resolveDirtyFiles(item)
-	if len(files) <= 0 {
+	if len(files) == 0 {
 		return
 	}
 	renderDirtyFileList(files)

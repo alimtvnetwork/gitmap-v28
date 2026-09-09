@@ -9,7 +9,7 @@ import (
 )
 
 func RenderPullBatchTable(rows []model.PullTableRow) {
-	if len(rows) <= 0 {
+	if len(rows) == 0 {
 		return
 	}
 

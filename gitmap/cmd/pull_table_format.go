@@ -44,7 +44,7 @@ func middleTruncate(input string, maxLength int, endLength int) string {
 }
 
 func formatBranchName(branch string, maxLength int) string {
-	if len(branch) <= 0 {
+	if len(branch) == 0 {
 		return ""
 	}
 	cleanedBranch := stripBranchPrefix(branch)
@@ -54,7 +54,7 @@ func formatBranchName(branch string, maxLength int) string {
 }
 
 func formatCombinedBranch(branch, latest string, maxLength int) string {
-	if len(branch) <= 0 {
+	if len(branch) == 0 {
 		return ""
 	}
 	cleanedBranch := stripBranchPrefix(branch)
@@ -70,7 +70,7 @@ func formatCombinedBranch(branch, latest string, maxLength int) string {
 }
 
 func formatRepoName(repo string, maxLength int) string {
-	if len(repo) <= 0 {
+	if len(repo) == 0 {
 		return ""
 	}
 	formattedRepo := middleTruncate(repo, maxLength, 5)

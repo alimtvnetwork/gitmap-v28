@@ -139,11 +139,12 @@ func formatAgyScanStatus(count int) string {
 }
 
 func tallyScanResult(count int, added, repeated, missing *int) {
-	if count == 1 {
+	switch {
+	case count == 1:
 		*added++
-	} else if count > 1 {
+	case count > 1:
 		*repeated++
-	} else {
+	default:
 		*missing++
 	}
 }

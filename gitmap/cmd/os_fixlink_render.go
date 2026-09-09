@@ -75,11 +75,12 @@ func printSummaryTerminal(results []LinkResult) {
 func countResultStats(results []LinkResult) (int, int, int) {
 	var healthy, repaired, broken int
 	for _, r := range results {
-		if r.IsRepaired {
+		switch {
+		case r.IsRepaired:
 			repaired++
-		} else if r.IsHealthy {
+		case r.IsHealthy:
 			healthy++
-		} else {
+		default:
 			broken++
 		}
 	}
