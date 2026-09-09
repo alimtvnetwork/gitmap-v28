@@ -1,3 +1,17 @@
+## [v6.202.0] 2026-09-09 Release v6.202.0
+
+### Install GitMap v6.202.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.sh | bash -s -- ".lovable/prompts" "v6.202.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.202.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove dead runInstallAgManager and runInstallAntigravity functions to pass strict unused and lint-baseline-diff CI checks
+- Upgrade .github/scripts/full-suite-lint.sh to native high-performance Bash runner with live tee streaming and SIMD grep -cE issue counting
+- Modernize .github/scripts/full-suite-lint.py with line-buffered subprocess.Popen real-time stdout streaming and O(1) memory tracking
+
 ## [v6.201.0] 2026-09-09 Release v6.201.0
 
 ### Install GitMap v6.201.0
