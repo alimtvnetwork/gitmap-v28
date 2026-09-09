@@ -18,28 +18,39 @@ var rscHeaderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd")).B
 
 func runReleaseScanCommits(args []string) error {
 	isAll := parseRscArgs(args)
+	cwd, head, err := resolveCwdAndHead()
+	if err != nil {
+		return apperror.WrapSimple(err, "runReleaseScanCommits")
+	}
+
+	return executeAndPersistScan(cwd, head, isAll)
+}
+
+func resolveCwdAndHead() (string, string, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
-		return apperror.NewSimple("fatal error", "E9000")
+		return "", "", apperror.WrapSimple(err, "resolveCwdAndHead")
 	}
 	head, err := getGitHead(cwd)
 	if err != nil {
-		return apperror.NewSimple("fatal error", "E9000")
+		return "", "", apperror.WrapSimple(err, "resolveCwdAndHead")
 	}
 
+	return cwd, head, nil
+}
+
+func executeAndPersistScan(cwd, head string, isAll bool) error {
 	commits, err := fetchCommits(cwd, isAll)
 	if err != nil {
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "executeAndPersistScan")
 	}
-
 	actions, err := release.ExecuteCommitActions(cwd, commits)
 	if err != nil {
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "executeAndPersistScan")
 	}
-
 	printScanCommitsSummary(actions)
-	_ = release.WriteLastScannedCommit(cwd, head)
-	return nil
+
+	return release.WriteLastScannedCommit(cwd, head)
 }
 
 func parseRscArgs(args []string) bool {
@@ -48,6 +59,7 @@ func parseRscArgs(args []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -58,15 +70,12 @@ func getGitHead(cwd string) (string, error) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "getGitHead")
 	}
+
 	return strings.TrimSpace(string(out)), nil
 }
 
 func fetchCommits(cwd string, isAll bool) ([]release.ParsedCommit, error) {
-	lastHash, _ := release.ReadLastScannedCommit(cwd)
-	rangeStr := ""
-	if !isAll && lastHash != "" {
-		rangeStr = lastHash + "..HEAD"
-	}
+	rangeStr := buildCommitRange(cwd, isAll)
 	cmdArgs := []string{"log", "--oneline"}
 	if rangeStr != "" {
 		cmdArgs = append(cmdArgs, rangeStr)
@@ -77,26 +86,49 @@ func fetchCommits(cwd string, isAll bool) ([]release.ParsedCommit, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "fetchCommits")
 	}
+
 	return parseGitLogLines(string(out)), nil
+}
+
+func buildCommitRange(cwd string, isAll bool) string {
+	if isAll {
+		return ""
+	}
+	lastHash, err := release.ReadLastScannedCommit(cwd)
+	if err != nil || lastHash == "" {
+		return ""
+	}
+
+	return lastHash + "..HEAD"
 }
 
 func parseGitLogLines(logOut string) []release.ParsedCommit {
 	var commits []release.ParsedCommit
 	lines := strings.Split(logOut, "\n")
 	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-		parts := strings.SplitN(line, " ", 2)
-		if len(parts) < 2 {
-			continue
-		}
-		if ver, isFound := release.ParseVersionFromCommit(parts[1]); isFound {
-			commits = append(commits, release.ParsedCommit{Hash: parts[0], Message: parts[1], Version: ver})
+		if commit, isParsed := parseGitLogLine(line); isParsed {
+			commits = append(commits, commit)
 		}
 	}
+
 	return commits
+}
+
+func parseGitLogLine(line string) (release.ParsedCommit, bool) {
+	trimmed := strings.TrimSpace(line)
+	if trimmed == "" {
+		return release.ParsedCommit{}, false
+	}
+	parts := strings.SplitN(trimmed, " ", 2)
+	if len(parts) < 2 {
+		return release.ParsedCommit{}, false
+	}
+	ver, isFound := release.ParseVersionFromCommit(parts[1])
+	if !isFound {
+		return release.ParsedCommit{}, false
+	}
+
+	return release.ParsedCommit{Hash: parts[0], Message: parts[1], Version: ver}, true
 }
 
 func printScanCommitsSummary(actions []release.ScanCommitAction) {
@@ -112,7 +144,10 @@ func printScanCommitsSummary(actions []release.ScanCommitAction) {
 func printActionLine(name string, isCreated, isSkipped bool) {
 	if isCreated {
 		fmt.Printf("  %s %s created\n", rscSuccessStyle.Render("✓"), name)
-	} else if isSkipped {
+		return
+	}
+	if isSkipped {
 		fmt.Printf("  %s %s skipped (already exists)\n", rscSkipStyle.Render("~"), name)
+		return
 	}
 }

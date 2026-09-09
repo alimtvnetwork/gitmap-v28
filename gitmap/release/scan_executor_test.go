@@ -46,10 +46,13 @@ func initGitRepo(t *testing.T, dir string) {
 func createInitialCommit(t *testing.T, dir string) string {
 	t.Helper()
 	file := filepath.Join(dir, "test.txt")
-	os.WriteFile(file, []byte("hello"), 0644)
+	if err := os.WriteFile(file, []byte("hello"), 0644); err != nil {
+		t.Fatalf("failed to write test file: %v", err)
+	}
 	runTestGitCmd(t, dir, "add", "test.txt")
 	runTestGitCmd(t, dir, "commit", "-m", "init")
 	out := runTestGitCmdOutput(t, dir, "rev-parse", "HEAD")
+
 	return strings.TrimSpace(string(out))
 }
 
@@ -70,5 +73,6 @@ func runTestGitCmdOutput(t *testing.T, dir string, args ...string) []byte {
 	if err != nil {
 		t.Fatalf("git %v failed: %v", args, err)
 	}
+
 	return out
 }

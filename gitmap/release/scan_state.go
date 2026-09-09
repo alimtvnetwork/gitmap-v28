@@ -22,19 +22,24 @@ func ReadLastScannedCommit(repoDir string) (string, error) {
 	if err := json.Unmarshal(data, &state); err != nil {
 		return "", apperror.Wrap(err, "parse_scan_state", map[string]any{"path": path})
 	}
+
 	return state.LastCommit, nil
 }
 
 func WriteLastScannedCommit(repoDir, commitHash string) error {
 	path := filepath.Join(repoDir, ".gitmap", "commit_scan_state.json")
 	state := scanState{LastCommit: commitHash}
-	data, _ := json.Marshal(state)
-	err := os.MkdirAll(filepath.Dir(path), 0755)
+	data, err := json.Marshal(state)
+	if err != nil {
+		return apperror.Wrap(err, "marshal_scan_state", map[string]any{"path": path})
+	}
+	err = os.MkdirAll(filepath.Dir(path), 0755)
 	if err != nil {
 		return apperror.Wrap(err, "mkdir_scan_state", map[string]any{"path": path})
 	}
 	if err := os.WriteFile(path, data, 0644); err != nil {
 		return apperror.Wrap(err, "write_scan_state", map[string]any{"path": path})
 	}
+
 	return nil
 }

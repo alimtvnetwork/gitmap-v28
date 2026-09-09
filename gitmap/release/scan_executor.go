@@ -30,6 +30,7 @@ func ExecuteCommitActions(repoDir string, commits []ParsedCommit) ([]ScanCommitA
 		}
 		actions = append(actions, action)
 	}
+
 	return actions, nil
 }
 
@@ -44,19 +45,22 @@ func processCommit(repoDir string, commit ParsedCommit) (ScanCommitAction, error
 	if err := processTag(repoDir, commit, &action); err != nil {
 		return action, apperror.WrapSimple(err, "processCommit")
 	}
+
 	return action, nil
 }
 
 func processBranch(repoDir string, commit ParsedCommit, action *ScanCommitAction) error {
 	branchName := "release/" + commit.Version
-	isExists, err := isRefExists(repoDir, "refs/heads/"+branchName)
+	isExists, err := isRefPresent(repoDir, "refs/heads/"+branchName)
 	if err != nil {
 		return apperror.WrapSimple(err, "processBranch")
 	}
 	if isExists {
 		action.IsBranchSkipped = true
+
 		return nil
 	}
+
 	return createBranch(repoDir, branchName, commit.Hash, action)
 }
 
@@ -67,18 +71,21 @@ func createBranch(repoDir, branchName, hash string, action *ScanCommitAction) er
 		return apperror.Wrap(err, "createBranch", map[string]any{"branch": branchName})
 	}
 	action.IsBranchCreated = true
+
 	return nil
 }
 
 func processTag(repoDir string, commit ParsedCommit, action *ScanCommitAction) error {
-	isExists, err := isRefExists(repoDir, "refs/tags/"+commit.Version)
+	isExists, err := isRefPresent(repoDir, "refs/tags/"+commit.Version)
 	if err != nil {
 		return apperror.WrapSimple(err, "processTag")
 	}
 	if isExists {
 		action.IsTagSkipped = true
+
 		return nil
 	}
+
 	return createTag(repoDir, commit.Version, commit.Hash, action)
 }
 
@@ -89,10 +96,11 @@ func createTag(repoDir, tagName, hash string, action *ScanCommitAction) error {
 		return apperror.Wrap(err, "createTag", map[string]any{"tag": tagName})
 	}
 	action.IsTagCreated = true
+
 	return nil
 }
 
-func isRefExists(repoDir, refPath string) (bool, error) {
+func isRefPresent(repoDir, refPath string) (bool, error) {
 	cmd := exec.Command("git", "show-ref", "--verify", "--quiet", refPath)
 	cmd.Dir = repoDir
 	err := cmd.Run()
@@ -102,5 +110,6 @@ func isRefExists(repoDir, refPath string) (bool, error) {
 	if _, isExit := err.(*exec.ExitError); isExit {
 		return false, nil
 	}
-	return false, apperror.Wrap(err, "isRefExists", map[string]any{"ref": refPath})
+
+	return false, apperror.Wrap(err, "isRefPresent", map[string]any{"ref": refPath})
 }
