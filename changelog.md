@@ -1,3 +1,19 @@
+## [v6.200.0] 2026-09-09 Release v6.200.0
+
+### Install GitMap v6.200.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.sh | bash -s -- ".lovable/prompts" "v6.200.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.200.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Antigravity Manager release installer, custom profile engine, and preflight probe
+- Parallel multi-worker CPU checkers, 10s telemetry heartbeat, and incremental git commit checkpointing
+- Terminal-adaptive responsive table layout, status checkmarks, and interactive dirty remediation box
+- Google OAuth token preservation and cipher extraction in Chrome profile backups
+- 100% CPU multi-core utilization across all linters and code formatters with chunked file queues
+
 ## [v6.199.0] 2026-09-08 Release v6.199.0
 
 ### Install GitMap v6.199.0
