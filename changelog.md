@@ -1,3 +1,15 @@
+## [v6.204.9] 2026-09-09 Release v6.204.9
+
+### Install GitMap v6.204.9
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.sh | bash -s -- ".lovable/prompts" "v6.204.9"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.9"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove unused crontabLookPathFunc and isCrontabAvailable to pass golangci-lint full-suite runner
+
 ## [v6.204.8] 2026-09-09 Release v6.204.8
 
 ### Install GitMap v6.204.8
