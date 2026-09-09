@@ -1,3 +1,15 @@
+## [v6.204.2] 2026-09-09 Release v6.204.2
+
+### Install GitMap v6.204.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.sh | bash -s -- ".lovable/prompts" "v6.204.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Ubuntu ZSH update prompt, prevent unwanted reinstall, and preserve existing shell configuration
+
 ## [v6.204.1] 2026-09-09 Release v6.204.1
 
 ### Install GitMap v6.204.1
