@@ -1,3 +1,15 @@
+## [v6.204.1] 2026-09-09 Release v6.204.1
+
+### Install GitMap v6.204.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.sh | bash -s -- ".lovable/prompts" "v6.204.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.1"`
+
+### Added / Changed / Fixed / Removed
+
+- qBittorrent and uTorrent installers, config export and import options, profile tree preview
+
 ## [v6.204.0] 2026-09-09 Release v6.204.0
 
 ### Install GitMap v6.204.0
