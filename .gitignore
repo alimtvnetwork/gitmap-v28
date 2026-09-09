@@ -67,4 +67,7 @@ __pycache__/
 .lovable/temp-agents/
 /data
 /tmp/
+tmp/
 /.tmp
+/.tmp/
+.tmp/
