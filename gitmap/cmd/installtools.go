@@ -194,7 +194,8 @@ func isBrewCaskTool(tool string) bool {
 	switch tool {
 	case constants.ToolVSCode, constants.ToolGitHubDesktop, constants.ToolPowerShell,
 		constants.ToolDbeaver, constants.ToolOBS, constants.ToolVLC,
-		constants.ToolFlameshot, constants.ToolDocker, constants.ToolFlutter:
+		constants.ToolFlameshot, constants.ToolDocker, constants.ToolFlutter,
+		constants.ToolQBittorrent, constants.ToolUTorrent:
 
 		return true
 	default:

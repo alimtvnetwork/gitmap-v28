@@ -74,6 +74,7 @@ func locateExistingConfigBundle(targetArg, inputTool, canonicalTool string) stri
 
 // importSingleToolConfig imports a single tool bundle into its target config directory.
 func importSingleToolConfig(canonicalTool, inputTool, targetArg string) error {
+	canonicalTool = normalizeConfigTool(canonicalTool)
 	sourcePath := locateExistingConfigBundle(targetArg, inputTool, canonicalTool)
 	bundle, err := loadConfigBundle(sourcePath)
 	if err != nil {

@@ -10,6 +10,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
+// isSupportedExportTool checks if tool is supported for configuration export.
+func isSupportedExportTool(canonicalTool string) bool {
+	if canonicalTool == "all" {
+
+		return true
+	}
+
+	return resolveToolConfigDir(canonicalTool) != ""
+}
+
 // runExportConfig handles `gitmap export-config <tool> [path]`.
 func runExportConfig(args []string) error {
 	if len(args) == 0 || isConfigHelpRequested(args[0]) {
@@ -17,7 +27,18 @@ func runExportConfig(args []string) error {
 
 		return nil
 	}
+
+	return dispatchExportArgs(args)
+}
+
+// dispatchExportArgs validates and dispatches export execution.
+func dispatchExportArgs(args []string) error {
 	canonicalTool, inputTool, targetArg := parseExportArgs(args)
+	if !isSupportedExportTool(canonicalTool) {
+		cliexit.Reportf("export-config", "export", inputTool, fmt.Errorf("unsupported tool '%s'", inputTool))
+
+		return nil
+	}
 	if canonicalTool == "all" {
 
 		return exportAllToolConfigs(targetArg)

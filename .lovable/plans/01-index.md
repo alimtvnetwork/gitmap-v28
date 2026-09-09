@@ -9,6 +9,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [89-qtorrent-utorrent-installers-and-config-options.md](completed/89-qtorrent-utorrent-installers-and-config-options.md): qBittorrent & uTorrent Installers and JSON Config Export/Import Engine
 - [87-parallel-cpu-chunking-and-git-history-filter.md](completed/87-parallel-cpu-chunking-and-git-history-filter.md): Parallel CPU Chunking, 5-Second Heartbeat Telemetry & Git History Window Filter
 - [86-antigravity-manager-release-installer-and-profiles-engine.md](completed/86-antigravity-manager-release-installer-and-profiles-engine.md): Antigravity Manager Release Installer, Dynamic Version Discovery & Installation Profiles Engine
 - [85-parallel-cpu-checkers-and-live-progress-engine.md](completed/85-parallel-cpu-checkers-and-live-progress-engine.md): Parallel Multi-Core Quality Checkers & Real-Time Progress Engine

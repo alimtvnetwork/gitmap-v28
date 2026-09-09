@@ -13,17 +13,30 @@ func runInstallProfile(profileName string, opts installOptions) error {
 
 		return nil
 	}
-	printProfileStartHeader(p)
+	installed := loadInstalledLookup()
+	if opts.Tree {
+		renderProfileTree(p, installed)
+
+		return nil
+	}
+
+	return executeProfileWorkflow(p, opts, installed)
+}
+
+func executeProfileWorkflow(p InstallProfile, opts installOptions, installed map[string]string) error {
+	printProfileStartHeader(p, installed)
 	installedCount := executeProfileTools(p, opts)
 	printProfileSummary(p, installedCount)
 
 	return nil
 }
 
-func printProfileStartHeader(p InstallProfile) {
+func printProfileStartHeader(p InstallProfile, installed map[string]string) {
 	fmt.Printf("\n=== Installing Profile: %s (%s) ===\n", p.Name, p.Title)
 	fmt.Printf("Description: %s\n", p.Description)
 	fmt.Printf("Total Tools: %d\n\n", len(p.Tools))
+	renderProfileTreeNodes(p, installed)
+	fmt.Println()
 }
 
 func executeProfileTools(p InstallProfile, opts installOptions) int {

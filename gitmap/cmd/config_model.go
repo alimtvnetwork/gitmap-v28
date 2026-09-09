@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -60,6 +61,17 @@ func resolveDefaultConfigFileName(inputTool string, canonicalTool string) string
 	return canonicalTool + ".json"
 }
 
+// isConfigDirectoryPath checks if path represents a directory.
+func isConfigDirectoryPath(path string) bool {
+	if strings.HasSuffix(path, "/") || strings.HasSuffix(path, "\\") {
+
+		return true
+	}
+	fi, err := os.Stat(path)
+
+	return err == nil && fi.IsDir()
+}
+
 // resolveConfigFilePath determines the final output/input file path.
 func resolveConfigFilePath(specifiedPath, defaultFilename string) string {
 	cleanPath := strings.TrimSpace(specifiedPath)
@@ -67,8 +79,7 @@ func resolveConfigFilePath(specifiedPath, defaultFilename string) string {
 
 		return defaultFilename
 	}
-	isDir := strings.HasSuffix(cleanPath, "/") || strings.HasSuffix(cleanPath, "\\")
-	if isDir {
+	if isConfigDirectoryPath(cleanPath) {
 
 		return filepath.Join(cleanPath, defaultFilename)
 	}

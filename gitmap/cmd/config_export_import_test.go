@@ -86,3 +86,43 @@ func TestConfigCLICalls(t *testing.T) {
 		t.Errorf("import-config help returned error: %v", err)
 	}
 }
+
+func TestResolveConfigFilePathDirectoryHandling(t *testing.T) {
+	tmpDir := t.TempDir()
+	got := resolveConfigFilePath(tmpDir, "qtorrent.json")
+	want := filepath.Join(tmpDir, "qtorrent.json")
+	if got != want {
+		t.Errorf("resolveConfigFilePath(%q) = %q; want %q", tmpDir, got, want)
+	}
+}
+
+func TestBase64BinaryDecodeRoundtrip(t *testing.T) {
+	payload := ConfigFilePayload{
+		Name:     "settings.dat",
+		Encoding: "base64",
+		Content:  "ZDRpZDFleQ==",
+	}
+	bytes, err := decodeConfigFileBytes(payload)
+	if err != nil || len(bytes) == 0 {
+		t.Fatalf("failed to decode base64 payload: %v", err)
+	}
+}
+
+func TestResolveTargetFileName(t *testing.T) {
+	orig := "qBittorrent.conf"
+	target := resolveTargetFileName("qtorrent", orig)
+	if target != "qBittorrent.ini" && target != "qBittorrent.conf" {
+		t.Errorf("unexpected target file name %q", target)
+	}
+}
+
+func TestImportAllToolConfigs(t *testing.T) {
+	tmpDir := t.TempDir()
+	if err := exportAllToolConfigs(tmpDir); err != nil {
+		t.Fatalf("exportAllToolConfigs failed: %v", err)
+	}
+	if err := importAllToolConfigs(tmpDir); err != nil {
+		t.Fatalf("importAllToolConfigs failed: %v", err)
+	}
+}
+

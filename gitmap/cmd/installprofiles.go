@@ -22,7 +22,6 @@ func AllInstallProfiles() []InstallProfile {
 		buildMinimalProfile(),
 		buildDevProfile(),
 		buildUbuntuProfile(),
-		buildUbuntuDevAIProfile(),
 		buildAIProfile(),
 		buildBackendProfile(),
 		buildFullstackProfile(),
@@ -69,23 +68,6 @@ func buildUbuntuProfile() InstallProfile {
 			constants.ToolAgManager,
 		},
 		Aliases: []string{"ubuntu-dev", "linux-dev"},
-	}
-}
-
-func buildUbuntuDevAIProfile() InstallProfile {
-
-	return InstallProfile{
-		Name:        "ubuntu-dev-ai",
-		Title:       "Ubuntu AI / ML developer workstation",
-		Description: "Full Ubuntu dev workstation + Ollama LLM + Antigravity AI suite",
-		Tools: []string{
-			constants.ToolBuildEssential, constants.ToolGit, constants.ToolZsh,
-			constants.ToolVSCode, constants.ToolChrome, constants.ToolNodeJS,
-			constants.ToolPython, constants.ToolGo, constants.ToolOllama,
-			constants.ToolLlamaCpp, constants.ToolPythonLibs, constants.ToolAntigravity,
-			constants.ToolAgManager,
-		},
-		Aliases: []string{"ubuntu-ai", "linux-ai"},
 	}
 }
 

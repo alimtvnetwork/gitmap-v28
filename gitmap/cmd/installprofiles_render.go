@@ -23,14 +23,13 @@ func printInstallProfilesSection(installed map[string]string) {
 	for _, p := range profiles {
 		printSingleProfileRow(p, installed)
 	}
+	printProfileUsageExamples()
 }
 
 // printInstallProfilesOnly prints the profiles when `gitmap install profile` is invoked.
 func printInstallProfilesOnly() {
 	installed := loadInstalledLookup()
 	printInstallProfilesSection(installed)
-	fmt.Println("\nUsage: gitmap install profile <name> [flags]")
-	fmt.Println("Example: gitmap install profile dev --dry-run")
 }
 
 func printSingleProfileRow(p InstallProfile, installed map[string]string) {

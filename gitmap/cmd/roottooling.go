@@ -94,7 +94,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() error { return runInstall(argsTail()) }},
 		{[]string{constants.CmdUninstall, constants.CmdUninstallAlias}, func() error { return runUninstall(argsTail()) }},
 		{[]string{constants.CmdExportConfig, constants.CmdExportConfigAlias}, func() error { return runExportConfig(argsTail()) }},
-		{[]string{constants.CmdImportConfig, constants.CmdImportConfigAlias, "improt-config"}, func() error { return runImportConfig(argsTail()) }},
+		{[]string{constants.CmdImportConfig, constants.CmdImportConfigAlias, constants.CmdImportConfigTypo}, func() error { return runImportConfig(argsTail()) }},
 		{[]string{constants.CmdStartupAdd, constants.CmdStartupAddAlias}, func() error { return runStartupAdd(argsTail()) }},
 		{[]string{constants.CmdStartupList, constants.CmdStartupListAlias}, func() error { return runStartupList(argsTail()) }},
 		{[]string{constants.CmdStartupRemove, constants.CmdStartupRemoveAlias}, func() error { return runStartupRemove(argsTail()) }},

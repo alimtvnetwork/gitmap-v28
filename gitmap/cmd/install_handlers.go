@@ -33,20 +33,55 @@ func specialToolHandler(tool string) func(installOptions) {
 }
 
 func specialLinuxHandler(tool string) func(installOptions) {
-	if tool == constants.ToolGitHubDesktop && runtime.GOOS == "linux" {
+	if runtime.GOOS != "linux" {
+
+		return nil
+	}
+
+	return resolveLinuxToolHandler(tool)
+}
+
+func resolveLinuxToolHandler(tool string) func(installOptions) {
+	if h := resolveLinuxAppHandler(tool); h != nil {
+
+		return h
+	}
+
+	return resolveLinuxJsHandler(tool)
+}
+
+func resolveLinuxAppHandler(tool string) func(installOptions) {
+	switch tool {
+	case constants.ToolGitHubDesktop:
 
 		return func(opts installOptions) { runInstallGitHubDesktopLinux(opts) }
-	}
-	if tool == constants.ToolVSCode && runtime.GOOS == "linux" {
+	case constants.ToolVSCode:
 
 		return func(opts installOptions) { runInstallVSCodeLinux(opts) }
-	}
-	if (tool == constants.ToolChrome || tool == constants.ToolGoogleChrome) && runtime.GOOS == "linux" {
+	case constants.ToolChrome, constants.ToolGoogleChrome:
 
 		return func(opts installOptions) { _ = runInstallChromeLinux(opts) }
-	}
+	default:
 
-	return nil
+		return nil
+	}
+}
+
+func resolveLinuxJsHandler(tool string) func(installOptions) {
+	switch tool {
+	case constants.ToolPnpm:
+
+		return func(opts installOptions) { _ = runInstallPnpmLinux(opts) }
+	case constants.ToolYarn:
+
+		return func(opts installOptions) { _ = runInstallYarnLinux(opts) }
+	case constants.ToolBun:
+
+		return func(opts installOptions) { _ = runInstallBunLinux(opts) }
+	default:
+
+		return nil
+	}
 }
 
 func specialAliasHandler(tool string) func(installOptions) {

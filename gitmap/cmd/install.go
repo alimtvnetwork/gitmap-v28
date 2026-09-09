@@ -21,6 +21,8 @@ func bindInstallFlags(fs *flag.FlagSet, opts *installOptions, list *bool) {
 	fs.BoolVar(&opts.Yes, constants.FlagInstallYes, false, constants.FlagDescInstallYes)
 	fs.BoolVar(&opts.Yes, "y", false, constants.FlagDescInstallYes)
 	fs.BoolVar(&opts.Explain, constants.FlagInstallExplain, false, constants.FlagDescInstallExplain)
+	fs.BoolVar(&opts.Tree, "tree", false, "Preview full tool hierarchy of a profile before installing")
+	fs.BoolVar(&opts.Tree, "t", false, "Preview tree")
 }
 
 func parseInstallFlags(args []string) (installOptions, bool) {
@@ -86,8 +88,8 @@ func handleMissingInstallTool() error {
 
 func printInstallUsageHints() {
 	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool|profile> [flags]\n  gitmap in <tool|profile> [flags]\n\n")
-	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal)\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
-	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install antigravity\n  $ gitmap install ag-manager\n  $ gitmap install dev\n  $ gitmap install ubuntu\n  $ gitmap install vscode\n  $ gitmap in logs\n\n")
+	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal)\n  --tree, -t             Preview full tool tree of a profile before installing\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
+	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install profile dev\n  $ gitmap install profile dev --tree\n  $ gitmap in dev --tree\n  $ gitmap install dev\n  $ gitmap in ubuntu\n  $ gitmap install antigravity\n  $ gitmap install ag-manager\n  $ gitmap in logs\n\n")
 }
 
 // installOptions holds parsed install flags.
@@ -100,6 +102,7 @@ type installOptions struct {
 	Check   bool
 	Yes     bool
 	Explain bool
+	Tree    bool
 }
 
 func isKnownInstallTool(tool string) bool {
@@ -129,7 +132,30 @@ func runInstallProfileCommand(args []string) error {
 
 		return nil
 	}
+	if isProfileTreeKeyword(args[1]) {
+
+		return handleProfileTreeCommand(args[1:])
+	}
 	opts, _ := parseInstallFlags(args[1:])
+
+	return runInstallProfile(opts.Tool, opts)
+}
+
+func isProfileTreeKeyword(arg string) bool {
+	low := strings.ToLower(arg)
+
+	return low == "tree" || low == "--tree" || low == "-t"
+}
+
+func handleProfileTreeCommand(args []string) error {
+	installed := loadInstalledLookup()
+	if len(args) <= 1 {
+		renderAllProfilesTree(installed)
+
+		return nil
+	}
+	opts, _ := parseInstallFlags(args[1:])
+	opts.Tree = true
 
 	return runInstallProfile(opts.Tool, opts)
 }

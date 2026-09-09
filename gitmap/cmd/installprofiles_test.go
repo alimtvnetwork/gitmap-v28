@@ -6,10 +6,10 @@ import (
 
 func TestInstallProfilesRegistry(t *testing.T) {
 	profiles := AllInstallProfiles()
-	if len(profiles) < 7 {
-		t.Fatalf("expected at least 7 profiles, got %d", len(profiles))
+	if len(profiles) < 6 {
+		t.Fatalf("expected at least 6 profiles, got %d", len(profiles))
 	}
-	expectedProfiles := []string{"minimal", "dev", "ubuntu", "ubuntu-dev-ai", "ai", "backend", "fullstack"}
+	expectedProfiles := []string{"minimal", "dev", "ubuntu", "ai", "backend", "fullstack"}
 	for _, expected := range expectedProfiles {
 		assertProfilePresent(t, profiles, expected)
 	}

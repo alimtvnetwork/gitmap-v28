@@ -17,6 +17,8 @@ var guiTools = map[string]bool{
 	constants.ToolDbeaver:       true,
 	constants.ToolOBS:           true,
 	constants.ToolStickyNotes:   true,
+	constants.ToolQBittorrent:   true,
+	constants.ToolUTorrent:      true,
 }
 
 // isGUITool returns true for tools that open a GUI window on --version.
@@ -100,11 +102,13 @@ func verifyExePath(tool string) {
 }
 
 var windowsExeMap = map[string]string{
-	constants.ToolNpp:     `C:\Program Files\Notepad++\notepad++.exe`,
-	constants.ToolVSCode:  `C:\Program Files\Microsoft VS Code\Code.exe`,
-	constants.ToolDbeaver: `C:\Program Files\DBeaver\dbeaver.exe`,
-	constants.ToolOBS:     `C:\Program Files\obs-studio\bin\64bit\obs64.exe`,
-	constants.ToolNginx:   `C:\tools\nginx\nginx.exe`,
+	constants.ToolNpp:         `C:\Program Files\Notepad++\notepad++.exe`,
+	constants.ToolVSCode:      `C:\Program Files\Microsoft VS Code\Code.exe`,
+	constants.ToolDbeaver:     `C:\Program Files\DBeaver\dbeaver.exe`,
+	constants.ToolOBS:         `C:\Program Files\obs-studio\bin\64bit\obs64.exe`,
+	constants.ToolNginx:       `C:\tools\nginx\nginx.exe`,
+	constants.ToolQBittorrent: `C:\Program Files\qBittorrent\qbittorrent.exe`,
+	constants.ToolUTorrent:    `C:\Program Files (x86)\uTorrent\uTorrent.exe`,
 }
 
 // expectedExePath returns the expected binary path for a tool.

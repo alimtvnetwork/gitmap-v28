@@ -19,6 +19,7 @@ in
 | --verbose | false   | Show full installer output                         |
 | --dry-run | false   | Show install command without executing             |
 | --check   | false   | Only check if tool is installed                    |
+| --tree    | false   | Preview the full tool hierarchy/tree of a profile before installing |
 | --list    | false   | List all supported tools, grouped by category, with installed status (● = installed, ○ = not installed) |
 
 ## Supported Tools
@@ -128,7 +129,6 @@ Installation profiles install a curated bundle of developer tools in a single co
 |---------|---------|-------------|-------------------|
 | `dev` | developer, dev-stack | Standard developer workstation with AI | VS Code, Git, Python, Node, pnpm, Go, Rust, PHP, Antigravity, AG-Manager |
 | `ubuntu` | ubuntu-dev, linux-dev | Ubuntu developer workstation | build-essential, Git, Zsh, VS Code, Chrome, Node, Python, Go, Antigravity, AG-Manager |
-| `ubuntu-dev-ai` | ubuntu-ai, linux-ai | Full Ubuntu AI / ML developer workstation | Ubuntu workstation + Ollama, llama-cpp, Python ML libs, Antigravity AI suite |
 | `ai` | ai-dev, ml, llm | AI / ML workstation | Python, Ollama, llama-cpp, Python ML libs, Antigravity, AG-Manager |
 | `minimal` | min, basic | Essential minimal developer workstation | VS Code, Git, Node.js, Python |
 | `backend` | back, server | Backend developer workstation | Minimal stack + Docker, MySQL, PostgreSQL, Redis, Go, .NET, Java |
@@ -137,10 +137,13 @@ Installation profiles install a curated bundle of developer tools in a single co
 ### Profile Usage
 
 ```bash
-$ gitmap install dev
-$ gitmap in ubuntu
-$ gitmap install ai --dry-run
-$ gitmap install profile          # List all profiles and progress
+$ gitmap install profile dev      # Install dev profile
+$ gitmap install profile dev --tree # Preview dev tool hierarchy before installing
+$ gitmap install dev              # Direct profile install shortcut
+$ gitmap in ubuntu                # Install ubuntu profile via shortcut
+$ gitmap in dev --tree            # Tree preview via shortcut
+$ gitmap install ai --dry-run     # Preview install plan
+$ gitmap install profile          # List all profiles and installation progress
 ```
 
 ## Prerequisites

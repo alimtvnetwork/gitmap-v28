@@ -439,6 +439,7 @@ const (
 	// CmdImportConfig imports application and developer tool configurations from JSON.
 	CmdImportConfig      = "import-config"
 	CmdImportConfigAlias = "config-import"
+	CmdImportConfigTypo  = "improt-config" // gitmap:cmd skip
 )
 
 // vscode-pm-sync flag names + descriptions.

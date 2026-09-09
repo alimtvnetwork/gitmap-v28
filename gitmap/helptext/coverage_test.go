@@ -169,4 +169,6 @@ var helptextExemptConstants = []string{
 	"CmdBranchSubDefault",
 	// `server-cmds` is plural alias of `server-cmd` — covered by server-cmd.md.
 	"CmdServerCmds",
+	// `improt-config` is a typo alias of `import-config` — covered by import-config.md.
+	"CmdImportConfigTypo",
 }
