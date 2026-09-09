@@ -1,3 +1,18 @@
+## [v6.204.0] 2026-09-09 Release v6.204.0
+
+### Install GitMap v6.204.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.sh | bash -s -- ".lovable/prompts" "v6.204.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Linux PNPM, Yarn, and Bun installation via npm global and standalone script fallbacks
+- Add upfront tool tree hierarchy preview before profile execution and --tree flag support
+- Remove Ollama and ubuntu-dev-ai profile, isolating Ollama strictly to standalone ai profile
+- Add explicit profile installation examples across CLI help, documentation, and install ls
+
 ## [v6.203.0] 2026-09-09 Release v6.203.0
 
 ### Install GitMap v6.203.0
