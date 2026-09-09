@@ -69,8 +69,10 @@ def update_constants_go(filepath: str, new_version: str) -> None:
 
     pattern = r'(var\s+Version\s*=\s*)"[^"]+"'
     content = re.sub(pattern, rf'\1"{new_version}"', content, count=1)
-    with open(filepath, "w", encoding="utf-8") as f:
+    with open(filepath, "w", encoding="utf-8", newline="\n") as f:
         f.write(content)
+
+    subprocess.run(["gofmt", "-w", filepath], check=False)
 
 
 def update_readme(filepath: str, old_version: str, new_version: str) -> None:
