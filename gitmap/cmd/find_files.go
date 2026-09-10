@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -121,8 +122,8 @@ func scanAndMatchFiles(opts FindFilesOptions) ([]string, error) {
 
 	var results []string
 	errWalk := filepath.WalkDir(absRoot, func(path string, d fs.DirEntry, errIn error) error {
-		if errIn != nil {
-			return errIn
+		if err := handleFindWalkErr(errIn); err != nil {
+			return err
 		}
 		if d.IsDir() {
 			return handleFindDirSkip(d.Name())
@@ -145,10 +146,19 @@ func scanAndMatchFiles(opts FindFilesOptions) ([]string, error) {
 }
 
 func handleFindDirSkip(name string) error {
-	if name == ".git" {
+	if name == ".git" || name == ".tmp" || name == "node_modules" || name == ".gitmap" {
 		return fs.SkipDir
 	}
+
 	return nil
+}
+
+func handleFindWalkErr(err error) error {
+	if err == nil || os.IsNotExist(err) {
+		return nil
+	}
+
+	return err
 }
 
 func outputFindResults(matches []string, isJson bool) error {

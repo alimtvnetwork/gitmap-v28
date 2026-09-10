@@ -32,12 +32,21 @@ func repoRoot() string {
 func walkRepoFiles(root string, exts []string, caseInsensitive bool) ([]string, error) {
 	out := make([]string, 0, 1024)
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
+		if err := handleReplaceWalkErr(walkErr); err != nil {
+			return err
 		}
+
 		return visitReplaceEntry(root, path, d, exts, caseInsensitive, &out)
 	})
 	return out, err
+}
+
+func handleReplaceWalkErr(err error) error {
+	if err == nil || os.IsNotExist(err) {
+		return nil
+	}
+
+	return err
 }
 
 func handleDirReplaceWalk(root, path string, d fs.DirEntry) error {

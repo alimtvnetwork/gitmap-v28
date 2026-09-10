@@ -795,9 +795,16 @@ function Install-SeedData([string]$version, [string]$installDir) {
             $installed++
         }
         catch {
-            # Best-effort: some files may not exist in older tags.
-            Write-Warning "[Install-SeedData] $_"
-            Write-Host ("    skip  {0} (not in {1})" -f $name, $version) -ForegroundColor DarkGray
+            # Fallback to main branch if tag not yet published on GitHub
+            try {
+                $fallbackUrl = "https://raw.githubusercontent.com/$Repo/main/gitmap/data/$name"
+                Invoke-WebRequest -Uri $fallbackUrl -OutFile $dest -UseBasicParsing -ErrorAction Stop
+                $installed++
+            }
+            catch {
+                Write-Warning "[Install-SeedData] $_"
+                Write-Host ("    skip  {0} (not in {1} or main)" -f $name, $version) -ForegroundColor DarkGray
+            }
         }
     }
 
