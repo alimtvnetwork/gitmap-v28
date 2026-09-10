@@ -205,3 +205,81 @@ func removeCloneSwapDirsIn(base string) int {
 
 	return removed
 }
+
+// cleanupLegacyDeployDir removes duplicate binaries from legacy deployment folder.
+func cleanupLegacyDeployDir(ctx updateCleanupContext) int {
+	if len(ctx.selfPath) == 0 {
+		return 0
+	}
+	selfDir := filepath.Dir(ctx.selfPath)
+	if filepath.Base(selfDir) != constants.GitMapCliSubdir {
+		return 0
+	}
+
+	return scanAndRemoveLegacyDeploy(selfDir, ctx.selfPath)
+}
+
+func scanAndRemoveLegacyDeploy(selfDir, selfPath string) int {
+	parent := filepath.Dir(selfDir)
+	for _, legacySubdir := range constants.LegacyAppSubdirs {
+		legacyDir := filepath.Join(parent, legacySubdir)
+		if legacyDir == selfDir {
+			continue
+		}
+		if count := purgeLegacyDirBinaries(legacyDir, selfPath); count > 0 {
+			return count
+		}
+	}
+
+	return 0
+}
+
+func purgeLegacyDirBinaries(legacyDir, selfPath string) int {
+	binName := filepath.Base(selfPath)
+	legacyBin := filepath.Join(legacyDir, binName)
+	if !isTargetRemovable(legacyBin, selfPath) {
+		return 0
+	}
+	removed := removeFileWithLog(legacyBin)
+	removed += purgeLegacyAuxiliaryFiles(legacyDir)
+	tryRemoveEmptyLegacyDir(legacyDir)
+
+	return removed
+}
+
+func isTargetRemovable(target, selfPath string) bool {
+	if len(target) == 0 || target == selfPath {
+		return false
+	}
+	info, err := os.Stat(target)
+
+	return err == nil && !info.IsDir()
+}
+
+func purgeLegacyAuxiliaryFiles(legacyDir string) int {
+	removed := 0
+	for _, aux := range []string{"gm.exe", "gm", "gitmap.ps1"} {
+		path := filepath.Join(legacyDir, aux)
+		if info, err := os.Stat(path); err == nil && !info.IsDir() {
+			removed += removeFileWithLog(path)
+		}
+	}
+
+	return removed
+}
+
+func removeFileWithLog(path string) int {
+	if err := os.Remove(path); err == nil {
+		fmt.Printf("  • Removed legacy deployment binary: %s\n", path)
+		return 1
+	}
+
+	return 0
+}
+
+func tryRemoveEmptyLegacyDir(dir string) {
+	entries, err := os.ReadDir(dir)
+	if err == nil && len(entries) == 0 {
+		_ = os.Remove(dir)
+	}
+}

@@ -33,6 +33,7 @@ func runUpdateCleanup() error {
 	total += cleanupBackupArtifacts(ctx)
 	total += cleanupDriveRootShim(ctx)
 	total += cleanupCloneSwapDirs(ctx)
+	total += cleanupLegacyDeployDir(ctx)
 	printUpdateCleanupResult(total)
 	logUpdateCleanup(constants.UpdateCleanupLogDone, total)
 	logHandoffEvent("cleanup", "done",
