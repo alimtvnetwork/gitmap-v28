@@ -1,1 +1,1 @@
-{"ci-lint":{"label":"lint","status":"cancelled","color":"red"},"ci-tests":{"label":"tests","status":"cancelled","color":"red"},"ci-vulncheck":{"label":"vulncheck","status":"cancelled","color":"red"},"ci-build":{"label":"build","status":"passing","color":"brightgreen"}}
+{"ci-lint":{"label":"lint","status":"passing","color":"brightgreen"},"ci-tests":{"label":"tests","status":"cancelled","color":"red"},"ci-vulncheck":{"label":"vulncheck","status":"cancelled","color":"red"},"ci-build":{"label":"build","status":"passing","color":"brightgreen"}}
