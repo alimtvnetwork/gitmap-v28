@@ -116,6 +116,7 @@ TEST_INVENTORY_CACHE_PATH = Path(".lovable/temp/cicd/test-inventory.json")
 
 os.environ.setdefault("CI", "true")
 os.environ.setdefault("NODE_ENV", "test")
+os.environ.setdefault("PYTHONUNBUFFERED", "1")
 TMP_CACHE_DIR = Path(__file__).resolve().parent.parent / ".tmp"
 TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("GOTMPDIR", str(TMP_CACHE_DIR))
@@ -139,8 +140,10 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Linters & AST Checks",
         "max_workers": None,
         "jobs": {
+            "Go Format Check": [sys.executable, ".github/scripts/go-format-check.py", "--no-commit"],
             "Spell Check (misspell)": [sys.executable, ".github/scripts/misspell-changed.py"],
             "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
+
             "Boolean & Enum Linter": [sys.executable, "linter-scripts/check-enum-and-boolean.py"],
             "Boolean Guidelines Linter": [sys.executable, "linter-scripts/check-boolean-guidelines.py"],
             "Enum Guidelines Linter": [sys.executable, "linter-scripts/check-enum-guidelines.py"],
@@ -159,6 +162,9 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "Startup Build-Tags (darwin)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "darwin", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "Startup Build-Tags (windows)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "windows", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "golangci-lint (strict)": {"cmd": ["golangci-lint", "run", "--issues-exit-code=1", "--timeout=10m", "-c", ".golangci.yml", "--path-prefix", "gitmap", "./..."], "cwd": "gitmap"},
+            "Unused Code Guard (unused)": [sys.executable, ".github/scripts/check-unused-diff.py"],
+            "Gosec G115 Guard (overflow)": [sys.executable, ".github/scripts/check-gosec-diff.py"],
+            "GoCritic Guard (style)": [sys.executable, ".github/scripts/check-gocritic-diff.py"],
             "Cross-OS Vet (Windows)": {"cmd": ["go", "vet", "-C", "gitmap", "./..."], "env": {"GOOS": "windows", "GOARCH": "amd64"}},
             "Cross-OS Vet (Darwin)": {"cmd": ["go", "vet", "-C", "gitmap", "./..."], "env": {"GOOS": "darwin", "GOARCH": "amd64"}},
         },
@@ -208,7 +214,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Race Detection",
         "max_workers": 1,
         "jobs": {
-            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(DEFAULT_WORKERS), "-parallel", str(DEFAULT_WORKERS), "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap"},
+            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(min(4, DEFAULT_WORKERS)), "-parallel", str(min(4, DEFAULT_WORKERS)), "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap", "env": {"GITMAP_IN_MEMORY_DB": "1"}},
         },
     },
 ]
@@ -345,8 +351,10 @@ class GateSpec:
 
 
 GATE_SPECS: dict[str, GateSpec] = {
+    "Go Format Check": GateSpec("Go Format Check", tool_scripts=[".github/scripts/go-format-check.py"], relevant_patterns=["gitmap/**/*.go"]),
     "Spell Check (misspell)": GateSpec("Spell Check (misspell)", tool_scripts=[".github/scripts/misspell-changed.py"], configs=[".misspell-ignore"], relevant_patterns=CLUSTER_REPO_TEXT, exclude_patterns=["gitmap/completion/allcommands_generated.go"]),
     "Nested If Linter": GateSpec("Nested If Linter", tool_scripts=["linter-scripts/check-nested-ifs.py"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
+
     "Boolean & Enum Linter": GateSpec("Boolean & Enum Linter", tool_scripts=["linter-scripts/check-enum-and-boolean.py"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
     "Boolean Guidelines Linter": GateSpec("Boolean Guidelines Linter", tool_scripts=["linter-scripts/check-boolean-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
     "Enum Guidelines Linter": GateSpec("Enum Guidelines Linter", tool_scripts=["linter-scripts/check-enum-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
@@ -365,6 +373,9 @@ GATE_SPECS: dict[str, GateSpec] = {
     "Startup Build-Tags (darwin)": GateSpec("Startup Build-Tags (darwin)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
     "Startup Build-Tags (windows)": GateSpec("Startup Build-Tags (windows)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
     "golangci-lint (strict)": GateSpec("golangci-lint (strict)", configs=[".golangci.yml", "gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Unused Code Guard (unused)": GateSpec("Unused Code Guard (unused)", tool_scripts=[".github/scripts/check-unused-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Gosec G115 Guard (overflow)": GateSpec("Gosec G115 Guard (overflow)", tool_scripts=[".github/scripts/check-gosec-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "GoCritic Guard (style)": GateSpec("GoCritic Guard (style)", tool_scripts=[".github/scripts/check-gocritic-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
     "Cross-OS Vet (Windows)": GateSpec("Cross-OS Vet (Windows)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
     "Cross-OS Vet (Darwin)": GateSpec("Cross-OS Vet (Darwin)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
     "Go Compile Gate": GateSpec("Go Compile Gate", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["bin/gitmap.exe"]),
@@ -1091,9 +1102,11 @@ def execute_subprocess(
 ) -> subprocess.CompletedProcess:
     """Executes subprocess synchronously with standard options."""
     resolved = resolve_command_binary(cmd)
+    sub_env = dict(os.environ) if env is None else dict(env)
+    sub_env.setdefault("PYTHONUNBUFFERED", "1")
     res = subprocess.run(
         resolved, capture_output=True, text=True, encoding=DEFAULT_ENCODING,
-        errors="replace", timeout=timeout_sec, env=env, cwd=cwd,
+        errors="replace", timeout=timeout_sec, env=sub_env, cwd=cwd,
     )
 
     return res
@@ -1357,16 +1370,17 @@ def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: P
 class TelemetryTracker:
     """Thread-safe multi-slot in-flight progress tracker and reporter."""
 
-    def __init__(self, total_jobs: int, is_tty: bool, is_json: bool, show_all: bool):
+    def __init__(self, total_jobs: int, is_tty: bool, is_json: bool, show_all: bool, heartbeat_interval: float = 10.0):
         self.total_jobs = total_jobs
         self.is_tty = is_tty
         self.is_json = is_json
         self.show_all = show_all
+        self.heartbeat_interval = heartbeat_interval
         self.active_jobs: dict[str, float] = {}
         self.completed_count = 0
         self.cached_count = 0
         self.lock = threading.Lock()
-        self.last_print = 0.0
+        self.last_print = time.monotonic()
         self.start_heartbeat()
 
     def start_heartbeat(self) -> None:
@@ -1376,9 +1390,8 @@ class TelemetryTracker:
         self._thread.start()
 
     def _run_heartbeat(self) -> None:
-        interval = 0.5 if self.is_tty else 4.0
         while not self._stop_event.is_set():
-            if self._stop_event.wait(timeout=interval):
+            if self._stop_event.wait(timeout=self.heartbeat_interval):
                 break
             with self.lock:
                 act = len(self.active_jobs)
@@ -1406,26 +1419,38 @@ class TelemetryTracker:
                 self.cached_count += 1
         self.tick(force=False)
 
-    def _format_active_summary(self, now: float) -> tuple[int, list[str]]:
+    def _format_active_summary(self, now: float) -> tuple[int, list[str], float]:
         with self.lock:
-            items = [f"{n} ({now - st:.1f}s)" for n, st in list(self.active_jobs.items())[:4]]
-            count = len(self.active_jobs)
+            active_list = list(self.active_jobs.items())
+            count = len(active_list)
+            items = [f"{n} ({now - st:.1f}s)" for n, st in active_list[:4]]
+            if count > 4:
+                items.append(f"+{count - 4} more")
+            oldest_elapsed = max((now - st for _, st in active_list), default=0.0)
 
-        return count, items
+        return count, items, oldest_elapsed
+
+    def _build_tick_message(self, act_count: int, items: list[str], elapsed: float) -> str:
+        items_str = ", ".join(items)
+        if self.completed_count == 0:
+            return f"[IN-FLIGHT] {act_count} active: [{items_str}] | in-progress ({elapsed:.1f}s elapsed)"
+
+        pct = int(100.0 * self.completed_count / max(1, self.total_jobs))
+
+        return f"[IN-FLIGHT] {act_count} active: [{items_str}] | {self.completed_count}/{self.total_jobs} done ({pct}%)"
 
     def tick(self, force: bool = False) -> None:
-        """Emits progress heartbeat if interval has elapsed."""
+        """Emits progress heartbeat if interval has elapsed (strictly every 10s or more)."""
         if self.is_json:
             return
         now = time.monotonic()
-        if not force and now - self.last_print < (0.8 if self.is_tty else 8.0):
+        if now - self.last_print < self.heartbeat_interval:
             return
         self.last_print = now
-        act_count, items = self._format_active_summary(now)
+        act_count, items, elapsed = self._format_active_summary(now)
         if act_count == 0 and self.completed_count == self.total_jobs:
             return
-        pct = int(100.0 * self.completed_count / max(1, self.total_jobs))
-        msg = f"[IN-FLIGHT] {act_count} active: [{', '.join(items)}] | {self.completed_count}/{self.total_jobs} done ({pct}%)"
+        msg = self._build_tick_message(act_count, items, elapsed)
         self._write_heartbeat(msg)
 
     def _write_heartbeat(self, msg: str) -> None:
@@ -1584,6 +1609,8 @@ def add_caching_and_resume_arguments(parser: argparse.ArgumentParser) -> None:
     """Adds incremental caching and crash resumption arguments."""
     parser.add_argument("--force", "--fresh", "--clean", "--no-cache", dest="force_run", action="store_true", help="Run all.")
     parser.add_argument("--resume", dest="resume_mode", action="store_true", help="Resume interrupted session.")
+    parser.add_argument("--changed-only", "-c", "--recent", dest="changed_only", action="store_true", help="Scope linters to files changed in recent commits.")
+    parser.add_argument("--commits", "-n", dest="commits", type=int, default=20, help="Commit window for changed files (default: 20).")
 
 
 def parse_args() -> argparse.Namespace:
@@ -1729,6 +1756,19 @@ def evaluate_batch_skips(
     return to_run
 
 
+def adapt_cmd_for_changed_only(name: str, raw_cmd: Any, args: argparse.Namespace) -> Any:
+    """Appends changed-only flags to supported python checkers."""
+    is_changed = getattr(args, "changed_only", False)
+    if not is_changed or not isinstance(raw_cmd, list):
+        return raw_cmd
+    supported_gates = {"Nested If Linter", "Boolean & Enum Linter", "Relative Path Check"}
+    if name in supported_gates:
+        commits = getattr(args, "commits", 20)
+        return list(raw_cmd) + ["--changed-only", "--commits", str(commits)]
+
+    return raw_cmd
+
+
 def submit_job_futures(executor: ThreadPoolExecutor, to_run: list, args: argparse.Namespace, telemetry: TelemetryTracker, root: Path) -> dict:
     """Submits active jobs to ThreadPoolExecutor and registers telemetry."""
     future_map = {}
@@ -1739,6 +1779,7 @@ def submit_job_futures(executor: ThreadPoolExecutor, to_run: list, args: argpars
             future_map[fut] = (name, cmd_hash, spec, cmd)
             continue
         raw_cmd = cmd.get("cmd") if isinstance(cmd, dict) else cmd
+        raw_cmd = adapt_cmd_for_changed_only(name, raw_cmd, args)
         env = {**os.environ, **cmd.get("env")} if isinstance(cmd, dict) and "env" in cmd else None
         cwd = cmd.get("cwd") if isinstance(cmd, dict) else None
         fut = executor.submit(run_job, name, raw_cmd, args.timeout, env, cwd)
@@ -2142,13 +2183,8 @@ def run_parallel_agent_pipeline(
 
         return
 
-    with ThreadPoolExecutor(max_workers=len(active_groups)) as agent_pool:
-        futures = [
-            agent_pool.submit(execute_agent_group, name, grp, workers, False, args, st, prev, delta, root, sdir, tel)
-            for name, grp in active_groups
-        ]
-        for fut in as_completed(futures):
-            fut.result()
+    for name, grp in active_groups:
+        execute_agent_group(name, grp, workers, False, args, st, prev, delta, root, sdir, tel)
 
 
 def run_batch_sequence(
@@ -2284,10 +2320,22 @@ def run_pipeline_with_eta(args: argparse.Namespace, batches: list, root: Path, t
         save_cicd_timings(TIMING_FILE_PATH, timings)
 
 
+def ensure_manifest_if_changed_only(args: argparse.Namespace, repo_root: Path) -> None:
+    """Pre-generates git-changed-files.json when running in changed-only mode."""
+    if getattr(args, "changed_only", False):
+        extractor = repo_root / "03-ai-scripts/27-git-changed-files.py"
+        commits = getattr(args, "commits", 20)
+        cmd = [sys.executable, str(extractor), "--commits", str(commits), "--quiet"]
+        if getattr(args, "force_run", False):
+            cmd.append("--no-incremental")
+        subprocess.run(cmd, cwd=str(repo_root), check=True)
+
+
 def main() -> None:
     """Primary entry point for local CI/CD quality gate runner."""
     args = parse_args()
     repo_root = Path(__file__).resolve().parent.parent
+    ensure_manifest_if_changed_only(args, repo_root)
 
     # Step 1: Discover all existing tests, build/update test inventory JSON with code-to-test mapping & timings
     inventory = build_or_update_test_inventory(repo_root, force=bool(args.force_run))

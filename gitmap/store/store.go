@@ -213,6 +213,10 @@ func (db *DB) Migrate() error {
 	db.migrateRepoIdentifiedTransport()
 	db.migrateVSCodeProjectPaths()
 
+	if err := db.EnsurePurgeHistoryTable(); err != nil {
+		return fmt.Errorf("ensure purge history table: %w", err)
+	}
+
 	if err := db.SeedProjectTypes(); err != nil {
 		return err
 	}
@@ -443,6 +447,7 @@ func (db *DB) Reset() error {
 		constants.SQLDropRepo,
 		constants.SQLDropRepos, // legacy
 		constants.SQLDropArchiveHistory,
+		"DROP TABLE IF EXISTS PurgeHistoryLog",
 	}
 
 	for _, stmt := range drops {
