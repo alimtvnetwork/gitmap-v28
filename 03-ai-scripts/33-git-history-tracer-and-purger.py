@@ -82,17 +82,29 @@ def trace_deleted_files(path_filter: str = "") -> list[DeletedFileEntry]:
     tracked = get_current_tracked_files()
     return parse_deleted_entries(res.stdout.splitlines(), tracked)
 
+def is_pattern_matched(pattern: str, text: str) -> bool:
+    """Safely evaluates pattern against text using fnmatch and regex."""
+    if not pattern:
+        return True
+    norm_text = text.lower()
+    norm_pat = pattern.lower()
+    if fnmatch.fnmatch(norm_text, norm_pat) or fnmatch.fnmatch(norm_text, f"*{norm_pat}*"):
+        return True
+    try:
+        return bool(re.search(pattern, text, re.IGNORECASE))
+    except (re.error, ValueError):
+        return False
+
 def is_entry_matching(entry: DeletedFileEntry, path_prefix: str, ext: str, pattern: str) -> bool:
     """Evaluates whether an entry satisfies path, extension, and pattern filters."""
     norm_entry = entry.path.lower()
-    if path_prefix and not norm_entry.startswith(path_prefix.lower().rstrip("/") + "/"):
-        if norm_entry != path_prefix.lower():
-            return False
+    clean_pfx = path_prefix.strip("/\\").lower()
+    if clean_pfx and not (norm_entry.startswith(clean_pfx + "/") or norm_entry == clean_pfx):
+        return False
     if ext and not norm_entry.endswith(ext.lower()):
         return False
-    if pattern and not fnmatch.fnmatch(norm_entry, pattern.lower()):
-        if not re.search(pattern, entry.path, re.IGNORECASE):
-            return False
+    if not is_pattern_matched(pattern, entry.path):
+        return False
     return True
 
 def filter_entries(entries: list[DeletedFileEntry], path_pfx: str, ext: str, pat: str) -> list[DeletedFileEntry]:
@@ -236,78 +248,99 @@ def purge_selected_files(entries: list[DeletedFileEntry], excluded_indices: set[
         print(f"Rollback recipe (if needed): git reset --hard {backup_branch}")
     return is_ok
 
-def apply_presets(args: argparse.Namespace) -> tuple[str, str]:
-    """Resolves path and extension filters from CLI presets."""
-    path_val = args.path or ""
-    ext_val = args.ext or ""
-    if args.is_lovable_md:
-        path_val = ".lovable"
-        ext_val = ".md"
-    elif args.is_spec_md:
-        path_val = "spec"
-        ext_val = ".md"
-    return path_val, ext_val
+def resolve_preset_target(args: argparse.Namespace) -> tuple[str, str]:
+    """Resolves specific folder preset shortcuts to (path, ext) tuples."""
+    preset_map = {
+        "is_spec_audit": ("spec/19-main-worker-service/audit", ""),
+        "is_lovable_subtasks": (".lovable/plans/subtasks", ""),
+        "is_lovable_audits": (".lovable/audits", ""),
+        "is_lovable_md": (".lovable", ".md"),
+        "is_lovable": (".lovable", ""),
+        "is_spec_md": ("spec", ".md"),
+        "is_spec": ("spec", ""),
+    }
+    for flag, target in preset_map.items():
+        if getattr(args, flag, False):
+            return target
+    return "", ""
+
+def apply_presets(args: argparse.Namespace) -> tuple[str, str, str]:
+    """Resolves path, extension, and pattern filters from CLI presets, targets, or flags."""
+    preset_path, preset_ext = resolve_preset_target(args)
+    raw_path = preset_path or args.target or args.path or ""
+    clean_path = "" if raw_path in (".", "/", "\\", "root") else raw_path
+    ext_val = preset_ext or args.ext or ""
+    pat_val = "*audit*" if getattr(args, "is_audit", False) else (args.pattern or "")
+    return clean_path, ext_val, pat_val
 
 def resolve_exclusion_set(args: argparse.Namespace, entries: list[DeletedFileEntry]) -> set[int]:
     """Resolves exclusion indices from flags, patterns, or interactive prompt."""
     excl_set = parse_exclusion_indices(args.exclude)
     if args.exclude_pattern:
         for i, e in enumerate(entries, start=1):
-            if fnmatch.fnmatch(e.path, args.exclude_pattern) or re.search(args.exclude_pattern, e.path):
+            if is_pattern_matched(args.exclude_pattern, e.path):
                 excl_set.add(i)
     if not args.is_confirm and not args.exclude and not args.exclude_pattern:
         if args.is_restore or args.is_purge:
             excl_set = prompt_interactive_exclusion(entries)
     return excl_set
 
+def add_action_and_preset_args(parser: argparse.ArgumentParser) -> None:
+    """Registers action and preset flags."""
+    parser.add_argument("target", nargs="?", default="", help="Target folder or file path (or . for root).")
+    parser.add_argument("--list", "-l", action="store_true", dest="is_list", help="Preview deleted files (default).")
+    parser.add_argument("--restore", "-r", action="store_true", dest="is_restore", help="Restore deleted files.")
+    parser.add_argument("--purge", "-p", action="store_true", dest="is_purge", help="Purge files from all Git history.")
+    parser.add_argument("--spec-audit", action="store_true", dest="is_spec_audit", help="Preset: spec/19-main-worker-service/audit")
+    parser.add_argument("--audit", action="store_true", dest="is_audit", help="Preset: all deleted audit files repo-wide (*audit*)")
+    parser.add_argument("--lovable-subtasks", action="store_true", dest="is_lovable_subtasks", help="Preset: .lovable/plans/subtasks/")
+    parser.add_argument("--lovable-audits", action="store_true", dest="is_lovable_audits", help="Preset: .lovable/audits/")
+    parser.add_argument("--lovable", action="store_true", dest="is_lovable", help="Preset: all files in .lovable/")
+    parser.add_argument("--lovable-md", action="store_true", dest="is_lovable_md", help="Preset: .md files in .lovable/")
+    parser.add_argument("--spec", action="store_true", dest="is_spec", help="Preset: all files in spec/")
+    parser.add_argument("--spec-md", action="store_true", dest="is_spec_md", help="Preset: .md files in spec/")
+
+def add_filter_and_option_args(parser: argparse.ArgumentParser) -> None:
+    """Registers filter and operational option flags."""
+    parser.add_argument("--path", type=str, default="", help="Filter by folder path prefix.")
+    parser.add_argument("--ext", type=str, default="", help="Filter by file extension.")
+    parser.add_argument("--pattern", type=str, default="", help="Filter by glob or regex.")
+    parser.add_argument("--exclude", type=str, default="", help="Indices or ranges to exclude (e.g. 1, 3-5).")
+    parser.add_argument("--exclude-pattern", type=str, default="", help="Exclude paths matching pattern.")
+    parser.add_argument("--restore-to", type=str, default="", help="Destination directory for restoration.")
+    parser.add_argument("-y", "--confirm", action="store_true", dest="is_confirm", help="Bypass confirmation prompt.")
+    parser.add_argument("--backup-only", action="store_true", dest="is_backup_only", help="Create safety backup branch only.")
+
+CLI_EPILOG = """Examples:
+  # 1. Preview deleted files in spec/19-main-worker-service/audit
+  python 03-ai-scripts/33-git-history-tracer-and-purger.py --spec-audit
+
+  # 2. Preview all deleted audit files repo-wide
+  python 03-ai-scripts/33-git-history-tracer-and-purger.py --audit
+
+  # 3. Preview all deleted files under .lovable/
+  python 03-ai-scripts/33-git-history-tracer-and-purger.py --lovable
+
+  # 4. Preview all deleted files from root directory
+  python 03-ai-scripts/33-git-history-tracer-and-purger.py .
+
+  # 5. Restore files with selective exclusion
+  python 03-ai-scripts/33-git-history-tracer-and-purger.py --audit --restore --exclude 1-5
+"""
+
 def parse_cli_args() -> argparse.Namespace:
     """Configures and parses CLI arguments."""
     parser = argparse.ArgumentParser(
         description="Git Historical Deleted Files Tracer, Restorer & Deep Purger.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""Examples:
-  # 1. Preview all deleted files under .lovable/
-  python 03-ai-scripts/33-git-history-tracer-and-purger.py --lovable-md
-
-  # 2. Preview all deleted specs under spec/
-  python 03-ai-scripts/33-git-history-tracer-and-purger.py --spec-md
-
-  # 3. Restore all deleted markdown files excluding items 1 to 5
-  python 03-ai-scripts/33-git-history-tracer-and-purger.py --lovable-md --restore --exclude 1-5
-
-  # 4. Deeply purge deleted files across entire Git history
-  python 03-ai-scripts/33-git-history-tracer-and-purger.py --lovable-md --purge
-"""
+        epilog=CLI_EPILOG,
     )
-    parser.add_argument("--list", "-l", action="store_true", dest="is_list", help="Preview deleted files (default).")
-    parser.add_argument("--restore", "-r", action="store_true", dest="is_restore", help="Restore deleted files to workspace.")
-    parser.add_argument("--purge", "-p", action="store_true", dest="is_purge", help="Purge files from all Git history.")
-    parser.add_argument("--lovable-md", action="store_true", dest="is_lovable_md", help="Preset: deleted .md in .lovable/")
-    parser.add_argument("--spec-md", action="store_true", dest="is_spec_md", help="Preset: deleted .md in spec/")
-    parser.add_argument("--path", type=str, default="", help="Filter by folder path prefix.")
-    parser.add_argument("--ext", type=str, default="", help="Filter by file extension.")
-    parser.add_argument("--pattern", type=str, default="", help="Filter by glob or regex.")
-    parser.add_argument("--exclude", type=str, default="", help="Comma-separated indices or ranges to exclude.")
-    parser.add_argument("--exclude-pattern", type=str, default="", help="Exclude paths matching pattern.")
-    parser.add_argument("--restore-to", type=str, default="", help="Destination directory for restoration.")
-    parser.add_argument("-y", "--confirm", action="store_true", dest="is_confirm", help="Bypass confirmation prompt.")
-    parser.add_argument("--backup-only", action="store_true", dest="is_backup_only", help="Create safety backup branch only.")
+    add_action_and_preset_args(parser)
+    add_filter_and_option_args(parser)
     return parser.parse_args()
 
-def main() -> int:
-    """Main CLI entrypoint."""
-    args = parse_cli_args()
-    if args.is_backup_only:
-        create_safety_backup_branch()
-        return ExitCodeType.SUCCESS.value
-    path_val, ext_val = apply_presets(args)
-    entries = trace_deleted_files(path_val)
-    filtered = filter_entries(entries, path_val, ext_val, args.pattern)
-    if not filtered:
-        print("ℹ️ No historically deleted files found matching criteria.")
-        return ExitCodeType.SUCCESS.value
-    excl_set = resolve_exclusion_set(args, filtered)
-    render_preflight_table(filtered, excl_set)
+def dispatch_action(args: argparse.Namespace, filtered: list[DeletedFileEntry], excl_set: set[int]) -> int:
+    """Executes selected CLI action (restore, purge, or list)."""
     if args.is_restore:
         dest_dir = Path(args.restore_to) if args.restore_to else None
         count = restore_selected_files(filtered, excl_set, dest_dir)
@@ -317,6 +350,22 @@ def main() -> int:
         is_purged = purge_selected_files(filtered, excl_set, args.is_confirm)
         return ExitCodeType.SUCCESS.value if is_purged else ExitCodeType.TOOL_ERROR.value
     return ExitCodeType.SUCCESS.value
+
+def main() -> int:
+    """Main CLI entrypoint."""
+    args = parse_cli_args()
+    if args.is_backup_only:
+        create_safety_backup_branch()
+        return ExitCodeType.SUCCESS.value
+    path_val, ext_val, pat_val = apply_presets(args)
+    entries = trace_deleted_files(path_val)
+    filtered = filter_entries(entries, path_val, ext_val, pat_val)
+    if not filtered:
+        print("ℹ️ No historically deleted files found matching criteria.")
+        return ExitCodeType.SUCCESS.value
+    excl_set = resolve_exclusion_set(args, filtered)
+    render_preflight_table(filtered, excl_set)
+    return dispatch_action(args, filtered, excl_set)
 
 if __name__ == "__main__":
     sys.exit(main())

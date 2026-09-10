@@ -112,6 +112,7 @@ DEFAULT_MAX_WORKERS = 4
 
 - [29-release-orchestrator.py](29-release-orchestrator.py): Orchestrates git release, bump version, branches, tags, and commits.
 - [32-deep-consolidator.py](32-deep-consolidator.py): Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes.
-- [33-git-history-tracer-and-purger.py](33-git-history-tracer-and-purger.py): Traces deleted files in Git history, selective pre-flight exclusion, workspace restoration, and deep history purge via `git filter-repo`.
+- [33-git-history-tracer-and-purger.py](33-git-history-tracer-and-purger.py): Traces deleted files in Git history, selective pre-flight exclusion, workspace restoration, and deep history purge via `git filter-repo`. Built-in presets: `--spec-audit` (`spec/19-main-worker-service/audit`), `--audit` (repo-wide `*audit*`), `--lovable`, `--lovable-subtasks`, `--lovable-md`, `--spec`, `--spec-md`, and positional root/folder scans.
+
 
 

@@ -42,11 +42,18 @@ This specification designs an optimized, interactive Python CLI tool (`03-ai-scr
 
 ### Requirement 2: Preset Shortcuts & Flexible Filtering
 Provide built-in shortcuts for high-frequency operations alongside generic CLI flags:
+- `[target]`: Positional argument for arbitrary directory or file path from root (e.g. `spec/19-main-worker-service/audit`, `.lovable`, or `.` for entire repository).
+- `--spec-audit`: Exact folder shortcut targeting `spec/19-main-worker-service/audit` (audit documents removed after review).
+- `--audit`: Repository-wide shortcut targeting all deleted audit files (`*audit*`).
+- `--lovable-subtasks`: Scopes tracing to `.lovable/plans/subtasks/`.
+- `--lovable-audits`: Scopes tracing to `.lovable/audits/`.
+- `--lovable`: Scopes tracing to all deleted files under `.lovable/`.
 - `--lovable-md`: Scopes tracing to all deleted `.md` files under `.lovable/`.
+- `--spec`: Scopes tracing to all deleted files under `spec/`.
 - `--spec-md`: Scopes tracing to all deleted `.md` files under `spec/`.
-- `--path <folder>`: Filter by arbitrary folder path (e.g. `scripts/`, `gitmap/`).
+- `--path <folder>`: Filter by arbitrary folder path prefix.
 - `--ext <extension>`: Filter by file extension (e.g. `.md`, `.go`, `.json`, `.sql`).
-- `--pattern <glob/regex>`: Filter by path glob or regex substring.
+- `--pattern <glob/regex>`: Safe filter by path glob or regex substring (protected against invalid regex compile crashes).
 
 ### Requirement 3: Interactive & Flag-Based Selective Exclusion
 - Pre-flight candidate selection allows users to inspect the numbered list and exclude files:
