@@ -80,7 +80,7 @@ func executeSingleStep(ctx context.Context, step MacroStep, idx, total int, opts
 	}
 	expandedCmd := ExpandPathAndEnv(step.CommandLine)
 	if !isStructuredOutput(opts) {
-		fmt.Printf("  [%2d/%d] ➜ %s ... ", idx, total, expandedCmd)
+		fmt.Printf("  [%2d/%d] ➜ %s\n", idx, total, expandedCmd)
 	}
 	start := time.Now()
 	if isDirChange := dt.ProcessCd(expandedCmd); isDirChange {
@@ -89,6 +89,7 @@ func executeSingleStep(ctx context.Context, step MacroStep, idx, total int, opts
 	if isOpen, target := ParseOpenCommand(expandedCmd); isOpen {
 		return executeOpenStep(ctx, step, expandedCmd, target, dt.CurrentDir, start, opts, idx)
 	}
+
 	return runStepProcess(ctx, expandedCmd, step, opts, dt, start, idx)
 }
 
@@ -154,8 +155,9 @@ func runStepProcess(ctx context.Context, cmdText string, step MacroStep, opts Ex
 
 func handleStepFailure(step MacroStep, cmdText, targetDir string, elapsed time.Duration, exitCode int, err error, opts ExecOptions, idx int, logs, errLogs []string) (StepExecution, error) {
 	if !isStructuredOutput(opts) {
-		printStepFailureMsg(step, elapsed, err, idx)
+		printStepFailureMsg(step, elapsed, err, idx, errLogs)
 	}
+
 	return StepExecution{
 		StepNum:        step.StepNum,
 		CommandLine:    cmdText,
@@ -169,11 +171,23 @@ func handleStepFailure(step MacroStep, cmdText, targetDir string, elapsed time.D
 	}, err
 }
 
-func printStepFailureMsg(step MacroStep, elapsed time.Duration, err error, idx int) {
-	fmt.Printf("%s✖ failed (%.1fs)%s\n", constants.ColorRed, elapsed.Seconds(), constants.ColorReset)
+func printStepFailureMsg(step MacroStep, elapsed time.Duration, err error, idx int, errLogs []string) {
+	fmt.Printf("  %s✖ failed (%.1fs)%s\n", constants.ColorRed, elapsed.Seconds(), constants.ColorReset)
 	if !step.ContinueOnError {
 		fmt.Printf("  %s✖ Step %d failed: %v%s\n", constants.ColorRed, idx, err, constants.ColorReset)
 	}
+	printDiagnosticStderr(errLogs)
+}
+
+func printDiagnosticStderr(errLogs []string) {
+	if len(errLogs) == 0 {
+		return
+	}
+	fmt.Printf("  %s--- Step Diagnostics (stderr) ---%s\n", constants.ColorYellow, constants.ColorReset)
+	for _, l := range errLogs {
+		fmt.Printf("  %s%s%s\n", constants.ColorDim, l, constants.ColorReset)
+	}
+	fmt.Println()
 }
 
 func splitToLines(raw string) []string {
@@ -188,6 +202,7 @@ func splitToLines(raw string) []string {
 	if lines == nil {
 		return []string{}
 	}
+
 	return lines
 }
 
@@ -195,6 +210,7 @@ func resolveTargetDir(currentDir, stepDir string) string {
 	if len(currentDir) > 0 {
 		return currentDir
 	}
+
 	return ExpandPathAndEnv(stepDir)
 }
 
@@ -205,6 +221,7 @@ func resolveExitCode(err error) int {
 	if exitErr, ok := err.(*exec.ExitError); ok {
 		return exitErr.ExitCode()
 	}
+
 	return 1
 }
 
@@ -218,12 +235,17 @@ func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, ou
 	if len(dir) > 0 {
 		cmd.Dir = dir
 	}
-	if opts.Verbose {
-		cmd.Stdout = io.MultiWriter(os.Stdout, outBuf)
-		cmd.Stderr = io.MultiWriter(os.Stderr, errBuf)
-		return cmd
-	}
-	cmd.Stdout = outBuf
-	cmd.Stderr = errBuf
+	attachStepCmdStreams(cmd, opts, outBuf, errBuf)
+
 	return cmd
+}
+
+func attachStepCmdStreams(cmd *exec.Cmd, opts ExecOptions, outBuf, errBuf io.Writer) {
+	if isStructuredOutput(opts) {
+		cmd.Stdout = outBuf
+		cmd.Stderr = errBuf
+		return
+	}
+	cmd.Stdout = io.MultiWriter(os.Stdout, outBuf)
+	cmd.Stderr = io.MultiWriter(os.Stderr, errBuf)
 }
