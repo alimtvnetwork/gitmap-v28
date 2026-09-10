@@ -10,7 +10,7 @@
     Install a specific version (e.g. v2.48.0). Default: latest.
 
 .PARAMETER InstallDir
-    Target directory. Default: $env:LOCALAPPDATA\gitmap
+    Target directory. Default: $env:LOCALAPPDATA\gitmap-cli
 
 .PARAMETER NoPath
     Skip adding to PATH.
@@ -102,6 +102,26 @@ $Repo = "alimtvnetwork/gitmap-v28"
 $BinaryName = "gitmap.exe"
 $BinaryAlias = "gm.exe"
 $InstallerVersion = "1.0.0"
+
+$script:AppSubdir = "gitmap-cli"
+$script:LegacyAppSubdirs = @("gitmap")
+
+function Load-DeployManifest {
+    $manifestUrl = "https://raw.githubusercontent.com/$Repo/main/gitmap/constants/deploy-manifest.json"
+    try {
+        $resp = Invoke-WebRequest -Uri $manifestUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+        $manifest = $resp.Content | ConvertFrom-Json
+        if ($manifest.appSubdir) {
+            $script:AppSubdir = [string]$manifest.appSubdir
+        }
+        if ($manifest.legacyAppSubdirs) {
+            $script:LegacyAppSubdirs = @($manifest.legacyAppSubdirs)
+        }
+    } catch {
+        # Keep built-in defaults: AppSubdir = gitmap-cli, Legacy = gitmap
+    }
+}
+Load-DeployManifest
 
 class InstallerFailure : System.Exception {
     [int]$ExitCode
@@ -327,7 +347,81 @@ function Write-FatalError($record, [int]$exitCode = 1) {
 
 function Resolve-InstallDir([string]$dir) {
     if ($dir -ne "") { return $dir }
-    return Join-Path $env:LOCALAPPDATA "gitmap"
+    return Join-Path $env:LOCALAPPDATA $script:AppSubdir
+}
+
+# --- Layout repair and legacy cleanup ---
+
+function Repair-LegacyLayout([string]$installDir) {
+    $parent = Split-Path $installDir -Parent
+    if (-not $parent -or -not (Test-Path $parent)) { return }
+
+    foreach ($legacyName in $script:LegacyAppSubdirs) {
+        $legacyDir = Join-Path $parent $legacyName
+        if ($legacyDir -ieq $installDir) { continue }
+        if (-not (Test-Path $legacyDir)) { continue }
+
+        Write-Step "Detected legacy install folder: $legacyDir"
+
+        # 1. Migrate seed/data files if present in legacy but missing in target
+        $legacyData = Join-Path $legacyDir "data"
+        $targetData = Join-Path $installDir "data"
+        if (Test-Path $legacyData) {
+            if (-not (Test-Path $targetData)) {
+                New-Item -ItemType Directory -Path $targetData -Force | Out-Null
+            }
+            Get-ChildItem -Path $legacyData -File -ErrorAction SilentlyContinue | ForEach-Object {
+                $targetFile = Join-Path $targetData $_.Name
+                if (-not (Test-Path $targetFile)) {
+                    Copy-Item $_.FullName -Destination $targetFile -Force -ErrorAction SilentlyContinue
+                    Write-Step "  migrated seed file: $($_.Name)"
+                }
+            }
+        }
+
+        # 2. Delete duplicate/stale binaries and shims in legacy dir
+        $legacyBin = Join-Path $legacyDir $BinaryName
+        if (Test-Path $legacyBin) {
+            Remove-Item $legacyBin -Force -ErrorAction SilentlyContinue
+            Write-OK "Removed legacy duplicate binary: $legacyBin"
+        }
+        $legacyAlias = Join-Path $legacyDir $BinaryAlias
+        if (Test-Path $legacyAlias) {
+            Remove-Item $legacyAlias -Force -ErrorAction SilentlyContinue
+        }
+        $legacyShim = Join-Path $legacyDir "gitmap.ps1"
+        if (Test-Path $legacyShim) {
+            Remove-Item $legacyShim -Force -ErrorAction SilentlyContinue
+        }
+        Get-ChildItem -Path $legacyDir -Filter "*.old" -File -ErrorAction SilentlyContinue |
+            Remove-Item -Force -ErrorAction SilentlyContinue
+
+        # 3. Clean legacy directory from User PATH (registry)
+        $currentUserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
+        if ($currentUserPath -and (Test-PathEntry $currentUserPath $legacyDir)) {
+            $parts = ($currentUserPath -split ";") | Where-Object { $_.Trim() -ine $legacyDir -and $_.Trim() -ne "" }
+            [Environment]::SetEnvironmentVariable("PATH", ($parts -join ";"), "User")
+            Broadcast-EnvironmentChange
+            Write-OK "Pruned legacy directory from User PATH: $legacyDir"
+        }
+
+        # 4. Clean legacy directory from session PATH
+        if ($env:PATH -and (Test-PathEntry $env:PATH $legacyDir)) {
+            $sessParts = ($env:PATH -split ";") | Where-Object { $_.Trim() -ine $legacyDir -and $_.Trim() -ne "" }
+            $env:PATH = ($sessParts -join ";")
+        }
+
+        # 5. Remove legacy dir if now empty
+        if (Test-Path $legacyData) {
+            if (@(Get-ChildItem $legacyData).Count -eq 0) {
+                Remove-Item $legacyData -Force -Recurse -ErrorAction SilentlyContinue
+            }
+        }
+        if (@(Get-ChildItem $legacyDir).Count -eq 0) {
+            Remove-Item $legacyDir -Force -Recurse -ErrorAction SilentlyContinue
+            Write-OK "Removed empty legacy directory: $legacyDir"
+        }
+    }
 }
 
 # --- Detect architecture ---
@@ -1252,6 +1346,8 @@ function Main {
 
         $result = Get-Asset $resolvedVersion $resolvedArch
 
+        Repair-LegacyLayout $resolvedDir
+
         try {
             Install-Binary $result.ZipPath $resolvedDir
         }
@@ -1494,6 +1590,15 @@ try {
         } catch {
             Write-Warning "[Main.GitmapSetup] $_"
             Write-Host "  (setup auto-run skipped: $_)" -ForegroundColor Yellow
+        }
+    }
+
+    if (Test-Path -LiteralPath $binPath) {
+        Write-Host ""
+        try {
+            & $binPath binary
+        } catch {
+            Write-Warning "[Main.GitmapBinary] $_"
         }
     }
 
