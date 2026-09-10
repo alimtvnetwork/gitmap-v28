@@ -120,3 +120,24 @@ func (r *PipelineErrorRecordDbRepo) First(ctx context.Context) dbengine.EntityRe
 func (r *PipelineErrorRecordDbRepo) Count(ctx context.Context) dbengine.Int64Result {
 	return r.Query().Count(ctx)
 }
+
+// Insert inserts a new PipelineErrorRecord record into the database.
+func (r *PipelineErrorRecordDbRepo) Insert(ctx context.Context, item *PipelineErrorRecord) dbengine.RowsAffectedResult {
+	query := "INSERT INTO PipelineErrorRecord (RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
+	var id any = item.RunId
+	if item.RunId == 0 {
+		id = nil
+	}
+	return r.db.ExecRowsAffected(ctx, query, id, item.RepoSlug, item.WorkflowName, item.StepName, item.ErrorText, item.RawLogs, item.Notes, item.Comments, item.CreatedAt)
+}
+
+// Update updates an existing PipelineErrorRecord record identified by its primary key.
+func (r *PipelineErrorRecordDbRepo) Update(ctx context.Context, item *PipelineErrorRecord) dbengine.RowsAffectedResult {
+	query := "UPDATE PipelineErrorRecord SET RepoSlug = ?, WorkflowName = ?, StepName = ?, ErrorText = ?, RawLogs = ?, Notes = ?, Comments = ?, CreatedAt = ? WHERE RunId = ?;"
+	return r.db.ExecRowsAffected(ctx, query, item.RepoSlug, item.WorkflowName, item.StepName, item.ErrorText, item.RawLogs, item.Notes, item.Comments, item.CreatedAt, item.RunId)
+}
+
+// DeleteById deletes a PipelineErrorRecord record by its primary key identifier.
+func (r *PipelineErrorRecordDbRepo) DeleteById(ctx context.Context, id uint64) dbengine.RowsAffectedResult {
+	return r.repo.DeleteBy(ctx, enums.PipelineErrorRecordDb.RunId, id)
+}

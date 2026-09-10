@@ -87,6 +87,23 @@ func (w *DbWrapper) Exec(ctx context.Context, query string, args ...any) (sql.Re
 	return result, nil
 }
 
+func handleRollback(tx *sql.Tx, txErr *apperror.AppError) *apperror.AppError {
+	rbErr := tx.Rollback()
+	if rbErr != nil {
+		return apperror.WrapWithDetails(
+			rbErr,
+			"rollback transaction",
+			"E9000",
+			"rollback failed after: "+txErr.Error(),
+			"dbengine",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+	}
+	return txErr
+}
+
 // WithTransaction runs a function within a database transaction.
 func (w *DbWrapper) WithTransaction(ctx context.Context, fn func(tx *TxWrapper) *apperror.AppError) *apperror.AppError {
 	tx, err := w.conn.BeginTx(ctx, nil)
@@ -97,8 +114,7 @@ func (w *DbWrapper) WithTransaction(ctx context.Context, fn func(tx *TxWrapper) 
 	txWrap := &TxWrapper{tx: tx, compiler: w.compiler}
 	txErr := fn(txWrap)
 	if txErr != nil {
-		_ = tx.Rollback()
-		return txErr
+		return handleRollback(tx, txErr)
 	}
 
 	commitErr := tx.Commit()
@@ -443,10 +459,13 @@ func (w *DbWrapper) CreateViewOrUseView(ctx context.Context, name string, select
 	if verifyErr != nil {
 		return FailureBool(verifyErr)
 	}
-	if hasAll {
-		_ = w.recordViewMetaIfPresent(ctx, name, hash, selectSql)
-		return SuccessBool(true)
+	if !hasAll {
+		return w.recreateAndRegisterView(ctx, name, selectSql, hash)
 	}
 
-	return w.recreateAndRegisterView(ctx, name, selectSql, hash)
+	saveRes := w.recordViewMetaIfPresent(ctx, name, hash, selectSql)
+	if saveRes.IsFailed() {
+		return saveRes
+	}
+	return SuccessBool(true)
 }

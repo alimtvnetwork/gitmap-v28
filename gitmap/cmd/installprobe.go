@@ -50,7 +50,8 @@ var toolProbeMap = map[string]toolProbeConfig{
 	constants.ToolQBittorrent:    {bins: []string{"qbittorrent", "qbittorrent-nox"}, args: []string{"--version"}},
 	constants.ToolUTorrent:       {bins: []string{"utorrent", "uTorrent", "utserver"}, args: []string{"--version"}},
 	constants.ToolZsh:            {bins: []string{"zsh"}, args: []string{"--version"}},
-	constants.ToolAntigravity:    {bins: []string{"agy", "antigravity"}, args: []string{"--version"}},
+	constants.ToolAntigravity:    {bins: []string{"antigravity", "Antigravity"}, args: []string{"--version"}},
+	constants.ToolAgy:            {bins: []string{"agy"}, args: []string{"--version"}},
 	constants.ToolAgManager:      {bins: []string{"ag-manager", "Antigravity.Tools", "Antigravity-Manager"}, args: []string{"--version"}},
 }
 

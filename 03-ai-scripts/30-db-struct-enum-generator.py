@@ -43,9 +43,12 @@ def parse_structs_from_file(file_path: Path) -> tuple[str, list[dict]]:
     structs = []
     for match in STRUCT_PATTERN.finditer(content):
         struct_name = match.group(1)
-        if struct_name.endswith(("DbRegistry", "DbRepo", "Repository", "Registry")):
+        if struct_name.endswith(("DbRegistry", "DbRepo", "Repository", "Registry", "Connection", "Wrapper")):
             continue
         body = match.group(2)
+        # Skip connection wrapper structs
+        if "*sql.DB" in body or "*dbengine.DbWrapper" in body or "sql.DB" in body:
+            continue
 
         fields = []
         for f_match in FIELD_PATTERN.finditer(body):
@@ -55,10 +58,13 @@ def parse_structs_from_file(file_path: Path) -> tuple[str, list[dict]]:
 
             # Check if public field and not embedded
             if field_name[0].isupper() and not field_name.startswith("XXX_"):
+                col_match = re.search(r'db:"([^"]+)"', tags)
+                col_name = col_match.group(1) if col_match else field_name
                 fields.append({
                     "name": field_name,
                     "type": field_type,
                     "tags": tags,
+                    "column": col_name,
                 })
 
         if fields:
@@ -69,6 +75,7 @@ def parse_structs_from_file(file_path: Path) -> tuple[str, list[dict]]:
                 "name": struct_name,
                 "fields": fields,
                 "code": struct_code,
+                "source_file": file_path.name,
             })
 
     return pkg_name, structs
@@ -219,7 +226,8 @@ def generate_enums_for_struct(struct_info: dict) -> str:
         "\treturn []string{",
     ])
     for f in struct_info["fields"]:
-        lines.append(f'\t\t"{f["name"]}",')
+        col_name = f.get("column", f["name"])
+        lines.append(f'\t\t"{col_name}",')
     lines.extend([
         "\t}",
         "}",
@@ -257,7 +265,8 @@ def generate_enums_for_struct(struct_info: dict) -> str:
     lines.append(f"var {db_var} = {reg_type}{{")
     for f in struct_info["fields"]:
         f_name = f["name"]
-        lines.append(f'\t{f_name}: "{f_name}",')
+        col_name = f.get("column", f_name)
+        lines.append(f'\t{f_name}: "{col_name}",')
     lines.append("}")
     lines.append("")
 
@@ -414,6 +423,17 @@ def generate_parent_consts_content(pkg_name: str, structs: list[dict], enums_pkg
     return "\n".join(lines)
 
 
+def find_primary_key(struct_info: dict) -> dict | None:
+    s_name = struct_info["name"]
+    for f in struct_info["fields"]:
+        if f["name"].lower() == f"{s_name.lower()}id":
+            return f
+    for f in struct_info["fields"]:
+        if f["name"].endswith("Id") or f["name"] in ("Id", "ID"):
+            return f
+    return None
+
+
 def generate_repo_methods_for_struct(struct_info: dict, pkg_name: str, enums_pkg_import: str) -> str:
     s_name = struct_info["name"]
     enum_type = f"enums.{s_name}FieldType"
@@ -522,6 +542,93 @@ def generate_repo_methods_for_struct(struct_info: dict, pkg_name: str, enums_pkg
         "",
     ])
 
+    pk_field = find_primary_key(struct_info)
+    all_fields = struct_info["fields"]
+    cols = [f.get("column", f["name"]) for f in all_fields]
+    cols_str = ", ".join(cols)
+    placeholders = ", ".join(["?"] * len(cols))
+
+    if pk_field:
+        pk_name = pk_field["name"]
+        insert_args = []
+        for f in all_fields:
+            if f["name"] == pk_name:
+                insert_args.append("id")
+            else:
+                insert_args.append(f"item.{f['name']}")
+        insert_args_str = ", ".join(insert_args)
+        lines.extend([
+            f"// Insert inserts a new {s_name} record into the database.",
+            f"func (r *{repo_type}) Insert(ctx context.Context, item *{s_name}) dbengine.RowsAffectedResult {{",
+            f'\tquery := "INSERT INTO {s_name} ({cols_str}) VALUES ({placeholders});"',
+            f"\tvar id any = item.{pk_name}",
+            f"\tif item.{pk_name} == 0 {{",
+            "\t\tid = nil",
+            "\t}",
+            f"\treturn r.db.ExecRowsAffected(ctx, query, {insert_args_str})",
+            "}",
+            "",
+        ])
+    else:
+        insert_args_str = ", ".join(f"item.{f['name']}" for f in all_fields)
+        lines.extend([
+            f"// Insert inserts a new {s_name} record into the database.",
+            f"func (r *{repo_type}) Insert(ctx context.Context, item *{s_name}) dbengine.RowsAffectedResult {{",
+            f'\tquery := "INSERT INTO {s_name} ({cols_str}) VALUES ({placeholders});"',
+            f"\treturn r.db.ExecRowsAffected(ctx, query, {insert_args_str})",
+            "}",
+            "",
+        ])
+
+    if pk_field:
+        pk_name = pk_field["name"]
+        pk_col = pk_field.get("column", pk_name)
+        non_pks = [f for f in all_fields if f["name"] != pk_name]
+        if non_pks:
+            set_clauses = ", ".join(f"{f.get('column', f['name'])} = ?" for f in non_pks)
+            update_args_str = ", ".join(f"item.{f['name']}" for f in non_pks) + f", item.{pk_name}"
+            lines.extend([
+                f"// Update updates an existing {s_name} record identified by its primary key.",
+                f"func (r *{repo_type}) Update(ctx context.Context, item *{s_name}) dbengine.RowsAffectedResult {{",
+                f'\tquery := "UPDATE {s_name} SET {set_clauses} WHERE {pk_col} = ?;"',
+                f"\treturn r.db.ExecRowsAffected(ctx, query, {update_args_str})",
+                "}",
+                "",
+            ])
+        else:
+            lines.extend([
+                f"// Update is a no-op for {s_name} containing only primary key.",
+                f"func (r *{repo_type}) Update(ctx context.Context, item *{s_name}) dbengine.RowsAffectedResult {{",
+                f"\treturn dbengine.SuccessRowsAffected(0)",
+                "}",
+                "",
+            ])
+    else:
+        lines.extend([
+            f"// Update is a no-op for {s_name} without primary key.",
+            f"func (r *{repo_type}) Update(ctx context.Context, item *{s_name}) dbengine.RowsAffectedResult {{",
+            f"\treturn dbengine.SuccessRowsAffected(0)",
+            "}",
+            "",
+        ])
+
+    if pk_field:
+        lines.extend([
+            f"// DeleteById deletes a {s_name} record by its primary key identifier.",
+            f"func (r *{repo_type}) DeleteById(ctx context.Context, id uint64) dbengine.RowsAffectedResult {{",
+            f"\treturn r.repo.DeleteBy(ctx, {db_var}.{pk_field['name']}, id)",
+            "}",
+            "",
+        ])
+    else:
+        lines.extend([
+            f"// DeleteById deletes a {s_name} record by identifier.",
+            f"func (r *{repo_type}) DeleteById(ctx context.Context, id uint64) dbengine.RowsAffectedResult {{",
+            f"\treturn r.repo.DeleteBy(ctx, {db_var}.All()[0], id)",
+            "}",
+            "",
+        ])
+
     return "\n".join(lines)
 
 
@@ -608,29 +715,11 @@ def process_generation(target_dir: Path, out_dir_path: Path | None = None, dry_r
         s_name = s["name"]
         s_snake = to_snake_case(s_name)
         def_file = dest_dir / f"{s_snake}.go"
+        source_file = s.get("source_file", "")
 
-        if s_name == "PipelineSplitDb" and def_file.is_file():
-            # Preserve custom connection and lifecycle methods
-            existing = def_file.read_text(encoding="utf-8")
-            idx = existing.find("// PipelineSplitDbFieldType")
-            if idx == -1:
-                idx = existing.find("// ScanPipelineSplitDb")
-            if idx == -1:
-                close_idx = existing.find("func (p *PipelineSplitDb) Close()")
-                if close_idx != -1:
-                    ret_idx = existing.find("return nil\n}", close_idx)
-                    if ret_idx != -1:
-                        idx = ret_idx + len("return nil\n}")
-            if idx != -1:
-                prefix = existing[:idx].strip()
-                if f'"{enums_import}"' not in prefix:
-                    prefix = prefix.replace('"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"', f'"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"\n\t"{enums_import}"')
-                repo_code = generate_repo_methods_for_struct(s, pkg_name, enums_import)
-                def_file.write_text(prefix + "\n\n" + repo_code + "\n", encoding="utf-8")
-                print(f"  ✔ Updated {def_file}")
-                continue
+        # When models are defined in a separate models.go file, avoid duplicating struct definition
+        struct_code_block = "" if source_file == "models.go" else f"{s['code']}\n\n"
 
-        # Standard model & repository file
         header = f"""// Code generated by gitmap db generate. DO NOT EDIT.
 
 package {pkg_name}
@@ -642,9 +731,7 @@ import (
 \t"{enums_import}"
 )
 
-{s["code"]}
-
-"""
+{struct_code_block}"""
         repo_code = generate_repo_methods_for_struct(s, pkg_name, enums_import)
         def_file.write_text(header + repo_code + "\n", encoding="utf-8")
         print(f"  ✔ Generated {def_file}")

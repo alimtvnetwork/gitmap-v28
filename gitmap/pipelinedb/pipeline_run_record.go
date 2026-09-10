@@ -144,3 +144,24 @@ func (r *PipelineRunRecordDbRepo) First(ctx context.Context) dbengine.EntityResu
 func (r *PipelineRunRecordDbRepo) Count(ctx context.Context) dbengine.Int64Result {
 	return r.Query().Count(ctx)
 }
+
+// Insert inserts a new PipelineRunRecord record into the database.
+func (r *PipelineRunRecordDbRepo) Insert(ctx context.Context, item *PipelineRunRecord) dbengine.RowsAffectedResult {
+	query := "INSERT INTO PipelineRunRecord (RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha, EtaSeconds, DurationSeconds, RunUrl, IsSuccess, Notes, Comments, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+	var id any = item.RunId
+	if item.RunId == 0 {
+		id = nil
+	}
+	return r.db.ExecRowsAffected(ctx, query, id, item.RepoSlug, item.WorkflowName, item.Status, item.Conclusion, item.Branch, item.Sha, item.EtaSeconds, item.DurationSeconds, item.RunUrl, item.IsSuccess, item.Notes, item.Comments, item.CreatedAt, item.UpdatedAt)
+}
+
+// Update updates an existing PipelineRunRecord record identified by its primary key.
+func (r *PipelineRunRecordDbRepo) Update(ctx context.Context, item *PipelineRunRecord) dbengine.RowsAffectedResult {
+	query := "UPDATE PipelineRunRecord SET RepoSlug = ?, WorkflowName = ?, Status = ?, Conclusion = ?, Branch = ?, Sha = ?, EtaSeconds = ?, DurationSeconds = ?, RunUrl = ?, IsSuccess = ?, Notes = ?, Comments = ?, CreatedAt = ?, UpdatedAt = ? WHERE RunId = ?;"
+	return r.db.ExecRowsAffected(ctx, query, item.RepoSlug, item.WorkflowName, item.Status, item.Conclusion, item.Branch, item.Sha, item.EtaSeconds, item.DurationSeconds, item.RunUrl, item.IsSuccess, item.Notes, item.Comments, item.CreatedAt, item.UpdatedAt, item.RunId)
+}
+
+// DeleteById deletes a PipelineRunRecord record by its primary key identifier.
+func (r *PipelineRunRecordDbRepo) DeleteById(ctx context.Context, id uint64) dbengine.RowsAffectedResult {
+	return r.repo.DeleteBy(ctx, enums.PipelineRunRecordDb.RunId, id)
+}

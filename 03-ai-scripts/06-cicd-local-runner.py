@@ -214,7 +214,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Race Detection",
         "max_workers": 1,
         "jobs": {
-            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(DEFAULT_WORKERS), "-parallel", str(DEFAULT_WORKERS), "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap"},
+            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(min(4, DEFAULT_WORKERS)), "-parallel", str(min(4, DEFAULT_WORKERS)), "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap"},
         },
     },
 ]

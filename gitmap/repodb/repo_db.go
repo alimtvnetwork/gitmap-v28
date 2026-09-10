@@ -6,21 +6,24 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 )
 
 // InitRepoSchema initializes the repository-specific SQLite DB tables.
 func InitRepoSchema(ctx context.Context, db *sql.DB) error {
 	queries := []string{
-		"CREATE TABLE IF NOT EXISTS RepoFile ( Id INTEGER PRIMARY KEY AUTOINCREMENT, RelativePath TEXT NOT NULL UNIQUE, AbsolutePath TEXT NOT NULL, Content TEXT, IsBig INTEGER NOT NULL, WriteTime INTEGER NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );",
-		"CREATE TABLE IF NOT EXISTS SearchCache ( Id INTEGER PRIMARY KEY AUTOINCREMENT, Query TEXT NOT NULL UNIQUE, Hits INTEGER NOT NULL, ResultJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );",
-		"CREATE TABLE IF NOT EXISTS FileSequence ( Id INTEGER PRIMARY KEY AUTOINCREMENT, Directory TEXT NOT NULL, Filename TEXT NOT NULL, SequenceNumber INTEGER NOT NULL, BaseName TEXT NOT NULL, UpdatedAt INTEGER NOT NULL, UNIQUE(Directory, Filename) );",
-		"CREATE TABLE IF NOT EXISTS SequenceHistory ( Id INTEGER PRIMARY KEY AUTOINCREMENT, Directory TEXT NOT NULL, OperationsJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL );",
-		"CREATE TABLE IF NOT EXISTS RepoScanLog ( Id INTEGER PRIMARY KEY AUTOINCREMENT, RepoId INTEGER NOT NULL, RepoSlug TEXT NOT NULL, Action TEXT NOT NULL, Status TEXT NOT NULL, ErrorMessage TEXT, Details TEXT, Notes TEXT, Comments TEXT, CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP );",
+		"CREATE TABLE IF NOT EXISTS RepoFile ( RepoFileId INTEGER PRIMARY KEY AUTOINCREMENT, RelativePath TEXT NOT NULL UNIQUE, AbsolutePath TEXT NOT NULL, Content TEXT, IsBig INTEGER NOT NULL, WriteTime INTEGER NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );",
+		"CREATE TABLE IF NOT EXISTS SearchCache ( SearchCacheId INTEGER PRIMARY KEY AUTOINCREMENT, Query TEXT NOT NULL UNIQUE, Hits INTEGER NOT NULL, ResultJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );",
+		"CREATE TABLE IF NOT EXISTS FileSequence ( FileSequenceId INTEGER PRIMARY KEY AUTOINCREMENT, Directory TEXT NOT NULL, Filename TEXT NOT NULL, SequenceNumber INTEGER NOT NULL, BaseName TEXT NOT NULL, UpdatedAt INTEGER NOT NULL, UNIQUE(Directory, Filename) );",
+		"CREATE TABLE IF NOT EXISTS SequenceHistory ( SequenceHistoryId INTEGER PRIMARY KEY AUTOINCREMENT, Directory TEXT NOT NULL, OperationsJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL );",
+		"CREATE TABLE IF NOT EXISTS RepoScanLog ( RepoScanLogId INTEGER PRIMARY KEY AUTOINCREMENT, RepoId INTEGER NOT NULL, RepoSlug TEXT NOT NULL, Action TEXT NOT NULL, Status TEXT NOT NULL, ErrorMessage TEXT, Details TEXT, Notes TEXT, Comments TEXT, CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP );",
 	}
 
 	for _, q := range queries {
 		if _, err := db.ExecContext(ctx, q); err != nil {
-			return err
+			return apperror.WrapSimple(err, "init repo schema")
 		}
 	}
 
@@ -31,9 +34,26 @@ func InitRepoSchema(ctx context.Context, db *sql.DB) error {
 func ResolveRepoDBPath(rootDbDir, absolutePath string, repoId int64) string {
 	slug := GenerateSlug(absolutePath)
 	repoSearchDir := filepath.Join(rootDbDir, "repo_search")
-	_ = os.MkdirAll(repoSearchDir, 0755)
-
+	if err := os.MkdirAll(repoSearchDir, 0755); err != nil {
+		return filepath.Join(rootDbDir, fmt.Sprintf("%s-%d.db", slug, repoId))
+	}
 	return filepath.Join(repoSearchDir, fmt.Sprintf("%s-%d.db", slug, repoId))
+}
+
+func closeAndWrapInitError(db *sql.DB, initErr error) *apperror.AppError {
+	if closeErr := db.Close(); closeErr != nil {
+		return apperror.WrapWithDetails(
+			closeErr,
+			"close db after init failure",
+			"E9000",
+			"close db failed after: "+initErr.Error(),
+			"repodb",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+	}
+	return apperror.WrapSimple(initErr, "init repo db schema")
 }
 
 // OpenRepoDB opens or creates the split DB for a specific repository.
@@ -41,18 +61,33 @@ func OpenRepoDB(ctx context.Context, rootDbDir, absolutePath string, repoId int6
 	dbPath := ResolveRepoDBPath(rootDbDir, absolutePath, repoId)
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		return nil, err
+		return nil, apperror.WrapSimple(err, "open repo db")
 	}
 
 	db.SetMaxOpenConns(1)
 
 	if err := InitRepoSchema(ctx, db); err != nil {
-		_ = db.Close()
+		return nil, closeAndWrapInitError(db, err)
+	}
 
-		return nil, err
+	if _, err := dbengine.WrapDb(db, dbengine.DbSQLite); err != nil {
+		return nil, closeAndWrapInitError(db, err)
 	}
 
 	return db, nil
+}
+
+// OpenRepoDbWrapper opens or creates the split DB returning a typed DbWrapper.
+func OpenRepoDbWrapper(ctx context.Context, rootDbDir, absolutePath string, repoId int64) (*dbengine.DbWrapper, error) {
+	db, err := OpenRepoDB(ctx, rootDbDir, absolutePath, repoId)
+	if err != nil {
+		return nil, err
+	}
+	wrap, wrapErr := dbengine.WrapDb(db, dbengine.DbSQLite)
+	if wrapErr != nil {
+		return nil, wrapErr
+	}
+	return wrap, nil
 }
 
 // ClearRepoDB clears cached queries and search indexes.
@@ -65,7 +100,7 @@ func ClearRepoDB(ctx context.Context, db *sql.DB) error {
 
 	for _, q := range queries {
 		if _, err := db.ExecContext(ctx, q); err != nil {
-			return err
+			return apperror.WrapSimple(err, "clear repo db")
 		}
 	}
 
@@ -84,35 +119,43 @@ func ResetRepoDB(ctx context.Context, db *sql.DB) error {
 
 	for _, q := range queries {
 		if _, err := db.ExecContext(ctx, q); err != nil {
-			return err
+			return apperror.WrapSimple(err, "reset repo db")
 		}
 	}
 
 	return InitRepoSchema(ctx, db)
 }
 
+func getRepoDBFileSize(path string) int64 {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0
+	}
+	return info.Size()
+}
+
+func runRepoOptimizePragmas(ctx context.Context, db *sql.DB) *apperror.AppError {
+	if _, err := db.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE);"); err != nil {
+		return apperror.WrapSimple(err, "wal checkpoint repo db")
+	}
+	if _, err := db.ExecContext(ctx, "VACUUM;"); err != nil {
+		return apperror.WrapSimple(err, "vacuum repo db")
+	}
+	if _, err := db.ExecContext(ctx, "PRAGMA optimize;"); err != nil {
+		return apperror.WrapSimple(err, "optimize repo db")
+	}
+	return nil
+}
+
 // OptimizeRepoDB runs VACUUM and PRAGMA optimize, returning bytes reclaimed.
 func OptimizeRepoDB(ctx context.Context, db *sql.DB, path string) (int64, error) {
-	var sizeBefore int64
-	if info, err := os.Stat(path); err == nil {
-		sizeBefore = info.Size()
-	}
-
-	_, _ = db.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE);")
-	if _, err := db.ExecContext(ctx, "VACUUM;"); err != nil {
+	sizeBefore := getRepoDBFileSize(path)
+	if err := runRepoOptimizePragmas(ctx, db); err != nil {
 		return 0, err
 	}
-
-	_, _ = db.ExecContext(ctx, "PRAGMA optimize;")
-	var sizeAfter int64
-	if info, err := os.Stat(path); err == nil {
-		sizeAfter = info.Size()
+	sizeAfter := getRepoDBFileSize(path)
+	if sizeBefore <= sizeAfter {
+		return 0, nil
 	}
-
-	reclaimed := sizeBefore - sizeAfter
-	if reclaimed < 0 {
-		reclaimed = 0
-	}
-
-	return reclaimed, nil
+	return sizeBefore - sizeAfter, nil
 }

@@ -29,6 +29,7 @@ func specialToolHandler(tool string) func(installOptions) {
 		constants.ToolAgManager:        func(opts installOptions) { _ = runInstallAgManagerWithOpts(opts) },
 		constants.ToolAgCtx:            func(opts installOptions) { runInstallCtx(opts.Explain) },
 		constants.ToolAntigravity:      func(opts installOptions) { _ = runInstallAntigravityWithOpts(opts) },
+		constants.ToolAgy:              func(opts installOptions) { _ = runInstallAgyWithOpts(opts) },
 	}[tool]
 }
 

@@ -66,7 +66,7 @@ func handleRepoDBLog(args []string) error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT Action, Status, COALESCE(Details, ''), CreatedAt FROM RepoScanLog ORDER BY Id DESC LIMIT 20;")
+	rows, err := db.Query("SELECT Action, Status, COALESCE(Details, ''), CreatedAt FROM RepoScanLog ORDER BY RepoScanLogId DESC LIMIT 20;")
 	if err != nil {
 		fmt.Printf("No scan logs recorded in split database for %s.\n", slug)
 		return nil
@@ -108,7 +108,7 @@ func handleRepoDBErrorLogs(args []string) error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT Action, Status, COALESCE(ErrorMessage, ''), CreatedAt FROM RepoScanLog WHERE Status = 'failure' OR ErrorMessage IS NOT NULL ORDER BY Id DESC LIMIT 20;")
+	rows, err := db.Query("SELECT Action, Status, COALESCE(ErrorMessage, ''), CreatedAt FROM RepoScanLog WHERE Status = 'failure' OR ErrorMessage IS NOT NULL ORDER BY RepoScanLogId DESC LIMIT 20;")
 	if err != nil {
 		fmt.Printf("No error logs found in split database for %s.\n", slug)
 		return nil

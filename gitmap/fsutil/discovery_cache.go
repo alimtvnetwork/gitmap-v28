@@ -17,8 +17,8 @@ func NewDiscoveryCache() *DiscoveryCache {
 func (dc *DiscoveryCache) Get(dir string) ([]string, bool) {
 	dc.mu.RLock()
 	defer dc.mu.RUnlock()
-	repos, ok := dc.cache[dir]
-	return repos, ok
+	repos, hasRepo := dc.cache[dir]
+	return repos, hasRepo
 }
 
 func (dc *DiscoveryCache) Set(dir string, repos []string) {

@@ -19,8 +19,11 @@ func TestToolAntigravityAndAgManagerInProbeMap(t *testing.T) {
 }
 
 func TestToolAntigravityAndAgManagerInBinaryMap(t *testing.T) {
-	if bin := toolBinaryName(constants.ToolAntigravity); bin != "agy" {
-		t.Fatalf("expected ToolAntigravity binary name 'agy', got %q", bin)
+	if bin := toolBinaryName(constants.ToolAntigravity); bin != "antigravity" {
+		t.Fatalf("expected ToolAntigravity binary name 'antigravity', got %q", bin)
+	}
+	if bin := toolBinaryName(constants.ToolAgy); bin != "agy" {
+		t.Fatalf("expected ToolAgy binary name 'agy', got %q", bin)
 	}
 	if bin := toolBinaryName(constants.ToolAgManager); bin != "ag-manager" {
 		t.Fatalf("expected ToolAgManager binary name 'ag-manager', got %q", bin)

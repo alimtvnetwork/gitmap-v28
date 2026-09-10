@@ -412,7 +412,7 @@ func handleSequenceHistory(args []string) error {
 	}
 	targetDir = strings.ReplaceAll(targetDir, "\\", "/")
 
-	rows, err := repoDB.QueryContext(ctx, "SELECT Id, Directory, OperationsJson, CreatedAt FROM SequenceHistory WHERE Directory = ? ORDER BY CreatedAt DESC LIMIT 20", targetDir)
+	rows, err := repoDB.QueryContext(ctx, "SELECT SequenceHistoryId, Directory, OperationsJson, CreatedAt FROM SequenceHistory WHERE Directory = ? ORDER BY CreatedAt DESC LIMIT 20", targetDir)
 	if err != nil {
 		return err
 	}

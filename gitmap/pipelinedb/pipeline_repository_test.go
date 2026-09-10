@@ -255,10 +255,6 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 	if qb == nil {
 		t.Fatalf("expected non-nil PipelineRunQueryBuilder")
 	}
-	var splitQb *PipelineSplitDbQueryBuilder = NewPipelineSplitDbDbRepo(domainRepo.Db()).Query()
-	if splitQb == nil {
-		t.Fatalf("expected non-nil PipelineSplitDbQueryBuilder")
-	}
 
 	// 2. FindAll returns dbengine.ListResult[PipelineRunRecord]
 	listRes := runDbRepo.FindAll(ctx)
@@ -318,9 +314,6 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 
 func TestPipelineDbGeneratedConsts(t *testing.T) {
 	// Canonical table name constants
-	if PipelineSplitDbTable != "PipelineSplitDb" {
-		t.Errorf("expected PipelineSplitDb, got %s", PipelineSplitDbTable)
-	}
 	if PipelineRunRecordTable != "PipelineRunRecord" {
 		t.Errorf("expected PipelineRunRecord, got %s", PipelineRunRecordTable)
 	}
@@ -338,14 +331,12 @@ func TestPipelineDbGeneratedConsts(t *testing.T) {
 	}
 
 	// Type aliases compile-time checks
-	var _ *PipelineSplitDbQueryBuilder = nil
 	var _ *PipelineRunRecordQueryBuilder = nil
 	var _ *PipelineRunQueryBuilder = nil
 	var _ *PipelineErrorRecordQueryBuilder = nil
 	var _ *PipelineErrorQueryBuilder = nil
 	var _ *PipelineDbStatsQueryBuilder = nil
 
-	var _ *PipelineSplitDbRepository = nil
 	var _ *PipelineRunRecordRepository = nil
 	var _ *PipelineRunRepository = nil
 	var _ *PipelineErrorRecordRepository = nil
@@ -358,9 +349,6 @@ func TestPipelineDbGeneratedConsts(t *testing.T) {
 
 func TestPipelineDbEnumsPackageDirectUsage(t *testing.T) {
 	// 1. Verify direct enums package table constants
-	if enums.PipelineSplitDbTable != "PipelineSplitDb" {
-		t.Errorf("expected enums.PipelineSplitDbTable == PipelineSplitDb")
-	}
 	if enums.PipelineRunRecordTable != "PipelineRunRecord" {
 		t.Errorf("expected enums.PipelineRunRecordTable == PipelineRunRecord")
 	}
@@ -381,9 +369,6 @@ func TestPipelineDbEnumsPackageDirectUsage(t *testing.T) {
 	if enums.PipelineErrorDb.ErrorText != "ErrorText" {
 		t.Errorf("expected enums.PipelineErrorDb.ErrorText == ErrorText")
 	}
-	if enums.PipelineSplitDbDb.RepoSlug != "RepoSlug" {
-		t.Errorf("expected enums.PipelineSplitDbDb.RepoSlug == RepoSlug")
-	}
 	if enums.PipelineDbStatsDb.TotalRuns != "TotalRuns" {
 		t.Errorf("expected enums.PipelineDbStatsDb.TotalRuns == TotalRuns")
 	}
@@ -391,4 +376,53 @@ func TestPipelineDbEnumsPackageDirectUsage(t *testing.T) {
 	// 3. Compile-time check: enums types match re-exported types
 	var _ enums.PipelineRunRecordFieldType = PipelineRunRecordDb.RunId
 	var _ PipelineRunRecordFieldType = enums.PipelineRunRecordDb.RunId
+}
+
+func TestPipelineRunRecordDbRepo_Mutations(t *testing.T) {
+	ctx := context.Background()
+	repo, cleanup := setupTestPipelineRepo(t)
+	defer cleanup()
+
+	runRepo := repo.PipelineRunRecordDbRepo
+
+	// Test Insert
+	record := PipelineRunRecord{
+		RunId:        501,
+		RepoSlug:     "test/repo",
+		WorkflowName: "ci",
+		Status:       "in_progress",
+		Conclusion:   "neutral",
+		Branch:       "main",
+		Sha:          "sha501",
+		CreatedAt:    "2026-09-10T12:00:00Z",
+		UpdatedAt:    "2026-09-10T12:00:00Z",
+	}
+	insRes := runRepo.Insert(ctx, &record)
+	if insRes.IsFailed() {
+		t.Fatalf("Insert failed: %v", insRes.Err)
+	}
+
+	// Test Update
+	record.Status = "completed"
+	record.Conclusion = "success"
+	updRes := runRepo.Update(ctx, &record)
+	if updRes.IsFailed() {
+		t.Fatalf("Update failed: %v", updRes.Err)
+	}
+
+	// Verify update took effect
+	findRes := runRepo.First(ctx)
+	if findRes.IsFailed() || findRes.Value.Status != "completed" {
+		t.Fatalf("expected updated status 'completed', got %v", findRes.Value)
+	}
+
+	// Test DeleteById
+	delRes := runRepo.DeleteById(ctx, 501)
+	if delRes.IsFailed() {
+		t.Fatalf("DeleteById failed: %v", delRes.Err)
+	}
+	countRes := runRepo.Count(ctx)
+	if countRes.IsFailed() || countRes.Value != 0 {
+		t.Fatalf("expected 0 records after DeleteById, got %d", countRes.Value)
+	}
 }

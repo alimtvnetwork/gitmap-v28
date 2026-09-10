@@ -48,11 +48,13 @@ func runSelfInstall(args []string) error {
 }
 
 func runSelfInstallWorkflow(opts selfInstallOpts) error {
+	cleanCorruptedInstallDirsSilent()
 	dir := resolveSelfInstallDir(opts)
 	printSelfInstallStart(dir)
 	executeSelfInstallScript(dir, opts)
 	fmt.Print(constants.MsgSelfInstallDone)
 	autoRunSetupAfterInstall()
+	cleanCorruptedInstallDirsSilent()
 	fmt.Print(constants.MsgSelfInstallReminder)
 	return nil
 }

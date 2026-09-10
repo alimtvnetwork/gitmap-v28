@@ -14,7 +14,6 @@ const (
 	PipelineErrorTable       = enums.PipelineErrorTable
 	PipelineRunRecordTable   = enums.PipelineRunRecordTable
 	PipelineRunTable         = enums.PipelineRunTable
-	PipelineSplitDbTable     = enums.PipelineSplitDbTable
 )
 
 // Dedicated QueryBuilder type aliases.
@@ -29,8 +28,6 @@ type (
 	PipelineRunRecordQueryBuilder = dbengine.QueryBuilder[PipelineRunRecord, enums.PipelineRunRecordFieldType]
 	// PipelineRunQueryBuilder is an alias to PipelineRunRecordQueryBuilder for concise business usage.
 	PipelineRunQueryBuilder = PipelineRunRecordQueryBuilder
-	// PipelineSplitDbQueryBuilder is the dedicated query builder for PipelineSplitDb.
-	PipelineSplitDbQueryBuilder = dbengine.QueryBuilder[PipelineSplitDb, enums.PipelineSplitDbFieldType]
 )
 
 // Dedicated generic Repository type aliases.
@@ -45,8 +42,6 @@ type (
 	PipelineRunRecordRepository = dbengine.Repository[PipelineRunRecord, enums.PipelineRunRecordFieldType]
 	// PipelineRunRepository is an alias to PipelineRunRecordRepository for concise business usage.
 	PipelineRunRepository = PipelineRunRecordRepository
-	// PipelineSplitDbRepository is the dedicated generic repository for PipelineSplitDb.
-	PipelineSplitDbRepository = dbengine.Repository[PipelineSplitDb, enums.PipelineSplitDbFieldType]
 )
 
 // Re-exported field enums and registries for backward compatibility.
@@ -57,8 +52,6 @@ type (
 	PipelineErrorRecordFieldType = enums.PipelineErrorRecordFieldType
 	// PipelineRunRecordFieldType aliases enums.PipelineRunRecordFieldType for direct package access.
 	PipelineRunRecordFieldType = enums.PipelineRunRecordFieldType
-	// PipelineSplitDbFieldType aliases enums.PipelineSplitDbFieldType for direct package access.
-	PipelineSplitDbFieldType = enums.PipelineSplitDbFieldType
 )
 
 var (
@@ -82,10 +75,6 @@ var (
 	PipelineRunDb = enums.PipelineRunDb
 	// PipelineRunField aliases enums.PipelineRunField.
 	PipelineRunField = enums.PipelineRunField
-	// PipelineSplitDbDb aliases enums.PipelineSplitDbDb.
-	PipelineSplitDbDb = enums.PipelineSplitDbDb
-	// PipelineSplitDbField aliases enums.PipelineSplitDbField.
-	PipelineSplitDbField = enums.PipelineSplitDbField
 )
 
 // Typed DbRepo aliases for concise business usage.

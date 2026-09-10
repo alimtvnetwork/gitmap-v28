@@ -60,6 +60,7 @@ func defaultDoctorChecks() []DoctorCheck {
 		probeConfigPaths(),
 		probeGitHubToken(),
 		probeGitHubAPI(),
+		probeCorruptedInstallDirs(),
 	}
 }
 

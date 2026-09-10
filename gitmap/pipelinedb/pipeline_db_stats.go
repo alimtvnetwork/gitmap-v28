@@ -111,3 +111,19 @@ func (r *PipelineDbStatsDbRepo) First(ctx context.Context) dbengine.EntityResult
 func (r *PipelineDbStatsDbRepo) Count(ctx context.Context) dbengine.Int64Result {
 	return r.Query().Count(ctx)
 }
+
+// Insert inserts a new PipelineDbStats record into the database.
+func (r *PipelineDbStatsDbRepo) Insert(ctx context.Context, item *PipelineDbStats) dbengine.RowsAffectedResult {
+	query := "INSERT INTO PipelineDbStats (Path, Size, TotalRuns, SuccessRuns, FailedRuns, ErrorLogCount, SegmentCount, LastUpdated) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
+	return r.db.ExecRowsAffected(ctx, query, item.Path, item.Size, item.TotalRuns, item.SuccessRuns, item.FailedRuns, item.ErrorLogCount, item.SegmentCount, item.LastUpdated)
+}
+
+// Update is a no-op for PipelineDbStats without primary key.
+func (r *PipelineDbStatsDbRepo) Update(ctx context.Context, item *PipelineDbStats) dbengine.RowsAffectedResult {
+	return dbengine.SuccessRowsAffected(0)
+}
+
+// DeleteById deletes a PipelineDbStats record by identifier.
+func (r *PipelineDbStatsDbRepo) DeleteById(ctx context.Context, id uint64) dbengine.RowsAffectedResult {
+	return r.repo.DeleteBy(ctx, enums.PipelineDbStatsDb.All()[0], id)
+}

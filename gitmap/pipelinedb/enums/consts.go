@@ -9,5 +9,4 @@ const (
 	PipelineErrorTable       = PipelineErrorRecordTable
 	PipelineRunRecordTable   = "PipelineRunRecord"
 	PipelineRunTable         = PipelineRunRecordTable
-	PipelineSplitDbTable     = "PipelineSplitDb"
 )

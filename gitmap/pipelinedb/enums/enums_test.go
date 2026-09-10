@@ -6,9 +6,6 @@ import (
 )
 
 func TestEnums_TableConstants(t *testing.T) {
-	if PipelineSplitDbTable != "PipelineSplitDb" {
-		t.Errorf("expected PipelineSplitDb, got %s", PipelineSplitDbTable)
-	}
 	if PipelineRunRecordTable != "PipelineRunRecord" {
 		t.Errorf("expected PipelineRunRecord, got %s", PipelineRunRecordTable)
 	}

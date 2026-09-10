@@ -97,6 +97,9 @@ func applyDoctorFix(c DoctorCheck, detail string) (bool, string) {
 		return false, detail + "\n           run: gitmap secrets set GITHUB_TOKEN  (or export GITHUB_TOKEN=<pat>)"
 	case "PATH":
 		return false, detail + "\n           run: gitmap self-install"
+	case "install-dirs":
+		_, _ = CleanCorruptedDirs(CleanOptions{IsDryRun: false, IsForce: true})
+		return c.Run()
 	default:
 		return false, detail
 	}

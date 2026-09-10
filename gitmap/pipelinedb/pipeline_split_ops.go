@@ -1,19 +1,14 @@
 package pipelinedb
 
 import (
+	"database/sql"
 	"os"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
-// RecordRun inserts or updates a pipeline run execution record.
-func (p *PipelineSplitDb) RecordRun(r PipelineRunRecord) error {
-	isSuccessInt := 0
-	if r.IsSuccess || r.Conclusion == "success" {
-		isSuccessInt = 1
-	}
-	query := `
+const sqlRecordRun = `
 INSERT INTO PipelineRun (
     RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
     EtaSeconds, DurationSeconds, RunUrl, IsSuccess, Notes, Comments, CreatedAt, UpdatedAt
@@ -26,7 +21,34 @@ ON CONFLICT(RunId) DO UPDATE SET
     IsSuccess = excluded.IsSuccess,
     UpdatedAt = excluded.UpdatedAt;`
 
-	_, err := p.conn.Exec(query,
+const sqlRecordErrorLog = `
+INSERT INTO PipelineErrorLog (
+    RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
+
+const sqlQueryRecentRuns = `
+SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
+       EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
+FROM PipelineRun ORDER BY PipelineRunId DESC LIMIT ?;`
+
+const sqlQueryRecentErrors = `
+SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
+FROM PipelineErrorLog ORDER BY PipelineErrorLogId DESC LIMIT ?;`
+
+func isRunSuccess(r PipelineRunRecord) int {
+	if r.IsSuccess {
+		return 1
+	}
+	if r.Conclusion == "success" {
+		return 1
+	}
+	return 0
+}
+
+// RecordRun inserts or updates a pipeline run execution record.
+func (p *PipelineSplitDb) RecordRun(r PipelineRunRecord) error {
+	isSuccessInt := isRunSuccess(r)
+	_, err := p.conn.Exec(sqlRecordRun,
 		r.RunId, r.RepoSlug, r.WorkflowName, r.Status, r.Conclusion, r.Branch, r.Sha,
 		r.EtaSeconds, r.DurationSeconds, r.RunUrl, isSuccessInt, r.Notes, r.Comments, r.CreatedAt, r.UpdatedAt,
 	)
@@ -36,18 +58,17 @@ ON CONFLICT(RunId) DO UPDATE SET
 	return nil
 }
 
+func resolveCreatedAt(createdAt string) string {
+	if createdAt != "" {
+		return createdAt
+	}
+	return time.Now().UTC().Format(time.RFC3339)
+}
+
 // RecordErrorLog inserts an error diagnostic entry for a failing run.
 func (p *PipelineSplitDb) RecordErrorLog(e PipelineErrorRecord) error {
-	query := `
-INSERT INTO PipelineErrorLog (
-    RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
-
-	createdAt := e.CreatedAt
-	if createdAt == "" {
-		createdAt = time.Now().UTC().Format(time.RFC3339)
-	}
-	_, err := p.conn.Exec(query,
+	createdAt := resolveCreatedAt(e.CreatedAt)
+	_, err := p.conn.Exec(sqlRecordErrorLog,
 		e.RunId, e.RepoSlug, e.WorkflowName, e.StepName, e.ErrorText, e.RawLogs, e.Notes, e.Comments, createdAt,
 	)
 	if err != nil {
@@ -60,61 +81,92 @@ INSERT INTO PipelineErrorLog (
 func (p *PipelineSplitDb) HasErrorLog(runId uint64) bool {
 	var exists int
 	err := p.conn.QueryRow("SELECT 1 FROM PipelineErrorLog WHERE RunId = ? LIMIT 1;", runId).Scan(&exists)
-	return err == nil && exists == 1
+	if err != nil {
+		return false
+	}
+	return exists == 1
+}
+
+func resolveLimit(limit int, fallback int) int {
+	if limit <= 0 {
+		return fallback
+	}
+	return limit
+}
+
+func scanPipelineRun(rows *sql.Rows) (PipelineRunRecord, *apperror.AppError) {
+	var r PipelineRunRecord
+	var isSuccessInt int
+	err := rows.Scan(
+		&r.RunId, &r.RepoSlug, &r.WorkflowName, &r.Status, &r.Conclusion, &r.Branch, &r.Sha,
+		&r.EtaSeconds, &r.DurationSeconds, &r.RunUrl, &isSuccessInt, &r.CreatedAt, &r.UpdatedAt,
+	)
+	if err != nil {
+		return r, apperror.WrapSimple(err, "scan pipeline run row")
+	}
+	r.IsSuccess = isSuccessInt == 1
+	return r, nil
+}
+
+func collectRecentRuns(rows *sql.Rows) ([]PipelineRunRecord, error) {
+	var list []PipelineRunRecord
+	for rows.Next() {
+		r, scanErr := scanPipelineRun(rows)
+		if scanErr != nil {
+			return nil, scanErr
+		}
+		list = append(list, r)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, apperror.WrapSimple(err, "iterate pipeline run rows")
+	}
+	return list, nil
 }
 
 // QueryRecentRuns retrieves recent pipeline executions.
 func (p *PipelineSplitDb) QueryRecentRuns(limit int) ([]PipelineRunRecord, error) {
-	if limit <= 0 {
-		limit = 10
-	}
-	rows, err := p.conn.Query(`
-SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
-       EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
-FROM PipelineRun ORDER BY PipelineRunId DESC LIMIT ?;`, limit)
+	limitVal := resolveLimit(limit, 10)
+	rows, err := p.conn.Query(sqlQueryRecentRuns, limitVal)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query recent runs")
 	}
 	defer rows.Close()
+	return collectRecentRuns(rows)
+}
 
-	var list []PipelineRunRecord
+func scanPipelineError(rows *sql.Rows) (PipelineErrorRecord, *apperror.AppError) {
+	var e PipelineErrorRecord
+	err := rows.Scan(&e.RunId, &e.RepoSlug, &e.WorkflowName, &e.StepName, &e.ErrorText, &e.RawLogs, &e.CreatedAt)
+	if err != nil {
+		return e, apperror.WrapSimple(err, "scan pipeline error log row")
+	}
+	return e, nil
+}
+
+func collectRecentErrors(rows *sql.Rows) ([]PipelineErrorRecord, error) {
+	var list []PipelineErrorRecord
 	for rows.Next() {
-		var r PipelineRunRecord
-		var isSuccessInt int
-		if scanErr := rows.Scan(
-			&r.RunId, &r.RepoSlug, &r.WorkflowName, &r.Status, &r.Conclusion, &r.Branch, &r.Sha,
-			&r.EtaSeconds, &r.DurationSeconds, &r.RunUrl, &isSuccessInt, &r.CreatedAt, &r.UpdatedAt,
-		); scanErr == nil {
-			r.IsSuccess = isSuccessInt == 1
-			list = append(list, r)
+		e, scanErr := scanPipelineError(rows)
+		if scanErr != nil {
+			return nil, scanErr
 		}
+		list = append(list, e)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, apperror.WrapSimple(err, "iterate pipeline error log rows")
 	}
 	return list, nil
 }
 
 // QueryRecentErrorLogs retrieves stored error diagnostics.
 func (p *PipelineSplitDb) QueryRecentErrorLogs(limit int) ([]PipelineErrorRecord, error) {
-	if limit <= 0 {
-		limit = 20
-	}
-	rows, err := p.conn.Query(`
-SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
-FROM PipelineErrorLog ORDER BY PipelineErrorLogId DESC LIMIT ?;`, limit)
+	limitVal := resolveLimit(limit, 20)
+	rows, err := p.conn.Query(sqlQueryRecentErrors, limitVal)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query recent error logs")
 	}
 	defer rows.Close()
-
-	var list []PipelineErrorRecord
-	for rows.Next() {
-		var e PipelineErrorRecord
-		if scanErr := rows.Scan(
-			&e.RunId, &e.RepoSlug, &e.WorkflowName, &e.StepName, &e.ErrorText, &e.RawLogs, &e.CreatedAt,
-		); scanErr == nil {
-			list = append(list, e)
-		}
-	}
-	return list, nil
+	return collectRecentErrors(rows)
 }
 
 // Clear truncates all recorded runs, error logs, and segments.
@@ -147,48 +199,96 @@ func (p *PipelineSplitDb) Reset() error {
 	return p.InitSchema()
 }
 
+func (p *PipelineSplitDb) optimizePragmas() *apperror.AppError {
+	if _, err := p.conn.Exec("PRAGMA wal_checkpoint(TRUNCATE);"); err != nil {
+		return apperror.WrapSimple(err, "wal checkpoint pipeline db")
+	}
+	if _, err := p.conn.Exec("VACUUM;"); err != nil {
+		return apperror.WrapSimple(err, "vacuum pipeline db")
+	}
+	if _, err := p.conn.Exec("PRAGMA optimize;"); err != nil {
+		return apperror.WrapSimple(err, "optimize pipeline db")
+	}
+	return nil
+}
+
 // Optimize executes WAL checkpoint and VACUUM, returning reclaimed bytes.
 func (p *PipelineSplitDb) Optimize() (int64, error) {
-	var sizeBefore int64
-	if info, err := os.Stat(p.Path); err == nil {
-		sizeBefore = info.Size()
+	sizeBefore := getFileSize(p.Path)
+	if err := p.optimizePragmas(); err != nil {
+		return 0, err
 	}
-	_, _ = p.conn.Exec("PRAGMA wal_checkpoint(TRUNCATE);")
-	if _, err := p.conn.Exec("VACUUM;"); err != nil {
-		return 0, apperror.WrapSimple(err, "vacuum pipeline db")
+	sizeAfter := getFileSize(p.Path)
+	if sizeBefore <= sizeAfter {
+		return 0, nil
 	}
-	_, _ = p.conn.Exec("PRAGMA optimize;")
-	var sizeAfter int64
-	if info, err := os.Stat(p.Path); err == nil {
-		sizeAfter = info.Size()
-	}
-	reclaimed := sizeBefore - sizeAfter
-	if reclaimed < 0 {
-		reclaimed = 0
-	}
-	return reclaimed, nil
+	return int64(sizeBefore - sizeAfter), nil
 }
 
 func safeInt64ToUint64(val int64) uint64 {
 	if val < 0 {
 		return 0
 	}
-
 	return uint64(val)
+}
+
+func getFileSize(path string) uint64 {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0
+	}
+	return safeInt64ToUint64(info.Size())
+}
+
+func countQuery(conn *sql.DB, query string) (int, *apperror.AppError) {
+	var count int
+	if err := conn.QueryRow(query).Scan(&count); err != nil {
+		return 0, apperror.WrapSimple(err, "count query: "+query)
+	}
+	return count, nil
+}
+
+func queryLastUpdated(conn *sql.DB) (string, *apperror.AppError) {
+	var lastUpdated string
+	query := "SELECT COALESCE(MAX(UpdatedAt), '') FROM PipelineRun;"
+	if err := conn.QueryRow(query).Scan(&lastUpdated); err != nil {
+		return "", apperror.WrapSimple(err, "query last updated")
+	}
+	return lastUpdated, nil
+}
+
+func (p *PipelineSplitDb) loadStatsCounts(stats *PipelineDbStats) *apperror.AppError {
+	var err *apperror.AppError
+	if stats.TotalRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun;"); err != nil {
+		return err
+	}
+	if stats.SuccessRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 1;"); err != nil {
+		return err
+	}
+	if stats.FailedRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 0;"); err != nil {
+		return err
+	}
+	if stats.ErrorLogCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineErrorLog;"); err != nil {
+		return err
+	}
+	if stats.SegmentCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineSegment;"); err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetStats returns telemetry metrics for the split database.
 func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 	var stats PipelineDbStats
 	stats.Path = p.Path
-	if info, err := os.Stat(p.Path); err == nil {
-		stats.Size = safeInt64ToUint64(info.Size())
+	stats.Size = getFileSize(p.Path)
+	if err := p.loadStatsCounts(&stats); err != nil {
+		return stats, err
 	}
-	_ = p.conn.QueryRow("SELECT COUNT(*) FROM PipelineRun;").Scan(&stats.TotalRuns)
-	_ = p.conn.QueryRow("SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 1;").Scan(&stats.SuccessRuns)
-	_ = p.conn.QueryRow("SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 0;").Scan(&stats.FailedRuns)
-	_ = p.conn.QueryRow("SELECT COUNT(*) FROM PipelineErrorLog;").Scan(&stats.ErrorLogCount)
-	_ = p.conn.QueryRow("SELECT COUNT(*) FROM PipelineSegment;").Scan(&stats.SegmentCount)
-	_ = p.conn.QueryRow("SELECT COALESCE(MAX(UpdatedAt), '') FROM PipelineRun;").Scan(&stats.LastUpdated)
+	lastUpdated, err := queryLastUpdated(p.conn)
+	if err != nil {
+		return stats, err
+	}
+	stats.LastUpdated = lastUpdated
 	return stats, nil
 }

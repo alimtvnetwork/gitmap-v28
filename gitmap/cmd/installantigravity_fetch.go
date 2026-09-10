@@ -5,86 +5,51 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
-	"path/filepath"
-	"runtime"
-	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-func isHtmlContent(body []byte) bool {
-	str := strings.ToLower(strings.TrimSpace(string(body)))
-	if strings.HasPrefix(str, "<!") || strings.HasPrefix(str, "<html") {
+const (
+	antigravityWindowsUrl = "https://storage.googleapis.com/antigravity-public/antigravity-hub/2.5.0-5471848641724416/windows-x64/Antigravity-x64.exe"
+	antigravityLinuxUrl   = "https://storage.googleapis.com/antigravity-public/antigravity-hub/2.5.0-5471848641724416/linux-x64/Antigravity.tar.gz"
+)
 
-		return true
+func getAntigravityDesktopDownloadUrl(osName string) string {
+	if osName == "windows" {
+		return antigravityWindowsUrl
 	}
-
-	return false
+	return antigravityLinuxUrl
 }
 
-func fetchAgyScriptBytes() ([]byte, error) {
-	url := "https://antigravity.google/cli/install.sh"
-	if runtime.GOOS == "windows" {
-		url = "https://antigravity.google/cli/install.ps1"
+func copyDownloadStream(resp *http.Response, destFile string) error {
+	out, err := os.Create(destFile)
+	if err != nil {
+		return err
 	}
-	client := &http.Client{Timeout: 10 * time.Second}
+	defer out.Close()
+	_, err = io.Copy(out, resp.Body)
+	return err
+}
+
+func downloadFileToDest(url, destPath string) error {
+	client := &http.Client{Timeout: 300 * time.Second}
 	resp, err := client.Get(url)
 	if err != nil {
-
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-
-		return nil, fmt.Errorf("HTTP %d from installer endpoint", resp.StatusCode)
+		return fmt.Errorf("download failed with HTTP %d from %s", resp.StatusCode, url)
 	}
-
-	return io.ReadAll(resp.Body)
+	return copyDownloadStream(resp, destPath)
 }
 
-func saveTempAgyScript(body []byte) (string, error) {
-	scriptName := "install-agy.sh"
-	if runtime.GOOS == "windows" {
-		scriptName = "install-agy.ps1"
-	}
-	tmp := filepath.Join(os.TempDir(), scriptName)
-	if err := os.WriteFile(tmp, body, 0755); err != nil {
-
-		return "", err
-	}
-
-	return tmp, nil
-}
-
-func downloadAndValidateAgyScript() (string, error) {
-	body, err := fetchAgyScriptBytes()
-	if err != nil {
-
-		return "", err
-	}
-	if isHtmlContent(body) {
-
-		return "", fmt.Errorf("installer endpoint returned HTML document instead of shell script")
-	}
-
-	return saveTempAgyScript(body)
-}
-
-func runAgyNpmFallback() error {
-	cmd := exec.Command("npm", "install", "-g", "@google/antigravity")
-	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
-
-	return cmd.Run()
-}
-
-func recordAgyInstalled(ver string) {
+func recordAntigravityDesktopInstalled(installPath string) {
 	splitDB, err := store.OpenInstallationSplitDB()
 	if err != nil {
-
 		return
 	}
 	defer splitDB.Close()
-	_ = splitDB.SaveInstalledTool("antigravity", ver, "installer")
+	_ = splitDB.SaveInstalledTool("antigravity", installPath, "installer")
 }

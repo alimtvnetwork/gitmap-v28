@@ -9,6 +9,10 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [94-orm-code-generator-id-error-standards-and-fast-cache.md](completed/94-orm-code-generator-id-error-standards-and-fast-cache.md): Database ORM Integration, Generator Upgrades, Tesla ID Naming Standards, Universal AppError Wrapping, Fast Cache Engine & Codebase Release
+- [93-google-antigravity-desktop-ide-installer-fix.md](completed/93-google-antigravity-desktop-ide-installer-fix.md): Google Antigravity Desktop IDE Application Installer Fix & CLI Tool Decoupling
+- [92-linux-corrupted-install-folder-fix-and-server-check.md](completed/92-linux-corrupted-install-folder-fix-and-server-check.md): Linux & Ubuntu Corrupted Install Folder Detector, Safe Recovery, Server Check & Shell Hardening
+- [91-purge-history-refactor-and-sqlite-tracking.md](completed/91-purge-history-refactor-and-sqlite-tracking.md): Purge History CLI Refactoring, SQLite ID Normalization & Zero-Swallow Error Handling
 - [90-vmware-shared-crontab-persistence-fix.md](completed/90-vmware-shared-crontab-persistence-fix.md): VMware Shared Folders Crontab Persistence Bad Minute Error Fix & Ubuntu E2E Tests
 - [80-ubuntu-zsh-update-prompt-and-reinstall-root-cause-fix.md](completed/80-ubuntu-zsh-update-prompt-and-reinstall-root-cause-fix.md): Ubuntu ZSH Update Prompt & Reinstall Root Cause Fix
 - [89-qtorrent-utorrent-installers-and-config-options.md](completed/89-qtorrent-utorrent-installers-and-config-options.md): qBittorrent & uTorrent Installers and JSON Config Export/Import Engine

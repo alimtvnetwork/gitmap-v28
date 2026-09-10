@@ -162,3 +162,22 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 		t.Errorf("expected PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.StepName) to be false")
 	}
 }
+
+func TestPipelineDbScanError(t *testing.T) {
+	db, err := OpenPipelineSplitDB("test-owner/test-scan-err")
+	if err != nil {
+		t.Fatalf("failed to open pipeline split db: %v", err)
+	}
+	defer db.Close()
+
+	query := `INSERT INTO PipelineRun (
+		RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
+		EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
+	) VALUES ('not_an_int', 's', 'w', 'st', 'c', 'b', 'sh', 'invalid', 'invalid', 'u', 'bad', 'c', 'u');`
+	if _, execErr := db.conn.Exec(query); execErr != nil {
+		return
+	}
+	if _, queryErr := db.QueryRecentRuns(5); queryErr == nil {
+		t.Errorf("expected QueryRecentRuns to propagate error on corrupt row")
+	}
+}

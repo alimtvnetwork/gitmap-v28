@@ -1,7 +1,6 @@
 package pipelinedb
 
 import (
-	"context"
 	"database/sql"
 	"os"
 	"path/filepath"
@@ -9,8 +8,6 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb/enums"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	_ "modernc.org/sqlite"
 )
@@ -96,78 +93,4 @@ func (p *PipelineSplitDb) Close() error {
 		return p.conn.Close()
 	}
 	return nil
-}
-
-// ScanPipelineSplitDb maps a database row scanner to a PipelineSplitDb entity.
-func ScanPipelineSplitDb(row dbengine.RowScanner) (*PipelineSplitDb, error) {
-	var item PipelineSplitDb
-	var (
-		raw_RepoSlug any
-		raw_Path     any
-	)
-	err := row.Scan(
-		&raw_RepoSlug,
-		&raw_Path,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	item.RepoSlug = dbengine.ScanString(raw_RepoSlug)
-	item.Path = dbengine.ScanString(raw_Path)
-	return &item, nil
-}
-
-// PipelineSplitDbDbRepo provides typed database repository access for PipelineSplitDb.
-type PipelineSplitDbDbRepo struct {
-	db   *dbengine.DbWrapper
-	repo *PipelineSplitDbRepository
-}
-
-// NewPipelineSplitDbDbRepo initializes a typed repository for PipelineSplitDb.
-func NewPipelineSplitDbDbRepo(db *dbengine.DbWrapper) *PipelineSplitDbDbRepo {
-	repo := dbengine.NewRepository[PipelineSplitDb, enums.PipelineSplitDbFieldType](
-		db,
-		enums.PipelineSplitDbTable,
-		ScanPipelineSplitDb,
-	)
-	return &PipelineSplitDbDbRepo{
-		db:   db,
-		repo: repo,
-	}
-}
-
-// Db returns the underlying DbWrapper.
-func (r *PipelineSplitDbDbRepo) Db() *dbengine.DbWrapper {
-	return r.db
-}
-
-// Repo returns the underlying generic Repository.
-func (r *PipelineSplitDbDbRepo) Repo() *PipelineSplitDbRepository {
-	return r.repo
-}
-
-// Query returns a fluent QueryBuilder initialized with all standard fields projected.
-func (r *PipelineSplitDbDbRepo) Query() *PipelineSplitDbQueryBuilder {
-	return r.repo.Query().Select(enums.PipelineSplitDbDb.All()...)
-}
-
-// QueryBare returns a fluent QueryBuilder without any pre-selected fields.
-func (r *PipelineSplitDbDbRepo) QueryBare() *PipelineSplitDbQueryBuilder {
-	return r.repo.Query()
-}
-
-// FindAll executes the query selecting all fields and returns a ListResult envelope.
-func (r *PipelineSplitDbDbRepo) FindAll(ctx context.Context) dbengine.ListResult[PipelineSplitDb] {
-	return r.Query().FindAll(ctx)
-}
-
-// First executes the query selecting all fields and returns the first record in an EntityResult envelope.
-func (r *PipelineSplitDbDbRepo) First(ctx context.Context) dbengine.EntityResult[PipelineSplitDb] {
-	return r.Query().First(ctx)
-}
-
-// Count returns the total number of records matching the query.
-func (r *PipelineSplitDbDbRepo) Count(ctx context.Context) dbengine.Int64Result {
-	return r.Query().Count(ctx)
 }

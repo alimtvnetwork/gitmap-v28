@@ -245,6 +245,70 @@ remove_stray_binaries() {
     done
 }
 
+cleanup_corrupted_install_dirs() {
+    local scan_roots=()
+    [ -n "${PWD:-}" ] && scan_roots+=("${PWD}")
+    [ -n "${HOME:-}" ] && scan_roots+=("${HOME}")
+    [ -d "${HOME:-}/.local" ] && scan_roots+=("${HOME}/.local" "${HOME}/.local/bin")
+    [ -d "/tmp" ] && scan_roots+=("/tmp")
+
+    if command -v python3 >/dev/null 2>&1; then
+        python3 - "${scan_roots[@]}" << 'PYEOF' 2>/dev/null || true
+import os, sys, shutil
+
+esc = chr(27)
+for root in sys.argv[1:]:
+    if not os.path.isdir(root):
+        continue
+    try:
+        for name in os.listdir(root):
+            p = os.path.join(root, name)
+            if not os.path.isdir(p) or os.path.islink(p):
+                continue
+            if p in ("/", os.path.expanduser("~")):
+                continue
+
+            is_bad = False
+            if name == "~":
+                is_bad = True
+            elif esc in name or "\x1b" in name or "\033" in name:
+                is_bad = True
+            elif "\n" in name or "\r" in name:
+                is_bad = True
+            elif "quick installer" in name.lower() or ("gitmap" in name.lower() and "installer" in name.lower()):
+                is_bad = True
+            elif "default:" in name.lower() or "choose install folder" in name.lower():
+                is_bad = True
+
+            if is_bad:
+                shutil.rmtree(p, ignore_errors=True)
+    except Exception:
+        pass
+PYEOF
+        return 0
+    fi
+
+    local esc=$'\033' nl=$'\n' cr=$'\r'
+    local r bad_dir
+    for r in "${scan_roots[@]}"; do
+        [ ! -d "$r" ] && continue
+        if [ -d "$r/~" ] && [ "$r/~" != "/" ] && [ "$r/~" != "${HOME:-}" ]; then
+            rm -rf "$r/~" 2>/dev/null || true
+        fi
+        find "$r" -mindepth 1 -maxdepth 1 -type d \( \
+            -name "*gitmap*installer*" -o \
+            -name "*quick installer*" -o \
+            -name "*${esc}*" -o \
+            -name "*${nl}*" -o \
+            -name "*${cr}*" \
+        \) 2>/dev/null | while IFS= read -r bad_dir; do
+            if [ -n "$bad_dir" ] && [ "$bad_dir" != "/" ] && [ "$bad_dir" != "${HOME:-}" ]; then
+                rm -rf "$bad_dir" 2>/dev/null || true
+            fi
+        done
+    done
+}
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -275,5 +339,9 @@ remove_stray_binaries
 printf '\n'
 step "User data"
 remove_data_folder
+
+printf '\n'
+step "Corrupted directories sweep"
+cleanup_corrupted_install_dirs
 
 printf '\n  %bDone. Open a new shell to refresh PATH.%b\n\n' "$c_green" "$c_reset"
