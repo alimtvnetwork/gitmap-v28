@@ -47,15 +47,49 @@ func executeRemoteUpdateWorkflow(url, currentVersion, targetVersion string) bool
 		return false
 	}
 	defer os.Remove(scriptPath)
-	fmt.Printf(constants.MsgUpdateVersionCompare, currentVersion, targetVersion)
-	fmt.Printf(constants.MsgUpdateRemoteRun, scriptPath)
-	errRun := runRemoteInstaller(scriptPath)
-	if errRun != nil {
+	announceRemoteUpdate(currentVersion, targetVersion, scriptPath)
+	if errRun := runRemoteInstaller(scriptPath); errRun != nil {
 		handleRemoteInstallerError(errRun)
 		return false
 	}
-	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, url)
+	finishRemoteUpdate(currentVersion, targetVersion, url)
+
 	return true
+}
+
+func announceRemoteUpdate(currentVersion, targetVersion, scriptPath string) {
+	fmt.Printf(constants.MsgUpdateVersionCompare, currentVersion, targetVersion)
+	fmt.Printf(constants.MsgUpdateRemoteRun, scriptPath)
+}
+
+func finishRemoteUpdate(currentVersion, targetVersion, url string) {
+	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, url)
+	printPostUpdateIdentity()
+}
+
+func printPostUpdateIdentity() {
+	installDir := resolveCurrentInstallDir()
+	binName := constants.GitMapBin
+	if runtime.GOOS == "windows" {
+		binName += ".exe"
+	}
+	binPath := filepath.Join(installDir, binName)
+	if executeInstalledBinaryIdentity(binPath) {
+		return
+	}
+
+	printGitmapIdentityBlockLong()
+}
+
+func executeInstalledBinaryIdentity(binPath string) bool {
+	if _, err := os.Stat(binPath); err != nil {
+		return false
+	}
+	cmd := exec.Command(binPath, "binary")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run() == nil
 }
 
 func handleRemoteInstallerError(errRun error) {
@@ -205,21 +239,59 @@ func writeInstallerTempFile(body io.Reader) (string, error) {
 	return tmp.Name(), nil
 }
 
+// resolveCurrentInstallDir returns the folder of the running binary.
+func resolveCurrentInstallDir() string {
+	selfPath, err := os.Executable()
+	if err != nil {
+		return ""
+	}
+	realPath, errEval := filepath.EvalSymlinks(selfPath)
+	if errEval == nil {
+		selfPath = realPath
+	}
+
+	return filepath.Dir(selfPath)
+}
+
+func buildRemoteInstallerCmd(scriptPath, installDir string) *exec.Cmd {
+	if runtime.GOOS == "windows" {
+		return buildWindowsInstallerCmd(scriptPath, installDir)
+	}
+
+	return buildUnixInstallerCmd(scriptPath, installDir)
+}
+
+func buildWindowsInstallerCmd(scriptPath, installDir string) *exec.Cmd {
+	args := []string{
+		"-ExecutionPolicy", "Bypass",
+		"-NoProfile", "-NoLogo",
+		"-File", scriptPath,
+	}
+	if len(installDir) > 0 {
+		args = append(args, "-InstallDir", installDir)
+	}
+
+	return exec.Command("powershell", args...)
+}
+
+func buildUnixInstallerCmd(scriptPath, installDir string) *exec.Cmd {
+	args := []string{scriptPath}
+	if len(installDir) > 0 {
+		args = append(args, "--dir", installDir)
+	}
+
+	return exec.Command(getUnixShell(), args...)
+}
+
 // runRemoteInstaller exec's the downloaded script with the right shell.
 func runRemoteInstaller(scriptPath string) error {
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("powershell",
-			"-ExecutionPolicy", "Bypass",
-			"-NoProfile", "-NoLogo",
-			"-File", scriptPath)
-	} else {
-		cmd = exec.Command(getUnixShell(), scriptPath)
-	}
+	installDir := resolveCurrentInstallDir()
+	cmd := buildRemoteInstallerCmd(scriptPath, installDir)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Dir = filepath.Dir(scriptPath)
+
 	return cmd.Run()
 }
 
@@ -229,5 +301,6 @@ func getUnixShell() string {
 	if errLook != nil {
 		shell = "sh"
 	}
+
 	return shell
 }

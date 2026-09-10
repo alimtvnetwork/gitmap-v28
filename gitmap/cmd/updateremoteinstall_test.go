@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os/exec"
 	"runtime"
 	"strings"
 	"testing"
@@ -71,5 +72,56 @@ func TestDecodeVersionFromMap(t *testing.T) {
 	lowerJSON := `{"version": "6.158.0"}`
 	if got := decodeVersionFromMap(strings.NewReader(lowerJSON)); got != "6.158.0" {
 		t.Errorf("expected 6.158.0 for lowercase version, got %q", got)
+	}
+}
+
+func TestBuildRemoteInstallerCmd(t *testing.T) {
+	t.Parallel()
+
+	cmd := buildRemoteInstallerCmd("script.ext", "target/dir")
+	if cmd == nil {
+		t.Fatal("expected non-nil cmd")
+	}
+
+	assertInstallerCmdArgs(t, cmd)
+}
+
+func assertInstallerCmdArgs(t *testing.T, cmd *exec.Cmd) {
+	t.Helper()
+
+	args := strings.Join(cmd.Args, " ")
+	if runtime.GOOS == "windows" {
+		assertWindowsInstallerArgs(t, args)
+
+		return
+	}
+
+	assertUnixInstallerArgs(t, args)
+}
+
+func assertWindowsInstallerArgs(t *testing.T, args string) {
+	t.Helper()
+
+	hasInstallDir := strings.Contains(args, "-InstallDir target/dir")
+	if !hasInstallDir {
+		t.Errorf("expected -InstallDir in args: %s", args)
+	}
+}
+
+func assertUnixInstallerArgs(t *testing.T, args string) {
+	t.Helper()
+
+	hasDir := strings.Contains(args, "--dir target/dir")
+	if !hasDir {
+		t.Errorf("expected --dir in args: %s", args)
+	}
+}
+
+func TestResolveCurrentInstallDir(t *testing.T) {
+	t.Parallel()
+
+	dir := resolveCurrentInstallDir()
+	if len(dir) == 0 {
+		t.Errorf("expected non-empty install dir, got empty")
 	}
 }
