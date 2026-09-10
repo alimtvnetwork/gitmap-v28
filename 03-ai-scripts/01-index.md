@@ -109,3 +109,5 @@ DEFAULT_MAX_WORKERS = 4
 6. **Quality Gates:** Before completing any work session, execute `python 03-ai-scripts/06-cicd-local-runner.py` and verify all 18 checks pass.
 
 - [29-release-orchestrator.py](29-release-orchestrator.py): Orchestrates git release, bump version, branches, tags, and commits.
+- [32-deep-consolidator.py](32-deep-consolidator.py): Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes.
+

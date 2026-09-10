@@ -48,5 +48,4 @@
 ## See also
 
 - Root `readme.md` (must stay in sync with this file)
-- `.lovable/plans/pending/01-macro-step-open-chrome-failure.md`
-- `.lovable/plans/completed/63-chrome-profile-picker-visibility.md`
+- `.lovable/plans/completed/09-chrome-profile-management-picker-and-token-vault.md`

@@ -2,40 +2,18 @@
 
 ## Pending Plans
 
-*(No pending plans. All tasks completed.)*
+- [87-install-antigravity-fix.md](.lovable/plans/pending/87-install-antigravity-fix.md) — Antigravity CLI and Desktop Installer Endpoints
 
-## Completed Plans
+## Completed Plans (Consolidated Milestones)
 
-- [x] [66-automatic-db-repo-and-safe-scanner-generator.md](.lovable/plans/completed/66-automatic-db-repo-and-safe-scanner-generator.md) — Automatic Typed DbRepo & Safe Row Scanners Generator for Model Entities.
-- [x] [65-universal-dbengine-joins-and-view-evolution.md](.lovable/plans/completed/65-universal-dbengine-joins-and-view-evolution.md) — Universal DBEngine Joins, Error-Guarded Query Builder, Zero Magic Strings & Automated View Evolution.
-- [x] [28-error-management-audit.md](.lovable/plans/completed/28-error-management-audit.md) — Error Return Contract, outer handling, ExitCodeType enums, and specialized exit helpers.
-- [x] [29-booleans-and-complex-conditions-audit.md](.lovable/plans/completed/29-booleans-and-complex-conditions-audit.md) — Boolean principles, affirmative naming, implicit evaluation, and mixed polarity elimination.
-- [x] [30-naming-conventions-audit.md](.lovable/plans/completed/30-naming-conventions-audit.md) — Variable & boolean naming conventions, anti-ok refactoring, and positive framing guard clauses.
-- [x] [52-constants-and-enums-audit.md](.lovable/plans/completed/52-constants-and-enums-audit.md) — Constants & enums architecture, *Type suffix enforcement, and zero magic literals.
-- [x] [53-react-frontend-audit.md](.lovable/plans/completed/53-react-frontend-audit.md) — React & frontend architecture, custom hook named object returns, and component modularity.
-- [x] [54-code-hygiene-and-file-standards-audit.md](.lovable/plans/completed/54-code-hygiene-and-file-standards-audit.md) — Code hygiene, Unix LF, UTF-8 (no BOM), single EOF newline, and markdown heading spacing.
-- [x] [55-style-guidelines-audit.md](.lovable/plans/completed/55-style-guidelines-audit.md) — Style guidelines, vertical newline spacing (R13-R16), and guard clause separation.
-- [x] [56-relative-paths-audit.md](.lovable/plans/completed/56-relative-paths-audit.md) — Strict relative Git repository paths, absolute filesystem path elimination, and zero file:/// URIs.
-- [x] [57-cli-help-parity-audit.md](.lovable/plans/completed/57-cli-help-parity-audit.md) — CLI commands, help text parity, subcommand registration, and AST consistency.
-- [x] [58-function-signatures-audit.md](.lovable/plans/completed/58-function-signatures-audit.md) — Function signatures, Rule 9a/9b multi-line formatting, and Result[T] envelope architecture.
-- [x] [59-typescript-types-audit.md](.lovable/plans/completed/59-typescript-types-audit.md) — TypeScript strict typing, zero any types, discriminated unions, and Result envelopes.
-- [x] [60-multi-language-enums-and-traits-audit.md](.lovable/plans/completed/60-multi-language-enums-and-traits-audit.md) — Multi-language enums, traits, string-backed enums, and *Type suffixes.
-- [x] [61-terminal-ui-and-cli-styling-audit.md](.lovable/plans/completed/61-terminal-ui-and-cli-styling-audit.md) — Terminal UI, bright bold ANSI palettes, Catppuccin pastel cycling, and Lipgloss banners.
-- [x] [62-argument-reduction-audit.md](.lovable/plans/completed/62-argument-reduction-audit.md) — Argument reduction, value-based parameter Structs/DTOs, and mandatory AppError returns.
-
-- [x] [01-coding-guidelines-and-boolean-refactoring.md](.lovable/plans/completed/01-coding-guidelines-and-boolean-refactoring.md) — Repository-wide coding standards, affirmative boolean prefixes, conditional flattening, and universal file hygiene.
-- [x] [02-error-management-and-exit-architecture.md](.lovable/plans/completed/02-error-management-and-exit-architecture.md) — Centralized application error handling, AppError wrappers, cliexit handlers, and CI error linter.
-- [x] [03-ssh-nodes-and-cluster-delegation.md](.lovable/plans/completed/03-ssh-nodes-and-cluster-delegation.md) — SSH key lifecycle, multi-host config generation, cluster node registration, and command delegation.
-- [x] [04-ui-terminal-and-dashboard-visualization.md](.lovable/plans/completed/04-ui-terminal-and-dashboard-visualization.md) — Terminal help layout compaction, TUI interactive tree navigation, web dashboard live streaming, and macro engine.
-- [x] [05-workspace-profile-and-repository-operations.md](.lovable/plans/completed/05-workspace-profile-and-repository-operations.md) — Bulk repository visibility, Chrome profile sync, workspace moving/untracking, and LFS smudge fallback.
-- [x] [06-installers-scaffolding-and-tooling-integrations.md](.lovable/plans/completed/06-installers-scaffolding-and-tooling-integrations.md) — Cross-platform binary installers, Ubuntu ZSH setup, Prompt Architect installer, and AI fix scripts.
-- [x] [18-coding-guidelines-audit.md](.lovable/plans/completed/18-coding-guidelines-audit.md) — Master coding guidelines gap audit, 0-100 scoring ledger, and atomic remediation subtasks.
-- [x] [19-naming-conventions-audit.md](.lovable/plans/completed/19-naming-conventions-audit.md) — Variable & boolean naming conventions, anti-ok refactoring, and positive framing guard clauses.
-- [x] [20-style-guidelines-audit.md](.lovable/plans/completed/20-style-guidelines-audit.md) — Coding style, newline formatting, blank lines before if/return, after }, and line-gaps.
-- [x] [21-terminal-help-llm-and-ssh-fixes.md](.lovable/plans/completed/21-terminal-help-llm-and-ssh-fixes.md) — Terminal help layout compaction, LLM guidelines with public GitHub MD URL, and expanded SSH subcommands.
-- [x] [22-completed-plans-consolidation.md](.lovable/plans/completed/22-completed-plans-consolidation.md) — Memory consolidation: cluster completed plans into 6 unified milestones and re-sequence monotonically.
-- [x] [23-cli-commands-help-audit.md](.lovable/plans/completed/23-cli-commands-help-audit.md) — CLI commands, help text parity & help UI architecture audit.
-- [x] [24-function-signatures-audit.md](.lovable/plans/completed/24-function-signatures-audit.md) — Function signatures, invocations & multi-line standards audit.
-- [x] [25-typescript-types-audit.md](.lovable/plans/completed/25-typescript-types-audit.md) — TypeScript strict typing, discriminated unions & architecture audit.
-- [x] [26-enums-and-traits-audit.md](.lovable/plans/completed/26-enums-and-traits-audit.md) — Multi-language enums, traits & pattern matching audit.
-- [x] [27-terminal-ui-styling-audit.md](.lovable/plans/completed/27-terminal-ui-styling-audit.md) — Terminal UI, CLI styling, Lipgloss & animation architecture audit.
+- [x] [01-coding-guidelines-and-style-audits.md](.lovable/plans/completed/01-coding-guidelines-and-style-audits.md) — Coding Guidelines, Function Sizing, Boolean Refactoring & Style Quality.
+- [x] [02-error-management-and-cliexit-architecture.md](.lovable/plans/completed/02-error-management-and-cliexit-architecture.md) — Centralized Error Architecture, AppError Wrappers & Cliexit Engine.
+- [x] [03-type-safety-function-signatures-and-contracts.md](.lovable/plans/completed/03-type-safety-function-signatures-and-contracts.md) — Type Safety, Function Signatures, Enums & React Architecture.
+- [x] [04-cicd-pipelines-runners-and-streaming-telemetry.md](.lovable/plans/completed/04-cicd-pipelines-runners-and-streaming-telemetry.md) — CI/CD Pipelines, Multi-Worker Runners & Real-Time Streaming Telemetry.
+- [x] [05-database-engine-sqlite-joins-and-scanners.md](.lovable/plans/completed/05-database-engine-sqlite-joins-and-scanners.md) — Database Engine, SQLite Schema, Joins & Typed Scanners.
+- [x] [06-git-operations-commit-engines-and-remediation.md](.lovable/plans/completed/06-git-operations-commit-engines-and-remediation.md) — Git Operations, Commit Engines, Delta Extraction & Interactive Remediation.
+- [x] [07-ssh-nodes-cluster-delegation-and-remote-exec.md](.lovable/plans/completed/07-ssh-nodes-cluster-delegation-and-remote-exec.md) — SSH Nodes, Cluster Delegation & Remote Execution Engine.
+- [x] [08-terminal-ui-help-parity-and-cli-commands.md](.lovable/plans/completed/08-terminal-ui-help-parity-and-cli-commands.md) — Terminal UI, Help Parity, CLI Styling & Interactive Macro Builder.
+- [x] [09-chrome-profile-management-picker-and-token-vault.md](.lovable/plans/completed/09-chrome-profile-management-picker-and-token-vault.md) — Chrome Profile Management, Picker Visibility, Preflight Inspection & Token Vault.
+- [x] [10-installers-multios-setup-and-web-stacks.md](.lovable/plans/completed/10-installers-multios-setup-and-web-stacks.md) — Multi-OS Installers, Corrupted Directory Sanitization, VMware Mounts & Web Stacks.
+- [x] [11-completed-plans-consolidation.md](.lovable/plans/completed/11-completed-plans-consolidation.md) — Memory Consolidation, Safety Backup & Milestone Resequencing.
