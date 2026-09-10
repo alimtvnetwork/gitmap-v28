@@ -43,6 +43,7 @@ var toolAliasMap = map[string]string{
 	"vmtools":             constants.ToolVMware,
 	"vmware-tools":        constants.ToolVMware,
 	"vm":                  constants.ToolVMware,
+	"ag":                  constants.ToolAntigravity,
 	"agy":                 constants.ToolAntigravity,
 	"antigravity-cli":     constants.ToolAntigravity,
 	"ag-m":                constants.ToolAgManager,

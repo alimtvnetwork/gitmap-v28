@@ -25,8 +25,12 @@ func isHtmlContent(body []byte) bool {
 }
 
 func fetchAgyScriptBytes() ([]byte, error) {
+	url := "https://antigravity.google/cli/install.sh"
+	if runtime.GOOS == "windows" {
+		url = "https://antigravity.google/cli/install.ps1"
+	}
 	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get("https://get.antigravity.dev")
+	resp, err := client.Get(url)
 	if err != nil {
 
 		return nil, err
