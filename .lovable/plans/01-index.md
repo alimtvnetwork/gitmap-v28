@@ -19,3 +19,5 @@ Master directory of architectural and execution plans.
 - [09-chrome-profile-management-picker-and-token-vault.md](completed/09-chrome-profile-management-picker-and-token-vault.md): Chrome Profile Management, Picker Visibility, Preflight Inspection & Token Vault
 - [10-installers-multios-setup-and-web-stacks.md](completed/10-installers-multios-setup-and-web-stacks.md): Multi-OS Installers, Corrupted Directory Sanitization, VMware Mounts & Web Stacks
 - [11-completed-plans-consolidation.md](completed/11-completed-plans-consolidation.md): Memory Consolidation, Safety Backup & Milestone Resequencing
+- [12-git-deleted-files-tracer-and-purger.md](completed/12-git-deleted-files-tracer-and-purger.md): Git Historical Deleted Files Tracer, Restorer & Deep Purger
+

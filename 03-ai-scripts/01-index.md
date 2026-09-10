@@ -57,6 +57,8 @@ Follow this sequence before and during any repository modification task:
 | **29** | `29-release-orchestrator.py` | Automated release orchestrator, branch lifecycle manager, and tag pusher | ~10ms | `release`, `orchestrator`, `bump`, `branch`, `tag`, `lifecycle` |
 | **30** | `30-db-struct-enum-generator.py` | Auto-generates type-safe column name enums from Go model structs | ~12ms | `db`, `models`, `enums`, `generator`, `codegen`, `columns` |
 | **31** | `31-db-migration-runner.py` | Standalone external SQLite and schema migration runner with introspection | ~15ms | `db`, `migrations`, `sqlite`, `runner`, `schema` |
+| **32** | `32-deep-consolidator.py` | Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes | ~15ms | `plans`, `consolidator`, `milestone`, `subtasks`, `safety-backup` |
+| **33** | `33-git-history-tracer-and-purger.py` | Traces deleted files in Git, pre-flight inspection with selective exclusion, workspace restoration, and deep history purging | ~20ms | `git`, `history`, `tracer`, `restore`, `purge`, `filter-repo`, `deleted-files` |
 
 ---
 
@@ -110,4 +112,6 @@ DEFAULT_MAX_WORKERS = 4
 
 - [29-release-orchestrator.py](29-release-orchestrator.py): Orchestrates git release, bump version, branches, tags, and commits.
 - [32-deep-consolidator.py](32-deep-consolidator.py): Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes.
+- [33-git-history-tracer-and-purger.py](33-git-history-tracer-and-purger.py): Traces deleted files in Git history, selective pre-flight exclusion, workspace restoration, and deep history purge via `git filter-repo`.
+
 

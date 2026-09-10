@@ -17,3 +17,5 @@
 - [x] [09-chrome-profile-management-picker-and-token-vault.md](.lovable/plans/completed/09-chrome-profile-management-picker-and-token-vault.md) — Chrome Profile Management, Picker Visibility, Preflight Inspection & Token Vault.
 - [x] [10-installers-multios-setup-and-web-stacks.md](.lovable/plans/completed/10-installers-multios-setup-and-web-stacks.md) — Multi-OS Installers, Corrupted Directory Sanitization, VMware Mounts & Web Stacks.
 - [x] [11-completed-plans-consolidation.md](.lovable/plans/completed/11-completed-plans-consolidation.md) — Memory Consolidation, Safety Backup & Milestone Resequencing.
+- [x] [12-git-deleted-files-tracer-and-purger.md](.lovable/plans/completed/12-git-deleted-files-tracer-and-purger.md) — Git Historical Deleted Files Tracer, Restorer & Deep Purger.
+
