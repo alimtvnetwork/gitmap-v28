@@ -42,8 +42,9 @@ test:
 
 ## Build — compile for the current platform
 build:
-	@cd $(MODULE) && CGO_ENABLED=0 $(GO) build -ldflags "$(LDFLAGS)" -o ../$(BINARY) .
-	@echo "Built $(BINARY) ($(VERSION))"
+	@mkdir -p bin
+	@cd $(MODULE) && CGO_ENABLED=0 $(GO) build -ldflags "$(LDFLAGS)" -o ../bin/$(BINARY) .
+	@echo "Built bin/$(BINARY) ($(VERSION))"
 
 ## Vulncheck — scan for known vulnerabilities
 vulncheck:
@@ -60,7 +61,7 @@ release-dry:
 
 ## Clean — remove build artifacts
 clean:
-	@rm -f $(BINARY)
+	@rm -f bin/$(BINARY) bin/$(BINARY).exe $(BINARY) $(BINARY).exe
 	@rm -rf $(MODULE)/.gitmap/release-assets
 	@echo "Cleaned."
 
