@@ -72,3 +72,7 @@ tmp/
 /.tmp/
 .tmp/
 *.db
+
+*.db-shm
+*.db-wal
+*.lock
