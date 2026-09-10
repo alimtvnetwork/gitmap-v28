@@ -61,8 +61,8 @@ func assertFoundRepo(t *testing.T, items []RemediationItem, query, expectedName 
 }
 
 func TestBatchRemediationSaveLoadRemove(t *testing.T) {
-	orig := getRemediationStateFile()
-	defer func() { _ = os.Remove(orig) }()
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("USERPROFILE", t.TempDir())
 
 	items := []RemediationItem{
 		{RepoName: "repo-a", RepoPath: "/a", SummaryReason: "+1 modified"},
@@ -126,8 +126,8 @@ func TestIsReconcileAllRequested(t *testing.T) {
 }
 
 func TestReconcileWorkflowE2E(t *testing.T) {
-	orig := getRemediationStateFile()
-	defer func() { _ = os.Remove(orig) }()
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("USERPROFILE", t.TempDir())
 
 	tempDir := t.TempDir()
 	repoDir := initDummyGitRepoWithRemote(t, tempDir)
