@@ -12,8 +12,4 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.209.
 
 ## Changelog v6.209.0
 
-- Pass active install directory from gitmap update to remote installers
-- Align PowerShell installer default directory with SSoT (gitmap-cli)
-- Add Repair-LegacyLayout to prune legacy gitmap directory and stale PATH
-- Add trailing visual spacing gaps to post-update and installer summaries
-- Register gitmap binary and gitmap info commands with full identity reporting
+- Automated release orchestration

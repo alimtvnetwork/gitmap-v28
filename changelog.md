@@ -8,11 +8,306 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- Pass active install directory from gitmap update to remote installers
-- Align PowerShell installer default directory with SSoT (gitmap-cli)
-- Add Repair-LegacyLayout to prune legacy gitmap directory and stale PATH
-- Add trailing visual spacing gaps to post-update and installer summaries
-- Register gitmap binary and gitmap info commands with full identity reporting
+- Automated release orchestration
+
+## [v6.208.1] 2026-09-10 Release v6.208.1
+
+### Install GitMap v6.208.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.sh | bash -s -- ".lovable/prompts" "v6.208.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.208.1"`
+
+### Added / Changed / Fixed / Removed
+
+- add temp backup, recycle bin deletion, folder 25 preset, and consolidation cleanup prompt
+
+## [v6.208.0] 2026-09-10 Release v6.208.0
+
+### Install GitMap v6.208.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.sh | bash -s -- ".lovable/prompts" "v6.208.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.208.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Connect repodb to dbengine ORM with typed repositories and row scanners
+- Upgrade 30-db-struct-enum-generator.py to support db tags, entity models, and typed mutations
+- Normalize SQLite database primary keys to PascalCase <Entity>Id across repodb and store
+- Eradicate swallowed errors across pipelinedb, dbengine, and repodb with universal AppError wrapping
+- Implement in-memory batch timestamp caching, 8KB binary sniffer, and directory pruning in indexer
+- Fix Linux corrupted install directories with safe recovery and cross-OS Darwin/Windows support
+- Decouple Google Antigravity Desktop IDE installer from agy CLI utility
+
+## [v6.207.0] 2026-09-10 Release v6.207.0
+
+### Install GitMap v6.207.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.sh | bash -s -- ".lovable/prompts" "v6.207.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.207.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.206.3] 2026-09-10 Release v6.206.3
+
+### Install GitMap v6.206.3
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.sh | bash -s -- ".lovable/prompts" "v6.206.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.206.3"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.206.2] 2026-09-10 Release v6.206.2
+
+### Install GitMap v6.206.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.sh | bash -s -- ".lovable/prompts" "v6.206.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.206.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.206.1] 2026-09-10 Release v6.206.1
+
+### Install GitMap v6.206.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.sh | bash -s -- ".lovable/prompts" "v6.206.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.206.1"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.206.0] 2026-09-10 Release v6.206.0
+
+### Install GitMap v6.206.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.sh | bash -s -- ".lovable/prompts" "v6.206.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.206.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.205.0] 2026-09-09 Release v6.205.0
+
+### Install GitMap v6.205.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.sh | bash -s -- ".lovable/prompts" "v6.205.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.205.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Resolve VMware shared folders crontab persistence bad minute error on fresh Ubuntu systems
+- Implement dedicated crontab reader/writer with clean empty crontab detection and trailing newline enforcement
+- Add subprocess-level Ubuntu E2E crontab lifecycle tests simulating Vixie cron execution
+- Pass full golangci-lint suite and multi-core repository quality gates
+
+## [v6.204.9] 2026-09-09 Release v6.204.9
+
+### Install GitMap v6.204.9
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.sh | bash -s -- ".lovable/prompts" "v6.204.9"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.9"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove unused crontabLookPathFunc and isCrontabAvailable to pass golangci-lint full-suite runner
+
+## [v6.204.8] 2026-09-09 Release v6.204.8
+
+### Install GitMap v6.204.8
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.sh | bash -s -- ".lovable/prompts" "v6.204.8"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.8"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix VMware shared crontab bad minute error when no existing crontab exists on Ubuntu/Debian
+- Add modular crontab reader/writer with clean empty detection and robust newline termination
+- Add comprehensive unit tests and Ubuntu crontab lifecycle E2E test suite
+
+## [v6.204.7] 2026-09-09 Release v6.204.7
+
+### Install GitMap v6.204.7
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.sh | bash -s -- ".lovable/prompts" "v6.204.7"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.7"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix macro add arrow history, mkdir tilde expansion and in-builder feedback, and open code/url support
+
+## [v6.204.6] 2026-09-09 Release v6.204.6
+
+### Install GitMap v6.204.6
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.sh | bash -s -- ".lovable/prompts" "v6.204.6"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.6"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix dev profile tools installation and add diagnostic stack trace logging
+
+## [v6.204.5] 2026-09-09 Release v6.204.5
+
+### Install GitMap v6.204.5
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.sh | bash -s -- ".lovable/prompts" "v6.204.5"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.5"`
+
+### Added / Changed / Fixed / Removed
+
+- Replace unsupported ⊘ glyph with green checkmark in setup configuration steps
+- Add ⊘ to glyphs Filter table for safe terminal fallback
+- Fix setup unchanged summary counter glyph
+
+## [v6.204.4] 2026-09-09 Release v6.204.4
+
+### Install GitMap v6.204.4
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.sh | bash -s -- ".lovable/prompts" "v6.204.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.4"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Ubuntu ZSH update prompt and prevent unwanted apt reinstall during update
+- Prevent sudo password requests and preserve existing Oh-My-Zsh configurations
+- Auto-detect existing ZSH binary and skip non-interactive setup runs
+- Enforce LF line endings and automatic gofmt synchronization during release orchestration
+
+## [v6.204.3] 2026-09-09 Release v6.204.3
+
+### Install GitMap v6.204.3
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.sh | bash -s -- ".lovable/prompts" "v6.204.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.3"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Ubuntu ZSH update prompt and prevent unwanted apt reinstall during update
+- Prevent sudo password requests and preserve existing Oh-My-Zsh configurations
+- Auto-detect existing ZSH binary and skip non-interactive setup runs
+- Enforce LF line endings and automatic gofmt synchronization during release orchestration
+
+## [v6.204.2] 2026-09-09 Release v6.204.2
+
+### Install GitMap v6.204.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.sh | bash -s -- ".lovable/prompts" "v6.204.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Ubuntu ZSH update prompt, prevent unwanted reinstall, and preserve existing shell configuration
+
+## [v6.204.1] 2026-09-09 Release v6.204.1
+
+### Install GitMap v6.204.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.sh | bash -s -- ".lovable/prompts" "v6.204.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.1"`
+
+### Added / Changed / Fixed / Removed
+
+- qBittorrent and uTorrent installers, config export and import options, profile tree preview
+
+## [v6.204.0] 2026-09-09 Release v6.204.0
+
+### Install GitMap v6.204.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.sh | bash -s -- ".lovable/prompts" "v6.204.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Linux PNPM, Yarn, and Bun installation via npm global and standalone script fallbacks
+- Add upfront tool tree hierarchy preview before profile execution and --tree flag support
+- Remove Ollama and ubuntu-dev-ai profile, isolating Ollama strictly to standalone ai profile
+- Add explicit profile installation examples across CLI help, documentation, and install ls
+
+## [v6.203.0] 2026-09-09 Release v6.203.0
+
+### Install GitMap v6.203.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.sh | bash -s -- ".lovable/prompts" "v6.203.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.203.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add qBittorrent and uTorrent cross-platform installers across Windows (choco, winget), Ubuntu/Debian (apt), and macOS (brew)
+- Implement portable JSON configuration export/import engine (export-config, import-config, improt-config) for VS Code, qBittorrent, and uTorrent
+- Support batch export and import across folders with automatic OS path and file format translation (.ini <-> .conf)
+- Add dedicated help documentation (export-config.md, import-config.md) and commands.ts UI metadata
+
+## [v6.202.0] 2026-09-09 Release v6.202.0
+
+### Install GitMap v6.202.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.sh | bash -s -- ".lovable/prompts" "v6.202.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.202.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove dead runInstallAgManager and runInstallAntigravity functions to pass strict unused and lint-baseline-diff CI checks
+- Upgrade .github/scripts/full-suite-lint.sh to native high-performance Bash runner with live tee streaming and SIMD grep -cE issue counting
+- Modernize .github/scripts/full-suite-lint.py with line-buffered subprocess.Popen real-time stdout streaming and O(1) memory tracking
+
+## [v6.201.0] 2026-09-09 Release v6.201.0
+
+### Install GitMap v6.201.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.sh | bash -s -- ".lovable/prompts" "v6.201.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.201.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add automatic Git remote tag release discovery (https://github.com/lbjlaq/Antigravity-Manager.git) for Antigravity Manager GUI with semver sorting and multi-OS asset matching
+- Add specific version targeting --version <ver> to gitmap install ag-manager and gitmap agy install manager
+- Enable full CLI flag parity (--dry-run, --yes/-y, --verbose/-v, --version) in gitmap agy install [manager|cli|all]
+- Fix gitmap in alias routing and display grouped tool catalog, descriptions, and profiles when run without arguments
+- Add and document antigravity, ag-manager, ag-ctx, build-essential, and installation profiles (dev, ubuntu, ubuntu-dev-ai, ai, backend, fullstack, minimal)
+
+## [v6.200.0] 2026-09-09 Release v6.200.0
+
+### Install GitMap v6.200.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.sh | bash -s -- ".lovable/prompts" "v6.200.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.200.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Antigravity Manager release installer, custom profile engine, and preflight probe
+- Parallel multi-worker CPU checkers, 10s telemetry heartbeat, and incremental git commit checkpointing
+- Terminal-adaptive responsive table layout, status checkmarks, and interactive dirty remediation box
+- Google OAuth token preservation and cipher extraction in Chrome profile backups
+- 100% CPU multi-core utilization across all linters and code formatters with chunked file queues
 
 ## [v6.199.0] 2026-09-08 Release v6.199.0
 
