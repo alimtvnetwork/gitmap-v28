@@ -143,7 +143,6 @@ func resolveUbuntuScript(instructions map[string]string) string {
 	return strings.TrimSpace(instructions["ubuntu"])
 }
 
-
 func isUbuntuHost() bool {
 	data, err := os.ReadFile("/etc/os-release")
 	if err != nil {

@@ -76,4 +76,3 @@ func isDelegatedInstallArg(args []string) bool {
 
 	return true
 }
-

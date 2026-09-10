@@ -153,4 +153,3 @@ func assertRecordedInSplitDB(t *testing.T, slug string) {
 		t.Fatalf("expected tool %q to be recorded in installation.db, got err: %v", slug, errGet)
 	}
 }
-

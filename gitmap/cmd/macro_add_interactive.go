@@ -5,6 +5,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
@@ -143,7 +145,7 @@ func processInteractiveStepLine(rawLine, name string, state *interactiveSessionS
 		return loopActionBreak
 	}
 
-	return recordStepLine(line, name, steps, stepNum)
+	return recordStepLine(line, name, state, steps, stepNum)
 }
 
 func processInBuilderCommand(line string, state *interactiveSessionState, steps *[]macro.MacroStep, stepNum *int) bool {
@@ -154,23 +156,60 @@ func processInBuilderCommand(line string, state *interactiveSessionState, steps 
 	return handleInteractiveHelper(line, state, steps, stepNum)
 }
 
-func recordStepLine(line, name string, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
+func recordStepLine(line, name string, state *interactiveSessionState, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
 	if isRecordStep(line) {
 		_ = macro.RecordInteractive(name)
 
 		return loopActionBreak
 	}
+	if state.isExecEnabled {
+		_ = executeLiveCommand(line)
+	}
 
+	return appendRecordedStep(line, steps, stepNum)
+}
+
+func appendRecordedStep(line string, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
 	if strings.Contains(line, "&&") {
 		*stepNum = appendChainedSteps(steps, line, *stepNum)
 
 		return loopActionContinue
 	}
-
 	*steps = append(*steps, makeMacroStep(*stepNum, line))
 	*stepNum++
 
 	return loopActionContinue
+}
+
+func executeLiveCommand(cmdText string) error {
+	exeCmd := resolveLiveCommandText(cmdText)
+	var cmd *exec.Cmd
+	if runtime.GOOS == constants.OSWindows {
+		cmd = exec.Command("powershell", "-NoProfile", "-Command", exeCmd)
+	} else {
+		cmd = exec.Command("sh", "-c", exeCmd)
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
+}
+
+func resolveLiveCommandText(cmdText string) string {
+	trimmed := strings.TrimSpace(cmdText)
+	lower := strings.ToLower(trimmed)
+	if !strings.HasPrefix(lower, "gitmap ") && lower != "gitmap" {
+		return trimmed
+	}
+	exe, err := os.Executable()
+	if err != nil {
+		return trimmed
+	}
+	if runtime.GOOS == constants.OSWindows {
+		return fmt.Sprintf("& %q %s", exe, trimmed[len("gitmap"):])
+	}
+
+	return fmt.Sprintf("%q %s", exe, trimmed[len("gitmap"):])
 }
 
 func printNoCommandsEntered(name string) {
@@ -197,7 +236,7 @@ func printInteractiveMacroHeader(name string) {
 	fmt.Println()
 	fmt.Printf("  %s● Interactive Macro Builder: %s%q%s\n", constants.ColorCyan, constants.ColorWhite, name, constants.ColorReset)
 	fmt.Println("  Enter commands one per line (empty line or 'done' to save, 'cancel' to abort):")
-	fmt.Printf("  %s(Commands: 'ls', 'pwd on/off', 'find', 'search', 'replace', 'help', 'rec')%s\n\n", constants.ColorDim, constants.ColorReset)
+	fmt.Printf("  %s(Commands: 'ls', 'pwd on/off', 'find', 'search', 'replace', 'exec on/off', 'help', 'rec')%s\n\n", constants.ColorDim, constants.ColorReset)
 }
 
 func printMacroAddUsage() {
