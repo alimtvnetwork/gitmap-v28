@@ -17,6 +17,7 @@ import (
 type DB struct {
 	conn  *sql.DB
 	dbDir string
+	isMem bool
 }
 
 // Open creates or opens the SQLite database for the active profile.
@@ -45,18 +46,28 @@ func OpenAt(dbPath string) (*DB, error) {
 // openDBAt opens a database at an exact path.
 func openDBAt(dbPath string) (*DB, error) {
 	dbDir := filepath.Dir(dbPath)
+	isMem := os.Getenv("GITMAP_IN_MEMORY_DB") == "1"
+
 	if err := ensureDir(dbDir); err != nil {
 		return nil, fmt.Errorf(constants.ErrDBCreateDir, dbDir, err)
 	}
 
-	if err := acquireLock(dbDir); err != nil {
-		return nil, err
+	if !isMem {
+		if err := acquireLock(dbDir); err != nil {
+			return nil, err
+		}
 	}
 
-	conn, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		releaseLock(dbDir)
+	connPath := dbPath
+	if isMem {
+		connPath = "file:" + filepath.Base(dbPath) + "?mode=memory&cache=shared"
+	}
 
+	conn, err := sql.Open("sqlite", connPath)
+	if err != nil {
+		if !isMem {
+			releaseLock(dbDir)
+		}
 		return nil, fmt.Errorf(constants.ErrDBOpen, dbPath, err)
 	}
 
@@ -64,15 +75,19 @@ func openDBAt(dbPath string) (*DB, error) {
 	// so PRAGMAs (foreign_keys, etc.) persist across all operations.
 	conn.SetMaxOpenConns(1)
 
-	err = enableFK(conn)
-	if err != nil {
+	if err := enableFK(conn); err != nil {
 		conn.Close()
-		releaseLock(dbDir)
-
+		if !isMem {
+			releaseLock(dbDir)
+		}
 		return nil, err
 	}
 
-	return &DB{conn: conn, dbDir: dbDir}, nil
+	return &DB{
+		conn:  conn,
+		dbDir: dbDir,
+		isMem: isMem,
+	}, nil
 }
 
 // Migrate creates all required tables if they don't exist.
@@ -459,9 +474,11 @@ func (db *DB) Reset() error {
 	return db.Migrate()
 }
 
-// Close closes the database connection and releases the lock.
+// Close shuts down the database connection and releases the OS directory lock.
 func (db *DB) Close() error {
-	releaseLock(db.dbDir)
+	if !db.isMem {
+		releaseLock(db.dbDir)
+	}
 
 	return db.conn.Close()
 }

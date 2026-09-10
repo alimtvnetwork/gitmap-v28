@@ -413,18 +413,28 @@ async def async_main():
     for item in independent_items_2:
         queue.put_nowait(item)
 
+    workers_dir = os.path.join(repo_root, ".lovable", "temp", "cicd", "e2e_workers")
+    os.makedirs(workers_dir, exist_ok=True)
+    import shutil
+
     # Enqueue poison pills for workers
     for _ in range(worker_count):
         queue.put_nowait(None)
 
     start_time = time.time()
 
-    workers = [
-        asyncio.create_task(async_worker(queue, bin_path, repo_root, results_map))
-        for _ in range(worker_count)
-    ]
+    worker_tasks = []
+    for i in range(worker_count):
+        worker_bin_dir = os.path.join(workers_dir, f"worker-{i}")
+        os.makedirs(worker_bin_dir, exist_ok=True)
+        worker_bin_path = os.path.join(worker_bin_dir, os.path.basename(bin_path))
+        shutil.copy2(bin_path, worker_bin_path)
+        task = asyncio.create_task(
+            async_worker(queue, worker_bin_path, repo_root, results_map)
+        )
+        worker_tasks.append(task)
 
-    await asyncio.gather(*workers)
+    await asyncio.gather(*worker_tasks)
     elapsed = time.time() - start_time
 
     exit_code = report_results(
