@@ -71,3 +71,4 @@ tmp/
 /.tmp
 /.tmp/
 .tmp/
+*.db
