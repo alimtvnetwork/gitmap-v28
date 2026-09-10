@@ -1,3 +1,21 @@
+## [v6.208.0] 2026-09-10 Release v6.208.0
+
+### Install GitMap v6.208.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.sh | bash -s -- ".lovable/prompts" "v6.208.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.208.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Connect repodb to dbengine ORM with typed repositories and row scanners
+- Upgrade 30-db-struct-enum-generator.py to support db tags, entity models, and typed mutations
+- Normalize SQLite database primary keys to PascalCase <Entity>Id across repodb and store
+- Eradicate swallowed errors across pipelinedb, dbengine, and repodb with universal AppError wrapping
+- Implement in-memory batch timestamp caching, 8KB binary sniffer, and directory pruning in indexer
+- Fix Linux corrupted install directories with safe recovery and cross-OS Darwin/Windows support
+- Decouple Google Antigravity Desktop IDE installer from agy CLI utility
+
 ## [v6.207.0] 2026-09-10 Release v6.207.0
 
 ### Install GitMap v6.207.0
