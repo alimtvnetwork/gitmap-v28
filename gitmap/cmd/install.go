@@ -62,6 +62,10 @@ func runInstall(args []string) error {
 		return handleMissingInstallTool()
 	}
 	opts.Tool = resolveToolAlias(opts.Tool)
+	if customScript := findCustomInstaller(opts.Tool); customScript != nil {
+
+		return executeCustomInstaller(customScript, opts)
+	}
 	validateToolName(opts.Tool)
 	executeInstall(opts)
 
@@ -91,6 +95,10 @@ type installOptions struct {
 
 func isKnownInstallTool(tool string) bool {
 	if isCleanCodeAlias(tool) || tool == "ag-m" || isBuildEssentialAlias(tool) {
+
+		return true
+	}
+	if hasCustomInstaller(tool) {
 
 		return true
 	}

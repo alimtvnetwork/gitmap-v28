@@ -10,6 +10,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [84-custom-installer-execution-engine.md](completed/84-custom-installer-execution-engine.md): Custom Installer Execution Engine & Dual CLI Parity
 - [83-interactive-macro-builder-pwd-ls-search.md](completed/83-interactive-macro-builder-pwd-ls-search.md): Interactive Macro Builder PWD Header, In-Builder LS Listing & Helper Commands
 - [82-custom-installer-registry-and-export-import.md](completed/82-custom-installer-registry-and-export-import.md): Custom Installer Interactive Registry, Dual CLI Parity, JSON/ZIP Export & Import, and Dynamic Install LS
 - [81-cicd-smart-worker-groups-and-install-ls.md](completed/81-cicd-smart-worker-groups-and-install-ls.md): Smart Incremental CI/CD Worker Groups, Code-to-Test Mapping & Install LS Enhancements

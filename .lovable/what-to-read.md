@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-09-11T00:51:00Z, Memory write: Custom installer execution engine, multi-OS script resolution (PowerShell bypass / bash), split DB installation status synchronization, and dual CLI parity.
 - 2026-09-09T05:07:00Z, Memory write: Interactive macro builder PWD header, in-builder ls/find/search/replace helpers, offline mock installer server, and parallel runner multi-agent section concurrency.
 - 2026-09-05T01:46:30Z, Memory write: Macro execution failure RCA, open command cross-platform shim requirement, and Chrome profile reconcile sync.
 - 2026-09-05T01:43:00Z, Recorded pending task: Macro step execution failure on 'open chrome' (E9000:EXECUTION).
@@ -22,6 +23,7 @@
 - `.lovable/memory/learned/05-chrome-profile-picker-registration-and-concurrency.md`, why: Chrome profile picker visibility contracts, Local State 13-attribute schema, Preferences sanitization, and reconcile engine
 - `.lovable/memory/learned/06-macro-step-execution-and-shell-open.md`, why: macro execution engine, Windows 'open' failure analysis, and cross-platform command shims
 - `.lovable/memory/learned/10-interactive-macro-builder-pwd-ls-commands.md`, why: interactive macro builder PWD header display, in-builder ls/find/search/replace helpers, and offline mock release testing architecture
+- `.lovable/memory/learned/11-custom-installer-execution-engine.md`, why: custom installer tool execution, platform script resolution, and installation DB synchronization
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
 - `.lovable/memory/standards/version-source-of-truth.md`, why: mandatory standard for version.json single source of truth, 'inherit' keyword for sub-packages, and release sync workflow
 - `.lovable/coding-guidelines.md`, why: baseline rules and coding standards

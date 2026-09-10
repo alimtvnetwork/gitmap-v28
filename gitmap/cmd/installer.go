@@ -17,18 +17,23 @@ var installerCmd = &cobra.Command{
 
 // runInstaller executes the root installer command logic.
 func runInstaller(cmd *cobra.Command, args []string) error {
+	if len(args) > 0 {
+		return runInstall(args)
+	}
+
 	if cmd == nil {
 		return apperror.New("runInstaller", "E_INSTALLER_NIL_COMMAND", map[string]any{
 			"error": "command is nil",
 		})
 	}
+
 	if err := cmd.Help(); err != nil {
-		appErr := apperror.Wrap(err, "runInstaller", map[string]any{
-			"args": args,
-		})
+		appErr := apperror.Wrap(err, "runInstaller", map[string]any{"args": args})
 		appErr.Code = "E_INSTALLER_COMMAND_FAILED"
+
 		return appErr
 	}
+
 	return nil
 }
 
@@ -47,8 +52,28 @@ func init() {
 	}
 }
 
-// RunInstallerCLI routes CLI arguments to the Cobra installer command tree.
+// RunInstallerCLI routes CLI arguments to the Cobra installer command tree or install logic.
 func RunInstallerCLI(args []string) error {
+	if isDelegatedInstallArg(args) {
+		return runInstall(args)
+	}
+
 	installerCmd.SetArgs(args)
+
 	return installerCmd.Execute()
 }
+
+func isDelegatedInstallArg(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	for _, cmd := range installerCmd.Commands() {
+		if cmd.Name() == args[0] || cmd.HasAlias(args[0]) {
+			return false
+		}
+	}
+
+	return true
+}
+
