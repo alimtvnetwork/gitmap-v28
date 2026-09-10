@@ -71,16 +71,30 @@ def parse_deleted_entries(lines: list[str], tracked_files: set[str]) -> list[Del
             entries.append(DeletedFileEntry(rel_p, cur_hash, cur_author, cur_date, cur_subj))
     return entries
 
+def get_existing_files_as_entries(path_filter: str) -> list[DeletedFileEntry]:
+    """Scans existing workspace files matching path_filter when no historical deletions exist."""
+    if not path_filter or not Path(path_filter).exists():
+        return []
+    p = Path(path_filter)
+    candidates = [p] if p.is_file() else list(p.rglob("*"))
+    entries = []
+    for c in candidates:
+        if c.is_file():
+            rel = normalize_rel_path(str(c))
+            entries.append(DeletedFileEntry(rel, "HEAD", "Current", "Active", "Workspace File"))
+    return entries
+
 def trace_deleted_files(path_filter: str = "") -> list[DeletedFileEntry]:
-    """Traverses Git history to catalog files removed from current HEAD."""
+    """Traverses Git history and active tree to catalog target files."""
     cmd = ["log", "--diff-filter=D", "--name-only", "--pretty=format:COMMIT:%H|%an|%ad|%s", "--date=short"]
     if path_filter:
         cmd.extend(["--", path_filter])
     res = run_git_raw(cmd)
-    if res.returncode != 0:
-        return []
     tracked = get_current_tracked_files()
-    return parse_deleted_entries(res.stdout.splitlines(), tracked)
+    hist_entries = parse_deleted_entries(res.stdout.splitlines(), tracked) if res.returncode == 0 else []
+    if hist_entries:
+        return hist_entries
+    return get_existing_files_as_entries(path_filter)
 
 def is_pattern_matched(pattern: str, text: str) -> bool:
     """Safely evaluates pattern against text using fnmatch and regex."""
@@ -221,21 +235,75 @@ def execute_filter_repo(paths_file: Path) -> bool:
         return False
     return True
 
-def purge_selected_files(entries: list[DeletedFileEntry], excluded_indices: set[int], is_auto_confirm: bool) -> bool:
-    """Permanently purges non-excluded historical files using git filter-repo."""
-    targets = [e.path for i, e in enumerate(entries, start=1) if i not in excluded_indices]
+def create_temp_backup_dir() -> Path:
+    """Creates a timestamped backup directory in the OS temp directory."""
+    tag = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
+    backup_path = Path(tempfile.gettempdir()) / f"gitmap-deleted-backup-{tag}"
+    backup_path.mkdir(parents=True, exist_ok=True)
+    return backup_path
+
+def backup_file_to_temp(src_path: Path, backup_root: Path) -> bool:
+    """Copies an existing workspace file to the temp backup directory."""
+    if not src_path.is_file():
+        return False
+    dst_path = backup_root / src_path
+    dst_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src_path, dst_path)
+    return True
+
+def backup_historical_blobs_to_temp(entries: list[DeletedFileEntry], targets: set[str], backup_root: Path) -> int:
+    """Extracts historical blobs into temp backup directory before purge."""
+    count = 0
+    for e in entries:
+        if e.path not in targets or e.commit_hash == "HEAD":
+            continue
+        res = run_git_raw(["show", f"{e.commit_hash}~1:{e.path}"])
+        if res.returncode == 0:
+            dst = backup_root / e.path
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_text(res.stdout, encoding="utf-8", errors="replace")
+            count += 1
+    return count
+
+def send_file_to_recycle_bin(path: Path) -> bool:
+    """Deletes a file or directory using the OS Recycle Bin or Trash."""
+    if not path.exists():
+        return False
+    try:
+        import send2trash
+        send2trash.send2trash(str(path))
+        return True
+    except Exception:
+        return False
+
+def delete_workspace_files(targets: list[str], backup_root: Path) -> int:
+    """Copies workspace files to temp backup and moves them to Recycle Bin."""
+    deleted_count = 0
+    for rel_p in targets:
+        p = Path(rel_p)
+        if p.exists():
+            backup_file_to_temp(p, backup_root)
+            is_recycled = send_file_to_recycle_bin(p)
+            if is_recycled:
+                deleted_count += 1
+                print(f"  🗑️ Recycled: {rel_p}")
+    return deleted_count
+
+def validate_purge_preconditions(targets: list[str], is_confirm: bool) -> bool:
+    """Validates targets, working tree cleanliness, and user confirmation."""
     if not targets:
         print("ℹ️ No target files selected for purge.")
-        return True
+        return False
     if not verify_clean_working_tree():
         print("❌ Working tree is dirty. Commit or stash changes before running history purge.")
         return False
-    if not confirm_purge_action(len(targets), is_auto_confirm):
+    if not confirm_purge_action(len(targets), is_confirm):
         print("❌ Purge aborted by user.")
         return False
-    backup_branch = create_safety_backup_branch()
-    remote_res = run_git_raw(["remote", "get-url", "origin"])
-    origin_url = remote_res.stdout.strip() if remote_res.returncode == 0 else ""
+    return True
+
+def run_purge_execution(targets: list[str], origin_url: str, backup_branch: str, backup_root: Path) -> bool:
+    """Executes filter-repo and outputs recovery and rollback details."""
     with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as tf:
         tf.write("\n".join(targets) + "\n")
         tmp_name = tf.name
@@ -245,12 +313,27 @@ def purge_selected_files(entries: list[DeletedFileEntry], excluded_indices: set[
         run_git_raw(["remote", "add", "origin", origin_url])
     if is_ok:
         print(f"\n✅ History purge complete! Eradicated {len(targets)} files.")
-        print(f"Rollback recipe (if needed): git reset --hard {backup_branch}")
+        print(f"🛡️ Local OS Temp Backup Path: {backup_root}")
+        print(f"Rollback recipe (from temp): copy files from {backup_root} to repository")
+        print(f"Rollback recipe (from Git):  git reset --hard {backup_branch}")
     return is_ok
+
+def purge_selected_files(entries: list[DeletedFileEntry], targets: list[str], is_confirm: bool) -> bool:
+    """Permanently purges historical files with temp backup and Recycle Bin."""
+    if not validate_purge_preconditions(targets, is_confirm):
+        return False
+    backup_branch = create_safety_backup_branch()
+    backup_root = create_temp_backup_dir()
+    delete_workspace_files(targets, backup_root)
+    backup_historical_blobs_to_temp(entries, set(targets), backup_root)
+    remote_res = run_git_raw(["remote", "get-url", "origin"])
+    origin_url = remote_res.stdout.strip() if remote_res.returncode == 0 else ""
+    return run_purge_execution(targets, origin_url, backup_branch, backup_root)
 
 def resolve_preset_target(args: argparse.Namespace) -> tuple[str, str]:
     """Resolves specific folder preset shortcuts to (path, ext) tuples."""
     preset_map = {
+        "is_spec_25_audit": ("spec/21-app/25-app-spec-audit", ""),
         "is_spec_audit": ("spec/19-main-worker-service/audit", ""),
         "is_lovable_subtasks": (".lovable/plans/subtasks", ""),
         "is_lovable_audits": (".lovable/audits", ""),
@@ -281,18 +364,23 @@ def resolve_exclusion_set(args: argparse.Namespace, entries: list[DeletedFileEnt
             if is_pattern_matched(args.exclude_pattern, e.path):
                 excl_set.add(i)
     if not args.is_confirm and not args.exclude and not args.exclude_pattern:
-        if args.is_restore or args.is_purge:
+        if args.is_restore or args.is_delete or args.is_purge:
             excl_set = prompt_interactive_exclusion(entries)
     return excl_set
 
-def add_action_and_preset_args(parser: argparse.ArgumentParser) -> None:
-    """Registers action and preset flags."""
+def add_action_args(parser: argparse.ArgumentParser) -> None:
+    """Registers core operational action flags."""
     parser.add_argument("target", nargs="?", default="", help="Target folder or file path (or . for root).")
     parser.add_argument("--list", "-l", action="store_true", dest="is_list", help="Preview deleted files (default).")
     parser.add_argument("--restore", "-r", action="store_true", dest="is_restore", help="Restore deleted files.")
+    parser.add_argument("--delete", "-d", action="store_true", dest="is_delete", help="Recycle existing files to Recycle Bin.")
     parser.add_argument("--purge", "-p", action="store_true", dest="is_purge", help="Purge files from all Git history.")
+
+def add_preset_args(parser: argparse.ArgumentParser) -> None:
+    """Registers folder and scope preset flags."""
+    parser.add_argument("--spec-25-audit", action="store_true", dest="is_spec_25_audit", help="Preset: spec/21-app/25-app-spec-audit")
     parser.add_argument("--spec-audit", action="store_true", dest="is_spec_audit", help="Preset: spec/19-main-worker-service/audit")
-    parser.add_argument("--audit", action="store_true", dest="is_audit", help="Preset: all deleted audit files repo-wide (*audit*)")
+    parser.add_argument("--audit", action="store_true", dest="is_audit", help="Preset: all audit files repo-wide (*audit*)")
     parser.add_argument("--lovable-subtasks", action="store_true", dest="is_lovable_subtasks", help="Preset: .lovable/plans/subtasks/")
     parser.add_argument("--lovable-audits", action="store_true", dest="is_lovable_audits", help="Preset: .lovable/audits/")
     parser.add_argument("--lovable", action="store_true", dest="is_lovable", help="Preset: all files in .lovable/")
@@ -312,20 +400,20 @@ def add_filter_and_option_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--backup-only", action="store_true", dest="is_backup_only", help="Create safety backup branch only.")
 
 CLI_EPILOG = """Examples:
-  # 1. Preview deleted files in spec/19-main-worker-service/audit
+  # 1. Preview files in spec folder 25 (spec/21-app/25-app-spec-audit)
+  python 03-ai-scripts/33-git-history-tracer-and-purger.py --spec-25-audit
+
+  # 2. Preview deleted files in spec/19-main-worker-service/audit
   python 03-ai-scripts/33-git-history-tracer-and-purger.py --spec-audit
 
-  # 2. Preview all deleted audit files repo-wide
+  # 3. Preview all deleted audit files repo-wide
   python 03-ai-scripts/33-git-history-tracer-and-purger.py --audit
 
-  # 3. Preview all deleted files under .lovable/
-  python 03-ai-scripts/33-git-history-tracer-and-purger.py --lovable
+  # 4. Delete existing audit files to Recycle Bin with temp backup
+  python 03-ai-scripts/33-git-history-tracer-and-purger.py --spec-25-audit --delete
 
-  # 4. Preview all deleted files from root directory
-  python 03-ai-scripts/33-git-history-tracer-and-purger.py .
-
-  # 5. Restore files with selective exclusion
-  python 03-ai-scripts/33-git-history-tracer-and-purger.py --audit --restore --exclude 1-5
+  # 5. Deep purge files from Git history with temp backup & safety branch
+  python 03-ai-scripts/33-git-history-tracer-and-purger.py --spec-25-audit --purge
 """
 
 def parse_cli_args() -> argparse.Namespace:
@@ -335,19 +423,32 @@ def parse_cli_args() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=CLI_EPILOG,
     )
-    add_action_and_preset_args(parser)
+    add_action_args(parser)
+    add_preset_args(parser)
     add_filter_and_option_args(parser)
     return parser.parse_args()
 
-def dispatch_action(args: argparse.Namespace, filtered: list[DeletedFileEntry], excl_set: set[int]) -> int:
-    """Executes selected CLI action (restore, purge, or list)."""
+def handle_restore_or_delete(args: argparse.Namespace, filtered: list[DeletedFileEntry], targets: list[str], excl_set: set[int]) -> int:
+    """Handles restore or recycle bin deletion action."""
     if args.is_restore:
         dest_dir = Path(args.restore_to) if args.restore_to else None
         count = restore_selected_files(filtered, excl_set, dest_dir)
         print(f"\n🎉 Successfully restored {count} files.")
         return ExitCodeType.SUCCESS.value
+    backup_root = create_temp_backup_dir()
+    count = delete_workspace_files(targets, backup_root)
+    print(f"\n🗑️ Recycled {count} files to Recycle Bin.")
+    print(f"🛡️ Local OS Temp Backup Path: {backup_root}")
+    print(f"Rollback recipe: copy files from {backup_root} to workspace")
+    return ExitCodeType.SUCCESS.value
+
+def dispatch_action(args: argparse.Namespace, filtered: list[DeletedFileEntry], excl_set: set[int]) -> int:
+    """Executes selected CLI action (restore, delete, purge, or list)."""
+    targets = [e.path for i, e in enumerate(filtered, start=1) if i not in excl_set]
+    if args.is_restore or args.is_delete:
+        return handle_restore_or_delete(args, filtered, targets, excl_set)
     if args.is_purge:
-        is_purged = purge_selected_files(filtered, excl_set, args.is_confirm)
+        is_purged = purge_selected_files(filtered, targets, args.is_confirm)
         return ExitCodeType.SUCCESS.value if is_purged else ExitCodeType.TOOL_ERROR.value
     return ExitCodeType.SUCCESS.value
 
@@ -361,7 +462,7 @@ def main() -> int:
     entries = trace_deleted_files(path_val)
     filtered = filter_entries(entries, path_val, ext_val, pat_val)
     if not filtered:
-        print("ℹ️ No historically deleted files found matching criteria.")
+        print("ℹ️ No historically deleted or matching files found.")
         return ExitCodeType.SUCCESS.value
     excl_set = resolve_exclusion_set(args, filtered)
     render_preflight_table(filtered, excl_set)

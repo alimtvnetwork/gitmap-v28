@@ -42,7 +42,8 @@ This specification designs an optimized, interactive Python CLI tool (`03-ai-scr
 
 ### Requirement 2: Preset Shortcuts & Flexible Filtering
 Provide built-in shortcuts for high-frequency operations alongside generic CLI flags:
-- `[target]`: Positional argument for arbitrary directory or file path from root (e.g. `spec/19-main-worker-service/audit`, `.lovable`, or `.` for entire repository).
+- `[target]`: Positional argument for arbitrary directory or file path from root (e.g. `spec/21-app/25-app-spec-audit`, `spec/19-main-worker-service/audit`, `.lovable`, or `.` for entire repository).
+- `--spec-25-audit`: Exact folder shortcut targeting `spec/21-app/25-app-spec-audit` (Folder 25 app spec audit documents).
 - `--spec-audit`: Exact folder shortcut targeting `spec/19-main-worker-service/audit` (audit documents removed after review).
 - `--audit`: Repository-wide shortcut targeting all deleted audit files (`*audit*`).
 - `--lovable-subtasks`: Scopes tracing to `.lovable/plans/subtasks/`.
@@ -64,22 +65,26 @@ Provide built-in shortcuts for high-frequency operations alongside generic CLI f
 
 ### Requirement 4: File Restoration / Recovery Engine (`--restore`)
 - Recover any or all selected deleted files back into the active workspace.
-- Retrieves the file contents from the commit immediately preceding deletion:
-  `git show <commit>~1:<path>`
+- Retrieves the file contents from the commit immediately preceding deletion: `git show <commit>~1:<path>`.
 - Writes the recovered file to disk at its canonical path (or `--restore-to <dir>` staging directory).
 - Re-creates missing parent directories automatically.
 
-### Requirement 5: Deep Git History Purge Engine (`--purge`)
+### Requirement 5: Workspace Recycle Bin Deletion Engine (`--delete`)
+- Deletes active target files from the workspace using the native OS **Recycle Bin** (`send2trash` / Windows Shell `SHFileOperationW`).
+- Prior to recycling, copies each file to a timestamped OS temp directory (`%TEMP%` / `/tmp`).
+- Prints exact temp backup path and recovery command upon completion.
+
+### Requirement 6: Deep Git History Purge Engine (`--purge`)
 - Permanently rewrites Git history to completely eradicate the target files from all commits, branches, and tags.
 - Uses `git filter-repo --paths-from-file <tmp_paths> --invert-paths --force`.
 - **Mandatory Safety Protocol:**
   1. Verifies working tree is clean (`git status --porcelain`).
-  2. Saves the origin remote URL (`git remote get-url origin`).
-  3. Creates and pushes a timestamped safety backup branch: `backup/history-purge-YYYYMMDD-HHMMSS`.
-  4. Records the rollback command: `git reset --hard backup/history-purge-YYYYMMDD-HHMMSS`.
+  2. Creates timestamped OS temp directory backup of all historical blobs and workspace files.
+  3. Saves the origin remote URL (`git remote get-url origin`).
+  4. Creates a timestamped safety backup branch: `backup/history-purge-YYYYMMDD-HHMMSS`.
   5. Executes history rewrite.
-  6. Restores the origin remote URL.
-  7. Requires explicit user confirmation `Type 'I confirm' to proceed` (or `--confirm` / `-y`).
+  6. Restores origin remote URL.
+  7. Reports local OS temp backup path and dual rollback recipes (Git reset & file copy).
 
 ---
 

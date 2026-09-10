@@ -14,3 +14,5 @@
 | `27-centralized-error-handling-checklist` | Centralized Error Handling & Anti-Pattern Prevention | "Check error handling", "Centralized error handling" | `active` |
 | `28-ci-cd-and-smoke-test-optimization` | CI/CD & Smoke Test Optimization Playbook | "Optimize smoke test", "Make tests faster", "Optimize CI" | `active` |
 | [`cg-execute/`](./cg-execute/01-index.md) | Coding Guideline Execution Prompts Suite (01-07) | `cg-error`, `cg-boolean`, `cg-schema`, `cg-react`, `cg-hygiene`, `cg-style` | `active` |
+| `29-lovable-memory-consolidation-and-cleanup` | Lovable Memory Consolidation, Cleanup & Audit Removal | "consolidate-plans", "cleanup-plans", "memory consolidation" | `active` |
+

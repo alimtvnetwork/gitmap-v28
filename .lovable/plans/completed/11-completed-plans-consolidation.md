@@ -64,3 +64,12 @@ All 95 completed plan files and 76 subtask folders are grouped into 10 unified, 
 3. **Step C — Monotonic Re-Sequencing:** Confirm monotonic `01-` through `10-` continuous numbering with strictly lowercase filenames.
 4. **Step D — Index Synchronization:** Update `.lovable/plans/01-index.md` and `.lovable/what-to-read.md`.
 5. **Step E — Verification:** Run `python 03-ai-scripts/21-sequence-integrity-linter.py`, relative path linter, and local CI runner `python 03-ai-scripts/06-cicd-local-runner.py`.
+
+---
+
+## 5. Audit Folder Removal & Guideline Task Pruning Standards
+
+1. **Mandatory Audit Folder Purge:** When architectural audits are completed, temporary audit directories (`spec/21-app/25-app-spec-audit/`, `spec/19-main-worker-service/audit/`, `spec/21-app/26-coding-guideline-audit/`, `.lovable/audits/`) must be backed up to OS temp directory and recycled/purged via `03-ai-scripts/33-git-history-tracer-and-purger.py`.
+2. **Guideline Checklist Consolidation:** Milestone files must never re-copy entire coding guideline sections. Milestones reference `.lovable/coding-guidelines.md` as a single source of truth.
+3. **Pruning Non-Business-Logic Tasks:** Tasks whose sole function was re-formatting, boolean renaming, or line spacing without business logic impact are omitted from the active milestone ledger to keep domain features clean.
+
