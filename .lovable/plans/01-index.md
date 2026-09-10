@@ -10,6 +10,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [86-installer-location-gap-and-duplicate-binary-rca.md](completed/86-installer-location-gap-and-duplicate-binary-rca.md): Installer Location Alignment, Terminal Spacing Gaps, Duplicate Binary Migration & Release Orchestration
 - [85-macro-path-expansion-mkdir-and-execution-streaming.md](completed/85-macro-path-expansion-mkdir-and-execution-streaming.md): Macro Path Expansion, Enhanced Mkdir Engine, Stray Binary RCA & Live Execution Streaming
 - [84-custom-installer-execution-engine.md](completed/84-custom-installer-execution-engine.md): Custom Installer Execution Engine & Dual CLI Parity
 - [83-interactive-macro-builder-pwd-ls-search.md](completed/83-interactive-macro-builder-pwd-ls-search.md): Interactive Macro Builder PWD Header, In-Builder LS Listing & Helper Commands
