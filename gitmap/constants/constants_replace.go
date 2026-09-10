@@ -59,7 +59,7 @@ const (
 
 // Replace exclusion sets. Directory names matched by base name only.
 var (
-	ReplaceExcludedDirs = []string{".git", ".gitmap", ".release", "node_modules", "vendor"}
+	ReplaceExcludedDirs = []string{".git", ".gitmap", ".release", ".tmp", "node_modules", "vendor"}
 	// Path prefixes are matched against the path relative to repo root.
 	ReplaceExcludedPrefixes = []string{".gitmap/release", ".gitmap/release-assets"}
 )

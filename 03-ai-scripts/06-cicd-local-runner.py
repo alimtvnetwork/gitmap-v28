@@ -132,7 +132,7 @@ CICD_SUMMARY_JSON = CICD_TEMP_DIR / "summary.json"
 CICD_STATE_JSON = CICD_TEMP_DIR / "state.json"
 CICD_POINTER_FILE = CICD_TEMP_DIR / "latest_run.txt"
 
-DISK_WRITE_LOCK = threading.Lock()
+DISK_WRITE_LOCK = threading.RLock()
 
 JOB_BATCHES: list[dict[str, Any]] = [
     {

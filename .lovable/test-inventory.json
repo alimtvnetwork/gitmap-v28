@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-11T02:17:06",
+  "updated_at": "2026-09-11T04:14:49",
   "total_tests": 2281,
   "summary": {
     "total": 2281,
@@ -7017,10 +7017,10 @@
       "test_hash": "0e65be9a22a79585",
       "target_file": "gitmap/cmd/find_files.go",
       "target_func": "",
-      "code_hash": "8fbe5d55551e0a86",
-      "duration_sec": 0.01,
+      "code_hash": "5caec2258cbfd651",
+      "duration_sec": 0.03,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:22:19",
+      "last_run_at": "2026-09-11T04:10:34",
       "needs_run": false
     },
     "gitmap/cmd.TestFindFilesAnyContains": {
@@ -7031,10 +7031,10 @@
       "test_hash": "c7013ae40a589b53",
       "target_file": "gitmap/cmd/find_files.go",
       "target_func": "",
-      "code_hash": "8fbe5d55551e0a86",
+      "code_hash": "5caec2258cbfd651",
       "duration_sec": 0.01,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:22:19",
+      "last_run_at": "2026-09-11T04:10:34",
       "needs_run": false
     },
     "gitmap/cmd.TestFindFilesStartsWith": {
@@ -7045,10 +7045,10 @@
       "test_hash": "c3f999dd1ccc6396",
       "target_file": "gitmap/cmd/find_files.go",
       "target_func": "",
-      "code_hash": "8fbe5d55551e0a86",
-      "duration_sec": 0.01,
+      "code_hash": "5caec2258cbfd651",
+      "duration_sec": 0.1,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:22:19",
+      "last_run_at": "2026-09-11T04:10:34",
       "needs_run": false
     },
     "gitmap/cmd.TestFindFilesEndsWith": {
@@ -7059,10 +7059,10 @@
       "test_hash": "34bfa41619db3734",
       "target_file": "gitmap/cmd/find_files.go",
       "target_func": "",
-      "code_hash": "8fbe5d55551e0a86",
+      "code_hash": "5caec2258cbfd651",
       "duration_sec": 0.01,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:22:19",
+      "last_run_at": "2026-09-11T04:10:34",
       "needs_run": false
     },
     "gitmap/cmd.TestFindWildcard": {
@@ -7073,10 +7073,10 @@
       "test_hash": "5027db283305ff76",
       "target_file": "gitmap/cmd/find_files.go",
       "target_func": "",
-      "code_hash": "8fbe5d55551e0a86",
+      "code_hash": "5caec2258cbfd651",
       "duration_sec": 0.01,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:22:19",
+      "last_run_at": "2026-09-11T04:10:34",
       "needs_run": false
     },
     "gitmap/cmd.TestFixGit_NotAGitRepo": {
@@ -13121,10 +13121,10 @@
       "test_hash": "126aad8efbe09bbd",
       "target_file": "gitmap/cmd/replacewalk.go",
       "target_func": "walkRepoFiles",
-      "code_hash": "96a677b862407f35",
-      "duration_sec": 0.0,
+      "code_hash": "be2332c77f9846ec",
+      "duration_sec": 0.16,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:22:19",
+      "last_run_at": "2026-09-11T04:10:34",
       "needs_run": false
     },
     "gitmap/cmd.TestSlugFromRemote": {
@@ -13219,10 +13219,10 @@
       "test_hash": "4922128f6952309d",
       "target_file": "gitmap/cmd/replacewalk.go",
       "target_func": "walkRepoFiles",
-      "code_hash": "96a677b862407f35",
-      "duration_sec": 0.0,
+      "code_hash": "be2332c77f9846ec",
+      "duration_sec": 0.03,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:22:19",
+      "last_run_at": "2026-09-11T04:10:34",
       "needs_run": false
     },
     "gitmap/cmd.TestIsBinaryFile": {
@@ -19799,10 +19799,10 @@
       "test_hash": "39124f36dae532da",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
-      "duration_sec": 0.12,
+      "code_hash": "776c5ac7578cee25",
+      "duration_sec": 0.13,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:11",
+      "last_run_at": "2026-09-11T03:54:52",
       "needs_run": false
     },
     "gitmap/constants.TestNoUnmarkedTopLevelCmdBlocks": {
@@ -19813,10 +19813,10 @@
       "test_hash": "c393bab28db0fc8a",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.09,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:11",
+      "last_run_at": "2026-09-11T03:54:52",
       "needs_run": false
     },
     "gitmap/constants.TestTopLevelCmdConstantsAreUnique": {
@@ -19827,10 +19827,10 @@
       "test_hash": "587819db55c3fa9e",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:11",
+      "last_run_at": "2026-09-11T03:54:52",
       "needs_run": false
     },
     "gitmap/constants.TestTopLevelCmdAliasesAreUnique": {
@@ -19841,10 +19841,10 @@
       "test_hash": "724cbffe6f491d7a",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:11",
+      "last_run_at": "2026-09-11T03:54:52",
       "needs_run": false
     },
     "gitmap/constants.TestCanonicalCSVColumn": {
@@ -29459,10 +29459,10 @@
       "test_hash": "98a9507fd97fa5e4",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:53",
+      "last_run_at": "2026-09-11T03:54:49",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOSQL_InsertHasThreePlaceholders": {
@@ -29473,10 +29473,10 @@
       "test_hash": "cc4de7ff0f63e41a",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:53",
+      "last_run_at": "2026-09-11T03:54:49",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOSQL_SelectByKindHasWhere": {
@@ -29487,10 +29487,10 @@
       "test_hash": "f929a33fef88f5b9",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:53",
+      "last_run_at": "2026-09-11T03:54:49",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOSQL_CountReturnsAggregate": {
@@ -29501,10 +29501,10 @@
       "test_hash": "804255e95adfbfd4",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:53",
+      "last_run_at": "2026-09-11T03:54:49",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOErrorMessages_NonEmpty": {
@@ -29515,10 +29515,10 @@
       "test_hash": "25c6afefd16e5670",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:53",
+      "last_run_at": "2026-09-11T03:54:49",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOHelpStrings_NonEmpty": {
@@ -29529,10 +29529,10 @@
       "test_hash": "015d39f84ada57f2",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:53",
+      "last_run_at": "2026-09-11T03:54:49",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOMessages_ContainFormatVerbs": {
@@ -29543,10 +29543,10 @@
       "test_hash": "eaec0cd3101f228d",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:53",
+      "last_run_at": "2026-09-11T03:54:49",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOTableName": {
@@ -29557,10 +29557,10 @@
       "test_hash": "ab6bb577a834fb15",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "a9e4ae3b2c7d0a4a",
+      "code_hash": "776c5ac7578cee25",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T02:19:53",
+      "last_run_at": "2026-09-11T03:54:49",
       "needs_run": false
     },
     "gitmap/tests/fixrepo_test.TestFixRepoGofmtCleanAfterRewrite": {
