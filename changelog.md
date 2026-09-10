@@ -1,3 +1,19 @@
+## [v6.209.0] 2026-09-10 Release v6.209.0
+
+### Install GitMap v6.209.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.sh | bash -s -- ".lovable/prompts" "v6.209.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.209.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Pass active install directory from gitmap update to remote installers
+- Align PowerShell installer default directory with SSoT (gitmap-cli)
+- Add Repair-LegacyLayout to prune legacy gitmap directory and stale PATH
+- Add trailing visual spacing gaps to post-update and installer summaries
+- Register gitmap binary and gitmap info commands with full identity reporting
+
 ## [v6.199.0] 2026-09-08 Release v6.199.0
 
 ### Install GitMap v6.199.0
