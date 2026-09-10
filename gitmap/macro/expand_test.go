@@ -59,3 +59,48 @@ func TestExpandPathAndEnv_Temp(t *testing.T) {
 		t.Errorf("ExpandPathAndEnv(%q) = %q, want %q", input, got, "cd "+tempVal)
 	}
 }
+
+func TestNormalizeTargetPath_TempAliases(t *testing.T) {
+	expectedTemp := filepath.Clean(os.TempDir())
+	aliases := []string{"//temp", "/temp", `\temp`, `\\temp`, "/tmp", "//tmp"}
+	for _, alias := range aliases {
+		got := NormalizeTargetPath(alias, "")
+		if got != expectedTemp {
+			t.Errorf("NormalizeTargetPath(%q) = %q, want %q", alias, got, expectedTemp)
+		}
+	}
+}
+
+func TestNormalizeTargetPath_TempSubdir(t *testing.T) {
+	expected := filepath.Clean(filepath.Join(os.TempDir(), "subfolder"))
+	aliases := []string{"//temp/subfolder", `\temp\subfolder`, "/tmp/subfolder"}
+	for _, alias := range aliases {
+		got := NormalizeTargetPath(alias, "")
+		if got != expected {
+			t.Errorf("NormalizeTargetPath(%q) = %q, want %q", alias, got, expected)
+		}
+	}
+}
+
+func TestNormalizeTargetPath_QuotesAndEnv(t *testing.T) {
+	expectedTemp := filepath.Clean(os.TempDir())
+	inputs := []string{`"%temp%"`, `'%temp%'`, "%temp%"}
+	for _, in := range inputs {
+		got := NormalizeTargetPath(in, "")
+		if got != expectedTemp {
+			t.Errorf("NormalizeTargetPath(%q) = %q, want %q", in, got, expectedTemp)
+		}
+	}
+}
+
+func TestNormalizeTargetPath_RelativeAndDash(t *testing.T) {
+	if got := NormalizeTargetPath("-", "/base"); got != "-" {
+		t.Errorf("NormalizeTargetPath('-') = %q, want '-'", got)
+	}
+	baseDir := filepath.Clean("/base/project")
+	got := NormalizeTargetPath("src//sub", baseDir)
+	want := filepath.Clean(filepath.Join(baseDir, "src/sub"))
+	if got != want {
+		t.Errorf("NormalizeTargetPath('src//sub') = %q, want %q", got, want)
+	}
+}

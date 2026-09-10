@@ -129,3 +129,35 @@ func TestProcessInteractiveStepLine(t *testing.T) {
 		t.Fatalf("expected done to break loop")
 	}
 }
+
+func TestProcessInteractiveStepLine_CdExpansion(t *testing.T) {
+	origCwd, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origCwd) }()
+
+	state, stepNum := newInteractiveState(), 1
+	var steps []macro.MacroStep
+	action := processInteractiveStepLine("cd %temp%", "test-macro", state, &steps, &stepNum)
+	if action != loopActionContinue || len(steps) != 1 || steps[0].CommandLine != "cd %temp%" {
+		t.Fatalf("expected cd %%temp%% recorded, steps=%+v", steps)
+	}
+
+	newCwd, _ := os.Getwd()
+	if filepath.Clean(newCwd) != filepath.Clean(os.TempDir()) {
+		t.Fatalf("expected cwd %s, got %s", os.TempDir(), newCwd)
+	}
+}
+
+func TestProcessInteractiveStepLine_ExecToggle(t *testing.T) {
+	state, stepNum := newInteractiveState(), 1
+	var steps []macro.MacroStep
+
+	processInteractiveStepLine("exec off", "test-macro", state, &steps, &stepNum)
+	if state.isExecEnabled || len(steps) != 0 {
+		t.Fatalf("expected exec disabled, got enabled=%v steps=%d", state.isExecEnabled, len(steps))
+	}
+
+	processInteractiveStepLine("exec on", "test-macro", state, &steps, &stepNum)
+	if !state.isExecEnabled || len(steps) != 0 {
+		t.Fatalf("expected exec enabled, got enabled=%v steps=%d", state.isExecEnabled, len(steps))
+	}
+}

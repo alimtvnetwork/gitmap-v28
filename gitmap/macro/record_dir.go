@@ -51,10 +51,8 @@ func (dt *DirTracker) resolveTarget(target string, isGitmapCd bool) string {
 	if target == "-" {
 		return dt.PrevDir
 	}
-	if filepath.IsAbs(target) {
-		return filepath.Clean(target)
-	}
-	return filepath.Clean(filepath.Join(dt.CurrentDir, target))
+
+	return NormalizeTargetPath(target, dt.CurrentDir)
 }
 
 func (dt *DirTracker) resolveGitmapTarget(target string) string {

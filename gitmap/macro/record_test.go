@@ -3,6 +3,7 @@ package macro
 import (
 	"bufio"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -128,5 +129,17 @@ func TestDirTracker_ProcessCd(t *testing.T) {
 	isSwapped := dt.ProcessCd("cd -")
 	if !isSwapped || dt.CurrentDir != tmpDir {
 		t.Fatalf("expected currentDir %s after cd -, got %s", tmpDir, dt.CurrentDir)
+	}
+}
+
+func TestDirTracker_ProcessCd_EnvAndTempAliases(t *testing.T) {
+	dt := NewDirTracker(t.TempDir())
+	expectedTemp := filepath.Clean(os.TempDir())
+
+	if !dt.ProcessCd("cd %temp%") || dt.CurrentDir != expectedTemp {
+		t.Fatalf("expected %s, got %s", expectedTemp, dt.CurrentDir)
+	}
+	if !dt.ProcessCd("cd //temp") || dt.CurrentDir != expectedTemp {
+		t.Fatalf("expected %s, got %s", expectedTemp, dt.CurrentDir)
 	}
 }

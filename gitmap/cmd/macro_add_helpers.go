@@ -17,10 +17,13 @@ import (
 
 type interactiveSessionState struct {
 	lastInspectedCmd string
+	isExecEnabled    bool
 }
 
 func newInteractiveState() *interactiveSessionState {
-	return &interactiveSessionState{}
+	return &interactiveSessionState{
+		isExecEnabled: true,
+	}
 }
 
 func isInteractiveHelper(line string) bool {
@@ -31,7 +34,7 @@ func isInteractiveHelper(line string) bool {
 
 func isExactHelper(line string) bool {
 	switch strings.ToLower(line) {
-	case "ls", "dir", ":ls", ":dir", "pwd", ":pwd", "help", ":help", "?", "+add":
+	case "ls", "dir", ":ls", ":dir", "pwd", ":pwd", "help", ":help", "?", "+add", "exec", ":exec":
 		return true
 	default:
 		return false
@@ -42,7 +45,7 @@ func hasPrefixHelper(line string) bool {
 	prefixes := []string{
 		"find ", ":find ", "search ", ":search ", "grep ", ":grep ",
 		"replace ", ":replace ", "cd ", ":cd ", "pwd ", ":pwd ", "add ",
-		"ls ", "dir ", ":ls ", ":dir ",
+		"ls ", "dir ", ":ls ", ":dir ", "exec ", ":exec ",
 	}
 	for _, p := range prefixes {
 		if strings.HasPrefix(strings.ToLower(line), p) {
@@ -58,15 +61,55 @@ func handleInteractiveHelper(line string, state *interactiveSessionState, steps 
 	if handleAddAction(trimmed, state, steps, stepNum) {
 		return true
 	}
+	if handleExecToggle(trimmed, state) {
+		return true
+	}
 
-	if handleNavigationOrInspection(trimmed, state) {
+	if handleNavigationOrInspection(trimmed, state, steps, stepNum) {
 		return true
 	}
 
 	return handleSearchOrReplace(trimmed, state)
 }
 
-func handleNavigationOrInspection(line string, state *interactiveSessionState) bool {
+func handleExecToggle(line string, state *interactiveSessionState) bool {
+	low := strings.ToLower(line)
+	if !strings.HasPrefix(low, "exec") && !strings.HasPrefix(low, ":exec") {
+		return false
+	}
+	arg := strings.ToLower(extractCommandArgument(line))
+	if arg == "off" {
+		state.isExecEnabled = false
+		fmt.Printf("  %s✓ Live command execution disabled.%s\n\n", constants.ColorYellow, constants.ColorReset)
+
+		return true
+	}
+
+	return setExecOnOrPrint(arg, state)
+}
+
+func setExecOnOrPrint(arg string, state *interactiveSessionState) bool {
+	if arg == "on" {
+		state.isExecEnabled = true
+		fmt.Printf("  %s✓ Live command execution enabled.%s\n\n", constants.ColorGreen, constants.ColorReset)
+
+		return true
+	}
+	printExecStatus(state.isExecEnabled)
+
+	return true
+}
+
+func printExecStatus(isExecEnabled bool) {
+	status := "enabled"
+	if !isExecEnabled {
+		status = "disabled"
+	}
+	fmt.Printf("  %sLive execution: %s (toggle: 'exec on' / 'exec off').%s\n\n",
+		constants.ColorCyan, status, constants.ColorReset)
+}
+
+func handleNavigationOrInspection(line string, state *interactiveSessionState, steps *[]macro.MacroStep, stepNum *int) bool {
 	if isLsOrDirCmd(line) {
 		return handleLsOrDir(line, state)
 	}
@@ -76,9 +119,13 @@ func handleNavigationOrInspection(line string, state *interactiveSessionState) b
 	}
 
 	if isCdCmd(line) {
-		return handleCdCmd(line)
+		return handleCdCmd(line, steps, stepNum)
 	}
 
+	return checkHelpCmd(line)
+}
+
+func checkHelpCmd(line string) bool {
 	if isHelpCmd(line) {
 		printInteractiveHelp()
 
@@ -175,28 +222,31 @@ func printCurrentPwdBanner() {
 	fmt.Printf("  %s[PWD: %s]%s\n\n", constants.ColorCyan, cwd, constants.ColorReset)
 }
 
-func handleCdCmd(line string) bool {
-	parts := strings.Fields(line)
-	if len(parts) < 2 {
+func handleCdCmd(line string, steps *[]macro.MacroStep, stepNum *int) bool {
+	target := extractCommandArgument(line)
+	if target == "" {
 		fmt.Printf("  %s▲ Usage: cd <directory>%s\n\n", constants.ColorYellow, constants.ColorReset)
 
 		return true
 	}
-
-	_ = executeInteractiveCd(parts[1])
+	if err := executeInteractiveCd(target); err == nil && steps != nil && stepNum != nil {
+		recordExplicitCommand(line, steps, stepNum)
+	}
 
 	return true
 }
 
-func executeInteractiveCd(target string) error {
-	if err := os.Chdir(target); err != nil {
-		fmt.Printf("  %s▲ cd %s: %v%s\n\n", constants.ColorRed, target, err, constants.ColorReset)
+func executeInteractiveCd(rawTarget string) error {
+	cwd, _ := os.Getwd()
+	normTarget := macro.NormalizeTargetPath(rawTarget, cwd)
+	if err := os.Chdir(normTarget); err != nil {
+		fmt.Printf("  %s▲ cd %s: %v%s\n\n", constants.ColorRed, rawTarget, err, constants.ColorReset)
 
 		return apperror.WrapSimple(err, "change directory")
 	}
 
-	cwd, _ := os.Getwd()
-	fmt.Printf("  %s✓ Changed directory to: %s%s\n\n", constants.ColorGreen, cwd, constants.ColorReset)
+	newCwd, _ := os.Getwd()
+	fmt.Printf("  %s✓ Changed directory to: %s%s\n\n", constants.ColorGreen, newCwd, constants.ColorReset)
 
 	return nil
 }
@@ -592,6 +642,7 @@ func printInteractiveHelp() {
 	fmt.Println("    replace <old> <new> [glob] - Replace text in matching files")
 	fmt.Println("    done / exit / quit         - Save entered steps and create the macro")
 	fmt.Println("    cancel / abort             - Abort macro creation without saving")
+	fmt.Println("    exec on / exec off         - Toggle live command execution during macro building")
 	fmt.Println("    rec / record               - Switch to live terminal recording session")
 	fmt.Printf("  %s------------------------------------------------------------------------%s\n\n", constants.ColorDim, constants.ColorReset)
 }
