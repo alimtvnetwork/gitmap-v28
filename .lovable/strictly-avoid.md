@@ -328,5 +328,21 @@ Allowed work:
 - ✅ Automatically probe if the release asset exists on GitHub.
 - ✅ When absent, spin up an offline Python HTTP server serving local snapshot binaries packaged into the expected `.zip` / `.tar.gz` and `checksums.txt` format via `GITMAP_DOWNLOAD_URL`.
 
+---
+
+## Depositing Binaries in Parent Workspaces or Outside Canonical Paths — TOTAL BAN
+
+🔴 **NEVER deposit, build, or write executable binaries into workspace parent directories or anywhere outside canonical `bin/` and user AppData directories.**
+
+Forbidden:
+- ❌ Running `go build -o ../gitmap` or `go build -o ../gitmap.exe` resulting in stray binaries in parent workspaces (e.g. `../gitmap.exe`).
+- ❌ Leaving unversioned compiled binaries scattered across repository directories or outside `bin/`.
+
+Allowed work:
+- ✅ Always direct build output strictly to `bin/gitmap` (or `bin/gitmap.exe`).
+- ✅ User deployment targets must strictly be `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` or `/usr/local/bin/gitmap`.
+- ✅ Ensure `make clean` purges `bin/gitmap` and `bin/gitmap.exe`.
+
+
 
 
