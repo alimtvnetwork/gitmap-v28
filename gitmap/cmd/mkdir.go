@@ -6,14 +6,15 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 func runMkdir(args []string) error {
 	if len(args) == 0 {
-		return apperror.NewSimple("Usage: gitmap mkdir [-p] <path>", "E9000")
+		return apperror.NewSimple("Usage: gitmap mkdir [-p] [-f] <path>", "E9000")
 	}
 
-	createParents, pathArg := parseMkdirArgs(args)
+	createParents, createFiles, pathArg := parseMkdirArgs(args)
 	if pathArg == "" {
 		return apperror.NewSimple("Error: missing path argument", "E9000")
 	}
@@ -23,41 +24,70 @@ func runMkdir(args []string) error {
 		return apperror.WrapSimple(err, "Error resolving path:")
 	}
 
-	if err := createTargetDirectory(absPath, createParents); err != nil {
+	if err := createTargetDirectory(absPath, createParents, createFiles); err != nil {
 		return apperror.WrapSimple(err, "Error creating directory:")
 	}
-
-	fmt.Printf("Created directory: %s\n", absPath)
 
 	return nil
 }
 
 func resolveMkdirAbsPath(pathArg string) (string, error) {
 	expanded := expandTilde(pathArg)
-
 	return filepath.Abs(expanded)
 }
 
-func createTargetDirectory(absPath string, createParents bool) error {
+func createTargetDirectory(absPath string, createParents, createFiles bool) error {
+	if createFiles {
+		return touchFile(absPath, createParents)
+	}
+	return makeDir(absPath, createParents)
+}
+
+func makeDir(absPath string, createParents bool) error {
 	if createParents {
-		return os.MkdirAll(absPath, 0755)
+		if err := os.MkdirAll(absPath, 0755); err != nil {
+			return err
+		}
+		fmt.Printf("  %s✓%s [DIR] Created deeply: %s\n", constants.ColorGreen, constants.ColorReset, absPath)
+		return nil
 	}
-
-	return os.Mkdir(absPath, 0755)
+	if err := os.Mkdir(absPath, 0755); err != nil {
+		return err
+	}
+	fmt.Printf("  %s✓%s [DIR] Created: %s\n", constants.ColorGreen, constants.ColorReset, absPath)
+	return nil
 }
 
-func parseMkdirArgs(args []string) (bool, string) {
-	if args[0] == "-p" {
-		return parseFlaggedMkdirArgs(args)
+func touchFile(absPath string, createParents bool) error {
+	if createParents {
+		parent := filepath.Dir(absPath)
+		if err := os.MkdirAll(parent, 0755); err != nil {
+			return err
+		}
+		fmt.Printf("  %s✓%s [DIR] Ensured parent: %s\n", constants.ColorGreen, constants.ColorReset, parent)
 	}
-
-	return false, args[0]
+	f, err := os.OpenFile(absPath, os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	_ = f.Close()
+	fmt.Printf("  %s✓%s [FILE] Touched/Created: %s\n", constants.ColorGreen, constants.ColorReset, absPath)
+	return nil
 }
 
-func parseFlaggedMkdirArgs(args []string) (bool, string) {
-	if len(args) > 1 {
-		return true, args[1]
-	}
+func parseMkdirArgs(args []string) (bool, bool, string) {
+	createParents := false
+	createFiles := false
+	pathArg := ""
 
-	return true, ""
+	for _, arg := range args {
+		if arg == "-p" {
+			createParents = true
+		} else if arg == "-f" || arg == "--file" {
+			createFiles = true
+		} else {
+			pathArg = arg
+		}
+	}
+	return createParents, createFiles, pathArg
 }

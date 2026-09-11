@@ -246,6 +246,7 @@ func attachStepCmdStreams(cmd *exec.Cmd, opts ExecOptions, outBuf, errBuf io.Wri
 		cmd.Stderr = errBuf
 		return
 	}
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = io.MultiWriter(os.Stdout, outBuf)
 	cmd.Stderr = io.MultiWriter(os.Stderr, errBuf)
 }

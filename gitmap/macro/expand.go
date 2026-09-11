@@ -18,7 +18,18 @@ func ExpandPathAndEnv(input string) string {
 	expanded := expandWindowsEnv(input)
 	expanded = os.ExpandEnv(expanded)
 	expanded = expandTilde(expanded)
+	expanded = expandMacroTemp(expanded)
 	return expanded
+}
+
+func expandMacroTemp(input string) string {
+	if strings.HasPrefix(input, "//temp") {
+		return filepath.Join(os.TempDir(), input[6:])
+	}
+	if strings.Contains(input, " //temp") {
+		return strings.ReplaceAll(input, " //temp", " "+os.TempDir())
+	}
+	return input
 }
 
 func expandWindowsEnv(input string) string {
