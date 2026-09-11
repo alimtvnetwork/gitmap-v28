@@ -1,3 +1,17 @@
+## [v6.212.0] 2026-09-11 Release v6.212.0
+
+### Install GitMap v6.212.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.sh | bash -s -- ".lovable/prompts" "v6.212.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.212.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Prevent infinite dynamic timeline polling loop in tests and CI mode
+- Skip live GitHub API polling in unit test suite under CI
+- Verify all 20+ Go packages pass with zero failures
+
 ## [v6.211.0] 2026-09-11 Release v6.211.0
 
 ### Install GitMap v6.211.0
