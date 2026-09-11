@@ -1,3 +1,18 @@
+## [v6.211.0] 2026-09-11 Release v6.211.0
+
+### Install GitMap v6.211.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.sh | bash -s -- ".lovable/prompts" "v6.211.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.211.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add targeted test runner by file path, file name, or Go package name
+- Migrate CI/CD runner artifacts to cross-platform OS temp folder
+- Add isolated per-test failure log files and hashed session folders
+- Flatten nested-if conditionals across mkdir.go and store.go
+
 ## [v6.210.2] 2026-09-11 Release v6.210.2
 
 ### Install GitMap v6.210.2
