@@ -1,3 +1,19 @@
+## [v6.213.0] 2026-09-11 Release v6.213.0
+
+### Install GitMap v6.213.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.sh | bash -s -- ".lovable/prompts" "v6.213.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.213.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add live execution feedback and --exec toggle during interactive macro creation
+- Add universal path expansion for %TEMP%, //temp, /temp, , and ~ across macro engine and cd tracking
+- Fix CI/CD race in-memory DB collision and anchor lifecycle in store
+- Fix process isolation for concurrent E2E smoke test workers on Windows
+- Ensure readme platform badges and single-line install section compliance
+
 ## [v6.212.0] 2026-09-11 Release v6.212.0
 
 ### Install GitMap v6.212.0
