@@ -1,3 +1,16 @@
+## [v6.214.0] 2026-09-11 Release v6.214.0
+
+### Install GitMap v6.214.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.sh | bash -s -- ".lovable/prompts" "v6.214.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.214.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix gosec G115 integer overflow conversion uint64 -> int64 in pipeline_split_ops.go
+- Ensure all cross-platform pattern normalizations and quality gates pass
+
 ## [v6.213.0] 2026-09-11 Release v6.213.0
 
 ### Install GitMap v6.213.0
