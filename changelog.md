@@ -1,3 +1,17 @@
+## [v6.219.0] 2026-09-11 Release v6.219.0
+
+### Install GitMap v6.219.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.sh | bash -s -- ".lovable/prompts" "v6.219.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.219.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Relocate CI/CD runner temporary telemetry and session runs from OS temp directory to repository-internal .lovable/cicd
+- Ensure all failure banner stream paths and artifact locations are displayed as repository-relative paths
+- Add .lovable/cicd/ to .gitignore to avoid untracked working directory clutter
+
 ## [v6.218.0] 2026-09-11 Release v6.218.0
 
 ### Install GitMap v6.218.0
