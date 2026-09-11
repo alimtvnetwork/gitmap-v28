@@ -30,7 +30,12 @@ func (dt *DirTracker) ProcessCd(cmdText string) bool {
 	if !isStandardCd && !isGitmapCd {
 		return false
 	}
+	target = strings.Trim(ExpandPathAndEnv(target), "\"'")
 	resolved := dt.resolveTarget(target, isGitmapCd)
+	return dt.applyDirIfValid(resolved)
+}
+
+func (dt *DirTracker) applyDirIfValid(resolved string) bool {
 	if resolved == "" {
 		return false
 	}

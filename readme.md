@@ -6,6 +6,7 @@
 
 **Pinned version: v6.212.0**
 
+<!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
 [![Vulnerability Scan](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
 [![Cross-Platform Build](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/cross-platform.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/cross-platform.yml)
@@ -15,6 +16,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)](https://github.com/alimtvnetwork/gitmap-v28)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/alimtvnetwork/gitmap-v28/gitmap?style=flat-square)](https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v28/gitmap)
+<!-- /STAMP:PLATFORM_BADGES -->
 
 _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
@@ -33,6 +35,96 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 </div>
 
 ---
+
+## 🚀 Install in One Line
+
+GitMap is a **Windows-first** project. The commands below install the latest release with sensible defaults - no prompts, no drive picker. Use the Quick block if you want to pick a custom install drive.
+
+### 🪟 Windows · PowerShell (latest)
+
+```powershell
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
+```
+
+### 🐧 macOS · Linux · Bash (latest)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
+```
+
+### 📌 Pinned version (v6.212.0)
+
+Install a specific version without auto-updating:
+
+```bash
+curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.sh | bash -s -- ".lovable/prompts" "v6.212.0"
+```
+
+```powershell
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.212.0"
+```
+
+### 🎯 Install — Quick (pick your install drive)
+
+Use this only when you want to choose a specific drive or folder (e.g. install to `D:\` instead of the default location). It prompts for the install drive/folder, then delegates to the canonical installer above.
+
+Windows · PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.ps1 | iex
+```
+
+macOS · Linux · Bash:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash
+```
+
+### 📁 Install to a custom directory
+
+Pass an explicit install path on the one-liner — no prompts, no auto-detection. Useful for shared drives, portable installs, or pinning gitmap next to other dev tools. Replace `D:\tools\gitmap` / `/opt/gitmap` with your preferred path.
+
+Windows · PowerShell — pass -InstallDir through irm | iex:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1))) -InstallDir 'D:\tools\gitmap'
+```
+
+macOS · Linux · Bash — pass --dir through curl | sh:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh -s -- --dir /opt/gitmap
+```
+
+---
+
+## 📦 Bundle Installers
+
+GitMap provides composable workstation presets and toolchain bundles.
+
+### Developer Suite (Ubuntu Full Dev)
+
+```bash
+gitmap install ubuntu+dev
+```
+
+### Minimal Toolchain (Ubuntu Basic)
+
+```bash
+gitmap install ubuntu-basic
+```
+
+### VS Code & Extensions
+
+```bash
+gitmap install ubuntu+vscode
+```
+
+### Custom Utility CLI
+
+```bash
+gitmap install custom-cli
+```
 
 ---
 
@@ -103,69 +195,6 @@ Without a centralized, high-speed management layer, developers and autonomous ag
 > In modern software development, time is the single most valuable resource. Most developers lose hours every week to administrative friction: switching laptops, cloning repos, verifying which branch has unpushed commits, tracking failed GitHub Actions runs, or wrestling with setup scripts.
 >
 > GitMap transforms that chaos into total command. It is not just an incremental improvement over existing git workflows—it fundamentally changes how engineers and autonomous AI agents interact with codebases. Having 50, 100, or 500 repositories on a machine is no longer daunting; it feels as effortless as managing a single folder. For engineers who demand speed, precision, and architectural excellence, GitMap is genuinely one of the most capable and well-engineered tools in the modern developer ecosystem.
-
----
-
-## 🚀 Install
-
-GitMap is a **Windows-first** project. The commands below install the latest release with sensible defaults - no prompts, no drive picker. Use the **Quick** block if you want to pick a custom install drive.
-
-### 🪟 Windows · PowerShell (latest)
-
-```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
-```
-
-### 🐧 macOS · Linux · Bash (latest)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
-```
-
-
-### 📌 Pinned version (v6.182.0)
-
-Install a specific version without auto-updating:
-
-**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.sh | bash -s -- ".lovable/prompts" "v6.182.0"`
-**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.182.0"`
-
-### 🎯 Install — Quick (pick your install drive)
-
-Use this **only** when you want to choose a specific drive or folder (e.g. install to `D:\` instead of the default location). It prompts for the install drive/folder, then delegates to the canonical installer above.
-
-```powershell
-
-# Windows · PowerShell
-
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.ps1 | iex
-```
-
-```bash
-
-# macOS · Linux · Bash
-
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash
-```
-
-> **How install resolves a version:** every installer follows the generic contract in [`spec/07-generic-release/09-generic-install-script-behavior.md`](spec/07-generic-release/09-generic-install-script-behavior.md). In short — **strict tag mode** (`--version <tag>` / `-Version <tag>`) installs that exact release with **no fallback whatsoever** (no `latest`, no sibling probe, no main-branch HEAD; missing tag → exit 1). **Discovery mode** (no tag supplied) probes the next 20 `-v<N+i>` sibling repos in parallel, then falls back to `releases/latest`, and finally to the default branch HEAD as a last resort.
-
-### 📁 Install to a custom directory
-
-Pass an explicit install path on the one-liner — no prompts, no auto-detection. Useful for shared drives, portable installs, or pinning gitmap next to other dev tools. Replace `D:\tools\gitmap` / `/opt/gitmap` with your preferred path.
-
-```bash
-
-# Windows · PowerShell — pass -InstallDir through irm | iex
-
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1))) -InstallDir 'D:\tools\gitmap'
-
-# macOS · Linux · Bash — pass --dir through curl | sh
-
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh -s -- --dir /opt/gitmap
-```
-
-> Add `-Version v5.63.0` (PowerShell) or `--version v5.63.0` (Bash) before the closing quote / end of line to pin a specific release into your custom directory.
 
 ---
 

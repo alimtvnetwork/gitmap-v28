@@ -81,14 +81,14 @@ func toolingOpsEntries() []dispatchEntry {
 
 func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{"installer"}, func() error { RunInstallerCLI(argsTail()); return nil }},
+		{[]string{"installer"}, func() error { return RunInstallerCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines", "ct"}, func() error { return runCG(argsTail()) }},
 		{[]string{"install-version-json", "init-version"}, func() error { return runCG(append([]string{"install-version-json"}, argsTail()...)) }},
 		{[]string{"install-prompts", "install-prompt"}, func() error { return runCG(append([]string{"install-prompts"}, argsTail()...)) }},
 		{[]string{"prompts-status"}, func() error { return runCG(append([]string{"prompts-status"}, argsTail()...)) }},
 		{[]string{"prompts-version"}, func() error { return runCG(append([]string{"prompts-version"}, argsTail()...)) }},
 		{[]string{"workdir", "work-dir", "wd"}, func() error { return runWorkDir(argsTail()) }},
-		{[]string{"os", "os-update"}, func() error { RunOSCLI(argsTail()); return nil }},
+		{[]string{"os", "os-update"}, func() error { return RunOSCLI(argsTail()) }},
 		{[]string{"sj", "ssh-joiner", "ssh-join", "ssh-joined"}, func() error { return runSJ(argsTail()) }},
 		{[]string{"se", "ssh-exe", "ssh-exec", "ssh-execute"}, func() error { return runSSHExec(argsTail()) }},
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() error { return runInstall(argsTail()) }},

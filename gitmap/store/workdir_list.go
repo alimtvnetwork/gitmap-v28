@@ -8,11 +8,26 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
+// EnsureWorkDirsTable creates the work_directories table if it does not exist.
+func (db *DB) EnsureWorkDirsTable() error {
+	if db == nil || db.conn == nil {
+		return apperror.NewSimple("EnsureWorkDirsTable", "E_NIL_DB")
+	}
+
+	_, err := ExecWrapper(db.conn, SQLCreateWorkDirsTable).Destruct()
+	if err != nil {
+		return apperror.WrapSimple(err, "EnsureWorkDirsTable")
+	}
+
+	return nil
+}
+
 // EnsureWorkDir registers or updates a work directory.
 func (db *DB) EnsureWorkDir(absPath, label string, isDefault bool) (*model.WorkDir, error) {
 	if db == nil || db.conn == nil {
 		return nil, apperror.New("EnsureWorkDir", "E_NIL_DB", map[string]any{"path": absPath})
 	}
+	_ = db.EnsureWorkDirsTable()
 
 	defInt := 0
 	if isDefault {
@@ -32,6 +47,7 @@ func (db *DB) ListWorkDirs() ([]model.WorkDir, error) {
 	if db == nil || db.conn == nil {
 		return nil, apperror.NewSimple("ListWorkDirs", "E_NIL_DB")
 	}
+	_ = db.EnsureWorkDirsTable()
 
 	rows, err := QueryWrapper(db.conn, SQLSelectAllWorkDirs).Destruct()
 	if err != nil {
@@ -39,6 +55,10 @@ func (db *DB) ListWorkDirs() ([]model.WorkDir, error) {
 	}
 	defer rows.Close()
 
+	return scanWorkDirRows(rows)
+}
+
+func scanWorkDirRows(rows *sql.Rows) ([]model.WorkDir, error) {
 	var results []model.WorkDir
 	for rows.Next() {
 		var wd model.WorkDir
@@ -50,11 +70,17 @@ func (db *DB) ListWorkDirs() ([]model.WorkDir, error) {
 			results = append(results, wd)
 		}
 	}
+
 	return results, nil
 }
 
 // GetWorkDirByPath retrieves a work directory by its absolute path.
 func (db *DB) GetWorkDirByPath(absPath string) (*model.WorkDir, error) {
+	if db == nil || db.conn == nil {
+		return nil, apperror.New("GetWorkDirByPath", "E_NIL_DB", map[string]any{"path": absPath})
+	}
+	_ = db.EnsureWorkDirsTable()
+
 	row := db.conn.QueryRow("SELECT id, absolute_path, label, is_default, created_at, updated_at FROM work_directories WHERE absolute_path = ?", absPath)
 	var wd model.WorkDir
 	var defInt int
@@ -64,5 +90,6 @@ func (db *DB) GetWorkDirByPath(absPath string) (*model.WorkDir, error) {
 	}
 	wd.Label = label.String
 	wd.IsDefault = (defInt == 1)
+
 	return &wd, nil
 }

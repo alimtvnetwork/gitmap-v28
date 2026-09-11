@@ -10,26 +10,20 @@ import (
 
 var winEnvRegex = regexp.MustCompile(`%([a-zA-Z0-9_]+)%`)
 
-// ExpandPathAndEnv expands Windows %VAR%, Unix $VAR, and tilde ~ path tokens.
+func getNormalizedTempDir() string {
+	return strings.TrimRight(os.TempDir(), `/\`)
+}
+
+// ExpandPathAndEnv expands Windows %VAR%, Unix $VAR, tilde ~, and temp tokens.
 func ExpandPathAndEnv(input string) string {
 	if len(input) == 0 {
 		return input
 	}
 	expanded := expandWindowsEnv(input)
-	expanded = os.ExpandEnv(expanded)
+	expanded = expandUnixEnv(expanded)
 	expanded = expandTilde(expanded)
 	expanded = expandMacroTemp(expanded)
 	return expanded
-}
-
-func expandMacroTemp(input string) string {
-	if strings.HasPrefix(input, "//temp") {
-		return filepath.Join(os.TempDir(), input[6:])
-	}
-	if strings.Contains(input, " //temp") {
-		return strings.ReplaceAll(input, " //temp", " "+os.TempDir())
-	}
-	return input
 }
 
 func expandWindowsEnv(input string) string {
@@ -41,7 +35,29 @@ func expandWindowsEnv(input string) string {
 		if val, hasVal := getEnvCaseInsensitive(varName); hasVal {
 			return val
 		}
+		if isTempVar(varName) {
+			return getNormalizedTempDir()
+		}
 		return token
+	})
+}
+
+func isTempVar(varName string) bool {
+	return strings.EqualFold(varName, "TEMP") || strings.EqualFold(varName, "TMP")
+}
+
+func expandUnixEnv(input string) string {
+	if !strings.Contains(input, "$") {
+		return input
+	}
+	return os.Expand(input, func(varName string) string {
+		if val, hasVal := getEnvCaseInsensitive(varName); hasVal {
+			return val
+		}
+		if isTempVar(varName) {
+			return getNormalizedTempDir()
+		}
+		return os.Getenv(varName)
 	})
 }
 
@@ -88,4 +104,38 @@ func resolveSingleTildeToken(token, home string) string {
 		return filepath.Join(home, token[2:])
 	}
 	return token
+}
+
+func expandMacroTemp(input string) string {
+	tokens := strings.Split(input, " ")
+	for i, token := range tokens {
+		tokens[i] = resolveSingleTempToken(token)
+	}
+	return strings.Join(tokens, " ")
+}
+
+func resolveSingleTempToken(token string) string {
+	trimmed := strings.Trim(token, "\"'")
+	tempDir := getNormalizedTempDir()
+	if isRootTempToken(trimmed) {
+		return tempDir
+	}
+	if rel, hasRel := extractTempSubdir(trimmed); hasRel {
+		return filepath.Join(tempDir, rel)
+	}
+	return token
+}
+
+func isRootTempToken(t string) bool {
+	return t == "//temp" || t == "//tmp" || t == "/temp" || t == "/tmp"
+}
+
+func extractTempSubdir(t string) (string, bool) {
+	prefixes := []string{"//temp/", `//temp\`, "//tmp/", `//tmp\`, "/temp/", `/temp\`, "/tmp/", `/tmp\`}
+	for _, p := range prefixes {
+		if strings.HasPrefix(t, p) {
+			return t[len(p):], true
+		}
+	}
+	return "", false
 }

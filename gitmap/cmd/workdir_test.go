@@ -66,10 +66,10 @@ func TestAutoRegisterFirstWorkDir(t *testing.T) {
 	if errDB != nil {
 		t.Skip("sqlite unavailable")
 	}
+	defer db.Close()
 	ensureWorkDirsTableExists()
 
 	_, _ = db.SQL().Exec("DELETE FROM work_directories")
-	db.Close()
 
 	isRegistered := autoRegisterFirstWorkDir(tempDir, true)
 	if !isRegistered {
@@ -102,10 +102,10 @@ func TestWorkDirAddDefaultsAndDuplicates(t *testing.T) {
 	if errDB != nil {
 		t.Skip("sqlite unavailable")
 	}
+	defer db.Close()
 	ensureWorkDirsTableExists()
 
 	_, _ = db.SQL().Exec("DELETE FROM work_directories")
-	db.Close()
 
 	errAdd := runWorkDirAdd(tempDir, "temp-label")
 	if errAdd != nil {

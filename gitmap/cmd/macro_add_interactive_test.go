@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
 )
 
 func TestSanitizeRawEscapeCodes(t *testing.T) {
@@ -66,4 +68,10 @@ func TestExecuteInteractiveMkdir(t *testing.T) {
 	if err != nil || !info.IsDir() {
 		t.Fatalf("expected directory to exist: %s", target)
 	}
+
+	tempSub := "//temp/interactive_test_sub_" + filepath.Base(tempDir)
+	if !executeInteractiveMkdir(tempSub, "mkdir "+tempSub) {
+		t.Fatalf("expected executeInteractiveMkdir with //temp to succeed")
+	}
+	defer os.RemoveAll(macro.ExpandPathAndEnv(tempSub))
 }

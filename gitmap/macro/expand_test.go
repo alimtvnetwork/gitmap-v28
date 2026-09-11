@@ -45,17 +45,28 @@ func TestExpandPathAndEnv_Tilde(t *testing.T) {
 }
 
 func TestExpandPathAndEnv_Temp(t *testing.T) {
-	tempVal := os.Getenv("TEMP")
-	if tempVal == "" {
-		tempVal = os.Getenv("TMP")
-	}
-	if tempVal == "" {
-		t.Skip("TEMP not set")
+	tempDir := getNormalizedTempDir()
+
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"cd %temp%", "cd " + tempDir},
+		{"cd %TEMP%", "cd " + tempDir},
+		{"cd $TEMP", "cd " + tempDir},
+		{"cd $TMP", "cd " + tempDir},
+		{"cd //temp", "cd " + tempDir},
+		{"cd /temp", "cd " + tempDir},
+		{"cd //tmp", "cd " + tempDir},
+		{"cd /tmp", "cd " + tempDir},
+		{"mkdir //temp/subproject", "mkdir " + filepath.Join(tempDir, "subproject")},
+		{"mkdir /temp/subproject", "mkdir " + filepath.Join(tempDir, "subproject")},
 	}
 
-	input := "cd %temp%"
-	got := ExpandPathAndEnv(input)
-	if got != "cd "+tempVal {
-		t.Errorf("ExpandPathAndEnv(%q) = %q, want %q", input, got, "cd "+tempVal)
+	for _, tc := range tests {
+		got := ExpandPathAndEnv(tc.input)
+		if got != tc.want {
+			t.Errorf("ExpandPathAndEnv(%q) = %q, want %q", tc.input, got, tc.want)
+		}
 	}
 }

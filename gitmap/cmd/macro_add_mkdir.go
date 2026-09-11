@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/macro"
 )
 
 func isMkdirCmd(line string) bool {
@@ -44,7 +45,7 @@ func extractMkdirTarget(parts []string) string {
 }
 
 func executeInteractiveMkdir(targetDir, line string) bool {
-	expanded := expandTilde(targetDir)
+	expanded := macro.ExpandPathAndEnv(strings.Trim(targetDir, "\"'"))
 	absPath, err := filepath.Abs(expanded)
 	if err != nil {
 		fmt.Printf("  %s▲ mkdir %s: %v%s\n\n", constants.ColorRed, targetDir, err, constants.ColorReset)

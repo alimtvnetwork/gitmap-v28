@@ -413,9 +413,12 @@ async def async_main():
     for item in independent_items_2:
         queue.put_nowait(item)
 
-    workers_dir = os.path.join(repo_root, ".lovable", "temp", "cicd", "e2e_workers")
-    os.makedirs(workers_dir, exist_ok=True)
+    workers_base = os.path.join(repo_root, ".lovable", "temp", "cicd", "e2e_workers")
+    os.makedirs(workers_base, exist_ok=True)
     import shutil
+    import tempfile
+
+    workers_dir = tempfile.mkdtemp(prefix=f"proc_{os.getpid()}_{int(time.time()*1000)%10000}_", dir=workers_base)
 
     # Enqueue poison pills for workers
     for _ in range(worker_count):
@@ -428,24 +431,34 @@ async def async_main():
         worker_bin_dir = os.path.join(workers_dir, f"worker-{i}")
         os.makedirs(worker_bin_dir, exist_ok=True)
         worker_bin_path = os.path.join(worker_bin_dir, os.path.basename(bin_path))
-        shutil.copy2(bin_path, worker_bin_path)
+        for attempt in range(5):
+            try:
+                shutil.copy2(bin_path, worker_bin_path)
+                break
+            except PermissionError:
+                if attempt == 4:
+                    raise
+                time.sleep(0.3)
         task = asyncio.create_task(
             async_worker(queue, worker_bin_path, repo_root, results_map)
         )
         worker_tasks.append(task)
 
-    await asyncio.gather(*worker_tasks)
-    elapsed = time.time() - start_time
+    try:
+        await asyncio.gather(*worker_tasks)
+        elapsed = time.time() - start_time
 
-    exit_code = report_results(
-        results_map=results_map,
-        total=len(all_indexed_items),
-        elapsed=elapsed,
-        worker_count=worker_count,
-        bin_path=bin_path,
-        show_all=args.all,
-    )
-    sys.exit(exit_code)
+        exit_code = report_results(
+            results_map=results_map,
+            total=len(all_indexed_items),
+            elapsed=elapsed,
+            worker_count=worker_count,
+            bin_path=bin_path,
+            show_all=args.all,
+        )
+        sys.exit(exit_code)
+    finally:
+        shutil.rmtree(workers_dir, ignore_errors=True)
 
 
 def main():

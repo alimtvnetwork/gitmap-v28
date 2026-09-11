@@ -129,4 +129,24 @@ func TestDirTracker_ProcessCd(t *testing.T) {
 	if !isSwapped || dt.CurrentDir != tmpDir {
 		t.Fatalf("expected currentDir %s after cd -, got %s", tmpDir, dt.CurrentDir)
 	}
+
+	// cd %temp%
+	if !dt.ProcessCd("cd %temp%") {
+		t.Fatalf("expected cd %%temp%% to succeed")
+	}
+
+	// cd //temp
+	if !dt.ProcessCd("cd //temp") {
+		t.Fatal("expected cd //temp to succeed")
+	}
+
+	// cd /temp
+	if !dt.ProcessCd("cd /temp") {
+		t.Fatal("expected cd /temp to succeed")
+	}
+
+	// cd ~
+	if !dt.ProcessCd("cd ~") {
+		t.Fatal("expected cd ~ to succeed")
+	}
 }

@@ -27,10 +27,10 @@ func handleMacroAdd(args []string) error {
 		return nil
 	}
 
-	desc, tag, rawSteps := parseMacroAddFlags(args[1:])
+	desc, tag, isExec, rawSteps := parseMacroAddFlags(args[1:])
 	steps := parseMacroStepsList(rawSteps)
 
-	steps, resolveErr := ensureMacroSteps(name, steps)
+	steps, resolveErr := ensureMacroSteps(name, steps, isExec)
 	if resolveErr != nil {
 		return resolveErr
 	}
@@ -50,31 +50,43 @@ func handleMacroAdd(args []string) error {
 	return nil
 }
 
-func ensureMacroSteps(name string, steps []macro.MacroStep) ([]macro.MacroStep, error) {
+func ensureMacroSteps(name string, steps []macro.MacroStep, isExec bool) ([]macro.MacroStep, error) {
 	if len(steps) > 0 {
 		return steps, nil
 	}
 
-	return resolveStepsInteractively(name)
+	return resolveStepsInteractively(name, isExec)
 }
 
-func parseMacroAddFlags(args []string) (string, string, []string) {
+func parseMacroAddFlags(args []string) (string, string, bool, []string) {
 	var desc, tag string
+	var isExec bool
 	var rawSteps []string
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if a == "--pwd" {
-			uipref.SetMacroPwdOverride(true)
-			continue
-		}
-		if a == "--no-pwd" {
-			uipref.SetMacroPwdOverride(false)
+		if handleMacroAddSpecialFlag(a, &isExec) {
 			continue
 		}
 		i, desc, tag, rawSteps = parseSingleMacroFlag(args, i, desc, tag, rawSteps)
 	}
 
-	return desc, tag, rawSteps
+	return desc, tag, isExec, rawSteps
+}
+
+func handleMacroAddSpecialFlag(flag string, isExec *bool) bool {
+	if flag == "--pwd" {
+		uipref.SetMacroPwdOverride(true)
+		return true
+	}
+	if flag == "--no-pwd" {
+		uipref.SetMacroPwdOverride(false)
+		return true
+	}
+	if flag == "--exec" || flag == "-e" {
+		*isExec = true
+		return true
+	}
+	return false
 }
 
 func parseSingleMacroFlag(args []string, i int, desc, tag string, rawSteps []string) (int, string, string, []string) {

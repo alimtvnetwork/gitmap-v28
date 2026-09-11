@@ -3,10 +3,12 @@ package store
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 
@@ -43,6 +45,42 @@ func OpenAt(dbPath string) (*DB, error) {
 	return openDBAt(dbPath)
 }
 
+var (
+	memAnchorMu sync.Mutex
+	memAnchors  = make(map[string]*sql.DB)
+)
+
+func retainMemAnchor(connPath string) {
+	memAnchorMu.Lock()
+	defer memAnchorMu.Unlock()
+
+	if _, hasAnchor := memAnchors[connPath]; hasAnchor {
+		return
+	}
+
+	anchor, err := sql.Open("sqlite", connPath)
+	if err != nil {
+		return
+	}
+
+	anchor.SetMaxOpenConns(1)
+	_ = enableFK(anchor)
+	memAnchors[connPath] = anchor
+}
+
+func resolveConnPath(dbPath string, isMem bool) string {
+	if isMem {
+		norm := filepath.ToSlash(filepath.Clean(dbPath))
+		hash := fmt.Sprintf("%x", sha256.Sum256([]byte(norm)))[:16]
+		connPath := "file:" + hash + "?mode=memory&cache=shared"
+		retainMemAnchor(connPath)
+
+		return connPath
+	}
+
+	return dbPath
+}
+
 // openDBAt opens a database at an exact path.
 func openDBAt(dbPath string) (*DB, error) {
 	dbDir := filepath.Dir(dbPath)
@@ -56,24 +94,25 @@ func openDBAt(dbPath string) (*DB, error) {
 		return nil, err
 	}
 
-	connPath := dbPath
-	if isMem {
-		connPath = "file:" + filepath.Base(dbPath) + "?mode=memory&cache=shared"
-	}
+	connPath := resolveConnPath(dbPath, isMem)
 
+	return openDBConnection(connPath, dbPath, dbDir, isMem)
+}
+
+func openDBConnection(connPath, dbPath, dbDir string, isMem bool) (*DB, error) {
 	conn, err := sql.Open("sqlite", connPath)
 	if err != nil {
 		releaseLockIfNotMem(dbDir, isMem)
+
 		return nil, fmt.Errorf(constants.ErrDBOpen, dbPath, err)
 	}
 
-	// SQLite does not support concurrent writes; pin to one connection
-	// so PRAGMAs (foreign_keys, etc.) persist across all operations.
 	conn.SetMaxOpenConns(1)
 
 	if err := enableFK(conn); err != nil {
 		conn.Close()
 		releaseLockIfNotMem(dbDir, isMem)
+
 		return nil, err
 	}
 

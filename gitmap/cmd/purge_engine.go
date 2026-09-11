@@ -24,11 +24,15 @@ func checkWorkTreeAndBranch() error {
 	return nil
 }
 
+func normalizePurgePattern(pattern string) string {
+	return strings.ReplaceAll(pattern, "\\", "/")
+}
+
 func validatePurgeState(pattern string) ([]string, error) {
 	if err := checkWorkTreeAndBranch(); err != nil {
 		return nil, err
 	}
-	out, err := runPurgeCmd("git", "ls-files", filepath.ToSlash(pattern))
+	out, err := runPurgeCmd("git", "ls-files", normalizePurgePattern(pattern))
 	return strings.Fields(out), err
 }
 
@@ -57,7 +61,7 @@ func createPurgeBackup(br, tmp string, files []string) ([]string, error) {
 
 func executeFilterRepo(pattern string) error {
 	rem, _ := runPurgeCmd("git", "remote", "get-url", "origin")
-	if _, err := runPurgeCmd("git", "filter-repo", "--path-glob", filepath.ToSlash(pattern), "--invert-paths", "--force"); err != nil {
+	if _, err := runPurgeCmd("git", "filter-repo", "--path-glob", normalizePurgePattern(pattern), "--invert-paths", "--force"); err != nil {
 		return apperror.Wrap(err, "filter-repo failed", nil)
 	}
 	if r := strings.TrimSpace(rem); r != "" {
@@ -68,7 +72,7 @@ func executeFilterRepo(pattern string) error {
 }
 
 func appendGitignore(pattern string) error {
-	norm := filepath.ToSlash(pattern)
+	norm := normalizePurgePattern(pattern)
 	f, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
@@ -95,7 +99,7 @@ func recordPurgeLog(db *store.DB, repo, pat, br, tmp string, ts int64, files []s
 		return apperror.Wrap(err, "marshal failed", nil)
 	}
 	return db.InsertPurgeHistoryLog(&store.PurgeHistoryLog{
-		RepoPath: repo, Pattern: filepath.ToSlash(pat),
+		RepoPath: repo, Pattern: normalizePurgePattern(pat),
 		BackupBranch: br, TempDir: tmp, Files: string(raw), Timestamp: ts,
 	})
 }

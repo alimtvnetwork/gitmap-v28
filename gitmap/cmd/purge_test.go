@@ -90,7 +90,7 @@ func TestPurgeCopyFile(t *testing.T) {
 func TestPurgePatternNormalization(t *testing.T) {
 	winPath := "dir\\subdir\\*.secret"
 	expected := "dir/subdir/*.secret"
-	if norm := filepath.ToSlash(winPath); norm != expected {
+	if norm := normalizePurgePattern(winPath); norm != expected {
 		t.Errorf("got %q, want %q", norm, expected)
 	}
 }

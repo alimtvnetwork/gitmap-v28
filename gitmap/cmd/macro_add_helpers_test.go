@@ -129,3 +129,31 @@ func TestProcessInteractiveStepLine(t *testing.T) {
 		t.Fatalf("expected done to break loop")
 	}
 }
+
+func TestMacroInteractiveExecToggle(t *testing.T) {
+	state := newInteractiveState()
+	if !handleExecCmd("exec on", state) || !state.isExecEnabled {
+		t.Fatal("expected exec on to enable live execution")
+	}
+	if !handleExecCmd("exec off", state) || state.isExecEnabled {
+		t.Fatal("expected exec off to disable live execution")
+	}
+	if !handleExecCmd("exec", state) || !state.isExecEnabled {
+		t.Fatal("expected exec toggle to enable live execution")
+	}
+}
+
+func TestMacroInteractiveCdExpansion(t *testing.T) {
+	oldCwd, _ := os.Getwd()
+	defer func() { _ = os.Chdir(oldCwd) }()
+	state := newInteractiveState()
+	if !handleCdCmd("cd %temp%", state) || state.lastInspectedCmd != "cd %temp%" {
+		t.Fatalf("expected handleCdCmd with %%temp%% to succeed")
+	}
+	if !handleCdCmd("cd //temp", state) || !handleCdCmd("cd /temp", state) {
+		t.Fatal("expected handleCdCmd with //temp and /temp to succeed")
+	}
+	if !handleCdCmd("cd ~", state) {
+		t.Fatal("expected handleCdCmd with ~ to succeed")
+	}
+}

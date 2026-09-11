@@ -22,9 +22,9 @@ const (
 	loopActionBreak
 )
 
-func resolveStepsInteractively(name string) ([]macro.MacroStep, error) {
+func resolveStepsInteractively(name string, isExec bool) ([]macro.MacroStep, error) {
 	if isTerminalInput() {
-		return promptInteractiveMacroSteps(name)
+		return promptInteractiveMacroSteps(name, isExec)
 	}
 
 	steps, err := readPipedMacroSteps()
@@ -77,10 +77,10 @@ func isTerminalInput() bool {
 	return (stat.Mode() & os.ModeCharDevice) != 0
 }
 
-func promptInteractiveMacroSteps(name string) ([]macro.MacroStep, error) {
+func promptInteractiveMacroSteps(name string, isExec bool) ([]macro.MacroStep, error) {
 	printInteractiveMacroHeader(name)
 
-	steps, err := collectInteractiveMacroSteps(name)
+	steps, err := collectInteractiveMacroSteps(name, isExec)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "read interactive macro input")
 	}
@@ -94,10 +94,11 @@ func promptInteractiveMacroSteps(name string) ([]macro.MacroStep, error) {
 	return steps, nil
 }
 
-func collectInteractiveMacroSteps(name string) ([]macro.MacroStep, error) {
+func collectInteractiveMacroSteps(name string, isExec bool) ([]macro.MacroStep, error) {
 	var steps []macro.MacroStep
 	stepNum := 1
 	state := newInteractiveState()
+	state.isExecEnabled = isExec
 	reader := newInteractiveLineReader()
 
 	for {
