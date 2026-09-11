@@ -172,26 +172,6 @@ func queryRunsFromDB(repo string) []ghRunItem {
 	return runs
 }
 
-func queryRecentFailedRuns(repo string, limit int) []ghRunItem {
-	if len(repo) == 0 || limit <= 0 {
-		return nil
-	}
-
-	limitStr := strconv.Itoa(limit)
-	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--status", "failure", "--limit", limitStr, "--json",
-		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url")
-	if err != nil {
-		return nil
-	}
-
-	var runs []ghRunItem
-	if err := json.Unmarshal(out, &runs); err != nil {
-		return nil
-	}
-
-	return runs
-}
-
 func formatRunTimestamp(raw string) string {
 	if raw == "" {
 		return "unknown time"

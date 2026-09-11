@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": "2026-09-11T20:52:14",
-  "total_tests": 2434,
+  "updated_at": "2026-09-11T21:26:05",
+  "total_tests": 2436,
   "summary": {
-    "total": 2434,
-    "cached": 2434,
+    "total": 2436,
+    "cached": 2436,
     "dirty": 0,
     "packages": 92
   },
@@ -6233,10 +6233,10 @@
       "test_hash": "bdd70369eceb861b",
       "target_file": "gitmap/cmd/pipeline_logs.go",
       "target_func": "buildErrorLogsPayload",
-      "code_hash": "9bee4b2c373ddd44",
-      "duration_sec": 0.34,
+      "code_hash": "3b1ac27f95296922",
+      "duration_sec": 0.14,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:44",
+      "last_run_at": "2026-09-11T21:26:25",
       "needs_run": false
     },
     "gitmap/cmd.TestMergeStringPaths": {
@@ -12491,10 +12491,10 @@
       "test_hash": "90a5311eb480aa1b",
       "target_file": "gitmap/cmd/pipeline_logs.go",
       "target_func": "collectFailedRuns",
-      "code_hash": "bdd15326e861004f",
+      "code_hash": "f0fe43d31d513280",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:29:43",
+      "last_run_at": "2026-09-11T21:26:25",
       "needs_run": false
     },
     "gitmap/cmd.TestFormatAggregatedErrorLogs": {
@@ -12567,6 +12567,34 @@
       "last_run_at": "2026-09-11T20:52:44",
       "needs_run": false
     },
+    "gitmap/cmd.TestCollectFailedRunsIgnoresResolvedRuns": {
+      "id": "gitmap/cmd.TestCollectFailedRunsIgnoresResolvedRuns",
+      "package": "gitmap/cmd",
+      "test_file": "gitmap/cmd/pipeline_errorlogs_test.go",
+      "test_func": "TestCollectFailedRunsIgnoresResolvedRuns",
+      "test_hash": "f452f3797177d11f",
+      "target_file": "gitmap/cmd/pipeline_logs.go",
+      "target_func": "collectFailedRuns",
+      "code_hash": "f0fe43d31d513280",
+      "duration_sec": 0.0,
+      "last_status": "passed",
+      "last_run_at": "2026-09-11T21:26:25",
+      "needs_run": false
+    },
+    "gitmap/cmd.TestBuildErrorLogsPayloadCleanSuccess": {
+      "id": "gitmap/cmd.TestBuildErrorLogsPayloadCleanSuccess",
+      "package": "gitmap/cmd",
+      "test_file": "gitmap/cmd/pipeline_errorlogs_test.go",
+      "test_func": "TestBuildErrorLogsPayloadCleanSuccess",
+      "test_hash": "14c6b662732acba2",
+      "target_file": "gitmap/cmd/pipeline_logs.go",
+      "target_func": "buildErrorLogsPayload",
+      "code_hash": "3b1ac27f95296922",
+      "duration_sec": 0.13,
+      "last_status": "passed",
+      "last_run_at": "2026-09-11T21:26:25",
+      "needs_run": false
+    },
     "gitmap/cmd.TestHistoricalSuccessETAExcludesFailedRuns": {
       "id": "gitmap/cmd.TestHistoricalSuccessETAExcludesFailedRuns",
       "package": "gitmap/cmd",
@@ -12631,10 +12659,10 @@
       "test_hash": "db9c451cc51d8107",
       "target_file": "gitmap/cmd/pipeline_logs.go",
       "target_func": "buildErrorLogsPayload",
-      "code_hash": "9bee4b2c373ddd44",
-      "duration_sec": 1.83,
+      "code_hash": "3b1ac27f95296922",
+      "duration_sec": 1.37,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:44",
+      "last_run_at": "2026-09-11T21:26:25",
       "needs_run": false
     },
     "gitmap/cmd.TestWriteOrRenderErrorLogs_File": {
@@ -20807,10 +20835,10 @@
       "test_hash": "39124f36dae532da",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
-      "duration_sec": 0.08,
+      "code_hash": "347a3a0af66aebde",
+      "duration_sec": 0.29,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:28",
+      "last_run_at": "2026-09-11T21:26:18",
       "needs_run": false
     },
     "gitmap/constants.TestNoUnmarkedTopLevelCmdBlocks": {
@@ -20821,10 +20849,10 @@
       "test_hash": "c393bab28db0fc8a",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
-      "duration_sec": 0.08,
+      "code_hash": "347a3a0af66aebde",
+      "duration_sec": 0.16,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:28",
+      "last_run_at": "2026-09-11T21:26:18",
       "needs_run": false
     },
     "gitmap/constants.TestTopLevelCmdConstantsAreUnique": {
@@ -20835,10 +20863,10 @@
       "test_hash": "587819db55c3fa9e",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:28",
+      "last_run_at": "2026-09-11T21:26:18",
       "needs_run": false
     },
     "gitmap/constants.TestTopLevelCmdAliasesAreUnique": {
@@ -20849,10 +20877,10 @@
       "test_hash": "724cbffe6f491d7a",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:28",
+      "last_run_at": "2026-09-11T21:26:18",
       "needs_run": false
     },
     "gitmap/constants.TestCanonicalCSVColumn": {
@@ -31601,10 +31629,10 @@
       "test_hash": "98a9507fd97fa5e4",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:27",
+      "last_run_at": "2026-09-11T21:26:16",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOSQL_InsertHasThreePlaceholders": {
@@ -31615,10 +31643,10 @@
       "test_hash": "cc4de7ff0f63e41a",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:27",
+      "last_run_at": "2026-09-11T21:26:16",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOSQL_SelectByKindHasWhere": {
@@ -31629,10 +31657,10 @@
       "test_hash": "f929a33fef88f5b9",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:27",
+      "last_run_at": "2026-09-11T21:26:16",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOSQL_CountReturnsAggregate": {
@@ -31643,10 +31671,10 @@
       "test_hash": "804255e95adfbfd4",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:27",
+      "last_run_at": "2026-09-11T21:26:16",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOErrorMessages_NonEmpty": {
@@ -31657,10 +31685,10 @@
       "test_hash": "25c6afefd16e5670",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:27",
+      "last_run_at": "2026-09-11T21:26:16",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOHelpStrings_NonEmpty": {
@@ -31671,10 +31699,10 @@
       "test_hash": "015d39f84ada57f2",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:27",
+      "last_run_at": "2026-09-11T21:26:16",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOMessages_ContainFormatVerbs": {
@@ -31685,10 +31713,10 @@
       "test_hash": "eaec0cd3101f228d",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:27",
+      "last_run_at": "2026-09-11T21:26:16",
       "needs_run": false
     },
     "gitmap/tests/constants_test.TestSEOTableName": {
@@ -31699,10 +31727,10 @@
       "test_hash": "ab6bb577a834fb15",
       "target_file": "gitmap/constants/constants.go",
       "target_func": "",
-      "code_hash": "43a0d97b349df4e9",
+      "code_hash": "347a3a0af66aebde",
       "duration_sec": 0.0,
       "last_status": "passed",
-      "last_run_at": "2026-09-11T20:52:27",
+      "last_run_at": "2026-09-11T21:26:16",
       "needs_run": false
     },
     "gitmap/tests/fixrepo_test.TestFixRepoGofmtCleanAfterRewrite": {

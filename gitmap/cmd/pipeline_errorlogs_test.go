@@ -271,4 +271,3 @@ func TestBuildErrorLogsPayloadCleanSuccess(t *testing.T) {
 		t.Fatalf("expected clean success payload, got %s", payload.Conclusion)
 	}
 }
-

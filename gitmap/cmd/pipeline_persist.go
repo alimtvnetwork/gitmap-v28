@@ -122,4 +122,3 @@ func clearLocalErrorLogs() {
 	lastErrFile := filepath.Join(resolveRepoRootDir(), ".gitmap", "last_error.log")
 	_ = os.Remove(lastErrFile)
 }
-
