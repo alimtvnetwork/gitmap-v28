@@ -108,11 +108,8 @@ func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPaylo
 
 		return payload
 	}
-	if payload.IsRunning {
-		return payload
-	}
 
-	return buildLocalOrEmptyErrorPayload(payload)
+	return payload
 }
 
 func initBaseErrorLogsPayload(repo string) PipelineErrorLogsPayload {
@@ -158,12 +155,7 @@ func setPayloadRunningState(p *PipelineErrorLogsPayload, r ghRunItem, eta int) {
 }
 
 func resolveFailedRunsForPayload(repo string, runs []ghRunItem) []ghRunItem {
-	failed := collectFailedRuns(runs)
-	if len(failed) == 0 {
-		return queryRecentFailedRuns(repo, 5)
-	}
-
-	return failed
+	return collectFailedRuns(runs)
 }
 
 func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineErrorLogsPayload) {
@@ -214,30 +206,48 @@ func buildBaseFailedRunItem(fr ghRunItem, rawLogs string) FailedRunItem {
 }
 
 func collectFailedRuns(runs []ghRunItem) []ghRunItem {
-	var targetSha string
-	var failed []ghRunItem
+	succeeded := make(map[string]bool)
+	var activeFailed []ghRunItem
 
 	for _, r := range runs {
-		if r.Conclusion != "failure" {
-			continue
-		}
-		if len(targetSha) == 0 && len(r.HeadSha) > 0 {
-			targetSha = r.HeadSha
-		}
-		if len(targetSha) > 0 && r.HeadSha == targetSha {
-			failed = append(failed, r)
-			continue
-		}
-		if len(targetSha) == 0 {
-			failed = append(failed, r)
+		checkAndCollectRun(r, succeeded, &activeFailed)
+	}
+
+	return filterFailingRunsByTargetSha(activeFailed)
+}
+
+func checkAndCollectRun(r ghRunItem, succeeded map[string]bool, active *[]ghRunItem) {
+	if r.Conclusion == "success" {
+		succeeded[r.Name] = true
+		return
+	}
+	if r.Conclusion == "failure" && !succeeded[r.Name] {
+		*active = append(*active, r)
+	}
+}
+
+func filterFailingRunsByTargetSha(runs []ghRunItem) []ghRunItem {
+	if len(runs) == 0 {
+		return nil
+	}
+	targetSha := runs[0].HeadSha
+	var filtered []ghRunItem
+
+	for _, r := range runs {
+		if len(targetSha) == 0 || r.HeadSha == targetSha {
+			filtered = append(filtered, r)
 		}
 	}
 
-	if len(failed) > 5 {
-		return failed[:5]
+	return capFailedRuns(filtered, 5)
+}
+
+func capFailedRuns(runs []ghRunItem, limit int) []ghRunItem {
+	if len(runs) > limit {
+		return runs[:limit]
 	}
 
-	return failed
+	return runs
 }
 
 func buildLocalOrEmptyErrorPayload(payload PipelineErrorLogsPayload) PipelineErrorLogsPayload {
@@ -297,12 +307,18 @@ func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
 
 func persistAutoErrorReport(params ErrorLogOutputParams) error {
 	if params.Payload.Conclusion != "failure" && len(params.Payload.FailedRuns) == 0 {
+		clearLocalErrorLogs()
+
 		return nil
 	}
 
-	reportContent := params.Payload.ErrorLogs
+	return saveActiveErrorReport(params.Payload)
+}
+
+func saveActiveErrorReport(p PipelineErrorLogsPayload) error {
+	reportContent := p.ErrorLogs
 	if len(reportContent) == 0 {
-		reportContent = params.Payload.CombinedErrors
+		reportContent = p.CombinedErrors
 	}
 	if len(reportContent) == 0 {
 		return nil
@@ -335,15 +351,22 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 	if p.IsRunning {
 		renderActiveRunningBanner(p)
 	}
-
 	if p.Conclusion == "failure" || len(p.FailedRuns) > 0 {
 		renderFailureTerminal(p)
 
 		return
 	}
 
+	renderCleanSuccessTerminal(p)
+}
+
+func renderCleanSuccessTerminal(p PipelineErrorLogsPayload) {
 	fmt.Printf("  %s● No error logs found.%s Status: %s (conclusion: %s)\n",
 		constants.ColorGreen, constants.ColorReset, p.Status, p.Conclusion)
+	if len(p.Branch) > 0 {
+		fmt.Printf("  All recent pipeline runs for %s on branch %s are PASSING (clean).\n",
+			p.Repo, p.Branch)
+	}
 	printRerunETA(p.RerunEtaSeconds)
 }
 

@@ -116,3 +116,10 @@ func writeLastErrorLog(content string) error {
 
 	return os.WriteFile(lastErrFile, []byte(content), 0644)
 }
+
+func clearLocalErrorLogs() {
+	_ = os.Remove(resolvePipelineErrorReportPath())
+	lastErrFile := filepath.Join(resolveRepoRootDir(), ".gitmap", "last_error.log")
+	_ = os.Remove(lastErrFile)
+}
+

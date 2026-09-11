@@ -247,3 +247,28 @@ func TestPersistErrorReport(t *testing.T) {
 		t.Errorf("expected content to match in %s", reportPath)
 	}
 }
+
+func TestCollectFailedRunsIgnoresResolvedRuns(t *testing.T) {
+	runs := []ghRunItem{
+		{DatabaseId: 10, Name: "CI", HeadSha: "sha-new", Conclusion: "success"},
+		{DatabaseId: 9, Name: "CI", HeadSha: "sha-old", Conclusion: "failure"},
+	}
+
+	collected := collectFailedRuns(runs)
+	if len(collected) != 0 {
+		t.Fatalf("expected 0 collected runs because CI succeeded in newer run, got %d", len(collected))
+	}
+}
+
+func TestBuildErrorLogsPayloadCleanSuccess(t *testing.T) {
+	runs := []ghRunItem{
+		{DatabaseId: 11, Name: "CI", Status: "completed", Conclusion: "success", HeadBranch: "main"},
+		{DatabaseId: 9, Name: "CI", Status: "completed", Conclusion: "failure", HeadBranch: "main"},
+	}
+
+	payload := buildErrorLogsPayload("alimtvnetwork/gitmap-v28", runs)
+	if payload.Conclusion != "success" || len(payload.FailedRuns) != 0 {
+		t.Fatalf("expected clean success payload, got %s", payload.Conclusion)
+	}
+}
+

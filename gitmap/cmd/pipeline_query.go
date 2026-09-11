@@ -28,7 +28,7 @@ func queryWorkflowRuns(repo string) []ghRunItem {
 		return nil
 	}
 
-	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--limit", "15", "--json",
+	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--limit", "30", "--json",
 		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url")
 	if err != nil {
 		return queryRunsFromDB(repo)
