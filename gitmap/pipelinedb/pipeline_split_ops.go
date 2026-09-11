@@ -218,26 +218,34 @@ func (p *PipelineSplitDb) Optimize() (int64, error) {
 	if err := p.optimizePragmas(); err != nil {
 		return 0, err
 	}
+
 	sizeAfter := getFileSize(p.Path)
 	if sizeBefore <= sizeAfter {
 		return 0, nil
 	}
-	return int64(sizeBefore - sizeAfter), nil
+
+	return sizeBefore - sizeAfter, nil
+}
+
+func getFileSize(path string) int64 {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0
+	}
+
+	if info.Size() < 0 {
+		return 0
+	}
+
+	return info.Size()
 }
 
 func safeInt64ToUint64(val int64) uint64 {
 	if val < 0 {
 		return 0
 	}
-	return uint64(val)
-}
 
-func getFileSize(path string) uint64 {
-	info, err := os.Stat(path)
-	if err != nil {
-		return 0
-	}
-	return safeInt64ToUint64(info.Size())
+	return uint64(val)
 }
 
 func countQuery(conn *sql.DB, query string) (int, *apperror.AppError) {
@@ -245,6 +253,7 @@ func countQuery(conn *sql.DB, query string) (int, *apperror.AppError) {
 	if err := conn.QueryRow(query).Scan(&count); err != nil {
 		return 0, apperror.WrapSimple(err, "count query: "+query)
 	}
+
 	return count, nil
 }
 
@@ -254,6 +263,7 @@ func queryLastUpdated(conn *sql.DB) (string, *apperror.AppError) {
 	if err := conn.QueryRow(query).Scan(&lastUpdated); err != nil {
 		return "", apperror.WrapSimple(err, "query last updated")
 	}
+
 	return lastUpdated, nil
 }
 
@@ -274,6 +284,7 @@ func (p *PipelineSplitDb) loadStatsCounts(stats *PipelineDbStats) *apperror.AppE
 	if stats.SegmentCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineSegment;"); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -281,7 +292,7 @@ func (p *PipelineSplitDb) loadStatsCounts(stats *PipelineDbStats) *apperror.AppE
 func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 	var stats PipelineDbStats
 	stats.Path = p.Path
-	stats.Size = getFileSize(p.Path)
+	stats.Size = safeInt64ToUint64(getFileSize(p.Path))
 	if err := p.loadStatsCounts(&stats); err != nil {
 		return stats, err
 	}
@@ -290,5 +301,6 @@ func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 		return stats, err
 	}
 	stats.LastUpdated = lastUpdated
+
 	return stats, nil
 }
