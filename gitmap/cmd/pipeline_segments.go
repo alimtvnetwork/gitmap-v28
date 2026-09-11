@@ -33,25 +33,78 @@ type ghStepItem struct {
 	CompletedAt string `json:"completedAt"`
 }
 
+func buildRunJobsArgs(repo string, runId uint64) []string {
+	args := []string{"run", "view", fmt.Sprintf("%d", runId), "--json", "jobs"}
+	if len(repo) > 0 {
+		args = append(args, "--repo", repo)
+	}
+
+	return args
+}
+
 // queryRunJobs fetches job and segment/step details for a GitHub Actions run.
 func queryRunJobs(repo string, runId uint64) []ghJobItem {
 	if runId == 0 {
 		return nil
 	}
-	args := []string{"run", "view", fmt.Sprintf("%d", runId), "--json", "jobs"}
-	if repo != "" {
-		args = append(args, "--repo", repo)
-	}
-	cmd := exec.Command("gh", args...)
-	out, err := cmd.Output()
+	out, err := exec.Command("gh", buildRunJobsArgs(repo, runId)...).Output()
 	if err != nil || len(out) == 0 {
 		return nil
 	}
+
+	return parseGhJobsJSON(out)
+}
+
+func parseGhJobsJSON(data []byte) []ghJobItem {
 	var resp ghJobsResponse
-	if err := json.Unmarshal(out, &resp); err != nil {
+	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil
 	}
+
 	return resp.Jobs
+}
+
+// extractFailingJobsAndSteps extracts all failing jobs and individual failing steps.
+func extractFailingJobsAndSteps(jobs []ghJobItem) []FailedJobItem {
+	var results []FailedJobItem
+	for _, j := range jobs {
+		if isJobFailing(j) {
+			results = append(results, extractFailingStepsFromJob(j)...)
+		}
+	}
+
+	return results
+}
+
+func isJobFailing(j ghJobItem) bool {
+	return j.Conclusion == "failure"
+}
+
+func isStepFailing(s ghStepItem) bool {
+	return s.Conclusion == "failure"
+}
+
+func extractFailingStepsFromJob(j ghJobItem) []FailedJobItem {
+	var items []FailedJobItem
+	for _, s := range j.Steps {
+		if isStepFailing(s) {
+			items = append(items, buildStepFailureItem(j.Name, s.Name))
+		}
+	}
+	if len(items) == 0 {
+		items = append(items, buildStepFailureItem(j.Name, "Job Execution"))
+	}
+
+	return items
+}
+
+func buildStepFailureItem(jobName, stepName string) FailedJobItem {
+	return FailedJobItem{
+		JobName:        jobName,
+		StepName:       stepName,
+		FailureSummary: fmt.Sprintf("Step '%s' failed in job '%s'", stepName, jobName),
+		ErrorLines:     []string{fmt.Sprintf("Failure detected in job '%s' step '%s'", jobName, stepName)},
+	}
 }
 
 // renderSegmentBreakdown renders the progress of segments/steps for active runs.
@@ -62,15 +115,18 @@ func renderSegmentBreakdown(repo string, runId uint64) {
 	}
 	fmt.Printf("\n  %s● Pipeline Segments:%s\n", constants.ColorCyan, constants.ColorReset)
 	for _, j := range jobs {
-		if len(j.Steps) == 0 {
-			printJobStatusLine(j.Name, j.Status, j.Conclusion)
-			continue
-		}
-		fmt.Printf("    %sJob: %s%s\n", constants.ColorWhite, j.Name, constants.ColorReset)
-		for _, s := range j.Steps {
-			if strings.HasPrefix(s.Name, "Post ") {
-				continue
-			}
+		renderSingleJobBreakdown(j)
+	}
+}
+
+func renderSingleJobBreakdown(j ghJobItem) {
+	if len(j.Steps) == 0 {
+		printJobStatusLine(j.Name, j.Status, j.Conclusion)
+		return
+	}
+	fmt.Printf("    %sJob: %s%s\n", constants.ColorWhite, j.Name, constants.ColorReset)
+	for _, s := range j.Steps {
+		if !strings.HasPrefix(s.Name, "Post ") {
 			renderStepProgressLine(s)
 		}
 	}
@@ -114,6 +170,7 @@ func computeStepDurationString(startedStr, completedStr, status string) string {
 	if err1 != nil || err2 != nil || t2.Before(t1) {
 		return ""
 	}
+
 	return fmt.Sprintf("(%ds)", int(t2.Sub(t1).Seconds()))
 }
 
@@ -124,6 +181,7 @@ func countRunningWorkflows(runs []ghRunItem) int {
 			runningCount++
 		}
 	}
+
 	return runningCount
 }
 
@@ -132,5 +190,6 @@ func formatInProgressDuration(startedStr string) string {
 	if err != nil {
 		return ""
 	}
+
 	return fmt.Sprintf("(%ds elapsed)", int(time.Since(t).Seconds()))
 }

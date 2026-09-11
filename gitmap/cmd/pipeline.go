@@ -118,38 +118,74 @@ func runPipeline(args []string) error {
 	if len(args) == 0 {
 		return handlePipelineStatus(nil)
 	}
-
 	subcmd := strings.ToLower(args[0])
+	if handled, err := checkErrorLogsSubcmd(subcmd, args); handled {
+		return err
+	}
 
+	return dispatchPipelineSubcmd(subcmd, args)
+}
+
+func checkErrorLogsSubcmd(subcmd string, args []string) (bool, error) {
+	if subcmd == "last-failed-logs" {
+		return true, HandlePipelineLastFailedLogs(args[1:])
+	}
+	if IsNegativeIndexToken(subcmd) {
+		return true, handlePipelineErrorLogs(args)
+	}
+	if isErrorLogsSubcmd(subcmd) {
+		return true, handlePipelineErrorLogs(args[1:])
+	}
+
+	return false, nil
+}
+
+func isErrorLogsSubcmd(subcmd string) bool {
+	switch subcmd {
+	case "error-logs", "errorlogs", "error-log", "errorlog", "errors", "err",
+		"errorslogs", "errors-log", "errors-logs":
+		return true
+	}
+
+	return false
+}
+
+func dispatchPipelineSubcmd(subcmd string, args []string) error {
 	switch subcmd {
 	case "status", "st", "s":
 		return handlePipelineStatus(args[1:])
 	case "waittime", "wait", "eta", "wt", "wait-time":
 		return handlePipelineWaitTime(args[1:])
-	case "error-logs", "errorlogs", "error-log", "errorlog", "errors", "err":
-		return handlePipelineErrorLogs(args[1:])
 	case "logs", "log", "l":
 		return handlePipelineLogs(args[1:])
 	case "db":
 		return handlePipelineDB(args[1:])
 	case "help", "-h", "--help":
-		printPipelineHelp()
-
-		return nil
-	default:
-		if strings.HasPrefix(subcmd, "-") {
-			return handlePipelineStatus(args)
-		}
-
-		printPipelineHelp()
-
-		return fmt.Errorf("unknown pipeline subcommand: %s", subcmd)
+		return showPipelineHelp()
 	}
+
+	return dispatchPipelineFallback(subcmd, args)
+}
+
+func showPipelineHelp() error {
+	printPipelineHelp()
+
+	return nil
+}
+
+func dispatchPipelineFallback(subcmd string, args []string) error {
+	if strings.HasPrefix(subcmd, "-") {
+		return handlePipelineStatus(args)
+	}
+	printPipelineHelp()
+
+	return fmt.Errorf("unknown pipeline subcommand: %s", subcmd)
 }
 
 func printPipelineHelp() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline [command] [flags]")
+	fmt.Println("  gitmap pipelines [command] [flags]")
 	fmt.Println("  gitmap pipeline-ai [status|eta] [-t <seconds>] [--json]")
 	fmt.Println("  gitmap pl [command] [flags]")
 	fmt.Println()
@@ -157,10 +193,14 @@ func printPipelineHelp() {
 	fmt.Println("  status                 Check live CI/CD pipeline status, ETA, and pending PRs")
 	fmt.Println("  waittime               Output remaining ETA seconds for active pipeline (alias: eta)")
 	fmt.Println("  eta                    Output remaining ETA seconds for active pipeline")
-	fmt.Println("  error-logs             Display failure logs, rerun ETA, and internal CI/CD fix suite (alias: errorlogs)")
+	fmt.Println("  error-logs             Display failure logs, rerun ETA, and internal CI/CD fix suite (alias: errorlogs, errors, last-failed-logs)")
 	fmt.Println("  logs                   Display all workflow logs in terminal")
 	fmt.Println("  pipeline-ai status     Auto-delay (default: 20s or -t <seconds>) then query status")
 	fmt.Println("  db                     Inspect or manage isolated pipeline split SQLite database")
+	printPipelineHelpFlags()
+}
+
+func printPipelineHelpFlags() {
 	fmt.Println("  help                   Show this pipeline command suite documentation")
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Flags:" + constants.ColorReset)
@@ -171,11 +211,19 @@ func printPipelineHelp() {
 	fmt.Println("  --json                  Output data in structured JSON format")
 	fmt.Println("  --file <path>           Write error logs to specified file path")
 	fmt.Println("  --tempfile <filename>   Write error logs to .lovable/temp/<filename>")
+	fmt.Println("  --last-failures <N>     Show logs for the last N failed runs")
+	printPipelineHelpExamples()
+}
+
+func printPipelineHelpExamples() {
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline status")
 	fmt.Println("  gitmap pipeline status -t")
 	fmt.Println("  gitmap pipeline errorlogs -t")
+	fmt.Println("  gitmap pipeline errors -2")
+	fmt.Println("  gitmap pipeline errors --last-failures 5")
+	fmt.Println("  gitmap pipeline last-failed-logs")
 	fmt.Println("  gitmap pipeline error-logs -t --fix")
 	fmt.Println("  gitmap pipeline errorlogs --check")
 	fmt.Println("  gitmap pipeline error-logs --json")

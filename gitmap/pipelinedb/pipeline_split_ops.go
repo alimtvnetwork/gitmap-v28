@@ -35,6 +35,23 @@ const sqlQueryRecentErrors = `
 SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
 FROM PipelineErrorLog ORDER BY PipelineErrorLogId DESC LIMIT ?;`
 
+const sqlQueryCachedErrorRunIds = `
+SELECT DISTINCT RunId FROM PipelineErrorLog ORDER BY RunId DESC;`
+
+const sqlQueryRunByOffset = `
+SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
+       EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
+FROM PipelineRun ORDER BY PipelineRunId DESC LIMIT 1 OFFSET ?;`
+
+const sqlQueryLastFailedRuns = `
+SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
+       EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
+FROM PipelineRun WHERE IsSuccess = 0 ORDER BY PipelineRunId DESC LIMIT ?;`
+
+const sqlQueryErrorLogsByRunId = `
+SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
+FROM PipelineErrorLog WHERE RunId = ? ORDER BY PipelineErrorLogId ASC;`
+
 func isRunSuccess(r PipelineRunRecord) int {
 	if r.IsSuccess {
 		return 1
@@ -267,7 +284,7 @@ func queryLastUpdated(conn *sql.DB) (string, *apperror.AppError) {
 	return lastUpdated, nil
 }
 
-func (p *PipelineSplitDb) loadStatsCounts(stats *PipelineDbStats) *apperror.AppError {
+func (p *PipelineSplitDb) loadRunStatsCounts(stats *PipelineDbStats) *apperror.AppError {
 	var err *apperror.AppError
 	if stats.TotalRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun;"); err != nil {
 		return err
@@ -278,6 +295,15 @@ func (p *PipelineSplitDb) loadStatsCounts(stats *PipelineDbStats) *apperror.AppE
 	if stats.FailedRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 0;"); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (p *PipelineSplitDb) loadStatsCounts(stats *PipelineDbStats) *apperror.AppError {
+	if err := p.loadRunStatsCounts(stats); err != nil {
+		return err
+	}
+	var err *apperror.AppError
 	if stats.ErrorLogCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineErrorLog;"); err != nil {
 		return err
 	}
@@ -303,4 +329,105 @@ func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 	stats.LastUpdated = lastUpdated
 
 	return stats, nil
+}
+
+func collectRunIdList(rows *sql.Rows) ([]uint64, error) {
+	var list []uint64
+	for rows.Next() {
+		var id uint64
+		if err := rows.Scan(&id); err != nil {
+			return nil, apperror.WrapSimple(err, "scan cached run id")
+		}
+		list = append(list, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, apperror.WrapSimple(err, "iterate cached run ids")
+	}
+
+	return list, nil
+}
+
+// QueryCachedErrorRunIds retrieves distinct RunIds cached in PipelineErrorLog.
+func (p *PipelineSplitDb) QueryCachedErrorRunIds() ([]uint64, error) {
+	rows, err := p.conn.Query(sqlQueryCachedErrorRunIds)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query cached error run ids")
+	}
+	defer rows.Close()
+
+	return collectRunIdList(rows)
+}
+
+// QueryCachedErrorRunIdMap returns a map set of cached error RunIds for fast lookups.
+func (p *PipelineSplitDb) QueryCachedErrorRunIdMap() (map[uint64]bool, error) {
+	ids, err := p.QueryCachedErrorRunIds()
+	if err != nil {
+		return nil, err
+	}
+	idMap := make(map[uint64]bool, len(ids))
+	for _, id := range ids {
+		idMap[id] = true
+	}
+
+	return idMap, nil
+}
+
+func normalizeNegativeOffset(offset int) int {
+	if offset < 0 {
+		offset = -offset
+	}
+	if offset > 0 {
+		return offset - 1
+	}
+
+	return 0
+}
+
+// QueryRunByNegativeOffset retrieves a run by 1-based negative offset (-1 = latest).
+func (p *PipelineSplitDb) QueryRunByNegativeOffset(offset int) (*PipelineRunRecord, error) {
+	sqlOffset := normalizeNegativeOffset(offset)
+	rows, err := p.conn.Query(sqlQueryRunByOffset, sqlOffset)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query run by offset")
+	}
+	defer rows.Close()
+	runs, err := collectRecentRuns(rows)
+	if err != nil || len(runs) == 0 {
+		return nil, err
+	}
+
+	return &runs[0], nil
+}
+
+// QueryRunsByNegativeOffset is an alias for QueryRunByNegativeOffset.
+func (p *PipelineSplitDb) QueryRunsByNegativeOffset(offset int) (*PipelineRunRecord, error) {
+	return p.QueryRunByNegativeOffset(offset)
+}
+
+// QueryLastFailedRuns retrieves the most recent failed pipeline runs up to limit.
+func (p *PipelineSplitDb) QueryLastFailedRuns(limit int) ([]PipelineRunRecord, error) {
+	limitVal := resolveLimit(limit, 5)
+	rows, err := p.conn.Query(sqlQueryLastFailedRuns, limitVal)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query last failed runs")
+	}
+	defer rows.Close()
+
+	return collectRecentRuns(rows)
+}
+
+// QueryLastNFailedRuns is an alias for QueryLastFailedRuns.
+func (p *PipelineSplitDb) QueryLastNFailedRuns(limit int) ([]PipelineRunRecord, error) {
+	return p.QueryLastFailedRuns(limit)
+}
+
+// QueryErrorLogsByRunId retrieves all error diagnostics recorded for a specific run ID.
+func (p *PipelineSplitDb) QueryErrorLogsByRunId(runId uint64) ([]PipelineErrorRecord, error) {
+	rows, err := p.conn.Query(sqlQueryErrorLogsByRunId, runId)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query error logs by run id")
+	}
+	defer rows.Close()
+
+	return collectRecentErrors(rows)
 }

@@ -16,49 +16,46 @@ func handlePipelineErrorLogs(args []string) error {
 		printPipelineErrorLogsHelp()
 		return nil
 	}
+	if hasArgFlag(args, "last-failed-logs") {
+		return HandlePipelineLastFailedLogs(args)
+	}
+	if handled, err := HandlePipelineHistoryErrors(args); handled {
+		return err
+	}
 
-	isJSON := hasArgFlag(args, "--json")
-	hasTimeout := hasArgFlag(args, "-t") || hasArgFlag(args, "--timeout") || hasArgFlag(args, "--timeline") || hasArgFlag(args, "-w") || hasArgFlag(args, "--watch")
-	wantFix := hasArgFlag(args, "--fix") || hasArgFlag(args, "-f")
-	wantCheck := hasArgFlag(args, "--check") || hasArgFlag(args, "-c")
-	filePath := extractFlagVal(args, "--file")
-	tempFileName := extractFlagVal(args, "--tempfile")
+	return executePipelineErrorLogs(args)
+}
 
+func executePipelineErrorLogs(args []string) error {
+	flags := ParsePipelineErrorFlags(args)
 	repo := resolveCurrentRepoSlug()
-
-	if hasTimeout {
+	if flags.HasTimeline {
 		return runPipelineErrorLogsDynamicTimeline(ErrorLogsTimelineParams{
-			Repo:         repo,
-			IsJSON:       isJSON,
-			WantFix:      wantFix,
-			WantCheck:    wantCheck,
-			FilePath:     filePath,
-			TempFileName: tempFileName,
-			Args:         args,
+			Repo: repo, IsJSON: flags.IsJSON, WantFix: flags.HasFix,
+			WantCheck: flags.HasCheck, FilePath: flags.FilePath,
+			TempFileName: flags.TempFileName, Args: args,
 		})
 	}
 
+	return processAndRenderErrorLogs(repo, flags)
+}
+
+func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 	runs := queryWorkflowRuns(repo)
 	payload := buildErrorLogsPayload(repo, runs)
 	if len(runs) > 0 {
 		payload.RerunEtaSeconds = calculateAverageDuration(runs, payload.WorkflowName)
 	}
-
-	if wantFix || wantCheck {
-		payload.CICDChecks = runInternalCICDChecks(wantFix)
+	if flags.HasFix || flags.HasCheck {
+		payload.CICDChecks = runInternalCICDChecks(flags.HasFix)
 	}
 
-	err := writeOrRenderErrorLogs(ErrorLogOutputParams{
+	return writeOrRenderErrorLogs(ErrorLogOutputParams{
 		Payload:  payload,
-		IsJSON:   isJSON,
-		FilePath: filePath,
-		TempFile: tempFileName,
+		IsJSON:   flags.IsJSON,
+		FilePath: flags.FilePath,
+		TempFile: flags.TempFileName,
 	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func handlePipelineLogs(args []string) error {
@@ -367,7 +364,16 @@ func renderCleanSuccessTerminal(p PipelineErrorLogsPayload) {
 		fmt.Printf("  All recent pipeline runs for %s on branch %s are PASSING (clean).\n",
 			p.Repo, p.Branch)
 	}
+	renderCleanSuccessDbAndHistory(p)
 	printRerunETA(p.RerunEtaSeconds)
+}
+
+func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
+	if len(p.DbPath) > 0 {
+		fmt.Printf("  • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
+	}
+	runs := queryWorkflowRuns(p.Repo)
+	RenderHistorySummaryTable(runs)
 }
 
 func renderActiveRunningBanner(p PipelineErrorLogsPayload) {
@@ -388,6 +394,8 @@ func renderFailureTerminal(p PipelineErrorLogsPayload) {
 	renderCombinedSectionsTerminal(p.SectionFailures)
 	renderFailedRunsBreakdown(p.FailedRuns)
 	renderSavedLocationsTerminal(p)
+	runs := queryWorkflowRuns(p.Repo)
+	RenderHistorySummaryTable(runs)
 	printRerunETA(p.RerunEtaSeconds)
 }
 
@@ -471,7 +479,7 @@ func renderSavedLocationsTerminal(p PipelineErrorLogsPayload) {
 		fmt.Printf("    • Latest Run Log:  %s\n", p.SavedLogFile)
 	}
 	if len(p.DbPath) > 0 {
-		fmt.Printf("    • Pipeline DB:     %s\n", p.DbPath)
+		fmt.Printf("    • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
 	}
 	if len(p.Url) > 0 {
 		fmt.Printf("    • Web Run URL:     %s\n\n", p.Url)
