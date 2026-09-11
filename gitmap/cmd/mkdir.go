@@ -45,7 +45,8 @@ func createTargetDirectory(absPath string, createParents, createFiles bool) erro
 
 func makeDir(absPath string, createParents bool) error {
 	if createParents {
-		if err := os.MkdirAll(absPath, 0755); err != nil {
+		err := os.MkdirAll(absPath, 0755)
+		if err != nil {
 			return err
 		}
 		fmt.Printf("  %s✓%s [DIR] Created deeply: %s\n", constants.ColorGreen, constants.ColorReset, absPath)
@@ -61,7 +62,8 @@ func makeDir(absPath string, createParents bool) error {
 func touchFile(absPath string, createParents bool) error {
 	if createParents {
 		parent := filepath.Dir(absPath)
-		if err := os.MkdirAll(parent, 0755); err != nil {
+		err := os.MkdirAll(parent, 0755)
+		if err != nil {
 			return err
 		}
 		fmt.Printf("  %s✓%s [DIR] Ensured parent: %s\n", constants.ColorGreen, constants.ColorReset, parent)

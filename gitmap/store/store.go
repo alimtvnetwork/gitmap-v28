@@ -515,3 +515,9 @@ func enableFK(conn *sql.DB) error {
 }
 func (db *DB) SQL() *sql.DB             { return db.conn }
 func (db *DB) Context() context.Context { return context.Background() }
+
+func releaseLockIfNotMem(dbDir string, isMem bool) {
+	if !isMem {
+		releaseLock(dbDir)
+	}
+}
