@@ -88,6 +88,10 @@ func TestPipelineDispatcherErrorlogsAlias(t *testing.T) {
 		t.Errorf("expected runPipeline errorlogs --json to succeed, got %v", err)
 	}
 
+	if testing.Short() || os.Getenv("CI") != "" || os.Getenv("SKIP_LIVE_PIPELINE") != "" {
+		return
+	}
+
 	errTimeline := runPipeline([]string{"errorlogs", "-t", "--json"})
 	if errTimeline != nil {
 		t.Errorf("expected runPipeline errorlogs -t --json to succeed, got %v", errTimeline)
@@ -161,5 +165,85 @@ func TestFormatAggregatedErrorLogs(t *testing.T) {
 	}
 	if !strings.Contains(formatted, "Summary: panic: nil pointer") {
 		t.Errorf("missing summary in formatted logs: %s", formatted)
+	}
+}
+
+func TestExtractAllSectionFailures(t *testing.T) {
+	runs := buildSampleFailedRunsForTest()
+	sections := extractAllSectionFailures(runs)
+	if len(sections) != 2 {
+		t.Fatalf("expected 2 sections, got %d", len(sections))
+	}
+	if sections[0].WorkflowName != "CI" || sections[0].JobName != "Lint" {
+		t.Errorf("unexpected section 0: %+v", sections[0])
+	}
+	if sections[1].WorkflowName != "Build" || sections[1].JobName != "Compile" {
+		t.Errorf("unexpected section 1: %+v", sections[1])
+	}
+}
+
+func buildSampleFailedRunsForTest() []FailedRunItem {
+	return []FailedRunItem{
+		{
+			WorkflowName: "CI", RunId: 100, SavedLogFile: ".gitmap/pipeline/100.log",
+			FailedJobs: []FailedJobItem{
+				{JobName: "Lint", StepName: "Check", FailureSummary: "lint error"},
+			},
+		},
+		{
+			WorkflowName: "Build", RunId: 200, SavedLogFile: ".gitmap/pipeline/200.log",
+			FailedJobs: []FailedJobItem{
+				{JobName: "Compile", StepName: "Go", FailureSummary: "compile error"},
+			},
+		},
+	}
+}
+
+func TestFormatCombinedSectionFailures(t *testing.T) {
+	sections := []SectionFailure{
+		{
+			WorkflowName: "CI", RunId: 101, JobName: "Test", StepName: "Unit",
+			FailureSummary: "fail: 1 test", ErrorLines: []string{"error line 1"},
+			SavedLogFile: ".gitmap/pipeline/101.log", CreatedAt: "2026-09-11T10:00:00Z",
+		},
+	}
+	out := formatCombinedSectionFailures(sections)
+	if !strings.Contains(out, "Combined Pipeline Section Failures [1 failed section(s)]") {
+		t.Errorf("missing combined header in %s", out)
+	}
+	if !strings.Contains(out, "CI #101 ➔ Job: Test | Step: Unit") {
+		t.Errorf("missing section details in %s", out)
+	}
+	if !strings.Contains(out, ".gitmap/pipeline/101.log") {
+		t.Errorf("missing log path in %s", out)
+	}
+}
+
+func TestFormatRunTimestampAndDuration(t *testing.T) {
+	ts := formatRunTimestamp("2026-09-11T12:00:00Z")
+	if !strings.Contains(ts, "2026-09-11 12:00:00 UTC") {
+		t.Errorf("unexpected timestamp formatting: %s", ts)
+	}
+	dur := calculateRunDuration("2026-09-11T12:00:00Z", "2026-09-11T12:02:30Z")
+	if dur != 150 {
+		t.Errorf("expected duration 150s, got %d", dur)
+	}
+	durStr := formatDurationSeconds(150)
+	if durStr != "2m 30s" {
+		t.Errorf("expected 2m 30s, got %s", durStr)
+	}
+}
+
+func TestPersistErrorReport(t *testing.T) {
+	reportPath, err := writeCombinedErrorReport("test error report content")
+	if err != nil {
+		t.Fatalf("expected writeCombinedErrorReport to succeed, got %v", err)
+	}
+	if !strings.HasSuffix(reportPath, "pipeline_errors.log") {
+		t.Errorf("unexpected report path: %s", reportPath)
+	}
+	data, readErr := os.ReadFile(reportPath)
+	if readErr != nil || !strings.Contains(string(data), "test error report content") {
+		t.Errorf("expected content to match in %s", reportPath)
 	}
 }

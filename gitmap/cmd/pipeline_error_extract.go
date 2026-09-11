@@ -15,6 +15,7 @@ var failureMarkers = []string{
 	"FAIL\t",
 	"FAIL:",
 	"FAILED",
+	"FAIL ",
 	"Expected",
 	"fatal error:",
 	"syntax error:",
@@ -25,6 +26,17 @@ var failureMarkers = []string{
 	"Stack Trace:",
 	"Unexpected token",
 	"Not Found - ",
+	"Error:",
+	"error:",
+	"[gosec-",
+	"gofmt",
+	"FAILED TESTS",
+	"diff (baseline-diff",
+	"Suite:",
+	"got \"",
+	"want \"",
+	"lint error",
+	"Process completed with exit code",
 }
 
 // extractCleanErrorLines filters noisy logs to isolate only failure and error lines.
@@ -81,7 +93,7 @@ func ParseFailedLogLines(rawLogs string) []FailedJobItem {
 			item := getOrCreateJobItem(jobMap, &order, key, job, step)
 			item.ErrorLines = append(item.ErrorLines, text)
 			updateJobSummary(item, text)
-			contextRemaining = 5
+			contextRemaining = 25
 			lastKey = key
 			continue
 		}
@@ -218,7 +230,7 @@ func assembleJobItems(jobMap map[string]*FailedJobItem, order []string, rawLogs 
 }
 
 func buildFallbackJobItems(rawLogs string) []FailedJobItem {
-	tail := extractTailLines(rawLogs, 15)
+	tail := extractTailLines(rawLogs, 50)
 	if tail == "" {
 		return nil
 	}
@@ -242,31 +254,122 @@ func extractTailLines(rawLogs string, n int) string {
 	return strings.Join(lines[len(lines)-n:], "\n")
 }
 
+func extractAllSectionFailures(failedRuns []FailedRunItem) []SectionFailure {
+	var sections []SectionFailure
+	for _, run := range failedRuns {
+		sections = append(sections, extractRunSectionFailures(run)...)
+	}
+
+	return sections
+}
+
+func extractRunSectionFailures(run FailedRunItem) []SectionFailure {
+	var out []SectionFailure
+	for _, job := range run.FailedJobs {
+		sf := SectionFailure{
+			WorkflowName: run.WorkflowName, RunId: run.RunId,
+			JobName: job.JobName, StepName: job.StepName,
+			FailureSummary: job.FailureSummary, ErrorLines: job.ErrorLines,
+			SavedLogFile: run.SavedLogFile, CreatedAt: run.CreatedAt,
+		}
+		out = append(out, sf)
+	}
+
+	return out
+}
+
+func formatCombinedSectionFailures(sections []SectionFailure) string {
+	if len(sections) == 0 {
+		return ""
+	}
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("● Combined Pipeline Section Failures [%d failed section(s)]:\n", len(sections)))
+	for i, sec := range sections {
+		formatSingleSectionFailure(&sb, sec, i+1, len(sections))
+	}
+
+	return strings.TrimRight(sb.String(), "\n")
+}
+
+func formatSingleSectionFailure(sb *strings.Builder, sec SectionFailure, idx, total int) {
+	sb.WriteString(fmt.Sprintf("\n  ┌─ Section [%d/%d]: %s #%d ➔ Job: %s | Step: %s\n",
+		idx, total, sec.WorkflowName, sec.RunId, sec.JobName, sec.StepName))
+	if len(sec.CreatedAt) > 0 {
+		sb.WriteString(fmt.Sprintf("  │ When Run:  %s\n", formatRunTimestamp(sec.CreatedAt)))
+	}
+	if len(sec.SavedLogFile) > 0 {
+		sb.WriteString(fmt.Sprintf("  │ Saved Log: %s\n", sec.SavedLogFile))
+	}
+	if len(sec.FailureSummary) > 0 {
+		sb.WriteString(fmt.Sprintf("  │ Summary:   %s\n", sec.FailureSummary))
+	}
+	for _, line := range sec.ErrorLines {
+		sb.WriteString(fmt.Sprintf("  │   %s\n", line))
+	}
+	sb.WriteString("  └──────────────────────────────────────────────────────────\n")
+}
+
 // formatAggregatedErrorLogs generates a comprehensive human-readable summary of all failed runs.
 func formatAggregatedErrorLogs(failedRuns []FailedRunItem) string {
 	if len(failedRuns) == 0 {
 		return ""
 	}
 
+	sections := extractAllSectionFailures(failedRuns)
+	combinedText := formatCombinedSectionFailures(sections)
+	detailedText := formatAllRunsDetailed(failedRuns)
+
+	return combinedText + "\n\n" + detailedText
+}
+
+func formatAllRunsDetailed(failedRuns []FailedRunItem) string {
 	var sb strings.Builder
+	sb.WriteString("================================================================================\n")
+	sb.WriteString("DETAILED PIPELINE RUN BREAKDOWNS\n")
+	sb.WriteString("================================================================================\n\n")
 	for i, run := range failedRuns {
 		if i > 0 {
 			sb.WriteString("\n\n")
 		}
-		sb.WriteString(fmt.Sprintf("==> Failed Run: %s (#%d)\n", run.WorkflowName, run.RunId))
-		if len(run.Url) > 0 {
-			sb.WriteString(fmt.Sprintf("    URL: %s\n", run.Url))
-		}
-		for _, job := range run.FailedJobs {
-			sb.WriteString(fmt.Sprintf("    ● Job: %s | Step: %s\n", job.JobName, job.StepName))
-			if len(job.FailureSummary) > 0 {
-				sb.WriteString(fmt.Sprintf("      Summary: %s\n", job.FailureSummary))
-			}
-			for _, l := range job.ErrorLines {
-				sb.WriteString(fmt.Sprintf("      %s\n", l))
-			}
-		}
+		formatSingleRunDetailed(&sb, run)
 	}
 
 	return sb.String()
+}
+
+func formatSingleRunDetailed(sb *strings.Builder, run FailedRunItem) {
+	sb.WriteString(fmt.Sprintf("==> Failed Run: %s (#%d)\n", run.WorkflowName, run.RunId))
+	formatRunMetaLines(sb, run)
+	for _, job := range run.FailedJobs {
+		formatJobLines(sb, job)
+	}
+}
+
+func formatRunMetaLines(sb *strings.Builder, run FailedRunItem) {
+	if len(run.CreatedAt) > 0 {
+		sb.WriteString(fmt.Sprintf("    When Run:  %s\n", formatRunTimestamp(run.CreatedAt)))
+	}
+	if run.DurationSeconds > 0 {
+		sb.WriteString(fmt.Sprintf("    Duration:  %s\n", formatDurationSeconds(run.DurationSeconds)))
+	}
+	if len(run.Branch) > 0 {
+		sb.WriteString(fmt.Sprintf("    Branch:    %s | Commit: %s\n", run.Branch, run.Sha))
+	}
+	if len(run.SavedLogFile) > 0 {
+		sb.WriteString(fmt.Sprintf("    Saved Log: %s\n", run.SavedLogFile))
+	}
+	if len(run.Url) > 0 {
+		sb.WriteString(fmt.Sprintf("    URL:       %s\n", run.Url))
+	}
+}
+
+func formatJobLines(sb *strings.Builder, job FailedJobItem) {
+	sb.WriteString(fmt.Sprintf("    ● Job: %s | Step: %s\n", job.JobName, job.StepName))
+	if len(job.FailureSummary) > 0 {
+		sb.WriteString(fmt.Sprintf("      Summary: %s\n", job.FailureSummary))
+	}
+	for _, l := range job.ErrorLines {
+		sb.WriteString(fmt.Sprintf("      %s\n", l))
+	}
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb"
 )
 
 func handlePipelineErrorLogs(args []string) error {
@@ -95,67 +96,121 @@ func handlePipelineLogs(args []string) error {
 }
 
 func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPayload {
-	payload := PipelineErrorLogsPayload{
-		Repo: repo,
-	}
-
+	payload := initBaseErrorLogsPayload(repo)
 	if len(runs) == 0 {
 		return buildLocalOrEmptyErrorPayload(payload)
 	}
-
-	latest := runs[0]
-	payload.WorkflowName = latest.Name
-	payload.RunId = latest.DatabaseId
-	payload.Status = latest.Status
-	payload.Conclusion = latest.Conclusion
-	payload.Url = latest.Url
-
-	isRunning := latest.Status == "in_progress" || latest.Status == "queued"
-	if isRunning {
-		payload.IsRunning = true
-		payload.EtaSeconds = calculateETA(runs)
-		payload.ErrorLogs = fmt.Sprintf("Pipeline is currently running. Estimated completion in %d seconds.", payload.EtaSeconds)
-	}
-
-	failedRuns := collectFailedRuns(runs)
+	initLatestRunMeta(&payload, runs[0])
+	checkAndApplyRunningState(&payload, runs)
+	failedRuns := resolveFailedRunsForPayload(repo, runs)
 	if len(failedRuns) > 0 {
 		populateFailedRunsPayload(repo, failedRuns, &payload)
 
 		return payload
 	}
-
-	if isRunning {
+	if payload.IsRunning {
 		return payload
 	}
 
 	return buildLocalOrEmptyErrorPayload(payload)
 }
 
-func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineErrorLogsPayload) {
-	p.Conclusion = "failure"
-	p.WorkflowName = failedRuns[0].Name
-	p.RunId = failedRuns[0].DatabaseId
-	p.Url = failedRuns[0].Url
+func initBaseErrorLogsPayload(repo string) PipelineErrorLogsPayload {
+	return PipelineErrorLogsPayload{
+		Repo:            repo,
+		DbPath:          pipelinedb.PipelineDbPath(repo),
+		SavedReportFile: resolvePipelineErrorReportPath(),
+	}
+}
 
+func checkAndApplyRunningState(p *PipelineErrorLogsPayload, runs []ghRunItem) {
+	if len(runs) == 0 {
+		return
+	}
+	latest := runs[0]
+	if latest.Status == "in_progress" || latest.Status == "queued" {
+		setPayloadRunningState(p, latest, calculateETA(runs))
+	}
+}
+
+func initLatestRunMeta(payload *PipelineErrorLogsPayload, latest ghRunItem) {
+	payload.WorkflowName = latest.Name
+	payload.RunId = latest.DatabaseId
+	payload.Status = latest.Status
+	payload.Conclusion = latest.Conclusion
+	payload.Url = latest.Url
+	payload.Branch = latest.HeadBranch
+	payload.Sha = latest.HeadSha
+	payload.CreatedAt = latest.CreatedAt
+	payload.UpdatedAt = latest.UpdatedAt
+	payload.DurationSeconds = calculateRunDuration(latest.CreatedAt, latest.UpdatedAt)
+	payload.SavedLogFile = getCachedPipelineLogPath(latest.DatabaseId)
+}
+
+func setPayloadRunningState(p *PipelineErrorLogsPayload, r ghRunItem, eta int) {
+	p.IsRunning = true
+	p.ActiveRunName = r.Name
+	p.ActiveRunId = r.DatabaseId
+	p.ActiveRunUrl = r.Url
+	p.EtaSeconds = eta
+	p.ErrorLogs = fmt.Sprintf("Pipeline [%s #%d] is currently running. Estimated completion in %d seconds.",
+		r.Name, r.DatabaseId, eta)
+}
+
+func resolveFailedRunsForPayload(repo string, runs []ghRunItem) []ghRunItem {
+	failed := collectFailedRuns(runs)
+	if len(failed) == 0 {
+		return queryRecentFailedRuns(repo, 5)
+	}
+
+	return failed
+}
+
+func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineErrorLogsPayload) {
+	initFailedRunTopLevel(p, failedRuns[0])
 	for _, fr := range failedRuns {
 		p.FailedRuns = append(p.FailedRuns, fetchAndBuildFailedRunItem(repo, fr))
 	}
-
+	p.SectionFailures = extractAllSectionFailures(p.FailedRuns)
+	p.CombinedErrors = formatCombinedSectionFailures(p.SectionFailures)
 	p.ErrorLogs = formatAggregatedErrorLogs(p.FailedRuns)
+}
+
+func initFailedRunTopLevel(p *PipelineErrorLogsPayload, fr ghRunItem) {
+	p.Conclusion = "failure"
+	p.WorkflowName = fr.Name
+	p.RunId = fr.DatabaseId
+	p.Url = fr.Url
+	p.Branch = fr.HeadBranch
+	p.Sha = fr.HeadSha
+	p.CreatedAt = fr.CreatedAt
+	p.UpdatedAt = fr.UpdatedAt
+	p.DurationSeconds = calculateRunDuration(fr.CreatedAt, fr.UpdatedAt)
+	p.SavedLogFile = getCachedPipelineLogPath(fr.DatabaseId)
 }
 
 func fetchAndBuildFailedRunItem(repo string, fr ghRunItem) FailedRunItem {
 	rawLogs := queryFailedRunLogs(repo, fr.DatabaseId)
 	jobs := ParseFailedLogLines(rawLogs)
+	item := buildBaseFailedRunItem(fr, rawLogs)
+	item.FailedJobs = jobs
 
-	return FailedRunItem{
-		WorkflowName: fr.Name,
-		RunId:        fr.DatabaseId,
-		Conclusion:   fr.Conclusion,
-		Url:          fr.Url,
-		FailedJobs:   jobs,
-		RawErrors:    rawLogs,
+	return item
+}
+
+func buildBaseFailedRunItem(fr ghRunItem, rawLogs string) FailedRunItem {
+	item := FailedRunItem{
+		WorkflowName: fr.Name, RunId: fr.DatabaseId,
+		Conclusion: fr.Conclusion, Status: fr.Status,
+		Branch: fr.HeadBranch, Sha: fr.HeadSha,
+		CreatedAt: fr.CreatedAt, UpdatedAt: fr.UpdatedAt,
+		DurationSeconds: calculateRunDuration(fr.CreatedAt, fr.UpdatedAt),
+		SavedLogFile:    getCachedPipelineLogPath(fr.DatabaseId),
+		SavedMetaFile:   getCachedPipelineJSONPath(fr.DatabaseId),
+		Url:             fr.Url, RawErrors: rawLogs,
 	}
+
+	return item
 }
 
 func collectFailedRuns(runs []ghRunItem) []ghRunItem {
@@ -213,31 +268,49 @@ func readLocalLastErrorLog() string {
 
 func writeOrRenderErrorLogs(params ErrorLogOutputParams) error {
 	contentToWrite, err := formatErrorLogContent(params)
-
 	if err != nil {
 		return err
 	}
-
-	if len(params.TempFile) > 0 {
-		tempDir := resolveTempDir()
-		targetPath := filepath.Join(tempDir, params.TempFile)
-
-		return writeContentToFile(targetPath, contentToWrite)
+	_ = persistAutoErrorReport(params)
+	if len(params.TempFile) > 0 || len(params.FilePath) > 0 {
+		return writeErrorLogsToDisk(params, contentToWrite)
 	}
-
-	if len(params.FilePath) > 0 {
-		return writeContentToFile(params.FilePath, contentToWrite)
-	}
-
 	if params.IsJSON {
 		fmt.Println(contentToWrite)
 
 		return nil
 	}
-
 	renderErrorLogsTerminal(params.Payload)
 
 	return nil
+}
+
+func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
+	if len(params.TempFile) > 0 {
+		targetPath := filepath.Join(resolveTempDir(), params.TempFile)
+
+		return writeContentToFile(targetPath, content)
+	}
+
+	return writeContentToFile(params.FilePath, content)
+}
+
+func persistAutoErrorReport(params ErrorLogOutputParams) error {
+	if params.Payload.Conclusion != "failure" && len(params.Payload.FailedRuns) == 0 {
+		return nil
+	}
+
+	reportContent := params.Payload.ErrorLogs
+	if len(reportContent) == 0 {
+		reportContent = params.Payload.CombinedErrors
+	}
+	if len(reportContent) == 0 {
+		return nil
+	}
+
+	_, err := writeCombinedErrorReport(reportContent)
+
+	return err
 }
 
 func formatErrorLogContent(params ErrorLogOutputParams) (string, error) {
@@ -246,7 +319,6 @@ func formatErrorLogContent(params ErrorLogOutputParams) (string, error) {
 	}
 
 	b, err := json.MarshalIndent(params.Payload, "", "  ")
-
 	if err != nil {
 		return "", err
 	}
@@ -255,13 +327,16 @@ func formatErrorLogContent(params ErrorLogOutputParams) (string, error) {
 }
 
 func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
-	if p.IsRunning {
-		fmt.Printf("  %s● Pipeline is RUNNING%s (ETA: %ds)\n", constants.ColorYellow, constants.ColorReset, p.EtaSeconds)
+	if p.IsRunning && len(p.FailedRuns) == 0 {
+		renderActiveRunningBanner(p)
 
 		return
 	}
+	if p.IsRunning {
+		renderActiveRunningBanner(p)
+	}
 
-	if p.Conclusion == "failure" {
+	if p.Conclusion == "failure" || len(p.FailedRuns) > 0 {
 		renderFailureTerminal(p)
 
 		return
@@ -272,6 +347,14 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 	printRerunETA(p.RerunEtaSeconds)
 }
 
+func renderActiveRunningBanner(p PipelineErrorLogsPayload) {
+	fmt.Printf("  %s● Active Pipeline is RUNNING%s: [%s #%d] (ETA: %ds)\n",
+		constants.ColorYellow, constants.ColorReset, p.ActiveRunName, p.ActiveRunId, p.EtaSeconds)
+	if len(p.ActiveRunUrl) > 0 {
+		fmt.Printf("    URL: %s\n\n", p.ActiveRunUrl)
+	}
+}
+
 func renderFailureTerminal(p PipelineErrorLogsPayload) {
 	if len(p.FailedRuns) == 0 {
 		renderSingleFailureTerminal(p)
@@ -279,15 +362,43 @@ func renderFailureTerminal(p PipelineErrorLogsPayload) {
 		return
 	}
 
-	total := len(p.FailedRuns)
-	fmt.Printf("  %s● Pipeline Failures [%d failed workflow run(s)]:%s\n\n",
-		constants.ColorRed, total, constants.ColorReset)
+	renderCombinedSectionsTerminal(p.SectionFailures)
+	renderFailedRunsBreakdown(p.FailedRuns)
+	renderSavedLocationsTerminal(p)
+	printRerunETA(p.RerunEtaSeconds)
+}
 
-	for i, fr := range p.FailedRuns {
-		renderFailedRunCard(fr, i+1, total)
+func renderCombinedSectionsTerminal(sections []SectionFailure) {
+	if len(sections) == 0 {
+		return
 	}
 
-	printRerunETA(p.RerunEtaSeconds)
+	fmt.Printf("  %s● Combined Pipeline Section Failures [%d failed section(s)]:%s\n",
+		constants.ColorRed, len(sections), constants.ColorReset)
+	for i, sec := range sections {
+		renderSingleSectionFailureRow(sec, i+1, len(sections))
+	}
+	fmt.Println()
+}
+
+func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
+	fmt.Printf("    %s[%d/%d] %s #%d ➔ Job: %s | Step: %s%s\n",
+		constants.ColorCyan, idx, total, sec.WorkflowName, sec.RunId, sec.JobName, sec.StepName, constants.ColorReset)
+	if len(sec.FailureSummary) > 0 {
+		fmt.Printf("      Error: %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
+	}
+	if len(sec.SavedLogFile) > 0 {
+		fmt.Printf("      Log:   %s\n", sec.SavedLogFile)
+	}
+}
+
+func renderFailedRunsBreakdown(failedRuns []FailedRunItem) {
+	total := len(failedRuns)
+	fmt.Printf("  %s● Detailed Failure Logs Across Workflow Runs [%d run(s)]:%s\n\n",
+		constants.ColorRed, total, constants.ColorReset)
+	for i, fr := range failedRuns {
+		renderFailedRunCard(fr, i+1, total)
+	}
 }
 
 func renderSingleFailureTerminal(p PipelineErrorLogsPayload) {
@@ -295,20 +406,53 @@ func renderSingleFailureTerminal(p PipelineErrorLogsPayload) {
 		constants.ColorRed, p.WorkflowName, p.RunId, constants.ColorReset)
 	clean := extractCleanErrorLines(p.ErrorLogs)
 	printLogsContent(clean, p.ErrorLogs)
+	renderSavedLocationsTerminal(p)
 	printRerunETA(p.RerunEtaSeconds)
 }
 
 func renderFailedRunCard(fr FailedRunItem, idx, total int) {
 	fmt.Printf("  %s┌─ [%d/%d] %s #%d ──────────────────────────%s\n",
 		constants.ColorRed, idx, total, fr.WorkflowName, fr.RunId, constants.ColorReset)
+	renderRunCardMeta(fr)
 	for _, job := range fr.FailedJobs {
 		renderFailedJobSection(job)
 	}
-	if len(fr.Url) > 0 {
-		fmt.Printf("  │ URL:   %s\n", fr.Url)
-	}
 	fmt.Printf("  %s└──────────────────────────────────────────────────────────%s\n\n",
 		constants.ColorRed, constants.ColorReset)
+}
+
+func renderRunCardMeta(fr FailedRunItem) {
+	if len(fr.CreatedAt) > 0 {
+		fmt.Printf("  │ When Run:  %s\n", formatRunTimestamp(fr.CreatedAt))
+	}
+	if fr.DurationSeconds > 0 {
+		fmt.Printf("  │ Duration:  %s\n", formatDurationSeconds(fr.DurationSeconds))
+	}
+	if len(fr.Branch) > 0 {
+		fmt.Printf("  │ Branch:    %s | Commit: %s\n", fr.Branch, fr.Sha)
+	}
+	if len(fr.SavedLogFile) > 0 {
+		fmt.Printf("  │ Saved Log: %s\n", fr.SavedLogFile)
+	}
+	if len(fr.Url) > 0 {
+		fmt.Printf("  │ URL:       %s\n", fr.Url)
+	}
+}
+
+func renderSavedLocationsTerminal(p PipelineErrorLogsPayload) {
+	fmt.Println("  💾 Pipeline Error Logs & Artifacts:")
+	if len(p.SavedReportFile) > 0 {
+		fmt.Printf("    • Combined Report: %s\n", p.SavedReportFile)
+	}
+	if len(p.SavedLogFile) > 0 {
+		fmt.Printf("    • Latest Run Log:  %s\n", p.SavedLogFile)
+	}
+	if len(p.DbPath) > 0 {
+		fmt.Printf("    • Pipeline DB:     %s\n", p.DbPath)
+	}
+	if len(p.Url) > 0 {
+		fmt.Printf("    • Web Run URL:     %s\n\n", p.Url)
+	}
 }
 
 func renderFailedJobSection(job FailedJobItem) {

@@ -80,3 +80,39 @@ func writeCachedPipelineJSON(dir string, runId uint64, logFile, repo string, byt
 
 	return os.WriteFile(jsonFile, jsonBytes, 0644)
 }
+
+func getCachedPipelineLogPath(runId uint64) string {
+	return filepath.Join(resolvePipelineDir(), fmt.Sprintf("%d.log", runId))
+}
+
+func getCachedPipelineJSONPath(runId uint64) string {
+	return filepath.Join(resolvePipelineDir(), fmt.Sprintf("%d.json", runId))
+}
+
+func resolvePipelineErrorReportPath() string {
+	return filepath.Join(resolvePipelineDir(), "pipeline_errors.log")
+}
+
+func writeCombinedErrorReport(content string) (string, error) {
+	dir := resolvePipelineDir()
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return "", err
+	}
+
+	reportPath := resolvePipelineErrorReportPath()
+	if err := os.WriteFile(reportPath, []byte(content), 0644); err != nil {
+		return "", err
+	}
+
+	_ = writeLastErrorLog(content)
+
+	return reportPath, nil
+}
+
+func writeLastErrorLog(content string) error {
+	gitmapDir := filepath.Join(resolveRepoRootDir(), ".gitmap")
+	_ = os.MkdirAll(gitmapDir, 0755)
+	lastErrFile := filepath.Join(gitmapDir, "last_error.log")
+
+	return os.WriteFile(lastErrFile, []byte(content), 0644)
+}

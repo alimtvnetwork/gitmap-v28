@@ -163,11 +163,93 @@ func queryRunsFromDB(repo string) []ghRunItem {
 			Conclusion: r.Conclusion,
 			HeadBranch: r.Branch,
 			HeadSha:    r.Sha,
+			CreatedAt:  r.CreatedAt,
+			UpdatedAt:  r.UpdatedAt,
 			Url:        r.URL,
 		})
 	}
 
 	return runs
+}
+
+func queryRecentFailedRuns(repo string, limit int) []ghRunItem {
+	if len(repo) == 0 || limit <= 0 {
+		return nil
+	}
+
+	limitStr := strconv.Itoa(limit)
+	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--status", "failure", "--limit", limitStr, "--json",
+		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url")
+	if err != nil {
+		return nil
+	}
+
+	var runs []ghRunItem
+	if err := json.Unmarshal(out, &runs); err != nil {
+		return nil
+	}
+
+	return runs
+}
+
+func formatRunTimestamp(raw string) string {
+	if raw == "" {
+		return "unknown time"
+	}
+
+	t, err := time.Parse(time.RFC3339, raw)
+	if err != nil {
+		return raw
+	}
+
+	utcStr := t.UTC().Format("2006-01-02 15:04:05 UTC")
+	elapsed := time.Since(t)
+	if elapsed < 0 {
+		return utcStr
+	}
+
+	return fmt.Sprintf("%s (%s ago)", utcStr, formatDurationShort(elapsed))
+}
+
+func formatDurationShort(d time.Duration) string {
+	if d < time.Minute {
+		return fmt.Sprintf("%ds", int(d.Seconds()))
+	}
+	if d < time.Hour {
+		return fmt.Sprintf("%dm", int(d.Minutes()))
+	}
+	if d < 24*time.Hour {
+		return fmt.Sprintf("%dh", int(d.Hours()))
+	}
+
+	return fmt.Sprintf("%dd", int(d.Hours()/24))
+}
+
+func calculateRunDuration(createdAt, updatedAt string) int {
+	t1, err1 := time.Parse(time.RFC3339, createdAt)
+	t2, err2 := time.Parse(time.RFC3339, updatedAt)
+	if err1 != nil || err2 != nil || !t2.After(t1) {
+		return 0
+	}
+
+	return int(t2.Sub(t1).Seconds())
+}
+
+func formatDurationSeconds(sec int) string {
+	if sec <= 0 {
+		return "<1s"
+	}
+	if sec < 60 {
+		return fmt.Sprintf("%ds", sec)
+	}
+
+	m := sec / 60
+	s := sec % 60
+	if s == 0 {
+		return fmt.Sprintf("%dm", m)
+	}
+
+	return fmt.Sprintf("%dm %ds", m, s)
 }
 
 func safeInt64ToUint64(val int64) uint64 {

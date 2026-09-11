@@ -33,23 +33,56 @@ type PipelineErrorLogsPayload struct {
 	RunId           uint64            `json:"runId"`
 	Status          string            `json:"status"`
 	Conclusion      string            `json:"conclusion"`
+	Branch          string            `json:"branch,omitempty"`
+	Sha             string            `json:"sha,omitempty"`
+	CreatedAt       string            `json:"createdAt,omitempty"`
+	UpdatedAt       string            `json:"updatedAt,omitempty"`
+	DurationSeconds int               `json:"durationSeconds,omitempty"`
+	SavedLogFile    string            `json:"savedLogFile,omitempty"`
+	SavedReportFile string            `json:"savedReportFile,omitempty"`
+	DbPath          string            `json:"dbPath,omitempty"`
 	EtaSeconds      int               `json:"etaSeconds,omitempty"`
 	RerunEtaSeconds int               `json:"rerunEtaSeconds,omitempty"`
 	IsRunning       bool              `json:"isRunning"`
+	ActiveRunName   string            `json:"activeRunName,omitempty"`
+	ActiveRunId     uint64            `json:"activeRunId,omitempty"`
+	ActiveRunUrl    string            `json:"activeRunUrl,omitempty"`
 	ErrorLogs       string            `json:"errorLogs"`
+	CombinedErrors  string            `json:"combinedErrors,omitempty"`
 	Url             string            `json:"url,omitempty"`
 	FailedRuns      []FailedRunItem   `json:"failedRuns,omitempty"`
+	SectionFailures []SectionFailure  `json:"sectionFailures,omitempty"`
 	CICDChecks      []CICDCheckResult `json:"cicdChecks,omitempty"`
+}
+
+// SectionFailure represents a discrete failing section or step across pipeline runs.
+type SectionFailure struct {
+	WorkflowName   string   `json:"workflowName"`
+	RunId          uint64   `json:"runId"`
+	JobName        string   `json:"jobName"`
+	StepName       string   `json:"stepName"`
+	FailureSummary string   `json:"failureSummary"`
+	ErrorLines     []string `json:"errorLines"`
+	SavedLogFile   string   `json:"savedLogFile,omitempty"`
+	CreatedAt      string   `json:"createdAt,omitempty"`
 }
 
 // FailedRunItem represents an individual failed workflow run.
 type FailedRunItem struct {
-	WorkflowName string          `json:"workflowName"`
-	RunId        uint64          `json:"runId"`
-	Conclusion   string          `json:"conclusion"`
-	Url          string          `json:"url"`
-	FailedJobs   []FailedJobItem `json:"failedJobs"`
-	RawErrors    string          `json:"rawErrors,omitempty"`
+	WorkflowName    string          `json:"workflowName"`
+	RunId           uint64          `json:"runId"`
+	Status          string          `json:"status,omitempty"`
+	Conclusion      string          `json:"conclusion"`
+	Branch          string          `json:"branch,omitempty"`
+	Sha             string          `json:"sha,omitempty"`
+	CreatedAt       string          `json:"createdAt,omitempty"`
+	UpdatedAt       string          `json:"updatedAt,omitempty"`
+	DurationSeconds int             `json:"durationSeconds,omitempty"`
+	SavedLogFile    string          `json:"savedLogFile,omitempty"`
+	SavedMetaFile   string          `json:"savedMetaFile,omitempty"`
+	Url             string          `json:"url"`
+	FailedJobs      []FailedJobItem `json:"failedJobs"`
+	RawErrors       string          `json:"rawErrors,omitempty"`
 }
 
 // FailedJobItem represents a failed job and step within a workflow run.
