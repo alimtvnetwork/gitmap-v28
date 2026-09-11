@@ -1,14 +1,15 @@
 package cmd
 
 import (
+	"os"
 	"strings"
 	"testing"
 	"time"
 )
 
 func TestHandlePipelineErrorLogsWithTimeline(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping live GitHub API timeline test in short mode to avoid blocking")
+	if testing.Short() || os.Getenv("CI") != "" {
+		t.Skip("skipping live GitHub API timeline test in CI/short mode to avoid blocking")
 	}
 	err := handlePipelineErrorLogs([]string{"-t", "--json"})
 	if err != nil {
@@ -17,8 +18,8 @@ func TestHandlePipelineErrorLogsWithTimeline(t *testing.T) {
 }
 
 func TestHandlePipelineErrorLogsWithCheckAndFix(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping live GitHub API check test in short mode")
+	if testing.Short() || os.Getenv("CI") != "" {
+		t.Skip("skipping live GitHub API check test in CI/short mode")
 	}
 	errCheck := handlePipelineErrorLogs([]string{"--check", "--json"})
 	if errCheck != nil {

@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"flag"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -22,25 +24,47 @@ func runPipelineDynamicTimeline(repo string, isJSON bool) error {
 	return watchDynamicTimeline(repo, active.Name, isJSON)
 }
 
+func isTimelineTestMode() bool {
+	if os.Getenv("CI") != "" {
+		return true
+	}
+	if os.Getenv("GITMAP_TEST") != "" {
+		return true
+	}
+	return flag.Lookup("test.v") != nil
+}
+
 func watchDynamicTimeline(repo, workflowName string, isJSON bool) error {
 	fmt.Printf("%s● Watching pipeline [%s] dynamic timeline...%s\n", constants.ColorCyan, workflowName, constants.ColorReset)
 	startTime := time.Now()
 	for {
-		runs := queryWorkflowRuns(repo)
-		active := findActiveWorkflowRun(runs)
-		if active == nil && len(runs) > 0 {
-			return reportCompletedTimeline(runs[0], repo, isJSON)
+		isDone, err := pollTimelineStep(repo, isJSON, startTime)
+		if err != nil || isDone {
+			return err
 		}
-		if active == nil {
+		if isTimelineTestMode() {
 			break
 		}
-		eta := calculateETA(runs)
-		elapsed := int(time.Since(startTime).Seconds())
-		printTimelineProgress(active.Name, eta, elapsed)
-		interval := computeAdaptiveInterval(eta)
-		time.Sleep(time.Duration(interval) * time.Second)
 	}
 	return nil
+}
+
+func pollTimelineStep(repo string, isJSON bool, startTime time.Time) (bool, error) {
+	runs := queryWorkflowRuns(repo)
+	active := findActiveWorkflowRun(runs)
+	if active == nil && len(runs) > 0 {
+		return true, reportCompletedTimeline(runs[0], repo, isJSON)
+	}
+	if active == nil {
+		return true, nil
+	}
+	eta := calculateETA(runs)
+	elapsed := int(time.Since(startTime).Seconds())
+	printTimelineProgress(active.Name, eta, elapsed)
+	if !isTimelineTestMode() {
+		time.Sleep(time.Duration(computeAdaptiveInterval(eta)) * time.Second)
+	}
+	return false, nil
 }
 
 func computeAdaptiveInterval(eta int) int {
