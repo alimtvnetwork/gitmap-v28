@@ -29,28 +29,28 @@
      - Parallelism: Dedicated worker for race condition detection across hot packages.
      - Scope: Go Test Race (Hot Packages).
 
-2. REAL-TIME TELEMETRY & ARTIFACT STREAMING (.lovable/temp/cicd/):
+2. REAL-TIME TELEMETRY & ARTIFACT STREAMING (.lovable/cicd/):
    All telemetry is written immediately to disk with unbuffered os.fsync flushing:
-   • .lovable/temp/cicd/errors.log      : Real-time append-only Markdown failure stream containing
+   • .lovable/cicd/errors.log          : Real-time append-only Markdown failure stream containing
                                          failing commands, cwd, env, suspect files, and stack traces.
-   • .lovable/temp/cicd/errors.json     : Structured JSON array of all active failures:
+   • .lovable/cicd/errors.json         : Structured JSON array of all active failures:
                                          [{"name": ..., "cmd": ..., "code": ..., "suspect_files": [...]}]
-   • .lovable/temp/cicd/events.jsonl    : Real-time append-only NDJSON event stream:
+   • .lovable/cicd/events.jsonl        : Real-time append-only NDJSON event stream:
                                          {"timestamp": ..., "event": "gate_started"|"gate_failed"|...}
-   • .lovable/temp/cicd/changelog.log   : Chronological human-readable summary of pipeline events.
-   • .lovable/temp/cicd/summary.json    : Live status metadata ("status": "running"|"completed"|"failed",
+   • .lovable/cicd/changelog.log       : Chronological human-readable summary of pipeline events.
+   • .lovable/cicd/summary.json        : Live status metadata ("status": "running"|"completed"|"failed",
                                          total, passed, failed, remaining, cached counts, active_failures).
-   • .lovable/temp/cicd/state.json      : Persistent incremental cache fingerprinting Git HEAD SHA,
+   • .lovable/cicd/state.json          : Persistent incremental cache fingerprinting Git HEAD SHA,
                                          uncommitted dirty file hashes, tool script mtimes, and gate status.
-   • .lovable/temp/cicd/run.log         : Chronological record of all executed, cached, and failed gates.
-   • .lovable/temp/cicd/latest/         : Symlink / junction pointing directly to current session folder
-                                         under .lovable/temp/cicd/runs/<timestamp>/.
+   • .lovable/cicd/run.log             : Chronological record of all executed, cached, and failed gates.
+   • .lovable/cicd/latest/             : Symlink / junction pointing directly to current session folder
+                                         under .lovable/cicd/runs/<timestamp>/.
 
 3. AI AGENT PARALLEL REMEDIATION PLAYBOOK:
    When executing tasks or autonomous repair loops, follow this protocol:
    • Step 1 (Early Interception): Do NOT wait for the entire 33-gate suite to finish. As soon as an
-     immediate failure banner appears or .lovable/temp/cicd/errors.json contains an entry, begin remediation.
-   • Step 2 (Inspect Suspect Files): View .lovable/temp/cicd/errors.log using view_file to examine
+     immediate failure banner appears or .lovable/cicd/errors.json contains an entry, begin remediation.
+   • Step 2 (Inspect Suspect Files): View .lovable/cicd/errors.log using view_file to examine
      extracted suspect files and the root-cause stack trace.
    • Step 3 (Surgical Code Fix): Edit offending files following spec/02-coding-guidelines/ (functions <= 15
      lines, blank line before returns, affirmative booleans, zero swallowed exceptions).
@@ -95,7 +95,6 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 from typing import Any
@@ -111,28 +110,28 @@ DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", min(8, CPU_CORES)))
 DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 1200))
 DEFAULT_ENCODING = "utf-8"
 DEFAULT_JOB_ESTIMATE_SEC = 5.0
-TIMING_FILE_PATH = Path(".lovable/temp/cicd/timings.json")
-TEST_INVENTORY_PATH = Path(".lovable/test-inventory.json")
-TEST_INVENTORY_CACHE_PATH = Path(".lovable/temp/cicd/test-inventory.json")
-
-os.environ.setdefault("CI", "true")
-os.environ.setdefault("NODE_ENV", "test")
-os.environ.setdefault("PYTHONUNBUFFERED", "1")
-TMP_CACHE_DIR = Path(__file__).resolve().parent.parent / ".tmp"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+TMP_CACHE_DIR = REPO_ROOT / ".tmp"
 TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("GOTMPDIR", str(TMP_CACHE_DIR))
 
-CICD_TEMP_DIR = Path(tempfile.gettempdir()) / ".lovable" / "cicd"
-CICD_RUNS_DIR = CICD_TEMP_DIR / "runs"
-CICD_LATEST_DIR = CICD_TEMP_DIR / "latest"
-CICD_ERRORS_LOG = CICD_TEMP_DIR / "errors.log"
-CICD_ERRORS_JSON = CICD_TEMP_DIR / "errors.json"
-CICD_RUN_LOG = CICD_TEMP_DIR / "run.log"
-CICD_EVENTS_JSONL = CICD_TEMP_DIR / "events.jsonl"
-CICD_CHANGELOG_LOG = CICD_TEMP_DIR / "changelog.log"
-CICD_SUMMARY_JSON = CICD_TEMP_DIR / "summary.json"
-CICD_STATE_JSON = CICD_TEMP_DIR / "state.json"
-CICD_POINTER_FILE = CICD_TEMP_DIR / "latest_run.txt"
+CICD_DIR = REPO_ROOT / ".lovable" / "cicd"
+CICD_DIR.mkdir(parents=True, exist_ok=True)
+CICD_TEMP_DIR = CICD_DIR
+CICD_RUNS_DIR = CICD_DIR / "runs"
+CICD_LATEST_DIR = CICD_DIR / "latest"
+CICD_ERRORS_LOG = CICD_DIR / "errors.log"
+CICD_ERRORS_JSON = CICD_DIR / "errors.json"
+CICD_RUN_LOG = CICD_DIR / "run.log"
+CICD_EVENTS_JSONL = CICD_DIR / "events.jsonl"
+CICD_CHANGELOG_LOG = CICD_DIR / "changelog.log"
+CICD_SUMMARY_JSON = CICD_DIR / "summary.json"
+CICD_STATE_JSON = CICD_DIR / "state.json"
+CICD_POINTER_FILE = CICD_DIR / "latest_run.txt"
+
+TIMING_FILE_PATH = CICD_DIR / "timings.json"
+TEST_INVENTORY_PATH = Path(".lovable/test-inventory.json")
+TEST_INVENTORY_CACHE_PATH = CICD_DIR / "test-inventory.json"
 
 DISK_WRITE_LOCK = threading.RLock()
 
@@ -276,9 +275,26 @@ def record_job_timing(job_name: str, elapsed_sec: float) -> None:
     GLOBAL_TIMINGS[job_name] = elapsed_sec
 
 
-def normalize_repo_rel(path_str: str) -> str:
-    """Normalizes path string to forward-slash relative path."""
-    norm = path_str.replace("\\", "/").strip()
+def normalize_repo_rel(path_input: Any) -> str:
+    """Normalizes path to forward-slash relative path within the repo."""
+    if path_input is None:
+        return ""
+    raw_str = str(path_input).strip()
+    try:
+        p = Path(raw_str)
+        if p.is_absolute():
+            resolved = p.resolve()
+            repo_resolved = REPO_ROOT.resolve()
+            try:
+                rel = resolved.relative_to(repo_resolved)
+                raw_str = str(rel)
+            except ValueError:
+                rel = os.path.relpath(str(resolved), str(repo_resolved))
+                if not rel.startswith(".."):
+                    raw_str = rel
+    except Exception:
+        pass
+    norm = raw_str.replace("\\", "/").strip()
     if norm.startswith("./"):
         norm = norm[2:]
 
@@ -643,7 +659,7 @@ def link_latest_session(target_dir: Path, latest_dir: Path) -> None:
     """Links or writes pointer for latest session directory."""
     pointer_file = target_dir.parent.parent / "latest_run.txt"
     try:
-        pointer_file.write_text(str(target_dir), encoding=DEFAULT_ENCODING)
+        pointer_file.write_text(normalize_repo_rel(target_dir), encoding=DEFAULT_ENCODING)
         clear_existing_link(latest_dir)
         create_os_junction_or_symlink(target_dir, latest_dir)
     except OSError as err:
@@ -1322,8 +1338,9 @@ def format_banner_metadata(res: JobResult, files: list[str]) -> str:
     return (
         f"  Command       : {cmd_str}\n  Working Dir   : {cwd_str}\n  Env Overrides : {env_str}\n"
         f"  Exit Code     : {res.code} ({res.elapsed}s)\n  Failing Files :\n{files_str}\n"
-        f"  Stream Log    : {CICD_ERRORS_LOG}\n  Stream JSON   : {CICD_ERRORS_JSON}\n"
-        f"  Stream Events : {CICD_EVENTS_JSONL}\n\n"
+        f"  Stream Log    : {normalize_repo_rel(CICD_ERRORS_LOG)}\n"
+        f"  Stream JSON   : {normalize_repo_rel(CICD_ERRORS_JSON)}\n"
+        f"  Stream Events : {normalize_repo_rel(CICD_EVENTS_JSONL)}\n\n"
     )
 
 
@@ -1437,7 +1454,7 @@ def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: P
         failure_file = failures_dir / f"{safe_name}.log"
         failure_content = f"Test Name: {res.name}\nCommand: {res.cmd}\nCode: {res.code}\n\nStack Trace / Output:\n{err_text}"
         failure_file.write_text(failure_content, encoding=DEFAULT_ENCODING)
-        log_path_str = str(failure_file.absolute())
+        log_path_str = normalize_repo_rel(failure_file)
     
     errors_list = state.setdefault("errors_list", [])
     errors_list.append({"name": res.name, "cmd": res.cmd, "code": res.code, "elapsed": res.elapsed, "suspect_files": suspect_files, "error": strip_ansi(err_text), "log_path": log_path_str})
@@ -2019,15 +2036,16 @@ def format_remediation_banner_header(failed_count: int) -> list[str]:
 
 def format_log_locations_section(session_dir: Path | None) -> list[str]:
     """Formats exact relative log file locations for AI agent inspection."""
-    sdir_rel = normalize_repo_rel(str(session_dir)) if session_dir else ".lovable/temp/cicd/latest"
+    sdir_rel = normalize_repo_rel(session_dir) if session_dir else ".lovable/cicd/latest"
+    sdir_rel = sdir_rel.rstrip("/")
     lines = [
         "📂 \033[1mLog Files & Artifact Locations\033[0m:",
-        f"  • Live Markdown Stream  : {normalize_repo_rel(str(CICD_ERRORS_LOG))}",
-        f"  • Structured JSON Errors: {normalize_repo_rel(str(CICD_ERRORS_JSON))}",
-        f"  • Live Event Stream     : {normalize_repo_rel(str(CICD_EVENTS_JSONL))}",
-        f"  • Real-time Telemetry   : {normalize_repo_rel(str(CICD_SUMMARY_JSON))}",
-        f"  • Incremental Cache     : {normalize_repo_rel(str(CICD_STATE_JSON))}",
-        f"  • Full Chronological Log: {normalize_repo_rel(str(CICD_RUN_LOG))}",
+        f"  • Live Markdown Stream  : {normalize_repo_rel(CICD_ERRORS_LOG)}",
+        f"  • Structured JSON Errors: {normalize_repo_rel(CICD_ERRORS_JSON)}",
+        f"  • Live Event Stream     : {normalize_repo_rel(CICD_EVENTS_JSONL)}",
+        f"  • Real-time Telemetry   : {normalize_repo_rel(CICD_SUMMARY_JSON)}",
+        f"  • Incremental Cache     : {normalize_repo_rel(CICD_STATE_JSON)}",
+        f"  • Full Chronological Log: {normalize_repo_rel(CICD_RUN_LOG)}",
         f"  • Session Run Directory : {sdir_rel}/",
         f"  • Individual Fail Logs  : {sdir_rel}/failed_tests/",
     ]
@@ -2068,7 +2086,7 @@ def format_agent_next_steps_section() -> list[str]:
     """Formats actionable step-by-step guidance for autonomous AI agents."""
     lines = [
         "🛠️  \033[1mAI Agent Remediation Protocol\033[0m:",
-        "  1. Inspect Errors : Call view_file on .lovable/temp/cicd/errors.log (or read errors.json)",
+        "  1. Inspect Errors : Call view_file on .lovable/cicd/errors.log (or read errors.json)",
         "  2. Surgical Fix   : Edit suspect files complying with spec/02-coding-guidelines/",
         "  3. Single Re-Test : Run targeted filter command above to confirm local fix",
         "  4. Suite Green    : Run python 03-ai-scripts/06-cicd-local-runner.py (unchanged gates skip in ~0.5ms)",
