@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-11T17:07:20",
+  "updated_at": "2026-09-11T17:10:59",
   "total_tests": 2428,
   "summary": {
     "total": 2428,
-    "cached": 88,
-    "dirty": 2340,
+    "cached": 2,
+    "dirty": 2426,
     "packages": 92
   },
   "tests": {
@@ -11569,9 +11569,9 @@
       "target_func": "resolveMkdirAbsPath",
       "code_hash": "c995001d5fe3dd95",
       "duration_sec": 0.0,
-      "last_status": "dirty",
-      "last_run_at": "2026-09-11T17:05:38",
-      "needs_run": true
+      "last_status": "passed",
+      "last_run_at": "2026-09-11T17:08:19",
+      "needs_run": false
     },
     "gitmap/cmd.TestRunMkdir": {
       "id": "gitmap/cmd.TestRunMkdir",
@@ -11583,9 +11583,9 @@
       "target_func": "runMkdir",
       "code_hash": "ecc11af13b2974f2",
       "duration_sec": 0.0,
-      "last_status": "dirty",
-      "last_run_at": "2026-09-11T17:05:38",
-      "needs_run": true
+      "last_status": "passed",
+      "last_run_at": "2026-09-11T17:08:19",
+      "needs_run": false
     },
     "gitmap/cmd.TestCalculateDestPath": {
       "id": "gitmap/cmd.TestCalculateDestPath",
@@ -28523,9 +28523,9 @@
       "target_func": "",
       "code_hash": "a591fe689647b875",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestChromeProfileExportInsertAndList": {
       "id": "gitmap/store.TestChromeProfileExportInsertAndList",
@@ -28537,9 +28537,9 @@
       "target_func": "",
       "code_hash": "a591fe689647b875",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestChromeProfileDeleteReturnsArtifacts": {
       "id": "gitmap/store.TestChromeProfileDeleteReturnsArtifacts",
@@ -28551,9 +28551,9 @@
       "target_func": "",
       "code_hash": "a591fe689647b875",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestERDMatchesSQLCreate": {
       "id": "gitmap/store.TestERDMatchesSQLCreate",
@@ -28565,9 +28565,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestInstallationSplitDB_Lifecycle": {
       "id": "gitmap/store.TestInstallationSplitDB_Lifecycle",
@@ -28579,9 +28579,9 @@
       "target_func": "",
       "code_hash": "a3fc42cff55265f3",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSanitizeLogOutput": {
       "id": "gitmap/store.TestSanitizeLogOutput",
@@ -28593,9 +28593,9 @@
       "target_func": "SanitizeLogOutput",
       "code_hash": "7916c1e062d737f6",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestRecordExecutionAndGetFailedLogs": {
       "id": "gitmap/store.TestRecordExecutionAndGetFailedLogs",
@@ -28607,9 +28607,9 @@
       "target_func": "",
       "code_hash": "a3fc42cff55265f3",
       "duration_sec": 0.02,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestMigrateInstalledToolsFromRoot": {
       "id": "gitmap/store.TestMigrateInstalledToolsFromRoot",
@@ -28621,9 +28621,9 @@
       "target_func": "MigrateInstalledToolsFromRoot",
       "code_hash": "60b76a7c22dc44d2",
       "duration_sec": 0.04,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCreateInstallerSuccess": {
       "id": "gitmap/store.TestCreateInstallerSuccess",
@@ -28635,9 +28635,9 @@
       "target_func": "CreateInstaller",
       "code_hash": "ea9ebe9ec98dc9ec",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCreateInstallerNilScript": {
       "id": "gitmap/store.TestCreateInstallerNilScript",
@@ -28649,9 +28649,9 @@
       "target_func": "CreateInstaller",
       "code_hash": "ea9ebe9ec98dc9ec",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCreateInstallerDuplicateSlug": {
       "id": "gitmap/store.TestCreateInstallerDuplicateSlug",
@@ -28663,9 +28663,9 @@
       "target_func": "CreateInstaller",
       "code_hash": "ea9ebe9ec98dc9ec",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCreateInstallerClosedDB": {
       "id": "gitmap/store.TestCreateInstallerClosedDB",
@@ -28677,9 +28677,9 @@
       "target_func": "CreateInstaller",
       "code_hash": "ea9ebe9ec98dc9ec",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestDeleteInstallerStore": {
       "id": "gitmap/store.TestDeleteInstallerStore",
@@ -28691,9 +28691,9 @@
       "target_func": "DeleteInstaller",
       "code_hash": "fccbf0205ddf84e3",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestGetInstallerSuccess": {
       "id": "gitmap/store.TestGetInstallerSuccess",
@@ -28705,9 +28705,9 @@
       "target_func": "",
       "code_hash": "0102f82eb7a535d5",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestGetInstallerNotFound": {
       "id": "gitmap/store.TestGetInstallerNotFound",
@@ -28719,9 +28719,9 @@
       "target_func": "",
       "code_hash": "0102f82eb7a535d5",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestGetInstallerClosedDB": {
       "id": "gitmap/store.TestGetInstallerClosedDB",
@@ -28733,9 +28733,9 @@
       "target_func": "",
       "code_hash": "0102f82eb7a535d5",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestGetInstallerNilDB": {
       "id": "gitmap/store.TestGetInstallerNilDB",
@@ -28747,9 +28747,9 @@
       "target_func": "",
       "code_hash": "0102f82eb7a535d5",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestListInstallersSuccess": {
       "id": "gitmap/store.TestListInstallersSuccess",
@@ -28761,9 +28761,9 @@
       "target_func": "ListInstallers",
       "code_hash": "d1a189b9f761e401",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestListInstallersEmpty": {
       "id": "gitmap/store.TestListInstallersEmpty",
@@ -28775,9 +28775,9 @@
       "target_func": "ListInstallers",
       "code_hash": "d1a189b9f761e401",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestListInstallersClosedDB": {
       "id": "gitmap/store.TestListInstallersClosedDB",
@@ -28789,9 +28789,9 @@
       "target_func": "ListInstallers",
       "code_hash": "d1a189b9f761e401",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestListInstallersNilDB": {
       "id": "gitmap/store.TestListInstallersNilDB",
@@ -28803,9 +28803,9 @@
       "target_func": "ListInstallers",
       "code_hash": "d1a189b9f761e401",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestResetInstallersAllSuccess": {
       "id": "gitmap/store.TestResetInstallersAllSuccess",
@@ -28817,9 +28817,9 @@
       "target_func": "ResetInstallers",
       "code_hash": "8d162d6012a14b90",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestResetInstallersSpecificSlugSuccess": {
       "id": "gitmap/store.TestResetInstallersSpecificSlugSuccess",
@@ -28831,9 +28831,9 @@
       "target_func": "ResetInstallers",
       "code_hash": "8d162d6012a14b90",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestResetInstallersNonExistentSlug": {
       "id": "gitmap/store.TestResetInstallersNonExistentSlug",
@@ -28845,9 +28845,9 @@
       "target_func": "ResetInstallers",
       "code_hash": "8d162d6012a14b90",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestResetInstallersEmptySlugWhenNotAll": {
       "id": "gitmap/store.TestResetInstallersEmptySlugWhenNotAll",
@@ -28859,9 +28859,9 @@
       "target_func": "ResetInstallers",
       "code_hash": "8d162d6012a14b90",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestResetInstallersNilDB": {
       "id": "gitmap/store.TestResetInstallersNilDB",
@@ -28873,9 +28873,9 @@
       "target_func": "ResetInstallers",
       "code_hash": "8d162d6012a14b90",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestResetInstallersClosedDB": {
       "id": "gitmap/store.TestResetInstallersClosedDB",
@@ -28887,9 +28887,9 @@
       "target_func": "ResetInstallers",
       "code_hash": "8d162d6012a14b90",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSaveVersionSuccess": {
       "id": "gitmap/store.TestSaveVersionSuccess",
@@ -28901,9 +28901,9 @@
       "target_func": "SaveVersion",
       "code_hash": "c0de29286a52cac1",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSaveVersionMultipleVersions": {
       "id": "gitmap/store.TestSaveVersionMultipleVersions",
@@ -28915,9 +28915,9 @@
       "target_func": "SaveVersion",
       "code_hash": "c0de29286a52cac1",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSaveVersionNilInput": {
       "id": "gitmap/store.TestSaveVersionNilInput",
@@ -28929,9 +28929,9 @@
       "target_func": "SaveVersion",
       "code_hash": "c0de29286a52cac1",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSaveVersionNilDB": {
       "id": "gitmap/store.TestSaveVersionNilDB",
@@ -28943,9 +28943,9 @@
       "target_func": "SaveVersion",
       "code_hash": "c0de29286a52cac1",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSaveVersionClosedDB": {
       "id": "gitmap/store.TestSaveVersionClosedDB",
@@ -28957,9 +28957,9 @@
       "target_func": "SaveVersion",
       "code_hash": "c0de29286a52cac1",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestProcessLockReentrancy": {
       "id": "gitmap/store.TestProcessLockReentrancy",
@@ -28971,9 +28971,9 @@
       "target_func": "",
       "code_hash": "15109ce964ec50c1",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestProcessLockStaleRemoval": {
       "id": "gitmap/store.TestProcessLockStaleRemoval",
@@ -28985,9 +28985,9 @@
       "target_func": "",
       "code_hash": "15109ce964ec50c1",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestBuildRecentRunsQueryNoFilter": {
       "id": "gitmap/store.TestBuildRecentRunsQueryNoFilter",
@@ -28999,9 +28999,9 @@
       "target_func": "BuildRecentRunsQuery",
       "code_hash": "861a9671d79141c2",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestBuildRecentRunsQueryKindOnly": {
       "id": "gitmap/store.TestBuildRecentRunsQueryKindOnly",
@@ -29013,9 +29013,9 @@
       "target_func": "BuildRecentRunsQuery",
       "code_hash": "861a9671d79141c2",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestBuildRecentRunsQueryBothFilters": {
       "id": "gitmap/store.TestBuildRecentRunsQueryBothFilters",
@@ -29027,9 +29027,9 @@
       "target_func": "BuildRecentRunsQuery",
       "code_hash": "861a9671d79141c2",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectRecentMakeAllVisibilityRunsFilteredKindPushdown": {
       "id": "gitmap/store.TestSelectRecentMakeAllVisibilityRunsFilteredKindPushdown",
@@ -29041,9 +29041,9 @@
       "target_func": "SelectRecentMakeAllVisibilityRuns",
       "code_hash": "414c7f511523ed90",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectRecentMakeAllVisibilityRunsEmpty": {
       "id": "gitmap/store.TestSelectRecentMakeAllVisibilityRunsEmpty",
@@ -29055,9 +29055,9 @@
       "target_func": "SelectRecentMakeAllVisibilityRuns",
       "code_hash": "414c7f511523ed90",
       "duration_sec": 0.04,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectRecentMakeAllVisibilityRunsNewestFirst": {
       "id": "gitmap/store.TestSelectRecentMakeAllVisibilityRunsNewestFirst",
@@ -29069,9 +29069,9 @@
       "target_func": "SelectRecentMakeAllVisibilityRuns",
       "code_hash": "414c7f511523ed90",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectRecentMakeAllVisibilityRunsHonorsLimit": {
       "id": "gitmap/store.TestSelectRecentMakeAllVisibilityRunsHonorsLimit",
@@ -29083,9 +29083,9 @@
       "target_func": "SelectRecentMakeAllVisibilityRuns",
       "code_hash": "414c7f511523ed90",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestVisibilityRoundTripStoreLayer": {
       "id": "gitmap/store.TestVisibilityRoundTripStoreLayer",
@@ -29097,9 +29097,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectLatestUndoableMakeAllVisibilityRunReturnsNewest": {
       "id": "gitmap/store.TestSelectLatestUndoableMakeAllVisibilityRunReturnsNewest",
@@ -29111,9 +29111,9 @@
       "target_func": "SelectLatestUndoableMakeAllVisibilityRun",
       "code_hash": "2ae69e34ff382d1d",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectLatestUndoableEmptyReturnsZero": {
       "id": "gitmap/store.TestSelectLatestUndoableEmptyReturnsZero",
@@ -29125,9 +29125,9 @@
       "target_func": "",
       "code_hash": "6aac041532dd17bb",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectMakeAllVisibilityRunByIDExactMatch": {
       "id": "gitmap/store.TestSelectMakeAllVisibilityRunByIDExactMatch",
@@ -29139,9 +29139,9 @@
       "target_func": "SelectMakeAllVisibilityRunByID",
       "code_hash": "b1c97231b44b33fa",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectMakeAllVisibilityRunByIDUnknownReturnsZero": {
       "id": "gitmap/store.TestSelectMakeAllVisibilityRunByIDUnknownReturnsZero",
@@ -29153,9 +29153,9 @@
       "target_func": "SelectMakeAllVisibilityRunByID",
       "code_hash": "b1c97231b44b33fa",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectLatestMakeAllVisibilityRunByKindFilters": {
       "id": "gitmap/store.TestSelectLatestMakeAllVisibilityRunByKindFilters",
@@ -29167,9 +29167,9 @@
       "target_func": "SelectLatestMakeAllVisibilityRunByKind",
       "code_hash": "23c120cc2333112b",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSelectUndoableResultsForRunReturnsOkRows": {
       "id": "gitmap/store.TestSelectUndoableResultsForRunReturnsOkRows",
@@ -29181,9 +29181,9 @@
       "target_func": "SelectUndoableResultsForRun",
       "code_hash": "c904c51bfad59f5f",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInReplayMapHasAllSpecColumns": {
       "id": "gitmap/store.TestCommitInReplayMapHasAllSpecColumns",
@@ -29195,9 +29195,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInReplayMapForeignKeysPointAtSpecTargets": {
       "id": "gitmap/store.TestCommitInReplayMapForeignKeysPointAtSpecTargets",
@@ -29209,9 +29209,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInReplayMapIndexesAreCreated": {
       "id": "gitmap/store.TestCommitInReplayMapIndexesAreCreated",
@@ -29223,9 +29223,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInReplayMapUniqueOnRunPlusTagName": {
       "id": "gitmap/store.TestCommitInReplayMapUniqueOnRunPlusTagName",
@@ -29237,9 +29237,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.05,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInReplayMapTaggedVersusNonTaggedCommits": {
       "id": "gitmap/store.TestCommitInReplayMapTaggedVersusNonTaggedCommits",
@@ -29251,9 +29251,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInReplayMapForeignKeysAreEnforced": {
       "id": "gitmap/store.TestCommitInReplayMapForeignKeysAreEnforced",
@@ -29265,9 +29265,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInMigrationCreatesAllTables": {
       "id": "gitmap/store.TestCommitInMigrationCreatesAllTables",
@@ -29279,9 +29279,9 @@
       "target_func": "",
       "code_hash": "0287d14fe331c68d",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInMigrationSeedsEnumMirrors": {
       "id": "gitmap/store.TestCommitInMigrationSeedsEnumMirrors",
@@ -29293,9 +29293,9 @@
       "target_func": "",
       "code_hash": "0287d14fe331c68d",
       "duration_sec": 0.04,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestCommitInMigrationIsIdempotent": {
       "id": "gitmap/store.TestCommitInMigrationIsIdempotent",
@@ -29307,9 +29307,9 @@
       "target_func": "",
       "code_hash": "0287d14fe331c68d",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSQLCreateSSHHistory": {
       "id": "gitmap/store.TestSQLCreateSSHHistory",
@@ -29321,9 +29321,9 @@
       "target_func": "SQL",
       "code_hash": "cd5059e4b1c4a9fe",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSQLCreateSSHHosts": {
       "id": "gitmap/store.TestSQLCreateSSHHosts",
@@ -29335,9 +29335,9 @@
       "target_func": "SQL",
       "code_hash": "cd5059e4b1c4a9fe",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestMigrationsInstallerScriptsTable": {
       "id": "gitmap/store.TestMigrationsInstallerScriptsTable",
@@ -29349,9 +29349,9 @@
       "target_func": "",
       "code_hash": "fc78e1f4488cc7a8",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestMigrationsInstallerVersionsTable": {
       "id": "gitmap/store.TestMigrationsInstallerVersionsTable",
@@ -29363,9 +29363,9 @@
       "target_func": "",
       "code_hash": "fc78e1f4488cc7a8",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestMigrationsAllInstallerTables": {
       "id": "gitmap/store.TestMigrationsAllInstallerTables",
@@ -29377,9 +29377,9 @@
       "target_func": "",
       "code_hash": "fc78e1f4488cc7a8",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestMigrationsDBMigrateInstallers": {
       "id": "gitmap/store.TestMigrationsDBMigrateInstallers",
@@ -29391,9 +29391,9 @@
       "target_func": "",
       "code_hash": "fc78e1f4488cc7a8",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestMigrationsErrorHandling": {
       "id": "gitmap/store.TestMigrationsErrorHandling",
@@ -29405,9 +29405,9 @@
       "target_func": "",
       "code_hash": "fc78e1f4488cc7a8",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSSHHistory": {
       "id": "gitmap/store.TestSSHHistory",
@@ -29419,9 +29419,9 @@
       "target_func": "",
       "code_hash": "44f4f3a6c0ad16a5",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSSHHost": {
       "id": "gitmap/store.TestSSHHost",
@@ -29433,9 +29433,9 @@
       "target_func": "",
       "code_hash": "23831eae0268ffab",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestPipelineStoreLifecycle": {
       "id": "gitmap/store.TestPipelineStoreLifecycle",
@@ -29447,9 +29447,9 @@
       "target_func": "",
       "code_hash": "b5a01ace54917fc7",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestPowerProfileAndHistory_CRUD": {
       "id": "gitmap/store.TestPowerProfileAndHistory_CRUD",
@@ -29461,9 +29461,9 @@
       "target_func": "",
       "code_hash": "bc146d6d605ac4ed",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestPurgeHistory_MigrationFromLegacySchema": {
       "id": "gitmap/store.TestPurgeHistory_MigrationFromLegacySchema",
@@ -29475,9 +29475,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestPurgeHistory_RestoredState": {
       "id": "gitmap/store.TestPurgeHistory_RestoredState",
@@ -29489,9 +29489,9 @@
       "target_func": "",
       "code_hash": "d232747397746406",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestPurgeHistory_TableCreationAndMigrate": {
       "id": "gitmap/store.TestPurgeHistory_TableCreationAndMigrate",
@@ -29503,9 +29503,9 @@
       "target_func": "",
       "code_hash": "dfd92c98e6582811",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestPurgeHistory_InsertRetrievalAndRestoration": {
       "id": "gitmap/store.TestPurgeHistory_InsertRetrievalAndRestoration",
@@ -29517,9 +29517,9 @@
       "target_func": "",
       "code_hash": "dfd92c98e6582811",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestClassifyURLTransport": {
       "id": "gitmap/store.TestClassifyURLTransport",
@@ -29531,9 +29531,9 @@
       "target_func": "ClassifyURLTransport",
       "code_hash": "5b1700fe8584f2ee",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSetRepoIdentifiedTransportRejectsBadInput": {
       "id": "gitmap/store.TestSetRepoIdentifiedTransportRejectsBadInput",
@@ -29545,9 +29545,9 @@
       "target_func": "SetRepoIdentifiedTransport",
       "code_hash": "0e8ad6c159ecd34c",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestLookupRepoIdentifiedTransportMiss": {
       "id": "gitmap/store.TestLookupRepoIdentifiedTransportMiss",
@@ -29559,9 +29559,9 @@
       "target_func": "LookupRepoIdentifiedTransport",
       "code_hash": "fac014d1adce1738",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSitesSplitDBCRUD": {
       "id": "gitmap/store.TestSitesSplitDBCRUD",
@@ -29573,9 +29573,9 @@
       "target_func": "",
       "code_hash": "fc41d80d5690da8a",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSplitDatabaseRegistry_RegisterAndGet": {
       "id": "gitmap/store.TestSplitDatabaseRegistry_RegisterAndGet",
@@ -29587,9 +29587,9 @@
       "target_func": "",
       "code_hash": "4f31688ab1df6467",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSplitDatabaseRegistry_ConflictUpdate": {
       "id": "gitmap/store.TestSplitDatabaseRegistry_ConflictUpdate",
@@ -29601,9 +29601,9 @@
       "target_func": "",
       "code_hash": "4f31688ab1df6467",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSplitDatabaseRegistry_ListSplitDBs": {
       "id": "gitmap/store.TestSplitDatabaseRegistry_ListSplitDBs",
@@ -29615,9 +29615,9 @@
       "target_func": "",
       "code_hash": "4f31688ab1df6467",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSplitDatabaseRegistry_SyncKnownSplitDatabases": {
       "id": "gitmap/store.TestSplitDatabaseRegistry_SyncKnownSplitDatabases",
@@ -29629,9 +29629,9 @@
       "target_func": "",
       "code_hash": "4f31688ab1df6467",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSplitDatabaseRegistry_NotFound": {
       "id": "gitmap/store.TestSplitDatabaseRegistry_NotFound",
@@ -29643,9 +29643,9 @@
       "target_func": "",
       "code_hash": "4f31688ab1df6467",
       "duration_sec": 0.03,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestLogSSHJoin": {
       "id": "gitmap/store.TestLogSSHJoin",
@@ -29657,9 +29657,9 @@
       "target_func": "LogSSHJoin",
       "code_hash": "9b6aa102326d81f2",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestListSSHHistory": {
       "id": "gitmap/store.TestListSSHHistory",
@@ -29671,9 +29671,9 @@
       "target_func": "ListSSHHistory",
       "code_hash": "e8ddafed90b73f40",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestInsertSSHHost": {
       "id": "gitmap/store.TestInsertSSHHost",
@@ -29685,9 +29685,9 @@
       "target_func": "InsertSSHHost",
       "code_hash": "c5821f01aa8d26b9",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestGetHostByAlias": {
       "id": "gitmap/store.TestGetHostByAlias",
@@ -29699,9 +29699,9 @@
       "target_func": "GetHostByAlias",
       "code_hash": "07f6e78a57d7e42e",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestDeleteHostByIP": {
       "id": "gitmap/store.TestDeleteHostByIP",
@@ -29713,9 +29713,9 @@
       "target_func": "DeleteHostByIP",
       "code_hash": "3c060e835277cfe0",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestSSHRepoIntegration": {
       "id": "gitmap/store.TestSSHRepoIntegration",
@@ -29727,9 +29727,9 @@
       "target_func": "",
       "code_hash": "73dbaa326c2f61ed",
       "duration_sec": 0.0,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/store.TestWorkDirStoreSuite": {
       "id": "gitmap/store.TestWorkDirStoreSuite",
@@ -29741,9 +29741,9 @@
       "target_func": "",
       "code_hash": "6165ba61d695cd02",
       "duration_sec": 0.01,
-      "last_status": "passed",
+      "last_status": "dirty",
       "last_run_at": "2026-09-11T17:06:01",
-      "needs_run": false
+      "needs_run": true
     },
     "gitmap/templates.TestCorpusParityRequiredLangsHaveBothKinds": {
       "id": "gitmap/templates.TestCorpusParityRequiredLangsHaveBothKinds",
