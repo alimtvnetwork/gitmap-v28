@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-11T17:05:59",
+  "updated_at": "2026-09-11T17:07:20",
   "total_tests": 2428,
   "summary": {
     "total": 2428,
-    "cached": 2428,
-    "dirty": 0,
+    "cached": 88,
+    "dirty": 2340,
     "packages": 92
   },
   "tests": {
