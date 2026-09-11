@@ -216,3 +216,31 @@ func testPassTwo(t *testing.T, db *pipelinedb.PipelineSplitDb, run ghRunItem) {
 		t.Fatalf("expected download to be skipped on pass 2, downloaded: %d", res2.DownloadedLogs)
 	}
 }
+
+func TestParsePipelineErrorFlags_Combined(t *testing.T) {
+	args := []string{"-3", "--last-failures", "5", "--json"}
+	flags := ParsePipelineErrorFlags(args)
+	if !flags.HasIndex || flags.Index != -3 {
+		t.Fatalf("expected Index=-3, HasIndex=true; got %d, %v", flags.Index, flags.HasIndex)
+	}
+
+	if !flags.HasLastFailures || flags.LastFailures != 5 {
+		t.Fatalf("expected LastFailures=5, HasLastFailures=true; got %d, %v", flags.LastFailures, flags.HasLastFailures)
+	}
+
+	if !flags.IsJSON {
+		t.Fatalf("expected IsJSON=true")
+	}
+}
+
+func TestParsePipelineErrorFlags_LastFailedLogs(t *testing.T) {
+	args := []string{"last-failed-logs"}
+	flags := ParsePipelineErrorFlags(args)
+	if !flags.HasLastFailedLogs {
+		t.Fatalf("expected HasLastFailedLogs=true")
+	}
+
+	if !flags.HasLastFailures || flags.LastFailures != 20 {
+		t.Fatalf("expected LastFailures=20 default, got %d", flags.LastFailures)
+	}
+}

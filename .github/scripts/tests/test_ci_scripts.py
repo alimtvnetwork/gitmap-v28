@@ -191,6 +191,45 @@ class TestGoFormatCheck(unittest.TestCase):
         self.assertIn("All .go files are gofmt-clean", res_check.stdout)
 
 
+class TestCicdLocalRunnerPaths(unittest.TestCase):
+    def setUp(self):
+        actual_repo = os.path.abspath(os.path.join(SCRIPTS_DIR, "..", ".."))
+        ai_scripts = os.path.join(actual_repo, "03-ai-scripts")
+        if ai_scripts not in sys.path:
+            sys.path.insert(0, ai_scripts)
+        import importlib
+        self.runner = importlib.import_module("06-cicd-local-runner")
+
+    def test_cicd_dir_is_inside_repo(self):
+        self.assertTrue(str(self.runner.CICD_DIR).startswith(str(self.runner.REPO_ROOT)))
+        self.assertEqual(self.runner.normalize_repo_rel(self.runner.CICD_DIR), ".lovable/cicd")
+
+    def test_normalize_repo_rel_converts_absolute_paths(self):
+        abs_path = os.path.join(str(self.runner.REPO_ROOT), ".lovable", "cicd", "errors.log")
+        rel = self.runner.normalize_repo_rel(abs_path)
+        self.assertEqual(rel, ".lovable/cicd/errors.log")
+
+    def test_format_banner_metadata_contains_no_temp_or_absolute_drive(self):
+        res = self.runner.JobResult("MockGate", ["python", "mock.py"], 1, "out", "err", 0.1)
+        meta = self.runner.format_banner_metadata(res, ["gitmap/cmd/root.go"])
+        self.assertIn("Stream Log    : .lovable/cicd/errors.log", meta)
+        self.assertIn("Stream JSON   : .lovable/cicd/errors.json", meta)
+        self.assertIn("Stream Events : .lovable/cicd/events.jsonl", meta)
+        self.assertNotIn("AppData", meta)
+        self.assertNotIn("Temp", meta)
+
+    def test_format_log_locations_section_all_inside_repo(self):
+        session_dir = self.runner.CICD_DIR / "runs" / "test-session-123"
+        lines = self.runner.format_log_locations_section(session_dir)
+        text = "\n".join(lines)
+        self.assertIn("• Live Markdown Stream  : .lovable/cicd/errors.log", text)
+        self.assertIn("• Structured JSON Errors: .lovable/cicd/errors.json", text)
+        self.assertIn("• Session Run Directory : .lovable/cicd/runs/test-session-123/", text)
+        self.assertNotIn("AppData", text)
+        self.assertNotIn("Temp", text)
+
+
 if __name__ == "__main__":
     unittest.main()
+
 
