@@ -52,10 +52,8 @@ func openDBAt(dbPath string) (*DB, error) {
 		return nil, fmt.Errorf(constants.ErrDBCreateDir, dbDir, err)
 	}
 
-	if !isMem {
-		if err := acquireLock(dbDir); err != nil {
-			return nil, err
-		}
+	if err := lockDBIfNotMem(dbDir, isMem); err != nil {
+		return nil, err
 	}
 
 	connPath := dbPath
@@ -65,9 +63,7 @@ func openDBAt(dbPath string) (*DB, error) {
 
 	conn, err := sql.Open("sqlite", connPath)
 	if err != nil {
-		if !isMem {
-			releaseLock(dbDir)
-		}
+		releaseLockIfNotMem(dbDir, isMem)
 		return nil, fmt.Errorf(constants.ErrDBOpen, dbPath, err)
 	}
 
@@ -77,9 +73,7 @@ func openDBAt(dbPath string) (*DB, error) {
 
 	if err := enableFK(conn); err != nil {
 		conn.Close()
-		if !isMem {
-			releaseLock(dbDir)
-		}
+		releaseLockIfNotMem(dbDir, isMem)
 		return nil, err
 	}
 
@@ -520,4 +514,11 @@ func releaseLockIfNotMem(dbDir string, isMem bool) {
 	if !isMem {
 		releaseLock(dbDir)
 	}
+}
+
+func lockDBIfNotMem(dbDir string, isMem bool) error {
+	if isMem {
+		return nil
+	}
+	return acquireLock(dbDir)
 }

@@ -54,7 +54,7 @@ WHITELISTED_GO_FILES = {
 
 def should_scan_dir(dirpath: Path) -> bool:
     for part in dirpath.parts:
-        if part in EXCLUDED_DIRS or part.startswith("."):
+        if part in EXCLUDED_DIRS or part.startswith(".") or part.endswith("_old"):
             if part not in {".lovable", ".github", ".agents"}:
                 return False
     return True
@@ -148,7 +148,7 @@ def main() -> int:
 
     for root, dirs, files in os.walk(ROOT_DIR):
         root_path = Path(root)
-        dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRS and not d.startswith(".")]
+        dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRS and not d.startswith(".") and not d.endswith("_old")]
 
         for f in files:
             filepath = root_path / f

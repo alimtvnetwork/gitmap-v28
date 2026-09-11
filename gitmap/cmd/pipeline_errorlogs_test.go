@@ -7,6 +7,9 @@ import (
 )
 
 func TestHandlePipelineErrorLogsWithTimeline(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping live GitHub API timeline test in short mode to avoid blocking")
+	}
 	err := handlePipelineErrorLogs([]string{"-t", "--json"})
 	if err != nil {
 		t.Errorf("expected handlePipelineErrorLogs with -t and --json to succeed, got %v", err)
@@ -14,6 +17,9 @@ func TestHandlePipelineErrorLogsWithTimeline(t *testing.T) {
 }
 
 func TestHandlePipelineErrorLogsWithCheckAndFix(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping live GitHub API check test in short mode")
+	}
 	errCheck := handlePipelineErrorLogs([]string{"--check", "--json"})
 	if errCheck != nil {
 		t.Errorf("expected handlePipelineErrorLogs with --check and --json to succeed, got %v", errCheck)

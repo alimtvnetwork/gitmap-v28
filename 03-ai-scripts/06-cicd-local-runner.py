@@ -974,14 +974,80 @@ def run_package_tests_worker(
     return passed, failed, out_summary, test_results
 
 
+def filter_tests_by_package_or_file(tests: dict[str, Any], queries: list[str], repo_root: Path) -> list[dict[str, Any]]:
+    """Filters inventory tests based on code file paths, code file names, or Go package names."""
+    matched_ids: set[str] = set()
+    for q_raw in queries:
+        q = q_raw.strip().replace("\\", "/").rstrip("/")
+        if not q:
+            continue
+        q_base = os.path.basename(q)
+        initial_count = len(matched_ids)
+        for tid, t in tests.items():
+            pkg = t.get("package", "").replace("\\", "/")
+            tf = t.get("target_file", "").replace("\\", "/")
+            test_f = t.get("test_file", "").replace("\\", "/")
+
+            # 1. Package match (exact, relative, or Go module suffix)
+            if pkg == q or pkg == f"gitmap/{q}" or pkg.endswith("/" + q) or pkg.split("/")[-1] == q:
+                matched_ids.add(tid)
+                continue
+            if q.startswith("github.com/") and q.endswith(pkg):
+                matched_ids.add(tid)
+                continue
+
+            # 2. File path match
+            if tf == q or test_f == q or tf.endswith("/" + q) or test_f.endswith("/" + q):
+                matched_ids.add(tid)
+                continue
+
+            # 3. File name match (basename)
+            if os.path.basename(tf) == q_base or os.path.basename(test_f) == q_base:
+                matched_ids.add(tid)
+                continue
+
+        # 4. Fallback: if no specific test targeted this .go file, find its package
+        if len(matched_ids) == initial_count and q_base.endswith(".go"):
+            found_pkg = None
+            for t in tests.values():
+                tf = t.get("target_file", "").replace("\\", "/")
+                if os.path.basename(tf) == q_base:
+                    found_pkg = t.get("package")
+                    break
+            if not found_pkg:
+                for root, _, files in os.walk(repo_root / "gitmap"):
+                    if q_base in files:
+                        found_pkg = os.path.relpath(root, repo_root).replace("\\", "/")
+                        break
+            if found_pkg:
+                for tid, t in tests.items():
+                    if t.get("package") == found_pkg:
+                        matched_ids.add(tid)
+
+    return [tests[tid] for tid in matched_ids if tid in tests]
+
+
 def run_smart_go_tests(
-    name: str, timeout_sec: int, max_workers: int, force: bool, repo_root: Path, tel: TelemetryTracker | None = None
+    name: str, timeout_sec: int, max_workers: int, force: bool, repo_root: Path,
+    tel: TelemetryTracker | None = None, package_filter: list[str] | str | None = None
 ) -> JobResult:
     """Executes only changed or failing Go unit tests in parallel worker groups, caching results."""
     start_time = time.monotonic()
     inventory = build_or_update_test_inventory(repo_root, force=force)
     tests = inventory.get("tests", {})
-    dirty_tests = [t for t in tests.values() if t.get("needs_run", True) or force]
+    if package_filter:
+        queries = [package_filter] if isinstance(package_filter, str) else list(package_filter)
+        target_tests = filter_tests_by_package_or_file(tests, queries, repo_root)
+        if not target_tests:
+            elapsed = round(time.monotonic() - start_time, 2)
+            out_msg = f"[WARN] No unit tests found matching package/file query: {', '.join(queries)}"
+            return JobResult(
+                name=name, cmd=["go", "test", f"--pkg={queries}"], code=0,
+                out=out_msg, err="", elapsed=elapsed, is_cached=False
+            )
+        dirty_tests = target_tests
+    else:
+        dirty_tests = [t for t in tests.values() if t.get("needs_run", True) or force]
 
     if not dirty_tests:
         elapsed = round(time.monotonic() - start_time, 2)
@@ -1608,6 +1674,15 @@ def add_execution_mode_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--io-workers", type=int, default=DEFAULT_IO_WORKERS, help="IO worker limit.")
     parser.add_argument("-t", "--timeout", type=int, default=DEFAULT_TIMEOUT_SEC, help="Job timeout.")
     parser.add_argument("--filter", type=str, default=None, help="Filter jobs by substring.")
+    parser.add_argument(
+        "--pkg", "--package", "-p", "--target-file", "--file",
+        dest="package_filter", nargs="*", default=[],
+        help="Run specific Go test package based on code file path, code file name, or Go package name."
+    )
+    parser.add_argument(
+        "positional_targets", nargs="*", default=[],
+        help="Optional positional package names, code file paths, or file names to test."
+    )
 
 
 def add_reporting_arguments(parser: argparse.ArgumentParser) -> None:
@@ -1635,7 +1710,10 @@ def parse_args() -> argparse.Namespace:
     add_reporting_arguments(parser)
     add_caching_and_resume_arguments(parser)
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    raw_targets = list(getattr(args, "package_filter", []) or []) + list(getattr(args, "positional_targets", []) or [])
+    args.package_filter = [t for t in raw_targets if t]
+    return args
 
 
 def collect_tool_stats(repo_root: Path, scripts: list[str]) -> dict[str, list]:
@@ -1790,7 +1868,9 @@ def submit_job_futures(executor: ThreadPoolExecutor, to_run: list, args: argpars
     for name, cmd, cmd_hash, spec in to_run:
         telemetry.start_job(name)
         if (isinstance(cmd, dict) and cmd.get("type") == "smart_go_tests") or name == "Go Smart Incremental Tests":
-            fut = executor.submit(run_smart_go_tests, name, args.timeout, args.workers, bool(args.force_run), root, telemetry)
+            fut = executor.submit(
+                run_smart_go_tests, name, args.timeout, args.workers, bool(args.force_run), root, telemetry, getattr(args, "package_filter", [])
+            )
             future_map[fut] = (name, cmd_hash, spec, cmd)
             continue
         raw_cmd = cmd.get("cmd") if isinstance(cmd, dict) else cmd
@@ -2364,7 +2444,10 @@ def main() -> None:
         print_inventory_summary(inventory)
         sys.exit(0)
 
-    batches = filter_job_batches(JOB_BATCHES, args.filter)
+    if getattr(args, "package_filter", None) and not args.filter:
+        batches = filter_job_batches(JOB_BATCHES, "Go Smart Incremental Tests")
+    else:
+        batches = filter_job_batches(JOB_BATCHES, args.filter)
     timings = load_cicd_timings(TIMING_FILE_PATH)
     total_est = calculate_total_eta(batches, timings)
     code = run_pipeline_with_eta(args, batches, repo_root, timings, total_est)
