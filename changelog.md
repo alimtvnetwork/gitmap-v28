@@ -1,3 +1,17 @@
+## [v6.215.0] 2026-09-11 Release v6.215.0
+
+### Install GitMap v6.215.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.sh | bash -s -- ".lovable/prompts" "v6.215.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.215.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Aggregate all pipeline section and step failure errors together in one consolidated view
+- Explicitly state saved error log files (.gitmap/pipeline/pipeline_errors.log, <runId>.log, and DB path)
+- Display full execution metadata (which workflow, run ID, branch, commit, when run timestamp and relative age, run duration, and URL)
+
 ## [v6.214.0] 2026-09-11 Release v6.214.0
 
 ### Install GitMap v6.214.0
