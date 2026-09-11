@@ -1,3 +1,16 @@
+## [v6.217.0] 2026-09-11 Release v6.217.0
+
+### Install GitMap v6.217.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.sh | bash -s -- ".lovable/prompts" "v6.217.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.217.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove dead queryRecentFailedRuns helper to resolve unused linter finding
+- Format Go files to satisfy dry-run formatting gate
+
 ## [v6.216.0] 2026-09-11 Release v6.216.0
 
 ### Install GitMap v6.216.0
