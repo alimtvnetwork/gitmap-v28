@@ -95,6 +95,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from typing import Any
@@ -121,7 +122,7 @@ TMP_CACHE_DIR = Path(__file__).resolve().parent.parent / ".tmp"
 TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("GOTMPDIR", str(TMP_CACHE_DIR))
 
-CICD_TEMP_DIR = Path(".lovable/temp/cicd")
+CICD_TEMP_DIR = Path(tempfile.gettempdir()) / ".lovable" / "cicd"
 CICD_RUNS_DIR = CICD_TEMP_DIR / "runs"
 CICD_LATEST_DIR = CICD_TEMP_DIR / "latest"
 CICD_ERRORS_LOG = CICD_TEMP_DIR / "errors.log"
@@ -1360,8 +1361,20 @@ def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: P
     err_text = extract_stack_or_error(res)
     suspect_files = extract_failing_files(err_text)
     write_failure_markdown(format_error_log_entry(res, suspect_files, ts, err_text), session_dir)
+    
+    # Save individual failure trace to separate file
+    log_path_str = ""
+    if session_dir is not None:
+        failures_dir = session_dir / "failed_tests"
+        failures_dir.mkdir(parents=True, exist_ok=True)
+        safe_name = "".join([c if c.isalnum() or c in ("-", "_") else "_" for c in res.name])
+        failure_file = failures_dir / f"{safe_name}.log"
+        failure_content = f"Test Name: {res.name}\nCommand: {res.cmd}\nCode: {res.code}\n\nStack Trace / Output:\n{err_text}"
+        failure_file.write_text(failure_content, encoding=DEFAULT_ENCODING)
+        log_path_str = str(failure_file.absolute())
+    
     errors_list = state.setdefault("errors_list", [])
-    errors_list.append({"name": res.name, "cmd": res.cmd, "code": res.code, "elapsed": res.elapsed, "suspect_files": suspect_files, "error": strip_ansi(err_text)})
+    errors_list.append({"name": res.name, "cmd": res.cmd, "code": res.code, "elapsed": res.elapsed, "suspect_files": suspect_files, "error": strip_ansi(err_text), "log_path": log_path_str})
     atomic_write_json(CICD_ERRORS_JSON, errors_list)
     if session_dir is not None:
         atomic_write_json(session_dir / "errors.json", errors_list)
@@ -1482,7 +1495,9 @@ def init_session_scaffolding(force: bool, resume: bool) -> tuple[Path, dict[str,
     """Initializes session folder, latest pointer, and loads previous state."""
     CICD_RUNS_DIR.mkdir(parents=True, exist_ok=True)
     ts = time.strftime("%Y%m%d_%H%M%S")
-    session_dir = CICD_RUNS_DIR / ts
+    import uuid
+    run_hash = hashlib.md5(str(uuid.uuid4()).encode()).hexdigest()[:8]
+    session_dir = CICD_RUNS_DIR / f"{run_hash}-{ts}"
     session_dir.mkdir(parents=True, exist_ok=True)
     link_latest_session(session_dir, CICD_LATEST_DIR)
     prev_state = load_previous_state(force)
@@ -1599,7 +1614,7 @@ def add_reporting_arguments(parser: argparse.ArgumentParser) -> None:
     """Adds reporting and visibility CLI arguments."""
     parser.add_argument("--all-paths", "--all-passed", "--all", dest="show_all", action="store_true", help="Show all.")
     parser.add_argument("--failed", dest="failed_only", action="store_true", help="Show failed only.")
-    parser.add_argument("-o", "--output", dest="output_file", type=str, default=None, help="Output file.")
+    parser.add_argument("-o", "--output-paths", dest="output_paths", nargs="*", type=str, default=[], help="Multiple output file paths.")
     parser.add_argument("--json", dest="json_mode", action="store_true", help="Output machine-readable JSON.")
     parser.add_argument("--eta-interval", type=int, default=120, help="Print ETA interval in seconds.")
     parser.add_argument("--inventory-only", dest="inventory_only", action="store_true", help="Discover and catalog all tests into JSON manifest and exit.")
@@ -1865,8 +1880,9 @@ def handle_json_output(args: argparse.Namespace, results: list[JobResult], count
     """Emits JSON formatted output to stdout or specified file."""
     payload = build_json_payload(results, counts, total_elapsed)
     out_str = json.dumps(payload, indent=2)
-    if args.output_file:
-        Path(args.output_file).write_text(out_str, encoding=DEFAULT_ENCODING)
+    if getattr(args, "output_paths", []):
+        for p in args.output_paths:
+            Path(p).write_text(out_str, encoding=DEFAULT_ENCODING)
     else:
         print(out_str)
     exit_code = 1 if has_failures else 0
@@ -1933,6 +1949,7 @@ def format_log_locations_section(session_dir: Path | None) -> list[str]:
         f"  • Incremental Cache     : {normalize_repo_rel(str(CICD_STATE_JSON))}",
         f"  • Full Chronological Log: {normalize_repo_rel(str(CICD_RUN_LOG))}",
         f"  • Session Run Directory : {sdir_rel}/",
+        f"  • Individual Fail Logs  : {sdir_rel}/failed_tests/",
     ]
 
     return lines
@@ -2279,11 +2296,15 @@ def calculate_total_eta(active_batches: list[dict[str, Any]], timings: dict[str,
     """Computes total estimated execution time across all active batches."""
     total_sec = 0.0
     for batch in active_batches:
-        batch_max = DEFAULT_JOB_ESTIMATE_SEC
+        batch_sum = 0.0
+        batch_max = 0.0
         for job_name in batch.get("jobs", {}):
             job_est = timings.get(job_name, DEFAULT_JOB_ESTIMATE_SEC)
+            batch_sum += job_est
             batch_max = max(batch_max, job_est)
-        total_sec += batch_max
+        workers = batch.get("workers", DEFAULT_WORKERS)
+        batch_est = max(batch_max, batch_sum / workers) if workers > 0 else batch_sum
+        total_sec += batch_est
 
     return int(total_sec)
 
