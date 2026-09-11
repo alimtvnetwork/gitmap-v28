@@ -17,6 +17,7 @@ import (
 
 type interactiveSessionState struct {
 	lastInspectedCmd string
+	isExecEnabled    bool
 }
 
 func newInteractiveState() *interactiveSessionState {

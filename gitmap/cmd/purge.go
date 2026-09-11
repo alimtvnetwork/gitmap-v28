@@ -10,11 +10,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
-func parsePurgeArgs(args []string) (pat string, isRestore, isAutoConfirm bool) {
+func parsePurgeArgs(args []string) (pat string, isRestore, isAutoConfirm, isLovable bool) {
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		if a == "--restore" {
 			isRestore = true
+		} else if a == "--lovable-untracked" {
+			isLovable = true
 		} else if a == "-y" || a == "--confirm" {
 			isAutoConfirm = true
 		} else if a == "--path" && i+1 < len(args) {
@@ -24,7 +26,7 @@ func parsePurgeArgs(args []string) (pat string, isRestore, isAutoConfirm bool) {
 			pat = a
 		}
 	}
-	return pat, isRestore, isAutoConfirm
+	return pat, isRestore, isAutoConfirm, isLovable
 }
 
 func runPurgeCmd(name string, args ...string) (string, error) {
@@ -44,7 +46,7 @@ func copyPurgeFile(src, dst string) error {
 }
 
 func runPurge(args []string) error {
-	pat, isRestore, isAutoConfirm := parsePurgeArgs(args)
+	pat, isRestore, isAutoConfirm, isLovable := parsePurgeArgs(args)
 	repo, err := os.Getwd()
 	if err != nil {
 		return apperror.Wrap(err, "failed to get current directory", nil)
@@ -54,6 +56,9 @@ func runPurge(args []string) error {
 		return apperror.Wrap(err, "failed to open database", nil)
 	}
 	defer db.Close()
+	if isLovable {
+		return doPurgeLovable(repo)
+	}
 	if isRestore {
 		return doRestore(db, repo)
 	}

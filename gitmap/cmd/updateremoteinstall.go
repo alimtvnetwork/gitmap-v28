@@ -255,13 +255,13 @@ func resolveCurrentInstallDir() string {
 
 func buildRemoteInstallerCmd(scriptPath, installDir string) *exec.Cmd {
 	if runtime.GOOS == "windows" {
-		return buildWindowsInstallerCmd(scriptPath, installDir)
+		return buildRemoteWindowsInstallerCmd(scriptPath, installDir)
 	}
 
 	return buildUnixInstallerCmd(scriptPath, installDir)
 }
 
-func buildWindowsInstallerCmd(scriptPath, installDir string) *exec.Cmd {
+func buildRemoteWindowsInstallerCmd(scriptPath, installDir string) *exec.Cmd {
 	args := []string{
 		"-ExecutionPolicy", "Bypass",
 		"-NoProfile", "-NoLogo",

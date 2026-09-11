@@ -46,7 +46,8 @@ func TestParsePurgeArgs(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			pat, isRestore, isAutoConfirm := parsePurgeArgs(tc.args)
+			pat, isRestore, isAutoConfirm, isLovable := parsePurgeArgs(tc.args)
+			_ = isLovable
 			if pat != tc.wantPat {
 				t.Errorf("got pat %q, want %q", pat, tc.wantPat)
 			}
