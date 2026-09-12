@@ -11,7 +11,7 @@ import (
 )
 
 // ResolvePromptTarget resolves a path, alias, ID, or discovers child repos.
-func ResolvePromptTarget(target string) result.ResultSlice[string] {
+func ResolvePromptTarget(target string) PromptTargetSliceResult {
 	if target == "" {
 		return result.OkSlice(resolveFallbackPromptTarget())
 	}

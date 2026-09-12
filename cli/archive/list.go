@@ -12,15 +12,6 @@ import (
 	"github.com/mholt/archives"
 )
 
-// ListEntries walks the archive and returns a flat list of entry names
-// + sizes for the `--list` mode. Bounded internally to 50_000 entries to
-// keep a malicious archive from exhausting memory.
-type Entry struct {
-	Path  string
-	Size  int64
-	IsDir bool
-}
-
 const maxListEntries = 50_000
 
 // ListEntries returns up to maxListEntries entries plus the detected
@@ -53,14 +44,6 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 	}
 
 	return extractListEntries(listParams)
-}
-
-// ListExtractParams encapsulates parameters for extracting list entries.
-type ListExtractParams struct {
-	Ctx       context.Context
-	Extractor archives.Extractor
-	Stream    io.Reader
-	Format    archives.Format
 }
 
 func extractListEntries(params ListExtractParams) ([]Entry, Format, error) {

@@ -7,7 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func ResolveAllWorkDirPromptTargets() result.ResultSlice[string] {
+func ResolveAllWorkDirPromptTargets() PromptTargetSliceResult {
 	db, errDB := store.OpenDefault()
 	if errDB != nil {
 		return result.FailSlice[string](apperror.WrapSimple(errDB, "open store for workdir targets"))

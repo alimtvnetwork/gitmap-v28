@@ -8,6 +8,13 @@
 // Spec: 02-spec/01-app/97-move-and-merge.md
 package movemerge
 
+import (
+	"io"
+	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
+)
+
 // EndpointKindType classifies a positional argument once at command start.
 type EndpointKindType int
 
@@ -74,3 +81,62 @@ type Options struct {
 	LogPrefix         string // "[mv]" etc.
 	CommitMsgFmt      string // template; "%s" filled from other side's display
 }
+
+// DiffKindType classifies a path across LEFT and RIGHT.
+type DiffKindType int
+
+const (
+	// DiffMissingLeft = present on RIGHT only.
+	DiffMissingLeft DiffKindType = iota
+	// DiffMissingRight = present on LEFT only.
+	DiffMissingRight
+	// DiffConflict = present on both with different content.
+	DiffConflict
+	// DiffIdentical = present on both with byte-equal content.
+	DiffIdentical
+)
+
+// DiffEntry is one classified path with both sides' metadata.
+type DiffEntry struct {
+	RelPath string
+	Kind    DiffKindType
+	Left    FileMeta
+	Right   FileMeta
+}
+
+// FileMeta is a single file's identity used by the diff stage.
+type FileMeta struct {
+	RelPath string
+	Info    os.FileInfo
+	SHA     string
+}
+
+// ChoiceType is the outcome of resolving one conflict.
+type ChoiceType int
+
+const (
+	// ChoiceLeft writes LEFT's version onto the destination side.
+	ChoiceLeft ChoiceType = iota
+	// ChoiceRight writes RIGHT's version onto the destination side.
+	ChoiceRight
+	// ChoiceSkip leaves both sides untouched.
+	ChoiceSkip
+	// ChoiceQuit aborts the run; partial changes are kept.
+	ChoiceQuit
+)
+
+// Resolver picks a ChoiceType for each conflict. Stateful: All-Left/Right
+// stickiness is held inside the resolver instance.
+type Resolver struct {
+	policy PreferPolicyType
+	sticky ChoiceType
+	hasStk bool
+	in     io.Reader
+	out    io.Writer
+}
+
+// DiffEntryResult wraps a single DiffEntry in a Result envelope.
+type DiffEntryResult = result.Result[DiffEntry]
+
+// FileMetaMapResult wraps a map of relative paths to FileMeta.
+type FileMetaMapResult = result.ResultMap[string, FileMeta]

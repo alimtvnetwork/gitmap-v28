@@ -25,51 +25,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-type ConfigKeyType string
-
-// ConfigKey is a backward-compatible alias for ConfigKeyType.
-type ConfigKey = ConfigKeyType
-
-const (
-	KeyDefaultSplitSize   ConfigKeyType = "DownloaderConfig.DefaultSplitSize"
-	KeyLargeFileSplitSize ConfigKeyType = "DownloaderConfig.LargeFileSplitSize"
-	KeyLargeFileThreshold ConfigKeyType = "DownloaderConfig.LargeFileThreshold"
-	KeyTinyFileThreshold  ConfigKeyType = "DownloaderConfig.TinyFileThreshold"
-	KeyTinyFileSplitSize  ConfigKeyType = "DownloaderConfig.TinyFileSplitSize"
-)
-
-// Document is the top-level Seedable-Config envelope. Field names are
-// PascalCase to match the spec and the JSON file shipped under
-// gitmap/data/downloader-config.json.
-type Document struct {
-	DownloaderConfig DownloaderConfig `json:",omitempty"`
-	DatabaseVersion  DatabaseVersion  `json:",omitempty"`
-}
-
-// DownloaderConfig is the per-downloader runtime config consumed by
-// Slice 2 (aria2c installer + engine).
-type DownloaderConfig struct {
-	PreferredDownloader string `json:",omitempty"`
-	FallbackDownloader  string `json:",omitempty"`
-	ParallelDownloads   int    `json:",omitempty"`
-	SplitConnections    int    `json:",omitempty"`
-	DefaultSplitSize    string `json:",omitempty"`
-	LargeFileSplitSize  string `json:",omitempty"`
-	LargeFileThreshold  string `json:",omitempty"`
-	TinyFileThreshold   string `json:",omitempty"`
-	TinyFileSplitSize   string `json:",omitempty"`
-	TinyFileSplits      int    `json:",omitempty"`
-	AllowFallback       bool   `json:",omitempty"`
-	OverwriteUserConfig bool   `json:",omitempty"`
-}
-
-// DatabaseVersion records the last gitmap version that touched the DB.
-// Stored as a string so we can keep the literal "auto" sentinel in the
-// shipped seed file and resolve it at apply-time to constants.Version.
-type DatabaseVersion struct {
-	LastKnownVersion string `json:",omitempty"`
-}
-
 // Defaults returns a Document populated from the hard-coded constants.
 // Used as the last-resort fallback when both the DB and the seed file are
 // unavailable (e.g. first-run race before Migrate completes).
@@ -95,7 +50,7 @@ func Defaults() Document {
 
 // LoadFile reads + validates a Seedable-Config JSON file from disk.
 // Used by `gitmap downloader-config <path>` and by the seeder.
-func LoadFile(path string) result.Result[Document] {
+func LoadFile(path string) DocumentResult {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		// Preserve the underlying error (in particular fs.ErrNotExist) so
@@ -113,7 +68,7 @@ func LoadFile(path string) result.Result[Document] {
 }
 
 // Parse validates a raw JSON byte slice and returns the typed Document.
-func Parse(raw []byte) result.Result[Document] {
+func Parse(raw []byte) DocumentResult {
 	var doc Document
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		appErr := apperror.WrapSimple(err, constants.ErrDownloaderConfigInvalidJSON)
@@ -179,7 +134,7 @@ func Validate(doc Document) *apperror.AppError {
 // Marshal serializes a Document with deterministic 2-space indent, matching
 // the project's JSONIndent convention so files written back round-trip
 // cleanly with the seed.
-func Marshal(doc Document) result.Result[[]byte] {
+func Marshal(doc Document) BytesResult {
 	b, err := json.MarshalIndent(doc, "", constants.JSONIndent)
 	if err != nil {
 		appErr := apperror.WrapSimple(err, "downloaderconfig.Marshal")

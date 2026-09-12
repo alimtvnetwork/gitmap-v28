@@ -4,6 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
+*None*
 
 ## Completed Plans
 
@@ -82,3 +83,4 @@ Master directory of architectural and execution plans.
 - [73-naming-conventions-and-anti-ok-variables.md](completed/73-naming-conventions-and-anti-ok-variables.md): 73-naming-conventions-and-anti-ok-variables
 - [74-constants-and-enums-architecture.md](completed/74-constants-and-enums-architecture.md): 74-constants-and-enums-architecture
 - [147-argument-reduction-and-parameter-structs.md](completed/147-argument-reduction-and-parameter-structs.md): 147-argument-reduction-and-parameter-structs
+- [148-types-go-extraction-and-generic-result-centralization.md](completed/148-types-go-extraction-and-generic-result-centralization.md): 148-types-go-extraction-and-generic-result-centralization

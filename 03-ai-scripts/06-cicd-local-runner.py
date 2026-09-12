@@ -16,9 +16,9 @@
    • Batch 3 — Packaging Gates (Gate 25):
      - Parallelism: Single dedicated worker to isolate GoReleaser snapshot release and avoid dist/ collisions.
      - Scope: GoReleaser Snapshot Build.
-   • Batch 4 — E2E Smoke & Integration Suites (Gates 26-30):
+   • Batch 4 — E2E Smoke & Integration Suites (Gates 26-28):
      - Parallelism: High concurrency parallel worker pool across isolated temporary environments.
-     - Scope: E2E Smoke Suite, Installer Smoke (source & release), History Purge/Pin.
+     - Scope: E2E Smoke Suite, History Purge/Pin.
    • Batch 5 — Coverage Generation (Gate 31):
      - Parallelism: Dedicated worker with 20m timeout for deep codebase coverage generation.
      - Scope: Go Test Coverage Profile (coverage.out).
@@ -69,7 +69,7 @@
      - Unchanged gates that passed in the previous run are skipped with label "[cached]".
      - Previously failed gates are NEVER skipped and always re-execute until green.
      - Upstream Invalidation: If "Go Compile Gate" rebuilds bin/gitmap.exe, downstream gates
-       ("E2E Smoke Suite", "Installer Smoke", "History Pin/Purge") are automatically invalidated.
+       ("E2E Smoke Suite", "History Pin/Purge") are automatically invalidated.
    • Cache Bypass:
      - Use --force (or --fresh / --clean) to clear cache and force all 33 gates to run from scratch.
 
@@ -241,8 +241,6 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "max_workers": None,
         "jobs": {
             "E2E Smoke Suite": [sys.executable, ".github/scripts/e2e-cli-smoke.py", "bin/gitmap.exe"],
-            "Installer Smoke (source)": [sys.executable, ".github/scripts/smoke-installer.py", "source"],
-            "Installer Smoke (release)": [sys.executable, ".github/scripts/smoke-installer.py", "release"],
             "History Purge Smoke": [sys.executable, ".github/scripts/smoke-history-purge.py", "bin/gitmap.exe"],
             "History Pin Smoke": [sys.executable, ".github/scripts/smoke-history-pin.py", "bin/gitmap.exe"],
         },
@@ -458,8 +456,6 @@ GATE_SPECS: dict[str, GateSpec] = {
     "Web App Build": GateSpec("Web App Build", configs=["package.json", "package-lock.json", "vite.config.ts", "tsconfig*.json"], relevant_patterns=CLUSTER_WEB_APP, artifact_outputs=["dist/**"]),
     "GoReleaser Snapshot Build": GateSpec("GoReleaser Snapshot Build", configs=[".goreleaser.yaml", ".goreleaser.yml", "cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["dist/**"]),
     "E2E Smoke Suite": GateSpec("E2E Smoke Suite", tool_scripts=[".github/scripts/e2e-cli-smoke.py"], relevant_patterns=CLUSTER_GO_ALL + [".github/scripts/e2e-cli-smoke.py"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
-    "Installer Smoke (source)": GateSpec("Installer Smoke (source)", tool_scripts=[".github/scripts/smoke-installer.py"], configs=["install.sh", "install.ps1", "linter-scripts/installer-templates/**"], relevant_patterns=CLUSTER_GO_ALL + [".github/scripts/smoke-installer.py"], upstream_gates=["Go Compile Gate"]),
-    "Installer Smoke (release)": GateSpec("Installer Smoke (release)", tool_scripts=[".github/scripts/smoke-installer.py"], configs=[".goreleaser.yaml", "install.sh", "install.ps1"], relevant_patterns=[".github/scripts/smoke-installer.py", "dist/**"], upstream_gates=["GoReleaser Snapshot Build"]),
     "History Purge Smoke": GateSpec("History Purge Smoke", tool_scripts=[".github/scripts/smoke-history-purge.py"], relevant_patterns=[".github/scripts/smoke-history-purge.py", "cli/cmd/**/*.go", "cli/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
     "History Pin Smoke": GateSpec("History Pin Smoke", tool_scripts=[".github/scripts/smoke-history-pin.py"], relevant_patterns=[".github/scripts/smoke-history-pin.py", "cli/cmd/**/*.go", "cli/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
     "Go Smart Incremental Tests": GateSpec("Go Smart Incremental Tests", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),

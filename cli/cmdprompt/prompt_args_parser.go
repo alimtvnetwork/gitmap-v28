@@ -5,14 +5,6 @@ import (
 	"strings"
 )
 
-type PromptInstallOptions struct {
-	Targets  []string
-	Exclude  string
-	IsDryRun bool
-	IsAll    bool
-	Action   string
-}
-
 func ParsePromptArgs(args []string) PromptInstallOptions {
 	var opts PromptInstallOptions
 	opts.Action = "install"

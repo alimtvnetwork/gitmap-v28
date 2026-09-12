@@ -6,7 +6,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-func DiscoverPromptChildRepos(rootDir string) result.ResultSlice[string] {
+func DiscoverPromptChildRepos(rootDir string) PromptTargetSliceResult {
 	repos, err := fsutil.DiscoverTopLevelGitRepos(rootDir)
 	if err != nil {
 		return result.NewFailureSlice[string](err)

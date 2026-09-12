@@ -31,34 +31,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// CompressionMode is the user-facing knob persisted in
-// ArchiveHistory.CompressionMode.
-type CompressionModeType string
-
-type CompressionMode = CompressionModeType
-
-const (
-	ModeStandard CompressionModeType = constants.CompressionStandard
-	ModeBest     CompressionModeType = constants.CompressionBest
-	ModeFast     CompressionModeType = constants.CompressionFast
-)
-
-// CreateOptions bundles every knob `gitmap zip` exposes.
-type CreateOptions struct {
-	OutputPath string
-	Sources    []string // absolute local paths
-	Mode       CompressionMode
-	Includes   []string // optional glob list
-	Excludes   []string // optional glob list
-}
-
-// CreateResult is returned to the cmd layer for printing + history rows.
-type CreateResult struct {
-	OutputPath     string
-	Format         Format
-	EntriesWritten int
-}
-
 func validateCreateFormat(path string) (Format, error) {
 	format := FormatFromPath(path)
 	if format == FormatUnknown {
@@ -87,15 +59,6 @@ func createOutputFile(path string) (*os.File, error) {
 	}
 
 	return os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, constants.FilePermission)
-}
-
-// ArchiveWriteParams encapsulates parameters for writing an archive.
-type ArchiveWriteParams struct {
-	Ctx    context.Context
-	Path   string
-	Format Format
-	Mode   CompressionMode
-	Files  []archives.FileInfo
 }
 
 func writeArchive(params ArchiveWriteParams) error {
@@ -181,7 +144,7 @@ func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, er
 	return archives.FilesFromDisk(ctx, nil, mapping)
 }
 
-func isEntryIncluded(name string, includes, excludes []string) result.Result[bool] {
+func isEntryIncluded(name string, includes, excludes []string) BoolResult {
 	if len(includes) > 0 && !hasMatchingPattern(name, includes) {
 		return result.NewSuccess(false)
 	}
@@ -209,7 +172,7 @@ func filterFiles(in []archives.FileInfo, includes, excludes []string) []archives
 	return out
 }
 
-func matchPattern(pattern, name string) result.Result[bool] {
+func matchPattern(pattern, name string) BoolResult {
 	if ok, err := filepath.Match(pattern, name); err == nil && ok {
 		return result.NewSuccess(true)
 	}

@@ -7,20 +7,6 @@ import (
 	"strings"
 )
 
-// ChoiceType is the outcome of resolving one conflict.
-type ChoiceType int
-
-const (
-	// ChoiceLeft writes LEFT's version onto the destination side.
-	ChoiceLeft ChoiceType = iota
-	// ChoiceRight writes RIGHT's version onto the destination side.
-	ChoiceRight
-	// ChoiceSkip leaves both sides untouched.
-	ChoiceSkip
-	// ChoiceQuit aborts the run; partial changes are kept.
-	ChoiceQuit
-)
-
 const (
 	keyLeft     = "L"
 	keyRight    = "R"
@@ -28,16 +14,6 @@ const (
 	keyAllRight = "B"
 	keyQuit     = "Q"
 )
-
-// Resolver picks a ChoiceType for each conflict. Stateful: All-Left/Right
-// stickiness is held inside the resolver instance.
-type Resolver struct {
-	policy PreferPolicyType
-	sticky ChoiceType
-	hasStk bool
-	in     io.Reader
-	out    io.Writer
-}
 
 // NewResolver builds a Resolver for the run. When policy is non-None,
 // the resolver short-circuits without reading from in.

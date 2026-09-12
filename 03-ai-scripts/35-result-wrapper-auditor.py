@@ -54,6 +54,13 @@ ENFORCED_TYPES_GO_PACKAGES = (
     "cli/db",
     "cli/cluster",
     "cli/cmdpurge",
+    "cli/clonenow",
+    "cli/clonefrom",
+    "cli/cmdprompt",
+    "cli/downloaderconfig",
+    "cli/movemerge",
+    "cli/lazyregex",
+    "cli/archive",
 )
 
 NON_AFFIRMATIVE_DEFINED = re.compile(r"\bdefined\s+bool\b")

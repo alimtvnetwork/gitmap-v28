@@ -12,16 +12,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-// FileMeta is a single file's identity used by the diff stage.
-type FileMeta struct {
-	RelPath string
-	Info    os.FileInfo
-	SHA     string
-}
-
 // IndexTree walks root and returns rel-path -> FileMeta for every
 // non-ignored regular file. Symlinks are recorded but not followed.
-func IndexTree(root string, opts Options) result.ResultMap[string, FileMeta] {
+func IndexTree(root string, opts Options) FileMetaMapResult {
 	out := make(map[string]FileMeta)
 	walkErr := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

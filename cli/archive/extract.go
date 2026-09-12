@@ -16,16 +16,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// ExtractResult is what a compact-extract returns to the caller so it can
-// be persisted into ArchiveHistory and printed to the user.
-type ExtractResult struct {
-	OutputDir       string
-	Format          Format
-	EntriesWritten  int
-	UsedTempDir     bool
-	FlattenedLayers int
-}
-
 // CompactExtract extracts srcArchive into a single normalized directory
 // under destBaseDir, named after the archive's base name (sans extension).
 //
@@ -73,15 +63,6 @@ func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Fo
 	}
 
 	return format, nil
-}
-
-// CompactExtractParams encapsulates parameters for completing a compact extraction.
-type CompactExtractParams struct {
-	Ctx         context.Context
-	SrcArchive  string
-	DestBaseDir string
-	TempDir     string
-	Result      ExtractResult
 }
 
 func completeCompactExtract(params CompactExtractParams) (ExtractResult, error) {
@@ -140,14 +121,6 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 	}
 
 	return runArchiveExtraction(extractParams)
-}
-
-// ArchiveExtractParams encapsulates parameters for running an archive extraction.
-type ArchiveExtractParams struct {
-	Ctx       context.Context
-	Extractor archives.Extractor
-	Stream    io.Reader
-	DestDir   string
 }
 
 func runArchiveExtraction(params ArchiveExtractParams) (int, error) {
@@ -341,14 +314,6 @@ func copyDir(src, dst string) error {
 
 		return copyDirEntry(entryParams)
 	})
-}
-
-// CopyDirEntryParams encapsulates parameters for copying a single directory entry.
-type CopyDirEntryParams struct {
-	Src   string
-	Dst   string
-	Path  string
-	Entry fs.DirEntry
 }
 
 func copyDirEntry(params CopyDirEntryParams) error {

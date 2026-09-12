@@ -5,13 +5,6 @@ import (
 	"fmt"
 )
 
-type PromptStatusTableLayout struct {
-	MaxRepo    int
-	MaxStatus  int
-	MaxVersion int
-	MaxDate    int
-}
-
 func NewPromptStatusTableLayout() *PromptStatusTableLayout {
 	return &PromptStatusTableLayout{
 		MaxRepo:    20,

@@ -6,13 +6,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-// CompileResult encapsulates the outcome of a lazy regex compilation,
-// holding either the compiled regexp or structured AppError diagnostics.
-type CompileResult struct {
-	re       *regexp.Regexp
-	appError *apperror.AppError
-}
-
 // NewCompileSuccess creates a successful CompileResult wrapping the compiled regexp.
 func NewCompileSuccess(re *regexp.Regexp) *CompileResult {
 	return &CompileResult{

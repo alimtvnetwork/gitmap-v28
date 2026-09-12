@@ -14,16 +14,6 @@ var (
 	globalMap  = make(map[string]*LazyRegexp, 64)
 )
 
-// LazyRegexp provides a thread-safe, lazily compiled regular expression
-// that caches its compiled state within the instance itself.
-type LazyRegexp struct {
-	expression string
-	regex      *regexp.Regexp
-	compileErr error
-	isCompiled bool
-	locker     sync.Mutex
-}
-
 // New creates or retrieves a globally cached LazyRegexp for the given expression.
 // Each expression maps to exactly one instance; compilation is lazy and stored in the instance.
 func New(expression string) *LazyRegexp {
@@ -49,7 +39,7 @@ func NewLock(expression string) *LazyRegexp {
 // Compile compiles the regular expression on demand, setting the isCompiled flag.
 // Subsequent calls return the cached *regexp.Regexp without recompilation.
 // It checks first if an existing compiled regexp already exists and returns it immediately.
-func (it *LazyRegexp) Compile() result.Result[*regexp.Regexp] {
+func (it *LazyRegexp) Compile() RegexpResult {
 	if it == nil {
 		return result.FailureResult[*regexp.Regexp](apperror.NewSimple("nil LazyRegexp cannot compile", "E9000"))
 	}
@@ -103,7 +93,7 @@ func (it *LazyRegexp) CompileMust() *regexp.Regexp {
 
 // CompileResult compiles the regex and returns a wrapped CompileResult.
 // It checks first if an existing compiled regexp already exists and returns it immediately.
-func (it *LazyRegexp) CompileResult() result.Result[*regexp.Regexp] {
+func (it *LazyRegexp) CompileResult() RegexpResult {
 	return it.Compile()
 }
 
@@ -133,8 +123,11 @@ func (it *LazyRegexp) compiledRegex() (*regexp.Regexp, error) {
 	}
 
 	res := it.Compile()
+	if res.IsFailure() {
+		return nil, res.AppError()
+	}
 
-	return res.Value, res.AppError()
+	return res.Value, nil
 }
 
 // IsCompiled reports whether compilation has already been executed.

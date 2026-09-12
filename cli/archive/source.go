@@ -27,28 +27,6 @@ import (
 	"time"
 )
 
-// SourceKindType classifies one entry on the `gitmap zip` / `gitmap uzc`
-// command line. The cmd layer dispatches per-kind; the archive engine
-// only ever sees concrete local paths.
-type SourceKindType int
-
-const (
-	SourceLocal SourceKindType = iota
-	SourceHTTP
-	SourceGit
-)
-
-// ResolvedSource is the materialized form of one user-supplied input.
-// LocalPath is always populated; CleanupDir, when non-empty, must be
-// removed by the caller after the operation completes (this is how the
-// HTTP and git branches signal they used a temp workspace).
-type ResolvedSource struct {
-	Original   string
-	Kind       SourceKindType
-	LocalPath  string
-	CleanupDir string
-}
-
 // ClassifySource is the cheap, pure-function classifier the command
 // layer uses BEFORE doing any IO. Decision order matters: a path like
 // `git@github.com:foo/bar.git` parses as a URL with no scheme, so we
@@ -65,7 +43,7 @@ func ClassifySource(s string) SourceKindType {
 	return SourceLocal
 }
 
-func isHTTPURL(s string) result.Result[bool] {
+func isHTTPURL(s string) BoolResult {
 	u, err := url.Parse(s)
 	if err != nil {
 		return result.NewSuccess(false)
@@ -159,14 +137,6 @@ func resolveHTTP(ctx context.Context, raw string) (ResolvedSource, error) {
 	}
 
 	return ResolvedSource{Original: raw, Kind: SourceHTTP, LocalPath: dst, CleanupDir: dir}, nil
-}
-
-// Aria2cDownloadParams encapsulates parameters for aria2c download.
-type Aria2cDownloadParams struct {
-	Ctx    context.Context
-	RawURL string
-	Dir    string
-	Name   string
 }
 
 // downloadWithAria2c is a thin wrapper that returns nil only on a clean

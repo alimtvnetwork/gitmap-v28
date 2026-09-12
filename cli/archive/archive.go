@@ -26,30 +26,6 @@ import (
 	"github.com/mholt/archives"
 )
 
-// FormatType is a string tag persisted in ArchiveHistory.ArchiveFormat. It
-// reads cleanly in PascalCase logs ("Zip", "TarGz") yet round-trips
-// through the canonical extension via FormatFromExt / FormatType.Extension.
-type FormatType string
-
-// Format is retained as a type alias for backwards compatibility.
-type Format = FormatType
-
-const (
-	FormatZip     FormatType = "Zip"
-	FormatTar     FormatType = "Tar"
-	FormatTarGz   FormatType = "TarGz"
-	FormatTarBz2  FormatType = "TarBz2"
-	FormatTarXz   FormatType = "TarXz"
-	FormatTarZst  FormatType = "TarZst"
-	FormatGz      FormatType = "Gz"
-	FormatBz2     FormatType = "Bz2"
-	FormatXz      FormatType = "Xz"
-	FormatZst     FormatType = "Zst"
-	Format7z      FormatType = "SevenZip"
-	FormatRar     FormatType = "Rar"
-	FormatUnknown FormatType = ""
-)
-
 var doubleExtMap = map[string]FormatType{
 	".tar.gz":  FormatTarGz,
 	".tgz":     FormatTarGz,

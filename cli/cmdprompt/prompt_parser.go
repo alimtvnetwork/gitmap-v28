@@ -1,21 +1,9 @@
-// Package cmdprompt — prompt_types.go defines prompt template structures and metadata parsing.
+// Package cmdprompt — prompt_parser.go implements markdown prompt frontmatter and body parsing.
 package cmdprompt
 
 import (
 	"strings"
 )
-
-// PromptTemplate represents a structured AI prompt with metadata and body.
-type PromptTemplate struct {
-	Title       string   `json:"title"`
-	Slug        string   `json:"slug"`
-	Version     string   `json:"version"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
-	Variables   []string `json:"variables"`
-	Body        string   `json:"body"`
-	FilePath    string   `json:"filePath,omitempty"`
-}
 
 func parsePromptMarkdown(content string) PromptTemplate {
 	pt := PromptTemplate{

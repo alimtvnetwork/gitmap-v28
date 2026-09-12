@@ -6,28 +6,6 @@ import (
 	"path/filepath"
 )
 
-// DiffKindType classifies a path across LEFT and RIGHT.
-type DiffKindType int
-
-const (
-	// DiffMissingLeft = present on RIGHT only.
-	DiffMissingLeft DiffKindType = iota
-	// DiffMissingRight = present on LEFT only.
-	DiffMissingRight
-	// DiffConflict = present on both with different content.
-	DiffConflict
-	// DiffIdentical = present on both with byte-equal content.
-	DiffIdentical
-)
-
-// DiffEntry is one classified path with both sides' metadata.
-type DiffEntry struct {
-	RelPath string
-	Kind    DiffKindType
-	Left    FileMeta
-	Right   FileMeta
-}
-
 // DiffTrees walks both sides and classifies every relative path.
 // Identical files are detected by SHA-256 (computed on demand).
 func DiffTrees(leftDir, rightDir string, opts Options) ([]DiffEntry, error) {
@@ -63,7 +41,7 @@ func classifyOne(
 	ri map[string]FileMeta,
 	leftDir,
 	rightDir string,
-) result.Result[DiffEntry] {
+) DiffEntryResult {
 	l, lOK := li[rel]
 	r, rOK := ri[rel]
 	entry := DiffEntry{RelPath: rel, Left: l, Right: r}
@@ -83,7 +61,7 @@ func classifyOne(
 }
 
 // classifyBoth resolves Identical vs Conflict via SHA-256.
-func classifyBoth(entry DiffEntry, leftDir, rightDir string) result.Result[DiffEntry] {
+func classifyBoth(entry DiffEntry, leftDir, rightDir string) DiffEntryResult {
 	lPath := filepath.Join(leftDir, filepath.FromSlash(entry.RelPath))
 	rPath := filepath.Join(rightDir, filepath.FromSlash(entry.RelPath))
 	lh, err := HashFile(lPath)
