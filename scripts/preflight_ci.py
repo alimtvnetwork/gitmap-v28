@@ -73,7 +73,7 @@ def run_lint(gitmap_dir: Path) -> bool:
 
 def main() -> int:
     repo_root = Path(__file__).resolve().parent.parent
-    gitmap_dir = repo_root / "gitmap"
+    gitmap_dir = repo_root / "cli"
     if not gitmap_dir.is_dir():
         print(f"✗ preflight-ci: 'gitmap/' not found at {repo_root}", file=sys.stderr)
         return 1

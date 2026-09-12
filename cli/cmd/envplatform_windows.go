@@ -1,0 +1,83 @@
+//go:build windows
+
+package cmd
+
+import (
+	"os"
+	"os/exec"
+	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+)
+
+// setEnvPersistent sets an environment variable on Windows via setx.
+func setEnvPersistent(name, value string, system bool, _ string) error {
+	args := buildSetxArgs(name, value, system)
+
+	return runSetx(args)
+}
+
+// deleteEnvPersistent removes an environment variable on Windows.
+func deleteEnvPersistent(name string, system bool, _ string) error {
+	args := buildSetxArgs(name, "", system)
+
+	return runSetx(args)
+}
+
+// buildSetxArgs builds setx command arguments.
+func buildSetxArgs(name, value string, system bool) []string {
+	args := []string{name, value}
+
+	if system {
+		args = append(args, "/M")
+	}
+
+	return args
+}
+
+// runSetx executes the setx command.
+func runSetx(args []string) error {
+	cmd := exec.Command("setx", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return apperror.NewSimple("constants.ErrEnvProfileWrite "+"system registry", "E9000")
+	}
+
+	return nil
+}
+
+// addPathPersistent adds a directory to PATH on Windows via setx.
+func addPathPersistent(dir string, system bool, _ string) error {
+	currentPath := os.Getenv("PATH")
+	newPath := currentPath + ";" + dir
+
+	return setEnvPersistent("PATH", newPath, system, "")
+}
+
+// removePathPersistent removes a directory from PATH on Windows.
+func removePathPersistent(dir string, system bool, _ string) error {
+	currentPath := os.Getenv("PATH")
+	parts := strings.Split(currentPath, ";")
+	filtered := filterPathParts(parts, dir)
+	newPath := strings.Join(filtered, ";")
+
+	return setEnvPersistent("PATH", newPath, system, "")
+}
+
+// filterPathParts removes matching entries from PATH parts.
+func filterPathParts(parts []string, dir string) []string {
+	filtered := make([]string, 0, len(parts))
+
+	for _, part := range parts {
+		if strings.EqualFold(strings.TrimSpace(part), dir) {
+			continue
+		}
+
+		filtered = append(filtered, part)
+	}
+
+	return filtered
+}

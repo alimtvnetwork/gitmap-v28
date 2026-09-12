@@ -34,7 +34,7 @@ def get_expected_version(repo_root: str) -> str:
     if expected:
         return expected.lstrip("v")
 
-    constants_path = os.path.join(repo_root, "gitmap", "constants", "constants.go")
+    constants_path = os.path.join(repo_root, "cli", "constants", "constants.go")
     if os.path.isfile(constants_path):
         try:
             with open(constants_path, "r", encoding="utf-8") as fh:
@@ -58,7 +58,7 @@ def get_expected_version(repo_root: str) -> str:
 
 
 def load_deploy_manifest(repo_root: str):
-    manifest_path = os.path.join(repo_root, "gitmap", "constants", "deploy-manifest.json")
+    manifest_path = os.path.join(repo_root, "cli", "constants", "deploy-manifest.json")
     app_subdir = "gitmap-cli"
     bin_name = "gitmap.exe" if os.name == "nt" else "gitmap"
     legacy_subdirs = ["gitmap"]
@@ -83,7 +83,7 @@ def run_source_mode(repo_root: str, expected: str, workdir: str) -> str:
     print(f"▶ Building gitmap from source into {workdir}")
     bin_name = "gitmap.exe" if os.name == "nt" else "gitmap"
     bin_path = os.path.join(workdir, bin_name)
-    gitmap_dir = os.path.join(repo_root, "gitmap")
+    gitmap_dir = os.path.join(repo_root, "cli")
 
     cmd = ["go", "build", "-buildvcs=false", "-o", bin_path, "."]
     res = subprocess.run(cmd, cwd=gitmap_dir, capture_output=True, text=True, encoding="utf-8")
@@ -148,11 +148,11 @@ def execute_installer_against_url(repo_root: str, expected: str, dest_dir: str, 
     env["GITMAP_DOWNLOAD_URL"] = base_url
 
     if is_windows:
-        script_path = os.path.join(repo_root, "gitmap", "scripts", "install.ps1")
+        script_path = os.path.join(repo_root, "cli", "scripts", "install.ps1")
         pwsh_bin = shutil.which("pwsh") or shutil.which("powershell") or "powershell"
         cmd = [pwsh_bin, "-File", script_path, "-Version", f"v{expected}", "-InstallDir", dest_dir, "-NoPath", "-NoDiscovery"]
     else:
-        script_path = os.path.join(repo_root, "gitmap", "scripts", "install.sh")
+        script_path = os.path.join(repo_root, "cli", "scripts", "install.sh")
         cmd = ["bash", script_path, "--version", f"v{expected}", "--dir", dest_dir, "--no-path", "--no-discovery"]
 
     res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
@@ -173,7 +173,7 @@ def resolve_mock_source_binary(repo_root: str, expected: str) -> str:
     if os.path.isfile(bin_src):
         return bin_src
 
-    dist_src = os.path.join(repo_root, "gitmap", "dist", "gitmap_windows_amd64_v1", bin_name)
+    dist_src = os.path.join(repo_root, "cli", "dist", "gitmap_windows_amd64_v1", bin_name)
     if os.path.isfile(dist_src):
         return dist_src
 
@@ -218,7 +218,7 @@ def run_release_installer_with_retry(repo_root: str, expected: str, dest_dir: st
     for attempt in range(1, max_retries + 1):
         print(f"▶ [Attempt {attempt}/{max_retries}] Running release installer for v{expected}...")
         if is_windows:
-            script_path = os.path.join(repo_root, "gitmap", "scripts", "install.ps1")
+            script_path = os.path.join(repo_root, "cli", "scripts", "install.ps1")
             pwsh_bin = shutil.which("pwsh") or shutil.which("powershell") or "powershell"
             cmd = [
                 pwsh_bin,
@@ -229,7 +229,7 @@ def run_release_installer_with_retry(repo_root: str, expected: str, dest_dir: st
                 "-NoDiscovery",
             ]
         else:
-            script_path = os.path.join(repo_root, "gitmap", "scripts", "install.sh")
+            script_path = os.path.join(repo_root, "cli", "scripts", "install.sh")
             cmd = [
                 "bash",
                 script_path,

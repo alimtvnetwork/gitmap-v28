@@ -14,12 +14,12 @@ def main():
         sys.stderr.reconfigure(encoding="utf-8")
 
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    gitmap_dir = os.path.join(repo_root, "gitmap")
+    gitmap_dir = os.path.join(repo_root, "cli")
 
     base = os.environ.get("GH_PR_BASE_SHA", "").strip() or "HEAD~1"
 
     try:
-        diff_cmd = ["git", "diff", "--name-only", "--diff-filter=AM", base, "--", "gitmap/**/*.go"]
+        diff_cmd = ["git", "diff", "--name-only", "--diff-filter=AM", base, "--", "cli/**/*.go"]
         res = subprocess.run(diff_cmd, cwd=repo_root, capture_output=True, text=True, encoding="utf-8", errors="replace")
         changed_files = [line.strip() for line in (res.stdout or "").splitlines() if line.strip()]
     except Exception:

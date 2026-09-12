@@ -142,7 +142,7 @@ def strip_go_code(content: str) -> list[tuple[int, str]]:
     return out_lines
 
 def check_nested_ifs_in_go(content: str, filepath: Path) -> list[tuple[int, str]]:
-    if "gitmap" in filepath.parts and "constants" in filepath.parts:
+    if "cli" in filepath.parts and "constants" in filepath.parts:
         return []
 
     stripped = strip_go_code(content)
@@ -193,7 +193,7 @@ def check_file(filepath: Path) -> list[str]:
 
     lines = content.splitlines()
     violations = []
-    is_constants_file = ("gitmap" in filepath.parts and "constants" in filepath.parts)
+    is_constants_file = ("cli" in filepath.parts and "constants" in filepath.parts)
 
     for idx, line in enumerate(lines, start=1):
         if is_comment_or_doc(line, ext):

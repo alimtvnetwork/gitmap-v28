@@ -1,0 +1,89 @@
+package cmd
+
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+)
+
+// dispatchData routes data management, history, profiles, and TUI commands.
+func dispatchData(command string) (bool, error) {
+	return runDispatchTable(command, dataDispatchEntries())
+}
+
+// dataDispatchEntries returns the routing table for data commands.
+func dataDispatchEntries() []dispatchEntry {
+	entries := make([]dispatchEntry, 0, 25)
+	entries = append(entries, dataListingEntries()...)
+	entries = append(entries, dataProfileEntries()...)
+	entries = append(entries, dataDatabaseEntries()...)
+	entries = append(entries, dataExecutionEntries()...)
+
+	return entries
+}
+
+func dataListingEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{constants.CmdList, constants.CmdListAlias}, func() error { return runList(argsTail()) }},
+		{[]string{constants.CmdGroup, constants.CmdGroupAlias}, func() error { return runGroup(argsTail()) }},
+		{[]string{constants.CmdMultiGroup, constants.CmdMultiGroupAlias}, func() error { return runMultiGroup(argsTail()) }},
+		{[]string{constants.CmdHistory, constants.CmdHistoryAlias}, func() error { return runHistory(argsTail()) }},
+		{[]string{constants.CmdHistoryReset, constants.CmdHistoryResetAlias}, func() error { return runHistoryReset(argsTail()) }},
+		{[]string{constants.CmdStats, constants.CmdStatsAlias}, func() error { return runStats(argsTail()) }},
+		{[]string{constants.CmdBookmark, constants.CmdBookmarkAlias}, func() error { return runBookmark(argsTail()) }},
+	}
+}
+
+func dataProfileEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{constants.CmdExport, constants.CmdExportAlias}, func() error { return runExport(argsTail()) }},
+		{[]string{constants.CmdImport, constants.CmdImportAlias}, func() error { return runImport(argsTail()) }},
+		{[]string{"export-all"}, func() error { return runExportAll(argsTail()) }},
+		{[]string{"import-all"}, func() error { return runImportAll(argsTail()) }},
+		{[]string{"export-only"}, func() error { return runExportOnly(argsTail()) }},
+		{[]string{"import-export", "ie"}, func() error { return runImportExport(argsTail()) }},
+		{[]string{constants.CmdProfile, constants.CmdProfileAlias}, func() error { return runProfile(argsTail()) }},
+		{[]string{constants.CmdProfiles, constants.CmdProfilesAlias, "git-profiles"}, func() error { return runProfiles(argsTail()) }},
+		{[]string{constants.CmdDiffProfiles, constants.CmdDiffProfilesAlias}, func() error { return runDiffProfiles(argsTail()) }},
+		{[]string{constants.CmdCD, constants.CmdCDAlias}, func() error { return runCD(argsTail()) }},
+		{[]string{constants.CmdWatch, constants.CmdWatchAlias}, func() error { return runWatch(argsTail()) }},
+		{[]string{constants.CmdInteractive, constants.CmdInteractiveAlias}, runInteractive},
+	}
+}
+
+func dataDatabaseEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{constants.CmdDBReset}, func() error { return runDBReset(argsTail()) }},
+		{[]string{constants.CmdDB}, func() error { return runDB(argsTail()) }},
+		{[]string{constants.CmdStartFresh}, func() error { return runStartFresh(argsTail()) }},
+		{[]string{constants.CmdFindDuplicates, constants.CmdFindDuplicatesAlias, constants.CmdFindDuplicatesAlias2}, func() error { return runFindDuplicates("", argsTail()) }},
+		{[]string{constants.CmdReset}, func() error { return runReset(argsTail()) }},
+		{[]string{constants.CmdDBMigrate, constants.CmdDBMigrateAlias}, func() error { return runDBMigrate(argsTail()) }},
+		{[]string{constants.CmdAmend, constants.CmdAmendAlias}, func() error { return runAmend(argsTail()) }},
+		{[]string{constants.CmdAmendList, constants.CmdAmendListAlias}, func() error { return runAmendList(argsTail()) }},
+		{[]string{constants.CmdDashboard, constants.CmdDashboardAlias}, func() error { return runDashboard(argsTail()) }},
+		{[]string{constants.CmdVersionHistory, constants.CmdVersionHistoryAlias}, func() error { return runVersionHistory(argsTail()) }},
+	}
+}
+
+func dataExecutionEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{"execute", "exec"}, func() error { return cmdmacro.RunExecuteCmd(argsTail()) }},
+		{[]string{"macro", "m"}, func() error { return cmdmacro.RunMacroCmd(argsTail()) }},
+		{[]string{"macro-run", "macro-exec"}, func() error { return cmdmacro.RunExecuteCmd(argsTail()) }},
+		{[]string{"macro-add", "macro-create"}, func() error { return cmdmacro.HandleMacroAdd(argsTail()) }},
+		{[]string{"macro-edit", "macro-modify"}, func() error { return cmdmacro.HandleMacroEdit(argsTail()) }},
+		{[]string{"macro-list", "macro-ls"}, func() error { return cmdmacro.HandleMacroList(argsTail()) }},
+		{[]string{"macro-record", "macro-rec"}, func() error { return cmdmacro.HandleMacroRecord(argsTail()) }},
+		{[]string{"macro-show"}, func() error { return cmdmacro.HandleMacroShow(argsTail()) }},
+		{[]string{"macro-rm", "macro-del"}, func() error { return cmdmacro.HandleMacroDelete(argsTail()) }},
+		{[]string{"macro-export", "macro-exp"}, func() error { return cmdmacro.RunMacroExport(argsTail()) }},
+		{[]string{"macro-export-all"}, func() error { return cmdmacro.RunMacroExport(append([]string{"--all"}, argsTail()...)) }},
+		{[]string{"macro-export-single"}, func() error { return cmdmacro.RunMacroExport(append([]string{"--single"}, argsTail()...)) }},
+		{[]string{"macro-import", "macro-imp"}, func() error { return cmdmacro.RunMacroImport(argsTail()) }},
+		{[]string{"macro-import-all"}, func() error { return cmdmacro.RunMacroImport(append([]string{"--all"}, argsTail()...)) }},
+		{[]string{"macro-import-single"}, func() error { return cmdmacro.RunMacroImport(append([]string{"--single"}, argsTail()...)) }},
+		{[]string{"record", "rec"}, func() error { return cmdmacro.RunMacroCmd(append([]string{"record"}, argsTail()...)) }},
+		{[]string{"retry", "loop", "until-success"}, func() error { return cmdmacro.RunMacroUntilSuccess(argsTail()) }},
+		{[]string{"mv", "move"}, func() error { return runMove(argsTail()) }},
+	}
+}

@@ -101,9 +101,9 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent.parent
-    constants_file = repo_root / "gitmap" / "constants" / "constants.go"
-    updaterepo_file = repo_root / "gitmap" / "cmd" / "updaterepo.go"
-    updatedebug_file = repo_root / "gitmap" / "cmd" / "updatedebugwindows.go"
+    constants_file = repo_root / "cli" / "constants" / "constants.go"
+    updaterepo_file = repo_root / "cli" / "cmd" / "updaterepo.go"
+    updatedebug_file = repo_root / "cli" / "cmd" / "updatedebugwindows.go"
 
     commit = probe_git(repo_root, ["rev-parse", "HEAD"], args.strict)
     short = probe_git(repo_root, ["rev-parse", "--short=10", "HEAD"], args.strict)

@@ -12,7 +12,7 @@ def main():
         sys.stderr.reconfigure(encoding="utf-8")
 
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    constants_file = os.path.join(repo_root, "gitmap", "constants", "constants.go")
+    constants_file = os.path.join(repo_root, "cli", "constants", "constants.go")
     changelog_file = os.path.join(repo_root, "changelog.md")
 
     if not os.path.isfile(constants_file):

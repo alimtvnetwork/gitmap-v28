@@ -13,7 +13,7 @@ def load_config(config_path):
         "*.zip", "*.tar", "*.gz", "*.exe",
         "*/testdata/*", "*/golden/*",
         "*/.gitmap/release/*", "*/.gitmap/release-assets/*",
-        "gitmap/completion/allcommands_generated.go",
+        "cli/completion/allcommands_generated.go",
         ".lovable/*",
         "conversation/*"
     ]
@@ -97,7 +97,7 @@ def main():
         sys.stderr.reconfigure(encoding="utf-8")
 
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    config_path = os.path.join(repo_root, "gitmap", "data", "config.json")
+    config_path = os.path.join(repo_root, "cli", "data", "config.json")
     excludes, includes = load_config(config_path)
 
     files = get_changed_files(repo_root)

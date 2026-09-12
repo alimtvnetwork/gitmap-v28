@@ -52,7 +52,7 @@ def check_go_file(filepath: Path) -> list[str]:
 
 
 def main():
-    target_dirs = [ROOT_DIR / 'gitmap', ROOT_DIR / 'src']
+    target_dirs = [ROOT_DIR / 'cli', ROOT_DIR / 'src']
     all_violations = []
 
     for td in target_dirs:

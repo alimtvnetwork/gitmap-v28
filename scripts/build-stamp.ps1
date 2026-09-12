@@ -25,9 +25,9 @@ $ErrorActionPreference = 'Continue'
 
 $StampScriptVersion = '1.0.0'
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$ConstantsFile  = Join-Path $RepoRoot 'gitmap\constants\constants.go'
-$UpdateRepoFile = Join-Path $RepoRoot 'gitmap\cmd\updaterepo.go'
-$UpdateDebugFile = Join-Path $RepoRoot 'gitmap\cmd\updatedebugwindows.go'
+$ConstantsFile  = Join-Path $RepoRoot 'cli\constants\constants.go'
+$UpdateRepoFile = Join-Path $RepoRoot 'cli\cmd\updaterepo.go'
+$UpdateDebugFile = Join-Path $RepoRoot 'cli\cmd\updatedebugwindows.go'
 
 function Probe-Git {
     param([string[]]$Args)
@@ -52,7 +52,7 @@ function Probe-ConstantsVersion {
     if (-not (Test-Path $ConstantsFile)) {
         return '(unknown - constants.go missing)'
     }
-    $line = Select-String -Path $ConstantsFile -Pattern '^const Version = ' | Select-Object -First 1
+    $line = Select-String -Path $ConstantsFile -Pattern '^(?:const|var) Version = ' | Select-Object -First 1
     if (-not $line) { return '(unknown - pattern miss)' }
     if ($line.Line -match '"([^"]+)"') { return $Matches[1] }
     return '(unknown - parse miss)'

@@ -39,7 +39,7 @@ def main():
     script_path = os.path.join(os.path.dirname(__file__), "check-single-linter-diff.py")
     args = sys.argv[1:]
     if not args:
-        args = ["gitmap"]
+        args = ["cli"]
 
     cmd = [sys.executable, script_path] + args
     res = subprocess.run(cmd)

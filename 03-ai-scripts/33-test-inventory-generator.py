@@ -11,7 +11,7 @@ Usage:
   python 03-ai-scripts/33-test-inventory-generator.py
 
   # Record modified files safely under lock:
-  python 03-ai-scripts/33-test-inventory-generator.py --record "gitmap/cmd/root.go"
+  python 03-ai-scripts/33-test-inventory-generator.py --record "cli/cmd/root.go"
 
   # Query tests associated with recent changes:
   python 03-ai-scripts/33-test-inventory-generator.py --query-recent
@@ -286,7 +286,7 @@ def resolve_target_file(tf: Path, pkg_dir: Path, repo_root: Path, rel_test_file:
     if "tests/heavy_test" in rel_test_file:
         stem = tf.name.replace("_e2e_test.go", "").replace("_test.go", "")
         prefix = stem.split("_")[0]
-        cand_dir = repo_root / "gitmap" / prefix
+        cand_dir = repo_root / "cli" / prefix
         if cand_dir.is_dir():
             go_files = sorted([f for f in cand_dir.glob("*.go") if not f.name.endswith("_test.go")])
             if go_files:

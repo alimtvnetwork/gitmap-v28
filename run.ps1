@@ -20,10 +20,10 @@
     .\run.ps1 -NoPull -NoDeploy -R scan          # just build and scan
     .\run.ps1 -t                                 # run all unit tests with reports
 .NOTES
-    Configuration is read from gitmap/powershell.json.
+    Configuration is read from cli/powershell.json.
     -R accepts ALL gitmap CLI arguments after it (scan, clone, help, flags, paths).
     If -R is used with no arguments, it defaults to: scan <parent folder>
-    -t runs all Go unit tests and writes reports to gitmap/data/unit-test-reports/.
+    -t runs all Go unit tests and writes reports to cli/data/unit-test-reports/.
     -ForcePull automatically discards local changes and removes untracked files
     before pulling. Useful for CI or unattended builds.
 #>
@@ -56,7 +56,7 @@ if ($env:GITMAP_QUIET -eq "1") { $Quiet = $true }
 
 $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$GitMapDir = Join-Path $RepoRoot "gitmap"
+$GitMapDir = Join-Path $RepoRoot "cli"
 
 # -- Logging helpers -------------------------------------------
 function Write-Step {
@@ -730,11 +730,11 @@ function Build-Binary {
         if ($null -eq $buildRepo)   { $buildRepo   = "" }
         $buildDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 
-        $ldflags = "-X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.RepoPath=$absRepoRoot'" +
-                   " -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit=$buildCommit'" +
-                   " -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildBranch=$buildBranch'" +
-                   " -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildRepo=$buildRepo'" +
-                   " -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildDate=$buildDate'"
+        $ldflags = "-X 'github.com/alimtvnetwork/gitmap-v28/cli/constants.RepoPath=$absRepoRoot'" +
+                   " -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildCommit=$buildCommit'" +
+                   " -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildBranch=$buildBranch'" +
+                   " -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildRepo=$buildRepo'" +
+                   " -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildDate=$buildDate'"
 
         # Pre-build provenance stamp — prints commit SHA, branch, declared
         # version, and a fingerprint of the historically-problematic cmd/
@@ -903,7 +903,7 @@ function Copy-DocsSite {
     # Repo-detect diagnostics (active under -DebugRepoDetect or env var).
     Write-RepoDetect -Check "RepoRoot"          -Result $RepoRoot
     Write-RepoDetect -Check "GitMapDir"         -Result $GitMapDir
-    Write-RepoDetect -Check "gitmap/main.go"    -Result $(if (Test-Path $gitmapMain) { "present" } else { "missing" }) -Detail $gitmapMain
+    Write-RepoDetect -Check "cli/main.go"    -Result $(if (Test-Path $gitmapMain) { "present" } else { "missing" }) -Detail $gitmapMain
     Write-RepoDetect -Check "package.json"      -Result $(if (Test-Path $rootPkg) { "present" } else { "missing" })   -Detail $rootPkg
     Write-RepoDetect -Check "node_modules/"     -Result $(if (Test-Path $nodeModules) { "present" } else { "missing" })
     Write-RepoDetect -Check "docs-site/dist/"   -Result $(if (Test-Path $legacyDist) { "present" } else { "missing" })
@@ -1851,7 +1851,7 @@ Write-Success "All done!"
 Write-Host ""
 
 # -- Last release info -----------------------------------------
-$lastReleaseScript = Join-Path (Join-Path (Join-Path $RepoRoot "gitmap") "scripts") "Get-LastRelease.ps1"
+$lastReleaseScript = Join-Path (Join-Path (Join-Path $RepoRoot "cli") "scripts") "Get-LastRelease.ps1"
 if (Test-Path $lastReleaseScript) {
     $lrBinary = $changelogBinaryPath
     if (-not $lrBinary) { $lrBinary = $binaryPath }

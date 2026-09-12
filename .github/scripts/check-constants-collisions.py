@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit gitmap/constants/constants_*.go for identifier collisions.
+"""Audit cli/constants/constants_*.go for identifier collisions.
 
 Fails (exit 1) when any of the following is true:
 
@@ -36,7 +36,7 @@ import re
 import sys
 from collections import defaultdict
 
-CONSTANTS_GLOB = "gitmap/constants/constants*.go"
+CONSTANTS_GLOB = "cli/constants/constants*.go"
 IDENT_TOP_RE = re.compile(r"^([A-Z][A-Za-z0-9_]*(?:\s*,\s*[A-Z][A-Za-z0-9_]*)*)\b")
 
 

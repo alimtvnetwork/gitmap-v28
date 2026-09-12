@@ -29,7 +29,7 @@ def configure_io_encoding() -> None:
 
 def create_arg_parser(repo_root: str) -> argparse.ArgumentParser:
     """Builds and returns command line argument parser."""
-    default_dir = os.path.join(repo_root, "gitmap")
+    default_dir = os.path.join(repo_root, "cli")
     parser = argparse.ArgumentParser(
         description="Verify, auto-format, and auto-commit Go source files with gofmt."
     )

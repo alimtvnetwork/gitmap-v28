@@ -219,11 +219,11 @@ Examples:
         ),
     ]
 
-    constants_go = target_path / "gitmap" / "constants" / "constants.go"
+    constants_go = target_path / "cli" / "constants" / "constants.go"
     if constants_go.exists():
         tasks.append(
             VersionCheckTask(
-                name="Go Constants Sync (gitmap/constants/constants.go)",
+                name="Go Constants Sync (cli/constants/constants.go)",
                 check_type="constants_go",
                 target_path=constants_go,
                 canonical_version=canonical,

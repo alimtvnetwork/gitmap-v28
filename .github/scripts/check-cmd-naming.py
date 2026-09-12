@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-platform check for collision-prone helper names in gitmap/cmd/."""
+"""Cross-platform check for collision-prone helper names in cli/cmd/."""
 import os
 import re
 import sys
@@ -19,7 +19,7 @@ def main():
         sys.stderr.reconfigure(encoding="utf-8")
 
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    cmd_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(repo_root, "gitmap", "cmd")
+    cmd_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(repo_root, "cli", "cmd")
 
     if not os.path.isdir(cmd_dir):
         print(f"::error::cmd directory not found: {cmd_dir}", file=sys.stderr)

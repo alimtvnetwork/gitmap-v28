@@ -74,7 +74,7 @@ def main():
         sys.stderr.reconfigure(encoding="utf-8")
 
     parser = argparse.ArgumentParser(description="Check constants naming against baseline")
-    parser.add_argument("--const-dir", default=os.environ.get("CONST_DIR", "gitmap/constants"))
+    parser.add_argument("--const-dir", default=os.environ.get("CONST_DIR", "cli/constants"))
     parser.add_argument("--baseline", default=os.environ.get("BASELINE_FILE", ".github/scripts/constants-baseline.txt"))
     parser.add_argument("--regenerate-baseline", action="store_true", help="Regenerate the baseline file")
     args = parser.parse_args()

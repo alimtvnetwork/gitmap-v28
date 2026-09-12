@@ -157,7 +157,7 @@ def read_canonical_version() -> str:
 def stage_and_commit_release(new_version: str, scope: str, rn_path: str) -> None:
     manifests = [
         "version.json", "package.json", "readme.md", "changelog.md",
-        "gitmap/constants/constants.go", rn_path
+        "cli/constants/constants.go", rn_path
     ]
     if os.path.exists(".lovable/user-preferences"):
         manifests.append(".lovable/user-preferences")
@@ -228,7 +228,7 @@ def execute_release(tier: str, scope: str, bullets: list[str], original_branch: 
     keys_to_update = {"version": new_ver, "releaseDate": today_str}
     update_json_file("version.json", keys_to_update)
     update_json_file("package.json", keys_to_update)
-    update_constants_go("gitmap/constants/constants.go", new_ver)
+    update_constants_go("cli/constants/constants.go", new_ver)
     update_readme("readme.md", cur_ver, new_ver)
     update_user_preferences(".lovable/user-preferences", new_ver)
     update_changelog("changelog.md", new_ver, actual_bullets)

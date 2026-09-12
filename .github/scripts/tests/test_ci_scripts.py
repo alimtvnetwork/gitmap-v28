@@ -99,7 +99,7 @@ class TestBareStderrCheck(unittest.TestCase):
         script = os.path.join(SCRIPTS_DIR, "check-bare-stderr-err.py")
         res = subprocess.run([sys.executable, script], capture_output=True, text=True, encoding="utf-8")
         self.assertEqual(res.returncode, 0)
-        self.assertIn("OK: no bare 'fmt.Fprintln(os.Stderr, err)' in gitmap/cmd/", res.stdout)
+        self.assertIn("OK: no bare 'fmt.Fprintln(os.Stderr, err)' in cli/cmd/", res.stdout)
 
 
 class TestCmdNamingCheck(unittest.TestCase):
@@ -211,7 +211,7 @@ class TestCicdLocalRunnerPaths(unittest.TestCase):
 
     def test_format_banner_metadata_contains_no_temp_or_absolute_drive(self):
         res = self.runner.JobResult("MockGate", ["python", "mock.py"], 1, "out", "err", 0.1)
-        meta = self.runner.format_banner_metadata(res, ["gitmap/cmd/root.go"])
+        meta = self.runner.format_banner_metadata(res, ["cli/cmd/root.go"])
         self.assertIn("Stream Log    : .lovable/cicd/errors.log", meta)
         self.assertIn("Stream JSON   : .lovable/cicd/errors.json", meta)
         self.assertIn("Stream Events : .lovable/cicd/events.jsonl", meta)

@@ -20,7 +20,7 @@
 set -euo pipefail
 
 MisspellVersion="v0.3.4"
-ConfigPath="gitmap/data/config.json"
+ConfigPath="cli/data/config.json"
 Mode="diff"
 BaseRef="origin/main"
 ExplicitFiles=()
@@ -63,7 +63,7 @@ if [ "${#Excludes[@]}" -eq 0 ]; then
     "*.zip" "*.tar" "*.gz" "*.exe"
     "*/testdata/*" "*/golden/*"
     "*/.gitmap/release/*" "*/.gitmap/release-assets/*"
-    "gitmap/completion/allcommands_generated.go"
+    "cli/completion/allcommands_generated.go"
     ".lovable/*"
   )
 fi

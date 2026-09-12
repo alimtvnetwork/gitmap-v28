@@ -74,15 +74,15 @@ jobs:
 
       - uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Build snapshot via goreleaser
         uses: goreleaser/goreleaser-action@9c156ee8a17a598857849441385a2041ef570552 # v6.1.0
         with:
           distribution: goreleaser
           version: "~> v2"
-          workdir: gitmap
+          workdir: cli
           args: release --clean --snapshot --skip=publish
 
 
@@ -98,9 +98,9 @@ jobs:
           esac
           arch_tag=amd64
           # goreleaser snapshot names: gitmap-vX.Y.Z-next-<os>-<arch>.tar.gz
-          archive=$(ls gitmap/dist/gitmap-*-${os_tag}-${arch_tag}.tar.gz | head -n1)
+          archive=$(ls cli/dist/gitmap-*-${os_tag}-${arch_tag}.tar.gz | head -n1)
           echo "archive=$archive"
-          test -f "$archive" || { echo "no archive found" >&2; ls -la gitmap/dist >&2; exit 3; }
+          test -f "$archive" || { echo "no archive found" >&2; ls -la cli/dist >&2; exit 3; }
           workdir="$RUNNER_TEMP/gitmap-smoke"
           mkdir -p "$workdir"
           tar -xzf "$archive" -C "$workdir"
@@ -116,7 +116,7 @@ jobs:
           # Source-of-truth check against the embedded helptext markdown
           # (avoids Windows-only stdout/pipe-drain flakiness when invoking
           # the built binary just to grep its --help output).
-          for f in gitmap/helptext/clone-fix-repo.md gitmap/helptext/clone-fix-repo-pub.md; do
+          for f in cli/helptext/clone-fix-repo.md cli/helptext/clone-fix-repo-pub.md; do
             grep -qE '(^|[^a-zA-Z])cg([^a-zA-Z]|$)' "$f" \
               || { echo "::error file=$f::helptext missing 'cg' modifier documentation"; exit 4; }
           done
@@ -461,15 +461,15 @@ jobs:
 
       - uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Build snapshot via goreleaser
         uses: goreleaser/goreleaser-action@9c156ee8a17a598857849441385a2041ef570552 # v6.1.0
         with:
           distribution: goreleaser
           version: "~> v2"
-          workdir: gitmap
+          workdir: cli
           args: release --clean --snapshot --skip=publish --parallelism=1
 
       - name: Locate + extract host archive (windows amd64)
@@ -478,11 +478,11 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           # goreleaser snapshot names: gitmap-vX.Y.Z-next-windows-amd64.zip
-          $archive = Get-ChildItem -Path gitmap/dist -Filter 'gitmap-*-windows-amd64.zip' `
+          $archive = Get-ChildItem -Path cli/dist -Filter 'gitmap-*-windows-amd64.zip' `
             | Select-Object -First 1
           if (-not $archive) {
             Write-Host '::error::no windows-amd64 archive found'
-            Get-ChildItem gitmap/dist | Format-Table -AutoSize
+            Get-ChildItem cli/dist | Format-Table -AutoSize
             exit 3
           }
           Write-Host "archive=$($archive.FullName)"
@@ -505,7 +505,7 @@ jobs:
           # Source-of-truth check against the embedded helptext markdown
           # (avoids Windows stdout/pipe-drain flakiness when invoking the
           # built binary just to grep its --help output).
-          foreach ($f in @('gitmap/helptext/clone-fix-repo.md','gitmap/helptext/clone-fix-repo-pub.md')) {
+          foreach ($f in @('cli/helptext/clone-fix-repo.md','cli/helptext/clone-fix-repo-pub.md')) {
             $body = Get-Content -Raw -LiteralPath $f
             if ($body -notmatch '(^|[^a-zA-Z])cg([^a-zA-Z]|$)') {
               Write-Host "::error file=$f::helptext missing 'cg' modifier documentation"

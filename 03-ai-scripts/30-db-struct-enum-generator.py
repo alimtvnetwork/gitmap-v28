@@ -4,10 +4,10 @@
 in a dedicated enums/ package with standard gofmt tab-aligned formatting.
 
 Usage:
-  python 03-ai-scripts/30-db-struct-enum-generator.py --dir gitmap/store
-  python 03-ai-scripts/30-db-struct-enum-generator.py --dir gitmap/pipelinedb
-  python 03-ai-scripts/30-db-struct-enum-generator.py --file gitmap/pipelinedb/pipeline_split_db.go
-  python 03-ai-scripts/30-db-struct-enum-generator.py --file gitmap/pipelinedb/pipeline_split_db.go --out-dir gitmap/generated/db/pipelinedb
+  python 03-ai-scripts/30-db-struct-enum-generator.py --dir cli/store
+  python 03-ai-scripts/30-db-struct-enum-generator.py --dir cli/pipelinedb
+  python 03-ai-scripts/30-db-struct-enum-generator.py --file cli/pipelinedb/pipeline_split_db.go
+  python 03-ai-scripts/30-db-struct-enum-generator.py --file cli/pipelinedb/pipeline_split_db.go --out-dir gitmap/generated/db/pipelinedb
   python 03-ai-scripts/30-db-struct-enum-generator.py --dry-run
 """
 
@@ -119,7 +119,7 @@ def generate_enums_for_struct(struct_info: dict) -> str:
         '\t"encoding/json"',
         '\t"fmt"',
         "",
-        '\t"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"',
+        '\t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"',
         ")",
         "",
         f"// {enum_type} represents column name enums for {s_name}.",
@@ -322,7 +322,7 @@ def generate_parent_consts_content(pkg_name: str, structs: list[dict], enums_pkg
         f"package {pkg_name}",
         "",
         "import (",
-        '\t"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"',
+        '\t"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"',
         f'\t"{enums_pkg_import}"',
         ")",
         "",
@@ -640,10 +640,10 @@ def format_dir_with_gofmt(dir_path: Path):
 
 
 def get_enums_import_path(dest_dir: Path, repo_root: Path) -> str:
-    gitmap_dir = repo_root / "gitmap"
+    gitmap_dir = repo_root / "cli"
     try:
         rel = dest_dir.resolve().relative_to(gitmap_dir.resolve()).as_posix()
-        return f"github.com/alimtvnetwork/gitmap-v28/gitmap/{rel}/enums"
+        return f"github.com/alimtvnetwork/gitmap-v28/cli/{rel}/enums"
     except ValueError:
         return "enums"
 
@@ -727,7 +727,7 @@ package {pkg_name}
 import (
 \t"context"
 
-\t"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
+\t"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 \t"{enums_import}"
 )
 
@@ -770,7 +770,7 @@ def main() -> int:
         process_generation(file_path.parent, out_dir_path, args.dry_run, specific_file=file_path)
         return 0
 
-    target_dir = Path(args.dir) if args.dir else repo_root / "gitmap" / "pipelinedb"
+    target_dir = Path(args.dir) if args.dir else repo_root / "cli" / "pipelinedb"
     if not target_dir.is_absolute():
         target_dir = repo_root / target_dir
 

@@ -36,8 +36,8 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Install git-filter-repo
         run: pip install --user git-filter-repo
@@ -46,7 +46,7 @@ jobs:
         run: git filter-repo --version
 
       - name: Build gitmap binary
-        working-directory: gitmap
+        working-directory: cli
         run: go build -o "$RUNNER_TEMP/gitmap" .
 
       - name: Configure git identity for fixture commits

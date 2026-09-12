@@ -35,7 +35,7 @@ EXCLUDED_DIRS = {
     "tmp",
     "linter-scripts",
     "scripts",
-    "gitmap-updater",
+    "cli-updater",
     "04-code",
 }
 

@@ -33,9 +33,9 @@ set -u
 
 readonly STAMP_SCRIPT_VERSION="1.0.0"
 readonly REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-readonly CONSTANTS_FILE="${REPO_ROOT}/gitmap/constants/constants.go"
-readonly UPDATEREPO_FILE="${REPO_ROOT}/gitmap/cmd/updaterepo.go"
-readonly UPDATEDEBUG_FILE="${REPO_ROOT}/gitmap/cmd/updatedebugwindows.go"
+readonly CONSTANTS_FILE="${REPO_ROOT}/cli/constants/constants.go"
+readonly UPDATEREPO_FILE="${REPO_ROOT}/cli/cmd/updaterepo.go"
+readonly UPDATEDEBUG_FILE="${REPO_ROOT}/cli/cmd/updatedebugwindows.go"
 
 strict_mode="false"
 if [ "${1:-}" = "--strict" ]; then
@@ -72,7 +72,7 @@ probe_constants_version() {
     echo "(unknown — constants.go missing)"
     return
   fi
-  grep -E '^const Version = ' "$CONSTANTS_FILE" \
+  grep -E '^(const|var) Version = ' "$CONSTANTS_FILE" \
     | head -1 \
     | sed -E 's/.*"([^"]+)".*/\1/' \
     || echo "(unknown — pattern miss)"

@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Prompts the user for an install drive/folder (with a sensible default),
-    then delegates to the canonical gitmap/scripts/install.ps1 with that path.
+    then delegates to the canonical cli/scripts/install.ps1 with that path.
 
     Versioned repo discovery: if the source repo URL ends with -v<N>, this
     script probes for higher-numbered sibling repos (-v<N+1>, -v<N+2>, ...)
@@ -38,7 +38,7 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference    = "SilentlyContinue"
 
 $Repo          = "alimtvnetwork/gitmap-v28"
-$InstallerUrl  = "https://raw.githubusercontent.com/$Repo/main/gitmap/scripts/install.ps1"
+$InstallerUrl  = "https://raw.githubusercontent.com/$Repo/main/cli/scripts/install.ps1"
 $DefaultDir    = "D:\gitmap"
 
 # ---------------------------------------------------------------------------

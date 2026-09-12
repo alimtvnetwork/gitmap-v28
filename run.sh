@@ -12,14 +12,14 @@
 #   ./run.sh -r help                  # build + show help
 #   ./run.sh -t                       # run all unit tests with reports
 #
-# Configuration is read from gitmap/powershell.json (same as run.ps1).
+# Configuration is read from cli/powershell.json (same as run.ps1).
 # --force-pull automatically discards local changes and removes untracked
 # files before pulling. Useful for CI or unattended builds.
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
-GITMAP_DIR="$REPO_ROOT/gitmap"
+GITMAP_DIR="$REPO_ROOT/cli"
 
 # -- Defaults --------------------------------------------------
 NO_PULL=false
@@ -161,7 +161,7 @@ show_banner() {
 }
 
 # -- Load deploy manifest (single source of truth) -------------
-# Mirrors run.ps1's Get-DeployManifest. Reads gitmap/constants/deploy-manifest.json
+# Mirrors run.ps1's Get-DeployManifest. Reads cli/constants/deploy-manifest.json
 # so APP_SUBDIR / LEGACY_APP_SUBDIRS aren't hardcoded. Renaming the deploy
 # folder ONLY requires editing that JSON file.
 APP_SUBDIR="gitmap-cli"
@@ -491,11 +491,11 @@ build_binary() {
     build_repo=$(cd "$abs_repo_root" && git config --get remote.origin.url 2>/dev/null || echo "")
     build_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-    local ldflags="-X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.RepoPath=$abs_repo_root'"
-    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit=$build_commit'"
-    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildBranch=$build_branch'"
-    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildRepo=$build_repo'"
-    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildDate=$build_date'"
+    local ldflags="-X 'github.com/alimtvnetwork/gitmap-v28/cli/constants.RepoPath=$abs_repo_root'"
+    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildCommit=$build_commit'"
+    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildBranch=$build_branch'"
+    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildRepo=$build_repo'"
+    ldflags="$ldflags -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildDate=$build_date'"
 
     # Pre-build provenance stamp — prints commit SHA, branch, declared
     # version, and a fingerprint of the historically-problematic cmd/
@@ -570,7 +570,7 @@ copy_docs_site() {
     # Repo-detect diagnostics (active under --debug-repo-detect or env var).
     write_repo_detect "RepoRoot"          "$REPO_ROOT"
     write_repo_detect "GitMapDir"         "$GITMAP_DIR"
-    write_repo_detect "gitmap/main.go"    "$([[ -f "$gitmap_main" ]] && echo present || echo missing)" "$gitmap_main"
+    write_repo_detect "cli/main.go"    "$([[ -f "$gitmap_main" ]] && echo present || echo missing)" "$gitmap_main"
     write_repo_detect "package.json"      "$([[ -f "$root_pkg" ]]    && echo present || echo missing)" "$root_pkg"
     write_repo_detect "node_modules/"     "$([[ -d "$node_modules" ]] && echo present || echo missing)"
     write_repo_detect "docs-site/dist/"   "$([[ -d "$legacy_dist" ]]  && echo present || echo missing)"
@@ -693,7 +693,7 @@ resolve_deploy_target() {
         # The binary lives in <deploy-target>/$APP_SUBDIR/gitmap (or any
         # legacy folder name from LEGACY_APP_SUBDIRS). Either way the deploy
         # target is the parent of that wrapped folder. Folder names are
-        # sourced from gitmap/constants/deploy-manifest.json.
+        # sourced from cli/constants/deploy-manifest.json.
         if is_known_app_subdir "$active_dir_name"; then
             local deploy_target
             deploy_target=$(dirname "$active_dir")
@@ -949,7 +949,7 @@ deploy_binary() {
 
     # Migrate legacy unwrapped or older wrapped layouts into the canonical
     # $APP_SUBDIR/ (DFD-3) BEFORE we resolve $app_dir. Folder names come
-    # from gitmap/constants/deploy-manifest.json (single source of truth).
+    # from cli/constants/deploy-manifest.json (single source of truth).
     repair_deploy_layout "$target"
 
     local app_dir="$target/$APP_SUBDIR"

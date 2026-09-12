@@ -102,7 +102,7 @@ def check_coverage_floors(
 
 def run_cover_tool(go_exe: str, cover_file: Path) -> str | None:
     """Runs go tool cover -func inside the gitmap module directory."""
-    go_dir = Path("gitmap").resolve() if (Path("gitmap") / "go.mod").is_file() else Path.cwd()
+    go_dir = Path("cli").resolve() if (Path("cli") / "go.mod").is_file() else Path.cwd()
     try:
         return subprocess.check_output(
             [go_exe, "tool", "cover", f"-func={cover_file.resolve()}"],

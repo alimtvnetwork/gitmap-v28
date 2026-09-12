@@ -2,7 +2,7 @@
 # scripts/format-go.sh — Auto-format Go files with gofmt.
 #
 # Modes:
-#   ./scripts/format-go.sh                # format every .go file under gitmap/
+#   ./scripts/format-go.sh                # format every .go file under cli/
 #   ./scripts/format-go.sh --staged       # format only staged .go files (hook mode)
 #   ./scripts/format-go.sh path/a.go ...  # format an explicit file list
 #

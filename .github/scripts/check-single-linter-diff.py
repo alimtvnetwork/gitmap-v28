@@ -15,7 +15,7 @@ import sys
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Single linter baseline-diff checker")
-    parser.add_argument("lint_dir", nargs="?", default=os.environ.get("LINT_DIR", "gitmap"),
+    parser.add_argument("lint_dir", nargs="?", default=os.environ.get("LINT_DIR", "cli"),
                         help="Directory to lint (default: gitmap)")
     parser.add_argument("--linter", default=os.environ.get("LINTER", ""),
                         help="The single golangci-lint analyzer to enable")

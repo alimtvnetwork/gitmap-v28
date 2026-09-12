@@ -248,15 +248,15 @@ EXCLUDE_DEFAULTS = [
     ".git/**", "node_modules/**", "dist/**", "bin/**", "vendor/**", ".lovable/**", ".tmp/**",
 ]
 
-CLUSTER_GO_ALL = ["gitmap/**/*.go", "gitmap/go.mod", "gitmap/go.sum"]
-CLUSTER_GO_CMD = ["gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go", "gitmap/constants/**/*.go", "gitmap/go.mod", "gitmap/go.sum"]
-CLUSTER_GO_CONSTANTS = ["gitmap/constants/**/*.go", "gitmap/go.mod"]
-CLUSTER_GO_HELPTEXT = ["gitmap/helptext/**/*.go", "gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go", "gitmap/constants/**/*.go", "gitmap/go.mod"]
-CLUSTER_GO_STARTUP = ["gitmap/startup/**/*.go", "gitmap/go.mod"]
-CLUSTER_GO_RACE = ["gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go", "gitmap/cloneconcurrency/**/*.go", "gitmap/visibility/**/*.go", "gitmap/store/**/*.go", "gitmap/uipref/**/*.go", "gitmap/go.mod"]
+CLUSTER_GO_ALL = ["cli/**", "cli-updater/**/*.go", "cli/go.mod", "cli/go.sum"]
+CLUSTER_GO_CMD = ["cli/cmd/**/*.go", "cli/cmdagy/**/*.go", "cli/cmdchromeprofile/**/*.go", "cli/constants/**/*.go", "cli/go.mod", "cli/go.sum"]
+CLUSTER_GO_CONSTANTS = ["cli/constants/**/*.go", "cli/go.mod"]
+CLUSTER_GO_HELPTEXT = ["cli/helptext/**/*.go", "cli/cmd/**/*.go", "cli/cmdagy/**/*.go", "cli/cmdchromeprofile/**/*.go", "cli/constants/**/*.go", "cli/go.mod"]
+CLUSTER_GO_STARTUP = ["cli/startup/**/*.go", "cli/go.mod"]
+CLUSTER_GO_RACE = ["cli/cmd/**/*.go", "cli/cmdagy/**/*.go", "cli/cmdchromeprofile/**/*.go", "cli/cloneconcurrency/**/*.go", "cli/visibility/**/*.go", "cli/store/**/*.go", "cli/uipref/**/*.go", "cli/go.mod"]
 CLUSTER_WEB_APP = ["src/**/*", "public/**/*", "index.html", "package.json", "package-lock.json", "vite.config.ts", "tsconfig*.json", "tailwind.config.ts", "postcss.config.js"]
 CLUSTER_LINTER_SCRIPTS = ["linter-scripts/**/*.py", ".github/scripts/**/*.py"]
-CLUSTER_REPO_TEXT = ["gitmap/**", "src/**", "spec/**", "docs/**", "03-ai-scripts/**", "linter-scripts/**", ".github/**", "*.md", "*.json", "*.yml", "*.yaml"]
+CLUSTER_REPO_TEXT = ["cli/**", "src/**", "spec/**", "docs/**", "03-ai-scripts/**", "linter-scripts/**", ".github/**", "*.md", "*.json", "*.yml", "*.yaml"]
 CLUSTER_MWS = ["spec/19-main-worker-service/**", "spec/14-update/**", "spec/03-error-manage/03-error-code-registry/**", "src/**/*.{ts,tsx}", "linter-scripts/check-mws-error-codes.*"]
 
 
@@ -391,54 +391,54 @@ class GateSpec:
 
 
 GATE_SPECS: dict[str, GateSpec] = {
-    "Go Format Check": GateSpec("Go Format Check", tool_scripts=[".github/scripts/go-format-check.py"], relevant_patterns=["gitmap/**/*.go"]),
-    "Spell Check (misspell)": GateSpec("Spell Check (misspell)", tool_scripts=[".github/scripts/misspell-changed.py"], configs=[".misspell-ignore"], relevant_patterns=CLUSTER_REPO_TEXT, exclude_patterns=["gitmap/completion/allcommands_generated.go"]),
-    "Nested If Linter": GateSpec("Nested If Linter", tool_scripts=["linter-scripts/check-nested-ifs.py"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
+    "Go Format Check": GateSpec("Go Format Check", tool_scripts=[".github/scripts/go-format-check.py"], relevant_patterns=["cli/**/*.go"]),
+    "Spell Check (misspell)": GateSpec("Spell Check (misspell)", tool_scripts=[".github/scripts/misspell-changed.py"], configs=[".misspell-ignore"], relevant_patterns=CLUSTER_REPO_TEXT, exclude_patterns=["cli/completion/allcommands_generated.go"]),
+    "Nested If Linter": GateSpec("Nested If Linter", tool_scripts=["linter-scripts/check-nested-ifs.py"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
 
-    "Boolean & Enum Linter": GateSpec("Boolean & Enum Linter", tool_scripts=["linter-scripts/check-enum-and-boolean.py"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
-    "Boolean Guidelines Linter": GateSpec("Boolean Guidelines Linter", tool_scripts=["linter-scripts/check-boolean-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
-    "Enum Guidelines Linter": GateSpec("Enum Guidelines Linter", tool_scripts=["linter-scripts/check-enum-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
-    "Error Management Check": GateSpec("Error Management Check", tool_scripts=["linter-scripts/check-error-management.py"], configs=["spec/03-error-manage/**"], relevant_patterns=["gitmap/**/*.go", "src/**/*.{ts,tsx}"]),
+    "Boolean & Enum Linter": GateSpec("Boolean & Enum Linter", tool_scripts=["linter-scripts/check-enum-and-boolean.py"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx}"]),
+    "Boolean Guidelines Linter": GateSpec("Boolean Guidelines Linter", tool_scripts=["linter-scripts/check-boolean-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
+    "Enum Guidelines Linter": GateSpec("Enum Guidelines Linter", tool_scripts=["linter-scripts/check-enum-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx}"]),
+    "Error Management Check": GateSpec("Error Management Check", tool_scripts=["linter-scripts/check-error-management.py"], configs=["spec/03-error-manage/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx}"]),
     "Relative Path Check": GateSpec("Relative Path Check", tool_scripts=["linter-scripts/check-relative-paths.py"], relevant_patterns=CLUSTER_REPO_TEXT, exclude_patterns=["*.png", "*.jpg", "*.exe", "*.zip", "*.sqlite"]),
-    "Newline Styling Check": GateSpec("Newline Styling Check", tool_scripts=["linter-scripts/check-newline-styling.py"], relevant_patterns=["src/**/*.{ts,tsx,js}", "gitmap/**/*.go"]),
+    "Newline Styling Check": GateSpec("Newline Styling Check", tool_scripts=["linter-scripts/check-newline-styling.py"], relevant_patterns=["src/**/*.{ts,tsx,js}", "cli/**/*.go"]),
     "MWS Error Codes Check": GateSpec("MWS Error Codes Check", tool_scripts=["linter-scripts/check-mws-error-codes.py"], configs=["spec/19-main-worker-service/13-error-codes.md", "spec/19-main-worker-service/error-codes.json", "spec/03-error-manage/03-error-code-registry/error-codes-master.json", "linter-scripts/check-mws-error-codes.waivers.txt", "linter-scripts/check-mws-error-codes.unallocated.txt"], relevant_patterns=CLUSTER_MWS),
-    "Interface Naming Check": GateSpec("Interface Naming Check", tool_scripts=["linter-scripts/check-interface-naming.py"], relevant_patterns=["gitmap/**/*.go"]),
-    "CLI Help Parity Check": GateSpec("CLI Help Parity Check", tool_scripts=["03-ai-scripts/09-cli-help-auditor.py"], configs=["03-ai-scripts/02-shared-engine.py"], relevant_patterns=["gitmap/cmd/**/*.go", "gitmap/helptext/**/*.go", "03-ai-scripts/**/*.py"]),
-    "Constants Registry AST Check": GateSpec("Constants Registry AST Check", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_CMD),
-    "Constants Collision Check": GateSpec("Constants Collision Check", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_CONSTANTS),
-    "Helptext Parity Check": GateSpec("Helptext Parity Check", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_HELPTEXT),
+    "Interface Naming Check": GateSpec("Interface Naming Check", tool_scripts=["linter-scripts/check-interface-naming.py"], relevant_patterns=["cli/**/*.go"]),
+    "CLI Help Parity Check": GateSpec("CLI Help Parity Check", tool_scripts=["03-ai-scripts/09-cli-help-auditor.py"], configs=["03-ai-scripts/02-shared-engine.py"], relevant_patterns=["cli/cmd/**/*.go", "cli/helptext/**/*.go", "03-ai-scripts/**/*.py"]),
+    "Constants Registry AST Check": GateSpec("Constants Registry AST Check", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_CMD),
+    "Constants Collision Check": GateSpec("Constants Collision Check", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_CONSTANTS),
+    "Helptext Parity Check": GateSpec("Helptext Parity Check", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_HELPTEXT),
     "Lint Script Unit Tests": GateSpec("Lint Script Unit Tests", tool_scripts=[".github/scripts/tests/test_ci_scripts.py"], relevant_patterns=CLUSTER_LINTER_SCRIPTS + [".github/scripts/tests/**"], exclude_patterns=["__pycache__/**"]),
-    "govulncheck": GateSpec("govulncheck", tool_scripts=[".github/scripts/check-vulncheck.py"], configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
-    "Startup Build-Tags (linux)": GateSpec("Startup Build-Tags (linux)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
-    "Startup Build-Tags (darwin)": GateSpec("Startup Build-Tags (darwin)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
-    "Startup Build-Tags (windows)": GateSpec("Startup Build-Tags (windows)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
-    "golangci-lint (strict)": GateSpec("golangci-lint (strict)", configs=[".golangci.yml", "gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
-    "Unused Code Guard (unused)": GateSpec("Unused Code Guard (unused)", tool_scripts=[".github/scripts/check-unused-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
-    "Gosec G115 Guard (overflow)": GateSpec("Gosec G115 Guard (overflow)", tool_scripts=[".github/scripts/check-gosec-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
-    "GoCritic Guard (style)": GateSpec("GoCritic Guard (style)", tool_scripts=[".github/scripts/check-gocritic-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
-    "Cross-OS Vet (Windows)": GateSpec("Cross-OS Vet (Windows)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
-    "Cross-OS Vet (Darwin)": GateSpec("Cross-OS Vet (Darwin)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
-    "Go Compile Gate": GateSpec("Go Compile Gate", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["bin/gitmap.exe"]),
+    "govulncheck": GateSpec("govulncheck", tool_scripts=[".github/scripts/check-vulncheck.py"], configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Startup Build-Tags (linux)": GateSpec("Startup Build-Tags (linux)", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
+    "Startup Build-Tags (darwin)": GateSpec("Startup Build-Tags (darwin)", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
+    "Startup Build-Tags (windows)": GateSpec("Startup Build-Tags (windows)", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_STARTUP),
+    "golangci-lint (strict)": GateSpec("golangci-lint (strict)", configs=[".golangci.yml", "cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Unused Code Guard (unused)": GateSpec("Unused Code Guard (unused)", tool_scripts=[".github/scripts/check-unused-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Gosec G115 Guard (overflow)": GateSpec("Gosec G115 Guard (overflow)", tool_scripts=[".github/scripts/check-gosec-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "GoCritic Guard (style)": GateSpec("GoCritic Guard (style)", tool_scripts=[".github/scripts/check-gocritic-diff.py", ".github/scripts/check-single-linter-diff.py"], configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Cross-OS Vet (Windows)": GateSpec("Cross-OS Vet (Windows)", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Cross-OS Vet (Darwin)": GateSpec("Cross-OS Vet (Darwin)", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Go Compile Gate": GateSpec("Go Compile Gate", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["bin/gitmap.exe"]),
     "Web App Build": GateSpec("Web App Build", configs=["package.json", "package-lock.json", "vite.config.ts", "tsconfig*.json"], relevant_patterns=CLUSTER_WEB_APP, artifact_outputs=["dist/**"]),
-    "GoReleaser Snapshot Build": GateSpec("GoReleaser Snapshot Build", configs=[".goreleaser.yaml", ".goreleaser.yml", "gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["dist/**"]),
+    "GoReleaser Snapshot Build": GateSpec("GoReleaser Snapshot Build", configs=[".goreleaser.yaml", ".goreleaser.yml", "cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["dist/**"]),
     "E2E Smoke Suite": GateSpec("E2E Smoke Suite", tool_scripts=[".github/scripts/e2e-cli-smoke.py"], relevant_patterns=CLUSTER_GO_ALL + [".github/scripts/e2e-cli-smoke.py"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
     "Installer Smoke (source)": GateSpec("Installer Smoke (source)", tool_scripts=[".github/scripts/smoke-installer.py"], configs=["install.sh", "install.ps1", "linter-scripts/installer-templates/**"], relevant_patterns=CLUSTER_GO_ALL + [".github/scripts/smoke-installer.py"], upstream_gates=["Go Compile Gate"]),
     "Installer Smoke (release)": GateSpec("Installer Smoke (release)", tool_scripts=[".github/scripts/smoke-installer.py"], configs=[".goreleaser.yaml", "install.sh", "install.ps1"], relevant_patterns=[".github/scripts/smoke-installer.py", "dist/**"], upstream_gates=["GoReleaser Snapshot Build"]),
-    "History Purge Smoke": GateSpec("History Purge Smoke", tool_scripts=[".github/scripts/smoke-history-purge.py"], relevant_patterns=[".github/scripts/smoke-history-purge.py", "gitmap/cmd/**/*.go", "gitmap/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
-    "History Pin Smoke": GateSpec("History Pin Smoke", tool_scripts=[".github/scripts/smoke-history-pin.py"], relevant_patterns=[".github/scripts/smoke-history-pin.py", "gitmap/cmd/**/*.go", "gitmap/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
-    "Go Smart Incremental Tests": GateSpec("Go Smart Incremental Tests", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
-    "Go Test Coverage Profile": GateSpec("Go Test Coverage Profile", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["coverage.out"]),
+    "History Purge Smoke": GateSpec("History Purge Smoke", tool_scripts=[".github/scripts/smoke-history-purge.py"], relevant_patterns=[".github/scripts/smoke-history-purge.py", "cli/cmd/**/*.go", "cli/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
+    "History Pin Smoke": GateSpec("History Pin Smoke", tool_scripts=[".github/scripts/smoke-history-pin.py"], relevant_patterns=[".github/scripts/smoke-history-pin.py", "cli/cmd/**/*.go", "cli/store/**/*.go"], artifact_inputs=["bin/gitmap.exe"], upstream_gates=["Go Compile Gate"]),
+    "Go Smart Incremental Tests": GateSpec("Go Smart Incremental Tests", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL),
+    "Go Test Coverage Profile": GateSpec("Go Test Coverage Profile", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["coverage.out"]),
     "Coverage Floor Guard": GateSpec("Coverage Floor Guard", tool_scripts=[".github/scripts/coverage-floor.py"], artifact_inputs=["coverage.out"], upstream_gates=["Go Test Coverage Profile"]),
-    "Go Test Race (Hot Packages)": GateSpec("Go Test Race (Hot Packages)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_RACE),
-    "cmd/ Naming Check": GateSpec("cmd/ Naming Check", tool_scripts=[".github/scripts/check-cmd-naming.py"], relevant_patterns=["gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go"]),
+    "Go Test Race (Hot Packages)": GateSpec("Go Test Race (Hot Packages)", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_RACE),
+    "cmd/ Naming Check": GateSpec("cmd/ Naming Check", tool_scripts=[".github/scripts/check-cmd-naming.py"], relevant_patterns=["cli/cmd/**/*.go", "cli/cmdagy/**/*.go", "cli/cmdchromeprofile/**/*.go"]),
     "Legacy Refs Check": GateSpec("Legacy Refs Check", tool_scripts=[".github/scripts/check-legacy-refs.py"], relevant_patterns=CLUSTER_REPO_TEXT),
     "Deploy Layout Check": GateSpec("Deploy Layout Check", tool_scripts=[".github/scripts/check-deploy-layout.py"], relevant_patterns=CLUSTER_REPO_TEXT),
     "constants/ Naming Check": GateSpec("constants/ Naming Check", tool_scripts=[".github/scripts/check-constants-naming.py"], relevant_patterns=CLUSTER_GO_CONSTANTS),
     "Golden Allow Leak Check": GateSpec("Golden Allow Leak Check", tool_scripts=[".github/scripts/check-no-golden-allow-leak.py"], relevant_patterns=CLUSTER_REPO_TEXT),
-    "Bare Stderr Check": GateSpec("Bare Stderr Check", tool_scripts=[".github/scripts/check-bare-stderr-err.py"], relevant_patterns=["gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go"]),
-    "Changelog Version Sync": GateSpec("Changelog Version Sync", tool_scripts=[".github/scripts/check-changelog-version-sync.py"], configs=["gitmap/constants/constants.go", "changelog.md"], relevant_patterns=["gitmap/constants/constants.go", "changelog.md"]),
+    "Bare Stderr Check": GateSpec("Bare Stderr Check", tool_scripts=[".github/scripts/check-bare-stderr-err.py"], relevant_patterns=["cli/cmd/**/*.go", "cli/cmdagy/**/*.go", "cli/cmdchromeprofile/**/*.go"]),
+    "Changelog Version Sync": GateSpec("Changelog Version Sync", tool_scripts=[".github/scripts/check-changelog-version-sync.py"], configs=["cli/constants/constants.go", "changelog.md"], relevant_patterns=["cli/constants/constants.go", "changelog.md"]),
     "File Size Check": GateSpec("File Size Check", tool_scripts=[".github/scripts/file-size-check.py"], relevant_patterns=CLUSTER_GO_ALL),
-    "JSON Snapshot Fast Check": GateSpec("JSON Snapshot Fast Check", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=["gitmap/cmd/**/*.go", "gitmap/formatter/**/*.go"]),
+    "JSON Snapshot Fast Check": GateSpec("JSON Snapshot Fast Check", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=["cli/cmd/**/*.go", "cli/formatter/**/*.go"]),
 }
 
 
@@ -804,7 +804,7 @@ def load_raw_test_inventory(path: Path) -> dict[str, Any]:
 
 def build_or_update_test_inventory(repo_root: Path, force: bool = False) -> dict[str, Any]:
     """Discovers all Go unit tests, indexes source code functions, maps code-to-test, and caches hashes & timings."""
-    gitmap_dir = repo_root / "gitmap"
+    gitmap_dir = repo_root / "cli"
     existing_inv = load_raw_test_inventory(TEST_INVENTORY_PATH)
     cached_tests = existing_inv.get("tests", {}) if isinstance(existing_inv, dict) else {}
 
@@ -839,9 +839,9 @@ def build_or_update_test_inventory(repo_root: Path, force: bool = False) -> dict
                 rel_test_file = os.path.relpath(p, repo_root).replace("\\", "/")
                 tests = extract_go_test_functions(p)
                 candidates = pkg_to_files.get(rel_pkg, [])
-                if not candidates and rel_pkg.startswith("gitmap/tests/"):
-                    target_name = rel_pkg[len("gitmap/tests/"):].replace("_test", "")
-                    candidates = pkg_to_files.get(f"gitmap/{target_name}", []) or pkg_to_files.get("gitmap/cmd", [])
+                if not candidates and rel_pkg.startswith("cli/tests/"):
+                    target_name = rel_pkg[len("cli/tests/"):].replace("_test", "")
+                    candidates = pkg_to_files.get(f"cli/{target_name}", []) or pkg_to_files.get("cli/cmd", [])
 
                 base_stem = f.replace("_test.go", "").replace("_unit", "")
                 primary_candidate = ""
@@ -956,9 +956,9 @@ def run_package_tests_worker(
 ) -> tuple[int, int, str, dict[str, dict[str, Any]]]:
     """Worker function executing a batch of tests within a package using go test -json."""
     rel_in_gitmap = pkg
-    if rel_in_gitmap.startswith("gitmap/"):
-        rel_in_gitmap = "./" + rel_in_gitmap[len("gitmap/"):]
-    elif rel_in_gitmap == "gitmap":
+    if rel_in_gitmap.startswith("cli/"):
+        rel_in_gitmap = "./" + rel_in_gitmap[len("cli/"):]
+    elif rel_in_gitmap == "cli":
         rel_in_gitmap = "."
     else:
         rel_in_gitmap = f"./{rel_in_gitmap}"
@@ -969,7 +969,7 @@ def run_package_tests_worker(
         run_regex = "^(" + "|".join(test_funcs) + ")$"
         cmd.extend(["-run", run_regex])
 
-    cwd = repo_root / "gitmap"
+    cwd = repo_root / "cli"
     test_env = dict(os.environ)
     test_env["GOTMPDIR"] = str(TMP_CACHE_DIR)
     test_env["TMPDIR"] = str(TMP_CACHE_DIR)
@@ -1057,7 +1057,7 @@ def filter_tests_by_package_or_file(tests: dict[str, Any], queries: list[str], r
             test_f = t.get("test_file", "").replace("\\", "/")
 
             # 1. Package match (exact, relative, or Go module suffix)
-            if pkg == q or pkg == f"gitmap/{q}" or pkg.endswith("/" + q) or pkg.split("/")[-1] == q:
+            if pkg == q or pkg == f"cli/{q}" or pkg.endswith("/" + q) or pkg.split("/")[-1] == q:
                 matched_ids.add(tid)
                 continue
             if q.startswith("github.com/") and q.endswith(pkg):
@@ -1083,7 +1083,7 @@ def filter_tests_by_package_or_file(tests: dict[str, Any], queries: list[str], r
                     found_pkg = t.get("package")
                     break
             if not found_pkg:
-                for root, _, files in os.walk(repo_root / "gitmap"):
+                for root, _, files in os.walk(repo_root / "cli"):
                     if q_base in files:
                         found_pkg = os.path.relpath(root, repo_root).replace("\\", "/")
                         break

@@ -21,14 +21,14 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
 
       - name: Run govulncheck
-        working-directory: gitmap
+        working-directory: cli
         run: |
           set +e
           govulncheck ./... 2>&1 | tee /tmp/vulncheck.out

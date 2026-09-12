@@ -18,8 +18,8 @@ EXCLUDE_EXTS = {
 }
 
 EXEMPT_FILES = {
-    "gitmap/constants/deploy-manifest.json",
-    "gitmap/constants/deploy_manifest.go",
+    "cli/constants/deploy-manifest.json",
+    "cli/constants/deploy_manifest.go",
     ".github/scripts/check-deploy-layout.sh",
     ".github/scripts/check-deploy-layout.py",
     ".github/scripts/check-legacy-refs.sh",

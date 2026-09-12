@@ -33,15 +33,15 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Run goreleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: "~> v2"
-          workdir: gitmap
+          workdir: cli
           args: >-
             release --clean
             ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--snapshot' || '' }}
@@ -53,5 +53,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gitmap-snapshot-${{ github.sha }}
-          path: gitmap/dist/*
+          path: cli/dist/*
           retention-days: 7

@@ -4,7 +4,7 @@ description: |
   Go-toolchain job in CI. Encapsulates the repeated 3-step block:
 
     1. actions/checkout@v6
-    2. actions/setup-go@v6 (pinned via gitmap/go.mod, GOMODCACHE auto-cached)
+    2. actions/setup-go@v6 (pinned via cli/go.mod, GOMODCACHE auto-cached)
     3. actions/cache@v4 over ~/.cache/go-build keyed by go.sum + SHA, with
        a per-job suffix so the lint / test / build / vet caches don't
        clobber each other.
@@ -25,8 +25,8 @@ runs:
   steps:
     - uses: actions/setup-go@v6
       with:
-        go-version-file: gitmap/go.mod
-        cache-dependency-path: gitmap/go.sum
+        go-version-file: cli/go.mod
+        cache-dependency-path: cli/go.sum
 
     # Persist GOCACHE (~/.cache/go-build) across runs. setup-go already
     # caches GOMODCACHE keyed by go.sum, but NOT the build cache — that's
@@ -38,7 +38,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/go-build
-        key: go-build-${{ runner.os }}-${{ inputs.cache-suffix }}-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+        key: go-build-${{ runner.os }}-${{ inputs.cache-suffix }}-${{ hashFiles('cli/go.sum') }}-${{ github.sha }}
         restore-keys: |
-          go-build-${{ runner.os }}-${{ inputs.cache-suffix }}-${{ hashFiles('gitmap/go.sum') }}-
+          go-build-${{ runner.os }}-${{ inputs.cache-suffix }}-${{ hashFiles('cli/go.sum') }}-
           go-build-${{ runner.os }}-${{ inputs.cache-suffix }}-

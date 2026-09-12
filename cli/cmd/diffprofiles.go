@@ -1,0 +1,112 @@
+package cmd
+
+import (
+	"flag"
+	"fmt"
+	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+)
+
+// runDiffProfiles handles the "diff-profiles" command.
+func runDiffProfiles(args []string) error {
+	checkHelp("diff-profiles", args)
+	nameA, nameB, showAll, jsonMode := parseDPFlags(args)
+	if err := validateDPProfiles(nameA, nameB); err != nil {
+		return err
+	}
+
+	reposA := loadProfileRepos(nameA)
+	reposB := loadProfileRepos(nameB)
+
+	result := compareDPRepos(reposA, reposB)
+
+	if jsonMode {
+		printDPJSON(nameA, nameB, result)
+
+		return nil
+	}
+
+	printDPOutput(nameA, nameB, result, showAll)
+
+	return nil
+}
+
+// parseDPFlags parses flags for the diff-profiles command.
+func parseDPFlags(args []string) (string, string, bool, bool) {
+	fs := flag.NewFlagSet(constants.CmdDiffProfiles, flag.ExitOnError)
+	allFlag := fs.Bool("all", false, "Include identical repos")
+	jsonFlag := fs.Bool("json", false, "Output as JSON")
+	fs.Parse(args)
+
+	if fs.NArg() < 2 {
+		fmt.Fprint(os.Stderr, constants.ErrDPUsage)
+		cliexit.HandleError(apperror.NewSimple("not enough return values", "E9000"), 1)
+	}
+
+	return fs.Arg(0), fs.Arg(1), *allFlag, *jsonFlag
+}
+
+// validateDPProfiles checks both profiles exist.
+func validateDPProfiles(nameA, nameB string) *apperror.AppError {
+	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
+
+	for _, name := range []string{nameA, nameB} {
+		if !profileExists(cfg.Profiles, name) {
+			return apperror.NewSimple(constants.ErrDPProfileMissing, "E9000")
+		}
+	}
+
+	return nil
+}
+
+// loadProfileRepos opens a profile's DB and returns all repos.
+func loadProfileRepos(name string) []model.ScanRecord {
+	db, err := store.OpenDefaultProfile(name)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
+		cliexit.HandleError(nil, 1)
+	}
+
+	defer db.Close()
+
+	if err := db.Migrate(); err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ DB migration failed: %v\n", err)
+	}
+
+	repos, err := db.ListRepos()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
+		cliexit.HandleError(nil, 1)
+	}
+
+	return repos
+}
+
+// printDPJSON outputs the comparison result as JSON.
+func printDPJSON(nameA, nameB string, result dpResult) {
+	if err := encodeDiffProfilesJSON(os.Stdout, nameA, nameB, result); err != nil {
+		fmt.Fprintf(os.Stderr, "  ✗ Failed to encode diff result to JSON: %v\n", err)
+	}
+}
+
+// dpRepoSummaries converts records to simple name+path maps.
+//
+//nolint:unused
+func dpRepoSummaries(records []model.ScanRecord) []map[string]string {
+	result := make([]map[string]string, 0, len(records))
+
+	for _, r := range records {
+		result = append(result, map[string]string{
+			"name": r.RepoName,
+			"path": r.AbsolutePath,
+		})
+	}
+
+	return result
+}

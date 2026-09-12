@@ -34,10 +34,10 @@ else
 fi
 
 # Download Go dependencies
-if [ -f "gitmap/go.mod" ]; then
+if [ -f "cli/go.mod" ]; then
   echo "  → Downloading Go dependencies..."
-  (cd gitmap && go mod download) && echo "  ✓ Dependencies ready" || echo "  ⚠ go mod download failed"
+  (cd cli && go mod download) && echo "  ✓ Dependencies ready" || echo "  ⚠ go mod download failed"
 fi
 
 echo ""
-echo "Done! Run 'cd gitmap && go test ./...' to verify."
+echo "Done! Run 'cd cli && go test ./...' to verify."

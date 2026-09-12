@@ -4,7 +4,7 @@
 Autonomously bumps version across all SSoT manifests:
 - version.json
 - package.json
-- gitmap/constants/constants.go
+- cli/constants/constants.go
 - changelog.md
 - .lovable/user-preferences
 - .lovable/release/release-notes-v<version>.md
@@ -211,7 +211,7 @@ def main():
 
     version_json_p = repo_root / "version.json"
     package_json_p = repo_root / "package.json"
-    constants_go_p = repo_root / "gitmap" / "constants" / "constants.go"
+    constants_go_p = repo_root / "cli" / "constants" / "constants.go"
     user_prefs_p = repo_root / ".lovable" / "user-preferences"
 
     with open(version_json_p, "r", encoding=DEFAULT_ENCODING) as f:

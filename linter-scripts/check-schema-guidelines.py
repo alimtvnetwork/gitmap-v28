@@ -80,7 +80,7 @@ def audit_sql_content(file_path: Path) -> list[str]:
 
 
 def scan_target_files() -> list[str]:
-    target_dirs = [ROOT_DIR / "gitmap" / "constants", ROOT_DIR / "gitmap" / "db"]
+    target_dirs = [ROOT_DIR / "cli" / "constants", ROOT_DIR / "cli" / "db"]
     violations = []
     for target in target_dirs:
         for root, dirs, files in os.walk(target):

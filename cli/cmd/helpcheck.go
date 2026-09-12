@@ -1,0 +1,50 @@
+package cmd
+
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+)
+
+// checkHelp prints embedded help and exits if --help or -h is present.
+// Honors --pretty / --no-pretty so users can force-enable rendering for
+// pagers (`gitmap foo --help --pretty | less -R`) or strip ANSI for
+// scripting (`gitmap foo --help --no-pretty > help.txt`).
+//
+// Uses cliexit.Exit so theme/glyphs pipe drainers run before the
+// process teardown. A bare os.Exit here would bypass the deferred
+// Drain calls in runDispatch and lose the final help bytes on
+// Windows (same failure class as the v6.74.0 version-mismatch bug).
+func checkHelp(command string, args []string) {
+	lacksHelpFlag := !hasHelpFlag(args)
+	if lacksHelpFlag {
+		return
+	}
+
+	_, mode := ParsePrettyFlag(args)
+	helptext.PrintWithMode(command, mode)
+	printUsageFooterShort()
+	cliexit.Exit(0)
+}
+
+// hasHelpFlag scans args for the standard help triggers.
+func hasHelpFlag(args []string) bool {
+	for _, a := range args {
+		if a == "--help" || a == "-h" || a == "help" {
+			return true
+		}
+	}
+
+	return false
+}
+
+// requireOnline checks network connectivity and exits if offline.
+func requireOnline() {
+	if gitutil.IsOnline() {
+		return
+	}
+
+	gitutil.PrintOfflineWarning()
+	cliexit.HandleGeneralError(apperror.NewSimple("network offline", "E9000"))
+}

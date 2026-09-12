@@ -30,7 +30,7 @@ DEFAULT_EXCLUDES = [
     "*.zip", "*.tar", "*.gz", "*.exe",
     "*/testdata/*", "*/golden/*",
     "*/.gitmap/release/*", "*/.gitmap/release-assets/*",
-    "gitmap/completion/allcommands_generated.go",
+    "cli/completion/allcommands_generated.go",
     ".lovable/*",
 ]
 
@@ -93,7 +93,7 @@ def main() -> int:
 
     repo_root = Path(__file__).resolve().parent.parent
     misspell_bin = ensure_misspell()
-    config_path = repo_root / "gitmap" / "data" / "config.json"
+    config_path = repo_root / "cli" / "data" / "config.json"
     excludes, includes = load_patterns(config_path)
 
     candidates: list[str] = []

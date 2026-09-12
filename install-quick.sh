@@ -36,7 +36,7 @@
 # state is never modified.
 
 REPO="alimtvnetwork/gitmap-v28"
-INSTALLER_URL="https://raw.githubusercontent.com/${REPO}/main/gitmap/scripts/install.sh"
+INSTALLER_URL="https://raw.githubusercontent.com/${REPO}/main/cli/scripts/install.sh"
 if [ "$(id -u 2>/dev/null || echo 1)" -eq 0 ]; then
     DEFAULT_DIR="/usr/local/bin"
 else

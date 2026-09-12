@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-platform check for bare `fmt.Fprintln(os.Stderr, err)` in gitmap/cmd/."""
+"""Cross-platform check for bare `fmt.Fprintln(os.Stderr, err)` in cli/cmd/."""
 import os
 import re
 import sys
@@ -12,7 +12,7 @@ def main():
         sys.stderr.reconfigure(encoding="utf-8")
 
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    cmd_dir = os.path.join(repo_root, "gitmap", "cmd")
+    cmd_dir = os.path.join(repo_root, "cli", "cmd")
     pattern = re.compile(r"fmt\.Fprintln\(os\.Stderr,\s*err\)")
 
     offenders = []
@@ -27,10 +27,10 @@ def main():
                             offenders.append((rel_path, lineno, line.strip()))
 
     if not offenders:
-        print("OK: no bare 'fmt.Fprintln(os.Stderr, err)' in gitmap/cmd/")
+        print("OK: no bare 'fmt.Fprintln(os.Stderr, err)' in cli/cmd/")
         sys.exit(0)
 
-    print("FAIL: bare error prints found in gitmap/cmd/ — use cliexit.Reportf/Fail", file=sys.stderr)
+    print("FAIL: bare error prints found in cli/cmd/ — use cliexit.Reportf/Fail", file=sys.stderr)
     print("", file=sys.stderr)
     for rel_path, lineno, line_content in offenders:
         print(f"::error file={rel_path},line={lineno}::[bare-err] use cliexit.Reportf(cmd, op, subject, err) instead", file=sys.stderr)

@@ -59,6 +59,7 @@ Updated: 2026-04-27
 - [Macro Export/Import Nested If RCA](issues/2026-09-12-macro-export-import-nested-if-rca.md) — Guard flattening in cmd/macro_export.go, cmd/macro_import.go, and macro/export.go.
 - [Nuclear Modularization Phase 4 & Heavy Test Isolation](learned/13-nuclear-modularization-phase4.md) — Domain package extraction (cmdmacro, cmdvscode, cmdvhost, cmdzip), strict acyclic DAG, and test inventory duration estimation.
 - [Smart Test Runner, Dual Queue & Temp Isolation](learned/14-smart-test-runner-and-temp-isolation.md) — Directory isolation (.lovable/temp/ vs .tmp/), failure output folder (.lovable/temp/failures/), silent passing tests, dual worker queue architecture (4x2 slow, 4x4 fast in 100-test chunks), and in-flight ETA synchronization.
+- [CLI & CLI-Updater Folder Architecture Refactoring](learned/15-cli-and-updater-folder-refactor.md) — Elimination of root/folder name collision: gitmap/ to cli/ and gitmap-updater/ to cli-updater/, 1,608 Go files import transmutation, and full path synchronization across runners, linters, and workflows.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

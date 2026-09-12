@@ -5,7 +5,7 @@ import re
 import sys
 
 
-WHITELIST_PREFIX = "gitmap/goldenguard/"
+WHITELIST_PREFIX = "cli/goldenguard/"
 
 PATTERNS_BY_EXT = {
     (".sh", ".bash"): [

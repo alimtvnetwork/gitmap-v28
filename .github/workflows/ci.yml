@@ -195,7 +195,7 @@ jobs:
         # detected, it auto-applies `gofmt -w`, commits the changes with
         # `style(go): auto-format Go files with gofmt [skip ci]`, and pushes to the branch.
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         run: python3 ../.github/scripts/go-format-check.py
 
       - name: fix-repo gofmt audit (affected .go files only)
@@ -204,14 +204,14 @@ jobs:
         # affected files so a plain refactor PR doesn't trip it. Body
         # extracted to .github/scripts/fix-repo-gofmt-audit.py.
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         env:
           GH_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: python3 ../.github/scripts/fix-repo-gofmt-audit.py
 
       - name: Go vet
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         run: go vet ./...
 
       - name: Compile gate (typecheck every package + test files)
@@ -226,7 +226,7 @@ jobs:
         # so the workflow fails immediately with a clear error
         # message naming the offending file:line.
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         run: go test -run=^$ ./... -count=1
 
       - name: Install golangci-lint (pinned)
@@ -242,7 +242,7 @@ jobs:
         # soft-gate baseline-diff job (`lint-baseline-diff`) is the
         # separate place where pre-existing findings are tolerated.
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: golangci-lint run --timeout=5m --issues-exit-code=1
 
@@ -296,8 +296,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Install golangci-lint (pinned)
         if: needs.sha-check.outputs.already-built != 'true'
@@ -575,8 +575,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Restore baseline from last successful main run
         id: baseline-cache
@@ -605,7 +605,7 @@ jobs:
 
       - name: Run golangci-lint (JSON, non-blocking)
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: |
           mkdir -p /tmp/lint-current
@@ -818,7 +818,7 @@ jobs:
         with:
           already-built: ${{ needs.sha-check.outputs.already-built }}
           message: cmd/ naming check
-          run: bash .github/scripts/check-cmd-naming.sh gitmap/cmd
+          run: bash .github/scripts/check-cmd-naming.sh cli/cmd
 
   legacy-refs-check:
     # Fails the build if any legacy version string leaks back into the
@@ -1010,18 +1010,18 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Run go generate
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         run: go generate ./...
 
       - name: Detect drift
         id: drift
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: |
           if git diff --exit-code .; then
@@ -1039,7 +1039,7 @@ jobs:
           && steps.drift.outputs.drifted == 'true'
           && github.event_name == 'workflow_dispatch'
           && inputs.auto_fix_generate_drift == true
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: |
           set -euo pipefail
@@ -1085,8 +1085,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Install govulncheck
         if: needs.sha-check.outputs.already-built != 'true'
@@ -1094,7 +1094,7 @@ jobs:
 
       - name: Run govulncheck
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         run: |
           set +e
           govulncheck ./... 2>&1 | tee /tmp/vulncheck.out
@@ -1147,8 +1147,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       # See `lint` job for rationale — persist GOCACHE so the
       # JSON-snapshot subset re-uses compiled test binaries from
@@ -1159,14 +1159,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
-          key: go-build-${{ runner.os }}-jsonsnap-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          key: go-build-${{ runner.os }}-jsonsnap-${{ hashFiles('cli/go.sum') }}-${{ github.sha }}
           restore-keys: |
-            go-build-${{ runner.os }}-jsonsnap-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-jsonsnap-${{ hashFiles('cli/go.sum') }}-
             go-build-${{ runner.os }}-jsonsnap-
 
       - name: Run JSON snapshot fast tests
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: |
           set -uo pipefail
@@ -1240,8 +1240,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       # See `lint` job for rationale. Per-shard cache slot
       # (matrix.name) so parallel shards don't race on the same
@@ -1252,9 +1252,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
-          key: go-build-${{ runner.os }}-test-${{ matrix.name }}-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          key: go-build-${{ runner.os }}-test-${{ matrix.name }}-${{ hashFiles('cli/go.sum') }}-${{ github.sha }}
           restore-keys: |
-            go-build-${{ runner.os }}-test-${{ matrix.name }}-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-test-${{ matrix.name }}-${{ hashFiles('cli/go.sum') }}-
             go-build-${{ runner.os }}-test-${{ matrix.name }}-
             go-build-${{ runner.os }}-test-
       # Defensive workspace scrub before the fix-repo / v9->v12 fixture
@@ -1272,12 +1272,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -f gitmap/test-output.txt gitmap/coverage-*.out
+          rm -f cli/test-output.txt cli/coverage-*.out
           rm -rf /tmp/gitmap-fixrepo-* /tmp/fixrepo-rewrite-* || true
           echo "workspace clean: gitmap/ test-output + /tmp fixrepo scratch removed"
       - name: Run tests
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: |
           set -uo pipefail
@@ -1303,8 +1303,8 @@ jobs:
         with:
           name: test-results-${{ matrix.name }}
           path: |
-            gitmap/test-output.txt
-            gitmap/coverage-${{ matrix.name }}.out
+            cli/test-output.txt
+            cli/coverage-${{ matrix.name }}.out
           retention-days: 7
 
   installer-smoke:
@@ -1327,8 +1327,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: CHANGELOG version-sync (constants.go ↔ changelog.md)
         if: needs.sha-check.outputs.already-built != 'true'
@@ -1379,8 +1379,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Run E2E CLI Smoke Tests Windows
         if: needs.sha-check.outputs.already-built != 'true'
@@ -1424,7 +1424,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     defaults:
       run:
-        working-directory: gitmap
+        working-directory: cli
     steps:
       - name: Already validated
         if: needs.sha-check.outputs.already-built == 'true'
@@ -1437,8 +1437,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       # Per-OS GOCACHE slot. `runner.os` discriminates Linux/macOS/
       # Windows so each runner warms its own cache and they never
@@ -1451,9 +1451,9 @@ jobs:
             ~/.cache/go-build
             ~/Library/Caches/go-build
             ~\AppData\Local\go-build
-          key: go-build-${{ runner.os }}-e2e-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          key: go-build-${{ runner.os }}-e2e-${{ hashFiles('cli/go.sum') }}-${{ github.sha }}
           restore-keys: |
-            go-build-${{ runner.os }}-e2e-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-e2e-${{ hashFiles('cli/go.sum') }}-
             go-build-${{ runner.os }}-e2e-
 
       # Run the e2e-bearing packages with -count=1 (no test cache) so
@@ -1488,7 +1488,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-output-${{ matrix.os }}
-          path: gitmap/e2e-output.txt
+          path: cli/e2e-output.txt
           retention-days: 7
 
 
@@ -1517,8 +1517,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       # See `lint` job for rationale. Full-suite guard touches every
       # package, so a warm GOCACHE is the single biggest CI win here
@@ -1529,9 +1529,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
-          key: go-build-${{ runner.os }}-fullsuite-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          key: go-build-${{ runner.os }}-fullsuite-${{ hashFiles('cli/go.sum') }}-${{ github.sha }}
           restore-keys: |
-            go-build-${{ runner.os }}-fullsuite-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-fullsuite-${{ hashFiles('cli/go.sum') }}-
             go-build-${{ runner.os }}-fullsuite-
 
       # Mirror the test-matrix scrub so the full-suite guard's
@@ -1545,14 +1545,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -f gitmap/test-output.txt gitmap/coverage-*.out
+          rm -f cli/test-output.txt cli/coverage-*.out
           rm -rf /tmp/full-suite /tmp/gitmap-fixrepo-* /tmp/fixrepo-rewrite-* || true
           echo "workspace clean: gitmap/ + /tmp/full-suite + fixrepo scratch removed"
 
       - name: Run full test suite
         if: needs.sha-check.outputs.already-built != 'true'
         id: full-test
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: |
           set -uo pipefail
@@ -1582,7 +1582,7 @@ jobs:
           needs.sha-check.outputs.already-built != 'true' &&
           steps.full-test.conclusion != 'skipped'
         id: full-lint
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         # Captures stdout to an artifact for the PR summary AND keeps the
         # step's exit code as the gate. Linter binary cached by the
@@ -1703,7 +1703,7 @@ jobs:
       # produce the artifact for the Security tab.
       - name: Generate golangci-lint SARIF report
         if: always() && needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: |
           set -uo pipefail
@@ -1792,8 +1792,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Download all test results
         if: needs.sha-check.outputs.already-built != 'true'
@@ -1813,7 +1813,7 @@ jobs:
         # extracted to .github/scripts/coverage-report.sh — keeps the
         # workflow readable and lets the script be unit-tested.
         if: always() && needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         shell: bash
         run: bash ../.github/scripts/coverage-report.sh results
 
@@ -1895,8 +1895,8 @@ jobs:
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       # Cross-compile matrix: GOCACHE entries are partitioned by
       # GOOS/GOARCH (the cache stores per-target compiled artifacts),
@@ -1907,9 +1907,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
-          key: go-build-${{ runner.os }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('gitmap/go.sum') }}-${{ github.sha }}
+          key: go-build-${{ runner.os }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('cli/go.sum') }}-${{ github.sha }}
           restore-keys: |
-            go-build-${{ runner.os }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('gitmap/go.sum') }}-
+            go-build-${{ runner.os }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('cli/go.sum') }}-
             go-build-${{ runner.os }}-build-${{ matrix.os }}-${{ matrix.arch }}-
 
       - name: Print build stamp
@@ -1927,18 +1927,18 @@ jobs:
 
       - name: Build binary
         if: needs.sha-check.outputs.already-built != 'true'
-        working-directory: gitmap
+        working-directory: cli
         run: |
           VERSION="dev-${GITHUB_SHA::10}"
           BUILD_COMMIT="$(git rev-parse HEAD)"
           BUILD_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
           BUILD_REPO="$(git config --get remote.origin.url)"
           BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.Version=$VERSION'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit=$BUILD_COMMIT'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildBranch=$BUILD_BRANCH'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildRepo=$BUILD_REPO'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildDate=$BUILD_DATE'"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/cli/constants.Version=$VERSION'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildCommit=$BUILD_COMMIT'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildBranch=$BUILD_BRANCH'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildRepo=$BUILD_REPO'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildDate=$BUILD_DATE'"
           OUTPUT="gitmap-${VERSION}-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
           echo "Building $OUTPUT..."
           CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags "$LDFLAGS" -o "$OUTPUT" .

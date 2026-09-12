@@ -1,0 +1,171 @@
+package gitrm
+
+import (
+	"encoding/csv"
+	"encoding/json"
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+
+	"github.com/pterm/pterm"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+)
+
+// Run executes the git-rm command logic.
+func Run(args []string) error {
+	if len(args) < 1 {
+		return apperror.NewSimple("GitRmRun", "E_GITRM_MISSING_INPUT")
+	}
+
+	input := args[0]
+	paths, err := parseInput(input)
+	if err != nil {
+		return apperror.WrapSimple(err, "git-rm: failed to parse input")
+	}
+
+	if len(paths) == 0 {
+		return apperror.NewSimple("GitRmRun", "E_GITRM_NO_PATHS")
+	}
+
+	// 1. Backup paths to global location
+	backupDir, err := createBackupDir()
+	if err != nil {
+		return apperror.WrapSimple(err, "git-rm: failed to create backup directory")
+	}
+
+	for _, p := range paths {
+		backupFile(p, backupDir)
+	}
+
+	// 2. Remove from git history
+	return rewriteHistory(paths)
+}
+
+func parseInput(input string) ([]string, error) {
+	if isExistingFile(input) {
+		return parseFileInput(input)
+	}
+
+	if strings.Contains(input, ",") {
+		return strings.Split(input, ","), nil
+	}
+
+	return []string{input}, nil
+}
+
+func isExistingFile(path string) bool {
+	st, err := os.Stat(path)
+
+	return err == nil && !st.IsDir()
+}
+
+func parseFileInput(input string) ([]string, error) {
+	ext := strings.ToLower(filepath.Ext(input))
+	b, err := os.ReadFile(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if ext == ".json" {
+		return parseJSONPaths(b)
+	}
+
+	if ext == ".csv" {
+		return parseCSVPaths(b)
+	}
+
+	return parseTextLines(b), nil
+}
+
+func parseJSONPaths(b []byte) ([]string, error) {
+	var paths []string
+	if err := json.Unmarshal(b, &paths); err != nil {
+		return nil, err
+	}
+
+	return paths, nil
+}
+
+func parseCSVPaths(b []byte) ([]string, error) {
+	r := csv.NewReader(strings.NewReader(string(b)))
+	records, err := r.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var paths []string
+	for _, rec := range records {
+		paths = append(paths, rec...)
+	}
+
+	return paths, nil
+}
+
+func parseTextLines(b []byte) []string {
+	lines := strings.Split(string(b), "\n")
+	var paths []string
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if trimmed != "" {
+			paths = append(paths, trimmed)
+		}
+	}
+
+	return paths
+}
+
+func createBackupDir() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	cwd, _ := os.Getwd()
+	repoName := filepath.Base(cwd)
+	bd := filepath.Join(home, ".gitmap", "backups", "git-rm", repoName)
+	err = os.MkdirAll(bd, 0755)
+
+	return bd, err
+}
+
+func backupFile(path, backupRoot string) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return // Ignore missing files in working tree
+	}
+
+	dest := filepath.Join(backupRoot, path)
+	os.MkdirAll(filepath.Dir(dest), 0755)
+	os.WriteFile(dest, b, 0644)
+}
+
+func rewriteHistory(paths []string) error {
+	pterm.Info.Printf("Removing %d files from git history...\n", len(paths))
+	var quoted []string
+	for _, p := range paths {
+		quoted = append(quoted, fmt.Sprintf("'%s'", p))
+	}
+
+	filesStr := strings.Join(quoted, " ")
+	filterCmd := fmt.Sprintf("git rm --cached --ignore-unmatch %s", filesStr)
+
+	cmd := exec.Command("git", "filter-branch", "--force", "--index-filter", filterCmd, "--prune-empty", "--tag-name-filter", "cat", "--", "--all")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return apperror.WrapSimple(err, "git-rm: history rewrite failed")
+	}
+
+	// Clean up refs
+	exec.Command("git", "for-each-ref", "--format=%(refname)", "refs/original/").Run()
+	exec.Command("git", "reflog", "expire", "--expire=now", "--all").Run()
+	exec.Command("git", "gc", "--prune=now", "--aggressive").Run()
+
+	pterm.Success.Println("Git history successfully rewritten.")
+
+	return nil
+}

@@ -1,0 +1,7 @@
+{
+  "deployPath": "C:\\Users\\Alim\\AppData\\Local",
+  "buildOutput": "./bin",
+  "binaryName": "gitmap.exe",
+  "goSource": "./cli",
+  "copyData": true
+}

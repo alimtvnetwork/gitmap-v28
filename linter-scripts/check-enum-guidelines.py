@@ -66,7 +66,7 @@ def check_file(filepath: Path) -> list[str]:
 
 
 def main():
-    target_dirs = [ROOT_DIR / 'gitmap', ROOT_DIR / 'src', ROOT_DIR / 'scripts', ROOT_DIR / 'spec']
+    target_dirs = [ROOT_DIR / 'cli', ROOT_DIR / 'src', ROOT_DIR / 'scripts', ROOT_DIR / 'spec']
     all_violations = []
 
     for td in target_dirs:

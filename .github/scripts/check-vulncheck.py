@@ -19,7 +19,7 @@ def get_binary_target(repo_root: Path) -> Path:
     if primary_path.is_file():
         return primary_path
 
-    return repo_root / "gitmap" / bin_name
+    return repo_root / "cli" / bin_name
 
 
 def build_govulncheck_cmd(target_bin: Path, repo_root: Path) -> list[str]:
@@ -62,7 +62,7 @@ def main() -> None:
     repo_root = Path(__file__).resolve().parent.parent.parent
     target_bin = get_binary_target(repo_root)
     cmd = build_govulncheck_cmd(target_bin, repo_root)
-    cwd = str(repo_root if target_bin.is_file() else repo_root / "gitmap")
+    cwd = str(repo_root if target_bin.is_file() else repo_root / "cli")
 
     try:
         proc = subprocess.run(

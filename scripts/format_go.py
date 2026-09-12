@@ -59,7 +59,7 @@ def main() -> int:
         except subprocess.SubprocessError:
             files = []
     elif mode == "all":
-        gitmap_dir = repo_root / "gitmap"
+        gitmap_dir = repo_root / "cli"
         if gitmap_dir.is_dir():
             files = list(gitmap_dir.rglob("*.go"))
     else:

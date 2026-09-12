@@ -29,8 +29,8 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version-file: gitmap/go.mod
-          cache-dependency-path: gitmap/go.sum
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
 
       - name: Resolve version
         id: version
@@ -55,7 +55,7 @@ jobs:
           echo "Resolved version: $VERSION"
 
       - name: Generate Windows resources
-        working-directory: gitmap
+        working-directory: cli
         run: |
           go install github.com/tc-hib/go-winres@v0.3.3
           VERSION="${{ steps.version.outputs.version }}"
@@ -64,7 +64,7 @@ jobs:
           ls -la rsrc_windows_*.syso
 
       - name: Build release binaries
-        working-directory: gitmap
+        working-directory: cli
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           CLEAN_VERSION="${VERSION#v}"
@@ -72,11 +72,11 @@ jobs:
           BUILD_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
           BUILD_REPO="$(git config --get remote.origin.url)"
           BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.Version=$CLEAN_VERSION'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildCommit=$BUILD_COMMIT'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildBranch=$BUILD_BRANCH'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildRepo=$BUILD_REPO'"
-          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/gitmap/cmd.BuildDate=$BUILD_DATE'"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/cli/constants.Version=$CLEAN_VERSION'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildCommit=$BUILD_COMMIT'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildBranch=$BUILD_BRANCH'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildRepo=$BUILD_REPO'"
+          LDFLAGS="$LDFLAGS -X 'github.com/alimtvnetwork/gitmap-v28/cli/cmd.BuildDate=$BUILD_DATE'"
 
           TARGETS=(
             "windows/amd64/.exe"
@@ -96,12 +96,12 @@ jobs:
             CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -ldflags "$LDFLAGS" -o "$OUTPUT" .
           done
 
-      - name: Build gitmap-updater binaries
-        working-directory: gitmap-updater
+      - name: Build cli-updater binaries
+        working-directory: cli-updater
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           CLEAN_VERSION="${VERSION#v}"
-          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/gitmap-updater/cmd.Version=$CLEAN_VERSION'"
+          LDFLAGS="-s -w -X 'github.com/alimtvnetwork/gitmap-v28/cli-updater/cmd.Version=$CLEAN_VERSION'"
 
           TARGETS=(
             "windows/amd64/.exe"
@@ -114,7 +114,7 @@ jobs:
 
           for target in "${TARGETS[@]}"; do
             IFS='/' read -r os arch ext <<< "$target"
-            OUTPUT="../gitmap/dist/gitmap-updater-${VERSION}-${os}-${arch}${ext}"
+            OUTPUT="../cli/dist/gitmap-updater-${VERSION}-${os}-${arch}${ext}"
             echo "Building $OUTPUT..."
             CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -ldflags "$LDFLAGS" -o "$OUTPUT" .
           done
@@ -131,9 +131,9 @@ jobs:
           npm run build
           echo "Bundling docs-site/dist into docs-site.zip..."
           cd dist
-          zip -r ../gitmap/dist/docs-site.zip .
+          zip -r ../cli/dist/docs-site.zip .
           cd ..
-          echo "  docs-site.zip created ($(stat --format='%s' gitmap/dist/docs-site.zip | numfmt --to=iec --suffix=B))"
+          echo "  docs-site.zip created ($(stat --format='%s' cli/dist/docs-site.zip | numfmt --to=iec --suffix=B))"
 
       - name: Sign Windows binaries
         if: vars.SIGNPATH_SIGNING_ENABLED == 'true'
@@ -144,8 +144,8 @@ jobs:
           project-slug: ${{ secrets.SIGNPATH_PROJECT_SLUG }}
           signing-policy-slug: ${{ secrets.SIGNPATH_SIGNING_POLICY_SLUG }}
           artifact-configuration-slug: "exe"
-          input-artifact-path: "gitmap/dist"
-          output-artifact-path: "gitmap/dist"
+          input-artifact-path: "cli/dist"
+          output-artifact-path: "cli/dist"
           wait-for-completion: true
           wait-for-completion-timeout-in-seconds: 600
           parameters: |
@@ -156,7 +156,7 @@ jobs:
         run: |
           echo "Checking signed Windows binaries..."
           UNSIGNED=0
-          for exe in gitmap/dist/*.exe; do
+          for exe in cli/dist/*.exe; do
             [ -f "$exe" ] || continue
             echo "  ✓ Signed: $(basename "$exe")"
           done
@@ -167,7 +167,7 @@ jobs:
           echo "All Windows binaries signed successfully."
 
       - name: Compress and checksum
-        working-directory: gitmap/dist
+        working-directory: cli/dist
         run: |
           for f in gitmap-*-windows-*.exe; do
             [[ -f "$f" ]] || continue
@@ -215,7 +215,7 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           REPO="alimtvnetwork/gitmap-v28"
 
-          cat > gitmap/dist/install.ps1 << 'PSEOF'
+          cat > cli/dist/install.ps1 << 'PSEOF'
           <#
           .SYNOPSIS
               Install gitmap VERSION_PLACEHOLDER.
@@ -486,15 +486,15 @@ jobs:
           PSEOF
 
           # Replace placeholders
-          sed -i "s|VERSION_PLACEHOLDER|$VERSION|g" gitmap/dist/install.ps1
-          sed -i "s|REPO_PLACEHOLDER|$REPO|g" gitmap/dist/install.ps1
+          sed -i "s|VERSION_PLACEHOLDER|$VERSION|g" cli/dist/install.ps1
+          sed -i "s|REPO_PLACEHOLDER|$REPO|g" cli/dist/install.ps1
 
       - name: Generate version-specific install.sh
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           REPO="alimtvnetwork/gitmap-v28"
 
-          cat > gitmap/dist/install.sh << 'SHEOF'
+          cat > cli/dist/install.sh << 'SHEOF'
           #!/usr/bin/env bash
           set -euo pipefail
 
@@ -696,9 +696,9 @@ jobs:
           SHEOF
 
           # Replace placeholders
-          sed -i "s|VERSION_PLACEHOLDER|$VERSION|g" gitmap/dist/install.sh
-          sed -i "s|REPO_PLACEHOLDER|$REPO|g" gitmap/dist/install.sh
-          chmod +x gitmap/dist/install.sh
+          sed -i "s|VERSION_PLACEHOLDER|$VERSION|g" cli/dist/install.sh
+          sed -i "s|REPO_PLACEHOLDER|$REPO|g" cli/dist/install.sh
+          chmod +x cli/dist/install.sh
 
       - name: Extract changelog entry
         id: changelog
@@ -746,7 +746,7 @@ jobs:
           ## Checksums (SHA256)
 
           \`\`\`
-          $(cat gitmap/dist/checksums.txt)
+          $(cat cli/dist/checksums.txt)
           \`\`\`
 
           ## Install
@@ -799,7 +799,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.version }}
           name: ${{ steps.version.outputs.version }}
           body_path: /tmp/release-body.md
-          files: gitmap/dist/*
+          files: cli/dist/*
           draft: false
           prerelease: ${{ contains(steps.version.outputs.version, '-') }}
           make_latest: ${{ !contains(steps.version.outputs.version, '-') }}

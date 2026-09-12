@@ -19,7 +19,7 @@
 set -uo pipefail
 
 readonly GOLANGCI_LINT_VERSION="v1.64.8"
-readonly GITMAP_DIR="gitmap"
+readonly GITMAP_DIR="cli"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PHASE="${1:-all}"
