@@ -138,7 +138,29 @@ func routeMacroSubcommand(sub string, rest []string) error {
 		return routeExecSubcommand(sub, rest)
 	}
 
+	if isExportImportSubcommand(sub) {
+		return routeExportImportSubcommand(sub, rest)
+	}
+
 	return routeManagementSubcommand(sub, rest)
+}
+
+func isExportImportSubcommand(sub string) bool {
+	switch sub {
+	case "export", "exp", "dump", "export-all", "import", "imp", "load", "restore", "import-all":
+		return true
+	default:
+		return false
+	}
+}
+
+func routeExportImportSubcommand(sub string, rest []string) error {
+	switch sub {
+	case "export", "exp", "dump", "export-all":
+		return runMacroExport(rest)
+	default:
+		return runMacroImport(rest)
+	}
 }
 
 func isExecSubcommand(sub string) bool {
@@ -357,4 +379,6 @@ func printMacroUsage() {
 	fmt.Println("  list [--json] [--yaml]         List all saved macros")
 	fmt.Println("  show <name> [--json] [--yaml]  Inspect steps of a macro")
 	fmt.Println("  rm <name>                      Delete a saved macro")
+	fmt.Println("  export <name|all> [options]    Export macro(s) to JSON, YAML, SQLite DB, or ZIP")
+	fmt.Println("  import <file> [options]        Import macro(s) safely with format auto-inference")
 }

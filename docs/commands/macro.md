@@ -40,6 +40,8 @@ gitmap test-all --dry-run
 | `gitmap macro show <name>` | `gitmap macro-show` | Inspect the steps and parameters of a macro |
 | `gitmap macro rm <name>` | `gitmap macro-rm`, `gitmap macro-del` | Delete a saved macro |
 | `gitmap macro run-until-succeed <name>` | `gitmap retry`, `gitmap loop` | Retry macro until success with AI diagnostics |
+| `gitmap macro export <name\|all>` | `gitmap macro-export`, `gitmap macro-exp` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP bundle |
+| `gitmap macro import <file>` | `gitmap macro-import`, `gitmap macro-imp` | Import macro(s) safely with format auto-inference and overwrite guards |
 
 ---
 
@@ -107,4 +109,23 @@ gitmap macro run init-project
 
 # Direct root shortcut execution
 gitmap init-project --verbose
+```
+
+### 4. Exporting and Importing Macros
+
+```bash
+# Export single macro to JSON
+gitmap macro export init-project -f init-project.json
+
+# Export all macros into a portable SQLite database
+gitmap macro export --all -f macros.db --sqlite
+
+# Export all macros into a ZIP archive
+gitmap macro export --all -f macros.zip --zip
+
+# Preview importing macros without saving
+gitmap macro import macros.db --dry-run
+
+# Import macros and overwrite any existing macros with matching names
+gitmap macro import macros.db --force
 ```

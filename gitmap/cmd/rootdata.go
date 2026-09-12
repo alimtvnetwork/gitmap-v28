@@ -75,6 +75,8 @@ func dataExecutionEntries() []dispatchEntry {
 		{[]string{"macro-record", "macro-rec"}, func() error { return handleMacroRecord(argsTail()) }},
 		{[]string{"macro-show"}, func() error { return handleMacroShow(argsTail()) }},
 		{[]string{"macro-rm", "macro-del"}, func() error { return handleMacroDelete(argsTail()) }},
+		{[]string{"macro-export", "macro-exp"}, func() error { return runMacroExport(argsTail()) }},
+		{[]string{"macro-import", "macro-imp"}, func() error { return runMacroImport(argsTail()) }},
 		{[]string{"record", "rec"}, func() error { return runMacroCmd(append([]string{"record"}, argsTail()...)) }},
 		{[]string{"retry", "loop", "until-success"}, func() error { return runMacroUntilSuccess(argsTail()) }},
 		{[]string{"mv", "move"}, func() error { return runMove(argsTail()) }},

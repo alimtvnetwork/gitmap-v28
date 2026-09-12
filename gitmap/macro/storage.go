@@ -107,3 +107,17 @@ func DeleteMacro(name string) error {
 
 	return nil
 }
+
+// MacroExists reports whether a named macro file exists on disk.
+func MacroExists(name string) bool {
+	dir, err := getMacroDir()
+	if err != nil {
+		return false
+	}
+
+	cleanName := strings.TrimSpace(strings.TrimSuffix(name, ".json"))
+	path := filepath.Join(dir, cleanName+".json")
+	info, statErr := os.Stat(path)
+
+	return statErr == nil && !info.IsDir()
+}

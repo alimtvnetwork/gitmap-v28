@@ -2985,6 +2985,8 @@ Record, interactively compose, and replay terminal command sequences with live s
 | `macro show <name>` | — | Inspect the individual steps of a saved macro |
 | `macro record <name>` | — | Record an interactive terminal session into a macro |
 | `macro rm <name>` | — | Delete a saved macro |
+| `macro export <name\|all>` | `macro-export` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP archive |
+| `macro import <file>` | `macro-import` | Safely import macro(s) with format auto-inference and overwrite guards |
 
 #### In-Builder Interactive Commands & Live Execution
 
@@ -3012,6 +3014,14 @@ gitmap macro run deploy-flow
 
 # Replay with preview (dry run)
 gitmap macro run deploy-flow --dry-run
+
+# Export macro(s) to JSON, YAML, SQLite, or ZIP
+gitmap macro export deploy-flow -f deploy-flow.json
+gitmap macro export --all -f macros.db --sqlite
+
+# Import macro(s) safely
+gitmap macro import deploy-flow.json
+gitmap macro import macros.db --force
 ```
 
 → [macro](gitmap/helptext/macro.md)

@@ -16,6 +16,8 @@ Record, replay, automate, and loop command sequences with environment variable e
     gitmap macro list [--json] [--yaml] [--file <path>]
     gitmap macro show <name> [--json] [--yaml] [--file <path>]
     gitmap macro rm <name>
+    gitmap macro export <name|all> [-f <path>] [--format json|yaml|sqlite|zip] [--all] [-except <list>]
+    gitmap macro import <file> [--format json|yaml|sqlite|zip] [--force] [--dry-run] [-except <list>]
 
 ## Subcommands
 
@@ -29,6 +31,8 @@ Record, replay, automate, and loop command sequences with environment variable e
 | `list` (`ls`) | List all saved macros |
 | `show` `<name>` | View steps in a recorded macro |
 | `rm` (`delete`) `<name>` | Delete a saved macro |
+| `export` (`exp`, `dump`) `<name\|all>` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP bundle |
+| `import` (`imp`, `load`, `restore`) `<file>` | Import macro(s) safely with format auto-inference and overwrite guards |
 
 ## In-Builder Commands (Create & Edit Mode)
 
@@ -69,8 +73,13 @@ When creating (`gitmap macro add <name>`) or editing (`gitmap macro edit <name>`
 | `--json` | Output execution report in formatted JSON |
 | `--yaml`, `-y` | Output execution report in formatted YAML |
 | `--file <path>`, `-o <path>` | Save execution report to file |
-| `--dry-run` | Simulate macro execution without invoking commands |
+| `--dry-run` | Simulate macro execution or import without modifying disk |
 | `--verbose`, `-v` | Show live command stdout and stderr |
+| `--all` | Export all stored macros into a single bundle file or archive |
+| `--sqlite`, `--db` | Export/import using portable SQLite database table format |
+| `--zip` | Export/import using compressed ZIP archive with per-macro JSON files |
+| `--force`, `--overwrite` | Overwrite existing saved macros during import |
+| `-except <list>`, `--exclude <list>` | Comma-separated list of macro names to exclude from export/import |
 
 ## Examples
 
@@ -120,4 +129,27 @@ gitmap build-test
 ```bash
 # Retry until success with exponential backoff & AI diagnostics
 gitmap macro run-until-succeed "npm run test" --sleep 2s --backoff exponential --ai
+```
+
+### 5. Multi-Format Macro Export & Import
+
+```bash
+# Export single macro to JSON or YAML
+gitmap macro export setup-dev -f setup-dev.json
+gitmap macro export setup-dev -f setup-dev.yaml --yaml
+
+# Export all macros into a portable SQLite database
+gitmap macro export --all -f macros.db --sqlite
+
+# Export all macros into a compressed ZIP archive
+gitmap macro export --all -f macros.zip --zip
+
+# Export all except specific macros
+gitmap macro export --all -f backup.json -except "test-run,debug-macro"
+
+# Safely preview an import without writing to disk
+gitmap macro import macros.db --dry-run
+
+# Import macros with overwrite enabled
+gitmap macro import macros.db --force
 ```

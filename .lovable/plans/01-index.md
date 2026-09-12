@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [118-macro-multi-format-export-import.md](completed/118-macro-multi-format-export-import.md): Macro Multi-Format Export and Safe Import Architecture
 - [117-nuclear-package-modularization-phase2.md](completed/117-nuclear-package-modularization-phase2.md): Nuclear Monolith Subpackage Modularization & DAG Decoupling
 - [116-nuclear-package-splitting-and-slow-tests.md](completed/116-nuclear-package-splitting-and-slow-tests.md): Nuclear Package Modularization, Heavy Test Segregation & Test Inventory Estimation
 - [115-macro-file-ops-docs-and-ui-help.md](completed/115-macro-file-ops-docs-and-ui-help.md): Macro File Operations (cat, touch, mkfile), Terminal Help, UI Help & Root Readme Command Docs

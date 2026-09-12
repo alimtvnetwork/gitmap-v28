@@ -2973,11 +2973,13 @@ export const commands: CommandDef[] = [
     name: "macro",
     alias: "m",
     description: "Record, replay, list, and interactively build or edit terminal macros with live execution preview, step testing, and in-builder file operations.",
-    usage: "gitmap macro <add|edit|record|run|list|show|rm> [arguments]",
+    usage: "gitmap macro <add|edit|record|run|list|show|rm|export|import> [arguments]",
     category: "tasks",
     flags: [
-      { flag: "--dry-run", description: "Preview macro steps without execution" },
+      { flag: "--dry-run", description: "Preview macro steps or import actions without modifying disk" },
       { flag: "--verbose", description: "Stream live stdout/stderr during replay" },
+      { flag: "--all", description: "Export all saved macros into a single bundle" },
+      { flag: "--force", description: "Overwrite existing macros during import" },
     ],
     examples: [
       { command: 'gitmap macro add deploy-sync', description: "Interactively build a macro step-by-step with live execution preview and file commands" },
@@ -2987,6 +2989,9 @@ export const commands: CommandDef[] = [
       { command: 'gitmap macro list', description: "List all saved macros with step counts and timestamps" },
       { command: 'gitmap macro show deploy-sync', description: "Inspect individual steps inside 'deploy-sync'" },
       { command: 'gitmap macro rm deploy-sync', description: "Delete a saved macro" },
+      { command: 'gitmap macro export deploy-sync -f deploy.json', description: "Export macro to JSON file" },
+      { command: 'gitmap macro export --all -f macros.db --sqlite', description: "Export all macros into a portable SQLite database" },
+      { command: 'gitmap macro import macros.db --force', description: "Import macros from SQLite database with overwrite enabled" },
     ],
   },
   {
